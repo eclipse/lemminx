@@ -81,8 +81,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 			TextDocumentPositionParams params) {
 		return computeAsync((monitor) -> {
 			TextDocumentItem document = documents.get(params.getTextDocument().getUri());
-			XMLDocument fmDocument = getXMLDocument(document);
-			CompletionList list = languageService.doComplete(document, params.getPosition(), fmDocument, null);
+			XMLDocument xmlDocument = getXMLDocument(document);
+			CompletionList list = languageService.doComplete(document, params.getPosition(), xmlDocument, null);
 			return Either.forRight(list);
 		});
 	}
@@ -116,8 +116,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 	public CompletableFuture<List<? extends DocumentHighlight>> documentHighlight(TextDocumentPositionParams params) {
 		return computeAsync((monitor) -> {
 			TextDocumentItem document = documents.get(params.getTextDocument().getUri());
-			XMLDocument fmDocument = getXMLDocument(document);
-			return languageService.findDocumentHighlights(document, params.getPosition(), fmDocument);
+			XMLDocument xmlDocument = getXMLDocument(document);
+			return languageService.findDocumentHighlights(document, params.getPosition(), xmlDocument);
 		});
 	}
 
@@ -125,8 +125,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 	public CompletableFuture<List<? extends SymbolInformation>> documentSymbol(DocumentSymbolParams params) {
 		return computeAsync((monitor) -> {
 			TextDocumentItem document = documents.get(params.getTextDocument().getUri());
-			XMLDocument fmDocument = getXMLDocument(document);
-			return languageService.findDocumentSymbols(document, fmDocument);
+			XMLDocument xmlDocument = getXMLDocument(document);
+			return languageService.findDocumentSymbols(document, xmlDocument);
 		});
 	}
 
@@ -198,26 +198,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	private void triggerValidation(TextDocumentItem document) {
 		String uri = document.getUri();
-		List<Diagnostic> diagnostics = validateXMLDocument(uri, document.getText());
+		List<Diagnostic> diagnostics = languageService.validateXML(uri, document.getText());
 		xmlLanguageServer.getLanguageClient().publishDiagnostics(new PublishDiagnosticsParams(uri, diagnostics));
-	}
-
-	private List<Diagnostic> validateXMLDocument(String xmlDocumentUri, String xmlDocumentContent) {
-		List<Diagnostic> diagnostics = new ArrayList<Diagnostic>();
-
-//		try {
-//			@SuppressWarnings("unused")
-//			Template dummy = new Template(xmlDocumentUri, xmlDocumentContent, fmConfiguration);
-//		} catch (ParseException e) {
-//			Position start = new Position(e.getLineNumber() - 1, e.getColumnNumber());
-//			Position end = new Position(e.getEndLineNumber() - 1, e.getEndColumnNumber());
-//			Diagnostic diagnostic = new Diagnostic(new Range(start, end), e.getEditorMessage());
-//			diagnostics.add(diagnostic);
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-
-		return diagnostics;
 	}
 
 	public void validateOpenDocuments() {

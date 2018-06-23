@@ -17,7 +17,7 @@ import org.eclipse.xml.languageserver.internal.parser.XMLScanner;
 import org.eclipse.xml.languageserver.model.Node;
 import org.eclipse.xml.languageserver.model.XMLDocument;
 
-public class XMLCompletions {
+class XMLCompletions {
 
 	private Collection<ICompletionParticipant> completionParticipants;
 

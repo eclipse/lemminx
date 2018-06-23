@@ -10,16 +10,16 @@ import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.SymbolKind;
 import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.xml.languageserver.internal.parser.BadLocationException;
-import org.eclipse.xml.languageserver.model.XMLDocument;
 import org.eclipse.xml.languageserver.model.Node;
+import org.eclipse.xml.languageserver.model.XMLDocument;
 
-public class XMLSymbolsProvider {
+class XMLSymbolsProvider {
 
-	public static List<SymbolInformation> findDocumentSymbols(TextDocumentItem document, XMLDocument fmDocument) {
+	public static List<SymbolInformation> findDocumentSymbols(TextDocumentItem document, XMLDocument xmlDocument) {
 		List<SymbolInformation> symbols = new ArrayList<>();
-		fmDocument.getRoots().forEach(node -> {
+		xmlDocument.getRoots().forEach(node -> {
 			try {
-				provideFileSymbolsInternal(document, fmDocument, node, "", symbols);
+				provideFileSymbolsInternal(document, xmlDocument, node, "", symbols);
 			} catch (BadLocationException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -28,11 +28,11 @@ public class XMLSymbolsProvider {
 		return symbols;
 	}
 
-	private static void provideFileSymbolsInternal(TextDocumentItem document, XMLDocument fmDocument, Node node,
+	private static void provideFileSymbolsInternal(TextDocumentItem document, XMLDocument xmlDocument, Node node,
 			String container, List<SymbolInformation> symbols) throws BadLocationException {
 		String name = nodeToName(node);
-		Position start = fmDocument.positionAt(node.start);
-		Position end = fmDocument.positionAt(node.end);
+		Position start = xmlDocument.positionAt(node.start);
+		Position end = xmlDocument.positionAt(node.end);
 		Range range = new Range(start, end);
 		Location location = new Location(document.getUri(), range);
 		SymbolInformation symbol = new SymbolInformation(name, SymbolKind.Field, location, container);
@@ -41,7 +41,7 @@ public class XMLSymbolsProvider {
 
 		node.children.forEach(child -> {
 			try {
-				provideFileSymbolsInternal(document, fmDocument, child, name, symbols);
+				provideFileSymbolsInternal(document, xmlDocument, child, name, symbols);
 			} catch (BadLocationException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

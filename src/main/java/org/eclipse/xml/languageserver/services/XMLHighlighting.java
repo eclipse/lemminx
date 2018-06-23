@@ -16,24 +16,24 @@ import org.eclipse.xml.languageserver.internal.parser.TokenType;
 import org.eclipse.xml.languageserver.model.XMLDocument;
 import org.eclipse.xml.languageserver.model.Node;
 
-public class XMLHighlighting {
+class XMLHighlighting {
 
 	public static List<DocumentHighlight> findDocumentHighlights(TextDocumentItem document, Position position,
-			XMLDocument fmDocument) {
+			XMLDocument xmlDocument) {
 		int offset = -1;
 		try {
-			offset = fmDocument.offsetAt(position);
+			offset = xmlDocument.offsetAt(position);
 		} catch (BadLocationException e) {
 			return Collections.emptyList();
 		}
-		Node node = fmDocument.findNodeAt(offset);
+		Node node = xmlDocument.findNodeAt(offset);
 		if (node.tag == null) {
 			return Collections.emptyList();
 		}
 		List<DocumentHighlight> result = new ArrayList<>();
-		Range startTagRange = getTagNameRange(TokenType.StartTag, document, node.start, fmDocument);
+		Range startTagRange = getTagNameRange(TokenType.StartTag, document, node.start, xmlDocument);
 		Range endTagRange = node.endTagStart != null
-				? getTagNameRange(TokenType.EndTag, document, node.endTagStart, fmDocument)
+				? getTagNameRange(TokenType.EndTag, document, node.endTagStart, xmlDocument)
 				: null;
 		if (startTagRange != null && covers(startTagRange, position)
 				|| endTagRange != null && covers(endTagRange, position)) {

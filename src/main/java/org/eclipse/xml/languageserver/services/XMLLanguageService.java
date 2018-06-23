@@ -3,6 +3,7 @@ package org.eclipse.xml.languageserver.services;
 import java.util.List;
 
 import org.eclipse.lsp4j.CompletionList;
+import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DocumentHighlight;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.SymbolInformation;
@@ -32,6 +33,10 @@ public class XMLLanguageService {
 	}
 
 	public void setCompletionParticipants(ICompletionParticipant completionParticipants) {
-		//this.completions.setCompletionParticipants(completionParticipants);
+		// this.completions.setCompletionParticipants(completionParticipants);
+	}
+
+	public List<Diagnostic> validateXML(String uri, String text) {
+		return XMLValidator.validateXML(uri, text);
 	}
 }
