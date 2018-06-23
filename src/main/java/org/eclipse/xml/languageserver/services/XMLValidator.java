@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -39,31 +40,35 @@ class XMLValidator {
 			}
 
 			XMLReader reader = parser.getXMLReader();
+			reader.setProperty("http://apache.org/xml/properties/locale", Locale.ENGLISH);
 
 			// Error handler
 			reader.setErrorHandler(new ErrorHandler() {
 
 				@Override
 				public void warning(SAXParseException e) throws SAXException {
-					Position start = new Position(e.getLineNumber(), e.getColumnNumber());
-					Position end = new Position(e.getLineNumber(), e.getColumnNumber());
-					diagnostics.add(new Diagnostic(new Range(start, end), e.getMessage(), DiagnosticSeverity.Warning,
+					Position start = new Position(e.getLineNumber() - 1, e.getColumnNumber() - 1);
+					Position end = new Position(e.getLineNumber() - 1, e.getColumnNumber() - 1);
+					String message = "TODO" ; //e.getMessage();
+					diagnostics.add(new Diagnostic(new Range(start, end), message, DiagnosticSeverity.Warning,
 							XML_DIAGNOSTIC_SOURCE));
 				}
 
 				@Override
 				public void error(SAXParseException e) throws SAXException {
-					Position start = new Position(e.getLineNumber(), e.getColumnNumber());
-					Position end = new Position(e.getLineNumber(), e.getColumnNumber());
-					diagnostics.add(new Diagnostic(new Range(start, end), e.getMessage(), DiagnosticSeverity.Error,
+					Position start = new Position(e.getLineNumber() - 1, e.getColumnNumber() - 1);
+					Position end = new Position(e.getLineNumber() - 1, e.getColumnNumber() - 1);
+					String message = "TODO" ; //e.getMessage();
+					diagnostics.add(new Diagnostic(new Range(start, end), message, DiagnosticSeverity.Error,
 							XML_DIAGNOSTIC_SOURCE));
 				}
 
 				@Override
 				public void fatalError(SAXParseException e) throws SAXException {
-					Position start = new Position(e.getLineNumber(), e.getColumnNumber());
-					Position end = new Position(e.getLineNumber(), e.getColumnNumber());
-					diagnostics.add(new Diagnostic(new Range(start, end), e.getMessage(), DiagnosticSeverity.Error,
+					Position start = new Position(e.getLineNumber() - 1, e.getColumnNumber() - 1);
+					Position end = new Position(e.getLineNumber() - 1, e.getColumnNumber() - 1);
+					String message = "TODO" ; //e.getMessage();
+					diagnostics.add(new Diagnostic(new Range(start, end), message, DiagnosticSeverity.Error,
 							XML_DIAGNOSTIC_SOURCE));
 				}
 
