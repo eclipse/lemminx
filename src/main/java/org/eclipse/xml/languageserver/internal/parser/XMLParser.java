@@ -94,6 +94,25 @@ public class XMLParser implements IXMLParser {
 				}
 				break;
 			}
+			case CDATAContent: {
+				curr.tag = scanner.getTokenText();
+				break;
+			}
+
+			case CDATATagClose: {
+				curr.end = scanner.getTokenEnd();
+				curr.closed = true;
+				curr = curr.parent;
+				break;
+			}
+
+			case CDATATagOpen: {
+				Node cdataNode = new Node(scanner.getTokenOffset(), text.length(), null, curr);//TODO: might need arraylist
+				curr.children.add(cdataNode);
+				curr = cdataNode;
+				break;
+			}
+
 			}
 			token = scanner.scan();
 		}

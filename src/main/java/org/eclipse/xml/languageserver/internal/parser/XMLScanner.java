@@ -8,6 +8,13 @@ import static org.eclipse.xml.languageserver.internal.parser.Constants._LAN;
 import static org.eclipse.xml.languageserver.internal.parser.Constants._MIN;
 import static org.eclipse.xml.languageserver.internal.parser.Constants._RAN;
 import static org.eclipse.xml.languageserver.internal.parser.Constants._SQO;
+import static org.eclipse.xml.languageserver.internal.parser.Constants._OSB;
+import static org.eclipse.xml.languageserver.internal.parser.Constants._CSB;
+import static org.eclipse.xml.languageserver.internal.parser.Constants._CVL;
+import static org.eclipse.xml.languageserver.internal.parser.Constants._DVL;
+import static org.eclipse.xml.languageserver.internal.parser.Constants._AVL;
+import static org.eclipse.xml.languageserver.internal.parser.Constants._TVL;
+
 
 import java.util.regex.Pattern;
 
