@@ -32,7 +32,7 @@ public class ParserTests {
 		parser = null;
 		document = null;
 	}
-  
+  //test
   @Test
 	public void testElementWithContent() throws BadLocationException {
 		
