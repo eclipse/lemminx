@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ * This class is a copy/paste of org.eclipse.jface.text.Line
  *******************************************************************************/
 package org.eclipse.xml.languageserver.model;
 

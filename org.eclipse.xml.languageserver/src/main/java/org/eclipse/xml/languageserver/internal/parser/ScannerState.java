@@ -11,7 +11,7 @@
 package org.eclipse.xml.languageserver.internal.parser;
 
 /**
- * Scanner state.
+ * XML Scanner state.
  *
  */
 public enum ScannerState {
