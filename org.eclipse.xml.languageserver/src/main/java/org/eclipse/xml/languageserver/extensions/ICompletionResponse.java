@@ -10,15 +10,14 @@
  */
 package org.eclipse.xml.languageserver.extensions;
 
-import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.CompletionItem;
 
 /**
- * Completion participant API.
+ * Compeltion response API.
  *
  */
-public interface ICompletionParticipant {
+public interface ICompletionResponse {
 
-	void onAttributeValue(String valuePrefix, Range fullRange, ICompletionRequest request,
-			ICompletionResponse response);
+	void addCompletionItem(CompletionItem completionItem);
 
 }

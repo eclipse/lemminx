@@ -1,14 +1,13 @@
 package org.eclipse.xml.languageserver.services;
 
-import org.eclipse.lsp4j.CompletionItem;
-import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentItem;
+import org.eclipse.xml.languageserver.extensions.ICompletionRequest;
 import org.eclipse.xml.languageserver.internal.parser.BadLocationException;
 import org.eclipse.xml.languageserver.model.Node;
 import org.eclipse.xml.languageserver.model.XMLDocument;
 
-public class CompletionContext {
+class CompletionRequest implements ICompletionRequest {
 
 	private final TextDocumentItem document;
 	private final Position position;
@@ -18,9 +17,8 @@ public class CompletionContext {
 	private String currentTag;
 	private String currentAttributeName;
 	private final Node node;
-	private CompletionList result;
 
-	public CompletionContext(TextDocumentItem document, Position position, XMLDocument xmlDocument)
+	public CompletionRequest(TextDocumentItem document, Position position, XMLDocument xmlDocument)
 			throws BadLocationException {
 		this.document = document;
 		this.position = position;
@@ -30,8 +28,6 @@ public class CompletionContext {
 		if (node == null) {
 			throw new BadLocationException("node is null at offset " + offset);
 		}
-		result = new CompletionList();
-		result.setIsIncomplete(false);
 	}
 
 	public Node getNode() {
@@ -70,11 +66,4 @@ public class CompletionContext {
 		this.currentAttributeName = currentAttributeName;
 	}
 
-	public void addItem(CompletionItem completionItem) {
-		result.getItems().add(completionItem);
-	}
-
-	CompletionList getResult() {
-		return result;
-	}
 }
