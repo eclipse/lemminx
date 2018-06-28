@@ -1,3 +1,13 @@
+/**
+ *  Copyright (c) 2018 Angelo ZERR
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ *  Contributors:
+ *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
+ */
 package org.eclipse.xml.languageserver.services;
 
 import java.io.ByteArrayInputStream;
@@ -21,11 +31,21 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
 
-class XMLValidator {
+/**
+ * XML diagnostics support.
+ *
+ */
+class XMLDiagnostics {
 
 	private static final String XML_DIAGNOSTIC_SOURCE = "xml";
 
-	public static List<Diagnostic> validateXML(String xmlDocumentUri, String xmlDocumentContent) {
+	private final XMLExtensionsRegistry extensionsRegistry;
+
+	public XMLDiagnostics(XMLExtensionsRegistry extensionsRegistry) {
+		this.extensionsRegistry = extensionsRegistry;
+	}
+
+	public List<Diagnostic> validateXML(String xmlDocumentUri, String xmlDocumentContent) {
 		List<Diagnostic> diagnostics = new ArrayList<Diagnostic>();
 
 		try {
@@ -41,7 +61,7 @@ class XMLValidator {
 
 			XMLReader reader = parser.getXMLReader();
 			reader.setProperty("http://apache.org/xml/properties/locale", Locale.ENGLISH);
-			
+
 			// Error handler
 			reader.setErrorHandler(new ErrorHandler() {
 
@@ -49,7 +69,7 @@ class XMLValidator {
 				public void warning(SAXParseException e) throws SAXException {
 					Position start = new Position(e.getLineNumber() - 1, e.getColumnNumber() - 1);
 					Position end = new Position(e.getLineNumber() - 1, e.getColumnNumber() - 1);
-					String message = "TODO" ; //e.getMessage();
+					String message = "TODO"; // e.getMessage();
 					diagnostics.add(new Diagnostic(new Range(start, end), message, DiagnosticSeverity.Warning,
 							XML_DIAGNOSTIC_SOURCE));
 				}
@@ -58,7 +78,7 @@ class XMLValidator {
 				public void error(SAXParseException e) throws SAXException {
 					Position start = new Position(e.getLineNumber() - 1, e.getColumnNumber() - 1);
 					Position end = new Position(e.getLineNumber() - 1, e.getColumnNumber() - 1);
-					String message = "TODO" ; //e.getMessage();
+					String message = "TODO"; // e.getMessage();
 					diagnostics.add(new Diagnostic(new Range(start, end), message, DiagnosticSeverity.Error,
 							XML_DIAGNOSTIC_SOURCE));
 				}
@@ -67,7 +87,7 @@ class XMLValidator {
 				public void fatalError(SAXParseException e) throws SAXException {
 					Position start = new Position(e.getLineNumber() - 1, e.getColumnNumber() - 1);
 					Position end = new Position(e.getLineNumber() - 1, e.getColumnNumber() - 1);
-					String message = "TODO" ; //e.getMessage();
+					String message = "TODO"; // e.getMessage();
 					diagnostics.add(new Diagnostic(new Range(start, end), message, DiagnosticSeverity.Error,
 							XML_DIAGNOSTIC_SOURCE));
 				}

@@ -1,8 +1,16 @@
+/**
+ *  Copyright (c) 2018 Angelo ZERR
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ *  Contributors:
+ *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
+ */
 package org.eclipse.xml.languageserver.services;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.ServiceLoader;
 
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -21,25 +29,16 @@ import org.eclipse.xml.languageserver.internal.parser.XMLScanner;
 import org.eclipse.xml.languageserver.model.Node;
 import org.eclipse.xml.languageserver.model.XMLDocument;
 
+/**
+ * XML completions support.
+ *
+ */
 class XMLCompletions {
 
-	private Collection<ICompletionParticipant> completionParticipants;
+	private final XMLExtensionsRegistry extensionsRegistry;
 
-	public Collection<ICompletionParticipant> getCompletionParticipants() {
-		if (completionParticipants == null) {
-			completionParticipants = loadCompletionParticipants();
-		}
-		return completionParticipants;
-	}
-
-	private synchronized Collection<ICompletionParticipant> loadCompletionParticipants() {
-		if (completionParticipants != null) {
-			return completionParticipants;
-		}
-		Collection<ICompletionParticipant> completionParticipants = new ArrayList<ICompletionParticipant>();
-		ServiceLoader<ICompletionParticipant> loader = ServiceLoader.load(ICompletionParticipant.class);
-		loader.forEach(p -> completionParticipants.add(p));
-		return completionParticipants;
+	public XMLCompletions(XMLExtensionsRegistry extensionsRegistry) {
+		this.extensionsRegistry = extensionsRegistry;
 	}
 
 	public CompletionList doComplete(TextDocumentItem document, Position position, XMLDocument xmlDocument,
@@ -245,10 +244,7 @@ class XMLCompletions {
 			addQuotes = true;
 		}
 
-		String tag = completionRequest.getCurrentTag().toLowerCase();
-		String attribute = completionRequest.getCurrentAttributeName().toLowerCase();
-
-		Collection<ICompletionParticipant> completionParticipants = getCompletionParticipants();
+		Collection<ICompletionParticipant> completionParticipants = extensionsRegistry.getCompletionParticipants();
 		if (completionParticipants.size() > 0) {
 			try {
 				Range fullRange = getReplaceRange(valueStart, valueEnd, completionRequest);

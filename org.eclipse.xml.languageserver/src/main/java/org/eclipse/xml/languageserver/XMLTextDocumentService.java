@@ -53,7 +53,7 @@ import org.eclipse.xml.languageserver.model.XMLDocument;
 import org.eclipse.xml.languageserver.services.XMLLanguageService;
 
 /**
- * Freemarker text document service.
+ * XML text document service.
  *
  */
 public class XMLTextDocumentService implements TextDocumentService {

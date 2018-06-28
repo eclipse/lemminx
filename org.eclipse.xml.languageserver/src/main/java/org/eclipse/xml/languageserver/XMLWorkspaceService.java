@@ -20,7 +20,7 @@ import org.eclipse.lsp4j.WorkspaceSymbolParams;
 import org.eclipse.lsp4j.services.WorkspaceService;
 
 /**
- * Freemarker workspace service.
+ * XML workspace service.
  *
  */
 public class XMLWorkspaceService implements WorkspaceService {

@@ -1,3 +1,13 @@
+/**
+ *  Copyright (c) 2018 Angelo ZERR
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ *  Contributors:
+ *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
+ */
 package org.eclipse.xml.languageserver.services;
 
 import java.util.List;
@@ -8,36 +18,45 @@ import org.eclipse.lsp4j.DocumentHighlight;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextDocumentItem;
-import org.eclipse.xml.languageserver.extensions.ICompletionParticipant;
 import org.eclipse.xml.languageserver.model.XMLDocument;
 
+/**
+ * XML Language service.
+ *
+ */
 public class XMLLanguageService {
 
-	private XMLCompletions completions;
+	private final XMLCompletions completions;
+	private final XMLSymbolsProvider symbolsProvider;
+	private final XMLHighlighting highlighting;
+	private final XMLDiagnostics diagnostics;
 
 	public XMLLanguageService() {
-		completions = new XMLCompletions();
+		this(new XMLExtensionsRegistry());
 	}
 
-	public List<SymbolInformation> findDocumentSymbols(TextDocumentItem document, XMLDocument fmDocument) {
-		return XMLSymbolsProvider.findDocumentSymbols(document, fmDocument);
+	public XMLLanguageService(XMLExtensionsRegistry extensionsRegistry) {
+		this.symbolsProvider = new XMLSymbolsProvider(extensionsRegistry);
+		this.highlighting = new XMLHighlighting(extensionsRegistry);
+		this.completions = new XMLCompletions(extensionsRegistry);
+		this.diagnostics = new XMLDiagnostics(extensionsRegistry);
+	}
+
+	public List<SymbolInformation> findDocumentSymbols(TextDocumentItem document, XMLDocument xmlDocument) {
+		return symbolsProvider.findDocumentSymbols(document, xmlDocument);
 	}
 
 	public List<DocumentHighlight> findDocumentHighlights(TextDocumentItem document, Position position,
-			XMLDocument fmDocument) {
-		return XMLHighlighting.findDocumentHighlights(document, position, fmDocument);
+			XMLDocument xmlDocument) {
+		return highlighting.findDocumentHighlights(document, position, xmlDocument);
 	}
 
-	public CompletionList doComplete(TextDocumentItem document, Position position, XMLDocument fmDocument,
+	public CompletionList doComplete(TextDocumentItem document, Position position, XMLDocument xmlDocument,
 			CompletionConfiguration settings) {
-		return completions.doComplete(document, position, fmDocument, settings);
-	}
-
-	public void setCompletionParticipants(ICompletionParticipant completionParticipants) {
-		// this.completions.setCompletionParticipants(completionParticipants);
+		return completions.doComplete(document, position, xmlDocument, settings);
 	}
 
 	public List<Diagnostic> validateXML(String uri, String text) {
-		return XMLValidator.validateXML(uri, text);
+		return diagnostics.validateXML(uri, text);
 	}
 }
