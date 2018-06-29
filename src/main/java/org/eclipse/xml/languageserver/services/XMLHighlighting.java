@@ -67,6 +67,7 @@ class XMLHighlighting {
 			}
 		}
 		
+		
 		return Collections.emptyList();
 		
 	}
