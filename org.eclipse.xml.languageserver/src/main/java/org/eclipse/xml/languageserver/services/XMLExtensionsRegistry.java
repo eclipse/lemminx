@@ -42,7 +42,7 @@ public class XMLExtensionsRegistry {
 		}
 		Collection<ICompletionParticipant> completionParticipants = new ArrayList<ICompletionParticipant>();
 		ServiceLoader<ICompletionParticipant> loader = ServiceLoader.load(ICompletionParticipant.class);
-		loader.forEach(p -> addCompletionParticipant(p));
+		loader.forEach(p -> completionParticipants.add(p));
 		return completionParticipants;
 	}
 

@@ -1,3 +1,13 @@
+/**
+ *  Copyright (c) 2018 Angelo ZERR.
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ *  Contributors:
+ *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
+ */
 package org.eclipse.xml.languageserver.internal.parser;
 
 import java.util.List;
@@ -8,6 +18,10 @@ import org.eclipse.xml.languageserver.model.XMLDocument;
 import org.junit.Assert;
 import org.junit.Test;
 
+/**
+ * XML parser tests.
+ *
+ */
 public class XMLParserTest {
 
 	@Test
@@ -30,20 +44,28 @@ public class XMLParserTest {
 	@Test
 	public void testEmptyTag() {
 		assertDocument("<meta>", "[{ tag: 'meta', start: 0, end: 6, endTagStart: null, closed: false, children: [] }]");
-		/*assertDocument("<div><input type=\"button\" ><span><br><br></span></div>", "[{ "
-				+ "tag: 'div', start: 0, end: 53, endTagStart: 47, closed: true, children: ["
-				+ "{ tag: 'input', start: 5, end: 26, endTagStart: null, closed: true, children: [] },"
-				+ "{ tag: 'span', start: 26, end: 47, endTagStart: 40, closed: true, children: [{ tag: 'br', start: 32, end: 36, endTagStart: null, closed: true, children: [] }, { tag: 'br', start: 36, end: 40, endTagStart: null, closed: true, children: [] }] }"
-				+ "]" + "}]");*/
+		/*
+		 * assertDocument("<div><input type=\"button\" ><span><br><br></span></div>",
+		 * "[{ " +
+		 * "tag: 'div', start: 0, end: 53, endTagStart: 47, closed: true, children: [" +
+		 * "{ tag: 'input', start: 5, end: 26, endTagStart: null, closed: true, children: [] },"
+		 * +
+		 * "{ tag: 'span', start: 26, end: 47, endTagStart: 40, closed: true, children: [{ tag: 'br', start: 32, end: 36, endTagStart: null, closed: true, children: [] }, { tag: 'br', start: 36, end: 40, endTagStart: null, closed: true, children: [] }] }"
+		 * + "]" + "}]");
+		 */
 	}
-	
+
 	@Test
-	public void testMissingTags()  {
+	public void testMissingTags() {
 		assertDocument("</meta>", "[]");
-		assertDocument("<div></div></div>", "[{ tag: 'div', start: 0, end: 11, endTagStart: 5, closed: true, children: [] }]");
-		assertDocument("<div><div></div>", "[{ tag: 'div', start: 0, end: 16, endTagStart: null, closed: false, children: [{ tag: 'div', start: 5, end: 16, endTagStart: 10, closed: true, children: [] }] }]");
-		assertDocument("<title><div></title>", "[{ tag: 'title', start: 0, end: 20, endTagStart: 12, closed: true, children: [{ tag: 'div', start: 7, end: 12, endTagStart: null, closed: false, children: [] }] }]");
-		assertDocument("<h1><div><span></h1>", "[{ tag: 'h1', start: 0, end: 20, endTagStart: 15, closed: true, children: [{ tag: 'div', start: 4, end: 15, endTagStart: null, closed: false, children: [{ tag: 'span', start: 9, end: 15, endTagStart: null, closed: false, children: [] }] }] }]");
+		assertDocument("<div></div></div>",
+				"[{ tag: 'div', start: 0, end: 11, endTagStart: 5, closed: true, children: [] }]");
+		assertDocument("<div><div></div>",
+				"[{ tag: 'div', start: 0, end: 16, endTagStart: null, closed: false, children: [{ tag: 'div', start: 5, end: 16, endTagStart: 10, closed: true, children: [] }] }]");
+		assertDocument("<title><div></title>",
+				"[{ tag: 'title', start: 0, end: 20, endTagStart: 12, closed: true, children: [{ tag: 'div', start: 7, end: 12, endTagStart: null, closed: false, children: [] }] }]");
+		assertDocument("<h1><div><span></h1>",
+				"[{ tag: 'h1', start: 0, end: 20, endTagStart: 15, closed: true, children: [{ tag: 'div', start: 4, end: 15, endTagStart: null, closed: false, children: [{ tag: 'span', start: 9, end: 15, endTagStart: null, closed: false, children: [] }] }] }]");
 	}
 
 	private static void assertDocument(String input, String expected) {

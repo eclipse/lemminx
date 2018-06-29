@@ -46,11 +46,11 @@ public class XMLServerLauncher {
 		Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(server, in, out);
 		server.setClient(launcher.getRemoteProxy());
 		
-		Collection<ICompletionParticipant> completionParticipants = new ArrayList<ICompletionParticipant>();
+		/*Collection<ICompletionParticipant> completionParticipants = new ArrayList<ICompletionParticipant>();
 		ServiceLoader<ICompletionParticipant> loader = ServiceLoader.load(ICompletionParticipant.class);
 		loader.forEach(p -> completionParticipants.add(p));
 		System.err.println("{\"nb\": " + completionParticipants.size() + "}");
-		
+		*/
 		return launcher.startListening();
 	}
 }

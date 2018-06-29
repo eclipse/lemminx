@@ -22,6 +22,7 @@ import org.eclipse.lsp4j.CodeLensParams;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
+import org.eclipse.lsp4j.CompletionParams;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
@@ -76,8 +77,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	}
 
 	@Override
-	public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(
-			TextDocumentPositionParams params) {
+	public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(CompletionParams params) {
 		return computeAsync((monitor) -> {
 			TextDocumentItem document = documents.get(params.getTextDocument().getUri());
 			XMLDocument xmlDocument = getXMLDocument(document);

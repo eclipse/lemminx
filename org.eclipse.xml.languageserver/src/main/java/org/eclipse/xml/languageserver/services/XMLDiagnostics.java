@@ -60,7 +60,7 @@ class XMLDiagnostics {
 			}
 
 			XMLReader reader = parser.getXMLReader();
-			reader.setProperty("http://apache.org/xml/properties/locale", Locale.ENGLISH);
+			//reader.setProperty("http://apache.org/xml/properties/locale", Locale.ENGLISH);
 
 			// Error handler
 			reader.setErrorHandler(new ErrorHandler() {
@@ -69,7 +69,7 @@ class XMLDiagnostics {
 				public void warning(SAXParseException e) throws SAXException {
 					Position start = new Position(e.getLineNumber() - 1, e.getColumnNumber() - 1);
 					Position end = new Position(e.getLineNumber() - 1, e.getColumnNumber() - 1);
-					String message = "TODO"; // e.getMessage();
+					String message = e.getLocalizedMessage();
 					diagnostics.add(new Diagnostic(new Range(start, end), message, DiagnosticSeverity.Warning,
 							XML_DIAGNOSTIC_SOURCE));
 				}
@@ -78,7 +78,7 @@ class XMLDiagnostics {
 				public void error(SAXParseException e) throws SAXException {
 					Position start = new Position(e.getLineNumber() - 1, e.getColumnNumber() - 1);
 					Position end = new Position(e.getLineNumber() - 1, e.getColumnNumber() - 1);
-					String message = "TODO"; // e.getMessage();
+					String message = e.getLocalizedMessage();
 					diagnostics.add(new Diagnostic(new Range(start, end), message, DiagnosticSeverity.Error,
 							XML_DIAGNOSTIC_SOURCE));
 				}
@@ -87,7 +87,7 @@ class XMLDiagnostics {
 				public void fatalError(SAXParseException e) throws SAXException {
 					Position start = new Position(e.getLineNumber() - 1, e.getColumnNumber() - 1);
 					Position end = new Position(e.getLineNumber() - 1, e.getColumnNumber() - 1);
-					String message = "TODO"; // e.getMessage();
+					String message = e.getLocalizedMessage();
 					diagnostics.add(new Diagnostic(new Range(start, end), message, DiagnosticSeverity.Error,
 							XML_DIAGNOSTIC_SOURCE));
 				}

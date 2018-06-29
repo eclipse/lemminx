@@ -22,7 +22,7 @@ import org.eclipse.xml.languageserver.model.XMLDocument;
  * XML formatter support.
  *
  */
-public class XMLFormatter {
+class XMLFormatter {
 
 	private final XMLExtensionsRegistry extensionsRegistry;
 
