@@ -28,8 +28,6 @@ import org.eclipse.xml.languageserver.model.XMLDocument;
 
 /**
  * XML highlighting support.
- * 
- * @author azerr
  *
  */
 class XMLHighlighting {

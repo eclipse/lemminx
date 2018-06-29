@@ -146,12 +146,20 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	@Override
 	public CompletableFuture<List<? extends TextEdit>> formatting(DocumentFormattingParams params) {
-		return null;
+		return computeAsync((monitor) -> {
+			TextDocumentItem document = documents.get(params.getTextDocument().getUri());
+			XMLDocument xmlDocument = getXMLDocument(document);
+			return languageService.format(document, null, params.getOptions(), xmlDocument);
+		});
 	}
 
 	@Override
 	public CompletableFuture<List<? extends TextEdit>> rangeFormatting(DocumentRangeFormattingParams params) {
-		return null;
+		return computeAsync((monitor) -> {
+			TextDocumentItem document = documents.get(params.getTextDocument().getUri());
+			XMLDocument xmlDocument = getXMLDocument(document);
+			return languageService.format(document, params.getRange(), params.getOptions(), xmlDocument);
+		});
 	}
 
 	@Override
