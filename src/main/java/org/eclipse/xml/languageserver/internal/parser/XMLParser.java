@@ -94,8 +94,20 @@ public class XMLParser implements IXMLParser {
 				}
 				break;
 			}
+
+			case CDATATagOpen: {
+				Node cdataNode = new Node(scanner.getTokenOffset(), text.length(), new ArrayList<>(), curr);//TODO: might need arraylist
+				cdataNode.isCDATA = true;
+				curr.children.add(cdataNode);
+				curr = cdataNode;
+				break;
+			}
 			case CDATAContent: {
-				curr.tag = scanner.getTokenText();
+				curr.endTagStart = new Integer(scanner.getTokenEnd());
+				if(curr.tag == null){
+					curr.tag="";
+				}
+				curr.tag += scanner.getTokenText();
 				break;
 			}
 
@@ -106,12 +118,7 @@ public class XMLParser implements IXMLParser {
 				break;
 			}
 
-			case CDATATagOpen: {
-				Node cdataNode = new Node(scanner.getTokenOffset(), text.length(), null, curr);//TODO: might need arraylist
-				curr.children.add(cdataNode);
-				curr = cdataNode;
-				break;
-			}
+			
 
 			}
 			token = scanner.scan();

@@ -16,6 +16,7 @@ package org.eclipse.xml.languageserver.internal.parser;
  */
 public enum ScannerState {
 	WithinContent, AfterOpeningStartTag, AfterOpeningEndTag, WithinDoctype, WithinTag, WithinEndTag, WithinComment,
-        WithinScriptContent, WithinStyleContent, AfterAttributeName, BeforeAttributeValue, WithinCDATA, AfterClosingCDATATag
+        WithinScriptContent, WithinStyleContent, AfterAttributeName, BeforeAttributeValue, WithinCDATA, AfterClosingCDATATag,
+        StartCDATATag
 
 }

@@ -17,6 +17,7 @@ public class Node {
 	public final int start;
 	public int end;
 	public Node parent;
+	public boolean isCDATA = false;
 
 	public Set<String> attributeNames() {
 		return this.attributes != null ? attributes.keySet() : Collections.emptySet();

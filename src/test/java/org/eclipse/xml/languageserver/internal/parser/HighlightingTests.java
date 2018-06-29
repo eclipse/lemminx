@@ -33,9 +33,9 @@ public class HighlightingTests {
   @Test
   public void testFindDocumentHighlights(){
     TextDocumentItem item = new TextDocumentItem();
-    item.setText("<project><atag/></project>");
+    item.setText("<a>\n  <![CDATA[<Hello>\n</Hello>]]></a>");
     document = parser.parse(item.getText());
-    Position p = new Position(0,1);
+    Position p = new Position(2,9);
     XMLLanguageService t = new XMLLanguageService();
     List<DocumentHighlight> x = t.findDocumentHighlights(item, p, document);
     System.out.println();

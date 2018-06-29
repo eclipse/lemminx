@@ -27,22 +27,63 @@ class XMLHighlighting {
 			return Collections.emptyList();
 		}
 		Node node = xmlDocument.findNodeAt(offset);
-		if (node.tag == null) {
+		if (node.closed == false) {
 			return Collections.emptyList();
 		}
+		Range startTagRange = null;
+		Range endTagRange = null;
+		if(node.isCDATA == true){
+			Position startPos = null;
+			Position endPos = null;
+			Range tempRange = null;
+			try {
+				startPos = xmlDocument.positionAt(node.start); 
+				endPos = xmlDocument.positionAt(node.end); 
+				tempRange = new Range(startPos, endPos);
+				
+			} catch (BadLocationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return Collections.emptyList();
+			}
+			if(doTagsCoverPosition(tempRange, endTagRange, position)) {
+				startPos.setCharacter(startPos.getCharacter() + 1); // {Here}<![CDATA[   ->   <{Here}![CDATA[
+				endPos.setCharacter(endPos.getCharacter() - 1); // ]]>{Here}  ->   ]]{Here}>
+				Position startPosEnd = new Position(startPos.getLine(), startPos.getCharacter() + 8);
+				Position endPosStart = new Position(endPos.getLine(), endPos.getCharacter() - 2);
+				return getHighlightList(new Range(startPos, startPosEnd), new Range(endPosStart, endPos));
+			}
+			return Collections.emptyList();
+		}
+		else{
+			if (node.closed == false) {
+				return Collections.emptyList();
+			}
+			startTagRange = getTagNameRange(TokenType.StartTag, document, node.start, xmlDocument);
+			endTagRange = node.endTagStart != null ? 
+				getTagNameRange(TokenType.EndTag, document, node.endTagStart, xmlDocument) : null;
+			if(doTagsCoverPosition(startTagRange, endTagRange, position)) {
+				return getHighlightList(startTagRange, endTagRange);
+			}
+		}
+		
+		return Collections.emptyList();
+		
+	}
+
+	private static boolean doTagsCoverPosition(Range startTagRange, Range endTagRange, Position position){
+		return startTagRange != null && covers(startTagRange, position)
+		|| endTagRange != null && covers(endTagRange, position);
+	}
+
+	private static List<DocumentHighlight> getHighlightList(Range startTagRange, Range endTagRange){
+		
 		List<DocumentHighlight> result = new ArrayList<>();
-		Range startTagRange = getTagNameRange(TokenType.StartTag, document, node.start, xmlDocument);
-		Range endTagRange = node.endTagStart != null
-				? getTagNameRange(TokenType.EndTag, document, node.endTagStart, xmlDocument)
-				: null;
-		if (startTagRange != null && covers(startTagRange, position)
-				|| endTagRange != null && covers(endTagRange, position)) {
-			if (startTagRange != null) {
-				result.add(new DocumentHighlight(startTagRange, DocumentHighlightKind.Read));
-			}
-			if (endTagRange != null) {
-				result.add(new DocumentHighlight(endTagRange, DocumentHighlightKind.Read));
-			}
+		if (startTagRange != null) {
+			result.add(new DocumentHighlight(startTagRange, DocumentHighlightKind.Read));
+		}
+		if (endTagRange != null) {
+			result.add(new DocumentHighlight(endTagRange, DocumentHighlightKind.Read));
 		}
 		return result;
 	}
@@ -57,7 +98,8 @@ class XMLHighlighting {
 	}
 
 	private static Range getTagNameRange(TokenType tokenType, TextDocumentItem document, int startOffset,
-			XMLDocument fmDocument) {
+	XMLDocument fmDocument) {
+
 		Scanner scanner = XMLScanner.createScanner(document.getText(), startOffset);
 		TokenType token = scanner.scan();
 		while (token != TokenType.EOS && token != tokenType) {
@@ -70,8 +112,11 @@ class XMLHighlighting {
 			} catch (BadLocationException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
+				return null;
+			}	
 		}
 		return null;
 	}
+
+
 }
