@@ -109,6 +109,7 @@ public class XMLParser implements IXMLParser {
 				}
 				curr.tag += scanner.getTokenText();
 				break;
+				
 			}
 
 			case CDATATagClose: {
