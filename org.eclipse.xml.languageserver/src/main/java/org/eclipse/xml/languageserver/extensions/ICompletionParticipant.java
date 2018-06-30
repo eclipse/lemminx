@@ -21,4 +21,6 @@ public interface ICompletionParticipant {
 	void onAttributeValue(String valuePrefix, Range fullRange, ICompletionRequest request,
 			ICompletionResponse response);
 
+	void onXMLContent(ICompletionRequest request, ICompletionResponse response);
+
 }

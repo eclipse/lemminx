@@ -10,7 +10,9 @@
  */
 package org.eclipse.xml.languageserver.extensions;
 
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentItem;
+import org.eclipse.xml.languageserver.model.Node;
 import org.eclipse.xml.languageserver.model.XMLDocument;
 
 /**
@@ -20,11 +22,25 @@ import org.eclipse.xml.languageserver.model.XMLDocument;
 public interface ICompletionRequest {
 
 	/**
-	 * Returns the offset where completion was trigerred.
+	 * Returns the offset where completion was triggered.
 	 * 
-	 * @return
+	 * @return the offset where completion was triggered
 	 */
 	int getOffset();
+
+	/**
+	 * Returns the position
+	 * 
+	 * @return the position
+	 */
+	Position getPosition();
+
+	/**
+	 * Returns the node where completion was triggered.
+	 * 
+	 * @return the offset where completion was triggered
+	 */
+	Node getNode();
 
 	/**
 	 * Returns the LSP text document.

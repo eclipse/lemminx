@@ -44,30 +44,37 @@ class CompletionRequest implements ICompletionRequest {
 		}
 	}
 
+	@Override
 	public Node getNode() {
 		return node;
 	}
 
+	@Override
 	public TextDocumentItem getDocument() {
 		return document;
 	}
 
+	@Override
 	public Position getPosition() {
 		return position;
 	}
 
+	@Override
 	public XMLDocument getXMLDocument() {
 		return xmlDocument;
 	}
 
+	@Override
 	public int getOffset() {
 		return offset;
 	}
 
+	@Override
 	public String getCurrentTag() {
 		return currentTag;
 	}
 
+	@Override
 	public String getCurrentAttributeName() {
 		return currentAttributeName;
 	}

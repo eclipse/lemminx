@@ -22,6 +22,7 @@ import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.xml.languageserver.extensions.ICompletionParticipant;
 import org.eclipse.xml.languageserver.extensions.ICompletionRequest;
+import org.eclipse.xml.languageserver.extensions.ICompletionResponse;
 import org.eclipse.xml.languageserver.internal.parser.BadLocationException;
 import org.eclipse.xml.languageserver.internal.parser.Scanner;
 import org.eclipse.xml.languageserver.internal.parser.TokenType;
@@ -107,7 +108,8 @@ class XMLCompletions {
 					case AfterOpeningEndTag:
 						return collectCloseTagSuggestions(scanner.getTokenOffset() - 1, false);
 					case WithinContent:
-						return collectInsideContent();
+						collectInsideContent(completionRequest, completionResponse);
+						return completionResponse;
 					}
 				}
 				break;
@@ -143,7 +145,8 @@ class XMLCompletions {
 				break;
 			case Content:
 				if (offset <= scanner.getTokenEnd()) {
-					return collectInsideContent();
+					collectInsideContent(completionRequest, completionResponse);
+					return completionResponse;
 				}
 				break;
 			default:
@@ -188,9 +191,28 @@ class XMLCompletions {
 		return null;
 	}
 
-	private CompletionList collectInsideContent() {
-		// TODO Auto-generated method stub
-		return null;
+	private void collectInsideContent(ICompletionRequest request, ICompletionResponse response) {
+		for (ICompletionParticipant participant : extensionsRegistry.getCompletionParticipants()) {
+			participant.onXMLContent(request, response);
+		}
+		collectCharacterEntityProposals(request, response);
+	}
+
+	private void collectCharacterEntityProposals(ICompletionRequest request, ICompletionResponse response) {
+		// character entities
+		/*
+		 * int offset = request.getOffset(); Position position = request.getPosition();
+		 * int k = offset - 1; int characterStart = position.getCharacter(); char ch =
+		 * request.getDocument().getText().charAt(characterStart); while (k >= 0 &&
+		 * (Character.isLetter(ch) || Character.isDigit(ch))) { k--; characterStart--; }
+		 * if (k >= 0 && text[k] == '&') { let range =
+		 * Range.create(Position.create(position.line, characterStart - 1), position);
+		 * for (String entity : entities) { if (endsWith(entity, ';')) { String label =
+		 * '&' + entity; result.items.push({ label, kind: CompletionItemKind.Keyword,
+		 * documentation: localize('entity.propose', `Character entity representing
+		 * '${entities[entity]}'`), textEdit: TextEdit.replace(range, label),
+		 * insertTextFormat: InsertTextFormat.PlainText }); } } }
+		 */
 	}
 
 	private CompletionList collectCloseTagSuggestions(int i, boolean b) {
@@ -252,7 +274,6 @@ class XMLCompletions {
 					participant.onAttributeValue(valuePrefix, fullRange, completionRequest, completionResponse);
 				}
 			} catch (BadLocationException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
