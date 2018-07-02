@@ -112,6 +112,7 @@ public class XMLParser {
 			curr.closed = false;
 			curr = curr.parent;
 		}
+		xmlDocument.updateSchemaLocation();
 		return xmlDocument;
 	}
 

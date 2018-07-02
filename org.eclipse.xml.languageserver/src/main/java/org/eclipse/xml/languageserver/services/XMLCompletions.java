@@ -138,8 +138,16 @@ class XMLCompletions {
 				if (offset <= scanner.getTokenEnd()) {
 					String currentTag = completionRequest.getCurrentTag();
 					if (currentTag.length() > 0) {
-						return collectAutoCloseTagSuggestion(scanner.getTokenEnd(), currentTag, completionRequest,
+						collectAutoCloseTagSuggestion(scanner.getTokenEnd(), currentTag, completionRequest,
 								completionResponse);
+					}
+				}
+				break;
+			case EndTagClose:
+				if (offset <= scanner.getTokenEnd()) {
+					String currentTag = completionRequest.getCurrentTag();
+					if (currentTag.length() > 0) {
+						collectInsideContent(completionRequest, completionResponse);
 					}
 				}
 				break;
