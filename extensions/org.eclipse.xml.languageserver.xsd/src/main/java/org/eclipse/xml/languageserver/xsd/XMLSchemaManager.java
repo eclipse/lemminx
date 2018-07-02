@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.xerces.impl.xs.XMLSchemaLoader;
+import org.apache.xerces.xs.XSAttributeUse;
 import org.apache.xerces.xs.XSComplexTypeDefinition;
 import org.apache.xerces.xs.XSConstants;
 import org.apache.xerces.xs.XSElementDeclaration;
@@ -14,6 +15,7 @@ import org.apache.xerces.xs.XSModel;
 import org.apache.xerces.xs.XSModelGroup;
 import org.apache.xerces.xs.XSObjectList;
 import org.apache.xerces.xs.XSParticle;
+import org.apache.xerces.xs.XSSimpleTypeDefinition;
 import org.apache.xerces.xs.XSTerm;
 import org.apache.xerces.xs.XSTypeDefinition;
 import org.eclipse.xml.languageserver.model.Node;
@@ -124,4 +126,63 @@ public class XMLSchemaManager {
 		return null;
 	}
 
+	public String generate(XSElementDeclaration elementDeclaration, Node currentNode) {
+		StringBuilder xml = new StringBuilder();
+		generate(elementDeclaration, xml);
+		return xml.toString();
+	}
+
+	private void generate(XSElementDeclaration elementDeclaration, StringBuilder xml) {
+		xml.append("<");
+		xml.append(elementDeclaration.getName());
+		xml.append(">");
+		XSTypeDefinition typeDefinition = elementDeclaration.getTypeDefinition();
+		switch (typeDefinition.getTypeCategory()) {
+		case XSTypeDefinition.SIMPLE_TYPE:
+			generate(((XSSimpleTypeDefinition) typeDefinition), xml);
+			break;
+		case XSTypeDefinition.COMPLEX_TYPE:
+			generate(((XSComplexTypeDefinition) typeDefinition), xml);
+			break;
+		}
+		xml.append("</");
+		xml.append(elementDeclaration.getName());
+		xml.append(">");
+	}
+
+	private void generate(XSSimpleTypeDefinition typeDefinition, StringBuilder xml) {
+
+	}
+
+	private void generate(XSComplexTypeDefinition complexType, StringBuilder xml) {
+		XSObjectList attributeUses = complexType.getAttributeUses();
+		if (!(attributeUses.isEmpty())) {
+			for (int i = 0; i < attributeUses.getLength(); i++) {
+				XSAttributeUse attrUse = (XSAttributeUse) attributeUses.get(i);
+				if (attrUse.getRequired()) {
+					xml.append(" ");
+					xml.append(attrUse.getName());
+					xml.append("=\"");
+					xml.append("\"");
+				}
+			}
+		}
+		XSParticle particle = complexType.getParticle();
+		if (particle != null) {
+			generate(particle.getTerm(), xml);
+		}
+	}
+
+	private void generate(XSTerm term, StringBuilder xml) {
+		switch (term.getType()) {
+		case XSConstants.MODEL_GROUP:
+			XSObjectList particles = ((XSModelGroup) term).getParticles();
+			for (Object particle : particles) {
+				generate(((XSParticle) particle).getTerm(), xml);
+			}
+			break;
+		case XSConstants.ELEMENT_DECLARATION:
+			generate((XSElementDeclaration) term, xml);
+		}
+	}
 }

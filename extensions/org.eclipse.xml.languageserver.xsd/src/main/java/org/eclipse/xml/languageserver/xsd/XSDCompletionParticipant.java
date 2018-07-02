@@ -12,6 +12,7 @@ import org.apache.xerces.xs.XSParticle;
 import org.apache.xerces.xs.XSTerm;
 import org.apache.xerces.xs.XSTypeDefinition;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.xml.languageserver.extensions.ICompletionParticipant;
 import org.eclipse.xml.languageserver.extensions.ICompletionRequest;
@@ -38,6 +39,8 @@ public class XSDCompletionParticipant implements ICompletionParticipant {
 					if (annotation != null) {
 						completionItem.setDetail(annotation.getAnnotationString());
 					}
+					completionItem.setInsertText(XMLSchemaManager.getInstance().generate(e, currentNode));
+					completionItem.setInsertTextFormat(InsertTextFormat.Snippet);
 					response.addCompletionItem(completionItem);
 				});
 			}
