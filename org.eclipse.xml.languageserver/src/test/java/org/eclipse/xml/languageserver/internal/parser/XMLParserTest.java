@@ -68,6 +68,10 @@ public class XMLParserTest {
 				"[{ tag: 'h1', start: 0, end: 20, endTagStart: 15, closed: true, children: [{ tag: 'div', start: 4, end: 15, endTagStart: null, closed: false, children: [{ tag: 'span', start: 9, end: 15, endTagStart: null, closed: false, children: [] }] }] }]");
 	}
 
+	// private static boolean compareNodes(Node node, String tag, int start, int end, int endTagStart, boolean closed, boolean isCDATA){
+	// 	//Assert.assertEquals()
+	// }
+
 	private static void assertDocument(String input, String expected) {
 		XMLDocument document = XMLParser.getInstance().parse(input);
 		Assert.assertEquals(expected, toJSON(document.getRoots()));

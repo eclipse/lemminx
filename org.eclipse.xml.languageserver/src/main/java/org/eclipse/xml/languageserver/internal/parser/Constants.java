@@ -10,6 +10,7 @@
  */
 package org.eclipse.xml.languageserver.internal.parser;
 
+
 class Constants {
 
 	public final static int _BNG = "!".codePointAt(0);
