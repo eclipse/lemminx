@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="property">
+		<xs:annotation>
+			<xs:documentation>A property
+			</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:attribute name="name" type="xs:anyURI"
+				use="required">
+				<xs:annotation>
+					<xs:documentation>The name of the property</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="value" type="xs:string"
+				use="required">
+				<xs:annotation>
+					<xs:documentation>The value of the property</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
