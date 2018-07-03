@@ -106,7 +106,7 @@ public class XMLParser {
 			}
 
 			case CDATATagOpen: {
-				Node cdataNode = new Node(scanner.getTokenOffset(), text.length(), new ArrayList<>(), curr);//TODO: might need arraylist
+				Node cdataNode = new Node(scanner.getTokenOffset(), text.length(), new ArrayList<>(), curr, xmlDocument);//TODO: might need arraylist
 				cdataNode.isCDATA = true;
 				curr.children.add(cdataNode);
 				curr = cdataNode;
