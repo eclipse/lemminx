@@ -34,6 +34,10 @@ public class XMLParser {
 	}
 
 	public XMLDocument parse(String text, String uri) {
+		return parse(text, uri, false);
+	}
+	
+	public XMLDocument parse(String text, String uri, boolean full) {
 		Scanner scanner = XMLScanner.createScanner(text);
 		XMLDocument xmlDocument = new XMLDocument(text, uri);
 
@@ -103,6 +107,14 @@ public class XMLParser {
 					pendingAttribute = null;
 				}
 				break;
+			}
+			case Content: {
+				if (full) {
+					String content = scanner.getTokenText();
+					Node cdata = new Node(scanner.getTokenOffset(), content.length(), null, curr, xmlDocument);
+					cdata.content = content;
+					curr.children.add(cdata);
+				}
 			}
 			}
 			token = scanner.scan();

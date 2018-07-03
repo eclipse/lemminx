@@ -32,6 +32,7 @@ public class Node {
 	public int end;
 	public final Node parent;
 	private final XMLDocument ownerDocument;
+	public String content;
 
 	public Set<String> attributeNames() {
 		return this.attributes != null ? attributes.keySet() : Collections.emptySet();

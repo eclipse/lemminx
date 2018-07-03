@@ -22,6 +22,8 @@ import org.eclipse.xml.languageserver.internal.parser.BadLocationException;
  */
 public class XMLDocument extends Node {
 
+	private static String DEFAULT_DELIMTER = System.getProperty("line.separator");
+
 	private final ListLineTracker lineTracker;
 	private SchemaLocation schemaLocation;
 	private boolean schemaLocationInitialized;
@@ -56,6 +58,20 @@ public class XMLDocument extends Node {
 	public String lineText(int lineNumber) throws BadLocationException {
 		Line line = lineTracker.getLineInformation(lineNumber);
 		return text.substring(line.offset, line.offset + line.length);
+	}
+
+	public String lineDelimiter(int lineNumber) throws BadLocationException {
+		Line line = lineTracker.getLineInformation(lineNumber);
+		String lineDelimiter = line.delimiter;
+		if (lineDelimiter == null) {
+			if (lineTracker.getNumberOfLines() > 0) {
+				lineDelimiter = lineTracker.getLineInformation(0).delimiter;
+			}
+		}
+		if (lineDelimiter == null) {
+			lineDelimiter = DEFAULT_DELIMTER;
+		}
+		return lineDelimiter;
 	}
 
 	public SchemaLocation getSchemaLocation() {
@@ -95,6 +111,11 @@ public class XMLDocument extends Node {
 
 	public String getUri() {
 		return uri;
+	}
+
+	@Override
+	public XMLDocument getOwnerDocument() {
+		return this;
 	}
 
 }

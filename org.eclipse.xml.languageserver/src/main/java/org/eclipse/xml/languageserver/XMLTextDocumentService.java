@@ -33,6 +33,7 @@ import org.eclipse.lsp4j.DocumentHighlight;
 import org.eclipse.lsp4j.DocumentOnTypeFormattingParams;
 import org.eclipse.lsp4j.DocumentRangeFormattingParams;
 import org.eclipse.lsp4j.DocumentSymbolParams;
+import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
@@ -62,7 +63,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 	private final XMLLanguageServer xmlLanguageServer;
 	private final TextDocuments documents;
 	private final XMLLanguageService languageService;
-	private LanguageModelCache<XMLDocument> xmlDocuments;
+	private final LanguageModelCache<XMLDocument> xmlDocuments;
+	private final FormattingOptions sharedFormattingOptions;
 
 	public XMLTextDocumentService(XMLLanguageServer fmLanguageServer) {
 		this.xmlLanguageServer = fmLanguageServer;
@@ -71,6 +73,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 		XMLParser parser = XMLParser.getInstance();
 		this.xmlDocuments = new LanguageModelCache<XMLDocument>(10, 60,
 				document -> parser.parse(document.getText(), document.getUri()));
+		this.sharedFormattingOptions = new FormattingOptions(4, false);
+
 	}
 
 	private XMLDocument getXMLDocument(TextDocumentItem document) {
@@ -82,7 +86,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 		return computeAsync((monitor) -> {
 			TextDocumentItem document = documents.get(params.getTextDocument().getUri());
 			XMLDocument xmlDocument = getXMLDocument(document);
-			CompletionList list = languageService.doComplete(xmlDocument, params.getPosition(), null);
+			CompletionList list = languageService.doComplete(xmlDocument, params.getPosition(),
+					sharedFormattingOptions);
 			return Either.forRight(list);
 		});
 	}

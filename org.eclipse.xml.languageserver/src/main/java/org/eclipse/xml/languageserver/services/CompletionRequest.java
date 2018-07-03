@@ -10,6 +10,7 @@
  */
 package org.eclipse.xml.languageserver.services;
 
+import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.xml.languageserver.extensions.ICompletionRequest;
 import org.eclipse.xml.languageserver.internal.parser.BadLocationException;
@@ -22,17 +23,20 @@ import org.eclipse.xml.languageserver.model.XMLDocument;
  */
 class CompletionRequest implements ICompletionRequest {
 
-	private final Position position;
 	private final XMLDocument xmlDocument;
+	private final Position position;
+	private final FormattingOptions settings;
 	private final int offset;
 
 	private String currentTag;
 	private String currentAttributeName;
 	private final Node node;
 
-	public CompletionRequest(XMLDocument xmlDocument, Position position) throws BadLocationException {
-		this.position = position;
+	public CompletionRequest(XMLDocument xmlDocument, Position position, FormattingOptions settings)
+			throws BadLocationException {
 		this.xmlDocument = xmlDocument;
+		this.position = position;
+		this.settings = settings;
 		offset = xmlDocument.offsetAt(position);
 		this.node = xmlDocument.findNodeBefore(offset);
 		if (node == null) {
@@ -88,4 +92,8 @@ class CompletionRequest implements ICompletionRequest {
 		this.currentAttributeName = currentAttributeName;
 	}
 
+	@Override
+	public FormattingOptions getFormattingSettings() {
+		return settings;
+	}
 }

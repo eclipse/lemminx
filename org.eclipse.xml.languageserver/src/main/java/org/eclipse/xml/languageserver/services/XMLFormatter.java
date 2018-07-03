@@ -10,12 +10,19 @@
  */
 package org.eclipse.xml.languageserver.services;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.lsp4j.FormattingOptions;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.xml.languageserver.internal.parser.BadLocationException;
+import org.eclipse.xml.languageserver.internal.parser.XMLParser;
+import org.eclipse.xml.languageserver.model.Node;
 import org.eclipse.xml.languageserver.model.XMLDocument;
+import org.eclipse.xml.languageserver.utils.XMLBuilder;
 
 /**
  * XML formatter support.
@@ -29,9 +36,105 @@ class XMLFormatter {
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
-	public List<? extends TextEdit> format(XMLDocument xmlDocument, Range range, FormattingOptions options) {
-		// TODO implement formatting
+	public List<? extends TextEdit> format(XMLDocument xmlDocument, Range range, FormattingOptions formattingOptions) {
+		try {
+			// Compute start/end offset range
+			int start = -1;
+			int end = -1;
+			if (range == null) {
+				start = xmlDocument.start;
+				end = xmlDocument.end;
+			} else {
+				start = xmlDocument.offsetAt(range.getStart());
+				end = xmlDocument.offsetAt(range.getEnd());
+			}
+			Position startPosition = xmlDocument.positionAt(start);
+			Position endPosition = xmlDocument.positionAt(end);
+
+			// Parse the content to format to create an XML document with full data (CData,
+			// comments, etc)
+			String text = xmlDocument.getText().substring(start, end);
+			XMLDocument doc = XMLParser.getInstance().parse(text, null, true);
+
+			// Format the content
+			XMLBuilder xml = new XMLBuilder(formattingOptions, "", xmlDocument.lineDelimiter(startPosition.getLine()));
+			format(doc, 0, xml);
+
+			// Returns LSP list of TextEdits
+			Range r = new Range(startPosition, endPosition);
+			List<TextEdit> edits = new ArrayList<>();
+			edits.add(new TextEdit(r, xml.toString()));
+			return edits;
+
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+		}
 		return null;
+	}
+
+	private void format(Node node, int level, XMLBuilder xml) {
+		if (node.tag != null) {
+			// element to format
+			if (level > 0) {
+				// add new line + indent
+				xml.linefeed();
+				xml.indent(level);
+			}
+			// generate start element
+			xml.startElement(node.tag, false);
+			if (node.attributes != null) {
+				// generate attributes
+				Set<String> attributeNames = node.attributeNames();
+				for (String attributeName : attributeNames) {
+					xml.addAttribute(attributeName, node.getAttributeValue(attributeName));
+				}
+			}
+			if (!node.children.isEmpty()) {
+				// element has body
+				xml.closeStartElement();
+				level++;
+				boolean hasElements = false;
+				for (Node child : node.children) {
+					hasElements = hasElements | child.tag != null;
+					format(child, level, xml);
+				}
+				level--;
+				if (hasElements) {
+					xml.linefeed();
+					xml.indent(level);
+				}
+				xml.endElement(node.tag);
+			} else {
+				// element has no content
+				xml.endElement();
+			}
+		} else if (node.content != null) {
+			// Generate content
+			String content = normalizeSpace(node.content);
+			if (!content.isEmpty()) {
+				xml.addContent(content);
+			}
+		} else if (!node.children.isEmpty()) {
+			// Other nodes kind like root
+			for (Node child : node.children) {
+				format(child, level, xml);
+			}
+		}
+	}
+
+	private static String normalizeSpace(String str) {
+		StringBuilder b = new StringBuilder(str.length());
+		for (int i = 0; i < str.length(); ++i) {
+			char c = str.charAt(i);
+			if (Character.isWhitespace(c)) {
+				if (i <= 0 || Character.isWhitespace(str.charAt(i - 1)))
+					continue;
+				b.append(' ');
+				continue;
+			}
+			b.append(c);
+		}
+		return b.toString();
 	}
 
 }

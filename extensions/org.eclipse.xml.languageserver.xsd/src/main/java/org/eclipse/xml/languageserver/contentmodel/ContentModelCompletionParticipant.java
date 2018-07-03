@@ -1,33 +1,48 @@
-package org.eclipse.xml.languageserver.xsd;
+/**
+ *  Copyright (c) 2018 Angelo ZERR
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ *  Contributors:
+ *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
+ */
+package org.eclipse.xml.languageserver.contentmodel;
 
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.eclipse.xml.languageserver.contentmodel.CMElement;
 import org.eclipse.xml.languageserver.extensions.ICompletionParticipant;
 import org.eclipse.xml.languageserver.extensions.ICompletionRequest;
 import org.eclipse.xml.languageserver.extensions.ICompletionResponse;
 import org.eclipse.xml.languageserver.model.Node;
+import org.eclipse.xml.languageserver.model.XMLDocument;
 
-public class XSDCompletionParticipant implements ICompletionParticipant {
+/**
+ * Extension to support completion for content model (XML Schema completion,
+ * etc)
+ *
+ */
+public class ContentModelCompletionParticipant implements ICompletionParticipant {
 
 	@Override
 	public void onXMLContent(ICompletionRequest request, ICompletionResponse response) {
 		try {
 			Node parentNode = request.getParentNode();
-			CMElement cmlElement = XMLSchemaManager.getInstance().findCMElement(parentNode);
+			CMElement cmlElement = ContentModelManager.getInstance().findCMElement(parentNode);
 			if (cmlElement != null) {
 
+				XMLDocument document = parentNode.getOwnerDocument();
 				int lineNumber = request.getPosition().getLine();
-				String lineText = parentNode.getOwnerDocument().lineText(lineNumber);
-				String startWhitespaces = getStartWhitespaces(lineText);
-				boolean useTabs = true;
-				int tabWidth = 1;
-				String lineDelimiter = "\n";
+				String lineText = document.lineText(lineNumber);
+				String lineDelimiter = document.lineDelimiter(lineNumber);
+				String whitespacesIndent = getStartWhitespaces(lineText);
 
-				XMLGenerator generator = new XMLGenerator(startWhitespaces, useTabs, tabWidth, lineDelimiter);
+				XMLGenerator generator = new XMLGenerator(request.getFormattingSettings(), whitespacesIndent,
+						lineDelimiter);
 				for (CMElement child : cmlElement.getElements()) {
 					CompletionItem item = new CompletionItem(child.getName());
 					item.setKind(CompletionItemKind.Property);

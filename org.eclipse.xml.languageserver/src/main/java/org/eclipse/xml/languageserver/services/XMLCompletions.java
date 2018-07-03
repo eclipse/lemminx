@@ -15,6 +15,7 @@ import java.util.Collection;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.CompletionList;
+import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -41,10 +42,10 @@ class XMLCompletions {
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
-	public CompletionList doComplete(XMLDocument xmlDocument, Position position, CompletionConfiguration settings) {
+	public CompletionList doComplete(XMLDocument xmlDocument, Position position, FormattingOptions settings) {
 		CompletionRequest completionRequest = null;
 		try {
-			completionRequest = new CompletionRequest(xmlDocument, position);
+			completionRequest = new CompletionRequest(xmlDocument, position, settings);
 		} catch (BadLocationException e) {
 			return null;
 		}

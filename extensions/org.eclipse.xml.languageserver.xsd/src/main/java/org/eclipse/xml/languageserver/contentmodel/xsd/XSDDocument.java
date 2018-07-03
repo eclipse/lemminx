@@ -1,4 +1,14 @@
-package org.eclipse.xml.languageserver.xsd;
+/**
+ *  Copyright (c) 2018 Angelo ZERR
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ *  Contributors:
+ *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
+ */
+package org.eclipse.xml.languageserver.contentmodel.xsd;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,6 +23,10 @@ import org.eclipse.xml.languageserver.contentmodel.CMElement;
 import org.eclipse.xml.languageserver.model.Node;
 import org.eclipse.xml.languageserver.model.XMLDocument;
 
+/**
+ * XSD document implementation.
+ *
+ */
 public class XSDDocument implements CMDocument {
 
 	private final XSModel model;
@@ -37,7 +51,6 @@ public class XSDDocument implements CMDocument {
 
 	@Override
 	public CMElement findCMElement(Node node) {
-		String tagName = node.tag;
 		String namespace = node.getOwnerDocument().getNamespaceURI();
 		List<Node> paths = new ArrayList<>();
 		Node element = node;

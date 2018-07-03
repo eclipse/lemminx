@@ -53,6 +53,8 @@ public class XMLLanguageServer implements LanguageServer {
 		capabilities.setDocumentSymbolProvider(true);
 		capabilities.setDocumentHighlightProvider(true);
 		capabilities.setCompletionProvider(new CompletionOptions());
+		capabilities.setDocumentFormattingProvider(true);
+		capabilities.setDocumentRangeFormattingProvider(true);
 		InitializeResult result = new InitializeResult(capabilities);
 		return CompletableFuture.completedFuture(result);
 	}

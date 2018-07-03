@@ -10,6 +10,7 @@
  */
 package org.eclipse.xml.languageserver.extensions;
 
+import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.xml.languageserver.model.Node;
 import org.eclipse.xml.languageserver.model.XMLDocument;
@@ -53,4 +54,6 @@ public interface ICompletionRequest {
 	String getCurrentTag();
 
 	String getCurrentAttributeName();
+	
+	FormattingOptions getFormattingSettings();
 }

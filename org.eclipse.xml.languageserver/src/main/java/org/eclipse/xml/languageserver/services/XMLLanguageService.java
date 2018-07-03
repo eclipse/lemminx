@@ -16,10 +16,10 @@ import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DocumentHighlight;
 import org.eclipse.lsp4j.FormattingOptions;
+import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.SymbolInformation;
-import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.xml.languageserver.model.XMLDocument;
 
@@ -33,6 +33,7 @@ public class XMLLanguageService {
 	private final XMLHighlighting highlighting;
 	private final XMLSymbolsProvider symbolsProvider;
 	private final XMLCompletions completions;
+	private final XMLHover hover;
 	private final XMLDiagnostics diagnostics;
 
 	public XMLLanguageService() {
@@ -44,6 +45,7 @@ public class XMLLanguageService {
 		this.highlighting = new XMLHighlighting(extensionsRegistry);
 		this.symbolsProvider = new XMLSymbolsProvider(extensionsRegistry);
 		this.completions = new XMLCompletions(extensionsRegistry);
+		this.hover = new XMLHover(extensionsRegistry);
 		this.diagnostics = new XMLDiagnostics(extensionsRegistry);
 	}
 
@@ -59,8 +61,12 @@ public class XMLLanguageService {
 		return symbolsProvider.findDocumentSymbols(xmlDocument);
 	}
 
-	public CompletionList doComplete(XMLDocument xmlDocument, Position position, CompletionConfiguration settings) {
+	public CompletionList doComplete(XMLDocument xmlDocument, Position position, FormattingOptions settings) {
 		return completions.doComplete(xmlDocument, position, settings);
+	}
+
+	public Hover doHover(XMLDocument xmlDocument, Position position) {
+		return hover.doHover(xmlDocument, position);
 	}
 
 	public List<Diagnostic> validateXML(String uri, String text) {
