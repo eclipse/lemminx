@@ -47,23 +47,20 @@ public class XMLLanguageService {
 		this.diagnostics = new XMLDiagnostics(extensionsRegistry);
 	}
 
-	public List<? extends TextEdit> format(TextDocumentItem document, Range range, FormattingOptions options,
-			XMLDocument xmlDocument) {
-		return formatter.format(document, range, options, xmlDocument);
+	public List<? extends TextEdit> format(XMLDocument xmlDocument, Range range, FormattingOptions options) {
+		return formatter.format(xmlDocument, range, options);
 	}
 
-	public List<DocumentHighlight> findDocumentHighlights(TextDocumentItem document, Position position,
-			XMLDocument xmlDocument) {
-		return highlighting.findDocumentHighlights(document, position, xmlDocument);
+	public List<DocumentHighlight> findDocumentHighlights(XMLDocument xmlDocument, Position position) {
+		return highlighting.findDocumentHighlights(xmlDocument, position);
 	}
 
-	public List<SymbolInformation> findDocumentSymbols(TextDocumentItem document, XMLDocument xmlDocument) {
-		return symbolsProvider.findDocumentSymbols(document, xmlDocument);
+	public List<SymbolInformation> findDocumentSymbols(XMLDocument xmlDocument) {
+		return symbolsProvider.findDocumentSymbols(xmlDocument);
 	}
 
-	public CompletionList doComplete(TextDocumentItem document, Position position, XMLDocument xmlDocument,
-			CompletionConfiguration settings) {
-		return completions.doComplete(document, position, xmlDocument, settings);
+	public CompletionList doComplete(XMLDocument xmlDocument, Position position, CompletionConfiguration settings) {
+		return completions.doComplete(xmlDocument, position, settings);
 	}
 
 	public List<Diagnostic> validateXML(String uri, String text) {

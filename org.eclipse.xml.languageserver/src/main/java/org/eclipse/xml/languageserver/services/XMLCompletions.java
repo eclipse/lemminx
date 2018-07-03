@@ -18,7 +18,6 @@ import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.xml.languageserver.extensions.ICompletionParticipant;
 import org.eclipse.xml.languageserver.extensions.ICompletionRequest;
@@ -42,11 +41,10 @@ class XMLCompletions {
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
-	public CompletionList doComplete(TextDocumentItem document, Position position, XMLDocument xmlDocument,
-			CompletionConfiguration settings) {
+	public CompletionList doComplete(XMLDocument xmlDocument, Position position, CompletionConfiguration settings) {
 		CompletionRequest completionRequest = null;
 		try {
-			completionRequest = new CompletionRequest(document, position, xmlDocument);
+			completionRequest = new CompletionRequest(xmlDocument, position);
 		} catch (BadLocationException e) {
 			return null;
 		}
@@ -54,7 +52,7 @@ class XMLCompletions {
 		int offset = completionRequest.getOffset();
 		Node node = completionRequest.getNode();
 
-		String text = document.getText();
+		String text = xmlDocument.getText();
 		Scanner scanner = XMLScanner.createScanner(text, node.start);
 		completionRequest.setCurrentTag("");
 		completionRequest.setCurrentAttributeName(null);
@@ -244,7 +242,7 @@ class XMLCompletions {
 		boolean addQuotes = false;
 		String valuePrefix;
 		int offset = completionRequest.getOffset();
-		String text = completionRequest.getDocument().getText();
+		String text = completionRequest.getXMLDocument().getText();
 		if (offset > valueStart && offset <= valueEnd && isQuote(text.charAt(valueStart))) {
 			// inside quoted attribute
 			int valueContentStart = valueStart + 1;

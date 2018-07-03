@@ -14,7 +14,6 @@ import java.util.List;
 
 import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.xml.languageserver.model.XMLDocument;
 
@@ -30,8 +29,7 @@ class XMLFormatter {
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
-	public List<? extends TextEdit> format(TextDocumentItem document, Range range, FormattingOptions options,
-			XMLDocument xmlDocument) {
+	public List<? extends TextEdit> format(XMLDocument xmlDocument, Range range, FormattingOptions options) {
 		// TODO implement formatting
 		return null;
 	}

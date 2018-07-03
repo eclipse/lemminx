@@ -33,9 +33,9 @@ public class XMLParser {
 
 	}
 
-	public XMLDocument parse(String text) {
+	public XMLDocument parse(String text, String uri) {
 		Scanner scanner = XMLScanner.createScanner(text);
-		XMLDocument xmlDocument = new XMLDocument(text);
+		XMLDocument xmlDocument = new XMLDocument(text, uri);
 
 		Node curr = xmlDocument;
 		int endTagStart = -1;
@@ -112,7 +112,6 @@ public class XMLParser {
 			curr.closed = false;
 			curr = curr.parent;
 		}
-		xmlDocument.updateSchemaLocation();
 		return xmlDocument;
 	}
 

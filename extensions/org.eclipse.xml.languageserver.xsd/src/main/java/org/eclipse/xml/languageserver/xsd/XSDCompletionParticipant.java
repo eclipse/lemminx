@@ -1,19 +1,11 @@
 package org.eclipse.xml.languageserver.xsd;
 
-import java.util.function.Consumer;
-
-import org.apache.xerces.xs.XSAnnotation;
-import org.apache.xerces.xs.XSComplexTypeDefinition;
-import org.apache.xerces.xs.XSConstants;
-import org.apache.xerces.xs.XSElementDeclaration;
-import org.apache.xerces.xs.XSModelGroup;
-import org.apache.xerces.xs.XSObjectList;
-import org.apache.xerces.xs.XSParticle;
-import org.apache.xerces.xs.XSTerm;
-import org.apache.xerces.xs.XSTypeDefinition;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.xml.languageserver.contentmodel.CMElement;
 import org.eclipse.xml.languageserver.extensions.ICompletionParticipant;
 import org.eclipse.xml.languageserver.extensions.ICompletionRequest;
 import org.eclipse.xml.languageserver.extensions.ICompletionResponse;
@@ -24,73 +16,53 @@ public class XSDCompletionParticipant implements ICompletionParticipant {
 	@Override
 	public void onXMLContent(ICompletionRequest request, ICompletionResponse response) {
 		try {
-			Node currentNode = request.getNode();
-			Node parentNode = currentNode;
-			int startTagEndOffset = currentNode.start + currentNode.tag.length() + ">".length();
-			if (!(request.getOffset() > startTagEndOffset && request.getOffset() < currentNode.end)) {
-				parentNode = request.getNode().parent;
-			}
-			XSElementDeclaration elementDecl = XMLSchemaManager.getInstance().findElementDeclaration(parentNode);
-			if (elementDecl != null) {
-				visitChildrenElementDeclaration(elementDecl, e -> {
-					CompletionItem completionItem = new CompletionItem();
-					completionItem.setLabel(e.getName());
-					XSAnnotation annotation = e.getAnnotation();
-					if (annotation != null) {
-						completionItem.setDetail(annotation.getAnnotationString());
+			Node parentNode = request.getParentNode();
+			CMElement cmlElement = XMLSchemaManager.getInstance().findCMElement(parentNode);
+			if (cmlElement != null) {
+
+				int lineNumber = request.getPosition().getLine();
+				String lineText = parentNode.getOwnerDocument().lineText(lineNumber);
+				String startWhitespaces = getStartWhitespaces(lineText);
+				boolean useTabs = true;
+				int tabWidth = 1;
+				String lineDelimiter = "\n";
+
+				XMLGenerator generator = new XMLGenerator(startWhitespaces, useTabs, tabWidth, lineDelimiter);
+				for (CMElement child : cmlElement.getElements()) {
+					CompletionItem item = new CompletionItem(child.getName());
+					item.setKind(CompletionItemKind.Property);
+					String documentation = child.getDocumentation();
+					if (documentation != null) {
+						item.setDetail(documentation);
 					}
-					completionItem.setInsertText(XMLSchemaManager.getInstance().generate(e, currentNode));
-					completionItem.setInsertTextFormat(InsertTextFormat.Snippet);
-					response.addCompletionItem(completionItem);
-				});
+					String xml = generator.generate(child);
+					item.setTextEdit(new TextEdit(new Range(request.getPosition(), request.getPosition()), xml));
+					item.setInsertTextFormat(InsertTextFormat.Snippet);
+					response.addCompletionItem(item);
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	private void visitChildrenElementDeclaration(XSElementDeclaration elementDecl,
-			Consumer<XSElementDeclaration> visitor) {
-		XSTypeDefinition typeDefinition = elementDecl.getTypeDefinition();
-		switch (typeDefinition.getTypeCategory()) {
-		case XSTypeDefinition.SIMPLE_TYPE:
-			// TODO...
-			break;
-		case XSTypeDefinition.COMPLEX_TYPE:
-			visitChildrenElementDeclaration((XSComplexTypeDefinition) typeDefinition, visitor);
-			break;
+	private static String getStartWhitespaces(String lineText) {
+		StringBuilder whitespaces = new StringBuilder();
+		char[] chars = lineText.toCharArray();
+		for (int i = 0; i < chars.length; i++) {
+			char c = chars[i];
+			if (Character.isWhitespace(c)) {
+				whitespaces.append(c);
+			} else {
+				break;
+			}
 		}
-	}
-
-	private void visitChildrenElementDeclaration(XSComplexTypeDefinition typeDefinition,
-			Consumer<XSElementDeclaration> visitor) {
-		XSParticle particle = typeDefinition.getParticle();
-		if (particle != null) {
-			visitChildrenElementDeclaration(particle.getTerm(), visitor);
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	private void visitChildrenElementDeclaration(XSTerm term, Consumer<XSElementDeclaration> visitor) {
-		if (term == null) {
-			return;
-		}
-		switch (term.getType()) {
-		case XSConstants.MODEL_GROUP:
-			XSObjectList particles = ((XSModelGroup) term).getParticles();
-			particles.forEach(p -> visitChildrenElementDeclaration(((XSParticle) p).getTerm(), visitor));
-			break;
-		case XSConstants.ELEMENT_DECLARATION:
-			visitor.accept((XSElementDeclaration) term);
-			break;
-		}
+		return whitespaces.toString();
 	}
 
 	@Override
 	public void onAttributeValue(String valuePrefix, Range fullRange, ICompletionRequest request,
 			ICompletionResponse response) {
-		response.addCompletionItem(new CompletionItem("AbcA"));
-		response.addCompletionItem(new CompletionItem("BcBB"));
 	}
 
 }

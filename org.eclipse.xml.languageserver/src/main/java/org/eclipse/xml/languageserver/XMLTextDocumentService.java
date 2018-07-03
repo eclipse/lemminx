@@ -69,7 +69,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 		this.languageService = new XMLLanguageService();
 		this.documents = new TextDocuments();
 		XMLParser parser = XMLParser.getInstance();
-		this.xmlDocuments = new LanguageModelCache<XMLDocument>(10, 60, document -> parser.parse(document.getText()));
+		this.xmlDocuments = new LanguageModelCache<XMLDocument>(10, 60,
+				document -> parser.parse(document.getText(), document.getUri()));
 	}
 
 	private XMLDocument getXMLDocument(TextDocumentItem document) {
@@ -81,7 +82,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 		return computeAsync((monitor) -> {
 			TextDocumentItem document = documents.get(params.getTextDocument().getUri());
 			XMLDocument xmlDocument = getXMLDocument(document);
-			CompletionList list = languageService.doComplete(document, params.getPosition(), xmlDocument, null);
+			CompletionList list = languageService.doComplete(xmlDocument, params.getPosition(), null);
 			return Either.forRight(list);
 		});
 	}
@@ -116,7 +117,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 		return computeAsync((monitor) -> {
 			TextDocumentItem document = documents.get(params.getTextDocument().getUri());
 			XMLDocument xmlDocument = getXMLDocument(document);
-			return languageService.findDocumentHighlights(document, params.getPosition(), xmlDocument);
+			return languageService.findDocumentHighlights(xmlDocument, params.getPosition());
 		});
 	}
 
@@ -125,7 +126,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 		return computeAsync((monitor) -> {
 			TextDocumentItem document = documents.get(params.getTextDocument().getUri());
 			XMLDocument xmlDocument = getXMLDocument(document);
-			return languageService.findDocumentSymbols(document, xmlDocument);
+			return languageService.findDocumentSymbols(xmlDocument);
 		});
 	}
 
@@ -149,7 +150,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 		return computeAsync((monitor) -> {
 			TextDocumentItem document = documents.get(params.getTextDocument().getUri());
 			XMLDocument xmlDocument = getXMLDocument(document);
-			return languageService.format(document, null, params.getOptions(), xmlDocument);
+			return languageService.format(xmlDocument, null, params.getOptions());
 		});
 	}
 
@@ -158,7 +159,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 		return computeAsync((monitor) -> {
 			TextDocumentItem document = documents.get(params.getTextDocument().getUri());
 			XMLDocument xmlDocument = getXMLDocument(document);
-			return languageService.format(document, params.getRange(), params.getOptions(), xmlDocument);
+			return languageService.format(xmlDocument, params.getRange(), params.getOptions());
 		});
 	}
 

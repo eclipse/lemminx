@@ -24,11 +24,17 @@ public class XMLDocument extends Node {
 
 	private final ListLineTracker lineTracker;
 	private SchemaLocation schemaLocation;
+	private boolean schemaLocationInitialized;
+	private final String text;
+	private final String uri;
 
-	public XMLDocument(String text) {
+	public XMLDocument(String text, String uri) {
 		super(0, text.length(), new ArrayList<>(), null, null);
 		lineTracker = new ListLineTracker();
-		lineTracker.set(text);		
+		lineTracker.set(text);
+		this.text = text;
+		this.uri = uri;
+		schemaLocationInitialized = false;
 	}
 
 	public List<Node> getRoots() {
@@ -47,7 +53,16 @@ public class XMLDocument extends Node {
 		return line.offset + position.getCharacter();
 	}
 
+	public String lineText(int lineNumber) throws BadLocationException {
+		Line line = lineTracker.getLineInformation(lineNumber);
+		return text.substring(line.offset, line.offset + line.length);
+	}
+
 	public SchemaLocation getSchemaLocation() {
+		if (!schemaLocationInitialized) {
+			schemaLocation = createSchemaLocation();
+			schemaLocationInitialized = true;
+		}
 		return schemaLocation;
 	}
 
@@ -74,8 +89,12 @@ public class XMLDocument extends Node {
 
 	}
 
-	public void updateSchemaLocation() {
-		schemaLocation = createSchemaLocation();
+	public String getText() {
+		return text;
+	}
+
+	public String getUri() {
+		return uri;
 	}
 
 }

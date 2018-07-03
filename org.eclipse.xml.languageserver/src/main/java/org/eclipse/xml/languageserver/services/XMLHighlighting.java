@@ -18,7 +18,6 @@ import org.eclipse.lsp4j.DocumentHighlight;
 import org.eclipse.lsp4j.DocumentHighlightKind;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.xml.languageserver.internal.parser.BadLocationException;
 import org.eclipse.xml.languageserver.internal.parser.Scanner;
 import org.eclipse.xml.languageserver.internal.parser.TokenType;
@@ -38,8 +37,7 @@ class XMLHighlighting {
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
-	public List<DocumentHighlight> findDocumentHighlights(TextDocumentItem document, Position position,
-			XMLDocument xmlDocument) {
+	public List<DocumentHighlight> findDocumentHighlights(XMLDocument xmlDocument, Position position) {
 		int offset = -1;
 		try {
 			offset = xmlDocument.offsetAt(position);
@@ -51,9 +49,8 @@ class XMLHighlighting {
 			return Collections.emptyList();
 		}
 		List<DocumentHighlight> result = new ArrayList<>();
-		Range startTagRange = getTagNameRange(TokenType.StartTag, document, node.start, xmlDocument);
-		Range endTagRange = node.endTagStart != null
-				? getTagNameRange(TokenType.EndTag, document, node.endTagStart, xmlDocument)
+		Range startTagRange = getTagNameRange(TokenType.StartTag, xmlDocument, node.start);
+		Range endTagRange = node.endTagStart != null ? getTagNameRange(TokenType.EndTag, xmlDocument, node.endTagStart)
 				: null;
 		if (startTagRange != null && covers(startTagRange, position)
 				|| endTagRange != null && covers(endTagRange, position)) {
@@ -76,19 +73,17 @@ class XMLHighlighting {
 		return isBeforeOrEqual(range.getStart(), position) && isBeforeOrEqual(position, range.getEnd());
 	}
 
-	private static Range getTagNameRange(TokenType tokenType, TextDocumentItem document, int startOffset,
-			XMLDocument fmDocument) {
-		Scanner scanner = XMLScanner.createScanner(document.getText(), startOffset);
+	private static Range getTagNameRange(TokenType tokenType, XMLDocument xmlDocument, int startOffset) {
+		Scanner scanner = XMLScanner.createScanner(xmlDocument.getText(), startOffset);
 		TokenType token = scanner.scan();
 		while (token != TokenType.EOS && token != tokenType) {
 			token = scanner.scan();
 		}
 		if (token != TokenType.EOS) {
 			try {
-				return new Range(fmDocument.positionAt(scanner.getTokenOffset()),
-						fmDocument.positionAt(scanner.getTokenEnd()));
+				return new Range(xmlDocument.positionAt(scanner.getTokenOffset()),
+						xmlDocument.positionAt(scanner.getTokenEnd()));
 			} catch (BadLocationException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

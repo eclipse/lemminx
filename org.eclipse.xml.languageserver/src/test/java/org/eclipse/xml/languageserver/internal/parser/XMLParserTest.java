@@ -69,7 +69,7 @@ public class XMLParserTest {
 	}
 
 	private static void assertDocument(String input, String expected) {
-		XMLDocument document = XMLParser.getInstance().parse(input);
+		XMLDocument document = XMLParser.getInstance().parse(input, null);
 		Assert.assertEquals(expected, toJSON(document.getRoots()));
 	}
 

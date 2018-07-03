@@ -11,7 +11,6 @@
 package org.eclipse.xml.languageserver.extensions;
 
 import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.xml.languageserver.model.Node;
 import org.eclipse.xml.languageserver.model.XMLDocument;
 
@@ -41,13 +40,8 @@ public interface ICompletionRequest {
 	 * @return the offset where completion was triggered
 	 */
 	Node getNode();
-
-	/**
-	 * Returns the LSP text document.
-	 * 
-	 * @return the LSP text document.
-	 */
-	TextDocumentItem getDocument();
+	
+	Node getParentNode();
 
 	/**
 	 * Returns the XML document.
