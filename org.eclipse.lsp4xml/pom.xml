@@ -32,7 +32,7 @@
 					<appendAssemblyId>false</appendAssemblyId>
 					<archive>
 						<manifest>
-							<mainClass>org.eclipse.xml.languageserver.XMLServerLauncher</mainClass>
+							<mainClass>org.eclipse.lsp4xml.XMLServerLauncher</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

@@ -261,7 +261,7 @@ class ListLineTracker /*implements ILineTracker*/ {
 		return count;
 	}*/
 
-	/*
+	
 	public final String getLineDelimiter(int line) throws BadLocationException {
 		int lines= fLines.size();
 
@@ -276,7 +276,7 @@ class ListLineTracker /*implements ILineTracker*/ {
 
 		Line l= fLines.get(line);
 		return l.delimiter;
-	}*/
+	}
 
 	/**
 	 * Returns the information about the first delimiter found in the given text starting at the

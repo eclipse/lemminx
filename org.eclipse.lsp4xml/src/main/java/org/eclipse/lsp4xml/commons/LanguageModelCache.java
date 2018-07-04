@@ -12,12 +12,11 @@ package org.eclipse.lsp4xml.commons;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentItem;
-
-import com.google.common.base.Objects;
 
 /**
  * Language model cache.
@@ -61,7 +60,7 @@ public class LanguageModelCache<T> {
 		String uri = document.getUri();
 		LanguageModeInfo languageModelInfo = languageModels.get(uri);
 		if (languageModelInfo != null && languageModelInfo.version == version
-				&& Objects.equal(languageId, languageModelInfo.languageId)) {
+				&& Objects.equals(languageId, languageModelInfo.languageId)) {
 			languageModelInfo.cTime = System.currentTimeMillis();
 			return languageModelInfo.languageModel;
 		}

@@ -61,8 +61,7 @@ public class XMLDocument extends Node {
 	}
 
 	public String lineDelimiter(int lineNumber) throws BadLocationException {
-		Line line = lineTracker.getLineInformation(lineNumber);
-		String lineDelimiter = line.delimiter;
+		String lineDelimiter = lineTracker.getLineDelimiter(lineNumber);
 		if (lineDelimiter == null) {
 			if (lineTracker.getNumberOfLines() > 0) {
 				lineDelimiter = lineTracker.getLineInformation(0).delimiter;
