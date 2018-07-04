@@ -10,10 +10,18 @@
  */
 package org.eclipse.lsp4xml.services;
 
+import org.junit.Before;
+
 /**
  * XML completion services tests
  *
  */
 public class XMLCompletionTest {
 
+	private XMLLanguageService languageService;
+
+	@Before
+	public void initializeLanguageService() {
+		languageService = new XMLLanguageService();
+	}
 }

@@ -26,7 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * XML completion services tests
+ * XML formatter services tests
  *
  */
 public class XMLFormatterTest {
