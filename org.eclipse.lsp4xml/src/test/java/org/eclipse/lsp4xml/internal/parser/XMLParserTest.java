@@ -8,7 +8,7 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.xml.languageserver.internal.parser;
+package org.eclipse.lsp4xml.internal.parser;
 
 import java.util.List;
 import java.util.stream.Collectors;
