@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.eclipse</groupId>
-	<artifactId>xml-languageserver</artifactId>
+	<artifactId>lsp4xml</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
@@ -20,7 +20,7 @@
 	</licenses>
 
 	<modules>
-		<module>org.eclipse.xml.languageserver</module>
+		<module>org.eclipse.lsp4xml</module>
 		<module>extensions</module>
 	</modules>
 

@@ -1,4 +1,4 @@
-[![Build Status](https://secure.travis-ci.org/angelozerr/xml-languageserver.png)](http://travis-ci.org/angelozerr/xml-languageserver)
+[![Build Status](https://secure.travis-ci.org/angelozerr/lsp4xml.png)](http://travis-ci.org/angelozerr/lsp4xml)
 
 XML Language Server
 ===========================
@@ -25,5 +25,3 @@ Clients
 -------
 
 TODO (Eclipse BlueSky?)
-
-

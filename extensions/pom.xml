@@ -4,12 +4,12 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.eclipse</groupId>
-		<artifactId>xml-languageserver</artifactId>
+		<artifactId>lsp4xml</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<artifactId>extensions</artifactId>
+	<artifactId>lsp4xml-extensions</artifactId>
 	<packaging>pom</packaging>
 	<modules>
-		<module>org.eclipse.xml.languageserver.xsd</module>
+		<module>org.eclipse.lsp4xml.contentmodel</module>
 	</modules>
 </project>
