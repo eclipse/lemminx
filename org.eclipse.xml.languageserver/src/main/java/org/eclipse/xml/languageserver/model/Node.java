@@ -57,6 +57,14 @@ public class Node {
 		return toString(0);
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		Node n = (Node) o;
+		return this.tag == n.tag && this.start == n.start && this.end == n.end && this.endTagStart == n.endTagStart
+						&& this.closed == n.closed && this.isCDATA == n.isCDATA && this.attributes == n.attributes 
+						 && this.children == n.children && this.parent == n.parent;
+	}
+
 	private String toString(int indent) {
 		StringBuilder result = new StringBuilder("");
 		for (int i = 0; i < indent; i++) {

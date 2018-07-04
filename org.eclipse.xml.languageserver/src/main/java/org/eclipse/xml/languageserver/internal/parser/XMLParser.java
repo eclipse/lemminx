@@ -113,7 +113,7 @@ public class XMLParser {
 				break;
 			}
 			case CDATAContent: {
-				curr.endTagStart = new Integer(scanner.getTokenEnd());
+				
 				if(curr.tag == null){
 					curr.tag="";
 				}
