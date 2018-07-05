@@ -109,7 +109,6 @@ public class XMLParser {
 				break;
 			}
 
-
 			case CDATATagOpen: {
 				Node cdataNode = new Node(scanner.getTokenOffset(), text.length(), new ArrayList<>(), curr, xmlDocument);//TODO: might need arraylist
 				cdataNode.isCDATA = true;
@@ -118,7 +117,7 @@ public class XMLParser {
 				break;
 			}
 			case CDATAContent: {
-				curr.endTagStart = new Integer(scanner.getTokenEnd());
+				curr.endTagStart = null;
 				if(curr.tag == null){
 					curr.tag="";
 				}

@@ -11,6 +11,7 @@
 package org.eclipse.lsp4xml.internal.parser;
 
 
+
 class Constants {
 
 	public final static int _BNG = "!".codePointAt(0);
