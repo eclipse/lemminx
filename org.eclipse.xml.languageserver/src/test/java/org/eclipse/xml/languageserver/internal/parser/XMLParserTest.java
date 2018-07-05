@@ -11,6 +11,8 @@
 package org.eclipse.xml.languageserver.internal.parser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,72 +28,71 @@ import org.junit.Test;
  *
  */
 public class XMLParserTest {
-	Node currNode;
-	List<Node> tempChildren;
+	//Node currNode;
+	//List<Node> tempChildren;
 
 
-	@Before
-	public void startup() {
-		if(tempChildren != null) newChildrenArray();
-		currNode = null;
-	}
+	// @Before
+	// public void startup() {
+	// 	if(tempChildren != null) newChildrenArray();
+	// 	currNode = null;
+	// }
 
 
 	@Test
 	public void testSingleElement() {
-		currNode = createNode("html", 0, 6, 13, true, false);
+		Node html = createNode("html", 0, 6, 13, true, false);
 
-		assertDocument("<html></html>", currNode);
+		assertDocument("<html></html>", html);
 	}
 
 	@Test
 	public void testNestedElement() {
-		currNode = createNode("body", 6, 12, 19, true, false);
-		addCurrNode();
-		currNode = createNode("html", 0, 19, 26, true, false, tempChildren);
+		Node body = createNode("body", 6, 12, 19, true, false);
+		Node html = createNode("html", 0, 19, 26, true, false, body);
 
-		assertDocument("<html><body></body></html>", currNode);
+		assertDocument("<html><body></body></html>", html);
 	}
 
 	@Test
 	public void testNestedElements() {
-		currNode = createNode("head", 6, 12, 19 , true, false); addCurrNode();
-		currNode = createNode("body", 19, 25, 32, true, false); addCurrNode();
-		currNode = createNode("html", 0, 32, 39, true, false, tempChildren);
+		Node head = createNode("head", 6, 12, 19 , true, false); 
+		Node body = createNode("body", 19, 25, 32, true, false); 
+		Node html = createNode("html", 0, 32, 39, true, false, head,body);
 
-		assertDocument("<html><head></head><body></body></html>", currNode);
+		assertDocument("<html><head></head><body></body></html>", html);
 	}
 
 	@Test
 	public void testNestedNestedElements() {
-		currNode = createNode("c", 6, 9, 13, true, false); addCurrNode();
-		currNode = createNode("b", 3, 13, 17, true, false, tempChildren); newChildrenArray(); addCurrNode();
-		currNode = createNode("a", 0, 17, 21, true, false, tempChildren);
-		assertDocument("<a><b><c></c></b></a>", currNode);
+		Node c = createNode("c", 6, 9, 13, true, false); 
+		Node b = createNode("b", 3, 13, 17, true, false, c);
+		Node a = createNode("a", 0, 17, 21, true, false, b);
+		assertDocument("<a><b><c></c></b></a>", a);
 	}
 
 
 	@Test
 	public void testSelfClosing() {
-		currNode = createNode("br", 0, -1, 5, true, false);
+		Node br = createNode("br", 0, -1, 5, true, false);
 
-		assertDocument("<br/>", currNode);
+		assertDocument("<br/>", br);
 	}
 
 	@Test
 	public void testSelfClosingCompex() {
-		currNode = createNode("br", 5, -1, 10, true, false); addCurrNode();
-		currNode = createNode("span", 10, 16 ,23, true, false); addCurrNode();
-		currNode = createNode("div", 0, 23, 29, true, false, tempChildren);
+		Node br = createNode("br", 5, -1, 10, true, false); 
+		Node span = createNode("span", 10, 16 ,23, true, false); 
+		Node div = createNode("div", 0, 23, 29, true, false, br, span);
 
-		assertDocument("<div><br/><span></span></div>", currNode);
+		assertDocument("<div><br/><span></span></div>", div);
 	}
 
 	@Test
 	public void testEmptyTagT() {
-		currNode = createNode("br", 0, -1, 4, false, false);
+		Node br = createNode("br", 0, -1, 4, false, false);
 
-		assertDocument("<br>", currNode);
+		assertDocument("<br>", br);
 	}
 
 	@Test
@@ -101,107 +102,107 @@ public class XMLParserTest {
 
 	@Test
 	public void testEndTagInsideElement() {
-		currNode = createNode("div", 0, 5, 11, true, false);
-		assertDocument("<div></div><div>", currNode);
+		Node div = createNode("div", 0, 5, 11, true, false);
+		assertDocument("<div></div><div>", div);
 	}
 
 	@Test
 	public void testStartTagInsideElement() {
-		currNode = createNode("div", 5, 10, 16, true, false); addCurrNode();
-		currNode = createNode("div", 0, -1, 16, false, false, tempChildren);
+		Node div2 = createNode("div", 5, 10, 16, true, false); 
+		Node div = createNode("div", 0, -1, 16, false, false, div2);
 
-		assertDocument("<div><div></div>", currNode);
+		assertDocument("<div><div></div>", div);
 	}
 
 	@Test 
 	public void testStartTagInsideElement2() {
-		currNode = createNode("div", 5, -1, 10, false, false); addCurrNode();
-		currNode = createNode("cat", 0, 10, 16, true, false, tempChildren);
+		Node div = createNode("div", 5, -1, 10, false, false); 
+		Node cat = createNode("cat", 0, 10, 16, true, false, div);
 
-		assertDocument("<cat><div></cat>", currNode);
+		assertDocument("<cat><div></cat>", cat);
 	}
 
 	@Test 
 	public void testMultipleStartTagInsideElement() {
-		currNode = createNode("span", 9, -1, 15, false, false);  addCurrNode();
-		currNode = createNode("div", 4, -1, 15, false, false, tempChildren); newChildrenArray(); addCurrNode();
-		currNode = createNode("h1", 0, 15, 20, true, false, tempChildren);
+		Node span = createNode("span", 9, -1, 15, false, false);  
+		Node div = createNode("div", 4, -1, 15, false, false, span);
+		Node h1 = createNode("h1", 0, 15, 20, true, false, div);
 		
-		assertDocument("<h1><div><span></h1>", currNode);
+		assertDocument("<h1><div><span></h1>", h1);
 	}
 
 	@Test
 	public void testAttributeInElement() {
-		currNode = createNode("div", 0, 17, 23, true, false);
-		insertIntoAttributes("key", "\"value\"");
+		Node div = createNode("div", 0, 17, 23, true, false);
+		insertIntoAttributes(div, "key", "\"value\"");
 
-		assertDocument("<div key=\"value\"></div>", currNode);
+		assertDocument("<div key=\"value\"></div>", div);
 	}
 
 	@Test
 	public void testAttributesInElement() {
-		currNode = createNode("div", 0, 30, 36, true, false);
-		insertIntoAttributes("key", "\"value\"");
-		insertIntoAttributes("key2", "\"value\"");
+		Node div = createNode("div", 0, 30, 36, true, false);
+		insertIntoAttributes(div, "key", "\"value\"");
+		insertIntoAttributes(div, "key2", "\"value\"");
 
-		assertDocument("<div key=\"value\" key2=\"value\"></div>", currNode);
+		assertDocument("<div key=\"value\" key2=\"value\"></div>", div);
 	}
 	@Test
 	public void testAttributesInSelfClosingElement() {
-		currNode = createNode("div", 0, -1, 31, true, false);
-		insertIntoAttributes("key", "\"value\"");
-		insertIntoAttributes("key2", "\"value\"");
+		Node div = createNode("div", 0, -1, 31, true, false);
+		insertIntoAttributes(div, "key", "\"value\"");
+		insertIntoAttributes(div, "key2", "\"value\"");
 
-		assertDocument("<div key=\"value\" key2=\"value\"/>", currNode);
+		assertDocument("<div key=\"value\" key2=\"value\"/>", div);
 	}
 
 	@Test
 	public void testAttributeEmptyValue() {
-		currNode = createNode("div", 0, 12, 18, true, false);
-		insertIntoAttributes("key", "\"\"");
+		Node div = createNode("div", 0, 12, 18, true, false);
+		insertIntoAttributes(div, "key", "\"\"");
 
-		assertDocument("<div key=\"\"></div>", currNode);
+		assertDocument("<div key=\"\"></div>", div);
 	}
 
 	@Test
 	public void testAttributeNoValue() {
-		currNode = createNode("div", 0, 10, 16, true, false);
-		insertIntoAttributes("key", null);
+		Node div = createNode("div", 0, 10, 16, true, false);
+		insertIntoAttributes(div, "key", null);
 
-		assertDocument("<div key=></div>", currNode);
+		assertDocument("<div key=></div>", div);
 	}
 
 	@Test
 	public void testAttributeNoClosingQuotation() {
-		currNode = createNode("div", 0, -1, 22, false, false);
-		insertIntoAttributes("key", "\"value></div>");
+		Node div = createNode("div", 0, -1, 22, false, false);
+		insertIntoAttributes(div, "key", "\"value></div>");
 
-		assertDocument("<div key=\"value></div>", currNode);
+		assertDocument("<div key=\"value></div>", div);
 	}
 	
 	@Test
 	public void testCDATABasicTest() {
-		currNode = createNode("testText", 5, -1, 25, true, true); addCurrNode();
-		currNode = createNode("div", 0, 25, 31, true, false, tempChildren);
+		Node text = createNode("testText", 5, -1, 25, true, true); 
+		Node div = createNode("div", 0, 25, 31, true, false, text);
 
-		assertDocument("<div><![CDATA[testText]]></div>", currNode);
+		assertDocument("<div><![CDATA[testText]]></div>", div);
 	}
 	
 	@Test
 	public void testCDATAWithOtherElement() {
-		currNode = createNode("TEXT", 5, -1, 21, true, true); addCurrNode();
-		currNode = createNode("a", 21, 24, 28, true, false); addCurrNode();
-		currNode = createNode("div", 0, 28, 34, true, false, tempChildren);
+		Node text = createNode("TEXT", 5, -1, 21, true, true); 
+		Node a = createNode("a", 21, 24, 28, true, false); 
+		Node div = createNode("div", 0, 28, 34, true, false, text, a);
 
-		assertDocument("<div><![CDATA[TEXT]]><a></a></div>", currNode);
+		assertDocument("<div><![CDATA[TEXT]]><a></a></div>", div);
 	}
 
 	@Test
 	public void testCDATABasicNotClosed() {
-		currNode = createNode("testText]</div>", 5, -1, 29, false, true); addCurrNode();
-		currNode = createNode("div", 0, -1, 29, false, false, tempChildren);
+		Node text = createNode("testText]</div>", 5, -1, 29, false, true); 
+		Node div = createNode("div", 0, -1, 29, false, false, text);
 
-		assertDocument("<div><![CDATA[testText]</div>", currNode);
+		assertDocument("<div><![CDATA[testText]</div>", div);
 	}
 
 
@@ -213,6 +214,40 @@ public class XMLParserTest {
 
 	//--------------------------------------------------------------------------------
 	//Tools
+
+	// public Node createNode(String tag, int start, int endTagStart, int end , boolean closed, boolean isCDATA) {
+	// 	Node n = new Node(start, end, new ArrayList<>(), null, null);
+	// 	setRestOfNode(n, tag, endTagStart, closed, isCDATA);
+	// 	return n;
+	// }
+
+	public Node createNode(String tag, int start, int endTagStart, int end , boolean closed, boolean isCDATA, Node ... children) {
+		ArrayList<Node> newChildren = new ArrayList<Node>(Arrays.asList(children));
+		Node n = new Node(start, end, newChildren, null, null);
+		setRestOfNode(n, tag, endTagStart, closed, isCDATA);
+		return n;
+	}
+
+	// public Node createNode(String tag, int start, int endTagStart, int end , boolean closed, boolean isCDATA, Node child) {
+	// 	return createNode(tag, start, endTagStart, end, closed, isCDATA, Collections.singletonList(child));
+	// }
+
+	private void setRestOfNode(Node n, String tag, int endTagStart, boolean closed, boolean isCDATA) {
+		n.tag = tag;
+		n.endTagStart = endTagStart >= 0 ? new Integer(endTagStart) : null;
+		n.closed = closed;
+		n.isCDATA = isCDATA;
+	} 
+
+	private static void assertDocument(String input, Node currNode) {
+		XMLDocument document = XMLParser.getInstance().parse(input);
+		Node inputRoot = document.children.get(0);
+		compareTrees(currNode, inputRoot);
+	}
+
+	private static void assertFailedDocument(String input) {
+		Assert.assertEquals(0, XMLParser.getInstance().parse(input).children.size());
+	}
 
 	private static void compareTrees(Node root, Node inputRoot){
 		Assert.assertEquals(root.tag, inputRoot.tag);
@@ -238,61 +273,17 @@ public class XMLParserTest {
 			} catch (Exception e) {
 				Assert.fail("Children out of index");
 			}
-			
 		}
-		
-		
 	}
 
-	public void insertIntoAttributes(String key, String value){
-		if(currNode.attributes == null) {
-			currNode.attributes = new HashMap<>();
+	public void insertIntoAttributes(Node n, String key, String value){
+		if(n.attributes == null) {
+			n.attributes = new HashMap<>();
 		}
-		currNode.attributes.put(key, value);
-	}
-
-
-	public Node createNode(String tag, int start, int endTagStart, int end , boolean closed, boolean isCDATA) {
-		Node n = new Node(start, end, new ArrayList<>(), null, null);
-		setRestOfNode(n, tag, endTagStart, closed, isCDATA);
-		return n;
-	}
-
-	public Node createNode(String tag, int start, int endTagStart, int end , boolean closed, boolean isCDATA, List<Node> children) {
-		Node n = new Node(start, end, children, null, null);
-		setRestOfNode(n, tag, endTagStart, closed, isCDATA);
-		return n;
-	}
-
-	private void setRestOfNode(Node n, String tag, int endTagStart, boolean closed, boolean isCDATA) {
-		n.tag = tag;
-		n.endTagStart = endTagStart >= 0 ? new Integer(endTagStart) : null;
-		n.closed = closed;
-		n.isCDATA = isCDATA;
+		n.attributes.put(key, value);
 	}
 
 	public XMLDocument getXMLDocument(String input) {
 		return XMLParser.getInstance().parse(input);
-	}
-
-	private static void assertDocument(String input, Node currNode) {
-		XMLDocument document = XMLParser.getInstance().parse(input);
-		Node inputRoot = document.children.get(0);
-		compareTrees(currNode, inputRoot);
-	}
-
-	private static void assertFailedDocument(String input) {
-		Assert.assertEquals(0, XMLParser.getInstance().parse(input).children.size());
-	}
-
-	private void addCurrNode() {
-		if(tempChildren == null) {
-			tempChildren = new ArrayList<Node>();
-		}
-		tempChildren.add(currNode);
-	}
-
-	private void newChildrenArray() {
-		tempChildren = new ArrayList<Node>();
 	}
 }
