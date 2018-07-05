@@ -147,6 +147,7 @@ class XMLCompletions {
 					String currentTag = completionRequest.getCurrentTag();
 					if (currentTag.length() > 0) {
 						collectInsideContent(completionRequest, completionResponse);
+						return completionResponse;
 					}
 				}
 				break;

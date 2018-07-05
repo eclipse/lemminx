@@ -12,9 +12,8 @@ public class SchemaLocation {
 		this.schemaLocationValuePairs = new HashMap<>();
 		StringTokenizer st = new StringTokenizer(value);
 		do {
-			String locationHint;
 			String namespaceURI = st.hasMoreTokens() ? st.nextToken() : null;
-			String string = locationHint = st.hasMoreTokens() ? st.nextToken() : null;
+			String locationHint = st.hasMoreTokens() ? st.nextToken() : null;
 			if (namespaceURI == null || locationHint == null)
 				break;
 			schemaLocationValuePairs.put(namespaceURI, locationHint);

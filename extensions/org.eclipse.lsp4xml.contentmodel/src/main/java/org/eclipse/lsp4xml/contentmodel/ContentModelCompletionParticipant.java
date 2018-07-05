@@ -22,8 +22,8 @@ import org.eclipse.lsp4xml.model.Node;
 import org.eclipse.lsp4xml.model.XMLDocument;
 
 /**
- * Extension to support XML completion based on content model (XML Schema completion,
- * etc)
+ * Extension to support XML completion based on content model (XML Schema
+ * completion, etc)
  */
 public class ContentModelCompletionParticipant implements ICompletionParticipant {
 
@@ -43,16 +43,19 @@ public class ContentModelCompletionParticipant implements ICompletionParticipant
 				XMLGenerator generator = new XMLGenerator(request.getFormattingSettings(), whitespacesIndent,
 						lineDelimiter);
 				for (CMElement child : cmlElement.getElements()) {
-					CompletionItem item = new CompletionItem(child.getName());
-					item.setKind(CompletionItemKind.Property);
-					String documentation = child.getDocumentation();
-					if (documentation != null) {
-						item.setDetail(documentation);
+					String tag = child.getName();
+					if (!parentNode.hasTag(tag)) {
+						CompletionItem item = new CompletionItem(child.getName());
+						item.setKind(CompletionItemKind.Property);
+						String documentation = child.getDocumentation();
+						if (documentation != null) {
+							item.setDetail(documentation);
+						}
+						String xml = generator.generate(child);
+						item.setTextEdit(new TextEdit(new Range(request.getPosition(), request.getPosition()), xml));
+						item.setInsertTextFormat(InsertTextFormat.Snippet);
+						response.addCompletionItem(item);
 					}
-					String xml = generator.generate(child);
-					item.setTextEdit(new TextEdit(new Range(request.getPosition(), request.getPosition()), xml));
-					item.setInsertTextFormat(InsertTextFormat.Snippet);
-					response.addCompletionItem(item);
 				}
 			}
 		} catch (Exception e) {

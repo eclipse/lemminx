@@ -65,6 +65,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	private final XMLLanguageService languageService;
 	private final LanguageModelCache<XMLDocument> xmlDocuments;
 	private final FormattingOptions sharedFormattingOptions;
+	private CompletableFuture<Object> validationRequest;
 
 	public XMLTextDocumentService(XMLLanguageServer fmLanguageServer) {
 		this.xmlLanguageServer = fmLanguageServer;
@@ -214,12 +215,16 @@ public class XMLTextDocumentService implements TextDocumentService {
 	}
 
 	private void triggerValidation(TextDocumentItem document) {
-		String uri = document.getUri();
-		List<Diagnostic> diagnostics = languageService.validateXML(uri, document.getText());
-		xmlLanguageServer.getLanguageClient().publishDiagnostics(new PublishDiagnosticsParams(uri, diagnostics));
+		if (validationRequest != null) {
+			validationRequest.cancel(true);
+		}
+		validationRequest = computeAsync((monitor) -> {
+			monitor.checkCanceled();
+			List<Diagnostic> diagnostics = languageService.doDiagnostics(document, null, monitor);
+			monitor.checkCanceled();
+			xmlLanguageServer.getLanguageClient().publishDiagnostics(new PublishDiagnosticsParams(document.getUri(), diagnostics));
+			return null;
+		});
 	}
 
-	public void validateOpenDocuments() {
-
-	}
 }

@@ -179,4 +179,13 @@ public class Node {
 		}
 		return value;
 	}
+
+	public boolean hasTag(String tag) {
+		for (Node node : children) {
+			if (tag.equals(node.tag)) {
+				return true;
+			}
+		}
+		return false;
+	}
 }

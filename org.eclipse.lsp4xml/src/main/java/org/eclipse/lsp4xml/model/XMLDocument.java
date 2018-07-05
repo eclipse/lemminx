@@ -26,7 +26,9 @@ public class XMLDocument extends Node {
 
 	private final ListLineTracker lineTracker;
 	private SchemaLocation schemaLocation;
+	private NoNamespaceSchemaLocation noNamespaceSchemaLocation;
 	private boolean schemaLocationInitialized;
+
 	private final String text;
 	private final String uri;
 
@@ -75,23 +77,46 @@ public class XMLDocument extends Node {
 
 	public SchemaLocation getSchemaLocation() {
 		if (!schemaLocationInitialized) {
-			schemaLocation = createSchemaLocation();
-			schemaLocationInitialized = true;
+			initializeSchemaLocation();
 		}
 		return schemaLocation;
 	}
 
-	private SchemaLocation createSchemaLocation() {
+	public NoNamespaceSchemaLocation getNoNamespaceSchemaLocation() {
+		if (!schemaLocationInitialized) {
+			initializeSchemaLocation();
+		}
+		return noNamespaceSchemaLocation;
+	}
+
+	private void initializeSchemaLocation() {
+		if (schemaLocationInitialized) {
+			return;
+		}
 		List<Node> roots = getRoots();
 		if (roots == null || roots.size() < 1) {
-			return null;
+			return;
 		}
 		Node root = roots.get(0);
+		schemaLocation = createSchemaLocation(root);
+		noNamespaceSchemaLocation = createNoNamespaceSchemaLocation(root);
+		schemaLocationInitialized = true;
+	}
+
+	private SchemaLocation createSchemaLocation(Node root) {
 		String value = root.getAttributeValue("xsi:schemaLocation");
 		if (value == null) {
 			return null;
 		}
 		return new SchemaLocation(value);
+	}
+
+	private NoNamespaceSchemaLocation createNoNamespaceSchemaLocation(Node root) {
+		String value = root.getAttributeValue("xsi:noNamespaceSchemaLocation");
+		if (value == null) {
+			return null;
+		}
+		return new NoNamespaceSchemaLocation(value);
 	}
 
 	public String getNamespaceURI() {
@@ -115,6 +140,10 @@ public class XMLDocument extends Node {
 	@Override
 	public XMLDocument getOwnerDocument() {
 		return this;
+	}
+
+	public boolean hasSchemaLocation() {
+		return getSchemaLocation() != null || getNoNamespaceSchemaLocation() != null;
 	}
 
 }

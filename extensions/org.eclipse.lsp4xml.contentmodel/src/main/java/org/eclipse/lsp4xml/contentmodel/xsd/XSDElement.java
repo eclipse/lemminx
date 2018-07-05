@@ -156,4 +156,8 @@ public class XSDElement implements CMElement {
 		return null;
 	}
 
+	@Override
+	public String toString() {
+		return getName();
+	}
 }
