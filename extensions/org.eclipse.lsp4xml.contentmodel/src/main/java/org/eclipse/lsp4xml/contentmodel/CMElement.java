@@ -26,6 +26,13 @@ public interface CMElement {
 	String getName();
 
 	/**
+	 * Returns the attributes of this declared element.
+	 * 
+	 * @return the attributes element of this declared element.
+	 */
+	Collection<CMAttribute> getAttributes();
+
+	/**
 	 * Returns the children declared element of this declared element.
 	 * 
 	 * @return the children declared element of this declared element.
