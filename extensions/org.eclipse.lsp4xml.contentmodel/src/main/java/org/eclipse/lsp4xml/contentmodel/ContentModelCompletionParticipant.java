@@ -22,9 +22,8 @@ import org.eclipse.lsp4xml.model.Node;
 import org.eclipse.lsp4xml.model.XMLDocument;
 
 /**
- * Extension to support completion for content model (XML Schema completion,
+ * Extension to support XML completion based on content model (XML Schema completion,
  * etc)
- *
  */
 public class ContentModelCompletionParticipant implements ICompletionParticipant {
 

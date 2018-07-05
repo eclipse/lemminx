@@ -10,28 +10,19 @@
  */
 package org.eclipse.lsp4xml.services;
 
-import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4xml.extensions.ICompletionRequest;
+import org.eclipse.lsp4xml.extensions.IHoverRequest;
 import org.eclipse.lsp4xml.internal.parser.BadLocationException;
 import org.eclipse.lsp4xml.model.XMLDocument;
 
 /**
- * Completion request implementation.
+ * Hover request implementation.
  *
  */
-class CompletionRequest extends AbstractPositionRequest implements ICompletionRequest {
+class HoverRequest extends AbstractPositionRequest implements IHoverRequest {
 
-	private final FormattingOptions settings;
-
-	public CompletionRequest(XMLDocument xmlDocument, Position position, FormattingOptions settings)
-			throws BadLocationException {
+	public HoverRequest(XMLDocument xmlDocument, Position position) throws BadLocationException {
 		super(xmlDocument, position);
-		this.settings = settings;
 	}
 
-	@Override
-	public FormattingOptions getFormattingSettings() {
-		return settings;
-	}
 }

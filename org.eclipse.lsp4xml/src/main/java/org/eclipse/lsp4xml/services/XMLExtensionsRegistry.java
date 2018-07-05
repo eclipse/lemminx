@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.ServiceLoader;
 
 import org.eclipse.lsp4xml.extensions.ICompletionParticipant;
+import org.eclipse.lsp4xml.extensions.IHoverParticipant;
 
 /**
  * XML extensions registry.
@@ -23,6 +24,7 @@ import org.eclipse.lsp4xml.extensions.ICompletionParticipant;
 public class XMLExtensionsRegistry {
 
 	private Collection<ICompletionParticipant> completionParticipants;
+	private Collection<IHoverParticipant> hoverParticipants;
 
 	public Collection<ICompletionParticipant> getCompletionParticipants() {
 		if (completionParticipants == null) {
@@ -62,6 +64,46 @@ public class XMLExtensionsRegistry {
 	 */
 	public void removeCompletionParticipant(ICompletionParticipant completionParticipant) {
 		completionParticipants.remove(completionParticipant);
+	}
+	
+	public Collection<IHoverParticipant> getHoverParticipants() {
+		if (hoverParticipants == null) {
+			hoverParticipants = loadHoverParticipants();
+		}
+		return hoverParticipants;
+	}
+
+	/**
+	 * Load {@link IHoverParticipant} with SPI.
+	 * 
+	 * @return the loaded {@link IHoverParticipant} with SPI.
+	 */
+	private synchronized Collection<IHoverParticipant> loadHoverParticipants() {
+		if (hoverParticipants != null) {
+			return hoverParticipants;
+		}
+		Collection<IHoverParticipant> hoverParticipants = new ArrayList<IHoverParticipant>();
+		ServiceLoader<IHoverParticipant> loader = ServiceLoader.load(IHoverParticipant.class);
+		loader.forEach(p -> hoverParticipants.add(p));
+		return hoverParticipants;
+	}
+
+	/**
+	 * Add the given hover participant.
+	 * 
+	 * @param hoverParticipant
+	 */
+	public void addHoverParticipant(IHoverParticipant hoverParticipant) {
+		hoverParticipants.add(hoverParticipant);
+	}
+
+	/**
+	 * Remove the given hover participant.
+	 * 
+	 * @param hoverParticipant
+	 */
+	public void removeHoverParticipant(IHoverParticipant hoverParticipant) {
+		hoverParticipants.remove(hoverParticipant);
 	}
 
 }

@@ -10,13 +10,10 @@
  */
 package org.eclipse.lsp4xml.extensions;
 
-import org.eclipse.lsp4j.FormattingOptions;
-
 /**
- * Completion request API.
+ * Hover request API.
  *
  */
-public interface ICompletionRequest extends IPositionRequest {
-	
-	FormattingOptions getFormattingSettings();
+public interface IHoverRequest extends IPositionRequest {
+
 }

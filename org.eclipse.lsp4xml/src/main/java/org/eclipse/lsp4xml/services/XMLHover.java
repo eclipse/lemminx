@@ -13,6 +13,8 @@ package org.eclipse.lsp4xml.services;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4xml.extensions.IHoverParticipant;
+import org.eclipse.lsp4xml.extensions.IHoverRequest;
 import org.eclipse.lsp4xml.internal.parser.BadLocationException;
 import org.eclipse.lsp4xml.internal.parser.Scanner;
 import org.eclipse.lsp4xml.internal.parser.TokenType;
@@ -32,33 +34,40 @@ class XMLHover {
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
-	public Hover doHover(XMLDocument document, Position position) {
-		int offset = 0;
+	public Hover doHover(XMLDocument xmlDocument, Position position) {
+		HoverRequest hoverRequest = null;
 		try {
-			offset = document.offsetAt(position);
+			hoverRequest = new HoverRequest(xmlDocument, position);
 		} catch (BadLocationException e) {
 			return null;
 		}
-		Node node = document.findNodeAt(offset);
+		int offset = hoverRequest.getOffset();
+		Node node = hoverRequest.getNode();
 		if (node == null || node.tag == null) {
 			return null;
 		}
 		if (node.endTagStart != null && offset >= node.endTagStart) {
-			Range tagRange = getTagNameRange(TokenType.EndTag, node.endTagStart, offset, document);
+			Range tagRange = getTagNameRange(TokenType.EndTag, node.endTagStart, offset, xmlDocument);
 			if (tagRange != null) {
-				return getTagHover(node.tag, tagRange, false);
+				return getTagHover(hoverRequest); // getTagHover(node.tag, tagRange, false);
 			}
 			return null;
 		}
 
-		Range tagRange = getTagNameRange(TokenType.StartTag, node.start, offset, document);
+		Range tagRange = getTagNameRange(TokenType.StartTag, node.start, offset, xmlDocument);
 		if (tagRange != null) {
-			return getTagHover(node.tag, tagRange, true);
+			return getTagHover(hoverRequest); // getTagHover(node.tag, tagRange, true);
 		}
 		return null;
 	}
 
-	private Hover getTagHover(String tag, Range tagRange, boolean b) {
+	private Hover getTagHover(IHoverRequest hoverRequest) {
+		for (IHoverParticipant participant : extensionsRegistry.getHoverParticipants()) {
+			Hover hover = participant.onTag(hoverRequest);
+			if (hover != null) {
+				return hover;
+			}
+		}
 		return null;
 	}
 
