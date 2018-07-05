@@ -30,9 +30,12 @@ public class Node {
 	public final List<Node> children;
 	public final int start;
 	public int end;
+
+	public boolean isCDATA = false;
 	public final Node parent;
 	private final XMLDocument ownerDocument;
 	public String content;
+
 
 	public Set<String> attributeNames() {
 		return this.attributes != null ? attributes.keySet() : Collections.emptySet();

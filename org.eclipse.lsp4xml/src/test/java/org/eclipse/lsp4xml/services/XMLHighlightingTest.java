@@ -68,7 +68,7 @@ public class XMLHighlightingTest {
 	@Test
 	public void selfclosed() throws BadLocationException {
 		assertHighlights("<html><|div/></html>", new int[] { 7 }, "div");
-		assertHighlights("<html><|br></html>", new int[] { 7 }, "br");
+		assertHighlights("<html><|br></html>", new int[] {  }, "br");
 		assertHighlights("<html><div><d|iv/></div></html>", new int[] { 12 }, "div");
 	}
 
