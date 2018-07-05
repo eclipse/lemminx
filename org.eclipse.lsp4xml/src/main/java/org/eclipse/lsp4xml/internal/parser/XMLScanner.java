@@ -10,14 +10,20 @@
  */
 package org.eclipse.lsp4xml.internal.parser;
 
+import static org.eclipse.lsp4xml.internal.parser.Constants._AVL;
 import static org.eclipse.lsp4xml.internal.parser.Constants._BNG;
+import static org.eclipse.lsp4xml.internal.parser.Constants._CSB;
+import static org.eclipse.lsp4xml.internal.parser.Constants._CVL;
 import static org.eclipse.lsp4xml.internal.parser.Constants._DQO;
+import static org.eclipse.lsp4xml.internal.parser.Constants._DVL;
 import static org.eclipse.lsp4xml.internal.parser.Constants._EQS;
 import static org.eclipse.lsp4xml.internal.parser.Constants._FSL;
 import static org.eclipse.lsp4xml.internal.parser.Constants._LAN;
 import static org.eclipse.lsp4xml.internal.parser.Constants._MIN;
+import static org.eclipse.lsp4xml.internal.parser.Constants._OSB;
 import static org.eclipse.lsp4xml.internal.parser.Constants._RAN;
 import static org.eclipse.lsp4xml.internal.parser.Constants._SQO;
+import static org.eclipse.lsp4xml.internal.parser.Constants._TVL;
 
 import java.util.regex.Pattern;
 
@@ -113,11 +119,16 @@ public class XMLScanner implements Scanner {
 		case WithinContent:
 			if (stream.advanceIfChar(_LAN)) { // <
 				if (!stream.eos() && stream.peekChar() == _BNG) { // !
-					if (stream.advanceIfChars(_BNG, _MIN, _MIN)) { // <!--
+					if (stream.advanceIfChars(_BNG, _MIN, _MIN)) { // !--
 						state = ScannerState.WithinComment;
 						return finishToken(offset, TokenType.StartCommentTag);
 					}
-					/*
+					if(stream.advanceIfChars(_BNG, _OSB, _CVL, _DVL,_AVL, _TVL, _AVL, _OSB)) { // ![CDATA[
+						state = ScannerState.WithinCDATA;
+						return finishToken(offset, TokenType.CDATATagOpen);
+					}
+					
+						/*
 					 * AZ: if (stream.advanceIfRegExp(/^!doctype/i)) { state =
 					 * ScannerState.WithinDoctype; return finishToken(offset,
 					 * TokenType.StartDoctypeTag); }
@@ -132,6 +143,14 @@ public class XMLScanner implements Scanner {
 			}
 			stream.advanceUntilChar(_LAN);
 			return finishToken(offset, TokenType.Content);
+		case WithinCDATA:
+			if (stream.advanceIfChars(_CSB, _CSB, _RAN)) { // ]]>
+				state = ScannerState.WithinContent;
+				return finishToken(offset, TokenType.CDATATagClose);
+			}
+			stream.advanceUntilChars(_CSB, _CSB, _RAN); // ]]>
+			return finishToken(offset, TokenType.CDATAContent);
+		
 		case AfterOpeningEndTag:
 			String tagName = nextElementName();
 			if (tagName.length() > 0) {

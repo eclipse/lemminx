@@ -25,6 +25,7 @@ target/
 *~
 
 .gradle
+.vscode/
 
 .DS_Store*
 .AppleDouble
