@@ -108,6 +108,31 @@ public class XMLParser {
 				}
 				break;
 			}
+
+
+			case CDATATagOpen: {
+				Node cdataNode = new Node(scanner.getTokenOffset(), text.length(), new ArrayList<>(), curr, xmlDocument);//TODO: might need arraylist
+				cdataNode.isCDATA = true;
+				curr.children.add(cdataNode);
+				curr = cdataNode;
+				break;
+			}
+			case CDATAContent: {
+				curr.endTagStart = new Integer(scanner.getTokenEnd());
+				if(curr.tag == null){
+					curr.tag="";
+				}
+				curr.tag += scanner.getTokenText();
+				break;
+			}
+
+			case CDATATagClose: {
+				curr.end = scanner.getTokenEnd();
+				curr.closed = true;
+				curr = curr.parent;
+				break;
+			}
+
 			case Content: {
 				if (full) {
 					String content = scanner.getTokenText();
@@ -116,6 +141,7 @@ public class XMLParser {
 					curr.children.add(cdata);
 				}
 			}
+
 			}
 			token = scanner.scan();
 		}

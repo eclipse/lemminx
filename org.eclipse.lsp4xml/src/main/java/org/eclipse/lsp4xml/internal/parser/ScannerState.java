@@ -16,5 +16,7 @@ package org.eclipse.lsp4xml.internal.parser;
  */
 public enum ScannerState {
 	WithinContent, AfterOpeningStartTag, AfterOpeningEndTag, WithinDoctype, WithinTag, WithinEndTag, WithinComment,
-	WithinScriptContent, WithinStyleContent, AfterAttributeName, BeforeAttributeValue
+        WithinScriptContent, WithinStyleContent, AfterAttributeName, BeforeAttributeValue, WithinCDATA, AfterClosingCDATATag,
+        StartCDATATag
+
 }
