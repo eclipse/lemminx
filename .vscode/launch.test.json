@@ -3,8 +3,8 @@
         "default": "",
         "items": [
             {
-                "name": "xml-languageserver",
-                "projectName": "xml-languageserver",
+                "name": "lsp4xml",
+                "projectName": "lsp4xml",
                 "workingDirectory": "",
                 "args": [],
                 "vmargs": [],
@@ -16,8 +16,8 @@
         "default": "",
         "items": [
             {
-                "name": "xml-languageserver",
-                "projectName": "xml-languageserver",
+                "name": "lsp4xml",
+                "projectName": "lsp4xml",
                 "workingDirectory": "",
                 "args": [],
                 "vmargs": [],
