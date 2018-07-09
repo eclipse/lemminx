@@ -1,0 +1,28 @@
+{
+    "run": {
+        "default": "",
+        "items": [
+            {
+                "name": "xml-languageserver",
+                "projectName": "xml-languageserver",
+                "workingDirectory": "/home/nkomonen/Documents/angelo-xmlLS/xml-languageserver",
+                "args": [],
+                "vmargs": [],
+                "preLaunchTask": ""
+            }
+        ]
+    },
+    "debug": {
+        "default": "",
+        "items": [
+            {
+                "name": "xml-languageserver",
+                "projectName": "xml-languageserver",
+                "workingDirectory": "/home/nkomonen/Documents/angelo-xmlLS/xml-languageserver",
+                "args": [],
+                "vmargs": [],
+                "preLaunchTask": ""
+            }
+        ]
+    }
+}
