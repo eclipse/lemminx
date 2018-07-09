@@ -47,14 +47,18 @@ public class XMLParser {
 		TokenType token = scanner.scan();
 		while (token != TokenType.EOS) {
 			switch (token) {
-			case StartTagOpen:
+			case StartTagOpen: {
 				Node child = new Node(scanner.getTokenOffset(), text.length(), new ArrayList<>(), curr, xmlDocument);
 				curr.children.add(child);
 				curr = child;
 				break;
-			case StartTag:
+			}
+
+			case StartTag: {
 				curr.tag = scanner.getTokenText();
 				break;
+			}
+
 			case StartTagClose:
 				curr.end = scanner.getTokenEnd(); // might be later set to end tag position
 				if (curr.tag != null && isEmptyElement(curr.tag) && curr.parent != null) {
@@ -62,9 +66,11 @@ public class XMLParser {
 					curr = curr.parent;
 				}
 				break;
+
 			case EndTagOpen:
 				endTagStart = scanner.getTokenOffset();
 				break;
+
 			case EndTag:
 				String closeTag = scanner.getTokenText().toLowerCase();
 				while (!curr.isSameTag(closeTag) && curr.parent != null) {
@@ -77,6 +83,7 @@ public class XMLParser {
 					curr.endTagStart = endTagStart;
 				}
 				break;
+
 			case StartTagSelfClose:
 				if (curr.parent != null) {
 					curr.closed = true;
@@ -84,12 +91,14 @@ public class XMLParser {
 					curr = curr.parent;
 				}
 				break;
+
 			case EndTagClose:
 				if (curr.parent != null) {
 					curr.end = scanner.getTokenEnd();
 					curr = curr.parent;
 				}
 				break;
+
 			case AttributeName: {
 				String attributeName = pendingAttribute = scanner.getTokenText();
 				Map<String, String> attributes = curr.attributes;
@@ -99,6 +108,7 @@ public class XMLParser {
 				attributes.put(pendingAttribute, null); // Support valueless attributes such as 'checked'
 				break;
 			}
+
 			case AttributeValue: {
 				String value = scanner.getTokenText();
 				Map<String, String> attributes = curr.attributes;
@@ -108,6 +118,30 @@ public class XMLParser {
 				}
 				break;
 			}
+
+			case CDATATagOpen: {
+				Node cdataNode = new Node(scanner.getTokenOffset(), text.length(), new ArrayList<>(), curr, xmlDocument);//TODO: might need arraylist
+				cdataNode.isCDATA = true;
+				curr.children.add(cdataNode);
+				curr = cdataNode;
+				break;
+			}
+
+			case CDATAContent: {
+				if(curr.tag == null){
+					curr.tag="";
+				}
+				curr.tag += scanner.getTokenText();
+				break;
+			}
+
+			case CDATATagClose: {
+				curr.end = scanner.getTokenEnd();
+				curr.closed = true;
+				curr = curr.parent;
+				break;
+			}
+
 			case Content: {
 				if (full) {
 					String content = scanner.getTokenText();

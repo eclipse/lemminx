@@ -18,6 +18,7 @@ import org.eclipse.lsp4j.DocumentHighlight;
 import org.eclipse.lsp4j.DocumentHighlightKind;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4xml.internal.parser.BadLocationException;
 import org.eclipse.lsp4xml.internal.parser.Scanner;
 import org.eclipse.lsp4xml.internal.parser.TokenType;
@@ -48,18 +49,55 @@ class XMLHighlighting {
 		if (node.tag == null) {
 			return Collections.emptyList();
 		}
-		List<DocumentHighlight> result = new ArrayList<>();
-		Range startTagRange = getTagNameRange(TokenType.StartTag, xmlDocument, node.start);
-		Range endTagRange = node.endTagStart != null ? getTagNameRange(TokenType.EndTag, xmlDocument, node.endTagStart)
-				: null;
-		if (startTagRange != null && covers(startTagRange, position)
-				|| endTagRange != null && covers(endTagRange, position)) {
-			if (startTagRange != null) {
-				result.add(new DocumentHighlight(startTagRange, DocumentHighlightKind.Read));
+
+		Range startTagRange = null;
+		Range endTagRange = null;
+		if(node.isCDATA == true){
+			Position startPos = null;
+			Position endPos = null;
+			Range tempRange = null;
+			try {
+				startPos = xmlDocument.positionAt(node.start); 
+				endPos = xmlDocument.positionAt(node.end); 
+				tempRange = new Range(startPos, endPos);
+				
+			} catch (BadLocationException e) {
+				e.printStackTrace();
+				return Collections.emptyList();
 			}
-			if (endTagRange != null) {
-				result.add(new DocumentHighlight(endTagRange, DocumentHighlightKind.Read));
+			if(covers(tempRange, position)) {
+				startPos.setCharacter(startPos.getCharacter() + 1); // {Cursor}<![CDATA[   ->   <{Cursor}![CDATA[
+				endPos.setCharacter(endPos.getCharacter() - 1); // ]]>{Cursor}  ->   ]]{Cursor}>
+				Position startPosEnd = new Position(startPos.getLine(), startPos.getCharacter() + 8);
+				Position endPosStart = new Position(endPos.getLine(), endPos.getCharacter() - 2);
+				return getHighlightsList(new Range(startPos, startPosEnd), new Range(endPosStart, endPos));
 			}
+			return Collections.emptyList();
+		}
+		else{//Regular element 
+			startTagRange = getTagNameRange(TokenType.StartTag, node.start, xmlDocument);
+			endTagRange = node.endTagStart != null ? 
+				getTagNameRange(TokenType.EndTag, node.endTagStart, xmlDocument) : null;
+			if(doesTagCoverPosition(startTagRange, endTagRange, position)) {
+				return getHighlightsList(startTagRange, endTagRange);
+			}
+		}
+		return Collections.emptyList();
+	}
+
+	private static boolean doesTagCoverPosition(Range startTagRange, Range endTagRange, Position position){
+		return startTagRange != null && covers(startTagRange, position)
+		|| endTagRange != null && covers(endTagRange, position);
+	}
+
+	private static List<DocumentHighlight> getHighlightsList(Range startTagRange, Range endTagRange){
+		
+		List<DocumentHighlight> result = new ArrayList<>(2);
+		if (startTagRange != null) {
+			result.add(new DocumentHighlight(startTagRange, DocumentHighlightKind.Read));
+		}
+		if (endTagRange != null) {
+			result.add(new DocumentHighlight(endTagRange, DocumentHighlightKind.Read));
 		}
 		return result;
 	}
@@ -73,8 +111,11 @@ class XMLHighlighting {
 		return isBeforeOrEqual(range.getStart(), position) && isBeforeOrEqual(position, range.getEnd());
 	}
 
-	private static Range getTagNameRange(TokenType tokenType, XMLDocument xmlDocument, int startOffset) {
+
+	private static Range getTagNameRange(TokenType tokenType, int startOffset, XMLDocument xmlDocument) {
+
 		Scanner scanner = XMLScanner.createScanner(xmlDocument.getText(), startOffset);
+
 		TokenType token = scanner.scan();
 		while (token != TokenType.EOS && token != tokenType) {
 			token = scanner.scan();
@@ -82,11 +123,14 @@ class XMLHighlighting {
 		if (token != TokenType.EOS) {
 			try {
 				return new Range(xmlDocument.positionAt(scanner.getTokenOffset()),
-						xmlDocument.positionAt(scanner.getTokenEnd()));
+					xmlDocument.positionAt(scanner.getTokenEnd()));
 			} catch (BadLocationException e) {
 				e.printStackTrace();
-			}
+				return null;
+			}	
 		}
 		return null;
 	}
+
+
 }

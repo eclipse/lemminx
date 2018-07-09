@@ -19,6 +19,9 @@ public enum TokenType {
 	StartCommentTag,
 	Comment,
 	EndCommentTag,
+	CDATATagOpen,
+	CDATAContent,
+	CDATATagClose,
 	StartTagOpen,
 	StartTagClose,
 	StartTagSelfClose,
@@ -38,4 +41,5 @@ public enum TokenType {
 	Script,
 	Styles,
 	EOS
+
 }
