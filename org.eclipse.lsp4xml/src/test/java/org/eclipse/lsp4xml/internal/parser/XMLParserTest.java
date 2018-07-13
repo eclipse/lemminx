@@ -193,7 +193,30 @@ public class XMLParserTest {
 	}
 
 
+	@Test
+	public void testClosedWithIncompleteEndTag() {
+		
+		Node div = createNode("div", 0, -1, 5, false, false);
 
+		assertDocument("<div></divaaaz", div);
+	}
+
+	@Test
+	public void testNonClosedAndIncomplete() {
+		Node h = createNode("h", 14, -1, 24, false, false);
+		Node hello = createNode("hello", 7, -1, 24, false, false, h);
+		Node test1= createNode("test1", 0, -1, 24, false, false, hello);
+		assertDocument("<test1><hello><h</hello>", test1);
+	}
+
+	@Test
+	public void testWithNewLineCharacters() {
+		Node n = createNode("n", 6, 12, 16, true, false);
+		Node t = createNode("t", 0, 17, 21, true, false, n);
+
+		assertDocument("<t>\n  <n>\n  </n>\n</t>", t);
+	}
+	
 
 
 
@@ -216,34 +239,34 @@ public class XMLParserTest {
 		n.isCDATA = isCDATA;
 	} 
 
-	private static void assertDocument(String input, Node currNode) {
+	private static void assertDocument(String input, Node expectedNode) {
 		XMLDocument document = XMLParser.getInstance().parse(input, "uri");
-		Node inputRoot = document.children.get(0);
-		compareTrees(currNode, inputRoot);
+		Node actualNode = document.children.get(0);
+		compareTrees(expectedNode, actualNode);
 	}
 
 	private static void assertFailedDocument(String input) {
 		assertEquals(0, XMLParser.getInstance().parse(input, "uri").children.size());
 	}
 
-	private static void compareTrees(Node root, Node inputRoot){
-		assertEquals(root.tag, inputRoot.tag);
-		assertEquals(root.start, inputRoot.start);
-		assertEquals(root.end, inputRoot.end);
-		assertEquals(root.attributes, inputRoot.attributes);
+	private static void compareTrees(Node expectedNode, Node actualNode){
+		assertEquals(expectedNode.tag, actualNode.tag);
+		assertEquals(expectedNode.start, actualNode.start);
+		assertEquals(expectedNode.end, actualNode.end);
+		assertEquals(expectedNode.attributes, actualNode.attributes);
 	
-		if(root.endTagStart == null){
-			Assert.assertNull(inputRoot.endTagStart);
+		if(expectedNode.endTagStart == null){
+			Assert.assertNull(actualNode.endTagStart);
 		}
 		else{
-			assertEquals(root.endTagStart, inputRoot.endTagStart);
+			assertEquals(expectedNode.endTagStart, actualNode.endTagStart);
 		}
-		assertEquals(root.closed, inputRoot.closed);
-		assertEquals(root.isCDATA, inputRoot.isCDATA);
+		assertEquals(expectedNode.closed, actualNode.closed);
+		assertEquals(expectedNode.isCDATA, actualNode.isCDATA);
 		
-		assertEquals(root.children.size(), inputRoot.children.size());
-		for(int i = 0; i < root.children.size(); i++) {
-				compareTrees(root.children.get(i), inputRoot.children.get(i));
+		assertEquals(expectedNode.children.size(), actualNode.children.size());
+		for(int i = 0; i < expectedNode.children.size(); i++) {
+				compareTrees(expectedNode.children.get(i), actualNode.children.get(i));
 		}
 	}
 
