@@ -12,6 +12,8 @@ package org.eclipse.lsp4xml.services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
@@ -21,13 +23,14 @@ import org.eclipse.lsp4j.SymbolKind;
 import org.eclipse.lsp4xml.internal.parser.BadLocationException;
 import org.eclipse.lsp4xml.model.Node;
 import org.eclipse.lsp4xml.model.XMLDocument;
+import org.eclipse.lsp4xml.utils.XMLLogger;
 
 /**
  * XML symbol provider.
  *
  */
 class XMLSymbolsProvider {
-
+	private static final XMLLogger logger = new XMLLogger(XMLSymbolsProvider.class.getName());
 	private final XMLExtensionsRegistry extensionsRegistry;
 
 	public XMLSymbolsProvider(XMLExtensionsRegistry extensionsRegistry) {
@@ -40,7 +43,7 @@ class XMLSymbolsProvider {
 			try {
 				provideFileSymbolsInternal(node, "", symbols);
 			} catch (BadLocationException e) {
-				e.printStackTrace();
+				logger.logCatch(e);
 			}
 		});
 		return symbols;
@@ -62,8 +65,7 @@ class XMLSymbolsProvider {
 			try {
 				provideFileSymbolsInternal(child, name, symbols);
 			} catch (BadLocationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.logCatch(e);
 			}
 		});
 

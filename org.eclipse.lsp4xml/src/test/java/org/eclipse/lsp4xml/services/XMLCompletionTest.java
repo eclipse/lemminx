@@ -66,13 +66,11 @@ public class XMLCompletionTest {
 
 	
 
-	
-
-
 
 	//-------------------Tools----------------------------------------------------------
 
 	public void assertOpenStartTagCompletion(String xmlText, int expectedStartTagOffset, String ... expectedTag ) {
+		
 		List<String> expectedTags = Arrays.asList(expectedTag);
 		int offset = getOffset(xmlText);
 		XMLDocument xmlDocument = initializeXMLDocument(xmlText, offset);
@@ -105,19 +103,23 @@ public class XMLCompletionTest {
 		XMLDocument xmlDocument = initializeXMLDocument(xmlText, offset);
 		CompletionList completionList = initializeCompletion(xmlText, xmlDocument, offset);
 
-		assertEquals(1, completionList.getItems().size());
-		CompletionItem item = completionList.getItems().get(0);
-		assertEquals(expectedTextEdit.substring(2), item.getLabel());
-		assertEquals(expectedTextEdit.substring(2), item.getFilterText());
-		
-		try {
-			Range range = item.getTextEdit().getRange();
-			assertEquals(expectedEndTagStartOffset, xmlDocument.offsetAt(range.getStart()));
-		} catch (Exception e) {
-			fail("Couldn't get offset at position");
+		if(expectedTextEdit == null) {//Tag is already closed
+			assertEquals(0, completionList.getItems().size());
 		}
-		assertEquals(expectedTextEdit, item.getTextEdit().getNewText());
-
+		else{
+			assertEquals(1, completionList.getItems().size());
+			CompletionItem item = completionList.getItems().get(0);
+			assertEquals(expectedTextEdit.substring(2), item.getLabel());
+			assertEquals(expectedTextEdit.substring(2), item.getFilterText());
+			
+			try {
+				Range range = item.getTextEdit().getRange();
+				assertEquals(expectedEndTagStartOffset, xmlDocument.offsetAt(range.getStart()));
+			} catch (Exception e) {
+				fail("Couldn't get offset at position");
+			}
+			assertEquals(expectedTextEdit, item.getTextEdit().getNewText());
+		}
 	}
 
 
@@ -133,7 +135,6 @@ public class XMLCompletionTest {
 
 
 	public CompletionList initializeCompletion(String xmlText, XMLDocument xmlDocument, int offset) {
-		
 		Position position = null;
 		try {
 			position = xmlDocument.positionAt(offset);

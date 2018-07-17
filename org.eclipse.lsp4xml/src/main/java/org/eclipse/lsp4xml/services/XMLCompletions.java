@@ -13,6 +13,8 @@ package org.eclipse.lsp4xml.services;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -33,12 +35,14 @@ import org.eclipse.lsp4xml.internal.parser.TokenType;
 import org.eclipse.lsp4xml.internal.parser.XMLScanner;
 import org.eclipse.lsp4xml.model.Node;
 import org.eclipse.lsp4xml.model.XMLDocument;
+import org.eclipse.lsp4xml.utils.XMLLogger;
 
 /**
  * XML completions support.
  *
  */
 class XMLCompletions {
+	private static final XMLLogger logger = new XMLLogger(XMLCompletions.class.getName());
 
 	private final XMLExtensionsRegistry extensionsRegistry;
 	private CompletionRequest completionRequest;
@@ -54,6 +58,7 @@ class XMLCompletions {
 		try {
 			completionRequest = new CompletionRequest(xmlDocument, position, settings);
 		} catch (BadLocationException e) {
+			logger.logCatch(e);
 			return null;
 		}
 		CompletionResponse completionResponse = new CompletionResponse();
@@ -179,12 +184,18 @@ class XMLCompletions {
 			CompletionResponse response) {
 
 		Position pos;
+		Node n;
 		try {
 			XMLDocument document = request.getXMLDocument();
 			pos = document.positionAt(tagCloseEnd);
+			n = document.findNodeAt(tagCloseEnd);
 		} catch (BadLocationException e) {
+			logger.logCatch(e);
 			return response;
 		}
+		// if(n.closed == true) {
+		// 	return response;
+		// }
 		CompletionItem item = new CompletionItem();
 		item.setLabel("</" + tag + ">");
 		item.setKind(CompletionItemKind.Property);
@@ -263,7 +274,7 @@ class XMLCompletions {
 			try {
 				range = getReplaceRange(wsBefore, wsAfter, completionRequest);
 			} catch (BadLocationException e) {
-				e.printStackTrace();
+				logger.logCatch(e);
 			}
 			valuePrefix = offset >= valueContentStart && offset <= valueContentEnd
 					? text.substring(valueContentStart, offset)
@@ -273,7 +284,7 @@ class XMLCompletions {
 			try {
 				range = getReplaceRange(valueStart, valueEnd, completionRequest);
 			} catch (BadLocationException e) {
-				e.printStackTrace();
+				logger.logCatch(e);
 			}
 			valuePrefix = text.substring(valueStart, offset);
 			addQuotes = true;
@@ -287,7 +298,7 @@ class XMLCompletions {
 					participant.onAttributeValue(valuePrefix, fullRange, completionRequest, completionResponse);
 				}
 			} catch (BadLocationException e) {
-				e.printStackTrace();
+				logger.logCatch(e);
 			}
 		}
 		return completionResponse;
@@ -296,22 +307,25 @@ class XMLCompletions {
 	//Tags that look like '<{CHARS}'
 	private CompletionList collectOpenTagSuggestions(int tokenOffset, int tokenEnd, String tag) {
 		XMLDocument xmlDocument = completionRequest.getXMLDocument();
-		List<CompletionItem> list= new ArrayList<CompletionItem>();
 		if(xmlDocument.children.size() > 0){
-			Position start,end;
+			Position start;
+			Position end;
 			try {
 				start = xmlDocument.positionAt(tokenOffset);
 				end = xmlDocument.positionAt(tokenEnd);	
 				
 			} catch (Exception e) {
+				logger.logCatch(e);
 				return new CompletionList();
 			}
+			List<CompletionItem> list= new ArrayList<CompletionItem>();
 			Node node = xmlDocument;
 			Range range = new Range(start,end);
 			if(cdata.regionMatches(0, tag, 0, tag.length())){
 				//TODO: setCDATACompletionItem(list,range);
 			}
 			else{
+
 				collectSimilarTags(list, node, tag, range);
 			}
 			CompletionList p = new CompletionList(list);
@@ -325,11 +339,13 @@ class XMLCompletions {
 		XMLDocument xmlDocument = completionRequest.getXMLDocument();
 		List<CompletionItem> list= new ArrayList<CompletionItem>();
 		if(xmlDocument.children.size() > 0){
-			Position start,end;
+			Position start;
+			Position end;
 			try {
 				start = xmlDocument.positionAt(offset);
 				end = xmlDocument.positionAt(endPos);	
 			} catch (Exception e) {
+				logger.logCatch(e);
 				return new CompletionList();
 			}
 			Range range = new Range(start,end);
@@ -353,9 +369,13 @@ class XMLCompletions {
 	}
 
 	private void collectAllTags(List<CompletionItem> list, Node node, Range range, XMLDocument xmlDocument) {
-		if(node.tag == null) return;
+		if(node.tag == null) {
+			return;
+		}
 		CompletionItem item = createCompletionItem(node.tag, range);
-		if(!list.contains(item)) list.add(item);
+		if(!list.contains(item)) {
+			list.add(item);
+		}
 		for(int i = 0; i < node.children.size(); i++) {
 			Node child = node.children.get(i);
 			collectAllTags(list, child, range, xmlDocument);
@@ -367,8 +387,9 @@ class XMLCompletions {
 		if(node.tag != null) {
 			if(node.tag.regionMatches(0, tag, 0, len)){
 				CompletionItem item = createCompletionItem(node.tag, range);
-				if(!list.contains(item)) list.add(item);
-			
+				if(!list.contains(item)) {
+					list.add(item);
+				}
 			}
 		}
 		for(int i = 0; i < node.children.size(); i++) {

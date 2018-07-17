@@ -190,7 +190,7 @@ class ListLineTracker /*implements ILineTracker*/ {
 		int lines= fLines.size();
 
 		if (line < 0 || line > lines)
-			throw new BadLocationException();
+			throw new BadLocationException("The line value, {" + line +"}, is out of bounds.");
 
 		if (lines == 0)
 			return new Line(0, 0);
@@ -209,7 +209,7 @@ class ListLineTracker /*implements ILineTracker*/ {
 		int lines= fLines.size();
 
 		if (line < 0 || line > lines)
-			throw new BadLocationException();
+			throw new BadLocationException("The line value, {" + line +"}, is out of bounds.");
 
 		if (lines == 0)
 			return 0;
@@ -266,7 +266,7 @@ class ListLineTracker /*implements ILineTracker*/ {
 		int lines= fLines.size();
 
 		if (line < 0 || line > lines)
-			throw new BadLocationException();
+			throw new BadLocationException("The line value, {" + line +"}, is out of bounds.");
 
 		if (lines == 0)
 			return null;
