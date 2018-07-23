@@ -41,7 +41,6 @@ public class XMLServerLauncher {
 		XMLLanguageServer server = new XMLLanguageServer();
 		Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(server, in, out);
 		server.setClient(launcher.getRemoteProxy());
-		
 		/*Collection<ICompletionParticipant> completionParticipants = new ArrayList<ICompletionParticipant>();
 		ServiceLoader<ICompletionParticipant> loader = ServiceLoader.load(ICompletionParticipant.class);
 		loader.forEach(p -> completionParticipants.add(p));

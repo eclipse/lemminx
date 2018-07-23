@@ -31,7 +31,6 @@ import org.eclipse.lsp4xml.utils.XMLLogger;
  *
  */
 class XMLHover {
-	private static final XMLLogger logger = new XMLLogger(XMLHover.class.getName());
 	private final XMLExtensionsRegistry extensionsRegistry;
 
 	public XMLHover(XMLExtensionsRegistry extensionsRegistry) {
@@ -43,7 +42,7 @@ class XMLHover {
 		try {
 			hoverRequest = new HoverRequest(xmlDocument, position);
 		} catch (BadLocationException e) {
-			logger.logCatch(e);
+			XMLLogger.logCatch(e);
 			return null;
 		}
 		int offset = hoverRequest.getOffset();
@@ -88,7 +87,7 @@ class XMLHover {
 				return new Range(document.positionAt(scanner.getTokenOffset()),
 						document.positionAt(scanner.getTokenEnd()));
 			} catch (BadLocationException e) {
-				logger.logCatch(e);
+				XMLLogger.logCatch(e);
 				return null;
 			}
 		}

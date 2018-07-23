@@ -26,6 +26,7 @@ target/
 
 .gradle
 .mvn/wrapper/maven-wrapper.jar
+org.eclipse.lsp4xml/Logs/*
 
 .DS_Store*
 .AppleDouble

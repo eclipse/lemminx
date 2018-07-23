@@ -43,7 +43,6 @@ import org.xml.sax.XMLReader;
  *
  */
 class XMLDiagnostics {
-	private static final XMLLogger logger = new XMLLogger(XMLDiagnostics.class.getName());
 	private static final String XML_DIAGNOSTIC_SOURCE = "xml";
 
 	private final XMLExtensionsRegistry extensionsRegistry;
@@ -69,7 +68,7 @@ class XMLDiagnostics {
 				factory.setSchema(SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
 						.newSchema(new File(xmlSchemaFile)));
 			} catch (SAXException e) {
-				logger.logCatch(e);
+				XMLLogger.logCatch(e);
 			}
 		} else {
 			factory.setValidating(
@@ -137,7 +136,7 @@ class XMLDiagnostics {
 			reader.parse(inputSource);
 
 		} catch (IOException | ParserConfigurationException | SAXException e) {
-			logger.logCatch(e);
+			XMLLogger.logCatch(e);
 		}
 		return diagnostics;
 	}

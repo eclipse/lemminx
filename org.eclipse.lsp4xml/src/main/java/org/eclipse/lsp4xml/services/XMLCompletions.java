@@ -42,8 +42,6 @@ import org.eclipse.lsp4xml.utils.XMLLogger;
  *
  */
 class XMLCompletions {
-	private static final XMLLogger logger = new XMLLogger(XMLCompletions.class.getName());
-
 	private final XMLExtensionsRegistry extensionsRegistry;
 	private CompletionRequest completionRequest;
 	private static final String cdata = "![CDATA[]]"; 
@@ -58,7 +56,7 @@ class XMLCompletions {
 		try {
 			completionRequest = new CompletionRequest(xmlDocument, position, settings);
 		} catch (BadLocationException e) {
-			logger.logCatch(e);
+			XMLLogger.logCatch(e);
 			return null;
 		}
 		CompletionResponse completionResponse = new CompletionResponse();
@@ -190,7 +188,7 @@ class XMLCompletions {
 			pos = document.positionAt(tagCloseEnd);
 			n = document.findNodeAt(tagCloseEnd);
 		} catch (BadLocationException e) {
-			logger.logCatch(e);
+			XMLLogger.logCatch(e);
 			return response;
 		}
 		// if(n.closed == true) {
@@ -274,7 +272,7 @@ class XMLCompletions {
 			try {
 				range = getReplaceRange(wsBefore, wsAfter, completionRequest);
 			} catch (BadLocationException e) {
-				logger.logCatch(e);
+				XMLLogger.logCatch(e);
 			}
 			valuePrefix = offset >= valueContentStart && offset <= valueContentEnd
 					? text.substring(valueContentStart, offset)
@@ -284,7 +282,7 @@ class XMLCompletions {
 			try {
 				range = getReplaceRange(valueStart, valueEnd, completionRequest);
 			} catch (BadLocationException e) {
-				logger.logCatch(e);
+				XMLLogger.logCatch(e);
 			}
 			valuePrefix = text.substring(valueStart, offset);
 			addQuotes = true;
@@ -298,7 +296,7 @@ class XMLCompletions {
 					participant.onAttributeValue(valuePrefix, fullRange, completionRequest, completionResponse);
 				}
 			} catch (BadLocationException e) {
-				logger.logCatch(e);
+				XMLLogger.logCatch(e);
 			}
 		}
 		return completionResponse;
@@ -315,7 +313,7 @@ class XMLCompletions {
 				end = xmlDocument.positionAt(tokenEnd);	
 				
 			} catch (Exception e) {
-				logger.logCatch(e);
+				XMLLogger.logCatch(e);
 				return new CompletionList();
 			}
 			List<CompletionItem> list= new ArrayList<CompletionItem>();
@@ -345,7 +343,7 @@ class XMLCompletions {
 				start = xmlDocument.positionAt(offset);
 				end = xmlDocument.positionAt(endPos);	
 			} catch (Exception e) {
-				logger.logCatch(e);
+				XMLLogger.logCatch(e);
 				return new CompletionList();
 			}
 			Range range = new Range(start,end);

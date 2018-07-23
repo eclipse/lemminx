@@ -24,6 +24,7 @@ import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.model.XMLDocument;
+import org.eclipse.lsp4xml.utils.XMLLogger;
 
 /**
  * XML Language service.
@@ -49,6 +50,8 @@ public class XMLLanguageService {
 		this.completions = new XMLCompletions(extensionsRegistry);
 		this.hover = new XMLHover(extensionsRegistry);
 		this.diagnostics = new XMLDiagnostics(extensionsRegistry);
+
+		XMLLogger.setup();//Todo: Not sure where to put this at the moment
 	}
 
 	public List<? extends TextEdit> format(XMLDocument xmlDocument, Range range, FormattingOptions options) {

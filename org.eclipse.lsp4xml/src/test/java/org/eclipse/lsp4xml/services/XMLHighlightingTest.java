@@ -99,4 +99,5 @@ public class XMLHighlightingTest {
 					document.getText().substring(actualStartOffset, actualEndOffset).toLowerCase());
 		}
 	}
+
 }

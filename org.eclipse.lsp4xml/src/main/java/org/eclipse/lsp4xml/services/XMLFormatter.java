@@ -32,7 +32,6 @@ import org.eclipse.lsp4xml.utils.XMLLogger;
  *
  */
 class XMLFormatter {
-	private static final XMLLogger logger = new XMLLogger(XMLFormatter.class.getName());
 	private final XMLExtensionsRegistry extensionsRegistry;
 
 	public XMLFormatter(XMLExtensionsRegistry extensionsRegistry) {
@@ -70,7 +69,7 @@ class XMLFormatter {
 			return edits;
 
 		} catch (BadLocationException e) {
-			logger.logCatch(e);
+			XMLLogger.logCatch(e);
 		}
 		return null;
 	}

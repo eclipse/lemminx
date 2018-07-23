@@ -30,7 +30,6 @@ import org.eclipse.lsp4xml.utils.XMLLogger;
  *
  */
 class XMLSymbolsProvider {
-	private static final XMLLogger logger = new XMLLogger(XMLSymbolsProvider.class.getName());
 	private final XMLExtensionsRegistry extensionsRegistry;
 
 	public XMLSymbolsProvider(XMLExtensionsRegistry extensionsRegistry) {
@@ -43,7 +42,7 @@ class XMLSymbolsProvider {
 			try {
 				provideFileSymbolsInternal(node, "", symbols);
 			} catch (BadLocationException e) {
-				logger.logCatch(e);
+				XMLLogger.logCatch(e);
 			}
 		});
 		return symbols;
@@ -65,7 +64,7 @@ class XMLSymbolsProvider {
 			try {
 				provideFileSymbolsInternal(child, name, symbols);
 			} catch (BadLocationException e) {
-				logger.logCatch(e);
+				XMLLogger.logCatch(e);
 			}
 		});
 

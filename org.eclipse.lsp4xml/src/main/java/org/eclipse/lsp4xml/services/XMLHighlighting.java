@@ -34,7 +34,6 @@ import org.eclipse.lsp4xml.utils.XMLLogger;
  *
  */
 class XMLHighlighting {
-	private static final XMLLogger logger = new XMLLogger(XMLHighlighting.class.getName());
 	private final XMLExtensionsRegistry extensionsRegistry;
 
 	public XMLHighlighting(XMLExtensionsRegistry extensionsRegistry) {
@@ -46,7 +45,7 @@ class XMLHighlighting {
 		try {
 			offset = xmlDocument.offsetAt(position);
 		} catch (BadLocationException e) {
-			logger.logCatch(e);
+			XMLLogger.logCatch(e);
 			return Collections.emptyList();
 		}
 		Node node = xmlDocument.findNodeAt(offset);
@@ -66,7 +65,7 @@ class XMLHighlighting {
 				tempRange = new Range(startPos, endPos);
 				
 			} catch (BadLocationException e) {
-				logger.logCatch(e);
+				XMLLogger.logCatch(e);
 				return Collections.emptyList();
 			}
 			if(covers(tempRange, position)) {
@@ -129,7 +128,7 @@ class XMLHighlighting {
 				return new Range(xmlDocument.positionAt(scanner.getTokenOffset()),
 					xmlDocument.positionAt(scanner.getTokenEnd()));
 			} catch (BadLocationException e) {
-				logger.logCatch(e);
+				XMLLogger.logCatch(e);
 				return null;
 			}	
 		}
