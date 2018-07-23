@@ -10,6 +10,9 @@
  */
 package org.eclipse.lsp4xml.services;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -21,13 +24,14 @@ import org.eclipse.lsp4xml.internal.parser.TokenType;
 import org.eclipse.lsp4xml.internal.parser.XMLScanner;
 import org.eclipse.lsp4xml.model.Node;
 import org.eclipse.lsp4xml.model.XMLDocument;
+import org.eclipse.lsp4xml.utils.XMLLogger;
 
 /**
  * XML hover support.
  *
  */
 class XMLHover {
-
+	private static final XMLLogger logger = new XMLLogger(XMLHover.class.getName());
 	private final XMLExtensionsRegistry extensionsRegistry;
 
 	public XMLHover(XMLExtensionsRegistry extensionsRegistry) {
@@ -39,6 +43,7 @@ class XMLHover {
 		try {
 			hoverRequest = new HoverRequest(xmlDocument, position);
 		} catch (BadLocationException e) {
+			logger.logCatch(e);
 			return null;
 		}
 		int offset = hoverRequest.getOffset();
@@ -83,6 +88,7 @@ class XMLHover {
 				return new Range(document.positionAt(scanner.getTokenOffset()),
 						document.positionAt(scanner.getTokenEnd()));
 			} catch (BadLocationException e) {
+				logger.logCatch(e);
 				return null;
 			}
 		}

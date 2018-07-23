@@ -31,6 +31,7 @@ import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.internal.parser.BadLocationException;
 import org.eclipse.lsp4xml.model.Node;
+import org.eclipse.lsp4xml.utils.XMLLogger;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -42,7 +43,7 @@ import org.xml.sax.XMLReader;
  *
  */
 class XMLDiagnostics {
-
+	private static final XMLLogger logger = new XMLLogger(XMLDiagnostics.class.getName());
 	private static final String XML_DIAGNOSTIC_SOURCE = "xml";
 
 	private final XMLExtensionsRegistry extensionsRegistry;
@@ -67,8 +68,8 @@ class XMLDiagnostics {
 			try {
 				factory.setSchema(SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
 						.newSchema(new File(xmlSchemaFile)));
-			} catch (SAXException saxException) {
-				// TODO: create a diagnostic
+			} catch (SAXException e) {
+				logger.logCatch(e);
 			}
 		} else {
 			factory.setValidating(
@@ -135,7 +136,8 @@ class XMLDiagnostics {
 			inputSource.setSystemId(uri);
 			reader.parse(inputSource);
 
-		} catch (IOException | ParserConfigurationException | SAXException exception) {
+		} catch (IOException | ParserConfigurationException | SAXException e) {
+			logger.logCatch(e);
 		}
 		return diagnostics;
 	}

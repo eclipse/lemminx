@@ -13,6 +13,8 @@ package org.eclipse.lsp4xml.services;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.eclipse.lsp4j.DocumentHighlight;
 import org.eclipse.lsp4j.DocumentHighlightKind;
@@ -25,13 +27,14 @@ import org.eclipse.lsp4xml.internal.parser.TokenType;
 import org.eclipse.lsp4xml.internal.parser.XMLScanner;
 import org.eclipse.lsp4xml.model.Node;
 import org.eclipse.lsp4xml.model.XMLDocument;
+import org.eclipse.lsp4xml.utils.XMLLogger;
 
 /**
  * XML highlighting support.
  *
  */
 class XMLHighlighting {
-
+	private static final XMLLogger logger = new XMLLogger(XMLHighlighting.class.getName());
 	private final XMLExtensionsRegistry extensionsRegistry;
 
 	public XMLHighlighting(XMLExtensionsRegistry extensionsRegistry) {
@@ -43,6 +46,7 @@ class XMLHighlighting {
 		try {
 			offset = xmlDocument.offsetAt(position);
 		} catch (BadLocationException e) {
+			logger.logCatch(e);
 			return Collections.emptyList();
 		}
 		Node node = xmlDocument.findNodeAt(offset);
@@ -62,7 +66,7 @@ class XMLHighlighting {
 				tempRange = new Range(startPos, endPos);
 				
 			} catch (BadLocationException e) {
-				e.printStackTrace();
+				logger.logCatch(e);
 				return Collections.emptyList();
 			}
 			if(covers(tempRange, position)) {
@@ -125,7 +129,7 @@ class XMLHighlighting {
 				return new Range(xmlDocument.positionAt(scanner.getTokenOffset()),
 					xmlDocument.positionAt(scanner.getTokenEnd()));
 			} catch (BadLocationException e) {
-				e.printStackTrace();
+				logger.logCatch(e);
 				return null;
 			}	
 		}

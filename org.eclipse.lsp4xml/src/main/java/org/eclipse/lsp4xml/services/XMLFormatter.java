@@ -13,6 +13,8 @@ package org.eclipse.lsp4xml.services;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.Position;
@@ -23,13 +25,14 @@ import org.eclipse.lsp4xml.internal.parser.XMLParser;
 import org.eclipse.lsp4xml.model.Node;
 import org.eclipse.lsp4xml.model.XMLDocument;
 import org.eclipse.lsp4xml.utils.XMLBuilder;
+import org.eclipse.lsp4xml.utils.XMLLogger;
 
 /**
  * XML formatter support.
  *
  */
 class XMLFormatter {
-
+	private static final XMLLogger logger = new XMLLogger(XMLFormatter.class.getName());
 	private final XMLExtensionsRegistry extensionsRegistry;
 
 	public XMLFormatter(XMLExtensionsRegistry extensionsRegistry) {
@@ -67,7 +70,7 @@ class XMLFormatter {
 			return edits;
 
 		} catch (BadLocationException e) {
-			e.printStackTrace();
+			logger.logCatch(e);
 		}
 		return null;
 	}
