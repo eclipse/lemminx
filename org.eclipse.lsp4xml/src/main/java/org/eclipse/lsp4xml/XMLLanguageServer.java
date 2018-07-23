@@ -12,6 +12,7 @@ package org.eclipse.lsp4xml;
 
 import static org.eclipse.lsp4j.jsonrpc.CompletableFutures.computeAsync;
 
+import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -52,10 +53,10 @@ public class XMLLanguageServer implements LanguageServer {
 		capabilities.setTextDocumentSync(TextDocumentSyncKind.Full);
 		capabilities.setDocumentSymbolProvider(true);
 		capabilities.setDocumentHighlightProvider(true);
-		capabilities.setCompletionProvider(new CompletionOptions());
+		capabilities.setCompletionProvider(new CompletionOptions(false, Arrays.asList("<",">")));
 		capabilities.setDocumentFormattingProvider(true);
 		capabilities.setDocumentRangeFormattingProvider(true);
-		capabilities.setHoverProvider(true);
+	
 		InitializeResult result = new InitializeResult(capabilities);
 		return CompletableFuture.completedFuture(result);
 	}
