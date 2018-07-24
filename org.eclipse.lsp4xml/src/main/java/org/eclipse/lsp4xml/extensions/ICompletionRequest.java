@@ -19,4 +19,6 @@ import org.eclipse.lsp4j.FormattingOptions;
 public interface ICompletionRequest extends IPositionRequest {
 	
 	FormattingOptions getFormattingSettings();
+	
+	CompletionSettings getCompletionSettings();
 }

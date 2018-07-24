@@ -19,11 +19,10 @@ import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.InsertTextFormat;
-import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.eclipse.lsp4xml.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.extensions.ICompletionParticipant;
 import org.eclipse.lsp4xml.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.extensions.ICompletionResponse;
@@ -48,11 +47,11 @@ class XMLCompletions {
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
-	public CompletionList doComplete(XMLDocument xmlDocument, Position position, FormattingOptions settings) {
+	public CompletionList doComplete(XMLDocument xmlDocument, Position position, CompletionSettings completionSettings, FormattingOptions formattingSettings) {
 		completionRequest = null;
 		
 		try {
-			completionRequest = new CompletionRequest(xmlDocument, position, settings);
+			completionRequest = new CompletionRequest(xmlDocument, position, completionSettings, formattingSettings);
 		} catch (BadLocationException e) {
 			return null;
 		}

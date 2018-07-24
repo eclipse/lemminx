@@ -21,9 +21,8 @@ import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4xml.internal.parser.BadLocationException;
+import org.eclipse.lsp4xml.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.internal.parser.XMLParser;
-import org.eclipse.lsp4xml.model.Node;
 import org.eclipse.lsp4xml.model.XMLDocument;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +35,8 @@ public class XMLCompletionTest {
 
 	private XMLLanguageService languageService;
 	private FormattingOptions sharedFormattingOptions = new FormattingOptions(4, false);
-
+	private CompletionSettings sharedCompletionSettings  = new CompletionSettings();
+	
 	@Before
 	public void initializeLanguageService() {
 		languageService = new XMLLanguageService();
@@ -141,7 +141,7 @@ public class XMLCompletionTest {
 		} catch (Exception e) {
 			fail("Couldn't get position at offset");
 		}
-		CompletionList completionList = languageService.doComplete(xmlDocument, position, sharedFormattingOptions);
+		CompletionList completionList = languageService.doComplete(xmlDocument, position, sharedCompletionSettings, sharedFormattingOptions);
 		return completionList;
 	}
 

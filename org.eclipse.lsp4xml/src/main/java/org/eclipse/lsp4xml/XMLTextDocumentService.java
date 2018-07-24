@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import org.eclipse.lsp4j.ClientCapabilities;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.CodeLensParams;
@@ -41,6 +42,7 @@ import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SymbolInformation;
+import org.eclipse.lsp4j.TextDocumentClientCapabilities;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
@@ -50,6 +52,7 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4xml.commons.LanguageModelCache;
 import org.eclipse.lsp4xml.commons.TextDocuments;
+import org.eclipse.lsp4xml.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.internal.parser.XMLParser;
 import org.eclipse.lsp4xml.model.XMLDocument;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
@@ -65,16 +68,26 @@ public class XMLTextDocumentService implements TextDocumentService {
 	private final XMLLanguageService languageService;
 	private final LanguageModelCache<XMLDocument> xmlDocuments;
 	private final FormattingOptions sharedFormattingOptions;
+	private final CompletionSettings sharedCompletionSettings;
 	private CompletableFuture<Object> validationRequest;
 
-	public XMLTextDocumentService(XMLLanguageServer fmLanguageServer) {
-		this.xmlLanguageServer = fmLanguageServer;
+	public XMLTextDocumentService(XMLLanguageServer xmlLanguageServer) {
+		this.xmlLanguageServer = xmlLanguageServer;
 		this.languageService = new XMLLanguageService();
 		this.documents = new TextDocuments();
 		XMLParser parser = XMLParser.getInstance();
 		this.xmlDocuments = new LanguageModelCache<XMLDocument>(10, 60,
 				document -> parser.parse(document.getText(), document.getUri()));
 		this.sharedFormattingOptions = new FormattingOptions(4, false);
+		this.sharedCompletionSettings = new CompletionSettings();
+	}
+
+	public void updateClientCapabilities(ClientCapabilities capabilities) {
+		TextDocumentClientCapabilities textDocumentClientCapabilities = capabilities.getTextDocument();
+		if (textDocumentClientCapabilities != null) {
+			// Completion settings
+			sharedCompletionSettings.update(textDocumentClientCapabilities.getCompletion());
+		}
 
 	}
 
@@ -88,7 +101,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 			TextDocumentItem document = documents.get(params.getTextDocument().getUri());
 			XMLDocument xmlDocument = getXMLDocument(document);
 			CompletionList list = languageService.doComplete(xmlDocument, params.getPosition(),
-					sharedFormattingOptions);
+					sharedCompletionSettings, sharedFormattingOptions);
 			return Either.forRight(list);
 		});
 	}
@@ -222,7 +235,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 			monitor.checkCanceled();
 			List<Diagnostic> diagnostics = languageService.doDiagnostics(document, null, monitor);
 			monitor.checkCanceled();
-			xmlLanguageServer.getLanguageClient().publishDiagnostics(new PublishDiagnosticsParams(document.getUri(), diagnostics));
+			xmlLanguageServer.getLanguageClient()
+					.publishDiagnostics(new PublishDiagnosticsParams(document.getUri(), diagnostics));
 			return null;
 		});
 	}

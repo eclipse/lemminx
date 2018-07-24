@@ -12,6 +12,7 @@ package org.eclipse.lsp4xml.services;
 
 import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4xml.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.internal.parser.BadLocationException;
 import org.eclipse.lsp4xml.model.XMLDocument;
@@ -22,16 +23,24 @@ import org.eclipse.lsp4xml.model.XMLDocument;
  */
 class CompletionRequest extends AbstractPositionRequest implements ICompletionRequest {
 
-	private final FormattingOptions settings;
+	private final CompletionSettings completionSettings;
+	
+	private final FormattingOptions formattingSettings;
 
-	public CompletionRequest(XMLDocument xmlDocument, Position position, FormattingOptions settings)
+	public CompletionRequest(XMLDocument xmlDocument, Position position, CompletionSettings completionSettings, FormattingOptions formattingSettings)
 			throws BadLocationException {
 		super(xmlDocument, position);
-		this.settings = settings;
+		this.formattingSettings = formattingSettings;
+		this.completionSettings = completionSettings;
 	}
 
 	@Override
 	public FormattingOptions getFormattingSettings() {
-		return settings;
+		return formattingSettings;
+	}
+	
+	@Override
+	public CompletionSettings getCompletionSettings() {
+		return completionSettings;
 	}
 }

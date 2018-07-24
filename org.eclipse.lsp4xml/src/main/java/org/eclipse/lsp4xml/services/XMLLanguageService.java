@@ -23,6 +23,7 @@ import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+import org.eclipse.lsp4xml.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.model.XMLDocument;
 
 /**
@@ -63,8 +64,9 @@ public class XMLLanguageService {
 		return symbolsProvider.findDocumentSymbols(xmlDocument);
 	}
 
-	public CompletionList doComplete(XMLDocument xmlDocument, Position position, FormattingOptions settings) {
-		return completions.doComplete(xmlDocument, position, settings);
+	public CompletionList doComplete(XMLDocument xmlDocument, Position position, CompletionSettings completionSettings,
+			FormattingOptions formattingSettings) {
+		return completions.doComplete(xmlDocument, position, completionSettings, formattingSettings);
 	}
 
 	public Hover doHover(XMLDocument xmlDocument, Position position) {

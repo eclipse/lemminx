@@ -49,11 +49,12 @@ public class XMLLanguageServer implements LanguageServer {
 
 	@Override
 	public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
+		xmlTextDocumentService.updateClientCapabilities(params.getCapabilities());
 		ServerCapabilities capabilities = new ServerCapabilities();
 		capabilities.setTextDocumentSync(TextDocumentSyncKind.Full);
 		capabilities.setDocumentSymbolProvider(true);
 		capabilities.setDocumentHighlightProvider(true);
-		capabilities.setCompletionProvider(new CompletionOptions(false, Arrays.asList("<",">")));
+		capabilities.setCompletionProvider(new CompletionOptions(false, Arrays.asList("<", ">")));
 		capabilities.setDocumentFormattingProvider(true);
 		capabilities.setDocumentRangeFormattingProvider(true);
 		capabilities.setHoverProvider(true);
