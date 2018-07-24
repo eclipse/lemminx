@@ -14,6 +14,7 @@ Features
 
 * [textDocument/documentSymbol](https://microsoft.github.io/language-server-protocol/specification#textDocument_documentSymbol).
 * [textDocument/documentHighlight](https://microsoft.github.io/language-server-protocol/specification#textDocument_documentHighlight).
+* [textDocument/completion](https://microsoft.github.io/language-server-protocol/specification#textDocument_completion).
 
 Extension
 --------------
@@ -31,4 +32,4 @@ Clients
 Here client which consumes this XML Language Server:
 
  * Eclipse with [lsp4-xml](https://github.com/angelozerr/lsp4e-xml)
- * VSCode : coming soon...
+ * VSCode with [lsp4-xml](https://github.com/gorkem/vscode-xml)
