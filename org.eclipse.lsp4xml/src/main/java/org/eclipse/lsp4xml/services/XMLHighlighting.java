@@ -13,6 +13,8 @@ package org.eclipse.lsp4xml.services;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.eclipse.lsp4j.DocumentHighlight;
 import org.eclipse.lsp4j.DocumentHighlightKind;
@@ -31,9 +33,8 @@ import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
  *
  */
 class XMLHighlighting {
-
+	private static final Logger LOGGER = Logger.getLogger(XMLHighlighting.class.getName());
 	private final XMLExtensionsRegistry extensionsRegistry;
-
 	public XMLHighlighting(XMLExtensionsRegistry extensionsRegistry) {
 		this.extensionsRegistry = extensionsRegistry;
 	}
@@ -43,6 +44,7 @@ class XMLHighlighting {
 		try {
 			offset = xmlDocument.offsetAt(position);
 		} catch (BadLocationException e) {
+			LOGGER.log(Level.SEVERE, "In XMLHighlighting the client provided Position is at a BadLocation" , e);
 			return Collections.emptyList();
 		}
 		Node node = xmlDocument.findNodeAt(offset);
@@ -62,7 +64,7 @@ class XMLHighlighting {
 				tempRange = new Range(startPos, endPos);
 				
 			} catch (BadLocationException e) {
-				e.printStackTrace();
+				LOGGER.log(Level.SEVERE, "In XMLHighlighting the Node at provided Offset is a BadLocation", e);
 				return Collections.emptyList();
 			}
 			if(covers(tempRange, position)) {
@@ -125,7 +127,7 @@ class XMLHighlighting {
 				return new Range(xmlDocument.positionAt(scanner.getTokenOffset()),
 					xmlDocument.positionAt(scanner.getTokenEnd()));
 			} catch (BadLocationException e) {
-				e.printStackTrace();
+				LOGGER.log(Level.SEVERE, "While creating Range in XMLHighlighting the Scanner's Offset was a BadLocation", e);
 				return null;
 			}	
 		}

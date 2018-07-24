@@ -13,6 +13,8 @@ package org.eclipse.lsp4xml.services;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -40,7 +42,7 @@ import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
  *
  */
 class XMLCompletions {
-
+	private static final Logger LOGGER = Logger.getLogger(XMLCompletions.class.getName());
 	private static final String cdata = "![CDATA[]]";
 
 	private final XMLExtensionsRegistry extensionsRegistry;
@@ -55,7 +57,7 @@ class XMLCompletions {
 		try {
 			completionRequest = new CompletionRequest(xmlDocument, position, completionSettings, formattingSettings);
 		} catch (BadLocationException e) {
-			return null;
+			LOGGER.log(Level.SEVERE, "Creation of CompletionRequest failed", e);
 		}
 
 		int offset = completionRequest.getOffset();
@@ -271,6 +273,7 @@ class XMLCompletions {
 			XMLDocument document = request.getXMLDocument();
 			pos = document.positionAt(tagCloseEnd);
 		} catch (BadLocationException e) {
+			LOGGER.log(Level.SEVERE, "While performing Completions the provided offset was a BadLocation", e);
 			return;
 		}
 		CompletionItem item = new CompletionItem();
@@ -333,7 +336,7 @@ class XMLCompletions {
 				participant.onAttributeName(value, range, completionRequest, completionResponse);
 			}
 		} catch (BadLocationException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, "While performing Completions, getReplaceRange() was given a bad Offset location", e);
 		}
 	}
 
@@ -357,7 +360,7 @@ class XMLCompletions {
 			try {
 				range = getReplaceRange(wsBefore, wsAfter, completionRequest);
 			} catch (BadLocationException e) {
-				e.printStackTrace();
+				LOGGER.log(Level.SEVERE, "While performing Completions, getReplaceRange() was given a bad Offset location", e);
 			}
 			valuePrefix = offset >= valueContentStart && offset <= valueContentEnd
 					? text.substring(valueContentStart, offset)
@@ -367,7 +370,7 @@ class XMLCompletions {
 			try {
 				range = getReplaceRange(valueStart, valueEnd, completionRequest);
 			} catch (BadLocationException e) {
-				e.printStackTrace();
+				LOGGER.log(Level.SEVERE, "While performing Completions, getReplaceRange() was given a bad Offset location", e);
 			}
 			valuePrefix = text.substring(valueStart, offset);
 			addQuotes = true;
@@ -381,7 +384,7 @@ class XMLCompletions {
 					participant.onAttributeValue(valuePrefix, fullRange, completionRequest, completionResponse);
 				}
 			} catch (BadLocationException e) {
-				e.printStackTrace();
+				LOGGER.log(Level.SEVERE, "While performing Completions, getReplaceRange() was given a bad Offset location", e);
 			}
 		}
 	}
@@ -397,6 +400,7 @@ class XMLCompletions {
 				end = xmlDocument.positionAt(tokenEnd);
 
 			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE, "While performing Completions the provided Offset was BadLocation", e);
 				return;
 			}
 			Node node = xmlDocument;
@@ -419,6 +423,7 @@ class XMLCompletions {
 				start = xmlDocument.positionAt(offset);
 				end = xmlDocument.positionAt(endPos);
 			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE, "While performing Completions the provided Offset was BadLocation", e);
 				return;
 			}
 			Range range = new Range(start, end);
