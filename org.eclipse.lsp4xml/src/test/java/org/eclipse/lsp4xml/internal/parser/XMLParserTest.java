@@ -67,7 +67,7 @@ public class XMLParserTest {
 	}
 
 	@Test
-	public void testSelfClosingCompex() {
+	public void testNestedSelfClosingTag() {
 		Node br = createNode("br", 5, -1, 10, true, false); 
 		Node span = createNode("span", 10, 16 ,23, true, false); 
 		Node div = createNode("div", 0, 23, 29, true, false, br, span);
