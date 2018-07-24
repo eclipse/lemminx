@@ -31,5 +31,5 @@ Clients
 
 Here client which consumes this XML Language Server:
 
- * Eclipse with [lsp4-xml](https://github.com/angelozerr/lsp4e-xml)
- * VSCode with [lsp4-xml](https://github.com/gorkem/vscode-xml)
+ * Eclipse with [lsp4e-xml](https://github.com/angelozerr/lsp4e-xml)
+ * VSCode with [vscode-xml](https://github.com/gorkem/vscode-xml)
