@@ -10,6 +10,9 @@
  */
 package org.eclipse.lsp4xml.services;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -27,7 +30,7 @@ import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
  *
  */
 class XMLHover {
-
+	private static final Logger LOGGER = Logger.getLogger(XMLHover.class.getName());
 	private final XMLExtensionsRegistry extensionsRegistry;
 
 	public XMLHover(XMLExtensionsRegistry extensionsRegistry) {
@@ -39,6 +42,7 @@ class XMLHover {
 		try {
 			hoverRequest = new HoverRequest(xmlDocument, position);
 		} catch (BadLocationException e) {
+			LOGGER.log(Level.SEVERE, "Failed creating HoverRequest", e);
 			return null;
 		}
 		int offset = hoverRequest.getOffset();
@@ -85,6 +89,7 @@ class XMLHover {
 				return new Range(document.positionAt(scanner.getTokenOffset()),
 						document.positionAt(scanner.getTokenEnd()));
 			} catch (BadLocationException e) {
+				LOGGER.log(Level.SEVERE, "While creating Range in XMLHover the Scanner's Offset was a BadLocation", e);
 				return null;
 			}
 		}

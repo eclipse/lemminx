@@ -1,0 +1,111 @@
+/**
+ *  Copyright (c) 2018 Red Hat, Inc.
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ *  Contributors:
+ *  Nikolas Komonen <nikolaskomonen@gmail.com>, Red Hat Inc. - initial API and implementation
+ */
+
+package org.eclipse.lsp4xml.utils;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.TimeZone;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+
+import org.eclipse.lsp4j.MessageParams;
+import org.eclipse.lsp4j.MessageType;
+import org.eclipse.lsp4j.services.LanguageClient;
+
+/**
+ * LogHandler
+ */
+public class ClientLogHandler extends Handler{
+  private LanguageClient languageClient;
+
+  public ClientLogHandler(LanguageClient languageClient) {
+    this.languageClient = languageClient;
+  }
+
+  public LanguageClient getLanguageClient() {
+    return this.languageClient;
+  }
+
+  @Override
+  public void publish(LogRecord record) {
+    if(languageClient == null) {
+      return;
+    }
+
+    String msg = formatRecord(record);
+    MessageType messageType= getMessageType(record.getLevel());
+    MessageParams mp = new MessageParams(messageType, msg);
+    languageClient.logMessage(mp);
+    
+  }
+  
+  public static String formatRecord(LogRecord record) {
+    DateFormat formatter = new SimpleDateFormat("MMM dd, yyyy hh:mm:ss");
+    formatter.setTimeZone(TimeZone.getTimeZone("EST"));
+    long date = record.getMillis();
+    String formattedDate = formatter.format(date);
+    StringBuilder sb = new StringBuilder();
+    sb.append(formattedDate)
+    .append(" ")
+    .append(record.getSourceClassName())
+    .append(" ")
+    .append(record.getSourceMethodName())
+    .append("()\n")
+    .append("Message: " + record.getMessage());
+    if (record.getThrown() != null) {
+      StringWriter sw = new StringWriter();
+      PrintWriter pw = new PrintWriter(sw);
+      pw.println();
+      record.getThrown().printStackTrace(pw);
+      pw.close();
+      sb.append(sw.toString());       
+    }
+    
+    return sb.toString();
+  }
+
+  private static MessageType getMessageType(Level level) {
+    if(level == Level.WARNING) {
+      return MessageType.Warning;
+    }
+    if(level == Level.SEVERE) {
+      return MessageType.Error;
+    }
+    return MessageType.Info;
+  }
+
+  @Override
+  public void flush() {
+  }
+
+  @Override
+  public void close() throws SecurityException {
+  }
+
+  @Override
+  public boolean equals(Object o) {
+
+    if (o == this) {
+      return true;
+    }
+    if (!(o instanceof ClientLogHandler)) {
+      return false;
+    }
+    ClientLogHandler c = (ClientLogHandler) o;
+    return this.languageClient == c.getLanguageClient();
+  }
+  
+  
+}
