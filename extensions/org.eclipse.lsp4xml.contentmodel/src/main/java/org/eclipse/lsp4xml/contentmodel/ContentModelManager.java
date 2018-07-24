@@ -34,11 +34,11 @@ public class ContentModelManager {
 	}
 
 	private final XMLSchemaLoader loader;
-	private Map<URI, CMDocument> cmDoculmentCache;
+	private Map<URI, CMDocument> cmDocumentCache;
 
 	public ContentModelManager() {
 		loader = new XMLSchemaLoader();
-		cmDoculmentCache = new HashMap<>();
+		cmDocumentCache = new HashMap<>();
 	}
 
 	/**
@@ -50,13 +50,13 @@ public class ContentModelManager {
 	 *         otherwise.
 	 */
 	public CMDocument getCMDocument(URI uri) {
-		CMDocument cmDocument = cmDoculmentCache.get(uri);
+		CMDocument cmDocument = cmDocumentCache.get(uri);
 		if (cmDocument == null) {
 			XSModel model = loader.loadURI(uri.toString());
 			if (model != null) {
 				// XML Schema can be loaded
 				cmDocument = new XSDDocument(model);
-				cmDoculmentCache.put(uri, cmDocument);
+				cmDocumentCache.put(uri, cmDocument);
 			}
 		}
 		return cmDocument;

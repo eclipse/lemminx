@@ -32,13 +32,16 @@ import org.eclipse.lsp4xml.contentmodel.CMElement;
  */
 public class XSDElement implements CMElement {
 
+	private final XSDDocument document;
+
 	private final XSElementDeclaration elementDeclaration;
 
 	private Collection<CMAttribute> attributes;
 
 	private Collection<CMElement> elements;
 
-	public XSDElement(XSElementDeclaration elementDeclaration) {
+	public XSDElement(XSDDocument document, XSElementDeclaration elementDeclaration) {
+		this.document = document;
 		this.elementDeclaration = elementDeclaration;
 	}
 
@@ -56,8 +59,7 @@ public class XSDElement implements CMElement {
 		return attributes;
 	}
 
-	private static void collectAttributesDeclaration(XSElementDeclaration elementDecl,
-			Collection<CMAttribute> attributes) {
+	private void collectAttributesDeclaration(XSElementDeclaration elementDecl, Collection<CMAttribute> attributes) {
 		XSTypeDefinition typeDefinition = elementDecl.getTypeDefinition();
 		switch (typeDefinition.getTypeCategory()) {
 		case XSTypeDefinition.SIMPLE_TYPE:
@@ -69,7 +71,7 @@ public class XSDElement implements CMElement {
 		}
 	}
 
-	private static void collectAttributesDeclaration(XSComplexTypeDefinition typeDefinition,
+	private void collectAttributesDeclaration(XSComplexTypeDefinition typeDefinition,
 			Collection<CMAttribute> attributes) {
 		XSParticle particle = typeDefinition.getParticle();
 		if (particle != null) {
@@ -78,7 +80,7 @@ public class XSDElement implements CMElement {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static void collectAttributesDeclaration(XSTerm term, Collection<CMAttribute> attributes) {
+	private void collectAttributesDeclaration(XSTerm term, Collection<CMAttribute> attributes) {
 		if (term == null) {
 			return;
 		}
@@ -103,7 +105,7 @@ public class XSDElement implements CMElement {
 		return elements;
 	}
 
-	private static void collectElementsDeclaration(XSElementDeclaration elementDecl, Collection<CMElement> elements) {
+	private void collectElementsDeclaration(XSElementDeclaration elementDecl, Collection<CMElement> elements) {
 		XSTypeDefinition typeDefinition = elementDecl.getTypeDefinition();
 		switch (typeDefinition.getTypeCategory()) {
 		case XSTypeDefinition.SIMPLE_TYPE:
@@ -115,8 +117,7 @@ public class XSDElement implements CMElement {
 		}
 	}
 
-	private static void collectElementsDeclaration(XSComplexTypeDefinition typeDefinition,
-			Collection<CMElement> elements) {
+	private void collectElementsDeclaration(XSComplexTypeDefinition typeDefinition, Collection<CMElement> elements) {
 		XSParticle particle = typeDefinition.getParticle();
 		if (particle != null) {
 			collectElementsDeclaration(particle.getTerm(), elements);
@@ -124,7 +125,7 @@ public class XSDElement implements CMElement {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static void collectElementsDeclaration(XSTerm term, Collection<CMElement> elements) {
+	private void collectElementsDeclaration(XSTerm term, Collection<CMElement> elements) {
 		if (term == null) {
 			return;
 		}
@@ -135,7 +136,7 @@ public class XSDElement implements CMElement {
 			break;
 		case XSConstants.ELEMENT_DECLARATION:
 			XSElementDeclaration elementDeclaration = (XSElementDeclaration) term;
-			elements.add(new XSDElement(elementDeclaration));
+			elements.add(document.getXSDElement(elementDeclaration));
 			break;
 		}
 	}

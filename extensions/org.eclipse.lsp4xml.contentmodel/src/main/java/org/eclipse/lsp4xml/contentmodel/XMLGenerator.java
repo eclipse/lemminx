@@ -10,7 +10,9 @@
  */
 package org.eclipse.lsp4xml.contentmodel;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4xml.utils.XMLBuilder;
@@ -49,11 +51,15 @@ public class XMLGenerator {
 	 */
 	public String generate(CMElement elementDeclaration) {
 		XMLBuilder xml = new XMLBuilder(formattingOptions, whitespacesIndent, lineDelimiter);
-		generate(elementDeclaration, 0, xml);
+		generate(elementDeclaration, 0, xml, new ArrayList<CMElement>());
 		return xml.toString();
 	}
 
-	private void generate(CMElement elementDeclaration, int level, XMLBuilder xml) {
+	private void generate(CMElement elementDeclaration, int level, XMLBuilder xml, List<CMElement> generatedElements) {
+		if (generatedElements.contains(elementDeclaration)) {
+			return;
+		}
+		generatedElements.add(elementDeclaration);
 		if (level > 0) {
 			xml.linefeed();
 			xml.indent(level);
@@ -64,7 +70,7 @@ public class XMLGenerator {
 			xml.closeStartElement();
 			level++;
 			for (CMElement child : children) {
-				generate(child, level, xml);
+				generate(child, level, xml, generatedElements);
 			}
 			level--;
 			xml.linefeed();

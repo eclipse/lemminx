@@ -12,7 +12,9 @@ package org.eclipse.lsp4xml.contentmodel.xsd;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.xerces.xs.XSConstants;
 import org.apache.xerces.xs.XSElementDeclaration;
@@ -31,10 +33,13 @@ public class XSDDocument implements CMDocument {
 
 	private final XSModel model;
 
+	private final Map<XSElementDeclaration, XSDElement> elementMappings;
+
 	private Collection<CMElement> elements;
 
 	public XSDDocument(XSModel model) {
 		this.model = model;
+		this.elementMappings = new HashMap<>();
 	}
 
 	private Collection<CMElement> getElements() {
@@ -43,7 +48,7 @@ public class XSDDocument implements CMDocument {
 			XSNamedMap map = model.getComponents(XSConstants.ELEMENT_DECLARATION);
 			for (int j = 0; j < map.getLength(); j++) {
 				XSElementDeclaration elementDeclaration = (XSElementDeclaration) map.item(j);
-				elements.add(new XSDElement(elementDeclaration));
+				elements.add(getXSDElement(elementDeclaration));
 			}
 		}
 		return elements;
@@ -80,5 +85,14 @@ public class XSDDocument implements CMDocument {
 			}
 		}
 		return null;
+	}
+
+	CMElement getXSDElement(XSElementDeclaration elementDeclaration) {
+		XSDElement element = elementMappings.get(elementDeclaration);
+		if (element == null) {
+			element = new XSDElement(this, elementDeclaration);
+			elementMappings.put(elementDeclaration, element);
+		}
+		return element;
 	}
 }
