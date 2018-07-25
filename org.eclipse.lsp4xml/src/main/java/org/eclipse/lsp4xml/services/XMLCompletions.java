@@ -74,7 +74,8 @@ class XMLCompletions {
 				break;
 			case StartTag:
 				if (scanner.getTokenOffset() <= offset && offset <= scanner.getTokenEnd()) {
-					return collectOpenTagSuggestions(scanner.getTokenOffset(), scanner.getTokenEnd(),scanner.getTokenText());
+					collectOpenTagSuggestions(scanner.getTokenOffset(), scanner.getTokenEnd(),scanner.getTokenText(), completionResponse);
+					return completionResponse;
 				}
 				completionRequest.setCurrentTag(scanner.getTokenText());
 				break;
@@ -87,13 +88,15 @@ class XMLCompletions {
 			case DelimiterAssign:
 				if (scanner.getTokenEnd() == offset) {
 					int endPos = scanNextForEndPos(offset, scanner, TokenType.AttributeValue);
-					return collectAttributeValueSuggestions(offset, endPos, completionRequest, completionResponse);
+					collectAttributeValueSuggestions(offset, endPos, completionRequest, completionResponse);
+					return completionResponse;
 				}
 				break;
 			case AttributeValue:
 				if (scanner.getTokenOffset() <= offset && offset <= scanner.getTokenEnd()) {
-					return collectAttributeValueSuggestions(scanner.getTokenOffset(), scanner.getTokenEnd(),
+					collectAttributeValueSuggestions(scanner.getTokenOffset(), scanner.getTokenEnd(),
 							completionRequest, completionResponse);
+					return completionResponse;
 				}
 				break;
 			case Whitespace:
@@ -107,8 +110,9 @@ class XMLCompletions {
 					case AfterAttributeName:
 						return collectAttributeNameSuggestions(scanner.getTokenEnd());
 					case BeforeAttributeValue:
-						return collectAttributeValueSuggestions(scanner.getTokenEnd(), offset, completionRequest,
+						collectAttributeValueSuggestions(scanner.getTokenEnd(), offset, completionRequest,
 								completionResponse);
+						return completionResponse;
 					case AfterOpeningEndTag:
 						return collectCloseTagSuggestions(scanner.getTokenOffset() - 1, false);
 					case WithinContent:
@@ -242,7 +246,7 @@ class XMLCompletions {
 		return null;
 	}
 
-	private CompletionList collectAttributeValueSuggestions(int valueStart, int valueEnd,
+	private void collectAttributeValueSuggestions(int valueStart, int valueEnd,
 			CompletionRequest completionRequest, CompletionResponse completionResponse) {
 		Range range = null;
 		boolean addQuotes = false;
@@ -289,13 +293,11 @@ class XMLCompletions {
 				e.printStackTrace();
 			}
 		}
-		return completionResponse;
 	}
 
 	//Tags that look like '<{CHARS}'
-	private CompletionList collectOpenTagSuggestions(int tokenOffset, int tokenEnd, String tag) {
+	private void collectOpenTagSuggestions(int tokenOffset, int tokenEnd, String tag, CompletionResponse completionResponse) {
 		XMLDocument xmlDocument = completionRequest.getXMLDocument();
-		List<CompletionItem> list= new ArrayList<CompletionItem>();
 		if(xmlDocument.children.size() > 0){
 			Position start,end;
 			try {
@@ -303,20 +305,17 @@ class XMLCompletions {
 				end = xmlDocument.positionAt(tokenEnd);	
 				
 			} catch (Exception e) {
-				return new CompletionList();
+				return;
 			}
 			Node node = xmlDocument;
 			Range range = new Range(start,end);
 			if(cdata.regionMatches(0, tag, 0, tag.length())){
-				//TODO: setCDATACompletionItem(list,range);
+				//TODO: setCDATACompletionItem(completionResponse,range);
 			}
 			else{
-				collectSimilarTags(list, node, tag, range);
+				collectSimilarTags(completionResponse, node, tag, range);
 			}
-			CompletionList p = new CompletionList(list);
-			return p;
 		}
-		return new CompletionList();
 	}
 
 	//Tags that look like '<'
@@ -361,31 +360,31 @@ class XMLCompletions {
 		}
 	}
 
-	private void collectSimilarTags(List<CompletionItem> list, Node node, String tag, Range range) {
+	private void collectSimilarTags(CompletionResponse completionResponse, Node node, String tag, Range range) {
 		int len = tag.length();
 		if(node.tag != null) {
 			if(node.tag.regionMatches(0, tag, 0, len)){
 				CompletionItem item = createCompletionItem(node.tag, range);
+				List<CompletionItem> list = completionResponse.getItems();
 				if(!list.contains(item)) list.add(item);
 			
 			}
 		}
 		for(int i = 0; i < node.children.size(); i++) {
 			Node child = node.children.get(i);
-			collectSimilarTags(list, child, tag, range);
+			collectSimilarTags(completionResponse, child, tag, range);
 		}
 		
 	}
 
-	private void setCDATACompletionItem(List<CompletionItem> list, Range range) {
+	private void setCDATACompletionItem(CompletionResponse completionResponse, Range range) {
 		CompletionItem item = new CompletionItem();
 		item.setLabel("<![CDATA[]]>");
 		item.setKind(CompletionItemKind.Property);
 		item.setFilterText("![CDATA[]]");
 		item.setTextEdit(new TextEdit(range, "![CDATA[$0]]>"));
 		item.setInsertTextFormat(InsertTextFormat.Snippet);
-		list.add(item);
-
+		completionResponse.addCompletionItem(item);
 	}
 
 	private CompletionItem createCompletionItem(String tag, Range range) {
