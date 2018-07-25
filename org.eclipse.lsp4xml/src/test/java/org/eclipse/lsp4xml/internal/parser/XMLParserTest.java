@@ -9,9 +9,9 @@
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
 package org.eclipse.lsp4xml.internal.parser;
+
 import static org.junit.Assert.assertEquals;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +20,7 @@ import org.eclipse.lsp4xml.model.Node;
 import org.eclipse.lsp4xml.model.XMLDocument;
 import org.junit.Assert;
 import org.junit.Test;
+
 /**
  * XML parser tests.
  *
@@ -43,21 +44,20 @@ public class XMLParserTest {
 
 	@Test
 	public void testNestedElements() {
-		Node head = createNode("head", 6, 12, 19 , true, false); 
-		Node body = createNode("body", 19, 25, 32, true, false); 
-		Node html = createNode("html", 0, 32, 39, true, false, head,body);
+		Node head = createNode("head", 6, 12, 19, true, false);
+		Node body = createNode("body", 19, 25, 32, true, false);
+		Node html = createNode("html", 0, 32, 39, true, false, head, body);
 
 		assertDocument("<html><head></head><body></body></html>", html);
 	}
 
 	@Test
 	public void testNestedNestedElements() {
-		Node c = createNode("c", 6, 9, 13, true, false); 
+		Node c = createNode("c", 6, 9, 13, true, false);
 		Node b = createNode("b", 3, 13, 17, true, false, c);
 		Node a = createNode("a", 0, 17, 21, true, false, b);
 		assertDocument("<a><b><c></c></b></a>", a);
 	}
-
 
 	@Test
 	public void testSelfClosing() {
@@ -68,8 +68,8 @@ public class XMLParserTest {
 
 	@Test
 	public void testNestedSelfClosingTag() {
-		Node br = createNode("br", 5, -1, 10, true, false); 
-		Node span = createNode("span", 10, 16 ,23, true, false); 
+		Node br = createNode("br", 5, -1, 10, true, false);
+		Node span = createNode("span", 10, 16, 23, true, false);
 		Node div = createNode("div", 0, 23, 29, true, false, br, span);
 
 		assertDocument("<div><br/><span></span></div>", div);
@@ -95,26 +95,26 @@ public class XMLParserTest {
 
 	@Test
 	public void testStartTagInsideElement() {
-		Node div2 = createNode("div", 5, 10, 16, true, false); 
+		Node div2 = createNode("div", 5, 10, 16, true, false);
 		Node div = createNode("div", 0, -1, 16, false, false, div2);
 
 		assertDocument("<div><div></div>", div);
 	}
 
-	@Test 
+	@Test
 	public void testStartTagInsideElement2() {
-		Node div = createNode("div", 5, -1, 10, false, false); 
+		Node div = createNode("div", 5, -1, 10, false, false);
 		Node cat = createNode("cat", 0, 10, 16, true, false, div);
 
 		assertDocument("<cat><div></cat>", cat);
 	}
 
-	@Test 
+	@Test
 	public void testMultipleStartTagInsideElement() {
-		Node span = createNode("span", 9, -1, 15, false, false);  
+		Node span = createNode("span", 9, -1, 15, false, false);
 		Node div = createNode("div", 4, -1, 15, false, false, span);
 		Node h1 = createNode("h1", 0, 15, 20, true, false, div);
-		
+
 		assertDocument("<h1><div><span></h1>", h1);
 	}
 
@@ -134,6 +134,7 @@ public class XMLParserTest {
 
 		assertDocument("<div key=\"value\" key2=\"value\"></div>", div);
 	}
+
 	@Test
 	public void testAttributesInSelfClosingElement() {
 		Node div = createNode("div", 0, -1, 31, true, false);
@@ -166,19 +167,19 @@ public class XMLParserTest {
 
 		assertDocument("<div key=\"value></div>", div);
 	}
-	
+
 	@Test
 	public void testCDATABasicTest() {
-		Node text = createNode("testText", 5, -1, 25, true, true); 
+		Node text = createNode("testText", 5, -1, 25, true, true);
 		Node div = createNode("div", 0, 25, 31, true, false, text);
 
 		assertDocument("<div><![CDATA[testText]]></div>", div);
 	}
-	
+
 	@Test
 	public void testCDATAWithOtherElement() {
-		Node text = createNode("TEXT", 5, -1, 21, true, true); 
-		Node a = createNode("a", 21, 24, 28, true, false); 
+		Node text = createNode("TEXT", 5, -1, 21, true, true);
+		Node a = createNode("a", 21, 24, 28, true, false);
 		Node div = createNode("div", 0, 28, 34, true, false, text, a);
 
 		assertDocument("<div><![CDATA[TEXT]]><a></a></div>", div);
@@ -186,16 +187,15 @@ public class XMLParserTest {
 
 	@Test
 	public void testCDATABasicNotClosed() {
-		Node text = createNode("testText]</div>", 5, -1, 29, false, true); 
+		Node text = createNode("testText]</div>", 5, -1, 29, false, true);
 		Node div = createNode("div", 0, -1, 29, false, false, text);
 
 		assertDocument("<div><![CDATA[testText]</div>", div);
 	}
 
-
 	@Test
 	public void testClosedWithIncompleteEndTag() {
-		
+
 		Node div = createNode("div", 0, -1, 5, false, false);
 
 		assertDocument("<div></divaaaz", div);
@@ -205,7 +205,7 @@ public class XMLParserTest {
 	public void testNonClosedAndIncomplete() {
 		Node h = createNode("h", 14, -1, 24, false, false);
 		Node hello = createNode("hello", 7, -1, 24, false, false, h);
-		Node test1= createNode("test1", 0, -1, 24, false, false, hello);
+		Node test1 = createNode("test1", 0, -1, 24, false, false, hello);
 		assertDocument("<test1><hello><h</hello>", test1);
 	}
 
@@ -216,16 +216,19 @@ public class XMLParserTest {
 
 		assertDocument("<t>\n  <n>\n  </n>\n</t>", t);
 	}
+
+	@Test
+	public void testProlog() {
+		Node html = createNode("html", 38, 44, 51, true, false);
+
+		assertDocument("<?xml version=\"1.0\" encoding=\"UTF-8\"?><html></html>", html);
+	}
 	
+	// --------------------------------------------------------------------------------
+	// Tools
 
-
-
-
-
-	//--------------------------------------------------------------------------------
-	//Tools
-
-	public Node createNode(String tag, int start, int endTagStart, int end , boolean closed, boolean isCDATA, Node ... children) {
+	public Node createNode(String tag, int start, int endTagStart, int end, boolean closed, boolean isCDATA,
+			Node... children) {
 		List<Node> newChildren = Arrays.asList(children);
 		Node n = new Node(start, end, newChildren, null, null);
 		setRestOfNode(n, tag, endTagStart, closed, isCDATA);
@@ -237,7 +240,7 @@ public class XMLParserTest {
 		n.endTagStart = endTagStart > -1 ? Integer.valueOf(endTagStart) : null;
 		n.closed = closed;
 		n.isCDATA = isCDATA;
-	} 
+	}
 
 	private static void assertDocument(String input, Node expectedNode) {
 		XMLDocument document = XMLParser.getInstance().parse(input, "uri");
@@ -249,29 +252,28 @@ public class XMLParserTest {
 		assertEquals(0, XMLParser.getInstance().parse(input, "uri").children.size());
 	}
 
-	private static void compareTrees(Node expectedNode, Node actualNode){
+	private static void compareTrees(Node expectedNode, Node actualNode) {
 		assertEquals(expectedNode.tag, actualNode.tag);
 		assertEquals(expectedNode.start, actualNode.start);
 		assertEquals(expectedNode.end, actualNode.end);
 		assertEquals(expectedNode.attributes, actualNode.attributes);
-	
-		if(expectedNode.endTagStart == null){
+
+		if (expectedNode.endTagStart == null) {
 			Assert.assertNull(actualNode.endTagStart);
-		}
-		else{
+		} else {
 			assertEquals(expectedNode.endTagStart, actualNode.endTagStart);
 		}
 		assertEquals(expectedNode.closed, actualNode.closed);
 		assertEquals(expectedNode.isCDATA, actualNode.isCDATA);
-		
+
 		assertEquals(expectedNode.children.size(), actualNode.children.size());
-		for(int i = 0; i < expectedNode.children.size(); i++) {
-				compareTrees(expectedNode.children.get(i), actualNode.children.get(i));
+		for (int i = 0; i < expectedNode.children.size(); i++) {
+			compareTrees(expectedNode.children.get(i), actualNode.children.get(i));
 		}
 	}
 
-	public void insertIntoAttributes(Node n, String key, String value){
-		if(n.attributes == null) {
+	public void insertIntoAttributes(Node n, String key, String value) {
+		if (n.attributes == null) {
 			n.attributes = new HashMap<>();
 		}
 		n.attributes.put(key, value);

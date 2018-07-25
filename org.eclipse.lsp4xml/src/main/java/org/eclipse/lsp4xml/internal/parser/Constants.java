@@ -32,7 +32,10 @@ class Constants {
 	public final static int _DVL = "D".codePointAt(0);
 	public final static int _AVL = "A".codePointAt(0);
 	public final static int _TVL = "T".codePointAt(0);
-
+	public final static int _QMA = "?".codePointAt(0);
+	public final static int _XVL = "x".codePointAt(0);
+	public final static int _MVL = "m".codePointAt(0);
+	public final static int _LVL = "l".codePointAt(0);
 
 
 }

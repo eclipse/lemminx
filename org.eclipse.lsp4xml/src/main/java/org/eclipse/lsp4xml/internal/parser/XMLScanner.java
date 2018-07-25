@@ -19,14 +19,17 @@ import static org.eclipse.lsp4xml.internal.parser.Constants._DVL;
 import static org.eclipse.lsp4xml.internal.parser.Constants._EQS;
 import static org.eclipse.lsp4xml.internal.parser.Constants._FSL;
 import static org.eclipse.lsp4xml.internal.parser.Constants._LAN;
+import static org.eclipse.lsp4xml.internal.parser.Constants._LVL;
 import static org.eclipse.lsp4xml.internal.parser.Constants._MIN;
+import static org.eclipse.lsp4xml.internal.parser.Constants._MVL;
 import static org.eclipse.lsp4xml.internal.parser.Constants._OSB;
+import static org.eclipse.lsp4xml.internal.parser.Constants._QMA;
 import static org.eclipse.lsp4xml.internal.parser.Constants._RAN;
 import static org.eclipse.lsp4xml.internal.parser.Constants._SQO;
 import static org.eclipse.lsp4xml.internal.parser.Constants._TVL;
+import static org.eclipse.lsp4xml.internal.parser.Constants._XVL;
 
 import java.util.regex.Pattern;
-
 /**
  * XML scanner implementation.
  *
@@ -116,6 +119,13 @@ public class XMLScanner implements Scanner {
 			}
 			stream.advanceUntilChar(_RAN); // >
 			return finishToken(offset, TokenType.Doctype);
+		case WithinProlog:
+			if (stream.advanceIfChar(_RAN)) {
+				state = ScannerState.WithinContent;
+				return finishToken(offset, TokenType.EndProlog);
+			}
+			stream.advanceUntilChar(_RAN); // >
+			return finishToken(offset, TokenType.Prolog);			
 		case WithinContent:
 			if (stream.advanceIfChar(_LAN)) { // <
 				if (!stream.eos() && stream.peekChar() == _BNG) { // !
@@ -123,16 +133,20 @@ public class XMLScanner implements Scanner {
 						state = ScannerState.WithinComment;
 						return finishToken(offset, TokenType.StartCommentTag);
 					}
-					if(stream.advanceIfChars(_BNG, _OSB, _CVL, _DVL,_AVL, _TVL, _AVL, _OSB)) { // ![CDATA[
+					if (stream.advanceIfChars(_BNG, _OSB, _CVL, _DVL, _AVL, _TVL, _AVL, _OSB)) { // ![CDATA[
 						state = ScannerState.WithinCDATA;
 						return finishToken(offset, TokenType.CDATATagOpen);
-					}
-					
-						/*
+					}										
+					/*
 					 * AZ: if (stream.advanceIfRegExp(/^!doctype/i)) { state =
 					 * ScannerState.WithinDoctype; return finishToken(offset,
 					 * TokenType.StartDoctypeTag); }
 					 */
+				} else if(!stream.eos() && stream.peekChar() == _QMA) { // ?
+					if (stream.advanceIfChars(_QMA, _XVL, _MVL, _LVL)) { // ?xml (XML Prolog)
+						state = ScannerState.WithinProlog;
+						return finishToken(offset, TokenType.StartProlog);
+					}
 				}
 				if (stream.advanceIfChar(_FSL)) { // /
 					state = ScannerState.AfterOpeningEndTag;
@@ -150,7 +164,7 @@ public class XMLScanner implements Scanner {
 			}
 			stream.advanceUntilChars(_CSB, _CSB, _RAN); // ]]>
 			return finishToken(offset, TokenType.CDATAContent);
-		
+
 		case AfterOpeningEndTag:
 			String tagName = nextElementName();
 			if (tagName.length() > 0) {
@@ -216,18 +230,7 @@ public class XMLScanner implements Scanner {
 				return finishToken(offset, TokenType.StartTagSelfClose);
 			}
 			if (stream.advanceIfChar(_RAN)) { // >
-				if (lastTag == "script") {
-					if (lastTypeValue != null /* AZ: && htmlScriptContents[lastTypeValue] */) {
-						// stay in html
-						state = ScannerState.WithinContent;
-					} else {
-						state = ScannerState.WithinScriptContent;
-					}
-				} else if ("style".equals(lastTag)) {
-					state = ScannerState.WithinStyleContent;
-				} else {
-					state = ScannerState.WithinContent;
-				}
+				state = ScannerState.WithinContent;
 				return finishToken(offset, TokenType.StartTagClose);
 			}
 			stream.advance(1);
@@ -274,45 +277,6 @@ public class XMLScanner implements Scanner {
 			state = ScannerState.WithinTag;
 			hasSpaceAfterTag = false;
 			return internalScan(); // no advance yet - jump to WithinTag
-		case WithinScriptContent:
-			// see
-			// http://stackoverflow.com/questions/14574471/how-do-browsers-parse-a-script-tag-exactly
-			int sciptState = 1;
-			while (!stream.eos()) {
-				String match = ""; // AZ: stream.advanceIfRegExp(/<!--|-->|<\/?script\s*\/?>?/i);
-				if (match.length() == 0) {
-					stream.goToEnd();
-					return finishToken(offset, TokenType.Script);
-				} else if ("<!--".equals(match)) {
-					if (sciptState == 1) {
-						sciptState = 2;
-					}
-				} else if ("-->".equals(match)) {
-					sciptState = 1;
-				} /*
-					 * TODO : else if (match[1] !== '/') { // <script if (sciptState === 2) {
-					 * sciptState = 3; } }
-					 */ else { // </script
-					if (sciptState == 3) {
-						sciptState = 2;
-					} else {
-						stream.goBack(match.length()); // to the beginning of the closing tag
-						break;
-					}
-				}
-			}
-			state = ScannerState.WithinContent;
-			if (offset < stream.pos()) {
-				return finishToken(offset, TokenType.Script);
-			}
-			return internalScan(); // no advance yet - jump to content
-		case WithinStyleContent:
-			// AZ: stream.advanceUntilRegExp(/<\/style/i);
-			state = ScannerState.WithinContent;
-			if (offset < stream.pos()) {
-				return finishToken(offset, TokenType.Styles);
-			}
-			return internalScan(); // no advance yet - jump to content
 		}
 
 		stream.advance(1);

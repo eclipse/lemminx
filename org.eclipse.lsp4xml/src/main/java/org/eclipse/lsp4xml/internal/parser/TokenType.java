@@ -32,14 +32,15 @@ public enum TokenType {
 	DelimiterAssign,
 	AttributeName,
 	AttributeValue,
+	StartProlog,
+	Prolog,
+	EndProlog,
 	StartDoctypeTag,
 	Doctype,
 	EndDoctypeTag,
 	Content,
 	Whitespace,
 	Unknown,
-	Script,
-	Styles,
 	EOS
 
 }
