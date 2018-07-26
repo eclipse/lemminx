@@ -82,8 +82,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 		this.languageService = new XMLLanguageService();
 		this.documents = new TextDocuments();
 		XMLParser parser = XMLParser.getInstance();
-		this.xmlDocuments = new LanguageModelCache<XMLDocument>(10, 60,
-				document -> parser.parse(document));
+		this.xmlDocuments = new LanguageModelCache<XMLDocument>(10, 60, document -> parser.parse(document));
 		this.sharedFormattingOptions = new FormattingOptions(4, false);
 		this.sharedCompletionSettings = new CompletionSettings();
 		this.sharedFoldingsSettings = new FoldingRangeCapabilities();
@@ -204,7 +203,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 	@Override
 	public void didOpen(DidOpenTextDocumentParams params) {
 		documents.onDidOpenTextDocument(params);
-		triggerValidation(params.getTextDocument());
+		TextDocument document = documents.get(params.getTextDocument().getUri());
+		triggerValidation(document);
 	}
 
 	@Override
@@ -235,13 +235,13 @@ public class XMLTextDocumentService implements TextDocumentService {
 			return languageService.getFoldingRanges(document, sharedFoldingsSettings);
 		});
 	}
-	
+
 	@Override
 	public void didSave(DidSaveTextDocumentParams params) {
 
 	}
 
-	private void triggerValidation(TextDocumentItem document) {
+	private void triggerValidation(TextDocument document) {
 		if (validationRequest != null) {
 			validationRequest.cancel(true);
 		}

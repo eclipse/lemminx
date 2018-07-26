@@ -20,7 +20,6 @@ import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.SymbolInformation;
-import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.commons.TextDocument;
@@ -79,7 +78,7 @@ public class XMLLanguageService {
 		return hover.doHover(xmlDocument, position);
 	}
 
-	public List<Diagnostic> doDiagnostics(TextDocumentItem document, String xmlSchemaFile, CancelChecker monitor) {
+	public List<Diagnostic> doDiagnostics(TextDocument document, String xmlSchemaFile, CancelChecker monitor) {
 		return diagnostics.doDiagnostics(document, xmlSchemaFile, monitor);
 	}
 

@@ -27,8 +27,8 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+import org.eclipse.lsp4xml.commons.TextDocument;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -54,7 +54,7 @@ class XMLDiagnostics {
 		factory.setValidating(true);
 	}
 
-	public List<Diagnostic> doDiagnostics(TextDocumentItem document, String xmlSchemaFile, CancelChecker monitor) {
+	public List<Diagnostic> doDiagnostics(TextDocument document, String xmlSchemaFile, CancelChecker monitor) {
 		List<Diagnostic> diagnostics = new ArrayList<Diagnostic>();
 		String xmlContent = document.getText();
 
