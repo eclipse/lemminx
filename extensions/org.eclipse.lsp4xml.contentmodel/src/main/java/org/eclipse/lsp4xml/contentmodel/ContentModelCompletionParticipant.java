@@ -28,6 +28,17 @@ import org.eclipse.lsp4xml.model.XMLDocument;
 public class ContentModelCompletionParticipant implements ICompletionParticipant {
 
 	@Override
+	public void onAttributeName(String namePrefix, Range fullRange, ICompletionRequest request,
+			ICompletionResponse response) {
+
+	}
+
+	@Override
+	public void onAttributeValue(String valuePrefix, Range fullRange, ICompletionRequest request,
+			ICompletionResponse response) {
+	}
+
+	@Override
 	public void onXMLContent(ICompletionRequest request, ICompletionResponse response) {
 		try {
 			Node parentNode = request.getParentNode();
@@ -76,10 +87,4 @@ public class ContentModelCompletionParticipant implements ICompletionParticipant
 		}
 		return whitespaces.toString();
 	}
-
-	@Override
-	public void onAttributeValue(String valuePrefix, Range fullRange, ICompletionRequest request,
-			ICompletionResponse response) {
-	}
-
 }

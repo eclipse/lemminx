@@ -28,6 +28,7 @@ import org.eclipse.lsp4xml.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.extensions.ICompletionResponse;
 import org.eclipse.lsp4xml.internal.parser.BadLocationException;
 import org.eclipse.lsp4xml.internal.parser.Scanner;
+import org.eclipse.lsp4xml.internal.parser.ScannerState;
 import org.eclipse.lsp4xml.internal.parser.TokenType;
 import org.eclipse.lsp4xml.internal.parser.XMLScanner;
 import org.eclipse.lsp4xml.model.Node;
@@ -81,7 +82,8 @@ class XMLCompletions {
 				break;
 			case AttributeName:
 				if (scanner.getTokenOffset() <= offset && offset <= scanner.getTokenEnd()) {
-					return collectAttributeNameSuggestions(scanner.getTokenOffset(), scanner.getTokenEnd());
+					collectAttributeNameSuggestions(scanner.getTokenOffset(), scanner.getTokenEnd(),completionRequest, completionResponse);
+					return completionResponse;
 				}
 				completionRequest.setCurrentAttributeName(scanner.getTokenText());
 				break;
@@ -108,7 +110,8 @@ class XMLCompletions {
 						return collectTagSuggestions(startPos, endTagPos);
 					case WithinTag:
 					case AfterAttributeName:
-						return collectAttributeNameSuggestions(scanner.getTokenEnd());
+						collectAttributeNameSuggestions(scanner.getTokenEnd(), completionRequest, completionResponse);
+						return completionResponse;
 					case BeforeAttributeValue:
 						collectAttributeValueSuggestions(scanner.getTokenEnd(), offset, completionRequest,
 								completionResponse);
@@ -236,14 +239,30 @@ class XMLCompletions {
 		return null;
 	}
 
-	private CompletionList collectAttributeNameSuggestions(int tokenEnd) {
-		// TODO Auto-generated method stub
-		return null;
+	private void collectAttributeNameSuggestions(int nameStart, CompletionRequest completionRequest,
+			CompletionResponse completionResponse) {
+		collectAttributeNameSuggestions(nameStart, completionRequest.getOffset(), completionRequest, completionResponse);
 	}
 
-	private CompletionList collectAttributeNameSuggestions(int tokenOffset, int tokenEnd) {
-		// TODO Auto-generated method stub
-		return null;
+	private void collectAttributeNameSuggestions(int nameStart, int nameEnd, CompletionRequest completionRequest,
+			CompletionResponse completionResponse) {
+		int replaceEnd = completionRequest.getOffset();
+		String text = completionRequest.getXMLDocument().getText();
+		while (replaceEnd < nameEnd && text.charAt(replaceEnd) != '<') { // < is a valid attribute name character, but
+																			// we rather assume the attribute name ends.
+																			// See #23236.
+			replaceEnd++;
+		}
+		try {
+			Range range = getReplaceRange(nameStart, replaceEnd, completionRequest);
+			String value = isFollowedBy(text, nameEnd, ScannerState.AfterAttributeName, TokenType.DelimiterAssign) ? ""
+					: "=\"$1\"";
+			for (ICompletionParticipant participant : extensionsRegistry.getCompletionParticipants()) {
+				participant.onAttributeName(value, range, completionRequest, completionResponse);
+			}
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void collectAttributeValueSuggestions(int valueStart, int valueEnd,
@@ -403,6 +422,15 @@ class XMLCompletions {
 
 	private static boolean isWhiteSpace(char ch) {
 		return ch == ' ';
+	}
+
+	private static boolean isFollowedBy(String s, int offset, ScannerState intialState, TokenType expectedToken) {
+		Scanner scanner = XMLScanner.createScanner(s, offset, intialState);
+		TokenType token = scanner.scan();
+		while (token == TokenType.Whitespace) {
+			token = scanner.scan();
+		}
+		return token == expectedToken;
 	}
 
 	private static int getWordStart(String s, int offset, int limit) {

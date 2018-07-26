@@ -18,6 +18,8 @@ import org.eclipse.lsp4j.Range;
  */
 public interface ICompletionParticipant {
 
+	void onAttributeName(String namePrefix, Range fullRange, ICompletionRequest request, ICompletionResponse response);
+
 	void onAttributeValue(String valuePrefix, Range fullRange, ICompletionRequest request,
 			ICompletionResponse response);
 
