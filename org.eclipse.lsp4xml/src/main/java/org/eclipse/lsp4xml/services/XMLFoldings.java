@@ -20,7 +20,8 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.eclipse.lsp4xml.internal.parser.BadLocationException;
+import org.eclipse.lsp4xml.commons.BadLocationException;
+import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.internal.parser.Scanner;
 import org.eclipse.lsp4xml.internal.parser.TokenType;
 import org.eclipse.lsp4xml.internal.parser.XMLScanner;
@@ -56,7 +57,7 @@ class XMLFoldings {
 		}
 	}
 
-	public List<FoldingRange> getFoldingRanges(XMLDocument document, FoldingRangeCapabilities context) {
+	public List<FoldingRange> getFoldingRanges(TextDocument document, FoldingRangeCapabilities context) {
 		Scanner scanner = XMLScanner.createScanner(document.getText());
 		TokenType token = scanner.scan();
 		List<FoldingRange> ranges = new ArrayList<>();

@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.model.Node;
 import org.eclipse.lsp4xml.model.XMLDocument;
 
@@ -38,8 +39,18 @@ public class XMLParser {
 	}
 
 	public XMLDocument parse(String text, String uri, boolean full) {
+		return parse(new TextDocument(text, uri), full);
+	}
+
+	public XMLDocument parse(TextDocument document) {
+		return parse(document, false);
+	}
+
+	public XMLDocument parse(TextDocument document, boolean full) {
+
+		String text = document.getText();
 		Scanner scanner = XMLScanner.createScanner(text);
-		XMLDocument xmlDocument = new XMLDocument(text, uri);
+		XMLDocument xmlDocument = new XMLDocument(document);
 
 		Node curr = xmlDocument;
 		int endTagStart = -1;
@@ -120,7 +131,8 @@ public class XMLParser {
 			}
 
 			case CDATATagOpen: {
-				Node cdataNode = new Node(scanner.getTokenOffset(), text.length(), new ArrayList<>(), curr, xmlDocument);//TODO: might need arraylist
+				Node cdataNode = new Node(scanner.getTokenOffset(), text.length(), new ArrayList<>(), curr,
+						xmlDocument);// TODO: might need arraylist
 				cdataNode.isCDATA = true;
 				curr.children.add(cdataNode);
 				curr = cdataNode;
@@ -128,8 +140,8 @@ public class XMLParser {
 			}
 
 			case CDATAContent: {
-				if(curr.tag == null){
-					curr.tag="";
+				if (curr.tag == null) {
+					curr.tag = "";
 				}
 				curr.tag += scanner.getTokenText();
 				break;

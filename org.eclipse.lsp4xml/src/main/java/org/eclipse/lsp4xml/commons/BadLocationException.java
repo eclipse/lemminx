@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.lsp4xml.internal.parser;
+package org.eclipse.lsp4xml.commons;
 
 /**
  * Indicates the attempt to access a non-existing position. The attempt has been

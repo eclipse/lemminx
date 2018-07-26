@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
-import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentItem;
 
 /**
@@ -28,7 +27,7 @@ import org.eclipse.lsp4j.TextDocumentItem;
 public class LanguageModelCache<T> {
 
 	private final Map<String, LanguageModeInfo> languageModels;
-	private final Function<TextDocumentItem, T> parse;
+	private final Function<TextDocument, T> parse;
 
 	class LanguageModeInfo {
 
@@ -45,13 +44,9 @@ public class LanguageModelCache<T> {
 		}
 	}
 
-	public LanguageModelCache(int maxEntries, int cleanupIntervalTimeInSec, Function<TextDocumentItem, T> parse) {
+	public LanguageModelCache(int maxEntries, int cleanupIntervalTimeInSec, Function<TextDocument, T> parse) {
 		this.languageModels = new HashMap<>();
 		this.parse = parse;
-	}
-
-	public void onDocumentRemoved(TextDocumentIdentifier document) {
-		languageModels.remove(document.getUri());
 	}
 
 	public T get(TextDocumentItem document) {
@@ -64,7 +59,9 @@ public class LanguageModelCache<T> {
 			languageModelInfo.cTime = System.currentTimeMillis();
 			return languageModelInfo.languageModel;
 		}
-		T languageModel = parse.apply(document);
+		TextDocument textDocument = document instanceof TextDocument ? (TextDocument) document
+				: new TextDocument(document);
+		T languageModel = parse.apply(textDocument);
 		languageModels.put(uri, new LanguageModeInfo(languageModel, version, languageId, System.currentTimeMillis()));
 		return languageModel;
 	}

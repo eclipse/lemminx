@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.internal.parser.XMLParser;
 import org.eclipse.lsp4xml.model.XMLDocument;
 import org.junit.Assert;
@@ -223,7 +224,7 @@ public class XMLFoldingsTest {
 	}
 
 	private static void assertRanges(String[] lines, ExpectedIndentRange[] expected, String message, Integer nRanges) {
-		XMLDocument document = XMLParser.getInstance().parse(String.join("\n", lines), "test://foo/bar.json");
+		TextDocument document = new TextDocument(String.join("\n", lines), "test://foo/bar.json");
 
 		XMLLanguageService languageService = new XMLLanguageService();
 

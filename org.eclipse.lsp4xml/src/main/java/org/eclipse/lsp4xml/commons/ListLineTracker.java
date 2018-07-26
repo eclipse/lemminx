@@ -9,12 +9,10 @@
  *     IBM Corporation - initial API and implementation
  * This class is a copy/paste of org.eclipse.jface.text.ListLineTracker
  *******************************************************************************/
-package org.eclipse.lsp4xml.model;
+package org.eclipse.lsp4xml.commons;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.eclipse.lsp4xml.internal.parser.BadLocationException;
 
 /**
  * Abstract, read-only implementation of <code>ILineTracker</code>. It lets the definition of

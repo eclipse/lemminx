@@ -23,6 +23,7 @@ import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.model.XMLDocument;
 
@@ -57,8 +58,8 @@ public class XMLLanguageService {
 		this.foldings = new XMLFoldings(extensionsRegistry);
 	}
 
-	public List<? extends TextEdit> format(XMLDocument xmlDocument, Range range, FormattingOptions options) {
-		return formatter.format(xmlDocument, range, options);
+	public List<? extends TextEdit> format(TextDocument document, Range range, FormattingOptions options) {
+		return formatter.format(document, range, options);
 	}
 
 	public List<DocumentHighlight> findDocumentHighlights(XMLDocument xmlDocument, Position position) {
@@ -82,7 +83,7 @@ public class XMLLanguageService {
 		return diagnostics.doDiagnostics(document, xmlSchemaFile, monitor);
 	}
 
-	public List<FoldingRange> getFoldingRanges(XMLDocument xmlDocument, FoldingRangeCapabilities context) {
-		return foldings.getFoldingRanges(xmlDocument, context);
+	public List<FoldingRange> getFoldingRanges(TextDocument document, FoldingRangeCapabilities context) {
+		return foldings.getFoldingRanges(document, context);
 	}
 }

@@ -17,10 +17,10 @@ import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.eclipse.lsp4xml.internal.parser.BadLocationException;
+import org.eclipse.lsp4xml.commons.BadLocationException;
+import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.internal.parser.XMLParser;
 import org.eclipse.lsp4xml.model.XMLDocument;
-import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -92,7 +92,7 @@ public class XMLFormatterTest {
 			range = new Range(startPos, endPos);
 		}
 
-		XMLDocument document = XMLParser.getInstance().parse(unformatted, uri);
+		TextDocument document = new TextDocument(unformatted, uri);
 		List<? extends TextEdit> edits = languageService.format(document, range,
 				new FormattingOptions(2, insertSpaces));
 		String formatted = edits.stream().map(edit -> edit.getNewText()).collect(Collectors.joining(""));

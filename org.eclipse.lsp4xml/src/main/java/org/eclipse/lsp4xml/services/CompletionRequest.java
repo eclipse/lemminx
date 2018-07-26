@@ -12,9 +12,9 @@ package org.eclipse.lsp4xml.services;
 
 import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.extensions.ICompletionRequest;
-import org.eclipse.lsp4xml.internal.parser.BadLocationException;
 import org.eclipse.lsp4xml.model.XMLDocument;
 
 /**

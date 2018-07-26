@@ -14,7 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4xml.internal.parser.BadLocationException;
+import org.eclipse.lsp4xml.commons.BadLocationException;
+import org.eclipse.lsp4xml.commons.TextDocument;
 
 /**
  * XML document.
@@ -22,22 +23,15 @@ import org.eclipse.lsp4xml.internal.parser.BadLocationException;
  */
 public class XMLDocument extends Node {
 
-	private static String DEFAULT_DELIMTER = System.getProperty("line.separator");
-
-	private final ListLineTracker lineTracker;
 	private SchemaLocation schemaLocation;
 	private NoNamespaceSchemaLocation noNamespaceSchemaLocation;
 	private boolean schemaLocationInitialized;
 
-	private final String text;
-	private final String uri;
+	private final TextDocument textDocument;
 
-	public XMLDocument(String text, String uri) {
-		super(0, text.length(), new ArrayList<>(), null, null);
-		lineTracker = new ListLineTracker();
-		lineTracker.set(text);
-		this.text = text;
-		this.uri = uri;
+	public XMLDocument(TextDocument textDocument) {
+		super(0, textDocument.getText().length(), new ArrayList<>(), null, null);
+		this.textDocument = textDocument;
 		schemaLocationInitialized = false;
 	}
 
@@ -46,33 +40,19 @@ public class XMLDocument extends Node {
 	}
 
 	public Position positionAt(int position) throws BadLocationException {
-		int lineNumber = lineTracker.getLineNumberOfOffset(position);
-		Line line = lineTracker.getLineInformation(lineNumber);
-		return new Position(lineNumber, position - line.offset);
+		return textDocument.positionAt(position);
 	}
 
 	public int offsetAt(Position position) throws BadLocationException {
-		int lineNumber = position.getLine();
-		Line line = lineTracker.getLineInformation(lineNumber);
-		return line.offset + position.getCharacter();
+		return textDocument.offsetAt(position);
 	}
 
 	public String lineText(int lineNumber) throws BadLocationException {
-		Line line = lineTracker.getLineInformation(lineNumber);
-		return text.substring(line.offset, line.offset + line.length);
+		return textDocument.lineText(lineNumber);
 	}
 
 	public String lineDelimiter(int lineNumber) throws BadLocationException {
-		String lineDelimiter = lineTracker.getLineDelimiter(lineNumber);
-		if (lineDelimiter == null) {
-			if (lineTracker.getNumberOfLines() > 0) {
-				lineDelimiter = lineTracker.getLineInformation(0).delimiter;
-			}
-		}
-		if (lineDelimiter == null) {
-			lineDelimiter = DEFAULT_DELIMTER;
-		}
-		return lineDelimiter;
+		return textDocument.lineDelimiter(lineNumber);
 	}
 
 	public SchemaLocation getSchemaLocation() {
@@ -130,11 +110,11 @@ public class XMLDocument extends Node {
 	}
 
 	public String getText() {
-		return text;
+		return textDocument.getText();
 	}
 
 	public String getUri() {
-		return uri;
+		return textDocument.getUri();
 	}
 
 	@Override

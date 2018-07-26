@@ -14,7 +14,7 @@ import java.util.List;
 
 import org.eclipse.lsp4j.DocumentHighlight;
 import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4xml.internal.parser.BadLocationException;
+import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.internal.parser.XMLParser;
 import org.eclipse.lsp4xml.model.XMLDocument;
 import org.junit.Assert;

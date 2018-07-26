@@ -25,7 +25,7 @@ import org.eclipse.lsp4j.TextDocumentItem;
  */
 public class TextDocuments {
 
-	private final Map<String, TextDocumentItem> documents;
+	private final Map<String, TextDocument> documents;
 
 	public TextDocuments() {
 		documents = new HashMap<>();
@@ -38,13 +38,13 @@ public class TextDocuments {
 	 * @param uri The text document's URI to retrieve.
 	 * @return the text document or `undefined`.
 	 */
-	public TextDocumentItem get(String uri) {
+	public TextDocument get(String uri) {
 		return documents.get(uri);
 	}
 
 	public void onDidOpenTextDocument(DidOpenTextDocumentParams params) {
 		TextDocumentItem document = params.getTextDocument();
-		documents.put(document.getUri(), document);
+		documents.put(document.getUri(), new TextDocument(document));
 	}
 
 	public void onDidChangeTextDocument(DidChangeTextDocumentParams params) {
@@ -54,7 +54,7 @@ public class TextDocuments {
 		// https://github.com/Microsoft/vscode-languageserver-node/blob/master/server/src/main.ts
 		TextDocumentContentChangeEvent last = changes.size() > 0 ? changes.get(changes.size() - 1) : null;
 		if (last != null) {
-			TextDocumentItem document = get(params.getTextDocument().getUri());
+			TextDocument document = get(params.getTextDocument().getUri());
 			if (document != null) {
 				document.setVersion(params.getTextDocument().getVersion());
 				document.setText(last.getText());

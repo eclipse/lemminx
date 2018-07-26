@@ -51,6 +51,7 @@ import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4xml.commons.LanguageModelCache;
+import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.commons.TextDocuments;
 import org.eclipse.lsp4xml.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.internal.parser.XMLParser;
@@ -82,7 +83,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 		this.documents = new TextDocuments();
 		XMLParser parser = XMLParser.getInstance();
 		this.xmlDocuments = new LanguageModelCache<XMLDocument>(10, 60,
-				document -> parser.parse(document.getText(), document.getUri()));
+				document -> parser.parse(document));
 		this.sharedFormattingOptions = new FormattingOptions(4, false);
 		this.sharedCompletionSettings = new CompletionSettings();
 		this.sharedFoldingsSettings = new FoldingRangeCapabilities();
@@ -104,7 +105,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	@Override
 	public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(CompletionParams params) {
 		return computeAsync((monitor) -> {
-			TextDocumentItem document = documents.get(params.getTextDocument().getUri());
+			TextDocument document = documents.get(params.getTextDocument().getUri());
 			XMLDocument xmlDocument = getXMLDocument(document);
 			CompletionList list = languageService.doComplete(xmlDocument, params.getPosition(),
 					sharedCompletionSettings, sharedFormattingOptions);
@@ -120,7 +121,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	@Override
 	public CompletableFuture<Hover> hover(TextDocumentPositionParams params) {
 		return computeAsync((monitor) -> {
-			TextDocumentItem document = documents.get(params.getTextDocument().getUri());
+			TextDocument document = documents.get(params.getTextDocument().getUri());
 			XMLDocument xmlDocument = getXMLDocument(document);
 			return languageService.doHover(xmlDocument, params.getPosition());
 		});
@@ -144,7 +145,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	@Override
 	public CompletableFuture<List<? extends DocumentHighlight>> documentHighlight(TextDocumentPositionParams params) {
 		return computeAsync((monitor) -> {
-			TextDocumentItem document = documents.get(params.getTextDocument().getUri());
+			TextDocument document = documents.get(params.getTextDocument().getUri());
 			XMLDocument xmlDocument = getXMLDocument(document);
 			return languageService.findDocumentHighlights(xmlDocument, params.getPosition());
 		});
@@ -153,7 +154,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	@Override
 	public CompletableFuture<List<? extends SymbolInformation>> documentSymbol(DocumentSymbolParams params) {
 		return computeAsync((monitor) -> {
-			TextDocumentItem document = documents.get(params.getTextDocument().getUri());
+			TextDocument document = documents.get(params.getTextDocument().getUri());
 			XMLDocument xmlDocument = getXMLDocument(document);
 			return languageService.findDocumentSymbols(xmlDocument);
 		});
@@ -177,18 +178,16 @@ public class XMLTextDocumentService implements TextDocumentService {
 	@Override
 	public CompletableFuture<List<? extends TextEdit>> formatting(DocumentFormattingParams params) {
 		return computeAsync((monitor) -> {
-			TextDocumentItem document = documents.get(params.getTextDocument().getUri());
-			XMLDocument xmlDocument = getXMLDocument(document);
-			return languageService.format(xmlDocument, null, params.getOptions());
+			TextDocument document = documents.get(params.getTextDocument().getUri());
+			return languageService.format(document, null, params.getOptions());
 		});
 	}
 
 	@Override
 	public CompletableFuture<List<? extends TextEdit>> rangeFormatting(DocumentRangeFormattingParams params) {
 		return computeAsync((monitor) -> {
-			TextDocumentItem document = documents.get(params.getTextDocument().getUri());
-			XMLDocument xmlDocument = getXMLDocument(document);
-			return languageService.format(xmlDocument, params.getRange(), params.getOptions());
+			TextDocument document = documents.get(params.getTextDocument().getUri());
+			return languageService.format(document, params.getRange(), params.getOptions());
 		});
 	}
 
@@ -211,7 +210,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	@Override
 	public void didChange(DidChangeTextDocumentParams params) {
 		documents.onDidChangeTextDocument(params);
-		TextDocumentItem document = documents.get(params.getTextDocument().getUri());
+		TextDocument document = documents.get(params.getTextDocument().getUri());
 		if (document != null) {
 			triggerValidation(document);
 		}
@@ -232,9 +231,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 	// @JsonRequest
 	public CompletableFuture<List<FoldingRange>> foldingRanges(FoldingRangeRequestParams params) {
 		return computeAsync((monitor) -> {
-			TextDocumentItem document = documents.get(params.getTextDocument().getUri());
-			XMLDocument xmlDocument = getXMLDocument(document);
-			return languageService.getFoldingRanges(xmlDocument, sharedFoldingsSettings);
+			TextDocument document = documents.get(params.getTextDocument().getUri());
+			return languageService.getFoldingRanges(document, sharedFoldingsSettings);
 		});
 	}
 	

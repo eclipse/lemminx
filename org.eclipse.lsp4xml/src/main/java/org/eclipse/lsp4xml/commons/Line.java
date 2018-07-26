@@ -9,7 +9,7 @@
  *     IBM Corporation - initial API and implementation
  * This class is a copy/paste of org.eclipse.jface.text.Line
  *******************************************************************************/
-package org.eclipse.lsp4xml.model;
+package org.eclipse.lsp4xml.commons;
 
 /**
  * Describes a line as a particular number of characters beginning at

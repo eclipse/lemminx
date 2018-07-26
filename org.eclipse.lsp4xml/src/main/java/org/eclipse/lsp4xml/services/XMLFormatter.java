@@ -18,7 +18,8 @@ import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.eclipse.lsp4xml.internal.parser.BadLocationException;
+import org.eclipse.lsp4xml.commons.BadLocationException;
+import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.internal.parser.XMLParser;
 import org.eclipse.lsp4xml.model.Node;
 import org.eclipse.lsp4xml.model.XMLDocument;
@@ -36,28 +37,28 @@ class XMLFormatter {
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
-	public List<? extends TextEdit> format(XMLDocument xmlDocument, Range range, FormattingOptions formattingOptions) {
+	public List<? extends TextEdit> format(TextDocument document, Range range, FormattingOptions formattingOptions) {
 		try {
 			// Compute start/end offset range
 			int start = -1;
 			int end = -1;
 			if (range == null) {
-				start = xmlDocument.start;
-				end = xmlDocument.end;
+				start = 0;
+				end = document.getText().length();
 			} else {
-				start = xmlDocument.offsetAt(range.getStart());
-				end = xmlDocument.offsetAt(range.getEnd());
+				start = document.offsetAt(range.getStart());
+				end = document.offsetAt(range.getEnd());
 			}
-			Position startPosition = xmlDocument.positionAt(start);
-			Position endPosition = xmlDocument.positionAt(end);
+			Position startPosition = document.positionAt(start);
+			Position endPosition = document.positionAt(end);
 
 			// Parse the content to format to create an XML document with full data (CData,
 			// comments, etc)
-			String text = xmlDocument.getText().substring(start, end);
+			String text = document.getText().substring(start, end);
 			XMLDocument doc = XMLParser.getInstance().parse(text, null, true);
 
 			// Format the content
-			XMLBuilder xml = new XMLBuilder(formattingOptions, "", xmlDocument.lineDelimiter(startPosition.getLine()));
+			XMLBuilder xml = new XMLBuilder(formattingOptions, "", document.lineDelimiter(startPosition.getLine()));
 			format(doc, 0, xml);
 
 			// Returns LSP list of TextEdits
