@@ -14,6 +14,8 @@ package org.eclipse.lsp4xml.commons;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.lsp4j.Position;
+
 /**
  * Abstract, read-only implementation of <code>ILineTracker</code>. It lets the definition of
  * line delimiters to subclasses. Assuming that '\n' is the only line delimiter, this abstract
@@ -102,52 +104,14 @@ class ListLineTracker /*implements ILineTracker*/ {
 		return left;
 	}
 
-	/**
-	 * Returns the number of lines covered by the specified text range.
-	 *
-	 * @param startLine the line where the text range starts
-	 * @param offset the start offset of the text range
-	 * @param length the length of the text range
-	 * @return the number of lines covered by this text range
-	 * @exception BadLocationException if range is undefined in this tracker
-	 */
-	private int getNumberOfLines(int startLine, int offset, int length) throws BadLocationException {
-
-		if (length == 0)
-			return 1;
-
-		int target= offset + length;
-
-		Line l= fLines.get(startLine);
-
-		if (l.delimiter == null)
-			return 1;
-
-		if (l.offset + l.length > target)
-			return 1;
-
-		if (l.offset + l.length == target)
-			return 2;
-
-		return getLineNumberOfOffset(target) - startLine + 1;
+	public final Position getPositionAt(int offset) throws BadLocationException {
+		int lineNumber = getLineNumberOfOffset(offset);
+		Line l = fLines.get(lineNumber == fLines.size() ? lineNumber - 1 : lineNumber);
+		int character = offset - l.offset;
+		return new Position(lineNumber, character);
 	}
-
-	//@Override
-	public final int getLineLength(int line) throws BadLocationException {
-		int lines= fLines.size();
-
-		if (line < 0 || line > lines)
-			throw new BadLocationException();
-
-		if (lines == 0 || lines == line)
-			return 0;
-
-		Line l= fLines.get(line);
-		return l.length;
-	}
-
-	//@Override
-	public final int getLineNumberOfOffset(int position) throws BadLocationException {
+	
+	private final int getLineNumberOfOffset(int position) throws BadLocationException {
 		if (position < 0) {
 			throw new BadLocationException("Negative offset : " + position); //$NON-NLS-1$
 		} else if (position > fTextLength) {
@@ -166,24 +130,39 @@ class ListLineTracker /*implements ILineTracker*/ {
 
 		return findLine(position);
 	}
+	
+	public int getOffsetAt(Position position) throws BadLocationException {
+		int line = position.getLine();
+		int lines = fLines.size();
 
-	//@Override
-	public final Line getLineInformationOfOffset(int position) throws BadLocationException {
-		if (position > fTextLength)
-			throw new BadLocationException("Offset > length: " + position + " > " + fTextLength);  //$NON-NLS-1$//$NON-NLS-2$
+		if (line < 0 || line > lines)
+			throw new BadLocationException("The line value, {" + line + "}, is out of bounds.");
 
-		if (position == fTextLength) {
-			int size= fLines.size();
-			if (size == 0)
-				return new Line(0, 0);
-			Line l= fLines.get(size - 1);
-			return (l.delimiter != null ? new Line(fTextLength, 0) : new Line(fTextLength - l.length, l.length));
+		int lineOffset = -1;
+		int lineLength = -1;
+		if (lines == 0) {
+			lineOffset = 0;
+			lineLength = 0;
+		} else {
+			if (line == lines) {
+				Line l = fLines.get(line - 1);
+				lineOffset = l.offset + l.length;
+				lineLength = 0;
+			} else {
+				Line l = fLines.get(line);
+				lineOffset = l.offset;
+				lineLength = l.delimiter != null ? l.length - l.delimiter.length() : l.length;
+			}
 		}
-
-		return getLineInformation(findLine(position));
+		int character = position.getCharacter();
+		int offset = lineOffset + character;
+		int endLineOffset = lineOffset + lineLength;
+		if (offset > endLineOffset)
+			throw new BadLocationException(
+					"The character value, {" + character + "} of the line" + line + "}, is out of bounds.");
+		return offset;
 	}
 
-	//@Override
 	public final Line getLineInformation(int line) throws BadLocationException {
 		int lines= fLines.size();
 
@@ -201,7 +180,7 @@ class ListLineTracker /*implements ILineTracker*/ {
 		Line l= fLines.get(line);
 		return (l.delimiter != null ? new Line(l.offset, l.length - l.delimiter.length()) : l);
 	}
-
+	
 	//@Override
 	public final int getLineOffset(int line) throws BadLocationException {
 		int lines= fLines.size();

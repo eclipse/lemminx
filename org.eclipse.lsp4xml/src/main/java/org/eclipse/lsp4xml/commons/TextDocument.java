@@ -43,16 +43,12 @@ public class TextDocument extends TextDocumentItem {
 
 	public Position positionAt(int position) throws BadLocationException {
 		ListLineTracker lineTracker = getLineTracker();
-		int lineNumber = lineTracker.getLineNumberOfOffset(position);
-		Line line = lineTracker.getLineInformation(lineNumber);
-		return new Position(lineNumber, position - line.offset);
+		return lineTracker.getPositionAt(position);
 	}
 
 	public int offsetAt(Position position) throws BadLocationException {
 		ListLineTracker lineTracker = getLineTracker();
-		int lineNumber = position.getLine();
-		Line line = lineTracker.getLineInformation(lineNumber);
-		return line.offset + position.getCharacter();
+		return lineTracker.getOffsetAt(position);
 	}
 
 	public String lineText(int lineNumber) throws BadLocationException {
