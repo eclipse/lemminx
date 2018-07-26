@@ -57,6 +57,10 @@ import org.eclipse.lsp4xml.internal.parser.XMLParser;
 import org.eclipse.lsp4xml.model.XMLDocument;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
 
+import toremove.org.eclipse.lsp4j.FoldingRange;
+import toremove.org.eclipse.lsp4j.FoldingRangeCapabilities;
+import toremove.org.eclipse.lsp4j.FoldingRangeRequestParams;
+
 /**
  * XML text document service.
  *
@@ -69,6 +73,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	private final LanguageModelCache<XMLDocument> xmlDocuments;
 	private final FormattingOptions sharedFormattingOptions;
 	private final CompletionSettings sharedCompletionSettings;
+	private final FoldingRangeCapabilities sharedFoldingsSettings;
 	private CompletableFuture<Object> validationRequest;
 
 	public XMLTextDocumentService(XMLLanguageServer xmlLanguageServer) {
@@ -80,6 +85,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 				document -> parser.parse(document.getText(), document.getUri()));
 		this.sharedFormattingOptions = new FormattingOptions(4, false);
 		this.sharedCompletionSettings = new CompletionSettings();
+		this.sharedFoldingsSettings = new FoldingRangeCapabilities();
 	}
 
 	public void updateClientCapabilities(ClientCapabilities capabilities) {
@@ -222,6 +228,16 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	}
 
+	// Un comment the next code (@JsonRequest) to activate VSCode folding.
+	// @JsonRequest
+	public CompletableFuture<List<FoldingRange>> foldingRanges(FoldingRangeRequestParams params) {
+		return computeAsync((monitor) -> {
+			TextDocumentItem document = documents.get(params.getTextDocument().getUri());
+			XMLDocument xmlDocument = getXMLDocument(document);
+			return languageService.getFoldingRanges(xmlDocument, sharedFoldingsSettings);
+		});
+	}
+	
 	@Override
 	public void didSave(DidSaveTextDocumentParams params) {
 

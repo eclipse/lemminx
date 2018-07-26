@@ -26,6 +26,9 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.model.XMLDocument;
 
+import toremove.org.eclipse.lsp4j.FoldingRange;
+import toremove.org.eclipse.lsp4j.FoldingRangeCapabilities;
+
 /**
  * XML Language service.
  *
@@ -38,6 +41,7 @@ public class XMLLanguageService {
 	private final XMLCompletions completions;
 	private final XMLHover hover;
 	private final XMLDiagnostics diagnostics;
+	private XMLFoldings foldings;
 
 	public XMLLanguageService() {
 		this(new XMLExtensionsRegistry());
@@ -50,6 +54,7 @@ public class XMLLanguageService {
 		this.completions = new XMLCompletions(extensionsRegistry);
 		this.hover = new XMLHover(extensionsRegistry);
 		this.diagnostics = new XMLDiagnostics(extensionsRegistry);
+		this.foldings = new XMLFoldings(extensionsRegistry);
 	}
 
 	public List<? extends TextEdit> format(XMLDocument xmlDocument, Range range, FormattingOptions options) {
@@ -77,4 +82,7 @@ public class XMLLanguageService {
 		return diagnostics.doDiagnostics(document, xmlSchemaFile, monitor);
 	}
 
+	public List<FoldingRange> getFoldingRanges(XMLDocument xmlDocument, FoldingRangeCapabilities context) {
+		return foldings.getFoldingRanges(xmlDocument, context);
+	}
 }
