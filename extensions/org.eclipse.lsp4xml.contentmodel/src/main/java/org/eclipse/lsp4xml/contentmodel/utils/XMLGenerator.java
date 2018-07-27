@@ -8,13 +8,14 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lsp4xml.contentmodel;
+package org.eclipse.lsp4xml.contentmodel.utils;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.lsp4j.FormattingOptions;
+import org.eclipse.lsp4xml.contentmodel.CMElement;
 import org.eclipse.lsp4xml.utils.XMLBuilder;
 
 /**

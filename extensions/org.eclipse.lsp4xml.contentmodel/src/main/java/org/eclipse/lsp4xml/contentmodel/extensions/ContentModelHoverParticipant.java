@@ -8,10 +8,12 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lsp4xml.contentmodel;
+package org.eclipse.lsp4xml.contentmodel.extensions;
 
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.MarkupContent;
+import org.eclipse.lsp4xml.contentmodel.CMElement;
+import org.eclipse.lsp4xml.contentmodel.ContentModelManager;
 import org.eclipse.lsp4xml.extensions.IHoverParticipant;
 import org.eclipse.lsp4xml.extensions.IHoverRequest;
 import org.eclipse.lsp4xml.model.Node;

@@ -27,6 +27,7 @@ import org.eclipse.lsp4xml.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.extensions.ICompletionParticipant;
 import org.eclipse.lsp4xml.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.extensions.ICompletionResponse;
+import org.eclipse.lsp4xml.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.internal.parser.Scanner;
 import org.eclipse.lsp4xml.internal.parser.ScannerState;
 import org.eclipse.lsp4xml.internal.parser.TokenType;

@@ -8,13 +8,16 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lsp4xml.contentmodel;
+package org.eclipse.lsp4xml.contentmodel.extensions;
 
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4xml.contentmodel.CMElement;
+import org.eclipse.lsp4xml.contentmodel.ContentModelManager;
+import org.eclipse.lsp4xml.contentmodel.utils.XMLGenerator;
 import org.eclipse.lsp4xml.extensions.ICompletionParticipant;
 import org.eclipse.lsp4xml.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.extensions.ICompletionResponse;

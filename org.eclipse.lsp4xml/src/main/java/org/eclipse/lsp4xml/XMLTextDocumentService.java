@@ -79,7 +79,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	public XMLTextDocumentService(XMLLanguageServer xmlLanguageServer) {
 		this.xmlLanguageServer = xmlLanguageServer;
-		this.languageService = new XMLLanguageService();
+		this.languageService = new XMLLanguageService(xmlLanguageServer.getXMLExtensionsRegistry());
 		this.documents = new TextDocuments();
 		XMLParser parser = XMLParser.getInstance();
 		this.xmlDocuments = new LanguageModelCache<XMLDocument>(10, 60, document -> parser.parse(document));

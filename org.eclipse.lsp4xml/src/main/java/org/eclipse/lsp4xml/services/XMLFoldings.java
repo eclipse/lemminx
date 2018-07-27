@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
+import org.eclipse.lsp4xml.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.internal.parser.Scanner;
 import org.eclipse.lsp4xml.internal.parser.TokenType;
 import org.eclipse.lsp4xml.internal.parser.XMLScanner;

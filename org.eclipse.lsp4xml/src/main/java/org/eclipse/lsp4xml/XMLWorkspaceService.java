@@ -18,6 +18,7 @@ import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.WorkspaceSymbolParams;
 import org.eclipse.lsp4j.services.WorkspaceService;
+import org.eclipse.lsp4xml.extensions.IXMLExtension;
 
 /**
  * XML workspace service.
@@ -38,7 +39,9 @@ public class XMLWorkspaceService implements WorkspaceService {
 
 	@Override
 	public void didChangeConfiguration(DidChangeConfigurationParams params) {
-
+		for (IXMLExtension extension : xmlLanguageServer.getXMLExtensionsRegistry().getExtensions()) {
+			extension.didChangeConfiguration(params);
+		}
 	}
 
 	@Override

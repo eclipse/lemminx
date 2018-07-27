@@ -53,6 +53,12 @@
 			<artifactId>xercesImpl</artifactId>
 			<version>2.11.0</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/xml-resolver/xml-resolver -->
+		<dependency>
+			<groupId>xml-resolver</groupId>
+			<artifactId>xml-resolver</artifactId>
+			<version>1.2</version>
+		</dependency>		
 		<dependency>
 			<groupId>org.eclipse</groupId>
 			<artifactId>org.eclipse.lsp4xml</artifactId>

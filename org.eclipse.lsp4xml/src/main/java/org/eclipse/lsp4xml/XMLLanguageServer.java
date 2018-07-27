@@ -26,6 +26,8 @@ import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
+import org.eclipse.lsp4xml.extensions.IXMLExtension;
+import org.eclipse.lsp4xml.extensions.XMLExtensionsRegistry;
 
 /**
  * XML language server.
@@ -38,11 +40,13 @@ public class XMLLanguageServer implements LanguageServer {
 	 */
 	private static final int FORCED_EXIT_CODE = 1;
 
+	private final XMLExtensionsRegistry xmlExtensionsRegistry;
 	private final XMLTextDocumentService xmlTextDocumentService;
 	private final XMLWorkspaceService xmlWorkspaceService;
 	private LanguageClient languageClient;
 
 	public XMLLanguageServer() {
+		xmlExtensionsRegistry = new XMLExtensionsRegistry();
 		xmlTextDocumentService = new XMLTextDocumentService(this);
 		xmlWorkspaceService = new XMLWorkspaceService(this);
 	}
@@ -58,7 +62,7 @@ public class XMLLanguageServer implements LanguageServer {
 		capabilities.setDocumentFormattingProvider(true);
 		capabilities.setDocumentRangeFormattingProvider(true);
 		capabilities.setHoverProvider(true);
-		//capabilities.setExperimental("foldingRangeProvider: true");
+		// capabilities.setExperimental("foldingRangeProvider: true");
 		InitializeResult result = new InitializeResult(capabilities);
 		return CompletableFuture.completedFuture(result);
 	}
@@ -98,5 +102,9 @@ public class XMLLanguageServer implements LanguageServer {
 
 	private void logInfo(String message) {
 		System.out.println(message);
+	}
+
+	public XMLExtensionsRegistry getXMLExtensionsRegistry() {
+		return xmlExtensionsRegistry;
 	}
 }
