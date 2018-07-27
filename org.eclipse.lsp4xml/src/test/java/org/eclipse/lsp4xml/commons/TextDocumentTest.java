@@ -21,6 +21,20 @@ import org.junit.Test;
 public class TextDocumentTest {
 
 	@Test
+	public void testEmptyDocument() throws BadLocationException {
+		TextDocument document = new TextDocument("", null);
+
+		Position position = document.positionAt(0);
+		Assert.assertEquals(0, position.getLine());
+		Assert.assertEquals(0, position.getCharacter());
+
+		position = new Position(0, 0);
+		int offset = document.offsetAt(position);
+		Assert.assertEquals(0, offset);
+
+	}
+
+	@Test
 	public void testPositionAt() throws BadLocationException {
 		TextDocument document = new TextDocument("abcd\nefgh", null);
 
@@ -52,23 +66,23 @@ public class TextDocumentTest {
 	@Test
 	public void testOffsetAt() throws BadLocationException {
 		TextDocument document = new TextDocument("abcd\nefgh", null);
-		
+
 		Position position = new Position(0, 0);
 		int offset = document.offsetAt(position);
 		Assert.assertEquals(0, offset);
-		
+
 		position = new Position(0, 4);
 		offset = document.offsetAt(position);
 		Assert.assertEquals(4, offset);
-		
+
 		position = new Position(1, 0);
 		offset = document.offsetAt(position);
 		Assert.assertEquals(5, offset);
-		
+
 		position = new Position(1, 4);
 		offset = document.offsetAt(position);
 		Assert.assertEquals(9, offset);
-		
+
 		BadLocationException ex = null;
 		try {
 			position = new Position(1, 5);
@@ -78,6 +92,5 @@ public class TextDocumentTest {
 		}
 		Assert.assertNotNull(ex);
 	}
-
 
 }

@@ -17,45 +17,45 @@ import java.util.List;
 import org.eclipse.lsp4j.Position;
 
 /**
- * Abstract, read-only implementation of <code>ILineTracker</code>. It lets the definition of
- * line delimiters to subclasses. Assuming that '\n' is the only line delimiter, this abstract
- * implementation defines the following line scheme:
+ * Abstract, read-only implementation of <code>ILineTracker</code>. It lets the
+ * definition of line delimiters to subclasses. Assuming that '\n' is the only
+ * line delimiter, this abstract implementation defines the following line
+ * scheme:
  * <ul>
- * <li> "" -> [0,0]
- * <li> "a" -> [0,1]
- * <li> "\n" -> [0,1], [1,0]
- * <li> "a\n" -> [0,2], [2,0]
- * <li> "a\nb" -> [0,2], [2,1]
- * <li> "a\nbc\n" -> [0,2], [2,3], [5,0]
+ * <li>"" -> [0,0]
+ * <li>"a" -> [0,1]
+ * <li>"\n" -> [0,1], [1,0]
+ * <li>"a\n" -> [0,2], [2,0]
+ * <li>"a\nb" -> [0,2], [2,1]
+ * <li>"a\nbc\n" -> [0,2], [2,3], [5,0]
  * </ul>
  * This class must be subclassed.
  *
  * @since 3.2
  */
-class ListLineTracker /*implements ILineTracker*/ {
-
+class ListLineTracker /* implements ILineTracker */ {
 
 	/** The predefined delimiters of this tracker */
-	public final static String[] DELIMITERS= { "\r", "\n", "\r\n" }; //$NON-NLS-3$ //$NON-NLS-1$ //$NON-NLS-2$
+	public final static String[] DELIMITERS = { "\r", "\n", "\r\n" }; //$NON-NLS-3$ //$NON-NLS-1$ //$NON-NLS-2$
 	/** A predefined delimiter information which is always reused as return value */
-	private DelimiterInfo fDelimiterInfo= new DelimiterInfo();
+	private DelimiterInfo fDelimiterInfo = new DelimiterInfo();
 
 	/** The line information */
-	private final List<Line> fLines= new ArrayList<>();
+	private final List<Line> fLines = new ArrayList<>();
 	/** The length of the tracked text */
 	private int fTextLength;
 
 	/**
-	 * Combines the information of the occurrence of a line delimiter. <code>delimiterIndex</code>
-	 * is the index where a line delimiter starts, whereas <code>delimiterLength</code>,
-	 * indicates the length of the delimiter.
+	 * Combines the information of the occurrence of a line delimiter.
+	 * <code>delimiterIndex</code> is the index where a line delimiter starts,
+	 * whereas <code>delimiterLength</code>, indicates the length of the delimiter.
 	 */
 	protected static class DelimiterInfo {
 		public int delimiterIndex;
 		public int delimiterLength;
 		public String delimiter;
 	}
-	
+
 	/**
 	 * Creates a new line tracker.
 	 */
@@ -73,32 +73,32 @@ class ListLineTracker /*implements ILineTracker*/ {
 		if (fLines.size() == 0)
 			return -1;
 
-		int left= 0;
-		int right= fLines.size() - 1;
-		int mid= 0;
-		Line line= null;
+		int left = 0;
+		int right = fLines.size() - 1;
+		int mid = 0;
+		Line line = null;
 
 		while (left < right) {
 
-			mid= (left + right) / 2;
+			mid = (left + right) / 2;
 
-			line= fLines.get(mid);
+			line = fLines.get(mid);
 			if (offset < line.offset) {
 				if (left == mid)
-					right= left;
+					right = left;
 				else
-					right= mid - 1;
+					right = mid - 1;
 			} else if (offset > line.offset) {
 				if (right == mid)
-					left= right;
+					left = right;
 				else
-					left= mid + 1;
+					left = mid + 1;
 			} else if (offset == line.offset) {
-				left= right= mid;
+				left = right = mid;
 			}
 		}
 
-		line= fLines.get(left);
+		line = fLines.get(left);
 		if (line.offset > offset)
 			--left;
 		return left;
@@ -106,31 +106,35 @@ class ListLineTracker /*implements ILineTracker*/ {
 
 	public final Position getPositionAt(int offset) throws BadLocationException {
 		int lineNumber = getLineNumberOfOffset(offset);
-		Line l = fLines.get(lineNumber == fLines.size() ? lineNumber - 1 : lineNumber);
-		int character = offset - l.offset;
+		int lines = fLines.size();
+		int character = 0;
+		if (lines > 0) {
+			Line l = fLines.get(lineNumber == lines ? lineNumber - 1 : lineNumber);
+			character = offset - l.offset;
+		}
 		return new Position(lineNumber, character);
 	}
-	
+
 	private final int getLineNumberOfOffset(int position) throws BadLocationException {
 		if (position < 0) {
 			throw new BadLocationException("Negative offset : " + position); //$NON-NLS-1$
 		} else if (position > fTextLength) {
-			throw new BadLocationException("Offset > length: " + position + " > " + fTextLength);  //$NON-NLS-1$//$NON-NLS-2$
+			throw new BadLocationException("Offset > length: " + position + " > " + fTextLength); //$NON-NLS-1$//$NON-NLS-2$
 		}
 
 		if (position == fTextLength) {
 
-			int lastLine= fLines.size() - 1;
+			int lastLine = fLines.size() - 1;
 			if (lastLine < 0)
 				return 0;
 
-			Line l= fLines.get(lastLine);
+			Line l = fLines.get(lastLine);
 			return (l.delimiter != null ? lastLine + 1 : lastLine);
 		}
 
 		return findLine(position);
 	}
-	
+
 	public int getOffsetAt(Position position) throws BadLocationException {
 		int line = position.getLine();
 		int lines = fLines.size();
@@ -164,86 +168,80 @@ class ListLineTracker /*implements ILineTracker*/ {
 	}
 
 	public final Line getLineInformation(int line) throws BadLocationException {
-		int lines= fLines.size();
+		int lines = fLines.size();
 
 		if (line < 0 || line > lines)
-			throw new BadLocationException("The line value, {" + line +"}, is out of bounds.");
+			throw new BadLocationException("The line value, {" + line + "}, is out of bounds.");
 
 		if (lines == 0)
 			return new Line(0, 0);
 
 		if (line == lines) {
-			Line l= fLines.get(line - 1);
+			Line l = fLines.get(line - 1);
 			return new Line(l.offset + l.length, 0);
 		}
 
-		Line l= fLines.get(line);
+		Line l = fLines.get(line);
 		return (l.delimiter != null ? new Line(l.offset, l.length - l.delimiter.length()) : l);
 	}
-	
-	//@Override
+
+	// @Override
 	public final int getLineOffset(int line) throws BadLocationException {
-		int lines= fLines.size();
+		int lines = fLines.size();
 
 		if (line < 0 || line > lines)
-			throw new BadLocationException("The line value, {" + line +"}, is out of bounds.");
+			throw new BadLocationException("The line value, {" + line + "}, is out of bounds.");
 
 		if (lines == 0)
 			return 0;
 
 		if (line == lines) {
-			Line l= fLines.get(line - 1);
+			Line l = fLines.get(line - 1);
 			if (l.delimiter != null)
 				return l.offset + l.length;
 			throw new BadLocationException();
 		}
 
-		Line l= fLines.get(line);
+		Line l = fLines.get(line);
 		return l.offset;
 	}
 
-	//@Override
+	// @Override
 	public final int getNumberOfLines() {
-		int lines= fLines.size();
+		int lines = fLines.size();
 
 		if (lines == 0)
 			return 1;
 
-		Line l= fLines.get(lines - 1);
+		Line l = fLines.get(lines - 1);
 		return (l.delimiter != null ? lines + 1 : lines);
 	}
 
-	/*@Override
-	public final int getNumberOfLines(int position, int length) throws BadLocationException {
+	/*
+	 * @Override public final int getNumberOfLines(int position, int length) throws
+	 * BadLocationException {
+	 * 
+	 * if (position < 0 || position + length > fTextLength) throw new
+	 * BadLocationException();
+	 * 
+	 * if (length == 0) // optimization return 1;
+	 * 
+	 * return getNumberOfLines(getLineNumberOfOffset(position), position, length); }
+	 */
 
-		if (position < 0 || position + length > fTextLength)
-			throw new BadLocationException();
+	/*
+	 * @Override public final int computeNumberOfLines(String text) { int count= 0;
+	 * int start= 0; DelimiterInfo delimiterInfo= nextDelimiterInfo(text, start);
+	 * while (delimiterInfo != null && delimiterInfo.delimiterIndex > -1) { ++count;
+	 * start= delimiterInfo.delimiterIndex + delimiterInfo.delimiterLength;
+	 * delimiterInfo= nextDelimiterInfo(text, start); } return count; }
+	 */
 
-		if (length == 0) // optimization
-			return 1;
-
-		return getNumberOfLines(getLineNumberOfOffset(position), position, length);
-	}*/
-
-	/*@Override
-	public final int computeNumberOfLines(String text) {
-		int count= 0;
-		int start= 0;
-		DelimiterInfo delimiterInfo= nextDelimiterInfo(text, start);
-		while (delimiterInfo != null && delimiterInfo.delimiterIndex > -1) {
-			++count;
-			start= delimiterInfo.delimiterIndex + delimiterInfo.delimiterLength;
-			delimiterInfo= nextDelimiterInfo(text, start);
-		}
-		return count;
-	}*/
-
-	
 	public final String getLineDelimiter(int line) throws BadLocationException {
-		int lines= fLines.size();
+		int lines = fLines.size();
 
 		if (line < 0 || line > lines)
-			throw new BadLocationException("The line value, {" + line +"}, is out of bounds.");
+			throw new BadLocationException("The line value, {" + line + "}, is out of bounds.");
 
 		if (lines == 0)
 			return null;
@@ -251,45 +249,45 @@ class ListLineTracker /*implements ILineTracker*/ {
 		if (line == lines)
 			return null;
 
-		Line l= fLines.get(line);
+		Line l = fLines.get(line);
 		return l.delimiter;
 	}
 
 	/**
-	 * Returns the information about the first delimiter found in the given text starting at the
-	 * given offset.
+	 * Returns the information about the first delimiter found in the given text
+	 * starting at the given offset.
 	 *
-	 * @param text the text to be searched
+	 * @param text   the text to be searched
 	 * @param offset the offset in the given text
 	 * @return the information of the first found delimiter or <code>null</code>
 	 */
 	protected DelimiterInfo nextDelimiterInfo(String text, int offset) {
 		char ch;
-		int length= text.length();
-		for (int i= offset; i < length; i++) {
+		int length = text.length();
+		for (int i = offset; i < length; i++) {
 
-			ch= text.charAt(i);
+			ch = text.charAt(i);
 			if (ch == '\r') {
 
 				if (i + 1 < length) {
 					if (text.charAt(i + 1) == '\n') {
-						fDelimiterInfo.delimiter= DELIMITERS[2];
-						fDelimiterInfo.delimiterIndex= i;
-						fDelimiterInfo.delimiterLength= 2;
+						fDelimiterInfo.delimiter = DELIMITERS[2];
+						fDelimiterInfo.delimiterIndex = i;
+						fDelimiterInfo.delimiterLength = 2;
 						return fDelimiterInfo;
 					}
 				}
 
-				fDelimiterInfo.delimiter= DELIMITERS[0];
-				fDelimiterInfo.delimiterIndex= i;
-				fDelimiterInfo.delimiterLength= 1;
+				fDelimiterInfo.delimiter = DELIMITERS[0];
+				fDelimiterInfo.delimiterIndex = i;
+				fDelimiterInfo.delimiterLength = 1;
 				return fDelimiterInfo;
 
 			} else if (ch == '\n') {
 
-				fDelimiterInfo.delimiter= DELIMITERS[1];
-				fDelimiterInfo.delimiterIndex= i;
-				fDelimiterInfo.delimiterLength= 1;
+				fDelimiterInfo.delimiter = DELIMITERS[1];
+				fDelimiterInfo.delimiterIndex = i;
+				fDelimiterInfo.delimiterLength = 1;
 				return fDelimiterInfo;
 			}
 		}
@@ -299,24 +297,25 @@ class ListLineTracker /*implements ILineTracker*/ {
 	}
 
 	/**
-	 * Creates the line structure for the given text. Newly created lines are inserted into the line
-	 * structure starting at the given position. Returns the number of newly created lines.
+	 * Creates the line structure for the given text. Newly created lines are
+	 * inserted into the line structure starting at the given position. Returns the
+	 * number of newly created lines.
 	 *
-	 * @param text the text for which to create a line structure
-	 * @param insertPosition the position at which the newly created lines are inserted into the
-	 *        tracker's line structure
-	 * @param offset the offset of all newly created lines
+	 * @param text           the text for which to create a line structure
+	 * @param insertPosition the position at which the newly created lines are
+	 *                       inserted into the tracker's line structure
+	 * @param offset         the offset of all newly created lines
 	 * @return the number of newly created lines
 	 */
 	private int createLines(String text, int insertPosition, int offset) {
 
-		int count= 0;
-		int start= 0;
-		DelimiterInfo delimiterInfo= nextDelimiterInfo(text, 0);
+		int count = 0;
+		int start = 0;
+		DelimiterInfo delimiterInfo = nextDelimiterInfo(text, 0);
 
 		while (delimiterInfo != null && delimiterInfo.delimiterIndex > -1) {
 
-			int index= delimiterInfo.delimiterIndex + (delimiterInfo.delimiterLength - 1);
+			int index = delimiterInfo.delimiterIndex + (delimiterInfo.delimiterLength - 1);
 
 			if (insertPosition + count >= fLines.size())
 				fLines.add(new Line(offset + start, offset + index, delimiterInfo.delimiter));
@@ -324,17 +323,17 @@ class ListLineTracker /*implements ILineTracker*/ {
 				fLines.add(insertPosition + count, new Line(offset + start, offset + index, delimiterInfo.delimiter));
 
 			++count;
-			start= index + 1;
-			delimiterInfo= nextDelimiterInfo(text, start);
+			start = index + 1;
+			delimiterInfo = nextDelimiterInfo(text, start);
 		}
 
 		if (start < text.length()) {
 			if (insertPosition + count < fLines.size()) {
 				// there is a line below the current
-				Line l= fLines.get(insertPosition + count);
-				int delta= text.length() - start;
-				l.offset-= delta;
-				l.length+= delta;
+				Line l = fLines.get(insertPosition + count);
+				int delta = text.length() - start;
+				l.offset -= delta;
+				l.length += delta;
 			} else {
 				fLines.add(new Line(offset + start, offset + text.length() - 1, null));
 				++count;
@@ -344,18 +343,18 @@ class ListLineTracker /*implements ILineTracker*/ {
 		return count;
 	}
 
-	//@Override
+	// @Override
 	public final void set(String text) {
 		fLines.clear();
 		if (text != null) {
-			fTextLength= text.length();
+			fTextLength = text.length();
 			createLines(text, 0, 0);
 		}
 	}
 
 	/**
-	 * Returns the internal data structure, a {@link List} of {@link Line}s. Used only by
-	 * {@link TreeLineTracker#TreeLineTracker(ListLineTracker)}.
+	 * Returns the internal data structure, a {@link List} of {@link Line}s. Used
+	 * only by {@link TreeLineTracker#TreeLineTracker(ListLineTracker)}.
 	 *
 	 * @return the internal list of lines.
 	 */
