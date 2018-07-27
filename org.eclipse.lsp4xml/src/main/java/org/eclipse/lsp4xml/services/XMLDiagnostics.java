@@ -13,16 +13,12 @@ package org.eclipse.lsp4xml.services;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.parsers.SAXParserFactory;
-
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.extensions.IDiagnosticsParticipant;
 import org.eclipse.lsp4xml.extensions.XMLExtensionsRegistry;
-import org.eclipse.lsp4xml.internal.parser.Scanner;
-import org.eclipse.lsp4xml.internal.parser.TokenType;
-import org.eclipse.lsp4xml.internal.parser.XMLScanner;
 
 /**
  * XML diagnostics support.
@@ -32,35 +28,44 @@ class XMLDiagnostics {
 
 	private final XMLExtensionsRegistry extensionsRegistry;
 
-	private SAXParserFactory factory;
-
 	public XMLDiagnostics(XMLExtensionsRegistry extensionsRegistry) {
 		this.extensionsRegistry = extensionsRegistry;
-		factory = SAXParserFactory.newInstance();
-		factory.setNamespaceAware(true);
-		factory.setValidating(true);
 	}
 
-	public List<Diagnostic> doDiagnostics(TextDocument document, String xmlSchemaFile, CancelChecker monitor) {
+	public List<Diagnostic> doDiagnostics(TextDocument document, CancelChecker monitor) {
 		List<Diagnostic> diagnostics = new ArrayList<Diagnostic>();
-		// Basic XML validation
-		doBasicDiagnostics(document, diagnostics, monitor);
-		// Validation with extension (XML Schema, etc)
-		for (IDiagnosticsParticipant diagnosticsParticipant : extensionsRegistry.getDiagnosticsParticipants()) {
-			diagnosticsParticipant.doDiagnostics(document, diagnostics, monitor);
+		try {
+			doBasicDiagnostics(document, diagnostics, monitor);
+		} catch (BadLocationException e) {
+			e.printStackTrace();
 		}
+		doExtensionsDiagnostics(document, diagnostics, monitor);
 		return diagnostics;
 	}
 
-	private void doBasicDiagnostics(TextDocument document, List<Diagnostic> diagnostics, CancelChecker monitor) {
-		// TODO: implement basic validation with token...
-		Scanner scanner = XMLScanner.createScanner(document.getText());
-		TokenType token = scanner.scan();
-		while (token != TokenType.EOS) {
-//			System.err.println(token);
-			switch (token) {
-			}
-			token = scanner.scan();
+	/**
+	 * Do basic validation to check the no XML valid.
+	 * 
+	 * @param document
+	 * @param diagnostics
+	 * @param monitor
+	 * @throws BadLocationException
+	 */
+	private void doBasicDiagnostics(TextDocument document, List<Diagnostic> diagnostics, CancelChecker monitor)
+			throws BadLocationException {
+		// TODO...
+	}
+
+	/**
+	 * Do validation with extension (XML Schema, etc)
+	 * 
+	 * @param document
+	 * @param diagnostics
+	 * @param monitor
+	 */
+	private void doExtensionsDiagnostics(TextDocument document, List<Diagnostic> diagnostics, CancelChecker monitor) {
+		for (IDiagnosticsParticipant diagnosticsParticipant : extensionsRegistry.getDiagnosticsParticipants()) {
+			diagnosticsParticipant.doDiagnostics(document, diagnostics, monitor);
 		}
 	}
 

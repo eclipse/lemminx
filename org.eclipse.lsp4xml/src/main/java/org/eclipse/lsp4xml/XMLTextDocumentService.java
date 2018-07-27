@@ -247,7 +247,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 		}
 		validationRequest = computeAsync((monitor) -> {
 			monitor.checkCanceled();
-			List<Diagnostic> diagnostics = languageService.doDiagnostics(document, null, monitor);
+			List<Diagnostic> diagnostics = languageService.doDiagnostics(document, monitor);
 			monitor.checkCanceled();
 			xmlLanguageServer.getLanguageClient()
 					.publishDiagnostics(new PublishDiagnosticsParams(document.getUri(), diagnostics));

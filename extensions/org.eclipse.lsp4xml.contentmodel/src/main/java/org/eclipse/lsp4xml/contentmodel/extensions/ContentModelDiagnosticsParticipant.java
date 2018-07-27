@@ -35,7 +35,7 @@ public class ContentModelDiagnosticsParticipant implements IDiagnosticsParticipa
 	private CatalogResolver catalogResolver;
 
 	public void didChangeConfiguration(DidChangeConfigurationParams params) {
-
+		// TODO : load config to know XML catalog files.
 	}
 
 	@Override
