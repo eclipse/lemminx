@@ -19,6 +19,9 @@ import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.extensions.IDiagnosticsParticipant;
 import org.eclipse.lsp4xml.extensions.XMLExtensionsRegistry;
+import org.eclipse.lsp4xml.internal.parser.Scanner;
+import org.eclipse.lsp4xml.internal.parser.TokenType;
+import org.eclipse.lsp4xml.internal.parser.XMLScanner;
 
 /**
  * XML diagnostics support.
@@ -53,7 +56,13 @@ class XMLDiagnostics {
 	 */
 	private void doBasicDiagnostics(TextDocument document, List<Diagnostic> diagnostics, CancelChecker monitor)
 			throws BadLocationException {
-		// TODO...
+		Scanner scanner = XMLScanner.createScanner(document.getText());
+		TokenType token = scanner.scan();
+		while (token != TokenType.EOS) {
+			monitor.checkCanceled();
+			// TODO check tokens...
+			token = scanner.scan();
+		}
 	}
 
 	/**
