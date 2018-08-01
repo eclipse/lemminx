@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2013 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *     
+ *******************************************************************************/
+
 /**
  *  Copyright (c) 2018 Angelo ZERR
  *  All rights reserved. This program and the accompanying materials
@@ -12,6 +24,7 @@ package org.eclipse.lsp4xml.services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
@@ -34,7 +47,11 @@ import org.eclipse.lsp4xml.model.XMLDocument;
 class XMLDiagnostics {
 
 	private final XMLExtensionsRegistry extensionsRegistry;
-	private XMLDocument xmlDocument;
+  private XMLDocument xmlDocument;
+  private static final int ERROR_THRESHOLD = 25;
+
+  /** A stack used for finding missing start- and end-tag pairs */
+  private Stack tagStack;
 
 	public XMLDiagnostics(XMLExtensionsRegistry extensionsRegistry) {
 		this.extensionsRegistry = extensionsRegistry;
@@ -44,7 +61,7 @@ class XMLDiagnostics {
 		this.xmlDocument = xmlDocument;
 		List<Diagnostic> diagnostics = new ArrayList<Diagnostic>();
 		try {
-			doBasicDiagnostics(document, diagnostics, monitor);
+			return doBasicDiagnostics(document, diagnostics, monitor);
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}
@@ -60,8 +77,9 @@ class XMLDiagnostics {
 	 * @param monitor
 	 * @throws BadLocationException
 	 */
-	private void doBasicDiagnostics(TextDocument document, List<Diagnostic> diagnostics, CancelChecker monitor)
+	private List<Diagnostic> doBasicDiagnostics(TextDocument document, List<Diagnostic> diagnostics, CancelChecker monitor)
 			throws BadLocationException {
+    tagStack = new Stack();
 		Scanner scanner = XMLScanner.createScanner(document.getText());
 		List previousRegion = null;
     List region = null;
@@ -84,54 +102,54 @@ class XMLDiagnostics {
         if (tokenType == TokenType.StartProlog) {
           checkContentBeforeProcessingInstruction(previousRegion, diagnostics);
         } else if (tokenType == TokenType.Content) {
-           checkForSpaceBeforeName(token, previousRegion, reporter);
+           checkForSpaceBeforeName(token, previousRegion, diagnostics);
         }
-        checkForTagClose(previousRegion, reporter);
+        checkForTagClose(previousRegion, diagnostics);
 
-      } else if ((tokenType == TokenType.XML_TAG_NAME) || (tokenType == TokenType.XML_TAG_ATTRIBUTE_NAME)
-          || (tokenType == TokenType.XML_TAG_ATTRIBUTE_EQUALS) || (tokenType == TokenType.XML_TAG_ATTRIBUTE_VALUE)
-          || (tokenType == TokenType.XML_COMMENT_TEXT) || (tokenType == TokenType.XML_PI_CONTENT)
-          || (tokenType == TokenType.XML_DOCTYPE_INTERNAL_SUBSET)) {
+      } else if ((tokenType == TokenType.StartTag) || (tokenType == TokenType.EndTag) || (tokenType == TokenType.AttributeName)
+          || (tokenType == TokenType.DelimiterAssign) || (tokenType == TokenType.AttributeValue)
+          || (tokenType == TokenType.Comment) || (tokenType == TokenType.Prolog)
+          || (tokenType == TokenType.Doctype)) {
         region.add(token);
-      } else if ((tokenType == TokenType.XML_PI_CLOSE) || (tokenType == TokenType.XML_TAG_CLOSE)
-          || (tokenType == TokenType.XML_EMPTY_TAG_CLOSE) || (tokenType == TokenType.XML_COMMENT_CLOSE)
-          || (tokenType == TokenType.XML_DECLARATION_CLOSE) || (tokenType == TokenType.XML_CDATA_CLOSE)) {
+      } else if ((tokenType == TokenType.EndProlog) || (tokenType == TokenType.StartTagClose) || (tokenType == TokenType.EndTagClose)
+          || (tokenType == TokenType.StartTagSelfClose) || (tokenType == TokenType.EndCommentTag)
+          || (tokenType == TokenType.Declaration) || (tokenType == TokenType.CDATATagClose)) {
         region.add(token);
-        if (tokenType == TokenType.XML_PI_CLOSE) {
-          checkNamespacesInProcessingInstruction(region, reporter);
-        } else if (tokenType == TokenType.XML_TAG_CLOSE || tokenType == TokenType.XML_EMPTY_TAG_CLOSE) {
-          checkEmptyTag(region, reporter);
+        if (tokenType == TokenType.EndProlog) {
+          //checkNamespacesInProcessingInstruction(region, diagnostics);
+        } else if (tokenType == TokenType.StartTagClose || tokenType == TokenType.EndTagClose || tokenType == TokenType.StartTagSelfClose) {
+          checkEmptyTag(region, diagnostics);
           final int regionLength = region.size();
           if (regionLength > 0) {
             Token first = (Token) region.get(0);
-            if (first.type == TokenType.XML_END_TAG_OPEN) {
-              checkAttributsInEndTag(first, region, reporter);
-              if (first.type == TokenType.XML_END_TAG_OPEN && tagStack != null) {
+            if (first.type == TokenType.EndTagOpen) {
+              checkAttributsInEndTag(first, region, diagnostics);
+              if (first.type == TokenType.EndTagOpen && tagStack != null) {
                 if (regionLength > 1) {
                   Token name = (Token) region.get(1);
                   if (tagStack.isEmpty()) {
                     // We have an end tag without a start tag
-                    createMissingTagError(name, false, reporter);
+                    createMissingTagError(name, false, diagnostics);
                   } else {
-                    if (!((Token) tagStack.peek()).text.equals(name.text)) {
+                    if (!((Token) tagStack.peek()).tokenText.equals(name.tokenText)) {
                       boolean wasFound = false;
                       final int stackSize = tagStack.size();
                       for (int i = stackSize - 1; i >= 0; i--) {
                         Token pointer = (Token) tagStack.get(i);
-                        if (pointer.text.equals(name.text)) {
+                        if (pointer.tokenText.equals(name.tokenText)) {
                           wasFound = true;
                           Token top = null;
                           // Found the opening tag - everything in between that was unclosed should be
                           // flagged
-                          while (!tagStack.isEmpty() && !(top = (Token) tagStack.pop()).text.equals(pointer.text)) {
-                            createMissingTagError(top, true, reporter);
+                          while (!tagStack.isEmpty() && !(top = (Token) tagStack.pop()).tokenText.equals(pointer.tokenText)) {
+                            createMissingTagError(top, true, diagnostics);
                           }
                           break;
                         }
                       }
                       if (!wasFound) {
                         // End tag doesn't have a matching start
-                        createMissingTagError(name, false, reporter);
+                        createMissingTagError(name, false, diagnostics);
                       }
                     } else {
                       // We've got a match
@@ -140,11 +158,11 @@ class XMLDiagnostics {
                   }
                 }
               }
-            } else if (first.type == TokenType.XML_TAG_OPEN) {
-              checkAttributes(region, reporter);
-              if (tokenType == TokenType.XML_TAG_CLOSE && tagStack != null && regionLength > 1) {
+            } else if (first.type == TokenType.StartTagOpen || first.type == TokenType.EndTagOpen) {
+              checkAttributes(region, diagnostics);
+              if ((tokenType == TokenType.StartTagClose || tokenType == TokenType.EndTagClose) && tagStack != null && regionLength > 1) {
                 Token name = (Token) region.get(1);
-                if (name.type == TokenType.XML_TAG_NAME) {
+                if (name.type == TokenType.StartTag || name.type == TokenType.EndTag) {
                   tagStack.push(name);
                 }
               }
@@ -154,7 +172,8 @@ class XMLDiagnostics {
         isClosed = true;
       }
 			tokenType = scanner.scan();
-		}
+    }
+    return diagnostics;
 	}
 
 	private void checkContentBeforeProcessingInstruction(List previousRegion, List<Diagnostic> diagnostics) {
@@ -191,10 +210,10 @@ class XMLDiagnostics {
           Token t = (Token) previousRegion.get(i);
           // Valid tag closings, EMPTY_TAG_CLOSE only works for a start tag, though
           if ((t.type == TokenType.StartTagSelfClose && first.type == TokenType.StartTagOpen)
-              || t.type == TokenType.StartTagClose) {
+              || t.type == TokenType.StartTagClose || t.type == TokenType.EndTagClose) {
             isClosed = true;
             break;
-          } else if (t.type == TokenType.StartTag) {
+          } else if (t.type == TokenType.StartTag || t.type == TokenType.EndTag) {
             textLength += t.length;
           }
         }
@@ -205,6 +224,153 @@ class XMLDiagnostics {
         }
       }
     }
+  }
+
+  /**
+   * Check that a tag has a name (<> is invalid)
+   * 
+   * @param token    The xml tag close token
+   * @param region   the tag region
+   * @param reporter the reporter
+   */
+  private void checkEmptyTag(List region, List<Diagnostic> diagnostics) {
+    if (region.size() == 2) {
+      // Check that the tag is not empty
+      Token first = (Token) region.get(0);
+      if (first.type == TokenType.StartTagOpen || first.type == TokenType.EndTagOpen) {
+        String messageText = XMLDiagnosticMessages.TAG_NOT_CLOSED;
+				createAndSetDiagnostic(first, messageText, diagnostics);
+      }
+    }
+  }
+
+  /**
+   * Checks the end-tag region for attributes. There should be no attributes in
+   * the end tag
+   * 
+   * @param first    the first token in the region
+   * @param region   the end-tag region
+   * @param reporter the reporter
+   */
+  private void checkAttributsInEndTag(Token first, List region, List<Diagnostic> diagnostics) {
+    int errors = 0;
+    int start = first.startOffset, end = first.startOffset;
+    final int regionLength = region.size();
+
+    // Start at one, since we know the first token is an tag-open
+    for (int i = 1; (i < regionLength) && (errors < ERROR_THRESHOLD); i++) {
+      Token t = (Token) region.get(i);
+      if ((t.type == TokenType.AttributeName) || (t.type == TokenType.DelimiterAssign)
+          || (t.type == TokenType.AttributeValue)) {
+        if (start == first.startOffset) {
+          start = t.startOffset;
+        }
+        end = t.startOffset + t.length;
+        errors++;
+      }
+    }
+
+    // create one error for all attributes in the end tag
+    if (errors > 0) {
+      // Position p = new Position(start, end - start);
+      String messageText = XMLDiagnosticMessages.END_TAG_HAD_ATTRIBUTES;
+      createAndSetDiagnostic(first, messageText, diagnostics);
+
+    }
+  }
+
+    /**
+   * Creates a missing tag error for the token
+   * 
+   * @param token      the token that's missing its pair tag
+   * @param isStartTag is the token a start tag
+   * @param reporter   the reporter
+   */
+  private void createMissingTagError(Token token, boolean isStartTag, List<Diagnostic> diagnostics) {
+    
+    String messageText = token.tokenText + (isStartTag ? XMLDiagnosticMessages.MISSING_START_TAG : XMLDiagnosticMessages.MISSING_END_TAG);
+    createAndSetDiagnostic(token, messageText, diagnostics);
+  }
+
+   /**
+   * Checks that all the attribute in the start-tag have values and that those
+   * values are properly quoted
+   * 
+   * @param region   the start-tag region
+   * @param reporter the reporter
+   */
+  private void checkAttributes(List region, List<Diagnostic> diagnostics ) {
+    int attrState = 0;
+    int errorCount = 0;
+    final int regionLength = region.size();
+
+    // Start at one, since we know the first token is an tag-open
+    for (int i = 1; i < regionLength && errorCount < ERROR_THRESHOLD; i++) {
+      Token t = (Token) region.get(i);
+      if (t.type == TokenType.AttributeName || t.type == TokenType.StartTagClose || t.type == TokenType.EndTagClose
+          || t.type == TokenType.StartTagSelfClose) {
+        // dangling name and '='
+        if ((attrState == 2) && (i >= 2)) {
+          // create annotation
+          Token nameRegion = (Token) region.get(i - 2);
+          Object[] args = { nameRegion.tokenText };
+          String messageText = XMLDiagnosticMessages.ATTRIBUTE_MISSING_VALUE;
+
+          // quick fix info
+          Token equalsRegion = (Token) region.get(i - 2 + 1);
+          int insertOffset = (equalsRegion.startOffset + equalsRegion.length) - equalsRegion.endOffset;//TODO
+          Object[] additionalFixInfo = { nameRegion.tokenText, new Integer(insertOffset) };
+
+          createAndSetDiagnostic(equalsRegion, messageText, diagnostics);
+
+          
+        }
+        // name but no '=' (XML only)
+        else if ((attrState == 1) && (i >= 1)) {
+          // create annotation
+          Token nameToken = (Token) region.get(i - 1);
+          Object[] args = { nameToken.tokenText };
+          String messageText = XMLDiagnosticMessages.ATTRIBUTE_NO_EQUALS;
+          int start = nameToken.startOffset;
+          int textLength = nameToken.tokenText.trim().length();
+          //int lineNo = nameToken.line;
+
+          createAndSetDiagnostic(nameToken, messageText, diagnostics);
+        }
+        attrState = 1;
+      } else if (t.type == TokenType.DelimiterAssign) {
+        attrState = 2;
+      } else if (t.type == TokenType.AttributeValue) {
+        attrState = 0;
+
+        // Check that there are quotes around the attribute value and that they match
+        final String trimmed = t.tokenText.trim();
+        if (trimmed.length() > 0) {
+          final char q1 = trimmed.charAt(0), q2 = trimmed.charAt(trimmed.length() - 1);
+          if ((q1 == '\'' || q1 == '"') && (q1 != q2 || trimmed.length() == 1)) {
+            // missing closing quote
+            String message = XMLDiagnosticMessages.MISSING_CLOSED_QUOTE;
+            createAndSetCustomDiagnostic(message, t.tokenText, t.startOffset, t.endOffset, diagnostics); 
+            errorCount++;
+          } else if (q1 != '\'' && q1 != '"') {
+            // missing both
+            String message = XMLDiagnosticMessages.MISSING_BOTH_QUOTES;
+            createAndSetCustomDiagnostic(message, t.tokenText, t.startOffset, t.endOffset, diagnostics);
+          }
+        }
+
+      }
+    }
+  }
+
+
+  /**
+   * Creates an error related to an attribute
+   */
+  private void createAndSetCustomDiagnostic(String messageText, String attributeValueText, int start, int end, List<Diagnostic> diagnostics) {
+    Range range = createRange(start, end);
+    Diagnostic tempDiagnostic = new Diagnostic(range, messageText);
+    diagnostics.add(tempDiagnostic);
   }
 
 	/**
@@ -219,6 +385,19 @@ class XMLDiagnostics {
 			diagnosticsParticipant.doDiagnostics(document, diagnostics, monitor);
 		}
 	}
+
+  
+	private Range createRange(int startOffset, int endOffset) {
+		
+		try {
+		  Position	start = xmlDocument.positionAt(startOffset);
+			Position end = xmlDocument.positionAt(endOffset);
+			return new Range(start,end);
+		} catch (BadLocationException e) {
+			//TODO
+		}
+		return null;
+	}  
 
 	private Range createRange(Token token) {
 		Position start;
