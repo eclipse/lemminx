@@ -233,9 +233,16 @@ public class XMLScanner implements Scanner {
 				state = ScannerState.WithinContent;
 				return finishToken(offset, TokenType.StartTagClose);
 			}
-			stream.advance(1);
-			return finishToken(offset, TokenType.Unknown,
-					localize("error.unexpectedCharacterInTag", "Unexpected character in tag."));
+			state = ScannerState.WithinContent;
+			stream.advanceUntilChar(_LAN); // <
+			if (offset < stream.pos()) {
+				return finishToken(offset, TokenType.Unknown,
+						localize("error.endTagNameExpected", "End tag name expected."));
+			}
+			return internalScan();
+			// stream.advance(1);
+			// return finishToken(offset, TokenType.Unknown,
+			// 		localize("error.unexpectedCharacterInTag", "Unexpected character in tag."));
 		case AfterAttributeName:
 			if (stream.skipWhitespace()) {
 				hasSpaceAfterTag = true;

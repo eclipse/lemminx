@@ -83,12 +83,14 @@ class XMLDiagnostics {
 		Scanner scanner = XMLScanner.createScanner(document.getText());
 		List previousRegion = null;
     List region = null;
+    List startRootTagRegion = null;
     List endRootTagRegion = null;
     int endRootTagOffset = 0;
     boolean isClosed = true;
     boolean alreadyReported = false; //tag after root tag was already reported
     TokenType tokenType = scanner.scan();
-    Boolean wasEndRootTagFound = false;
+    boolean wasEndRootTagFound = false;
+    boolean wasStartRootTagFound = false;
 		while (tokenType != TokenType.EOS) {
 			monitor.checkCanceled();
 			Token token = new Token(tokenType, scanner.getTokenText(), scanner.getTokenOffset(), scanner.getTokenEnd());
@@ -108,7 +110,7 @@ class XMLDiagnostics {
         } else if (tokenType == TokenType.Content) {
            checkForSpaceBeforeName(token, previousRegion, diagnostics);
         }
-        
+      
         checkForTagClose(previousRegion, diagnostics);
 
 
@@ -117,11 +119,18 @@ class XMLDiagnostics {
           || (tokenType == TokenType.Comment) || (tokenType == TokenType.Prolog)
           || (tokenType == TokenType.Doctype)) {
         region.add(token);
+        if(tokenType == TokenType.AttributeValue) {
+          checkAttributes(region, diagnostics);
+        }
       } else if ((tokenType == TokenType.EndProlog) || (tokenType == TokenType.StartTagClose) || (tokenType == TokenType.EndTagClose)
           || (tokenType == TokenType.StartTagSelfClose) || (tokenType == TokenType.EndCommentTag)
           || (tokenType == TokenType.CDATATagClose)) {
         region.add(token);
-        if (wasEndRootTagFound == false && tokenType == TokenType.EndTagClose) {
+        if(wasStartRootTagFound == false && tokenType == TokenType.StartTagClose) {
+          wasStartRootTagFound = true;
+          startRootTagRegion = region;
+        }
+        if (wasEndRootTagFound == false && tokenType == TokenType.EndTagClose && endTagBelongsToRoot(startRootTagRegion,region)) {
           endRootTagRegion = region;
           wasEndRootTagFound = true;
           endRootTagOffset = ((Token) region.get(endRootTagRegion.size() - 1)).endOffset;
@@ -184,14 +193,21 @@ class XMLDiagnostics {
         }
         isClosed = true;
       }
-      if(wasEndRootTagFound && alreadyReported == false) {
+      if(wasEndRootTagFound) {
+        
         Token startToken = (Token) region.get(0);
-        int start = startToken.startOffset;
-        if(start >= endRootTagOffset) {
-          String messageText = XMLDiagnosticMessages.TAGS_OUTSIDE_OF_ROOT_TAG + ((Token)endRootTagRegion.get(1)).tokenText;
-          createAndSetCustomDiagnostic(messageText, start, start + 3, diagnostics);
-          alreadyReported = true;
+        if (!(startToken.type == TokenType.Content && tokenTextIsWhitespace(startToken.tokenText))) {
+          Token endToken = (Token) region.get(region.size() - 1);
+          int start = startToken.startOffset;
+          int end = endToken.endOffset;
+          if (start >= endRootTagOffset && tokenIsNotComment((Token) region.get(0))) {
+            String messageText = XMLDiagnosticMessages.TAGS_OUTSIDE_OF_ROOT_TAG
+                + ((Token) endRootTagRegion.get(1)).tokenText;
+            createAndSetCustomDiagnostic(messageText, start, end, diagnostics);
+
+          }
         }
+        
       }
       
 			tokenType = scanner.scan();
@@ -218,8 +234,21 @@ class XMLDiagnostics {
     }
     return diagnostics;
   }
-  
 
+  private boolean tokenIsNotComment(Token token) {
+    return token.type != TokenType.CDATATagOpen;
+  }
+  
+  private boolean endTagBelongsToRoot(List startRoot, List endRoot) {
+    if(startRoot == null || endRoot == null) {
+      return false;
+    }
+    return ((Token)startRoot.get(1)).tokenText.equals(((Token)endRoot.get(1)).tokenText);
+  }
+
+  private boolean tokenTextIsWhitespace(String tokenText) {
+    return tokenText.trim().length() == 0;
+  }
 
 	private void checkContentBeforeProcessingInstruction(List previousRegion, List<Diagnostic> diagnostics) {
 		if (previousRegion != null && previousRegion.size() > 0) {
