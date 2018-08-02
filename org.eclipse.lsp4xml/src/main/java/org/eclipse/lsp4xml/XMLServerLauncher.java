@@ -29,24 +29,18 @@ public class XMLServerLauncher {
 	}
 
 	/**
-	 * Launches {@link XMLLanguageServer} and makes it accessible through the
-	 * JSON RPC protocol defined by the LSP.
+	 * Launches {@link XMLLanguageServer} and makes it accessible through the JSON
+	 * RPC protocol defined by the LSP.
 	 * 
 	 * @param launcherFuture The future returned by
 	 *                       {@link org.eclipse.lsp4j.jsonrpc.Launcher#startListening()}.
-	 *                       (I'm not 100% sure how it meant to be used though, as it's
-	 *                       undocumented...)
+	 *                       (I'm not 100% sure how it meant to be used though, as
+	 *                       it's undocumented...)
 	 */
 	public static Future<?> launch(InputStream in, OutputStream out) {
 		XMLLanguageServer server = new XMLLanguageServer();
 		Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(server, in, out);
 		server.setClient(launcher.getRemoteProxy());
-		
-		/*Collection<ICompletionParticipant> completionParticipants = new ArrayList<ICompletionParticipant>();
-		ServiceLoader<ICompletionParticipant> loader = ServiceLoader.load(ICompletionParticipant.class);
-		loader.forEach(p -> completionParticipants.add(p));
-		System.err.println("{\"nb\": " + completionParticipants.size() + "}");
-		*/
 		return launcher.startListening();
 	}
 }

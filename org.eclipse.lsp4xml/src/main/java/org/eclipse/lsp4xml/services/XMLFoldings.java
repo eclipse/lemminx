@@ -26,7 +26,6 @@ import org.eclipse.lsp4xml.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.internal.parser.Scanner;
 import org.eclipse.lsp4xml.internal.parser.TokenType;
 import org.eclipse.lsp4xml.internal.parser.XMLScanner;
-import org.eclipse.lsp4xml.model.XMLDocument;
 
 import toremove.org.eclipse.lsp4j.FoldingRange;
 import toremove.org.eclipse.lsp4j.FoldingRangeCapabilities;
