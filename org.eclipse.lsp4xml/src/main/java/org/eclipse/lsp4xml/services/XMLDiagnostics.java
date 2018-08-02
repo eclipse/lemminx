@@ -83,8 +83,12 @@ class XMLDiagnostics {
 		Scanner scanner = XMLScanner.createScanner(document.getText());
 		List previousRegion = null;
     List region = null;
+    List endRootTagRegion = null;
+    int endRootTagOffset = 0;
     boolean isClosed = true;
-		TokenType tokenType = scanner.scan();
+    boolean alreadyReported = false; //tag after root tag was already reported
+    TokenType tokenType = scanner.scan();
+    Boolean wasEndRootTagFound = false;
 		while (tokenType != TokenType.EOS) {
 			monitor.checkCanceled();
 			Token token = new Token(tokenType, scanner.getTokenText(), scanner.getTokenOffset(), scanner.getTokenEnd());
@@ -104,7 +108,9 @@ class XMLDiagnostics {
         } else if (tokenType == TokenType.Content) {
            checkForSpaceBeforeName(token, previousRegion, diagnostics);
         }
+        
         checkForTagClose(previousRegion, diagnostics);
+
 
       } else if ((tokenType == TokenType.StartTag) || (tokenType == TokenType.EndTag) || (tokenType == TokenType.AttributeName)
           || (tokenType == TokenType.DelimiterAssign) || (tokenType == TokenType.AttributeValue)
@@ -113,8 +119,13 @@ class XMLDiagnostics {
         region.add(token);
       } else if ((tokenType == TokenType.EndProlog) || (tokenType == TokenType.StartTagClose) || (tokenType == TokenType.EndTagClose)
           || (tokenType == TokenType.StartTagSelfClose) || (tokenType == TokenType.EndCommentTag)
-           || (tokenType == TokenType.CDATATagClose)) {
+          || (tokenType == TokenType.CDATATagClose)) {
         region.add(token);
+        if (wasEndRootTagFound == false && tokenType == TokenType.EndTagClose) {
+          endRootTagRegion = region;
+          wasEndRootTagFound = true;
+          endRootTagOffset = ((Token) region.get(endRootTagRegion.size() - 1)).endOffset;
+        }
         if (tokenType == TokenType.EndProlog) {
           //checkNamespacesInProcessingInstruction(region, diagnostics);
         } else if (tokenType == TokenType.StartTagClose || tokenType == TokenType.EndTagClose || tokenType == TokenType.StartTagSelfClose) {
@@ -173,6 +184,16 @@ class XMLDiagnostics {
         }
         isClosed = true;
       }
+      if(wasEndRootTagFound && alreadyReported == false) {
+        Token startToken = (Token) region.get(0);
+        int start = startToken.startOffset;
+        if(start >= endRootTagOffset) {
+          String messageText = XMLDiagnosticMessages.TAGS_OUTSIDE_OF_ROOT_TAG + ((Token)endRootTagRegion.get(1)).tokenText;
+          createAndSetCustomDiagnostic(messageText, start, start + 3, diagnostics);
+          alreadyReported = true;
+        }
+      }
+      
 			tokenType = scanner.scan();
     }
     if (!isClosed && region != null) {
@@ -196,7 +217,9 @@ class XMLDiagnostics {
       }
     }
     return diagnostics;
-	}
+  }
+  
+
 
 	private void checkContentBeforeProcessingInstruction(List previousRegion, List<Diagnostic> diagnostics) {
 		if (previousRegion != null && previousRegion.size() > 0) {
@@ -272,7 +295,7 @@ class XMLDiagnostics {
         }
         if (!isClosed) {
           String messageText = XMLDiagnosticMessages.TAG_NOT_CLOSED;
-          createAndSetDiagnostic(first, messageText, diagnostics);
+          
           createAndSetCustomDiagnostic(messageText, first.startOffset, first.startOffset + textLength, diagnostics);
           
         }
