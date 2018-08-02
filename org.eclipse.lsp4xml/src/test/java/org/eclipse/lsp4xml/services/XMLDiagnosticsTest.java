@@ -31,12 +31,6 @@ public class XMLDiagnosticsTest {
 		}
 	};
 
-	@Test
-	public void testName() throws Exception {
-		XMLLanguageService languageService = new XMLLanguageService();
-		TextDocument document = new TextDocument("<a<", "test.xml");
-		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, NULL_MONITOR);
-		System.err.println(diagnostics);
-	}
+	
 
 }

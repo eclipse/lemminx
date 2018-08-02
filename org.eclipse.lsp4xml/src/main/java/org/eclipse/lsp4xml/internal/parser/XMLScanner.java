@@ -176,7 +176,7 @@ public class XMLScanner implements Scanner {
 						localize("error.unexpectedWhitespace", "Tag name must directly follow the open bracket."));
 			}
 			state = ScannerState.WithinEndTag;
-			stream.advanceUntilChar(_RAN);
+			stream.advanceUntilChar(_RAN); // >
 			if (offset < stream.pos()) {
 				return finishToken(offset, TokenType.Unknown,
 						localize("error.endTagNameExpected", "End tag name expected."));
