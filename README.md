@@ -16,6 +16,7 @@ Features
 * [textDocument/documentHighlight](https://microsoft.github.io/language-server-protocol/specification#textDocument_documentHighlight).
 * [textDocument/completion](https://microsoft.github.io/language-server-protocol/specification#textDocument_completion).
 * [textDocument/hover](https://microsoft.github.io/language-server-protocol/specification#textDocument_hover).
+* [textDocument/rename](https://microsoft.github.io/language-server-protocol/specification#textDocument_rename).
 
 Extension
 --------------

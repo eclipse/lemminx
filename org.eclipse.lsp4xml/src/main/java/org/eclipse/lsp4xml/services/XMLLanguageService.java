@@ -10,7 +10,10 @@
  */
 package org.eclipse.lsp4xml.services;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.Diagnostic;
@@ -21,6 +24,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.extensions.CompletionSettings;
@@ -42,7 +46,7 @@ public class XMLLanguageService {
 	private final XMLCompletions completions;
 	private final XMLHover hover;
 	private final XMLDiagnostics diagnostics;
-	private XMLFoldings foldings;
+	private final XMLFoldings foldings;
 
 	public XMLLanguageService() {
 		this(new XMLExtensionsRegistry());
@@ -85,5 +89,13 @@ public class XMLLanguageService {
 
 	public List<FoldingRange> getFoldingRanges(TextDocument document, FoldingRangeCapabilities context) {
 		return foldings.getFoldingRanges(document, context);
+	}
+
+	public WorkspaceEdit doRename(XMLDocument xmlDocument, Position position, String newText) {
+		List<TextEdit> textEdits = findDocumentHighlights(xmlDocument, position).stream()
+				.map(h -> new TextEdit(h.getRange(), newText)).collect(Collectors.toList());
+		Map<String, List<TextEdit>> changes = new HashMap<>();
+		changes.put(xmlDocument.getUri(), textEdits);
+		return new WorkspaceEdit(changes);
 	}
 }

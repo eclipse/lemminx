@@ -197,7 +197,11 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	@Override
 	public CompletableFuture<WorkspaceEdit> rename(RenameParams params) {
-		return null;
+		return computeAsync((monitor) -> {
+			TextDocument document = documents.get(params.getTextDocument().getUri());
+			XMLDocument xmlDocument = getXMLDocument(document);
+			return languageService.doRename(xmlDocument, params.getPosition(), params.getNewName());
+		});
 	}
 
 	@Override

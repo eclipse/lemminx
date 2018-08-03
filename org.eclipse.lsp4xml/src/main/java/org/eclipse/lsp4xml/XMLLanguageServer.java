@@ -61,6 +61,7 @@ public class XMLLanguageServer implements LanguageServer {
 		capabilities.setDocumentFormattingProvider(true);
 		capabilities.setDocumentRangeFormattingProvider(true);
 		capabilities.setHoverProvider(true);
+		capabilities.setRenameProvider(true);
 		// capabilities.setExperimental("foldingRangeProvider: true");
 		InitializeResult result = new InitializeResult(capabilities);
 		return CompletableFuture.completedFuture(result);
