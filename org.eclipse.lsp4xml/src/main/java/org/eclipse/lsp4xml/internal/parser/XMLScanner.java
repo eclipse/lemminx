@@ -238,8 +238,7 @@ public class XMLScanner implements Scanner {
 				return finishToken(offset, TokenType.EOS);
 			} 
 			else {
-				return finishToken(offset, TokenType.StartTagOpen,
-						localize("error.endTagNameExpected", "End tag name expected."));
+				return internalScan();
 			}
 			
 			// stream.advance(1);
