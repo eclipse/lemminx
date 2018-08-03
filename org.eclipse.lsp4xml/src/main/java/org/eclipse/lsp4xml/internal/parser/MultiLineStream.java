@@ -124,6 +124,11 @@ class MultiLineStream {
 		return "";
 	}
 
+	/**
+	 * Advances stream.position no matter what until it hits ch or eof(this.len)
+	 * 
+	 * @return boolean: was the char found 
+	 */
 	public boolean advanceUntilChar(int ch) {
 		while (this.position < this.len) {
 			if (peekChar() == ch) {

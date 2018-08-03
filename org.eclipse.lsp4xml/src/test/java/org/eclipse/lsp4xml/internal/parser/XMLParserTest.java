@@ -210,6 +210,14 @@ public class XMLParserTest {
 	}
 
 	@Test
+	public void testNonClosedAndIncompletes() {
+		Node h = createNode("h", 14, -1, 24, false, false);
+		Node hello = createNode("hello", 7, -1, 24, false, false, h);
+		Node test1 = createNode("test1", 0, -1, 24, false, false, hello);
+		assertDocument("<a><b <c></c></a>", test1);
+	}
+
+	@Test
 	public void testWithNewLineCharacters() {
 		Node n = createNode("n", 6, 12, 16, true, false);
 		Node t = createNode("t", 0, 17, 21, true, false, n);

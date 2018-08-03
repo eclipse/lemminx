@@ -38,7 +38,7 @@ public class XMLScanner implements Scanner {
 
 	private static final Pattern ELEMENT_NAME_REGEX = Pattern.compile("^[_:\\w][_:\\w-.\\d]*");
 
-	private static final Pattern ATTRIBUTE_NAME_REGEX = Pattern.compile("^[^\\s\"'>/=\\x00-\\x0F\\x7F\\x80-\\x9F]*");
+	private static final Pattern ATTRIBUTE_NAME_REGEX = Pattern.compile("^[^\\s\"'<>/=\\x00-\\x0F\\x7F\\x80-\\x9F]*");
 
 	private static final Pattern ATTRIBUTE_VALUE_REGEX = Pattern.compile("^[^\\s\"'`=<>\\/]+");
 
@@ -234,12 +234,14 @@ public class XMLScanner implements Scanner {
 				return finishToken(offset, TokenType.StartTagClose);
 			}
 			state = ScannerState.WithinContent;
-			stream.advanceUntilChar(_LAN); // <
-			if (offset < stream.pos()) {
-				return finishToken(offset, TokenType.Unknown,
+			if(!stream.advanceUntilChar(_LAN)) { // <
+				return finishToken(offset, TokenType.EOS);
+			} 
+			else {
+				return finishToken(offset, TokenType.StartTagOpen,
 						localize("error.endTagNameExpected", "End tag name expected."));
 			}
-			return internalScan();
+			
 			// stream.advance(1);
 			// return finishToken(offset, TokenType.Unknown,
 			// 		localize("error.unexpectedCharacterInTag", "Unexpected character in tag."));

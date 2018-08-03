@@ -137,7 +137,6 @@ public class XMLScannerTest {
 		assertOffsetAndToken(0, TokenType.Content);
 		assertOffsetAndToken(2, TokenType.StartTagOpen);
 		assertOffsetAndToken(3, TokenType.StartTag, "len");
-		assertOffsetAndToken(6, TokenType.Unknown);
 	}
 
 
@@ -145,6 +144,16 @@ public class XMLScannerTest {
 	public void testName5() {
 		scanner = XMLScanner.createScanner("<");
 		assertOffsetAndToken(0, TokenType.StartTagOpen);
+	}
+
+	@Test
+	public void testName115() {
+		scanner = XMLScanner.createScanner("<a</a>");
+		TokenType t = null;
+		while(t != TokenType.EOS) {
+			t = scanner.scan();
+			
+		}
 	}
 
 
