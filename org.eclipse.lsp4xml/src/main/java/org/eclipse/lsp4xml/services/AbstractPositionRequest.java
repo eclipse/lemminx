@@ -48,6 +48,9 @@ abstract class AbstractPositionRequest implements IPositionRequest {
 	@Override
 	public Node getParentNode() {
 		Node currentNode = getNode();
+		if (currentNode.tag == null) {
+			return currentNode.parent;
+		}
 		int startTagEndOffset = currentNode.start + currentNode.tag.length() + ">".length();
 		if (!(offset > startTagEndOffset && offset < currentNode.end)) {
 			return currentNode.parent;

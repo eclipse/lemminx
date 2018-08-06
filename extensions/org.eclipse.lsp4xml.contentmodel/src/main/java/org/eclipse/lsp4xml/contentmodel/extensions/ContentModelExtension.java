@@ -4,14 +4,14 @@ import org.eclipse.lsp4j.DidChangeConfigurationParams;
 import org.eclipse.lsp4xml.extensions.ICompletionParticipant;
 import org.eclipse.lsp4xml.extensions.IDiagnosticsParticipant;
 import org.eclipse.lsp4xml.extensions.IHoverParticipant;
-import org.eclipse.lsp4xml.extensions.IXMLExtension;
+import org.eclipse.lsp4xml.extensions.XMLExtensionAdapter;
 
-public class ContentModelExtension implements IXMLExtension {
+public class ContentModelExtension extends XMLExtensionAdapter {
 
 	private final ICompletionParticipant completionParticipant;
 
 	private final IHoverParticipant hoverParticipant;
-	
+
 	private final ContentModelDiagnosticsParticipant diagnosticsParticipant;
 
 	public ContentModelExtension() {
@@ -19,7 +19,7 @@ public class ContentModelExtension implements IXMLExtension {
 		hoverParticipant = new ContentModelHoverParticipant();
 		diagnosticsParticipant = new ContentModelDiagnosticsParticipant();
 	}
-	
+
 	@Override
 	public void didChangeConfiguration(DidChangeConfigurationParams params) {
 		diagnosticsParticipant.didChangeConfiguration(params);
@@ -34,7 +34,7 @@ public class ContentModelExtension implements IXMLExtension {
 	public IHoverParticipant getHoverParticipant() {
 		return hoverParticipant;
 	}
-	
+
 	@Override
 	public IDiagnosticsParticipant getDiagnosticsParticipant() {
 		return diagnosticsParticipant;

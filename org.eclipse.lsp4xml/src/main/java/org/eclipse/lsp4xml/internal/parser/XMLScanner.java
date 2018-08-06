@@ -286,7 +286,7 @@ public class XMLScanner implements Scanner {
 
 	private String localize(String string, String string2) {
 		// TODO Auto-generated method stub
-		return null;
+		return string;
 	}
 
 	@Override

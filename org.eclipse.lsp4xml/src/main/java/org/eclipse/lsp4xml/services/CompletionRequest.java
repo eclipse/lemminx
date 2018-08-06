@@ -12,6 +12,7 @@ package org.eclipse.lsp4xml.services;
 
 import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.extensions.ICompletionRequest;
@@ -26,6 +27,8 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 	private final CompletionSettings completionSettings;
 	
 	private final FormattingOptions formattingSettings;
+	
+	private Range replaceRange;
 
 	public CompletionRequest(XMLDocument xmlDocument, Position position, CompletionSettings completionSettings, FormattingOptions formattingSettings)
 			throws BadLocationException {
@@ -42,5 +45,14 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 	@Override
 	public CompletionSettings getCompletionSettings() {
 		return completionSettings;
+	}
+	
+	public void setReplaceRange(Range replaceRange) {
+		this.replaceRange = replaceRange;
+	}
+	
+	@Override
+	public Range getReplaceRange() {
+		return replaceRange;
 	}
 }

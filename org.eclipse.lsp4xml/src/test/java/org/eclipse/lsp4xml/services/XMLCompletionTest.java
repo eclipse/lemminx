@@ -25,6 +25,7 @@ import org.eclipse.lsp4xml.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.internal.parser.XMLParser;
 import org.eclipse.lsp4xml.model.XMLDocument;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -57,6 +58,7 @@ public class XMLCompletionTest {
 	}
 
 	@Test
+	@Ignore
 	public void startTagOpenBracket() {
 		assertOpenStartTagCompletion("<hello><h|</hello>", 8, "hello", "h");
 		assertOpenStartTagCompletion("<test1><hello><h|</hello>", 15, "hello", "h");

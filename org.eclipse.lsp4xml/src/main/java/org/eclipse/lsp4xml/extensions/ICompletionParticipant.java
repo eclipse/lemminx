@@ -18,11 +18,13 @@ import org.eclipse.lsp4j.Range;
  */
 public interface ICompletionParticipant {
 
+	void onTagOpen(ICompletionRequest completionRequest, ICompletionResponse completionResponse) throws Exception;
+
+	void onXMLContent(ICompletionRequest request, ICompletionResponse response) throws Exception;
+
 	void onAttributeName(String namePrefix, Range fullRange, ICompletionRequest request, ICompletionResponse response);
 
 	void onAttributeValue(String valuePrefix, Range fullRange, ICompletionRequest request,
 			ICompletionResponse response);
-
-	void onXMLContent(ICompletionRequest request, ICompletionResponse response);
 
 }
