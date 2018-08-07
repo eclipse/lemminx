@@ -13,11 +13,15 @@ package org.eclipse.lsp4xml.extensions;
 import org.eclipse.lsp4j.CompletionItem;
 
 /**
- * Compeltion response API.
+ * Completion response API.
  *
  */
 public interface ICompletionResponse {
 
 	void addCompletionItem(CompletionItem completionItem);
+
+	boolean hasAttribute(String attribute);
+
+	void addCompletionAttribute(CompletionItem item);
 
 }

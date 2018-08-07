@@ -22,7 +22,7 @@ public interface ICompletionParticipant {
 
 	void onXMLContent(ICompletionRequest request, ICompletionResponse response) throws Exception;
 
-	void onAttributeName(String namePrefix, Range fullRange, ICompletionRequest request, ICompletionResponse response);
+	void onAttributeName(String value, Range fullRange, ICompletionRequest request, ICompletionResponse response);
 
 	void onAttributeValue(String valuePrefix, Range fullRange, ICompletionRequest request,
 			ICompletionResponse response);

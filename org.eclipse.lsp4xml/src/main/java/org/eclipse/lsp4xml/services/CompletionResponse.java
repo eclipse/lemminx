@@ -10,9 +10,13 @@
  */
 package org.eclipse.lsp4xml.services;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4xml.extensions.ICompletionResponse;
+import org.eclipse.lsp4xml.model.Node;
 
 /**
  * Completion response implementation.
@@ -20,12 +24,35 @@ import org.eclipse.lsp4xml.extensions.ICompletionResponse;
  */
 class CompletionResponse extends CompletionList implements ICompletionResponse {
 
-	public CompletionResponse() {
+	private final Node node;
+	
+	private List<String> seenAttributes;
+
+	public CompletionResponse(Node node) {
 		super.setIsIncomplete(false);
+		this.node = node;
 	}
 
 	@Override
 	public void addCompletionItem(CompletionItem completionItem) {
 		super.getItems().add(completionItem);
 	}
+
+	@Override
+	public boolean hasAttribute(String attribute) {
+		/*if (node != null && node.hasAttribute(attribute)) {
+			return true;
+		}*/
+		return seenAttributes != null ? seenAttributes.contains(attribute) : false;
+	}
+
+	@Override
+	public void addCompletionAttribute(CompletionItem completionItem) {
+		if (seenAttributes == null) {
+			seenAttributes = new ArrayList<>();
+		}
+		seenAttributes.add(completionItem.getLabel());
+		addCompletionItem(completionItem);
+	}
+
 }

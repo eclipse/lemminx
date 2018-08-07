@@ -37,8 +37,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Test for {@link ICompletionParticipant} extension. The tests use
- * {@link HTMLPluginCompletion} to manage HTML completion.
+ * XML completion tests which uses the {@link ICompletionParticipant} to emulate
+ * HTML language.
  *
  */
 public class HTMLCompletionExtensionsTest {
@@ -63,14 +63,27 @@ public class HTMLCompletionExtensionsTest {
 		testCompletionFor("<inp|ut", Arrays.asList(r("input", "<input")));
 
 		testCompletionFor("<|inp", Arrays.asList(r("input", "<input")));
-	}
 
-	private static ItemDescription r(String label, String resultText) {
-		return new ItemDescription(label, resultText);
-	}
-
-	private void testCompletionFor(String value, List<ItemDescription> expectedItems) throws BadLocationException {
-		testCompletionFor(value, expectedItems, null);
+		testCompletionFor("<input |", Arrays.asList(r("type", "<input type=\"$1\""), //
+				r("style", "<input style=\"$1\""), //
+				r("onmousemove", "<input onmousemove=\"$1\"")));
+		
+		testCompletionFor("<input t|", Arrays.asList(r("type", "<input type=\"$1\""), //
+				r("style", "<input tabindex=\"$1\"")));
+		
+		testCompletionFor("<input t|ype", Arrays.asList(r("type", "<input type=\"$1\""), //
+				r("style", "<input tabindex=\"$1\"")));
+		
+		testCompletionFor("<input t|ype=\"text\"", Arrays.asList(r("type", "<input type=\"text\""), //
+				r("style", "<input tabindex=\"text\"")));
+		
+		testCompletionFor("<input type=\"text\" |", Arrays.asList(r("style", "<input type=\"text\" style=\"$1\""), //
+				r("type", "<input type=\"text\" style=\"$1\""), //
+				r("size", "<input type=\"text\" size=\"$1\"")));
+		
+		testCompletionFor("<input type=\"text\" s|", Arrays.asList(r("type", "<input type=\"text\""), //
+				r("src", "<input type=\"text\" src=\"$1\""), //
+				r("size", "<input type=\"text\" size=\"$1\"")));
 	}
 
 	private static void testCompletionFor(String value, List<ItemDescription> expectedItems, Integer expectedCount)
@@ -120,6 +133,14 @@ public class HTMLCompletionExtensionsTest {
 
 	}
 
+	private static ItemDescription r(String label, String resultText) {
+		return new ItemDescription(label, resultText);
+	}
+
+	private void testCompletionFor(String value, List<ItemDescription> expectedItems) throws BadLocationException {
+		testCompletionFor(value, expectedItems, null);
+	}
+
 	private static class ItemDescription {
 		public final String label;
 
@@ -139,9 +160,25 @@ public class HTMLCompletionExtensionsTest {
 		}
 
 		@Override
-		public void onAttributeName(String namePrefix, Range fullRange, ICompletionRequest request,
-				ICompletionResponse response) {
-
+		public void onAttributeName(String value, Range replaceRange, ICompletionRequest completionRequest,
+				ICompletionResponse completionResponse) {
+			String tag = completionRequest.getCurrentTag();
+			HTMLTag htmlTag = HTMLTag.getHTMLTag(tag);
+			if (htmlTag != null) {
+				String[] attributes = htmlTag.getAttributes();
+				if (attributes != null) {
+					for (String attribute : attributes) {
+						if (!completionResponse.hasAttribute(attribute)) {
+							CompletionItem item = new CompletionItem();
+							item.setLabel(attribute);
+							item.setKind(CompletionItemKind.Value);
+							item.setTextEdit(new TextEdit(replaceRange, attribute + value));
+							item.setInsertTextFormat(InsertTextFormat.Snippet);
+							completionResponse.addCompletionAttribute(item);
+						}
+					}
+				}
+			}
 		}
 
 		@Override
@@ -156,10 +193,10 @@ public class HTMLCompletionExtensionsTest {
 		@Override
 		public void onTagOpen(ICompletionRequest completionRequest, ICompletionResponse completionResponse)
 				throws Exception {
+			Range range = completionRequest.getReplaceRange();
 			HTMLTag.HTML_TAGS.forEach(t -> {
 				String tag = t.getTag();
 				String label = t.getLabel();
-				Range range = completionRequest.getReplaceRange();
 				CompletionItem item = new CompletionItem();
 				item.setLabel(tag);
 				item.setKind(CompletionItemKind.Property);

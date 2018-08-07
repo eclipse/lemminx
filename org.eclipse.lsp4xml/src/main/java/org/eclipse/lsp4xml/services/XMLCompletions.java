@@ -57,13 +57,14 @@ class XMLCompletions {
 		} catch (BadLocationException e) {
 			return null;
 		}
-		CompletionResponse completionResponse = new CompletionResponse();
+
 		int offset = completionRequest.getOffset();
 		Node node = completionRequest.getNode();
+		CompletionResponse completionResponse = new CompletionResponse(node);
 
 		String text = xmlDocument.getText();
 		Scanner scanner = XMLScanner.createScanner(text, node.start);
-		completionRequest.setCurrentTag("");
+		String currentTag = "";
 		completionRequest.setCurrentAttributeName(null);
 		TokenType token = scanner.scan();
 		while (token != TokenType.EOS && scanner.getTokenOffset() <= offset) {
@@ -76,12 +77,12 @@ class XMLCompletions {
 				}
 				break;
 			case StartTag:
-				completionRequest.setCurrentTag(scanner.getTokenText());
 				if (scanner.getTokenOffset() <= offset && offset <= scanner.getTokenEnd()) {
 					collectOpenTagSuggestions(scanner.getTokenOffset(), scanner.getTokenEnd(), completionRequest,
 							completionResponse);
 					return completionResponse;
 				}
+				currentTag = scanner.getTokenText();
 				break;
 			case AttributeName:
 				if (scanner.getTokenOffset() <= offset && offset <= scanner.getTokenEnd()) {
@@ -158,8 +159,7 @@ class XMLCompletions {
 				break;
 			case StartTagClose:
 				if (offset <= scanner.getTokenEnd()) {
-					String currentTag = completionRequest.getCurrentTag();
-					if (currentTag.length() > 0) {
+					if (currentTag != null && currentTag.length() > 0) {
 						collectAutoCloseTagSuggestion(scanner.getTokenEnd(), currentTag, completionRequest,
 								completionResponse);
 						return completionResponse;
@@ -168,8 +168,7 @@ class XMLCompletions {
 				break;
 			case EndTagClose:
 				if (offset <= scanner.getTokenEnd()) {
-					String currentTag = completionRequest.getCurrentTag();
-					if (currentTag.length() > 0) {
+					if (currentTag != null && currentTag.length() > 0) {
 						collectInsideContent(completionRequest, completionResponse);
 						return completionResponse;
 					}
