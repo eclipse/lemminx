@@ -60,7 +60,7 @@ class XMLCompletions {
 
 		int offset = completionRequest.getOffset();
 		Node node = completionRequest.getNode();
-		CompletionResponse completionResponse = new CompletionResponse(node);
+		CompletionResponse completionResponse = new CompletionResponse();
 
 		String text = xmlDocument.getText();
 		Scanner scanner = XMLScanner.createScanner(text, node.start);

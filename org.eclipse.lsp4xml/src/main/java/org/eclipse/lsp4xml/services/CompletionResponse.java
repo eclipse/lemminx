@@ -15,7 +15,6 @@ import java.util.List;
 
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
-import org.eclipse.lsp4xml.model.Node;
 import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
 
 /**
@@ -24,13 +23,10 @@ import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
  */
 class CompletionResponse extends CompletionList implements ICompletionResponse {
 
-	private final Node node;
-	
 	private List<String> seenAttributes;
 
-	public CompletionResponse(Node node) {
+	public CompletionResponse() {
 		super.setIsIncomplete(false);
-		this.node = node;
 	}
 
 	@Override
@@ -40,9 +36,9 @@ class CompletionResponse extends CompletionList implements ICompletionResponse {
 
 	@Override
 	public boolean hasAttribute(String attribute) {
-		/*if (node != null && node.hasAttribute(attribute)) {
-			return true;
-		}*/
+		/*
+		 * if (node != null && node.hasAttribute(attribute)) { return true; }
+		 */
 		return seenAttributes != null ? seenAttributes.contains(attribute) : false;
 	}
 
