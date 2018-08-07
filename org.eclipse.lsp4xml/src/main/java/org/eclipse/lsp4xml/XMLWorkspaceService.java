@@ -18,7 +18,7 @@ import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.WorkspaceSymbolParams;
 import org.eclipse.lsp4j.services.WorkspaceService;
-import org.eclipse.lsp4xml.extensions.IXMLExtension;
+import org.eclipse.lsp4xml.services.extensions.IXMLExtension;
 
 /**
  * XML workspace service.

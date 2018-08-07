@@ -12,9 +12,9 @@ package org.eclipse.lsp4xml.services;
 
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4xml.commons.BadLocationException;
-import org.eclipse.lsp4xml.extensions.IPositionRequest;
 import org.eclipse.lsp4xml.model.Node;
 import org.eclipse.lsp4xml.model.XMLDocument;
+import org.eclipse.lsp4xml.services.extensions.IPositionRequest;
 
 /**
  * Abstract class for position request.

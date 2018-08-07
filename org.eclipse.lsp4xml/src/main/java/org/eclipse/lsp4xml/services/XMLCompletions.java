@@ -23,17 +23,17 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4xml.commons.BadLocationException;
-import org.eclipse.lsp4xml.extensions.CompletionSettings;
-import org.eclipse.lsp4xml.extensions.ICompletionParticipant;
-import org.eclipse.lsp4xml.extensions.ICompletionRequest;
-import org.eclipse.lsp4xml.extensions.ICompletionResponse;
-import org.eclipse.lsp4xml.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.internal.parser.Scanner;
 import org.eclipse.lsp4xml.internal.parser.ScannerState;
 import org.eclipse.lsp4xml.internal.parser.TokenType;
 import org.eclipse.lsp4xml.internal.parser.XMLScanner;
 import org.eclipse.lsp4xml.model.Node;
 import org.eclipse.lsp4xml.model.XMLDocument;
+import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
+import org.eclipse.lsp4xml.services.extensions.ICompletionParticipant;
+import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
+import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
+import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 
 /**
  * XML completions support.

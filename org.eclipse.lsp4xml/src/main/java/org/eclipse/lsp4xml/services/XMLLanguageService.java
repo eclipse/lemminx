@@ -27,9 +27,9 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.commons.TextDocument;
-import org.eclipse.lsp4xml.extensions.CompletionSettings;
-import org.eclipse.lsp4xml.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.model.XMLDocument;
+import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
+import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 
 import toremove.org.eclipse.lsp4j.FoldingRange;
 import toremove.org.eclipse.lsp4j.FoldingRangeCapabilities;

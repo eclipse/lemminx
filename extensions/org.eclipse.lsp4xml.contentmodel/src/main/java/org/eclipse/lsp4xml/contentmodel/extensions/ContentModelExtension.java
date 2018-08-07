@@ -1,10 +1,10 @@
 package org.eclipse.lsp4xml.contentmodel.extensions;
 
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
-import org.eclipse.lsp4xml.extensions.ICompletionParticipant;
-import org.eclipse.lsp4xml.extensions.IDiagnosticsParticipant;
-import org.eclipse.lsp4xml.extensions.IHoverParticipant;
-import org.eclipse.lsp4xml.extensions.XMLExtensionAdapter;
+import org.eclipse.lsp4xml.services.extensions.ICompletionParticipant;
+import org.eclipse.lsp4xml.services.extensions.IDiagnosticsParticipant;
+import org.eclipse.lsp4xml.services.extensions.IHoverParticipant;
+import org.eclipse.lsp4xml.services.extensions.XMLExtensionAdapter;
 
 public class ContentModelExtension extends XMLExtensionAdapter {
 

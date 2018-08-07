@@ -18,11 +18,11 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4xml.contentmodel.CMElement;
 import org.eclipse.lsp4xml.contentmodel.ContentModelManager;
 import org.eclipse.lsp4xml.contentmodel.utils.XMLGenerator;
-import org.eclipse.lsp4xml.extensions.ICompletionParticipant;
-import org.eclipse.lsp4xml.extensions.ICompletionRequest;
-import org.eclipse.lsp4xml.extensions.ICompletionResponse;
 import org.eclipse.lsp4xml.model.Node;
 import org.eclipse.lsp4xml.model.XMLDocument;
+import org.eclipse.lsp4xml.services.extensions.ICompletionParticipant;
+import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
+import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
 
 /**
  * Extension to support XML completion based on content model (XML Schema

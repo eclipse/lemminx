@@ -26,7 +26,7 @@ import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
-import org.eclipse.lsp4xml.extensions.XMLExtensionsRegistry;
+import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 
 /**
  * XML language server.

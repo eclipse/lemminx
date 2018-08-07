@@ -8,20 +8,20 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lsp4xml.extensions;
+package org.eclipse.lsp4xml.services.extensions;
 
-import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.FormattingOptions;
+import org.eclipse.lsp4j.Range;
 
 /**
- * Completion response API.
+ * Completion request API.
  *
  */
-public interface ICompletionResponse {
+public interface ICompletionRequest extends IPositionRequest {
 
-	void addCompletionItem(CompletionItem completionItem);
+	Range getReplaceRange();
 
-	boolean hasAttribute(String attribute);
+	FormattingOptions getFormattingSettings();
 
-	void addCompletionAttribute(CompletionItem item);
-
+	CompletionSettings getCompletionSettings();
 }

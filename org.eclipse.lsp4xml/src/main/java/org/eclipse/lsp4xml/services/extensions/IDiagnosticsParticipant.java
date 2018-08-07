@@ -1,4 +1,4 @@
-package org.eclipse.lsp4xml.extensions;
+package org.eclipse.lsp4xml.services.extensions;
 
 import java.util.List;
 

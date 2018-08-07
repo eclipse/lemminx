@@ -8,17 +8,20 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lsp4xml.extensions;
+package org.eclipse.lsp4xml.services.extensions;
 
-import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.CompletionItem;
 
 /**
- * Hover request API.
+ * Completion response API.
  *
  */
-public interface IHoverRequest extends IPositionRequest {
+public interface ICompletionResponse {
 
-	Range getTagRange();
+	void addCompletionItem(CompletionItem completionItem);
 
-	boolean isOpen();
+	boolean hasAttribute(String attribute);
+
+	void addCompletionAttribute(CompletionItem item);
+
 }

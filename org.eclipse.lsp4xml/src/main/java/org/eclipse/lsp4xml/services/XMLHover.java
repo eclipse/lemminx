@@ -14,13 +14,13 @@ import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.BadLocationException;
-import org.eclipse.lsp4xml.extensions.IHoverParticipant;
-import org.eclipse.lsp4xml.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.internal.parser.Scanner;
 import org.eclipse.lsp4xml.internal.parser.TokenType;
 import org.eclipse.lsp4xml.internal.parser.XMLScanner;
 import org.eclipse.lsp4xml.model.Node;
 import org.eclipse.lsp4xml.model.XMLDocument;
+import org.eclipse.lsp4xml.services.extensions.IHoverParticipant;
+import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 
 /**
  * XML hover support.

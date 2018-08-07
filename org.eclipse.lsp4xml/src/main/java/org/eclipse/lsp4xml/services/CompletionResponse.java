@@ -15,8 +15,8 @@ import java.util.List;
 
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
-import org.eclipse.lsp4xml.extensions.ICompletionResponse;
 import org.eclipse.lsp4xml.model.Node;
+import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
 
 /**
  * Completion response implementation.

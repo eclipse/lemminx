@@ -21,7 +21,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.commons.TextDocument;
-import org.eclipse.lsp4xml.extensions.IDiagnosticsParticipant;
+import org.eclipse.lsp4xml.services.extensions.IDiagnosticsParticipant;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;

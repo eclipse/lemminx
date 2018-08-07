@@ -1,4 +1,4 @@
-package org.eclipse.lsp4xml.extensions;
+package org.eclipse.lsp4xml.services.extensions;
 
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
 

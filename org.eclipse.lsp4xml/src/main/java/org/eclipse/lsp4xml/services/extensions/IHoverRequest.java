@@ -8,20 +8,17 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lsp4xml.extensions;
+package org.eclipse.lsp4xml.services.extensions;
 
-import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.Range;
 
 /**
- * Completion request API.
+ * Hover request API.
  *
  */
-public interface ICompletionRequest extends IPositionRequest {
+public interface IHoverRequest extends IPositionRequest {
 
-	Range getReplaceRange();
+	Range getTagRange();
 
-	FormattingOptions getFormattingSettings();
-
-	CompletionSettings getCompletionSettings();
+	boolean isOpen();
 }

@@ -14,9 +14,9 @@ import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4xml.contentmodel.CMElement;
 import org.eclipse.lsp4xml.contentmodel.ContentModelManager;
-import org.eclipse.lsp4xml.extensions.IHoverParticipant;
-import org.eclipse.lsp4xml.extensions.IHoverRequest;
 import org.eclipse.lsp4xml.model.Node;
+import org.eclipse.lsp4xml.services.extensions.IHoverParticipant;
+import org.eclipse.lsp4xml.services.extensions.IHoverRequest;
 
 /**
  * Extension to support XML hover based on content model (XML Schema completion,

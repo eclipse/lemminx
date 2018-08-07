@@ -53,10 +53,10 @@ import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4xml.commons.LanguageModelCache;
 import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.commons.TextDocuments;
-import org.eclipse.lsp4xml.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.internal.parser.XMLParser;
 import org.eclipse.lsp4xml.model.XMLDocument;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
+import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 
 import toremove.org.eclipse.lsp4j.FoldingRange;
 import toremove.org.eclipse.lsp4j.FoldingRangeCapabilities;

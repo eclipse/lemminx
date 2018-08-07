@@ -8,7 +8,7 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lsp4xml.services;
+package org.eclipse.lsp4xml.services.extensions;
 
 import java.util.Arrays;
 import java.util.Collection;
