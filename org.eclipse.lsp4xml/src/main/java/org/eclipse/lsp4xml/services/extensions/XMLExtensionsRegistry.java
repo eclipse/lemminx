@@ -12,8 +12,8 @@ package org.eclipse.lsp4xml.services.extensions;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.ServiceLoader;
-import java.util.stream.Collectors;
 
 /**
  * XML extensions registry.
@@ -22,11 +22,17 @@ import java.util.stream.Collectors;
 public class XMLExtensionsRegistry {
 
 	private final Collection<IXMLExtension> extensions;
+	private final List<ICompletionParticipant> completionParticipants;
+	private final List<IHoverParticipant> hoverParticipants;
+	private final List<IDiagnosticsParticipant> diagnosticsParticipants;
 
 	private boolean initialized;
 
 	public XMLExtensionsRegistry() {
 		extensions = new ArrayList<>();
+		completionParticipants = new ArrayList<>();
+		hoverParticipants = new ArrayList<>();
+		diagnosticsParticipants = new ArrayList<>();
 	}
 
 	public Collection<IXMLExtension> getExtensions() {
@@ -36,20 +42,17 @@ public class XMLExtensionsRegistry {
 
 	public Collection<ICompletionParticipant> getCompletionParticipants() {
 		initializeIfNeeded();
-		return extensions.stream().filter(extension -> extension.getCompletionParticipant() != null)
-				.map(IXMLExtension::getCompletionParticipant).collect(Collectors.toList());
+		return completionParticipants;
 	}
 
 	public Collection<IHoverParticipant> getHoverParticipants() {
 		initializeIfNeeded();
-		return extensions.stream().filter(extension -> extension.getHoverParticipant() != null)
-				.map(IXMLExtension::getHoverParticipant).collect(Collectors.toList());
+		return hoverParticipants;
 	}
 
 	public Collection<IDiagnosticsParticipant> getDiagnosticsParticipants() {
 		initializeIfNeeded();
-		return extensions.stream().filter(extension -> extension.getDiagnosticsParticipant() != null)
-				.map(IXMLExtension::getDiagnosticsParticipant).collect(Collectors.toList());
+		return diagnosticsParticipants;
 	}
 
 	private void initializeIfNeeded() {
@@ -70,11 +73,37 @@ public class XMLExtensionsRegistry {
 		initialized = true;
 	}
 
-	public void registerExtension(IXMLExtension extension) {
+	void registerExtension(IXMLExtension extension) {
 		extensions.add(extension);
+		extension.start(this);
 	}
 
-	public void unregisterExtension(IXMLExtension extension) {
+	void unregisterExtension(IXMLExtension extension) {
 		extensions.remove(extension);
+		extension.stop(this);
+	}
+
+	public void registerCompletionParticipant(ICompletionParticipant completionParticipant) {
+		completionParticipants.add(completionParticipant);
+	}
+
+	public void unregisterCompletionParticipant(ICompletionParticipant completionParticipant) {
+		completionParticipants.add(completionParticipant);
+	}
+
+	public void registerHoverParticipant(IHoverParticipant hoverParticipant) {
+		hoverParticipants.add(hoverParticipant);
+	}
+
+	public void unregisterHoverParticipant(IHoverParticipant hoverParticipant) {
+		hoverParticipants.add(hoverParticipant);
+	}
+
+	public void registerDiagnosticsParticipant(IDiagnosticsParticipant diagnosticsParticipant) {
+		diagnosticsParticipants.add(diagnosticsParticipant);
+	}
+
+	public void unregisterDiagnosticsParticipant(IDiagnosticsParticipant diagnosticsParticipant) {
+		diagnosticsParticipants.add(diagnosticsParticipant);
 	}
 }

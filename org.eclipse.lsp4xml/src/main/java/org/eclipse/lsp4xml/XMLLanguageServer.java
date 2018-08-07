@@ -26,7 +26,7 @@ import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
-import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lsp4xml.services.XMLLanguageService;
 
 /**
  * XML language server.
@@ -39,13 +39,13 @@ public class XMLLanguageServer implements LanguageServer {
 	 */
 	private static final int FORCED_EXIT_CODE = 1;
 
-	private final XMLExtensionsRegistry xmlExtensionsRegistry;
+	private final XMLLanguageService xmlLanguageService;
 	private final XMLTextDocumentService xmlTextDocumentService;
 	private final XMLWorkspaceService xmlWorkspaceService;
 	private LanguageClient languageClient;
 
 	public XMLLanguageServer() {
-		xmlExtensionsRegistry = new XMLExtensionsRegistry();
+		xmlLanguageService = new XMLLanguageService();
 		xmlTextDocumentService = new XMLTextDocumentService(this);
 		xmlWorkspaceService = new XMLWorkspaceService(this);
 	}
@@ -104,7 +104,7 @@ public class XMLLanguageServer implements LanguageServer {
 		System.out.println(message);
 	}
 
-	public XMLExtensionsRegistry getXMLExtensionsRegistry() {
-		return xmlExtensionsRegistry;
+	public XMLLanguageService getXMLLanguageService() {
+		return xmlLanguageService;
 	}
 }

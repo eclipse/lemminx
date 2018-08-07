@@ -8,21 +8,21 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lsp4xml.contentmodel.extensions;
+package org.eclipse.lsp4xml.contentmodel.participants;
 
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.MarkupContent;
-import org.eclipse.lsp4xml.contentmodel.CMElement;
-import org.eclipse.lsp4xml.contentmodel.ContentModelManager;
+import org.eclipse.lsp4xml.contentmodel.model.CMElement;
+import org.eclipse.lsp4xml.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.model.Node;
-import org.eclipse.lsp4xml.services.extensions.IHoverParticipant;
+import org.eclipse.lsp4xml.services.extensions.HoverParticipantAdapter;
 import org.eclipse.lsp4xml.services.extensions.IHoverRequest;
 
 /**
  * Extension to support XML hover based on content model (XML Schema completion,
  * etc)
  */
-public class ContentModelHoverParticipant implements IHoverParticipant {
+public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 
 	@Override
 	public Hover onTag(IHoverRequest request) {

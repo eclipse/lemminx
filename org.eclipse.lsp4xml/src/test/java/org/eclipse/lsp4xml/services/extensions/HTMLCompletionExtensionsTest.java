@@ -28,12 +28,6 @@ import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.internal.parser.XMLParser;
 import org.eclipse.lsp4xml.model.XMLDocument;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
-import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
-import org.eclipse.lsp4xml.services.extensions.ICompletionParticipant;
-import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
-import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
-import org.eclipse.lsp4xml.services.extensions.XMLExtensionAdapter;
-import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -68,20 +62,20 @@ public class HTMLCompletionExtensionsTest {
 		testCompletionFor("<input |", Arrays.asList(r("type", "<input type=\"$1\""), //
 				r("style", "<input style=\"$1\""), //
 				r("onmousemove", "<input onmousemove=\"$1\"")));
-		
+
 		testCompletionFor("<input t|", Arrays.asList(r("type", "<input type=\"$1\""), //
 				r("style", "<input tabindex=\"$1\"")));
-		
+
 		testCompletionFor("<input t|ype", Arrays.asList(r("type", "<input type=\"$1\""), //
 				r("style", "<input tabindex=\"$1\"")));
-		
+
 		testCompletionFor("<input t|ype=\"text\"", Arrays.asList(r("type", "<input type=\"text\""), //
 				r("style", "<input tabindex=\"text\"")));
-		
+
 		testCompletionFor("<input type=\"text\" |", Arrays.asList(r("style", "<input type=\"text\" style=\"$1\""), //
 				r("type", "<input type=\"text\" style=\"$1\""), //
 				r("size", "<input type=\"text\" size=\"$1\"")));
-		
+
 		testCompletionFor("<input type=\"text\" s|", Arrays.asList(r("type", "<input type=\"text\""), //
 				r("src", "<input type=\"text\" src=\"$1\""), //
 				r("size", "<input type=\"text\" size=\"$1\"")));
@@ -96,9 +90,7 @@ public class HTMLCompletionExtensionsTest {
 		Position position = document.positionAt(offset);
 		XMLDocument htmlDoc = XMLParser.getInstance().parse(document);
 
-		XMLExtensionsRegistry registry = new XMLExtensionsRegistry();
-		registry.registerExtension(new HTMLPluginCompletion());
-		XMLLanguageService htmlLanguageService = new XMLLanguageService(registry);
+		XMLLanguageService htmlLanguageService = new HTMLLanguageService();
 		CompletionList list = htmlLanguageService.doComplete(htmlDoc, position, new CompletionSettings(),
 				new FormattingOptions(4, false));
 
@@ -153,60 +145,53 @@ public class HTMLCompletionExtensionsTest {
 		}
 	}
 
-	private static class HTMLPluginCompletion extends XMLExtensionAdapter implements ICompletionParticipant {
+	private static class HTMLLanguageService extends XMLLanguageService {
 
-		@Override
-		public ICompletionParticipant getCompletionParticipant() {
-			return this;
+		public HTMLLanguageService() {
+			super.registerCompletionParticipant(new HTMLCompletionParticipant());
 		}
 
-		@Override
-		public void onAttributeName(String value, Range replaceRange, ICompletionRequest completionRequest,
-				ICompletionResponse completionResponse) {
-			String tag = completionRequest.getCurrentTag();
-			HTMLTag htmlTag = HTMLTag.getHTMLTag(tag);
-			if (htmlTag != null) {
-				String[] attributes = htmlTag.getAttributes();
-				if (attributes != null) {
-					for (String attribute : attributes) {
-						if (!completionResponse.hasAttribute(attribute)) {
-							CompletionItem item = new CompletionItem();
-							item.setLabel(attribute);
-							item.setKind(CompletionItemKind.Value);
-							item.setTextEdit(new TextEdit(replaceRange, attribute + value));
-							item.setInsertTextFormat(InsertTextFormat.Snippet);
-							completionResponse.addCompletionAttribute(item);
+		class HTMLCompletionParticipant extends CompletionParticipantAdapter {
+
+			@Override
+			public void onAttributeName(String value, Range replaceRange, ICompletionRequest completionRequest,
+					ICompletionResponse completionResponse) {
+				String tag = completionRequest.getCurrentTag();
+				HTMLTag htmlTag = HTMLTag.getHTMLTag(tag);
+				if (htmlTag != null) {
+					String[] attributes = htmlTag.getAttributes();
+					if (attributes != null) {
+						for (String attribute : attributes) {
+							if (!completionResponse.hasAttribute(attribute)) {
+								CompletionItem item = new CompletionItem();
+								item.setLabel(attribute);
+								item.setKind(CompletionItemKind.Value);
+								item.setTextEdit(new TextEdit(replaceRange, attribute + value));
+								item.setInsertTextFormat(InsertTextFormat.Snippet);
+								completionResponse.addCompletionAttribute(item);
+							}
 						}
 					}
 				}
 			}
-		}
 
-		@Override
-		public void onAttributeValue(String valuePrefix, Range fullRange, ICompletionRequest request,
-				ICompletionResponse response) {
-		}
+			@Override
+			public void onTagOpen(ICompletionRequest completionRequest, ICompletionResponse completionResponse)
+					throws Exception {
+				Range range = completionRequest.getReplaceRange();
+				HTMLTag.HTML_TAGS.forEach(t -> {
+					String tag = t.getTag();
+					String label = t.getLabel();
+					CompletionItem item = new CompletionItem();
+					item.setLabel(tag);
+					item.setKind(CompletionItemKind.Property);
+					item.setDocumentation(Either.forLeft(label));
+					item.setTextEdit(new TextEdit(range, tag));
+					item.setInsertTextFormat(InsertTextFormat.PlainText);
+					completionResponse.addCompletionItem(item);
+				});
 
-		@Override
-		public void onXMLContent(ICompletionRequest request, ICompletionResponse response) {
-		}
-
-		@Override
-		public void onTagOpen(ICompletionRequest completionRequest, ICompletionResponse completionResponse)
-				throws Exception {
-			Range range = completionRequest.getReplaceRange();
-			HTMLTag.HTML_TAGS.forEach(t -> {
-				String tag = t.getTag();
-				String label = t.getLabel();
-				CompletionItem item = new CompletionItem();
-				item.setLabel(tag);
-				item.setKind(CompletionItemKind.Property);
-				item.setDocumentation(Either.forLeft(label));
-				item.setTextEdit(new TextEdit(range, tag));
-				item.setInsertTextFormat(InsertTextFormat.PlainText);
-				completionResponse.addCompletionItem(item);
-			});
-
+			}
 		}
 	}
 }

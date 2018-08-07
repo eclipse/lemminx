@@ -22,10 +22,6 @@ import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.internal.parser.XMLParser;
 import org.eclipse.lsp4xml.model.XMLDocument;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
-import org.eclipse.lsp4xml.services.extensions.IHoverParticipant;
-import org.eclipse.lsp4xml.services.extensions.IHoverRequest;
-import org.eclipse.lsp4xml.services.extensions.XMLExtensionAdapter;
-import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -66,10 +62,7 @@ public class HTMLHoverExtensionsTest {
 
 		Position position = document.positionAt(offset);
 
-		// Register HTML hover plugin in the language service.
-		XMLExtensionsRegistry registry = new XMLExtensionsRegistry();
-		registry.registerExtension(new HTMLHoverPlugin());
-		XMLLanguageService ls = new XMLLanguageService(registry);
+		XMLLanguageService ls = new HTMLLanguageService();
 		XMLDocument htmlDoc = XMLParser.getInstance().parse(document);
 
 		Hover hover = ls.doHover(htmlDoc, position);
@@ -92,20 +85,23 @@ public class HTMLHoverExtensionsTest {
 		return contents.getRight().getValue();
 	}
 
-	class HTMLHoverPlugin extends XMLExtensionAdapter implements IHoverParticipant {
+	private static class HTMLLanguageService extends XMLLanguageService {
 
-		@Override
-		public Hover onTag(IHoverRequest request) {
-			String tag = request.getCurrentTag();
-			String tagLabel = request.isOpen() ? "<" + tag + ">" : "</" + tag + ">";
-			MarkupContent content = new MarkupContent();
-			content.setValue(tagLabel);
-			return new Hover(content, request.getTagRange());
+		public HTMLLanguageService() {
+			// Register HTML hover participant in the language service.
+			super.registerHoverParticipant(new HTMLHoverParticipant());
 		}
 
-		@Override
-		public IHoverParticipant getHoverParticipant() {
-			return this;
+		class HTMLHoverParticipant extends HoverParticipantAdapter {
+
+			@Override
+			public Hover onTag(IHoverRequest request) {
+				String tag = request.getCurrentTag();
+				String tagLabel = request.isOpen() ? "<" + tag + ">" : "</" + tag + ">";
+				MarkupContent content = new MarkupContent();
+				content.setValue(tagLabel);
+				return new Hover(content, request.getTagRange());
+			}
 		}
 	}
 }

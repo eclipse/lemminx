@@ -70,7 +70,6 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	private final XMLLanguageServer xmlLanguageServer;
 	private final TextDocuments documents;
-	private final XMLLanguageService languageService;
 	private final LanguageModelCache<XMLDocument> xmlDocuments;
 	private final FormattingOptions sharedFormattingOptions;
 	private final CompletionSettings sharedCompletionSettings;
@@ -79,7 +78,6 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	public XMLTextDocumentService(XMLLanguageServer xmlLanguageServer) {
 		this.xmlLanguageServer = xmlLanguageServer;
-		this.languageService = new XMLLanguageService(xmlLanguageServer.getXMLExtensionsRegistry());
 		this.documents = new TextDocuments();
 		XMLParser parser = XMLParser.getInstance();
 		this.xmlDocuments = new LanguageModelCache<XMLDocument>(10, 60, document -> parser.parse(document));
@@ -106,7 +104,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 		return computeAsync((monitor) -> {
 			TextDocument document = documents.get(params.getTextDocument().getUri());
 			XMLDocument xmlDocument = getXMLDocument(document);
-			CompletionList list = languageService.doComplete(xmlDocument, params.getPosition(),
+			CompletionList list = getXMLLanguageService().doComplete(xmlDocument, params.getPosition(),
 					sharedCompletionSettings, sharedFormattingOptions);
 			return Either.forRight(list);
 		});
@@ -122,7 +120,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 		return computeAsync((monitor) -> {
 			TextDocument document = documents.get(params.getTextDocument().getUri());
 			XMLDocument xmlDocument = getXMLDocument(document);
-			return languageService.doHover(xmlDocument, params.getPosition());
+			return getXMLLanguageService().doHover(xmlDocument, params.getPosition());
 		});
 	}
 
@@ -146,7 +144,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 		return computeAsync((monitor) -> {
 			TextDocument document = documents.get(params.getTextDocument().getUri());
 			XMLDocument xmlDocument = getXMLDocument(document);
-			return languageService.findDocumentHighlights(xmlDocument, params.getPosition());
+			return getXMLLanguageService().findDocumentHighlights(xmlDocument, params.getPosition());
 		});
 	}
 
@@ -155,7 +153,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 		return computeAsync((monitor) -> {
 			TextDocument document = documents.get(params.getTextDocument().getUri());
 			XMLDocument xmlDocument = getXMLDocument(document);
-			return languageService.findDocumentSymbols(xmlDocument);
+			return getXMLLanguageService().findDocumentSymbols(xmlDocument);
 		});
 	}
 
@@ -178,7 +176,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	public CompletableFuture<List<? extends TextEdit>> formatting(DocumentFormattingParams params) {
 		return computeAsync((monitor) -> {
 			TextDocument document = documents.get(params.getTextDocument().getUri());
-			return languageService.format(document, null, params.getOptions());
+			return getXMLLanguageService().format(document, null, params.getOptions());
 		});
 	}
 
@@ -186,7 +184,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	public CompletableFuture<List<? extends TextEdit>> rangeFormatting(DocumentRangeFormattingParams params) {
 		return computeAsync((monitor) -> {
 			TextDocument document = documents.get(params.getTextDocument().getUri());
-			return languageService.format(document, params.getRange(), params.getOptions());
+			return getXMLLanguageService().format(document, params.getRange(), params.getOptions());
 		});
 	}
 
@@ -200,7 +198,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 		return computeAsync((monitor) -> {
 			TextDocument document = documents.get(params.getTextDocument().getUri());
 			XMLDocument xmlDocument = getXMLDocument(document);
-			return languageService.doRename(xmlDocument, params.getPosition(), params.getNewName());
+			return getXMLLanguageService().doRename(xmlDocument, params.getPosition(), params.getNewName());
 		});
 	}
 
@@ -236,7 +234,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	public CompletableFuture<List<FoldingRange>> foldingRanges(FoldingRangeRequestParams params) {
 		return computeAsync((monitor) -> {
 			TextDocument document = documents.get(params.getTextDocument().getUri());
-			return languageService.getFoldingRanges(document, sharedFoldingsSettings);
+			return getXMLLanguageService().getFoldingRanges(document, sharedFoldingsSettings);
 		});
 	}
 
@@ -251,12 +249,16 @@ public class XMLTextDocumentService implements TextDocumentService {
 		}
 		validationRequest = computeAsync((monitor) -> {
 			monitor.checkCanceled();
-			List<Diagnostic> diagnostics = languageService.doDiagnostics(document, monitor);
+			List<Diagnostic> diagnostics = getXMLLanguageService().doDiagnostics(document, monitor);
 			monitor.checkCanceled();
 			xmlLanguageServer.getLanguageClient()
 					.publishDiagnostics(new PublishDiagnosticsParams(document.getUri(), diagnostics));
 			return null;
 		});
+	}
+	
+	private XMLLanguageService getXMLLanguageService() {
+		return xmlLanguageServer.getXMLLanguageService();
 	}
 
 }

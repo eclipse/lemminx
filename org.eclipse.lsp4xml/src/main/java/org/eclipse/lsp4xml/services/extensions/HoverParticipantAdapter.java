@@ -1,5 +1,5 @@
 /**
- *  Copyright (c) 2018 Angelo ZERR
+ *  Copyright (c) 2018 Angelo ZERR.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -8,19 +8,19 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lsp4xml.contentmodel;
+package org.eclipse.lsp4xml.services.extensions;
+
+import org.eclipse.lsp4j.Hover;
 
 /**
- * Content model element which abstracts attribute declaration from a given
- * grammar (XML Schema, DTD).
+ * Hover participant adapter.
+ *
  */
-public interface CMAttribute {
+public class HoverParticipantAdapter implements IHoverParticipant {
 
-	/**
-	 * Returns the declared element name.
-	 * 
-	 * @return the declared element name.
-	 */
-	String getName();
+	@Override
+	public Hover onTag(IHoverRequest request) {
+		return null;
+	}
 
 }

@@ -23,8 +23,8 @@ import org.apache.xerces.xs.XSObjectList;
 import org.apache.xerces.xs.XSParticle;
 import org.apache.xerces.xs.XSTerm;
 import org.apache.xerces.xs.XSTypeDefinition;
-import org.eclipse.lsp4xml.contentmodel.CMAttribute;
-import org.eclipse.lsp4xml.contentmodel.CMElement;
+import org.eclipse.lsp4xml.contentmodel.model.CMAttribute;
+import org.eclipse.lsp4xml.contentmodel.model.CMElement;
 
 /**
  * XSD element declaration implementation.

@@ -1,4 +1,4 @@
-package org.eclipse.lsp4xml.contentmodel.extensions;
+package org.eclipse.lsp4xml.contentmodel.participants;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;

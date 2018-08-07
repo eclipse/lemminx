@@ -8,19 +8,18 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lsp4xml.contentmodel.extensions;
+package org.eclipse.lsp4xml.contentmodel.participants;
 
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
-import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.eclipse.lsp4xml.contentmodel.CMElement;
-import org.eclipse.lsp4xml.contentmodel.ContentModelManager;
+import org.eclipse.lsp4xml.contentmodel.model.CMElement;
+import org.eclipse.lsp4xml.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.contentmodel.utils.XMLGenerator;
 import org.eclipse.lsp4xml.model.Node;
 import org.eclipse.lsp4xml.model.XMLDocument;
-import org.eclipse.lsp4xml.services.extensions.ICompletionParticipant;
+import org.eclipse.lsp4xml.services.extensions.CompletionParticipantAdapter;
 import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
 
@@ -28,7 +27,7 @@ import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
  * Extension to support XML completion based on content model (XML Schema
  * completion, etc)
  */
-public class ContentModelCompletionParticipant implements ICompletionParticipant {
+public class ContentModelCompletionParticipant extends CompletionParticipantAdapter {
 
 	@Override
 	public void onTagOpen(ICompletionRequest request, ICompletionResponse response) throws Exception {
@@ -63,22 +62,6 @@ public class ContentModelCompletionParticipant implements ICompletionParticipant
 				}
 			}
 		}
-	}
-
-	@Override
-	public void onXMLContent(ICompletionRequest request, ICompletionResponse response) throws Exception {
-		// Do nothing
-	}
-
-	@Override
-	public void onAttributeName(String namePrefix, Range fullRange, ICompletionRequest request,
-			ICompletionResponse response) {
-
-	}
-
-	@Override
-	public void onAttributeValue(String valuePrefix, Range fullRange, ICompletionRequest request,
-			ICompletionResponse response) {
 	}
 
 	private static String getStartWhitespaces(String lineText) {

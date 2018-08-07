@@ -20,8 +20,8 @@ import org.apache.xerces.xs.XSConstants;
 import org.apache.xerces.xs.XSElementDeclaration;
 import org.apache.xerces.xs.XSModel;
 import org.apache.xerces.xs.XSNamedMap;
-import org.eclipse.lsp4xml.contentmodel.CMDocument;
-import org.eclipse.lsp4xml.contentmodel.CMElement;
+import org.eclipse.lsp4xml.contentmodel.model.CMDocument;
+import org.eclipse.lsp4xml.contentmodel.model.CMElement;
 import org.eclipse.lsp4xml.model.Node;
 import org.eclipse.lsp4xml.model.XMLDocument;
 

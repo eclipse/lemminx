@@ -11,7 +11,7 @@
 package org.eclipse.lsp4xml.contentmodel.xsd;
 
 import org.apache.xerces.xs.XSAttributeDeclaration;
-import org.eclipse.lsp4xml.contentmodel.CMAttribute;
+import org.eclipse.lsp4xml.contentmodel.model.CMAttribute;
 
 /**
  * XSD attribute declaration implementation.

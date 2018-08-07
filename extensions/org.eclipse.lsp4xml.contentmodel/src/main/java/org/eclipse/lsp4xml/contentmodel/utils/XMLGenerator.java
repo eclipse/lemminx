@@ -15,7 +15,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.lsp4j.FormattingOptions;
-import org.eclipse.lsp4xml.contentmodel.CMElement;
+import org.eclipse.lsp4xml.contentmodel.model.CMElement;
 import org.eclipse.lsp4xml.utils.XMLBuilder;
 
 /**

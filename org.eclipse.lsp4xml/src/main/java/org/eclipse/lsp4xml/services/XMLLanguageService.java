@@ -38,7 +38,7 @@ import toremove.org.eclipse.lsp4j.FoldingRangeCapabilities;
  * XML Language service.
  *
  */
-public class XMLLanguageService {
+public class XMLLanguageService extends XMLExtensionsRegistry {
 
 	private final XMLFormatter formatter;
 	private final XMLHighlighting highlighting;
@@ -49,17 +49,13 @@ public class XMLLanguageService {
 	private final XMLFoldings foldings;
 
 	public XMLLanguageService() {
-		this(new XMLExtensionsRegistry());
-	}
-
-	public XMLLanguageService(XMLExtensionsRegistry extensionsRegistry) {
-		this.formatter = new XMLFormatter(extensionsRegistry);
-		this.highlighting = new XMLHighlighting(extensionsRegistry);
-		this.symbolsProvider = new XMLSymbolsProvider(extensionsRegistry);
-		this.completions = new XMLCompletions(extensionsRegistry);
-		this.hover = new XMLHover(extensionsRegistry);
-		this.diagnostics = new XMLDiagnostics(extensionsRegistry);
-		this.foldings = new XMLFoldings(extensionsRegistry);
+		this.formatter = new XMLFormatter(this);
+		this.highlighting = new XMLHighlighting(this);
+		this.symbolsProvider = new XMLSymbolsProvider(this);
+		this.completions = new XMLCompletions(this);
+		this.hover = new XMLHover(this);
+		this.diagnostics = new XMLDiagnostics(this);
+		this.foldings = new XMLFoldings(this);
 	}
 
 	public List<? extends TextEdit> format(TextDocument document, Range range, FormattingOptions options) {
@@ -98,4 +94,5 @@ public class XMLLanguageService {
 		changes.put(xmlDocument.getUri(), textEdits);
 		return new WorkspaceEdit(changes);
 	}
+
 }

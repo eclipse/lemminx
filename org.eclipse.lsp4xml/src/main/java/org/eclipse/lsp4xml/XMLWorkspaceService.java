@@ -39,7 +39,7 @@ public class XMLWorkspaceService implements WorkspaceService {
 
 	@Override
 	public void didChangeConfiguration(DidChangeConfigurationParams params) {
-		for (IXMLExtension extension : xmlLanguageServer.getXMLExtensionsRegistry().getExtensions()) {
+		for (IXMLExtension extension : xmlLanguageServer.getXMLLanguageService().getExtensions()) {
 			extension.didChangeConfiguration(params);
 		}
 	}
