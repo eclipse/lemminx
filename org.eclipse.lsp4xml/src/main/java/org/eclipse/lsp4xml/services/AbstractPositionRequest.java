@@ -26,7 +26,6 @@ abstract class AbstractPositionRequest implements IPositionRequest {
 	private final Position position;
 	private final int offset;
 
-	private String currentTag;
 	private String currentAttributeName;
 	private final Node node;
 
@@ -75,16 +74,15 @@ abstract class AbstractPositionRequest implements IPositionRequest {
 
 	@Override
 	public String getCurrentTag() {
-		return currentTag;
+		if (node != null && node.tag != null) {
+			return node.tag;
+		}
+		return null;
 	}
 
 	@Override
 	public String getCurrentAttributeName() {
 		return currentAttributeName;
-	}
-
-	void setCurrentTag(String currentTag) {
-		this.currentTag = currentTag;
 	}
 
 	void setCurrentAttributeName(String currentAttributeName) {

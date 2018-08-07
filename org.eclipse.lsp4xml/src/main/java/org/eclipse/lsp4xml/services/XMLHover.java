@@ -15,7 +15,6 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.extensions.IHoverParticipant;
-import org.eclipse.lsp4xml.extensions.IHoverRequest;
 import org.eclipse.lsp4xml.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.internal.parser.Scanner;
 import org.eclipse.lsp4xml.internal.parser.TokenType;
@@ -50,19 +49,21 @@ class XMLHover {
 		if (node.endTagStart != null && offset >= node.endTagStart) {
 			Range tagRange = getTagNameRange(TokenType.EndTag, node.endTagStart, offset, xmlDocument);
 			if (tagRange != null) {
-				return getTagHover(hoverRequest); // getTagHover(node.tag, tagRange, false);
+				return getTagHover(hoverRequest, tagRange, false);
 			}
 			return null;
 		}
 
 		Range tagRange = getTagNameRange(TokenType.StartTag, node.start, offset, xmlDocument);
 		if (tagRange != null) {
-			return getTagHover(hoverRequest); // getTagHover(node.tag, tagRange, true);
+			return getTagHover(hoverRequest, tagRange, true);
 		}
 		return null;
 	}
 
-	private Hover getTagHover(IHoverRequest hoverRequest) {
+	private Hover getTagHover(HoverRequest hoverRequest, Range tagRange, boolean open) {
+		hoverRequest.setTagRange(tagRange);
+		hoverRequest.setOpen(open);
 		for (IHoverParticipant participant : extensionsRegistry.getHoverParticipants()) {
 			Hover hover = participant.onTag(hoverRequest);
 			if (hover != null) {

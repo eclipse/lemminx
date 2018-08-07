@@ -10,10 +10,15 @@
  */
 package org.eclipse.lsp4xml.extensions;
 
+import org.eclipse.lsp4j.Range;
+
 /**
  * Hover request API.
  *
  */
 public interface IHoverRequest extends IPositionRequest {
 
+	Range getTagRange();
+
+	boolean isOpen();
 }
