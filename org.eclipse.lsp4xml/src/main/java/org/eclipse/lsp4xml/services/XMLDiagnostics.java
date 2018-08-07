@@ -38,7 +38,6 @@ import org.eclipse.lsp4xml.internal.parser.Scanner;
 import org.eclipse.lsp4xml.internal.parser.Token;
 import org.eclipse.lsp4xml.internal.parser.TokenType;
 import org.eclipse.lsp4xml.internal.parser.XMLScanner;
-import org.eclipse.lsp4xml.model.XMLDocument;
 
 /**
  * XML diagnostics support.
@@ -47,7 +46,7 @@ import org.eclipse.lsp4xml.model.XMLDocument;
 class XMLDiagnostics {
 
 	private final XMLExtensionsRegistry extensionsRegistry;
-  private XMLDocument xmlDocument;
+  private TextDocument xmlDocument;
   private static final int ERROR_THRESHOLD = 25;
 
   /** A stack used for finding missing start- and end-tag pairs */
@@ -57,8 +56,8 @@ class XMLDiagnostics {
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
-	public List<Diagnostic> doDiagnostics(TextDocument document, CancelChecker monitor, XMLDocument xmlDocument) {
-		this.xmlDocument = xmlDocument;
+	public List<Diagnostic> doDiagnostics(TextDocument document, CancelChecker monitor) {
+		this.xmlDocument = document;
 		List<Diagnostic> diagnostics = new ArrayList<Diagnostic>();
 		try {
 			return doBasicDiagnostics(document, diagnostics, monitor);
@@ -91,6 +90,7 @@ class XMLDiagnostics {
     TokenType tokenType = scanner.scan();
     boolean wasEndRootTagFound = false;
     boolean wasStartRootTagFound = false;
+    boolean attributesUsed = false;
 		while (tokenType != TokenType.EOS) {
 			monitor.checkCanceled();
 			Token token = new Token(tokenType, scanner.getTokenText(), scanner.getTokenOffset(), scanner.getTokenEnd());
@@ -113,15 +113,30 @@ class XMLDiagnostics {
       
         checkForTagClose(previousRegion, diagnostics);
 
+        if(wasEndRootTagFound) { // Sets errors for illegal content outside of root
+          Token startToken = (Token) region.get(0);
+          if (!(startToken.type == TokenType.Content && tokenTextIsWhitespace(startToken.tokenText))) {
+            Token endToken = (Token) region.get(region.size() - 1);
+            int start = startToken.startOffset;
+            int end = endToken.endOffset;
+            if (start >= endRootTagOffset && tokenIsNotComment((Token) region.get(0))) {
+              String messageText = XMLDiagnosticMessages.TAGS_OUTSIDE_OF_ROOT_TAG
+                  + ((Token) endRootTagRegion.get(1)).tokenText;
+              createAndSetCustomDiagnostic(messageText, start, end, diagnostics);
+  
+            }
+          }
+          
+        }
 
       } else if ((tokenType == TokenType.StartTag) || (tokenType == TokenType.EndTag) || (tokenType == TokenType.AttributeName)
           || (tokenType == TokenType.DelimiterAssign) || (tokenType == TokenType.AttributeValue)
           || (tokenType == TokenType.Comment) || (tokenType == TokenType.Prolog)
           || (tokenType == TokenType.Doctype)) {
         region.add(token);
-        if(tokenType == TokenType.AttributeValue) {
-          checkAttributes(region, diagnostics);
-        }
+        // if(tokenType == TokenType.AttributeValue || tokenType == TokenType.AttributeName || tokenType == TokenType.DelimiterAssign) {
+        //   checkAttributes(region, diagnostics);
+        // }
       } else if ((tokenType == TokenType.EndProlog) || (tokenType == TokenType.StartTagClose) || (tokenType == TokenType.EndTagClose)
           || (tokenType == TokenType.StartTagSelfClose) || (tokenType == TokenType.EndCommentTag)
           || (tokenType == TokenType.CDATATagClose)) {
@@ -130,11 +145,7 @@ class XMLDiagnostics {
           wasStartRootTagFound = true;
           startRootTagRegion = region;
         }
-        if (wasEndRootTagFound == false && tokenType == TokenType.EndTagClose && endTagBelongsToRoot(startRootTagRegion,region)) {
-          endRootTagRegion = region;
-          wasEndRootTagFound = true;
-          endRootTagOffset = ((Token) region.get(endRootTagRegion.size() - 1)).endOffset;
-        }
+        
         if (tokenType == TokenType.EndProlog) {
           //checkNamespacesInProcessingInstruction(region, diagnostics);
         } else if (tokenType == TokenType.StartTagClose || tokenType == TokenType.EndTagClose || tokenType == TokenType.StartTagSelfClose) {
@@ -180,35 +191,26 @@ class XMLDiagnostics {
                   }
                 }
               }
-            } else if (first.type == TokenType.StartTagOpen || first.type == TokenType.EndTagOpen) {
+            } else if (first.type == TokenType.StartTagOpen) {
               checkAttributes(region, diagnostics);
-              if ((tokenType == TokenType.StartTagClose || tokenType == TokenType.EndTagClose) && tagStack != null && regionLength > 1) {
+              if ((tokenType == TokenType.StartTagClose) && tagStack != null && regionLength > 1) {
                 Token name = (Token) region.get(1);
-                if (name.type == TokenType.StartTag || name.type == TokenType.EndTag) {
+                if (name.type == TokenType.StartTag) {
                   tagStack.push(name);
                 }
               }
             }
           }
         }
+        if (wasEndRootTagFound == false && tokenType == TokenType.EndTagClose && endTagBelongsToRoot(startRootTagRegion,region)) {
+          endRootTagRegion = region;
+          wasEndRootTagFound = true;
+          endRootTagOffset = ((Token) region.get(endRootTagRegion.size() - 1)).endOffset;
+        }
+
         isClosed = true;
       }
-      if(wasEndRootTagFound) {
-        
-        Token startToken = (Token) region.get(0);
-        if (!(startToken.type == TokenType.Content && tokenTextIsWhitespace(startToken.tokenText))) {
-          Token endToken = (Token) region.get(region.size() - 1);
-          int start = startToken.startOffset;
-          int end = endToken.endOffset;
-          if (start >= endRootTagOffset && tokenIsNotComment((Token) region.get(0))) {
-            String messageText = XMLDiagnosticMessages.TAGS_OUTSIDE_OF_ROOT_TAG
-                + ((Token) endRootTagRegion.get(1)).tokenText;
-            createAndSetCustomDiagnostic(messageText, start, end, diagnostics);
-
-          }
-        }
-        
-      }
+      
       
 			tokenType = scanner.scan();
     }
@@ -221,8 +223,11 @@ class XMLDiagnostics {
         if (first.type == TokenType.StartProlog) {
           checkNamespacesInProcessingInstruction(region, diagnostics);
         }
-        if (first.type == TokenType.StartTagOpen) {
+        if (first.type == TokenType.StartTagOpen || first.type == TokenType.EndTagOpen) {
           checkForTagClose(region, diagnostics);
+        }
+        if (first.type == TokenType.StartTagOpen) {
+          checkAttributes(region, diagnostics);
         }
       }
     }
@@ -243,13 +248,19 @@ class XMLDiagnostics {
     if(startRoot == null || endRoot == null) {
       return false;
     }
-    return ((Token)startRoot.get(1)).tokenText.equals(((Token)endRoot.get(1)).tokenText);
+    return ((Token)startRoot.get(1)).tokenText.equals(((Token)endRoot.get(1)).tokenText) && tagStack.size() == 0;
   }
 
   private boolean tokenTextIsWhitespace(String tokenText) {
     return tokenText.trim().length() == 0;
   }
 
+  /**
+   * Checks that there is no content before the XML declaration
+   * 
+   * @param previousRegion the region prior to the processing instruction
+   * @param reporter       the reporter
+   */
 	private void checkContentBeforeProcessingInstruction(List previousRegion, List<Diagnostic> diagnostics) {
 		if (previousRegion != null && previousRegion.size() > 0) {
       Token first = (Token) previousRegion.get(0);

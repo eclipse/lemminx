@@ -17,6 +17,6 @@ public class XMLDiagnosticMessages {
   public static final String MISSING_CLOSED_QUOTE = "This attribute value is missing a closing quote";
   public static final String MISSING_BOTH_QUOTES = "This attribute value is missing quotes";
   public static final String END_TAG_HAD_ATTRIBUTES = "The end tag should not have attribute(s) in it";
-  public static final String TAGS_OUTSIDE_OF_ROOT_TAG = "Not well formed, tags should be inside root element: ";
+  public static final String TAGS_OUTSIDE_OF_ROOT_TAG = "Tag should be inside root element: ";
 
 }

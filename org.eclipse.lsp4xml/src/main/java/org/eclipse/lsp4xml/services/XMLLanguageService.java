@@ -79,8 +79,8 @@ public class XMLLanguageService {
 		return hover.doHover(xmlDocument, position);
 	}
 
-	public List<Diagnostic> doDiagnostics(TextDocument document, CancelChecker monitor, XMLDocument xmlDocument) {
-		return diagnostics.doDiagnostics(document, monitor, xmlDocument);
+	public List<Diagnostic> doDiagnostics(TextDocument document, CancelChecker monitor) {
+		return diagnostics.doDiagnostics(document, monitor);
 	}
 
 	public List<FoldingRange> getFoldingRanges(TextDocument document, FoldingRangeCapabilities context) {
