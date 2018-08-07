@@ -38,7 +38,7 @@ public class XMLScanner implements Scanner {
 
 	private static final Pattern ELEMENT_NAME_REGEX = Pattern.compile("^[_:\\w][_:\\w-.\\d]*");
 
-	private static final Pattern ATTRIBUTE_NAME_REGEX = Pattern.compile("^[^\\s\"'<>/=\\x00-\\x0F\\x7F\\x80-\\x9F]*");
+	private static final Pattern ATTRIBUTE_NAME_REGEX = Pattern.compile("^[^\\s\"'>/=\\x00-\\x0F\\x7F\\x80-\\x9F]*");
 
 	private static final Pattern ATTRIBUTE_VALUE_REGEX = Pattern.compile("^[^\\s\"'`=<>\\/]+");
 
@@ -176,7 +176,7 @@ public class XMLScanner implements Scanner {
 						localize("error.unexpectedWhitespace", "Tag name must directly follow the open bracket."));
 			}
 			state = ScannerState.WithinEndTag;
-			stream.advanceUntilChar(_RAN); // >
+			stream.advanceUntilChar(_RAN);
 			if (offset < stream.pos()) {
 				return finishToken(offset, TokenType.Unknown,
 						localize("error.endTagNameExpected", "End tag name expected."));
@@ -233,17 +233,9 @@ public class XMLScanner implements Scanner {
 				state = ScannerState.WithinContent;
 				return finishToken(offset, TokenType.StartTagClose);
 			}
-			state = ScannerState.WithinContent;
-			if(!stream.advanceUntilChar(_LAN)) { // <
-				return finishToken(offset, TokenType.EOS);
-			} 
-			else {
-				return internalScan();
-			}
-			
-			// stream.advance(1);
-			// return finishToken(offset, TokenType.Unknown,
-			// 		localize("error.unexpectedCharacterInTag", "Unexpected character in tag."));
+			stream.advance(1);
+			return finishToken(offset, TokenType.Unknown,
+					localize("error.unexpectedCharacterInTag", "Unexpected character in tag."));
 		case AfterAttributeName:
 			if (stream.skipWhitespace()) {
 				hasSpaceAfterTag = true;
@@ -294,7 +286,7 @@ public class XMLScanner implements Scanner {
 
 	private String localize(String string, String string2) {
 		// TODO Auto-generated method stub
-		return null;
+		return string;
 	}
 
 	@Override

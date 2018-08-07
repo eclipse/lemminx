@@ -315,14 +315,12 @@ class XMLDiagnostics {
           Token t = (Token) previousRegion.get(i);
           // Valid tag closings, EMPTY_TAG_CLOSE only works for a start tag, though
           if(first.type == TokenType.StartTagOpen) {
-            isClosed = (t.type == TokenType.StartTagClose || t.type == TokenType.StartTagSelfClose) ? true : false;
-            if(isClosed) {
+            if(isClosed = (t.type == TokenType.StartTagClose || t.type == TokenType.StartTagSelfClose) ? true : false) {
               break;
             }
           }
           if(first.type == TokenType.EndTagOpen) {
-            isClosed = t.type == TokenType.EndTagClose ? true : false;
-            if(isClosed) {
+            if(isClosed = t.type == TokenType.EndTagClose ? true : false) {
               break;
             }
           }
