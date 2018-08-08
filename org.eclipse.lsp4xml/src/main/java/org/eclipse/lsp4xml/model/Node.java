@@ -32,9 +32,11 @@ public class Node {
 	public int end;
 
 	public boolean isCDATA = false;
+	public boolean isProcessingInstruction = false;
 	public final Node parent;
 	private final XMLDocument ownerDocument;
 	public String content;
+	public boolean isProlog = false;
 
 	public Set<String> attributeNames() {
 		return this.attributes != null ? attributes.keySet() : Collections.emptySet();

@@ -154,6 +154,40 @@ public class XMLParser {
 				break;
 			}
 
+			case StartPrologOrPI: {
+				Node prologOrPINode = new Node(scanner.getTokenOffset(), text.length(), new ArrayList<>(), curr,
+						xmlDocument);
+				curr.children.add(prologOrPINode);
+				curr = prologOrPINode;
+				break;
+			}
+
+			case PIName: {
+				curr.tag = scanner.getTokenText();
+				curr.isProcessingInstruction = true;
+				curr.content = "";
+				break;
+			}
+
+			case PrologName: {
+				curr.tag = scanner.getTokenText();
+				curr.isProlog = true;
+				break;
+			}
+			
+			case PIContent: {
+				curr.content += scanner.getTokenText().trim();
+				break;
+			}
+
+			case PIEnd:
+			case PrologEnd: {
+				curr.end = scanner.getTokenEnd();
+				curr.closed = true;
+				curr = curr.parent;
+				break;
+			}
+
 			case Content: {
 				if (full) {
 					String content = scanner.getTokenText();
