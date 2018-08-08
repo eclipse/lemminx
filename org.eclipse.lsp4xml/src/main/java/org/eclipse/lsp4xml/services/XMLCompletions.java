@@ -381,7 +381,7 @@ class XMLCompletions {
 			try {
 				Range fullRange = getReplaceRange(valueStart, valueEnd, completionRequest);
 				for (ICompletionParticipant participant : completionParticipants) {
-					participant.onAttributeValue(valuePrefix, fullRange, completionRequest, completionResponse);
+					participant.onAttributeValue(valuePrefix, fullRange, addQuotes, completionRequest, completionResponse);
 				}
 			} catch (BadLocationException e) {
 				LOGGER.log(Level.SEVERE, "While performing Completions, getReplaceRange() was given a bad Offset location", e);

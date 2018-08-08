@@ -39,7 +39,7 @@ import org.junit.Test;
 public class HTMLCompletionExtensionsTest {
 
 	@Test
-	public void testHTMLCompletion() throws BadLocationException {
+	public void testHTMLElementCompletion() throws BadLocationException {
 
 		testCompletionFor("<|", Arrays.asList(r("iframe", "<iframe"), //
 				r("h1", "<h1"), //
@@ -58,6 +58,10 @@ public class HTMLCompletionExtensionsTest {
 		testCompletionFor("<inp|ut", Arrays.asList(r("input", "<input")));
 
 		testCompletionFor("<|inp", Arrays.asList(r("input", "<input")));
+	}
+
+	@Test
+	public void testHTMLAttributeNameCompletion() throws BadLocationException {
 
 		testCompletionFor("<input |", Arrays.asList(r("type", "<input type=\"$1\""), //
 				r("style", "<input style=\"$1\""), //
@@ -79,6 +83,23 @@ public class HTMLCompletionExtensionsTest {
 		testCompletionFor("<input type=\"text\" s|", Arrays.asList(r("type", "<input type=\"text\""), //
 				r("src", "<input type=\"text\" src=\"$1\""), //
 				r("size", "<input type=\"text\" size=\"$1\"")));
+
+		testCompletionFor("<input di| type=\"text\"",
+				Arrays.asList(r("disabled", "<input disabled=\"$1\" type=\"text\""), //
+						r("dir", "<input dir=\"$1\" type=\"text\"")));
+
+		testCompletionFor("<input disabled | type=\"text\"",
+				Arrays.asList(r("dir", "<input disabled dir=\"$1\" type=\"text\""), //
+						r("style", "<input disabled style=\"$1\" type=\"text\"")));
+
+	}
+
+	@Test
+	public void testHTMLAttributeValueCompletion() throws BadLocationException {
+
+		testCompletionFor("<input type=|", Arrays.asList(r("text", "<input type=\"text\""), //
+				r("checkbox", "<input type=\"checkbox\"")));
+
 	}
 
 	private static void testCompletionFor(String value, List<ItemDescription> expectedItems, Integer expectedCount)
@@ -154,28 +175,6 @@ public class HTMLCompletionExtensionsTest {
 		class HTMLCompletionParticipant extends CompletionParticipantAdapter {
 
 			@Override
-			public void onAttributeName(String value, Range replaceRange, ICompletionRequest completionRequest,
-					ICompletionResponse completionResponse) {
-				String tag = completionRequest.getCurrentTag();
-				HTMLTag htmlTag = HTMLTag.getHTMLTag(tag);
-				if (htmlTag != null) {
-					String[] attributes = htmlTag.getAttributes();
-					if (attributes != null) {
-						for (String attribute : attributes) {
-							if (!completionResponse.hasAttribute(attribute)) {
-								CompletionItem item = new CompletionItem();
-								item.setLabel(attribute);
-								item.setKind(CompletionItemKind.Value);
-								item.setTextEdit(new TextEdit(replaceRange, attribute + value));
-								item.setInsertTextFormat(InsertTextFormat.Snippet);
-								completionResponse.addCompletionAttribute(item);
-							}
-						}
-					}
-				}
-			}
-
-			@Override
 			public void onTagOpen(ICompletionRequest completionRequest, ICompletionResponse completionResponse)
 					throws Exception {
 				Range range = completionRequest.getReplaceRange();
@@ -190,7 +189,69 @@ public class HTMLCompletionExtensionsTest {
 					item.setInsertTextFormat(InsertTextFormat.PlainText);
 					completionResponse.addCompletionItem(item);
 				});
+			}
 
+			@Override
+			public void onAttributeName(String value, Range replaceRange, ICompletionRequest completionRequest,
+					ICompletionResponse completionResponse) {
+				String tag = completionRequest.getCurrentTag();
+				HTMLTag htmlTag = HTMLTag.getHTMLTag(tag);
+				if (htmlTag != null) {
+					String[] attributes = htmlTag.getAttributes();
+					if (attributes != null) {
+						for (String attribute : attributes) {
+							int index = attribute.indexOf(":");
+							if (index != -1) {
+								attribute = attribute.substring(0, index);
+							}
+							if (!completionResponse.hasAttribute(attribute)) {
+								CompletionItem item = new CompletionItem();
+								item.setLabel(attribute);
+								item.setKind(CompletionItemKind.Value);
+								item.setTextEdit(new TextEdit(replaceRange, attribute + value));
+								item.setInsertTextFormat(InsertTextFormat.Snippet);
+								completionResponse.addCompletionAttribute(item);
+							}
+						}
+					}
+				}
+			}
+
+			@Override
+			public void onAttributeValue(String valuePrefix, Range fullRange, boolean addQuotes, ICompletionRequest completionRequest,
+					ICompletionResponse completionResponse) {
+				String tag = completionRequest.getCurrentTag();
+				String attributeName = completionRequest.getCurrentAttributeName();
+				HTMLTag htmlTag = HTMLTag.getHTMLTag(tag);
+				if (htmlTag != null) {
+					String[] attributes = htmlTag.getAttributes();
+					if (attributes != null) {
+						for (String attribute : attributes) {
+							String attrName = attribute;
+							String attrType = null;
+							int index = attribute.indexOf(":");
+							if (index != -1) {
+								attrName = attribute.substring(0, index);
+								attrType = attribute.substring(index + 1, attribute.length());
+							}
+							if (attrType != null && attributeName.equals(attrName)) {
+								String[] values = HTMLTag.getAttributeValues(attrType);
+								for (String value : values) {
+									String insertText = addQuotes ? '"' + value + '"' : value;
+									
+									CompletionItem item = new CompletionItem();
+									item.setLabel(value);
+									item.setFilterText(insertText);
+									item.setKind(CompletionItemKind.Unit);
+									item.setTextEdit(new TextEdit(fullRange, insertText));
+									item.setInsertTextFormat(InsertTextFormat.PlainText);
+									completionResponse.addCompletionAttribute(item);
+								}
+									break;
+							}
+						}
+					}
+				}
 			}
 		}
 	}

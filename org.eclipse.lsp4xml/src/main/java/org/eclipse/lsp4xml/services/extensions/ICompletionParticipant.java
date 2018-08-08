@@ -24,7 +24,7 @@ public interface ICompletionParticipant {
 
 	void onAttributeName(String value, Range fullRange, ICompletionRequest request, ICompletionResponse response);
 
-	void onAttributeValue(String valuePrefix, Range fullRange, ICompletionRequest request,
+	void onAttributeValue(String valuePrefix, Range fullRange, boolean addQuotes, ICompletionRequest request,
 			ICompletionResponse response);
 
 }

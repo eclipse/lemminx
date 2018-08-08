@@ -12,6 +12,8 @@ package org.eclipse.lsp4xml.services.extensions;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -29,12 +31,21 @@ public class HTMLTag {
 			t("iframe", "The iframe element represents a nested browsing context."), //
 			t("input",
 					"The input element represents a typed data field, usually with a form control to allow the user to edit the data.", //
+					"dir", //
+					"disabled", //
 					"onmousemove", //
 					"size", //
 					"src", //
 					"style", //
 					"tabindex", //
-					"type"));
+					"type:t"));
+
+	private static final Map<String, String[]> valueSets;
+
+	static {
+		valueSets = new HashMap<>();
+		valueSets.put("t", new String[] { "text", "checkbox" });
+	}
 
 	private final String tag;
 	private final String label;
@@ -66,4 +77,9 @@ public class HTMLTag {
 		Optional<HTMLTag> htmlTag = HTML_TAGS.stream().filter(t -> t.getTag().equals(tag)).findFirst();
 		return htmlTag.isPresent() ? htmlTag.get() : null;
 	}
+
+	public static String[] getAttributeValues(String type) {
+		return valueSets.get(type);
+	}
+
 }

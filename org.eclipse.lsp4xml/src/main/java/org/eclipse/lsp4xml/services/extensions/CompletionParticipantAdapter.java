@@ -36,7 +36,7 @@ public class CompletionParticipantAdapter implements ICompletionParticipant {
 	}
 
 	@Override
-	public void onAttributeValue(String valuePrefix, Range fullRange, ICompletionRequest request,
+	public void onAttributeValue(String valuePrefix, Range fullRange, boolean addQuotes, ICompletionRequest request,
 			ICompletionResponse response) {
 		// Do nothing
 	}
