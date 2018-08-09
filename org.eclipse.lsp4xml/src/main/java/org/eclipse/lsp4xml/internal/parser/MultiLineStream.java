@@ -153,6 +153,9 @@ class MultiLineStream {
 		return false;
 	}
 
+	/**
+	 * Will advance the stream position until ch or '<'
+	 */
 	public boolean advanceUntilCharOrNewTag(int ch) {
 		while (this.position < this.len) {
 			if (peekChar() == ch || peekChar() == _LAN) {
