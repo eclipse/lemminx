@@ -15,6 +15,7 @@ import static org.eclipse.lsp4xml.internal.parser.Constants._LFD;
 import static org.eclipse.lsp4xml.internal.parser.Constants._NWL;
 import static org.eclipse.lsp4xml.internal.parser.Constants._TAB;
 import static org.eclipse.lsp4xml.internal.parser.Constants._WSP;
+import static org.eclipse.lsp4xml.internal.parser.Constants._LAN;
 
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
@@ -139,9 +140,55 @@ class MultiLineStream {
 		return false;
 	}
 
+	public boolean advanceUntilAnyOfChars(int... ch) {
+		while (this.position < this.len) {
+			for(int i = 0; i < ch.length; i ++) {
+				if (peekChar() == ch[i]) {
+					return true;
+				}
+			}
+			
+			this.advance(1);
+		}
+		return false;
+	}
+
+	public boolean advanceUntilCharOrNewTag(int ch) {
+		while (this.position < this.len) {
+			if (peekChar() == ch || peekChar() == _LAN) {
+				return true;
+			}
+			this.advance(1);
+		}
+		return false;
+	}
+
 	public boolean advanceUntilChars(int... ch) {
 		while (this.position + ch.length <= this.len) {
 			int i = 0;
+			for (; i < ch.length && peekChar(i) == ch[i]; i++) {
+			}
+			if (i == ch.length) {
+				return true;
+			}
+			this.advance(1);
+		}
+		this.goToEnd();
+		return false;
+	}
+
+	/**
+	 * Advances until it matches int[] ch OR it hits '<'
+	 * If this returns true, peek if next char is '<' to 
+	 * check which case was hit
+	 */
+	public boolean advanceUntilCharsOrNewTag(int... ch) {
+
+		while (this.position + ch.length <= this.len) {
+			int i = 0;
+			if(peekChar(0) == _LAN) { // <
+				return true;
+			}
 			for (; i < ch.length && peekChar(i) == ch[i]; i++) {
 			}
 			if (i == ch.length) {

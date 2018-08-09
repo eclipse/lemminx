@@ -139,6 +139,17 @@ public class XMLScannerTest {
 		assertOffsetAndToken(3, TokenType.StartTag, "len");
 	}
 
+	@Test
+	public void testName4a() {
+		scanner = XMLScanner.createScanner("i <len a");
+		assertOffsetAndToken(0, TokenType.Content);
+		assertOffsetAndToken(2, TokenType.StartTagOpen);
+		assertOffsetAndToken(3, TokenType.StartTag, "len");
+		assertOffsetAndToken(6, TokenType.Whitespace);
+		assertOffsetAndToken(7, TokenType.AttributeName);
+		assertOffsetAndToken(8, TokenType.EOS);
+	}
+
 
 	@Test
 	public void testName5() {
@@ -715,6 +726,109 @@ public class XMLScannerTest {
 		assertOffsetAndToken(1, TokenType.StartTag, "script");
 		assertOffsetAndToken(7, TokenType.StartTagClose);
 		assertOffsetAndToken(8, TokenType.Content);
+	}
+
+	@Test
+	public void testPrologNormal() {
+		scanner = XMLScanner.createScanner("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+		assertOffsetAndToken(0, TokenType.StartPrologOrPI);
+		assertOffsetAndToken(2, TokenType.PrologName, "xml");
+		assertOffsetAndToken(5, TokenType.Whitespace);
+		assertOffsetAndToken(6, TokenType.AttributeName);
+		assertOffsetAndToken(13, TokenType.DelimiterAssign);
+		assertOffsetAndToken(14, TokenType.AttributeValue);
+		assertOffsetAndToken(19, TokenType.Whitespace);
+		assertOffsetAndToken(20, TokenType.AttributeName);
+		assertOffsetAndToken(28, TokenType.DelimiterAssign);
+		assertOffsetAndToken(29, TokenType.AttributeValue);
+		assertOffsetAndToken(36, TokenType.PrologEnd);
+	}
+	@Test
+	public void testPrologInsideElement() {
+		scanner = XMLScanner.createScanner("<a><?xml version=\"1.0\" encoding=\"UTF-8\"?></a>");
+		assertOffsetAndToken(0, TokenType.StartTagOpen);
+		assertOffsetAndToken(1, TokenType.StartTag);
+		assertOffsetAndToken(2, TokenType.StartTagClose);
+		assertOffsetAndToken(0 + 3, TokenType.StartPrologOrPI);
+		assertOffsetAndToken(2 + 3, TokenType.PrologName, "xml");
+		assertOffsetAndToken(5 + 3, TokenType.Whitespace);
+		assertOffsetAndToken(6 + 3, TokenType.AttributeName);
+		assertOffsetAndToken(13 + 3, TokenType.DelimiterAssign);
+		assertOffsetAndToken(14 + 3, TokenType.AttributeValue);
+		assertOffsetAndToken(19 + 3, TokenType.Whitespace);
+		assertOffsetAndToken(20 + 3, TokenType.AttributeName);
+		assertOffsetAndToken(28 + 3, TokenType.DelimiterAssign);
+		assertOffsetAndToken(29 + 3, TokenType.AttributeValue);
+		assertOffsetAndToken(36 + 3, TokenType.PrologEnd);
+		assertOffsetAndToken(41, TokenType.EndTagOpen);
+		assertOffsetAndToken(43, TokenType.EndTag);
+		assertOffsetAndToken(44, TokenType.EndTagClose);
+	}
+
+	@Test
+	public void testPINormal() {
+		scanner = XMLScanner.createScanner("<?m2e execute onConfiguration?>");
+		assertOffsetAndToken(0, TokenType.StartPrologOrPI);
+		assertOffsetAndToken(2, TokenType.PIName, "m2e");
+		assertOffsetAndToken(5, TokenType.Whitespace);
+		assertOffsetAndToken(6, TokenType.PIContent);
+		assertOffsetAndToken(29, TokenType.PIEnd);
+	}
+
+	@Test
+	public void testPINormalInsideElement() {
+		scanner = XMLScanner.createScanner("<a><?m2e execute onConfiguration?></a>");
+		assertOffsetAndToken(0, TokenType.StartTagOpen);
+		assertOffsetAndToken(1, TokenType.StartTag);
+		assertOffsetAndToken(2, TokenType.StartTagClose);
+		assertOffsetAndToken(3, TokenType.StartPrologOrPI);
+		assertOffsetAndToken(5, TokenType.PIName, "m2e");
+		assertOffsetAndToken(8, TokenType.Whitespace);
+		assertOffsetAndToken(9, TokenType.PIContent);
+		assertOffsetAndToken(32, TokenType.PIEnd);
+		assertOffsetAndToken(34, TokenType.EndTagOpen);
+		assertOffsetAndToken(36, TokenType.EndTag);
+		assertOffsetAndToken(37, TokenType.EndTagClose);
+	}
+
+	@Test
+	public void testMissingClosingBracket() {
+		scanner = XMLScanner.createScanner("<a</a>");
+		assertOffsetAndToken(0, TokenType.StartTagOpen);
+		assertOffsetAndToken(1, TokenType.StartTag);
+		assertOffsetAndToken(2, TokenType.EndTagOpen);
+		assertOffsetAndToken(4, TokenType.EndTag);
+		assertOffsetAndToken(5, TokenType.EndTagClose);
+	}
+
+	@Test
+	public void testMissingClosingBracket2() {
+		scanner = XMLScanner.createScanner("<a></a<b></b>");
+		assertOffsetAndToken(0, TokenType.StartTagOpen);
+		assertOffsetAndToken(1, TokenType.StartTag);
+		assertOffsetAndToken(2, TokenType.StartTagClose);
+		assertOffsetAndToken(3, TokenType.EndTagOpen);
+		assertOffsetAndToken(5, TokenType.EndTag);
+		assertOffsetAndToken(6, TokenType.StartTagOpen);
+		assertOffsetAndToken(7, TokenType.StartTag);
+		assertOffsetAndToken(8, TokenType.StartTagClose);
+		assertOffsetAndToken(9, TokenType.EndTagOpen);
+		assertOffsetAndToken(11, TokenType.EndTag);
+		assertOffsetAndToken(12, TokenType.EndTagClose);
+	}
+
+	@Test
+	public void testCDATAWithBracketsInText() {
+		scanner = XMLScanner.createScanner("<a><![CDATA[<>]]></a>");
+		assertOffsetAndToken(0, TokenType.StartTagOpen);
+		assertOffsetAndToken(1, TokenType.StartTag);
+		assertOffsetAndToken(2, TokenType.StartTagClose);
+		assertOffsetAndToken(3, TokenType.CDATATagOpen);
+		assertOffsetAndToken(12, TokenType.CDATAContent);
+		assertOffsetAndToken(14, TokenType.CDATATagClose);
+		assertOffsetAndToken(17, TokenType.EndTagOpen);
+		assertOffsetAndToken(19, TokenType.EndTag);
+		assertOffsetAndToken(20, TokenType.EndTagClose);
 	}
   //----------Tools-------------------------------------------------------
 
