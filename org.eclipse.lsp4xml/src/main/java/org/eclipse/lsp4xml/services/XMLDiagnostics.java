@@ -96,7 +96,7 @@ class XMLDiagnostics {
 			Token token = new Token(tokenType, scanner.getTokenText(), scanner.getTokenOffset(), scanner.getTokenEnd());
       isClosed = false;
       if ((tokenType == TokenType.Content) 
-          || (tokenType == TokenType.StartProlog)
+          || (tokenType == TokenType.StartPrologOrPI)
           || (tokenType == TokenType.StartTagOpen) || (tokenType == TokenType.EndTagOpen)
           || (tokenType == TokenType.StartCommentTag) || (tokenType == TokenType.CDATATagOpen)
           ) {
@@ -105,7 +105,7 @@ class XMLDiagnostics {
         previousRegion = region;
         region = new ArrayList(0);
         region.add(token);
-        if (tokenType == TokenType.StartProlog) {
+        if (tokenType == TokenType.StartPrologOrPI) {
           checkContentBeforeProcessingInstruction(previousRegion, diagnostics);
         } else if (tokenType == TokenType.Content) {
            checkForSpaceBeforeName(token, previousRegion, diagnostics);
@@ -131,13 +131,12 @@ class XMLDiagnostics {
 
       } else if ((tokenType == TokenType.StartTag) || (tokenType == TokenType.EndTag) || (tokenType == TokenType.AttributeName)
           || (tokenType == TokenType.DelimiterAssign) || (tokenType == TokenType.AttributeValue)
-          || (tokenType == TokenType.Comment) || (tokenType == TokenType.Prolog)
-          || (tokenType == TokenType.Doctype)) {
+          || (tokenType == TokenType.Comment) || (tokenType == TokenType.Doctype)) {
         region.add(token);
         // if(tokenType == TokenType.AttributeValue || tokenType == TokenType.AttributeName || tokenType == TokenType.DelimiterAssign) {
         //   checkAttributes(region, diagnostics);
         // }
-      } else if ((tokenType == TokenType.EndProlog) || (tokenType == TokenType.StartTagClose) || (tokenType == TokenType.EndTagClose)
+      } else if ((tokenType == TokenType.PrologEnd) || (tokenType == TokenType.StartTagClose) || (tokenType == TokenType.EndTagClose)
           || (tokenType == TokenType.StartTagSelfClose) || (tokenType == TokenType.EndCommentTag)
           || (tokenType == TokenType.CDATATagClose)) {
         region.add(token);
@@ -146,7 +145,7 @@ class XMLDiagnostics {
           startRootTagRegion = region;
         }
         
-        if (tokenType == TokenType.EndProlog) {
+        if (tokenType == TokenType.PrologEnd) {
           //checkNamespacesInProcessingInstruction(region, diagnostics);
         } else if (tokenType == TokenType.StartTagClose || tokenType == TokenType.EndTagClose || tokenType == TokenType.StartTagSelfClose) {
           if(checkEmptyTag(region, diagnostics)) {
@@ -220,7 +219,7 @@ class XMLDiagnostics {
       final int regionLength = region.size();
       if (regionLength > 0) {
         final Token first = (Token) region.get(0);
-        if (first.type == TokenType.StartProlog) {
+        if (first.type == TokenType.StartPrologOrPI) {
           checkNamespacesInProcessingInstruction(region, diagnostics);
         }
         if (first.type == TokenType.StartTagOpen || first.type == TokenType.EndTagOpen) {
