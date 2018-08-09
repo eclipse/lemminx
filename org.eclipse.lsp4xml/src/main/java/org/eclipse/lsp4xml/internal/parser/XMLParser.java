@@ -111,7 +111,7 @@ public class XMLParser {
 				break;
 
 			case AttributeName: {
-				String attributeName = pendingAttribute = scanner.getTokenText();
+				pendingAttribute = scanner.getTokenText();
 				Map<String, String> attributes = curr.attributes;
 				if (attributes == null) {
 					curr.attributes = attributes = new HashMap<>();

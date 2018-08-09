@@ -117,6 +117,10 @@ public class XMLDocument extends Node {
 		return textDocument.getUri();
 	}
 
+	public TextDocument getTextDocument() {
+		return textDocument;
+	}
+
 	@Override
 	public XMLDocument getOwnerDocument() {
 		return this;

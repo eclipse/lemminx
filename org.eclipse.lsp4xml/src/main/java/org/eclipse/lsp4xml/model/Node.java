@@ -36,7 +36,6 @@ public class Node {
 	private final XMLDocument ownerDocument;
 	public String content;
 
-
 	public Set<String> attributeNames() {
 		return this.attributes != null ? attributes.keySet() : Collections.emptySet();
 	}
@@ -168,7 +167,8 @@ public class Node {
 	}
 
 	public String getAttributeValue(String name) {
-		String value =  this.attributes != null ? attributes.get(name) : null;;
+		String value = this.attributes != null ? attributes.get(name) : null;
+		;
 		if (value == null) {
 			return null;
 		}
@@ -176,9 +176,9 @@ public class Node {
 		char c = value.charAt(0);
 		if (c == '"' || c == '\'') {
 			if (value.charAt(value.length() - 1) == c) {
-				return value.substring(1 , value.length() - 1);
+				return value.substring(1, value.length() - 1);
 			}
-			return value.substring(1 , value.length());
+			return value.substring(1, value.length());
 		}
 		return value;
 	}
@@ -190,5 +190,9 @@ public class Node {
 			}
 		}
 		return false;
+	}
+
+	public boolean hasAttribute(String attribute) {
+		return attributes != null && attributes.containsKey(attribute);
 	}
 }

@@ -12,9 +12,9 @@ package org.eclipse.lsp4xml.services;
 
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4xml.commons.BadLocationException;
-import org.eclipse.lsp4xml.extensions.IPositionRequest;
 import org.eclipse.lsp4xml.model.Node;
 import org.eclipse.lsp4xml.model.XMLDocument;
+import org.eclipse.lsp4xml.services.extensions.IPositionRequest;
 
 /**
  * Abstract class for position request.
@@ -26,7 +26,6 @@ abstract class AbstractPositionRequest implements IPositionRequest {
 	private final Position position;
 	private final int offset;
 
-	private String currentTag;
 	private String currentAttributeName;
 	private final Node node;
 
@@ -48,6 +47,9 @@ abstract class AbstractPositionRequest implements IPositionRequest {
 	@Override
 	public Node getParentNode() {
 		Node currentNode = getNode();
+		if (currentNode.tag == null) {
+			return currentNode.parent;
+		}
 		int startTagEndOffset = currentNode.start + currentNode.tag.length() + ">".length();
 		if (!(offset > startTagEndOffset && offset < currentNode.end)) {
 			return currentNode.parent;
@@ -72,16 +74,15 @@ abstract class AbstractPositionRequest implements IPositionRequest {
 
 	@Override
 	public String getCurrentTag() {
-		return currentTag;
+		if (node != null && node.tag != null) {
+			return node.tag;
+		}
+		return null;
 	}
 
 	@Override
 	public String getCurrentAttributeName() {
 		return currentAttributeName;
-	}
-
-	void setCurrentTag(String currentTag) {
-		this.currentTag = currentTag;
 	}
 
 	void setCurrentAttributeName(String currentAttributeName) {

@@ -26,6 +26,7 @@ import static org.eclipse.lsp4xml.internal.parser.Constants._OSB;
 import static org.eclipse.lsp4xml.internal.parser.Constants._QMA;
 import static org.eclipse.lsp4xml.internal.parser.Constants._RAN;
 import static org.eclipse.lsp4xml.internal.parser.Constants._SQO;
+import static org.eclipse.lsp4xml.internal.parser.Constants._SIQ;
 import static org.eclipse.lsp4xml.internal.parser.Constants._TVL;
 import static org.eclipse.lsp4xml.internal.parser.Constants._XVL;
 
@@ -262,7 +263,7 @@ public class XMLScanner implements Scanner {
 				return finishToken(offset, TokenType.AttributeValue);
 			}
 			int ch = stream.peekChar();
-			if (ch == _SQO || ch == _DQO) {
+			if (ch == _SQO || ch == _DQO || ch == _SIQ) {
 				stream.advance(1); // consume quote
 				if (stream.advanceUntilChar(ch)) {
 					stream.advance(1); // consume quote

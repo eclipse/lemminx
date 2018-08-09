@@ -12,6 +12,8 @@ package org.eclipse.lsp4xml.services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
@@ -19,18 +21,18 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.SymbolKind;
 import org.eclipse.lsp4xml.commons.BadLocationException;
-import org.eclipse.lsp4xml.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.model.Node;
 import org.eclipse.lsp4xml.model.XMLDocument;
+import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 
 /**
  * XML symbol provider.
  *
  */
 class XMLSymbolsProvider {
-
+	private static final Logger LOGGER = Logger.getLogger(XMLSymbolsProvider.class.getName());
 	private final XMLExtensionsRegistry extensionsRegistry;
-
+	
 	public XMLSymbolsProvider(XMLExtensionsRegistry extensionsRegistry) {
 		this.extensionsRegistry = extensionsRegistry;
 	}
@@ -41,7 +43,7 @@ class XMLSymbolsProvider {
 			try {
 				provideFileSymbolsInternal(node, "", symbols);
 			} catch (BadLocationException e) {
-				e.printStackTrace();
+				LOGGER.log(Level.SEVERE, "XMLSymbolsProvider was given a BadLocation by a 'node' variable", e);
 			}
 		});
 		return symbols;
@@ -63,8 +65,7 @@ class XMLSymbolsProvider {
 			try {
 				provideFileSymbolsInternal(child, name, symbols);
 			} catch (BadLocationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				LOGGER.log(Level.SEVERE, "XMLSymbolsProvider was given a BadLocation by the provided 'node' variable", e);
 			}
 		});
 

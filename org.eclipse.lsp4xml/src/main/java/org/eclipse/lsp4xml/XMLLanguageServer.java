@@ -13,9 +13,12 @@ package org.eclipse.lsp4xml;
 import static org.eclipse.lsp4j.jsonrpc.CompletableFutures.computeAsync;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.InitializeParams;
@@ -26,8 +29,9 @@ import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
-import org.eclipse.lsp4xml.extensions.IXMLExtension;
-import org.eclipse.lsp4xml.extensions.XMLExtensionsRegistry;
+import org.eclipse.lsp4xml.services.XMLLanguageService;
+import org.eclipse.lsp4xml.utils.JSONUtility;
+import org.eclipse.lsp4xml.utils.LogHelper;
 
 /**
  * XML language server.
@@ -39,14 +43,15 @@ public class XMLLanguageServer implements LanguageServer {
 	 * Exit code returned when XML Language Server is forced to exit.
 	 */
 	private static final int FORCED_EXIT_CODE = 1;
+	private static final Logger LOGGER = Logger.getLogger(XMLLanguageServer.class.getName());
 
-	private final XMLExtensionsRegistry xmlExtensionsRegistry;
+	private final XMLLanguageService xmlLanguageService;
 	private final XMLTextDocumentService xmlTextDocumentService;
 	private final XMLWorkspaceService xmlWorkspaceService;
 	private LanguageClient languageClient;
 
 	public XMLLanguageServer() {
-		xmlExtensionsRegistry = new XMLExtensionsRegistry();
+		xmlLanguageService = new XMLLanguageService();
 		xmlTextDocumentService = new XMLTextDocumentService(this);
 		xmlWorkspaceService = new XMLWorkspaceService(this);
 	}
@@ -62,9 +67,16 @@ public class XMLLanguageServer implements LanguageServer {
 		capabilities.setDocumentFormattingProvider(true);
 		capabilities.setDocumentRangeFormattingProvider(true);
 		capabilities.setHoverProvider(true);
+		capabilities.setRenameProvider(true);
 		// capabilities.setExperimental("foldingRangeProvider: true");
 		InitializeResult result = new InitializeResult(capabilities);
+		LogHelper.initializeRootLogger(languageClient, getInitializationOptions(params));
 		return CompletableFuture.completedFuture(result);
+	}
+
+	public static Map<?, ?> getInitializationOptions(InitializeParams params) {
+		Map<?, ?> initOptions = JSONUtility.toModel(params.getInitializationOptions(), Map.class);
+		return initOptions == null ? Collections.emptyMap() : initOptions;
 	}
 
 	@Override
@@ -77,7 +89,7 @@ public class XMLLanguageServer implements LanguageServer {
 	@Override
 	public void exit() {
 		Executors.newSingleThreadScheduledExecutor().schedule(() -> {
-			logInfo("Forcing exit after 1 min.");
+			LOGGER.warning("Force exiting after 1 minute");
 			System.exit(FORCED_EXIT_CODE);
 		}, 1, TimeUnit.MINUTES);
 	}
@@ -100,11 +112,7 @@ public class XMLLanguageServer implements LanguageServer {
 		return languageClient;
 	}
 
-	private void logInfo(String message) {
-		System.out.println(message);
-	}
-
-	public XMLExtensionsRegistry getXMLExtensionsRegistry() {
-		return xmlExtensionsRegistry;
+	public XMLLanguageService getXMLLanguageService() {
+		return xmlLanguageService;
 	}
 }

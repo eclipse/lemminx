@@ -10,7 +10,10 @@
  */
 package org.eclipse.lsp4xml.services;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.Diagnostic;
@@ -21,11 +24,12 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.commons.TextDocument;
-import org.eclipse.lsp4xml.extensions.CompletionSettings;
-import org.eclipse.lsp4xml.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.model.XMLDocument;
+import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
+import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 
 import toremove.org.eclipse.lsp4j.FoldingRange;
 import toremove.org.eclipse.lsp4j.FoldingRangeCapabilities;
@@ -34,7 +38,7 @@ import toremove.org.eclipse.lsp4j.FoldingRangeCapabilities;
  * XML Language service.
  *
  */
-public class XMLLanguageService {
+public class XMLLanguageService extends XMLExtensionsRegistry {
 
 	private final XMLFormatter formatter;
 	private final XMLHighlighting highlighting;
@@ -42,20 +46,16 @@ public class XMLLanguageService {
 	private final XMLCompletions completions;
 	private final XMLHover hover;
 	private final XMLDiagnostics diagnostics;
-	private XMLFoldings foldings;
+	private final XMLFoldings foldings;
 
 	public XMLLanguageService() {
-		this(new XMLExtensionsRegistry());
-	}
-
-	public XMLLanguageService(XMLExtensionsRegistry extensionsRegistry) {
-		this.formatter = new XMLFormatter(extensionsRegistry);
-		this.highlighting = new XMLHighlighting(extensionsRegistry);
-		this.symbolsProvider = new XMLSymbolsProvider(extensionsRegistry);
-		this.completions = new XMLCompletions(extensionsRegistry);
-		this.hover = new XMLHover(extensionsRegistry);
-		this.diagnostics = new XMLDiagnostics(extensionsRegistry);
-		this.foldings = new XMLFoldings(extensionsRegistry);
+		this.formatter = new XMLFormatter(this);
+		this.highlighting = new XMLHighlighting(this);
+		this.symbolsProvider = new XMLSymbolsProvider(this);
+		this.completions = new XMLCompletions(this);
+		this.hover = new XMLHover(this);
+		this.diagnostics = new XMLDiagnostics(this);
+		this.foldings = new XMLFoldings(this);
 	}
 
 	public List<? extends TextEdit> format(TextDocument document, Range range, FormattingOptions options) {
@@ -86,4 +86,13 @@ public class XMLLanguageService {
 	public List<FoldingRange> getFoldingRanges(TextDocument document, FoldingRangeCapabilities context) {
 		return foldings.getFoldingRanges(document, context);
 	}
+
+	public WorkspaceEdit doRename(XMLDocument xmlDocument, Position position, String newText) {
+		List<TextEdit> textEdits = findDocumentHighlights(xmlDocument, position).stream()
+				.map(h -> new TextEdit(h.getRange(), newText)).collect(Collectors.toList());
+		Map<String, List<TextEdit>> changes = new HashMap<>();
+		changes.put(xmlDocument.getUri(), textEdits);
+		return new WorkspaceEdit(changes);
+	}
+
 }

@@ -17,16 +17,17 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
-import org.eclipse.lsp4xml.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.internal.parser.Scanner;
 import org.eclipse.lsp4xml.internal.parser.TokenType;
 import org.eclipse.lsp4xml.internal.parser.XMLScanner;
-import org.eclipse.lsp4xml.model.XMLDocument;
+import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 
 import toremove.org.eclipse.lsp4j.FoldingRange;
 import toremove.org.eclipse.lsp4j.FoldingRangeCapabilities;
@@ -37,7 +38,7 @@ import toremove.org.eclipse.lsp4j.FoldingRangeKind;
  *
  */
 class XMLFoldings {
-
+	private static Logger LOGGER = Logger.getLogger(XMLFoldings.class.getName());
 	private final XMLExtensionsRegistry extensionsRegistry;
 
 	private static final Pattern REGION_PATTERN = Pattern.compile("\\s*#(region\\b)|(endregion\\b)");
@@ -149,7 +150,7 @@ class XMLFoldings {
 				ranges = limitRanges(ranges, rangeLimit);
 			}
 		} catch (BadLocationException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, "Foldings received a BadLocation while scanning the document", e);
 		}
 		return ranges;
 	}

@@ -15,8 +15,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.lsp4xml.commons.TextDocument;
-import org.eclipse.lsp4xml.internal.parser.XMLParser;
-import org.eclipse.lsp4xml.model.XMLDocument;
 import org.junit.Assert;
 import org.junit.Test;
 

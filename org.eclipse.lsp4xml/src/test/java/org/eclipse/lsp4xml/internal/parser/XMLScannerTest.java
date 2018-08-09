@@ -483,6 +483,18 @@ public class XMLScannerTest {
 		assertOffsetAndToken(14, TokenType.StartTagClose);
 	}
 
+	@Test
+	public void testAttributeSingleQuote() {
+		scanner = XMLScanner.createScanner("<abc foo=\'bar\'>");
+		assertOffsetAndToken(0, TokenType.StartTagOpen);
+		assertOffsetAndToken(1, TokenType.StartTag, "abc");
+		assertOffsetAndToken(4, TokenType.Whitespace);
+		assertOffsetAndToken(5, TokenType.AttributeName);
+		assertOffsetAndToken(8, TokenType.DelimiterAssign);
+		assertOffsetAndToken(9, TokenType.AttributeValue);
+		assertOffsetAndToken(14, TokenType.StartTagClose);
+	}
+
 
 	@Test
 	public void testName32() {

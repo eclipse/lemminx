@@ -13,6 +13,8 @@ package org.eclipse.lsp4xml.services;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.Position;
@@ -20,10 +22,10 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
-import org.eclipse.lsp4xml.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.internal.parser.XMLParser;
 import org.eclipse.lsp4xml.model.Node;
 import org.eclipse.lsp4xml.model.XMLDocument;
+import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.utils.XMLBuilder;
 
 /**
@@ -31,9 +33,8 @@ import org.eclipse.lsp4xml.utils.XMLBuilder;
  *
  */
 class XMLFormatter {
-
+	private static final Logger LOGGER = Logger.getLogger(XMLFormatter.class.getName());
 	private final XMLExtensionsRegistry extensionsRegistry;
-
 	public XMLFormatter(XMLExtensionsRegistry extensionsRegistry) {
 		this.extensionsRegistry = extensionsRegistry;
 	}
@@ -69,7 +70,7 @@ class XMLFormatter {
 			return edits;
 
 		} catch (BadLocationException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, "Formatting failed due to BadLocation from 'range' parameter", e);
 		}
 		return null;
 	}
