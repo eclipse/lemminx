@@ -1,0 +1,28 @@
+<html>
+<head>
+<script type="text/javascript" src="expand-full.js"></script>
+<script type="text/javascript">
+	function f() {
+		
+		var syntax = document.getElementById('isXSL').checked ? 'xsl' : 'xml';
+		var options = {snippets : emmet.createSnippetsRegistry(null, syntax, {})};
+		
+		var input = document.getElementById('abbr');
+		var result = emmet.expand(input.value);
+		document.getElementById('result').innerText = result;
+	}
+</script>
+</head>
+<body onload="f()">
+
+
+	<input type="text" id="abbr" value="a>b" oninput="f()" /> XSL?
+	<input type=checkbox id="isXSL" /> (if xsl, type wh -> see
+	<a
+		href="https://github.com/emmetio/emmet/blob/master/lib/snippets.json#L920">https://github.com/emmetio/emmet/blob/master/lib/snippets.json#L920
+	</a>)
+
+	<div id="result"></div>
+</body>
+
+</html>

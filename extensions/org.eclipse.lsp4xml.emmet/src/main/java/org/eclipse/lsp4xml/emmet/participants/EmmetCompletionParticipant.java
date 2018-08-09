@@ -10,6 +10,11 @@
  */
 package org.eclipse.lsp4xml.emmet.participants;
 
+import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.CompletionList;
+import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4xml.commons.TextDocument;
+import org.eclipse.lsp4xml.emmet.utils.EmmetHelper;
 import org.eclipse.lsp4xml.services.extensions.CompletionParticipantAdapter;
 import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
@@ -21,7 +26,15 @@ public class EmmetCompletionParticipant extends CompletionParticipantAdapter {
 	
 	@Override
 	public void onXMLContent(ICompletionRequest request, ICompletionResponse response) throws Exception {
-		// TODO ...
+		Position position = request.getPosition();
+		TextDocument document = request.getXMLDocument().getTextDocument();
+		String syntax = document.getUri().endsWith(".xsl") ? "xsl" : "xml";
+		CompletionList list = EmmetHelper.doComplete(document, position, syntax, null);
+		if (list != null) {
+			for (CompletionItem item : list.getItems()) {
+				response.addCompletionItem(item);
+			}
+		}
 	}
 
 }
