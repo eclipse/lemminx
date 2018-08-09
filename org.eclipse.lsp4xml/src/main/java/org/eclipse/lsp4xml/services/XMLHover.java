@@ -69,9 +69,13 @@ class XMLHover {
 		hoverRequest.setTagRange(tagRange);
 		hoverRequest.setOpen(open);
 		for (IHoverParticipant participant : extensionsRegistry.getHoverParticipants()) {
-			Hover hover = participant.onTag(hoverRequest);
-			if (hover != null) {
-				return hover;
+			try {
+				Hover hover = participant.onTag(hoverRequest);
+				if (hover != null) {
+					return hover;
+				}
+			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE, "While performing IHoverParticipant#onTag", e);
 			}
 		}
 		return null;

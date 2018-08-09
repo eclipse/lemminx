@@ -21,7 +21,7 @@ import org.apache.xerces.xs.XSElementDeclaration;
 import org.apache.xerces.xs.XSModel;
 import org.apache.xerces.xs.XSNamedMap;
 import org.eclipse.lsp4xml.contentmodel.model.CMDocument;
-import org.eclipse.lsp4xml.contentmodel.model.CMElement;
+import org.eclipse.lsp4xml.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lsp4xml.model.Node;
 import org.eclipse.lsp4xml.model.XMLDocument;
 
@@ -33,16 +33,16 @@ public class XSDDocument implements CMDocument {
 
 	private final XSModel model;
 
-	private final Map<XSElementDeclaration, XSDElement> elementMappings;
+	private final Map<XSElementDeclaration, XSDElementDeclaration> elementMappings;
 
-	private Collection<CMElement> elements;
+	private Collection<CMElementDeclaration> elements;
 
 	public XSDDocument(XSModel model) {
 		this.model = model;
 		this.elementMappings = new HashMap<>();
 	}
 
-	private Collection<CMElement> getElements() {
+	private Collection<CMElementDeclaration> getElements() {
 		if (elements == null) {
 			elements = new ArrayList<>();
 			XSNamedMap map = model.getComponents(XSConstants.ELEMENT_DECLARATION);
@@ -55,7 +55,7 @@ public class XSDDocument implements CMDocument {
 	}
 
 	@Override
-	public CMElement findCMElement(Node node) {
+	public CMElementDeclaration findCMElement(Node node) {
 		String namespace = node.getOwnerDocument().getNamespaceURI();
 		List<Node> paths = new ArrayList<>();
 		Node element = node;
@@ -63,7 +63,7 @@ public class XSDDocument implements CMDocument {
 			paths.add(0, element);
 			element = element.parent;
 		}
-		CMElement declaration = null;
+		CMElementDeclaration declaration = null;
 		for (int i = 0; i < paths.size(); i++) {
 			Node elt = paths.get(i);
 			if (i == 0) {
@@ -78,8 +78,8 @@ public class XSDDocument implements CMDocument {
 		return declaration;
 	}
 
-	private CMElement findElementDeclaration(String tag, String namespace) {
-		for (CMElement cmElement : getElements()) {
+	private CMElementDeclaration findElementDeclaration(String tag, String namespace) {
+		for (CMElementDeclaration cmElement : getElements()) {
 			if (cmElement.getName().equals(tag)) {
 				return cmElement;
 			}
@@ -87,10 +87,10 @@ public class XSDDocument implements CMDocument {
 		return null;
 	}
 
-	CMElement getXSDElement(XSElementDeclaration elementDeclaration) {
-		XSDElement element = elementMappings.get(elementDeclaration);
+	CMElementDeclaration getXSDElement(XSElementDeclaration elementDeclaration) {
+		XSDElementDeclaration element = elementMappings.get(elementDeclaration);
 		if (element == null) {
-			element = new XSDElement(this, elementDeclaration);
+			element = new XSDElementDeclaration(this, elementDeclaration);
 			elementMappings.put(elementDeclaration, element);
 		}
 		return element;

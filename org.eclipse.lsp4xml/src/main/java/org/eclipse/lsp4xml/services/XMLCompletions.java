@@ -290,7 +290,7 @@ class XMLCompletions {
 			try {
 				participant.onXMLContent(request, response);
 			} catch (Exception e) {
-				e.printStackTrace();
+				LOGGER.log(Level.SEVERE, "While performing ICompletionParticipant#onXMLContent", e);
 			}
 		}
 		collectCharacterEntityProposals(request, response);
@@ -336,7 +336,10 @@ class XMLCompletions {
 				participant.onAttributeName(value, range, completionRequest, completionResponse);
 			}
 		} catch (BadLocationException e) {
-			LOGGER.log(Level.SEVERE, "While performing Completions, getReplaceRange() was given a bad Offset location", e);
+			LOGGER.log(Level.SEVERE, "While performing Completions, getReplaceRange() was given a bad Offset location",
+					e);
+		} catch (Exception e) {
+			LOGGER.log(Level.SEVERE, "While performing ICompletionParticipant#onAttributeName", e);
 		}
 	}
 
@@ -360,7 +363,8 @@ class XMLCompletions {
 			try {
 				range = getReplaceRange(wsBefore, wsAfter, completionRequest);
 			} catch (BadLocationException e) {
-				LOGGER.log(Level.SEVERE, "While performing Completions, getReplaceRange() was given a bad Offset location", e);
+				LOGGER.log(Level.SEVERE,
+						"While performing Completions, getReplaceRange() was given a bad Offset location", e);
 			}
 			valuePrefix = offset >= valueContentStart && offset <= valueContentEnd
 					? text.substring(valueContentStart, offset)
@@ -370,7 +374,8 @@ class XMLCompletions {
 			try {
 				range = getReplaceRange(valueStart, valueEnd, completionRequest);
 			} catch (BadLocationException e) {
-				LOGGER.log(Level.SEVERE, "While performing Completions, getReplaceRange() was given a bad Offset location", e);
+				LOGGER.log(Level.SEVERE,
+						"While performing Completions, getReplaceRange() was given a bad Offset location", e);
 			}
 			valuePrefix = text.substring(valueStart, offset);
 			addQuotes = true;
@@ -381,10 +386,14 @@ class XMLCompletions {
 			try {
 				Range fullRange = getReplaceRange(valueStart, valueEnd, completionRequest);
 				for (ICompletionParticipant participant : completionParticipants) {
-					participant.onAttributeValue(valuePrefix, fullRange, addQuotes, completionRequest, completionResponse);
+					participant.onAttributeValue(valuePrefix, fullRange, addQuotes, completionRequest,
+							completionResponse);
 				}
 			} catch (BadLocationException e) {
-				LOGGER.log(Level.SEVERE, "While performing Completions, getReplaceRange() was given a bad Offset location", e);
+				LOGGER.log(Level.SEVERE,
+						"While performing Completions, getReplaceRange() was given a bad Offset location", e);
+			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE, "While performing ICompletionParticipant#onAttributeValue", e);
 			}
 		}
 	}

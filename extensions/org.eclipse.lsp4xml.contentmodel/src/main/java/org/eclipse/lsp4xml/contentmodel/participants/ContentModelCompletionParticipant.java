@@ -10,11 +10,15 @@
  */
 package org.eclipse.lsp4xml.contentmodel.participants;
 
+import java.util.Collection;
+
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.eclipse.lsp4xml.contentmodel.model.CMElement;
+import org.eclipse.lsp4xml.contentmodel.model.CMAttributeDeclaration;
+import org.eclipse.lsp4xml.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lsp4xml.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.contentmodel.utils.XMLGenerator;
 import org.eclipse.lsp4xml.model.Node;
@@ -32,8 +36,8 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	@Override
 	public void onTagOpen(ICompletionRequest request, ICompletionResponse response) throws Exception {
 		Node element = request.getParentNode();
-		CMElement cmlElement = ContentModelManager.getInstance().findCMElement(element);
-		if (cmlElement != null) {
+		CMElementDeclaration cmElement = ContentModelManager.getInstance().findCMElement(element);
+		if (cmElement != null) {
 			XMLDocument document = element.getOwnerDocument();
 			int lineNumber = request.getPosition().getLine();
 			String lineText = document.lineText(lineNumber);
@@ -42,7 +46,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 
 			XMLGenerator generator = new XMLGenerator(request.getFormattingSettings(), whitespacesIndent,
 					lineDelimiter);
-			for (CMElement child : cmlElement.getElements()) {
+			for (CMElementDeclaration child : cmElement.getElements()) {
 				String tag = child.getName();
 				if (!element.hasTag(tag)) {
 					String label = child.getName();
@@ -60,6 +64,43 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 					item.setInsertTextFormat(InsertTextFormat.Snippet);
 					response.addCompletionItem(item);
 				}
+			}
+		}
+	}
+
+	@Override
+	public void onAttributeName(String value, Range fullRange, ICompletionRequest completionRequest,
+			ICompletionResponse completionResponse) throws Exception {
+		Node element = completionRequest.getParentNode();
+		CMElementDeclaration cmElement = ContentModelManager.getInstance().findCMElement(element);
+		if (cmElement != null) {
+			Collection<CMAttributeDeclaration> attributes = cmElement.getAttributes();
+			if (attributes != null) {
+				for (CMAttributeDeclaration cmAttribute : attributes) {
+					String attrName = cmAttribute.getName();
+					if (!element.hasAttribute(attrName)) {
+						CompletionItem item = new CompletionItem();
+						item.setLabel(attrName);
+						item.setKind(CompletionItemKind.Value);
+						item.setTextEdit(new TextEdit(fullRange, attrName + value));
+						item.setInsertTextFormat(InsertTextFormat.Snippet);
+						completionResponse.addCompletionAttribute(item);
+					}
+				}
+			}
+		}
+	}
+	
+	@Override
+	public void onAttributeValue(String valuePrefix, Range fullRange, boolean addQuotes, ICompletionRequest completionRequest,
+			ICompletionResponse completionResponse) throws Exception {
+		Node element = completionRequest.getParentNode();
+		CMElementDeclaration cmElement = ContentModelManager.getInstance().findCMElement(element);
+		if (cmElement != null) {
+			String attributeName = completionRequest.getCurrentAttributeName();
+			CMAttributeDeclaration cmAttribute = cmElement.findCMAttribute(attributeName);
+			if (cmAttribute != null) {
+				
 			}
 		}
 	}

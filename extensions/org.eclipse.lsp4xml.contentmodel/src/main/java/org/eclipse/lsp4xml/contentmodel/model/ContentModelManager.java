@@ -70,7 +70,7 @@ public class ContentModelManager {
 	 * @return the declared element which matches the given XML element and null
 	 *         otherwise.
 	 */
-	public CMElement findCMElement(Node element) throws Exception {
+	public CMElementDeclaration findCMElement(Node element) throws Exception {
 		XMLDocument xmlDocument = element.getOwnerDocument();
 		SchemaLocation schemaLocation = xmlDocument.getSchemaLocation();
 		if (schemaLocation == null) {

@@ -14,7 +14,7 @@ package org.eclipse.lsp4xml.contentmodel.model;
  * Content model element which abstracts attribute declaration from a given
  * grammar (XML Schema, DTD).
  */
-public interface CMAttribute {
+public interface CMAttributeDeclaration {
 
 	/**
 	 * Returns the declared element name.
@@ -23,4 +23,5 @@ public interface CMAttribute {
 	 */
 	String getName();
 
+	 String getDocumentation();
 }

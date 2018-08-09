@@ -12,7 +12,7 @@ package org.eclipse.lsp4xml.contentmodel.participants;
 
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.MarkupContent;
-import org.eclipse.lsp4xml.contentmodel.model.CMElement;
+import org.eclipse.lsp4xml.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lsp4xml.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.model.Node;
 import org.eclipse.lsp4xml.services.extensions.HoverParticipantAdapter;
@@ -25,21 +25,22 @@ import org.eclipse.lsp4xml.services.extensions.IHoverRequest;
 public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 
 	@Override
-	public Hover onTag(IHoverRequest request) {
-		try {
-			Node node = request.getNode();
-			CMElement cmlElement = ContentModelManager.getInstance().findCMElement(node);
-			if (cmlElement != null) {
-				String doc = cmlElement.getDocumentation();
-				if (doc != null && doc.length() > 0) {
-					MarkupContent content = new MarkupContent();
-					content.setValue(doc);
-					return new Hover(content);
-				}
+	public Hover onTag(IHoverRequest request) throws Exception {
+		Node node = request.getNode();
+		CMElementDeclaration cmlElement = ContentModelManager.getInstance().findCMElement(node);
+		if (cmlElement != null) {
+			String doc = cmlElement.getDocumentation();
+			if (doc != null && doc.length() > 0) {
+				MarkupContent content = new MarkupContent();
+				content.setValue(doc);
+				return new Hover(content);
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
+		return null;
+	}
+
+	@Override
+	public Hover onAttributeValue(IHoverRequest request) throws Exception {
 		return null;
 	}
 

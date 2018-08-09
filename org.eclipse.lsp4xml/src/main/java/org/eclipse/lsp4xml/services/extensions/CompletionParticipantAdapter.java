@@ -31,13 +31,13 @@ public class CompletionParticipantAdapter implements ICompletionParticipant {
 
 	@Override
 	public void onAttributeName(String value, Range fullRange, ICompletionRequest request,
-			ICompletionResponse response) {
+			ICompletionResponse response) throws Exception {
 		// Do nothing
 	}
 
 	@Override
 	public void onAttributeValue(String valuePrefix, Range fullRange, boolean addQuotes, ICompletionRequest request,
-			ICompletionResponse response) {
+			ICompletionResponse response) throws Exception {
 		// Do nothing
 	}
 

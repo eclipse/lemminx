@@ -15,7 +15,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.lsp4j.FormattingOptions;
-import org.eclipse.lsp4xml.contentmodel.model.CMElement;
+import org.eclipse.lsp4xml.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lsp4xml.utils.XMLBuilder;
 
 /**
@@ -50,13 +50,13 @@ public class XMLGenerator {
 	 * @param elementDeclaration
 	 * @return the XML generated from the given element declaration.
 	 */
-	public String generate(CMElement elementDeclaration) {
+	public String generate(CMElementDeclaration elementDeclaration) {
 		XMLBuilder xml = new XMLBuilder(formattingOptions, whitespacesIndent, lineDelimiter);
-		generate(elementDeclaration, 0, xml, new ArrayList<CMElement>());
+		generate(elementDeclaration, 0, xml, new ArrayList<CMElementDeclaration>());
 		return xml.toString();
 	}
 
-	private void generate(CMElement elementDeclaration, int level, XMLBuilder xml, List<CMElement> generatedElements) {
+	private void generate(CMElementDeclaration elementDeclaration, int level, XMLBuilder xml, List<CMElementDeclaration> generatedElements) {
 		if (generatedElements.contains(elementDeclaration)) {
 			return;
 		}
@@ -66,11 +66,11 @@ public class XMLGenerator {
 			xml.indent(level);
 		}
 		xml.startElement(elementDeclaration.getName(), false);
-		Collection<CMElement> children = elementDeclaration.getElements();
+		Collection<CMElementDeclaration> children = elementDeclaration.getElements();
 		if (children.size() > 0) {
 			xml.closeStartElement();
 			level++;
-			for (CMElement child : children) {
+			for (CMElementDeclaration child : children) {
 				generate(child, level, xml, generatedElements);
 			}
 			level--;

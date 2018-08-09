@@ -22,9 +22,10 @@ public interface ICompletionParticipant {
 
 	void onXMLContent(ICompletionRequest request, ICompletionResponse response) throws Exception;
 
-	void onAttributeName(String value, Range fullRange, ICompletionRequest request, ICompletionResponse response);
+	void onAttributeName(String value, Range fullRange, ICompletionRequest request, ICompletionResponse response)
+			throws Exception;
 
 	void onAttributeValue(String valuePrefix, Range fullRange, boolean addQuotes, ICompletionRequest request,
-			ICompletionResponse response);
+			ICompletionResponse response) throws Exception;
 
 }

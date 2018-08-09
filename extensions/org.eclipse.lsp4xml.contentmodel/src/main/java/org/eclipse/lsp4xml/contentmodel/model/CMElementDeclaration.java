@@ -16,7 +16,7 @@ import java.util.Collection;
  * Content model element which abstracts element declaration from a given
  * grammar (XML Schema, DTD).
  */
-public interface CMElement {
+public interface CMElementDeclaration {
 
 	/**
 	 * Returns the declared element name.
@@ -30,14 +30,14 @@ public interface CMElement {
 	 * 
 	 * @return the attributes element of this declared element.
 	 */
-	Collection<CMAttribute> getAttributes();
+	Collection<CMAttributeDeclaration> getAttributes();
 
 	/**
 	 * Returns the children declared element of this declared element.
 	 * 
 	 * @return the children declared element of this declared element.
 	 */
-	Collection<CMElement> getElements();
+	Collection<CMElementDeclaration> getElements();
 
 	/**
 	 * Returns the declared element which matches the given XML tag name / namespace
@@ -48,7 +48,15 @@ public interface CMElement {
 	 * @return the declared element which matches the given XML tag name / namespace
 	 *         and null otherwise.
 	 */
-	CMElement findCMElement(String tag, String namespace);
+	CMElementDeclaration findCMElement(String tag, String namespace);
+
+	/**
+	 * Returns the declared attribute which match the given name and null otherwise.
+	 * 
+	 * @param attributeName
+	 * @return the declared attribute which match the given name and null otherwise.
+	 */
+	CMAttributeDeclaration findCMAttribute(String attributeName);
 
 	/**
 	 * Returns the documentation of the declared element.
@@ -56,4 +64,5 @@ public interface CMElement {
 	 * @return the documentation of the declared element.
 	 */
 	String getDocumentation();
+
 }

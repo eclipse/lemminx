@@ -15,32 +15,34 @@ import java.util.Collection;
 
 import org.apache.xerces.xs.XSAnnotation;
 import org.apache.xerces.xs.XSAttributeDeclaration;
+import org.apache.xerces.xs.XSAttributeUse;
 import org.apache.xerces.xs.XSComplexTypeDefinition;
 import org.apache.xerces.xs.XSConstants;
 import org.apache.xerces.xs.XSElementDeclaration;
 import org.apache.xerces.xs.XSModelGroup;
+import org.apache.xerces.xs.XSObject;
 import org.apache.xerces.xs.XSObjectList;
 import org.apache.xerces.xs.XSParticle;
 import org.apache.xerces.xs.XSTerm;
 import org.apache.xerces.xs.XSTypeDefinition;
-import org.eclipse.lsp4xml.contentmodel.model.CMAttribute;
-import org.eclipse.lsp4xml.contentmodel.model.CMElement;
+import org.eclipse.lsp4xml.contentmodel.model.CMAttributeDeclaration;
+import org.eclipse.lsp4xml.contentmodel.model.CMElementDeclaration;
 
 /**
  * XSD element declaration implementation.
  *
  */
-public class XSDElement implements CMElement {
+public class XSDElementDeclaration implements CMElementDeclaration {
 
 	private final XSDDocument document;
 
 	private final XSElementDeclaration elementDeclaration;
 
-	private Collection<CMAttribute> attributes;
+	private Collection<CMAttributeDeclaration> attributes;
 
-	private Collection<CMElement> elements;
+	private Collection<CMElementDeclaration> elements;
 
-	public XSDElement(XSDDocument document, XSElementDeclaration elementDeclaration) {
+	public XSDElementDeclaration(XSDDocument document, XSElementDeclaration elementDeclaration) {
 		this.document = document;
 		this.elementDeclaration = elementDeclaration;
 	}
@@ -51,7 +53,7 @@ public class XSDElement implements CMElement {
 	}
 
 	@Override
-	public Collection<CMAttribute> getAttributes() {
+	public Collection<CMAttributeDeclaration> getAttributes() {
 		if (attributes == null) {
 			attributes = new ArrayList<>();
 			collectAttributesDeclaration(elementDeclaration, attributes);
@@ -59,7 +61,7 @@ public class XSDElement implements CMElement {
 		return attributes;
 	}
 
-	private void collectAttributesDeclaration(XSElementDeclaration elementDecl, Collection<CMAttribute> attributes) {
+	private void collectAttributesDeclaration(XSElementDeclaration elementDecl, Collection<CMAttributeDeclaration> attributes) {
 		XSTypeDefinition typeDefinition = elementDecl.getTypeDefinition();
 		switch (typeDefinition.getTypeCategory()) {
 		case XSTypeDefinition.SIMPLE_TYPE:
@@ -72,32 +74,39 @@ public class XSDElement implements CMElement {
 	}
 
 	private void collectAttributesDeclaration(XSComplexTypeDefinition typeDefinition,
-			Collection<CMAttribute> attributes) {
-		XSParticle particle = typeDefinition.getParticle();
-		if (particle != null) {
-			collectAttributesDeclaration(particle.getTerm(), attributes);
+			Collection<CMAttributeDeclaration> attributes) {
+		XSObjectList list = typeDefinition.getAttributeUses();
+		if (list != null) {
+			for (int i = 0; i < list.getLength(); i++) {
+				XSObject object = list.item(i);
+				if (object.getType() == XSConstants.ATTRIBUTE_USE) {
+					XSAttributeUse attributeUse = (XSAttributeUse) object;
+					XSAttributeDeclaration attributeDeclaration = attributeUse.getAttrDeclaration();
+					attributes.add(new XSDAttributeDeclaration(attributeDeclaration));
+				}
+
+			}
 		}
+//		XSParticle particle = typeDefinition.getParticle();
+//		if (particle != null) {
+//			collectAttributesDeclaration(particle.getTerm(), attributes);
+//		}
 	}
 
-	@SuppressWarnings("unchecked")
-	private void collectAttributesDeclaration(XSTerm term, Collection<CMAttribute> attributes) {
-		if (term == null) {
-			return;
-		}
-		switch (term.getType()) {
-		case XSConstants.MODEL_GROUP:
-			XSObjectList particles = ((XSModelGroup) term).getParticles();
-			particles.forEach(p -> collectAttributesDeclaration(((XSParticle) p).getTerm(), attributes));
-			break;
-		case XSConstants.ATTRIBUTE_DECLARATION:
-			XSAttributeDeclaration attributeDeclaration = (XSAttributeDeclaration) term;
-			attributes.add(new XSDAttribute(attributeDeclaration));
-			break;
-		}
-	}
+	/*
+	 * @SuppressWarnings("unchecked") private void
+	 * collectAttributesDeclaration(XSTerm term, Collection<CMAttribute> attributes)
+	 * { if (term == null) { return; } switch (term.getType()) { case
+	 * XSConstants.MODEL_GROUP: XSObjectList particles = ((XSModelGroup)
+	 * term).getParticles(); particles.forEach(p ->
+	 * collectAttributesDeclaration(((XSParticle) p).getTerm(), attributes)); break;
+	 * case XSConstants.ATTRIBUTE_DECLARATION: XSAttributeDeclaration
+	 * attributeDeclaration = (XSAttributeDeclaration) term; attributes.add(new
+	 * XSDAttribute(attributeDeclaration)); break; } }
+	 */
 
 	@Override
-	public Collection<CMElement> getElements() {
+	public Collection<CMElementDeclaration> getElements() {
 		if (elements == null) {
 			elements = new ArrayList<>();
 			collectElementsDeclaration(elementDeclaration, elements);
@@ -105,7 +114,7 @@ public class XSDElement implements CMElement {
 		return elements;
 	}
 
-	private void collectElementsDeclaration(XSElementDeclaration elementDecl, Collection<CMElement> elements) {
+	private void collectElementsDeclaration(XSElementDeclaration elementDecl, Collection<CMElementDeclaration> elements) {
 		XSTypeDefinition typeDefinition = elementDecl.getTypeDefinition();
 		switch (typeDefinition.getTypeCategory()) {
 		case XSTypeDefinition.SIMPLE_TYPE:
@@ -117,7 +126,7 @@ public class XSDElement implements CMElement {
 		}
 	}
 
-	private void collectElementsDeclaration(XSComplexTypeDefinition typeDefinition, Collection<CMElement> elements) {
+	private void collectElementsDeclaration(XSComplexTypeDefinition typeDefinition, Collection<CMElementDeclaration> elements) {
 		XSParticle particle = typeDefinition.getParticle();
 		if (particle != null) {
 			collectElementsDeclaration(particle.getTerm(), elements);
@@ -125,7 +134,7 @@ public class XSDElement implements CMElement {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void collectElementsDeclaration(XSTerm term, Collection<CMElement> elements) {
+	private void collectElementsDeclaration(XSTerm term, Collection<CMElementDeclaration> elements) {
 		if (term == null) {
 			return;
 		}
@@ -148,8 +157,8 @@ public class XSDElement implements CMElement {
 	}
 
 	@Override
-	public CMElement findCMElement(String tag, String namespace) {
-		for (CMElement cmElement : getElements()) {
+	public CMElementDeclaration findCMElement(String tag, String namespace) {
+		for (CMElementDeclaration cmElement : getElements()) {
 			if (cmElement.getName().equals(tag)) {
 				return cmElement;
 			}
@@ -157,6 +166,15 @@ public class XSDElement implements CMElement {
 		return null;
 	}
 
+	@Override
+	public CMAttributeDeclaration findCMAttribute(String attributeName) {
+		for (CMAttributeDeclaration cmAttribute : getAttributes()) {
+			if (cmAttribute.getName().equals(attributeName)) {
+				return cmAttribute;
+			}
+		}
+		return null;
+	}
 	@Override
 	public String toString() {
 		return getName();

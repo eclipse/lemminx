@@ -26,6 +26,6 @@ public interface CMDocument {
 	 * @return the declared element which matches the given XML element and null
 	 *         otherwise.
 	 */
-	CMElement findCMElement(Node element);
+	CMElementDeclaration findCMElement(Node element);
 
 }
