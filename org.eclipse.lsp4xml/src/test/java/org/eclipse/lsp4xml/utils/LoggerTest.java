@@ -14,7 +14,7 @@ package org.eclipse.lsp4xml.utils;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
+import static java.lang.System.lineSeparator;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -23,8 +23,8 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.concurrent.CompletableFuture;
-import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -54,9 +54,11 @@ public class LoggerTest {
   private XMLLanguageService languageService;
   private XMLDocument xmlDocument;
   private Logger LOGGER = Logger.getLogger(LoggerTest.class.getName());
+  private TimeZone originalTimeZone = TimeZone.getDefault(); 
 
   @Before
   public void startup() {
+    TimeZone.setDefault(TimeZone.getTimeZone(("UTC")));
     deleteLogFile();
     mockLanguageClient = createLanguageClient(MessageType.Error, "Log Message");
     InitializeParams params = createInitializationOptionsParams(path);
@@ -69,6 +71,7 @@ public class LoggerTest {
     Handler[] handlers = Logger.getLogger("").getHandlers();
     LogHelper.unregisterAllHandlers(handlers);
     deleteLogFile();
+    TimeZone.setDefault(originalTimeZone);
   }
 
   @Test
@@ -117,17 +120,18 @@ public class LoggerTest {
     throwable.setStackTrace(recordStackTrace);
 
     LogRecord record = new LogRecord(level, recordMessage);
+    
     record.setMillis(recordMillis);
     record.setSourceClassName(recordSourceClassName);
     record.setSourceMethodName(recordSourceMethodName);
     record.setMessage(recordMessage);
     record.setThrown(throwable);
     String expectedOutput = 
-    "Sep 16, 1997 04:05:05 org.my.test.Class mySourceMethod()\n" + 
-    "Message: Formatting Log Message\n" +
-    "\tat declaringClass.methodName(fileName.java:1)\n" +
-    "\tat declaringClass2.methodName2.drl.java(fileName2.java:2)\n" +
-    "\tat declaringClass.methodName.apk.java(fileName:3)\n";
+    "Sep 16, 1997 09:05:05 org.my.test.Class mySourceMethod()" + lineSeparator() +
+    "Message: Formatting Log Message" + lineSeparator() +
+    "\tat declaringClass.methodName(fileName.java:1)" + lineSeparator() +
+    "\tat declaringClass2.methodName2.drl.java(fileName2.java:2)" + lineSeparator() +
+    "\tat declaringClass.methodName.apk.java(fileName:3)" + lineSeparator();
 
     assertEquals(expectedOutput, ClientLogHandler.formatRecord(record, Locale.US));
     

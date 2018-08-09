@@ -11,12 +11,13 @@
 
 package org.eclipse.lsp4xml.utils;
 
+import static java.lang.System.lineSeparator;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
-import java.util.TimeZone;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -24,6 +25,7 @@ import java.util.logging.LogRecord;
 import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.services.LanguageClient;
+
 
 /**
  * LogHandler
@@ -54,7 +56,6 @@ public class ClientLogHandler extends Handler{
   
   public static String formatRecord(LogRecord record, Locale locale) {
     DateFormat formatter = new SimpleDateFormat("MMM dd, yyyy hh:mm:ss", locale);
-    formatter.setTimeZone(TimeZone.getTimeZone("EST"));
     long date = record.getMillis();
     String formattedDate = formatter.format(date);
     StringBuilder sb = new StringBuilder();
@@ -63,7 +64,8 @@ public class ClientLogHandler extends Handler{
     .append(record.getSourceClassName())
     .append(" ")
     .append(record.getSourceMethodName())
-    .append("()\n")
+    .append("()")
+    .append(lineSeparator())
     .append("Message: " + record.getMessage());
     if (record.getThrown() != null) {
       StringWriter sw = new StringWriter();
