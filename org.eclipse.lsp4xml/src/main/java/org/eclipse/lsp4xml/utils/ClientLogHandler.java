@@ -15,6 +15,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 import java.util.TimeZone;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -44,15 +45,15 @@ public class ClientLogHandler extends Handler{
       return;
     }
 
-    String msg = formatRecord(record);
+    String msg = formatRecord(record, Locale.getDefault());
     MessageType messageType= getMessageType(record.getLevel());
     MessageParams mp = new MessageParams(messageType, msg);
     languageClient.logMessage(mp);
     
   }
   
-  public static String formatRecord(LogRecord record) {
-    DateFormat formatter = new SimpleDateFormat("MMM dd, yyyy hh:mm:ss");
+  public static String formatRecord(LogRecord record, Locale locale) {
+    DateFormat formatter = new SimpleDateFormat("MMM dd, yyyy hh:mm:ss", locale);
     formatter.setTimeZone(TimeZone.getTimeZone("EST"));
     long date = record.getMillis();
     String formattedDate = formatter.format(date);

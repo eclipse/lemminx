@@ -21,6 +21,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.FileHandler;
@@ -128,7 +129,7 @@ public class LoggerTest {
     "\tat declaringClass2.methodName2.drl.java(fileName2.java:2)\n" +
     "\tat declaringClass.methodName.apk.java(fileName:3)\n";
 
-    assertEquals(expectedOutput, ClientLogHandler.formatRecord(record));
+    assertEquals(expectedOutput, ClientLogHandler.formatRecord(record, Locale.US));
     
 
   }
