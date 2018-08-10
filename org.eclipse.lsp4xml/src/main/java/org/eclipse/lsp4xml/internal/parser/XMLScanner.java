@@ -82,7 +82,7 @@ public class XMLScanner implements Scanner {
 		tokenError = errorMessage;
 		return type;
 	}
-
+	
 	@Override
 	public TokenType scan() {
 		int offset = stream.pos();
