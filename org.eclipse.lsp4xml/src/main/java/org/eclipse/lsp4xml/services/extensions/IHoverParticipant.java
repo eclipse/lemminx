@@ -20,6 +20,8 @@ public interface IHoverParticipant {
 
 	Hover onTag(IHoverRequest request) throws Exception;
 
+	Hover onAttributeName(IHoverRequest request) throws Exception;
+
 	Hover onAttributeValue(IHoverRequest request) throws Exception;
 
 }
