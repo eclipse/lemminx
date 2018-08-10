@@ -229,9 +229,9 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	}
 
-	// Un comment the next code (@JsonRequest) to activate VSCode folding.
-	// @JsonRequest
-	public CompletableFuture<List<FoldingRange>> foldingRanges(FoldingRangeRequestParams params) {
+	// FIXME: un-comment when https://github.com/eclipse/lsp4j/issues/169 will be ready 
+	// @Override
+	public CompletableFuture<List<? extends FoldingRange>> foldingRanges(FoldingRangeRequestParams params) {
 		return computeAsync((monitor) -> {
 			TextDocument document = documents.get(params.getTextDocument().getUri());
 			return getXMLLanguageService().getFoldingRanges(document, sharedFoldingsSettings);
@@ -256,7 +256,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 			return null;
 		});
 	}
-	
+
 	private XMLLanguageService getXMLLanguageService() {
 		return xmlLanguageServer.getXMLLanguageService();
 	}

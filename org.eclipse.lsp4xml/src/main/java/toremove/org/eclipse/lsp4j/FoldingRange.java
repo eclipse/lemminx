@@ -1,5 +1,7 @@
 package toremove.org.eclipse.lsp4j;
 
+import org.eclipse.xtext.xbase.lib.Pure;
+
 /**
  * TODO: remove this class when lsp4j will support foldings
  * https://github.com/eclipse/lsp4j/issues/169
@@ -42,6 +44,7 @@ public class FoldingRange {
 		this.endLine = endLine;
 	}
 
+	@Pure
 	public int getStartLine() {
 		return startLine;
 	}
@@ -50,6 +53,7 @@ public class FoldingRange {
 		this.startLine = startLine;
 	}
 
+	@Pure
 	public Integer getStartCharacter() {
 		return startCharacter;
 	}
@@ -58,6 +62,7 @@ public class FoldingRange {
 		this.startCharacter = startCharacter;
 	}
 
+	@Pure
 	public int getEndLine() {
 		return endLine;
 	}
@@ -66,6 +71,7 @@ public class FoldingRange {
 		this.endLine = endLine;
 	}
 
+	@Pure
 	public Integer getEndCharacter() {
 		return endCharacter;
 	}
@@ -74,6 +80,7 @@ public class FoldingRange {
 		this.endCharacter = endCharacter;
 	}
 
+	@Pure
 	public String getKind() {
 		return kind;
 	}
