@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DocumentHighlight;
+import org.eclipse.lsp4j.DocumentLink;
 import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Position;
@@ -47,6 +48,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 	private final XMLHover hover;
 	private final XMLDiagnostics diagnostics;
 	private final XMLFoldings foldings;
+	private XMLDocumentLink documentLink;
 
 	public XMLLanguageService() {
 		this.formatter = new XMLFormatter(this);
@@ -56,6 +58,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		this.hover = new XMLHover(this);
 		this.diagnostics = new XMLDiagnostics(this);
 		this.foldings = new XMLFoldings(this);
+		this.documentLink = new XMLDocumentLink(this);
 	}
 
 	public List<? extends TextEdit> format(TextDocument document, Range range, FormattingOptions options) {
@@ -93,6 +96,10 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		Map<String, List<TextEdit>> changes = new HashMap<>();
 		changes.put(xmlDocument.getUri(), textEdits);
 		return new WorkspaceEdit(changes);
+	}
+
+	public List<DocumentLink> findDocumentLinks(TextDocument document) {
+		return documentLink.findDocumentLinks(document);
 	}
 
 }

@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import org.eclipse.lsp4j.CompletionOptions;
+import org.eclipse.lsp4j.DocumentLinkOptions;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
@@ -64,7 +65,8 @@ public class XMLLanguageServer implements LanguageServer, ExtendedLanguageServer
 	@Override
 	public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
 		xmlTextDocumentService.updateClientCapabilities(params.getCapabilities());
-		// FIXME: use ServerCapabilities when https://github.com/eclipse/lsp4j/issues/169 will be ready
+		// FIXME: use ServerCapabilities when
+		// https://github.com/eclipse/lsp4j/issues/169 will be ready
 		ExtendedServerCapabilities capabilities = new ExtendedServerCapabilities();
 		capabilities.setTextDocumentSync(TextDocumentSyncKind.Full);
 		capabilities.setDocumentSymbolProvider(true);
@@ -75,6 +77,7 @@ public class XMLLanguageServer implements LanguageServer, ExtendedLanguageServer
 		capabilities.setHoverProvider(true);
 		capabilities.setRenameProvider(true);
 		capabilities.setFoldingRangeProvider(true);
+		capabilities.setDocumentLinkProvider(new DocumentLinkOptions(true));
 		InitializeResult result = new InitializeResult(capabilities);
 		LogHelper.initializeRootLogger(languageClient, getInitializationOptions(params));
 		return CompletableFuture.completedFuture(result);
@@ -121,8 +124,9 @@ public class XMLLanguageServer implements LanguageServer, ExtendedLanguageServer
 	public XMLLanguageService getXMLLanguageService() {
 		return xmlLanguageService;
 	}
-	
-	// FIXME: remove this method when https://github.com/eclipse/lsp4j/issues/169 will be ready
+
+	// FIXME: remove this method when https://github.com/eclipse/lsp4j/issues/169
+	// will be ready
 	@Override
 	public CompletableFuture<List<? extends FoldingRange>> foldingRanges(FoldingRangeRequestParams params) {
 		return xmlTextDocumentService.foldingRanges(params);
