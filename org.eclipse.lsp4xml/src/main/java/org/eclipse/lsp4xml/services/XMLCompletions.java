@@ -127,7 +127,7 @@ class XMLCompletions {
 					case AfterOpeningEndTag:
 						collectCloseTagSuggestions(scanner.getTokenOffset() - 1, false, offset, completionRequest,
 								completionResponse);
-						return completionResponse;
+						return completionResponse;	
 					case WithinContent:
 						collectInsideContent(completionRequest, completionResponse);
 						return completionResponse;
