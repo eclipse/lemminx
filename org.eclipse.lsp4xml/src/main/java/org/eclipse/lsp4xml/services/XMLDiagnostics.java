@@ -41,19 +41,20 @@ import org.eclipse.lsp4xml.internal.parser.XMLScanner;
 import org.eclipse.lsp4xml.services.extensions.IDiagnosticsParticipant;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 
+
 /**
  * XML diagnostics support.
  *
  */
 class XMLDiagnostics {
   private static final Logger LOGGER = Logger.getLogger(XMLDiagnostics.class.getName());
-
 	private final XMLExtensionsRegistry extensionsRegistry;
   private TextDocument xmlDocument;
   private static final int ERROR_THRESHOLD = 25;
-
+  
   /** A stack used for finding missing start- and end-tag pairs */
   private Stack tagStack;
+  private boolean stopDiagnostics = false;
 
 	public XMLDiagnostics(XMLExtensionsRegistry extensionsRegistry) {
 		this.extensionsRegistry = extensionsRegistry;
@@ -63,7 +64,8 @@ class XMLDiagnostics {
 		this.xmlDocument = document;
 		List<Diagnostic> diagnostics = new ArrayList<Diagnostic>();
 		try {
-			return doBasicDiagnostics(document, diagnostics, monitor);
+      doBasicDiagnostics(document, diagnostics, monitor);
+      return diagnostics;
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}
@@ -79,7 +81,7 @@ class XMLDiagnostics {
 	 * @param monitor
 	 * @throws BadLocationException
 	 */
-	private List<Diagnostic> doBasicDiagnostics(TextDocument document, List<Diagnostic> diagnostics, CancelChecker monitor)
+	public void doBasicDiagnostics(TextDocument document, List<Diagnostic> diagnostics, CancelChecker monitor)
 			throws BadLocationException {
     tagStack = new Stack();
 		Scanner scanner = XMLScanner.createScanner(document.getText());
@@ -89,11 +91,12 @@ class XMLDiagnostics {
     List endRootTagRegion = null;
     int endRootTagOffset = 0;
     boolean isClosed = true;
-    boolean alreadyReported = false; //tag after root tag was already reported
+    
     TokenType tokenType = scanner.scan();
     boolean wasEndRootTagFound = false;
     boolean wasStartRootTagFound = false;
-    boolean attributesUsed = false;
+    boolean wasFirstTagFound = false;
+    
 		while (tokenType != TokenType.EOS) {
 			monitor.checkCanceled();
 			Token token = new Token(tokenType, scanner.getTokenText(), scanner.getTokenOffset(), scanner.getTokenEnd());
@@ -110,7 +113,12 @@ class XMLDiagnostics {
         region.add(token);
         if (tokenType == TokenType.StartPrologOrPI) {
           checkContentBeforeProcessingInstruction(previousRegion, diagnostics);
-        } 
+        }
+        if(!wasFirstTagFound && tokenType == TokenType.StartTagOpen) {
+          wasFirstTagFound = true;
+        }
+
+        checkForPrematureData(wasFirstTagFound, region, diagnostics);
       
         checkForTagClose(previousRegion, diagnostics);
 
@@ -126,12 +134,11 @@ class XMLDiagnostics {
               //Finds offset at beginning of line
               int start = startToken.startOffset;
               int end = startToken.endOffset;
-
-              String messageText = XMLDiagnosticMessages.TAGS_OUTSIDE_OF_ROOT_TAG
-                  + ((Token) endRootTagRegion.get(1)).tokenText;
-                  createAndSetCustomDiagnostic(messageText, start, end, diagnostics);
-              
-              return diagnostics;
+  
+              String messageText = XMLDiagnosticMessages.CONTENT_OUTSIDE_OF_ROOT_TAG;
+                  
+              createAndSetCustomDiagnostic(messageText, start, end, diagnostics);
+              return;
             }
           }
           
@@ -234,12 +241,17 @@ class XMLDiagnostics {
         if (first.type == TokenType.StartPrologOrPI) {
           checkNamespacesInProcessingInstruction(region, diagnostics);
         }
+        if (first.type == TokenType.StartTagOpen) {
+          stopDiagnostics = true;
+          checkAttributes(region, diagnostics);
+          if(stopDiagnostics) {
+            return;
+          }
+        }
         if (first.type == TokenType.StartTagOpen || first.type == TokenType.EndTagOpen) {
           checkForTagClose(region, diagnostics);
         }
-        if (first.type == TokenType.StartTagOpen) {
-          checkAttributes(region, diagnostics);
-        }
+        
       }
     }
 
@@ -248,10 +260,21 @@ class XMLDiagnostics {
         createMissingTagError((Token) tagStack.pop(), true, diagnostics);
       }
     }
-    return diagnostics;
+    return;
   }
 
-  private void createOutOfBoundsDiagnostic(String messageText, int start, int length, List<Diagnostic> diagnostics) {
+  private void checkForPrematureData(boolean wasFirstTagFound, List region, List<Diagnostic> diagnostics) {
+    if(!wasFirstTagFound) {
+      Token first = (Token) region.get(0);
+      if(!(first.type == TokenType.StartCommentTag || first.type == TokenType.StartDoctypeTag || first.type == TokenType.StartPrologOrPI || 
+          first.type == TokenType.StartTagOpen)) {
+        String message = XMLDiagnosticMessages.CONTENT_BEFORE_OPEN_TAG;
+        createAndSetDiagnostic(first, message, diagnostics);
+      }
+    }
+	}
+
+private void createOutOfBoundsDiagnostic(String messageText, int start, int length, List<Diagnostic> diagnostics) {
     
     Range range = createOutOfBoundsRange(start, length);
     Diagnostic tempDiagnostic = new Diagnostic(range, messageText);
@@ -262,7 +285,8 @@ private void checkNoSelfClosingBeforeRoot(List region, List<Diagnostic> diagnost
     if(!wasStartRootTagFound && tokenType == TokenType.StartTagSelfClose) {
       int start = ((Token) region.get(0)).startOffset;
       int end = ((Token) region.get(region.size() - 1)).endOffset;
-      createAndSetCustomDiagnostic(XMLDiagnosticMessages.TAGS_OUTSIDE_OF_ROOT_TAG, start, end, diagnostics);
+      String message = XMLDiagnosticMessages.CONTENT_OUTSIDE_OF_ROOT_TAG;
+      createAndSetCustomDiagnostic(message, start, end, diagnostics);
     }
 	}
 
@@ -292,7 +316,7 @@ private boolean tokenIsNotComment(Token token) {
       Token first = (Token) previousRegion.get(0);
       if (first.type == TokenType.Content && first.startOffset == 0) {
         // XML declaration only allowed at the start of the document
-				String messageText = XMLDiagnosticMessages.CONTENT_BEFORE_OPEN_TAG;
+				String messageText = XMLDiagnosticMessages.CONTENT_BEFORE_PROLOG;
 				createAndSetDiagnostic(first, messageText, diagnostics);
       }
     }
@@ -311,11 +335,10 @@ private boolean tokenIsNotComment(Token token) {
       if (t.type == TokenType.StartTag || t.type == TokenType.EndTag) {
         int index = t.tokenText.indexOf(":"); //$NON-NLS-1$
         if (index != -1) {
-          String messageText = XMLDiagnosticMessages.PROLOG_CONTAINS_NAMESPACE;
           int start = t.startOffset + index;
           int length = t.tokenText.trim().length() - index;
-
-          createAndSetCustomDiagnostic(messageText, start, start + length, diagnostics);
+          String message = XMLDiagnosticMessages.PROLOG_CONTAINS_NAMESPACE;
+          createAndSetCustomDiagnostic(message, start, start + length, diagnostics);
           break;
         }
       }
@@ -327,9 +350,10 @@ private boolean tokenIsNotComment(Token token) {
       // Check that the start tag's name comes right after the <
       Token startBracket = (Token) region.get(0);
       Token tagName = (Token) region.get(region.size() - 1);
-      if ((TokenType.StartTagOpen.equals(startBracket.type) || TokenType.EndTagOpen.equals(startBracket.type)) && tagName.startOffset - startBracket.endOffset != 0) {
-        final String messageText = XMLDiagnosticMessages.SPACE_BEFORE_TAG_NAME;
-        createAndSetCustomDiagnostic(messageText, startBracket.endOffset, tagName.startOffset, diagnostics);
+      if ((TokenType.StartTagOpen.equals(startBracket.type) || TokenType.EndTagOpen.equals(startBracket.type)) && 
+          tagName.startOffset - startBracket.endOffset != 0) {
+        String message = XMLDiagnosticMessages.SPACE_BEFORE_TAG_NAME;
+        createAndSetCustomDiagnostic(message, startBracket.endOffset, tagName.startOffset, diagnostics);
       }
     }
     else {
@@ -371,9 +395,9 @@ private boolean tokenIsNotComment(Token token) {
           }
         }
         if (!isClosed) {
-          String messageText = XMLDiagnosticMessages.TAG_NOT_CLOSED;
+          String message = XMLDiagnosticMessages.TAG_NOT_CLOSED;
           
-          createAndSetCustomDiagnostic(messageText, first.startOffset, first.startOffset + textLength, diagnostics);
+          createAndSetCustomDiagnostic(message, first.startOffset, first.startOffset + textLength, diagnostics);
           
         }
       }
@@ -392,9 +416,9 @@ private boolean tokenIsNotComment(Token token) {
       // Check that the tag is not empty
       Token first = (Token) region.get(0);
       if (first.type == TokenType.StartTagOpen || first.type == TokenType.EndTagOpen) {
-        String messageText = XMLDiagnosticMessages.TAG_MISSING_NAME;
+        String message = XMLDiagnosticMessages.TAG_MISSING_NAME;
         Token second = (Token) region.get(1);
-        createAndSetCustomDiagnostic(messageText, first.startOffset, second.endOffset, diagnostics);
+        createAndSetCustomDiagnostic(message, first.startOffset, second.endOffset, diagnostics);
         return true;
       }
     }
@@ -477,7 +501,7 @@ private boolean tokenIsNotComment(Token token) {
           // create annotation
           Token nameRegion = (Token) region.get(i - 2);
           Object[] args = { nameRegion.tokenText };
-          String messageText = XMLDiagnosticMessages.ATTRIBUTE_MISSING_VALUE;
+          String message = XMLDiagnosticMessages.ATTRIBUTE_MISSING_VALUE;
 
           // quick fix info
           int delimiterIndex = i - 2 + 1;
@@ -487,7 +511,7 @@ private boolean tokenIsNotComment(Token token) {
           int start = delimiter.endOffset;
           int end = attributeName.startOffset;
          
-          createAndSetCustomDiagnostic(messageText, start, end, diagnostics);
+          createAndSetCustomDiagnostic(message, start, end, diagnostics);
 
           
         }
@@ -517,7 +541,9 @@ private boolean tokenIsNotComment(Token token) {
             // missing closing quote
             String message = XMLDiagnosticMessages.MISSING_CLOSED_QUOTE;
             createAndSetCustomDiagnostic(message, t.startOffset, t.endOffset, diagnostics); 
-            errorCount++;
+            stopDiagnostics();
+            return;
+            //errorCount++;
           } else if (q1 != '\'' && q1 != '"') {
             // missing both
             String message = XMLDiagnosticMessages.MISSING_BOTH_QUOTES;
@@ -530,12 +556,17 @@ private boolean tokenIsNotComment(Token token) {
   }
 
 
-  /**
+  private void stopDiagnostics() {
+    this.stopDiagnostics = true;
+  }
+
+
+/**
    * Creates an error related to an attribute
    */
-  private void createAndSetCustomDiagnostic(String messageText, int start, int end, List<Diagnostic> diagnostics) {
+  private void createAndSetCustomDiagnostic(String message, int start, int end, List<Diagnostic> diagnostics) {
     Range range = createRange(start, end);
-    Diagnostic tempDiagnostic = new Diagnostic(range, messageText);
+    Diagnostic tempDiagnostic = new Diagnostic(range, message);
     diagnostics.add(tempDiagnostic);
   }
 
@@ -594,6 +625,10 @@ private boolean tokenIsNotComment(Token token) {
 		Range range = createRange(token);
 		Diagnostic tempDiagnostic = new Diagnostic(range, messageText);
 		diagnostics.add(tempDiagnostic);
-	}
+  }
+  
+  public void setDocument(TextDocument document) {
+    this.xmlDocument = document;
+  }
 
 }

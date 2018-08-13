@@ -30,7 +30,7 @@ public class LogHelper {
 
 	// This will apply to all child loggers
 	public static void initializeRootLogger(LanguageClient newLanguageClient, Map<?, ?> initializationObject) {
-		if(newLanguageClient == null || initializationObject == null) {
+		if(newLanguageClient == null || initializationObject == null || initializationObject.isEmpty()) {
 			return;
 		}
 		Logger logger = Logger.getLogger("");

@@ -1,5 +1,7 @@
 package toremove.org.eclipse.lsp4j;
 
+import org.eclipse.xtext.xbase.lib.Pure;
+
 /**
  * TODO: remove this class when lsp4j will support foldings
  * https://github.com/eclipse/lsp4j/issues/169
@@ -17,6 +19,7 @@ public class FoldingRangeCapabilities {
 		this.rangeLimit = rangeLimit;
 	}
 	
+	@Pure
 	public Integer getRangeLimit() {
 		return rangeLimit;
 	}

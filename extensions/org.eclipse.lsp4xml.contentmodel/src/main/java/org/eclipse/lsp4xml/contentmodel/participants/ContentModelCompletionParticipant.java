@@ -84,23 +84,27 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 						item.setKind(CompletionItemKind.Value);
 						item.setTextEdit(new TextEdit(fullRange, attrName + value));
 						item.setInsertTextFormat(InsertTextFormat.Snippet);
+						String documentation = cmAttribute.getDocumentation();
+						if (documentation != null) {
+							item.setDetail(documentation);
+						}
 						completionResponse.addCompletionAttribute(item);
 					}
 				}
 			}
 		}
 	}
-	
+
 	@Override
-	public void onAttributeValue(String valuePrefix, Range fullRange, boolean addQuotes, ICompletionRequest completionRequest,
-			ICompletionResponse completionResponse) throws Exception {
+	public void onAttributeValue(String valuePrefix, Range fullRange, boolean addQuotes,
+			ICompletionRequest completionRequest, ICompletionResponse completionResponse) throws Exception {
 		Node element = completionRequest.getParentNode();
 		CMElementDeclaration cmElement = ContentModelManager.getInstance().findCMElement(element);
 		if (cmElement != null) {
 			String attributeName = completionRequest.getCurrentAttributeName();
 			CMAttributeDeclaration cmAttribute = cmElement.findCMAttribute(attributeName);
 			if (cmAttribute != null) {
-				
+				// TODO ...
 			}
 		}
 	}

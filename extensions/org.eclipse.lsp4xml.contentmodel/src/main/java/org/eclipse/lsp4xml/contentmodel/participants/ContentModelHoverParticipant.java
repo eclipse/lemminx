@@ -12,6 +12,7 @@ package org.eclipse.lsp4xml.contentmodel.participants;
 
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.MarkupContent;
+import org.eclipse.lsp4xml.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lsp4xml.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lsp4xml.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.model.Node;
@@ -25,11 +26,11 @@ import org.eclipse.lsp4xml.services.extensions.IHoverRequest;
 public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 
 	@Override
-	public Hover onTag(IHoverRequest request) throws Exception {
-		Node node = request.getNode();
-		CMElementDeclaration cmlElement = ContentModelManager.getInstance().findCMElement(node);
-		if (cmlElement != null) {
-			String doc = cmlElement.getDocumentation();
+	public Hover onTag(IHoverRequest completionRequest) throws Exception {
+		Node node = completionRequest.getNode();
+		CMElementDeclaration cmElement = ContentModelManager.getInstance().findCMElement(node);
+		if (cmElement != null) {
+			String doc = cmElement.getDocumentation();
 			if (doc != null && doc.length() > 0) {
 				MarkupContent content = new MarkupContent();
 				content.setValue(doc);
@@ -40,7 +41,21 @@ public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 	}
 
 	@Override
-	public Hover onAttributeValue(IHoverRequest request) throws Exception {
+	public Hover onAttributeName(IHoverRequest completionRequest) throws Exception {
+		Node element = completionRequest.getNode();
+		CMElementDeclaration cmElement = ContentModelManager.getInstance().findCMElement(element);
+		if (cmElement != null) {
+			String attributeName = completionRequest.getCurrentAttributeName();
+			CMAttributeDeclaration cmAttribute = cmElement.findCMAttribute(attributeName);
+			if (cmAttribute != null) {
+				String doc = cmAttribute.getDocumentation();
+				if (doc != null && doc.length() > 0) {
+					MarkupContent content = new MarkupContent();
+					content.setValue(doc);
+					return new Hover(content);
+				}
+			}
+		}
 		return null;
 	}
 

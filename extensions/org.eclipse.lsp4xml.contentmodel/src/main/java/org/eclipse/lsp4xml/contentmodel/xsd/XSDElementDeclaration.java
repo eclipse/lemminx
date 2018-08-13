@@ -13,7 +13,6 @@ package org.eclipse.lsp4xml.contentmodel.xsd;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.apache.xerces.xs.XSAnnotation;
 import org.apache.xerces.xs.XSAttributeDeclaration;
 import org.apache.xerces.xs.XSAttributeUse;
 import org.apache.xerces.xs.XSComplexTypeDefinition;
@@ -42,6 +41,8 @@ public class XSDElementDeclaration implements CMElementDeclaration {
 
 	private Collection<CMElementDeclaration> elements;
 
+	private XSDAnnotationModel annotationModel;
+
 	public XSDElementDeclaration(XSDDocument document, XSElementDeclaration elementDeclaration) {
 		this.document = document;
 		this.elementDeclaration = elementDeclaration;
@@ -61,7 +62,8 @@ public class XSDElementDeclaration implements CMElementDeclaration {
 		return attributes;
 	}
 
-	private void collectAttributesDeclaration(XSElementDeclaration elementDecl, Collection<CMAttributeDeclaration> attributes) {
+	private void collectAttributesDeclaration(XSElementDeclaration elementDecl,
+			Collection<CMAttributeDeclaration> attributes) {
 		XSTypeDefinition typeDefinition = elementDecl.getTypeDefinition();
 		switch (typeDefinition.getTypeCategory()) {
 		case XSTypeDefinition.SIMPLE_TYPE:
@@ -114,7 +116,8 @@ public class XSDElementDeclaration implements CMElementDeclaration {
 		return elements;
 	}
 
-	private void collectElementsDeclaration(XSElementDeclaration elementDecl, Collection<CMElementDeclaration> elements) {
+	private void collectElementsDeclaration(XSElementDeclaration elementDecl,
+			Collection<CMElementDeclaration> elements) {
 		XSTypeDefinition typeDefinition = elementDecl.getTypeDefinition();
 		switch (typeDefinition.getTypeCategory()) {
 		case XSTypeDefinition.SIMPLE_TYPE:
@@ -126,7 +129,8 @@ public class XSDElementDeclaration implements CMElementDeclaration {
 		}
 	}
 
-	private void collectElementsDeclaration(XSComplexTypeDefinition typeDefinition, Collection<CMElementDeclaration> elements) {
+	private void collectElementsDeclaration(XSComplexTypeDefinition typeDefinition,
+			Collection<CMElementDeclaration> elements) {
 		XSParticle particle = typeDefinition.getParticle();
 		if (particle != null) {
 			collectElementsDeclaration(particle.getTerm(), elements);
@@ -152,8 +156,10 @@ public class XSDElementDeclaration implements CMElementDeclaration {
 
 	@Override
 	public String getDocumentation() {
-		XSAnnotation annotation = elementDeclaration.getAnnotation();
-		return annotation != null ? annotation.getAnnotationString() : null;
+		if (annotationModel == null && elementDeclaration.getAnnotation() != null) {
+			annotationModel = XSDAnnotationModel.load(elementDeclaration.getAnnotation());
+		}
+		return annotationModel != null ? annotationModel.getDocumentation() : null;
 	}
 
 	@Override
@@ -175,6 +181,7 @@ public class XSDElementDeclaration implements CMElementDeclaration {
 		}
 		return null;
 	}
+
 	@Override
 	public String toString() {
 		return getName();

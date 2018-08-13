@@ -31,6 +31,8 @@ import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.DidSaveTextDocumentParams;
 import org.eclipse.lsp4j.DocumentFormattingParams;
 import org.eclipse.lsp4j.DocumentHighlight;
+import org.eclipse.lsp4j.DocumentLink;
+import org.eclipse.lsp4j.DocumentLinkParams;
 import org.eclipse.lsp4j.DocumentOnTypeFormattingParams;
 import org.eclipse.lsp4j.DocumentRangeFormattingParams;
 import org.eclipse.lsp4j.DocumentSymbolParams;
@@ -229,12 +231,21 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	}
 
-	// Un comment the next code (@JsonRequest) to activate VSCode folding.
-	// @JsonRequest
-	public CompletableFuture<List<FoldingRange>> foldingRanges(FoldingRangeRequestParams params) {
+	// FIXME: un-comment when https://github.com/eclipse/lsp4j/issues/169 will be
+	// ready
+	// @Override
+	public CompletableFuture<List<? extends FoldingRange>> foldingRanges(FoldingRangeRequestParams params) {
 		return computeAsync((monitor) -> {
 			TextDocument document = documents.get(params.getTextDocument().getUri());
 			return getXMLLanguageService().getFoldingRanges(document, sharedFoldingsSettings);
+		});
+	}
+
+	@Override
+	public CompletableFuture<List<DocumentLink>> documentLink(DocumentLinkParams params) {
+		return computeAsync((monitor) -> {
+			TextDocument document = documents.get(params.getTextDocument().getUri());
+			return getXMLLanguageService().findDocumentLinks(document);
 		});
 	}
 
@@ -256,7 +267,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 			return null;
 		});
 	}
-	
+
 	private XMLLanguageService getXMLLanguageService() {
 		return xmlLanguageServer.getXMLLanguageService();
 	}

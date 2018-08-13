@@ -17,13 +17,17 @@ Features
 * [textDocument/completion](https://microsoft.github.io/language-server-protocol/specification#textDocument_completion).
 * [textDocument/hover](https://microsoft.github.io/language-server-protocol/specification#textDocument_hover).
 * [textDocument/rename](https://microsoft.github.io/language-server-protocol/specification#textDocument_rename).
+* [textDocument/foldingRanges](https://microsoft.github.io/language-server-protocol/specification#textDocument_foldingRange).
 
 See screenshots in the [wiki](https://github.com/angelozerr/lsp4xml/wiki/Features)
 
 Extension
 --------------
 
-The XML Language Server is extensible with plugin kind (with SPI) to provide custom completion (like XML Schema, camel, Java class completion, etc).
+The XML Language Server is extensible with plugin kind (with SPI). Here existings extensions:
+
+ * content model to provide completion, validation, hover based on XML Schema.
+ * emmet to provide completion based on Emmet.
 
 Demo
 --------------

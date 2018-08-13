@@ -10,7 +10,6 @@
  */
 package org.eclipse.lsp4xml.contentmodel.xsd;
 
-import org.apache.xerces.xs.XSAnnotation;
 import org.apache.xerces.xs.XSAttributeDeclaration;
 import org.eclipse.lsp4xml.contentmodel.model.CMAttributeDeclaration;
 
@@ -21,6 +20,7 @@ import org.eclipse.lsp4xml.contentmodel.model.CMAttributeDeclaration;
 public class XSDAttributeDeclaration implements CMAttributeDeclaration {
 
 	private final XSAttributeDeclaration attributeDeclaration;
+	private XSDAnnotationModel annotationModel;
 
 	public XSDAttributeDeclaration(XSAttributeDeclaration attributeDeclaration) {
 		this.attributeDeclaration = attributeDeclaration;
@@ -33,7 +33,9 @@ public class XSDAttributeDeclaration implements CMAttributeDeclaration {
 
 	@Override
 	public String getDocumentation() {
-		XSAnnotation annotation = attributeDeclaration.getAnnotation();
-		return annotation != null ? annotation.getAnnotationString() : null;
+		if (annotationModel == null && attributeDeclaration.getAnnotation() != null) {
+			annotationModel = XSDAnnotationModel.load(attributeDeclaration.getAnnotation());
+		}
+		return annotationModel != null ? annotationModel.getDocumentation() : null;
 	}
 }
