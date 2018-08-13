@@ -11,10 +11,11 @@
 
 package org.eclipse.lsp4xml.utils;
 
+import static java.lang.System.lineSeparator;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static java.lang.System.lineSeparator;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -37,7 +38,6 @@ import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.ShowMessageRequestParams;
 import org.eclipse.lsp4j.services.LanguageClient;
-import org.eclipse.lsp4xml.XMLLanguageServer;
 import org.eclipse.lsp4xml.model.XMLDocument;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.junit.After;
@@ -62,7 +62,8 @@ public class LoggerTest {
     deleteLogFile();
     mockLanguageClient = createLanguageClient(MessageType.Error, "Log Message");
     InitializeParams params = createInitializationOptionsParams(path);
-    LogHelper.initializeRootLogger(mockLanguageClient, XMLLanguageServer.getInitializationOptions(params));
+    LogHelper.updatePath(path);
+    LogHelper.initializeRootLogger(mockLanguageClient);
     logFile = new File(path);
   }
 

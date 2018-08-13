@@ -13,8 +13,8 @@ package org.eclipse.lsp4xml.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Map;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -27,42 +27,57 @@ import org.eclipse.lsp4j.services.LanguageClient;
  * LogHelper
  */
 public class LogHelper {
+	private static String logPath;
+	private static String defaultLogPath;
+	private static boolean shouldLogToClient = true;
 
 	// This will apply to all child loggers
-	public static void initializeRootLogger(LanguageClient newLanguageClient, Map<?, ?> initializationObject) {
-		if(newLanguageClient == null || initializationObject == null || initializationObject.isEmpty()) {
-			return;
-		}
+	public static void initializeRootLogger(LanguageClient newLanguageClient) {
 		Logger logger = Logger.getLogger("");
 		unregisterAllHandlers(logger.getHandlers());
 		logger.setLevel(Level.SEVERE);
-		logger.setUseParentHandlers(false);// Stops output to console
+		logger.setUseParentHandlers(false);
 
-		try {
-			logger.addHandler(LogHelper.getClientHandler(newLanguageClient));
-		} catch (Exception e) {
-			// TODO: handle exception
+		if(newLanguageClient == null || logPath == null) {
+			logger.info("Parameter(s) given to LogHelper.initializeRootLogger were null");
+			return;
 		}
-
-		String path = (String) initializationObject.get("lsp4xml.logPath");
-		if (path != null) {
-			createDirectoryPath(path);
+		
+		if(shouldLogToClient) {
 			try {
-				FileHandler fh = LogHelper.getFileHandler(path);
-				logger.addHandler(fh);
-				
-			} catch (SecurityException | IOException e) {
-				logger.log(Level.WARNING, "Error at creation of FileHandler for logging");
+					logger.addHandler(LogHelper.getClientHandler(newLanguageClient));	
+			} catch (Exception e) {
+				// TODO: handle exception
 			}
-		} else {
-			logger.log(Level.INFO, "Log file could not be created, path not provided");
 		}
+
+		createDirectoryPath(logPath);
+		try {
+			FileHandler fh = LogHelper.getFileHandler(logPath);
+			logger.addHandler(fh);
+			
+		} catch (SecurityException | IOException e) {
+			logger.log(Level.WARNING, "Error at creation of FileHandler for logging");
+		}
+		
 
 	}
 
+	/**
+	 * Creates the parent directory path to the file if it does not already exist
+	 */
 	private static void createDirectoryPath(String path) {
-		String parentPath = Paths.get(path).normalize().getParent().toString();
-		new File(parentPath).mkdirs();
+		Path currentPath = Paths.get(path);
+		Path directoryPath = currentPath.normalize().getParent();
+		String parentPath;
+		if(directoryPath != null) {
+			parentPath = currentPath.normalize().getParent().toString();
+			new File(parentPath).mkdirs();
+		} else {
+			logPath = currentPath.normalize().toString();
+		}
+		
+		
 	}
 
 	public static ClientLogHandler getClientHandler(LanguageClient languageClient) {
@@ -106,5 +121,28 @@ public class LogHelper {
 			unregisterHandler(h);
 			;
 		}
+	}
+
+	public static void updatePath(String newLogPath) {
+		if(newLogPath == null) {
+			return;
+		}
+		if(newLogPath.equals("default") || newLogPath.equals("")) {
+			if(defaultLogPath == null || defaultLogPath == "") {
+				defaultLogPath = "./badPathLogFile.log";
+			}
+			logPath = defaultLogPath;
+		}
+		else{
+			LogHelper.logPath = newLogPath;
+		}
+	}
+
+	public static void setDefaultLogPath(String newDefaultLogPath) {
+		defaultLogPath = newDefaultLogPath;
+	}
+
+	public static void setShouldLogToClient(boolean b) {
+		shouldLogToClient = b;
 	}
 }
