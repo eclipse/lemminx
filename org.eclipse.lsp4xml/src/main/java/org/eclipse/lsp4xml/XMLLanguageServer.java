@@ -21,11 +21,18 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+
 import org.eclipse.lsp4j.CompletionOptions;
+import org.eclipse.lsp4j.DidChangeConfigurationParams;
+import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.DocumentLinkOptions;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
+import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
+import org.eclipse.lsp4j.WorkspaceSymbolParams;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.lsp4j.services.TextDocumentService;
@@ -43,13 +50,14 @@ import toremove.org.eclipse.lsp4j.FoldingRangeRequestParams;
  * XML language server.
  *
  */
-public class XMLLanguageServer implements LanguageServer, ExtendedLanguageServer {
+public class XMLLanguageServer implements LanguageServer, ExtendedLanguageServer, WorkspaceService {
 
 	/**
 	 * Exit code returned when XML Language Server is forced to exit.
 	 */
 	private static final int FORCED_EXIT_CODE = 1;
 	private static final Logger LOGGER = Logger.getLogger(XMLLanguageServer.class.getName());
+	private static final String DEFAULT_LOG_PATH_KEY = "lsp4xml.logPath";
 
 	private final XMLLanguageService xmlLanguageService;
 	private final XMLTextDocumentService xmlTextDocumentService;
@@ -79,8 +87,19 @@ public class XMLLanguageServer implements LanguageServer, ExtendedLanguageServer
 		capabilities.setFoldingRangeProvider(true);
 		capabilities.setDocumentLinkProvider(new DocumentLinkOptions(true));
 		InitializeResult result = new InitializeResult(capabilities);
-		LogHelper.initializeRootLogger(languageClient, getInitializationOptions(params));
+		setupInitializationOptions(getInitializationOptions(params));
+
 		return CompletableFuture.completedFuture(result);
+	}
+
+
+	private void setupInitializationOptions(Map<?, ?> initializationOptions) {
+
+		//Set default log path
+		String newDefaultLogPath = (String) initializationOptions.get(DEFAULT_LOG_PATH_KEY);
+		LogHelper.setDefaultLogPath(newDefaultLogPath);
+
+		//Configure other initial settings
 	}
 
 	public static Map<?, ?> getInitializationOptions(InitializeParams params) {
@@ -130,5 +149,56 @@ public class XMLLanguageServer implements LanguageServer, ExtendedLanguageServer
 	@Override
 	public CompletableFuture<List<? extends FoldingRange>> foldingRanges(FoldingRangeRequestParams params) {
 		return xmlTextDocumentService.foldingRanges(params);
+	}
+	
+
+	@Override
+	public void didChangeConfiguration(DidChangeConfigurationParams params) {
+		Object settings = JSONUtility.toModel(params.getSettings(), JsonObject.class);
+		if(settings instanceof JsonObject) {
+			JsonObject newParams = (JsonObject) settings;
+
+			/**
+			 * Settings with name similar to eg: xml.log.path cannot be retrieved normally 
+			 * since each part is considered a key, use getJsonPrimitiveFromJson
+			 */
+
+			//Updates the logger output path -------
+			JsonPrimitive jsonLogPath = getJsonPrimitiveFromJson(newParams, "xml", "log", "location");
+			String logPath = jsonLogPath.getAsString();
+			LogHelper.updatePath(logPath);
+			
+			//--------------------------
+
+			//If the client should get logged to in process output
+			JsonPrimitive jsonLogToClient = getJsonPrimitiveFromJson(newParams, "xml", "log", "client");
+			LogHelper.setShouldLogToClient(jsonLogToClient.getAsBoolean());
+			//---------------------------------------------------
+
+			LogHelper.initializeRootLogger(languageClient);
+		}
+		
+	}
+
+	@Override
+	public void didChangeWatchedFiles(DidChangeWatchedFilesParams params) {
+		
+	}
+
+	public static JsonPrimitive getJsonPrimitiveFromJson(JsonObject object, String... keys) {
+		if(object == null || keys == null) {
+			return null;
+		}
+		JsonObject currentJson = object;
+		int i;
+		for(i = 0; i < keys.length - 1; i++) {
+			currentJson = currentJson.getAsJsonObject(keys[i]);
+		}
+		return currentJson.getAsJsonPrimitive(keys[i]);
+	}
+
+	@Override
+	public CompletableFuture<List<? extends SymbolInformation>> symbol(WorkspaceSymbolParams params) {
+		return null;
 	}
 }
