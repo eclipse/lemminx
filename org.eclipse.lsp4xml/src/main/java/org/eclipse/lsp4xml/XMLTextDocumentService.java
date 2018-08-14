@@ -14,7 +14,12 @@ import static org.eclipse.lsp4j.jsonrpc.CompletableFutures.computeAsync;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.lsp4j.ClientCapabilities;
 import org.eclipse.lsp4j.CodeActionParams;
@@ -50,6 +55,7 @@ import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4xml.commons.LanguageModelCache;
@@ -76,7 +82,27 @@ public class XMLTextDocumentService implements TextDocumentService {
 	private final FormattingOptions sharedFormattingOptions;
 	private final CompletionSettings sharedCompletionSettings;
 	private final FoldingRangeCapabilities sharedFoldingsSettings;
-	private CompletableFuture<Object> validationRequest;
+
+	private class BasicCancelChecker implements CancelChecker {
+
+		private boolean canceled;
+
+		@Override
+		public void checkCanceled() {
+			if (canceled) {
+				throw new CancellationException();
+			}
+		}
+
+		public void setCanceled(boolean canceled) {
+			this.canceled = canceled;
+		}
+
+	}
+
+	final ScheduledExecutorService delayer = Executors.newScheduledThreadPool(2);
+	private ScheduledFuture<?> future;
+	private BasicCancelChecker monitor;
 
 	public XMLTextDocumentService(XMLLanguageServer xmlLanguageServer) {
 		this.xmlLanguageServer = xmlLanguageServer;
@@ -86,6 +112,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 		this.sharedFormattingOptions = new FormattingOptions(4, false);
 		this.sharedCompletionSettings = new CompletionSettings();
 		this.sharedFoldingsSettings = new FoldingRangeCapabilities();
+
 	}
 
 	public void updateClientCapabilities(ClientCapabilities capabilities) {
@@ -208,7 +235,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	public void didOpen(DidOpenTextDocumentParams params) {
 		documents.onDidOpenTextDocument(params);
 		TextDocument document = documents.get(params.getTextDocument().getUri());
-		triggerValidation(document);
+		triggerValidation(document, params.getTextDocument().getVersion());
 	}
 
 	@Override
@@ -216,7 +243,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 		documents.onDidChangeTextDocument(params);
 		TextDocument document = documents.get(params.getTextDocument().getUri());
 		if (document != null) {
-			triggerValidation(document);
+			triggerValidation(document, params.getTextDocument().getVersion());
 		}
 	}
 
@@ -254,18 +281,23 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	}
 
-	private void triggerValidation(TextDocument document) {
-		if (validationRequest != null) {
-			validationRequest.cancel(true);
+	private void triggerValidation(TextDocument document, int version) {
+		if (future != null) {
+			future.cancel(true);
 		}
-		validationRequest = computeAsync((monitor) -> {
-			monitor.checkCanceled();
-			List<Diagnostic> diagnostics = getXMLLanguageService().doDiagnostics(document, monitor);
-			monitor.checkCanceled();
-			xmlLanguageServer.getLanguageClient()
-					.publishDiagnostics(new PublishDiagnosticsParams(document.getUri(), diagnostics));
-			return null;
-		});
+		if (monitor != null) {
+			monitor.setCanceled(true);
+		}
+		monitor = new BasicCancelChecker();
+		future = xmlLanguageServer.schedule(() -> {
+			TextDocument currDocument = documents.get(document.getUri());
+			if (currDocument != null && currDocument.getVersion() == version) {
+				List<Diagnostic> diagnostics = getXMLLanguageService().doDiagnostics(document, monitor);
+				monitor.checkCanceled();
+				xmlLanguageServer.getLanguageClient()
+						.publishDiagnostics(new PublishDiagnosticsParams(document.getUri(), diagnostics));
+			}
+		}, 500, TimeUnit.MILLISECONDS);
 	}
 
 	private XMLLanguageService getXMLLanguageService() {

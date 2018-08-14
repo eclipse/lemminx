@@ -1,9 +1,10 @@
 package org.eclipse.lsp4xml.contentmodel;
 
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
+import org.eclipse.lsp4xml.contentmodel.config.ContentModelDiagnosticsConfiguration;
 import org.eclipse.lsp4xml.contentmodel.participants.ContentModelCompletionParticipant;
-import org.eclipse.lsp4xml.contentmodel.participants.ContentModelDiagnosticsParticipant;
 import org.eclipse.lsp4xml.contentmodel.participants.ContentModelHoverParticipant;
+import org.eclipse.lsp4xml.contentmodel.participants.diagnostics.ContentModelDiagnosticsParticipant;
 import org.eclipse.lsp4xml.services.extensions.ICompletionParticipant;
 import org.eclipse.lsp4xml.services.extensions.IHoverParticipant;
 import org.eclipse.lsp4xml.services.extensions.IXMLExtension;
@@ -34,7 +35,9 @@ public class ContentModelPlugin implements IXMLExtension {
 
 	@Override
 	public void didChangeConfiguration(DidChangeConfigurationParams params) {
-		diagnosticsParticipant.didChangeConfiguration(params);
+		ContentModelDiagnosticsConfiguration config = new ContentModelDiagnosticsConfiguration();
+		
+		diagnosticsParticipant.setConfiguration(config);
 	}
 
 	@Override

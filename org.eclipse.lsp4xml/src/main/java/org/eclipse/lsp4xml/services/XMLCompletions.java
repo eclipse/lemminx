@@ -15,6 +15,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -25,6 +27,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4xml.commons.BadLocationException;
+import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.internal.parser.Scanner;
 import org.eclipse.lsp4xml.internal.parser.ScannerState;
 import org.eclipse.lsp4xml.internal.parser.TokenType;
@@ -42,8 +45,10 @@ import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
  *
  */
 class XMLCompletions {
+
 	private static final Logger LOGGER = Logger.getLogger(XMLCompletions.class.getName());
 	private static final String cdata = "![CDATA[]]";
+	private static final Pattern regionCompletionRegExpr = Pattern.compile("^(\\s*)(<(!(-(-\\s*(#\\w*)?)?)?)?)?$");
 
 	private final XMLExtensionsRegistry extensionsRegistry;
 
@@ -192,6 +197,7 @@ class XMLCompletions {
 		}
 
 		return completionResponse;
+
 	}
 
 	// ---------------- Tags completion
@@ -286,6 +292,7 @@ class XMLCompletions {
 	}
 
 	private void collectInsideContent(ICompletionRequest request, ICompletionResponse response) {
+		// Participant completion on XML content
 		for (ICompletionParticipant participant : getCompletionParticipants()) {
 			try {
 				participant.onXMLContent(request, response);
@@ -293,7 +300,52 @@ class XMLCompletions {
 				LOGGER.log(Level.SEVERE, "While performing ICompletionParticipant#onXMLContent", e);
 			}
 		}
+		collectionRegionProposals(request, response);
 		collectCharacterEntityProposals(request, response);
+	}
+
+	/**
+	 * Collect completion inside comments.
+	 * 
+	 * @param request
+	 * @param response
+	 */
+	private void collectInsideComment(ICompletionRequest request, ICompletionResponse response) {
+		collectionRegionProposals(request, response);
+	}
+
+	private void collectionRegionProposals(ICompletionRequest request, ICompletionResponse response) {
+		// Completion for #region
+		try {
+			int offset = request.getOffset();
+			TextDocument document = request.getXMLDocument().getTextDocument();
+			Position pos = document.positionAt(offset);
+			String lineText = document.lineText(pos.getLine());
+			String lineUntilPos = lineText.substring(0, pos.getCharacter());
+			Matcher match = regionCompletionRegExpr.matcher(lineUntilPos);
+			if (match.find()) {
+				Range range = new Range(new Position(pos.getLine(), match.regionStart()), pos);
+
+				CompletionItem beginProposal = new CompletionItem("#region");
+				beginProposal.setTextEdit(new TextEdit(range, "<!-- #region $1-->"));
+				beginProposal.setDocumentation("Folding Region Start");
+				beginProposal.setFilterText(match.group());
+				beginProposal.setSortText("za");
+				beginProposal.setKind(CompletionItemKind.Snippet);
+				beginProposal.setInsertTextFormat(InsertTextFormat.Snippet);
+				response.addCompletionAttribute(beginProposal);
+
+				CompletionItem endProposal = new CompletionItem("#endregion");
+				endProposal.setKind(CompletionItemKind.Snippet);
+				endProposal.setTextEdit(new TextEdit(range, "<!-- #endregion-->"));
+				endProposal.setDocumentation("Folding Region End");
+				endProposal.setFilterText(match.group());
+				endProposal.setSortText("zb");
+				response.addCompletionAttribute(endProposal);
+			}
+		} catch (BadLocationException e) {
+			LOGGER.log(Level.SEVERE, "While performing collectRegionCompletion", e);
+		}
 	}
 
 	private void collectCharacterEntityProposals(ICompletionRequest request, ICompletionResponse response) {

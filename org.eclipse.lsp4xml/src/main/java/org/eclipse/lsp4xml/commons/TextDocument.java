@@ -14,7 +14,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentItem;
 
 /**
- * Text document extends LSP4j {@link TextDocumentItem} to provide method to
+ * Text document extends LSP4j {@link TextDocumentItem} to provide methods to
  * retrieve position.
  *
  */

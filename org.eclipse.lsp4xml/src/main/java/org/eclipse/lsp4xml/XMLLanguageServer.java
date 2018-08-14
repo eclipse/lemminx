@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
@@ -55,11 +57,13 @@ public class XMLLanguageServer implements LanguageServer, ExtendedLanguageServer
 	private final XMLTextDocumentService xmlTextDocumentService;
 	private final XMLWorkspaceService xmlWorkspaceService;
 	private LanguageClient languageClient;
+	private final ScheduledExecutorService delayer;
 
 	public XMLLanguageServer() {
 		xmlLanguageService = new XMLLanguageService();
 		xmlTextDocumentService = new XMLTextDocumentService(this);
 		xmlWorkspaceService = new XMLWorkspaceService(this);
+		delayer = Executors.newScheduledThreadPool(1);
 	}
 
 	@Override
@@ -97,6 +101,7 @@ public class XMLLanguageServer implements LanguageServer, ExtendedLanguageServer
 
 	@Override
 	public void exit() {
+		delayer.shutdown();
 		Executors.newSingleThreadScheduledExecutor().schedule(() -> {
 			LOGGER.warning("Force exiting after 1 minute");
 			System.exit(FORCED_EXIT_CODE);
@@ -130,5 +135,9 @@ public class XMLLanguageServer implements LanguageServer, ExtendedLanguageServer
 	@Override
 	public CompletableFuture<List<? extends FoldingRange>> foldingRanges(FoldingRangeRequestParams params) {
 		return xmlTextDocumentService.foldingRanges(params);
+	}
+
+	public ScheduledFuture<?> schedule(Runnable command, int delay, TimeUnit unit) {
+		return delayer.schedule(command, delay, unit);
 	}
 }
