@@ -56,7 +56,7 @@ public class XMLBasicDiagnosticsTest {
 			d.setMessage(null);
 			d.setSource(null);
 		});
-		Assert.assertEquals(actual.size(), expected.length);
+		Assert.assertEquals(expected.length, actual.size());
 		Assert.assertArrayEquals(expected, actual.toArray());
 	}
 
