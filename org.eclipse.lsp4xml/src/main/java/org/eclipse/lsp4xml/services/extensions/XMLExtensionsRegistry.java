@@ -14,13 +14,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.ServiceLoader;
+import java.util.logging.Logger;
 
 /**
  * XML extensions registry.
  *
  */
 public class XMLExtensionsRegistry {
-
+	public static Logger LOGGER = Logger.getLogger(XMLExtensionsRegistry.class.getName());
 	private final Collection<IXMLExtension> extensions;
 	private final List<ICompletionParticipant> completionParticipants;
 	private final List<IHoverParticipant> hoverParticipants;

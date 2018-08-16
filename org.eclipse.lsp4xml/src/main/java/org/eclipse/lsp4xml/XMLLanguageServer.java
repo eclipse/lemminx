@@ -84,6 +84,7 @@ public class XMLLanguageServer implements LanguageServer, ExtendedLanguageServer
 		capabilities.setDocumentLinkProvider(new DocumentLinkOptions(true));
 		InitializeResult result = new InitializeResult(capabilities);
 		LogHelper.initializeRootLogger(languageClient, getInitializationOptions(params));
+		
 		return CompletableFuture.completedFuture(result);
 	}
 
