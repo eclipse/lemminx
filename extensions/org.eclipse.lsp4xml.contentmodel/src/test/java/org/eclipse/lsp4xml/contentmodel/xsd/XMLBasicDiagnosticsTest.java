@@ -45,6 +45,26 @@ public class XMLBasicDiagnosticsTest {
 	}
 
 	/**
+	 * AttributeNSNotUnique tests
+	 * 
+	 * @see https://wiki.xmldation.com/Support/Validator/AttributeNSNotUnique
+	 * @throws Exception
+	 */
+	@Test
+	public void testAttributeNSNotUnique() throws Exception {
+		XMLLanguageService languageService = new XMLLanguageService();
+		String xml = new StringBuilder(
+				"<Document xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"urn:iso:std:iso:20022:tech:xsd:pain.001.001.03\"\r\n"
+						+ "\r\n" + //
+						"xmlns=\"urn:iso:std:iso:20022:tech:xsd:pain.001.001.03\"> ") //
+								.toString();
+		TextDocument document = new TextDocument(xml.toString(), "test.xml");
+		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
+		});
+		assertDiagnostics(diagnostics, d(2, 0, 2, 5, "AttributeNSNotUnique"));
+	}
+
+	/**
 	 * ElementUnterminated tests
 	 * 
 	 * @see https://wiki.xmldation.com/Support/Validator/ElementUnterminated

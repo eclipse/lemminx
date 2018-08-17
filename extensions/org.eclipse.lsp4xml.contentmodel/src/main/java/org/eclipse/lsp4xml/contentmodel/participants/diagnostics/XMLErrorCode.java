@@ -19,6 +19,7 @@ package org.eclipse.lsp4xml.contentmodel.participants.diagnostics;
 public enum XMLErrorCode {
 
 	AttributeNotUnique, // https://wiki.xmldation.com/Support/Validator/AttributeNotUnique
+	AttributeNSNotUnique, // https://wiki.xmldation.com/Support/Validator/AttributeNSNotUnique
 	EmptyPrefixedAttName, // https://wiki.xmldation.com/Support/Validator/EmptyPrefixedAttName
 	ElementUnterminated, // https://wiki.xmldation.com/Support/Validator/ElementUnterminated
 	ETagRequired; // https://wiki.xmldation.com/Support/Validator/ETagRequired

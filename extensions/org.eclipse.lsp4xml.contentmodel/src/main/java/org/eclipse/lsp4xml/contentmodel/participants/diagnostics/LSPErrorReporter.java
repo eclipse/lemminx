@@ -120,6 +120,7 @@ public class LSPErrorReporter extends XMLErrorReporter {
 		if (code != null) {
 			switch (code) {
 			case AttributeNotUnique:
+			case AttributeNSNotUnique:
 				String attrName = (String) arguments[1];
 				endOffset = findOffsetOfAttrName(document.getText(), offset, attrName);
 				startOffset = endOffset - attrName.length();
