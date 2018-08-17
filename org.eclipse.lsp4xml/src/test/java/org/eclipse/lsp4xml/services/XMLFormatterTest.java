@@ -72,6 +72,41 @@ public class XMLFormatterTest {
 				" </div>";
 		format(content, expected);
 	}
+
+	@Test
+	public void testProlog() throws BadLocationException {
+		String content = "<?xml version=   \"1.0\"       encoding=\"UTF-8\"  ?>\n";
+		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+		format(content, expected);
+	}
+
+	@Test
+	public void testProlog2() throws BadLocationException {
+		String content = "<?xml version=   \"1.0\"       encoding=\"UTF-8\"  ?><a>bb</a>";
+		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<a>bb</a>";
+		format(content, expected);
+	}
+
+	@Test
+	public void testProlog3() throws BadLocationException {
+		String content = "<?xml version=   \"1.0\"       encoding=\"UTF-8\"  ?><a><b>c</b></a>";
+		String expected = 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<a>\n" + 
+			"  <b>c</b>\n" + 
+			"</a>";
+		format(content, expected);
+	}
+
+	@Test
+	public void testPI() throws BadLocationException {
+		String content = "<a><?m2e asd as das das ?></a>";
+		String expected = "<a>\n" +
+			"  <?m2e asd as das das ?>\n" +
+			"</a>";
+		format(content, expected);
+	}
 	
 	private void format(String unformatted, String actual) throws BadLocationException {
 		format(unformatted, actual, true);
