@@ -134,16 +134,17 @@ public class XMLParser {
 				Node cdataNode = new Node(scanner.getTokenOffset(), text.length(), new ArrayList<>(), curr,
 						xmlDocument);// TODO: might need arraylist
 				cdataNode.isCDATA = true;
+				cdataNode.tag = "CDATA";
 				curr.children.add(cdataNode);
 				curr = cdataNode;
 				break;
 			}
 
 			case CDATAContent: {
-				if (curr.tag == null) {
-					curr.tag = "";
+				if (curr.content == null) {
+					curr.content = "";
 				}
-				curr.tag += scanner.getTokenText();
+				curr.content += scanner.getTokenText();
 				break;
 			}
 
