@@ -18,8 +18,10 @@ package org.eclipse.lsp4xml.contentmodel.participants.diagnostics;
  */
 public enum XMLErrorCode {
 
-	EmptyPrefixedAttName, // https://wiki.xmldation.com/Support/Validator/emptyprefixedattname
-	ElementUnterminated;
+	AttributeNotUnique, // https://wiki.xmldation.com/Support/Validator/AttributeNotUnique
+	EmptyPrefixedAttName, // https://wiki.xmldation.com/Support/Validator/EmptyPrefixedAttName
+	ElementUnterminated, // https://wiki.xmldation.com/Support/Validator/ElementUnterminated
+	ETagRequired; // https://wiki.xmldation.com/Support/Validator/ETagRequired
 
 	public static XMLErrorCode get(String name) {
 		try {

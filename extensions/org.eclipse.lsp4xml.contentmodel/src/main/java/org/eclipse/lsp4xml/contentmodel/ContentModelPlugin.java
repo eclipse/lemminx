@@ -1,15 +1,14 @@
 package org.eclipse.lsp4xml.contentmodel;
 
-import org.eclipse.lsp4j.DidChangeConfigurationParams;
-import org.eclipse.lsp4xml.contentmodel.config.ContentModelDiagnosticsConfiguration;
 import org.eclipse.lsp4xml.contentmodel.participants.ContentModelCompletionParticipant;
 import org.eclipse.lsp4xml.contentmodel.participants.ContentModelHoverParticipant;
 import org.eclipse.lsp4xml.contentmodel.participants.diagnostics.ContentModelDiagnosticsParticipant;
+import org.eclipse.lsp4xml.contentmodel.settings.ContentModelSettings;
 import org.eclipse.lsp4xml.services.extensions.ICompletionParticipant;
 import org.eclipse.lsp4xml.services.extensions.IHoverParticipant;
 import org.eclipse.lsp4xml.services.extensions.IXMLExtension;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
-
+import org.eclipse.lsp4xml.utils.JSONUtility;
 
 /**
  * Content model plugin extension to provide:
@@ -35,10 +34,11 @@ public class ContentModelPlugin implements IXMLExtension {
 	}
 
 	@Override
-	public void didChangeConfiguration(DidChangeConfigurationParams params) {
-		ContentModelDiagnosticsConfiguration config = new ContentModelDiagnosticsConfiguration();
-		
-		diagnosticsParticipant.setConfiguration(config);
+	public void updateSettings(Object settings) {
+		ContentModelSettings cmSettings = JSONUtility.toModel(settings, ContentModelSettings.class);
+		if (cmSettings != null) {
+			diagnosticsParticipant.updateSettings(cmSettings);
+		}
 	}
 
 	@Override

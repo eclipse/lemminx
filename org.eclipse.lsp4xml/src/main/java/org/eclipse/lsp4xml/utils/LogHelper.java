@@ -14,7 +14,6 @@ package org.eclipse.lsp4xml.utils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Map;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -22,6 +21,7 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 import org.eclipse.lsp4j.services.LanguageClient;
+import org.eclipse.lsp4xml.settings.LogsSettings;
 
 /**
  * LogHelper
@@ -29,28 +29,33 @@ import org.eclipse.lsp4j.services.LanguageClient;
 public class LogHelper {
 
 	// This will apply to all child loggers
-	public static void initializeRootLogger(LanguageClient newLanguageClient, Map<?, ?> initializationObject) {
-		if(newLanguageClient == null || initializationObject == null || initializationObject.isEmpty()) {
+	public static void initializeRootLogger(LanguageClient newLanguageClient, LogsSettings settings) {
+		if (newLanguageClient == null || settings == null) {
 			return;
 		}
+
 		Logger logger = Logger.getLogger("");
 		unregisterAllHandlers(logger.getHandlers());
 		logger.setLevel(Level.SEVERE);
 		logger.setUseParentHandlers(false);// Stops output to console
 
-		try {
-			logger.addHandler(LogHelper.getClientHandler(newLanguageClient));
-		} catch (Exception e) {
-			// TODO: handle exception
+		// Configure logging LSP client handler
+		if (settings.getClient()) {
+			try {
+				logger.addHandler(LogHelper.getClientHandler(newLanguageClient));
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
 		}
 
-		String path = (String) initializationObject.get("lsp4xml.logPath");
+		// Configure logging for file
+		String path = settings.getFile();
 		if (path != null) {
 			createDirectoryPath(path);
 			try {
 				FileHandler fh = LogHelper.getFileHandler(path);
 				logger.addHandler(fh);
-				
+
 			} catch (SecurityException | IOException e) {
 				logger.log(Level.WARNING, "Error at creation of FileHandler for logging");
 			}
@@ -65,22 +70,22 @@ public class LogHelper {
 		new File(parentPath).mkdirs();
 	}
 
-	public static ClientLogHandler getClientHandler(LanguageClient languageClient) {
-		if(languageClient == null) {
+	public static LSPClientLogHandler getClientHandler(LanguageClient languageClient) {
+		if (languageClient == null) {
 			return null;
 		}
-		return new ClientLogHandler(languageClient);
+		return new LSPClientLogHandler(languageClient);
 	}
 
 	public static FileHandler getFileHandler(String filePath) throws SecurityException, IOException {
-		if(filePath == null ||filePath.isEmpty()) {
+		if (filePath == null || filePath.isEmpty()) {
 			throw new IllegalArgumentException("Incorrect file path provided");
 		}
 		File f = new File(filePath);
-		if(f.isDirectory()) {
+		if (f.isDirectory()) {
 			throw new IllegalArgumentException("Provided path was a directory");
 		}
-		if(!f.exists() || f.canWrite()) {
+		if (!f.exists() || f.canWrite()) {
 			FileHandler fh = null;
 			fh = new FileHandler(filePath, true);
 			fh.setFormatter(new SimpleFormatter());
@@ -99,7 +104,7 @@ public class LogHelper {
 	}
 
 	public static void unregisterAllHandlers(Handler[] handlers) {
-		if(handlers == null) {
+		if (handlers == null) {
 			return;
 		}
 		for (Handler h : handlers) {

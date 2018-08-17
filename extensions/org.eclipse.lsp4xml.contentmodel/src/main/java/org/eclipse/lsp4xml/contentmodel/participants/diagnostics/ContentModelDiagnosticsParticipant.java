@@ -20,7 +20,7 @@ import org.apache.xml.resolver.tools.CatalogResolver;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.commons.TextDocument;
-import org.eclipse.lsp4xml.contentmodel.config.ContentModelDiagnosticsConfiguration;
+import org.eclipse.lsp4xml.contentmodel.settings.ContentModelSettings;
 import org.eclipse.lsp4xml.services.extensions.IDiagnosticsParticipant;
 
 /**
@@ -31,13 +31,11 @@ public class ContentModelDiagnosticsParticipant implements IDiagnosticsParticipa
 
 	private CatalogResolver catalogResolver;
 
-	public void setConfiguration(ContentModelDiagnosticsConfiguration config) {
+	public void updateSettings(ContentModelSettings settings) {
 		String xmlCatalogFiles = "";
-		if (config != null) {
-			if (config.getCatalogs() != null) {
-				xmlCatalogFiles = Stream.of(config.getCatalogs()).map(Object::toString)
-						.collect(Collectors.joining(";"));
-			}
+
+		if (settings.getCatalogs() != null) {
+			xmlCatalogFiles = Stream.of(settings.getCatalogs()).map(Object::toString).collect(Collectors.joining(";"));
 		}
 		setupXMLCatalog(xmlCatalogFiles);
 	}

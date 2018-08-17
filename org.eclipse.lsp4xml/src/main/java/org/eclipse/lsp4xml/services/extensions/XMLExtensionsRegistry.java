@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.ServiceLoader;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -21,11 +22,15 @@ import java.util.logging.Logger;
  *
  */
 public class XMLExtensionsRegistry {
-	public static Logger LOGGER = Logger.getLogger(XMLExtensionsRegistry.class.getName());
+
+	private static final Logger LOGGER = Logger.getLogger(XMLExtensionsRegistry.class.getName());
+
 	private final Collection<IXMLExtension> extensions;
 	private final List<ICompletionParticipant> completionParticipants;
 	private final List<IHoverParticipant> hoverParticipants;
 	private final List<IDiagnosticsParticipant> diagnosticsParticipants;
+
+	private Object settings;
 
 	private boolean initialized;
 
@@ -34,6 +39,14 @@ public class XMLExtensionsRegistry {
 		completionParticipants = new ArrayList<>();
 		hoverParticipants = new ArrayList<>();
 		diagnosticsParticipants = new ArrayList<>();
+	}
+
+	public void updateSettings(Object settings) {
+		if (initialized) {
+			extensions.stream().forEach(extension -> extension.updateSettings(settings));
+		} else {
+			this.settings = settings;
+		}
 	}
 
 	public Collection<IXMLExtension> getExtensions() {
@@ -75,8 +88,13 @@ public class XMLExtensionsRegistry {
 	}
 
 	void registerExtension(IXMLExtension extension) {
-		extensions.add(extension);
-		extension.start(this);
+		try {
+			extensions.add(extension);
+			extension.start(this);
+			extension.updateSettings(settings);
+		} catch (Exception e) {
+			LOGGER.log(Level.SEVERE, "Error while initializing extension <" + extension.getClass().getName() + ">", e);
+		}
 	}
 
 	void unregisterExtension(IXMLExtension extension) {

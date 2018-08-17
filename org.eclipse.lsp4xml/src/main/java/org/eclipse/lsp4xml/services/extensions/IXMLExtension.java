@@ -10,8 +10,6 @@
  */
 package org.eclipse.lsp4xml.services.extensions;
 
-import org.eclipse.lsp4j.DidChangeConfigurationParams;
-
 /**
  * XML extension.
  *
@@ -24,6 +22,7 @@ public interface IXMLExtension {
 	 * registry.
 	 * 
 	 * @param registry
+	 * @param settings
 	 */
 	void start(XMLExtensionsRegistry registry);
 
@@ -37,10 +36,9 @@ public interface IXMLExtension {
 	void stop(XMLExtensionsRegistry registry);
 
 	/**
-	 * Change configuration.
+	 * Update settings.
 	 * 
-	 * @param params
+	 * @param settings
 	 */
-	void didChangeConfiguration(DidChangeConfigurationParams params);
-
+	void updateSettings(Object settings);
 }

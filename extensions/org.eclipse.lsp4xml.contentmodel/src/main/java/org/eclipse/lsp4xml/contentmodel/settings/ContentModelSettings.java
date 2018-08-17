@@ -1,8 +1,8 @@
-package org.eclipse.lsp4xml.contentmodel.config;
+package org.eclipse.lsp4xml.contentmodel.settings;
 
-public class ContentModelDiagnosticsConfiguration {
+public class ContentModelSettings {
 
-	private String[] catalogs;
+private String[] catalogs;
 	
 	public void setCatalogs(String[] catalogs) {
 		this.catalogs = catalogs;

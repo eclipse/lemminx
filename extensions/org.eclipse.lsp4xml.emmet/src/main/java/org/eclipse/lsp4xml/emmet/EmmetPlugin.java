@@ -1,6 +1,5 @@
 package org.eclipse.lsp4xml.emmet;
 
-import org.eclipse.lsp4j.DidChangeConfigurationParams;
 import org.eclipse.lsp4xml.emmet.participants.EmmetCompletionParticipant;
 import org.eclipse.lsp4xml.services.extensions.ICompletionParticipant;
 import org.eclipse.lsp4xml.services.extensions.IXMLExtension;
@@ -15,7 +14,8 @@ public class EmmetPlugin implements IXMLExtension {
 	}
 
 	@Override
-	public void didChangeConfiguration(DidChangeConfigurationParams params) {
+	public void updateSettings(Object settings) {
+
 	}
 
 	@Override

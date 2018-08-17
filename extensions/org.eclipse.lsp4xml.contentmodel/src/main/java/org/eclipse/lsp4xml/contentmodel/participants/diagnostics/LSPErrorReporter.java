@@ -119,6 +119,11 @@ public class LSPErrorReporter extends XMLErrorReporter {
 		XMLErrorCode code = XMLErrorCode.get(key);
 		if (code != null) {
 			switch (code) {
+			case AttributeNotUnique:
+				String attrName = (String) arguments[1];
+				endOffset = findOffsetOfAttrName(document.getText(), offset, attrName);
+				startOffset = endOffset - attrName.length();
+				break;
 			case EmptyPrefixedAttName:
 				endOffset = findOffsetOfFirstChar(document.getText(), offset);
 				startOffset = endOffset - 2;
@@ -127,6 +132,9 @@ public class LSPErrorReporter extends XMLErrorReporter {
 				String tag = (String) arguments[0];
 				endOffset = findOffsetOfFirstChar(document.getText(), offset);
 				startOffset = endOffset - tag.length();
+				break;
+			case ETagRequired:
+				
 				break;
 			}
 		}
@@ -155,6 +163,27 @@ public class LSPErrorReporter extends XMLErrorReporter {
 			return new Position(location.getLineNumber() - 1, location.getColumnNumber() - 1);
 		}
 
+	}
+
+	private static int findOffsetOfAttrName(String text, int offset, String attrName) {
+		boolean inQuote = false;
+		boolean parsedValue = false;
+		for (int i = offset; i >= 0; i--) {
+			char c = text.charAt(i);
+			if (!(c == ' ' || c == '\r' || c == '\n')) {
+				if (c == '"' || c == '\'') {
+					inQuote = !inQuote;
+					if (!inQuote) {
+						parsedValue = true;
+					}
+				} else {
+					if (parsedValue && c != '=') {
+						return i + 1;
+					}
+				}
+			}
+		}
+		return -1;
 	}
 
 	private static int findOffsetOfFirstChar(String text, int offset) {

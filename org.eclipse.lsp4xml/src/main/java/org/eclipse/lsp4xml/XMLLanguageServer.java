@@ -13,9 +13,7 @@ package org.eclipse.lsp4xml;
 import static org.eclipse.lsp4j.jsonrpc.CompletableFutures.computeAsync;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -33,6 +31,7 @@ import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
+import org.eclipse.lsp4xml.settings.XMLClientSettings;
 import org.eclipse.lsp4xml.utils.JSONUtility;
 import org.eclipse.lsp4xml.utils.LogHelper;
 
@@ -68,6 +67,7 @@ public class XMLLanguageServer implements LanguageServer, ExtendedLanguageServer
 
 	@Override
 	public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
+		updateSettings(params.getInitializationOptions());
 		xmlTextDocumentService.updateClientCapabilities(params.getCapabilities());
 		// FIXME: use ServerCapabilities when
 		// https://github.com/eclipse/lsp4j/issues/169 will be ready
@@ -82,15 +82,25 @@ public class XMLLanguageServer implements LanguageServer, ExtendedLanguageServer
 		capabilities.setRenameProvider(true);
 		capabilities.setFoldingRangeProvider(true);
 		capabilities.setDocumentLinkProvider(new DocumentLinkOptions(true));
-		InitializeResult result = new InitializeResult(capabilities);
-		LogHelper.initializeRootLogger(languageClient, getInitializationOptions(params));
-		
-		return CompletableFuture.completedFuture(result);
+		return CompletableFuture.completedFuture(new InitializeResult(capabilities));
 	}
 
-	public static Map<?, ?> getInitializationOptions(InitializeParams params) {
-		Map<?, ?> initOptions = JSONUtility.toModel(params.getInitializationOptions(), Map.class);
-		return initOptions == null ? Collections.emptyMap() : initOptions;
+	/**
+	 * Update XML settings configured from the client.
+	 * 
+	 * @param settings the XML settings
+	 */
+	public void updateSettings(Object settings) {
+		if (settings == null) {
+			return;
+		}
+		// Update client settings
+		XMLClientSettings clientSettings = JSONUtility.toModel(settings, XMLClientSettings.class);
+		if (clientSettings != null && clientSettings.getLogs() != null) {
+			LogHelper.initializeRootLogger(languageClient, clientSettings.getLogs());
+		}
+		// Update XML language service extensions
+		xmlLanguageService.updateSettings(settings);
 	}
 
 	@Override
