@@ -89,8 +89,41 @@ public class XMLBuilder {
 		return this;
 	}
 
+	public XMLBuilder startPrologOrPI(String tagName) {
+		xml.append("<?");
+		xml.append(tagName);
+		return this;
+	}
+
+	public XMLBuilder addContentPI(String content) {
+		xml.append(" ");
+		xml.append(content);
+		xml.append(" ");
+		return this;
+	}
+
+	public XMLBuilder endPrologOrPI() {
+		xml.append("?>");
+		return this;
+	}
+
 	@Override
 	public String toString() {
 		return xml.toString();
+	}
+
+	public XMLBuilder startCDATA() {
+		xml.append("<![CDATA[");
+		return this;
+	}
+
+	public XMLBuilder addContentCDATA(String content) {
+		xml.append(content);
+		return this;
+	}
+
+	public XMLBuilder endCDATA() {
+		xml.append("]]>");
+		return this;
 	}
 }

@@ -84,33 +84,71 @@ class XMLFormatter {
 				xml.indent(level);
 			}
 			// generate start element
-			xml.startElement(node.tag, false);
-			if (node.attributes != null) {
-				// generate attributes
-				Set<String> attributeNames = node.attributeNames();
-				for (String attributeName : attributeNames) {
-					xml.addAttribute(attributeName, node.getAttributeValue(attributeName));
+			if(node.isCDATA) {
+				xml.startCDATA();
+				xml.addContentCDATA(node.content);
+				xml.endCDATA();
+			}
+			else if(node.isProcessingInstruction) {
+				xml.startPrologOrPI(node.tag);
+				xml.addContentPI(node.content);
+			}
+			else if(node.isProlog) {
+				xml.startPrologOrPI(node.tag);
+
+				if (node.attributes != null) {
+					// generate attributes
+					String[] attributes = new String[3];
+					attributes[0] = "version";
+					attributes[1] = "encoding";
+					attributes[2] = "standalone";
+					
+					for (String attributeName : attributes) {
+						String attributeValue = node.getAttributeValue(attributeName);
+						if(attributeValue != null) {
+							xml.addAttribute(attributeName, attributeValue);
+						}
+					}
 				}
 			}
-			if (!node.children.isEmpty()) {
-				// element has body
-				xml.closeStartElement();
-				level++;
-				boolean hasElements = false;
-				for (Node child : node.children) {
-					hasElements = hasElements | child.tag != null;
-					format(child, level, xml);
+			else {
+				xml.startElement(node.tag, false);
+				if (node.attributes != null) {
+					// generate attributes
+					Set<String> attributeNames = node.attributeNames();
+					for (String attributeName : attributeNames) {
+						xml.addAttribute(attributeName, node.getAttributeValue(attributeName));
+					}
 				}
-				level--;
-				if (hasElements) {
+				if (!node.children.isEmpty()) {
+					// element has body
+					xml.closeStartElement();
+					level++;
+					boolean hasElements = false;
+					for (Node child : node.children) {
+						hasElements = hasElements | child.tag != null;
+						format(child, level, xml);
+					}
+					level--;
+					if (hasElements) {
+						xml.linefeed();
+						xml.indent(level);
+					}
+					xml.endElement(node.tag);
+				} else {
+					// element has no content
+					xml.endElement();
+				}
+				return;
+			}
+			
+			if(node.isProcessingInstruction || node.isProlog) {
+				xml.endPrologOrPI();
+				if(node.isProlog) {
 					xml.linefeed();
-					xml.indent(level);
 				}
-				xml.endElement(node.tag);
-			} else {
-				// element has no content
-				xml.endElement();
 			}
+			
 		} else if (node.content != null) {
 			// Generate content
 			String content = normalizeSpace(node.content);
