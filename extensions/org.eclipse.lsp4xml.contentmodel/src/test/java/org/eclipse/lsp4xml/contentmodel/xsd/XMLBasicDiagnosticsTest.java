@@ -82,6 +82,24 @@ public class XMLBasicDiagnosticsTest {
 	}
 	
 	/**
+	 * DashDashInComment tests
+	 * 
+	 * @see https://wiki.xmldation.com/Support/Validator/DashDashInComment
+	 * @throws Exception
+	 */
+	@Test
+	public void testDashDashInComment() throws Exception {
+		XMLLanguageService languageService = new XMLLanguageService();
+		String xml = new StringBuilder("<Id>\r\n" + //
+				"					<!-- comment -- text -->\r\n" + "        </Id>") //
+						.toString();
+		TextDocument document = new TextDocument(xml.toString(), "test.xml");
+		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
+		});
+		assertDiagnostics(diagnostics, d(1, 18, 1, 20, "DashDashInComment"));
+	}
+	
+	/**
 	 * ElementUnterminated tests
 	 * 
 	 * @see https://wiki.xmldation.com/Support/Validator/ElementUnterminated
@@ -102,28 +120,6 @@ public class XMLBasicDiagnosticsTest {
 		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
 		});
 		assertDiagnostics(diagnostics, d(1, 11, 1, 16, "ElementUnterminated"));
-	}
-
-	@Test
-	public void testContentIllegalInPrologContentBefore() throws Exception {
-		XMLLanguageService languageService = new XMLLanguageService();
-		String xml = new StringBuilder("aa<>xml version=\"1.0\" encoding=\"UTF-8\"?>").toString();
-		TextDocument document = new TextDocument(xml.toString(), "test.xml");
-		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
-		});
-		assertDiagnostics(diagnostics, d(0, 0, 0, 0, "ContentIllegalInProlog"));
-	}
-
-	@Test
-	public void testDashDashInComment() throws Exception {
-		XMLLanguageService languageService = new XMLLanguageService();
-		String xml = new StringBuilder("<Id>\r\n" + //
-				"					<!-- comment -- text -->\r\n" + "        </Id>") //
-						.toString();
-		TextDocument document = new TextDocument(xml.toString(), "test.xml");
-		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
-		});
-		assertDiagnostics(diagnostics, d(1, 20, 1, 20, "DashDashInComment"));
 	}
 
 	/**

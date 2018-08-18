@@ -21,6 +21,7 @@ public enum XMLErrorCode {
 	AttributeNotUnique, // https://wiki.xmldation.com/Support/Validator/AttributeNotUnique
 	AttributeNSNotUnique, // https://wiki.xmldation.com/Support/Validator/AttributeNSNotUnique
 	ContentIllegalInProlog, // https://wiki.xmldation.com/Support/Validator/ContentIllegalInProlog
+	DashDashInComment, // https://wiki.xmldation.com/Support/Validator/DashDashInComment
 	EmptyPrefixedAttName, // https://wiki.xmldation.com/Support/Validator/EmptyPrefixedAttName
 	ElementUnterminated, // https://wiki.xmldation.com/Support/Validator/ElementUnterminated
 	ETagRequired; // https://wiki.xmldation.com/Support/Validator/ETagRequired

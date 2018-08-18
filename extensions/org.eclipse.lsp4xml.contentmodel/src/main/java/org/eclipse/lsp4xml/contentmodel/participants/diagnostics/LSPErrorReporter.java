@@ -130,6 +130,9 @@ public class LSPErrorReporter extends XMLErrorReporter {
 				startOffset = offset;
 				endOffset = findOffsetOfAfterChar(document.getText(), offset, '<');				
 				break;
+			case DashDashInComment:
+				startOffset = endOffset - 1;
+				break;
 			case EmptyPrefixedAttName:
 				endOffset = findOffsetOfFirstChar(document.getText(), offset);
 				startOffset = endOffset - 2;
