@@ -30,6 +30,7 @@ import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
+import org.eclipse.lsp4xml.commons.ParentProcessWatcher.ProcessLanguageServer;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.eclipse.lsp4xml.settings.XMLClientSettings;
 import org.eclipse.lsp4xml.utils.JSONUtility;
@@ -44,7 +45,7 @@ import toremove.org.eclipse.lsp4j.FoldingRangeRequestParams;
  * XML language server.
  *
  */
-public class XMLLanguageServer implements LanguageServer, ExtendedLanguageServer {
+public class XMLLanguageServer implements LanguageServer, ProcessLanguageServer, ExtendedLanguageServer {
 
 	/**
 	 * Exit code returned when XML Language Server is forced to exit.
@@ -57,6 +58,7 @@ public class XMLLanguageServer implements LanguageServer, ExtendedLanguageServer
 	private final XMLWorkspaceService xmlWorkspaceService;
 	private LanguageClient languageClient;
 	private final ScheduledExecutorService delayer;
+	private Integer parentProcessId;
 
 	public XMLLanguageServer() {
 		xmlLanguageService = new XMLLanguageService();
@@ -69,6 +71,7 @@ public class XMLLanguageServer implements LanguageServer, ExtendedLanguageServer
 	public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
 		updateSettings(params.getInitializationOptions());
 		xmlTextDocumentService.updateClientCapabilities(params.getCapabilities());
+		this.parentProcessId = params.getProcessId();
 		// FIXME: use ServerCapabilities when
 		// https://github.com/eclipse/lsp4j/issues/169 will be ready
 		ExtendedServerCapabilities capabilities = new ExtendedServerCapabilities();
@@ -150,5 +153,10 @@ public class XMLLanguageServer implements LanguageServer, ExtendedLanguageServer
 
 	public ScheduledFuture<?> schedule(Runnable command, int delay, TimeUnit unit) {
 		return delayer.schedule(command, delay, unit);
+	}
+
+	@Override
+	public long getParentProcessId() {
+		return parentProcessId != null ? parentProcessId : 0;
 	}
 }
