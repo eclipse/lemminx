@@ -1,4 +1,4 @@
-package org.eclipse.lsp4xml.contentmodel.xsd;
+package org.eclipse.lsp4xml.contentmodel;
 /**
  *  Copyright (c) 2018 Angelo ZERR
  *  All rights reserved. This program and the accompanying materials
