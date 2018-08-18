@@ -125,6 +125,11 @@ public class LSPErrorReporter extends XMLErrorReporter {
 				endOffset = findOffsetOfAttrName(document.getText(), offset, attrName);
 				startOffset = endOffset - attrName.length();
 				break;
+			case ContentIllegalInProlog:
+				offset = location.getCharacterOffset();
+				startOffset = offset;
+				endOffset = findOffsetOfAfterChar(document.getText(), offset, '<');				
+				break;
 			case EmptyPrefixedAttName:
 				endOffset = findOffsetOfFirstChar(document.getText(), offset);
 				startOffset = endOffset - 2;
@@ -135,7 +140,7 @@ public class LSPErrorReporter extends XMLErrorReporter {
 				startOffset = endOffset - tag.length();
 				break;
 			case ETagRequired:
-				
+
 				break;
 			}
 		}
@@ -192,6 +197,16 @@ public class LSPErrorReporter extends XMLErrorReporter {
 			char c = text.charAt(i);
 			if (!(c == ' ' || c == '\r' || c == '\n')) {
 				return i + 1;
+			}
+		}
+		return -1;
+	}
+	
+	private static int findOffsetOfAfterChar(String text, int offset, char ch) {
+		for (int i = offset; i < text.length(); i++) {
+			char c = text.charAt(i);
+			if (c == ch) {
+				return i;
 			}
 		}
 		return -1;

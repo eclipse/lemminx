@@ -65,6 +65,23 @@ public class XMLBasicDiagnosticsTest {
 	}
 
 	/**
+	 * ContentIllegalInProlog tests
+	 * 
+	 * @see https://wiki.xmldation.com/Support/Validator/ContentIllegalInProlog
+	 * @throws Exception
+	 */
+	@Test
+	public void testContentIllegalInProlog() throws Exception {
+		XMLLanguageService languageService = new XMLLanguageService();
+		String xml = new StringBuilder(" ab?<xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>") //
+				.toString();
+		TextDocument document = new TextDocument(xml.toString(), "test.xml");
+		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
+		});
+		assertDiagnostics(diagnostics, d(0, 1, 0, 4, "ContentIllegalInProlog"));
+	}
+	
+	/**
 	 * ElementUnterminated tests
 	 * 
 	 * @see https://wiki.xmldation.com/Support/Validator/ElementUnterminated
