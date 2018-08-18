@@ -14,6 +14,7 @@ import java.util.List;
 
 import org.apache.xerces.impl.XMLErrorReporter;
 import org.apache.xerces.impl.msg.XMLMessageFormatter;
+import org.apache.xerces.impl.xs.XSMessageFormatter;
 import org.apache.xerces.util.MessageFormatter;
 import org.apache.xerces.xni.XMLLocator;
 import org.apache.xerces.xni.XNIException;
@@ -46,6 +47,7 @@ public class LSPErrorReporter extends XMLErrorReporter {
 		XMLMessageFormatter xmft = new XMLMessageFormatter();
 		super.putMessageFormatter(XMLMessageFormatter.XML_DOMAIN, xmft);
 		super.putMessageFormatter(XMLMessageFormatter.XMLNS_DOMAIN, xmft);
+		super.putMessageFormatter(XSMessageFormatter.SCHEMA_DOMAIN, new XSMessageFormatter());
 	}
 
 	public String reportError(XMLLocator location, String domain, String key, Object[] arguments, short severity,
