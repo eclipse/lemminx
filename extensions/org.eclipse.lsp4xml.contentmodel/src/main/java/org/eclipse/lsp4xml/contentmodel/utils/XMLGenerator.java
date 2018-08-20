@@ -27,21 +27,26 @@ public class XMLGenerator {
 	private final FormattingOptions formattingOptions;
 	private final String whitespacesIndent;
 	private final String lineDelimiter;
+	private final boolean canSupportSnippets;
 
 	/**
 	 * XML generator constructor.
 	 * 
-	 * @param formattingOptions the formatting options (uses spaces or tabs for
-	 *                          indentation, etc)
-	 * @param whitespacesIndent the whitespaces to use to indent XML children
-	 *                          elements.
-	 * @param lineDelimiter     the line delimiter to use when several XML elements
-	 *                          must be generated.
+	 * @param formattingOptions  the formatting options (uses spaces or tabs for
+	 *                           indentation, etc)
+	 * @param whitespacesIndent  the whitespaces to use to indent XML children
+	 *                           elements.
+	 * @param lineDelimiter      the line delimiter to use when several XML elements
+	 *                           must be generated.
+	 * @param canSupportSnippets true if snippets can be supported and false
+	 *                           otherwise.
 	 */
-	public XMLGenerator(FormattingOptions formattingOptions, String whitespacesIndent, String lineDelimiter) {
+	public XMLGenerator(FormattingOptions formattingOptions, String whitespacesIndent, String lineDelimiter,
+			boolean canSupportSnippets) {
 		this.formattingOptions = formattingOptions;
 		this.whitespacesIndent = whitespacesIndent;
 		this.lineDelimiter = lineDelimiter;
+		this.canSupportSnippets = canSupportSnippets;
 	}
 
 	/**
@@ -52,13 +57,14 @@ public class XMLGenerator {
 	 */
 	public String generate(CMElementDeclaration elementDeclaration) {
 		XMLBuilder xml = new XMLBuilder(formattingOptions, whitespacesIndent, lineDelimiter);
-		generate(elementDeclaration, 0, xml, new ArrayList<CMElementDeclaration>());
+		generate(elementDeclaration, 0, 0, xml, new ArrayList<CMElementDeclaration>());
 		return xml.toString();
 	}
 
-	private void generate(CMElementDeclaration elementDeclaration, int level, XMLBuilder xml, List<CMElementDeclaration> generatedElements) {
+	private int generate(CMElementDeclaration elementDeclaration, int level, int snippetIndex, XMLBuilder xml,
+			List<CMElementDeclaration> generatedElements) {
 		if (generatedElements.contains(elementDeclaration)) {
-			return;
+			return snippetIndex;
 		}
 		generatedElements.add(elementDeclaration);
 		if (level > 0) {
@@ -71,15 +77,23 @@ public class XMLGenerator {
 			xml.closeStartElement();
 			level++;
 			for (CMElementDeclaration child : children) {
-				generate(child, level, xml, generatedElements);
+				snippetIndex = generate(child, level, snippetIndex, xml, generatedElements);
 			}
 			level--;
 			xml.linefeed();
 			xml.indent(level);
 			xml.endElement(elementDeclaration.getName());
-		} else {
+		} else if (elementDeclaration.isEmpty()) {
 			xml.endElement();
+		} else {
+			xml.closeStartElement();
+			if (canSupportSnippets) {
+				snippetIndex++;
+				xml.addContent("$" + snippetIndex);				
+			}
+			xml.endElement(elementDeclaration.getName());
 		}
+		return snippetIndex;
 	}
 
 }

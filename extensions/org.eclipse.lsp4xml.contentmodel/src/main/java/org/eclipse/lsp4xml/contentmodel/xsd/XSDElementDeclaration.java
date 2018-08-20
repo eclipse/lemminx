@@ -186,4 +186,10 @@ public class XSDElementDeclaration implements CMElementDeclaration {
 	public String toString() {
 		return getName();
 	}
+	
+	@Override
+	public boolean isEmpty() {
+		// TODO: support it
+		return false;
+	}
 }

@@ -65,4 +65,13 @@ public interface CMElementDeclaration {
 	 */
 	String getDocumentation();
 
+	/**
+	 * Returns true if the element cannot contains element children or text content
+	 * and false otherwise.
+	 * 
+	 * @return true if the element cannot contains element children or text content
+	 *         and false otherwise.
+	 */
+	boolean isEmpty();
+
 }
