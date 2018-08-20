@@ -77,10 +77,25 @@ public class XMLDocument extends Node {
 		if (roots == null || roots.size() < 1) {
 			return;
 		}
-		Node root = roots.get(0);
+		Node root = getDocumentElement();
+		if (root == null) {
+			return;
+		}
 		schemaLocation = createSchemaLocation(root);
 		noNamespaceSchemaLocation = createNoNamespaceSchemaLocation(root);
 		schemaLocationInitialized = true;
+	}
+
+	private Node getDocumentElement() {
+		List<Node> roots = getRoots();
+		if (roots != null) {
+			for (Node node : roots) {
+				if (!node.isProlog) {
+					return node;
+				}
+			}
+		}
+		return null;
 	}
 
 	private SchemaLocation createSchemaLocation(Node root) {
@@ -100,13 +115,8 @@ public class XMLDocument extends Node {
 	}
 
 	public String getNamespaceURI() {
-		List<Node> roots = getRoots();
-		if (roots == null || roots.size() < 1) {
-			return null;
-		}
-		Node root = roots.get(0);
-		return root.getAttributeValue("xmlns");
-
+		Node root = getDocumentElement();
+		return root != null ? root.getAttributeValue("xmlns") : null;
 	}
 
 	public String getText() {
