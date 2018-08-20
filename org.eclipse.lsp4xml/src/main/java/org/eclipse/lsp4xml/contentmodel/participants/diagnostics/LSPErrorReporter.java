@@ -113,42 +113,19 @@ public class LSPErrorReporter extends XMLErrorReporter {
 	 * @return the LSP range from the SAX error.
 	 */
 	private static Range toLSPRange(XMLLocator location, String key, Object[] arguments, TextDocument document) {
-		int offset = location.getCharacterOffset() - 1;
+		// try adjust positions for XML syntax error
+		XMLSyntaxErrorCode syntaxCode = XMLSyntaxErrorCode.get(key);
+		if (syntaxCode != null) {
+			return XMLSyntaxErrorCode.toLSPRange(location, syntaxCode, arguments, document);
+		}
+		// try adjust positions for XML schema error
+		XMLSchemaErrorCode schemaCode = XMLSchemaErrorCode.get(key);
+		if (schemaCode != null) {
+			return XMLSchemaErrorCode.toLSPRange(location, schemaCode, arguments, document);
+		}
+		
 		int startOffset = location.getCharacterOffset() - 1;
 		int endOffset = location.getCharacterOffset() - 1;
-
-		// adjust positions
-		XMLErrorCode code = XMLErrorCode.get(key);
-		if (code != null) {
-			switch (code) {
-			case AttributeNotUnique:
-			case AttributeNSNotUnique:
-				String attrName = (String) arguments[1];
-				endOffset = findOffsetOfAttrName(document.getText(), offset, attrName);
-				startOffset = endOffset - attrName.length();
-				break;
-			case ContentIllegalInProlog:
-				offset = location.getCharacterOffset();
-				startOffset = offset;
-				endOffset = findOffsetOfAfterChar(document.getText(), offset, '<');				
-				break;
-			case DashDashInComment:
-				startOffset = endOffset - 1;
-				break;
-			case EmptyPrefixedAttName:
-				endOffset = findOffsetOfFirstChar(document.getText(), offset);
-				startOffset = endOffset - 2;
-				break;
-			case ElementUnterminated:
-				String tag = (String) arguments[0];
-				endOffset = findOffsetOfFirstChar(document.getText(), offset);
-				startOffset = endOffset - tag.length();
-				break;
-			case ETagRequired:
-
-				break;
-			}
-		}
 
 		// Create LSP range
 		Position start = toLSPPosition(startOffset, location, document);
@@ -164,7 +141,7 @@ public class LSPErrorReporter extends XMLErrorReporter {
 	 * @param document
 	 * @return the LSP position from the SAX location.
 	 */
-	private static Position toLSPPosition(int offset, XMLLocator location, TextDocument document) {
+	static Position toLSPPosition(int offset, XMLLocator location, TextDocument document) {
 		if (offset == location.getCharacterOffset() - 1) {
 			return new Position(location.getLineNumber() - 1, location.getColumnNumber() - 1);
 		}
@@ -176,7 +153,7 @@ public class LSPErrorReporter extends XMLErrorReporter {
 
 	}
 
-	private static int findOffsetOfAttrName(String text, int offset, String attrName) {
+	static int findOffsetOfAttrName(String text, int offset, String attrName) {
 		boolean inQuote = false;
 		boolean parsedValue = false;
 		for (int i = offset; i >= 0; i--) {
@@ -197,7 +174,7 @@ public class LSPErrorReporter extends XMLErrorReporter {
 		return -1;
 	}
 
-	private static int findOffsetOfFirstChar(String text, int offset) {
+	static int findOffsetOfFirstChar(String text, int offset) {
 		for (int i = offset; i >= 0; i--) {
 			char c = text.charAt(i);
 			if (!(c == ' ' || c == '\r' || c == '\n')) {
@@ -206,8 +183,8 @@ public class LSPErrorReporter extends XMLErrorReporter {
 		}
 		return -1;
 	}
-	
-	private static int findOffsetOfAfterChar(String text, int offset, char ch) {
+
+	static int findOffsetOfAfterChar(String text, int offset, char ch) {
 		for (int i = offset; i < text.length(); i++) {
 			char c = text.charAt(i);
 			if (c == ch) {
