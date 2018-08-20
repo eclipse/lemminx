@@ -25,7 +25,7 @@ import org.junit.Test;
  * XML diagnostics services tests
  *
  */
-public class XMLBasicDiagnosticsTest {
+public class XMLSyntaxDiagnosticsTest {
 
 	/**
 	 * AttributeNotUnique tests

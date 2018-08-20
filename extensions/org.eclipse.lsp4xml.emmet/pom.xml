@@ -52,6 +52,6 @@
 			<groupId>org.eclipse</groupId>
 			<artifactId>org.eclipse.lsp4xml</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
+		</dependency>		
 	</dependencies>
 </project>

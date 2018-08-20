@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+    <catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+    <system systemId="http://person.xsd" uri="person.xsd"/>
+    <uri
+                name="http://www.springframework.org/schema/beans"
+                uri="../xsd/spring-beans-3.0.xsd" />
+</catalog>
