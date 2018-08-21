@@ -10,9 +10,8 @@
  */
 package org.eclipse.lsp4xml.contentmodel.participants.diagnostics;
 
-import static org.eclipse.lsp4xml.contentmodel.participants.diagnostics.LSPErrorReporter.findOffsetOfAfterChar;
 import static org.eclipse.lsp4xml.contentmodel.participants.diagnostics.LSPErrorReporter.findOffsetOfAttrName;
-import static org.eclipse.lsp4xml.contentmodel.participants.diagnostics.LSPErrorReporter.findOffsetOfFirstChar;
+import static org.eclipse.lsp4xml.contentmodel.participants.diagnostics.LSPErrorReporter.findOffsetOfStartTag;
 import static org.eclipse.lsp4xml.contentmodel.participants.diagnostics.LSPErrorReporter.toLSPPosition;
 
 import java.util.HashMap;
@@ -31,8 +30,9 @@ import org.eclipse.lsp4xml.commons.TextDocument;
  */
 public enum XMLSchemaErrorCode {
 
-	cvc_complex_type_2_4_a("cvc-complex-type.2.4.a"); // https://wiki.xmldation.com/Support/Validator/cvc-complex-type.2.4.a
-
+	cvc_complex_type_2_4_a("cvc-complex-type.2.4.a"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-2-4-a
+	cvc_complex_type_3_2_2("cvc-complex-type.3.2.2"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-3-2-2
+	cvc_complex_type_4("cvc-complex-type.4"); // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-4
 	private final String code;
 
 	private XMLSchemaErrorCode() {
@@ -83,6 +83,20 @@ public enum XMLSchemaErrorCode {
 		case cvc_complex_type_2_4_a:
 			// TODO...
 			break;
+		case cvc_complex_type_3_2_2: {
+			String tag = (String) arguments[0];
+			String attrName = (String) arguments[1];
+			endOffset = findOffsetOfAttrName(document.getText(), offset, attrName);
+			startOffset = endOffset - attrName.length();
+			break;
+		}
+		case cvc_complex_type_4: {
+			String tag = (String) arguments[0];
+			String attrName = (String) arguments[1];
+			startOffset = findOffsetOfStartTag(document.getText(), offset, tag);
+			endOffset = startOffset + tag.length();
+			break;
+		}
 		}
 
 		// Create LSP range

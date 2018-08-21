@@ -123,7 +123,7 @@ public class LSPErrorReporter extends XMLErrorReporter {
 		if (schemaCode != null) {
 			return XMLSchemaErrorCode.toLSPRange(location, schemaCode, arguments, document);
 		}
-		
+
 		int startOffset = location.getCharacterOffset() - 1;
 		int endOffset = location.getCharacterOffset() - 1;
 
@@ -168,6 +168,27 @@ public class LSPErrorReporter extends XMLErrorReporter {
 					if (parsedValue && c != '=') {
 						return i + 1;
 					}
+				}
+			}
+		}
+		return -1;
+	}
+
+	static int findOffsetOfStartTag(String text, int offset, String tag) {
+		int lastIndex = tag.length();
+		int j = lastIndex;
+		for (int i = offset; i >= 0; i--) {
+			char c = text.charAt(i);
+			if (j == 0) {
+				if (c == '<') {
+					return i + 1;
+				}
+				j = lastIndex;
+			} else {
+				if (c == tag.charAt(j - 1)) {
+					j--;
+				} else {
+					j = lastIndex;
 				}
 			}
 		}
