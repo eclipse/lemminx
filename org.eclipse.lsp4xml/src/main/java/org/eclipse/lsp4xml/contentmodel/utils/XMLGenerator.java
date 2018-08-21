@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.lsp4j.FormattingOptions;
+import org.eclipse.lsp4xml.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lsp4xml.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lsp4xml.utils.XMLBuilder;
 
@@ -28,6 +29,7 @@ public class XMLGenerator {
 	private final String whitespacesIndent;
 	private final String lineDelimiter;
 	private final boolean canSupportSnippets;
+	private int maxLevel;
 
 	/**
 	 * XML generator constructor.
@@ -42,7 +44,7 @@ public class XMLGenerator {
 	 *                           otherwise.
 	 */
 	public XMLGenerator(FormattingOptions formattingOptions, String whitespacesIndent, String lineDelimiter,
-			boolean canSupportSnippets) {
+			boolean canSupportSnippets, int maxLevel) {
 		this.formattingOptions = formattingOptions;
 		this.whitespacesIndent = whitespacesIndent;
 		this.lineDelimiter = lineDelimiter;
@@ -72,16 +74,36 @@ public class XMLGenerator {
 			xml.indent(level);
 		}
 		xml.startElement(elementDeclaration.getName(), false);
+		// Attributes
+		Collection<CMAttributeDeclaration> attributes = elementDeclaration.getAttributes();
+		for (CMAttributeDeclaration attributeDeclaration : attributes) {
+			if (attributeDeclaration.isRequired()) {
+				String value = "";
+				if (canSupportSnippets) {
+					snippetIndex++;
+					value = ("$" + snippetIndex);
+				}
+				xml.addAttribute(attributeDeclaration.getName(), value);
+			}
+		}
+		// Elements children
 		Collection<CMElementDeclaration> children = elementDeclaration.getElements();
 		if (children.size() > 0) {
 			xml.closeStartElement();
-			level++;
-			for (CMElementDeclaration child : children) {
-				snippetIndex = generate(child, level, snippetIndex, xml, generatedElements);
+			if ((level > maxLevel)) {
+				level++;
+				for (CMElementDeclaration child : children) {
+					snippetIndex = generate(child, level, snippetIndex, xml, generatedElements);
+				}
+				level--;
+				xml.linefeed();
+				xml.indent(level);
+			} else {
+				if (canSupportSnippets) {
+					snippetIndex++;
+					xml.addContent("$" + snippetIndex);
+				}
 			}
-			level--;
-			xml.linefeed();
-			xml.indent(level);
 			xml.endElement(elementDeclaration.getName());
 		} else if (elementDeclaration.isEmpty()) {
 			xml.endElement();
@@ -89,7 +111,7 @@ public class XMLGenerator {
 			xml.closeStartElement();
 			if (canSupportSnippets) {
 				snippetIndex++;
-				xml.addContent("$" + snippetIndex);				
+				xml.addContent("$" + snippetIndex);
 			}
 			xml.endElement(elementDeclaration.getName());
 		}

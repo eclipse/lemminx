@@ -11,6 +11,7 @@
 package org.eclipse.lsp4xml.contentmodel.xsd;
 
 import org.apache.xerces.xs.XSAttributeDeclaration;
+import org.apache.xerces.xs.XSAttributeUse;
 import org.eclipse.lsp4xml.contentmodel.model.CMAttributeDeclaration;
 
 /**
@@ -19,23 +20,33 @@ import org.eclipse.lsp4xml.contentmodel.model.CMAttributeDeclaration;
  */
 public class XSDAttributeDeclaration implements CMAttributeDeclaration {
 
-	private final XSAttributeDeclaration attributeDeclaration;
+	private final XSAttributeUse attributeUse;
 	private XSDAnnotationModel annotationModel;
 
-	public XSDAttributeDeclaration(XSAttributeDeclaration attributeDeclaration) {
-		this.attributeDeclaration = attributeDeclaration;
+	public XSDAttributeDeclaration(XSAttributeUse attributeUse) {
+		this.attributeUse = attributeUse;
 	}
 
 	@Override
 	public String getName() {
-		return attributeDeclaration.getName();
+		return getAttrDeclaration().getName();
 	}
 
 	@Override
 	public String getDocumentation() {
-		if (annotationModel == null && attributeDeclaration.getAnnotation() != null) {
-			annotationModel = XSDAnnotationModel.load(attributeDeclaration.getAnnotation());
+		if (annotationModel == null && getAttrDeclaration().getAnnotation() != null) {
+			annotationModel = XSDAnnotationModel.load(getAttrDeclaration().getAnnotation());
 		}
 		return annotationModel != null ? annotationModel.getDocumentation() : null;
 	}
+
+	@Override
+	public boolean isRequired() {
+		return attributeUse.getRequired();
+	}
+
+	private XSAttributeDeclaration getAttrDeclaration() {
+		return attributeUse.getAttrDeclaration();
+	}
+
 }

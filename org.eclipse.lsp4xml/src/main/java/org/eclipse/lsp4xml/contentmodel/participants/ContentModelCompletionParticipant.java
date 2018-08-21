@@ -45,7 +45,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			String whitespacesIndent = getStartWhitespaces(lineText);
 
 			XMLGenerator generator = new XMLGenerator(request.getFormattingSettings(), whitespacesIndent,
-					lineDelimiter, request.getCompletionSettings().isCompletionSnippetsSupported());
+					lineDelimiter, request.getCompletionSettings().isCompletionSnippetsSupported(), 0);
 			for (CMElementDeclaration child : cmElement.getElements()) {
 				String tag = child.getName();
 				if (!element.hasTag(tag)) {

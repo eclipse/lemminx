@@ -23,5 +23,12 @@ public interface CMAttributeDeclaration {
 	 */
 	String getName();
 
-	 String getDocumentation();
+	String getDocumentation();
+
+	/**
+	 * Returns true if the attribute is required and false otherwise.
+	 * 
+	 * @return true if the attribute is required and false otherwise.
+	 */
+	boolean isRequired();
 }
