@@ -35,6 +35,7 @@ import org.eclipse.lsp4xml.utils.XMLBuilder;
 class XMLFormatter {
 	private static final Logger LOGGER = Logger.getLogger(XMLFormatter.class.getName());
 	private final XMLExtensionsRegistry extensionsRegistry;
+
 	public XMLFormatter(XMLExtensionsRegistry extensionsRegistry) {
 		this.extensionsRegistry = extensionsRegistry;
 	}
@@ -84,16 +85,14 @@ class XMLFormatter {
 				xml.indent(level);
 			}
 			// generate start element
-			if(node.isCDATA) {
+			if (node.isCDATA) {
 				xml.startCDATA();
 				xml.addContentCDATA(node.content);
 				xml.endCDATA();
-			}
-			else if(node.isProcessingInstruction) {
+			} else if (node.isProcessingInstruction) {
 				xml.startPrologOrPI(node.tag);
 				xml.addContentPI(node.content);
-			}
-			else if(node.isProlog) {
+			} else if (node.isProlog) {
 				xml.startPrologOrPI(node.tag);
 
 				if (node.attributes != null) {
@@ -102,16 +101,15 @@ class XMLFormatter {
 					attributes[0] = "version";
 					attributes[1] = "encoding";
 					attributes[2] = "standalone";
-					
+
 					for (String attributeName : attributes) {
 						String attributeValue = node.getAttributeValue(attributeName);
-						if(attributeValue != null) {
+						if (attributeValue != null) {
 							xml.addAttribute(attributeName, attributeValue);
 						}
 					}
 				}
-			}
-			else {
+			} else {
 				xml.startElement(node.tag, false);
 				if (node.attributes != null) {
 					// generate attributes
@@ -141,14 +139,14 @@ class XMLFormatter {
 				}
 				return;
 			}
-			
-			if(node.isProcessingInstruction || node.isProlog) {
+
+			if (node.isProcessingInstruction || node.isProlog) {
 				xml.endPrologOrPI();
-				if(node.isProlog) {
+				if (node.isProlog) {
 					xml.linefeed();
 				}
 			}
-			
+
 		} else if (node.content != null) {
 			// Generate content
 			String content = normalizeSpace(node.content);
