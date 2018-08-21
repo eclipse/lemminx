@@ -64,6 +64,45 @@ public class TextDocumentTest {
 	}
 
 	@Test
+	public void testPositionAtEndLine() throws BadLocationException {
+		TextDocument document = new TextDocument("abcd\n", null);
+
+		Position position = document.positionAt(4);
+		Assert.assertEquals(0, position.getLine());
+		Assert.assertEquals(4, position.getCharacter());
+
+		position = document.positionAt(5);
+		Assert.assertEquals(1, position.getLine());
+		Assert.assertEquals(0, position.getCharacter());
+
+		BadLocationException ex = null;
+		try {
+			position = document.positionAt(6);
+		} catch (BadLocationException e) {
+			ex = e;
+		}
+		Assert.assertNotNull(ex);
+
+		document = new TextDocument("abcd\nefgh\n", null);
+
+		position = document.positionAt(9);
+		Assert.assertEquals(1, position.getLine());
+		Assert.assertEquals(4, position.getCharacter());
+
+		position = document.positionAt(10);
+		Assert.assertEquals(2, position.getLine());
+		Assert.assertEquals(0, position.getCharacter());
+
+		ex = null;
+		try {
+			position = document.positionAt(11);
+		} catch (BadLocationException e) {
+			ex = e;
+		}
+		Assert.assertNotNull(ex);
+	}
+
+	@Test
 	public void testOffsetAt() throws BadLocationException {
 		TextDocument document = new TextDocument("abcd\nefgh", null);
 

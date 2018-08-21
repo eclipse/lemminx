@@ -109,8 +109,13 @@ class ListLineTracker /* implements ILineTracker */ {
 		int lines = fLines.size();
 		int character = 0;
 		if (lines > 0) {
-			Line l = fLines.get(lineNumber == lines ? lineNumber - 1 : lineNumber);
-			character = offset - l.offset;
+			if (lineNumber == lines) {
+				Line l = fLines.get(lineNumber - 1);
+				character = offset - l.offset - l.length;
+			} else {
+				Line l = fLines.get(lineNumber);
+				character = offset - l.offset;
+			}
 		}
 		return new Position(lineNumber, character);
 	}
