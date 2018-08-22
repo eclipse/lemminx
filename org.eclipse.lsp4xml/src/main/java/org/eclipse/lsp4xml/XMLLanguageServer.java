@@ -13,7 +13,6 @@ package org.eclipse.lsp4xml;
 import static org.eclipse.lsp4j.jsonrpc.CompletableFutures.computeAsync;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -25,6 +24,7 @@ import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.DocumentLinkOptions;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
+import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.LanguageServer;
@@ -36,16 +36,11 @@ import org.eclipse.lsp4xml.settings.XMLClientSettings;
 import org.eclipse.lsp4xml.utils.JSONUtility;
 import org.eclipse.lsp4xml.utils.LogHelper;
 
-import toremove.org.eclipse.lsp4j.ExtendedLanguageServer;
-import toremove.org.eclipse.lsp4j.ExtendedServerCapabilities;
-import toremove.org.eclipse.lsp4j.FoldingRange;
-import toremove.org.eclipse.lsp4j.FoldingRangeRequestParams;
-
 /**
  * XML language server.
  *
  */
-public class XMLLanguageServer implements LanguageServer, ProcessLanguageServer, ExtendedLanguageServer {
+public class XMLLanguageServer implements LanguageServer, ProcessLanguageServer {
 
 	/**
 	 * Exit code returned when XML Language Server is forced to exit.
@@ -72,9 +67,7 @@ public class XMLLanguageServer implements LanguageServer, ProcessLanguageServer,
 		updateSettings(params.getInitializationOptions());
 		xmlTextDocumentService.updateClientCapabilities(params.getCapabilities());
 		this.parentProcessId = params.getProcessId();
-		// FIXME: use ServerCapabilities when
-		// https://github.com/eclipse/lsp4j/issues/169 will be ready
-		ExtendedServerCapabilities capabilities = new ExtendedServerCapabilities();
+		ServerCapabilities capabilities = new ServerCapabilities();
 		capabilities.setTextDocumentSync(TextDocumentSyncKind.Full);
 		capabilities.setDocumentSymbolProvider(true);
 		capabilities.setDocumentHighlightProvider(true);
@@ -142,13 +135,6 @@ public class XMLLanguageServer implements LanguageServer, ProcessLanguageServer,
 
 	public XMLLanguageService getXMLLanguageService() {
 		return xmlLanguageService;
-	}
-
-	// FIXME: remove this method when https://github.com/eclipse/lsp4j/issues/169
-	// will be ready
-	@Override
-	public CompletableFuture<List<? extends FoldingRange>> foldingRanges(FoldingRangeRequestParams params) {
-		return xmlTextDocumentService.foldingRanges(params);
 	}
 
 	public ScheduledFuture<?> schedule(Runnable command, int delay, TimeUnit unit) {

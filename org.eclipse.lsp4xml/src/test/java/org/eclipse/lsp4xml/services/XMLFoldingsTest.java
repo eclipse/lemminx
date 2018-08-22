@@ -14,12 +14,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.lsp4j.FoldingRange;
+import org.eclipse.lsp4j.FoldingRangeCapabilities;
 import org.eclipse.lsp4xml.commons.TextDocument;
 import org.junit.Assert;
 import org.junit.Test;
-
-import toremove.org.eclipse.lsp4j.FoldingRange;
-import toremove.org.eclipse.lsp4j.FoldingRangeCapabilities;
 
 /**
  * XML foldings services tests

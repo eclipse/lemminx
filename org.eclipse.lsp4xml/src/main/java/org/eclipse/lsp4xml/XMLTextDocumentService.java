@@ -20,12 +20,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.eclipse.lsp4j.ClientCapabilities;
-import org.eclipse.lsp4j.CodeActionParams;
-import org.eclipse.lsp4j.CodeLens;
-import org.eclipse.lsp4j.CodeLensParams;
-import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.CompletionParams;
@@ -38,16 +35,16 @@ import org.eclipse.lsp4j.DocumentFormattingParams;
 import org.eclipse.lsp4j.DocumentHighlight;
 import org.eclipse.lsp4j.DocumentLink;
 import org.eclipse.lsp4j.DocumentLinkParams;
-import org.eclipse.lsp4j.DocumentOnTypeFormattingParams;
 import org.eclipse.lsp4j.DocumentRangeFormattingParams;
+import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.DocumentSymbolParams;
+import org.eclipse.lsp4j.FoldingRange;
+import org.eclipse.lsp4j.FoldingRangeCapabilities;
+import org.eclipse.lsp4j.FoldingRangeRequestParams;
 import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.Hover;
-import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
-import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameParams;
-import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
@@ -65,10 +62,6 @@ import org.eclipse.lsp4xml.internal.parser.XMLParser;
 import org.eclipse.lsp4xml.model.XMLDocument;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
-
-import toremove.org.eclipse.lsp4j.FoldingRange;
-import toremove.org.eclipse.lsp4j.FoldingRangeCapabilities;
-import toremove.org.eclipse.lsp4j.FoldingRangeRequestParams;
 
 /**
  * XML text document service.
@@ -140,32 +133,12 @@ public class XMLTextDocumentService implements TextDocumentService {
 	}
 
 	@Override
-	public CompletableFuture<CompletionItem> resolveCompletionItem(CompletionItem unresolved) {
-		return null;
-	}
-
-	@Override
 	public CompletableFuture<Hover> hover(TextDocumentPositionParams params) {
 		return computeAsync((monitor) -> {
 			TextDocument document = documents.get(params.getTextDocument().getUri());
 			XMLDocument xmlDocument = getXMLDocument(document);
 			return getXMLLanguageService().doHover(xmlDocument, params.getPosition());
 		});
-	}
-
-	@Override
-	public CompletableFuture<SignatureHelp> signatureHelp(TextDocumentPositionParams position) {
-		return null;
-	}
-
-	@Override
-	public CompletableFuture<List<? extends Location>> definition(TextDocumentPositionParams position) {
-		return null;
-	}
-
-	@Override
-	public CompletableFuture<List<? extends Location>> references(ReferenceParams params) {
-		return null;
 	}
 
 	@Override
@@ -178,27 +151,19 @@ public class XMLTextDocumentService implements TextDocumentService {
 	}
 
 	@Override
-	public CompletableFuture<List<? extends SymbolInformation>> documentSymbol(DocumentSymbolParams params) {
+	public CompletableFuture<List<Either<SymbolInformation, DocumentSymbol>>> documentSymbol(
+			DocumentSymbolParams params) {
 		return computeAsync((monitor) -> {
 			TextDocument document = documents.get(params.getTextDocument().getUri());
 			XMLDocument xmlDocument = getXMLDocument(document);
-			return getXMLLanguageService().findDocumentSymbols(xmlDocument);
+			return getXMLLanguageService().findDocumentSymbols(xmlDocument) //
+					.stream() //
+					.map(s -> {
+						Either<SymbolInformation, DocumentSymbol> e = Either.forLeft(s);
+						return e;
+					}) //
+					.collect(Collectors.toList());
 		});
-	}
-
-	@Override
-	public CompletableFuture<List<? extends Command>> codeAction(CodeActionParams params) {
-		return null;
-	}
-
-	@Override
-	public CompletableFuture<List<? extends CodeLens>> codeLens(CodeLensParams params) {
-		return null;
-	}
-
-	@Override
-	public CompletableFuture<CodeLens> resolveCodeLens(CodeLens unresolved) {
-		return null;
 	}
 
 	@Override
@@ -215,11 +180,6 @@ public class XMLTextDocumentService implements TextDocumentService {
 			TextDocument document = documents.get(params.getTextDocument().getUri());
 			return getXMLLanguageService().format(document, params.getRange(), params.getOptions());
 		});
-	}
-
-	@Override
-	public CompletableFuture<List<? extends TextEdit>> onTypeFormatting(DocumentOnTypeFormattingParams params) {
-		return null;
 	}
 
 	@Override
@@ -258,10 +218,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	}
 
-	// FIXME: un-comment when https://github.com/eclipse/lsp4j/issues/169 will be
-	// ready
-	// @Override
-	public CompletableFuture<List<? extends FoldingRange>> foldingRanges(FoldingRangeRequestParams params) {
+	@Override
+	public CompletableFuture<List<FoldingRange>> foldingRanges(FoldingRangeRequestParams params) {
 		return computeAsync((monitor) -> {
 			TextDocument document = documents.get(params.getTextDocument().getUri());
 			return getXMLLanguageService().getFoldingRanges(document, sharedFoldingsSettings);

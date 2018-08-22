@@ -22,16 +22,15 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.lsp4j.FoldingRange;
+import org.eclipse.lsp4j.FoldingRangeCapabilities;
+import org.eclipse.lsp4j.FoldingRangeKind;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.internal.parser.Scanner;
 import org.eclipse.lsp4xml.internal.parser.TokenType;
 import org.eclipse.lsp4xml.internal.parser.XMLScanner;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
-
-import toremove.org.eclipse.lsp4j.FoldingRange;
-import toremove.org.eclipse.lsp4j.FoldingRangeCapabilities;
-import toremove.org.eclipse.lsp4j.FoldingRangeKind;
 
 /**
  * XML folding support.
