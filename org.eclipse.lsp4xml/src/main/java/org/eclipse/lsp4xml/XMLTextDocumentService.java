@@ -219,7 +219,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	}
 
 	@Override
-	public CompletableFuture<List<FoldingRange>> foldingRanges(FoldingRangeRequestParams params) {
+	public CompletableFuture<List<FoldingRange>> foldingRange(FoldingRangeRequestParams params) {
 		return computeAsync((monitor) -> {
 			TextDocument document = documents.get(params.getTextDocument().getUri());
 			return getXMLLanguageService().getFoldingRanges(document, sharedFoldingsSettings);
