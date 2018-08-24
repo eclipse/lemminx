@@ -218,11 +218,11 @@ class XMLCompletions {
 				try {
 					participant.onTagOpen(completionRequest, completionResponse);
 				} catch (Exception e) {
-					e.printStackTrace();
+					LOGGER.log(Level.SEVERE, "While performing ICompletionParticipant#onTagOpen", e);
 				}
 			}
 		} catch (BadLocationException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, "While performing Completions the provided offset was a BadLocation", e);
 			return;
 		}
 	}
@@ -268,7 +268,7 @@ class XMLCompletions {
 			}
 
 		} catch (BadLocationException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, "While performing Completions the provided offset was a BadLocation", e);
 		}
 	}
 
