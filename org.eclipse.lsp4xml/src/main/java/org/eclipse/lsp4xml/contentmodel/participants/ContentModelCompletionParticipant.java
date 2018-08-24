@@ -17,6 +17,7 @@ import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4xml.contentmodel.ContentModelPlugin;
 import org.eclipse.lsp4xml.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lsp4xml.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lsp4xml.contentmodel.model.ContentModelManager;
@@ -33,6 +34,9 @@ import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
  */
 public class ContentModelCompletionParticipant extends CompletionParticipantAdapter {
 
+	public ContentModelCompletionParticipant(ContentModelPlugin contentModelPlugin) {
+	}
+
 	@Override
 	public void onTagOpen(ICompletionRequest request, ICompletionResponse response) throws Exception {
 		Node element = request.getParentNode();
@@ -44,26 +48,23 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			String lineDelimiter = document.lineDelimiter(lineNumber);
 			String whitespacesIndent = getStartWhitespaces(lineText);
 
-			XMLGenerator generator = new XMLGenerator(request.getFormattingSettings(), whitespacesIndent,
-					lineDelimiter, request.getCompletionSettings().isCompletionSnippetsSupported(), 0);
+			XMLGenerator generator = new XMLGenerator(request.getFormattingSettings(), whitespacesIndent, lineDelimiter,
+					request.getCompletionSettings().isCompletionSnippetsSupported(), 0);
 			for (CMElementDeclaration child : cmElement.getElements()) {
-				String tag = child.getName();
-				if (!element.hasTag(tag)) {
-					String label = child.getName();
-					CompletionItem item = new CompletionItem(label);
-					item.setFilterText(label);
-					item.setKind(CompletionItemKind.Property);
-					String documentation = child.getDocumentation();
-					if (documentation != null) {
-						item.setDetail(documentation);
-					}
-					String xml = generator.generate(child);
-					// Remove the first '<' character
-					xml = xml.substring(1, xml.length());
-					item.setTextEdit(new TextEdit(request.getReplaceRange(), xml));
-					item.setInsertTextFormat(InsertTextFormat.Snippet);
-					response.addCompletionItem(item);
+				String label = child.getName();
+				CompletionItem item = new CompletionItem(label);
+				item.setFilterText(label);
+				item.setKind(CompletionItemKind.Property);
+				String documentation = child.getDocumentation();
+				if (documentation != null) {
+					item.setDetail(documentation);
 				}
+				String xml = generator.generate(child);
+				// Remove the first '<' character
+				xml = xml.substring(1, xml.length());
+				item.setTextEdit(new TextEdit(request.getReplaceRange(), xml));
+				item.setInsertTextFormat(InsertTextFormat.Snippet);
+				response.addCompletionItem(item);
 			}
 		}
 	}

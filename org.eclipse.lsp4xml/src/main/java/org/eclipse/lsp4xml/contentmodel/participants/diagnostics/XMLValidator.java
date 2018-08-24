@@ -63,13 +63,17 @@ public class XMLValidator {
 				parser.setProperty("http://java.sun.com/xml/jaxp/properties/schemaLanguage",
 						"http://www.w3.org/2001/XMLSchema");
 			}
+			
 			// Add LSP error reporter to fill LSP diagnostics from Xerces errors
 			parser.setProperty("http://apache.org/xml/properties/internal/error-reporter",
 					new LSPErrorReporter(document, diagnostics));
 
 			XMLReader reader = parser.getXMLReader();
 			reader.setFeature("http://apache.org/xml/features/continue-after-fatal-error", false); //$NON-NLS-1$
-
+			  reader.setFeature("http://xml.org/sax/features/namespace-prefixes", true); //$NON-NLS-1$
+		      reader.setFeature("http://xml.org/sax/features/namespaces", true);
+		      reader.setFeature("http://apache.org/xml/features/honour-all-schemaLocations", true); //$NON-NLS-1$
+		      
 			// XML catalog
 			if (catalogResolver != null) {
 				reader.setEntityResolver(catalogResolver);

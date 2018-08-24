@@ -81,7 +81,7 @@ public class XSDElementDeclaration implements CMElementDeclaration {
 			for (int i = 0; i < list.getLength(); i++) {
 				XSObject object = list.item(i);
 				if (object.getType() == XSConstants.ATTRIBUTE_USE) {
-					XSAttributeUse attributeUse = (XSAttributeUse) object;					
+					XSAttributeUse attributeUse = (XSAttributeUse) object;
 					attributes.add(new XSDAttributeDeclaration(attributeUse));
 				}
 
@@ -184,7 +184,7 @@ public class XSDElementDeclaration implements CMElementDeclaration {
 	public String toString() {
 		return getName();
 	}
-	
+
 	@Override
 	public boolean isEmpty() {
 		// TODO: support it

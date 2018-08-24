@@ -83,7 +83,7 @@ public class ContentModelManager {
 			return null;
 		}
 
-		URI uri = /* new File("maven-4.0.0.xsd").toURI(); // */ new URI(schemaURI);
+		URI uri = new URI(schemaURI);
 		CMDocument cmDocument = getCMDocument(uri);
 		return cmDocument != null ? cmDocument.findCMElement(element) : null;
 	}
