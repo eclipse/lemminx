@@ -59,13 +59,13 @@
 		<dependency>
 			<groupId>org.eclipse.lsp4j</groupId>
 			<artifactId>org.eclipse.lsp4j</artifactId>
-			<version>0.5.0-SNAPSHOT</version>
+			<version>${lsp4j.version}</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.eclipse.lsp4j/org.eclipse.lsp4j.jsonrpc -->
 		<dependency>
 			<groupId>org.eclipse.lsp4j</groupId>
 			<artifactId>org.eclipse.lsp4j.jsonrpc</artifactId>
-			<version>0.5.0-SNAPSHOT</version>
+			<version>${lsp4j.version}</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.eclipse.xtext/org.eclipse.xtext.xbase.lib -->
 		<dependency>
