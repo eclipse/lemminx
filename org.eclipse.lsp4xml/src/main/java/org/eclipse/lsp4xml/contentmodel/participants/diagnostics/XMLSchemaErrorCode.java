@@ -10,9 +10,9 @@
  */
 package org.eclipse.lsp4xml.contentmodel.participants.diagnostics;
 
-import static org.eclipse.lsp4xml.contentmodel.participants.diagnostics.LSPErrorReporter.findOffsetOfAttrName;
-import static org.eclipse.lsp4xml.contentmodel.participants.diagnostics.LSPErrorReporter.findOffsetOfStartTag;
-import static org.eclipse.lsp4xml.contentmodel.participants.diagnostics.LSPErrorReporter.toLSPPosition;
+import static org.eclipse.lsp4xml.utils.XMLPositionUtility.findOffsetOfAttrName;
+import static org.eclipse.lsp4xml.utils.XMLPositionUtility.findOffsetOfStartTag;
+import static org.eclipse.lsp4xml.utils.XMLPositionUtility.toLSPPosition;
 
 import java.util.HashMap;
 import java.util.Map;

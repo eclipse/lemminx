@@ -34,6 +34,24 @@ import org.junit.Test;
  */
 public class XSDCompletionExtensionsTest {
 
+	@Test
+	public void tesPOMCompletionParentChildren() throws BadLocationException {
+		String xml = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + //
+				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"	xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n"
+				+ //
+				"	<parent><|" + //
+				"</project>";
+		testCompletionFor(xml, Arrays.asList(r("groupId", "<groupId"), //
+				r("artifactId", "<artifactId"), //
+				r("version", "<version")));
+	}
+
+	private static void testCompletionFor(String value, List<ItemDescription> expectedItems)
+			throws BadLocationException {
+		testCompletionFor(value, expectedItems, null);
+	}
+
 	private static void testCompletionFor(String value, List<ItemDescription> expectedItems, Integer expectedCount)
 			throws BadLocationException {
 		int offset = value.indexOf('|');
@@ -44,10 +62,13 @@ public class XSDCompletionExtensionsTest {
 		XMLDocument htmlDoc = XMLParser.getInstance().parse(document);
 
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
+
 		// Configure XML catalog for XML schema
+		String catalogPath = "src/test/resources/catalogs/catalog.xml";
 		ContentModelSettings settings = new ContentModelSettings();
-		settings.setCatalogs(new String[] { "src/test/resources/catalog.xml" });
+		settings.setCatalogs(new String[] { catalogPath });
 		xmlLanguageService.updateSettings(settings);
+
 		CompletionList list = xmlLanguageService.doComplete(htmlDoc, position, new CompletionSettings(),
 				new FormattingOptions(4, false));
 
@@ -85,10 +106,6 @@ public class XSDCompletionExtensionsTest {
 
 	private static ItemDescription r(String label, String resultText) {
 		return new ItemDescription(label, resultText);
-	}
-
-	private void testCompletionFor(String value, List<ItemDescription> expectedItems) throws BadLocationException {
-		testCompletionFor(value, expectedItems, null);
 	}
 
 	private static class ItemDescription {

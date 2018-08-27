@@ -17,7 +17,6 @@ import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.eclipse.lsp4xml.contentmodel.ContentModelPlugin;
 import org.eclipse.lsp4xml.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lsp4xml.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lsp4xml.contentmodel.model.ContentModelManager;
@@ -33,9 +32,6 @@ import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
  * completion, etc)
  */
 public class ContentModelCompletionParticipant extends CompletionParticipantAdapter {
-
-	public ContentModelCompletionParticipant(ContentModelPlugin contentModelPlugin) {
-	}
 
 	@Override
 	public void onTagOpen(ICompletionRequest request, ICompletionResponse response) throws Exception {

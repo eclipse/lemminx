@@ -10,10 +10,10 @@
  */
 package org.eclipse.lsp4xml.contentmodel.participants.diagnostics;
 
-import static org.eclipse.lsp4xml.contentmodel.participants.diagnostics.LSPErrorReporter.findOffsetOfAfterChar;
-import static org.eclipse.lsp4xml.contentmodel.participants.diagnostics.LSPErrorReporter.findOffsetOfAttrName;
-import static org.eclipse.lsp4xml.contentmodel.participants.diagnostics.LSPErrorReporter.findOffsetOfFirstChar;
-import static org.eclipse.lsp4xml.contentmodel.participants.diagnostics.LSPErrorReporter.toLSPPosition;
+import static org.eclipse.lsp4xml.utils.XMLPositionUtility.findOffsetOfAfterChar;
+import static org.eclipse.lsp4xml.utils.XMLPositionUtility.findOffsetOfAttrName;
+import static org.eclipse.lsp4xml.utils.XMLPositionUtility.findOffsetOfFirstChar;
+import static org.eclipse.lsp4xml.utils.XMLPositionUtility.toLSPPosition;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -10,12 +10,16 @@
  */
 package org.eclipse.lsp4xml.contentmodel.model;
 
-import java.net.URI;
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import org.apache.xerces.impl.xs.XMLSchemaLoader;
+import org.apache.xerces.impl.xs.XSLoaderImpl;
 import org.apache.xerces.xs.XSModel;
+import org.apache.xml.resolver.CatalogManager;
+import org.apache.xml.resolver.tools.CatalogResolver;
 import org.eclipse.lsp4xml.contentmodel.xsd.XSDDocument;
 import org.eclipse.lsp4xml.model.Node;
 import org.eclipse.lsp4xml.model.SchemaLocation;
@@ -33,33 +37,15 @@ public class ContentModelManager {
 		return INSTANCE;
 	}
 
-	private final XMLSchemaLoader loader;
-	private Map<URI, CMDocument> cmDocumentCache;
+	private final XSLoaderImpl loader;
+
+	private Map<String, CMDocument> cmDocumentCache;
+
+	private CatalogResolver catalogResolver;
 
 	public ContentModelManager() {
-		loader = new XMLSchemaLoader();
+		loader = new XSLoaderImpl();
 		cmDocumentCache = new HashMap<>();
-	}
-
-	/**
-	 * Returns the content model document loaded by the given uri and null
-	 * otherwise.
-	 * 
-	 * @param uri of the DTD, XML Schema grammar to load.
-	 * @return the content model document loaded by the given uri and null
-	 *         otherwise.
-	 */
-	public CMDocument getCMDocument(URI uri) {
-		CMDocument cmDocument = cmDocumentCache.get(uri);
-		if (cmDocument == null) {
-			XSModel model = loader.loadURI(uri.toString());
-			if (model != null) {
-				// XML Schema can be loaded
-				cmDocument = new XSDDocument(model);
-				cmDocumentCache.put(uri, cmDocument);
-			}
-		}
-		return cmDocument;
 	}
 
 	/**
@@ -83,9 +69,75 @@ public class ContentModelManager {
 			return null;
 		}
 
-		URI uri = new URI(schemaURI);
-		CMDocument cmDocument = getCMDocument(uri);
+		CMDocument cmDocument = getCMDocument(null, schemaURI);
 		return cmDocument != null ? cmDocument.findCMElement(element) : null;
+	}
+
+	/**
+	 * Returns the content model document loaded by the given uri and null
+	 * otherwise.
+	 * 
+	 * @param publicId the public identifier.
+	 * @param systemId the expanded system identifier.
+	 * @return the content model document loaded by the given uri and null
+	 *         otherwise.
+	 */
+	private CMDocument getCMDocument(String publicId, String systemId) {
+		String key = publicId + systemId;
+		CMDocument cmDocument = cmDocumentCache.get(key);
+		if (cmDocument == null) {
+			CatalogResolver resolver = getCatalogResolver();
+			String uri = resolver != null ? resolver.getResolvedEntity(publicId, systemId) : systemId;
+			XSModel model = loader.loadURI(uri);
+			if (model != null) {
+				// XML Schema can be loaded
+				cmDocument = new XSDDocument(model);
+				cmDocumentCache.put(key, cmDocument);
+			}
+		}
+		return cmDocument;
+	}
+
+	/**
+	 * Set up XML catalogs.
+	 * 
+	 * @param catalogs list of XML catalog files.
+	 */
+	public void setCatalogs(String[] catalogs) {
+		if (catalogs != null) {
+			String xmlCatalogFiles = Stream.of(catalogs).filter(ContentModelManager::isXMLCatalogFileValid)
+					.map(Object::toString).collect(Collectors.joining(";"));
+			if (!xmlCatalogFiles.isEmpty()) {
+				CatalogManager catalogManager = new CatalogManager();
+				catalogManager.setUseStaticCatalog(false);
+				catalogManager.setIgnoreMissingProperties(true);
+				catalogManager.setCatalogFiles(xmlCatalogFiles);
+				catalogResolver = new CatalogResolver(catalogManager);
+			} else {
+				catalogResolver = null;
+			}
+		}
+
+	}
+
+	/**
+	 * Returns true if the XML catalog file exists and false otherwise.
+	 * 
+	 * @param catalogFile catalog file to check.
+	 * @return true if the XML catalog file exists and false otherwise.
+	 */
+	public static boolean isXMLCatalogFileValid(String catalogFile) {
+		File file = new File(catalogFile);
+		return (file.exists());
+	}
+
+	/**
+	 * Returns the catalog resolver to use and null otherwise.
+	 * 
+	 * @return the catalog resolver to use and null otherwise.
+	 */
+	public CatalogResolver getCatalogResolver() {
+		return catalogResolver;
 	}
 
 }

@@ -16,9 +16,9 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.TextDocument;
+import org.eclipse.lsp4xml.contentmodel.settings.ContentModelSettings;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -27,20 +27,39 @@ import org.junit.Test;
  */
 public class XSDDiagnosticsTest {
 
-	@Ignore
 	@Test
 	public void testCVCAttribute3() throws Exception {
-		XMLLanguageService languageService = new XMLLanguageService();
-		String xml = new StringBuilder(
-				"<project xsi:schemalocation=\"https://www.w3.org/TR/xmlschema11-1/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
-						+ //
-						" <InstdAmt Ccy=\"EURO\">3.14</InstdAmt>\r\n" + //
-						" </project>") //
-								.toString();
+		String xml = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + //
+				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"	xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n"
+				+ //
+				"<p></p>" + "</project>";
+		testDiagnosticsFor(xml, d(3, 3, 3, 3, "cvc-complex-type.2.4.a"));
+	}
+
+	private static void testDiagnosticsFor(String xml, Diagnostic... expected) {
 		TextDocument document = new TextDocument(xml.toString(), "test.xml");
-		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
+
+		XMLLanguageService xmlLanguageService = new XMLLanguageService();
+
+		// Configure XML catalog for XML schema
+		String catalogPath = "src/test/resources/catalogs/catalog.xml";
+		ContentModelSettings settings = new ContentModelSettings();
+		settings.setCatalogs(new String[] { catalogPath });
+		xmlLanguageService.updateSettings(settings);
+
+		List<Diagnostic> diagnostics = xmlLanguageService.doDiagnostics(document, () -> {
 		});
-		assertDiagnostics(diagnostics, d(0, 0, 0, 0, "cvc-attribute-3"));
+		assertDiagnostics(diagnostics, expected);
+
+	}
+
+	private XMLLanguageService createXMLLanguageService(String catalogPath) {
+		ContentModelSettings settings = new ContentModelSettings();
+		settings.setCatalogs(new String[] { catalogPath });
+		XMLLanguageService languageService = new XMLLanguageService();
+		languageService.updateSettings(settings);
+		return languageService;
 	}
 
 	/*
@@ -85,7 +104,7 @@ public class XSDDiagnosticsTest {
 			d.setSource(null);
 		});
 		Assert.assertEquals(actual.size(), expected.length);
-		Assert.assertArrayEquals(expected, actual.toArray());
+		Assert.assertArrayEquals(actual.toArray(), expected);
 	}
 
 	private Diagnostic d(int startLine, int startCharacter, int endLine, int endCharacter, String code) {

@@ -15,7 +15,7 @@ import java.util.List;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.commons.TextDocument;
-import org.eclipse.lsp4xml.contentmodel.ContentModelPlugin;
+import org.eclipse.lsp4xml.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.services.extensions.IDiagnosticsParticipant;
 
 /**
@@ -24,15 +24,10 @@ import org.eclipse.lsp4xml.services.extensions.IDiagnosticsParticipant;
  */
 public class ContentModelDiagnosticsParticipant implements IDiagnosticsParticipant {
 
-	private final ContentModelPlugin contentModelPlugin;
-
-	public ContentModelDiagnosticsParticipant(ContentModelPlugin contentModelPlugin) {
-		this.contentModelPlugin = contentModelPlugin;
-	}
-
 	@Override
 	public void doDiagnostics(TextDocument document, List<Diagnostic> diagnostics, CancelChecker monitor) {
-		XMLValidator.doDiagnostics(document, contentModelPlugin.getCatalogResolver(), diagnostics, monitor);
+		XMLValidator.doDiagnostics(document, ContentModelManager.getInstance().getCatalogResolver(), diagnostics,
+				monitor);
 	}
 
 }
