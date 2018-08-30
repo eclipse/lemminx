@@ -8,7 +8,7 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lsp4xml.contentmodel.participants.diagnostics;
+package org.eclipse.lsp4xml.contentmodel.participants;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +16,10 @@ import java.util.Map;
 import org.apache.xerces.xni.QName;
 import org.apache.xerces.xni.XMLLocator;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4xml.contentmodel.participants.codeactions.ElementUnterminatedCodeAction;
+import org.eclipse.lsp4xml.contentmodel.participants.diagnostics.IXMLErrorCode;
 import org.eclipse.lsp4xml.model.XMLDocument;
+import org.eclipse.lsp4xml.services.extensions.ICodeActionParticipant;
 import org.eclipse.lsp4xml.utils.XMLPositionUtility;
 
 /**
@@ -116,5 +119,9 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 		}
 
 		return null;
+	}
+
+	public static void registerCodeActionParticipants(Map<String, ICodeActionParticipant> codeActions) {
+		codeActions.put(ElementUnterminated.getCode(), new ElementUnterminatedCodeAction());
 	}
 }

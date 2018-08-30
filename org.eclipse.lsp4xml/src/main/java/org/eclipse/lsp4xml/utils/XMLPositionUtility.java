@@ -100,17 +100,25 @@ public class XMLPositionUtility {
 		return null;
 	}
 
+	public static Range selectAllAttributes(int offset, XMLDocument document) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public static Range selectFirstNonWhitespaceText(int offset, XMLDocument document) {
+		Node element = document.findNodeAt(offset);
+		if (element != null) {
+			
+		}
+		return null;
+	}
+	
 	public static Range createRange(int startOffset, int endOffset, XMLDocument document) {
 		try {
 			return new Range(document.positionAt(startOffset), document.positionAt(endOffset));
 		} catch (BadLocationException e) {
 			return null;
 		}
-	}
-
-	public static Range selectAllAttributes(int offset, XMLDocument document) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }

@@ -78,6 +78,7 @@ public class XMLLanguageServer implements LanguageServer, ProcessLanguageServer 
 		capabilities.setRenameProvider(true);
 		capabilities.setFoldingRangeProvider(true);
 		capabilities.setDocumentLinkProvider(new DocumentLinkOptions(true));
+		capabilities.setCodeActionProvider(true);
 		return CompletableFuture.completedFuture(new InitializeResult(capabilities));
 	}
 

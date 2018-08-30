@@ -14,7 +14,7 @@ import static org.eclipse.lsp4xml.XMLAssert.d;
 
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4xml.XMLAssert;
-import org.eclipse.lsp4xml.contentmodel.participants.diagnostics.XMLSchemaErrorCode;
+import org.eclipse.lsp4xml.contentmodel.participants.XMLSchemaErrorCode;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -25,14 +25,26 @@ import org.junit.Test;
 public class XMLSchemaDiagnosticsTest {
 
 	@Test
+	public void cvc_complex_type_2_3() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
+				+ //
+				"	<bean>\r\n" + //
+				"		XXXXXXXXXXXXX\r\n" + // <-- error
+				"	</bean>\r\n" + //
+				"</beans>";
+		testDiagnosticsFor(xml, d(4, 4, 4, 8, XMLSchemaErrorCode.cvc_complex_type_2_3));
+	}
+
+	@Test
 	public void cvc_complex_type_2_4_a() throws Exception {
 		String xml = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + //
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
 				"	xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n"
 				+ //
-				"	<p></p>" + // <- error
+				"	<XXX></XXX>\r\n" + // <- error
 				"</project>";
-		testDiagnosticsFor(xml, d(3, 2, 3, 3, XMLSchemaErrorCode.cvc_complex_type_2_4_a));
+		testDiagnosticsFor(xml, d(3, 2, 3, 5, XMLSchemaErrorCode.cvc_complex_type_2_4_a));
 	}
 
 	@Test
@@ -43,7 +55,7 @@ public class XMLSchemaDiagnosticsTest {
 				+ //
 				"	<bean>\r\n" + //
 				"		<description>\r\n" + //
-				"			<XXXX />\r\n" + //
+				"			<XXXX />\r\n" + // <- error
 				"		</description>\r\n" + //
 				"	</bean>\r\n" + //
 				"</beans>";

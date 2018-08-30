@@ -13,7 +13,7 @@ package org.eclipse.lsp4xml.contentmodel;
 import static org.eclipse.lsp4xml.XMLAssert.d;
 import static org.eclipse.lsp4xml.XMLAssert.testDiagnosticsFor;
 
-import org.eclipse.lsp4xml.contentmodel.participants.diagnostics.XMLSyntaxErrorCode;
+import org.eclipse.lsp4xml.contentmodel.participants.XMLSyntaxErrorCode;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.junit.Ignore;
 import org.junit.Test;

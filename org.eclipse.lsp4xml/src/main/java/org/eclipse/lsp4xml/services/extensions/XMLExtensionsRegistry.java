@@ -29,6 +29,7 @@ public class XMLExtensionsRegistry {
 	private final List<ICompletionParticipant> completionParticipants;
 	private final List<IHoverParticipant> hoverParticipants;
 	private final List<IDiagnosticsParticipant> diagnosticsParticipants;
+	private final List<ICodeActionParticipant> codeActionsParticipants;
 
 	private Object settings;
 
@@ -39,6 +40,7 @@ public class XMLExtensionsRegistry {
 		completionParticipants = new ArrayList<>();
 		hoverParticipants = new ArrayList<>();
 		diagnosticsParticipants = new ArrayList<>();
+		codeActionsParticipants = new ArrayList<>();
 	}
 
 	public void updateSettings(Object settings) {
@@ -67,6 +69,11 @@ public class XMLExtensionsRegistry {
 	public Collection<IDiagnosticsParticipant> getDiagnosticsParticipants() {
 		initializeIfNeeded();
 		return diagnosticsParticipants;
+	}
+
+	public List<ICodeActionParticipant> getCodeActionsParticipants() {
+		initializeIfNeeded();
+		return codeActionsParticipants;
 	}
 
 	private void initializeIfNeeded() {
@@ -124,5 +131,13 @@ public class XMLExtensionsRegistry {
 
 	public void unregisterDiagnosticsParticipant(IDiagnosticsParticipant diagnosticsParticipant) {
 		diagnosticsParticipants.add(diagnosticsParticipant);
+	}
+
+	public void registerCodeActionParticipant(ICodeActionParticipant codeActionsParticipant) {
+		codeActionsParticipants.add(codeActionsParticipant);
+	}
+
+	public void unregisterCodeActionParticipant(ICodeActionParticipant codeActionsParticipant) {
+		codeActionsParticipants.add(codeActionsParticipant);
 	}
 }

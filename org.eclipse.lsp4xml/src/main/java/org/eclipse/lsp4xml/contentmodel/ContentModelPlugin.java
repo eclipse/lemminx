@@ -1,6 +1,7 @@
 package org.eclipse.lsp4xml.contentmodel;
 
 import org.eclipse.lsp4xml.contentmodel.model.ContentModelManager;
+import org.eclipse.lsp4xml.contentmodel.participants.ContentModelCodeActionParticipant;
 import org.eclipse.lsp4xml.contentmodel.participants.ContentModelCompletionParticipant;
 import org.eclipse.lsp4xml.contentmodel.participants.ContentModelHoverParticipant;
 import org.eclipse.lsp4xml.contentmodel.participants.diagnostics.ContentModelDiagnosticsParticipant;
@@ -28,10 +29,13 @@ public class ContentModelPlugin implements IXMLExtension {
 
 	private final ContentModelDiagnosticsParticipant diagnosticsParticipant;
 
+	private final ContentModelCodeActionParticipant codeActionParticipant;
+
 	public ContentModelPlugin() {
 		completionParticipant = new ContentModelCompletionParticipant();
 		hoverParticipant = new ContentModelHoverParticipant();
 		diagnosticsParticipant = new ContentModelDiagnosticsParticipant();
+		codeActionParticipant = new ContentModelCodeActionParticipant();
 	}
 
 	@Override
@@ -54,6 +58,7 @@ public class ContentModelPlugin implements IXMLExtension {
 		registry.registerCompletionParticipant(completionParticipant);
 		registry.registerHoverParticipant(hoverParticipant);
 		registry.registerDiagnosticsParticipant(diagnosticsParticipant);
+		registry.registerCodeActionParticipant(codeActionParticipant);
 	}
 
 	@Override
@@ -61,6 +66,7 @@ public class ContentModelPlugin implements IXMLExtension {
 		registry.unregisterCompletionParticipant(completionParticipant);
 		registry.unregisterHoverParticipant(hoverParticipant);
 		registry.unregisterDiagnosticsParticipant(diagnosticsParticipant);
+		registry.unregisterCodeActionParticipant(codeActionParticipant);
 	}
 
 }

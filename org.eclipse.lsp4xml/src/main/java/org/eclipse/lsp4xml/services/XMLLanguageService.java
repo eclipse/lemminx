@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DocumentHighlight;
@@ -48,6 +50,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 	private final XMLDiagnostics diagnostics;
 	private final XMLFoldings foldings;
 	private XMLDocumentLink documentLink;
+	private XMLCodeActions codeActions;
 
 	public XMLLanguageService() {
 		this.formatter = new XMLFormatter(this);
@@ -58,6 +61,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		this.diagnostics = new XMLDiagnostics(this);
 		this.foldings = new XMLFoldings(this);
 		this.documentLink = new XMLDocumentLink(this);
+		this.codeActions = new XMLCodeActions(this);
 	}
 
 	public List<? extends TextEdit> format(TextDocument document, Range range, FormattingOptions options) {
@@ -99,6 +103,10 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 
 	public List<DocumentLink> findDocumentLinks(TextDocument document) {
 		return documentLink.findDocumentLinks(document);
+	}
+
+	public List<CodeAction> doCodeActions(CodeActionContext context, Range range, XMLDocument document) {
+		return codeActions.doCodeActions(context, range, document);
 	}
 
 }

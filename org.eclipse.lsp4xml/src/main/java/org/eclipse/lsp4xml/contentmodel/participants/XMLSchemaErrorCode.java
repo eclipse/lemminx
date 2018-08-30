@@ -8,14 +8,16 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lsp4xml.contentmodel.participants.diagnostics;
+package org.eclipse.lsp4xml.contentmodel.participants;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.xerces.xni.XMLLocator;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4xml.contentmodel.participants.diagnostics.IXMLErrorCode;
 import org.eclipse.lsp4xml.model.XMLDocument;
+import org.eclipse.lsp4xml.services.extensions.ICodeActionParticipant;
 import org.eclipse.lsp4xml.utils.XMLPositionUtility;
 
 /**
@@ -26,6 +28,7 @@ import org.eclipse.lsp4xml.utils.XMLPositionUtility;
  */
 public enum XMLSchemaErrorCode implements IXMLErrorCode{
 
+	cvc_complex_type_2_3("cvc-complex-type.2.3"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-2-3
 	cvc_complex_type_2_4_a("cvc-complex-type.2.4.a"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-2-4-a
 	cvc_complex_type_2_4_d("cvc-complex-type.2.4.d"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-2-4-d
 	cvc_complex_type_3_2_2("cvc-complex-type.3.2.2"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-3-2-2
@@ -83,6 +86,8 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode{
 
 		// adjust positions
 		switch (code) {
+		case cvc_complex_type_2_3:
+			return XMLPositionUtility.selectFirstNonWhitespaceText(offset, document);
 		case cvc_complex_type_2_4_a:
 		case cvc_complex_type_2_4_d:
 			return XMLPositionUtility.selectStartTag(offset, document);
@@ -102,5 +107,9 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode{
 		}
 
 		return null;
+	}
+
+	public static void registerCodeActionParticipants(Map<String, ICodeActionParticipant> codeActions) {
+
 	}
 }

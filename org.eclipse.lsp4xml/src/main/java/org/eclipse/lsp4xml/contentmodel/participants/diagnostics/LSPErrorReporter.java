@@ -27,6 +27,8 @@ import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.TextDocument;
+import org.eclipse.lsp4xml.contentmodel.participants.XMLSchemaErrorCode;
+import org.eclipse.lsp4xml.contentmodel.participants.XMLSyntaxErrorCode;
 import org.eclipse.lsp4xml.internal.parser.XMLParser;
 import org.eclipse.lsp4xml.internal.parser.XMLParser.Flag;
 import org.eclipse.lsp4xml.model.XMLDocument;

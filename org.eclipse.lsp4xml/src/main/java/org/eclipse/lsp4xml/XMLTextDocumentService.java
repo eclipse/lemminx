@@ -23,6 +23,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.eclipse.lsp4j.ClientCapabilities;
+import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionParams;
+import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.CompletionParams;
@@ -231,6 +234,21 @@ public class XMLTextDocumentService implements TextDocumentService {
 		return computeAsync((monitor) -> {
 			TextDocument document = documents.get(params.getTextDocument().getUri());
 			return getXMLLanguageService().findDocumentLinks(document);
+		});
+	}
+
+	@Override
+	public CompletableFuture<List<Either<Command, CodeAction>>> codeAction(CodeActionParams params) {
+		return computeAsync((monitor) -> {
+			TextDocument document = documents.get(params.getTextDocument().getUri());
+			XMLDocument xmlDocument = getXMLDocument(document);
+			return getXMLLanguageService().doCodeActions(params.getContext(), params.getRange(), xmlDocument) //
+					.stream() //
+					.map(s -> {
+						Either<Command, CodeAction> e = Either.forRight(s);
+						return e;
+					}) //
+					.collect(Collectors.toList());
 		});
 	}
 
