@@ -10,7 +10,9 @@
  */
 package org.eclipse.lsp4xml.model;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,7 +28,8 @@ public class Node {
 	public boolean closed = false;
 	public Integer endTagStart;
 
-	public Map<String, String> attributes;
+	private Map<String, String> attributes;
+	private List<Attr> attributeNodes;
 	public final List<Node> children;
 	public final int start;
 	public int end;
@@ -39,7 +42,7 @@ public class Node {
 	public boolean isProlog = false;
 
 	public Set<String> attributeNames() {
-		return this.attributes != null ? attributes.keySet() : Collections.emptySet();
+		return hasAttributes() ? attributes.keySet() : Collections.emptySet();
 	}
 
 	public Node(int start, int end, List<Node> children, Node parent, XMLDocument ownerDocument) {
@@ -169,7 +172,7 @@ public class Node {
 	}
 
 	public String getAttributeValue(String name) {
-		String value = this.attributes != null ? attributes.get(name) : null;
+		String value = hasAttributes() ? attributes.get(name) : null;
 		;
 		if (value == null) {
 			return null;
@@ -195,6 +198,59 @@ public class Node {
 	}
 
 	public boolean hasAttribute(String attribute) {
-		return attributes != null && attributes.containsKey(attribute);
+		return hasAttributes() && attributes.containsKey(attribute);
+	}
+
+	/**
+	 * Returns true if there are attributes and null otherwise.
+	 * 
+	 * @return true if there are attributes and null otherwise.
+	 */
+	public boolean hasAttributes() {
+		return attributes != null;
+	}
+
+	public void setAttribute(String key, String value) {
+		if (!hasAttributes()) {
+			attributes = new HashMap<>();
+		}
+		attributes.put(key, value);
+	}
+
+	public Map<String, String> getAttributes() {
+		return attributes;
+	}
+
+	public void setAttributeNode(Attr attr) {
+		if (attributeNodes == null) {
+			attributeNodes = new ArrayList<>();
+		}
+		attributeNodes.add(attr);
+	}
+
+	public Attr getAttributeNode(String name) {
+		return getAttributeNode(name, false);
+	}
+
+	public Attr getAttributeNode(String name, boolean last) {
+		if (attributeNodes == null) {
+			return null;
+		}
+		if (last) {
+			for (int i = attributeNodes.size() -1; i >= 0; i--) {
+				Attr attr = attributeNodes.get(i);
+				if (name.equals(attr.getName())) {
+					return attr;
+				}
+			}
+		} else {
+			for (int i = 0; i < attributeNodes.size(); i++) {
+				Attr attr = attributeNodes.get(i);
+				if (name.equals(attr.getName())) {
+					return attr;
+				}
+			}
+		}
+		return null;
 	}
 }

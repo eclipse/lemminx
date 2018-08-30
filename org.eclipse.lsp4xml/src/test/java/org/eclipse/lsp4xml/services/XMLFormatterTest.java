@@ -121,7 +121,7 @@ public class XMLFormatterTest {
 			// remove '|'
 			unformatted = unformatted.substring(0, rangeStart) + unformatted.substring(rangeStart + 1, rangeEnd)
 					+ unformatted.substring(rangeEnd + 1);
-			XMLDocument unformattedDoc = XMLParser.getInstance().parse(unformatted, uri, true);
+			XMLDocument unformattedDoc = XMLParser.getInstance().parse(unformatted, uri, XMLFormatter.FORMAT_MASK);
 			Position startPos = unformattedDoc.positionAt(rangeStart);
 			Position endPos = unformattedDoc.positionAt(rangeEnd - 1);
 			range = new Range(startPos, endPos);

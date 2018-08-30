@@ -67,7 +67,9 @@ public class XMLBuilder {
 
 	public XMLBuilder linefeed() {
 		xml.append(lineDelimiter);
-		xml.append(whitespacesIndent);
+		if (whitespacesIndent != null) {
+			xml.append(whitespacesIndent);
+		}
 		return this;
 	}
 

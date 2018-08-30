@@ -10,8 +10,6 @@
  */
 package org.eclipse.lsp4xml.contentmodel.participants.diagnostics;
 
-import static org.eclipse.lsp4xml.utils.XMLPositionUtility.findOffsetOfAttrName;
-import static org.eclipse.lsp4xml.utils.XMLPositionUtility.findOffsetOfStartTag;
 import static org.eclipse.lsp4xml.utils.XMLPositionUtility.toLSPPosition;
 
 import java.util.HashMap;
@@ -20,7 +18,7 @@ import java.util.Map;
 import org.apache.xerces.xni.XMLLocator;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4xml.commons.TextDocument;
+import org.eclipse.lsp4xml.model.XMLDocument;
 
 /**
  * XML Schema error code.
@@ -69,11 +67,11 @@ public enum XMLSchemaErrorCode {
 	 * @param location
 	 * @param key
 	 * @param arguments
-	 * @param document
+	 * @param document.ge
 	 * @return the LSP range from the SAX error.
 	 */
 	public static Range toLSPRange(XMLLocator location, XMLSchemaErrorCode code, Object[] arguments,
-			TextDocument document) {
+			XMLDocument document) {
 		int offset = location.getCharacterOffset() - 1;
 		int startOffset = location.getCharacterOffset() - 1;
 		int endOffset = location.getCharacterOffset() - 1;
@@ -84,24 +82,21 @@ public enum XMLSchemaErrorCode {
 			// TODO...
 			break;
 		case cvc_complex_type_3_2_2: {
-			String tag = (String) arguments[0];
-			String attrName = (String) arguments[1];
-			endOffset = findOffsetOfAttrName(document.getText(), offset, attrName);
-			startOffset = endOffset - attrName.length();
+//			String tag = (String) arguments[0];
+//			String attrName = (String) arguments[1];
+//			endOffset = findOffsetOfAttrName(document.ge.getText(), offset, attrName);
+//			startOffset = endOffset - attrName.length();
 			break;
 		}
 		case cvc_complex_type_4: {
-			String tag = (String) arguments[0];
-			String attrName = (String) arguments[1];
-			startOffset = findOffsetOfStartTag(document.getText(), offset, tag);
-			endOffset = startOffset + tag.length();
+//			String tag = (String) arguments[0];
+//			String attrName = (String) arguments[1];
+//			startOffset = findOffsetOfStartTag(document.ge.getText(), offset, tag);
+//			endOffset = startOffset + tag.length();
 			break;
 		}
 		}
 
-		// Create LSP range
-		Position start = toLSPPosition(startOffset, location, document);
-		Position end = toLSPPosition(endOffset, location, document);
-		return new Range(start, end);
+		return null;
 	}
 }

@@ -15,6 +15,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
@@ -32,11 +34,11 @@ import org.xml.sax.XMLReader;
 
 /**
  * XML validator utilities class.
- * 
- * @author azerr
  *
  */
 public class XMLValidator {
+
+	private static final Logger LOGGER = Logger.getLogger(XMLValidator.class.getName());
 
 	public static void doDiagnostics(TextDocument document, CatalogResolver catalogResolver,
 			List<Diagnostic> diagnostics, CancelChecker monitor) {
@@ -91,6 +93,8 @@ public class XMLValidator {
 			reader.parse(inputSource);
 
 		} catch (IOException | ParserConfigurationException | SAXException exception) {
+		} catch (Exception e) {
+			LOGGER.log(Level.SEVERE, "Unexpected XMLValidator error", e);
 		}
 	}
 

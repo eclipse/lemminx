@@ -55,6 +55,10 @@ public class XMLDocument extends Node {
 		return textDocument.lineDelimiter(lineNumber);
 	}
 
+//	public String lineIndent(int lineNumber) throws BadLocationException {
+//		return textDocument.lineIndent(lineNumber);
+//	}
+
 	public SchemaLocation getSchemaLocation() {
 		if (!schemaLocationInitialized) {
 			initializeSchemaLocation();

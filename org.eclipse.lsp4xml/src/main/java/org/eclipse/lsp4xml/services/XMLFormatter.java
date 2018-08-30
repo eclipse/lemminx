@@ -11,6 +11,7 @@
 package org.eclipse.lsp4xml.services;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
@@ -23,6 +24,7 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.internal.parser.XMLParser;
+import org.eclipse.lsp4xml.internal.parser.XMLParser.Flag;
 import org.eclipse.lsp4xml.model.Node;
 import org.eclipse.lsp4xml.model.XMLDocument;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
@@ -33,7 +35,10 @@ import org.eclipse.lsp4xml.utils.XMLBuilder;
  *
  */
 class XMLFormatter {
+
 	private static final Logger LOGGER = Logger.getLogger(XMLFormatter.class.getName());
+	public static final EnumSet<Flag> FORMAT_MASK = EnumSet.of(Flag.Content);
+
 	private final XMLExtensionsRegistry extensionsRegistry;
 
 	public XMLFormatter(XMLExtensionsRegistry extensionsRegistry) {
@@ -58,7 +63,7 @@ class XMLFormatter {
 			// Parse the content to format to create an XML document with full data (CData,
 			// comments, etc)
 			String text = document.getText().substring(start, end);
-			XMLDocument doc = XMLParser.getInstance().parse(text, null, true);
+			XMLDocument doc = XMLParser.getInstance().parse(text, null, FORMAT_MASK);
 
 			// Format the content
 			XMLBuilder xml = new XMLBuilder(formattingOptions, "", document.lineDelimiter(startPosition.getLine()));
@@ -95,7 +100,7 @@ class XMLFormatter {
 			} else if (node.isProlog) {
 				xml.startPrologOrPI(node.tag);
 
-				if (node.attributes != null) {
+				if (node.hasAttributes()) {
 					// generate attributes
 					String[] attributes = new String[3];
 					attributes[0] = "version";
@@ -111,7 +116,7 @@ class XMLFormatter {
 				}
 			} else {
 				xml.startElement(node.tag, false);
-				if (node.attributes != null) {
+				if (node.hasAttributes()) {
 					// generate attributes
 					Set<String> attributeNames = node.attributeNames();
 					for (String attributeName : attributeNames) {

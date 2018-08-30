@@ -11,10 +11,10 @@
 package org.eclipse.lsp4xml.internal.parser;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.EnumSet;
 
 import org.eclipse.lsp4xml.commons.TextDocument;
+import org.eclipse.lsp4xml.model.Attr;
 import org.eclipse.lsp4xml.model.Node;
 import org.eclipse.lsp4xml.model.XMLDocument;
 
@@ -34,25 +34,32 @@ public class XMLParser {
 
 	}
 
-	public XMLDocument parse(String text, String uri) {
-		return parse(text, uri, false);
+	public enum Flag {
+		Content, Attribute;
+
+		public static final EnumSet<Flag> ALL_OPTS = EnumSet.allOf(Flag.class);
 	}
 
-	public XMLDocument parse(String text, String uri, boolean full) {
-		return parse(new TextDocument(text, uri), full);
+	public XMLDocument parse(String text, String uri) {
+		return parse(text, uri, null);
+	}
+
+	public XMLDocument parse(String text, String uri, EnumSet<Flag> mask) {
+		return parse(new TextDocument(text, uri), mask);
 	}
 
 	public XMLDocument parse(TextDocument document) {
-		return parse(document, false);
+		return parse(document, null);
 	}
 
-	public XMLDocument parse(TextDocument document, boolean full) {
+	public XMLDocument parse(TextDocument document, EnumSet<Flag> mask) {
 
 		String text = document.getText();
 		Scanner scanner = XMLScanner.createScanner(text);
 		XMLDocument xmlDocument = new XMLDocument(document);
 
 		Node curr = xmlDocument;
+		Attr attr = null;
 		int endTagStart = -1;
 		String pendingAttribute = null;
 		TokenType token = scanner.scan();
@@ -112,20 +119,25 @@ public class XMLParser {
 
 			case AttributeName: {
 				pendingAttribute = scanner.getTokenText();
-				Map<String, String> attributes = curr.attributes;
-				if (attributes == null) {
-					curr.attributes = attributes = new HashMap<>();
+				curr.setAttribute(pendingAttribute, null); // Support valueless attributes such as 'checked'
+				if (mask != null && mask.contains(Flag.Attribute)) {
+					attr = new Attr(pendingAttribute, new Node(scanner.getTokenOffset(),
+							scanner.getTokenOffset() + pendingAttribute.length(), null, curr, xmlDocument));
+					curr.setAttributeNode(attr);
 				}
-				attributes.put(pendingAttribute, null); // Support valueless attributes such as 'checked'
 				break;
 			}
 
 			case AttributeValue: {
 				String value = scanner.getTokenText();
-				Map<String, String> attributes = curr.attributes;
-				if (attributes != null && pendingAttribute != null) {
-					attributes.put(pendingAttribute, value);
+				if (curr.hasAttributes()) {
+					curr.setAttribute(pendingAttribute, value);
+					if (mask != null && mask.contains(Flag.Attribute) && attr != null) {						
+						attr.setNodeValue(new Node(scanner.getTokenOffset(), scanner.getTokenOffset() + value.length(),
+								null, curr, xmlDocument));
+					}
 					pendingAttribute = null;
+					attr = null;
 				}
 				break;
 			}
@@ -174,7 +186,7 @@ public class XMLParser {
 				curr.isProlog = true;
 				break;
 			}
-			
+
 			case PIContent: {
 				curr.content += scanner.getTokenText().trim();
 				break;
@@ -189,7 +201,7 @@ public class XMLParser {
 			}
 
 			case Content: {
-				if (full) {
+				if (mask != null && mask.contains(Flag.Content)) {
 					String content = scanner.getTokenText();
 					Node cdata = new Node(scanner.getTokenOffset(), content.length(), null, curr, xmlDocument);
 					cdata.content = content;

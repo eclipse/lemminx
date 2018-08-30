@@ -12,6 +12,7 @@ package org.eclipse.lsp4xml.contentmodel.participants.diagnostics;
 
 import static org.eclipse.lsp4xml.utils.XMLPositionUtility.toLSPPosition;
 
+import java.util.EnumSet;
 import java.util.List;
 
 import org.apache.xerces.impl.XMLErrorReporter;
@@ -26,6 +27,9 @@ import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.TextDocument;
+import org.eclipse.lsp4xml.internal.parser.XMLParser;
+import org.eclipse.lsp4xml.internal.parser.XMLParser.Flag;
+import org.eclipse.lsp4xml.model.XMLDocument;
 import org.xml.sax.ErrorHandler;
 
 /**
@@ -39,7 +43,10 @@ public class LSPErrorReporter extends XMLErrorReporter {
 
 	private static final String XML_DIAGNOSTIC_SOURCE = "xml";
 
+	public static final EnumSet<Flag> VALIDATION_MASK = EnumSet.of(Flag.Attribute);
+
 	private final TextDocument document;
+	private XMLDocument xmlDocument;
 	private final List<Diagnostic> diagnostics;
 
 	public LSPErrorReporter(TextDocument document, List<Diagnostic> diagnostics) {
@@ -53,6 +60,9 @@ public class LSPErrorReporter extends XMLErrorReporter {
 
 	public String reportError(XMLLocator location, String domain, String key, Object[] arguments, short severity,
 			Exception exception) throws XNIException {
+		if (xmlDocument == null) {
+			xmlDocument = XMLParser.getInstance().parse(document, VALIDATION_MASK);
+		}
 
 		// format message
 		MessageFormatter messageFormatter = getMessageFormatter(domain);
@@ -78,8 +88,8 @@ public class LSPErrorReporter extends XMLErrorReporter {
 		}
 
 		// Fill diagnostic
-		diagnostics.add(new Diagnostic(toLSPRange(location, key, arguments, document), message, toLSPSeverity(severity),
-				XML_DIAGNOSTIC_SOURCE, key));
+		diagnostics.add(new Diagnostic(toLSPRange(location, key, arguments, xmlDocument), message,
+				toLSPSeverity(severity), XML_DIAGNOSTIC_SOURCE, key));
 
 		if (severity == SEVERITY_FATAL_ERROR && !fContinueAfterFatalError) {
 			XMLParseException parseException = (exception != null) ? new XMLParseException(location, message, exception)
@@ -113,24 +123,35 @@ public class LSPErrorReporter extends XMLErrorReporter {
 	 * @param document
 	 * @return the LSP range from the SAX error.
 	 */
-	private static Range toLSPRange(XMLLocator location, String key, Object[] arguments, TextDocument document) {
+	private static Range toLSPRange(XMLLocator location, String key, Object[] arguments, XMLDocument document) {
+		if (location == null) {
+			Position start = toLSPPosition(0, location, document.getTextDocument());
+			Position end = toLSPPosition(0, location, document.getTextDocument());
+			return new Range(start, end);
+		}
 		// try adjust positions for XML syntax error
 		XMLSyntaxErrorCode syntaxCode = XMLSyntaxErrorCode.get(key);
 		if (syntaxCode != null) {
-			return XMLSyntaxErrorCode.toLSPRange(location, syntaxCode, arguments, document);
+			Range range = XMLSyntaxErrorCode.toLSPRange(location, syntaxCode, arguments, document);
+			if (range != null) {
+				return range;
+			}
 		}
 		// try adjust positions for XML schema error
 		XMLSchemaErrorCode schemaCode = XMLSchemaErrorCode.get(key);
 		if (schemaCode != null) {
-			return XMLSchemaErrorCode.toLSPRange(location, schemaCode, arguments, document);
+			Range range =  XMLSchemaErrorCode.toLSPRange(location, schemaCode, arguments, document);
+			if (range != null) {
+				return range;
+			}
 		}
 
 		int startOffset = location.getCharacterOffset() - 1;
 		int endOffset = location.getCharacterOffset() - 1;
 
 		// Create LSP range
-		Position start = toLSPPosition(startOffset, location, document);
-		Position end = toLSPPosition(endOffset, location, document);
+		Position start = toLSPPosition(startOffset, location, document.getTextDocument());
+		Position end = toLSPPosition(endOffset, location, document.getTextDocument());
 		return new Range(start, end);
 	}
 }

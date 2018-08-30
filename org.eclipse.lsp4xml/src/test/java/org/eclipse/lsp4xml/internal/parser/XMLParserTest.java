@@ -13,7 +13,6 @@ package org.eclipse.lsp4xml.internal.parser;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 import org.eclipse.lsp4xml.model.Node;
@@ -242,12 +241,12 @@ public class XMLParserTest {
 
 		assertDocument("<?xml version=\"1.0\" encoding=\"UTF-8\"?><html></html>", prolog);
 	}
-	
+
 	@Test
 	public void testPI() {
 		Node processingInstruction = createPINode("m2e", 6, -1, 20, true, "he haa");
 		Node html = createNode("html", 0, 20, 27, true, processingInstruction);
-		
+
 		assertDocument("<html><?m2e he haa?></html>", html);
 	}
 
@@ -255,7 +254,7 @@ public class XMLParserTest {
 	public void testPISpaces() {
 		Node processingInstruction = createPINode("m2e", 6, -1, 28, true, "he haa");
 		Node html = createNode("html", 0, 28, 35, true, processingInstruction);
-		
+
 		assertDocument("<html><?m2e    he haa     ?></html>", html);
 	}
 
@@ -263,42 +262,42 @@ public class XMLParserTest {
 	public void testPISpaces2() {
 		Node processingInstruction = createPINode("m2e", 8, -1, 22, true, "he haa");
 		Node html = createNode("html", 0, 24, 31, true, processingInstruction);
-		
+
 		assertDocument("<html>  <?m2e he haa?>  </html>", html);
 	}
 
 	@Test
 	public void testPICloseToProlog() {
 		Node processingInstruction = createPINode("xmll", 0, -1, 24, true, "this is content");
-		
+
 		assertDocument("<?xmll this is content?>", processingInstruction);
 	}
 
 	@Test
 	public void testPINoContent() {
 		Node processingInstruction = createPINode("m2e", 0, -1, 7, true, "");
-		
+
 		assertDocument("<?m2e?>", processingInstruction);
 	}
 
 	@Test
 	public void testPINoContentButSpace() {
 		Node processingInstruction = createPINode("m2e", 0, -1, 8, true, "");
-		
+
 		assertDocument("<?m2e ?>", processingInstruction);
 	}
 
 	@Test
 	public void testPrologNoContent() {
 		Node prolog = createPrologNode("xml", 0, -1, 7, true);
-	
+
 		assertDocument("<?xml?>", prolog);
 	}
 
 	@Test
 	public void testPrologNoContentButSpace() {
 		Node prolog = createPrologNode("xml", 0, -1, 8, true);
-	
+
 		assertDocument("<?xml ?>", prolog);
 	}
 	// --------------------------------------------------------------------------------
@@ -307,17 +306,21 @@ public class XMLParserTest {
 	public Node createRegularNode(String tag, int start, int endTagStart, int end, boolean closed, Node... children) {
 		return createNode(tag, start, endTagStart, end, closed, children);
 	}
+
 	public Node createCDATANode(String tag, int start, int endTagStart, int end, boolean closed, Node... children) {
 		Node n = createNode(tag, start, endTagStart, end, closed, children);
 		n.isCDATA = true;
 		return n;
 	}
+
 	public Node createPrologNode(String tag, int start, int endTagStart, int end, boolean closed, Node... children) {
 		Node n = createNode(tag, start, endTagStart, end, closed, children);
 		n.isProlog = true;
 		return n;
 	}
-	public Node createPINode(String tag, int start, int endTagStart, int end, boolean closed, String content, Node... children) {
+
+	public Node createPINode(String tag, int start, int endTagStart, int end, boolean closed, String content,
+			Node... children) {
 		Node n = createNode(tag, start, endTagStart, end, closed, children);
 		n.isProcessingInstruction = true;
 		n.content = content;
@@ -351,7 +354,7 @@ public class XMLParserTest {
 		assertEquals(expectedNode.tag, actualNode.tag);
 		assertEquals(expectedNode.start, actualNode.start);
 		assertEquals(expectedNode.end, actualNode.end);
-		assertEquals(expectedNode.attributes, actualNode.attributes);
+		assertEquals(expectedNode.getAttributes(), actualNode.getAttributes());
 
 		if (expectedNode.endTagStart == null) {
 			Assert.assertNull(actualNode.endTagStart);
@@ -362,7 +365,7 @@ public class XMLParserTest {
 		assertEquals(expectedNode.isCDATA, actualNode.isCDATA);
 		assertEquals(expectedNode.isProlog, actualNode.isProlog);
 		assertEquals(expectedNode.isProcessingInstruction, actualNode.isProcessingInstruction);
-		if(expectedNode.isProcessingInstruction) {
+		if (expectedNode.isProcessingInstruction) {
 			assertEquals(expectedNode.content, actualNode.content);
 		}
 		assertEquals(expectedNode.children.size(), actualNode.children.size());
@@ -372,10 +375,7 @@ public class XMLParserTest {
 	}
 
 	public void insertIntoAttributes(Node n, String key, String value) {
-		if (n.attributes == null) {
-			n.attributes = new HashMap<>();
-		}
-		n.attributes.put(key, value);
+		n.setAttribute(key, value);
 	}
 
 	public XMLDocument getXMLDocument(String input) {

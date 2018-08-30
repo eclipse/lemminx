@@ -74,9 +74,9 @@ class XMLSymbolsProvider {
 	private static String nodeToName(Node node) {
 		String name = node.tag;
 
-		if (node.attributes != null) {
-			String id = node.attributes.get("id");
-			String classes = node.attributes.get("class");
+		if (node.hasAttributes()) {
+			String id = node.getAttributeValue("id");
+			String classes = node.getAttributeValue("class");
 
 //			if (id) {
 //				name += `#${id.replace(/[\"\']/g, '')}`;

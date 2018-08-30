@@ -10,18 +10,14 @@
  */
 package org.eclipse.lsp4xml.contentmodel.participants.diagnostics;
 
-import static org.eclipse.lsp4xml.utils.XMLPositionUtility.findOffsetOfAfterChar;
-import static org.eclipse.lsp4xml.utils.XMLPositionUtility.findOffsetOfAttrName;
-import static org.eclipse.lsp4xml.utils.XMLPositionUtility.findOffsetOfFirstChar;
-import static org.eclipse.lsp4xml.utils.XMLPositionUtility.toLSPPosition;
-
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.xerces.xni.QName;
 import org.apache.xerces.xni.XMLLocator;
-import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4xml.commons.TextDocument;
+import org.eclipse.lsp4xml.model.XMLDocument;
+import org.eclipse.lsp4xml.utils.XMLPositionUtility;
 
 /**
  * XML error code.
@@ -37,7 +33,8 @@ public enum XMLSyntaxErrorCode {
 	DashDashInComment, // https://wiki.xmldation.com/Support/Validator/DashDashInComment
 	EmptyPrefixedAttName, // https://wiki.xmldation.com/Support/Validator/EmptyPrefixedAttName
 	ElementUnterminated, // https://wiki.xmldation.com/Support/Validator/ElementUnterminated
-	ETagRequired; // https://wiki.xmldation.com/Support/Validator/ETagRequired
+	ETagRequired, // https://wiki.xmldation.com/Support/Validator/ETagRequired
+	ETagUnterminated;
 
 	private final String code;
 
@@ -79,44 +76,38 @@ public enum XMLSyntaxErrorCode {
 	 * @return the LSP range from the SAX error.
 	 */
 	public static Range toLSPRange(XMLLocator location, XMLSyntaxErrorCode code, Object[] arguments,
-			TextDocument document) {
+			XMLDocument document) {
 		int offset = location.getCharacterOffset() - 1;
-		int startOffset = location.getCharacterOffset() - 1;
-		int endOffset = location.getCharacterOffset() - 1;
-
 		// adjust positions
 		switch (code) {
 		case AttributeNotUnique:
-		case AttributeNSNotUnique:
+		case AttributeNSNotUnique: {
 			String attrName = (String) arguments[1];
-			endOffset = findOffsetOfAttrName(document.getText(), offset, attrName);
-			startOffset = endOffset - attrName.length();
-			break;
-		case ContentIllegalInProlog:
-			offset = location.getCharacterOffset();
-			startOffset = offset;
-			endOffset = findOffsetOfAfterChar(document.getText(), offset, '<');
-			break;
-		case DashDashInComment:
-			startOffset = endOffset - 1;
-			break;
-		case EmptyPrefixedAttName:
-			endOffset = findOffsetOfFirstChar(document.getText(), offset);
-			startOffset = endOffset - 2;
-			break;
-		case ElementUnterminated:
-			String tag = (String) arguments[0];
-			endOffset = findOffsetOfFirstChar(document.getText(), offset);
-			startOffset = endOffset - tag.length();
-			break;
+			return XMLPositionUtility.selectAttributeNameLast(attrName, offset, document);
+		}
+		case ContentIllegalInProlog: {
+			int endOffset = document.getText().indexOf("<");
+			int startOffset = offset + 1;
+			return XMLPositionUtility.createRange(startOffset, endOffset, document);
+		}
+		case DashDashInComment: {
+			int endOffset = offset + 1;
+			int startOffset = offset - 1;
+			return XMLPositionUtility.createRange(startOffset, endOffset, document);
+		}
+		case EmptyPrefixedAttName: {
+			String attrName = ((QName) arguments[0]).rawname;
+			return XMLPositionUtility.selectAttributeValue(attrName, offset, document);
+		}
+		case ElementUnterminated: {
+			return XMLPositionUtility.selectStartTag(offset, document);
+		}
 		case ETagRequired:
-
-			break;
+		case ETagUnterminated:
+			String tag = (String) arguments[0];
+			return XMLPositionUtility.selectEndTag(offset, document);
 		}
 
-		// Create LSP range
-		Position start = toLSPPosition(startOffset, location, document);
-		Position end = toLSPPosition(endOffset, location, document);
-		return new Range(start, end);
+		return null;
 	}
 }

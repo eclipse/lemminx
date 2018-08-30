@@ -80,7 +80,7 @@ public class XMLSyntaxDiagnosticsTest {
 		});
 		assertDiagnostics(diagnostics, d(0, 1, 0, 4, "ContentIllegalInProlog"));
 	}
-	
+
 	/**
 	 * DashDashInComment tests
 	 * 
@@ -98,7 +98,7 @@ public class XMLSyntaxDiagnosticsTest {
 		});
 		assertDiagnostics(diagnostics, d(1, 18, 1, 20, "DashDashInComment"));
 	}
-	
+
 	/**
 	 * ElementUnterminated tests
 	 * 
@@ -168,7 +168,7 @@ public class XMLSyntaxDiagnosticsTest {
 		TextDocument document = new TextDocument(xml.toString(), "test.xml");
 		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
 		});
-		assertDiagnostics(diagnostics, d(0, 13, 0, 13, "EqRequiredInXMLDecl"));
+		assertDiagnostics(diagnostics, d(0, 14, 0, 14, "EqRequiredInXMLDecl"));
 	}
 
 	@Test
@@ -180,7 +180,7 @@ public class XMLSyntaxDiagnosticsTest {
 		TextDocument document = new TextDocument(xml.toString(), "test.xml");
 		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
 		});
-		assertDiagnostics(diagnostics, d(2, 4, 2, 4, "ETagRequired"));
+		assertDiagnostics(diagnostics, d(2, 4, 2, 13, "ETagRequired"));
 	}
 
 	@Test
@@ -194,15 +194,21 @@ public class XMLSyntaxDiagnosticsTest {
 		assertDiagnostics(diagnostics, d(1, 13, 1, 13, "ETagRequired"));
 	}
 
+	/**
+	 * Test ETagUnterminated
+	 * 
+	 * @see https://wiki.xmldation.com/Support/Validator/ETagUnterminated
+	 * @throws Exception
+	 */
 	@Test
 	public void testETagUnterminated() throws Exception {
 		XMLLanguageService languageService = new XMLLanguageService();
-		String xml = new StringBuilder("<UltmtDbtr>\r\n" + "  		<Nm>Name</Nm\r\n" + "		</UltmtDbtr>")
-				.toString();
+		String xml = new StringBuilder("<MsgId>ABC/090928/CCT001</MsgId\r\n" + //
+				"  <CreDtTm>2009-09-28T14:07:00</CreDtTm>").toString();
 		TextDocument document = new TextDocument(xml.toString(), "test.xml");
 		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
 		});
-		assertDiagnostics(diagnostics, d(2, 2, 2, 2, "ETagUnterminated"));
+		assertDiagnostics(diagnostics, d(0, 26, 0, 31, "ETagUnterminated"));
 	}
 
 	@Test
