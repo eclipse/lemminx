@@ -18,6 +18,7 @@ Features
 * [textDocument/hover](https://microsoft.github.io/language-server-protocol/specification#textDocument_hover).
 * [textDocument/rename](https://microsoft.github.io/language-server-protocol/specification#textDocument_rename).
 * [textDocument/foldingRanges](https://microsoft.github.io/language-server-protocol/specification#textDocument_foldingRange).
+* [textDocument/codeAction](https://microsoft.github.io/language-server-protocol/specification#textDocument_codeAction).
 
 See screenshots in the [wiki](https://github.com/angelozerr/lsp4xml/wiki/Features)
 
