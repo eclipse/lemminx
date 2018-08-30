@@ -13,6 +13,7 @@ package org.eclipse.lsp4xml.internal.parser;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 
 import org.eclipse.lsp4xml.model.Node;
@@ -239,7 +240,7 @@ public class XMLParserTest {
 		insertIntoAttributes(prolog, "version", "\"1.0\"");
 		insertIntoAttributes(prolog, "encoding", "\"UTF-8\"");
 
-		assertDocument("<?xml version=\"1.0\" encoding=\"UTF-8\"?><html></html>", prolog);
+		assertDocument("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", prolog);
 	}
 
 	@Test
@@ -307,9 +308,10 @@ public class XMLParserTest {
 		return createNode(tag, start, endTagStart, end, closed, children);
 	}
 
-	public Node createCDATANode(String tag, int start, int endTagStart, int end, boolean closed, Node... children) {
-		Node n = createNode(tag, start, endTagStart, end, closed, children);
+	public Node createCDATANode(String content, int start, int endTagStart, int end, boolean closed, Node... children) {
+		Node n = createNode("CDATA", start, endTagStart, end, closed, children);
 		n.isCDATA = true;
+		n.content = content;
 		return n;
 	}
 
@@ -341,7 +343,7 @@ public class XMLParserTest {
 	}
 
 	private static void assertDocument(String input, Node expectedNode) {
-		XMLDocument document = XMLParser.getInstance().parse(input, "uri");
+		XMLDocument document = XMLParser.getInstance().parse(input, "uri", EnumSet.of(XMLParser.Flag.Content));
 		Node actualNode = document.children.get(0);
 		compareTrees(expectedNode, actualNode);
 	}
