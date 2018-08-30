@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -92,7 +93,7 @@ public class XMLValidator {
 			inputSource.setSystemId(uri);
 			reader.parse(inputSource);
 
-		} catch (IOException | ParserConfigurationException | SAXException exception) {
+		} catch (IOException | ParserConfigurationException | SAXException | CancellationException exception) {
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, "Unexpected XMLValidator error", e);
 		}

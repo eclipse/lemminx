@@ -1,59 +1,39 @@
-/**
- *  Copyright (c) 2018 Angelo ZERR.
- *  All rights reserved. This program and the accompanying materials
- *  are made available under the terms of the Eclipse Public License v1.0
- *  which accompanies this distribution, and is available at
- *  http://www.eclipse.org/legal/epl-v10.html
- *
- *  Contributors:
- *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
- */
-package org.eclipse.lsp4xml.contentmodel;
+package org.eclipse.lsp4xml;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
+import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
+import org.eclipse.lsp4xml.contentmodel.participants.diagnostics.IXMLErrorCode;
 import org.eclipse.lsp4xml.contentmodel.settings.ContentModelSettings;
 import org.eclipse.lsp4xml.internal.parser.XMLParser;
 import org.eclipse.lsp4xml.model.XMLDocument;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.junit.Assert;
-import org.junit.Test;
 
-/**
- * XSD completion tests.
- *
- */
-public class XSDCompletionExtensionsTest {
+public class XMLAssert {
 
-	@Test
-	public void tesPOMCompletionParentChildren() throws BadLocationException {
-		String xml = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + //
-				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
-				"	xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n"
-				+ //
-				"	<parent><|" + //
-				"</project>";
-		testCompletionFor(xml, Arrays.asList(r("groupId", "<groupId"), //
-				r("artifactId", "<artifactId"), //
-				r("version", "<version")));
+	// ------------------- Compeltion assert
+
+	public static void testCompletionFor(String value, ItemDescription... expectedItems) throws BadLocationException {
+		testCompletionFor(value, null, expectedItems);
 	}
 
-	private static void testCompletionFor(String value, List<ItemDescription> expectedItems)
+	public static void testCompletionFor(String value, String catalogPath, ItemDescription... expectedItems)
 			throws BadLocationException {
-		testCompletionFor(value, expectedItems, null);
+		testCompletionFor(value, catalogPath, null, expectedItems);
 	}
 
-	private static void testCompletionFor(String value, List<ItemDescription> expectedItems, Integer expectedCount)
-			throws BadLocationException {
+	public static void testCompletionFor(String value, String catalogPath, Integer expectedCount,
+			ItemDescription... expectedItems) throws BadLocationException {
 		int offset = value.indexOf('|');
 		value = value.substring(0, offset) + value.substring(offset + 1);
 
@@ -64,11 +44,11 @@ public class XSDCompletionExtensionsTest {
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
 
 		// Configure XML catalog for XML schema
-		String catalogPath = "src/test/resources/catalogs/catalog.xml";
-		ContentModelSettings settings = new ContentModelSettings();
-		settings.setCatalogs(new String[] { catalogPath });
-		xmlLanguageService.updateSettings(settings);
-
+		if (catalogPath != null) {
+			ContentModelSettings settings = new ContentModelSettings();
+			settings.setCatalogs(new String[] { catalogPath });
+			xmlLanguageService.updateSettings(settings);
+		}
 		CompletionList list = xmlLanguageService.doComplete(htmlDoc, position, new CompletionSettings(),
 				new FormattingOptions(4, false));
 
@@ -104,11 +84,11 @@ public class XSDCompletionExtensionsTest {
 
 	}
 
-	private static ItemDescription r(String label, String resultText) {
+	public static ItemDescription r(String label, String resultText) {
 		return new ItemDescription(label, resultText);
 	}
 
-	private static class ItemDescription {
+	public static class ItemDescription {
 		public final String label;
 
 		public final String resultText;
@@ -117,5 +97,45 @@ public class XSDCompletionExtensionsTest {
 			this.label = label;
 			this.resultText = resultText;
 		}
+	}
+
+	// ------------------- Diagnostics assert
+
+	public static void testDiagnosticsFor(String xml, Diagnostic... expected) {
+		testDiagnosticsFor(xml, null, expected);
+	}
+
+	public static void testDiagnosticsFor(String xml, String catalogPath, Diagnostic... expected) {
+		TextDocument document = new TextDocument(xml.toString(), "test.xml");
+
+		XMLLanguageService xmlLanguageService = new XMLLanguageService();
+
+		if (catalogPath != null) {
+			// Configure XML catalog for XML schema
+			ContentModelSettings settings = new ContentModelSettings();
+			settings.setCatalogs(new String[] { catalogPath });
+			xmlLanguageService.updateSettings(settings);
+		}
+
+		List<Diagnostic> actulal = xmlLanguageService.doDiagnostics(document, () -> {
+		});
+		assertDiagnostics(actulal, expected);
+
+	}
+
+	public static void assertDiagnostics(List<Diagnostic> actual, Diagnostic... expected) {
+		actual.stream().forEach(d -> {
+			// we don't want to compare severity, message, etc
+			d.setSeverity(null);
+			d.setMessage(null);
+			d.setSource(null);
+		});
+		Assert.assertEquals(expected.length, actual.size());
+		Assert.assertArrayEquals(expected, actual.toArray());
+	}
+
+	public static Diagnostic d(int startLine, int startCharacter, int endLine, int endCharacter, IXMLErrorCode code) {
+		return new Diagnostic(new Range(new Position(startLine, startCharacter), new Position(endLine, endCharacter)),
+				null, null, null, code.getCode());
 	}
 }

@@ -108,4 +108,9 @@ public class XMLPositionUtility {
 		}
 	}
 
+	public static Range selectAllAttributes(int offset, XMLDocument document) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

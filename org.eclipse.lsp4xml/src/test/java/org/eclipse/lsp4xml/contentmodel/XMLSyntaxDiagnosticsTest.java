@@ -1,4 +1,3 @@
-package org.eclipse.lsp4xml.contentmodel;
 /**
  *  Copyright (c) 2018 Angelo ZERR
  *  All rights reserved. This program and the accompanying materials
@@ -9,15 +8,13 @@ package org.eclipse.lsp4xml.contentmodel;
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
+package org.eclipse.lsp4xml.contentmodel;
 
-import java.util.List;
+import static org.eclipse.lsp4xml.XMLAssert.d;
+import static org.eclipse.lsp4xml.XMLAssert.testDiagnosticsFor;
 
-import org.eclipse.lsp4j.Diagnostic;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4xml.commons.TextDocument;
+import org.eclipse.lsp4xml.contentmodel.participants.diagnostics.XMLSyntaxErrorCode;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
-import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -35,13 +32,8 @@ public class XMLSyntaxDiagnosticsTest {
 	 */
 	@Test
 	public void testAttributeNotUnique() throws Exception {
-		XMLLanguageService languageService = new XMLLanguageService();
-		String xml = new StringBuilder("<InstdAmt Ccy=\"JPY\" Ccy=\"JPY\" >10000000</InstdAmt>") //
-				.toString();
-		TextDocument document = new TextDocument(xml.toString(), "test.xml");
-		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
-		});
-		assertDiagnostics(diagnostics, d(0, 20, 0, 23, "AttributeNotUnique"));
+		String xml = "<InstdAmt Ccy=\"JPY\" Ccy=\"JPY\" >10000000</InstdAmt>";
+		testDiagnosticsFor(xml, d(0, 20, 0, 23, XMLSyntaxErrorCode.AttributeNotUnique));
 	}
 
 	/**
@@ -52,16 +44,10 @@ public class XMLSyntaxDiagnosticsTest {
 	 */
 	@Test
 	public void testAttributeNSNotUnique() throws Exception {
-		XMLLanguageService languageService = new XMLLanguageService();
-		String xml = new StringBuilder(
-				"<Document xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"urn:iso:std:iso:20022:tech:xsd:pain.001.001.03\"\r\n"
-						+ "\r\n" + //
-						"xmlns=\"urn:iso:std:iso:20022:tech:xsd:pain.001.001.03\"> ") //
-								.toString();
-		TextDocument document = new TextDocument(xml.toString(), "test.xml");
-		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
-		});
-		assertDiagnostics(diagnostics, d(2, 0, 2, 5, "AttributeNSNotUnique"));
+		String xml = "<Document xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"urn:iso:std:iso:20022:tech:xsd:pain.001.001.03\"\r\n"
+				+ "\r\n" + //
+				"xmlns=\"urn:iso:std:iso:20022:tech:xsd:pain.001.001.03\"> ";
+		testDiagnosticsFor(xml, d(2, 0, 2, 5, XMLSyntaxErrorCode.AttributeNSNotUnique));
 	}
 
 	/**
@@ -72,13 +58,8 @@ public class XMLSyntaxDiagnosticsTest {
 	 */
 	@Test
 	public void testContentIllegalInProlog() throws Exception {
-		XMLLanguageService languageService = new XMLLanguageService();
-		String xml = new StringBuilder(" ab?<xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>") //
-				.toString();
-		TextDocument document = new TextDocument(xml.toString(), "test.xml");
-		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
-		});
-		assertDiagnostics(diagnostics, d(0, 1, 0, 4, "ContentIllegalInProlog"));
+		String xml = " ab?<xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>";
+		testDiagnosticsFor(xml, d(0, 1, 0, 4, XMLSyntaxErrorCode.ContentIllegalInProlog));
 	}
 
 	/**
@@ -89,14 +70,10 @@ public class XMLSyntaxDiagnosticsTest {
 	 */
 	@Test
 	public void testDashDashInComment() throws Exception {
-		XMLLanguageService languageService = new XMLLanguageService();
-		String xml = new StringBuilder("<Id>\r\n" + //
-				"					<!-- comment -- text -->\r\n" + "        </Id>") //
-						.toString();
-		TextDocument document = new TextDocument(xml.toString(), "test.xml");
-		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
-		});
-		assertDiagnostics(diagnostics, d(1, 18, 1, 20, "DashDashInComment"));
+		String xml = "<Id>\r\n" + //
+				"					<!-- comment -- text -->\r\n" + //
+				"        </Id>";
+		testDiagnosticsFor(xml, d(1, 18, 1, 20, XMLSyntaxErrorCode.DashDashInComment));
 	}
 
 	/**
@@ -107,19 +84,14 @@ public class XMLSyntaxDiagnosticsTest {
 	 */
 	@Test
 	public void testElementUnterminated() throws Exception {
-		XMLLanguageService languageService = new XMLLanguageService();
-		String xml = new StringBuilder("<Id>\r\n" + //
+		String xml = "<Id>\r\n" + //
 				"          <OrgId\r\n" + //
 				"            <Othr>\r\n" + //
 				"              <Id> 222010012</Id>\r\n" + //
 				"            </Othr>\r\n" + //
 				"          </OrgId>\r\n" + //
-				"        </Id>") //
-						.toString();
-		TextDocument document = new TextDocument(xml.toString(), "test.xml");
-		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
-		});
-		assertDiagnostics(diagnostics, d(1, 11, 1, 16, "ElementUnterminated"));
+				"        </Id>";
+		testDiagnosticsFor(xml, d(1, 11, 1, 16, XMLSyntaxErrorCode.ElementUnterminated));
 	}
 
 	/**
@@ -130,68 +102,55 @@ public class XMLSyntaxDiagnosticsTest {
 	 */
 	@Test
 	public void testEmptyPrefixedAttName() throws Exception {
-		XMLLanguageService languageService = new XMLLanguageService();
-		String xml = new StringBuilder(
-				"<Document xmlns:xsi=\"\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"urn:iso:std:iso:20022:tech:xsd:pain.001.001.03\">") //
-						.toString();
-		TextDocument document = new TextDocument(xml.toString(), "test.xml");
-		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
-		});
-		assertDiagnostics(diagnostics, d(0, 20, 0, 22, "EmptyPrefixedAttName"));
+		// FIXME: adjust it!
+		String xml = "<Document xmlns:xsi=\"\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"urn:iso:std:iso:20022:tech:xsd:pain.001.001.03\">";
+		testDiagnosticsFor(xml, d(0, 20, 0, 22, XMLSyntaxErrorCode.EmptyPrefixedAttName));
 	}
 
 	@Ignore
 	@Test
 	public void testEncodingDeclRequired() throws Exception {
-		XMLLanguageService languageService = new XMLLanguageService();
-		String xml = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\" lang=\"en\" ?><a></a>").toString();
-		TextDocument document = new TextDocument(xml.toString(), "test.xml");
-		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
-		});
-		assertDiagnostics(diagnostics, d(0, 0, 0, 0, "EncodingDeclRequired"));
+		// FIXME: adjust it!
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" lang=\"en\" ?><a></a>";
+		testDiagnosticsFor(xml, d(0, 20, 0, 22, XMLSyntaxErrorCode.EncodingDeclRequired));
 	}
 
 	@Test
 	public void testEqRequiredInAttribute() throws Exception {
-		XMLLanguageService languageService = new XMLLanguageService();
-		String xml = new StringBuilder("<a Ccy>123.456</a>").toString();
-		TextDocument document = new TextDocument(xml.toString(), "test.xml");
-		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
-		});
-		assertDiagnostics(diagnostics, d(0, 6, 0, 6, "EqRequiredInAttribute"));
+		// FIXME: adjust it!
+		String xml = "<a Ccy>123.456</a>";
+		testDiagnosticsFor(xml, d(0, 6, 0, 6, XMLSyntaxErrorCode.EqRequiredInAttribute));
 	}
 
 	@Test
 	public void testEqRequiredInXMLDecl() throws Exception {
-		XMLLanguageService languageService = new XMLLanguageService();
-		String xml = new StringBuilder("<?xml version:\"1.0\" encoding=\"UTF-8\"?><a></a>").toString();
-		TextDocument document = new TextDocument(xml.toString(), "test.xml");
-		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
-		});
-		assertDiagnostics(diagnostics, d(0, 14, 0, 14, "EqRequiredInXMLDecl"));
+		// FIXME: adjust it!
+		String xml = "<?xml version:\"1.0\" encoding=\"UTF-8\"?><a></a>";
+		testDiagnosticsFor(xml, d(0, 14, 0, 14, XMLSyntaxErrorCode.EqRequiredInXMLDecl));
 	}
 
+	/**
+	 * ETagRequired tests
+	 * 
+	 * @see https://wiki.xmldation.com/Support/Validator/ETagRequired * @throws
+	 *      Exception
+	 */
 	@Test
 	public void testETagRequired() throws Exception {
-		XMLLanguageService languageService = new XMLLanguageService();
-		String xml = new StringBuilder(
-				"<UltmtDbtr>\r\n" + "  		<Nm>Name\r\n" + "		</UltmtDbtr> \r\n" + "			</Nm>  ")
-						.toString();
-		TextDocument document = new TextDocument(xml.toString(), "test.xml");
-		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
-		});
-		assertDiagnostics(diagnostics, d(2, 4, 2, 13, "ETagRequired"));
+		String xml = "<UltmtDbtr>\r\n" + //
+				"  		<Nm>Name\r\n" + //
+				"		</UltmtDbtr> \r\n" + //
+				"			</Nm>  ";
+		testDiagnosticsFor(xml, d(2, 4, 2, 13, XMLSyntaxErrorCode.ETagRequired));
 	}
 
 	@Test
 	public void testETagRequired2() throws Exception {
-		XMLLanguageService languageService = new XMLLanguageService();
-		String xml = new StringBuilder("<UltmtDbtr>\r\n" + "  		Nm>Name</Nm>\r\n" + "		</UltmtDbtr>")
-				.toString();
-		TextDocument document = new TextDocument(xml.toString(), "test.xml");
-		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
-		});
-		assertDiagnostics(diagnostics, d(1, 13, 1, 13, "ETagRequired"));
+		// FIXME: adjust it!
+		String xml = "<UltmtDbtr>\r\n" + //
+				"  		Nm>Name</Nm>\r\n" + //
+				"		</UltmtDbtr>";
+		testDiagnosticsFor(xml, d(1, 13, 1, 13, XMLSyntaxErrorCode.ETagRequired));
 	}
 
 	/**
@@ -202,156 +161,113 @@ public class XMLSyntaxDiagnosticsTest {
 	 */
 	@Test
 	public void testETagUnterminated() throws Exception {
-		XMLLanguageService languageService = new XMLLanguageService();
-		String xml = new StringBuilder("<MsgId>ABC/090928/CCT001</MsgId\r\n" + //
-				"  <CreDtTm>2009-09-28T14:07:00</CreDtTm>").toString();
-		TextDocument document = new TextDocument(xml.toString(), "test.xml");
-		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
-		});
-		assertDiagnostics(diagnostics, d(0, 26, 0, 31, "ETagUnterminated"));
+		String xml = "<MsgId>ABC/090928/CCT001</MsgId\r\n" + //
+				"  <CreDtTm>2009-09-28T14:07:00</CreDtTm>";
+		testDiagnosticsFor(xml, d(0, 26, 0, 31, XMLSyntaxErrorCode.ETagUnterminated));
 	}
 
 	@Test
 	public void testIllegalQName() throws Exception {
+		// FIXME: adjust it!
 		XMLLanguageService languageService = new XMLLanguageService();
-		String xml = new StringBuilder("<a Ccy:\"JPY\">100</a>").toString();
-		TextDocument document = new TextDocument(xml.toString(), "test.xml");
-		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
-		});
-		assertDiagnostics(diagnostics, d(0, 7, 0, 7, "IllegalQName"));
+		String xml = "<a Ccy:\"JPY\">100</a>";
+		testDiagnosticsFor(xml, d(0, 7, 0, 7, XMLSyntaxErrorCode.IllegalQName));
 	}
 
 	@Test
 	public void testInvalidCommentStart() throws Exception {
-		XMLLanguageService languageService = new XMLLanguageService();
-		String xml = new StringBuilder("<!- gdfgdfg -- starts here -->").toString();
-		TextDocument document = new TextDocument(xml.toString(), "test.xml");
-		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
-		});
-		assertDiagnostics(diagnostics, d(0, 3, 0, 3, "InvalidCommentStart"));
+		// FIXME: adjust it!
+		String xml = "<!- gdfgdfg -- starts here -->";
+		testDiagnosticsFor(xml, d(0, 3, 0, 3, XMLSyntaxErrorCode.InvalidCommentStart));
 	}
 
 	@Test
 	public void testLessThanAttValue() throws Exception {
-		XMLLanguageService languageService = new XMLLanguageService();
-		String xml = new StringBuilder("<InstdAmt Ccy=\"<EUR\">123.45</InstdAmt> ").toString();
-		TextDocument document = new TextDocument(xml.toString(), "test.xml");
-		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
-		});
-		assertDiagnostics(diagnostics, d(0, 15, 0, 15, "LessthanInAttValue"));
+		// FIXME: adjust it!
+		String xml = "<InstdAmt Ccy=\"<EUR\">123.45</InstdAmt> ";
+		testDiagnosticsFor(xml, d(0, 15, 0, 15, XMLSyntaxErrorCode.LessthanInAttValue));
 	}
 
 	@Test
 	public void testMarkupEntityMismatch() throws Exception {
-		XMLLanguageService languageService = new XMLLanguageService();
-		String xml = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
-				+ "<Document xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"urn:iso:std:iso:20022:tech:xsd:pain.001.001.03\">\r\n"
-				+ "<CstmrCdtTrfInitn>\r\n" + "</CstmrCdtTrfInitn>").toString();
-		TextDocument document = new TextDocument(xml.toString(), "test.xml");
-		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
-		});
-		assertDiagnostics(diagnostics, d(3, 19, 3, 19, "MarkupEntityMismatch"));
+		// FIXME: adjust it!
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" //
+				+ "<Document xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"urn:iso:std:iso:20022:tech:xsd:pain.001.001.03\">\r\n" //
+				+ "<CstmrCdtTrfInitn>\r\n" + //
+				"</CstmrCdtTrfInitn>";
+		testDiagnosticsFor(xml, d(3, 19, 3, 19, XMLSyntaxErrorCode.MarkupEntityMismatch));
 	}
 
 	@Test
 	public void testMarkupNotRecognizedInContent() throws Exception {
-		XMLLanguageService languageService = new XMLLanguageService();
-		String xml = new StringBuilder("<GrpHdr>\r\n" + "<- almost a comment-->\r\n" + "<MsgId>2.012.001</MsgId>")
-				.toString();
-		TextDocument document = new TextDocument(xml.toString(), "test.xml");
-		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
-		});
-		assertDiagnostics(diagnostics, d(1, 1, 1, 1, "MarkupNotRecognizedInContent"));
+		// FIXME: adjust it!
+		String xml = "<GrpHdr>\r\n" + //
+				"<- almost a comment-->\r\n" + //
+				"<MsgId>2.012.001</MsgId>";
+		testDiagnosticsFor(xml, d(1, 1, 1, 1, XMLSyntaxErrorCode.MarkupNotRecognizedInContent));
 	}
 
 	@Test
 	public void testNameRequiredInReference() throws Exception {
-		XMLLanguageService languageService = new XMLLanguageService();
-		String xml = new StringBuilder("<Nm>Virgay & Co</Nm>").toString();
-		TextDocument document = new TextDocument(xml.toString(), "test.xml");
-		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
-		});
-		assertDiagnostics(diagnostics, d(0, 12, 0, 12, "NameRequiredInReference"));
+		// FIXME: adjust it!
+		String xml = "<Nm>Virgay & Co</Nm>";
+		testDiagnosticsFor(xml, d(0, 12, 0, 12, XMLSyntaxErrorCode.NameRequiredInReference));
 	}
 
 	@Test
 	public void testOpenQuoteExpected() throws Exception {
-		XMLLanguageService languageService = new XMLLanguageService();
-		String xml = new StringBuilder(" <InstdAmt Ccy==\"JPY\">10000000</InstdAmt>").toString();
-		TextDocument document = new TextDocument(xml.toString(), "test.xml");
-		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
-		});
-		assertDiagnostics(diagnostics, d(0, 15, 0, 15, "OpenQuoteExpected"));
+		// FIXME: adjust it!
+		String xml = " <InstdAmt Ccy==\"JPY\">10000000</InstdAmt>";
+		testDiagnosticsFor(xml, d(0, 15, 0, 15, XMLSyntaxErrorCode.OpenQuoteExpected));
 	}
 
 	@Test
 	public void testPITargetRequired() throws Exception {
-		XMLLanguageService languageService = new XMLLanguageService();
-		String xml = new StringBuilder("<? encoding=\"UTF-8\"?>").toString();
-		TextDocument document = new TextDocument(xml.toString(), "test.xml");
-		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
-		});
-		assertDiagnostics(diagnostics, d(0, 2, 0, 2, "PITargetRequired"));
+		// FIXME: adjust it!
+		String xml = "<? encoding=\"UTF-8\"?>";
+		testDiagnosticsFor(xml, d(0, 2, 0, 2, XMLSyntaxErrorCode.PITargetRequired));
 	}
 
 	@Test
 	public void testPseudoAttrNameExpected() throws Exception {
-		XMLLanguageService languageService = new XMLLanguageService();
-		String xml = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\"><a></a>").toString();
-		TextDocument document = new TextDocument(xml.toString(), "test.xml");
-		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
-		});
-		assertDiagnostics(diagnostics, d(0, 36, 0, 36, "PseudoAttrNameExpected"));
+		// FIXME: adjust it!
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"><a></a>";
+		testDiagnosticsFor(xml, d(0, 36, 0, 36, XMLSyntaxErrorCode.PseudoAttrNameExpected));
 	}
 
 	@Test
 	public void testQuoteRequiredInXMLDecl() throws Exception {
-		XMLLanguageService languageService = new XMLLanguageService();
-		String xml = new StringBuilder("<?xml version= encoding=\"UTF-8\"?>").toString();
-		TextDocument document = new TextDocument(xml.toString(), "test.xml");
-		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
-		});
-		assertDiagnostics(diagnostics, d(0, 14, 0, 14, "QuoteRequiredInXMLDecl"));
+		// FIXME: adjust it!
+		String xml = "<?xml version= encoding=\"UTF-8\"?>";
+		testDiagnosticsFor(xml, d(0, 14, 0, 14, XMLSyntaxErrorCode.QuoteRequiredInXMLDecl));
 	}
 
 	@Test
 	public void testSDDeclInvalid() throws Exception {
-		XMLLanguageService languageService = new XMLLanguageService();
-		String xml = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"en\"?>").toString();
-		TextDocument document = new TextDocument(xml.toString(), "test.xml");
-		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
-		});
-		assertDiagnostics(diagnostics, d(0, 52, 0, 52, "SDDeclInvalid"));
+		// FIXME: adjust it!
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"en\"?>";
+		testDiagnosticsFor(xml, d(0, 52, 0, 52, XMLSyntaxErrorCode.SDDeclInvalid));
 	}
 
 	@Test
 	public void testSpaceRequiredBeforeEncodingInXMLDecl() throws Exception {
-		XMLLanguageService languageService = new XMLLanguageService();
-		String xml = new StringBuilder("<?xml version=\"1.0\"encoding=\"UTF-8\"?>").toString();
-		TextDocument document = new TextDocument(xml.toString(), "test.xml");
-		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
-		});
-		assertDiagnostics(diagnostics, d(0, 35, 0, 35, "SpaceRequiredBeforeEncodingInXMLDecl"));
+		// FIXME: adjust it!
+		String xml = "<?xml version=\"1.0\"encoding=\"UTF-8\"?>";
+		testDiagnosticsFor(xml, d(0, 35, 0, 35, XMLSyntaxErrorCode.SpaceRequiredBeforeEncodingInXMLDecl));
 	}
 
 	@Test
 	public void testSpaceRequiredBeforeStandalone() throws Exception {
-		XMLLanguageService languageService = new XMLLanguageService();
-		String xml = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\"standalone=\"no\"?>").toString();
-		TextDocument document = new TextDocument(xml.toString(), "test.xml");
-		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
-		});
-		assertDiagnostics(diagnostics, d(0, 51, 0, 51, "SpaceRequiredBeforeStandalone"));
+		// FIXME: adjust it!
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"standalone=\"no\"?>";
+		testDiagnosticsFor(xml, d(0, 51, 0, 51, XMLSyntaxErrorCode.SpaceRequiredBeforeStandalone));
 	}
 
 	@Test
 	public void testSpaceRequiredInPI() throws Exception {
-		XMLLanguageService languageService = new XMLLanguageService();
-		String xml = new StringBuilder("<?xmlversion=\"1.0\" encoding=\"UTF-8\"?>").toString();
-		TextDocument document = new TextDocument(xml.toString(), "test.xml");
-		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
-		});
-		assertDiagnostics(diagnostics, d(0, 12, 0, 12, "SpaceRequiredInPI"));
+		// FIXME: adjust it!
+		String xml = "<?xmlversion=\"1.0\" encoding=\"UTF-8\"?>";
+		testDiagnosticsFor(xml, d(0, 12, 0, 12, XMLSyntaxErrorCode.SpaceRequiredInPI));
 	}
 
 	/**
@@ -361,59 +277,30 @@ public class XMLSyntaxDiagnosticsTest {
 	@Ignore
 	@Test
 	public void testTheElementTypeLmsg() throws Exception {
-		XMLLanguageService languageService = new XMLLanguageService();
-		String xml = new StringBuilder("<Issr>ADE</Lssr>").toString();
-		TextDocument document = new TextDocument(xml.toString(), "test.xml");
-		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
-		});
-		assertDiagnostics(diagnostics, d(0, 12, 0, 12, "the-element-type-lmsg"));
+		// FIXME: adjust it!
+		String xml = "<Issr>ADE</Lssr>";
+		testDiagnosticsFor(xml, d(0, 20, 0, 22, XMLSyntaxErrorCode.the_element_type_lmsg));
 	}
 
 	@Test
 	public void testVersionInfoRequired() throws Exception {
-		XMLLanguageService languageService = new XMLLanguageService();
-		String xml = new StringBuilder("<?xml encoding=\"UTF-8\"?>").toString();
-		TextDocument document = new TextDocument(xml.toString(), "test.xml");
-		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
-		});
-		assertDiagnostics(diagnostics, d(0, 22, 0, 22, "VersionInfoRequired"));
+		// FIXME: adjust it!
+		String xml = "<?xml encoding=\"UTF-8\"?>";
+		testDiagnosticsFor(xml, d(0, 22, 0, 22, XMLSyntaxErrorCode.VersionInfoRequired));
 	}
 
 	@Test
 	public void testVersionNotSupported() throws Exception {
-		XMLLanguageService languageService = new XMLLanguageService();
-		String xml = new StringBuilder("<?xml version=\"5000.0\"encoding=\"UTF-8\"?>").toString();
-		TextDocument document = new TextDocument(xml.toString(), "test.xml");
-		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
-		});
-		assertDiagnostics(diagnostics, d(0, 22, 0, 22, "VersionNotSupported"));
+		// FIXME: adjust it!
+		String xml = "<?xml version=\"5000.0\"encoding=\"UTF-8\"?>";
+		testDiagnosticsFor(xml, d(0, 22, 0, 22, XMLSyntaxErrorCode.VersionNotSupported));
 	}
 
 	@Ignore
 	@Test
 	public void testXMLDeclUnterminated() throws Exception {
-		XMLLanguageService languageService = new XMLLanguageService();
-		String xml = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\"?").toString();
-		TextDocument document = new TextDocument(xml.toString(), "test.xml");
-		List<Diagnostic> diagnostics = languageService.doDiagnostics(document, () -> {
-		});
-		assertDiagnostics(diagnostics, d(0, 37, 0, 37, "XMLDeclUnterminated"));
+		// FIXME: adjust it!
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?";
+		testDiagnosticsFor(xml, d(0, 37, 0, 37, XMLSyntaxErrorCode.XMLDeclUnterminated));
 	}
-
-	private static void assertDiagnostics(List<Diagnostic> actual, Diagnostic... expected) {
-		actual.stream().forEach(d -> {
-			// we don't want to compare severity, message, etc
-			d.setSeverity(null);
-			d.setMessage(null);
-			d.setSource(null);
-		});
-		Assert.assertEquals(expected.length, actual.size());
-		Assert.assertArrayEquals(expected, actual.toArray());
-	}
-
-	private Diagnostic d(int startLine, int startCharacter, int endLine, int endCharacter, String code) {
-		return new Diagnostic(new Range(new Position(startLine, startCharacter), new Position(endLine, endCharacter)),
-				null, null, null, code);
-	}
-
 }

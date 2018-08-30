@@ -25,16 +25,22 @@ import org.eclipse.lsp4xml.utils.XMLPositionUtility;
  * @see https://wiki.xmldation.com/Support/Validator
  *
  */
-public enum XMLSyntaxErrorCode {
+public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 
 	AttributeNotUnique, // https://wiki.xmldation.com/Support/Validator/AttributeNotUnique
 	AttributeNSNotUnique, // https://wiki.xmldation.com/Support/Validator/AttributeNSNotUnique
 	ContentIllegalInProlog, // https://wiki.xmldation.com/Support/Validator/ContentIllegalInProlog
 	DashDashInComment, // https://wiki.xmldation.com/Support/Validator/DashDashInComment
-	EmptyPrefixedAttName, // https://wiki.xmldation.com/Support/Validator/EmptyPrefixedAttName
 	ElementUnterminated, // https://wiki.xmldation.com/Support/Validator/ElementUnterminated
+	EmptyPrefixedAttName, // https://wiki.xmldation.com/Support/Validator/EmptyPrefixedAttName
+	EncodingDeclRequired, // https://wiki.xmldation.com/Support/Validator/EncodingDeclRequired
 	ETagRequired, // https://wiki.xmldation.com/Support/Validator/ETagRequired
-	ETagUnterminated;
+	ETagUnterminated, // https://wiki.xmldation.com/Support/Validator/ETagUnterminated
+	EqRequiredInAttribute, the_element_type_lmsg("the-element-type-lmsg"), EqRequiredInXMLDecl, IllegalQName,
+	InvalidCommentStart, LessthanInAttValue, MarkupEntityMismatch, MarkupNotRecognizedInContent,
+	NameRequiredInReference, OpenQuoteExpected, PITargetRequired, PseudoAttrNameExpected, QuoteRequiredInXMLDecl,
+	SDDeclInvalid, SpaceRequiredBeforeEncodingInXMLDecl, SpaceRequiredBeforeStandalone, SpaceRequiredInPI,
+	VersionInfoRequired, VersionNotSupported, XMLDeclUnterminated; // https://wiki.xmldation.com/Support/Validator/EqRequiredInAttribute
 
 	private final String code;
 
@@ -46,6 +52,7 @@ public enum XMLSyntaxErrorCode {
 		this.code = code;
 	}
 
+	@Override
 	public String getCode() {
 		if (code == null) {
 			return name();
