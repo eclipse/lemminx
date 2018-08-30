@@ -27,6 +27,7 @@ import org.eclipse.lsp4xml.utils.XMLPositionUtility;
 public enum XMLSchemaErrorCode implements IXMLErrorCode{
 
 	cvc_complex_type_2_4_a("cvc-complex-type.2.4.a"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-2-4-a
+	cvc_complex_type_2_4_d("cvc-complex-type.2.4.d"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-2-4-d
 	cvc_complex_type_3_2_2("cvc-complex-type.3.2.2"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-3-2-2
 	cvc_complex_type_4("cvc-complex-type.4"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-4
 	cvc_type_3_1_1("cvc-type.3.1.1"); // https://wiki.xmldation.com/Support/Validator/cvc-type-3-1-1
@@ -83,6 +84,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode{
 		// adjust positions
 		switch (code) {
 		case cvc_complex_type_2_4_a:
+		case cvc_complex_type_2_4_d:
 			return XMLPositionUtility.selectStartTag(offset, document);
 		case cvc_complex_type_3_2_2: {
 			String attrName = (String) arguments[0];

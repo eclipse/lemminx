@@ -30,8 +30,24 @@ public class XMLSchemaDiagnosticsTest {
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
 				"	xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n"
 				+ //
-				"<p></p>" + "</project>";
-		testDiagnosticsFor(xml, d(3, 1, 3, 2, XMLSchemaErrorCode.cvc_complex_type_2_4_a));
+				"	<p></p>" + // <- error
+				"</project>";
+		testDiagnosticsFor(xml, d(3, 2, 3, 3, XMLSchemaErrorCode.cvc_complex_type_2_4_a));
+	}
+
+	@Test
+	public void cvc_complex_type_2_4_d() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
+				+ "<beans xmlns=\"http://www.springframework.org/schema/beans\" " + //
+				"xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
+				+ //
+				"	<bean>\r\n" + //
+				"		<description>\r\n" + //
+				"			<XXXX />\r\n" + //
+				"		</description>\r\n" + //
+				"	</bean>\r\n" + //
+				"</beans>";
+		testDiagnosticsFor(xml, d(4, 4, 4, 8, XMLSchemaErrorCode.cvc_complex_type_2_4_d));
 	}
 
 	@Test
