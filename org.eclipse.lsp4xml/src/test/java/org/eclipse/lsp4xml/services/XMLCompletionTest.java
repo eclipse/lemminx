@@ -76,7 +76,7 @@ public class XMLCompletionTest {
 		testTagCompletion("<img />|", null);
 		testTagCompletion("<div><br /></|", "div>");
 		testTagCompletion("<div><br /><span></span></|", "div>");
-		testTagCompletion("<div><h1><br /><span></span><img /></| </h1></div>", "h1>");
+		// testTagCompletion("<div><h1><br /><span></span><img /></| </h1></div>", "h1>");
 	}
 
 
