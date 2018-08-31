@@ -51,6 +51,10 @@ public class ContentModelPlugin implements IXMLExtension {
 			// Update XML catalog settings
 			ContentModelManager.getInstance().setCatalogs(settings.getCatalogs());
 		}
+		if (settings.getFileAssociations() != null) {
+			// Update XML file associations
+			ContentModelManager.getInstance().setFileAssociations(settings.getFileAssociations());
+		}
 	}
 
 	@Override

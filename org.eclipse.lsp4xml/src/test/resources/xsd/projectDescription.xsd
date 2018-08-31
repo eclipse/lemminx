@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema elementFormDefault="qualified" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+    <xsd:complexType name="projectDescriptionType">
+    	<xsd:sequence>
+            <xsd:element name="name" type="xsd:string"></xsd:element>
+    		<xsd:element name="comment" type="xsd:string"></xsd:element>
+    	</xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:element name="projectDescription"
+    	type="projectDescriptionType">
+    </xsd:element>
+
+
+    <xsd:complexType name="buildSpecType">
+    	<xsd:sequence maxOccurs="unbounded" minOccurs="0">
+    		<xsd:element name="buildCommand" type="buildCommandType"></xsd:element>
+    	</xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="buildCommandType"></xsd:complexType>
+    
+</xsd:schema>

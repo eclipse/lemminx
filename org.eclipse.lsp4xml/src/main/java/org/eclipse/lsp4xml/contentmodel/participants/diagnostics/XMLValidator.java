@@ -11,7 +11,6 @@
 package org.eclipse.lsp4xml.contentmodel.participants.diagnostics;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -19,11 +18,10 @@ import java.util.concurrent.CancellationException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Schema;
 
 import org.apache.xml.resolver.tools.CatalogResolver;
 import org.eclipse.lsp4j.Diagnostic;
@@ -41,7 +39,7 @@ public class XMLValidator {
 
 	private static final Logger LOGGER = Logger.getLogger(XMLValidator.class.getName());
 
-	public static void doDiagnostics(TextDocument document, CatalogResolver catalogResolver,
+	public static void doDiagnostics(TextDocument document, Schema schema, CatalogResolver catalogResolver,
 			List<Diagnostic> diagnostics, CancelChecker monitor) {
 
 		// System.setProperty("org.apache.xerces.xni.parser.XMLParserConfiguration",
@@ -50,14 +48,8 @@ public class XMLValidator {
 		SAXParserFactory factory = SAXParserFactory.newInstance();
 		factory.setNamespaceAware(true);
 
-		String xmlSchemaFile = null;
-		if (xmlSchemaFile != null) {
-			try {
-				factory.setSchema(SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
-						.newSchema(new File(xmlSchemaFile)));
-			} catch (SAXException saxException) {
-				// TODO: create a diagnostic
-			}
+		if (schema != null) {
+			factory.setSchema(schema);
 		} else {
 			factory.setValidating(
 					xmlContent.contains("schemaLocation") || xmlContent.contains("noNamespaceSchemaLocation"));
@@ -65,7 +57,7 @@ public class XMLValidator {
 
 		try {
 			SAXParser parser = factory.newSAXParser();
-			if (xmlSchemaFile == null) {
+			if (schema == null) {
 				parser.setProperty("http://java.sun.com/xml/jaxp/properties/schemaLanguage",
 						"http://www.w3.org/2001/XMLSchema");
 			}
