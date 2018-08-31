@@ -197,7 +197,50 @@ class XMLCompletions {
 		}
 
 		return completionResponse;
+	}
 
+	public String doTagComplete(XMLDocument xmlDocument, Position position) {
+		int offset;
+		try {
+			offset = xmlDocument.offsetAt(position);
+		} catch (BadLocationException e) {
+			LOGGER.log(Level.SEVERE, "doTagComplete failed", e);
+			return null;
+		}
+		if (offset <= 0) {
+			return null;
+		}
+		char c = xmlDocument.getText().charAt(offset - 1);
+		if (c == '>') {
+			Node node = xmlDocument.findNodeBefore(offset);
+			if (node != null && node.tag != null && !isEmptyElement(node.tag) && node.start < offset
+					&& (node.endTagStart == null || node.endTagStart > offset)) {
+				Scanner scanner = XMLScanner.createScanner(xmlDocument.getText(), node.start);
+				TokenType token = scanner.scan();
+				while (token != TokenType.EOS && scanner.getTokenEnd() <= offset) {
+					if (token == TokenType.StartTagClose && scanner.getTokenEnd() == offset) {
+						return "$0</" + node.tag + ">";
+					}
+					token = scanner.scan();
+				}
+			}
+		} else if (c == '/') {
+			Node node = xmlDocument.findNodeBefore(offset);
+			while (node != null && node.closed) {
+				node = node.parent;
+			}
+			if (node != null && node.tag != null) {
+				Scanner scanner = XMLScanner.createScanner(xmlDocument.getText(), node.start);
+				TokenType token = scanner.scan();
+				while (token != TokenType.EOS && scanner.getTokenEnd() <= offset) {
+					if (token == TokenType.EndTagOpen && scanner.getTokenEnd() == offset) {
+						return node.tag + ">";
+					}
+					token = scanner.scan();
+				}
+			}
+		}
+		return null;
 	}
 
 	// ---------------- Tags completion

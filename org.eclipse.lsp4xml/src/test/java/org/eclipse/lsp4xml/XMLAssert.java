@@ -21,7 +21,7 @@ import org.junit.Assert;
 
 public class XMLAssert {
 
-	// ------------------- Compeltion assert
+	// ------------------- Completion assert
 
 	public static void testCompletionFor(String value, ItemDescription... expectedItems) throws BadLocationException {
 		testCompletionFor(value, null, expectedItems);
@@ -99,6 +99,20 @@ public class XMLAssert {
 		}
 	}
 
+	public static void testTagCompletion(String value, String expected) throws BadLocationException {
+		int offset = value.indexOf('|');
+		value = value.substring(0, offset) + value.substring(offset + 1);
+
+		XMLLanguageService ls = new XMLLanguageService();
+
+		TextDocument document = new TextDocument(value, "test://test/test.html");
+		Position position = document.positionAt(offset);
+		XMLDocument htmlDoc = XMLParser.getInstance().parse(document);
+
+		String actual = ls.doTagComplete(htmlDoc, position);
+		Assert.assertEquals(expected, actual);
+	}
+	
 	// ------------------- Diagnostics assert
 
 	public static void testDiagnosticsFor(String xml, Diagnostic... expected) {

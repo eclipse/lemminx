@@ -31,6 +31,7 @@ import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.model.XMLDocument;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
@@ -109,4 +110,23 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		return codeActions.doCodeActions(context, range, document);
 	}
 
+	public String doTagComplete(XMLDocument xmlDocument, Position position) {
+		return completions.doTagComplete(xmlDocument, position);
+	}
+
+	public String doAutoClose(XMLDocument xmlDocument, Position position) {
+		try {
+			int offset = xmlDocument.offsetAt(position);
+			String text = xmlDocument.getText();
+			if (offset > 0) {
+				char c = text.charAt(offset - 1);
+				if (c == '>' || c == '/') {
+					return doTagComplete(xmlDocument, position);
+				}
+			}
+			return null;
+		} catch (BadLocationException e) {
+			return null;
+		}
+	}
 }

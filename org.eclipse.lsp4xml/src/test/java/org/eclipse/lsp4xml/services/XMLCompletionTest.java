@@ -10,6 +10,7 @@
  */
 package org.eclipse.lsp4xml.services;
 
+import static org.eclipse.lsp4xml.XMLAssert.testTagCompletion;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -21,6 +22,7 @@ import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.internal.parser.XMLParser;
 import org.eclipse.lsp4xml.model.XMLDocument;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
@@ -66,7 +68,16 @@ public class XMLCompletionTest {
 		assertOpenStartTagCompletion("<ata><akk><atp><at|</atp></akk></ata>", 16, "ata", "atp", "at");
 	}
 
-	
+	@Test
+	public void doTagComplete() throws BadLocationException {
+		testTagCompletion("<div>|", "$0</div>");
+		testTagCompletion("<div>|</div>", null);
+		testTagCompletion("<div class=\"\">|", "$0</div>");
+		testTagCompletion("<img />|", null);
+		testTagCompletion("<div><br /></|", "div>");
+		testTagCompletion("<div><br /><span></span></|", "div>");
+		testTagCompletion("<div><h1><br /><span></span><img /></| </h1></div>", "h1>");
+	}
 
 
 	//-------------------Tools----------------------------------------------------------

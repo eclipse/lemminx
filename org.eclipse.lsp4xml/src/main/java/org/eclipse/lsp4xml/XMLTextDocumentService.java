@@ -120,14 +120,18 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	}
 
-	private XMLDocument getXMLDocument(TextDocumentItem document) {
+	public TextDocument getDocument(String uri) {
+		return documents.get(uri);
+	}
+
+	public XMLDocument getXMLDocument(TextDocumentItem document) {
 		return xmlDocuments.get(document);
 	}
 
 	@Override
 	public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(CompletionParams params) {
 		return computeAsync((monitor) -> {
-			TextDocument document = documents.get(params.getTextDocument().getUri());
+			TextDocument document = getDocument(params.getTextDocument().getUri());
 			XMLDocument xmlDocument = getXMLDocument(document);
 			CompletionList list = getXMLLanguageService().doComplete(xmlDocument, params.getPosition(),
 					sharedCompletionSettings, sharedFormattingOptions);
@@ -138,7 +142,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	@Override
 	public CompletableFuture<Hover> hover(TextDocumentPositionParams params) {
 		return computeAsync((monitor) -> {
-			TextDocument document = documents.get(params.getTextDocument().getUri());
+			TextDocument document = getDocument(params.getTextDocument().getUri());
 			XMLDocument xmlDocument = getXMLDocument(document);
 			return getXMLLanguageService().doHover(xmlDocument, params.getPosition());
 		});
@@ -147,7 +151,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	@Override
 	public CompletableFuture<List<? extends DocumentHighlight>> documentHighlight(TextDocumentPositionParams params) {
 		return computeAsync((monitor) -> {
-			TextDocument document = documents.get(params.getTextDocument().getUri());
+			TextDocument document = getDocument(params.getTextDocument().getUri());
 			XMLDocument xmlDocument = getXMLDocument(document);
 			return getXMLLanguageService().findDocumentHighlights(xmlDocument, params.getPosition());
 		});
@@ -157,7 +161,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	public CompletableFuture<List<Either<SymbolInformation, DocumentSymbol>>> documentSymbol(
 			DocumentSymbolParams params) {
 		return computeAsync((monitor) -> {
-			TextDocument document = documents.get(params.getTextDocument().getUri());
+			TextDocument document = getDocument(params.getTextDocument().getUri());
 			XMLDocument xmlDocument = getXMLDocument(document);
 			return getXMLLanguageService().findDocumentSymbols(xmlDocument) //
 					.stream() //
@@ -172,7 +176,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	@Override
 	public CompletableFuture<List<? extends TextEdit>> formatting(DocumentFormattingParams params) {
 		return computeAsync((monitor) -> {
-			TextDocument document = documents.get(params.getTextDocument().getUri());
+			TextDocument document = getDocument(params.getTextDocument().getUri());
 			return getXMLLanguageService().format(document, null, params.getOptions());
 		});
 	}
@@ -180,7 +184,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	@Override
 	public CompletableFuture<List<? extends TextEdit>> rangeFormatting(DocumentRangeFormattingParams params) {
 		return computeAsync((monitor) -> {
-			TextDocument document = documents.get(params.getTextDocument().getUri());
+			TextDocument document = getDocument(params.getTextDocument().getUri());
 			return getXMLLanguageService().format(document, params.getRange(), params.getOptions());
 		});
 	}
@@ -188,7 +192,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	@Override
 	public CompletableFuture<WorkspaceEdit> rename(RenameParams params) {
 		return computeAsync((monitor) -> {
-			TextDocument document = documents.get(params.getTextDocument().getUri());
+			TextDocument document = getDocument(params.getTextDocument().getUri());
 			XMLDocument xmlDocument = getXMLDocument(document);
 			return getXMLLanguageService().doRename(xmlDocument, params.getPosition(), params.getNewName());
 		});
@@ -197,14 +201,14 @@ public class XMLTextDocumentService implements TextDocumentService {
 	@Override
 	public void didOpen(DidOpenTextDocumentParams params) {
 		documents.onDidOpenTextDocument(params);
-		TextDocument document = documents.get(params.getTextDocument().getUri());
+		TextDocument document = getDocument(params.getTextDocument().getUri());
 		triggerValidation(document, params.getTextDocument().getVersion());
 	}
 
 	@Override
 	public void didChange(DidChangeTextDocumentParams params) {
 		documents.onDidChangeTextDocument(params);
-		TextDocument document = documents.get(params.getTextDocument().getUri());
+		TextDocument document = getDocument(params.getTextDocument().getUri());
 		if (document != null) {
 			triggerValidation(document, params.getTextDocument().getVersion());
 		}
@@ -224,7 +228,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	@Override
 	public CompletableFuture<List<FoldingRange>> foldingRange(FoldingRangeRequestParams params) {
 		return computeAsync((monitor) -> {
-			TextDocument document = documents.get(params.getTextDocument().getUri());
+			TextDocument document = getDocument(params.getTextDocument().getUri());
 			return getXMLLanguageService().getFoldingRanges(document, sharedFoldingsSettings);
 		});
 	}
@@ -232,7 +236,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	@Override
 	public CompletableFuture<List<DocumentLink>> documentLink(DocumentLinkParams params) {
 		return computeAsync((monitor) -> {
-			TextDocument document = documents.get(params.getTextDocument().getUri());
+			TextDocument document = getDocument(params.getTextDocument().getUri());
 			return getXMLLanguageService().findDocumentLinks(document);
 		});
 	}
@@ -240,7 +244,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	@Override
 	public CompletableFuture<List<Either<Command, CodeAction>>> codeAction(CodeActionParams params) {
 		return computeAsync((monitor) -> {
-			TextDocument document = documents.get(params.getTextDocument().getUri());
+			TextDocument document = getDocument(params.getTextDocument().getUri());
 			XMLDocument xmlDocument = getXMLDocument(document);
 			return getXMLLanguageService().doCodeActions(params.getContext(), params.getRange(), xmlDocument) //
 					.stream() //
@@ -266,7 +270,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 		}
 		monitor = new BasicCancelChecker();
 		future = xmlLanguageServer.schedule(() -> {
-			TextDocument currDocument = documents.get(document.getUri());
+			TextDocument currDocument = getDocument(document.getUri());
 			if (currDocument != null && currDocument.getVersion() == version) {
 				List<Diagnostic> diagnostics = getXMLLanguageService().doDiagnostics(document, monitor);
 				monitor.checkCanceled();

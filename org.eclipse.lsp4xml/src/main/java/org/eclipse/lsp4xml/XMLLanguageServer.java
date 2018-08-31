@@ -25,12 +25,15 @@ import org.eclipse.lsp4j.DocumentLinkOptions;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
 import org.eclipse.lsp4j.ServerCapabilities;
+import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
 import org.eclipse.lsp4xml.commons.ParentProcessWatcher.ProcessLanguageServer;
+import org.eclipse.lsp4xml.commons.TextDocument;
+import org.eclipse.lsp4xml.model.XMLDocument;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.eclipse.lsp4xml.settings.XMLClientSettings;
 import org.eclipse.lsp4xml.utils.JSONUtility;
@@ -40,8 +43,7 @@ import org.eclipse.lsp4xml.utils.LogHelper;
  * XML language server.
  *
  */
-public class XMLLanguageServer implements LanguageServer, ProcessLanguageServer {
-
+public class XMLLanguageServer implements LanguageServer, ProcessLanguageServer, XMLCustomService {
 
 	private static final Logger LOGGER = Logger.getLogger(XMLLanguageServer.class.getName());
 
@@ -145,5 +147,14 @@ public class XMLLanguageServer implements LanguageServer, ProcessLanguageServer 
 	@Override
 	public long getParentProcessId() {
 		return parentProcessId != null ? parentProcessId : 0;
+	}
+
+	@Override
+	public CompletableFuture<String> closeTag(TextDocumentPositionParams params) {
+		return computeAsync((monitor) -> {
+			TextDocument document = xmlTextDocumentService.getDocument(params.getTextDocument().getUri());
+			XMLDocument xmlDocument = xmlTextDocumentService.getXMLDocument(document);
+			return getXMLLanguageService().doAutoClose(xmlDocument, params.getPosition());
+		});
 	}
 }
