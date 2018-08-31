@@ -33,7 +33,7 @@ public class XMLSchemaDiagnosticsTest {
 				"		XXXXXXXXXXXXX\r\n" + // <-- error
 				"	</bean>\r\n" + //
 				"</beans>";
-		testDiagnosticsFor(xml, d(4, 4, 4, 8, XMLSchemaErrorCode.cvc_complex_type_2_3));
+		testDiagnosticsFor(xml, d(4, 8, 4, 8, XMLSchemaErrorCode.cvc_complex_type_2_3));
 	}
 
 	@Test
