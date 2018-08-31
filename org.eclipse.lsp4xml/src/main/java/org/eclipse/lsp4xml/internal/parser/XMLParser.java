@@ -146,16 +146,19 @@ public class XMLParser {
 				Node cdataNode = new Node(scanner.getTokenOffset(), text.length(), new ArrayList<>(), curr,
 						xmlDocument);// TODO: might need arraylist
 				cdataNode.isCDATA = true;
+				cdataNode.tag = "CDATA";
 				curr.children.add(cdataNode);
 				curr = cdataNode;
 				break;
 			}
 
 			case CDATAContent: {
-				if (curr.tag == null) {
-					curr.tag = "";
+				if (mask != null && mask.contains(Flag.Content)) {
+					if (curr.content == null) {
+						curr.content = "";
+					}
+					curr.content += scanner.getTokenText();
 				}
-				curr.tag += scanner.getTokenText();
 				break;
 			}
 
@@ -203,6 +206,9 @@ public class XMLParser {
 			case Content: {
 				if (mask != null && mask.contains(Flag.Content)) {
 					String content = scanner.getTokenText();
+					if(content.trim().length() == 0) {
+						break;
+					}
 					Node cdata = new Node(scanner.getTokenOffset(), content.length(), null, curr, xmlDocument);
 					cdata.content = content;
 					curr.children.add(cdata);

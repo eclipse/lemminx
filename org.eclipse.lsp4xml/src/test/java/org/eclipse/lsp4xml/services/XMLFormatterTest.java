@@ -45,7 +45,7 @@ public class XMLFormatterTest {
 				"<br>\n" + //
 				" </div>";
 		String expected = "<div class=\"foo\">\n" + //
-				"  <br></br>\n" + //
+				"  <br />\n" + //
 				"</div>";
 		format(content, expected);
 	}
