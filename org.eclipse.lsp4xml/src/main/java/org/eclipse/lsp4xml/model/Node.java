@@ -237,7 +237,7 @@ public class Node {
 			return null;
 		}
 		if (last) {
-			for (int i = attributeNodes.size() -1; i >= 0; i--) {
+			for (int i = attributeNodes.size() - 1; i >= 0; i--) {
 				Attr attr = attributeNodes.get(i);
 				if (name.equals(attr.getName())) {
 					return attr;
@@ -252,5 +252,17 @@ public class Node {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Returns the node children.
+	 * 
+	 * @return the node children.
+	 */
+	public List<Node> getChildren() {
+		if (children == null) {
+			return Collections.emptyList();
+		}
+		return children;
 	}
 }

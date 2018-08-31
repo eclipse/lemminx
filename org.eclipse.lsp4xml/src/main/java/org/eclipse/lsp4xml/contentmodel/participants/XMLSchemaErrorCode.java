@@ -15,6 +15,7 @@ import java.util.Map;
 
 import org.apache.xerces.xni.XMLLocator;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4xml.contentmodel.participants.codeactions.CVCComplexType23CodeAction;
 import org.eclipse.lsp4xml.contentmodel.participants.diagnostics.IXMLErrorCode;
 import org.eclipse.lsp4xml.model.XMLDocument;
 import org.eclipse.lsp4xml.services.extensions.ICodeActionParticipant;
@@ -26,7 +27,7 @@ import org.eclipse.lsp4xml.utils.XMLPositionUtility;
  * @see https://wiki.xmldation.com/Support/Validator
  *
  */
-public enum XMLSchemaErrorCode implements IXMLErrorCode{
+public enum XMLSchemaErrorCode implements IXMLErrorCode {
 
 	cvc_complex_type_2_3("cvc-complex-type.2.3"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-2-3
 	cvc_complex_type_2_4_a("cvc-complex-type.2.4.a"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-2-4-a
@@ -34,7 +35,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode{
 	cvc_complex_type_3_2_2("cvc-complex-type.3.2.2"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-3-2-2
 	cvc_complex_type_4("cvc-complex-type.4"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-4
 	cvc_type_3_1_1("cvc-type.3.1.1"); // https://wiki.xmldation.com/Support/Validator/cvc-type-3-1-1
-	
+
 	private final String code;
 
 	private XMLSchemaErrorCode() {
@@ -52,7 +53,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode{
 		}
 		return code;
 	}
-	
+
 	@Override
 	public String toString() {
 		return getCode();
@@ -110,6 +111,6 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode{
 	}
 
 	public static void registerCodeActionParticipants(Map<String, ICodeActionParticipant> codeActions) {
-
+		codeActions.put(cvc_complex_type_2_3.getCode(), new CVCComplexType23CodeAction());
 	}
 }

@@ -108,11 +108,36 @@ public class XMLPositionUtility {
 	public static Range selectFirstNonWhitespaceText(int offset, XMLDocument document) {
 		Node element = document.findNodeAt(offset);
 		if (element != null) {
-			
+			for (Node node : element.getChildren()) {
+				if (node.content != null) {
+					int start = node.start;
+					Integer end = null;
+					for (int i = 0; i < node.content.length(); i++) {
+						char c = node.content.charAt(i);
+						if (end == null) {
+							if (Character.isWhitespace(c)) {
+								start++;
+							} else {
+								end = start;
+							}
+						} else {
+							if (!Character.isWhitespace(c)) {
+								end++;
+							} else {
+								break;
+							}
+						}
+					}
+					if (end != null) {
+						end++;
+						return createRange(start, end, document);
+					}
+				}
+			}
 		}
 		return null;
 	}
-	
+
 	public static Range createRange(int startOffset, int endOffset, XMLDocument document) {
 		try {
 			return new Range(document.positionAt(startOffset), document.positionAt(endOffset));

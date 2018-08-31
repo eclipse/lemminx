@@ -45,7 +45,7 @@ public class LSPErrorReporter extends XMLErrorReporter {
 
 	private static final String XML_DIAGNOSTIC_SOURCE = "xml";
 
-	public static final EnumSet<Flag> VALIDATION_MASK = EnumSet.of(Flag.Attribute);
+	public static final EnumSet<Flag> VALIDATION_MASK = EnumSet.of(Flag.Attribute, Flag.Content);
 
 	private final TextDocument document;
 	private XMLDocument xmlDocument;
