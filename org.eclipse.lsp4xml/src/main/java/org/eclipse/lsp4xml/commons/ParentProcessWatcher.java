@@ -16,6 +16,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.logging.Logger;
 
 import org.eclipse.lsp4j.jsonrpc.MessageConsumer;
 import org.eclipse.lsp4j.services.LanguageServer;
@@ -25,6 +26,13 @@ import org.eclipse.lsp4j.services.LanguageServer;
  * This implementation waits for periods of inactivity to start querying the PIDs.
  */
 public final class ParentProcessWatcher implements Runnable, Function<MessageConsumer, MessageConsumer>{
+
+	private static final Logger LOGGER = Logger.getLogger(ParentProcessWatcher.class.getName());
+
+	/**
+	 * Exit code returned when XML Language Server is forced to exit.
+	 */
+	private static final int FORCED_EXIT_CODE = 1;
 
 	private static final boolean isWindows = System.getProperty("os.name").toLowerCase().indexOf("win") >= 0;
 	
@@ -39,6 +47,7 @@ public final class ParentProcessWatcher implements Runnable, Function<MessageCon
 
 		long getParentProcessId();
 		
+		void exit(int exitCode);
 	}
 	
 	public ParentProcessWatcher(ProcessLanguageServer server ) {
@@ -50,8 +59,9 @@ public final class ParentProcessWatcher implements Runnable, Function<MessageCon
 	@Override
 	public void run() {
 		if (!parentProcessStillRunning()) {
+			LOGGER.warning("Parent process stopped running, forcing server exit");
 			task.cancel(true);
-			server.exit();
+			server.exit(FORCED_EXIT_CODE);
 		}
 	}
 
