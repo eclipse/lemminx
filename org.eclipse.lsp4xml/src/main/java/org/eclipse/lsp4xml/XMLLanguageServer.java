@@ -42,10 +42,7 @@ import org.eclipse.lsp4xml.utils.LogHelper;
  */
 public class XMLLanguageServer implements LanguageServer, ProcessLanguageServer {
 
-	/**
-	 * Exit code returned when XML Language Server is forced to exit.
-	 */
-	private static final int FORCED_EXIT_CODE = 1;
+
 	private static final Logger LOGGER = Logger.getLogger(XMLLanguageServer.class.getName());
 
 	private final XMLLanguageService xmlLanguageService;
@@ -64,6 +61,7 @@ public class XMLLanguageServer implements LanguageServer, ProcessLanguageServer 
 
 	@Override
 	public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
+		LOGGER.info("Initializing LSP4XML server");
 		updateSettings(params.getInitializationOptions());
 		xmlTextDocumentService.updateClientCapabilities(params.getCapabilities());
 		this.parentProcessId = params.getProcessId();
@@ -109,11 +107,13 @@ public class XMLLanguageServer implements LanguageServer, ProcessLanguageServer 
 
 	@Override
 	public void exit() {
+		exit(0);
+	}
+
+	@Override
+	public void exit(int exitCode) {
 		delayer.shutdown();
-		Executors.newSingleThreadScheduledExecutor().schedule(() -> {
-			LOGGER.warning("Force exiting after 1 minute");
-			System.exit(FORCED_EXIT_CODE);
-		}, 1, TimeUnit.MINUTES);
+		System.exit(exitCode);
 	}
 
 	@Override
