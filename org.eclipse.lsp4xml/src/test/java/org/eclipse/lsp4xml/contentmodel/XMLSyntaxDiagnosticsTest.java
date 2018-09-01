@@ -14,7 +14,6 @@ import static org.eclipse.lsp4xml.XMLAssert.d;
 import static org.eclipse.lsp4xml.XMLAssert.testDiagnosticsFor;
 
 import org.eclipse.lsp4xml.contentmodel.participants.XMLSyntaxErrorCode;
-import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -92,6 +91,21 @@ public class XMLSyntaxDiagnosticsTest {
 				"          </OrgId>\r\n" + //
 				"        </Id>";
 		testDiagnosticsFor(xml, d(1, 11, 1, 16, XMLSyntaxErrorCode.ElementUnterminated));
+	}
+
+	/**
+	 * ElementPrefixUnbound tests
+	 * 
+	 * @see https://wiki.xmldation.com/Support/Validator/ElementPrefixUnbound
+	 * @throws Exception
+	 */
+	@Test
+	public void testElementPrefixUnbound() throws Exception {
+		String xml = "<xs:OrgId>\r\n" + //
+				"  <xs:Othr>\r\n" + //
+				"  </xs:Othr>\r\n" + //
+				"</xs:OrgId>";
+		testDiagnosticsFor(xml, d(0, 1, 0, 9, XMLSyntaxErrorCode.ElementPrefixUnbound));
 	}
 
 	/**

@@ -35,6 +35,7 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 	ContentIllegalInProlog, // https://wiki.xmldation.com/Support/Validator/ContentIllegalInProlog
 	DashDashInComment, // https://wiki.xmldation.com/Support/Validator/DashDashInComment
 	ElementUnterminated, // https://wiki.xmldation.com/Support/Validator/ElementUnterminated
+	ElementPrefixUnbound, // https://wiki.xmldation.com/Support/Validator/ElementPrefixUnbound
 	EmptyPrefixedAttName, // https://wiki.xmldation.com/Support/Validator/EmptyPrefixedAttName
 	EncodingDeclRequired, // https://wiki.xmldation.com/Support/Validator/EncodingDeclRequired
 	ETagRequired, // https://wiki.xmldation.com/Support/Validator/ETagRequired
@@ -109,6 +110,7 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 			String attrName = ((QName) arguments[0]).rawname;
 			return XMLPositionUtility.selectAttributeValue(attrName, offset, document);
 		}
+		case ElementPrefixUnbound:
 		case ElementUnterminated: {
 			return XMLPositionUtility.selectStartTag(offset, document);
 		}
