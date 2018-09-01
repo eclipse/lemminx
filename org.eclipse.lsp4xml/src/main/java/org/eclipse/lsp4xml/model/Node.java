@@ -173,7 +173,6 @@ public class Node {
 
 	public String getAttributeValue(String name) {
 		String value = hasAttributes() ? attributes.get(name) : null;
-		;
 		if (value == null) {
 			return null;
 		}
