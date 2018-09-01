@@ -72,15 +72,15 @@ public class XMLSchemaDiagnosticsTest {
 		testDiagnosticsFor(xml, d(3, 23, 3, 23, XMLSchemaErrorCode.cvc_type_3_1_1));
 	}
 
-	@Ignore
 	@Test
 	public void testcvc_complex_type_3_2_2() throws Exception {
-		String xml = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + //
-				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
-				"	xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n"
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
 				+ //
-				"<modelVersion XXXX=\"\" ></modelVersion>" + "</project>";
-		testDiagnosticsFor(xml, d(3, 1, 3, 2, XMLSchemaErrorCode.cvc_complex_type_3_2_2));
+				"	<bean XXXX=\"\" >\r\n" + // <- error
+				"	</bean>              \r\n" + //
+				"</beans>";
+		testDiagnosticsFor(xml, d(2, 7, 2, 11, XMLSchemaErrorCode.cvc_complex_type_3_2_2));
 	}
 
 	private static void testDiagnosticsFor(String xml, Diagnostic... expected) {

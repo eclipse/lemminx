@@ -34,6 +34,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 	cvc_complex_type_2_4_d("cvc-complex-type.2.4.d"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-2-4-d
 	cvc_complex_type_3_2_2("cvc-complex-type.3.2.2"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-3-2-2
 	cvc_complex_type_4("cvc-complex-type.4"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-4
+	cvc_elt_1_a("cvc-elt.1.a"), // https://wiki.xmldation.com/Support/Validator/cvc-elt-1
 	cvc_type_3_1_1("cvc-type.3.1.1"); // https://wiki.xmldation.com/Support/Validator/cvc-type-3-1-1
 
 	private final String code;
@@ -91,9 +92,10 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 			return XMLPositionUtility.selectFirstNonWhitespaceText(offset, document);
 		case cvc_complex_type_2_4_a:
 		case cvc_complex_type_2_4_d:
+		case cvc_elt_1_a:
 			return XMLPositionUtility.selectStartTag(offset, document);
 		case cvc_complex_type_3_2_2: {
-			String attrName = (String) arguments[0];
+			String attrName = (String) arguments[1];
 			return XMLPositionUtility.selectAttributeName(attrName, offset, document);
 		}
 		case cvc_complex_type_4: {
@@ -102,7 +104,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 //			startOffset = findOffsetOfStartTag(document.ge.getText(), offset, tag);
 //			endOffset = startOffset + tag.length();
 			break;
-		}
+		}		
 		case cvc_type_3_1_1:
 			return XMLPositionUtility.selectAllAttributes(offset, document);
 		}
