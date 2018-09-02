@@ -1,14 +1,21 @@
 package org.eclipse.lsp4xml;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.TextDocumentEdit;
+import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
+import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.contentmodel.participants.diagnostics.IXMLErrorCode;
@@ -22,6 +29,8 @@ import org.junit.Assert;
 public class XMLAssert {
 
 	// ------------------- Completion assert
+
+	private static final String FILE_URI = "test.xml";
 
 	public static void testCompletionFor(String value, ItemDescription... expectedItems) throws BadLocationException {
 		testCompletionFor(value, null, expectedItems);
@@ -112,7 +121,7 @@ public class XMLAssert {
 		String actual = ls.doTagComplete(htmlDoc, position);
 		Assert.assertEquals(expected, actual);
 	}
-	
+
 	// ------------------- Diagnostics assert
 
 	public static void testDiagnosticsFor(String xml, Diagnostic... expected) {
@@ -120,7 +129,7 @@ public class XMLAssert {
 	}
 
 	public static void testDiagnosticsFor(String xml, String catalogPath, Diagnostic... expected) {
-		TextDocument document = new TextDocument(xml.toString(), "test.xml");
+		TextDocument document = new TextDocument(xml.toString(), FILE_URI);
 
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
 
@@ -131,9 +140,9 @@ public class XMLAssert {
 			xmlLanguageService.updateSettings(settings);
 		}
 
-		List<Diagnostic> actulal = xmlLanguageService.doDiagnostics(document, () -> {
+		List<Diagnostic> actual = xmlLanguageService.doDiagnostics(document, () -> {
 		});
-		assertDiagnostics(actulal, expected);
+		assertDiagnostics(actual, expected);
 
 	}
 
@@ -149,7 +158,75 @@ public class XMLAssert {
 	}
 
 	public static Diagnostic d(int startLine, int startCharacter, int endLine, int endCharacter, IXMLErrorCode code) {
-		return new Diagnostic(new Range(new Position(startLine, startCharacter), new Position(endLine, endCharacter)),
-				null, null, null, code.getCode());
+		return new Diagnostic(r(startLine, startCharacter, endLine, endCharacter), null, null, null, code.getCode());
+	}
+
+	public static Range r(int startLine, int startCharacter, int endLine, int endCharacter) {
+		return new Range(new Position(startLine, startCharacter), new Position(endLine, endCharacter));
+	}
+
+	// ------------------- CodeAction assert
+
+	public static void testCodeActionsFor(String xml, Diagnostic diagnostic, CodeAction... expected) {
+		testCodeActionsFor(xml, diagnostic, null, expected);
+	}
+
+	public static void testCodeActionsFor(String xml, Diagnostic diagnostic, String catalogPath,
+			CodeAction... expected) {
+		TextDocument document = new TextDocument(xml.toString(), FILE_URI);
+
+		XMLLanguageService xmlLanguageService = new XMLLanguageService();
+
+		if (catalogPath != null) {
+			// Configure XML catalog for XML schema
+			ContentModelSettings settings = new ContentModelSettings();
+			settings.setCatalogs(new String[] { catalogPath });
+			xmlLanguageService.updateSettings(settings);
+		}
+
+		CodeActionContext context = new CodeActionContext();
+		context.setDiagnostics(Arrays.asList(diagnostic));
+		Range range = diagnostic.getRange();
+		XMLDocument xmlDoc = XMLParser.getInstance().parse(document);
+		List<CodeAction> actual = xmlLanguageService.doCodeActions(context, range, xmlDoc);
+		assertCodeActions(actual, expected);
+	}
+
+	public static void assertCodeActions(List<CodeAction> actual, CodeAction... expected) {
+		actual.stream().forEach(ca -> {
+			// we don't want to compare title, etc
+			ca.setCommand(null);
+			ca.setKind(null);
+			ca.setTitle(null);
+			if (ca.getDiagnostics() != null) {
+				ca.getDiagnostics().forEach(d -> {
+					d.setSeverity(null);
+					d.setMessage(null);
+					d.setSource(null);
+				});
+			}
+		});
+		Assert.assertEquals(expected.length, actual.size());
+		Assert.assertArrayEquals(expected, actual.toArray());
+	}
+
+	public static CodeAction ca(Diagnostic d, TextEdit te) {
+		CodeAction codeAction = new CodeAction();
+		codeAction.setDiagnostics(Arrays.asList(d));
+
+		VersionedTextDocumentIdentifier versionedTextDocumentIdentifier = new VersionedTextDocumentIdentifier(
+				FILE_URI, 0);
+
+		WorkspaceEdit workspaceEdit = new WorkspaceEdit(
+				Arrays.asList(new TextDocumentEdit(versionedTextDocumentIdentifier, Arrays.asList(te))));
+		codeAction.setEdit(workspaceEdit);
+		return codeAction;
+	}
+
+	public static TextEdit te(int startLine, int startCharacter, int endLine, int endCharacter, String newText) {
+		TextEdit textEdit = new TextEdit();
+		textEdit.setNewText(newText);
+		textEdit.setRange(r(startLine, startCharacter, endLine, endCharacter));
+		return textEdit;
 	}
 }

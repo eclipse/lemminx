@@ -10,9 +10,13 @@
  */
 package org.eclipse.lsp4xml.contentmodel;
 
+import static org.eclipse.lsp4xml.XMLAssert.ca;
 import static org.eclipse.lsp4xml.XMLAssert.d;
+import static org.eclipse.lsp4xml.XMLAssert.te;
+import static org.eclipse.lsp4xml.XMLAssert.testCodeActionsFor;
 import static org.eclipse.lsp4xml.XMLAssert.testDiagnosticsFor;
 
+import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4xml.contentmodel.participants.XMLSyntaxErrorCode;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -90,7 +94,9 @@ public class XMLSyntaxDiagnosticsTest {
 				"            </Othr>\r\n" + //
 				"          </OrgId>\r\n" + //
 				"        </Id>";
-		testDiagnosticsFor(xml, d(1, 11, 1, 16, XMLSyntaxErrorCode.ElementUnterminated));
+		Diagnostic d = d(1, 11, 1, 16, XMLSyntaxErrorCode.ElementUnterminated);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(1, 16, 1, 16, ">")), ca(d, te(1, 16, 1, 16, "/>")));
 	}
 
 	/**
