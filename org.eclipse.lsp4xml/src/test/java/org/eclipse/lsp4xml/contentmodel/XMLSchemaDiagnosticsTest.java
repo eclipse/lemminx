@@ -10,12 +10,14 @@
  */
 package org.eclipse.lsp4xml.contentmodel;
 
+import static org.eclipse.lsp4xml.XMLAssert.ca;
 import static org.eclipse.lsp4xml.XMLAssert.d;
+import static org.eclipse.lsp4xml.XMLAssert.te;
+import static org.eclipse.lsp4xml.XMLAssert.testCodeActionsFor;
 
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.contentmodel.participants.XMLSchemaErrorCode;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -33,7 +35,9 @@ public class XMLSchemaDiagnosticsTest {
 				"		XXXXXXXXXXXXX\r\n" + // <-- error
 				"	</bean>\r\n" + //
 				"</beans>";
-		testDiagnosticsFor(xml, d(3, 2, 3, 15, XMLSchemaErrorCode.cvc_complex_type_2_3));
+		Diagnostic d = d(3, 2, 3, 15, XMLSchemaErrorCode.cvc_complex_type_2_3);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(3, 2, 3, 15, "")));
 	}
 
 	@Test
