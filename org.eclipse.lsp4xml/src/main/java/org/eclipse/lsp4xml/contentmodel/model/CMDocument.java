@@ -10,6 +10,8 @@
  */
 package org.eclipse.lsp4xml.contentmodel.model;
 
+import java.util.Collection;
+
 import org.eclipse.lsp4xml.model.Node;
 
 /**
@@ -18,6 +20,8 @@ import org.eclipse.lsp4xml.model.Node;
  */
 public interface CMDocument {
 
+	Collection<CMElementDeclaration> getElements();
+	
 	/**
 	 * Returns the declared element which matches the given XML element and null
 	 * otherwise.
@@ -26,6 +30,6 @@ public interface CMDocument {
 	 * @return the declared element which matches the given XML element and null
 	 *         otherwise.
 	 */
-	CMElementDeclaration findCMElement(Node element);
+	CMElementDeclaration findCMElement(Node element, String namespace);
 
 }

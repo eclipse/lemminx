@@ -56,13 +56,13 @@ class XMLDiagnostics {
 	 */
 	private void doBasicDiagnostics(TextDocument document, List<Diagnostic> diagnostics, CancelChecker monitor)
 			throws BadLocationException {
-		Scanner scanner = XMLScanner.createScanner(document.getText());
+		/*Scanner scanner = XMLScanner.createScanner(document.getText());
 		TokenType token = scanner.scan();
 		while (token != TokenType.EOS) {
 			monitor.checkCanceled();
 			// TODO check tokens...
 			token = scanner.scan();
-		}
+		}*/
 	}
 
 	/**
@@ -74,6 +74,7 @@ class XMLDiagnostics {
 	 */
 	private void doExtensionsDiagnostics(TextDocument document, List<Diagnostic> diagnostics, CancelChecker monitor) {
 		for (IDiagnosticsParticipant diagnosticsParticipant : extensionsRegistry.getDiagnosticsParticipants()) {
+			monitor.checkCanceled();
 			diagnosticsParticipant.doDiagnostics(document, diagnostics, monitor);
 		}
 	}

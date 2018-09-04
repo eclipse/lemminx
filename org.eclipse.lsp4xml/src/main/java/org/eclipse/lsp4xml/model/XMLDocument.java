@@ -16,6 +16,7 @@ import java.util.List;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
+import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
 
 /**
  * XML document.
@@ -28,6 +29,8 @@ public class XMLDocument extends Node {
 	private boolean schemaLocationInitialized;
 
 	private final TextDocument textDocument;
+	private boolean hasNamespaces;
+	private boolean hasGrammar;
 
 	public XMLDocument(TextDocument textDocument) {
 		super(0, textDocument.getText().length(), new ArrayList<>(), null, null);
@@ -55,10 +58,11 @@ public class XMLDocument extends Node {
 		return textDocument.lineDelimiter(lineNumber);
 	}
 
-//	public String lineIndent(int lineNumber) throws BadLocationException {
-//		return textDocument.lineIndent(lineNumber);
-//	}
-
+	/**
+	 * Returns the declared "xsi:schemaLocation" and null otherwise.
+	 * 
+	 * @return the declared "xsi:schemaLocation" and null otherwise.
+	 */
 	public SchemaLocation getSchemaLocation() {
 		if (!schemaLocationInitialized) {
 			initializeSchemaLocation();
@@ -66,6 +70,11 @@ public class XMLDocument extends Node {
 		return schemaLocation;
 	}
 
+	/**
+	 * Returns the declared "xsi:noNamespaceSchemaLocation" and null otherwise.
+	 * 
+	 * @return the declared "xsi:noNamespaceSchemaLocation" and null otherwise.
+	 */
 	public NoNamespaceSchemaLocation getNoNamespaceSchemaLocation() {
 		if (!schemaLocationInitialized) {
 			initializeSchemaLocation();
@@ -73,45 +82,78 @@ public class XMLDocument extends Node {
 		return noNamespaceSchemaLocation;
 	}
 
+	/**
+	 * Initialize namespaces and schema location declaration .
+	 */
 	private void initializeSchemaLocation() {
 		if (schemaLocationInitialized) {
 			return;
 		}
-		List<Node> roots = getRoots();
-		if (roots == null || roots.size() < 1) {
+		// Get root element
+		Element documentElement = getDocumentElement();
+		if (documentElement == null) {
 			return;
 		}
-		Node root = getDocumentElement();
-		if (root == null) {
-			return;
+		String schemaInstancePrefix = null;
+		// Search if document element root declares namespace with "xmlns".
+		if (documentElement.hasAttributes()) {
+			for (String attributeName : documentElement.attributeNames()) {
+				if (attributeName != null && attributeName.equals("xmlns") || attributeName.startsWith("xmlns:")) //$NON-NLS-1$ //$NON-NLS-2$
+				{
+					hasNamespaces = true;
+				}
+				String attributeValue = documentElement.getAttributeValue(attributeName);
+				if (attributeValue != null && attributeValue.startsWith("http://www.w3.org/") //$NON-NLS-1$
+						&& attributeValue.endsWith("/XMLSchema-instance")) //$NON-NLS-1$
+				{
+					schemaInstancePrefix = attributeName.equals("xmlns") ? "" : getUnprefixedName(attributeName); //$NON-NLS-1$ //$NON-NLS-2$
+				}
+			}
+			if (schemaInstancePrefix != null) {
+				noNamespaceSchemaLocation = createNoNamespaceSchemaLocation(documentElement, schemaInstancePrefix);
+				if (noNamespaceSchemaLocation == null) {
+					schemaLocation = createSchemaLocation(documentElement, schemaInstancePrefix);
+				}
+			}
+			hasGrammar = noNamespaceSchemaLocation != null || schemaLocation != null;
+			if (!hasGrammar) {
+				// None grammar found with standard mean, check if it some components like XML
+				// Catalog, XML file associations, etc
+				// bind this XML document to a grammar.
+				String namespaceURI = documentElement.getNamespaceURI();
+				hasGrammar = URIResolverExtensionManager.getInstance().resolve(getUri(), namespaceURI, null) != null;
+			}
 		}
-		schemaLocation = createSchemaLocation(root);
-		noNamespaceSchemaLocation = createNoNamespaceSchemaLocation(root);
 		schemaLocationInitialized = true;
 	}
 
-	private Node getDocumentElement() {
+	/**
+	 * Returns the document root element and null otherwise.
+	 * 
+	 * @return the document root element and null otherwise.
+	 */
+	public Element getDocumentElement() {
 		List<Node> roots = getRoots();
 		if (roots != null) {
 			for (Node node : roots) {
-				if (!node.isProlog) {
-					return node;
+				if (node.getNodeType() == Node.ELEMENT_NODE) {
+					return (Element) node;
 				}
 			}
 		}
 		return null;
 	}
 
-	private SchemaLocation createSchemaLocation(Node root) {
-		String value = root.getAttributeValue("xsi:schemaLocation");
+	private SchemaLocation createSchemaLocation(Node root, String schemaInstancePrefix) {
+		String value = root.getAttributeValue(getPrefixedName(schemaInstancePrefix, "schemaLocation"));
 		if (value == null) {
 			return null;
 		}
 		return new SchemaLocation(value);
 	}
 
-	private NoNamespaceSchemaLocation createNoNamespaceSchemaLocation(Node root) {
-		String value = root.getAttributeValue("xsi:noNamespaceSchemaLocation");
+	private NoNamespaceSchemaLocation createNoNamespaceSchemaLocation(Node root, String schemaInstancePrefix) {
+		String value = root.getAttributeValue(getPrefixedName(schemaInstancePrefix, "noNamespaceSchemaLocation"));
 		if (value == null) {
 			return null;
 		}
@@ -119,14 +161,24 @@ public class XMLDocument extends Node {
 	}
 
 	public String getNamespaceURI() {
-		Node root = getDocumentElement();
-		return root != null ? root.getAttributeValue("xmlns") : null;
+		Element documentElement = getDocumentElement();
+		return documentElement != null ? documentElement.getNamespaceURI() : null;
 	}
 
+	/**
+	 * Returns the text content of the XML document.
+	 * 
+	 * @return the text content of the XML document.
+	 */
 	public String getText() {
 		return textDocument.getText();
 	}
 
+	/**
+	 * Returns the file URI of the XML document.
+	 * 
+	 * @return the file URI of the XML document.
+	 */
 	public String getUri() {
 		return textDocument.getUri();
 	}
@@ -140,8 +192,40 @@ public class XMLDocument extends Node {
 		return this;
 	}
 
-	public boolean hasSchemaLocation() {
-		return getSchemaLocation() != null || getNoNamespaceSchemaLocation() != null;
+	/**
+	 * Returns true id document defines namespaces (with xmlns) and false otherwise.
+	 * 
+	 * @return true id document defines namespaces (with xmlns) and false otherwise.
+	 */
+	public boolean hasNamespaces() {
+		if (!schemaLocationInitialized) {
+			initializeSchemaLocation();
+		}
+		return hasNamespaces;
+	}
+
+	/**
+	 * Returns true if the document is bound to a grammar and false otherwise.
+	 * 
+	 * @return true if the document is bound to a grammar and false otherwise.
+	 */
+	public boolean hasGrammar() {
+		if (!schemaLocationInitialized) {
+			initializeSchemaLocation();
+		}
+		return hasGrammar;
+	}
+
+	private static String getUnprefixedName(String name) {
+		int index = name.indexOf(":"); //$NON-NLS-1$
+		if (index != -1) {
+			name = name.substring(index + 1);
+		}
+		return name;
+	}
+
+	private static String getPrefixedName(String prefix, String localName) {
+		return prefix != null && prefix.length() > 0 ? prefix + ":" + localName : localName; //$NON-NLS-1$
 	}
 
 }

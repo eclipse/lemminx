@@ -10,17 +10,19 @@
  */
 package org.eclipse.lsp4xml.contentmodel.participants.diagnostics;
 
+import java.util.EnumSet;
 import java.util.List;
 
-import javax.xml.validation.Schema;
-
-import org.apache.xml.resolver.tools.CatalogResolver;
+import org.apache.xerces.xni.parser.XMLEntityResolver;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.commons.TextDocument;
-import org.eclipse.lsp4xml.contentmodel.model.ContentModelManager;
+import org.eclipse.lsp4xml.internal.parser.XMLParser;
+import org.eclipse.lsp4xml.internal.parser.XMLParser.Flag;
+import org.eclipse.lsp4xml.model.XMLDocument;
 import org.eclipse.lsp4xml.services.extensions.IDiagnosticsParticipant;
-import org.xml.sax.SAXException;
+import org.eclipse.lsp4xml.uriresolver.IExternalSchemaLocationProvider;
+import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
 
 /**
  * Validate XML file with Xerces for syntax validation and XML Schema, DTD.
@@ -28,19 +30,17 @@ import org.xml.sax.SAXException;
  */
 public class ContentModelDiagnosticsParticipant implements IDiagnosticsParticipant {
 
+	private static final EnumSet<Flag> VALIDATION_MASK = EnumSet.of(Flag.Attribute, Flag.Content);
+
 	@Override
 	public void doDiagnostics(TextDocument document, List<Diagnostic> diagnostics, CancelChecker monitor) {
-		// Try to find XML schema from the file associations settings.
-		Schema schema = null;
-		try {
-			schema = ContentModelManager.getInstance().findSchemaFromFileAssociations(document.getUri());
-		} catch (SAXException e) {
-			e.printStackTrace();
-		}
-		// Get XML catalog resolver
-		CatalogResolver catalogResolver = ContentModelManager.getInstance().getCatalogResolver();
+		// Get entity resolver (XML catalog resolver, XML schema from the file
+		// associations settings., ...)
+		XMLEntityResolver entityResolver = URIResolverExtensionManager.getInstance();
+		IExternalSchemaLocationProvider externalSchemaLocationProvider = URIResolverExtensionManager.getInstance();
 		// Process validation
-		XMLValidator.doDiagnostics(document, schema, catalogResolver, diagnostics, monitor);
+		XMLDocument xmlDocument = XMLParser.getInstance().parse(document, VALIDATION_MASK);
+		XMLValidator.doDiagnostics(xmlDocument, entityResolver, externalSchemaLocationProvider, diagnostics, monitor);
 	}
 
 }

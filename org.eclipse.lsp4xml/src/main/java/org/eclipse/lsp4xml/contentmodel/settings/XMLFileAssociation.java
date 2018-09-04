@@ -11,10 +11,13 @@
 package org.eclipse.lsp4xml.contentmodel.settings;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.FileSystems;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.eclipse.lsp4xml.uriresolver.IExternalSchemaLocationProvider;
 
 /**
  * XML file association between a XML file pattern (glob) and an XML Schema file
@@ -23,7 +26,7 @@ import java.nio.file.Paths;
 public class XMLFileAssociation {
 
 	private transient PathMatcher pathMatcher;
-
+	private transient Map<String, String> externalSchemaLocation;
 	private String pattern;
 	private String systemId;
 
@@ -42,9 +45,19 @@ public class XMLFileAssociation {
 
 	public void setSystemId(String systemId) {
 		this.systemId = systemId;
+		this.externalSchemaLocation = null;
 	}
 
 	public boolean matches(String uri) {
+		try {
+			return matches(new URI(uri));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	public boolean matches(URI uri) {
 		if (pattern.length() < 1) {
 			return false;
 		}
@@ -58,13 +71,19 @@ public class XMLFileAssociation {
 			pathMatcher = FileSystems.getDefault().getPathMatcher("glob:" + glob);
 		}
 		try {
-			return pathMatcher.matches(Paths.get(new URI(uri)));
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
+			return pathMatcher.matches(Paths.get(uri));
 		} catch (Exception e) {
-			e.printStackTrace();
+			// e.printStackTrace();
 		}
 		return false;
+	}
+
+	public Map<String, String> getExternalSchemaLocation() {
+		if (externalSchemaLocation == null) {
+			this.externalSchemaLocation = new HashMap<String, String>();
+			this.externalSchemaLocation.put(IExternalSchemaLocationProvider.NO_NAMESPACE_SCHEMA_LOCATION, systemId);
+		}
+		return externalSchemaLocation;
 	}
 
 }

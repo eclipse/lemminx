@@ -26,6 +26,13 @@ public interface CMElementDeclaration {
 	String getName();
 
 	/**
+	 * Returns the declared element name with the given prefix.
+	 * 
+	 * @return the declared element name with the given prefix.
+	 */
+	String getName(String prefix);
+
+	/**
 	 * Returns the attributes of this declared element.
 	 * 
 	 * @return the attributes element of this declared element.

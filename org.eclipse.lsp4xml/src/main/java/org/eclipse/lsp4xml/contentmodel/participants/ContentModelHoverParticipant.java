@@ -15,7 +15,7 @@ import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4xml.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lsp4xml.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lsp4xml.contentmodel.model.ContentModelManager;
-import org.eclipse.lsp4xml.model.Node;
+import org.eclipse.lsp4xml.model.Element;
 import org.eclipse.lsp4xml.services.extensions.HoverParticipantAdapter;
 import org.eclipse.lsp4xml.services.extensions.IHoverRequest;
 
@@ -27,7 +27,7 @@ public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 
 	@Override
 	public Hover onTag(IHoverRequest completionRequest) throws Exception {
-		Node node = completionRequest.getNode();
+		Element node = (Element) completionRequest.getNode();
 		CMElementDeclaration cmElement = ContentModelManager.getInstance().findCMElement(node);
 		if (cmElement != null) {
 			String doc = cmElement.getDocumentation();
@@ -42,7 +42,7 @@ public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 
 	@Override
 	public Hover onAttributeName(IHoverRequest completionRequest) throws Exception {
-		Node element = completionRequest.getNode();
+		Element element = (Element) completionRequest.getNode();
 		CMElementDeclaration cmElement = ContentModelManager.getInstance().findCMElement(element);
 		if (cmElement != null) {
 			String attributeName = completionRequest.getCurrentAttributeName();

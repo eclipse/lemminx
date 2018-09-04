@@ -45,13 +45,10 @@ public class LSPErrorReporter extends XMLErrorReporter {
 
 	private static final String XML_DIAGNOSTIC_SOURCE = "xml";
 
-	public static final EnumSet<Flag> VALIDATION_MASK = EnumSet.of(Flag.Attribute, Flag.Content);
-
-	private final TextDocument document;
-	private XMLDocument xmlDocument;
+	private final XMLDocument document;
 	private final List<Diagnostic> diagnostics;
 
-	public LSPErrorReporter(TextDocument document, List<Diagnostic> diagnostics) {
+	public LSPErrorReporter(XMLDocument document, List<Diagnostic> diagnostics) {
 		this.document = document;
 		this.diagnostics = diagnostics;
 		XMLMessageFormatter xmft = new XMLMessageFormatter();
@@ -62,10 +59,6 @@ public class LSPErrorReporter extends XMLErrorReporter {
 
 	public String reportError(XMLLocator location, String domain, String key, Object[] arguments, short severity,
 			Exception exception) throws XNIException {
-		if (xmlDocument == null) {
-			xmlDocument = XMLParser.getInstance().parse(document, VALIDATION_MASK);
-		}
-
 		// format message
 		MessageFormatter messageFormatter = getMessageFormatter(domain);
 		String message;
@@ -90,7 +83,7 @@ public class LSPErrorReporter extends XMLErrorReporter {
 		}
 
 		// Fill diagnostic
-		diagnostics.add(new Diagnostic(toLSPRange(location, key, arguments, xmlDocument), message,
+		diagnostics.add(new Diagnostic(toLSPRange(location, key, arguments, document), message,
 				toLSPSeverity(severity), XML_DIAGNOSTIC_SOURCE, key));
 
 		if (severity == SEVERITY_FATAL_ERROR && !fContinueAfterFatalError) {

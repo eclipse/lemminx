@@ -24,6 +24,8 @@ import java.util.function.Function;
  */
 public class Node {
 
+	public static final short ELEMENT_NODE = 1;
+	
 	public String tag;
 	public boolean closed = false;
 	public Integer endTagStart;
@@ -263,5 +265,13 @@ public class Node {
 			return Collections.emptyList();
 		}
 		return children;
+	}
+
+	public short getNodeType() {
+		return 0;
+	}
+	
+	public Node getParent() {
+		return parent;
 	}
 }

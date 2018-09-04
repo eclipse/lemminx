@@ -30,17 +30,33 @@ public class XMLBuilder {
 		this.xml = new StringBuilder();
 	}
 
-	public XMLBuilder startElement(String name, boolean close) {
+
+	public XMLBuilder startElement(String prefix, String name, boolean close) {
 		xml.append("<");
+		if (prefix != null && !prefix.isEmpty()) {
+			xml.append(prefix);
+			xml.append(":");
+		}
 		xml.append(name);
 		if (close) {
 			closeStartElement();
 		}
 		return this;
 	}
+	
+	public XMLBuilder startElement(String name, boolean close) {
+		return startElement(null, name, close);
+	}
 
 	public XMLBuilder endElement(String name) {
+		return endElement(null, name);
+	}
+	public XMLBuilder endElement(String prefix, String name) {
 		xml.append("</");
+		if (prefix != null && !prefix.isEmpty()) {
+			xml.append(prefix);
+			xml.append(":");
+		}
 		xml.append(name);
 		xml.append(">");
 		return this;

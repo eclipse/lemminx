@@ -53,6 +53,15 @@ public class XSDElementDeclaration implements CMElementDeclaration {
 	}
 
 	@Override
+	public String getName(String prefix) {
+		String name = getName();
+		if (prefix == null || prefix.isEmpty()) {
+			return name;
+		}
+		return prefix + ":" + name;
+	}
+
+	@Override
 	public Collection<CMAttributeDeclaration> getAttributes() {
 		if (attributes == null) {
 			attributes = new ArrayList<>();

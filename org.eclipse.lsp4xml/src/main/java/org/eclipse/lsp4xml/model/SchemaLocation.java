@@ -23,4 +23,5 @@ public class SchemaLocation {
 	public String getLocationHint(String namespaceURI) {
 		return schemaLocationValuePairs.get(namespaceURI);
 	}
+	
 }

@@ -2,8 +2,14 @@ package org.eclipse.lsp4xml.model;
 
 public class NoNamespaceSchemaLocation {
 
-	public NoNamespaceSchemaLocation(String value) {
-		// TODO Auto-generated constructor stub
+	private final String location;
+
+	public NoNamespaceSchemaLocation(String location) {
+		this.location = location;
+	}
+
+	public String getLocation() {
+		return location;
 	}
 
 }

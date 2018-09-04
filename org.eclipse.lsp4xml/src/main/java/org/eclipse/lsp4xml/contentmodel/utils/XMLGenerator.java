@@ -51,19 +51,23 @@ public class XMLGenerator {
 		this.canSupportSnippets = canSupportSnippets;
 	}
 
+	public String generate(CMElementDeclaration elementDeclaration) {
+		return generate(elementDeclaration, null);
+	}
 	/**
 	 * Returns the XML generated from the given element declaration.
 	 * 
 	 * @param elementDeclaration
+	 * @param prefix 
 	 * @return the XML generated from the given element declaration.
 	 */
-	public String generate(CMElementDeclaration elementDeclaration) {
+	public String generate(CMElementDeclaration elementDeclaration, String prefix) {
 		XMLBuilder xml = new XMLBuilder(formattingOptions, whitespacesIndent, lineDelimiter);
-		generate(elementDeclaration, 0, 0, xml, new ArrayList<CMElementDeclaration>());
+		generate(elementDeclaration, prefix, 0, 0, xml, new ArrayList<CMElementDeclaration>());
 		return xml.toString();
 	}
 
-	private int generate(CMElementDeclaration elementDeclaration, int level, int snippetIndex, XMLBuilder xml,
+	private int generate(CMElementDeclaration elementDeclaration, String prefix, int level, int snippetIndex, XMLBuilder xml,
 			List<CMElementDeclaration> generatedElements) {
 		if (generatedElements.contains(elementDeclaration)) {
 			return snippetIndex;
@@ -73,7 +77,7 @@ public class XMLGenerator {
 			xml.linefeed();
 			xml.indent(level);
 		}
-		xml.startElement(elementDeclaration.getName(), false);
+		xml.startElement(prefix, elementDeclaration.getName(), false);
 		// Attributes
 		Collection<CMAttributeDeclaration> attributes = elementDeclaration.getAttributes();
 		for (CMAttributeDeclaration attributeDeclaration : attributes) {
@@ -93,7 +97,7 @@ public class XMLGenerator {
 			if ((level > maxLevel)) {
 				level++;
 				for (CMElementDeclaration child : children) {
-					snippetIndex = generate(child, level, snippetIndex, xml, generatedElements);
+					snippetIndex = generate(child, prefix, level, snippetIndex, xml, generatedElements);
 				}
 				level--;
 				xml.linefeed();
@@ -104,7 +108,7 @@ public class XMLGenerator {
 					xml.addContent("$" + snippetIndex);
 				}
 			}
-			xml.endElement(elementDeclaration.getName());
+			xml.endElement(prefix, elementDeclaration.getName());
 		} else if (elementDeclaration.isEmpty()) {
 			xml.endElement();
 		} else {
@@ -113,7 +117,7 @@ public class XMLGenerator {
 				snippetIndex++;
 				xml.addContent("$" + snippetIndex);
 			}
-			xml.endElement(elementDeclaration.getName());
+			xml.endElement(prefix, elementDeclaration.getName());
 		}
 		return snippetIndex;
 	}

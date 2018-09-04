@@ -42,7 +42,8 @@ public class XSDDocument implements CMDocument {
 		this.elementMappings = new HashMap<>();
 	}
 
-	private Collection<CMElementDeclaration> getElements() {
+	@Override
+	public Collection<CMElementDeclaration> getElements() {
 		if (elements == null) {
 			elements = new ArrayList<>();
 			XSNamedMap map = model.getComponents(XSConstants.ELEMENT_DECLARATION);
@@ -55,8 +56,7 @@ public class XSDDocument implements CMDocument {
 	}
 
 	@Override
-	public CMElementDeclaration findCMElement(Node node) {
-		String namespace = node.getOwnerDocument().getNamespaceURI();
+	public CMElementDeclaration findCMElement(Node node, String namespace) {
 		List<Node> paths = new ArrayList<>();
 		Node element = node;
 		while (element != null && !(element instanceof XMLDocument)) {

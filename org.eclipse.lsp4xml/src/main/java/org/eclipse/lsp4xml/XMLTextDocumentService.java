@@ -262,13 +262,17 @@ public class XMLTextDocumentService implements TextDocumentService {
 	}
 
 	private void triggerValidation(TextDocument document, int version) {
-		if (future != null) {
+		if (future != null && !future.isCancelled()) {
 			future.cancel(true);
 		}
 		if (monitor != null) {
 			monitor.setCanceled(true);
 		}
 		monitor = new BasicCancelChecker();
+		triggerValidation(document, version, monitor);
+	}
+
+	private void triggerValidation(TextDocument document, int version, BasicCancelChecker monitor) {
 		future = xmlLanguageServer.schedule(() -> {
 			TextDocument currDocument = getDocument(document.getUri());
 			if (currDocument != null && currDocument.getVersion() == version) {

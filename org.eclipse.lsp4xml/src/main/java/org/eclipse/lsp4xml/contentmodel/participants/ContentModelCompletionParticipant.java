@@ -17,11 +17,13 @@ import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.contentmodel.model.CMAttributeDeclaration;
+import org.eclipse.lsp4xml.contentmodel.model.CMDocument;
 import org.eclipse.lsp4xml.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lsp4xml.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.contentmodel.utils.XMLGenerator;
-import org.eclipse.lsp4xml.model.Node;
+import org.eclipse.lsp4xml.model.Element;
 import org.eclipse.lsp4xml.model.XMLDocument;
 import org.eclipse.lsp4xml.services.extensions.CompletionParticipantAdapter;
 import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
@@ -35,40 +37,56 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 
 	@Override
 	public void onTagOpen(ICompletionRequest request, ICompletionResponse response) throws Exception {
-		Node element = request.getParentNode();
+		Element element = (Element) request.getParentNode();
 		CMElementDeclaration cmElement = ContentModelManager.getInstance().findCMElement(element);
 		if (cmElement != null) {
-			XMLDocument document = element.getOwnerDocument();
-			int lineNumber = request.getPosition().getLine();
-			String lineText = document.lineText(lineNumber);
-			String lineDelimiter = document.lineDelimiter(lineNumber);
-			String whitespacesIndent = getStartWhitespaces(lineText);
-
-			XMLGenerator generator = new XMLGenerator(request.getFormattingSettings(), whitespacesIndent, lineDelimiter,
-					request.getCompletionSettings().isCompletionSnippetsSupported(), 0);
-			for (CMElementDeclaration child : cmElement.getElements()) {
-				String label = child.getName();
-				CompletionItem item = new CompletionItem(label);
-				item.setFilterText(label);
-				item.setKind(CompletionItemKind.Property);
-				String documentation = child.getDocumentation();
-				if (documentation != null) {
-					item.setDetail(documentation);
+			fillWithChildrenElementDeclaration(element, cmElement.getElements(), null, request, response);
+		}
+		if (element.equals(element.getOwnerDocument().getDocumentElement())) {
+			// root document element
+			Collection<String> prefixes = element.getAllPrefixes();
+			for (String prefix : prefixes) {
+				String namespaceURI = element.getNamespaceURI(prefix);
+				CMDocument cmDocument = ContentModelManager.getInstance().findCMDocument(element, namespaceURI);
+				if (cmDocument != null) {
+					fillWithChildrenElementDeclaration(element, cmDocument.getElements(), prefix, request, response);
 				}
-				String xml = generator.generate(child);
-				// Remove the first '<' character
-				xml = xml.substring(1, xml.length());
-				item.setTextEdit(new TextEdit(request.getReplaceRange(), xml));
-				item.setInsertTextFormat(InsertTextFormat.Snippet);
-				response.addCompletionItem(item);
 			}
+		}
+	}
+
+	private void fillWithChildrenElementDeclaration(Element element, Collection<CMElementDeclaration> cmElements,
+			String prefix, ICompletionRequest request, ICompletionResponse response) throws BadLocationException {
+		XMLDocument document = element.getOwnerDocument();
+		int lineNumber = request.getPosition().getLine();
+		String lineText = document.lineText(lineNumber);
+		String lineDelimiter = document.lineDelimiter(lineNumber);
+		String whitespacesIndent = getStartWhitespaces(lineText);
+
+		XMLGenerator generator = new XMLGenerator(request.getFormattingSettings(), whitespacesIndent, lineDelimiter,
+				request.getCompletionSettings().isCompletionSnippetsSupported(), 0);
+		for (CMElementDeclaration child : cmElements) {
+			String label = child.getName(prefix);
+			CompletionItem item = new CompletionItem(label);
+			item.setFilterText(label);
+			item.setKind(CompletionItemKind.Property);
+			String documentation = child.getDocumentation();
+			if (documentation != null) {
+				item.setDetail(documentation);
+			}
+			String xml = generator.generate(child, prefix);
+			// Remove the first '<' character
+			xml = xml.substring(1, xml.length());
+			item.setTextEdit(new TextEdit(request.getReplaceRange(), xml));
+			item.setInsertTextFormat(InsertTextFormat.Snippet);
+			response.addCompletionItem(item);
 		}
 	}
 
 	@Override
 	public void onAttributeName(String value, Range fullRange, ICompletionRequest completionRequest,
 			ICompletionResponse completionResponse) throws Exception {
-		Node element = completionRequest.getParentNode();
+		Element element = (Element) completionRequest.getParentNode();
 		CMElementDeclaration cmElement = ContentModelManager.getInstance().findCMElement(element);
 		if (cmElement != null) {
 			Collection<CMAttributeDeclaration> attributes = cmElement.getAttributes();
@@ -95,7 +113,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	@Override
 	public void onAttributeValue(String valuePrefix, Range fullRange, boolean addQuotes,
 			ICompletionRequest completionRequest, ICompletionResponse completionResponse) throws Exception {
-		Node element = completionRequest.getParentNode();
+		Element element = (Element) completionRequest.getParentNode();
 		CMElementDeclaration cmElement = ContentModelManager.getInstance().findCMElement(element);
 		if (cmElement != null) {
 			String attributeName = completionRequest.getCurrentAttributeName();

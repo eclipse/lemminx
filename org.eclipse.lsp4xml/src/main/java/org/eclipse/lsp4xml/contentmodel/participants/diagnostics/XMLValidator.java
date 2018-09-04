@@ -12,24 +12,26 @@ package org.eclipse.lsp4xml.contentmodel.participants.diagnostics;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-import javax.xml.validation.Schema;
-
-import org.apache.xml.resolver.tools.CatalogResolver;
+import org.apache.xerces.parsers.SAXParser;
+import org.apache.xerces.parsers.XMLGrammarCachingConfiguration;
+import org.apache.xerces.xni.parser.XMLEntityResolver;
+import org.apache.xerces.xni.parser.XMLParserConfiguration;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
-import org.eclipse.lsp4xml.commons.TextDocument;
+import org.eclipse.lsp4xml.model.XMLDocument;
+import org.eclipse.lsp4xml.uriresolver.IExternalSchemaLocationProvider;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
 
 /**
  * XML validator utilities class.
@@ -39,56 +41,69 @@ public class XMLValidator {
 
 	private static final Logger LOGGER = Logger.getLogger(XMLValidator.class.getName());
 
-	public static void doDiagnostics(TextDocument document, Schema schema, CatalogResolver catalogResolver,
-			List<Diagnostic> diagnostics, CancelChecker monitor) {
-
-		// System.setProperty("org.apache.xerces.xni.parser.XMLParserConfiguration",
-		// "org.apache.xerces.parsers.XMLGrammarCachingConfiguration");
-		String xmlContent = document.getText();
-		SAXParserFactory factory = SAXParserFactory.newInstance();
-		factory.setNamespaceAware(true);
-
-		if (schema != null) {
-			factory.setSchema(schema);
-		} else {
-			factory.setValidating(
-					xmlContent.contains("schemaLocation") || xmlContent.contains("noNamespaceSchemaLocation"));
-		}
+	public static void doDiagnostics(XMLDocument document, XMLEntityResolver entityResolver,
+			IExternalSchemaLocationProvider externalSchemaLocationProvider, List<Diagnostic> diagnostics,
+			CancelChecker monitor) {
 
 		try {
-			SAXParser parser = factory.newSAXParser();
-			if (schema == null) {
-				parser.setProperty("http://java.sun.com/xml/jaxp/properties/schemaLanguage",
-						"http://www.w3.org/2001/XMLSchema");
-			}
+			// System.setProperty("org.apache.xerces.xni.parser.XMLParserConfiguration",
+			// "org.apache.xerces.parsers.XMLGrammarCachingConfiguration");
+
+			XMLParserConfiguration configuration = new XMLGrammarCachingConfiguration();
+			SAXParser reader = new SAXParser(configuration);
 
 			// Add LSP error reporter to fill LSP diagnostics from Xerces errors
-			parser.setProperty("http://apache.org/xml/properties/internal/error-reporter",
+			reader.setProperty("http://apache.org/xml/properties/internal/error-reporter",
 					new LSPErrorReporter(document, diagnostics));
-
-			XMLReader reader = parser.getXMLReader();
 			reader.setFeature("http://apache.org/xml/features/continue-after-fatal-error", false); //$NON-NLS-1$
-
-			// XML catalog
-			if (catalogResolver != null) {
-				reader.setEntityResolver(catalogResolver);
-			}
+			reader.setFeature("http://xml.org/sax/features/namespace-prefixes", true /* document.hasNamespaces() */); //$NON-NLS-1$
+			reader.setFeature("http://xml.org/sax/features/namespaces", true /* document.hasNamespaces() */); //$NON-NLS-1$
 
 			// Add LSP content handler to stop XML parsing if monitor is canceled.
 			reader.setContentHandler(new LSPContentHandler(monitor));
+
+			if (entityResolver != null) {
+				reader.setProperty("http://apache.org/xml/properties/internal/entity-resolver", entityResolver); //$NON-NLS-1$
+			}
+
+			boolean hasGrammar = document.hasGrammar();
+			if (!hasGrammar) {
+				hasGrammar = checkExternalSchema(new URI(document.getUri()), externalSchemaLocationProvider, reader);
+			}
+			reader.setFeature("http://xml.org/sax/features/validation", hasGrammar); //$NON-NLS-1$
+			reader.setFeature("http://apache.org/xml/features/validation/schema", hasGrammar); //$NON-NLS-1$
 
 			// Parse XML
 			String content = document.getText();
 			String uri = document.getUri();
 			InputSource inputSource = new InputSource();
-			inputSource.setByteStream(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8.name())));
+			inputSource.setByteStream(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)));
 			inputSource.setSystemId(uri);
 			reader.parse(inputSource);
 
-		} catch (IOException | ParserConfigurationException | SAXException | CancellationException exception) {
+		} catch (IOException | SAXException | CancellationException exception) {
+			// exception.printStackTrace();
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, "Unexpected XMLValidator error", e);
 		}
 	}
 
+	private static boolean checkExternalSchema(URI fileURI,
+			IExternalSchemaLocationProvider externalSchemaLocationProvider, SAXParser reader)
+			throws SAXNotRecognizedException, SAXNotSupportedException {
+		boolean hasGrammar = false;
+		if (externalSchemaLocationProvider != null) {
+			Map<String, String> result = externalSchemaLocationProvider.getExternalSchemaLocation(fileURI);
+			if (result != null) {
+				String noNamespaceSchemaLocation = result
+						.get(IExternalSchemaLocationProvider.NO_NAMESPACE_SCHEMA_LOCATION);
+				if (noNamespaceSchemaLocation != null) {
+					reader.setProperty(IExternalSchemaLocationProvider.NO_NAMESPACE_SCHEMA_LOCATION,
+							noNamespaceSchemaLocation);
+					hasGrammar = true;
+				}
+			}
+		}
+		return hasGrammar;
+	}
 }

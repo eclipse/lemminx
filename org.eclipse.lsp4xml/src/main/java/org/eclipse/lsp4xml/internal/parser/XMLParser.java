@@ -15,6 +15,7 @@ import java.util.EnumSet;
 
 import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.model.Attr;
+import org.eclipse.lsp4xml.model.Element;
 import org.eclipse.lsp4xml.model.Node;
 import org.eclipse.lsp4xml.model.XMLDocument;
 
@@ -66,7 +67,7 @@ public class XMLParser {
 		while (token != TokenType.EOS) {
 			switch (token) {
 			case StartTagOpen: {
-				Node child = new Node(scanner.getTokenOffset(), text.length(), new ArrayList<>(), curr, xmlDocument);
+				Element child = new Element(scanner.getTokenOffset(), text.length(), new ArrayList<>(), curr, xmlDocument);
 				curr.children.add(child);
 				curr = child;
 				break;
