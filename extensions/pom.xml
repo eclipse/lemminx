@@ -11,5 +11,6 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>org.eclipse.lsp4xml.emmet</module>
+		<module>org.eclipse.lsp4xml.xsl</module>
 	</modules>
 </project>
