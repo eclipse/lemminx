@@ -36,6 +36,7 @@ import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.model.XMLDocument;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lsp4xml.settings.XMLFormatterSettings;
 
 /**
  * XML Language service.
@@ -78,7 +79,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 	}
 
 	public CompletionList doComplete(XMLDocument xmlDocument, Position position, CompletionSettings completionSettings,
-			FormattingOptions formattingSettings) {
+	  FormattingOptions formattingSettings) {
 		return completions.doComplete(xmlDocument, position, completionSettings, formattingSettings);
 	}
 
@@ -129,4 +130,12 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 			return null;
 		}
 	}
+	public void setFormatterSettings(XMLFormatterSettings settings) {
+		this.formatter.setFormatterSettings(settings);
+	}
+
+	public XMLFormatterSettings getFormatterSettings() {
+		return this.formatter.getFormatterSettings();
+	}
+
 }

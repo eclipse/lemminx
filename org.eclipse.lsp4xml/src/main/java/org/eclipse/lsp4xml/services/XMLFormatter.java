@@ -28,6 +28,7 @@ import org.eclipse.lsp4xml.internal.parser.XMLParser.Flag;
 import org.eclipse.lsp4xml.model.Node;
 import org.eclipse.lsp4xml.model.XMLDocument;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lsp4xml.settings.XMLFormatterSettings;
 import org.eclipse.lsp4xml.utils.XMLBuilder;
 
 /**
@@ -40,16 +41,24 @@ class XMLFormatter {
 	public static final EnumSet<Flag> FORMAT_MASK = EnumSet.of(Flag.Content);
 
 	private final XMLExtensionsRegistry extensionsRegistry;
+	private XMLFormatterSettings formatterSettings;
+
+	private int start;
+	private int end;
+
 
 	public XMLFormatter(XMLExtensionsRegistry extensionsRegistry) {
 		this.extensionsRegistry = extensionsRegistry;
+		this.formatterSettings = new XMLFormatterSettings();
 	}
 
 	public List<? extends TextEdit> format(TextDocument document, Range range, FormattingOptions formattingOptions) {
+		
+		
 		try {
 			// Compute start/end offset range
-			int start = -1;
-			int end = -1;
+			start = -1;
+			end = -1;
 			if (range == null) {
 				start = 0;
 				end = document.getText().length();
@@ -60,13 +69,16 @@ class XMLFormatter {
 			Position startPosition = document.positionAt(start);
 			Position endPosition = document.positionAt(end);
 
+			this.getFormatterSettings().updateFromFormattingOptions(formattingOptions);
+
 			// Parse the content to format to create an XML document with full data (CData,
 			// comments, etc)
 			String text = document.getText().substring(start, end);
 			XMLDocument doc = XMLParser.getInstance().parse(text, null, FORMAT_MASK);
 
 			// Format the content
-			XMLBuilder xml = new XMLBuilder(formattingOptions, "", document.lineDelimiter(startPosition.getLine()));
+			XMLBuilder xml = new XMLBuilder(this.formatterSettings, "",
+					document.lineDelimiter(startPosition.getLine()));
 			format(doc, 0, xml);
 
 			// Returns LSP list of TextEdits
@@ -92,11 +104,15 @@ class XMLFormatter {
 			// generate start element
 			if (node.isCDATA) {
 				xml.startCDATA();
+				if (formatterSettings.isJoinCDATALines()) {
+					node.content = normalizeSpace(node.content);
+				}
 				xml.addContentCDATA(node.content);
 				xml.endCDATA();
 			} else if (node.isProcessingInstruction) {
 				xml.startPrologOrPI(node.tag);
-				xml.addContentPI(node.content);
+            xml.addContentPI(node.content);
+            xml.endPrologOrPI();
 			} else if (node.isProlog) {
 				xml.startPrologOrPI(node.tag);
 
@@ -105,51 +121,60 @@ class XMLFormatter {
 					String[] attributes = new String[3];
 					attributes[0] = "version";
 					attributes[1] = "encoding";
-					attributes[2] = "standalone";
+               attributes[2] = "standalone";
 
-					for (String attributeName : attributes) {
-						String attributeValue = node.getAttributeValue(attributeName);
-						if (attributeValue != null) {
-							xml.addAttribute(attributeName, attributeValue);
-						}
-					}
-				}
+               for(int i = 0; i < attributes.length; i++) {
+                  String name = attributes[i];
+                  String value = node.getAttributeValue(attributes[i]);
+                  if(value == null) {
+                     continue;
+                  }
+                  if(i != 0 && formatterSettings.isSplitAttributes()) {
+                     xml.linefeed();
+                     xml.indent(level);
+                  }
+                  xml.addAttribute(name, value);
+               }
+            }
+            xml.endPrologOrPI();
+            xml.linefeed();
 			} else {
 				xml.startElement(node.tag, false);
 				if (node.hasAttributes()) {
 					// generate attributes
-					Set<String> attributeNames = node.attributeNames();
-					for (String attributeName : attributeNames) {
-						xml.addAttribute(attributeName, node.getAttributeValue(attributeName));
-					}
+               Set<String> attributeNames = node.attributeNames();
+               int counter = 0;
+               for (String attributeName : attributeNames) {
+                  xml.addAttribute(attributeName, node.getAttributeValue(attributeName));
+                  if(formatterSettings.isSplitAttributes()) {
+                     if(counter < attributeNames.size() - 1) {
+                        xml.linefeed();
+                        xml.indent(level);
+                     }
+                     counter++;
+                  }
+               }
 				}
-				if (!node.children.isEmpty()) {
-					// element has body
-					xml.closeStartElement();
-					level++;
-					boolean hasElements = false;
-					for (Node child : node.children) {
-						hasElements = hasElements | child.tag != null;
-						format(child, level, xml);
-					}
-					level--;
-					if (hasElements) {
-						xml.linefeed();
-						xml.indent(level);
-					}
-					xml.endElement(node.tag);
-				} else {
-					// element has no content
-					xml.endElement();
+				
+				// element has body
+				xml.closeStartElement();
+				level++;
+				boolean hasElements = false;
+				for (Node child : node.children) {
+					hasElements = hasElements | child.tag != null;
+					format(child, level, xml);
 				}
-				return;
-			}
-
-			if (node.isProcessingInstruction || node.isProlog) {
-				xml.endPrologOrPI();
-				if (node.isProlog) {
+				level--;
+				if (hasElements) {
 					xml.linefeed();
+					xml.indent(level);
 				}
+				if((node.endTagStart != null && node.endTagStart.intValue() <= end && node.closed) || !node.closed) {
+					xml.endElement(node.tag);
+				}
+				
+				
+				return;
 			}
 
 		} else if (node.content != null) {
@@ -179,6 +204,15 @@ class XMLFormatter {
 			b.append(c);
 		}
 		return b.toString();
+	}
+
+	public void setFormatterSettings(XMLFormatterSettings settings) {
+		this.formatterSettings = settings;
+
+	}
+
+	public XMLFormatterSettings getFormatterSettings() {
+		return this.formatterSettings;
 	}
 
 }

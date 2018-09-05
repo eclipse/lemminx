@@ -193,7 +193,7 @@ public class XMLScanner implements Scanner {
 				state = ScannerState.AfterOpeningStartTag;
 				return finishToken(offset, TokenType.StartTagOpen);
 			}
-			stream.advanceUntilChar(_LAN);
+			stream.advanceUntilChar(_LAN); // <
 			return finishToken(offset, TokenType.Content);
 		case WithinCDATA:
 			if (stream.advanceIfChars(_CSB, _CSB, _RAN)) { // ]]>

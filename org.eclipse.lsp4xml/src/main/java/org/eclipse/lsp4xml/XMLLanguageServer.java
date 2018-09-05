@@ -13,12 +13,16 @@ package org.eclipse.lsp4xml;
 import static org.eclipse.lsp4j.jsonrpc.CompletableFutures.computeAsync;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
+
+import com.google.gson.JsonObject;
 
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.DocumentLinkOptions;
@@ -36,6 +40,7 @@ import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.model.XMLDocument;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.eclipse.lsp4xml.settings.XMLClientSettings;
+import org.eclipse.lsp4xml.settings.XMLFormatterSettings;
 import org.eclipse.lsp4xml.utils.JSONUtility;
 import org.eclipse.lsp4xml.utils.LogHelper;
 
@@ -96,6 +101,14 @@ public class XMLLanguageServer implements LanguageServer, ProcessLanguageServer,
 		if (clientSettings != null && clientSettings.getLogs() != null) {
 			LogHelper.initializeRootLogger(languageClient, clientSettings.getLogs());
 		}
+
+		//Update formatting settings
+		JsonObject formatJson = JSONUtility.toModel(settings, JsonObject.class).getAsJsonObject("format");
+		Map<String, Object> newestClientFormats = JSONUtility.toModel(formatJson, ConcurrentHashMap.class);
+		XMLFormatterSettings formatterSettings = xmlLanguageService.getFormatterSettings();
+		formatterSettings.updateSettingsFromMap(newestClientFormats);
+		xmlTextDocumentService.setSharedFormattingOptions(formatterSettings);
+
 		// Update XML language service extensions
 		xmlLanguageService.updateSettings(settings);
 	}

@@ -59,7 +59,7 @@ public class XMLAssert {
 			xmlLanguageService.updateSettings(settings);
 		}
 		CompletionList list = xmlLanguageService.doComplete(htmlDoc, position, new CompletionSettings(),
-				new FormattingOptions(4, false));
+				new FormattingOptions(4,false));
 
 		// no duplicate labels
 		List<String> labels = list.getItems().stream().map(i -> i.getLabel()).sorted().collect(Collectors.toList());

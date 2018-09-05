@@ -10,6 +10,8 @@
  */
 package org.eclipse.lsp4xml.services;
 
+import static java.lang.System.lineSeparator;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,10 +23,10 @@ import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.internal.parser.XMLParser;
 import org.eclipse.lsp4xml.model.XMLDocument;
+import org.eclipse.lsp4xml.settings.XMLFormatterSettings;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import static java.lang.System.lineSeparator;
 
 /**
  * XML formatter services tests
@@ -45,7 +47,7 @@ public class XMLFormatterTest {
 				"<br>\n" + //
 				" </div>";
 		String expected = "<div class=\"foo\">\n" + //
-				"  <br />\n" + //
+				"  <br></br>\n" + //
 				"</div>";
 		format(content, expected);
 	}
@@ -56,7 +58,7 @@ public class XMLFormatterTest {
 				"  |<img  src = \"foo\">|\n" + //
 				" </div>";
 		String expected = "<div  class = \"foo\">\n" + //
-				"  <img src=\"foo\" />\n" + //
+				"  <img src=\"foo\"></img>\n" + //
 				" </div>";
 		format(content, expected);
 	}
@@ -68,7 +70,7 @@ public class XMLFormatterTest {
 				" \n" + //
 				" </div>";
 		String expected = "<div  class = \"foo\">\n" + //
-				"  <img src=\"foo\" />\n" + //
+				"  <img src=\"foo\"></img>\n" + //
 				" \n" + //
 				" </div>";
 		format(content, expected);
@@ -129,7 +131,7 @@ public class XMLFormatterTest {
 
 		TextDocument document = new TextDocument(unformatted, uri);
 		List<? extends TextEdit> edits = languageService.format(document, range,
-				new FormattingOptions(2, insertSpaces));
+				new XMLFormatterSettings(2, insertSpaces));
 		String formatted = edits.stream().map(edit -> edit.getNewText()).collect(Collectors.joining(""));
 		if (rangeStart != -1 && rangeEnd != -1) {
 			formatted = unformatted.substring(0, rangeStart) + formatted
