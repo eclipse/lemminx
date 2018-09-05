@@ -1,3 +1,13 @@
+/**
+ *  Copyright (c) 2018 Angelo ZERR
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ *  Contributors:
+ *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
+ */
 package org.eclipse.lsp4xml.uriresolver;
 
 import java.io.IOException;
@@ -10,6 +20,10 @@ import org.apache.xerces.xni.XMLResourceIdentifier;
 import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.parser.XMLInputSource;
 
+/**
+ * URI resolver manager.
+ *
+ */
 public class URIResolverExtensionManager implements URIResolverExtension, IExternalSchemaLocationProvider {
 
 	private final static URIResolverExtensionManager INSTANCE = new URIResolverExtensionManager();
@@ -24,10 +38,20 @@ public class URIResolverExtensionManager implements URIResolverExtension, IExter
 		resolvers = new ArrayList<>();
 	}
 
+	/**
+	 * Register an URI resolver.
+	 * 
+	 * @param resolver the URI resolver to register.
+	 */
 	public void registerResolver(URIResolverExtension resolver) {
 		resolvers.add(resolver);
 	}
 
+	/**
+	 * Unregister an URI resolver.
+	 * 
+	 * @param resolver the URI resolver to unregister.
+	 */
 	public void unregisterResolver(URIResolverExtension resolver) {
 		resolvers.add(resolver);
 	}
@@ -46,11 +70,9 @@ public class URIResolverExtensionManager implements URIResolverExtension, IExter
 	@Override
 	public XMLInputSource resolveEntity(XMLResourceIdentifier resourceIdentifier) throws XNIException, IOException {
 		XMLInputSource is = null;
-		long start =System.currentTimeMillis();
 		for (URIResolverExtension resolver : resolvers) {
 			is = resolver.resolveEntity(resourceIdentifier);
 			if (is != null) {
-				System.err.println(System.currentTimeMillis() - start);
 				return is;
 			}
 		}

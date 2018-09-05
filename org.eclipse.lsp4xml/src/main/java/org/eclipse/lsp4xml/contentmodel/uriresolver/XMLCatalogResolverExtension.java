@@ -1,3 +1,13 @@
+/**
+ *  Copyright (c) 2018 Angelo ZERR
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ *  Contributors:
+ *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
+ */
 package org.eclipse.lsp4xml.contentmodel.uriresolver;
 
 import java.io.IOException;
@@ -8,6 +18,10 @@ import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.parser.XMLInputSource;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtension;
 
+/**
+ * XML catalog URI resolver.
+ *
+ */
 public class XMLCatalogResolverExtension implements URIResolverExtension {
 
 	private XMLCatalogResolver catalogResolver;
@@ -20,13 +34,13 @@ public class XMLCatalogResolverExtension implements URIResolverExtension {
 	public String resolve(String baseLocation, String publicId, String systemId) {
 		if (catalogResolver != null) {
 			try {
-				String resolvedId = null;
 				if (publicId != null && systemId != null) {
-					resolvedId = catalogResolver.resolvePublic(publicId, systemId);
+					return catalogResolver.resolvePublic(publicId, systemId);
 				} else if (systemId != null) {
-					resolvedId = catalogResolver.resolveSystem(systemId);
+					return catalogResolver.resolveSystem(systemId);
+				} else if (publicId != null) {
+					return catalogResolver.resolvePublic(publicId, null);
 				}
-				return resolvedId;
 			} catch (Exception e) {
 
 			}

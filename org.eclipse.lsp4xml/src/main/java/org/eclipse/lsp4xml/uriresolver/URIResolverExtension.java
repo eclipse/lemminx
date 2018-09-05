@@ -7,6 +7,9 @@ import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.parser.XMLEntityResolver;
 import org.apache.xerces.xni.parser.XMLInputSource;
 
+/**
+ * URI resolver API
+ */
 public interface URIResolverExtension extends XMLEntityResolver {
 
 	/**
