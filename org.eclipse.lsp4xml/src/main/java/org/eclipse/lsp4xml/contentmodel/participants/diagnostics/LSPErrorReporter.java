@@ -57,6 +57,7 @@ public class LSPErrorReporter extends XMLErrorReporter {
 	public String reportError(XMLLocator location, String domain, String key, Object[] arguments, short severity,
 			Exception exception) throws XNIException {
 		// format message
+		
 		MessageFormatter messageFormatter = getMessageFormatter(domain);
 		String message;
 		if (messageFormatter != null) {
@@ -77,8 +78,9 @@ public class LSPErrorReporter extends XMLErrorReporter {
 				}
 			}
 			message = str.toString();
+			
 		}
-
+		
 		// Fill diagnostic
 		diagnostics.add(new Diagnostic(toLSPRange(location, key, arguments, document), message, toLSPSeverity(severity),
 				XML_DIAGNOSTIC_SOURCE, key));

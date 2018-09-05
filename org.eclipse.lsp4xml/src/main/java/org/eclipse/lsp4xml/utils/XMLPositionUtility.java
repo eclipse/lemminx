@@ -10,6 +10,8 @@
  */
 package org.eclipse.lsp4xml.utils;
 
+import java.util.List;
+
 import org.apache.xerces.xni.XMLLocator;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -42,6 +44,16 @@ public class XMLPositionUtility {
 		} catch (BadLocationException e) {
 			return new Position(location.getLineNumber() - 1, location.getColumnNumber() - 1);
 		}
+	}
+
+	public static String getNameFromArguents(Object[] arguments, int index) {
+		if(arguments == null) {
+			return "ARGUMENTS_ARE_NULL";
+		}
+		if(index < arguments.length) {
+			return (String) arguments[index];
+		}
+		return "INDEX_OUT_OF_RANGE";
 	}
 
 	public static Range selectAttributeName(String attrName, int offset, XMLDocument document) {
@@ -78,6 +90,31 @@ public class XMLPositionUtility {
 		return null;
 	}
 
+
+	public static Range selectChildEndTag(String childTag, int offset, XMLDocument document) {
+		Node parent = document.findNodeAt(offset);
+		if(parent.tag == null) {
+			return null;
+		}
+		if(parent != null) {
+			Node child = findChildNode(childTag,parent.getChildren());
+			if(child != null) {
+				return createRange(child.start + 1, child.start + 1 + childTag.length(), document);
+			}
+		}
+		return null;
+	}
+
+
+	static Node findChildNode(String childTag, List<Node> children) {
+		for (Node child : children) {
+			if(child.tag.equals(childTag) && !child.isClosed()) {
+				return child;
+			}
+		}
+		return null;
+	}
+
 	public static Range selectStartTag(int offset, XMLDocument document) {
 		Node element = document.findNodeAt(offset);
 		if (element != null) {
@@ -86,6 +123,15 @@ public class XMLPositionUtility {
 			return createRange(startOffset, endOffset, document);
 		}
 		return null;
+	}
+
+	public static int selectCurrentTagOffset(int offset, XMLDocument document) {
+		Node element = document.findNodeAt(offset);
+		if (element != null) {
+			return element.start; // <
+			
+		}
+		return -1;
 	}
 
 	public static Range selectEndTag(int offset, XMLDocument document) {
@@ -134,6 +180,30 @@ public class XMLPositionUtility {
 					}
 				}
 			}
+		}
+		return null;
+	}
+	/**
+	 * Finds the offset of the first tag it comes across behind the
+	 * given offset. 
+	 * 
+	 * This excludes the tag it starts in if offset is within a tag.
+	 */
+	public static Range selectPreviousEndTag( int offset, XMLDocument document) {
+		//boolean firstBracket = false;
+		int i = offset;
+		char c = document.getText().charAt(i);
+		while(i >= 0) {
+			if(c == '>') {
+				//if(firstBracket) {
+					return selectStartTag(i, document);
+				//}
+				//else {
+				//	firstBracket = true;
+				//}
+			}
+			i--;
+			c = document.getText().charAt(i);
 		}
 		return null;
 	}
