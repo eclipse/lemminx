@@ -87,8 +87,7 @@ public class ContentModelManager {
 				// TODO : implement with DTD
 			}
 		}
-		CMDocument cmDocument = findCMDocument(xmlDocument.getUri(), namespaceURI, systemId);
-		return cmDocument;
+		return findCMDocument(xmlDocument.getUri(), namespaceURI, systemId);
 	}
 
 	/**

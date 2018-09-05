@@ -22,6 +22,7 @@ import org.apache.xerces.xs.XSModel;
 import org.apache.xerces.xs.XSNamedMap;
 import org.eclipse.lsp4xml.contentmodel.model.CMDocument;
 import org.eclipse.lsp4xml.contentmodel.model.CMElementDeclaration;
+import org.eclipse.lsp4xml.model.Element;
 import org.eclipse.lsp4xml.model.Node;
 import org.eclipse.lsp4xml.model.XMLDocument;
 
@@ -56,20 +57,20 @@ public class XSDDocument implements CMDocument {
 	}
 
 	@Override
-	public CMElementDeclaration findCMElement(Node node, String namespace) {
-		List<Node> paths = new ArrayList<>();
-		Node element = node;
-		while (element != null && !(element instanceof XMLDocument)) {
+	public CMElementDeclaration findCMElement(Element node, String namespace) {
+		List<Element> paths = new ArrayList<>();
+		Element element = node;
+		while (element != null  && namespace.equals(element.getNamespaceURI())) {
 			paths.add(0, element);
-			element = element.parent;
+			element = element.getParent() instanceof Element ? (Element) element.getParent() : null;
 		}
 		CMElementDeclaration declaration = null;
 		for (int i = 0; i < paths.size(); i++) {
-			Node elt = paths.get(i);
+			Element elt = paths.get(i);
 			if (i == 0) {
-				declaration = findElementDeclaration(elt.tag, namespace);
+				declaration = findElementDeclaration(elt.getLocalName(), namespace);
 			} else {
-				declaration = declaration.findCMElement(elt.tag, namespace);
+				declaration = declaration.findCMElement(elt.getLocalName(), namespace);
 			}
 			if (declaration == null) {
 				break;

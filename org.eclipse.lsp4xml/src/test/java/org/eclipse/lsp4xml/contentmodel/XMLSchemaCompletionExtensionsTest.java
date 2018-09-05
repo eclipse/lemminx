@@ -24,7 +24,19 @@ import org.junit.Test;
 public class XMLSchemaCompletionExtensionsTest {
 
 	@Test
-	public void testPOMCompletionParentChildren() throws BadLocationException {
+	public void completionInRoot() throws BadLocationException {
+		String xml = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + //
+				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"	xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n"
+				+ //
+				"	<|" + //
+				"</project>";
+		testCompletionFor(xml, r("modelVersion", "<modelVersion"), //
+				r("parent", "<parent"));
+	}
+
+	@Test
+	public void completionInChildElement() throws BadLocationException {
 		String xml = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + //
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
 				"	xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n"
@@ -34,6 +46,69 @@ public class XMLSchemaCompletionExtensionsTest {
 		testCompletionFor(xml, r("groupId", "<groupId"), //
 				r("artifactId", "<artifactId"), //
 				r("version", "<version"));
+	}
+
+	@Test
+	public void completionInRootWithAndWithoutPrefixes() throws BadLocationException {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<beans xmlns=\"http://www.springframework.org/schema/beans\"\r\n" + //
+				"       xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"       xmlns:camel=\"http://camel.apache.org/schema/spring\"\r\n" + //
+				"       xmlns:cxf=\"http://camel.apache.org/schema/cxf\"\r\n" + //
+				"       xsi:schemaLocation=\"\r\n" + //
+				"         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\r\n"
+				+ //
+				"         http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd\r\n"
+				+ //
+				"         http://camel.apache.org/schema/cxf http://camel.apache.org/schema/cxf/camel-cxf.xsd\">\r\n" + //
+				"\r\n" + //
+				"  <| ";
+		testCompletionFor(xml, r("bean", "<bean"), r("camel:camelContext", "<camel:camelContext"));
+	}
+
+	@Test
+	public void completionInRootWithOnlyPrefix() throws BadLocationException {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<beans xmlns=\"http://www.springframework.org/schema/beans\"\r\n" + //
+				"       xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"       xmlns:camel=\"http://camel.apache.org/schema/spring\"\r\n" + //
+				"       xmlns:cxf=\"http://camel.apache.org/schema/cxf\"\r\n" + //
+				"       xsi:schemaLocation=\"\r\n" + //
+				"         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\r\n"
+				+ //
+				"         http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd\r\n"
+				+ //
+				"         http://camel.apache.org/schema/cxf http://camel.apache.org/schema/cxf/camel-cxf.xsd\">\r\n" + //
+				"\r\n" + //
+				"  <camel:| ";
+		testCompletionFor(xml, r("camel:camelContext", "<camel:camelContext"));
+	}
+	
+	@Test
+	public void completionInChildElementWithPrefixes() throws BadLocationException {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<beans xmlns=\"http://www.springframework.org/schema/beans\"\r\n" + //
+				"       xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"       xmlns:camel=\"http://camel.apache.org/schema/spring\"\r\n" + //
+				"       xmlns:cxf=\"http://camel.apache.org/schema/cxf\"\r\n" + //
+				"       xsi:schemaLocation=\"\r\n" + //
+				"         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\r\n"
+				+ //
+				"         http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd\r\n"
+				+ //
+				"         http://camel.apache.org/schema/cxf http://camel.apache.org/schema/cxf/camel-cxf.xsd\">\r\n" + //
+				"\r\n" + //
+				"  <camel:camelContext><| ";
+		testCompletionFor(xml, r("camel:route", "<camel:route"), r("camel:template", "<camel:template"));
+	}
+
+	@Test
+	public void completionInChildElementWithElementWhichDeclareNS() throws BadLocationException {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<root>\r\n" + //
+				"  <camelContext id=\"camel\" xmlns=\"http://camel.apache.org/schema/spring\">\r\n" + "\r\n" + //
+				"    <|";
+		testCompletionFor(xml, r("route", "<route"), r("template", "<template"));
 	}
 
 	private void testCompletionFor(String xml, ItemDescription... expectedItems) throws BadLocationException {

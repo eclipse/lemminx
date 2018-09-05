@@ -1,7 +1,16 @@
 <?xml version="1.0"?>
 <catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
-	<system systemId="http://www.springframework.org/schema/beans/spring-beans-3.0.xsd" uri="../xsd/spring-beans-3.0.xsd" />
-	<system systemId="http://www.springframework.org/schema/beans/spring-beans.xsd" uri="../xsd/spring-beans-3.0.xsd" />
-	<system systemId="http://maven.apache.org/xsd/maven-4.0.0.xsd" uri="../xsd/maven-4.0.0.xsd" />
-	<system systemId="http://camel.apache.org/schema/cxf/camel-cxf.xsd" uri="../xsd/camel-spring-2.22.0.xsd" />
+	<system
+		systemId="http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"
+		uri="../xsd/spring-beans-3.0.xsd" />
+	<system
+		systemId="http://www.springframework.org/schema/beans/spring-beans.xsd"
+		uri="../xsd/spring-beans-3.0.xsd" />
+	<system systemId="http://maven.apache.org/xsd/maven-4.0.0.xsd"
+		uri="../xsd/maven-4.0.0.xsd" />
+	<system
+		systemId="http://camel.apache.org/schema/spring/camel-spring.xsd"
+		uri="../xsd/camel-spring-2.22.0.xsd" />
+	<public publicId="http://camel.apache.org/schema/spring"
+		uri="../xsd/camel-spring-2.22.0.xsd" />
 </catalog>

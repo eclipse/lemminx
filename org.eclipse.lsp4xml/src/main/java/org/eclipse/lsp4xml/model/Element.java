@@ -19,6 +19,18 @@ public class Element extends Node {
 	public String getTagName() {
 		return tag;
 	}
+	
+	public String getLocalName() {
+		String name = getTagName();
+		if (name == null) {
+			return null;
+		}
+		int index = name.indexOf(":"); //$NON-NLS-1$
+		if (index != -1) {
+			name = name.substring(index + 1);
+		}
+		return name;
+	}
 
 	public String getPrefix() {
 		String name = getTagName();
@@ -35,8 +47,9 @@ public class Element extends Node {
 
 	public String getNamespaceURI() {
 		String prefix = getPrefix();
+		boolean hasPrefix = prefix != null && prefix.length() > 0;
 		// Try to get xmlns attribute in the element
-		String rootElementNamespaceDeclarationName = (prefix != null && prefix.length() > 0) ? "xmlns:" + prefix //$NON-NLS-1$
+		String rootElementNamespaceDeclarationName = (hasPrefix) ? "xmlns:" + prefix //$NON-NLS-1$
 				: "xmlns"; //$NON-NLS-1$
 		String rootElementNamespace = rootElementNamespaceDeclarationName != null
 				? this.getAttributeValue(rootElementNamespaceDeclarationName)
@@ -48,7 +61,9 @@ public class Element extends Node {
 		Node parent = getParent();
 		while (parent != null) {
 			if (parent.getNodeType() == Node.ELEMENT_NODE) {
-				String namespaceURI = ((Element) parent).getNamespaceURI();
+				Element parentElement = ((Element) parent);
+				String namespaceURI = hasPrefix ? parentElement.getAttributeValue("xmlns:" + prefix)
+						: parentElement.getNamespaceURI();
 				if (namespaceURI != null) {
 					return namespaceURI;
 				}

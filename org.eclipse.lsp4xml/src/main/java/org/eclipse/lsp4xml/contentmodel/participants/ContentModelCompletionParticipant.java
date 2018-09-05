@@ -24,6 +24,7 @@ import org.eclipse.lsp4xml.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lsp4xml.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.contentmodel.utils.XMLGenerator;
 import org.eclipse.lsp4xml.model.Element;
+import org.eclipse.lsp4xml.model.Node;
 import org.eclipse.lsp4xml.model.XMLDocument;
 import org.eclipse.lsp4xml.services.extensions.CompletionParticipantAdapter;
 import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
@@ -37,19 +38,23 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 
 	@Override
 	public void onTagOpen(ICompletionRequest request, ICompletionResponse response) throws Exception {
-		Element element = (Element) request.getParentNode();
-		CMElementDeclaration cmElement = ContentModelManager.getInstance().findCMElement(element);
-		if (cmElement != null) {
-			fillWithChildrenElementDeclaration(element, cmElement.getElements(), null, request, response);
+		Node parentNode = request.getParentNode();
+		if (parentNode.getNodeType() != Node.ELEMENT_NODE) {
+			return;
 		}
-		if (element.equals(element.getOwnerDocument().getDocumentElement())) {
+		Element parentElement = (Element) parentNode;
+		CMElementDeclaration cmElement = ContentModelManager.getInstance().findCMElement(parentElement);
+		if (cmElement != null) {
+			fillWithChildrenElementDeclaration(parentElement, cmElement.getElements(), parentElement.getPrefix(), request, response);
+		}
+		if (parentElement.equals(parentElement.getOwnerDocument().getDocumentElement())) {
 			// root document element
-			Collection<String> prefixes = element.getAllPrefixes();
+			Collection<String> prefixes = parentElement.getAllPrefixes();
 			for (String prefix : prefixes) {
-				String namespaceURI = element.getNamespaceURI(prefix);
-				CMDocument cmDocument = ContentModelManager.getInstance().findCMDocument(element, namespaceURI);
+				String namespaceURI = parentElement.getNamespaceURI(prefix);
+				CMDocument cmDocument = ContentModelManager.getInstance().findCMDocument(parentElement, namespaceURI);
 				if (cmDocument != null) {
-					fillWithChildrenElementDeclaration(element, cmDocument.getElements(), prefix, request, response);
+					fillWithChildrenElementDeclaration(parentElement, cmDocument.getElements(), prefix, request, response);
 				}
 			}
 		}
@@ -84,16 +89,20 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	}
 
 	@Override
-	public void onAttributeName(String value, Range fullRange, ICompletionRequest completionRequest,
-			ICompletionResponse completionResponse) throws Exception {
-		Element element = (Element) completionRequest.getParentNode();
-		CMElementDeclaration cmElement = ContentModelManager.getInstance().findCMElement(element);
+	public void onAttributeName(String value, Range fullRange, ICompletionRequest request,
+			ICompletionResponse response) throws Exception {
+		Node parentNode = request.getParentNode();
+		if (parentNode.getNodeType() != Node.ELEMENT_NODE) {
+			return;
+		}
+		Element parentElement = (Element) parentNode;
+		CMElementDeclaration cmElement = ContentModelManager.getInstance().findCMElement(parentElement);
 		if (cmElement != null) {
 			Collection<CMAttributeDeclaration> attributes = cmElement.getAttributes();
 			if (attributes != null) {
 				for (CMAttributeDeclaration cmAttribute : attributes) {
 					String attrName = cmAttribute.getName();
-					if (!element.hasAttribute(attrName)) {
+					if (!parentElement.hasAttribute(attrName)) {
 						CompletionItem item = new CompletionItem();
 						item.setLabel(attrName);
 						item.setKind(CompletionItemKind.Value);
@@ -103,7 +112,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 						if (documentation != null) {
 							item.setDetail(documentation);
 						}
-						completionResponse.addCompletionAttribute(item);
+						response.addCompletionAttribute(item);
 					}
 				}
 			}
@@ -112,11 +121,15 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 
 	@Override
 	public void onAttributeValue(String valuePrefix, Range fullRange, boolean addQuotes,
-			ICompletionRequest completionRequest, ICompletionResponse completionResponse) throws Exception {
-		Element element = (Element) completionRequest.getParentNode();
-		CMElementDeclaration cmElement = ContentModelManager.getInstance().findCMElement(element);
+			ICompletionRequest request, ICompletionResponse response) throws Exception {
+		Node parentNode = request.getParentNode();
+		if (parentNode.getNodeType() != Node.ELEMENT_NODE) {
+			return;
+		}
+		Element parentElement = (Element) parentNode;
+		CMElementDeclaration cmElement = ContentModelManager.getInstance().findCMElement(parentElement);
 		if (cmElement != null) {
-			String attributeName = completionRequest.getCurrentAttributeName();
+			String attributeName = request.getCurrentAttributeName();
 			CMAttributeDeclaration cmAttribute = cmElement.findCMAttribute(attributeName);
 			if (cmAttribute != null) {
 				// TODO ...
