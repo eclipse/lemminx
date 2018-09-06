@@ -302,6 +302,13 @@ public class XMLParserTest {
 
 		assertDocument("<?xml ?>", prolog);
 	}
+
+	@Test
+	public void testCommentSingle() {
+		Node comment = createNode("Comment", 0, -1, 13, true);
+	
+		assertDocument("<!-- test -->", comment);
+	}
 	// --------------------------------------------------------------------------------
 	// Tools
 
@@ -316,6 +323,12 @@ public class XMLParserTest {
 		return n;
 	}
 
+	public Node createCommentNode(String content, int start, int endTagStart, int end, boolean closed, Node... children) {
+		Node n = createNode("!Comment", start, endTagStart, end, closed, children);
+		n.isComment = true;
+		n.content = content;
+		return n;
+	}
 	public Node createPrologNode(String tag, int start, int endTagStart, int end, boolean closed, Node... children) {
 		Node n = createNode(tag, start, endTagStart, end, closed, children);
 		n.isProlog = true;
@@ -363,6 +376,9 @@ public class XMLParserTest {
 			Assert.assertNull(actualNode.endTagStart);
 		} else {
 			assertEquals(expectedNode.endTagStart, actualNode.endTagStart);
+		}
+		if(expectedNode.isCDATA || expectedNode.isComment) {
+			assertEquals(expectedNode.content, actualNode.content);
 		}
 		assertEquals(expectedNode.closed, actualNode.closed);
 		assertEquals(expectedNode.isCDATA, actualNode.isCDATA);

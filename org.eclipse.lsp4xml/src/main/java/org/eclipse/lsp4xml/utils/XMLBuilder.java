@@ -10,6 +10,7 @@
  */
 package org.eclipse.lsp4xml.utils;
 
+import org.eclipse.lsp4xml.dom.Node;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 
 /**
@@ -166,5 +167,26 @@ public class XMLBuilder {
 			b.append(c);
 		}
 		return b.toString();
+	}
+
+	public XMLBuilder startComment(Node comment) {
+		if(comment.isCommentSameLineEndTag) {
+			xml.append(" ");
+		}
+		xml.append("<!--");
+		return this;
+	}
+
+	public XMLBuilder addContentComment(String content) {
+		if (clientFormats.isJoinCommentLines()) {
+			content = " " + normalizeSpace(content);
+		}
+		xml.append(content);
+		return this;
+	}
+
+	public XMLBuilder endComment() {
+		xml.append("-->");
+		return this;
 	}
 }

@@ -12,7 +12,10 @@ package org.eclipse.lsp4xml.dom;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.internal.parser.Scanner;
 import org.eclipse.lsp4xml.internal.parser.TokenType;
@@ -23,6 +26,7 @@ import org.eclipse.lsp4xml.internal.parser.XMLScanner;
  *
  */
 public class XMLParser {
+	private static final Logger LOGGER = Logger.getLogger(XMLParser.class.getName());
 
 	private static final XMLParser INSTANCE = new XMLParser();
 
@@ -59,6 +63,7 @@ public class XMLParser {
 		XMLDocument xmlDocument = new XMLDocument(document);
 
 		Node curr = xmlDocument;
+		Node lastClosed = xmlDocument;
 		Attr attr = null;
 		int endTagStart = -1;
 		String pendingAttribute = null;
@@ -108,6 +113,7 @@ public class XMLParser {
 					curr.closed = true;
 					curr.selfClosed = true;
 					curr.end = scanner.getTokenEnd();
+					lastClosed = curr;
 					curr = curr.parent;
 				}
 				break;
@@ -115,6 +121,7 @@ public class XMLParser {
 			case EndTagClose:
 				if (curr.parent != null) {
 					curr.end = scanner.getTokenEnd();
+					lastClosed = curr;
 					curr = curr.parent;
 				}
 				break;
@@ -205,6 +212,40 @@ public class XMLParser {
 				break;
 			}
 
+			case StartCommentTag: {
+				Node comment = new Node(scanner.getTokenOffset(), text.length(), new ArrayList<>(), curr,
+					xmlDocument);
+
+				curr.addChild(comment);
+				curr = comment;
+				curr.tag = "Comment";
+				curr.isComment = true;
+				try {
+					int endLine = document.positionAt(lastClosed.end).getLine();
+					int startLine = document.positionAt(curr.start).getLine();
+					if (endLine == startLine && lastClosed.end <= curr.start) {
+						curr.isCommentSameLineEndTag = true;
+					}
+				} catch (BadLocationException e) {
+					LOGGER.log(Level.SEVERE, "XMLParser StartCommentTag bad offset in document", e);
+				}
+				break;
+			}
+
+			case Comment: {
+				if(mask != null && mask.contains(Flag.Content)) {
+					curr.content = scanner.getTokenText();
+				}
+				break;
+			}
+
+			case EndCommentTag: {
+				curr.end = scanner.getTokenEnd();
+				curr.closed = true;
+				curr = curr.parent;
+				break;
+			}
+
 			case Content: {
 				if (mask != null && mask.contains(Flag.Content)) {
 					String content = scanner.getTokenText();
@@ -215,7 +256,10 @@ public class XMLParser {
 					cdata.content = content;
 					curr.addChild(cdata);
 				}
+				break;
 			}
+
+			
 			}
 			token = scanner.scan();
 		}
