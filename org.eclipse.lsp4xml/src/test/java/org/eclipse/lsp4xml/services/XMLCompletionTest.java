@@ -37,7 +37,6 @@ import org.junit.Test;
 public class XMLCompletionTest {
 
 	private XMLLanguageService languageService;
-	private FormattingOptions sharedFormattingOptions = new FormattingOptions(4, false);
 	private CompletionSettings sharedCompletionSettings  = new CompletionSettings();
 	
 	@Before
@@ -154,7 +153,7 @@ public class XMLCompletionTest {
 		} catch (Exception e) {
 			fail("Couldn't get position at offset");
 		}
-		CompletionList completionList = languageService.doComplete(xmlDocument, position, sharedCompletionSettings, sharedFormattingOptions);
+		CompletionList completionList = languageService.doComplete(xmlDocument, position, sharedCompletionSettings, new FormattingOptions(4, false));
 		return completionList;
 	}
 

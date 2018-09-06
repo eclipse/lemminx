@@ -65,6 +65,7 @@ import org.eclipse.lsp4xml.internal.parser.XMLParser;
 import org.eclipse.lsp4xml.model.XMLDocument;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
+import org.eclipse.lsp4xml.settings.XMLFormatterSettings;
 
 /**
  * XML text document service.
@@ -75,10 +76,9 @@ public class XMLTextDocumentService implements TextDocumentService {
 	private final XMLLanguageServer xmlLanguageServer;
 	private final TextDocuments documents;
 	private final LanguageModelCache<XMLDocument> xmlDocuments;
-	private final FormattingOptions sharedFormattingOptions;
 	private final CompletionSettings sharedCompletionSettings;
 	private final FoldingRangeCapabilities sharedFoldingsSettings;
-
+	private FormattingOptions sharedFormattingOptions;
 	private class BasicCancelChecker implements CancelChecker {
 
 		private boolean canceled;
@@ -105,7 +105,6 @@ public class XMLTextDocumentService implements TextDocumentService {
 		this.documents = new TextDocuments();
 		XMLParser parser = XMLParser.getInstance();
 		this.xmlDocuments = new LanguageModelCache<XMLDocument>(10, 60, document -> parser.parse(document));
-		this.sharedFormattingOptions = new FormattingOptions(4, false);
 		this.sharedCompletionSettings = new CompletionSettings();
 		this.sharedFoldingsSettings = new FoldingRangeCapabilities();
 
@@ -185,7 +184,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	public CompletableFuture<List<? extends TextEdit>> rangeFormatting(DocumentRangeFormattingParams params) {
 		return computeAsync((monitor) -> {
 			TextDocument document = getDocument(params.getTextDocument().getUri());
-			return getXMLLanguageService().format(document, params.getRange(), params.getOptions());
+			return getXMLLanguageService().format(document, params.getRange(), new XMLFormatterSettings(params.getOptions()));
 		});
 	}
 
@@ -286,6 +285,10 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	private XMLLanguageService getXMLLanguageService() {
 		return xmlLanguageServer.getXMLLanguageService();
+	}
+
+	public void setSharedFormattingOptions(FormattingOptions formattingOptions) {
+		this.sharedFormattingOptions = formattingOptions;
 	}
 
 }

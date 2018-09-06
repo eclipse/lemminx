@@ -57,7 +57,7 @@ class XMLCompletions {
 	}
 
 	public CompletionList doComplete(XMLDocument xmlDocument, Position position, CompletionSettings completionSettings,
-			FormattingOptions formattingSettings) {
+	  FormattingOptions formattingSettings) {
 		CompletionRequest completionRequest = null;
 		try {
 			completionRequest = new CompletionRequest(xmlDocument, position, completionSettings, formattingSettings);

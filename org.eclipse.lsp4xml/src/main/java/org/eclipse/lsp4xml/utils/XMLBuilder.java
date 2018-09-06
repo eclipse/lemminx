@@ -18,14 +18,14 @@ import org.eclipse.lsp4j.FormattingOptions;
  */
 public class XMLBuilder {
 
-	private final FormattingOptions formattingOptions;
-	private final String whitespacesIndent;
+	private final FormattingOptions clientFormats;
 	private final String lineDelimiter;
 	private final StringBuilder xml;
+	private final String whitespacesIndent;
 
-	public XMLBuilder(FormattingOptions formattingOptions, String whitespacesIndent, String lineDelimiter) {
-		this.formattingOptions = formattingOptions;
+	public XMLBuilder(FormattingOptions clientFormats, String whitespacesIndent, String lineDelimiter) {
 		this.whitespacesIndent = whitespacesIndent;
+		this.clientFormats = clientFormats;
 		this.lineDelimiter = lineDelimiter;
 		this.xml = new StringBuilder();
 	}
@@ -96,8 +96,8 @@ public class XMLBuilder {
 
 	public XMLBuilder indent(int level) {
 		for (int i = 0; i < level; i++) {
-			if (formattingOptions.isInsertSpaces()) {
-				for (int j = 0; j < formattingOptions.getTabSize(); j++) {
+			if (clientFormats.isInsertSpaces()) {
+				for (int j = 0; j < clientFormats.getTabSize(); j++) {
 					xml.append(" ");
 				}
 			} else {

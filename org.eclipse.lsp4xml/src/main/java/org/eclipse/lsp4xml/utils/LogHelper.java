@@ -13,6 +13,8 @@ package org.eclipse.lsp4xml.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
@@ -66,8 +68,14 @@ public class LogHelper {
 	}
 
 	private static void createDirectoryPath(String path) {
-		String parentPath = Paths.get(path).normalize().getParent().toString();
-		new File(parentPath).mkdirs();
+		Path parentPath = Paths.get(path).normalize().getParent();
+		if(parentPath != null) {
+			try {
+				Files.createDirectories(parentPath);
+			} catch (IOException e) {
+				
+			}
+		}
 	}
 
 	public static LSPClientLogHandler getClientHandler(LanguageClient languageClient) {

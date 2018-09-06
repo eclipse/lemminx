@@ -11,8 +11,8 @@
 package org.eclipse.lsp4xml.utils;
 
 import org.eclipse.lsp4j.FormattingOptions;
-import org.eclipse.lsp4xml.utils.XMLBuilder;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -20,24 +20,29 @@ import org.junit.Test;
  *
  */
 public class XMLBuilderTest {
-
+	FormattingOptions settings;
+	@Before
+	public void startup() {
+		settings = new FormattingOptions(4, false);
+	}
+	
 	@Test
 	public void simple() throws Exception {
-		String xml = new XMLBuilder(new FormattingOptions(4, false), "", "\n").startElement("html", true)
+		String xml = new XMLBuilder(settings, "", "\n").startElement("html", true)
 				.endElement("html").toString();
 		Assert.assertEquals("<html></html>", xml);
 	}
 
 	@Test
 	public void simpleLinefeed() throws Exception {
-		String xml = new XMLBuilder(new FormattingOptions(4, false), "", "\n").startElement("html", true).linefeed()
+		String xml = new XMLBuilder(settings, "", "\n").startElement("html", true).linefeed()
 				.endElement("html").toString();
 		Assert.assertEquals("<html>\n</html>", xml);
 	}
 
 	@Test
 	public void elementWithChild() throws Exception {
-		String xml = new XMLBuilder(new FormattingOptions(4, false), "", "\n").startElement("html", true).linefeed()
+		String xml = new XMLBuilder(settings, "", "\n").startElement("html", true).linefeed()
 				.indent(1).startElement("head", false).endElement().linefeed().endElement("html").toString();
 		Assert.assertEquals("<html>\n\t<head />\n</html>", xml);
 	}
