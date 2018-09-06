@@ -142,13 +142,121 @@ public class XMLFormatterTest {
 	}
 
 	@Test
+	public void testComment() throws BadLocationException {
+		String content = "<!-- CommentText --><a>Val</a>";
+		String expected = "<!-- CommentText -->" + lineSeparator() + //
+				"<a>Val</a>";
+		format(content, expected);
+	}
+
+	@Test
+	public void testComment2() throws BadLocationException {
+		String content = "<!-- CommentText --><!-- Comment2 --><a>Val</a>";
+		String expected = "<!-- CommentText -->" + lineSeparator() + //
+				"<!-- Comment2 -->" + lineSeparator() + //
+				"<a>Val</a>";
+		format(content, expected);
+	}
+
+	@Test
+	public void testCommentNested() throws BadLocationException {
+		String content = "<a><!-- CommentText --></a>";
+		String expected = "<a>" + lineSeparator() + //
+				"  <!-- CommentText -->" + lineSeparator() + //
+				"</a>";
+		format(content, expected);
+	}
+
+	@Test
+	public void testCommentNested2() throws BadLocationException {
+		String content = "<a><!-- CommentText --><b><!-- Comment2 --></b></a>";
+		String expected = "<a>" + lineSeparator() + //
+				"  <!-- CommentText -->" + lineSeparator() + //
+				"  <b>" + lineSeparator() + //
+				"    <!-- Comment2 -->" + lineSeparator() + //
+				"  </b>" + lineSeparator() + //
+				"</a>";
+		format(content, expected);
+	}
+
+	@Test
+	public void testCommentMultiLineContent() throws BadLocationException {
+		String content = "<a><!-- CommentText\n2222\n  3333 --></a>";
+		String expected = "<a>" + lineSeparator() + //
+				"  <!-- CommentText" + lineSeparator() +
+				"2222" + lineSeparator() +
+				"  3333 -->" + lineSeparator() +  
+				"</a>";
+		format(content, expected);
+	}
+
+
+	@Test
 	public void testJoinCDATALines() throws BadLocationException {
-		String content = "<a>" + lineSeparator() + "<![CDATA[" + lineSeparator() + "line 1" + lineSeparator() + ""
-				+ lineSeparator() + "" + lineSeparator() + "line 2" + lineSeparator() + "line 3" + lineSeparator()
-				+ "]]> </a>";
+		String content = 
+		"<a>" + lineSeparator() + 
+		"<![CDATA[" + lineSeparator() + 
+		"line 1" + lineSeparator() + 
+		"" + lineSeparator() + 
+		"" + lineSeparator() + 
+		"line 2" + lineSeparator() + 
+		"line 3" + lineSeparator() + 
+		"]]> </a>";
 		String expected = "<a>" + lineSeparator() + "  <![CDATA[line 1 line 2 line 3 ]]>" + lineSeparator() + "</a>";
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		formattingOptions.setJoinCDATALines(true);
+		format(content, expected, formattingOptions);
+	}
+
+	@Test
+	public void testJoinCommentLines() throws BadLocationException {
+		String content = 
+		"<!--" + lineSeparator() +
+		" line 1" + lineSeparator() + 
+		" " + lineSeparator() +
+		" " + lineSeparator() +
+		"   line 2" + lineSeparator() +
+		" -->";
+		String expected = "<!-- line 1 line 2 -->\n";
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setJoinCommentLines(true);
+		format(content, expected, formattingOptions);
+	}
+
+	@Test
+	public void testJoinCommentLinesNested() throws BadLocationException {
+		String content = 
+		"<a>" + lineSeparator() +
+		"  <!--" + lineSeparator() +
+		"   line 1" + lineSeparator() + 
+		"   " + lineSeparator() +
+		"   " + lineSeparator() +
+		"     line 2" + lineSeparator() +
+		"   -->" + lineSeparator() +
+		"</a>";
+		String expected = 
+		"<a>" + lineSeparator() +
+		"  <!-- line 1 line 2 -->" + lineSeparator() +
+		"</a>";
+	
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setJoinCommentLines(true);
+		format(content, expected, formattingOptions);
+	}
+
+	@Test
+	public void testCommentFormatSameLine() throws BadLocationException {
+		String content = 
+		"<a>" + lineSeparator() +
+		" Content" + lineSeparator() +
+		"</a> <!-- My Comment -->";
+		String expected = 
+		"<a>Content </a> <!-- My Comment -->" + lineSeparator() +
+
+		"";
+	
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setJoinCommentLines(true);
 		format(content, expected, formattingOptions);
 	}
 

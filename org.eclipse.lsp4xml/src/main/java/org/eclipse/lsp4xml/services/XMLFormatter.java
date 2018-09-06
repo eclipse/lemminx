@@ -83,8 +83,9 @@ class XMLFormatter {
 
 	private void format(Node node, int level, int end, XMLBuilder xml) {
 		if (node.tag != null) {
+			
 			// element to format
-			if (level > 0) {
+			if (level > 0 && ! node.isCommentSameLineEndTag) {
 				// add new line + indent
 				xml.linefeed();
 				xml.indent(level);
@@ -94,7 +95,16 @@ class XMLFormatter {
 				xml.startCDATA();
 				xml.addContentCDATA(node.content);
 				xml.endCDATA();
-			} else if (node.isProcessingInstruction) {
+			} 
+			else if (node.isComment){ 
+				xml.startComment(node);
+				xml.addContentComment(node.content);
+				xml.endComment();
+				if(level == 0) {
+					xml.linefeed();
+				}
+			}
+			else if (node.isProcessingInstruction) {
 				xml.startPrologOrPI(node.tag);
 				xml.addContentPI(node.content);
 				xml.endPrologOrPI();

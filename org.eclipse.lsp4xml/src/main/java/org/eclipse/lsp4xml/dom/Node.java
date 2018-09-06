@@ -56,6 +56,8 @@ public class Node {
 	private final XMLDocument ownerDocument;
 	public String content;
 	public boolean isProlog = false;
+	public boolean isComment = false;
+	public boolean isCommentSameLineEndTag = false;
 
 	public Set<String> attributeNames() {
 		return hasAttributes() ? attributes.keySet() : Collections.emptySet();
@@ -327,5 +329,9 @@ public class Node {
 
 	public boolean isStartTagClose() {
 		return startTagClose;
+	}
+
+	public boolean isCommentSameLineEndTag() {
+		return isCommentSameLineEndTag;
 	}
 }
