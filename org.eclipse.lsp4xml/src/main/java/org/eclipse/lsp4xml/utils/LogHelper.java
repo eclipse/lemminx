@@ -117,7 +117,6 @@ public class LogHelper {
 		}
 		for (Handler h : handlers) {
 			unregisterHandler(h);
-			;
 		}
 	}
 }
