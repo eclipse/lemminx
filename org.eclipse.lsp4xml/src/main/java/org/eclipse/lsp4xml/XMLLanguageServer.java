@@ -69,7 +69,7 @@ public class XMLLanguageServer implements LanguageServer, ProcessLanguageServer,
 	@Override
 	public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
 		LOGGER.info("Initializing LSP4XML server");
-		updateSettings(params.getInitializationOptions());
+		updateSettings(getSettings(params.getInitializationOptions()));
 		xmlTextDocumentService.updateClientCapabilities(params.getCapabilities());
 		this.parentProcessId = params.getProcessId();
 		ServerCapabilities capabilities = new ServerCapabilities();
@@ -85,6 +85,16 @@ public class XMLLanguageServer implements LanguageServer, ProcessLanguageServer,
 		capabilities.setDocumentLinkProvider(new DocumentLinkOptions(true));
 		capabilities.setCodeActionProvider(true);
 		return CompletableFuture.completedFuture(new InitializeResult(capabilities));
+	}
+
+	/**
+	 * Extracts "settings" from json 
+	 * {"settings": ... , "other": ...}
+	 * 
+	 * @return settings
+	 */
+	private Object getSettings(Object settings) {
+		return JSONUtility.toModel(settings, JsonObject.class).getAsJsonObject("settings");
 	}
 
 	/**
