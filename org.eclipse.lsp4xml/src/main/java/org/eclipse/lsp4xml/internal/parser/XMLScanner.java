@@ -26,6 +26,10 @@ import static org.eclipse.lsp4xml.internal.parser.Constants._RAN;
 import static org.eclipse.lsp4xml.internal.parser.Constants._SIQ;
 import static org.eclipse.lsp4xml.internal.parser.Constants._SQO;
 import static org.eclipse.lsp4xml.internal.parser.Constants._TVL;
+import static org.eclipse.lsp4xml.internal.parser.Constants._OVL;
+import static org.eclipse.lsp4xml.internal.parser.Constants._YVL;
+import static org.eclipse.lsp4xml.internal.parser.Constants._PVL;
+import static org.eclipse.lsp4xml.internal.parser.Constants._EVL;
 import static org.eclipse.lsp4xml.internal.parser.Constants._WSP;
 
 import java.util.regex.Pattern;
@@ -44,6 +48,8 @@ public class XMLScanner implements Scanner {
 	private static final Pattern PROLOG_NAME_OPTIONS = Pattern.compile("^(xml|xml-stylesheet)$");
 
 	private static final Pattern PI_TAG_NAME = Pattern.compile("^[a-zA-Z0-9]+");
+
+	private static final Pattern DOCTYPE_NAME = Pattern.compile("^[_:\\w][_:\\w-.\\d]*");
 
 
 	MultiLineStream stream;
@@ -177,11 +183,12 @@ public class XMLScanner implements Scanner {
 						state = ScannerState.WithinCDATA;
 						return finishToken(offset, TokenType.CDATATagOpen);
 					}										
-					/*
-					 * AZ: if (stream.advanceIfRegExp(/^!doctype/i)) { state =
-					 * ScannerState.WithinDoctype; return finishToken(offset,
-					 * TokenType.StartDoctypeTag); }
-					 */
+				
+					if (stream.advanceIfChars(_BNG,_DVL,_OVL,_CVL,_TVL,_YVL,_PVL,_EVL)) { //!DOCTYPE
+						state = ScannerState.WithinDoctype; 
+						return finishToken(offset, TokenType.StartDoctypeTag); 
+					}
+					
 				} else if(!stream.eos() && stream.advanceIfChar(_QMA)) { // ?
 					state = ScannerState.PrologOrPI;
 					return finishToken(offset, TokenType.StartPrologOrPI);	
