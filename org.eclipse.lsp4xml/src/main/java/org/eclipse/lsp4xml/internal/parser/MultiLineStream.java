@@ -1,5 +1,5 @@
 /**
- *  Copyright (c) 2018 Angelo ZERR, Daniel Dekany.
+ *  Copyright (c) 2018 Angelo ZERR.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -11,11 +11,11 @@
 package org.eclipse.lsp4xml.internal.parser;
 
 import static org.eclipse.lsp4xml.internal.parser.Constants._CAR;
+import static org.eclipse.lsp4xml.internal.parser.Constants._LAN;
 import static org.eclipse.lsp4xml.internal.parser.Constants._LFD;
 import static org.eclipse.lsp4xml.internal.parser.Constants._NWL;
 import static org.eclipse.lsp4xml.internal.parser.Constants._TAB;
 import static org.eclipse.lsp4xml.internal.parser.Constants._WSP;
-import static org.eclipse.lsp4xml.internal.parser.Constants._LAN;
 
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
@@ -65,19 +65,19 @@ class MultiLineStream {
 		this.position = len;
 	}
 
-	/*public int nextChar() {
-		// return this.source.codePointAt(this.position++) || 0;
-		int next = this.source.codePointAt(this.position++);
-		return next >= 0 ? next : 0;
-	}*/
+	/*
+	 * public int nextChar() { // return this.source.codePointAt(this.position++) ||
+	 * 0; int next = this.source.codePointAt(this.position++); return next >= 0 ?
+	 * next : 0; }
+	 */
 
 	public int peekChar() {
 		return peekChar(0);
 	}
 
-	public int peekChar(int n) {		
+	public int peekChar(int n) {
 		int pos = this.position + n;
-		if (pos >= len ) {
+		if (pos >= len) {
 			return -1;
 		}
 		return this.source.codePointAt(pos);
@@ -106,12 +106,12 @@ class MultiLineStream {
 	}
 
 	public String advanceIfRegExp(Pattern regex) {
-		String str = this.source.substring(this.position);
-		Matcher match = regex.matcher(str);
+		Matcher match = regex.matcher(source);
+		// Initialize start region where search must be started.
+		match.region(this.position, this.len);
 		if (match.find()) {
-			String s = match.group(0);
-			this.position = this.position + match.start() + s.length();
-			return s;
+			this.position = match.end();
+			return match.group(0);
 		}
 		return "";
 	}
@@ -128,7 +128,7 @@ class MultiLineStream {
 	/**
 	 * Advances stream.position no matter what until it hits ch or eof(this.len)
 	 * 
-	 * @return boolean: was the char found 
+	 * @return boolean: was the char found
 	 */
 	public boolean advanceUntilChar(int ch) {
 		while (this.position < this.len) {
@@ -142,12 +142,12 @@ class MultiLineStream {
 
 	public boolean advanceUntilAnyOfChars(int... ch) {
 		while (this.position < this.len) {
-			for(int i = 0; i < ch.length; i ++) {
+			for (int i = 0; i < ch.length; i++) {
 				if (peekChar() == ch[i]) {
 					return true;
 				}
 			}
-			
+
 			this.advance(1);
 		}
 		return false;
@@ -181,15 +181,13 @@ class MultiLineStream {
 	}
 
 	/**
-	 * Advances until it matches int[] ch OR it hits '<'
-	 * If this returns true, peek if next char is '<' to 
-	 * check which case was hit
+	 * Advances until it matches int[] ch OR it hits '<' If this returns true, peek
+	 * if next char is '<' to check which case was hit
 	 */
 	public boolean advanceUntilCharsOrNewTag(int... ch) {
-
 		while (this.position + ch.length <= this.len) {
 			int i = 0;
-			if(peekChar(0) == _LAN) { // <
+			if (peekChar(0) == _LAN) { // <
 				return true;
 			}
 			for (; i < ch.length && peekChar(i) == ch[i]; i++) {
