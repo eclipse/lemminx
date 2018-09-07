@@ -215,6 +215,11 @@ public class XMLDocument extends Node {
 		}
 		return hasGrammar;
 	}
+	
+	@Override
+	public short getNodeType() {
+		return Node.DOCUMENT_NODE;
+	}
 
 	private static String getUnprefixedName(String name) {
 		int index = name.indexOf(":"); //$NON-NLS-1$

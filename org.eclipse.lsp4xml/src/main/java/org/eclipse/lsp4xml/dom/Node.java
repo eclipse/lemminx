@@ -49,6 +49,15 @@ public class Node {
 	 */
 	public static final short COMMENT_NODE = 8;
 
+	/**
+	 * The node is a <code>Document</code>.
+	 */
+	public static final short DOCUMENT_NODE = 9;
+	/**
+	 * The node is a <code>DocumentType</code>.
+	 */
+	public static final short DOCUMENT_TYPE_NODE = 10;
+
 	public String tag;
 	boolean closed = false;
 	public Integer endTagStart;
@@ -65,7 +74,6 @@ public class Node {
 	private final XMLDocument ownerDocument;
 	public String content;
 	public boolean isCommentSameLineEndTag = false;
-	public boolean isDoctype = false;
 
 	public Set<String> attributeNames() {
 		return hasAttributes() ? attributes.keySet() : Collections.emptySet();
@@ -357,5 +365,9 @@ public class Node {
 
 	public boolean isCDATA() {
 		return getNodeType() == Node.CDATA_SECTION_NODE;
+	}
+	
+	public boolean isDoctype() {
+		return getNodeType() == Node.DOCUMENT_TYPE_NODE;
 	}
 }

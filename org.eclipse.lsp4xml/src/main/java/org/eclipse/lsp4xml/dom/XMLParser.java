@@ -194,7 +194,7 @@ public class XMLParser {
 
 			case PrologName: {
 				curr.tag = scanner.getTokenText();
-				((ProcessingInstruction)curr).setProlog(true);
+				((ProcessingInstruction) curr).setProlog(true);
 				break;
 			}
 
@@ -236,10 +236,9 @@ public class XMLParser {
 			}
 
 			case StartDoctypeTag: {
-				Node doctype = new Node(scanner.getTokenOffset(), text.length(), new ArrayList<>(), curr, xmlDocument);
+				Node doctype = new DocumentType(scanner.getTokenOffset(), text.length(), curr, xmlDocument);
 				curr.addChild(doctype);
 				curr = doctype;
-				curr.isDoctype = true;
 				curr.tag = "DOCTYPE";
 				break;
 			}

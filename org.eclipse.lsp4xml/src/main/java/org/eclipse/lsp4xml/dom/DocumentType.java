@@ -11,18 +11,18 @@
 package org.eclipse.lsp4xml.dom;
 
 /**
- * A text node.
+ * A doctype node.
  *
  */
-public class Text extends Node {
+public class DocumentType extends Node {
 
-	public Text(int start, int end, Node parent, XMLDocument ownerDocument) {
+	public DocumentType(int start, int end, Node parent, XMLDocument ownerDocument) {
 		super(start, end, null, parent, ownerDocument);
 	}
 
 	@Override
 	public short getNodeType() {
-		return Node.TEXT_NODE;
+		return Node.DOCUMENT_TYPE_NODE;
 	}
 
 }

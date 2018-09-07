@@ -128,7 +128,7 @@ class XMLFormatter {
 				xml.startPrologOrPI(node.tag);
 				xml.addContentPI(node.content);
 				xml.endPrologOrPI();
-			} else if (node.isDoctype) {
+			} else if (node.isDoctype()) {
 				xml.startDoctype();
 				xml.addContentDoctype(node.content);
 				xml.endDoctype();
