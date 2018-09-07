@@ -25,6 +25,7 @@ import org.eclipse.lsp4xml.dom.XMLParser;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -34,10 +35,12 @@ import org.junit.Test;
 public class XMLFormatterTest {
 
 	private XMLLanguageService languageService;
+	private XMLFormattingOptions formattingOptions;
 
 	@Before
 	public void initializeLanguageService() {
 		languageService = new XMLLanguageService();
+		formattingOptions = new XMLFormattingOptions();
 	}
 	
 	@Test
@@ -139,6 +142,36 @@ public class XMLFormatterTest {
 		format(content, expected);
 	}
 
+	@Test
+	public void testSplitAttributes() throws BadLocationException {
+		String content = "<a k1=\"v1\" k2=\"v2\"></a>";
+		String expected = 
+				"<a k1=\"v1\"" + lineSeparator() + //
+				" k2=\"v2\"></a>";
+		formattingOptions.setSplitAttributes(true);
+		format(content, expected);
+	}
+
+	
+	@Test
+	public void testJoinCDATALines() throws BadLocationException {
+		String content = 
+			"<a>" + lineSeparator() +
+			"<![CDATA[" + lineSeparator() +
+			"line 1" + lineSeparator() +
+			"" + lineSeparator() +
+			"" + lineSeparator() +
+			"line 2" + lineSeparator() +
+			"line 3" + lineSeparator() +
+			"]]> </a>"; 
+		String expected = "<a>" +lineSeparator() +
+			"  <![CDATA[line 1 line 2 line 3 ]]>" + lineSeparator() +
+			"</a>";
+
+		formattingOptions.setJoinCDATALines(true);
+		format(content, expected);
+	}
+
 	private void format(String unformatted, String actual) throws BadLocationException {
 		format(unformatted, actual, true);
 	}
@@ -159,8 +192,10 @@ public class XMLFormatterTest {
 		}
 
 		TextDocument document = new TextDocument(unformatted, uri);
-		List<? extends TextEdit> edits = languageService.format(document, range,
-				new XMLFormattingOptions(2, insertSpaces));
+		formattingOptions.setInsertSpaces(insertSpaces);
+		formattingOptions.setTabSize(2);
+		List<? extends TextEdit> edits = languageService.format(document, range, formattingOptions
+				);
 		String formatted = edits.stream().map(edit -> edit.getNewText()).collect(Collectors.joining(""));
 		if (rangeStart != -1 && rangeEnd != -1) {
 			formatted = unformatted.substring(0, rangeStart) + formatted

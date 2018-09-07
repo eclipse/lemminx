@@ -128,6 +128,7 @@ class XMLFormatter {
 					int attributeIndex = 0;
 					for (String attributeName : attributeNames) {
 						xml.addAttribute(attributeName, node.getAttributeValue(attributeName), attributeIndex, level);
+						attributeIndex ++;
 					}
 				}
 				boolean hasChildren = node.hasChildren();
