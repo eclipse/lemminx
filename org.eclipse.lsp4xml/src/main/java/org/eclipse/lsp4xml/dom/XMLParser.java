@@ -26,6 +26,7 @@ import org.eclipse.lsp4xml.internal.parser.XMLScanner;
  *
  */
 public class XMLParser {
+
 	private static final Logger LOGGER = Logger.getLogger(XMLParser.class.getName());
 
 	private static final XMLParser INSTANCE = new XMLParser();
@@ -71,7 +72,8 @@ public class XMLParser {
 		while (token != TokenType.EOS) {
 			switch (token) {
 			case StartTagOpen: {
-				Element child = new Element(scanner.getTokenOffset(), text.length(), new ArrayList<>(), curr, xmlDocument);
+				Element child = new Element(scanner.getTokenOffset(), text.length(), new ArrayList<>(), curr,
+						xmlDocument);
 				curr.addChild(child);
 				curr = child;
 				break;
@@ -141,7 +143,7 @@ public class XMLParser {
 				String value = scanner.getTokenText();
 				if (curr.hasAttributes()) {
 					curr.setAttribute(pendingAttribute, value);
-					if (mask != null && mask.contains(Flag.Attribute) && attr != null) {						
+					if (mask != null && mask.contains(Flag.Attribute) && attr != null) {
 						attr.setNodeValue(new Node(scanner.getTokenOffset(), scanner.getTokenOffset() + value.length(),
 								null, curr, xmlDocument));
 					}
@@ -152,8 +154,7 @@ public class XMLParser {
 			}
 
 			case CDATATagOpen: {
-				CDataSection cdataNode = new CDataSection(scanner.getTokenOffset(), text.length(), curr,
-						xmlDocument);
+				CDataSection cdataNode = new CDataSection(scanner.getTokenOffset(), text.length(), curr, xmlDocument);
 				cdataNode.isCDATA = true;
 				cdataNode.tag = "CDATA";
 				curr.addChild(cdataNode);
@@ -179,7 +180,7 @@ public class XMLParser {
 			}
 
 			case StartPrologOrPI: {
-				Node prologOrPINode = new Node(scanner.getTokenOffset(), text.length(), new ArrayList<>(), curr,
+				Node prologOrPINode = new ProcessingInstruction(scanner.getTokenOffset(), text.length(), curr,
 						xmlDocument);
 				curr.addChild(prologOrPINode);
 				curr = prologOrPINode;
@@ -188,14 +189,13 @@ public class XMLParser {
 
 			case PIName: {
 				curr.tag = scanner.getTokenText();
-				curr.isProcessingInstruction = true;
 				curr.content = "";
 				break;
 			}
 
 			case PrologName: {
 				curr.tag = scanner.getTokenText();
-				curr.isProlog = true;
+				((ProcessingInstruction)curr).setProlog(true);
 				break;
 			}
 
@@ -213,13 +213,10 @@ public class XMLParser {
 			}
 
 			case StartCommentTag: {
-				Node comment = new Node(scanner.getTokenOffset(), text.length(), new ArrayList<>(), curr,
-					xmlDocument);
-
+				Node comment = new Comment(scanner.getTokenOffset(), text.length(), curr, xmlDocument);
 				curr.addChild(comment);
 				curr = comment;
 				curr.tag = "Comment";
-				curr.isComment = true;
 				try {
 					int endLine = document.positionAt(lastClosed.end).getLine();
 					int startLine = document.positionAt(curr.start).getLine();
@@ -233,15 +230,14 @@ public class XMLParser {
 			}
 
 			case Comment: {
-				if(mask != null && mask.contains(Flag.Content)) {
+				if (mask != null && mask.contains(Flag.Content)) {
 					curr.content = scanner.getTokenText();
 				}
 				break;
 			}
 
 			case StartDoctypeTag: {
-				Node doctype = new Node(scanner.getTokenOffset(), text.length(), new ArrayList<>(), curr,
-						xmlDocument);
+				Node doctype = new Node(scanner.getTokenOffset(), text.length(), new ArrayList<>(), curr, xmlDocument);
 				curr.addChild(doctype);
 				curr = doctype;
 				curr.isDoctype = true;
@@ -259,7 +255,7 @@ public class XMLParser {
 				break;
 			}
 
-			case EndCommentTag: 
+			case EndCommentTag:
 			case EndDoctypeTag: {
 				curr.end = scanner.getTokenEnd();
 				curr.closed = true;
@@ -270,7 +266,7 @@ public class XMLParser {
 			case Content: {
 				if (mask != null && mask.contains(Flag.Content)) {
 					String content = scanner.getTokenText();
-					if(content.trim().length() == 0) {
+					if (content.trim().length() == 0) {
 						break;
 					}
 					Text cdata = new Text(scanner.getTokenOffset(), content.length(), curr, xmlDocument);
@@ -280,7 +276,6 @@ public class XMLParser {
 				break;
 			}
 
-			
 			}
 			token = scanner.scan();
 		}

@@ -83,9 +83,9 @@ class XMLFormatter {
 
 	private void format(Node node, int level, int end, XMLBuilder xml) {
 		if (node.tag != null) {
-			
+
 			// element to format
-			if (level > 0 && ! node.isCommentSameLineEndTag) {
+			if (level > 0 && !node.isCommentSameLineEndTag) {
 				// add new line + indent
 				xml.linefeed();
 				xml.indent(level);
@@ -95,25 +95,14 @@ class XMLFormatter {
 				xml.startCDATA();
 				xml.addContentCDATA(node.content);
 				xml.endCDATA();
-			} 
-			else if (node.isComment){ 
+			} else if (node.isComment()) {
 				xml.startComment(node);
 				xml.addContentComment(node.content);
 				xml.endComment();
-				if(level == 0) {
+				if (level == 0) {
 					xml.linefeed();
 				}
-			}
-			else if (node.isProcessingInstruction) {
-				xml.startPrologOrPI(node.tag);
-				xml.addContentPI(node.content);
-				xml.endPrologOrPI();
-			} else if(node.isDoctype) {
-				xml.startDoctype();
-				xml.addContentDoctype(node.content);
-				xml.endDoctype();
-				xml.linefeed();
-			} else if (node.isProlog) {
+			} else if (node.isProlog()) {
 				xml.startPrologOrPI(node.tag);
 				if (node.hasAttributes()) {
 					// generate attributes
@@ -135,6 +124,15 @@ class XMLFormatter {
 				}
 				xml.endPrologOrPI();
 				xml.linefeed();
+			} else if (node.isProcessingInstruction()) {
+				xml.startPrologOrPI(node.tag);
+				xml.addContentPI(node.content);
+				xml.endPrologOrPI();
+			} else if (node.isDoctype) {
+				xml.startDoctype();
+				xml.addContentDoctype(node.content);
+				xml.endDoctype();
+				xml.linefeed();
 			} else {
 				xml.startElement(node.tag, false);
 				if (node.hasAttributes()) {
@@ -143,7 +141,7 @@ class XMLFormatter {
 					int attributeIndex = 0;
 					for (String attributeName : attributeNames) {
 						xml.addAttribute(attributeName, node.getAttributeValue(attributeName), attributeIndex, level);
-						attributeIndex ++;
+						attributeIndex++;
 					}
 				}
 				boolean hasChildren = node.hasChildren();
@@ -167,7 +165,7 @@ class XMLFormatter {
 					// the format, doesn't fix the close tag
 					if (node.endTagStart != null && node.endTagStart.intValue() <= end) {
 						if (!hasChildren) {
-							xml.closeStartElement();	
+							xml.closeStartElement();
 						}
 						xml.endElement(node.tag);
 					} else {

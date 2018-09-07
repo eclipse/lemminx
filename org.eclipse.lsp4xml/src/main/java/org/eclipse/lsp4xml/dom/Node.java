@@ -33,10 +33,21 @@ public class Node {
 	 * The node is a <code>Text</code> node.
 	 */
 	public static final short TEXT_NODE = 3;
+
 	/**
 	 * The node is a <code>CDATASection</code>.
 	 */
 	public static final short CDATA_SECTION_NODE = 4;
+
+	/**
+	 * The node is a <code>ProcessingInstruction</code>.
+	 */
+	public static final short PROCESSING_INSTRUCTION_NODE = 7;
+
+	/**
+	 * The node is a <code>Comment</code>.
+	 */
+	public static final short COMMENT_NODE = 8;
 
 	public String tag;
 	boolean closed = false;
@@ -51,12 +62,9 @@ public class Node {
 	public int end;
 
 	public boolean isCDATA = false;
-	public boolean isProcessingInstruction = false;
 	public final Node parent;
 	private final XMLDocument ownerDocument;
 	public String content;
-	public boolean isProlog = false;
-	public boolean isComment = false;
 	public boolean isCommentSameLineEndTag = false;
 	public boolean isDoctype = false;
 
@@ -334,5 +342,17 @@ public class Node {
 
 	public boolean isCommentSameLineEndTag() {
 		return isCommentSameLineEndTag;
+	}
+
+	public boolean isComment() {
+		return getNodeType() == Node.COMMENT_NODE;
+	}
+
+	public boolean isProcessingInstruction() {
+		return getNodeType() == Node.PROCESSING_INSTRUCTION_NODE;
+	}
+
+	public boolean isProlog() {
+		return isProcessingInstruction() && ((ProcessingInstruction) this).isProlog();
 	}
 }
