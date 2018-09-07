@@ -17,9 +17,6 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
-import org.eclipse.lsp4xml.internal.parser.Scanner;
-import org.eclipse.lsp4xml.internal.parser.TokenType;
-import org.eclipse.lsp4xml.internal.parser.XMLScanner;
 import org.eclipse.lsp4xml.services.extensions.IDiagnosticsParticipant;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 

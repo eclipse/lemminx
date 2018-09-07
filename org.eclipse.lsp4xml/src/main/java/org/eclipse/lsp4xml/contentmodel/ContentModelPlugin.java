@@ -10,7 +10,6 @@ import org.eclipse.lsp4xml.services.extensions.ICompletionParticipant;
 import org.eclipse.lsp4xml.services.extensions.IHoverParticipant;
 import org.eclipse.lsp4xml.services.extensions.IXMLExtension;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
-import org.eclipse.lsp4xml.utils.JSONUtility;
 
 /**
  * Content model plugin extension to provide:

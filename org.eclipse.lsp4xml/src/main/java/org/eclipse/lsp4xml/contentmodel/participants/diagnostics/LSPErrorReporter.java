@@ -12,7 +12,6 @@ package org.eclipse.lsp4xml.contentmodel.participants.diagnostics;
 
 import static org.eclipse.lsp4xml.utils.XMLPositionUtility.toLSPPosition;
 
-import java.util.EnumSet;
 import java.util.List;
 
 import org.apache.xerces.impl.XMLErrorReporter;
@@ -26,12 +25,9 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.contentmodel.participants.XMLSchemaErrorCode;
 import org.eclipse.lsp4xml.contentmodel.participants.XMLSyntaxErrorCode;
 import org.eclipse.lsp4xml.dom.XMLDocument;
-import org.eclipse.lsp4xml.dom.XMLParser;
-import org.eclipse.lsp4xml.dom.XMLParser.Flag;
 import org.xml.sax.ErrorHandler;
 
 /**
