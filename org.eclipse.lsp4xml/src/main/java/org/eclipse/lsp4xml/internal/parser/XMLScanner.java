@@ -123,7 +123,7 @@ public class XMLScanner implements Scanner {
 			stream.advanceUntilChars(_MIN, _MIN, _RAN); // -->
 			return finishToken(offset, TokenType.Comment);
 		case WithinDoctype:
-			if (stream.advanceIfChar(_RAN)) {
+			if (stream.advanceIfChar(_RAN)) { // >
 				state = ScannerState.WithinContent;
 				return finishToken(offset, TokenType.EndDoctypeTag);
 			}

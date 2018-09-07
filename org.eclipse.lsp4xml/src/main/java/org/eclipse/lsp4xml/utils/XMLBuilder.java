@@ -184,9 +184,24 @@ public class XMLBuilder {
 		xml.append(content);
 		return this;
 	}
+	
+	public XMLBuilder startDoctype() {
+		xml.append("<!DOCTYPE");
+		return this;
+	}
+
+	public XMLBuilder addContentDoctype(String content) {
+		xml.append(content);
+		return this;
+	}
 
 	public XMLBuilder endComment() {
 		xml.append("-->");
+		return this;
+	}
+
+	public XMLBuilder endDoctype() {
+		xml.append(">");
 		return this;
 	}
 }

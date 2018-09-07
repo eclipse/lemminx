@@ -58,6 +58,7 @@ public class Node {
 	public boolean isProlog = false;
 	public boolean isComment = false;
 	public boolean isCommentSameLineEndTag = false;
+	public boolean isDoctype = false;
 
 	public Set<String> attributeNames() {
 		return hasAttributes() ? attributes.keySet() : Collections.emptySet();

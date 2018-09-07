@@ -153,7 +153,7 @@ public class XMLParser {
 
 			case CDATATagOpen: {
 				CDataSection cdataNode = new CDataSection(scanner.getTokenOffset(), text.length(), curr,
-						xmlDocument);// TODO: might need arraylist
+						xmlDocument);
 				cdataNode.isCDATA = true;
 				cdataNode.tag = "CDATA";
 				curr.addChild(cdataNode);
@@ -239,7 +239,28 @@ public class XMLParser {
 				break;
 			}
 
-			case EndCommentTag: {
+			case StartDoctypeTag: {
+				Node doctype = new Node(scanner.getTokenOffset(), text.length(), new ArrayList<>(), curr,
+						xmlDocument);
+				curr.addChild(doctype);
+				curr = doctype;
+				curr.isDoctype = true;
+				curr.tag = "DOCTYPE";
+				break;
+			}
+
+			case Doctype: {
+				if (mask != null && mask.contains(Flag.Content)) {
+					if (curr.content == null) {
+						curr.content = "";
+					}
+					curr.content += scanner.getTokenText();
+				}
+				break;
+			}
+
+			case EndCommentTag: 
+			case EndDoctypeTag: {
 				curr.end = scanner.getTokenEnd();
 				curr.closed = true;
 				curr = curr.parent;
