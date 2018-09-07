@@ -91,7 +91,7 @@ class XMLFormatter {
 				xml.indent(level);
 			}
 			// generate start element
-			if (node.isCDATA) {
+			if (node.isCDATA()) {
 				xml.startCDATA();
 				xml.addContentCDATA(node.content);
 				xml.endCDATA();

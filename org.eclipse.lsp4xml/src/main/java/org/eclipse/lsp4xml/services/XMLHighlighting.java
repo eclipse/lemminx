@@ -54,7 +54,7 @@ class XMLHighlighting {
 
 		Range startTagRange = null;
 		Range endTagRange = null;
-		if(node.isCDATA == true){
+		if(node.isCDATA()){
 			Position startPos = null;
 			Position endPos = null;
 			Range tempRange = null;

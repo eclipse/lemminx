@@ -61,7 +61,6 @@ public class Node {
 	public final int start;
 	public int end;
 
-	public boolean isCDATA = false;
 	public final Node parent;
 	private final XMLDocument ownerDocument;
 	public String content;
@@ -354,5 +353,9 @@ public class Node {
 
 	public boolean isProlog() {
 		return isProcessingInstruction() && ((ProcessingInstruction) this).isProlog();
+	}
+
+	public boolean isCDATA() {
+		return getNodeType() == Node.CDATA_SECTION_NODE;
 	}
 }

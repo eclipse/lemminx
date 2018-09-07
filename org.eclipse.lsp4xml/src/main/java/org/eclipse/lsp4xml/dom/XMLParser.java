@@ -155,7 +155,6 @@ public class XMLParser {
 
 			case CDATATagOpen: {
 				CDataSection cdataNode = new CDataSection(scanner.getTokenOffset(), text.length(), curr, xmlDocument);
-				cdataNode.isCDATA = true;
 				cdataNode.tag = "CDATA";
 				curr.addChild(cdataNode);
 				curr = cdataNode;

@@ -312,7 +312,6 @@ public class XMLParserTest {
 	private static Node createCDATANode(String content, int start, int endTagStart, int end, boolean closed,
 			Node... children) {
 		Node n = createNode(Node.CDATA_SECTION_NODE, "CDATA", start, endTagStart, end, closed, children);
-		n.isCDATA = true;
 		n.content = content;
 		return n;
 	}
@@ -391,11 +390,11 @@ public class XMLParserTest {
 		} else {
 			assertEquals(expectedNode.endTagStart, actualNode.endTagStart);
 		}
-		if (expectedNode.isCDATA || expectedNode.isComment()) {
+		if (expectedNode.isCDATA() || expectedNode.isComment()) {
 			assertEquals(expectedNode.content, actualNode.content);
 		}
 		assertEquals(expectedNode.closed, actualNode.closed);
-		assertEquals(expectedNode.isCDATA, actualNode.isCDATA);
+		assertEquals(expectedNode.isCDATA(), actualNode.isCDATA());
 		assertEquals(expectedNode.isProlog(), actualNode.isProlog());
 		assertEquals(expectedNode.isProcessingInstruction(), actualNode.isProcessingInstruction());
 		if (expectedNode.isProcessingInstruction()) {
