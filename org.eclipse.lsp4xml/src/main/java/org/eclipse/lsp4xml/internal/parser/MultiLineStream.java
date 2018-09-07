@@ -17,6 +17,8 @@ import static org.eclipse.lsp4xml.internal.parser.Constants._NWL;
 import static org.eclipse.lsp4xml.internal.parser.Constants._TAB;
 import static org.eclipse.lsp4xml.internal.parser.Constants._WSP;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,11 +32,13 @@ class MultiLineStream {
 	private final String source;
 	private final int len;
 	private int position;
+	private final Map<Pattern, Matcher> regexpCache;
 
 	public MultiLineStream(String source, int position) {
 		this.source = source;
 		this.len = source.length();
 		this.position = position;
+		this.regexpCache = new HashMap<>();
 	}
 
 	public boolean eos() {
@@ -106,7 +110,7 @@ class MultiLineStream {
 	}
 
 	public String advanceIfRegExp(Pattern regex) {
-		Matcher match = regex.matcher(source);
+		Matcher match = getCachedMatcher(regex);
 		// Initialize start region where search must be started.
 		match.region(this.position, this.len);
 		if (match.find()) {
@@ -214,5 +218,20 @@ class MultiLineStream {
 			this.position++;
 		}
 		return this.position - posNow;
+	}
+
+	/**
+	 * Returns the cached matcher from the given regex.
+	 * 
+	 * @param regex the regex pattern.
+	 * @return the cached matcher from the given regex.
+	 */
+	private Matcher getCachedMatcher(Pattern regex) {
+		Matcher matcher = regexpCache.get(regex);
+		if (matcher == null) {
+			matcher = regex.matcher(source);
+			regexpCache.put(regex, matcher);
+		}
+		return matcher;
 	}
 }
