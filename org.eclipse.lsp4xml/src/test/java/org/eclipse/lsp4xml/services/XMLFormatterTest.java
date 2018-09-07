@@ -24,8 +24,6 @@ import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.dom.XMLParser;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -34,15 +32,6 @@ import org.junit.Test;
  */
 public class XMLFormatterTest {
 
-	private XMLLanguageService languageService;
-	private XMLFormattingOptions formattingOptions;
-
-	@Before
-	public void initializeLanguageService() {
-		languageService = new XMLLanguageService();
-		formattingOptions = new XMLFormattingOptions();
-	}
-	
 	@Test
 	public void closeStartTagMissing() throws BadLocationException {
 		// Don't close tag with bad XML
@@ -50,7 +39,7 @@ public class XMLFormatterTest {
 		String expected = "<a";
 		format(content, expected);
 	}
-	
+
 	@Test
 	public void closeTagMissing() throws BadLocationException {
 		// Don't close tag with bad XML
@@ -58,14 +47,14 @@ public class XMLFormatterTest {
 		String expected = "<a>";
 		format(content, expected);
 	}
-	
+
 	@Test
 	public void autoCloseTag() throws BadLocationException {
 		String content = "<a/>";
 		String expected = "<a />";
 		format(content, expected);
 	}
-	
+
 	@Test
 	public void selfClosingTag() throws BadLocationException {
 		String content = "<a></a>";
@@ -145,38 +134,30 @@ public class XMLFormatterTest {
 	@Test
 	public void testSplitAttributes() throws BadLocationException {
 		String content = "<a k1=\"v1\" k2=\"v2\"></a>";
-		String expected = 
-				"<a k1=\"v1\"" + lineSeparator() + //
+		String expected = "<a k1=\"v1\"" + lineSeparator() + //
 				" k2=\"v2\"></a>";
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		formattingOptions.setSplitAttributes(true);
-		format(content, expected);
+		format(content, expected, formattingOptions);
 	}
 
-	
 	@Test
 	public void testJoinCDATALines() throws BadLocationException {
-		String content = 
-			"<a>" + lineSeparator() +
-			"<![CDATA[" + lineSeparator() +
-			"line 1" + lineSeparator() +
-			"" + lineSeparator() +
-			"" + lineSeparator() +
-			"line 2" + lineSeparator() +
-			"line 3" + lineSeparator() +
-			"]]> </a>"; 
-		String expected = "<a>" +lineSeparator() +
-			"  <![CDATA[line 1 line 2 line 3 ]]>" + lineSeparator() +
-			"</a>";
-
+		String content = "<a>" + lineSeparator() + "<![CDATA[" + lineSeparator() + "line 1" + lineSeparator() + ""
+				+ lineSeparator() + "" + lineSeparator() + "line 2" + lineSeparator() + "line 3" + lineSeparator()
+				+ "]]> </a>";
+		String expected = "<a>" + lineSeparator() + "  <![CDATA[line 1 line 2 line 3 ]]>" + lineSeparator() + "</a>";
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		formattingOptions.setJoinCDATALines(true);
-		format(content, expected);
+		format(content, expected, formattingOptions);
 	}
 
-	private void format(String unformatted, String actual) throws BadLocationException {
-		format(unformatted, actual, true);
+	private static void format(String unformatted, String actual) throws BadLocationException {
+		format(unformatted, actual, createDefaultFormattingOptions());
 	}
 
-	private void format(String unformatted, String expected, boolean insertSpaces) throws BadLocationException {
+	private static void format(String unformatted, String expected, XMLFormattingOptions formattingOptions)
+			throws BadLocationException {
 		Range range = null;
 		String uri = "test://test.html";
 		int rangeStart = unformatted.indexOf('|');
@@ -192,15 +173,17 @@ public class XMLFormatterTest {
 		}
 
 		TextDocument document = new TextDocument(unformatted, uri);
-		formattingOptions.setInsertSpaces(insertSpaces);
-		formattingOptions.setTabSize(2);
-		List<? extends TextEdit> edits = languageService.format(document, range, formattingOptions
-				);
+		XMLLanguageService languageService = new XMLLanguageService();
+		List<? extends TextEdit> edits = languageService.format(document, range, formattingOptions);
 		String formatted = edits.stream().map(edit -> edit.getNewText()).collect(Collectors.joining(""));
 		if (rangeStart != -1 && rangeEnd != -1) {
 			formatted = unformatted.substring(0, rangeStart) + formatted
 					+ unformatted.substring(rangeEnd - 1, unformatted.length());
 		}
 		Assert.assertEquals(expected, formatted);
+	}
+
+	private static XMLFormattingOptions createDefaultFormattingOptions() {
+		return new XMLFormattingOptions(2, true);
 	}
 }
