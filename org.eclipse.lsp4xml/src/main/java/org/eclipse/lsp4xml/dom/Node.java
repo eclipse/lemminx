@@ -24,7 +24,19 @@ import java.util.function.Function;
  */
 public class Node {
 
+	/**
+	 * The node is an <code>Element</code>.
+	 */
 	public static final short ELEMENT_NODE = 1;
+
+	/**
+	 * The node is a <code>Text</code> node.
+	 */
+	public static final short TEXT_NODE = 3;
+	/**
+	 * The node is a <code>CDATASection</code>.
+	 */
+	public static final short CDATA_SECTION_NODE = 4;
 
 	public String tag;
 	boolean closed = false;

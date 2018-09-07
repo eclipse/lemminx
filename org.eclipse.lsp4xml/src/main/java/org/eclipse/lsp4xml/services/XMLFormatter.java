@@ -160,18 +160,8 @@ class XMLFormatter {
 				} else if (node.isStartTagClose()) {
 					xml.closeStartElement();
 				}
-
-//					if ((node.endTagStart != null && node.endTagStart.intValue() <= end && node.closed)
-//							|| !node.closed) {
-//						xml.endElement(node.tag);
-//					}
-//				} else {
-//					// element has no content
-//					xml.endElement();
-//				}
 				return;
 			}
-
 		} else if (node.content != null) {
 			// Generate content
 			String content = node.content;

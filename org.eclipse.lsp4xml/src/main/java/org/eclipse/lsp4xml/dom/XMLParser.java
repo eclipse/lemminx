@@ -145,7 +145,7 @@ public class XMLParser {
 			}
 
 			case CDATATagOpen: {
-				Node cdataNode = new Node(scanner.getTokenOffset(), text.length(), new ArrayList<>(), curr,
+				CDataSection cdataNode = new CDataSection(scanner.getTokenOffset(), text.length(), curr,
 						xmlDocument);// TODO: might need arraylist
 				cdataNode.isCDATA = true;
 				cdataNode.tag = "CDATA";
@@ -211,7 +211,7 @@ public class XMLParser {
 					if(content.trim().length() == 0) {
 						break;
 					}
-					Node cdata = new Node(scanner.getTokenOffset(), content.length(), null, curr, xmlDocument);
+					Text cdata = new Text(scanner.getTokenOffset(), content.length(), curr, xmlDocument);
 					cdata.content = content;
 					curr.addChild(cdata);
 				}
