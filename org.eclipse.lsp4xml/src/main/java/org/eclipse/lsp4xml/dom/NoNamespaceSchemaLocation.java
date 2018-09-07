@@ -1,4 +1,4 @@
-package org.eclipse.lsp4xml.model;
+package org.eclipse.lsp4xml.dom;
 
 public class NoNamespaceSchemaLocation {
 

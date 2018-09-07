@@ -12,7 +12,7 @@ package org.eclipse.lsp4xml.contentmodel.model;
 
 import java.util.Collection;
 
-import org.eclipse.lsp4xml.model.Element;
+import org.eclipse.lsp4xml.dom.Element;
 
 /**
  * Content model document which abstracts element declaration from a given

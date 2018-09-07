@@ -1,9 +1,10 @@
-package org.eclipse.lsp4xml.internal.parser;
+package org.eclipse.lsp4xml.dom;
 
 import java.io.InputStream;
 
 import org.eclipse.lsp4xml.commons.TextDocument;
-import org.eclipse.lsp4xml.model.XMLDocument;
+import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.XMLParser;
 import org.junit.Test;
 
 public class XMLDocumentTest {

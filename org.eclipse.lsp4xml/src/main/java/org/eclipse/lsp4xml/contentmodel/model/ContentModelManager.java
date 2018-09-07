@@ -23,10 +23,10 @@ import org.eclipse.lsp4xml.contentmodel.settings.XMLFileAssociation;
 import org.eclipse.lsp4xml.contentmodel.uriresolver.XMLCatalogResolverExtension;
 import org.eclipse.lsp4xml.contentmodel.uriresolver.XMLFileAssociationResolverExtension;
 import org.eclipse.lsp4xml.contentmodel.xsd.XSDDocument;
-import org.eclipse.lsp4xml.model.Element;
-import org.eclipse.lsp4xml.model.NoNamespaceSchemaLocation;
-import org.eclipse.lsp4xml.model.SchemaLocation;
-import org.eclipse.lsp4xml.model.XMLDocument;
+import org.eclipse.lsp4xml.dom.Element;
+import org.eclipse.lsp4xml.dom.NoNamespaceSchemaLocation;
+import org.eclipse.lsp4xml.dom.SchemaLocation;
+import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
 
 /**

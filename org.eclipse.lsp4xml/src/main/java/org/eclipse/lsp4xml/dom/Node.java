@@ -8,7 +8,7 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lsp4xml.model;
+package org.eclipse.lsp4xml.dom;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,8 +27,10 @@ public class Node {
 	public static final short ELEMENT_NODE = 1;
 
 	public String tag;
-	public boolean closed = false;
+	boolean closed = false;
 	public Integer endTagStart;
+	boolean selfClosed;
+	boolean startTagClose;
 
 	private Map<String, String> attributes;
 	private List<Attr> attributeNodes;
@@ -301,5 +303,17 @@ public class Node {
 
 	public Node getParent() {
 		return parent;
+	}
+
+	public boolean isSelfClosed() {
+		return selfClosed;
+	}
+
+	public boolean isClosed() {
+		return closed;
+	}
+
+	public boolean isStartTagClose() {
+		return startTagClose;
 	}
 }

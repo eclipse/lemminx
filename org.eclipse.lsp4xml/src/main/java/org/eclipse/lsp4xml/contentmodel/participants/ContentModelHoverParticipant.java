@@ -15,7 +15,7 @@ import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4xml.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lsp4xml.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lsp4xml.contentmodel.model.ContentModelManager;
-import org.eclipse.lsp4xml.model.Element;
+import org.eclipse.lsp4xml.dom.Element;
 import org.eclipse.lsp4xml.services.extensions.HoverParticipantAdapter;
 import org.eclipse.lsp4xml.services.extensions.IHoverRequest;
 

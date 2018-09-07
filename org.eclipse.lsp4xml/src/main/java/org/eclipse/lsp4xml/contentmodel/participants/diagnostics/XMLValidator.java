@@ -26,7 +26,7 @@ import org.apache.xerces.xni.parser.XMLEntityResolver;
 import org.apache.xerces.xni.parser.XMLParserConfiguration;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
-import org.eclipse.lsp4xml.model.XMLDocument;
+import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.uriresolver.IExternalSchemaLocationProvider;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;

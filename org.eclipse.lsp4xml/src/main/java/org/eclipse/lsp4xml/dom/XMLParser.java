@@ -8,16 +8,15 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lsp4xml.internal.parser;
+package org.eclipse.lsp4xml.dom;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
 
 import org.eclipse.lsp4xml.commons.TextDocument;
-import org.eclipse.lsp4xml.model.Attr;
-import org.eclipse.lsp4xml.model.Element;
-import org.eclipse.lsp4xml.model.Node;
-import org.eclipse.lsp4xml.model.XMLDocument;
+import org.eclipse.lsp4xml.internal.parser.Scanner;
+import org.eclipse.lsp4xml.internal.parser.TokenType;
+import org.eclipse.lsp4xml.internal.parser.XMLScanner;
 
 /**
  * Tolerant XML parser.
@@ -80,6 +79,7 @@ public class XMLParser {
 
 			case StartTagClose:
 				curr.end = scanner.getTokenEnd(); // might be later set to end tag position
+				curr.startTagClose = true;
 				if (curr.tag != null && isEmptyElement(curr.tag) && curr.parent != null) {
 					curr.closed = true;
 					curr = curr.parent;
@@ -106,6 +106,7 @@ public class XMLParser {
 			case StartTagSelfClose:
 				if (curr.parent != null) {
 					curr.closed = true;
+					curr.selfClosed = true;
 					curr.end = scanner.getTokenEnd();
 					curr = curr.parent;
 				}

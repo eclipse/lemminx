@@ -27,12 +27,12 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
+import org.eclipse.lsp4xml.dom.Node;
+import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.internal.parser.Scanner;
 import org.eclipse.lsp4xml.internal.parser.ScannerState;
 import org.eclipse.lsp4xml.internal.parser.TokenType;
 import org.eclipse.lsp4xml.internal.parser.XMLScanner;
-import org.eclipse.lsp4xml.model.Node;
-import org.eclipse.lsp4xml.model.XMLDocument;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.services.extensions.ICompletionParticipant;
 import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
@@ -226,7 +226,7 @@ class XMLCompletions {
 			}
 		} else if (c == '/') {
 			Node node = xmlDocument.findNodeBefore(offset);
-			while (node != null && node.closed) {
+			while (node != null && node.isClosed()) {
 				node = node.parent;
 			}
 			if (node != null && node.tag != null) {
@@ -284,7 +284,7 @@ class XMLCompletions {
 			int offset = completionRequest.getOffset();
 			while (curr != null) {
 				String tag = curr.tag;
-				if (tag != null && (!curr.closed || curr.endTagStart != null && (curr.endTagStart > offset))) {
+				if (tag != null && (!curr.isClosed() || curr.endTagStart != null && (curr.endTagStart > offset))) {
 					CompletionItem item = new CompletionItem();
 					item.setLabel("/" + tag);
 					item.setKind(CompletionItemKind.Property);

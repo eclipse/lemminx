@@ -15,14 +15,13 @@ import static java.lang.System.lineSeparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
-import org.eclipse.lsp4xml.internal.parser.XMLParser;
-import org.eclipse.lsp4xml.model.XMLDocument;
+import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.XMLParser;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.junit.Assert;
 import org.junit.Before;
@@ -40,14 +39,44 @@ public class XMLFormatterTest {
 	public void initializeLanguageService() {
 		languageService = new XMLLanguageService();
 	}
+	
+	@Test
+	public void closeStartTagMissing() throws BadLocationException {
+		// Don't close tag with bad XML
+		String content = "<a";
+		String expected = "<a";
+		format(content, expected);
+	}
+	
+	@Test
+	public void closeTagMissing() throws BadLocationException {
+		// Don't close tag with bad XML
+		String content = "<a>";
+		String expected = "<a>";
+		format(content, expected);
+	}
+	
+	@Test
+	public void autoCloseTag() throws BadLocationException {
+		String content = "<a/>";
+		String expected = "<a />";
+		format(content, expected);
+	}
+	
+	@Test
+	public void selfClosingTag() throws BadLocationException {
+		String content = "<a></a>";
+		String expected = "<a></a>";
+		format(content, expected);
+	}
 
 	@Test
 	public void fullDocument() throws BadLocationException {
 		String content = "<div  class = \"foo\">\n" + //
-				"<br>\n" + //
+				"<br/>\n" + //
 				" </div>";
 		String expected = "<div class=\"foo\">\n" + //
-				"  <br></br>\n" + //
+				"  <br />\n" + //
 				"</div>";
 		format(content, expected);
 	}
@@ -55,10 +84,10 @@ public class XMLFormatterTest {
 	@Test
 	public void range() throws BadLocationException {
 		String content = "<div  class = \"foo\">\n" + //
-				"  |<img  src = \"foo\">|\n" + //
+				"  |<img  src = \"foo\"/>|\n" + //
 				" </div>";
 		String expected = "<div  class = \"foo\">\n" + //
-				"  <img src=\"foo\"></img>\n" + //
+				"  <img src=\"foo\" />\n" + //
 				" </div>";
 		format(content, expected);
 	}
@@ -66,11 +95,11 @@ public class XMLFormatterTest {
 	@Test
 	public void range2() throws BadLocationException {
 		String content = "<div  class = \"foo\">\n" + //
-				"  |<img  src = \"foo\">|\n" + //
+				"  |<img  src = \"foo\"/>|\n" + //
 				" \n" + //
 				" </div>";
 		String expected = "<div  class = \"foo\">\n" + //
-				"  <img src=\"foo\"></img>\n" + //
+				"  <img src=\"foo\" />\n" + //
 				" \n" + //
 				" </div>";
 		format(content, expected);

@@ -1,4 +1,4 @@
-package org.eclipse.lsp4xml.model;
+package org.eclipse.lsp4xml.dom;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,7 +19,7 @@ public class Element extends Node {
 	public String getTagName() {
 		return tag;
 	}
-	
+
 	public String getLocalName() {
 		String name = getTagName();
 		if (name == null) {

@@ -8,7 +8,7 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lsp4xml.model;
+package org.eclipse.lsp4xml.dom;
 
 import java.util.ArrayList;
 import java.util.List;

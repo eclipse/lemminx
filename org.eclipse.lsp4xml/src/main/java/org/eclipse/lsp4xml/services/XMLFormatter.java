@@ -22,10 +22,10 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
-import org.eclipse.lsp4xml.internal.parser.XMLParser;
-import org.eclipse.lsp4xml.internal.parser.XMLParser.Flag;
-import org.eclipse.lsp4xml.model.Node;
-import org.eclipse.lsp4xml.model.XMLDocument;
+import org.eclipse.lsp4xml.dom.Node;
+import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.XMLParser;
+import org.eclipse.lsp4xml.dom.XMLParser.Flag;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.utils.XMLBuilder;
@@ -100,7 +100,6 @@ class XMLFormatter {
 				xml.endPrologOrPI();
 			} else if (node.isProlog) {
 				xml.startPrologOrPI(node.tag);
-
 				if (node.hasAttributes()) {
 					// generate attributes
 					String[] attributes = new String[3];
@@ -131,24 +130,45 @@ class XMLFormatter {
 						xml.addAttribute(attributeName, node.getAttributeValue(attributeName), attributeIndex, level);
 					}
 				}
+				boolean hasChildren = node.hasChildren();
+				if (hasChildren) {
+					// element has body
+					xml.closeStartElement();
+					level++;
+					boolean hasElements = false;
+					for (Node child : node.getChildren()) {
+						hasElements = hasElements | child.tag != null;
+						format(child, level, end, xml);
+					}
+					level--;
+					if (hasElements) {
+						xml.linefeed();
+						xml.indent(level);
+					}
+				}
+				if (node.isClosed()) {
+					// end tag element is done, only if the element is closed
+					// the format, doesn't fix the close tag
+					if (node.endTagStart != null && node.endTagStart.intValue() <= end) {
+						if (!hasChildren) {
+							xml.closeStartElement();	
+						}
+						xml.endElement(node.tag);
+					} else {
+						xml.endElement();
+					}
+				} else if (node.isStartTagClose()) {
+					xml.closeStartElement();
+				}
 
-				// element has body
-				xml.closeStartElement();
-				level++;
-				boolean hasElements = false;
-				for (Node child : node.getChildren()) {
-					hasElements = hasElements | child.tag != null;
-					format(child, level, end, xml);
-				}
-				level--;
-				if (hasElements) {
-					xml.linefeed();
-					xml.indent(level);
-				}
-				if ((node.endTagStart != null && node.endTagStart.intValue() <= end && node.closed) || !node.closed) {
-					xml.endElement(node.tag);
-				}
-
+//					if ((node.endTagStart != null && node.endTagStart.intValue() <= end && node.closed)
+//							|| !node.closed) {
+//						xml.endElement(node.tag);
+//					}
+//				} else {
+//					// element has no content
+//					xml.endElement();
+//				}
 				return;
 			}
 

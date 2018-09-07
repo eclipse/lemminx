@@ -8,7 +8,7 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lsp4xml.internal.parser;
+package org.eclipse.lsp4xml.dom;
 
 import static org.junit.Assert.assertEquals;
 
@@ -16,8 +16,9 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 
-import org.eclipse.lsp4xml.model.Node;
-import org.eclipse.lsp4xml.model.XMLDocument;
+import org.eclipse.lsp4xml.dom.Node;
+import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.XMLParser;
 import org.junit.Assert;
 import org.junit.Test;
 

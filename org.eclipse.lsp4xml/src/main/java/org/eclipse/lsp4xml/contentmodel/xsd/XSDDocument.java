@@ -22,9 +22,9 @@ import org.apache.xerces.xs.XSModel;
 import org.apache.xerces.xs.XSNamedMap;
 import org.eclipse.lsp4xml.contentmodel.model.CMDocument;
 import org.eclipse.lsp4xml.contentmodel.model.CMElementDeclaration;
-import org.eclipse.lsp4xml.model.Element;
-import org.eclipse.lsp4xml.model.Node;
-import org.eclipse.lsp4xml.model.XMLDocument;
+import org.eclipse.lsp4xml.dom.Element;
+import org.eclipse.lsp4xml.dom.Node;
+import org.eclipse.lsp4xml.dom.XMLDocument;
 
 /**
  * XSD document implementation.
