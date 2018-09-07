@@ -79,8 +79,8 @@ public class LSPErrorReporter extends XMLErrorReporter {
 		}
 
 		// Fill diagnostic
-		diagnostics.add(new Diagnostic(toLSPRange(location, key, arguments, document), message,
-				toLSPSeverity(severity), XML_DIAGNOSTIC_SOURCE, key));
+		diagnostics.add(new Diagnostic(toLSPRange(location, key, arguments, document), message, toLSPSeverity(severity),
+				XML_DIAGNOSTIC_SOURCE, key));
 
 		if (severity == SEVERITY_FATAL_ERROR && !fContinueAfterFatalError) {
 			XMLParseException parseException = (exception != null) ? new XMLParseException(location, message, exception)
@@ -131,7 +131,7 @@ public class LSPErrorReporter extends XMLErrorReporter {
 		// try adjust positions for XML schema error
 		XMLSchemaErrorCode schemaCode = XMLSchemaErrorCode.get(key);
 		if (schemaCode != null) {
-			Range range =  XMLSchemaErrorCode.toLSPRange(location, schemaCode, arguments, document);
+			Range range = XMLSchemaErrorCode.toLSPRange(location, schemaCode, arguments, document);
 			if (range != null) {
 				return range;
 			}

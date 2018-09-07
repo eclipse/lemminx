@@ -1,8 +1,14 @@
 {
-    "files.exclude": {
-        "**/.classpath": true,
-        "**/.project": true,
-        "**/.settings": true
-    },
-    "java.saveActions.organizeImports": true
+	"files.exclude": {
+		"**/.classpath": true,
+		"**/.project": true,
+		"**/.settings": true
+	},
+	"java.saveActions.organizeImports": true,
+	"editor.formatOnSave": true,
+	"editor.renderWhitespace": "boundary",
+	//Use consistent indentation
+	"editor.detectIndentation": false,
+	"editor.tabSize": 4,
+	"editor.insertSpaces": false
 }
