@@ -108,6 +108,11 @@ class XMLFormatter {
 				xml.startPrologOrPI(node.tag);
 				xml.addContentPI(node.content);
 				xml.endPrologOrPI();
+			} else if(node.isDoctype) {
+				xml.startDoctype();
+				xml.addContentDoctype(node.content);
+				xml.endDoctype();
+				xml.linefeed();
 			} else if (node.isProlog) {
 				xml.startPrologOrPI(node.tag);
 				if (node.hasAttributes()) {
