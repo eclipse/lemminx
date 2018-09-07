@@ -9,7 +9,6 @@ import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.Diagnostic;
-import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentEdit;
@@ -24,6 +23,7 @@ import org.eclipse.lsp4xml.internal.parser.XMLParser;
 import org.eclipse.lsp4xml.model.XMLDocument;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
+import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.junit.Assert;
 
 public class XMLAssert {
@@ -59,7 +59,7 @@ public class XMLAssert {
 			xmlLanguageService.updateSettings(settings);
 		}
 		CompletionList list = xmlLanguageService.doComplete(htmlDoc, position, new CompletionSettings(),
-				new FormattingOptions(4,false));
+				new XMLFormattingOptions(4, false));
 
 		// no duplicate labels
 		List<String> labels = list.getItems().stream().map(i -> i.getLabel()).sorted().collect(Collectors.toList());
@@ -214,8 +214,8 @@ public class XMLAssert {
 		CodeAction codeAction = new CodeAction();
 		codeAction.setDiagnostics(Arrays.asList(d));
 
-		VersionedTextDocumentIdentifier versionedTextDocumentIdentifier = new VersionedTextDocumentIdentifier(
-				FILE_URI, 0);
+		VersionedTextDocumentIdentifier versionedTextDocumentIdentifier = new VersionedTextDocumentIdentifier(FILE_URI,
+				0);
 
 		WorkspaceEdit workspaceEdit = new WorkspaceEdit(
 				Arrays.asList(new TextDocumentEdit(versionedTextDocumentIdentifier, Arrays.asList(te))));

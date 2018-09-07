@@ -13,16 +13,12 @@ package org.eclipse.lsp4xml;
 import static org.eclipse.lsp4j.jsonrpc.CompletableFutures.computeAsync;
 
 import java.util.Arrays;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
-
-import com.google.gson.JsonObject;
 
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.DocumentLinkOptions;
@@ -39,9 +35,10 @@ import org.eclipse.lsp4xml.commons.ParentProcessWatcher.ProcessLanguageServer;
 import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.model.XMLDocument;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
+import org.eclipse.lsp4xml.settings.InitializationOptionsSettings;
+import org.eclipse.lsp4xml.settings.LogsSettings;
 import org.eclipse.lsp4xml.settings.XMLClientSettings;
-import org.eclipse.lsp4xml.settings.XMLFormatterSettings;
-import org.eclipse.lsp4xml.utils.JSONUtility;
+import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.utils.LogHelper;
 
 /**
@@ -69,7 +66,7 @@ public class XMLLanguageServer implements LanguageServer, ProcessLanguageServer,
 	@Override
 	public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
 		LOGGER.info("Initializing LSP4XML server");
-		updateSettings(params.getInitializationOptions());
+		updateSettings(InitializationOptionsSettings.getSettings(params));
 		xmlTextDocumentService.updateClientCapabilities(params.getCapabilities());
 		this.parentProcessId = params.getProcessId();
 		ServerCapabilities capabilities = new ServerCapabilities();
@@ -90,27 +87,28 @@ public class XMLLanguageServer implements LanguageServer, ProcessLanguageServer,
 	/**
 	 * Update XML settings configured from the client.
 	 * 
-	 * @param settings the XML settings
+	 * @param initializationOptionsSettings the XML settings
 	 */
-	public void updateSettings(Object settings) {
-		if (settings == null) {
+	public void updateSettings(Object initializationOptionsSettings) {
+		if (initializationOptionsSettings == null) {
 			return;
 		}
 		// Update client settings
-		XMLClientSettings clientSettings = JSONUtility.toModel(settings, XMLClientSettings.class);
-		if (clientSettings != null && clientSettings.getLogs() != null) {
-			LogHelper.initializeRootLogger(languageClient, clientSettings.getLogs());
+		XMLClientSettings clientSettings = XMLClientSettings.getSettings(initializationOptionsSettings);
+		if (clientSettings != null) {
+			// Update logs settings
+			LogsSettings logsSettings = clientSettings.getLogs();
+			if (logsSettings != null) {
+				LogHelper.initializeRootLogger(languageClient, logsSettings);
+			}
+			// Update format settings
+			XMLFormattingOptions formatterSettings = clientSettings.getFormat();
+			if (formatterSettings != null) {
+				xmlTextDocumentService.setSharedFormattingOptions(formatterSettings);
+			}
 		}
-
-		//Update formatting settings
-		JsonObject formatJson = JSONUtility.toModel(settings, JsonObject.class).getAsJsonObject("format");
-		Map<String, Object> newestClientFormats = JSONUtility.toModel(formatJson, ConcurrentHashMap.class);
-		XMLFormatterSettings formatterSettings = xmlLanguageService.getFormatterSettings();
-		formatterSettings.updateSettingsFromMap(newestClientFormats);
-		xmlTextDocumentService.setSharedFormattingOptions(formatterSettings);
-
 		// Update XML language service extensions
-		xmlLanguageService.updateSettings(settings);
+		xmlLanguageService.updateSettings(initializationOptionsSettings);
 	}
 
 	@Override

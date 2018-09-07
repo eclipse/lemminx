@@ -10,13 +10,13 @@
  */
 package org.eclipse.lsp4xml.services;
 
-import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.model.XMLDocument;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
+import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 
 /**
  * Completion request implementation.
@@ -25,32 +25,32 @@ import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
 class CompletionRequest extends AbstractPositionRequest implements ICompletionRequest {
 
 	private final CompletionSettings completionSettings;
-	
-	private final FormattingOptions formattingSettings;
-	
+
+	private final XMLFormattingOptions formattingSettings;
+
 	private Range replaceRange;
 
-	public CompletionRequest(XMLDocument xmlDocument, Position position, CompletionSettings completionSettings, FormattingOptions formattingSettings)
-			throws BadLocationException {
+	public CompletionRequest(XMLDocument xmlDocument, Position position, CompletionSettings completionSettings,
+			XMLFormattingOptions formattingSettings) throws BadLocationException {
 		super(xmlDocument, position);
 		this.formattingSettings = formattingSettings;
 		this.completionSettings = completionSettings;
 	}
 
 	@Override
-	public FormattingOptions getFormattingSettings() {
+	public XMLFormattingOptions getFormattingSettings() {
 		return formattingSettings;
 	}
-	
+
 	@Override
 	public CompletionSettings getCompletionSettings() {
 		return completionSettings;
 	}
-	
+
 	public void setReplaceRange(Range replaceRange) {
 		this.replaceRange = replaceRange;
 	}
-	
+
 	@Override
 	public Range getReplaceRange() {
 		return replaceRange;

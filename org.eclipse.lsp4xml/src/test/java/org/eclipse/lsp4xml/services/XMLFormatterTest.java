@@ -23,7 +23,7 @@ import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.internal.parser.XMLParser;
 import org.eclipse.lsp4xml.model.XMLDocument;
-import org.eclipse.lsp4xml.settings.XMLFormatterSettings;
+import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -131,7 +131,7 @@ public class XMLFormatterTest {
 
 		TextDocument document = new TextDocument(unformatted, uri);
 		List<? extends TextEdit> edits = languageService.format(document, range,
-				new XMLFormatterSettings(2, insertSpaces));
+				new XMLFormattingOptions(2, insertSpaces));
 		String formatted = edits.stream().map(edit -> edit.getNewText()).collect(Collectors.joining(""));
 		if (rangeStart != -1 && rangeEnd != -1) {
 			formatted = unformatted.substring(0, rangeStart) + formatted

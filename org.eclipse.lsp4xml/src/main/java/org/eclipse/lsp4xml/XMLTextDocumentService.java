@@ -44,7 +44,6 @@ import org.eclipse.lsp4j.DocumentSymbolParams;
 import org.eclipse.lsp4j.FoldingRange;
 import org.eclipse.lsp4j.FoldingRangeCapabilities;
 import org.eclipse.lsp4j.FoldingRangeRequestParams;
-import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.RenameParams;
@@ -65,7 +64,7 @@ import org.eclipse.lsp4xml.internal.parser.XMLParser;
 import org.eclipse.lsp4xml.model.XMLDocument;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
-import org.eclipse.lsp4xml.settings.XMLFormatterSettings;
+import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 
 /**
  * XML text document service.
@@ -78,7 +77,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 	private final LanguageModelCache<XMLDocument> xmlDocuments;
 	private final CompletionSettings sharedCompletionSettings;
 	private final FoldingRangeCapabilities sharedFoldingsSettings;
-	private FormattingOptions sharedFormattingOptions;
+	private XMLFormattingOptions sharedFormattingOptions;
+
 	private class BasicCancelChecker implements CancelChecker {
 
 		private boolean canceled;
@@ -107,7 +107,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 		this.xmlDocuments = new LanguageModelCache<XMLDocument>(10, 60, document -> parser.parse(document));
 		this.sharedCompletionSettings = new CompletionSettings();
 		this.sharedFoldingsSettings = new FoldingRangeCapabilities();
-
+		this.sharedFormattingOptions = new XMLFormattingOptions(true); // to be sure that formattings options is not null.
 	}
 
 	public void updateClientCapabilities(ClientCapabilities capabilities) {
@@ -176,7 +176,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 	public CompletableFuture<List<? extends TextEdit>> formatting(DocumentFormattingParams params) {
 		return computeAsync((monitor) -> {
 			TextDocument document = getDocument(params.getTextDocument().getUri());
-			return getXMLLanguageService().format(document, null, params.getOptions());
+			return getXMLLanguageService().format(document, null,
+					XMLFormattingOptions.create(params.getOptions(), sharedFormattingOptions));
 		});
 	}
 
@@ -184,7 +185,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 	public CompletableFuture<List<? extends TextEdit>> rangeFormatting(DocumentRangeFormattingParams params) {
 		return computeAsync((monitor) -> {
 			TextDocument document = getDocument(params.getTextDocument().getUri());
-			return getXMLLanguageService().format(document, params.getRange(), new XMLFormatterSettings(params.getOptions()));
+			return getXMLLanguageService().format(document, params.getRange(),
+					XMLFormattingOptions.create(params.getOptions(), sharedFormattingOptions));
 		});
 	}
 
@@ -287,7 +289,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 		return xmlLanguageServer.getXMLLanguageService();
 	}
 
-	public void setSharedFormattingOptions(FormattingOptions formattingOptions) {
+	public void setSharedFormattingOptions(XMLFormattingOptions formattingOptions) {
 		this.sharedFormattingOptions = formattingOptions;
 	}
 

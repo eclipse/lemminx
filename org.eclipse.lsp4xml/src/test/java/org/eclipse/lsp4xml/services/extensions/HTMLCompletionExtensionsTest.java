@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.CompletionList;
-import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -28,6 +27,7 @@ import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.internal.parser.XMLParser;
 import org.eclipse.lsp4xml.model.XMLDocument;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
+import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -113,7 +113,7 @@ public class HTMLCompletionExtensionsTest {
 
 		XMLLanguageService htmlLanguageService = new HTMLLanguageService();
 		CompletionList list = htmlLanguageService.doComplete(htmlDoc, position, new CompletionSettings(),
-				new FormattingOptions(4, false));
+				new XMLFormattingOptions(4, false));
 
 		// no duplicate labels
 		List<String> labels = list.getItems().stream().map(i -> i.getLabel()).sorted().collect(Collectors.toList());
@@ -218,8 +218,8 @@ public class HTMLCompletionExtensionsTest {
 			}
 
 			@Override
-			public void onAttributeValue(String valuePrefix, Range fullRange, boolean addQuotes, ICompletionRequest completionRequest,
-					ICompletionResponse completionResponse) {
+			public void onAttributeValue(String valuePrefix, Range fullRange, boolean addQuotes,
+					ICompletionRequest completionRequest, ICompletionResponse completionResponse) {
 				String tag = completionRequest.getCurrentTag();
 				String attributeName = completionRequest.getCurrentAttributeName();
 				HTMLTag htmlTag = HTMLTag.getHTMLTag(tag);
@@ -238,7 +238,7 @@ public class HTMLCompletionExtensionsTest {
 								String[] values = HTMLTag.getAttributeValues(attrType);
 								for (String value : values) {
 									String insertText = addQuotes ? '"' + value + '"' : value;
-									
+
 									CompletionItem item = new CompletionItem();
 									item.setLabel(value);
 									item.setFilterText(insertText);
@@ -247,7 +247,7 @@ public class HTMLCompletionExtensionsTest {
 									item.setInsertTextFormat(InsertTextFormat.PlainText);
 									completionResponse.addCompletionAttribute(item);
 								}
-									break;
+								break;
 							}
 						}
 					}

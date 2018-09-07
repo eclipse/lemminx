@@ -10,7 +10,7 @@
  */
 package org.eclipse.lsp4xml.utils;
 
-import org.eclipse.lsp4j.FormattingOptions;
+import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 
 /**
  * XML content builder utilities.
@@ -18,18 +18,17 @@ import org.eclipse.lsp4j.FormattingOptions;
  */
 public class XMLBuilder {
 
-	private final FormattingOptions clientFormats;
+	private final XMLFormattingOptions clientFormats;
 	private final String lineDelimiter;
 	private final StringBuilder xml;
 	private final String whitespacesIndent;
 
-	public XMLBuilder(FormattingOptions clientFormats, String whitespacesIndent, String lineDelimiter) {
+	public XMLBuilder(XMLFormattingOptions clientFormats, String whitespacesIndent, String lineDelimiter) {
 		this.whitespacesIndent = whitespacesIndent;
 		this.clientFormats = clientFormats;
 		this.lineDelimiter = lineDelimiter;
 		this.xml = new StringBuilder();
 	}
-
 
 	public XMLBuilder startElement(String prefix, String name, boolean close) {
 		xml.append("<");
@@ -43,7 +42,7 @@ public class XMLBuilder {
 		}
 		return this;
 	}
-	
+
 	public XMLBuilder startElement(String name, boolean close) {
 		return startElement(null, name, close);
 	}
@@ -51,6 +50,7 @@ public class XMLBuilder {
 	public XMLBuilder endElement(String name) {
 		return endElement(null, name);
 	}
+
 	public XMLBuilder endElement(String prefix, String name) {
 		xml.append("</");
 		if (prefix != null && !prefix.isEmpty()) {
@@ -72,7 +72,11 @@ public class XMLBuilder {
 		return this;
 	}
 
-	public XMLBuilder addAttribute(String name, String value) {
+	public XMLBuilder addAttribute(String name, String value, int index, int level) {
+		if (index > 0 && clientFormats.isSplitAttributes()) {
+			linefeed();
+			indent(level);
+		}
 		xml.append(" ");
 		xml.append(name);
 		xml.append("=\"");
@@ -90,6 +94,7 @@ public class XMLBuilder {
 	}
 
 	public XMLBuilder addContent(String text) {
+		text = normalizeSpace(text);
 		xml.append(text);
 		return this;
 	}
@@ -136,6 +141,9 @@ public class XMLBuilder {
 	}
 
 	public XMLBuilder addContentCDATA(String content) {
+		if (clientFormats.isJoinCDATALines()) {
+			content = normalizeSpace(content);
+		}
 		xml.append(content);
 		return this;
 	}
@@ -143,5 +151,20 @@ public class XMLBuilder {
 	public XMLBuilder endCDATA() {
 		xml.append("]]>");
 		return this;
+	}
+
+	private static String normalizeSpace(String str) {
+		StringBuilder b = new StringBuilder(str.length());
+		for (int i = 0; i < str.length(); ++i) {
+			char c = str.charAt(i);
+			if (Character.isWhitespace(c)) {
+				if (i <= 0 || Character.isWhitespace(str.charAt(i - 1)))
+					continue;
+				b.append(' ');
+				continue;
+			}
+			b.append(c);
+		}
+		return b.toString();
 	}
 }

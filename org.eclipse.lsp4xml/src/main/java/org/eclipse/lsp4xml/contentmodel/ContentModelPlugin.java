@@ -39,8 +39,8 @@ public class ContentModelPlugin implements IXMLExtension {
 	}
 
 	@Override
-	public void updateSettings(Object settings) {
-		ContentModelSettings cmSettings = JSONUtility.toModel(settings, ContentModelSettings.class);
+	public void updateSettings(Object initializationOptionsSettings) {
+		ContentModelSettings cmSettings = ContentModelSettings.getSettings(initializationOptionsSettings);
 		if (cmSettings != null) {
 			updateSettings(cmSettings);
 		}

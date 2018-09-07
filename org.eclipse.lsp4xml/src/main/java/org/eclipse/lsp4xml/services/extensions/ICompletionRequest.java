@@ -10,8 +10,8 @@
  */
 package org.eclipse.lsp4xml.services.extensions;
 
-import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 
 /**
  * Completion request API.
@@ -21,7 +21,7 @@ public interface ICompletionRequest extends IPositionRequest {
 
 	Range getReplaceRange();
 
-	FormattingOptions getFormattingSettings();
+	XMLFormattingOptions getFormattingSettings();
 
 	CompletionSettings getCompletionSettings();
 }

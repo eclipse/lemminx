@@ -21,7 +21,6 @@ import java.util.regex.Pattern;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.CompletionList;
-import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -39,6 +38,7 @@ import org.eclipse.lsp4xml.services.extensions.ICompletionParticipant;
 import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 
 /**
  * XML completions support.
@@ -57,7 +57,7 @@ class XMLCompletions {
 	}
 
 	public CompletionList doComplete(XMLDocument xmlDocument, Position position, CompletionSettings completionSettings,
-	  FormattingOptions formattingSettings) {
+			XMLFormattingOptions formattingSettings) {
 		CompletionRequest completionRequest = null;
 		try {
 			completionRequest = new CompletionRequest(xmlDocument, position, completionSettings, formattingSettings);

@@ -14,9 +14,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4xml.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lsp4xml.contentmodel.model.CMElementDeclaration;
+import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.utils.XMLBuilder;
 
 /**
@@ -25,7 +25,7 @@ import org.eclipse.lsp4xml.utils.XMLBuilder;
  */
 public class XMLGenerator {
 
-	private final FormattingOptions formattingOptions;
+	private final XMLFormattingOptions formattingOptions;
 	private final String whitespacesIndent;
 	private final String lineDelimiter;
 	private final boolean canSupportSnippets;
@@ -43,7 +43,7 @@ public class XMLGenerator {
 	 * @param canSupportSnippets true if snippets can be supported and false
 	 *                           otherwise.
 	 */
-	public XMLGenerator(FormattingOptions formattingOptions, String whitespacesIndent, String lineDelimiter,
+	public XMLGenerator(XMLFormattingOptions formattingOptions, String whitespacesIndent, String lineDelimiter,
 			boolean canSupportSnippets, int maxLevel) {
 		this.formattingOptions = formattingOptions;
 		this.whitespacesIndent = whitespacesIndent;
@@ -54,11 +54,12 @@ public class XMLGenerator {
 	public String generate(CMElementDeclaration elementDeclaration) {
 		return generate(elementDeclaration, null);
 	}
+
 	/**
 	 * Returns the XML generated from the given element declaration.
 	 * 
 	 * @param elementDeclaration
-	 * @param prefix 
+	 * @param prefix
 	 * @return the XML generated from the given element declaration.
 	 */
 	public String generate(CMElementDeclaration elementDeclaration, String prefix) {
@@ -67,8 +68,8 @@ public class XMLGenerator {
 		return xml.toString();
 	}
 
-	private int generate(CMElementDeclaration elementDeclaration, String prefix, int level, int snippetIndex, XMLBuilder xml,
-			List<CMElementDeclaration> generatedElements) {
+	private int generate(CMElementDeclaration elementDeclaration, String prefix, int level, int snippetIndex,
+			XMLBuilder xml, List<CMElementDeclaration> generatedElements) {
 		if (generatedElements.contains(elementDeclaration)) {
 			return snippetIndex;
 		}
@@ -80,6 +81,7 @@ public class XMLGenerator {
 		xml.startElement(prefix, elementDeclaration.getName(), false);
 		// Attributes
 		Collection<CMAttributeDeclaration> attributes = elementDeclaration.getAttributes();
+		int attributeIndex = 0;
 		for (CMAttributeDeclaration attributeDeclaration : attributes) {
 			if (attributeDeclaration.isRequired()) {
 				String value = "";
@@ -87,7 +89,8 @@ public class XMLGenerator {
 					snippetIndex++;
 					value = ("$" + snippetIndex);
 				}
-				xml.addAttribute(attributeDeclaration.getName(), value);
+				xml.addAttribute(attributeDeclaration.getName(), value, attributeIndex, level);
+				attributeIndex++;
 			}
 		}
 		// Elements children

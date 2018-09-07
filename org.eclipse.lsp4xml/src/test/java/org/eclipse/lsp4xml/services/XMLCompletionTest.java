@@ -19,13 +19,13 @@ import java.util.List;
 
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
-import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.internal.parser.XMLParser;
 import org.eclipse.lsp4xml.model.XMLDocument;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
+import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -37,8 +37,8 @@ import org.junit.Test;
 public class XMLCompletionTest {
 
 	private XMLLanguageService languageService;
-	private CompletionSettings sharedCompletionSettings  = new CompletionSettings();
-	
+	private CompletionSettings sharedCompletionSettings = new CompletionSettings();
+
 	@Before
 	public void initializeLanguageService() {
 		languageService = new XMLLanguageService();
@@ -63,7 +63,7 @@ public class XMLCompletionTest {
 	public void startTagOpenBracket() {
 		assertOpenStartTagCompletion("<hello><h|</hello>", 8, "hello", "h");
 		assertOpenStartTagCompletion("<test1><hello><h|</hello>", 15, "hello", "h");
-		assertOpenStartTagCompletion("<bae><bee></bee><b|<cee></cee></bae>", 17, "bae","bee","b");
+		assertOpenStartTagCompletion("<bae><bee></bee><b|<cee></cee></bae>", 17, "bae", "bee", "b");
 		assertOpenStartTagCompletion("<ata><akk><atp><at|</atp></akk></ata>", 16, "ata", "atp", "at");
 	}
 
@@ -75,14 +75,14 @@ public class XMLCompletionTest {
 		testTagCompletion("<img />|", null);
 		testTagCompletion("<div><br /></|", "div>");
 		testTagCompletion("<div><br /><span></span></|", "div>");
-		// testTagCompletion("<div><h1><br /><span></span><img /></| </h1></div>", "h1>");
+		// testTagCompletion("<div><h1><br /><span></span><img /></| </h1></div>",
+		// "h1>");
 	}
 
+	// -------------------Tools----------------------------------------------------------
 
-	//-------------------Tools----------------------------------------------------------
+	public void assertOpenStartTagCompletion(String xmlText, int expectedStartTagOffset, String... expectedTag) {
 
-	public void assertOpenStartTagCompletion(String xmlText, int expectedStartTagOffset, String ... expectedTag ) {
-		
 		List<String> expectedTags = Arrays.asList(expectedTag);
 		int offset = getOffset(xmlText);
 		XMLDocument xmlDocument = initializeXMLDocument(xmlText, offset);
@@ -91,9 +91,9 @@ public class XMLCompletionTest {
 		CompletionItem completionItem;
 
 		assertEquals(expectedTag.length, completionList.getItems().size());
-		for(int i = 0; i < expectedTag.length; i++) {
+		for (int i = 0; i < expectedTag.length; i++) {
 			currentTag = expectedTags.get(i);
-			currentTextEdit  = createTextEditElement(currentTag);
+			currentTextEdit = createTextEditElement(currentTag);
 			completionItem = completionList.getItems().get(i);
 
 			assertEquals("<" + currentTag + ">", completionItem.getLabel());
@@ -108,22 +108,20 @@ public class XMLCompletionTest {
 		}
 	}
 
-
 	private void assertEndTagCompletion(String xmlText, int expectedEndTagStartOffset, String expectedTextEdit) {
-		
+
 		int offset = getOffset(xmlText);
 		XMLDocument xmlDocument = initializeXMLDocument(xmlText, offset);
 		CompletionList completionList = initializeCompletion(xmlText, xmlDocument, offset);
 
-		if(expectedTextEdit == null) {//Tag is already closed
+		if (expectedTextEdit == null) {// Tag is already closed
 			assertEquals(0, completionList.getItems().size());
-		}
-		else{
+		} else {
 			assertEquals(1, completionList.getItems().size());
 			CompletionItem item = completionList.getItems().get(0);
 			assertEquals(expectedTextEdit.substring(2), item.getLabel());
 			assertEquals(expectedTextEdit.substring(2), item.getFilterText());
-			
+
 			try {
 				Range range = item.getTextEdit().getRange();
 				assertEquals(expectedEndTagStartOffset, xmlDocument.offsetAt(range.getStart()));
@@ -134,17 +132,14 @@ public class XMLCompletionTest {
 		}
 	}
 
-
 	public int getOffset(String xmlText) {
 		return xmlText.indexOf("|");
 	}
-
 
 	public XMLDocument initializeXMLDocument(String xmlText, int offset) {
 		xmlText = xmlText.substring(0, offset) + xmlText.substring(offset + 1);
 		return XMLParser.getInstance().parse(xmlText, "test:uri");
 	}
-
 
 	public CompletionList initializeCompletion(String xmlText, XMLDocument xmlDocument, int offset) {
 		Position position = null;
@@ -153,12 +148,14 @@ public class XMLCompletionTest {
 		} catch (Exception e) {
 			fail("Couldn't get position at offset");
 		}
-		CompletionList completionList = languageService.doComplete(xmlDocument, position, sharedCompletionSettings, new FormattingOptions(4, false));
+		CompletionList completionList = languageService.doComplete(xmlDocument, position, sharedCompletionSettings,
+				new XMLFormattingOptions(4, false));
 		return completionList;
 	}
 
-	//TextEdits are created with the "<" symbol already existing and offset set to the first character
-	//of the tag name
+	// TextEdits are created with the "<" symbol already existing and offset set to
+	// the first character
+	// of the tag name
 	public String createTextEditElement(String tag) {
 		return tag + ">$0</" + tag + ">";
 	}

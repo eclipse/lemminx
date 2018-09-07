@@ -23,7 +23,6 @@ import org.eclipse.lsp4j.DocumentHighlight;
 import org.eclipse.lsp4j.DocumentLink;
 import org.eclipse.lsp4j.FoldingRange;
 import org.eclipse.lsp4j.FoldingRangeCapabilities;
-import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -36,7 +35,7 @@ import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.model.XMLDocument;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
-import org.eclipse.lsp4xml.settings.XMLFormatterSettings;
+import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 
 /**
  * XML Language service.
@@ -66,7 +65,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		this.codeActions = new XMLCodeActions(this);
 	}
 
-	public List<? extends TextEdit> format(TextDocument document, Range range, FormattingOptions options) {
+	public List<? extends TextEdit> format(TextDocument document, Range range, XMLFormattingOptions options) {
 		return formatter.format(document, range, options);
 	}
 
@@ -79,7 +78,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 	}
 
 	public CompletionList doComplete(XMLDocument xmlDocument, Position position, CompletionSettings completionSettings,
-	  FormattingOptions formattingSettings) {
+			XMLFormattingOptions formattingSettings) {
 		return completions.doComplete(xmlDocument, position, completionSettings, formattingSettings);
 	}
 
@@ -129,13 +128,6 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		} catch (BadLocationException e) {
 			return null;
 		}
-	}
-	public void setFormatterSettings(XMLFormatterSettings settings) {
-		this.formatter.setFormatterSettings(settings);
-	}
-
-	public XMLFormatterSettings getFormatterSettings() {
-		return this.formatter.getFormatterSettings();
 	}
 
 }

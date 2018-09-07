@@ -10,6 +10,8 @@
  */
 package org.eclipse.lsp4xml.contentmodel.settings;
 
+import org.eclipse.lsp4xml.utils.JSONUtility;
+
 /**
  * Content model settings.
  *
@@ -51,5 +53,9 @@ public class ContentModelSettings {
 	 */
 	public XMLFileAssociation[] getFileAssociations() {
 		return fileAssociations;
+	}
+
+	public static ContentModelSettings getSettings(Object initializationOptionsSettings) {
+		return JSONUtility.toModel(initializationOptionsSettings, ContentModelSettings.class);
 	}
 }

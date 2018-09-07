@@ -17,7 +17,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -28,7 +27,7 @@ import org.eclipse.lsp4xml.internal.parser.XMLParser.Flag;
 import org.eclipse.lsp4xml.model.Node;
 import org.eclipse.lsp4xml.model.XMLDocument;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
-import org.eclipse.lsp4xml.settings.XMLFormatterSettings;
+import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.utils.XMLBuilder;
 
 /**
@@ -41,24 +40,16 @@ class XMLFormatter {
 	public static final EnumSet<Flag> FORMAT_MASK = EnumSet.of(Flag.Content);
 
 	private final XMLExtensionsRegistry extensionsRegistry;
-	private XMLFormatterSettings formatterSettings;
-
-	private int start;
-	private int end;
-
 
 	public XMLFormatter(XMLExtensionsRegistry extensionsRegistry) {
 		this.extensionsRegistry = extensionsRegistry;
-		this.formatterSettings = new XMLFormatterSettings();
 	}
 
-	public List<? extends TextEdit> format(TextDocument document, Range range, FormattingOptions formattingOptions) {
-		
-		
+	public List<? extends TextEdit> format(TextDocument document, Range range, XMLFormattingOptions formattingOptions) {
 		try {
 			// Compute start/end offset range
-			start = -1;
-			end = -1;
+			int start = -1;
+			int end = -1;
 			if (range == null) {
 				start = 0;
 				end = document.getText().length();
@@ -69,17 +60,14 @@ class XMLFormatter {
 			Position startPosition = document.positionAt(start);
 			Position endPosition = document.positionAt(end);
 
-			this.getFormatterSettings().updateFromFormattingOptions(formattingOptions);
-
 			// Parse the content to format to create an XML document with full data (CData,
 			// comments, etc)
 			String text = document.getText().substring(start, end);
 			XMLDocument doc = XMLParser.getInstance().parse(text, null, FORMAT_MASK);
 
 			// Format the content
-			XMLBuilder xml = new XMLBuilder(this.formatterSettings, "",
-					document.lineDelimiter(startPosition.getLine()));
-			format(doc, 0, xml);
+			XMLBuilder xml = new XMLBuilder(formattingOptions, "", document.lineDelimiter(startPosition.getLine()));
+			format(doc, 0, end, xml);
 
 			// Returns LSP list of TextEdits
 			Range r = new Range(startPosition, endPosition);
@@ -93,7 +81,7 @@ class XMLFormatter {
 		return null;
 	}
 
-	private void format(Node node, int level, XMLBuilder xml) {
+	private void format(Node node, int level, int end, XMLBuilder xml) {
 		if (node.tag != null) {
 			// element to format
 			if (level > 0) {
@@ -104,15 +92,12 @@ class XMLFormatter {
 			// generate start element
 			if (node.isCDATA) {
 				xml.startCDATA();
-				if (formatterSettings.isJoinCDATALines()) {
-					node.content = normalizeSpace(node.content);
-				}
 				xml.addContentCDATA(node.content);
 				xml.endCDATA();
 			} else if (node.isProcessingInstruction) {
 				xml.startPrologOrPI(node.tag);
-            xml.addContentPI(node.content);
-            xml.endPrologOrPI();
+				xml.addContentPI(node.content);
+				xml.endPrologOrPI();
 			} else if (node.isProlog) {
 				xml.startPrologOrPI(node.tag);
 
@@ -121,98 +106,64 @@ class XMLFormatter {
 					String[] attributes = new String[3];
 					attributes[0] = "version";
 					attributes[1] = "encoding";
-               attributes[2] = "standalone";
+					attributes[2] = "standalone";
 
-               for(int i = 0; i < attributes.length; i++) {
-                  String name = attributes[i];
-                  String value = node.getAttributeValue(attributes[i]);
-                  if(value == null) {
-                     continue;
-                  }
-                  if(i != 0 && formatterSettings.isSplitAttributes()) {
-                     xml.linefeed();
-                     xml.indent(level);
-                  }
-                  xml.addAttribute(name, value);
-               }
-            }
-            xml.endPrologOrPI();
-            xml.linefeed();
+					int attributeIndex = 0;
+					for (int i = 0; i < attributes.length; i++) {
+						String name = attributes[i];
+						String value = node.getAttributeValue(attributes[i]);
+						if (value == null) {
+							continue;
+						}
+						xml.addAttribute(name, value, attributeIndex, level);
+						attributeIndex++;
+					}
+				}
+				xml.endPrologOrPI();
+				xml.linefeed();
 			} else {
 				xml.startElement(node.tag, false);
 				if (node.hasAttributes()) {
 					// generate attributes
-               Set<String> attributeNames = node.attributeNames();
-               int counter = 0;
-               for (String attributeName : attributeNames) {
-                  xml.addAttribute(attributeName, node.getAttributeValue(attributeName));
-                  if(formatterSettings.isSplitAttributes()) {
-                     if(counter < attributeNames.size() - 1) {
-                        xml.linefeed();
-                        xml.indent(level);
-                     }
-                     counter++;
-                  }
-               }
+					Set<String> attributeNames = node.attributeNames();
+					int attributeIndex = 0;
+					for (String attributeName : attributeNames) {
+						xml.addAttribute(attributeName, node.getAttributeValue(attributeName), attributeIndex, level);
+					}
 				}
-				
+
 				// element has body
 				xml.closeStartElement();
 				level++;
 				boolean hasElements = false;
 				for (Node child : node.children) {
 					hasElements = hasElements | child.tag != null;
-					format(child, level, xml);
+					format(child, level, end, xml);
 				}
 				level--;
 				if (hasElements) {
 					xml.linefeed();
 					xml.indent(level);
 				}
-				if((node.endTagStart != null && node.endTagStart.intValue() <= end && node.closed) || !node.closed) {
+				if ((node.endTagStart != null && node.endTagStart.intValue() <= end && node.closed) || !node.closed) {
 					xml.endElement(node.tag);
 				}
-				
-				
+
 				return;
 			}
 
 		} else if (node.content != null) {
 			// Generate content
-			String content = normalizeSpace(node.content);
+			String content = node.content;
 			if (!content.isEmpty()) {
 				xml.addContent(content);
 			}
 		} else if (!node.children.isEmpty()) {
 			// Other nodes kind like root
 			for (Node child : node.children) {
-				format(child, level, xml);
+				format(child, level, end, xml);
 			}
 		}
-	}
-
-	private static String normalizeSpace(String str) {
-		StringBuilder b = new StringBuilder(str.length());
-		for (int i = 0; i < str.length(); ++i) {
-			char c = str.charAt(i);
-			if (Character.isWhitespace(c)) {
-				if (i <= 0 || Character.isWhitespace(str.charAt(i - 1)))
-					continue;
-				b.append(' ');
-				continue;
-			}
-			b.append(c);
-		}
-		return b.toString();
-	}
-
-	public void setFormatterSettings(XMLFormatterSettings settings) {
-		this.formatterSettings = settings;
-
-	}
-
-	public XMLFormatterSettings getFormatterSettings() {
-		return this.formatterSettings;
 	}
 
 }
