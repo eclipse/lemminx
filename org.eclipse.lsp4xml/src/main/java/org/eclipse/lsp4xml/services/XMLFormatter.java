@@ -103,6 +103,14 @@ class XMLFormatter {
 				if (level == 0) {
 					xml.linefeed();
 				}
+			}
+			else if (node.isProcessingInstruction()) {
+				xml.startPrologOrPI(node.tag);
+				xml.addContentPI(node.content);
+				xml.endPrologOrPI();
+				if(level == 0) {
+					xml.linefeed();
+				}
 			} else if (node.isProlog()) {
 				xml.startPrologOrPI(node.tag);
 				if (node.hasAttributes()) {
@@ -119,16 +127,12 @@ class XMLFormatter {
 						if (value == null) {
 							continue;
 						}
-						xml.addAttribute(name, value, attributeIndex, level);
+						xml.addPrologAttribute(name, value, level);
 						attributeIndex++;
 					}
 				}
 				xml.endPrologOrPI();
 				xml.linefeed();
-			} else if (node.isProcessingInstruction()) {
-				xml.startPrologOrPI(node.tag);
-				xml.addContentPI(node.content);
-				xml.endPrologOrPI();
 			} else if (node.isDoctype()) {
 				xml.startDoctype();
 				xml.addContentDoctype(node.content);
@@ -141,7 +145,7 @@ class XMLFormatter {
 					Set<String> attributeNames = node.attributeNames();
 					int attributeIndex = 0;
 					for (String attributeName : attributeNames) {
-						xml.addAttribute(attributeName, node.getAttributeValue(attributeName), attributeIndex, level);
+						xml.addAttribute(attributeName, node.getAttributeValue(attributeName), attributeIndex, level, node.tag);
 						attributeIndex++;
 					}
 				}

@@ -73,12 +73,27 @@ public class XMLBuilder {
 		return this;
 	}
 
-	public XMLBuilder addAttribute(String name, String value, int index, int level) {
-		if (index > 0 && isSplitAttributes()) {
+	public XMLBuilder addPrologAttribute(String name, String value, int level) {
+		xml.append(" ");
+		xml.append(name);
+		xml.append("=\"");
+		xml.append(value);
+		xml.append("\"");
+		return this;	
+	}
+
+	public XMLBuilder addAttribute(String name, String value, int index, int level, String tagName) {
+		int spaces = 1;
+		if (isSplitAttributes()) {
 			linefeed();
 			indent(level);
+			spaces += tagName.length();
 		}
-		xml.append(" ");
+		
+		for(int i = 0; i < spaces; i++) {
+			xml.append(" ");
+		}
+		
 		xml.append(name);
 		xml.append("=\"");
 		xml.append(value);

@@ -18,7 +18,8 @@ import java.util.ArrayList;
  */
 public class ProcessingInstruction extends Node {
 
-	boolean prolog;
+	boolean prolog = false;
+	boolean processingInstruction = false;
 
 	public ProcessingInstruction(int start, int end, Node parent, XMLDocument ownerDocument) {
 		super(start, end, new ArrayList<>(), parent, ownerDocument);
@@ -26,6 +27,10 @@ public class ProcessingInstruction extends Node {
 
 	public boolean isProlog() {
 		return prolog;
+	}
+
+	public boolean isProcessingInstruction() {
+		return processingInstruction;
 	}
 
 	@Override
