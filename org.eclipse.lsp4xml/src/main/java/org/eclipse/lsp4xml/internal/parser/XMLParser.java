@@ -68,7 +68,7 @@ public class XMLParser {
 			switch (token) {
 			case StartTagOpen: {
 				Element child = new Element(scanner.getTokenOffset(), text.length(), new ArrayList<>(), curr, xmlDocument);
-				curr.children.add(child);
+				curr.addChild(child);
 				curr = child;
 				break;
 			}
@@ -148,7 +148,7 @@ public class XMLParser {
 						xmlDocument);// TODO: might need arraylist
 				cdataNode.isCDATA = true;
 				cdataNode.tag = "CDATA";
-				curr.children.add(cdataNode);
+				curr.addChild(cdataNode);
 				curr = cdataNode;
 				break;
 			}
@@ -173,7 +173,7 @@ public class XMLParser {
 			case StartPrologOrPI: {
 				Node prologOrPINode = new Node(scanner.getTokenOffset(), text.length(), new ArrayList<>(), curr,
 						xmlDocument);
-				curr.children.add(prologOrPINode);
+				curr.addChild(prologOrPINode);
 				curr = prologOrPINode;
 				break;
 			}
@@ -212,7 +212,7 @@ public class XMLParser {
 					}
 					Node cdata = new Node(scanner.getTokenOffset(), content.length(), null, curr, xmlDocument);
 					cdata.content = content;
-					curr.children.add(cdata);
+					curr.addChild(cdata);
 				}
 			}
 			}

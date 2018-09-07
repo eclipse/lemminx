@@ -344,12 +344,12 @@ public class XMLParserTest {
 
 	private static void assertDocument(String input, Node expectedNode) {
 		XMLDocument document = XMLParser.getInstance().parse(input, "uri", EnumSet.of(XMLParser.Flag.Content));
-		Node actualNode = document.children.get(0);
+		Node actualNode = document.getChild(0);
 		compareTrees(expectedNode, actualNode);
 	}
 
 	private static void assertFailedDocument(String input) {
-		assertEquals(0, XMLParser.getInstance().parse(input, "uri").children.size());
+		assertEquals(0, XMLParser.getInstance().parse(input, "uri").getChildren().size());
 	}
 
 	private static void compareTrees(Node expectedNode, Node actualNode) {
@@ -370,9 +370,9 @@ public class XMLParserTest {
 		if (expectedNode.isProcessingInstruction) {
 			assertEquals(expectedNode.content, actualNode.content);
 		}
-		assertEquals(expectedNode.children.size(), actualNode.children.size());
-		for (int i = 0; i < expectedNode.children.size(); i++) {
-			compareTrees(expectedNode.children.get(i), actualNode.children.get(i));
+		assertEquals(expectedNode.getChildren().size(), actualNode.getChildren().size());
+		for (int i = 0; i < expectedNode.getChildren().size(); i++) {
+			compareTrees(expectedNode.getChild(i), actualNode.getChild(i));
 		}
 	}
 

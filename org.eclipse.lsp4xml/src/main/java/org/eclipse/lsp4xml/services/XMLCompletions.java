@@ -497,7 +497,7 @@ class XMLCompletions {
 	private void collectOpenTagSuggestionsOLD(int tokenOffset, int tokenEnd, String tag,
 			CompletionRequest completionRequest, CompletionResponse completionResponse) {
 		XMLDocument xmlDocument = completionRequest.getXMLDocument();
-		if (xmlDocument.children.size() > 0) {
+		if (xmlDocument.hasChildren()) {
 			Position start, end;
 			try {
 				start = xmlDocument.positionAt(tokenOffset);
@@ -521,7 +521,7 @@ class XMLCompletions {
 			CompletionResponse completionResponse) {
 		XMLDocument xmlDocument = completionRequest.getXMLDocument();
 		List<CompletionItem> list = new ArrayList<CompletionItem>();
-		if (xmlDocument.children.size() > 0) {
+		if (xmlDocument.hasChildren()) {
 			Position start, end;
 			try {
 				start = xmlDocument.positionAt(offset);
@@ -531,7 +531,7 @@ class XMLCompletions {
 				return;
 			}
 			Range range = new Range(start, end);
-			collectAllTags(list, xmlDocument.children.get(0), range, xmlDocument);
+			collectAllTags(list, xmlDocument.getChild(0), range, xmlDocument);
 		}
 
 	}
@@ -552,8 +552,7 @@ class XMLCompletions {
 		CompletionItem item = createCompletionItem(node.tag, range);
 		if (!list.contains(item))
 			list.add(item);
-		for (int i = 0; i < node.children.size(); i++) {
-			Node child = node.children.get(i);
+		for (Node child : node.getChildren()) {
 			collectAllTags(list, child, range, xmlDocument);
 		}
 	}
@@ -569,8 +568,7 @@ class XMLCompletions {
 
 			}
 		}
-		for (int i = 0; i < node.children.size(); i++) {
-			Node child = node.children.get(i);
+		for (Node child : node.getChildren()) {
 			collectSimilarTags(completionResponse, child, tag, range);
 		}
 

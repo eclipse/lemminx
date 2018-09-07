@@ -136,7 +136,7 @@ class XMLFormatter {
 				xml.closeStartElement();
 				level++;
 				boolean hasElements = false;
-				for (Node child : node.children) {
+				for (Node child : node.getChildren()) {
 					hasElements = hasElements | child.tag != null;
 					format(child, level, end, xml);
 				}
@@ -158,9 +158,9 @@ class XMLFormatter {
 			if (!content.isEmpty()) {
 				xml.addContent(content);
 			}
-		} else if (!node.children.isEmpty()) {
+		} else if (node.hasChildren()) {
 			// Other nodes kind like root
-			for (Node child : node.children) {
+			for (Node child : node.getChildren()) {
 				format(child, level, end, xml);
 			}
 		}

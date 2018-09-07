@@ -61,7 +61,7 @@ class XMLSymbolsProvider {
 
 		symbols.add(symbol);
 
-		node.children.forEach(child -> {
+		node.getChildren().forEach(child -> {
 			try {
 				provideFileSymbolsInternal(child, name, symbols);
 			} catch (BadLocationException e) {

@@ -25,14 +25,14 @@ import java.util.function.Function;
 public class Node {
 
 	public static final short ELEMENT_NODE = 1;
-	
+
 	public String tag;
 	public boolean closed = false;
 	public Integer endTagStart;
 
 	private Map<String, String> attributes;
 	private List<Attr> attributeNodes;
-	public final List<Node> children;
+	private final List<Node> children;
 	public final int start;
 	public int end;
 
@@ -267,10 +267,38 @@ public class Node {
 		return children;
 	}
 
+	/**
+	 * Returns true if node has children and false otherwise.
+	 * 
+	 * @return true if node has children and false otherwise.
+	 */
+	public boolean hasChildren() {
+		return children != null && !children.isEmpty();
+	}
+
+	/**
+	 * Add node child
+	 * 
+	 * @param child the node child to add.
+	 */
+	public void addChild(Node child) {
+		getChildren().add(child);
+	}
+
+	/**
+	 * Returns node child at the given index.
+	 * 
+	 * @param index
+	 * @return node child at the given index.
+	 */
+	public Node getChild(int index) {
+		return getChildren().get(index);
+	}
+
 	public short getNodeType() {
 		return 0;
 	}
-	
+
 	public Node getParent() {
 		return parent;
 	}

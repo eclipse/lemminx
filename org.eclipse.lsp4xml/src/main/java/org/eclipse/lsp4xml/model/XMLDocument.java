@@ -39,7 +39,7 @@ public class XMLDocument extends Node {
 	}
 
 	public List<Node> getRoots() {
-		return super.children;
+		return super.getChildren();
 	}
 
 	public Position positionAt(int position) throws BadLocationException {
