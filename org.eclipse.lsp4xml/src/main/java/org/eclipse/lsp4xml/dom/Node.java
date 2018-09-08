@@ -73,7 +73,6 @@ public class Node {
 	public final Node parent;
 	private final XMLDocument ownerDocument;
 	public String content;
-	public boolean isCommentSameLineEndTag = false;
 
 	public Set<String> attributeNames() {
 		return hasAttributes() ? attributes.keySet() : Collections.emptySet();
@@ -347,10 +346,6 @@ public class Node {
 		return startTagClose;
 	}
 
-	public boolean isCommentSameLineEndTag() {
-		return isCommentSameLineEndTag;
-	}
-
 	public boolean isComment() {
 		return getNodeType() == Node.COMMENT_NODE;
 	}
@@ -366,7 +361,7 @@ public class Node {
 	public boolean isCDATA() {
 		return getNodeType() == Node.CDATA_SECTION_NODE;
 	}
-	
+
 	public boolean isDoctype() {
 		return getNodeType() == Node.DOCUMENT_TYPE_NODE;
 	}

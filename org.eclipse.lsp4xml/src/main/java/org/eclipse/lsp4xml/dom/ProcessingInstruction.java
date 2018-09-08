@@ -18,14 +18,10 @@ import java.util.ArrayList;
  */
 public class ProcessingInstruction extends Node {
 
-	private boolean prolog;
+	boolean prolog;
 
 	public ProcessingInstruction(int start, int end, Node parent, XMLDocument ownerDocument) {
 		super(start, end, new ArrayList<>(), parent, ownerDocument);
-	}
-
-	public void setProlog(boolean prolog) {
-		this.prolog = prolog;
 	}
 
 	public boolean isProlog() {

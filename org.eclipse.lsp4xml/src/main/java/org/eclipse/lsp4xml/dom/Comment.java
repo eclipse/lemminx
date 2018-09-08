@@ -16,8 +16,14 @@ package org.eclipse.lsp4xml.dom;
  */
 public class Comment extends Node {
 
+	boolean commentSameLineEndTag;
+
 	public Comment(int start, int end, Node parent, XMLDocument ownerDocument) {
 		super(start, end, null, parent, ownerDocument);
+	}
+
+	public boolean isCommentSameLineEndTag() {
+		return commentSameLineEndTag;
 	}
 
 	@Override

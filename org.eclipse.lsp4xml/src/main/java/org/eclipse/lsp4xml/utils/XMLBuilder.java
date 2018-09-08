@@ -10,7 +10,7 @@
  */
 package org.eclipse.lsp4xml.utils;
 
-import org.eclipse.lsp4xml.dom.Node;
+import org.eclipse.lsp4xml.dom.Comment;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 
 /**
@@ -169,8 +169,8 @@ public class XMLBuilder {
 		return b.toString();
 	}
 
-	public XMLBuilder startComment(Node comment) {
-		if(comment.isCommentSameLineEndTag) {
+	public XMLBuilder startComment(Comment comment) {
+		if(comment.isCommentSameLineEndTag()) {
 			xml.append(" ");
 		}
 		xml.append("<!--");

@@ -194,7 +194,7 @@ public class XMLParser {
 
 			case PrologName: {
 				curr.tag = scanner.getTokenText();
-				((ProcessingInstruction) curr).setProlog(true);
+				((ProcessingInstruction) curr).prolog = true;
 				break;
 			}
 
@@ -212,7 +212,7 @@ public class XMLParser {
 			}
 
 			case StartCommentTag: {
-				Node comment = new Comment(scanner.getTokenOffset(), text.length(), curr, xmlDocument);
+				Comment comment = new Comment(scanner.getTokenOffset(), text.length(), curr, xmlDocument);
 				curr.addChild(comment);
 				curr = comment;
 				curr.tag = "Comment";
@@ -220,7 +220,7 @@ public class XMLParser {
 					int endLine = document.positionAt(lastClosed.end).getLine();
 					int startLine = document.positionAt(curr.start).getLine();
 					if (endLine == startLine && lastClosed.end <= curr.start) {
-						curr.isCommentSameLineEndTag = true;
+						comment.commentSameLineEndTag = true;
 					}
 				} catch (BadLocationException e) {
 					LOGGER.log(Level.SEVERE, "XMLParser StartCommentTag bad offset in document", e);

@@ -22,6 +22,7 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
+import org.eclipse.lsp4xml.dom.Comment;
 import org.eclipse.lsp4xml.dom.Node;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.dom.XMLParser;
@@ -85,7 +86,7 @@ class XMLFormatter {
 		if (node.tag != null) {
 
 			// element to format
-			if (level > 0 && !node.isCommentSameLineEndTag) {
+			if (level > 0 && !(node.isComment() && ((Comment) node).isCommentSameLineEndTag())) {
 				// add new line + indent
 				xml.linefeed();
 				xml.indent(level);
@@ -96,7 +97,7 @@ class XMLFormatter {
 				xml.addContentCDATA(node.content);
 				xml.endCDATA();
 			} else if (node.isComment()) {
-				xml.startComment(node);
+				xml.startComment((Comment) node);
 				xml.addContentComment(node.content);
 				xml.endComment();
 				if (level == 0) {

@@ -296,12 +296,13 @@ public class XMLParserTest {
 	@Test
 	public void testPrologNoContentButSpace() {
 		Node prolog = createPrologNode("xml", 0, -1, 8, true);
+
 		assertDocument("<?xml ?>", prolog);
 	}
 
 	@Test
 	public void testCommentSingle() {
-		Node comment = createCommentNode("Comment", 0, -1, 13, true);
+		Node comment = createCommentNode(" test ", 0, -1, 13, true);
 
 		assertDocument("<!-- test -->", comment);
 	}
@@ -325,8 +326,8 @@ public class XMLParserTest {
 
 	private static Node createPrologNode(String tag, int start, int endTagStart, int end, boolean closed,
 			Node... children) {
-		ProcessingInstruction n = (ProcessingInstruction) createNode(Node.PROCESSING_INSTRUCTION_NODE, tag, start,
-				endTagStart, end, closed, children);
+		ProcessingInstructionForTest n = (ProcessingInstructionForTest) createNode(Node.PROCESSING_INSTRUCTION_NODE,
+				tag, start, endTagStart, end, closed, children);
 		n.setProlog(true);
 		return n;
 	}
@@ -352,7 +353,7 @@ public class XMLParserTest {
 		case Node.ELEMENT_NODE:
 			return new Element(start, end, newChildren, null, null);
 		case Node.PROCESSING_INSTRUCTION_NODE:
-			return new ProcessingInstruction(start, end, null, null);
+			return new ProcessingInstructionForTest(start, end, null, null);
 		case Node.CDATA_SECTION_NODE:
 			return new CDataSection(start, end, null, null);
 		case Node.TEXT_NODE:
@@ -361,6 +362,18 @@ public class XMLParserTest {
 			return new Comment(start, end, null, null);
 		}
 		return new Node(start, end, newChildren, null, null);
+	}
+
+	private static class ProcessingInstructionForTest extends ProcessingInstruction {
+
+		public ProcessingInstructionForTest(int start, int end, Node parent, XMLDocument ownerDocument) {
+			super(start, end, parent, ownerDocument);
+		}
+
+		public void setProlog(boolean prolog) {
+			super.prolog = prolog;
+		}
+
 	}
 
 	private static void setRestOfNode(Node n, String tag, int endTagStart, boolean closed) {

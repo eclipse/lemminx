@@ -181,7 +181,7 @@ public class XMLFormatterTest {
 
 	@Test
 	public void testCommentMultiLineContent() throws BadLocationException {
-		String content = "<a><!-- CommentText\n2222\n  3333 --></a>";
+		String content = "<a><!-- CommentText"  + lineSeparator() + "2222" + lineSeparator()+"  3333 --></a>";
 		String expected = "<a>" + lineSeparator() + //
 				"  <!-- CommentText" + lineSeparator() +
 				"2222" + lineSeparator() +
@@ -217,7 +217,7 @@ public class XMLFormatterTest {
 		" " + lineSeparator() +
 		"   line 2" + lineSeparator() +
 		" -->";
-		String expected = "<!-- line 1 line 2 -->\n";
+		String expected = "<!-- line 1 line 2 -->" + lineSeparator();
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		formattingOptions.setJoinCommentLines(true);
 		format(content, expected, formattingOptions);
