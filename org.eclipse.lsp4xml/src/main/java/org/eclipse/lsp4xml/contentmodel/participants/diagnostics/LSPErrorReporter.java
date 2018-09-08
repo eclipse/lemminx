@@ -25,6 +25,7 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4xml.contentmodel.participants.DTDErrorCode;
 import org.eclipse.lsp4xml.contentmodel.participants.XMLSchemaErrorCode;
 import org.eclipse.lsp4xml.contentmodel.participants.XMLSyntaxErrorCode;
 import org.eclipse.lsp4xml.dom.XMLDocument;
@@ -127,13 +128,23 @@ public class LSPErrorReporter extends XMLErrorReporter {
 			if (range != null) {
 				return range;
 			}
-		}
-		// try adjust positions for XML schema error
-		XMLSchemaErrorCode schemaCode = XMLSchemaErrorCode.get(key);
-		if (schemaCode != null) {
-			Range range = XMLSchemaErrorCode.toLSPRange(location, schemaCode, arguments, document);
-			if (range != null) {
-				return range;
+		} else {
+			// try adjust positions for XML schema error
+			XMLSchemaErrorCode schemaCode = XMLSchemaErrorCode.get(key);
+			if (schemaCode != null) {
+				Range range = XMLSchemaErrorCode.toLSPRange(location, schemaCode, arguments, document);
+				if (range != null) {
+					return range;
+				}
+			} else {
+				// try adjust positions for DTD error
+				DTDErrorCode dtdCode = DTDErrorCode.get(key);
+				if (dtdCode != null) {
+					Range range = DTDErrorCode.toLSPRange(location, dtdCode, arguments, document);
+					if (range != null) {
+						return range;
+					}
+				}
 			}
 		}
 
