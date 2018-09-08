@@ -19,14 +19,14 @@ import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
  */
 public class XMLBuilder {
 
-	private final XMLFormattingOptions clientFormats;
+	private final XMLFormattingOptions formattingOptions;
 	private final String lineDelimiter;
 	private final StringBuilder xml;
 	private final String whitespacesIndent;
 
-	public XMLBuilder(XMLFormattingOptions clientFormats, String whitespacesIndent, String lineDelimiter) {
+	public XMLBuilder(XMLFormattingOptions formattingOptions, String whitespacesIndent, String lineDelimiter) {
 		this.whitespacesIndent = whitespacesIndent;
-		this.clientFormats = clientFormats;
+		this.formattingOptions = formattingOptions;
 		this.lineDelimiter = lineDelimiter;
 		this.xml = new StringBuilder();
 	}
@@ -74,7 +74,7 @@ public class XMLBuilder {
 	}
 
 	public XMLBuilder addAttribute(String name, String value, int index, int level) {
-		if (index > 0 && clientFormats.isSplitAttributes()) {
+		if (index > 0 && isSplitAttributes()) {
 			linefeed();
 			indent(level);
 		}
@@ -102,8 +102,8 @@ public class XMLBuilder {
 
 	public XMLBuilder indent(int level) {
 		for (int i = 0; i < level; i++) {
-			if (clientFormats.isInsertSpaces()) {
-				for (int j = 0; j < clientFormats.getTabSize(); j++) {
+			if (isInsertSpaces()) {
+				for (int j = 0; j < getTabSize(); j++) {
 					xml.append(" ");
 				}
 			} else {
@@ -142,7 +142,7 @@ public class XMLBuilder {
 	}
 
 	public XMLBuilder addContentCDATA(String content) {
-		if (clientFormats.isJoinCDATALines()) {
+		if (isJoinCDATALines()) {
 			content = normalizeSpace(content);
 		}
 		xml.append(content);
@@ -178,7 +178,7 @@ public class XMLBuilder {
 	}
 
 	public XMLBuilder addContentComment(String content) {
-		if (clientFormats.isJoinCommentLines()) {
+		if (isJoinCommentLines()) {
 			xml.append(" ");
 			xml.append(normalizeSpace(content));
 		} else {
@@ -205,5 +205,25 @@ public class XMLBuilder {
 	public XMLBuilder endDoctype() {
 		xml.append(">");
 		return this;
+	}
+
+	private boolean isJoinCommentLines() {
+		return formattingOptions != null && formattingOptions.isJoinCommentLines();
+	}
+
+	private boolean isJoinCDATALines() {
+		return formattingOptions != null && formattingOptions.isJoinCDATALines();
+	}
+
+	private boolean isSplitAttributes() {
+		return formattingOptions != null && formattingOptions.isSplitAttributes();
+	}
+
+	private boolean isInsertSpaces() {
+		return formattingOptions != null && formattingOptions.isInsertSpaces();
+	}
+
+	private int getTabSize() {
+		return formattingOptions != null ? formattingOptions.getTabSize() : 0;
 	}
 }

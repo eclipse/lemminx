@@ -23,7 +23,7 @@ import org.eclipse.lsp4xml.services.extensions.ICodeActionParticipant;
  * Code action to fix cvc-complex-type.2.3 error.
  *
  */
-public class CVCComplexType23CodeAction implements ICodeActionParticipant {
+public class cvc_complex_type_2_3CodeAction implements ICodeActionParticipant {
 
 	@Override
 	public void doCodeAction(Diagnostic diagnostic, Range range, XMLDocument document, List<CodeAction> codeActions) {

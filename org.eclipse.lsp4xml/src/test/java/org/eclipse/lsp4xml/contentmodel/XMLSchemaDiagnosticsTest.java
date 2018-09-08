@@ -41,6 +41,20 @@ public class XMLSchemaDiagnosticsTest {
 	}
 
 	@Test
+	public void cvc_complex_type_4() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
+				+ //
+				"	<bean>\r\n" + //
+				"		<property></property>\r\n" + //
+				"	</bean>\r\n" + //
+				"</beans>";
+		Diagnostic d = d(3, 3, 3, 11, XMLSchemaErrorCode.cvc_complex_type_4);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(3, 11, 3, 11, " name=\"$1\"")));
+	}
+
+	@Test
 	public void cvc_complex_type_2_4_a() throws Exception {
 		String xml = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + //
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //

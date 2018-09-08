@@ -15,7 +15,8 @@ import java.util.Map;
 
 import org.apache.xerces.xni.XMLLocator;
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4xml.contentmodel.participants.codeactions.CVCComplexType23CodeAction;
+import org.eclipse.lsp4xml.contentmodel.participants.codeactions.cvc_complex_type_2_3CodeAction;
+import org.eclipse.lsp4xml.contentmodel.participants.codeactions.cvc_complex_type_4CodeAction;
 import org.eclipse.lsp4xml.contentmodel.participants.diagnostics.IXMLErrorCode;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.services.extensions.ICodeActionParticipant;
@@ -93,18 +94,12 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 		case cvc_complex_type_2_4_a:
 		case cvc_complex_type_2_4_d:
 		case cvc_elt_1_a:
+		case cvc_complex_type_4:
 			return XMLPositionUtility.selectStartTag(offset, document);
 		case cvc_complex_type_3_2_2: {
 			String attrName = (String) arguments[1];
 			return XMLPositionUtility.selectAttributeName(attrName, offset, document);
 		}
-		case cvc_complex_type_4: {
-//			String tag = (String) arguments[0];
-//			String attrName = (String) arguments[1];
-//			startOffset = findOffsetOfStartTag(document.ge.getText(), offset, tag);
-//			endOffset = startOffset + tag.length();
-			break;
-		}		
 		case cvc_type_3_1_1:
 			return XMLPositionUtility.selectAllAttributes(offset, document);
 		}
@@ -113,6 +108,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 	}
 
 	public static void registerCodeActionParticipants(Map<String, ICodeActionParticipant> codeActions) {
-		codeActions.put(cvc_complex_type_2_3.getCode(), new CVCComplexType23CodeAction());
+		codeActions.put(cvc_complex_type_2_3.getCode(), new cvc_complex_type_2_3CodeAction());
+		codeActions.put(cvc_complex_type_4.getCode(), new cvc_complex_type_4CodeAction());
 	}
 }

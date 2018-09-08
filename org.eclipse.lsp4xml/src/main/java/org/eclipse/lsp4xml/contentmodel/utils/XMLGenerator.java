@@ -81,18 +81,7 @@ public class XMLGenerator {
 		xml.startElement(prefix, elementDeclaration.getName(), false);
 		// Attributes
 		Collection<CMAttributeDeclaration> attributes = elementDeclaration.getAttributes();
-		int attributeIndex = 0;
-		for (CMAttributeDeclaration attributeDeclaration : attributes) {
-			if (attributeDeclaration.isRequired()) {
-				String value = "";
-				if (canSupportSnippets) {
-					snippetIndex++;
-					value = ("$" + snippetIndex);
-				}
-				xml.addAttribute(attributeDeclaration.getName(), value, attributeIndex, level);
-				attributeIndex++;
-			}
-		}
+		snippetIndex = generate(attributes, level, snippetIndex, xml);
 		// Elements children
 		Collection<CMElementDeclaration> children = elementDeclaration.getElements();
 		if (children.size() > 0) {
@@ -121,6 +110,28 @@ public class XMLGenerator {
 				xml.addContent("$" + snippetIndex);
 			}
 			xml.endElement(prefix, elementDeclaration.getName());
+		}
+		return snippetIndex;
+	}
+
+	public String generate(Collection<CMAttributeDeclaration> attributes) {
+		XMLBuilder xml = new XMLBuilder(formattingOptions, whitespacesIndent, lineDelimiter);
+		generate(attributes, 0, 0, xml);
+		return xml.toString();
+	}
+
+	private int generate(Collection<CMAttributeDeclaration> attributes, int level, int snippetIndex, XMLBuilder xml) {
+		int attributeIndex = 0;
+		for (CMAttributeDeclaration attributeDeclaration : attributes) {
+			if (attributeDeclaration.isRequired()) {
+				String value = "";
+				if (canSupportSnippets) {
+					snippetIndex++;
+					value = ("$" + snippetIndex);
+				}
+				xml.addAttribute(attributeDeclaration.getName(), value, attributeIndex, level);
+				attributeIndex++;
+			}
 		}
 		return snippetIndex;
 	}
