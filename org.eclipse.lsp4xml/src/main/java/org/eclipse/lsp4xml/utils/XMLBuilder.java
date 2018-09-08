@@ -170,7 +170,7 @@ public class XMLBuilder {
 	}
 
 	public XMLBuilder startComment(Comment comment) {
-		if(comment.isCommentSameLineEndTag()) {
+		if (comment.isCommentSameLineEndTag()) {
 			xml.append(" ");
 		}
 		xml.append("<!--");
@@ -179,12 +179,14 @@ public class XMLBuilder {
 
 	public XMLBuilder addContentComment(String content) {
 		if (clientFormats.isJoinCommentLines()) {
-			content = " " + normalizeSpace(content);
+			xml.append(" ");
+			xml.append(normalizeSpace(content));
+		} else {
+			xml.append(content);
 		}
-		xml.append(content);
 		return this;
 	}
-	
+
 	public XMLBuilder startDoctype() {
 		xml.append("<!DOCTYPE");
 		return this;

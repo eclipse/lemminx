@@ -365,4 +365,8 @@ public class Node {
 	public boolean isDoctype() {
 		return getNodeType() == Node.DOCUMENT_TYPE_NODE;
 	}
+
+	public boolean isElement() {
+		return getNodeType() == Node.ELEMENT_NODE;
+	}
 }

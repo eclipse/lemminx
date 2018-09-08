@@ -26,7 +26,7 @@ public class XMLDocument extends Node {
 
 	private SchemaLocation schemaLocation;
 	private NoNamespaceSchemaLocation noNamespaceSchemaLocation;
-	private boolean schemaLocationInitialized;
+	private boolean referencedGrammarInitialized;
 
 	private final TextDocument textDocument;
 	private boolean hasNamespaces;
@@ -35,7 +35,7 @@ public class XMLDocument extends Node {
 	public XMLDocument(TextDocument textDocument) {
 		super(0, textDocument.getText().length(), new ArrayList<>(), null, null);
 		this.textDocument = textDocument;
-		schemaLocationInitialized = false;
+		this.referencedGrammarInitialized = false;
 	}
 
 	public List<Node> getRoots() {
@@ -64,9 +64,7 @@ public class XMLDocument extends Node {
 	 * @return the declared "xsi:schemaLocation" and null otherwise.
 	 */
 	public SchemaLocation getSchemaLocation() {
-		if (!schemaLocationInitialized) {
-			initializeSchemaLocation();
-		}
+		initializeReferencedGrammarIfNeeded();
 		return schemaLocation;
 	}
 
@@ -76,55 +74,8 @@ public class XMLDocument extends Node {
 	 * @return the declared "xsi:noNamespaceSchemaLocation" and null otherwise.
 	 */
 	public NoNamespaceSchemaLocation getNoNamespaceSchemaLocation() {
-		if (!schemaLocationInitialized) {
-			initializeSchemaLocation();
-		}
+		initializeReferencedGrammarIfNeeded();
 		return noNamespaceSchemaLocation;
-	}
-
-	/**
-	 * Initialize namespaces and schema location declaration .
-	 */
-	private void initializeSchemaLocation() {
-		if (schemaLocationInitialized) {
-			return;
-		}
-		// Get root element
-		Element documentElement = getDocumentElement();
-		if (documentElement == null) {
-			return;
-		}
-		String schemaInstancePrefix = null;
-		// Search if document element root declares namespace with "xmlns".
-		if (documentElement.hasAttributes()) {
-			for (String attributeName : documentElement.attributeNames()) {
-				if (attributeName != null && attributeName.equals("xmlns") || attributeName.startsWith("xmlns:")) //$NON-NLS-1$ //$NON-NLS-2$
-				{
-					hasNamespaces = true;
-				}
-				String attributeValue = documentElement.getAttributeValue(attributeName);
-				if (attributeValue != null && attributeValue.startsWith("http://www.w3.org/") //$NON-NLS-1$
-						&& attributeValue.endsWith("/XMLSchema-instance")) //$NON-NLS-1$
-				{
-					schemaInstancePrefix = attributeName.equals("xmlns") ? "" : getUnprefixedName(attributeName); //$NON-NLS-1$ //$NON-NLS-2$
-				}
-			}
-			if (schemaInstancePrefix != null) {
-				noNamespaceSchemaLocation = createNoNamespaceSchemaLocation(documentElement, schemaInstancePrefix);
-				if (noNamespaceSchemaLocation == null) {
-					schemaLocation = createSchemaLocation(documentElement, schemaInstancePrefix);
-				}
-			}
-			hasGrammar = noNamespaceSchemaLocation != null || schemaLocation != null;
-			if (!hasGrammar) {
-				// None grammar found with standard mean, check if it some components like XML
-				// Catalog, XML file associations, etc
-				// bind this XML document to a grammar.
-				String namespaceURI = documentElement.getNamespaceURI();
-				hasGrammar = URIResolverExtensionManager.getInstance().resolve(getUri(), namespaceURI, null) != null;
-			}
-		}
-		schemaLocationInitialized = true;
 	}
 
 	/**
@@ -136,7 +87,7 @@ public class XMLDocument extends Node {
 		List<Node> roots = getRoots();
 		if (roots != null) {
 			for (Node node : roots) {
-				if (node.getNodeType() == Node.ELEMENT_NODE) {
+				if (node.isElement()) {
 					return (Element) node;
 				}
 			}
@@ -144,20 +95,21 @@ public class XMLDocument extends Node {
 		return null;
 	}
 
-	private SchemaLocation createSchemaLocation(Node root, String schemaInstancePrefix) {
-		String value = root.getAttributeValue(getPrefixedName(schemaInstancePrefix, "schemaLocation"));
-		if (value == null) {
-			return null;
+	/**
+	 * Returns the document type and null otherwise.
+	 * 
+	 * @return the document type and null otherwise.
+	 */
+	public DocumentType getDoctype() {
+		List<Node> roots = getRoots();
+		if (roots != null) {
+			for (Node node : roots) {
+				if (node.isDoctype()) {
+					return (DocumentType) node;
+				}
+			}
 		}
-		return new SchemaLocation(value);
-	}
-
-	private NoNamespaceSchemaLocation createNoNamespaceSchemaLocation(Node root, String schemaInstancePrefix) {
-		String value = root.getAttributeValue(getPrefixedName(schemaInstancePrefix, "noNamespaceSchemaLocation"));
-		if (value == null) {
-			return null;
-		}
-		return new NoNamespaceSchemaLocation(value);
+		return null;
 	}
 
 	public String getNamespaceURI() {
@@ -198,9 +150,7 @@ public class XMLDocument extends Node {
 	 * @return true id document defines namespaces (with xmlns) and false otherwise.
 	 */
 	public boolean hasNamespaces() {
-		if (!schemaLocationInitialized) {
-			initializeSchemaLocation();
-		}
+		initializeReferencedGrammarIfNeeded();
 		return hasNamespaces;
 	}
 
@@ -210,15 +160,92 @@ public class XMLDocument extends Node {
 	 * @return true if the document is bound to a grammar and false otherwise.
 	 */
 	public boolean hasGrammar() {
-		if (!schemaLocationInitialized) {
-			initializeSchemaLocation();
-		}
+		initializeReferencedGrammarIfNeeded();
 		return hasGrammar;
 	}
-	
+
 	@Override
 	public short getNodeType() {
 		return Node.DOCUMENT_NODE;
+	}
+
+	private void initializeReferencedGrammarIfNeeded() {
+		if (!referencedGrammarInitialized) {
+			initializeReferencedGrammar();
+		}
+	}
+
+	/**
+	 * Initialize refrenced grammar information (XML Dchema, DTD)/.
+	 */
+	private synchronized void initializeReferencedGrammar() {
+		if (referencedGrammarInitialized) {
+			return;
+		}
+		// Check if XML Schema reference is declared
+		initializeSchemaLocation();
+		if (!hasGrammar) {
+			// Check if there are a DTD
+			hasGrammar = getDoctype() != null;
+		}
+		referencedGrammarInitialized = true;
+	}
+
+	/**
+	 * Initialize namespaces and schema location declaration .
+	 */
+	private void initializeSchemaLocation() {
+		// Get root element
+		Element documentElement = getDocumentElement();
+		if (documentElement == null) {
+			return;
+		}
+		String schemaInstancePrefix = null;
+		// Search if document element root declares namespace with "xmlns".
+		if (documentElement.hasAttributes()) {
+			for (String attributeName : documentElement.attributeNames()) {
+				if (attributeName != null && attributeName.equals("xmlns") || attributeName.startsWith("xmlns:")) //$NON-NLS-1$ //$NON-NLS-2$
+				{
+					hasNamespaces = true;
+				}
+				String attributeValue = documentElement.getAttributeValue(attributeName);
+				if (attributeValue != null && attributeValue.startsWith("http://www.w3.org/") //$NON-NLS-1$
+						&& attributeValue.endsWith("/XMLSchema-instance")) //$NON-NLS-1$
+				{
+					schemaInstancePrefix = attributeName.equals("xmlns") ? "" : getUnprefixedName(attributeName); //$NON-NLS-1$ //$NON-NLS-2$
+				}
+			}
+			if (schemaInstancePrefix != null) {
+				noNamespaceSchemaLocation = createNoNamespaceSchemaLocation(documentElement, schemaInstancePrefix);
+				if (noNamespaceSchemaLocation == null) {
+					schemaLocation = createSchemaLocation(documentElement, schemaInstancePrefix);
+				}
+			}
+			hasGrammar = noNamespaceSchemaLocation != null || schemaLocation != null;
+			if (!hasGrammar) {
+				// None grammar found with standard mean, check if it some components like XML
+				// Catalog, XML file associations, etc
+				// bind this XML document to a grammar.
+				String namespaceURI = documentElement.getNamespaceURI();
+				hasGrammar = URIResolverExtensionManager.getInstance().resolve(getUri(), namespaceURI, null) != null;
+			}
+		}
+	}
+
+	private SchemaLocation createSchemaLocation(Node root, String schemaInstancePrefix) {
+		String value = root.getAttributeValue(getPrefixedName(schemaInstancePrefix, "schemaLocation"));
+		if (value == null) {
+			return null;
+		}
+		return new SchemaLocation(value);
+	}
+
+	private NoNamespaceSchemaLocation createNoNamespaceSchemaLocation(Node root, String schemaInstancePrefix) {
+		String value = root.getAttributeValue(getPrefixedName(schemaInstancePrefix, "noNamespaceSchemaLocation"));
+		if (value == null) {
+			return null;
+		}
+		return new NoNamespaceSchemaLocation(value);
 	}
 
 	private static String getUnprefixedName(String name) {
