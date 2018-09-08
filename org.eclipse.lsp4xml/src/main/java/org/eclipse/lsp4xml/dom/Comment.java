@@ -10,6 +10,8 @@
  */
 package org.eclipse.lsp4xml.dom;
 
+import java.util.ArrayList;
+
 /**
  * A Comment node.
  *
@@ -19,7 +21,7 @@ public class Comment extends Node {
 	boolean commentSameLineEndTag;
 
 	public Comment(int start, int end, Node parent, XMLDocument ownerDocument) {
-		super(start, end, null, parent, ownerDocument);
+		super(start, end, new ArrayList<>(), parent, ownerDocument);
 	}
 
 	public boolean isCommentSameLineEndTag() {
