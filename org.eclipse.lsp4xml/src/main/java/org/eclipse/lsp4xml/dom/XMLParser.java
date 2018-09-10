@@ -189,6 +189,7 @@ public class XMLParser {
 			case PIName: {
 				curr.tag = scanner.getTokenText();
 				curr.content = "";
+				((ProcessingInstruction) curr).processingInstruction = true;
 				break;
 			}
 

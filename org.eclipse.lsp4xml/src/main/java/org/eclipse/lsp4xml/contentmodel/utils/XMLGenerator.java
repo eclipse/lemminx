@@ -81,7 +81,7 @@ public class XMLGenerator {
 		xml.startElement(prefix, elementDeclaration.getName(), false);
 		// Attributes
 		Collection<CMAttributeDeclaration> attributes = elementDeclaration.getAttributes();
-		snippetIndex = generate(attributes, level, snippetIndex, xml);
+		snippetIndex = generate(attributes, level, snippetIndex, xml, elementDeclaration.getName());
 		// Elements children
 		Collection<CMElementDeclaration> children = elementDeclaration.getElements();
 		if (children.size() > 0) {
@@ -114,13 +114,13 @@ public class XMLGenerator {
 		return snippetIndex;
 	}
 
-	public String generate(Collection<CMAttributeDeclaration> attributes) {
+	public String generate(Collection<CMAttributeDeclaration> attributes, String tagName) {
 		XMLBuilder xml = new XMLBuilder(formattingOptions, whitespacesIndent, lineDelimiter);
-		generate(attributes, 0, 0, xml);
+		generate(attributes, 0, 0, xml, tagName);
 		return xml.toString();
 	}
 
-	private int generate(Collection<CMAttributeDeclaration> attributes, int level, int snippetIndex, XMLBuilder xml) {
+	private int generate(Collection<CMAttributeDeclaration> attributes, int level, int snippetIndex, XMLBuilder xml, String tagName) {
 		int attributeIndex = 0;
 		for (CMAttributeDeclaration attributeDeclaration : attributes) {
 			if (attributeDeclaration.isRequired()) {
@@ -129,7 +129,7 @@ public class XMLGenerator {
 					snippetIndex++;
 					value = ("$" + snippetIndex);
 				}
-				xml.addAttribute(attributeDeclaration.getName(), value, attributeIndex, level);
+				xml.addAttribute(attributeDeclaration.getName(), value, attributeIndex, level, tagName);
 				attributeIndex++;
 			}
 		}

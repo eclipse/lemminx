@@ -147,8 +147,18 @@ public class XMLFormatterTest {
 	@Test
 	public void testSplitAttributes() throws BadLocationException {
 		String content = "<a k1=\"v1\" k2=\"v2\"></a>";
-		String expected = "<a k1=\"v1\"" + lineSeparator() + //
-				" k2=\"v2\"></a>";
+		String expected = "<a" + lineSeparator() + //
+				"  k1=\"v1\"" + lineSeparator() +
+				"  k2=\"v2\"></a>";
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setSplitAttributes(true);
+		format(content, expected, formattingOptions);
+	}
+
+	@Test
+	public void testSplitAttributesProlog() throws BadLocationException {
+		String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + lineSeparator();
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		formattingOptions.setSplitAttributes(true);
 		format(content, expected, formattingOptions);

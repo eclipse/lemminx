@@ -351,11 +351,11 @@ public class Node {
 	}
 
 	public boolean isProcessingInstruction() {
-		return getNodeType() == Node.PROCESSING_INSTRUCTION_NODE;
+		return (getNodeType() == Node.PROCESSING_INSTRUCTION_NODE) && ((ProcessingInstruction) this).isProcessingInstruction();
 	}
 
 	public boolean isProlog() {
-		return isProcessingInstruction() && ((ProcessingInstruction) this).isProlog();
+		return (getNodeType() == Node.PROCESSING_INSTRUCTION_NODE) && ((ProcessingInstruction) this).isProlog();
 	}
 
 	public boolean isCDATA() {
