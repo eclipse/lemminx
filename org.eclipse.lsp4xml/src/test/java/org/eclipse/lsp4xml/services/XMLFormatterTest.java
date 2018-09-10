@@ -63,6 +63,19 @@ public class XMLFormatterTest {
 	}
 
 	@Test
+	public void endTagMissing() throws BadLocationException {
+		String content = "<foo>\r\n" + // 
+				"  <bar>\r\n" + //
+				"  <toto></toto>\r\n" + // 
+				"</foo>";
+		String expected = "<foo>\r\n" + // 
+				"  <bar>\r\n" + //
+				"    <toto></toto>\r\n" + // 
+				"</foo>";
+		format(content, expected);
+	}
+	
+	@Test
 	public void fullDocument() throws BadLocationException {
 		String content = "<div  class = \"foo\">\n" + //
 				"<br/>\n" + //

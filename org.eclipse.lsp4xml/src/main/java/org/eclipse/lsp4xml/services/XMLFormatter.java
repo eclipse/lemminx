@@ -145,27 +145,28 @@ class XMLFormatter {
 						attributeIndex++;
 					}
 				}
-				boolean hasChildren = node.hasChildren();
-				if (hasChildren) {
+				boolean hasElements = false;
+				boolean startElementClosed = false;
+				if (node.hasChildren()) {
 					// element has body
 					xml.closeStartElement();
+					startElementClosed = true;
 					level++;
-					boolean hasElements = false;
 					for (Node child : node.getChildren()) {
 						hasElements = hasElements | child.tag != null;
 						format(child, level, end, xml);
 					}
 					level--;
+				}
+				if (node.isClosed()) {
 					if (hasElements) {
 						xml.linefeed();
 						xml.indent(level);
 					}
-				}
-				if (node.isClosed()) {
 					// end tag element is done, only if the element is closed
 					// the format, doesn't fix the close tag
 					if (node.endTagStart != null && node.endTagStart.intValue() <= end) {
-						if (!hasChildren) {
+						if (!startElementClosed) {
 							xml.closeStartElement();
 						}
 						xml.endElement(node.tag);
@@ -173,7 +174,9 @@ class XMLFormatter {
 						xml.endElement();
 					}
 				} else if (node.isStartTagClose()) {
-					xml.closeStartElement();
+					if (!startElementClosed) {
+						xml.closeStartElement();
+					}
 				}
 				return;
 			}
