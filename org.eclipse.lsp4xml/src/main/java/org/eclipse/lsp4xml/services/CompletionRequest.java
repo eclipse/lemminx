@@ -13,6 +13,7 @@ package org.eclipse.lsp4xml.services;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.BadLocationException;
+import org.eclipse.lsp4xml.dom.Node;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
@@ -35,6 +36,11 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 		super(xmlDocument, position);
 		this.formattingSettings = formattingSettings;
 		this.completionSettings = completionSettings;
+	}
+
+	@Override
+	protected Node findNodeAt(XMLDocument xmlDocument, int offset) {
+		return xmlDocument.findNodeBefore(offset);
 	}
 
 	@Override

@@ -33,11 +33,13 @@ abstract class AbstractPositionRequest implements IPositionRequest {
 		this.xmlDocument = xmlDocument;
 		this.position = position;
 		offset = xmlDocument.offsetAt(position);
-		this.node = xmlDocument.findNodeBefore(offset);
+		this.node = findNodeAt(xmlDocument, offset);
 		if (node == null) {
 			throw new BadLocationException("node is null at offset " + offset);
 		}
 	}
+
+	protected abstract Node findNodeAt(XMLDocument xmlDocument, int offset);
 
 	@Override
 	public Node getNode() {
