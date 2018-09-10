@@ -110,7 +110,9 @@ public class XMLBuilder {
 	}
 
 	public XMLBuilder addContent(String text) {
-		text = normalizeSpace(text);
+		if(isJoinContentLines()) {
+			text = normalizeSpace(text);
+		}
 		xml.append(text);
 		return this;
 	}
@@ -240,5 +242,9 @@ public class XMLBuilder {
 
 	private int getTabSize() {
 		return formattingOptions != null ? formattingOptions.getTabSize() : 0;
+	}
+
+	private boolean isJoinContentLines() {
+		return formattingOptions != null && formattingOptions.isJoinContentLines();
 	}
 }

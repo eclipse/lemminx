@@ -15,6 +15,7 @@ public class XMLFormattingOptions extends FormattingOptions {
 	private static final String JOIN_CDATA_LINES = "joinCDATALines";
 	private static final String FORMAT_COMMENTS = "formatComments";
 	private static final String JOIN_COMMENT_LINES = "joinCommentLines";
+	private static final String JOIN_CONTENT_LINES = "joinContentLines";
 
 	public XMLFormattingOptions() {
 		this(false);
@@ -31,6 +32,7 @@ public class XMLFormattingOptions extends FormattingOptions {
 		this.setJoinCDATALines(false);
 		this.setFormatComments(true);
 		this.setJoinCommentLines(false);
+		this.setJoinContentLines(false);
 	}
 
 	public XMLFormattingOptions(int tabSize, boolean insertSpaces) {
@@ -91,6 +93,19 @@ public class XMLFormattingOptions extends FormattingOptions {
 
 	public void setJoinCommentLines(final boolean joinCommentLines) {
 		this.putBoolean(XMLFormattingOptions.JOIN_COMMENT_LINES, Boolean.valueOf(joinCommentLines));
+	}
+
+	public boolean isJoinContentLines() {
+		final Boolean value = this.getBoolean(XMLFormattingOptions.JOIN_CONTENT_LINES);
+		if ((value != null)) {
+			return (value).booleanValue();
+		} else {
+			return false;
+		}
+	}
+
+	public void setJoinContentLines(final boolean joinContentLines) {
+		this.putBoolean(XMLFormattingOptions.JOIN_CONTENT_LINES, Boolean.valueOf(joinContentLines));
 	}
 
 	public XMLFormattingOptions merge(FormattingOptions formattingOptions) {

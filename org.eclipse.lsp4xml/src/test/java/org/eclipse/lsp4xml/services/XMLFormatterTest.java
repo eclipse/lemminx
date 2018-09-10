@@ -275,13 +275,58 @@ public class XMLFormatterTest {
 		"</a> <!-- My Comment -->";
 		String expected = 
 		"<a>Content </a> <!-- My Comment -->" + lineSeparator() +
-
 		"";
 	
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		formattingOptions.setJoinCommentLines(true);
+		formattingOptions.setJoinContentLines(true);
 		format(content, expected, formattingOptions);
 	}
+
+	@Test
+	public void testElementContentNormalize() throws BadLocationException {
+		String content = 
+		"<a>" + lineSeparator() +
+		" Content" + lineSeparator() +
+		"     Content2" + lineSeparator() +
+		"      Content3" + lineSeparator() +
+		" Content4" + lineSeparator() +
+		"  Content5" + lineSeparator() +
+		"</a>";
+		String expected = 
+		"<a>" + lineSeparator() +
+		" Content" + lineSeparator() +
+		"     Content2" + lineSeparator() +
+		"      Content3" + lineSeparator() +
+		" Content4" + lineSeparator() +
+		"  Content5" + lineSeparator() +
+		"</a>";
+	
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setJoinContentLines(false);
+		format(content, expected, formattingOptions);
+	}
+
+	@Test
+	public void testElementContentDontNormalize() throws BadLocationException {
+		String content = 
+		"<a>" + lineSeparator() +
+		" Content" + lineSeparator() +
+		"     Content2" + lineSeparator() +
+		"      Content3" + lineSeparator() +
+		" Content4" + lineSeparator() +
+		"  Content5" + lineSeparator() +
+		"</a>";
+		String expected = 
+		"<a>Content Content2 Content3 Content4 Content5 </a>";
+		
+	
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setJoinContentLines(true);
+		format(content, expected, formattingOptions);
+	}
+
+
 
 	@Test
 	public void testDTDFormatting() throws BadLocationException {
