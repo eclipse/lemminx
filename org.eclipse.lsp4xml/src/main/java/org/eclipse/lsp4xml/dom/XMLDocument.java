@@ -241,11 +241,11 @@ public class XMLDocument extends Node {
 	}
 
 	private NoNamespaceSchemaLocation createNoNamespaceSchemaLocation(Node root, String schemaInstancePrefix) {
-		String value = root.getAttributeValue(getPrefixedName(schemaInstancePrefix, "noNamespaceSchemaLocation"));
-		if (value == null) {
+		String location = root.getAttributeValue(getPrefixedName(schemaInstancePrefix, "noNamespaceSchemaLocation"));
+		if (location == null) {
 			return null;
 		}
-		return new NoNamespaceSchemaLocation(value);
+		return new NoNamespaceSchemaLocation(root.getOwnerDocument().getUri(), location);
 	}
 
 	private static String getUnprefixedName(String name) {

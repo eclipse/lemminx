@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="TypeName" type="xs:string"/>
+  <xs:element name="Label" type="xs:string"/>
+  <xs:element name="ScriptBlock" type="xs:string"/>
+  <xs:element name="PropertyName" type="xs:string"/>
+  <xs:element name="ItemSelectionCondition">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="PropertyName"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ListItem">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Label"/>
+        <xs:element ref="ScriptBlock" minOccurs="0"/>
+        <xs:element ref="PropertyName" minOccurs="0"/>
+        <xs:element ref="ItemSelectionCondition" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ListItems">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="ListItem" maxOccurs="unbounded" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ListEntry">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="ListItems"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ListEntries">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="ListEntry"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Name" type="xs:string"/>
+  <xs:element name="ViewSelectedBy">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="TypeName"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ListControl">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="ListEntries"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="TableColumnHeader">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Label"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="TableColumnItem">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="ScriptBlock" minOccurs="0"/>
+        <xs:element ref="PropertyName" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="TableColumnItems">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="TableColumnItem" maxOccurs="unbounded" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="TableRowEntry">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="TableColumnItems"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="TableHeaders">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="TableColumnHeader" maxOccurs="unbounded" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="TableRowEntries">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="TableRowEntry"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="AutoSize">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="TableHeaders"/>
+        <xs:element ref="TableRowEntries"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="TableControl">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="AutoSize"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="View">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Name"/>
+        <xs:element ref="ViewSelectedBy"/>
+        <xs:element ref="ListControl" minOccurs="0"/>
+        <xs:element ref="TableControl" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ViewDefinitions">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="View" maxOccurs="unbounded" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Configuration">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="ViewDefinitions"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

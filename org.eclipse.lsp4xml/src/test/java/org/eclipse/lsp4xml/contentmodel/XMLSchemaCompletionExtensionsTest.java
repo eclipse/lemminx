@@ -83,7 +83,7 @@ public class XMLSchemaCompletionExtensionsTest {
 				"  <camel:| ";
 		testCompletionFor(xml, r("camel:camelContext", "<camel:camelContext"));
 	}
-	
+
 	@Test
 	public void completionInChildElementWithPrefixes() throws BadLocationException {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
@@ -109,6 +109,17 @@ public class XMLSchemaCompletionExtensionsTest {
 				"  <camelContext id=\"camel\" xmlns=\"http://camel.apache.org/schema/spring\">\r\n" + "\r\n" + //
 				"    <|";
 		testCompletionFor(xml, r("route", "<route"), r("template", "<template"));
+	}
+
+	@Test
+	public void noNamespaceSchemaLocationCompletion() throws BadLocationException {
+		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
+				"<Configuration xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"xsd/Format.xsd\">\r\n"
+				+ //
+				"  <ViewDefinitions>\r\n" + //
+				"    <View><|";
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/Format.xml", null, r("Name", "<Name"),
+				r("ViewSelectedBy", "<ViewSelectedBy"));
 	}
 
 	private void testCompletionFor(String xml, ItemDescription... expectedItems) throws BadLocationException {

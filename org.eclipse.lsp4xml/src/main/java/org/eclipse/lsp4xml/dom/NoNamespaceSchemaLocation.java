@@ -10,6 +10,9 @@
  */
 package org.eclipse.lsp4xml.dom;
 
+import org.apache.xerces.impl.XMLEntityManager;
+import org.apache.xerces.util.URI.MalformedURIException;
+
 /**
  * 
  * The declared "xsi:noNamespaceSchemaLocation"
@@ -18,8 +21,16 @@ public class NoNamespaceSchemaLocation {
 
 	private final String location;
 
-	public NoNamespaceSchemaLocation(String location) {
-		this.location = location;
+	public NoNamespaceSchemaLocation(String xmlDocumentURI, String location) {
+		this.location = getLocation(xmlDocumentURI, location);
+	}
+
+	private String getLocation(String xmlDocumentURI, String location) {
+		try {
+			return XMLEntityManager.expandSystemId(location, xmlDocumentURI, false);
+		} catch (MalformedURIException e) {
+			return location;
+		}
 	}
 
 	public String getLocation() {
