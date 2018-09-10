@@ -38,15 +38,15 @@ public class XMLAssert {
 
 	public static void testCompletionFor(String value, String catalogPath, ItemDescription... expectedItems)
 			throws BadLocationException {
-		testCompletionFor(value, catalogPath, null, expectedItems);
+		testCompletionFor(value, catalogPath, null, null, expectedItems);
 	}
 
-	public static void testCompletionFor(String value, String catalogPath, Integer expectedCount,
+	public static void testCompletionFor(String value, String catalogPath, String fileURI, Integer expectedCount,
 			ItemDescription... expectedItems) throws BadLocationException {
 		int offset = value.indexOf('|');
 		value = value.substring(0, offset) + value.substring(offset + 1);
 
-		TextDocument document = new TextDocument(value, "test://test/test.html");
+		TextDocument document = new TextDocument(value, fileURI != null ? fileURI : "test://test/test.html");
 		Position position = document.positionAt(offset);
 		XMLDocument htmlDoc = XMLParser.getInstance().parse(document);
 
