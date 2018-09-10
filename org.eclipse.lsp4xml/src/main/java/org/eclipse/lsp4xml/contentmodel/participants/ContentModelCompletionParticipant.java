@@ -44,13 +44,18 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 		}
 		Element parentElement = (Element) parentNode;
 		CMElementDeclaration cmElement = ContentModelManager.getInstance().findCMElement(parentElement);
+		String processedPrefix = null;
 		if (cmElement != null) {
-			fillWithChildrenElementDeclaration(parentElement, cmElement.getElements(), parentElement.getPrefix(), request, response);
+			processedPrefix = parentElement.getPrefix();
+			fillWithChildrenElementDeclaration(parentElement, cmElement.getElements(), processedPrefix, request, response);
 		}
 		if (parentElement.equals(parentElement.getOwnerDocument().getDocumentElement())) {
 			// root document element
 			Collection<String> prefixes = parentElement.getAllPrefixes();
 			for (String prefix : prefixes) {
+				if (processedPrefix != null && prefix.equals(processedPrefix) ) {
+					continue;
+				}
 				String namespaceURI = parentElement.getNamespaceURI(prefix);
 				CMDocument cmDocument = ContentModelManager.getInstance().findCMDocument(parentElement, namespaceURI);
 				if (cmDocument != null) {
