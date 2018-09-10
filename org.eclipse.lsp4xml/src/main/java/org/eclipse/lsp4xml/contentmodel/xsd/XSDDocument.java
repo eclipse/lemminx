@@ -48,7 +48,11 @@ public class XSDDocument implements CMDocument {
 			XSNamedMap map = model.getComponents(XSConstants.ELEMENT_DECLARATION);
 			for (int j = 0; j < map.getLength(); j++) {
 				XSElementDeclaration elementDeclaration = (XSElementDeclaration) map.item(j);
-				elements.add(getXSDElement(elementDeclaration));
+				CMElementDeclaration cmElement = getXSDElement(elementDeclaration);
+				// check element declaration is not already added (ex: xs:annotation)
+				if (!elements.contains(cmElement)) {					
+					elements.add(cmElement);
+				}
 			}
 		}
 		return elements;
@@ -58,7 +62,7 @@ public class XSDDocument implements CMDocument {
 	public CMElementDeclaration findCMElement(Element node, String namespace) {
 		List<Element> paths = new ArrayList<>();
 		Element element = node;
-		while (element != null  && (namespace == null || namespace.equals(element.getNamespaceURI()))) {
+		while (element != null && (namespace == null || namespace.equals(element.getNamespaceURI()))) {
 			paths.add(0, element);
 			element = element.getParent() instanceof Element ? (Element) element.getParent() : null;
 		}

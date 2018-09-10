@@ -156,7 +156,11 @@ public class XSDElementDeclaration implements CMElementDeclaration {
 			break;
 		case XSConstants.ELEMENT_DECLARATION:
 			XSElementDeclaration elementDeclaration = (XSElementDeclaration) term;
-			elements.add(document.getXSDElement(elementDeclaration));
+			CMElementDeclaration cmElement = document.getXSDElement(elementDeclaration);
+			// check element declaration is not already added (ex: xs:annotation)
+			if (!elements.contains(cmElement)) {
+				elements.add(cmElement);
+			}
 			break;
 		}
 	}
