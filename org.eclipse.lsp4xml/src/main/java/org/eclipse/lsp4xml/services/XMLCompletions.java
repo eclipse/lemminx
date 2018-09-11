@@ -10,9 +10,9 @@
  */
 package org.eclipse.lsp4xml.services;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -27,6 +27,7 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
+import org.eclipse.lsp4xml.dom.Element;
 import org.eclipse.lsp4xml.dom.Node;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.internal.parser.Scanner;
@@ -68,7 +69,7 @@ class XMLCompletions {
 		}
 
 		int offset = completionRequest.getOffset();
-		Node node = completionRequest.getNode();		
+		Node node = completionRequest.getNode();
 
 		String text = xmlDocument.getText();
 		Scanner scanner = XMLScanner.createScanner(text, node.start);
@@ -268,6 +269,46 @@ class XMLCompletions {
 			CompletionResponse completionResponse) {
 		completionRequest.setReplaceRange(replaceRange);
 		completionRequest.setOpenTag(hasOpenTag);
+		if (!completionRequest.getXMLDocument().hasGrammar()) {
+			// no grammar, collect similar tags from the parent node
+			Node parentNode = completionRequest.getParentNode();
+			Set<String> seenElements = new HashSet<>();
+			if (parentNode != null && parentNode.isElement() && parentNode.hasChildren()) {
+				parentNode.getChildren().forEach(node -> {
+					if (!node.isElement()) {
+						return;
+					}
+					Element element = (Element) node;
+					String tag = element.getTagName();
+					if (seenElements.contains(tag)) {
+						return;
+					}
+					seenElements.add(tag);
+					CompletionItem item = new CompletionItem();
+					item.setLabel(tag);
+					item.setKind(CompletionItemKind.Property);
+					item.setFilterText(tag);
+					StringBuilder xml = new StringBuilder();
+					if (!hasOpenTag) {
+						xml.append("<");
+					}
+					xml.append(tag);
+					if (element.isSelfClosed()) {
+						xml.append(" />");
+					} else {
+						xml.append(">");
+						if (completionRequest.getCompletionSettings().isCompletionSnippetsSupported()) {
+							xml.append("$0");
+						}
+						xml.append("</").append(tag).append(">");
+					}
+					item.setTextEdit(new TextEdit(replaceRange, xml.toString()));
+					item.setInsertTextFormat(InsertTextFormat.Snippet);
+
+					completionResponse.addCompletionItem(item);
+				});
+			}
+		}
 		for (ICompletionParticipant participant : getCompletionParticipants()) {
 			try {
 				participant.onTagOpen(completionRequest, completionResponse);
@@ -504,49 +545,6 @@ class XMLCompletions {
 		}
 	}
 
-	// Tags that look like '<{CHARS}'
-	private void collectOpenTagSuggestionsOLD(int tokenOffset, int tokenEnd, String tag,
-			CompletionRequest completionRequest, CompletionResponse completionResponse) {
-		XMLDocument xmlDocument = completionRequest.getXMLDocument();
-		if (xmlDocument.hasChildren()) {
-			Position start, end;
-			try {
-				start = xmlDocument.positionAt(tokenOffset);
-				end = xmlDocument.positionAt(tokenEnd);
-
-			} catch (Exception e) {
-				LOGGER.log(Level.SEVERE, "While performing Completions the provided Offset was BadLocation", e);
-				return;
-			}
-			Node node = xmlDocument;
-			Range range = new Range(start, end);
-			if (cdata.regionMatches(0, tag, 0, tag.length())) {
-				// TODO: setCDATACompletionItem(completionResponse,range);
-			} else {
-				collectSimilarTags(completionResponse, node, tag, range);
-			}
-		}
-	}
-
-	private void collectTagSuggestionsOLD(int offset, int endPos, CompletionRequest completionRequest,
-			CompletionResponse completionResponse) {
-		XMLDocument xmlDocument = completionRequest.getXMLDocument();
-		List<CompletionItem> list = new ArrayList<CompletionItem>();
-		if (xmlDocument.hasChildren()) {
-			Position start, end;
-			try {
-				start = xmlDocument.positionAt(offset);
-				end = xmlDocument.positionAt(endPos);
-			} catch (Exception e) {
-				LOGGER.log(Level.SEVERE, "While performing Completions the provided Offset was BadLocation", e);
-				return;
-			}
-			Range range = new Range(start, end);
-			collectAllTags(list, xmlDocument.getChild(0), range, xmlDocument);
-		}
-
-	}
-
 	private static int scanNextForEndPos(int offset, Scanner scanner, TokenType nextToken) {
 		if (offset == scanner.getTokenEnd()) {
 			TokenType token = scanner.scan();
@@ -555,54 +553,6 @@ class XMLCompletions {
 			}
 		}
 		return offset;
-	}
-
-	private void collectAllTags(List<CompletionItem> list, Node node, Range range, XMLDocument xmlDocument) {
-		if (node.tag == null)
-			return;
-		CompletionItem item = createCompletionItem(node.tag, range);
-		if (!list.contains(item))
-			list.add(item);
-		for (Node child : node.getChildren()) {
-			collectAllTags(list, child, range, xmlDocument);
-		}
-	}
-
-	private void collectSimilarTags(CompletionResponse completionResponse, Node node, String tag, Range range) {
-		int len = tag.length();
-		if (node.tag != null) {
-			if (node.tag.regionMatches(0, tag, 0, len)) {
-				CompletionItem item = createCompletionItem(node.tag, range);
-				List<CompletionItem> list = completionResponse.getItems();
-				if (!list.contains(item))
-					list.add(item);
-
-			}
-		}
-		for (Node child : node.getChildren()) {
-			collectSimilarTags(completionResponse, child, tag, range);
-		}
-
-	}
-
-	private void setCDATACompletionItem(CompletionResponse completionResponse, Range range) {
-		CompletionItem item = new CompletionItem();
-		item.setLabel("<![CDATA[]]>");
-		item.setKind(CompletionItemKind.Property);
-		item.setFilterText("![CDATA[]]");
-		item.setTextEdit(new TextEdit(range, "![CDATA[$0]]>"));
-		item.setInsertTextFormat(InsertTextFormat.Snippet);
-		completionResponse.addCompletionItem(item);
-	}
-
-	private CompletionItem createCompletionItem(String tag, Range range) {
-		CompletionItem item = new CompletionItem();
-		item.setLabel("<" + tag + ">");
-		item.setKind(CompletionItemKind.Property);
-		item.setFilterText(tag);
-		item.setTextEdit(new TextEdit(range, tag + ">$0</" + tag + ">"));
-		item.setInsertTextFormat(InsertTextFormat.Snippet);
-		return item;
 	}
 
 	/**
