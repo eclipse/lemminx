@@ -109,4 +109,8 @@ public class Element extends Node {
 		return getAttributeValue("xmlns:" + prefix);
 	}
 
+	public boolean isDocumentElement() {
+		return this.equals(getOwnerDocument().getDocumentElement());
+	}
+
 }

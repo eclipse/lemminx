@@ -50,7 +50,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			fillWithChildrenElementDeclaration(parentElement, cmElement.getElements(), defaultPrefix, request,
 					response);
 		}
-		if (parentElement.equals(parentElement.getOwnerDocument().getDocumentElement())) {
+		if (parentElement.isDocumentElement()) {
 			// root document element
 			Collection<String> prefixes = parentElement.getAllPrefixes();
 			for (String prefix : prefixes) {

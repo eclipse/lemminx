@@ -82,6 +82,10 @@ public class ContentModelManager {
 		} else {
 			NoNamespaceSchemaLocation noNamespaceSchemaLocation =  xmlDocument.getNoNamespaceSchemaLocation();
 			if (noNamespaceSchemaLocation != null) {
+				if (namespaceURI != null) {
+					// xsi:noNamespaceSchemaLocation doesn't define namespaces
+					return null;
+				}
 				systemId = noNamespaceSchemaLocation.getLocation();
 			} else {
 				// TODO : implement with DTD
@@ -100,7 +104,7 @@ public class ContentModelManager {
 	 *         otherwise.
 	 */
 	private CMDocument findCMDocument(String uri, String publicId, String systemId) {
-		String key = publicId + systemId;
+		String key = publicId + "#" + systemId;
 		CMDocument cmDocument = cmDocumentCache.get(key);
 		if (cmDocument == null) {
 			String xmlSchemaURI = URIResolverExtensionManager.getInstance().resolve(uri, publicId, systemId);
