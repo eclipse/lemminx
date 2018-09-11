@@ -14,8 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
+import org.eclipse.lsp4xml.internal.parser.Constants;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
 
 /**
@@ -56,6 +58,18 @@ public class XMLDocument extends Node {
 
 	public String lineDelimiter(int lineNumber) throws BadLocationException {
 		return textDocument.lineDelimiter(lineNumber);
+	}
+
+	/**
+	 * Returns the element name on the left of the given position and null
+	 * otherwise.
+	 * 
+	 * @param textOffset
+	 * @return the element name on the left of the given position and null
+	 *         otherwise.
+	 */
+	public Range getElementNameRangeAt(int textOffset) {
+		return textDocument.getWordRangeAt(textOffset, Constants.ELEMENT_NAME_REGEX);
 	}
 
 	/**

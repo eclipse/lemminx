@@ -20,6 +20,8 @@ import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 public interface ICompletionRequest extends IPositionRequest {
 
 	Range getReplaceRange();
+	
+	boolean hasOpenTag();
 
 	XMLFormattingOptions getFormattingSettings();
 

@@ -39,27 +39,29 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	@Override
 	public void onTagOpen(ICompletionRequest request, ICompletionResponse response) throws Exception {
 		Node parentNode = request.getParentNode();
-		if (parentNode.getNodeType() != Node.ELEMENT_NODE) {
+		if (parentNode == null || !parentNode.isElement()) {
 			return;
 		}
 		Element parentElement = (Element) parentNode;
 		CMElementDeclaration cmElement = ContentModelManager.getInstance().findCMElement(parentElement);
-		String processedPrefix = null;
+		String defaultPrefix = null;
 		if (cmElement != null) {
-			processedPrefix = parentElement.getPrefix();
-			fillWithChildrenElementDeclaration(parentElement, cmElement.getElements(), processedPrefix, request, response);
+			defaultPrefix = parentElement.getPrefix();
+			fillWithChildrenElementDeclaration(parentElement, cmElement.getElements(), defaultPrefix, request,
+					response);
 		}
 		if (parentElement.equals(parentElement.getOwnerDocument().getDocumentElement())) {
 			// root document element
 			Collection<String> prefixes = parentElement.getAllPrefixes();
 			for (String prefix : prefixes) {
-				if (processedPrefix != null && prefix.equals(processedPrefix) ) {
+				if (defaultPrefix != null && prefix.equals(defaultPrefix)) {
 					continue;
 				}
 				String namespaceURI = parentElement.getNamespaceURI(prefix);
 				CMDocument cmDocument = ContentModelManager.getInstance().findCMDocument(parentElement, namespaceURI);
 				if (cmDocument != null) {
-					fillWithChildrenElementDeclaration(parentElement, cmDocument.getElements(), prefix, request, response);
+					fillWithChildrenElementDeclaration(parentElement, cmDocument.getElements(), prefix, request,
+							response);
 				}
 			}
 		}
@@ -86,7 +88,9 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			}
 			String xml = generator.generate(child, prefix);
 			// Remove the first '<' character
-			xml = xml.substring(1, xml.length());
+			if (request.hasOpenTag()) {
+				xml = xml.substring(1, xml.length());
+			}
 			item.setTextEdit(new TextEdit(request.getReplaceRange(), xml));
 			item.setInsertTextFormat(InsertTextFormat.Snippet);
 			response.addCompletionItem(item);
@@ -94,10 +98,10 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	}
 
 	@Override
-	public void onAttributeName(String value, Range fullRange, ICompletionRequest request,
-			ICompletionResponse response) throws Exception {
+	public void onAttributeName(String value, Range fullRange, ICompletionRequest request, ICompletionResponse response)
+			throws Exception {
 		Node parentNode = request.getParentNode();
-		if (parentNode.getNodeType() != Node.ELEMENT_NODE) {
+		if (parentNode == null || !parentNode.isElement()) {
 			return;
 		}
 		Element parentElement = (Element) parentNode;
@@ -125,10 +129,10 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	}
 
 	@Override
-	public void onAttributeValue(String valuePrefix, Range fullRange, boolean addQuotes,
-			ICompletionRequest request, ICompletionResponse response) throws Exception {
+	public void onAttributeValue(String valuePrefix, Range fullRange, boolean addQuotes, ICompletionRequest request,
+			ICompletionResponse response) throws Exception {
 		Node parentNode = request.getParentNode();
-		if (parentNode.getNodeType() != Node.ELEMENT_NODE) {
+		if (parentNode == null || !parentNode.isElement()) {
 			return;
 		}
 		Element parentElement = (Element) parentNode;

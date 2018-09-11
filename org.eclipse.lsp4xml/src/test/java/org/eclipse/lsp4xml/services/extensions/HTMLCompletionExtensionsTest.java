@@ -61,6 +61,27 @@ public class HTMLCompletionExtensionsTest {
 	}
 
 	@Test
+	public void testHTMLElementCompletionWithoutOpenStart() throws BadLocationException {
+
+		/*testCompletionFor("|", Arrays.asList(r("iframe", "<iframe"), //
+				r("h1", "<h1"), //
+				r("div", "<div")));
+	*/
+		testCompletionFor(" |", Arrays.asList(r("iframe", "<iframe"), //
+				r("h1", "<h1"), //
+				r("div", "<div")));
+
+		testCompletionFor("h|", Arrays.asList(r("html", "<html"), //
+				r("h1", "<h1"), //
+				r("header", "<header")));
+
+		testCompletionFor("input|", Arrays.asList(r("input", "<input")));
+
+		testCompletionFor("inp|ut", Arrays.asList(r("input", "<input")));
+
+		testCompletionFor("|inp", Arrays.asList(r("input", "<input")));
+	}
+	@Test
 	public void testHTMLAttributeNameCompletion() throws BadLocationException {
 
 		testCompletionFor("<input |", Arrays.asList(r("type", "<input type=\"$1\""), //

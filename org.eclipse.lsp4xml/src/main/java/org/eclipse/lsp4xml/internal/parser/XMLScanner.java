@@ -10,6 +10,11 @@
  */
 package org.eclipse.lsp4xml.internal.parser;
 
+import static org.eclipse.lsp4xml.internal.parser.Constants.ATTRIBUTE_NAME_REGEX;
+import static org.eclipse.lsp4xml.internal.parser.Constants.ATTRIBUTE_VALUE_REGEX;
+import static org.eclipse.lsp4xml.internal.parser.Constants.ELEMENT_NAME_REGEX;
+import static org.eclipse.lsp4xml.internal.parser.Constants.PI_TAG_NAME;
+import static org.eclipse.lsp4xml.internal.parser.Constants.PROLOG_NAME_OPTIONS;
 import static org.eclipse.lsp4xml.internal.parser.Constants._AVL;
 import static org.eclipse.lsp4xml.internal.parser.Constants._BNG;
 import static org.eclipse.lsp4xml.internal.parser.Constants._CSB;
@@ -17,40 +22,26 @@ import static org.eclipse.lsp4xml.internal.parser.Constants._CVL;
 import static org.eclipse.lsp4xml.internal.parser.Constants._DQO;
 import static org.eclipse.lsp4xml.internal.parser.Constants._DVL;
 import static org.eclipse.lsp4xml.internal.parser.Constants._EQS;
+import static org.eclipse.lsp4xml.internal.parser.Constants._EVL;
 import static org.eclipse.lsp4xml.internal.parser.Constants._FSL;
 import static org.eclipse.lsp4xml.internal.parser.Constants._LAN;
 import static org.eclipse.lsp4xml.internal.parser.Constants._MIN;
 import static org.eclipse.lsp4xml.internal.parser.Constants._OSB;
+import static org.eclipse.lsp4xml.internal.parser.Constants._OVL;
+import static org.eclipse.lsp4xml.internal.parser.Constants._PVL;
 import static org.eclipse.lsp4xml.internal.parser.Constants._QMA;
 import static org.eclipse.lsp4xml.internal.parser.Constants._RAN;
 import static org.eclipse.lsp4xml.internal.parser.Constants._SIQ;
 import static org.eclipse.lsp4xml.internal.parser.Constants._SQO;
 import static org.eclipse.lsp4xml.internal.parser.Constants._TVL;
-import static org.eclipse.lsp4xml.internal.parser.Constants._OVL;
-import static org.eclipse.lsp4xml.internal.parser.Constants._YVL;
-import static org.eclipse.lsp4xml.internal.parser.Constants._PVL;
-import static org.eclipse.lsp4xml.internal.parser.Constants._EVL;
 import static org.eclipse.lsp4xml.internal.parser.Constants._WSP;
+import static org.eclipse.lsp4xml.internal.parser.Constants._YVL;
 
-import java.util.regex.Pattern;
 /**
  * XML scanner implementation.
  *
  */
 public class XMLScanner implements Scanner {
-
-	private static final Pattern ELEMENT_NAME_REGEX = Pattern.compile("^[_:\\w][_:\\w-.\\d]*");
-
-	private static final Pattern ATTRIBUTE_NAME_REGEX = Pattern.compile("^[^\\s\"'<>/=\\x00-\\x0F\\x7F\\x80-\\x9F]*");
-
-	private static final Pattern ATTRIBUTE_VALUE_REGEX = Pattern.compile("^[^\\s\"'`=<>\\/]+");
-
-	private static final Pattern PROLOG_NAME_OPTIONS = Pattern.compile("^(xml|xml-stylesheet)$");
-
-	private static final Pattern PI_TAG_NAME = Pattern.compile("^[a-zA-Z0-9]+");
-
-	private static final Pattern DOCTYPE_NAME = Pattern.compile("^[_:\\w][_:\\w-.\\d]*");
-
 
 	MultiLineStream stream;
 	ScannerState state;
@@ -88,7 +79,7 @@ public class XMLScanner implements Scanner {
 		tokenError = errorMessage;
 		return type;
 	}
-	
+
 	@Override
 	public TokenType scan() {
 		int offset = stream.pos();
@@ -114,7 +105,7 @@ public class XMLScanner implements Scanner {
 		}
 		String errorMessage = null;
 
- 		switch (state) {
+		switch (state) {
 		case WithinComment:
 			if (stream.advanceIfChars(_MIN, _MIN, _RAN)) { // -->
 				state = ScannerState.WithinContent;
@@ -128,18 +119,18 @@ public class XMLScanner implements Scanner {
 				return finishToken(offset, TokenType.EndDoctypeTag);
 			}
 			stream.advanceUntilCharOrNewTag(_RAN); // >
-			if(stream.peekChar() == _LAN) { // <
+			if (stream.peekChar() == _LAN) { // <
 				state = ScannerState.WithinContent;
 			}
 			return finishToken(offset, TokenType.Doctype);
 		case PrologOrPI:
-			if(stream.advanceIfChars(_QMA,_RAN)) { // ?>
+			if (stream.advanceIfChars(_QMA, _RAN)) { // ?>
 				state = ScannerState.WithinContent;
 				return finishToken(offset, TokenType.PIEnd);
 			}
-			if(stream.advanceUntilAnyOfChars(_WSP, _QMA)) { // ' ' or '?'
+			if (stream.advanceUntilAnyOfChars(_WSP, _QMA)) { // ' ' or '?'
 				String name = getTokenTextFromOffset(offset);
-				if(PROLOG_NAME_OPTIONS.matcher(name).matches()) { // name eg: xml
+				if (PROLOG_NAME_OPTIONS.matcher(name).matches()) { // name eg: xml
 					state = ScannerState.WithinTag;
 					return finishToken(offset, TokenType.PrologName);
 				}
@@ -148,30 +139,30 @@ public class XMLScanner implements Scanner {
 					return finishToken(offset, TokenType.PIName);
 				}
 			}
-			stream.advanceUntilCharsOrNewTag(_QMA,_RAN); // ?>
-			if(stream.peekChar() == _LAN) {
-				state = ScannerState.WithinContent; //TODO: check if EOF causes issues
-			}	
+			stream.advanceUntilCharsOrNewTag(_QMA, _RAN); // ?>
+			if (stream.peekChar() == _LAN) {
+				state = ScannerState.WithinContent; // TODO: check if EOF causes issues
+			}
 			return internalScan();
-			
+
 		case WithinPI:
-			if(stream.skipWhitespace()) {
+			if (stream.skipWhitespace()) {
 				return finishToken(offset, TokenType.Whitespace);
 			}
 
-			if(stream.advanceIfChars(_QMA, _RAN)) {
+			if (stream.advanceIfChars(_QMA, _RAN)) {
 				state = ScannerState.WithinContent;
 				return finishToken(offset, TokenType.PIEnd);
 			}
-			if (stream.advanceUntilCharsOrNewTag(_QMA,_RAN)) { // ?>
-				if(stream.peekChar() == _LAN) {
+			if (stream.advanceUntilCharsOrNewTag(_QMA, _RAN)) { // ?>
+				if (stream.peekChar() == _LAN) {
 					state = ScannerState.WithinContent;
 				}
-				if(getTokenTextFromOffset(offset).length() == 0) {
+				if (getTokenTextFromOffset(offset).length() == 0) {
 					return finishToken(offset, TokenType.PIEnd);
 				}
 			}
-			return finishToken(offset, TokenType.PIContent);			
+			return finishToken(offset, TokenType.PIContent);
 		case WithinContent:
 			if (stream.advanceIfChar(_LAN)) { // <
 				if (!stream.eos() && stream.peekChar() == _BNG) { // !
@@ -182,16 +173,16 @@ public class XMLScanner implements Scanner {
 					if (stream.advanceIfChars(_BNG, _OSB, _CVL, _DVL, _AVL, _TVL, _AVL, _OSB)) { // ![CDATA[
 						state = ScannerState.WithinCDATA;
 						return finishToken(offset, TokenType.CDATATagOpen);
-					}										
-				
-					if (stream.advanceIfChars(_BNG,_DVL,_OVL,_CVL,_TVL,_YVL,_PVL,_EVL)) { //!DOCTYPE
-						state = ScannerState.WithinDoctype; 
-						return finishToken(offset, TokenType.StartDoctypeTag); 
 					}
-					
-				} else if(!stream.eos() && stream.advanceIfChar(_QMA)) { // ?
+
+					if (stream.advanceIfChars(_BNG, _DVL, _OVL, _CVL, _TVL, _YVL, _PVL, _EVL)) { // !DOCTYPE
+						state = ScannerState.WithinDoctype;
+						return finishToken(offset, TokenType.StartDoctypeTag);
+					}
+
+				} else if (!stream.eos() && stream.advanceIfChar(_QMA)) { // ?
 					state = ScannerState.PrologOrPI;
-					return finishToken(offset, TokenType.StartPrologOrPI);	
+					return finishToken(offset, TokenType.StartPrologOrPI);
 				}
 				if (stream.advanceIfChar(_FSL)) { // /
 					state = ScannerState.AfterOpeningEndTag;
@@ -209,8 +200,6 @@ public class XMLScanner implements Scanner {
 			}
 			stream.advanceUntilChars(_CSB, _CSB, _RAN); // ]]>
 			return finishToken(offset, TokenType.CDATAContent);
-			
-			
 
 		case AfterOpeningEndTag:
 			String tagName = nextElementName();
@@ -223,8 +212,8 @@ public class XMLScanner implements Scanner {
 						localize("error.unexpectedWhitespace", "Tag name must directly follow the open bracket."));
 			}
 			state = ScannerState.WithinEndTag;
-			if(stream.advanceUntilCharOrNewTag(_RAN)) { // >
-				if(stream.peekChar() == _LAN) { // <
+			if (stream.advanceUntilCharOrNewTag(_RAN)) { // >
+				if (stream.peekChar() == _LAN) { // <
 					state = ScannerState.WithinContent;
 				}
 				return internalScan();
@@ -238,12 +227,12 @@ public class XMLScanner implements Scanner {
 				state = ScannerState.WithinContent;
 				return finishToken(offset, TokenType.EndTagClose);
 			}
-			if(stream.advanceUntilChar(_LAN)) { // <
+			if (stream.advanceUntilChar(_LAN)) { // <
 				state = ScannerState.WithinContent;
 				return internalScan();
 			}
 			return finishToken(offset, TokenType.Whitespace);
-			
+
 		case AfterOpeningStartTag:
 			lastTag = nextElementName();
 			lastTypeValue = null;
@@ -258,8 +247,8 @@ public class XMLScanner implements Scanner {
 						localize("error.unexpectedWhitespace", "Tag name must directly follow the open bracket."));
 			}
 			state = ScannerState.WithinTag;
-			if(stream.advanceUntilCharOrNewTag(_RAN)) { // >
-				if(stream.peekChar() == _LAN) { // <
+			if (stream.advanceUntilCharOrNewTag(_RAN)) { // >
+				if (stream.peekChar() == _LAN) { // <
 					state = ScannerState.WithinContent;
 				}
 				return internalScan();
@@ -271,7 +260,7 @@ public class XMLScanner implements Scanner {
 				hasSpaceAfterTag = true; // remember that we have seen a whitespace
 				return finishToken(offset, TokenType.Whitespace);
 			}
-			if(stream.advanceIfChars(_QMA, _RAN)) { // ?>
+			if (stream.advanceIfChars(_QMA, _RAN)) { // ?>
 				state = ScannerState.WithinContent;
 				return finishToken(offset, TokenType.PrologEnd);
 			}
@@ -291,13 +280,13 @@ public class XMLScanner implements Scanner {
 				state = ScannerState.WithinContent;
 				return finishToken(offset, TokenType.StartTagClose);
 			}
-			
-			if(stream.advanceUntilChar(_LAN)) { // <
+
+			if (stream.advanceUntilChar(_LAN)) { // <
 				state = ScannerState.WithinContent;
 				return internalScan();
 			}
-			return finishToken(offset, TokenType.Unknown); 
-		
+			return finishToken(offset, TokenType.Unknown);
+
 		case AfterAttributeName:
 			if (stream.skipWhitespace()) {
 				hasSpaceAfterTag = true;

@@ -30,6 +30,8 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 	private final XMLFormattingOptions formattingSettings;
 
 	private Range replaceRange;
+	
+	private boolean openTag;
 
 	public CompletionRequest(XMLDocument xmlDocument, Position position, CompletionSettings completionSettings,
 			XMLFormattingOptions formattingSettings) throws BadLocationException {
@@ -60,5 +62,14 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 	@Override
 	public Range getReplaceRange() {
 		return replaceRange;
+	}
+	
+	public void setOpenTag(boolean openTag) {
+		this.openTag = openTag;
+	}
+	
+	@Override
+	public boolean hasOpenTag() {
+		return openTag;
 	}
 }

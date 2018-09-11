@@ -10,7 +10,11 @@
  */
 package org.eclipse.lsp4xml.commons;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentItem;
 
 /**
@@ -20,7 +24,7 @@ import org.eclipse.lsp4j.TextDocumentItem;
  */
 public class TextDocument extends TextDocumentItem {
 
-	private static String DEFAULT_DELIMTER = System.getProperty("line.separator");
+	private static String DEFAULT_DELIMTER = System.lineSeparator();
 
 	private ListLineTracker lineTracker;
 
@@ -70,6 +74,33 @@ public class TextDocument extends TextDocumentItem {
 			lineDelimiter = DEFAULT_DELIMTER;
 		}
 		return lineDelimiter;
+	}
+
+	public Range getWordRangeAt(int textOffset, Pattern wordDefinition) {
+		try {
+			Position pos = positionAt(textOffset);
+			ListLineTracker lineTracker = getLineTracker();
+			Line line = lineTracker.getLineInformation(pos.getLine());
+			String text = super.getText();
+			String lineText = text.substring(line.offset, textOffset);
+			int position = lineText.length();
+			Matcher m = wordDefinition.matcher(lineText);
+			int currentPosition = 0;
+			while (currentPosition != position) {
+				if (m.find()) {
+					currentPosition = m.end();
+					if (currentPosition == position) {
+						return new Range(new Position(pos.getLine(), m.start()), pos);
+					}
+				} else {
+					currentPosition++;
+				}
+				m.region(currentPosition, position);
+			}
+			return new Range(pos, pos);
+		} catch (BadLocationException e) {
+			return null;
+		}
 	}
 
 	private ListLineTracker getLineTracker() {

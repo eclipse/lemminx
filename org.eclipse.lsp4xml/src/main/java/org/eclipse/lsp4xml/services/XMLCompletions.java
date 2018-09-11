@@ -58,16 +58,17 @@ class XMLCompletions {
 
 	public CompletionList doComplete(XMLDocument xmlDocument, Position position, CompletionSettings completionSettings,
 			XMLFormattingOptions formattingSettings) {
+		CompletionResponse completionResponse = new CompletionResponse();
 		CompletionRequest completionRequest = null;
 		try {
 			completionRequest = new CompletionRequest(xmlDocument, position, completionSettings, formattingSettings);
 		} catch (BadLocationException e) {
 			LOGGER.log(Level.SEVERE, "Creation of CompletionRequest failed", e);
+			return completionResponse;
 		}
 
 		int offset = completionRequest.getOffset();
-		Node node = completionRequest.getNode();
-		CompletionResponse completionResponse = new CompletionResponse();
+		Node node = completionRequest.getNode();		
 
 		String text = xmlDocument.getText();
 		Scanner scanner = XMLScanner.createScanner(text, node.start);
@@ -256,17 +257,23 @@ class XMLCompletions {
 			CompletionResponse completionResponse) {
 		try {
 			Range replaceRange = getReplaceRange(afterOpenBracket, tagNameEnd, completionRequest);
-			completionRequest.setReplaceRange(replaceRange);
-			for (ICompletionParticipant participant : getCompletionParticipants()) {
-				try {
-					participant.onTagOpen(completionRequest, completionResponse);
-				} catch (Exception e) {
-					LOGGER.log(Level.SEVERE, "While performing ICompletionParticipant#onTagOpen", e);
-				}
-			}
+			collectOpenTagSuggestions(replaceRange, true, completionRequest, completionResponse);
 		} catch (BadLocationException e) {
 			LOGGER.log(Level.SEVERE, "While performing Completions the provided offset was a BadLocation", e);
 			return;
+		}
+	}
+
+	private void collectOpenTagSuggestions(Range replaceRange, boolean hasOpenTag, CompletionRequest completionRequest,
+			CompletionResponse completionResponse) {
+		completionRequest.setReplaceRange(replaceRange);
+		completionRequest.setOpenTag(hasOpenTag);
+		for (ICompletionParticipant participant : getCompletionParticipants()) {
+			try {
+				participant.onTagOpen(completionRequest, completionResponse);
+			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE, "While performing ICompletionParticipant#onTagOpen", e);
+			}
 		}
 	}
 
@@ -334,7 +341,11 @@ class XMLCompletions {
 		response.addCompletionItem(item);
 	}
 
-	private void collectInsideContent(ICompletionRequest request, ICompletionResponse response) {
+	private void collectInsideContent(CompletionRequest request, CompletionResponse response) {
+		Range tagNameRange = request.getXMLDocument().getElementNameRangeAt(request.getOffset());
+		if (tagNameRange != null) {
+			collectOpenTagSuggestions(tagNameRange, false, request, response);
+		}
 		// Participant completion on XML content
 		for (ICompletionParticipant participant : getCompletionParticipants()) {
 			try {
