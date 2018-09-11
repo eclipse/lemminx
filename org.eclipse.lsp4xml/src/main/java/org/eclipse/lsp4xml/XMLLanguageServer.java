@@ -73,7 +73,7 @@ public class XMLLanguageServer implements LanguageServer, ProcessLanguageServer,
 		capabilities.setTextDocumentSync(TextDocumentSyncKind.Full);
 		capabilities.setDocumentSymbolProvider(true);
 		capabilities.setDocumentHighlightProvider(true);
-		capabilities.setCompletionProvider(new CompletionOptions(false, Arrays.asList("<", ">")));
+		capabilities.setCompletionProvider(new CompletionOptions(false, Arrays.asList(".", ":", "<", "\"", "=", "/")));
 		capabilities.setDocumentFormattingProvider(true);
 		capabilities.setDocumentRangeFormattingProvider(true);
 		capabilities.setHoverProvider(true);
