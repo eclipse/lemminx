@@ -1,7 +1,7 @@
-[![Build Status](https://secure.travis-ci.org/angelozerr/lsp4xml.png)](http://travis-ci.org/angelozerr/lsp4xml)
-
 XML Language Server (lsp4xml)
 ===========================
+
+[![Build Status](https://travis-ci.org/angelozerr/lsp4xml.svg?branch=master)](http://travis-ci.org/angelozerr/lsp4xml)
 
 The **lsp4xml** is a XML language specific implementation of the [Language Server Protocol](https://github.com/Microsoft/language-server-protocol)
 and can be used with any editor that supports the protocol, to offer good support for the **XML Language**. The server is based on:
