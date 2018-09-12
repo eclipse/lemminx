@@ -8,7 +8,7 @@
  *  Contributors:
  *  Nikolas Komonen <nikolaskomonen@gmail.com>, Red Hat Inc. - initial API and implementation
  */
-package org.eclipse.lsp4xml.utils;
+package org.eclipse.lsp4xml.logs;
 
 import java.io.File;
 import java.io.IOException;

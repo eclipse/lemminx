@@ -35,6 +35,8 @@ import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.ShowMessageRequestParams;
 import org.eclipse.lsp4j.services.LanguageClient;
+import org.eclipse.lsp4xml.logs.LSPClientLogHandler;
+import org.eclipse.lsp4xml.logs.LogHelper;
 import org.eclipse.lsp4xml.settings.LogsSettings;
 import org.junit.After;
 import org.junit.Before;
