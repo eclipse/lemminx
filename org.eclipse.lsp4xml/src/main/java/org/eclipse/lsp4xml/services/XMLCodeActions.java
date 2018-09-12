@@ -10,6 +10,7 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.services.extensions.ICodeActionParticipant;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 
 public class XMLCodeActions {
 
@@ -19,12 +20,13 @@ public class XMLCodeActions {
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
-	public List<CodeAction> doCodeActions(CodeActionContext context, Range range, XMLDocument document) {
+	public List<CodeAction> doCodeActions(CodeActionContext context, Range range, XMLDocument document,
+			XMLFormattingOptions formattingSettings) {
 		List<CodeAction> codeActions = new ArrayList<>();
 		if (context.getDiagnostics() != null) {
 			for (Diagnostic diagnostic : context.getDiagnostics()) {
 				for (ICodeActionParticipant codeActionParticipant : extensionsRegistry.getCodeActionsParticipants()) {
-					codeActionParticipant.doCodeAction(diagnostic, range, document, codeActions);
+					codeActionParticipant.doCodeAction(diagnostic, range, document, codeActions, formattingSettings);
 				}
 			}
 		}

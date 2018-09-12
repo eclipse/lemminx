@@ -25,6 +25,7 @@ import org.eclipse.lsp4xml.dom.Element;
 import org.eclipse.lsp4xml.dom.Node;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.services.extensions.ICodeActionParticipant;
+import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 
 /**
  * Code action to fix cvc-complex-type.2.3 error.
@@ -33,7 +34,8 @@ import org.eclipse.lsp4xml.services.extensions.ICodeActionParticipant;
 public class cvc_complex_type_4CodeAction implements ICodeActionParticipant {
 
 	@Override
-	public void doCodeAction(Diagnostic diagnostic, Range range, XMLDocument document, List<CodeAction> codeActions) {
+	public void doCodeAction(Diagnostic diagnostic, Range range, XMLDocument document, List<CodeAction> codeActions,
+			XMLFormattingOptions formattingSettings) {
 		try {
 			int offset = document.offsetAt(range.getStart());
 			Node node = document.findNodeAt(offset);
@@ -45,18 +47,18 @@ public class cvc_complex_type_4CodeAction implements ICodeActionParticipant {
 			if (elementDeclaration == null) {
 				return;
 			}
-			
-			List<CMAttributeDeclaration> requiredAttributes = elementDeclaration.getAttributes().stream().filter(CMAttributeDeclaration::isRequired).collect(Collectors.toList());
+
+			List<CMAttributeDeclaration> requiredAttributes = elementDeclaration.getAttributes().stream()
+					.filter(CMAttributeDeclaration::isRequired).collect(Collectors.toList());
 			if (requiredAttributes.isEmpty()) {
-				
+
 			}
 			XMLGenerator generator = new XMLGenerator(null, "", "", true, 0);
 			String xmlAttributes = generator.generate(requiredAttributes, node.tag);
-			
+
 			// Insert content
-			CodeAction removeContentAction = CodeActionFactory.insert("Insert required attributes", range, 
-					xmlAttributes,
-					document.getTextDocument(), diagnostic);
+			CodeAction removeContentAction = CodeActionFactory.insert("Insert required attributes", range,
+					xmlAttributes, document.getTextDocument(), diagnostic);
 			codeActions.add(removeContentAction);
 		} catch (Exception e) {
 			// Do nothing

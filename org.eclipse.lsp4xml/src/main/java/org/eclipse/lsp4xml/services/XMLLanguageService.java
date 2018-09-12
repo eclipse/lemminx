@@ -106,8 +106,9 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		return documentLink.findDocumentLinks(document);
 	}
 
-	public List<CodeAction> doCodeActions(CodeActionContext context, Range range, XMLDocument document) {
-		return codeActions.doCodeActions(context, range, document);
+	public List<CodeAction> doCodeActions(CodeActionContext context, Range range, XMLDocument document,
+			XMLFormattingOptions formattingSettings) {
+		return codeActions.doCodeActions(context, range, document, formattingSettings);
 	}
 
 	public String doTagComplete(XMLDocument xmlDocument, Position position) {

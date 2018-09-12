@@ -18,6 +18,7 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.CodeActionFactory;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.services.extensions.ICodeActionParticipant;
+import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 
 /**
  * Code action to fix ElementUnterminated error.
@@ -26,7 +27,8 @@ import org.eclipse.lsp4xml.services.extensions.ICodeActionParticipant;
 public class ElementUnterminatedCodeAction implements ICodeActionParticipant {
 
 	@Override
-	public void doCodeAction(Diagnostic diagnostic, Range range, XMLDocument document, List<CodeAction> codeActions) {
+	public void doCodeAction(Diagnostic diagnostic, Range range, XMLDocument document, List<CodeAction> codeActions,
+			XMLFormattingOptions formattingSettings) {
 		// Add close '>'
 		CodeAction closeAction = CodeActionFactory.insert("Close element", range, ">", document.getTextDocument(),
 				diagnostic);

@@ -107,7 +107,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 		this.xmlDocuments = new LanguageModelCache<XMLDocument>(10, 60, document -> parser.parse(document));
 		this.sharedCompletionSettings = new CompletionSettings();
 		this.sharedFoldingsSettings = new FoldingRangeCapabilities();
-		this.sharedFormattingOptions = new XMLFormattingOptions(true); // to be sure that formattings options is not null.
+		this.sharedFormattingOptions = new XMLFormattingOptions(true); // to be sure that formattings options is not
+																		// null.
 	}
 
 	public void updateClientCapabilities(ClientCapabilities capabilities) {
@@ -130,10 +131,11 @@ public class XMLTextDocumentService implements TextDocumentService {
 	@Override
 	public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(CompletionParams params) {
 		return computeAsync((monitor) -> {
-			TextDocument document = getDocument(params.getTextDocument().getUri());
+			String uri = params.getTextDocument().getUri();
+			TextDocument document = getDocument(uri);
 			XMLDocument xmlDocument = getXMLDocument(document);
 			CompletionList list = getXMLLanguageService().doComplete(xmlDocument, params.getPosition(),
-					sharedCompletionSettings, sharedFormattingOptions);
+					sharedCompletionSettings, getFormattingSettings(uri));
 			return Either.forRight(list);
 		});
 	}
@@ -145,6 +147,12 @@ public class XMLTextDocumentService implements TextDocumentService {
 			XMLDocument xmlDocument = getXMLDocument(document);
 			return getXMLLanguageService().doHover(xmlDocument, params.getPosition());
 		});
+	}
+
+	private XMLFormattingOptions getFormattingSettings(String uri) {
+		// TODO: manage formattings per document URI (to support .editorconfig for
+		// instance).
+		return sharedFormattingOptions;
 	}
 
 	@Override
@@ -175,18 +183,20 @@ public class XMLTextDocumentService implements TextDocumentService {
 	@Override
 	public CompletableFuture<List<? extends TextEdit>> formatting(DocumentFormattingParams params) {
 		return computeAsync((monitor) -> {
-			TextDocument document = getDocument(params.getTextDocument().getUri());
+			String uri = params.getTextDocument().getUri();
+			TextDocument document = getDocument(uri);
 			return getXMLLanguageService().format(document, null,
-					XMLFormattingOptions.create(params.getOptions(), sharedFormattingOptions));
+					XMLFormattingOptions.create(params.getOptions(), getFormattingSettings(uri)));
 		});
 	}
 
 	@Override
 	public CompletableFuture<List<? extends TextEdit>> rangeFormatting(DocumentRangeFormattingParams params) {
 		return computeAsync((monitor) -> {
-			TextDocument document = getDocument(params.getTextDocument().getUri());
+			String uri = params.getTextDocument().getUri();
+			TextDocument document = getDocument(uri);
 			return getXMLLanguageService().format(document, params.getRange(),
-					XMLFormattingOptions.create(params.getOptions(), sharedFormattingOptions));
+					XMLFormattingOptions.create(params.getOptions(), getFormattingSettings(uri)));
 		});
 	}
 
@@ -245,9 +255,11 @@ public class XMLTextDocumentService implements TextDocumentService {
 	@Override
 	public CompletableFuture<List<Either<Command, CodeAction>>> codeAction(CodeActionParams params) {
 		return computeAsync((monitor) -> {
-			TextDocument document = getDocument(params.getTextDocument().getUri());
+			String uri = params.getTextDocument().getUri();
+			TextDocument document = getDocument(uri);
 			XMLDocument xmlDocument = getXMLDocument(document);
-			return getXMLLanguageService().doCodeActions(params.getContext(), params.getRange(), xmlDocument) //
+			return getXMLLanguageService()
+					.doCodeActions(params.getContext(), params.getRange(), xmlDocument, getFormattingSettings(uri)) //
 					.stream() //
 					.map(s -> {
 						Either<Command, CodeAction> e = Either.forRight(s);

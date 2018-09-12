@@ -18,14 +18,14 @@ import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.dom.XMLDocument;
-import org.eclipse.lsp4xml.services.extensions.CodeActionParticipantAdapter;
 import org.eclipse.lsp4xml.services.extensions.ICodeActionParticipant;
+import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 
 /**
  * Extension to support XML code actions based on content model (XML Schema
  * completion, etc)
  */
-public class ContentModelCodeActionParticipant extends CodeActionParticipantAdapter {
+public class ContentModelCodeActionParticipant implements ICodeActionParticipant {
 
 	private final Map<String, ICodeActionParticipant> codeActionParticipants;
 
@@ -36,10 +36,11 @@ public class ContentModelCodeActionParticipant extends CodeActionParticipantAdap
 	}
 
 	@Override
-	public void doCodeAction(Diagnostic diagnostic, Range range, XMLDocument document, List<CodeAction> codeActions) {
+	public void doCodeAction(Diagnostic diagnostic, Range range, XMLDocument document, List<CodeAction> codeActions,
+			XMLFormattingOptions formattingSettings) {
 		ICodeActionParticipant participant = codeActionParticipants.get(diagnostic.getCode());
 		if (participant != null) {
-			participant.doCodeAction(diagnostic, range, document, codeActions);
+			participant.doCodeAction(diagnostic, range, document, codeActions, formattingSettings);
 		}
 	}
 }

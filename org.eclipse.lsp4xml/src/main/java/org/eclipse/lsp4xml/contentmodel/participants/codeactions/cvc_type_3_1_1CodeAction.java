@@ -21,16 +21,16 @@ import org.eclipse.lsp4xml.services.extensions.ICodeActionParticipant;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 
 /**
- * Code action to fix cvc-complex-type.2.3 error.
+ * Code action to fix cvc-type.3.1.1 error.
  *
  */
-public class cvc_complex_type_2_3CodeAction implements ICodeActionParticipant {
+public class cvc_type_3_1_1CodeAction implements ICodeActionParticipant {
 
 	@Override
 	public void doCodeAction(Diagnostic diagnostic, Range range, XMLDocument document, List<CodeAction> codeActions,
 			XMLFormattingOptions formattingSettings) {
 		// Remove content
-		CodeAction removeContentAction = CodeActionFactory.remove("Remove content", range, document.getTextDocument(),
+		CodeAction removeContentAction = CodeActionFactory.remove("Remove attributes", range, document.getTextDocument(),
 				diagnostic);
 		codeActions.add(removeContentAction);
 	}
