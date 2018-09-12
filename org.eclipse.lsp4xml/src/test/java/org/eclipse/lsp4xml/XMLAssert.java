@@ -188,7 +188,8 @@ public class XMLAssert {
 		context.setDiagnostics(Arrays.asList(diagnostic));
 		Range range = diagnostic.getRange();
 		XMLDocument xmlDoc = XMLParser.getInstance().parse(document);
-		List<CodeAction> actual = xmlLanguageService.doCodeActions(context, range, xmlDoc);
+		List<CodeAction> actual = xmlLanguageService.doCodeActions(context, range, xmlDoc,
+				new XMLFormattingOptions(4, false));
 		assertCodeActions(actual, expected);
 	}
 
