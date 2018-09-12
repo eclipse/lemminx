@@ -10,6 +10,8 @@
  */
 package org.eclipse.lsp4xml.utils;
 
+import static org.eclipse.lsp4xml.utils.StringUtils.normalizeSpace;
+
 import org.eclipse.lsp4xml.dom.Comment;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 
@@ -79,7 +81,7 @@ public class XMLBuilder {
 		xml.append("=\"");
 		xml.append(value);
 		xml.append("\"");
-		return this;	
+		return this;
 	}
 
 	public XMLBuilder addAttribute(String name, String value, int index, int level, String tagName) {
@@ -89,11 +91,11 @@ public class XMLBuilder {
 			indent(level);
 			spaces += tagName.length();
 		}
-		
-		for(int i = 0; i < spaces; i++) {
+
+		for (int i = 0; i < spaces; i++) {
 			xml.append(" ");
 		}
-		
+
 		xml.append(name);
 		xml.append("=\"");
 		xml.append(value);
@@ -110,7 +112,7 @@ public class XMLBuilder {
 	}
 
 	public XMLBuilder addContent(String text) {
-		if(isJoinContentLines()) {
+		if (isJoinContentLines()) {
 			text = normalizeSpace(text);
 		}
 		xml.append(text);
@@ -169,21 +171,6 @@ public class XMLBuilder {
 	public XMLBuilder endCDATA() {
 		xml.append("]]>");
 		return this;
-	}
-
-	private static String normalizeSpace(String str) {
-		StringBuilder b = new StringBuilder(str.length());
-		for (int i = 0; i < str.length(); ++i) {
-			char c = str.charAt(i);
-			if (Character.isWhitespace(c)) {
-				if (i <= 0 || Character.isWhitespace(str.charAt(i - 1)))
-					continue;
-				b.append(' ');
-				continue;
-			}
-			b.append(c);
-		}
-		return b.toString();
 	}
 
 	public XMLBuilder startComment(Comment comment) {

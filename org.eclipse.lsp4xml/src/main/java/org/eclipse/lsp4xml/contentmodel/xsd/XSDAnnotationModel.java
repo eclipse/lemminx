@@ -10,6 +10,8 @@
  */
 package org.eclipse.lsp4xml.contentmodel.xsd;
 
+import static org.eclipse.lsp4xml.utils.StringUtils.normalizeSpace;
+
 import java.io.StringReader;
 
 import javax.xml.parsers.SAXParser;
@@ -57,6 +59,9 @@ class XSDAnnotationModel {
 
 	private static class XSAnnotationHandler extends DefaultHandler {
 
+		private static final String APPINFO_ELEMENT = "appinfo";
+		private static final String DOCUMENTATION_ELEMENT = "documentation";
+
 		private StringBuilder current;
 		private final XSDAnnotationModel model;
 
@@ -72,7 +77,7 @@ class XSDAnnotationModel {
 		public void startElement(String uri, String localName, String qName, Attributes attributes)
 				throws SAXException {
 			super.startElement(uri, localName, qName, attributes);
-			if (qName.endsWith("documentation") || qName.endsWith("appinfo")) {
+			if (qName.endsWith(DOCUMENTATION_ELEMENT) || qName.endsWith(APPINFO_ELEMENT)) {
 				current = new StringBuilder();
 			}
 		}
@@ -81,10 +86,10 @@ class XSDAnnotationModel {
 		public void endElement(String uri, String localName, String qName) throws SAXException {
 			super.endElement(uri, localName, qName);
 			if (current != null) {
-				if (qName.endsWith("appinfo")) {
-					model.appInfo = current.toString();
-				} else if (qName.endsWith("documentation")) {
-					model.documentation = current.toString();
+				if (qName.endsWith(APPINFO_ELEMENT)) {
+					model.appInfo = normalizeSpace(current.toString());
+				} else if (qName.endsWith(DOCUMENTATION_ELEMENT)) {
+					model.documentation = normalizeSpace(current.toString());
 				}
 				current = null;
 			}
