@@ -48,7 +48,6 @@ import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 class XMLCompletions {
 
 	private static final Logger LOGGER = Logger.getLogger(XMLCompletions.class.getName());
-	private static final String cdata = "![CDATA[]]";
 	private static final Pattern regionCompletionRegExpr = Pattern.compile("^(\\s*)(<(!(-(-\\s*(#\\w*)?)?)?)?)?$");
 
 	private final XMLExtensionsRegistry extensionsRegistry;
@@ -275,14 +274,12 @@ class XMLCompletions {
 			Set<String> seenElements = new HashSet<>();
 			if (parentNode != null && parentNode.isElement() && parentNode.hasChildren()) {
 				parentNode.getChildren().forEach(node -> {
-					if (!node.isElement()) {
+					Element element = node.isElement() ? (Element) node : null;
+					if (element == null || element.getTagName() == null
+							|| seenElements.contains(element.getTagName())) {
 						return;
 					}
-					Element element = (Element) node;
 					String tag = element.getTagName();
-					if (seenElements.contains(tag)) {
-						return;
-					}
 					seenElements.add(tag);
 					CompletionItem item = new CompletionItem();
 					item.setLabel(tag);
