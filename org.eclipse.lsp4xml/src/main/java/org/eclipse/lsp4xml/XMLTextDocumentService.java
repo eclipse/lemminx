@@ -212,17 +212,13 @@ public class XMLTextDocumentService implements TextDocumentService {
 	@Override
 	public void didOpen(DidOpenTextDocumentParams params) {
 		documents.onDidOpenTextDocument(params);
-		TextDocument document = getDocument(params.getTextDocument().getUri());
-		triggerValidation(document, params.getTextDocument().getVersion());
+		triggerValidation(params.getTextDocument().getUri(), params.getTextDocument().getVersion());
 	}
 
 	@Override
 	public void didChange(DidChangeTextDocumentParams params) {
-		documents.onDidChangeTextDocument(params);
-		TextDocument document = getDocument(params.getTextDocument().getUri());
-		if (document != null) {
-			triggerValidation(document, params.getTextDocument().getVersion());
-		}
+		documents.onDidChangeTextDocument(params);		
+		triggerValidation(params.getTextDocument().getUri(), params.getTextDocument().getVersion());		
 	}
 
 	@Override
@@ -274,7 +270,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	}
 
-	private void triggerValidation(TextDocument document, int version) {
+	private void triggerValidation(String uri, int version) {
 		if (future != null && !future.isCancelled()) {
 			future.cancel(true);
 		}
@@ -282,18 +278,18 @@ public class XMLTextDocumentService implements TextDocumentService {
 			monitor.setCanceled(true);
 		}
 		monitor = new BasicCancelChecker();
-		triggerValidation(document, version, monitor);
+		triggerValidation(uri, version, monitor);
 	}
 
-	private void triggerValidation(TextDocument document, int version, BasicCancelChecker monitor) {
+	private void triggerValidation(String uri, int version, BasicCancelChecker monitor) {
 		future = xmlLanguageServer.schedule(() -> {
-			TextDocument currDocument = getDocument(document.getUri());
+			TextDocument currDocument = getDocument(uri);
 			if (currDocument != null && currDocument.getVersion() == version) {
 				XMLDocument xmlDocument = getXMLDocument(currDocument);
 				List<Diagnostic> diagnostics = getXMLLanguageService().doDiagnostics(xmlDocument, monitor);
 				monitor.checkCanceled();
 				xmlLanguageServer.getLanguageClient()
-						.publishDiagnostics(new PublishDiagnosticsParams(document.getUri(), diagnostics));
+						.publishDiagnostics(new PublishDiagnosticsParams(uri, diagnostics));
 			}
 		}, 500, TimeUnit.MILLISECONDS);
 	}
