@@ -4,10 +4,10 @@ import java.util.List;
 
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
-import org.eclipse.lsp4xml.commons.TextDocument;
+import org.eclipse.lsp4xml.dom.XMLDocument;
 
 public interface IDiagnosticsParticipant {
 
-	void doDiagnostics(TextDocument document, List<Diagnostic> diagnostics, CancelChecker monitor);
+	void doDiagnostics(XMLDocument xmlDocument, List<Diagnostic> diagnostics, CancelChecker monitor);
 
 }

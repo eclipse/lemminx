@@ -86,8 +86,8 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		return hover.doHover(xmlDocument, position);
 	}
 
-	public List<Diagnostic> doDiagnostics(TextDocument document, CancelChecker monitor) {
-		return diagnostics.doDiagnostics(document, monitor);
+	public List<Diagnostic> doDiagnostics(XMLDocument xmlDocument, CancelChecker monitor) {
+		return diagnostics.doDiagnostics(xmlDocument, monitor);
 	}
 
 	public List<FoldingRange> getFoldingRanges(TextDocument document, FoldingRangeCapabilities context) {

@@ -130,7 +130,7 @@ public class XMLAssert {
 
 	public static void testDiagnosticsFor(String xml, String catalogPath, Diagnostic... expected) {
 		TextDocument document = new TextDocument(xml.toString(), FILE_URI);
-
+		XMLDocument xmlDocument = XMLParser.getInstance().parse(document);
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
 
 		if (catalogPath != null) {
@@ -140,7 +140,7 @@ public class XMLAssert {
 			xmlLanguageService.updateSettings(settings);
 		}
 
-		List<Diagnostic> actual = xmlLanguageService.doDiagnostics(document, () -> {
+		List<Diagnostic> actual = xmlLanguageService.doDiagnostics(xmlDocument, () -> {
 		});
 		assertDiagnostics(actual, expected);
 

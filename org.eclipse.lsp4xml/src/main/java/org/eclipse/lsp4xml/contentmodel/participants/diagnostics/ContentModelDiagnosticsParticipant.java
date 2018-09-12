@@ -10,16 +10,12 @@
  */
 package org.eclipse.lsp4xml.contentmodel.participants.diagnostics;
 
-import java.util.EnumSet;
 import java.util.List;
 
 import org.apache.xerces.xni.parser.XMLEntityResolver;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
-import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.dom.XMLDocument;
-import org.eclipse.lsp4xml.dom.XMLParser;
-import org.eclipse.lsp4xml.dom.XMLParser.Flag;
 import org.eclipse.lsp4xml.services.extensions.IDiagnosticsParticipant;
 import org.eclipse.lsp4xml.uriresolver.IExternalSchemaLocationProvider;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
@@ -30,16 +26,13 @@ import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
  */
 public class ContentModelDiagnosticsParticipant implements IDiagnosticsParticipant {
 
-	private static final EnumSet<Flag> VALIDATION_MASK = EnumSet.of(Flag.Attribute, Flag.Content);
-
 	@Override
-	public void doDiagnostics(TextDocument document, List<Diagnostic> diagnostics, CancelChecker monitor) {
+	public void doDiagnostics(XMLDocument xmlDocument, List<Diagnostic> diagnostics, CancelChecker monitor) {
 		// Get entity resolver (XML catalog resolver, XML schema from the file
 		// associations settings., ...)
 		XMLEntityResolver entityResolver = URIResolverExtensionManager.getInstance();
 		IExternalSchemaLocationProvider externalSchemaLocationProvider = URIResolverExtensionManager.getInstance();
 		// Process validation
-		XMLDocument xmlDocument = XMLParser.getInstance().parse(document, VALIDATION_MASK);
 		XMLValidator.doDiagnostics(xmlDocument, entityResolver, externalSchemaLocationProvider, diagnostics, monitor);
 	}
 

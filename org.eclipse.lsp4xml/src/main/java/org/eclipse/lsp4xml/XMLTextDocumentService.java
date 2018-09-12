@@ -289,7 +289,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 		future = xmlLanguageServer.schedule(() -> {
 			TextDocument currDocument = getDocument(document.getUri());
 			if (currDocument != null && currDocument.getVersion() == version) {
-				List<Diagnostic> diagnostics = getXMLLanguageService().doDiagnostics(document, monitor);
+				XMLDocument xmlDocument = getXMLDocument(currDocument);
+				List<Diagnostic> diagnostics = getXMLLanguageService().doDiagnostics(xmlDocument, monitor);
 				monitor.checkCanceled();
 				xmlLanguageServer.getLanguageClient()
 						.publishDiagnostics(new PublishDiagnosticsParams(document.getUri(), diagnostics));

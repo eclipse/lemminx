@@ -12,6 +12,7 @@ package org.eclipse.lsp4xml.contentmodel.participants.diagnostics;
 
 import static org.eclipse.lsp4xml.utils.XMLPositionUtility.toLSPPosition;
 
+import java.util.EnumSet;
 import java.util.List;
 
 import org.apache.xerces.impl.XMLErrorReporter;
@@ -25,10 +26,13 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.contentmodel.participants.DTDErrorCode;
 import org.eclipse.lsp4xml.contentmodel.participants.XMLSchemaErrorCode;
 import org.eclipse.lsp4xml.contentmodel.participants.XMLSyntaxErrorCode;
 import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.XMLParser;
+import org.eclipse.lsp4xml.dom.XMLParser.Flag;
 import org.xml.sax.ErrorHandler;
 
 /**
@@ -42,10 +46,13 @@ public class LSPErrorReporter extends XMLErrorReporter {
 
 	private static final String XML_DIAGNOSTIC_SOURCE = "xml";
 
-	private final XMLDocument document;
+	private final TextDocument document;
+	private XMLDocument xmlDocument;
 	private final List<Diagnostic> diagnostics;
 
-	public LSPErrorReporter(XMLDocument document, List<Diagnostic> diagnostics) {
+	private static final EnumSet<Flag> VALIDATION_MASK = EnumSet.of(Flag.Attribute, Flag.Content);
+
+	public LSPErrorReporter(TextDocument document, List<Diagnostic> diagnostics) {
 		this.document = document;
 		this.diagnostics = diagnostics;
 		XMLMessageFormatter xmft = new XMLMessageFormatter();
@@ -57,7 +64,6 @@ public class LSPErrorReporter extends XMLErrorReporter {
 	public String reportError(XMLLocator location, String domain, String key, Object[] arguments, short severity,
 			Exception exception) throws XNIException {
 		// format message
-		
 		MessageFormatter messageFormatter = getMessageFormatter(domain);
 		String message;
 		if (messageFormatter != null) {
@@ -78,12 +84,16 @@ public class LSPErrorReporter extends XMLErrorReporter {
 				}
 			}
 			message = str.toString();
-			
+
 		}
-		
+
+		if (xmlDocument == null) {
+			xmlDocument = XMLParser.getInstance().parse(document, VALIDATION_MASK);
+		}
+
 		// Fill diagnostic
-		diagnostics.add(new Diagnostic(toLSPRange(location, key, arguments, document), message, toLSPSeverity(severity),
-				XML_DIAGNOSTIC_SOURCE, key));
+		diagnostics.add(new Diagnostic(toLSPRange(location, key, arguments, xmlDocument), message,
+				toLSPSeverity(severity), XML_DIAGNOSTIC_SOURCE, key));
 
 		if (severity == SEVERITY_FATAL_ERROR && !fContinueAfterFatalError) {
 			XMLParseException parseException = (exception != null) ? new XMLParseException(location, message, exception)

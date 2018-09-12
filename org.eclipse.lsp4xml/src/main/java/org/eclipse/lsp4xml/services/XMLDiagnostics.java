@@ -16,7 +16,7 @@ import java.util.List;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.commons.BadLocationException;
-import org.eclipse.lsp4xml.commons.TextDocument;
+import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.services.extensions.IDiagnosticsParticipant;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 
@@ -32,47 +32,45 @@ class XMLDiagnostics {
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
-	public List<Diagnostic> doDiagnostics(TextDocument document, CancelChecker monitor) {
+	public List<Diagnostic> doDiagnostics(XMLDocument xmlDocument, CancelChecker monitor) {
 		List<Diagnostic> diagnostics = new ArrayList<Diagnostic>();
 		try {
-			doBasicDiagnostics(document, diagnostics, monitor);
+			doBasicDiagnostics(xmlDocument, diagnostics, monitor);
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}
-		doExtensionsDiagnostics(document, diagnostics, monitor);
+		doExtensionsDiagnostics(xmlDocument, diagnostics, monitor);
 		return diagnostics;
 	}
 
 	/**
 	 * Do basic validation to check the no XML valid.
 	 * 
-	 * @param document
+	 * @param xmlDocument
 	 * @param diagnostics
 	 * @param monitor
 	 * @throws BadLocationException
 	 */
-	private void doBasicDiagnostics(TextDocument document, List<Diagnostic> diagnostics, CancelChecker monitor)
+	private void doBasicDiagnostics(XMLDocument xmlDocument, List<Diagnostic> diagnostics, CancelChecker monitor)
 			throws BadLocationException {
-		/*Scanner scanner = XMLScanner.createScanner(document.getText());
-		TokenType token = scanner.scan();
-		while (token != TokenType.EOS) {
-			monitor.checkCanceled();
-			// TODO check tokens...
-			token = scanner.scan();
-		}*/
+		/*
+		 * Scanner scanner = XMLScanner.createScanner(document.getText()); TokenType
+		 * token = scanner.scan(); while (token != TokenType.EOS) {
+		 * monitor.checkCanceled(); // TODO check tokens... token = scanner.scan(); }
+		 */
 	}
 
 	/**
 	 * Do validation with extension (XML Schema, etc)
 	 * 
-	 * @param document
+	 * @param xmlDocument
 	 * @param diagnostics
 	 * @param monitor
 	 */
-	private void doExtensionsDiagnostics(TextDocument document, List<Diagnostic> diagnostics, CancelChecker monitor) {
+	private void doExtensionsDiagnostics(XMLDocument xmlDocument, List<Diagnostic> diagnostics, CancelChecker monitor) {
 		for (IDiagnosticsParticipant diagnosticsParticipant : extensionsRegistry.getDiagnosticsParticipants()) {
 			monitor.checkCanceled();
-			diagnosticsParticipant.doDiagnostics(document, diagnostics, monitor);
+			diagnosticsParticipant.doDiagnostics(xmlDocument, diagnostics, monitor);
 		}
 	}
 

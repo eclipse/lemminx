@@ -53,15 +53,31 @@ public class LanguageModelCache<T> {
 		int version = document.getVersion();
 		String languageId = document.getLanguageId();
 		String uri = document.getUri();
+		T languageModel = getLanguageModel(version, languageId, uri);
+		if (languageModel != null) {
+			return languageModel;
+		}
+		return parseAndGet(document, version, languageId, uri);
+	}
+
+	private T getLanguageModel(int version, String languageId, String uri) {
 		LanguageModeInfo languageModelInfo = languageModels.get(uri);
 		if (languageModelInfo != null && languageModelInfo.version == version
 				&& Objects.equals(languageId, languageModelInfo.languageId)) {
 			languageModelInfo.cTime = System.currentTimeMillis();
 			return languageModelInfo.languageModel;
 		}
+		return null;
+	}
+
+	private synchronized T parseAndGet(TextDocumentItem document, int version, String languageId, String uri) {
+		T languageModel = getLanguageModel(version, languageId, uri);
+		if (languageModel != null) {
+			return languageModel;
+		}
 		TextDocument textDocument = document instanceof TextDocument ? (TextDocument) document
 				: new TextDocument(document);
-		T languageModel = parse.apply(textDocument);
+		languageModel = parse.apply(textDocument);
 		languageModels.put(uri, new LanguageModeInfo(languageModel, version, languageId, System.currentTimeMillis()));
 		return languageModel;
 	}
