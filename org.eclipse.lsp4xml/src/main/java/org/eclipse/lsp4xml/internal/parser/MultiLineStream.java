@@ -29,6 +29,10 @@ import java.util.regex.Pattern;
  */
 class MultiLineStream {
 
+	private static final Predicate<Integer> WHITESPACE_PREDICATE = ch -> {
+		return ch == _WSP || ch == _TAB || ch == _NWL || ch == _LFD || ch == _CAR;
+	};
+
 	private final String source;
 	private final int len;
 	private int position;
@@ -206,9 +210,7 @@ class MultiLineStream {
 	}
 
 	public boolean skipWhitespace() {
-		int n = this.advanceWhileChar(ch -> {
-			return ch == _WSP || ch == _TAB || ch == _NWL || ch == _LFD || ch == _CAR;
-		});
+		int n = this.advanceWhileChar(WHITESPACE_PREDICATE);
 		return n > 0;
 	}
 
