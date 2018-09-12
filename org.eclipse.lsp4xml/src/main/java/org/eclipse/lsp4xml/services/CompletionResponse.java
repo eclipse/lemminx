@@ -23,7 +23,7 @@ import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
  */
 class CompletionResponse extends CompletionList implements ICompletionResponse {
 
-	private List<String> seenAttributes;
+	private transient List<String> seenAttributes;
 
 	public CompletionResponse() {
 		super.setIsIncomplete(false);
