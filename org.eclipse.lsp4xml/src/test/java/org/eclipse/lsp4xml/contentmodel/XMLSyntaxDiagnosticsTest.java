@@ -246,7 +246,7 @@ public class XMLSyntaxDiagnosticsTest {
 	@Test
 	public void testQuoteRequiredInXMLDecl() throws Exception {
 		String xml = "<?xml version= encoding=\"UTF-8\"?>";
-		testDiagnosticsFor(xml, d(0, 14, 0, 14, XMLSyntaxErrorCode.QuoteRequiredInXMLDecl));
+		testDiagnosticsFor(xml, d(0, 15, 0, 23, XMLSyntaxErrorCode.QuoteRequiredInXMLDecl));
 	}
 
 	@Test

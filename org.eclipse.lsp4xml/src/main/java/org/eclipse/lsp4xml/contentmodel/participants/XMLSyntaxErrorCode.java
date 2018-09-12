@@ -10,11 +10,12 @@
  */
 package org.eclipse.lsp4xml.contentmodel.participants;
 
+import static org.eclipse.lsp4xml.utils.XMLPositionUtility.selectCurrentTagOffset;
+import static org.eclipse.lsp4xml.utils.XMLPositionUtility.selectStartTag;
+
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.eclipse.lsp4xml.utils.XMLPositionUtility.*;
-import org.apache.xerces.xni.QName;
 import org.apache.xerces.xni.XMLLocator;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.contentmodel.participants.codeactions.ElementUnterminatedCodeAction;
@@ -42,10 +43,10 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 	ETagRequired, // https://wiki.xmldation.com/Support/Validator/ETagRequired
 	ETagUnterminated, // https://wiki.xmldation.com/Support/Validator/ETagUnterminated
 	EqRequiredInAttribute, the_element_type_lmsg("the-element-type-lmsg"), EqRequiredInXMLDecl, IllegalQName,
-	InvalidCommentStart, LessthanInAttValue, MarkupEntityMismatch, MarkupNotRecognizedInContent, NameRequiredInReference,
-	OpenQuoteExpected, PITargetRequired, PseudoAttrNameExpected, QuoteRequiredInXMLDecl, SDDeclInvalid,
-	SpaceRequiredBeforeEncodingInXMLDecl, SpaceRequiredBeforeStandalone, SpaceRequiredInPI, VersionInfoRequired,
-	VersionNotSupported, XMLDeclUnterminated, CustomETag; // https://wiki.xmldation.com/Support/Validator/EqRequiredInAttribute
+	InvalidCommentStart, LessthanInAttValue, MarkupEntityMismatch, MarkupNotRecognizedInContent,
+	NameRequiredInReference, OpenQuoteExpected, PITargetRequired, PseudoAttrNameExpected, QuoteRequiredInXMLDecl,
+	SDDeclInvalid, SpaceRequiredBeforeEncodingInXMLDecl, SpaceRequiredBeforeStandalone, SpaceRequiredInPI,
+	VersionInfoRequired, VersionNotSupported, XMLDeclUnterminated, CustomETag; // https://wiki.xmldation.com/Support/Validator/EqRequiredInAttribute
 
 	private final String code;
 
@@ -90,14 +91,11 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 	public static Range toLSPRange(XMLLocator location, XMLSyntaxErrorCode code, Object[] arguments,
 			XMLDocument document) {
 		int offset = location.getCharacterOffset() - 1;
-		Range r;
-		String tag;
 		// adjust positions
 		switch (code) {
 		case AttributeNotUnique:
 		case AttributeNSNotUnique: {
-			String attrName = (String) arguments[1];
-			return XMLPositionUtility.selectAttributeNameLast(attrName, offset, document);
+			return XMLPositionUtility.selectAttributeNameAt(offset, document);
 		}
 		case ContentIllegalInProlog: {
 			int endOffset = document.getText().indexOf("<");
@@ -110,39 +108,35 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 			return XMLPositionUtility.createRange(startOffset, endOffset, document);
 		}
 		case EmptyPrefixedAttName: {
-			String attrName = ((QName) arguments[0]).rawname;
-			return XMLPositionUtility.selectAttributeValue(attrName, offset, document);
+			return XMLPositionUtility.selectAttributeValueAt(offset, document);
 		}
 		case ElementUnterminated: {
 			return XMLPositionUtility.selectStartTag(offset, document);
 		}
-		case ETagRequired:
-			tag = (String) arguments[0];
+		case ETagRequired: {
+			String tag = (String) arguments[0];
 			return XMLPositionUtility.selectChildEndTag(tag, offset, document);
-		case ETagUnterminated:
-			tag = (String) arguments[0];
+		}
+		case ETagUnterminated: {
+			String tag = (String) arguments[0];
 			return XMLPositionUtility.selectEndTag(offset - 1, document);
+		}
 		case EncodingDeclRequired:
-			break;
+			return XMLPositionUtility.selectAttributeNameAt(offset, document);
 		case EqRequiredInAttribute:
-			tag = getNameFromArguents(arguments, 1);
-			return XMLPositionUtility.selectAttributeName(tag, offset, document);
-
+			return XMLPositionUtility.selectAttributeNameAt(offset, document);
 		case EqRequiredInXMLDecl:
-			tag = getNameFromArguents(arguments, 1);
-			return XMLPositionUtility.selectAttributeName(tag, offset, document);
+			return XMLPositionUtility.selectAttributeNameAt(offset, document);
 		case IllegalQName:
 			return XMLPositionUtility.createRange(offset, offset + 1, document);
 		case InvalidCommentStart:
 			return XMLPositionUtility.createRange(offset, offset + 1, document);
 		case LessthanInAttValue:
-			tag = getNameFromArguents(arguments, 1);
-			return XMLPositionUtility.selectAttributeValue(tag, offset, document);
+			return XMLPositionUtility.selectAttributeValueAt(offset, document);
 		case MarkupEntityMismatch:
 			// return XMLPositionUtility.selectStartTag(offset, document);
 		case MarkupNotRecognizedInContent:
 			return XMLPositionUtility.createRange(offset, offset + 1, document);
-
 		case NameRequiredInReference:
 			// Good as is
 		case OpenQuoteExpected:
@@ -156,32 +150,23 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 			// Add better message
 			break;
 		case QuoteRequiredInXMLDecl:
-
 		case SDDeclInvalid:
-			return XMLPositionUtility.selectAttributeValue("standalone", offset, document);
-
+			return XMLPositionUtility.selectAttributeValueAt(offset, document);
 		case SpaceRequiredInPI:
 			int start = selectCurrentTagOffset(offset, document) + 1;
 			int end = offset + 1;
 			return XMLPositionUtility.createRange(start, end, document);
-
 		case SpaceRequiredBeforeStandalone:
 		case SpaceRequiredBeforeEncodingInXMLDecl:
 		case VersionInfoRequired:
-			tag = getNameFromArguents(arguments, 0);
-			r = selectStartTag(offset, document);
-			r.getEnd().setCharacter(r.getEnd().getCharacter() + 1);
-			return r;
+			return selectStartTag(offset, document);
 		case VersionNotSupported:
-			return XMLPositionUtility.selectAttributeValue("version", offset, document);
+			return XMLPositionUtility.selectAttributeValueAt(offset, document);
 		case XMLDeclUnterminated:
 			break;
 		case CustomETag:
-			tag = (String) arguments[0];
 			return XMLPositionUtility.selectEndTag(offset, document);
-			
 		}
-		
 
 		return null;
 

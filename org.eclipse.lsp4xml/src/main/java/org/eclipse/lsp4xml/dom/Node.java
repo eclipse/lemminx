@@ -173,11 +173,41 @@ public class Node {
 		int idx = findFirst(this.children, c -> offset <= c.start) - 1;
 		if (idx >= 0) {
 			Node child = this.children.get(idx);
-			if (offset > child.start && offset <= child.end) {
+			if (isIncluded(child, offset)) {
 				return child.findNodeAt(offset);
 			}
 		}
 		return this;
+	}
+
+	/**
+	 * Returns true if the node included the given offset and false otherwise.
+	 * 
+	 * @param node
+	 * @param offset
+	 * @return true if the node included the given offset and false otherwise.
+	 */
+	public static boolean isIncluded(Node node, int offset) {
+		if (node == null) {
+			return false;
+		}
+		return isIncluded(node.start, node.end, offset);
+	}
+
+	public static boolean isIncluded(int start, int end, int offset) {
+		return offset > start && offset <= end;
+	}
+
+	public Attr findAttrAt(int offset) {
+		Node node = findNodeAt(offset);
+		if (node != null && node.hasAttributes()) {
+			for (Attr attr : node.getAttributeNodes()) {
+				if (attr.isIncluded(offset)) {
+					return attr;
+				}
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -286,6 +316,10 @@ public class Node {
 		return null;
 	}
 
+	public List<Attr> getAttributeNodes() {
+		return attributeNodes;
+	}
+
 	/**
 	 * Returns the node children.
 	 * 
@@ -351,7 +385,8 @@ public class Node {
 	}
 
 	public boolean isProcessingInstruction() {
-		return (getNodeType() == Node.PROCESSING_INSTRUCTION_NODE) && ((ProcessingInstruction) this).isProcessingInstruction();
+		return (getNodeType() == Node.PROCESSING_INSTRUCTION_NODE)
+				&& ((ProcessingInstruction) this).isProcessingInstruction();
 	}
 
 	public boolean isProlog() {

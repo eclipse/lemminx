@@ -46,69 +46,65 @@ public class XMLPositionUtility {
 		}
 	}
 
-	public static String getNameFromArguents(Object[] arguments, int index) {
-		if(arguments == null) {
-			return "ARGUMENTS_ARE_NULL";
-		}
-		if(index < arguments.length) {
-			return (String) arguments[index];
-		}
-		return "INDEX_OUT_OF_RANGE";
-	}
-
-	public static Range selectAttributeName(String attrName, int offset, XMLDocument document) {
-		return selectAttributeName(attrName, offset, false, document);
-	}
-
-	public static Range selectAttributeNameLast(String attrName, int offset, XMLDocument document) {
-		return selectAttributeName(attrName, offset, true, document);
-	}
-
-	private static Range selectAttributeName(String attrName, int offset, boolean last, XMLDocument document) {
-		Node element = document.findNodeAt(offset);
-		if (element != null) {
-			Attr attr = element.getAttributeNode(attrName, last);
-			if (attr != null) {
-				int startOffset = attr.getNodeName().start;
-				int endOffset = attr.getNodeName().end;
-				return createRange(startOffset, endOffset, document);
-			}
+	public static Range selectAttributeNameAt(int offset, XMLDocument document) {
+		offset = adjustOffsetForAttribute(offset, document);
+		Attr attr = document.findAttrAt(offset);
+		if (attr != null) {
+			int startOffset = attr.getNodeName().start;
+			int endOffset = attr.getNodeName().end;
+			return createRange(startOffset, endOffset, document);
 		}
 		return null;
 	}
 
-	public static Range selectAttributeValue(String attrName, int offset, XMLDocument document) {
-		Node element = document.findNodeAt(offset);
-		if (element != null) {
-			Attr attr = element.getAttributeNode(attrName);
-			if (attr != null) {
-				int startOffset = attr.getNodeValue().start;
-				int endOffset = attr.getNodeValue().end;
-				return createRange(startOffset, endOffset, document);
-			}
+	public static Range selectAttributeValueAt(int offset, XMLDocument document) {
+		offset = adjustOffsetForAttribute(offset, document);
+		Attr attr = document.findAttrAt(offset);
+		if (attr != null) {
+			int startOffset = attr.getNodeValue().start;
+			int endOffset = attr.getNodeValue().end;
+			return createRange(startOffset, endOffset, document);
 		}
 		return null;
 	}
 
+	private static int adjustOffsetForAttribute(int offset, XMLDocument document) {
+		// For attribute value, Xerces report the error offset after the spaces which
+		// are after " of the attribute value
+		// Here sample with offset marked with |
+		// -> <a b="" b="" |>
+		// -> <a b="" b=""|>
+		// Remove spaces
+		String text = document.getText();
+		char c = text.charAt(offset);
+		while (offset >= 0) {
+			if (Character.isWhitespace(c) || c == '>') {
+				offset--;
+			} else {
+				break;
+			}
+			c = text.charAt(offset);
+		}
+		return offset;
+	}
 
 	public static Range selectChildEndTag(String childTag, int offset, XMLDocument document) {
 		Node parent = document.findNodeAt(offset);
-		if(parent.tag == null) {
+		if (parent.tag == null) {
 			return null;
 		}
-		if(parent != null) {
-			Node child = findChildNode(childTag,parent.getChildren());
-			if(child != null) {
+		if (parent != null) {
+			Node child = findChildNode(childTag, parent.getChildren());
+			if (child != null) {
 				return createRange(child.start + 1, child.start + 1 + childTag.length(), document);
 			}
 		}
 		return null;
 	}
 
-
 	static Node findChildNode(String childTag, List<Node> children) {
 		for (Node child : children) {
-			if(child.tag.equals(childTag) && !child.isClosed()) {
+			if (child.tag.equals(childTag) && !child.isClosed()) {
 				return child;
 			}
 		}
@@ -120,6 +116,12 @@ public class XMLPositionUtility {
 		if (element != null) {
 			int startOffset = element.start + 1; // <
 			int endOffset = startOffset + element.tag.length();
+			if (element.isProcessingInstruction() || element.isProlog()) {
+				// in the case of prolog or processing instruction, tag is equals to "xml"
+				// without '?' -> <?xml
+				// increment end offset to select '?xml' instead of selecting '?xm'
+				endOffset++;
+			}
 			return createRange(startOffset, endOffset, document);
 		}
 		return null;
@@ -129,7 +131,7 @@ public class XMLPositionUtility {
 		Node element = document.findNodeAt(offset);
 		if (element != null) {
 			return element.start; // <
-			
+
 		}
 		return -1;
 	}
@@ -147,7 +149,24 @@ public class XMLPositionUtility {
 	}
 
 	public static Range selectAllAttributes(int offset, XMLDocument document) {
-		// TODO Auto-generated method stub
+		Node element = document.findNodeAt(offset);
+		if (element != null && element.hasAttributes()) {
+			int startOffset = -1;
+			int endOffset = 0;
+			List<Attr> attributes = element.getAttributeNodes();
+			for (Attr attr : attributes) {
+				if (startOffset == -1) {
+					startOffset = attr.getStart();
+					endOffset = attr.getEnd();
+				} else {
+					startOffset = Math.min(attr.getStart(), startOffset);
+					endOffset = Math.min(attr.getEnd(), startOffset);
+				}
+			}
+			if (startOffset != -1) {
+				return createRange(startOffset, endOffset, document);
+			}
+		}
 		return null;
 	}
 
@@ -183,24 +202,24 @@ public class XMLPositionUtility {
 		}
 		return null;
 	}
+
 	/**
-	 * Finds the offset of the first tag it comes across behind the
-	 * given offset. 
+	 * Finds the offset of the first tag it comes across behind the given offset.
 	 * 
 	 * This excludes the tag it starts in if offset is within a tag.
 	 */
-	public static Range selectPreviousEndTag( int offset, XMLDocument document) {
-		//boolean firstBracket = false;
+	public static Range selectPreviousEndTag(int offset, XMLDocument document) {
+		// boolean firstBracket = false;
 		int i = offset;
 		char c = document.getText().charAt(i);
-		while(i >= 0) {
-			if(c == '>') {
-				//if(firstBracket) {
-					return selectStartTag(i, document);
-				//}
-				//else {
-				//	firstBracket = true;
-				//}
+		while (i >= 0) {
+			if (c == '>') {
+				// if(firstBracket) {
+				return selectStartTag(i, document);
+				// }
+				// else {
+				// firstBracket = true;
+				// }
 			}
 			i--;
 			c = document.getText().charAt(i);

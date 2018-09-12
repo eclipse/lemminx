@@ -43,4 +43,16 @@ public class Attr {
 		this.nodeValue = nodeValue;
 	}
 
+	public boolean isIncluded(int offset) {
+		return Node.isIncluded(getStart(), getEnd(), offset);
+	}
+
+	public int getStart() {
+		return nodeName.start;
+	}
+
+	public int getEnd() {
+		return nodeValue != null ? nodeValue.end : nodeName.end;
+	}
+
 }

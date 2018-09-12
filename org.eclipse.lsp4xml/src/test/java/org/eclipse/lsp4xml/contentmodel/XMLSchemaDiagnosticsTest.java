@@ -87,7 +87,7 @@ public class XMLSchemaDiagnosticsTest {
 				"	xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n"
 				+ //
 				"<modelVersion XXXX=\"\" ></modelVersion>" + "</project>";
-		testDiagnosticsFor(xml, d(3, 23, 3, 23, XMLSchemaErrorCode.cvc_type_3_1_1));
+		testDiagnosticsFor(xml, d(3, 14, 3, 21, XMLSchemaErrorCode.cvc_type_3_1_1));
 	}
 
 	@Test
