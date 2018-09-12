@@ -27,8 +27,7 @@ import org.eclipse.lsp4xml.utils.XMLPositionUtility;
  */
 public enum DTDErrorCode implements IXMLErrorCode {
 
-	MSG_ELEMENT_NOT_DECLARED,
-	MSG_CONTENT_INVALID;
+	MSG_ELEMENT_NOT_DECLARED, MSG_CONTENT_INCOMPLETE, MSG_CONTENT_INVALID, MSG_REQUIRED_ATTRIBUTE_NOT_SPECIFIED;
 
 	private final String code;
 
@@ -75,6 +74,8 @@ public enum DTDErrorCode implements IXMLErrorCode {
 		// adjust positions
 		switch (code) {
 
+		case MSG_CONTENT_INCOMPLETE:
+		case MSG_REQUIRED_ATTRIBUTE_NOT_SPECIFIED:
 		case MSG_ELEMENT_NOT_DECLARED: {
 			return XMLPositionUtility.selectStartTag(offset, document);
 		}

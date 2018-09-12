@@ -111,7 +111,7 @@ public class XMLSyntaxDiagnosticsTest {
 				"  <xs:Othr>\r\n" + //
 				"  </xs:Othr>\r\n" + //
 				"</xs:OrgId>";
-		testDiagnosticsFor(xml, d(0, 10, 0, 10, XMLSyntaxErrorCode.ElementPrefixUnbound));
+		testDiagnosticsFor(xml, d(0, 1, 0, 9, XMLSyntaxErrorCode.ElementPrefixUnbound));
 	}
 
 	/**

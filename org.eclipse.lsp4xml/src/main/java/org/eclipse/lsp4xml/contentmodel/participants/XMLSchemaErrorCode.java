@@ -33,6 +33,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 
 	cvc_complex_type_2_3("cvc-complex-type.2.3"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-2-3
 	cvc_complex_type_2_4_a("cvc-complex-type.2.4.a"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-2-4-a
+	cvc_complex_type_2_4_b("cvc-complex-type.2.4.b"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-2-4-b
 	cvc_complex_type_2_4_d("cvc-complex-type.2.4.d"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-2-4-d
 	cvc_complex_type_3_2_2("cvc-complex-type.3.2.2"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-3-2-2
 	cvc_complex_type_4("cvc-complex-type.4"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-4
@@ -93,6 +94,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 		case cvc_complex_type_2_3:
 			return XMLPositionUtility.selectFirstNonWhitespaceText(offset, document);
 		case cvc_complex_type_2_4_a:
+		case cvc_complex_type_2_4_b:
 		case cvc_complex_type_2_4_d:
 		case cvc_elt_1_a:
 		case cvc_complex_type_4:
