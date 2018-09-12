@@ -89,11 +89,11 @@ public class XMLSchemaDiagnosticsTest {
 				"<modelVersion XXXX=\"\" ></modelVersion>" + "</project>";
 		Diagnostic d = d(3, 14, 3, 21, XMLSchemaErrorCode.cvc_type_3_1_1);
 		testDiagnosticsFor(xml, d);
-		testCodeActionsFor(xml, d, ca(d, te(3, 14, 3, 21, "")));		
+		testCodeActionsFor(xml, d, ca(d, te(3, 14, 3, 21, "")));
 	}
 
 	@Test
-	public void testcvc_complex_type_3_2_2() throws Exception {
+	public void cvc_complex_type_3_2_2() throws Exception {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
 				+ //
@@ -101,6 +101,17 @@ public class XMLSchemaDiagnosticsTest {
 				"	</bean>              \r\n" + //
 				"</beans>";
 		testDiagnosticsFor(xml, d(2, 7, 2, 11, XMLSchemaErrorCode.cvc_complex_type_3_2_2));
+	}
+
+	@Test
+	public void cvc_attribute_3() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
+				+ //
+				"	<bean autowire=\"ERROR\" />\r\n" + // <- error
+				"</beans>";
+		testDiagnosticsFor(xml, d(2, 26, 2, 26, XMLSchemaErrorCode.cvc_enumeration_valid),
+				d(2, 16, 2, 23, XMLSchemaErrorCode.cvc_attribute_3));
 	}
 
 	private static void testDiagnosticsFor(String xml, Diagnostic... expected) {

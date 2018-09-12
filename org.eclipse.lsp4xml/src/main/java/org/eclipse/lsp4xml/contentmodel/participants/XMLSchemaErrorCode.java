@@ -35,11 +35,16 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 	cvc_complex_type_2_4_a("cvc-complex-type.2.4.a"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-2-4-a
 	cvc_complex_type_2_4_b("cvc-complex-type.2.4.b"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-2-4-b
 	cvc_complex_type_2_4_d("cvc-complex-type.2.4.d"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-2-4-d
+	cvc_complex_type_3_1("cvc-complex-type.3.1"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-3-1
 	cvc_complex_type_3_2_2("cvc-complex-type.3.2.2"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-3-2-2
 	cvc_complex_type_4("cvc-complex-type.4"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-4
 	cvc_elt_1_a("cvc-elt.1.a"), // https://wiki.xmldation.com/Support/Validator/cvc-elt-1
-	cvc_type_3_1_1("cvc-type.3.1.1"); // https://wiki.xmldation.com/Support/Validator/cvc-type-3-1-1
-
+	cvc_elt_4_2("cvc-elt.4.2"), // https://wiki.xmldation.com/Support/Validator/cvc-elt-4-2
+	cvc_type_3_1_1("cvc-type.3.1.1"), // https://wiki.xmldation.com/Support/Validator/cvc-type-3-1-1
+	cvc_type_3_1_3("cvc-type.3.1.3"), // https://wiki.xmldation.com/Support/Validator/cvc-type-3-1-3,
+	cvc_attribute_3("cvc-attribute.3"), // https://wiki.xmldation.com/Support/Validator/cvc-attribute-3
+	cvc_enumeration_valid("cvc-enumeration-valid"); // https://wiki.xmldation.com/Support/Validator/cvc-enumeration-valid
+	
 	private final String code;
 
 	private XMLSchemaErrorCode() {
@@ -88,7 +93,6 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 	public static Range toLSPRange(XMLLocator location, XMLSchemaErrorCode code, Object[] arguments,
 			XMLDocument document) {
 		int offset = location.getCharacterOffset() - 1;
-
 		// adjust positions
 		switch (code) {
 		case cvc_complex_type_2_3:
@@ -99,13 +103,17 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 		case cvc_elt_1_a:
 		case cvc_complex_type_4:
 			return XMLPositionUtility.selectStartTag(offset, document);
-		case cvc_complex_type_3_2_2: {
+		case cvc_complex_type_3_2_2:
 			return XMLPositionUtility.selectAttributeNameAt(offset, document);
-		}
+		case cvc_attribute_3:
+		case cvc_complex_type_3_1:
+		case cvc_elt_4_2:
+			return XMLPositionUtility.selectAttributeValueAt(offset, document);
 		case cvc_type_3_1_1:
 			return XMLPositionUtility.selectAllAttributes(offset, document);
+		case cvc_type_3_1_3:
+			return XMLPositionUtility.selectText(offset, document);
 		}
-
 		return null;
 	}
 

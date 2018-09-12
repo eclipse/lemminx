@@ -77,8 +77,15 @@ public class XMLPositionUtility {
 		// Remove spaces
 		String text = document.getText();
 		char c = text.charAt(offset);
+		if (c == '>') {
+			offset--;
+			c = text.charAt(offset);
+			if (c == '/') {
+				offset--;
+			}
+		}
 		while (offset >= 0) {
-			if (Character.isWhitespace(c) || c == '>') {
+			if (Character.isWhitespace(c)) {
 				offset--;
 			} else {
 				break;
@@ -233,6 +240,11 @@ public class XMLPositionUtility {
 		} catch (BadLocationException e) {
 			return null;
 		}
+	}
+
+	public static Range selectText(int offset, XMLDocument document) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
