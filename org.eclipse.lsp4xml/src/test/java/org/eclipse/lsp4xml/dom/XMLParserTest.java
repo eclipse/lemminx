@@ -325,8 +325,8 @@ public class XMLParserTest {
 
 	private static Node createPrologNode(String tag, int start, int endTagStart, int end, boolean closed,
 			Node... children) {
-		ProcessingInstruction n = (ProcessingInstruction) createNode(Node.PROCESSING_INSTRUCTION_NODE,
-				tag, start, endTagStart, end, closed, children);
+		ProcessingInstruction n = (ProcessingInstruction) createNode(Node.PROCESSING_INSTRUCTION_NODE, tag, start,
+				endTagStart, end, closed, children);
 		n.prolog = true;
 		return n;
 	}
@@ -364,8 +364,6 @@ public class XMLParserTest {
 		return new Node(start, end, newChildren, null, null);
 	}
 
-	
-
 	private static void setRestOfNode(Node n, String tag, int endTagStart, boolean closed) {
 		n.tag = tag;
 		n.endTagStart = endTagStart > -1 ? Integer.valueOf(endTagStart) : null;
@@ -373,7 +371,8 @@ public class XMLParserTest {
 	}
 
 	private static void assertDocument(String input, Node expectedNode) {
-		XMLDocument document = XMLParser.getInstance().parse(input, "uri", EnumSet.of(XMLParser.Flag.Content));
+		XMLDocument document = XMLParser.getInstance().parse(input, "uri",
+				EnumSet.of(XMLParser.Flag.Content, XMLParser.Flag.Comment));
 		Node actualNode = document.getChild(0);
 		compareTrees(expectedNode, actualNode);
 	}

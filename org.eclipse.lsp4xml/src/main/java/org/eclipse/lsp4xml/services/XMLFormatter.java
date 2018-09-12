@@ -38,7 +38,7 @@ import org.eclipse.lsp4xml.utils.XMLBuilder;
 class XMLFormatter {
 
 	private static final Logger LOGGER = Logger.getLogger(XMLFormatter.class.getName());
-	public static final EnumSet<Flag> FORMAT_MASK = EnumSet.of(Flag.Content);
+	public static final EnumSet<Flag> FORMAT_MASK = EnumSet.of(Flag.Content, Flag.Comment);
 
 	private final XMLExtensionsRegistry extensionsRegistry;
 
@@ -103,12 +103,11 @@ class XMLFormatter {
 				if (level == 0) {
 					xml.linefeed();
 				}
-			}
-			else if (node.isProcessingInstruction()) {
+			} else if (node.isProcessingInstruction()) {
 				xml.startPrologOrPI(node.tag);
 				xml.addContentPI(node.content);
 				xml.endPrologOrPI();
-				if(level == 0) {
+				if (level == 0) {
 					xml.linefeed();
 				}
 			} else if (node.isProlog()) {
@@ -145,7 +144,8 @@ class XMLFormatter {
 					Set<String> attributeNames = node.attributeNames();
 					int attributeIndex = 0;
 					for (String attributeName : attributeNames) {
-						xml.addAttribute(attributeName, node.getAttributeValue(attributeName), attributeIndex, level, node.tag);
+						xml.addAttribute(attributeName, node.getAttributeValue(attributeName), attributeIndex, level,
+								node.tag);
 						attributeIndex++;
 					}
 				}

@@ -40,7 +40,7 @@ public class XMLParser {
 	}
 
 	public enum Flag {
-		Content, Attribute;
+		Content, Attribute, Comment;
 
 		public static final EnumSet<Flag> ALL_OPTS = EnumSet.allOf(Flag.class);
 	}
@@ -213,24 +213,26 @@ public class XMLParser {
 			}
 
 			case StartCommentTag: {
-				Comment comment = new Comment(scanner.getTokenOffset(), text.length(), curr, xmlDocument);
-				curr.addChild(comment);
-				curr = comment;
-				curr.tag = "Comment";
-				try {
-					int endLine = document.positionAt(lastClosed.end).getLine();
-					int startLine = document.positionAt(curr.start).getLine();
-					if (endLine == startLine && lastClosed.end <= curr.start) {
-						comment.commentSameLineEndTag = true;
+				if (mask != null && mask.contains(Flag.Comment)) {
+					Comment comment = new Comment(scanner.getTokenOffset(), text.length(), curr, xmlDocument);
+					curr.addChild(comment);
+					curr = comment;
+					curr.tag = "Comment";
+					try {
+						int endLine = document.positionAt(lastClosed.end).getLine();
+						int startLine = document.positionAt(curr.start).getLine();
+						if (endLine == startLine && lastClosed.end <= curr.start) {
+							comment.commentSameLineEndTag = true;
+						}
+					} catch (BadLocationException e) {
+						LOGGER.log(Level.SEVERE, "XMLParser StartCommentTag bad offset in document", e);
 					}
-				} catch (BadLocationException e) {
-					LOGGER.log(Level.SEVERE, "XMLParser StartCommentTag bad offset in document", e);
 				}
 				break;
 			}
 
 			case Comment: {
-				if (mask != null && mask.contains(Flag.Content)) {
+				if (mask != null && mask.contains(Flag.Comment)) {
 					curr.content = scanner.getTokenText();
 				}
 				break;
@@ -254,7 +256,14 @@ public class XMLParser {
 				break;
 			}
 
-			case EndCommentTag:
+			case EndCommentTag: {
+				if (mask != null && mask.contains(Flag.Comment)) {
+					curr.end = scanner.getTokenEnd();
+					curr.closed = true;
+					curr = curr.parent;								
+				}
+				break;
+			}
 			case EndDoctypeTag: {
 				curr.end = scanner.getTokenEnd();
 				curr.closed = true;
