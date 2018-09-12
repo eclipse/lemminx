@@ -54,7 +54,7 @@ public class XMLValidator {
 
 			// Add LSP error reporter to fill LSP diagnostics from Xerces errors
 			reader.setProperty("http://apache.org/xml/properties/internal/error-reporter",
-					new LSPErrorReporter(document.getTextDocument(), diagnostics));
+					new LSPErrorReporter(document, diagnostics));
 			reader.setFeature("http://apache.org/xml/features/continue-after-fatal-error", false); //$NON-NLS-1$
 			reader.setFeature("http://xml.org/sax/features/namespace-prefixes", true /* document.hasNamespaces() */); //$NON-NLS-1$
 			reader.setFeature("http://xml.org/sax/features/namespaces", true /* document.hasNamespaces() */); //$NON-NLS-1$

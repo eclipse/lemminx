@@ -11,7 +11,6 @@
 package org.eclipse.lsp4xml.services;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
@@ -26,7 +25,6 @@ import org.eclipse.lsp4xml.dom.Comment;
 import org.eclipse.lsp4xml.dom.Node;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.dom.XMLParser;
-import org.eclipse.lsp4xml.dom.XMLParser.Flag;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.utils.XMLBuilder;
@@ -38,7 +36,6 @@ import org.eclipse.lsp4xml.utils.XMLBuilder;
 class XMLFormatter {
 
 	private static final Logger LOGGER = Logger.getLogger(XMLFormatter.class.getName());
-	public static final EnumSet<Flag> FORMAT_MASK = EnumSet.of(Flag.Content, Flag.Comment);
 
 	private final XMLExtensionsRegistry extensionsRegistry;
 
@@ -64,7 +61,7 @@ class XMLFormatter {
 			// Parse the content to format to create an XML document with full data (CData,
 			// comments, etc)
 			String text = document.getText().substring(start, end);
-			XMLDocument doc = XMLParser.getInstance().parse(text, null, FORMAT_MASK);
+			XMLDocument doc = XMLParser.getInstance().parse(text, null);
 
 			// Format the content
 			XMLBuilder xml = new XMLBuilder(formattingOptions, "", document.lineDelimiter(startPosition.getLine()));

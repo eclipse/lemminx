@@ -13,7 +13,6 @@ package org.eclipse.lsp4xml.dom;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.List;
 
 import org.junit.Assert;
@@ -371,8 +370,7 @@ public class XMLParserTest {
 	}
 
 	private static void assertDocument(String input, Node expectedNode) {
-		XMLDocument document = XMLParser.getInstance().parse(input, "uri",
-				EnumSet.of(XMLParser.Flag.Content, XMLParser.Flag.Comment));
+		XMLDocument document = XMLParser.getInstance().parse(input, "uri");
 		Node actualNode = document.getChild(0);
 		compareTrees(expectedNode, actualNode);
 	}

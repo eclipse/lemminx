@@ -32,7 +32,7 @@ import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 class XMLSymbolsProvider {
 	private static final Logger LOGGER = Logger.getLogger(XMLSymbolsProvider.class.getName());
 	private final XMLExtensionsRegistry extensionsRegistry;
-	
+
 	public XMLSymbolsProvider(XMLExtensionsRegistry extensionsRegistry) {
 		this.extensionsRegistry = extensionsRegistry;
 	}
@@ -51,13 +51,16 @@ class XMLSymbolsProvider {
 
 	private void provideFileSymbolsInternal(Node node, String container, List<SymbolInformation> symbols)
 			throws BadLocationException {
+		if (!isNodeSymbol(node)) {
+			return;
+		}
 		String name = nodeToName(node);
 		XMLDocument xmlDocument = node.getOwnerDocument();
 		Position start = xmlDocument.positionAt(node.start);
 		Position end = xmlDocument.positionAt(node.end);
 		Range range = new Range(start, end);
 		Location location = new Location(xmlDocument.getUri(), range);
-		SymbolInformation symbol = new SymbolInformation(name, SymbolKind.Field, location, container);
+		SymbolInformation symbol = new SymbolInformation(name, getSymbolKind(node), location, container);
 
 		symbols.add(symbol);
 
@@ -65,10 +68,22 @@ class XMLSymbolsProvider {
 			try {
 				provideFileSymbolsInternal(child, name, symbols);
 			} catch (BadLocationException e) {
-				LOGGER.log(Level.SEVERE, "XMLSymbolsProvider was given a BadLocation by the provided 'node' variable", e);
+				LOGGER.log(Level.SEVERE, "XMLSymbolsProvider was given a BadLocation by the provided 'node' variable",
+						e);
 			}
 		});
 
+	}
+
+	private SymbolKind getSymbolKind(Node node) {
+		if (node.isProcessingInstruction() || node.isProlog() || node.isDoctype()) {
+			return SymbolKind.Property;
+		}
+		return SymbolKind.Field;
+	}
+
+	private boolean isNodeSymbol(Node node) {
+		return node.isElement() || node.isDoctype() || node.isProcessingInstruction() || node.isProlog();
 	}
 
 	private static String nodeToName(Node node) {

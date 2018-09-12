@@ -11,7 +11,6 @@
 package org.eclipse.lsp4xml.dom;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -39,25 +38,11 @@ public class XMLParser {
 
 	}
 
-	public enum Flag {
-		Content, Attribute, Comment;
-
-		public static final EnumSet<Flag> ALL_OPTS = EnumSet.allOf(Flag.class);
-	}
-
 	public XMLDocument parse(String text, String uri) {
-		return parse(text, uri, null);
-	}
-
-	public XMLDocument parse(String text, String uri, EnumSet<Flag> mask) {
-		return parse(new TextDocument(text, uri), mask);
+		return parse(new TextDocument(text, uri));
 	}
 
 	public XMLDocument parse(TextDocument document) {
-		return parse(document, null);
-	}
-
-	public XMLDocument parse(TextDocument document, EnumSet<Flag> mask) {
 
 		String text = document.getText();
 		Scanner scanner = XMLScanner.createScanner(text);
@@ -131,11 +116,9 @@ public class XMLParser {
 			case AttributeName: {
 				pendingAttribute = scanner.getTokenText();
 				curr.setAttribute(pendingAttribute, null); // Support valueless attributes such as 'checked'
-				if (mask != null && mask.contains(Flag.Attribute)) {
-					attr = new Attr(pendingAttribute, new Node(scanner.getTokenOffset(),
-							scanner.getTokenOffset() + pendingAttribute.length(), null, curr, xmlDocument));
-					curr.setAttributeNode(attr);
-				}
+				attr = new Attr(pendingAttribute, new Node(scanner.getTokenOffset(),
+						scanner.getTokenOffset() + pendingAttribute.length(), null, curr, xmlDocument));
+				curr.setAttributeNode(attr);
 				break;
 			}
 
@@ -143,13 +126,11 @@ public class XMLParser {
 				String value = scanner.getTokenText();
 				if (curr.hasAttributes()) {
 					curr.setAttribute(pendingAttribute, value);
-					if (mask != null && mask.contains(Flag.Attribute) && attr != null) {
-						attr.setNodeValue(new Node(scanner.getTokenOffset(), scanner.getTokenOffset() + value.length(),
-								null, curr, xmlDocument));
-					}
-					pendingAttribute = null;
-					attr = null;
+					attr.setNodeValue(new Node(scanner.getTokenOffset(), scanner.getTokenOffset() + value.length(),
+							null, curr, xmlDocument));
 				}
+				pendingAttribute = null;
+				attr = null;
 				break;
 			}
 
@@ -162,12 +143,10 @@ public class XMLParser {
 			}
 
 			case CDATAContent: {
-				if (mask != null && mask.contains(Flag.Content)) {
-					if (curr.content == null) {
-						curr.content = "";
-					}
-					curr.content += scanner.getTokenText();
+				if (curr.content == null) {
+					curr.content = "";
 				}
+				curr.content += scanner.getTokenText();
 				break;
 			}
 
@@ -213,28 +192,28 @@ public class XMLParser {
 			}
 
 			case StartCommentTag: {
-				if (mask != null && mask.contains(Flag.Comment)) {
-					Comment comment = new Comment(scanner.getTokenOffset(), text.length(), curr, xmlDocument);
-					curr.addChild(comment);
-					curr = comment;
-					curr.tag = "Comment";
-					try {
-						int endLine = document.positionAt(lastClosed.end).getLine();
-						int startLine = document.positionAt(curr.start).getLine();
-						if (endLine == startLine && lastClosed.end <= curr.start) {
-							comment.commentSameLineEndTag = true;
-						}
-					} catch (BadLocationException e) {
-						LOGGER.log(Level.SEVERE, "XMLParser StartCommentTag bad offset in document", e);
+				// if (mask != null && mask.contains(Flag.Comment)) {
+				Comment comment = new Comment(scanner.getTokenOffset(), text.length(), curr, xmlDocument);
+				curr.addChild(comment);
+				curr = comment;
+				curr.tag = "Comment";
+				try {
+					int endLine = document.positionAt(lastClosed.end).getLine();
+					int startLine = document.positionAt(curr.start).getLine();
+					if (endLine == startLine && lastClosed.end <= curr.start) {
+						comment.commentSameLineEndTag = true;
 					}
+				} catch (BadLocationException e) {
+					LOGGER.log(Level.SEVERE, "XMLParser StartCommentTag bad offset in document", e);
 				}
+				// }
 				break;
 			}
 
 			case Comment: {
-				if (mask != null && mask.contains(Flag.Comment)) {
-					curr.content = scanner.getTokenText();
-				}
+				// if (mask != null && mask.contains(Flag.Comment)) {
+				curr.content = scanner.getTokenText();
+				// }
 				break;
 			}
 
@@ -247,21 +226,17 @@ public class XMLParser {
 			}
 
 			case Doctype: {
-				if (mask != null && mask.contains(Flag.Content)) {
-					if (curr.content == null) {
-						curr.content = "";
-					}
-					curr.content += scanner.getTokenText();
+				if (curr.content == null) {
+					curr.content = "";
 				}
+				curr.content += scanner.getTokenText();
 				break;
 			}
 
 			case EndCommentTag: {
-				if (mask != null && mask.contains(Flag.Comment)) {
-					curr.end = scanner.getTokenEnd();
-					curr.closed = true;
-					curr = curr.parent;								
-				}
+				curr.end = scanner.getTokenEnd();
+				curr.closed = true;
+				curr = curr.parent;
 				break;
 			}
 			case EndDoctypeTag: {
@@ -272,15 +247,13 @@ public class XMLParser {
 			}
 
 			case Content: {
-				if (mask != null && mask.contains(Flag.Content)) {
-					String content = scanner.getTokenText();
-					if (content.trim().length() == 0) {
-						break;
-					}
-					Text cdata = new Text(scanner.getTokenOffset(), content.length(), curr, xmlDocument);
-					cdata.content = content;
-					curr.addChild(cdata);
+				String content = scanner.getTokenText();
+				if (content.trim().length() == 0) {
+					break;
 				}
+				Text cdata = new Text(scanner.getTokenOffset(), content.length(), curr, xmlDocument);
+				cdata.content = content;
+				curr.addChild(cdata);
 				break;
 			}
 

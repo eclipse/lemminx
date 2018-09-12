@@ -10,6 +10,8 @@
  */
 package org.eclipse.lsp4xml.dom;
 
+import java.util.ArrayList;
+
 /**
  * A text node.
  *
@@ -17,7 +19,7 @@ package org.eclipse.lsp4xml.dom;
 public class Text extends Node {
 
 	public Text(int start, int end, Node parent, XMLDocument ownerDocument) {
-		super(start, end, null, parent, ownerDocument);
+		super(start, end, new ArrayList<>(), parent, ownerDocument);
 	}
 
 	@Override
