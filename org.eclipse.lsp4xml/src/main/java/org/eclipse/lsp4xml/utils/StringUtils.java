@@ -16,6 +16,10 @@ package org.eclipse.lsp4xml.utils;
  */
 public class StringUtils {
 
+	private StringUtils() {
+		
+	}
+	
 	/**
 	 * Returns the result of normalize space of the given string.
 	 * 

@@ -8,7 +8,7 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lsp4xml.internal.parser;
+package org.eclipse.lsp4xml.dom.parser;
 
 import java.util.regex.Pattern;
 

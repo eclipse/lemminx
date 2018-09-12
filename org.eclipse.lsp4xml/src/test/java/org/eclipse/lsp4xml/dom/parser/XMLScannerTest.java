@@ -8,10 +8,13 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lsp4xml.internal.parser;
+package org.eclipse.lsp4xml.dom.parser;
 
 import static org.junit.Assert.assertEquals;
 
+import org.eclipse.lsp4xml.dom.parser.Scanner;
+import org.eclipse.lsp4xml.dom.parser.TokenType;
+import org.eclipse.lsp4xml.dom.parser.XMLScanner;
 import org.junit.Before;
 import org.junit.Test;
 

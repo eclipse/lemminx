@@ -9,7 +9,7 @@
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  *  Nikolas Komonen <nkomonen@redhat.com> - additions for CDATA and Processing Instruction
  */
-package org.eclipse.lsp4xml.internal.parser;
+package org.eclipse.lsp4xml.dom.parser;
 
 /**
  * XML Scanner state.

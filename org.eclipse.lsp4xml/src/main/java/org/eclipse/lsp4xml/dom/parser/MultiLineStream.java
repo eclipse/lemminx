@@ -8,14 +8,14 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lsp4xml.internal.parser;
+package org.eclipse.lsp4xml.dom.parser;
 
-import static org.eclipse.lsp4xml.internal.parser.Constants._CAR;
-import static org.eclipse.lsp4xml.internal.parser.Constants._LAN;
-import static org.eclipse.lsp4xml.internal.parser.Constants._LFD;
-import static org.eclipse.lsp4xml.internal.parser.Constants._NWL;
-import static org.eclipse.lsp4xml.internal.parser.Constants._TAB;
-import static org.eclipse.lsp4xml.internal.parser.Constants._WSP;
+import static org.eclipse.lsp4xml.dom.parser.Constants._CAR;
+import static org.eclipse.lsp4xml.dom.parser.Constants._LAN;
+import static org.eclipse.lsp4xml.dom.parser.Constants._LFD;
+import static org.eclipse.lsp4xml.dom.parser.Constants._NWL;
+import static org.eclipse.lsp4xml.dom.parser.Constants._TAB;
+import static org.eclipse.lsp4xml.dom.parser.Constants._WSP;
 
 import java.util.HashMap;
 import java.util.Map;

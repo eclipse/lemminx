@@ -17,7 +17,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
-import org.eclipse.lsp4xml.internal.parser.Constants;
+import org.eclipse.lsp4xml.dom.parser.Constants;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
 
 /**

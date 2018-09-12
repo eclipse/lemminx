@@ -17,9 +17,9 @@ import java.util.logging.Logger;
 
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
-import org.eclipse.lsp4xml.internal.parser.Scanner;
-import org.eclipse.lsp4xml.internal.parser.TokenType;
-import org.eclipse.lsp4xml.internal.parser.XMLScanner;
+import org.eclipse.lsp4xml.dom.parser.Scanner;
+import org.eclipse.lsp4xml.dom.parser.TokenType;
+import org.eclipse.lsp4xml.dom.parser.XMLScanner;
 
 /**
  * Tolerant XML parser.

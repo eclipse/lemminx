@@ -27,9 +27,9 @@ import org.eclipse.lsp4j.FoldingRangeCapabilities;
 import org.eclipse.lsp4j.FoldingRangeKind;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
-import org.eclipse.lsp4xml.internal.parser.Scanner;
-import org.eclipse.lsp4xml.internal.parser.TokenType;
-import org.eclipse.lsp4xml.internal.parser.XMLScanner;
+import org.eclipse.lsp4xml.dom.parser.Scanner;
+import org.eclipse.lsp4xml.dom.parser.TokenType;
+import org.eclipse.lsp4xml.dom.parser.XMLScanner;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 
 /**
