@@ -15,6 +15,7 @@ import java.util.Map;
 
 import org.apache.xerces.xni.XMLLocator;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4xml.contentmodel.participants.codeactions.cvc_attribute_3CodeAction;
 import org.eclipse.lsp4xml.contentmodel.participants.codeactions.cvc_complex_type_2_3CodeAction;
 import org.eclipse.lsp4xml.contentmodel.participants.codeactions.cvc_complex_type_4CodeAction;
 import org.eclipse.lsp4xml.contentmodel.participants.codeactions.cvc_type_3_1_1CodeAction;
@@ -38,13 +39,14 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 	cvc_complex_type_3_1("cvc-complex-type.3.1"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-3-1
 	cvc_complex_type_3_2_2("cvc-complex-type.3.2.2"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-3-2-2
 	cvc_complex_type_4("cvc-complex-type.4"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-4
+	cvc_datatype_valid_1_2_1("cvc-datatype-valid.1.2.1"), // https://wiki.xmldation.com/Support/Validator/cvc-datatype-valid-1-2-1
 	cvc_elt_1_a("cvc-elt.1.a"), // https://wiki.xmldation.com/Support/Validator/cvc-elt-1
 	cvc_elt_4_2("cvc-elt.4.2"), // https://wiki.xmldation.com/Support/Validator/cvc-elt-4-2
 	cvc_type_3_1_1("cvc-type.3.1.1"), // https://wiki.xmldation.com/Support/Validator/cvc-type-3-1-1
 	cvc_type_3_1_3("cvc-type.3.1.3"), // https://wiki.xmldation.com/Support/Validator/cvc-type-3-1-3,
 	cvc_attribute_3("cvc-attribute.3"), // https://wiki.xmldation.com/Support/Validator/cvc-attribute-3
 	cvc_enumeration_valid("cvc-enumeration-valid"); // https://wiki.xmldation.com/Support/Validator/cvc-enumeration-valid
-	
+
 	private final String code;
 
 	private XMLSchemaErrorCode() {
@@ -107,12 +109,22 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 			return XMLPositionUtility.selectAttributeNameAt(offset, document);
 		case cvc_attribute_3:
 		case cvc_complex_type_3_1:
-		case cvc_elt_4_2:
-			return XMLPositionUtility.selectAttributeValueAt(offset, document);
+		case cvc_elt_4_2: {
+			String attrName = (String) arguments[1];
+			return XMLPositionUtility.selectAttributeValueAt(attrName, offset, document);
+		}
 		case cvc_type_3_1_1:
 			return XMLPositionUtility.selectAllAttributes(offset, document);
 		case cvc_type_3_1_3:
 			return XMLPositionUtility.selectText(offset, document);
+		case cvc_datatype_valid_1_2_1: {
+			// this error can occur for attribute value or text
+			/*Attr attr = document.findAttrAt(offset);
+			if (attr != null) {
+				return XMLPositionUtility.selectAttributeValueAt(attr.getName(), offset, document);
+			}
+			return XMLPositionUtility.selectText(offset, document);*/
+		}
 		}
 		return null;
 	}
@@ -121,5 +133,6 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 		codeActions.put(cvc_complex_type_2_3.getCode(), new cvc_complex_type_2_3CodeAction());
 		codeActions.put(cvc_complex_type_4.getCode(), new cvc_complex_type_4CodeAction());
 		codeActions.put(cvc_type_3_1_1.getCode(), new cvc_type_3_1_1CodeAction());
+		codeActions.put(cvc_attribute_3.getCode(), new cvc_attribute_3CodeAction());		
 	}
 }

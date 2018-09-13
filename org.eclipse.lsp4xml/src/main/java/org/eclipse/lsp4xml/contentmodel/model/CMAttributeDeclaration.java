@@ -10,6 +10,8 @@
  */
 package org.eclipse.lsp4xml.contentmodel.model;
 
+import java.util.Collection;
+
 /**
  * Content model element which abstracts attribute declaration from a given
  * grammar (XML Schema, DTD).
@@ -22,7 +24,11 @@ public interface CMAttributeDeclaration {
 	 * @return the declared element name.
 	 */
 	String getName();
+	
+	String getDefaultValue();
 
+	Collection<String> getEnumerationValues(); 
+	
 	String getDocumentation();
 
 	/**

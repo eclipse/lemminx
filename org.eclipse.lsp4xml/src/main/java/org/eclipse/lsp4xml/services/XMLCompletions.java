@@ -474,10 +474,9 @@ class XMLCompletions {
 		}
 		try {
 			Range range = getReplaceRange(nameStart, replaceEnd, completionRequest);
-			String value = isFollowedBy(text, nameEnd, ScannerState.AfterAttributeName, TokenType.DelimiterAssign) ? ""
-					: "=\"$1\"";
+			boolean generateValue = !isFollowedBy(text, nameEnd, ScannerState.AfterAttributeName, TokenType.DelimiterAssign);
 			for (ICompletionParticipant participant : getCompletionParticipants()) {
-				participant.onAttributeName(value, range, completionRequest, completionResponse);
+				participant.onAttributeName(generateValue, range, completionRequest, completionResponse);
 			}
 		} catch (BadLocationException e) {
 			LOGGER.log(Level.SEVERE, "While performing Completions, getReplaceRange() was given a bad Offset location",

@@ -98,7 +98,9 @@ public class XMLBuilder {
 
 		xml.append(name);
 		xml.append("=\"");
-		xml.append(value);
+		if (value != null) {
+			xml.append(value);
+		}
 		xml.append("\"");
 		return this;
 	}

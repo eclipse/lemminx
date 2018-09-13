@@ -30,7 +30,7 @@ public class CompletionParticipantAdapter implements ICompletionParticipant {
 	}
 
 	@Override
-	public void onAttributeName(String value, Range fullRange, ICompletionRequest request,
+	public void onAttributeName(boolean generateValue, Range fullRange, ICompletionRequest request,
 			ICompletionResponse response) throws Exception {
 		// Do nothing
 	}

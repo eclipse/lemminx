@@ -98,12 +98,13 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	}
 
 	@Override
-	public void onAttributeName(String value, Range fullRange, ICompletionRequest request, ICompletionResponse response)
-			throws Exception {
+	public void onAttributeName(boolean generateValue, Range fullRange, ICompletionRequest request,
+			ICompletionResponse response) throws Exception {
 		Node parentNode = request.getParentNode();
 		if (parentNode == null || !parentNode.isElement()) {
 			return;
 		}
+		boolean canSupportSnippet = request.getCompletionSettings().isCompletionSnippetsSupported();
 		Element parentElement = (Element) parentNode;
 		CMElementDeclaration cmElement = ContentModelManager.getInstance().findCMElement(parentElement);
 		if (cmElement != null) {
@@ -115,7 +116,29 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 						CompletionItem item = new CompletionItem();
 						item.setLabel(attrName);
 						item.setKind(CompletionItemKind.Value);
-						item.setTextEdit(new TextEdit(fullRange, attrName + value));
+						StringBuilder attributeContent = new StringBuilder(attrName);
+						if (generateValue) {
+							attributeContent.append("=\"");
+							String defaultValue = cmAttribute.getDefaultValue();
+							if (defaultValue == null) {
+								if (canSupportSnippet) {
+									attributeContent.append("$1");
+								}
+							} else {
+								if (canSupportSnippet) {
+									attributeContent.append("${1:");
+								}
+								attributeContent.append(defaultValue);
+								if (canSupportSnippet) {
+									attributeContent.append("}");
+								}
+							}
+							attributeContent.append("\"");
+							if (canSupportSnippet) {
+								attributeContent.append("$0");
+							}
+						}
+						item.setTextEdit(new TextEdit(fullRange, attributeContent.toString()));
 						item.setInsertTextFormat(InsertTextFormat.Snippet);
 						String documentation = cmAttribute.getDocumentation();
 						if (documentation != null) {
@@ -126,6 +149,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 				}
 			}
 		}
+
 	}
 
 	@Override
@@ -141,7 +165,13 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			String attributeName = request.getCurrentAttributeName();
 			CMAttributeDeclaration cmAttribute = cmElement.findCMAttribute(attributeName);
 			if (cmAttribute != null) {
-				// TODO ...
+				cmAttribute.getEnumerationValues().forEach(value -> {
+					CompletionItem item = new CompletionItem();
+					item.setLabel(value);
+					item.setKind(CompletionItemKind.Value);
+					
+					response.addCompletionAttribute(item);
+				});
 			}
 		}
 	}

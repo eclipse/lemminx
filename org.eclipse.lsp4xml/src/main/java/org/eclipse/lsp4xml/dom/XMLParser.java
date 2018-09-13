@@ -124,7 +124,6 @@ public class XMLParser {
 			case AttributeValue: {
 				String value = scanner.getTokenText();
 				if (curr.hasAttributes()) {
-					curr.setAttribute(pendingAttribute, value);
 					attr.setValue(value, new Node(scanner.getTokenOffset(), scanner.getTokenOffset() + value.length(),
 							null, curr, xmlDocument));
 				}

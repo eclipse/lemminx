@@ -124,7 +124,7 @@ public class XMLGenerator {
 		int attributeIndex = 0;
 		for (CMAttributeDeclaration attributeDeclaration : attributes) {
 			if (attributeDeclaration.isRequired()) {
-				String value = "";
+				String value = attributeDeclaration.getDefaultValue();
 				if (canSupportSnippets) {
 					snippetIndex++;
 					value = ("$" + snippetIndex);

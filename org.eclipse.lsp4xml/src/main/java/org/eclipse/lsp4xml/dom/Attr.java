@@ -50,7 +50,7 @@ public class Attr {
 			return value;
 		}
 		int start = value.charAt(0) == '\"' ? 1 : 0;
-		int end = value.charAt(value.length() - 1) == '\"' ? value.length()  - 1 : value.length();
+		int end = value.charAt(value.length() - 1) == '\"' ? value.length() - 1 : value.length();
 		return value.substring(start, end);
 	}
 
@@ -107,5 +107,12 @@ public class Attr {
 		} else if (!value.equals(other.value))
 			return false;
 		return true;
+	}
+
+	public Element getOwnerElement() {
+		if (nodeName != null && nodeName.getParent() != null && nodeName.getParent().isElement()) {
+			return (Element) nodeName.getParent();
+		}
+		return null;
 	}
 }

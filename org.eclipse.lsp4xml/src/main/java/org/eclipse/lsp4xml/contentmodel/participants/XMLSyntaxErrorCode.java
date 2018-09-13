@@ -15,6 +15,7 @@ import static org.eclipse.lsp4xml.utils.XMLPositionUtility.selectCurrentTagOffse
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.xerces.xni.QName;
 import org.apache.xerces.xni.XMLLocator;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.contentmodel.participants.codeactions.ElementUnterminatedCodeAction;
@@ -104,12 +105,23 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 		case AttributeNotUnique:
 		case AttributeNSNotUnique:
 			return XMLPositionUtility.selectAttributeNameAt(offset, document);
-		case EmptyPrefixedAttName:
-		case LessthanInAttValue:
-		case QuoteRequiredInXMLDecl:
+		case LessthanInAttValue:  {
+			String attrName = (String) arguments[1];
+			return XMLPositionUtility.selectAttributeValueAt(attrName, offset, document);
+		}
+		case QuoteRequiredInXMLDecl: {
+			String attrName = (String) arguments[0];
+			return XMLPositionUtility.selectAttributeValueAt(attrName, offset, document);
+		}
+		case EmptyPrefixedAttName:	{
+			QName qName = (QName) arguments[0];
+			return XMLPositionUtility.selectAttributeValueAt(qName.rawname, offset, document);
+		}	
 		case SDDeclInvalid:
-		case VersionNotSupported:
-			return XMLPositionUtility.selectAttributeValueAt(offset, document);
+		case VersionNotSupported: {
+			String attrValue = (String) arguments[0];
+			return XMLPositionUtility.selectAttributeValueByGivenValueAt(attrValue, offset, document);
+		}
 		case ETagUnterminated:
 			return XMLPositionUtility.selectEndTag(offset - 1, document);
 		case CustomETag:

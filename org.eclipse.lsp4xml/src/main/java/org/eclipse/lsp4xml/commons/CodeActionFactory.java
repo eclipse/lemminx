@@ -38,19 +38,7 @@ public class CodeActionFactory {
 	 * @return
 	 */
 	public static CodeAction remove(String title, Range range, TextDocumentItem document, Diagnostic diagnostic) {
-		CodeAction removeContentAction = new CodeAction(title);
-		removeContentAction.setKind(CodeActionKind.QuickFix);
-		if (diagnostic != null) {
-			removeContentAction.setDiagnostics(Arrays.asList(diagnostic));
-		}
-		TextEdit edit = new TextEdit(range, "");
-		VersionedTextDocumentIdentifier versionedTextDocumentIdentifier = new VersionedTextDocumentIdentifier(
-				document.getUri(), document.getVersion());
-
-		WorkspaceEdit workspaceEdit = new WorkspaceEdit(
-				Arrays.asList(new TextDocumentEdit(versionedTextDocumentIdentifier, Arrays.asList(edit))));
-		removeContentAction.setEdit(workspaceEdit);
-		return removeContentAction;
+		return replace(title, range, "", document, diagnostic);
 	}
 
 	/**
@@ -69,6 +57,21 @@ public class CodeActionFactory {
 		insertContentAction.setKind(CodeActionKind.QuickFix);
 		insertContentAction.setDiagnostics(Arrays.asList(diagnostic));
 		TextEdit edit = new TextEdit(new Range(range.getEnd(), range.getEnd()), insertText);
+		VersionedTextDocumentIdentifier versionedTextDocumentIdentifier = new VersionedTextDocumentIdentifier(
+				document.getUri(), document.getVersion());
+
+		WorkspaceEdit workspaceEdit = new WorkspaceEdit(
+				Arrays.asList(new TextDocumentEdit(versionedTextDocumentIdentifier, Arrays.asList(edit))));
+		insertContentAction.setEdit(workspaceEdit);
+		return insertContentAction;
+	}
+
+	public static CodeAction replace(String title, Range range, String replaceText, TextDocumentItem document,
+			Diagnostic diagnostic) {
+		CodeAction insertContentAction = new CodeAction(title);
+		insertContentAction.setKind(CodeActionKind.QuickFix);
+		insertContentAction.setDiagnostics(Arrays.asList(diagnostic));
+		TextEdit edit = new TextEdit(range, replaceText);
 		VersionedTextDocumentIdentifier versionedTextDocumentIdentifier = new VersionedTextDocumentIdentifier(
 				document.getUri(), document.getVersion());
 

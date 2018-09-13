@@ -213,7 +213,7 @@ public class HTMLCompletionExtensionsTest {
 			}
 
 			@Override
-			public void onAttributeName(String value, Range replaceRange, ICompletionRequest completionRequest,
+			public void onAttributeName(boolean generateValue, Range replaceRange, ICompletionRequest completionRequest,
 					ICompletionResponse completionResponse) {
 				String tag = completionRequest.getCurrentTag();
 				HTMLTag htmlTag = HTMLTag.getHTMLTag(tag);
@@ -229,6 +229,7 @@ public class HTMLCompletionExtensionsTest {
 								CompletionItem item = new CompletionItem();
 								item.setLabel(attribute);
 								item.setKind(CompletionItemKind.Value);
+								String value = generateValue ? "=\"$1\"" : "";
 								item.setTextEdit(new TextEdit(replaceRange, attribute + value));
 								item.setInsertTextFormat(InsertTextFormat.Snippet);
 								completionResponse.addCompletionAttribute(item);
