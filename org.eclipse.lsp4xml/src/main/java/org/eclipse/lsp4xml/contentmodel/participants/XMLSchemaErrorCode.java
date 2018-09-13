@@ -125,6 +125,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 			}
 			return XMLPositionUtility.selectText(offset, document);*/
 		}
+		default:
 		}
 		return null;
 	}

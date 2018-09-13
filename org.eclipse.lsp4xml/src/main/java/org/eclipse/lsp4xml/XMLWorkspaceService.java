@@ -39,6 +39,7 @@ public class XMLWorkspaceService implements WorkspaceService {
 	@Override
 	public void didChangeConfiguration(DidChangeConfigurationParams params) {
 		xmlLanguageServer.updateSettings(params.getSettings());
+		xmlLanguageServer.capabilityManager.syncDynamicCapabilitiesWithPreferences();
 	}
 
 	@Override

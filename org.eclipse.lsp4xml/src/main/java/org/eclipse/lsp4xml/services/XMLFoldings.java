@@ -139,6 +139,7 @@ class XMLFoldings {
 					}
 					break;
 				}
+				default:
 				}
 				token = scanner.scan();
 			}
