@@ -12,7 +12,6 @@ package org.eclipse.lsp4xml.services;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,6 +20,7 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
+import org.eclipse.lsp4xml.dom.Attr;
 import org.eclipse.lsp4xml.dom.Comment;
 import org.eclipse.lsp4xml.dom.Node;
 import org.eclipse.lsp4xml.dom.XMLDocument;
@@ -138,11 +138,10 @@ class XMLFormatter {
 				xml.startElement(node.tag, false);
 				if (node.hasAttributes()) {
 					// generate attributes
-					Set<String> attributeNames = node.attributeNames();
 					int attributeIndex = 0;
-					for (String attributeName : attributeNames) {
-						xml.addAttribute(attributeName, node.getAttributeValue(attributeName), attributeIndex, level,
-								node.tag);
+					for (Attr attr : node.getAttributeNodes()) {
+						String attributeName = attr.getName();
+						xml.addAttribute(attributeName, attr.getValue(), attributeIndex, level, node.tag);
 						attributeIndex++;
 					}
 				}

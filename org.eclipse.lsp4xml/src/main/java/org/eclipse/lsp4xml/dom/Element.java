@@ -92,7 +92,8 @@ public class Element extends Node {
 	public Collection<String> getAllPrefixes() {
 		if (hasAttributes()) {
 			Collection<String> prefixes = new ArrayList<>();
-			for (String attributeName : attributeNames()) {
+			for (Attr attr : getAttributeNodes()) {
+				String attributeName = attr.getName();
 				if (attributeName.startsWith("xmlns:")) {
 					prefixes.add(attributeName.substring("xmlns:".length(), attributeName.length()));
 				}

@@ -22,6 +22,8 @@ public class Attr {
 
 	private Node nodeValue;
 
+	private String value;
+
 	public Attr(String name, Node nodeName) {
 		this.name = name;
 		this.nodeName = nodeName;
@@ -33,6 +35,23 @@ public class Attr {
 
 	public Node getNodeName() {
 		return nodeName;
+	}
+
+	public void setValue(String value, Node nodeValue) {
+		this.value = getValue(value);
+		this.nodeValue = nodeValue;
+	}
+
+	private static String getValue(String value) {
+		if (value == null) {
+			return null;
+		}
+		if (value.isEmpty()) {
+			return value;
+		}
+		int start = value.charAt(0) == '\"' ? 1 : 0;
+		int end = value.charAt(value.length() - 1) == '\"' ? value.length()  - 1 : value.length();
+		return value.substring(start, end);
 	}
 
 	public Node getNodeValue() {
@@ -55,4 +74,38 @@ public class Attr {
 		return nodeValue != null ? nodeValue.end : nodeName.end;
 	}
 
+	public String getValue() {
+		return value;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((value == null) ? 0 : value.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Attr other = (Attr) obj;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		if (value == null) {
+			if (other.value != null)
+				return false;
+		} else if (!value.equals(other.value))
+			return false;
+		return true;
+	}
 }

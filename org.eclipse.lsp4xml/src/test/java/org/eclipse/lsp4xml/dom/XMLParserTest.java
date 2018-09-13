@@ -383,7 +383,7 @@ public class XMLParserTest {
 		assertEquals(expectedNode.tag, actualNode.tag);
 		assertEquals(expectedNode.start, actualNode.start);
 		assertEquals(expectedNode.end, actualNode.end);
-		assertEquals(expectedNode.getAttributes(), actualNode.getAttributes());
+		assertEquals(expectedNode.getAttributeNodes(), actualNode.getAttributeNodes());
 
 		if (expectedNode.endTagStart == null) {
 			Assert.assertNull(actualNode.endTagStart);

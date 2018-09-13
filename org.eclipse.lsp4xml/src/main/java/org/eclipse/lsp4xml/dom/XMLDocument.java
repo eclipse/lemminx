@@ -217,7 +217,9 @@ public class XMLDocument extends Node {
 		String schemaInstancePrefix = null;
 		// Search if document element root declares namespace with "xmlns".
 		if (documentElement.hasAttributes()) {
-			for (String attributeName : documentElement.attributeNames()) {
+
+			for (Attr attr : documentElement.getAttributeNodes()) {
+				String attributeName = attr.getName();
 				if (attributeName != null && attributeName.equals("xmlns") || attributeName.startsWith("xmlns:")) //$NON-NLS-1$ //$NON-NLS-2$
 				{
 					hasNamespaces = true;

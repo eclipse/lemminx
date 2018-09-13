@@ -12,10 +12,7 @@ package org.eclipse.lsp4xml.dom;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 
 /**
@@ -64,7 +61,6 @@ public class Node {
 	boolean selfClosed;
 	boolean startTagClose;
 
-	private Map<String, String> attributes;
 	private List<Attr> attributeNodes;
 	private final List<Node> children;
 	public final int start;
@@ -73,10 +69,6 @@ public class Node {
 	public final Node parent;
 	private final XMLDocument ownerDocument;
 	public String content;
-
-	public Set<String> attributeNames() {
-		return hasAttributes() ? attributes.keySet() : Collections.emptySet();
-	}
 
 	public Node(int start, int end, List<Node> children, Node parent, XMLDocument ownerDocument) {
 		this.start = start;
@@ -234,10 +226,26 @@ public class Node {
 		return low;
 	}
 
+	public Attr getAttributeNode(String name) {
+		if (!hasAttributes()) {
+			return null;
+		}
+		for (Attr attr : attributeNodes) {
+			if (name.equals(attr.getName())) {
+				return attr;
+			}
+		}
+		return null;
+	}
+
 	public String getAttributeValue(String name) {
-		String value = hasAttributes() ? attributes.get(name) : null;
+		Attr attr = getAttributeNode(name);
+		String value = attr != null ? attr.getValue() : null;
 		if (value == null) {
 			return null;
+		}
+		if (value.isEmpty()) {
+			return value;
 		}
 		// remove quote
 		char c = value.charAt(0);
@@ -259,8 +267,8 @@ public class Node {
 		return false;
 	}
 
-	public boolean hasAttribute(String attribute) {
-		return hasAttributes() && attributes.containsKey(attribute);
+	public boolean hasAttribute(String name) {
+		return hasAttributes() && getAttributeNode(name) != null;
 	}
 
 	/**
@@ -269,18 +277,16 @@ public class Node {
 	 * @return true if there are attributes and null otherwise.
 	 */
 	public boolean hasAttributes() {
-		return attributes != null;
+		return attributeNodes != null;
 	}
 
-	public void setAttribute(String key, String value) {
-		if (!hasAttributes()) {
-			attributes = new HashMap<>();
+	public void setAttribute(String name, String value) {
+		Attr attr = getAttributeNode(name);
+		if (attr == null) {
+			attr = new Attr(name, null);
+			setAttributeNode(attr);
 		}
-		attributes.put(key, value);
-	}
-
-	public Map<String, String> getAttributes() {
-		return attributes;
+		attr.setValue(value, null);
 	}
 
 	public void setAttributeNode(Attr attr) {
@@ -288,32 +294,6 @@ public class Node {
 			attributeNodes = new ArrayList<>();
 		}
 		attributeNodes.add(attr);
-	}
-
-	public Attr getAttributeNode(String name) {
-		return getAttributeNode(name, false);
-	}
-
-	public Attr getAttributeNode(String name, boolean last) {
-		if (attributeNodes == null) {
-			return null;
-		}
-		if (last) {
-			for (int i = attributeNodes.size() - 1; i >= 0; i--) {
-				Attr attr = attributeNodes.get(i);
-				if (name.equals(attr.getName())) {
-					return attr;
-				}
-			}
-		} else {
-			for (int i = 0; i < attributeNodes.size(); i++) {
-				Attr attr = attributeNodes.get(i);
-				if (name.equals(attr.getName())) {
-					return attr;
-				}
-			}
-		}
-		return null;
 	}
 
 	public List<Attr> getAttributeNodes() {

@@ -115,7 +115,6 @@ public class XMLParser {
 
 			case AttributeName: {
 				pendingAttribute = scanner.getTokenText();
-				curr.setAttribute(pendingAttribute, null); // Support valueless attributes such as 'checked'
 				attr = new Attr(pendingAttribute, new Node(scanner.getTokenOffset(),
 						scanner.getTokenOffset() + pendingAttribute.length(), null, curr, xmlDocument));
 				curr.setAttributeNode(attr);
@@ -126,7 +125,7 @@ public class XMLParser {
 				String value = scanner.getTokenText();
 				if (curr.hasAttributes()) {
 					curr.setAttribute(pendingAttribute, value);
-					attr.setNodeValue(new Node(scanner.getTokenOffset(), scanner.getTokenOffset() + value.length(),
+					attr.setValue(value, new Node(scanner.getTokenOffset(), scanner.getTokenOffset() + value.length(),
 							null, curr, xmlDocument));
 				}
 				pendingAttribute = null;
