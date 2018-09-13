@@ -139,7 +139,9 @@ class XMLCompletions {
 					case WithinContent:
 						collectInsideContent(completionRequest, completionResponse);
 						return completionResponse;
+					default:
 					}
+					
 				}
 				break;
 			case EndTagOpen:

@@ -280,7 +280,7 @@ public class XMLParser {
 				curr.addChild(textNode);
 				break;
 			}
-
+			default:
 			}
 			token = scanner.scan();
 		}

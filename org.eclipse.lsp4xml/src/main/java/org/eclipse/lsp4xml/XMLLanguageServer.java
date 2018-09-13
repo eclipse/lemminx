@@ -7,12 +7,12 @@
  *
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
+ *  Red Hat Inc. - Dynamic Server capabilities
  */
 package org.eclipse.lsp4xml;
 
 import static org.eclipse.lsp4j.jsonrpc.CompletableFutures.computeAsync;
 
-import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -20,13 +20,11 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-import org.eclipse.lsp4j.CompletionOptions;
-import org.eclipse.lsp4j.DocumentLinkOptions;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
+import org.eclipse.lsp4j.InitializedParams;
 import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
-import org.eclipse.lsp4j.TextDocumentSyncKind;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.lsp4j.services.TextDocumentService;
@@ -40,6 +38,8 @@ import org.eclipse.lsp4xml.settings.InitializationOptionsSettings;
 import org.eclipse.lsp4xml.settings.LogsSettings;
 import org.eclipse.lsp4xml.settings.XMLClientSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
+import org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesInitializer;
+import org.eclipse.lsp4xml.settings.capabilities.XMLCapabilityManager;
 
 /**
  * XML language server.
@@ -55,6 +55,7 @@ public class XMLLanguageServer implements LanguageServer, ProcessLanguageServer,
 	private LanguageClient languageClient;
 	private final ScheduledExecutorService delayer;
 	private Integer parentProcessId;
+	public XMLCapabilityManager capabilityManager;
 
 	public XMLLanguageServer() {
 		xmlLanguageService = new XMLLanguageService();
@@ -66,24 +67,30 @@ public class XMLLanguageServer implements LanguageServer, ProcessLanguageServer,
 	@Override
 	public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
 		LOGGER.info("Initializing LSP4XML server");
-		updateSettings(InitializationOptionsSettings.getSettings(params));
-		xmlTextDocumentService.updateClientCapabilities(params.getCapabilities());
 		this.parentProcessId = params.getProcessId();
-		ServerCapabilities capabilities = new ServerCapabilities();
-		capabilities
-				.setTextDocumentSync(xmlTextDocumentService.isIncrementalSupport() ? TextDocumentSyncKind.Incremental
-						: TextDocumentSyncKind.Full);
-		capabilities.setDocumentSymbolProvider(true);
-		capabilities.setDocumentHighlightProvider(true);
-		capabilities.setCompletionProvider(new CompletionOptions(false, Arrays.asList(".", ":", "<", "\"", "=", "/")));
-		capabilities.setDocumentFormattingProvider(true);
-		capabilities.setDocumentRangeFormattingProvider(true);
-		capabilities.setHoverProvider(true);
-		capabilities.setRenameProvider(true);
-		capabilities.setFoldingRangeProvider(true);
-		capabilities.setDocumentLinkProvider(new DocumentLinkOptions(true));
-		capabilities.setCodeActionProvider(true);
-		return CompletableFuture.completedFuture(new InitializeResult(capabilities));
+
+		capabilityManager.setClientCapabilities(params.getCapabilities());
+		updateSettings(InitializationOptionsSettings.getSettings(params));
+
+		xmlTextDocumentService.updateClientCapabilities(capabilityManager.getClientCapabilities().capabilities);
+		ServerCapabilities nonDynamicServerCapabilities = ServerCapabilitiesInitializer.getNonDynamicServerCapabilities(
+				capabilityManager.getClientCapabilities(), xmlTextDocumentService.isIncrementalSupport());
+
+		return CompletableFuture.completedFuture(new InitializeResult(nonDynamicServerCapabilities));
+	}
+
+	/*
+	 * Registers all capabilities that do not support client side preferences to
+	 * turn on/off
+	 *
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.lsp4j.services.LanguageServer#initialized(org.eclipse.lsp4j.
+	 * InitializedParams)
+	 */
+	@Override
+	public void initialized(InitializedParams params) {
+		capabilityManager.initializeCapabilities();
 	}
 
 	/**
@@ -96,6 +103,7 @@ public class XMLLanguageServer implements LanguageServer, ProcessLanguageServer,
 			return;
 		}
 		// Update client settings
+
 		XMLClientSettings clientSettings = XMLClientSettings.getSettings(initializationOptionsSettings);
 		if (clientSettings != null) {
 			// Update logs settings
@@ -143,6 +151,7 @@ public class XMLLanguageServer implements LanguageServer, ProcessLanguageServer,
 
 	public void setClient(LanguageClient languageClient) {
 		this.languageClient = languageClient;
+		capabilityManager = new XMLCapabilityManager(this.languageClient, xmlTextDocumentService);
 	}
 
 	public LanguageClient getLanguageClient() {

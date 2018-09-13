@@ -4,7 +4,6 @@
 		"**/.project": true,
 		"**/.settings": true
 	},
-	"java.saveActions.organizeImports": true,
 	"editor.formatOnSave": true,
 	"editor.renderWhitespace": "boundary",
 	//Use consistent indentation

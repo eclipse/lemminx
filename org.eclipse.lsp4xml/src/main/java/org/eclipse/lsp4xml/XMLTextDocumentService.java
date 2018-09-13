@@ -66,6 +66,7 @@ import org.eclipse.lsp4xml.dom.XMLParser;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.settings.XMLExperimentalCapabilities;
+import org.eclipse.lsp4xml.settings.capabilities.ClientCapabilitiesWrapper;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.utils.JSONUtility;
 
@@ -327,6 +328,10 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	public boolean isIncrementalSupport() {
 		return documents.isIncremental();
+	}
+
+	public XMLFormattingOptions getSharedFormattingOptions() {
+		return this.sharedFormattingOptions;
 	}
 
 }
