@@ -152,7 +152,8 @@ class XMLFoldings {
 			LOGGER.log(Level.SEVERE, "Foldings received a BadLocation while scanning the document", e);
 		}
 		catch(StackOverflowError e) {
-			e.printStackTrace();
+			// This exception occurs with large file, why?
+			// For the moment we catch it.
 		}
 		return ranges;
 	}
