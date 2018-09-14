@@ -30,6 +30,11 @@ public class XMLParser {
 
 	private static final XMLParser INSTANCE = new XMLParser();
 
+	public static final String CDATA_TAG = "#CDATA";
+	public static final String DOCTYPE_TAG = "#Doctype";
+	public static final String TEXT_TAG = "#Text";
+	public static final String COMMENT_TAG = "#Comment";
+
 	public static XMLParser getInstance() {
 		return INSTANCE;
 	}
@@ -134,7 +139,7 @@ public class XMLParser {
 
 			case CDATATagOpen: {
 				CDataSection cdataNode = new CDataSection(scanner.getTokenOffset(), text.length(), curr, xmlDocument);
-				cdataNode.tag = "CDATA";
+				cdataNode.tag = CDATA_TAG;
 				curr.addChild(cdataNode);
 				curr = cdataNode;
 				break;
@@ -194,7 +199,7 @@ public class XMLParser {
 				Comment comment = new Comment(scanner.getTokenOffset(), text.length(), curr, xmlDocument);
 				curr.addChild(comment);
 				curr = comment;
-				curr.tag = "Comment";
+				curr.tag = COMMENT_TAG;
 				try {
 					int endLine = document.positionAt(lastClosed.end).getLine();
 					int startLine = document.positionAt(curr.start).getLine();
@@ -219,7 +224,7 @@ public class XMLParser {
 				Node doctype = new DocumentType(scanner.getTokenOffset(), text.length(), curr, xmlDocument);
 				curr.addChild(doctype);
 				curr = doctype;
-				curr.tag = "DOCTYPE";
+				curr.tag = DOCTYPE_TAG;
 				break;
 			}
 
@@ -249,9 +254,12 @@ public class XMLParser {
 				if (content.trim().length() == 0) {
 					break;
 				}
-				Text cdata = new Text(scanner.getTokenOffset(), content.length(), curr, xmlDocument);
-				cdata.content = content;
-				curr.addChild(cdata);
+				int start = scanner.getTokenOffset();
+				Text textNode = new Text(start, start + content.length(), curr, xmlDocument);
+				textNode.tag = TEXT_TAG;
+				textNode.content = content;
+				textNode.closed = true;
+				curr.addChild(textNode);
 				break;
 			}
 

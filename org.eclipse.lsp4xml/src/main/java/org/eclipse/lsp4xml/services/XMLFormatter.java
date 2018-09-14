@@ -81,7 +81,16 @@ class XMLFormatter {
 
 	private void format(Node node, int level, int end, XMLBuilder xml) {
 		if (node.tag != null) {
-
+			if (node.isText()) {
+				if (node.content != null) {
+					// Generate content
+					String content = node.content;
+					if (!content.isEmpty()) {
+						xml.addContent(content);
+					}
+				}
+				return;
+			}
 			// element to format
 			if (level > 0 && !(node.isComment() && ((Comment) node).isCommentSameLineEndTag())) {
 				// add new line + indent
@@ -153,7 +162,7 @@ class XMLFormatter {
 					startElementClosed = true;
 					level++;
 					for (Node child : node.getChildren()) {
-						hasElements = hasElements | child.tag != null;
+						hasElements = hasElements | (child.tag != null && !child.isText());
 						format(child, level, end, xml);
 					}
 					level--;
@@ -179,12 +188,6 @@ class XMLFormatter {
 					}
 				}
 				return;
-			}
-		} else if (node.content != null) {
-			// Generate content
-			String content = node.content;
-			if (!content.isEmpty()) {
-				xml.addContent(content);
 			}
 		} else if (node.hasChildren()) {
 			// Other nodes kind like root
