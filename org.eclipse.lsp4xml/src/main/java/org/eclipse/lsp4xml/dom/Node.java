@@ -384,4 +384,8 @@ public class Node {
 	public boolean isElement() {
 		return getNodeType() == Node.ELEMENT_NODE;
 	}
+
+	public boolean isText() {
+		return getNodeType() == Node.TEXT_NODE;
+	}
 }

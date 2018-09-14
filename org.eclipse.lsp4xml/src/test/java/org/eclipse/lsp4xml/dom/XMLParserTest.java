@@ -305,19 +305,35 @@ public class XMLParserTest {
 		assertDocument("<!-- test -->", comment);
 	}
 
+	@Test
+	public void testContentTextHasTag() {
+		Node textNode = createTextNode(" eek ", 6, -1, 13, true);
+		Node html = createNode(Node.ELEMENT_NODE, "html", 0, 13, 20, true, textNode);
+
+		assertDocument("<html>  eek  </html>", html);
+	}
+
+
+
 	// --------------------------------------------------------------------------------
 	// Tools
 
 	private static Node createCDATANode(String content, int start, int endTagStart, int end, boolean closed,
 			Node... children) {
-		Node n = createNode(Node.CDATA_SECTION_NODE, "CDATA", start, endTagStart, end, closed, children);
+		Node n = createNode(Node.CDATA_SECTION_NODE, XMLParser.CDATA_TAG, start, endTagStart, end, closed, children);
 		n.content = content;
 		return n;
 	}
 
 	private static Node createCommentNode(String content, int start, int endTagStart, int end, boolean closed,
 			Node... children) {
-		Node n = createNode(Node.COMMENT_NODE, "Comment", start, endTagStart, end, closed, children);
+		Node n = createNode(Node.COMMENT_NODE, XMLParser.COMMENT_TAG, start, endTagStart, end, closed, children);
+		n.content = content;
+		return n;
+	}
+
+	private static Node createTextNode(String content, int start, int endTagStart, int end, boolean closed) {
+		Node n = createNode(Node.TEXT_NODE, XMLParser.TEXT_TAG, start, endTagStart, end, closed);
 		n.content = content;
 		return n;
 	}
