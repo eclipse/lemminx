@@ -29,8 +29,9 @@ public class cvc_type_3_1_1CodeAction implements ICodeActionParticipant {
 	@Override
 	public void doCodeAction(Diagnostic diagnostic, Range range, XMLDocument document, List<CodeAction> codeActions,
 			XMLFormattingOptions formattingSettings) {
+		Range diagnosticRange = diagnostic.getRange();
 		// Remove content
-		CodeAction removeContentAction = CodeActionFactory.remove("Remove attributes", range, document.getTextDocument(),
+		CodeAction removeContentAction = CodeActionFactory.remove("Remove attributes", diagnosticRange, document.getTextDocument(),
 				diagnostic);
 		codeActions.add(removeContentAction);
 	}

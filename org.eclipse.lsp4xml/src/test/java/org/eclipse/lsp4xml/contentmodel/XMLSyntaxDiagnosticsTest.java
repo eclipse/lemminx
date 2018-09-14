@@ -96,7 +96,8 @@ public class XMLSyntaxDiagnosticsTest {
 				"        </Id>";
 		Diagnostic d = d(1, 11, 1, 16, XMLSyntaxErrorCode.ElementUnterminated);
 		testDiagnosticsFor(xml, d);
-		testCodeActionsFor(xml, d, ca(d, te(1, 16, 1, 16, ">")), ca(d, te(1, 16, 1, 16, "/>")));
+		testCodeActionsFor(xml, d, ca(d, te(1, 16, 1, 16, "/>")), ca(d, te(1, 16, 1, 16, ">")),
+				ca(d, te(1, 16, 1, 16, "></OrgId>")));
 	}
 
 	/**

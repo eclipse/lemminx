@@ -35,6 +35,7 @@ public class cvc_attribute_3CodeAction implements ICodeActionParticipant {
 	public void doCodeAction(Diagnostic diagnostic, Range range, XMLDocument document, List<CodeAction> codeActions,
 			XMLFormattingOptions formattingSettings) {
 		try {
+			Range diagnosticRange = diagnostic.getRange();
 			int offset = document.offsetAt(range.getStart());
 			Attr attr = document.findAttrAt(offset);
 			if (attr != null) {
@@ -44,8 +45,8 @@ public class cvc_attribute_3CodeAction implements ICodeActionParticipant {
 				if (cmElement != null) {
 					CMAttributeDeclaration cmAttribute = cmElement.findCMAttribute(attributeName);
 					if (cmAttribute != null) {
-						Range rangeValue = new Range(new Position(range.getStart().getLine(), range.getStart().getCharacter() + 1),
-								new Position(range.getEnd().getLine(), range.getEnd().getCharacter() - 1));
+						Range rangeValue = new Range(new Position(diagnosticRange.getStart().getLine(), diagnosticRange.getStart().getCharacter() + 1),
+								new Position(diagnosticRange.getEnd().getLine(), diagnosticRange.getEnd().getCharacter() - 1));
 						cmAttribute.getEnumerationValues().forEach(value -> {
 							// Replace attribute value
 							// value = "${1:" + value + "}";

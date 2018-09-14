@@ -36,6 +36,7 @@ public class cvc_complex_type_4CodeAction implements ICodeActionParticipant {
 	@Override
 	public void doCodeAction(Diagnostic diagnostic, Range range, XMLDocument document, List<CodeAction> codeActions,
 			XMLFormattingOptions formattingSettings) {
+		Range diagnosticRange = diagnostic.getRange();
 		try {
 			int offset = document.offsetAt(range.getStart());
 			Node node = document.findNodeAt(offset);
@@ -57,7 +58,7 @@ public class cvc_complex_type_4CodeAction implements ICodeActionParticipant {
 			String xmlAttributes = generator.generate(requiredAttributes, node.tag);
 
 			// Insert content
-			CodeAction removeContentAction = CodeActionFactory.insert("Insert required attributes", range,
+			CodeAction removeContentAction = CodeActionFactory.insert("Insert required attributes", diagnosticRange,
 					xmlAttributes, document.getTextDocument(), diagnostic);
 			codeActions.add(removeContentAction);
 		} catch (Exception e) {

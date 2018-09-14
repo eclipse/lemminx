@@ -30,7 +30,8 @@ public class cvc_complex_type_2_3CodeAction implements ICodeActionParticipant {
 	public void doCodeAction(Diagnostic diagnostic, Range range, XMLDocument document, List<CodeAction> codeActions,
 			XMLFormattingOptions formattingSettings) {
 		// Remove content
-		CodeAction removeContentAction = CodeActionFactory.remove("Remove content", range, document.getTextDocument(),
+		Range diagnosticRange = diagnostic.getRange();
+		CodeAction removeContentAction = CodeActionFactory.remove("Remove content", diagnosticRange, document.getTextDocument(),
 				diagnostic);
 		codeActions.add(removeContentAction);
 	}
