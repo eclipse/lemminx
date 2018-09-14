@@ -284,7 +284,7 @@ public class XMLFormatterTest {
 	}
 
 	@Test
-	public void testElementContentNormalize() throws BadLocationException {
+	public void testElementContentNotNormalized() throws BadLocationException {
 		String content = 
 		"<a>" + lineSeparator() +
 		" Content" + lineSeparator() +
@@ -308,7 +308,7 @@ public class XMLFormatterTest {
 	}
 
 	@Test
-	public void testElementContentDontNormalize() throws BadLocationException {
+	public void testElementContentNormalized() throws BadLocationException {
 		String content = 
 		"<a>" + lineSeparator() +
 		" Content" + lineSeparator() +
@@ -348,6 +348,109 @@ public class XMLFormatterTest {
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		format(content, expected, formattingOptions);
 	}
+
+	@Test
+	public void testContentFormatting1() throws BadLocationException {
+		String content = 
+		"<a>" + lineSeparator() +
+		" Content" + lineSeparator() +
+		" <b>" + lineSeparator() +
+		"   Content2" + lineSeparator() +
+		"    Content3" + lineSeparator() +
+		" </b>" + lineSeparator() +
+		"</a>";
+		String expected = 
+		"<a>Content " + lineSeparator() +
+		"  <b>Content2 Content3 </b>" + lineSeparator() +
+		"</a>";
+		
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setJoinContentLines(true);
+		format(content, expected, formattingOptions);
+	}
+
+	@Test
+	public void testContentFormatting2() throws BadLocationException {
+		String content = 
+		"<a>" + lineSeparator() +
+		" Content" + lineSeparator() +
+		" <b>" + lineSeparator() +
+		"   Content2" + lineSeparator() +
+		"    Content3" + lineSeparator() +
+		" </b>" + lineSeparator() +
+		"</a>";
+		String expected = 
+		"<a>" + lineSeparator() +
+		" Content" + lineSeparator() +
+		"  <b>" + lineSeparator() +
+		"   Content2" + lineSeparator() +
+		"    Content3" + lineSeparator() +
+		"  </b>" + lineSeparator() +
+		"</a>";
+		
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setJoinContentLines(false);
+		format(content, expected, formattingOptions);
+	}
+
+	@Test
+	public void testContentFormatting3() throws BadLocationException {
+		String content = 
+		"<a> content </a>";
+		String expected = 
+		"<a> content </a>";
+		
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setJoinContentLines(false);
+		format(content, expected, formattingOptions);
+	}
+
+	@Test
+	public void testContentFormatting4() throws BadLocationException {
+		String content = 
+		"<a> content </a>";
+		String expected = 
+		"<a>content </a>";
+		
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setJoinContentLines(true);
+		format(content, expected, formattingOptions);
+	}
+
+	@Test
+	public void testContentFormatting5() throws BadLocationException {
+		String content = 
+		"<a>" + lineSeparator() +
+		" Content" + lineSeparator() +
+		"</a>";
+		String expected = 
+		"<a>Content </a>";
+		
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setJoinContentLines(true);
+		format(content, expected, formattingOptions);
+	}
+
+	@Test
+	public void testContentFormatting6() throws BadLocationException {
+		String content = 
+		"<a>" + lineSeparator() +
+		"" + lineSeparator() +
+		" Content" + lineSeparator() +
+		"</a>";
+		String expected = 
+		"<a>" + lineSeparator() +
+		" Content" + lineSeparator() + 
+		"</a>";
+		
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setJoinContentLines(false);
+		format(content, expected, formattingOptions);
+	}
+
+
+
+	//-------------------------Tools-----------------------------------------
 
 	private static void format(String unformatted, String actual) throws BadLocationException {
 		format(unformatted, actual, createDefaultFormattingOptions());

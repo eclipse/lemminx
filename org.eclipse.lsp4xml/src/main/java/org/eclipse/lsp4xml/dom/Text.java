@@ -16,6 +16,8 @@ package org.eclipse.lsp4xml.dom;
  */
 public class Text extends CharacterData {
 
+	boolean giveNewline = false;
+
 	public Text(int start, int end, XMLDocument ownerDocument) {
 		super(start, end, ownerDocument);
 	}
@@ -23,6 +25,14 @@ public class Text extends CharacterData {
 	@Override
 	public short getNodeType() {
 		return Node.TEXT_NODE;
+	}
+
+	public boolean getGiveNewline() {
+		return giveNewline;
+	}
+
+	public void setGiveNewLine(boolean b) {
+		giveNewline = b;
 	}
 
 }
