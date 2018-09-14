@@ -13,6 +13,7 @@ package org.eclipse.lsp4xml;
 import static org.eclipse.lsp4j.jsonrpc.CompletableFutures.computeAsync;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
@@ -217,8 +218,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	@Override
 	public void didChange(DidChangeTextDocumentParams params) {
-		documents.onDidChangeTextDocument(params);		
-		triggerValidation(params.getTextDocument().getUri(), params.getTextDocument().getVersion());		
+		documents.onDidChangeTextDocument(params);
+		triggerValidation(params.getTextDocument().getUri(), params.getTextDocument().getVersion());
 	}
 
 	@Override
@@ -257,8 +258,16 @@ public class XMLTextDocumentService implements TextDocumentService {
 			return getXMLLanguageService()
 					.doCodeActions(params.getContext(), params.getRange(), xmlDocument, getFormattingSettings(uri)) //
 					.stream() //
-					.map(s -> {
-						Either<Command, CodeAction> e = Either.forRight(s);
+					.map(ca -> {
+						// It seems that vscode doesn't support CodeAction, but only Command
+						// CSS Language Server has done a changed with that
+						// see https://github.com/Microsoft/vscode/issues/57440#issuecomment-421256121
+						// To fix this problem, we transform the CodeAction to Command like CSS Language
+						// Server does.
+						List<Object> arguments = Arrays.asList(uri, document.getVersion(),
+								ca.getEdit().getDocumentChanges().get(0).getEdits());
+						Command command = new Command(ca.getTitle(), "_xml.applyCodeAction", arguments);
+						Either<Command, CodeAction> e = Either.forLeft(command);
 						return e;
 					}) //
 					.collect(Collectors.toList());
