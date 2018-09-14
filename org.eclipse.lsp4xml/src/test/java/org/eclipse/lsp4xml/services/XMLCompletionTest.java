@@ -10,6 +10,8 @@
  */
 package org.eclipse.lsp4xml.services;
 
+import static org.eclipse.lsp4xml.XMLAssert.r;
+import static org.eclipse.lsp4xml.XMLAssert.testCompletionFor;
 import static org.eclipse.lsp4xml.XMLAssert.testTagCompletion;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -27,7 +29,6 @@ import org.eclipse.lsp4xml.dom.XMLParser;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -59,12 +60,10 @@ public class XMLCompletionTest {
 	}
 
 	@Test
-	@Ignore
-	public void startTagOpenBracket() {
-		assertOpenStartTagCompletion("<hello><h|</hello>", 8, "hello", "h");
-		assertOpenStartTagCompletion("<test1><hello><h|</hello>", 15, "hello", "h");
-		assertOpenStartTagCompletion("<bae><bee></bee><b|<cee></cee></bae>", 17, "bae", "bee", "b");
-		assertOpenStartTagCompletion("<ata><akk><atp><at|</atp></akk></ata>", 16, "ata", "atp", "at");
+	public void startTagOpenBracket() throws BadLocationException {
+		testCompletionFor("<hello><h|</hello>", 1, r("h", "<h></h>", "<h"));
+		testCompletionFor("<hello><h1/><h2></h2><h|</hello>", 3, r("h", "<h></h>", "<h"), r("h1", "<h1 />", "<h1"),
+				r("h2", "<h2></h2>", "<h2"));
 	}
 
 	@Test
@@ -81,7 +80,8 @@ public class XMLCompletionTest {
 
 	// -------------------Tools----------------------------------------------------------
 
-	public void assertOpenStartTagCompletion(String xmlText, int expectedStartTagOffset, String... expectedTag) {
+	public void assertOpenStartTagCompletion(String xmlText, int expectedStartTagOffset, boolean startWithTagOpen,
+			String... expectedTag) {
 
 		List<String> expectedTags = Arrays.asList(expectedTag);
 		int offset = getOffset(xmlText);
@@ -96,8 +96,8 @@ public class XMLCompletionTest {
 			currentTextEdit = createTextEditElement(currentTag);
 			completionItem = completionList.getItems().get(i);
 
-			assertEquals("<" + currentTag + ">", completionItem.getLabel());
-			assertEquals(currentTag, completionItem.getFilterText());
+			assertEquals(currentTag, completionItem.getLabel());
+			assertEquals(startWithTagOpen ? "<" + currentTag : currentTag, completionItem.getFilterText());
 			try {
 				Range range = completionItem.getTextEdit().getRange();
 				assertEquals(expectedStartTagOffset, xmlDocument.offsetAt(range.getStart()));

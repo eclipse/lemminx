@@ -12,6 +12,7 @@ package org.eclipse.lsp4xml.services;
 
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4xml.commons.BadLocationException;
+import org.eclipse.lsp4xml.dom.LineIndentInfo;
 import org.eclipse.lsp4xml.dom.Node;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.services.extensions.IPositionRequest;
@@ -28,6 +29,7 @@ abstract class AbstractPositionRequest implements IPositionRequest {
 
 	private String currentAttributeName;
 	private final Node node;
+	private LineIndentInfo indentInfo;
 
 	public AbstractPositionRequest(XMLDocument xmlDocument, Position position) throws BadLocationException {
 		this.xmlDocument = xmlDocument;
@@ -91,4 +93,12 @@ abstract class AbstractPositionRequest implements IPositionRequest {
 		this.currentAttributeName = currentAttributeName;
 	}
 
+	@Override
+	public LineIndentInfo getLineIndentInfo() throws BadLocationException {
+		if (indentInfo == null) {
+			int lineNumber = getPosition().getLine();
+			indentInfo = getXMLDocument().getLineIndentInfo(lineNumber);
+		}
+		return indentInfo;
+	}
 }

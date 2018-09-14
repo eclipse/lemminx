@@ -13,6 +13,7 @@ package org.eclipse.lsp4xml.services;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.BadLocationException;
+import org.eclipse.lsp4xml.contentmodel.utils.XMLGenerator;
 import org.eclipse.lsp4xml.dom.Node;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
@@ -30,8 +31,10 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 	private final XMLFormattingOptions formattingSettings;
 
 	private Range replaceRange;
-	
-	private boolean openTag;
+
+	private XMLGenerator generator;
+
+	private boolean hasOpenBracket;
 
 	public CompletionRequest(XMLDocument xmlDocument, Position position, CompletionSettings completionSettings,
 			XMLFormattingOptions formattingSettings) throws BadLocationException {
@@ -63,13 +66,25 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 	public Range getReplaceRange() {
 		return replaceRange;
 	}
-	
-	public void setOpenTag(boolean openTag) {
-		this.openTag = openTag;
+
+	public XMLGenerator getXMLGenerator() throws BadLocationException {
+		if (generator == null) {
+			generator = new XMLGenerator(getFormattingSettings(), getLineIndentInfo().getWhitespacesIndent(),
+					getLineIndentInfo().getLineDelimiter(), getCompletionSettings().isCompletionSnippetsSupported(), 0);
+		}
+		return generator;
 	}
 	
 	@Override
-	public boolean hasOpenTag() {
-		return openTag;
+	public String getFilterForStartTagName(String tagName) {
+		if (hasOpenBracket) {
+			return "<" + tagName;
+		}
+		return tagName;
 	}
+	
+	public void setHasOpenBracket(boolean hasOpenBracket) {
+		this.hasOpenBracket = hasOpenBracket;
+	}
+
 }

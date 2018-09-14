@@ -256,18 +256,30 @@ class XMLCompletions {
 	private void collectOpenTagSuggestions(int afterOpenBracket, int tagNameEnd, CompletionRequest completionRequest,
 			CompletionResponse completionResponse) {
 		try {
-			Range replaceRange = getReplaceRange(afterOpenBracket, tagNameEnd, completionRequest);
-			collectOpenTagSuggestions(replaceRange, true, completionRequest, completionResponse);
+			Range replaceRange = getReplaceRange(afterOpenBracket - 1, tagNameEnd, completionRequest);
+			collectOpenTagSuggestions(true, replaceRange, completionRequest, completionResponse);
 		} catch (BadLocationException e) {
 			LOGGER.log(Level.SEVERE, "While performing Completions the provided offset was a BadLocation", e);
 			return;
 		}
 	}
 
-	private void collectOpenTagSuggestions(Range replaceRange, boolean hasOpenTag, CompletionRequest completionRequest,
-			CompletionResponse completionResponse) {
+	private void collectOpenTagSuggestions(boolean hasOpenBracket, Range replaceRange,
+			CompletionRequest completionRequest, CompletionResponse completionResponse) {
+		try {
+			XMLDocument document = completionRequest.getXMLDocument();
+			String text = document.getText();
+			int tagNameEnd = document.offsetAt(replaceRange.getEnd());
+			int newOffset = getOffsetFollowedBy(text, tagNameEnd, ScannerState.WithinEndTag, TokenType.EndTagClose);
+			if (newOffset != -1) {
+				replaceRange.setEnd(document.positionAt(newOffset));
+			}
+
+		} catch (BadLocationException e) {
+			// do nothing
+		}
+		completionRequest.setHasOpenBracket(hasOpenBracket);
 		completionRequest.setReplaceRange(replaceRange);
-		completionRequest.setOpenTag(hasOpenTag);
 		if (!completionRequest.getXMLDocument().hasGrammar()) {
 			// no grammar, collect similar tags from the parent node
 			Node parentNode = completionRequest.getParentNode();
@@ -284,11 +296,9 @@ class XMLCompletions {
 					CompletionItem item = new CompletionItem();
 					item.setLabel(tag);
 					item.setKind(CompletionItemKind.Property);
-					item.setFilterText(tag);
+					item.setFilterText(completionRequest.getFilterForStartTagName(tag));
 					StringBuilder xml = new StringBuilder();
-					if (!hasOpenTag) {
-						xml.append("<");
-					}
+					xml.append("<");
 					xml.append(tag);
 					if (element.isSelfClosed()) {
 						xml.append(" />");
@@ -382,7 +392,7 @@ class XMLCompletions {
 	private void collectInsideContent(CompletionRequest request, CompletionResponse response) {
 		Range tagNameRange = request.getXMLDocument().getElementNameRangeAt(request.getOffset());
 		if (tagNameRange != null) {
-			collectOpenTagSuggestions(tagNameRange, false, request, response);
+			collectOpenTagSuggestions(false, tagNameRange, request, response);
 		}
 		// Participant completion on XML content
 		for (ICompletionParticipant participant : getCompletionParticipants()) {
@@ -474,7 +484,8 @@ class XMLCompletions {
 		}
 		try {
 			Range range = getReplaceRange(nameStart, replaceEnd, completionRequest);
-			boolean generateValue = !isFollowedBy(text, nameEnd, ScannerState.AfterAttributeName, TokenType.DelimiterAssign);
+			boolean generateValue = !isFollowedBy(text, nameEnd, ScannerState.AfterAttributeName,
+					TokenType.DelimiterAssign);
 			for (ICompletionParticipant participant : getCompletionParticipants()) {
 				participant.onAttributeName(generateValue, range, completionRequest, completionResponse);
 			}
@@ -571,12 +582,16 @@ class XMLCompletions {
 	}
 
 	private static boolean isFollowedBy(String s, int offset, ScannerState intialState, TokenType expectedToken) {
+		return getOffsetFollowedBy(s, offset, intialState, expectedToken) != -1;
+	}
+
+	private static int getOffsetFollowedBy(String s, int offset, ScannerState intialState, TokenType expectedToken) {
 		Scanner scanner = XMLScanner.createScanner(s, offset, intialState);
 		TokenType token = scanner.scan();
 		while (token == TokenType.Whitespace) {
 			token = scanner.scan();
 		}
-		return token == expectedToken;
+		return (token == expectedToken) ? scanner.getTokenOffset() + 1 : -1;
 	}
 
 	private static int getWordStart(String s, int offset, int limit) {

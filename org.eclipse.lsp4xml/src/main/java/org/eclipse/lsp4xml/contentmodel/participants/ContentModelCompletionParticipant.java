@@ -25,7 +25,6 @@ import org.eclipse.lsp4xml.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.contentmodel.utils.XMLGenerator;
 import org.eclipse.lsp4xml.dom.Element;
 import org.eclipse.lsp4xml.dom.Node;
-import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.services.extensions.CompletionParticipantAdapter;
 import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
@@ -69,28 +68,17 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 
 	private void fillWithChildrenElementDeclaration(Element element, Collection<CMElementDeclaration> cmElements,
 			String prefix, ICompletionRequest request, ICompletionResponse response) throws BadLocationException {
-		XMLDocument document = element.getOwnerDocument();
-		int lineNumber = request.getPosition().getLine();
-		String lineText = document.lineText(lineNumber);
-		String lineDelimiter = document.lineDelimiter(lineNumber);
-		String whitespacesIndent = getStartWhitespaces(lineText);
-
-		XMLGenerator generator = new XMLGenerator(request.getFormattingSettings(), whitespacesIndent, lineDelimiter,
-				request.getCompletionSettings().isCompletionSnippetsSupported(), 0);
+		XMLGenerator generator = request.getXMLGenerator();
 		for (CMElementDeclaration child : cmElements) {
 			String label = child.getName(prefix);
 			CompletionItem item = new CompletionItem(label);
-			item.setFilterText(label);
+			item.setFilterText(request.getFilterForStartTagName(label));
 			item.setKind(CompletionItemKind.Property);
 			String documentation = child.getDocumentation();
 			if (documentation != null) {
 				item.setDetail(documentation);
 			}
 			String xml = generator.generate(child, prefix);
-			// Remove the first '<' character
-			if (request.hasOpenTag()) {
-				xml = xml.substring(1, xml.length());
-			}
 			item.setTextEdit(new TextEdit(request.getReplaceRange(), xml));
 			item.setInsertTextFormat(InsertTextFormat.Snippet);
 			response.addCompletionItem(item);
@@ -169,24 +157,9 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 					CompletionItem item = new CompletionItem();
 					item.setLabel(value);
 					item.setKind(CompletionItemKind.Value);
-					
 					response.addCompletionAttribute(item);
 				});
 			}
 		}
-	}
-
-	private static String getStartWhitespaces(String lineText) {
-		StringBuilder whitespaces = new StringBuilder();
-		char[] chars = lineText.toCharArray();
-		for (int i = 0; i < chars.length; i++) {
-			char c = chars[i];
-			if (Character.isWhitespace(c)) {
-				whitespaces.append(c);
-			} else {
-				break;
-			}
-		}
-		return whitespaces.toString();
 	}
 }

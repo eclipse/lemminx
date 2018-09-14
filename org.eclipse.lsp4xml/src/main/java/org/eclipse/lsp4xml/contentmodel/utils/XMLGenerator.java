@@ -64,7 +64,7 @@ public class XMLGenerator {
 	 */
 	public String generate(CMElementDeclaration elementDeclaration, String prefix) {
 		XMLBuilder xml = new XMLBuilder(formattingOptions, whitespacesIndent, lineDelimiter);
-		generate(elementDeclaration, prefix, 0, 0, xml, new ArrayList<CMElementDeclaration>());
+		generate(elementDeclaration, prefix, 0, 1, xml, new ArrayList<CMElementDeclaration>());
 		return xml.toString();
 	}
 

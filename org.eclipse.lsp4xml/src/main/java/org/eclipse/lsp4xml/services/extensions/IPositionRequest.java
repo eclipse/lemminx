@@ -1,6 +1,8 @@
 package org.eclipse.lsp4xml.services.extensions;
 
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4xml.commons.BadLocationException;
+import org.eclipse.lsp4xml.dom.LineIndentInfo;
 import org.eclipse.lsp4xml.dom.Node;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 
@@ -39,4 +41,13 @@ public interface IPositionRequest {
 	String getCurrentTag();
 
 	String getCurrentAttributeName();
+
+	/**
+	 * Returns the line indent information of the offset where completion was
+	 * triggered.
+	 * 
+	 * @return
+	 * @throws BadLocationException
+	 */
+	LineIndentInfo getLineIndentInfo() throws BadLocationException;
 }

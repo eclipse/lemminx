@@ -41,6 +41,11 @@ public class XMLAssert {
 		testCompletionFor(value, catalogPath, null, null, expectedItems);
 	}
 
+	public static void testCompletionFor(String value, int expectedCount, ItemDescription... expectedItems)
+			throws BadLocationException {
+		testCompletionFor(value, null, null, expectedCount, expectedItems);
+	}
+
 	public static void testCompletionFor(String value, String catalogPath, String fileURI, Integer expectedCount,
 			ItemDescription... expectedItems) throws BadLocationException {
 		int offset = value.indexOf('|');
@@ -71,7 +76,7 @@ public class XMLAssert {
 			previous = label;
 		}
 		if (expectedCount != null) {
-			Assert.assertEquals(list.getItems().size(), expectedCount.intValue());
+			Assert.assertEquals(expectedCount.intValue(), list.getItems().size());
 		}
 		if (expectedItems != null) {
 			for (ItemDescription item : expectedItems) {
@@ -91,20 +96,42 @@ public class XMLAssert {
 						+ completions.getItems().stream().map(c -> c.getLabel()).collect(Collectors.joining(",")),
 				1, matches.size());
 
+		CompletionItem match = matches.get(0);
+		/*
+		 * if (expected.documentation != null) {
+		 * Assert.assertEquals(match.getDocumentation().getRight().getValue(),
+		 * expected.getd); } if (expected.kind) { Assert.assertEquals(match.kind,
+		 * expected.kind); }
+		 */
+		if (expected.resultText != null && match.getTextEdit() != null) {
+			Assert.assertEquals(expected.resultText, match.getTextEdit().getNewText());
+		}
+		if (expected.filterText != null && match.getFilterText() != null) {
+			Assert.assertEquals(expected.filterText, match.getFilterText());
+		}
+
 	}
 
 	public static ItemDescription r(String label, String resultText) {
-		return new ItemDescription(label, resultText);
+		return r(label, resultText, null);
+	}
+
+	public static ItemDescription r(String label, String resultText, String filterText) {
+		return new ItemDescription(label, resultText, filterText);
 	}
 
 	public static class ItemDescription {
+
+		public final String filterText;
+
 		public final String label;
 
 		public final String resultText;
 
-		public ItemDescription(String label, String resultText) {
+		public ItemDescription(String label, String resultText, String filterText) {
 			this.label = label;
 			this.resultText = resultText;
+			this.filterText = filterText;
 		}
 	}
 

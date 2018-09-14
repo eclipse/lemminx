@@ -11,6 +11,8 @@
 package org.eclipse.lsp4xml.services.extensions;
 
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4xml.commons.BadLocationException;
+import org.eclipse.lsp4xml.contentmodel.utils.XMLGenerator;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 
 /**
@@ -20,10 +22,12 @@ import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 public interface ICompletionRequest extends IPositionRequest {
 
 	Range getReplaceRange();
-	
-	boolean hasOpenTag();
 
 	XMLFormattingOptions getFormattingSettings();
 
 	CompletionSettings getCompletionSettings();
+
+	XMLGenerator getXMLGenerator() throws BadLocationException;
+
+	String getFilterForStartTagName(String tagName);
 }

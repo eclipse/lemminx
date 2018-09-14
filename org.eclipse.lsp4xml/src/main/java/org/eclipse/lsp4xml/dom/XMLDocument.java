@@ -19,6 +19,7 @@ import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.dom.parser.Constants;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
+import org.eclipse.lsp4xml.utils.StringUtils;
 
 /**
  * XML document.
@@ -58,6 +59,13 @@ public class XMLDocument extends Node {
 
 	public String lineDelimiter(int lineNumber) throws BadLocationException {
 		return textDocument.lineDelimiter(lineNumber);
+	}
+
+	public LineIndentInfo getLineIndentInfo(int lineNumber) throws BadLocationException {
+		String lineText = lineText(lineNumber);
+		String lineDelimiter = lineDelimiter(lineNumber);
+		String whitespacesIndent = StringUtils.getStartWhitespaces(lineText);
+		return new LineIndentInfo(lineDelimiter, whitespacesIndent);
 	}
 
 	/**

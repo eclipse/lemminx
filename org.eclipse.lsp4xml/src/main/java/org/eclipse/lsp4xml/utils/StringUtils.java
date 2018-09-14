@@ -17,9 +17,9 @@ package org.eclipse.lsp4xml.utils;
 public class StringUtils {
 
 	private StringUtils() {
-		
+
 	}
-	
+
 	/**
 	 * Returns the result of normalize space of the given string.
 	 * 
@@ -39,5 +39,25 @@ public class StringUtils {
 			b.append(c);
 		}
 		return b.toString();
+	}
+
+	/**
+	 * Returns the start whitespaces of the given line text.
+	 * 
+	 * @param lineText
+	 * @return the start whitespaces of the given line text.
+	 */
+	public static String getStartWhitespaces(String lineText) {
+		StringBuilder whitespaces = new StringBuilder();
+		char[] chars = lineText.toCharArray();
+		for (int i = 0; i < chars.length; i++) {
+			char c = chars[i];
+			if (Character.isWhitespace(c)) {
+				whitespaces.append(c);
+			} else {
+				break;
+			}
+		}
+		return whitespaces.toString();
 	}
 }

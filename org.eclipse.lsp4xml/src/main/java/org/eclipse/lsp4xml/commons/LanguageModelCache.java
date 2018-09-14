@@ -77,7 +77,9 @@ public class LanguageModelCache<T> {
 		}
 		TextDocument textDocument = document instanceof TextDocument ? (TextDocument) document
 				: new TextDocument(document);
+		long start = System.currentTimeMillis();
 		languageModel = parse.apply(textDocument);
+		//System.err.println("parsed in " + (System.currentTimeMillis() - start) + "ms");
 		languageModels.put(uri, new LanguageModeInfo(languageModel, version, languageId, System.currentTimeMillis()));
 		return languageModel;
 	}
