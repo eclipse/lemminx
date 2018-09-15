@@ -48,14 +48,17 @@ public class XMLAssert {
 
 	public static void testCompletionFor(String value, String catalogPath, String fileURI, Integer expectedCount,
 			ItemDescription... expectedItems) throws BadLocationException {
+		testCompletionFor(new XMLLanguageService(), value, catalogPath, fileURI, expectedCount, expectedItems);
+	}
+
+	public static void testCompletionFor(XMLLanguageService xmlLanguageService, String value, String catalogPath,
+			String fileURI, Integer expectedCount, ItemDescription... expectedItems) throws BadLocationException {
 		int offset = value.indexOf('|');
 		value = value.substring(0, offset) + value.substring(offset + 1);
 
 		TextDocument document = new TextDocument(value, fileURI != null ? fileURI : "test://test/test.html");
 		Position position = document.positionAt(offset);
 		XMLDocument htmlDoc = XMLParser.getInstance().parse(document);
-
-		XMLLanguageService xmlLanguageService = new XMLLanguageService();
 
 		// Configure XML catalog for XML schema
 		if (catalogPath != null) {
