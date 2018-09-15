@@ -32,27 +32,27 @@ public class XMLAssert {
 
 	private static final String FILE_URI = "test.xml";
 
-	public static void testCompletionFor(String value, ItemDescription... expectedItems) throws BadLocationException {
+	public static void testCompletionFor(String value, CompletionItem... expectedItems) throws BadLocationException {
 		testCompletionFor(value, null, expectedItems);
 	}
 
-	public static void testCompletionFor(String value, String catalogPath, ItemDescription... expectedItems)
+	public static void testCompletionFor(String value, String catalogPath, CompletionItem... expectedItems)
 			throws BadLocationException {
 		testCompletionFor(value, catalogPath, null, null, expectedItems);
 	}
 
-	public static void testCompletionFor(String value, int expectedCount, ItemDescription... expectedItems)
+	public static void testCompletionFor(String value, int expectedCount, CompletionItem... expectedItems)
 			throws BadLocationException {
 		testCompletionFor(value, null, null, expectedCount, expectedItems);
 	}
 
 	public static void testCompletionFor(String value, String catalogPath, String fileURI, Integer expectedCount,
-			ItemDescription... expectedItems) throws BadLocationException {
+			CompletionItem... expectedItems) throws BadLocationException {
 		testCompletionFor(new XMLLanguageService(), value, catalogPath, fileURI, expectedCount, expectedItems);
 	}
 
 	public static void testCompletionFor(XMLLanguageService xmlLanguageService, String value, String catalogPath,
-			String fileURI, Integer expectedCount, ItemDescription... expectedItems) throws BadLocationException {
+			String fileURI, Integer expectedCount, CompletionItem... expectedItems) throws BadLocationException {
 		int offset = value.indexOf('|');
 		value = value.substring(0, offset) + value.substring(offset + 1);
 
@@ -82,20 +82,20 @@ public class XMLAssert {
 			Assert.assertEquals(expectedCount.intValue(), list.getItems().size());
 		}
 		if (expectedItems != null) {
-			for (ItemDescription item : expectedItems) {
+			for (CompletionItem item : expectedItems) {
 				assertCompletion(list, item, document, offset);
 			}
 		}
 	}
 
-	private static void assertCompletion(CompletionList completions, ItemDescription expected, TextDocument document,
+	private static void assertCompletion(CompletionList completions, CompletionItem expected, TextDocument document,
 			int offset) {
 		List<CompletionItem> matches = completions.getItems().stream().filter(completion -> {
-			return expected.label.equals(completion.getLabel());
+			return expected.getLabel().equals(completion.getLabel());
 		}).collect(Collectors.toList());
 
 		Assert.assertEquals(
-				expected.label + " should only existing once: Actual: "
+				expected.getLabel() + " should only existing once: Actual: "
 						+ completions.getItems().stream().map(c -> c.getLabel()).collect(Collectors.joining(",")),
 				1, matches.size());
 
@@ -106,36 +106,38 @@ public class XMLAssert {
 		 * expected.getd); } if (expected.kind) { Assert.assertEquals(match.kind,
 		 * expected.kind); }
 		 */
-		if (expected.resultText != null && match.getTextEdit() != null) {
-			Assert.assertEquals(expected.resultText, match.getTextEdit().getNewText());
+		if (expected.getTextEdit() != null && match.getTextEdit() != null) {
+			if (expected.getTextEdit().getNewText() != null) {
+				Assert.assertEquals(expected.getTextEdit().getNewText(), match.getTextEdit().getNewText());
+			}
+			if (expected.getTextEdit().getRange() != null) {
+				Assert.assertEquals(expected.getTextEdit().getRange(), match.getTextEdit().getRange());
+			}
 		}
-		if (expected.filterText != null && match.getFilterText() != null) {
-			Assert.assertEquals(expected.filterText, match.getFilterText());
+		if (expected.getFilterText() != null && match.getFilterText() != null) {
+			Assert.assertEquals(expected.getFilterText(), match.getFilterText());
 		}
 
 	}
 
-	public static ItemDescription r(String label, String resultText) {
-		return r(label, resultText, null);
+	public static CompletionItem c(String label, TextEdit textEdit, String filterText) {
+		CompletionItem item = new CompletionItem();
+		item.setLabel(label);
+		item.setFilterText(filterText);
+		item.setTextEdit(textEdit);
+		return item;
 	}
 
-	public static ItemDescription r(String label, String resultText, String filterText) {
-		return new ItemDescription(label, resultText, filterText);
+	public static CompletionItem c(String label, String newText) {
+		return c(label, newText, null);
 	}
 
-	public static class ItemDescription {
+	public static CompletionItem c(String label, String newText, String filterText) {
+		return c(label, newText, null, filterText);
+	}
 
-		public final String filterText;
-
-		public final String label;
-
-		public final String resultText;
-
-		public ItemDescription(String label, String resultText, String filterText) {
-			this.label = label;
-			this.resultText = resultText;
-			this.filterText = filterText;
-		}
+	public static CompletionItem c(String label, String newText, Range range, String filterText) {
+		return c(label, new TextEdit(range, newText), filterText);
 	}
 
 	public static void testTagCompletion(String value, String expected) throws BadLocationException {

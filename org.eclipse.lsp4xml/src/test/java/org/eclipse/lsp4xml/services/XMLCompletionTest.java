@@ -10,7 +10,7 @@
  */
 package org.eclipse.lsp4xml.services;
 
-import static org.eclipse.lsp4xml.XMLAssert.r;
+import static org.eclipse.lsp4xml.XMLAssert.c;
 import static org.eclipse.lsp4xml.XMLAssert.testCompletionFor;
 import static org.eclipse.lsp4xml.XMLAssert.testTagCompletion;
 import static org.junit.Assert.assertEquals;
@@ -61,11 +61,18 @@ public class XMLCompletionTest {
 
 	@Test
 	public void startTagOpenBracket() throws BadLocationException {
-		testCompletionFor("<hello><h|</hello>", 1, r("h", "<h></h>", "<h"));
-		testCompletionFor("<hello><h1/><h2></h2><h|</hello>", 3, r("h", "<h></h>", "<h"), r("h1", "<h1 />", "<h1"),
-				r("h2", "<h2></h2>", "<h2"));
+		testCompletionFor("<hello><h|</hello>", 1, c("h", "<h></h>", "<h"));
+		testCompletionFor("<hello><h1/><h2></h2><h|</hello>", 3, c("h", "<h></h>", "<h"), c("h1", "<h1 />", "<h1"),
+				c("h2", "<h2></h2>", "<h2"));
 	}
 
+	@Test
+	public void replaceRangeOUnusedfCloseTag() throws BadLocationException {
+		testCompletionFor("<hello><h|></hello>", 1, c("h", "<h></h>", "<h"));
+		testCompletionFor("<hello><h1/><h2></h2><h|</hello>", 3, c("h", "<h></h>", "<h"), c("h1", "<h1 />", "<h1"),
+				c("h2", "<h2></h2>", "<h2"));
+	}
+	
 	@Test
 	public void doTagComplete() throws BadLocationException {
 		testTagCompletion("<div>|", "$0</div>");

@@ -10,7 +10,7 @@
  */
 package org.eclipse.lsp4xml.services.extensions;
 
-import static org.eclipse.lsp4xml.XMLAssert.r;
+import static org.eclipse.lsp4xml.XMLAssert.c;
 
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -19,7 +19,6 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4xml.XMLAssert;
-import org.eclipse.lsp4xml.XMLAssert.ItemDescription;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.junit.Test;
@@ -34,23 +33,23 @@ public class HTMLCompletionExtensionsTest {
 	@Test
 	public void testHTMLElementCompletion() throws BadLocationException {
 
-		testCompletionFor("<|", r("iframe", "<iframe/>", "<iframe"), //
-				r("h1", "<h1/>", "<h1"), //
-				r("div", "<div/>", "<div"));
+		testCompletionFor("<|", c("iframe", "<iframe/>", "<iframe"), //
+				c("h1", "<h1/>", "<h1"), //
+				c("div", "<div/>", "<div"));
 
-		testCompletionFor("< |", r("iframe", "<iframe/>", "<iframe"), //
-				r("h1", "<h1/>", "<h1"), //
-				r("div", "<div/>", "<div"));
+		testCompletionFor("< |", c("iframe", "<iframe/>", "<iframe"), //
+				c("h1", "<h1/>", "<h1"), //
+				c("div", "<div/>", "<div"));
 
-		testCompletionFor("<h|", r("html", "<html/>", "<html"), //
-				r("h1", "<h1/>", "<h1"), //
-				r("header", "<header/>", "<header"));
+		testCompletionFor("<h|", c("html", "<html/>", "<html"), //
+				c("h1", "<h1/>", "<h1"), //
+				c("header", "<header/>", "<header"));
 
-		testCompletionFor("<input|", r("input", "<input/>", "<input"));
+		testCompletionFor("<input|", c("input", "<input/>", "<input"));
 
-		testCompletionFor("<inp|ut", r("input", "<input/>", "<input"));
+		testCompletionFor("<inp|ut", c("input", "<input/>", "<input"));
 
-		testCompletionFor("<|inp", r("input", "<input/>", "<input"));
+		testCompletionFor("<|inp", c("input", "<input/>", "<input"));
 	}
 
 	@Test
@@ -60,33 +59,33 @@ public class HTMLCompletionExtensionsTest {
 		 * testCompletionFor("|", r("iframe", "<iframe"), // r("h1", "<h1"), // r("div",
 		 * "<div"));
 		 */
-		testCompletionFor(" |", r("iframe", "<iframe/>", "iframe"), //
-				r("h1", "<h1/>", "h1"), //
-				r("div", "<div/>", "div"));
+		testCompletionFor(" |", c("iframe", "<iframe/>", "iframe"), //
+				c("h1", "<h1/>", "h1"), //
+				c("div", "<div/>", "div"));
 
-		testCompletionFor("h|", r("html", "<html/>", "html"), //
-				r("h1", "<h1/>", "h1"), //
-				r("header", "<header/>", "header"));
+		testCompletionFor("h|", c("html", "<html/>", "html"), //
+				c("h1", "<h1/>", "h1"), //
+				c("header", "<header/>", "header"));
 
-		testCompletionFor("input|", r("input", "<input/>", "input"));
+		testCompletionFor("input|", c("input", "<input/>", "input"));
 
-		testCompletionFor("inp|ut", r("input", "<input/>", "input"));
+		testCompletionFor("inp|ut", c("input", "<input/>", "input"));
 
-		testCompletionFor("|inp", r("input", "<input/>", "input"));
+		testCompletionFor("|inp", c("input", "<input/>", "input"));
 	}
 
 	@Test
 	public void testHTMLAttributeNameCompletion() throws BadLocationException {
 
-		testCompletionFor("<input |", r("type", "type=\"$1\""), //
-				r("style", "style=\"$1\""), //
-				r("onmousemove", "onmousemove=\"$1\""));
+		testCompletionFor("<input |", c("type", "type=\"$1\""), //
+				c("style", "style=\"$1\""), //
+				c("onmousemove", "onmousemove=\"$1\""));
 
-		testCompletionFor("<input t|", r("type", "type=\"$1\""), //
-				r("style", "style=\"$1\""));
+		testCompletionFor("<input t|", c("type", "type=\"$1\""), //
+				c("style", "style=\"$1\""));
 
-		testCompletionFor("<input t|ype", r("type", "type=\"$1\""), //
-				r("style", "style=\"$1\""));
+		testCompletionFor("<input t|ype", c("type", "type=\"$1\""), //
+				c("style", "style=\"$1\""));
 
 		// TODO: fix me!
 		/*testCompletionFor("<input t|ype=\"text\"", r("type", "type=\"text\""), //
@@ -111,11 +110,11 @@ public class HTMLCompletionExtensionsTest {
 
 	@Test
 	public void testHTMLAttributeValueCompletion() throws BadLocationException {
-		testCompletionFor("<input type=|", r("text", "\"text\""/*"<input type=\"text\""*/), //
-				r("checkbox", "\"checkbox\"" /*"<input type=\"checkbox\""*/));
+		testCompletionFor("<input type=|", c("text", "\"text\""/*"<input type=\"text\""*/), //
+				c("checkbox", "\"checkbox\"" /*"<input type=\"checkbox\""*/));
 	}
 
-	public static void testCompletionFor(String value, ItemDescription... expectedItems) throws BadLocationException {
+	public static void testCompletionFor(String value, CompletionItem... expectedItems) throws BadLocationException {
 		XMLAssert.testCompletionFor(new HTMLLanguageService(), value, null, null, null, expectedItems);
 	}
 
