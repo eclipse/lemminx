@@ -12,6 +12,7 @@ package org.eclipse.lsp4xml.services;
 
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4xml.commons.BadLocationException;
+import org.eclipse.lsp4xml.dom.Element;
 import org.eclipse.lsp4xml.dom.LineIndentInfo;
 import org.eclipse.lsp4xml.dom.Node;
 import org.eclipse.lsp4xml.dom.XMLDocument;
@@ -49,16 +50,25 @@ abstract class AbstractPositionRequest implements IPositionRequest {
 	}
 
 	@Override
-	public Node getParentNode() {
+	public Element getParentElement() {
 		Node currentNode = getNode();
-		if (currentNode.tag == null) {
-			return currentNode.parent;
+		if (!currentNode.isElement()) {
+			// Node is not an element, search parent element.
+			return currentNode.getParentElement();
+		}
+		Element element = (Element) currentNode;
+		// node is an element, there are 2 cases
+		// case 1: <| or <bean | > --> in this case we must search parent of bean
+		// element
+		if (element.getTagName() == null) {
+			return currentNode.getParentElement();
 		}
 		int startTagEndOffset = currentNode.start + currentNode.tag.length() + ">".length();
 		if (!(offset > startTagEndOffset && offset < currentNode.end)) {
-			return currentNode.parent;
+			return currentNode.getParentElement();
 		}
-		return currentNode;
+		// case 2: <bean> | --> in this case, parent element is the bean
+		return (Element) currentNode;
 	}
 
 	@Override

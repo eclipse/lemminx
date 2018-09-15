@@ -27,6 +27,7 @@ public class XMLSchemaCompletionExtensionsTest {
 
 	@Test
 	public void completionInRoot() throws BadLocationException {
+		// completion on <|
 		String xml = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + //
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
 				"	xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n"
@@ -35,6 +36,33 @@ public class XMLSchemaCompletionExtensionsTest {
 				"</project>";
 		testCompletionFor(xml, c("modelVersion", te(3, 1, 3, 2, "<modelVersion></modelVersion>"), "<modelVersion"), //
 				c("parent", "<parent></parent>", "<parent"));
+		// completion on <| >
+		xml = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + //
+				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"	xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n"
+				+ //
+				"	<|   >" + //
+				"</project>";
+		testCompletionFor(xml, c("modelVersion", te(3, 1, 3, 6, "<modelVersion></modelVersion>"), "<modelVersion"), //
+				c("parent", "<parent></parent>", "<parent"));
+		// completion on |
+		xml = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + //
+				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"	xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n"
+				+ //
+				"	|" + //
+				"</project>";
+		testCompletionFor(xml, c("modelVersion", te(3, 1, 3, 1, "<modelVersion></modelVersion>"), "modelVersion"), //
+				c("parent", "<parent></parent>", "parent"));
+		// completion on mod
+		xml = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + //
+				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"	xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n"
+				+ //
+				"	mod|" + //
+				"</project>";
+		testCompletionFor(xml, c("modelVersion", te(3, 1, 3, 4, "<modelVersion></modelVersion>"), "modelVersion"), //
+				c("parent", "<parent></parent>", "parent"));
 	}
 
 	@Test
@@ -47,18 +75,6 @@ public class XMLSchemaCompletionExtensionsTest {
 				"</project>";
 		testCompletionFor(xml, c("modelVersion", te(3, 1, 3, 5, "<modelVersion></modelVersion>"), "<modelVersion"), //
 				c("parent", "<parent></parent>", "<parent"));
-	}
-
-	@Test
-	public void completionInRootNoOpenBracket() throws BadLocationException {
-		String xml = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + //
-				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
-				"	xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n"
-				+ //
-				"	|" + //
-				"</project>";
-		testCompletionFor(xml, c("modelVersion", "<modelVersion></modelVersion>", "modelVersion"), //
-				c("parent", "<parent></parent>", "parent"));
 	}
 
 	@Test

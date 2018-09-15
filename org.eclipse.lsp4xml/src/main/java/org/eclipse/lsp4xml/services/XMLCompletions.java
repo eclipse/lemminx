@@ -282,38 +282,40 @@ class XMLCompletions {
 		completionRequest.setReplaceRange(replaceRange);
 		if (!completionRequest.getXMLDocument().hasGrammar()) {
 			// no grammar, collect similar tags from the parent node
-			Node parentNode = completionRequest.getParentNode();
-			Set<String> seenElements = new HashSet<>();
-			if (parentNode != null && parentNode.isElement() && parentNode.hasChildren()) {
-				parentNode.getChildren().forEach(node -> {
-					Element element = node.isElement() ? (Element) node : null;
-					if (element == null || element.getTagName() == null
-							|| seenElements.contains(element.getTagName())) {
-						return;
-					}
-					String tag = element.getTagName();
-					seenElements.add(tag);
-					CompletionItem item = new CompletionItem();
-					item.setLabel(tag);
-					item.setKind(CompletionItemKind.Property);
-					item.setFilterText(completionRequest.getFilterForStartTagName(tag));
-					StringBuilder xml = new StringBuilder();
-					xml.append("<");
-					xml.append(tag);
-					if (element.isSelfClosed()) {
-						xml.append(" />");
-					} else {
-						xml.append(">");
-						if (completionRequest.getCompletionSettings().isCompletionSnippetsSupported()) {
-							xml.append("$0");
+			Element parentNode = completionRequest.getParentElement();
+			if (parentNode != null) {
+				Set<String> seenElements = new HashSet<>();
+				if (parentNode != null && parentNode.isElement() && parentNode.hasChildren()) {
+					parentNode.getChildren().forEach(node -> {
+						Element element = node.isElement() ? (Element) node : null;
+						if (element == null || element.getTagName() == null
+								|| seenElements.contains(element.getTagName())) {
+							return;
 						}
-						xml.append("</").append(tag).append(">");
-					}
-					item.setTextEdit(new TextEdit(replaceRange, xml.toString()));
-					item.setInsertTextFormat(InsertTextFormat.Snippet);
+						String tag = element.getTagName();
+						seenElements.add(tag);
+						CompletionItem item = new CompletionItem();
+						item.setLabel(tag);
+						item.setKind(CompletionItemKind.Property);
+						item.setFilterText(completionRequest.getFilterForStartTagName(tag));
+						StringBuilder xml = new StringBuilder();
+						xml.append("<");
+						xml.append(tag);
+						if (element.isSelfClosed()) {
+							xml.append(" />");
+						} else {
+							xml.append(">");
+							if (completionRequest.getCompletionSettings().isCompletionSnippetsSupported()) {
+								xml.append("$0");
+							}
+							xml.append("</").append(tag).append(">");
+						}
+						item.setTextEdit(new TextEdit(replaceRange, xml.toString()));
+						item.setInsertTextFormat(InsertTextFormat.Snippet);
 
-					completionResponse.addCompletionItem(item);
-				});
+						completionResponse.addCompletionItem(item);
+					});
+				}
 			}
 		}
 		for (ICompletionParticipant participant : getCompletionParticipants()) {

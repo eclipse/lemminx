@@ -24,7 +24,6 @@ import org.eclipse.lsp4xml.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lsp4xml.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.contentmodel.utils.XMLGenerator;
 import org.eclipse.lsp4xml.dom.Element;
-import org.eclipse.lsp4xml.dom.Node;
 import org.eclipse.lsp4xml.services.extensions.CompletionParticipantAdapter;
 import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
@@ -37,11 +36,10 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 
 	@Override
 	public void onTagOpen(ICompletionRequest request, ICompletionResponse response) throws Exception {
-		Node parentNode = request.getParentNode();
-		if (parentNode == null || !parentNode.isElement()) {
+		Element parentElement = request.getParentElement();
+		if (parentElement == null) {
 			return;
 		}
-		Element parentElement = (Element) parentNode;
 		CMElementDeclaration cmElement = ContentModelManager.getInstance().findCMElement(parentElement);
 		String defaultPrefix = null;
 		if (cmElement != null) {
@@ -88,12 +86,11 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	@Override
 	public void onAttributeName(boolean generateValue, Range fullRange, ICompletionRequest request,
 			ICompletionResponse response) throws Exception {
-		Node parentNode = request.getParentNode();
-		if (parentNode == null || !parentNode.isElement()) {
+		Element parentElement = request.getNode().isElement() ? (Element) request.getNode() : null;
+		if (parentElement == null) {
 			return;
 		}
 		boolean canSupportSnippet = request.getCompletionSettings().isCompletionSnippetsSupported();
-		Element parentElement = (Element) parentNode;
 		CMElementDeclaration cmElement = ContentModelManager.getInstance().findCMElement(parentElement);
 		if (cmElement != null) {
 			Collection<CMAttributeDeclaration> attributes = cmElement.getAttributes();
@@ -103,7 +100,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 					if (!parentElement.hasAttribute(attrName)) {
 						CompletionItem item = new CompletionItem();
 						item.setLabel(attrName);
-						item.setKind(CompletionItemKind.Value);
+						item.setKind(CompletionItemKind.Unit);
 						StringBuilder attributeContent = new StringBuilder(attrName);
 						if (generateValue) {
 							attributeContent.append("=\"");
@@ -143,11 +140,10 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	@Override
 	public void onAttributeValue(String valuePrefix, Range fullRange, boolean addQuotes, ICompletionRequest request,
 			ICompletionResponse response) throws Exception {
-		Node parentNode = request.getParentNode();
-		if (parentNode == null || !parentNode.isElement()) {
+		Element parentElement = request.getNode().isElement() ? (Element) request.getNode() : null;
+		if (parentElement == null) {
 			return;
 		}
-		Element parentElement = (Element) parentNode;
 		CMElementDeclaration cmElement = ContentModelManager.getInstance().findCMElement(parentElement);
 		if (cmElement != null) {
 			String attributeName = request.getCurrentAttributeName();

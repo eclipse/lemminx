@@ -360,6 +360,16 @@ public class Node {
 		return startTagClose;
 	}
 
+	public Element getParentElement() {
+		Node parent = getParent();
+		while (parent != null && parent != getOwnerDocument()) {
+			if (parent.isElement()) {
+				return (Element) parent;
+			}
+		}
+		return null;
+	}
+
 	public boolean isComment() {
 		return getNodeType() == Node.COMMENT_NODE;
 	}

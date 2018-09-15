@@ -2,6 +2,7 @@ package org.eclipse.lsp4xml.services.extensions;
 
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4xml.commons.BadLocationException;
+import org.eclipse.lsp4xml.dom.Element;
 import org.eclipse.lsp4xml.dom.LineIndentInfo;
 import org.eclipse.lsp4xml.dom.Node;
 import org.eclipse.lsp4xml.dom.XMLDocument;
@@ -29,7 +30,14 @@ public interface IPositionRequest {
 	 */
 	Node getNode();
 
-	Node getParentNode();
+	/**
+	 * Returns the parent element of the node where completion was triggered and
+	 * null otherwise.
+	 * 
+	 * @return the parent element of the node where completion was triggered and
+	 *         null otherwise.
+	 */
+	Element getParentElement();
 
 	/**
 	 * Returns the XML document.
