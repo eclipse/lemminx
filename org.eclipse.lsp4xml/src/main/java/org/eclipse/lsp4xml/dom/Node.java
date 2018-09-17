@@ -62,13 +62,19 @@ public class Node {
 	boolean startTagClose;
 
 	private List<Attr> attributeNodes;
-	private final List<Node> children;
+	private List<Node> children;
 	public final int start;
 	public int end;
 
-	public final Node parent;
+	public Node parent;
 	private final XMLDocument ownerDocument;
 	public String content;
+
+	public Node(int start, int end, XMLDocument ownerDocument) {
+		this.start = start;
+		this.end = end;
+		this.ownerDocument = ownerDocument;
+	}
 
 	public Node(int start, int end, List<Node> children, Node parent, XMLDocument ownerDocument) {
 		this.start = start;
@@ -136,7 +142,7 @@ public class Node {
 	}
 
 	public Node firstChild() {
-		return this.children.get(0);
+		return this.children != null && children.size() > 0 ? this.children.get(0) : null;
 	}
 
 	public Node lastChild() {
@@ -144,9 +150,10 @@ public class Node {
 	}
 
 	public Node findNodeBefore(int offset) {
-		int idx = findFirst(this.children, c -> offset <= c.start) - 1;
+		List<Node> children = getChildren();
+		int idx = findFirst(children, c -> offset <= c.start) - 1;
 		if (idx >= 0) {
-			Node child = this.children.get(idx);
+			Node child = children.get(idx);
 			if (offset > child.start) {
 				if (offset < child.end) {
 					return child.findNodeBefore(offset);
@@ -162,9 +169,10 @@ public class Node {
 	}
 
 	public Node findNodeAt(int offset) {
-		int idx = findFirst(this.children, c -> offset <= c.start) - 1;
+		List<Node> children = getChildren();
+		int idx = findFirst(children, c -> offset <= c.start) - 1;
 		if (idx >= 0) {
-			Node child = this.children.get(idx);
+			Node child = children.get(idx);
 			if (isIncluded(child, offset)) {
 				return child.findNodeAt(offset);
 			}
@@ -259,7 +267,7 @@ public class Node {
 	}
 
 	public boolean hasTag(String tag) {
-		for (Node node : children) {
+		for (Node node : getChildren()) {
 			if (tag.equals(node.tag)) {
 				return true;
 			}
@@ -327,6 +335,10 @@ public class Node {
 	 * @param child the node child to add.
 	 */
 	public void addChild(Node child) {
+		child.parent = this;
+		if (children == null) {
+			children = new ArrayList<>();
+		}
 		getChildren().add(child);
 	}
 

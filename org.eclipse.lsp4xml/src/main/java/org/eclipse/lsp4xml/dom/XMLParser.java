@@ -10,7 +10,6 @@
  */
 package org.eclipse.lsp4xml.dom;
 
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -62,8 +61,7 @@ public class XMLParser {
 		while (token != TokenType.EOS) {
 			switch (token) {
 			case StartTagOpen: {
-				Element child = new Element(scanner.getTokenOffset(), text.length(), new ArrayList<>(), curr,
-						xmlDocument);
+				Element child = xmlDocument.createElement(scanner.getTokenOffset(), text.length());
 				curr.addChild(child);
 				curr = child;
 				break;
@@ -138,7 +136,7 @@ public class XMLParser {
 			}
 
 			case CDATATagOpen: {
-				CDataSection cdataNode = new CDataSection(scanner.getTokenOffset(), text.length(), curr, xmlDocument);
+				CDataSection cdataNode = xmlDocument.createCDataSection(scanner.getTokenOffset(), text.length());
 				cdataNode.tag = CDATA_TAG;
 				curr.addChild(cdataNode);
 				curr = cdataNode;
@@ -161,8 +159,7 @@ public class XMLParser {
 			}
 
 			case StartPrologOrPI: {
-				Node prologOrPINode = new ProcessingInstruction(scanner.getTokenOffset(), text.length(), curr,
-						xmlDocument);
+				Node prologOrPINode = xmlDocument.createProcessingInstruction(scanner.getTokenOffset(), text.length());
 				curr.addChild(prologOrPINode);
 				curr = prologOrPINode;
 				break;
@@ -195,8 +192,7 @@ public class XMLParser {
 			}
 
 			case StartCommentTag: {
-				// if (mask != null && mask.contains(Flag.Comment)) {
-				Comment comment = new Comment(scanner.getTokenOffset(), text.length(), curr, xmlDocument);
+				Comment comment = xmlDocument.createComment(scanner.getTokenOffset(), text.length());
 				curr.addChild(comment);
 				curr = comment;
 				curr.tag = COMMENT_TAG;
@@ -214,9 +210,7 @@ public class XMLParser {
 			}
 
 			case Comment: {
-				// if (mask != null && mask.contains(Flag.Comment)) {
 				curr.content = scanner.getTokenText();
-				// }
 				break;
 			}
 
@@ -255,7 +249,7 @@ public class XMLParser {
 					break;
 				}
 				int start = scanner.getTokenOffset();
-				Text textNode = new Text(start, start + content.length(), curr, xmlDocument);
+				Text textNode = xmlDocument.createText(start, start + content.length());
 				textNode.tag = TEXT_TAG;
 				textNode.content = content;
 				textNode.closed = true;

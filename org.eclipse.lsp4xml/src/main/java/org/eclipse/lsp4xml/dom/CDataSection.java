@@ -10,18 +10,14 @@
  */
 package org.eclipse.lsp4xml.dom;
 
-import java.util.ArrayList;
-
 /**
  * A CData section node.
- * 
- * @author azerr
  *
  */
-public class CDataSection extends Node {
+public class CDataSection extends CharacterData {
 
-	public CDataSection(int start, int end, Node parent, XMLDocument ownerDocument) {
-		super(start, end, new ArrayList<>(), parent, ownerDocument);
+	public CDataSection(int start, int end, XMLDocument ownerDocument) {
+		super(start, end, ownerDocument);
 	}
 
 	@Override

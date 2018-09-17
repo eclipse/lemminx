@@ -11,24 +11,12 @@
 package org.eclipse.lsp4xml.dom;
 
 /**
- * A Comment node.
+ * A CharacterData node.
  *
  */
-public class Comment extends CharacterData {
+public class CharacterData extends Node {
 
-	boolean commentSameLineEndTag;
-
-	public Comment(int start, int end, XMLDocument ownerDocument) {
+	public CharacterData(int start, int end, XMLDocument ownerDocument) {
 		super(start, end, ownerDocument);
 	}
-
-	public boolean isCommentSameLineEndTag() {
-		return commentSameLineEndTag;
-	}
-
-	@Override
-	public short getNodeType() {
-		return Node.COMMENT_NODE;
-	}
-
 }

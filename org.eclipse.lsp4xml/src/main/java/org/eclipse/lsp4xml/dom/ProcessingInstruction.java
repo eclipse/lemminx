@@ -10,8 +10,6 @@
  */
 package org.eclipse.lsp4xml.dom;
 
-import java.util.ArrayList;
-
 /**
  * A processing instruction node.
  *
@@ -21,8 +19,8 @@ public class ProcessingInstruction extends Node {
 	boolean prolog = false;
 	boolean processingInstruction = false;
 
-	public ProcessingInstruction(int start, int end, Node parent, XMLDocument ownerDocument) {
-		super(start, end, new ArrayList<>(), parent, ownerDocument);
+	public ProcessingInstruction(int start, int end, XMLDocument ownerDocument) {
+		super(start, end, ownerDocument);
 	}
 
 	public boolean isProlog() {

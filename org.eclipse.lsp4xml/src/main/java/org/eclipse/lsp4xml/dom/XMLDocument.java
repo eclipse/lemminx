@@ -284,4 +284,24 @@ public class XMLDocument extends Node {
 		return prefix != null && prefix.length() > 0 ? prefix + ":" + localName : localName; //$NON-NLS-1$
 	}
 
+	public Element createElement(int start, int end) {
+		return new Element(start, end, this);
+	}
+
+	public CDataSection createCDataSection(int start, int end) {
+		return new CDataSection(start, end, this);
+	}
+
+	public ProcessingInstruction createProcessingInstruction(int start, int end) {
+		return new ProcessingInstruction(start, end, this);
+	}
+
+	public Comment createComment(int start, int end) {
+		return new Comment(start, end, this);
+	}
+
+	public Text createText(int start, int end) {
+		return new Text(start, end, this);
+	}
+
 }

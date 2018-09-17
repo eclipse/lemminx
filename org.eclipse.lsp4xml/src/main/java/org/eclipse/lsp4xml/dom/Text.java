@@ -10,16 +10,14 @@
  */
 package org.eclipse.lsp4xml.dom;
 
-import java.util.ArrayList;
-
 /**
- * A text node.
+ * A Text node.
  *
  */
-public class Text extends Node {
+public class Text extends CharacterData {
 
-	public Text(int start, int end, Node parent, XMLDocument ownerDocument) {
-		super(start, end, new ArrayList<>(), parent, ownerDocument);
+	public Text(int start, int end, XMLDocument ownerDocument) {
+		super(start, end, ownerDocument);
 	}
 
 	@Override

@@ -13,7 +13,6 @@ package org.eclipse.lsp4xml.dom;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 /**
  * An element node.
@@ -23,8 +22,8 @@ import java.util.List;
  */
 public class Element extends Node {
 
-	public Element(int start, int end, List<Node> children, Node parent, XMLDocument ownerDocument) {
-		super(start, end, children, parent, ownerDocument);
+	public Element(int start, int end, XMLDocument ownerDocument) {
+		super(start, end, ownerDocument);
 	}
 
 	@Override
