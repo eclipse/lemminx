@@ -100,6 +100,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	final ScheduledExecutorService delayer = Executors.newScheduledThreadPool(2);
 	private ScheduledFuture<?> future;
 	private BasicCancelChecker monitor;
+	private boolean codeActionLiteralSupport;
 
 	public XMLTextDocumentService(XMLLanguageServer xmlLanguageServer) {
 		this.xmlLanguageServer = xmlLanguageServer;
@@ -117,6 +118,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 		if (textDocumentClientCapabilities != null) {
 			// Completion settings
 			sharedCompletionSettings.update(textDocumentClientCapabilities.getCompletion());
+			codeActionLiteralSupport = textDocumentClientCapabilities.getCodeAction() != null
+					&& textDocumentClientCapabilities.getCodeAction().getCodeActionLiteralSupport() != null;
 		}
 
 	}
@@ -259,16 +262,16 @@ public class XMLTextDocumentService implements TextDocumentService {
 					.doCodeActions(params.getContext(), params.getRange(), xmlDocument, getFormattingSettings(uri)) //
 					.stream() //
 					.map(ca -> {
-						// It seems that vscode doesn't support CodeAction, but only Command
-						// CSS Language Server has done a changed with that
-						// see https://github.com/Microsoft/vscode/issues/57440#issuecomment-421256121
-						// To fix this problem, we transform the CodeAction to Command like CSS Language
-						// Server does.
-						List<Object> arguments = Arrays.asList(uri, document.getVersion(),
-								ca.getEdit().getDocumentChanges().get(0).getEdits());
-						Command command = new Command(ca.getTitle(), "_xml.applyCodeAction", arguments);
-						Either<Command, CodeAction> e = Either.forLeft(command);
-						return e;
+						if (codeActionLiteralSupport) {
+							Either<Command, CodeAction> e = Either.forRight(ca);
+							return e;
+						} else {
+							List<Object> arguments = Arrays.asList(uri, document.getVersion(),
+									ca.getEdit().getDocumentChanges().get(0).getEdits());
+							Command command = new Command(ca.getTitle(), "_xml.applyCodeAction", arguments);
+							Either<Command, CodeAction> e = Either.forLeft(command);
+							return e;
+						}
 					}) //
 					.collect(Collectors.toList());
 		});
