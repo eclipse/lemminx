@@ -60,4 +60,76 @@ public class StringUtils {
 		}
 		return whitespaces.toString();
 	}
+
+	/**
+	 * Trims whitespace from the right
+	 * @param str
+	 * @param startOffset The offset where the search should begin
+	 * @return
+	 */
+	public static String rTrimOffset(String str, int startOffset) {
+		if(str == null ) {
+			return null;
+		}
+		int i;
+		for (i = startOffset; i >= 0; i--) {
+			char c = str.charAt(i);
+			if (!Character.isWhitespace(c)) {
+				break;	
+			}
+		}
+		return str.substring(0,i + 1);
+	}
+
+	/**
+	 * Trims whitespace from the left
+	 * @param str
+	 * @return
+	 */
+	public static String lTrim(String str) {
+		if(str == null ) {
+			return null;
+		}
+		int i;
+		for (i = 0; i < str.length(); i++) {
+			char c = str.charAt(i);
+			if (!Character.isWhitespace(c)) {
+				break;	
+			}
+		}
+		return str.substring(i);
+	}
+
+	
+	/**
+	 * Remove beginning newlines
+	 * @param str
+	 * @return
+	 */
+	public static String removeBeginningNewLines(String str, char delimiter) {
+		if(str == null ) {
+			return null;
+		}
+		int lastNonNewlineWhitespace = 0;
+		int i;
+		for (i = 0; i < str.length(); i++) {
+			char c = str.charAt(i);
+			
+			if (!Character.isWhitespace(c)) {
+				if(lastNonNewlineWhitespace == 0) {
+					lastNonNewlineWhitespace = i;
+				}
+				break;	
+			}
+			if(c == delimiter) {
+				lastNonNewlineWhitespace = 0;
+			} else {
+				if(lastNonNewlineWhitespace == 0) {
+					lastNonNewlineWhitespace = i;
+				}
+				
+			}
+		}
+		return str.substring(lastNonNewlineWhitespace);
+	}
 }

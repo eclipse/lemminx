@@ -11,6 +11,8 @@
 package org.eclipse.lsp4xml.utils;
 
 import static org.eclipse.lsp4xml.utils.StringUtils.normalizeSpace;
+import static org.eclipse.lsp4xml.utils.StringUtils.rTrimOffset;
+import static org.eclipse.lsp4xml.utils.StringUtils.removeBeginningNewLines;
 
 import org.eclipse.lsp4xml.dom.Comment;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
@@ -116,6 +118,13 @@ public class XMLBuilder {
 	public XMLBuilder addContent(String text) {
 		if (isJoinContentLines()) {
 			text = normalizeSpace(text);
+
+		} else {
+			int offset = newlineEndPosition(text);
+			if (offset > -1) {
+				text = rTrimOffset(text, offset);
+				text = removeBeginningNewLines(text, lineDelimiter.charAt(0));
+			}
 		}
 		xml.append(text);
 		return this;
@@ -173,6 +182,28 @@ public class XMLBuilder {
 	public XMLBuilder endCDATA() {
 		xml.append("]]>");
 		return this;
+	}
+
+	/**
+	 * 
+	 * @param str
+	 * @return offset at last newline character, else -1 if no newline
+	 */
+	private int newlineEndPosition(String str) {
+		int i;
+		for (i = str.length() - 1; i >= 0; i--) {
+			char c = str.charAt(i);
+			if (Character.isWhitespace(c)) {
+				String myChar = String.valueOf(c);
+				String delimiter = lineDelimiter;
+				if (myChar.equals(delimiter)) {
+					return i;
+				}
+			} else {
+				return -1;
+			}
+		}
+		return -1;
 	}
 
 	public XMLBuilder startComment(Comment comment) {
@@ -233,7 +264,7 @@ public class XMLBuilder {
 		return formattingOptions != null ? formattingOptions.getTabSize() : 0;
 	}
 
-	private boolean isJoinContentLines() {
+	public boolean isJoinContentLines() {
 		return formattingOptions != null && formattingOptions.isJoinContentLines();
 	}
 }

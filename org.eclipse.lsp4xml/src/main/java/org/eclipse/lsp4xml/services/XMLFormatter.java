@@ -28,6 +28,7 @@ import org.eclipse.lsp4xml.dom.XMLParser;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.utils.XMLBuilder;
+import org.eclipse.lsp4xml.dom.Text;
 
 /**
  * XML formatter support.
@@ -81,18 +82,13 @@ class XMLFormatter {
 
 	private void format(Node node, int level, int end, XMLBuilder xml) {
 		if (node.tag != null) {
-			if (node.isText()) {
-				if (node.content != null) {
-					// Generate content
-					String content = node.content;
-					if (!content.isEmpty()) {
-						xml.addContent(content);
-					}
-				}
-				return;
-			}
+			
 			// element to format
-			if (level > 0 && !(node.isComment() && ((Comment) node).isCommentSameLineEndTag())) {
+			
+			boolean doLineFeed = !(node.isComment() && 
+								((Comment) node).isCommentSameLineEndTag()) && 
+								!node.isText();
+			if (level > 0 && doLineFeed) {
 				// add new line + indent
 				xml.linefeed();
 				xml.indent(level);
@@ -143,6 +139,18 @@ class XMLFormatter {
 				xml.addContentDoctype(node.content);
 				xml.endDoctype();
 				xml.linefeed();
+			} else if (node.isText()) {
+				if (node.content != null) {
+					// Generate content
+					if(((Text) node).getGiveNewline()) {
+						xml.linefeed();
+					}
+					String content = node.content;
+					if (!content.isEmpty()) {
+						xml.addContent(content);
+					}
+				}
+				return;
 			} else {
 				xml.startElement(node.tag, false);
 				if (node.hasAttributes()) {
@@ -162,7 +170,18 @@ class XMLFormatter {
 					startElementClosed = true;
 					level++;
 					for (Node child : node.getChildren()) {
-						hasElements = hasElements | (child.tag != null && !child.isText());
+						boolean textElement = !child.isText() || 
+											  child.content.contains(System.getProperty("line.separator")) || 
+											  node.getChildren().size() > 1;
+						if(child.isText()) {
+							if(xml.isJoinContentLines()) {
+								textElement = false;
+							}
+							((Text)	child).setGiveNewLine(textElement);
+						}
+
+						hasElements = hasElements | textElement;
+						
 						format(child, level, end, xml);
 					}
 					level--;
