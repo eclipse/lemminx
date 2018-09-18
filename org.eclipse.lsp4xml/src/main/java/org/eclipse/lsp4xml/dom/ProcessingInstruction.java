@@ -14,10 +14,12 @@ package org.eclipse.lsp4xml.dom;
  * A processing instruction node.
  *
  */
-public class ProcessingInstruction extends Node {
+public class ProcessingInstruction extends CharacterData {
 
 	boolean prolog = false;
 	boolean processingInstruction = false;
+	public int startContent;
+	public int endContent;
 
 	public ProcessingInstruction(int start, int end, XMLDocument ownerDocument) {
 		super(start, end, ownerDocument);
@@ -34,5 +36,20 @@ public class ProcessingInstruction extends Node {
 	@Override
 	public short getNodeType() {
 		return Node.PROCESSING_INSTRUCTION_NODE;
+	}
+
+	@Override
+	public String getData() {
+		return super.getData().trim();
+	}
+
+	@Override
+	public int getStartContent() {
+		return startContent;
+	}
+
+	@Override
+	public int getEndContent() {
+		return endContent;
 	}
 }

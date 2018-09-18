@@ -10,7 +10,6 @@
  */
 package org.eclipse.lsp4xml.dom;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.lsp4j.Position;
@@ -36,7 +35,7 @@ public class XMLDocument extends Node {
 	private boolean hasGrammar;
 
 	public XMLDocument(TextDocument textDocument) {
-		super(0, textDocument.getText().length(), new ArrayList<>(), null, null);
+		super(0, textDocument.getText().length(), null);
 		this.textDocument = textDocument;
 		this.referencedGrammarInitialized = false;
 	}
@@ -302,6 +301,10 @@ public class XMLDocument extends Node {
 
 	public Text createText(int start, int end) {
 		return new Text(start, end, this);
+	}
+
+	public DocumentType createDocumentType(int start, int end) {
+		return new DocumentType(start, end, this);
 	}
 
 }

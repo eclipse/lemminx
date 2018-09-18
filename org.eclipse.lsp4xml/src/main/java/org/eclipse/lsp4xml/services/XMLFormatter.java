@@ -21,14 +21,18 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.dom.Attr;
+import org.eclipse.lsp4xml.dom.CDataSection;
+import org.eclipse.lsp4xml.dom.CharacterData;
 import org.eclipse.lsp4xml.dom.Comment;
+import org.eclipse.lsp4xml.dom.DocumentType;
 import org.eclipse.lsp4xml.dom.Node;
+import org.eclipse.lsp4xml.dom.ProcessingInstruction;
+import org.eclipse.lsp4xml.dom.Text;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.dom.XMLParser;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.utils.XMLBuilder;
-import org.eclipse.lsp4xml.dom.Text;
 
 /**
  * XML formatter support.
@@ -82,12 +86,10 @@ class XMLFormatter {
 
 	private void format(Node node, int level, int end, XMLBuilder xml) {
 		if (node.tag != null) {
-			
+
 			// element to format
-			
-			boolean doLineFeed = !(node.isComment() && 
-								((Comment) node).isCommentSameLineEndTag()) && 
-								!node.isText();
+
+			boolean doLineFeed = !(node.isComment() && ((Comment) node).isCommentSameLineEndTag()) && !node.isText();
 			if (level > 0 && doLineFeed) {
 				// add new line + indent
 				xml.linefeed();
@@ -95,19 +97,22 @@ class XMLFormatter {
 			}
 			// generate start element
 			if (node.isCDATA()) {
+				CDataSection cdata = (CDataSection) node;
 				xml.startCDATA();
-				xml.addContentCDATA(node.content);
+				xml.addContentCDATA(cdata.getData());
 				xml.endCDATA();
 			} else if (node.isComment()) {
-				xml.startComment((Comment) node);
-				xml.addContentComment(node.content);
+				Comment comment = (Comment) node;
+				xml.startComment(comment);
+				xml.addContentComment(comment.getData());
 				xml.endComment();
 				if (level == 0) {
 					xml.linefeed();
 				}
 			} else if (node.isProcessingInstruction()) {
-				xml.startPrologOrPI(node.tag);
-				xml.addContentPI(node.content);
+				ProcessingInstruction processingInstruction = (ProcessingInstruction) node;
+				xml.startPrologOrPI(processingInstruction.tag);
+				xml.addContentPI(processingInstruction.getData());
 				xml.endPrologOrPI();
 				if (level == 0) {
 					xml.linefeed();
@@ -121,7 +126,6 @@ class XMLFormatter {
 					attributes[1] = "encoding";
 					attributes[2] = "standalone";
 
-					int attributeIndex = 0;
 					for (int i = 0; i < attributes.length; i++) {
 						String name = attributes[i];
 						String value = node.getAttributeValue(attributes[i]);
@@ -129,23 +133,24 @@ class XMLFormatter {
 							continue;
 						}
 						xml.addPrologAttribute(name, value, level);
-						attributeIndex++;
 					}
 				}
 				xml.endPrologOrPI();
 				xml.linefeed();
 			} else if (node.isDoctype()) {
+				DocumentType documentType = (DocumentType) node;
 				xml.startDoctype();
-				xml.addContentDoctype(node.content);
+				xml.addContentDoctype(documentType.getContent());
 				xml.endDoctype();
 				xml.linefeed();
 			} else if (node.isText()) {
-				if (node.content != null) {
+				Text text = (Text) node;
+				if (text.hasData()) {
 					// Generate content
-					if(((Text) node).getGiveNewline()) {
+					if (text.hasMultiLine() && !xml.isJoinContentLines()) {
 						xml.linefeed();
 					}
-					String content = node.content;
+					String content = text.getData();
 					if (!content.isEmpty()) {
 						xml.addContent(content);
 					}
@@ -170,18 +175,17 @@ class XMLFormatter {
 					startElementClosed = true;
 					level++;
 					for (Node child : node.getChildren()) {
-						boolean textElement = !child.isText() || 
-											  child.content.contains(System.getProperty("line.separator")) || 
-											  node.getChildren().size() > 1;
-						if(child.isText()) {
-							if(xml.isJoinContentLines()) {
+						boolean textElement = !child.isText()
+								|| (child.isCharacterData() && ((CharacterData) child).hasMultiLine())
+								|| node.getChildren().size() > 1;
+						if (child.isCharacterData()) {
+							if (xml.isJoinContentLines()) {
 								textElement = false;
 							}
-							((Text)	child).setGiveNewLine(textElement);
 						}
 
 						hasElements = hasElements | textElement;
-						
+
 						format(child, level, end, xml);
 					}
 					level--;

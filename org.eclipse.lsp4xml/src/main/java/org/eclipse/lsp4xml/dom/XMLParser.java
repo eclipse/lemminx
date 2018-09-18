@@ -144,10 +144,9 @@ public class XMLParser {
 			}
 
 			case CDATAContent: {
-				if (curr.content == null) {
-					curr.content = "";
-				}
-				curr.content += scanner.getTokenText();
+				CDataSection cdataNode = (CDataSection) curr;
+				cdataNode.startContent = scanner.getTokenOffset();
+				cdataNode.endContent = scanner.getTokenEnd();
 				break;
 			}
 
@@ -167,7 +166,6 @@ public class XMLParser {
 
 			case PIName: {
 				curr.tag = scanner.getTokenText();
-				curr.content = "";
 				((ProcessingInstruction) curr).processingInstruction = true;
 				break;
 			}
@@ -179,7 +177,9 @@ public class XMLParser {
 			}
 
 			case PIContent: {
-				curr.content += scanner.getTokenText().trim();
+				ProcessingInstruction processingInstruction = (ProcessingInstruction) curr;
+				processingInstruction.startContent = scanner.getTokenOffset();
+				processingInstruction.endContent = scanner.getTokenEnd();
 				break;
 			}
 
@@ -210,12 +210,14 @@ public class XMLParser {
 			}
 
 			case Comment: {
-				curr.content = scanner.getTokenText();
+				Comment comment = (Comment) curr;
+				comment.startContent = scanner.getTokenOffset();
+				comment.endContent = scanner.getTokenEnd();
 				break;
 			}
 
 			case StartDoctypeTag: {
-				Node doctype = new DocumentType(scanner.getTokenOffset(), text.length(), curr, xmlDocument);
+				DocumentType doctype = xmlDocument.createDocumentType(scanner.getTokenOffset(), text.length());
 				curr.addChild(doctype);
 				curr = doctype;
 				curr.tag = DOCTYPE_TAG;
@@ -223,10 +225,9 @@ public class XMLParser {
 			}
 
 			case Doctype: {
-				if (curr.content == null) {
-					curr.content = "";
-				}
-				curr.content += scanner.getTokenText();
+				DocumentType doctype = (DocumentType) curr;
+				doctype.startContent = scanner.getTokenOffset();
+				doctype.endContent = scanner.getTokenEnd();
 				break;
 			}
 
@@ -244,14 +245,16 @@ public class XMLParser {
 			}
 
 			case Content: {
+				// FIXME: don't use getTokenText (substring) to know if the content is only
+				// spaces or line feed (scanner should know that).
 				String content = scanner.getTokenText();
 				if (content.trim().length() == 0) {
 					break;
 				}
 				int start = scanner.getTokenOffset();
-				Text textNode = xmlDocument.createText(start, start + content.length());
+				int end = scanner.getTokenEnd();
+				Text textNode = xmlDocument.createText(start, end);
 				textNode.tag = TEXT_TAG;
-				textNode.content = content;
 				textNode.closed = true;
 				curr.addChild(textNode);
 				break;

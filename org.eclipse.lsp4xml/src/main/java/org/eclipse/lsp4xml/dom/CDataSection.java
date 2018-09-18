@@ -14,7 +14,10 @@ package org.eclipse.lsp4xml.dom;
  * A CData section node.
  *
  */
-public class CDataSection extends CharacterData {
+public class CDataSection extends Text {
+
+	int startContent;
+	int endContent;
 
 	public CDataSection(int start, int end, XMLDocument ownerDocument) {
 		super(start, end, ownerDocument);
@@ -23,6 +26,16 @@ public class CDataSection extends CharacterData {
 	@Override
 	public short getNodeType() {
 		return Node.CDATA_SECTION_NODE;
+	}
+
+	@Override
+	public int getStartContent() {
+		return startContent;
+	}
+
+	@Override
+	public int getEndContent() {
+		return endContent;
 	}
 
 }

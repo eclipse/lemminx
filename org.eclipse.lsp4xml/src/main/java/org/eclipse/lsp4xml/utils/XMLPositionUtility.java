@@ -18,6 +18,7 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.dom.Attr;
+import org.eclipse.lsp4xml.dom.CharacterData;
 import org.eclipse.lsp4xml.dom.Node;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 
@@ -200,11 +201,12 @@ public class XMLPositionUtility {
 		Node element = document.findNodeAt(offset);
 		if (element != null) {
 			for (Node node : element.getChildren()) {
-				if (node.content != null) {
+				if (node.isCharacterData() && ((CharacterData) node).hasMultiLine()) {
+					String content = ((CharacterData) node).getData();
 					int start = node.start;
 					Integer end = null;
-					for (int i = 0; i < node.content.length(); i++) {
-						char c = node.content.charAt(i);
+					for (int i = 0; i < content.length(); i++) {
+						char c = content.charAt(i);
 						if (end == null) {
 							if (Character.isWhitespace(c)) {
 								start++;

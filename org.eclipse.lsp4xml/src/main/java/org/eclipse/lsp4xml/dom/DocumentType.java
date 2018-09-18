@@ -10,21 +10,38 @@
  */
 package org.eclipse.lsp4xml.dom;
 
-import java.util.ArrayList;
-
 /**
  * A doctype node.
  *
  */
 public class DocumentType extends Node {
 
-	public DocumentType(int start, int end, Node parent, XMLDocument ownerDocument) {
-		super(start, end, new ArrayList<>(), parent, ownerDocument);
+	private String content;
+	int startContent;
+	int endContent;
+
+	public DocumentType(int start, int end, XMLDocument ownerDocument) {
+		super(start, end, ownerDocument);
 	}
 
 	@Override
 	public short getNodeType() {
 		return Node.DOCUMENT_TYPE_NODE;
+	}
+
+	public String getContent() {
+		if (content == null) {
+			content = getOwnerDocument().getText().substring(getStartContent(), getEndContent());
+		}
+		return content;
+	}
+
+	public int getStartContent() {
+		return startContent;
+	}
+
+	public int getEndContent() {
+		return endContent;
 	}
 
 }

@@ -62,14 +62,14 @@ public class XMLParserTest {
 
 	@Test
 	public void testSelfClosing() {
-		Node br = createNode(Node.ELEMENT_NODE, "br", 0, -1, 5, true);
+		Node br = createNode(Node.ELEMENT_NODE, "br", 0, null, 5, true);
 
 		assertDocument("<br/>", br);
 	}
 
 	@Test
 	public void testNestedSelfClosingTag() {
-		Node br = createNode(Node.ELEMENT_NODE, "br", 5, -1, 10, true);
+		Node br = createNode(Node.ELEMENT_NODE, "br", 5, null, 10, true);
 		Node span = createNode(Node.ELEMENT_NODE, "span", 10, 16, 23, true);
 		Node div = createNode(Node.ELEMENT_NODE, "div", 0, 23, 29, true);
 		div.addChild(br);
@@ -80,7 +80,7 @@ public class XMLParserTest {
 
 	@Test
 	public void testEmptyTagT() {
-		Node br = createNode(Node.ELEMENT_NODE, "br", 0, -1, 4, false);
+		Node br = createNode(Node.ELEMENT_NODE, "br", 0, null, 4, false);
 
 		assertDocument("<br>", br);
 	}
@@ -99,7 +99,7 @@ public class XMLParserTest {
 	@Test
 	public void testStartTagInsideElement() {
 		Node div2 = createNode(Node.ELEMENT_NODE, "div", 5, 10, 16, true);
-		Node div = createNode(Node.ELEMENT_NODE, "div", 0, -1, 16, false);
+		Node div = createNode(Node.ELEMENT_NODE, "div", 0, null, 16, false);
 		div.addChild(div2);
 
 		assertDocument("<div><div></div>", div);
@@ -107,7 +107,7 @@ public class XMLParserTest {
 
 	@Test
 	public void testStartTagInsideElement2() {
-		Node div = createNode(Node.ELEMENT_NODE, "div", 5, -1, 10, false);
+		Node div = createNode(Node.ELEMENT_NODE, "div", 5, null, 10, false);
 		Node cat = createNode(Node.ELEMENT_NODE, "cat", 0, 10, 16, true);
 		cat.addChild(div);
 
@@ -116,8 +116,8 @@ public class XMLParserTest {
 
 	@Test
 	public void testMultipleStartTagInsideElement() {
-		Node span = createNode(Node.ELEMENT_NODE, "span", 9, -1, 15, false);
-		Node div = createNode(Node.ELEMENT_NODE, "div", 4, -1, 15, false);
+		Node span = createNode(Node.ELEMENT_NODE, "span", 9, null, 15, false);
+		Node div = createNode(Node.ELEMENT_NODE, "div", 4, null, 15, false);
 		div.addChild(span);
 		Node h1 = createNode(Node.ELEMENT_NODE, "h1", 0, 15, 20, true);
 		h1.addChild(div);
@@ -144,7 +144,7 @@ public class XMLParserTest {
 
 	@Test
 	public void testAttributesInSelfClosingElement() {
-		Node div = createNode(Node.ELEMENT_NODE, "div", 0, -1, 31, true);
+		Node div = createNode(Node.ELEMENT_NODE, "div", 0, null, 31, true);
 		insertIntoAttributes(div, "key", "\"value\"");
 		insertIntoAttributes(div, "key2", "\"value\"");
 
@@ -169,7 +169,7 @@ public class XMLParserTest {
 
 	@Test
 	public void testAttributeNoClosingQuotation() {
-		Node div = createNode(Node.ELEMENT_NODE, "div", 0, -1, 22, false);
+		Node div = createNode(Node.ELEMENT_NODE, "div", 0, null, 22, false);
 		insertIntoAttributes(div, "key", "\"value></div>");
 
 		assertDocument("<div key=\"value></div>", div);
@@ -177,7 +177,7 @@ public class XMLParserTest {
 
 	@Test
 	public void testCDATABasicTest() {
-		Node text = createCDATANode("testText", 5, -1, 25, true);
+		Node text = createCDATANode("testText", 5, 25, true);
 		Node div = createNode(Node.ELEMENT_NODE, "div", 0, 25, 31, true);
 		div.addChild(text);
 
@@ -186,7 +186,7 @@ public class XMLParserTest {
 
 	@Test
 	public void testCDATAWithOtherElement() {
-		Node text = createCDATANode("TEXT", 5, -1, 21, true);
+		Node text = createCDATANode("TEXT", 5, 21, true);
 		Node a = createNode(Node.ELEMENT_NODE, "a", 21, 24, 28, true);
 		Node div = createNode(Node.ELEMENT_NODE, "div", 0, 28, 34, true);
 		div.addChild(text);
@@ -197,8 +197,8 @@ public class XMLParserTest {
 
 	@Test
 	public void testCDATANotClosedButNested() {
-		Node text = createCDATANode("testText]</div>", 5, -1, 29, false);
-		Node div = createNode(Node.ELEMENT_NODE, "div", 0, -1, 29, false);
+		Node text = createCDATANode("testText]</div>", 5, 29, false);
+		Node div = createNode(Node.ELEMENT_NODE, "div", 0, null, 29, false);
 		div.addChild(text);
 
 		assertDocument("<div><![CDATA[testText]</div>", div);
@@ -206,8 +206,8 @@ public class XMLParserTest {
 
 	@Test
 	public void testCDATANotClosedNotNested() {
-		Node text = createCDATANode("testText]/div>", 5, -1, 28, false);
-		Node div = createNode(Node.ELEMENT_NODE, "div", 0, -1, 28, false);
+		Node text = createCDATANode("testText]/div>", 5, 28, false);
+		Node div = createNode(Node.ELEMENT_NODE, "div", 0, null, 28, false);
 		div.addChild(text);
 
 		assertDocument("<div><![CDATA[testText]/div>", div);
@@ -215,7 +215,7 @@ public class XMLParserTest {
 
 	@Test
 	public void testCDATABasicWithAngledBracket() {
-		Node text = createCDATANode("<>", 5, -1, 19, true);
+		Node text = createCDATANode("<>", 5, 19, true);
 		Node div = createNode(Node.ELEMENT_NODE, "div", 0, 19, 25, true);
 		div.addChild(text);
 
@@ -225,16 +225,16 @@ public class XMLParserTest {
 	@Test
 	public void testClosedWithIncompleteEndTag() {
 
-		Node div = createNode(Node.ELEMENT_NODE, "div", 0, -1, 5, false);
+		Node div = createNode(Node.ELEMENT_NODE, "div", 0, null, 5, false);
 
 		assertDocument("<div></divaaaz", div);
 	}
 
 	@Test
 	public void testNonClosedAndIncomplete() {
-		Node h = createNode(Node.ELEMENT_NODE, "h", 14, -1, 16, false);
+		Node h = createNode(Node.ELEMENT_NODE, "h", 14, null, 16, false);
 		Node hello = createNode(Node.ELEMENT_NODE, "hello", 7, 16, 24, true);
-		Node test1 = createNode(Node.ELEMENT_NODE, "test1", 0, -1, 24, false);
+		Node test1 = createNode(Node.ELEMENT_NODE, "test1", 0, null, 24, false);
 		test1.addChild(hello);
 		hello.addChild(h);
 
@@ -246,13 +246,12 @@ public class XMLParserTest {
 		Node n = createNode(Node.ELEMENT_NODE, "n", 6, 12, 16, true);
 		Node t = createNode(Node.ELEMENT_NODE, "t", 0, 17, 21, true);
 		t.addChild(n);
-
 		assertDocument("<t>\n  <n>\n  </n>\n</t>", t);
 	}
 
 	@Test
 	public void testProlog() {
-		Node prolog = createPrologNode("xml", 0, -1, 38, true);
+		Node prolog = createPrologNode("xml", 0, 38, true);
 		insertIntoAttributes(prolog, "version", "\"1.0\"");
 		insertIntoAttributes(prolog, "encoding", "\"UTF-8\"");
 
@@ -261,7 +260,7 @@ public class XMLParserTest {
 
 	@Test
 	public void testPI() {
-		Node processingInstruction = createPINode("m2e", 6, -1, 20, true, "he haa");
+		Node processingInstruction = createPINode("m2e", 6, 20, true, "he haa");
 		Node html = createNode(Node.ELEMENT_NODE, "html", 0, 20, 27, true);
 		html.addChild(processingInstruction);
 
@@ -270,7 +269,7 @@ public class XMLParserTest {
 
 	@Test
 	public void testPISpaces() {
-		Node processingInstruction = createPINode("m2e", 6, -1, 28, true, "he haa");
+		Node processingInstruction = createPINode("m2e", 6, 28, true, "he haa");
 		Node html = createNode(Node.ELEMENT_NODE, "html", 0, 28, 35, true);
 		html.addChild(processingInstruction);
 
@@ -279,7 +278,7 @@ public class XMLParserTest {
 
 	@Test
 	public void testPISpaces2() {
-		Node processingInstruction = createPINode("m2e", 8, -1, 22, true, "he haa");
+		Node processingInstruction = createPINode("m2e", 8, 22, true, "he haa");
 		Node html = createNode(Node.ELEMENT_NODE, "html", 0, 24, 31, true);
 		html.addChild(processingInstruction);
 
@@ -288,49 +287,49 @@ public class XMLParserTest {
 
 	@Test
 	public void testPICloseToProlog() {
-		Node processingInstruction = createPINode("xmll", 0, -1, 24, true, "this is content");
+		Node processingInstruction = createPINode("xmll", 0, 24, true, "this is content");
 
 		assertDocument("<?xmll this is content?>", processingInstruction);
 	}
 
 	@Test
 	public void testPINoContent() {
-		Node processingInstruction = createPINode("m2e", 0, -1, 7, true, "");
+		Node processingInstruction = createPINode("m2e", 0, 7, true, "");
 
 		assertDocument("<?m2e?>", processingInstruction);
 	}
 
 	@Test
 	public void testPINoContentButSpace() {
-		Node processingInstruction = createPINode("m2e", 0, -1, 8, true, "");
+		Node processingInstruction = createPINode("m2e", 0, 8, true, "");
 
 		assertDocument("<?m2e ?>", processingInstruction);
 	}
 
 	@Test
 	public void testPrologNoContent() {
-		Node prolog = createPrologNode("xml", 0, -1, 7, true);
+		Node prolog = createPrologNode("xml", 0, 7, true);
 
 		assertDocument("<?xml?>", prolog);
 	}
 
 	@Test
 	public void testPrologNoContentButSpace() {
-		Node prolog = createPrologNode("xml", 0, -1, 8, true);
+		Node prolog = createPrologNode("xml", 0, 8, true);
 
 		assertDocument("<?xml ?>", prolog);
 	}
 
 	@Test
 	public void testCommentSingle() {
-		Node comment = createCommentNode(" test ", 0, -1, 13, true);
+		Node comment = createCommentNode(" test ", 0, 13, true);
 
 		assertDocument("<!-- test -->", comment);
 	}
 
 	@Test
 	public void testContentTextHasTag() {
-		Node textNode = createTextNode(" eek ", 6, -1, 13, true);
+		Node textNode = createTextNode("  eek  ", 6, 13, true);
 		Node html = createNode(Node.ELEMENT_NODE, "html", 0, 13, 20, true);
 		html.addChild(textNode);
 
@@ -340,43 +339,101 @@ public class XMLParserTest {
 	// --------------------------------------------------------------------------------
 	// Tools
 
-	private static Node createCDATANode(String content, int start, int endTagStart, int end, boolean closed) {
-		Node n = createNode(Node.CDATA_SECTION_NODE, XMLParser.CDATA_TAG, start, endTagStart, end, closed);
+	private static Node createCDATANode(String content, int start, int end, boolean closed) {
+		MockCDataSection n = (MockCDataSection) createNode(Node.CDATA_SECTION_NODE, XMLParser.CDATA_TAG, start, null,
+				end, closed);
 		n.content = content;
 		return n;
 	}
 
-	private static Node createCommentNode(String content, int start, int endTagStart, int end, boolean closed) {
-		Node n = createNode(Node.COMMENT_NODE, XMLParser.COMMENT_TAG, start, endTagStart, end, closed);
+	private static Node createCommentNode(String content, int start, int end, boolean closed) {
+		MockComment n = (MockComment) createNode(Node.COMMENT_NODE, XMLParser.COMMENT_TAG, start, null, end, closed);
 		n.content = content;
 		return n;
 	}
 
-	private static Node createTextNode(String content, int start, int endTagStart, int end, boolean closed) {
-		Node n = createNode(Node.TEXT_NODE, XMLParser.TEXT_TAG, start, endTagStart, end, closed);
+	private static Node createTextNode(String content, int start, int end, boolean closed) {
+		MockText n = (MockText) createNode(Node.TEXT_NODE, XMLParser.TEXT_TAG, start, null, end, closed);
 		n.content = content;
 		return n;
 	}
 
-	private static Node createPrologNode(String tag, int start, int endTagStart, int end, boolean closed) {
-		ProcessingInstruction n = (ProcessingInstruction) createNode(Node.PROCESSING_INSTRUCTION_NODE, tag, start,
-				endTagStart, end, closed);
+	private static Node createPrologNode(String tag, int start, int end, boolean closed) {
+		ProcessingInstruction n = (ProcessingInstruction) createNode(Node.PROCESSING_INSTRUCTION_NODE, tag, start, null,
+				end, closed);
 		n.prolog = true;
 		return n;
 	}
 
-	private static Node createPINode(String tag, int start, int endTagStart, int end, boolean closed, String content) {
-		ProcessingInstruction n = (ProcessingInstruction) createNode(Node.PROCESSING_INSTRUCTION_NODE, tag, start,
-				endTagStart, end, closed);
+	private static Node createPINode(String tag, int start, int end, boolean closed, String content) {
+		MockProcessingInstruction n = (MockProcessingInstruction) createNode(Node.PROCESSING_INSTRUCTION_NODE, tag,
+				start, null, end, closed);
 		n.content = content;
 		n.processingInstruction = true;
 		return n;
 	}
 
-	private static Node createNode(short nodeType, String tag, int start, int endTagStart, int end, boolean closed) {
+	private static Node createNode(short nodeType, String tag, int start, Integer endTagStart, int end,
+			boolean closed) {
 		Node n = createNode(nodeType, start, end);
 		setRestOfNode(n, tag, endTagStart, closed);
 		return n;
+	}
+
+	private static class MockProcessingInstruction extends ProcessingInstruction {
+
+		public String content;
+
+		public MockProcessingInstruction(int start, int end, XMLDocument ownerDocument) {
+			super(start, end, ownerDocument);
+		}
+
+		@Override
+		public String getData() {
+			return content;
+		}
+	}
+
+	private static class MockCDataSection extends CDataSection {
+
+		public String content;
+
+		public MockCDataSection(int start, int end, XMLDocument ownerDocument) {
+			super(start, end, ownerDocument);
+		}
+
+		@Override
+		public String getData() {
+			return content;
+		}
+	}
+
+	private static class MockText extends Text {
+
+		public String content;
+
+		public MockText(int start, int end, XMLDocument ownerDocument) {
+			super(start, end, ownerDocument);
+		}
+
+		@Override
+		public String getData() {
+			return content;
+		}
+	}
+
+	private static class MockComment extends Comment {
+
+		public String content;
+
+		public MockComment(int start, int end, XMLDocument ownerDocument) {
+			super(start, end, ownerDocument);
+		}
+
+		@Override
+		public String getData() {
+			return content;
+		}
 	}
 
 	private static Node createNode(short nodeType, int start, int end) {
@@ -384,20 +441,20 @@ public class XMLParserTest {
 		case Node.ELEMENT_NODE:
 			return new Element(start, end, null);
 		case Node.PROCESSING_INSTRUCTION_NODE:
-			return new ProcessingInstruction(start, end, null);
+			return new MockProcessingInstruction(start, end, null);
 		case Node.CDATA_SECTION_NODE:
-			return new CDataSection(start, end, null);
+			return new MockCDataSection(start, end, null);
 		case Node.TEXT_NODE:
-			return new Text(start, end, null);
+			return new MockText(start, end, null);
 		case Node.COMMENT_NODE:
-			return new Comment(start, end, null);
+			return new MockComment(start, end, null);
 		}
-		return new Node(start, end, null, null, null);
+		return new Node(start, end, null);
 	}
 
-	private static void setRestOfNode(Node n, String tag, int endTagStart, boolean closed) {
+	private static void setRestOfNode(Node n, String tag, Integer endTagStart, boolean closed) {
 		n.tag = tag;
-		n.endTagStart = endTagStart > -1 ? Integer.valueOf(endTagStart) : null;
+		n.endTagStart = endTagStart;
 		n.closed = closed;
 	}
 
@@ -422,16 +479,14 @@ public class XMLParserTest {
 		} else {
 			assertEquals(expectedNode.endTagStart, actualNode.endTagStart);
 		}
-		if (expectedNode.isCDATA() || expectedNode.isComment()) {
-			assertEquals(expectedNode.content, actualNode.content);
+		if (expectedNode.isCharacterData()) {
+			assertEquals(((CharacterData) expectedNode).getData(), ((CharacterData) actualNode).getData());
 		}
-		assertEquals(expectedNode.closed, actualNode.closed);
+		assertEquals(expectedNode.isClosed(), actualNode.isClosed());
 		assertEquals(expectedNode.isCDATA(), actualNode.isCDATA());
 		assertEquals(expectedNode.isProcessingInstruction(), actualNode.isProcessingInstruction());
 		assertEquals(expectedNode.isProlog(), actualNode.isProlog());
-		if (expectedNode.isProcessingInstruction()) {
-			assertEquals(expectedNode.content, actualNode.content);
-		}
+
 		assertEquals(expectedNode.getChildren().size(), actualNode.getChildren().size());
 		for (int i = 0; i < expectedNode.getChildren().size(); i++) {
 			compareTrees(expectedNode.getChild(i), actualNode.getChild(i));

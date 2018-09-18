@@ -68,7 +68,6 @@ public class Node {
 
 	public Node parent;
 	private final XMLDocument ownerDocument;
-	public String content;
 
 	public Node(int start, int end, XMLDocument ownerDocument) {
 		this.start = start;
@@ -76,7 +75,7 @@ public class Node {
 		this.ownerDocument = ownerDocument;
 	}
 
-	public Node(int start, int end, List<Node> children, Node parent, XMLDocument ownerDocument) {
+	Node(int start, int end, List<Node> children, Node parent, XMLDocument ownerDocument) {
 		this.start = start;
 		this.end = end;
 		this.children = children;
@@ -410,4 +409,9 @@ public class Node {
 	public boolean isText() {
 		return getNodeType() == Node.TEXT_NODE;
 	}
+
+	public boolean isCharacterData() {
+		return isCDATA() || isText() || isProcessingInstruction() || isComment();
+	}
+
 }

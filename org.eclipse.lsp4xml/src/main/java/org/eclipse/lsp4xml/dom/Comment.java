@@ -18,6 +18,10 @@ public class Comment extends CharacterData {
 
 	boolean commentSameLineEndTag;
 
+	int startContent;
+
+	int endContent;
+
 	public Comment(int start, int end, XMLDocument ownerDocument) {
 		super(start, end, ownerDocument);
 	}
@@ -29,6 +33,16 @@ public class Comment extends CharacterData {
 	@Override
 	public short getNodeType() {
 		return Node.COMMENT_NODE;
+	}
+
+	@Override
+	public int getStartContent() {
+		return startContent;
+	}
+
+	@Override
+	public int getEndContent() {
+		return endContent;
 	}
 
 }
