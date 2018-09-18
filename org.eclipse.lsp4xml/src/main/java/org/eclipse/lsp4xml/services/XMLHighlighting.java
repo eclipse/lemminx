@@ -36,7 +36,7 @@ import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 class XMLHighlighting {
 
 	private static final Logger LOGGER = Logger.getLogger(XMLHighlighting.class.getName());
-	
+
 	private final XMLExtensionsRegistry extensionsRegistry;
 
 	public XMLHighlighting(XMLExtensionsRegistry extensionsRegistry) {
@@ -63,8 +63,8 @@ class XMLHighlighting {
 			Position endPos = null;
 			Range tempRange = null;
 			try {
-				startPos = xmlDocument.positionAt(node.start);
-				endPos = xmlDocument.positionAt(node.end);
+				startPos = xmlDocument.positionAt(node.getStart());
+				endPos = xmlDocument.positionAt(node.getEnd());
 				tempRange = new Range(startPos, endPos);
 
 			} catch (BadLocationException e) {
@@ -80,7 +80,7 @@ class XMLHighlighting {
 			}
 			return Collections.emptyList();
 		} else {// Regular element
-			startTagRange = getTagNameRange(TokenType.StartTag, node.start, xmlDocument);
+			startTagRange = getTagNameRange(TokenType.StartTag, node.getStart(), xmlDocument);
 			endTagRange = node.endTagStart != null ? getTagNameRange(TokenType.EndTag, node.endTagStart, xmlDocument)
 					: null;
 			if (doesTagCoverPosition(startTagRange, endTagRange, position)) {

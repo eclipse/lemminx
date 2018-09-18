@@ -61,7 +61,7 @@ class XMLHover {
 			return null;
 		}
 
-		Range tagRange = getTagNameRange(TokenType.StartTag, node.start, offset, xmlDocument);
+		Range tagRange = getTagNameRange(TokenType.StartTag, node.getStart(), offset, xmlDocument);
 		if (tagRange != null) {
 			return getTagHover(hoverRequest, tagRange, true);
 		}

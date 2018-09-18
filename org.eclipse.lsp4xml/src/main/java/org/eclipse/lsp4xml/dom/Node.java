@@ -61,10 +61,11 @@ public class Node {
 
 	private List<Attr> attributeNodes;
 	private List<Node> children;
-	public final int start;
-	public int end;
+	
+	final int start;
+	int end;
 
-	public Node parent;
+	Node parent;
 	private final XMLDocument ownerDocument;
 
 	public Node(int start, int end, XMLDocument ownerDocument) {
@@ -396,5 +397,13 @@ public class Node {
 
 	public String getNodeName() {
 		return null;
+	}
+	
+	public int getStart() {
+		return start;
+	}
+	
+	public int getEnd() {
+		return end;
 	}
 }

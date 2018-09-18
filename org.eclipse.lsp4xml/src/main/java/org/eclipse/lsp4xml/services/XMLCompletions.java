@@ -73,7 +73,7 @@ class XMLCompletions {
 		Node node = completionRequest.getNode();
 
 		String text = xmlDocument.getText();
-		Scanner scanner = XMLScanner.createScanner(text, node.start);
+		Scanner scanner = XMLScanner.createScanner(text, node.getStart());
 		String currentTag = "";
 		completionRequest.setCurrentAttributeName(null);
 		TokenType token = scanner.scan();
@@ -217,9 +217,9 @@ class XMLCompletions {
 		if (c == '>') {
 			Node node = xmlDocument.findNodeBefore(offset);
 			if (node != null && node.isElement() && ((Element) node).getTagName() != null
-					&& !isEmptyElement(((Element) node).getTagName()) && node.start < offset
+					&& !isEmptyElement(((Element) node).getTagName()) && node.getStart() < offset
 					&& (node.endTagStart == null || node.endTagStart > offset)) {
-				Scanner scanner = XMLScanner.createScanner(xmlDocument.getText(), node.start);
+				Scanner scanner = XMLScanner.createScanner(xmlDocument.getText(), node.getStart());
 				TokenType token = scanner.scan();
 				while (token != TokenType.EOS && scanner.getTokenEnd() <= offset) {
 					if (token == TokenType.StartTagClose && scanner.getTokenEnd() == offset) {
@@ -231,10 +231,10 @@ class XMLCompletions {
 		} else if (c == '/') {
 			Node node = xmlDocument.findNodeBefore(offset);
 			while (node != null && node.isClosed()) {
-				node = node.parent;
+				node = node.getParent();
 			}
 			if (node != null && node.isElement() && ((Element) node).getTagName() != null) {
-				Scanner scanner = XMLScanner.createScanner(xmlDocument.getText(), node.start);
+				Scanner scanner = XMLScanner.createScanner(xmlDocument.getText(), node.getStart());
 				TokenType token = scanner.scan();
 				while (token != TokenType.EOS && scanner.getTokenEnd() <= offset) {
 					if (token == TokenType.EndTagOpen && scanner.getTokenEnd() == offset) {
@@ -339,7 +339,7 @@ class XMLCompletions {
 					: ">";
 			Node curr = completionRequest.getNode();
 			if (inOpenTag) {
-				curr = curr.parent; // don't suggest the own tag, it's not yet open
+				curr = curr.getParent(); // don't suggest the own tag, it's not yet open
 			}
 			int offset = completionRequest.getOffset();
 			while (curr != null) {
@@ -353,7 +353,7 @@ class XMLCompletions {
 						item.setTextEdit(new TextEdit(range, "/" + tag + closeTag));
 						item.setInsertTextFormat(InsertTextFormat.PlainText);
 
-						String startIndent = getLineIndent(curr.start, text);
+						String startIndent = getLineIndent(curr.getStart(), text);
 						String endIndent = getLineIndent(afterOpenBracket - 1, text);
 						if (startIndent != null && endIndent != null && !startIndent.equals(endIndent)) {
 							String insertText = startIndent + "</" + tag + closeTag;

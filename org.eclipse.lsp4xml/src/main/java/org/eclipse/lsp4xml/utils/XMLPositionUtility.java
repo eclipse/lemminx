@@ -53,8 +53,8 @@ public class XMLPositionUtility {
 		offset = adjustOffsetForAttribute(offset, document);
 		Attr attr = document.findAttrAt(offset);
 		if (attr != null) {
-			int startOffset = attr.getNodeName().start;
-			int endOffset = attr.getNodeName().end;
+			int startOffset = attr.getNodeName().getStart();
+			int endOffset = attr.getNodeName().getEnd();
 			return createRange(startOffset, endOffset, document);
 		}
 		return null;
@@ -72,8 +72,8 @@ public class XMLPositionUtility {
 	}
 
 	private static Range createRange(Attr attr, XMLDocument document) {
-		int startOffset = attr.getNodeValue().start;
-		int endOffset = attr.getNodeValue().end;
+		int startOffset = attr.getNodeValue().getStart();
+		int endOffset = attr.getNodeValue().getEnd();
 		return createRange(startOffset, endOffset, document);
 	}
 
@@ -125,7 +125,7 @@ public class XMLPositionUtility {
 		if (parent != null) {
 			Node child = findChildNode(childTag, parent.getChildren());
 			if (child != null) {
-				return createRange(child.start + 1, child.start + 1 + childTag.length(), document);
+				return createRange(child.getStart() + 1, child.getStart() + 1 + childTag.length(), document);
 			}
 		}
 		return null;
@@ -143,7 +143,7 @@ public class XMLPositionUtility {
 	public static Range selectStartTag(int offset, XMLDocument document) {
 		Node element = document.findNodeAt(offset);
 		if (element != null) {
-			int startOffset = element.start + 1; // <
+			int startOffset = element.getStart() + 1; // <
 			int endOffset = startOffset + getStartTagLength(element);
 			if (element.isProcessingInstruction() || element.isProlog()) {
 				// in the case of prolog or processing instruction, tag is equals to "xml"
@@ -170,7 +170,7 @@ public class XMLPositionUtility {
 	public static int selectCurrentTagOffset(int offset, XMLDocument document) {
 		Node element = document.findNodeAt(offset);
 		if (element != null) {
-			return element.start; // <
+			return element.getStart(); // <
 
 		}
 		return -1;
@@ -216,7 +216,7 @@ public class XMLPositionUtility {
 			for (Node node : element.getChildren()) {
 				if (node.isCharacterData() && ((CharacterData) node).hasMultiLine()) {
 					String content = ((CharacterData) node).getData();
-					int start = node.start;
+					int start = node.getStart();
 					Integer end = null;
 					for (int i = 0; i < content.length(); i++) {
 						char c = content.charAt(i);
