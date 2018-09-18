@@ -16,11 +16,13 @@ package org.eclipse.lsp4xml.dom;
  */
 public class ProcessingInstruction extends CharacterData {
 
+	boolean startTagClose;
 	String target;
 	boolean prolog = false;
 	boolean processingInstruction = false;
-	public int startContent;
-	public int endContent;
+	int startContent;
+	int endContent;
+	Integer endTagStart;
 
 	public ProcessingInstruction(int start, int end, XMLDocument ownerDocument) {
 		super(start, end, ownerDocument);
@@ -61,5 +63,9 @@ public class ProcessingInstruction extends CharacterData {
 	@Override
 	public String getNodeName() {
 		return getTarget();
+	}
+	
+	public Integer getEndTagStart() {
+		return endTagStart;
 	}
 }

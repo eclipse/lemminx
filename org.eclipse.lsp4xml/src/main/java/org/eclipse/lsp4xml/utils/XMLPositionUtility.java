@@ -177,10 +177,11 @@ public class XMLPositionUtility {
 	}
 
 	public static Range selectEndTag(int offset, XMLDocument document) {
-		Node element = document.findNodeAt(offset);
-		if (element != null) {
-			if (element.endTagStart != null) {
-				int startOffset = element.endTagStart + 2; // <\
+		Node node = document.findNodeAt(offset);
+		if (node != null && node.isElement()) {
+			Element element = (Element) node;
+			if (element.hasEndTag()) {
+				int startOffset = element.getEndTagStart() + 2; // <\
 				int endOffset = startOffset + getStartTagLength(element);
 				return createRange(startOffset, endOffset, document);
 			}

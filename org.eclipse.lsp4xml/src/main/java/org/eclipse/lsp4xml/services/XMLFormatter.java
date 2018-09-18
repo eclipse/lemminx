@@ -201,7 +201,7 @@ class XMLFormatter {
 					}
 					// end tag element is done, only if the element is closed
 					// the format, doesn't fix the close tag
-					if (node.endTagStart != null && node.endTagStart.intValue() <= end) {
+					if (element.hasEndTag() && element.getEndTagStart() <= end) {
 						if (!startElementClosed) {
 							xml.closeStartElement();
 						}
@@ -209,7 +209,7 @@ class XMLFormatter {
 					} else {
 						xml.endElement();
 					}
-				} else if (node.isStartTagClose()) {
+				} else if (element.isStartTagClose()) {
 					if (!startElementClosed) {
 						xml.closeStartElement();
 					}

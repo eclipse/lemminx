@@ -101,7 +101,11 @@ public class XMLParser {
 				}
 				if (curr != xmlDocument) {
 					curr.closed = true;
-					curr.endTagStart = endTagStart;
+					if (curr.isElement()) {
+						((Element) curr).endTagStart = endTagStart;
+					} else if (curr.isProcessingInstruction() || curr.isProlog()) {
+						((ProcessingInstruction) curr).endTagStart = endTagStart;
+					}
 				}
 				break;
 

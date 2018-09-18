@@ -12,7 +12,6 @@ package org.eclipse.lsp4xml.dom;
 
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -454,10 +453,11 @@ public class XMLParserTest {
 	private static void setRestOfNode(Node n, String tag, Integer endTagStart, boolean closed) {
 		if (n.isElement()) {
 			((Element) n).tag = tag;
-		} else if (n.isProcessingInstruction()) {
+			((Element) n).endTagStart = endTagStart;
+		} else if (n instanceof ProcessingInstruction) {
 			((ProcessingInstruction) n).target = tag;
+			((ProcessingInstruction) n).endTagStart = endTagStart;
 		}
-		n.endTagStart = endTagStart;
 		n.closed = closed;
 	}
 
@@ -474,16 +474,17 @@ public class XMLParserTest {
 	private static void compareTrees(Node expectedNode, Node actualNode) {
 		if (expectedNode.isElement()) {
 			assertEquals(((Element) expectedNode).getTagName(), ((Element) actualNode).getTagName());
+			assertEquals(((Element) expectedNode).getEndTagStart(), ((Element) actualNode).getEndTagStart());
+		} else if (expectedNode.isProcessingInstruction() || expectedNode.isProlog()) {
+			assertEquals(((ProcessingInstruction) expectedNode).getTarget(),
+					((ProcessingInstruction) actualNode).getTarget());
+			assertEquals(((ProcessingInstruction) expectedNode).getEndTagStart(),
+					((ProcessingInstruction) actualNode).getEndTagStart());
 		}
 		assertEquals(expectedNode.start, actualNode.start);
 		assertEquals(expectedNode.end, actualNode.end);
 		assertEquals(expectedNode.getAttributeNodes(), actualNode.getAttributeNodes());
 
-		if (expectedNode.endTagStart == null) {
-			Assert.assertNull(actualNode.endTagStart);
-		} else {
-			assertEquals(expectedNode.endTagStart, actualNode.endTagStart);
-		}
 		if (expectedNode.isCharacterData()) {
 			assertEquals(((CharacterData) expectedNode).getData(), ((CharacterData) actualNode).getData());
 		}

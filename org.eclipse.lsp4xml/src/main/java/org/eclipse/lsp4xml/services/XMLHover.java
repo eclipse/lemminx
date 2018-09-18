@@ -53,8 +53,9 @@ class XMLHover {
 		if (node == null || !node.isElement() || ((Element) node).getTagName() == null) {
 			return null;
 		}
-		if (node.endTagStart != null && offset >= node.endTagStart) {
-			Range tagRange = getTagNameRange(TokenType.EndTag, node.endTagStart, offset, xmlDocument);
+		Element element = (Element) node;
+		if (element.hasEndTag() && offset >= element.getEndTagStart()) {
+			Range tagRange = getTagNameRange(TokenType.EndTag, element.getEndTagStart(), offset, xmlDocument);
 			if (tagRange != null) {
 				return getTagHover(hoverRequest, tagRange, false);
 			}

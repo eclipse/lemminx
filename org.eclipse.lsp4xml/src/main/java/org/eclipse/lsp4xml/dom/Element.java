@@ -22,7 +22,9 @@ public class Element extends Node {
 
 	String tag;
 	boolean selfClosed;
-
+	Integer endTagStart;
+	boolean startTagClose;
+	
 	public Element(int start, int end, XMLDocument ownerDocument) {
 		super(start, end, ownerDocument);
 	}
@@ -140,4 +142,17 @@ public class Element extends Node {
 		}
 		return false;
 	}
+	
+	public boolean isStartTagClose() {
+		return startTagClose;
+	}
+	
+	public Integer getEndTagStart() {
+		return endTagStart;
+	}
+	
+	public boolean hasEndTag() {
+		return endTagStart != null;
+	}
+	
 }

@@ -56,8 +56,6 @@ public class Node {
 	public static final short DOCUMENT_TYPE_NODE = 10;
 
 	boolean closed = false;
-	public Integer endTagStart;
-	boolean startTagClose;
 
 	private List<Attr> attributeNodes;
 	private List<Node> children;
@@ -342,10 +340,6 @@ public class Node {
 
 	public boolean isClosed() {
 		return closed;
-	}
-
-	public boolean isStartTagClose() {
-		return startTagClose;
 	}
 
 	public Element getParentElement() {

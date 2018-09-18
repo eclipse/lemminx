@@ -79,9 +79,10 @@ class XMLHighlighting {
 				return getHighlightsList(new Range(startPos, startPosEnd), new Range(endPosStart, endPos));
 			}
 			return Collections.emptyList();
-		} else {// Regular element
+		} else if (node.isElement()) {
+			Element element = (Element) node;
 			startTagRange = getTagNameRange(TokenType.StartTag, node.getStart(), xmlDocument);
-			endTagRange = node.endTagStart != null ? getTagNameRange(TokenType.EndTag, node.endTagStart, xmlDocument)
+			endTagRange = element.hasEndTag() ? getTagNameRange(TokenType.EndTag, element.getEndTagStart(), xmlDocument)
 					: null;
 			if (doesTagCoverPosition(startTagRange, endTagRange, position)) {
 				return getHighlightsList(startTagRange, endTagRange);
