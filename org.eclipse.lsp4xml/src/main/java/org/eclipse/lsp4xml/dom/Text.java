@@ -25,4 +25,9 @@ public class Text extends CharacterData {
 		return Node.TEXT_NODE;
 	}
 
+	@Override
+	public String getNodeName() {
+		return "#text";
+	}
+
 }

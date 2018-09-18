@@ -25,6 +25,7 @@ import org.eclipse.lsp4xml.dom.CDataSection;
 import org.eclipse.lsp4xml.dom.CharacterData;
 import org.eclipse.lsp4xml.dom.Comment;
 import org.eclipse.lsp4xml.dom.DocumentType;
+import org.eclipse.lsp4xml.dom.Element;
 import org.eclipse.lsp4xml.dom.Node;
 import org.eclipse.lsp4xml.dom.ProcessingInstruction;
 import org.eclipse.lsp4xml.dom.Text;
@@ -85,7 +86,7 @@ class XMLFormatter {
 	}
 
 	private void format(Node node, int level, int end, XMLBuilder xml) {
-		if (node.tag != null) {
+		if (node.getNodeType() != Node.DOCUMENT_NODE) {
 
 			// element to format
 
@@ -111,14 +112,15 @@ class XMLFormatter {
 				}
 			} else if (node.isProcessingInstruction()) {
 				ProcessingInstruction processingInstruction = (ProcessingInstruction) node;
-				xml.startPrologOrPI(processingInstruction.tag);
+				xml.startPrologOrPI(processingInstruction.getTarget());
 				xml.addContentPI(processingInstruction.getData());
 				xml.endPrologOrPI();
 				if (level == 0) {
 					xml.linefeed();
 				}
 			} else if (node.isProlog()) {
-				xml.startPrologOrPI(node.tag);
+				ProcessingInstruction processingInstruction = (ProcessingInstruction) node;
+				xml.startPrologOrPI(processingInstruction.getTarget());
 				if (node.hasAttributes()) {
 					// generate attributes
 					String[] attributes = new String[3];
@@ -156,14 +158,16 @@ class XMLFormatter {
 					}
 				}
 				return;
-			} else {
-				xml.startElement(node.tag, false);
+			} else if (node.isElement()) {
+				Element element = (Element) node;
+				String tag = element.getTagName();
+				xml.startElement(tag, false);
 				if (node.hasAttributes()) {
 					// generate attributes
 					int attributeIndex = 0;
 					for (Attr attr : node.getAttributeNodes()) {
 						String attributeName = attr.getName();
-						xml.addAttribute(attributeName, attr.getValue(), attributeIndex, level, node.tag);
+						xml.addAttribute(attributeName, attr.getValue(), attributeIndex, level, tag);
 						attributeIndex++;
 					}
 				}
@@ -201,7 +205,7 @@ class XMLFormatter {
 						if (!startElementClosed) {
 							xml.closeStartElement();
 						}
-						xml.endElement(node.tag);
+						xml.endElement(tag);
 					} else {
 						xml.endElement();
 					}

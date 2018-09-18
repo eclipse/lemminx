@@ -17,6 +17,7 @@ import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.BadLocationException;
+import org.eclipse.lsp4xml.dom.Element;
 import org.eclipse.lsp4xml.dom.Node;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.dom.parser.Scanner;
@@ -30,7 +31,9 @@ import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
  *
  */
 class XMLHover {
+
 	private static final Logger LOGGER = Logger.getLogger(XMLHover.class.getName());
+
 	private final XMLExtensionsRegistry extensionsRegistry;
 
 	public XMLHover(XMLExtensionsRegistry extensionsRegistry) {
@@ -47,7 +50,7 @@ class XMLHover {
 		}
 		int offset = hoverRequest.getOffset();
 		Node node = hoverRequest.getNode();
-		if (node == null || node.tag == null) {
+		if (node == null || !node.isElement() || ((Element) node).getTagName() == null) {
 			return null;
 		}
 		if (node.endTagStart != null && offset >= node.endTagStart) {

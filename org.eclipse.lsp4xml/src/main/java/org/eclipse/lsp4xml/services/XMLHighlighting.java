@@ -21,6 +21,7 @@ import org.eclipse.lsp4j.DocumentHighlightKind;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.BadLocationException;
+import org.eclipse.lsp4xml.dom.Element;
 import org.eclipse.lsp4xml.dom.Node;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.dom.parser.Scanner;
@@ -33,8 +34,11 @@ import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
  *
  */
 class XMLHighlighting {
+
 	private static final Logger LOGGER = Logger.getLogger(XMLHighlighting.class.getName());
+	
 	private final XMLExtensionsRegistry extensionsRegistry;
+
 	public XMLHighlighting(XMLExtensionsRegistry extensionsRegistry) {
 		this.extensionsRegistry = extensionsRegistry;
 	}
@@ -44,56 +48,55 @@ class XMLHighlighting {
 		try {
 			offset = xmlDocument.offsetAt(position);
 		} catch (BadLocationException e) {
-			LOGGER.log(Level.SEVERE, "In XMLHighlighting the client provided Position is at a BadLocation" , e);
+			LOGGER.log(Level.SEVERE, "In XMLHighlighting the client provided Position is at a BadLocation", e);
 			return Collections.emptyList();
 		}
 		Node node = xmlDocument.findNodeAt(offset);
-		if (node.tag == null) {
+		if (node == null || !node.isElement() || ((Element) node).getTagName() == null) {
 			return Collections.emptyList();
 		}
 
 		Range startTagRange = null;
 		Range endTagRange = null;
-		if(node.isCDATA()){
+		if (node.isCDATA()) {
 			Position startPos = null;
 			Position endPos = null;
 			Range tempRange = null;
 			try {
-				startPos = xmlDocument.positionAt(node.start); 
-				endPos = xmlDocument.positionAt(node.end); 
+				startPos = xmlDocument.positionAt(node.start);
+				endPos = xmlDocument.positionAt(node.end);
 				tempRange = new Range(startPos, endPos);
-				
+
 			} catch (BadLocationException e) {
 				LOGGER.log(Level.SEVERE, "In XMLHighlighting the Node at provided Offset is a BadLocation", e);
 				return Collections.emptyList();
 			}
-			if(covers(tempRange, position)) {
-				startPos.setCharacter(startPos.getCharacter() + 1); // {Cursor}<![CDATA[   ->   <{Cursor}![CDATA[
-				endPos.setCharacter(endPos.getCharacter() - 1); // ]]>{Cursor}  ->   ]]{Cursor}>
+			if (covers(tempRange, position)) {
+				startPos.setCharacter(startPos.getCharacter() + 1); // {Cursor}<![CDATA[ -> <{Cursor}![CDATA[
+				endPos.setCharacter(endPos.getCharacter() - 1); // ]]>{Cursor} -> ]]{Cursor}>
 				Position startPosEnd = new Position(startPos.getLine(), startPos.getCharacter() + 8);
 				Position endPosStart = new Position(endPos.getLine(), endPos.getCharacter() - 2);
 				return getHighlightsList(new Range(startPos, startPosEnd), new Range(endPosStart, endPos));
 			}
 			return Collections.emptyList();
-		}
-		else{//Regular element 
+		} else {// Regular element
 			startTagRange = getTagNameRange(TokenType.StartTag, node.start, xmlDocument);
-			endTagRange = node.endTagStart != null ? 
-				getTagNameRange(TokenType.EndTag, node.endTagStart, xmlDocument) : null;
-			if(doesTagCoverPosition(startTagRange, endTagRange, position)) {
+			endTagRange = node.endTagStart != null ? getTagNameRange(TokenType.EndTag, node.endTagStart, xmlDocument)
+					: null;
+			if (doesTagCoverPosition(startTagRange, endTagRange, position)) {
 				return getHighlightsList(startTagRange, endTagRange);
 			}
 		}
 		return Collections.emptyList();
 	}
 
-	private static boolean doesTagCoverPosition(Range startTagRange, Range endTagRange, Position position){
+	private static boolean doesTagCoverPosition(Range startTagRange, Range endTagRange, Position position) {
 		return startTagRange != null && covers(startTagRange, position)
-		|| endTagRange != null && covers(endTagRange, position);
+				|| endTagRange != null && covers(endTagRange, position);
 	}
 
-	private static List<DocumentHighlight> getHighlightsList(Range startTagRange, Range endTagRange){
-		
+	private static List<DocumentHighlight> getHighlightsList(Range startTagRange, Range endTagRange) {
+
 		List<DocumentHighlight> result = new ArrayList<>(2);
 		if (startTagRange != null) {
 			result.add(new DocumentHighlight(startTagRange, DocumentHighlightKind.Read));
@@ -113,7 +116,6 @@ class XMLHighlighting {
 		return isBeforeOrEqual(range.getStart(), position) && isBeforeOrEqual(position, range.getEnd());
 	}
 
-
 	private static Range getTagNameRange(TokenType tokenType, int startOffset, XMLDocument xmlDocument) {
 
 		Scanner scanner = XMLScanner.createScanner(xmlDocument.getText(), startOffset);
@@ -125,14 +127,14 @@ class XMLHighlighting {
 		if (token != TokenType.EOS) {
 			try {
 				return new Range(xmlDocument.positionAt(scanner.getTokenOffset()),
-					xmlDocument.positionAt(scanner.getTokenEnd()));
+						xmlDocument.positionAt(scanner.getTokenEnd()));
 			} catch (BadLocationException e) {
-				LOGGER.log(Level.SEVERE, "While creating Range in XMLHighlighting the Scanner's Offset was a BadLocation", e);
+				LOGGER.log(Level.SEVERE,
+						"While creating Range in XMLHighlighting the Scanner's Offset was a BadLocation", e);
 				return null;
-			}	
+			}
 		}
 		return null;
 	}
-
 
 }

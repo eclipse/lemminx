@@ -19,7 +19,9 @@ import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.dom.Attr;
 import org.eclipse.lsp4xml.dom.CharacterData;
+import org.eclipse.lsp4xml.dom.Element;
 import org.eclipse.lsp4xml.dom.Node;
+import org.eclipse.lsp4xml.dom.ProcessingInstruction;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 
 /**
@@ -117,7 +119,7 @@ public class XMLPositionUtility {
 
 	public static Range selectChildEndTag(String childTag, int offset, XMLDocument document) {
 		Node parent = document.findNodeAt(offset);
-		if (parent.tag == null) {
+		if (parent == null || !parent.isElement() || ((Element) parent).getTagName() == null) {
 			return null;
 		}
 		if (parent != null) {
@@ -131,7 +133,7 @@ public class XMLPositionUtility {
 
 	static Node findChildNode(String childTag, List<Node> children) {
 		for (Node child : children) {
-			if (child.tag.equals(childTag) && !child.isClosed()) {
+			if (child.isElement() && ((Element) child).getTagName().equals(childTag) && !child.isClosed()) {
 				return child;
 			}
 		}
@@ -142,7 +144,7 @@ public class XMLPositionUtility {
 		Node element = document.findNodeAt(offset);
 		if (element != null) {
 			int startOffset = element.start + 1; // <
-			int endOffset = startOffset + element.tag.length();
+			int endOffset = startOffset + getStartTagLength(element);
 			if (element.isProcessingInstruction() || element.isProlog()) {
 				// in the case of prolog or processing instruction, tag is equals to "xml"
 				// without '?' -> <?xml
@@ -152,6 +154,17 @@ public class XMLPositionUtility {
 			return createRange(startOffset, endOffset, document);
 		}
 		return null;
+	}
+
+	private static int getStartTagLength(Node node) {
+		if (node.isElement()) {
+			Element element = (Element) node;
+			return element.getTagName() != null ? element.getTagName().length() : 0;
+		} else if (node.isProcessingInstruction() || node.isProlog()) {
+			ProcessingInstruction element = (ProcessingInstruction) node;
+			return element.getTarget() != null ? element.getTarget().length() : 0;
+		}
+		return 0;
 	}
 
 	public static int selectCurrentTagOffset(int offset, XMLDocument document) {
@@ -168,7 +181,7 @@ public class XMLPositionUtility {
 		if (element != null) {
 			if (element.endTagStart != null) {
 				int startOffset = element.endTagStart + 2; // <\
-				int endOffset = startOffset + element.tag.length();
+				int endOffset = startOffset + getStartTagLength(element);
 				return createRange(startOffset, endOffset, document);
 			}
 		}

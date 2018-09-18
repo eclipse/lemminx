@@ -55,10 +55,8 @@ public class Node {
 	 */
 	public static final short DOCUMENT_TYPE_NODE = 10;
 
-	public String tag;
 	boolean closed = false;
 	public Integer endTagStart;
-	boolean selfClosed;
 	boolean startTagClose;
 
 	private List<Attr> attributeNodes;
@@ -101,8 +99,8 @@ public class Node {
 		result.append(start);
 		result.append(", end: ");
 		result.append(end);
-		result.append(", tag: ");
-		result.append(tag);
+		result.append(", name: ");
+		result.append(getNodeName());
 		result.append(", closed: ");
 		result.append(closed);
 		if (children != null && children.size() > 0) {
@@ -133,11 +131,6 @@ public class Node {
 			result.append("}");
 		}
 		return result.toString();
-	}
-
-	public boolean isSameTag(String tagInLowerCase) {
-		return this.tag != null && tagInLowerCase != null && this.tag.length() == tagInLowerCase.length()
-				&& this.tag.toLowerCase().equals(tagInLowerCase);
 	}
 
 	public Node firstChild() {
@@ -215,7 +208,7 @@ public class Node {
 	 * is true.
 	 * 
 	 * @returns the least x for which p(x) is true or array.length if no element
-	 *          fullfills the given function.
+	 *          full fills the given function.
 	 */
 	private static <T> int findFirst(List<T> array, Function<T, Boolean> p) {
 		int low = 0, high = array.size();
@@ -263,15 +256,6 @@ public class Node {
 			return value.substring(1, value.length());
 		}
 		return value;
-	}
-
-	public boolean hasTag(String tag) {
-		for (Node node : getChildren()) {
-			if (tag.equals(node.tag)) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	public boolean hasAttribute(String name) {
@@ -351,16 +335,8 @@ public class Node {
 		return getChildren().get(index);
 	}
 
-	public short getNodeType() {
-		return 0;
-	}
-
 	public Node getParent() {
 		return parent;
-	}
-
-	public boolean isSelfClosed() {
-		return selfClosed;
 	}
 
 	public boolean isClosed() {
@@ -414,4 +390,11 @@ public class Node {
 		return isCDATA() || isText() || isProcessingInstruction() || isComment();
 	}
 
+	public short getNodeType() {
+		return 0;
+	}
+
+	public String getNodeName() {
+		return null;
+	}
 }

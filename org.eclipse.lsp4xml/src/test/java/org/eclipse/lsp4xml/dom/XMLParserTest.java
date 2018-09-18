@@ -340,20 +340,19 @@ public class XMLParserTest {
 	// Tools
 
 	private static Node createCDATANode(String content, int start, int end, boolean closed) {
-		MockCDataSection n = (MockCDataSection) createNode(Node.CDATA_SECTION_NODE, XMLParser.CDATA_TAG, start, null,
-				end, closed);
+		MockCDataSection n = (MockCDataSection) createNode(Node.CDATA_SECTION_NODE, null, start, null, end, closed);
 		n.content = content;
 		return n;
 	}
 
 	private static Node createCommentNode(String content, int start, int end, boolean closed) {
-		MockComment n = (MockComment) createNode(Node.COMMENT_NODE, XMLParser.COMMENT_TAG, start, null, end, closed);
+		MockComment n = (MockComment) createNode(Node.COMMENT_NODE, null, start, null, end, closed);
 		n.content = content;
 		return n;
 	}
 
 	private static Node createTextNode(String content, int start, int end, boolean closed) {
-		MockText n = (MockText) createNode(Node.TEXT_NODE, XMLParser.TEXT_TAG, start, null, end, closed);
+		MockText n = (MockText) createNode(Node.TEXT_NODE, null, start, null, end, closed);
 		n.content = content;
 		return n;
 	}
@@ -453,7 +452,11 @@ public class XMLParserTest {
 	}
 
 	private static void setRestOfNode(Node n, String tag, Integer endTagStart, boolean closed) {
-		n.tag = tag;
+		if (n.isElement()) {
+			((Element) n).tag = tag;
+		} else if (n.isProcessingInstruction()) {
+			((ProcessingInstruction) n).target = tag;
+		}
 		n.endTagStart = endTagStart;
 		n.closed = closed;
 	}
@@ -469,7 +472,9 @@ public class XMLParserTest {
 	}
 
 	private static void compareTrees(Node expectedNode, Node actualNode) {
-		assertEquals(expectedNode.tag, actualNode.tag);
+		if (expectedNode.isElement()) {
+			assertEquals(((Element) expectedNode).getTagName(), ((Element) actualNode).getTagName());
+		}
 		assertEquals(expectedNode.start, actualNode.start);
 		assertEquals(expectedNode.end, actualNode.end);
 		assertEquals(expectedNode.getAttributeNodes(), actualNode.getAttributeNodes());

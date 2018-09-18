@@ -117,16 +117,15 @@ public class XMLBuilder {
 
 	public XMLBuilder addContent(String text) {
 		if (isJoinContentLines()) {
-			text = normalizeSpace(text);
-
+			normalizeSpace(text, xml);
 		} else {
 			int offset = newlineEndPosition(text);
 			if (offset > -1) {
 				text = rTrimOffset(text, offset);
 				text = removeBeginningNewLines(text, lineDelimiter.charAt(0));
 			}
+			xml.append(text);
 		}
-		xml.append(text);
 		return this;
 	}
 

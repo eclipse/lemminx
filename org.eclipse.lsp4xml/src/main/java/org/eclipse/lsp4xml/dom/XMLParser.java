@@ -29,11 +29,6 @@ public class XMLParser {
 
 	private static final XMLParser INSTANCE = new XMLParser();
 
-	public static final String CDATA_TAG = "#CDATA";
-	public static final String DOCTYPE_TAG = "#Doctype";
-	public static final String TEXT_TAG = "#Text";
-	public static final String COMMENT_TAG = "#Comment";
-
 	public static XMLParser getInstance() {
 		return INSTANCE;
 	}
@@ -68,16 +63,28 @@ public class XMLParser {
 			}
 
 			case StartTag: {
-				curr.tag = scanner.getTokenText();
+				Element element = (Element) curr;
+				element.tag = scanner.getTokenText();
 				break;
 			}
 
 			case StartTagClose:
-				curr.end = scanner.getTokenEnd(); // might be later set to end tag position
-				curr.startTagClose = true;
-				if (curr.tag != null && isEmptyElement(curr.tag) && curr.parent != null) {
-					curr.closed = true;
-					curr = curr.parent;
+				if (curr.isElement()) {
+					Element element = (Element) curr;
+					curr.end = scanner.getTokenEnd(); // might be later set to end tag position
+					element.startTagClose = true;
+					if (element.getTagName() != null && isEmptyElement(element.getTagName()) && curr.parent != null) {
+						curr.closed = true;
+						curr = curr.parent;
+					}
+				} else if (curr.isProcessingInstruction() || curr.isProlog()) {
+					ProcessingInstruction element = (ProcessingInstruction) curr;
+					curr.end = scanner.getTokenEnd(); // might be later set to end tag position
+					element.startTagClose = true;
+					if (element.getTarget() != null && isEmptyElement(element.getTarget()) && curr.parent != null) {
+						curr.closed = true;
+						curr = curr.parent;
+					}
 				}
 				break;
 
@@ -87,7 +94,7 @@ public class XMLParser {
 
 			case EndTag:
 				String closeTag = scanner.getTokenText().toLowerCase();
-				while (!curr.isSameTag(closeTag) && curr.parent != null) {
+				while (!(curr.isElement() && ((Element) curr).isSameTag(closeTag)) && curr.parent != null) {
 					curr.end = endTagStart;
 					curr.closed = false;
 					curr = curr.parent;
@@ -101,7 +108,7 @@ public class XMLParser {
 			case StartTagSelfClose:
 				if (curr.parent != null) {
 					curr.closed = true;
-					curr.selfClosed = true;
+					((Element) curr).selfClosed = true;
 					curr.end = scanner.getTokenEnd();
 					lastClosed = curr;
 					curr = curr.parent;
@@ -137,7 +144,6 @@ public class XMLParser {
 
 			case CDATATagOpen: {
 				CDataSection cdataNode = xmlDocument.createCDataSection(scanner.getTokenOffset(), text.length());
-				cdataNode.tag = CDATA_TAG;
 				curr.addChild(cdataNode);
 				curr = cdataNode;
 				break;
@@ -158,21 +164,24 @@ public class XMLParser {
 			}
 
 			case StartPrologOrPI: {
-				Node prologOrPINode = xmlDocument.createProcessingInstruction(scanner.getTokenOffset(), text.length());
+				ProcessingInstruction prologOrPINode = xmlDocument.createProcessingInstruction(scanner.getTokenOffset(),
+						text.length());
 				curr.addChild(prologOrPINode);
 				curr = prologOrPINode;
 				break;
 			}
 
 			case PIName: {
-				curr.tag = scanner.getTokenText();
-				((ProcessingInstruction) curr).processingInstruction = true;
+				ProcessingInstruction processingInstruction = ((ProcessingInstruction) curr);
+				processingInstruction.target = scanner.getTokenText();
+				processingInstruction.processingInstruction = true;
 				break;
 			}
 
 			case PrologName: {
-				curr.tag = scanner.getTokenText();
-				((ProcessingInstruction) curr).prolog = true;
+				ProcessingInstruction processingInstruction = ((ProcessingInstruction) curr);
+				processingInstruction.target = scanner.getTokenText();
+				processingInstruction.prolog = true;
 				break;
 			}
 
@@ -195,7 +204,6 @@ public class XMLParser {
 				Comment comment = xmlDocument.createComment(scanner.getTokenOffset(), text.length());
 				curr.addChild(comment);
 				curr = comment;
-				curr.tag = COMMENT_TAG;
 				try {
 					int endLine = document.positionAt(lastClosed.end).getLine();
 					int startLine = document.positionAt(curr.start).getLine();
@@ -220,7 +228,6 @@ public class XMLParser {
 				DocumentType doctype = xmlDocument.createDocumentType(scanner.getTokenOffset(), text.length());
 				curr.addChild(doctype);
 				curr = doctype;
-				curr.tag = DOCTYPE_TAG;
 				break;
 			}
 
@@ -254,7 +261,6 @@ public class XMLParser {
 				int start = scanner.getTokenOffset();
 				int end = scanner.getTokenEnd();
 				Text textNode = xmlDocument.createText(start, end);
-				textNode.tag = TEXT_TAG;
 				textNode.closed = true;
 				curr.addChild(textNode);
 				break;

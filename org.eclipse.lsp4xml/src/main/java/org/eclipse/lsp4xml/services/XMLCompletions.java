@@ -10,6 +10,8 @@
  */
 package org.eclipse.lsp4xml.services;
 
+import static java.lang.Character.isWhitespace;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -158,7 +160,7 @@ class XMLCompletions {
 							collectCloseTagSuggestions(start, false, scanner.getTokenEnd(), completionRequest,
 									completionResponse);
 							return completionResponse;
-						} else if (!isWhiteSpace(ch)) {
+						} else if (!isWhitespace(ch)) {
 							break;
 						}
 						start--;
@@ -214,13 +216,14 @@ class XMLCompletions {
 		char c = xmlDocument.getText().charAt(offset - 1);
 		if (c == '>') {
 			Node node = xmlDocument.findNodeBefore(offset);
-			if (node != null && node.tag != null && !isEmptyElement(node.tag) && node.start < offset
+			if (node != null && node.isElement() && ((Element) node).getTagName() != null
+					&& !isEmptyElement(((Element) node).getTagName()) && node.start < offset
 					&& (node.endTagStart == null || node.endTagStart > offset)) {
 				Scanner scanner = XMLScanner.createScanner(xmlDocument.getText(), node.start);
 				TokenType token = scanner.scan();
 				while (token != TokenType.EOS && scanner.getTokenEnd() <= offset) {
 					if (token == TokenType.StartTagClose && scanner.getTokenEnd() == offset) {
-						return "$0</" + node.tag + ">";
+						return "$0</" + ((Element) node).getTagName() + ">";
 					}
 					token = scanner.scan();
 				}
@@ -230,12 +233,12 @@ class XMLCompletions {
 			while (node != null && node.isClosed()) {
 				node = node.parent;
 			}
-			if (node != null && node.tag != null) {
+			if (node != null && node.isElement() && ((Element) node).getTagName() != null) {
 				Scanner scanner = XMLScanner.createScanner(xmlDocument.getText(), node.start);
 				TokenType token = scanner.scan();
 				while (token != TokenType.EOS && scanner.getTokenEnd() <= offset) {
 					if (token == TokenType.EndTagOpen && scanner.getTokenEnd() == offset) {
-						return node.tag + ">";
+						return ((Element) node).getTagName() + ">";
 					}
 					token = scanner.scan();
 				}
@@ -340,28 +343,29 @@ class XMLCompletions {
 			}
 			int offset = completionRequest.getOffset();
 			while (curr != null) {
-				String tag = curr.tag;
-				if (tag != null && (!curr.isClosed() || curr.endTagStart != null && (curr.endTagStart > offset))) {
-					CompletionItem item = new CompletionItem();
-					item.setLabel("/" + tag);
-					item.setKind(CompletionItemKind.Property);
-					item.setFilterText("/" + tag + closeTag);
-					item.setTextEdit(new TextEdit(range, "/" + tag + closeTag));
-					item.setInsertTextFormat(InsertTextFormat.PlainText);
+				if (curr.isElement()) {
+					String tag = ((Element) curr).getTagName();
+					if (tag != null && (!curr.isClosed() || curr.endTagStart != null && (curr.endTagStart > offset))) {
+						CompletionItem item = new CompletionItem();
+						item.setLabel("/" + tag);
+						item.setKind(CompletionItemKind.Property);
+						item.setFilterText("/" + tag + closeTag);
+						item.setTextEdit(new TextEdit(range, "/" + tag + closeTag));
+						item.setInsertTextFormat(InsertTextFormat.PlainText);
 
-					String startIndent = getLineIndent(curr.start, text);
-					String endIndent = getLineIndent(afterOpenBracket - 1, text);
-					if (startIndent != null && endIndent != null && !startIndent.equals(endIndent)) {
-						String insertText = startIndent + "</" + tag + closeTag;
-						item.setTextEdit(new TextEdit(
-								getReplaceRange(afterOpenBracket - 1 - endIndent.length(), offset, completionRequest),
-								insertText));
-						item.setFilterText(endIndent + "</" + tag + closeTag);
+						String startIndent = getLineIndent(curr.start, text);
+						String endIndent = getLineIndent(afterOpenBracket - 1, text);
+						if (startIndent != null && endIndent != null && !startIndent.equals(endIndent)) {
+							String insertText = startIndent + "</" + tag + closeTag;
+							item.setTextEdit(new TextEdit(getReplaceRange(afterOpenBracket - 1 - endIndent.length(),
+									offset, completionRequest), insertText));
+							item.setFilterText(endIndent + "</" + tag + closeTag);
+						}
+						completionResponse.addCompletionItem(item);
+						return;
 					}
-					completionResponse.addCompletionItem(item);
-					return;
 				}
-				curr = curr.parent;
+				curr = curr.getParent();
 			}
 			if (inOpenTag) {
 				return;
@@ -579,10 +583,6 @@ class XMLCompletions {
 		return c == '\'' || c == '"';
 	}
 
-	private static boolean isWhiteSpace(char ch) {
-		return ch == ' ';
-	}
-
 	private static boolean isFollowedBy(String s, int offset, ScannerState intialState, TokenType expectedToken) {
 		return getOffsetFollowedBy(s, offset, intialState, expectedToken) != -1;
 	}
@@ -597,14 +597,14 @@ class XMLCompletions {
 	}
 
 	private static int getWordStart(String s, int offset, int limit) {
-		while (offset > limit && !isWhiteSpace(s.charAt(offset - 1))) {
+		while (offset > limit && !isWhitespace(s.charAt(offset - 1))) {
 			offset--;
 		}
 		return offset;
 	}
 
 	private static int getWordEnd(String s, int offset, int limit) {
-		while (offset < limit && !isWhiteSpace(s.charAt(offset))) {
+		while (offset < limit && !isWhitespace(s.charAt(offset))) {
 			offset++;
 		}
 		return offset;
@@ -627,7 +627,7 @@ class XMLCompletions {
 			if ("\n\r".indexOf(ch) >= 0) {
 				return text.substring(start, offset);
 			}
-			if (!isWhiteSpace(ch)) {
+			if (!isWhitespace(ch)) {
 				return null;
 			}
 			start--;
@@ -636,7 +636,6 @@ class XMLCompletions {
 	}
 
 	private boolean isEmptyElement(String tag) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 

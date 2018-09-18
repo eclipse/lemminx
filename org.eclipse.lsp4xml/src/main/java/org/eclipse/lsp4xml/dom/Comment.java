@@ -36,6 +36,11 @@ public class Comment extends CharacterData {
 	}
 
 	@Override
+	public String getNodeName() {
+		return "#comment";
+	}
+
+	@Override
 	public int getStartContent() {
 		return startContent;
 	}

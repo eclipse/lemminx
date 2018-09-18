@@ -190,6 +190,11 @@ public class XMLDocument extends Node {
 		return Node.DOCUMENT_NODE;
 	}
 
+	@Override
+	public String getNodeName() {
+		return "#document";
+	}
+
 	private void initializeReferencedGrammarIfNeeded() {
 		if (!referencedGrammarInitialized) {
 			initializeReferencedGrammar();

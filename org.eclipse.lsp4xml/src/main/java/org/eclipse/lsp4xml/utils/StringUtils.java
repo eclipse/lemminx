@@ -26,8 +26,7 @@ public class StringUtils {
 	 * @param str
 	 * @return the result of normalize space of the given string.
 	 */
-	public static String normalizeSpace(String str) {
-		StringBuilder b = new StringBuilder(str.length());
+	public static void normalizeSpace(String str, StringBuilder b) {
 		for (int i = 0; i < str.length(); ++i) {
 			char c = str.charAt(i);
 			if (Character.isWhitespace(c)) {
@@ -38,6 +37,17 @@ public class StringUtils {
 			}
 			b.append(c);
 		}
+	}
+
+	/**
+	 * Returns the result of normalize space of the given string.
+	 * 
+	 * @param str
+	 * @return the result of normalize space of the given string.
+	 */
+	public static String normalizeSpace(String str) {
+		StringBuilder b = new StringBuilder(str.length());
+		normalizeSpace(str, b);
 		return b.toString();
 	}
 
@@ -63,71 +73,73 @@ public class StringUtils {
 
 	/**
 	 * Trims whitespace from the right
+	 * 
 	 * @param str
 	 * @param startOffset The offset where the search should begin
 	 * @return
 	 */
 	public static String rTrimOffset(String str, int startOffset) {
-		if(str == null ) {
+		if (str == null) {
 			return null;
 		}
 		int i;
 		for (i = startOffset; i >= 0; i--) {
 			char c = str.charAt(i);
 			if (!Character.isWhitespace(c)) {
-				break;	
+				break;
 			}
 		}
-		return str.substring(0,i + 1);
+		return str.substring(0, i + 1);
 	}
 
 	/**
 	 * Trims whitespace from the left
+	 * 
 	 * @param str
 	 * @return
 	 */
 	public static String lTrim(String str) {
-		if(str == null ) {
+		if (str == null) {
 			return null;
 		}
 		int i;
 		for (i = 0; i < str.length(); i++) {
 			char c = str.charAt(i);
 			if (!Character.isWhitespace(c)) {
-				break;	
+				break;
 			}
 		}
 		return str.substring(i);
 	}
 
-	
 	/**
 	 * Remove beginning newlines
+	 * 
 	 * @param str
 	 * @return
 	 */
 	public static String removeBeginningNewLines(String str, char delimiter) {
-		if(str == null ) {
+		if (str == null) {
 			return null;
 		}
 		int lastNonNewlineWhitespace = 0;
 		int i;
 		for (i = 0; i < str.length(); i++) {
 			char c = str.charAt(i);
-			
+
 			if (!Character.isWhitespace(c)) {
-				if(lastNonNewlineWhitespace == 0) {
+				if (lastNonNewlineWhitespace == 0) {
 					lastNonNewlineWhitespace = i;
 				}
-				break;	
+				break;
 			}
-			if(c == delimiter) {
+			if (c == delimiter) {
 				lastNonNewlineWhitespace = 0;
 			} else {
-				if(lastNonNewlineWhitespace == 0) {
+				if (lastNonNewlineWhitespace == 0) {
 					lastNonNewlineWhitespace = i;
 				}
-				
+
 			}
 		}
 		return str.substring(lastNonNewlineWhitespace);

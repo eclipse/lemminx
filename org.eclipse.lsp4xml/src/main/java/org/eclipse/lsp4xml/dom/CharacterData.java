@@ -19,7 +19,7 @@ import org.eclipse.lsp4xml.utils.StringUtils;
  * A CharacterData node.
  *
  */
-public class CharacterData extends Node {
+public abstract class CharacterData extends Node {
 
 	private String data;
 

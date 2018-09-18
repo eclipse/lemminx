@@ -16,6 +16,7 @@ package org.eclipse.lsp4xml.dom;
  */
 public class ProcessingInstruction extends CharacterData {
 
+	String target;
 	boolean prolog = false;
 	boolean processingInstruction = false;
 	public int startContent;
@@ -51,5 +52,14 @@ public class ProcessingInstruction extends CharacterData {
 	@Override
 	public int getEndContent() {
 		return endContent;
+	}
+	
+	public String getTarget() {
+		return target;
+	}
+	
+	@Override
+	public String getNodeName() {
+		return getTarget();
 	}
 }

@@ -16,6 +16,9 @@ package org.eclipse.lsp4xml.dom;
  */
 public class DocumentType extends Node {
 
+	/** Document type name. */
+	String name;
+
 	private String content;
 	int startContent;
 	int endContent;
@@ -44,4 +47,12 @@ public class DocumentType extends Node {
 		return endContent;
 	}
 
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public String getNodeName() {
+		return getName();
+	}
 }

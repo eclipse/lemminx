@@ -286,20 +286,20 @@ public class XMLFormatterTest {
 	@Test
 	public void testElementContentNotNormalized() throws BadLocationException {
 		String content = 
-		"<a>" + lineSeparator() +
-		" Content" + lineSeparator() +
-		"     Content2" + lineSeparator() +
-		"      Content3" + lineSeparator() +
-		" Content4" + lineSeparator() +
-		"  Content5" + lineSeparator() +
+		"<a>\r" +
+		" Content\r" +
+		"     Content2\r" +
+		"      Content3\r" +
+		" Content4\r" +
+		"  Content5\r" +
 		"</a>";
 		String expected = 
-		"<a>" + lineSeparator() +
-		" Content" + lineSeparator() +
-		"     Content2" + lineSeparator() +
-		"      Content3" + lineSeparator() +
-		" Content4" + lineSeparator() +
-		"  Content5" + lineSeparator() +
+		"<a>\r" +
+		" Content\r" +
+		"     Content2\r" +
+		"      Content3\r" +
+		" Content4\r" +
+		"  Content5\r" +
 		"</a>";
 	
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
@@ -372,20 +372,20 @@ public class XMLFormatterTest {
 	@Test
 	public void testContentFormatting2() throws BadLocationException {
 		String content = 
-		"<a>" + lineSeparator() +
-		" Content" + lineSeparator() +
-		" <b>" + lineSeparator() +
-		"   Content2" + lineSeparator() +
-		"    Content3" + lineSeparator() +
-		" </b>" + lineSeparator() +
+		"<a>\r" +
+		" Content\r" +
+		" <b>\r" +
+		"   Content2\r" +
+		"    Content3\r" +
+		" </b>\r" +
 		"</a>";
 		String expected = 
-		"<a>" + lineSeparator() +
-		" Content" + lineSeparator() +
-		"  <b>" + lineSeparator() +
-		"   Content2" + lineSeparator() +
-		"    Content3" + lineSeparator() +
-		"  </b>" + lineSeparator() +
+		"<a>\r" +
+		" Content\r" +
+		"  <b>\r" +
+		"   Content2\r" +
+		"    Content3\r" +
+		"  </b>\r" +
 		"</a>";
 		
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
@@ -434,13 +434,13 @@ public class XMLFormatterTest {
 	@Test
 	public void testContentFormatting6() throws BadLocationException {
 		String content = 
-		"<a>" + lineSeparator() +
-		"" + lineSeparator() +
-		" Content" + lineSeparator() +
+		"<a>\r" +
+		"\r" +
+		" Content\r" +
 		"</a>";
 		String expected = 
-		"<a>" + lineSeparator() +
-		" Content" + lineSeparator() + 
+		"<a>\r" +
+		" Content\r" + 
 		"</a>";
 		
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();

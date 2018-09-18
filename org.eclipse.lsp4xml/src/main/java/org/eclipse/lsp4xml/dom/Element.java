@@ -15,12 +15,13 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
- * An element node.
- * 
- * @author azerr
+ * An Element node.
  *
  */
 public class Element extends Node {
+
+	String tag;
+	boolean selfClosed;
 
 	public Element(int start, int end, XMLDocument ownerDocument) {
 		super(start, end, ownerDocument);
@@ -29,6 +30,11 @@ public class Element extends Node {
 	@Override
 	public short getNodeType() {
 		return Node.ELEMENT_NODE;
+	}
+
+	@Override
+	public String getNodeName() {
+		return getTagName();
 	}
 
 	public String getTagName() {
@@ -113,4 +119,25 @@ public class Element extends Node {
 		return this.equals(getOwnerDocument().getDocumentElement());
 	}
 
+	public boolean isSelfClosed() {
+		return selfClosed;
+	}
+
+	public boolean isSameTag(String tagInLowerCase) {
+		return this.tag != null && tagInLowerCase != null && this.tag.length() == tagInLowerCase.length()
+				&& this.tag.toLowerCase().equals(tagInLowerCase);
+	}
+
+	public boolean isInStartTag(int offset) {
+		if (getTagName() == null) {
+			// case <|
+			return true;
+		}
+		int startTagEndOffset = start + tag.length() + ">".length();
+		if (!(offset > startTagEndOffset && offset < end)) {
+			// case <bean | >
+			return true;
+		}
+		return false;
+	}
 }

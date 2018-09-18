@@ -21,7 +21,9 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.SymbolKind;
 import org.eclipse.lsp4xml.commons.BadLocationException;
+import org.eclipse.lsp4xml.dom.Element;
 import org.eclipse.lsp4xml.dom.Node;
+import org.eclipse.lsp4xml.dom.ProcessingInstruction;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 
@@ -87,7 +89,12 @@ class XMLSymbolsProvider {
 	}
 
 	private static String nodeToName(Node node) {
-		String name = node.tag;
+		String name = null;
+		if (node.isElement()) {
+			name = ((Element) node).getTagName();
+		} else if (node.isProcessingInstruction() || node.isProlog()) {
+			name = ((ProcessingInstruction) node).getTarget();
+		}
 
 		if (node.hasAttributes()) {
 			String id = node.getAttributeValue("id");
