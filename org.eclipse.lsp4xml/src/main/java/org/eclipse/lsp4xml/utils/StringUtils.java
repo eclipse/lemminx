@@ -71,77 +71,54 @@ public class StringUtils {
 		return whitespaces.toString();
 	}
 
-	/**
-	 * Trims whitespace from the right
-	 * 
-	 * @param str
-	 * @param startOffset The offset where the search should begin
-	 * @return
-	 */
-	public static String rTrimOffset(String str, int startOffset) {
-		if (str == null) {
-			return null;
-		}
-		int i;
-		for (i = startOffset; i >= 0; i--) {
-			char c = str.charAt(i);
-			if (!Character.isWhitespace(c)) {
+	public static void trimNewLines(String value, StringBuilder s) {
+		int len = value.length();
+		int st = 0;
+		char[] val = value.toCharArray();
+
+		// left trim
+		boolean hasNewLine = false;
+		int start = 0;
+		while ((st < len) && (Character.isWhitespace(val[st]))) {
+			if (val[st] == '\r' || val[st] == '\n') {
+				hasNewLine = true;
+			} else if (hasNewLine) {
 				break;
 			}
+			st++;
 		}
-		return str.substring(0, i + 1);
+		if (hasNewLine) {
+			start = st;
+			// adjust offset with \r\n
+			if (st > 0 && st < len && val[st - 1] == '\r' && val[st] == '\n') {
+				start++;
+			}
+		}
+
+		// right trim
+		hasNewLine = false;
+		int end = len;
+		while ((st < len) && (Character.isWhitespace(val[len - 1]))) {
+			if (val[len - 1] == '\r' || val[len - 1] == '\n') {
+				hasNewLine = true;
+			} else if (hasNewLine) {
+				break;
+			}
+			len--;
+		}
+		if (hasNewLine) {
+			end = len;
+			// adjust offset with \r\n
+			if (val[len - 1] == '\r' && val[len] == '\n') {
+				end--;
+			}
+		}
+		s.append(value, start, end);
 	}
 
-	/**
-	 * Trims whitespace from the left
-	 * 
-	 * @param str
-	 * @return
-	 */
-	public static String lTrim(String str) {
-		if (str == null) {
-			return null;
-		}
-		int i;
-		for (i = 0; i < str.length(); i++) {
-			char c = str.charAt(i);
-			if (!Character.isWhitespace(c)) {
-				break;
-			}
-		}
-		return str.substring(i);
-	}
-
-	/**
-	 * Remove beginning newlines
-	 * 
-	 * @param str
-	 * @return
-	 */
-	public static String removeBeginningNewLines(String str, char delimiter) {
-		if (str == null) {
-			return null;
-		}
-		int lastNonNewlineWhitespace = 0;
-		int i;
-		for (i = 0; i < str.length(); i++) {
-			char c = str.charAt(i);
-
-			if (!Character.isWhitespace(c)) {
-				if (lastNonNewlineWhitespace == 0) {
-					lastNonNewlineWhitespace = i;
-				}
-				break;
-			}
-			if (c == delimiter) {
-				lastNonNewlineWhitespace = 0;
-			} else {
-				if (lastNonNewlineWhitespace == 0) {
-					lastNonNewlineWhitespace = i;
-				}
-
-			}
-		}
-		return str.substring(lastNonNewlineWhitespace);
+	public static String trimNewLines(String value) {
+		StringBuilder s = new StringBuilder();
+		trimNewLines(value, s);
+		return s.toString();
 	}
 }

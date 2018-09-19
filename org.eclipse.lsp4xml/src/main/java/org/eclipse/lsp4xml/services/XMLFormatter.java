@@ -87,9 +87,6 @@ class XMLFormatter {
 
 	private void format(Node node, int level, int end, XMLBuilder xml) {
 		if (node.getNodeType() != Node.DOCUMENT_NODE) {
-
-			// element to format
-
 			boolean doLineFeed = !(node.isComment() && ((Comment) node).isCommentSameLineEndTag()) && !node.isText();
 			if (level > 0 && doLineFeed) {
 				// add new line + indent

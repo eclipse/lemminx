@@ -433,18 +433,25 @@ public class XMLFormatterTest {
 
 	@Test
 	public void testContentFormatting6() throws BadLocationException {
-		String content = 
-		"<a>\r" +
-		"\r" +
-		" Content\r" +
-		"</a>";
-		String expected = 
-		"<a>\r" +
-		" Content\r" + 
-		"</a>";
-		
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		formattingOptions.setJoinContentLines(false);
+		
+		String content = "<a>\r" + //
+				"\r" + //
+				" Content\r" + //
+				"</a>";
+		String expected = "<a>\r" + //
+				" Content\r" + //
+				"</a>";
+		format(content, expected, formattingOptions);
+		
+		content = "<a>\r\n" + //
+				"\r\n" + //
+				" Content\r\n" + //
+				"</a>";
+		expected = "<a>\r\n" + //
+				" Content\r\n" + //
+				"</a>";
 		format(content, expected, formattingOptions);
 	}
 
