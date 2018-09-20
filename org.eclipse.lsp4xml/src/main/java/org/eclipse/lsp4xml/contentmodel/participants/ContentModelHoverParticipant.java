@@ -12,6 +12,7 @@ package org.eclipse.lsp4xml.contentmodel.participants;
 
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.MarkupContent;
+import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4xml.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lsp4xml.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lsp4xml.contentmodel.model.ContentModelManager;
@@ -33,6 +34,7 @@ public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 			String doc = cmElement.getDocumentation();
 			if (doc != null && doc.length() > 0) {
 				MarkupContent content = new MarkupContent();
+				//content.setKind(MarkupKind.MARKDOWN);
 				content.setValue(doc);
 				return new Hover(content);
 			}
@@ -51,6 +53,7 @@ public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 				String doc = cmAttribute.getDocumentation();
 				if (doc != null && doc.length() > 0) {
 					MarkupContent content = new MarkupContent();
+					//content.setKind(MarkupKind.MARKDOWN);
 					content.setValue(doc);
 					return new Hover(content);
 				}
