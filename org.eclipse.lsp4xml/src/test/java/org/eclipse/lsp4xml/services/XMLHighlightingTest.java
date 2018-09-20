@@ -15,6 +15,8 @@ import java.util.List;
 import org.eclipse.lsp4j.DocumentHighlight;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4xml.commons.BadLocationException;
+import org.eclipse.lsp4xml.dom.Element;
+import org.eclipse.lsp4xml.dom.Node;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.dom.XMLParser;
 import org.junit.Assert;
@@ -76,6 +78,11 @@ public class XMLHighlightingTest {
 	public void caseInsensivity() throws BadLocationException {
 		assertHighlights("<HTML><diV><Div></dIV></dI|v></html>", new int[] { 7, 24 }, "div");
 		assertHighlights("<HTML><diV|><Div></dIV></dIv></html>", new int[] { 7, 24 }, "div");
+	}
+	
+	@Test
+	public void insideEndTag() throws BadLocationException {		
+		assertHighlights("<html|></meta></html>", new int[] { 1, 15 }, "html");
 	}
 
 	private void assertHighlights(String value, int[] expectedMatches, String elementName) throws BadLocationException {

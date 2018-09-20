@@ -133,7 +133,8 @@ public class XMLPositionUtility {
 
 	static Node findChildNode(String childTag, List<Node> children) {
 		for (Node child : children) {
-			if (child.isElement() && ((Element) child).getTagName().equals(childTag) && !child.isClosed()) {
+			if (child.isElement() && childTag != null && childTag.equals(((Element) child).getTagName())
+					&& !child.isClosed()) {
 				return child;
 			}
 		}
@@ -181,7 +182,7 @@ public class XMLPositionUtility {
 		if (node != null && node.isElement()) {
 			Element element = (Element) node;
 			if (element.hasEndTag()) {
-				int startOffset = element.getEndTagStart() + 2; // <\
+				int startOffset = element.getEndTagOpenOffset() + 2; // <\
 				int endOffset = startOffset + getStartTagLength(element);
 				return createRange(startOffset, endOffset, document);
 			}

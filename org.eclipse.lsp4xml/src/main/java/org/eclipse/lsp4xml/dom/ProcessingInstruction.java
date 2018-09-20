@@ -22,7 +22,7 @@ public class ProcessingInstruction extends CharacterData {
 	boolean processingInstruction = false;
 	int startContent;
 	int endContent;
-	Integer endTagStart;
+	Integer endTagOpenOffset;
 
 	public ProcessingInstruction(int start, int end, XMLDocument ownerDocument) {
 		super(start, end, ownerDocument);
@@ -66,6 +66,6 @@ public class ProcessingInstruction extends CharacterData {
 	}
 	
 	public Integer getEndTagStart() {
-		return endTagStart;
+		return endTagOpenOffset;
 	}
 }

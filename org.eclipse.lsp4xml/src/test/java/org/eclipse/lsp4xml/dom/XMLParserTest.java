@@ -12,6 +12,7 @@ package org.eclipse.lsp4xml.dom;
 
 import static org.junit.Assert.assertEquals;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -86,9 +87,27 @@ public class XMLParserTest {
 
 	@Test
 	public void singleEndTag() {
-		assertFailedDocument("</meta>");
+		Element meta = (Element) createNode(Node.ELEMENT_NODE, "meta", 0, 0, 7, false);
+		assertDocument("</meta>", meta);
+		Assert.assertFalse(meta.hasStartTag());
+		Assert.assertTrue(meta.hasEndTag());
+		Assert.assertNotNull(meta.getEndTagOpenOffset());
+		Assert.assertEquals(meta.getEndTagOpenOffset().intValue(), 0); // |</meta>
 	}
 
+	@Test
+	public void insideEndTag() {		
+		Element meta = (Element) createNode(Node.ELEMENT_NODE, "meta", 6, 6, 13, false);
+		Element html = (Element) createNode(Node.ELEMENT_NODE, "html", 0, 13, 20, true);
+		html.addChild(meta);
+		
+		assertDocument("<html></meta></html>", html);
+		Assert.assertFalse(meta.hasStartTag());
+		Assert.assertTrue(meta.hasEndTag());
+		Assert.assertNotNull(meta.getEndTagOpenOffset());
+		Assert.assertEquals(meta.getEndTagOpenOffset().intValue(), 6); // |</meta>
+	}
+	
 	@Test
 	public void testEndTagInsideElement() {
 		Node div = createNode(Node.ELEMENT_NODE, "div", 0, 5, 11, true);
@@ -224,7 +243,9 @@ public class XMLParserTest {
 	@Test
 	public void testClosedWithIncompleteEndTag() {
 
-		Node div = createNode(Node.ELEMENT_NODE, "div", 0, null, 5, false);
+		Node div = createNode(Node.ELEMENT_NODE, "div", 0, null, 14, false);
+		Node divaaaz = createNode(Node.ELEMENT_NODE, "divaaaz", 5, 5, 14, false);
+		div.addChild(divaaaz);
 
 		assertDocument("<div></divaaaz", div);
 	}
@@ -333,6 +354,26 @@ public class XMLParserTest {
 		html.addChild(textNode);
 
 		assertDocument("<html>  eek  </html>", html);
+	}
+
+	@Test
+	public void elementOffsets() {
+		XMLDocument document = XMLParser.getInstance().parse("<a></a>", null);
+		Element a = document.getDocumentElement();
+		Assert.assertNotNull(a);
+		Assert.assertEquals(a.getTagName(), "a");
+		Assert.assertEquals(a.getStart(), 0); // |<a></a>
+		Assert.assertNotNull(a.getStartTagOpenOffset()); // |<a></a>
+		Assert.assertEquals(a.getStartTagOpenOffset().intValue(), 0); // |<a></a>
+		Assert.assertNotNull(a.getStartTagCloseOffset()); // <a|></a>
+		Assert.assertEquals(a.getStartTagCloseOffset().intValue(), 2); // <a|></a>
+		Assert.assertEquals(a.getEndTagOpenOffset().intValue(), 3); // <a>|</a>
+		Assert.assertEquals(a.getEnd(), 7); // <a></a>|
+
+		Assert.assertFalse(a.isInStartTag(0)); // |<a></a>
+		Assert.assertTrue(a.isInStartTag(1)); // <|a></a>
+		Assert.assertTrue(a.isInStartTag(2)); // <a|></a>
+		Assert.assertFalse(a.isInStartTag(3)); // <a>|</a>
 	}
 
 	// --------------------------------------------------------------------------------
@@ -453,10 +494,10 @@ public class XMLParserTest {
 	private static void setRestOfNode(Node n, String tag, Integer endTagStart, boolean closed) {
 		if (n.isElement()) {
 			((Element) n).tag = tag;
-			((Element) n).endTagStart = endTagStart;
+			((Element) n).endTagOpenOffset = endTagStart;
 		} else if (n instanceof ProcessingInstruction) {
 			((ProcessingInstruction) n).target = tag;
-			((ProcessingInstruction) n).endTagStart = endTagStart;
+			((ProcessingInstruction) n).endTagOpenOffset = endTagStart;
 		}
 		n.closed = closed;
 	}
@@ -467,14 +508,10 @@ public class XMLParserTest {
 		compareTrees(expectedNode, actualNode);
 	}
 
-	private static void assertFailedDocument(String input) {
-		assertEquals(0, XMLParser.getInstance().parse(input, "uri").getChildren().size());
-	}
-
 	private static void compareTrees(Node expectedNode, Node actualNode) {
 		if (expectedNode.isElement()) {
 			assertEquals(((Element) expectedNode).getTagName(), ((Element) actualNode).getTagName());
-			assertEquals(((Element) expectedNode).getEndTagStart(), ((Element) actualNode).getEndTagStart());
+			assertEquals(((Element) expectedNode).getEndTagOpenOffset(), ((Element) actualNode).getEndTagOpenOffset());
 		} else if (expectedNode.isProcessingInstruction() || expectedNode.isProlog()) {
 			assertEquals(((ProcessingInstruction) expectedNode).getTarget(),
 					((ProcessingInstruction) actualNode).getTarget());

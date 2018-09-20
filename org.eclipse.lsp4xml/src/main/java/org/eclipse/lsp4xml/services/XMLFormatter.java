@@ -158,57 +158,62 @@ class XMLFormatter {
 			} else if (node.isElement()) {
 				Element element = (Element) node;
 				String tag = element.getTagName();
-				xml.startElement(tag, false);
-				if (node.hasAttributes()) {
-					// generate attributes
-					int attributeIndex = 0;
-					for (Attr attr : node.getAttributeNodes()) {
-						String attributeName = attr.getName();
-						xml.addAttribute(attributeName, attr.getValue(), attributeIndex, level, tag);
-						attributeIndex++;
-					}
-				}
-				boolean hasElements = false;
-				boolean startElementClosed = false;
-				if (node.hasChildren()) {
-					// element has body
-					xml.closeStartElement();
-					startElementClosed = true;
-					level++;
-					for (Node child : node.getChildren()) {
-						boolean textElement = !child.isText()
-								|| (child.isCharacterData() && ((CharacterData) child).hasMultiLine())
-								|| node.getChildren().size() > 1;
-						if (child.isCharacterData()) {
-							if (xml.isJoinContentLines()) {
-								textElement = false;
-							}
+				if (element.hasEndTag() && !element.hasStartTag()) {
+					// bad element which have not start tag (ex: <\root>)
+					xml.endElement(tag);
+				} else {
+					xml.startElement(tag, false);
+					if (node.hasAttributes()) {
+						// generate attributes
+						int attributeIndex = 0;
+						for (Attr attr : node.getAttributeNodes()) {
+							String attributeName = attr.getName();
+							xml.addAttribute(attributeName, attr.getValue(), attributeIndex, level, tag);
+							attributeIndex++;
 						}
-
-						hasElements = hasElements | textElement;
-
-						format(child, level, end, xml);
 					}
-					level--;
-				}
-				if (node.isClosed()) {
-					if (hasElements) {
-						xml.linefeed();
-						xml.indent(level);
+					boolean hasElements = false;
+					boolean startElementClosed = false;
+					if (node.hasChildren()) {
+						// element has body
+						xml.closeStartElement();
+						startElementClosed = true;
+						level++;
+						for (Node child : node.getChildren()) {
+							boolean textElement = !child.isText()
+									|| (child.isCharacterData() && ((CharacterData) child).hasMultiLine())
+									|| node.getChildren().size() > 1;
+							if (child.isCharacterData()) {
+								if (xml.isJoinContentLines()) {
+									textElement = false;
+								}
+							}
+
+							hasElements = hasElements | textElement;
+
+							format(child, level, end, xml);
+						}
+						level--;
 					}
-					// end tag element is done, only if the element is closed
-					// the format, doesn't fix the close tag
-					if (element.hasEndTag() && element.getEndTagStart() <= end) {
+					if (node.isClosed()) {
+						if (hasElements) {
+							xml.linefeed();
+							xml.indent(level);
+						}
+						// end tag element is done, only if the element is closed
+						// the format, doesn't fix the close tag
+						if (element.hasEndTag() && element.getEndTagOpenOffset() <= end) {
+							if (!startElementClosed) {
+								xml.closeStartElement();
+							}
+							xml.endElement(tag);
+						} else {
+							xml.endElement();
+						}
+					} else if (element.hasStartTagClose()) {
 						if (!startElementClosed) {
 							xml.closeStartElement();
 						}
-						xml.endElement(tag);
-					} else {
-						xml.endElement();
-					}
-				} else if (element.isStartTagClose()) {
-					if (!startElementClosed) {
-						xml.closeStartElement();
 					}
 				}
 				return;

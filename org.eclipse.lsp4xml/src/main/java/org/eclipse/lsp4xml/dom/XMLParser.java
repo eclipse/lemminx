@@ -50,13 +50,14 @@ public class XMLParser {
 		Node curr = xmlDocument;
 		Node lastClosed = xmlDocument;
 		Attr attr = null;
-		int endTagStart = -1;
+		int endTagOpenOffset = -1;
 		String pendingAttribute = null;
 		TokenType token = scanner.scan();
 		while (token != TokenType.EOS) {
 			switch (token) {
 			case StartTagOpen: {
 				Element child = xmlDocument.createElement(scanner.getTokenOffset(), text.length());
+				child.startTagOpenOffset = scanner.getTokenOffset();
 				curr.addChild(child);
 				curr = child;
 				break;
@@ -72,7 +73,7 @@ public class XMLParser {
 				if (curr.isElement()) {
 					Element element = (Element) curr;
 					curr.end = scanner.getTokenEnd(); // might be later set to end tag position
-					element.startTagClose = true;
+					element.startTagCloseOffset = scanner.getTokenOffset();
 					if (element.getTagName() != null && isEmptyElement(element.getTagName()) && curr.parent != null) {
 						curr.closed = true;
 						curr = curr.parent;
@@ -89,23 +90,33 @@ public class XMLParser {
 				break;
 
 			case EndTagOpen:
-				endTagStart = scanner.getTokenOffset();
+				endTagOpenOffset = scanner.getTokenOffset();
 				break;
 
 			case EndTag:
+				// end tag (ex: </root>)
 				String closeTag = scanner.getTokenText().toLowerCase();
+				Node current = curr;
 				while (!(curr.isElement() && ((Element) curr).isSameTag(closeTag)) && curr.parent != null) {
-					curr.end = endTagStart;
+					curr.end = endTagOpenOffset;
 					curr.closed = false;
 					curr = curr.parent;
 				}
 				if (curr != xmlDocument) {
 					curr.closed = true;
 					if (curr.isElement()) {
-						((Element) curr).endTagStart = endTagStart;
+						((Element) curr).endTagOpenOffset = endTagOpenOffset;
 					} else if (curr.isProcessingInstruction() || curr.isProlog()) {
-						((ProcessingInstruction) curr).endTagStart = endTagStart;
+						((ProcessingInstruction) curr).endTagOpenOffset = endTagOpenOffset;
 					}
+				} else {
+					// element open tag not found (ex: <root>) add a fake elementg which have just
+					// end tag (no start tag).
+					Element element = xmlDocument.createElement(scanner.getTokenOffset() -2, text.length());
+					element.endTagOpenOffset = endTagOpenOffset;
+					element.tag = closeTag;
+					current.addChild(element);
+					curr = element;
 				}
 				break;
 

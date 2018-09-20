@@ -173,6 +173,24 @@ public class XMLSymbolsTest {
 
         assertSymbols(expectedSymbolInfos, actualSymbolInfos);
     }
+    
+    @Test
+	public void singleEndTag() throws BadLocationException {
+    	String xmlText = "</meta>";
+        initializeTestObjects(xmlText);
+
+        currentLocation = createLocation(testURI, 0, 7, xmlDocument);
+        currentSymbolInfo = createSymbolInformation("meta", SymbolKind.Field, currentLocation, "");
+        expectedSymbolInfos.add(currentSymbolInfo);
+
+        assertSymbols(expectedSymbolInfos, actualSymbolInfos);
+    	
+	}
+    
+    @Test
+	public void insideEndTag() throws BadLocationException {
+		//assertRename("<html|></meta></html>", "newText", edits("newText", r(0, 1, 5), r(0, 15, 19)));
+	}
 
     //-------------------Tools------------------------------
 

@@ -82,7 +82,7 @@ class XMLHighlighting {
 		} else if (node.isElement()) {
 			Element element = (Element) node;
 			startTagRange = getTagNameRange(TokenType.StartTag, node.getStart(), xmlDocument);
-			endTagRange = element.hasEndTag() ? getTagNameRange(TokenType.EndTag, element.getEndTagStart(), xmlDocument)
+			endTagRange = element.hasEndTag() ? getTagNameRange(TokenType.EndTag, element.getEndTagOpenOffset(), xmlDocument)
 					: null;
 			if (doesTagCoverPosition(startTagRange, endTagRange, position)) {
 				return getHighlightsList(startTagRange, endTagRange);

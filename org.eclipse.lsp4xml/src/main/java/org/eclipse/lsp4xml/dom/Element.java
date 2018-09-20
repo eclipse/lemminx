@@ -22,9 +22,14 @@ public class Element extends Node {
 
 	String tag;
 	boolean selfClosed;
-	Integer endTagStart;
-	boolean startTagClose;
-	
+
+	Integer startTagOpenOffset;
+	Integer startTagCloseOffset; // <root|>
+	// Integer startTagSelfCloseOffset;
+	Integer endTagOpenOffset; // <root>|</root>
+	Integer endTagCloseOffset;
+	Integer endTagOffset;
+
 	public Element(int start, int end, XMLDocument ownerDocument) {
 		super(start, end, ownerDocument);
 	}
@@ -131,28 +136,55 @@ public class Element extends Node {
 	}
 
 	public boolean isInStartTag(int offset) {
-		if (getTagName() == null) {
+		if (startTagOpenOffset == null || startTagCloseOffset == null) {
 			// case <|
 			return true;
 		}
-		int startTagEndOffset = start + tag.length() + ">".length();
-		if (!(offset > startTagEndOffset && offset < end)) {
+		if (offset > startTagOpenOffset && offset <= startTagCloseOffset) {
 			// case <bean | >
 			return true;
 		}
 		return false;
 	}
-	
-	public boolean isStartTagClose() {
-		return startTagClose;
+
+	public boolean hasStartTagClose() {
+		return startTagCloseOffset != null;
 	}
-	
-	public Integer getEndTagStart() {
-		return endTagStart;
+
+	public Integer getStartTagOpenOffset() {
+		return startTagOpenOffset;
 	}
-	
+
+	public Integer getStartTagCloseOffset() {
+		return startTagCloseOffset;
+	}
+
+	public Integer getEndTagOpenOffset() {
+		return endTagOpenOffset;
+	}
+
+	/**
+	 * Returns true if has a start tag.
+	 * 
+	 * In our source-oriented DOM, a lone end tag will cause a node to be created in
+	 * the tree, unlike well-formed-only DOMs.
+	 * 
+	 * @return true if has a start tag.
+	 */
+	public boolean hasStartTag() {
+		return startTagOpenOffset != null;
+	}
+
+	/**
+	 * Returns true if has an end tag.
+	 * 
+	 * In our source-oriented DOM, sometimes Elements are "ended", even without an
+	 * explicit end tag in the source.
+	 * 
+	 * @return true if has an end tag.
+	 */
 	public boolean hasEndTag() {
-		return endTagStart != null;
+		return endTagOpenOffset != null;
 	}
-	
+
 }

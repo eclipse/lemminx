@@ -83,6 +83,11 @@ public class XMLRenameTest {
 		assertRename("<HTML><diV|><Div></dIV></dIv></html>", "newText", edits("newText", r(0, 7, 10), r(0, 24, 27)));
 	}
 
+	@Test
+	public void insideEndTag() throws BadLocationException {
+		assertRename("<html|></meta></html>", "newText", edits("newText", r(0, 1, 5), r(0, 15, 19)));
+	}
+
 	private void assertRename(String value, String newText) throws BadLocationException {
 		assertRename(value, newText, Collections.emptyList());
 	}

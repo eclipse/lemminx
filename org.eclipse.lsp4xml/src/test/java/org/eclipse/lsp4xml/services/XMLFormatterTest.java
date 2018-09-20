@@ -63,6 +63,13 @@ public class XMLFormatterTest {
 	}
 
 	@Test
+	public void singleEndTag() throws BadLocationException {
+		String content = "</a>";
+		String expected = "</a>";
+		format(content, expected);
+	}
+	
+	@Test
 	public void endTagMissing() throws BadLocationException {
 		String content = "<foo>\r\n" + // 
 				"  <bar>\r\n" + //

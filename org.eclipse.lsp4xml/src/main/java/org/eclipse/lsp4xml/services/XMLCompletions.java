@@ -218,7 +218,7 @@ class XMLCompletions {
 			Node node = xmlDocument.findNodeBefore(offset);
 			if (node != null && node.isElement() && ((Element) node).getTagName() != null
 					&& !isEmptyElement(((Element) node).getTagName()) && node.getStart() < offset
-					&& (!((Element) node).hasEndTag() || ((Element) node).getEndTagStart() > offset)) {
+					&& (!((Element) node).hasEndTag() || ((Element) node).getEndTagOpenOffset() > offset)) {
 				Scanner scanner = XMLScanner.createScanner(xmlDocument.getText(), node.getStart());
 				TokenType token = scanner.scan();
 				while (token != TokenType.EOS && scanner.getTokenEnd() <= offset) {
@@ -347,7 +347,7 @@ class XMLCompletions {
 					Element element = ((Element) curr);
 					String tag = element.getTagName();
 					if (tag != null
-							&& (!curr.isClosed() || element.hasEndTag() && (element.getEndTagStart() > offset))) {
+							&& (!curr.isClosed() || element.hasEndTag() && (element.getEndTagOpenOffset() > offset))) {
 						CompletionItem item = new CompletionItem();
 						item.setLabel("/" + tag);
 						item.setKind(CompletionItemKind.Property);
