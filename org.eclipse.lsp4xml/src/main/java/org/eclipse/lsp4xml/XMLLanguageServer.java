@@ -32,9 +32,9 @@ import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
 import org.eclipse.lsp4xml.commons.ParentProcessWatcher.ProcessLanguageServer;
+import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.logs.LogHelper;
-import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.eclipse.lsp4xml.settings.InitializationOptionsSettings;
 import org.eclipse.lsp4xml.settings.LogsSettings;
@@ -70,7 +70,9 @@ public class XMLLanguageServer implements LanguageServer, ProcessLanguageServer,
 		xmlTextDocumentService.updateClientCapabilities(params.getCapabilities());
 		this.parentProcessId = params.getProcessId();
 		ServerCapabilities capabilities = new ServerCapabilities();
-		capabilities.setTextDocumentSync(TextDocumentSyncKind.Full);
+		capabilities
+				.setTextDocumentSync(xmlTextDocumentService.isIncrementalSupport() ? TextDocumentSyncKind.Incremental
+						: TextDocumentSyncKind.Full);
 		capabilities.setDocumentSymbolProvider(true);
 		capabilities.setDocumentHighlightProvider(true);
 		capabilities.setCompletionProvider(new CompletionOptions(false, Arrays.asList(".", ":", "<", "\"", "=", "/")));

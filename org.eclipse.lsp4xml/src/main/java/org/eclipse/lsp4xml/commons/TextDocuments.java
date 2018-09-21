@@ -23,12 +23,35 @@ import org.eclipse.lsp4j.TextDocumentItem;
 /**
  * A manager for simple text documents
  */
-public class TextDocuments {
+public class TextDocuments implements ITextDocumentFactory {
+
+	private boolean incremental;
 
 	private final Map<String, TextDocument> documents;
 
 	public TextDocuments() {
 		documents = new HashMap<>();
+	}
+
+	/**
+	 * Set the incremental support.
+	 * 
+	 * @param incremental
+	 */
+	public void setIncremental(boolean incremental) {
+		this.incremental = incremental;
+		documents.clear();
+	}
+
+	/**
+	 * Returns true if text document is managed in incremental mode and false
+	 * otherwise.
+	 * 
+	 * @return true if text document is managed in incremental mode and false
+	 *         otherwise.
+	 */
+	public boolean isIncremental() {
+		return incremental;
 	}
 
 	/**
@@ -44,21 +67,20 @@ public class TextDocuments {
 
 	public void onDidOpenTextDocument(DidOpenTextDocumentParams params) {
 		TextDocumentItem document = params.getTextDocument();
-		documents.put(document.getUri(), new TextDocument(document));
+		documents.put(document.getUri(), createDocument(document));
+	}
+
+	@Override
+	public TextDocument createDocument(TextDocumentItem document) {
+		return new TextDocument(document, incremental);
 	}
 
 	public void onDidChangeTextDocument(DidChangeTextDocumentParams params) {
 		List<TextDocumentContentChangeEvent> changes = params.getContentChanges();
-		// like vscode does, get the last changes
-		// see
-		// https://github.com/Microsoft/vscode-languageserver-node/blob/master/server/src/main.ts
-		TextDocumentContentChangeEvent last = changes.size() > 0 ? changes.get(changes.size() - 1) : null;
-		if (last != null) {
-			TextDocument document = get(params.getTextDocument().getUri());
-			if (document != null) {
-				document.setVersion(params.getTextDocument().getVersion());
-				document.setText(last.getText());
-			}
+		TextDocument document = get(params.getTextDocument().getUri());
+		if (document != null) {
+			document.setVersion(params.getTextDocument().getVersion());
+			document.update(changes);
 		}
 	}
 

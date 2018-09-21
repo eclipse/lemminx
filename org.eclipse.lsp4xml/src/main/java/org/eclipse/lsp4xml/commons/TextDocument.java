@@ -10,11 +10,13 @@
  */
 package org.eclipse.lsp4xml.commons;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
 import org.eclipse.lsp4j.TextDocumentItem;
 
 /**
@@ -28,15 +30,27 @@ public class TextDocument extends TextDocumentItem {
 
 	private ListLineTracker lineTracker;
 
-	public TextDocument(TextDocumentItem document) {
-		this(document.getText(), document.getUri());
+	// Buffer of the text document used only in incremental mode.
+	private final StringBuilder buffer;
+
+	// incremental support?
+	private final boolean incremental;
+
+	public TextDocument(TextDocumentItem document, boolean incremental) {
+		this(document.getText(), document.getUri(), incremental);
 		super.setVersion(document.getVersion());
 		super.setLanguageId(document.getLanguageId());
 	}
 
 	public TextDocument(String text, String uri) {
+		this(text, uri, false);
+	}
+
+	public TextDocument(String text, String uri, boolean incremental) {
 		super.setUri(uri);
 		super.setText(text);
+		buffer = incremental ? new StringBuilder(text) : null;
+		this.incremental = incremental;
 	}
 
 	@Override
@@ -109,5 +123,51 @@ public class TextDocument extends TextDocumentItem {
 			lineTracker.set(super.getText());
 		}
 		return lineTracker;
+	}
+
+	/**
+	 * Update text of the document by using the changes and according the
+	 * incremental support.
+	 * 
+	 * @param changes the text document changes.
+	 */
+	public void update(List<TextDocumentContentChangeEvent> changes) {
+		if (changes.size() < 1) {
+			// no changes, ignore it.
+			return;
+		}
+		if (incremental) {
+			try {
+				synchronized (buffer) {
+					for (TextDocumentContentChangeEvent changeEvent : changes) {
+
+						Range range = changeEvent.getRange();
+						int length = 0;
+
+						if (range != null) {
+							length = changeEvent.getRangeLength().intValue();
+						} else {
+							// range is optional and if not given, the whole file content is replaced
+							length = getText().length();
+							range = new Range(positionAt(0), positionAt(length));
+						}
+						String text = changeEvent.getText();
+						int startOffset = offsetAt(range.getStart());
+						buffer.replace(startOffset, startOffset + length, text);
+					}
+					setText(buffer.toString());
+				}
+			} catch (BadLocationException e) {
+				// Should never occurs.
+			}
+		} else {
+			// like vscode does, get the last changes
+			// see
+			// https://github.com/Microsoft/vscode-languageserver-node/blob/master/server/src/main.ts
+			TextDocumentContentChangeEvent last = changes.size() > 0 ? changes.get(changes.size() - 1) : null;
+			if (last != null) {
+				setText(last.getText());
+			}
+		}
 	}
 }

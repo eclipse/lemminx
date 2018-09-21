@@ -28,6 +28,7 @@ public class LanguageModelCache<T> {
 
 	private final Map<String, LanguageModeInfo> languageModels;
 	private final Function<TextDocument, T> parse;
+	private final ITextDocumentFactory documentFactory;
 
 	class LanguageModeInfo {
 
@@ -44,9 +45,11 @@ public class LanguageModelCache<T> {
 		}
 	}
 
-	public LanguageModelCache(int maxEntries, int cleanupIntervalTimeInSec, Function<TextDocument, T> parse) {
+	public LanguageModelCache(int maxEntries, int cleanupIntervalTimeInSec, ITextDocumentFactory documentFactory,
+			Function<TextDocument, T> parse) {
 		this.languageModels = new HashMap<>();
 		this.parse = parse;
+		this.documentFactory = documentFactory;
 	}
 
 	public T get(TextDocumentItem document) {
@@ -76,10 +79,8 @@ public class LanguageModelCache<T> {
 			return languageModel;
 		}
 		TextDocument textDocument = document instanceof TextDocument ? (TextDocument) document
-				: new TextDocument(document);
-		long start = System.currentTimeMillis();
+				: documentFactory.createDocument(document);
 		languageModel = parse.apply(textDocument);
-		//System.err.println("parsed in " + (System.currentTimeMillis() - start) + "ms");
 		languageModels.put(uri, new LanguageModeInfo(languageModel, version, languageId, System.currentTimeMillis()));
 		return languageModel;
 	}

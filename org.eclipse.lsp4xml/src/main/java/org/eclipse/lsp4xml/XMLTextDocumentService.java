@@ -65,7 +65,9 @@ import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.dom.XMLParser;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
+import org.eclipse.lsp4xml.settings.XMLExperimentalCapabilities;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
+import org.eclipse.lsp4xml.utils.JSONUtility;
 
 /**
  * XML text document service.
@@ -106,7 +108,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 		this.xmlLanguageServer = xmlLanguageServer;
 		this.documents = new TextDocuments();
 		XMLParser parser = XMLParser.getInstance();
-		this.xmlDocuments = new LanguageModelCache<XMLDocument>(10, 60, document -> parser.parse(document));
+		this.xmlDocuments = new LanguageModelCache<XMLDocument>(10, 60, documents, document -> parser.parse(document));
 		this.sharedCompletionSettings = new CompletionSettings();
 		this.sharedFoldingsSettings = new FoldingRangeCapabilities();
 		this.sharedFormattingOptions = new XMLFormattingOptions(true); // to be sure that formattings options is not
@@ -122,6 +124,15 @@ public class XMLTextDocumentService implements TextDocumentService {
 					&& textDocumentClientCapabilities.getCodeAction().getCodeActionLiteralSupport() != null;
 		}
 
+		// Experimental capabilities
+		// get value of "experimental.incrementalSupport.enabled"
+		XMLExperimentalCapabilities experimental = JSONUtility.toModel(capabilities.getExperimental(),
+				XMLExperimentalCapabilities.class);
+		boolean incrementalSupport = experimental != null && experimental.getIncrementalSupport() != null
+				&& experimental.getIncrementalSupport().getEnabled() != null
+						? experimental.getIncrementalSupport().getEnabled()
+						: false;
+		documents.setIncremental(incrementalSupport);
 	}
 
 	public TextDocument getDocument(String uri) {
@@ -312,6 +323,10 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	public void setSharedFormattingOptions(XMLFormattingOptions formattingOptions) {
 		this.sharedFormattingOptions = formattingOptions;
+	}
+
+	public boolean isIncrementalSupport() {
+		return documents.isIncremental();
 	}
 
 }
