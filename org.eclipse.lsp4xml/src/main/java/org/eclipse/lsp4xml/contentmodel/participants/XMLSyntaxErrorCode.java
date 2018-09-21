@@ -146,10 +146,9 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 		case MarkupEntityMismatch:
 			return XMLPositionUtility.createRange(offset, offset + 1, document);
 		case NameRequiredInReference:
-			// Good as is
-		case OpenQuoteExpected:
-			// Working
 			break;
+		case OpenQuoteExpected:
+			return XMLPositionUtility.selectAttributeNameAt(offset - 1, document);
 		case PITargetRequired:
 			// Working
 			break;
@@ -163,6 +162,7 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 			return XMLPositionUtility.createRange(start, end, document);
 		case XMLDeclUnterminated:
 			break;
+		default:
 		}
 
 		return null;

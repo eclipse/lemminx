@@ -229,7 +229,7 @@ public class XMLSyntaxDiagnosticsTest {
 	@Test
 	public void testOpenQuoteExpected() throws Exception {
 		String xml = " <InstdAmt Ccy==\"JPY\">10000000</InstdAmt>";
-		testDiagnosticsFor(xml, d(0, 15, 0, 15, XMLSyntaxErrorCode.OpenQuoteExpected));
+		testDiagnosticsFor(xml, d(0, 11, 0, 14, XMLSyntaxErrorCode.OpenQuoteExpected));
 	}
 
 	@Test
@@ -272,6 +272,16 @@ public class XMLSyntaxDiagnosticsTest {
 	public void testSpaceRequiredInPI() throws Exception {
 		String xml = "<?xmlversion=\"1.0\" encoding=\"UTF-8\"?>";
 		testDiagnosticsFor(xml, d(0, 1, 0, 12, XMLSyntaxErrorCode.SpaceRequiredInPI));
+	}
+
+	@Test
+	public void testMissingQuotesForAttribute() throws Exception {
+		String xml = 
+		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
+		"<foo>\r\n" +
+		"  <bar one= two=\"\"/>\r\n" +
+		"</foo>";
+		testDiagnosticsFor(xml, d(2, 7, 2, 10, XMLSyntaxErrorCode.OpenQuoteExpected));
 	}
 
 	/**
