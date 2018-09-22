@@ -20,6 +20,7 @@ import org.eclipse.lsp4xml.contentmodel.participants.codeactions.cvc_complex_typ
 import org.eclipse.lsp4xml.contentmodel.participants.codeactions.cvc_complex_type_4CodeAction;
 import org.eclipse.lsp4xml.contentmodel.participants.codeactions.cvc_type_3_1_1CodeAction;
 import org.eclipse.lsp4xml.contentmodel.participants.diagnostics.IXMLErrorCode;
+import org.eclipse.lsp4xml.dom.Attr;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.services.extensions.ICodeActionParticipant;
 import org.eclipse.lsp4xml.utils.XMLPositionUtility;
@@ -119,11 +120,11 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 			return XMLPositionUtility.selectText(offset, document);
 		case cvc_datatype_valid_1_2_1: {
 			// this error can occur for attribute value or text
-			/*Attr attr = document.findAttrAt(offset);
+			Attr attr = document.findAttrAt(offset);
 			if (attr != null) {
 				return XMLPositionUtility.selectAttributeValueAt(attr.getName(), offset, document);
 			}
-			return XMLPositionUtility.selectText(offset, document);*/
+			return XMLPositionUtility.selectText(offset, document);
 		}
 		default:
 		}
