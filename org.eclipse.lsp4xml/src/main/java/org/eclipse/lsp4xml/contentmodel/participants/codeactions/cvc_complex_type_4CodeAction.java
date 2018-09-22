@@ -50,10 +50,10 @@ public class cvc_complex_type_4CodeAction implements ICodeActionParticipant {
 			}
 
 			List<CMAttributeDeclaration> requiredAttributes = elementDeclaration.getAttributes().stream()
-					.filter(CMAttributeDeclaration::isRequired).collect(Collectors.toList());
-			if (requiredAttributes.isEmpty()) {
+					.filter(CMAttributeDeclaration::isRequired) //
+					.filter(cmAttr -> !element.hasAttribute(cmAttr.getName())) //
+					.collect(Collectors.toList());
 
-			}
 			XMLGenerator generator = new XMLGenerator(null, "", "", true, 0);
 			String xmlAttributes = generator.generate(requiredAttributes, element.getTagName());
 
