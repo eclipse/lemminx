@@ -65,10 +65,7 @@ import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.dom.XMLParser;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
-import org.eclipse.lsp4xml.settings.XMLExperimentalCapabilities;
-import org.eclipse.lsp4xml.settings.capabilities.ClientCapabilitiesWrapper;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
-import org.eclipse.lsp4xml.utils.JSONUtility;
 
 /**
  * XML text document service.
@@ -124,16 +121,6 @@ public class XMLTextDocumentService implements TextDocumentService {
 			codeActionLiteralSupport = textDocumentClientCapabilities.getCodeAction() != null
 					&& textDocumentClientCapabilities.getCodeAction().getCodeActionLiteralSupport() != null;
 		}
-
-		// Experimental capabilities
-		// get value of "experimental.incrementalSupport.enabled"
-		XMLExperimentalCapabilities experimental = JSONUtility.toModel(capabilities.getExperimental(),
-				XMLExperimentalCapabilities.class);
-		boolean incrementalSupport = experimental != null && experimental.getIncrementalSupport() != null
-				&& experimental.getIncrementalSupport().getEnabled() != null
-						? experimental.getIncrementalSupport().getEnabled()
-						: false;
-		documents.setIncremental(incrementalSupport);
 	}
 
 	public TextDocument getDocument(String uri) {
@@ -332,6 +319,10 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	public XMLFormattingOptions getSharedFormattingOptions() {
 		return this.sharedFormattingOptions;
+	}
+
+	public void setIncrementalSupport(boolean incrementalSupport) {
+		this.documents.setIncremental(incrementalSupport);
 	}
 
 }

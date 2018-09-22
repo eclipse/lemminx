@@ -21,6 +21,8 @@ public class XMLClientSettings {
 	private LogsSettings logs;
 
 	private XMLFormattingOptions format;
+	
+	private XMLExperimentalCapabilities experimental;
 
 	public void setLogs(LogsSettings logs) {
 		this.logs = logs;
@@ -36,6 +38,10 @@ public class XMLClientSettings {
 
 	public XMLFormattingOptions getFormat() {
 		return format;
+	}
+	
+	public XMLExperimentalCapabilities getExperimental() {
+		return experimental;
 	}
 
 	public static XMLClientSettings getSettings(Object initializationOptionsSettings) {

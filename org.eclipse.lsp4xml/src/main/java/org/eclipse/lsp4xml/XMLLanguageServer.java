@@ -37,6 +37,7 @@ import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.eclipse.lsp4xml.settings.InitializationOptionsSettings;
 import org.eclipse.lsp4xml.settings.LogsSettings;
 import org.eclipse.lsp4xml.settings.XMLClientSettings;
+import org.eclipse.lsp4xml.settings.XMLExperimentalCapabilities;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesInitializer;
 import org.eclipse.lsp4xml.settings.capabilities.XMLCapabilityManager;
@@ -115,6 +116,15 @@ public class XMLLanguageServer implements LanguageServer, ProcessLanguageServer,
 			XMLFormattingOptions formatterSettings = clientSettings.getFormat();
 			if (formatterSettings != null) {
 				xmlTextDocumentService.setSharedFormattingOptions(formatterSettings);
+			}
+			// Experimental capabilities
+			XMLExperimentalCapabilities experimental = clientSettings.getExperimental();
+			if (experimental != null) {
+				boolean incrementalSupport = experimental != null && experimental.getIncrementalSupport() != null
+						&& experimental.getIncrementalSupport().getEnabled() != null
+								? experimental.getIncrementalSupport().getEnabled()
+								: false;
+				xmlTextDocumentService.setIncrementalSupport(incrementalSupport);
 			}
 		}
 		// Update XML language service extensions
