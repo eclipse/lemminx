@@ -279,7 +279,14 @@ public class XMLPositionUtility {
 	}
 
 	public static Range selectText(int offset, XMLDocument document) {
-		// TODO Auto-generated method stub
+		Node node = document.findNodeAt(offset);
+		if (node != null && node.hasChildren()) {
+			for (Node child : node.getChildren()) {
+				if (child.isText()) {
+					return createRange(child.getStart(), child.getEnd(), document);
+				}
+			}
+		}
 		return null;
 	}
 
