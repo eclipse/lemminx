@@ -34,7 +34,7 @@ public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 			String doc = cmElement.getDocumentation();
 			if (doc != null && doc.length() > 0) {
 				MarkupContent content = new MarkupContent();
-				//content.setKind(MarkupKind.MARKDOWN);
+				content.setKind(MarkupKind.PLAINTEXT);
 				content.setValue(doc);
 				return new Hover(content);
 			}
@@ -53,7 +53,7 @@ public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 				String doc = cmAttribute.getDocumentation();
 				if (doc != null && doc.length() > 0) {
 					MarkupContent content = new MarkupContent();
-					//content.setKind(MarkupKind.MARKDOWN);
+					content.setKind(MarkupKind.PLAINTEXT);
 					content.setValue(doc);
 					return new Hover(content);
 				}
