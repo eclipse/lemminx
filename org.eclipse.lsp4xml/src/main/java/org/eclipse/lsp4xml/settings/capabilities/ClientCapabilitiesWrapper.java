@@ -27,6 +27,7 @@ public class ClientCapabilitiesWrapper {
 		this.capabilities = new ClientCapabilities();
 		this.v3Supported = false;
 	}
+
 	public ClientCapabilitiesWrapper(ClientCapabilities capabilities) {
 		this.capabilities = capabilities;
 		this.v3Supported = capabilities != null ? capabilities.getTextDocument() != null : false;
@@ -84,7 +85,8 @@ public class ClientCapabilitiesWrapper {
 	}
 
 	private boolean isDynamicRegistrationSupported(DynamicRegistrationCapabilities capability) {
-		return capability != null && capability.getDynamicRegistration().booleanValue();
+		return capability != null && capability.getDynamicRegistration() != null
+				&& capability.getDynamicRegistration().booleanValue();
 	}
 
 	public TextDocumentClientCapabilities getTextDocument() {
