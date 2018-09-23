@@ -114,6 +114,10 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 			String attrName = (String) arguments[1];
 			return XMLPositionUtility.selectAttributeValueAt(attrName, offset, document);
 		}
+		case cvc_enumeration_valid: {
+			String attrValue = (String) arguments[0];
+			return XMLPositionUtility.selectAttributeValueFromGivenValue(attrValue, offset, document);
+		}
 		case cvc_type_3_1_1:
 			return XMLPositionUtility.selectAllAttributes(offset, document);
 		case cvc_type_3_1_3:

@@ -71,6 +71,19 @@ public class XMLPositionUtility {
 		return null;
 	}
 
+	public static Range selectAttributeValueFromGivenValue(String attrValue, int offset, XMLDocument document) {
+		Node element = document.findNodeAt(offset);
+		if (element != null && element.hasAttributes()) {
+			List<Attr> attribues = element.getAttributeNodes();
+			for (Attr attr : attribues) {
+				if (attrValue.equals(attr.getValue())) {
+					return createRange(attr, document);
+				}
+			}
+		}
+		return null;
+	}
+
 	private static Range createRange(Attr attr, XMLDocument document) {
 		int startOffset = attr.getNodeValue().getStart();
 		int endOffset = attr.getNodeValue().getEnd();

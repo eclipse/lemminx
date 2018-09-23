@@ -110,7 +110,7 @@ public class XMLSchemaDiagnosticsTest {
 				+ //
 				"	<bean autowire=\"ERROR\" />\r\n" + // <- error
 				"</beans>";
-		testDiagnosticsFor(xml, d(2, 26, 2, 26, XMLSchemaErrorCode.cvc_enumeration_valid),
+		testDiagnosticsFor(xml, d(2, 16, 2, 23, XMLSchemaErrorCode.cvc_enumeration_valid),
 				d(2, 16, 2, 23, XMLSchemaErrorCode.cvc_attribute_3));
 	}
 
@@ -130,6 +130,24 @@ public class XMLSchemaDiagnosticsTest {
 				"</invoice>";
 		testDiagnosticsFor(xml, d(3, 8, 3, 26, XMLSchemaErrorCode.cvc_datatype_valid_1_2_1),
 				d(3, 8, 3, 26, XMLSchemaErrorCode.cvc_type_3_1_3));
+	}
+
+	@Test
+	public void cvc_enumeration_valid() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
+				+ "<invoice xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n"
+				+ " xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/invoice.xsd\">\r\n" + //
+				"  <date>2017-11-30</date>\r\n" + //
+				"  <number>0</number>\r\n" + //
+				"  <products>\r\n" + //
+				"  	<product price=\"1\" description=\"\"/>\r\n" + //
+				"  </products>\r\n" + //
+				"  <payments>\r\n" + //
+				"  	<payment amount=\"1\" method=\"credit_invalid\"/>\r\n" + //
+				"  </payments>\r\n" + //
+				"</invoice>";
+		testDiagnosticsFor(xml, d(9, 30, 9, 46, XMLSchemaErrorCode.cvc_enumeration_valid),
+				d(9, 30, 9, 46, XMLSchemaErrorCode.cvc_attribute_3));
 	}
 
 	private static void testDiagnosticsFor(String xml, Diagnostic... expected) {
