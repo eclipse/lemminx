@@ -31,26 +31,25 @@ public class TextDocument extends TextDocumentItem {
 	private ListLineTracker lineTracker;
 
 	// Buffer of the text document used only in incremental mode.
-	private final StringBuilder buffer;
+	private StringBuilder buffer;
 
-	// incremental support?
-	private final boolean incremental;
-
-	public TextDocument(TextDocumentItem document, boolean incremental) {
-		this(document.getText(), document.getUri(), incremental);
+	public TextDocument(TextDocumentItem document) {
+		this(document.getText(), document.getUri());
 		super.setVersion(document.getVersion());
 		super.setLanguageId(document.getLanguageId());
 	}
 
 	public TextDocument(String text, String uri) {
-		this(text, uri, false);
-	}
-
-	public TextDocument(String text, String uri, boolean incremental) {
 		super.setUri(uri);
 		super.setText(text);
-		buffer = incremental ? new StringBuilder(text) : null;
-		this.incremental = incremental;
+	}
+
+	public void setIncremental(boolean incremental) {
+		if (incremental) {
+			buffer = new StringBuilder(getText());
+		} else {
+			buffer = null;
+		}
 	}
 
 	@Override
@@ -136,7 +135,7 @@ public class TextDocument extends TextDocumentItem {
 			// no changes, ignore it.
 			return;
 		}
-		if (incremental) {
+		if (isIncremental()) {
 			try {
 				synchronized (buffer) {
 					for (TextDocumentContentChangeEvent changeEvent : changes) {
@@ -170,4 +169,9 @@ public class TextDocument extends TextDocumentItem {
 			}
 		}
 	}
+
+	public boolean isIncremental() {
+		return buffer != null;
+	}
+
 }

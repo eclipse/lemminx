@@ -40,7 +40,7 @@ public class TextDocuments implements ITextDocumentFactory {
 	 */
 	public void setIncremental(boolean incremental) {
 		this.incremental = incremental;
-		documents.clear();
+		documents.values().forEach(document -> document.setIncremental(incremental));
 	}
 
 	/**
@@ -72,7 +72,9 @@ public class TextDocuments implements ITextDocumentFactory {
 
 	@Override
 	public TextDocument createDocument(TextDocumentItem document) {
-		return new TextDocument(document, incremental);
+		TextDocument doc = new TextDocument(document);
+		doc.setIncremental(incremental);
+		return doc;
 	}
 
 	public void onDidChangeTextDocument(DidChangeTextDocumentParams params) {
