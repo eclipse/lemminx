@@ -108,7 +108,7 @@ public class ContentModelManager {
 	 *         otherwise.
 	 */
 	private CMDocument findCMDocument(String uri, String publicId, String systemId) {
-		String key = publicId + "#" + systemId;
+		String key = getCacheKey(uri, publicId, systemId);
 		CMDocument cmDocument = cmDocumentCache.get(key);
 		if (cmDocument == null) {
 			String xmlSchemaURI = URIResolverExtensionManager.getInstance().resolve(uri, publicId, systemId);
@@ -125,6 +125,22 @@ public class ContentModelManager {
 			}
 		}
 		return cmDocument;
+	}
+
+	/**
+	 * Returns the cached key of the content model document.
+	 * 
+	 * @param uri
+	 * @param publicId
+	 * @param systemId
+	 * @return the cached key of the content model document
+	 */
+	private String getCacheKey(String uri, String publicId, String systemId) {
+		if (publicId == null && systemId == null) {
+			// case of XML file association, the key is the file URI
+			return uri;
+		}
+		return publicId + "#" + systemId;
 	}
 
 	/**
