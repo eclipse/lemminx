@@ -9,5 +9,6 @@
 	//Use consistent indentation
 	"editor.detectIndentation": false,
 	"editor.tabSize": 4,
-	"editor.insertSpaces": false
+	"editor.insertSpaces": false,
+	"java.configuration.updateBuildConfiguration": "interactive"
 }

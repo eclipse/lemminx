@@ -12,6 +12,7 @@
 package org.eclipse.lsp4xml;
 
 import static org.eclipse.lsp4j.jsonrpc.CompletableFutures.computeAsync;
+import static org.eclipse.lsp4xml.utils.VersionHelper.getVersion;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
@@ -67,7 +68,7 @@ public class XMLLanguageServer implements LanguageServer, ProcessLanguageServer,
 
 	@Override
 	public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
-		LOGGER.info("Initializing LSP4XML server");
+		LOGGER.info("Initializing LSP4XML server " + getVersion());
 		this.parentProcessId = params.getProcessId();
 
 		capabilityManager.setClientCapabilities(params.getCapabilities());
