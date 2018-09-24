@@ -57,10 +57,10 @@ public class cvc_complex_type_4CodeAction implements ICodeActionParticipant {
 			XMLGenerator generator = new XMLGenerator(null, "", "", true, 0);
 			String xmlAttributes = generator.generate(requiredAttributes, element.getTagName());
 
-			// Insert content
-			CodeAction removeContentAction = CodeActionFactory.insert("Insert required attributes", diagnosticRange,
+			// Insert required attributes
+			CodeAction insertRequiredAttributesAction = CodeActionFactory.insert("Insert required attributes", diagnosticRange,
 					xmlAttributes, document.getTextDocument(), diagnostic);
-			codeActions.add(removeContentAction);
+			codeActions.add(insertRequiredAttributesAction);
 		} catch (Exception e) {
 			// Do nothing
 		}

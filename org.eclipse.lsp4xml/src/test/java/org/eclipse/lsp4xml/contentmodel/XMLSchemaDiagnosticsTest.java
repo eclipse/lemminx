@@ -100,7 +100,9 @@ public class XMLSchemaDiagnosticsTest {
 				"	<bean XXXX=\"\" >\r\n" + // <- error
 				"	</bean>              \r\n" + //
 				"</beans>";
-		testDiagnosticsFor(xml, d(2, 7, 2, 11, XMLSchemaErrorCode.cvc_complex_type_3_2_2));
+		Diagnostic d = d(2, 7, 2, 11, XMLSchemaErrorCode.cvc_complex_type_3_2_2);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(2, 7, 2, 14, "")));
 	}
 
 	@Test

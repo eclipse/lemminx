@@ -15,25 +15,38 @@ import java.util.List;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.CodeActionFactory;
+import org.eclipse.lsp4xml.dom.Attr;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.services.extensions.ICodeActionParticipant;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 
 /**
- * Code action to fix cvc-type.3.1.1 error.
+ * Code action to fix cvc-complex-type.3.2.2 error.
  *
  */
-public class cvc_type_3_1_1CodeAction implements ICodeActionParticipant {
+public class cvc_complex_type_3_2_2CodeAction implements ICodeActionParticipant {
 
 	@Override
 	public void doCodeAction(Diagnostic diagnostic, Range range, XMLDocument document, List<CodeAction> codeActions,
 			XMLFormattingOptions formattingSettings) {
 		Range diagnosticRange = diagnostic.getRange();
-		// Remove all attributes
-		CodeAction removeAllAttributesAction = CodeActionFactory.remove("Remove all attributes", diagnosticRange, document.getTextDocument(),
-				diagnostic);
-		codeActions.add(removeAllAttributesAction);
+		try {
+			int offset = document.offsetAt(diagnosticRange.getEnd());
+			Attr attr = document.findAttrAt(offset);
+			if (attr != null) {
+				// Remove attribute
+				int startOffset = attr.getStart();
+				int endOffset = attr.getEnd();
+				Range attrRange = new Range(document.positionAt(startOffset), document.positionAt(endOffset));
+				CodeAction removeAttributeAction = CodeActionFactory.remove("Remove '" + attr.getName() + "' attribute",
+						attrRange, document.getTextDocument(), diagnostic);
+				codeActions.add(removeAttributeAction);
+			}
+		} catch (BadLocationException e) {
+			// Do nothing
+		}
 	}
 
 }

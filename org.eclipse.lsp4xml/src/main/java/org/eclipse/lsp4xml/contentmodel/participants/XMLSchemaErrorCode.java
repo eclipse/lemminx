@@ -17,6 +17,7 @@ import org.apache.xerces.xni.XMLLocator;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.contentmodel.participants.codeactions.cvc_attribute_3CodeAction;
 import org.eclipse.lsp4xml.contentmodel.participants.codeactions.cvc_complex_type_2_3CodeAction;
+import org.eclipse.lsp4xml.contentmodel.participants.codeactions.cvc_complex_type_3_2_2CodeAction;
 import org.eclipse.lsp4xml.contentmodel.participants.codeactions.cvc_complex_type_4CodeAction;
 import org.eclipse.lsp4xml.contentmodel.participants.codeactions.cvc_type_3_1_1CodeAction;
 import org.eclipse.lsp4xml.contentmodel.participants.diagnostics.IXMLErrorCode;
@@ -143,5 +144,6 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 		codeActions.put(cvc_complex_type_4.getCode(), new cvc_complex_type_4CodeAction());
 		codeActions.put(cvc_type_3_1_1.getCode(), new cvc_type_3_1_1CodeAction());
 		codeActions.put(cvc_attribute_3.getCode(), new cvc_attribute_3CodeAction());
+		codeActions.put(cvc_complex_type_3_2_2.getCode(), new cvc_complex_type_3_2_2CodeAction());
 	}
 }
