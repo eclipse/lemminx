@@ -38,11 +38,13 @@ import org.junit.Test;
 public class XMLCompletionTest {
 
 	private XMLLanguageService languageService;
-	private CompletionSettings sharedCompletionSettings = new CompletionSettings();
+	private CompletionSettings sharedCompletionSettings;
 
 	@Before
 	public void initializeLanguageService() {
 		languageService = new XMLLanguageService();
+		sharedCompletionSettings = new CompletionSettings();
+		
 	}
 
 	@Test
@@ -85,6 +87,22 @@ public class XMLCompletionTest {
 		// "h1>");
 	}
 
+	@Test
+	public void testAutoCloseTagCompletion() {
+		assertAutoCloseEndTagCompletion("<a>|", "$0</a>");
+		assertAutoCloseEndTagCompletion("<a><b>|</a>", "$0</b>");
+		assertAutoCloseEndTagCompletion("<a>   <b>|</a>", "$0</b>");
+		assertAutoCloseEndTagCompletion("<a><b>|", "$0</b>");
+	}
+
+	@Test
+	public void testAutoCloseEnabledDisabled() throws BadLocationException {
+		testCompletionFor("<a><div|<a>", false, c("div", "<div>"));
+		testCompletionFor("<a><div|<a>", true, c("div", "<div></div>"));
+		testCompletionFor("<a>  <div|    <a>", false, c("div", "<div>"));
+		testCompletionFor("<a>   <div|    <a>", true, c("div", "<div></div>"));
+	}
+
 	// -------------------Tools----------------------------------------------------------
 
 	public void assertOpenStartTagCompletion(String xmlText, int expectedStartTagOffset, boolean startWithTagOpen,
@@ -113,6 +131,19 @@ public class XMLCompletionTest {
 			}
 			assertEquals(currentTextEdit, completionItem.getTextEdit().getNewText());
 		}
+	}
+
+	public void assertAutoCloseEndTagCompletion(String xmlText, String expectedTextEdit) {
+		int offset = getOffset(xmlText);
+		XMLDocument xmlDocument = initializeXMLDocument(xmlText, offset);
+		Position position = null;
+		try {
+			position = xmlDocument.positionAt(offset);
+		} catch (Exception e) {
+			fail("Couldn't get position at offset");
+		}
+		String completionList = languageService.doTagComplete(xmlDocument, position);
+		assertEquals(expectedTextEdit, completionList);
 	}
 
 	private void assertEndTagCompletion(String xmlText, int expectedEndTagStartOffset, String expectedTextEdit) {

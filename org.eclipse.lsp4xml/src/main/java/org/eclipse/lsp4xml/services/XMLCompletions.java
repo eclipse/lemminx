@@ -310,10 +310,14 @@ class XMLCompletions {
 							xml.append(" />");
 						} else {
 							xml.append(">");
-							if (completionRequest.getCompletionSettings().isCompletionSnippetsSupported()) {
+							CompletionSettings completionSettings = completionRequest.getCompletionSettings();
+
+							if (completionSettings.isCompletionSnippetsSupported()) {
 								xml.append("$0");
 							}
-							xml.append("</").append(tag).append(">");
+							if(completionSettings.isAutoCloseTags()) {
+								xml.append("</").append(tag).append(">");
+							}
 						}
 						item.setTextEdit(new TextEdit(replaceRange, xml.toString()));
 						item.setInsertTextFormat(InsertTextFormat.Snippet);

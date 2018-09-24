@@ -20,12 +20,38 @@ public class CompletionSettings {
 
 	private CompletionCapabilities completionCapabilities;
 
-	public void update(CompletionCapabilities completionCapabilities) {
+	private boolean autoCloseTags;
+
+	public CompletionSettings(boolean autoCloseTags) {
+		this.autoCloseTags = autoCloseTags;
+	}
+
+	public CompletionSettings() {
+		this(true);
+	}
+
+	public void setCapabilities(CompletionCapabilities completionCapabilities) {
 		this.completionCapabilities = completionCapabilities;
 	}
 
 	public CompletionCapabilities getCompletionCapabilities() {
 		return completionCapabilities;
+	}
+
+	/**
+	 * Tag should be autoclosed with an end tag.
+	 * @param autoCloseTags
+	 */
+	public void setAutoCloseTags(boolean autoCloseTags) {
+		this.autoCloseTags = autoCloseTags;
+	}
+
+	/**
+	 * If tag should be autoclosed with an end tag.
+	 * @return
+	 */
+	public boolean isAutoCloseTags() {
+		return autoCloseTags;
 	}
 
 	/**

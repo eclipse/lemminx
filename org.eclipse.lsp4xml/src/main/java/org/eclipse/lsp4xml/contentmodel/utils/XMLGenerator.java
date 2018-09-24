@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.eclipse.lsp4xml.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lsp4xml.contentmodel.model.CMElementDeclaration;
+import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.utils.XMLBuilder;
 
@@ -29,6 +30,7 @@ public class XMLGenerator {
 	private final String whitespacesIndent;
 	private final String lineDelimiter;
 	private final boolean canSupportSnippets;
+	private final boolean autoCloseTags;
 	private int maxLevel;
 
 	/**
@@ -45,7 +47,13 @@ public class XMLGenerator {
 	 */
 	public XMLGenerator(XMLFormattingOptions formattingOptions, String whitespacesIndent, String lineDelimiter,
 			boolean canSupportSnippets, int maxLevel) {
+		this(formattingOptions, true, whitespacesIndent, lineDelimiter, canSupportSnippets, maxLevel);
+	}
+
+	public XMLGenerator(XMLFormattingOptions formattingOptions, boolean autoCloseTags, String whitespacesIndent, 
+			String lineDelimiter, boolean canSupportSnippets, int maxLevel) {
 		this.formattingOptions = formattingOptions;
+		this.autoCloseTags = autoCloseTags;
 		this.whitespacesIndent = whitespacesIndent;
 		this.lineDelimiter = lineDelimiter;
 		this.canSupportSnippets = canSupportSnippets;
@@ -100,8 +108,10 @@ public class XMLGenerator {
 					xml.addContent("$" + snippetIndex);
 				}
 			}
-			xml.endElement(prefix, elementDeclaration.getName());
-		} else if (elementDeclaration.isEmpty()) {
+			if(autoCloseTags) {
+				xml.endElement(prefix, elementDeclaration.getName());
+			}
+		} else if (elementDeclaration.isEmpty() && autoCloseTags) {
 			xml.endElement();
 		} else {
 			xml.closeStartElement();
@@ -109,7 +119,9 @@ public class XMLGenerator {
 				snippetIndex++;
 				xml.addContent("$" + snippetIndex);
 			}
-			xml.endElement(prefix, elementDeclaration.getName());
+			if(autoCloseTags) {
+				xml.endElement(prefix, elementDeclaration.getName());
+			}
 		}
 		return snippetIndex;
 	}
