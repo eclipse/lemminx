@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<invoice xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="../../xsd/invoice.xsd">
+  <date>2017-11-30</date>
+  <number>5235</number> 
+  <products> 
+    <product description="laptop" price="700.00_INVALID"/>  
+    <product description="mouse" price="30.00" />
+  </products> 
+  <payments>
+    <payment amount="770.00" method="credit"/>
+  </payments>
+</invoice> 

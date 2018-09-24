@@ -150,6 +150,44 @@ public class XMLSchemaDiagnosticsTest {
 				d(9, 30, 9, 46, XMLSchemaErrorCode.cvc_attribute_3));
 	}
 
+	@Test
+	public void cvc_datatype_valid_1_2_1OnAttributeValue() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
+				+ "<invoice xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n"
+				+ " xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/invoice.xsd\">\r\n" + //
+				"  <date>2017-11-30</date>\r\n" + //
+				"  <number>5235</number> \r\n" + //
+				"  <products> \r\n" + //
+				"    <product description=\"laptop\" price=\"700.00_INVALID\"/>  \r\n" + // <- error
+				"    <product description=\"mouse\" price=\"30.00\" />\r\n" + //
+				"  </products> \r\n" + //
+				"  <payments>\r\n" + //
+				"    <payment amount=\"770.00\" method=\"credit\"/>\r\n" + //
+				"  </payments>\r\n" + //
+				"</invoice> ";
+		testDiagnosticsFor(xml, d(6, 40, 6, 56, XMLSchemaErrorCode.cvc_datatype_valid_1_2_1),
+				d(6, 40, 6, 56, XMLSchemaErrorCode.cvc_attribute_3));
+	}
+
+	@Test
+	public void cvc_datatype_valid_1_2_1OnText() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
+				+ "<invoice xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n"
+				+ " xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/invoice.xsd\">\r\n" + //
+				"  <date>2017-11-30</date>\r\n" + //
+				"  <number>5235_INVALID</number> \r\n" + // <- error
+				"  <products> \r\n" + //
+				"    <product description=\"laptop\" price=\"700.00\"/>  \r\n" + //
+				"    <product description=\"mouse\" price=\"30.00\" />\r\n" + //
+				"  </products> \r\n" + //
+				"  <payments>\r\n" + //
+				"    <payment amount=\"770.00\" method=\"credit\"/>\r\n" + //
+				"  </payments>\r\n" + //
+				"</invoice> ";
+		testDiagnosticsFor(xml, d(4, 10, 4, 22, XMLSchemaErrorCode.cvc_datatype_valid_1_2_1),
+				d(4, 10, 4, 22, XMLSchemaErrorCode.cvc_type_3_1_3));
+	}
+
 	private static void testDiagnosticsFor(String xml, Diagnostic... expected) {
 		XMLAssert.testDiagnosticsFor(xml, "src/test/resources/catalogs/catalog.xml", expected);
 	}
