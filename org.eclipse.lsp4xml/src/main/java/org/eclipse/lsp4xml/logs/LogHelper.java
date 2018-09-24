@@ -37,7 +37,7 @@ public class LogHelper {
 
 		Logger logger = Logger.getLogger("");
 		unregisterAllHandlers(logger.getHandlers());
-		logger.setLevel(Level.SEVERE);
+		logger.setLevel(Level.INFO);
 		logger.setUseParentHandlers(false);// Stops output to console
 
 		// Configure logging LSP client handler
@@ -68,11 +68,11 @@ public class LogHelper {
 
 	private static void createDirectoryPath(String path) {
 		Path parentPath = Paths.get(path).normalize().getParent();
-		if(parentPath != null) {
+		if (parentPath != null) {
 			try {
 				Files.createDirectories(parentPath);
 			} catch (IOException e) {
-				
+
 			}
 		}
 	}
