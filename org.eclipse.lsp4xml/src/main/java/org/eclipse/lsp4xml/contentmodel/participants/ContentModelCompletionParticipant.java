@@ -38,14 +38,19 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	public void onTagOpen(ICompletionRequest request, ICompletionResponse response) throws Exception {
 		Element parentElement = request.getParentElement();
 		if (parentElement == null) {
+			// check if it's root element (in the case of XML file associations, the link to
+			// XML Schema is done with pattern and not with XML root element)
+			CMDocument cmDocument = ContentModelManager.getInstance().findCMDocument(request.getXMLDocument(), null);
+			if (cmDocument != null) {
+				fillWithChildrenElementDeclaration(cmDocument.getElements(), null, request, response);
+			}
 			return;
 		}
 		CMElementDeclaration cmElement = ContentModelManager.getInstance().findCMElement(parentElement);
 		String defaultPrefix = null;
 		if (cmElement != null) {
 			defaultPrefix = parentElement.getPrefix();
-			fillWithChildrenElementDeclaration(parentElement, cmElement.getElements(), defaultPrefix, request,
-					response);
+			fillWithChildrenElementDeclaration(cmElement.getElements(), defaultPrefix, request, response);
 		}
 		if (parentElement.isDocumentElement()) {
 			// root document element
@@ -57,15 +62,14 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 				String namespaceURI = parentElement.getNamespaceURI(prefix);
 				CMDocument cmDocument = ContentModelManager.getInstance().findCMDocument(parentElement, namespaceURI);
 				if (cmDocument != null) {
-					fillWithChildrenElementDeclaration(parentElement, cmDocument.getElements(), prefix, request,
-							response);
+					fillWithChildrenElementDeclaration(cmDocument.getElements(), prefix, request, response);
 				}
 			}
 		}
 	}
 
-	private void fillWithChildrenElementDeclaration(Element element, Collection<CMElementDeclaration> cmElements,
-			String prefix, ICompletionRequest request, ICompletionResponse response) throws BadLocationException {
+	private void fillWithChildrenElementDeclaration(Collection<CMElementDeclaration> cmElements, String prefix,
+			ICompletionRequest request, ICompletionResponse response) throws BadLocationException {
 		XMLGenerator generator = request.getXMLGenerator();
 		for (CMElementDeclaration child : cmElements) {
 			String label = child.getName(prefix);

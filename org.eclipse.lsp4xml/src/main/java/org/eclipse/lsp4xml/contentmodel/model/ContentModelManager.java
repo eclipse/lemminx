@@ -60,6 +60,7 @@ public class ContentModelManager {
 	public CMElementDeclaration findCMElement(Element element) throws Exception {
 		return findCMElement(element, element.getNamespaceURI());
 	}
+
 	/**
 	 * Returns the declared element which matches the given XML element and null
 	 * otherwise.
@@ -74,13 +75,16 @@ public class ContentModelManager {
 	}
 
 	public CMDocument findCMDocument(Element element, String namespaceURI) {
+		return findCMDocument(element.getOwnerDocument(), namespaceURI);
+	}
+
+	public CMDocument findCMDocument(XMLDocument xmlDocument, String namespaceURI) {
 		String systemId = null;
-		XMLDocument xmlDocument = element.getOwnerDocument();
 		SchemaLocation schemaLocation = xmlDocument.getSchemaLocation();
 		if (schemaLocation != null) {
 			systemId = schemaLocation.getLocationHint(namespaceURI);
 		} else {
-			NoNamespaceSchemaLocation noNamespaceSchemaLocation =  xmlDocument.getNoNamespaceSchemaLocation();
+			NoNamespaceSchemaLocation noNamespaceSchemaLocation = xmlDocument.getNoNamespaceSchemaLocation();
 			if (noNamespaceSchemaLocation != null) {
 				if (namespaceURI != null) {
 					// xsi:noNamespaceSchemaLocation doesn't define namespaces
