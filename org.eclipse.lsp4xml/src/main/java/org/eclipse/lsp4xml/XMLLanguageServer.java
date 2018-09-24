@@ -35,6 +35,7 @@ import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.logs.LogHelper;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
+import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.settings.InitializationOptionsSettings;
 import org.eclipse.lsp4xml.settings.LogsSettings;
 import org.eclipse.lsp4xml.settings.XMLClientSettings;
@@ -121,6 +122,12 @@ public class XMLLanguageServer implements LanguageServer, ProcessLanguageServer,
 			if (formatterSettings != null) {
 				xmlTextDocumentService.setSharedFormattingOptions(formatterSettings);
 			}
+
+			CompletionSettings newCompletions = clientSettings.getCompletion();
+			if (newCompletions != null) {
+				xmlTextDocumentService.updateCompletionSettings(newCompletions);
+			}
+			
 			// Experimental capabilities
 			XMLExperimentalCapabilities experimental = clientSettings.getExperimental();
 			if (experimental != null) {

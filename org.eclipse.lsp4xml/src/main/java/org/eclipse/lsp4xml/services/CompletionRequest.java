@@ -69,8 +69,9 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 
 	public XMLGenerator getXMLGenerator() throws BadLocationException {
 		if (generator == null) {
-			generator = new XMLGenerator(getFormattingSettings(), getLineIndentInfo().getWhitespacesIndent(),
-					getLineIndentInfo().getLineDelimiter(), getCompletionSettings().isCompletionSnippetsSupported(), 0);
+			generator = new XMLGenerator(getFormattingSettings(), getCompletionSettings().isAutoCloseTags(), 
+					getLineIndentInfo().getWhitespacesIndent(), getLineIndentInfo().getLineDelimiter(), 
+					getCompletionSettings().isCompletionSnippetsSupported(), 0);
 		}
 		return generator;
 	}

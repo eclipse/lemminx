@@ -10,6 +10,7 @@
  */
 package org.eclipse.lsp4xml.settings;
 
+import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.utils.JSONUtility;
 
 /**
@@ -23,6 +24,8 @@ public class XMLClientSettings {
 	private XMLFormattingOptions format;
 	
 	private XMLExperimentalCapabilities experimental;
+
+	private CompletionSettings completion;
 
 	public void setLogs(LogsSettings logs) {
 		this.logs = logs;
@@ -43,6 +46,23 @@ public class XMLClientSettings {
 	public XMLExperimentalCapabilities getExperimental() {
 		return experimental;
 	}
+
+	/**
+	 * Set completion settings
+	 * @param completion
+	 */
+	public void setCompletion(CompletionSettings completion) {
+		this.completion = completion;
+	}
+
+	/**
+	 * Get completion settings
+	 * @param completion
+	 */
+	public CompletionSettings getCompletion() {
+		return completion;
+	}
+
 
 	public static XMLClientSettings getSettings(Object initializationOptionsSettings) {
 		return JSONUtility.toModel(initializationOptionsSettings, XMLClientSettings.class);

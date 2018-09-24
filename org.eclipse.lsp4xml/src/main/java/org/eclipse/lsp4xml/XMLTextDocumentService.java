@@ -117,10 +117,14 @@ public class XMLTextDocumentService implements TextDocumentService {
 		TextDocumentClientCapabilities textDocumentClientCapabilities = capabilities.getTextDocument();
 		if (textDocumentClientCapabilities != null) {
 			// Completion settings
-			sharedCompletionSettings.update(textDocumentClientCapabilities.getCompletion());
+			sharedCompletionSettings.setCapabilities(textDocumentClientCapabilities.getCompletion());
 			codeActionLiteralSupport = textDocumentClientCapabilities.getCodeAction() != null
 					&& textDocumentClientCapabilities.getCodeAction().getCodeActionLiteralSupport() != null;
 		}
+	}
+
+	public void updateCompletionSettings(CompletionSettings newCompletion) {
+		sharedCompletionSettings.setAutoCloseTags(newCompletion.isAutoCloseTags());
 	}
 
 	public TextDocument getDocument(String uri) {
