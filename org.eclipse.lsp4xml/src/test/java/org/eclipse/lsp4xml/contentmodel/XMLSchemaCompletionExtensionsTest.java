@@ -198,16 +198,46 @@ public class XMLSchemaCompletionExtensionsTest {
 		XMLAssert.testCompletionFor(xml, null, "src/test/resources/Format.xml", null, c("Name", "<Name></Name>"),
 				c("ViewSelectedBy", "<ViewSelectedBy></ViewSelectedBy>"));
 	}
-	
+
 	@Test
 	public void schemaLocationWithXSDFileSystemCompletion() throws BadLocationException {
 		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
-				"<invoice xmlns=\"http://invoice\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + 
-				" xsi:schemaLocation=\"http://invoice xsd/invoice.xsd \">\r\n"
-				+ //
+				"<invoice xmlns=\"http://invoice\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n"
+				+ " xsi:schemaLocation=\"http://invoice xsd/invoice.xsd \">\r\n" + //
 				"  <|";
 		XMLAssert.testCompletionFor(xml, null, "src/test/resources/invoice.xml", null, c("date", "<date></date>"),
 				c("number", "<number></number>"));
+	}
+
+	@Test
+	public void completionOnAttributeName() throws BadLocationException {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
+				+ //
+				"	<bean |/>";
+		XMLAssert.testCompletionFor(xml, c("abstract", "abstract=\"false\""), c("autowire", "autowire=\"default\""),
+				c("class", "class=\"\""));
+	}
+
+	@Test
+	public void completionOnAttributeValue() throws BadLocationException {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
+				+ //
+				"	<bean autowire=\"|\"/>";
+		XMLAssert.testCompletionFor(xml, c("byName", "byName"), c("byType", "byType"), c("constructor", "constructor"));
+	}
+
+	@Test
+	public void completionOnAttributeValue2() throws BadLocationException {
+		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
+				"<invoice xmlns=\"http://invoice\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n"
+				+ " xsi:schemaLocation=\"http://invoice xsd/invoice.xsd \">\r\n" + //
+				"  <payments>\r\n" + //
+				"    <payment method=\"|\"/>\r\n" + //
+				"  </payments>";
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/invoice.xml", null, c("credit", "credit"),
+				c("debit", "debit"), c("cash", "cash"));
 	}
 
 	private void testCompletionFor(String xml, CompletionItem... expectedItems) throws BadLocationException {

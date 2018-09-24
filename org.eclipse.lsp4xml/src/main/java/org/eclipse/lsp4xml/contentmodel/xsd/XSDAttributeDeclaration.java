@@ -12,6 +12,7 @@ package org.eclipse.lsp4xml.contentmodel.xsd;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.apache.xerces.impl.dv.XSSimpleType;
 import org.apache.xerces.xs.StringList;
@@ -76,19 +77,23 @@ public class XSDAttributeDeclaration implements CMAttributeDeclaration {
 
 	@Override
 	public Collection<String> getEnumerationValues() {
-		Collection<String> values = new ArrayList<>();
-		if (isBooleanType(getAttrDeclaration().getTypeDefinition())) {
-			values.add("true");
-			values.add("false");
-		}
-		if (attributeUse.getValueConstraintValue() != null) {
-			StringList enumerations = attributeUse.getValueConstraintValue().getTypeDefinition()
-					.getLexicalEnumeration();
-			if (enumerations != null) {
-				return enumerations;
+		XSAttributeDeclaration attributeDeclaration = getAttrDeclaration();
+		if (attributeDeclaration != null) {
+			XSSimpleTypeDefinition typeDefinition = attributeDeclaration.getTypeDefinition();
+			if (typeDefinition != null) {
+				if (isBooleanType(typeDefinition)) {
+					Collection<String> values = new ArrayList<>();
+					values.add("true");
+					values.add("false");
+					return values;
+				}
+				StringList enumerations = typeDefinition.getLexicalEnumeration();
+				if (enumerations != null) {
+					return enumerations;
+				}
 			}
 		}
-		return values;
+		return Collections.emptyList();
 	}
 
 }
