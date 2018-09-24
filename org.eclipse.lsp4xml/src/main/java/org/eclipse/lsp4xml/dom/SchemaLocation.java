@@ -14,6 +14,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.apache.xerces.impl.XMLEntityManager;
+import org.apache.xerces.util.URI.MalformedURIException;
+
 /**
  * 
  * The declared "xsi:schemaLocation"
@@ -22,7 +25,7 @@ public class SchemaLocation {
 
 	private final Map<String, String> schemaLocationValuePairs;
 
-	public SchemaLocation(String value) {
+	public SchemaLocation(String base, String value) {
 		this.schemaLocationValuePairs = new HashMap<>();
 		StringTokenizer st = new StringTokenizer(value);
 		do {
@@ -30,6 +33,11 @@ public class SchemaLocation {
 			String locationHint = st.hasMoreTokens() ? st.nextToken() : null;
 			if (namespaceURI == null || locationHint == null)
 				break;
+			try {
+				locationHint = XMLEntityManager.expandSystemId(locationHint, base, false);
+			} catch (MalformedURIException e) {
+				// Do nothing
+			}
 			schemaLocationValuePairs.put(namespaceURI, locationHint);
 		} while (true);
 	}

@@ -265,7 +265,7 @@ public class XMLDocument extends Node {
 		if (value == null) {
 			return null;
 		}
-		return new SchemaLocation(value);
+		return new SchemaLocation(root.getOwnerDocument().getUri(), value);
 	}
 
 	private NoNamespaceSchemaLocation createNoNamespaceSchemaLocation(Node root, String schemaInstancePrefix) {
