@@ -16,6 +16,7 @@ import java.util.Map;
 import org.apache.xerces.xni.XMLLocator;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.contentmodel.participants.codeactions.cvc_attribute_3CodeAction;
+import org.eclipse.lsp4xml.contentmodel.participants.codeactions.cvc_enumeration_validCodeAction;
 import org.eclipse.lsp4xml.contentmodel.participants.codeactions.cvc_complex_type_2_3CodeAction;
 import org.eclipse.lsp4xml.contentmodel.participants.codeactions.cvc_complex_type_3_2_2CodeAction;
 import org.eclipse.lsp4xml.contentmodel.participants.codeactions.cvc_complex_type_4CodeAction;
@@ -114,14 +115,11 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 			String attrName = (String) arguments[1];
 			return XMLPositionUtility.selectAttributeValueAt(attrName, offset, document);
 		}
-		case cvc_enumeration_valid: {
-			String attrValue = (String) arguments[0];
-			return XMLPositionUtility.selectAttributeValueFromGivenValue(attrValue, offset, document);
-		}
 		case cvc_type_3_1_1:
 			return XMLPositionUtility.selectAllAttributes(offset, document);
 		case cvc_type_3_1_3:
 			return XMLPositionUtility.selectText(offset, document);
+		case cvc_enumeration_valid:
 		case cvc_datatype_valid_1_2_1: {
 			// this error can occur for attribute value or text
 			// Try for attribute value
@@ -145,5 +143,6 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 		codeActions.put(cvc_type_3_1_1.getCode(), new cvc_type_3_1_1CodeAction());
 		codeActions.put(cvc_attribute_3.getCode(), new cvc_attribute_3CodeAction());
 		codeActions.put(cvc_complex_type_3_2_2.getCode(), new cvc_complex_type_3_2_2CodeAction());
+		codeActions.put(cvc_enumeration_valid.getCode(), new cvc_enumeration_validCodeAction());
 	}
 }

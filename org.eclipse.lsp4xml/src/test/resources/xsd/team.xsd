@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema elementFormDefault="qualified" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="team_namespace">
+
+    <xsd:element name="team">
+    	<xsd:complexType>
+    		<xsd:sequence minOccurs="1" maxOccurs="unbounded">
+    			<xsd:element name="member">
+    				<xsd:complexType>
+    					<xsd:sequence>
+    						<xsd:element name="skills">
+    							<xsd:complexType>
+    								<xsd:sequence minOccurs="0"
+    									maxOccurs="unbounded">
+    									<xsd:element name="skill">
+    										<xsd:simpleType>
+    											<xsd:restriction
+    												base="xsd:string">
+    												<xsd:enumeration
+    													value="Java">
+    												</xsd:enumeration>
+    												<xsd:enumeration
+    													value="Node">
+    												</xsd:enumeration>
+    												<xsd:enumeration
+    													value="XML">
+    												</xsd:enumeration>
+    											</xsd:restriction>
+    										</xsd:simpleType>
+    									</xsd:element>
+    								</xsd:sequence>
+    							</xsd:complexType>
+    						</xsd:element>
+    						<xsd:element name="focus">
+    							<xsd:complexType>
+    								<xsd:choice>
+    									<xsd:element name="server">
+    										<xsd:complexType>
+    											<xsd:attribute
+    												name="language" type="xsd:string" use="required">
+    											</xsd:attribute>
+    										</xsd:complexType>
+    									</xsd:element>
+    									<xsd:element name="client">
+    										<xsd:complexType>
+    											<xsd:attribute
+    												name="ide" type="xsd:string" use="required">
+    											</xsd:attribute>
+    										</xsd:complexType>
+    									</xsd:element>
+    								</xsd:choice>
+    							</xsd:complexType>
+    						</xsd:element>
+    					</xsd:sequence>
+    					<xsd:attribute name="name" type="xsd:string"
+    						use="required">
+    					</xsd:attribute>
+    					<xsd:attribute name="role" use="required">
+    						<xsd:simpleType>
+    							<xsd:restriction base="xsd:string">
+    								<xsd:enumeration
+    									value="developer">
+    								</xsd:enumeration>
+    								<xsd:enumeration value="manager"></xsd:enumeration>
+    								<xsd:enumeration value="leader"></xsd:enumeration>
+    								<xsd:enumeration
+    									value="architect">
+    								</xsd:enumeration>
+    							</xsd:restriction>
+    						</xsd:simpleType>
+    					</xsd:attribute>
+    					<xsd:attribute name="badgeNumber"
+    						use="required">
+    						<xsd:simpleType>
+    							<xsd:restriction base="xsd:int">
+    								<xsd:minExclusive value="0"></xsd:minExclusive>
+    								<xsd:maxExclusive value="99"></xsd:maxExclusive>
+    							</xsd:restriction>
+    						</xsd:simpleType>
+    					</xsd:attribute>
+    				</xsd:complexType>
+    			</xsd:element>
+    		</xsd:sequence>
+    		<xsd:attribute name="version" type="xsd:string" fixed="1"></xsd:attribute>
+    		<xsd:attribute name="name">
+    			<xsd:simpleType>
+    				<xsd:restriction base="xsd:string">
+    					<xsd:minLength value="1"></xsd:minLength>
+    					<xsd:maxLength value="10"></xsd:maxLength>
+    				</xsd:restriction>
+    			</xsd:simpleType>
+    		</xsd:attribute>
+    	</xsd:complexType>
+    </xsd:element>
+</xsd:schema>

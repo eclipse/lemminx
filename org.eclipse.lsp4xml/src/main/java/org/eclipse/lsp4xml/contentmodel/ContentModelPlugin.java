@@ -59,7 +59,9 @@ public class ContentModelPlugin implements IXMLExtension {
 
 	@Override
 	public void start(InitializeParams params, XMLExtensionsRegistry registry) {
-		ContentModelManager.getInstance().setRootURI(params.getRootUri());
+		if (params != null) {
+			ContentModelManager.getInstance().setRootURI(params.getRootUri());
+		}
 		registry.registerCompletionParticipant(completionParticipant);
 		registry.registerHoverParticipant(hoverParticipant);
 		registry.registerDiagnosticsParticipant(diagnosticsParticipant);

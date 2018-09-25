@@ -12,14 +12,18 @@ package org.eclipse.lsp4xml.contentmodel.xsd;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.xerces.impl.dv.XSSimpleType;
+import org.apache.xerces.xs.StringList;
 import org.apache.xerces.xs.XSConstants;
 import org.apache.xerces.xs.XSElementDeclaration;
 import org.apache.xerces.xs.XSModel;
 import org.apache.xerces.xs.XSNamedMap;
+import org.apache.xerces.xs.XSSimpleTypeDefinition;
 import org.eclipse.lsp4xml.contentmodel.model.CMDocument;
 import org.eclipse.lsp4xml.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lsp4xml.dom.Element;
@@ -97,5 +101,28 @@ public class XSDDocument implements CMDocument {
 			elementMappings.put(elementDeclaration, element);
 		}
 		return element;
+	}
+	
+	static Collection<String> getEnumerationValues(XSSimpleTypeDefinition typeDefinition) {
+		if (typeDefinition != null) {
+			if (isBooleanType(typeDefinition)) {
+				Collection<String> values = new ArrayList<>();
+				values.add("true");
+				values.add("false");
+				return values;
+			}
+			StringList enumerations = typeDefinition.getLexicalEnumeration();
+			if (enumerations != null) {
+				return enumerations;
+			}
+		}
+		return Collections.emptyList();
+	}
+	
+	static boolean isBooleanType(XSSimpleTypeDefinition typeDefinition) {
+		if (typeDefinition instanceof XSSimpleType) {
+			return ((XSSimpleType) typeDefinition).getPrimitiveKind() == XSSimpleType.PRIMITIVE_BOOLEAN;
+		}
+		return false;
 	}
 }

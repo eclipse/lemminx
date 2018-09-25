@@ -10,12 +10,9 @@
  */
 package org.eclipse.lsp4xml.contentmodel.xsd;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.apache.xerces.impl.dv.XSSimpleType;
-import org.apache.xerces.xs.StringList;
 import org.apache.xerces.xs.XSAttributeDeclaration;
 import org.apache.xerces.xs.XSAttributeUse;
 import org.apache.xerces.xs.XSSimpleTypeDefinition;
@@ -44,7 +41,7 @@ public class XSDAttributeDeclaration implements CMAttributeDeclaration {
 	public String getDefaultValue() {
 		XSValue xsValue = attributeUse.getValueConstraintValue();
 		if (xsValue == null) {
-			if (isBooleanType(getAttrDeclaration().getTypeDefinition())) {
+			if (XSDDocument.isBooleanType(getAttrDeclaration().getTypeDefinition())) {
 				return "false";
 			}
 		}
@@ -68,30 +65,12 @@ public class XSDAttributeDeclaration implements CMAttributeDeclaration {
 		return attributeUse.getAttrDeclaration();
 	}
 
-	private static boolean isBooleanType(XSSimpleTypeDefinition typeDefinition) {
-		if (typeDefinition instanceof XSSimpleType) {
-			return ((XSSimpleType) typeDefinition).getPrimitiveKind() == XSSimpleType.PRIMITIVE_BOOLEAN;
-		}
-		return false;
-	}
-
 	@Override
 	public Collection<String> getEnumerationValues() {
 		XSAttributeDeclaration attributeDeclaration = getAttrDeclaration();
 		if (attributeDeclaration != null) {
 			XSSimpleTypeDefinition typeDefinition = attributeDeclaration.getTypeDefinition();
-			if (typeDefinition != null) {
-				if (isBooleanType(typeDefinition)) {
-					Collection<String> values = new ArrayList<>();
-					values.add("true");
-					values.add("false");
-					return values;
-				}
-				StringList enumerations = typeDefinition.getLexicalEnumeration();
-				if (enumerations != null) {
-					return enumerations;
-				}
-			}
+			return XSDDocument.getEnumerationValues(typeDefinition);
 		}
 		return Collections.emptyList();
 	}

@@ -47,7 +47,6 @@ public class ContentModelManager {
 
 	private final XMLCatalogResolverExtension catalogResolverExtension;
 	private final XMLFileAssociationResolverExtension fileAssociationResolver;
-	private String rootUri;
 
 	public ContentModelManager() {
 		loader = new XSLoaderImpl();

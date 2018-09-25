@@ -12,6 +12,7 @@ package org.eclipse.lsp4xml.contentmodel.xsd;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.apache.xerces.xs.XSAttributeUse;
 import org.apache.xerces.xs.XSComplexTypeDefinition;
@@ -21,6 +22,7 @@ import org.apache.xerces.xs.XSModelGroup;
 import org.apache.xerces.xs.XSObject;
 import org.apache.xerces.xs.XSObjectList;
 import org.apache.xerces.xs.XSParticle;
+import org.apache.xerces.xs.XSSimpleTypeDefinition;
 import org.apache.xerces.xs.XSTerm;
 import org.apache.xerces.xs.XSTypeDefinition;
 import org.eclipse.lsp4xml.contentmodel.model.CMAttributeDeclaration;
@@ -202,5 +204,14 @@ public class XSDElementDeclaration implements CMElementDeclaration {
 	public boolean isEmpty() {
 		// TODO: support it
 		return false;
+	}
+
+	@Override
+	public Collection<String> getEnumerationValues() {
+		XSTypeDefinition typeDefinition = elementDeclaration.getTypeDefinition();
+		if (typeDefinition != null && typeDefinition.getTypeCategory() == XSTypeDefinition.SIMPLE_TYPE) {
+			return XSDDocument.getEnumerationValues((XSSimpleTypeDefinition) typeDefinition);
+		}
+		return Collections.emptyList();
 	}
 }

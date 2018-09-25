@@ -135,7 +135,7 @@ public class XMLSchemaDiagnosticsTest {
 	}
 
 	@Test
-	public void cvc_enumeration_valid() throws Exception {
+	public void cvc_enumeration_validOnAttribute() throws Exception {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
 				+ "<invoice xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n"
 				+ " xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/invoice.xsd\">\r\n" + //
@@ -150,6 +150,32 @@ public class XMLSchemaDiagnosticsTest {
 				"</invoice>";
 		testDiagnosticsFor(xml, d(9, 30, 9, 46, XMLSchemaErrorCode.cvc_enumeration_valid),
 				d(9, 30, 9, 46, XMLSchemaErrorCode.cvc_attribute_3));
+	}
+
+	@Test
+	public void cvc_enumeration_validOnText() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<team\r\n" + //
+				"     xmlns=\"team_namespace\"\r\n" + //
+				"     xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"     xsi:schemaLocation=\"team_namespace src/test/resources/xsd/team.xsd \">\r\n" + //
+				"	<member\r\n" + //
+				"	       name=\"John\"\r\n" + //
+				"	       badgeNumber=\"1\"\r\n" + //
+				"	       role=\"architect\">\r\n" + //
+				"		<skills>\r\n" + //
+				"			<skill>XXXXX</skill>\r\n" + // <- error
+				"		</skills> \r\n" + //
+				"		<focus>\r\n" + //
+				"			<server\r\n" + //
+				"			       language=\"Java\" />\r\n" + //
+				"		</focus>\r\n" + //
+				"	</member>\r\n" + //
+				"</team>";
+		Diagnostic d = d(10, 10, 10, 15, XMLSchemaErrorCode.cvc_enumeration_valid);
+		testDiagnosticsFor(xml, d, d(10, 10, 10, 15, XMLSchemaErrorCode.cvc_type_3_1_3));
+		testCodeActionsFor(xml, d, ca(d, te(10, 10, 10, 15, "Java")), ca(d, te(10, 10, 10, 15, "Node")),
+				ca(d, te(10, 10, 10, 15, "XML")));
 	}
 
 	@Test

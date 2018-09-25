@@ -46,9 +46,6 @@ public class XMLValidator {
 			CancelChecker monitor) {
 
 		try {
-			// System.setProperty("org.apache.xerces.xni.parser.XMLParserConfiguration",
-			// "org.apache.xerces.parsers.XMLGrammarCachingConfiguration");
-
 			XMLParserConfiguration configuration = new XMLGrammarCachingConfiguration();
 			SAXParser reader = new SAXParser(configuration);
 

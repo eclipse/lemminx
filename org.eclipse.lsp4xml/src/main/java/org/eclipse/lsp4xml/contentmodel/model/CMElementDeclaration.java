@@ -81,4 +81,5 @@ public interface CMElementDeclaration {
 	 */
 	boolean isEmpty();
 
+	 Collection<String> getEnumerationValues();
 }
