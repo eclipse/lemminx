@@ -108,20 +108,20 @@ public class ContentModelManager {
 	 *         otherwise.
 	 */
 	private CMDocument findCMDocument(String uri, String publicId, String systemId) {
-		String key = getCacheKey(uri, publicId, systemId);
+		String key = URIResolverExtensionManager.getInstance().resolve(uri, publicId, systemId);
+		if (key == null) {
+			key = systemId;
+		}
+		if (key == null) {
+			return null;
+		}
 		CMDocument cmDocument = cmDocumentCache.get(key);
 		if (cmDocument == null) {
-			String xmlSchemaURI = URIResolverExtensionManager.getInstance().resolve(uri, publicId, systemId);
-			if (xmlSchemaURI == null) {
-				xmlSchemaURI = systemId;
-			}
-			if (xmlSchemaURI != null) {
-				XSModel model = loader.loadURI(xmlSchemaURI);
-				if (model != null) {
-					// XML Schema can be loaded
-					cmDocument = new XSDDocument(model);
-					cmDocumentCache.put(key, cmDocument);
-				}
+			XSModel model = loader.loadURI(key);
+			if (model != null) {
+				// XML Schema can be loaded
+				cmDocument = new XSDDocument(model);
+				cmDocumentCache.put(key, cmDocument);
 			}
 		}
 		return cmDocument;
