@@ -17,6 +17,8 @@ import java.util.ServiceLoader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.eclipse.lsp4j.InitializeParams;
+
 /**
  * XML extensions registry.
  *
@@ -31,6 +33,8 @@ public class XMLExtensionsRegistry {
 	private final List<IDiagnosticsParticipant> diagnosticsParticipants;
 	private final List<ICodeActionParticipant> codeActionsParticipants;
 
+	private InitializeParams params;
+
 	private Object settings;
 
 	private boolean initialized;
@@ -41,6 +45,14 @@ public class XMLExtensionsRegistry {
 		hoverParticipants = new ArrayList<>();
 		diagnosticsParticipants = new ArrayList<>();
 		codeActionsParticipants = new ArrayList<>();
+	}
+
+	public void initializeParams(InitializeParams params) {
+		if (initialized) {
+			extensions.stream().forEach(extension -> extension.start(params, this));
+		} else {
+			this.params = params;
+		}
 	}
 
 	public void updateSettings(Object settings) {
@@ -97,7 +109,7 @@ public class XMLExtensionsRegistry {
 	void registerExtension(IXMLExtension extension) {
 		try {
 			extensions.add(extension);
-			extension.start(this);
+			extension.start(params, this);
 			extension.updateSettings(settings);
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, "Error while initializing extension <" + extension.getClass().getName() + ">", e);

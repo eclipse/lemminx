@@ -71,6 +71,9 @@ public class XMLLanguageServer implements LanguageServer, ProcessLanguageServer,
 		LOGGER.info("Initializing LSP4XML server " + getVersion());
 		this.parentProcessId = params.getProcessId();
 
+		// Update XML language service extensions with InitializeParams
+		xmlLanguageService.initializeParams(params);
+
 		capabilityManager.setClientCapabilities(params.getCapabilities());
 		updateSettings(InitializationOptionsSettings.getSettings(params));
 

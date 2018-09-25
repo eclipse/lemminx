@@ -47,6 +47,7 @@ public class ContentModelManager {
 
 	private final XMLCatalogResolverExtension catalogResolverExtension;
 	private final XMLFileAssociationResolverExtension fileAssociationResolver;
+	private String rootUri;
 
 	public ContentModelManager() {
 		loader = new XSLoaderImpl();
@@ -128,22 +129,6 @@ public class ContentModelManager {
 	}
 
 	/**
-	 * Returns the cached key of the content model document.
-	 * 
-	 * @param uri
-	 * @param publicId
-	 * @param systemId
-	 * @return the cached key of the content model document
-	 */
-	private String getCacheKey(String uri, String publicId, String systemId) {
-		if (publicId == null && systemId == null) {
-			// case of XML file association, the key is the file URI
-			return uri;
-		}
-		return publicId + "#" + systemId;
-	}
-
-	/**
 	 * Set up XML catalogs.
 	 * 
 	 * @param catalogs list of XML catalog files.
@@ -180,6 +165,10 @@ public class ContentModelManager {
 	 */
 	public void setFileAssociations(XMLFileAssociation[] fileAssociations) {
 		this.fileAssociationResolver.setFileAssociations(fileAssociations);
+	}
+
+	public void setRootURI(String rootUri) {
+		fileAssociationResolver.setRootUri(rootUri);
 	}
 
 }

@@ -10,6 +10,8 @@
  */
 package org.eclipse.lsp4xml.services.extensions;
 
+import org.eclipse.lsp4j.InitializeParams;
+
 /**
  * XML extension.
  *
@@ -20,11 +22,12 @@ public interface IXMLExtension {
 	 * Start method to register participants like {@link ICompletionParticipant},
 	 * {@link IHoverParticipant}, {@link IDiagnosticsParticipant} in the given
 	 * registry.
+	 * @param params 
 	 * 
 	 * @param registry
 	 * @param settings
 	 */
-	void start(XMLExtensionsRegistry registry);
+	void start(InitializeParams params, XMLExtensionsRegistry registry);
 
 	/**
 	 * Stop method to un-register participants like {@link ICompletionParticipant},

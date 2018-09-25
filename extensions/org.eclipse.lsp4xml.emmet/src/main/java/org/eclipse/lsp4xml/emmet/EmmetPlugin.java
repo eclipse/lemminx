@@ -1,5 +1,6 @@
 package org.eclipse.lsp4xml.emmet;
 
+import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4xml.emmet.participants.EmmetCompletionParticipant;
 import org.eclipse.lsp4xml.services.extensions.ICompletionParticipant;
 import org.eclipse.lsp4xml.services.extensions.IXMLExtension;
@@ -19,7 +20,7 @@ public class EmmetPlugin implements IXMLExtension {
 	}
 
 	@Override
-	public void start(XMLExtensionsRegistry registry) {
+	public void start(InitializeParams params, XMLExtensionsRegistry registry) {
 		registry.registerCompletionParticipant(completionParticipant);
 	}
 

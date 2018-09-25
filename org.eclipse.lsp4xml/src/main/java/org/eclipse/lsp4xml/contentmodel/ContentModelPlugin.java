@@ -1,5 +1,6 @@
 package org.eclipse.lsp4xml.contentmodel;
 
+import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4xml.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.contentmodel.participants.ContentModelCodeActionParticipant;
 import org.eclipse.lsp4xml.contentmodel.participants.ContentModelCompletionParticipant;
@@ -57,7 +58,8 @@ public class ContentModelPlugin implements IXMLExtension {
 	}
 
 	@Override
-	public void start(XMLExtensionsRegistry registry) {
+	public void start(InitializeParams params, XMLExtensionsRegistry registry) {
+		ContentModelManager.getInstance().setRootURI(params.getRootUri());
 		registry.registerCompletionParticipant(completionParticipant);
 		registry.registerHoverParticipant(hoverParticipant);
 		registry.registerDiagnosticsParticipant(diagnosticsParticipant);

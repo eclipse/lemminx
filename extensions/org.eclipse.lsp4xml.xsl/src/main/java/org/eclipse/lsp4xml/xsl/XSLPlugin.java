@@ -1,5 +1,6 @@
 package org.eclipse.lsp4xml.xsl;
 
+import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4xml.services.extensions.IXMLExtension;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
@@ -18,7 +19,7 @@ public class XSLPlugin implements IXMLExtension {
 	}
 
 	@Override
-	public void start(XMLExtensionsRegistry registry) {
+	public void start(InitializeParams params, XMLExtensionsRegistry registry) {
 		URIResolverExtensionManager.getInstance().registerResolver(uiResolver);
 	}
 
