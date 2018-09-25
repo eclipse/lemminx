@@ -47,7 +47,8 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 	cvc_type_3_1_1("cvc-type.3.1.1"), // https://wiki.xmldation.com/Support/Validator/cvc-type-3-1-1
 	cvc_type_3_1_3("cvc-type.3.1.3"), // https://wiki.xmldation.com/Support/Validator/cvc-type-3-1-3,
 	cvc_attribute_3("cvc-attribute.3"), // https://wiki.xmldation.com/Support/Validator/cvc-attribute-3
-	cvc_enumeration_valid("cvc-enumeration-valid"); // https://wiki.xmldation.com/Support/Validator/cvc-enumeration-valid
+	cvc_enumeration_valid("cvc-enumeration-valid"), // https://wiki.xmldation.com/Support/Validator/cvc-enumeration-valid
+	cvc_maxlength_valid("cvc-maxLength-valid"); // https://wiki.xmldation.com/Support/validator/cvc-maxlength-valid
 
 	private final String code;
 
@@ -119,6 +120,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 			return XMLPositionUtility.selectAllAttributes(offset, document);
 		case cvc_type_3_1_3:
 			return XMLPositionUtility.selectText(offset, document);
+		case cvc_maxlength_valid:
 		case cvc_enumeration_valid:
 		case cvc_datatype_valid_1_2_1: {
 			// this error can occur for attribute value or text

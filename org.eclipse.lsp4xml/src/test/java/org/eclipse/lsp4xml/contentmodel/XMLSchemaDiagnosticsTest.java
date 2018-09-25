@@ -216,6 +216,31 @@ public class XMLSchemaDiagnosticsTest {
 				d(4, 10, 4, 22, XMLSchemaErrorCode.cvc_type_3_1_3));
 	}
 
+	@Test
+	public void cvc_maxLength_validOnAttribute() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<team\r\n" + //
+				"     name=\"too long a string\"\r\n" + // <- error
+				"     xmlns=\"team_namespace\"\r\n" + //
+				"     xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"     xsi:schemaLocation=\"team_namespace src/test/resources/xsd/team.xsd \">\r\n" + //
+				"	<member\r\n" + //
+				"	       name=\"John\"\r\n" + //
+				"	       badgeNumber=\"1\"\r\n" + //
+				"	       role=\"architect\">\r\n" + //
+				"		<skills>\r\n" + //
+				"			<skill>Java</skill>\r\n" + "		</skills> \r\n" + //
+				"		<focus>\r\n" + //
+				"			<server\r\n" + //
+				"			       language=\"Java\" />\r\n" + //
+				"		</focus>\r\n" + //
+				"	</member>\r\n" + //
+				"</team>";
+		testDiagnosticsFor(xml, d(2, 10, 2, 29, XMLSchemaErrorCode.cvc_maxlength_valid),
+				d(2, 10, 2, 29, XMLSchemaErrorCode.cvc_attribute_3));
+
+	}
+
 	private static void testDiagnosticsFor(String xml, Diagnostic... expected) {
 		XMLAssert.testDiagnosticsFor(xml, "src/test/resources/catalogs/catalog.xml", expected);
 	}
