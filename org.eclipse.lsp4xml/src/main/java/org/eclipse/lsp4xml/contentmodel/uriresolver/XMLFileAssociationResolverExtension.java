@@ -31,6 +31,12 @@ public class XMLFileAssociationResolverExtension implements URIResolverExtension
 
 	@Override
 	public String resolve(String baseLocation, String publicId, String systemId) {
+		if (systemId != null) {
+			// system id is defined in the XML root element (ex : syetemId=Types.xsd for <Types
+			// xsi:noNamespaceSchemaLocation="Types.xsd">
+			// ignore XML file association
+			return null;
+		}
 		if (fileAssociations != null) {
 			for (XMLFileAssociation fileAssociation : fileAssociations) {
 				if (fileAssociation.matches(baseLocation)) {

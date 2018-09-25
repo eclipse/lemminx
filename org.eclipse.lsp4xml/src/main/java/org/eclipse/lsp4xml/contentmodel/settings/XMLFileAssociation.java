@@ -52,7 +52,6 @@ public class XMLFileAssociation {
 		try {
 			return matches(new URI(uri));
 		} catch (Exception e) {
-			e.printStackTrace();
 			return false;
 		}
 	}
