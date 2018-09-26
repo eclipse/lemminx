@@ -202,7 +202,11 @@ public class XSDElementDeclaration implements CMElementDeclaration {
 
 	@Override
 	public boolean isEmpty() {
-		// TODO: support it
+		XSTypeDefinition typeDefinition = elementDeclaration.getTypeDefinition();
+		if (typeDefinition != null && typeDefinition.getTypeCategory() == XSTypeDefinition.COMPLEX_TYPE) {
+			XSComplexTypeDefinition complexTypeDefinition = (XSComplexTypeDefinition) typeDefinition;
+			return complexTypeDefinition.getContentType() == XSComplexTypeDefinition.CONTENTTYPE_EMPTY;
+		}
 		return false;
 	}
 
