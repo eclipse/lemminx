@@ -113,7 +113,7 @@ public class XMLPositionUtility {
 		}
 		return null;
 	}
-	
+
 	private static Range createAttrNameRange(Attr attr, XMLDocument document) {
 		int startOffset = attr.getNodeName().getStart();
 		int endOffset = attr.getNodeName().getEnd();
@@ -174,17 +174,21 @@ public class XMLPositionUtility {
 	public static Range selectStartTag(int offset, XMLDocument document) {
 		Node element = document.findNodeAt(offset);
 		if (element != null) {
-			int startOffset = element.getStart() + 1; // <
-			int endOffset = startOffset + getStartTagLength(element);
-			if (element.isProcessingInstruction() || element.isProlog()) {
-				// in the case of prolog or processing instruction, tag is equals to "xml"
-				// without '?' -> <?xml
-				// increment end offset to select '?xml' instead of selecting '?xm'
-				endOffset++;
-			}
-			return createRange(startOffset, endOffset, document);
+			return selectStartTag(element, document);
 		}
 		return null;
+	}
+
+	private static Range selectStartTag(Node element, XMLDocument document) {
+		int startOffset = element.getStart() + 1; // <
+		int endOffset = startOffset + getStartTagLength(element);
+		if (element.isProcessingInstruction() || element.isProlog()) {
+			// in the case of prolog or processing instruction, tag is equals to "xml"
+			// without '?' -> <?xml
+			// increment end offset to select '?xml' instead of selecting '?xm'
+			endOffset++;
+		}
+		return createRange(startOffset, endOffset, document);
 	}
 
 	private static int getStartTagLength(Node node) {
@@ -310,11 +314,17 @@ public class XMLPositionUtility {
 
 	public static Range selectText(int offset, XMLDocument document) {
 		Node node = document.findNodeAt(offset);
-		if (node != null && node.hasChildren()) {
-			for (Node child : node.getChildren()) {
-				if (child.isText()) {
-					return createRange(child.getStart(), child.getEnd(), document);
+		if (node != null) {
+			if (node.hasChildren()) {
+				// <root>BAD TEXT</root>
+				for (Node child : node.getChildren()) {
+					if (child.isText()) {
+						return createRange(child.getStart(), child.getEnd(), document);
+					}
 				}
+			} else if (node.isElement()) {
+				// node has NONE text (ex: <root></root>, select the start tag
+				return selectStartTag(node, document);
 			}
 		}
 		return null;
