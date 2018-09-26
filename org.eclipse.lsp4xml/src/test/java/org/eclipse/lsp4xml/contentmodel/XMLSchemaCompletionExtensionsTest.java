@@ -176,7 +176,7 @@ public class XMLSchemaCompletionExtensionsTest {
 				"\r\n" + //
 				"  <camel:camelContext><| ";
 		testCompletionFor(xml, c("camel:route", "<camel:route></camel:route>"),
-				c("camel:template", "<camel:template></camel:template>"));
+				c("camel:template", "<camel:template />"));
 	}
 
 	@Test
@@ -185,7 +185,7 @@ public class XMLSchemaCompletionExtensionsTest {
 				"<root>\r\n" + //
 				"  <camelContext id=\"camel\" xmlns=\"http://camel.apache.org/schema/spring\">\r\n" + "\r\n" + //
 				"    <|";
-		testCompletionFor(xml, c("route", "<route></route>"), c("template", "<template></template>"));
+		testCompletionFor(xml, c("route", "<route></route>"), c("template", "<template />"));
 	}
 
 	@Test
