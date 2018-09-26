@@ -137,7 +137,9 @@ public class XMLSyntaxDiagnosticsTest {
 	@Test
 	public void testEqRequiredInAttribute() throws Exception {
 		String xml = "<a Ccy>123.456</a>";
-		testDiagnosticsFor(xml, d(0, 3, 0, 6, XMLSyntaxErrorCode.EqRequiredInAttribute));
+		Diagnostic d = d(0, 3, 0, 6, XMLSyntaxErrorCode.EqRequiredInAttribute);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(0, 6, 0, 6, "=\"\"")));
 	}
 
 	@Ignore("This test works on OS Windows but fails in travis, why? ")

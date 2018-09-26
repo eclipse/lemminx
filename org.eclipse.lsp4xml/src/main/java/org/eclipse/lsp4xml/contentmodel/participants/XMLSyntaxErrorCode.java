@@ -19,6 +19,7 @@ import org.apache.xerces.xni.QName;
 import org.apache.xerces.xni.XMLLocator;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.contentmodel.participants.codeactions.ElementUnterminatedCodeAction;
+import org.eclipse.lsp4xml.contentmodel.participants.codeactions.EqRequiredInAttributeCodeAction;
 import org.eclipse.lsp4xml.contentmodel.participants.diagnostics.IXMLErrorCode;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.services.extensions.ICodeActionParticipant;
@@ -99,13 +100,16 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 		case ElementPrefixUnbound:
 		case ElementUnterminated:
 			return XMLPositionUtility.selectStartTag(offset, document);
+		case EqRequiredInAttribute: {
+			String attrName = (String) arguments[1];
+			return XMLPositionUtility.selectAttributeNameFromGivenNameAt(attrName, offset, document);
+		}
 		case EncodingDeclRequired:
-		case EqRequiredInAttribute:
 		case EqRequiredInXMLDecl:
 		case AttributeNotUnique:
 		case AttributeNSNotUnique:
 			return XMLPositionUtility.selectAttributeNameAt(offset, document);
-		case LessthanInAttValue:  {
+		case LessthanInAttValue: {
 			String attrName = (String) arguments[1];
 			return XMLPositionUtility.selectAttributeValueAt(attrName, offset, document);
 		}
@@ -113,10 +117,10 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 			String attrName = (String) arguments[0];
 			return XMLPositionUtility.selectAttributeValueAt(attrName, offset, document);
 		}
-		case EmptyPrefixedAttName:	{
+		case EmptyPrefixedAttName: {
 			QName qName = (QName) arguments[0];
 			return XMLPositionUtility.selectAttributeValueAt(qName.rawname, offset, document);
-		}	
+		}
 		case SDDeclInvalid:
 		case VersionNotSupported: {
 			String attrValue = (String) arguments[0];
@@ -171,5 +175,6 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 
 	public static void registerCodeActionParticipants(Map<String, ICodeActionParticipant> codeActions) {
 		codeActions.put(ElementUnterminated.getCode(), new ElementUnterminatedCodeAction());
+		codeActions.put(EqRequiredInAttribute.getCode(), new EqRequiredInAttributeCodeAction());		
 	}
 }
