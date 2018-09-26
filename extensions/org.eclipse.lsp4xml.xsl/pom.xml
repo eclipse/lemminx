@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>org.eclipse</groupId>
 		<artifactId>lsp4xml-extensions</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.0.2-SNAPSHOT</version>
 	</parent>
 	<artifactId>org.eclipse.lsp4xml.xsl</artifactId>
 	<properties>
@@ -51,7 +51,7 @@
 		<dependency>
 			<groupId>org.eclipse</groupId>
 			<artifactId>org.eclipse.lsp4xml</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.0.2-SNAPSHOT</version>
 		</dependency>		
 	</dependencies>
 </project>
