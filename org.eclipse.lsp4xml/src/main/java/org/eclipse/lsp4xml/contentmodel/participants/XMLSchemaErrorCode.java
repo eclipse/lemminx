@@ -16,10 +16,10 @@ import java.util.Map;
 import org.apache.xerces.xni.XMLLocator;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.contentmodel.participants.codeactions.cvc_attribute_3CodeAction;
-import org.eclipse.lsp4xml.contentmodel.participants.codeactions.cvc_enumeration_validCodeAction;
 import org.eclipse.lsp4xml.contentmodel.participants.codeactions.cvc_complex_type_2_3CodeAction;
 import org.eclipse.lsp4xml.contentmodel.participants.codeactions.cvc_complex_type_3_2_2CodeAction;
 import org.eclipse.lsp4xml.contentmodel.participants.codeactions.cvc_complex_type_4CodeAction;
+import org.eclipse.lsp4xml.contentmodel.participants.codeactions.cvc_enumeration_validCodeAction;
 import org.eclipse.lsp4xml.contentmodel.participants.codeactions.cvc_type_3_1_1CodeAction;
 import org.eclipse.lsp4xml.contentmodel.participants.diagnostics.IXMLErrorCode;
 import org.eclipse.lsp4xml.dom.XMLDocument;
@@ -48,7 +48,12 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 	cvc_type_3_1_3("cvc-type.3.1.3"), // https://wiki.xmldation.com/Support/Validator/cvc-type-3-1-3,
 	cvc_attribute_3("cvc-attribute.3"), // https://wiki.xmldation.com/Support/Validator/cvc-attribute-3
 	cvc_enumeration_valid("cvc-enumeration-valid"), // https://wiki.xmldation.com/Support/Validator/cvc-enumeration-valid
-	cvc_maxlength_valid("cvc-maxLength-valid"); // https://wiki.xmldation.com/Support/validator/cvc-maxlength-valid
+	cvc_maxlength_valid("cvc-maxLength-valid"), // https://wiki.xmldation.com/Support/validator/cvc-maxlength-valid
+	cvc_minlength_valid("cvc-minLength-valid"), // https://wiki.xmldation.com/Support/validator/cvc-minlength-valid
+	cvc_maxExclusive_valid("cvc-maxExclusive-valid"), // https://wiki.xmldation.com/Support/validator/cvc-maxexclusive-valid
+	cvc_maxInclusive_valid("cvc-maxInclusive-valid"), // https://wiki.xmldation.com/Support/validator/cvc-maxinclusive-valid
+	cvc_minExclusive_valid("cvc-minExclusive-valid"), // https://wiki.xmldation.com/Support/validator/cvc-minexclusive-valid
+	cvc_minInclusive_valid("cvc-minInclusive-valid"); // https://wiki.xmldation.com/Support/validator/cvc-mininclusive-valid
 
 	private final String code;
 
@@ -120,9 +125,14 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 			return XMLPositionUtility.selectAllAttributes(offset, document);
 		case cvc_type_3_1_3:
 			return XMLPositionUtility.selectText(offset, document);
-		case cvc_maxlength_valid:
 		case cvc_enumeration_valid:
-		case cvc_datatype_valid_1_2_1: {
+		case cvc_datatype_valid_1_2_1:
+		case cvc_maxlength_valid:
+		case cvc_minlength_valid:
+		case cvc_maxExclusive_valid:
+		case cvc_maxInclusive_valid:
+		case cvc_minExclusive_valid:
+		case cvc_minInclusive_valid: {
 			// this error can occur for attribute value or text
 			// Try for attribute value
 			String attrValue = (String) arguments[0];
