@@ -42,6 +42,12 @@ public class XMLFileAssociationsCompletionTest {
 				"  <|";
 		XMLAssert.testCompletionFor(xml, null, "file:///test/Test.Format.ps1xml", null,
 				c("Configuration", "<Configuration></Configuration>"));
+		xml = "|";
+		XMLAssert.testCompletionFor(xml, null, "file:///test/Test.Format.ps1xml", null,
+				c("Configuration", "<Configuration></Configuration>"));
+		xml = " |";
+		XMLAssert.testCompletionFor(xml, null, "file:///test/Test.Format.ps1xml", null,
+				c("Configuration", "<Configuration></Configuration>"));
 	}
 
 	@Test
@@ -49,6 +55,15 @@ public class XMLFileAssociationsCompletionTest {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<Configuration>\r\n" + //
 				"  <|";
+		XMLAssert.testCompletionFor(xml, null, "file:///test/Test.Format.ps1xml", null,
+				c("Controls", "<Controls></Controls>"), //
+				c("DefaultSettings", "<DefaultSettings></DefaultSettings>"), //
+				c("SelectionSets", "<SelectionSets></SelectionSets>"),
+				c("ViewDefinitions", "<ViewDefinitions></ViewDefinitions>"));
+		
+		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<Configuration>\r\n" + //
+				"  |";
 		XMLAssert.testCompletionFor(xml, null, "file:///test/Test.Format.ps1xml", null,
 				c("Controls", "<Controls></Controls>"), //
 				c("DefaultSettings", "<DefaultSettings></DefaultSettings>"), //

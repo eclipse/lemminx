@@ -73,6 +73,12 @@ class XMLCompletions {
 		Node node = completionRequest.getNode();
 
 		String text = xmlDocument.getText();
+		if (text.isEmpty()) {
+			// When XML document is empty, try to collect root element (from file association)
+			collectInsideContent(completionRequest, completionResponse);
+			return completionResponse;
+		}
+
 		Scanner scanner = XMLScanner.createScanner(text, node.getStart());
 		String currentTag = "";
 		completionRequest.setCurrentAttributeName(null);
