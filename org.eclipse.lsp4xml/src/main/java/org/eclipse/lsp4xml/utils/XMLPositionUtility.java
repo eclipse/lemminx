@@ -65,7 +65,7 @@ public class XMLPositionUtility {
 		if (element != null) {
 			Attr attr = element.getAttributeNode(attrName);
 			if (attr != null) {
-				return createRange(attr, document);
+				return createAttrValueRange(attr, document);
 			}
 		}
 		return null;
@@ -77,14 +77,14 @@ public class XMLPositionUtility {
 			List<Attr> attribues = element.getAttributeNodes();
 			for (Attr attr : attribues) {
 				if (attrValue.equals(attr.getValue())) {
-					return createRange(attr, document);
+					return createAttrValueRange(attr, document);
 				}
 			}
 		}
 		return null;
 	}
 
-	private static Range createRange(Attr attr, XMLDocument document) {
+	private static Range createAttrValueRange(Attr attr, XMLDocument document) {
 		int startOffset = attr.getNodeValue().getStart();
 		int endOffset = attr.getNodeValue().getEnd();
 		return createRange(startOffset, endOffset, document);
@@ -96,11 +96,28 @@ public class XMLPositionUtility {
 			List<Attr> attributes = element.getAttributeNodes();
 			for (Attr attr : attributes) {
 				if (attrValue.equals(attr.getValue())) {
-					return createRange(attr, document);
+					return createAttrValueRange(attr, document);
 				}
 			}
 		}
 		return null;
+	}
+
+	public static Range selectAttributeNameFromGivenNameAt(String attrName, int offset, XMLDocument document) {
+		Node element = document.findNodeAt(offset);
+		if (element != null && element.hasAttributes()) {
+			Attr attr = element.getAttributeNode(attrName);
+			if (attr != null) {
+				return createAttrNameRange(attr, document);
+			}
+		}
+		return null;
+	}
+	
+	private static Range createAttrNameRange(Attr attr, XMLDocument document) {
+		int startOffset = attr.getNodeName().getStart();
+		int endOffset = attr.getNodeName().getEnd();
+		return createRange(startOffset, endOffset, document);
 	}
 
 	private static int adjustOffsetForAttribute(int offset, XMLDocument document) {
