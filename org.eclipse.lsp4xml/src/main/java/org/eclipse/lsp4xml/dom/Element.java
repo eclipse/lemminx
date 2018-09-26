@@ -146,6 +146,18 @@ public class Element extends Node {
 		}
 		return false;
 	}
+	
+	public boolean isInEndTag(int offset) {
+		if (endTagOpenOffset == null) {
+			// case >|
+			return false;
+		}
+		if (offset > endTagOpenOffset && offset <= getEnd()) {
+			// case <\bean | >
+			return true;
+		}
+		return false;
+	}
 
 	public boolean hasStartTagClose() {
 		return startTagCloseOffset != null;
@@ -186,5 +198,6 @@ public class Element extends Node {
 	public boolean hasEndTag() {
 		return endTagOpenOffset != null;
 	}
+
 
 }

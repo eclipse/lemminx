@@ -52,7 +52,7 @@ abstract class AbstractPositionRequest implements IPositionRequest {
 	@Override
 	public Element getParentElement() {
 		Node currentNode = getNode();
-		if (!currentNode.isElement()) {
+		if (!currentNode.isElement() || currentNode.getEnd() < offset) {
 			// Node is not an element, search parent element.
 			return currentNode.getParentElement();
 		}
@@ -60,7 +60,7 @@ abstract class AbstractPositionRequest implements IPositionRequest {
 		// node is an element, there are 2 cases
 		// case 1: <| or <bean | > --> in this case we must search parent of bean
 		// element
-		if (element.isInStartTag(offset)) {
+		if (element.isInStartTag(offset) || element.isInEndTag(offset)) {
 			return element.getParentElement();
 		}
 		// case 2: <bean> | --> in this case, parent element is the bean

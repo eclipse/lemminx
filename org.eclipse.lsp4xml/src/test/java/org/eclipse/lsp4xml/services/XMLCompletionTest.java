@@ -14,6 +14,7 @@ import static org.eclipse.lsp4xml.XMLAssert.c;
 import static org.eclipse.lsp4xml.XMLAssert.testCompletionFor;
 import static org.eclipse.lsp4xml.XMLAssert.testTagCompletion;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Arrays;
@@ -44,7 +45,7 @@ public class XMLCompletionTest {
 	public void initializeLanguageService() {
 		languageService = new XMLLanguageService();
 		sharedCompletionSettings = new CompletionSettings();
-		
+
 	}
 
 	@Test
@@ -74,7 +75,7 @@ public class XMLCompletionTest {
 		testCompletionFor("<hello><h1/><h2></h2><h|</hello>", 3, c("h", "<h></h>", "<h"), c("h1", "<h1 />", "<h1"),
 				c("h2", "<h2></h2>", "<h2"));
 	}
-	
+
 	@Test
 	public void doTagComplete() throws BadLocationException {
 		testTagCompletion("<div>|", "$0</div>");
@@ -155,7 +156,7 @@ public class XMLCompletionTest {
 		if (expectedTextEdit == null) {// Tag is already closed
 			assertEquals(0, completionList.getItems().size());
 		} else {
-			assertEquals(1, completionList.getItems().size());
+			assertTrue(completionList.getItems().size() > 0);
 			CompletionItem item = completionList.getItems().get(0);
 			assertEquals(expectedTextEdit.substring(2), item.getLabel());
 			assertEquals(expectedTextEdit.substring(2), item.getFilterText());

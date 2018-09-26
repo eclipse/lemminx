@@ -27,6 +27,11 @@ public class Node {
 	public static final short ELEMENT_NODE = 1;
 
 	/**
+	 * The node is an <code>Attribute</code>.
+	 */
+	public static final short ATTRIBUTE_NODE = 2;
+
+	/**
 	 * The node is a <code>Text</code> node.
 	 */
 	public static final short TEXT_NODE = 3;
@@ -59,7 +64,7 @@ public class Node {
 
 	private List<Attr> attributeNodes;
 	private List<Node> children;
-	
+
 	final int start;
 	int end;
 
@@ -191,6 +196,10 @@ public class Node {
 
 	public Attr findAttrAt(int offset) {
 		Node node = findNodeAt(offset);
+		return findAttrAt(node, offset);
+	}
+
+	public Attr findAttrAt(Node node, int offset) {
 		if (node != null && node.hasAttributes()) {
 			for (Attr attr : node.getAttributeNodes()) {
 				if (attr.isIncluded(offset)) {
@@ -273,7 +282,7 @@ public class Node {
 	public void setAttribute(String name, String value) {
 		Attr attr = getAttributeNode(name);
 		if (attr == null) {
-			attr = new Attr(name, null);
+			attr = new Attr(name, null, this);
 			setAttributeNode(attr);
 		}
 		attr.setValue(value, null);
@@ -376,6 +385,10 @@ public class Node {
 	public boolean isElement() {
 		return getNodeType() == Node.ELEMENT_NODE;
 	}
+	
+	public boolean isAttribute() {
+		return getNodeType() == Node.ATTRIBUTE_NODE;
+	}
 
 	public boolean isText() {
 		return getNodeType() == Node.TEXT_NODE;
@@ -392,11 +405,11 @@ public class Node {
 	public String getNodeName() {
 		return null;
 	}
-	
+
 	public int getStart() {
 		return start;
 	}
-	
+
 	public int getEnd() {
 		return end;
 	}

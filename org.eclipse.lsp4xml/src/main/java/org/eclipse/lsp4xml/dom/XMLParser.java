@@ -112,7 +112,7 @@ public class XMLParser {
 				} else {
 					// element open tag not found (ex: <root>) add a fake elementg which have just
 					// end tag (no start tag).
-					Element element = xmlDocument.createElement(scanner.getTokenOffset() -2, text.length());
+					Element element = xmlDocument.createElement(scanner.getTokenOffset() - 2, text.length());
 					element.endTagOpenOffset = endTagOpenOffset;
 					element.tag = closeTag;
 					current.addChild(element);
@@ -141,7 +141,7 @@ public class XMLParser {
 			case AttributeName: {
 				pendingAttribute = scanner.getTokenText();
 				attr = new Attr(pendingAttribute, new Node(scanner.getTokenOffset(),
-						scanner.getTokenOffset() + pendingAttribute.length(), null, curr, xmlDocument));
+						scanner.getTokenOffset() + pendingAttribute.length(), null, curr, xmlDocument), curr);
 				curr.setAttributeNode(attr);
 				break;
 			}

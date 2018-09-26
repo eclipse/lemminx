@@ -141,7 +141,6 @@ class XMLCompletions {
 						return completionResponse;
 					default:
 					}
-					
 				}
 				break;
 			case EndTagOpen:
@@ -172,8 +171,17 @@ class XMLCompletions {
 			case StartTagClose:
 				if (offset <= scanner.getTokenEnd()) {
 					if (currentTag != null && currentTag.length() > 0) {
+						collectInsideContent(completionRequest, completionResponse);
 						collectAutoCloseTagSuggestion(scanner.getTokenEnd(), currentTag, completionRequest,
 								completionResponse);
+						return completionResponse;
+					}
+				}
+				break;
+			case StartTagSelfClose:
+				if (offset <= scanner.getTokenEnd()) {
+					if (currentTag != null && currentTag.length() > 0) {
+						collectInsideContent(completionRequest, completionResponse);
 						return completionResponse;
 					}
 				}
@@ -315,7 +323,7 @@ class XMLCompletions {
 							if (completionSettings.isCompletionSnippetsSupported()) {
 								xml.append("$0");
 							}
-							if(completionSettings.isAutoCloseTags()) {
+							if (completionSettings.isAutoCloseTags()) {
 								xml.append("</").append(tag).append(">");
 							}
 						}
@@ -420,16 +428,6 @@ class XMLCompletions {
 		collectCharacterEntityProposals(request, response);
 	}
 
-	/**
-	 * Collect completion inside comments.
-	 * 
-	 * @param request
-	 * @param response
-	 */
-	private void collectInsideComment(ICompletionRequest request, ICompletionResponse response) {
-		collectionRegionProposals(request, response);
-	}
-
 	private void collectionRegionProposals(ICompletionRequest request, ICompletionResponse response) {
 		// Completion for #region
 		try {
@@ -440,7 +438,7 @@ class XMLCompletions {
 			String lineUntilPos = lineText.substring(0, pos.getCharacter());
 			Matcher match = regionCompletionRegExpr.matcher(lineUntilPos);
 			if (match.find()) {
-				Range range = new Range(new Position(pos.getLine(), match.regionStart()), pos);
+				Range range = new Range(new Position(pos.getLine(), pos.getCharacter() + match.regionStart()), pos);
 
 				CompletionItem beginProposal = new CompletionItem("#region");
 				beginProposal.setTextEdit(new TextEdit(range, "<!-- #region $1-->"));

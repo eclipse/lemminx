@@ -14,32 +14,36 @@ package org.eclipse.lsp4xml.dom;
  * An attribute node.
  *
  */
-public class Attr {
+public class Attr extends Node {
 
 	private final String name;
 
-	private final Node nodeName;
+	private final Node nodeAttrName;
 
-	private Node nodeValue;
+	private Node nodeAttrValue;
 
 	private String value;
 
-	public Attr(String name, Node nodeName) {
+	private final Node ownerElement;
+
+	public Attr(String name, Node nodeAttrName, Node ownerElement) {
+		super(-1, -1, ownerElement.getOwnerDocument());
 		this.name = name;
-		this.nodeName = nodeName;
+		this.nodeAttrName = nodeAttrName;
+		this.ownerElement = ownerElement;
 	}
 
 	public String getName() {
 		return name;
 	}
 
-	public Node getNodeName() {
-		return nodeName;
+	public Node getNodeAttrName() {
+		return nodeAttrName;
 	}
 
 	public void setValue(String value, Node nodeValue) {
 		this.value = getValue(value);
-		this.nodeValue = nodeValue;
+		this.nodeAttrValue = nodeValue;
 	}
 
 	private static String getValue(String value) {
@@ -54,24 +58,26 @@ public class Attr {
 		return value.substring(start, end);
 	}
 
-	public Node getNodeValue() {
-		return nodeValue;
+	public Node getNodeAttrValue() {
+		return nodeAttrValue;
 	}
 
-	public void setNodeValue(Node nodeValue) {
-		this.nodeValue = nodeValue;
+	public void setNodeAttrValue(Node nodeAttrValue) {
+		this.nodeAttrValue = nodeAttrValue;
 	}
 
 	public boolean isIncluded(int offset) {
 		return Node.isIncluded(getStart(), getEnd(), offset);
 	}
 
+	@Override
 	public int getStart() {
-		return nodeName.start;
+		return nodeAttrName.start;
 	}
 
+	@Override
 	public int getEnd() {
-		return nodeValue != null ? nodeValue.end : nodeName.end;
+		return nodeAttrValue != null ? nodeAttrValue.end : nodeAttrName.end;
 	}
 
 	public String getValue() {
@@ -110,9 +116,11 @@ public class Attr {
 	}
 
 	public Element getOwnerElement() {
-		if (nodeName != null && nodeName.getParent() != null && nodeName.getParent().isElement()) {
-			return (Element) nodeName.getParent();
-		}
-		return null;
+		return ownerElement.isElement() ? (Element) ownerElement : null;
+	}
+
+	@Override
+	public short getNodeType() {
+		return Node.ATTRIBUTE_NODE;
 	}
 }

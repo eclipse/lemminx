@@ -53,8 +53,8 @@ public class XMLPositionUtility {
 		offset = adjustOffsetForAttribute(offset, document);
 		Attr attr = document.findAttrAt(offset);
 		if (attr != null) {
-			int startOffset = attr.getNodeName().getStart();
-			int endOffset = attr.getNodeName().getEnd();
+			int startOffset = attr.getNodeAttrName().getStart();
+			int endOffset = attr.getNodeAttrName().getEnd();
 			return createRange(startOffset, endOffset, document);
 		}
 		return null;
@@ -85,8 +85,8 @@ public class XMLPositionUtility {
 	}
 
 	private static Range createAttrValueRange(Attr attr, XMLDocument document) {
-		int startOffset = attr.getNodeValue().getStart();
-		int endOffset = attr.getNodeValue().getEnd();
+		int startOffset = attr.getNodeAttrValue().getStart();
+		int endOffset = attr.getNodeAttrValue().getEnd();
 		return createRange(startOffset, endOffset, document);
 	}
 
@@ -115,8 +115,8 @@ public class XMLPositionUtility {
 	}
 
 	private static Range createAttrNameRange(Attr attr, XMLDocument document) {
-		int startOffset = attr.getNodeName().getStart();
-		int endOffset = attr.getNodeName().getEnd();
+		int startOffset = attr.getNodeAttrName().getStart();
+		int endOffset = attr.getNodeAttrName().getEnd();
 		return createRange(startOffset, endOffset, document);
 	}
 
