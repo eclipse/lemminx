@@ -241,6 +241,36 @@ public class XMLSchemaDiagnosticsTest {
 
 	}
 
+	@Test
+	public void cvc_complex_type_2_1() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<beans\r\n" + //
+				"      xmlns=\"http://www.springframework.org/schema/beans\"\r\n" + //
+				"      xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd\"\r\n"
+				+ //
+				"      xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n" + //
+				"	<alias name=\"\" alias=\"\" >XXXX</alias>\r\n" + // <- error
+				"</beans>";
+		Diagnostic d = d(5, 26, 5, 30, XMLSchemaErrorCode.cvc_complex_type_2_1);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(5, 25, 5, 38, "/>")));
+	}
+
+	@Test
+	public void cvc_complex_type_2_1WithLinefeed() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<beans\r\n" + //
+				"      xmlns=\"http://www.springframework.org/schema/beans\"\r\n" + //
+				"      xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd\"\r\n"
+				+ //
+				"      xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n" + //
+				"	<alias name=\"\" alias=\"\" >\r\n   \r\n</alias>\r\n" + // <- error
+				"</beans>";
+		Diagnostic d = d(5, 2, 5, 7, XMLSchemaErrorCode.cvc_complex_type_2_1);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(5, 25, 7, 8, "/>")));
+	}
+
 	private static void testDiagnosticsFor(String xml, Diagnostic... expected) {
 		XMLAssert.testDiagnosticsFor(xml, "src/test/resources/catalogs/catalog.xml", expected);
 	}

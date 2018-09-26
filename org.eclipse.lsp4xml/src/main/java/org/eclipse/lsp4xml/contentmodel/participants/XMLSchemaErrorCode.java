@@ -16,6 +16,7 @@ import java.util.Map;
 import org.apache.xerces.xni.XMLLocator;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.contentmodel.participants.codeactions.cvc_attribute_3CodeAction;
+import org.eclipse.lsp4xml.contentmodel.participants.codeactions.cvc_complex_type_2_1CodeAction;
 import org.eclipse.lsp4xml.contentmodel.participants.codeactions.cvc_complex_type_2_3CodeAction;
 import org.eclipse.lsp4xml.contentmodel.participants.codeactions.cvc_complex_type_3_2_2CodeAction;
 import org.eclipse.lsp4xml.contentmodel.participants.codeactions.cvc_complex_type_4CodeAction;
@@ -35,6 +36,7 @@ import org.eclipse.lsp4xml.utils.XMLPositionUtility;
 public enum XMLSchemaErrorCode implements IXMLErrorCode {
 
 	cvc_complex_type_2_3("cvc-complex-type.2.3"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-2-3
+	cvc_complex_type_2_1("cvc-complex-type.2.1"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-2-1
 	cvc_complex_type_2_4_a("cvc-complex-type.2.4.a"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-2-4-a
 	cvc_complex_type_2_4_b("cvc-complex-type.2.4.b"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-2-4-b
 	cvc_complex_type_2_4_d("cvc-complex-type.2.4.d"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-2-4-d
@@ -125,6 +127,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 		}
 		case cvc_type_3_1_1:
 			return XMLPositionUtility.selectAllAttributes(offset, document);
+		case cvc_complex_type_2_1:
 		case cvc_type_3_1_3:
 			return XMLPositionUtility.selectText(offset, document);
 		case cvc_enumeration_valid:
@@ -158,5 +161,6 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 		codeActions.put(cvc_attribute_3.getCode(), new cvc_attribute_3CodeAction());
 		codeActions.put(cvc_complex_type_3_2_2.getCode(), new cvc_complex_type_3_2_2CodeAction());
 		codeActions.put(cvc_enumeration_valid.getCode(), new cvc_enumeration_validCodeAction());
+		codeActions.put(cvc_complex_type_2_1.getCode(), new cvc_complex_type_2_1CodeAction());
 	}
 }
