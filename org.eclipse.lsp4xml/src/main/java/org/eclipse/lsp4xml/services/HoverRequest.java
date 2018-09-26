@@ -13,6 +13,7 @@ package org.eclipse.lsp4xml.services;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.BadLocationException;
+import org.eclipse.lsp4xml.dom.Attr;
 import org.eclipse.lsp4xml.dom.Node;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.services.extensions.IHoverRequest;
@@ -33,7 +34,14 @@ class HoverRequest extends AbstractPositionRequest implements IHoverRequest {
 
 	@Override
 	protected Node findNodeAt(XMLDocument xmlDocument, int offset) {
-		return xmlDocument.findNodeAt(offset);
+		Node node = xmlDocument.findNodeAt(offset);
+		if (node != null && node.isElement()) {
+			Attr attr = xmlDocument.findAttrAt(node, offset);
+			if (attr != null) {
+				return attr;
+			}
+		}
+		return node;
 	}
 
 	@Override

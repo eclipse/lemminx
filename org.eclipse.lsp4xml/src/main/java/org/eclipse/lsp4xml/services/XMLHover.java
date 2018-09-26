@@ -50,25 +50,40 @@ class XMLHover {
 		}
 		int offset = hoverRequest.getOffset();
 		Node node = hoverRequest.getNode();
-		if (node == null || !node.isElement() || ((Element) node).getTagName() == null) {
+		if (node == null) {
 			return null;
 		}
-		Element element = (Element) node;
-		if (element.hasEndTag() && offset >= element.getEndTagOpenOffset()) {
-			Range tagRange = getTagNameRange(TokenType.EndTag, element.getEndTagOpenOffset(), offset, xmlDocument);
-			if (tagRange != null) {
-				return getTagHover(hoverRequest, tagRange, false);
+		if (node.isElement() && ((Element) node).getTagName() != null) {
+			// Element is hover
+			Element element = (Element) node;
+			if (element.hasEndTag() && offset >= element.getEndTagOpenOffset()) {
+				Range tagRange = getTagNameRange(TokenType.EndTag, element.getEndTagOpenOffset(), offset, xmlDocument);
+				if (tagRange != null) {
+					return getTagHover(hoverRequest, tagRange, false);
+				}
+				return null;
 			}
-			return null;
-		}
 
-		Range tagRange = getTagNameRange(TokenType.StartTag, node.getStart(), offset, xmlDocument);
-		if (tagRange != null) {
-			return getTagHover(hoverRequest, tagRange, true);
+			Range tagRange = getTagNameRange(TokenType.StartTag, node.getStart(), offset, xmlDocument);
+			if (tagRange != null) {
+				return getTagHover(hoverRequest, tagRange, true);
+			}
+		} else if (node.isAttribute()) {
+			// Attribute is hover
+			return getAttrHover(hoverRequest, null);
 		}
 		return null;
 	}
 
+	/**
+	 * Returns the LSP hover from the hovered element.
+	 * 
+	 * @param hoverRequest the hover request.
+	 * @param tagRange     the tag range
+	 * @param open         true if it's the start tag which is hovered and false if
+	 *                     it's the end tag.
+	 * @return the LSP hover from the hovered element.
+	 */
 	private Hover getTagHover(HoverRequest hoverRequest, Range tagRange, boolean open) {
 		hoverRequest.setTagRange(tagRange);
 		hoverRequest.setOpen(open);
@@ -99,6 +114,29 @@ class XMLHover {
 			} catch (BadLocationException e) {
 				LOGGER.log(Level.SEVERE, "While creating Range in XMLHover the Scanner's Offset was a BadLocation", e);
 				return null;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Returns the LSP hover from the hovered attribute.
+	 * 
+	 * @param hoverRequest the hover request.
+	 * @param attrRange     the attribute  range
+	 * @return the LSP hover from the hovered attribute.
+	 */
+	private Hover getAttrHover(HoverRequest hoverRequest, Range attrRange) {
+		//hoverRequest.setTagRange(tagRange);
+		//hoverRequest.setOpen(open);
+		for (IHoverParticipant participant : extensionsRegistry.getHoverParticipants()) {
+			try {
+				Hover hover = participant.onAttributeName(hoverRequest);
+				if (hover != null) {
+					return hover;
+				}
+			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE, "While performing IHoverParticipant#onTag", e);
 			}
 		}
 		return null;
