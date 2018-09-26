@@ -9,12 +9,16 @@ import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.Hover;
+import org.eclipse.lsp4j.MarkedString;
+import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.contentmodel.participants.diagnostics.IXMLErrorCode;
@@ -51,12 +55,14 @@ public class XMLAssert {
 		testCompletionFor(new XMLLanguageService(), value, catalogPath, fileURI, expectedCount, true, expectedItems);
 	}
 
-	public static void testCompletionFor(String value, boolean autoCloseTags, CompletionItem... expectedItems) throws BadLocationException {
+	public static void testCompletionFor(String value, boolean autoCloseTags, CompletionItem... expectedItems)
+			throws BadLocationException {
 		testCompletionFor(new XMLLanguageService(), value, null, null, null, autoCloseTags, expectedItems);
 	}
 
 	public static void testCompletionFor(XMLLanguageService xmlLanguageService, String value, String catalogPath,
-			String fileURI, Integer expectedCount, boolean autoCloseTags, CompletionItem... expectedItems) throws BadLocationException {
+			String fileURI, Integer expectedCount, boolean autoCloseTags, CompletionItem... expectedItems)
+			throws BadLocationException {
 		int offset = value.indexOf('|');
 		value = value.substring(0, offset) + value.substring(offset + 1);
 
@@ -266,4 +272,55 @@ public class XMLAssert {
 		textEdit.setRange(r(startLine, startCharacter, endLine, endCharacter));
 		return textEdit;
 	}
+
+	// ------------------- Hover assert
+
+	public static void assertHover(String value) throws BadLocationException {
+		assertHover(value, null, null);
+	}
+
+	public static void assertHover(String value, String expectedHoverLabel, Integer expectedHoverOffset)
+			throws BadLocationException {
+		assertHover(new XMLLanguageService(), value, null, expectedHoverLabel, expectedHoverOffset);
+	}
+
+	public static void assertHover(XMLLanguageService xmlLanguageService, String value, String catalogPath,
+			String expectedHoverLabel, Integer expectedHoverOffset) throws BadLocationException {
+		int offset = value.indexOf("|");
+		value = value.substring(0, offset) + value.substring(offset + 1);
+
+		TextDocument document = new TextDocument(value, "test://test/test.html");
+
+		Position position = document.positionAt(offset);
+
+		XMLDocument htmlDoc = XMLParser.getInstance().parse(document);
+		// Configure XML catalog for XML schema
+		if (catalogPath != null) {
+			ContentModelSettings settings = new ContentModelSettings();
+			settings.setCatalogs(new String[] { catalogPath });
+			xmlLanguageService.updateSettings(settings);
+		}
+
+		Hover hover = xmlLanguageService.doHover(htmlDoc, position);
+		if (expectedHoverLabel == null) {
+			Assert.assertNull(hover);
+		} else {
+			String actualHoverLabel = getHoverLabel(hover);
+			Assert.assertEquals(expectedHoverLabel, actualHoverLabel);
+			if (expectedHoverOffset != null) {
+				Assert.assertNotNull(hover.getRange());
+				Assert.assertNotNull(hover.getRange().getStart());
+				Assert.assertEquals(expectedHoverOffset.intValue(), hover.getRange().getStart().getCharacter());
+			}
+		}
+	}
+
+	private static String getHoverLabel(Hover hover) {
+		Either<List<Either<String, MarkedString>>, MarkupContent> contents = hover.getContents();
+		if (contents == null) {
+			return null;
+		}
+		return contents.getRight().getValue();
+	}
+
 }

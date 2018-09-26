@@ -37,7 +37,7 @@ public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 				MarkupContent content = new MarkupContent();
 				content.setKind(MarkupKind.PLAINTEXT);
 				content.setValue(doc);
-				return new Hover(content);
+				return new Hover(content, hoverRequest.getTagRange());
 			}
 		}
 		return null;

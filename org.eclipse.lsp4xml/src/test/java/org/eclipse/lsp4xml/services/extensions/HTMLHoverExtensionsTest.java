@@ -10,19 +10,11 @@
  */
 package org.eclipse.lsp4xml.services.extensions;
 
-import java.util.List;
-
 import org.eclipse.lsp4j.Hover;
-import org.eclipse.lsp4j.MarkedString;
 import org.eclipse.lsp4j.MarkupContent;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.commons.BadLocationException;
-import org.eclipse.lsp4xml.commons.TextDocument;
-import org.eclipse.lsp4xml.dom.XMLDocument;
-import org.eclipse.lsp4xml.dom.XMLParser;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
-import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -49,40 +41,13 @@ public class HTMLHoverExtensionsTest {
 		assertHover("<html></html>|");
 	};
 
-	private void assertHover(String value) throws BadLocationException {
+	private static void assertHover(String value) throws BadLocationException {
 		assertHover(value, null, null);
 	}
 
-	private void assertHover(String value, String expectedHoverLabel, Integer expectedHoverOffset)
+	private static void assertHover(String value, String expectedHoverLabel, Integer expectedHoverOffset)
 			throws BadLocationException {
-		int offset = value.indexOf("|");
-		value = value.substring(0, offset) + value.substring(offset + 1);
-
-		TextDocument document = new TextDocument(value, "test://test/test.html");
-
-		Position position = document.positionAt(offset);
-
-		XMLLanguageService ls = new HTMLLanguageService();
-		XMLDocument htmlDoc = XMLParser.getInstance().parse(document);
-
-		Hover hover = ls.doHover(htmlDoc, position);
-		if (expectedHoverLabel == null) {
-			Assert.assertNull(hover);
-		} else {
-			String actualHoverLabel = getHoverLabel(hover);
-			Assert.assertEquals(expectedHoverLabel, actualHoverLabel);
-			Assert.assertNotNull(hover.getRange());
-			Assert.assertNotNull(hover.getRange().getStart());
-			Assert.assertEquals(expectedHoverOffset.intValue(), hover.getRange().getStart().getCharacter());
-		}
-	}
-
-	private static String getHoverLabel(Hover hover) {
-		Either<List<Either<String, MarkedString>>, MarkupContent> contents = hover.getContents();
-		if (contents == null) {
-			return null;
-		}
-		return contents.getRight().getValue();
+		XMLAssert.assertHover(new HTMLLanguageService(), value, null, expectedHoverLabel, expectedHoverOffset);
 	}
 
 	private static class HTMLLanguageService extends XMLLanguageService {
