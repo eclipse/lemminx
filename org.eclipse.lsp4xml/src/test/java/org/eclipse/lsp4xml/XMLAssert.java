@@ -105,7 +105,7 @@ public class XMLAssert {
 		}).collect(Collectors.toList());
 
 		Assert.assertEquals(
-				expected.getLabel() + " should only existing once: Actual: "
+				expected.getLabel() + " should only exist once: Actual: "
 						+ completions.getItems().stream().map(c -> c.getLabel()).collect(Collectors.joining(",")),
 				1, matches.size());
 
