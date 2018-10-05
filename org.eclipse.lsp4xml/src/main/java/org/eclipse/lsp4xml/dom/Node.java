@@ -361,6 +361,20 @@ public class Node {
 		return null;
 	}
 
+	/**
+	 * Checks if previous sibling node is of 'type'
+	 * @param type
+	 * @return
+	 */
+	public boolean isPreviousNodeType(Short type) {
+		int currentIndex = this.getParent().getChildren().indexOf(this);
+		return currentIndex > 0 ? this.getParent().getChild(currentIndex - 1).isText() : false;
+	}
+
+	public boolean isFirstChildNode() {
+		return this.getParent().getChildren().indexOf(this) == 0;
+	}
+
 	public boolean isComment() {
 		return getNodeType() == Node.COMMENT_NODE;
 	}

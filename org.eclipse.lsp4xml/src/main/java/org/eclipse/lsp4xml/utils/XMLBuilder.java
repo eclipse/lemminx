@@ -118,7 +118,7 @@ public class XMLBuilder {
 		if (isJoinContentLines()) {
 			normalizeSpace(text, xml);
 		} else {
-			trimNewLines(text, xml);
+			xml.append(text);
 		}
 		return this;
 	}

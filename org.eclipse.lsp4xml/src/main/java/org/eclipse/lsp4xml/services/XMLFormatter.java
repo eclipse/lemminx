@@ -87,7 +87,10 @@ class XMLFormatter {
 
 	private void format(Node node, int level, int end, XMLBuilder xml) {
 		if (node.getNodeType() != Node.DOCUMENT_NODE) {
-			boolean doLineFeed = !(node.isComment() && ((Comment) node).isCommentSameLineEndTag()) && !node.isText();
+			boolean doLineFeed = !(node.isComment() && ((Comment) node).isCommentSameLineEndTag()) 
+									&& (!node.isPreviousNodeType(Node.TEXT_NODE) || xml.isJoinContentLines())
+									&& (!node.isText() || ((xml.isJoinContentLines() && !node.isFirstChildNode())));
+			
 			if (level > 0 && doLineFeed) {
 				// add new line + indent
 				xml.linefeed();
@@ -146,13 +149,11 @@ class XMLFormatter {
 				Text text = (Text) node;
 				if (text.hasData()) {
 					// Generate content
-					if (text.hasMultiLine() && !xml.isJoinContentLines()) {
-						xml.linefeed();
-					}
 					String content = text.getData();
 					if (!content.isEmpty()) {
 						xml.addContent(content);
 					}
+					
 				}
 				return;
 			} else if (node.isElement()) {
@@ -180,14 +181,7 @@ class XMLFormatter {
 						startElementClosed = true;
 						level++;
 						for (Node child : node.getChildren()) {
-							boolean textElement = !child.isText()
-									|| (child.isCharacterData() && ((CharacterData) child).hasMultiLine())
-									|| node.getChildren().size() > 1;
-							if (child.isCharacterData()) {
-								if (xml.isJoinContentLines()) {
-									textElement = false;
-								}
-							}
+							boolean textElement = !child.isText();
 
 							hasElements = hasElements | textElement;
 
