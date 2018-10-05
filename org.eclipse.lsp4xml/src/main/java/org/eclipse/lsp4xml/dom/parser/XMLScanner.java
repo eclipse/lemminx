@@ -36,6 +36,8 @@ import static org.eclipse.lsp4xml.dom.parser.Constants._SQO;
 import static org.eclipse.lsp4xml.dom.parser.Constants._TVL;
 import static org.eclipse.lsp4xml.dom.parser.Constants._WSP;
 import static org.eclipse.lsp4xml.dom.parser.Constants._YVL;
+import static org.eclipse.lsp4xml.dom.parser.Constants._CAR;
+import static org.eclipse.lsp4xml.dom.parser.Constants._NWL;;
 
 /**
  * XML scanner implementation.
@@ -128,7 +130,7 @@ public class XMLScanner implements Scanner {
 				state = ScannerState.WithinContent;
 				return finishToken(offset, TokenType.PIEnd);
 			}
-			if (stream.advanceUntilAnyOfChars(_WSP, _QMA)) { // ' ' or '?'
+			if (stream.advanceUntilAnyOfChars(_NWL,_CAR,_WSP, _QMA,_RAN) || stream.eos()) { // \n or \r or ' ' or '?'
 				String name = getTokenTextFromOffset(offset);
 				if (PROLOG_NAME_OPTIONS.matcher(name).matches()) { // name eg: xml
 					state = ScannerState.WithinTag;

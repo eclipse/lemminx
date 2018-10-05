@@ -206,6 +206,11 @@ class XMLCompletions {
 					return completionResponse;
 				}
 				break;
+			case PrologName:
+				if(offset <= scanner.getTokenEnd()) {
+					createPrologCompletionSuggestion(scanner.getTokenEnd(), scanner.getTokenText(), completionRequest, completionResponse);
+					return completionResponse;
+				}
 			default:
 				if (offset <= scanner.getTokenEnd()) {
 					return completionResponse;
@@ -348,6 +353,28 @@ class XMLCompletions {
 				LOGGER.log(Level.SEVERE, "While performing ICompletionParticipant#onTagOpen", e);
 			}
 		}
+	}
+
+	private void createPrologCompletionSuggestion(int tagNameEnd, String tag, CompletionRequest request,
+		CompletionResponse response) {
+			XMLDocument document = request.getXMLDocument();
+			CompletionItem item = new CompletionItem();
+			item.setLabel("<?xml ... ?>");
+			item.setKind(CompletionItemKind.Property);
+			item.setFilterText("version=\"1.0\" encoding=\"UTF-8\"?>");
+			item.setInsertTextFormat(InsertTextFormat.Snippet);
+			int closingBracketOffset = getOffsetFollowedBy(document.getText(), tagNameEnd, ScannerState.WithinTag, TokenType.StartTagClose);
+			int end = closingBracketOffset != -1 ? closingBracketOffset - 1 : tagNameEnd;
+			String closeTag = closingBracketOffset != -1 ? "" : ">";
+			try {
+				Range editRange = getReplaceRange(tagNameEnd, end, request);
+				item.setTextEdit(new TextEdit(editRange, " version=\"1.0\" encoding=\"UTF-8\"?" + closeTag + "$0"));
+			} catch (BadLocationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			response.addCompletionItem(item);
+
 	}
 
 	private void collectCloseTagSuggestions(int afterOpenBracket, boolean inOpenTag, int tagNameEnd,
@@ -590,7 +617,6 @@ class XMLCompletions {
 	}
 
 	// Utilities class.
-
 	private static boolean isQuote(char c) {
 		return c == '\'' || c == '"';
 	}

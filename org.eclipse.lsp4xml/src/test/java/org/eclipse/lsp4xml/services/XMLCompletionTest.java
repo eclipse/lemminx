@@ -104,6 +104,12 @@ public class XMLCompletionTest {
 		testCompletionFor("<a>   <div|    <a>", true, c("div", "<div></div>"));
 	}
 
+	@Test
+	public void testAutoCompletionProlog() throws BadLocationException{
+		testCompletionFor("<?xml|", false, c("<?xml ... ?>"," version=\"1.0\" encoding=\"UTF-8\"?>$0", new Range(new Position(0,5), new Position(0,5)), "version=\"1.0\" encoding=\"UTF-8\"?>"));
+		testCompletionFor("<?xml|>", true, c("<?xml ... ?>"," version=\"1.0\" encoding=\"UTF-8\"?$0", new Range(new Position(0,5), new Position(0,5)), "version=\"1.0\" encoding=\"UTF-8\"?>"));
+	}
+
 	// -------------------Tools----------------------------------------------------------
 
 	public void assertOpenStartTagCompletion(String xmlText, int expectedStartTagOffset, boolean startWithTagOpen,

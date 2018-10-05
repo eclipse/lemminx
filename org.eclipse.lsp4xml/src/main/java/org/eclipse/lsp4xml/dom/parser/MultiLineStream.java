@@ -148,6 +148,9 @@ class MultiLineStream {
 		return false;
 	}
 
+	/**
+	 * Will advance until any of the provided chars are encountered
+	 */
 	public boolean advanceUntilAnyOfChars(int... ch) {
 		while (this.position < this.len) {
 			for (int i = 0; i < ch.length; i++) {
