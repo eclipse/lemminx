@@ -12,7 +12,7 @@ package org.eclipse.lsp4xml.settings;
 
 import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.InitializeParams;
-import org.eclipse.lsp4xml.contentmodel.settings.ContentModelSettings;
+import org.eclipse.lsp4xml.extensions.contentmodel.settings.ContentModelSettings;
 import org.junit.Assert;
 import org.junit.Test;
 
