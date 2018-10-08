@@ -11,10 +11,10 @@
 package org.eclipse.lsp4xml.services;
 
 import static org.eclipse.lsp4xml.XMLAssert.c;
+import static org.eclipse.lsp4xml.XMLAssert.r;
 import static org.eclipse.lsp4xml.XMLAssert.testCompletionFor;
 import static org.eclipse.lsp4xml.XMLAssert.testTagCompletion;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Arrays;
@@ -49,17 +49,56 @@ public class XMLCompletionTest {
 	}
 
 	@Test
-	public void successfulEndTagCompletion() {
-		assertEndTagCompletion("<a>|", 3, "$0</a>");
-		assertEndTagCompletion("<a><b>|</a>", 6, "$0</b>");
-		assertEndTagCompletion("<a>   <b>|</a>", 9, "$0</b>");
-		assertEndTagCompletion("<a><b>|", 6, "$0</b>");
+	public void successfulEndTagCompletion() throws BadLocationException {
+		testCompletionFor("<a>|", 1, c("End with '</a>'", "</a>", r(0, 3, 0, 3), "</a>"));
+		testCompletionFor("<a>a|", 1, c("End with '</a>'", "</a>", r(0, 3, 0, 4), "</a>"));
+		testCompletionFor("<a><|", 1, c("End with '</a>'", "/a>", r(0, 4, 0, 4), "/a>"));
+		testCompletionFor("<a></|", 1, c("End with '</a>'", "/a>", r(0, 4, 0, 5), "/a>"));
+
+		testCompletionFor("<a><b>|</a>", 1, c("End with '</b>'", "</b>", r(0, 6, 0, 6), "</b>"));
+		testCompletionFor("<a><b><|</a>", 1, c("End with '</b>'", "/b>", r(0, 7, 0, 7), "/b>"));
+		testCompletionFor("<a><b></|</a>", 1, c("End with '</b>'", "/b>", r(0, 7, 0, 8), "/b>"));
+
+		testCompletionFor("<a>   <b>|</a>", 1, c("End with '</b>'", "</b>", r(0, 9, 0, 9), "</b>"));
+		testCompletionFor("<a>   <b><|</a>", 1, c("End with '</b>'", "/b>", r(0, 10, 0, 10), "/b>"));
+		testCompletionFor("<a>   <b></|</a>", 1, c("End with '</b>'", "/b>", r(0, 10, 0, 11), "/b>"));
+
+		testCompletionFor("<a><b>|", 2, c("End with '</b>'", "</b>", r(0, 6, 0, 6), "</b>"),
+				c("End with '</a>'", "</a>", r(0, 6, 0, 6), "</a>"));
+		testCompletionFor("<a><b><|", 2, c("End with '</b>'", "/b>", r(0, 7, 0, 7), "/b>"),
+				c("End with '</a>'", "/a>", r(0, 7, 0, 7), "/a>"));
+		testCompletionFor("<a><b></|", 2, c("End with '</b>'", "/b>", r(0, 7, 0, 8), "/b>"),
+				c("End with '</a>'", "/a>", r(0, 7, 0, 8), "/a>"));
 	}
 
 	@Test
-	public void unneededEndTagCompletion() {
-		assertEndTagCompletion("<a><a>|</a>", 6, "$0</a>");
-		assertEndTagCompletion("<a><b>|</b></a>", 6, "$0</b>");
+	public void successfulEndTagCompletionWithIndent() throws BadLocationException {
+		testCompletionFor("  <a>\r\n" + //
+				"|", 3, //
+				c("End with '</a>'", "  </a>", r(1, 0, 1, 0), "</a>"), //
+				c("#region", "<!-- #region $1-->", r(1, 0, 1, 0), ""), //
+				c("#endregion", "<!-- #endregion-->", r(1, 0, 1, 0), ""));
+		testCompletionFor("  <a>\r\n" + //
+				"<|", 1, //
+				c("End with '</a>'", "  </a>", r(1, 0, 1, 1), "</a>"));
+		testCompletionFor("<a></|", 1, c("End with '</a>'", "/a>", r(0, 4, 0, 5), "/a>"));
+
+		testCompletionFor("  <a>\r\n" + //
+				"     <b>\r\n" + //
+				"<|", 2, //
+				c("End with '</b>'", "     </b>", r(2, 0, 2, 1), "</b>"), //
+				c("End with '</a>'", "  </a>", r(2, 0, 2, 1), "</a>"));
+	}
+
+	@Test
+	public void unneededEndTagCompletion() throws BadLocationException {
+		testCompletionFor("<a>|</a>", 0);
+		testCompletionFor("<a><|</a>", 0);
+		testCompletionFor("<a></|</a>", 0);
+
+		testCompletionFor("<a><b>|</b></a>", 0);
+		testCompletionFor("<a><b><|</b></a>", 0);
+		testCompletionFor("<a><b></|</b></a>", 0);
 	}
 
 	@Test
@@ -105,9 +144,11 @@ public class XMLCompletionTest {
 	}
 
 	@Test
-	public void testAutoCompletionProlog() throws BadLocationException{
-		testCompletionFor("<?xml|", false, c("<?xml ... ?>"," version=\"1.0\" encoding=\"UTF-8\"?>$0", new Range(new Position(0,5), new Position(0,5)), "version=\"1.0\" encoding=\"UTF-8\"?>"));
-		testCompletionFor("<?xml|>", true, c("<?xml ... ?>"," version=\"1.0\" encoding=\"UTF-8\"?$0", new Range(new Position(0,5), new Position(0,5)), "version=\"1.0\" encoding=\"UTF-8\"?>"));
+	public void testAutoCompletionProlog() throws BadLocationException {
+		testCompletionFor("<?xml|", false, c("<?xml ... ?>", " version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 5, 0, 5),
+				"version=\"1.0\" encoding=\"UTF-8\"?>"));
+		testCompletionFor("<?xml|>", true, c("<?xml ... ?>", " version=\"1.0\" encoding=\"UTF-8\"?$0", r(0, 5, 0, 5),
+				"version=\"1.0\" encoding=\"UTF-8\"?>"));
 	}
 
 	// -------------------Tools----------------------------------------------------------
@@ -151,30 +192,6 @@ public class XMLCompletionTest {
 		}
 		String completionList = languageService.doTagComplete(xmlDocument, position);
 		assertEquals(expectedTextEdit, completionList);
-	}
-
-	private void assertEndTagCompletion(String xmlText, int expectedEndTagStartOffset, String expectedTextEdit) {
-
-		int offset = getOffset(xmlText);
-		XMLDocument xmlDocument = initializeXMLDocument(xmlText, offset);
-		CompletionList completionList = initializeCompletion(xmlText, xmlDocument, offset);
-
-		if (expectedTextEdit == null) {// Tag is already closed
-			assertEquals(0, completionList.getItems().size());
-		} else {
-			assertTrue(completionList.getItems().size() > 0);
-			CompletionItem item = completionList.getItems().get(0);
-			assertEquals(expectedTextEdit.substring(2), item.getLabel());
-			assertEquals(expectedTextEdit.substring(2), item.getFilterText());
-
-			try {
-				Range range = item.getTextEdit().getRange();
-				assertEquals(expectedEndTagStartOffset, xmlDocument.offsetAt(range.getStart()));
-			} catch (Exception e) {
-				fail("Couldn't get offset at position");
-			}
-			assertEquals(expectedTextEdit, item.getTextEdit().getNewText());
-		}
 	}
 
 	public int getOffset(String xmlText) {

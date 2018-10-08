@@ -74,7 +74,8 @@ class XMLCompletions {
 
 		String text = xmlDocument.getText();
 		if (text.isEmpty()) {
-			// When XML document is empty, try to collect root element (from file association)
+			// When XML document is empty, try to collect root element (from file
+			// association)
 			collectInsideContent(completionRequest, completionResponse);
 			return completionResponse;
 		}
@@ -178,8 +179,6 @@ class XMLCompletions {
 				if (offset <= scanner.getTokenEnd()) {
 					if (currentTag != null && currentTag.length() > 0) {
 						collectInsideContent(completionRequest, completionResponse);
-						collectAutoCloseTagSuggestion(scanner.getTokenEnd(), currentTag, completionRequest,
-								completionResponse);
 						return completionResponse;
 					}
 				}
@@ -207,8 +206,9 @@ class XMLCompletions {
 				}
 				break;
 			case PrologName:
-				if(offset <= scanner.getTokenEnd()) {
-					createPrologCompletionSuggestion(scanner.getTokenEnd(), scanner.getTokenText(), completionRequest, completionResponse);
+				if (offset <= scanner.getTokenEnd()) {
+					collectPrologSuggestion(scanner.getTokenEnd(), scanner.getTokenText(), completionRequest,
+							completionResponse);
 					return completionResponse;
 				}
 			default:
@@ -355,25 +355,33 @@ class XMLCompletions {
 		}
 	}
 
-	private void createPrologCompletionSuggestion(int tagNameEnd, String tag, CompletionRequest request,
-		CompletionResponse response) {
-			XMLDocument document = request.getXMLDocument();
-			CompletionItem item = new CompletionItem();
-			item.setLabel("<?xml ... ?>");
-			item.setKind(CompletionItemKind.Property);
-			item.setFilterText("version=\"1.0\" encoding=\"UTF-8\"?>");
-			item.setInsertTextFormat(InsertTextFormat.Snippet);
-			int closingBracketOffset = getOffsetFollowedBy(document.getText(), tagNameEnd, ScannerState.WithinTag, TokenType.StartTagClose);
-			int end = closingBracketOffset != -1 ? closingBracketOffset - 1 : tagNameEnd;
-			String closeTag = closingBracketOffset != -1 ? "" : ">";
-			try {
-				Range editRange = getReplaceRange(tagNameEnd, end, request);
-				item.setTextEdit(new TextEdit(editRange, " version=\"1.0\" encoding=\"UTF-8\"?" + closeTag + "$0"));
-			} catch (BadLocationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			response.addCompletionItem(item);
+	/**
+	 * Collect xml prolog completions.
+	 * 
+	 * @param tagNameEnd
+	 * @param tag
+	 * @param request
+	 * @param response
+	 */
+	private void collectPrologSuggestion(int tagNameEnd, String tag, CompletionRequest request,
+			CompletionResponse response) {
+		XMLDocument document = request.getXMLDocument();
+		CompletionItem item = new CompletionItem();
+		item.setLabel("<?xml ... ?>");
+		item.setKind(CompletionItemKind.Property);
+		item.setFilterText("version=\"1.0\" encoding=\"UTF-8\"?>");
+		item.setInsertTextFormat(InsertTextFormat.Snippet);
+		int closingBracketOffset = getOffsetFollowedBy(document.getText(), tagNameEnd, ScannerState.WithinTag,
+				TokenType.StartTagClose);
+		int end = closingBracketOffset != -1 ? closingBracketOffset - 1 : tagNameEnd;
+		String closeTag = closingBracketOffset != -1 ? "" : ">";
+		try {
+			Range editRange = getReplaceRange(tagNameEnd, end, request);
+			item.setTextEdit(new TextEdit(editRange, " version=\"1.0\" encoding=\"UTF-8\"?" + closeTag + "$0"));
+		} catch (BadLocationException e) {
+			LOGGER.log(Level.SEVERE, "While performing getReplaceRange for prolog completion.", e);
+		}
+		response.addCompletionItem(item);
 
 	}
 
@@ -382,36 +390,53 @@ class XMLCompletions {
 		try {
 			Range range = getReplaceRange(afterOpenBracket, tagNameEnd, completionRequest);
 			String text = completionRequest.getXMLDocument().getText();
-			String closeTag = isFollowedBy(text, tagNameEnd, ScannerState.WithinEndTag, TokenType.EndTagClose) ? ""
-					: ">";
+			boolean hasCloseTag = isFollowedBy(text, tagNameEnd, ScannerState.WithinEndTag, TokenType.EndTagClose);
+			collectCloseTagSuggestions(range, false, !hasCloseTag, inOpenTag, completionRequest, completionResponse);
+		} catch (BadLocationException e) {
+			LOGGER.log(Level.SEVERE, "While performing Completions the provided offset was a BadLocation", e);
+		}
+	}
+
+	private void collectCloseTagSuggestions(Range range, boolean openEndTag, boolean closeEndTag, boolean inOpenTag,
+			CompletionRequest completionRequest, CompletionResponse completionResponse) {
+		try {
+			String text = completionRequest.getXMLDocument().getText();
 			Node curr = completionRequest.getNode();
 			if (inOpenTag) {
 				curr = curr.getParent(); // don't suggest the own tag, it's not yet open
+			}
+			String closeTag = closeEndTag ? ">" : "";
+			int afterOpenBracket = completionRequest.getXMLDocument().offsetAt(range.getStart());
+			if (!openEndTag) {
+				afterOpenBracket--;
 			}
 			int offset = completionRequest.getOffset();
 			while (curr != null) {
 				if (curr.isElement()) {
 					Element element = ((Element) curr);
 					String tag = element.getTagName();
-					if (tag != null
-							&& (!curr.isClosed() || element.hasEndTag() && (element.getEndTagOpenOffset() > offset))) {
+					if (tag != null && (!element
+							.isClosed() /* || element.hasEndTag() && (element.getEndTagOpenOffset() > offset) */)) {
 						CompletionItem item = new CompletionItem();
-						item.setLabel("/" + tag);
+						item.setLabel("End with '</" + tag + ">'");
 						item.setKind(CompletionItemKind.Property);
-						item.setFilterText("/" + tag + closeTag);
-						item.setTextEdit(new TextEdit(range, "/" + tag + closeTag));
 						item.setInsertTextFormat(InsertTextFormat.PlainText);
 
-						String startIndent = getLineIndent(curr.getStart(), text);
-						String endIndent = getLineIndent(afterOpenBracket - 1, text);
+						String startIndent = getLineIndent(element.getStart(), text);
+						String endIndent = getLineIndent(afterOpenBracket, text);
 						if (startIndent != null && endIndent != null && !startIndent.equals(endIndent)) {
 							String insertText = startIndent + "</" + tag + closeTag;
-							item.setTextEdit(new TextEdit(getReplaceRange(afterOpenBracket - 1 - endIndent.length(),
-									offset, completionRequest), insertText));
+							item.setTextEdit(new TextEdit(
+									getReplaceRange(afterOpenBracket - endIndent.length(), offset, completionRequest),
+									insertText));
 							item.setFilterText(endIndent + "</" + tag + closeTag);
+						} else {
+							String openTag = openEndTag ? "<" : "";
+							String insertText = openTag + "/" + tag + closeTag;
+							item.setFilterText(insertText);
+							item.setTextEdit(new TextEdit(range, insertText));
 						}
 						completionResponse.addCompletionItem(item);
-						return;
 					}
 				}
 				curr = curr.getParent();
@@ -425,29 +450,11 @@ class XMLCompletions {
 		}
 	}
 
-	private void collectAutoCloseTagSuggestion(int tagCloseEnd, String tag, CompletionRequest request,
-			CompletionResponse response) {
-		Position pos;
-		try {
-			XMLDocument document = request.getXMLDocument();
-			pos = document.positionAt(tagCloseEnd);
-		} catch (BadLocationException e) {
-			LOGGER.log(Level.SEVERE, "While performing Completions the provided offset was a BadLocation", e);
-			return;
-		}
-		CompletionItem item = new CompletionItem();
-		item.setLabel("</" + tag + ">");
-		item.setKind(CompletionItemKind.Property);
-		item.setFilterText("</" + tag + ">");
-		item.setTextEdit(new TextEdit(new Range(pos, pos), "$0</" + tag + ">"));
-		item.setInsertTextFormat(InsertTextFormat.Snippet);
-		response.addCompletionItem(item);
-	}
-
 	private void collectInsideContent(CompletionRequest request, CompletionResponse response) {
 		Range tagNameRange = request.getXMLDocument().getElementNameRangeAt(request.getOffset());
 		if (tagNameRange != null) {
 			collectOpenTagSuggestions(false, tagNameRange, request, response);
+			collectCloseTagSuggestions(tagNameRange, true, true, false, request, response);
 		}
 		// Participant completion on XML content
 		for (ICompletionParticipant participant : getCompletionParticipants()) {
