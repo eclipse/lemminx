@@ -389,10 +389,32 @@ public class XMLFormatterTest {
 		String expected = 
 		"<a>\r" +
 		" Content\r" +
-		"  <b>\r" +
+		" <b>\r" +
 		"   Content2\r" +
 		"    Content3\r" +
-		"  </b>\r" +
+		" </b>\r" +
+		"</a>";
+		
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setJoinContentLines(false);
+		format(content, expected, formattingOptions);
+	}
+
+	@Test
+	public void testContentFormattingDontMoveEndTag() throws BadLocationException {
+		String content = 
+		"<a>\r" +
+		" Content\r" +
+		" <b>\r" +
+		"   Content2\r" +
+		"    Content3 </b>\r" +
+		"</a>";
+		String expected = 
+		"<a>\r" +
+		" Content\r" +
+		" <b>\r" +
+		"   Content2\r" +
+		"    Content3 </b>\r" +
 		"</a>";
 		
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
@@ -448,6 +470,7 @@ public class XMLFormatterTest {
 				" Content\r" + //
 				"</a>";
 		String expected = "<a>\r" + //
+				"\r" + //
 				" Content\r" + //
 				"</a>";
 		format(content, expected, formattingOptions);
@@ -457,6 +480,7 @@ public class XMLFormatterTest {
 				" Content\r\n" + //
 				"</a>";
 		expected = "<a>\r\n" + //
+				"\r\n" + //
 				" Content\r\n" + //
 				"</a>";
 		format(content, expected, formattingOptions);

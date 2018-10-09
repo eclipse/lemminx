@@ -45,6 +45,27 @@ public abstract class CharacterData extends Node {
 		}
 	}
 
+	/**
+	 * If data ends with a new line character
+	 * 
+	 * Returns false if a character is found before a new line, 
+	 * but will ignore whitespace while searching
+	 * @return
+	 */
+	public boolean endsWithNewLine() {
+		for(int i = data.length() - 1; i >= 0; i--) {
+			char c = data.charAt(i);
+			if(!Character.isWhitespace(c)) {
+				return false;
+			}
+			if(c == '\n') {
+				return true;
+			}
+			
+		}
+		return false;
+	}
+
 	public String getNormalizedData() {
 		if (normalizedData == null) {
 			normalizedData = StringUtils.normalizeSpace(getData());
