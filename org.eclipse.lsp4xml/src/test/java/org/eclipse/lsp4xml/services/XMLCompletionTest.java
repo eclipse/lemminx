@@ -144,11 +144,21 @@ public class XMLCompletionTest {
 	}
 
 	@Test
-	public void testAutoCompletionProlog() throws BadLocationException {
+	public void testAutoCompletionPrologWithXML() throws BadLocationException {
+		//With 'xml' label
 		testCompletionFor("<?xml|", false, c("<?xml ... ?>", " version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 5, 0, 5),
-				"version=\"1.0\" encoding=\"UTF-8\"?>"));
+				" version=\"1.0\" encoding=\"UTF-8\"?>"));
 		testCompletionFor("<?xml|>", true, c("<?xml ... ?>", " version=\"1.0\" encoding=\"UTF-8\"?$0", r(0, 5, 0, 5),
-				"version=\"1.0\" encoding=\"UTF-8\"?>"));
+				" version=\"1.0\" encoding=\"UTF-8\"?>"));
+	}
+
+	@Test
+	public void testAutoCompletionPrologWithoutXML() throws BadLocationException {
+		//No 'xml' label
+		testCompletionFor("<?|", false, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 2),
+			"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+		testCompletionFor("<?|>", true, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?$0", r(0, 2, 0, 2),
+			"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
 	}
 
 	// -------------------Tools----------------------------------------------------------

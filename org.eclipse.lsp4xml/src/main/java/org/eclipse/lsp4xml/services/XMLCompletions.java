@@ -205,12 +205,34 @@ class XMLCompletions {
 					return completionResponse;
 				}
 				break;
-			case PrologName:
-				if (offset <= scanner.getTokenEnd()) {
-					collectPrologSuggestion(scanner.getTokenEnd(), scanner.getTokenText(), completionRequest,
-							completionResponse);
-					return completionResponse;
+			case StartPrologOrPI: {
+				try {
+					boolean isFirstNode;
+					isFirstNode = xmlDocument.positionAt(scanner.getTokenOffset()).getLine() == 0;
+					if (isFirstNode && offset <= scanner.getTokenEnd()) {
+						collectPrologSuggestion(scanner.getTokenEnd(), scanner.getTokenText(), completionRequest,
+								completionResponse, false);
+						return completionResponse;
+					}
+				} catch (BadLocationException e) {
+					LOGGER.log(Level.SEVERE, "In XMLCompletions, StartPrologOrPI position error", e);
 				}
+				break;
+			}
+			case PrologName: {
+				try {
+					boolean isFirstNode;
+					isFirstNode = xmlDocument.positionAt(scanner.getTokenOffset()).getLine() == 0;
+					if (isFirstNode && offset <= scanner.getTokenEnd()) {
+						collectPrologSuggestion(scanner.getTokenEnd(), scanner.getTokenText(), completionRequest,
+								completionResponse, true);
+						return completionResponse;
+					}
+				} catch (BadLocationException e) {
+					LOGGER.log(Level.SEVERE, "In XMLCompletions, PrologName position error", e);
+        }
+        break;
+			}
 			default:
 				if (offset <= scanner.getTokenEnd()) {
 					return completionResponse;
@@ -364,12 +386,15 @@ class XMLCompletions {
 	 * @param response
 	 */
 	private void collectPrologSuggestion(int tagNameEnd, String tag, CompletionRequest request,
-			CompletionResponse response) {
+			CompletionResponse response, boolean includesXML) {
+		
+		
+		String prologName = includesXML ? "" : "xml";
 		XMLDocument document = request.getXMLDocument();
 		CompletionItem item = new CompletionItem();
 		item.setLabel("<?xml ... ?>");
 		item.setKind(CompletionItemKind.Property);
-		item.setFilterText("version=\"1.0\" encoding=\"UTF-8\"?>");
+		item.setFilterText(prologName + " version=\"1.0\" encoding=\"UTF-8\"?>");
 		item.setInsertTextFormat(InsertTextFormat.Snippet);
 		int closingBracketOffset = getOffsetFollowedBy(document.getText(), tagNameEnd, ScannerState.WithinTag,
 				TokenType.StartTagClose);
@@ -377,7 +402,7 @@ class XMLCompletions {
 		String closeTag = closingBracketOffset != -1 ? "" : ">";
 		try {
 			Range editRange = getReplaceRange(tagNameEnd, end, request);
-			item.setTextEdit(new TextEdit(editRange, " version=\"1.0\" encoding=\"UTF-8\"?" + closeTag + "$0"));
+			item.setTextEdit(new TextEdit(editRange, prologName + " version=\"1.0\" encoding=\"UTF-8\"?" + closeTag + "$0"));
 		} catch (BadLocationException e) {
 			LOGGER.log(Level.SEVERE, "While performing getReplaceRange for prolog completion.", e);
 		}
@@ -683,5 +708,4 @@ class XMLCompletions {
 	private boolean isEmptyElement(String tag) {
 		return false;
 	}
-
 }
