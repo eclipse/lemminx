@@ -18,6 +18,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.eclipse.lsp4j.InitializeParams;
+import org.eclipse.lsp4xml.services.IXMLDocumentProvider;
 
 /**
  * XML extensions registry.
@@ -32,6 +33,8 @@ public class XMLExtensionsRegistry {
 	private final List<IHoverParticipant> hoverParticipants;
 	private final List<IDiagnosticsParticipant> diagnosticsParticipants;
 	private final List<ICodeActionParticipant> codeActionsParticipants;
+
+	private IXMLDocumentProvider documentProvider;
 
 	private InitializeParams params;
 
@@ -151,5 +154,23 @@ public class XMLExtensionsRegistry {
 
 	public void unregisterCodeActionParticipant(ICodeActionParticipant codeActionsParticipant) {
 		codeActionsParticipants.add(codeActionsParticipant);
+	}
+
+	/**
+	 * Returns the XML Document provider and null otherwise.
+	 * 
+	 * @return the XML Document provider and null otherwise.
+	 */
+	public IXMLDocumentProvider getDocumentProvider() {
+		return documentProvider;
+	}
+
+	/**
+	 * Set the XML Document provider
+	 * 
+	 * @param documentProvider XML Document provider
+	 */
+	public void setDocumentProvider(IXMLDocumentProvider documentProvider) {
+		this.documentProvider = documentProvider;
 	}
 }

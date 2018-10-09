@@ -34,6 +34,7 @@ import org.eclipse.lsp4xml.commons.ParentProcessWatcher.ProcessLanguageServer;
 import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.logs.LogHelper;
+import org.eclipse.lsp4xml.services.IXMLDocumentProvider;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.settings.InitializationOptionsSettings;
@@ -48,7 +49,8 @@ import org.eclipse.lsp4xml.settings.capabilities.XMLCapabilityManager;
  * XML language server.
  *
  */
-public class XMLLanguageServer implements LanguageServer, ProcessLanguageServer, XMLCustomService {
+public class XMLLanguageServer
+		implements LanguageServer, ProcessLanguageServer, XMLCustomService, IXMLDocumentProvider {
 
 	private static final Logger LOGGER = Logger.getLogger(XMLLanguageServer.class.getName());
 
@@ -62,6 +64,7 @@ public class XMLLanguageServer implements LanguageServer, ProcessLanguageServer,
 
 	public XMLLanguageServer() {
 		xmlLanguageService = new XMLLanguageService();
+		xmlLanguageService.setDocumentProvider(this);
 		xmlTextDocumentService = new XMLTextDocumentService(this);
 		xmlWorkspaceService = new XMLWorkspaceService(this);
 		delayer = Executors.newScheduledThreadPool(1);
@@ -127,7 +130,7 @@ public class XMLLanguageServer implements LanguageServer, ProcessLanguageServer,
 			if (newCompletions != null) {
 				xmlTextDocumentService.updateCompletionSettings(newCompletions);
 			}
-			
+
 			// Experimental capabilities
 			XMLExperimentalCapabilities experimental = clientSettings.getExperimental();
 			if (experimental != null) {
@@ -200,4 +203,11 @@ public class XMLLanguageServer implements LanguageServer, ProcessLanguageServer,
 			return getXMLLanguageService().doAutoClose(xmlDocument, params.getPosition());
 		});
 	}
+
+	@Override
+	public XMLDocument getDocument(String uri) {
+		TextDocument document = xmlTextDocumentService.getDocument(uri);
+		return document != null ? xmlTextDocumentService.getXMLDocument(document) : null;
+	}
+
 }

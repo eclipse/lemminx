@@ -69,7 +69,8 @@ public class XMLAssert {
 		TextDocument document = new TextDocument(value, fileURI != null ? fileURI : "test://test/test.html");
 		Position position = document.positionAt(offset);
 		XMLDocument htmlDoc = XMLParser.getInstance().parse(document);
-
+		xmlLanguageService.setDocumentProvider((uri) -> htmlDoc);
+		
 		// Configure XML catalog for XML schema
 		if (catalogPath != null) {
 			ContentModelSettings settings = new ContentModelSettings();
