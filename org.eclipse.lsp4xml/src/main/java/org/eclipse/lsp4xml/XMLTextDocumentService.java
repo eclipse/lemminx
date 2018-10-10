@@ -251,7 +251,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 	public CompletableFuture<List<DocumentLink>> documentLink(DocumentLinkParams params) {
 		return computeAsync((monitor) -> {
 			TextDocument document = getDocument(params.getTextDocument().getUri());
-			return getXMLLanguageService().findDocumentLinks(document);
+			XMLDocument xmlDocument = getXMLDocument(document);
+			return getXMLLanguageService().findDocumentLinks(xmlDocument);
 		});
 	}
 

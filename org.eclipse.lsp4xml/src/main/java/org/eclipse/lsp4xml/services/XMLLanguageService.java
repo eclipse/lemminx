@@ -102,7 +102,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		return new WorkspaceEdit(changes);
 	}
 
-	public List<DocumentLink> findDocumentLinks(TextDocument document) {
+	public List<DocumentLink> findDocumentLinks(XMLDocument document) {
 		return documentLink.findDocumentLinks(document);
 	}
 

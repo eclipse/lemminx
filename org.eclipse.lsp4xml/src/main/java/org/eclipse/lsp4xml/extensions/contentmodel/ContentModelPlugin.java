@@ -4,6 +4,7 @@ import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.ContentModelCodeActionParticipant;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.ContentModelCompletionParticipant;
+import org.eclipse.lsp4xml.extensions.contentmodel.participants.ContentModelDocumentLinkParticipant;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.ContentModelHoverParticipant;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.diagnostics.ContentModelDiagnosticsParticipant;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.ContentModelSettings;
@@ -30,12 +31,15 @@ public class ContentModelPlugin implements IXMLExtension {
 	private final ContentModelDiagnosticsParticipant diagnosticsParticipant;
 
 	private final ContentModelCodeActionParticipant codeActionParticipant;
+	
+	private final ContentModelDocumentLinkParticipant documentLinkParticipant;
 
 	public ContentModelPlugin() {
 		completionParticipant = new ContentModelCompletionParticipant();
 		hoverParticipant = new ContentModelHoverParticipant();
 		diagnosticsParticipant = new ContentModelDiagnosticsParticipant();
 		codeActionParticipant = new ContentModelCodeActionParticipant();
+		documentLinkParticipant = new ContentModelDocumentLinkParticipant();
 	}
 
 	@Override
@@ -66,6 +70,7 @@ public class ContentModelPlugin implements IXMLExtension {
 		registry.registerHoverParticipant(hoverParticipant);
 		registry.registerDiagnosticsParticipant(diagnosticsParticipant);
 		registry.registerCodeActionParticipant(codeActionParticipant);
+		registry.registerDocumentLinkParticipant(documentLinkParticipant);
 	}
 
 	@Override
@@ -74,6 +79,7 @@ public class ContentModelPlugin implements IXMLExtension {
 		registry.unregisterHoverParticipant(hoverParticipant);
 		registry.unregisterDiagnosticsParticipant(diagnosticsParticipant);
 		registry.unregisterCodeActionParticipant(codeActionParticipant);
+		registry.unregisterDocumentLinkParticipant(documentLinkParticipant);
 	}
 
 }
