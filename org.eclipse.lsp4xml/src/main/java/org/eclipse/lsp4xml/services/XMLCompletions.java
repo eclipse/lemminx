@@ -207,12 +207,28 @@ class XMLCompletions {
 				break;
 			case StartPrologOrPI: {
 				try {
-					boolean isFirstNode;
-					isFirstNode = xmlDocument.positionAt(scanner.getTokenOffset()).getLine() == 0;
+					
+					boolean isFirstNode = xmlDocument.positionAt(scanner.getTokenOffset()).getLine() == 0;
 					if (isFirstNode && offset <= scanner.getTokenEnd()) {
-						collectPrologSuggestion(scanner.getTokenEnd(), scanner.getTokenText(), completionRequest,
-								completionResponse, false);
+						collectPrologSuggestion(scanner.getTokenEnd(), "", completionRequest,
+								completionResponse);
 						return completionResponse;
+					}
+				} catch (BadLocationException e) {
+					LOGGER.log(Level.SEVERE, "In XMLCompletions, StartPrologOrPI position error", e);
+				}
+				break;
+			}
+			case PIName: {
+				try {
+					boolean isFirstNode = xmlDocument.positionAt(scanner.getTokenOffset()).getLine() == 0;
+					if (isFirstNode && offset <= scanner.getTokenEnd()) {
+						String substringXML = "xml".substring(0, scanner.getTokenText().length());
+						if(scanner.getTokenText().equals(substringXML)) {
+							collectPrologSuggestion(scanner.getTokenEnd(), scanner.getTokenText(), completionRequest,
+								completionResponse, true);
+							return completionResponse;
+						}
 					}
 				} catch (BadLocationException e) {
 					LOGGER.log(Level.SEVERE, "In XMLCompletions, StartPrologOrPI position error", e);
@@ -221,17 +237,16 @@ class XMLCompletions {
 			}
 			case PrologName: {
 				try {
-					boolean isFirstNode;
-					isFirstNode = xmlDocument.positionAt(scanner.getTokenOffset()).getLine() == 0;
+					boolean isFirstNode = xmlDocument.positionAt(scanner.getTokenOffset()).getLine() == 0;
 					if (isFirstNode && offset <= scanner.getTokenEnd()) {
 						collectPrologSuggestion(scanner.getTokenEnd(), scanner.getTokenText(), completionRequest,
-								completionResponse, true);
+								completionResponse);
 						return completionResponse;
 					}
 				} catch (BadLocationException e) {
 					LOGGER.log(Level.SEVERE, "In XMLCompletions, PrologName position error", e);
-        }
-        break;
+				}
+				break;
 			}
 			default:
 				if (offset <= scanner.getTokenEnd()) {
@@ -318,6 +333,7 @@ class XMLCompletions {
 			int tagNameEnd = document.offsetAt(replaceRange.getEnd());
 			int newOffset = getOffsetFollowedBy(text, tagNameEnd, ScannerState.WithinEndTag, TokenType.EndTagClose);
 			if (newOffset != -1) {
+				newOffset++;
 				replaceRange.setEnd(document.positionAt(newOffset));
 			}
 
@@ -380,34 +396,56 @@ class XMLCompletions {
 	/**
 	 * Collect xml prolog completions.
 	 * 
-	 * @param tagNameEnd
+	 * @param startOffset
 	 * @param tag
 	 * @param request
 	 * @param response
 	 */
-	private void collectPrologSuggestion(int tagNameEnd, String tag, CompletionRequest request,
-			CompletionResponse response, boolean includesXML) {
-		
-		
-		String prologName = includesXML ? "" : "xml";
+	private void collectPrologSuggestion(int startOffset, String tag, CompletionRequest request,
+			CompletionResponse response) {
+		collectPrologSuggestion(startOffset, tag, request, response, false);
+	}
+
+	private void collectPrologSuggestion(int tokenEndOffset, String tag, CompletionRequest request,
+	CompletionResponse response, boolean inPIState) {
 		XMLDocument document = request.getXMLDocument();
 		CompletionItem item = new CompletionItem();
 		item.setLabel("<?xml ... ?>");
 		item.setKind(CompletionItemKind.Property);
-		item.setFilterText(prologName + " version=\"1.0\" encoding=\"UTF-8\"?>");
+		item.setFilterText("xml version=\"1.0\" encoding=\"UTF-8\"?>");
 		item.setInsertTextFormat(InsertTextFormat.Snippet);
-		int closingBracketOffset = getOffsetFollowedBy(document.getText(), tagNameEnd, ScannerState.WithinTag,
-				TokenType.StartTagClose);
-		int end = closingBracketOffset != -1 ? closingBracketOffset - 1 : tagNameEnd;
-		String closeTag = closingBracketOffset != -1 ? "" : ">";
+		int closingBracketOffset;
+		if(inPIState) {
+			closingBracketOffset= getOffsetFollowedBy(document.getText(), tokenEndOffset, ScannerState.WithinPI,
+			TokenType.PIEnd);
+		}
+		else {//prolog state
+			closingBracketOffset = getOffsetFollowedBy(document.getText(), tokenEndOffset, ScannerState.WithinTag,
+			TokenType.PrologEnd);
+		}
+
+		if(closingBracketOffset != -1) {
+			//Include '?>'
+			closingBracketOffset += 2;
+		}
+		else {
+			closingBracketOffset = getOffsetFollowedBy(document.getText(), tokenEndOffset, ScannerState.WithinTag,
+			TokenType.StartTagClose);
+			if(closingBracketOffset == -1) {
+				closingBracketOffset = tokenEndOffset;
+			}
+			else {
+				closingBracketOffset ++;
+			}
+		}
+		int startOffset = tokenEndOffset - tag.length();
 		try {
-			Range editRange = getReplaceRange(tagNameEnd, end, request);
-			item.setTextEdit(new TextEdit(editRange, prologName + " version=\"1.0\" encoding=\"UTF-8\"?" + closeTag + "$0"));
+			Range editRange = getReplaceRange(startOffset, closingBracketOffset, request);
+			item.setTextEdit(new TextEdit(editRange, "xml version=\"1.0\" encoding=\"UTF-8\"?>" + "$0"));
 		} catch (BadLocationException e) {
 			LOGGER.log(Level.SEVERE, "While performing getReplaceRange for prolog completion.", e);
 		}
 		response.addCompletionItem(item);
-
 	}
 
 	private void collectCloseTagSuggestions(int afterOpenBracket, boolean inOpenTag, int tagNameEnd,
@@ -657,13 +695,22 @@ class XMLCompletions {
 		return getOffsetFollowedBy(s, offset, intialState, expectedToken) != -1;
 	}
 
+	/**
+	 * Returns starting offset of 'expectedToken' if it the next non whitespace token after
+	 * 'initialState'
+	 * @param s
+	 * @param offset
+	 * @param intialState
+	 * @param expectedToken
+	 * @return
+	 */
 	private static int getOffsetFollowedBy(String s, int offset, ScannerState intialState, TokenType expectedToken) {
 		Scanner scanner = XMLScanner.createScanner(s, offset, intialState);
 		TokenType token = scanner.scan();
 		while (token == TokenType.Whitespace) {
 			token = scanner.scan();
 		}
-		return (token == expectedToken) ? scanner.getTokenOffset() + 1 : -1;
+		return (token == expectedToken) ? scanner.getTokenOffset() : -1;
 	}
 
 	private static int getWordStart(String s, int offset, int limit) {

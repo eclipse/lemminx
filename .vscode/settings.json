@@ -4,11 +4,11 @@
 		"**/.project": true,
 		"**/.settings": true
 	},
-	"editor.formatOnSave": true,
+	"editor.formatOnSave": false,
 	"editor.renderWhitespace": "boundary",
 	//Use consistent indentation
 	"editor.detectIndentation": false,
 	"editor.tabSize": 4,
-	"editor.insertSpaces": false,
-	"java.configuration.updateBuildConfiguration": "interactive"
+	"editor.insertSpaces": false
+	
 }
