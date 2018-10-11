@@ -276,7 +276,7 @@ public class Node {
 	 * @return true if there are attributes and null otherwise.
 	 */
 	public boolean hasAttributes() {
-		return attributeNodes != null;
+		return attributeNodes != null && attributeNodes.size() != 0;
 	}
 
 	public void setAttribute(String name, String value) {

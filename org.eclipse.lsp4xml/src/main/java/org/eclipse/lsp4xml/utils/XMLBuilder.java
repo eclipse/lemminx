@@ -76,7 +76,7 @@ public class XMLBuilder {
 		return this;
 	}
 
-	public XMLBuilder addPrologAttribute(String name, String value, int level) {
+	public XMLBuilder addSingleAttribute(String name, String value) {
 		xml.append(" ");
 		xml.append(name);
 		xml.append("=\"");
@@ -86,7 +86,7 @@ public class XMLBuilder {
 	}
 
 	public XMLBuilder addAttribute(String name, String value, int index, int level, String tagName) {
-		int spaces = 1;
+		int spaces = 1; //Accounts for '<' if isSplitAttributes() or space for single attribute 
 		if (isSplitAttributes()) {
 			linefeed();
 			indent(level);
