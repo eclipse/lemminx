@@ -146,10 +146,12 @@ public class XMLCompletionTest {
 	@Test
 	public void testAutoCompletionPrologWithXML() throws BadLocationException {
 		//With 'xml' label
-		testCompletionFor("<?xml|", false, c("<?xml ... ?>", " version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 5, 0, 5),
-				" version=\"1.0\" encoding=\"UTF-8\"?>"));
-		testCompletionFor("<?xml|>", true, c("<?xml ... ?>", " version=\"1.0\" encoding=\"UTF-8\"?$0", r(0, 5, 0, 5),
-				" version=\"1.0\" encoding=\"UTF-8\"?>"));
+		testCompletionFor("<?xml|", false, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 5),
+				"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+		testCompletionFor("<?xml|>", true, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 6),
+				"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+		testCompletionFor("<?xml|?>", true, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 7),
+				"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
 	}
 
 	@Test
@@ -157,7 +159,21 @@ public class XMLCompletionTest {
 		//No 'xml' label
 		testCompletionFor("<?|", false, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 2),
 			"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
-		testCompletionFor("<?|>", true, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?$0", r(0, 2, 0, 2),
+		testCompletionFor("<?|>", true, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 3),
+			"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+		testCompletionFor("<?|?>", true, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 4),
+			"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+	}
+
+	@Test
+	public void testAutoCompletionPrologWithPartialXML() throws BadLocationException {
+		testCompletionFor("<?x|", false, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 3),
+			"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+		testCompletionFor("<?xm|", false, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 4),
+			"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+		testCompletionFor("<?x|", false, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 3),
+			"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+		testCompletionFor("<?xm|?>", false, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 6),
 			"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
 	}
 
