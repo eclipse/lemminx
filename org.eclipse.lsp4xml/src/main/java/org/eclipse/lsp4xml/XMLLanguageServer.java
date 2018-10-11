@@ -72,7 +72,7 @@ public class XMLLanguageServer
 
 	@Override
 	public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
-		//LOGGER.info("Initializing LSP4XML server " + getVersion());
+		LOGGER.info("Initializing LSP4XML server " + getVersion());
 		this.parentProcessId = params.getProcessId();
 
 		// Update XML language service extensions with InitializeParams
