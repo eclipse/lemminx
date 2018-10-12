@@ -46,14 +46,7 @@ public class FilesUtils {
 	 * @throws IOException
 	 */
 	public static Path getDeployedPath(Path path) throws IOException {
-		Path deployedPath = DEPLOYED_BASE_PATH.resolve(path);
-		if (Files.exists(deployedPath)) {
-			return deployedPath;
-		}
-		if (!Files.exists(deployedPath.getParent())) {
-			Files.createDirectories(deployedPath.getParent());
-		}
-		return deployedPath;
+		return DEPLOYED_BASE_PATH.resolve(path);
 	}
 
 	/**
@@ -77,6 +70,9 @@ public class FilesUtils {
 	 * @throws IOException
 	 */
 	public static void saveToFile(String content, Path outFile) throws IOException {
+		if (!Files.exists(outFile.getParent())) {
+			Files.createDirectories(outFile.getParent());
+		}
 		try (Writer writer = Files.newBufferedWriter(outFile, StandardCharsets.UTF_8)) {
 			writer.write(content);
 		}

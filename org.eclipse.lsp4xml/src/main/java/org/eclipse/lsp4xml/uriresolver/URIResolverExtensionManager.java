@@ -64,7 +64,7 @@ public class URIResolverExtensionManager implements URIResolverExtension, IExter
 				return resolved;
 			}
 		}
-		return null;
+		return systemId;
 	}
 
 	@Override

@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.xerces.impl.Constants;
 import org.apache.xerces.impl.xs.XSLoaderImpl;
 import org.apache.xerces.util.XMLCatalogResolver;
 import org.apache.xerces.xs.XSModel;
@@ -24,10 +25,14 @@ import org.eclipse.lsp4xml.dom.NoNamespaceSchemaLocation;
 import org.eclipse.lsp4xml.dom.SchemaLocation;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLFileAssociation;
+import org.eclipse.lsp4xml.extensions.contentmodel.uriresolver.XMLCacheResolverExtension;
 import org.eclipse.lsp4xml.extensions.contentmodel.uriresolver.XMLCatalogResolverExtension;
 import org.eclipse.lsp4xml.extensions.contentmodel.uriresolver.XMLFileAssociationResolverExtension;
 import org.eclipse.lsp4xml.extensions.contentmodel.xsd.XSDDocument;
+import org.eclipse.lsp4xml.uriresolver.CacheResourceLoadingException;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
+import org.w3c.dom.DOMError;
+import org.w3c.dom.DOMErrorHandler;
 
 /**
  * Content model manager used to load XML Schema, DTD.
@@ -43,18 +48,33 @@ public class ContentModelManager {
 
 	private final XSLoaderImpl loader;
 
-	private Map<String, CMDocument> cmDocumentCache;
+	private final Map<String, CMDocument> cmDocumentCache;
 
+	private final XMLCacheResolverExtension cacheResolverExtension;
 	private final XMLCatalogResolverExtension catalogResolverExtension;
 	private final XMLFileAssociationResolverExtension fileAssociationResolver;
 
 	public ContentModelManager() {
+		cmDocumentCache = new HashMap<>();		
+		URIResolverExtensionManager resolverManager = URIResolverExtensionManager.getInstance();
 		loader = new XSLoaderImpl();
-		cmDocumentCache = new HashMap<>();
+		loader.setParameter("http://apache.org/xml/properties/internal/entity-resolver", resolverManager);
+		loader.setParameter(Constants.DOM_ERROR_HANDLER, new DOMErrorHandler() {
+			
+			@Override
+			public boolean handleError(DOMError error) {
+				if (error.getRelatedException() instanceof CacheResourceLoadingException) {
+					throw ((CacheResourceLoadingException) error.getRelatedException());
+				}
+				return false;
+			}
+		});
+		cacheResolverExtension = new XMLCacheResolverExtension();
+		resolverManager.registerResolver(cacheResolverExtension);
 		fileAssociationResolver = new XMLFileAssociationResolverExtension();
-		URIResolverExtensionManager.getInstance().registerResolver(fileAssociationResolver);
+		resolverManager.registerResolver(fileAssociationResolver);
 		catalogResolverExtension = new XMLCatalogResolverExtension();
-		URIResolverExtensionManager.getInstance().registerResolver(catalogResolverExtension);
+		resolverManager.registerResolver(catalogResolverExtension);
 	}
 
 	public CMElementDeclaration findCMElement(Element element) throws Exception {
@@ -109,9 +129,6 @@ public class ContentModelManager {
 	 */
 	private CMDocument findCMDocument(String uri, String publicId, String systemId) {
 		String key = URIResolverExtensionManager.getInstance().resolve(uri, publicId, systemId);
-		if (key == null) {
-			key = systemId;
-		}
 		if (key == null) {
 			return null;
 		}
@@ -168,6 +185,10 @@ public class ContentModelManager {
 
 	public void setRootURI(String rootUri) {
 		fileAssociationResolver.setRootUri(rootUri);
+	}
+
+	public void setUseCache(boolean useCache) {
+		cacheResolverExtension.setUseCache(useCache);
 	}
 
 }

@@ -58,7 +58,8 @@ public class ContentModelPlugin implements IXMLExtension {
 		if (settings.getFileAssociations() != null) {
 			// Update XML file associations
 			ContentModelManager.getInstance().setFileAssociations(settings.getFileAssociations());
-		}
+		}		
+		ContentModelManager.getInstance().setUseCache(settings.isUseCache());
 	}
 
 	@Override
