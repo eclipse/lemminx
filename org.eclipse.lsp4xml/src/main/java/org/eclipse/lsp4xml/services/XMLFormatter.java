@@ -134,7 +134,7 @@ class XMLFormatter {
 						if (value == null) {
 							continue;
 						}
-						xml.addPrologAttribute(name, value, level);
+						xml.addSingleAttribute(name, value);
 					}
 				}
 				xml.endPrologOrPI();
@@ -166,11 +166,18 @@ class XMLFormatter {
 					xml.startElement(tag, false);
 					if (node.hasAttributes()) {
 						// generate attributes
-						int attributeIndex = 0;
-						for (Attr attr : node.getAttributeNodes()) {
-							String attributeName = attr.getName();
-							xml.addAttribute(attributeName, attr.getValue(), attributeIndex, level, tag);
-							attributeIndex++;
+						List<Attr> attributes = node.getAttributeNodes();
+						if(attributes.size() == 1) {
+							Attr singleAttribute = attributes.get(0);
+							xml.addSingleAttribute(singleAttribute.getName(),singleAttribute.getValue());
+						}
+						else {
+							int attributeIndex = 0;
+							for (Attr attr : attributes) {
+								String attributeName = attr.getName();
+								xml.addAttribute(attributeName, attr.getValue(), attributeIndex, level, tag);
+								attributeIndex++;
+							}
 						}
 					}
 					boolean hasElements = false;

@@ -152,11 +152,37 @@ public class XMLFormatterTest {
 	}
 
 	@Test
+	public void testSplitAttributesSingle() throws BadLocationException {
+		String content = "<a k1=\"v1\"></a>";
+		String expected = "<a k1=\"v1\"></a>";
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setSplitAttributes(true);
+		format(content, expected, formattingOptions);
+	}
+
+	@Test
 	public void testSplitAttributes() throws BadLocationException {
 		String content = "<a k1=\"v1\" k2=\"v2\"></a>";
-		String expected = "<a" + lineSeparator() + //
-				"  k1=\"v1\"" + lineSeparator() +
+		String expected = 
+				"<a" + lineSeparator() + 
+				"  k1=\"v1\"" + lineSeparator() + //
 				"  k2=\"v2\"></a>";
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setSplitAttributes(true);
+		format(content, expected, formattingOptions);
+	}
+
+	@Test
+	public void testSplitAttributesNested() throws BadLocationException {
+		String content = "<a k1=\"v1\" k2=\"v2\"><b aa=\"ok\" bb = \"oo\"></b></a>";
+		String expected = 
+				"<a" + lineSeparator() + 
+				"  k1=\"v1\"" + lineSeparator() + //
+				"  k2=\"v2\">" + lineSeparator() +
+				"  <b" + lineSeparator() + 
+				"    aa=\"ok\"" + lineSeparator() + //
+				"    bb=\"oo\"></b>" + lineSeparator() +
+				"</a>";
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		formattingOptions.setSplitAttributes(true);
 		format(content, expected, formattingOptions);
