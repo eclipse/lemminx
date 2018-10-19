@@ -12,14 +12,16 @@ and can be used with any editor that supports the protocol, to offer good suppor
 Features
 --------------
 
-* [textDocument/documentSymbol](https://microsoft.github.io/language-server-protocol/specification#textDocument_documentSymbol).
+* [textDocument/codeAction](https://microsoft.github.io/language-server-protocol/specification#textDocument_codeAction).
+* [textDocument/completion](https://microsoft.github.io/language-server-protocol/specification#textDocument_completion).
 * [textDocument/documentHighlight](https://microsoft.github.io/language-server-protocol/specification#textDocument_documentHighlight).
 * [textDocument/documentLink](https://microsoft.github.io/language-server-protocol/specification#textDocument_documentLink).
-* [textDocument/completion](https://microsoft.github.io/language-server-protocol/specification#textDocument_completion).
-* [textDocument/hover](https://microsoft.github.io/language-server-protocol/specification#textDocument_hover).
-* [textDocument/rename](https://microsoft.github.io/language-server-protocol/specification#textDocument_rename).
+* [textDocument/documentSymbol](https://microsoft.github.io/language-server-protocol/specification#textDocument_documentSymbol).
 * [textDocument/foldingRanges](https://microsoft.github.io/language-server-protocol/specification#textDocument_foldingRange).
-* [textDocument/codeAction](https://microsoft.github.io/language-server-protocol/specification#textDocument_codeAction).
+* [textDocument/formatting](https://microsoft.github.io/language-server-protocol/specification#textDocument_formatting).
+* [textDocument/hover](https://microsoft.github.io/language-server-protocol/specification#textDocument_hover).
+* [textDocument/rangeFormatting](https://microsoft.github.io/language-server-protocol/specification#textDocument_rangeFormatting)
+* [textDocument/rename](https://microsoft.github.io/language-server-protocol/specification#textDocument_rename).
 
 See screenshots in the [wiki](https://github.com/angelozerr/lsp4xml/wiki/Features)
 
