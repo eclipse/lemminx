@@ -165,8 +165,8 @@ public class XMLFormatterTest {
 		String content = "<a k1=\"v1\" k2=\"v2\"></a>";
 		String expected = 
 				"<a" + lineSeparator() + 
-				"  k1=\"v1\"" + lineSeparator() + //
-				"  k2=\"v2\"></a>";
+				"    k1=\"v1\"" + lineSeparator() + //
+				"    k2=\"v2\"></a>";
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		formattingOptions.setSplitAttributes(true);
 		format(content, expected, formattingOptions);
@@ -177,14 +177,26 @@ public class XMLFormatterTest {
 		String content = "<a k1=\"v1\" k2=\"v2\"><b aa=\"ok\" bb = \"oo\"></b></a>";
 		String expected = 
 				"<a" + lineSeparator() + 
-				"  k1=\"v1\"" + lineSeparator() + //
-				"  k2=\"v2\">" + lineSeparator() +
+				"    k1=\"v1\"" + lineSeparator() + //
+				"    k2=\"v2\">" + lineSeparator() +
 				"  <b" + lineSeparator() + 
-				"    aa=\"ok\"" + lineSeparator() + //
-				"    bb=\"oo\"></b>" + lineSeparator() +
+				"      aa=\"ok\"" + lineSeparator() + //
+				"      bb=\"oo\"></b>" + lineSeparator() +
 				"</a>";
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		formattingOptions.setSplitAttributes(true);
+		format(content, expected, formattingOptions);
+	}
+
+	@Test
+	public void testNestedAttributesNoSplit() throws BadLocationException {
+		String content = "<a k1=\"v1\" k2=\"v2\"><b aa=\"ok\" bb = \"oo\"></b></a>";
+		String expected = 
+				"<a k1=\"v1\" k2=\"v2\">" + lineSeparator() + 
+				"  <b aa=\"ok\" bb=\"oo\"></b>" + lineSeparator() + 
+				"</a>";
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setSplitAttributes(false);
 		format(content, expected, formattingOptions);
 	}
 

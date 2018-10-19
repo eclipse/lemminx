@@ -26,6 +26,7 @@ public class XMLBuilder {
 	private final String lineDelimiter;
 	private final StringBuilder xml;
 	private final String whitespacesIndent;
+	private final int splitAttributesIndent = 2;
 
 	public XMLBuilder(XMLFormattingOptions formattingOptions, String whitespacesIndent, String lineDelimiter) {
 		this.whitespacesIndent = whitespacesIndent;
@@ -80,20 +81,20 @@ public class XMLBuilder {
 		xml.append(" ");
 		xml.append(name);
 		xml.append("=\"");
-		xml.append(value);
+		if (value != null) {
+			xml.append(value);
+		}
 		xml.append("\"");
 		return this;
 	}
 
-	public XMLBuilder addAttribute(String name, String value, int index, int level, String tagName) {
-		int spaces = 1; //Accounts for '<' if isSplitAttributes() or space for single attribute 
+	public XMLBuilder addAttributes(String name, String value, int index, int level, String tagName) {
 		if (isSplitAttributes()) {
 			linefeed();
-			indent(level);
-			spaces += tagName.length();
+			indent(level + splitAttributesIndent);
+			
 		}
-
-		for (int i = 0; i < spaces; i++) {
+		else {
 			xml.append(" ");
 		}
 
