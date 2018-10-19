@@ -27,7 +27,7 @@ import org.eclipse.lsp4xml.extensions.contentmodel.utils.XMLGenerator;
 import org.eclipse.lsp4xml.services.extensions.CompletionParticipantAdapter;
 import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
-import org.eclipse.lsp4xml.uriresolver.CacheResourceLoadingException;
+import org.eclipse.lsp4xml.uriresolver.CacheResourceDownloadingException;
 
 /**
  * Extension to support XML completion based on content model (XML Schema
@@ -70,7 +70,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 					}
 				}
 			}
-		} catch (CacheResourceLoadingException e) {
+		} catch (CacheResourceDownloadingException e) {
 			addCacheWarningItem(e, response);
 		}
 	}
@@ -146,7 +146,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 					}
 				}
 			}
-		} catch (CacheResourceLoadingException e) {
+		} catch (CacheResourceDownloadingException e) {
 			addCacheWarningItem(e, response);
 		}
 	}
@@ -172,12 +172,12 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 					});
 				}
 			}
-		} catch (CacheResourceLoadingException e) {
+		} catch (CacheResourceDownloadingException e) {
 			addCacheWarningItem(e, response);
 		}
 	}
 
-	private void addCacheWarningItem(CacheResourceLoadingException e, ICompletionResponse response) {
+	private void addCacheWarningItem(CacheResourceDownloadingException e, ICompletionResponse response) {
 		// Here cache is enabled and some XML Schema, DTD, etc are loading
 		CompletionItem item = new CompletionItem(
 				"Cannot process " + (e.isDTD() ? "DTD" : "XML Schema") + " completion: " + e.getMessage());

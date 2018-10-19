@@ -29,7 +29,7 @@ import org.eclipse.lsp4xml.extensions.contentmodel.uriresolver.XMLCacheResolverE
 import org.eclipse.lsp4xml.extensions.contentmodel.uriresolver.XMLCatalogResolverExtension;
 import org.eclipse.lsp4xml.extensions.contentmodel.uriresolver.XMLFileAssociationResolverExtension;
 import org.eclipse.lsp4xml.extensions.contentmodel.xsd.XSDDocument;
-import org.eclipse.lsp4xml.uriresolver.CacheResourceLoadingException;
+import org.eclipse.lsp4xml.uriresolver.CacheResourceDownloadingException;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
 import org.w3c.dom.DOMError;
 import org.w3c.dom.DOMErrorHandler;
@@ -63,8 +63,8 @@ public class ContentModelManager {
 			
 			@Override
 			public boolean handleError(DOMError error) {
-				if (error.getRelatedException() instanceof CacheResourceLoadingException) {
-					throw ((CacheResourceLoadingException) error.getRelatedException());
+				if (error.getRelatedException() instanceof CacheResourceDownloadingException) {
+					throw ((CacheResourceDownloadingException) error.getRelatedException());
 				}
 				return false;
 			}

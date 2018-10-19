@@ -31,6 +31,7 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.CompletionParams;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
@@ -47,6 +48,7 @@ import org.eclipse.lsp4j.FoldingRangeCapabilities;
 import org.eclipse.lsp4j.FoldingRangeRequestParams;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
@@ -61,11 +63,14 @@ import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4xml.commons.LanguageModelCache;
 import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.commons.TextDocuments;
+import org.eclipse.lsp4xml.dom.Element;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.dom.XMLParser;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
+import org.eclipse.lsp4xml.uriresolver.CacheResourceDownloadingException;
+import org.eclipse.lsp4xml.utils.XMLPositionUtility;
 
 /**
  * XML text document service.
@@ -302,10 +307,25 @@ public class XMLTextDocumentService implements TextDocumentService {
 			TextDocument currDocument = getDocument(uri);
 			if (currDocument != null && currDocument.getVersion() == version) {
 				XMLDocument xmlDocument = getXMLDocument(currDocument);
-				List<Diagnostic> diagnostics = getXMLLanguageService().doDiagnostics(xmlDocument, monitor);
-				monitor.checkCanceled();
-				xmlLanguageServer.getLanguageClient()
-						.publishDiagnostics(new PublishDiagnosticsParams(uri, diagnostics));
+				try {
+					List<Diagnostic> diagnostics = getXMLLanguageService().doDiagnostics(xmlDocument, monitor);
+					monitor.checkCanceled();
+					xmlLanguageServer.getLanguageClient()
+							.publishDiagnostics(new PublishDiagnosticsParams(uri, diagnostics));
+				} catch (CacheResourceDownloadingException e) {
+					// An XML Schema, DTD is downloading with cache, but it takes too time. In this
+					// case:
+					// - 1) we add a warning in the document element to tell that validation cannot be
+					// occurred because an XML Schema/DTD is downloading.
+					Element documentElement = xmlDocument.getDocumentElement();
+					Range range = XMLPositionUtility.selectStartTag(documentElement);
+					List<Diagnostic> diagnostics = new ArrayList<>();
+					diagnostics.add(new Diagnostic(range, e.getMessage(), DiagnosticSeverity.Warning, "XML"));
+					xmlLanguageServer.getLanguageClient()
+							.publishDiagnostics(new PublishDiagnosticsParams(uri, diagnostics));
+					// - 2) we restart the validation only when the XML Schema, DTD is downloaded.
+					e.getFuture().thenAccept((path) -> triggerValidation(uri, version, monitor));
+				}
 			}
 		}, 500, TimeUnit.MILLISECONDS);
 	}

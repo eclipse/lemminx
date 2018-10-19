@@ -27,7 +27,7 @@ import org.apache.xerces.xni.parser.XMLParserConfiguration;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.dom.XMLDocument;
-import org.eclipse.lsp4xml.uriresolver.CacheResourceLoadingException;
+import org.eclipse.lsp4xml.uriresolver.CacheResourceDownloadingException;
 import org.eclipse.lsp4xml.uriresolver.IExternalSchemaLocationProvider;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -79,8 +79,10 @@ public class XMLValidator {
 			inputSource.setSystemId(uri);
 			reader.parse(inputSource);
 
-		} catch (IOException | SAXException | CancellationException | CacheResourceLoadingException exception) {
+		} catch (IOException | SAXException | CancellationException  exception) {
 			// ignore error
+		} catch(CacheResourceDownloadingException e) {
+			throw e;
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, "Unexpected XMLValidator error", e);
 		}

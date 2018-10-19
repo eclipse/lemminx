@@ -20,7 +20,7 @@ import org.eclipse.lsp4xml.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.services.extensions.HoverParticipantAdapter;
 import org.eclipse.lsp4xml.services.extensions.IHoverRequest;
-import org.eclipse.lsp4xml.uriresolver.CacheResourceLoadingException;
+import org.eclipse.lsp4xml.uriresolver.CacheResourceDownloadingException;
 
 /**
  * Extension to support XML hover based on content model (XML Schema completion,
@@ -42,7 +42,7 @@ public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 					return new Hover(content, hoverRequest.getTagRange());
 				}
 			}
-		} catch (CacheResourceLoadingException e) {
+		} catch (CacheResourceDownloadingException e) {
 			return getCacheWarningHover(e);
 		}
 		return null;
@@ -67,13 +67,13 @@ public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 					}
 				}
 			}
-		} catch (CacheResourceLoadingException e) {
+		} catch (CacheResourceDownloadingException e) {
 			return getCacheWarningHover(e);
 		}
 		return null;
 	}
 
-	private Hover getCacheWarningHover(CacheResourceLoadingException e) {
+	private Hover getCacheWarningHover(CacheResourceDownloadingException e) {
 		// Here cache is enabled and some XML Schema, DTD, etc are loading
 		MarkupContent content = new MarkupContent();
 		content.setKind(MarkupKind.PLAINTEXT);

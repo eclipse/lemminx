@@ -1,3 +1,13 @@
+/**
+ *  Copyright (c) 2018 Angelo ZERR
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ *  Contributors:
+ *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
+ */
 package org.eclipse.lsp4xml.uriresolver;
 
 import java.io.FileOutputStream;
@@ -11,12 +21,16 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.lsp4xml.utils.FilesUtils;
 
+/**
+ * Cache resources manager.
+ *
+ */
 public class CacheResourcesManager {
 
 	private static final CacheResourcesManager INSTANCE = new CacheResourcesManager();
@@ -25,26 +39,45 @@ public class CacheResourcesManager {
 		return INSTANCE;
 	}
 
-	private final List<String> resourcesLoading;
+	private final Map<String, CompletableFuture<Path>> resourcesLoading;
 	private boolean useCache;
 
-	private CacheResourcesManager() {
-		resourcesLoading = new ArrayList<>();
+	class ResourceInfo {
+
+		String resourceURI;
+
+		CompletableFuture<Path> future;
+
 	}
 
-	public Path getResources(final String resourceURI) throws IOException {
+	private CacheResourcesManager() {
+		resourcesLoading = new HashMap<>();
+	}
+
+	public Path getResource(final String resourceURI) throws IOException {
 		Path resourceCachePath = getResourceCachePath(resourceURI);
 		if (Files.exists(resourceCachePath)) {
 			return resourceCachePath;
 		}
+		CompletableFuture<Path> f = null;
 		synchronized (resourcesLoading) {
-			if (resourcesLoading.contains(resourceURI)) {
-				throw new CacheResourceLoadingException(resourceURI);
+			if (resourcesLoading.containsKey(resourceURI)) {
+				CompletableFuture<Path> future = resourcesLoading.get(resourceURI);
+				throw new CacheResourceDownloadingException(resourceURI, future);
 			}
-			resourcesLoading.add(resourceURI);
+			f = downloadResource(resourceURI, resourceCachePath);
+			resourcesLoading.put(resourceURI, f);
 		}
 
-		CompletableFuture f = CompletableFuture.supplyAsync(() -> {
+		if (f.getNow(null) == null) {
+			throw new CacheResourceDownloadingException(resourceURI, f);
+		}
+
+		return resourceCachePath;
+	}
+
+	private CompletableFuture<Path> downloadResource(final String resourceURI, Path resourceCachePath) {
+		return CompletableFuture.supplyAsync(() -> {
 			URLConnection conn = null;
 			try {
 				String actualURI = resourceURI;
@@ -59,37 +92,32 @@ public class CacheResourcesManager {
 					conn = url.openConnection();
 				}
 
+				// Download resource in a temporary file
+				Path path = Files.createTempFile(resourceCachePath.getFileName().toString(), ".lsp4xml");
+				try (ReadableByteChannel rbc = Channels.newChannel(conn.getInputStream());
+						FileOutputStream fos = new FileOutputStream(path.toFile())) {
+					fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+				}
+
+				// Move the temporary file in the lsp4xml cache folder.
 				Path dir = resourceCachePath.getParent();
 				if (!Files.exists(dir)) {
 					Files.createDirectories(dir);
 				}
-
-				ReadableByteChannel rbc = Channels.newChannel(conn.getInputStream());
-				FileOutputStream fos = new FileOutputStream(resourceCachePath.toFile());
-				fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-				fos.close();
-				rbc.close();
-				synchronized (resourcesLoading) {
-					resourcesLoading.remove(resourceURI);
-				}
-
+				Files.move(path, resourceCachePath);
 			} catch (Exception e) {
+				// Do nothing
+				return null;
+			} finally {
 				synchronized (resourcesLoading) {
 					resourcesLoading.remove(resourceURI);
 				}
-			} finally {
 				if (conn != null && conn instanceof HttpURLConnection) {
 					((HttpURLConnection) conn).disconnect();
 				}
 			}
-			return "";
+			return resourceCachePath;
 		});
-
-		if (f.getNow(null) == null) {
-			throw new CacheResourceLoadingException(resourceURI);
-		}
-
-		return resourceCachePath;
 	}
 
 	private static Path getResourceCachePath(String resourceURI) throws IOException {
@@ -98,14 +126,32 @@ public class CacheResourcesManager {
 		return FilesUtils.getDeployedPath(resourceCachePath);
 	}
 
+	/**
+	 * Returns true if cache is enabled and url comes from "http" or "ftp" and false
+	 * otherwise.
+	 * 
+	 * @param url
+	 * @return true if cache is enabled and url comes from "http" or "ftp" and false
+	 *         otherwise.
+	 */
 	public boolean canUseCache(String url) {
 		return isUseCache() && url != null && (url.startsWith("http:") || url.startsWith("ftp:"));
 	}
 
+	/**
+	 * Set true if cache must be used and false otherwise.
+	 * 
+	 * @param useCache true if cache must be used and false otherwise.
+	 */
 	public void setUseCache(boolean useCache) {
 		this.useCache = useCache;
 	}
 
+	/**
+	 * Returns true if cache must be used and false otherwise.
+	 * 
+	 * @return true if cache must be used and false otherwise.
+	 */
 	public boolean isUseCache() {
 		return useCache;
 	}

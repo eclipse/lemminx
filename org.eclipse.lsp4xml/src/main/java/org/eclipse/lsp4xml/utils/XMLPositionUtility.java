@@ -174,12 +174,12 @@ public class XMLPositionUtility {
 	public static Range selectStartTag(int offset, XMLDocument document) {
 		Node element = document.findNodeAt(offset);
 		if (element != null) {
-			return selectStartTag(element, document);
+			return selectStartTag(element);
 		}
 		return null;
 	}
 
-	private static Range selectStartTag(Node element, XMLDocument document) {
+	public static Range selectStartTag(Node element) {
 		int startOffset = element.getStart() + 1; // <
 		int endOffset = startOffset + getStartTagLength(element);
 		if (element.isProcessingInstruction() || element.isProlog()) {
@@ -188,6 +188,7 @@ public class XMLPositionUtility {
 			// increment end offset to select '?xml' instead of selecting '?xm'
 			endOffset++;
 		}
+		XMLDocument document = element.getOwnerDocument();
 		return createRange(startOffset, endOffset, document);
 	}
 
@@ -324,7 +325,7 @@ public class XMLPositionUtility {
 				}
 			} else if (node.isElement()) {
 				// node has NONE text (ex: <root></root>, select the start tag
-				return selectStartTag(node, document);
+				return selectStartTag(node);
 			}
 		}
 		return null;
