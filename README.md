@@ -14,6 +14,7 @@ Features
 
 * [textDocument/documentSymbol](https://microsoft.github.io/language-server-protocol/specification#textDocument_documentSymbol).
 * [textDocument/documentHighlight](https://microsoft.github.io/language-server-protocol/specification#textDocument_documentHighlight).
+* [textDocument/documentLink](https://microsoft.github.io/language-server-protocol/specification#textDocument_documentLink).
 * [textDocument/completion](https://microsoft.github.io/language-server-protocol/specification#textDocument_completion).
 * [textDocument/hover](https://microsoft.github.io/language-server-protocol/specification#textDocument_hover).
 * [textDocument/rename](https://microsoft.github.io/language-server-protocol/specification#textDocument_rename).
