@@ -207,11 +207,9 @@ class XMLCompletions {
 				break;
 			case StartPrologOrPI: {
 				try {
-					
 					boolean isFirstNode = xmlDocument.positionAt(scanner.getTokenOffset()).getLine() == 0;
 					if (isFirstNode && offset <= scanner.getTokenEnd()) {
-						collectPrologSuggestion(scanner.getTokenEnd(), "", completionRequest,
-								completionResponse);
+						collectPrologSuggestion(scanner.getTokenEnd(), "", completionRequest, completionResponse);
 						return completionResponse;
 					}
 				} catch (BadLocationException e) {
@@ -224,9 +222,9 @@ class XMLCompletions {
 					boolean isFirstNode = xmlDocument.positionAt(scanner.getTokenOffset()).getLine() == 0;
 					if (isFirstNode && offset <= scanner.getTokenEnd()) {
 						String substringXML = "xml".substring(0, scanner.getTokenText().length());
-						if(scanner.getTokenText().equals(substringXML)) {
+						if (scanner.getTokenText().equals(substringXML)) {
 							collectPrologSuggestion(scanner.getTokenEnd(), scanner.getTokenText(), completionRequest,
-								completionResponse, true);
+									completionResponse, true);
 							return completionResponse;
 						}
 					}
@@ -407,7 +405,7 @@ class XMLCompletions {
 	}
 
 	private void collectPrologSuggestion(int tokenEndOffset, String tag, CompletionRequest request,
-	CompletionResponse response, boolean inPIState) {
+			CompletionResponse response, boolean inPIState) {
 		XMLDocument document = request.getXMLDocument();
 		CompletionItem item = new CompletionItem();
 		item.setLabel("<?xml ... ?>");
@@ -415,27 +413,24 @@ class XMLCompletions {
 		item.setFilterText("xml version=\"1.0\" encoding=\"UTF-8\"?>");
 		item.setInsertTextFormat(InsertTextFormat.Snippet);
 		int closingBracketOffset;
-		if(inPIState) {
-			closingBracketOffset= getOffsetFollowedBy(document.getText(), tokenEndOffset, ScannerState.WithinPI,
-			TokenType.PIEnd);
-		}
-		else {//prolog state
+		if (inPIState) {
+			closingBracketOffset = getOffsetFollowedBy(document.getText(), tokenEndOffset, ScannerState.WithinPI,
+					TokenType.PIEnd);
+		} else {// prolog state
 			closingBracketOffset = getOffsetFollowedBy(document.getText(), tokenEndOffset, ScannerState.WithinTag,
-			TokenType.PrologEnd);
+					TokenType.PrologEnd);
 		}
 
-		if(closingBracketOffset != -1) {
-			//Include '?>'
+		if (closingBracketOffset != -1) {
+			// Include '?>'
 			closingBracketOffset += 2;
-		}
-		else {
+		} else {
 			closingBracketOffset = getOffsetFollowedBy(document.getText(), tokenEndOffset, ScannerState.WithinTag,
-			TokenType.StartTagClose);
-			if(closingBracketOffset == -1) {
+					TokenType.StartTagClose);
+			if (closingBracketOffset == -1) {
 				closingBracketOffset = tokenEndOffset;
-			}
-			else {
-				closingBracketOffset ++;
+			} else {
+				closingBracketOffset++;
 			}
 		}
 		int startOffset = tokenEndOffset - tag.length();
@@ -696,8 +691,9 @@ class XMLCompletions {
 	}
 
 	/**
-	 * Returns starting offset of 'expectedToken' if it the next non whitespace token after
-	 * 'initialState'
+	 * Returns starting offset of 'expectedToken' if it the next non whitespace
+	 * token after 'initialState'
+	 * 
 	 * @param s
 	 * @param offset
 	 * @param intialState
