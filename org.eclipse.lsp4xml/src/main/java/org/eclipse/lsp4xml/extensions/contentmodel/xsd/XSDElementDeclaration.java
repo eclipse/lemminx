@@ -118,6 +118,7 @@ public class XSDElementDeclaration implements CMElementDeclaration {
 
 	@Override
 	public Collection<CMElementDeclaration> getElements() {
+		elements = null;
 		if (elements == null) {
 			elements = new ArrayList<>();
 			collectElementsDeclaration(elementDeclaration, elements);
@@ -158,11 +159,7 @@ public class XSDElementDeclaration implements CMElementDeclaration {
 			break;
 		case XSConstants.ELEMENT_DECLARATION:
 			XSElementDeclaration elementDeclaration = (XSElementDeclaration) term;
-			CMElementDeclaration cmElement = document.getXSDElement(elementDeclaration);
-			// check element declaration is not already added (ex: xs:annotation)
-			if (!elements.contains(cmElement)) {
-				elements.add(cmElement);
-			}
+			document.collectElement(elementDeclaration, elements);
 			break;
 		}
 	}

@@ -23,6 +23,8 @@ import org.apache.xerces.xs.XSConstants;
 import org.apache.xerces.xs.XSElementDeclaration;
 import org.apache.xerces.xs.XSModel;
 import org.apache.xerces.xs.XSNamedMap;
+import org.apache.xerces.xs.XSObject;
+import org.apache.xerces.xs.XSObjectList;
 import org.apache.xerces.xs.XSSimpleTypeDefinition;
 import org.eclipse.lsp4xml.dom.Element;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMDocument;
@@ -47,19 +49,47 @@ public class XSDDocument implements CMDocument {
 
 	@Override
 	public Collection<CMElementDeclaration> getElements() {
+		elements = null;
 		if (elements == null) {
 			elements = new ArrayList<>();
 			XSNamedMap map = model.getComponents(XSConstants.ELEMENT_DECLARATION);
 			for (int j = 0; j < map.getLength(); j++) {
 				XSElementDeclaration elementDeclaration = (XSElementDeclaration) map.item(j);
-				CMElementDeclaration cmElement = getXSDElement(elementDeclaration);
-				// check element declaration is not already added (ex: xs:annotation)
-				if (!elements.contains(cmElement)) {					
-					elements.add(cmElement);
-				}
+				collectElement(elementDeclaration, elements);
 			}
 		}
 		return elements;
+	}
+
+	/**
+	 * Fill the given elements list from the given Xerces elementDeclaration
+	 * 
+	 * @param elementDeclaration
+	 * @param elements
+	 */
+	void collectElement(XSElementDeclaration elementDeclaration, Collection<CMElementDeclaration> elements) {
+		if (elementDeclaration.getAbstract()) {
+			// element declaration is marked as abstract
+			// ex with xsl: <xs:element name="declaration" type="xsl:generic-element-type" abstract="true"/>
+			XSObjectList list = model.getSubstitutionGroup(elementDeclaration);
+			if (list != null) {
+				// it exists elements list bind with this abstract declaration with substitutionGroup 
+				// ex xsl : <xs:element name="template" substitutionGroup="xsl:declaration">				
+				for (int i = 0; i < list.getLength(); i++) {
+					XSObject object = list.item(i);
+					if (object.getType() == XSConstants.ELEMENT_DECLARATION) {
+						XSElementDeclaration subElementDeclaration = (XSElementDeclaration) object;
+						collectElement(subElementDeclaration, elements);
+					}
+				}
+			}
+		} else {
+			CMElementDeclaration cmElement = getXSDElement(elementDeclaration);
+			// check element declaration is not already added (ex: xs:annotation)
+			if (!elements.contains(cmElement)) {
+				elements.add(cmElement);
+			}
+		}
 	}
 
 	@Override
@@ -102,7 +132,7 @@ public class XSDDocument implements CMDocument {
 		}
 		return element;
 	}
-	
+
 	static Collection<String> getEnumerationValues(XSSimpleTypeDefinition typeDefinition) {
 		if (typeDefinition != null) {
 			if (isBooleanType(typeDefinition)) {
@@ -118,7 +148,7 @@ public class XSDDocument implements CMDocument {
 		}
 		return Collections.emptyList();
 	}
-	
+
 	static boolean isBooleanType(XSSimpleTypeDefinition typeDefinition) {
 		if (typeDefinition instanceof XSSimpleType) {
 			return ((XSSimpleType) typeDefinition).getPrimitiveKind() == XSSimpleType.PRIMITIVE_BOOLEAN;

@@ -31,8 +31,9 @@ public class XSLCompletionExtensionsTest {
 				"<xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\">\r\n" + //
 				"|";
 		testCompletionFor(xml,
-				c("xsl:declaration", te(2, 0, 2, 0, "<xsl:declaration></xsl:declaration>"), "xsl:declaration"), //
-				c("xsl:import", te(2, 0, 2, 0, "<xsl:import href=\"\" />"), "xsl:import"));
+				c("xsl:template", te(2, 0, 2, 0, "<xsl:template></xsl:template>"), "xsl:template"), // <-- coming from substition group of xsl:declaration
+				c("xsl:output", te(2, 0, 2, 0, "<xsl:output></xsl:output>"), "xsl:output"), // <-- coming from substition group of xsl:declaration
+				c("xsl:import", te(2, 0, 2, 0, "<xsl:import href=\"\" />"), "xsl:import")); // coming from stylesheet children
 	}
 
 	private void testCompletionFor(String xml, CompletionItem... expectedItems) throws BadLocationException {
