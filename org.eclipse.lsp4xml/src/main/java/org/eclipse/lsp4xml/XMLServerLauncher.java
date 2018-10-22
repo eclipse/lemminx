@@ -12,6 +12,8 @@ package org.eclipse.lsp4xml;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.Authenticator;
+import java.net.PasswordAuthentication;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
@@ -27,6 +29,18 @@ public class XMLServerLauncher {
 	 * and output streams.
 	 */
 	public static void main(String[] args) {
+		final String username = System.getProperty("http.proxyUser");
+		final String password = System.getProperty("http.proxyPassword");
+		if (username != null && password != null) {
+			Authenticator.setDefault(new Authenticator() {
+
+				@Override
+				protected PasswordAuthentication getPasswordAuthentication() {
+					return new PasswordAuthentication(username, password.toCharArray());
+				}
+
+			});
+		}
 		launch(System.in, System.out);
 	}
 
