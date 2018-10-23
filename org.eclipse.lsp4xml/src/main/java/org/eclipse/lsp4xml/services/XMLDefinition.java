@@ -34,7 +34,7 @@ class XMLDefinition {
 	public List<? extends Location> findDefinition(XMLDocument document, Position position) {
 		List<Location> locations = new ArrayList<>();
 		for (IDefinitionParticipant participant : extensionsRegistry.getDefinitionParticipants()) {
-			participant.findDefinition(document, locations);
+			participant.findDefinition(document, position, locations);
 		}
 		return locations;
 	}

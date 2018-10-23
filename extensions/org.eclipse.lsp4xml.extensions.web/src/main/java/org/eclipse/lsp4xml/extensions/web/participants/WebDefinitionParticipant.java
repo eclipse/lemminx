@@ -1,5 +1,5 @@
 /**
- *  Copyright (c) 2018 Angelo ZERR.
+ *  Copyright (c) 2018 Angelo ZERR
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -8,27 +8,23 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lsp4xml.services.extensions;
+package org.eclipse.lsp4xml.extensions.web.participants;
 
 import java.util.List;
 
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.services.extensions.IDefinitionParticipant;
 
 /**
- * Definition participant API.
- *
+ * Extension to support XML definition for web.xml
  */
-public interface IDefinitionParticipant {
+public class WebDefinitionParticipant implements IDefinitionParticipant {
 
-	/**
-	 * Find definition.
-	 * 
-	 * @param document
-	 * @param position 
-	 * @param locations
-	 */
-	void findDefinition(XMLDocument document, Position position, List<Location> locations);
+	@Override
+	public void findDefinition(XMLDocument document, Position position, List<Location> locations) {
+		// TODO
+	}
 
 }
