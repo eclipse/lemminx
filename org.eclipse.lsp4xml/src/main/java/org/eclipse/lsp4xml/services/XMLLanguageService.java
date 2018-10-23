@@ -24,6 +24,7 @@ import org.eclipse.lsp4j.DocumentLink;
 import org.eclipse.lsp4j.FoldingRange;
 import org.eclipse.lsp4j.FoldingRangeCapabilities;
 import org.eclipse.lsp4j.Hover;
+import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.SymbolInformation;
@@ -50,8 +51,9 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 	private final XMLHover hover;
 	private final XMLDiagnostics diagnostics;
 	private final XMLFoldings foldings;
-	private XMLDocumentLink documentLink;
-	private XMLCodeActions codeActions;
+	private final XMLDocumentLink documentLink;
+	private XMLDefinition definition;
+	private final XMLCodeActions codeActions;
 
 	public XMLLanguageService() {
 		this.formatter = new XMLFormatter(this);
@@ -62,6 +64,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		this.diagnostics = new XMLDiagnostics(this);
 		this.foldings = new XMLFoldings(this);
 		this.documentLink = new XMLDocumentLink(this);
+		this.definition = new XMLDefinition(this);
 		this.codeActions = new XMLCodeActions(this);
 	}
 
@@ -106,6 +109,10 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		return documentLink.findDocumentLinks(document);
 	}
 
+	public List<? extends Location> findDefinition(XMLDocument xmlDocument, Position position) {
+		return definition.findDefinition(xmlDocument, position);
+	}
+	
 	public List<CodeAction> doCodeActions(CodeActionContext context, Range range, XMLDocument document,
 			XMLFormattingOptions formattingSettings) {
 		return codeActions.doCodeActions(context, range, document, formattingSettings);

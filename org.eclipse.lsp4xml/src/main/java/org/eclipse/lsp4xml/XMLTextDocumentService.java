@@ -47,6 +47,7 @@ import org.eclipse.lsp4j.FoldingRange;
 import org.eclipse.lsp4j.FoldingRangeCapabilities;
 import org.eclipse.lsp4j.FoldingRangeRequestParams;
 import org.eclipse.lsp4j.Hover;
+import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.RenameParams;
@@ -258,6 +259,15 @@ public class XMLTextDocumentService implements TextDocumentService {
 			TextDocument document = getDocument(params.getTextDocument().getUri());
 			XMLDocument xmlDocument = getXMLDocument(document);
 			return getXMLLanguageService().findDocumentLinks(xmlDocument);
+		});
+	}
+	
+	@Override
+	public CompletableFuture<List<? extends Location>> definition(TextDocumentPositionParams params) {
+		return computeAsync((monitor) -> {
+			TextDocument document = getDocument(params.getTextDocument().getUri());
+			XMLDocument xmlDocument = getXMLDocument(document);
+			return getXMLLanguageService().findDefinition(xmlDocument, params.getPosition());
 		});
 	}
 

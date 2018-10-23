@@ -12,23 +12,21 @@ package org.eclipse.lsp4xml.services.extensions;
 
 import java.util.List;
 
-import org.eclipse.lsp4j.Diagnostic;
-import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 
 /**
- * Diagnostics participant API.
+ * Definition participant API.
  *
  */
-public interface IDiagnosticsParticipant {
+public interface IDefinitionParticipant {
 
 	/**
-	 * Validate the given XML document.
+	 * Find definition.
 	 * 
-	 * @param xmlDocument XML document to validate.
-	 * @param diagnostics list to populate with errors, warnings, etc
-	 * @param monitor     used to stop the validation when XML document changed.
+	 * @param document
+	 * @param locations
 	 */
-	void doDiagnostics(XMLDocument xmlDocument, List<Diagnostic> diagnostics, CancelChecker monitor);
+	void findDefinition(XMLDocument document, List<Location> locations);
 
 }

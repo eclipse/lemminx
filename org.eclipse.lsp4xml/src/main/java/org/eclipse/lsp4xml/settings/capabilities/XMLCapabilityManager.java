@@ -30,6 +30,8 @@ import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConsta
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_RENAME;
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.FORMATTING_ID;
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.FORMATTING_RANGE_ID;
+import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.DEFINITION_ID;
+import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_DEFINITION;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -134,7 +136,9 @@ public class XMLCapabilityManager {
 		if (this.getClientCapabilities().isRenameDynamicRegistrationSupported()) {
 			registerCapability(RENAME_ID, TEXT_DOCUMENT_RENAME);
 		}
-
+		if (this.getClientCapabilities().isDefinitionDynamicRegistered()) {
+			registerCapability(DEFINITION_ID, TEXT_DOCUMENT_DEFINITION);
+		}
 		syncDynamicCapabilitiesWithPreferences();
 	}
 
