@@ -10,6 +10,6 @@
 	<artifactId>lsp4xml-extensions</artifactId>
 	<packaging>pom</packaging>
 	<modules>
-		<module>org.eclipse.lsp4xml.emmet</module>
+		<module>org.eclipse.lsp4xml.extensions.emmet</module>
 	</modules>
 </project>
