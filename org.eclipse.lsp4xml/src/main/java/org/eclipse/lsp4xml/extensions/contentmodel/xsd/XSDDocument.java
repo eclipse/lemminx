@@ -98,7 +98,7 @@ public class XSDDocument implements CMDocument {
 		Element element = node;
 		while (element != null && (namespace == null || namespace.equals(element.getNamespaceURI()))) {
 			paths.add(0, element);
-			element = element.getParent() instanceof Element ? (Element) element.getParent() : null;
+			element = element.getParentNode() instanceof Element ? (Element) element.getParentNode() : null;
 		}
 		CMElementDeclaration declaration = null;
 		for (int i = 0; i < paths.size(); i++) {

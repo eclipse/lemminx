@@ -81,7 +81,7 @@ public class XSLURIResolverExtension implements URIResolverExtension {
 		if (document != null) {
 			Element element = document.getDocumentElement();
 			if (element != null) {
-				String version = element.getAttributeValue("version");
+				String version = element.getAttribute("version");
 				if (version != null) {
 					return version;
 				}

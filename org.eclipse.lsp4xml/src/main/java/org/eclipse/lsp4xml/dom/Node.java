@@ -246,7 +246,7 @@ public class Node {
 		return null;
 	}
 
-	public String getAttributeValue(String name) {
+	public String getAttribute(String name) {
 		Attr attr = getAttributeNode(name);
 		String value = attr != null ? attr.getValue() : null;
 		if (value == null) {
@@ -343,7 +343,7 @@ public class Node {
 		return getChildren().get(index);
 	}
 
-	public Node getParent() {
+	public Node getParentNode() {
 		return parent;
 	}
 
@@ -352,7 +352,7 @@ public class Node {
 	}
 
 	public Element getParentElement() {
-		Node parent = getParent();
+		Node parent = getParentNode();
 		while (parent != null && parent != getOwnerDocument()) {
 			if (parent.isElement()) {
 				return (Element) parent;
@@ -363,16 +363,17 @@ public class Node {
 
 	/**
 	 * Checks if previous sibling node is of 'type'
+	 * 
 	 * @param type
 	 * @return
 	 */
 	public boolean isPreviousNodeType(Short type) {
-		int currentIndex = this.getParent().getChildren().indexOf(this);
-		return currentIndex > 0 ? this.getParent().getChild(currentIndex - 1).isText() : false;
+		int currentIndex = this.getParentNode().getChildren().indexOf(this);
+		return currentIndex > 0 ? this.getParentNode().getChild(currentIndex - 1).isText() : false;
 	}
 
 	public boolean isFirstChildNode() {
-		return this.getParent().getChildren().indexOf(this) == 0;
+		return this.getParentNode().getChildren().indexOf(this) == 0;
 	}
 
 	public boolean isComment() {
@@ -399,7 +400,7 @@ public class Node {
 	public boolean isElement() {
 		return getNodeType() == Node.ELEMENT_NODE;
 	}
-	
+
 	public boolean isAttribute() {
 		return getNodeType() == Node.ATTRIBUTE_NODE;
 	}
@@ -420,6 +421,10 @@ public class Node {
 		return null;
 	}
 
+	public String getLocalName() {
+		return null;
+	}
+
 	public int getStart() {
 		return start;
 	}
@@ -427,4 +432,5 @@ public class Node {
 	public int getEnd() {
 		return end;
 	}
+
 }

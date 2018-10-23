@@ -130,7 +130,7 @@ class XMLFormatter {
 
 					for (int i = 0; i < attributes.length; i++) {
 						String name = attributes[i];
-						String value = node.getAttributeValue(attributes[i]);
+						String value = node.getAttribute(attributes[i]);
 						if (value == null) {
 							continue;
 						}

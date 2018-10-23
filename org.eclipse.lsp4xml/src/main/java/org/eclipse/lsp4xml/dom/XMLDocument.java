@@ -236,7 +236,7 @@ public class XMLDocument extends Node {
 				{
 					hasNamespaces = true;
 				}
-				String attributeValue = documentElement.getAttributeValue(attributeName);
+				String attributeValue = documentElement.getAttribute(attributeName);
 				if (attributeValue != null && attributeValue.startsWith("http://www.w3.org/") //$NON-NLS-1$
 						&& attributeValue.endsWith("/XMLSchema-instance")) //$NON-NLS-1$
 				{
@@ -261,7 +261,7 @@ public class XMLDocument extends Node {
 	}
 
 	private SchemaLocation createSchemaLocation(Node root, String schemaInstancePrefix) {
-		String value = root.getAttributeValue(getPrefixedName(schemaInstancePrefix, "schemaLocation"));
+		String value = root.getAttribute(getPrefixedName(schemaInstancePrefix, "schemaLocation"));
 		if (value == null) {
 			return null;
 		}

@@ -287,7 +287,7 @@ class XMLCompletions {
 		} else if (c == '/') {
 			Node node = xmlDocument.findNodeBefore(offset);
 			while (node != null && node.isClosed()) {
-				node = node.getParent();
+				node = node.getParentNode();
 			}
 			if (node != null && node.isElement() && ((Element) node).getTagName() != null) {
 				Scanner scanner = XMLScanner.createScanner(xmlDocument.getText(), node.getStart());
@@ -461,7 +461,7 @@ class XMLCompletions {
 			String text = completionRequest.getXMLDocument().getText();
 			Node curr = completionRequest.getNode();
 			if (inOpenTag) {
-				curr = curr.getParent(); // don't suggest the own tag, it's not yet open
+				curr = curr.getParentNode(); // don't suggest the own tag, it's not yet open
 			}
 			String closeTag = closeEndTag ? ">" : "";
 			int afterOpenBracket = completionRequest.getXMLDocument().offsetAt(range.getStart());
@@ -497,7 +497,7 @@ class XMLCompletions {
 						completionResponse.addCompletionItem(item);
 					}
 				}
-				curr = curr.getParent();
+				curr = curr.getParentNode();
 			}
 			if (inOpenTag) {
 				return;

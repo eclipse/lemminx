@@ -97,8 +97,8 @@ class XMLSymbolsProvider {
 		}
 
 		if (node.hasAttributes()) {
-			String id = node.getAttributeValue("id");
-			String classes = node.getAttributeValue("class");
+			String id = node.getAttribute("id");
+			String classes = node.getAttribute("class");
 
 //			if (id) {
 //				name += `#${id.replace(/[\"\']/g, '')}`;

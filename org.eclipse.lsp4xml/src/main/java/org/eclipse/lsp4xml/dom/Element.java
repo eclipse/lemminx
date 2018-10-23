@@ -80,23 +80,23 @@ public class Element extends Node {
 		String rootElementNamespaceDeclarationName = (hasPrefix) ? "xmlns:" + prefix //$NON-NLS-1$
 				: "xmlns"; //$NON-NLS-1$
 		String rootElementNamespace = rootElementNamespaceDeclarationName != null
-				? this.getAttributeValue(rootElementNamespaceDeclarationName)
+				? this.getAttribute(rootElementNamespaceDeclarationName)
 				: null;
 		if (rootElementNamespace != null) {
 			return rootElementNamespace;
 		}
 		// try to get the namespace in the parent element
-		Node parent = getParent();
+		Node parent = getParentNode();
 		while (parent != null) {
 			if (parent.getNodeType() == Node.ELEMENT_NODE) {
 				Element parentElement = ((Element) parent);
-				String namespaceURI = hasPrefix ? parentElement.getAttributeValue("xmlns:" + prefix)
+				String namespaceURI = hasPrefix ? parentElement.getAttribute("xmlns:" + prefix)
 						: parentElement.getNamespaceURI();
 				if (namespaceURI != null) {
 					return namespaceURI;
 				}
 			}
-			parent = parent.getParent();
+			parent = parent.getParentNode();
 		}
 		return null;
 	}
@@ -119,7 +119,7 @@ public class Element extends Node {
 		if (prefix == null || prefix.isEmpty()) {
 			return getNamespaceURI();
 		}
-		return getAttributeValue("xmlns:" + prefix);
+		return getAttribute("xmlns:" + prefix);
 	}
 
 	public boolean isDocumentElement() {
