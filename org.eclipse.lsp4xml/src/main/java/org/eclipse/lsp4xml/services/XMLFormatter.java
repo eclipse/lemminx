@@ -87,8 +87,8 @@ class XMLFormatter {
 	private void format(Node node, int level, int end, XMLBuilder xml) {
 		if (node.getNodeType() != Node.DOCUMENT_NODE) {
 			boolean doLineFeed = !(node.isComment() && ((Comment) node).isCommentSameLineEndTag())
-					&& (!node.isPreviousNodeType(Node.TEXT_NODE) || xml.isJoinContentLines())
-					&& (!node.isText() || ((xml.isJoinContentLines() && !node.isFirstChildNode())));
+					&& (!isPreviousNodeType(node, Node.TEXT_NODE) || xml.isJoinContentLines())
+					&& (!node.isText() || ((xml.isJoinContentLines() && !isFirstChildNode(node))));
 
 			if (level > 0 && doLineFeed) {
 				// add new line + indent
@@ -223,6 +223,15 @@ class XMLFormatter {
 				format(child, level, end, xml);
 			}
 		}
+	}
+
+	private static boolean isFirstChildNode(Node node) {
+		return node.equals(node.getParentNode().getFirstChild());
+	}
+
+	private static boolean isPreviousNodeType(Node node, short nodeType) {
+		Node previousNode = node.getPreviousSibling();
+		return previousNode != null && previousNode.getNodeType() == nodeType;
 	}
 
 }

@@ -370,21 +370,6 @@ public abstract class Node implements org.w3c.dom.Node {
 		return null;
 	}
 
-	/**
-	 * Checks if previous sibling node is of 'type'
-	 * 
-	 * @param type
-	 * @return
-	 */
-	public boolean isPreviousNodeType(Short type) {
-		int currentIndex = this.getParentNode().getChildren().indexOf(this);
-		return currentIndex > 0 ? this.getParentNode().getChild(currentIndex - 1).isText() : false;
-	}
-
-	public boolean isFirstChildNode() {
-		return this.getParentNode().getChildren().indexOf(this) == 0;
-	}
-
 	public boolean isComment() {
 		return getNodeType() == Node.COMMENT_NODE;
 	}
@@ -482,6 +467,7 @@ public abstract class Node implements org.w3c.dom.Node {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see org.w3c.dom.Node#getChildNodes()
 	 */
 	@Override
@@ -544,15 +530,20 @@ public abstract class Node implements org.w3c.dom.Node {
 		return null;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Node#getNextSibling()
+	 */
 	@Override
 	public Node getNextSibling() {
-		// TODO Auto-generated method stub
-		return null;
+		List<Node> children = getParentNode().getChildren();
+		int nextIndex = children.indexOf(this) + 1;
+		return nextIndex < children.size() ? children.get(nextIndex) : null;
 	}
 
 	@Override
 	public String getNodeValue() throws DOMException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -561,10 +552,16 @@ public abstract class Node implements org.w3c.dom.Node {
 		return null;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Node#getPreviousSibling()
+	 */
 	@Override
 	public Node getPreviousSibling() {
-		// TODO Auto-generated method stub
-		return null;
+		List<Node> children = getParentNode().getChildren();
+		int previousIndex = children.indexOf(this) - 1;
+		return previousIndex >= 0 ? children.get(previousIndex) : null;
 	}
 
 	/*

@@ -12,7 +12,6 @@ import org.eclipse.lsp4xml.dom.parser.Scanner;
 import org.eclipse.lsp4xml.dom.parser.TokenType;
 import org.eclipse.lsp4xml.dom.parser.XMLScanner;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.NodeList;
 
@@ -89,10 +88,36 @@ public class XMLDocumentTest {
 		Assert.assertEquals("XXXX", result.toString());
 	}
 
-	@Ignore("Study why this test doesn't work?")
+	@Test
+	public void siblingTests() throws XPathExpressionException {
+		XMLDocument document = XMLParser.getInstance().parse("<a><b><c>XXXX</c><c>YYYY</c></b></a>", "test");
+
+		Node a = document.getDocumentElement();
+		Assert.assertNotNull(a);
+		Node b = a.getFirstChild();
+		Assert.assertNotNull(b);
+		Node c1 = b.getFirstChild();
+		Assert.assertNotNull(c1);
+		Node t1 = c1.getFirstChild();
+		Assert.assertTrue(t1.isText());
+		Text text1 = (Text) t1;
+		Assert.assertEquals("XXXX", text1.getData());
+
+		Node c2 = c1.getNextSibling();
+		Assert.assertNotNull(c2);
+		Node t2 = c2.getFirstChild();
+		Assert.assertTrue(t2.isText());
+		Text text2 = (Text) t2;
+		Assert.assertEquals("YYYY", text2.getData());
+
+		Node c1Previous = c2.getPreviousSibling();
+		Assert.assertNotNull(c1Previous);
+		Assert.assertEquals(c1, c1Previous);
+	}
+
 	@Test
 	public void findElementListWithXPath() throws XPathExpressionException {
-		XMLDocument document = XMLParser.getInstance().parse("<a><b><c>XXXX</c><c>XXXX</c></b></a>", "test");
+		XMLDocument document = XMLParser.getInstance().parse("<a><b><c>XXXX</c><c>YYYY</c></b></a>", "test");
 
 		XPath xPath = XPathFactory.newInstance().newXPath();
 		Object result = xPath.evaluate("/a/b//c", document, XPathConstants.NODESET);
