@@ -14,11 +14,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.w3c.dom.DOMException;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.TypeInfo;
+
 /**
  * An Element node.
  *
  */
-public class Element extends Node {
+public class Element extends Node implements org.w3c.dom.Element {
 
 	String tag;
 	boolean selfClosed;
@@ -34,20 +38,42 @@ public class Element extends Node {
 		super(start, end, ownerDocument);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Node#getNodeType()
+	 */
 	@Override
 	public short getNodeType() {
 		return Node.ELEMENT_NODE;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Node#getNodeName()
+	 */
 	@Override
 	public String getNodeName() {
 		return getTagName();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Element#getTagName()
+	 */
+	@Override
 	public String getTagName() {
 		return tag;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Node#getLocalName()
+	 */
+	@Override
 	public String getLocalName() {
 		String name = getTagName();
 		if (name == null) {
@@ -60,6 +86,12 @@ public class Element extends Node {
 		return name;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Node#getPrefix()
+	 */
+	@Override
 	public String getPrefix() {
 		String name = getTagName();
 		if (name == null) {
@@ -73,6 +105,12 @@ public class Element extends Node {
 		return prefix;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Node#getNamespaceURI()
+	 */
+	@Override
 	public String getNamespaceURI() {
 		String prefix = getPrefix();
 		boolean hasPrefix = prefix != null && prefix.length() > 0;
@@ -146,7 +184,7 @@ public class Element extends Node {
 		}
 		return false;
 	}
-	
+
 	public boolean isInEndTag(int offset) {
 		if (endTagOpenOffset == null) {
 			// case >|
@@ -199,5 +237,99 @@ public class Element extends Node {
 		return endTagOpenOffset != null;
 	}
 
+	@Override
+	public String getAttributeNS(String arg0, String arg1) throws DOMException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Attr getAttributeNode(String name) {
+		return super.getAttributeNode(name);
+	}
+
+	@Override
+	public Attr getAttributeNodeNS(String arg0, String arg1) throws DOMException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public NodeList getElementsByTagName(String arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public NodeList getElementsByTagNameNS(String arg0, String arg1) throws DOMException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public TypeInfo getSchemaTypeInfo() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean hasAttributeNS(String arg0, String arg1) throws DOMException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void removeAttribute(String arg0) throws DOMException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void removeAttributeNS(String arg0, String arg1) throws DOMException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public Attr removeAttributeNode(org.w3c.dom.Attr arg0) throws DOMException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setAttributeNS(String arg0, String arg1, String arg2) throws DOMException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public Attr setAttributeNode(org.w3c.dom.Attr arg0) throws DOMException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Attr setAttributeNodeNS(org.w3c.dom.Attr arg0) throws DOMException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setIdAttribute(String arg0, boolean arg1) throws DOMException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void setIdAttributeNS(String arg0, String arg1, boolean arg2) throws DOMException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void setIdAttributeNode(org.w3c.dom.Attr arg0, boolean arg1) throws DOMException {
+		// TODO Auto-generated method stub
+
+	}
 
 }

@@ -66,14 +66,14 @@ public class XMLValidator {
 
 			boolean hasGrammar = document.hasGrammar();
 			if (!hasGrammar) {
-				hasGrammar = checkExternalSchema(new URI(document.getUri()), externalSchemaLocationProvider, reader);
+				hasGrammar = checkExternalSchema(new URI(document.getDocumentURI()), externalSchemaLocationProvider, reader);
 			}
 			reader.setFeature("http://xml.org/sax/features/validation", hasGrammar); //$NON-NLS-1$
 			reader.setFeature("http://apache.org/xml/features/validation/schema", hasGrammar); //$NON-NLS-1$
 
 			// Parse XML
 			String content = document.getText();
-			String uri = document.getUri();
+			String uri = document.getDocumentURI();
 			InputSource inputSource = new InputSource();
 			inputSource.setByteStream(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)));
 			inputSource.setSystemId(uri);

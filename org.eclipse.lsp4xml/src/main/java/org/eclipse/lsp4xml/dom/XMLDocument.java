@@ -19,12 +19,20 @@ import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.dom.parser.Constants;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
 import org.eclipse.lsp4xml.utils.StringUtils;
+import org.w3c.dom.CDATASection;
+import org.w3c.dom.DOMConfiguration;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.Document;
+import org.w3c.dom.DocumentFragment;
+import org.w3c.dom.EntityReference;
+import org.w3c.dom.NodeList;
 
 /**
  * XML document.
  *
  */
-public class XMLDocument extends Node {
+public class XMLDocument extends Node implements Document {
 
 	private SchemaLocation schemaLocation;
 	private NoNamespaceSchemaLocation noNamespaceSchemaLocation;
@@ -99,40 +107,6 @@ public class XMLDocument extends Node {
 		return noNamespaceSchemaLocation;
 	}
 
-	/**
-	 * Returns the document root element and null otherwise.
-	 * 
-	 * @return the document root element and null otherwise.
-	 */
-	public Element getDocumentElement() {
-		List<Node> roots = getRoots();
-		if (roots != null) {
-			for (Node node : roots) {
-				if (node.isElement()) {
-					return (Element) node;
-				}
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Returns the document type and null otherwise.
-	 * 
-	 * @return the document type and null otherwise.
-	 */
-	public DocumentType getDoctype() {
-		List<Node> roots = getRoots();
-		if (roots != null) {
-			for (Node node : roots) {
-				if (node.isDoctype()) {
-					return (DocumentType) node;
-				}
-			}
-		}
-		return null;
-	}
-
 	public String getNamespaceURI() {
 		Element documentElement = getDocumentElement();
 		return documentElement != null ? documentElement.getNamespaceURI() : null;
@@ -147,22 +121,8 @@ public class XMLDocument extends Node {
 		return textDocument.getText();
 	}
 
-	/**
-	 * Returns the file URI of the XML document.
-	 * 
-	 * @return the file URI of the XML document.
-	 */
-	public String getUri() {
-		return textDocument.getUri();
-	}
-
 	public TextDocument getTextDocument() {
 		return textDocument;
-	}
-
-	@Override
-	public XMLDocument getOwnerDocument() {
-		return this;
 	}
 
 	/**
@@ -183,16 +143,6 @@ public class XMLDocument extends Node {
 	public boolean hasGrammar() {
 		initializeReferencedGrammarIfNeeded();
 		return hasGrammar;
-	}
-
-	@Override
-	public short getNodeType() {
-		return Node.DOCUMENT_NODE;
-	}
-
-	@Override
-	public String getNodeName() {
-		return "#document";
 	}
 
 	private void initializeReferencedGrammarIfNeeded() {
@@ -255,7 +205,8 @@ public class XMLDocument extends Node {
 				// Catalog, XML file associations, etc
 				// bind this XML document to a grammar.
 				String namespaceURI = documentElement.getNamespaceURI();
-				hasGrammar = URIResolverExtensionManager.getInstance().resolve(getUri(), namespaceURI, null) != null;
+				hasGrammar = URIResolverExtensionManager.getInstance().resolve(getDocumentURI(), namespaceURI,
+						null) != null;
 			}
 		}
 	}
@@ -265,7 +216,7 @@ public class XMLDocument extends Node {
 		if (value == null) {
 			return null;
 		}
-		return new SchemaLocation(root.getOwnerDocument().getUri(), value);
+		return new SchemaLocation(root.getOwnerDocument().getDocumentURI(), value);
 	}
 
 	private NoNamespaceSchemaLocation createNoNamespaceSchemaLocation(Node root, String schemaInstancePrefix) {
@@ -273,7 +224,7 @@ public class XMLDocument extends Node {
 		if (attr == null || attr.getValue() == null) {
 			return null;
 		}
-		return new NoNamespaceSchemaLocation(root.getOwnerDocument().getUri(), attr);
+		return new NoNamespaceSchemaLocation(root.getOwnerDocument().getDocumentURI(), attr);
 	}
 
 	private static String getUnprefixedName(String name) {
@@ -310,6 +261,366 @@ public class XMLDocument extends Node {
 
 	public DocumentType createDocumentType(int start, int end) {
 		return new DocumentType(start, end, this);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Node#getNodeType()
+	 */
+	@Override
+	public short getNodeType() {
+		return Node.DOCUMENT_NODE;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Node#getNodeName()
+	 */
+	@Override
+	public String getNodeName() {
+		return "#document";
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Document#getDocumentElement()
+	 */
+	@Override
+	public Element getDocumentElement() {
+		List<Node> roots = getRoots();
+		if (roots != null) {
+			for (Node node : roots) {
+				if (node.isElement()) {
+					return (Element) node;
+				}
+			}
+		}
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Document#getDoctype()
+	 */
+	@Override
+	public DocumentType getDoctype() {
+		List<Node> roots = getRoots();
+		if (roots != null) {
+			for (Node node : roots) {
+				if (node.isDoctype()) {
+					return (DocumentType) node;
+				}
+			}
+		}
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.lsp4xml.dom.Node#getOwnerDocument()
+	 */
+	@Override
+	public XMLDocument getOwnerDocument() {
+		return this;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Document#getDocumentURI()
+	 */
+	@Override
+	public String getDocumentURI() {
+		return textDocument.getUri();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Document#setDocumentURI(java.lang.String)
+	 */
+	@Override
+	public void setDocumentURI(String documentURI) {
+		textDocument.setUri(documentURI);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Document#adoptNode(org.w3c.dom.Node)
+	 */
+	@Override
+	public Node adoptNode(org.w3c.dom.Node source) throws DOMException {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Document#createAttribute(java.lang.String)
+	 */
+	@Override
+	public Attr createAttribute(String name) throws DOMException {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Document#createAttributeNS(java.lang.String,
+	 * java.lang.String)
+	 */
+	@Override
+	public Attr createAttributeNS(String namespaceURI, String qualifiedName) throws DOMException {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Document#createCDATASection(java.lang.String)
+	 */
+	@Override
+	public CDATASection createCDATASection(String data) throws DOMException {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Document#createComment(java.lang.String)
+	 */
+	@Override
+	public Comment createComment(String data) {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Document#createDocumentFragment()
+	 */
+	@Override
+	public DocumentFragment createDocumentFragment() {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Document#createElement(java.lang.String)
+	 */
+	@Override
+	public Element createElement(String tagName) throws DOMException {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Document#createElementNS(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public Element createElementNS(String namespaceURI, String qualifiedName) throws DOMException {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Document#createEntityReference(java.lang.String)
+	 */
+	@Override
+	public EntityReference createEntityReference(String name) throws DOMException {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Document#createProcessingInstruction(java.lang.String,
+	 * java.lang.String)
+	 */
+	@Override
+	public ProcessingInstruction createProcessingInstruction(String target, String data) throws DOMException {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Document#createTextNode(java.lang.String)
+	 */
+	@Override
+	public Text createTextNode(String data) {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Document#getDomConfig()
+	 */
+	@Override
+	public DOMConfiguration getDomConfig() {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Document#getElementById(java.lang.String)
+	 */
+	@Override
+	public Element getElementById(String elementId) {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Document#getElementsByTagName(java.lang.String)
+	 */
+	@Override
+	public NodeList getElementsByTagName(String tagname) {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Document#getElementsByTagNameNS(java.lang.String,
+	 * java.lang.String)
+	 */
+	@Override
+	public NodeList getElementsByTagNameNS(String namespaceURI, String localName) {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Document#getImplementation()
+	 */
+	@Override
+	public DOMImplementation getImplementation() {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Document#getInputEncoding()
+	 */
+	@Override
+	public String getInputEncoding() {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Document#getStrictErrorChecking()
+	 */
+	@Override
+	public boolean getStrictErrorChecking() {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Document#getXmlEncoding()
+	 */
+	@Override
+	public String getXmlEncoding() {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Document#getXmlStandalone()
+	 */
+	@Override
+	public boolean getXmlStandalone() {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Document#getXmlVersion()
+	 */
+	@Override
+	public String getXmlVersion() {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Document#importNode(org.w3c.dom.Node, boolean)
+	 */
+	@Override
+	public Node importNode(org.w3c.dom.Node importedNode, boolean deep) throws DOMException {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Document#normalizeDocument()
+	 */
+	@Override
+	public void normalizeDocument() {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Document#renameNode(org.w3c.dom.Node, java.lang.String,
+	 * java.lang.String)
+	 */
+	@Override
+	public Node renameNode(org.w3c.dom.Node n, String namespaceURI, String qualifiedName) throws DOMException {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Document#setStrictErrorChecking(boolean)
+	 */
+	@Override
+	public void setStrictErrorChecking(boolean strictErrorChecking) {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Document#setXmlStandalone(boolean)
+	 */
+	@Override
+	public void setXmlStandalone(boolean xmlStandalone) throws DOMException {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Document#setXmlVersion(java.lang.String)
+	 */
+	@Override
+	public void setXmlVersion(String xmlVersion) throws DOMException {
+		throw new UnsupportedOperationException();
 	}
 
 }

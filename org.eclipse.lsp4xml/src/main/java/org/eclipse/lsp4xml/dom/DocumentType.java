@@ -10,11 +10,13 @@
  */
 package org.eclipse.lsp4xml.dom;
 
+import org.w3c.dom.NamedNodeMap;
+
 /**
  * A doctype node.
  *
  */
-public class DocumentType extends Node {
+public class DocumentType extends Node implements org.w3c.dom.DocumentType {
 
 	/** Document type name. */
 	String name;
@@ -25,11 +27,6 @@ public class DocumentType extends Node {
 
 	public DocumentType(int start, int end, XMLDocument ownerDocument) {
 		super(start, end, ownerDocument);
-	}
-
-	@Override
-	public short getNodeType() {
-		return Node.DOCUMENT_TYPE_NODE;
 	}
 
 	public String getContent() {
@@ -47,12 +44,83 @@ public class DocumentType extends Node {
 		return endContent;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.DocumentType#getName()
+	 */
+	@Override
 	public String getName() {
 		return name;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Node#getNodeName()
+	 */
 	@Override
 	public String getNodeName() {
 		return getName();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Node#getNodeType()
+	 */
+	@Override
+	public short getNodeType() {
+		return Node.DOCUMENT_TYPE_NODE;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.DocumentType#getEntities()
+	 */
+	@Override
+	public NamedNodeMap getEntities() {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.DocumentType#getInternalSubset()
+	 */
+	@Override
+	public String getInternalSubset() {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.DocumentType#getNotations()
+	 */
+	@Override
+	public NamedNodeMap getNotations() {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.DocumentType#getPublicId()
+	 */
+	@Override
+	public String getPublicId() {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.DocumentType#getSystemId()
+	 */
+	@Override
+	public String getSystemId() {
+		throw new UnsupportedOperationException();
 	}
 }

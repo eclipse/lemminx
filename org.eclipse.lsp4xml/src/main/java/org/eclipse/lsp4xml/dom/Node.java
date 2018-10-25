@@ -15,55 +15,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
+import org.w3c.dom.DOMException;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.UserDataHandler;
+
 /**
  * XML node.
  *
  */
-public class Node {
-
-	/**
-	 * The node is an <code>Element</code>.
-	 */
-	public static final short ELEMENT_NODE = 1;
-
-	/**
-	 * The node is an <code>Attribute</code>.
-	 */
-	public static final short ATTRIBUTE_NODE = 2;
-
-	/**
-	 * The node is a <code>Text</code> node.
-	 */
-	public static final short TEXT_NODE = 3;
-
-	/**
-	 * The node is a <code>CDATASection</code>.
-	 */
-	public static final short CDATA_SECTION_NODE = 4;
-
-	/**
-	 * The node is a <code>ProcessingInstruction</code>.
-	 */
-	public static final short PROCESSING_INSTRUCTION_NODE = 7;
-
-	/**
-	 * The node is a <code>Comment</code>.
-	 */
-	public static final short COMMENT_NODE = 8;
-
-	/**
-	 * The node is a <code>Document</code>.
-	 */
-	public static final short DOCUMENT_NODE = 9;
-	/**
-	 * The node is a <code>DocumentType</code>.
-	 */
-	public static final short DOCUMENT_TYPE_NODE = 10;
+public abstract class Node implements org.w3c.dom.Node {
 
 	boolean closed = false;
 
-	private List<Attr> attributeNodes;
-	private List<Node> children;
+	private XMLNamedNodeMap<Attr> attributeNodes;
+	private XMLNodeList<Node> children;
 
 	final int start;
 	int end;
@@ -71,17 +37,81 @@ public class Node {
 	Node parent;
 	private final XMLDocument ownerDocument;
 
+	class XMLNodeList<T extends Node> extends ArrayList<T> implements NodeList {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public int getLength() {
+			return super.size();
+		}
+
+		@Override
+		public Node item(int index) {
+			return super.get(index);
+		}
+
+	}
+
+	class XMLNamedNodeMap<T extends Node> extends ArrayList<T> implements NamedNodeMap {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public int getLength() {
+			return super.size();
+		}
+
+		@Override
+		public T getNamedItem(String name) {
+			for (T node : this) {
+				if (name.equals(node.getNodeName())) {
+					return node;
+				}
+			}
+			return null;
+		}
+
+		@Override
+		public T getNamedItemNS(String name, String arg1) throws DOMException {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public T item(int index) {
+			return super.get(index);
+		}
+
+		@Override
+		public T removeNamedItem(String arg0) throws DOMException {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public T removeNamedItemNS(String arg0, String arg1) throws DOMException {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public T setNamedItem(org.w3c.dom.Node arg0) throws DOMException {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public T setNamedItemNS(org.w3c.dom.Node arg0) throws DOMException {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+	}
+
 	public Node(int start, int end, XMLDocument ownerDocument) {
 		this.start = start;
 		this.end = end;
-		this.ownerDocument = ownerDocument;
-	}
-
-	Node(int start, int end, List<Node> children, Node parent, XMLDocument ownerDocument) {
-		this.start = start;
-		this.end = end;
-		this.children = children;
-		this.parent = parent;
 		this.ownerDocument = ownerDocument;
 	}
 
@@ -137,14 +167,6 @@ public class Node {
 		return result.toString();
 	}
 
-	public Node firstChild() {
-		return this.children != null && children.size() > 0 ? this.children.get(0) : null;
-	}
-
-	public Node lastChild() {
-		return this.children != null && this.children.size() > 0 ? this.children.get(this.children.size() - 1) : null;
-	}
-
 	public Node findNodeBefore(int offset) {
 		List<Node> children = getChildren();
 		int idx = findFirst(children, c -> offset <= c.start) - 1;
@@ -154,7 +176,7 @@ public class Node {
 				if (offset < child.end) {
 					return child.findNodeBefore(offset);
 				}
-				Node lastChild = child.lastChild();
+				Node lastChild = child.getLastChild();
 				if (lastChild != null && lastChild.end == child.end) {
 					return child.findNodeBefore(offset);
 				}
@@ -282,15 +304,15 @@ public class Node {
 	public void setAttribute(String name, String value) {
 		Attr attr = getAttributeNode(name);
 		if (attr == null) {
-			attr = new Attr(name, null, this);
+			attr = new Attr(name, this);
 			setAttributeNode(attr);
 		}
-		attr.setValue(value, null);
+		attr.setValue(value, -1, -1);
 	}
 
 	public void setAttributeNode(Attr attr) {
 		if (attributeNodes == null) {
-			attributeNodes = new ArrayList<>();
+			attributeNodes = new XMLNamedNodeMap<Attr>();
 		}
 		attributeNodes.add(attr);
 	}
@@ -312,15 +334,6 @@ public class Node {
 	}
 
 	/**
-	 * Returns true if node has children and false otherwise.
-	 * 
-	 * @return true if node has children and false otherwise.
-	 */
-	public boolean hasChildren() {
-		return children != null && !children.isEmpty();
-	}
-
-	/**
 	 * Add node child
 	 * 
 	 * @param child the node child to add.
@@ -328,7 +341,7 @@ public class Node {
 	public void addChild(Node child) {
 		child.parent = this;
 		if (children == null) {
-			children = new ArrayList<>();
+			children = new XMLNodeList<Node>();
 		}
 		getChildren().add(child);
 	}
@@ -341,10 +354,6 @@ public class Node {
 	 */
 	public Node getChild(int index) {
 		return getChildren().get(index);
-	}
-
-	public Node getParentNode() {
-		return parent;
 	}
 
 	public boolean isClosed() {
@@ -413,24 +422,257 @@ public class Node {
 		return isCDATA() || isText() || isProcessingInstruction() || isComment();
 	}
 
-	public short getNodeType() {
-		return 0;
-	}
-
-	public String getNodeName() {
-		return null;
-	}
-
-	public String getLocalName() {
-		return null;
-	}
-
 	public int getStart() {
 		return start;
 	}
 
 	public int getEnd() {
 		return end;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Node#getLocalName()
+	 */
+	@Override
+	public String getLocalName() {
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Node#getParentNode()
+	 */
+	@Override
+	public Node getParentNode() {
+		return parent;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Node#getFirstChild()
+	 */
+	@Override
+	public Node getFirstChild() {
+		return this.children != null && children.size() > 0 ? this.children.get(0) : null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Node#getLastChild()
+	 */
+	@Override
+	public Node getLastChild() {
+		return this.children != null && this.children.size() > 0 ? this.children.get(this.children.size() - 1) : null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Node#getAttributes()
+	 */
+	@Override
+	public NamedNodeMap getAttributes() {
+		return attributeNodes;
+	}
+
+	@Override
+	public NodeList getChildNodes() {
+		// TODO Auto-generated method stub
+		return children;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Node#appendChild(org.w3c.dom.Node)
+	 */
+	@Override
+	public org.w3c.dom.Node appendChild(org.w3c.dom.Node newChild) throws DOMException {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Node#cloneNode(boolean)
+	 */
+	@Override
+	public org.w3c.dom.Node cloneNode(boolean deep) {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Node#compareDocumentPosition(org.w3c.dom.Node)
+	 */
+	@Override
+	public short compareDocumentPosition(org.w3c.dom.Node other) throws DOMException {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Node#getBaseURI()
+	 */
+	@Override
+	public String getBaseURI() {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Node#getFeature(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public Object getFeature(String arg0, String arg1) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public String getNamespaceURI() {
+		return null;
+	}
+
+	@Override
+	public Node getNextSibling() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getNodeValue() throws DOMException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getPrefix() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Node getPreviousSibling() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Node#getTextContent()
+	 */
+	@Override
+	public String getTextContent() throws DOMException {
+		return getNodeValue();
+	}
+
+	@Override
+	public Object getUserData(String arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Node#hasChildNodes()
+	 */
+	@Override
+	public boolean hasChildNodes() {
+		return children != null && !children.isEmpty();
+	}
+
+	@Override
+	public org.w3c.dom.Node insertBefore(org.w3c.dom.Node arg0, org.w3c.dom.Node arg1) throws DOMException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean isDefaultNamespace(String arg0) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isEqualNode(org.w3c.dom.Node arg0) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isSameNode(org.w3c.dom.Node arg0) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isSupported(String arg0, String arg1) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public String lookupNamespaceURI(String arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String lookupPrefix(String arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void normalize() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public org.w3c.dom.Node removeChild(org.w3c.dom.Node arg0) throws DOMException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public org.w3c.dom.Node replaceChild(org.w3c.dom.Node arg0, org.w3c.dom.Node arg1) throws DOMException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setNodeValue(String arg0) throws DOMException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void setPrefix(String arg0) throws DOMException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void setTextContent(String arg0) throws DOMException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public Object setUserData(String arg0, Object arg1, UserDataHandler arg2) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

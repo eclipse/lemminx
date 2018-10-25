@@ -14,18 +14,13 @@ package org.eclipse.lsp4xml.dom;
  * A CData section node.
  *
  */
-public class CDataSection extends Text {
+public class CDataSection extends Text implements org.w3c.dom.CDATASection {
 
 	int startContent;
 	int endContent;
 
 	public CDataSection(int start, int end, XMLDocument ownerDocument) {
 		super(start, end, ownerDocument);
-	}
-
-	@Override
-	public short getNodeType() {
-		return Node.CDATA_SECTION_NODE;
 	}
 
 	@Override
@@ -38,4 +33,13 @@ public class CDataSection extends Text {
 		return endContent;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.w3c.dom.Text#getNodeType()
+	 */
+	@Override
+	public short getNodeType() {
+		return Node.CDATA_SECTION_NODE;
+	}
 }

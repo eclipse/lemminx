@@ -14,12 +14,13 @@ import static java.lang.System.lineSeparator;
 
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.utils.StringUtils;
+import org.w3c.dom.DOMException;
 
 /**
  * A CharacterData node.
  *
  */
-public abstract class CharacterData extends Node {
+public abstract class CharacterData extends Node implements org.w3c.dom.CharacterData {
 
 	private String data;
 
@@ -27,13 +28,6 @@ public abstract class CharacterData extends Node {
 
 	public CharacterData(int start, int end, XMLDocument ownerDocument) {
 		super(start, end, ownerDocument);
-	}
-
-	public String getData() {
-		if (data == null) {
-			data = getOwnerDocument().getText().substring(getStartContent(), getEndContent());
-		}
-		return data;
 	}
 
 	public boolean hasMultiLine() {
@@ -48,20 +42,21 @@ public abstract class CharacterData extends Node {
 	/**
 	 * If data ends with a new line character
 	 * 
-	 * Returns false if a character is found before a new line, 
-	 * but will ignore whitespace while searching
+	 * Returns false if a character is found before a new line, but will ignore
+	 * whitespace while searching
+	 * 
 	 * @return
 	 */
 	public boolean endsWithNewLine() {
-		for(int i = data.length() - 1; i >= 0; i--) {
+		for (int i = data.length() - 1; i >= 0; i--) {
 			char c = data.charAt(i);
-			if(!Character.isWhitespace(c)) {
+			if (!Character.isWhitespace(c)) {
 				return false;
 			}
-			if(c == '\n') {
+			if (c == '\n') {
 				return true;
 			}
-			
+
 		}
 		return false;
 	}
@@ -83,5 +78,88 @@ public abstract class CharacterData extends Node {
 
 	public int getEndContent() {
 		return end;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.CharacterData#getData()
+	 */
+	@Override
+	public String getData() {
+		if (data == null) {
+			data = getOwnerDocument().getText().substring(getStartContent(), getEndContent());
+		}
+		return data;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.CharacterData#appendData(java.lang.String)
+	 */
+	@Override
+	public void appendData(String data) throws DOMException {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.CharacterData#deleteData(int, int)
+	 */
+	@Override
+	public void deleteData(int offset, int count) throws DOMException {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.CharacterData#getLength()
+	 */
+	@Override
+	public int getLength() {
+		return getData().length();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.CharacterData#insertData(int, java.lang.String)
+	 */
+	@Override
+	public void insertData(int offset, String data) throws DOMException {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.CharacterData#replaceData(int, int, java.lang.String)
+	 */
+	@Override
+	public void replaceData(int offset, int count, String data) throws DOMException {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.CharacterData#setData(java.lang.String)
+	 */
+	@Override
+	public void setData(String value) throws DOMException {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.CharacterData#substringData(int, int)
+	 */
+	@Override
+	public String substringData(int offset, int count) throws DOMException {
+		throw new UnsupportedOperationException();
 	}
 }

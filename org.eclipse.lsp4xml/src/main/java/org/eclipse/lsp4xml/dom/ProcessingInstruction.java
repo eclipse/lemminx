@@ -10,11 +10,13 @@
  */
 package org.eclipse.lsp4xml.dom;
 
+import org.w3c.dom.DOMException;
+
 /**
  * A processing instruction node.
  *
  */
-public class ProcessingInstruction extends CharacterData {
+public class ProcessingInstruction extends CharacterData implements org.w3c.dom.ProcessingInstruction {
 
 	boolean startTagClose;
 	String target;
@@ -36,36 +38,66 @@ public class ProcessingInstruction extends CharacterData {
 		return processingInstruction;
 	}
 
+	public int getStartContent() {
+		return startContent;
+	}
+
+	public int getEndContent() {
+		return endContent;
+	}
+
+	public Integer getEndTagStart() {
+		return endTagOpenOffset;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Node#getNodeType()
+	 */
 	@Override
 	public short getNodeType() {
 		return Node.PROCESSING_INSTRUCTION_NODE;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Node#getNodeName()
+	 */
+	@Override
+	public String getNodeName() {
+		return getTarget();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.ProcessingInstruction#getTarget()
+	 */
+	@Override
+	public String getTarget() {
+		return target;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.ProcessingInstruction#getData()
+	 */
 	@Override
 	public String getData() {
 		return super.getData().trim();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.ProcessingInstruction#setData(java.lang.String)
+	 */
 	@Override
-	public int getStartContent() {
-		return startContent;
+	public void setData(String data) throws DOMException {
+		throw new UnsupportedOperationException();
 	}
 
-	@Override
-	public int getEndContent() {
-		return endContent;
-	}
-	
-	public String getTarget() {
-		return target;
-	}
-	
-	@Override
-	public String getNodeName() {
-		return getTarget();
-	}
-	
-	public Integer getEndTagStart() {
-		return endTagOpenOffset;
-	}
 }

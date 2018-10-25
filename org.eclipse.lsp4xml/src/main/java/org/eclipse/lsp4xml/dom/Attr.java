@@ -10,11 +10,14 @@
  */
 package org.eclipse.lsp4xml.dom;
 
+import org.w3c.dom.DOMException;
+import org.w3c.dom.TypeInfo;
+
 /**
  * An attribute node.
  *
  */
-public class Attr extends Node {
+public class Attr extends Node implements org.w3c.dom.Attr {
 
 	private final String name;
 
@@ -26,24 +29,137 @@ public class Attr extends Node {
 
 	private final Node ownerElement;
 
-	public Attr(String name, Node nodeAttrName, Node ownerElement) {
+	class AttrNameOrValue extends Node {
+
+		private final Attr ownerAttr;
+
+		public AttrNameOrValue(int start, int end, Attr ownerAttr) {
+			super(start, end, ownerAttr.getOwnerDocument());
+			this.ownerAttr = ownerAttr;
+		}
+
+		@Override
+		public String getNodeName() {
+			return null;
+		}
+
+		@Override
+		public short getNodeType() {
+			return -1;
+		}
+
+		public Attr getOwnerAttr() {
+			return ownerAttr;
+		}
+	}
+
+	public Attr(String name, Node ownerElement) {
+		this(name, -1, -1, ownerElement);
+	}
+
+	public Attr(String name, int start, int end, Node ownerElement) {
 		super(-1, -1, ownerElement.getOwnerDocument());
 		this.name = name;
-		this.nodeAttrName = nodeAttrName;
+		this.nodeAttrName = start != -1 ? new AttrNameOrValue(start, end, this) : null;
 		this.ownerElement = ownerElement;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Node#getNodeType()
+	 */
+	@Override
+	public short getNodeType() {
+		return Node.ATTRIBUTE_NODE;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Node#getNodeName()
+	 */
+	@Override
+	public String getNodeName() {
+		return getName();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Attr#getName()
+	 */
+	@Override
 	public String getName() {
 		return name;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Attr#getOwnerElement()
+	 */
+	public Element getOwnerElement() {
+		return ownerElement.isElement() ? (Element) ownerElement : null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Attr#getValue()
+	 */
+	@Override
+	public String getValue() {
+		return value;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Attr#getSchemaTypeInfo()
+	 */
+	@Override
+	public TypeInfo getSchemaTypeInfo() {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Attr#getSpecified()
+	 */
+	@Override
+	public boolean getSpecified() {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Attr#isId()
+	 */
+	@Override
+	public boolean isId() {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Attr#setValue(java.lang.String)
+	 */
+	@Override
+	public void setValue(String value) throws DOMException {
+		setValue(value, -1, -1);
 	}
 
 	public Node getNodeAttrName() {
 		return nodeAttrName;
 	}
 
-	public void setValue(String value, Node nodeValue) {
+	public void setValue(String value, int start, int end) {
 		this.value = getValue(value);
-		this.nodeAttrValue = nodeValue;
+		this.nodeAttrValue = start != -1 ? new AttrNameOrValue(start, end, this) : null;
 	}
 
 	private static String getValue(String value) {
@@ -80,10 +196,6 @@ public class Attr extends Node {
 		return nodeAttrValue != null ? nodeAttrValue.end : nodeAttrName.end;
 	}
 
-	public String getValue() {
-		return value;
-	}
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -115,12 +227,4 @@ public class Attr extends Node {
 		return true;
 	}
 
-	public Element getOwnerElement() {
-		return ownerElement.isElement() ? (Element) ownerElement : null;
-	}
-
-	@Override
-	public short getNodeType() {
-		return Node.ATTRIBUTE_NODE;
-	}
 }

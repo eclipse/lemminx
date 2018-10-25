@@ -61,7 +61,7 @@ class XMLSymbolsProvider {
 		Position start = xmlDocument.positionAt(node.getStart());
 		Position end = xmlDocument.positionAt(node.getEnd());
 		Range range = new Range(start, end);
-		Location location = new Location(xmlDocument.getUri(), range);
+		Location location = new Location(xmlDocument.getDocumentURI(), range);
 		SymbolInformation symbol = new SymbolInformation(name, getSymbolKind(node), location, container);
 
 		symbols.add(symbol);

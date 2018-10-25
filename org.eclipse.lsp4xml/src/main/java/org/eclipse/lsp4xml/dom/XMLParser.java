@@ -140,8 +140,8 @@ public class XMLParser {
 
 			case AttributeName: {
 				pendingAttribute = scanner.getTokenText();
-				attr = new Attr(pendingAttribute, new Node(scanner.getTokenOffset(),
-						scanner.getTokenOffset() + pendingAttribute.length(), null, curr, xmlDocument), curr);
+				attr = new Attr(pendingAttribute, scanner.getTokenOffset(),
+						scanner.getTokenOffset() + pendingAttribute.length(), curr);
 				curr.setAttributeNode(attr);
 				break;
 			}
@@ -149,8 +149,7 @@ public class XMLParser {
 			case AttributeValue: {
 				String value = scanner.getTokenText();
 				if (curr.hasAttributes()) {
-					attr.setValue(value, new Node(scanner.getTokenOffset(), scanner.getTokenOffset() + value.length(),
-							null, curr, xmlDocument));
+					attr.setValue(value, scanner.getTokenOffset(), scanner.getTokenOffset() + value.length());
 				}
 				pendingAttribute = null;
 				attr = null;

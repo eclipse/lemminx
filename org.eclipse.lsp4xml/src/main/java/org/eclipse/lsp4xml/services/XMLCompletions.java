@@ -345,7 +345,7 @@ class XMLCompletions {
 			Element parentNode = completionRequest.getParentElement();
 			if (parentNode != null) {
 				Set<String> seenElements = new HashSet<>();
-				if (parentNode != null && parentNode.isElement() && parentNode.hasChildren()) {
+				if (parentNode != null && parentNode.isElement() && parentNode.hasChildNodes()) {
 					parentNode.getChildren().forEach(node -> {
 						Element element = node.isElement() ? (Element) node : null;
 						if (element == null || element.getTagName() == null

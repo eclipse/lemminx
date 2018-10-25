@@ -316,7 +316,7 @@ public class XMLPositionUtility {
 	public static Range selectText(int offset, XMLDocument document) {
 		Node node = document.findNodeAt(offset);
 		if (node != null) {
-			if (node.hasChildren()) {
+			if (node.hasChildNodes()) {
 				// <root>BAD TEXT</root>
 				for (Node child : node.getChildren()) {
 					if (child.isText()) {

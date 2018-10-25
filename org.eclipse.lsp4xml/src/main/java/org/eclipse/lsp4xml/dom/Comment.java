@@ -14,7 +14,7 @@ package org.eclipse.lsp4xml.dom;
  * A Comment node.
  *
  */
-public class Comment extends CharacterData {
+public class Comment extends CharacterData implements org.w3c.dom.Comment {
 
 	boolean commentSameLineEndTag;
 
@@ -31,16 +31,6 @@ public class Comment extends CharacterData {
 	}
 
 	@Override
-	public short getNodeType() {
-		return Node.COMMENT_NODE;
-	}
-
-	@Override
-	public String getNodeName() {
-		return "#comment";
-	}
-
-	@Override
 	public int getStartContent() {
 		return startContent;
 	}
@@ -50,4 +40,23 @@ public class Comment extends CharacterData {
 		return endContent;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Node#getNodeType()
+	 */
+	@Override
+	public short getNodeType() {
+		return Node.COMMENT_NODE;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Node#getNodeName()
+	 */
+	@Override
+	public String getNodeName() {
+		return "#comment";
+	}
 }

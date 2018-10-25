@@ -101,7 +101,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		List<TextEdit> textEdits = findDocumentHighlights(xmlDocument, position).stream()
 				.map(h -> new TextEdit(h.getRange(), newText)).collect(Collectors.toList());
 		Map<String, List<TextEdit>> changes = new HashMap<>();
-		changes.put(xmlDocument.getUri(), textEdits);
+		changes.put(xmlDocument.getDocumentURI(), textEdits);
 		return new WorkspaceEdit(changes);
 	}
 

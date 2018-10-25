@@ -22,7 +22,6 @@ import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.dom.Attr;
 import org.eclipse.lsp4xml.dom.CDataSection;
-import org.eclipse.lsp4xml.dom.CharacterData;
 import org.eclipse.lsp4xml.dom.Comment;
 import org.eclipse.lsp4xml.dom.DocumentType;
 import org.eclipse.lsp4xml.dom.Element;
@@ -87,10 +86,10 @@ class XMLFormatter {
 
 	private void format(Node node, int level, int end, XMLBuilder xml) {
 		if (node.getNodeType() != Node.DOCUMENT_NODE) {
-			boolean doLineFeed = !(node.isComment() && ((Comment) node).isCommentSameLineEndTag()) 
-									&& (!node.isPreviousNodeType(Node.TEXT_NODE) || xml.isJoinContentLines())
-									&& (!node.isText() || ((xml.isJoinContentLines() && !node.isFirstChildNode())));
-			
+			boolean doLineFeed = !(node.isComment() && ((Comment) node).isCommentSameLineEndTag())
+					&& (!node.isPreviousNodeType(Node.TEXT_NODE) || xml.isJoinContentLines())
+					&& (!node.isText() || ((xml.isJoinContentLines() && !node.isFirstChildNode())));
+
 			if (level > 0 && doLineFeed) {
 				// add new line + indent
 				xml.linefeed();
@@ -153,7 +152,7 @@ class XMLFormatter {
 					if (!content.isEmpty()) {
 						xml.addContent(content);
 					}
-					
+
 				}
 				return;
 			} else if (node.isElement()) {
@@ -164,14 +163,13 @@ class XMLFormatter {
 					xml.endElement(tag);
 				} else {
 					xml.startElement(tag, false);
-					if (node.hasAttributes()) {
+					if (element.hasAttributes()) {
 						// generate attributes
-						List<Attr> attributes = node.getAttributeNodes();
-						if(attributes.size() == 1) {
+						List<Attr> attributes = element.getAttributeNodes();
+						if (attributes.size() == 1) {
 							Attr singleAttribute = attributes.get(0);
-							xml.addSingleAttribute(singleAttribute.getName(),singleAttribute.getValue());
-						}
-						else {
+							xml.addSingleAttribute(singleAttribute.getName(), singleAttribute.getValue());
+						} else {
 							int attributeIndex = 0;
 							for (Attr attr : attributes) {
 								String attributeName = attr.getName();
@@ -182,7 +180,7 @@ class XMLFormatter {
 					}
 					boolean hasElements = false;
 					boolean startElementClosed = false;
-					if (node.hasChildren()) {
+					if (node.hasChildNodes()) {
 						// element has body
 						xml.closeStartElement();
 						startElementClosed = true;
@@ -219,7 +217,7 @@ class XMLFormatter {
 				}
 				return;
 			}
-		} else if (node.hasChildren()) {
+		} else if (node.hasChildNodes()) {
 			// Other nodes kind like root
 			for (Node child : node.getChildren()) {
 				format(child, level, end, xml);
