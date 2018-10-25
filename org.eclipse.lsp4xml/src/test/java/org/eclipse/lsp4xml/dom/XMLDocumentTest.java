@@ -12,7 +12,9 @@ import org.eclipse.lsp4xml.dom.parser.Scanner;
 import org.eclipse.lsp4xml.dom.parser.TokenType;
 import org.eclipse.lsp4xml.dom.parser.XMLScanner;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
+import org.w3c.dom.NodeList;
 
 public class XMLDocumentTest {
 
@@ -40,7 +42,7 @@ public class XMLDocumentTest {
 	}
 
 	@Test
-	public void findElementByW3CAndXPath() throws XPathExpressionException {
+	public void findOneElementWithW3CAndXPath() throws XPathExpressionException {
 		XMLDocument document = XMLParser.getInstance().parse("<a><b><c>XXXX</c></b></a>", "test");
 
 		// Get "c" element by w3c DOM model
@@ -69,6 +71,36 @@ public class XMLDocumentTest {
 		Assert.assertEquals("c", elt.getNodeName());
 		Assert.assertEquals(c, elt);
 		Assert.assertTrue(c.isElement());
+	}
+
+	@Test
+	public void findTextWithXPath() throws XPathExpressionException {
+		XMLDocument document = XMLParser.getInstance().parse("<a><b><c>XXXX</c></b></a>", "test");
+
+		XPath xPath = XPathFactory.newInstance().newXPath();
+		Object result = xPath.evaluate("/a/b/c/text()", document, XPathConstants.NODE);
+		Assert.assertNotNull(result);
+		Assert.assertTrue(result instanceof Text);
+		Text text = (Text) result;
+		Assert.assertEquals("XXXX", text.getData());
+
+		result = xPath.evaluate("/a/b/c/text()", document, XPathConstants.STRING);
+		Assert.assertNotNull(result);
+		Assert.assertEquals("XXXX", result.toString());
+	}
+
+	@Ignore("Study why this test doesn't work?")
+	@Test
+	public void findElementListWithXPath() throws XPathExpressionException {
+		XMLDocument document = XMLParser.getInstance().parse("<a><b><c>XXXX</c><c>XXXX</c></b></a>", "test");
+
+		XPath xPath = XPathFactory.newInstance().newXPath();
+		Object result = xPath.evaluate("/a/b//c", document, XPathConstants.NODESET);
+		Assert.assertNotNull(result);
+		Assert.assertTrue(result instanceof NodeList);
+		NodeList elts = (NodeList) result;
+		Assert.assertEquals(2, elts.getLength());
+
 	}
 
 	static String convertStreamToString(InputStream is) {

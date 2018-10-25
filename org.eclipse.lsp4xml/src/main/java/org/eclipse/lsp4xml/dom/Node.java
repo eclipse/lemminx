@@ -480,9 +480,12 @@ public abstract class Node implements org.w3c.dom.Node {
 		return attributeNodes;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.w3c.dom.Node#getChildNodes()
+	 */
 	@Override
 	public NodeList getChildNodes() {
-		// TODO Auto-generated method stub
 		return children;
 	}
 
@@ -555,7 +558,6 @@ public abstract class Node implements org.w3c.dom.Node {
 
 	@Override
 	public String getPrefix() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

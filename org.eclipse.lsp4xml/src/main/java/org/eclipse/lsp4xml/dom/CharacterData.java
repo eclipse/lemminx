@@ -96,6 +96,16 @@ public abstract class CharacterData extends Node implements org.w3c.dom.Characte
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see org.eclipse.lsp4xml.dom.Node#getNodeValue()
+	 */
+	@Override
+	public String getNodeValue() throws DOMException {
+		return getData();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.w3c.dom.CharacterData#appendData(java.lang.String)
 	 */
 	@Override
