@@ -1,2 +1,3 @@
 org.eclipse.lsp4xml.extensions.contentmodel.ContentModelPlugin
+org.eclipse.lsp4xml.extensions.references.XMLReferencesPlugin
 org.eclipse.lsp4xml.extensions.xsl.XSLPlugin
