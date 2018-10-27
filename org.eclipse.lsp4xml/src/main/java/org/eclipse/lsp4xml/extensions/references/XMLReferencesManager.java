@@ -28,55 +28,27 @@ public class XMLReferencesManager {
 		return INSTANCE;
 	}
 
-	class XMLReferencesInfo {
-
-		private final XMLReference references;
-		private final Predicate<XMLDocument> documentPredicate;
-
-		public XMLReferencesInfo(XMLReference references, Predicate<XMLDocument> documentPredicate) {
-			this.references = references;
-			this.documentPredicate = documentPredicate;
-		}
-
-		public boolean canApply(XMLDocument document) {
-			return documentPredicate.test(document);
-		}
-
-		public boolean matchReference(Node node) {
-			return references.match(node);
-		}
-
-		public void collectNodes(Node node, Consumer<Node> collector) throws XPathExpressionException {
-			references.collect(node, collector);
-		}
-	}
-
-	private final List<XMLReferencesInfo> referenceInfos;
+	private final List<XMLReferences> referencesCache;
 
 	public XMLReferencesManager() {
-		this.referenceInfos = new ArrayList<>();
+		this.referencesCache = new ArrayList<>();
 	}
 
-	public XMLReference addReference(String from, Predicate<XMLDocument> documentPredicate) {
-		XMLReference reference = new XMLReference(from);
-		registerReference(reference, documentPredicate);
-		return reference;
-	}
-	private void registerReference(XMLReference references, Predicate<XMLDocument> documentPredicate) {
-		referenceInfos.add(new XMLReferencesInfo(references, documentPredicate));
+	public XMLReferences referencesFor(Predicate<XMLDocument> documentPredicate) {
+		XMLReferences references = new XMLReferences(documentPredicate);
+		referencesCache.add(references);
+		return references;
 	}
 
 	public void collect(Node node, Consumer<Node> collector) {
 		XMLDocument document = node.getOwnerDocument();
-		for (XMLReferencesInfo info : referenceInfos) {
-			if (info.canApply(document)) {
-				if (info.matchReference(node)) {
-					try {
-						info.collectNodes(node, collector);
-					} catch (XPathExpressionException e) {
-						// TODO!!!
-						e.printStackTrace();
-					}
+		for (XMLReferences references : referencesCache) {
+			if (references.canApply(document)) {
+				try {
+					references.collectNodes(node, collector);
+				} catch (XPathExpressionException e) {
+					// TODO!!!
+					e.printStackTrace();
 				}
 			}
 		}

@@ -25,7 +25,7 @@ import org.eclipse.lsp4xml.xpath.matcher.XPathMatcher;
 import org.w3c.dom.NodeList;
 
 /**
- * XML reference declaration.
+ * An XML reference declaration.
  *
  */
 public class XMLReference {
@@ -42,17 +42,17 @@ public class XMLReference {
 		this.tos = new ArrayList<>();
 	}
 
-	public XMLReference addTo(String to) throws XPathExpressionException {
+	public XMLReference to(String to) throws XPathExpressionException {
 		XPath xPath = XPathFactory.newInstance().newXPath();
 		this.tos.add(xPath.compile(to));
 		return this;
 	}
 
-	public boolean match(Node node) {
+	boolean match(Node node) {
 		return matcher.match(node);
 	}
 
-	public void collect(Node node, Consumer<Node> collector) throws XPathExpressionException {
+	void collect(Node node, Consumer<Node> collector) throws XPathExpressionException {
 		for (XPathExpression expression : tos) {
 			NodeList result = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
 			for (int i = 0; i < result.getLength(); i++) {
@@ -61,4 +61,5 @@ public class XMLReference {
 		}
 
 	}
+
 }
