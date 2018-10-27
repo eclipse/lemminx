@@ -537,7 +537,11 @@ public abstract class Node implements org.w3c.dom.Node {
 	 */
 	@Override
 	public Node getNextSibling() {
-		List<Node> children = getParentNode().getChildren();
+		Node parentNode = getParentNode();
+		if (parentNode == null) {
+			return null;
+		}
+		List<Node> children = parentNode.getChildren();
 		int nextIndex = children.indexOf(this) + 1;
 		return nextIndex < children.size() ? children.get(nextIndex) : null;
 	}
@@ -559,7 +563,11 @@ public abstract class Node implements org.w3c.dom.Node {
 	 */
 	@Override
 	public Node getPreviousSibling() {
-		List<Node> children = getParentNode().getChildren();
+		Node parentNode = getParentNode();
+		if (parentNode == null) {
+			return null;
+		}
+		List<Node> children = parentNode.getChildren();
 		int previousIndex = children.indexOf(this) - 1;
 		return previousIndex >= 0 ? children.get(previousIndex) : null;
 	}

@@ -20,6 +20,10 @@ public class StringUtils {
 
 	}
 
+	public static boolean isEmpty(String value) {
+		return value == null || value.isEmpty();
+	}
+
 	/**
 	 * Returns the result of normalize space of the given string.
 	 * 
@@ -121,4 +125,5 @@ public class StringUtils {
 		trimNewLines(value, s);
 		return s.toString();
 	}
+
 }
