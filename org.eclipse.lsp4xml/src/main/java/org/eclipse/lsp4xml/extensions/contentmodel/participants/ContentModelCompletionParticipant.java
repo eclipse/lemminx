@@ -71,7 +71,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 				}
 			}
 		} catch (CacheResourceDownloadingException e) {
-			addCacheWarningItem(e, response);
+			// XML Schema, DTD is loading, ignore this error
 		}
 	}
 
@@ -147,7 +147,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 				}
 			}
 		} catch (CacheResourceDownloadingException e) {
-			addCacheWarningItem(e, response);
+			// XML Schema, DTD is loading, ignore this error
 		}
 	}
 
@@ -173,16 +173,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 				}
 			}
 		} catch (CacheResourceDownloadingException e) {
-			addCacheWarningItem(e, response);
+			// XML Schema, DTD is loading, ignore this error
 		}
 	}
-
-	private void addCacheWarningItem(CacheResourceDownloadingException e, ICompletionResponse response) {
-		// Here cache is enabled and some XML Schema, DTD, etc are loading
-		CompletionItem item = new CompletionItem(
-				"Cannot process " + (e.isDTD() ? "DTD" : "XML Schema") + " completion: " + e.getMessage());
-		item.setInsertText("");
-		response.addCompletionItem(item);
-	}
-
 }
