@@ -70,13 +70,15 @@ public class XMLAssert {
 		Position position = document.positionAt(offset);
 		XMLDocument htmlDoc = XMLParser.getInstance().parse(document);
 		xmlLanguageService.setDocumentProvider((uri) -> htmlDoc);
-		
+
+		ContentModelSettings settings = new ContentModelSettings();
+		settings.setUseCache(false);
 		// Configure XML catalog for XML schema
 		if (catalogPath != null) {
-			ContentModelSettings settings = new ContentModelSettings();
 			settings.setCatalogs(new String[] { catalogPath });
-			xmlLanguageService.updateSettings(settings);
 		}
+		xmlLanguageService.updateSettings(settings);
+
 		CompletionList list = xmlLanguageService.doComplete(htmlDoc, position, new CompletionSettings(autoCloseTags),
 				new XMLFormattingOptions(4, false));
 
@@ -176,12 +178,13 @@ public class XMLAssert {
 		XMLDocument xmlDocument = XMLParser.getInstance().parse(document);
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
 
+		ContentModelSettings settings = new ContentModelSettings();
+		settings.setUseCache(false);
 		if (catalogPath != null) {
 			// Configure XML catalog for XML schema
-			ContentModelSettings settings = new ContentModelSettings();
 			settings.setCatalogs(new String[] { catalogPath });
-			xmlLanguageService.updateSettings(settings);
 		}
+		xmlLanguageService.updateSettings(settings);
 
 		List<Diagnostic> actual = xmlLanguageService.doDiagnostics(xmlDocument, () -> {
 		});
@@ -220,12 +223,13 @@ public class XMLAssert {
 
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
 
+		ContentModelSettings settings = new ContentModelSettings();
+		settings.setUseCache(false);
 		if (catalogPath != null) {
 			// Configure XML catalog for XML schema
-			ContentModelSettings settings = new ContentModelSettings();
 			settings.setCatalogs(new String[] { catalogPath });
-			xmlLanguageService.updateSettings(settings);
 		}
+		xmlLanguageService.updateSettings(settings);
 
 		CodeActionContext context = new CodeActionContext();
 		context.setDiagnostics(Arrays.asList(diagnostic));
@@ -295,12 +299,13 @@ public class XMLAssert {
 		Position position = document.positionAt(offset);
 
 		XMLDocument htmlDoc = XMLParser.getInstance().parse(document);
+		ContentModelSettings settings = new ContentModelSettings();
+		settings.setUseCache(false);
 		// Configure XML catalog for XML schema
 		if (catalogPath != null) {
-			ContentModelSettings settings = new ContentModelSettings();
 			settings.setCatalogs(new String[] { catalogPath });
-			xmlLanguageService.updateSettings(settings);
 		}
+		xmlLanguageService.updateSettings(settings);
 
 		Hover hover = xmlLanguageService.doHover(htmlDoc, position);
 		if (expectedHoverLabel == null) {
