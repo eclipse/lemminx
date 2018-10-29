@@ -11,16 +11,20 @@
 package org.eclipse.lsp4xml.extensions.references;
 
 import org.eclipse.lsp4j.InitializeParams;
+import org.eclipse.lsp4xml.extensions.references.participants.XMLReferencesCompletionParticipant;
 import org.eclipse.lsp4xml.extensions.references.participants.XMLReferencesDefinitionParticipant;
+import org.eclipse.lsp4xml.services.extensions.ICompletionParticipant;
 import org.eclipse.lsp4xml.services.extensions.IDefinitionParticipant;
 import org.eclipse.lsp4xml.services.extensions.IXMLExtension;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 
 public class XMLReferencesPlugin implements IXMLExtension {
 
+	private final ICompletionParticipant completionParticipant;
 	private final IDefinitionParticipant definitionParticipant;
 
 	public XMLReferencesPlugin() {
+		completionParticipant = new XMLReferencesCompletionParticipant();
 		definitionParticipant = new XMLReferencesDefinitionParticipant();
 	}
 
@@ -31,11 +35,13 @@ public class XMLReferencesPlugin implements IXMLExtension {
 
 	@Override
 	public void start(InitializeParams params, XMLExtensionsRegistry registry) {
+		registry.registerCompletionParticipant(completionParticipant);
 		registry.registerDefinitionParticipant(definitionParticipant);
 	}
 
 	@Override
 	public void stop(XMLExtensionsRegistry registry) {
+		registry.unregisterCompletionParticipant(completionParticipant);
 		registry.unregisterDefinitionParticipant(definitionParticipant);
 	}
 
