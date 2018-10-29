@@ -24,11 +24,6 @@ public class ContentModelSettings {
 
 	private XMLFileAssociation[] fileAssociations;
 
-	public ContentModelSettings() {
-		// Use cache by default
-		setUseCache(true);
-	}
-
 	/**
 	 * Returns true if cache to download XML Schema, DTD must be activated and false
 	 * otherwise.

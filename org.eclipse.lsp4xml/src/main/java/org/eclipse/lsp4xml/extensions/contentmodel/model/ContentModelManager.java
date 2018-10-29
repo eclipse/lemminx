@@ -55,12 +55,12 @@ public class ContentModelManager {
 	private final XMLFileAssociationResolverExtension fileAssociationResolver;
 
 	public ContentModelManager() {
-		cmDocumentCache = new HashMap<>();		
+		cmDocumentCache = new HashMap<>();
 		URIResolverExtensionManager resolverManager = URIResolverExtensionManager.getInstance();
 		loader = new XSLoaderImpl();
 		loader.setParameter("http://apache.org/xml/properties/internal/entity-resolver", resolverManager);
 		loader.setParameter(Constants.DOM_ERROR_HANDLER, new DOMErrorHandler() {
-			
+
 			@Override
 			public boolean handleError(DOMError error) {
 				if (error.getRelatedException() instanceof CacheResourceDownloadingException) {
@@ -75,6 +75,8 @@ public class ContentModelManager {
 		resolverManager.registerResolver(fileAssociationResolver);
 		catalogResolverExtension = new XMLCatalogResolverExtension();
 		resolverManager.registerResolver(catalogResolverExtension);
+		// Use cache by default
+		setUseCache(true);
 	}
 
 	public CMElementDeclaration findCMElement(Element element) throws Exception {
