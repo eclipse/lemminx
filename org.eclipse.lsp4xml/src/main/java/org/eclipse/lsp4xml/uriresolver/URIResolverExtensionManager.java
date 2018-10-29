@@ -34,8 +34,19 @@ public class URIResolverExtensionManager implements URIResolverExtension, IExter
 
 	private final List<URIResolverExtension> resolvers;
 
+	private final URIResolverExtension defaultURIResolverExtension;
+
 	private URIResolverExtensionManager() {
 		resolvers = new ArrayList<>();
+		this.defaultURIResolverExtension = new DefaultURIResolverExtension();
+	}
+
+	class DefaultURIResolverExtension implements URIResolverExtension {
+
+		@Override
+		public String resolve(String baseLocation, String publicId, String systemId) {
+			return systemId;
+		}
 	}
 
 	/**
@@ -64,7 +75,7 @@ public class URIResolverExtensionManager implements URIResolverExtension, IExter
 				return resolved;
 			}
 		}
-		return systemId;
+		return defaultURIResolverExtension.resolve(baseLocation, publicId, systemId);
 	}
 
 	@Override
@@ -76,7 +87,7 @@ public class URIResolverExtensionManager implements URIResolverExtension, IExter
 				return is;
 			}
 		}
-		return null;
+		return defaultURIResolverExtension.resolveEntity(resourceIdentifier);
 	}
 
 	@Override
