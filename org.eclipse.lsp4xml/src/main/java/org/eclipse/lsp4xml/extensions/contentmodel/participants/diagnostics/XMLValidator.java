@@ -21,7 +21,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.xerces.parsers.SAXParser;
-import org.apache.xerces.parsers.XMLGrammarCachingConfiguration;
+import org.apache.xerces.parsers.XIncludeAwareParserConfiguration;
 import org.apache.xerces.xni.parser.XMLEntityResolver;
 import org.apache.xerces.xni.parser.XMLParserConfiguration;
 import org.eclipse.lsp4j.Diagnostic;
@@ -47,9 +47,14 @@ public class XMLValidator {
 			CancelChecker monitor) {
 
 		try {
-			XMLParserConfiguration configuration = new XMLGrammarCachingConfiguration();
+			XMLParserConfiguration configuration = new XIncludeAwareParserConfiguration(); // new
+																							// XMLGrammarCachingConfiguration();
+			// it should be better to cache XML Schema with XMLGrammarCachingConfiguration,
+			// but we cannot use
+			// XMLGrammarCachingConfiguration because cache is done with target namespaces.
+			// There are conflicts when
+			// 2 XML Schemas don't define target namespaces.
 			SAXParser reader = new SAXParser(configuration);
-
 			// Add LSP error reporter to fill LSP diagnostics from Xerces errors
 			reader.setProperty("http://apache.org/xml/properties/internal/error-reporter",
 					new LSPErrorReporter(document, diagnostics));
@@ -66,7 +71,8 @@ public class XMLValidator {
 
 			boolean hasGrammar = document.hasGrammar();
 			if (!hasGrammar) {
-				hasGrammar = checkExternalSchema(new URI(document.getDocumentURI()), externalSchemaLocationProvider, reader);
+				hasGrammar = checkExternalSchema(new URI(document.getDocumentURI()), externalSchemaLocationProvider,
+						reader);
 			}
 			reader.setFeature("http://xml.org/sax/features/validation", hasGrammar); //$NON-NLS-1$
 			reader.setFeature("http://apache.org/xml/features/validation/schema", hasGrammar); //$NON-NLS-1$
@@ -79,9 +85,9 @@ public class XMLValidator {
 			inputSource.setSystemId(uri);
 			reader.parse(inputSource);
 
-		} catch (IOException | SAXException | CancellationException  exception) {
+		} catch (IOException | SAXException | CancellationException exception) {
 			// ignore error
-		} catch(CacheResourceDownloadingException e) {
+		} catch (CacheResourceDownloadingException e) {
 			throw e;
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, "Unexpected XMLValidator error", e);
