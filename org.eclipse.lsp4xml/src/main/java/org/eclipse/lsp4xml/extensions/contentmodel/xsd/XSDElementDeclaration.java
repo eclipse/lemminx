@@ -98,27 +98,10 @@ public class XSDElementDeclaration implements CMElementDeclaration {
 
 			}
 		}
-//		XSParticle particle = typeDefinition.getParticle();
-//		if (particle != null) {
-//			collectAttributesDeclaration(particle.getTerm(), attributes);
-//		}
 	}
-
-	/*
-	 * @SuppressWarnings("unchecked") private void
-	 * collectAttributesDeclaration(XSTerm term, Collection<CMAttribute> attributes)
-	 * { if (term == null) { return; } switch (term.getType()) { case
-	 * XSConstants.MODEL_GROUP: XSObjectList particles = ((XSModelGroup)
-	 * term).getParticles(); particles.forEach(p ->
-	 * collectAttributesDeclaration(((XSParticle) p).getTerm(), attributes)); break;
-	 * case XSConstants.ATTRIBUTE_DECLARATION: XSAttributeDeclaration
-	 * attributeDeclaration = (XSAttributeDeclaration) term; attributes.add(new
-	 * XSDAttribute(attributeDeclaration)); break; } }
-	 */
 
 	@Override
 	public Collection<CMElementDeclaration> getElements() {
-		elements = null;
 		if (elements == null) {
 			elements = new ArrayList<>();
 			collectElementsDeclaration(elementDeclaration, elements);
@@ -153,6 +136,15 @@ public class XSDElementDeclaration implements CMElementDeclaration {
 			return;
 		}
 		switch (term.getType()) {
+		case XSConstants.WILDCARD:
+			// XSWildcard wildcard = (XSWildcard) term;
+			// ex : xsd:any
+			document.getElements().forEach(e -> {
+				if (!elements.contains(e)) {
+					elements.add(e);
+				}
+			});
+			break;
 		case XSConstants.MODEL_GROUP:
 			XSObjectList particles = ((XSModelGroup) term).getParticles();
 			particles.forEach(p -> collectElementsDeclaration(((XSParticle) p).getTerm(), elements));

@@ -49,7 +49,6 @@ public class XSDDocument implements CMDocument {
 
 	@Override
 	public Collection<CMElementDeclaration> getElements() {
-		elements = null;
 		if (elements == null) {
 			elements = new ArrayList<>();
 			XSNamedMap map = model.getComponents(XSConstants.ELEMENT_DECLARATION);
