@@ -50,6 +50,7 @@ import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
@@ -268,6 +269,15 @@ public class XMLTextDocumentService implements TextDocumentService {
 			TextDocument document = getDocument(params.getTextDocument().getUri());
 			XMLDocument xmlDocument = getXMLDocument(document);
 			return getXMLLanguageService().findDefinition(xmlDocument, params.getPosition());
+		});
+	}
+	
+	@Override
+	public CompletableFuture<List<? extends Location>> references(ReferenceParams params) {
+		return computeAsync((monitor) -> {
+			TextDocument document = getDocument(params.getTextDocument().getUri());
+			XMLDocument xmlDocument = getXMLDocument(document);
+			return getXMLLanguageService().findReferences(xmlDocument, params.getPosition(), params.getContext());
 		});
 	}
 

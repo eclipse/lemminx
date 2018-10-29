@@ -27,6 +27,7 @@ import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.ReferenceContext;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
@@ -53,6 +54,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 	private final XMLFoldings foldings;
 	private final XMLDocumentLink documentLink;
 	private XMLDefinition definition;
+	private XMLReference reference;
 	private final XMLCodeActions codeActions;
 
 	public XMLLanguageService() {
@@ -65,6 +67,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		this.foldings = new XMLFoldings(this);
 		this.documentLink = new XMLDocumentLink(this);
 		this.definition = new XMLDefinition(this);
+		this.reference = new XMLReference(this);
 		this.codeActions = new XMLCodeActions(this);
 	}
 
@@ -113,6 +116,11 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		return definition.findDefinition(xmlDocument, position);
 	}
 	
+	public List<? extends Location> findReferences(XMLDocument xmlDocument, Position position,
+			ReferenceContext context) {
+		return reference.findReferences(xmlDocument, position, context);
+	}
+	
 	public List<CodeAction> doCodeActions(CodeActionContext context, Range range, XMLDocument document,
 			XMLFormattingOptions formattingSettings) {
 		return codeActions.doCodeActions(context, range, document, formattingSettings);
@@ -137,5 +145,4 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 			return null;
 		}
 	}
-
 }

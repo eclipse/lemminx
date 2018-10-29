@@ -35,6 +35,7 @@ public class XMLExtensionsRegistry {
 	private final List<ICodeActionParticipant> codeActionsParticipants;
 	private final List<IDocumentLinkParticipant> documentLinkParticipants;
 	private final List<IDefinitionParticipant> definitionParticipants;
+	private final List<IReferenceParticipant> referenceParticipants;
 
 	private IXMLDocumentProvider documentProvider;
 
@@ -52,6 +53,7 @@ public class XMLExtensionsRegistry {
 		codeActionsParticipants = new ArrayList<>();
 		documentLinkParticipants = new ArrayList<>();
 		definitionParticipants = new ArrayList<>();
+		referenceParticipants = new ArrayList<>();
 	}
 
 	public void initializeParams(InitializeParams params) {
@@ -103,6 +105,11 @@ public class XMLExtensionsRegistry {
 	public Collection<IDefinitionParticipant> getDefinitionParticipants() {
 		initializeIfNeeded();
 		return definitionParticipants;
+	}
+
+	public Collection<IReferenceParticipant> getReferenceParticipants() {
+		initializeIfNeeded();
+		return referenceParticipants;
 	}
 
 	private void initializeIfNeeded() {
@@ -184,6 +191,14 @@ public class XMLExtensionsRegistry {
 
 	public void unregisterDefinitionParticipant(IDefinitionParticipant definitionParticipant) {
 		definitionParticipants.add(definitionParticipant);
+	}
+
+	public void registerReferenceParticipant(IReferenceParticipant referenceParticipant) {
+		referenceParticipants.add(referenceParticipant);
+	}
+
+	public void unregisterReferenceParticipant(IReferenceParticipant referenceParticipant) {
+		referenceParticipants.add(referenceParticipant);
 	}
 
 	/**
