@@ -160,9 +160,9 @@ public class XSDElementDeclaration implements CMElementDeclaration {
 
 	@Override
 	public String getDocumentation() {
-		/*if (documentation != null) {
+		if (documentation != null) {
 			return documentation;
-		}*/
+		}
 		// Try get xs:annotation from the element declaration or type
 		XSObjectList annotations = getAnnotations();
 		documentation = XSDAnnotationModel.getDocumentation(annotations);

@@ -47,7 +47,7 @@ public class HTMLHoverExtensionsTest {
 
 	private static void assertHover(String value, String expectedHoverLabel, Integer expectedHoverOffset)
 			throws BadLocationException {
-		XMLAssert.assertHover(new HTMLLanguageService(), value, null, expectedHoverLabel, expectedHoverOffset);
+		XMLAssert.assertHover(new HTMLLanguageService(), value, null, null, expectedHoverLabel, expectedHoverOffset);
 	}
 
 	private static class HTMLLanguageService extends XMLLanguageService {
