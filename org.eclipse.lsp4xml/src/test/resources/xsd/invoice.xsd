@@ -4,6 +4,9 @@
     <xsd:element name="invoice" type="invoiceType"></xsd:element>
     
     <xsd:complexType name="invoiceType">
+    	<xsd:annotation>
+    		<xsd:documentation>An invoice type...</xsd:documentation>
+    	</xsd:annotation>
     	<xsd:sequence>
     		<xsd:element name="date" type="xsd:date"></xsd:element>
             <xsd:element name="number" type="xsd:int"></xsd:element>

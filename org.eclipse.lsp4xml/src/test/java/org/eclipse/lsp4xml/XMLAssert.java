@@ -286,15 +286,15 @@ public class XMLAssert {
 
 	public static void assertHover(String value, String expectedHoverLabel, Integer expectedHoverOffset)
 			throws BadLocationException {
-		assertHover(new XMLLanguageService(), value, null, expectedHoverLabel, expectedHoverOffset);
+		assertHover(new XMLLanguageService(), value, null, null, expectedHoverLabel, expectedHoverOffset);
 	}
 
 	public static void assertHover(XMLLanguageService xmlLanguageService, String value, String catalogPath,
-			String expectedHoverLabel, Integer expectedHoverOffset) throws BadLocationException {
+			String fileURI, String expectedHoverLabel, Integer expectedHoverOffset) throws BadLocationException {
 		int offset = value.indexOf("|");
 		value = value.substring(0, offset) + value.substring(offset + 1);
 
-		TextDocument document = new TextDocument(value, "test://test/test.html");
+		TextDocument document = new TextDocument(value, fileURI != null ? fileURI : "test://test/test.html");
 
 		Position position = document.positionAt(offset);
 
@@ -322,7 +322,7 @@ public class XMLAssert {
 	}
 
 	private static String getHoverLabel(Hover hover) {
-		Either<List<Either<String, MarkedString>>, MarkupContent> contents = hover.getContents();
+		Either<List<Either<String, MarkedString>>, MarkupContent> contents = hover != null ? hover.getContents() : null;
 		if (contents == null) {
 			return null;
 		}
