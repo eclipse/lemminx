@@ -42,7 +42,25 @@ public class XMLSchemaHoverExtensionsTest {
 				null);
 
 	};
-	
+
+	@Test
+	public void testTagHoverFromXSType() throws BadLocationException {
+		// web.xml servlet, servlet-name declares their xs:annotation not in the element
+		// declaration but in type (servletType),
+		// this test check that
+		String xml = "<web-app\r\n" + //
+				"        xmlns=\"http://xmlns.jcp.org/xml/ns/javaee\"\r\n" + //
+				"        xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"        xsi:schemaLocation=\"http://xmlns.jcp.org/xml/ns/javaee \r\n" + //
+				"		 http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd\"\r\n" + //
+				"        version=\"3.1\">\r\n" + //
+				"	<servle|t>";
+		assertHover(xml,
+				"The servletType is used to declare a servlet. It contains the declarative data of a servlet. If a jsp-file is specified and the load-on-startup element is present, then the JSP should be precompiled and loaded. Used in: web-app ",
+				null);
+
+	};
+
 	private static void assertHover(String value, String expectedHoverLabel, Integer expectedHoverOffset)
 			throws BadLocationException {
 		XMLAssert.assertHover(new XMLLanguageService(), value, "src/test/resources/catalogs/catalog.xml",
