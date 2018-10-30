@@ -33,21 +33,8 @@ public interface URIResolverExtension extends XMLEntityResolver {
 	public String resolve(String baseLocation, String publicId, String systemId);
 
 	@Override
-	default XMLInputSource resolveEntity(XMLResourceIdentifier rid) throws XNIException, IOException {
-		XMLInputSource is = null;
-		String id = rid.getPublicId();
-		if (id == null) {
-			id = rid.getNamespace();
-		}
-
-		String location = null;
-		if (id != null || rid.getLiteralSystemId() != null) {
-			location = this.resolve(rid.getBaseSystemId(), id, rid.getLiteralSystemId());
-		}
-
-		if (location != null) {
-			is = new XMLInputSource(rid.getPublicId(), location, location);
-		}
-		return is;
+	default XMLInputSource resolveEntity(XMLResourceIdentifier resourceIdentifier) throws XNIException, IOException {
+		return null;
 	}
+
 }
