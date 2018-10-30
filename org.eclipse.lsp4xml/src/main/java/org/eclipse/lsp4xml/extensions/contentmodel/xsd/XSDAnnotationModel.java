@@ -18,6 +18,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.xerces.xs.XSAnnotation;
+import org.apache.xerces.xs.XSObjectList;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -43,6 +44,26 @@ class XSDAnnotationModel {
 
 	public String getDocumentation() {
 		return documentation;
+	}
+
+	public static String getDocumentation(XSObjectList annotations) {
+		if (annotations == null) {
+			return "";
+		}
+		StringBuilder doc = new StringBuilder();
+		for (Object object : annotations) {
+			XSAnnotation annotation = (XSAnnotation) object;
+			XSDAnnotationModel annotationModel = XSDAnnotationModel.load(annotation);
+			if (annotationModel != null) {
+				if (annotationModel.getAppInfo() != null) {
+					doc.append(annotationModel.getAppInfo());
+				}
+				if (annotationModel.getDocumentation() != null) {
+					doc.append(annotationModel.getDocumentation());
+				}
+			}
+		}
+		return doc.toString();
 	}
 
 	public static XSDAnnotationModel load(XSAnnotation annotation) {

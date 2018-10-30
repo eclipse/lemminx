@@ -13,9 +13,13 @@ package org.eclipse.lsp4xml.extensions.contentmodel.xsd;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.apache.xerces.impl.dv.xs.XSSimpleTypeDecl;
+import org.apache.xerces.impl.xs.XSComplexTypeDecl;
 import org.apache.xerces.xs.XSAttributeDeclaration;
 import org.apache.xerces.xs.XSAttributeUse;
+import org.apache.xerces.xs.XSObjectList;
 import org.apache.xerces.xs.XSSimpleTypeDefinition;
+import org.apache.xerces.xs.XSTypeDefinition;
 import org.apache.xerces.xs.XSValue;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMAttributeDeclaration;
 
@@ -26,7 +30,7 @@ import org.eclipse.lsp4xml.extensions.contentmodel.model.CMAttributeDeclaration;
 public class XSDAttributeDeclaration implements CMAttributeDeclaration {
 
 	private final XSAttributeUse attributeUse;
-	private XSDAnnotationModel annotationModel;
+	private String documentation;
 
 	public XSDAttributeDeclaration(XSAttributeUse attributeUse) {
 		this.attributeUse = attributeUse;
@@ -50,10 +54,40 @@ public class XSDAttributeDeclaration implements CMAttributeDeclaration {
 
 	@Override
 	public String getDocumentation() {
-		if (annotationModel == null && getAttrDeclaration().getAnnotation() != null) {
-			annotationModel = XSDAnnotationModel.load(getAttrDeclaration().getAnnotation());
+		if (documentation != null) {
+			return documentation;
 		}
-		return annotationModel != null ? annotationModel.getDocumentation() : null;
+		// Try get xs:annotation from the element declaration or type
+		XSObjectList annotations = getAnnotations();
+		documentation = XSDAnnotationModel.getDocumentation(annotations);
+		return documentation;
+	}
+
+	/**
+	 * Returns list of xs:annotation from the element declaration or type
+	 * declaration.
+	 * 
+	 * @return list of xs:annotation from the element declaration or type
+	 *         declaration.
+	 */
+	private XSObjectList getAnnotations() {
+		// Try get xs:annotation from the element declaration
+		XSAttributeDeclaration attributeDeclaration = getAttrDeclaration();
+		XSObjectList annotation = attributeDeclaration.getAnnotations();
+		if (annotation != null && annotation.getLength() > 0) {
+			return annotation;
+		}
+		// Try get xs:annotation from the type of element declaration
+		XSTypeDefinition typeDefinition = attributeDeclaration.getTypeDefinition();
+		if (typeDefinition == null) {
+			return null;
+		}
+		if (typeDefinition.getTypeCategory() == XSTypeDefinition.COMPLEX_TYPE) {
+			return ((XSComplexTypeDecl) typeDefinition).getAnnotations();
+		} else if (typeDefinition.getTypeCategory() == XSTypeDefinition.SIMPLE_TYPE) {
+			return ((XSSimpleTypeDecl) typeDefinition).getAnnotations();
+		}
+		return null;
 	}
 
 	@Override

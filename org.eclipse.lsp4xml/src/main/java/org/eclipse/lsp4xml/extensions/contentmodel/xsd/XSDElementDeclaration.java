@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.apache.xerces.impl.dv.xs.XSSimpleTypeDecl;
+import org.apache.xerces.impl.xs.XSComplexTypeDecl;
 import org.apache.xerces.xs.XSAttributeUse;
 import org.apache.xerces.xs.XSComplexTypeDefinition;
 import org.apache.xerces.xs.XSConstants;
@@ -42,7 +44,7 @@ public class XSDElementDeclaration implements CMElementDeclaration {
 
 	private Collection<CMElementDeclaration> elements;
 
-	private XSDAnnotationModel annotationModel;
+	private String documentation;
 
 	public XSDElementDeclaration(XSDDocument document, XSElementDeclaration elementDeclaration) {
 		this.document = document;
@@ -158,10 +160,39 @@ public class XSDElementDeclaration implements CMElementDeclaration {
 
 	@Override
 	public String getDocumentation() {
-		if (annotationModel == null && elementDeclaration.getAnnotation() != null) {
-			annotationModel = XSDAnnotationModel.load(elementDeclaration.getAnnotation());
+		/*if (documentation != null) {
+			return documentation;
+		}*/
+		// Try get xs:annotation from the element declaration or type
+		XSObjectList annotations = getAnnotations();
+		documentation = XSDAnnotationModel.getDocumentation(annotations);
+		return documentation;
+	}
+
+	/**
+	 * Returns list of xs:annotation from the element declaration or type
+	 * declaration.
+	 * 
+	 * @return list of xs:annotation from the element declaration or type
+	 *         declaration.
+	 */
+	private XSObjectList getAnnotations() {
+		// Try get xs:annotation from the element declaration
+		XSObjectList annotation = elementDeclaration.getAnnotations();
+		if (annotation != null && annotation.getLength() > 0) {
+			return annotation;
 		}
-		return annotationModel != null ? annotationModel.getDocumentation() : null;
+		// Try get xs:annotation from the type of element declaration
+		XSTypeDefinition typeDefinition = elementDeclaration.getTypeDefinition();
+		if (typeDefinition == null) {
+			return null;
+		}
+		if (typeDefinition.getTypeCategory() == XSTypeDefinition.COMPLEX_TYPE) {
+			return ((XSComplexTypeDecl) typeDefinition).getAnnotations();
+		} else if (typeDefinition.getTypeCategory() == XSTypeDefinition.SIMPLE_TYPE) {
+			return ((XSSimpleTypeDecl) typeDefinition).getAnnotations();
+		}
+		return null;
 	}
 
 	@Override
