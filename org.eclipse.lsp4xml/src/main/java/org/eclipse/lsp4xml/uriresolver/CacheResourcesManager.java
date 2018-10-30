@@ -122,7 +122,7 @@ public class CacheResourcesManager {
 
 	private static Path getResourceCachePath(String resourceURI) throws IOException {
 		URI uri = URI.create(resourceURI);
-		Path resourceCachePath = Paths.get("cache", uri.getScheme(), uri.getPath());
+		Path resourceCachePath = Paths.get("cache", uri.getScheme(), uri.getHost(), uri.getPath());
 		return FilesUtils.getDeployedPath(resourceCachePath);
 	}
 
