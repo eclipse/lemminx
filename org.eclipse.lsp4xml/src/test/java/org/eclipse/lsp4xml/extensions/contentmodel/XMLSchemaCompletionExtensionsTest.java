@@ -346,7 +346,7 @@ public class XMLSchemaCompletionExtensionsTest {
 				+ "            <xs:attribute name=\"variant\" type=\"xs:string\" use=\"required\"/>\r\n"
 				+ "        </xs:complexType>\r\n" + "    </xs:element>\r\n" + "</xs:schema>";
 		Files.write(Paths.get("target/xsd/resources.xsd"), schema.getBytes());
-		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null, "target/resources.xml", 1, false,
+		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null, "target/resources.xml", 3, false,
 				c("variant", "variant=\"\""));
 
 		// Update resources.xsd, Schema doesn't define variant attribute -> no
@@ -366,7 +366,7 @@ public class XMLSchemaCompletionExtensionsTest {
 				// + " <xs:attribute name=\"variant\" type=\"xs:string\" use=\"required\"/>\r\n"
 				+ "        </xs:complexType>\r\n" + "    </xs:element>\r\n" + "</xs:schema>";
 		Files.write(Paths.get("target/xsd/resources.xsd"), schema.getBytes());
-		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null, "target/resources.xml", 0, false);
+		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null, "target/resources.xml", 2, false);
 
 	}
 
@@ -399,6 +399,81 @@ public class XMLSchemaCompletionExtensionsTest {
 				c("Annotation", "<Annotation Term=\"\"></Annotation>"), //
 				c("Annotations", "<Annotations Target=\"\"></Annotations>"), //
 				c("ComplexType", "<ComplexType Name=\"\"></ComplexType>"));
+	}
+
+	@Test
+	public void xsiCompletionTestAllItems() throws BadLocationException {
+		String xml = 
+		"<project\r\n" +
+		"    xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" +
+		"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" +
+		"    |>\r\n" +
+		"</project>";
+		XMLAssert.testCompletionFor(xml, 4, c("xsi:nil", "xsi:nil=\"true\""), c("xsi:type", "xsi:type=\"\""), c("xsi:noNamespaceSchemaLocation", "xsi:noNamespaceSchemaLocation=\"\""), c("xsi:schemaLocation", "xsi:schemaLocation=\"\""));
+	}
+
+	@Test
+	public void xsiCompletionDoesNotAppearInNonRootElement() throws BadLocationException {
+		String xml = 
+		"<project\r\n" +
+		"    xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" +
+		"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" +
+		"    xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n" +
+		"  <modelVersion xs|></modelVersion>\r\n" +
+		"</project>";
+
+		XMLAssert.testCompletionFor(xml, 0);
+	}
+
+	@Test
+	public void xsiCompletionNotUsingXSIName() throws BadLocationException {
+		String xml = 
+		"<project\r\n" +
+		"    xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" +
+		"    xmlns:XXY=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" +
+		"    XXY:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\" |>\r\n" +
+		"  <modelVersion></modelVersion>\r\n" +
+		"</project>";
+
+		XMLAssert.testCompletionFor(xml, 2, c("XXY:nil", "XXY:nil=\"true\""), c("XXY:type", "XXY:type=\"\""));
+	}
+
+	@Test
+	public void xsiCompletionDoesntAppearSinceDoesntExist() throws BadLocationException {
+		String xml = 
+		"<project\r\n" +
+		"    xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" +
+		"    xsi:|>\r\n" +
+		"  <modelVersion></modelVersion>\r\n" +
+		"</project>";
+
+		XMLAssert.testCompletionFor(xml, 0);
+	}
+
+	@Test
+	public void xsiCompletionSchemaLocationExists() throws BadLocationException {
+		String xml = 
+		"<project\r\n" +
+		"    xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" +
+		"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" +
+		"    xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\" |>\r\n" +
+		"  <modelVersion></modelVersion>\r\n" +
+		"</project>";
+
+		XMLAssert.testCompletionFor(xml, 2, c("xsi:nil", "xsi:nil=\"true\""), c("xsi:type", "xsi:type=\"\""));
+	}
+
+	@Test
+	public void xsiCompletionNoNamespaceSchemaLocationExists() throws BadLocationException {
+		String xml = 
+		"<project\r\n" +
+		"    xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" +
+		"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" +
+		"    xsi:noNamespaceSchemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\" |>\r\n" +
+		"  <modelVersion></modelVersion>\r\n" +
+		"</project>";
+
+		XMLAssert.testCompletionFor(xml, 2, c("xsi:nil", "xsi:nil=\"true\""), c("xsi:type", "xsi:type=\"\""));
 	}
 
 	private void testCompletionFor(String xml, CompletionItem... expectedItems) throws BadLocationException {

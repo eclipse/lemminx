@@ -19,11 +19,13 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.dom.Element;
+import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.extensions.contentmodel.utils.XMLGenerator;
+import org.eclipse.lsp4xml.services.XSISchemaModel;
 import org.eclipse.lsp4xml.services.extensions.CompletionParticipantAdapter;
 import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
@@ -103,8 +105,9 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	@Override
 	public void onAttributeName(boolean generateValue, Range fullRange, ICompletionRequest request,
 			ICompletionResponse response) throws Exception {
-		// TODO: manage xsi: completions
-
+		if(request.getXMLDocument().hasSchemaInstancePrefix()) {
+			computeXSIAttributes(fullRange, request, response);
+		}
 		// otherwise, manage completion based on XML Schema, DTD.
 		Element parentElement = request.getNode().isElement() ? (Element) request.getNode() : null;
 		if (parentElement == null) {
@@ -185,6 +188,22 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			}
 		} catch (CacheResourceDownloadingException e) {
 			// XML Schema, DTD is loading, ignore this error
+		}
+	}
+
+	/**
+	 * Creates and sets (xsi) completion items if needed.
+	 * @param editRange
+	 * @param request
+	 * @param response
+	 * @throws BadLocationException
+	 */
+	private void computeXSIAttributes(Range editRange, ICompletionRequest request, ICompletionResponse response) throws BadLocationException {
+		XMLDocument document = request.getXMLDocument();
+		Element rootElement = document.getDocumentElement();
+		int offset = document.offsetAt(editRange.getStart());
+		if(rootElement.equals(document.findNodeAt(offset))) {
+			XSISchemaModel.computeCompletionResponses(request, response, editRange, document);
 		}
 	}
 }
