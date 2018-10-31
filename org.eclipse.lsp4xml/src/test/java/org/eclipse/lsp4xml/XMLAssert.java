@@ -177,7 +177,8 @@ public class XMLAssert {
 		TextDocument document = new TextDocument(xml.toString(), FILE_URI);
 		XMLDocument xmlDocument = XMLParser.getInstance().parse(document);
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
-
+		xmlLanguageService.setDocumentProvider((uri) -> xmlDocument);
+		
 		ContentModelSettings settings = new ContentModelSettings();
 		settings.setUseCache(false);
 		if (catalogPath != null) {

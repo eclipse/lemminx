@@ -10,13 +10,17 @@
  */
 package org.eclipse.lsp4xml.extensions.xsl;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
+import org.apache.xerces.xni.XMLResourceIdentifier;
+import org.apache.xerces.xni.XNIException;
+import org.apache.xerces.xni.parser.XMLInputSource;
 import org.eclipse.lsp4xml.dom.Element;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.services.IXMLDocumentProvider;
+import org.eclipse.lsp4xml.uriresolver.CacheResourcesManager;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtension;
 import org.eclipse.lsp4xml.utils.FilesUtils;
 
@@ -52,7 +56,8 @@ public class XSLURIResolverExtension implements URIResolverExtension {
 		String schemaFileName = "xslt-" + version + ".xsd";
 		String schemaPath = "schemas/xslt/" + schemaFileName;
 		try {
-			Path outFile = FilesUtils.getDeployedPath(Paths.get(schemaPath));
+			Path outFile = CacheResourcesManager
+					.getResourceCachePath("http://www.w3.org/1999/XSL/Transform/" + schemaFileName);
 			if (!outFile.toFile().exists()) {
 				try (InputStream in = XSLURIResolverExtension.class.getResourceAsStream("/" + schemaPath)) {
 					FilesUtils.saveToFile(in, outFile);
@@ -62,6 +67,19 @@ public class XSLURIResolverExtension implements URIResolverExtension {
 		} catch (Exception e) {
 			// Do nothing?
 		}
+		return null;
+	}
+	
+	@Override
+	public XMLInputSource resolveEntity(XMLResourceIdentifier resourceIdentifier) throws XNIException, IOException {
+		String publicId = resourceIdentifier.getNamespace();
+		if (XSL_NAMESPACE_URI.equals(publicId)) {
+			String baseLocation = resourceIdentifier.getBaseSystemId();
+			String xslFilePath = resolve(baseLocation, publicId, null);
+			if (xslFilePath != null) {
+				return new XMLInputSource(publicId, xslFilePath, xslFilePath);
+			}
+		}		
 		return null;
 	}
 

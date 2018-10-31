@@ -17,9 +17,6 @@ import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
 
 /**
  * XSL plugin.
- * 
- * @author azerr
- *
  */
 public class XSLPlugin implements IXMLExtension {
 

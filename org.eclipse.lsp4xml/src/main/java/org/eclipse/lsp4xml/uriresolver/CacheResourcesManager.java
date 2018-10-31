@@ -33,6 +33,7 @@ import org.eclipse.lsp4xml.utils.FilesUtils;
  */
 public class CacheResourcesManager {
 
+	private static final String CACHE_PATH = "cache";
 	private static final CacheResourcesManager INSTANCE = new CacheResourcesManager();
 
 	public static CacheResourcesManager getInstance() {
@@ -120,9 +121,13 @@ public class CacheResourcesManager {
 		});
 	}
 
-	private static Path getResourceCachePath(String resourceURI) throws IOException {
+	public static Path getResourceCachePath(String resourceURI) throws IOException {
 		URI uri = URI.create(resourceURI);
-		Path resourceCachePath = Paths.get("cache", uri.getScheme(), uri.getHost(), uri.getPath());
+		return getResourceCachePath(uri);
+	}
+
+	public static Path getResourceCachePath(URI uri) throws IOException {
+		Path resourceCachePath = Paths.get(CACHE_PATH, uri.getScheme(), uri.getHost(), uri.getPath());
 		return FilesUtils.getDeployedPath(resourceCachePath);
 	}
 
