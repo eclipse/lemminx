@@ -17,27 +17,29 @@ import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLFileAssociation;
 import org.eclipse.lsp4xml.extensions.contentmodel.uriresolver.XMLFileAssociationResolverExtension;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
  * XML file associations tests.
  */
-public class XMLFileAssociationsCompletionTest {
+public class XMLFileAssociationsCompletionWithRootURITest {
+
+	private static XMLFileAssociationResolverExtension resolver;
 
 	@BeforeClass
 	public static void initializeFileAssociations() {
-		XMLFileAssociation xmlSchemaFormatAssociation = new XMLFileAssociation();
-		xmlSchemaFormatAssociation.setPattern("**/*.Format.ps1xml");
-		xmlSchemaFormatAssociation.setSystemId("src/test/resources/xsd/Format.xsd");
-		XMLFileAssociationResolverExtension resolver = new XMLFileAssociationResolverExtension();
-		XMLFileAssociation[] fileAssociations = new XMLFileAssociation[] { xmlSchemaFormatAssociation };
-		resolver.setFileAssociations(fileAssociations);
+		resolver = new XMLFileAssociationResolverExtension();
 		URIResolverExtensionManager.getInstance().registerResolver(resolver);
 	}
 
 	@Test
-	public void completionOnRoot() throws BadLocationException {
+	public void rootURIEndsWithSlash() throws BadLocationException {
+		// Use root URI which ends with slash
+		resolver.setRootUri("src/test/resources/xsd/");
+		resolver.setFileAssociations(createAssociations());
+
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"  <|";
 		XMLAssert.testCompletionFor(xml, null, "file:///test/Test.Format.ps1xml", null,
@@ -51,23 +53,27 @@ public class XMLFileAssociationsCompletionTest {
 	}
 
 	@Test
-	public void completionAfterRoot() throws BadLocationException {
+	public void rootURIEndsWithNoSlash() throws BadLocationException {
+		// Use root URI which ends with slash
+		resolver.setRootUri("src/test/resources/xsd");
+		resolver.setFileAssociations(createAssociations());
+
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
-				"<Configuration>\r\n" + //
 				"  <|";
 		XMLAssert.testCompletionFor(xml, null, "file:///test/Test.Format.ps1xml", null,
-				c("Controls", "<Controls></Controls>"), //
-				c("DefaultSettings", "<DefaultSettings></DefaultSettings>"), //
-				c("SelectionSets", "<SelectionSets></SelectionSets>"),
-				c("ViewDefinitions", "<ViewDefinitions></ViewDefinitions>"));
-
-		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
-				"<Configuration>\r\n" + //
-				"  |";
+				c("Configuration", "<Configuration></Configuration>"));
+		xml = "|";
 		XMLAssert.testCompletionFor(xml, null, "file:///test/Test.Format.ps1xml", null,
-				c("Controls", "<Controls></Controls>"), //
-				c("DefaultSettings", "<DefaultSettings></DefaultSettings>"), //
-				c("SelectionSets", "<SelectionSets></SelectionSets>"),
-				c("ViewDefinitions", "<ViewDefinitions></ViewDefinitions>"));
+				c("Configuration", "<Configuration></Configuration>"));
+		xml = " |";
+		XMLAssert.testCompletionFor(xml, null, "file:///test/Test.Format.ps1xml", null,
+				c("Configuration", "<Configuration></Configuration>"));
+	}
+
+	private static XMLFileAssociation[] createAssociations() {
+		XMLFileAssociation xmlSchemaFormatAssociation = new XMLFileAssociation();
+		xmlSchemaFormatAssociation.setPattern("**/*.Format.ps1xml");
+		xmlSchemaFormatAssociation.setSystemId("Format.xsd");
+		return new XMLFileAssociation[] { xmlSchemaFormatAssociation };
 	}
 }
