@@ -168,9 +168,9 @@ public class XMLDocument extends Node implements Document {
 	}
 
 	/**
-	 * Returns true id document defines namespaces (with xmlns) and false otherwise.
+	 * Returns true if document defines namespaces (with xmlns) and false otherwise.
 	 * 
-	 * @return true id document defines namespaces (with xmlns) and false otherwise.
+	 * @return true if document defines namespaces (with xmlns) and false otherwise.
 	 */
 	public boolean hasNamespaces() {
 		initializeReferencedSchemaIfNeeded();
@@ -185,6 +185,16 @@ public class XMLDocument extends Node implements Document {
 	public String getSchemaInstancePrefix() {
 		initializeReferencedSchemaIfNeeded();
 		return schemaInstancePrefix;
+	}
+
+	/**
+	 * Returns true if (xsi) schema instance prefix exists.
+	 * 
+	 * @return true if (xsi) schema instance prefix exists.
+	 */
+	public boolean hasSchemaInstancePrefix() {
+		initializeReferencedSchemaIfNeeded();
+		return schemaInstancePrefix != null;
 	}
 
 	/**
