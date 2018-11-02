@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.xerces.impl.XMLEntityManager;
+import org.apache.xerces.util.URI.MalformedURIException;
 import org.apache.xerces.xni.XMLResourceIdentifier;
 import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.parser.XMLInputSource;
@@ -45,7 +47,11 @@ public class URIResolverExtensionManager implements URIResolverExtension, IExter
 
 		@Override
 		public String resolve(String baseLocation, String publicId, String systemId) {
-			return systemId;
+			try {
+				return XMLEntityManager.expandSystemId(systemId, baseLocation, false);
+			} catch (MalformedURIException e) {
+				return systemId;
+			}
 		}
 
 		@Override
@@ -55,7 +61,9 @@ public class URIResolverExtensionManager implements URIResolverExtension, IExter
 			if (id == null) {
 				id = rid.getNamespace();
 			}
-
+			if (rid.getExpandedSystemId() != null) {
+				
+			}
 			String location = null;
 			if (id != null || rid.getLiteralSystemId() != null) {
 				location = this.resolve(rid.getBaseSystemId(), id, rid.getLiteralSystemId());

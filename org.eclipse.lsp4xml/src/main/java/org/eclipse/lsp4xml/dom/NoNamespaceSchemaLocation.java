@@ -20,11 +20,11 @@ import org.apache.xerces.util.URI.MalformedURIException;
 public class NoNamespaceSchemaLocation {
 
 	private final Attr attr;
-	
+
 	private final String location;
 
 	public NoNamespaceSchemaLocation(String xmlDocumentURI, Attr attr) {
-		this.location = getLocation(xmlDocumentURI, attr.getValue());
+		this.location = attr.getValue(); //getLocation(xmlDocumentURI, attr.getValue());
 		this.attr = attr;
 	}
 
@@ -35,7 +35,7 @@ public class NoNamespaceSchemaLocation {
 			return location;
 		}
 	}
-	
+
 	public Attr getAttr() {
 		return attr;
 	}
