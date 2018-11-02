@@ -12,6 +12,7 @@ package org.eclipse.lsp4xml.uriresolver;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
@@ -109,8 +110,8 @@ public class CacheResourcesManager {
 					Files.createDirectories(dir);
 				}
 				Files.move(path, resourceCachePath);
-				long elapsed = System.currentTimeMillis() -start;
-				LOG.info("Downloaded "+resourceURI+" to "+path+" in "+elapsed+"ms");
+				long elapsed = System.currentTimeMillis() - start;
+				LOG.info("Downloaded " + resourceURI + " to " + path + " in " + elapsed + "ms");
 			} catch (Exception e) {
 				// Do nothing
 				return null;
@@ -134,6 +135,28 @@ public class CacheResourcesManager {
 	public static Path getResourceCachePath(URI uri) throws IOException {
 		Path resourceCachePath = Paths.get(CACHE_PATH, uri.getScheme(), uri.getHost(), uri.getPath());
 		return FilesUtils.getDeployedPath(resourceCachePath);
+	}
+
+	/**
+	 * Try to get the cached <code>resourceURI</code> in cache file system and if it
+	 * is not found, create the file with the given content of
+	 * <code>fromResourcePath</code> stored in classpath.
+	 * 
+	 * @param resourceURI      the resource URI to get
+	 * @param fromResourcePath the path of the resource stored in the current
+	 *                         classpath.
+	 * 
+	 * @return the cached <code>resourceURI</code> in cache file system.
+	 * @throws IOException
+	 */
+	public static Path getResourceCachePath(String resourceURI, String fromResourcePath) throws IOException {
+		Path outFile = CacheResourcesManager.getResourceCachePath(resourceURI);
+		if (!outFile.toFile().exists()) {
+			try (InputStream in = CacheResourcesManager.class.getResourceAsStream("/" + fromResourcePath)) {
+				FilesUtils.saveToFile(in, outFile);
+			}
+		}
+		return outFile;
 	}
 
 	/**
