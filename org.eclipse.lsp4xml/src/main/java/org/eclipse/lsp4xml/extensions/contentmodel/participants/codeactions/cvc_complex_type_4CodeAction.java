@@ -28,7 +28,7 @@ import org.eclipse.lsp4xml.services.extensions.ICodeActionParticipant;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 
 /**
- * Code action to fix cvc-complex-type.2.3 error.
+ * Code action to fix cvc-complex-type.4 error.
  *
  */
 public class cvc_complex_type_4CodeAction implements ICodeActionParticipant {
@@ -54,7 +54,9 @@ public class cvc_complex_type_4CodeAction implements ICodeActionParticipant {
 					.filter(cmAttr -> !element.hasAttribute(cmAttr.getName())) //
 					.collect(Collectors.toList());
 
-			XMLGenerator generator = new XMLGenerator(null, "", "", true, 0);
+			// CodeAction doesn't support snippet -> https://github.com/Microsoft/language-server-protocol/issues/592
+			boolean supportSnippet = false;
+			XMLGenerator generator = new XMLGenerator(null, "", "", supportSnippet, 0);
 			String xmlAttributes = generator.generate(requiredAttributes, element.getTagName());
 
 			// Insert required attributes

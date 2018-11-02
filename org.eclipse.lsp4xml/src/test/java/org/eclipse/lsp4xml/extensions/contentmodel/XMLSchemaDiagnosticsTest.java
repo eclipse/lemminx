@@ -51,7 +51,7 @@ public class XMLSchemaDiagnosticsTest {
 				"</beans>";
 		Diagnostic d = d(3, 3, 3, 11, XMLSchemaErrorCode.cvc_complex_type_4);
 		testDiagnosticsFor(xml, d);
-		testCodeActionsFor(xml, d, ca(d, te(3, 11, 3, 11, " name=\"$1\"")));
+		testCodeActionsFor(xml, d, ca(d, te(3, 11, 3, 11, " name=\"\"")));
 	}
 
 	@Test

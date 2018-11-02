@@ -47,7 +47,7 @@ public class cvc_complex_type_2_1CodeAction implements ICodeActionParticipant {
 			}
 
 		} catch (BadLocationException e) {
-			// DO nothing
+			// Do nothing
 		}
 	}
 
