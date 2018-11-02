@@ -31,7 +31,7 @@ public class ContentModelPlugin implements IXMLExtension {
 	private final ContentModelDiagnosticsParticipant diagnosticsParticipant;
 
 	private final ContentModelCodeActionParticipant codeActionParticipant;
-	
+
 	private final ContentModelDocumentLinkParticipant documentLinkParticipant;
 
 	public ContentModelPlugin() {
@@ -58,8 +58,12 @@ public class ContentModelPlugin implements IXMLExtension {
 		if (settings.getFileAssociations() != null) {
 			// Update XML file associations
 			ContentModelManager.getInstance().setFileAssociations(settings.getFileAssociations());
-		}		
-		ContentModelManager.getInstance().setUseCache(settings.isUseCache());
+		}
+		// Update use cache, only if it is set in the settings.
+		Boolean useCache = settings.isUseCache();
+		if (useCache != null) {
+			ContentModelManager.getInstance().setUseCache(useCache);
+		}
 	}
 
 	@Override

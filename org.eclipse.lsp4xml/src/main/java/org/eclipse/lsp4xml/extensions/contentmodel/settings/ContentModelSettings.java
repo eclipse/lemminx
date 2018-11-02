@@ -18,7 +18,7 @@ import org.eclipse.lsp4xml.utils.JSONUtility;
  */
 public class ContentModelSettings {
 
-	private boolean useCache;
+	private Boolean useCache;
 
 	private String[] catalogs;
 
@@ -31,7 +31,7 @@ public class ContentModelSettings {
 	 * @return true if cache to download XML Schema, DTD must be activated and false
 	 *         otherwise.
 	 */
-	public boolean isUseCache() {
+	public Boolean isUseCache() {
 		return useCache;
 	}
 
@@ -41,7 +41,7 @@ public class ContentModelSettings {
 	 * 
 	 * @param useCache the use cache.
 	 */
-	public void setUseCache(boolean useCache) {
+	public void setUseCache(Boolean useCache) {
 		this.useCache = useCache;
 	}
 
