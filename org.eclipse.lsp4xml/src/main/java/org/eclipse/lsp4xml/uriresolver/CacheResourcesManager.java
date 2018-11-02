@@ -24,6 +24,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.logging.Logger;
 
 import org.eclipse.lsp4xml.utils.FilesUtils;
 
@@ -35,6 +36,7 @@ public class CacheResourcesManager {
 
 	private static final String CACHE_PATH = "cache";
 	private static final CacheResourcesManager INSTANCE = new CacheResourcesManager();
+	private static final Logger LOG = Logger.getLogger(CacheResourcesManager.class.getName());
 
 	public static CacheResourcesManager getInstance() {
 		return INSTANCE;
@@ -79,6 +81,7 @@ public class CacheResourcesManager {
 
 	private CompletableFuture<Path> downloadResource(final String resourceURI, Path resourceCachePath) {
 		return CompletableFuture.supplyAsync(() -> {
+			long start = System.currentTimeMillis();
 			URLConnection conn = null;
 			try {
 				String actualURI = resourceURI;
@@ -106,6 +109,8 @@ public class CacheResourcesManager {
 					Files.createDirectories(dir);
 				}
 				Files.move(path, resourceCachePath);
+				long elapsed = System.currentTimeMillis() -start;
+				LOG.info("Downloaded "+resourceURI+" to "+path+" in "+elapsed+"ms");
 			} catch (Exception e) {
 				// Do nothing
 				return null;
