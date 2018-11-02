@@ -54,6 +54,32 @@ public class CacheResourcesManager {
 
 	}
 
+	public static class ResourceToDeploy {
+
+		private final Path resourceCachePath;
+		private final String resourceFromClasspath;
+
+		public ResourceToDeploy(String resourceURI, String resourceFromClasspath) {
+			this(URI.create(resourceURI), resourceFromClasspath);
+		}
+
+		public ResourceToDeploy(URI resourceURI, String resourceFromClasspath) {
+			this.resourceCachePath = Paths.get(CACHE_PATH, resourceURI.getScheme(), resourceURI.getHost(),
+					resourceURI.getPath());
+			this.resourceFromClasspath = resourceFromClasspath.startsWith("/") ? resourceFromClasspath
+					: "/" + resourceFromClasspath;
+		}
+
+		public Path getDeployedPath() throws IOException {
+			return FilesUtils.getDeployedPath(resourceCachePath);
+		}
+
+		public String getResourceFromClasspath() {
+			return resourceFromClasspath;
+		}
+
+	}
+
 	private CacheResourcesManager() {
 		resourcesLoading = new HashMap<>();
 	}
@@ -111,7 +137,7 @@ public class CacheResourcesManager {
 				}
 				Files.move(path, resourceCachePath);
 				long elapsed = System.currentTimeMillis() - start;
-				LOG.info("Downloaded " + resourceURI + " to " + path + " in " + elapsed + "ms");
+				LOG.info("Downloaded " + resourceURI + " to " + resourceCachePath + " in " + elapsed + "ms");
 			} catch (Exception e) {
 				// Do nothing
 				return null;
@@ -138,21 +164,21 @@ public class CacheResourcesManager {
 	}
 
 	/**
-	 * Try to get the cached <code>resourceURI</code> in cache file system and if it
-	 * is not found, create the file with the given content of
-	 * <code>fromResourcePath</code> stored in classpath.
+	 * Try to get the cached {@link ResourceToDeploy#resourceCachePath} in cache
+	 * file system and if it is not found, create the file with the given content of
+	 * {@link ResourceToDeploy#resourceFromClasspath} stored in classpath.
 	 * 
-	 * @param resourceURI      the resource URI to get
-	 * @param fromResourcePath the path of the resource stored in the current
-	 *                         classpath.
+	 * @param resource the resource to deploy if needed.
 	 * 
-	 * @return the cached <code>resourceURI</code> in cache file system.
+	 * @return the cached {@link ResourceToDeploy#resourceCachePath} in cache file
+	 *         system.
 	 * @throws IOException
 	 */
-	public static Path getResourceCachePath(String resourceURI, String fromResourcePath) throws IOException {
-		Path outFile = CacheResourcesManager.getResourceCachePath(resourceURI);
+	public static Path getResourceCachePath(ResourceToDeploy resource) throws IOException {
+		Path outFile = resource.getDeployedPath();
 		if (!outFile.toFile().exists()) {
-			try (InputStream in = CacheResourcesManager.class.getResourceAsStream("/" + fromResourcePath)) {
+			try (InputStream in = CacheResourcesManager.class
+					.getResourceAsStream(resource.getResourceFromClasspath())) {
 				FilesUtils.saveToFile(in, outFile);
 			}
 		}

@@ -12,6 +12,8 @@ package org.eclipse.lsp4xml.extensions.xsl;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.xerces.xni.XMLResourceIdentifier;
 import org.apache.xerces.xni.XNIException;
@@ -20,6 +22,7 @@ import org.eclipse.lsp4xml.dom.Element;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.services.IXMLDocumentProvider;
 import org.eclipse.lsp4xml.uriresolver.CacheResourcesManager;
+import org.eclipse.lsp4xml.uriresolver.CacheResourcesManager.ResourceToDeploy;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtension;
 
 /**
@@ -33,6 +36,20 @@ public class XSLURIResolverExtension implements URIResolverExtension {
 	 */
 	private static final String XSL_NAMESPACE_URI = "http://www.w3.org/1999/XSL/Transform"; //$NON-NLS-1$
 
+	private static final ResourceToDeploy XML_SCHEMA_10 = new ResourceToDeploy("https://www.w3.org/1999/11/xslt10.xsl",
+			"/schemas/xslt/xslt-1.0.xsd");
+
+	private static final Map<String, ResourceToDeploy> XSL_RESOURCES;
+
+	static {
+		XSL_RESOURCES = new HashMap<>();
+		XSL_RESOURCES.put("1.0", XML_SCHEMA_10);
+		XSL_RESOURCES.put("2.0",
+				new ResourceToDeploy("https://www.w3.org/2007/schema-for-xslt20.xsd", "/schemas/xslt/xslt-2.0.xsd"));
+		XSL_RESOURCES.put("3.0", new ResourceToDeploy("https://www.w3.org/TR/xslt-30/schema-for-xslt30.xsd",
+				"/schemas/xslt/xslt-3.0.xsd"));
+	}
+
 	private final IXMLDocumentProvider documentProvider;
 
 	public XSLURIResolverExtension(IXMLDocumentProvider documentProvider) {
@@ -43,19 +60,11 @@ public class XSLURIResolverExtension implements URIResolverExtension {
 	public String resolve(String baseLocation, String publicId, String systemId) {
 		if (!XSL_NAMESPACE_URI.equals(publicId)) {
 			return null;
-		} else {
-
 		}
 		String version = getVersion(baseLocation);
-		if (version == null) {
-			return null;
-		}
-
-		String schemaFileName = "xslt-" + version + ".xsd";
-		String schemaPath = "schemas/xslt/" + schemaFileName;
+		ResourceToDeploy xmlSchema = getXMLSchemaForXSL(version);
 		try {
-			Path outFile = CacheResourcesManager
-					.getResourceCachePath("http://www.w3.org/1999/XSL/Transform/" + schemaFileName, schemaPath);
+			Path outFile = CacheResourcesManager.getResourceCachePath(xmlSchema);
 			return outFile.toFile().toURI().toString();
 		} catch (Exception e) {
 			// Do nothing?
@@ -74,6 +83,10 @@ public class XSLURIResolverExtension implements URIResolverExtension {
 			}
 		}
 		return null;
+	}
+
+	private static ResourceToDeploy getXMLSchemaForXSL(String version) {
+		return XSL_RESOURCES.getOrDefault(version, XML_SCHEMA_10);
 	}
 
 	/**
