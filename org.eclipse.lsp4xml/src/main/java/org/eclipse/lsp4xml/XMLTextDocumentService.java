@@ -333,17 +333,17 @@ public class XMLTextDocumentService implements TextDocumentService {
 					xmlLanguageServer.getLanguageClient()
 							.publishDiagnostics(new PublishDiagnosticsParams(uri, diagnostics));
 				} catch (CacheResourceDownloadingException e) {
-					// An XML Schema, DTD is downloading with cache, but it takes too time. In this
-					// case:
-					// - 1) we add a warning in the document element to tell that validation cannot be
-					// occurred because an XML Schema/DTD is downloading.
+					// An XML Schema or DTD is being downloaded by the cache manager, but it takes too long. 
+					// In this case:
+					// - 1) we add an information message to the document element to explain that validation 
+					// cannot be performed because the XML Schema/DTD is downloading.
 					Element documentElement = xmlDocument.getDocumentElement();
 					Range range = XMLPositionUtility.selectStartTag(documentElement);
 					List<Diagnostic> diagnostics = new ArrayList<>();
-					diagnostics.add(new Diagnostic(range, e.getMessage(), DiagnosticSeverity.Warning, "XML"));
+					diagnostics.add(new Diagnostic(range, e.getMessage(), DiagnosticSeverity.Information, "XML"));
 					xmlLanguageServer.getLanguageClient()
 							.publishDiagnostics(new PublishDiagnosticsParams(uri, diagnostics));
-					// - 2) we restart the validation only when the XML Schema, DTD is downloaded.
+					// - 2) we restart the validation only once the XML Schema/DTD is downloaded.
 					e.getFuture().thenAccept((path) -> triggerValidation(uri, version, monitor));
 				}
 			}
