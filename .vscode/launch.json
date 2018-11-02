@@ -9,7 +9,8 @@
 		"name": "Debug (Attach)",
 		"request": "attach",
 		"hostName": "localhost",
-		"port": 1054
+		"port": 1054,
+		"projectName": "org.eclipse.lsp4xml"
 	  }
 	]
   }
