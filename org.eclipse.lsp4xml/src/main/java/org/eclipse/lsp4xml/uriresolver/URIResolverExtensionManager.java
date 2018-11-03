@@ -61,9 +61,6 @@ public class URIResolverExtensionManager implements URIResolverExtension, IExter
 			if (id == null) {
 				id = rid.getNamespace();
 			}
-			if (rid.getExpandedSystemId() != null) {
-				
-			}
 			String location = null;
 			if (id != null || rid.getLiteralSystemId() != null) {
 				location = this.resolve(rid.getBaseSystemId(), id, rid.getLiteralSystemId());

@@ -12,7 +12,6 @@ package org.eclipse.lsp4xml.extensions.contentmodel.participants.diagnostics;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
@@ -43,8 +42,7 @@ public class XMLValidator {
 	private static final Logger LOGGER = Logger.getLogger(XMLValidator.class.getName());
 
 	public static void doDiagnostics(XMLDocument document, XMLEntityResolver entityResolver,
-			IExternalSchemaLocationProvider externalSchemaLocationProvider, List<Diagnostic> diagnostics,
-			CancelChecker monitor) {
+			List<Diagnostic> diagnostics, CancelChecker monitor) {
 
 		try {
 			XMLParserConfiguration configuration = new XIncludeAwareParserConfiguration(); // new
@@ -70,10 +68,8 @@ public class XMLValidator {
 			}
 
 			boolean hasGrammar = document.hasGrammar();
-			if (!hasGrammar) {
-				hasGrammar = checkExternalSchema(new URI(document.getDocumentURI()), externalSchemaLocationProvider,
-						reader);
-			}
+			checkExternalSchema(document.getExternalSchemaLocation(), reader);
+
 			reader.setFeature("http://xml.org/sax/features/validation", hasGrammar); //$NON-NLS-1$
 			reader.setFeature("http://apache.org/xml/features/validation/schema", hasGrammar); //$NON-NLS-1$
 
@@ -94,22 +90,14 @@ public class XMLValidator {
 		}
 	}
 
-	private static boolean checkExternalSchema(URI fileURI,
-			IExternalSchemaLocationProvider externalSchemaLocationProvider, SAXParser reader)
+	private static void checkExternalSchema(Map<String, String> result, SAXParser reader)
 			throws SAXNotRecognizedException, SAXNotSupportedException {
-		boolean hasGrammar = false;
-		if (externalSchemaLocationProvider != null) {
-			Map<String, String> result = externalSchemaLocationProvider.getExternalSchemaLocation(fileURI);
-			if (result != null) {
-				String noNamespaceSchemaLocation = result
-						.get(IExternalSchemaLocationProvider.NO_NAMESPACE_SCHEMA_LOCATION);
-				if (noNamespaceSchemaLocation != null) {
-					reader.setProperty(IExternalSchemaLocationProvider.NO_NAMESPACE_SCHEMA_LOCATION,
-							noNamespaceSchemaLocation);
-					hasGrammar = true;
-				}
+		if (result != null) {
+			String noNamespaceSchemaLocation = result.get(IExternalSchemaLocationProvider.NO_NAMESPACE_SCHEMA_LOCATION);
+			if (noNamespaceSchemaLocation != null) {
+				reader.setProperty(IExternalSchemaLocationProvider.NO_NAMESPACE_SCHEMA_LOCATION,
+						noNamespaceSchemaLocation);
 			}
 		}
-		return hasGrammar;
 	}
 }

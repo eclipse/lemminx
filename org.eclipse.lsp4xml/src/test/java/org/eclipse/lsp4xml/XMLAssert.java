@@ -1,5 +1,16 @@
+/**
+ *  Copyright (c) 2018 Angelo ZERR
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ *  Contributors:
+ *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
+ */
 package org.eclipse.lsp4xml;
 
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -9,6 +20,7 @@ import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.DocumentLink;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.MarkedString;
 import org.eclipse.lsp4j.MarkupContent;
@@ -30,6 +42,10 @@ import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.junit.Assert;
 
+/**
+ * XML assert.
+ *
+ */
 public class XMLAssert {
 
 	// ------------------- Completion assert
@@ -174,11 +190,16 @@ public class XMLAssert {
 	}
 
 	public static void testDiagnosticsFor(String xml, String catalogPath, Diagnostic... expected) {
-		TextDocument document = new TextDocument(xml.toString(), FILE_URI);
+		testDiagnosticsFor(xml, catalogPath, null, expected);
+	}
+
+	public static void testDiagnosticsFor(String xml, String catalogPath, String fileURI, Diagnostic... expected) {
+		TextDocument document = new TextDocument(xml, fileURI != null ? fileURI : "test.xml");
+
 		XMLDocument xmlDocument = XMLParser.getInstance().parse(document);
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
 		xmlLanguageService.setDocumentProvider((uri) -> xmlDocument);
-		
+
 		ContentModelSettings settings = new ContentModelSettings();
 		settings.setUseCache(false);
 		if (catalogPath != null) {
@@ -328,6 +349,37 @@ public class XMLAssert {
 			return null;
 		}
 		return contents.getRight().getValue();
+	}
+
+	// ------------------- Links assert
+
+	public static void testDocumentLinkFor(String xml, String fileURI, DocumentLink... expected) {
+		TextDocument document = new TextDocument(xml, fileURI != null ? fileURI : "test.xml");
+
+		XMLDocument xmlDocument = XMLParser.getInstance().parse(document);
+		XMLLanguageService xmlLanguageService = new XMLLanguageService();
+		xmlLanguageService.setDocumentProvider((uri) -> xmlDocument);
+
+		ContentModelSettings settings = new ContentModelSettings();
+		settings.setUseCache(false);
+		xmlLanguageService.updateSettings(settings);
+
+		List<DocumentLink> actual = xmlLanguageService.findDocumentLinks(xmlDocument);
+		assertDocumentLinks(actual, expected);
+
+	}
+
+	public static DocumentLink dl(Range range, String target) {
+		return new DocumentLink(range, target);
+	}
+
+	public static void assertDocumentLinks(List<DocumentLink> actual, DocumentLink... expected) {
+		Assert.assertEquals(expected.length, actual.size());
+		for (int i = 0; i < expected.length; i++) {
+			Assert.assertEquals(" Range test '" + i + "' link", expected[i].getRange(), actual.get(i).getRange());
+			Assert.assertEquals(" Target test '" + i + "' link", Paths.get(expected[i].getTarget()).toUri().toString(),
+					actual.get(i).getTarget());
+		}
 	}
 
 }

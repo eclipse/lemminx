@@ -17,7 +17,6 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.services.extensions.IDiagnosticsParticipant;
-import org.eclipse.lsp4xml.uriresolver.IExternalSchemaLocationProvider;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
 
 /**
@@ -31,9 +30,8 @@ public class ContentModelDiagnosticsParticipant implements IDiagnosticsParticipa
 		// Get entity resolver (XML catalog resolver, XML schema from the file
 		// associations settings., ...)
 		XMLEntityResolver entityResolver = URIResolverExtensionManager.getInstance();
-		IExternalSchemaLocationProvider externalSchemaLocationProvider = URIResolverExtensionManager.getInstance();
 		// Process validation
-		XMLValidator.doDiagnostics(xmlDocument, entityResolver, externalSchemaLocationProvider, diagnostics, monitor);
+		XMLValidator.doDiagnostics(xmlDocument, entityResolver, diagnostics, monitor);
 	}
 
 }

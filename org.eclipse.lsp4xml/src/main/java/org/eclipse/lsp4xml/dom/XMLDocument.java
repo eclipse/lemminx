@@ -10,7 +10,10 @@
  */
 package org.eclipse.lsp4xml.dom;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -41,6 +44,7 @@ public class XMLDocument extends Node implements Document {
 	private final TextDocument textDocument;
 	private boolean hasNamespaces;
 	private boolean hasGrammar;
+	private Map<String, String> externalSchemaLocation;
 
 	public XMLDocument(TextDocument textDocument) {
 		super(0, textDocument.getText().length(), null);
@@ -145,6 +149,11 @@ public class XMLDocument extends Node implements Document {
 		return hasGrammar;
 	}
 
+	public Map<String, String> getExternalSchemaLocation() {
+		initializeReferencedGrammarIfNeeded();
+		return externalSchemaLocation;
+	}
+
 	private void initializeReferencedGrammarIfNeeded() {
 		if (!referencedGrammarInitialized) {
 			initializeReferencedGrammar();
@@ -200,10 +209,22 @@ public class XMLDocument extends Node implements Document {
 				}
 			}
 			hasGrammar = noNamespaceSchemaLocation != null || schemaLocation != null;
+		}
+		if (!hasGrammar) {
+			// None grammar found with standard mean, check if it some components like XML
+			// file associations bind this XML document to a grammar with external schema
+			// location.
+			try {
+				externalSchemaLocation = URIResolverExtensionManager.getInstance()
+						.getExternalSchemaLocation(new URI(getDocumentURI()));
+				hasGrammar = externalSchemaLocation != null;
+			} catch (URISyntaxException e) {
+				// Do nothing
+			}
 			if (!hasGrammar) {
-				// None grammar found with standard mean, check if it some components like XML
-				// Catalog, XML file associations, etc
-				// bind this XML document to a grammar.
+				// None grammar found with standard mean and external schema location, check if
+				// it some components like XML
+				// Catalog, XSL and XSD resolvers, etc bind this XML document to a grammar.
 				String namespaceURI = documentElement.getNamespaceURI();
 				hasGrammar = URIResolverExtensionManager.getInstance().resolve(getDocumentURI(), namespaceURI,
 						null) != null;

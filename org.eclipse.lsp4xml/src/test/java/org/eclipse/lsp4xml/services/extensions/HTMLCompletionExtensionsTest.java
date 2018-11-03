@@ -115,7 +115,7 @@ public class HTMLCompletionExtensionsTest {
 	}
 
 	public static void testCompletionFor(String value, CompletionItem... expectedItems) throws BadLocationException {
-		XMLAssert.testCompletionFor(new HTMLLanguageService(), value, null, null, null, true, expectedItems);
+		XMLAssert.testCompletionFor(new HTMLLanguageService(), value, (String)null, null, null, true, expectedItems);
 	}
 
 	private static class HTMLLanguageService extends XMLLanguageService {
