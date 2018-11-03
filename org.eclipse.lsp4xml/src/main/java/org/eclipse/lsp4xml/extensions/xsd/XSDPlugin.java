@@ -11,6 +11,7 @@
 package org.eclipse.lsp4xml.extensions.xsd;
 
 import org.eclipse.lsp4j.InitializeParams;
+import org.eclipse.lsp4xml.services.extensions.ICompletionParticipant;
 import org.eclipse.lsp4xml.services.extensions.IXMLExtension;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
@@ -20,8 +21,13 @@ import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
  */
 public class XSDPlugin implements IXMLExtension {
 
+	private final ICompletionParticipant completionParticipant;
+	
 	private XSDURIResolverExtension uiResolver;
 
+	public XSDPlugin() {
+		completionParticipant = new XSDCompletionParticipant();
+	}
 	@Override
 	public void updateSettings(Object settings) {
 
@@ -31,10 +37,12 @@ public class XSDPlugin implements IXMLExtension {
 	public void start(InitializeParams params, XMLExtensionsRegistry registry) {
 		uiResolver = new XSDURIResolverExtension(registry.getDocumentProvider());
 		URIResolverExtensionManager.getInstance().registerResolver(uiResolver);
+		registry.registerCompletionParticipant(completionParticipant);
 	}
 
 	@Override
 	public void stop(XMLExtensionsRegistry registry) {
 		URIResolverExtensionManager.getInstance().unregisterResolver(uiResolver);
+		registry.unregisterCompletionParticipant(completionParticipant);
 	}
 }
