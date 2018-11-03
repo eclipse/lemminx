@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <xs:complexType name="property">
+        <xs:attribute name="name" type="xs:string" />
+        <xs:attribute name="value" type="xs:string" />
+    </xs:complexType>
+
+    <xs:complexType name="resource">
+        <xs:sequence>
+            <xs:element name="property" type="property" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required" />
+    </xs:complexType>
+
+    <xs:element name="resources">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="resource" type="resource" minOccurs="0" maxOccurs="unbounded" />
+            </xs:sequence>
+            <xs:attribute name="variant" type="xs:string" use="required"/>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

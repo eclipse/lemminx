@@ -19,29 +19,45 @@ import org.apache.xerces.util.URI.MalformedURIException;
  */
 public class NoNamespaceSchemaLocation {
 
+	private final String documentURI;
+
 	private final Attr attr;
 
-	private final String location;
-
-	public NoNamespaceSchemaLocation(String xmlDocumentURI, Attr attr) {
-		this.location = attr.getValue(); //getLocation(xmlDocumentURI, attr.getValue());
+	public NoNamespaceSchemaLocation(String documentURI, Attr attr) {
+		this.documentURI = documentURI;
 		this.attr = attr;
-	}
-
-	private String getLocation(String xmlDocumentURI, String location) {
-		try {
-			return XMLEntityManager.expandSystemId(location, xmlDocumentURI, false);
-		} catch (MalformedURIException e) {
-			return location;
-		}
 	}
 
 	public Attr getAttr() {
 		return attr;
 	}
 
+	/**
+	 * Returns the location declared in the attribute value of
+	 * "xsi:noNamespaceSchemaLocation"
+	 * 
+	 * @return the location declared in the attribute value of
+	 *         "xsi:noNamespaceSchemaLocation"
+	 */
 	public String getLocation() {
-		return location;
+		return attr.getValue();
+	}
+
+	/**
+	 * Returns the expanded system location
+	 * 
+	 * @return the expanded system location
+	 */
+	public String getResolvedLocation() {
+		return getResolvedLocation(documentURI, getLocation());
+	}
+
+	private String getResolvedLocation(String documentURI, String location) {
+		try {
+			return XMLEntityManager.expandSystemId(location, documentURI, false);
+		} catch (MalformedURIException e) {
+			return location;
+		}
 	}
 
 }

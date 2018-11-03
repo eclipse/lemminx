@@ -18,7 +18,7 @@ public class ContentModelDocumentLinkParticipant implements IDocumentLinkPartici
 		NoNamespaceSchemaLocation noNamespaceSchemaLocation = document.getNoNamespaceSchemaLocation();
 		if (noNamespaceSchemaLocation != null) {
 			try {
-				String location = noNamespaceSchemaLocation.getLocation();
+				String location = noNamespaceSchemaLocation.getResolvedLocation();
 				Node attrValue = noNamespaceSchemaLocation.getAttr().getNodeAttrValue();
 				Position start = document.positionAt(attrValue.getStart() + 1);
 				Position end = document.positionAt(attrValue.getEnd() - 1);
