@@ -24,6 +24,6 @@ public class XSDCompletionParticipant extends CompletionParticipantAdapter {
 	@Override
 	public void onAttributeName(boolean generateValue, Range fullRange, ICompletionRequest request,
 			ICompletionResponse response) throws Exception {
-		// TODO: manage xsi: completions
+		// TODO: manage compeltion for types declared in XML Schema xsd
 	}
 }

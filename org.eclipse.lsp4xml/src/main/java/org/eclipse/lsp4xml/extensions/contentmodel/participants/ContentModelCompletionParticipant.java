@@ -97,6 +97,9 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	@Override
 	public void onAttributeName(boolean generateValue, Range fullRange, ICompletionRequest request,
 			ICompletionResponse response) throws Exception {
+		// TODO: manage xsi: completions
+
+		// otherwise, manage completion based on XML Schema, DTD.
 		Element parentElement = request.getNode().isElement() ? (Element) request.getNode() : null;
 		if (parentElement == null) {
 			return;
