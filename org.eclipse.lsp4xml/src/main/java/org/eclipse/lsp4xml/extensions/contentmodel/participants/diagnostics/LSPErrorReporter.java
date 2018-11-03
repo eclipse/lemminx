@@ -62,7 +62,7 @@ public class LSPErrorReporter extends XMLErrorReporter {
 		if (messageFormatter != null) {
 			message = messageFormatter.formatMessage(fLocale, key, arguments);
 		} else {
-			StringBuffer str = new StringBuffer();
+			StringBuilder str = new StringBuilder();
 			str.append(domain);
 			str.append('#');
 			str.append(key);
