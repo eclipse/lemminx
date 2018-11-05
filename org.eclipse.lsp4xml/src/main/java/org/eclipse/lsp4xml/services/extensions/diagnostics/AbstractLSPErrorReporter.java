@@ -8,7 +8,7 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lsp4xml.extensions.contentmodel.participants.diagnostics;
+package org.eclipse.lsp4xml.services.extensions.diagnostics;
 
 import static org.eclipse.lsp4xml.utils.XMLPositionUtility.toLSPPosition;
 
@@ -26,9 +26,6 @@ import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.dom.XMLDocument;
-import org.eclipse.lsp4xml.extensions.contentmodel.participants.DTDErrorCode;
-import org.eclipse.lsp4xml.extensions.contentmodel.participants.XMLSchemaErrorCode;
-import org.eclipse.lsp4xml.extensions.contentmodel.participants.XMLSyntaxErrorCode;
 import org.xml.sax.ErrorHandler;
 
 /**
@@ -38,14 +35,15 @@ import org.xml.sax.ErrorHandler;
  * LSP range.
  *
  */
-public class LSPErrorReporter extends XMLErrorReporter {
-
-	private static final String XML_DIAGNOSTIC_SOURCE = "xml";
+public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 
 	private final XMLDocument xmlDocument;
 	private final List<Diagnostic> diagnostics;
 
-	public LSPErrorReporter(XMLDocument xmlDocument, List<Diagnostic> diagnostics) {
+	private final String source;
+
+	public AbstractLSPErrorReporter(String source, XMLDocument xmlDocument, List<Diagnostic> diagnostics) {
+		this.source = source;
 		this.xmlDocument = xmlDocument;
 		this.diagnostics = diagnostics;
 		XMLMessageFormatter xmft = new XMLMessageFormatter();
@@ -80,8 +78,8 @@ public class LSPErrorReporter extends XMLErrorReporter {
 		}
 
 		// Fill diagnostic
-		diagnostics.add(new Diagnostic(toLSPRange(location, key, arguments, xmlDocument), message,
-				toLSPSeverity(severity), XML_DIAGNOSTIC_SOURCE, key));
+		diagnostics.add(new Diagnostic(internalToLSPRange(location, key, arguments, xmlDocument), message,
+				toLSPSeverity(severity), source, key));
 
 		if (severity == SEVERITY_FATAL_ERROR && !fContinueAfterFatalError) {
 			XMLParseException parseException = (exception != null) ? new XMLParseException(location, message, exception)
@@ -115,39 +113,17 @@ public class LSPErrorReporter extends XMLErrorReporter {
 	 * @param document
 	 * @return the LSP range from the SAX error.
 	 */
-	private static Range toLSPRange(XMLLocator location, String key, Object[] arguments, XMLDocument document) {
+	private Range internalToLSPRange(XMLLocator location, String key, Object[] arguments, XMLDocument document) {
 		if (location == null) {
 			Position start = toLSPPosition(0, location, document.getTextDocument());
 			Position end = toLSPPosition(0, location, document.getTextDocument());
 			return new Range(start, end);
 		}
-		// try adjust positions for XML syntax error
-		XMLSyntaxErrorCode syntaxCode = XMLSyntaxErrorCode.get(key);
-		if (syntaxCode != null) {
-			Range range = XMLSyntaxErrorCode.toLSPRange(location, syntaxCode, arguments, document);
-			if (range != null) {
-				return range;
-			}
-		} else {
-			// try adjust positions for XML schema error
-			XMLSchemaErrorCode schemaCode = XMLSchemaErrorCode.get(key);
-			if (schemaCode != null) {
-				Range range = XMLSchemaErrorCode.toLSPRange(location, schemaCode, arguments, document);
-				if (range != null) {
-					return range;
-				}
-			} else {
-				// try adjust positions for DTD error
-				DTDErrorCode dtdCode = DTDErrorCode.get(key);
-				if (dtdCode != null) {
-					Range range = DTDErrorCode.toLSPRange(location, dtdCode, arguments, document);
-					if (range != null) {
-						return range;
-					}
-				}
-			}
-		}
 
+		Range range = toLSPRange(location, key, arguments, document);
+		if (range != null) {
+			return range;
+		}
 		int startOffset = location.getCharacterOffset() - 1;
 		int endOffset = location.getCharacterOffset() - 1;
 
@@ -156,4 +132,6 @@ public class LSPErrorReporter extends XMLErrorReporter {
 		Position end = toLSPPosition(endOffset, location, document.getTextDocument());
 		return new Range(start, end);
 	}
+
+	protected abstract Range toLSPRange(XMLLocator location, String key, Object[] arguments, XMLDocument document);
 }

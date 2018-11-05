@@ -8,7 +8,7 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lsp4xml.extensions.xsd;
+package org.eclipse.lsp4xml.extensions.xsd.participants;
 
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.services.extensions.CompletionParticipantAdapter;

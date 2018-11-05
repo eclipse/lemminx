@@ -1,4 +1,4 @@
-package org.eclipse.lsp4xml.extensions.contentmodel.participants.diagnostics;
+package org.eclipse.lsp4xml.services.extensions.diagnostics;
 
 /**
  * XML error code API.

@@ -19,7 +19,7 @@ import org.eclipse.lsp4xml.extensions.contentmodel.participants.XMLSchemaErrorCo
 import org.junit.Test;
 
 /**
- * XSL completion tests which test the {@link XSDURIResolverExtension}.
+ * XSD diagnostics tests which test the {@link XSDURIResolverExtension}.
  *
  */
 public class XSDValidationExtensionsTest {

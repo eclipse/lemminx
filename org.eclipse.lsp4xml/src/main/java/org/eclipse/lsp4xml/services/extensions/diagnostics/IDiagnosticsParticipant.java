@@ -8,7 +8,7 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lsp4xml.services.extensions;
+package org.eclipse.lsp4xml.services.extensions.diagnostics;
 
 import java.util.List;
 

@@ -11,9 +11,12 @@
 package org.eclipse.lsp4xml.extensions.xsd;
 
 import org.eclipse.lsp4j.InitializeParams;
+import org.eclipse.lsp4xml.extensions.xsd.participants.XSDCompletionParticipant;
+import org.eclipse.lsp4xml.extensions.xsd.participants.diagnostics.XSDDiagnosticsParticipant;
 import org.eclipse.lsp4xml.services.extensions.ICompletionParticipant;
 import org.eclipse.lsp4xml.services.extensions.IXMLExtension;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lsp4xml.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
 
 /**
@@ -22,12 +25,16 @@ import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
 public class XSDPlugin implements IXMLExtension {
 
 	private final ICompletionParticipant completionParticipant;
-	
+
+	private final IDiagnosticsParticipant diagnosticsParticipant;
+
 	private XSDURIResolverExtension uiResolver;
 
 	public XSDPlugin() {
 		completionParticipant = new XSDCompletionParticipant();
+		diagnosticsParticipant = new XSDDiagnosticsParticipant();
 	}
+
 	@Override
 	public void updateSettings(Object settings) {
 
@@ -38,11 +45,12 @@ public class XSDPlugin implements IXMLExtension {
 		uiResolver = new XSDURIResolverExtension(registry.getDocumentProvider());
 		URIResolverExtensionManager.getInstance().registerResolver(uiResolver);
 		registry.registerCompletionParticipant(completionParticipant);
+		registry.registerDiagnosticsParticipant(diagnosticsParticipant);
 	}
 
 	@Override
 	public void stop(XMLExtensionsRegistry registry) {
 		URIResolverExtensionManager.getInstance().unregisterResolver(uiResolver);
-		registry.unregisterCompletionParticipant(completionParticipant);
+		registry.unregisterDiagnosticsParticipant(diagnosticsParticipant);
 	}
 }

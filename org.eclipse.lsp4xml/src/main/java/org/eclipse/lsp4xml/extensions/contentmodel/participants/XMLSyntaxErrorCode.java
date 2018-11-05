@@ -21,8 +21,8 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.codeactions.ElementUnterminatedCodeAction;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.codeactions.EqRequiredInAttributeCodeAction;
-import org.eclipse.lsp4xml.extensions.contentmodel.participants.diagnostics.IXMLErrorCode;
 import org.eclipse.lsp4xml.services.extensions.ICodeActionParticipant;
+import org.eclipse.lsp4xml.services.extensions.diagnostics.IXMLErrorCode;
 import org.eclipse.lsp4xml.utils.XMLPositionUtility;
 
 /**

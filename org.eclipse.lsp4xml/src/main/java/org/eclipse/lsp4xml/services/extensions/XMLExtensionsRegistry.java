@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4xml.services.IXMLDocumentProvider;
+import org.eclipse.lsp4xml.services.extensions.diagnostics.IDiagnosticsParticipant;
 
 /**
  * XML extensions registry.

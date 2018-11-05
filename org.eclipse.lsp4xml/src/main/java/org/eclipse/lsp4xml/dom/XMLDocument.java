@@ -644,4 +644,19 @@ public class XMLDocument extends Node implements Document {
 		throw new UnsupportedOperationException();
 	}
 
+	/**
+	 * Returns true if the XML document is a XML Schema and false otherwise.
+	 * 
+	 * @return true if the XML document is a XML Schema and false otherwise.
+	 */
+	public boolean isXSD() {
+		String uri = getDocumentURI();
+		if (uri != null && uri.endsWith(".xsd")) {
+			return true;
+		}
+		// check root element is bind with XML Schema namespace
+		// (http://www.w3.org/2001/XMLSchema)
+		Element documentElement = getDocumentElement();
+		return documentElement != null && "http://www.w3.org/2001/XMLSchema".equals(documentElement.getNamespaceURI());
+	}
 }

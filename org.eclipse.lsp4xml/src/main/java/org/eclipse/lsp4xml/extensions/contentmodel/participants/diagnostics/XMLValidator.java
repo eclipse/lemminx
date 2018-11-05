@@ -26,6 +26,7 @@ import org.apache.xerces.xni.parser.XMLParserConfiguration;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.services.extensions.diagnostics.LSPContentHandler;
 import org.eclipse.lsp4xml.uriresolver.CacheResourceDownloadingException;
 import org.eclipse.lsp4xml.uriresolver.IExternalSchemaLocationProvider;
 import org.xml.sax.InputSource;
@@ -55,7 +56,7 @@ public class XMLValidator {
 			SAXParser reader = new SAXParser(configuration);
 			// Add LSP error reporter to fill LSP diagnostics from Xerces errors
 			reader.setProperty("http://apache.org/xml/properties/internal/error-reporter",
-					new LSPErrorReporter(document, diagnostics));
+					new LSPErrorReporterForXML(document, diagnostics));
 			reader.setFeature("http://apache.org/xml/features/continue-after-fatal-error", false); //$NON-NLS-1$
 			reader.setFeature("http://xml.org/sax/features/namespace-prefixes", true /* document.hasNamespaces() */); //$NON-NLS-1$
 			reader.setFeature("http://xml.org/sax/features/namespaces", true /* document.hasNamespaces() */); //$NON-NLS-1$

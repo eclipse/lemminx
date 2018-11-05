@@ -8,7 +8,7 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lsp4xml.extensions.contentmodel.participants.diagnostics;
+package org.eclipse.lsp4xml.extensions.xsd.participants.diagnostics;
 
 import java.util.List;
 
@@ -20,18 +20,22 @@ import org.eclipse.lsp4xml.services.extensions.diagnostics.IDiagnosticsParticipa
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
 
 /**
- * Validate XML file with Xerces for syntax validation and XML Schema, DTD.
+ * Validate XSD file with Xerces.
  *
  */
-public class ContentModelDiagnosticsParticipant implements IDiagnosticsParticipant {
+public class XSDDiagnosticsParticipant implements IDiagnosticsParticipant {
 
 	@Override
 	public void doDiagnostics(XMLDocument xmlDocument, List<Diagnostic> diagnostics, CancelChecker monitor) {
+		if (!xmlDocument.isXSD()) {
+			// Don't use the XSD validator, if the XML document is not a XML Schema.
+			return;
+		}
 		// Get entity resolver (XML catalog resolver, XML schema from the file
 		// associations settings., ...)
 		XMLEntityResolver entityResolver = URIResolverExtensionManager.getInstance();
 		// Process validation
-		XMLValidator.doDiagnostics(xmlDocument, entityResolver, diagnostics, monitor);
+		// XSDValidator.doDiagnostics(xmlDocument, entityResolver, diagnostics, monitor);
 	}
 
 }

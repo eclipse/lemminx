@@ -11,6 +11,7 @@
 package org.eclipse.lsp4xml.services.extensions;
 
 import org.eclipse.lsp4j.InitializeParams;
+import org.eclipse.lsp4xml.services.extensions.diagnostics.IDiagnosticsParticipant;
 
 /**
  * XML extension.

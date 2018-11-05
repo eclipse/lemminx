@@ -8,7 +8,7 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lsp4xml.extensions.contentmodel.participants;
+package org.eclipse.lsp4xml.extensions.xsd.participants;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,23 +20,30 @@ import org.eclipse.lsp4xml.services.extensions.diagnostics.IXMLErrorCode;
 import org.eclipse.lsp4xml.utils.XMLPositionUtility;
 
 /**
- * DTD error code.
+ * XSD error code.
  * 
  * @see https://wiki.xmldation.com/Support/Validator
  *
  */
-public enum DTDErrorCode implements IXMLErrorCode {
+public enum XSDErrorCode implements IXMLErrorCode {
 
-	MSG_ELEMENT_NOT_DECLARED, MSG_CONTENT_INCOMPLETE, MSG_CONTENT_INVALID, MSG_REQUIRED_ATTRIBUTE_NOT_SPECIFIED,
-	MSG_ATTRIBUTE_NOT_DECLARED, MSG_ATTRIBUTE_VALUE_NOT_IN_LIST;
+	s4s_elt_invalid_content_1("s4s-elt-invalid-content.1"), //
+	s4s_elt_must_match_1("s4s-elt-must-match.1"), //
+	s4s_att_must_appear("s4s-att-must-appear"), //
+	s4s_elt_invalid_content_2("s4s-elt-invalid-content.2"), //
+	s4s_att_not_allowed("s4s-att-not-allowed"), //
+	s4s_att_invalid_value("s4s-att-invalid-value"), //
+	s4s_elt_character("s4s-elt-character"), //
+	src_resolve_4_2("src-resolve.4.2"), //
+	src_resolve("src-resolve");
 
 	private final String code;
 
-	private DTDErrorCode() {
+	private XSDErrorCode() {
 		this(null);
 	}
 
-	private DTDErrorCode(String code) {
+	private XSDErrorCode(String code) {
 		this.code = code;
 	}
 
@@ -48,42 +55,49 @@ public enum DTDErrorCode implements IXMLErrorCode {
 		return code;
 	}
 
-	private final static Map<String, DTDErrorCode> codes;
+	private final static Map<String, XSDErrorCode> codes;
 
 	static {
 		codes = new HashMap<>();
-		for (DTDErrorCode errorCode : values()) {
+		for (XSDErrorCode errorCode : values()) {
 			codes.put(errorCode.getCode(), errorCode);
 		}
 	}
 
-	public static DTDErrorCode get(String name) {
+	public static XSDErrorCode get(String name) {
 		return codes.get(name);
 	}
 
 	/**
 	 * Create the LSP range from the SAX error.
 	 * 
-	 * @param location
+	 * @param characterOffset
 	 * @param key
 	 * @param arguments
 	 * @param document
 	 * @return the LSP range from the SAX error.
 	 */
-	public static Range toLSPRange(XMLLocator location, DTDErrorCode code, Object[] arguments, XMLDocument document) {
+	public static Range toLSPRange(XMLLocator location, XSDErrorCode code, Object[] arguments, XMLDocument document) {
 		int offset = location.getCharacterOffset() - 1;
 		// adjust positions
 		switch (code) {
-		case MSG_CONTENT_INCOMPLETE:
-		case MSG_REQUIRED_ATTRIBUTE_NOT_SPECIFIED:
-		case MSG_ELEMENT_NOT_DECLARED:
+		case s4s_elt_invalid_content_1:
+		case s4s_elt_must_match_1:
+		case s4s_att_must_appear:
+		case s4s_elt_invalid_content_2:
 			return XMLPositionUtility.selectStartTag(offset, document);
-		case MSG_ATTRIBUTE_NOT_DECLARED:
+		case s4s_att_not_allowed:
 			return XMLPositionUtility.selectAttributeNameAt(offset, document);
-		case MSG_ATTRIBUTE_VALUE_NOT_IN_LIST: {
+		case s4s_att_invalid_value: {
 			String attrName = "";
 			return XMLPositionUtility.selectAttributeValueAt(attrName, offset, document);
 		}
+		case s4s_elt_character:
+			return XMLPositionUtility.selectText(offset, document);
+		case src_resolve_4_2:
+		case src_resolve:
+			String attrValue = (String) arguments[2];
+			return XMLPositionUtility.selectAttributeValueByGivenValueAt(attrValue, offset, document);
 		}
 		return null;
 	}

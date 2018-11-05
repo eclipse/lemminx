@@ -23,8 +23,8 @@ import org.eclipse.lsp4xml.extensions.contentmodel.participants.codeactions.cvc_
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.codeactions.cvc_complex_type_4CodeAction;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.codeactions.cvc_enumeration_validCodeAction;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.codeactions.cvc_type_3_1_1CodeAction;
-import org.eclipse.lsp4xml.extensions.contentmodel.participants.diagnostics.IXMLErrorCode;
 import org.eclipse.lsp4xml.services.extensions.ICodeActionParticipant;
+import org.eclipse.lsp4xml.services.extensions.diagnostics.IXMLErrorCode;
 import org.eclipse.lsp4xml.utils.XMLPositionUtility;
 
 /**

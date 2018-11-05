@@ -8,7 +8,7 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lsp4xml.extensions.contentmodel.participants.diagnostics;
+package org.eclipse.lsp4xml.services.extensions.diagnostics;
 
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.xml.sax.Attributes;
@@ -17,9 +17,8 @@ import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 
 /**
- * Stop quickly validation of XML by checking the monitor.
- * 
- * @author azerr
+ * SAX content handler to stop immediatly the XML parsing by checking
+ * {@link CancelChecker#checkCanceled()}
  *
  */
 public class LSPContentHandler implements ContentHandler {
