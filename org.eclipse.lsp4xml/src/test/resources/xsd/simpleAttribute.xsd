@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema
+    elementFormDefault="qualified"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:element
+      name="invoice"
+      type="invoiceType"></xsd:element>
+  <xsd:complexType name="invoiceType">
+    <xsd:annotation>
+      <xsd:documentation>An invoice type...</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element
+          name="product"
+          type="productType"></xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+      
+  <xsd:complexType name="productType">
+    <xsd:attribute
+        name="description"
+        type="xsd:string"
+        use="required"></xsd:attribute>
+  </xsd:complexType>
+
+</xsd:schema>
