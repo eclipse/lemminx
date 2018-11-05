@@ -241,6 +241,15 @@ public class XMLSchemaCompletionExtensionsTest {
 	}
 
 	@Test
+	public void schemaLocationWithElementAndAttributeCompletion() throws BadLocationException {
+		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
+				"<invoice xmlns=\"http://simpleAttribute\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n"
+				+ " xsi:schemaLocation=\"http://simpleAttribute xsd/simpleAttribute.xsd \">\r\n" + //
+				"  <pro|</invoice>";
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/simpleAttribute.xml", null, c("product", "<product description=\"\" />"));
+	}
+
+	@Test
 	public void completionWithoutStartBracket() throws BadLocationException {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
