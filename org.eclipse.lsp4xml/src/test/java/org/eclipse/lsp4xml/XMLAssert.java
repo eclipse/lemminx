@@ -223,20 +223,24 @@ public class XMLAssert {
 	}
 
 	public static void assertDiagnostics(List<Diagnostic> actual, List<Diagnostic> expected, boolean filter) {
+		List<Diagnostic> received = actual;
 		if (filter) {
-			actual.stream().forEach(d -> {
-				// we don't want to compare severity, message, etc
-				d.setSeverity(null);
-				d.setMessage(null);
-				d.setSource(null);
-			});
+			received = actual.stream().map(d -> {
+				Diagnostic simpler = new Diagnostic(d.getRange(), null);
+				simpler.setCode(d.getCode());
+				return simpler;
+			}).collect(Collectors.toList());
 		}
-		Assert.assertEquals(expected.size(), actual.size());
-		Assert.assertArrayEquals(expected.toArray(), actual.toArray());
+		Assert.assertEquals("Unexpected diagnostics:\n"+actual, expected, received);
 	}
 
 	public static Diagnostic d(int startLine, int startCharacter, int endLine, int endCharacter, IXMLErrorCode code) {
 		return new Diagnostic(r(startLine, startCharacter, endLine, endCharacter), null, null, null, code.getCode());
+	}
+
+	public static Diagnostic d(int startLine, int startCharacter, int endCharacter, IXMLErrorCode code) {
+		//Diagnostic on 1 line
+		return d(startLine, startCharacter, startLine, endCharacter, code);
 	}
 
 	public static Range r(int startLine, int startCharacter, int endLine, int endCharacter) {
