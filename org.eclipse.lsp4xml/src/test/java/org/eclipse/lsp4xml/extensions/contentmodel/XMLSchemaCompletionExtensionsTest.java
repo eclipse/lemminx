@@ -13,9 +13,14 @@ package org.eclipse.lsp4xml.extensions.contentmodel;
 import static org.eclipse.lsp4xml.XMLAssert.c;
 import static org.eclipse.lsp4xml.XMLAssert.te;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.commons.BadLocationException;
+import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -246,7 +251,8 @@ public class XMLSchemaCompletionExtensionsTest {
 				"<invoice xmlns=\"http://simpleAttribute\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n"
 				+ " xsi:schemaLocation=\"http://simpleAttribute xsd/simpleAttribute.xsd \">\r\n" + //
 				"  <pro|</invoice>";
-		XMLAssert.testCompletionFor(xml, null, "src/test/resources/simpleAttribute.xml", null, c("product", "<product description=\"\" />"));
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/simpleAttribute.xml", null,
+				c("product", "<product description=\"\" />"));
 	}
 
 	@Test
@@ -268,37 +274,99 @@ public class XMLSchemaCompletionExtensionsTest {
 				+ //
 				"	<bean />|" + "</beans>";
 		XMLAssert.testCompletionFor(xml, c("bean", "<bean></bean>"));
-		
+
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
 				+ //
 				"	<bean />|";
 		XMLAssert.testCompletionFor(xml, c("bean", "<bean></bean>"));
-		
+
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
 				+ //
 				"	<bean ></bean>|" + "</beans>";
 		XMLAssert.testCompletionFor(xml, c("bean", "<bean></bean>"));
-		
+
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
 				+ //
 				"	<bean ></bean>|";
 		XMLAssert.testCompletionFor(xml, c("bean", "<bean></bean>"));
-		
+
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
 				+ //
 				"	<bean>|</bean>";
 		XMLAssert.testCompletionFor(xml, c("constructor-arg", "<constructor-arg></constructor-arg>"));
-		
+
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
 				+ //
 				"	<bean>\r\n   |      \r\n</bean>";
 		XMLAssert.testCompletionFor(xml, c("constructor-arg", "<constructor-arg></constructor-arg>"));
-		
+
+	}
+
+	@Test
+	public void completionWithXMLSchemaContentChanged() throws Exception {
+		// This https://github.com/angelozerr/lsp4xml/issues/194 for the test scenario
+		Path dir = Paths.get("target/xsd/");
+		if (!Files.isDirectory(dir)) {
+			Files.createDirectory(dir);
+		}
+		Files.deleteIfExists(Paths.get(dir.toString(), "resources.xsd"));
+
+		XMLLanguageService xmlLanguageService = new XMLLanguageService();
+
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
+				+ "<resources | xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " //
+				+ "xsi:noNamespaceSchemaLocation=\"xsd/resources.xsd\">\r\n" + //
+				"    <resource name=\"res00\" >\r\n" + //
+				"        <property name=\"propA\" value=\"...\" />\r\n" + //
+				"        <property name=\"propB\" value=\"...\" />\r\n" + //
+				"    </resource>\r\n" + //
+				"    <resource name=\"\" >\r\n" + //
+				"        <property name=\"\" value=\"...\" />\r\n" + //
+				"        <property name=\"\" value=\"...\" />\r\n" + //
+				"    </resource> \r\n" + "</resources>";
+
+		// Schema defines variant attribute -> completion for @variant
+		String schema = "<?xml version=\"1.0\"?>\r\n" + "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\r\n"
+				+ "\r\n" + "    <xs:complexType name=\"property\">\r\n"
+				+ "        <xs:attribute name=\"name\" type=\"xs:string\" />\r\n"
+				+ "        <xs:attribute name=\"value\" type=\"xs:string\" />\r\n" + "    </xs:complexType>\r\n"
+				+ "\r\n" + "    <xs:complexType name=\"resource\">\r\n" + "        <xs:sequence>\r\n"
+				+ "            <xs:element name=\"property\" type=\"property\" minOccurs=\"0\" maxOccurs=\"unbounded\" />\r\n"
+				+ "        </xs:sequence>\r\n"
+				+ "        <xs:attribute name=\"name\" type=\"xs:string\" use=\"required\" />\r\n"
+				+ "    </xs:complexType>\r\n" + "\r\n" + "    <xs:element name=\"resources\">\r\n"
+				+ "        <xs:complexType>\r\n" + "            <xs:sequence>\r\n"
+				+ "                <xs:element name=\"resource\" type=\"resource\" minOccurs=\"0\" maxOccurs=\"unbounded\" />\r\n"
+				+ "            </xs:sequence>\r\n"
+				+ "            <xs:attribute name=\"variant\" type=\"xs:string\" use=\"required\"/>\r\n"
+				+ "        </xs:complexType>\r\n" + "    </xs:element>\r\n" + "</xs:schema>";
+		Files.write(Paths.get("target/xsd/resources.xsd"), schema.getBytes());
+		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, "target/resources.xml", 1, false,
+				c("variant", "variant=\"\""));
+
+		// Update resources.xsd, Schema doesn't define variant attribute -> no completion
+		schema = "<?xml version=\"1.0\"?>\r\n" + "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\r\n"
+				+ "\r\n" + "    <xs:complexType name=\"property\">\r\n"
+				+ "        <xs:attribute name=\"name\" type=\"xs:string\" />\r\n"
+				+ "        <xs:attribute name=\"value\" type=\"xs:string\" />\r\n" + "    </xs:complexType>\r\n"
+				+ "\r\n" + "    <xs:complexType name=\"resource\">\r\n" + "        <xs:sequence>\r\n"
+				+ "            <xs:element name=\"property\" type=\"property\" minOccurs=\"0\" maxOccurs=\"unbounded\" />\r\n"
+				+ "        </xs:sequence>\r\n"
+				+ "        <xs:attribute name=\"name\" type=\"xs:string\" use=\"required\" />\r\n"
+				+ "    </xs:complexType>\r\n" + "\r\n" + "    <xs:element name=\"resources\">\r\n"
+				+ "        <xs:complexType>\r\n" + "            <xs:sequence>\r\n"
+				+ "                <xs:element name=\"resource\" type=\"resource\" minOccurs=\"0\" maxOccurs=\"unbounded\" />\r\n"
+				+ "            </xs:sequence>\r\n"
+				//+ "            <xs:attribute name=\"variant\" type=\"xs:string\" use=\"required\"/>\r\n"
+				+ "        </xs:complexType>\r\n" + "    </xs:element>\r\n" + "</xs:schema>";
+		Files.write(Paths.get("target/xsd/resources.xsd"), schema.getBytes());
+		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, "target/resources.xml", 0, false);
+
 	}
 
 	private void testCompletionFor(String xml, CompletionItem... expectedItems) throws BadLocationException {
