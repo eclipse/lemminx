@@ -10,15 +10,21 @@
  */
 package org.eclipse.lsp4xml.services;
 
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.DocumentHighlight;
 import org.eclipse.lsp4j.DocumentLink;
 import org.eclipse.lsp4j.FoldingRange;
@@ -26,6 +32,7 @@ import org.eclipse.lsp4j.FoldingRangeCapabilities;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ReferenceContext;
 import org.eclipse.lsp4j.SymbolInformation;
@@ -34,10 +41,13 @@ import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
+import org.eclipse.lsp4xml.dom.Element;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
+import org.eclipse.lsp4xml.uriresolver.CacheResourceDownloadingException;
+import org.eclipse.lsp4xml.utils.XMLPositionUtility;
 
 /**
  * XML Language service.
@@ -96,6 +106,51 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		return diagnostics.doDiagnostics(xmlDocument, monitor);
 	}
 
+	public CompletableFuture<Path> publishDiagnostics(XMLDocument xmlDocument,
+			Consumer<PublishDiagnosticsParams> publishDiagnostics, BiConsumer<String, Integer> triggerValidation,
+			CancelChecker monitor) {
+		String uri = xmlDocument.getDocumentURI();
+		int version = xmlDocument.getTextDocument().getVersion();
+		try {
+			List<Diagnostic> diagnostics = this.doDiagnostics(xmlDocument, monitor);
+			monitor.checkCanceled();
+			publishDiagnostics.accept(new PublishDiagnosticsParams(uri, diagnostics));
+			return null;
+		} catch (CacheResourceDownloadingException e) {
+			// An XML Schema or DTD is being downloaded by the cache manager, but it takes
+			// too long.
+			// In this case:
+			// - 1) we add an information message to the document element to explain that
+			// validation
+			// cannot be performed because the XML Schema/DTD is downloading.
+			publishOneDiagnosticInRoot(xmlDocument, e.getMessage(), DiagnosticSeverity.Information, publishDiagnostics);
+			// - 2) we restart the validation only once the XML Schema/DTD is downloaded.
+			e.getFuture() //
+					.exceptionally(downloadException -> {
+						// Error while downloading the XML Schema/DTD
+						publishOneDiagnosticInRoot(xmlDocument, downloadException.getCause().getMessage(),
+								DiagnosticSeverity.Error, publishDiagnostics);
+						return null;
+					}) //
+					.thenAccept((path) -> {
+						if (path != null) {
+							triggerValidation.accept(uri, version);
+						}
+					});
+			return e.getFuture();
+		}
+	}
+
+	private static void publishOneDiagnosticInRoot(XMLDocument document, String message, DiagnosticSeverity severity,
+			Consumer<PublishDiagnosticsParams> publishDiagnostics) {
+		String uri = document.getDocumentURI();
+		Element documentElement = document.getDocumentElement();
+		Range range = XMLPositionUtility.selectStartTag(documentElement);
+		List<Diagnostic> diagnostics = new ArrayList<>();
+		diagnostics.add(new Diagnostic(range, message, severity, "XML"));
+		publishDiagnostics.accept(new PublishDiagnosticsParams(uri, diagnostics));
+	}
+
 	public List<FoldingRange> getFoldingRanges(TextDocument document, FoldingRangeCapabilities context) {
 		return foldings.getFoldingRanges(document, context);
 	}
@@ -115,12 +170,12 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 	public List<? extends Location> findDefinition(XMLDocument xmlDocument, Position position) {
 		return definition.findDefinition(xmlDocument, position);
 	}
-	
+
 	public List<? extends Location> findReferences(XMLDocument xmlDocument, Position position,
 			ReferenceContext context) {
 		return reference.findReferences(xmlDocument, position, context);
 	}
-	
+
 	public List<CodeAction> doCodeActions(CodeActionContext context, Range range, XMLDocument document,
 			XMLFormattingOptions formattingSettings) {
 		return codeActions.doCodeActions(context, range, document, formattingSettings);

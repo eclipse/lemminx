@@ -10,9 +10,12 @@
  */
 package org.eclipse.lsp4xml;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import org.eclipse.lsp4j.CodeAction;
@@ -25,6 +28,7 @@ import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.MarkedString;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
@@ -215,14 +219,20 @@ public class XMLAssert {
 	}
 
 	public static void assertDiagnostics(List<Diagnostic> actual, Diagnostic... expected) {
-		actual.stream().forEach(d -> {
-			// we don't want to compare severity, message, etc
-			d.setSeverity(null);
-			d.setMessage(null);
-			d.setSource(null);
-		});
-		Assert.assertEquals(expected.length, actual.size());
-		Assert.assertArrayEquals(expected, actual.toArray());
+		assertDiagnostics(actual, Arrays.asList(expected), true);
+	}
+
+	public static void assertDiagnostics(List<Diagnostic> actual, List<Diagnostic> expected, boolean filter) {
+		if (filter) {
+			actual.stream().forEach(d -> {
+				// we don't want to compare severity, message, etc
+				d.setSeverity(null);
+				d.setMessage(null);
+				d.setSource(null);
+			});
+		}
+		Assert.assertEquals(expected.size(), actual.size());
+		Assert.assertArrayEquals(expected.toArray(), actual.toArray());
 	}
 
 	public static Diagnostic d(int startLine, int startCharacter, int endLine, int endCharacter, IXMLErrorCode code) {
@@ -231,6 +241,47 @@ public class XMLAssert {
 
 	public static Range r(int startLine, int startCharacter, int endLine, int endCharacter) {
 		return new Range(new Position(startLine, startCharacter), new Position(endLine, endCharacter));
+	}
+
+	// ------------------- Publish Diagnostics assert
+
+	public static void testPublishDiagnosticsFor(String xml, String fileURI, PublishDiagnosticsParams... expected) {
+		List<PublishDiagnosticsParams> actual = new ArrayList<>();
+		XMLLanguageService languageService = new XMLLanguageService();
+		XMLDocument xmlDocument = XMLParser.getInstance().parse(xml, fileURI);
+		
+		publishDiagnostics(xmlDocument, actual, languageService);
+
+		Assert.assertEquals(expected.length, actual.size());
+		for (int i = 0; i < expected.length; i++) {
+			Assert.assertEquals(fileURI, actual.get(i).getUri());
+			assertDiagnostics(expected[i].getDiagnostics(), actual.get(i).getDiagnostics(), false);
+		}
+	}
+
+	private static void publishDiagnostics(XMLDocument xmlDocument, List<PublishDiagnosticsParams> actual,
+			XMLLanguageService languageService) {
+		CompletableFuture<Path> error = languageService.publishDiagnostics(xmlDocument, params -> {
+			actual.add(params);
+		}, (uri, version) -> {
+			// Retrigger validation
+			publishDiagnostics(xmlDocument, actual, languageService);
+		}, () -> {
+		});
+
+		if (error != null) {
+			try {
+				error.join();
+				// Wait for 500 ms to collect the last params
+				Thread.sleep(200);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public static PublishDiagnosticsParams pd(String uri, Diagnostic... diagnostics) {
+		return new PublishDiagnosticsParams(uri, Arrays.asList(diagnostics));
 	}
 
 	// ------------------- CodeAction assert

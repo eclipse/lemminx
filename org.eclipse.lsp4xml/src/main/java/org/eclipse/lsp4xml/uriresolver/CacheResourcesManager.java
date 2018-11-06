@@ -146,7 +146,7 @@ public class CacheResourcesManager {
 				LOGGER.log(Level.SEVERE,
 						"Error while downloading " + resourceURI + " to " + resourceCachePath + " in " + elapsed + "ms",
 						e);
-				return null;
+				throw new CacheResourceDownloadedException("Error while downloading '" + resourceURI + "'.", e);
 			} finally {
 				synchronized (resourcesLoading) {
 					resourcesLoading.remove(resourceURI);
