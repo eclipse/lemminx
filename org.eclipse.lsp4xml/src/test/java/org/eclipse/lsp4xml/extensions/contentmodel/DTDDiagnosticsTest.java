@@ -33,9 +33,39 @@ public class DTDDiagnosticsTest {
 				"<web-app>\r\n" + //
 				"	<XXX></XXX>\r\n" + //
 				"</web-app>";
-		testDiagnosticsFor(xml, d(6, 2, 6, 5, DTDErrorCode.MSG_ELEMENT_NOT_DECLARED),
-				d(7, 10, 7, 10, DTDErrorCode.MSG_CONTENT_INVALID));
-		// testCodeActionsFor(xml, d, ca(d, te(3, 2, 3, 15, "")));
+		testDiagnosticsFor(xml, d(6, 2, 5, DTDErrorCode.MSG_ELEMENT_NOT_DECLARED),
+				d(7, 10, 10, DTDErrorCode.MSG_CONTENT_INVALID));
+	}
+
+	@Test
+	public void testDoctypeDiagnosticsRefresh() throws Exception {
+		//@formatter:off
+		String xml = "<?xml version=\"1.0\"?>\n" + 
+					"<!DOCTYPE student [\n" + 
+					"  <!ELEMENT student (surname,id)>\n" + 
+					"  <!ELEMENT surname (#PCDATA)>\n" + 
+					"]>\n" + 
+					"<student>\n" + 
+					"  <surname>Smith</surname>\n" + 
+					"  <id>567896</id>\n" + 
+					"</student>";
+		//@formatter:on
+		testDiagnosticsFor(xml, d(7, 3, 5, DTDErrorCode.MSG_ELEMENT_NOT_DECLARED));
+
+		//@formatter:off
+		xml = "<?xml version=\"1.0\"?>\n" + 
+			"<!DOCTYPE student [\n" + 
+			"  <!ELEMENT student (surname,id)>\n" + 
+			"  <!ELEMENT surname (#PCDATA)>\n" + 
+			"  <!ELEMENT id (#PCDATA)>\n" + 
+			"]>\n" + 
+			"<student>\n" + 
+			"  <surname>Smith</surname>\n" + 
+			"  <id>567896</id>\n" + 
+			"</student>";
+		//@formatter:on
+		testDiagnosticsFor(xml, new Diagnostic[0]);
+
 	}
 
 	private static void testDiagnosticsFor(String xml, Diagnostic... expected) {
