@@ -376,20 +376,92 @@ public class XMLFormatterTest {
 	@Test
 	public void testDTDFormatting() throws BadLocationException {
 		String content = 
-			"<!DOCTYPE web-app PUBLIC" + lineSeparator() +
-			"\"-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN\"" + lineSeparator() +
-			"\"http://java.sun.com/dtd/web-app_2_3.dtd\" >" + lineSeparator() + 
-		   	lineSeparator() +
-		    "<web-app>" + lineSeparator() +
- 			"  <display-name>Servlet 2.3 Web Application</display-name>" + lineSeparator() +
+			"<!DOCTYPE web-app PUBLIC\r\n" + 
+			"\"-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN\"\r\n" +
+			"\"http://java.sun.com/dtd/web-app_2_3.dtd\" >\r\n" + 
+		    "<web-app>\r\n" + 
+ 			"  <display-name>Servlet 2.3 Web Application</display-name>\r\n" + 
 		    "</web-app>";
 		String expected = 
-			"<!DOCTYPE web-app PUBLIC" + lineSeparator() +
-			"\"-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN\"" + lineSeparator() +
-			"\"http://java.sun.com/dtd/web-app_2_3.dtd\" >" + lineSeparator() + 
-			"<web-app>" + lineSeparator() +
-			"  <display-name>Servlet 2.3 Web Application</display-name>" + lineSeparator() +
+			"<!DOCTYPE web-app PUBLIC\r\n" + 
+			"\"-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN\"\r\n" + 
+			"\"http://java.sun.com/dtd/web-app_2_3.dtd\" >\r\n" + 
+			"<web-app>\r\n" + 
+			"  <display-name>Servlet 2.3 Web Application</display-name>\r\n" + 
 			"</web-app>";
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		format(content, expected, formattingOptions);
+	}
+
+	@Test
+	public void testDTDFormattingInternal() throws BadLocationException {
+		String content = 
+			"<?xml version=\"1.0\"?>\r\n" +
+			"\r\n" +
+			"\r\n" +
+			"<!DOCTYPE student [\r\n" +
+			"  <!ELEMENT student (surname,id)>\r\n" + 
+			"  <!ELEMENT surname (#PCDATA)>\r\n" + 
+			"  <!ELEMENT id (#PCDATA)>\r\n" + 
+			"]>\r\n" + 
+			"\r\n" + 
+			"<student>\r\n" + 
+			"\r\n" + 
+			"\r\n" + 
+			"  <surname>Smith</surname>\r\n" + 
+			"  <id>567896</id>\r\n" + 
+			"</student>";
+		String expected = 
+			"<?xml version=\"1.0\"?>\r\n" + 
+			"<!DOCTYPE student [\r\n" +
+			"  <!ELEMENT student (surname,id)>\r\n" +
+			"  <!ELEMENT surname (#PCDATA)>\r\n" +
+			"  <!ELEMENT id (#PCDATA)>\r\n" + 
+			"]>\r\n" +
+			"<student>\r\n" +
+			"  <surname>Smith</surname>\r\n" + 
+			"  <id>567896</id>\r\n" +
+			"</student>";
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		format(content, expected, formattingOptions);
+	}
+
+	@Test
+	public void testDTDFormattingExternal() throws BadLocationException {
+		String content = 
+			"<?xml version=\"1.0\"?>\r\n" + 
+			"<!DOCTYPE SYSTEM \"test.xsd>\r\n" + 
+			"<student>\r\n" + 
+			"  <surname>Smith</surname>\r\n" + 
+			"  <id>567896</id>\r\n" + 
+			"</student>";
+		String expected = 
+			"<?xml version=\"1.0\"?>\r\n" + 
+			"<!DOCTYPE SYSTEM \"test.xsd>\r\n" + 
+			"<student>\r\n" + 
+			"  <surname>Smith</surname>\r\n" + 
+			"  <id>567896</id>\r\n" + 
+			"</student>";
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		format(content, expected, formattingOptions);
+	}
+
+	@Test
+	public void testDTDFormattingEmptyContent() throws BadLocationException {
+		String content = 
+			"<?xml version=\"1.0\"?>\r\n" + 
+			"<!DOCTYPE >\r\n" + 
+			"<student>\r\n" + 
+			"  <surname>Smith</surname>\r\n" + 
+			"  <id>567896</id>\r\n" + 
+			"</student>";
+		String expected = 
+			"<?xml version=\"1.0\"?>\r\n" + 
+			"<!DOCTYPE >\r\n" + 
+			"<student>\r\n" + 
+			"  <surname>Smith</surname>\r\n" +
+			"  <id>567896</id>\r\n" + 
+			"</student>";
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		format(content, expected, formattingOptions);
 	}

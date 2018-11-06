@@ -20,10 +20,18 @@ public interface Scanner {
 
 	TokenType getTokenType();
 
+	/**
+	 * Starting offset position of the current token
+	 * @return int of token's start offset
+	 */
 	int getTokenOffset();
 
 	int getTokenLength();
 
+	/**
+	 * Ending offset position of the current token
+	 * @return int of token's end offset
+	 */
 	int getTokenEnd();
 
 	String getTokenText();

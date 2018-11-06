@@ -252,12 +252,6 @@ public class XMLParser {
 				break;
 			}
 
-			case EndCommentTag: {
-				curr.end = scanner.getTokenEnd();
-				curr.closed = true;
-				curr = curr.parent;
-				break;
-			}
 			case EndDoctypeTag: {
 				curr.end = scanner.getTokenEnd();
 				curr.closed = true;
@@ -265,6 +259,13 @@ public class XMLParser {
 				break;
 			}
 
+			case EndCommentTag: {
+				curr.end = scanner.getTokenEnd();
+				curr.closed = true;
+				curr = curr.parent;
+				break;
+			}
+			
 			case Content: {
 				// FIXME: don't use getTokenText (substring) to know if the content is only
 				// spaces or line feed (scanner should know that).
@@ -279,6 +280,7 @@ public class XMLParser {
 				curr.addChild(textNode);
 				break;
 			}
+			
 			default:
 			}
 			token = scanner.scan();
