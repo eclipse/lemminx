@@ -1,3 +1,13 @@
+/**
+ *  Copyright (c) 2018 Angelo ZERR
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ *  Contributors:
+ *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
+ */
 package org.eclipse.lsp4xml.extensions.contentmodel;
 
 import static org.eclipse.lsp4xml.XMLAssert.pd;
@@ -7,24 +17,21 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelManager;
+import org.eclipse.lsp4xml.extensions.contentmodel.participants.XMLSchemaErrorCode;
+import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * Test with published diagnostics.
+ *
+ */
 public class XMLSchemaPublishDiagnosticsTest {
 
-	String XML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
-			"<invoice xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
-			" xsi:noNamespaceSchemaLocation=\"http://invoice.xsd\">\r\n" + //
-			"  <date>2017-11-30_INVALID</date>      \r\n" + // <- here is the error
-			"  <number>5235</number> \r\n" + //
-			"  <products>   \r\n" + //
-			"    <product description=\"laptop\" price=\"700.00\"/>\r\n" + //
-			"    <product description=\"mouse\" price=\"30.00\"  />\r\n" + //
-			"  </products>\r\n" + //
-			"  <payments> \r\n" + //
-			"    <payment amount=\"770.00\" method=\"credit\"/>\r\n" + //
-			"  </payments>\r\n" + //
-			"</invoice> \r\n" + //
-			"";
+	@Before
+	public void init() {
+		ContentModelManager.getInstance().setUseCache(false);
+		ContentModelManager.getInstance().setCatalogs(new String[] {});
+	}
 
 	@Test
 	public void schemaWithUrlWithoutCache() throws Exception {
@@ -75,4 +82,87 @@ public class XMLSchemaPublishDiagnosticsTest {
 				pd(fileURI, new Diagnostic(r(1, 1, 1, 8), "Error while downloading 'http://invoice.xsd'.",
 						DiagnosticSeverity.Error, "XML")));
 	}
+
+	@Test
+	public void schemaWithUrlWithCacheAndWithCatalog() throws Exception {
+		// Here we test the following context:
+		// - XML which have xsi:noNamespaceSchemaLocation="http://invoice.xsd"
+		// - XMLCacheResolverExtension which is enabled
+		// - Catalog using which resolves XML Schema of the http://invoice.xsd
+		// Result of test is to validate the XML with XML Schema
+
+		// Don't use cache on file system
+		ContentModelManager.getInstance().setUseCache(true);
+
+		// use catalog which defines bind src/test/xsd/invoice.xsd with
+		// http://invoice.xsd namespace
+
+		ContentModelManager.getInstance().setCatalogs(new String[] { "src/test/resources/catalogs/catalog.xml" });
+
+		String fileURI = "test.xml";
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<invoice xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				" xsi:noNamespaceSchemaLocation=\"http://invoice.xsd\">\r\n" + //
+				"  <date>2017-11-30_INVALID</date>      \r\n" + // <- here is the error
+				"  <number>5235</number> \r\n" + //
+				"  <products>   \r\n" + //
+				"    <product description=\"laptop\" price=\"700.00\"/>\r\n" + //
+				"    <product description=\"mouse\" price=\"30.00\"  />\r\n" + //
+				"  </products>\r\n" + //
+				"  <payments> \r\n" + //
+				"    <payment amount=\"770.00\" method=\"credit\"/>\r\n" + //
+				"  </payments>\r\n" + //
+				"</invoice> \r\n" + //
+				"";
+
+		XMLAssert.testPublishDiagnosticsFor(xml, fileURI, pd(fileURI, //
+				new Diagnostic(r(3, 8, 3, 26),
+						"cvc-datatype-valid.1.2.1: '2017-11-30_INVALID' is not a valid value for 'date'.",
+						DiagnosticSeverity.Error, "xml", XMLSchemaErrorCode.cvc_datatype_valid_1_2_1.getCode()), //
+				new Diagnostic(r(3, 8, 3, 26),
+						"cvc-type.3.1.3: The value '2017-11-30_INVALID' of element 'date' is not valid.",
+						DiagnosticSeverity.Error, "xml", XMLSchemaErrorCode.cvc_type_3_1_3.getCode())));
+	}
+
+	@Test
+	public void schemaWithUrlWithoutCacheAndWithCatalog() throws Exception {
+		// Here we test the following context:
+		// - XML which have xsi:noNamespaceSchemaLocation="http://invoice.xsd"
+		// - XMLCacheResolverExtension which is disabled
+		// - Catalog using which resolves XML Schema of the http://invoice.xsd
+		// Result of test is to validate the XML with XML Schema
+
+		// Don't use cache on file system
+		ContentModelManager.getInstance().setUseCache(false);
+
+		// use catalog which defines bind src/test/xsd/invoice.xsd with
+		// http://invoice.xsd namespace
+
+		ContentModelManager.getInstance().setCatalogs(new String[] { "src/test/resources/catalogs/catalog.xml" });
+
+		String fileURI = "test.xml";
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<invoice xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				" xsi:noNamespaceSchemaLocation=\"http://invoice.xsd\">\r\n" + //
+				"  <date>2017-11-30_INVALID</date>      \r\n" + // <- here is the error
+				"  <number>5235</number> \r\n" + //
+				"  <products>   \r\n" + //
+				"    <product description=\"laptop\" price=\"700.00\"/>\r\n" + //
+				"    <product description=\"mouse\" price=\"30.00\"  />\r\n" + //
+				"  </products>\r\n" + //
+				"  <payments> \r\n" + //
+				"    <payment amount=\"770.00\" method=\"credit\"/>\r\n" + //
+				"  </payments>\r\n" + //
+				"</invoice> \r\n" + //
+				"";
+
+		XMLAssert.testPublishDiagnosticsFor(xml, fileURI, pd(fileURI, //
+				new Diagnostic(r(3, 8, 3, 26),
+						"cvc-datatype-valid.1.2.1: '2017-11-30_INVALID' is not a valid value for 'date'.",
+						DiagnosticSeverity.Error, "xml", XMLSchemaErrorCode.cvc_datatype_valid_1_2_1.getCode()), //
+				new Diagnostic(r(3, 8, 3, 26),
+						"cvc-type.3.1.3: The value '2017-11-30_INVALID' of element 'date' is not valid.",
+						DiagnosticSeverity.Error, "xml", XMLSchemaErrorCode.cvc_type_3_1_3.getCode())));
+	}
+
 }

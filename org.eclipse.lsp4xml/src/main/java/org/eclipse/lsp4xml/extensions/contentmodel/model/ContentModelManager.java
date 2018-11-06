@@ -69,12 +69,12 @@ public class ContentModelManager {
 				return false;
 			}
 		});
-		cacheResolverExtension = new XMLCacheResolverExtension();
-		resolverManager.registerResolver(cacheResolverExtension);
 		fileAssociationResolver = new XMLFileAssociationResolverExtension();
 		resolverManager.registerResolver(fileAssociationResolver);
 		catalogResolverExtension = new XMLCatalogResolverExtension();
 		resolverManager.registerResolver(catalogResolverExtension);
+		cacheResolverExtension = new XMLCacheResolverExtension();
+		resolverManager.registerResolver(cacheResolverExtension);
 		// Use cache by default
 		setUseCache(true);
 	}

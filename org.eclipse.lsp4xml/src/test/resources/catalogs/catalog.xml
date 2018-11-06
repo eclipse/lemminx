@@ -13,8 +13,9 @@
 		uri="../xsd/camel-spring-2.22.0.xsd" />
 	<public publicId="http://camel.apache.org/schema/spring"
 		uri="../xsd/camel-spring-2.22.0.xsd" />
-	
-	<system
-		systemId="http://java.sun.com/dtd/web-app_2_3.dtd"
-		uri="../dtd/web-app_2_3.dtd" />		
+
+	<system systemId="http://java.sun.com/dtd/web-app_2_3.dtd"
+		uri="../dtd/web-app_2_3.dtd" />
+		
+	<system systemId="http://invoice.xsd" uri="../xsd/invoice.xsd" />
 </catalog>
