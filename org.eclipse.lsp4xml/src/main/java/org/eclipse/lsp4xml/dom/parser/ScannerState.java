@@ -17,6 +17,7 @@ package org.eclipse.lsp4xml.dom.parser;
  */
 public enum ScannerState {
 	WithinContent, AfterOpeningStartTag, AfterOpeningEndTag, WithinProlog, WithinDoctype, WithinTag, WithinEndTag,
-	WithinComment, AfterAttributeName, BeforeAttributeValue, WithinCDATA, AfterClosingCDATATag, StartCDATATag, AfterPrologOpen, PrologOrPI, WithinPI
+	WithinComment, AfterAttributeName, BeforeAttributeValue, WithinCDATA, AfterClosingCDATATag, StartCDATATag, AfterPrologOpen, PrologOrPI, 
+	WithinPI
 
 }

@@ -33,6 +33,10 @@ class MultiLineStream {
 		return ch == _WSP || ch == _TAB || ch == _NWL || ch == _LFD || ch == _CAR;
 	};
 
+	private static final Predicate<Integer> CHARACTER_PREDICATE = ch -> {
+		return ch != _WSP && ch != _TAB && ch != _NWL && ch != _LFD && ch != _CAR;
+	};
+
 	private final String source;
 	private final int len;
 	private int position;
@@ -214,6 +218,14 @@ class MultiLineStream {
 
 	public boolean skipWhitespace() {
 		int n = this.advanceWhileChar(WHITESPACE_PREDICATE);
+		return n > 0;
+	}
+
+	/**
+	 * Advances until it reaches a whitespace character
+	 */
+	public boolean advanceUntilWhitespace() {
+		int n = this.advanceWhileChar(CHARACTER_PREDICATE);
 		return n > 0;
 	}
 

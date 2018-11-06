@@ -120,10 +120,17 @@ public class XMLScanner implements Scanner {
 				state = ScannerState.WithinContent;
 				return finishToken(offset, TokenType.EndDoctypeTag);
 			}
-			stream.advanceUntilCharOrNewTag(_RAN); // >
-			if (stream.peekChar() == _LAN) { // <
-				state = ScannerState.WithinContent;
+			stream.skipWhitespace();
+			if (stream.peekChar() == _RAN) { // >
+				return finishToken(offset, TokenType.Doctype);
 			}
+			stream.advanceUntilWhitespace();
+			stream.skipWhitespace();
+			if(stream.advanceIfChar(_OSB)) { // [
+				stream.advanceUntilChar(_CSB); // ]
+				stream.advance(1);
+			}
+			stream.advanceUntilChar(_RAN); // >
 			return finishToken(offset, TokenType.Doctype);
 		case PrologOrPI:
 			if (stream.advanceIfChars(_QMA, _RAN)) { // ?>
@@ -348,6 +355,11 @@ public class XMLScanner implements Scanner {
 	}
 
 	@Override
+	/**
+	 * Starting offset position of the current token
+	 * 
+	 * @return Starting offset position of the current token
+	 */
 	public int getTokenOffset() {
 		return tokenOffset;
 	}
@@ -358,6 +370,11 @@ public class XMLScanner implements Scanner {
 	}
 
 	@Override
+	/**
+	 * Ending offset position of the current token
+	 * 
+	 * @return Ending offset position of the current token
+	 */
 	public int getTokenEnd() {
 		return stream.pos();
 	}
