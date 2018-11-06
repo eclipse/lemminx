@@ -11,8 +11,6 @@
 package org.eclipse.lsp4xml.extensions.contentmodel.model;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -48,14 +46,11 @@ public class ContentModelManager {
 
 	private final XSLoaderImpl loader;
 
-	private final Map<String, CMDocument> cmDocumentCache;
-
 	private final XMLCacheResolverExtension cacheResolverExtension;
 	private final XMLCatalogResolverExtension catalogResolverExtension;
 	private final XMLFileAssociationResolverExtension fileAssociationResolver;
 
 	public ContentModelManager() {
-		cmDocumentCache = new HashMap<>();
 		URIResolverExtensionManager resolverManager = URIResolverExtensionManager.getInstance();
 		loader = new XSLoaderImpl();
 		loader.setParameter("http://apache.org/xml/properties/internal/entity-resolver", resolverManager);
@@ -134,16 +129,12 @@ public class ContentModelManager {
 		if (key == null) {
 			return null;
 		}
-		CMDocument cmDocument = cmDocumentCache.get(key);
-		if (cmDocument == null) {
-			XSModel model = loader.loadURI(key);
-			if (model != null) {
-				// XML Schema can be loaded
-				cmDocument = new XSDDocument(model);
-				cmDocumentCache.put(key, cmDocument);
-			}
+		XSModel model = loader.loadURI(key);
+		if (model != null) {
+			// XML Schema can be loaded
+			return new XSDDocument(model);
 		}
-		return cmDocument;
+		return null;
 	}
 
 	/**
