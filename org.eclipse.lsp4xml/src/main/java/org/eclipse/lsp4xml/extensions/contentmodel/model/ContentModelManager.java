@@ -11,6 +11,8 @@
 package org.eclipse.lsp4xml.extensions.contentmodel.model;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,6 +31,7 @@ import org.eclipse.lsp4xml.extensions.contentmodel.uriresolver.XMLFileAssociatio
 import org.eclipse.lsp4xml.extensions.contentmodel.xsd.XSDDocument;
 import org.eclipse.lsp4xml.uriresolver.CacheResourceDownloadingException;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
+import org.eclipse.lsp4xml.utils.FilesUtils;
 import org.w3c.dom.DOMError;
 import org.w3c.dom.DOMErrorHandler;
 
@@ -46,11 +49,14 @@ public class ContentModelManager {
 
 	private final XSLoaderImpl loader;
 
+	private final Map<String, CMDocument> cmDocumentCache;
+
 	private final XMLCacheResolverExtension cacheResolverExtension;
 	private final XMLCatalogResolverExtension catalogResolverExtension;
 	private final XMLFileAssociationResolverExtension fileAssociationResolver;
 
 	public ContentModelManager() {
+		cmDocumentCache = new HashMap<>();
 		URIResolverExtensionManager resolverManager = URIResolverExtensionManager.getInstance();
 		loader = new XSLoaderImpl();
 		loader.setParameter("http://apache.org/xml/properties/internal/entity-resolver", resolverManager);
@@ -129,7 +135,32 @@ public class ContentModelManager {
 		if (key == null) {
 			return null;
 		}
-		XSModel model = loader.loadURI(key);
+		if (FilesUtils.isRemoteResource(key)) {
+			// XML/Schema, DTD comes from http, https, ftp, use the cache
+			CMDocument cmDocument = cmDocumentCache.get(key);
+			if (cmDocument == null) {
+				// Not in cache, load it
+				cmDocument = createCMDocument(key);
+				if (cmDocument != null) {
+					// cache it
+					cmDocumentCache.put(key, cmDocument);
+				}
+			}
+			return cmDocument;
+		}
+		return createCMDocument(uri);
+	}
+
+	/**
+	 * Create an instance of {@link CMDocument} from the given url and null if it
+	 * cannot be loaded.
+	 * 
+	 * @param uri
+	 * @return an instance of {@link CMDocument} from the given url and null if it
+	 *         cannot be loaded.
+	 */
+	private CMDocument createCMDocument(String uri) {
+		XSModel model = loader.loadURI(uri);
 		if (model != null) {
 			// XML Schema can be loaded
 			return new XSDDocument(model);

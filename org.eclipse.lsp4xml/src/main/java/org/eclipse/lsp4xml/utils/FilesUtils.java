@@ -84,4 +84,14 @@ public class FilesUtils {
 			return s.hasNext() ? s.next() : "";
 		}
 	}
+
+	/**
+	 * Returns true if the given URL is a remote resource and false otherwise.
+	 * 
+	 * @param resourceURI
+	 * @return true if the given URL is a remote resource and false otherwise.
+	 */
+	public static boolean isRemoteResource(String resourceURI) {
+		return resourceURI != null && (resourceURI.startsWith("http:") || resourceURI.startsWith("https:") || resourceURI.startsWith("ftp:"));
+	}
 }

@@ -144,8 +144,9 @@ public class CacheResourcesManager {
 			} catch (Exception e) {
 				// Do nothing
 				Throwable rootCause = getRootCause(e);
-				String error = "["+rootCause.getClass().getTypeName()+"] "+ rootCause.getMessage();
-				LOGGER.log(Level.SEVERE, "Error while downloading " + resourceURI + " to " + resourceCachePath + " : "+error);
+				String error = "[" + rootCause.getClass().getTypeName() + "] " + rootCause.getMessage();
+				LOGGER.log(Level.SEVERE,
+						"Error while downloading " + resourceURI + " to " + resourceCachePath + " : " + error);
 				throw new CacheResourceDownloadedException("Error while downloading '" + resourceURI + "'.", e);
 			} finally {
 				synchronized (resourcesLoading) {
@@ -192,30 +193,33 @@ public class CacheResourcesManager {
 	}
 
 	/**
-	 * Returns <code>true</code> if cache is enabled and url comes from "http(s)" or "ftp" and <code>false</code>
-	 * otherwise.
+	 * Returns <code>true</code> if cache is enabled and url comes from "http(s)" or
+	 * "ftp" and <code>false</code> otherwise.
 	 * 
 	 * @param url
-	 * @return <code>true</code> if cache is enabled and url comes from "http(s)" or "ftp" and <code>false</code>
-	 *         otherwise.
+	 * @return <code>true</code> if cache is enabled and url comes from "http(s)" or
+	 *         "ftp" and <code>false</code> otherwise.
 	 */
 	public boolean canUseCache(String url) {
-		return isUseCache() && url != null && (url.startsWith("http:") || url.startsWith("https:") || url.startsWith("ftp:"));
+		return isUseCache() && FilesUtils.isRemoteResource(url);
 	}
 
 	/**
 	 * Set <code>true</code> if cache must be used, <code>false</code> otherwise.
 	 * 
-	 * @param useCache <code>true</code> if cache must be used, <code>false</code> otherwise.
+	 * @param useCache <code>true</code> if cache must be used, <code>false</code>
+	 *                 otherwise.
 	 */
 	public void setUseCache(boolean useCache) {
 		this.useCache = useCache;
 	}
 
 	/**
-	 * Returns <code>true</code> if cache must be used, <code>false</code> otherwise.
+	 * Returns <code>true</code> if cache must be used, <code>false</code>
+	 * otherwise.
 	 * 
-	 * @return <code>true</code> if cache must be used, <code>false</code> otherwise.
+	 * @return <code>true</code> if cache must be used, <code>false</code>
+	 *         otherwise.
 	 */
 	public boolean isUseCache() {
 		return useCache;
