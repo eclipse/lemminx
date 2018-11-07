@@ -25,6 +25,8 @@ import java.util.Scanner;
  */
 public class FilesUtils {
 
+	private FilesUtils(){}
+
 	private static final Path DEPLOYED_BASE_PATH = getDeployedBasePath();
 
 	private static Path getDeployedBasePath() {

@@ -16,7 +16,6 @@ import java.util.List;
 
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMElementDeclaration;
-import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.utils.XMLBuilder;
 

@@ -11,7 +11,6 @@
 package org.eclipse.lsp4xml.utils;
 
 import static org.eclipse.lsp4xml.utils.StringUtils.normalizeSpace;
-import static org.eclipse.lsp4xml.utils.StringUtils.trimNewLines;
 
 import org.eclipse.lsp4xml.dom.Comment;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;

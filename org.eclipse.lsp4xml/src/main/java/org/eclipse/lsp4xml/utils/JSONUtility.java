@@ -22,6 +22,8 @@ import com.google.gson.JsonElement;
  */
 public class JSONUtility {
 
+	private JSONUtility(){}
+
 	public static <T> T toModel(Object object, Class<T> clazz) {
 		if (object == null) {
 			return null;

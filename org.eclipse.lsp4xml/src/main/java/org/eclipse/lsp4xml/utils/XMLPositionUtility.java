@@ -30,6 +30,8 @@ import org.eclipse.lsp4xml.dom.XMLDocument;
  */
 public class XMLPositionUtility {
 
+	private XMLPositionUtility(){}
+
 	/**
 	 * Returns the LSP position from the SAX location.
 	 * 
