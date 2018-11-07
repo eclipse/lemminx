@@ -3,12 +3,14 @@
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
- *  http://www.eclipse.org/legal/epl-v10.html
+ *  http://www.eclipse.org/legal/epl-v20.html
  *
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
 package org.eclipse.lsp4xml.uriresolver;
+
+import static org.eclipse.lsp4xml.utils.ExceptionUtils.getRootCause;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -78,7 +80,6 @@ public class CacheResourcesManager {
 		public String getResourceFromClasspath() {
 			return resourceFromClasspath;
 		}
-
 	}
 
 	private CacheResourcesManager() {
@@ -142,10 +143,9 @@ public class CacheResourcesManager {
 				LOGGER.info("Downloaded " + resourceURI + " to " + resourceCachePath + " in " + elapsed + "ms");
 			} catch (Exception e) {
 				// Do nothing
-				long elapsed = System.currentTimeMillis() - start;
-				LOGGER.log(Level.SEVERE,
-						"Error while downloading " + resourceURI + " to " + resourceCachePath + " in " + elapsed + "ms",
-						e);
+				Throwable rootCause = getRootCause(e);
+				String error = "["+rootCause.getClass().getTypeName()+"] "+ rootCause.getMessage();
+				LOGGER.log(Level.SEVERE, "Error while downloading " + resourceURI + " to " + resourceCachePath + " : "+error);
 				throw new CacheResourceDownloadedException("Error while downloading '" + resourceURI + "'.", e);
 			} finally {
 				synchronized (resourcesLoading) {
@@ -192,30 +192,30 @@ public class CacheResourcesManager {
 	}
 
 	/**
-	 * Returns true if cache is enabled and url comes from "http" or "ftp" and false
+	 * Returns <code>true</code> if cache is enabled and url comes from "http(s)" or "ftp" and <code>false</code>
 	 * otherwise.
 	 * 
 	 * @param url
-	 * @return true if cache is enabled and url comes from "http" or "ftp" and false
+	 * @return <code>true</code> if cache is enabled and url comes from "http(s)" or "ftp" and <code>false</code>
 	 *         otherwise.
 	 */
 	public boolean canUseCache(String url) {
-		return isUseCache() && url != null && (url.startsWith("http:") || url.startsWith("ftp:"));
+		return isUseCache() && url != null && (url.startsWith("http:") || url.startsWith("https:") || url.startsWith("ftp:"));
 	}
 
 	/**
-	 * Set true if cache must be used and false otherwise.
+	 * Set <code>true</code> if cache must be used, <code>false</code> otherwise.
 	 * 
-	 * @param useCache true if cache must be used and false otherwise.
+	 * @param useCache <code>true</code> if cache must be used, <code>false</code> otherwise.
 	 */
 	public void setUseCache(boolean useCache) {
 		this.useCache = useCache;
 	}
 
 	/**
-	 * Returns true if cache must be used and false otherwise.
+	 * Returns <code>true</code> if cache must be used, <code>false</code> otherwise.
 	 * 
-	 * @return true if cache must be used and false otherwise.
+	 * @return <code>true</code> if cache must be used, <code>false</code> otherwise.
 	 */
 	public boolean isUseCache() {
 		return useCache;
