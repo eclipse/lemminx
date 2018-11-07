@@ -31,6 +31,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.eclipse.lsp4xml.utils.FilesUtils;
+import org.eclipse.lsp4xml.utils.URIUtils;
 
 /**
  * Cache resources manager.
@@ -201,7 +202,7 @@ public class CacheResourcesManager {
 	 *         "ftp" and <code>false</code> otherwise.
 	 */
 	public boolean canUseCache(String url) {
-		return isUseCache() && FilesUtils.isRemoteResource(url);
+		return isUseCache() && URIUtils.isRemoteResource(url);
 	}
 
 	/**

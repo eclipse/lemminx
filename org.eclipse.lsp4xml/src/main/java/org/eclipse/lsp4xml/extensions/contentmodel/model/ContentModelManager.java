@@ -11,6 +11,7 @@
 package org.eclipse.lsp4xml.extensions.contentmodel.model;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -31,7 +32,7 @@ import org.eclipse.lsp4xml.extensions.contentmodel.uriresolver.XMLFileAssociatio
 import org.eclipse.lsp4xml.extensions.contentmodel.xsd.XSDDocument;
 import org.eclipse.lsp4xml.uriresolver.CacheResourceDownloadingException;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
-import org.eclipse.lsp4xml.utils.FilesUtils;
+import org.eclipse.lsp4xml.utils.URIUtils;
 import org.w3c.dom.DOMError;
 import org.w3c.dom.DOMErrorHandler;
 
@@ -56,7 +57,7 @@ public class ContentModelManager {
 	private final XMLFileAssociationResolverExtension fileAssociationResolver;
 
 	public ContentModelManager() {
-		cmDocumentCache = new HashMap<>();
+		cmDocumentCache = Collections.synchronizedMap(new HashMap<>());
 		URIResolverExtensionManager resolverManager = URIResolverExtensionManager.getInstance();
 		loader = new XSLoaderImpl();
 		loader.setParameter("http://apache.org/xml/properties/internal/entity-resolver", resolverManager);
@@ -135,37 +136,26 @@ public class ContentModelManager {
 		if (key == null) {
 			return null;
 		}
-		if (FilesUtils.isRemoteResource(key)) {
-			// XML/Schema, DTD comes from http, https, ftp, use the cache
-			CMDocument cmDocument = cmDocumentCache.get(key);
-			if (cmDocument == null) {
-				// Not in cache, load it
-				cmDocument = createCMDocument(key);
-				if (cmDocument != null) {
-					// cache it
+		CMDocument cmDocument = null;
+		boolean isCacheable = isCacheable(key);
+		if (isCacheable){
+			cmDocument = cmDocumentCache.get(key);
+		} 
+		if (cmDocument == null ) {
+			XSModel model = loader.loadURI(key);
+			if (model != null) {
+				// XML Schema can be loaded
+				cmDocument = new XSDDocument(model);
+				if (isCacheable) {
 					cmDocumentCache.put(key, cmDocument);
 				}
 			}
-			return cmDocument;
 		}
-		return createCMDocument(uri);
+		return cmDocument;
 	}
 
-	/**
-	 * Create an instance of {@link CMDocument} from the given url and null if it
-	 * cannot be loaded.
-	 * 
-	 * @param uri
-	 * @return an instance of {@link CMDocument} from the given url and null if it
-	 *         cannot be loaded.
-	 */
-	private CMDocument createCMDocument(String uri) {
-		XSModel model = loader.loadURI(uri);
-		if (model != null) {
-			// XML Schema can be loaded
-			return new XSDDocument(model);
-		}
-		return null;
+	private boolean isCacheable(String uri) {
+		return !URIUtils.isFileResource(uri);
 	}
 
 	/**
