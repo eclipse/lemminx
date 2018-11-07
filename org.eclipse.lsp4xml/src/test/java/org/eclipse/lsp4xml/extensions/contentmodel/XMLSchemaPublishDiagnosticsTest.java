@@ -33,6 +33,11 @@ public class XMLSchemaPublishDiagnosticsTest {
 		ContentModelManager.getInstance().setCatalogs(new String[] {});
 	}
 
+	@Before
+	public void tearDown() {
+		ContentModelManager.getInstance().setUseCache(false);
+	}
+
 	@Test
 	public void schemaWithUrlWithoutCache() throws Exception {
 		// Here we test the following context:
@@ -40,9 +45,6 @@ public class XMLSchemaPublishDiagnosticsTest {
 		// - XMLCacheResolverExtension which is disabled
 		// Result of test is to have one published diagnostics with several Xerces
 		// errors (schema)
-
-		// Don't use cache on file system
-		ContentModelManager.getInstance().setUseCache(false);
 
 		String fileURI = "test.xml";
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
@@ -131,9 +133,6 @@ public class XMLSchemaPublishDiagnosticsTest {
 		// - XMLCacheResolverExtension which is disabled
 		// - Catalog using which resolves XML Schema of the http://invoice.xsd
 		// Result of test is to validate the XML with XML Schema
-
-		// Don't use cache on file system
-		ContentModelManager.getInstance().setUseCache(false);
 
 		// use catalog which defines bind src/test/xsd/invoice.xsd with
 		// http://invoice.xsd namespace

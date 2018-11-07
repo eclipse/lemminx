@@ -3,7 +3,7 @@
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
- *  http://www.eclipse.org/legal/epl-v10.html
+ *  http://www.eclipse.org/legal/epl-v20.html
  *
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
@@ -21,11 +21,11 @@ import org.eclipse.lsp4xml.uriresolver.CacheResourcesManager;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtension;
 
 /**
- * URI resolver which download the first time the XML Schema, DTD from "http" or
- * "ftp" in the file system. The second time, teh downloaded file is used
- * instead of accessing from "http" or "ftp". This cache improves drastically
- * the performance of some XML Schema (ex: xml.xsd)
- *
+ * URI resolver which, on the first access, downloads the XML Schema or DTD 
+ * from "http(s)" or "ftp" URIs to the file system. On subsequent calls, the 
+ * locally cached file is used instead of being remotely accessed. 
+ * This cache drastically improves the resolution performance of some XML Schemas 
+ * (ex: xml.xsd)
  */
 public class XMLCacheResolverExtension implements URIResolverExtension {
 
@@ -38,14 +38,13 @@ public class XMLCacheResolverExtension implements URIResolverExtension {
 	@Override
 	public XMLInputSource resolveEntity(XMLResourceIdentifier resourceIdentifier) throws XNIException, IOException {
 		String url = resourceIdentifier.getExpandedSystemId();
-		// Cache is used only for resource coming from "http" or "ftp".
+		// Cache is used only for resource coming from "http(s)" or "ftp".
 		if (CacheResourcesManager.getInstance().canUseCache(url)) {
-			// Try to get the downloaded resource. In the case of the resource is
-			// downloading and takes so many time,
-			// the exception CacheResourceDownloadingException is thrown.
+			// Try to get the downloaded resource. In the case where the resource is
+			// downloading but takes too long, a CacheResourceDownloadingException is thrown.
 			Path file = CacheResourcesManager.getInstance().getResource(url);
 			if (file != null) {
-				// The resource is downloaded in the file system, use it.
+				// The resource was downloaded locally, use it.
 				XMLInputSource source = new XMLInputSource(resourceIdentifier);
 				source.setByteStream(Files.newInputStream(file));
 				return source;
@@ -55,9 +54,9 @@ public class XMLCacheResolverExtension implements URIResolverExtension {
 	}
 
 	/**
-	 * Set true if cache must be used and false otherwise.
+	 * Set <code>true</code> if cache must be used, <code>false</code> otherwise.
 	 * 
-	 * @param useCache true if cache must be used and false otherwise.
+	 * @param useCache <code>true</code> if cache must be used, <code>false</code> otherwise.
 	 */
 	public void setUseCache(boolean useCache) {
 		CacheResourcesManager.getInstance().setUseCache(useCache);
