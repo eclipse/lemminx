@@ -92,14 +92,15 @@ public class XMLCatalogResolverExtension implements URIResolverExtension {
 	}
 
 	private String expandSystemId(String path) {
-		try {
+		/*try {
 			if (rootUri == null) {
 				return path;
 			}
 			return XMLEntityManager.expandSystemId(path, rootUri, false);
 		} catch (MalformedURIException e) {
 			return path;
-		}
+		}*/
+		return path;
 	}
 
 	/**
@@ -110,9 +111,6 @@ public class XMLCatalogResolverExtension implements URIResolverExtension {
 	 */
 	private static boolean isXMLCatalogFileValid(String catalogFile) {
 		try {
-			if (new File(catalogFile).exists()) {
-				return true;
-			}
 			return new File(new URI(catalogFile).getPath()).exists();
 		} catch (URISyntaxException e) {
 			return new File(catalogFile).exists();
