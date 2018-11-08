@@ -23,7 +23,9 @@ Features
 * [textDocument/rangeFormatting](https://microsoft.github.io/language-server-protocol/specification#textDocument_rangeFormatting)
 * [textDocument/rename](https://microsoft.github.io/language-server-protocol/specification#textDocument_rename).
 
-See screenshots in the [wiki](https://github.com/angelozerr/lsp4xml/wiki/Features)
+See screenshots in the [wiki](https://github.com/angelozerr/lsp4xml/wiki/Features).
+
+See the [changelog](CHANGELOG.md) for the latest release.
 
 Extension
 --------------
