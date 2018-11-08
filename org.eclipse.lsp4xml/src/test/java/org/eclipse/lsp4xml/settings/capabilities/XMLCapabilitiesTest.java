@@ -57,7 +57,7 @@ public class XMLCapabilitiesTest {
 
 	@Before
 	public void startup() {
-		XMLFormattingOptions formattingOptions = new XMLFormattingOptions();
+		XMLFormattingOptions formattingOptions = new XMLFormattingOptions(true);
 		formattingOptions.setEnabled(true);
 
 		textDocumentService = new XMLTextDocumentService(null);

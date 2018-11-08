@@ -50,7 +50,9 @@ public class SettingsTest {
 				"			\"joinCDATALines\": true,\r\n" + //
 				"			\"formatComments\": true,\r\n" + //
 				"			\"joinCommentLines\": true\r\n" + //
-				"		}\r\n" + "	}\r\n" + "}";
+				"		}\r\n" + 
+				"	}\r\n" + 
+				"}";
 		// Emulate InitializeParams#getInitializationOptions() object created as
 		// JSONObject when XMLLanguageServer#initialize(InitializeParams params) is
 		// called
@@ -85,7 +87,7 @@ public class SettingsTest {
 
 	@Test
 	public void formatSettings() {
-		XMLFormattingOptions sharedXMLFormattingOptions = new XMLFormattingOptions();
+		XMLFormattingOptions sharedXMLFormattingOptions = new XMLFormattingOptions(true);
 		sharedXMLFormattingOptions.setTabSize(10);
 		sharedXMLFormattingOptions.setInsertSpaces(true);
 		sharedXMLFormattingOptions.setJoinCommentLines(true);
@@ -93,22 +95,23 @@ public class SettingsTest {
 		// formatting options coming from request
 		FormattingOptions formattingOptions = new FormattingOptions();
 		formattingOptions.setTabSize(5);
+		formattingOptions.setInsertSpaces(false);
 
 		XMLFormattingOptions xmlFormattingOptions = new XMLFormattingOptions(formattingOptions);
 		Assert.assertEquals(5, xmlFormattingOptions.getTabSize()); // value coming from the request formattingOptions
 		Assert.assertFalse(xmlFormattingOptions.isInsertSpaces()); // formattingOptions doesn't defines insert spaces
 																	// flag
 
-		Assert.assertFalse(xmlFormattingOptions.isJoinCommentLines());
+		Assert.assertFalse(xmlFormattingOptions.isJoinCommentLines());//Since default for JoinCommentLines is False
 
 		// merge with shared sharedXMLFormattingOptions (formatting settings created in
 		// the InitializeParams
 		xmlFormattingOptions.merge(sharedXMLFormattingOptions);
-		Assert.assertEquals(5, xmlFormattingOptions.getTabSize()); // tab size is kept to 5 (and not updated with
-																	// shared value 10), because request
-																	// formattingOptions defines it.
-		Assert.assertTrue(xmlFormattingOptions.isInsertSpaces()); // insert spaces is to true (shared value), because
-																	// request formatting options doesn't define it.
+		Assert.assertEquals(5, xmlFormattingOptions.getTabSize()); // tab size is kept as 5 (and not updated with
+																   // shared value 10), because only the request's
+																   // formattingOptions object is allowed to define it.
+		Assert.assertFalse(xmlFormattingOptions.isInsertSpaces()); // insert spaces is kept as false because only the request's
+																   // formattingOptions object is allowed to define it.
 		Assert.assertTrue(xmlFormattingOptions.isJoinCommentLines());
 	}
 }

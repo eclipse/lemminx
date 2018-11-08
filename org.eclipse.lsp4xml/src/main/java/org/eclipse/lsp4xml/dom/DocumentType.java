@@ -44,10 +44,8 @@ public class DocumentType extends Node implements org.w3c.dom.DocumentType {
 		return endContent;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.DocumentType#getName()
+	/**
+	 * The text immediately after DOCTYPE, "<!DOCTYPE this_is_the_Name ..."
 	 */
 	@Override
 	public String getName() {
