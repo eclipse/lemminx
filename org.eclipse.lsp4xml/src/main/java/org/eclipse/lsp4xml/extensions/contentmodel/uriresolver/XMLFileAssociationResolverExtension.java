@@ -18,7 +18,6 @@ import org.apache.xerces.util.URI.MalformedURIException;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLFileAssociation;
 import org.eclipse.lsp4xml.uriresolver.IExternalSchemaLocationProvider;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtension;
-import org.eclipse.lsp4xml.utils.StringUtils;
 
 /**
  * XML file association URI resolver.
@@ -66,26 +65,13 @@ public class XMLFileAssociationResolverExtension implements URIResolverExtension
 		return null;
 	}
 
-	public void setRootUri(String rootUri) {
-		this.rootUri = sanitizingUri(rootUri);
-	}
-
 	/**
-	 * Returns a well folder URI which ends with '/' according the URI specification
-	 * https://tools.ietf.org/html/rfc3986#section-6 which is used with Xerces
-	 * XMLEntityManager#expandSystemId
+	 * Set the root URI
 	 * 
-	 * @param uri
-	 * @return a well folder URI which ends with '/'
+	 * @param rootUri the root URI
 	 */
-	private static String sanitizingUri(String uri) {
-		if (StringUtils.isEmpty(uri)) {
-			return uri;
-		}
-		if (uri.charAt(uri.length() - 1) != '/') {
-			return uri + "/";
-		}
-		return uri;
+	public void setRootUri(String rootUri) {
+		this.rootUri = rootUri;
 	}
 
 	private void expandSystemId() {

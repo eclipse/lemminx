@@ -29,6 +29,7 @@ public class XMLSchemaPublishDiagnosticsTest {
 
 	@Before
 	public void init() {
+		ContentModelManager.getInstance().setRootURI(null);
 		ContentModelManager.getInstance().setUseCache(false);
 		ContentModelManager.getInstance().setCatalogs(new String[] {});
 	}

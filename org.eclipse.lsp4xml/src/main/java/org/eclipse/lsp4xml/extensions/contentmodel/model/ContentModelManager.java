@@ -10,16 +10,12 @@
  */
 package org.eclipse.lsp4xml.extensions.contentmodel.model;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.xerces.impl.Constants;
 import org.apache.xerces.impl.xs.XSLoaderImpl;
-import org.apache.xerces.util.XMLCatalogResolver;
 import org.apache.xerces.xs.XSModel;
 import org.eclipse.lsp4xml.dom.Element;
 import org.eclipse.lsp4xml.dom.NoNamespaceSchemaLocation;
@@ -138,10 +134,10 @@ public class ContentModelManager {
 		}
 		CMDocument cmDocument = null;
 		boolean isCacheable = isCacheable(key);
-		if (isCacheable){
+		if (isCacheable) {
 			cmDocument = cmDocumentCache.get(key);
-		} 
-		if (cmDocument == null ) {
+		}
+		if (cmDocument == null) {
 			XSModel model = loader.loadURI(key);
 			if (model != null) {
 				// XML Schema can be loaded
@@ -164,28 +160,7 @@ public class ContentModelManager {
 	 * @param catalogs list of XML catalog files.
 	 */
 	public void setCatalogs(String[] catalogs) {
-		if (catalogs != null) {
-			String[] xmlCatalogFiles = Stream.of(catalogs).filter(ContentModelManager::isXMLCatalogFileValid)
-					.collect(Collectors.toList()).toArray(new String[0]);
-			if (xmlCatalogFiles.length > 0) {
-				XMLCatalogResolver catalogResolver = new XMLCatalogResolver(xmlCatalogFiles);
-				catalogResolverExtension.setCatalogResolver(catalogResolver);
-			} else {
-				catalogResolverExtension.setCatalogResolver(null);
-			}
-		}
-
-	}
-
-	/**
-	 * Returns true if the XML catalog file exists and false otherwise.
-	 * 
-	 * @param catalogFile catalog file to check.
-	 * @return true if the XML catalog file exists and false otherwise.
-	 */
-	public static boolean isXMLCatalogFileValid(String catalogFile) {
-		File file = new File(catalogFile);
-		return (file.exists());
+		catalogResolverExtension.setCatalogs(catalogs);
 	}
 
 	/**
@@ -198,7 +173,9 @@ public class ContentModelManager {
 	}
 
 	public void setRootURI(String rootUri) {
+		rootUri = URIUtils.sanitizingUri(rootUri);
 		fileAssociationResolver.setRootUri(rootUri);
+		catalogResolverExtension.setRootUri(rootUri);
 	}
 
 	public void setUseCache(boolean useCache) {
