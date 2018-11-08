@@ -72,7 +72,10 @@ public class XMLBuilder {
 	}
 
 	public XMLBuilder endElement() {
-		xml.append(" />");
+		if(formattingOptions.isSpaceBeforeEmptyCloseTag()) {
+			xml.append(" ");
+		}
+		xml.append("/>");
 		return this;
 	}
 

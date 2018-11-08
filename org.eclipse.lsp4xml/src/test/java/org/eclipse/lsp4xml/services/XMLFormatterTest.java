@@ -596,6 +596,36 @@ public class XMLFormatterTest {
 		format(content, expected, formattingOptions);
 	}
 
+	@Test public void testSelfCloseTagSpace() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setSpaceBeforeEmptyCloseTag(true);
+		
+		String content = 
+				"<a>\r" + //
+				" <b/>\r" + //
+				"</a>";
+		String expected = 
+				"<a>\r" + //
+				"  <b />\r" + //
+				"</a>";
+		format(content, expected, formattingOptions);
+	}
+
+	@Test public void testSelfCloseTagSpaceFalse() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setSpaceBeforeEmptyCloseTag(false);
+		
+		String content = 
+				"<a>\r" + //
+				" <b/>\r" + //
+				"</a>";
+		String expected = 
+				"<a>\r" + //
+				"  <b/>\r" + //
+				"</a>";
+		format(content, expected, formattingOptions);
+	}
+
 
 
 	//-------------------------Tools-----------------------------------------

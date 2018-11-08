@@ -19,7 +19,6 @@ import org.eclipse.lsp4j.FormattingOptions;
  * All defaults should be set here to eventually be overridden if needed.
  */
 public class XMLFormattingOptions extends FormattingOptions {
-
 	// All possible keys
 	private static final String SPLIT_ATTRIBUTES = "splitAttributes";
 	private static final String JOIN_CDATA_LINES = "joinCDATALines";
@@ -27,32 +26,55 @@ public class XMLFormattingOptions extends FormattingOptions {
 	private static final String JOIN_COMMENT_LINES = "joinCommentLines";
 	private static final String JOIN_CONTENT_LINES = "joinContentLines";
 	private static final String ENABLED = "enabled";
+	private static final String SPACE_BEFORE_EMPTY_CLOSE_TAG = "spaceBeforeEmptyCloseTag";
 
 	public XMLFormattingOptions() {
 		this(false);
 	}
 
-	public XMLFormattingOptions(boolean defaultValue) {
-		if (defaultValue) {
+	/**
+	 * Create an XMLFormattingOptions instance with the option to initialize
+	 * default values for all supported settings. 
+	 */
+	public XMLFormattingOptions(boolean initializeDefaults) {
+		if (initializeDefaults) {
 			initializeDefaultSettings();
 		}
 	}
 
-	private void initializeDefaultSettings() {
+	/** 
+	 * Necessary: Initialize default values in case client does not provide one 
+	 */
+	public void initializeDefaultSettings() {
 		this.setSplitAttributes(false);
 		this.setJoinCDATALines(false);
 		this.setFormatComments(true);
 		this.setJoinCommentLines(false);
 		this.setJoinContentLines(false);
 		this.setEnabled(true);
+		this.setSpaceBeforeEmptyCloseTag(true);
+	}
+
+	public XMLFormattingOptions(int tabSize, boolean insertSpaces, boolean initializeDefaultSettings) {
+		super(tabSize, insertSpaces);
+		if(initializeDefaultSettings) {
+			initializeDefaultSettings();
+		}
 	}
 
 	public XMLFormattingOptions(int tabSize, boolean insertSpaces) {
-		super(tabSize, insertSpaces);
+		this(tabSize, insertSpaces, true);
+	}
+
+	public XMLFormattingOptions(FormattingOptions options, boolean initializeDefaultSettings) {
+		if(initializeDefaultSettings) {
+			initializeDefaultSettings();
+		}
+		merge(options);
 	}
 
 	public XMLFormattingOptions(FormattingOptions options) {
-		merge(options);
+		this(options, true);
 	}
 
 	public boolean isSplitAttributes() {
@@ -133,9 +155,29 @@ public class XMLFormattingOptions extends FormattingOptions {
 		this.putBoolean(XMLFormattingOptions.ENABLED, Boolean.valueOf(enabled));
 	}
 
+	public void setSpaceBeforeEmptyCloseTag(final boolean spaceBeforeEmptyCloseTag) {
+		this.putBoolean(XMLFormattingOptions.SPACE_BEFORE_EMPTY_CLOSE_TAG, Boolean.valueOf(spaceBeforeEmptyCloseTag));
+	}
+
+	public boolean isSpaceBeforeEmptyCloseTag() {
+		final Boolean value = this.getBoolean(XMLFormattingOptions.SPACE_BEFORE_EMPTY_CLOSE_TAG);
+		if ((value != null)) {
+			return (value).booleanValue();
+		} else {
+			return true;
+		}
+	}
+
 	public XMLFormattingOptions merge(FormattingOptions formattingOptions) {
-		formattingOptions.entrySet().stream().forEach(entry -> //
-		this.putIfAbsent(entry.getKey(), entry.getValue()) //
+		formattingOptions.entrySet().stream().forEach(entry -> {
+			String key = entry.getKey();
+			if(!key.equals("tabSize") && !key.equals("insertSpaces")) {
+				this.put(entry.getKey(), entry.getValue());	
+			} 
+			else {
+				this.putIfAbsent(entry.getKey(), entry.getValue());
+			}
+		}
 		);
 		return this;
 	}

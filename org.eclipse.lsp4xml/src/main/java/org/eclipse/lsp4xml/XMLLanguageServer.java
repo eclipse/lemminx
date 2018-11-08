@@ -123,7 +123,7 @@ public class XMLLanguageServer
 			// Update format settings
 			XMLFormattingOptions formatterSettings = clientSettings.getFormat();
 			if (formatterSettings != null) {
-				xmlTextDocumentService.setSharedFormattingOptions(formatterSettings);
+				xmlTextDocumentService.getSharedFormattingOptions().merge(formatterSettings);
 			}
 
 			CompletionSettings newCompletions = clientSettings.getCompletion();
