@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.eclipse</groupId>
 		<artifactId>lsp4xml</artifactId>
-		<version>0.0.2-SNAPSHOT</version>
+		<version>0.0.3-SNAPSHOT</version>
 	</parent>
 	<artifactId>lsp4xml-extensions</artifactId>
 	<packaging>pom</packaging>

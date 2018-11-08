@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>org.eclipse</groupId>
 		<artifactId>lsp4xml-extensions</artifactId>
-		<version>0.0.2-SNAPSHOT</version>
+		<version>0.0.3-SNAPSHOT</version>
 	</parent>
 	<artifactId>org.eclipse.lsp4xml.extensions.emmet</artifactId>
 	<dependencies>
