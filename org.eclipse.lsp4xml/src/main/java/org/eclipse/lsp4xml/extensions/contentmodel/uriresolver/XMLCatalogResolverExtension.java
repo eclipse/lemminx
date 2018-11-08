@@ -93,6 +93,9 @@ public class XMLCatalogResolverExtension implements URIResolverExtension {
 
 	private String expandSystemId(String path) {
 		try {
+			if (rootUri == null) {
+				return path;
+			}
 			return XMLEntityManager.expandSystemId(path, rootUri, false);
 		} catch (MalformedURIException e) {
 			return path;
