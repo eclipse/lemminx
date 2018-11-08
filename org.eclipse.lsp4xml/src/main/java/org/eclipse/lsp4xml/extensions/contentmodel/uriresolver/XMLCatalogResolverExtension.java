@@ -110,6 +110,9 @@ public class XMLCatalogResolverExtension implements URIResolverExtension {
 	 */
 	private static boolean isXMLCatalogFileValid(String catalogFile) {
 		try {
+			if (new File(catalogFile).exists()) {
+				return true;
+			}
 			return new File(new URI(catalogFile).getPath()).exists();
 		} catch (URISyntaxException e) {
 			return new File(catalogFile).exists();
