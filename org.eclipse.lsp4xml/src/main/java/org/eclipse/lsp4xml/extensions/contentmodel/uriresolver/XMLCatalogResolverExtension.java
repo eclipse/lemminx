@@ -131,4 +131,12 @@ public class XMLCatalogResolverExtension implements URIResolverExtension {
 		this.catalogResolver = catalogResolver;
 	}
 
+	/**
+	 * Refresh the XML catalogs.
+	 */
+	public void refreshCatalogs() {
+		if (catalogResolver != null) {
+			setCatalogs(catalogResolver.getCatalogList());
+		}
+	}
 }

@@ -1,6 +1,7 @@
 package org.eclipse.lsp4xml.extensions.contentmodel;
 
 import org.eclipse.lsp4j.InitializeParams;
+import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.ContentModelCodeActionParticipant;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.ContentModelCompletionParticipant;
@@ -12,6 +13,9 @@ import org.eclipse.lsp4xml.services.extensions.ICompletionParticipant;
 import org.eclipse.lsp4xml.services.extensions.IHoverParticipant;
 import org.eclipse.lsp4xml.services.extensions.IXMLExtension;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lsp4xml.services.extensions.save.ISaveContext;
+import org.eclipse.lsp4xml.services.extensions.save.ISaveParticipant;
+import org.eclipse.lsp4xml.utils.DOMUtils;
 
 /**
  * Content model plugin extension to provide:
@@ -34,12 +38,32 @@ public class ContentModelPlugin implements IXMLExtension {
 
 	private final ContentModelDocumentLinkParticipant documentLinkParticipant;
 
+	private final ISaveParticipant saveParticipant;
+
 	public ContentModelPlugin() {
 		completionParticipant = new ContentModelCompletionParticipant();
 		hoverParticipant = new ContentModelHoverParticipant();
 		diagnosticsParticipant = new ContentModelDiagnosticsParticipant();
 		codeActionParticipant = new ContentModelCodeActionParticipant();
 		documentLinkParticipant = new ContentModelDocumentLinkParticipant();
+		saveParticipant = (context) -> {
+			if (context.getType() == ISaveContext.SaveContextType.DOCUMENT) {
+				// The save is done for a given XML file
+				String documentURI = context.getUri();
+				XMLDocument document = context.getDocument(documentURI);
+				if (DOMUtils.isCatalog(document)) {
+					// the XML document which has changed is a XML catalog.
+					// 1) refresh catalogs
+					ContentModelManager.getInstance().refreshCatalogs();
+					// 2) Validate all opened XML files except the catalog which have changed
+					context.collectDocumentToValidate(d -> {
+						XMLDocument xml = context.getDocument(d.getDocumentURI());
+						xml.resetGrammar();
+						return !documentURI.equals(d.getDocumentURI());
+					});
+				}
+			}
+		};
 	}
 
 	@Override
@@ -76,6 +100,7 @@ public class ContentModelPlugin implements IXMLExtension {
 		registry.registerDiagnosticsParticipant(diagnosticsParticipant);
 		registry.registerCodeActionParticipant(codeActionParticipant);
 		registry.registerDocumentLinkParticipant(documentLinkParticipant);
+		registry.registerSaveParticipant(saveParticipant);
 	}
 
 	@Override
@@ -85,6 +110,7 @@ public class ContentModelPlugin implements IXMLExtension {
 		registry.unregisterDiagnosticsParticipant(diagnosticsParticipant);
 		registry.unregisterCodeActionParticipant(codeActionParticipant);
 		registry.unregisterDocumentLinkParticipant(documentLinkParticipant);
+		registry.unregisterSaveParticipant(saveParticipant);
 	}
 
 }

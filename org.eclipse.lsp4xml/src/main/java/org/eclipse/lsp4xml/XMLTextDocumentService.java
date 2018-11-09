@@ -14,6 +14,7 @@ import static org.eclipse.lsp4j.jsonrpc.CompletableFutures.computeAsync;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
@@ -21,6 +22,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.eclipse.lsp4j.ClientCapabilities;
@@ -67,6 +69,7 @@ import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.dom.XMLParser;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
+import org.eclipse.lsp4xml.services.extensions.save.ISaveContext;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 
 /**
@@ -82,7 +85,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	private final FoldingRangeCapabilities sharedFoldingsSettings;
 	private XMLFormattingOptions sharedFormattingOptions;
 
-	private class BasicCancelChecker implements CancelChecker {
+	class BasicCancelChecker implements CancelChecker {
 
 		private boolean canceled;
 
@@ -97,6 +100,46 @@ public class XMLTextDocumentService implements TextDocumentService {
 			this.canceled = canceled;
 		}
 
+	}
+
+	/**
+	 * Save context.
+	 */
+	class SaveContext implements ISaveContext {
+
+		private final Collection<TextDocument> documentsToValidate;
+
+		private final String uri;
+
+		public SaveContext(String uri) {
+			this.uri = uri;
+			this.documentsToValidate = new ArrayList<>();
+		}
+
+		@Override
+		public void collectDocumentToValidate(Predicate<XMLDocument> validateDocumentPredicate) {
+			documents.all().stream().forEach(document -> {
+				XMLDocument xmlDocument = getXMLDocument(document);
+				if (!documentsToValidate.contains(document) && validateDocumentPredicate.test(xmlDocument)) {
+					documentsToValidate.add(document);
+				}
+			});
+		}
+
+		@Override
+		public XMLDocument getDocument(String uri) {
+			return xmlLanguageServer.getDocument(uri);
+		}
+
+		@Override
+		public SaveContextType getType() {
+			return uri != null ? SaveContextType.DOCUMENT : SaveContextType.SETTINGS;
+		}
+
+		@Override
+		public String getUri() {
+			return uri;
+		}
 	}
 
 	final ScheduledExecutorService delayer = Executors.newScheduledThreadPool(2);
@@ -303,7 +346,25 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	@Override
 	public void didSave(DidSaveTextDocumentParams params) {
+		computeAsync((monitor) -> {
+			// A document was saved, collect documents to revalidate
+			SaveContext context = new SaveContext(params.getTextDocument().getUri());
+			getXMLLanguageService().doSave(context);
+			triggerValidationFor(context.documentsToValidate);
+			return null;
+		});
+	}
 
+	private void triggerValidationFor(Collection<TextDocument> documents) {
+		if (!documents.isEmpty()) {
+			xmlLanguageServer.schedule(() -> {
+				documents.forEach(document -> {
+					String uri = document.getUri();
+					int version = document.getVersion();
+					doTriggerValidation(uri, version, monitor);
+				});
+			}, 500, TimeUnit.MILLISECONDS);
+		}
 	}
 
 	private void triggerValidation(String uri, int version) {
@@ -319,14 +380,18 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	private void triggerValidation(String uri, int version, CancelChecker monitor) {
 		future = xmlLanguageServer.schedule(() -> {
-			TextDocument currDocument = getDocument(uri);
-			if (currDocument != null && currDocument.getVersion() == version) {
-				XMLDocument xmlDocument = getXMLDocument(currDocument);
-				getXMLLanguageService().publishDiagnostics(xmlDocument,
-						params -> xmlLanguageServer.getLanguageClient().publishDiagnostics(params),
-						(u, v) -> triggerValidation(u, v), monitor);
-			}
+			doTriggerValidation(uri, version, monitor);
 		}, 500, TimeUnit.MILLISECONDS);
+	}
+
+	private void doTriggerValidation(String uri, int version, CancelChecker monitor) {
+		TextDocument currDocument = getDocument(uri);
+		if (currDocument != null && currDocument.getVersion() == version) {
+			XMLDocument xmlDocument = getXMLDocument(currDocument);
+			getXMLLanguageService().publishDiagnostics(xmlDocument,
+					params -> xmlLanguageServer.getLanguageClient().publishDiagnostics(params),
+					(u, v) -> triggerValidation(u, v), monitor);
+		}
 	}
 
 	private XMLLanguageService getXMLLanguageService() {

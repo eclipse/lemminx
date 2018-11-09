@@ -18,6 +18,7 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
+import org.eclipse.lsp4xml.utils.DOMUtils;
 
 /**
  * Validate XSD file with Xerces.
@@ -27,7 +28,7 @@ public class XSDDiagnosticsParticipant implements IDiagnosticsParticipant {
 
 	@Override
 	public void doDiagnostics(XMLDocument xmlDocument, List<Diagnostic> diagnostics, CancelChecker monitor) {
-		if (!xmlDocument.isXSD()) {
+		if (!DOMUtils.isXSD(xmlDocument)) {
 			// Don't use the XSD validator, if the XML document is not a XML Schema.
 			return;
 		}

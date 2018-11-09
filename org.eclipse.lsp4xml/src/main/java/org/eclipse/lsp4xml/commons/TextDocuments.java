@@ -10,6 +10,7 @@
  */
 package org.eclipse.lsp4xml.commons;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,5 +89,14 @@ public class TextDocuments implements ITextDocumentFactory {
 
 	public void onDidCloseTextDocument(DidCloseTextDocumentParams params) {
 		documents.remove(params.getTextDocument().getUri());
+	}
+
+	/**
+	 * Returns the all opened documents.
+	 * 
+	 * @return the all opened documents.
+	 */
+	public Collection<TextDocument> all() {
+		return documents.values();
 	}
 }

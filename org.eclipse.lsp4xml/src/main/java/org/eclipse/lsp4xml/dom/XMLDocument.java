@@ -645,18 +645,9 @@ public class XMLDocument extends Node implements Document {
 	}
 
 	/**
-	 * Returns true if the XML document is a XML Schema and false otherwise.
-	 * 
-	 * @return true if the XML document is a XML Schema and false otherwise.
+	 * Reset the cached grammar flag.
 	 */
-	public boolean isXSD() {
-		String uri = getDocumentURI();
-		if (uri != null && uri.endsWith(".xsd")) {
-			return true;
-		}
-		// check root element is bind with XML Schema namespace
-		// (http://www.w3.org/2001/XMLSchema)
-		Element documentElement = getDocumentElement();
-		return documentElement != null && "http://www.w3.org/2001/XMLSchema".equals(documentElement.getNamespaceURI());
+	public void resetGrammar() {
+		this.referencedGrammarInitialized = false;
 	}
 }

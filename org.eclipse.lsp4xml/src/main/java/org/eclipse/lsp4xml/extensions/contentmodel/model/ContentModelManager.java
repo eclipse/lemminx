@@ -164,6 +164,13 @@ public class ContentModelManager {
 	}
 
 	/**
+	 * Refresh the XML catalogs.
+	 */
+	public void refreshCatalogs() {
+		catalogResolverExtension.refreshCatalogs();
+	}
+
+	/**
 	 * Set file associations.
 	 * 
 	 * @param fileAssociations

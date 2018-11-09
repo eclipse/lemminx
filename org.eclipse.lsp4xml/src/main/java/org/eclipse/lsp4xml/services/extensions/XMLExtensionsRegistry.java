@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4xml.services.IXMLDocumentProvider;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IDiagnosticsParticipant;
+import org.eclipse.lsp4xml.services.extensions.save.ISaveParticipant;
 
 /**
  * XML extensions registry.
@@ -37,6 +38,7 @@ public class XMLExtensionsRegistry {
 	private final List<IDocumentLinkParticipant> documentLinkParticipants;
 	private final List<IDefinitionParticipant> definitionParticipants;
 	private final List<IReferenceParticipant> referenceParticipants;
+	private final List<ISaveParticipant> saveParticipants;
 
 	private IXMLDocumentProvider documentProvider;
 
@@ -55,6 +57,7 @@ public class XMLExtensionsRegistry {
 		documentLinkParticipants = new ArrayList<>();
 		definitionParticipants = new ArrayList<>();
 		referenceParticipants = new ArrayList<>();
+		saveParticipants = new ArrayList<>();
 	}
 
 	public void initializeParams(InitializeParams params) {
@@ -106,6 +109,11 @@ public class XMLExtensionsRegistry {
 	public Collection<IDefinitionParticipant> getDefinitionParticipants() {
 		initializeIfNeeded();
 		return definitionParticipants;
+	}
+
+	public Collection<ISaveParticipant> getSaveParticipants() {
+		initializeIfNeeded();
+		return saveParticipants;
 	}
 
 	public Collection<IReferenceParticipant> getReferenceParticipants() {
@@ -200,6 +208,14 @@ public class XMLExtensionsRegistry {
 
 	public void unregisterReferenceParticipant(IReferenceParticipant referenceParticipant) {
 		referenceParticipants.add(referenceParticipant);
+	}
+
+	public void registerSaveParticipant(ISaveParticipant saveParticipant) {
+		saveParticipants.add(saveParticipant);
+	}
+
+	public void unregisterSaveParticipant(ISaveParticipant saveParticipant) {
+		saveParticipants.add(saveParticipant);
 	}
 
 	/**
