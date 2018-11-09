@@ -80,7 +80,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 		XMLGenerator generator = request.getXMLGenerator();
 		for (CMElementDeclaration child : cmElements) {
 			String label = child.getName(prefix);
-			CompletionItem item = new CompletionItem(label + " - XML Schema");
+			CompletionItem item = new CompletionItem(label);
 			item.setFilterText(request.getFilterForStartTagName(label));
 			item.setKind(CompletionItemKind.Property);
 			String documentation = child.getDocumentation();
