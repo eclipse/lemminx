@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.eclipse.lsp4j.CodeAction;
@@ -43,6 +44,7 @@ import org.eclipse.lsp4xml.extensions.contentmodel.settings.ContentModelSettings
 import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IXMLErrorCode;
+import org.eclipse.lsp4xml.services.extensions.save.AbstractSaveContext;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.junit.Assert;
 
@@ -55,6 +57,23 @@ public class XMLAssert {
 	// ------------------- Completion assert
 
 	private static final String FILE_URI = "test.xml";
+
+	static class SettingsSaveContext extends AbstractSaveContext {
+
+		public SettingsSaveContext(Object settings) {
+			super(settings);
+		}
+
+		@Override
+		public XMLDocument getDocument(String uri) {
+			return null;
+		}
+
+		@Override
+		public void collectDocumentToValidate(Predicate<XMLDocument> validateDocumentPredicate) {
+
+		}
+	}
 
 	public static void testCompletionFor(String value, CompletionItem... expectedItems) throws BadLocationException {
 		testCompletionFor(value, null, expectedItems);
@@ -97,7 +116,7 @@ public class XMLAssert {
 		if (catalogPath != null) {
 			settings.setCatalogs(new String[] { catalogPath });
 		}
-		xmlLanguageService.updateSettings(settings);
+		xmlLanguageService.doSave(new SettingsSaveContext(settings));
 
 		CompletionList list = xmlLanguageService.doComplete(htmlDoc, position, new CompletionSettings(autoCloseTags),
 				new XMLFormattingOptions(4, false));
@@ -210,7 +229,7 @@ public class XMLAssert {
 			// Configure XML catalog for XML schema
 			settings.setCatalogs(new String[] { catalogPath });
 		}
-		xmlLanguageService.updateSettings(settings);
+		xmlLanguageService.doSave(new SettingsSaveContext(settings));
 
 		List<Diagnostic> actual = xmlLanguageService.doDiagnostics(xmlDocument, () -> {
 		});
@@ -231,7 +250,7 @@ public class XMLAssert {
 				return simpler;
 			}).collect(Collectors.toList());
 		}
-		Assert.assertEquals("Unexpected diagnostics:\n"+actual, expected, received);
+		Assert.assertEquals("Unexpected diagnostics:\n" + actual, expected, received);
 	}
 
 	public static Diagnostic d(int startLine, int startCharacter, int endLine, int endCharacter, IXMLErrorCode code) {
@@ -239,7 +258,7 @@ public class XMLAssert {
 	}
 
 	public static Diagnostic d(int startLine, int startCharacter, int endCharacter, IXMLErrorCode code) {
-		//Diagnostic on 1 line
+		// Diagnostic on 1 line
 		return d(startLine, startCharacter, startLine, endCharacter, code);
 	}
 
@@ -253,7 +272,7 @@ public class XMLAssert {
 		List<PublishDiagnosticsParams> actual = new ArrayList<>();
 		XMLLanguageService languageService = new XMLLanguageService();
 		XMLDocument xmlDocument = XMLParser.getInstance().parse(xml, fileURI);
-		
+
 		publishDiagnostics(xmlDocument, actual, languageService);
 
 		Assert.assertEquals(expected.length, actual.size());
@@ -306,7 +325,7 @@ public class XMLAssert {
 			// Configure XML catalog for XML schema
 			settings.setCatalogs(new String[] { catalogPath });
 		}
-		xmlLanguageService.updateSettings(settings);
+		xmlLanguageService.doSave(new SettingsSaveContext(settings));
 
 		CodeActionContext context = new CodeActionContext();
 		context.setDiagnostics(Arrays.asList(diagnostic));
@@ -382,7 +401,7 @@ public class XMLAssert {
 		if (catalogPath != null) {
 			settings.setCatalogs(new String[] { catalogPath });
 		}
-		xmlLanguageService.updateSettings(settings);
+		xmlLanguageService.doSave(new SettingsSaveContext(settings));
 
 		Hover hover = xmlLanguageService.doHover(htmlDoc, position);
 		if (expectedHoverLabel == null) {
@@ -417,7 +436,7 @@ public class XMLAssert {
 
 		ContentModelSettings settings = new ContentModelSettings();
 		settings.setUseCache(false);
-		xmlLanguageService.updateSettings(settings);
+		xmlLanguageService.doSave(new SettingsSaveContext(settings));
 
 		List<DocumentLink> actual = xmlLanguageService.findDocumentLinks(xmlDocument);
 		assertDocumentLinks(actual, expected);

@@ -45,7 +45,6 @@ import org.eclipse.lsp4xml.dom.Element;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
-import org.eclipse.lsp4xml.services.extensions.save.ISaveContext;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.uriresolver.CacheResourceDownloadingException;
 import org.eclipse.lsp4xml.utils.XMLPositionUtility;
@@ -67,7 +66,6 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 	private XMLDefinition definition;
 	private XMLReference reference;
 	private final XMLCodeActions codeActions;
-	private final XMLSaveAction saveActions;
 
 	public XMLLanguageService() {
 		this.formatter = new XMLFormatter(this);
@@ -81,7 +79,6 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		this.definition = new XMLDefinition(this);
 		this.reference = new XMLReference(this);
 		this.codeActions = new XMLCodeActions(this);
-		this.saveActions = new XMLSaveAction(this);
 	}
 
 	public List<? extends TextEdit> format(TextDocument document, Range range, XMLFormattingOptions options) {
@@ -202,9 +199,5 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		} catch (BadLocationException e) {
 			return null;
 		}
-	}
-
-	public void doSave(ISaveContext context) {
-		saveActions.doSave(context);
 	}
 }

@@ -17,6 +17,7 @@ import org.eclipse.lsp4xml.services.extensions.ICompletionParticipant;
 import org.eclipse.lsp4xml.services.extensions.IDefinitionParticipant;
 import org.eclipse.lsp4xml.services.extensions.IXMLExtension;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lsp4xml.services.extensions.save.ISaveContext;
 
 public class XMLReferencesPlugin implements IXMLExtension {
 
@@ -29,8 +30,8 @@ public class XMLReferencesPlugin implements IXMLExtension {
 	}
 
 	@Override
-	public void updateSettings(Object settings) {
-
+	public void doSave(ISaveContext context) {
+		
 	}
 
 	@Override

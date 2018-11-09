@@ -69,7 +69,7 @@ import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.dom.XMLParser;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
-import org.eclipse.lsp4xml.services.extensions.save.ISaveContext;
+import org.eclipse.lsp4xml.services.extensions.save.AbstractSaveContext;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 
 /**
@@ -105,14 +105,17 @@ public class XMLTextDocumentService implements TextDocumentService {
 	/**
 	 * Save context.
 	 */
-	class SaveContext implements ISaveContext {
+	class SaveContext extends AbstractSaveContext {
 
 		private final Collection<TextDocument> documentsToValidate;
 
-		private final String uri;
+		public SaveContext(Object settings) {
+			super(settings);
+			this.documentsToValidate = new ArrayList<>();
+		}
 
 		public SaveContext(String uri) {
-			this.uri = uri;
+			super(uri);
 			this.documentsToValidate = new ArrayList<>();
 		}
 
@@ -131,14 +134,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 			return xmlLanguageServer.getDocument(uri);
 		}
 
-		@Override
-		public SaveContextType getType() {
-			return uri != null ? SaveContextType.DOCUMENT : SaveContextType.SETTINGS;
-		}
-
-		@Override
-		public String getUri() {
-			return uri;
+		public void triggerValidationIfNeeded() {
+			triggerValidationFor(documentsToValidate);
 		}
 	}
 
@@ -349,10 +346,29 @@ public class XMLTextDocumentService implements TextDocumentService {
 		computeAsync((monitor) -> {
 			// A document was saved, collect documents to revalidate
 			SaveContext context = new SaveContext(params.getTextDocument().getUri());
-			getXMLLanguageService().doSave(context);
-			triggerValidationFor(context.documentsToValidate);
+			doSave(context);
 			return null;
 		});
+	}
+
+	/**
+	 * Update settings of the language service.
+	 * 
+	 * @param settings
+	 */
+	public void updateSettings(Object settings) {
+		SaveContext context = new SaveContext(settings);
+		doSave(context);
+	}
+
+	/**
+	 * Save settings or XML file.
+	 * 
+	 * @param context
+	 */
+	void doSave(SaveContext context) {
+		getXMLLanguageService().doSave(context);
+		context.triggerValidationIfNeeded();
 	}
 
 	private void triggerValidationFor(Collection<TextDocument> documents) {

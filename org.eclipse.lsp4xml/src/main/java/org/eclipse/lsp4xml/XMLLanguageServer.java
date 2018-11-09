@@ -142,7 +142,7 @@ public class XMLLanguageServer
 			}
 		}
 		// Update XML language service extensions
-		xmlLanguageService.updateSettings(initializationOptionsSettings);
+		xmlTextDocumentService.updateSettings(initializationOptionsSettings);
 	}
 
 	@Override

@@ -13,6 +13,7 @@ package org.eclipse.lsp4xml.extensions.xsl;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4xml.services.extensions.IXMLExtension;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lsp4xml.services.extensions.save.ISaveContext;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
 
 /**
@@ -23,7 +24,7 @@ public class XSLPlugin implements IXMLExtension {
 	private XSLURIResolverExtension uiResolver;
 
 	@Override
-	public void updateSettings(Object settings) {
+	public void doSave(ISaveContext context) {
 
 	}
 

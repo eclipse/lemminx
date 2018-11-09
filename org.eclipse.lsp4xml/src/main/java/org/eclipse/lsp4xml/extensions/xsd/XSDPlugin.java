@@ -17,6 +17,7 @@ import org.eclipse.lsp4xml.services.extensions.ICompletionParticipant;
 import org.eclipse.lsp4xml.services.extensions.IXMLExtension;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IDiagnosticsParticipant;
+import org.eclipse.lsp4xml.services.extensions.save.ISaveContext;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
 
 /**
@@ -36,8 +37,8 @@ public class XSDPlugin implements IXMLExtension {
 	}
 
 	@Override
-	public void updateSettings(Object settings) {
-
+	public void doSave(ISaveContext context) {
+	
 	}
 
 	@Override

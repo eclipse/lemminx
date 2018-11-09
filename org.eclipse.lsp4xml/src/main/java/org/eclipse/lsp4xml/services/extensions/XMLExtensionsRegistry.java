@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4xml.services.IXMLDocumentProvider;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IDiagnosticsParticipant;
-import org.eclipse.lsp4xml.services.extensions.save.ISaveParticipant;
+import org.eclipse.lsp4xml.services.extensions.save.ISaveContext;
 
 /**
  * XML extensions registry.
@@ -38,13 +38,12 @@ public class XMLExtensionsRegistry {
 	private final List<IDocumentLinkParticipant> documentLinkParticipants;
 	private final List<IDefinitionParticipant> definitionParticipants;
 	private final List<IReferenceParticipant> referenceParticipants;
-	private final List<ISaveParticipant> saveParticipants;
 
 	private IXMLDocumentProvider documentProvider;
 
 	private InitializeParams params;
 
-	private Object settings;
+	private ISaveContext initialSaveContext;
 
 	private boolean initialized;
 
@@ -57,7 +56,6 @@ public class XMLExtensionsRegistry {
 		documentLinkParticipants = new ArrayList<>();
 		definitionParticipants = new ArrayList<>();
 		referenceParticipants = new ArrayList<>();
-		saveParticipants = new ArrayList<>();
 	}
 
 	public void initializeParams(InitializeParams params) {
@@ -68,11 +66,11 @@ public class XMLExtensionsRegistry {
 		}
 	}
 
-	public void updateSettings(Object settings) {
+	public void doSave(ISaveContext saveContext) {
 		if (initialized) {
-			extensions.stream().forEach(extension -> extension.updateSettings(settings));
+			extensions.stream().forEach(extension -> extension.doSave(saveContext));
 		} else {
-			this.settings = settings;
+			this.initialSaveContext = saveContext;
 		}
 	}
 
@@ -111,11 +109,6 @@ public class XMLExtensionsRegistry {
 		return definitionParticipants;
 	}
 
-	public Collection<ISaveParticipant> getSaveParticipants() {
-		initializeIfNeeded();
-		return saveParticipants;
-	}
-
 	public Collection<IReferenceParticipant> getReferenceParticipants() {
 		initializeIfNeeded();
 		return referenceParticipants;
@@ -143,7 +136,7 @@ public class XMLExtensionsRegistry {
 		try {
 			extensions.add(extension);
 			extension.start(params, this);
-			extension.updateSettings(settings);
+			extension.doSave(initialSaveContext);
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, "Error while initializing extension <" + extension.getClass().getName() + ">", e);
 		}
@@ -208,14 +201,6 @@ public class XMLExtensionsRegistry {
 
 	public void unregisterReferenceParticipant(IReferenceParticipant referenceParticipant) {
 		referenceParticipants.add(referenceParticipant);
-	}
-
-	public void registerSaveParticipant(ISaveParticipant saveParticipant) {
-		saveParticipants.add(saveParticipant);
-	}
-
-	public void unregisterSaveParticipant(ISaveParticipant saveParticipant) {
-		saveParticipants.add(saveParticipant);
 	}
 
 	/**

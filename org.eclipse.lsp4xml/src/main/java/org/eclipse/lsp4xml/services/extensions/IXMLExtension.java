@@ -12,6 +12,7 @@ package org.eclipse.lsp4xml.services.extensions;
 
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IDiagnosticsParticipant;
+import org.eclipse.lsp4xml.services.extensions.save.ISaveContext;
 
 /**
  * XML extension.
@@ -39,10 +40,12 @@ public interface IXMLExtension {
 	 */
 	void stop(XMLExtensionsRegistry registry);
 
+	void doSave(ISaveContext context);
+
 	/**
 	 * Update settings.
 	 * 
 	 * @param settings
 	 */
-	void updateSettings(Object settings);
+	//void updateSettings(Object settings);
 }

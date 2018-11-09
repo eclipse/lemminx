@@ -56,4 +56,11 @@ public interface ISaveContext extends IXMLDocumentProvider {
 	 */
 	String getUri();
 
+	/**
+	 * Returns the settings which has changed and null otherwise.
+	 * 
+	 * @return the settings which has changed and null otherwise.
+	 */
+	Object getSettings();
+
 }
