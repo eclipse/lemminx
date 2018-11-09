@@ -24,7 +24,7 @@ import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
 class CompletionResponse extends CompletionList implements ICompletionResponse {
 
 	private transient List<String> seenAttributes;
-	private boolean hasSomeItemFromGrammar;
+	private transient boolean hasSomeItemFromGrammar;
 
 	public CompletionResponse() {
 		super.setIsIncomplete(false);
@@ -36,11 +36,12 @@ class CompletionResponse extends CompletionList implements ICompletionResponse {
 		}
 		addCompletionItem(completionItem);
 	}
+
 	@Override
 	public void addCompletionItem(CompletionItem completionItem) {
 		super.getItems().add(completionItem);
 	}
-	
+
 	@Override
 	public boolean hasSomeItemFromGrammar() {
 		return hasSomeItemFromGrammar;
