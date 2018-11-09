@@ -28,15 +28,10 @@ import org.junit.Test;
 public class XMLSchemaPublishDiagnosticsTest {
 
 	@Before
-	public void init() {
+	public void tearDown() {
 		ContentModelManager.getInstance().setRootURI(null);
 		ContentModelManager.getInstance().setUseCache(false);
-		ContentModelManager.getInstance().setCatalogs(new String[] {});
-	}
-
-	@Before
-	public void tearDown() {
-		ContentModelManager.getInstance().setUseCache(false);
+		ContentModelManager.getInstance().setCatalogs(null);
 	}
 
 	@Test

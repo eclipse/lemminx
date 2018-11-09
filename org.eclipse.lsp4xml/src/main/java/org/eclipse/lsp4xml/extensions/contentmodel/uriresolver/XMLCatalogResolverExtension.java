@@ -14,8 +14,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
 
 import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.util.URI.MalformedURIException;
@@ -30,6 +31,8 @@ import org.eclipse.lsp4xml.uriresolver.URIResolverExtension;
  *
  */
 public class XMLCatalogResolverExtension implements URIResolverExtension {
+
+	private static final Logger LOGGER = Logger.getLogger(XMLCatalogResolverExtension.class.getName());
 
 	private XMLCatalogResolver catalogResolver;
 	private String rootUri;
@@ -76,12 +79,23 @@ public class XMLCatalogResolverExtension implements URIResolverExtension {
 	 */
 	public void setCatalogs(String[] catalogs) {
 		if (catalogs != null) {
-			String[] xmlCatalogFiles = Stream.of(catalogs) //
-					.map(path -> expandSystemId(path)) // resolve catalog file path with root uri
-					.filter(XMLCatalogResolverExtension::isXMLCatalogFileValid) // check if XML catalog path is valid
-					.collect(Collectors.toList()).toArray(new String[0]);
-			if (xmlCatalogFiles.length > 0) {
-				XMLCatalogResolver catalogResolver = new XMLCatalogResolver(xmlCatalogFiles);
+			List<String> xmlCatalogFiles = new ArrayList<>();
+			for (String catalogPath : catalogs) {
+				// resolve catalog file path with root uri
+				String fullPath = expandSystemId(catalogPath);
+				// check if XML catalog path is valid
+				boolean valid = XMLCatalogResolverExtension.isXMLCatalogFileValid(fullPath);
+				if (valid) {
+					xmlCatalogFiles.add(fullPath);
+					LOGGER.info("Adding XML catalog '" + catalogPath + "' with expand system id '" + fullPath
+							+ "' and root URI '" + rootUri + "'.");
+				} else {
+					LOGGER.severe("Cannot add XML catalog '" + catalogPath + "' with expand system id '" + fullPath
+							+ "' and root URI '" + rootUri + "'.");
+				}
+			}
+			if (xmlCatalogFiles.size() > 0) {
+				XMLCatalogResolver catalogResolver = new XMLCatalogResolver(xmlCatalogFiles.toArray(new String[0]));
 				setCatalogResolver(catalogResolver);
 			} else {
 				setCatalogResolver(null);
@@ -92,15 +106,11 @@ public class XMLCatalogResolverExtension implements URIResolverExtension {
 	}
 
 	private String expandSystemId(String path) {
-		/*try {
-			if (rootUri == null) {
-				return path;
-			}
+		try {
 			return XMLEntityManager.expandSystemId(path, rootUri, false);
 		} catch (MalformedURIException e) {
 			return path;
-		}*/
-		return path;
+		}
 	}
 
 	/**

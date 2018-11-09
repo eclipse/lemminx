@@ -14,7 +14,9 @@ import static org.eclipse.lsp4xml.XMLAssert.d;
 
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4xml.XMLAssert;
+import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.DTDErrorCode;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -23,6 +25,13 @@ import org.junit.Test;
  */
 public class DTDDiagnosticsTest {
 
+	@Before
+	public void tearDown() {
+		ContentModelManager.getInstance().setRootURI(null);
+		ContentModelManager.getInstance().setUseCache(false);
+		ContentModelManager.getInstance().setCatalogs(null);
+	}
+	
 	@Test
 	public void MSG_ELEMENT_NOT_DECLARED() throws Exception {
 		String xml = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> \r\n" + //

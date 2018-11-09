@@ -20,7 +20,9 @@ import java.nio.file.Paths;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.commons.BadLocationException;
+import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -29,6 +31,13 @@ import org.junit.Test;
  *
  */
 public class XMLSchemaCompletionExtensionsTest {
+
+	@Before
+	public void tearDown() {
+		ContentModelManager.getInstance().setRootURI(null);
+		ContentModelManager.getInstance().setUseCache(false);
+		ContentModelManager.getInstance().setCatalogs(null);
+	}
 
 	@Test
 	public void completionInRoot() throws BadLocationException {
@@ -349,7 +358,8 @@ public class XMLSchemaCompletionExtensionsTest {
 		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, "target/resources.xml", 1, false,
 				c("variant", "variant=\"\""));
 
-		// Update resources.xsd, Schema doesn't define variant attribute -> no completion
+		// Update resources.xsd, Schema doesn't define variant attribute -> no
+		// completion
 		schema = "<?xml version=\"1.0\"?>\r\n" + "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\r\n"
 				+ "\r\n" + "    <xs:complexType name=\"property\">\r\n"
 				+ "        <xs:attribute name=\"name\" type=\"xs:string\" />\r\n"
@@ -362,7 +372,7 @@ public class XMLSchemaCompletionExtensionsTest {
 				+ "        <xs:complexType>\r\n" + "            <xs:sequence>\r\n"
 				+ "                <xs:element name=\"resource\" type=\"resource\" minOccurs=\"0\" maxOccurs=\"unbounded\" />\r\n"
 				+ "            </xs:sequence>\r\n"
-				//+ "            <xs:attribute name=\"variant\" type=\"xs:string\" use=\"required\"/>\r\n"
+				// + " <xs:attribute name=\"variant\" type=\"xs:string\" use=\"required\"/>\r\n"
 				+ "        </xs:complexType>\r\n" + "    </xs:element>\r\n" + "</xs:schema>";
 		Files.write(Paths.get("target/xsd/resources.xsd"), schema.getBytes());
 		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, "target/resources.xml", 0, false);

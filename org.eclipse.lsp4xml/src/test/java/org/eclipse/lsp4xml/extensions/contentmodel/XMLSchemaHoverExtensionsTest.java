@@ -12,7 +12,9 @@ package org.eclipse.lsp4xml.extensions.contentmodel;
 
 import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.commons.BadLocationException;
+import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -20,6 +22,13 @@ import org.junit.Test;
  *
  */
 public class XMLSchemaHoverExtensionsTest {
+
+	@Before
+	public void tearDown() {
+		ContentModelManager.getInstance().setRootURI(null);
+		ContentModelManager.getInstance().setUseCache(false);
+		ContentModelManager.getInstance().setCatalogs(null);
+	}
 
 	@Test
 	public void testTagHover() throws BadLocationException {
@@ -50,8 +59,9 @@ public class XMLSchemaHoverExtensionsTest {
 		// this test check that
 		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
 				"<invoi|ce xmlns=\"http://invoice\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n"
-				+ " xsi:schemaLocation=\"http://invoice xsd/invoice.xsd \">\r\n";		
-		XMLAssert.assertHover(new XMLLanguageService(), xml, null, "src/test/resources/invoice.xml", "An invoice type...", null);
+				+ " xsi:schemaLocation=\"http://invoice xsd/invoice.xsd \">\r\n";
+		XMLAssert.assertHover(new XMLLanguageService(), xml, null, "src/test/resources/invoice.xml",
+				"An invoice type...", null);
 
 	};
 

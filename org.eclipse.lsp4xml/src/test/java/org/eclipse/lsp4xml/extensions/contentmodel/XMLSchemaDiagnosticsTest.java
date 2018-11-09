@@ -17,7 +17,9 @@ import static org.eclipse.lsp4xml.XMLAssert.testCodeActionsFor;
 
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4xml.XMLAssert;
+import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.XMLSchemaErrorCode;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -25,6 +27,11 @@ import org.junit.Test;
  *
  */
 public class XMLSchemaDiagnosticsTest {
+
+	@Before
+	public void tearDown() {
+		ContentModelManager.getInstance().setRootURI(null);
+	}
 
 	@Test
 	public void cvc_complex_type_2_3() throws Exception {
