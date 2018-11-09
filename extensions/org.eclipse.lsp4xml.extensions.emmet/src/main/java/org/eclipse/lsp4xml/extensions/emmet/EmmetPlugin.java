@@ -5,6 +5,7 @@ import org.eclipse.lsp4xml.extensions.emmet.participants.EmmetCompletionParticip
 import org.eclipse.lsp4xml.services.extensions.ICompletionParticipant;
 import org.eclipse.lsp4xml.services.extensions.IXMLExtension;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lsp4xml.services.extensions.save.ISaveContext;
 
 public class EmmetPlugin implements IXMLExtension {
 
@@ -15,8 +16,8 @@ public class EmmetPlugin implements IXMLExtension {
 	}
 
 	@Override
-	public void updateSettings(Object settings) {
-
+	public void doSave(ISaveContext context) {
+	
 	}
 
 	@Override

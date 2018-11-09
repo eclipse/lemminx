@@ -20,6 +20,7 @@ import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.extensions.references.XMLReferencesManager;
 import org.eclipse.lsp4xml.services.extensions.IXMLExtension;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lsp4xml.services.extensions.save.ISaveContext;
 
 /**
  * Extension for web.xml.
@@ -32,8 +33,8 @@ public class WebPlugin implements IXMLExtension {
 	private static final String WEB_XML = "web.xml";
 
 	@Override
-	public void updateSettings(Object settings) {
-
+	public void doSave(ISaveContext context) {
+		
 	}
 
 	@Override
