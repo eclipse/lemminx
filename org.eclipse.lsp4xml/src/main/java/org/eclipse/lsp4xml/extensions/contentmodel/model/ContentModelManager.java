@@ -158,9 +158,10 @@ public class ContentModelManager {
 	 * Set up XML catalogs.
 	 * 
 	 * @param catalogs list of XML catalog files.
+	 * @return true if catalogs changed and false otherwise
 	 */
-	public void setCatalogs(String[] catalogs) {
-		catalogResolverExtension.setCatalogs(catalogs);
+	public boolean setCatalogs(String[] catalogs) {
+		return catalogResolverExtension.setCatalogs(catalogs);
 	}
 
 	/**
@@ -174,9 +175,10 @@ public class ContentModelManager {
 	 * Set file associations.
 	 * 
 	 * @param fileAssociations
+	 * @return true if file associations changed and false otherwise
 	 */
-	public void setFileAssociations(XMLFileAssociation[] fileAssociations) {
-		this.fileAssociationResolver.setFileAssociations(fileAssociations);
+	public boolean setFileAssociations(XMLFileAssociation[] fileAssociations) {
+		return this.fileAssociationResolver.setFileAssociations(fileAssociations);
 	}
 
 	public void setRootURI(String rootUri) {

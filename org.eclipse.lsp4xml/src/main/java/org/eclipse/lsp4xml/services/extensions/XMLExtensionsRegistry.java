@@ -136,7 +136,9 @@ public class XMLExtensionsRegistry {
 		try {
 			extensions.add(extension);
 			extension.start(params, this);
-			extension.doSave(initialSaveContext);
+			if (initialSaveContext != null) {
+				extension.doSave(initialSaveContext);
+			}
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, "Error while initializing extension <" + extension.getClass().getName() + ">", e);
 		}

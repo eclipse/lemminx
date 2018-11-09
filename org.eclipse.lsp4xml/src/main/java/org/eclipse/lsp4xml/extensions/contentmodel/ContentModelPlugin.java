@@ -64,25 +64,43 @@ public class ContentModelPlugin implements IXMLExtension {
 			}
 		} else {
 			// Settings
-			updateSettings(context.getSettings());
+			updateSettings(context);
 		}
 	}
 
-	private void updateSettings(Object initializationOptionsSettings) {
+	private void updateSettings(ISaveContext saveContext) {
+		Object initializationOptionsSettings = saveContext.getSettings();
 		ContentModelSettings cmSettings = ContentModelSettings.getSettings(initializationOptionsSettings);
 		if (cmSettings != null) {
-			updateSettings(cmSettings);
+			updateSettings(cmSettings, saveContext);
 		}
 	}
 
-	private void updateSettings(ContentModelSettings settings) {
+	private void updateSettings(ContentModelSettings settings, ISaveContext context) {
 		if (settings.getCatalogs() != null) {
 			// Update XML catalog settings
-			ContentModelManager.getInstance().setCatalogs(settings.getCatalogs());
+			boolean catalogPathsChanged = ContentModelManager.getInstance().setCatalogs(settings.getCatalogs());
+			if (catalogPathsChanged) {
+				// Validate all opened XML files
+				context.collectDocumentToValidate(d -> {
+					XMLDocument xml = context.getDocument(d.getDocumentURI());
+					xml.resetGrammar();
+					return true;
+				});
+			}
 		}
 		if (settings.getFileAssociations() != null) {
 			// Update XML file associations
-			ContentModelManager.getInstance().setFileAssociations(settings.getFileAssociations());
+			boolean fileAssociationsChanged = ContentModelManager.getInstance()
+					.setFileAssociations(settings.getFileAssociations());
+			if (fileAssociationsChanged) {
+				// Validate all opened XML files
+				context.collectDocumentToValidate(d -> {
+					XMLDocument xml = context.getDocument(d.getDocumentURI());
+					xml.resetGrammar();
+					return true;
+				});
+			}
 		}
 		// Update use cache, only if it is set in the settings.
 		Boolean useCache = settings.isUseCache();

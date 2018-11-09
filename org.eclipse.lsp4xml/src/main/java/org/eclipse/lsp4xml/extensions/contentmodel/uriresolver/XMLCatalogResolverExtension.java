@@ -16,6 +16,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 import org.apache.xerces.impl.XMLEntityManager;
@@ -76,8 +77,10 @@ public class XMLCatalogResolverExtension implements URIResolverExtension {
 	 * Initialize catalogs path.
 	 * 
 	 * @param catalogs the catalog path array.
+	 * @return true if catalogs changed and false otherwise
 	 */
-	public void setCatalogs(String[] catalogs) {
+	public boolean setCatalogs(String[] catalogs) {
+		String[] oldCatalogs = catalogResolver != null ? catalogResolver.getCatalogList() : null;
 		if (catalogs != null) {
 			List<String> xmlCatalogFiles = new ArrayList<>();
 			for (String catalogPath : catalogs) {
@@ -103,6 +106,8 @@ public class XMLCatalogResolverExtension implements URIResolverExtension {
 		} else {
 			setCatalogResolver(null);
 		}
+		String[] newCatalogs = catalogResolver != null ? catalogResolver.getCatalogList() : null;
+		return !Objects.equals(oldCatalogs, newCatalogs);
 	}
 
 	private String expandSystemId(String path) {
