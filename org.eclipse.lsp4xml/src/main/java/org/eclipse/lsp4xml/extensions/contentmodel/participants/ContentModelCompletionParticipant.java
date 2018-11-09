@@ -80,7 +80,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 		XMLGenerator generator = request.getXMLGenerator();
 		for (CMElementDeclaration child : cmElements) {
 			String label = child.getName(prefix);
-			CompletionItem item = new CompletionItem(label);
+			CompletionItem item = new CompletionItem(label + " - XML Schema");
 			item.setFilterText(request.getFilterForStartTagName(label));
 			item.setKind(CompletionItemKind.Property);
 			String documentation = child.getDocumentation();
@@ -90,7 +90,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			String xml = generator.generate(child, prefix);
 			item.setTextEdit(new TextEdit(request.getReplaceRange(), xml));
 			item.setInsertTextFormat(InsertTextFormat.Snippet);
-			response.addCompletionItem(item);
+			response.addCompletionItem(item, true);
 		}
 	}
 

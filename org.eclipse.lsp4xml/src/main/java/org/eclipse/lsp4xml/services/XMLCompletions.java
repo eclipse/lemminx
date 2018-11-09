@@ -340,53 +340,51 @@ class XMLCompletions {
 		}
 		completionRequest.setHasOpenBracket(hasOpenBracket);
 		completionRequest.setReplaceRange(replaceRange);
-		if (!completionRequest.getXMLDocument().hasGrammar()) {
-			// no grammar, collect similar tags from the parent node
-			Element parentNode = completionRequest.getParentElement();
-			if (parentNode != null) {
-				Set<String> seenElements = new HashSet<>();
-				if (parentNode != null && parentNode.isElement() && parentNode.hasChildNodes()) {
-					parentNode.getChildren().forEach(node -> {
-						Element element = node.isElement() ? (Element) node : null;
-						if (element == null || element.getTagName() == null
-								|| seenElements.contains(element.getTagName())) {
-							return;
-						}
-						String tag = element.getTagName();
-						seenElements.add(tag);
-						CompletionItem item = new CompletionItem();
-						item.setLabel(tag);
-						item.setKind(CompletionItemKind.Property);
-						item.setFilterText(completionRequest.getFilterForStartTagName(tag));
-						StringBuilder xml = new StringBuilder();
-						xml.append("<");
-						xml.append(tag);
-						if (element.isSelfClosed()) {
-							xml.append(" />");
-						} else {
-							xml.append(">");
-							CompletionSettings completionSettings = completionRequest.getCompletionSettings();
-
-							if (completionSettings.isCompletionSnippetsSupported()) {
-								xml.append("$0");
-							}
-							if (completionSettings.isAutoCloseTags()) {
-								xml.append("</").append(tag).append(">");
-							}
-						}
-						item.setTextEdit(new TextEdit(replaceRange, xml.toString()));
-						item.setInsertTextFormat(InsertTextFormat.Snippet);
-
-						completionResponse.addCompletionItem(item);
-					});
-				}
-			}
-		}
 		for (ICompletionParticipant participant : getCompletionParticipants()) {
 			try {
 				participant.onTagOpen(completionRequest, completionResponse);
 			} catch (Exception e) {
 				LOGGER.log(Level.SEVERE, "While performing ICompletionParticipant#onTagOpen", e);
+			}
+		}
+		Element parentNode = completionRequest.getParentElement();
+		if (parentNode != null && !completionResponse.hasSomeItemFromGrammar()) {
+			// no grammar, collect similar tags from the parent node
+			Set<String> seenElements = new HashSet<>();
+			if (parentNode != null && parentNode.isElement() && parentNode.hasChildNodes()) {
+				parentNode.getChildren().forEach(node -> {
+					Element element = node.isElement() ? (Element) node : null;
+					if (element == null || element.getTagName() == null
+							|| seenElements.contains(element.getTagName())) {
+						return;
+					}
+					String tag = element.getTagName();
+					seenElements.add(tag);
+					CompletionItem item = new CompletionItem();
+					item.setLabel(tag);
+					item.setKind(CompletionItemKind.Property);
+					item.setFilterText(completionRequest.getFilterForStartTagName(tag));
+					StringBuilder xml = new StringBuilder();
+					xml.append("<");
+					xml.append(tag);
+					if (element.isSelfClosed()) {
+						xml.append(" />");
+					} else {
+						xml.append(">");
+						CompletionSettings completionSettings = completionRequest.getCompletionSettings();
+
+						if (completionSettings.isCompletionSnippetsSupported()) {
+							xml.append("$0");
+						}
+						if (completionSettings.isAutoCloseTags()) {
+							xml.append("</").append(tag).append(">");
+						}
+					}
+					item.setTextEdit(new TextEdit(replaceRange, xml.toString()));
+					item.setInsertTextFormat(InsertTextFormat.Snippet);
+
+					completionResponse.addCompletionItem(item);
+				});
 			}
 		}
 	}
