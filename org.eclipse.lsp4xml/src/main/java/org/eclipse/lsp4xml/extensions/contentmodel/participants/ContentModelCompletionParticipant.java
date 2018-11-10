@@ -40,20 +40,24 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 		try {
 			Element parentElement = request.getParentElement();
 			if (parentElement == null) {
+				// XML is empty, in case of XML file associations, a XMl Schema/DTD can be bound
 				// check if it's root element (in the case of XML file associations, the link to
 				// XML Schema is done with pattern and not with XML root element)
 				CMDocument cmDocument = ContentModelManager.getInstance().findCMDocument(request.getXMLDocument(),
 						null);
 				if (cmDocument != null) {
-					fillWithChildrenElementDeclaration(null, cmDocument.getElements(), request, response);
+					fillWithChildrenElementDeclaration(null, cmDocument.getElements(), null, false, request, response);
 				}
 				return;
 			}
+			// Try to retrieve XML Schema/DTD element declaration for the parent element
+			// where completion was triggered.
 			CMElementDeclaration cmElement = ContentModelManager.getInstance().findCMElement(parentElement);
 			String defaultPrefix = null;
 			if (cmElement != null) {
 				defaultPrefix = parentElement.getPrefix();
-				fillWithChildrenElementDeclaration(parentElement, cmElement.getElements(), request, response);
+				fillWithChildrenElementDeclaration(parentElement, cmElement.getElements(), defaultPrefix, false,
+						request, response);
 			}
 			if (parentElement.isDocumentElement()) {
 				// root document element
@@ -66,7 +70,8 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 					CMDocument cmDocument = ContentModelManager.getInstance().findCMDocument(parentElement,
 							namespaceURI);
 					if (cmDocument != null) {
-						fillWithChildrenElementDeclaration(parentElement, cmDocument.getElements(), request, response);
+						fillWithChildrenElementDeclaration(parentElement, cmDocument.getElements(), prefix, true,
+								request, response);
 					}
 				}
 			}
@@ -76,10 +81,11 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	}
 
 	private void fillWithChildrenElementDeclaration(Element element, Collection<CMElementDeclaration> cmElements,
-			ICompletionRequest request, ICompletionResponse response) throws BadLocationException {
+			String p, boolean forceUseOfPrefix, ICompletionRequest request, ICompletionResponse response)
+			throws BadLocationException {
 		XMLGenerator generator = request.getXMLGenerator();
 		for (CMElementDeclaration child : cmElements) {
-			String prefix = element != null ? element.getPrefix(child.getNamespace()) : null;
+			String prefix = forceUseOfPrefix ? p : (element != null ? element.getPrefix(child.getNamespace()) : null);
 			String label = child.getName(prefix);
 			CompletionItem item = new CompletionItem(label);
 			item.setFilterText(request.getFilterForStartTagName(label));
