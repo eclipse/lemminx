@@ -24,6 +24,9 @@ import org.w3c.dom.TypeInfo;
  */
 public class Element extends Node implements org.w3c.dom.Element {
 
+	private static final String XMLNS_ATTR = "xmlns";
+	private static final String XMLNS_NO_DEFAULT_ATTR = "xmlns:";
+
 	String tag;
 	boolean selfClosed;
 
@@ -115,8 +118,8 @@ public class Element extends Node implements org.w3c.dom.Element {
 		String prefix = getPrefix();
 		boolean hasPrefix = prefix != null && prefix.length() > 0;
 		// Try to get xmlns attribute in the element
-		String rootElementNamespaceDeclarationName = (hasPrefix) ? "xmlns:" + prefix //$NON-NLS-1$
-				: "xmlns"; //$NON-NLS-1$
+		String rootElementNamespaceDeclarationName = (hasPrefix) ? XMLNS_NO_DEFAULT_ATTR + prefix // $NON-NLS-1$
+				: XMLNS_ATTR; // $NON-NLS-1$
 		String rootElementNamespace = rootElementNamespaceDeclarationName != null
 				? this.getAttribute(rootElementNamespaceDeclarationName)
 				: null;
@@ -128,7 +131,7 @@ public class Element extends Node implements org.w3c.dom.Element {
 		while (parent != null) {
 			if (parent.getNodeType() == Node.ELEMENT_NODE) {
 				Element parentElement = ((Element) parent);
-				String namespaceURI = hasPrefix ? parentElement.getAttribute("xmlns:" + prefix)
+				String namespaceURI = hasPrefix ? parentElement.getAttribute(XMLNS_NO_DEFAULT_ATTR + prefix)
 						: parentElement.getNamespaceURI();
 				if (namespaceURI != null) {
 					return namespaceURI;
@@ -144,8 +147,8 @@ public class Element extends Node implements org.w3c.dom.Element {
 			Collection<String> prefixes = new ArrayList<>();
 			for (Attr attr : getAttributeNodes()) {
 				String attributeName = attr.getName();
-				if (attributeName.startsWith("xmlns:")) {
-					prefixes.add(attributeName.substring("xmlns:".length(), attributeName.length()));
+				if (isNoDefaultXmlns(attributeName)) {
+					prefixes.add(extractPrefixFromXmlns(attributeName));
 				}
 			}
 			return prefixes;
@@ -153,11 +156,93 @@ public class Element extends Node implements org.w3c.dom.Element {
 		return Collections.emptyList();
 	}
 
+	private static String extractPrefixFromXmlns(String attributeName) {
+		if (isDefaultXmlns(attributeName)) {
+			return attributeName.substring(XMLNS_ATTR.length(), attributeName.length());
+		}
+		return attributeName.substring(XMLNS_NO_DEFAULT_ATTR.length(), attributeName.length());
+	}
+
+	/**
+	 * Returns the xmlns prefix from the given namespave URI and null otherwise.
+	 * 
+	 * @param namespaceURI the namespace
+	 * @return the xmlns prefix from the given namespave URI and null otherwise.
+	 */
+	public String getPrefix(String namespaceURI) {
+		if (namespaceURI == null) {
+			return null;
+		}
+		if (hasAttributes()) {
+			for (Attr attr : getAttributeNodes()) {
+				String attributeName = attr.getName();
+				if (isXmlns(attributeName)) {
+					String namespace = attr.getValue();
+					if (namespace != null && namespace.equals(namespaceURI)) {
+						if (isDefaultXmlns(attributeName)) {
+							// xmlns="http://"
+							return "";
+						}
+						// xmlns:xxx="http://"
+						return extractPrefixFromXmlns(attributeName);
+					}
+				}
+			}
+		}
+		// try to get the prefix in the parent element
+		Node parent = getParentNode();
+		while (parent != null) {
+			if (parent.getNodeType() == Node.ELEMENT_NODE) {
+				Element parentElement = ((Element) parent);
+				String prefix = parentElement.getPrefix(namespaceURI);
+				if (prefix != null) {
+					return prefix;
+				}
+			}
+			parent = parent.getParentNode();
+		}
+		return null;
+	}
+
+	/**
+	 * Returns true if attribute name is a xmlns attribute and false otherwise.
+	 * 
+	 * @param attributeName
+	 * @return true if attribute name is a xmlns attribute and false otherwise.
+	 */
+	private static boolean isXmlns(String attributeName) {
+		return attributeName.startsWith(XMLNS_ATTR);
+	}
+
+	/**
+	 * Returns true if attribute name is the default xmlns attribute and false
+	 * otherwise.
+	 * 
+	 * @param attributeName
+	 * @return true if attribute name is the default xmlns attribute and false
+	 *         otherwise.
+	 */
+	private static boolean isDefaultXmlns(String attributeName) {
+		return attributeName.equals(XMLNS_ATTR);
+	}
+
+	/**
+	 * Returns true if attribute name is the no default xmlns attribute and false
+	 * otherwise.
+	 * 
+	 * @param attributeName
+	 * @return true if attribute name is the no default xmlns attribute and false
+	 *         otherwise.
+	 */
+	private static boolean isNoDefaultXmlns(String attributeName) {
+		return attributeName.startsWith(XMLNS_NO_DEFAULT_ATTR);
+	}
+
 	public String getNamespaceURI(String prefix) {
 		if (prefix == null || prefix.isEmpty()) {
 			return getNamespaceURI();
 		}
-		return getAttribute("xmlns:" + prefix);
+		return getAttribute(XMLNS_NO_DEFAULT_ATTR + prefix);
 	}
 
 	public boolean isDocumentElement() {

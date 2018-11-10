@@ -292,11 +292,11 @@ public abstract class Node implements org.w3c.dom.Node {
 		return hasAttributes() && getAttributeNode(name) != null;
 	}
 
-	/**
-	 * Returns true if there are attributes and null otherwise.
-	 * 
-	 * @return true if there are attributes and null otherwise.
+	/*
+	 * (non-Javadoc)
+	 * @see org.w3c.dom.Node#hasAttributes()
 	 */
+	@Override
 	public boolean hasAttributes() {
 		return attributeNodes != null && attributeNodes.size() != 0;
 	}

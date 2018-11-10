@@ -26,6 +26,13 @@ public interface CMElementDeclaration {
 	String getName();
 
 	/**
+	 * Returns the target namespace and null otherwise.
+	 * 
+	 * @return the target namespace and null otherwise.
+	 */
+	String getNamespace();
+
+	/**
 	 * Returns the declared element name with the given prefix.
 	 * 
 	 * @return the declared element name with the given prefix.
@@ -81,5 +88,6 @@ public interface CMElementDeclaration {
 	 */
 	boolean isEmpty();
 
-	 Collection<String> getEnumerationValues();
+	Collection<String> getEnumerationValues();
+
 }

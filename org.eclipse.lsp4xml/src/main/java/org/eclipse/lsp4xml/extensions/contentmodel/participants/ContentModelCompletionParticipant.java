@@ -45,7 +45,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 				CMDocument cmDocument = ContentModelManager.getInstance().findCMDocument(request.getXMLDocument(),
 						null);
 				if (cmDocument != null) {
-					fillWithChildrenElementDeclaration(cmDocument.getElements(), null, request, response);
+					fillWithChildrenElementDeclaration(null, cmDocument.getElements(), request, response);
 				}
 				return;
 			}
@@ -53,7 +53,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			String defaultPrefix = null;
 			if (cmElement != null) {
 				defaultPrefix = parentElement.getPrefix();
-				fillWithChildrenElementDeclaration(cmElement.getElements(), defaultPrefix, request, response);
+				fillWithChildrenElementDeclaration(parentElement, cmElement.getElements(), request, response);
 			}
 			if (parentElement.isDocumentElement()) {
 				// root document element
@@ -66,7 +66,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 					CMDocument cmDocument = ContentModelManager.getInstance().findCMDocument(parentElement,
 							namespaceURI);
 					if (cmDocument != null) {
-						fillWithChildrenElementDeclaration(cmDocument.getElements(), prefix, request, response);
+						fillWithChildrenElementDeclaration(parentElement, cmDocument.getElements(), request, response);
 					}
 				}
 			}
@@ -75,10 +75,11 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 		}
 	}
 
-	private void fillWithChildrenElementDeclaration(Collection<CMElementDeclaration> cmElements, String prefix,
+	private void fillWithChildrenElementDeclaration(Element element, Collection<CMElementDeclaration> cmElements,
 			ICompletionRequest request, ICompletionResponse response) throws BadLocationException {
 		XMLGenerator generator = request.getXMLGenerator();
 		for (CMElementDeclaration child : cmElements) {
+			String prefix = element != null ? element.getPrefix(child.getNamespace()) : null;
 			String label = child.getName(prefix);
 			CompletionItem item = new CompletionItem(label);
 			item.setFilterText(request.getFilterForStartTagName(label));

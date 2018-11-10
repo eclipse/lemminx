@@ -57,6 +57,11 @@ public class XSDElementDeclaration implements CMElementDeclaration {
 	}
 
 	@Override
+	public String getNamespace() {
+		return elementDeclaration.getNamespace();
+	}
+
+	@Override
 	public String getName(String prefix) {
 		String name = getName();
 		if (prefix == null || prefix.isEmpty()) {
@@ -238,4 +243,5 @@ public class XSDElementDeclaration implements CMElementDeclaration {
 		}
 		return Collections.emptyList();
 	}
+
 }

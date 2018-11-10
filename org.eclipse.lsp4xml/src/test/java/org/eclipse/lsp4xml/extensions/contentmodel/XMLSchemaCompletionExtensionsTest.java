@@ -229,7 +229,7 @@ public class XMLSchemaCompletionExtensionsTest {
 				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
 				+ //
 				"	<bean |/>";
-		XMLAssert.testCompletionFor(xml, c("abstract", "abstract=\"false\""), c("autowire", "autowire=\"default\""),
+		testCompletionFor(xml, c("abstract", "abstract=\"false\""), c("autowire", "autowire=\"default\""),
 				c("class", "class=\"\""));
 	}
 
@@ -239,7 +239,7 @@ public class XMLSchemaCompletionExtensionsTest {
 				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
 				+ //
 				"	<bean autowire=\"|\"/>";
-		XMLAssert.testCompletionFor(xml, c("byName", "byName"), c("byType", "byType"), c("constructor", "constructor"));
+		testCompletionFor(xml, c("byName", "byName"), c("byType", "byType"), c("constructor", "constructor"));
 	}
 
 	@Test
@@ -270,49 +270,49 @@ public class XMLSchemaCompletionExtensionsTest {
 				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
 				+ //
 				"	|";
-		XMLAssert.testCompletionFor(xml, c("bean", "<bean></bean>"));
+		testCompletionFor(xml, c("bean", "<bean></bean>"));
 
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
 				+ //
 				"	|" + "</beans>";
-		XMLAssert.testCompletionFor(xml, c("bean", "<bean></bean>"));
+		testCompletionFor(xml, c("bean", "<bean></bean>"));
 
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
 				+ //
 				"	<bean />|" + "</beans>";
-		XMLAssert.testCompletionFor(xml, c("bean", "<bean></bean>"));
+		testCompletionFor(xml, c("bean", "<bean></bean>"));
 
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
 				+ //
 				"	<bean />|";
-		XMLAssert.testCompletionFor(xml, c("bean", "<bean></bean>"));
+		testCompletionFor(xml, c("bean", "<bean></bean>"));
 
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
 				+ //
 				"	<bean ></bean>|" + "</beans>";
-		XMLAssert.testCompletionFor(xml, c("bean", "<bean></bean>"));
+		testCompletionFor(xml, c("bean", "<bean></bean>"));
 
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
 				+ //
 				"	<bean ></bean>|";
-		XMLAssert.testCompletionFor(xml, c("bean", "<bean></bean>"));
+		testCompletionFor(xml, c("bean", "<bean></bean>"));
 
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
 				+ //
 				"	<bean>|</bean>";
-		XMLAssert.testCompletionFor(xml, c("constructor-arg", "<constructor-arg></constructor-arg>"));
+		testCompletionFor(xml, c("constructor-arg", "<constructor-arg></constructor-arg>"));
 
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
 				+ //
 				"	<bean>\r\n   |      \r\n</bean>";
-		XMLAssert.testCompletionFor(xml, c("constructor-arg", "<constructor-arg></constructor-arg>"));
+		testCompletionFor(xml, c("constructor-arg", "<constructor-arg></constructor-arg>"));
 
 	}
 
