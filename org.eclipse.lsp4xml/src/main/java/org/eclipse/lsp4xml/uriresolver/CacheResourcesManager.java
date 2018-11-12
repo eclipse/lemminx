@@ -40,12 +40,7 @@ import org.eclipse.lsp4xml.utils.URIUtils;
 public class CacheResourcesManager {
 
 	private static final String CACHE_PATH = "cache";
-	private static final CacheResourcesManager INSTANCE = new CacheResourcesManager();
 	private static final Logger LOGGER = Logger.getLogger(CacheResourcesManager.class.getName());
-
-	public static CacheResourcesManager getInstance() {
-		return INSTANCE;
-	}
 
 	private final Map<String, CompletableFuture<Path>> resourcesLoading;
 	private boolean useCache;
@@ -83,7 +78,7 @@ public class CacheResourcesManager {
 		}
 	}
 
-	private CacheResourcesManager() {
+	public CacheResourcesManager() {
 		resourcesLoading = new HashMap<>();
 	}
 

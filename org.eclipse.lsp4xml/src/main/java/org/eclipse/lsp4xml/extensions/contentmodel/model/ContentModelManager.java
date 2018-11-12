@@ -38,11 +38,11 @@ import org.w3c.dom.DOMErrorHandler;
  */
 public class ContentModelManager {
 
-	private static final ContentModelManager INSTANCE = new ContentModelManager();
-
-	public static ContentModelManager getInstance() {
-		return INSTANCE;
-	}
+//	private static final ContentModelManager INSTANCE = new ContentModelManager();
+//
+//	public static ContentModelManager getInstance() {
+//		return INSTANCE;
+//	}
 
 	private final XSLoaderImpl loader;
 
@@ -51,10 +51,11 @@ public class ContentModelManager {
 	private final XMLCacheResolverExtension cacheResolverExtension;
 	private final XMLCatalogResolverExtension catalogResolverExtension;
 	private final XMLFileAssociationResolverExtension fileAssociationResolver;
+	private final URIResolverExtensionManager resolverManager;
 
-	public ContentModelManager() {
+	public ContentModelManager(URIResolverExtensionManager resolverManager) {
+		this.resolverManager = resolverManager;
 		cmDocumentCache = Collections.synchronizedMap(new HashMap<>());
-		URIResolverExtensionManager resolverManager = URIResolverExtensionManager.getInstance();
 		loader = new XSLoaderImpl();
 		loader.setParameter("http://apache.org/xml/properties/internal/entity-resolver", resolverManager);
 		loader.setParameter(Constants.DOM_ERROR_HANDLER, new DOMErrorHandler() {
@@ -128,7 +129,7 @@ public class ContentModelManager {
 	 *         otherwise.
 	 */
 	private CMDocument findCMDocument(String uri, String publicId, String systemId) {
-		String key = URIResolverExtensionManager.getInstance().resolve(uri, publicId, systemId);
+		String key = resolverManager.resolve(uri, publicId, systemId);
 		if (key == null) {
 			return null;
 		}

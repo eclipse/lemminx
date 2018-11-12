@@ -88,34 +88,39 @@ public class HTMLCompletionExtensionsTest {
 				c("style", "style=\"$1\""));
 
 		// TODO: fix me!
-		/*testCompletionFor("<input t|ype=\"text\"", r("type", "type=\"text\""), //
-				r("style", "style=\"text\""));
-
-		testCompletionFor("<input type=\"text\" |", r("style", "<input type=\"text\" style=\"$1\""), //
-				r("type", "<input type=\"text\" style=\"$1\""), //
-				r("size", "<input type=\"text\" size=\"$1\""));
-
-		testCompletionFor("<input type=\"text\" s|", r("type", "<input type=\"text\""), //
-				r("src", "<input type=\"text\" src=\"$1\""), //
-				r("size", "<input type=\"text\" size=\"$1\""));
-
-		testCompletionFor("<input di| type=\"text\"", r("disabled", "<input disabled=\"$1\" type=\"text\""), //
-				r("dir", "<input dir=\"$1\" type=\"text\""));
-
-		testCompletionFor("<input disabled | type=\"text\"", r("dir", "<input disabled dir=\"$1\" type=\"text\""), //
-				r("style", "<input disabled style=\"$1\" type=\"text\""));
-				*/
+		/*
+		 * testCompletionFor("<input t|ype=\"text\"", r("type", "type=\"text\""), //
+		 * r("style", "style=\"text\""));
+		 * 
+		 * testCompletionFor("<input type=\"text\" |", r("style",
+		 * "<input type=\"text\" style=\"$1\""), // r("type",
+		 * "<input type=\"text\" style=\"$1\""), // r("size",
+		 * "<input type=\"text\" size=\"$1\""));
+		 * 
+		 * testCompletionFor("<input type=\"text\" s|", r("type",
+		 * "<input type=\"text\""), // r("src", "<input type=\"text\" src=\"$1\""), //
+		 * r("size", "<input type=\"text\" size=\"$1\""));
+		 * 
+		 * testCompletionFor("<input di| type=\"text\"", r("disabled",
+		 * "<input disabled=\"$1\" type=\"text\""), // r("dir",
+		 * "<input dir=\"$1\" type=\"text\""));
+		 * 
+		 * testCompletionFor("<input disabled | type=\"text\"", r("dir",
+		 * "<input disabled dir=\"$1\" type=\"text\""), // r("style",
+		 * "<input disabled style=\"$1\" type=\"text\""));
+		 */
 
 	}
 
 	@Test
 	public void testHTMLAttributeValueCompletion() throws BadLocationException {
-		testCompletionFor("<input type=|", c("text", "\"text\""/*"<input type=\"text\""*/), //
-				c("checkbox", "\"checkbox\"" /*"<input type=\"checkbox\""*/));
+		testCompletionFor("<input type=|", c("text", "\"text\""/* "<input type=\"text\"" */), //
+				c("checkbox", "\"checkbox\"" /* "<input type=\"checkbox\"" */));
 	}
 
 	public static void testCompletionFor(String value, CompletionItem... expectedItems) throws BadLocationException {
-		XMLAssert.testCompletionFor(new HTMLLanguageService(), value, (String)null, null, null, true, expectedItems);
+		XMLAssert.testCompletionFor(new HTMLLanguageService(), value, (String) null, null, null, null, true,
+				expectedItems);
 	}
 
 	private static class HTMLLanguageService extends XMLLanguageService {

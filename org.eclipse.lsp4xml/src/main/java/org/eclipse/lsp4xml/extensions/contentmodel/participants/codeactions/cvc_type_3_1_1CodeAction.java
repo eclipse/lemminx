@@ -18,6 +18,7 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.CodeActionFactory;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.services.extensions.ICodeActionParticipant;
+import org.eclipse.lsp4xml.services.extensions.IComponentProvider;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 
 /**
@@ -28,11 +29,11 @@ public class cvc_type_3_1_1CodeAction implements ICodeActionParticipant {
 
 	@Override
 	public void doCodeAction(Diagnostic diagnostic, Range range, XMLDocument document, List<CodeAction> codeActions,
-			XMLFormattingOptions formattingSettings) {
+			XMLFormattingOptions formattingSettings, IComponentProvider componentProvider) {
 		Range diagnosticRange = diagnostic.getRange();
 		// Remove all attributes
-		CodeAction removeAllAttributesAction = CodeActionFactory.remove("Remove all attributes", diagnosticRange, document.getTextDocument(),
-				diagnostic);
+		CodeAction removeAllAttributesAction = CodeActionFactory.remove("Remove all attributes", diagnosticRange,
+				document.getTextDocument(), diagnostic);
 		codeActions.add(removeAllAttributesAction);
 	}
 

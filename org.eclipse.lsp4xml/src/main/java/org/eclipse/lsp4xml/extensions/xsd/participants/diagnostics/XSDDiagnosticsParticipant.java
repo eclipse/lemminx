@@ -17,7 +17,6 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IDiagnosticsParticipant;
-import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
 import org.eclipse.lsp4xml.utils.DOMUtils;
 
 /**
@@ -34,9 +33,10 @@ public class XSDDiagnosticsParticipant implements IDiagnosticsParticipant {
 		}
 		// Get entity resolver (XML catalog resolver, XML schema from the file
 		// associations settings., ...)
-		XMLEntityResolver entityResolver = URIResolverExtensionManager.getInstance();
+		XMLEntityResolver entityResolver = xmlDocument.getResolverExtensionManager();
 		// Process validation
-		// XSDValidator.doDiagnostics(xmlDocument, entityResolver, diagnostics, monitor);
+		// XSDValidator.doDiagnostics(xmlDocument, entityResolver, diagnostics,
+		// monitor);
 	}
 
 }

@@ -38,13 +38,13 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	@Override
 	public void onTagOpen(ICompletionRequest request, ICompletionResponse response) throws Exception {
 		try {
+			ContentModelManager contentModelManager = request.getComponent(ContentModelManager.class);
 			Element parentElement = request.getParentElement();
 			if (parentElement == null) {
 				// XML is empty, in case of XML file associations, a XMl Schema/DTD can be bound
 				// check if it's root element (in the case of XML file associations, the link to
 				// XML Schema is done with pattern and not with XML root element)
-				CMDocument cmDocument = ContentModelManager.getInstance().findCMDocument(request.getXMLDocument(),
-						null);
+				CMDocument cmDocument = contentModelManager.findCMDocument(request.getXMLDocument(), null);
 				if (cmDocument != null) {
 					fillWithChildrenElementDeclaration(null, cmDocument.getElements(), null, false, request, response);
 				}
@@ -52,7 +52,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			}
 			// Try to retrieve XML Schema/DTD element declaration for the parent element
 			// where completion was triggered.
-			CMElementDeclaration cmElement = ContentModelManager.getInstance().findCMElement(parentElement);
+			CMElementDeclaration cmElement = contentModelManager.findCMElement(parentElement);
 			String defaultPrefix = null;
 			if (cmElement != null) {
 				defaultPrefix = parentElement.getPrefix();
@@ -67,8 +67,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 						continue;
 					}
 					String namespaceURI = parentElement.getNamespaceURI(prefix);
-					CMDocument cmDocument = ContentModelManager.getInstance().findCMDocument(parentElement,
-							namespaceURI);
+					CMDocument cmDocument = contentModelManager.findCMDocument(parentElement, namespaceURI);
 					if (cmDocument != null) {
 						fillWithChildrenElementDeclaration(parentElement, cmDocument.getElements(), prefix, true,
 								request, response);
@@ -113,7 +112,8 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 		}
 		try {
 			boolean canSupportSnippet = request.getCompletionSettings().isCompletionSnippetsSupported();
-			CMElementDeclaration cmElement = ContentModelManager.getInstance().findCMElement(parentElement);
+			ContentModelManager contentModelManager = request.getComponent(ContentModelManager.class);
+			CMElementDeclaration cmElement = contentModelManager.findCMElement(parentElement);
 			if (cmElement != null) {
 				Collection<CMAttributeDeclaration> attributes = cmElement.getAttributes();
 				if (attributes != null) {
@@ -169,7 +169,8 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			return;
 		}
 		try {
-			CMElementDeclaration cmElement = ContentModelManager.getInstance().findCMElement(parentElement);
+			ContentModelManager contentModelManager = request.getComponent(ContentModelManager.class);
+			CMElementDeclaration cmElement = contentModelManager.findCMElement(parentElement);
 			if (cmElement != null) {
 				String attributeName = request.getCurrentAttributeName();
 				CMAttributeDeclaration cmAttribute = cmElement.findCMAttribute(attributeName);

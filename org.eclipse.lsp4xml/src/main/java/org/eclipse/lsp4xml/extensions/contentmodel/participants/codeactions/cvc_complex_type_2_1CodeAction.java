@@ -21,6 +21,7 @@ import org.eclipse.lsp4xml.dom.Element;
 import org.eclipse.lsp4xml.dom.Node;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.services.extensions.ICodeActionParticipant;
+import org.eclipse.lsp4xml.services.extensions.IComponentProvider;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.utils.XMLPositionUtility;
 
@@ -32,7 +33,7 @@ public class cvc_complex_type_2_1CodeAction implements ICodeActionParticipant {
 
 	@Override
 	public void doCodeAction(Diagnostic diagnostic, Range range, XMLDocument document, List<CodeAction> codeActions,
-			XMLFormattingOptions formattingSettings) {
+			XMLFormattingOptions formattingSettings, IComponentProvider componentProvider) {
 		try {
 			int offset = document.offsetAt(range.getStart());
 			Node node = document.findNodeAt(offset);

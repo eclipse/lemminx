@@ -31,8 +31,9 @@ public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 	@Override
 	public Hover onTag(IHoverRequest hoverRequest) throws Exception {
 		try {
+			ContentModelManager contentModelManager = hoverRequest.getComponent(ContentModelManager.class);
 			Element node = (Element) hoverRequest.getNode();
-			CMElementDeclaration cmElement = ContentModelManager.getInstance().findCMElement(node);
+			CMElementDeclaration cmElement = contentModelManager.findCMElement(node);
 			if (cmElement != null) {
 				String doc = cmElement.getDocumentation();
 				if (doc != null && doc.length() > 0) {
@@ -51,9 +52,9 @@ public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 	@Override
 	public Hover onAttributeName(IHoverRequest hoverRequest) throws Exception {
 		try {
+			ContentModelManager contentModelManager = hoverRequest.getComponent(ContentModelManager.class);
 			Attr attribute = (Attr) hoverRequest.getNode();
-			CMElementDeclaration cmElement = ContentModelManager.getInstance()
-					.findCMElement(attribute.getOwnerElement());
+			CMElementDeclaration cmElement = contentModelManager.findCMElement(attribute.getOwnerElement());
 			if (cmElement != null) {
 				String attributeName = attribute.getName();
 				CMAttributeDeclaration cmAttribute = cmElement.findCMAttribute(attributeName);

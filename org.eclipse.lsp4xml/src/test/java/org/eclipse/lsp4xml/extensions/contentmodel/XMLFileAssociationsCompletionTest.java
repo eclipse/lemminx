@@ -12,11 +12,14 @@ package org.eclipse.lsp4xml.extensions.contentmodel;
 
 import static org.eclipse.lsp4xml.XMLAssert.c;
 
+import java.util.function.Consumer;
+
+import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLFileAssociation;
-import org.junit.Before;
+import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.junit.Test;
 
 /**
@@ -24,36 +27,36 @@ import org.junit.Test;
  */
 public class XMLFileAssociationsCompletionTest {
 
-	@Before
-	public void initializeFileAssociations() {
-		ContentModelManager.getInstance().setRootURI(null);
-	}
-
 	@Test
 	public void completionOnRoot() throws BadLocationException {
-		ContentModelManager.getInstance().setFileAssociations(createAssociations("src/test/resources/xsd/"));
-
+		Consumer<XMLLanguageService> configuration = ls -> {
+			ContentModelManager contentModelManager = ls.getComponent(ContentModelManager.class);
+			contentModelManager.setFileAssociations(createAssociations("src/test/resources/xsd/"));
+		};
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"  <|";
-		XMLAssert.testCompletionFor(xml, null, "file:///test/Test.Format.ps1xml", null,
+		testCompletionFor(xml, "file:///test/Test.Format.ps1xml", configuration,
 				c("Configuration", "<Configuration></Configuration>"));
 		xml = "|";
-		XMLAssert.testCompletionFor(xml, null, "file:///test/Test.Format.ps1xml", null,
+		testCompletionFor(xml, "file:///test/Test.Format.ps1xml", configuration,
 				c("Configuration", "<Configuration></Configuration>"));
 		xml = " |";
-		XMLAssert.testCompletionFor(xml, null, "file:///test/Test.Format.ps1xml", null,
+		testCompletionFor(xml, "file:///test/Test.Format.ps1xml", configuration,
 				c("Configuration", "<Configuration></Configuration>"));
 	}
 
 	@Test
 	public void completionAfterRoot() throws BadLocationException {
-		ContentModelManager.getInstance().setFileAssociations(createAssociations("src/test/resources/xsd/"));
+		Consumer<XMLLanguageService> configuration = ls -> {
+			// Configure language service with file asociations
+			ContentModelManager contentModelManager = ls.getComponent(ContentModelManager.class);
+			contentModelManager.setFileAssociations(createAssociations("src/test/resources/xsd/"));
+		};
 
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<Configuration>\r\n" + //
 				"  <|";
-		XMLAssert.testCompletionFor(xml, null, "file:///test/Test.Format.ps1xml", null,
-				c("Controls", "<Controls></Controls>"), //
+		testCompletionFor(xml, "file:///test/Test.Format.ps1xml", configuration, c("Controls", "<Controls></Controls>"), //
 				c("DefaultSettings", "<DefaultSettings></DefaultSettings>"), //
 				c("SelectionSets", "<SelectionSets></SelectionSets>"),
 				c("ViewDefinitions", "<ViewDefinitions></ViewDefinitions>"));
@@ -61,8 +64,7 @@ public class XMLFileAssociationsCompletionTest {
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<Configuration>\r\n" + //
 				"  |";
-		XMLAssert.testCompletionFor(xml, null, "file:///test/Test.Format.ps1xml", null,
-				c("Controls", "<Controls></Controls>"), //
+		testCompletionFor(xml, "file:///test/Test.Format.ps1xml", configuration, c("Controls", "<Controls></Controls>"), //
 				c("DefaultSettings", "<DefaultSettings></DefaultSettings>"), //
 				c("SelectionSets", "<SelectionSets></SelectionSets>"),
 				c("ViewDefinitions", "<ViewDefinitions></ViewDefinitions>"));
@@ -70,38 +72,50 @@ public class XMLFileAssociationsCompletionTest {
 
 	@Test
 	public void rootURIEndsWithSlash() throws BadLocationException {
-		// Use root URI which ends with slash
-		ContentModelManager.getInstance().setRootURI("src/test/resources/xsd/");
-		ContentModelManager.getInstance().setFileAssociations(createAssociations(""));
+		Consumer<XMLLanguageService> configuration = ls -> {
+			ContentModelManager contentModelManager = ls.getComponent(ContentModelManager.class);
+			// Use root URI which ends with slash
+			contentModelManager.setRootURI("src/test/resources/xsd/");
+			contentModelManager.setFileAssociations(createAssociations(""));
+		};
 
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"  <|";
-		XMLAssert.testCompletionFor(xml, null, "file:///test/Test.Format.ps1xml", null,
+		testCompletionFor(xml, "file:///test/Test.Format.ps1xml", configuration,
 				c("Configuration", "<Configuration></Configuration>"));
 		xml = "|";
-		XMLAssert.testCompletionFor(xml, null, "file:///test/Test.Format.ps1xml", null,
+		testCompletionFor(xml, "file:///test/Test.Format.ps1xml", configuration,
 				c("Configuration", "<Configuration></Configuration>"));
 		xml = " |";
-		XMLAssert.testCompletionFor(xml, null, "file:///test/Test.Format.ps1xml", null,
+		testCompletionFor(xml, "file:///test/Test.Format.ps1xml", configuration,
 				c("Configuration", "<Configuration></Configuration>"));
 	}
 
 	@Test
 	public void rootURIEndsWithNoSlash() throws BadLocationException {
-		// Use root URI which ends with slash
-		ContentModelManager.getInstance().setRootURI("src/test/resources/xsd");
-		ContentModelManager.getInstance().setFileAssociations(createAssociations(""));
+		Consumer<XMLLanguageService> configuration = ls -> {
+			ContentModelManager contentModelManager = ls.getComponent(ContentModelManager.class);
+			// Use root URI which ends with no slash
+			contentModelManager.setRootURI("src/test/resources/xsd");
+			contentModelManager.setFileAssociations(createAssociations(""));
+		};
 
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"  <|";
-		XMLAssert.testCompletionFor(xml, null, "file:///test/Test.Format.ps1xml", null,
+		testCompletionFor(xml, "file:///test/Test.Format.ps1xml", configuration,
 				c("Configuration", "<Configuration></Configuration>"));
 		xml = "|";
-		XMLAssert.testCompletionFor(xml, null, "file:///test/Test.Format.ps1xml", null,
+		testCompletionFor(xml, "file:///test/Test.Format.ps1xml", configuration,
 				c("Configuration", "<Configuration></Configuration>"));
 		xml = " |";
-		XMLAssert.testCompletionFor(xml, null, "file:///test/Test.Format.ps1xml", null,
+		testCompletionFor(xml, "file:///test/Test.Format.ps1xml", configuration,
 				c("Configuration", "<Configuration></Configuration>"));
+	}
+
+	private void testCompletionFor(String xml, String fileURI, Consumer<XMLLanguageService> configuration,
+			CompletionItem... expectedItems) throws BadLocationException {
+		XMLAssert.testCompletionFor(new XMLLanguageService(), xml, null, configuration, fileURI, null, true,
+				expectedItems);
 	}
 
 	private static XMLFileAssociation[] createAssociations(String baseSystemId) {

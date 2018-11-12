@@ -40,7 +40,8 @@ public class XMLCodeActions {
 		if (context.getDiagnostics() != null) {
 			for (Diagnostic diagnostic : context.getDiagnostics()) {
 				for (ICodeActionParticipant codeActionParticipant : extensionsRegistry.getCodeActionsParticipants()) {
-					codeActionParticipant.doCodeAction(diagnostic, range, document, codeActions, formattingSettings);
+					codeActionParticipant.doCodeAction(diagnostic, range, document, codeActions, formattingSettings,
+							extensionsRegistry);
 				}
 			}
 		}

@@ -13,15 +13,9 @@ package org.eclipse.lsp4xml.uriresolver;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-import org.junit.After;
 import org.junit.Test;
 
 public class CacheResourcesManagerTest {
-
-	@After
-	public void tearDown() {
-		CacheResourcesManager.getInstance().setUseCache(false);
-	}
 
 	@Test
 	public void testCanUseCache() {
@@ -29,12 +23,13 @@ public class CacheResourcesManagerTest {
 		testCanUseCache(false);
 	}
 
-	public void testCanUseCache(boolean useCacheEnabled) {
-		CacheResourcesManager.getInstance().setUseCache(useCacheEnabled);
-		assertEquals(useCacheEnabled, CacheResourcesManager.getInstance().canUseCache("http://foo"));
-		assertEquals(useCacheEnabled, CacheResourcesManager.getInstance().canUseCache("ftp://foo"));
-		assertEquals(useCacheEnabled, CacheResourcesManager.getInstance().canUseCache("https://foo"));
-		assertFalse(CacheResourcesManager.getInstance().canUseCache("file:///foo"));
+	private void testCanUseCache(boolean useCacheEnabled) {
+		CacheResourcesManager cacheResourcesManager = new CacheResourcesManager();
+		cacheResourcesManager.setUseCache(useCacheEnabled);
+		assertEquals(useCacheEnabled, cacheResourcesManager.canUseCache("http://foo"));
+		assertEquals(useCacheEnabled, cacheResourcesManager.canUseCache("ftp://foo"));
+		assertEquals(useCacheEnabled, cacheResourcesManager.canUseCache("https://foo"));
+		assertFalse(cacheResourcesManager.canUseCache("file:///foo"));
 	}
 
 }

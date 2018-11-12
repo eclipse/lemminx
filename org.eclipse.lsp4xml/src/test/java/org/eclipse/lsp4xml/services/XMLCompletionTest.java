@@ -226,7 +226,7 @@ public class XMLCompletionTest {
 
 	public XMLDocument initializeXMLDocument(String xmlText, int offset) {
 		xmlText = xmlText.substring(0, offset) + xmlText.substring(offset + 1);
-		return XMLParser.getInstance().parse(xmlText, "test:uri");
+		return XMLParser.getInstance().parse(xmlText, "test:uri", null);
 	}
 
 	public CompletionList initializeCompletion(String xmlText, XMLDocument xmlDocument, int offset) {

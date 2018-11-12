@@ -18,6 +18,7 @@ import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.dom.parser.Scanner;
 import org.eclipse.lsp4xml.dom.parser.TokenType;
 import org.eclipse.lsp4xml.dom.parser.XMLScanner;
+import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
 
 /**
  * Tolerant XML parser.
@@ -37,15 +38,15 @@ public class XMLParser {
 
 	}
 
-	public XMLDocument parse(String text, String uri) {
-		return parse(new TextDocument(text, uri));
+	public XMLDocument parse(String text, String uri, URIResolverExtensionManager resolverExtensionManager) {
+		return parse(new TextDocument(text, uri), resolverExtensionManager);
 	}
 
-	public XMLDocument parse(TextDocument document) {
+	public XMLDocument parse(TextDocument document, URIResolverExtensionManager resolverExtensionManager) {
 
 		String text = document.getText();
 		Scanner scanner = XMLScanner.createScanner(text);
-		XMLDocument xmlDocument = new XMLDocument(document);
+		XMLDocument xmlDocument = new XMLDocument(document, resolverExtensionManager);
 
 		Node curr = xmlDocument;
 		Node lastClosed = xmlDocument;
@@ -265,7 +266,7 @@ public class XMLParser {
 				curr = curr.parent;
 				break;
 			}
-			
+
 			case Content: {
 				// FIXME: don't use getTokenText (substring) to know if the content is only
 				// spaces or line feed (scanner should know that).
@@ -280,7 +281,7 @@ public class XMLParser {
 				curr.addChild(textNode);
 				break;
 			}
-			
+
 			default:
 			}
 			token = scanner.scan();

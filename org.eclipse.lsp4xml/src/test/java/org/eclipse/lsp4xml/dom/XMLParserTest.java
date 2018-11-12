@@ -358,7 +358,7 @@ public class XMLParserTest {
 
 	@Test
 	public void elementOffsets() {
-		XMLDocument document = XMLParser.getInstance().parse("<a></a>", null);
+		XMLDocument document = XMLParser.getInstance().parse("<a></a>", null, null);
 		Element a = document.getDocumentElement();
 		Assert.assertNotNull(a);
 		Assert.assertEquals(a.getTagName(), "a");
@@ -525,7 +525,7 @@ public class XMLParserTest {
 	}
 
 	private static void assertDocument(String input, Node expectedNode) {
-		XMLDocument document = XMLParser.getInstance().parse(input, "uri");
+		XMLDocument document = XMLParser.getInstance().parse(input, "uri", null);
 		Node actualNode = document.getChild(0);
 		compareTrees(expectedNode, actualNode);
 	}
@@ -563,6 +563,6 @@ public class XMLParserTest {
 	}
 
 	public XMLDocument getXMLDocument(String input) {
-		return XMLParser.getInstance().parse(input, "uri");
+		return XMLParser.getInstance().parse(input, "uri", null);
 	}
 }

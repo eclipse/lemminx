@@ -40,15 +40,17 @@ public class XMLDocument extends Node implements Document {
 	private SchemaLocation schemaLocation;
 	private NoNamespaceSchemaLocation noNamespaceSchemaLocation;
 	private boolean referencedGrammarInitialized;
+	private final URIResolverExtensionManager resolverExtensionManager;
 
 	private final TextDocument textDocument;
 	private boolean hasNamespaces;
 	private boolean hasGrammar;
 	private Map<String, String> externalSchemaLocation;
 
-	public XMLDocument(TextDocument textDocument) {
+	public XMLDocument(TextDocument textDocument, URIResolverExtensionManager resolverExtensionManager) {
 		super(0, textDocument.getText().length(), null);
 		this.textDocument = textDocument;
+		this.resolverExtensionManager = resolverExtensionManager;
 		this.referencedGrammarInitialized = false;
 	}
 
@@ -210,13 +212,12 @@ public class XMLDocument extends Node implements Document {
 			}
 			hasGrammar = noNamespaceSchemaLocation != null || schemaLocation != null;
 		}
-		if (!hasGrammar) {
+		if (!hasGrammar && resolverExtensionManager != null) {
 			// None grammar found with standard mean, check if it some components like XML
 			// file associations bind this XML document to a grammar with external schema
 			// location.
 			try {
-				externalSchemaLocation = URIResolverExtensionManager.getInstance()
-						.getExternalSchemaLocation(new URI(getDocumentURI()));
+				externalSchemaLocation = resolverExtensionManager.getExternalSchemaLocation(new URI(getDocumentURI()));
 				hasGrammar = externalSchemaLocation != null;
 			} catch (URISyntaxException e) {
 				// Do nothing
@@ -226,8 +227,7 @@ public class XMLDocument extends Node implements Document {
 				// it some components like XML
 				// Catalog, XSL and XSD resolvers, etc bind this XML document to a grammar.
 				String namespaceURI = documentElement.getNamespaceURI();
-				hasGrammar = URIResolverExtensionManager.getInstance().resolve(getDocumentURI(), namespaceURI,
-						null) != null;
+				hasGrammar = resolverExtensionManager.resolve(getDocumentURI(), namespaceURI, null) != null;
 			}
 		}
 	}
@@ -650,4 +650,9 @@ public class XMLDocument extends Node implements Document {
 	public void resetGrammar() {
 		this.referencedGrammarInitialized = false;
 	}
+
+	public URIResolverExtensionManager getResolverExtensionManager() {
+		return resolverExtensionManager;
+	}
+
 }

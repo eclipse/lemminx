@@ -17,7 +17,6 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IDiagnosticsParticipant;
-import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
 
 /**
  * Validate XML file with Xerces for syntax validation and XML Schema, DTD.
@@ -29,7 +28,7 @@ public class ContentModelDiagnosticsParticipant implements IDiagnosticsParticipa
 	public void doDiagnostics(XMLDocument xmlDocument, List<Diagnostic> diagnostics, CancelChecker monitor) {
 		// Get entity resolver (XML catalog resolver, XML schema from the file
 		// associations settings., ...)
-		XMLEntityResolver entityResolver = URIResolverExtensionManager.getInstance();
+		XMLEntityResolver entityResolver = xmlDocument.getResolverExtensionManager();
 		// Process validation
 		XMLValidator.doDiagnostics(xmlDocument, entityResolver, diagnostics, monitor);
 	}

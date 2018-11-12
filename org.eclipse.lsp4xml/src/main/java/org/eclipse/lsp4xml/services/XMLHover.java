@@ -43,7 +43,7 @@ class XMLHover {
 	public Hover doHover(XMLDocument xmlDocument, Position position) {
 		HoverRequest hoverRequest = null;
 		try {
-			hoverRequest = new HoverRequest(xmlDocument, position);
+			hoverRequest = new HoverRequest(xmlDocument, position, extensionsRegistry);
 		} catch (BadLocationException e) {
 			LOGGER.log(Level.SEVERE, "Failed creating HoverRequest", e);
 			return null;

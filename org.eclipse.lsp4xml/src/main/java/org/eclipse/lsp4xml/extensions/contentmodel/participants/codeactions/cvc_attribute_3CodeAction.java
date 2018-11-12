@@ -23,6 +23,7 @@ import org.eclipse.lsp4xml.extensions.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.services.extensions.ICodeActionParticipant;
+import org.eclipse.lsp4xml.services.extensions.IComponentProvider;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 
 /**
@@ -33,20 +34,23 @@ public class cvc_attribute_3CodeAction implements ICodeActionParticipant {
 
 	@Override
 	public void doCodeAction(Diagnostic diagnostic, Range range, XMLDocument document, List<CodeAction> codeActions,
-			XMLFormattingOptions formattingSettings) {
+			XMLFormattingOptions formattingSettings, IComponentProvider componentProvider) {
 		try {
 			Range diagnosticRange = diagnostic.getRange();
 			int offset = document.offsetAt(range.getStart());
 			Attr attr = document.findAttrAt(offset);
 			if (attr != null) {
 				String attributeName = attr.getName();
-				CMElementDeclaration cmElement = ContentModelManager.getInstance()
-						.findCMElement(attr.getOwnerElement());
+				ContentModelManager contentModelManager = componentProvider.getComponent(ContentModelManager.class);
+				CMElementDeclaration cmElement = contentModelManager.findCMElement(attr.getOwnerElement());
 				if (cmElement != null) {
 					CMAttributeDeclaration cmAttribute = cmElement.findCMAttribute(attributeName);
 					if (cmAttribute != null) {
-						Range rangeValue = new Range(new Position(diagnosticRange.getStart().getLine(), diagnosticRange.getStart().getCharacter() + 1),
-								new Position(diagnosticRange.getEnd().getLine(), diagnosticRange.getEnd().getCharacter() - 1));
+						Range rangeValue = new Range(
+								new Position(diagnosticRange.getStart().getLine(),
+										diagnosticRange.getStart().getCharacter() + 1),
+								new Position(diagnosticRange.getEnd().getLine(),
+										diagnosticRange.getEnd().getCharacter() - 1));
 						cmAttribute.getEnumerationValues().forEach(value -> {
 							// Replace attribute value
 							// value = "${1:" + value + "}";

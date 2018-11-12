@@ -148,7 +148,9 @@ public class XMLTextDocumentService implements TextDocumentService {
 		this.xmlLanguageServer = xmlLanguageServer;
 		this.documents = new TextDocuments();
 		XMLParser parser = XMLParser.getInstance();
-		this.xmlDocuments = new LanguageModelCache<XMLDocument>(10, 60, documents, document -> parser.parse(document));
+		this.xmlDocuments = new LanguageModelCache<XMLDocument>(10, 60, documents, document -> {
+			return parser.parse(document, getXMLLanguageService().getResolverExtensionManager());
+		});
 		this.sharedCompletionSettings = new CompletionSettings();
 		this.sharedFoldingsSettings = new FoldingRangeCapabilities();
 		this.sharedFormattingOptions = new XMLFormattingOptions(true); // to be sure that formattings options is not

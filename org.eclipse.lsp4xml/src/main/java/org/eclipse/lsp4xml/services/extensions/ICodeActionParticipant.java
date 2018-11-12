@@ -11,6 +11,6 @@ import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 public interface ICodeActionParticipant {
 
 	void doCodeAction(Diagnostic diagnostic, Range range, XMLDocument document, List<CodeAction> codeActions,
-			XMLFormattingOptions formattingSettings);
+			XMLFormattingOptions formattingSettings, IComponentProvider componentProvider);
 
 }

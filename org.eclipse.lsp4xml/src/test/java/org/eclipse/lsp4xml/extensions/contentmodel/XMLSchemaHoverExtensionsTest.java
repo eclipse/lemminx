@@ -12,9 +12,7 @@ package org.eclipse.lsp4xml.extensions.contentmodel;
 
 import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.commons.BadLocationException;
-import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -22,13 +20,6 @@ import org.junit.Test;
  *
  */
 public class XMLSchemaHoverExtensionsTest {
-
-	@Before
-	public void tearDown() {
-		ContentModelManager.getInstance().setRootURI(null);
-		ContentModelManager.getInstance().setUseCache(false);
-		ContentModelManager.getInstance().setCatalogs(null);
-	}
 
 	@Test
 	public void testTagHover() throws BadLocationException {

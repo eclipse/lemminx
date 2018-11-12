@@ -14,6 +14,7 @@ import org.eclipse.lsp4xml.services.extensions.IHoverParticipant;
 import org.eclipse.lsp4xml.services.extensions.IXMLExtension;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.services.extensions.save.ISaveContext;
+import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
 import org.eclipse.lsp4xml.utils.DOMUtils;
 
 /**
@@ -37,6 +38,8 @@ public class ContentModelPlugin implements IXMLExtension {
 
 	private final ContentModelDocumentLinkParticipant documentLinkParticipant;
 
+	private ContentModelManager contentModelManager;
+	
 	public ContentModelPlugin() {
 		completionParticipant = new ContentModelCompletionParticipant();
 		hoverParticipant = new ContentModelHoverParticipant();
@@ -54,7 +57,7 @@ public class ContentModelPlugin implements IXMLExtension {
 			if (DOMUtils.isCatalog(document)) {
 				// the XML document which has changed is a XML catalog.
 				// 1) refresh catalogs
-				ContentModelManager.getInstance().refreshCatalogs();
+				contentModelManager.refreshCatalogs();
 				// 2) Validate all opened XML files except the catalog which have changed
 				context.collectDocumentToValidate(d -> {
 					XMLDocument xml = context.getDocument(d.getDocumentURI());
@@ -79,7 +82,7 @@ public class ContentModelPlugin implements IXMLExtension {
 	private void updateSettings(ContentModelSettings settings, ISaveContext context) {
 		if (settings.getCatalogs() != null) {
 			// Update XML catalog settings
-			boolean catalogPathsChanged = ContentModelManager.getInstance().setCatalogs(settings.getCatalogs());
+			boolean catalogPathsChanged = contentModelManager.setCatalogs(settings.getCatalogs());
 			if (catalogPathsChanged) {
 				// Validate all opened XML files
 				context.collectDocumentToValidate(d -> {
@@ -91,7 +94,7 @@ public class ContentModelPlugin implements IXMLExtension {
 		}
 		if (settings.getFileAssociations() != null) {
 			// Update XML file associations
-			boolean fileAssociationsChanged = ContentModelManager.getInstance()
+			boolean fileAssociationsChanged = contentModelManager
 					.setFileAssociations(settings.getFileAssociations());
 			if (fileAssociationsChanged) {
 				// Validate all opened XML files
@@ -105,14 +108,17 @@ public class ContentModelPlugin implements IXMLExtension {
 		// Update use cache, only if it is set in the settings.
 		Boolean useCache = settings.isUseCache();
 		if (useCache != null) {
-			ContentModelManager.getInstance().setUseCache(useCache);
+			contentModelManager.setUseCache(useCache);
 		}
 	}
 
 	@Override
 	public void start(InitializeParams params, XMLExtensionsRegistry registry) {
+		URIResolverExtensionManager resolverManager = registry.getComponent(URIResolverExtensionManager.class);
+		contentModelManager = new ContentModelManager(resolverManager);
+		registry.registerComponent(contentModelManager);
 		if (params != null) {
-			ContentModelManager.getInstance().setRootURI(params.getRootUri());
+			contentModelManager.setRootURI(params.getRootUri());
 		}
 		registry.registerCompletionParticipant(completionParticipant);
 		registry.registerHoverParticipant(hoverParticipant);

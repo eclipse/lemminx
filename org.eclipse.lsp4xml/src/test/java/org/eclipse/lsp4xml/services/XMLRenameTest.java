@@ -96,7 +96,7 @@ public class XMLRenameTest {
 		int offset = value.indexOf("|");
 		value = value.substring(0, offset) + value.substring(offset + 1);
 
-		XMLDocument document = XMLParser.getInstance().parse(value, "test://test/test.html");
+		XMLDocument document = XMLParser.getInstance().parse(value, "test://test/test.html", null);
 
 		Position position = document.positionAt(offset);
 

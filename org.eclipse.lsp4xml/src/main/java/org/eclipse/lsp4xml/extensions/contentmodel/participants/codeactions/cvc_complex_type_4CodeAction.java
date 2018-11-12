@@ -25,6 +25,7 @@ import org.eclipse.lsp4xml.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.extensions.contentmodel.utils.XMLGenerator;
 import org.eclipse.lsp4xml.services.extensions.ICodeActionParticipant;
+import org.eclipse.lsp4xml.services.extensions.IComponentProvider;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 
 /**
@@ -35,7 +36,7 @@ public class cvc_complex_type_4CodeAction implements ICodeActionParticipant {
 
 	@Override
 	public void doCodeAction(Diagnostic diagnostic, Range range, XMLDocument document, List<CodeAction> codeActions,
-			XMLFormattingOptions formattingSettings) {
+			XMLFormattingOptions formattingSettings, IComponentProvider componentProvider) {
 		Range diagnosticRange = diagnostic.getRange();
 		try {
 			int offset = document.offsetAt(range.getStart());
@@ -44,7 +45,8 @@ public class cvc_complex_type_4CodeAction implements ICodeActionParticipant {
 				return;
 			}
 			Element element = (Element) node;
-			CMElementDeclaration elementDeclaration = ContentModelManager.getInstance().findCMElement(element);
+			ContentModelManager contentModelManager = componentProvider.getComponent(ContentModelManager.class);
+			CMElementDeclaration elementDeclaration = contentModelManager.findCMElement(element);
 			if (elementDeclaration == null) {
 				return;
 			}
@@ -54,14 +56,15 @@ public class cvc_complex_type_4CodeAction implements ICodeActionParticipant {
 					.filter(cmAttr -> !element.hasAttribute(cmAttr.getName())) //
 					.collect(Collectors.toList());
 
-			// CodeAction doesn't support snippet -> https://github.com/Microsoft/language-server-protocol/issues/592
+			// CodeAction doesn't support snippet ->
+			// https://github.com/Microsoft/language-server-protocol/issues/592
 			boolean supportSnippet = false;
 			XMLGenerator generator = new XMLGenerator(null, "", "", supportSnippet, 0);
 			String xmlAttributes = generator.generate(requiredAttributes, element.getTagName());
 
 			// Insert required attributes
-			CodeAction insertRequiredAttributesAction = CodeActionFactory.insert("Insert required attributes", diagnosticRange,
-					xmlAttributes, document.getTextDocument(), diagnostic);
+			CodeAction insertRequiredAttributesAction = CodeActionFactory.insert("Insert required attributes",
+					diagnosticRange, xmlAttributes, document.getTextDocument(), diagnostic);
 			codeActions.add(insertRequiredAttributesAction);
 		} catch (Exception e) {
 			// Do nothing

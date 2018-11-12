@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -58,7 +59,7 @@ public class XMLAssert {
 
 	private static final String FILE_URI = "test.xml";
 
-	static class SettingsSaveContext extends AbstractSaveContext {
+	public static class SettingsSaveContext extends AbstractSaveContext {
 
 		public SettingsSaveContext(Object settings) {
 			super(settings);
@@ -91,23 +92,24 @@ public class XMLAssert {
 
 	public static void testCompletionFor(String value, String catalogPath, String fileURI, Integer expectedCount,
 			CompletionItem... expectedItems) throws BadLocationException {
-		testCompletionFor(new XMLLanguageService(), value, catalogPath, fileURI, expectedCount, true, expectedItems);
+		testCompletionFor(new XMLLanguageService(), value, catalogPath, null, fileURI, expectedCount, true,
+				expectedItems);
 	}
 
 	public static void testCompletionFor(String value, boolean autoCloseTags, CompletionItem... expectedItems)
 			throws BadLocationException {
-		testCompletionFor(new XMLLanguageService(), value, null, null, null, autoCloseTags, expectedItems);
+		testCompletionFor(new XMLLanguageService(), value, null, null, null, null, autoCloseTags, expectedItems);
 	}
 
 	public static void testCompletionFor(XMLLanguageService xmlLanguageService, String value, String catalogPath,
-			String fileURI, Integer expectedCount, boolean autoCloseTags, CompletionItem... expectedItems)
-			throws BadLocationException {
+			Consumer<XMLLanguageService> customConfiguration, String fileURI, Integer expectedCount,
+			boolean autoCloseTags, CompletionItem... expectedItems) throws BadLocationException {
 		int offset = value.indexOf('|');
 		value = value.substring(0, offset) + value.substring(offset + 1);
 
 		TextDocument document = new TextDocument(value, fileURI != null ? fileURI : "test://test/test.html");
 		Position position = document.positionAt(offset);
-		XMLDocument htmlDoc = XMLParser.getInstance().parse(document);
+		XMLDocument htmlDoc = XMLParser.getInstance().parse(document, xmlLanguageService.getResolverExtensionManager());
 		xmlLanguageService.setDocumentProvider((uri) -> htmlDoc);
 
 		ContentModelSettings settings = new ContentModelSettings();
@@ -117,6 +119,11 @@ public class XMLAssert {
 			settings.setCatalogs(new String[] { catalogPath });
 		}
 		xmlLanguageService.doSave(new SettingsSaveContext(settings));
+		xmlLanguageService.initializeIfNeeded();
+
+		if (customConfiguration != null) {
+			customConfiguration.accept(xmlLanguageService);
+		}
 
 		CompletionList list = xmlLanguageService.doComplete(htmlDoc, position, new CompletionSettings(autoCloseTags),
 				new XMLFormattingOptions(4, false));
@@ -200,7 +207,7 @@ public class XMLAssert {
 
 		TextDocument document = new TextDocument(value, "test://test/test.html");
 		Position position = document.positionAt(offset);
-		XMLDocument htmlDoc = XMLParser.getInstance().parse(document);
+		XMLDocument htmlDoc = XMLParser.getInstance().parse(document, ls.getResolverExtensionManager());
 
 		String actual = ls.doTagComplete(htmlDoc, position);
 		Assert.assertEquals(expected, actual);
@@ -213,14 +220,16 @@ public class XMLAssert {
 	}
 
 	public static void testDiagnosticsFor(String xml, String catalogPath, Diagnostic... expected) {
-		testDiagnosticsFor(xml, catalogPath, null, expected);
+		testDiagnosticsFor(xml, catalogPath, null, null, expected);
 	}
 
-	public static void testDiagnosticsFor(String xml, String catalogPath, String fileURI, Diagnostic... expected) {
+	public static void testDiagnosticsFor(String xml, String catalogPath, Consumer<XMLLanguageService> configuration,
+			String fileURI, Diagnostic... expected) {
 		TextDocument document = new TextDocument(xml, fileURI != null ? fileURI : "test.xml");
 
-		XMLDocument xmlDocument = XMLParser.getInstance().parse(document);
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
+		XMLDocument xmlDocument = XMLParser.getInstance().parse(document,
+				xmlLanguageService.getResolverExtensionManager());
 		xmlLanguageService.setDocumentProvider((uri) -> xmlDocument);
 
 		ContentModelSettings settings = new ContentModelSettings();
@@ -230,6 +239,10 @@ public class XMLAssert {
 			settings.setCatalogs(new String[] { catalogPath });
 		}
 		xmlLanguageService.doSave(new SettingsSaveContext(settings));
+		if (configuration != null) {
+			xmlLanguageService.initializeIfNeeded();
+			configuration.accept(xmlLanguageService);
+		}
 
 		List<Diagnostic> actual = xmlLanguageService.doDiagnostics(xmlDocument, () -> {
 		});
@@ -268,12 +281,19 @@ public class XMLAssert {
 
 	// ------------------- Publish Diagnostics assert
 
-	public static void testPublishDiagnosticsFor(String xml, String fileURI, PublishDiagnosticsParams... expected) {
+	public static void testPublishDiagnosticsFor(String xml, String fileURI, Consumer<XMLLanguageService> configuration,
+			PublishDiagnosticsParams... expected) {
 		List<PublishDiagnosticsParams> actual = new ArrayList<>();
-		XMLLanguageService languageService = new XMLLanguageService();
-		XMLDocument xmlDocument = XMLParser.getInstance().parse(xml, fileURI);
+		XMLLanguageService xmlLanguageService = new XMLLanguageService();
+		if (configuration != null) {
+			xmlLanguageService.initializeIfNeeded();
+			configuration.accept(xmlLanguageService);
+		}
+		XMLDocument xmlDocument = XMLParser.getInstance().parse(xml, fileURI,
+				xmlLanguageService.getResolverExtensionManager());
+		xmlLanguageService.setDocumentProvider((uri) -> xmlDocument);
 
-		publishDiagnostics(xmlDocument, actual, languageService);
+		publishDiagnostics(xmlDocument, actual, xmlLanguageService);
 
 		Assert.assertEquals(expected.length, actual.size());
 		for (int i = 0; i < expected.length; i++) {
@@ -282,7 +302,7 @@ public class XMLAssert {
 		}
 	}
 
-	private static void publishDiagnostics(XMLDocument xmlDocument, List<PublishDiagnosticsParams> actual,
+	public static void publishDiagnostics(XMLDocument xmlDocument, List<PublishDiagnosticsParams> actual,
 			XMLLanguageService languageService) {
 		CompletableFuture<Path> error = languageService.publishDiagnostics(xmlDocument, params -> {
 			actual.add(params);
@@ -330,7 +350,7 @@ public class XMLAssert {
 		CodeActionContext context = new CodeActionContext();
 		context.setDiagnostics(Arrays.asList(diagnostic));
 		Range range = diagnostic.getRange();
-		XMLDocument xmlDoc = XMLParser.getInstance().parse(document);
+		XMLDocument xmlDoc = XMLParser.getInstance().parse(document, xmlLanguageService.getResolverExtensionManager());
 		List<CodeAction> actual = xmlLanguageService.doCodeActions(context, range, xmlDoc,
 				new XMLFormattingOptions(4, false));
 		assertCodeActions(actual, expected);
@@ -394,7 +414,7 @@ public class XMLAssert {
 
 		Position position = document.positionAt(offset);
 
-		XMLDocument htmlDoc = XMLParser.getInstance().parse(document);
+		XMLDocument htmlDoc = XMLParser.getInstance().parse(document, xmlLanguageService.getResolverExtensionManager());
 		ContentModelSettings settings = new ContentModelSettings();
 		settings.setUseCache(false);
 		// Configure XML catalog for XML schema
@@ -430,13 +450,15 @@ public class XMLAssert {
 	public static void testDocumentLinkFor(String xml, String fileURI, DocumentLink... expected) {
 		TextDocument document = new TextDocument(xml, fileURI != null ? fileURI : "test.xml");
 
-		XMLDocument xmlDocument = XMLParser.getInstance().parse(document);
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
-		xmlLanguageService.setDocumentProvider((uri) -> xmlDocument);
 
 		ContentModelSettings settings = new ContentModelSettings();
 		settings.setUseCache(false);
 		xmlLanguageService.doSave(new SettingsSaveContext(settings));
+
+		XMLDocument xmlDocument = XMLParser.getInstance().parse(document,
+				xmlLanguageService.getResolverExtensionManager());
+		xmlLanguageService.setDocumentProvider((uri) -> xmlDocument);
 
 		List<DocumentLink> actual = xmlLanguageService.findDocumentLinks(xmlDocument);
 		assertDocumentLinks(actual, expected);

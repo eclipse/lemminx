@@ -14,7 +14,6 @@ import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4xml.services.extensions.IXMLExtension;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.services.extensions.save.ISaveContext;
-import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
 
 /**
  * XMl Catalog plugin.
@@ -30,12 +29,12 @@ public class XMLCatalogPlugin implements IXMLExtension {
 
 	@Override
 	public void start(InitializeParams params, XMLExtensionsRegistry registry) {
-		uiResolver = new XMLCatalogURIResolverExtension(registry.getDocumentProvider());
-		URIResolverExtensionManager.getInstance().registerResolver(uiResolver);
+		uiResolver = new XMLCatalogURIResolverExtension(registry);
+		registry.getResolverExtensionManager().registerResolver(uiResolver);
 	}
 
 	@Override
 	public void stop(XMLExtensionsRegistry registry) {
-		URIResolverExtensionManager.getInstance().unregisterResolver(uiResolver);
+		registry.getResolverExtensionManager().unregisterResolver(uiResolver);
 	}
 }

@@ -21,13 +21,19 @@ import org.eclipse.lsp4xml.uriresolver.CacheResourcesManager;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtension;
 
 /**
- * URI resolver which, on the first access, downloads the XML Schema or DTD 
- * from "http(s)" or "ftp" URIs to the file system. On subsequent calls, the 
- * locally cached file is used instead of being remotely accessed. 
- * This cache drastically improves the resolution performance of some XML Schemas 
- * (ex: xml.xsd)
+ * URI resolver which, on the first access, downloads the XML Schema or DTD from
+ * "http(s)" or "ftp" URIs to the file system. On subsequent calls, the locally
+ * cached file is used instead of being remotely accessed. This cache
+ * drastically improves the resolution performance of some XML Schemas (ex:
+ * xml.xsd)
  */
 public class XMLCacheResolverExtension implements URIResolverExtension {
+
+	private final CacheResourcesManager cacheResourcesManager;
+
+	public XMLCacheResolverExtension() {
+		this.cacheResourcesManager = new CacheResourcesManager();
+	}
 
 	@Override
 	public String resolve(String baseLocation, String publicId, String systemId) {
@@ -39,10 +45,11 @@ public class XMLCacheResolverExtension implements URIResolverExtension {
 	public XMLInputSource resolveEntity(XMLResourceIdentifier resourceIdentifier) throws XNIException, IOException {
 		String url = resourceIdentifier.getExpandedSystemId();
 		// Cache is used only for resource coming from "http(s)" or "ftp".
-		if (CacheResourcesManager.getInstance().canUseCache(url)) {
+		if (cacheResourcesManager.canUseCache(url)) {
 			// Try to get the downloaded resource. In the case where the resource is
-			// downloading but takes too long, a CacheResourceDownloadingException is thrown.
-			Path file = CacheResourcesManager.getInstance().getResource(url);
+			// downloading but takes too long, a CacheResourceDownloadingException is
+			// thrown.
+			Path file = cacheResourcesManager.getResource(url);
 			if (file != null) {
 				// The resource was downloaded locally, use it.
 				XMLInputSource source = new XMLInputSource(resourceIdentifier);
@@ -56,10 +63,11 @@ public class XMLCacheResolverExtension implements URIResolverExtension {
 	/**
 	 * Set <code>true</code> if cache must be used, <code>false</code> otherwise.
 	 * 
-	 * @param useCache <code>true</code> if cache must be used, <code>false</code> otherwise.
+	 * @param useCache <code>true</code> if cache must be used, <code>false</code>
+	 *                 otherwise.
 	 */
 	public void setUseCache(boolean useCache) {
-		CacheResourcesManager.getInstance().setUseCache(useCache);
+		cacheResourcesManager.setUseCache(useCache);
 	}
 
 }

@@ -20,9 +20,7 @@ import java.nio.file.Paths;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.commons.BadLocationException;
-import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -31,13 +29,6 @@ import org.junit.Test;
  *
  */
 public class XMLSchemaCompletionExtensionsTest {
-
-	@Before
-	public void tearDown() {
-		ContentModelManager.getInstance().setRootURI(null);
-		ContentModelManager.getInstance().setUseCache(false);
-		ContentModelManager.getInstance().setCatalogs(null);
-	}
 
 	@Test
 	public void completionInRoot() throws BadLocationException {
@@ -355,7 +346,7 @@ public class XMLSchemaCompletionExtensionsTest {
 				+ "            <xs:attribute name=\"variant\" type=\"xs:string\" use=\"required\"/>\r\n"
 				+ "        </xs:complexType>\r\n" + "    </xs:element>\r\n" + "</xs:schema>";
 		Files.write(Paths.get("target/xsd/resources.xsd"), schema.getBytes());
-		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, "target/resources.xml", 1, false,
+		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null, "target/resources.xml", 1, false,
 				c("variant", "variant=\"\""));
 
 		// Update resources.xsd, Schema doesn't define variant attribute -> no
@@ -375,7 +366,7 @@ public class XMLSchemaCompletionExtensionsTest {
 				// + " <xs:attribute name=\"variant\" type=\"xs:string\" use=\"required\"/>\r\n"
 				+ "        </xs:complexType>\r\n" + "    </xs:element>\r\n" + "</xs:schema>";
 		Files.write(Paths.get("target/xsd/resources.xsd"), schema.getBytes());
-		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, "target/resources.xml", 0, false);
+		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null, "target/resources.xml", 0, false);
 
 	}
 

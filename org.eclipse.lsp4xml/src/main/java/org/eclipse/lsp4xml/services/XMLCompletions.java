@@ -63,7 +63,7 @@ class XMLCompletions {
 		CompletionResponse completionResponse = new CompletionResponse();
 		CompletionRequest completionRequest = null;
 		try {
-			completionRequest = new CompletionRequest(xmlDocument, position, completionSettings, formattingSettings);
+			completionRequest = new CompletionRequest(xmlDocument, position, completionSettings, formattingSettings, extensionsRegistry);
 		} catch (BadLocationException e) {
 			LOGGER.log(Level.SEVERE, "Creation of CompletionRequest failed", e);
 			return completionResponse;

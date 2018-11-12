@@ -16,7 +16,7 @@ import org.apache.xerces.xni.XMLResourceIdentifier;
 import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.parser.XMLInputSource;
 import org.eclipse.lsp4xml.dom.XMLDocument;
-import org.eclipse.lsp4xml.services.IXMLDocumentProvider;
+import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtension;
 
 /**
@@ -33,10 +33,10 @@ public class XMLCatalogURIResolverExtension implements URIResolverExtension {
 
 	private static final String CATALOG_SYSTEM = "http://www.oasis-open.org/committees/entity/release/1.1/catalog.xsd";
 
-	private final IXMLDocumentProvider documentProvider;
+	private final XMLExtensionsRegistry extensionsRegistry;
 
-	public XMLCatalogURIResolverExtension(IXMLDocumentProvider documentProvider) {
-		this.documentProvider = documentProvider;
+	public XMLCatalogURIResolverExtension(XMLExtensionsRegistry extensionsRegistry) {
+		this.extensionsRegistry = extensionsRegistry;
 	}
 
 	@Override
@@ -61,12 +61,13 @@ public class XMLCatalogURIResolverExtension implements URIResolverExtension {
 		}
 		return null;
 	}
-	
+
 	private boolean hasDTDorXMLSchema(String uri) {
-		XMLDocument document = documentProvider.getDocument(uri);
+		XMLDocument document = extensionsRegistry.getDocumentProvider().getDocument(uri);
 		if (document == null) {
 			return false;
 		}
-		return document.getDoctype() != null || document.getSchemaLocation() != null || document.getNoNamespaceSchemaLocation() != null;
+		return document.getDoctype() != null || document.getSchemaLocation() != null
+				|| document.getNoNamespaceSchemaLocation() != null;
 	}
 }

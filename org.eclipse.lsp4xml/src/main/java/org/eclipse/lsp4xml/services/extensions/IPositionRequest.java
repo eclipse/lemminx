@@ -58,4 +58,6 @@ public interface IPositionRequest {
 	 * @throws BadLocationException
 	 */
 	LineIndentInfo getLineIndentInfo() throws BadLocationException;
+
+	<T> T getComponent(Class clazz);
 }

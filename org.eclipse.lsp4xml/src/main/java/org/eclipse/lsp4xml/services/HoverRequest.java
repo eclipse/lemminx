@@ -17,6 +17,7 @@ import org.eclipse.lsp4xml.dom.Attr;
 import org.eclipse.lsp4xml.dom.Node;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.services.extensions.IHoverRequest;
+import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 
 /**
  * Hover request implementation.
@@ -24,12 +25,16 @@ import org.eclipse.lsp4xml.services.extensions.IHoverRequest;
  */
 class HoverRequest extends AbstractPositionRequest implements IHoverRequest {
 
+	private final XMLExtensionsRegistry extensionsRegistry;
+
 	private Range tagRange;
 
 	private boolean open;
 
-	public HoverRequest(XMLDocument xmlDocument, Position position) throws BadLocationException {
+	public HoverRequest(XMLDocument xmlDocument, Position position, XMLExtensionsRegistry extensionsRegistry)
+			throws BadLocationException {
 		super(xmlDocument, position);
+		this.extensionsRegistry = extensionsRegistry;
 	}
 
 	@Override
@@ -62,4 +67,8 @@ class HoverRequest extends AbstractPositionRequest implements IHoverRequest {
 		this.open = open;
 	}
 
+	@Override
+	public <T> T getComponent(Class clazz) {
+		return extensionsRegistry.getComponent(clazz);
+	}
 }

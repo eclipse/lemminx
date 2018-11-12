@@ -12,7 +12,9 @@ package org.eclipse.lsp4xml.services.extensions;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,15 +23,17 @@ import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4xml.services.IXMLDocumentProvider;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lsp4xml.services.extensions.save.ISaveContext;
+import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
 
 /**
  * XML extensions registry.
  *
  */
-public class XMLExtensionsRegistry {
+public class XMLExtensionsRegistry implements IComponentProvider{
 
 	private static final Logger LOGGER = Logger.getLogger(XMLExtensionsRegistry.class.getName());
 
+	private final URIResolverExtensionManager resolverExtensionManager;
 	private final Collection<IXMLExtension> extensions;
 	private final List<ICompletionParticipant> completionParticipants;
 	private final List<IHoverParticipant> hoverParticipants;
@@ -47,6 +51,8 @@ public class XMLExtensionsRegistry {
 
 	private boolean initialized;
 
+	private final Map<Class, Object> components;
+
 	public XMLExtensionsRegistry() {
 		extensions = new ArrayList<>();
 		completionParticipants = new ArrayList<>();
@@ -56,6 +62,18 @@ public class XMLExtensionsRegistry {
 		documentLinkParticipants = new ArrayList<>();
 		definitionParticipants = new ArrayList<>();
 		referenceParticipants = new ArrayList<>();
+		resolverExtensionManager = new URIResolverExtensionManager();
+		components = new HashMap<>();
+		registerComponent(resolverExtensionManager);
+	}
+
+	public void registerComponent(Object component) {
+		this.components.put(component.getClass(), component);
+	}
+	
+	@Override
+	public <T> T getComponent(Class clazz) {
+		return (T) components.get(clazz);
 	}
 
 	public void initializeParams(InitializeParams params) {
@@ -114,7 +132,7 @@ public class XMLExtensionsRegistry {
 		return referenceParticipants;
 	}
 
-	private void initializeIfNeeded() {
+	public void initializeIfNeeded() {
 		if (initialized) {
 			return;
 		}
@@ -221,5 +239,9 @@ public class XMLExtensionsRegistry {
 	 */
 	public void setDocumentProvider(IXMLDocumentProvider documentProvider) {
 		this.documentProvider = documentProvider;
+	}
+
+	public URIResolverExtensionManager getResolverExtensionManager() {
+		return resolverExtensionManager;
 	}
 }

@@ -18,7 +18,6 @@ import org.eclipse.lsp4xml.services.extensions.IXMLExtension;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lsp4xml.services.extensions.save.ISaveContext;
-import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
 
 /**
  * XSD plugin.
@@ -38,20 +37,20 @@ public class XSDPlugin implements IXMLExtension {
 
 	@Override
 	public void doSave(ISaveContext context) {
-	
+
 	}
 
 	@Override
 	public void start(InitializeParams params, XMLExtensionsRegistry registry) {
 		uiResolver = new XSDURIResolverExtension(registry.getDocumentProvider());
-		URIResolverExtensionManager.getInstance().registerResolver(uiResolver);
+		registry.getResolverExtensionManager().registerResolver(uiResolver);
 		registry.registerCompletionParticipant(completionParticipant);
 		registry.registerDiagnosticsParticipant(diagnosticsParticipant);
 	}
 
 	@Override
 	public void stop(XMLExtensionsRegistry registry) {
-		URIResolverExtensionManager.getInstance().unregisterResolver(uiResolver);
+		registry.getResolverExtensionManager().unregisterResolver(uiResolver);
 		registry.unregisterDiagnosticsParticipant(diagnosticsParticipant);
 	}
 }

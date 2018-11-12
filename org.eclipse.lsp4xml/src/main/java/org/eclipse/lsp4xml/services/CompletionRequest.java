@@ -18,6 +18,7 @@ import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.extensions.contentmodel.utils.XMLGenerator;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
+import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 
 /**
@@ -30,6 +31,8 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 
 	private final XMLFormattingOptions formattingSettings;
 
+	private final XMLExtensionsRegistry extensionsRegistry;
+
 	private Range replaceRange;
 
 	private XMLGenerator generator;
@@ -37,10 +40,12 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 	private boolean hasOpenBracket;
 
 	public CompletionRequest(XMLDocument xmlDocument, Position position, CompletionSettings completionSettings,
-			XMLFormattingOptions formattingSettings) throws BadLocationException {
+			XMLFormattingOptions formattingSettings, XMLExtensionsRegistry extensionsRegistry)
+			throws BadLocationException {
 		super(xmlDocument, position);
 		this.formattingSettings = formattingSettings;
 		this.completionSettings = completionSettings;
+		this.extensionsRegistry = extensionsRegistry;
 	}
 
 	@Override
@@ -69,13 +74,13 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 
 	public XMLGenerator getXMLGenerator() throws BadLocationException {
 		if (generator == null) {
-			generator = new XMLGenerator(getFormattingSettings(), getCompletionSettings().isAutoCloseTags(), 
-					getLineIndentInfo().getWhitespacesIndent(), getLineIndentInfo().getLineDelimiter(), 
+			generator = new XMLGenerator(getFormattingSettings(), getCompletionSettings().isAutoCloseTags(),
+					getLineIndentInfo().getWhitespacesIndent(), getLineIndentInfo().getLineDelimiter(),
 					getCompletionSettings().isCompletionSnippetsSupported(), 0);
 		}
 		return generator;
 	}
-	
+
 	@Override
 	public String getFilterForStartTagName(String tagName) {
 		if (hasOpenBracket) {
@@ -83,9 +88,13 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 		}
 		return tagName;
 	}
-	
+
 	public void setHasOpenBracket(boolean hasOpenBracket) {
 		this.hasOpenBracket = hasOpenBracket;
 	}
 
+	@Override
+	public <T> T getComponent(Class clazz) {
+		return extensionsRegistry.getComponent(clazz);
+	}
 }

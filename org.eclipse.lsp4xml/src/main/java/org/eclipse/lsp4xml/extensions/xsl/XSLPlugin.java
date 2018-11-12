@@ -14,7 +14,6 @@ import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4xml.services.extensions.IXMLExtension;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.services.extensions.save.ISaveContext;
-import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
 
 /**
  * XSL plugin.
@@ -31,11 +30,11 @@ public class XSLPlugin implements IXMLExtension {
 	@Override
 	public void start(InitializeParams params, XMLExtensionsRegistry registry) {
 		uiResolver = new XSLURIResolverExtension(registry.getDocumentProvider());
-		URIResolverExtensionManager.getInstance().registerResolver(uiResolver);
+		registry.getResolverExtensionManager().registerResolver(uiResolver);
 	}
 
 	@Override
 	public void stop(XMLExtensionsRegistry registry) {
-		URIResolverExtensionManager.getInstance().unregisterResolver(uiResolver);
+		registry.getResolverExtensionManager().unregisterResolver(uiResolver);
 	}
 }

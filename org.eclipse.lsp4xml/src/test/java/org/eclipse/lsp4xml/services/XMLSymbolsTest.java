@@ -195,7 +195,7 @@ public class XMLSymbolsTest {
     //-------------------Tools------------------------------
 
     private void initializeTestObjects(String xmlText) {
-        xmlDocument = XMLParser.getInstance().parse(xmlText, testURI);
+        xmlDocument = XMLParser.getInstance().parse(xmlText, testURI, null);
         actualSymbolInfos = languageService.findDocumentSymbols(xmlDocument);
         expectedSymbolInfos = new ArrayList<SymbolInformation>();
     }

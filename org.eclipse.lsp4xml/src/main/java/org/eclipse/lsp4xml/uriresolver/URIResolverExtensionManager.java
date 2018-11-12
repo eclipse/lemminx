@@ -28,17 +28,11 @@ import org.apache.xerces.xni.parser.XMLInputSource;
  */
 public class URIResolverExtensionManager implements URIResolverExtension, IExternalSchemaLocationProvider {
 
-	private final static URIResolverExtensionManager INSTANCE = new URIResolverExtensionManager();
-
-	public static URIResolverExtensionManager getInstance() {
-		return INSTANCE;
-	}
-
 	private final List<URIResolverExtension> resolvers;
 
 	private final URIResolverExtension defaultURIResolverExtension;
 
-	private URIResolverExtensionManager() {
+	public URIResolverExtensionManager() {
 		resolvers = new ArrayList<>();
 		this.defaultURIResolverExtension = new DefaultURIResolverExtension();
 	}

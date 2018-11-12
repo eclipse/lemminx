@@ -22,6 +22,7 @@ import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.services.extensions.ICodeActionParticipant;
+import org.eclipse.lsp4xml.services.extensions.IComponentProvider;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 
 /**
@@ -33,12 +34,13 @@ public class cvc_enumeration_validCodeAction implements ICodeActionParticipant {
 
 	@Override
 	public void doCodeAction(Diagnostic diagnostic, Range range, XMLDocument document, List<CodeAction> codeActions,
-			XMLFormattingOptions formattingSettings) {
+			XMLFormattingOptions formattingSettings, IComponentProvider componentProvider) {
 		try {
 			int offset = document.offsetAt(range.getStart());
 			Node element = document.findNodeBefore(offset);
 			if (element != null && element.isElement()) {
-				CMElementDeclaration cmElement = ContentModelManager.getInstance().findCMElement((Element) element);
+				ContentModelManager contentModelManager = componentProvider.getComponent(ContentModelManager.class);
+				CMElementDeclaration cmElement = contentModelManager.findCMElement((Element) element);
 				if (cmElement != null) {
 					cmElement.getEnumerationValues().forEach(value -> {
 						// Replace text content

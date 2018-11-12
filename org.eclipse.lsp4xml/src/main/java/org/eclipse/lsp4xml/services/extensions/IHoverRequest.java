@@ -21,4 +21,5 @@ public interface IHoverRequest extends IPositionRequest {
 	Range getTagRange();
 
 	boolean isOpen();
+
 }

@@ -36,13 +36,13 @@ public class XMLDocumentTest {
 		String text = convertStreamToString(in);
 		TextDocument document = new TextDocument(text, "largeFile.xml");
 		long start = System.currentTimeMillis();
-		XMLDocument xmlDocument = XMLParser.getInstance().parse(document);
+		XMLDocument xmlDocument = XMLParser.getInstance().parse(document, null);
 		System.err.println("Parsed with XMLParser in " + (System.currentTimeMillis() - start) + " ms.");
 	}
 
 	@Test
 	public void findOneElementWithW3CAndXPath() throws XPathExpressionException {
-		XMLDocument document = XMLParser.getInstance().parse("<a><b><c>XXXX</c></b></a>", "test");
+		XMLDocument document = XMLParser.getInstance().parse("<a><b><c>XXXX</c></b></a>", "test", null);
 
 		// Get "c" element by w3c DOM model
 		Node a = document.getDocumentElement();
@@ -74,7 +74,7 @@ public class XMLDocumentTest {
 
 	@Test
 	public void findTextWithXPath() throws XPathExpressionException {
-		XMLDocument document = XMLParser.getInstance().parse("<a><b><c>XXXX</c></b></a>", "test");
+		XMLDocument document = XMLParser.getInstance().parse("<a><b><c>XXXX</c></b></a>", "test", null);
 
 		XPath xPath = XPathFactory.newInstance().newXPath();
 		Object result = xPath.evaluate("/a/b/c/text()", document, XPathConstants.NODE);
@@ -90,7 +90,7 @@ public class XMLDocumentTest {
 
 	@Test
 	public void siblingTests() throws XPathExpressionException {
-		XMLDocument document = XMLParser.getInstance().parse("<a><b><c>XXXX</c><c>YYYY</c></b></a>", "test");
+		XMLDocument document = XMLParser.getInstance().parse("<a><b><c>XXXX</c><c>YYYY</c></b></a>", "test", null);
 
 		Node a = document.getDocumentElement();
 		Assert.assertNotNull(a);
@@ -117,7 +117,7 @@ public class XMLDocumentTest {
 
 	@Test
 	public void findElementListWithXPath() throws XPathExpressionException {
-		XMLDocument document = XMLParser.getInstance().parse("<a><b><c>XXXX</c><c>YYYY</c></b></a>", "test");
+		XMLDocument document = XMLParser.getInstance().parse("<a><b><c>XXXX</c><c>YYYY</c></b></a>", "test", null);
 
 		XPath xPath = XPathFactory.newInstance().newXPath();
 		Object result = xPath.evaluate("/a/b//c", document, XPathConstants.NODESET);

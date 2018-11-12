@@ -13,12 +13,14 @@ package org.eclipse.lsp4xml.extensions.contentmodel;
 import static org.eclipse.lsp4xml.XMLAssert.pd;
 import static org.eclipse.lsp4xml.XMLAssert.r;
 
+import java.util.function.Consumer;
+
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.XMLSchemaErrorCode;
-import org.junit.Before;
+import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.junit.Test;
 
 /**
@@ -26,13 +28,6 @@ import org.junit.Test;
  *
  */
 public class XMLSchemaPublishDiagnosticsTest {
-
-	@Before
-	public void tearDown() {
-		ContentModelManager.getInstance().setRootURI(null);
-		ContentModelManager.getInstance().setUseCache(false);
-		ContentModelManager.getInstance().setCatalogs(null);
-	}
 
 	@Test
 	public void schemaWithUrlWithoutCache() throws Exception {
@@ -42,13 +37,19 @@ public class XMLSchemaPublishDiagnosticsTest {
 		// Result of test is to have one published diagnostics with several Xerces
 		// errors (schema)
 
+		Consumer<XMLLanguageService> configuration = ls -> {
+			ContentModelManager contentModelManager = ls.getComponent(ContentModelManager.class);
+			// Use cache on file system
+			contentModelManager.setUseCache(false);
+		};
+
 		String fileURI = "test.xml";
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<invoice xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
 				" xsi:noNamespaceSchemaLocation=\"http://invoice.xsd\">\r\n" + //
 				"</invoice> \r\n" + //
 				"";
-		XMLAssert.testPublishDiagnosticsFor(xml, fileURI, pd(fileURI, //
+		XMLAssert.testPublishDiagnosticsFor(xml, fileURI, configuration, pd(fileURI, //
 				new Diagnostic(r(2, 52, 2, 52),
 						"schema_reference.4: Failed to read schema document 'http://invoice.xsd', because 1) could not find the document; 2) the document could not be read; 3) the root element of the document is not <xsd:schema>.",
 						DiagnosticSeverity.Warning, "xml", "schema_reference.4"), //
@@ -64,8 +65,11 @@ public class XMLSchemaPublishDiagnosticsTest {
 		// Result of test is to have 2 published diagnostics (resource downloading as
 		// info and error downloading).
 
-		// Activate cache resolver
-		ContentModelManager.getInstance().setUseCache(true);
+		Consumer<XMLLanguageService> configuration = ls -> {
+			ContentModelManager contentModelManager = ls.getComponent(ContentModelManager.class);
+			// Use cache on file system
+			contentModelManager.setUseCache(true);
+		};
 
 		String fileURI = "test.xml";
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
@@ -73,7 +77,7 @@ public class XMLSchemaPublishDiagnosticsTest {
 				" xsi:noNamespaceSchemaLocation=\"http://invoice.xsd\">\r\n" + //
 				"</invoice> \r\n" + //
 				"";
-		XMLAssert.testPublishDiagnosticsFor(xml, fileURI,
+		XMLAssert.testPublishDiagnosticsFor(xml, fileURI, configuration,
 				pd(fileURI,
 						new Diagnostic(r(1, 1, 1, 8), "The resource 'http://invoice.xsd' is downloading.",
 								DiagnosticSeverity.Information, "XML")),
@@ -89,13 +93,14 @@ public class XMLSchemaPublishDiagnosticsTest {
 		// - Catalog using which resolves XML Schema of the http://invoice.xsd
 		// Result of test is to validate the XML with XML Schema
 
-		// Don't use cache on file system
-		ContentModelManager.getInstance().setUseCache(true);
-
-		// use catalog which defines bind src/test/xsd/invoice.xsd with
-		// http://invoice.xsd namespace
-
-		ContentModelManager.getInstance().setCatalogs(new String[] { "src/test/resources/catalogs/catalog.xml" });
+		Consumer<XMLLanguageService> configuration = ls -> {
+			ContentModelManager contentModelManager = ls.getComponent(ContentModelManager.class);
+			// Use cache on file system
+			contentModelManager.setUseCache(true);
+			// use catalog which defines bind src/test/xsd/invoice.xsd with
+			// http://invoice.xsd namespace
+			contentModelManager.setCatalogs(new String[] { "src/test/resources/catalogs/catalog.xml" });
+		};
 
 		String fileURI = "test.xml";
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
@@ -113,7 +118,7 @@ public class XMLSchemaPublishDiagnosticsTest {
 				"</invoice> \r\n" + //
 				"";
 
-		XMLAssert.testPublishDiagnosticsFor(xml, fileURI, pd(fileURI, //
+		XMLAssert.testPublishDiagnosticsFor(xml, fileURI, configuration, pd(fileURI, //
 				new Diagnostic(r(3, 8, 3, 26),
 						"cvc-datatype-valid.1.2.1: '2017-11-30_INVALID' is not a valid value for 'date'.",
 						DiagnosticSeverity.Error, "xml", XMLSchemaErrorCode.cvc_datatype_valid_1_2_1.getCode()), //
@@ -133,8 +138,14 @@ public class XMLSchemaPublishDiagnosticsTest {
 		// use catalog which defines bind src/test/xsd/invoice.xsd with
 		// http://invoice.xsd namespace
 
-		ContentModelManager.getInstance().setCatalogs(new String[] { "src/test/resources/catalogs/catalog.xml" });
-
+		Consumer<XMLLanguageService> configuration = ls -> {
+			ContentModelManager contentModelManager = ls.getComponent(ContentModelManager.class);
+			// Don't use cache on file system
+			contentModelManager.setUseCache(false);
+			// use catalog which defines bind src/test/xsd/invoice.xsd with
+			// http://invoice.xsd namespace
+			contentModelManager.setCatalogs(new String[] { "src/test/resources/catalogs/catalog.xml" });
+		};
 		String fileURI = "test.xml";
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<invoice xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
@@ -151,7 +162,7 @@ public class XMLSchemaPublishDiagnosticsTest {
 				"</invoice> \r\n" + //
 				"";
 
-		XMLAssert.testPublishDiagnosticsFor(xml, fileURI, pd(fileURI, //
+		XMLAssert.testPublishDiagnosticsFor(xml, fileURI, configuration, pd(fileURI, //
 				new Diagnostic(r(3, 8, 3, 26),
 						"cvc-datatype-valid.1.2.1: '2017-11-30_INVALID' is not a valid value for 'date'.",
 						DiagnosticSeverity.Error, "xml", XMLSchemaErrorCode.cvc_datatype_valid_1_2_1.getCode()), //
