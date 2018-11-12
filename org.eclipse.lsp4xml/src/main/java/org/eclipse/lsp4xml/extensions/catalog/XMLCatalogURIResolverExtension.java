@@ -67,7 +67,6 @@ public class XMLCatalogURIResolverExtension implements URIResolverExtension {
 		if (document == null) {
 			return false;
 		}
-		return document.getDoctype() != null || document.getSchemaLocation() != null
-				|| document.getNoNamespaceSchemaLocation() != null;
+		return document.hasDTD() || document.hasSchemaLocation() || document.hasNoNamespaceSchemaLocation();
 	}
 }

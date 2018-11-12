@@ -39,19 +39,21 @@ public class XMLDocument extends Node implements Document {
 
 	private SchemaLocation schemaLocation;
 	private NoNamespaceSchemaLocation noNamespaceSchemaLocation;
-	private boolean referencedGrammarInitialized;
+	private boolean referencedExternalGrammarInitialized;
+	private boolean referencedSchemaInitialized;
 	private final URIResolverExtensionManager resolverExtensionManager;
 
 	private final TextDocument textDocument;
 	private boolean hasNamespaces;
-	private boolean hasGrammar;
 	private Map<String, String> externalSchemaLocation;
+	private String schemaInstancePrefix;
+	private boolean hasExternalGrammar;
 
 	public XMLDocument(TextDocument textDocument, URIResolverExtensionManager resolverExtensionManager) {
 		super(0, textDocument.getText().length(), null);
 		this.textDocument = textDocument;
 		this.resolverExtensionManager = resolverExtensionManager;
-		this.referencedGrammarInitialized = false;
+		resetGrammar();
 	}
 
 	public List<Node> getRoots() {
@@ -93,26 +95,7 @@ public class XMLDocument extends Node implements Document {
 		return textDocument.getWordRangeAt(textOffset, Constants.ELEMENT_NAME_REGEX);
 	}
 
-	/**
-	 * Returns the declared "xsi:schemaLocation" and null otherwise.
-	 * 
-	 * @return the declared "xsi:schemaLocation" and null otherwise.
-	 */
-	public SchemaLocation getSchemaLocation() {
-		initializeReferencedGrammarIfNeeded();
-		return schemaLocation;
-	}
-
-	/**
-	 * Returns the declared "xsi:noNamespaceSchemaLocation" and null otherwise.
-	 * 
-	 * @return the declared "xsi:noNamespaceSchemaLocation" and null otherwise.
-	 */
-	public NoNamespaceSchemaLocation getNoNamespaceSchemaLocation() {
-		initializeReferencedGrammarIfNeeded();
-		return noNamespaceSchemaLocation;
-	}
-
+	@Override
 	public String getNamespaceURI() {
 		Element documentElement = getDocumentElement();
 		return documentElement != null ? documentElement.getNamespaceURI() : null;
@@ -132,62 +115,105 @@ public class XMLDocument extends Node implements Document {
 	}
 
 	/**
-	 * Returns true id document defines namespaces (with xmlns) and false otherwise.
-	 * 
-	 * @return true id document defines namespaces (with xmlns) and false otherwise.
-	 */
-	public boolean hasNamespaces() {
-		initializeReferencedGrammarIfNeeded();
-		return hasNamespaces;
-	}
-
-	/**
 	 * Returns true if the document is bound to a grammar and false otherwise.
 	 * 
 	 * @return true if the document is bound to a grammar and false otherwise.
 	 */
 	public boolean hasGrammar() {
-		initializeReferencedGrammarIfNeeded();
-		return hasGrammar;
+		return hasDTD() || hasSchemaLocation() || hasNoNamespaceSchemaLocation() || hasExternalGrammar();
 	}
 
-	public Map<String, String> getExternalSchemaLocation() {
-		initializeReferencedGrammarIfNeeded();
-		return externalSchemaLocation;
-	}
+	// -------------------------- Grammar with XML Schema
 
-	private void initializeReferencedGrammarIfNeeded() {
-		if (!referencedGrammarInitialized) {
-			initializeReferencedGrammar();
-		}
+	/**
+	 * Returns the declared "xsi:schemaLocation" and null otherwise.
+	 * 
+	 * @return the declared "xsi:schemaLocation" and null otherwise.
+	 */
+	public SchemaLocation getSchemaLocation() {
+		initializeReferencedSchemaIfNeeded();
+		return schemaLocation;
 	}
 
 	/**
-	 * Initialize refrenced grammar information (XML Dchema, DTD)/.
+	 * Returns true if XML root element declares a "xsi:schemaLocation" and false
+	 * otherwise.
+	 * 
+	 * @return true if XML root element declares a "xsi:schemaLocation" and false
+	 *         otherwise.
 	 */
-	private synchronized void initializeReferencedGrammar() {
-		if (referencedGrammarInitialized) {
+	public boolean hasSchemaLocation() {
+		return getSchemaLocation() != null;
+	}
+
+	/**
+	 * Returns the declared "xsi:noNamespaceSchemaLocation" and null otherwise.
+	 * 
+	 * @return the declared "xsi:noNamespaceSchemaLocation" and null otherwise.
+	 */
+	public NoNamespaceSchemaLocation getNoNamespaceSchemaLocation() {
+		initializeReferencedSchemaIfNeeded();
+		return noNamespaceSchemaLocation;
+	}
+
+	/**
+	 * Returns true if XML root element declares a "xsi:noNamespaceSchemaLocation"
+	 * and false otherwise.
+	 * 
+	 * @return true if XML root element declares a "xsi:noNamespaceSchemaLocation"
+	 *         and false otherwise.
+	 */
+	public boolean hasNoNamespaceSchemaLocation() {
+		return getNoNamespaceSchemaLocation() != null;
+	}
+
+	/**
+	 * Returns true id document defines namespaces (with xmlns) and false otherwise.
+	 * 
+	 * @return true id document defines namespaces (with xmlns) and false otherwise.
+	 */
+	public boolean hasNamespaces() {
+		initializeReferencedSchemaIfNeeded();
+		return hasNamespaces;
+	}
+
+	/**
+	 * Returns the (xsi) schema instance prefix and null otherwise.
+	 * 
+	 * @return the (xsi) schema instance prefix and null otherwise.
+	 */
+	public String getSchemaInstancePrefix() {
+		initializeReferencedSchemaIfNeeded();
+		return schemaInstancePrefix;
+	}
+
+	/**
+	 * Initialize schemaLocation, noNamespaceSchemaLocation and hasNamespaces
+	 * information if needed.
+	 */
+	private void initializeReferencedSchemaIfNeeded() {
+		if (referencedSchemaInitialized) {
 			return;
 		}
-		// Check if XML Schema reference is declared
-		initializeSchemaLocation();
-		if (!hasGrammar) {
-			// Check if there are a DTD
-			hasGrammar = getDoctype() != null;
-		}
-		referencedGrammarInitialized = true;
+		initializeReferencedSchema();
+		referencedSchemaInitialized = true;
 	}
 
 	/**
 	 * Initialize namespaces and schema location declaration .
+	 * 
+	 * @return
 	 */
-	private void initializeSchemaLocation() {
+	private synchronized void initializeReferencedSchema() {
+		if (referencedSchemaInitialized) {
+			return;
+		}
 		// Get root element
 		Element documentElement = getDocumentElement();
 		if (documentElement == null) {
 			return;
 		}
-		String schemaInstancePrefix = null;
+		schemaInstancePrefix = null;
 		// Search if document element root declares namespace with "xmlns".
 		if (documentElement.hasAttributes()) {
 
@@ -210,25 +236,6 @@ public class XMLDocument extends Node implements Document {
 					schemaLocation = createSchemaLocation(documentElement, schemaInstancePrefix);
 				}
 			}
-			hasGrammar = noNamespaceSchemaLocation != null || schemaLocation != null;
-		}
-		if (!hasGrammar && resolverExtensionManager != null) {
-			// None grammar found with standard mean, check if it some components like XML
-			// file associations bind this XML document to a grammar with external schema
-			// location.
-			try {
-				externalSchemaLocation = resolverExtensionManager.getExternalSchemaLocation(new URI(getDocumentURI()));
-				hasGrammar = externalSchemaLocation != null;
-			} catch (URISyntaxException e) {
-				// Do nothing
-			}
-			if (!hasGrammar) {
-				// None grammar found with standard mean and external schema location, check if
-				// it some components like XML
-				// Catalog, XSL and XSD resolvers, etc bind this XML document to a grammar.
-				String namespaceURI = documentElement.getNamespaceURI();
-				hasGrammar = resolverExtensionManager.resolve(getDocumentURI(), namespaceURI, null) != null;
-			}
 		}
 	}
 
@@ -246,6 +253,75 @@ public class XMLDocument extends Node implements Document {
 			return null;
 		}
 		return new NoNamespaceSchemaLocation(root.getOwnerDocument().getDocumentURI(), attr);
+	}
+
+	// -------------------------- Grammar with DTD
+
+	/**
+	 * Returns true if XML document has a DTD declaration and false otherwise.
+	 * 
+	 * @return true if XML document has a DTD declaration and false otherwise.
+	 */
+	public boolean hasDTD() {
+		return getDoctype() != null;
+	}
+
+	// -------------------------- External Grammar (XML file associations, catalog)
+
+	/**
+	 * Returns true if the document is bound to an external grammar (XML file
+	 * associations, XLM catalog) and false otherwise.
+	 * 
+	 * @return true if the document is bound to an external grammar (XML file
+	 *         associations, XLM catalog) and false otherwise.
+	 */
+	private boolean hasExternalGrammar() {
+		initializeReferencedExternalGrammarIfNeeded();
+		return hasExternalGrammar;
+	}
+
+	public Map<String, String> getExternalSchemaLocation() {
+		initializeReferencedExternalGrammarIfNeeded();
+		return externalSchemaLocation;
+	}
+
+	private void initializeReferencedExternalGrammarIfNeeded() {
+		if (referencedExternalGrammarInitialized) {
+			return;
+		}
+		hasExternalGrammar = intializeExternalGrammar();
+	}
+
+	private synchronized boolean intializeExternalGrammar() {
+		if (referencedExternalGrammarInitialized) {
+			return hasExternalGrammar;
+		}
+		if (resolverExtensionManager != null) {
+			// None grammar found with standard mean, check if it some components like XML
+			// file associations bind this XML document to a grammar with external schema
+			// location.
+			try {
+				externalSchemaLocation = resolverExtensionManager.getExternalSchemaLocation(new URI(getDocumentURI()));
+				if (externalSchemaLocation != null) {
+					return true;
+				}
+			} catch (URISyntaxException e) {
+				// Do nothing
+			}
+
+			// None grammar found with standard mean and external schema location, check if
+			// it some components like XML
+			// Catalog, XSL and XSD resolvers, etc bind this XML document to a grammar.
+			// Get root element
+			Element documentElement = getDocumentElement();
+			if (documentElement == null) {
+				return false;
+			}
+			String namespaceURI = documentElement.getNamespaceURI();
+			return resolverExtensionManager.resolve(getDocumentURI(), namespaceURI, null) != null;
+
+		}
+		return false;
 	}
 
 	private static String getUnprefixedName(String name) {
@@ -648,7 +724,8 @@ public class XMLDocument extends Node implements Document {
 	 * Reset the cached grammar flag.
 	 */
 	public void resetGrammar() {
-		this.referencedGrammarInitialized = false;
+		this.referencedExternalGrammarInitialized = false;
+		this.referencedSchemaInitialized = false;
 	}
 
 	public URIResolverExtensionManager getResolverExtensionManager() {
