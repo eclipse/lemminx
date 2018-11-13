@@ -370,6 +370,37 @@ public class XMLSchemaCompletionExtensionsTest {
 
 	}
 
+	/**
+	 * @see https://github.com/angelozerr/lsp4xml/issues/214
+	 * 
+	 * @throws BadLocationException
+	 */
+	@Test
+	public void issue214() throws BadLocationException {
+		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
+				"<edmx:Edmx xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\" xmlns=\"http://docs.oasis-open.org/odata/ns/edm\" Version=\"4.0\">\r\n"
+				+ //
+				"  <edmx:Reference Uri=\"https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Core.V1.xml\">\r\n"
+				+ //
+				"    <edmx:Include Namespace=\"Org.OData.Core.V1\" Alias=\"Core\">\r\n" + //
+				"      <Annotation Term=\"Core.DefaultNamespace\" />      \r\n" + //
+				"    </edmx:Include>\r\n" + //
+				" |";
+		testCompletionFor(xml, c("Annotation", "<Annotation Term=\"\"></Annotation>"), //
+				c("edmx:Include", "<edmx:Include Namespace=\"\"></edmx:Include>"), //
+				c("edmx:IncludeAnnotations", "<edmx:IncludeAnnotations TermNamespace=\"\" />"));
+
+		xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"
+				+ "<edmx:Edmx xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\" xmlns=\"http://docs.oasis-open.org/odata/ns/edm\" Version=\"4.0\">   \r\n"
+				+ "  <edmx:DataServices>\r\n" + //
+				"    <Schema Namespace=\"ODataDemo\">\r\n" + //
+				" |";
+		testCompletionFor(xml, c("Action", "<Action Name=\"\"></Action>"), //
+				c("Annotation", "<Annotation Term=\"\"></Annotation>"), //
+				c("Annotations", "<Annotations Target=\"\"></Annotations>"), //
+				c("ComplexType", "<ComplexType Name=\"\"></ComplexType>"));
+	}
+
 	private void testCompletionFor(String xml, CompletionItem... expectedItems) throws BadLocationException {
 		XMLAssert.testCompletionFor(xml, "src/test/resources/catalogs/catalog.xml", expectedItems);
 	}
