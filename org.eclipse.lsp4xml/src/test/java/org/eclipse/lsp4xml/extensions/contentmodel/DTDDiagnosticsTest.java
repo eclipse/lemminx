@@ -54,7 +54,25 @@ public class DTDDiagnosticsTest {
 				"</note>";
 		XMLAssert.testDiagnosticsFor(xml, d(8, 1, 5, DTDErrorCode.MSG_CONTENT_INVALID));
 	}
-	
+
+	@Test
+	public void MSG_ATTRIBUTE_NOT_DECLARED() throws Exception {
+		String xml = "<?xml version=\"1.0\"?>\r\n" + //
+				"<!DOCTYPE note [\r\n" + //
+				"<!ELEMENT note (to,from,heading,body)>\r\n" + //
+				"<!ELEMENT to (#PCDATA)>\r\n" + //
+				"<!ELEMENT from (#PCDATA)>\r\n" + //
+				"<!ELEMENT heading (#PCDATA)>\r\n" + //
+				"<!ELEMENT body (#PCDATA)>\r\n" + //
+				"]>\r\n" + //
+				"<note>\r\n" + //
+				"    <to></to>\r\n" + //
+				"    <from XXXX=\"\" >Jani</from>\r\n" + //
+				"    <heading>Reminder</heading>\r\n" + //
+				"    <body>Don't forget me this weekend</body>\r\n" + //
+				"</note> ";
+		XMLAssert.testDiagnosticsFor(xml, d(10, 10, 14, DTDErrorCode.MSG_ATTRIBUTE_NOT_DECLARED));
+	}
 	@Test
 	public void testDoctypeDiagnosticsRefresh() throws Exception {
 		//@formatter:off
