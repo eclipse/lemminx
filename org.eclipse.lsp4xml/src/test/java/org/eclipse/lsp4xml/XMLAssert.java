@@ -234,6 +234,7 @@ public class XMLAssert {
 
 		ContentModelSettings settings = new ContentModelSettings();
 		settings.setUseCache(false);
+		settings.setWarnNoGrammar("ignore");
 		if (catalogPath != null) {
 			// Configure XML catalog for XML schema
 			settings.setCatalogs(new String[] { catalogPath });

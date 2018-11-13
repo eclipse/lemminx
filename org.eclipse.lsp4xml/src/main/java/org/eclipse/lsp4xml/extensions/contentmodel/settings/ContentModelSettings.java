@@ -10,6 +10,7 @@
  */
 package org.eclipse.lsp4xml.extensions.contentmodel.settings;
 
+import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4xml.utils.JSONUtility;
 
 /**
@@ -21,6 +22,8 @@ public class ContentModelSettings {
 	private Boolean useCache;
 
 	private String[] catalogs;
+
+	private String warnNoGrammar;
 
 	private XMLFileAssociation[] fileAssociations;
 
@@ -80,5 +83,26 @@ public class ContentModelSettings {
 
 	public static ContentModelSettings getSettings(Object initializationOptionsSettings) {
 		return JSONUtility.toModel(initializationOptionsSettings, ContentModelSettings.class);
+	}
+
+	public void setWarnNoGrammar(String warnNoGrammar) {
+		this.warnNoGrammar = warnNoGrammar;
+	}
+
+	public String getWarnNoGrammar() {
+		return warnNoGrammar;
+	}
+
+	public DiagnosticSeverity getNoGrammarSeverity() {
+		if ("ignore".equalsIgnoreCase(warnNoGrammar)) {
+			return null;
+		} else if ("info".equalsIgnoreCase(warnNoGrammar)) {
+			return DiagnosticSeverity.Information;
+		} else if ("warning".equalsIgnoreCase(warnNoGrammar)) {
+			return DiagnosticSeverity.Warning;
+		} else if ("error".equalsIgnoreCase(warnNoGrammar)) {
+			return DiagnosticSeverity.Error;
+		}
+		return DiagnosticSeverity.Hint;
 	}
 }

@@ -39,11 +39,13 @@ public class ContentModelPlugin implements IXMLExtension {
 	private final ContentModelDocumentLinkParticipant documentLinkParticipant;
 
 	private ContentModelManager contentModelManager;
+
+	private ContentModelSettings cmSettings;
 	
 	public ContentModelPlugin() {
 		completionParticipant = new ContentModelCompletionParticipant();
 		hoverParticipant = new ContentModelHoverParticipant();
-		diagnosticsParticipant = new ContentModelDiagnosticsParticipant();
+		diagnosticsParticipant = new ContentModelDiagnosticsParticipant(this);
 		codeActionParticipant = new ContentModelCodeActionParticipant();
 		documentLinkParticipant = new ContentModelDocumentLinkParticipant();
 	}
@@ -73,7 +75,7 @@ public class ContentModelPlugin implements IXMLExtension {
 
 	private void updateSettings(ISaveContext saveContext) {
 		Object initializationOptionsSettings = saveContext.getSettings();
-		ContentModelSettings cmSettings = ContentModelSettings.getSettings(initializationOptionsSettings);
+		cmSettings = ContentModelSettings.getSettings(initializationOptionsSettings);
 		if (cmSettings != null) {
 			updateSettings(cmSettings, saveContext);
 		}
@@ -136,4 +138,7 @@ public class ContentModelPlugin implements IXMLExtension {
 		registry.unregisterDocumentLinkParticipant(documentLinkParticipant);
 	}
 
+	public ContentModelSettings getContentModelSettings() {
+		return cmSettings;
+	}
 }

@@ -24,11 +24,17 @@ import org.apache.xerces.parsers.XIncludeAwareParserConfiguration;
 import org.apache.xerces.xni.parser.XMLEntityResolver;
 import org.apache.xerces.xni.parser.XMLParserConfiguration;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.DiagnosticSeverity;
+import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+import org.eclipse.lsp4xml.dom.Element;
 import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.extensions.contentmodel.settings.ContentModelSettings;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.LSPContentHandler;
 import org.eclipse.lsp4xml.uriresolver.CacheResourceDownloadingException;
 import org.eclipse.lsp4xml.uriresolver.IExternalSchemaLocationProvider;
+import org.eclipse.lsp4xml.utils.XMLPositionUtility;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotRecognizedException;
@@ -43,7 +49,7 @@ public class XMLValidator {
 	private static final Logger LOGGER = Logger.getLogger(XMLValidator.class.getName());
 
 	public static void doDiagnostics(XMLDocument document, XMLEntityResolver entityResolver,
-			List<Diagnostic> diagnostics, CancelChecker monitor) {
+			List<Diagnostic> diagnostics, ContentModelSettings contentModelSettings, CancelChecker monitor) {
 
 		try {
 			XMLParserConfiguration configuration = new XIncludeAwareParserConfiguration(); // new
@@ -74,6 +80,9 @@ public class XMLValidator {
 			reader.setFeature("http://xml.org/sax/features/validation", hasGrammar); //$NON-NLS-1$
 			reader.setFeature("http://apache.org/xml/features/validation/schema", hasGrammar); //$NON-NLS-1$
 
+			// warn if XML document is not bound to a grammar according the settings
+			warnNoGrammar(document, diagnostics, contentModelSettings);
+
 			// Parse XML
 			String content = document.getText();
 			String uri = document.getDocumentURI();
@@ -88,6 +97,41 @@ public class XMLValidator {
 			throw e;
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, "Unexpected XMLValidator error", e);
+		}
+	}
+
+	/**
+	 * Warn if XML document is not bound to a grammar according the settings
+	 * 
+	 * @param document             the XML document
+	 * @param diagnostics          the diagnostics list to populate
+	 * @param contentModelSettings the settings to use to know the severity of warn.
+	 */
+	private static void warnNoGrammar(XMLDocument document, List<Diagnostic> diagnostics,
+			ContentModelSettings contentModelSettings) {
+		boolean hasGrammar = document.hasGrammar();
+		if (hasGrammar) {
+			return;
+		}
+		// By default "hint" settings.
+		DiagnosticSeverity severity = contentModelSettings != null ? contentModelSettings.getNoGrammarSeverity()
+				: DiagnosticSeverity.Hint;
+		if (severity == null) {
+			// "ignore" settings
+			return;
+		}
+		if (!hasGrammar) {
+			// No grammar, add a warn diagnostic with the severity coming from the settings.
+			Range range = null;
+			Element documentElement = document.getDocumentElement();
+			if (documentElement != null) {
+				range = XMLPositionUtility.selectStartTag(documentElement);
+			}
+			if (range == null) {
+				range = new Range(new Position(0, 0), new Position(0, 0));
+			}
+			diagnostics.add(new Diagnostic(range, "No grammar constraints (DTD or XML Schema).", severity,
+					document.getDocumentURI(), "XML"));
 		}
 	}
 
