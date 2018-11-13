@@ -31,6 +31,7 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.dom.Element;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.ContentModelSettings;
+import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLProblems;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.LSPContentHandler;
 import org.eclipse.lsp4xml.uriresolver.CacheResourceDownloadingException;
 import org.eclipse.lsp4xml.uriresolver.IExternalSchemaLocationProvider;
@@ -103,19 +104,18 @@ public class XMLValidator {
 	/**
 	 * Warn if XML document is not bound to a grammar according the settings
 	 * 
-	 * @param document             the XML document
-	 * @param diagnostics          the diagnostics list to populate
-	 * @param contentModelSettings the settings to use to know the severity of warn.
+	 * @param document    the XML document
+	 * @param diagnostics the diagnostics list to populate
+	 * @param settings    the settings to use to know the severity of warn.
 	 */
 	private static void warnNoGrammar(XMLDocument document, List<Diagnostic> diagnostics,
-			ContentModelSettings contentModelSettings) {
+			ContentModelSettings settings) {
 		boolean hasGrammar = document.hasGrammar();
 		if (hasGrammar) {
 			return;
 		}
 		// By default "hint" settings.
-		DiagnosticSeverity severity = contentModelSettings != null ? contentModelSettings.getNoGrammarSeverity()
-				: DiagnosticSeverity.Hint;
+		DiagnosticSeverity severity = XMLProblems.getNoGrammarSeverity(settings);
 		if (severity == null) {
 			// "ignore" settings
 			return;

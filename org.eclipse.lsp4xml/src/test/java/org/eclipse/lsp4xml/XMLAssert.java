@@ -42,6 +42,7 @@ import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.dom.XMLParser;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.ContentModelSettings;
+import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLProblems;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IXMLErrorCode;
@@ -234,7 +235,9 @@ public class XMLAssert {
 
 		ContentModelSettings settings = new ContentModelSettings();
 		settings.setUseCache(false);
-		settings.setWarnNoGrammar("ignore");
+		XMLProblems problems = new XMLProblems();
+		problems.setNoGrammar("ignore");
+		settings.setProblems(problems);
 		if (catalogPath != null) {
 			// Configure XML catalog for XML schema
 			settings.setCatalogs(new String[] { catalogPath });
