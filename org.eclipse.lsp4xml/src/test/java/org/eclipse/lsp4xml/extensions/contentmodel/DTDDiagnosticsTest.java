@@ -34,9 +34,27 @@ public class DTDDiagnosticsTest {
 				"	<XXX></XXX>\r\n" + //
 				"</web-app>";
 		testDiagnosticsFor(xml, d(6, 2, 5, DTDErrorCode.MSG_ELEMENT_NOT_DECLARED),
-				d(7, 10, 10, DTDErrorCode.MSG_CONTENT_INVALID));
+				d(5, 1, 8, DTDErrorCode.MSG_CONTENT_INVALID));
 	}
-
+	
+	@Test
+	public void MSG_CONTENT_INVALID() throws Exception {
+		String xml = "<?xml version=\"1.0\"?>\r\n" + //
+				"<!DOCTYPE note [\r\n" + //
+				"<!ELEMENT note (to,from,heading,body)>\r\n" + // 
+				"    <!ELEMENT to (#PCDATA)>\r\n" + //
+				"        <!ELEMENT from (#PCDATA)>\r\n" + // 
+				"                <!ELEMENT heading (#PCDATA)>\r\n" + // 
+				"            <!ELEMENT body (#PCDATA)>\r\n" + //
+				"]>\r\n" + //
+				"<note>\r\n" + // 
+				"	<from>Jani</from>\r\n" + // 
+				"	<heading>Reminder</heading>\r\n" + // 
+				"	<body>Don't forget me this weekend</body>\r\n" + // 
+				"</note>";
+		XMLAssert.testDiagnosticsFor(xml, d(8, 1, 5, DTDErrorCode.MSG_CONTENT_INVALID));
+	}
+	
 	@Test
 	public void testDoctypeDiagnosticsRefresh() throws Exception {
 		//@formatter:off
@@ -50,7 +68,7 @@ public class DTDDiagnosticsTest {
 					"  <id>567896</id>\n" + 
 					"</student>";
 		//@formatter:on
-		testDiagnosticsFor(xml, d(7, 3, 5, DTDErrorCode.MSG_ELEMENT_NOT_DECLARED));
+		XMLAssert.testDiagnosticsFor(xml, d(7, 3, 5, DTDErrorCode.MSG_ELEMENT_NOT_DECLARED));
 
 		//@formatter:off
 		xml = "<?xml version=\"1.0\"?>\n" + 
@@ -64,7 +82,7 @@ public class DTDDiagnosticsTest {
 			"  <id>567896</id>\n" + 
 			"</student>";
 		//@formatter:on
-		testDiagnosticsFor(xml, new Diagnostic[0]);
+		XMLAssert.testDiagnosticsFor(xml, new Diagnostic[0]);
 
 	}
 

@@ -77,6 +77,7 @@ public enum DTDErrorCode implements IXMLErrorCode {
 		case MSG_CONTENT_INCOMPLETE:
 		case MSG_REQUIRED_ATTRIBUTE_NOT_SPECIFIED:
 		case MSG_ELEMENT_NOT_DECLARED:
+		case MSG_CONTENT_INVALID:
 			return XMLPositionUtility.selectStartTag(offset, document);
 		case MSG_ATTRIBUTE_NOT_DECLARED:
 			return XMLPositionUtility.selectAttributeNameAt(offset, document);
