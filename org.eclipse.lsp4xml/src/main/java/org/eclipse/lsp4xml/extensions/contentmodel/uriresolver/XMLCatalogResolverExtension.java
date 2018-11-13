@@ -42,6 +42,23 @@ public class XMLCatalogResolverExtension implements URIResolverExtension {
 	public String resolve(String baseLocation, String publicId, String systemId) {
 		if (catalogResolver != null) {
 			try {
+
+				// The namespace is useful for resolving namespace aware
+				// grammars such as XML schema. Let it take precedence over
+				// the external identifier if one exists.
+				String namespace = publicId;
+				if (namespace != null) {
+					String resolvedId = catalogResolver.resolveURI(namespace);
+					if (resolvedId != null) {
+						return resolvedId;
+					}
+				}
+
+				// Resolve against an external identifier if one exists. This
+				// is useful for resolving DTD external subsets and other
+				// external entities. For XML schemas if there was no namespace
+				// mapping we might be able to resolve a system identifier
+				// specified as a location hint.
 				if (publicId != null && systemId != null) {
 					return catalogResolver.resolvePublic(publicId, systemId);
 				} else if (systemId != null) {
@@ -54,6 +71,7 @@ public class XMLCatalogResolverExtension implements URIResolverExtension {
 			}
 		}
 		return null;
+
 	}
 
 	@Override
