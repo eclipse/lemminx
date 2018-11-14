@@ -58,10 +58,11 @@ public class DTDContentModelProvider implements ContentModelProvider {
 			content = content.substring(0, lastQuoteIndex);
 			lastQuoteIndex = content.lastIndexOf("\"");
 			if (lastQuoteIndex != -1) {
-				content = content.substring(lastQuoteIndex + 1, content.length());
+				return content.substring(lastQuoteIndex + 1, content.length());
+				
 			}
 		}
-		return content; // documentType.getSystemId();
+		return null;
 	}
 
 	@Override
