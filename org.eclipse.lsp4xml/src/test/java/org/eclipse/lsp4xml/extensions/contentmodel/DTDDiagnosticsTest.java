@@ -103,6 +103,21 @@ public class DTDDiagnosticsTest {
 				"</foo>";
 		XMLAssert.testDiagnosticsFor(xml, d(7, 15, 21, DTDErrorCode.MSG_ATTRIBUTE_VALUE_NOT_IN_LIST));
 	}
+
+	@Test
+	public void MSG_CONTENT_INCOMPLETE() throws Exception {
+		String xml = "<?xml version = \"1.0\"?>\r\n" + //
+				"<!DOCTYPE foo [\r\n" + //
+				"  <!ELEMENT foo (bar)>\r\n" + //
+				"  <!ELEMENT bar (#PCDATA)>\r\n" + //
+				"  <!ATTLIST bar fruit (one | two | three) #REQUIRED>\r\n" + //
+				"]>\r\n" + //
+				"<foo>\r\n" + //
+				"    \r\n" + // <- error
+				"</foo>";
+		XMLAssert.testDiagnosticsFor(xml, d(6, 1, 4, DTDErrorCode.MSG_CONTENT_INCOMPLETE));
+	}
+	
 	@Test
 	public void testDoctypeDiagnosticsRefresh() throws Exception {
 		//@formatter:off
