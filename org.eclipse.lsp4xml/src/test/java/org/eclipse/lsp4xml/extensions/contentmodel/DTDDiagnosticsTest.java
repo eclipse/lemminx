@@ -67,12 +67,27 @@ public class DTDDiagnosticsTest {
 				"]>\r\n" + //
 				"<note>\r\n" + //
 				"    <to></to>\r\n" + //
-				"    <from XXXX=\"\" >Jani</from>\r\n" + //
+				"    <from XXXX=\"\" >Jani</from>\r\n" + // <- error 
 				"    <heading>Reminder</heading>\r\n" + //
 				"    <body>Don't forget me this weekend</body>\r\n" + //
 				"</note> ";
 		XMLAssert.testDiagnosticsFor(xml, d(10, 10, 14, DTDErrorCode.MSG_ATTRIBUTE_NOT_DECLARED));
 	}
+
+	@Test
+	public void MSG_FIXED_ATTVALUE_INVALID() throws Exception {
+		String xml = "<?xml version = \"1.0\"?>\r\n" + //
+				"<!DOCTYPE address [\r\n" + //
+				"  <!ELEMENT address (company)*>\r\n" + //
+				"  <!ELEMENT company (#PCDATA)>\r\n" + //
+				"  <!ATTLIST company name NMTOKEN #FIXED \"tutorialspoint\">\r\n" + //
+				"]>\r\n" + //
+				"<address>\r\n" + //
+				"  <company name=\"etutorialspoint\"" // <- error
+				+ ">we are a free online teaching faculty</company>\r\n" + "</address>";
+		XMLAssert.testDiagnosticsFor(xml, d(7, 16, 33, DTDErrorCode.MSG_FIXED_ATTVALUE_INVALID));
+	}
+
 	@Test
 	public void testDoctypeDiagnosticsRefresh() throws Exception {
 		//@formatter:off

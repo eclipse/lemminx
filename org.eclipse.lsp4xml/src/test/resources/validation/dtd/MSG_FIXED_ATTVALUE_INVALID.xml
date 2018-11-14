@@ -1,0 +1,9 @@
+<?xml version = "1.0"?>
+<!DOCTYPE address [
+  <!ELEMENT address (company)*>
+  <!ELEMENT company (#PCDATA)>
+  <!ATTLIST company name NMTOKEN #FIXED "tutorialspoint">
+]>
+<address>
+  <company name="etutorialspoint">we are a free online teaching faculty</company>
+</address>
