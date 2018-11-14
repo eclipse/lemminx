@@ -334,11 +334,11 @@ public abstract class Node implements org.w3c.dom.Node {
 	}
 
 	/**
-	 * Add node child
+	 * Add node child and set child.parent to this.
 	 * 
 	 * @param child the node child to add.
 	 */
-	public void addChild(Node child) {
+	public void addChildAndSetItsParent(Node child) {
 		child.parent = this;
 		if (children == null) {
 			children = new XMLNodeList<Node>();

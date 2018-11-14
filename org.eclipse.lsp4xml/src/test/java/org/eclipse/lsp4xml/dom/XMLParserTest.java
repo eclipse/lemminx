@@ -12,6 +12,7 @@ package org.eclipse.lsp4xml.dom;
 
 import static org.junit.Assert.assertEquals;
 
+import org.eclipse.lsp4xml.dom.DocumentType.DocumentTypeKind;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -32,7 +33,7 @@ public class XMLParserTest {
 	public void testNestedElement() {
 		Node body = createElement("body", 6, 12, 19, true);
 		Node html = createElement("html", 0, 19, 26, true);
-		html.addChild(body);
+		html.addChildAndSetItsParent(body);
 
 		assertDocument("<html><body></body></html>", html);
 	}
@@ -42,8 +43,8 @@ public class XMLParserTest {
 		Node head = createElement("head", 6, 12, 19, true);
 		Node body = createElement("body", 19, 25, 32, true);
 		Node html = createElement("html", 0, 32, 39, true);
-		html.addChild(head);
-		html.addChild(body);
+		html.addChildAndSetItsParent(head);
+		html.addChildAndSetItsParent(body);
 
 		assertDocument("<html><head></head><body></body></html>", html);
 	}
@@ -52,10 +53,10 @@ public class XMLParserTest {
 	public void testNestedNestedElements() {
 		Node c = createElement("c", 6, 9, 13, true);
 		Node b = createElement("b", 3, 13, 17, true);
-		b.addChild(c);
+		b.addChildAndSetItsParent(c);
 
 		Node a = createElement("a", 0, 17, 21, true);
-		a.addChild(b);
+		a.addChildAndSetItsParent(b);
 
 		assertDocument("<a><b><c></c></b></a>", a);
 	}
@@ -72,8 +73,8 @@ public class XMLParserTest {
 		Node br = createElement("br", 5, null, 10, true);
 		Node span = createElement("span", 10, 16, 23, true);
 		Node div = createElement("div", 0, 23, 29, true);
-		div.addChild(br);
-		div.addChild(span);
+		div.addChildAndSetItsParent(br);
+		div.addChildAndSetItsParent(span);
 
 		assertDocument("<div><br/><span></span></div>", div);
 	}
@@ -99,7 +100,7 @@ public class XMLParserTest {
 	public void insideEndTag() {
 		Element meta = (Element) createElement("meta", 6, 6, 13, false);
 		Element html = (Element) createElement("html", 0, 13, 20, true);
-		html.addChild(meta);
+		html.addChildAndSetItsParent(meta);
 
 		assertDocument("<html></meta></html>", html);
 		Assert.assertFalse(meta.hasStartTag());
@@ -118,7 +119,7 @@ public class XMLParserTest {
 	public void testStartTagInsideElement() {
 		Node div2 = createElement("div", 5, 10, 16, true);
 		Node div = createElement("div", 0, null, 16, false);
-		div.addChild(div2);
+		div.addChildAndSetItsParent(div2);
 
 		assertDocument("<div><div></div>", div);
 	}
@@ -127,7 +128,7 @@ public class XMLParserTest {
 	public void testStartTagInsideElement2() {
 		Node div = createElement("div", 5, null, 10, false);
 		Node cat = createElement("cat", 0, 10, 16, true);
-		cat.addChild(div);
+		cat.addChildAndSetItsParent(div);
 
 		assertDocument("<cat><div></cat>", cat);
 	}
@@ -136,9 +137,9 @@ public class XMLParserTest {
 	public void testMultipleStartTagInsideElement() {
 		Node span = createElement("span", 9, null, 15, false);
 		Node div = createElement("div", 4, null, 15, false);
-		div.addChild(span);
+		div.addChildAndSetItsParent(span);
 		Node h1 = createElement("h1", 0, 15, 20, true);
-		h1.addChild(div);
+		h1.addChildAndSetItsParent(div);
 
 		assertDocument("<h1><div><span></h1>", h1);
 	}
@@ -197,7 +198,7 @@ public class XMLParserTest {
 	public void testCDATABasicTest() {
 		Node text = createCDATANode("testText", 5, 25, true);
 		Node div = createElement("div", 0, 25, 31, true);
-		div.addChild(text);
+		div.addChildAndSetItsParent(text);
 
 		assertDocument("<div><![CDATA[testText]]></div>", div);
 	}
@@ -207,8 +208,8 @@ public class XMLParserTest {
 		Node text = createCDATANode("TEXT", 5, 21, true);
 		Node a = createElement("a", 21, 24, 28, true);
 		Node div = createElement("div", 0, 28, 34, true);
-		div.addChild(text);
-		div.addChild(a);
+		div.addChildAndSetItsParent(text);
+		div.addChildAndSetItsParent(a);
 
 		assertDocument("<div><![CDATA[TEXT]]><a></a></div>", div);
 	}
@@ -217,7 +218,7 @@ public class XMLParserTest {
 	public void testCDATANotClosedButNested() {
 		Node text = createCDATANode("testText]</div>", 5, 29, false);
 		Node div = createElement("div", 0, null, 29, false);
-		div.addChild(text);
+		div.addChildAndSetItsParent(text);
 
 		assertDocument("<div><![CDATA[testText]</div>", div);
 	}
@@ -226,7 +227,7 @@ public class XMLParserTest {
 	public void testCDATANotClosedNotNested() {
 		Node text = createCDATANode("testText]/div>", 5, 28, false);
 		Node div = createElement("div", 0, null, 28, false);
-		div.addChild(text);
+		div.addChildAndSetItsParent(text);
 
 		assertDocument("<div><![CDATA[testText]/div>", div);
 	}
@@ -235,7 +236,7 @@ public class XMLParserTest {
 	public void testCDATABasicWithAngledBracket() {
 		Node text = createCDATANode("<>", 5, 19, true);
 		Node div = createElement("div", 0, 19, 25, true);
-		div.addChild(text);
+		div.addChildAndSetItsParent(text);
 
 		assertDocument("<div><![CDATA[<>]]></div>", div);
 	}
@@ -245,7 +246,7 @@ public class XMLParserTest {
 
 		Node div = createElement("div", 0, null, 14, false);
 		Node divaaaz = createElement("divaaaz", 5, 5, 14, false);
-		div.addChild(divaaaz);
+		div.addChildAndSetItsParent(divaaaz);
 
 		assertDocument("<div></divaaaz", div);
 	}
@@ -255,8 +256,8 @@ public class XMLParserTest {
 		Node h = createElement("h", 14, null, 16, false);
 		Node hello = createElement("hello", 7, 16, 24, true);
 		Node test1 = createElement("test1", 0, null, 24, false);
-		test1.addChild(hello);
-		hello.addChild(h);
+		test1.addChildAndSetItsParent(hello);
+		hello.addChildAndSetItsParent(h);
 
 		assertDocument("<test1><hello><h</hello>", test1);
 	}
@@ -265,7 +266,7 @@ public class XMLParserTest {
 	public void testWithNewLineCharacters() {
 		Node n = createElement("n", 6, 12, 16, true);
 		Node t = createElement("t", 0, 17, 21, true);
-		t.addChild(n);
+		t.addChildAndSetItsParent(n);
 		assertDocument("<t>\n  <n>\n  </n>\n</t>", t);
 	}
 
@@ -282,7 +283,7 @@ public class XMLParserTest {
 	public void testPI() {
 		Node processingInstruction = createPINode("m2e", 6, 20, true, "he haa");
 		Node html = createElement("html", 0, 20, 27, true);
-		html.addChild(processingInstruction);
+		html.addChildAndSetItsParent(processingInstruction);
 
 		assertDocument("<html><?m2e he haa?></html>", html);
 	}
@@ -291,7 +292,7 @@ public class XMLParserTest {
 	public void testPISpaces() {
 		Node processingInstruction = createPINode("m2e", 6, 28, true, "he haa");
 		Node html = createElement("html", 0, 28, 35, true);
-		html.addChild(processingInstruction);
+		html.addChildAndSetItsParent(processingInstruction);
 
 		assertDocument("<html><?m2e    he haa     ?></html>", html);
 	}
@@ -300,7 +301,7 @@ public class XMLParserTest {
 	public void testPISpaces2() {
 		Node processingInstruction = createPINode("m2e", 8, 22, true, "he haa");
 		Node html = createElement("html", 0, 24, 31, true);
-		html.addChild(processingInstruction);
+		html.addChildAndSetItsParent(processingInstruction);
 
 		assertDocument("<html>  <?m2e he haa?>  </html>", html);
 	}
@@ -351,7 +352,7 @@ public class XMLParserTest {
 	public void testContentTextHasTag() {
 		Node textNode = createTextNode("  eek  ", 6, 13, true);
 		Node html = createElement("html", 0, 13, 20, true);
-		html.addChild(textNode);
+		html.addChildAndSetItsParent(textNode);
 
 		assertDocument("<html>  eek  </html>", html);
 	}
@@ -374,6 +375,43 @@ public class XMLParserTest {
 		Assert.assertTrue(a.isInStartTag(1)); // <|a></a>
 		Assert.assertTrue(a.isInStartTag(2)); // <a|></a>
 		Assert.assertFalse(a.isInStartTag(3)); // <a>|</a>
+	}
+
+	@Test
+	public void assertDoctype1() {
+		String xml = 
+		"<!DOCTYPE note [\n" +
+		"  <!ENTITY nbsp \"&#xA0;\"> \n" +
+		"  <!ENTITY writer \"Writer: Donald Duck.\">\n" +
+		"  <!ENTITY copyright \"Copyright: W3Schools.\">\n" +
+		"]>";
+		String internal = 
+		"\n" +
+		"  <!ENTITY nbsp \"&#xA0;\"> \n" +
+		"  <!ENTITY writer \"Writer: Donald Duck.\">\n" +
+		"  <!ENTITY copyright \"Copyright: W3Schools.\">\n";
+		XMLDocument document = XMLParser.getInstance().parse(xml, null, null);
+		assertDoctype((DocumentType)(document.getChild(0)), 0, 134, "note", null, null, null, internal);
+	}
+	
+	@Test
+	public void assertDoctype2() {
+		String xml = 
+		"<!DOCTYPE html SYSTEM\n" +
+		"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"\n" +
+		"  [\n" +
+		"    <!ENTITY nbsp \"&#xA0;\"> \n" +
+		"    <!ENTITY writer \"Writer: Donald Duck.\">\n" +
+		"    <!ENTITY copyright \"Copyright: W3Schools.\">\n" +
+		"  ]\n" +
+		">";
+		String internal = 
+		"\n" +
+		"    <!ENTITY nbsp \"&#xA0;\"> \n" +
+		"    <!ENTITY writer \"Writer: Donald Duck.\">\n" +
+		"    <!ENTITY copyright \"Copyright: W3Schools.\">\n  ";
+		XMLDocument document = XMLParser.getInstance().parse(xml, null, null);
+		assertDoctype((DocumentType)(document.getChild(0)), 0, 212, "html", DocumentTypeKind.SYSTEM, null, "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd", internal);
 	}
 
 	// --------------------------------------------------------------------------------
@@ -421,6 +459,16 @@ public class XMLParserTest {
 		Node n = createNode(nodeType, start, end);
 		setRestOfNode(n, tag, endTagStart, closed);
 		return n;
+	}
+
+	private static void assertDoctype(DocumentType doctype, int start, int end, String name, DocumentTypeKind kind, String publicId, String systemId, String internalDTD) {
+		assertEquals(start, doctype.getStart());
+		assertEquals(end, doctype.getEnd());
+		assertEquals(name, doctype.getName());
+		assertEquals(kind, doctype.getKind());
+		assertEquals(publicId, doctype.getPublicId());
+		assertEquals(systemId, doctype.getSystemId());
+		assertEquals(internalDTD, doctype.getInternalDTD());
 	}
 
 	private static class MockProcessingInstruction extends ProcessingInstruction {

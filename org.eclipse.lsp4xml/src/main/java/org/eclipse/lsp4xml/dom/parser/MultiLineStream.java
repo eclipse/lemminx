@@ -87,6 +87,11 @@ class MultiLineStream {
 		return peekChar(0);
 	}
 
+	/**
+	 * Peeks at next char at position + n. peekChar() == peekChar(0)
+	 * @param n
+	 * @return
+	 */
 	public int peekChar(int n) {
 		int pos = this.position + n;
 		if (pos >= len) {

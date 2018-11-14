@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 
 public class Constants {
 
-	public final static int _BNG = "!".codePointAt(0);
+	public final static int _EXL = "!".codePointAt(0);
 	public final static int _MIN = "-".codePointAt(0);
 	public final static int _LAN = "<".codePointAt(0);
 	public final static int _RAN = ">".codePointAt(0);
@@ -49,10 +49,14 @@ public class Constants {
 
 	public static final Pattern ATTRIBUTE_VALUE_REGEX = Pattern.compile("^[^\\s\"'`=<>\\/]+");
 
-	public static final Pattern PROLOG_NAME_OPTIONS = Pattern.compile("^(xml|xml-stylesheet)$");
+	public static final Pattern URL_VALUE_REGEX = Pattern.compile("^\"[^<>\"]*\"");
+
+	public static final Pattern PROLOG_NAME_OPTIONS = Pattern.compile("^(xml|xml-stylesheet)");
+
+	public static final Pattern DOCTYPE_KIND_OPTIONS = Pattern.compile("^(PUBLIC|SYSTEM)");
 
 	public static final Pattern PI_TAG_NAME = Pattern.compile("^[a-zA-Z0-9]+");
 
-	// public static final Pattern DOCTYPE_NAME =
-	// Pattern.compile("^[_:\\w][_:\\w-.\\d]*");
+	public static final Pattern DOCTYPE_NAME =
+	Pattern.compile("^[_:\\w][_:\\w-.\\d]*");
 }

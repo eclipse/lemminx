@@ -12,11 +12,13 @@ package org.eclipse.lsp4xml.dom.parser;
 
 import static org.eclipse.lsp4xml.dom.parser.Constants.ATTRIBUTE_NAME_REGEX;
 import static org.eclipse.lsp4xml.dom.parser.Constants.ATTRIBUTE_VALUE_REGEX;
+import static org.eclipse.lsp4xml.dom.parser.Constants.URL_VALUE_REGEX;
 import static org.eclipse.lsp4xml.dom.parser.Constants.ELEMENT_NAME_REGEX;
 import static org.eclipse.lsp4xml.dom.parser.Constants.PI_TAG_NAME;
 import static org.eclipse.lsp4xml.dom.parser.Constants.PROLOG_NAME_OPTIONS;
+import static org.eclipse.lsp4xml.dom.parser.Constants.DOCTYPE_KIND_OPTIONS;
 import static org.eclipse.lsp4xml.dom.parser.Constants._AVL;
-import static org.eclipse.lsp4xml.dom.parser.Constants._BNG;
+import static org.eclipse.lsp4xml.dom.parser.Constants._EXL;
 import static org.eclipse.lsp4xml.dom.parser.Constants._CSB;
 import static org.eclipse.lsp4xml.dom.parser.Constants._CVL;
 import static org.eclipse.lsp4xml.dom.parser.Constants._DQO;
@@ -36,6 +38,9 @@ import static org.eclipse.lsp4xml.dom.parser.Constants._SQO;
 import static org.eclipse.lsp4xml.dom.parser.Constants._TVL;
 import static org.eclipse.lsp4xml.dom.parser.Constants._WSP;
 import static org.eclipse.lsp4xml.dom.parser.Constants._YVL;
+
+import org.eclipse.lsp4xml.dom.DocumentType.DocumentTypeKind;
+
 import static org.eclipse.lsp4xml.dom.parser.Constants._CAR;
 import static org.eclipse.lsp4xml.dom.parser.Constants._NWL;;
 
@@ -55,6 +60,8 @@ public class XMLScanner implements Scanner {
 	String lastTag;
 	String lastAttributeName;
 	String lastTypeValue;
+	String lastDoctypeKind;
+	String url;
 
 	public XMLScanner(String input, int initialOffset, ScannerState initialState) {
 		stream = new MultiLineStream(input, initialOffset);
@@ -69,6 +76,14 @@ public class XMLScanner implements Scanner {
 
 	String nextAttributeName() {
 		return stream.advanceIfRegExp(ATTRIBUTE_NAME_REGEX).toLowerCase();
+	}
+
+	String doctypeName() {
+		return stream.advanceIfRegExp(ATTRIBUTE_NAME_REGEX).toLowerCase();
+	}
+
+	String doctypeKind() {
+		return stream.advanceIfRegExp(DOCTYPE_KIND_OPTIONS);
 	}
 
 	TokenType finishToken(int offset, TokenType type) {
@@ -116,22 +131,119 @@ public class XMLScanner implements Scanner {
 			stream.advanceUntilChars(_MIN, _MIN, _RAN); // -->
 			return finishToken(offset, TokenType.Comment);
 		case WithinDoctype:
-			if (stream.advanceIfChar(_RAN)) { // >
+			//Possible formats: https://en.wikipedia.org/wiki/Document_type_declaration#Syntax
+			lastDoctypeKind = null;
+			if(stream.skipWhitespace()) {
+				return finishToken(offset, TokenType.Whitespace);
+			}
+
+			if(stream.advanceIfChar(_OSB)) { // [
+				state = ScannerState.WithinInternalDTD;
+				return finishToken(offset, TokenType.InternalDTDStart);
+			}
+
+			if (stream.advanceIfChar(_RAN)) { // >  
 				state = ScannerState.WithinContent;
 				return finishToken(offset, TokenType.EndDoctypeTag);
 			}
-			stream.skipWhitespace();
-			if (stream.peekChar() == _RAN) { // >
-				return finishToken(offset, TokenType.Doctype);
+
+			String doctypeName = doctypeName();
+			if(!doctypeName.equals("")) {
+				state = ScannerState.AfterDoctypeName;
+				return finishToken(offset, TokenType.DoctypeName);
 			}
-			stream.advanceUntilWhitespace();
-			stream.skipWhitespace();
+			else {
+				stream.advanceUntilWhitespace();
+				return internalScan();
+			}
+			
+		case AfterDoctypeName:
+			if(stream.skipWhitespace()) {
+				return finishToken(offset, TokenType.Whitespace);
+			}
 			if(stream.advanceIfChar(_OSB)) { // [
-				stream.advanceUntilChar(_CSB); // ]
-				stream.advance(1);
+				state = ScannerState.WithinInternalDTD;
+				return finishToken(offset, TokenType.InternalDTDStart);
 			}
-			stream.advanceUntilChar(_RAN); // >
-			return finishToken(offset, TokenType.Doctype);
+			lastDoctypeKind = doctypeKind();
+			if(lastDoctypeKind.equals(DocumentTypeKind.PUBLIC.name())) {
+				state = ScannerState.AfterDoctypePUBLIC;
+				return finishToken(offset, TokenType.DocTypeKindPUBLIC);
+			}
+			else if(lastDoctypeKind.equals(DocumentTypeKind.SYSTEM.name())) {
+				state = ScannerState.AfterDoctypeSYSTEM;
+				return finishToken(offset, TokenType.DocTypeKindSYSTEM);
+			}
+			state = ScannerState.WithinDoctype;
+			return internalScan();
+
+		case AfterDoctypePUBLIC:
+			if(stream.skipWhitespace()) {
+				return finishToken(offset, TokenType.Whitespace);
+			}
+			url = stream.advanceIfRegExp(URL_VALUE_REGEX);
+			if(!url.equals("")) {
+				state = ScannerState.AfterDoctypePublicId;
+				return finishToken(offset, TokenType.DoctypePublicId);
+			}
+
+			state = ScannerState.WithinDoctype;
+			return internalScan();
+		
+		case AfterDoctypeSYSTEM:
+			if(stream.skipWhitespace()) {
+				return finishToken(offset, TokenType.Whitespace);
+			}
+
+			state = ScannerState.WithinDoctype;
+			url = stream.advanceIfRegExp(URL_VALUE_REGEX);
+			if(!url.equals("")) {
+				return finishToken(offset, TokenType.DoctypeSystemId);
+			}
+			return internalScan();
+
+		case AfterDoctypePublicId:
+			if(stream.skipWhitespace()) {
+				return finishToken(offset, TokenType.Whitespace);
+			}
+
+			state = ScannerState.WithinDoctype;
+			url = stream.advanceIfRegExp(URL_VALUE_REGEX); // scan the System Identifier URL
+			if(!url.equals("")) {
+				return finishToken(offset, TokenType.DoctypeSystemId);
+			}
+			return internalScan();
+	
+		case WithinDTD:
+			//TODO: Eventually implement proper scanning for DTD
+
+		case WithinInternalDTD:
+			if(stream.advanceIfChar(_CSB)) { // ]
+				state = ScannerState.WithinDoctype;
+				return finishToken(offset, TokenType.InternalDTDEnd);
+			}
+			//THIS IS TEMPORARY. JUST SKIPS TO END OF INTERNAL DTD CONTENT.
+			while(!stream.eos()) {
+				if(stream.advanceUntilCharOrNewTag(_CSB)) { // ] || <
+
+					//Checks that '<' doesnt belong to DTD element. Then we know internal DTD wasn't terminated properly
+					if(stream.peekChar() == _LAN) {// <
+						if(stream.peekChar(1) != _EXL) { // !
+							state = ScannerState.WithinContent;
+							return finishToken(offset, TokenType.InternalDTDContent);
+						}
+						stream.advance(2);
+					}
+					else { // reached a ']'
+						return finishToken(offset, TokenType.InternalDTDContent);
+					}
+	
+					
+				}
+			}
+			
+			return finishToken(offset, TokenType.EOS);
+
 		case PrologOrPI:
 			if (stream.advanceIfChars(_QMA, _RAN)) { // ?>
 				state = ScannerState.WithinContent;
@@ -174,17 +286,17 @@ public class XMLScanner implements Scanner {
 			return finishToken(offset, TokenType.PIContent);
 		case WithinContent:
 			if (stream.advanceIfChar(_LAN)) { // <
-				if (!stream.eos() && stream.peekChar() == _BNG) { // !
-					if (stream.advanceIfChars(_BNG, _MIN, _MIN)) { // !--
+				if (!stream.eos() && stream.peekChar() == _EXL) { // !
+					if (stream.advanceIfChars(_EXL, _MIN, _MIN)) { // !--
 						state = ScannerState.WithinComment;
 						return finishToken(offset, TokenType.StartCommentTag);
 					}
-					if (stream.advanceIfChars(_BNG, _OSB, _CVL, _DVL, _AVL, _TVL, _AVL, _OSB)) { // ![CDATA[
+					if (stream.advanceIfChars(_EXL, _OSB, _CVL, _DVL, _AVL, _TVL, _AVL, _OSB)) { // ![CDATA[
 						state = ScannerState.WithinCDATA;
 						return finishToken(offset, TokenType.CDATATagOpen);
 					}
 
-					if (stream.advanceIfChars(_BNG, _DVL, _OVL, _CVL, _TVL, _YVL, _PVL, _EVL)) { // !DOCTYPE
+					if (stream.advanceIfChars(_EXL, _DVL, _OVL, _CVL, _TVL, _YVL, _PVL, _EVL)) { // !DOCTYPE
 						state = ScannerState.WithinDoctype;
 						return finishToken(offset, TokenType.StartDoctypeTag);
 					}
@@ -322,7 +434,7 @@ public class XMLScanner implements Scanner {
 				return finishToken(offset, TokenType.AttributeValue);
 			}
 			int ch = stream.peekChar();
-			if (ch == _SQO || ch == _DQO || ch == _SIQ) {
+			if (ch == _SQO || ch == _DQO || ch == _SIQ) { // " || " || '
 				stream.advance(1); // consume quote
 				if (stream.advanceUntilChar(ch)) {
 					stream.advance(1); // consume quote
