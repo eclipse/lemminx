@@ -36,7 +36,7 @@ public class XSLURIResolverExtension implements URIResolverExtension {
 	 */
 	private static final String XSL_NAMESPACE_URI = "http://www.w3.org/1999/XSL/Transform"; //$NON-NLS-1$
 
-	private static final ResourceToDeploy XML_SCHEMA_10 = new ResourceToDeploy("https://www.w3.org/1999/11/xslt10.xsl",
+	private static final ResourceToDeploy XML_SCHEMA_10 = new ResourceToDeploy("https://www.w3.org/1999/11/xslt10.xsd",
 			"/schemas/xslt/xslt-1.0.xsd");
 
 	private static final Map<String, ResourceToDeploy> XSL_RESOURCES;

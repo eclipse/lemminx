@@ -8,7 +8,7 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lsp4xml.extensions.contentmodel.xsd;
+package org.eclipse.lsp4xml.extensions.xsd.contentmodel;
 
 import static org.eclipse.lsp4xml.utils.StringUtils.normalizeSpace;
 

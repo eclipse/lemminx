@@ -8,7 +8,7 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lsp4xml.extensions.contentmodel.xsd;
+package org.eclipse.lsp4xml.extensions.xsd.contentmodel;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -59,15 +59,6 @@ public class XSDElementDeclaration implements CMElementDeclaration {
 	@Override
 	public String getNamespace() {
 		return elementDeclaration.getNamespace();
-	}
-
-	@Override
-	public String getName(String prefix) {
-		String name = getName();
-		if (prefix == null || prefix.isEmpty()) {
-			return name;
-		}
-		return prefix + ":" + name;
 	}
 
 	@Override

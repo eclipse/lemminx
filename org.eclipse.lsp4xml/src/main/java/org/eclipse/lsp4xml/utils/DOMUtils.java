@@ -11,6 +11,8 @@ public class DOMUtils {
 
 	private static final String XSD_EXTENSION = ".xsd";
 
+	private static final String DTD_EXTENSION = ".dtd";
+
 	private static final String HTTP_WWW_W3_ORG_2001_XML_SCHEMA_NS = "http://www.w3.org/2001/XMLSchema";
 
 	private static final String URN_OASIS_NAMES_TC_ENTITY_XMLNS_XML_CATALOG_NS = "urn:oasis:names:tc:entity:xmlns:xml:catalog";
@@ -26,12 +28,32 @@ public class DOMUtils {
 	 */
 	public static boolean isXSD(XMLDocument document) {
 		String uri = document.getDocumentURI();
-		if (uri != null && uri.endsWith(XSD_EXTENSION)) {
+		if (isXSD(uri)) {
 			return true;
 		}
 		// check root element is bound with XML Schema namespace
 		// (http://www.w3.org/2001/XMLSchema)
 		return checkRootNamespace(document, HTTP_WWW_W3_ORG_2001_XML_SCHEMA_NS);
+	}
+
+	/**
+	 * Returns true if the given URI is a XML Schema and false otherwise.
+	 * 
+	 * @param uri the URI to check
+	 * @return true if the given URI is a XML Schema and false otherwise.
+	 */
+	public static boolean isXSD(String uri) {
+		return uri != null && uri.endsWith(XSD_EXTENSION);
+	}
+
+	/**
+	 * Returns true if the given URI is a DTD and false otherwise.
+	 * 
+	 * @param uri the URI to check
+	 * @return true if the given URI is a DTD and false otherwise.
+	 */
+	public static boolean isDTD(String uri) {
+		return uri != null && uri.endsWith(DTD_EXTENSION);
 	}
 
 	/**

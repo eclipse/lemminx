@@ -8,7 +8,7 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lsp4xml.extensions.contentmodel.xsd;
+package org.eclipse.lsp4xml.extensions.xsd.contentmodel;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -69,11 +69,13 @@ public class XSDDocument implements CMDocument {
 	void collectElement(XSElementDeclaration elementDeclaration, Collection<CMElementDeclaration> elements) {
 		if (elementDeclaration.getAbstract()) {
 			// element declaration is marked as abstract
-			// ex with xsl: <xs:element name="declaration" type="xsl:generic-element-type" abstract="true"/>
+			// ex with xsl: <xs:element name="declaration" type="xsl:generic-element-type"
+			// abstract="true"/>
 			XSObjectList list = model.getSubstitutionGroup(elementDeclaration);
 			if (list != null) {
-				// it exists elements list bind with this abstract declaration with substitutionGroup 
-				// ex xsl : <xs:element name="template" substitutionGroup="xsl:declaration">				
+				// it exists elements list bind with this abstract declaration with
+				// substitutionGroup
+				// ex xsl : <xs:element name="template" substitutionGroup="xsl:declaration">
 				for (int i = 0; i < list.getLength(); i++) {
 					XSObject object = list.item(i);
 					if (object.getType() == XSConstants.ELEMENT_DECLARATION) {
@@ -92,9 +94,8 @@ public class XSDDocument implements CMDocument {
 	}
 
 	@Override
-	public CMElementDeclaration findCMElement(Element node, String namespace) {
+	public CMElementDeclaration findCMElement(Element element, String namespace) {
 		List<Element> paths = new ArrayList<>();
-		Element element = node;
 		while (element != null && (namespace == null || namespace.equals(element.getNamespaceURI()))) {
 			paths.add(0, element);
 			element = element.getParentNode() instanceof Element ? (Element) element.getParentNode() : null;

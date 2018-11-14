@@ -37,7 +37,13 @@ public interface CMElementDeclaration {
 	 * 
 	 * @return the declared element name with the given prefix.
 	 */
-	String getName(String prefix);
+	default String getName(String prefix) {
+		String name = getName();
+		if (prefix == null || prefix.isEmpty()) {
+			return name;
+		}
+		return prefix + ":" + name;
+	}
 
 	/**
 	 * Returns the attributes of this declared element.

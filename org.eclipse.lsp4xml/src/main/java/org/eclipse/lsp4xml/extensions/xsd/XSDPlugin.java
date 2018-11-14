@@ -11,6 +11,9 @@
 package org.eclipse.lsp4xml.extensions.xsd;
 
 import org.eclipse.lsp4j.InitializeParams;
+import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelManager;
+import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelProvider;
+import org.eclipse.lsp4xml.extensions.xsd.contentmodel.XSDContentModelProvider;
 import org.eclipse.lsp4xml.extensions.xsd.participants.XSDCompletionParticipant;
 import org.eclipse.lsp4xml.extensions.xsd.participants.diagnostics.XSDDiagnosticsParticipant;
 import org.eclipse.lsp4xml.services.extensions.ICompletionParticipant;
@@ -42,8 +45,14 @@ public class XSDPlugin implements IXMLExtension {
 
 	@Override
 	public void start(InitializeParams params, XMLExtensionsRegistry registry) {
+		// Register resolver
 		uiResolver = new XSDURIResolverExtension(registry.getDocumentProvider());
 		registry.getResolverExtensionManager().registerResolver(uiResolver);
+		// register XSD content model provider
+		ContentModelProvider modelProvider = new XSDContentModelProvider(registry.getResolverExtensionManager());
+		ContentModelManager modelManager = registry.getComponent(ContentModelManager.class);
+		modelManager.registerModelProvider(modelProvider);
+		// register completion, diagnostic particpant
 		registry.registerCompletionParticipant(completionParticipant);
 		registry.registerDiagnosticsParticipant(diagnosticsParticipant);
 	}

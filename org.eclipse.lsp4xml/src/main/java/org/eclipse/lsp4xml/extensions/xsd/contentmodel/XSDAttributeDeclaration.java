@@ -8,7 +8,7 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lsp4xml.extensions.contentmodel.xsd;
+package org.eclipse.lsp4xml.extensions.xsd.contentmodel;
 
 import java.util.Collection;
 import java.util.Collections;

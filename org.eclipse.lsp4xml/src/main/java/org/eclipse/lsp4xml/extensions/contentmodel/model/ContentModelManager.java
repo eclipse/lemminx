@@ -10,27 +10,20 @@
  */
 package org.eclipse.lsp4xml.extensions.contentmodel.model;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import org.apache.xerces.impl.Constants;
-import org.apache.xerces.impl.xs.XSLoaderImpl;
-import org.apache.xerces.xs.XSModel;
 import org.eclipse.lsp4xml.dom.Element;
-import org.eclipse.lsp4xml.dom.NoNamespaceSchemaLocation;
-import org.eclipse.lsp4xml.dom.SchemaLocation;
 import org.eclipse.lsp4xml.dom.XMLDocument;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLFileAssociation;
 import org.eclipse.lsp4xml.extensions.contentmodel.uriresolver.XMLCacheResolverExtension;
 import org.eclipse.lsp4xml.extensions.contentmodel.uriresolver.XMLCatalogResolverExtension;
 import org.eclipse.lsp4xml.extensions.contentmodel.uriresolver.XMLFileAssociationResolverExtension;
-import org.eclipse.lsp4xml.extensions.contentmodel.xsd.XSDDocument;
-import org.eclipse.lsp4xml.uriresolver.CacheResourceDownloadingException;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
 import org.eclipse.lsp4xml.utils.URIUtils;
-import org.w3c.dom.DOMError;
-import org.w3c.dom.DOMErrorHandler;
 
 /**
  * Content model manager used to load XML Schema, DTD.
@@ -38,36 +31,19 @@ import org.w3c.dom.DOMErrorHandler;
  */
 public class ContentModelManager {
 
-//	private static final ContentModelManager INSTANCE = new ContentModelManager();
-//
-//	public static ContentModelManager getInstance() {
-//		return INSTANCE;
-//	}
-
-	private final XSLoaderImpl loader;
-
 	private final Map<String, CMDocument> cmDocumentCache;
+
+	private final URIResolverExtensionManager resolverManager;
+	private final List<ContentModelProvider> modelProviders;
 
 	private final XMLCacheResolverExtension cacheResolverExtension;
 	private final XMLCatalogResolverExtension catalogResolverExtension;
 	private final XMLFileAssociationResolverExtension fileAssociationResolver;
-	private final URIResolverExtensionManager resolverManager;
 
 	public ContentModelManager(URIResolverExtensionManager resolverManager) {
 		this.resolverManager = resolverManager;
+		modelProviders = new ArrayList<>();
 		cmDocumentCache = Collections.synchronizedMap(new HashMap<>());
-		loader = new XSLoaderImpl();
-		loader.setParameter("http://apache.org/xml/properties/internal/entity-resolver", resolverManager);
-		loader.setParameter(Constants.DOM_ERROR_HANDLER, new DOMErrorHandler() {
-
-			@Override
-			public boolean handleError(DOMError error) {
-				if (error.getRelatedException() instanceof CacheResourceDownloadingException) {
-					throw ((CacheResourceDownloadingException) error.getRelatedException());
-				}
-				return false;
-			}
-		});
 		fileAssociationResolver = new XMLFileAssociationResolverExtension();
 		resolverManager.registerResolver(fileAssociationResolver);
 		catalogResolverExtension = new XMLCatalogResolverExtension();
@@ -100,37 +76,36 @@ public class ContentModelManager {
 	}
 
 	public CMDocument findCMDocument(XMLDocument xmlDocument, String namespaceURI) {
-		String systemId = null;
-		SchemaLocation schemaLocation = xmlDocument.getSchemaLocation();
-		if (schemaLocation != null) {
-			systemId = schemaLocation.getLocationHint(namespaceURI);
-		} else {
-			NoNamespaceSchemaLocation noNamespaceSchemaLocation = xmlDocument.getNoNamespaceSchemaLocation();
-			if (noNamespaceSchemaLocation != null) {
-				if (namespaceURI != null) {
-					// xsi:noNamespaceSchemaLocation doesn't define namespaces
-					return null;
-				}
-				systemId = noNamespaceSchemaLocation.getLocation();
-			} else {
-				// TODO : implement with DTD
-			}
-		}
-		return findCMDocument(xmlDocument.getDocumentURI(), namespaceURI, systemId);
+		ContentModelProvider modelProvider = getModelProviderByStandardAssociation(xmlDocument);
+		String systemId = modelProvider != null ? modelProvider.getSystemId(xmlDocument, namespaceURI) : null;
+		return findCMDocument(xmlDocument.getDocumentURI(), namespaceURI, systemId, modelProvider);
 	}
 
 	/**
 	 * Returns the content model document loaded by the given uri and null
 	 * otherwise.
 	 * 
-	 * @param publicId the public identifier.
-	 * @param systemId the expanded system identifier.
+	 * @param publicId      the public identifier.
+	 * @param systemId      the expanded system identifier.
+	 * @param modelProvider
 	 * @return the content model document loaded by the given uri and null
 	 *         otherwise.
 	 */
-	private CMDocument findCMDocument(String uri, String publicId, String systemId) {
+	private CMDocument findCMDocument(String uri, String publicId, String systemId,
+			ContentModelProvider modelProvider) {
+		// Resolve the XML Schema/DTD uri (file, http, etc)
 		String key = resolverManager.resolve(uri, publicId, systemId);
 		if (key == null) {
+			return null;
+		}
+		// the XML Schema, DTD can be resolved
+		if (modelProvider == null) {
+			// the model provider cannot be get with standard mean (xsi:schemaLocation,
+			// xsi:noNamespaceSchemaLocation, doctype)
+			// try to get it by using extension (ex: .xsd, .dtd)
+			modelProvider = getModelProviderByURI(key);
+		}
+		if (modelProvider == null) {
 			return null;
 		}
 		CMDocument cmDocument = null;
@@ -139,16 +114,40 @@ public class ContentModelManager {
 			cmDocument = cmDocumentCache.get(key);
 		}
 		if (cmDocument == null) {
-			XSModel model = loader.loadURI(key);
-			if (model != null) {
-				// XML Schema can be loaded
-				cmDocument = new XSDDocument(model);
-				if (isCacheable) {
-					cmDocumentCache.put(key, cmDocument);
-				}
+			cmDocument = modelProvider.createCMDocument(key);
+			if (isCacheable && cmDocument != null) {
+				cmDocumentCache.put(key, cmDocument);
 			}
 		}
 		return cmDocument;
+	}
+
+	/**
+	 * Returns the content model provider by using standard association
+	 * (xsi:schemaLocation, xsi:noNamespaceSchemaLocation, doctype) an dnull
+	 * otherwise.
+	 * 
+	 * @param xmlDocument
+	 * @return the content model provider by using standard association
+	 *         (xsi:schemaLocation, xsi:noNamespaceSchemaLocation, doctype) an dnull
+	 *         otherwise.
+	 */
+	private ContentModelProvider getModelProviderByStandardAssociation(XMLDocument xmlDocument) {
+		for (ContentModelProvider modelProvider : modelProviders) {
+			if (modelProvider.adaptFor(xmlDocument)) {
+				return modelProvider;
+			}
+		}
+		return null;
+	}
+
+	private ContentModelProvider getModelProviderByURI(String uri) {
+		for (ContentModelProvider modelProvider : modelProviders) {
+			if (modelProvider.adaptFor(uri)) {
+				return modelProvider;
+			}
+		}
+		return null;
 	}
 
 	private boolean isCacheable(String uri) {
@@ -190,6 +189,14 @@ public class ContentModelManager {
 
 	public void setUseCache(boolean useCache) {
 		cacheResolverExtension.setUseCache(useCache);
+	}
+
+	public void registerModelProvider(ContentModelProvider modelProvider) {
+		modelProviders.add(modelProvider);
+	}
+
+	public void unregisterModelProvider(ContentModelProvider modelProvider) {
+		modelProviders.remove(modelProvider);
 	}
 
 }
