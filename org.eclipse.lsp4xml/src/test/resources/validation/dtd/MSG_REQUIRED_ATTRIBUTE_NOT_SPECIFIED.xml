@@ -1,0 +1,9 @@
+<?xml version = "1.0"?>
+<!DOCTYPE foo [
+  <!ELEMENT foo (bar)>
+  <!ELEMENT bar (#PCDATA)>
+  <!ATTLIST bar fruit (one | two | three) #REQUIRED>
+]>
+<foo>
+    <bar />
+</foo>

@@ -117,6 +117,20 @@ public class DTDDiagnosticsTest {
 				"</foo>";
 		XMLAssert.testDiagnosticsFor(xml, d(6, 1, 4, DTDErrorCode.MSG_CONTENT_INCOMPLETE));
 	}
+
+	@Test
+	public void MSG_REQUIRED_ATTRIBUTE_NOT_SPECIFIED() throws Exception {
+		String xml = "<?xml version = \"1.0\"?>\r\n" + 
+				"<!DOCTYPE foo [\r\n" + 
+				"  <!ELEMENT foo (bar)>\r\n" + 
+				"  <!ELEMENT bar (#PCDATA)>\r\n" + 
+				"  <!ATTLIST bar fruit (one | two | three) #REQUIRED>\r\n" + 
+				"]>\r\n" + 
+				"<foo>\r\n" + 
+				"    <bar />\r\n" + // <- error ("fruit" attribute is missing)
+				"</foo>";
+		XMLAssert.testDiagnosticsFor(xml, d(7, 5, 8, DTDErrorCode.MSG_REQUIRED_ATTRIBUTE_NOT_SPECIFIED));
+	}
 	
 	@Test
 	public void testDoctypeDiagnosticsRefresh() throws Exception {
