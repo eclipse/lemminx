@@ -84,10 +84,25 @@ public class DTDDiagnosticsTest {
 				"]>\r\n" + //
 				"<address>\r\n" + //
 				"  <company name=\"etutorialspoint\"" // <- error
-				+ ">we are a free online teaching faculty</company>\r\n" + "</address>";
+				+ ">we are a free online teaching faculty</company>\r\n" + //
+				"</address>";
 		XMLAssert.testDiagnosticsFor(xml, d(7, 16, 33, DTDErrorCode.MSG_FIXED_ATTVALUE_INVALID));
 	}
 
+	@Test
+	public void MSG_ATTRIBUTE_VALUE_NOT_IN_LIST() throws Exception {
+		String xml = "<?xml version = \"1.0\"?>\r\n" + //
+				"<!DOCTYPE foo [\r\n" + //
+				"  <!ELEMENT foo (bar)*>\r\n" + // 
+				"  <!ELEMENT bar (#PCDATA)>\r\n" + // 
+				"  <!ATTLIST bar fruit (one | two | three) #REQUIRED>\r\n" + // 
+				"]>\r\n" + // 
+				"<foo>\r\n" + // 
+				"    <bar fruit=\"four\"" + // <- error
+				">toto</bar>\r\n" + // 
+				"</foo>";
+		XMLAssert.testDiagnosticsFor(xml, d(7, 15, 21, DTDErrorCode.MSG_ATTRIBUTE_VALUE_NOT_IN_LIST));
+	}
 	@Test
 	public void testDoctypeDiagnosticsRefresh() throws Exception {
 		//@formatter:off
