@@ -14,8 +14,10 @@ import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelProvider;
 import org.eclipse.lsp4xml.extensions.dtd.contentmodel.DTDContentModelProvider;
+import org.eclipse.lsp4xml.extensions.dtd.diagnostics.DTDDiagnosticsParticipant;
 import org.eclipse.lsp4xml.services.extensions.IXMLExtension;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lsp4xml.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lsp4xml.services.extensions.save.ISaveContext;
 
 /**
@@ -23,7 +25,10 @@ import org.eclipse.lsp4xml.services.extensions.save.ISaveContext;
  */
 public class DTDPlugin implements IXMLExtension {
 
+	private final IDiagnosticsParticipant diagnosticsParticipant;
+
 	public DTDPlugin() {
+		diagnosticsParticipant = new DTDDiagnosticsParticipant();
 	}
 
 	@Override
@@ -37,9 +42,13 @@ public class DTDPlugin implements IXMLExtension {
 		ContentModelProvider modelProvider = new DTDContentModelProvider(registry.getResolverExtensionManager());
 		ContentModelManager modelManager = registry.getComponent(ContentModelManager.class);
 		modelManager.registerModelProvider(modelProvider);
+		// register diagnostic participant
+		registry.registerDiagnosticsParticipant(diagnosticsParticipant);
 	}
 
 	@Override
 	public void stop(XMLExtensionsRegistry registry) {
+		// unregister diagnostic participant
+		registry.unregisterDiagnosticsParticipant(diagnosticsParticipant);
 	}
 }

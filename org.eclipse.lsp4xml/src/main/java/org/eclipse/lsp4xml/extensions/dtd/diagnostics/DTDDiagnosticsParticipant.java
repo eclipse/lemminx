@@ -8,7 +8,7 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lsp4xml.extensions.contentmodel.participants.diagnostics;
+package org.eclipse.lsp4xml.extensions.dtd.diagnostics;
 
 import java.util.List;
 
@@ -16,34 +16,26 @@ import org.apache.xerces.xni.parser.XMLEntityResolver;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.dom.XMLDocument;
-import org.eclipse.lsp4xml.extensions.contentmodel.ContentModelPlugin;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lsp4xml.utils.DOMUtils;
 
 /**
- * Validate XML file with Xerces for syntax validation and XML Schema, DTD.
+ * Validate XSD file with Xerces.
  *
  */
-public class ContentModelDiagnosticsParticipant implements IDiagnosticsParticipant {
-
-	private final ContentModelPlugin contentModelPlugin;
-
-	public ContentModelDiagnosticsParticipant(ContentModelPlugin contentModelPlugin) {
-		this.contentModelPlugin = contentModelPlugin;
-	}
+public class DTDDiagnosticsParticipant implements IDiagnosticsParticipant {
 
 	@Override
 	public void doDiagnostics(XMLDocument xmlDocument, List<Diagnostic> diagnostics, CancelChecker monitor) {
-		if (DOMUtils.isDTD(xmlDocument)) {
-			// Don't validate DTD with XML validator
+		if (!DOMUtils.isDTD(xmlDocument)) {
+			// Don't use the DTD validator, if it's a DTD
 			return;
 		}
 		// Get entity resolver (XML catalog resolver, XML schema from the file
 		// associations settings., ...)
 		XMLEntityResolver entityResolver = xmlDocument.getResolverExtensionManager();
 		// Process validation
-		XMLValidator.doDiagnostics(xmlDocument, entityResolver, diagnostics,
-				contentModelPlugin.getContentModelSettings(), monitor);
+		DTDValidator.doDiagnostics(xmlDocument, entityResolver, diagnostics, monitor);
 	}
 
 }

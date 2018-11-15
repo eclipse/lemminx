@@ -47,16 +47,6 @@ public class DOMUtils {
 	}
 
 	/**
-	 * Returns true if the given URI is a DTD and false otherwise.
-	 * 
-	 * @param uri the URI to check
-	 * @return true if the given URI is a DTD and false otherwise.
-	 */
-	public static boolean isDTD(String uri) {
-		return uri != null && uri.endsWith(DTD_EXTENSION);
-	}
-
-	/**
 	 * Returns true if the XML document is a XML Catalog and false otherwise.
 	 * 
 	 * @return true if the XML document is a XML Catalog and false otherwise.
@@ -79,5 +69,28 @@ public class DOMUtils {
 	private static boolean checkRootNamespace(XMLDocument document, String namespace) {
 		Element documentElement = document.getDocumentElement();
 		return documentElement != null && namespace.equals(documentElement.getNamespaceURI());
+	}
+
+	/**
+	 * Returns true if the XML document is a DTD and false otherwise.
+	 * 
+	 * @return true if the XML document is a DTD and false otherwise.
+	 */
+	public static boolean isDTD(XMLDocument document) {
+		String uri = document.getDocumentURI();
+		if (isDTD(uri)) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Returns true if the given URI is a DTD and false otherwise.
+	 * 
+	 * @param uri the URI to check
+	 * @return true if the given URI is a DTD and false otherwise.
+	 */
+	public static boolean isDTD(String uri) {
+		return uri != null && uri.endsWith(DTD_EXTENSION);
 	}
 }
