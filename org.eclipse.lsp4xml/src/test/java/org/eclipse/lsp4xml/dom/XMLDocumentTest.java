@@ -27,7 +27,7 @@ public class XMLDocumentTest {
 		while (token != TokenType.EOS) {
 			token = scanner.scan();
 		}
-		System.err.println("Parsed with XMLScanner in " + (System.currentTimeMillis() - start) + " ms.");
+		System.err.println("Parsed 'largeFile.xml' with XMLScanner in " + (System.currentTimeMillis() - start) + " ms.");
 	}
 
 	@Test
@@ -37,7 +37,30 @@ public class XMLDocumentTest {
 		TextDocument document = new TextDocument(text, "largeFile.xml");
 		long start = System.currentTimeMillis();
 		XMLDocument xmlDocument = XMLParser.getInstance().parse(document, null);
-		System.err.println("Parsed with XMLParser in " + (System.currentTimeMillis() - start) + " ms.");
+		System.err.println("Parsed 'largeFile.xml' with XMLParser in " + (System.currentTimeMillis() - start) + " ms.");
+	}
+	
+	@Test
+	public void testBigLargeFileWithScanner() {
+		InputStream in = XMLDocumentTest.class.getResourceAsStream("/xml/nasa.xml");
+		String text = convertStreamToString(in);
+		long start = System.currentTimeMillis();
+		Scanner scanner = XMLScanner.createScanner(text);
+		TokenType token = scanner.scan();
+		while (token != TokenType.EOS) {
+			token = scanner.scan();
+		}
+		System.err.println("Parsed 'nasa.xml' with XMLScanner in " + (System.currentTimeMillis() - start) + " ms.");
+	}
+
+	@Test
+	public void testBigLargeFileWithDocument() {
+		InputStream in = XMLDocumentTest.class.getResourceAsStream("/xml/nasa.xml");
+		String text = convertStreamToString(in);
+		TextDocument document = new TextDocument(text, "nasa.xml");
+		long start = System.currentTimeMillis();
+		XMLDocument xmlDocument = XMLParser.getInstance().parse(document, null);
+		System.err.println("Parsed 'nasa.xml' with XMLParser in " + (System.currentTimeMillis() - start) + " ms.");
 	}
 
 	@Test
