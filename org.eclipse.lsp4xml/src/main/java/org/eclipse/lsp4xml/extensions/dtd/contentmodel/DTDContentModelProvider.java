@@ -51,18 +51,7 @@ public class DTDContentModelProvider implements ContentModelProvider {
 		 * "http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd">
 		 */
 		DocumentType documentType = xmlDocument.getDoctype();
-		// FIXME!!! get system if correctly with XMLDocument
-		String content = documentType.getContent();
-		int lastQuoteIndex = content.lastIndexOf("\"");
-		if (lastQuoteIndex != -1) {
-			content = content.substring(0, lastQuoteIndex);
-			lastQuoteIndex = content.lastIndexOf("\"");
-			if (lastQuoteIndex != -1) {
-				return content.substring(lastQuoteIndex + 1, content.length());
-				
-			}
-		}
-		return null;
+		return documentType.getSystemId();
 	}
 
 	@Override
@@ -75,7 +64,7 @@ public class DTDContentModelProvider implements ContentModelProvider {
 			return null;
 		}
 		if (model != null) {
-			// XML Schema can be loaded
+			//DTD can be loaded
 			return new DTDDocument(model);
 		}
 		return null;
