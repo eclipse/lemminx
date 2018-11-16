@@ -60,7 +60,7 @@ public class XMLParser {
 			case StartTagOpen: {
 				Element child = xmlDocument.createElement(scanner.getTokenOffset(), text.length());
 				child.startTagOpenOffset = scanner.getTokenOffset();
-				curr.addChildAndSetItsParent(child);
+				curr.addChild(child);
 				curr = child;
 				break;
 			}
@@ -117,7 +117,7 @@ public class XMLParser {
 					Element element = xmlDocument.createElement(scanner.getTokenOffset() - 2, text.length());
 					element.endTagOpenOffset = endTagOpenOffset;
 					element.tag = closeTag;
-					current.addChildAndSetItsParent(element);
+					current.addChild(element);
 					curr = element;
 				}
 				break;
@@ -160,7 +160,7 @@ public class XMLParser {
 
 			case CDATATagOpen: {
 				CDataSection cdataNode = xmlDocument.createCDataSection(scanner.getTokenOffset(), text.length());
-				curr.addChildAndSetItsParent(cdataNode);
+				curr.addChild(cdataNode);
 				curr = cdataNode;
 				break;
 			}
@@ -182,7 +182,7 @@ public class XMLParser {
 			case StartPrologOrPI: {
 				ProcessingInstruction prologOrPINode = xmlDocument.createProcessingInstruction(scanner.getTokenOffset(),
 						text.length());
-				curr.addChildAndSetItsParent(prologOrPINode);
+				curr.addChild(prologOrPINode);
 				curr = prologOrPINode;
 				break;
 			}
@@ -218,7 +218,7 @@ public class XMLParser {
 
 			case StartCommentTag: {
 				Comment comment = xmlDocument.createComment(scanner.getTokenOffset(), text.length());
-				curr.addChildAndSetItsParent(comment);
+				curr.addChild(comment);
 				curr = comment;
 				try {
 					int endLine = document.positionAt(lastClosed.end).getLine();
@@ -241,7 +241,7 @@ public class XMLParser {
 
 			case StartDoctypeTag: {
 				DocumentType doctype = xmlDocument.createDocumentType(scanner.getTokenOffset(), text.length());
-				curr.addChildAndSetItsParent(doctype);
+				curr.addChild(doctype);
 				doctype.parent = curr;
 				curr = doctype;
 				break;
@@ -308,7 +308,7 @@ public class XMLParser {
 				int end = scanner.getTokenEnd();
 				Text textNode = xmlDocument.createText(start, end);
 				textNode.closed = true;
-				curr.addChildAndSetItsParent(textNode);
+				curr.addChild(textNode);
 				break;
 			}
 

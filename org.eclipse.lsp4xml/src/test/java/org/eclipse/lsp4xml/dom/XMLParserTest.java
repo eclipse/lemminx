@@ -33,7 +33,7 @@ public class XMLParserTest {
 	public void testNestedElement() {
 		Node body = createElement("body", 6, 12, 19, true);
 		Node html = createElement("html", 0, 19, 26, true);
-		html.addChildAndSetItsParent(body);
+		html.addChild(body);
 
 		assertDocument("<html><body></body></html>", html);
 	}
@@ -43,8 +43,8 @@ public class XMLParserTest {
 		Node head = createElement("head", 6, 12, 19, true);
 		Node body = createElement("body", 19, 25, 32, true);
 		Node html = createElement("html", 0, 32, 39, true);
-		html.addChildAndSetItsParent(head);
-		html.addChildAndSetItsParent(body);
+		html.addChild(head);
+		html.addChild(body);
 
 		assertDocument("<html><head></head><body></body></html>", html);
 	}
@@ -53,10 +53,10 @@ public class XMLParserTest {
 	public void testNestedNestedElements() {
 		Node c = createElement("c", 6, 9, 13, true);
 		Node b = createElement("b", 3, 13, 17, true);
-		b.addChildAndSetItsParent(c);
+		b.addChild(c);
 
 		Node a = createElement("a", 0, 17, 21, true);
-		a.addChildAndSetItsParent(b);
+		a.addChild(b);
 
 		assertDocument("<a><b><c></c></b></a>", a);
 	}
@@ -73,8 +73,8 @@ public class XMLParserTest {
 		Node br = createElement("br", 5, null, 10, true);
 		Node span = createElement("span", 10, 16, 23, true);
 		Node div = createElement("div", 0, 23, 29, true);
-		div.addChildAndSetItsParent(br);
-		div.addChildAndSetItsParent(span);
+		div.addChild(br);
+		div.addChild(span);
 
 		assertDocument("<div><br/><span></span></div>", div);
 	}
@@ -100,7 +100,7 @@ public class XMLParserTest {
 	public void insideEndTag() {
 		Element meta = (Element) createElement("meta", 6, 6, 13, false);
 		Element html = (Element) createElement("html", 0, 13, 20, true);
-		html.addChildAndSetItsParent(meta);
+		html.addChild(meta);
 
 		assertDocument("<html></meta></html>", html);
 		Assert.assertFalse(meta.hasStartTag());
@@ -119,7 +119,7 @@ public class XMLParserTest {
 	public void testStartTagInsideElement() {
 		Node div2 = createElement("div", 5, 10, 16, true);
 		Node div = createElement("div", 0, null, 16, false);
-		div.addChildAndSetItsParent(div2);
+		div.addChild(div2);
 
 		assertDocument("<div><div></div>", div);
 	}
@@ -128,7 +128,7 @@ public class XMLParserTest {
 	public void testStartTagInsideElement2() {
 		Node div = createElement("div", 5, null, 10, false);
 		Node cat = createElement("cat", 0, 10, 16, true);
-		cat.addChildAndSetItsParent(div);
+		cat.addChild(div);
 
 		assertDocument("<cat><div></cat>", cat);
 	}
@@ -137,9 +137,9 @@ public class XMLParserTest {
 	public void testMultipleStartTagInsideElement() {
 		Node span = createElement("span", 9, null, 15, false);
 		Node div = createElement("div", 4, null, 15, false);
-		div.addChildAndSetItsParent(span);
+		div.addChild(span);
 		Node h1 = createElement("h1", 0, 15, 20, true);
-		h1.addChildAndSetItsParent(div);
+		h1.addChild(div);
 
 		assertDocument("<h1><div><span></h1>", h1);
 	}
@@ -198,7 +198,7 @@ public class XMLParserTest {
 	public void testCDATABasicTest() {
 		Node text = createCDATANode("testText", 5, 25, true);
 		Node div = createElement("div", 0, 25, 31, true);
-		div.addChildAndSetItsParent(text);
+		div.addChild(text);
 
 		assertDocument("<div><![CDATA[testText]]></div>", div);
 	}
@@ -208,8 +208,8 @@ public class XMLParserTest {
 		Node text = createCDATANode("TEXT", 5, 21, true);
 		Node a = createElement("a", 21, 24, 28, true);
 		Node div = createElement("div", 0, 28, 34, true);
-		div.addChildAndSetItsParent(text);
-		div.addChildAndSetItsParent(a);
+		div.addChild(text);
+		div.addChild(a);
 
 		assertDocument("<div><![CDATA[TEXT]]><a></a></div>", div);
 	}
@@ -218,7 +218,7 @@ public class XMLParserTest {
 	public void testCDATANotClosedButNested() {
 		Node text = createCDATANode("testText]</div>", 5, 29, false);
 		Node div = createElement("div", 0, null, 29, false);
-		div.addChildAndSetItsParent(text);
+		div.addChild(text);
 
 		assertDocument("<div><![CDATA[testText]</div>", div);
 	}
@@ -227,7 +227,7 @@ public class XMLParserTest {
 	public void testCDATANotClosedNotNested() {
 		Node text = createCDATANode("testText]/div>", 5, 28, false);
 		Node div = createElement("div", 0, null, 28, false);
-		div.addChildAndSetItsParent(text);
+		div.addChild(text);
 
 		assertDocument("<div><![CDATA[testText]/div>", div);
 	}
@@ -236,7 +236,7 @@ public class XMLParserTest {
 	public void testCDATABasicWithAngledBracket() {
 		Node text = createCDATANode("<>", 5, 19, true);
 		Node div = createElement("div", 0, 19, 25, true);
-		div.addChildAndSetItsParent(text);
+		div.addChild(text);
 
 		assertDocument("<div><![CDATA[<>]]></div>", div);
 	}
@@ -246,7 +246,7 @@ public class XMLParserTest {
 
 		Node div = createElement("div", 0, null, 14, false);
 		Node divaaaz = createElement("divaaaz", 5, 5, 14, false);
-		div.addChildAndSetItsParent(divaaaz);
+		div.addChild(divaaaz);
 
 		assertDocument("<div></divaaaz", div);
 	}
@@ -256,8 +256,8 @@ public class XMLParserTest {
 		Node h = createElement("h", 14, null, 16, false);
 		Node hello = createElement("hello", 7, 16, 24, true);
 		Node test1 = createElement("test1", 0, null, 24, false);
-		test1.addChildAndSetItsParent(hello);
-		hello.addChildAndSetItsParent(h);
+		test1.addChild(hello);
+		hello.addChild(h);
 
 		assertDocument("<test1><hello><h</hello>", test1);
 	}
@@ -266,7 +266,7 @@ public class XMLParserTest {
 	public void testWithNewLineCharacters() {
 		Node n = createElement("n", 6, 12, 16, true);
 		Node t = createElement("t", 0, 17, 21, true);
-		t.addChildAndSetItsParent(n);
+		t.addChild(n);
 		assertDocument("<t>\n  <n>\n  </n>\n</t>", t);
 	}
 
@@ -283,7 +283,7 @@ public class XMLParserTest {
 	public void testPI() {
 		Node processingInstruction = createPINode("m2e", 6, 20, true, "he haa");
 		Node html = createElement("html", 0, 20, 27, true);
-		html.addChildAndSetItsParent(processingInstruction);
+		html.addChild(processingInstruction);
 
 		assertDocument("<html><?m2e he haa?></html>", html);
 	}
@@ -292,7 +292,7 @@ public class XMLParserTest {
 	public void testPISpaces() {
 		Node processingInstruction = createPINode("m2e", 6, 28, true, "he haa");
 		Node html = createElement("html", 0, 28, 35, true);
-		html.addChildAndSetItsParent(processingInstruction);
+		html.addChild(processingInstruction);
 
 		assertDocument("<html><?m2e    he haa     ?></html>", html);
 	}
@@ -301,7 +301,7 @@ public class XMLParserTest {
 	public void testPISpaces2() {
 		Node processingInstruction = createPINode("m2e", 8, 22, true, "he haa");
 		Node html = createElement("html", 0, 24, 31, true);
-		html.addChildAndSetItsParent(processingInstruction);
+		html.addChild(processingInstruction);
 
 		assertDocument("<html>  <?m2e he haa?>  </html>", html);
 	}
@@ -352,7 +352,7 @@ public class XMLParserTest {
 	public void testContentTextHasTag() {
 		Node textNode = createTextNode("  eek  ", 6, 13, true);
 		Node html = createElement("html", 0, 13, 20, true);
-		html.addChildAndSetItsParent(textNode);
+		html.addChild(textNode);
 
 		assertDocument("<html>  eek  </html>", html);
 	}
