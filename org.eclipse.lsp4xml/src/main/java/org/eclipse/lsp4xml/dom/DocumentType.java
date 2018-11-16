@@ -18,15 +18,40 @@ import org.w3c.dom.NamedNodeMap;
  */
 public class DocumentType extends Node implements org.w3c.dom.DocumentType {
 
+	public enum DocumentTypeKind{
+		PUBLIC,
+		SYSTEM
+	}
+
 	/** Document type name. */
 	String name;
-
+	private DocumentTypeKind kind;
+	private String publicId;
+	private String systemId;
+	private String internalDTD; //TODO: THIS IS TEMPORARY. Implement actual parsing.
+	
 	private String content;
 	int startContent;
 	int endContent;
 
+
+
 	public DocumentType(int start, int end, XMLDocument ownerDocument) {
 		super(start, end, ownerDocument);
+	}
+
+	/**
+	 * @return the internalDTD
+	 */
+	public String getInternalDTD() {
+		return internalDTD;
+	}
+
+	/**
+	 * @param internalDTD the internalDTD to set
+	 */
+	public void setInternalDTD(String internalDTD) {
+		this.internalDTD = internalDTD;
 	}
 
 	public String getContent() {
@@ -50,6 +75,24 @@ public class DocumentType extends Node implements org.w3c.dom.DocumentType {
 	@Override
 	public String getName() {
 		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	/**
+	 * @return the DocumentTypeKind
+	 */
+	public DocumentTypeKind getKind() {
+		return kind;
+	}
+
+	/**
+	 * @param kind the DocumentTypeKind to set
+	 */
+	public void setKind(DocumentTypeKind kind) {
+		this.kind = kind;
 	}
 
 	/*
@@ -109,7 +152,14 @@ public class DocumentType extends Node implements org.w3c.dom.DocumentType {
 	 */
 	@Override
 	public String getPublicId() {
-		throw new UnsupportedOperationException();
+		return this.publicId;
+	}
+
+	/**
+	 * @param publicId the publicId to set
+	 */
+	public void setPublicId(String publicId) {
+		this.publicId = cleanURL(publicId);
 	}
 
 	/*
@@ -119,6 +169,30 @@ public class DocumentType extends Node implements org.w3c.dom.DocumentType {
 	 */
 	@Override
 	public String getSystemId() {
-		throw new UnsupportedOperationException();
+		return this.systemId;
 	}
+
+	/**
+	 * @param systemId the systemId to set
+	 */
+	public void setSystemId(String systemId) {
+		this.systemId = cleanURL(systemId);
+	}
+
+	private static String cleanURL(String url) {
+		if (url == null) {
+			return null;
+		}
+		if (url.isEmpty()) {
+			return url;
+		}
+		int start = url.charAt(0) == '\"' ? 1 : 0;
+		int end = url.charAt(url.length() - 1) == '\"' ? url.length() - 1 : url.length();
+		return url.substring(start, end);
+	}
+
+
+	
+
+
 }

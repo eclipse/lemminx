@@ -12,6 +12,8 @@ package org.eclipse.lsp4xml.dom.parser;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
+
 import org.eclipse.lsp4xml.dom.parser.Scanner;
 import org.eclipse.lsp4xml.dom.parser.TokenType;
 import org.eclipse.lsp4xml.dom.parser.XMLScanner;
@@ -833,18 +835,117 @@ public class XMLScannerTest {
 		assertOffsetAndToken(19, TokenType.EndTag);
 		assertOffsetAndToken(20, TokenType.EndTagClose);
 	}
+
+	@Test
+	public void testDocumentTypeInternalOnly() {
+		String xml = 
+		"<!DOCTYPE note [\n" +
+		"  <!ENTITY nbsp \"&#xA0;\"> \n" +
+		"  <!ENTITY writer \"Writer: Donald Duck.\">\n" +
+		"  <!ENTITY copyright \"Copyright: W3Schools.\">\n" +
+		"]>";
+		scanner = XMLScanner.createScanner(xml);
+		assertOffsetAndToken(0, TokenType.StartDoctypeTag);
+		assertOffsetAndToken(9, TokenType.Whitespace);
+		assertOffsetAndToken(10, TokenType.DoctypeName);
+		assertOffsetAndToken(14, TokenType.Whitespace);
+		assertOffsetAndToken(15, TokenType.InternalDTDStart);
+		assertOffsetAndToken(16, TokenType.InternalDTDContent);
+		assertOffsetAndToken(132, TokenType.InternalDTDEnd);
+		assertOffsetAndToken(133, TokenType.EndDoctypeTag);
+	
+	}
+
+	@Test
+	public void testDocumentTypePublicAndInternal() {
+		
+		String xml = 
+		"<!DOCTYPE html PUBLIC\n" +
+		"  \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n" +
+		"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"\n" +
+		"  [\n" +
+		"    <!ENTITY nbsp \"&#xA0;\"> \n" +
+		"    <!ENTITY writer \"Writer: Donald Duck.\">\n" +
+		"    <!ENTITY copyright \"Copyright: W3Schools.\">\n" +
+		"  ]\n" +
+		">";
+		scanner = XMLScanner.createScanner(xml);
+		assertOffsetAndToken(0, TokenType.StartDoctypeTag);
+		assertOffsetAndToken(9, TokenType.Whitespace);
+		assertOffsetAndToken(10, TokenType.DoctypeName);
+		assertOffsetAndToken(14, TokenType.Whitespace);
+		assertOffsetAndToken(15, TokenType.DocTypeKindPUBLIC);
+		assertOffsetAndToken(21, TokenType.Whitespace);
+		assertOffsetAndToken(24, TokenType.DoctypePublicId);
+		assertOffsetAndToken(64, TokenType.Whitespace);
+		assertOffsetAndToken(67, TokenType.DoctypeSystemId);
+		assertOffsetAndToken(124, TokenType.Whitespace);
+		assertOffsetAndToken(127, TokenType.InternalDTDStart);
+		assertOffsetAndToken(128, TokenType.InternalDTDContent);
+		assertOffsetAndToken(252, TokenType.InternalDTDEnd);
+		assertOffsetAndToken(253, TokenType.Whitespace);
+		assertOffsetAndToken(254, TokenType.EndDoctypeTag);
+	}
+
+	@Test
+	public void testDocumentTypeSystemAndInternal() {
+		
+		String xml = 
+		"<!DOCTYPE html SYSTEM\n" +
+		"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"\n" +
+		"  [\n" +
+		"    <!ENTITY nbsp \"&#xA0;\"> \n" +
+		"    <!ENTITY writer \"Writer: Donald Duck.\">\n" +
+		"    <!ENTITY copyright \"Copyright: W3Schools.\">\n" +
+		"  ]\n" +
+		">";
+		scanner = XMLScanner.createScanner(xml);
+		assertOffsetAndToken(0, TokenType.StartDoctypeTag);
+		assertOffsetAndToken(9, TokenType.Whitespace);
+		assertOffsetAndToken(10, TokenType.DoctypeName);
+		assertOffsetAndToken(14, TokenType.Whitespace);
+		assertOffsetAndToken(15, TokenType.DocTypeKindSYSTEM);
+		assertOffsetAndToken(21, TokenType.Whitespace);
+		assertOffsetAndToken(24, TokenType.DoctypeSystemId);
+		assertOffsetAndToken(81, TokenType.Whitespace);
+		assertOffsetAndToken(84, TokenType.InternalDTDStart);
+		assertOffsetAndToken(85, TokenType.InternalDTDContent);
+		assertOffsetAndToken(209, TokenType.InternalDTDEnd);
+		assertOffsetAndToken(210, TokenType.Whitespace);
+		assertOffsetAndToken(211, TokenType.EndDoctypeTag);
+	}
+
+	@Test
+	public void testDocumentTypeSystem() {
+		
+		String xml = 
+		"<!DOCTYPE html SYSTEM\n" +
+		"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"\n" +
+		">";
+		scanner = XMLScanner.createScanner(xml);
+		assertOffsetAndToken(0, TokenType.StartDoctypeTag);
+		assertOffsetAndToken(9, TokenType.Whitespace);
+		assertOffsetAndToken(10, TokenType.DoctypeName);
+		assertOffsetAndToken(14, TokenType.Whitespace);
+		assertOffsetAndToken(15, TokenType.DocTypeKindSYSTEM);
+		assertOffsetAndToken(21, TokenType.Whitespace);
+		assertOffsetAndToken(24, TokenType.DoctypeSystemId);
+		assertOffsetAndToken(81, TokenType.Whitespace);
+		assertOffsetAndToken(82, TokenType.EndDoctypeTag);
+	}
   //----------Tools-------------------------------------------------------
 
+
   public void assertOffsetAndToken(int tokenOffset, TokenType tokenType) {
-    TokenType token = scanner.scan();
+	TokenType token = scanner.scan();
     assertEquals(tokenOffset, scanner.getTokenOffset());
     assertEquals(tokenType, token);
   }
 
   public void assertOffsetAndToken(int tokenOffset, TokenType tokenType, String tokenText) {
-    TokenType token = scanner.scan();
+	TokenType token = scanner.scan();
     assertEquals(tokenOffset, scanner.getTokenOffset());
-    assertEquals(tokenType, token);
+	assertEquals(tokenType, token);
     assertEquals(tokenText, scanner.getTokenText());
   }
 }

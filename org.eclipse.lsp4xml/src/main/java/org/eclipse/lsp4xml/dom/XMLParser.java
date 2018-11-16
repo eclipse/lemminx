@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
+import org.eclipse.lsp4xml.dom.DocumentType.DocumentTypeKind;
 import org.eclipse.lsp4xml.dom.parser.Scanner;
 import org.eclipse.lsp4xml.dom.parser.TokenType;
 import org.eclipse.lsp4xml.dom.parser.XMLScanner;
@@ -59,7 +60,7 @@ public class XMLParser {
 			case StartTagOpen: {
 				Element child = xmlDocument.createElement(scanner.getTokenOffset(), text.length());
 				child.startTagOpenOffset = scanner.getTokenOffset();
-				curr.addChild(child);
+				curr.addChildAndSetItsParent(child);
 				curr = child;
 				break;
 			}
@@ -116,7 +117,7 @@ public class XMLParser {
 					Element element = xmlDocument.createElement(scanner.getTokenOffset() - 2, text.length());
 					element.endTagOpenOffset = endTagOpenOffset;
 					element.tag = closeTag;
-					current.addChild(element);
+					current.addChildAndSetItsParent(element);
 					curr = element;
 				}
 				break;
@@ -159,7 +160,7 @@ public class XMLParser {
 
 			case CDATATagOpen: {
 				CDataSection cdataNode = xmlDocument.createCDataSection(scanner.getTokenOffset(), text.length());
-				curr.addChild(cdataNode);
+				curr.addChildAndSetItsParent(cdataNode);
 				curr = cdataNode;
 				break;
 			}
@@ -181,7 +182,7 @@ public class XMLParser {
 			case StartPrologOrPI: {
 				ProcessingInstruction prologOrPINode = xmlDocument.createProcessingInstruction(scanner.getTokenOffset(),
 						text.length());
-				curr.addChild(prologOrPINode);
+				curr.addChildAndSetItsParent(prologOrPINode);
 				curr = prologOrPINode;
 				break;
 			}
@@ -217,7 +218,7 @@ public class XMLParser {
 
 			case StartCommentTag: {
 				Comment comment = xmlDocument.createComment(scanner.getTokenOffset(), text.length());
-				curr.addChild(comment);
+				curr.addChildAndSetItsParent(comment);
 				curr = comment;
 				try {
 					int endLine = document.positionAt(lastClosed.end).getLine();
@@ -228,7 +229,6 @@ public class XMLParser {
 				} catch (BadLocationException e) {
 					LOGGER.log(Level.SEVERE, "XMLParser StartCommentTag bad offset in document", e);
 				}
-				// }
 				break;
 			}
 
@@ -241,15 +241,45 @@ public class XMLParser {
 
 			case StartDoctypeTag: {
 				DocumentType doctype = xmlDocument.createDocumentType(scanner.getTokenOffset(), text.length());
-				curr.addChild(doctype);
+				curr.addChildAndSetItsParent(doctype);
+				doctype.parent = curr;
 				curr = doctype;
 				break;
 			}
 
-			case Doctype: {
+			case DoctypeName: {
 				DocumentType doctype = (DocumentType) curr;
-				doctype.startContent = scanner.getTokenOffset();
-				doctype.endContent = scanner.getTokenEnd();
+				doctype.setName(scanner.getTokenText());
+				break;
+			}
+
+			case DocTypeKindPUBLIC: {
+				DocumentType doctype = (DocumentType) curr;
+				doctype.setKind(DocumentTypeKind.PUBLIC);
+				break;
+			}
+
+			case DocTypeKindSYSTEM: {
+				DocumentType doctype = (DocumentType) curr;
+				doctype.setKind(DocumentTypeKind.SYSTEM);
+				break;
+			}
+
+			case DoctypePublicId: {
+				DocumentType doctype = (DocumentType) curr;
+				doctype.setPublicId(scanner.getTokenText());
+				break;
+			}
+
+			case DoctypeSystemId: {
+				DocumentType doctype = (DocumentType) curr;
+				doctype.setSystemId(scanner.getTokenText());
+				break;
+			}
+
+			case InternalDTDContent: {
+				DocumentType doctype = (DocumentType) curr;
+				doctype.setInternalDTD(scanner.getTokenText());
 				break;
 			}
 
@@ -271,14 +301,14 @@ public class XMLParser {
 				// FIXME: don't use getTokenText (substring) to know if the content is only
 				// spaces or line feed (scanner should know that).
 				String content = scanner.getTokenText();
-				if (content.trim().length() == 0) {
+				if (content.trim().length() == 0) { // if string is only whitespaces
 					break;
 				}
 				int start = scanner.getTokenOffset();
 				int end = scanner.getTokenEnd();
 				Text textNode = xmlDocument.createText(start, end);
 				textNode.closed = true;
-				curr.addChild(textNode);
+				curr.addChildAndSetItsParent(textNode);
 				break;
 			}
 
