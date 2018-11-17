@@ -134,10 +134,9 @@ public class XMLLanguageServer
 			// Experimental capabilities
 			XMLExperimentalCapabilities experimental = clientSettings.getExperimental();
 			if (experimental != null) {
-				boolean incrementalSupport = experimental != null && experimental.getIncrementalSupport() != null
+				boolean incrementalSupport = experimental.getIncrementalSupport() != null
 						&& experimental.getIncrementalSupport().getEnabled() != null
-								? experimental.getIncrementalSupport().getEnabled()
-								: false;
+						&& experimental.getIncrementalSupport().getEnabled().booleanValue();
 				xmlTextDocumentService.setIncrementalSupport(incrementalSupport);
 			}
 		}
@@ -147,9 +146,7 @@ public class XMLLanguageServer
 
 	@Override
 	public CompletableFuture<Object> shutdown() {
-		return computeAsync((cc) -> {
-			return new Object();
-		});
+		return computeAsync(cc -> new Object());
 	}
 
 	@Override
