@@ -150,7 +150,7 @@ public class XMLParser {
 
 			case AttributeValue: {
 				String value = scanner.getTokenText();
-				if (curr.hasAttributes()) {
+				if (curr.hasAttributes() && attr != null) {
 					attr.setValue(value, scanner.getTokenOffset(), scanner.getTokenOffset() + value.length());
 				}
 				pendingAttribute = null;
