@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.eclipse.lsp4xml.utils.StringUtils;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.TypeInfo;
@@ -116,14 +117,12 @@ public class Element extends Node implements org.w3c.dom.Element {
 	@Override
 	public String getNamespaceURI() {
 		String prefix = getPrefix();
-		boolean hasPrefix = prefix != null && prefix.length() > 0;
+		boolean hasPrefix = !StringUtils.isEmpty(prefix);
 		// Try to get xmlns attribute in the element
 		String rootElementNamespaceDeclarationName = (hasPrefix) ? XMLNS_NO_DEFAULT_ATTR + prefix // $NON-NLS-1$
 				: XMLNS_ATTR; // $NON-NLS-1$
-		String rootElementNamespace = rootElementNamespaceDeclarationName != null
-				? this.getAttribute(rootElementNamespaceDeclarationName)
-				: null;
-		if (rootElementNamespace != null) {
+		String rootElementNamespace = this.getAttribute(rootElementNamespaceDeclarationName);
+		if (!StringUtils.isEmpty(rootElementNamespace)) {
 			return rootElementNamespace;
 		}
 		// try to get the namespace in the parent element
