@@ -30,7 +30,8 @@ import org.eclipse.lsp4xml.dom.XMLDocument;
  */
 public class XMLPositionUtility {
 
-	private XMLPositionUtility(){}
+	private XMLPositionUtility() {
+	}
 
 	/**
 	 * Returns the LSP position from the SAX location.
@@ -47,7 +48,7 @@ public class XMLPositionUtility {
 		try {
 			return document.positionAt(offset);
 		} catch (BadLocationException e) {
-			return new Position(location.getLineNumber() - 1, location.getColumnNumber() - 1);
+			return location != null ? new Position(location.getLineNumber() - 1, location.getColumnNumber() - 1) : null;
 		}
 	}
 
