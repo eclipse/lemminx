@@ -65,8 +65,8 @@ import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4xml.commons.LanguageModelCache;
 import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.commons.TextDocuments;
-import org.eclipse.lsp4xml.dom.XMLDocument;
-import org.eclipse.lsp4xml.dom.XMLParser;
+import org.eclipse.lsp4xml.dom.DOMDocument;
+import org.eclipse.lsp4xml.dom.DOMParser;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.services.extensions.save.AbstractSaveContext;
@@ -80,7 +80,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	private final XMLLanguageServer xmlLanguageServer;
 	private final TextDocuments documents;
-	private final LanguageModelCache<XMLDocument> xmlDocuments;
+	private final LanguageModelCache<DOMDocument> xmlDocuments;
 	private final CompletionSettings sharedCompletionSettings;
 	private final FoldingRangeCapabilities sharedFoldingsSettings;
 	private XMLFormattingOptions sharedFormattingOptions;
@@ -120,9 +120,9 @@ public class XMLTextDocumentService implements TextDocumentService {
 		}
 
 		@Override
-		public void collectDocumentToValidate(Predicate<XMLDocument> validateDocumentPredicate) {
+		public void collectDocumentToValidate(Predicate<DOMDocument> validateDocumentPredicate) {
 			documents.all().stream().forEach(document -> {
-				XMLDocument xmlDocument = getXMLDocument(document);
+				DOMDocument xmlDocument = getXMLDocument(document);
 				if (!documentsToValidate.contains(document) && validateDocumentPredicate.test(xmlDocument)) {
 					documentsToValidate.add(document);
 				}
@@ -130,7 +130,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 		}
 
 		@Override
-		public XMLDocument getDocument(String uri) {
+		public DOMDocument getDocument(String uri) {
 			return xmlLanguageServer.getDocument(uri);
 		}
 
@@ -147,8 +147,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 	public XMLTextDocumentService(XMLLanguageServer xmlLanguageServer) {
 		this.xmlLanguageServer = xmlLanguageServer;
 		this.documents = new TextDocuments();
-		XMLParser parser = XMLParser.getInstance();
-		this.xmlDocuments = new LanguageModelCache<XMLDocument>(10, 60, documents, document -> {
+		DOMParser parser = DOMParser.getInstance();
+		this.xmlDocuments = new LanguageModelCache<DOMDocument>(10, 60, documents, document -> {
 			return parser.parse(document, getXMLLanguageService().getResolverExtensionManager());
 		});
 		this.sharedCompletionSettings = new CompletionSettings();
@@ -175,7 +175,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 		return documents.get(uri);
 	}
 
-	public XMLDocument getXMLDocument(TextDocumentItem document) {
+	public DOMDocument getXMLDocument(TextDocumentItem document) {
 		return xmlDocuments.get(document);
 	}
 
@@ -184,7 +184,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 		return computeAsync((monitor) -> {
 			String uri = params.getTextDocument().getUri();
 			TextDocument document = getDocument(uri);
-			XMLDocument xmlDocument = getXMLDocument(document);
+			DOMDocument xmlDocument = getXMLDocument(document);
 			CompletionList list = getXMLLanguageService().doComplete(xmlDocument, params.getPosition(),
 					sharedCompletionSettings, getFormattingSettings(uri));
 			return Either.forRight(list);
@@ -195,7 +195,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	public CompletableFuture<Hover> hover(TextDocumentPositionParams params) {
 		return computeAsync((monitor) -> {
 			TextDocument document = getDocument(params.getTextDocument().getUri());
-			XMLDocument xmlDocument = getXMLDocument(document);
+			DOMDocument xmlDocument = getXMLDocument(document);
 			return getXMLLanguageService().doHover(xmlDocument, params.getPosition());
 		});
 	}
@@ -210,7 +210,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	public CompletableFuture<List<? extends DocumentHighlight>> documentHighlight(TextDocumentPositionParams params) {
 		return computeAsync((monitor) -> {
 			TextDocument document = getDocument(params.getTextDocument().getUri());
-			XMLDocument xmlDocument = getXMLDocument(document);
+			DOMDocument xmlDocument = getXMLDocument(document);
 			return getXMLLanguageService().findDocumentHighlights(xmlDocument, params.getPosition());
 		});
 	}
@@ -220,7 +220,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 			DocumentSymbolParams params) {
 		return computeAsync((monitor) -> {
 			TextDocument document = getDocument(params.getTextDocument().getUri());
-			XMLDocument xmlDocument = getXMLDocument(document);
+			DOMDocument xmlDocument = getXMLDocument(document);
 			return getXMLLanguageService().findDocumentSymbols(xmlDocument) //
 					.stream() //
 					.map(s -> {
@@ -255,7 +255,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	public CompletableFuture<WorkspaceEdit> rename(RenameParams params) {
 		return computeAsync((monitor) -> {
 			TextDocument document = getDocument(params.getTextDocument().getUri());
-			XMLDocument xmlDocument = getXMLDocument(document);
+			DOMDocument xmlDocument = getXMLDocument(document);
 			return getXMLLanguageService().doRename(xmlDocument, params.getPosition(), params.getNewName());
 		});
 	}
@@ -295,7 +295,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	public CompletableFuture<List<DocumentLink>> documentLink(DocumentLinkParams params) {
 		return computeAsync((monitor) -> {
 			TextDocument document = getDocument(params.getTextDocument().getUri());
-			XMLDocument xmlDocument = getXMLDocument(document);
+			DOMDocument xmlDocument = getXMLDocument(document);
 			return getXMLLanguageService().findDocumentLinks(xmlDocument);
 		});
 	}
@@ -304,7 +304,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	public CompletableFuture<List<? extends Location>> definition(TextDocumentPositionParams params) {
 		return computeAsync((monitor) -> {
 			TextDocument document = getDocument(params.getTextDocument().getUri());
-			XMLDocument xmlDocument = getXMLDocument(document);
+			DOMDocument xmlDocument = getXMLDocument(document);
 			return getXMLLanguageService().findDefinition(xmlDocument, params.getPosition());
 		});
 	}
@@ -313,7 +313,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	public CompletableFuture<List<? extends Location>> references(ReferenceParams params) {
 		return computeAsync((monitor) -> {
 			TextDocument document = getDocument(params.getTextDocument().getUri());
-			XMLDocument xmlDocument = getXMLDocument(document);
+			DOMDocument xmlDocument = getXMLDocument(document);
 			return getXMLLanguageService().findReferences(xmlDocument, params.getPosition(), params.getContext());
 		});
 	}
@@ -323,7 +323,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 		return computeAsync((monitor) -> {
 			String uri = params.getTextDocument().getUri();
 			TextDocument document = getDocument(uri);
-			XMLDocument xmlDocument = getXMLDocument(document);
+			DOMDocument xmlDocument = getXMLDocument(document);
 			return getXMLLanguageService()
 					.doCodeActions(params.getContext(), params.getRange(), xmlDocument, getFormattingSettings(uri)) //
 					.stream() //
@@ -405,7 +405,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	private void doTriggerValidation(String uri, int version, CancelChecker monitor) {
 		TextDocument currDocument = getDocument(uri);
 		if (currDocument != null && currDocument.getVersion() == version) {
-			XMLDocument xmlDocument = getXMLDocument(currDocument);
+			DOMDocument xmlDocument = getXMLDocument(currDocument);
 			getXMLLanguageService().publishDiagnostics(xmlDocument,
 					params -> xmlLanguageServer.getLanguageClient().publishDiagnostics(params),
 					(u, v) -> triggerValidation(u, v), monitor);

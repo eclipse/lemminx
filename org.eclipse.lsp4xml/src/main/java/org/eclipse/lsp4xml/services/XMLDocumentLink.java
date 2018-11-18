@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.lsp4j.DocumentLink;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.services.extensions.IDocumentLinkParticipant;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 
@@ -30,7 +30,7 @@ class XMLDocumentLink {
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
-	public List<DocumentLink> findDocumentLinks(XMLDocument document) {
+	public List<DocumentLink> findDocumentLinks(DOMDocument document) {
 		List<DocumentLink> newLinks = new ArrayList<>();
 		for (IDocumentLinkParticipant participant : extensionsRegistry.getDocumentLinkParticipants()) {
 			participant.findDocumentLinks(document, newLinks);

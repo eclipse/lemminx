@@ -15,7 +15,7 @@ import java.util.Map;
 
 import org.apache.xerces.xni.XMLLocator;
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IXMLErrorCode;
 import org.eclipse.lsp4xml.utils.XMLPositionUtility;
 
@@ -70,7 +70,7 @@ public enum DTDErrorCode implements IXMLErrorCode {
 	 * @param document
 	 * @return the LSP range from the SAX error.
 	 */
-	public static Range toLSPRange(XMLLocator location, DTDErrorCode code, Object[] arguments, XMLDocument document) {
+	public static Range toLSPRange(XMLLocator location, DTDErrorCode code, Object[] arguments, DOMDocument document) {
 		int offset = location.getCharacterOffset() - 1;
 		// adjust positions
 		switch (code) {

@@ -16,7 +16,7 @@ import org.w3c.dom.NamedNodeMap;
  * A doctype node.
  *
  */
-public class DocumentType extends Node implements org.w3c.dom.DocumentType {
+public class DOMDocumentType extends DOMNode implements org.w3c.dom.DocumentType {
 
 	public enum DocumentTypeKind{
 		PUBLIC,
@@ -36,7 +36,7 @@ public class DocumentType extends Node implements org.w3c.dom.DocumentType {
 
 
 
-	public DocumentType(int start, int end, XMLDocument ownerDocument) {
+	public DOMDocumentType(int start, int end, DOMDocument ownerDocument) {
 		super(start, end, ownerDocument);
 	}
 
@@ -112,7 +112,7 @@ public class DocumentType extends Node implements org.w3c.dom.DocumentType {
 	 */
 	@Override
 	public short getNodeType() {
-		return Node.DOCUMENT_TYPE_NODE;
+		return DOMNode.DOCUMENT_TYPE_NODE;
 	}
 
 	/*

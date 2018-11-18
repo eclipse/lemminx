@@ -14,7 +14,7 @@ import java.util.List;
 
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 
 /**
  * Definition participant API.
@@ -29,6 +29,6 @@ public interface IDefinitionParticipant {
 	 * @param position 
 	 * @param locations
 	 */
-	void findDefinition(XMLDocument document, Position position, List<Location> locations);
+	void findDefinition(DOMDocument document, Position position, List<Location> locations);
 
 }

@@ -32,7 +32,7 @@ import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
 import org.eclipse.lsp4xml.commons.ParentProcessWatcher.ProcessLanguageServer;
 import org.eclipse.lsp4xml.commons.TextDocument;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.logs.LogHelper;
 import org.eclipse.lsp4xml.services.IXMLDocumentProvider;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
@@ -196,13 +196,13 @@ public class XMLLanguageServer
 	public CompletableFuture<String> closeTag(TextDocumentPositionParams params) {
 		return computeAsync((monitor) -> {
 			TextDocument document = xmlTextDocumentService.getDocument(params.getTextDocument().getUri());
-			XMLDocument xmlDocument = xmlTextDocumentService.getXMLDocument(document);
+			DOMDocument xmlDocument = xmlTextDocumentService.getXMLDocument(document);
 			return getXMLLanguageService().doAutoClose(xmlDocument, params.getPosition());
 		});
 	}
 
 	@Override
-	public XMLDocument getDocument(String uri) {
+	public DOMDocument getDocument(String uri) {
 		TextDocument document = xmlTextDocumentService.getDocument(uri);
 		return document != null ? xmlTextDocumentService.getXMLDocument(document) : null;
 	}

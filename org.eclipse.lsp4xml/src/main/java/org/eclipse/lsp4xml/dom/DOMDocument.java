@@ -35,7 +35,7 @@ import org.w3c.dom.NodeList;
  * XML document.
  *
  */
-public class XMLDocument extends Node implements Document {
+public class DOMDocument extends DOMNode implements Document {
 
 	private SchemaLocation schemaLocation;
 	private NoNamespaceSchemaLocation noNamespaceSchemaLocation;
@@ -49,14 +49,14 @@ public class XMLDocument extends Node implements Document {
 	private String schemaInstancePrefix;
 	private boolean hasExternalGrammar;
 
-	public XMLDocument(TextDocument textDocument, URIResolverExtensionManager resolverExtensionManager) {
+	public DOMDocument(TextDocument textDocument, URIResolverExtensionManager resolverExtensionManager) {
 		super(0, textDocument.getText().length(), null);
 		this.textDocument = textDocument;
 		this.resolverExtensionManager = resolverExtensionManager;
 		resetGrammar();
 	}
 
-	public List<Node> getRoots() {
+	public List<DOMNode> getRoots() {
 		return super.getChildren();
 	}
 
@@ -97,7 +97,7 @@ public class XMLDocument extends Node implements Document {
 
 	@Override
 	public String getNamespaceURI() {
-		Element documentElement = getDocumentElement();
+		DOMElement documentElement = getDocumentElement();
 		return documentElement != null ? documentElement.getNamespaceURI() : null;
 	}
 
@@ -219,14 +219,14 @@ public class XMLDocument extends Node implements Document {
 			return;
 		}
 		// Get root element
-		Element documentElement = getDocumentElement();
+		DOMElement documentElement = getDocumentElement();
 		if (documentElement == null) {
 			return;
 		}
 		schemaInstancePrefix = null;
 		// Search if document element root declares namespace with "xmlns".
 		if (documentElement.hasAttributes()) {
-			for (Attr attr : documentElement.getAttributeNodes()) {
+			for (DOMAttr attr : documentElement.getAttributeNodes()) {
 				String attributeName = attr.getName();
 				if (attributeName != null) {
 					if (attributeName.equals("xmlns") || attributeName.startsWith("xmlns:")) //$NON-NLS-1$ //$NON-NLS-2$
@@ -250,7 +250,7 @@ public class XMLDocument extends Node implements Document {
 		}
 	}
 
-	private SchemaLocation createSchemaLocation(Node root, String schemaInstancePrefix) {
+	private SchemaLocation createSchemaLocation(DOMNode root, String schemaInstancePrefix) {
 		String value = root.getAttribute(getPrefixedName(schemaInstancePrefix, "schemaLocation"));
 		if (value == null) {
 			return null;
@@ -258,8 +258,8 @@ public class XMLDocument extends Node implements Document {
 		return new SchemaLocation(root.getOwnerDocument().getDocumentURI(), value);
 	}
 
-	private NoNamespaceSchemaLocation createNoNamespaceSchemaLocation(Node root, String schemaInstancePrefix) {
-		Attr attr = root.getAttributeNode(getPrefixedName(schemaInstancePrefix, "noNamespaceSchemaLocation"));
+	private NoNamespaceSchemaLocation createNoNamespaceSchemaLocation(DOMNode root, String schemaInstancePrefix) {
+		DOMAttr attr = root.getAttributeNode(getPrefixedName(schemaInstancePrefix, "noNamespaceSchemaLocation"));
 		if (attr == null || attr.getValue() == null) {
 			return null;
 		}
@@ -324,7 +324,7 @@ public class XMLDocument extends Node implements Document {
 			// it some components like XML
 			// Catalog, XSL and XSD resolvers, etc bind this XML document to a grammar.
 			// Get root element
-			Element documentElement = getDocumentElement();
+			DOMElement documentElement = getDocumentElement();
 			if (documentElement == null) {
 				return false;
 			}
@@ -347,28 +347,28 @@ public class XMLDocument extends Node implements Document {
 		return prefix != null && prefix.length() > 0 ? prefix + ":" + localName : localName; //$NON-NLS-1$
 	}
 
-	public Element createElement(int start, int end) {
-		return new Element(start, end, this);
+	public DOMElement createElement(int start, int end) {
+		return new DOMElement(start, end, this);
 	}
 
-	public CDataSection createCDataSection(int start, int end) {
-		return new CDataSection(start, end, this);
+	public DOMCDataSection createCDataSection(int start, int end) {
+		return new DOMCDataSection(start, end, this);
 	}
 
 	public ProcessingInstruction createProcessingInstruction(int start, int end) {
 		return new ProcessingInstruction(start, end, this);
 	}
 
-	public Comment createComment(int start, int end) {
-		return new Comment(start, end, this);
+	public DOMComment createComment(int start, int end) {
+		return new DOMComment(start, end, this);
 	}
 
-	public Text createText(int start, int end) {
-		return new Text(start, end, this);
+	public DOMText createText(int start, int end) {
+		return new DOMText(start, end, this);
 	}
 
-	public DocumentType createDocumentType(int start, int end) {
-		return new DocumentType(start, end, this);
+	public DOMDocumentType createDocumentType(int start, int end) {
+		return new DOMDocumentType(start, end, this);
 	}
 
 	/*
@@ -378,7 +378,7 @@ public class XMLDocument extends Node implements Document {
 	 */
 	@Override
 	public short getNodeType() {
-		return Node.DOCUMENT_NODE;
+		return DOMNode.DOCUMENT_NODE;
 	}
 
 	/*
@@ -397,12 +397,12 @@ public class XMLDocument extends Node implements Document {
 	 * @see org.w3c.dom.Document#getDocumentElement()
 	 */
 	@Override
-	public Element getDocumentElement() {
-		List<Node> roots = getRoots();
+	public DOMElement getDocumentElement() {
+		List<DOMNode> roots = getRoots();
 		if (roots != null) {
-			for (Node node : roots) {
+			for (DOMNode node : roots) {
 				if (node.isElement()) {
-					return (Element) node;
+					return (DOMElement) node;
 				}
 			}
 		}
@@ -415,12 +415,12 @@ public class XMLDocument extends Node implements Document {
 	 * @see org.w3c.dom.Document#getDoctype()
 	 */
 	@Override
-	public DocumentType getDoctype() {
-		List<Node> roots = getRoots();
+	public DOMDocumentType getDoctype() {
+		List<DOMNode> roots = getRoots();
 		if (roots != null) {
-			for (Node node : roots) {
+			for (DOMNode node : roots) {
 				if (node.isDoctype()) {
-					return (DocumentType) node;
+					return (DOMDocumentType) node;
 				}
 			}
 		}
@@ -433,7 +433,7 @@ public class XMLDocument extends Node implements Document {
 	 * @see org.eclipse.lsp4xml.dom.Node#getOwnerDocument()
 	 */
 	@Override
-	public XMLDocument getOwnerDocument() {
+	public DOMDocument getOwnerDocument() {
 		return this;
 	}
 
@@ -463,7 +463,7 @@ public class XMLDocument extends Node implements Document {
 	 * @see org.w3c.dom.Document#adoptNode(org.w3c.dom.Node)
 	 */
 	@Override
-	public Node adoptNode(org.w3c.dom.Node source) throws DOMException {
+	public DOMNode adoptNode(org.w3c.dom.Node source) throws DOMException {
 		throw new UnsupportedOperationException();
 	}
 
@@ -473,7 +473,7 @@ public class XMLDocument extends Node implements Document {
 	 * @see org.w3c.dom.Document#createAttribute(java.lang.String)
 	 */
 	@Override
-	public Attr createAttribute(String name) throws DOMException {
+	public DOMAttr createAttribute(String name) throws DOMException {
 		throw new UnsupportedOperationException();
 	}
 
@@ -484,7 +484,7 @@ public class XMLDocument extends Node implements Document {
 	 * java.lang.String)
 	 */
 	@Override
-	public Attr createAttributeNS(String namespaceURI, String qualifiedName) throws DOMException {
+	public DOMAttr createAttributeNS(String namespaceURI, String qualifiedName) throws DOMException {
 		throw new UnsupportedOperationException();
 	}
 
@@ -504,7 +504,7 @@ public class XMLDocument extends Node implements Document {
 	 * @see org.w3c.dom.Document#createComment(java.lang.String)
 	 */
 	@Override
-	public Comment createComment(String data) {
+	public DOMComment createComment(String data) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -524,7 +524,7 @@ public class XMLDocument extends Node implements Document {
 	 * @see org.w3c.dom.Document#createElement(java.lang.String)
 	 */
 	@Override
-	public Element createElement(String tagName) throws DOMException {
+	public DOMElement createElement(String tagName) throws DOMException {
 		throw new UnsupportedOperationException();
 	}
 
@@ -534,7 +534,7 @@ public class XMLDocument extends Node implements Document {
 	 * @see org.w3c.dom.Document#createElementNS(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public Element createElementNS(String namespaceURI, String qualifiedName) throws DOMException {
+	public DOMElement createElementNS(String namespaceURI, String qualifiedName) throws DOMException {
 		throw new UnsupportedOperationException();
 	}
 
@@ -565,7 +565,7 @@ public class XMLDocument extends Node implements Document {
 	 * @see org.w3c.dom.Document#createTextNode(java.lang.String)
 	 */
 	@Override
-	public Text createTextNode(String data) {
+	public DOMText createTextNode(String data) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -585,7 +585,7 @@ public class XMLDocument extends Node implements Document {
 	 * @see org.w3c.dom.Document#getElementById(java.lang.String)
 	 */
 	@Override
-	public Element getElementById(String elementId) {
+	public DOMElement getElementById(String elementId) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -676,7 +676,7 @@ public class XMLDocument extends Node implements Document {
 	 * @see org.w3c.dom.Document#importNode(org.w3c.dom.Node, boolean)
 	 */
 	@Override
-	public Node importNode(org.w3c.dom.Node importedNode, boolean deep) throws DOMException {
+	public DOMNode importNode(org.w3c.dom.Node importedNode, boolean deep) throws DOMException {
 		throw new UnsupportedOperationException();
 	}
 
@@ -697,7 +697,7 @@ public class XMLDocument extends Node implements Document {
 	 * java.lang.String)
 	 */
 	@Override
-	public Node renameNode(org.w3c.dom.Node n, String namespaceURI, String qualifiedName) throws DOMException {
+	public DOMNode renameNode(org.w3c.dom.Node n, String namespaceURI, String qualifiedName) throws DOMException {
 		throw new UnsupportedOperationException();
 	}
 

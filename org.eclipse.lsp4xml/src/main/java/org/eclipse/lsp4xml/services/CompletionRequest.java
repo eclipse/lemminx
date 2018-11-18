@@ -13,8 +13,8 @@ package org.eclipse.lsp4xml.services;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.BadLocationException;
-import org.eclipse.lsp4xml.dom.Node;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMNode;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.extensions.contentmodel.utils.XMLGenerator;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
@@ -39,7 +39,7 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 
 	private boolean hasOpenBracket;
 
-	public CompletionRequest(XMLDocument xmlDocument, Position position, CompletionSettings completionSettings,
+	public CompletionRequest(DOMDocument xmlDocument, Position position, CompletionSettings completionSettings,
 			XMLFormattingOptions formattingSettings, XMLExtensionsRegistry extensionsRegistry)
 			throws BadLocationException {
 		super(xmlDocument, position);
@@ -49,7 +49,7 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 	}
 
 	@Override
-	protected Node findNodeAt(XMLDocument xmlDocument, int offset) {
+	protected DOMNode findNodeAt(DOMDocument xmlDocument, int offset) {
 		return xmlDocument.findNodeBefore(offset);
 	}
 

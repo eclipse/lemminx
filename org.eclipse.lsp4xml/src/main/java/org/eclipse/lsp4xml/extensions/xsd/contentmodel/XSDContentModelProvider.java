@@ -15,7 +15,7 @@ import org.apache.xerces.impl.xs.XSLoaderImpl;
 import org.apache.xerces.xs.XSModel;
 import org.eclipse.lsp4xml.dom.NoNamespaceSchemaLocation;
 import org.eclipse.lsp4xml.dom.SchemaLocation;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelProvider;
 import org.eclipse.lsp4xml.uriresolver.CacheResourceDownloadingException;
@@ -38,7 +38,7 @@ public class XSDContentModelProvider implements ContentModelProvider {
 	}
 
 	@Override
-	public boolean adaptFor(XMLDocument document) {
+	public boolean adaptFor(DOMDocument document) {
 		return document.hasSchemaLocation() || document.hasNoNamespaceSchemaLocation();
 	}
 
@@ -48,7 +48,7 @@ public class XSDContentModelProvider implements ContentModelProvider {
 	}
 
 	@Override
-	public String getSystemId(XMLDocument xmlDocument, String namespaceURI) {
+	public String getSystemId(DOMDocument xmlDocument, String namespaceURI) {
 		SchemaLocation schemaLocation = xmlDocument.getSchemaLocation();
 		if (schemaLocation != null) {
 			return schemaLocation.getLocationHint(namespaceURI);

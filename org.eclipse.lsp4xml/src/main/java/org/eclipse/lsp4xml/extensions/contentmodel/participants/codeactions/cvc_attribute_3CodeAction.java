@@ -17,8 +17,8 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.CodeActionFactory;
-import org.eclipse.lsp4xml.dom.Attr;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMAttr;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelManager;
@@ -33,12 +33,12 @@ import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 public class cvc_attribute_3CodeAction implements ICodeActionParticipant {
 
 	@Override
-	public void doCodeAction(Diagnostic diagnostic, Range range, XMLDocument document, List<CodeAction> codeActions,
+	public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
 			XMLFormattingOptions formattingSettings, IComponentProvider componentProvider) {
 		try {
 			Range diagnosticRange = diagnostic.getRange();
 			int offset = document.offsetAt(range.getStart());
-			Attr attr = document.findAttrAt(offset);
+			DOMAttr attr = document.findAttrAt(offset);
 			if (attr != null) {
 				String attributeName = attr.getName();
 				ContentModelManager contentModelManager = componentProvider.getComponent(ContentModelManager.class);

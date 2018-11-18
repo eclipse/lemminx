@@ -25,7 +25,7 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.xml.sax.ErrorHandler;
 
 /**
@@ -37,12 +37,12 @@ import org.xml.sax.ErrorHandler;
  */
 public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 
-	private final XMLDocument xmlDocument;
+	private final DOMDocument xmlDocument;
 	private final List<Diagnostic> diagnostics;
 
 	private final String source;
 
-	public AbstractLSPErrorReporter(String source, XMLDocument xmlDocument, List<Diagnostic> diagnostics) {
+	public AbstractLSPErrorReporter(String source, DOMDocument xmlDocument, List<Diagnostic> diagnostics) {
 		this.source = source;
 		this.xmlDocument = xmlDocument;
 		this.diagnostics = diagnostics;
@@ -113,7 +113,7 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 	 * @param document
 	 * @return the LSP range from the SAX error.
 	 */
-	private Range internalToLSPRange(XMLLocator location, String key, Object[] arguments, XMLDocument document) {
+	private Range internalToLSPRange(XMLLocator location, String key, Object[] arguments, DOMDocument document) {
 		if (location == null) {
 			Position start = toLSPPosition(0, location, document.getTextDocument());
 			Position end = toLSPPosition(0, location, document.getTextDocument());
@@ -133,5 +133,5 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 		return new Range(start, end);
 	}
 
-	protected abstract Range toLSPRange(XMLLocator location, String key, Object[] arguments, XMLDocument document);
+	protected abstract Range toLSPRange(XMLLocator location, String key, Object[] arguments, DOMDocument document);
 }

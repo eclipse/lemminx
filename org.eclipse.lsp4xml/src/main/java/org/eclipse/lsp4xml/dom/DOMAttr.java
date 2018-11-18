@@ -17,23 +17,23 @@ import org.w3c.dom.TypeInfo;
  * An attribute node.
  *
  */
-public class Attr extends Node implements org.w3c.dom.Attr {
+public class DOMAttr extends DOMNode implements org.w3c.dom.Attr {
 
 	private final String name;
 
-	private final Node nodeAttrName;
+	private final DOMNode nodeAttrName;
 
-	private Node nodeAttrValue;
+	private DOMNode nodeAttrValue;
 
 	private String value;
 
-	private final Node ownerElement;
+	private final DOMNode ownerElement;
 
-	class AttrNameOrValue extends Node {
+	class AttrNameOrValue extends DOMNode {
 
-		private final Attr ownerAttr;
+		private final DOMAttr ownerAttr;
 
-		public AttrNameOrValue(int start, int end, Attr ownerAttr) {
+		public AttrNameOrValue(int start, int end, DOMAttr ownerAttr) {
 			super(start, end, ownerAttr.getOwnerDocument());
 			this.ownerAttr = ownerAttr;
 		}
@@ -48,16 +48,16 @@ public class Attr extends Node implements org.w3c.dom.Attr {
 			return -1;
 		}
 
-		public Attr getOwnerAttr() {
+		public DOMAttr getOwnerAttr() {
 			return ownerAttr;
 		}
 	}
 
-	public Attr(String name, Node ownerElement) {
+	public DOMAttr(String name, DOMNode ownerElement) {
 		this(name, -1, -1, ownerElement);
 	}
 
-	public Attr(String name, int start, int end, Node ownerElement) {
+	public DOMAttr(String name, int start, int end, DOMNode ownerElement) {
 		super(-1, -1, ownerElement.getOwnerDocument());
 		this.name = name;
 		this.nodeAttrName = start != -1 ? new AttrNameOrValue(start, end, this) : null;
@@ -71,7 +71,7 @@ public class Attr extends Node implements org.w3c.dom.Attr {
 	 */
 	@Override
 	public short getNodeType() {
-		return Node.ATTRIBUTE_NODE;
+		return DOMNode.ATTRIBUTE_NODE;
 	}
 
 	/*
@@ -99,8 +99,8 @@ public class Attr extends Node implements org.w3c.dom.Attr {
 	 * 
 	 * @see org.w3c.dom.Attr#getOwnerElement()
 	 */
-	public Element getOwnerElement() {
-		return ownerElement.isElement() ? (Element) ownerElement : null;
+	public DOMElement getOwnerElement() {
+		return ownerElement.isElement() ? (DOMElement) ownerElement : null;
 	}
 
 	/*
@@ -153,7 +153,7 @@ public class Attr extends Node implements org.w3c.dom.Attr {
 		setValue(value, -1, -1);
 	}
 
-	public Node getNodeAttrName() {
+	public DOMNode getNodeAttrName() {
 		return nodeAttrName;
 	}
 
@@ -174,16 +174,16 @@ public class Attr extends Node implements org.w3c.dom.Attr {
 		return value.substring(start, end);
 	}
 
-	public Node getNodeAttrValue() {
+	public DOMNode getNodeAttrValue() {
 		return nodeAttrValue;
 	}
 
-	public void setNodeAttrValue(Node nodeAttrValue) {
+	public void setNodeAttrValue(DOMNode nodeAttrValue) {
 		this.nodeAttrValue = nodeAttrValue;
 	}
 
 	public boolean isIncluded(int offset) {
-		return Node.isIncluded(getStart(), getEnd(), offset);
+		return DOMNode.isIncluded(getStart(), getEnd(), offset);
 	}
 
 	@Override
@@ -213,7 +213,7 @@ public class Attr extends Node implements org.w3c.dom.Attr {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Attr other = (Attr) obj;
+		DOMAttr other = (DOMAttr) obj;
 		if (name == null) {
 			if (other.name != null)
 				return false;

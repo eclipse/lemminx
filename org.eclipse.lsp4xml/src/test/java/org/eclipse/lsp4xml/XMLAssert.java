@@ -39,8 +39,8 @@ import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
-import org.eclipse.lsp4xml.dom.XMLDocument;
-import org.eclipse.lsp4xml.dom.XMLParser;
+import org.eclipse.lsp4xml.dom.DOMDocument;
+import org.eclipse.lsp4xml.dom.DOMParser;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.ContentModelSettings;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLProblems;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
@@ -67,12 +67,12 @@ public class XMLAssert {
 		}
 
 		@Override
-		public XMLDocument getDocument(String uri) {
+		public DOMDocument getDocument(String uri) {
 			return null;
 		}
 
 		@Override
-		public void collectDocumentToValidate(Predicate<XMLDocument> validateDocumentPredicate) {
+		public void collectDocumentToValidate(Predicate<DOMDocument> validateDocumentPredicate) {
 
 		}
 	}
@@ -110,7 +110,7 @@ public class XMLAssert {
 
 		TextDocument document = new TextDocument(value, fileURI != null ? fileURI : "test://test/test.html");
 		Position position = document.positionAt(offset);
-		XMLDocument htmlDoc = XMLParser.getInstance().parse(document, xmlLanguageService.getResolverExtensionManager());
+		DOMDocument htmlDoc = DOMParser.getInstance().parse(document, xmlLanguageService.getResolverExtensionManager());
 		xmlLanguageService.setDocumentProvider((uri) -> htmlDoc);
 
 		ContentModelSettings settings = new ContentModelSettings();
@@ -208,7 +208,7 @@ public class XMLAssert {
 
 		TextDocument document = new TextDocument(value, "test://test/test.html");
 		Position position = document.positionAt(offset);
-		XMLDocument htmlDoc = XMLParser.getInstance().parse(document, ls.getResolverExtensionManager());
+		DOMDocument htmlDoc = DOMParser.getInstance().parse(document, ls.getResolverExtensionManager());
 
 		String actual = ls.doTagComplete(htmlDoc, position);
 		Assert.assertEquals(expected, actual);
@@ -229,7 +229,7 @@ public class XMLAssert {
 		TextDocument document = new TextDocument(xml, fileURI != null ? fileURI : "test.xml");
 
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
-		XMLDocument xmlDocument = XMLParser.getInstance().parse(document,
+		DOMDocument xmlDocument = DOMParser.getInstance().parse(document,
 				xmlLanguageService.getResolverExtensionManager());
 		xmlLanguageService.setDocumentProvider((uri) -> xmlDocument);
 
@@ -293,7 +293,7 @@ public class XMLAssert {
 			xmlLanguageService.initializeIfNeeded();
 			configuration.accept(xmlLanguageService);
 		}
-		XMLDocument xmlDocument = XMLParser.getInstance().parse(xml, fileURI,
+		DOMDocument xmlDocument = DOMParser.getInstance().parse(xml, fileURI,
 				xmlLanguageService.getResolverExtensionManager());
 		xmlLanguageService.setDocumentProvider((uri) -> xmlDocument);
 
@@ -306,7 +306,7 @@ public class XMLAssert {
 		}
 	}
 
-	public static void publishDiagnostics(XMLDocument xmlDocument, List<PublishDiagnosticsParams> actual,
+	public static void publishDiagnostics(DOMDocument xmlDocument, List<PublishDiagnosticsParams> actual,
 			XMLLanguageService languageService) {
 		CompletableFuture<Path> error = languageService.publishDiagnostics(xmlDocument, params -> {
 			actual.add(params);
@@ -354,7 +354,7 @@ public class XMLAssert {
 		CodeActionContext context = new CodeActionContext();
 		context.setDiagnostics(Arrays.asList(diagnostic));
 		Range range = diagnostic.getRange();
-		XMLDocument xmlDoc = XMLParser.getInstance().parse(document, xmlLanguageService.getResolverExtensionManager());
+		DOMDocument xmlDoc = DOMParser.getInstance().parse(document, xmlLanguageService.getResolverExtensionManager());
 		List<CodeAction> actual = xmlLanguageService.doCodeActions(context, range, xmlDoc,
 				new XMLFormattingOptions(4, false));
 		assertCodeActions(actual, expected);
@@ -418,7 +418,7 @@ public class XMLAssert {
 
 		Position position = document.positionAt(offset);
 
-		XMLDocument htmlDoc = XMLParser.getInstance().parse(document, xmlLanguageService.getResolverExtensionManager());
+		DOMDocument htmlDoc = DOMParser.getInstance().parse(document, xmlLanguageService.getResolverExtensionManager());
 		ContentModelSettings settings = new ContentModelSettings();
 		settings.setUseCache(false);
 		// Configure XML catalog for XML schema
@@ -460,7 +460,7 @@ public class XMLAssert {
 		settings.setUseCache(false);
 		xmlLanguageService.doSave(new SettingsSaveContext(settings));
 
-		XMLDocument xmlDocument = XMLParser.getInstance().parse(document,
+		DOMDocument xmlDocument = DOMParser.getInstance().parse(document,
 				xmlLanguageService.getResolverExtensionManager());
 		xmlLanguageService.setDocumentProvider((uri) -> xmlDocument);
 

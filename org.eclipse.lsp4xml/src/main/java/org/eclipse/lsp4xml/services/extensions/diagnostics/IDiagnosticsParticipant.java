@@ -14,7 +14,7 @@ import java.util.List;
 
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 
 /**
  * Diagnostics participant API.
@@ -29,6 +29,6 @@ public interface IDiagnosticsParticipant {
 	 * @param diagnostics list to populate with errors, warnings, etc
 	 * @param monitor     used to stop the validation when XML document changed.
 	 */
-	void doDiagnostics(XMLDocument xmlDocument, List<Diagnostic> diagnostics, CancelChecker monitor);
+	void doDiagnostics(DOMDocument xmlDocument, List<Diagnostic> diagnostics, CancelChecker monitor);
 
 }

@@ -17,9 +17,9 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.CodeActionFactory;
-import org.eclipse.lsp4xml.dom.Element;
-import org.eclipse.lsp4xml.dom.Node;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMElement;
+import org.eclipse.lsp4xml.dom.DOMNode;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.services.extensions.ICodeActionParticipant;
 import org.eclipse.lsp4xml.services.extensions.IComponentProvider;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
@@ -32,13 +32,13 @@ import org.eclipse.lsp4xml.utils.XMLPositionUtility;
 public class cvc_complex_type_2_1CodeAction implements ICodeActionParticipant {
 
 	@Override
-	public void doCodeAction(Diagnostic diagnostic, Range range, XMLDocument document, List<CodeAction> codeActions,
+	public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
 			XMLFormattingOptions formattingSettings, IComponentProvider componentProvider) {
 		try {
 			int offset = document.offsetAt(range.getStart());
-			Node node = document.findNodeAt(offset);
+			DOMNode node = document.findNodeAt(offset);
 			if (node != null && node.isElement()) {
-				Element element = (Element) node;
+				DOMElement element = (DOMElement) node;
 				int startOffset = element.getStartTagCloseOffset();
 				int endOffset = element.getEnd();
 				Range diagnosticRange = XMLPositionUtility.createRange(startOffset, endOffset, document);

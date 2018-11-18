@@ -15,7 +15,7 @@ import java.util.List;
 import org.apache.xerces.xni.parser.XMLEntityResolver;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lsp4xml.utils.DOMUtils;
 
@@ -26,7 +26,7 @@ import org.eclipse.lsp4xml.utils.DOMUtils;
 public class XSDDiagnosticsParticipant implements IDiagnosticsParticipant {
 
 	@Override
-	public void doDiagnostics(XMLDocument xmlDocument, List<Diagnostic> diagnostics, CancelChecker monitor) {
+	public void doDiagnostics(DOMDocument xmlDocument, List<Diagnostic> diagnostics, CancelChecker monitor) {
 		if (!DOMUtils.isXSD(xmlDocument)) {
 			// Don't use the XSD validator, if the XML document is not a XML Schema.
 			return;

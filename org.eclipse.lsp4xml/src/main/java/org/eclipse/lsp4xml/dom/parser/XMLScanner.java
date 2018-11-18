@@ -39,7 +39,7 @@ import static org.eclipse.lsp4xml.dom.parser.Constants._TVL;
 import static org.eclipse.lsp4xml.dom.parser.Constants._WSP;
 import static org.eclipse.lsp4xml.dom.parser.Constants._YVL;
 
-import org.eclipse.lsp4xml.dom.DocumentType.DocumentTypeKind;
+import org.eclipse.lsp4xml.dom.DOMDocumentType.DocumentTypeKind;
 
 import static org.eclipse.lsp4xml.dom.parser.Constants._CAR;
 import static org.eclipse.lsp4xml.dom.parser.Constants._NWL;;

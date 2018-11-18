@@ -13,8 +13,8 @@ package org.eclipse.lsp4xml.extensions.dtd.contentmodel;
 import org.apache.xerces.impl.dtd.DTDGrammar;
 import org.apache.xerces.impl.dtd.XMLDTDLoader;
 import org.apache.xerces.xni.parser.XMLInputSource;
-import org.eclipse.lsp4xml.dom.DocumentType;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMDocumentType;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelProvider;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
@@ -34,7 +34,7 @@ public class DTDContentModelProvider implements ContentModelProvider {
 	}
 
 	@Override
-	public boolean adaptFor(XMLDocument document) {
+	public boolean adaptFor(DOMDocument document) {
 		return document.hasDTD();
 	}
 
@@ -44,13 +44,13 @@ public class DTDContentModelProvider implements ContentModelProvider {
 	}
 
 	@Override
-	public String getSystemId(XMLDocument xmlDocument, String namespaceURI) {
+	public String getSystemId(DOMDocument xmlDocument, String namespaceURI) {
 		/*
 		 * <!DOCTYPE catalog PUBLIC
 		 * "-//OASIS/DTD Entity Resolution XML Catalog V1.0//EN"
 		 * "http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd">
 		 */
-		DocumentType documentType = xmlDocument.getDoctype();
+		DOMDocumentType documentType = xmlDocument.getDoctype();
 		return documentType.getSystemId();
 	}
 

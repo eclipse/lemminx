@@ -29,9 +29,9 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
-import org.eclipse.lsp4xml.dom.Element;
-import org.eclipse.lsp4xml.dom.Node;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMElement;
+import org.eclipse.lsp4xml.dom.DOMNode;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.parser.Scanner;
 import org.eclipse.lsp4xml.dom.parser.ScannerState;
 import org.eclipse.lsp4xml.dom.parser.TokenType;
@@ -58,7 +58,7 @@ class XMLCompletions {
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
-	public CompletionList doComplete(XMLDocument xmlDocument, Position position, CompletionSettings completionSettings,
+	public CompletionList doComplete(DOMDocument xmlDocument, Position position, CompletionSettings completionSettings,
 			XMLFormattingOptions formattingSettings) {
 		CompletionResponse completionResponse = new CompletionResponse();
 		CompletionRequest completionRequest = null;
@@ -70,7 +70,7 @@ class XMLCompletions {
 		}
 
 		int offset = completionRequest.getOffset();
-		Node node = completionRequest.getNode();
+		DOMNode node = completionRequest.getNode();
 
 		String text = xmlDocument.getText();
 		if (text.isEmpty()) {
@@ -258,7 +258,7 @@ class XMLCompletions {
 		return completionResponse;
 	}
 
-	public String doTagComplete(XMLDocument xmlDocument, Position position) {
+	public String doTagComplete(DOMDocument xmlDocument, Position position) {
 		int offset;
 		try {
 			offset = xmlDocument.offsetAt(position);
@@ -271,30 +271,30 @@ class XMLCompletions {
 		}
 		char c = xmlDocument.getText().charAt(offset - 1);
 		if (c == '>') {
-			Node node = xmlDocument.findNodeBefore(offset);
-			if (node != null && node.isElement() && ((Element) node).getTagName() != null
-					&& !isEmptyElement(((Element) node).getTagName()) && node.getStart() < offset
-					&& (!((Element) node).hasEndTag() || ((Element) node).getEndTagOpenOffset() > offset)) {
+			DOMNode node = xmlDocument.findNodeBefore(offset);
+			if (node != null && node.isElement() && ((DOMElement) node).getTagName() != null
+					&& !isEmptyElement(((DOMElement) node).getTagName()) && node.getStart() < offset
+					&& (!((DOMElement) node).hasEndTag() || ((DOMElement) node).getEndTagOpenOffset() > offset)) {
 				Scanner scanner = XMLScanner.createScanner(xmlDocument.getText(), node.getStart());
 				TokenType token = scanner.scan();
 				while (token != TokenType.EOS && scanner.getTokenEnd() <= offset) {
 					if (token == TokenType.StartTagClose && scanner.getTokenEnd() == offset) {
-						return "$0</" + ((Element) node).getTagName() + ">";
+						return "$0</" + ((DOMElement) node).getTagName() + ">";
 					}
 					token = scanner.scan();
 				}
 			}
 		} else if (c == '/') {
-			Node node = xmlDocument.findNodeBefore(offset);
+			DOMNode node = xmlDocument.findNodeBefore(offset);
 			while (node != null && node.isClosed()) {
 				node = node.getParentNode();
 			}
-			if (node != null && node.isElement() && ((Element) node).getTagName() != null) {
+			if (node != null && node.isElement() && ((DOMElement) node).getTagName() != null) {
 				Scanner scanner = XMLScanner.createScanner(xmlDocument.getText(), node.getStart());
 				TokenType token = scanner.scan();
 				while (token != TokenType.EOS && scanner.getTokenEnd() <= offset) {
 					if (token == TokenType.EndTagOpen && scanner.getTokenEnd() == offset) {
-						return ((Element) node).getTagName() + ">";
+						return ((DOMElement) node).getTagName() + ">";
 					}
 					token = scanner.scan();
 				}
@@ -326,7 +326,7 @@ class XMLCompletions {
 	private void collectOpenTagSuggestions(boolean hasOpenBracket, Range replaceRange,
 			CompletionRequest completionRequest, CompletionResponse completionResponse) {
 		try {
-			XMLDocument document = completionRequest.getXMLDocument();
+			DOMDocument document = completionRequest.getXMLDocument();
 			String text = document.getText();
 			int tagNameEnd = document.offsetAt(replaceRange.getEnd());
 			int newOffset = getOffsetFollowedBy(text, tagNameEnd, ScannerState.WithinEndTag, TokenType.EndTagClose);
@@ -347,13 +347,13 @@ class XMLCompletions {
 				LOGGER.log(Level.SEVERE, "While performing ICompletionParticipant#onTagOpen", e);
 			}
 		}
-		Element parentNode = completionRequest.getParentElement();
+		DOMElement parentNode = completionRequest.getParentElement();
 		if (parentNode != null && !completionResponse.hasSomeItemFromGrammar()) {
 			// no grammar, collect similar tags from the parent node
 			Set<String> seenElements = new HashSet<>();
 			if (parentNode != null && parentNode.isElement() && parentNode.hasChildNodes()) {
 				parentNode.getChildren().forEach(node -> {
-					Element element = node.isElement() ? (Element) node : null;
+					DOMElement element = node.isElement() ? (DOMElement) node : null;
 					if (element == null || element.getTagName() == null
 							|| seenElements.contains(element.getTagName())) {
 						return;
@@ -404,7 +404,7 @@ class XMLCompletions {
 
 	private void collectPrologSuggestion(int tokenEndOffset, String tag, CompletionRequest request,
 			CompletionResponse response, boolean inPIState) {
-		XMLDocument document = request.getXMLDocument();
+		DOMDocument document = request.getXMLDocument();
 		CompletionItem item = new CompletionItem();
 		item.setLabel("<?xml ... ?>");
 		item.setKind(CompletionItemKind.Property);
@@ -457,7 +457,7 @@ class XMLCompletions {
 			CompletionRequest completionRequest, CompletionResponse completionResponse) {
 		try {
 			String text = completionRequest.getXMLDocument().getText();
-			Node curr = completionRequest.getNode();
+			DOMNode curr = completionRequest.getNode();
 			if (inOpenTag) {
 				curr = curr.getParentNode(); // don't suggest the own tag, it's not yet open
 			}
@@ -469,7 +469,7 @@ class XMLCompletions {
 			int offset = completionRequest.getOffset();
 			while (curr != null) {
 				if (curr.isElement()) {
-					Element element = ((Element) curr);
+					DOMElement element = ((DOMElement) curr);
 					String tag = element.getTagName();
 					if (tag != null && (!element
 							.isClosed() /* || element.hasEndTag() && (element.getEndTagOpenOffset() > offset) */)) {
@@ -727,7 +727,7 @@ class XMLCompletions {
 		if (replaceStart > offset) {
 			replaceStart = offset;
 		}
-		XMLDocument document = context.getXMLDocument();
+		DOMDocument document = context.getXMLDocument();
 		return new Range(document.positionAt(replaceStart), document.positionAt(replaceEnd));
 	}
 

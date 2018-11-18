@@ -21,10 +21,10 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.SymbolKind;
 import org.eclipse.lsp4xml.commons.BadLocationException;
-import org.eclipse.lsp4xml.dom.Element;
-import org.eclipse.lsp4xml.dom.Node;
+import org.eclipse.lsp4xml.dom.DOMElement;
+import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.dom.ProcessingInstruction;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 
 /**
@@ -39,7 +39,7 @@ class XMLSymbolsProvider {
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
-	public List<SymbolInformation> findDocumentSymbols(XMLDocument xmlDocument) {
+	public List<SymbolInformation> findDocumentSymbols(DOMDocument xmlDocument) {
 		List<SymbolInformation> symbols = new ArrayList<>();
 		xmlDocument.getRoots().forEach(node -> {
 			try {
@@ -51,13 +51,13 @@ class XMLSymbolsProvider {
 		return symbols;
 	}
 
-	private void provideFileSymbolsInternal(Node node, String container, List<SymbolInformation> symbols)
+	private void provideFileSymbolsInternal(DOMNode node, String container, List<SymbolInformation> symbols)
 			throws BadLocationException {
 		if (!isNodeSymbol(node)) {
 			return;
 		}
 		String name = nodeToName(node);
-		XMLDocument xmlDocument = node.getOwnerDocument();
+		DOMDocument xmlDocument = node.getOwnerDocument();
 		Position start = xmlDocument.positionAt(node.getStart());
 		Position end = xmlDocument.positionAt(node.getEnd());
 		Range range = new Range(start, end);
@@ -77,21 +77,21 @@ class XMLSymbolsProvider {
 
 	}
 
-	private SymbolKind getSymbolKind(Node node) {
+	private SymbolKind getSymbolKind(DOMNode node) {
 		if (node.isProcessingInstruction() || node.isProlog() || node.isDoctype()) {
 			return SymbolKind.Property;
 		}
 		return SymbolKind.Field;
 	}
 
-	private boolean isNodeSymbol(Node node) {
+	private boolean isNodeSymbol(DOMNode node) {
 		return node.isElement() || node.isDoctype() || node.isProcessingInstruction() || node.isProlog();
 	}
 
-	private static String nodeToName(Node node) {
+	private static String nodeToName(DOMNode node) {
 		String name = null;
 		if (node.isElement()) {
-			name = ((Element) node).getTagName();
+			name = ((DOMElement) node).getTagName();
 		} else if (node.isProcessingInstruction() || node.isProlog()) {
 			name = ((ProcessingInstruction) node).getTarget();
 		}

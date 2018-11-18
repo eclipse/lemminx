@@ -16,9 +16,9 @@ import org.w3c.dom.DOMException;
  * A Text node.
  *
  */
-public class Text extends CharacterData implements org.w3c.dom.Text {
+public class DOMText extends DOMCharacterData implements org.w3c.dom.Text {
 
-	public Text(int start, int end, XMLDocument ownerDocument) {
+	public DOMText(int start, int end, DOMDocument ownerDocument) {
 		super(start, end, ownerDocument);
 	}
 
@@ -29,7 +29,7 @@ public class Text extends CharacterData implements org.w3c.dom.Text {
 	 */
 	@Override
 	public short getNodeType() {
-		return Node.TEXT_NODE;
+		return DOMNode.TEXT_NODE;
 	}
 
 	/*
@@ -68,7 +68,7 @@ public class Text extends CharacterData implements org.w3c.dom.Text {
 	 * @see org.w3c.dom.Text#replaceWholeText(java.lang.String)
 	 */
 	@Override
-	public Text replaceWholeText(String content) throws DOMException {
+	public DOMText replaceWholeText(String content) throws DOMException {
 		throw new UnsupportedOperationException();
 	}
 
@@ -78,7 +78,7 @@ public class Text extends CharacterData implements org.w3c.dom.Text {
 	 * @see org.w3c.dom.Text#splitText(int)
 	 */
 	@Override
-	public Text splitText(int offset) throws DOMException {
+	public DOMText splitText(int offset) throws DOMException {
 		throw new UnsupportedOperationException();
 	}
 

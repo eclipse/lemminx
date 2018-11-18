@@ -16,7 +16,7 @@ import java.util.List;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.commons.BadLocationException;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IDiagnosticsParticipant;
 
@@ -32,7 +32,7 @@ class XMLDiagnostics {
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
-	public List<Diagnostic> doDiagnostics(XMLDocument xmlDocument, CancelChecker monitor) {
+	public List<Diagnostic> doDiagnostics(DOMDocument xmlDocument, CancelChecker monitor) {
 		List<Diagnostic> diagnostics = new ArrayList<Diagnostic>();
 		try {
 			doBasicDiagnostics(xmlDocument, diagnostics, monitor);
@@ -51,7 +51,7 @@ class XMLDiagnostics {
 	 * @param monitor
 	 * @throws BadLocationException
 	 */
-	private void doBasicDiagnostics(XMLDocument xmlDocument, List<Diagnostic> diagnostics, CancelChecker monitor)
+	private void doBasicDiagnostics(DOMDocument xmlDocument, List<Diagnostic> diagnostics, CancelChecker monitor)
 			throws BadLocationException {
 		/*
 		 * Scanner scanner = XMLScanner.createScanner(document.getText()); TokenType
@@ -67,7 +67,7 @@ class XMLDiagnostics {
 	 * @param diagnostics
 	 * @param monitor
 	 */
-	private void doExtensionsDiagnostics(XMLDocument xmlDocument, List<Diagnostic> diagnostics, CancelChecker monitor) {
+	private void doExtensionsDiagnostics(DOMDocument xmlDocument, List<Diagnostic> diagnostics, CancelChecker monitor) {
 		for (IDiagnosticsParticipant diagnosticsParticipant : extensionsRegistry.getDiagnosticsParticipants()) {
 			monitor.checkCanceled();
 			diagnosticsParticipant.doDiagnostics(xmlDocument, diagnostics, monitor);

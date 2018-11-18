@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.eclipse.lsp4j.InitializeParams;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.extensions.references.XMLReferencesManager;
 import org.eclipse.lsp4xml.services.extensions.IXMLExtension;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
@@ -53,7 +53,7 @@ public class WebPlugin implements IXMLExtension {
 	public void stop(XMLExtensionsRegistry registry) {
 	}
 
-	public static boolean match(XMLDocument document) {
+	public static boolean match(DOMDocument document) {
 		return document.getDocumentURI().endsWith(WEB_XML);
 	}
 }

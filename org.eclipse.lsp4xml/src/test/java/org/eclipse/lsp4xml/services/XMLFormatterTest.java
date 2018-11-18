@@ -20,8 +20,8 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
-import org.eclipse.lsp4xml.dom.XMLDocument;
-import org.eclipse.lsp4xml.dom.XMLParser;
+import org.eclipse.lsp4xml.dom.DOMDocument;
+import org.eclipse.lsp4xml.dom.DOMParser;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -649,7 +649,7 @@ public class XMLFormatterTest {
 			// remove '|'
 			unformatted = unformatted.substring(0, rangeStart) + unformatted.substring(rangeStart + 1, rangeEnd)
 					+ unformatted.substring(rangeEnd + 1);
-			XMLDocument unformattedDoc = XMLParser.getInstance().parse(unformatted, uri, null);
+			DOMDocument unformattedDoc = DOMParser.getInstance().parse(unformatted, uri, null);
 			Position startPos = unformattedDoc.positionAt(rangeStart);
 			Position endPos = unformattedDoc.positionAt(rangeEnd - 1);
 			range = new Range(startPos, endPos);

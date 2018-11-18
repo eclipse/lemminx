@@ -12,7 +12,7 @@ package org.eclipse.lsp4xml.utils;
 
 import static org.eclipse.lsp4xml.utils.StringUtils.normalizeSpace;
 
-import org.eclipse.lsp4xml.dom.Comment;
+import org.eclipse.lsp4xml.dom.DOMComment;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 
 /**
@@ -180,7 +180,7 @@ public class XMLBuilder {
 		return this;
 	}
 
-	public XMLBuilder startComment(Comment comment) {
+	public XMLBuilder startComment(DOMComment comment) {
 		if (comment.isCommentSameLineEndTag()) {
 			xml.append(" ");
 		}

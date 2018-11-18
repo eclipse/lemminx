@@ -20,13 +20,13 @@ import org.w3c.dom.DOMException;
  * A CharacterData node.
  *
  */
-public abstract class CharacterData extends Node implements org.w3c.dom.CharacterData {
+public abstract class DOMCharacterData extends DOMNode implements org.w3c.dom.CharacterData {
 
 	private String data;
 
 	private String normalizedData;
 
-	public CharacterData(int start, int end, XMLDocument ownerDocument) {
+	public DOMCharacterData(int start, int end, DOMDocument ownerDocument) {
 		super(start, end, ownerDocument);
 	}
 

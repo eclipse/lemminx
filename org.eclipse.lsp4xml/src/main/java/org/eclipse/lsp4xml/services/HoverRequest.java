@@ -13,9 +13,9 @@ package org.eclipse.lsp4xml.services;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.BadLocationException;
-import org.eclipse.lsp4xml.dom.Attr;
-import org.eclipse.lsp4xml.dom.Node;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMAttr;
+import org.eclipse.lsp4xml.dom.DOMNode;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.services.extensions.IHoverRequest;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 
@@ -31,17 +31,17 @@ class HoverRequest extends AbstractPositionRequest implements IHoverRequest {
 
 	private boolean open;
 
-	public HoverRequest(XMLDocument xmlDocument, Position position, XMLExtensionsRegistry extensionsRegistry)
+	public HoverRequest(DOMDocument xmlDocument, Position position, XMLExtensionsRegistry extensionsRegistry)
 			throws BadLocationException {
 		super(xmlDocument, position);
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
 	@Override
-	protected Node findNodeAt(XMLDocument xmlDocument, int offset) {
-		Node node = xmlDocument.findNodeAt(offset);
+	protected DOMNode findNodeAt(DOMDocument xmlDocument, int offset) {
+		DOMNode node = xmlDocument.findNodeAt(offset);
 		if (node != null && node.isElement()) {
-			Attr attr = xmlDocument.findAttrAt(node, offset);
+			DOMAttr attr = xmlDocument.findAttrAt(node, offset);
 			if (attr != null) {
 				return attr;
 			}

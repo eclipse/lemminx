@@ -10,10 +10,10 @@
  */
 package org.eclipse.lsp4xml.services;
 
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 
 /**
- * {@link XMLDocument} provider.
+ * {@link DOMDocument} provider.
  * 
  * @author Angelo ZERR
  *
@@ -21,12 +21,12 @@ import org.eclipse.lsp4xml.dom.XMLDocument;
 public interface IXMLDocumentProvider {
 
 	/**
-	 * Returns the {@link XMLDocument} instance from the given <code>uri</code> and
+	 * Returns the {@link DOMDocument} instance from the given <code>uri</code> and
 	 * null otherwise.
 	 * 
 	 * @param uri the document URI.
-	 * @return the {@link XMLDocument} instance from the given <code>uri</code> and
+	 * @return the {@link DOMDocument} instance from the given <code>uri</code> and
 	 *         null otherwise.
 	 */
-	XMLDocument getDocument(String uri);
+	DOMDocument getDocument(String uri);
 }

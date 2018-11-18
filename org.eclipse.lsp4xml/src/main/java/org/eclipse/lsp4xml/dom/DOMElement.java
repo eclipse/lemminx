@@ -23,7 +23,7 @@ import org.w3c.dom.TypeInfo;
  * An Element node.
  *
  */
-public class Element extends Node implements org.w3c.dom.Element {
+public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 
 	private static final String XMLNS_ATTR = "xmlns";
 	private static final String XMLNS_NO_DEFAULT_ATTR = "xmlns:";
@@ -38,7 +38,7 @@ public class Element extends Node implements org.w3c.dom.Element {
 	Integer endTagCloseOffset;
 	Integer endTagOffset;
 
-	public Element(int start, int end, XMLDocument ownerDocument) {
+	public DOMElement(int start, int end, DOMDocument ownerDocument) {
 		super(start, end, ownerDocument);
 	}
 
@@ -49,7 +49,7 @@ public class Element extends Node implements org.w3c.dom.Element {
 	 */
 	@Override
 	public short getNodeType() {
-		return Node.ELEMENT_NODE;
+		return DOMNode.ELEMENT_NODE;
 	}
 
 	/*
@@ -126,10 +126,10 @@ public class Element extends Node implements org.w3c.dom.Element {
 			return rootElementNamespace;
 		}
 		// try to get the namespace in the parent element
-		Node parent = getParentNode();
+		DOMNode parent = getParentNode();
 		while (parent != null) {
-			if (parent.getNodeType() == Node.ELEMENT_NODE) {
-				Element parentElement = ((Element) parent);
+			if (parent.getNodeType() == DOMNode.ELEMENT_NODE) {
+				DOMElement parentElement = ((DOMElement) parent);
 				String namespaceURI = hasPrefix ? parentElement.getAttribute(XMLNS_NO_DEFAULT_ATTR + prefix)
 						: parentElement.getNamespaceURI();
 				if (namespaceURI != null) {
@@ -144,7 +144,7 @@ public class Element extends Node implements org.w3c.dom.Element {
 	public Collection<String> getAllPrefixes() {
 		if (hasAttributes()) {
 			Collection<String> prefixes = new ArrayList<>();
-			for (Attr attr : getAttributeNodes()) {
+			for (DOMAttr attr : getAttributeNodes()) {
 				String attributeName = attr.getName();
 				if (isNoDefaultXmlns(attributeName)) {
 					prefixes.add(extractPrefixFromXmlns(attributeName));
@@ -173,7 +173,7 @@ public class Element extends Node implements org.w3c.dom.Element {
 			return null;
 		}
 		if (hasAttributes()) {
-			for (Attr attr : getAttributeNodes()) {
+			for (DOMAttr attr : getAttributeNodes()) {
 				String attributeName = attr.getName();
 				if (isXmlns(attributeName)) {
 					String namespace = attr.getValue();
@@ -189,10 +189,10 @@ public class Element extends Node implements org.w3c.dom.Element {
 			}
 		}
 		// try to get the prefix in the parent element
-		Node parent = getParentNode();
+		DOMNode parent = getParentNode();
 		while (parent != null) {
-			if (parent.getNodeType() == Node.ELEMENT_NODE) {
-				Element parentElement = ((Element) parent);
+			if (parent.getNodeType() == DOMNode.ELEMENT_NODE) {
+				DOMElement parentElement = ((DOMElement) parent);
 				String prefix = parentElement.getPrefix(namespaceURI);
 				if (prefix != null) {
 					return prefix;
@@ -328,12 +328,12 @@ public class Element extends Node implements org.w3c.dom.Element {
 	}
 
 	@Override
-	public Attr getAttributeNode(String name) {
+	public DOMAttr getAttributeNode(String name) {
 		return super.getAttributeNode(name);
 	}
 
 	@Override
-	public Attr getAttributeNodeNS(String arg0, String arg1) throws DOMException {
+	public DOMAttr getAttributeNodeNS(String arg0, String arg1) throws DOMException {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -375,7 +375,7 @@ public class Element extends Node implements org.w3c.dom.Element {
 	}
 
 	@Override
-	public Attr removeAttributeNode(org.w3c.dom.Attr arg0) throws DOMException {
+	public DOMAttr removeAttributeNode(org.w3c.dom.Attr arg0) throws DOMException {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -387,13 +387,13 @@ public class Element extends Node implements org.w3c.dom.Element {
 	}
 
 	@Override
-	public Attr setAttributeNode(org.w3c.dom.Attr arg0) throws DOMException {
+	public DOMAttr setAttributeNode(org.w3c.dom.Attr arg0) throws DOMException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Attr setAttributeNodeNS(org.w3c.dom.Attr arg0) throws DOMException {
+	public DOMAttr setAttributeNodeNS(org.w3c.dom.Attr arg0) throws DOMException {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -24,7 +24,7 @@ import org.apache.xerces.xni.parser.XMLEntityResolver;
 import org.apache.xerces.xni.parser.XMLInputSource;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 
 /**
  * XSD validator utilities class.
@@ -34,7 +34,7 @@ public class XSDValidator {
 
 	private static final Logger LOGGER = Logger.getLogger(XSDValidator.class.getName());
 
-	public static void doDiagnostics(XMLDocument document, XMLEntityResolver entityResolver,
+	public static void doDiagnostics(DOMDocument document, XMLEntityResolver entityResolver,
 			List<Diagnostic> diagnostics, CancelChecker monitor) {
 
 		try {

@@ -16,8 +16,8 @@ import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.BadLocationException;
-import org.eclipse.lsp4xml.dom.Node;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMNode;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.extensions.references.XMLReferencesManager;
 import org.eclipse.lsp4xml.services.extensions.IDefinitionParticipant;
 import org.eclipse.lsp4xml.utils.XMLPositionUtility;
@@ -25,13 +25,13 @@ import org.eclipse.lsp4xml.utils.XMLPositionUtility;
 public class XMLReferencesDefinitionParticipant implements IDefinitionParticipant {
 
 	@Override
-	public void findDefinition(XMLDocument document, Position position, List<Location> locations) {
+	public void findDefinition(DOMDocument document, Position position, List<Location> locations) {
 		try {
 			int offset = document.offsetAt(position);
-			Node node = document.findNodeAt(offset);
+			DOMNode node = document.findNodeAt(offset);
 			if (node != null) {
 				XMLReferencesManager.getInstance().collect(node, n -> {
-					XMLDocument doc = n.getOwnerDocument();
+					DOMDocument doc = n.getOwnerDocument();
 					Range range = XMLPositionUtility.createRange(n.getStart(), n.getEnd(), doc);
 					locations.add(new Location(doc.getDocumentURI(), range));
 				});

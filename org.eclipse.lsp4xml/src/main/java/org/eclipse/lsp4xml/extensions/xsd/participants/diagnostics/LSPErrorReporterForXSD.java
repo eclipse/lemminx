@@ -15,7 +15,7 @@ import java.util.List;
 import org.apache.xerces.xni.XMLLocator;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.extensions.xsd.participants.XSDErrorCode;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.AbstractLSPErrorReporter;
 import org.xml.sax.ErrorHandler;
@@ -31,7 +31,7 @@ public class LSPErrorReporterForXSD extends AbstractLSPErrorReporter {
 
 	private static final String XSD_DIAGNOSTIC_SOURCE = "xsd";
 
-	public LSPErrorReporterForXSD(XMLDocument xmlDocument, List<Diagnostic> diagnostics) {
+	public LSPErrorReporterForXSD(DOMDocument xmlDocument, List<Diagnostic> diagnostics) {
 		super(XSD_DIAGNOSTIC_SOURCE, xmlDocument, diagnostics);
 	}
 
@@ -45,7 +45,7 @@ public class LSPErrorReporterForXSD extends AbstractLSPErrorReporter {
 	 * @return the LSP range from the SAX error.
 	 */
 	@Override
-	protected Range toLSPRange(XMLLocator location, String key, Object[] arguments, XMLDocument document) {
+	protected Range toLSPRange(XMLLocator location, String key, Object[] arguments, DOMDocument document) {
 		// try adjust positions for XSD error
 		XSDErrorCode xsdCode = XSDErrorCode.get(key);
 		if (xsdCode != null) {

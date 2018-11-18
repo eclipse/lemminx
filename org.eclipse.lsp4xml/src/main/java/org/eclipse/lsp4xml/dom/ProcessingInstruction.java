@@ -16,7 +16,7 @@ import org.w3c.dom.DOMException;
  * A processing instruction node.
  *
  */
-public class ProcessingInstruction extends CharacterData implements org.w3c.dom.ProcessingInstruction {
+public class ProcessingInstruction extends DOMCharacterData implements org.w3c.dom.ProcessingInstruction {
 
 	boolean startTagClose;
 	String target;
@@ -26,7 +26,7 @@ public class ProcessingInstruction extends CharacterData implements org.w3c.dom.
 	int endContent;
 	Integer endTagOpenOffset;
 
-	public ProcessingInstruction(int start, int end, XMLDocument ownerDocument) {
+	public ProcessingInstruction(int start, int end, DOMDocument ownerDocument) {
 		super(start, end, ownerDocument);
 	}
 
@@ -57,7 +57,7 @@ public class ProcessingInstruction extends CharacterData implements org.w3c.dom.
 	 */
 	@Override
 	public short getNodeType() {
-		return Node.PROCESSING_INSTRUCTION_NODE;
+		return DOMNode.PROCESSING_INSTRUCTION_NODE;
 	}
 
 	/*

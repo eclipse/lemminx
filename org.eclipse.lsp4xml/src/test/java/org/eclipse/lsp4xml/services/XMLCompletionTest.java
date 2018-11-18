@@ -25,8 +25,8 @@ import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.BadLocationException;
-import org.eclipse.lsp4xml.dom.XMLDocument;
-import org.eclipse.lsp4xml.dom.XMLParser;
+import org.eclipse.lsp4xml.dom.DOMDocument;
+import org.eclipse.lsp4xml.dom.DOMParser;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.junit.Before;
@@ -184,7 +184,7 @@ public class XMLCompletionTest {
 
 		List<String> expectedTags = Arrays.asList(expectedTag);
 		int offset = getOffset(xmlText);
-		XMLDocument xmlDocument = initializeXMLDocument(xmlText, offset);
+		DOMDocument xmlDocument = initializeXMLDocument(xmlText, offset);
 		CompletionList completionList = initializeCompletion(xmlText, xmlDocument, offset);
 		String currentTag, currentTextEdit;
 		CompletionItem completionItem;
@@ -209,7 +209,7 @@ public class XMLCompletionTest {
 
 	public void assertAutoCloseEndTagCompletion(String xmlText, String expectedTextEdit) {
 		int offset = getOffset(xmlText);
-		XMLDocument xmlDocument = initializeXMLDocument(xmlText, offset);
+		DOMDocument xmlDocument = initializeXMLDocument(xmlText, offset);
 		Position position = null;
 		try {
 			position = xmlDocument.positionAt(offset);
@@ -224,12 +224,12 @@ public class XMLCompletionTest {
 		return xmlText.indexOf("|");
 	}
 
-	public XMLDocument initializeXMLDocument(String xmlText, int offset) {
+	public DOMDocument initializeXMLDocument(String xmlText, int offset) {
 		xmlText = xmlText.substring(0, offset) + xmlText.substring(offset + 1);
-		return XMLParser.getInstance().parse(xmlText, "test:uri", null);
+		return DOMParser.getInstance().parse(xmlText, "test:uri", null);
 	}
 
-	public CompletionList initializeCompletion(String xmlText, XMLDocument xmlDocument, int offset) {
+	public CompletionList initializeCompletion(String xmlText, DOMDocument xmlDocument, int offset) {
 		Position position = null;
 		try {
 			position = xmlDocument.positionAt(offset);

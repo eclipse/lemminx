@@ -13,8 +13,8 @@ package org.eclipse.lsp4xml.extensions.contentmodel.participants;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.MarkupKind;
-import org.eclipse.lsp4xml.dom.Attr;
-import org.eclipse.lsp4xml.dom.Element;
+import org.eclipse.lsp4xml.dom.DOMAttr;
+import org.eclipse.lsp4xml.dom.DOMElement;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelManager;
@@ -32,7 +32,7 @@ public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 	public Hover onTag(IHoverRequest hoverRequest) throws Exception {
 		try {
 			ContentModelManager contentModelManager = hoverRequest.getComponent(ContentModelManager.class);
-			Element node = (Element) hoverRequest.getNode();
+			DOMElement node = (DOMElement) hoverRequest.getNode();
 			CMElementDeclaration cmElement = contentModelManager.findCMElement(node);
 			if (cmElement != null) {
 				String doc = cmElement.getDocumentation();
@@ -53,7 +53,7 @@ public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 	public Hover onAttributeName(IHoverRequest hoverRequest) throws Exception {
 		try {
 			ContentModelManager contentModelManager = hoverRequest.getComponent(ContentModelManager.class);
-			Attr attribute = (Attr) hoverRequest.getNode();
+			DOMAttr attribute = (DOMAttr) hoverRequest.getNode();
 			CMElementDeclaration cmElement = contentModelManager.findCMElement(attribute.getOwnerElement());
 			if (cmElement != null) {
 				String attributeName = attribute.getName();

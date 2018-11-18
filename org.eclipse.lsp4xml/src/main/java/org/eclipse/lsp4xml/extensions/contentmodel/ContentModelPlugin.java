@@ -1,7 +1,7 @@
 package org.eclipse.lsp4xml.extensions.contentmodel;
 
 import org.eclipse.lsp4j.InitializeParams;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.ContentModelCodeActionParticipant;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.ContentModelCompletionParticipant;
@@ -55,14 +55,14 @@ public class ContentModelPlugin implements IXMLExtension {
 		if (context.getType() == ISaveContext.SaveContextType.DOCUMENT) {
 			// The save is done for a given XML file
 			String documentURI = context.getUri();
-			XMLDocument document = context.getDocument(documentURI);
+			DOMDocument document = context.getDocument(documentURI);
 			if (DOMUtils.isCatalog(document)) {
 				// the XML document which has changed is a XML catalog.
 				// 1) refresh catalogs
 				contentModelManager.refreshCatalogs();
 				// 2) Validate all opened XML files except the catalog which have changed
 				context.collectDocumentToValidate(d -> {
-					XMLDocument xml = context.getDocument(d.getDocumentURI());
+					DOMDocument xml = context.getDocument(d.getDocumentURI());
 					xml.resetGrammar();
 					return !documentURI.equals(d.getDocumentURI());
 				});
@@ -88,7 +88,7 @@ public class ContentModelPlugin implements IXMLExtension {
 			if (catalogPathsChanged) {
 				// Validate all opened XML files
 				context.collectDocumentToValidate(d -> {
-					XMLDocument xml = context.getDocument(d.getDocumentURI());
+					DOMDocument xml = context.getDocument(d.getDocumentURI());
 					xml.resetGrammar();
 					return true;
 				});
@@ -101,7 +101,7 @@ public class ContentModelPlugin implements IXMLExtension {
 			if (fileAssociationsChanged) {
 				// Validate all opened XML files
 				context.collectDocumentToValidate(d -> {
-					XMLDocument xml = context.getDocument(d.getDocumentURI());
+					DOMDocument xml = context.getDocument(d.getDocumentURI());
 					xml.resetGrammar();
 					return true;
 				});

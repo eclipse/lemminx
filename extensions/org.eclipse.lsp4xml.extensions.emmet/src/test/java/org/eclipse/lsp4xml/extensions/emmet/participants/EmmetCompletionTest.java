@@ -19,8 +19,8 @@ import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
-import org.eclipse.lsp4xml.dom.XMLDocument;
-import org.eclipse.lsp4xml.dom.XMLParser;
+import org.eclipse.lsp4xml.dom.DOMDocument;
+import org.eclipse.lsp4xml.dom.DOMParser;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.services.extensions.ICompletionParticipant;
@@ -59,7 +59,7 @@ public class EmmetCompletionTest {
 
 		TextDocument document = new TextDocument(value, "test://test/test.html");
 		Position position = document.positionAt(offset);
-		XMLDocument htmlDoc = XMLParser.getInstance().parse(document, null);
+		DOMDocument htmlDoc = DOMParser.getInstance().parse(document, null);
 
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
 		CompletionList list = xmlLanguageService.doComplete(htmlDoc, position, new CompletionSettings(),

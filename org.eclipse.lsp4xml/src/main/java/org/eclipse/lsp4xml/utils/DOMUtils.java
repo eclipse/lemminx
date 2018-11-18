@@ -1,7 +1,7 @@
 package org.eclipse.lsp4xml.utils;
 
-import org.eclipse.lsp4xml.dom.Element;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMElement;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 
 /**
  * DOM Utilities.
@@ -26,7 +26,7 @@ public class DOMUtils {
 	 * 
 	 * @return true if the XML document is a XML Schema and false otherwise.
 	 */
-	public static boolean isXSD(XMLDocument document) {
+	public static boolean isXSD(DOMDocument document) {
 		String uri = document.getDocumentURI();
 		if (isXSD(uri)) {
 			return true;
@@ -51,7 +51,7 @@ public class DOMUtils {
 	 * 
 	 * @return true if the XML document is a XML Catalog and false otherwise.
 	 */
-	public static boolean isCatalog(XMLDocument document) {
+	public static boolean isCatalog(DOMDocument document) {
 		// check root element is bound with XML Catalog namespace
 		// (urn:oasis:names:tc:entity:xmlns:xml:catalog)
 		return checkRootNamespace(document, URN_OASIS_NAMES_TC_ENTITY_XMLNS_XML_CATALOG_NS);
@@ -66,8 +66,8 @@ public class DOMUtils {
 	 * @return true if the document element root is bound to the given namespace and
 	 *         false otherwise.
 	 */
-	private static boolean checkRootNamespace(XMLDocument document, String namespace) {
-		Element documentElement = document.getDocumentElement();
+	private static boolean checkRootNamespace(DOMDocument document, String namespace) {
+		DOMElement documentElement = document.getDocumentElement();
 		return documentElement != null && namespace.equals(documentElement.getNamespaceURI());
 	}
 
@@ -76,7 +76,7 @@ public class DOMUtils {
 	 * 
 	 * @return true if the XML document is a DTD and false otherwise.
 	 */
-	public static boolean isDTD(XMLDocument document) {
+	public static boolean isDTD(DOMDocument document) {
 		String uri = document.getDocumentURI();
 		if (isDTD(uri)) {
 			return true;

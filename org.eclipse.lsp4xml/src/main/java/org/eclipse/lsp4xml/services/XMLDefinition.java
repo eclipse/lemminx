@@ -15,7 +15,7 @@ import java.util.List;
 
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.services.extensions.IDefinitionParticipant;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 
@@ -31,7 +31,7 @@ class XMLDefinition {
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
-	public List<? extends Location> findDefinition(XMLDocument document, Position position) {
+	public List<? extends Location> findDefinition(DOMDocument document, Position position) {
 		List<Location> locations = new ArrayList<>();
 		for (IDefinitionParticipant participant : extensionsRegistry.getDefinitionParticipants()) {
 			participant.findDefinition(document, position, locations);

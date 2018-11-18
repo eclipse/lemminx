@@ -12,7 +12,7 @@ package org.eclipse.lsp4xml.extensions.contentmodel.model;
 
 import java.util.Collection;
 
-import org.eclipse.lsp4xml.dom.Element;
+import org.eclipse.lsp4xml.dom.DOMElement;
 
 /**
  * Content model document which abstracts element declaration from a given
@@ -30,6 +30,6 @@ public interface CMDocument {
 	 * @return the declared element which matches the given XML element and null
 	 *         otherwise.
 	 */
-	CMElementDeclaration findCMElement(Element element, String namespace);
+	CMElementDeclaration findCMElement(DOMElement element, String namespace);
 
 }

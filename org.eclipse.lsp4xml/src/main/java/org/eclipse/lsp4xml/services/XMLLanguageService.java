@@ -41,8 +41,8 @@ import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
-import org.eclipse.lsp4xml.dom.Element;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMElement;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
@@ -85,28 +85,28 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		return formatter.format(document, range, options);
 	}
 
-	public List<DocumentHighlight> findDocumentHighlights(XMLDocument xmlDocument, Position position) {
+	public List<DocumentHighlight> findDocumentHighlights(DOMDocument xmlDocument, Position position) {
 		return highlighting.findDocumentHighlights(xmlDocument, position);
 	}
 
-	public List<SymbolInformation> findDocumentSymbols(XMLDocument xmlDocument) {
+	public List<SymbolInformation> findDocumentSymbols(DOMDocument xmlDocument) {
 		return symbolsProvider.findDocumentSymbols(xmlDocument);
 	}
 
-	public CompletionList doComplete(XMLDocument xmlDocument, Position position, CompletionSettings completionSettings,
+	public CompletionList doComplete(DOMDocument xmlDocument, Position position, CompletionSettings completionSettings,
 			XMLFormattingOptions formattingSettings) {
 		return completions.doComplete(xmlDocument, position, completionSettings, formattingSettings);
 	}
 
-	public Hover doHover(XMLDocument xmlDocument, Position position) {
+	public Hover doHover(DOMDocument xmlDocument, Position position) {
 		return hover.doHover(xmlDocument, position);
 	}
 
-	public List<Diagnostic> doDiagnostics(XMLDocument xmlDocument, CancelChecker monitor) {
+	public List<Diagnostic> doDiagnostics(DOMDocument xmlDocument, CancelChecker monitor) {
 		return diagnostics.doDiagnostics(xmlDocument, monitor);
 	}
 
-	public CompletableFuture<Path> publishDiagnostics(XMLDocument xmlDocument,
+	public CompletableFuture<Path> publishDiagnostics(DOMDocument xmlDocument,
 			Consumer<PublishDiagnosticsParams> publishDiagnostics, BiConsumer<String, Integer> triggerValidation,
 			CancelChecker monitor) {
 		String uri = xmlDocument.getDocumentURI();
@@ -141,10 +141,10 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		}
 	}
 
-	private static void publishOneDiagnosticInRoot(XMLDocument document, String message, DiagnosticSeverity severity,
+	private static void publishOneDiagnosticInRoot(DOMDocument document, String message, DiagnosticSeverity severity,
 			Consumer<PublishDiagnosticsParams> publishDiagnostics) {
 		String uri = document.getDocumentURI();
-		Element documentElement = document.getDocumentElement();
+		DOMElement documentElement = document.getDocumentElement();
 		Range range = XMLPositionUtility.selectStartTag(documentElement);
 		List<Diagnostic> diagnostics = new ArrayList<>();
 		diagnostics.add(new Diagnostic(range, message, severity, "XML"));
@@ -155,7 +155,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		return foldings.getFoldingRanges(document, context);
 	}
 
-	public WorkspaceEdit doRename(XMLDocument xmlDocument, Position position, String newText) {
+	public WorkspaceEdit doRename(DOMDocument xmlDocument, Position position, String newText) {
 		List<TextEdit> textEdits = findDocumentHighlights(xmlDocument, position).stream()
 				.map(h -> new TextEdit(h.getRange(), newText)).collect(Collectors.toList());
 		Map<String, List<TextEdit>> changes = new HashMap<>();
@@ -163,29 +163,29 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		return new WorkspaceEdit(changes);
 	}
 
-	public List<DocumentLink> findDocumentLinks(XMLDocument document) {
+	public List<DocumentLink> findDocumentLinks(DOMDocument document) {
 		return documentLink.findDocumentLinks(document);
 	}
 
-	public List<? extends Location> findDefinition(XMLDocument xmlDocument, Position position) {
+	public List<? extends Location> findDefinition(DOMDocument xmlDocument, Position position) {
 		return definition.findDefinition(xmlDocument, position);
 	}
 
-	public List<? extends Location> findReferences(XMLDocument xmlDocument, Position position,
+	public List<? extends Location> findReferences(DOMDocument xmlDocument, Position position,
 			ReferenceContext context) {
 		return reference.findReferences(xmlDocument, position, context);
 	}
 
-	public List<CodeAction> doCodeActions(CodeActionContext context, Range range, XMLDocument document,
+	public List<CodeAction> doCodeActions(CodeActionContext context, Range range, DOMDocument document,
 			XMLFormattingOptions formattingSettings) {
 		return codeActions.doCodeActions(context, range, document, formattingSettings);
 	}
 
-	public String doTagComplete(XMLDocument xmlDocument, Position position) {
+	public String doTagComplete(DOMDocument xmlDocument, Position position) {
 		return completions.doTagComplete(xmlDocument, position);
 	}
 
-	public String doAutoClose(XMLDocument xmlDocument, Position position) {
+	public String doAutoClose(DOMDocument xmlDocument, Position position) {
 		try {
 			int offset = xmlDocument.offsetAt(position);
 			String text = xmlDocument.getText();

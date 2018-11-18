@@ -18,8 +18,8 @@ import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4xml.commons.BadLocationException;
-import org.eclipse.lsp4xml.dom.Element;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMElement;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMElementDeclaration;
@@ -41,7 +41,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	public void onTagOpen(ICompletionRequest request, ICompletionResponse response) throws Exception {
 		try {
 			ContentModelManager contentModelManager = request.getComponent(ContentModelManager.class);
-			Element parentElement = request.getParentElement();
+			DOMElement parentElement = request.getParentElement();
 			if (parentElement == null) {
 				// XML is empty, in case of XML file associations, a XMl Schema/DTD can be bound
 				// check if it's root element (in the case of XML file associations, the link to
@@ -81,7 +81,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 		}
 	}
 
-	private void fillWithChildrenElementDeclaration(Element element, Collection<CMElementDeclaration> cmElements,
+	private void fillWithChildrenElementDeclaration(DOMElement element, Collection<CMElementDeclaration> cmElements,
 			String p, boolean forceUseOfPrefix, ICompletionRequest request, ICompletionResponse response)
 			throws BadLocationException {
 		XMLGenerator generator = request.getXMLGenerator();
@@ -109,7 +109,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			computeXSIAttributes(fullRange, request, response);
 		}
 		// otherwise, manage completion based on XML Schema, DTD.
-		Element parentElement = request.getNode().isElement() ? (Element) request.getNode() : null;
+		DOMElement parentElement = request.getNode().isElement() ? (DOMElement) request.getNode() : null;
 		if (parentElement == null) {
 			return;
 		}
@@ -167,7 +167,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	@Override
 	public void onAttributeValue(String valuePrefix, Range fullRange, boolean addQuotes, ICompletionRequest request,
 			ICompletionResponse response) throws Exception {
-		Element parentElement = request.getNode().isElement() ? (Element) request.getNode() : null;
+		DOMElement parentElement = request.getNode().isElement() ? (DOMElement) request.getNode() : null;
 		if (parentElement == null) {
 			return;
 		}
@@ -199,8 +199,8 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	 * @throws BadLocationException
 	 */
 	private void computeXSIAttributes(Range editRange, ICompletionRequest request, ICompletionResponse response) throws BadLocationException {
-		XMLDocument document = request.getXMLDocument();
-		Element rootElement = document.getDocumentElement();
+		DOMDocument document = request.getXMLDocument();
+		DOMElement rootElement = document.getDocumentElement();
 		int offset = document.offsetAt(editRange.getStart());
 		if(rootElement.equals(document.findNodeAt(offset))) {
 			XSISchemaModel.computeCompletionResponses(request, response, editRange, document);

@@ -17,7 +17,7 @@ import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.services.extensions.ICodeActionParticipant;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
@@ -34,7 +34,7 @@ public class XMLCodeActions {
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
-	public List<CodeAction> doCodeActions(CodeActionContext context, Range range, XMLDocument document,
+	public List<CodeAction> doCodeActions(CodeActionContext context, Range range, DOMDocument document,
 			XMLFormattingOptions formattingSettings) {
 		List<CodeAction> codeActions = new ArrayList<>();
 		if (context.getDiagnostics() != null) {

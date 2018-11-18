@@ -21,14 +21,14 @@ public class NoNamespaceSchemaLocation {
 
 	private final String documentURI;
 
-	private final Attr attr;
+	private final DOMAttr attr;
 
-	public NoNamespaceSchemaLocation(String documentURI, Attr attr) {
+	public NoNamespaceSchemaLocation(String documentURI, DOMAttr attr) {
 		this.documentURI = documentURI;
 		this.attr = attr;
 	}
 
-	public Attr getAttr() {
+	public DOMAttr getAttr() {
 		return attr;
 	}
 

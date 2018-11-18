@@ -15,7 +15,7 @@ import java.io.IOException;
 import org.apache.xerces.xni.XMLResourceIdentifier;
 import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.parser.XMLInputSource;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtension;
 
@@ -63,7 +63,7 @@ public class XMLCatalogURIResolverExtension implements URIResolverExtension {
 	}
 
 	private boolean hasDTDorXMLSchema(String uri) {
-		XMLDocument document = extensionsRegistry.getDocumentProvider().getDocument(uri);
+		DOMDocument document = extensionsRegistry.getDocumentProvider().getDocument(uri);
 		if (document == null) {
 			return false;
 		}

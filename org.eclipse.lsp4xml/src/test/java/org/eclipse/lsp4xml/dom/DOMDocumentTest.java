@@ -15,11 +15,11 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.w3c.dom.NodeList;
 
-public class XMLDocumentTest {
+public class DOMDocumentTest {
 
 	@Test
 	public void testLargeFileWithScanner() {
-		InputStream in = XMLDocumentTest.class.getResourceAsStream("/xml/largeFile.xml");
+		InputStream in = DOMDocumentTest.class.getResourceAsStream("/xml/largeFile.xml");
 		String text = convertStreamToString(in);
 		long start = System.currentTimeMillis();
 		Scanner scanner = XMLScanner.createScanner(text);
@@ -32,17 +32,17 @@ public class XMLDocumentTest {
 
 	@Test
 	public void testLargeFileWithDocument() {
-		InputStream in = XMLDocumentTest.class.getResourceAsStream("/xml/largeFile.xml");
+		InputStream in = DOMDocumentTest.class.getResourceAsStream("/xml/largeFile.xml");
 		String text = convertStreamToString(in);
 		TextDocument document = new TextDocument(text, "largeFile.xml");
 		long start = System.currentTimeMillis();
-		XMLDocument xmlDocument = XMLParser.getInstance().parse(document, null);
+		DOMDocument xmlDocument = DOMParser.getInstance().parse(document, null);
 		System.err.println("Parsed 'largeFile.xml' with XMLParser in " + (System.currentTimeMillis() - start) + " ms.");
 	}
 	
 	@Test
 	public void testBigLargeFileWithScanner() {
-		InputStream in = XMLDocumentTest.class.getResourceAsStream("/xml/nasa.xml");
+		InputStream in = DOMDocumentTest.class.getResourceAsStream("/xml/nasa.xml");
 		String text = convertStreamToString(in);
 		long start = System.currentTimeMillis();
 		Scanner scanner = XMLScanner.createScanner(text);
@@ -55,30 +55,30 @@ public class XMLDocumentTest {
 
 	@Test
 	public void testBigLargeFileWithDocument() {
-		InputStream in = XMLDocumentTest.class.getResourceAsStream("/xml/nasa.xml");
+		InputStream in = DOMDocumentTest.class.getResourceAsStream("/xml/nasa.xml");
 		String text = convertStreamToString(in);
 		TextDocument document = new TextDocument(text, "nasa.xml");
 		long start = System.currentTimeMillis();
-		XMLDocument xmlDocument = XMLParser.getInstance().parse(document, null);
+		DOMDocument xmlDocument = DOMParser.getInstance().parse(document, null);
 		System.err.println("Parsed 'nasa.xml' with XMLParser in " + (System.currentTimeMillis() - start) + " ms.");
 	}
 
 	@Test
 	public void findOneElementWithW3CAndXPath() throws XPathExpressionException {
-		XMLDocument document = XMLParser.getInstance().parse("<a><b><c>XXXX</c></b></a>", "test", null);
+		DOMDocument document = DOMParser.getInstance().parse("<a><b><c>XXXX</c></b></a>", "test", null);
 
 		// Get "c" element by w3c DOM model
-		Node a = document.getDocumentElement();
+		DOMNode a = document.getDocumentElement();
 		Assert.assertNotNull(a);
 		Assert.assertEquals("a", a.getNodeName());
 		Assert.assertTrue(a.isElement());
 
-		Node b = a.getFirstChild();
+		DOMNode b = a.getFirstChild();
 		Assert.assertNotNull(b);
 		Assert.assertEquals("b", b.getNodeName());
 		Assert.assertTrue(b.isElement());
 
-		Node c = b.getFirstChild();
+		DOMNode c = b.getFirstChild();
 		Assert.assertNotNull(c);
 		Assert.assertEquals("c", c.getNodeName());
 		Assert.assertTrue(c.isElement());
@@ -88,8 +88,8 @@ public class XMLDocumentTest {
 		XPath xPath = XPathFactory.newInstance().newXPath();
 		Object result = xPath.evaluate("/a/b/c", document, XPathConstants.NODE);
 		Assert.assertNotNull(result);
-		Assert.assertTrue(result instanceof Element);
-		Element elt = (Element) result;
+		Assert.assertTrue(result instanceof DOMElement);
+		DOMElement elt = (DOMElement) result;
 		Assert.assertEquals("c", elt.getNodeName());
 		Assert.assertEquals(c, elt);
 		Assert.assertTrue(c.isElement());
@@ -97,13 +97,13 @@ public class XMLDocumentTest {
 
 	@Test
 	public void findTextWithXPath() throws XPathExpressionException {
-		XMLDocument document = XMLParser.getInstance().parse("<a><b><c>XXXX</c></b></a>", "test", null);
+		DOMDocument document = DOMParser.getInstance().parse("<a><b><c>XXXX</c></b></a>", "test", null);
 
 		XPath xPath = XPathFactory.newInstance().newXPath();
 		Object result = xPath.evaluate("/a/b/c/text()", document, XPathConstants.NODE);
 		Assert.assertNotNull(result);
-		Assert.assertTrue(result instanceof Text);
-		Text text = (Text) result;
+		Assert.assertTrue(result instanceof DOMText);
+		DOMText text = (DOMText) result;
 		Assert.assertEquals("XXXX", text.getData());
 
 		result = xPath.evaluate("/a/b/c/text()", document, XPathConstants.STRING);
@@ -113,34 +113,34 @@ public class XMLDocumentTest {
 
 	@Test
 	public void siblingTests() throws XPathExpressionException {
-		XMLDocument document = XMLParser.getInstance().parse("<a><b><c>XXXX</c><c>YYYY</c></b></a>", "test", null);
+		DOMDocument document = DOMParser.getInstance().parse("<a><b><c>XXXX</c><c>YYYY</c></b></a>", "test", null);
 
-		Node a = document.getDocumentElement();
+		DOMNode a = document.getDocumentElement();
 		Assert.assertNotNull(a);
-		Node b = a.getFirstChild();
+		DOMNode b = a.getFirstChild();
 		Assert.assertNotNull(b);
-		Node c1 = b.getFirstChild();
+		DOMNode c1 = b.getFirstChild();
 		Assert.assertNotNull(c1);
-		Node t1 = c1.getFirstChild();
+		DOMNode t1 = c1.getFirstChild();
 		Assert.assertTrue(t1.isText());
-		Text text1 = (Text) t1;
+		DOMText text1 = (DOMText) t1;
 		Assert.assertEquals("XXXX", text1.getData());
 
-		Node c2 = c1.getNextSibling();
+		DOMNode c2 = c1.getNextSibling();
 		Assert.assertNotNull(c2);
-		Node t2 = c2.getFirstChild();
+		DOMNode t2 = c2.getFirstChild();
 		Assert.assertTrue(t2.isText());
-		Text text2 = (Text) t2;
+		DOMText text2 = (DOMText) t2;
 		Assert.assertEquals("YYYY", text2.getData());
 
-		Node c1Previous = c2.getPreviousSibling();
+		DOMNode c1Previous = c2.getPreviousSibling();
 		Assert.assertNotNull(c1Previous);
 		Assert.assertEquals(c1, c1Previous);
 	}
 
 	@Test
 	public void findElementListWithXPath() throws XPathExpressionException {
-		XMLDocument document = XMLParser.getInstance().parse("<a><b><c>XXXX</c><c>YYYY</c></b></a>", "test", null);
+		DOMDocument document = DOMParser.getInstance().parse("<a><b><c>XXXX</c><c>YYYY</c></b></a>", "test", null);
 
 		XPath xPath = XPathFactory.newInstance().newXPath();
 		Object result = xPath.evaluate("/a/b//c", document, XPathConstants.NODESET);

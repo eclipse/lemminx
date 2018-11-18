@@ -17,8 +17,8 @@ import java.util.function.Predicate;
 
 import javax.xml.xpath.XPathExpressionException;
 
-import org.eclipse.lsp4xml.dom.Node;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMNode;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 
 /**
  * XML reference list for a given document.
@@ -26,11 +26,11 @@ import org.eclipse.lsp4xml.dom.XMLDocument;
  */
 public class XMLReferences {
 
-	private final Predicate<XMLDocument> documentPredicate;
+	private final Predicate<DOMDocument> documentPredicate;
 
 	private final List<XMLReference> references;
 
-	XMLReferences(Predicate<XMLDocument> documentPredicate) {
+	XMLReferences(Predicate<DOMDocument> documentPredicate) {
 		this.documentPredicate = documentPredicate;
 		this.references = new ArrayList<>();
 	}
@@ -41,11 +41,11 @@ public class XMLReferences {
 		return reference;
 	}
 
-	boolean canApply(XMLDocument document) {
+	boolean canApply(DOMDocument document) {
 		return documentPredicate.test(document);
 	}
 
-	void collectNodes(Node node, Consumer<Node> collector) throws XPathExpressionException {
+	void collectNodes(DOMNode node, Consumer<DOMNode> collector) throws XPathExpressionException {
 		for (XMLReference reference : references) {
 			if (reference.match(node)) {
 				reference.collect(node, collector);

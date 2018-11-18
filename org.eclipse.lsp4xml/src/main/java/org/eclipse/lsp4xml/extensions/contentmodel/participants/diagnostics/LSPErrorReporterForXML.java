@@ -15,7 +15,7 @@ import java.util.List;
 import org.apache.xerces.xni.XMLLocator;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.DTDErrorCode;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.XMLSchemaErrorCode;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.XMLSyntaxErrorCode;
@@ -29,7 +29,7 @@ public class LSPErrorReporterForXML extends AbstractLSPErrorReporter {
 
 	private static final String XML_DIAGNOSTIC_SOURCE = "xml";
 
-	public LSPErrorReporterForXML(XMLDocument xmlDocument, List<Diagnostic> diagnostics) {
+	public LSPErrorReporterForXML(DOMDocument xmlDocument, List<Diagnostic> diagnostics) {
 		super(XML_DIAGNOSTIC_SOURCE, xmlDocument, diagnostics);
 	}
 
@@ -43,7 +43,7 @@ public class LSPErrorReporterForXML extends AbstractLSPErrorReporter {
 	 * @return the LSP range from the SAX error.
 	 */
 	@Override
-	protected Range toLSPRange(XMLLocator location, String key, Object[] arguments, XMLDocument document) {
+	protected Range toLSPRange(XMLLocator location, String key, Object[] arguments, DOMDocument document) {
 		// try adjust positions for XML syntax error
 		XMLSyntaxErrorCode syntaxCode = XMLSyntaxErrorCode.get(key);
 		if (syntaxCode != null) {

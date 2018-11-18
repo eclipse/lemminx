@@ -20,7 +20,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.eclipse.lsp4xml.dom.Node;
+import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.xpath.matcher.XPathMatcher;
 import org.w3c.dom.NodeList;
 
@@ -48,15 +48,15 @@ public class XMLReference {
 		return this;
 	}
 
-	boolean match(Node node) {
+	boolean match(DOMNode node) {
 		return matcher.match(node);
 	}
 
-	void collect(Node node, Consumer<Node> collector) throws XPathExpressionException {
+	void collect(DOMNode node, Consumer<DOMNode> collector) throws XPathExpressionException {
 		for (XPathExpression expression : tos) {
 			NodeList result = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
 			for (int i = 0; i < result.getLength(); i++) {
-				collector.accept((Node) result.item(i));
+				collector.accept((DOMNode) result.item(i));
 			}
 		}
 

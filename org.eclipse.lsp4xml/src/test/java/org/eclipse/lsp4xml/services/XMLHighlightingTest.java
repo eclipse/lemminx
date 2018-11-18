@@ -15,8 +15,8 @@ import java.util.List;
 import org.eclipse.lsp4j.DocumentHighlight;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4xml.commons.BadLocationException;
-import org.eclipse.lsp4xml.dom.XMLDocument;
-import org.eclipse.lsp4xml.dom.XMLParser;
+import org.eclipse.lsp4xml.dom.DOMDocument;
+import org.eclipse.lsp4xml.dom.DOMParser;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -87,7 +87,7 @@ public class XMLHighlightingTest {
 		int offset = value.indexOf("|");
 		value = value.substring(0, offset) + value.substring(offset + 1);
 
-		XMLDocument document = XMLParser.getInstance().parse(value, "test://test/test.html", null);
+		DOMDocument document = DOMParser.getInstance().parse(value, "test://test/test.html", null);
 
 		Position position = document.positionAt(offset);
 		// XMLDocument htmlDoc = ls.parseHTMLDocument(document);

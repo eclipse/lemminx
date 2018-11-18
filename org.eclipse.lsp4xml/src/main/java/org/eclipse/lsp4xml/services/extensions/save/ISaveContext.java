@@ -12,7 +12,7 @@ package org.eclipse.lsp4xml.services.extensions.save;
 
 import java.util.function.Predicate;
 
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.services.IXMLDocumentProvider;
 
 /**
@@ -38,7 +38,7 @@ public interface ISaveContext extends IXMLDocumentProvider {
 	 * 
 	 * @param validateDocumentPredicate
 	 */
-	void collectDocumentToValidate(Predicate<XMLDocument> validateDocumentPredicate);
+	void collectDocumentToValidate(Predicate<DOMDocument> validateDocumentPredicate);
 
 	/**
 	 * Returns the save context type.

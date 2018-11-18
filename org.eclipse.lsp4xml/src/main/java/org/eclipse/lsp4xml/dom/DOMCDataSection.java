@@ -11,23 +11,16 @@
 package org.eclipse.lsp4xml.dom;
 
 /**
- * A Comment node.
+ * A CData section node.
  *
  */
-public class Comment extends CharacterData implements org.w3c.dom.Comment {
-
-	boolean commentSameLineEndTag;
+public class DOMCDataSection extends DOMText implements org.w3c.dom.CDATASection {
 
 	int startContent;
-
 	int endContent;
 
-	public Comment(int start, int end, XMLDocument ownerDocument) {
+	public DOMCDataSection(int start, int end, DOMDocument ownerDocument) {
 		super(start, end, ownerDocument);
-	}
-
-	public boolean isCommentSameLineEndTag() {
-		return commentSameLineEndTag;
 	}
 
 	@Override
@@ -43,20 +36,10 @@ public class Comment extends CharacterData implements org.w3c.dom.Comment {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.w3c.dom.Node#getNodeType()
+	 * @see org.eclipse.w3c.dom.Text#getNodeType()
 	 */
 	@Override
 	public short getNodeType() {
-		return Node.COMMENT_NODE;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.Node#getNodeName()
-	 */
-	@Override
-	public String getNodeName() {
-		return "#comment";
+		return DOMNode.CDATA_SECTION_NODE;
 	}
 }

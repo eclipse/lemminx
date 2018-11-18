@@ -17,12 +17,12 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
-import org.eclipse.lsp4xml.dom.Attr;
-import org.eclipse.lsp4xml.dom.CharacterData;
-import org.eclipse.lsp4xml.dom.Element;
-import org.eclipse.lsp4xml.dom.Node;
+import org.eclipse.lsp4xml.dom.DOMAttr;
+import org.eclipse.lsp4xml.dom.DOMCharacterData;
+import org.eclipse.lsp4xml.dom.DOMElement;
+import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.dom.ProcessingInstruction;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 
 /**
  * XML position utility.
@@ -52,9 +52,9 @@ public class XMLPositionUtility {
 		}
 	}
 
-	public static Range selectAttributeNameAt(int offset, XMLDocument document) {
+	public static Range selectAttributeNameAt(int offset, DOMDocument document) {
 		offset = adjustOffsetForAttribute(offset, document);
-		Attr attr = document.findAttrAt(offset);
+		DOMAttr attr = document.findAttrAt(offset);
 		if (attr != null) {
 			int startOffset = attr.getNodeAttrName().getStart();
 			int endOffset = attr.getNodeAttrName().getEnd();
@@ -63,10 +63,10 @@ public class XMLPositionUtility {
 		return null;
 	}
 
-	public static Range selectAttributeValueAt(String attrName, int offset, XMLDocument document) {
-		Node element = document.findNodeAt(offset);
+	public static Range selectAttributeValueAt(String attrName, int offset, DOMDocument document) {
+		DOMNode element = document.findNodeAt(offset);
 		if (element != null) {
-			Attr attr = element.getAttributeNode(attrName);
+			DOMAttr attr = element.getAttributeNode(attrName);
 			if (attr != null) {
 				return createAttrValueRange(attr, document);
 			}
@@ -74,11 +74,11 @@ public class XMLPositionUtility {
 		return null;
 	}
 
-	public static Range selectAttributeValueFromGivenValue(String attrValue, int offset, XMLDocument document) {
-		Node element = document.findNodeAt(offset);
+	public static Range selectAttributeValueFromGivenValue(String attrValue, int offset, DOMDocument document) {
+		DOMNode element = document.findNodeAt(offset);
 		if (element != null && element.hasAttributes()) {
-			List<Attr> attribues = element.getAttributeNodes();
-			for (Attr attr : attribues) {
+			List<DOMAttr> attribues = element.getAttributeNodes();
+			for (DOMAttr attr : attribues) {
 				if (attrValue.equals(attr.getValue())) {
 					return createAttrValueRange(attr, document);
 				}
@@ -87,17 +87,17 @@ public class XMLPositionUtility {
 		return null;
 	}
 
-	private static Range createAttrValueRange(Attr attr, XMLDocument document) {
+	private static Range createAttrValueRange(DOMAttr attr, DOMDocument document) {
 		int startOffset = attr.getNodeAttrValue().getStart();
 		int endOffset = attr.getNodeAttrValue().getEnd();
 		return createRange(startOffset, endOffset, document);
 	}
 
-	public static Range selectAttributeValueByGivenValueAt(String attrValue, int offset, XMLDocument document) {
-		Node element = document.findNodeAt(offset);
+	public static Range selectAttributeValueByGivenValueAt(String attrValue, int offset, DOMDocument document) {
+		DOMNode element = document.findNodeAt(offset);
 		if (element != null && element.hasAttributes()) {
-			List<Attr> attributes = element.getAttributeNodes();
-			for (Attr attr : attributes) {
+			List<DOMAttr> attributes = element.getAttributeNodes();
+			for (DOMAttr attr : attributes) {
 				if (attrValue.equals(attr.getValue())) {
 					return createAttrValueRange(attr, document);
 				}
@@ -106,10 +106,10 @@ public class XMLPositionUtility {
 		return null;
 	}
 
-	public static Range selectAttributeNameFromGivenNameAt(String attrName, int offset, XMLDocument document) {
-		Node element = document.findNodeAt(offset);
+	public static Range selectAttributeNameFromGivenNameAt(String attrName, int offset, DOMDocument document) {
+		DOMNode element = document.findNodeAt(offset);
 		if (element != null && element.hasAttributes()) {
-			Attr attr = element.getAttributeNode(attrName);
+			DOMAttr attr = element.getAttributeNode(attrName);
 			if (attr != null) {
 				return createAttrNameRange(attr, document);
 			}
@@ -117,13 +117,13 @@ public class XMLPositionUtility {
 		return null;
 	}
 
-	private static Range createAttrNameRange(Attr attr, XMLDocument document) {
+	private static Range createAttrNameRange(DOMAttr attr, DOMDocument document) {
 		int startOffset = attr.getNodeAttrName().getStart();
 		int endOffset = attr.getNodeAttrName().getEnd();
 		return createRange(startOffset, endOffset, document);
 	}
 
-	private static int adjustOffsetForAttribute(int offset, XMLDocument document) {
+	private static int adjustOffsetForAttribute(int offset, DOMDocument document) {
 		// For attribute value, Xerces report the error offset after the spaces which
 		// are after " of the attribute value
 		// Here sample with offset marked with |
@@ -150,13 +150,13 @@ public class XMLPositionUtility {
 		return offset;
 	}
 
-	public static Range selectChildEndTag(String childTag, int offset, XMLDocument document) {
-		Node parent = document.findNodeAt(offset);
-		if (parent == null || !parent.isElement() || ((Element) parent).getTagName() == null) {
+	public static Range selectChildEndTag(String childTag, int offset, DOMDocument document) {
+		DOMNode parent = document.findNodeAt(offset);
+		if (parent == null || !parent.isElement() || ((DOMElement) parent).getTagName() == null) {
 			return null;
 		}
 		if (parent != null) {
-			Node child = findChildNode(childTag, parent.getChildren());
+			DOMNode child = findChildNode(childTag, parent.getChildren());
 			if (child != null) {
 				return createRange(child.getStart() + 1, child.getStart() + 1 + childTag.length(), document);
 			}
@@ -164,9 +164,9 @@ public class XMLPositionUtility {
 		return null;
 	}
 
-	static Node findChildNode(String childTag, List<Node> children) {
-		for (Node child : children) {
-			if (child.isElement() && childTag != null && childTag.equals(((Element) child).getTagName())
+	static DOMNode findChildNode(String childTag, List<DOMNode> children) {
+		for (DOMNode child : children) {
+			if (child.isElement() && childTag != null && childTag.equals(((DOMElement) child).getTagName())
 					&& !child.isClosed()) {
 				return child;
 			}
@@ -174,15 +174,15 @@ public class XMLPositionUtility {
 		return null;
 	}
 
-	public static Range selectStartTag(int offset, XMLDocument document) {
-		Node element = document.findNodeAt(offset);
+	public static Range selectStartTag(int offset, DOMDocument document) {
+		DOMNode element = document.findNodeAt(offset);
 		if (element != null) {
 			return selectStartTag(element);
 		}
 		return null;
 	}
 
-	public static Range selectStartTag(Node element) {
+	public static Range selectStartTag(DOMNode element) {
 		int startOffset = element.getStart() + 1; // <
 		int endOffset = startOffset + getStartTagLength(element);
 		if (element.isProcessingInstruction() || element.isProlog()) {
@@ -191,13 +191,13 @@ public class XMLPositionUtility {
 			// increment end offset to select '?xml' instead of selecting '?xm'
 			endOffset++;
 		}
-		XMLDocument document = element.getOwnerDocument();
+		DOMDocument document = element.getOwnerDocument();
 		return createRange(startOffset, endOffset, document);
 	}
 
-	private static int getStartTagLength(Node node) {
+	private static int getStartTagLength(DOMNode node) {
 		if (node.isElement()) {
-			Element element = (Element) node;
+			DOMElement element = (DOMElement) node;
 			return element.getTagName() != null ? element.getTagName().length() : 0;
 		} else if (node.isProcessingInstruction() || node.isProlog()) {
 			ProcessingInstruction element = (ProcessingInstruction) node;
@@ -206,8 +206,8 @@ public class XMLPositionUtility {
 		return 0;
 	}
 
-	public static int selectCurrentTagOffset(int offset, XMLDocument document) {
-		Node element = document.findNodeAt(offset);
+	public static int selectCurrentTagOffset(int offset, DOMDocument document) {
+		DOMNode element = document.findNodeAt(offset);
 		if (element != null) {
 			return element.getStart(); // <
 
@@ -215,10 +215,10 @@ public class XMLPositionUtility {
 		return -1;
 	}
 
-	public static Range selectEndTag(int offset, XMLDocument document) {
-		Node node = document.findNodeAt(offset);
+	public static Range selectEndTag(int offset, DOMDocument document) {
+		DOMNode node = document.findNodeAt(offset);
 		if (node != null && node.isElement()) {
-			Element element = (Element) node;
+			DOMElement element = (DOMElement) node;
 			if (element.hasEndTag()) {
 				int startOffset = element.getEndTagOpenOffset() + 2; // <\
 				int endOffset = startOffset + getStartTagLength(element);
@@ -228,13 +228,13 @@ public class XMLPositionUtility {
 		return null;
 	}
 
-	public static Range selectAllAttributes(int offset, XMLDocument document) {
-		Node element = document.findNodeAt(offset);
+	public static Range selectAllAttributes(int offset, DOMDocument document) {
+		DOMNode element = document.findNodeAt(offset);
 		if (element != null && element.hasAttributes()) {
 			int startOffset = -1;
 			int endOffset = 0;
-			List<Attr> attributes = element.getAttributeNodes();
-			for (Attr attr : attributes) {
+			List<DOMAttr> attributes = element.getAttributeNodes();
+			for (DOMAttr attr : attributes) {
 				if (startOffset == -1) {
 					startOffset = attr.getStart();
 					endOffset = attr.getEnd();
@@ -250,12 +250,12 @@ public class XMLPositionUtility {
 		return null;
 	}
 
-	public static Range selectFirstNonWhitespaceText(int offset, XMLDocument document) {
-		Node element = document.findNodeAt(offset);
+	public static Range selectFirstNonWhitespaceText(int offset, DOMDocument document) {
+		DOMNode element = document.findNodeAt(offset);
 		if (element != null) {
-			for (Node node : element.getChildren()) {
-				if (node.isCharacterData() && ((CharacterData) node).hasMultiLine()) {
-					String content = ((CharacterData) node).getData();
+			for (DOMNode node : element.getChildren()) {
+				if (node.isCharacterData() && ((DOMCharacterData) node).hasMultiLine()) {
+					String content = ((DOMCharacterData) node).getData();
 					int start = node.getStart();
 					Integer end = null;
 					for (int i = 0; i < content.length(); i++) {
@@ -289,7 +289,7 @@ public class XMLPositionUtility {
 	 * 
 	 * This excludes the tag it starts in if offset is within a tag.
 	 */
-	public static Range selectPreviousEndTag(int offset, XMLDocument document) {
+	public static Range selectPreviousEndTag(int offset, DOMDocument document) {
 		// boolean firstBracket = false;
 		int i = offset;
 		char c = document.getText().charAt(i);
@@ -308,7 +308,7 @@ public class XMLPositionUtility {
 		return null;
 	}
 
-	public static Range createRange(int startOffset, int endOffset, XMLDocument document) {
+	public static Range createRange(int startOffset, int endOffset, DOMDocument document) {
 		try {
 			return new Range(document.positionAt(startOffset), document.positionAt(endOffset));
 		} catch (BadLocationException e) {
@@ -316,12 +316,12 @@ public class XMLPositionUtility {
 		}
 	}
 
-	public static Range selectText(int offset, XMLDocument document) {
-		Node node = document.findNodeAt(offset);
+	public static Range selectText(int offset, DOMDocument document) {
+		DOMNode node = document.findNodeAt(offset);
 		if (node != null) {
 			if (node.hasChildNodes()) {
 				// <root>BAD TEXT</root>
-				for (Node child : node.getChildren()) {
+				for (DOMNode child : node.getChildren()) {
 					if (child.isText()) {
 						return createRange(child.getStart(), child.getEnd(), document);
 					}

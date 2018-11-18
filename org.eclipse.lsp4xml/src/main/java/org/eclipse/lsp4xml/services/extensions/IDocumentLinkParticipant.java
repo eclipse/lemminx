@@ -13,7 +13,7 @@ package org.eclipse.lsp4xml.services.extensions;
 import java.util.List;
 
 import org.eclipse.lsp4j.DocumentLink;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 
 /**
  * Document link participant API.
@@ -27,6 +27,6 @@ public interface IDocumentLinkParticipant {
 	 * @param document
 	 * @param links
 	 */
-	void findDocumentLinks(XMLDocument document, List<DocumentLink> links);
+	void findDocumentLinks(DOMDocument document, List<DocumentLink> links);
 
 }

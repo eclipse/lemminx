@@ -15,7 +15,7 @@ import java.util.List;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.ReferenceContext;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 
 /**
  * Reference participant API.
@@ -23,6 +23,6 @@ import org.eclipse.lsp4xml.dom.XMLDocument;
  */
 public interface IReferenceParticipant {
 
-	void findReference(XMLDocument document, Position position, ReferenceContext context, List<Location> locations);
+	void findReference(DOMDocument document, Position position, ReferenceContext context, List<Location> locations);
 
 }

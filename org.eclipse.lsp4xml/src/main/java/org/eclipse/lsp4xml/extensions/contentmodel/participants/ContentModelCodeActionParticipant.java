@@ -17,7 +17,7 @@ import java.util.Map;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.services.extensions.ICodeActionParticipant;
 import org.eclipse.lsp4xml.services.extensions.IComponentProvider;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
@@ -37,7 +37,7 @@ public class ContentModelCodeActionParticipant implements ICodeActionParticipant
 	}
 
 	@Override
-	public void doCodeAction(Diagnostic diagnostic, Range range, XMLDocument document, List<CodeAction> codeActions,
+	public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
 			XMLFormattingOptions formattingSettings, IComponentProvider componentProvider) {
 		ICodeActionParticipant participant = codeActionParticipants.get(diagnostic.getCode());
 		if (participant != null) {

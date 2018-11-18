@@ -24,20 +24,20 @@ import org.w3c.dom.UserDataHandler;
  * XML node.
  *
  */
-public abstract class Node implements org.w3c.dom.Node {
+public abstract class DOMNode implements org.w3c.dom.Node {
 
 	boolean closed = false;
 
-	private XMLNamedNodeMap<Attr> attributeNodes;
-	private XMLNodeList<Node> children;
+	private XMLNamedNodeMap<DOMAttr> attributeNodes;
+	private XMLNodeList<DOMNode> children;
 
 	final int start;
 	int end;
 
-	Node parent;
-	private final XMLDocument ownerDocument;
+	DOMNode parent;
+	private final DOMDocument ownerDocument;
 
-	class XMLNodeList<T extends Node> extends ArrayList<T> implements NodeList {
+	class XMLNodeList<T extends DOMNode> extends ArrayList<T> implements NodeList {
 
 		private static final long serialVersionUID = 1L;
 
@@ -47,13 +47,13 @@ public abstract class Node implements org.w3c.dom.Node {
 		}
 
 		@Override
-		public Node item(int index) {
+		public DOMNode item(int index) {
 			return super.get(index);
 		}
 
 	}
 
-	class XMLNamedNodeMap<T extends Node> extends ArrayList<T> implements NamedNodeMap {
+	class XMLNamedNodeMap<T extends DOMNode> extends ArrayList<T> implements NamedNodeMap {
 
 		private static final long serialVersionUID = 1L;
 
@@ -109,13 +109,13 @@ public abstract class Node implements org.w3c.dom.Node {
 
 	}
 
-	public Node(int start, int end, XMLDocument ownerDocument) {
+	public DOMNode(int start, int end, DOMDocument ownerDocument) {
 		this.start = start;
 		this.end = end;
 		this.ownerDocument = ownerDocument;
 	}
 
-	public XMLDocument getOwnerDocument() {
+	public DOMDocument getOwnerDocument() {
 		return ownerDocument;
 	}
 
@@ -144,7 +144,7 @@ public abstract class Node implements org.w3c.dom.Node {
 			}
 			result.append("children:[");
 			for (int i = 0; i < children.size(); i++) {
-				Node node = children.get(i);
+				DOMNode node = children.get(i);
 				result.append("\n");
 				result.append(node.toString(indent + 2));
 				if (i < children.size() - 1) {
@@ -167,16 +167,16 @@ public abstract class Node implements org.w3c.dom.Node {
 		return result.toString();
 	}
 
-	public Node findNodeBefore(int offset) {
-		List<Node> children = getChildren();
+	public DOMNode findNodeBefore(int offset) {
+		List<DOMNode> children = getChildren();
 		int idx = findFirst(children, c -> offset <= c.start) - 1;
 		if (idx >= 0) {
-			Node child = children.get(idx);
+			DOMNode child = children.get(idx);
 			if (offset > child.start) {
 				if (offset < child.end) {
 					return child.findNodeBefore(offset);
 				}
-				Node lastChild = child.getLastChild();
+				DOMNode lastChild = child.getLastChild();
 				if (lastChild != null && lastChild.end == child.end) {
 					return child.findNodeBefore(offset);
 				}
@@ -186,11 +186,11 @@ public abstract class Node implements org.w3c.dom.Node {
 		return this;
 	}
 
-	public Node findNodeAt(int offset) {
-		List<Node> children = getChildren();
+	public DOMNode findNodeAt(int offset) {
+		List<DOMNode> children = getChildren();
 		int idx = findFirst(children, c -> offset <= c.start) - 1;
 		if (idx >= 0) {
-			Node child = children.get(idx);
+			DOMNode child = children.get(idx);
 			if (isIncluded(child, offset)) {
 				return child.findNodeAt(offset);
 			}
@@ -205,7 +205,7 @@ public abstract class Node implements org.w3c.dom.Node {
 	 * @param offset
 	 * @return true if the node included the given offset and false otherwise.
 	 */
-	public static boolean isIncluded(Node node, int offset) {
+	public static boolean isIncluded(DOMNode node, int offset) {
 		if (node == null) {
 			return false;
 		}
@@ -216,14 +216,14 @@ public abstract class Node implements org.w3c.dom.Node {
 		return offset > start && offset <= end;
 	}
 
-	public Attr findAttrAt(int offset) {
-		Node node = findNodeAt(offset);
+	public DOMAttr findAttrAt(int offset) {
+		DOMNode node = findNodeAt(offset);
 		return findAttrAt(node, offset);
 	}
 
-	public Attr findAttrAt(Node node, int offset) {
+	public DOMAttr findAttrAt(DOMNode node, int offset) {
 		if (node != null && node.hasAttributes()) {
-			for (Attr attr : node.getAttributeNodes()) {
+			for (DOMAttr attr : node.getAttributeNodes()) {
 				if (attr.isIncluded(offset)) {
 					return attr;
 				}
@@ -256,11 +256,11 @@ public abstract class Node implements org.w3c.dom.Node {
 		return low;
 	}
 
-	public Attr getAttributeNode(String name) {
+	public DOMAttr getAttributeNode(String name) {
 		if (!hasAttributes()) {
 			return null;
 		}
-		for (Attr attr : attributeNodes) {
+		for (DOMAttr attr : attributeNodes) {
 			if (name.equals(attr.getName())) {
 				return attr;
 			}
@@ -269,7 +269,7 @@ public abstract class Node implements org.w3c.dom.Node {
 	}
 
 	public String getAttribute(String name) {
-		Attr attr = getAttributeNode(name);
+		DOMAttr attr = getAttributeNode(name);
 		String value = attr != null ? attr.getValue() : null;
 		if (value == null) {
 			return null;
@@ -302,22 +302,22 @@ public abstract class Node implements org.w3c.dom.Node {
 	}
 
 	public void setAttribute(String name, String value) {
-		Attr attr = getAttributeNode(name);
+		DOMAttr attr = getAttributeNode(name);
 		if (attr == null) {
-			attr = new Attr(name, this);
+			attr = new DOMAttr(name, this);
 			setAttributeNode(attr);
 		}
 		attr.setValue(value, -1, -1);
 	}
 
-	public void setAttributeNode(Attr attr) {
+	public void setAttributeNode(DOMAttr attr) {
 		if (attributeNodes == null) {
-			attributeNodes = new XMLNamedNodeMap<Attr>();
+			attributeNodes = new XMLNamedNodeMap<DOMAttr>();
 		}
 		attributeNodes.add(attr);
 	}
 
-	public List<Attr> getAttributeNodes() {
+	public List<DOMAttr> getAttributeNodes() {
 		return attributeNodes;
 	}
 
@@ -326,7 +326,7 @@ public abstract class Node implements org.w3c.dom.Node {
 	 * 
 	 * @return the node children.
 	 */
-	public List<Node> getChildren() {
+	public List<DOMNode> getChildren() {
 		if (children == null) {
 			return Collections.emptyList();
 		}
@@ -338,10 +338,10 @@ public abstract class Node implements org.w3c.dom.Node {
 	 * 
 	 * @param child the node child to add.
 	 */
-	public void addChild(Node child) {
+	public void addChild(DOMNode child) {
 		child.parent = this;
 		if (children == null) {
-			children = new XMLNodeList<Node>();
+			children = new XMLNodeList<DOMNode>();
 		}
 		getChildren().add(child);
 	}
@@ -352,7 +352,7 @@ public abstract class Node implements org.w3c.dom.Node {
 	 * @param index
 	 * @return node child at the given index.
 	 */
-	public Node getChild(int index) {
+	public DOMNode getChild(int index) {
 		return getChildren().get(index);
 	}
 
@@ -360,47 +360,47 @@ public abstract class Node implements org.w3c.dom.Node {
 		return closed;
 	}
 
-	public Element getParentElement() {
-		Node parent = getParentNode();
+	public DOMElement getParentElement() {
+		DOMNode parent = getParentNode();
 		while (parent != null && parent != getOwnerDocument()) {
 			if (parent.isElement()) {
-				return (Element) parent;
+				return (DOMElement) parent;
 			}
 		}
 		return null;
 	}
 
 	public boolean isComment() {
-		return getNodeType() == Node.COMMENT_NODE;
+		return getNodeType() == DOMNode.COMMENT_NODE;
 	}
 
 	public boolean isProcessingInstruction() {
-		return (getNodeType() == Node.PROCESSING_INSTRUCTION_NODE)
+		return (getNodeType() == DOMNode.PROCESSING_INSTRUCTION_NODE)
 				&& ((ProcessingInstruction) this).isProcessingInstruction();
 	}
 
 	public boolean isProlog() {
-		return (getNodeType() == Node.PROCESSING_INSTRUCTION_NODE) && ((ProcessingInstruction) this).isProlog();
+		return (getNodeType() == DOMNode.PROCESSING_INSTRUCTION_NODE) && ((ProcessingInstruction) this).isProlog();
 	}
 
 	public boolean isCDATA() {
-		return getNodeType() == Node.CDATA_SECTION_NODE;
+		return getNodeType() == DOMNode.CDATA_SECTION_NODE;
 	}
 
 	public boolean isDoctype() {
-		return getNodeType() == Node.DOCUMENT_TYPE_NODE;
+		return getNodeType() == DOMNode.DOCUMENT_TYPE_NODE;
 	}
 
 	public boolean isElement() {
-		return getNodeType() == Node.ELEMENT_NODE;
+		return getNodeType() == DOMNode.ELEMENT_NODE;
 	}
 
 	public boolean isAttribute() {
-		return getNodeType() == Node.ATTRIBUTE_NODE;
+		return getNodeType() == DOMNode.ATTRIBUTE_NODE;
 	}
 
 	public boolean isText() {
-		return getNodeType() == Node.TEXT_NODE;
+		return getNodeType() == DOMNode.TEXT_NODE;
 	}
 
 	public boolean isCharacterData() {
@@ -431,7 +431,7 @@ public abstract class Node implements org.w3c.dom.Node {
 	 * @see org.w3c.dom.Node#getParentNode()
 	 */
 	@Override
-	public Node getParentNode() {
+	public DOMNode getParentNode() {
 		return parent;
 	}
 
@@ -441,7 +441,7 @@ public abstract class Node implements org.w3c.dom.Node {
 	 * @see org.w3c.dom.Node#getFirstChild()
 	 */
 	@Override
-	public Node getFirstChild() {
+	public DOMNode getFirstChild() {
 		return this.children != null && children.size() > 0 ? this.children.get(0) : null;
 	}
 
@@ -451,7 +451,7 @@ public abstract class Node implements org.w3c.dom.Node {
 	 * @see org.w3c.dom.Node#getLastChild()
 	 */
 	@Override
-	public Node getLastChild() {
+	public DOMNode getLastChild() {
 		return this.children != null && this.children.size() > 0 ? this.children.get(this.children.size() - 1) : null;
 	}
 
@@ -536,12 +536,12 @@ public abstract class Node implements org.w3c.dom.Node {
 	 * @see org.w3c.dom.Node#getNextSibling()
 	 */
 	@Override
-	public Node getNextSibling() {
-		Node parentNode = getParentNode();
+	public DOMNode getNextSibling() {
+		DOMNode parentNode = getParentNode();
 		if (parentNode == null) {
 			return null;
 		}
-		List<Node> children = parentNode.getChildren();
+		List<DOMNode> children = parentNode.getChildren();
 		int nextIndex = children.indexOf(this) + 1;
 		return nextIndex < children.size() ? children.get(nextIndex) : null;
 	}
@@ -562,12 +562,12 @@ public abstract class Node implements org.w3c.dom.Node {
 	 * @see org.w3c.dom.Node#getPreviousSibling()
 	 */
 	@Override
-	public Node getPreviousSibling() {
-		Node parentNode = getParentNode();
+	public DOMNode getPreviousSibling() {
+		DOMNode parentNode = getParentNode();
 		if (parentNode == null) {
 			return null;
 		}
-		List<Node> children = parentNode.getChildren();
+		List<DOMNode> children = parentNode.getChildren();
 		int previousIndex = children.indexOf(this) - 1;
 		return previousIndex >= 0 ? children.get(previousIndex) : null;
 	}

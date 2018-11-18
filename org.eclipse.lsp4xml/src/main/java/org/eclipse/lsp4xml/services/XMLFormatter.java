@@ -20,16 +20,16 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
-import org.eclipse.lsp4xml.dom.Attr;
-import org.eclipse.lsp4xml.dom.CDataSection;
-import org.eclipse.lsp4xml.dom.Comment;
-import org.eclipse.lsp4xml.dom.DocumentType;
-import org.eclipse.lsp4xml.dom.Element;
-import org.eclipse.lsp4xml.dom.Node;
+import org.eclipse.lsp4xml.dom.DOMAttr;
+import org.eclipse.lsp4xml.dom.DOMCDataSection;
+import org.eclipse.lsp4xml.dom.DOMComment;
+import org.eclipse.lsp4xml.dom.DOMDocumentType;
+import org.eclipse.lsp4xml.dom.DOMElement;
+import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.dom.ProcessingInstruction;
-import org.eclipse.lsp4xml.dom.Text;
-import org.eclipse.lsp4xml.dom.XMLDocument;
-import org.eclipse.lsp4xml.dom.XMLParser;
+import org.eclipse.lsp4xml.dom.DOMText;
+import org.eclipse.lsp4xml.dom.DOMDocument;
+import org.eclipse.lsp4xml.dom.DOMParser;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.utils.XMLBuilder;
@@ -66,7 +66,7 @@ class XMLFormatter {
 			// Parse the content to format to create an XML document with full data (CData,
 			// comments, etc)
 			String text = document.getText().substring(start, end);
-			XMLDocument doc = XMLParser.getInstance().parse(text, null, null);
+			DOMDocument doc = DOMParser.getInstance().parse(text, null, null);
 
 			// Format the content
 			XMLBuilder xml = new XMLBuilder(formattingOptions, "", document.lineDelimiter(startPosition.getLine()));
@@ -84,10 +84,10 @@ class XMLFormatter {
 		return null;
 	}
 
-	private void format(Node node, int level, int end, XMLBuilder xml) {
-		if (node.getNodeType() != Node.DOCUMENT_NODE) {
-			boolean doLineFeed = !(node.isComment() && ((Comment) node).isCommentSameLineEndTag())
-					&& (!isPreviousNodeType(node, Node.TEXT_NODE) || xml.isJoinContentLines())
+	private void format(DOMNode node, int level, int end, XMLBuilder xml) {
+		if (node.getNodeType() != DOMNode.DOCUMENT_NODE) {
+			boolean doLineFeed = !(node.isComment() && ((DOMComment) node).isCommentSameLineEndTag())
+					&& (!isPreviousNodeType(node, DOMNode.TEXT_NODE) || xml.isJoinContentLines())
 					&& (!node.isText() || ((xml.isJoinContentLines() && !isFirstChildNode(node))));
 
 			if (level > 0 && doLineFeed) {
@@ -97,12 +97,12 @@ class XMLFormatter {
 			}
 			// generate start element
 			if (node.isCDATA()) {
-				CDataSection cdata = (CDataSection) node;
+				DOMCDataSection cdata = (DOMCDataSection) node;
 				xml.startCDATA();
 				xml.addContentCDATA(cdata.getData());
 				xml.endCDATA();
 			} else if (node.isComment()) {
-				Comment comment = (Comment) node;
+				DOMComment comment = (DOMComment) node;
 				xml.startComment(comment);
 				xml.addContentComment(comment.getData());
 				xml.endComment();
@@ -139,13 +139,13 @@ class XMLFormatter {
 				xml.endPrologOrPI();
 				xml.linefeed();
 			} else if (node.isDoctype()) {
-				DocumentType documentType = (DocumentType) node;
+				DOMDocumentType documentType = (DOMDocumentType) node;
 				xml.startDoctype();
 				xml.addContentDoctype(documentType.getContent());
 				xml.endDoctype();
 				xml.linefeed();
 			} else if (node.isText()) {
-				Text text = (Text) node;
+				DOMText text = (DOMText) node;
 				if (text.hasData()) {
 					// Generate content
 					String content = text.getData();
@@ -156,7 +156,7 @@ class XMLFormatter {
 				}
 				return;
 			} else if (node.isElement()) {
-				Element element = (Element) node;
+				DOMElement element = (DOMElement) node;
 				String tag = element.getTagName();
 				if (element.hasEndTag() && !element.hasStartTag()) {
 					// bad element which have not start tag (ex: <\root>)
@@ -165,13 +165,13 @@ class XMLFormatter {
 					xml.startElement(tag, false);
 					if (element.hasAttributes()) {
 						// generate attributes
-						List<Attr> attributes = element.getAttributeNodes();
+						List<DOMAttr> attributes = element.getAttributeNodes();
 						if (attributes.size() == 1) {
-							Attr singleAttribute = attributes.get(0);
+							DOMAttr singleAttribute = attributes.get(0);
 							xml.addSingleAttribute(singleAttribute.getName(), singleAttribute.getValue());
 						} else {
 							int attributeIndex = 0;
-							for (Attr attr : attributes) {
+							for (DOMAttr attr : attributes) {
 								String attributeName = attr.getName();
 								xml.addAttributes(attributeName, attr.getValue(), attributeIndex, level, tag);
 								attributeIndex++;
@@ -185,7 +185,7 @@ class XMLFormatter {
 						xml.closeStartElement();
 						startElementClosed = true;
 						level++;
-						for (Node child : node.getChildren()) {
+						for (DOMNode child : node.getChildren()) {
 							boolean textElement = !child.isText();
 
 							hasElements = hasElements | textElement;
@@ -219,18 +219,18 @@ class XMLFormatter {
 			}
 		} else if (node.hasChildNodes()) {
 			// Other nodes kind like root
-			for (Node child : node.getChildren()) {
+			for (DOMNode child : node.getChildren()) {
 				format(child, level, end, xml);
 			}
 		}
 	}
 
-	private static boolean isFirstChildNode(Node node) {
+	private static boolean isFirstChildNode(DOMNode node) {
 		return node.equals(node.getParentNode().getFirstChild());
 	}
 
-	private static boolean isPreviousNodeType(Node node, short nodeType) {
-		Node previousNode = node.getPreviousSibling();
+	private static boolean isPreviousNodeType(DOMNode node, short nodeType) {
+		DOMNode previousNode = node.getPreviousSibling();
 		return previousNode != null && previousNode.getNodeType() == nodeType;
 	}
 

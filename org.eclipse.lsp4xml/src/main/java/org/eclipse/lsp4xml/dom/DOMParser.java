@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
-import org.eclipse.lsp4xml.dom.DocumentType.DocumentTypeKind;
+import org.eclipse.lsp4xml.dom.DOMDocumentType.DocumentTypeKind;
 import org.eclipse.lsp4xml.dom.parser.Scanner;
 import org.eclipse.lsp4xml.dom.parser.TokenType;
 import org.eclipse.lsp4xml.dom.parser.XMLScanner;
@@ -25,40 +25,40 @@ import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
  * Tolerant XML parser.
  *
  */
-public class XMLParser {
+public class DOMParser {
 
-	private static final Logger LOGGER = Logger.getLogger(XMLParser.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(DOMParser.class.getName());
 
-	private static final XMLParser INSTANCE = new XMLParser();
+	private static final DOMParser INSTANCE = new DOMParser();
 
-	public static XMLParser getInstance() {
+	public static DOMParser getInstance() {
 		return INSTANCE;
 	}
 
-	private XMLParser() {
+	private DOMParser() {
 
 	}
 
-	public XMLDocument parse(String text, String uri, URIResolverExtensionManager resolverExtensionManager) {
+	public DOMDocument parse(String text, String uri, URIResolverExtensionManager resolverExtensionManager) {
 		return parse(new TextDocument(text, uri), resolverExtensionManager);
 	}
 
-	public XMLDocument parse(TextDocument document, URIResolverExtensionManager resolverExtensionManager) {
+	public DOMDocument parse(TextDocument document, URIResolverExtensionManager resolverExtensionManager) {
 
 		String text = document.getText();
 		Scanner scanner = XMLScanner.createScanner(text);
-		XMLDocument xmlDocument = new XMLDocument(document, resolverExtensionManager);
+		DOMDocument xmlDocument = new DOMDocument(document, resolverExtensionManager);
 
-		Node curr = xmlDocument;
-		Node lastClosed = xmlDocument;
-		Attr attr = null;
+		DOMNode curr = xmlDocument;
+		DOMNode lastClosed = xmlDocument;
+		DOMAttr attr = null;
 		int endTagOpenOffset = -1;
 		String pendingAttribute = null;
 		TokenType token = scanner.scan();
 		while (token != TokenType.EOS) {
 			switch (token) {
 			case StartTagOpen: {
-				Element child = xmlDocument.createElement(scanner.getTokenOffset(), text.length());
+				DOMElement child = xmlDocument.createElement(scanner.getTokenOffset(), text.length());
 				child.startTagOpenOffset = scanner.getTokenOffset();
 				curr.addChild(child);
 				curr = child;
@@ -66,14 +66,14 @@ public class XMLParser {
 			}
 
 			case StartTag: {
-				Element element = (Element) curr;
+				DOMElement element = (DOMElement) curr;
 				element.tag = scanner.getTokenText();
 				break;
 			}
 
 			case StartTagClose:
 				if (curr.isElement()) {
-					Element element = (Element) curr;
+					DOMElement element = (DOMElement) curr;
 					curr.end = scanner.getTokenEnd(); // might be later set to end tag position
 					element.startTagCloseOffset = scanner.getTokenOffset();
 					if (element.getTagName() != null && isEmptyElement(element.getTagName()) && curr.parent != null) {
@@ -98,8 +98,8 @@ public class XMLParser {
 			case EndTag:
 				// end tag (ex: </root>)
 				String closeTag = scanner.getTokenText().toLowerCase();
-				Node current = curr;
-				while (!(curr.isElement() && ((Element) curr).isSameTag(closeTag)) && curr.parent != null) {
+				DOMNode current = curr;
+				while (!(curr.isElement() && ((DOMElement) curr).isSameTag(closeTag)) && curr.parent != null) {
 					curr.end = endTagOpenOffset;
 					curr.closed = false;
 					curr = curr.parent;
@@ -107,14 +107,14 @@ public class XMLParser {
 				if (curr != xmlDocument) {
 					curr.closed = true;
 					if (curr.isElement()) {
-						((Element) curr).endTagOpenOffset = endTagOpenOffset;
+						((DOMElement) curr).endTagOpenOffset = endTagOpenOffset;
 					} else if (curr.isProcessingInstruction() || curr.isProlog()) {
 						((ProcessingInstruction) curr).endTagOpenOffset = endTagOpenOffset;
 					}
 				} else {
 					// element open tag not found (ex: <root>) add a fake elementg which have just
 					// end tag (no start tag).
-					Element element = xmlDocument.createElement(scanner.getTokenOffset() - 2, text.length());
+					DOMElement element = xmlDocument.createElement(scanner.getTokenOffset() - 2, text.length());
 					element.endTagOpenOffset = endTagOpenOffset;
 					element.tag = closeTag;
 					current.addChild(element);
@@ -125,7 +125,7 @@ public class XMLParser {
 			case StartTagSelfClose:
 				if (curr.parent != null) {
 					curr.closed = true;
-					((Element) curr).selfClosed = true;
+					((DOMElement) curr).selfClosed = true;
 					curr.end = scanner.getTokenEnd();
 					lastClosed = curr;
 					curr = curr.parent;
@@ -142,7 +142,7 @@ public class XMLParser {
 
 			case AttributeName: {
 				pendingAttribute = scanner.getTokenText();
-				attr = new Attr(pendingAttribute, scanner.getTokenOffset(),
+				attr = new DOMAttr(pendingAttribute, scanner.getTokenOffset(),
 						scanner.getTokenOffset() + pendingAttribute.length(), curr);
 				curr.setAttributeNode(attr);
 				break;
@@ -159,14 +159,14 @@ public class XMLParser {
 			}
 
 			case CDATATagOpen: {
-				CDataSection cdataNode = xmlDocument.createCDataSection(scanner.getTokenOffset(), text.length());
+				DOMCDataSection cdataNode = xmlDocument.createCDataSection(scanner.getTokenOffset(), text.length());
 				curr.addChild(cdataNode);
 				curr = cdataNode;
 				break;
 			}
 
 			case CDATAContent: {
-				CDataSection cdataNode = (CDataSection) curr;
+				DOMCDataSection cdataNode = (DOMCDataSection) curr;
 				cdataNode.startContent = scanner.getTokenOffset();
 				cdataNode.endContent = scanner.getTokenEnd();
 				break;
@@ -217,7 +217,7 @@ public class XMLParser {
 			}
 
 			case StartCommentTag: {
-				Comment comment = xmlDocument.createComment(scanner.getTokenOffset(), text.length());
+				DOMComment comment = xmlDocument.createComment(scanner.getTokenOffset(), text.length());
 				curr.addChild(comment);
 				curr = comment;
 				try {
@@ -233,14 +233,14 @@ public class XMLParser {
 			}
 
 			case Comment: {
-				Comment comment = (Comment) curr;
+				DOMComment comment = (DOMComment) curr;
 				comment.startContent = scanner.getTokenOffset();
 				comment.endContent = scanner.getTokenEnd();
 				break;
 			}
 
 			case StartDoctypeTag: {
-				DocumentType doctype = xmlDocument.createDocumentType(scanner.getTokenOffset(), text.length());
+				DOMDocumentType doctype = xmlDocument.createDocumentType(scanner.getTokenOffset(), text.length());
 				curr.addChild(doctype);
 				doctype.parent = curr;
 				curr = doctype;
@@ -248,37 +248,37 @@ public class XMLParser {
 			}
 
 			case DoctypeName: {
-				DocumentType doctype = (DocumentType) curr;
+				DOMDocumentType doctype = (DOMDocumentType) curr;
 				doctype.setName(scanner.getTokenText());
 				break;
 			}
 
 			case DocTypeKindPUBLIC: {
-				DocumentType doctype = (DocumentType) curr;
+				DOMDocumentType doctype = (DOMDocumentType) curr;
 				doctype.setKind(DocumentTypeKind.PUBLIC);
 				break;
 			}
 
 			case DocTypeKindSYSTEM: {
-				DocumentType doctype = (DocumentType) curr;
+				DOMDocumentType doctype = (DOMDocumentType) curr;
 				doctype.setKind(DocumentTypeKind.SYSTEM);
 				break;
 			}
 
 			case DoctypePublicId: {
-				DocumentType doctype = (DocumentType) curr;
+				DOMDocumentType doctype = (DOMDocumentType) curr;
 				doctype.setPublicId(scanner.getTokenText());
 				break;
 			}
 
 			case DoctypeSystemId: {
-				DocumentType doctype = (DocumentType) curr;
+				DOMDocumentType doctype = (DOMDocumentType) curr;
 				doctype.setSystemId(scanner.getTokenText());
 				break;
 			}
 
 			case InternalDTDContent: {
-				DocumentType doctype = (DocumentType) curr;
+				DOMDocumentType doctype = (DOMDocumentType) curr;
 				doctype.setInternalDTD(scanner.getTokenText());
 				break;
 			}
@@ -306,7 +306,7 @@ public class XMLParser {
 				}
 				int start = scanner.getTokenOffset();
 				int end = scanner.getTokenEnd();
-				Text textNode = xmlDocument.createText(start, end);
+				DOMText textNode = xmlDocument.createText(start, end);
 				textNode.closed = true;
 				curr.addChild(textNode);
 				break;

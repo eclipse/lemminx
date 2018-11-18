@@ -16,9 +16,9 @@ import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.CodeActionFactory;
-import org.eclipse.lsp4xml.dom.Element;
-import org.eclipse.lsp4xml.dom.Node;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMElement;
+import org.eclipse.lsp4xml.dom.DOMNode;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.services.extensions.ICodeActionParticipant;
@@ -33,14 +33,14 @@ import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 public class cvc_enumeration_validCodeAction implements ICodeActionParticipant {
 
 	@Override
-	public void doCodeAction(Diagnostic diagnostic, Range range, XMLDocument document, List<CodeAction> codeActions,
+	public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
 			XMLFormattingOptions formattingSettings, IComponentProvider componentProvider) {
 		try {
 			int offset = document.offsetAt(range.getStart());
-			Node element = document.findNodeBefore(offset);
+			DOMNode element = document.findNodeBefore(offset);
 			if (element != null && element.isElement()) {
 				ContentModelManager contentModelManager = componentProvider.getComponent(ContentModelManager.class);
-				CMElementDeclaration cmElement = contentModelManager.findCMElement((Element) element);
+				CMElementDeclaration cmElement = contentModelManager.findCMElement((DOMElement) element);
 				if (cmElement != null) {
 					cmElement.getEnumerationValues().forEach(value -> {
 						// Replace text content

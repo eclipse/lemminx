@@ -28,8 +28,8 @@ import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
-import org.eclipse.lsp4xml.dom.Element;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMElement;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.ContentModelSettings;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLProblems;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.LSPContentHandler;
@@ -49,7 +49,7 @@ public class XMLValidator {
 
 	private static final Logger LOGGER = Logger.getLogger(XMLValidator.class.getName());
 
-	public static void doDiagnostics(XMLDocument document, XMLEntityResolver entityResolver,
+	public static void doDiagnostics(DOMDocument document, XMLEntityResolver entityResolver,
 			List<Diagnostic> diagnostics, ContentModelSettings contentModelSettings, CancelChecker monitor) {
 
 		try {
@@ -108,7 +108,7 @@ public class XMLValidator {
 	 * @param diagnostics the diagnostics list to populate
 	 * @param settings    the settings to use to know the severity of warn.
 	 */
-	private static void warnNoGrammar(XMLDocument document, List<Diagnostic> diagnostics,
+	private static void warnNoGrammar(DOMDocument document, List<Diagnostic> diagnostics,
 			ContentModelSettings settings) {
 		boolean hasGrammar = document.hasGrammar();
 		if (hasGrammar) {
@@ -123,7 +123,7 @@ public class XMLValidator {
 		if (!hasGrammar) {
 			// No grammar, add a warn diagnostic with the severity coming from the settings.
 			Range range = null;
-			Element documentElement = document.getDocumentElement();
+			DOMElement documentElement = document.getDocumentElement();
 			if (documentElement != null) {
 				range = XMLPositionUtility.selectStartTag(documentElement);
 			}

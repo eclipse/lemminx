@@ -18,8 +18,8 @@ import java.util.Map;
 import org.apache.xerces.xni.XMLResourceIdentifier;
 import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.parser.XMLInputSource;
-import org.eclipse.lsp4xml.dom.Element;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMElement;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.services.IXMLDocumentProvider;
 import org.eclipse.lsp4xml.uriresolver.CacheResourcesManager;
 import org.eclipse.lsp4xml.uriresolver.CacheResourcesManager.ResourceToDeploy;
@@ -101,9 +101,9 @@ public class XSLURIResolverExtension implements URIResolverExtension {
 		if (documentProvider == null) {
 			return null;
 		}
-		XMLDocument document = documentProvider.getDocument(uri);
+		DOMDocument document = documentProvider.getDocument(uri);
 		if (document != null) {
-			Element element = document.getDocumentElement();
+			DOMElement element = document.getDocumentElement();
 			if (element != null) {
 				String version = element.getAttribute("version");
 				if (version != null) {

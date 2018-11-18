@@ -21,9 +21,9 @@ import org.eclipse.lsp4j.DocumentHighlightKind;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.BadLocationException;
-import org.eclipse.lsp4xml.dom.Element;
-import org.eclipse.lsp4xml.dom.Node;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMElement;
+import org.eclipse.lsp4xml.dom.DOMNode;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.parser.Scanner;
 import org.eclipse.lsp4xml.dom.parser.TokenType;
 import org.eclipse.lsp4xml.dom.parser.XMLScanner;
@@ -43,7 +43,7 @@ class XMLHighlighting {
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
-	public List<DocumentHighlight> findDocumentHighlights(XMLDocument xmlDocument, Position position) {
+	public List<DocumentHighlight> findDocumentHighlights(DOMDocument xmlDocument, Position position) {
 		int offset = -1;
 		try {
 			offset = xmlDocument.offsetAt(position);
@@ -51,8 +51,8 @@ class XMLHighlighting {
 			LOGGER.log(Level.SEVERE, "In XMLHighlighting the client provided Position is at a BadLocation", e);
 			return Collections.emptyList();
 		}
-		Node node = xmlDocument.findNodeAt(offset);
-		if (node == null || !node.isElement() || ((Element) node).getTagName() == null) {
+		DOMNode node = xmlDocument.findNodeAt(offset);
+		if (node == null || !node.isElement() || ((DOMElement) node).getTagName() == null) {
 			return Collections.emptyList();
 		}
 
@@ -80,7 +80,7 @@ class XMLHighlighting {
 			}
 			return Collections.emptyList();
 		} else if (node.isElement()) {
-			Element element = (Element) node;
+			DOMElement element = (DOMElement) node;
 			startTagRange = getTagNameRange(TokenType.StartTag, node.getStart(), xmlDocument);
 			endTagRange = element.hasEndTag() ? getTagNameRange(TokenType.EndTag, element.getEndTagOpenOffset(), xmlDocument)
 					: null;
@@ -117,7 +117,7 @@ class XMLHighlighting {
 		return isBeforeOrEqual(range.getStart(), position) && isBeforeOrEqual(position, range.getEnd());
 	}
 
-	private static Range getTagNameRange(TokenType tokenType, int startOffset, XMLDocument xmlDocument) {
+	private static Range getTagNameRange(TokenType tokenType, int startOffset, DOMDocument xmlDocument) {
 
 		Scanner scanner = XMLScanner.createScanner(xmlDocument.getText(), startOffset);
 

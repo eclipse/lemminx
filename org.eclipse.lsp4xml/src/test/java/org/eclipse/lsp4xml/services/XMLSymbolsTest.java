@@ -12,8 +12,8 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.SymbolKind;
 import org.eclipse.lsp4xml.commons.BadLocationException;
-import org.eclipse.lsp4xml.dom.XMLDocument;
-import org.eclipse.lsp4xml.dom.XMLParser;
+import org.eclipse.lsp4xml.dom.DOMDocument;
+import org.eclipse.lsp4xml.dom.DOMParser;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -23,7 +23,7 @@ import org.junit.Test;
 public class XMLSymbolsTest {
     private static final String testURI = "test:URI";
     private XMLLanguageService languageService;
-    private XMLDocument xmlDocument;
+    private DOMDocument xmlDocument;
     private List<SymbolInformation> actualSymbolInfos;
     private List<SymbolInformation> expectedSymbolInfos;
     private Location currentLocation;
@@ -195,7 +195,7 @@ public class XMLSymbolsTest {
     //-------------------Tools------------------------------
 
     private void initializeTestObjects(String xmlText) {
-        xmlDocument = XMLParser.getInstance().parse(xmlText, testURI, null);
+        xmlDocument = DOMParser.getInstance().parse(xmlText, testURI, null);
         actualSymbolInfos = languageService.findDocumentSymbols(xmlDocument);
         expectedSymbolInfos = new ArrayList<SymbolInformation>();
     }
@@ -222,7 +222,7 @@ public class XMLSymbolsTest {
         return temp;
     }
 
-    private Range createRange(int startOffset, int endOffset, XMLDocument xmlDocument) {
+    private Range createRange(int startOffset, int endOffset, DOMDocument xmlDocument) {
         Position start = null;
 		try {
             start = xmlDocument.positionAt(startOffset);
@@ -239,7 +239,7 @@ public class XMLSymbolsTest {
         return new Range(start,end);
     }
 
-    private Location createLocation(String uri, int startOffset, int endOffset, XMLDocument xmlDocument) {
+    private Location createLocation(String uri, int startOffset, int endOffset, DOMDocument xmlDocument) {
         Range range = createRange(startOffset, endOffset, xmlDocument);
         return new Location(uri, range);
     }

@@ -20,8 +20,8 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4xml.commons.BadLocationException;
-import org.eclipse.lsp4xml.dom.XMLDocument;
-import org.eclipse.lsp4xml.dom.XMLParser;
+import org.eclipse.lsp4xml.dom.DOMDocument;
+import org.eclipse.lsp4xml.dom.DOMParser;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -96,7 +96,7 @@ public class XMLRenameTest {
 		int offset = value.indexOf("|");
 		value = value.substring(0, offset) + value.substring(offset + 1);
 
-		XMLDocument document = XMLParser.getInstance().parse(value, "test://test/test.html", null);
+		DOMDocument document = DOMParser.getInstance().parse(value, "test://test/test.html", null);
 
 		Position position = document.positionAt(offset);
 

@@ -15,7 +15,7 @@ import java.util.Map;
 
 import org.apache.xerces.xni.XMLLocator;
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.codeactions.cvc_attribute_3CodeAction;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.codeactions.cvc_complex_type_2_1CodeAction;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.codeactions.cvc_complex_type_2_3CodeAction;
@@ -104,7 +104,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 	 * @return the LSP range from the SAX error.
 	 */
 	public static Range toLSPRange(XMLLocator location, XMLSchemaErrorCode code, Object[] arguments,
-			XMLDocument document) {
+			DOMDocument document) {
 		int offset = location.getCharacterOffset() - 1;
 		// adjust positions
 		switch (code) {

@@ -16,8 +16,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.lsp4xml.dom.Element;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMElement;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLFileAssociation;
 import org.eclipse.lsp4xml.extensions.contentmodel.uriresolver.XMLCacheResolverExtension;
 import org.eclipse.lsp4xml.extensions.contentmodel.uriresolver.XMLCatalogResolverExtension;
@@ -54,7 +54,7 @@ public class ContentModelManager {
 		setUseCache(true);
 	}
 
-	public CMElementDeclaration findCMElement(Element element) throws Exception {
+	public CMElementDeclaration findCMElement(DOMElement element) throws Exception {
 		return findCMElement(element, element.getNamespaceURI());
 	}
 
@@ -66,16 +66,16 @@ public class ContentModelManager {
 	 * @return the declared element which matches the given XML element and null
 	 *         otherwise.
 	 */
-	public CMElementDeclaration findCMElement(Element element, String namespaceURI) throws Exception {
+	public CMElementDeclaration findCMElement(DOMElement element, String namespaceURI) throws Exception {
 		CMDocument cmDocument = findCMDocument(element, namespaceURI);
 		return cmDocument != null ? cmDocument.findCMElement(element, namespaceURI) : null;
 	}
 
-	public CMDocument findCMDocument(Element element, String namespaceURI) {
+	public CMDocument findCMDocument(DOMElement element, String namespaceURI) {
 		return findCMDocument(element.getOwnerDocument(), namespaceURI);
 	}
 
-	public CMDocument findCMDocument(XMLDocument xmlDocument, String namespaceURI) {
+	public CMDocument findCMDocument(DOMDocument xmlDocument, String namespaceURI) {
 		ContentModelProvider modelProvider = getModelProviderByStandardAssociation(xmlDocument);
 		String systemId = modelProvider != null ? modelProvider.getSystemId(xmlDocument, namespaceURI) : null;
 		return findCMDocument(xmlDocument.getDocumentURI(), namespaceURI, systemId, modelProvider);
@@ -132,7 +132,7 @@ public class ContentModelManager {
 	 *         (xsi:schemaLocation, xsi:noNamespaceSchemaLocation, doctype) an dnull
 	 *         otherwise.
 	 */
-	private ContentModelProvider getModelProviderByStandardAssociation(XMLDocument xmlDocument) {
+	private ContentModelProvider getModelProviderByStandardAssociation(DOMDocument xmlDocument) {
 		for (ContentModelProvider modelProvider : modelProviders) {
 			if (modelProvider.adaptFor(xmlDocument)) {
 				return modelProvider;

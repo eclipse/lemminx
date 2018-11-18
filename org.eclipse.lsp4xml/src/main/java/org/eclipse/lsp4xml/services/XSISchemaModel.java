@@ -17,8 +17,8 @@ import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.eclipse.lsp4xml.dom.Element;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMElement;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
 
@@ -29,7 +29,7 @@ import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
 public class XSISchemaModel {
 	
 	public static void computeCompletionResponses(ICompletionRequest request, 
-			ICompletionResponse response, Range editRange, XMLDocument document) {
+			ICompletionResponse response, Range editRange, DOMDocument document) {
 		String snippet = "";
 		boolean isSnippetsSupported = request.getCompletionSettings().isCompletionSnippetsSupported();
 		if(isSnippetsSupported) {
@@ -38,7 +38,7 @@ public class XSISchemaModel {
 		String actualPrefix = document.getSchemaInstancePrefix();
 		String name;
 		String documentation;
-		Element root = document.getDocumentElement();
+		DOMElement root = document.getDocumentElement();
 		boolean schemaLocationExists = document.hasSchemaLocation();
 		boolean noNamespaceSchemaLocationExists = document.hasNoNamespaceSchemaLocation();
 		//Indicates that no values are allowed inside an XML element
@@ -99,7 +99,7 @@ public class XSISchemaModel {
 		response.addCompletionItem(item);
 	}
 
-	private static boolean attributeAlreadyExists(Element root, String actualPrefix, String suffix) {
+	private static boolean attributeAlreadyExists(DOMElement root, String actualPrefix, String suffix) {
 		return root.getAttributeNode(actualPrefix + ":" + suffix) != null; 
 	}
 }

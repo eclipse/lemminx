@@ -12,10 +12,10 @@ package org.eclipse.lsp4xml.services;
 
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4xml.commons.BadLocationException;
-import org.eclipse.lsp4xml.dom.Element;
+import org.eclipse.lsp4xml.dom.DOMElement;
 import org.eclipse.lsp4xml.dom.LineIndentInfo;
-import org.eclipse.lsp4xml.dom.Node;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMNode;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.services.extensions.IPositionRequest;
 
 /**
@@ -24,15 +24,15 @@ import org.eclipse.lsp4xml.services.extensions.IPositionRequest;
  */
 abstract class AbstractPositionRequest implements IPositionRequest {
 
-	private final XMLDocument xmlDocument;
+	private final DOMDocument xmlDocument;
 	private final Position position;
 	private final int offset;
 
 	private String currentAttributeName;
-	private final Node node;
+	private final DOMNode node;
 	private LineIndentInfo indentInfo;
 
-	public AbstractPositionRequest(XMLDocument xmlDocument, Position position) throws BadLocationException {
+	public AbstractPositionRequest(DOMDocument xmlDocument, Position position) throws BadLocationException {
 		this.xmlDocument = xmlDocument;
 		this.position = position;
 		offset = xmlDocument.offsetAt(position);
@@ -42,21 +42,21 @@ abstract class AbstractPositionRequest implements IPositionRequest {
 		}
 	}
 
-	protected abstract Node findNodeAt(XMLDocument xmlDocument, int offset);
+	protected abstract DOMNode findNodeAt(DOMDocument xmlDocument, int offset);
 
 	@Override
-	public Node getNode() {
+	public DOMNode getNode() {
 		return node;
 	}
 
 	@Override
-	public Element getParentElement() {
-		Node currentNode = getNode();
+	public DOMElement getParentElement() {
+		DOMNode currentNode = getNode();
 		if (!currentNode.isElement() || currentNode.getEnd() < offset) {
 			// Node is not an element, search parent element.
 			return currentNode.getParentElement();
 		}
-		Element element = (Element) currentNode;
+		DOMElement element = (DOMElement) currentNode;
 		// node is an element, there are 2 cases
 		// case 1: <| or <bean | > --> in this case we must search parent of bean
 		// element
@@ -64,7 +64,7 @@ abstract class AbstractPositionRequest implements IPositionRequest {
 			return element.getParentElement();
 		}
 		// case 2: <bean> | --> in this case, parent element is the bean
-		return (Element) currentNode;
+		return (DOMElement) currentNode;
 	}
 
 	@Override
@@ -73,7 +73,7 @@ abstract class AbstractPositionRequest implements IPositionRequest {
 	}
 
 	@Override
-	public XMLDocument getXMLDocument() {
+	public DOMDocument getXMLDocument() {
 		return xmlDocument;
 	}
 
@@ -84,8 +84,8 @@ abstract class AbstractPositionRequest implements IPositionRequest {
 
 	@Override
 	public String getCurrentTag() {
-		if (node != null && node.isElement() && ((Element) node).getTagName() != null) {
-			return ((Element) node).getTagName();
+		if (node != null && node.isElement() && ((DOMElement) node).getTagName() != null) {
+			return ((DOMElement) node).getTagName();
 		}
 		return null;
 	}

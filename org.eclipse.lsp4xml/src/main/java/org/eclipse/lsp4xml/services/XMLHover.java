@@ -17,9 +17,9 @@ import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.BadLocationException;
-import org.eclipse.lsp4xml.dom.Element;
-import org.eclipse.lsp4xml.dom.Node;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMElement;
+import org.eclipse.lsp4xml.dom.DOMNode;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.parser.Scanner;
 import org.eclipse.lsp4xml.dom.parser.TokenType;
 import org.eclipse.lsp4xml.dom.parser.XMLScanner;
@@ -40,7 +40,7 @@ class XMLHover {
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
-	public Hover doHover(XMLDocument xmlDocument, Position position) {
+	public Hover doHover(DOMDocument xmlDocument, Position position) {
 		HoverRequest hoverRequest = null;
 		try {
 			hoverRequest = new HoverRequest(xmlDocument, position, extensionsRegistry);
@@ -49,13 +49,13 @@ class XMLHover {
 			return null;
 		}
 		int offset = hoverRequest.getOffset();
-		Node node = hoverRequest.getNode();
+		DOMNode node = hoverRequest.getNode();
 		if (node == null) {
 			return null;
 		}
-		if (node.isElement() && ((Element) node).getTagName() != null) {
+		if (node.isElement() && ((DOMElement) node).getTagName() != null) {
 			// Element is hover
-			Element element = (Element) node;
+			DOMElement element = (DOMElement) node;
 			if (element.hasEndTag() && offset >= element.getEndTagOpenOffset()) {
 				Range tagRange = getTagNameRange(TokenType.EndTag, element.getEndTagOpenOffset(), offset, xmlDocument);
 				if (tagRange != null) {
@@ -100,7 +100,7 @@ class XMLHover {
 		return null;
 	}
 
-	private Range getTagNameRange(TokenType tokenType, int startOffset, int offset, XMLDocument document) {
+	private Range getTagNameRange(TokenType tokenType, int startOffset, int offset, DOMDocument document) {
 		Scanner scanner = XMLScanner.createScanner(document.getText(), startOffset);
 		TokenType token = scanner.scan();
 		while (token != TokenType.EOS

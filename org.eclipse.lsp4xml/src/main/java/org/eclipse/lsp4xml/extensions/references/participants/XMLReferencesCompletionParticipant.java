@@ -16,8 +16,8 @@ import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
-import org.eclipse.lsp4xml.dom.Node;
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMNode;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.extensions.references.XMLReferencesManager;
 import org.eclipse.lsp4xml.services.extensions.CompletionParticipantAdapter;
 import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
@@ -29,10 +29,10 @@ public class XMLReferencesCompletionParticipant extends CompletionParticipantAda
 	@Override
 	public void onXMLContent(ICompletionRequest request, ICompletionResponse response) throws Exception {
 		int offset = request.getOffset();
-		final Node node = getNodeAt(request.getNode(), offset);	
+		final DOMNode node = getNodeAt(request.getNode(), offset);	
 		if (node != null) {			
 			XMLReferencesManager.getInstance().collect(node, n -> {
-				XMLDocument doc = n.getOwnerDocument();
+				DOMDocument doc = n.getOwnerDocument();
 				Range range = XMLPositionUtility.createRange(node.getStart(), node.getEnd(), doc);
 				String oldValue = node.getNodeValue();
 				String label = n.getNodeValue();
@@ -49,13 +49,13 @@ public class XMLReferencesCompletionParticipant extends CompletionParticipantAda
 		}
 	}
 
-	private Node getNodeAt(Node node, int offset) {
+	private DOMNode getNodeAt(DOMNode node, int offset) {
 		if (node == null) {
 			return null;
 		}
 		if (node.hasChildNodes()) {
-			for (Node child : node.getChildren()) {
-				if (Node.isIncluded(child, offset + 1)) {
+			for (DOMNode child : node.getChildren()) {
+				if (DOMNode.isIncluded(child, offset + 1)) {
 					return getNodeAt(child, offset + 1);
 				}
 			}

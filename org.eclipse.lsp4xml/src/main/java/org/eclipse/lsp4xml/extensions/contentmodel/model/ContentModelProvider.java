@@ -10,7 +10,7 @@
  */
 package org.eclipse.lsp4xml.extensions.contentmodel.model;
 
-import org.eclipse.lsp4xml.dom.XMLDocument;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 
 /**
  * Content model provider API.
@@ -28,11 +28,11 @@ public interface ContentModelProvider {
 	 *         (xsi:schemaLocation, xsi:noNamespaceSchemaLocation, doctype) an dnull
 	 *         otherwise.
 	 */
-	boolean adaptFor(XMLDocument document);
+	boolean adaptFor(DOMDocument document);
 
 	boolean adaptFor(String uri);
 
-	String getSystemId(XMLDocument xmlDocument, String namespaceURI);
+	String getSystemId(DOMDocument xmlDocument, String namespaceURI);
 
 	CMDocument createCMDocument(String key);
 }
