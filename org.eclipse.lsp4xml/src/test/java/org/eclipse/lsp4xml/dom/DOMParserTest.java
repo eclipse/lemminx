@@ -417,7 +417,7 @@ public class DOMParserTest {
 	// --------------------------------------------------------------------------------
 	// Tools
 
-	private static DOMCDataSection createCDATANode(String content, int start, int end, boolean closed) {
+	private static DOMCDATASection createCDATANode(String content, int start, int end, boolean closed) {
 		MockCDataSection n = (MockCDataSection) createNode(DOMNode.CDATA_SECTION_NODE, null, start, null, end, closed);
 		n.content = content;
 		return n;
@@ -485,7 +485,7 @@ public class DOMParserTest {
 		}
 	}
 
-	private static class MockCDataSection extends DOMCDataSection {
+	private static class MockCDataSection extends DOMCDATASection {
 
 		public String content;
 

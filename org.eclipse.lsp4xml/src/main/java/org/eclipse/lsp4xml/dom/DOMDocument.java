@@ -351,8 +351,8 @@ public class DOMDocument extends DOMNode implements Document {
 		return new DOMElement(start, end, this);
 	}
 
-	public DOMCDataSection createCDataSection(int start, int end) {
-		return new DOMCDataSection(start, end, this);
+	public DOMCDATASection createCDataSection(int start, int end) {
+		return new DOMCDATASection(start, end, this);
 	}
 
 	public ProcessingInstruction createProcessingInstruction(int start, int end) {

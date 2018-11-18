@@ -159,14 +159,14 @@ public class DOMParser {
 			}
 
 			case CDATATagOpen: {
-				DOMCDataSection cdataNode = xmlDocument.createCDataSection(scanner.getTokenOffset(), text.length());
+				DOMCDATASection cdataNode = xmlDocument.createCDataSection(scanner.getTokenOffset(), text.length());
 				curr.addChild(cdataNode);
 				curr = cdataNode;
 				break;
 			}
 
 			case CDATAContent: {
-				DOMCDataSection cdataNode = (DOMCDataSection) curr;
+				DOMCDATASection cdataNode = (DOMCDATASection) curr;
 				cdataNode.startContent = scanner.getTokenOffset();
 				cdataNode.endContent = scanner.getTokenEnd();
 				break;

@@ -21,7 +21,7 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.dom.DOMAttr;
-import org.eclipse.lsp4xml.dom.DOMCDataSection;
+import org.eclipse.lsp4xml.dom.DOMCDATASection;
 import org.eclipse.lsp4xml.dom.DOMComment;
 import org.eclipse.lsp4xml.dom.DOMDocumentType;
 import org.eclipse.lsp4xml.dom.DOMElement;
@@ -97,7 +97,7 @@ class XMLFormatter {
 			}
 			// generate start element
 			if (node.isCDATA()) {
-				DOMCDataSection cdata = (DOMCDataSection) node;
+				DOMCDATASection cdata = (DOMCDATASection) node;
 				xml.startCDATA();
 				xml.addContentCDATA(cdata.getData());
 				xml.endCDATA();

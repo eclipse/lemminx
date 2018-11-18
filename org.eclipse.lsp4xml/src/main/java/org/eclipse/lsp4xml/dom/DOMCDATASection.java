@@ -14,12 +14,12 @@ package org.eclipse.lsp4xml.dom;
  * A CData section node.
  *
  */
-public class DOMCDataSection extends DOMText implements org.w3c.dom.CDATASection {
+public class DOMCDATASection extends DOMText implements org.w3c.dom.CDATASection {
 
 	int startContent;
 	int endContent;
 
-	public DOMCDataSection(int start, int end, DOMDocument ownerDocument) {
+	public DOMCDATASection(int start, int end, DOMDocument ownerDocument) {
 		super(start, end, ownerDocument);
 	}
 
