@@ -226,18 +226,19 @@ public class XMLDocument extends Node implements Document {
 		schemaInstancePrefix = null;
 		// Search if document element root declares namespace with "xmlns".
 		if (documentElement.hasAttributes()) {
-
 			for (Attr attr : documentElement.getAttributeNodes()) {
 				String attributeName = attr.getName();
-				if (attributeName != null && attributeName.equals("xmlns") || attributeName.startsWith("xmlns:")) //$NON-NLS-1$ //$NON-NLS-2$
-				{
-					hasNamespaces = true;
-				}
-				String attributeValue = documentElement.getAttribute(attributeName);
-				if (attributeValue != null && attributeValue.startsWith("http://www.w3.org/") //$NON-NLS-1$
-						&& attributeValue.endsWith("/XMLSchema-instance")) //$NON-NLS-1$
-				{
-					schemaInstancePrefix = attributeName.equals("xmlns") ? "" : getUnprefixedName(attributeName); //$NON-NLS-1$ //$NON-NLS-2$
+				if (attributeName != null) {
+					if (attributeName.equals("xmlns") || attributeName.startsWith("xmlns:")) //$NON-NLS-1$ //$NON-NLS-2$
+					{
+						hasNamespaces = true;
+					}
+					String attributeValue = documentElement.getAttribute(attributeName);
+					if (attributeValue != null && attributeValue.startsWith("http://www.w3.org/") //$NON-NLS-1$
+							&& attributeValue.endsWith("/XMLSchema-instance")) //$NON-NLS-1$
+					{
+						schemaInstancePrefix = attributeName.equals("xmlns") ? "" : getUnprefixedName(attributeName); //$NON-NLS-1$ //$NON-NLS-2$
+					}
 				}
 			}
 			if (schemaInstancePrefix != null) {
