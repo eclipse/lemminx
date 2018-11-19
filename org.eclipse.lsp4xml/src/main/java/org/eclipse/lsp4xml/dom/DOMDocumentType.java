@@ -20,79 +20,78 @@ public class DOMDocumentType extends DOMNode implements org.w3c.dom.DocumentType
 
 	public enum DocumentTypeKind{
 		PUBLIC,
-		SYSTEM
+		SYSTEM,
+		INVALID
 	}
 
-	/** Document type name. */
-	String name;
-	private DocumentTypeKind kind;
+	//Offset values relative to start of the XML Document
+	int nameStart = -1;
+	int nameEnd = -1;
+	int kindStart = -1;
+	int kindEnd = -1;
+	int publicIdStart = -1;
+	int publicIdEnd = -1;
+	int systemIdStart = -1;
+	int systemIdEnd = -1;
+	int startInternalDTD = -1;
+	int endInternalDTD = -1;
+
+	private String name;
+	private String kind;
 	private String publicId;
 	private String systemId;
-	private String internalDTD; //TODO: THIS IS TEMPORARY. Implement actual parsing.
+	private String internalSubset;
 	
 	private String content;
-	int startContent;
-	int endContent;
-
-
 
 	public DOMDocumentType(int start, int end, DOMDocument ownerDocument) {
 		super(start, end, ownerDocument);
 	}
 
-	/**
-	 * @return the internalDTD
-	 */
-	public String getInternalDTD() {
-		return internalDTD;
-	}
-
-	/**
-	 * @param internalDTD the internalDTD to set
-	 */
-	public void setInternalDTD(String internalDTD) {
-		this.internalDTD = internalDTD;
-	}
-
 	public String getContent() {
 		if (content == null) {
-			content = getOwnerDocument().getText().substring(getStartContent(), getEndContent());
+			content = getOwnerDocument().getText().substring(getStart(), getEnd());
 		}
 		return content;
 	}
 
-	public int getStartContent() {
-		return startContent;
-	}
-
-	public int getEndContent() {
-		return endContent;
+	void setEnd(int end) {
+		this.end = end;
+		this.content = getOwnerDocument().getText().substring(start,end);
 	}
 
 	/**
-	 * The text immediately after DOCTYPE, "<!DOCTYPE this_is_the_Name ..."
+	 * The text immediately after DOCTYPE, "<!DOCTYPE this_is_the_name ..."
 	 */
 	@Override
 	public String getName() {
+		if(name == null && this.nameStart != -1 && this.nameEnd != -1) {
+			name = getSubstring(nameStart,nameEnd);
+		}
 		return name;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	void setName(int start, int end) {
+		nameStart = start;
+		nameEnd = end;
 	}
 
 	/**
 	 * @return the DocumentTypeKind
 	 */
-	public DocumentTypeKind getKind() {
+	public String getKind() {
+		if(kind == null && kindStart != -1 && kindEnd != -1) {
+			kind = getSubstring(kindStart,kindEnd);
+		}
 		return kind;
 	}
 
 	/**
 	 * @param kind the DocumentTypeKind to set
 	 */
-	public void setKind(DocumentTypeKind kind) {
-		this.kind = kind;
+	void setKind(int start, int end) {
+		kindStart = start;
+		kindEnd = end;
 	}
 
 	/*
@@ -132,7 +131,15 @@ public class DOMDocumentType extends DOMNode implements org.w3c.dom.DocumentType
 	 */
 	@Override
 	public String getInternalSubset() {
-		throw new UnsupportedOperationException();
+		if(internalSubset == null && startInternalDTD != -1 && endInternalDTD != -1) {
+			internalSubset = getSubstring(startInternalDTD,endInternalDTD);
+		}
+		return internalSubset;
+	}
+
+	void setInternalSubset(int start, int end) {
+		startInternalDTD = start;
+		endInternalDTD = end;
 	}
 
 	/*
@@ -152,14 +159,18 @@ public class DOMDocumentType extends DOMNode implements org.w3c.dom.DocumentType
 	 */
 	@Override
 	public String getPublicId() {
-		return this.publicId;
+		if(publicId == null && publicIdStart != -1 && publicIdEnd != -1) {
+			publicId = cleanURL(getSubstring(publicIdStart,publicIdEnd));
+		}
+		return publicId;
 	}
 
 	/**
 	 * @param publicId the publicId to set
 	 */
-	public void setPublicId(String publicId) {
-		this.publicId = cleanURL(publicId);
+	void setPublicId(int start, int end) {
+		publicIdStart = start;
+		publicIdEnd = end;
 	}
 
 	/*
@@ -169,16 +180,23 @@ public class DOMDocumentType extends DOMNode implements org.w3c.dom.DocumentType
 	 */
 	@Override
 	public String getSystemId() {
-		return this.systemId;
+		if(systemId == null && systemIdStart != -1 && systemIdEnd != -1) {
+			systemId = cleanURL(getSubstring(systemIdStart,systemIdEnd));
+		}
+		return systemId;
 	}
 
 	/**
 	 * @param systemId the systemId to set
 	 */
-	public void setSystemId(String systemId) {
-		this.systemId = cleanURL(systemId);
+	void setSystemId(int start, int end) {
+		systemIdStart = start;
+		systemIdEnd = end;
 	}
 
+	/**
+	 * Removes trailing " characters
+	 */
 	private static String cleanURL(String url) {
 		if (url == null) {
 			return null;
@@ -189,6 +207,10 @@ public class DOMDocumentType extends DOMNode implements org.w3c.dom.DocumentType
 		int start = url.charAt(0) == '\"' ? 1 : 0;
 		int end = url.charAt(url.length() - 1) == '\"' ? url.length() - 1 : url.length();
 		return url.substring(start, end);
+	}
+
+	private String getSubstring(int start, int end) {
+		return content.substring(start - getStart(), end - getStart()); 
 	}
 
 

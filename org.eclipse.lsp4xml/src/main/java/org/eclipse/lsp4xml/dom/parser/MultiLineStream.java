@@ -229,7 +229,7 @@ class MultiLineStream {
 	/**
 	 * Advances until it reaches a whitespace character
 	 */
-	public boolean advanceUntilWhitespace() {
+	public boolean readNextWord() {
 		int n = this.advanceWhileChar(CHARACTER_PREDICATE);
 		return n > 0;
 	}

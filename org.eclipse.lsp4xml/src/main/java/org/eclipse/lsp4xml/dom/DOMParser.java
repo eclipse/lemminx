@@ -249,42 +249,42 @@ public class DOMParser {
 
 			case DoctypeName: {
 				DOMDocumentType doctype = (DOMDocumentType) curr;
-				doctype.setName(scanner.getTokenText());
+				doctype.setName(scanner.getTokenOffset(), scanner.getTokenEnd());
 				break;
 			}
 
 			case DocTypeKindPUBLIC: {
 				DOMDocumentType doctype = (DOMDocumentType) curr;
-				doctype.setKind(DocumentTypeKind.PUBLIC);
+				doctype.setKind(scanner.getTokenOffset(), scanner.getTokenEnd());
 				break;
 			}
 
 			case DocTypeKindSYSTEM: {
 				DOMDocumentType doctype = (DOMDocumentType) curr;
-				doctype.setKind(DocumentTypeKind.SYSTEM);
+				doctype.setKind(scanner.getTokenOffset(), scanner.getTokenEnd());
 				break;
 			}
 
 			case DoctypePublicId: {
 				DOMDocumentType doctype = (DOMDocumentType) curr;
-				doctype.setPublicId(scanner.getTokenText());
+				doctype.setPublicId(scanner.getTokenOffset(), scanner.getTokenEnd());
 				break;
 			}
 
 			case DoctypeSystemId: {
 				DOMDocumentType doctype = (DOMDocumentType) curr;
-				doctype.setSystemId(scanner.getTokenText());
+				doctype.setSystemId(scanner.getTokenOffset(), scanner.getTokenEnd());
 				break;
 			}
 
 			case InternalDTDContent: {
 				DOMDocumentType doctype = (DOMDocumentType) curr;
-				doctype.setInternalDTD(scanner.getTokenText());
+				doctype.setInternalSubset(scanner.getTokenOffset(), scanner.getTokenEnd());
 				break;
 			}
 
 			case EndDoctypeTag: {
-				curr.end = scanner.getTokenEnd();
+				((DOMDocumentType)curr).setEnd(scanner.getTokenEnd());
 				curr.closed = true;
 				curr = curr.parent;
 				break;
