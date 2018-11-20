@@ -21,12 +21,17 @@ import org.eclipse.lsp4xml.extensions.contentmodel.model.CMElementDeclaration;
 /**
  * DTD element declaration.
  * 
- * @author azerr
  *
  */
-public class DTDElementDeclaration extends XMLElementDecl implements CMElementDeclaration {
+public class CMDTDElementDeclaration extends XMLElementDecl implements CMElementDeclaration {
 
+	private final CMDTDDocument document;
 	private List<CMElementDeclaration> elements;
+	private List<CMAttributeDeclaration> attributes;
+
+	public CMDTDElementDeclaration(CMDTDDocument document) {
+		this.document = document;
+	}
 
 	@Override
 	public String getName() {
@@ -40,28 +45,34 @@ public class DTDElementDeclaration extends XMLElementDecl implements CMElementDe
 
 	@Override
 	public Collection<CMAttributeDeclaration> getAttributes() {
-		// TODO Auto-generated method stub
-		return null;
+		if (attributes == null) {
+			attributes = new ArrayList<>();
+			document.collectAttributesDeclaration(getName(), attributes);
+		}
+		return attributes;
 	}
 
 	@Override
 	public Collection<CMElementDeclaration> getElements() {
 		if (elements == null) {
 			elements = new ArrayList<>();
-			// collectElementsDeclaration(elementDeclaration, elements);
+			document.collectElementsDeclaration(getName(), elements);
 		}
 		return elements;
 	}
 
 	@Override
 	public CMElementDeclaration findCMElement(String tag, String namespace) {
-		// TODO Auto-generated method stub
+		for (CMElementDeclaration cmElement : getElements()) {
+			if (cmElement.getName().equals(tag)) {
+				return cmElement;
+			}
+		}
 		return null;
 	}
 
 	@Override
 	public CMAttributeDeclaration findCMAttribute(String attributeName) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

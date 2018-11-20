@@ -27,12 +27,12 @@ import org.eclipse.lsp4xml.extensions.contentmodel.model.CMAttributeDeclaration;
  * XSD attribute declaration implementation.
  *
  */
-public class XSDAttributeDeclaration implements CMAttributeDeclaration {
+public class CMXSDAttributeDeclaration implements CMAttributeDeclaration {
 
 	private final XSAttributeUse attributeUse;
 	private String documentation;
 
-	public XSDAttributeDeclaration(XSAttributeUse attributeUse) {
+	public CMXSDAttributeDeclaration(XSAttributeUse attributeUse) {
 		this.attributeUse = attributeUse;
 	}
 
@@ -45,7 +45,7 @@ public class XSDAttributeDeclaration implements CMAttributeDeclaration {
 	public String getDefaultValue() {
 		XSValue xsValue = attributeUse.getValueConstraintValue();
 		if (xsValue == null) {
-			if (XSDDocument.isBooleanType(getAttrDeclaration().getTypeDefinition())) {
+			if (CMXSDDocument.isBooleanType(getAttrDeclaration().getTypeDefinition())) {
 				return "false";
 			}
 		}
@@ -104,7 +104,7 @@ public class XSDAttributeDeclaration implements CMAttributeDeclaration {
 		XSAttributeDeclaration attributeDeclaration = getAttrDeclaration();
 		if (attributeDeclaration != null) {
 			XSSimpleTypeDefinition typeDefinition = attributeDeclaration.getTypeDefinition();
-			return XSDDocument.getEnumerationValues(typeDefinition);
+			return CMXSDDocument.getEnumerationValues(typeDefinition);
 		}
 		return Collections.emptyList();
 	}

@@ -13,7 +13,7 @@ package org.eclipse.lsp4xml.extensions.dtd;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelProvider;
-import org.eclipse.lsp4xml.extensions.dtd.contentmodel.DTDContentModelProvider;
+import org.eclipse.lsp4xml.extensions.dtd.contentmodel.CMDTDContentModelProvider;
 import org.eclipse.lsp4xml.extensions.dtd.diagnostics.DTDDiagnosticsParticipant;
 import org.eclipse.lsp4xml.services.extensions.IXMLExtension;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
@@ -39,7 +39,7 @@ public class DTDPlugin implements IXMLExtension {
 	@Override
 	public void start(InitializeParams params, XMLExtensionsRegistry registry) {
 		// register DTD content model provider
-		ContentModelProvider modelProvider = new DTDContentModelProvider(registry.getResolverExtensionManager());
+		ContentModelProvider modelProvider = new CMDTDContentModelProvider(registry.getResolverExtensionManager());
 		ContentModelManager modelManager = registry.getComponent(ContentModelManager.class);
 		modelManager.registerModelProvider(modelProvider);
 		// register diagnostic participant

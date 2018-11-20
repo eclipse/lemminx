@@ -34,9 +34,9 @@ import org.eclipse.lsp4xml.extensions.contentmodel.model.CMElementDeclaration;
  * XSD element declaration implementation.
  *
  */
-public class XSDElementDeclaration implements CMElementDeclaration {
+public class CMXSDElementDeclaration implements CMElementDeclaration {
 
-	private final XSDDocument document;
+	private final CMXSDDocument document;
 
 	private final XSElementDeclaration elementDeclaration;
 
@@ -46,7 +46,7 @@ public class XSDElementDeclaration implements CMElementDeclaration {
 
 	private String documentation;
 
-	public XSDElementDeclaration(XSDDocument document, XSElementDeclaration elementDeclaration) {
+	public CMXSDElementDeclaration(CMXSDDocument document, XSElementDeclaration elementDeclaration) {
 		this.document = document;
 		this.elementDeclaration = elementDeclaration;
 	}
@@ -91,7 +91,7 @@ public class XSDElementDeclaration implements CMElementDeclaration {
 				XSObject object = list.item(i);
 				if (object.getType() == XSConstants.ATTRIBUTE_USE) {
 					XSAttributeUse attributeUse = (XSAttributeUse) object;
-					attributes.add(new XSDAttributeDeclaration(attributeUse));
+					attributes.add(new CMXSDAttributeDeclaration(attributeUse));
 				}
 
 			}
@@ -230,7 +230,7 @@ public class XSDElementDeclaration implements CMElementDeclaration {
 	public Collection<String> getEnumerationValues() {
 		XSTypeDefinition typeDefinition = elementDeclaration.getTypeDefinition();
 		if (typeDefinition != null && typeDefinition.getTypeCategory() == XSTypeDefinition.SIMPLE_TYPE) {
-			return XSDDocument.getEnumerationValues((XSSimpleTypeDefinition) typeDefinition);
+			return CMXSDDocument.getEnumerationValues((XSSimpleTypeDefinition) typeDefinition);
 		}
 		return Collections.emptyList();
 	}

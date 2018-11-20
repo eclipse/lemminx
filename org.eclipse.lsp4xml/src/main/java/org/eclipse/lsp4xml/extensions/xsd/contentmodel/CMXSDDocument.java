@@ -34,15 +34,15 @@ import org.eclipse.lsp4xml.extensions.contentmodel.model.CMElementDeclaration;
  * XSD document implementation.
  *
  */
-public class XSDDocument implements CMDocument {
+public class CMXSDDocument implements CMDocument {
 
 	private final XSModel model;
 
-	private final Map<XSElementDeclaration, XSDElementDeclaration> elementMappings;
+	private final Map<XSElementDeclaration, CMXSDElementDeclaration> elementMappings;
 
 	private Collection<CMElementDeclaration> elements;
 
-	public XSDDocument(XSModel model) {
+	public CMXSDDocument(XSModel model) {
 		this.model = model;
 		this.elementMappings = new HashMap<>();
 	}
@@ -125,9 +125,9 @@ public class XSDDocument implements CMDocument {
 	}
 
 	CMElementDeclaration getXSDElement(XSElementDeclaration elementDeclaration) {
-		XSDElementDeclaration element = elementMappings.get(elementDeclaration);
+		CMXSDElementDeclaration element = elementMappings.get(elementDeclaration);
 		if (element == null) {
-			element = new XSDElementDeclaration(this, elementDeclaration);
+			element = new CMXSDElementDeclaration(this, elementDeclaration);
 			elementMappings.put(elementDeclaration, element);
 		}
 		return element;

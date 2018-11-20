@@ -16,6 +16,11 @@
 
 	<system systemId="http://java.sun.com/dtd/web-app_2_3.dtd"
 		uri="../dtd/web-app_2_3.dtd" />
+
+	<system
+		systemId="http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd"
+		uri="../dtd/catalog.dtd" />
+		
 	<system systemId="http://invoice.xsd" uri="../xsd/invoice.xsd" />
 
 	<uri name="http://docs.oasis-open.org/odata/ns/edmx"

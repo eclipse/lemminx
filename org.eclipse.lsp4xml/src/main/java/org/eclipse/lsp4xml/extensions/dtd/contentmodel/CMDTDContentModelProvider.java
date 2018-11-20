@@ -10,11 +10,10 @@
  */
 package org.eclipse.lsp4xml.extensions.dtd.contentmodel;
 
-import org.apache.xerces.impl.dtd.DTDGrammar;
-import org.apache.xerces.impl.dtd.XMLDTDLoader;
+import org.apache.xerces.xni.grammars.Grammar;
 import org.apache.xerces.xni.parser.XMLInputSource;
-import org.eclipse.lsp4xml.dom.DOMDocumentType;
 import org.eclipse.lsp4xml.dom.DOMDocument;
+import org.eclipse.lsp4xml.dom.DOMDocumentType;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelProvider;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
@@ -23,13 +22,11 @@ import org.eclipse.lsp4xml.utils.DOMUtils;
 /**
  * DTD content model provider.
  */
-public class DTDContentModelProvider implements ContentModelProvider {
+public class CMDTDContentModelProvider implements ContentModelProvider {
 
 	private final URIResolverExtensionManager resolverExtensionManager;
 
-	private XMLDTDLoader loader;
-
-	public DTDContentModelProvider(URIResolverExtensionManager resolverExtensionManager) {
+	public CMDTDContentModelProvider(URIResolverExtensionManager resolverExtensionManager) {
 		this.resolverExtensionManager = resolverExtensionManager;
 	}
 
@@ -56,42 +53,18 @@ public class DTDContentModelProvider implements ContentModelProvider {
 
 	@Override
 	public CMDocument createCMDocument(String key) {
-		DTDGrammar model;
 		try {
-			model = (DTDGrammar) getLoader().loadGrammar(new XMLInputSource(null, key, null));
+			CMDTDDocument document = new CMDTDDocument();
+			document.setEntityResolver(resolverExtensionManager);
+			Grammar grammar = document.loadGrammar(new XMLInputSource(null, key, null));
+			if (grammar != null) {
+				// DTD can be loaded
+				return document;
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
-		if (model != null) {
-			//DTD can be loaded
-			return new DTDDocument(model);
-		}
 		return null;
 	}
-
-	public XMLDTDLoader getLoader() {
-		if (loader == null) {
-			loader = getSynchLoader();
-		}
-		return loader;
-	}
-
-	private synchronized XMLDTDLoader getSynchLoader() {
-		if (loader != null) {
-			return loader;
-		}
-		XMLDTDLoader loader = new XMLDTDLoader();
-		loader.setEntityResolver(resolverExtensionManager);
-		/*
-		 * loader.setErrorHandler(new DOMErrorHandler() {
-		 * 
-		 * @Override public boolean handleError(DOMError error) { if
-		 * (error.getRelatedException() instanceof CacheResourceDownloadingException) {
-		 * throw ((CacheResourceDownloadingException) error.getRelatedException()); }
-		 * return false; } });
-		 */
-		return loader;
-	}
-
 }

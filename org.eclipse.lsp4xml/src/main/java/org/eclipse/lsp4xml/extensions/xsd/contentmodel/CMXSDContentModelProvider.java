@@ -27,13 +27,13 @@ import org.w3c.dom.DOMErrorHandler;
 /**
  * XSD content model provider.
  */
-public class XSDContentModelProvider implements ContentModelProvider {
+public class CMXSDContentModelProvider implements ContentModelProvider {
 
 	private final URIResolverExtensionManager resolverExtensionManager;
 
 	private XSLoaderImpl loader;
 
-	public XSDContentModelProvider(URIResolverExtensionManager resolverExtensionManager) {
+	public CMXSDContentModelProvider(URIResolverExtensionManager resolverExtensionManager) {
 		this.resolverExtensionManager = resolverExtensionManager;
 	}
 
@@ -70,7 +70,7 @@ public class XSDContentModelProvider implements ContentModelProvider {
 		XSModel model = getLoader().loadURI(key);
 		if (model != null) {
 			// XML Schema can be loaded
-			return new XSDDocument(model);
+			return new CMXSDDocument(model);
 		}
 		return null;
 	}

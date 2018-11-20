@@ -10,41 +10,49 @@
  */
 package org.eclipse.lsp4xml.extensions.dtd.contentmodel;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.xerces.impl.dtd.DTDGrammar;
+import org.apache.xerces.impl.dtd.XMLDTDLoader;
+import org.apache.xerces.xni.Augmentations;
+import org.apache.xerces.xni.XNIException;
+import org.apache.xerces.xni.grammars.Grammar;
+import org.apache.xerces.xni.parser.XMLInputSource;
 import org.eclipse.lsp4xml.dom.DOMElement;
+import org.eclipse.lsp4xml.extensions.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMElementDeclaration;
 
 /**
  * DTD document.
+ * 
  * @author azerr
  *
  */
-public class DTDDocument implements CMDocument {
+public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 
-	private final DTDGrammar grammar;
+	private Map<String, List<String>> hierachiesMap;
 	private List<CMElementDeclaration> elements;
-
-	public DTDDocument(DTDGrammar grammar) {
-		this.grammar = grammar;
-	}
+	private DTDGrammar grammar;
+	private List<String> hierachies;
 
 	@Override
 	public Collection<CMElementDeclaration> getElements() {
-		elements = null;
 		if (elements == null) {
 			elements = new ArrayList<>();
 			int index = grammar.getFirstElementDeclIndex();
 			while (index != -1) {
-				DTDElementDeclaration elementDecl = new DTDElementDeclaration();
+				CMDTDElementDeclaration elementDecl = new CMDTDElementDeclaration(this);
 				grammar.getElementDecl(index, elementDecl);
 				elements.add(elementDecl);
 				index = grammar.getNextElementDeclIndex(index);
 			}
+
 		}
 		return elements;
 	}
@@ -80,5 +88,52 @@ public class DTDDocument implements CMDocument {
 		return null;
 	}
 
+	@Override
+	public void startContentModel(String elementName, Augmentations augs) throws XNIException {
+		if (hierachiesMap == null) {
+			hierachiesMap = new HashMap<>();
+		}
+		hierachies = new ArrayList<>();
+		hierachiesMap.put(elementName, hierachies);
+		super.startContentModel(elementName, augs);
+	}
 
+	@Override
+	public void element(String elementName, Augmentations augs) throws XNIException {
+		hierachies.add(elementName);
+		super.element(elementName, augs);
+	}
+
+	@Override
+	public void endContentModel(Augmentations augs) throws XNIException {
+		hierachies = null;
+		super.endContentModel(augs);
+	}
+
+	@Override
+	public Grammar loadGrammar(XMLInputSource source) throws IOException, XNIException {
+		grammar = (DTDGrammar) super.loadGrammar(source);
+		return grammar;
+	}
+
+	void collectElementsDeclaration(String elementName, List<CMElementDeclaration> elements) {
+		if (hierachiesMap == null) {
+			return;
+		}
+		List<String> children = hierachiesMap.get(elementName);
+		if (children == null) {
+			return;
+		}
+		children.stream().forEach(name -> {
+			CMElementDeclaration element = findElementDeclaration(name, null);
+			if (element != null) {
+				elements.add(element);
+			}
+		});
+	}
+
+	void collectAttributesDeclaration(String name, List<CMAttributeDeclaration> attributes) {
+		// TODO Auto-generated method stub
+		
+	}
 }
