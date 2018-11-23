@@ -842,7 +842,6 @@ public class XMLScannerTest {
 		"<!DOCTYPE note [\n" +
 		"  <!ENTITY nbsp \"&#xA0;\"> \n" +
 		"  <!ENTITY writer \"Writer: Donald Duck.\">\n" +
-		"  <!ENTITY copyright \"Copyright: W3Schools.\">\n" +
 		"]>";
 		scanner = XMLScanner.createScanner(xml);
 		assertOffsetAndToken(0, TokenType.StartDoctypeTag);
@@ -850,9 +849,23 @@ public class XMLScannerTest {
 		assertOffsetAndToken(10, TokenType.DoctypeName);
 		assertOffsetAndToken(14, TokenType.Whitespace);
 		assertOffsetAndToken(15, TokenType.InternalDTDStart);
-		assertOffsetAndToken(16, TokenType.InternalDTDContent);
-		assertOffsetAndToken(132, TokenType.InternalDTDEnd);
-		assertOffsetAndToken(133, TokenType.EndDoctypeTag);
+		assertOffsetAndToken(16, TokenType.Whitespace);
+		assertOffsetAndToken(19, TokenType.StartEntityDTD);
+		assertOffsetAndToken(27, TokenType.Whitespace);
+		assertOffsetAndToken(28, TokenType.DTDEntityName);
+		assertOffsetAndToken(32, TokenType.Whitespace);
+		assertOffsetAndToken(33, TokenType.DTDEntityValue);
+		assertOffsetAndToken(41, TokenType.EndDTDTag);
+		assertOffsetAndToken(42, TokenType.Whitespace);
+		assertOffsetAndToken(46, TokenType.StartEntityDTD);
+		assertOffsetAndToken(54, TokenType.Whitespace);
+		assertOffsetAndToken(55, TokenType.DTDEntityName);
+		assertOffsetAndToken(61, TokenType.Whitespace);
+		assertOffsetAndToken(62, TokenType.DTDEntityValue);
+		assertOffsetAndToken(84, TokenType.EndDTDTag);
+		assertOffsetAndToken(85, TokenType.Whitespace);
+		assertOffsetAndToken(86, TokenType.EndInternalDTD);
+		assertOffsetAndToken(87, TokenType.EndDoctypeTag);
 	
 	}
 
@@ -865,8 +878,6 @@ public class XMLScannerTest {
 		"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"\n" +
 		"  [\n" +
 		"    <!ENTITY nbsp \"&#xA0;\"> \n" +
-		"    <!ENTITY writer \"Writer: Donald Duck.\">\n" +
-		"    <!ENTITY copyright \"Copyright: W3Schools.\">\n" +
 		"  ]\n" +
 		">";
 		scanner = XMLScanner.createScanner(xml);
@@ -881,10 +892,18 @@ public class XMLScannerTest {
 		assertOffsetAndToken(67, TokenType.DoctypeSystemId);
 		assertOffsetAndToken(124, TokenType.Whitespace);
 		assertOffsetAndToken(127, TokenType.InternalDTDStart);
-		assertOffsetAndToken(128, TokenType.InternalDTDContent);
-		assertOffsetAndToken(252, TokenType.InternalDTDEnd);
-		assertOffsetAndToken(253, TokenType.Whitespace);
-		assertOffsetAndToken(254, TokenType.EndDoctypeTag);
+		assertOffsetAndToken(128, TokenType.Whitespace);
+		assertOffsetAndToken(133, TokenType.StartEntityDTD);
+		assertOffsetAndToken(141, TokenType.Whitespace);
+		assertOffsetAndToken(142, TokenType.DTDEntityName);
+		assertOffsetAndToken(146, TokenType.Whitespace);
+		assertOffsetAndToken(147, TokenType.DTDEntityValue);
+		assertOffsetAndToken(155, TokenType.EndDTDTag);
+		assertOffsetAndToken(156, TokenType.Whitespace);
+		assertOffsetAndToken(160, TokenType.EndInternalDTD);
+		assertOffsetAndToken(161, TokenType.Whitespace);
+		assertOffsetAndToken(162, TokenType.EndDoctypeTag);
+		assertOffsetAndToken(163, TokenType.EOS);
 	}
 
 	@Test
@@ -894,9 +913,7 @@ public class XMLScannerTest {
 		"<!DOCTYPE html SYSTEM\n" +
 		"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"\n" +
 		"  [\n" +
-		"    <!ENTITY nbsp \"&#xA0;\"> \n" +
-		"    <!ENTITY writer \"Writer: Donald Duck.\">\n" +
-		"    <!ENTITY copyright \"Copyright: W3Schools.\">\n" +
+		"    <!ELEMENT test (a)> \n" +
 		"  ]\n" +
 		">";
 		scanner = XMLScanner.createScanner(xml);
@@ -909,10 +926,122 @@ public class XMLScannerTest {
 		assertOffsetAndToken(24, TokenType.DoctypeSystemId);
 		assertOffsetAndToken(81, TokenType.Whitespace);
 		assertOffsetAndToken(84, TokenType.InternalDTDStart);
-		assertOffsetAndToken(85, TokenType.InternalDTDContent);
-		assertOffsetAndToken(209, TokenType.InternalDTDEnd);
-		assertOffsetAndToken(210, TokenType.Whitespace);
-		assertOffsetAndToken(211, TokenType.EndDoctypeTag);
+		assertOffsetAndToken(85, TokenType.Whitespace);
+		assertOffsetAndToken(90, TokenType.StartElementDTD);
+		assertOffsetAndToken(99, TokenType.Whitespace);
+		assertOffsetAndToken(100, TokenType.ElementDTDName);
+		assertOffsetAndToken(104, TokenType.Whitespace);
+		assertOffsetAndToken(105, TokenType.StartElementDTDContent);
+		assertOffsetAndToken(106, TokenType.ElementDTDContent);
+		assertOffsetAndToken(107, TokenType.EndElementDTDContent);
+		assertOffsetAndToken(108, TokenType.EndDTDTag);
+		assertOffsetAndToken(109, TokenType.Whitespace);
+		assertOffsetAndToken(113, TokenType.EndInternalDTD);
+		assertOffsetAndToken(114, TokenType.Whitespace);
+		assertOffsetAndToken(115, TokenType.EndDoctypeTag);
+		assertOffsetAndToken(116, TokenType.EOS);
+	}
+
+	@Test
+	public void testDocumentTypeSystemAndInternalAttlist() {
+		
+		String xml = 
+		"<!DOCTYPE html SYSTEM\n" +
+		"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"\n" +
+		"  [\n" +
+		"    <!ATTLIST payment type CDATA \"cheque\"> \n" +
+		"  ]\n" +
+		">";
+		scanner = XMLScanner.createScanner(xml);
+		assertOffsetAndToken(0, TokenType.StartDoctypeTag);
+		assertOffsetAndToken(9, TokenType.Whitespace);
+		assertOffsetAndToken(10, TokenType.DoctypeName);
+		assertOffsetAndToken(14, TokenType.Whitespace);
+		assertOffsetAndToken(15, TokenType.DocTypeKindSYSTEM);
+		assertOffsetAndToken(21, TokenType.Whitespace);
+		assertOffsetAndToken(24, TokenType.DoctypeSystemId);
+		assertOffsetAndToken(81, TokenType.Whitespace);
+		assertOffsetAndToken(84, TokenType.InternalDTDStart);
+		assertOffsetAndToken(85, TokenType.Whitespace);
+		assertOffsetAndToken(90, TokenType.StartAttlistDTD);
+		assertOffsetAndToken(99, TokenType.Whitespace);
+		assertOffsetAndToken(100, TokenType.AttlistDTDAttributeName);
+		assertOffsetAndToken(107, TokenType.Whitespace);
+		assertOffsetAndToken(108, TokenType.AttlistDTDAttributeName);
+		assertOffsetAndToken(112, TokenType.Whitespace);
+		assertOffsetAndToken(113, TokenType.AttlistDTDType);
+		assertOffsetAndToken(118, TokenType.Whitespace);
+		assertOffsetAndToken(119, TokenType.AttlistDTDAttributeValue);
+		assertOffsetAndToken(127, TokenType.EndDTDTag);
+		assertOffsetAndToken(128, TokenType.Whitespace);
+		assertOffsetAndToken(132, TokenType.EndInternalDTD);
+		assertOffsetAndToken(133, TokenType.Whitespace);
+		assertOffsetAndToken(134, TokenType.EndDoctypeTag);
+		assertOffsetAndToken(135, TokenType.EOS);
+	}
+
+	@Test
+	public void testDocumentTypeSystemAndInternalAttlist2() {
+		
+		String xml = 
+		"<!DOCTYPE html SYSTEM\n" +
+		"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"\n" +
+		"  [\n" +
+		"    <!ATTLIST payment type (first|second) \"first\"> \n" +
+		"  ]\n" +
+		">";
+		scanner = XMLScanner.createScanner(xml);
+		assertOffsetAndToken(0, TokenType.StartDoctypeTag);
+		assertOffsetAndToken(9, TokenType.Whitespace);
+		assertOffsetAndToken(10, TokenType.DoctypeName);
+		assertOffsetAndToken(14, TokenType.Whitespace);
+		assertOffsetAndToken(15, TokenType.DocTypeKindSYSTEM);
+		assertOffsetAndToken(21, TokenType.Whitespace);
+		assertOffsetAndToken(24, TokenType.DoctypeSystemId);
+		assertOffsetAndToken(81, TokenType.Whitespace);
+		assertOffsetAndToken(84, TokenType.InternalDTDStart);
+		assertOffsetAndToken(85, TokenType.Whitespace);
+		assertOffsetAndToken(90, TokenType.StartAttlistDTD);
+		assertOffsetAndToken(99, TokenType.Whitespace);
+		assertOffsetAndToken(100, TokenType.AttlistDTDAttributeName);
+		assertOffsetAndToken(107, TokenType.Whitespace);
+		assertOffsetAndToken(108, TokenType.AttlistDTDAttributeName);
+		assertOffsetAndToken(112, TokenType.Whitespace);
+		assertOffsetAndToken(113, TokenType.AttlistDTDType);
+		assertOffsetAndToken(127, TokenType.Whitespace);
+		assertOffsetAndToken(128, TokenType.AttlistDTDAttributeValue);
+		assertOffsetAndToken(135, TokenType.EndDTDTag);
+		assertOffsetAndToken(136, TokenType.Whitespace);
+		assertOffsetAndToken(140, TokenType.EndInternalDTD);
+		assertOffsetAndToken(141, TokenType.Whitespace);
+		assertOffsetAndToken(142, TokenType.EndDoctypeTag);
+		assertOffsetAndToken(143, TokenType.EOS);
+	}
+
+	@Test
+	public void testDocumentTypeSystemAndEmptyInternalDTD() {
+		
+		String xml = 
+		"<!DOCTYPE html SYSTEM\n" +
+		"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"\n" +
+		"  [\n" +
+		"  ]\n" +
+		">";
+		scanner = XMLScanner.createScanner(xml);
+		assertOffsetAndToken(0, TokenType.StartDoctypeTag);
+		assertOffsetAndToken(9, TokenType.Whitespace);
+		assertOffsetAndToken(10, TokenType.DoctypeName);
+		assertOffsetAndToken(14, TokenType.Whitespace);
+		assertOffsetAndToken(15, TokenType.DocTypeKindSYSTEM);
+		assertOffsetAndToken(21, TokenType.Whitespace);
+		assertOffsetAndToken(24, TokenType.DoctypeSystemId);
+		assertOffsetAndToken(81, TokenType.Whitespace);
+		assertOffsetAndToken(84, TokenType.InternalDTDStart);
+		assertOffsetAndToken(85, TokenType.Whitespace);
+		assertOffsetAndToken(88, TokenType.EndInternalDTD);
+		assertOffsetAndToken(89, TokenType.Whitespace);
+		assertOffsetAndToken(90, TokenType.EndDoctypeTag);
+		assertOffsetAndToken(91, TokenType.EOS);
 	}
 
 	@Test
