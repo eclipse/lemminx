@@ -18,13 +18,11 @@ import org.w3c.dom.NamedNodeMap;
  */
 public class DOMDocumentType extends DOMNode implements org.w3c.dom.DocumentType {
 
-	public enum DocumentTypeKind{
-		PUBLIC,
-		SYSTEM,
-		INVALID
+	public enum DocumentTypeKind {
+		PUBLIC, SYSTEM, INVALID
 	}
 
-	//Offset values relative to start of the XML Document
+	// Offset values relative to start of the XML Document
 	int nameStart = -1;
 	int nameEnd = -1;
 	int kindStart = -1;
@@ -41,7 +39,7 @@ public class DOMDocumentType extends DOMNode implements org.w3c.dom.DocumentType
 	private String publicId;
 	private String systemId;
 	private String internalSubset;
-	
+
 	private String content;
 
 	public DOMDocumentType(int start, int end, DOMDocument ownerDocument) {
@@ -57,7 +55,7 @@ public class DOMDocumentType extends DOMNode implements org.w3c.dom.DocumentType
 
 	void setEnd(int end) {
 		this.end = end;
-		this.content = getOwnerDocument().getText().substring(start,end);
+		this.content = getOwnerDocument().getText().substring(start, end);
 	}
 
 	/**
@@ -65,8 +63,8 @@ public class DOMDocumentType extends DOMNode implements org.w3c.dom.DocumentType
 	 */
 	@Override
 	public String getName() {
-		if(name == null && this.nameStart != -1 && this.nameEnd != -1) {
-			name = getSubstring(nameStart,nameEnd);
+		if (name == null && this.nameStart != -1 && this.nameEnd != -1) {
+			name = getSubstring(nameStart, nameEnd);
 		}
 		return name;
 	}
@@ -80,8 +78,8 @@ public class DOMDocumentType extends DOMNode implements org.w3c.dom.DocumentType
 	 * @return the DocumentTypeKind
 	 */
 	public String getKind() {
-		if(kind == null && kindStart != -1 && kindEnd != -1) {
-			kind = getSubstring(kindStart,kindEnd);
+		if (kind == null && kindStart != -1 && kindEnd != -1) {
+			kind = getSubstring(kindStart, kindEnd);
 		}
 		return kind;
 	}
@@ -131,8 +129,8 @@ public class DOMDocumentType extends DOMNode implements org.w3c.dom.DocumentType
 	 */
 	@Override
 	public String getInternalSubset() {
-		if(internalSubset == null && startInternalDTD != -1 && endInternalDTD != -1) {
-			internalSubset = getSubstring(startInternalDTD,endInternalDTD);
+		if (internalSubset == null && startInternalDTD != -1 && endInternalDTD != -1) {
+			internalSubset = getSubstring(startInternalDTD, endInternalDTD);
 		}
 		return internalSubset;
 	}
@@ -159,8 +157,8 @@ public class DOMDocumentType extends DOMNode implements org.w3c.dom.DocumentType
 	 */
 	@Override
 	public String getPublicId() {
-		if(publicId == null && publicIdStart != -1 && publicIdEnd != -1) {
-			publicId = cleanURL(getSubstring(publicIdStart,publicIdEnd));
+		if (publicId == null && publicIdStart != -1 && publicIdEnd != -1) {
+			publicId = cleanURL(getSubstring(publicIdStart, publicIdEnd));
 		}
 		return publicId;
 	}
@@ -180,8 +178,8 @@ public class DOMDocumentType extends DOMNode implements org.w3c.dom.DocumentType
 	 */
 	@Override
 	public String getSystemId() {
-		if(systemId == null && systemIdStart != -1 && systemIdEnd != -1) {
-			systemId = cleanURL(getSubstring(systemIdStart,systemIdEnd));
+		if (systemId == null && systemIdStart != -1 && systemIdEnd != -1) {
+			systemId = cleanURL(getSubstring(systemIdStart, systemIdEnd));
 		}
 		return systemId;
 	}
@@ -210,11 +208,7 @@ public class DOMDocumentType extends DOMNode implements org.w3c.dom.DocumentType
 	}
 
 	private String getSubstring(int start, int end) {
-		return content.substring(start - getStart(), end - getStart()); 
+		return getContent().substring(start - getStart(), end - getStart());
 	}
-
-
-	
-
 
 }

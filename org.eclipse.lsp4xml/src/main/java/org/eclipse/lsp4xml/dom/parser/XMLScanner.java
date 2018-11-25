@@ -11,25 +11,33 @@
 package org.eclipse.lsp4xml.dom.parser;
 
 import static org.eclipse.lsp4xml.dom.parser.Constants.ATTRIBUTE_NAME_REGEX;
-import static org.eclipse.lsp4xml.dom.parser.Constants.DTD_ELEMENT_CATEGORY;
 import static org.eclipse.lsp4xml.dom.parser.Constants.ATTRIBUTE_VALUE_REGEX;
-import static org.eclipse.lsp4xml.dom.parser.Constants.URL_VALUE_REGEX;
+import static org.eclipse.lsp4xml.dom.parser.Constants.DOCTYPE_KIND_OPTIONS;
+import static org.eclipse.lsp4xml.dom.parser.Constants.DTD_ELEMENT_CATEGORY;
 import static org.eclipse.lsp4xml.dom.parser.Constants.ELEMENT_NAME_REGEX;
 import static org.eclipse.lsp4xml.dom.parser.Constants.PI_TAG_NAME;
 import static org.eclipse.lsp4xml.dom.parser.Constants.PROLOG_NAME_OPTIONS;
-import static org.eclipse.lsp4xml.dom.parser.Constants.DOCTYPE_KIND_OPTIONS;
-import static org.eclipse.lsp4xml.dom.parser.Constants.DTD_PCDATA;
+import static org.eclipse.lsp4xml.dom.parser.Constants.URL_VALUE_REGEX;
 import static org.eclipse.lsp4xml.dom.parser.Constants._AVL;
-import static org.eclipse.lsp4xml.dom.parser.Constants._EXL;
+import static org.eclipse.lsp4xml.dom.parser.Constants._CAR;
+import static org.eclipse.lsp4xml.dom.parser.Constants._CMA;
+import static org.eclipse.lsp4xml.dom.parser.Constants._CRB;
 import static org.eclipse.lsp4xml.dom.parser.Constants._CSB;
 import static org.eclipse.lsp4xml.dom.parser.Constants._CVL;
 import static org.eclipse.lsp4xml.dom.parser.Constants._DQO;
 import static org.eclipse.lsp4xml.dom.parser.Constants._DVL;
 import static org.eclipse.lsp4xml.dom.parser.Constants._EQS;
 import static org.eclipse.lsp4xml.dom.parser.Constants._EVL;
+import static org.eclipse.lsp4xml.dom.parser.Constants._EXL;
 import static org.eclipse.lsp4xml.dom.parser.Constants._FSL;
+import static org.eclipse.lsp4xml.dom.parser.Constants._IVL;
 import static org.eclipse.lsp4xml.dom.parser.Constants._LAN;
+import static org.eclipse.lsp4xml.dom.parser.Constants._LVL;
 import static org.eclipse.lsp4xml.dom.parser.Constants._MIN;
+import static org.eclipse.lsp4xml.dom.parser.Constants._MVL;
+import static org.eclipse.lsp4xml.dom.parser.Constants._NVL;
+import static org.eclipse.lsp4xml.dom.parser.Constants._NWL;
+import static org.eclipse.lsp4xml.dom.parser.Constants._ORB;
 import static org.eclipse.lsp4xml.dom.parser.Constants._OSB;
 import static org.eclipse.lsp4xml.dom.parser.Constants._OVL;
 import static org.eclipse.lsp4xml.dom.parser.Constants._PVL;
@@ -37,22 +45,12 @@ import static org.eclipse.lsp4xml.dom.parser.Constants._QMA;
 import static org.eclipse.lsp4xml.dom.parser.Constants._RAN;
 import static org.eclipse.lsp4xml.dom.parser.Constants._SIQ;
 import static org.eclipse.lsp4xml.dom.parser.Constants._SQO;
+import static org.eclipse.lsp4xml.dom.parser.Constants._SVL;
 import static org.eclipse.lsp4xml.dom.parser.Constants._TVL;
 import static org.eclipse.lsp4xml.dom.parser.Constants._WSP;
 import static org.eclipse.lsp4xml.dom.parser.Constants._YVL;
-import static org.eclipse.lsp4xml.dom.parser.Constants._LVL;
-import static org.eclipse.lsp4xml.dom.parser.Constants._MVL;
-import static org.eclipse.lsp4xml.dom.parser.Constants._NVL;
-import static org.eclipse.lsp4xml.dom.parser.Constants._IVL;
-import static org.eclipse.lsp4xml.dom.parser.Constants._SVL;
-import static org.eclipse.lsp4xml.dom.parser.Constants._ORB;
-import static org.eclipse.lsp4xml.dom.parser.Constants._CRB;
-import static org.eclipse.lsp4xml.dom.parser.Constants._CMA;
 
-import org.eclipse.lsp4xml.dom.DOMDocumentType.DocumentTypeKind;
-
-import static org.eclipse.lsp4xml.dom.parser.Constants._CAR;
-import static org.eclipse.lsp4xml.dom.parser.Constants._NWL;;
+import org.eclipse.lsp4xml.dom.DOMDocumentType.DocumentTypeKind;;
 
 /**
  * XML scanner implementation.
@@ -79,6 +77,7 @@ public class XMLScanner implements Scanner {
 		stream = new MultiLineStream(input, initialOffset);
 		state = initialState;
 		tokenOffset = 0;
+		inInternalDTD = ScannerState.WithinInternalDTD.equals(initialState);
 		tokenType = TokenType.Unknown;
 	}
 

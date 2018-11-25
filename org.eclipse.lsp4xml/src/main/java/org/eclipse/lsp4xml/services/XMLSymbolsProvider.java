@@ -21,17 +21,20 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.SymbolKind;
 import org.eclipse.lsp4xml.commons.BadLocationException;
-import org.eclipse.lsp4xml.dom.DOMElement;
-import org.eclipse.lsp4xml.dom.DOMNode;
-import org.eclipse.lsp4xml.dom.ProcessingInstruction;
 import org.eclipse.lsp4xml.dom.DOMDocument;
+import org.eclipse.lsp4xml.dom.DOMNode;
+import org.eclipse.lsp4xml.dom.DTDElementDecl;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
+import org.w3c.dom.DocumentType;
+import org.w3c.dom.Element;
+import org.w3c.dom.ProcessingInstruction;
 
 /**
  * XML symbol provider.
  *
  */
 class XMLSymbolsProvider {
+
 	private static final Logger LOGGER = Logger.getLogger(XMLSymbolsProvider.class.getName());
 	private final XMLExtensionsRegistry extensionsRegistry;
 
@@ -78,22 +81,33 @@ class XMLSymbolsProvider {
 	}
 
 	private SymbolKind getSymbolKind(DOMNode node) {
-		if (node.isProcessingInstruction() || node.isProlog() || node.isDoctype()) {
+		if (node.isProcessingInstruction() || node.isProlog()) {
 			return SymbolKind.Property;
+		} else if (node.isDoctype()) {
+			return SymbolKind.Enum;
+		} else if (node.isDTDElementDecl() || node.isDTDAttList()) {
+			return SymbolKind.EnumMember;
 		}
 		return SymbolKind.Field;
 	}
 
 	private boolean isNodeSymbol(DOMNode node) {
-		return node.isElement() || node.isDoctype() || node.isProcessingInstruction() || node.isProlog();
+		return node.isElement() || node.isDoctype() || node.isProcessingInstruction() || node.isProlog()
+				|| node.isDTDElementDecl() || node.isDTDAttList();
 	}
 
 	private static String nodeToName(DOMNode node) {
 		String name = null;
 		if (node.isElement()) {
-			name = ((DOMElement) node).getTagName();
+			name = ((Element) node).getTagName();
 		} else if (node.isProcessingInstruction() || node.isProlog()) {
 			name = ((ProcessingInstruction) node).getTarget();
+		} else if (node.isDoctype()) {
+			name = "DOCTYPE:" + ((DocumentType) node).getName();
+		} else if (node.isDTDElementDecl()) {
+			name = ((DTDElementDecl) node).getName();
+		} else if (node.isDTDAttList()) {
+			name = "AttList";
 		}
 
 		if (node.hasAttributes()) {

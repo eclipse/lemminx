@@ -26,6 +26,16 @@ import org.w3c.dom.UserDataHandler;
  */
 public abstract class DOMNode implements org.w3c.dom.Node {
 
+	/**
+     * The node is a <code>DTD Element Declaration</code>.
+     */
+	public static final short DTD_ELEMENT_DECL_NODE = 101;
+
+	/**
+     * The node is a <code>DTD Attribute List</code>.
+     */
+	public static final short DTD_ATT_LIST_NODE = 102;
+
 	boolean closed = false;
 
 	private XMLNamedNodeMap<DOMAttr> attributeNodes;
@@ -294,6 +304,7 @@ public abstract class DOMNode implements org.w3c.dom.Node {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see org.w3c.dom.Node#hasAttributes()
 	 */
 	@Override
@@ -376,11 +387,11 @@ public abstract class DOMNode implements org.w3c.dom.Node {
 
 	public boolean isProcessingInstruction() {
 		return (getNodeType() == DOMNode.PROCESSING_INSTRUCTION_NODE)
-				&& ((ProcessingInstruction) this).isProcessingInstruction();
+				&& ((DOMProcessingInstruction) this).isProcessingInstruction();
 	}
 
 	public boolean isProlog() {
-		return (getNodeType() == DOMNode.PROCESSING_INSTRUCTION_NODE) && ((ProcessingInstruction) this).isProlog();
+		return (getNodeType() == DOMNode.PROCESSING_INSTRUCTION_NODE) && ((DOMProcessingInstruction) this).isProlog();
 	}
 
 	public boolean isCDATA() {
@@ -405,6 +416,14 @@ public abstract class DOMNode implements org.w3c.dom.Node {
 
 	public boolean isCharacterData() {
 		return isCDATA() || isText() || isProcessingInstruction() || isComment();
+	}
+
+	public boolean isDTDElementDecl() {
+		return getNodeType() == DOMNode.DTD_ELEMENT_DECL_NODE;
+	}
+
+	public boolean isDTDAttList() {
+		return getNodeType() == DOMNode.DTD_ATT_LIST_NODE;
 	}
 
 	public int getStart() {

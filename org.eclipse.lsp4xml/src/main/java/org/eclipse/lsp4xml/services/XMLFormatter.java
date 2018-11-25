@@ -26,7 +26,7 @@ import org.eclipse.lsp4xml.dom.DOMComment;
 import org.eclipse.lsp4xml.dom.DOMDocumentType;
 import org.eclipse.lsp4xml.dom.DOMElement;
 import org.eclipse.lsp4xml.dom.DOMNode;
-import org.eclipse.lsp4xml.dom.ProcessingInstruction;
+import org.eclipse.lsp4xml.dom.DOMProcessingInstruction;
 import org.eclipse.lsp4xml.dom.DOMText;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMParser;
@@ -110,7 +110,7 @@ class XMLFormatter {
 					xml.linefeed();
 				}
 			} else if (node.isProcessingInstruction()) {
-				ProcessingInstruction processingInstruction = (ProcessingInstruction) node;
+				DOMProcessingInstruction processingInstruction = (DOMProcessingInstruction) node;
 				xml.startPrologOrPI(processingInstruction.getTarget());
 				xml.addContentPI(processingInstruction.getData());
 				xml.endPrologOrPI();
@@ -118,7 +118,7 @@ class XMLFormatter {
 					xml.linefeed();
 				}
 			} else if (node.isProlog()) {
-				ProcessingInstruction processingInstruction = (ProcessingInstruction) node;
+				DOMProcessingInstruction processingInstruction = (DOMProcessingInstruction) node;
 				xml.startPrologOrPI(processingInstruction.getTarget());
 				if (node.hasAttributes()) {
 					// generate attributes

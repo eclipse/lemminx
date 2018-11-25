@@ -355,8 +355,8 @@ public class DOMDocument extends DOMNode implements Document {
 		return new DOMCDATASection(start, end, this);
 	}
 
-	public ProcessingInstruction createProcessingInstruction(int start, int end) {
-		return new ProcessingInstruction(start, end, this);
+	public DOMProcessingInstruction createProcessingInstruction(int start, int end) {
+		return new DOMProcessingInstruction(start, end, this);
 	}
 
 	public DOMComment createComment(int start, int end) {
@@ -555,7 +555,7 @@ public class DOMDocument extends DOMNode implements Document {
 	 * java.lang.String)
 	 */
 	@Override
-	public ProcessingInstruction createProcessingInstruction(String target, String data) throws DOMException {
+	public DOMProcessingInstruction createProcessingInstruction(String target, String data) throws DOMException {
 		throw new UnsupportedOperationException();
 	}
 

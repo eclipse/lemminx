@@ -15,11 +15,12 @@ import java.util.logging.Logger;
 
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
-import org.eclipse.lsp4xml.dom.DOMDocumentType.DocumentTypeKind;
 import org.eclipse.lsp4xml.dom.parser.Scanner;
+import org.eclipse.lsp4xml.dom.parser.ScannerState;
 import org.eclipse.lsp4xml.dom.parser.TokenType;
 import org.eclipse.lsp4xml.dom.parser.XMLScanner;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
+import org.eclipse.lsp4xml.utils.DOMUtils;
 
 /**
  * Tolerant XML parser.
@@ -44,13 +45,17 @@ public class DOMParser {
 	}
 
 	public DOMDocument parse(TextDocument document, URIResolverExtensionManager resolverExtensionManager) {
-
+		boolean isDTD = DOMUtils.isDTD(document.getUri());
 		String text = document.getText();
-		Scanner scanner = XMLScanner.createScanner(text);
+		Scanner scanner = isDTD ? XMLScanner.createScanner(text, 0, ScannerState.WithinInternalDTD)
+				: XMLScanner.createScanner(text);
 		DOMDocument xmlDocument = new DOMDocument(document, resolverExtensionManager);
 
-		DOMNode curr = xmlDocument;
-		DOMNode lastClosed = xmlDocument;
+		DOMNode curr = isDTD ? new DOMDocumentType(0, text.length(), xmlDocument) : xmlDocument;
+		if (isDTD) {
+			xmlDocument.addChild(curr);
+		}
+		DOMNode lastClosed = curr;
 		DOMAttr attr = null;
 		int endTagOpenOffset = -1;
 		String pendingAttribute = null;
@@ -81,7 +86,7 @@ public class DOMParser {
 						curr = curr.parent;
 					}
 				} else if (curr.isProcessingInstruction() || curr.isProlog()) {
-					ProcessingInstruction element = (ProcessingInstruction) curr;
+					DOMProcessingInstruction element = (DOMProcessingInstruction) curr;
 					curr.end = scanner.getTokenEnd(); // might be later set to end tag position
 					element.startTagClose = true;
 					if (element.getTarget() != null && isEmptyElement(element.getTarget()) && curr.parent != null) {
@@ -109,7 +114,7 @@ public class DOMParser {
 					if (curr.isElement()) {
 						((DOMElement) curr).endTagOpenOffset = endTagOpenOffset;
 					} else if (curr.isProcessingInstruction() || curr.isProlog()) {
-						((ProcessingInstruction) curr).endTagOpenOffset = endTagOpenOffset;
+						((DOMProcessingInstruction) curr).endTagOpenOffset = endTagOpenOffset;
 					}
 				} else {
 					// element open tag not found (ex: <root>) add a fake elementg which have just
@@ -180,29 +185,29 @@ public class DOMParser {
 			}
 
 			case StartPrologOrPI: {
-				ProcessingInstruction prologOrPINode = xmlDocument.createProcessingInstruction(scanner.getTokenOffset(),
-						text.length());
+				DOMProcessingInstruction prologOrPINode = xmlDocument
+						.createProcessingInstruction(scanner.getTokenOffset(), text.length());
 				curr.addChild(prologOrPINode);
 				curr = prologOrPINode;
 				break;
 			}
 
 			case PIName: {
-				ProcessingInstruction processingInstruction = ((ProcessingInstruction) curr);
+				DOMProcessingInstruction processingInstruction = ((DOMProcessingInstruction) curr);
 				processingInstruction.target = scanner.getTokenText();
 				processingInstruction.processingInstruction = true;
 				break;
 			}
 
 			case PrologName: {
-				ProcessingInstruction processingInstruction = ((ProcessingInstruction) curr);
+				DOMProcessingInstruction processingInstruction = ((DOMProcessingInstruction) curr);
 				processingInstruction.target = scanner.getTokenText();
 				processingInstruction.prolog = true;
 				break;
 			}
 
 			case PIContent: {
-				ProcessingInstruction processingInstruction = (ProcessingInstruction) curr;
+				DOMProcessingInstruction processingInstruction = (DOMProcessingInstruction) curr;
 				processingInstruction.startContent = scanner.getTokenOffset();
 				processingInstruction.endContent = scanner.getTokenEnd();
 				break;
@@ -238,6 +243,37 @@ public class DOMParser {
 				comment.endContent = scanner.getTokenEnd();
 				break;
 			}
+
+			case EndCommentTag: {
+				curr.end = scanner.getTokenEnd();
+				curr.closed = true;
+				curr = curr.parent;
+				break;
+			}
+
+			case Content: {
+				// FIXME: don't use getTokenText (substring) to know if the content is only
+				// spaces or line feed (scanner should know that).
+				String content = scanner.getTokenText();
+				if (content.trim().length() == 0) { // if string is only whitespaces
+					break;
+				}
+				int start = scanner.getTokenOffset();
+				int end = scanner.getTokenEnd();
+				DOMText textNode = xmlDocument.createText(start, end);
+				textNode.closed = true;
+				curr.addChild(textNode);
+				break;
+			}
+
+			/**
+            _____   ____   _____ _________     _______  ______     _______ _______ _____  
+			|  __ \ / __ \ / ____|__   __\ \   / /  __ \|  ____|   / /  __ \__   __|  __ \ 
+			| |  | | |  | | |       | |   \ \_/ /| |__) | |__     / /| |  | | | |  | |  | |
+			| |  | | |  | | |       | |    \   / |  ___/|  __|   / / | |  | | | |  | |  | |
+			| |__| | |__| | |____   | |     | |  | |    | |____ / /  | |__| | | |  | |__| |
+			|_____/ \____/ \_____|  |_|     |_|  |_|    |______/_/   |_____/  |_|  |_____/
+			 */
 
 			case StartDoctypeTag: {
 				DOMDocumentType doctype = xmlDocument.createDocumentType(scanner.getTokenOffset(), text.length());
@@ -283,32 +319,41 @@ public class DOMParser {
 				break;
 			}
 
-			case EndDoctypeTag: {
-				((DOMDocumentType)curr).setEnd(scanner.getTokenEnd());
-				curr.closed = true;
-				curr = curr.parent;
+			case StartElementDTD: {
+				DTDElementDecl child = new DTDElementDecl(scanner.getTokenOffset(), text.length(),
+						(DOMDocumentType) curr);
+				curr.addChild(child);
+				curr = child;
 				break;
 			}
 
-			case EndCommentTag: {
-				curr.end = scanner.getTokenEnd();
-				curr.closed = true;
-				curr = curr.parent;
+			case ElementDTDName: {
+				DTDElementDecl element = (DTDElementDecl) curr;
+				element.name = scanner.getTokenText();
 				break;
 			}
 
-			case Content: {
-				// FIXME: don't use getTokenText (substring) to know if the content is only
-				// spaces or line feed (scanner should know that).
-				String content = scanner.getTokenText();
-				if (content.trim().length() == 0) { // if string is only whitespaces
-					break;
+			case StartAttlistDTD: {
+				DTDAttList child = new DTDAttList(scanner.getTokenOffset(), text.length(),
+						(DOMDocumentType) curr);
+				curr.addChild(child);
+				curr = child;
+				break;
+			}
+			
+			case EndDTDTag: {
+				if ((curr.isDTDElementDecl() || curr.isDTDAttList()) && curr.parent != null) {
+					curr.end = scanner.getTokenEnd();
+					lastClosed = curr;
+					curr = curr.parent;
 				}
-				int start = scanner.getTokenOffset();
-				int end = scanner.getTokenEnd();
-				DOMText textNode = xmlDocument.createText(start, end);
-				textNode.closed = true;
-				curr.addChild(textNode);
+				break;	
+			}
+
+			case EndDoctypeTag: {
+				((DOMDocumentType) curr).setEnd(scanner.getTokenEnd());
+				curr.closed = true;
+				curr = curr.parent;
 				break;
 			}
 

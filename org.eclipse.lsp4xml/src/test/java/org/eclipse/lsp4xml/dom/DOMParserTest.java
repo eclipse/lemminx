@@ -273,7 +273,7 @@ public class DOMParserTest {
 
 	@Test
 	public void testProlog() {
-		ProcessingInstruction prolog = createPrologNode("xml", 0, 38, true);
+		DOMProcessingInstruction prolog = createPrologNode("xml", 0, 38, true);
 		insertIntoAttributes(prolog, "version", "\"1.0\"");
 		insertIntoAttributes(prolog, "encoding", "\"UTF-8\"");
 
@@ -438,8 +438,8 @@ public class DOMParserTest {
 		return n;
 	}
 
-	private static ProcessingInstruction createPrologNode(String tag, int start, int end, boolean closed) {
-		ProcessingInstruction n = (ProcessingInstruction) createNode(DOMNode.PROCESSING_INSTRUCTION_NODE, tag, start, null,
+	private static DOMProcessingInstruction createPrologNode(String tag, int start, int end, boolean closed) {
+		DOMProcessingInstruction n = (DOMProcessingInstruction) createNode(DOMNode.PROCESSING_INSTRUCTION_NODE, tag, start, null,
 				end, closed);
 		n.prolog = true;
 		return n;
@@ -474,7 +474,7 @@ public class DOMParserTest {
 		assertEquals(internalDTD, doctype.getInternalSubset());
 	}
 
-	private static class MockProcessingInstruction extends ProcessingInstruction {
+	private static class MockProcessingInstruction extends DOMProcessingInstruction {
 
 		public String content;
 
@@ -568,9 +568,9 @@ public class DOMParserTest {
 		if (n.isElement()) {
 			((DOMElement) n).tag = tag;
 			((DOMElement) n).endTagOpenOffset = endTagStart;
-		} else if (n instanceof ProcessingInstruction) {
-			((ProcessingInstruction) n).target = tag;
-			((ProcessingInstruction) n).endTagOpenOffset = endTagStart;
+		} else if (n instanceof DOMProcessingInstruction) {
+			((DOMProcessingInstruction) n).target = tag;
+			((DOMProcessingInstruction) n).endTagOpenOffset = endTagStart;
 		}
 		n.closed = closed;
 	}
@@ -586,10 +586,10 @@ public class DOMParserTest {
 			assertEquals(((DOMElement) expectedNode).getTagName(), ((DOMElement) actualNode).getTagName());
 			assertEquals(((DOMElement) expectedNode).getEndTagOpenOffset(), ((DOMElement) actualNode).getEndTagOpenOffset());
 		} else if (expectedNode.isProcessingInstruction() || expectedNode.isProlog()) {
-			assertEquals(((ProcessingInstruction) expectedNode).getTarget(),
-					((ProcessingInstruction) actualNode).getTarget());
-			assertEquals(((ProcessingInstruction) expectedNode).getEndTagStart(),
-					((ProcessingInstruction) actualNode).getEndTagStart());
+			assertEquals(((DOMProcessingInstruction) expectedNode).getTarget(),
+					((DOMProcessingInstruction) actualNode).getTarget());
+			assertEquals(((DOMProcessingInstruction) expectedNode).getEndTagStart(),
+					((DOMProcessingInstruction) actualNode).getEndTagStart());
 		}
 		assertEquals(expectedNode.start, actualNode.start);
 		assertEquals(expectedNode.end, actualNode.end);

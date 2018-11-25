@@ -21,7 +21,7 @@ import org.eclipse.lsp4xml.dom.DOMAttr;
 import org.eclipse.lsp4xml.dom.DOMCharacterData;
 import org.eclipse.lsp4xml.dom.DOMElement;
 import org.eclipse.lsp4xml.dom.DOMNode;
-import org.eclipse.lsp4xml.dom.ProcessingInstruction;
+import org.eclipse.lsp4xml.dom.DOMProcessingInstruction;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 
 /**
@@ -200,7 +200,7 @@ public class XMLPositionUtility {
 			DOMElement element = (DOMElement) node;
 			return element.getTagName() != null ? element.getTagName().length() : 0;
 		} else if (node.isProcessingInstruction() || node.isProlog()) {
-			ProcessingInstruction element = (ProcessingInstruction) node;
+			DOMProcessingInstruction element = (DOMProcessingInstruction) node;
 			return element.getTarget() != null ? element.getTarget().length() : 0;
 		}
 		return 0;
