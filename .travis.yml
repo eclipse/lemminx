@@ -17,7 +17,7 @@ addons:
 
 script:
   # the following command line builds the project, runs the tests with coverage and then execute the SonarCloud analysis
-  - ./mvnw clean org.jacoco:jacoco-maven-plugin:prepare-agent verify sonar:sonar
+  - ./mvnw clean org.jacoco:jacoco-maven-plugin:prepare-agent verify sonar:sonar -fae
 
 jdk:
   - oraclejdk8
