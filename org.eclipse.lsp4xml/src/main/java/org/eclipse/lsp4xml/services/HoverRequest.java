@@ -14,8 +14,8 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.dom.DOMAttr;
-import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.dom.DOMDocument;
+import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.services.extensions.IHoverRequest;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 

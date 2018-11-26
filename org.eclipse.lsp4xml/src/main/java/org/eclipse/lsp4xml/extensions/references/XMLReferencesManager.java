@@ -17,8 +17,8 @@ import java.util.function.Predicate;
 
 import javax.xml.xpath.XPathExpressionException;
 
-import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.dom.DOMDocument;
+import org.eclipse.lsp4xml.dom.DOMNode;
 
 public class XMLReferencesManager {
 

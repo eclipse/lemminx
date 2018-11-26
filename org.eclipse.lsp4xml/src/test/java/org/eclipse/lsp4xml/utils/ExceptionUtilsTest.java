@@ -9,8 +9,9 @@
 *******************************************************************************/
 package org.eclipse.lsp4xml.utils;
 
-import static org.junit.Assert.*;
 import static org.eclipse.lsp4xml.utils.ExceptionUtils.getRootCause;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 
 import org.junit.Test;
 

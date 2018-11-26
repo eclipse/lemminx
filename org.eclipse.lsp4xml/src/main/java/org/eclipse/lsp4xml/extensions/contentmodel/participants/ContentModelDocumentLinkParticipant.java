@@ -6,9 +6,9 @@ import org.eclipse.lsp4j.DocumentLink;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.BadLocationException;
-import org.eclipse.lsp4xml.dom.NoNamespaceSchemaLocation;
-import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.dom.DOMDocument;
+import org.eclipse.lsp4xml.dom.DOMNode;
+import org.eclipse.lsp4xml.dom.NoNamespaceSchemaLocation;
 import org.eclipse.lsp4xml.services.extensions.IDocumentLinkParticipant;
 
 public class ContentModelDocumentLinkParticipant implements IDocumentLinkParticipant {

@@ -2,10 +2,10 @@ package org.eclipse.lsp4xml.services.extensions;
 
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4xml.commons.BadLocationException;
-import org.eclipse.lsp4xml.dom.DOMElement;
-import org.eclipse.lsp4xml.dom.LineIndentInfo;
-import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.dom.DOMDocument;
+import org.eclipse.lsp4xml.dom.DOMElement;
+import org.eclipse.lsp4xml.dom.DOMNode;
+import org.eclipse.lsp4xml.dom.LineIndentInfo;
 
 public interface IPositionRequest {
 

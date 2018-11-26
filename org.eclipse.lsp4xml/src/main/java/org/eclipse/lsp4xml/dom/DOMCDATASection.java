@@ -10,11 +10,13 @@
  */
 package org.eclipse.lsp4xml.dom;
 
+import org.w3c.dom.CDATASection;
+
 /**
  * A CData section node.
  *
  */
-public class DOMCDATASection extends DOMText implements org.w3c.dom.CDATASection {
+public class DOMCDATASection extends DOMText implements CDATASection {
 
 	int startContent;
 	int endContent;

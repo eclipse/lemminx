@@ -10,13 +10,13 @@
  */
 package org.eclipse.lsp4xml.extensions.xsl;
 
+import static org.eclipse.lsp4xml.XMLAssert.d;
+
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.XMLSchemaErrorCode;
 import org.junit.Test;
-
-import static org.eclipse.lsp4xml.XMLAssert.d;
 
 /**
  * XSL completion tests which test the {@link XSLURIResolverExtension}.

@@ -11,6 +11,12 @@
 
 package org.eclipse.lsp4xml.settings.capabilities;
 
+import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.COMPLETION_ID;
+import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_COMPLETION_OPTIONS;
+import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_LINK_OPTIONS;
+import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.DOCUMENT_SYMBOL_ID;
+import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.FORMATTING_ID;
+import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.FORMATTING_RANGE_ID;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Set;
@@ -39,9 +45,6 @@ import org.eclipse.lsp4xml.XMLTextDocumentService;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.junit.Before;
 import org.junit.Test;
-
-import org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesInitializer;
-import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.*;
 
 /**
  * XMLCapabilityManagerTest

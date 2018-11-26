@@ -14,7 +14,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.eclipse.lsp4xml.dom.DOMDocumentType.DocumentTypeKind;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**

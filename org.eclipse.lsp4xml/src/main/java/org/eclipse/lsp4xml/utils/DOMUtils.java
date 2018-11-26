@@ -1,7 +1,7 @@
 package org.eclipse.lsp4xml.utils;
 
-import org.eclipse.lsp4xml.dom.DOMElement;
 import org.eclipse.lsp4xml.dom.DOMDocument;
+import org.eclipse.lsp4xml.dom.DOMElement;
 
 /**
  * DOM Utilities.

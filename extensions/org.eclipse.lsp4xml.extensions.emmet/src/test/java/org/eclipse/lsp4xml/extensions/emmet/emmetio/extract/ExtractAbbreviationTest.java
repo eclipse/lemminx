@@ -1,7 +1,5 @@
 package org.eclipse.lsp4xml.extensions.emmet.emmetio.extract;
 
-import org.eclipse.lsp4xml.extensions.emmet.emmetio.extract.ExtractAbbreviation;
-import org.eclipse.lsp4xml.extensions.emmet.emmetio.extract.ExtractAbbreviationResult;
 import org.junit.Assert;
 import org.junit.Test;
 

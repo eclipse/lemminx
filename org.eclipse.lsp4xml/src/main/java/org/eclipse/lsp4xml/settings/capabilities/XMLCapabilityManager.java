@@ -14,24 +14,24 @@ import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConsta
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.COMPLETION_ID;
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_COMPLETION_OPTIONS;
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_LINK_OPTIONS;
+import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.DEFINITION_ID;
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.DOCUMENT_HIGHLIGHT_ID;
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.DOCUMENT_SYMBOL_ID;
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.FOLDING_RANGE_ID;
+import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.FORMATTING_ID;
+import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.FORMATTING_RANGE_ID;
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.HOVER_ID;
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.LINK_ID;
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.RENAME_ID;
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_CODE_ACTION;
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_COMPLETION;
+import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_DEFINITION;
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_DOCUMENT_SYMBOL;
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_FOLDING_RANGE;
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_HIGHLIGHT;
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_HOVER;
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_LINK;
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_RENAME;
-import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.FORMATTING_ID;
-import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.FORMATTING_RANGE_ID;
-import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.DEFINITION_ID;
-import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_DEFINITION;
 
 import java.util.Collections;
 import java.util.HashSet;
