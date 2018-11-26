@@ -29,9 +29,9 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMElement;
 import org.eclipse.lsp4xml.dom.DOMNode;
-import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.parser.Scanner;
 import org.eclipse.lsp4xml.dom.parser.ScannerState;
 import org.eclipse.lsp4xml.dom.parser.TokenType;
@@ -63,7 +63,8 @@ class XMLCompletions {
 		CompletionResponse completionResponse = new CompletionResponse();
 		CompletionRequest completionRequest = null;
 		try {
-			completionRequest = new CompletionRequest(xmlDocument, position, completionSettings, formattingSettings, extensionsRegistry);
+			completionRequest = new CompletionRequest(xmlDocument, position, completionSettings, formattingSettings,
+					extensionsRegistry);
 		} catch (BadLocationException e) {
 			LOGGER.log(Level.SEVERE, "Creation of CompletionRequest failed", e);
 			return completionResponse;
@@ -80,7 +81,7 @@ class XMLCompletions {
 			return completionResponse;
 		}
 
-		Scanner scanner = XMLScanner.createScanner(text, node.getStart());
+		Scanner scanner = XMLScanner.createScanner(text, node.getStart(), isInsideDTDContent(node, xmlDocument));
 		String currentTag = "";
 		completionRequest.setCurrentAttributeName(null);
 		TokenType token = scanner.scan();
@@ -246,6 +247,17 @@ class XMLCompletions {
 				}
 				break;
 			}
+			// DTD
+			case DTDEndTag:
+			case DTDStartInternalSubset:
+			case DTDEndInternalSubset: {
+				if (scanner.getTokenOffset() <= offset) {
+					collectInsideDTDContent(completionRequest, completionResponse);
+					return completionResponse;
+				}
+				break;
+			}
+
 			default:
 				if (offset <= scanner.getTokenEnd()) {
 					return completionResponse;
@@ -256,6 +268,21 @@ class XMLCompletions {
 		}
 
 		return completionResponse;
+	}
+
+	/**
+	 * Returns true if 
+	 * @param node
+	 * @param xmlDocument
+	 * @return
+	 */
+	private static boolean isInsideDTDContent(DOMNode node, DOMDocument xmlDocument) {
+		if (xmlDocument.isDTD()) {
+			// external DTD
+			return true;
+		}
+		// check if node belongs to internal DTD (<!ELEMENT, ....)
+		return (node.getParentNode() != null && node.getParentNode().isDoctype());
 	}
 
 	public String doTagComplete(DOMDocument xmlDocument, Position position) {
@@ -658,6 +685,43 @@ class XMLCompletions {
 				LOGGER.log(Level.SEVERE, "While performing ICompletionParticipant#onAttributeValue", e);
 			}
 		}
+	}
+
+	private void collectInsideDTDContent(CompletionRequest request, CompletionResponse response) {
+		// Insert DTD Element Declaration
+		// see https://www.w3.org/TR/REC-xml/#dt-eldecl
+		CompletionItem elementDecl = new CompletionItem();
+		elementDecl.setLabel("Insert DTD Element declaration");
+		elementDecl.setKind(CompletionItemKind.EnumMember);
+		elementDecl.setFilterText("<!ELEMENT");
+		elementDecl.setInsertTextFormat(InsertTextFormat.Snippet);
+		int startOffset = request.getOffset();
+		try {
+			Range editRange = getReplaceRange(startOffset, startOffset, request);
+			elementDecl.setTextEdit(new TextEdit(editRange, "<!ELEMENT ${0:name} (${1:#PCDATA})>"));
+			elementDecl.setDocumentation("<!ELEMENT name (#PCDATA)>");
+		} catch (BadLocationException e) {
+			LOGGER.log(Level.SEVERE, "While performing getReplaceRange for DTD !ELEMENT completion.", e);
+		}
+		response.addCompletionItem(elementDecl);
+
+		// Insert DTD AttrList Declaration
+		// see https://www.w3.org/TR/REC-xml/#attdecls
+		CompletionItem attrListDecl = new CompletionItem();
+		attrListDecl.setLabel("Insert DTD Attributes list declaration");
+		attrListDecl.setKind(CompletionItemKind.EnumMember);
+		attrListDecl.setFilterText("<!ATTLIST");
+		attrListDecl.setInsertTextFormat(InsertTextFormat.Snippet);
+		startOffset = request.getOffset();
+		try {
+			Range editRange = getReplaceRange(startOffset, startOffset, request);
+			attrListDecl.setTextEdit(
+					new TextEdit(editRange, "<!ATTLIST ${0:elementName} ${1:name} ${2:ID} ${3:#REQUIRED} >"));
+			attrListDecl.setDocumentation("<!ATTLIST ${0:elementName} ${1:name} ${2:ID} ${3:#REQUIRED} >");
+		} catch (BadLocationException e) {
+			LOGGER.log(Level.SEVERE, "While performing getReplaceRange for DTD !ATTLIST completion.", e);
+		}
+		response.addCompletionItem(attrListDecl);
 	}
 
 	private static int scanNextForEndPos(int offset, Scanner scanner, TokenType nextToken) {
