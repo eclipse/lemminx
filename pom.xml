@@ -4,17 +4,25 @@
 	<artifactId>lsp4xml</artifactId>
 	<version>0.0.3-SNAPSHOT</version>
 	<packaging>pom</packaging>
+	<description>lsp4xml is an XML language specific implementation of the Language Server Protocol (LSP), and can be used with any editor that supports LSP, to offer an outstanding XML editing experience</description>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<lsp4j.version>0.5.0.M1</lsp4j.version>
 	</properties>
+	<url>https://github.com/angelozerr/lsp4xml</url>
 	<licenses>
 		<license>
 			<name>Eclipse Public License</name>
-			<url>http://www.eclipse.org/legal/epl-v10.html</url>
+			<url>http://www.eclipse.org/legal/epl-v20.html</url>
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
+	    <scm>
+        <connection>scm:git:git@github.com:angelozerr/lsp4xml.git</connection>
+        <developerConnection>scm:git:git@github.com:angelozerr/lsp4xml.git</developerConnection>
+        <url>https://github.com/angelozerr/lsp4xml</url>
+    </scm>
 	<modules>
 		<module>org.eclipse.lsp4xml</module>
 		<module>extensions</module>
