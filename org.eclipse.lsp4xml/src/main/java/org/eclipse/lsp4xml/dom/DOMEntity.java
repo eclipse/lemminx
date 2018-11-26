@@ -10,9 +10,8 @@
  */
 package org.eclipse.lsp4xml.dom;
 
-import javax.xml.soap.Node;
-
 import org.w3c.dom.Entity;
+import org.w3c.dom.Node;
 
 /**
  * DOM Entity declaration <!ENTITY
