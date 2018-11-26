@@ -7,7 +7,17 @@ cache:
   directories:
   - $HOME/.m2/repository
   - $HOME/.m2/wrapper
+  - $HOME/.sonar/cache
 
+addons:
+  sonarcloud:
+    organization: "angelozerr-github" # the key of the org you chose at step #3
+    token:
+      secure: "b6OwjBubtA6hfDXSGTXWzNXd0Imq6AUnPwBSqpQ2s9VUxhA2LV3Qg2iAIcYkxYa0r1U9HEXNopS37bdD0CqFZcL857Xe38UZJABF8a8MduTb2snRTAH2yR+XenPLDwmFK5sddiOubSwiE6Gm8SXaYLiPheytGDYYZxMsn3Le4OmiclFvwGnZSwaQ4BLG/ZXRUqDDaIq25OHnSBnoUyjt+sq2QcoRDQfYpVS4UtgFuMb6RdiFVkUHEZyiO5POwbaAT7a1g20xevqV7JUUAtx6zWJrERIFQbYTi/Yv8bpqLR84dU4jdMUqepvjPSbSfrGwogsiFQLFXFsS/ZVfabPKwBR+WvYdFoZqFwx0JY1mA1baqGvUXY8K6B7VY4HodAoLK2QA/iJMdIB5TX/10R+rqYuNXM2uqfXmdYWQVOw03wOnb1UjuReS1cm5F2ZCQv0iijFZIZgLhXDCz44zmGlNGFLnRquYm+3T5by+ibOabwaTplx6lMuO6HgKMIQM+KWSSBJTojdJq9JCuf2rwqF8IjmGdsFuvpRdc/ygv27x2sbK/M7aedzOB/M6FcC1IuiikhNi7DvwNx8TRI7RSShPdkIvqStzaK11FPPX+0vzPhRKzCD2wA8ZD0q+oY7D2ZDZTrP7BZxgxibSeR/Fi9IlXmqnl9V7Q3PFBdPtN3Wm9/k="
+
+script:
+  # the following command line builds the project, runs the tests with coverage and then execute the SonarCloud analysis
+  - ./mvnw clean org.jacoco:jacoco-maven-plugin:prepare-agent verify sonar:sonar
 
 jdk:
   - oraclejdk8
