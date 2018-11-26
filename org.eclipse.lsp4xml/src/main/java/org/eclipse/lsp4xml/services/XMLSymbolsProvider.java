@@ -85,7 +85,7 @@ class XMLSymbolsProvider {
 			return SymbolKind.Property;
 		} else if (node.isDoctype()) {
 			return SymbolKind.Enum;
-		} else if (node.isDTDElementDecl() || node.isDTDAttList()) {
+		} else if (node.isDTDElementDecl() || node.isDTDAttList() || node.isEntity()) {
 			return SymbolKind.EnumMember;
 		}
 		return SymbolKind.Field;
@@ -93,7 +93,7 @@ class XMLSymbolsProvider {
 
 	private boolean isNodeSymbol(DOMNode node) {
 		return node.isElement() || node.isDoctype() || node.isProcessingInstruction() || node.isProlog()
-				|| node.isDTDElementDecl() || node.isDTDAttList();
+				|| node.isDTDElementDecl() || node.isDTDAttList() || node.isEntity();
 	}
 
 	private static String nodeToName(DOMNode node) {
@@ -107,7 +107,9 @@ class XMLSymbolsProvider {
 		} else if (node.isDTDElementDecl()) {
 			name = ((DTDElementDecl) node).getName();
 		} else if (node.isDTDAttList()) {
-			name = "AttList";
+			name = "AttList (TODO)";
+		} else if (node.isEntity()) {
+			name = "Entity (TODO)";
 		}
 
 		if (node.hasAttributes()) {

@@ -341,8 +341,16 @@ public class DOMParser {
 				break;
 			}
 			
+			case StartEntityDTD: {
+				DOMEntity child = new DOMEntity(scanner.getTokenOffset(), text.length(),
+						(DOMDocumentType) curr);
+				curr.addChild(child);
+				curr = child;
+				break;
+			}
+			
 			case EndDTDTag: {
-				if ((curr.isDTDElementDecl() || curr.isDTDAttList()) && curr.parent != null) {
+				if ((curr.isDTDElementDecl() || curr.isDTDAttList() || curr.isEntity()) && curr.parent != null) {
 					curr.end = scanner.getTokenEnd();
 					lastClosed = curr;
 					curr = curr.parent;

@@ -17,23 +17,24 @@ import java.util.function.Function;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.UserDataHandler;
 
 /**
- * XML node.
+ * DOM node.
  *
  */
-public abstract class DOMNode implements org.w3c.dom.Node {
+public abstract class DOMNode implements Node {
 
 	/**
-     * The node is a <code>DTD Element Declaration</code>.
-     */
+	 * The node is a <code>DTD Element Declaration</code>.
+	 */
 	public static final short DTD_ELEMENT_DECL_NODE = 101;
 
 	/**
-     * The node is a <code>DTD Attribute List</code>.
-     */
+	 * The node is a <code>DTD Attribute List</code>.
+	 */
 	public static final short DTD_ATT_LIST_NODE = 102;
 
 	boolean closed = false;
@@ -84,8 +85,7 @@ public abstract class DOMNode implements org.w3c.dom.Node {
 
 		@Override
 		public T getNamedItemNS(String name, String arg1) throws DOMException {
-			// TODO Auto-generated method stub
-			return null;
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
@@ -95,26 +95,22 @@ public abstract class DOMNode implements org.w3c.dom.Node {
 
 		@Override
 		public T removeNamedItem(String arg0) throws DOMException {
-			// TODO Auto-generated method stub
-			return null;
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public T removeNamedItemNS(String arg0, String arg1) throws DOMException {
-			// TODO Auto-generated method stub
-			return null;
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public T setNamedItem(org.w3c.dom.Node arg0) throws DOMException {
-			// TODO Auto-generated method stub
-			return null;
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public T setNamedItemNS(org.w3c.dom.Node arg0) throws DOMException {
-			// TODO Auto-generated method stub
-			return null;
+			throw new UnsupportedOperationException();
 		}
 
 	}
@@ -424,6 +420,10 @@ public abstract class DOMNode implements org.w3c.dom.Node {
 
 	public boolean isDTDAttList() {
 		return getNodeType() == DOMNode.DTD_ATT_LIST_NODE;
+	}
+
+	public boolean isEntity() {
+		return getNodeType() == Node.ENTITY_NODE;
 	}
 
 	public int getStart() {
