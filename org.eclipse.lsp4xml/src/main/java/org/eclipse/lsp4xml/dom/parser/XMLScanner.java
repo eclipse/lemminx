@@ -481,9 +481,9 @@ public class XMLScanner implements Scanner {
 				isInsideDTDContent = false;
 				return finishToken(offset, TokenType.DTDEndInternalSubset);
 			}
-			return internalScan();
+			break;
 
-		case DTDIncorrectTagFormat: // Covers ATTLIST, ELEMENT, ENTITY when there is an issue parsing
+		case DTDIncorrectTagFormat:  // Covers ATTLIST, ELEMENT, ENTITY when there is an issue parsing
 			if (stream.skipWhitespace()) {
 				return finishToken(offset, TokenType.Whitespace);
 			}
@@ -514,6 +514,10 @@ public class XMLScanner implements Scanner {
 				return finishToken(offset, TokenType.DTDElementDeclName);
 			}
 
+			if (stream.advanceUntilChar(_LAN)) { // <
+				state = ScannerState.DTDWithinContent;
+				return internalScan();
+			}
 			state = ScannerState.DTDIncorrectTagFormat;
 			return internalScan();
 
