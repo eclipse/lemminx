@@ -42,8 +42,8 @@ public abstract class DOMNode implements Node {
 	private XMLNamedNodeMap<DOMAttr> attributeNodes;
 	private XMLNodeList<DOMNode> children;
 
-	final int start;
-	int end;
+	final int start; // |<root> </root>
+	int end; // <root> </root>|
 
 	DOMNode parent;
 	private final DOMDocument ownerDocument;

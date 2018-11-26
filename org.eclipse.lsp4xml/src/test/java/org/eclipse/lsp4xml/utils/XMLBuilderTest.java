@@ -44,7 +44,7 @@ public class XMLBuilderTest {
 	@Test
 	public void elementWithChild() throws Exception {
 		String xml = new XMLBuilder(settings, "", "\n").startElement("html", true).linefeed().indent(1)
-				.startElement("head", false).endElement().linefeed().endElement("html").toString();
+				.startElement("head", false).selfCloseElement().linefeed().endElement("html").toString();
 		Assert.assertEquals("<html>\n\t<head />\n</html>", xml);
 	}
 }

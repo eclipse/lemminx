@@ -61,7 +61,10 @@ public class DOMParser {
 		while (token != TokenType.EOS) {
 			switch (token) {
 			case StartTagOpen: {
-				DOMElement child = xmlDocument.createElement(scanner.getTokenOffset(), text.length());
+				if(curr.parent != null) {
+					curr.end = scanner.getTokenOffset();
+				}
+				DOMElement child = xmlDocument.createElement(scanner.getTokenOffset(), scanner.getTokenEnd());
 				child.startTagOpenOffset = scanner.getTokenOffset();
 				curr.addChild(child);
 				curr = child;
@@ -71,14 +74,18 @@ public class DOMParser {
 			case StartTag: {
 				DOMElement element = (DOMElement) curr;
 				element.tag = scanner.getTokenText();
+				curr.end = scanner.getTokenEnd();
 				break;
 			}
 
+			
 			case StartTagClose:
 				if (curr.isElement()) {
 					DOMElement element = (DOMElement) curr;
 					curr.end = scanner.getTokenEnd(); // might be later set to end tag position
 					element.startTagCloseOffset = scanner.getTokenOffset();
+
+					//never enters isEmptyElement() is always false
 					if (element.getTagName() != null && isEmptyElement(element.getTagName()) && curr.parent != null) {
 						curr.closed = true;
 						curr = curr.parent;
@@ -92,19 +99,24 @@ public class DOMParser {
 						curr = curr.parent;
 					}
 				}
+				curr.end = scanner.getTokenEnd();
 				break;
 
 			case EndTagOpen:
 				endTagOpenOffset = scanner.getTokenOffset();
+				curr.end = scanner.getTokenOffset();
 				break;
 
 			case EndTag:
 				// end tag (ex: </root>)
 				String closeTag = scanner.getTokenText().toLowerCase();
 				DOMNode current = curr;
+
+				/**
+				eg: <a><b><c></d> will set a,b,c end position to the start of |</d>
+				*/
 				while (!(curr.isElement() && ((DOMElement) curr).isSameTag(closeTag)) && curr.parent != null) {
 					curr.end = endTagOpenOffset;
-					curr.closed = false;
 					curr = curr.parent;
 				}
 				if (curr != xmlDocument) {
@@ -114,10 +126,11 @@ public class DOMParser {
 					} else if (curr.isProcessingInstruction() || curr.isProlog()) {
 						((DOMProcessingInstruction) curr).endTagOpenOffset = endTagOpenOffset;
 					}
+					curr.end = scanner.getTokenEnd();
 				} else {
-					// element open tag not found (ex: <root>) add a fake elementg which have just
+					// element open tag not found (ex: <root>) add a fake element which have just
 					// end tag (no start tag).
-					DOMElement element = xmlDocument.createElement(scanner.getTokenOffset() - 2, text.length());
+					DOMElement element = xmlDocument.createElement(scanner.getTokenOffset() - 2, scanner.getTokenEnd());
 					element.endTagOpenOffset = endTagOpenOffset;
 					element.tag = closeTag;
 					current.addChild(element);
@@ -139,6 +152,9 @@ public class DOMParser {
 				if (curr.parent != null) {
 					curr.end = scanner.getTokenEnd();
 					lastClosed = curr;
+					if(lastClosed.isElement()) {
+						((DOMElement) curr).endTagCloseOffset = scanner.getTokenOffset();
+					}
 					curr = curr.parent;
 				}
 				break;
@@ -148,6 +164,7 @@ public class DOMParser {
 				attr = new DOMAttr(pendingAttribute, scanner.getTokenOffset(),
 						scanner.getTokenOffset() + pendingAttribute.length(), curr);
 				curr.setAttributeNode(attr);
+				curr.end = scanner.getTokenEnd();
 				break;
 			}
 
@@ -158,6 +175,7 @@ public class DOMParser {
 				}
 				pendingAttribute = null;
 				attr = null;
+				curr.end = scanner.getTokenEnd();
 				break;
 			}
 
@@ -172,6 +190,7 @@ public class DOMParser {
 				DOMCDATASection cdataNode = (DOMCDATASection) curr;
 				cdataNode.startContent = scanner.getTokenOffset();
 				cdataNode.endContent = scanner.getTokenEnd();
+				curr.end = scanner.getTokenEnd();
 				break;
 			}
 
@@ -313,7 +332,7 @@ public class DOMParser {
 			case DTDEndInternalSubset: {
 				if (!curr.isDoctype()) {
 					curr.end = scanner.getTokenOffset() - 1;
-					curr  =curr.getParentNode();
+					curr = curr.getParentNode();
 				}
 				
 				DOMDocumentType doctype = (DOMDocumentType) curr;
@@ -324,7 +343,7 @@ public class DOMParser {
 			case DTDStartElementDecl: {
 				if (!curr.isDoctype()) {
 					curr.end = scanner.getTokenOffset() - 1;
-					curr  =curr.getParentNode();
+					curr = curr.getParentNode();
 				}
 				
 				DTDElementDecl child = new DTDElementDecl(scanner.getTokenOffset(), text.length(),
@@ -397,9 +416,8 @@ public class DOMParser {
 			}
 			token = scanner.scan();
 		}
-		while (curr.parent != null) {
+		while (curr.parent != null ) {
 			curr.end = text.length();
-			curr.closed = false;
 			curr = curr.parent;
 		}
 		return xmlDocument;
