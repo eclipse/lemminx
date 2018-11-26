@@ -31,8 +31,8 @@ public class DOMDocumentType extends DOMNode implements org.w3c.dom.DocumentType
 	int publicIdEnd = -1;
 	int systemIdStart = -1;
 	int systemIdEnd = -1;
-	int startInternalDTD = -1;
-	int endInternalDTD = -1;
+	Integer startInternalSubset;
+	Integer endInternalSubset;
 
 	private String name;
 	private String kind;
@@ -129,15 +129,28 @@ public class DOMDocumentType extends DOMNode implements org.w3c.dom.DocumentType
 	 */
 	@Override
 	public String getInternalSubset() {
-		if (internalSubset == null && startInternalDTD != -1 && endInternalDTD != -1) {
-			internalSubset = getSubstring(startInternalDTD, endInternalDTD);
+		if (internalSubset == null && startInternalSubset != null && endInternalSubset != null) {
+			internalSubset = getSubstring(startInternalSubset + 1, endInternalSubset);
 		}
 		return internalSubset;
 	}
 
-	void setInternalSubset(int start, int end) {
-		startInternalDTD = start;
-		endInternalDTD = end;
+	/**
+	 * Returns the start offset of internal subset and null otherwise.
+	 * 
+	 * @return the start offset of internal subset and null otherwise.
+	 */
+	public Integer getStartInternalSubset() {
+		return startInternalSubset;
+	}
+
+	/**
+	 * Returns the end offset of internal subset and null otherwise.
+	 * 
+	 * @return the end offset of internal subset and null otherwise.
+	 */
+	public Integer getEndInternalSubset() {
+		return endInternalSubset;
 	}
 
 	/*

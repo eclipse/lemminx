@@ -15,7 +15,7 @@ import javax.xml.soap.Node;
 import org.w3c.dom.Entity;
 
 /**
- * DOM Entity.
+ * DOM Entity declaration <!ENTITY
  *
  */
 public class DOMEntity extends DOMNode implements Entity {

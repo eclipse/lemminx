@@ -17,7 +17,6 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IDiagnosticsParticipant;
-import org.eclipse.lsp4xml.utils.DOMUtils;
 
 /**
  * Validate XSD file with Xerces.
@@ -27,7 +26,7 @@ public class DTDDiagnosticsParticipant implements IDiagnosticsParticipant {
 
 	@Override
 	public void doDiagnostics(DOMDocument xmlDocument, List<Diagnostic> diagnostics, CancelChecker monitor) {
-		if (!DOMUtils.isDTD(xmlDocument)) {
+		if (!xmlDocument.isDTD()) {
 			// Don't use the DTD validator, if it's a DTD
 			return;
 		}

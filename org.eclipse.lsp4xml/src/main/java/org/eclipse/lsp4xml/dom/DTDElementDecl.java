@@ -12,6 +12,8 @@ package org.eclipse.lsp4xml.dom;
 
 /**
  * DTD Element Declaration <!ELEMENT
+ * 
+ * @see https://www.w3.org/TR/REC-xml/#dt-eldecl
  *
  */
 public class DTDElementDecl extends DOMNode {

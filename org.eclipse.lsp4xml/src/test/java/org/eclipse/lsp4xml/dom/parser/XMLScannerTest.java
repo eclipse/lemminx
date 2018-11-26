@@ -12,11 +12,6 @@ package org.eclipse.lsp4xml.dom.parser;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.ArrayList;
-
-import org.eclipse.lsp4xml.dom.parser.Scanner;
-import org.eclipse.lsp4xml.dom.parser.TokenType;
-import org.eclipse.lsp4xml.dom.parser.XMLScanner;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -844,28 +839,28 @@ public class XMLScannerTest {
 		"  <!ENTITY writer \"Writer: Donald Duck.\">\n" +
 		"]>";
 		scanner = XMLScanner.createScanner(xml);
-		assertOffsetAndToken(0, TokenType.StartDoctypeTag);
+		assertOffsetAndToken(0, TokenType.DTDStartDoctypeTag);
 		assertOffsetAndToken(9, TokenType.Whitespace);
-		assertOffsetAndToken(10, TokenType.DoctypeName);
+		assertOffsetAndToken(10, TokenType.DTDDoctypeName);
 		assertOffsetAndToken(14, TokenType.Whitespace);
-		assertOffsetAndToken(15, TokenType.InternalDTDStart);
+		assertOffsetAndToken(15, TokenType.DTDStartInternalSubset);
 		assertOffsetAndToken(16, TokenType.Whitespace);
-		assertOffsetAndToken(19, TokenType.StartEntityDTD);
+		assertOffsetAndToken(19, TokenType.DTDStartEntity);
 		assertOffsetAndToken(27, TokenType.Whitespace);
 		assertOffsetAndToken(28, TokenType.DTDEntityName);
 		assertOffsetAndToken(32, TokenType.Whitespace);
 		assertOffsetAndToken(33, TokenType.DTDEntityValue);
-		assertOffsetAndToken(41, TokenType.EndDTDTag);
+		assertOffsetAndToken(41, TokenType.DTDEndTag);
 		assertOffsetAndToken(42, TokenType.Whitespace);
-		assertOffsetAndToken(46, TokenType.StartEntityDTD);
+		assertOffsetAndToken(46, TokenType.DTDStartEntity);
 		assertOffsetAndToken(54, TokenType.Whitespace);
 		assertOffsetAndToken(55, TokenType.DTDEntityName);
 		assertOffsetAndToken(61, TokenType.Whitespace);
 		assertOffsetAndToken(62, TokenType.DTDEntityValue);
-		assertOffsetAndToken(84, TokenType.EndDTDTag);
+		assertOffsetAndToken(84, TokenType.DTDEndTag);
 		assertOffsetAndToken(85, TokenType.Whitespace);
-		assertOffsetAndToken(86, TokenType.EndInternalDTD);
-		assertOffsetAndToken(87, TokenType.EndDoctypeTag);
+		assertOffsetAndToken(86, TokenType.DTDEndInternalSubset);
+		assertOffsetAndToken(87, TokenType.DTDEndDoctypeTag);
 	
 	}
 
@@ -881,28 +876,28 @@ public class XMLScannerTest {
 		"  ]\n" +
 		">";
 		scanner = XMLScanner.createScanner(xml);
-		assertOffsetAndToken(0, TokenType.StartDoctypeTag);
+		assertOffsetAndToken(0, TokenType.DTDStartDoctypeTag);
 		assertOffsetAndToken(9, TokenType.Whitespace);
-		assertOffsetAndToken(10, TokenType.DoctypeName);
+		assertOffsetAndToken(10, TokenType.DTDDoctypeName);
 		assertOffsetAndToken(14, TokenType.Whitespace);
-		assertOffsetAndToken(15, TokenType.DocTypeKindPUBLIC);
+		assertOffsetAndToken(15, TokenType.DTDDocTypeKindPUBLIC);
 		assertOffsetAndToken(21, TokenType.Whitespace);
-		assertOffsetAndToken(24, TokenType.DoctypePublicId);
+		assertOffsetAndToken(24, TokenType.DTDDoctypePublicId);
 		assertOffsetAndToken(64, TokenType.Whitespace);
-		assertOffsetAndToken(67, TokenType.DoctypeSystemId);
+		assertOffsetAndToken(67, TokenType.DTDDoctypeSystemId);
 		assertOffsetAndToken(124, TokenType.Whitespace);
-		assertOffsetAndToken(127, TokenType.InternalDTDStart);
+		assertOffsetAndToken(127, TokenType.DTDStartInternalSubset);
 		assertOffsetAndToken(128, TokenType.Whitespace);
-		assertOffsetAndToken(133, TokenType.StartEntityDTD);
+		assertOffsetAndToken(133, TokenType.DTDStartEntity);
 		assertOffsetAndToken(141, TokenType.Whitespace);
 		assertOffsetAndToken(142, TokenType.DTDEntityName);
 		assertOffsetAndToken(146, TokenType.Whitespace);
 		assertOffsetAndToken(147, TokenType.DTDEntityValue);
-		assertOffsetAndToken(155, TokenType.EndDTDTag);
+		assertOffsetAndToken(155, TokenType.DTDEndTag);
 		assertOffsetAndToken(156, TokenType.Whitespace);
-		assertOffsetAndToken(160, TokenType.EndInternalDTD);
+		assertOffsetAndToken(160, TokenType.DTDEndInternalSubset);
 		assertOffsetAndToken(161, TokenType.Whitespace);
-		assertOffsetAndToken(162, TokenType.EndDoctypeTag);
+		assertOffsetAndToken(162, TokenType.DTDEndDoctypeTag);
 		assertOffsetAndToken(163, TokenType.EOS);
 	}
 
@@ -917,28 +912,28 @@ public class XMLScannerTest {
 		"  ]\n" +
 		">";
 		scanner = XMLScanner.createScanner(xml);
-		assertOffsetAndToken(0, TokenType.StartDoctypeTag);
+		assertOffsetAndToken(0, TokenType.DTDStartDoctypeTag);
 		assertOffsetAndToken(9, TokenType.Whitespace);
-		assertOffsetAndToken(10, TokenType.DoctypeName);
+		assertOffsetAndToken(10, TokenType.DTDDoctypeName);
 		assertOffsetAndToken(14, TokenType.Whitespace);
-		assertOffsetAndToken(15, TokenType.DocTypeKindSYSTEM);
+		assertOffsetAndToken(15, TokenType.DTDDocTypeKindSYSTEM);
 		assertOffsetAndToken(21, TokenType.Whitespace);
-		assertOffsetAndToken(24, TokenType.DoctypeSystemId);
+		assertOffsetAndToken(24, TokenType.DTDDoctypeSystemId);
 		assertOffsetAndToken(81, TokenType.Whitespace);
-		assertOffsetAndToken(84, TokenType.InternalDTDStart);
+		assertOffsetAndToken(84, TokenType.DTDStartInternalSubset);
 		assertOffsetAndToken(85, TokenType.Whitespace);
-		assertOffsetAndToken(90, TokenType.StartElementDTD);
+		assertOffsetAndToken(90, TokenType.DTDStartElementDecl);
 		assertOffsetAndToken(99, TokenType.Whitespace);
-		assertOffsetAndToken(100, TokenType.ElementDTDName);
+		assertOffsetAndToken(100, TokenType.DTDElementDeclName);
 		assertOffsetAndToken(104, TokenType.Whitespace);
-		assertOffsetAndToken(105, TokenType.StartElementDTDContent);
-		assertOffsetAndToken(106, TokenType.ElementDTDContent);
-		assertOffsetAndToken(107, TokenType.EndElementDTDContent);
-		assertOffsetAndToken(108, TokenType.EndDTDTag);
+		assertOffsetAndToken(105, TokenType.DTDStartElementContent);
+		assertOffsetAndToken(106, TokenType.DTDElementContent);
+		assertOffsetAndToken(107, TokenType.DTDEndElementContent);
+		assertOffsetAndToken(108, TokenType.DTDEndTag);
 		assertOffsetAndToken(109, TokenType.Whitespace);
-		assertOffsetAndToken(113, TokenType.EndInternalDTD);
+		assertOffsetAndToken(113, TokenType.DTDEndInternalSubset);
 		assertOffsetAndToken(114, TokenType.Whitespace);
-		assertOffsetAndToken(115, TokenType.EndDoctypeTag);
+		assertOffsetAndToken(115, TokenType.DTDEndDoctypeTag);
 		assertOffsetAndToken(116, TokenType.EOS);
 	}
 
@@ -953,30 +948,30 @@ public class XMLScannerTest {
 		"  ]\n" +
 		">";
 		scanner = XMLScanner.createScanner(xml);
-		assertOffsetAndToken(0, TokenType.StartDoctypeTag);
+		assertOffsetAndToken(0, TokenType.DTDStartDoctypeTag);
 		assertOffsetAndToken(9, TokenType.Whitespace);
-		assertOffsetAndToken(10, TokenType.DoctypeName);
+		assertOffsetAndToken(10, TokenType.DTDDoctypeName);
 		assertOffsetAndToken(14, TokenType.Whitespace);
-		assertOffsetAndToken(15, TokenType.DocTypeKindSYSTEM);
+		assertOffsetAndToken(15, TokenType.DTDDocTypeKindSYSTEM);
 		assertOffsetAndToken(21, TokenType.Whitespace);
-		assertOffsetAndToken(24, TokenType.DoctypeSystemId);
+		assertOffsetAndToken(24, TokenType.DTDDoctypeSystemId);
 		assertOffsetAndToken(81, TokenType.Whitespace);
-		assertOffsetAndToken(84, TokenType.InternalDTDStart);
+		assertOffsetAndToken(84, TokenType.DTDStartInternalSubset);
 		assertOffsetAndToken(85, TokenType.Whitespace);
-		assertOffsetAndToken(90, TokenType.StartAttlistDTD);
+		assertOffsetAndToken(90, TokenType.DTDStartAttlistDecl);
 		assertOffsetAndToken(99, TokenType.Whitespace);
-		assertOffsetAndToken(100, TokenType.AttlistDTDAttributeName);
+		assertOffsetAndToken(100, TokenType.DTDAttlistAttributeName);
 		assertOffsetAndToken(107, TokenType.Whitespace);
-		assertOffsetAndToken(108, TokenType.AttlistDTDAttributeName);
+		assertOffsetAndToken(108, TokenType.DTDAttlistAttributeName);
 		assertOffsetAndToken(112, TokenType.Whitespace);
-		assertOffsetAndToken(113, TokenType.AttlistDTDType);
+		assertOffsetAndToken(113, TokenType.DTDAttlistType);
 		assertOffsetAndToken(118, TokenType.Whitespace);
-		assertOffsetAndToken(119, TokenType.AttlistDTDAttributeValue);
-		assertOffsetAndToken(127, TokenType.EndDTDTag);
+		assertOffsetAndToken(119, TokenType.DTDAttlistAttributeValue);
+		assertOffsetAndToken(127, TokenType.DTDEndTag);
 		assertOffsetAndToken(128, TokenType.Whitespace);
-		assertOffsetAndToken(132, TokenType.EndInternalDTD);
+		assertOffsetAndToken(132, TokenType.DTDEndInternalSubset);
 		assertOffsetAndToken(133, TokenType.Whitespace);
-		assertOffsetAndToken(134, TokenType.EndDoctypeTag);
+		assertOffsetAndToken(134, TokenType.DTDEndDoctypeTag);
 		assertOffsetAndToken(135, TokenType.EOS);
 	}
 
@@ -991,30 +986,30 @@ public class XMLScannerTest {
 		"  ]\n" +
 		">";
 		scanner = XMLScanner.createScanner(xml);
-		assertOffsetAndToken(0, TokenType.StartDoctypeTag);
+		assertOffsetAndToken(0, TokenType.DTDStartDoctypeTag);
 		assertOffsetAndToken(9, TokenType.Whitespace);
-		assertOffsetAndToken(10, TokenType.DoctypeName);
+		assertOffsetAndToken(10, TokenType.DTDDoctypeName);
 		assertOffsetAndToken(14, TokenType.Whitespace);
-		assertOffsetAndToken(15, TokenType.DocTypeKindSYSTEM);
+		assertOffsetAndToken(15, TokenType.DTDDocTypeKindSYSTEM);
 		assertOffsetAndToken(21, TokenType.Whitespace);
-		assertOffsetAndToken(24, TokenType.DoctypeSystemId);
+		assertOffsetAndToken(24, TokenType.DTDDoctypeSystemId);
 		assertOffsetAndToken(81, TokenType.Whitespace);
-		assertOffsetAndToken(84, TokenType.InternalDTDStart);
+		assertOffsetAndToken(84, TokenType.DTDStartInternalSubset);
 		assertOffsetAndToken(85, TokenType.Whitespace);
-		assertOffsetAndToken(90, TokenType.StartAttlistDTD);
+		assertOffsetAndToken(90, TokenType.DTDStartAttlistDecl);
 		assertOffsetAndToken(99, TokenType.Whitespace);
-		assertOffsetAndToken(100, TokenType.AttlistDTDAttributeName);
+		assertOffsetAndToken(100, TokenType.DTDAttlistAttributeName);
 		assertOffsetAndToken(107, TokenType.Whitespace);
-		assertOffsetAndToken(108, TokenType.AttlistDTDAttributeName);
+		assertOffsetAndToken(108, TokenType.DTDAttlistAttributeName);
 		assertOffsetAndToken(112, TokenType.Whitespace);
-		assertOffsetAndToken(113, TokenType.AttlistDTDType);
+		assertOffsetAndToken(113, TokenType.DTDAttlistType);
 		assertOffsetAndToken(127, TokenType.Whitespace);
-		assertOffsetAndToken(128, TokenType.AttlistDTDAttributeValue);
-		assertOffsetAndToken(135, TokenType.EndDTDTag);
+		assertOffsetAndToken(128, TokenType.DTDAttlistAttributeValue);
+		assertOffsetAndToken(135, TokenType.DTDEndTag);
 		assertOffsetAndToken(136, TokenType.Whitespace);
-		assertOffsetAndToken(140, TokenType.EndInternalDTD);
+		assertOffsetAndToken(140, TokenType.DTDEndInternalSubset);
 		assertOffsetAndToken(141, TokenType.Whitespace);
-		assertOffsetAndToken(142, TokenType.EndDoctypeTag);
+		assertOffsetAndToken(142, TokenType.DTDEndDoctypeTag);
 		assertOffsetAndToken(143, TokenType.EOS);
 	}
 
@@ -1028,19 +1023,19 @@ public class XMLScannerTest {
 		"  ]\n" +
 		">";
 		scanner = XMLScanner.createScanner(xml);
-		assertOffsetAndToken(0, TokenType.StartDoctypeTag);
+		assertOffsetAndToken(0, TokenType.DTDStartDoctypeTag);
 		assertOffsetAndToken(9, TokenType.Whitespace);
-		assertOffsetAndToken(10, TokenType.DoctypeName);
+		assertOffsetAndToken(10, TokenType.DTDDoctypeName);
 		assertOffsetAndToken(14, TokenType.Whitespace);
-		assertOffsetAndToken(15, TokenType.DocTypeKindSYSTEM);
+		assertOffsetAndToken(15, TokenType.DTDDocTypeKindSYSTEM);
 		assertOffsetAndToken(21, TokenType.Whitespace);
-		assertOffsetAndToken(24, TokenType.DoctypeSystemId);
+		assertOffsetAndToken(24, TokenType.DTDDoctypeSystemId);
 		assertOffsetAndToken(81, TokenType.Whitespace);
-		assertOffsetAndToken(84, TokenType.InternalDTDStart);
+		assertOffsetAndToken(84, TokenType.DTDStartInternalSubset);
 		assertOffsetAndToken(85, TokenType.Whitespace);
-		assertOffsetAndToken(88, TokenType.EndInternalDTD);
+		assertOffsetAndToken(88, TokenType.DTDEndInternalSubset);
 		assertOffsetAndToken(89, TokenType.Whitespace);
-		assertOffsetAndToken(90, TokenType.EndDoctypeTag);
+		assertOffsetAndToken(90, TokenType.DTDEndDoctypeTag);
 		assertOffsetAndToken(91, TokenType.EOS);
 	}
 
@@ -1052,15 +1047,15 @@ public class XMLScannerTest {
 		"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"\n" +
 		">";
 		scanner = XMLScanner.createScanner(xml);
-		assertOffsetAndToken(0, TokenType.StartDoctypeTag);
+		assertOffsetAndToken(0, TokenType.DTDStartDoctypeTag);
 		assertOffsetAndToken(9, TokenType.Whitespace);
-		assertOffsetAndToken(10, TokenType.DoctypeName);
+		assertOffsetAndToken(10, TokenType.DTDDoctypeName);
 		assertOffsetAndToken(14, TokenType.Whitespace);
-		assertOffsetAndToken(15, TokenType.DocTypeKindSYSTEM);
+		assertOffsetAndToken(15, TokenType.DTDDocTypeKindSYSTEM);
 		assertOffsetAndToken(21, TokenType.Whitespace);
-		assertOffsetAndToken(24, TokenType.DoctypeSystemId);
+		assertOffsetAndToken(24, TokenType.DTDDoctypeSystemId);
 		assertOffsetAndToken(81, TokenType.Whitespace);
-		assertOffsetAndToken(82, TokenType.EndDoctypeTag);
+		assertOffsetAndToken(82, TokenType.DTDEndDoctypeTag);
 	}
   //----------Tools-------------------------------------------------------
 

@@ -72,19 +72,6 @@ public class DOMUtils {
 	}
 
 	/**
-	 * Returns true if the XML document is a DTD and false otherwise.
-	 * 
-	 * @return true if the XML document is a DTD and false otherwise.
-	 */
-	public static boolean isDTD(DOMDocument document) {
-		String uri = document.getDocumentURI();
-		if (isDTD(uri)) {
-			return true;
-		}
-		return false;
-	}
-
-	/**
 	 * Returns true if the given URI is a DTD and false otherwise.
 	 * 
 	 * @param uri the URI to check

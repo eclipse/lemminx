@@ -16,9 +16,16 @@ package org.eclipse.lsp4xml.dom.parser;
  *
  */
 public enum ScannerState {
-	WithinContent, AfterOpeningStartTag, AfterOpeningEndTag, WithinProlog, WithinDoctype, WithinTag, WithinEndTag,
-	WithinComment, AfterAttributeName, BeforeAttributeValue, WithinCDATA, AfterClosingCDATATag, StartCDATATag, AfterPrologOpen, PrologOrPI, 
-	WithinPI, AfterDoctypeName, AfterDoctypePUBLIC, AfterDoctypeSYSTEM, AfterDoctypePublicId, AfterDoctypeSystemId, AfterInternalDTDStartBracket, WithinInternalDTD, 
-	WithinElementDTD, WithinAttlistDTD, WithinDTDEntity, AfterElementDTDName, WithinElementDTDContent, AfterAttlistName, AfterAttlistDeclName, AfterAttlistDTDElementName, AfterAttlistDTDAttributeName, AfterAttlistDTDAttributeType, AfterDTDEntityName, AfterDTDEntityKind, WithinDTDTag, IncorrectDTDTagFormat
+	WithinContent, AfterOpeningStartTag, AfterOpeningEndTag, WithinProlog, WithinTag, WithinEndTag,
+	WithinComment, AfterAttributeName, BeforeAttributeValue, WithinCDATA, AfterClosingCDATATag, StartCDATATag,
+	AfterPrologOpen, PrologOrPI, WithinPI,
+
+	// DTD
+	DTDWithinDoctype, DTDAfterDoctypeName, DTDAfterDoctypePUBLIC, DTDAfterDoctypeSYSTEM,
+	DTDAfterDoctypePublicId, DTDAfterDoctypeSystemId, DTDAfterInternalStartBracket,
+	
+	DTDWithinContent, DTDWithinElement, DTDWithinAttlist, DTDWithinEntity, DTDAfterElementName, DTDWithinElementContent,
+	DTDAfterAttlistName, DTDAfterAttlistDeclName, DTDAfterAttlistElementName, DTDAfterAttlistAttributeName,
+	DTDAfterAttlistAttributeType, DTDAfterEntityName, DTDAfterEntityKind, DTDWithinTag, DTDIncorrectTagFormat
 
 }

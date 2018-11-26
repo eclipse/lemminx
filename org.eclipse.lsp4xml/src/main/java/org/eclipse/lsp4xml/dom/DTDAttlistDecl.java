@@ -11,15 +11,18 @@
 package org.eclipse.lsp4xml.dom;
 
 /**
- * DTD Attribute List declaration <!ATTRIBUTES
+ * DTD Attribute List declaration <!ATTLIST
+ * 
+ * @see https://www.w3.org/TR/REC-xml/#attdecls
  *
  */
-public class DTDAttList extends DOMNode {
+public class DTDAttlistDecl extends DOMNode {
 
 	private final DOMDocumentType ownerDTDDocument;
+
 	String name;
 
-	public DTDAttList(int start, int end, DOMDocumentType ownerDTDDocument) {
+	public DTDAttlistDecl(int start, int end, DOMDocumentType ownerDTDDocument) {
 		super(start, end, ownerDTDDocument.getOwnerDocument());
 		this.ownerDTDDocument = ownerDTDDocument;
 	}

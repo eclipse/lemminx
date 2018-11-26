@@ -379,7 +379,6 @@ public class DOMParserTest {
 	}
 
 	@Test
-	@Ignore
 	public void testDoctype1() {
 		String xml = 
 		"<!DOCTYPE note [\n" +
@@ -392,12 +391,11 @@ public class DOMParserTest {
 		"  <!ENTITY nbsp \"&#xA0;\"> \n" +
 		"  <!ENTITY writer \"Writer: Donald Duck.\">\n" +
 		"  <!ENTITY copyright \"Copyright: W3Schools.\">\n";
-		DOMDocument document = DOMParser.getInstance().parse(xml, null, null);
+		DOMDocument document = DOMParser.getInstance().parse(xml, "note.xml", null);
 		assertDoctype((DOMDocumentType)(document.getChild(0)), 0, 134, "note", null, null, null, internal);
 	}
 	
-	@Test
-	@Ignore
+	@Test	
 	public void testDoctype2() {
 		String xml = 
 		"<!DOCTYPE html SYSTEM\n" +

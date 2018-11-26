@@ -21,6 +21,7 @@ import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.dom.parser.Constants;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
+import org.eclipse.lsp4xml.utils.DOMUtils;
 import org.eclipse.lsp4xml.utils.StringUtils;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.DOMConfiguration;
@@ -743,4 +744,16 @@ public class DOMDocument extends DOMNode implements Document {
 		return resolverExtensionManager;
 	}
 
+	/**
+	 * Returns true if the XML document is a DTD and false otherwise.
+	 * 
+	 * @return true if the XML document is a DTD and false otherwise.
+	 */
+	public boolean isDTD() {
+		String uri = this.getDocumentURI();
+		if (DOMUtils.isDTD(uri)) {
+			return true;
+		}
+		return false;
+	}
 }

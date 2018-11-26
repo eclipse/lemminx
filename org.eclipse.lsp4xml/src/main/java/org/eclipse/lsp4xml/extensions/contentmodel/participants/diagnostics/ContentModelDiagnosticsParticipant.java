@@ -18,7 +18,6 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.extensions.contentmodel.ContentModelPlugin;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IDiagnosticsParticipant;
-import org.eclipse.lsp4xml.utils.DOMUtils;
 
 /**
  * Validate XML file with Xerces for syntax validation and XML Schema, DTD.
@@ -34,7 +33,7 @@ public class ContentModelDiagnosticsParticipant implements IDiagnosticsParticipa
 
 	@Override
 	public void doDiagnostics(DOMDocument xmlDocument, List<Diagnostic> diagnostics, CancelChecker monitor) {
-		if (DOMUtils.isDTD(xmlDocument)) {
+		if (xmlDocument.isDTD()) {
 			// Don't validate DTD with XML validator
 			return;
 		}
