@@ -7,17 +7,18 @@ cache:
   directories:
   - $HOME/.m2/repository
   - $HOME/.m2/wrapper
-  - $HOME/.sonar/cache
+#  - $HOME/.sonar/cache
 
-addons:
-  sonarcloud:
-    organization: "angelozerr-github"
-    token:
-      secure: "oNpD10cNL+LM/BuJcYYCpCOQb2OARwiCNuayFl/szoZ//BU2ZCtF+GpoPJjE3O5qdXb2cLj7LkM9Z5q8BXwUyr6H4+0LTaU/9MrgEMc5Ttm1zFpaV/xHkoQ1Sk8IlHqZL1TBu5r/LCOy8ekb/tzy36nvcEH4lL73cXedb8DNXJrSkn3fDhsiVPrBtMgI7ocf2fR3kwb8577SiZ9Z4p8dxI4YtPut80vq3QG7ZyGSr24pXds8XKFfY0flbX41jtlJvfHeraaeR5nLwhcGyobNiWmezUkEoNEyKmBGRKnm3xiXI7KtcxyexpLzalKZGhN/16diZw/sNvneIJTam+oXhoi4iPq1kr6dkuhFvLJoAA6wZjkz28Nk3mNJNGWwu2qbGKj97fp0QfiMx4stV1QIsAqLPE/pBoTsESSlCMDzjR1ZEiUgmNRcN6R4Qb3kjl9KOTtiCboLAgkbv4IDPQF2x5HuByR6OjvELnD1ckQpbqu5I43oYlJuRhAYyVPtyK/XN/KRUHvXp1YDEbAk8LFVBzKchqMORXodRA1AJ95FBO3zWCfqzjL80fPWRW15+ldx72NsreZe+j+yKi0HEQ5MGWfo9Lds+g6gcqyH9DkvUemNms/KiCGCHh/6wlDfa39S2NXkX3TEV+paPXb8ypqpQmB5lD6g6tg3lN/G1UdWWUQ="
+#addons:
+#  sonarcloud:
+#    organization: "angelozerr-github"
+#    token:
+#      secure: "oNpD10cNL+LM/BuJcYYCpCOQb2OARwiCNuayFl/szoZ//BU2ZCtF+GpoPJjE3O5qdXb2cLj7LkM9Z5q8BXwUyr6H4+0LTaU/9MrgEMc5Ttm1zFpaV/xHkoQ1Sk8IlHqZL1TBu5r/LCOy8ekb/tzy36nvcEH4lL73cXedb8DNXJrSkn3fDhsiVPrBtMgI7ocf2fR3kwb8577SiZ9Z4p8dxI4YtPut80vq3QG7ZyGSr24pXds8XKFfY0flbX41jtlJvfHeraaeR5nLwhcGyobNiWmezUkEoNEyKmBGRKnm3xiXI7KtcxyexpLzalKZGhN/16diZw/sNvneIJTam+oXhoi4iPq1kr6dkuhFvLJoAA6wZjkz28Nk3mNJNGWwu2qbGKj97fp0QfiMx4stV1QIsAqLPE/pBoTsESSlCMDzjR1ZEiUgmNRcN6R4Qb3kjl9KOTtiCboLAgkbv4IDPQF2x5HuByR6OjvELnD1ckQpbqu5I43oYlJuRhAYyVPtyK/XN/KRUHvXp1YDEbAk8LFVBzKchqMORXodRA1AJ95FBO3zWCfqzjL80fPWRW15+ldx72NsreZe+j+yKi0HEQ5MGWfo9Lds+g6gcqyH9DkvUemNms/KiCGCHh/6wlDfa39S2NXkX3TEV+paPXb8ypqpQmB5lD6g6tg3lN/G1UdWWUQ="
 
 script:
   # the following command line builds the project, runs the tests with coverage and then execute the SonarCloud analysis
-  - ./mvnw clean org.jacoco:jacoco-maven-plugin:prepare-agent verify sonar:sonar -fae
+  #- ./mvnw clean org.jacoco:jacoco-maven-plugin:prepare-agent verify sonar:sonar -fae
+  - ./mvnw clean verify
 
 jdk:
   - oraclejdk8
