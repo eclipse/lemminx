@@ -349,7 +349,7 @@ public class DOMParser {
 			}
 
 			case DTDStartEntity: {
-				DOMEntity child = new DOMEntity(scanner.getTokenOffset(), text.length(), (DOMDocumentType) curr);
+				DTDEntity child = new DTDEntity(scanner.getTokenOffset(), text.length(), (DOMDocumentType) curr);
 				curr.addChild(child);
 				curr = child;
 				break;

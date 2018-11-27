@@ -17,9 +17,9 @@ import org.w3c.dom.Node;
  * DOM Entity declaration <!ENTITY
  *
  */
-public class DOMEntity extends DOMNode implements Entity {
+public class DTDEntity extends DOMNode implements Entity {
 
-	public DOMEntity(int start, int end, DOMDocumentType documentType) {
+	public DTDEntity(int start, int end, DOMDocumentType documentType) {
 		super(start, end, documentType != null ? documentType.getOwnerDocument() : null);
 	}
 
