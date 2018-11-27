@@ -12,10 +12,11 @@ package org.eclipse.lsp4xml.dom.parser;
 
 import static org.junit.Assert.assertEquals;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
- * XML scanner test to parse internal DTD (declared inside XML  with <!DOCTYPE)
+ * XML scanner test to parse internal DTD (declared inside XML with <!DOCTYPE)
  *
  */
 public class XMLScannerForInternalDTDTest {
@@ -24,11 +25,10 @@ public class XMLScannerForInternalDTDTest {
 
 	@Test
 	public void testDocumentTypeInternalOnly() {
-		String xml = 
-		"<!DOCTYPE note [\n" +
-		"  <!ENTITY nbsp \"&#xA0;\"> \n" +
-		"  <!ENTITY writer \"Writer: Donald Duck.\">\n" +
-		"]>";
+		String xml = "<!DOCTYPE note [\n" + //
+				"  <!ENTITY nbsp \"&#xA0;\"> \n" + //
+				"  <!ENTITY writer \"Writer: Donald Duck.\">\n" + //
+				"]>";
 		scanner = XMLScanner.createScanner(xml);
 		assertOffsetAndToken(0, TokenType.DTDStartDoctypeTag);
 		assertOffsetAndToken(9, TokenType.Whitespace);
@@ -52,20 +52,19 @@ public class XMLScannerForInternalDTDTest {
 		assertOffsetAndToken(85, TokenType.Whitespace);
 		assertOffsetAndToken(86, TokenType.DTDEndInternalSubset);
 		assertOffsetAndToken(87, TokenType.DTDEndDoctypeTag);
-	
+
 	}
 
 	@Test
 	public void testDocumentTypePublicAndInternal() {
-		
-		String xml = 
-		"<!DOCTYPE html PUBLIC\n" +
-		"  \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n" +
-		"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"\n" +
-		"  [\n" +
-		"    <!ENTITY nbsp \"&#xA0;\"> \n" +
-		"  ]\n" +
-		">";
+
+		String xml = "<!DOCTYPE html PUBLIC\n" + //
+				"  \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n" + //
+				"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"\n" + //
+				"  [\n" + //
+				"    <!ENTITY nbsp \"&#xA0;\"> \n" + //
+				"  ]\n" + //
+				">";
 		scanner = XMLScanner.createScanner(xml);
 		assertOffsetAndToken(0, TokenType.DTDStartDoctypeTag);
 		assertOffsetAndToken(9, TokenType.Whitespace);
@@ -94,14 +93,13 @@ public class XMLScannerForInternalDTDTest {
 
 	@Test
 	public void testDocumentTypeSystemAndInternal() {
-		
-		String xml = 
-		"<!DOCTYPE html SYSTEM\n" +
-		"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"\n" +
-		"  [\n" +
-		"    <!ELEMENT test (a)> \n" +
-		"  ]\n" +
-		">";
+
+		String xml = "<!DOCTYPE html SYSTEM\n" + //
+				"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"\n" + //
+				"  [\n" + //
+				"    <!ELEMENT test (a)> \n" + //
+				"  ]\n" + //
+				">";
 		scanner = XMLScanner.createScanner(xml);
 		assertOffsetAndToken(0, TokenType.DTDStartDoctypeTag);
 		assertOffsetAndToken(9, TokenType.Whitespace);
@@ -130,14 +128,13 @@ public class XMLScannerForInternalDTDTest {
 
 	@Test
 	public void testDocumentTypeSystemAndInternalAttlist() {
-		
-		String xml = 
-		"<!DOCTYPE html SYSTEM\n" +
-		"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"\n" +
-		"  [\n" +
-		"    <!ATTLIST payment type CDATA \"cheque\"> \n" +
-		"  ]\n" +
-		">";
+
+		String xml = "<!DOCTYPE html SYSTEM\n" + //
+				"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"\n" + //
+				"  [\n" + //
+				"    <!ATTLIST payment type CDATA \"cheque\"> \n" + //
+				"  ]\n" + //
+				">";
 		scanner = XMLScanner.createScanner(xml);
 		assertOffsetAndToken(0, TokenType.DTDStartDoctypeTag);
 		assertOffsetAndToken(9, TokenType.Whitespace);
@@ -168,14 +165,13 @@ public class XMLScannerForInternalDTDTest {
 
 	@Test
 	public void testDocumentTypeSystemAndInternalAttlist2() {
-		
-		String xml = 
-		"<!DOCTYPE html SYSTEM\n" +
-		"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"\n" +
-		"  [\n" +
-		"    <!ATTLIST payment type (first|second) \"first\"> \n" +
-		"  ]\n" +
-		">";
+
+		String xml = "<!DOCTYPE html SYSTEM\n" + //
+				"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"\n" + //
+				"  [\n" + //
+				"    <!ATTLIST payment type (first|second) \"first\"> \n" + //
+				"  ]\n" + //
+				">";
 		scanner = XMLScanner.createScanner(xml);
 		assertOffsetAndToken(0, TokenType.DTDStartDoctypeTag);
 		assertOffsetAndToken(9, TokenType.Whitespace);
@@ -206,13 +202,12 @@ public class XMLScannerForInternalDTDTest {
 
 	@Test
 	public void testDocumentTypeSystemAndEmptyInternalDTD() {
-		
-		String xml = 
-		"<!DOCTYPE html SYSTEM\n" +
-		"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"\n" +
-		"  [\n" +
-		"  ]\n" +
-		">";
+
+		String xml = "<!DOCTYPE html SYSTEM\n" + //
+				"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"\n" + //
+				"  [\n" + //
+				"  ]\n" + //
+				">";
 		scanner = XMLScanner.createScanner(xml);
 		assertOffsetAndToken(0, TokenType.DTDStartDoctypeTag);
 		assertOffsetAndToken(9, TokenType.Whitespace);
@@ -232,11 +227,9 @@ public class XMLScannerForInternalDTDTest {
 
 	@Test
 	public void testDocumentTypeSystem() {
-		
-		String xml = 
-		"<!DOCTYPE html SYSTEM\n" +
-		"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"\n" +
-		">";
+		String xml = "<!DOCTYPE html SYSTEM\n" + //
+				"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"\n" + //
+				">";
 		scanner = XMLScanner.createScanner(xml);
 		assertOffsetAndToken(0, TokenType.DTDStartDoctypeTag);
 		assertOffsetAndToken(9, TokenType.Whitespace);
@@ -248,17 +241,73 @@ public class XMLScannerForInternalDTDTest {
 		assertOffsetAndToken(81, TokenType.Whitespace);
 		assertOffsetAndToken(82, TokenType.DTDEndDoctypeTag);
 	}
-	
+
+	@Test
+	public void oneElementDeclNotClosed () {
+		String xml = "<!DOCTYPE foo [\r\n" + 
+				"<!ELEMENT a]>   \r\n" + 
+				"<foo />";
+		scanner = XMLScanner.createScanner(xml);
+		assertOffsetAndToken(0, TokenType.DTDStartDoctypeTag);
+		assertOffsetAndToken(9, TokenType.Whitespace);
+		assertOffsetAndToken(10, TokenType.DTDDoctypeName);
+		assertOffsetAndToken(13, TokenType.Whitespace);
+		assertOffsetAndToken(14, TokenType.DTDStartInternalSubset);
+		assertOffsetAndToken(15, TokenType.Whitespace);
+		assertOffsetAndToken(17, TokenType.DTDStartElementDecl);
+		assertOffsetAndToken(26, TokenType.Whitespace);
+		assertOffsetAndToken(27, TokenType.DTDElementDeclName);
+		assertOffsetAndToken(28, TokenType.DTDEndInternalSubset);
+		assertOffsetAndToken(29, TokenType.DTDEndDoctypeTag);
+		assertOffsetAndToken(30, TokenType.Content);
+		assertOffsetAndToken(35, TokenType.StartTagOpen);
+		assertOffsetAndToken(36, TokenType.StartTag);
+		assertOffsetAndToken(39, TokenType.Whitespace);
+		assertOffsetAndToken(40, TokenType.StartTagSelfClose);
+		assertOffsetAndToken(42, TokenType.EOS);
+	}
+
+	@Test
+	public void startWithElementDeclNotClosed () {
+		String xml = "<!DOCTYPE foo [\r\n" + // 
+				"<!ELEMENT a\r\n" + // here element is not closed
+				"<!ELEMENT b]>   \r\n" + // here element is not closed
+				"<foo />";
+		scanner = XMLScanner.createScanner(xml);
+		assertOffsetAndToken(0, TokenType.DTDStartDoctypeTag);
+		assertOffsetAndToken(9, TokenType.Whitespace);
+		assertOffsetAndToken(10, TokenType.DTDDoctypeName);
+		assertOffsetAndToken(13, TokenType.Whitespace);
+		assertOffsetAndToken(14, TokenType.DTDStartInternalSubset);
+		assertOffsetAndToken(15, TokenType.Whitespace);
+		assertOffsetAndToken(17, TokenType.DTDStartElementDecl);
+		assertOffsetAndToken(26, TokenType.Whitespace);
+		assertOffsetAndToken(27, TokenType.DTDElementDeclName);
+		assertOffsetAndToken(28, TokenType.Whitespace);
+		assertOffsetAndToken(30, TokenType.DTDStartElementDecl);
+		assertOffsetAndToken(39, TokenType.Whitespace);
+		assertOffsetAndToken(40, TokenType.DTDElementDeclName);
+		assertOffsetAndToken(41, TokenType.DTDEndInternalSubset);
+		assertOffsetAndToken(42, TokenType.DTDEndDoctypeTag);
+		assertOffsetAndToken(43, TokenType.Content);
+		assertOffsetAndToken(48, TokenType.StartTagOpen);
+		assertOffsetAndToken(49, TokenType.StartTag);
+		assertOffsetAndToken(52, TokenType.Whitespace);
+		assertOffsetAndToken(53, TokenType.StartTagSelfClose);
+		assertOffsetAndToken(55, TokenType.EOS);
+	}
+
 	public void assertOffsetAndToken(int tokenOffset, TokenType tokenType) {
 		TokenType token = scanner.scan();
-	    assertEquals(tokenOffset, scanner.getTokenOffset());
-	    assertEquals(tokenType, token);
-	  }
-
-	  public void assertOffsetAndToken(int tokenOffset, TokenType tokenType, String tokenText) {
-		TokenType token = scanner.scan();
-	    assertEquals(tokenOffset, scanner.getTokenOffset());
+		System.err.println("assertOffsetAndToken(" + scanner.getTokenOffset() +  ", TokenType." + scanner.getTokenType() + ");");
+		assertEquals(tokenOffset, scanner.getTokenOffset());
 		assertEquals(tokenType, token);
-	    assertEquals(tokenText, scanner.getTokenText());
-	  }
+	}
+
+	public void assertOffsetAndToken(int tokenOffset, TokenType tokenType, String tokenText) {
+		TokenType token = scanner.scan();
+		assertEquals(tokenOffset, scanner.getTokenOffset());
+		assertEquals(tokenType, token);
+		assertEquals(tokenText, scanner.getTokenText());
+	}
 }

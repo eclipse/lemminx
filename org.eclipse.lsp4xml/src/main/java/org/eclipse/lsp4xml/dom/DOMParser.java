@@ -311,12 +311,22 @@ public class DOMParser {
 			}
 
 			case DTDEndInternalSubset: {
+				if (!curr.isDoctype()) {
+					curr.end = scanner.getTokenOffset() - 1;
+					curr  =curr.getParentNode();
+				}
+				
 				DOMDocumentType doctype = (DOMDocumentType) curr;
 				doctype.endInternalSubset = scanner.getTokenOffset();
 				break;
 			}
 
 			case DTDStartElementDecl: {
+				if (!curr.isDoctype()) {
+					curr.end = scanner.getTokenOffset() - 1;
+					curr  =curr.getParentNode();
+				}
+				
 				DTDElementDecl child = new DTDElementDecl(scanner.getTokenOffset(), text.length(),
 						(DOMDocumentType) curr);
 				curr.addChild(child);

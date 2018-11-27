@@ -58,7 +58,7 @@ class XMLFoldings {
 		}
 	}
 
-	public List<FoldingRange> getFoldingRanges(TextDocument document, FoldingRangeCapabilities context) {
+	public List<FoldingRange> getFoldingRanges(TextDocument document, FoldingRangeCapabilities context) {		
 		Scanner scanner = XMLScanner.createScanner(document.getText());
 		TokenType token = scanner.scan();
 		List<FoldingRange> ranges = new ArrayList<>();
