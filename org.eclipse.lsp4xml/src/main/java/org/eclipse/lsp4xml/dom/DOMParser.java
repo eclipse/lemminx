@@ -358,7 +358,7 @@ public class DOMParser {
 			case DTDEndTag: {
 				if ((curr.isDTDElementDecl() || curr.isDTDAttList() || curr.isEntity()) && curr.parent != null) {
 					curr.end = scanner.getTokenEnd();
-					lastClosed = curr;
+					curr.closed = true;
 					curr = curr.parent;
 				}
 				break;

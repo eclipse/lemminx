@@ -12,7 +12,6 @@ package org.eclipse.lsp4xml.dom.parser;
 
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
