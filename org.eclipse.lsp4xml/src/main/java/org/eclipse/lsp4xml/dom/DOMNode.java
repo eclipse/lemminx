@@ -418,11 +418,11 @@ public abstract class DOMNode implements Node {
 		return getNodeType() == DOMNode.DTD_ELEMENT_DECL_NODE;
 	}
 
-	public boolean isDTDAttList() {
+	public boolean isDTDAttListDecl() {
 		return getNodeType() == DOMNode.DTD_ATT_LIST_NODE;
 	}
 
-	public boolean isEntity() {
+	public boolean isDTDEntityDecl() {
 		return getNodeType() == Node.ENTITY_NODE;
 	}
 

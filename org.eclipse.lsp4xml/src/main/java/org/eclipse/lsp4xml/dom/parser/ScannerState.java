@@ -26,6 +26,6 @@ public enum ScannerState {
 	
 	DTDWithinContent, DTDWithinElement, DTDWithinAttlist, DTDWithinEntity, DTDAfterElementName, DTDWithinElementContent,
 	DTDAfterAttlistName, DTDAfterAttlistDeclName, DTDAfterAttlistElementName, DTDAfterAttlistAttributeName,
-	DTDAfterAttlistAttributeType, DTDAfterEntityName, DTDAfterEntityKind, DTDWithinTag, DTDIncorrectTagFormat
+	DTDAfterAttlistAttributeType, DTDAfterEntityName, DTDAfterEntityKind, DTDWithinTag;
 
 }

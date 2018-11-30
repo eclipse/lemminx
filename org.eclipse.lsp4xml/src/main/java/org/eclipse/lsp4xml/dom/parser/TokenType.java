@@ -76,7 +76,5 @@ public enum TokenType {
 	DTDEntityKind, 
 	DTDEntityURL,
 	
-	DTDUndefineTag, 
-	DTDEndTag, 
-	DTDTagExcessContent;
+	DTDEndTag;
 }

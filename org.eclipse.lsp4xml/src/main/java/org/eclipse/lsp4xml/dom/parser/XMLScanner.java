@@ -472,19 +472,6 @@ public class XMLScanner implements Scanner {
 				}
 			}
 
-			/*if (stream.peekChar() == _LAN) { // <
-				if (stream.advanceUntilChar(_RAN)) { // >
-					stream.advance(1); // consume >
-				}
-				return finishToken(offset, TokenType.DTDUndefineTag);
-			}
-			if (stream.advanceUntilChar(_CSB)) { // ]
-				state = ScannerState.DTDWithinDoctype;
-				isInsideDTDContent = false;
-				return finishToken(offset, TokenType.DTDEndInternalSubset);
-			}
-			return internalScan();*/
-			
 			if (stream.advanceUntilChar(_CSB)) { // ]
 				state = ScannerState.DTDWithinDoctype;
 				isInsideDTDContent = false;
@@ -492,22 +479,6 @@ public class XMLScanner implements Scanner {
 			}
 			stream.advanceUntilChar(_LAN); // <
 			return finishToken(offset, TokenType.Content);
-
-		case DTDIncorrectTagFormat: // Covers ATTLIST, ELEMENT, ENTITY when there is an issue parsing
-			if (stream.skipWhitespace()) {
-				return finishToken(offset, TokenType.Whitespace);
-			}
-
-			if (stream.advanceIfChar(_RAN) || stream.peekChar() == _LAN) { // > || <
-				state = ScannerState.DTDWithinContent;
-				return finishToken(offset, TokenType.DTDEndTag);
-			}
-
-			if (stream.advanceUntilCharOrNewTag(_RAN)) { // > || <
-				return finishToken(offset, TokenType.DTDTagExcessContent); // More items provided in tag than schema
-																			// defines
-			}
-			return internalScan();
 
 		case DTDWithinElement:
 			if (stream.skipWhitespace()) {
@@ -529,12 +500,9 @@ public class XMLScanner implements Scanner {
 				return finishToken(offset, TokenType.DTDEndTag);
 			}
 
-			if (stream.advanceUntilChar(_LAN)) { // <
-				state = ScannerState.DTDWithinContent;
-				return internalScan();
-			}
-			return finishToken(offset, TokenType.Unknown);
-			
+			state = ScannerState.DTDWithinContent;
+			return internalScan();
+
 		case DTDAfterElementName:
 			if (stream.skipWhitespace()) {
 				return finishToken(offset, TokenType.Whitespace);
@@ -554,7 +522,7 @@ public class XMLScanner implements Scanner {
 				state = ScannerState.DTDWithinContent;
 				return finishToken(offset, TokenType.DTDEndTag);
 			}
-			
+
 			state = ScannerState.DTDWithinContent;
 			return internalScan();
 
@@ -592,7 +560,12 @@ public class XMLScanner implements Scanner {
 				return finishToken(offset, TokenType.DTDAttlistAttributeName);
 			}
 
-			state = ScannerState.DTDIncorrectTagFormat;
+			if (stream.advanceIfChar(_RAN)) { // >
+				state = ScannerState.DTDWithinContent;
+				return finishToken(offset, TokenType.DTDEndTag);
+			}
+
+			state = ScannerState.DTDWithinContent;
 			return internalScan();
 
 		case DTDAfterAttlistElementName:
@@ -604,7 +577,13 @@ public class XMLScanner implements Scanner {
 				state = ScannerState.DTDAfterAttlistAttributeName;
 				return finishToken(offset, TokenType.DTDAttlistAttributeName);
 			}
-			state = ScannerState.DTDIncorrectTagFormat;
+
+			if (stream.advanceIfChar(_RAN)) { // >
+				state = ScannerState.DTDWithinContent;
+				return finishToken(offset, TokenType.DTDEndTag);
+			}
+
+			state = ScannerState.DTDWithinContent;
 			return internalScan();
 
 		case DTDAfterAttlistAttributeName:
@@ -616,7 +595,13 @@ public class XMLScanner implements Scanner {
 				state = ScannerState.DTDAfterAttlistAttributeType;
 				return finishToken(offset, TokenType.DTDAttlistType);
 			}
-			state = ScannerState.DTDIncorrectTagFormat;
+
+			if (stream.advanceIfChar(_RAN)) { // >
+				state = ScannerState.DTDWithinContent;
+				return finishToken(offset, TokenType.DTDEndTag);
+			}
+
+			state = ScannerState.DTDWithinContent;
 			return internalScan();
 
 		case DTDAfterAttlistAttributeType:
@@ -628,7 +613,13 @@ public class XMLScanner implements Scanner {
 				state = ScannerState.DTDWithinAttlist;
 				return finishToken(offset, TokenType.DTDAttlistAttributeValue);
 			}
-			state = ScannerState.DTDIncorrectTagFormat;
+
+			if (stream.advanceIfChar(_RAN)) { // >
+				state = ScannerState.DTDWithinContent;
+				return finishToken(offset, TokenType.DTDEndTag);
+			}
+
+			state = ScannerState.DTDWithinContent;
 			return internalScan();
 
 		case DTDWithinEntity:
@@ -646,7 +637,12 @@ public class XMLScanner implements Scanner {
 				return finishToken(offset, TokenType.DTDEntityName);
 			}
 
-			state = ScannerState.DTDIncorrectTagFormat;
+			if (stream.advanceIfChar(_RAN)) { // >
+				state = ScannerState.DTDWithinContent;
+				return finishToken(offset, TokenType.DTDEndTag);
+			}
+
+			state = ScannerState.DTDWithinContent;
 			return internalScan();
 
 		case DTDAfterEntityName:
@@ -664,7 +660,12 @@ public class XMLScanner implements Scanner {
 				return finishToken(offset, TokenType.DTDEntityKind);
 			}
 
-			state = ScannerState.DTDIncorrectTagFormat;
+			if (stream.advanceIfChar(_RAN)) { // >
+				state = ScannerState.DTDWithinContent;
+				return finishToken(offset, TokenType.DTDEndTag);
+			}
+
+			state = ScannerState.DTDWithinContent;
 			return internalScan();
 
 		case DTDAfterEntityKind:
@@ -677,7 +678,12 @@ public class XMLScanner implements Scanner {
 				return finishToken(offset, TokenType.DTDEntityURL);
 			}
 
-			state = ScannerState.DTDIncorrectTagFormat;
+			if (stream.advanceIfChar(_RAN)) { // >
+				state = ScannerState.DTDWithinContent;
+				return finishToken(offset, TokenType.DTDEndTag);
+			}
+
+			state = ScannerState.DTDWithinContent;
 			return internalScan();
 		}
 
@@ -687,7 +693,6 @@ public class XMLScanner implements Scanner {
 	}
 
 	private String localize(String string, String string2) {
-		// TODO Auto-generated method stub
 		return string;
 	}
 

@@ -349,14 +349,20 @@ public class DOMParser {
 			}
 
 			case DTDStartEntity: {
-				DTDEntity child = new DTDEntity(scanner.getTokenOffset(), text.length(), (DOMDocumentType) curr);
+				DTDEntityDecl child = new DTDEntityDecl(scanner.getTokenOffset(), text.length(), (DOMDocumentType) curr);
 				curr.addChild(child);
 				curr = child;
 				break;
 			}
 
+			case DTDEntityName : {
+				DTDEntityDecl entity = (DTDEntityDecl) curr;
+				entity.name = scanner.getTokenText();
+				break;
+			}
+			
 			case DTDEndTag: {
-				if ((curr.isDTDElementDecl() || curr.isDTDAttList() || curr.isEntity()) && curr.parent != null) {
+				if ((curr.isDTDElementDecl() || curr.isDTDAttListDecl() || curr.isDTDEntityDecl()) && curr.parent != null) {
 					curr.end = scanner.getTokenEnd();
 					curr.closed = true;
 					curr = curr.parent;

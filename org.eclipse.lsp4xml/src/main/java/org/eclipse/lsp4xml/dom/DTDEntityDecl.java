@@ -15,11 +15,14 @@ import org.w3c.dom.Node;
 
 /**
  * DOM Entity declaration <!ENTITY
- *
+ * 
+ * @see https://www.w3.org/TR/REC-xml/#dt-entdecl
  */
-public class DTDEntity extends DOMNode implements Entity {
+public class DTDEntityDecl extends DOMNode implements Entity {
 
-	public DTDEntity(int start, int end, DOMDocumentType documentType) {
+	String name;
+	
+	public DTDEntityDecl(int start, int end, DOMDocumentType documentType) {
 		super(start, end, documentType != null ? documentType.getOwnerDocument() : null);
 	}
 
@@ -30,7 +33,7 @@ public class DTDEntity extends DOMNode implements Entity {
 	 */
 	@Override
 	public String getNodeName() {
-		return null;
+		return name;
 	}
 
 	@Override
