@@ -46,6 +46,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 	cvc_complex_type_4("cvc-complex-type.4"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-4
 	cvc_datatype_valid_1_2_1("cvc-datatype-valid.1.2.1"), // https://wiki.xmldation.com/Support/Validator/cvc-datatype-valid-1-2-1
 	cvc_elt_1_a("cvc-elt.1.a"), // https://wiki.xmldation.com/Support/Validator/cvc-elt-1
+	cvc_elt_3_1("cvc-elt.3.1"), // https://wiki.xmldation.com/Support/Validator/cvc-elt-3-1
 	cvc_elt_4_2("cvc-elt.4.2"), // https://wiki.xmldation.com/Support/Validator/cvc-elt-4-2
 	cvc_type_3_1_1("cvc-type.3.1.1"), // https://wiki.xmldation.com/Support/Validator/cvc-type-3-1-1
 	cvc_type_3_1_3("cvc-type.3.1.3"), // https://wiki.xmldation.com/Support/Validator/cvc-type-3-1-3,
@@ -120,6 +121,20 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 		case cvc_complex_type_3_2_2: {
 			String attrName = (String) arguments[1];
 			return XMLPositionUtility.selectAttributeNameFromGivenNameAt(attrName, offset, document);
+		}
+		case cvc_elt_3_1: {
+			String namespaceAntAttrName = (String) arguments[1]; // http://www.w3.org/2001/XMLSchema-instance,nil			
+			String attrName = namespaceAntAttrName;
+			int index = namespaceAntAttrName.indexOf(",");
+			if (index != -1) {
+				String namespaceURI = namespaceAntAttrName.substring(0, index);
+				String prefix = document.getDocumentElement().getPrefix(namespaceURI);
+				attrName = namespaceAntAttrName.substring(index + 1, namespaceAntAttrName.length());
+				if (prefix != null && !prefix.isEmpty()) {
+					attrName = prefix + ":" + attrName;
+				}
+			}
+			return XMLPositionUtility.selectAttributeFromGivenNameAt(attrName, offset, document);
 		}
 		case cvc_attribute_3:
 		case cvc_complex_type_3_1:

@@ -123,6 +123,23 @@ public class XMLPositionUtility {
 		return createRange(startOffset, endOffset, document);
 	}
 
+	public static Range selectAttributeFromGivenNameAt(String attrName, int offset, DOMDocument document) {
+		DOMNode element = document.findNodeAt(offset);
+		if (element != null && element.hasAttributes()) {
+			DOMAttr attr = element.getAttributeNode(attrName);
+			if (attr != null) {
+				return createAttrRange(attr, document);
+			}
+		}
+		return null;
+	}
+	
+	private static Range createAttrRange(DOMAttr attr, DOMDocument document) {
+		int startOffset = attr.getStart();
+		int endOffset = attr.getEnd();
+		return createRange(startOffset, endOffset, document);
+	}
+	
 	private static int adjustOffsetForAttribute(int offset, DOMDocument document) {
 		// For attribute value, Xerces report the error offset after the spaces which
 		// are after " of the attribute value
@@ -333,5 +350,14 @@ public class XMLPositionUtility {
 		}
 		return null;
 	}
+	
+	public static Range selectDTDElementDeclAt(int offset, DOMDocument document) {
+		DOMNode node = document.findNodeAt(offset);
+		if (node != null && node.isDTDElementDecl()) {
+			return createRange(node.getStart(), node.getEnd(), document);
+		}
+		return null;
+	}
+
 
 }

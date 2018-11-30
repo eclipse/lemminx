@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<xs:schema
+		elementFormDefault="qualified"
+		xmlns:xs="http://www.w3.org/2001/XMLSchema"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<xs:complexType
+			name="property"
+			xsi:nil="true"></xs:complexType>
+</xs:schema>

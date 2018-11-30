@@ -270,7 +270,7 @@ public class XMLSchemaDiagnosticsTest {
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(5, 25, 7, 8, "/>")));
 	}
-	
+
 	/**
 	 * @see https://github.com/angelozerr/lsp4xml/issues/217
 	 */
@@ -283,6 +283,21 @@ public class XMLSchemaDiagnosticsTest {
 				"</edmx:Edmx>";
 		Diagnostic d = d(1, 1, 1, 10, XMLSchemaErrorCode.cvc_complex_type_2_4_b);
 		testDiagnosticsFor(xml, d);
+	}
+
+	@Test
+	public void cvc_elt_3_1() throws Exception {
+		String xml = "<?xml version=\"1.0\"?>\r\n" + //
+				"<xs:schema\r\n" + //
+				"		elementFormDefault=\"qualified\"\r\n" + //
+				"		xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\r\n" + //
+				"		xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n" + //
+				"	<xs:complexType\r\n" + //
+				"			name=\"property\"\r\n" + //
+				"			xsi:nil=\"true\"></xs:complexType>\r\n" + //
+				"</xs:schema>";
+		XMLAssert.testDiagnosticsFor(xml, d(7, 3, 7, 17, XMLSchemaErrorCode.cvc_elt_3_1));
+
 	}
 
 	private static void testDiagnosticsFor(String xml, Diagnostic... expected) {
