@@ -271,10 +271,13 @@ class XMLCompletions {
 	}
 
 	/**
-	 * Returns true if 
+	 * Returns true if completion was triggered inside DTD content (internal or
+	 * external DTD) and false otherwise.
+	 * 
 	 * @param node
 	 * @param xmlDocument
-	 * @return
+	 * @return true if completion was triggered inside DTD content (internal or
+	 *         external DTD) and false otherwise.
 	 */
 	private static boolean isInsideDTDContent(DOMNode node, DOMDocument xmlDocument) {
 		if (xmlDocument.isDTD()) {
@@ -698,8 +701,8 @@ class XMLCompletions {
 		int startOffset = request.getOffset();
 		try {
 			Range editRange = getReplaceRange(startOffset, startOffset, request);
-			elementDecl.setTextEdit(new TextEdit(editRange, "<!ELEMENT ${0:name} (${1:#PCDATA})>"));
-			elementDecl.setDocumentation("<!ELEMENT name (#PCDATA)>");
+			elementDecl.setTextEdit(new TextEdit(editRange, "<!ELEMENT ${0:element-name} (${1:#PCDATA})>"));
+			elementDecl.setDocumentation("<!ELEMENT element-name (#PCDATA)>");
 		} catch (BadLocationException e) {
 			LOGGER.log(Level.SEVERE, "While performing getReplaceRange for DTD !ELEMENT completion.", e);
 		}
@@ -715,13 +718,48 @@ class XMLCompletions {
 		startOffset = request.getOffset();
 		try {
 			Range editRange = getReplaceRange(startOffset, startOffset, request);
-			attrListDecl.setTextEdit(
-					new TextEdit(editRange, "<!ATTLIST ${0:elementName} ${1:name} ${2:ID} ${3:#REQUIRED} >"));
-			attrListDecl.setDocumentation("<!ATTLIST ${0:elementName} ${1:name} ${2:ID} ${3:#REQUIRED} >");
+			attrListDecl.setTextEdit(new TextEdit(editRange,
+					"<!ATTLIST ${0:element-name} ${1:attribute-name} ${2:ID} ${3:#REQUIRED} >"));
+			attrListDecl.setDocumentation("<!ATTLIST element-name attribute-name ID #REQUIRED >");
 		} catch (BadLocationException e) {
 			LOGGER.log(Level.SEVERE, "While performing getReplaceRange for DTD !ATTLIST completion.", e);
 		}
 		response.addCompletionItem(attrListDecl);
+
+		// Insert Internal DTD Entity Declaration
+		// see https://www.w3.org/TR/REC-xml/#dt-entdecl
+		CompletionItem internalEntity = new CompletionItem();
+		internalEntity.setLabel("Insert Internal DTD Entity declaration");
+		internalEntity.setKind(CompletionItemKind.EnumMember);
+		internalEntity.setFilterText("<!ENTITY");
+		internalEntity.setInsertTextFormat(InsertTextFormat.Snippet);
+		startOffset = request.getOffset();
+		try {
+			Range editRange = getReplaceRange(startOffset, startOffset, request);
+			internalEntity.setTextEdit(new TextEdit(editRange, "<!ENTITY ${0:entity-name} \"${1:entity-value}\" >"));
+			internalEntity.setDocumentation("<!ENTITY entity-name \"entity-value\" >");
+		} catch (BadLocationException e) {
+			LOGGER.log(Level.SEVERE, "While performing getReplaceRange for DTD !ENTITY completion.", e);
+		}
+		response.addCompletionItem(internalEntity);
+
+		// Insert External DTD Entity Declaration
+		// see https://www.w3.org/TR/REC-xml/#dt-entdecl
+		CompletionItem externalEntity = new CompletionItem();
+		externalEntity.setLabel("Insert External DTD Entity declaration");
+		externalEntity.setKind(CompletionItemKind.EnumMember);
+		externalEntity.setFilterText("<!ENTITY");
+		externalEntity.setInsertTextFormat(InsertTextFormat.Snippet);
+		startOffset = request.getOffset();
+		try {
+			Range editRange = getReplaceRange(startOffset, startOffset, request);
+			externalEntity
+					.setTextEdit(new TextEdit(editRange, "<!ENTITY ${0:entity-name} SYSTEM \"${1:entity-value}\" >"));
+			externalEntity.setDocumentation("<!ENTITY entity-name SYSTEM \"entity-value\" >");
+		} catch (BadLocationException e) {
+			LOGGER.log(Level.SEVERE, "While performing getReplaceRange for DTD !ENTITY completion.", e);
+		}
+		response.addCompletionItem(externalEntity);
 	}
 
 	private static int scanNextForEndPos(int offset, Scanner scanner, TokenType nextToken) {
