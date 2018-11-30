@@ -115,8 +115,7 @@ public class XMLScannerForInternalDTDTest {
 		assertOffsetAndToken(100, TokenType.DTDElementDeclName);
 		assertOffsetAndToken(104, TokenType.Whitespace);
 		assertOffsetAndToken(105, TokenType.DTDStartElementContent);
-		assertOffsetAndToken(106, TokenType.DTDElementContent);
-		assertOffsetAndToken(107, TokenType.DTDEndElementContent);
+		assertOffsetAndToken(106, TokenType.DTDEndElementContent);
 		assertOffsetAndToken(108, TokenType.DTDEndTag);
 		assertOffsetAndToken(109, TokenType.Whitespace);
 		assertOffsetAndToken(113, TokenType.DTDEndInternalSubset);
@@ -298,7 +297,7 @@ public class XMLScannerForInternalDTDTest {
 
 	public void assertOffsetAndToken(int tokenOffset, TokenType tokenType) {
 		TokenType token = scanner.scan();
-		System.err.println("assertOffsetAndToken(" + scanner.getTokenOffset() +  ", TokenType." + scanner.getTokenType() + ");");
+		// System.err.println("assertOffsetAndToken(" + scanner.getTokenOffset() +  ", TokenType." + scanner.getTokenType() + ");");
 		assertEquals(tokenOffset, scanner.getTokenOffset());
 		assertEquals(tokenType, token);
 	}

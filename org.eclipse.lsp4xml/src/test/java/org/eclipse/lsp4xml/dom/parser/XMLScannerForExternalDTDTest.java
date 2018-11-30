@@ -54,8 +54,33 @@ public class XMLScannerForExternalDTDTest {
 
 	}
 
+	@Test
+	public void elementDeclWithServeralBraces() {
+		String dtd = "<!ELEMENT error-page ((error-code | exception-type), location)>";
+		scanner = XMLScanner.createScanner(dtd, true);
+		// assertOffsetAndToken(0, TokenType.DTDStartDoctypeTag);
+		
+		// assertOffsetAndToken(19, TokenType.DTDDoctypeName);
+		// assertOffsetAndToken(14, TokenType.Whitespace);
+		// assertOffsetAndToken(15, TokenType.DTDStartInternalSubset);
+		// assertOffsetAndToken(16, TokenType.Whitespace);
+		assertOffsetAndToken(0, TokenType.DTDStartElementDecl);
+		assertOffsetAndToken(9, TokenType.Whitespace);
+		assertOffsetAndToken(10, TokenType.DTDElementDeclName);
+		assertOffsetAndToken(20, TokenType.Whitespace);
+		assertOffsetAndToken(21, TokenType.DTDStartElementContent);
+		assertOffsetAndToken(22, TokenType.DTDEndElementContent);
+		assertOffsetAndToken(62, TokenType.DTDEndTag);
+		assertOffsetAndToken(63, TokenType.EOS);
+
+		// assertOffsetAndToken(86, TokenType.DTDEndInternalSubset);
+		// assertOffsetAndToken(87, TokenType.DTDEndDoctypeTag);
+
+	}
+
 	public void assertOffsetAndToken(int tokenOffset, TokenType tokenType) {
 		TokenType token = scanner.scan();
+		// System.err.println("assertOffsetAndToken(" + scanner.getTokenOffset() +  ", TokenType." + scanner.getTokenType() + ");");
 		assertEquals(tokenOffset, scanner.getTokenOffset());
 		assertEquals(tokenType, token);
 	}

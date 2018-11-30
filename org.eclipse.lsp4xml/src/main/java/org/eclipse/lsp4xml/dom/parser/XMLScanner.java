@@ -20,8 +20,6 @@ import static org.eclipse.lsp4xml.dom.parser.Constants.PROLOG_NAME_OPTIONS;
 import static org.eclipse.lsp4xml.dom.parser.Constants.URL_VALUE_REGEX;
 import static org.eclipse.lsp4xml.dom.parser.Constants._AVL;
 import static org.eclipse.lsp4xml.dom.parser.Constants._CAR;
-import static org.eclipse.lsp4xml.dom.parser.Constants._CMA;
-import static org.eclipse.lsp4xml.dom.parser.Constants._CRB;
 import static org.eclipse.lsp4xml.dom.parser.Constants._CSB;
 import static org.eclipse.lsp4xml.dom.parser.Constants._CVL;
 import static org.eclipse.lsp4xml.dom.parser.Constants._DQO;
@@ -71,6 +69,7 @@ public class XMLScanner implements Scanner {
 	String lastDoctypeKind;
 	String url;
 	boolean isInsideDTDContent = false; // Either internal dtd in xml file OR external dtd in dtd file
+	private int nbBraceOpened;
 
 	public XMLScanner(String input, int initialOffset, ScannerState initialState) {
 		stream = new MultiLineStream(input, initialOffset);
@@ -504,11 +503,13 @@ public class XMLScanner implements Scanner {
 			return internalScan();
 
 		case DTDAfterElementName:
+			nbBraceOpened = 0;
 			if (stream.skipWhitespace()) {
 				return finishToken(offset, TokenType.Whitespace);
 			}
 
 			if (stream.advanceIfChar(_ORB)) { // (
+				nbBraceOpened++;
 				state = ScannerState.DTDWithinElementContent;
 				return finishToken(offset, TokenType.DTDStartElementContent);
 			}
@@ -531,19 +532,23 @@ public class XMLScanner implements Scanner {
 				return finishToken(offset, TokenType.Whitespace);
 			}
 
-			if (stream.advanceIfChar(_CMA)) { // ,
-				return finishToken(offset, TokenType.DTDElementContentComma);
+			if (stream.advanceUntilCharOrNewTag(_RAN)) { // >
+				if (stream.peekChar() == _LAN) { // <
+					state = ScannerState.DTDWithinContent;
+					return internalScan();
+				} else {
+					// current character is '>'
+					if (stream.peekChar(-1) == _CSB) {
+						// previous character is ']', we can consider we are in the end of doctype.
+						stream.advance(-1);
+						state = ScannerState.DTDWithinContent;
+						return finishToken(offset, TokenType.DTDEndElementContent);
+					}
+					state = ScannerState.DTDWithinElement;
+					return finishToken(offset, TokenType.DTDEndElementContent);
+				}
 			}
-
-			if (stream.advanceIfChar(_CRB)) { // )
-				state = ScannerState.DTDWithinElement;
-				return finishToken(offset, TokenType.DTDEndElementContent);
-			}
-
-			if (stream.advanceUntilAnyOfChars(_CMA, _CRB)) { // , || )
-				return finishToken(offset, TokenType.DTDElementContent);
-			}
-			return internalScan();
+			return finishToken(offset, TokenType.Unknown);
 
 		case DTDWithinAttlist:
 			if (stream.skipWhitespace()) {

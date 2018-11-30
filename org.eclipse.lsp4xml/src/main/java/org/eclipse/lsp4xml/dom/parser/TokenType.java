@@ -57,8 +57,6 @@ public enum TokenType {
 	DTDElementDeclName, 
 	DTDStartElementContent, 
 	DTDElementCategory, 
-	DTDElementContent, 
-	DTDElementContentComma, 
 	DTDEndElementContent, 
 	
 	// DTD AttrList declaration

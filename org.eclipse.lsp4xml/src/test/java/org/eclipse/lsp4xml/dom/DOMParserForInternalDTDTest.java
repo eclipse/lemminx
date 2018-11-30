@@ -254,6 +254,56 @@ public class DOMParserForInternalDTDTest {
 	}
 
 	@Test
+	public void elementDeclClosedWithBraces() {
+		String xml = "<!DOCTYPE error-page [<!ELEMENT error-page ((error-code | exception-type), location)>]><error-page/>";
+
+		DOMDocument actual = createDOMDocument(xml);
+		Assert.assertEquals(2, actual.getChildren().size());
+		Assert.assertTrue(actual.getChild(0).isDoctype());
+		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
+		Assert.assertEquals(0, documentType.getStart());
+		Assert.assertEquals(87, documentType.getEnd());
+		Assert.assertEquals("error-page", documentType.getName());
+		Assert.assertTrue(documentType.isClosed());
+
+		// <!ELEMENT
+		Assert.assertEquals(1, documentType.getChildren().size());
+		Assert.assertTrue(documentType.getChild(0).isDTDElementDecl());
+		DTDElementDecl elementDecl = (DTDElementDecl) documentType.getChild(0);
+		Assert.assertEquals(22, elementDecl.getStart());
+		Assert.assertEquals(85, elementDecl.getEnd());
+		Assert.assertTrue(elementDecl.isClosed());
+
+		// <error-page />element
+		Assert.assertTrue(actual.getChild(1).isElement());
+	}
+	
+	@Test
+	public void elementDeclNotClosedWithBraces() {
+		String xml = "<!DOCTYPE error-page [<!ELEMENT error-page ((error-code | exception-type), location)]><error-page/>";
+
+		DOMDocument actual = createDOMDocument(xml);
+		Assert.assertEquals(2, actual.getChildren().size());
+		Assert.assertTrue(actual.getChild(0).isDoctype());
+		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
+		Assert.assertEquals(0, documentType.getStart());
+		Assert.assertEquals(86, documentType.getEnd());
+		Assert.assertEquals("error-page", documentType.getName());
+		Assert.assertTrue(documentType.isClosed());
+
+		// <!ELEMENT
+		Assert.assertEquals(1, documentType.getChildren().size());
+		Assert.assertTrue(documentType.getChild(0).isDTDElementDecl());
+		DTDElementDecl elementDecl = (DTDElementDecl) documentType.getChild(0);
+		Assert.assertEquals(22, elementDecl.getStart());
+		Assert.assertEquals(83, elementDecl.getEnd());
+		Assert.assertFalse(elementDecl.isClosed());
+
+		// <error-page />element
+		Assert.assertTrue(actual.getChild(1).isElement());
+	}
+	
+	@Test
 	public void attListDeclNotClosed() {
 		String xml = "<!DOCTYPE foo [<!ATTLIST]><foo/>";
 

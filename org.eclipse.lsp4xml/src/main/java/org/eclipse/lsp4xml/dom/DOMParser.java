@@ -341,6 +341,10 @@ public class DOMParser {
 			}
 
 			case DTDStartAttlistDecl: {
+				if (!curr.isDoctype()) {
+					curr.end = scanner.getTokenOffset() - 1;
+					curr  =curr.getParentNode();
+				}
 				DTDAttlistDecl child = new DTDAttlistDecl(scanner.getTokenOffset(), text.length(),
 						(DOMDocumentType) curr);
 				curr.addChild(child);
