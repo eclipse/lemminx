@@ -146,7 +146,7 @@ public class XMLScannerForInternalDTDTest {
 		assertOffsetAndToken(85, TokenType.Whitespace);
 		assertOffsetAndToken(90, TokenType.DTDStartAttlistDecl);
 		assertOffsetAndToken(99, TokenType.Whitespace);
-		assertOffsetAndToken(100, TokenType.DTDAttlistAttributeName);
+		assertOffsetAndToken(100, TokenType.DTDAttlistElementName);
 		assertOffsetAndToken(107, TokenType.Whitespace);
 		assertOffsetAndToken(108, TokenType.DTDAttlistAttributeName);
 		assertOffsetAndToken(112, TokenType.Whitespace);
@@ -183,7 +183,7 @@ public class XMLScannerForInternalDTDTest {
 		assertOffsetAndToken(85, TokenType.Whitespace);
 		assertOffsetAndToken(90, TokenType.DTDStartAttlistDecl);
 		assertOffsetAndToken(99, TokenType.Whitespace);
-		assertOffsetAndToken(100, TokenType.DTDAttlistAttributeName);
+		assertOffsetAndToken(100, TokenType.DTDAttlistElementName);
 		assertOffsetAndToken(107, TokenType.Whitespace);
 		assertOffsetAndToken(108, TokenType.DTDAttlistAttributeName);
 		assertOffsetAndToken(112, TokenType.Whitespace);
