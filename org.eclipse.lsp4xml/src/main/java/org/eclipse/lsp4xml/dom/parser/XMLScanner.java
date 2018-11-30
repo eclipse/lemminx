@@ -562,7 +562,7 @@ public class XMLScanner implements Scanner {
 
 			if (!stream.advanceIfRegExp(Constants.ELEMENT_NAME_REGEX).equals("")) {
 				state = ScannerState.DTDAfterAttlistElementName;
-				return finishToken(offset, TokenType.DTDAttlistAttributeName);
+				return finishToken(offset, TokenType.DTDAttlistElementName);
 			}
 
 			if (stream.advanceIfChar(_RAN)) { // >

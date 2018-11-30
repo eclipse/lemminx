@@ -43,10 +43,11 @@ public class DTDElementDecl extends DOMNode {
 	public short getNodeType() {
 		return DOMNode.DTD_ELEMENT_DECL_NODE;
 	}
-	
+
 	/**
 	 * Returns the offset of the end of tag <!ELEMENT
-	 * @return the offset of the end of tag  <!ELEMENT
+	 * 
+	 * @return the offset of the end of tag <!ELEMENT
 	 */
 	public int getEndElementTag() {
 		return getStart() + "<!ELEMENT".length();

@@ -352,6 +352,18 @@ public class DOMParser {
 				break;
 			}
 
+			case DTDAttlistElementName: {
+				DTDAttlistDecl attribute = (DTDAttlistDecl) curr;
+				attribute.elementName = scanner.getTokenText();
+				break;
+			}
+			
+			case DTDAttlistAttributeName: {
+				DTDAttlistDecl attribute = (DTDAttlistDecl) curr;
+				attribute.name = scanner.getTokenText();
+				break;
+			}
+			
 			case DTDStartEntity: {
 				DTDEntityDecl child = new DTDEntityDecl(scanner.getTokenOffset(), text.length(), (DOMDocumentType) curr);
 				curr.addChild(child);

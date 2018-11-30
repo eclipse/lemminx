@@ -12,8 +12,11 @@ package org.eclipse.lsp4xml.dom;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -755,5 +758,14 @@ public class DOMDocument extends DOMNode implements Document {
 			return true;
 		}
 		return false;
+	}
+
+	public Collection<DOMNode> getDTDAttrList(String elementName) {
+		DOMDocumentType docType = getDoctype();
+		if (docType == null) {
+			return Collections.emptyList();
+		}
+		return docType.getChildren().stream().filter(DOMNode::isDTDAttListDecl)
+				.filter(n -> elementName.equals(((DTDAttlistDecl) n).getElementName())).collect(Collectors.toList());
 	}
 }

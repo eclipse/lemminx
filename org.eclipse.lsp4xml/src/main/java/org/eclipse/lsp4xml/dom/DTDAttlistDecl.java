@@ -21,7 +21,8 @@ public class DTDAttlistDecl extends DOMNode {
 	private final DOMDocumentType ownerDTDDocument;
 
 	String name;
-
+	String elementName;
+	
 	public DTDAttlistDecl(int start, int end, DOMDocumentType ownerDTDDocument) {
 		super(start, end, ownerDTDDocument.getOwnerDocument());
 		this.ownerDTDDocument = ownerDTDDocument;
@@ -36,8 +37,22 @@ public class DTDAttlistDecl extends DOMNode {
 		return getName();
 	}
 
+	/**
+	 * Returns the attribute name
+	 * 
+	 * @return the attribute name
+	 */
 	public String getName() {
 		return name;
+	}
+	
+	/**
+	 * Returns the element name
+	 * 
+	 * @return the element name
+	 */
+	public String getElementName() {
+		return elementName;
 	}
 
 	@Override
