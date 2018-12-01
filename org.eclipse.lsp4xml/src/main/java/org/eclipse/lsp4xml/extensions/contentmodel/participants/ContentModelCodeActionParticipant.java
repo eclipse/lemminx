@@ -33,6 +33,7 @@ public class ContentModelCodeActionParticipant implements ICodeActionParticipant
 	public ContentModelCodeActionParticipant() {
 		codeActionParticipants = new HashMap<>();
 		XMLSyntaxErrorCode.registerCodeActionParticipants(codeActionParticipants);
+		DTDErrorCode.registerCodeActionParticipants(codeActionParticipants);
 		XMLSchemaErrorCode.registerCodeActionParticipants(codeActionParticipants);
 	}
 

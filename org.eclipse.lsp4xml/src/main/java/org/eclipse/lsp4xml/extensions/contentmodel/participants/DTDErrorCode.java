@@ -16,6 +16,8 @@ import java.util.Map;
 import org.apache.xerces.xni.XMLLocator;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.dom.DOMDocument;
+import org.eclipse.lsp4xml.extensions.contentmodel.participants.codeactions.ElementDeclUnterminatedCodeAction;
+import org.eclipse.lsp4xml.services.extensions.ICodeActionParticipant;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IXMLErrorCode;
 import org.eclipse.lsp4xml.utils.XMLPositionUtility;
 
@@ -30,8 +32,7 @@ public enum DTDErrorCode implements IXMLErrorCode {
 	MSG_ELEMENT_NOT_DECLARED, MSG_CONTENT_INCOMPLETE, MSG_CONTENT_INVALID, MSG_REQUIRED_ATTRIBUTE_NOT_SPECIFIED,
 	MSG_ATTRIBUTE_NOT_DECLARED, MSG_ATTRIBUTE_VALUE_NOT_IN_LIST, MSG_FIXED_ATTVALUE_INVALID,
 
-	MSG_ELEMENT_TYPE_REQUIRED_IN_ELEMENTDECL,
-	MSG_MARKUP_NOT_RECOGNIZED_IN_DTD;
+	MSG_ELEMENT_TYPE_REQUIRED_IN_ELEMENTDECL, MSG_MARKUP_NOT_RECOGNIZED_IN_DTD, ElementDeclUnterminated;
 
 	private final String code;
 
@@ -92,10 +93,20 @@ public enum DTDErrorCode implements IXMLErrorCode {
 			String attrName = (String) arguments[0];
 			return XMLPositionUtility.selectAttributeValueAt(attrName, offset, document);
 		}
+
+		// ---------- DTD Doc type
+
+		case ElementDeclUnterminated: {
+			return XMLPositionUtility.selectDTDElementDeclAt(offset, document);
+		}
 		case MSG_ELEMENT_TYPE_REQUIRED_IN_ELEMENTDECL: {
 			return XMLPositionUtility.selectDTDElementDeclTagAt(offset, document);
 		}
 		}
 		return null;
+	}
+
+	public static void registerCodeActionParticipants(Map<String, ICodeActionParticipant> codeActions) {
+		codeActions.put(ElementDeclUnterminated.getCode(), new ElementDeclUnterminatedCodeAction());
 	}
 }

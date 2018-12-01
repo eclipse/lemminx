@@ -24,12 +24,23 @@ public class DTDDoctypeDiagnosticsTest {
 
 	@Test
 	public void MSG_ELEMENT_TYPE_REQUIRED_IN_ELEMENTDECL() throws Exception {
-		String xml = "<?xml version=\"1.0\"?>\r\n" + // 
-				"<!DOCTYPE student [\r\n" + // 
+		String xml = "<?xml version=\"1.0\"?>\r\n" + //
+				"<!DOCTYPE student [\r\n" + //
 				"  <!ELEMENT \r\n" + // <-- error
 				"]>\r\n" + //
 				"<student />";
 		XMLAssert.testDiagnosticsFor(xml, d(2, 2, 11, DTDErrorCode.MSG_ELEMENT_TYPE_REQUIRED_IN_ELEMENTDECL));
+	}
+
+	@Test
+	public void ElementDeclUnterminated() throws Exception {
+		String xml = "<?xml version=\"1.0\"?>\r\n" + //
+				"<!DOCTYPE student [\r\n" + //
+				"  <!ELEMENT student (surname,id)>\r\n" + //
+				"  <!ELEMENT surname (#PCDATA)\r\n" + // <- error
+				"]>\r\n" + //
+				"<student />";
+		XMLAssert.testDiagnosticsFor(xml, d(3, 2, 30, DTDErrorCode.ElementDeclUnterminated));
 	}
 
 }

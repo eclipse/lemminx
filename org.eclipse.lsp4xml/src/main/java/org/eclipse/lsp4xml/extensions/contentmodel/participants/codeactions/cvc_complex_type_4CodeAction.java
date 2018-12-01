@@ -64,7 +64,7 @@ public class cvc_complex_type_4CodeAction implements ICodeActionParticipant {
 
 			// Insert required attributes
 			CodeAction insertRequiredAttributesAction = CodeActionFactory.insert("Insert required attributes",
-					diagnosticRange, xmlAttributes, document.getTextDocument(), diagnostic);
+					diagnosticRange.getEnd(), xmlAttributes, document.getTextDocument(), diagnostic);
 			codeActions.add(insertRequiredAttributesAction);
 		} catch (Exception e) {
 			// Do nothing

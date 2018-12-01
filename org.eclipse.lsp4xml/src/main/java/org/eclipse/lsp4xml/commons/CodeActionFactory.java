@@ -15,6 +15,7 @@ import java.util.Arrays;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextDocumentItem;
@@ -51,12 +52,12 @@ public class CodeActionFactory {
 	 * @param diagnostic
 	 * @return
 	 */
-	public static CodeAction insert(String title, Range range, String insertText, TextDocumentItem document,
+	public static CodeAction insert(String title, Position position, String insertText, TextDocumentItem document,
 			Diagnostic diagnostic) {
 		CodeAction insertContentAction = new CodeAction(title);
 		insertContentAction.setKind(CodeActionKind.QuickFix);
 		insertContentAction.setDiagnostics(Arrays.asList(diagnostic));
-		TextEdit edit = new TextEdit(new Range(range.getEnd(), range.getEnd()), insertText);
+		TextEdit edit = new TextEdit(new Range(position, position), insertText);
 		VersionedTextDocumentIdentifier versionedTextDocumentIdentifier = new VersionedTextDocumentIdentifier(
 				document.getUri(), document.getVersion());
 

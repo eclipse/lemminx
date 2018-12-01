@@ -44,7 +44,7 @@ public class EqRequiredInAttributeCodeAction implements ICodeActionParticipant {
 				if (tagName != null) {
 					String insertText = "=\"\"";
 					CodeAction insertEqualsAndQuotesAction = CodeActionFactory.insert("Insert '" + insertText + "'",
-							diagnosticRange, insertText, document.getTextDocument(), diagnostic);
+							diagnosticRange.getEnd(), insertText, document.getTextDocument(), diagnostic);
 					codeActions.add(insertEqualsAndQuotesAction);
 				}
 			}

@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<!DOCTYPE student [
+  <!ELEMENT student (surname,id)>
+  <!ELEMENT surname (#PCDATA)
+]>
+<student />
