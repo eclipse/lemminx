@@ -23,6 +23,7 @@ import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMElement;
 import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.dom.DOMProcessingInstruction;
+import org.eclipse.lsp4xml.dom.DTDElementDecl;
 
 /**
  * XML position utility.
@@ -355,6 +356,15 @@ public class XMLPositionUtility {
 		DOMNode node = document.findNodeAt(offset);
 		if (node != null && node.isDTDElementDecl()) {
 			return createRange(node.getStart(), node.getEnd(), document);
+		}
+		return null;
+	}
+
+	public static Range selectDTDElementDeclTagAt(int offset, DOMDocument document) {
+		DOMNode node = document.findNodeAt(offset);
+		if (node != null && node.isDTDElementDecl()) {
+			DTDElementDecl elementDecl = (DTDElementDecl) node;
+			return createRange(elementDecl.getStart(), elementDecl.getEndElementTag(), document);
 		}
 		return null;
 	}

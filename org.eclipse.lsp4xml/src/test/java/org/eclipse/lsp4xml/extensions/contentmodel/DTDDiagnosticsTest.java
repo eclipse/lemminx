@@ -18,7 +18,7 @@ import org.eclipse.lsp4xml.extensions.contentmodel.participants.DTDErrorCode;
 import org.junit.Test;
 
 /**
- * XML diagnostics services tests
+ * DTD diagnostics services tests
  *
  */
 public class DTDDiagnosticsTest {

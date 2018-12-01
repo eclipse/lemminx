@@ -19,7 +19,7 @@ import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IDiagnosticsParticipant;
 
 /**
- * Validate XSD file with Xerces.
+ * Validate DTD file with Xerces.
  *
  */
 public class DTDDiagnosticsParticipant implements IDiagnosticsParticipant {
