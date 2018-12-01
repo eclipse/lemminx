@@ -43,4 +43,15 @@ public class DTDDoctypeDiagnosticsTest {
 		XMLAssert.testDiagnosticsFor(xml, d(3, 2, 30, DTDErrorCode.ElementDeclUnterminated));
 	}
 
+	@Test
+	public void MSG_OPEN_PAREN_OR_ELEMENT_TYPE_REQUIRED_IN_CHILDREN() throws Exception {
+		String xml = "<?xml version=\"1.0\"?>\r\n" + //
+				"<!DOCTYPE student [\r\n" + //
+				"  <!ELEMENT surname\r\n" + // <- error
+				"]>\r\n" + //
+				"<student />";
+		XMLAssert.testDiagnosticsFor(xml,
+				d(2, 2, 20, DTDErrorCode.MSG_OPEN_PAREN_OR_ELEMENT_TYPE_REQUIRED_IN_CHILDREN));
+	}
+
 }
