@@ -140,8 +140,8 @@ class XMLFormatter {
 				xml.linefeed();
 			} else if (node.isDoctype()) {
 				DOMDocumentType documentType = (DOMDocumentType) node;
-				xml.startDoctype();
-				xml.addContentDoctype(documentType.getContent());
+				xml.startDoctype(documentType.getName());
+				xml.setDoctypeInternalSubset(documentType.getInternalSubset());
 				xml.endDoctype();
 				xml.linefeed();
 			} else if (node.isText()) {

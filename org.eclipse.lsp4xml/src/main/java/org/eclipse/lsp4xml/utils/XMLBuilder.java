@@ -198,13 +198,21 @@ public class XMLBuilder {
 		return this;
 	}
 
-	public XMLBuilder startDoctype() {
+	public XMLBuilder startDoctype(String name) {
 		xml.append("<!DOCTYPE");
+		if (name != null) {
+			xml.append(" ");
+			xml.append(name);
+		}
 		return this;
 	}
 
-	public XMLBuilder addContentDoctype(String content) {
-		xml.append(content);
+	public XMLBuilder setDoctypeInternalSubset(String internalSubset) {
+		if (internalSubset != null) {
+			xml.append(" [");			
+			xml.append(internalSubset);
+			xml.append("]");
+		}
 		return this;
 	}
 
