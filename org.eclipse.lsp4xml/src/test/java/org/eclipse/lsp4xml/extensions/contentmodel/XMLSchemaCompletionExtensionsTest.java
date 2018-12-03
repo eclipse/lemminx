@@ -413,7 +413,7 @@ public class XMLSchemaCompletionExtensionsTest {
 	}
 
 	@Test
-	public void xsiCompletionDoesNotAppearInNonRootElement() throws BadLocationException {
+	public void xsiCompletionNonRootElement() throws BadLocationException {
 		String xml = 
 		"<project\r\n" +
 		"    xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" +
@@ -422,7 +422,20 @@ public class XMLSchemaCompletionExtensionsTest {
 		"  <modelVersion xs|></modelVersion>\r\n" +
 		"</project>";
 
-		XMLAssert.testCompletionFor(xml, 0);
+		XMLAssert.testCompletionFor(xml, 2, c("xsi:nil", "xsi:nil=\"true\""), c("xsi:type", "xsi:type=\"\""));
+	}
+
+	@Test
+	public void xsiCompletionNonRootElement2() throws BadLocationException {
+		String xml = 
+		"<project\r\n" +
+		"    xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" +
+		"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" +
+		"    xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n" +
+		"  <modelVersion xsi:nil=\"\" |></modelVersion>\r\n" +
+		"</project>";
+
+		XMLAssert.testCompletionFor(xml, 1, c("xsi:type", "xsi:type=\"\""));
 	}
 
 	@Test
