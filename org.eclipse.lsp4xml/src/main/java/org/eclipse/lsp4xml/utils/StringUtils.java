@@ -10,13 +10,23 @@
  */
 package org.eclipse.lsp4xml.utils;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 /**
  * String utilities.
  *
  */
 public class StringUtils {
 
-	private StringUtils() {}
+	public static final String[] EMPTY_STRING = new String[0];
+
+	public static final String TRUE = "true";
+	public static final String FALSE = "false";
+	public static final Collection<String> TRUE_FALSE_ARRAY = Arrays.asList(TRUE, FALSE);
+
+	private StringUtils() {
+	}
 
 	public static boolean isEmpty(String value) {
 		return value == null || value.isEmpty();

@@ -25,6 +25,7 @@ import org.eclipse.lsp4xml.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.extensions.contentmodel.utils.XMLGenerator;
+import org.eclipse.lsp4xml.services.AttributeCompletionItem;
 import org.eclipse.lsp4xml.services.XSISchemaModel;
 import org.eclipse.lsp4xml.services.extensions.CompletionParticipantAdapter;
 import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
@@ -105,7 +106,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	@Override
 	public void onAttributeName(boolean generateValue, Range fullRange, ICompletionRequest request,
 			ICompletionResponse response) throws Exception {
-		if(request.getXMLDocument().hasSchemaInstancePrefix()) {
+		if (request.getXMLDocument().hasSchemaInstancePrefix()) {
 			computeXSIAttributes(fullRange, request, response);
 		}
 		// otherwise, manage completion based on XML Schema, DTD.
@@ -123,33 +124,8 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 					for (CMAttributeDeclaration cmAttribute : attributes) {
 						String attrName = cmAttribute.getName();
 						if (!parentElement.hasAttribute(attrName)) {
-							CompletionItem item = new CompletionItem();
-							item.setLabel(attrName);
-							item.setKind(CompletionItemKind.Unit);
-							StringBuilder attributeContent = new StringBuilder(attrName);
-							if (generateValue) {
-								attributeContent.append("=\"");
-								String defaultValue = cmAttribute.getDefaultValue();
-								if (defaultValue == null) {
-									if (canSupportSnippet) {
-										attributeContent.append("$1");
-									}
-								} else {
-									if (canSupportSnippet) {
-										attributeContent.append("${1:");
-									}
-									attributeContent.append(defaultValue);
-									if (canSupportSnippet) {
-										attributeContent.append("}");
-									}
-								}
-								attributeContent.append("\"");
-								if (canSupportSnippet) {
-									attributeContent.append("$0");
-								}
-							}
-							item.setTextEdit(new TextEdit(fullRange, attributeContent.toString()));
-							item.setInsertTextFormat(InsertTextFormat.Snippet);
+							CompletionItem item = new AttributeCompletionItem(attrName, canSupportSnippet, fullRange,
+									generateValue, cmAttribute.getDefaultValue(), cmAttribute.getEnumerationValues());
 							String documentation = cmAttribute.getDocumentation();
 							if (documentation != null) {
 								item.setDetail(documentation);
@@ -193,16 +169,18 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 
 	/**
 	 * Creates and sets (xsi) completion items if needed.
+	 * 
 	 * @param editRange
 	 * @param request
 	 * @param response
 	 * @throws BadLocationException
 	 */
-	private void computeXSIAttributes(Range editRange, ICompletionRequest request, ICompletionResponse response) throws BadLocationException {
+	private void computeXSIAttributes(Range editRange, ICompletionRequest request, ICompletionResponse response)
+			throws BadLocationException {
 		DOMDocument document = request.getXMLDocument();
 		DOMElement rootElement = document.getDocumentElement();
 		int offset = document.offsetAt(editRange.getStart());
-		if(rootElement.equals(document.findNodeAt(offset))) {
+		if (rootElement.equals(document.findNodeAt(offset))) {
 			XSISchemaModel.computeCompletionResponses(request, response, editRange, document);
 		}
 	}

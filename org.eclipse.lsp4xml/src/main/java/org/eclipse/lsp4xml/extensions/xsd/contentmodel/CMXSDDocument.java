@@ -29,6 +29,7 @@ import org.apache.xerces.xs.XSSimpleTypeDefinition;
 import org.eclipse.lsp4xml.dom.DOMElement;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMElementDeclaration;
+import org.eclipse.lsp4xml.utils.StringUtils;
 
 /**
  * XSD document implementation.
@@ -136,10 +137,7 @@ public class CMXSDDocument implements CMDocument {
 	static Collection<String> getEnumerationValues(XSSimpleTypeDefinition typeDefinition) {
 		if (typeDefinition != null) {
 			if (isBooleanType(typeDefinition)) {
-				Collection<String> values = new ArrayList<>();
-				values.add("true");
-				values.add("false");
-				return values;
+				return StringUtils.TRUE_FALSE_ARRAY;
 			}
 			StringList enumerations = typeDefinition.getLexicalEnumeration();
 			if (enumerations != null) {

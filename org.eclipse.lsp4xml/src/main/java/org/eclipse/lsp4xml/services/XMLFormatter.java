@@ -173,7 +173,7 @@ class XMLFormatter {
 							int attributeIndex = 0;
 							for (DOMAttr attr : attributes) {
 								String attributeName = attr.getName();
-								xml.addAttributes(attributeName, attr.getValue(), attributeIndex, level, tag);
+								xml.addAttribute(attributeName, attr.getValue(), attributeIndex, level, tag);
 								attributeIndex++;
 							}
 						}

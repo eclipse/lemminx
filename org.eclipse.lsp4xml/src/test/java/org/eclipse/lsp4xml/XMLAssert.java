@@ -105,6 +105,13 @@ public class XMLAssert {
 	public static void testCompletionFor(XMLLanguageService xmlLanguageService, String value, String catalogPath,
 			Consumer<XMLLanguageService> customConfiguration, String fileURI, Integer expectedCount,
 			boolean autoCloseTags, CompletionItem... expectedItems) throws BadLocationException {
+		testCompletionFor(xmlLanguageService, value, catalogPath, customConfiguration, fileURI, expectedCount,
+				new CompletionSettings(autoCloseTags), expectedItems);
+	}
+
+	public static void testCompletionFor(XMLLanguageService xmlLanguageService, String value, String catalogPath,
+			Consumer<XMLLanguageService> customConfiguration, String fileURI, Integer expectedCount,
+			CompletionSettings completionSettings, CompletionItem... expectedItems) throws BadLocationException {
 		int offset = value.indexOf('|');
 		value = value.substring(0, offset) + value.substring(offset + 1);
 
@@ -126,7 +133,7 @@ public class XMLAssert {
 			customConfiguration.accept(xmlLanguageService);
 		}
 
-		CompletionList list = xmlLanguageService.doComplete(htmlDoc, position, new CompletionSettings(autoCloseTags),
+		CompletionList list = xmlLanguageService.doComplete(htmlDoc, position, completionSettings,
 				new XMLFormattingOptions(4, false));
 
 		// no duplicate labels

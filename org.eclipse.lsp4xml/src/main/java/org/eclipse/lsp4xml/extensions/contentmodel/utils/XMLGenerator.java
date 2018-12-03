@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.eclipse.lsp4xml.commons.SnippetsBuilder;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
@@ -49,7 +50,7 @@ public class XMLGenerator {
 		this(formattingOptions, true, whitespacesIndent, lineDelimiter, canSupportSnippets, maxLevel);
 	}
 
-	public XMLGenerator(XMLFormattingOptions formattingOptions, boolean autoCloseTags, String whitespacesIndent, 
+	public XMLGenerator(XMLFormattingOptions formattingOptions, boolean autoCloseTags, String whitespacesIndent,
 			String lineDelimiter, boolean canSupportSnippets, int maxLevel) {
 		this.formattingOptions = formattingOptions;
 		this.autoCloseTags = autoCloseTags;
@@ -71,7 +72,10 @@ public class XMLGenerator {
 	 */
 	public String generate(CMElementDeclaration elementDeclaration, String prefix) {
 		XMLBuilder xml = new XMLBuilder(formattingOptions, whitespacesIndent, lineDelimiter);
-		generate(elementDeclaration, prefix, 0, 1, xml, new ArrayList<CMElementDeclaration>());
+		generate(elementDeclaration, prefix, 0, 0, xml, new ArrayList<CMElementDeclaration>());
+		if (canSupportSnippets) {
+			xml.addContent(SnippetsBuilder.tabstops(0)); // "$0"
+		}
 		return xml.toString();
 	}
 
@@ -104,10 +108,10 @@ public class XMLGenerator {
 			} else {
 				if (canSupportSnippets) {
 					snippetIndex++;
-					xml.addContent("$" + snippetIndex);
+					xml.addContent(SnippetsBuilder.tabstops(snippetIndex));
 				}
 			}
-			if(autoCloseTags) {
+			if (autoCloseTags) {
 				xml.endElement(prefix, elementDeclaration.getName());
 			}
 		} else if (elementDeclaration.isEmpty() && autoCloseTags) {
@@ -116,9 +120,9 @@ public class XMLGenerator {
 			xml.closeStartElement();
 			if (canSupportSnippets) {
 				snippetIndex++;
-				xml.addContent("$" + snippetIndex);
+				xml.addContent(SnippetsBuilder.tabstops(snippetIndex));
 			}
-			if(autoCloseTags) {
+			if (autoCloseTags) {
 				xml.endElement(prefix, elementDeclaration.getName());
 			}
 		}
@@ -131,32 +135,63 @@ public class XMLGenerator {
 		return xml.toString();
 	}
 
-	private int generate(Collection<CMAttributeDeclaration> attributes, int level, int snippetIndex, XMLBuilder xml, String tagName) {
+	private int generate(Collection<CMAttributeDeclaration> attributes, int level, int snippetIndex, XMLBuilder xml,
+			String tagName) {
 		int attributeIndex = 0;
-		
-		ArrayList<CMAttributeDeclaration> requiredAttributes = new ArrayList<CMAttributeDeclaration>();
-		for (CMAttributeDeclaration att: attributes) {
-			if(att.isRequired()) {
+		List<CMAttributeDeclaration> requiredAttributes = new ArrayList<CMAttributeDeclaration>();
+		for (CMAttributeDeclaration att : attributes) {
+			if (att.isRequired()) {
 				requiredAttributes.add(att);
 			}
 		}
 		int attributesSize = requiredAttributes.size();
 		for (CMAttributeDeclaration attributeDeclaration : requiredAttributes) {
-			String value = attributeDeclaration.getDefaultValue();
 			if (canSupportSnippets) {
 				snippetIndex++;
-				value = ("$" + snippetIndex);
 			}
-			if(attributesSize != 1) {
-				xml.addAttributes(attributeDeclaration.getName(), value, attributeIndex, level, tagName);
-			}
-			else {
+			String defaultValue = attributeDeclaration.getDefaultValue();
+			Collection<String> enumerationValues = attributeDeclaration.getEnumerationValues();
+			String value = generateAttributeValue(defaultValue, enumerationValues, canSupportSnippets, snippetIndex,
+					false);
+			if (attributesSize != 1) {
+				xml.addAttribute(attributeDeclaration.getName(), value, attributeIndex, level, tagName);
+			} else {
 				xml.addSingleAttribute(attributeDeclaration.getName(), value);
 			}
-			
 			attributeIndex++;
 		}
 		return snippetIndex;
+	}
+
+	public static String generateAttributeValue(String defaultValue, Collection<String> enumerationValues,
+			boolean canSupportSnippets, int snippetIndex, boolean withQuote) {
+		StringBuilder value = new StringBuilder();
+		if (withQuote) {
+			value.append("=\"");
+		}
+		if (!canSupportSnippets) {
+			if (defaultValue != null) {
+				value.append(defaultValue);
+			}
+		} else {
+			// Snippets syntax support
+			if (enumerationValues != null && !enumerationValues.isEmpty()) {
+				SnippetsBuilder.choice(snippetIndex, enumerationValues, value);
+			} else {
+				if (defaultValue != null) {
+					SnippetsBuilder.placeholders(snippetIndex, defaultValue, value);
+				} else {
+					SnippetsBuilder.tabstops(snippetIndex, value);
+				}
+			}
+		}
+		if (withQuote) {
+			value.append("\"");
+			if (canSupportSnippets) {
+				SnippetsBuilder.tabstops(0, value); // "$0"
+			}
+		}
+		return value.toString();
 	}
 
 }

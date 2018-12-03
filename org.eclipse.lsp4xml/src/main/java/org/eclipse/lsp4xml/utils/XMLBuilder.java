@@ -72,7 +72,7 @@ public class XMLBuilder {
 	}
 
 	public XMLBuilder endElement() {
-		if(formattingOptions.isSpaceBeforeEmptyCloseTag()) {
+		if (formattingOptions.isSpaceBeforeEmptyCloseTag()) {
 			xml.append(" ");
 		}
 		xml.append("/>");
@@ -90,13 +90,11 @@ public class XMLBuilder {
 		return this;
 	}
 
-	public XMLBuilder addAttributes(String name, String value, int index, int level, String tagName) {
+	public XMLBuilder addAttribute(String name, String value, int index, int level, String tagName) {
 		if (isSplitAttributes()) {
 			linefeed();
 			indent(level + splitAttributesIndent);
-			
-		}
-		else {
+		} else {
 			xml.append(" ");
 		}
 
@@ -209,7 +207,7 @@ public class XMLBuilder {
 
 	public XMLBuilder setDoctypeInternalSubset(String internalSubset) {
 		if (internalSubset != null) {
-			xml.append(" [");			
+			xml.append(" [");
 			xml.append(internalSubset);
 			xml.append("]");
 		}
