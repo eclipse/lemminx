@@ -47,7 +47,7 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 			elements = new ArrayList<>();
 			int index = grammar.getFirstElementDeclIndex();
 			while (index != -1) {
-				CMDTDElementDeclaration elementDecl = new CMDTDElementDeclaration(this);
+				CMDTDElementDeclaration elementDecl = new CMDTDElementDeclaration(this, index);
 				grammar.getElementDecl(index, elementDecl);
 				elements.add(elementDecl);
 				index = grammar.getNextElementDeclIndex(index);
@@ -132,8 +132,14 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 		});
 	}
 
-	void collectAttributesDeclaration(String name, List<CMAttributeDeclaration> attributes) {
-		// TODO Auto-generated method stub
-		
+	void collectAttributesDeclaration(CMDTDElementDeclaration elementDecl, List<CMAttributeDeclaration> attributes) {
+		int elementDeclIndex = grammar.getElementDeclIndex(elementDecl.name);
+		int index = grammar.getFirstAttributeDeclIndex(elementDeclIndex);		
+		while (index != -1) {
+			CMDTDAttributeDeclaration attributeDecl = new CMDTDAttributeDeclaration();
+			grammar.getAttributeDecl(index, attributeDecl);
+			attributes.add(attributeDecl);
+			index = grammar.getNextAttributeDeclIndex(index);
+		}
 	}
 }

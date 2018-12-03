@@ -20,17 +20,18 @@ import org.eclipse.lsp4xml.extensions.contentmodel.model.CMElementDeclaration;
 
 /**
  * DTD element declaration.
- * 
  *
  */
 public class CMDTDElementDeclaration extends XMLElementDecl implements CMElementDeclaration {
 
+	private final int index;
 	private final CMDTDDocument document;
 	private List<CMElementDeclaration> elements;
 	private List<CMAttributeDeclaration> attributes;
 
-	public CMDTDElementDeclaration(CMDTDDocument document) {
+	public CMDTDElementDeclaration(CMDTDDocument document, int index) {
 		this.document = document;
+		this.index = index;
 	}
 
 	@Override
@@ -47,7 +48,7 @@ public class CMDTDElementDeclaration extends XMLElementDecl implements CMElement
 	public Collection<CMAttributeDeclaration> getAttributes() {
 		if (attributes == null) {
 			attributes = new ArrayList<>();
-			document.collectAttributesDeclaration(getName(), attributes);
+			document.collectAttributesDeclaration(this, attributes);
 		}
 		return attributes;
 	}
@@ -73,25 +74,31 @@ public class CMDTDElementDeclaration extends XMLElementDecl implements CMElement
 
 	@Override
 	public CMAttributeDeclaration findCMAttribute(String attributeName) {
+		for (CMAttributeDeclaration cmAttribute : getAttributes()) {
+			if (cmAttribute.getName().equals(attributeName)) {
+				return cmAttribute;
+			}
+		}
 		return null;
 	}
 
 	@Override
 	public String getDocumentation() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public boolean isEmpty() {
-		// TODO Auto-generated method stub
-		return false;
+		return super.type == XMLElementDecl.TYPE_EMPTY;
 	}
 
 	@Override
 	public Collection<String> getEnumerationValues() {
-		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public int getIndex() {
+		return index;
 	}
 
 }

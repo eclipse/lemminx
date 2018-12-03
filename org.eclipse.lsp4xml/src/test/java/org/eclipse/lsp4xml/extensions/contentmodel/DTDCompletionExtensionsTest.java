@@ -23,8 +23,8 @@ public class DTDCompletionExtensionsTest {
 				"\r\n" + //
 				"    <|";
 		testCompletionFor(xml,
-				c("delegatePublic", te(8, 4, 8, 5, "<delegatePublic></delegatePublic>"), "<delegatePublic"), //
-				c("public", te(8, 4, 8, 5, "<public></public>"), "<public"));
+				c("delegatePublic", te(8, 4, 8, 5, "<delegatePublic publicIdStartString=\"\" catalog=\"\" />"), "<delegatePublic"), //
+				c("public", te(8, 4, 8, 5, "<public publicId=\"\" uri=\"\" />"), "<public"));
 	}
 
 	private void testCompletionFor(String xml, CompletionItem... expectedItems) throws BadLocationException {

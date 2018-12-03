@@ -62,7 +62,6 @@ public class CMDTDContentModelProvider implements ContentModelProvider {
 				return document;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 			return null;
 		}
 		return null;
