@@ -29,7 +29,7 @@ import org.eclipse.lsp4xml.utils.StringUtils;
 public class XSISchemaModel {
 
 	public static void computeCompletionResponses(ICompletionRequest request, ICompletionResponse response,
-			Range editRange, DOMDocument document) {
+			boolean generateValue, Range editRange, DOMDocument document) {
 		boolean isSnippetsSupported = request.getCompletionSettings().isCompletionSnippetsSupported();
 		String actualPrefix = document.getSchemaInstancePrefix();
 		String name;
@@ -41,8 +41,8 @@ public class XSISchemaModel {
 		if (!attributeAlreadyExists(root, actualPrefix, "nil")) {
 			documentation = "Indicates if an element should contain content. Valid values are true/false";
 			name = actualPrefix + ":nil";
-			createCompletionItem(name, isSnippetsSupported, editRange, StringUtils.TRUE, StringUtils.TRUE_FALSE_ARRAY,
-					documentation, response);
+			createCompletionItem(name, isSnippetsSupported, generateValue, editRange, StringUtils.TRUE,
+					StringUtils.TRUE_FALSE_ARRAY, documentation, response);
 		}
 		// Signals that an element should be accepted as ·valid· when it has no content
 		// despite
@@ -54,7 +54,8 @@ public class XSISchemaModel {
 		if (!attributeAlreadyExists(root, actualPrefix, "type")) {
 			documentation = "Specifies the type of an element. This attribute labels an element as a particular type, even though there might not be an element declaration in the schema binding that element to the type.";
 			name = actualPrefix + ":type";
-			createCompletionItem(name, isSnippetsSupported, editRange, null, null, documentation, response);
+			createCompletionItem(name, isSnippetsSupported, generateValue, editRange, null, null, documentation,
+					response);
 		}
 		// The xsi:schemaLocation and xsi:noNamespaceSchemaLocation attributes can be
 		// used in a document
@@ -68,7 +69,8 @@ public class XSISchemaModel {
 					+ " xsi:schemaLocation=\"http://example.com/ns example-ns.xsd\">\r\n " + "  <!-- ... -->\r\n  "
 					+ "</ns:root>\r\n  " + "```";
 			name = actualPrefix + ":schemaLocation";
-			createCompletionItem(name, isSnippetsSupported, editRange, null, null, documentation, response);
+			createCompletionItem(name, isSnippetsSupported, generateValue, editRange, null, null, documentation,
+					response);
 
 			documentation = "The xsi:noNamespaceSchemaLocation attribute can be used in an XML document "
 					+ "to reference an XML Schema document that does not have a target namespace.\r\n  "
@@ -76,14 +78,16 @@ public class XSISchemaModel {
 					+ "  xsi:noNamespaceSchemaLocation=\"example.xsd\">  \r\n" + "  <!-- ... -->  \r\n"
 					+ "</root>  \r\n" + "```";
 			name = actualPrefix + ":noNamespaceSchemaLocation";
-			createCompletionItem(name, isSnippetsSupported, editRange, null, null, documentation, response);
+			createCompletionItem(name, isSnippetsSupported, generateValue, editRange, null, null, documentation,
+					response);
 		}
 	}
 
-	private static void createCompletionItem(String attrName, boolean canSupportSnippet, Range editRange,
-			String defaultValue, Collection<String> enumerationValues, String documentation, ICompletionResponse response) {
-		CompletionItem item = new AttributeCompletionItem(attrName, canSupportSnippet, editRange, true, defaultValue,
-				enumerationValues);
+	private static void createCompletionItem(String attrName, boolean canSupportSnippet, boolean generateValue,
+			Range editRange, String defaultValue, Collection<String> enumerationValues, String documentation,
+			ICompletionResponse response) {
+		CompletionItem item = new AttributeCompletionItem(attrName, canSupportSnippet, editRange, generateValue,
+				defaultValue, enumerationValues);
 		MarkupContent markup = new MarkupContent();
 		markup.setKind(MarkupKind.MARKDOWN);
 		markup.setValue(documentation);
