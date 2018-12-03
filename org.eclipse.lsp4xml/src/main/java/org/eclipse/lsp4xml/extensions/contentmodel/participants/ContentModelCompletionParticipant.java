@@ -106,8 +106,8 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	@Override
 	public void onAttributeName(boolean generateValue, Range fullRange, ICompletionRequest request,
 			ICompletionResponse response) throws Exception {
-		if (request.getXMLDocument().hasSchemaInstancePrefix()) {
-			computeXSIAttributes(generateValue, fullRange, request, response);
+		if(request.getXMLDocument().hasSchemaInstancePrefix()) {
+			XSISchemaModel.computeCompletionResponses(request, response, fullRange, request.getXMLDocument(), generateValue);
 		}
 		// otherwise, manage completion based on XML Schema, DTD.
 		DOMElement parentElement = request.getNode().isElement() ? (DOMElement) request.getNode() : null;
@@ -167,21 +167,5 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 		}
 	}
 
-	/**
-	 * Creates and sets (xsi) completion items if needed.
-	 * 
-	 * @param editRange
-	 * @param request
-	 * @param response
-	 * @throws BadLocationException
-	 */
-	private void computeXSIAttributes(boolean generateValue, Range editRange, ICompletionRequest request,
-			ICompletionResponse response) throws BadLocationException {
-		DOMDocument document = request.getXMLDocument();
-		DOMElement rootElement = document.getDocumentElement();
-		int offset = document.offsetAt(editRange.getStart());
-		if (rootElement.equals(document.findNodeAt(offset))) {
-			XSISchemaModel.computeCompletionResponses(request, response, generateValue, editRange, document);
-		}
-	}
+	
 }
