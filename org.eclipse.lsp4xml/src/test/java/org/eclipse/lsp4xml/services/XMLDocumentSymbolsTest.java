@@ -30,7 +30,8 @@ public class XMLDocumentSymbolsTest {
 
 	@Test
 	public void internalDTD() {
-		String xml = "<?xml version = \"1.0\"?>\r\n" + //
+		String xml = 
+				"<?xml version = \"1.0\"?>\r\n" + //
 				"<!DOCTYPE Folks [\r\n" + //
 				"	<!ELEMENT Folks (Person*)>\r\n" + //
 				"	<!ELEMENT Person (Name,Email?)>\r\n" + //

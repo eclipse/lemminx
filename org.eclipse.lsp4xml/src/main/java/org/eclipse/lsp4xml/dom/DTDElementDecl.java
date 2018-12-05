@@ -16,18 +16,32 @@ package org.eclipse.lsp4xml.dom;
  * @see https://www.w3.org/TR/REC-xml/#dt-eldecl
  *
  */
-public class DTDElementDecl extends DOMNode {
+public class DTDElementDecl extends DTDDeclNode {
 
-	private final DOMDocumentType ownerDTDDocument;
+	/**
+	 Formats:
+	  
+	 <!ELEMENT element-name category>
+		or
+	 <!ELEMENT element-name (element-content)>	 
+	 
+	 */
+
+	Integer nameStart, nameEnd; // <!ELEMENT |element-name| category>
+	Integer categoryStart, categoryEnd; // <!ELEMENT element-name |category|>
+	Integer contentStart,contentEnd; // <!ELEMENT element-name |(element-content)|>
+
 	String name;
+	String category;
+	String content;
+	
 
-	public DTDElementDecl(int start, int end, DOMDocumentType ownerDTDDocument) {
-		super(start, end, ownerDTDDocument.getOwnerDocument());
-		this.ownerDTDDocument = ownerDTDDocument;
+	public DTDElementDecl(int start, int end, DOMDocumentType parentDocumentType) {
+		super(start, end, parentDocumentType);
 	}
 
-	public DOMDocumentType getOwnerDocumentType() {
-		return ownerDTDDocument;
+	public DOMDocumentType getParentDocumentType() {
+		return parentDocumentType;
 	}
 
 	@Override
@@ -36,7 +50,18 @@ public class DTDElementDecl extends DOMNode {
 	}
 
 	public String getName() {
+		name = getValueFromOffsets(parentDocumentType, name, nameStart, nameEnd);
 		return name;
+	}
+
+	public String getCategory() {
+		category = getValueFromOffsets(parentDocumentType, category, categoryStart, categoryEnd);
+		return category;
+	}
+
+	public String getContent() {
+		content = getValueFromOffsets(parentDocumentType, content, contentStart, contentEnd);
+		return content;
 	}
 
 	@Override

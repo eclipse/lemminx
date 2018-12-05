@@ -10,43 +10,7 @@
  */
 package org.eclipse.lsp4xml.dom.parser;
 
-import static org.eclipse.lsp4xml.dom.parser.Constants.ATTRIBUTE_NAME_REGEX;
-import static org.eclipse.lsp4xml.dom.parser.Constants.ATTRIBUTE_VALUE_REGEX;
-import static org.eclipse.lsp4xml.dom.parser.Constants.DOCTYPE_KIND_OPTIONS;
-import static org.eclipse.lsp4xml.dom.parser.Constants.DTD_ELEMENT_CATEGORY;
-import static org.eclipse.lsp4xml.dom.parser.Constants.ELEMENT_NAME_REGEX;
-import static org.eclipse.lsp4xml.dom.parser.Constants.PI_TAG_NAME;
-import static org.eclipse.lsp4xml.dom.parser.Constants.PROLOG_NAME_OPTIONS;
-import static org.eclipse.lsp4xml.dom.parser.Constants.URL_VALUE_REGEX;
-import static org.eclipse.lsp4xml.dom.parser.Constants._AVL;
-import static org.eclipse.lsp4xml.dom.parser.Constants._CAR;
-import static org.eclipse.lsp4xml.dom.parser.Constants._CSB;
-import static org.eclipse.lsp4xml.dom.parser.Constants._CVL;
-import static org.eclipse.lsp4xml.dom.parser.Constants._DQO;
-import static org.eclipse.lsp4xml.dom.parser.Constants._DVL;
-import static org.eclipse.lsp4xml.dom.parser.Constants._EQS;
-import static org.eclipse.lsp4xml.dom.parser.Constants._EVL;
-import static org.eclipse.lsp4xml.dom.parser.Constants._EXL;
-import static org.eclipse.lsp4xml.dom.parser.Constants._FSL;
-import static org.eclipse.lsp4xml.dom.parser.Constants._IVL;
-import static org.eclipse.lsp4xml.dom.parser.Constants._LAN;
-import static org.eclipse.lsp4xml.dom.parser.Constants._LVL;
-import static org.eclipse.lsp4xml.dom.parser.Constants._MIN;
-import static org.eclipse.lsp4xml.dom.parser.Constants._MVL;
-import static org.eclipse.lsp4xml.dom.parser.Constants._NVL;
-import static org.eclipse.lsp4xml.dom.parser.Constants._NWL;
-import static org.eclipse.lsp4xml.dom.parser.Constants._ORB;
-import static org.eclipse.lsp4xml.dom.parser.Constants._OSB;
-import static org.eclipse.lsp4xml.dom.parser.Constants._OVL;
-import static org.eclipse.lsp4xml.dom.parser.Constants._PVL;
-import static org.eclipse.lsp4xml.dom.parser.Constants._QMA;
-import static org.eclipse.lsp4xml.dom.parser.Constants._RAN;
-import static org.eclipse.lsp4xml.dom.parser.Constants._SIQ;
-import static org.eclipse.lsp4xml.dom.parser.Constants._SQO;
-import static org.eclipse.lsp4xml.dom.parser.Constants._SVL;
-import static org.eclipse.lsp4xml.dom.parser.Constants._TVL;
-import static org.eclipse.lsp4xml.dom.parser.Constants._WSP;
-import static org.eclipse.lsp4xml.dom.parser.Constants._YVL;
+import static org.eclipse.lsp4xml.dom.parser.Constants.*;
 
 import org.eclipse.lsp4xml.dom.DOMDocumentType.DocumentTypeKind;;
 
@@ -69,6 +33,19 @@ public class XMLScanner implements Scanner {
 	String lastDoctypeKind;
 	String url;
 	boolean isInsideDTDContent = false; // Either internal dtd in xml file OR external dtd in dtd file
+	boolean isDeclCompleted = false; // If any type of DTD declaration was supplied with all the required properties
+
+	/**
+	 * boolean completedInitialAttDef;
+	 * 
+	 * If the first attribute definition was completed in an ATTLIST declaration
+	 * eg:
+	 * <!ATTLIST unit
+			|power NMTOKEN #IMPLIED|  << WHEN THIS IS COMPLETE, will be set to true
+			description CDATA #IMPLIED
+		>
+	 */
+	boolean isInitialAttlistDeclCompleted = false; 
 	private int nbBraceOpened;
 
 	public XMLScanner(String input, int initialOffset, ScannerState initialState) {
@@ -91,8 +68,13 @@ public class XMLScanner implements Scanner {
 		return stream.advanceIfRegExp(ATTRIBUTE_NAME_REGEX).toLowerCase();
 	}
 
+	/**
+	 * Tries to advance off the regex for either 'PUBLIC' or 'SYSTEM'
+	 * 
+	 * @return "PUBLIC" or "SYSTEM" or "" otherwise
+	 */
 	String doctypeKind() {
-		return stream.advanceIfRegExp(DOCTYPE_KIND_OPTIONS);
+		return stream.advanceIfRegExpGroup1(DOCTYPE_KIND_OPTIONS);
 	}
 
 	TokenType finishToken(int offset, TokenType type) {
@@ -194,6 +176,7 @@ public class XMLScanner implements Scanner {
 					}
 
 					if (stream.advanceIfChars(_EXL, _DVL, _OVL, _CVL, _TVL, _YVL, _PVL, _EVL)) { // !DOCTYPE
+						isDeclCompleted = false;
 						state = ScannerState.DTDWithinDoctype;
 						return finishToken(offset, TokenType.DTDStartDoctypeTag);
 					}
@@ -355,7 +338,7 @@ public class XMLScanner implements Scanner {
 		case DTDWithinDoctype:
 			// Possible formats:
 			// https://en.wikipedia.org/wiki/Document_type_declaration#Syntax
-			lastDoctypeKind = null;
+			
 			if (stream.skipWhitespace()) {
 				return finishToken(offset, TokenType.Whitespace);
 			}
@@ -369,6 +352,7 @@ public class XMLScanner implements Scanner {
 			if (stream.advanceIfChar(_CSB)) { // ]
 				state = ScannerState.DTDWithinDoctype;
 				isInsideDTDContent = false;
+				isDeclCompleted = true;
 				return finishToken(offset, TokenType.DTDEndInternalSubset);
 			}
 
@@ -377,13 +361,21 @@ public class XMLScanner implements Scanner {
 				return finishToken(offset, TokenType.DTDEndDoctypeTag);
 			}
 
-			String doctypeName = doctypeName();
-			if (!doctypeName.equals("")) {
-				state = ScannerState.DTDAfterDoctypeName;
-				return finishToken(offset, TokenType.DTDDoctypeName);
+			if(stream.peekChar() == _LAN) { // <
+				state = ScannerState.WithinContent;
+				return internalScan();
 			}
-			stream.advanceUntilChar(_RAN); // >
-			return finishToken(offset, TokenType.Content);
+
+			
+			if (isDeclCompleted == false) {
+				String doctypeName = doctypeName();
+				if(!doctypeName.equals("")) {
+					state = ScannerState.DTDAfterDoctypeName;
+					return finishToken(offset, TokenType.DTDDoctypeName);
+				}
+			}
+			stream.advanceUntilCharOrNewTag(_RAN); // > || <
+			return finishToken(offset, TokenType.DTDUnrecognizedParameters);
 
 		case DTDAfterDoctypeName:
 			if (stream.skipWhitespace()) {
@@ -443,8 +435,38 @@ public class XMLScanner implements Scanner {
 			return internalScan();
 
 		case DTDWithinContent:
-			if (stream.skipWhitespace()) {
-				return finishToken(offset, TokenType.Whitespace);
+			if (stream.advanceIfChar(_CSB)) { // ]
+				state = ScannerState.DTDWithinDoctype;
+				isInsideDTDContent = false;
+				return finishToken(offset, TokenType.DTDEndInternalSubset);
+			}
+
+			if (stream.advanceIfChar(_LAN)) { // <
+				
+				if (!stream.eos() && stream.peekChar() == _EXL) { // !
+					isDeclCompleted = false;
+					if (stream.advanceIfChars(_EXL, _EVL, _LVL, _EVL, _MVL, _EVL, _NVL, _TVL)) { // !ELEMENT
+						state = ScannerState.DTDWithinElement;
+						return finishToken(offset, TokenType.DTDStartElement);
+					} else if (stream.advanceIfChars(_EXL, _AVL, _TVL, _TVL, _LVL, _IVL, _SVL, _TVL)) { // !ATTLIST
+						isInitialAttlistDeclCompleted = false;
+						state = ScannerState.DTDWithinAttlist;
+						return finishToken(offset, TokenType.DTDStartAttlist);
+					} else if (stream.advanceIfChars(_EXL, _EVL, _NVL, _TVL, _IVL, _TVL, _YVL)) { // !ENTITY
+						state = ScannerState.DTDWithinEntity;
+						return finishToken(offset, TokenType.DTDStartEntity);
+					} else if (stream.advanceIfChars(_EXL, _NVL, _OVL, _TVL, _AVL, _TVL, _IVL, _OVL, _NVL)) { // !NOTATION
+						state = ScannerState.DTDWithinNotation;
+						return finishToken(offset, TokenType.DTDStartNotation);
+					} else if (stream.advanceIfChars(_EXL, _MIN, _MIN)) { // !-- (for comment)
+						state = ScannerState.WithinComment;
+						return finishToken(offset, TokenType.StartCommentTag);
+					}
+				}
+				if (stream.advanceUntilCharOrNewTag(_RAN)) { // >
+					stream.advanceIfChar(_RAN); // >
+					return finishToken(offset, TokenType.Content);
+				}
 			}
 
 			if (stream.advanceIfChar(_CSB)) { // ]
@@ -453,31 +475,38 @@ public class XMLScanner implements Scanner {
 				return finishToken(offset, TokenType.DTDEndInternalSubset);
 			}
 
-			if (stream.advanceIfChar(_LAN)) { // <
-				if (!stream.eos() && stream.peekChar() == _EXL) { // !
-					if (stream.advanceIfChars(_EXL, _EVL, _LVL, _EVL, _MVL, _EVL, _NVL, _TVL)) { // !ELEMENT
-						state = ScannerState.DTDWithinElement;
-						return finishToken(offset, TokenType.DTDStartElementDecl);
-					} else if (stream.advanceIfChars(_EXL, _AVL, _TVL, _TVL, _LVL, _IVL, _SVL, _TVL)) { // !ATTLIST
-						state = ScannerState.DTDWithinAttlist;
-						return finishToken(offset, TokenType.DTDStartAttlistDecl);
-					} else if (stream.advanceIfChars(_EXL, _EVL, _NVL, _TVL, _IVL, _TVL, _YVL)) { // !ENTITY
-						state = ScannerState.DTDWithinEntity;
-						return finishToken(offset, TokenType.DTDStartEntity);
-					} else if (stream.advanceIfChars(_EXL, _MIN, _MIN)) { // !-- (for comment)
-						state = ScannerState.WithinComment;
-						return finishToken(offset, TokenType.StartCommentTag);
-					}
-				}
+			stream.advanceUntilAnyOfChars(_LAN, _CSB); // < || ]
+			return finishToken(offset, TokenType.Content);
+			
+
+		case DTDUnrecognizedParameters:
+
+			if (stream.skipWhitespace()) {
+				return finishToken(offset, TokenType.Whitespace);
 			}
 
-			if (stream.advanceUntilChar(_CSB)) { // ]
-				state = ScannerState.DTDWithinDoctype;
-				isInsideDTDContent = false;
-				return finishToken(offset, TokenType.DTDEndInternalSubset);
+			if(stream.advanceIfChar(_RAN)) { // >
+				state = ScannerState.DTDWithinContent;
+				return finishToken(offset, TokenType.DTDEndTag);
 			}
-			stream.advanceUntilChar(_LAN); // <
-			return finishToken(offset, TokenType.Content);
+
+			if(stream.peekChar() == _LAN) { // <
+				state = ScannerState.DTDWithinContent;
+				return internalScan();
+			}
+
+			if(stream.peekChar() == _CSB && isInsideDTDContent) { // ]
+				state = ScannerState.DTDWithinDoctype;
+				return internalScan();
+			}
+
+			if(stream.advanceUntilCharOrNewTag(_RAN)) { // >
+				if(stream.peekChar() == _LAN) { // <
+					state = ScannerState.DTDWithinContent;
+				}
+			}
+			return finishToken(offset, TokenType.DTDUnrecognizedParameters);
+			
 
 		case DTDWithinElement:
 			if (stream.skipWhitespace()) {
@@ -489,66 +518,75 @@ public class XMLScanner implements Scanner {
 				return finishToken(offset, TokenType.DTDEndTag);
 			}
 
+			if(isDeclCompleted == true) {
+				state = ScannerState.DTDUnrecognizedParameters;
+				return internalScan();
+			}
+
 			if (!stream.advanceIfRegExp(Constants.ELEMENT_NAME_REGEX).equals("")) {
-				state = ScannerState.DTDAfterElementName;
+				state = ScannerState.DTDElementAfterName;
 				return finishToken(offset, TokenType.DTDElementDeclName);
 			}
 
-			if (stream.advanceIfChar(_RAN)) { // >
-				state = ScannerState.DTDWithinContent;
-				return finishToken(offset, TokenType.DTDEndTag);
-			}
-
-			state = ScannerState.DTDWithinContent;
+			state = ScannerState.DTDUnrecognizedParameters;
 			return internalScan();
 
-		case DTDAfterElementName:
-			nbBraceOpened = 0;
+		case DTDElementAfterName:
 			if (stream.skipWhitespace()) {
 				return finishToken(offset, TokenType.Whitespace);
 			}
 
 			if (stream.advanceIfChar(_ORB)) { // (
-				nbBraceOpened++;
-				state = ScannerState.DTDWithinElementContent;
+				nbBraceOpened = 1;
+				state = ScannerState.DTDElementWithinContent;
 				return finishToken(offset, TokenType.DTDStartElementContent);
 			}
 
-			if (!stream.advanceIfRegExp(DTD_ELEMENT_CATEGORY).equals("")) {
+			if (!stream.advanceIfRegExpGroup1(DTD_ELEMENT_CATEGORY).equals("")) {
+				isDeclCompleted = true;
 				state = ScannerState.DTDWithinElement;
 				return finishToken(offset, TokenType.DTDElementCategory);
 			}
 
-			if (stream.advanceIfChar(_RAN)) { // >
-				state = ScannerState.DTDWithinContent;
-				return finishToken(offset, TokenType.DTDEndTag);
-			}
-
-			state = ScannerState.DTDWithinContent;
+			state = ScannerState.DTDUnrecognizedParameters;
 			return internalScan();
 
-		case DTDWithinElementContent:
-			if (stream.skipWhitespace()) {
-				return finishToken(offset, TokenType.Whitespace);
+		case DTDElementWithinContent: // <!ELEMENT name |(content)|>
+
+			if(stream.advanceIfChar(_CRB)) { // )
+				isDeclCompleted = true;
+				state = ScannerState.DTDWithinElement;
+				return finishToken(offset, TokenType.DTDEndElementContent);
 			}
 
-			if (stream.advanceUntilCharOrNewTag(_RAN)) { // >
-				if (stream.peekChar() == _LAN) { // <
-					state = ScannerState.DTDWithinContent;
-					return internalScan();
-				} else {
-					// current character is '>'
-					if (stream.peekChar(-1) == _CSB) {
-						// previous character is ']', we can consider we are in the end of doctype.
-						stream.advance(-1);
-						state = ScannerState.DTDWithinContent;
-						return finishToken(offset, TokenType.DTDEndElementContent);
-					}
-					state = ScannerState.DTDWithinElement;
-					return finishToken(offset, TokenType.DTDEndElementContent);
+			while(nbBraceOpened > 0) {
+				int c = stream.peekChar();
+
+				if(c == _ORB) { // (
+					nbBraceOpened++;
 				}
+				else if(c == _CRB) { // )
+					nbBraceOpened--;
+					if(nbBraceOpened == 0) {
+						return finishToken(offset, TokenType.DTDElementContent);
+					}
+				}
+				else if(c == _RAN) { // >
+					state = ScannerState.DTDWithinElement;
+					return finishToken(offset, TokenType.DTDElementContent);
+				}
+				else if(c == _LAN) { // <
+					state = ScannerState.DTDWithinContent;
+					return finishToken(offset, TokenType.DTDElementContent);
+				}
+				else if(c == -1) {
+					return finishToken(offset, TokenType.DTDElementContent);
+				}
+				stream.advance(1);
 			}
-			return finishToken(offset, TokenType.Unknown);
+
+			state = ScannerState.DTDUnrecognizedParameters;
+			return internalScan();
 
 		case DTDWithinAttlist:
 			if (stream.skipWhitespace()) {
@@ -560,17 +598,17 @@ public class XMLScanner implements Scanner {
 				return finishToken(offset, TokenType.DTDEndTag);
 			}
 
-			if (!stream.advanceIfRegExp(Constants.ELEMENT_NAME_REGEX).equals("")) {
+			if(isDeclCompleted == true) {
+				state = ScannerState.DTDUnrecognizedParameters;
+				return internalScan();
+			}
+
+			if (isInitialAttlistDeclCompleted == false && !stream.advanceIfRegExp(Constants.ELEMENT_NAME_REGEX).equals("")) {
 				state = ScannerState.DTDAfterAttlistElementName;
 				return finishToken(offset, TokenType.DTDAttlistElementName);
 			}
 
-			if (stream.advanceIfChar(_RAN)) { // >
-				state = ScannerState.DTDWithinContent;
-				return finishToken(offset, TokenType.DTDEndTag);
-			}
-
-			state = ScannerState.DTDWithinContent;
+			state = ScannerState.DTDUnrecognizedParameters;
 			return internalScan();
 
 		case DTDAfterAttlistElementName:
@@ -588,7 +626,7 @@ public class XMLScanner implements Scanner {
 				return finishToken(offset, TokenType.DTDEndTag);
 			}
 
-			state = ScannerState.DTDWithinContent;
+			state = ScannerState.DTDUnrecognizedParameters;
 			return internalScan();
 
 		case DTDAfterAttlistAttributeName:
@@ -596,9 +634,9 @@ public class XMLScanner implements Scanner {
 				return finishToken(offset, TokenType.Whitespace);
 			}
 
-			if (!stream.advanceIfRegExp(Constants.DTD_ATTLIST_ATTRIBUTE_TYPE).equals("")) {
+			if (!stream.advanceIfRegExpGroup1(Constants.DTD_ATTLIST_ATTRIBUTE_TYPE).equals("")) {
 				state = ScannerState.DTDAfterAttlistAttributeType;
-				return finishToken(offset, TokenType.DTDAttlistType);
+				return finishToken(offset, TokenType.DTDAttlistAttributeType);
 			}
 
 			if (stream.advanceIfChar(_RAN)) { // >
@@ -606,7 +644,7 @@ public class XMLScanner implements Scanner {
 				return finishToken(offset, TokenType.DTDEndTag);
 			}
 
-			state = ScannerState.DTDWithinContent;
+			state = ScannerState.DTDUnrecognizedParameters;
 			return internalScan();
 
 		case DTDAfterAttlistAttributeType:
@@ -614,8 +652,10 @@ public class XMLScanner implements Scanner {
 				return finishToken(offset, TokenType.Whitespace);
 			}
 
-			if (!stream.advanceIfRegExp(Constants.DTD_ATTLIST_ATTRIBUTE_VALUE).equals("")) {
-				state = ScannerState.DTDWithinAttlist;
+			if (!stream.advanceIfRegExpGroup1(Constants.DTD_ATTLIST_ATTRIBUTE_VALUE).equals("")) {
+				isInitialAttlistDeclCompleted = true; //we completed the initial attribute declaration
+				isDeclCompleted = true;
+				state = ScannerState.DTDAfterAttlistElementName;
 				return finishToken(offset, TokenType.DTDAttlistAttributeValue);
 			}
 
@@ -624,7 +664,7 @@ public class XMLScanner implements Scanner {
 				return finishToken(offset, TokenType.DTDEndTag);
 			}
 
-			state = ScannerState.DTDWithinContent;
+			state = ScannerState.DTDUnrecognizedParameters;
 			return internalScan();
 
 		case DTDWithinEntity:
@@ -637,17 +677,21 @@ public class XMLScanner implements Scanner {
 				return finishToken(offset, TokenType.DTDEndTag);
 			}
 
+			if(isDeclCompleted == true) {
+				state = ScannerState.DTDUnrecognizedParameters;
+				return internalScan();
+			}
+
 			if (!stream.advanceIfRegExp(Constants.ELEMENT_NAME_REGEX).equals("")) {
 				state = ScannerState.DTDAfterEntityName;
 				return finishToken(offset, TokenType.DTDEntityName);
 			}
 
-			if (stream.advanceIfChar(_RAN)) { // >
-				state = ScannerState.DTDWithinContent;
-				return finishToken(offset, TokenType.DTDEndTag);
+			if (stream.advanceIfChar(_PCT)) { // %
+				return finishToken(offset, TokenType.DTDEntityPercent);
 			}
 
-			state = ScannerState.DTDWithinContent;
+			state = ScannerState.DTDUnrecognizedParameters;
 			return internalScan();
 
 		case DTDAfterEntityName:
@@ -656,13 +700,18 @@ public class XMLScanner implements Scanner {
 			}
 
 			if (!stream.advanceIfRegExp(Constants.DTD_ENTITY_VALUE).equals("")) {
+				isDeclCompleted = true;
 				state = ScannerState.DTDWithinEntity;
 				return finishToken(offset, TokenType.DTDEntityValue);
 			}
 
-			if (stream.advanceIfChars(_SVL, _YVL, _SVL, _TVL, _EVL, _MVL)) { // SYSTEM
-				state = ScannerState.DTDAfterEntityKind;
-				return finishToken(offset, TokenType.DTDEntityKind);
+			lastDoctypeKind = doctypeKind(); // eg: PUBLIC || SYSTEM, will advance the stream if either of these
+			if (lastDoctypeKind.equals(DocumentTypeKind.PUBLIC.name())) {
+				state = ScannerState.DTDAfterEntityPUBLIC;
+				return finishToken(offset, TokenType.DTDEntityKindPUBLIC);
+			} else if (lastDoctypeKind.equals(DocumentTypeKind.SYSTEM.name())) {
+				state = ScannerState.DTDAfterEntitySYSTEM;
+				return finishToken(offset, TokenType.DTDEntityKindSYSTEM);
 			}
 
 			if (stream.advanceIfChar(_RAN)) { // >
@@ -670,17 +719,17 @@ public class XMLScanner implements Scanner {
 				return finishToken(offset, TokenType.DTDEndTag);
 			}
 
-			state = ScannerState.DTDWithinContent;
+			state = ScannerState.DTDUnrecognizedParameters;
 			return internalScan();
-
-		case DTDAfterEntityKind:
+		
+		case DTDAfterEntityPUBLIC:
 			if (stream.skipWhitespace()) {
 				return finishToken(offset, TokenType.Whitespace);
 			}
 
 			if (!stream.advanceIfRegExp(URL_VALUE_REGEX).equals("")) {
-				state = ScannerState.DTDWithinEntity;
-				return finishToken(offset, TokenType.DTDEntityURL);
+				state = ScannerState.DTDAfterEntitySYSTEM;
+				return finishToken(offset, TokenType.DTDEntityPublicId);
 			}
 
 			if (stream.advanceIfChar(_RAN)) { // >
@@ -688,9 +737,114 @@ public class XMLScanner implements Scanner {
 				return finishToken(offset, TokenType.DTDEndTag);
 			}
 
-			state = ScannerState.DTDWithinContent;
+			state = ScannerState.DTDUnrecognizedParameters;
+			return internalScan();
+
+		case DTDAfterEntitySYSTEM:
+			if (stream.skipWhitespace()) {
+				return finishToken(offset, TokenType.Whitespace);
+			}
+
+			if (!stream.advanceIfRegExp(URL_VALUE_REGEX).equals("")) {
+				isDeclCompleted = true;
+				state = ScannerState.DTDWithinEntity;
+				return finishToken(offset, TokenType.DTDEntitySystemId);
+			}
+
+			if (stream.advanceIfChar(_RAN)) { // >
+				state = ScannerState.DTDWithinContent;
+				return finishToken(offset, TokenType.DTDEndTag);
+			}
+
+			state = ScannerState.DTDUnrecognizedParameters;
+			return internalScan();		
+		
+		case DTDWithinNotation: 
+			if (stream.skipWhitespace()) {
+				return finishToken(offset, TokenType.Whitespace);
+			}
+
+			if(stream.advanceIfChar(_RAN)) { // >
+				state = ScannerState.DTDWithinContent;
+				return finishToken(offset, TokenType.DTDEndTag);
+			}
+
+			if(isDeclCompleted == true) {
+				state = ScannerState.DTDUnrecognizedParameters;
+				return internalScan();
+			}
+
+			if (!stream.advanceIfRegExp(ELEMENT_NAME_REGEX).equals("")) {
+				state = ScannerState.DTDAfterNotationName;
+				return finishToken(offset, TokenType.DTDNotationName);
+			}
+
+			state = ScannerState.DTDUnrecognizedParameters;
+			return internalScan();
+
+		case DTDAfterNotationName:
+			if (stream.skipWhitespace()) {
+				return finishToken(offset, TokenType.Whitespace);
+			}
+		
+			lastDoctypeKind = doctypeKind(); // eg: PUBLIC || SYSTEM, will advance the stream if either of these
+			if (lastDoctypeKind.equals(DocumentTypeKind.PUBLIC.name())) {
+				state = ScannerState.DTDAfterNotationPUBLIC;
+				return finishToken(offset, TokenType.DTDNotationKindPUBLIC);
+			} else if (lastDoctypeKind.equals(DocumentTypeKind.SYSTEM.name())) {
+				state = ScannerState.DTDAfterNotationSYSTEM;
+				return finishToken(offset, TokenType.DTDNotationKindSYSTEM);
+			}
+
+			state = ScannerState.DTDUnrecognizedParameters;
+			return internalScan();
+
+		case DTDAfterNotationPUBLIC:
+			if (stream.skipWhitespace()) {
+				return finishToken(offset, TokenType.Whitespace);
+			}
+			url = stream.advanceIfRegExp(URL_VALUE_REGEX);
+			if (!url.equals("")) {
+				isDeclCompleted = true;
+				state = ScannerState.DTDAfterNotationPublicId;
+				return finishToken(offset, TokenType.DTDNotationPublicId);
+			}
+
+			state = ScannerState.DTDUnrecognizedParameters;
+			return internalScan();
+
+		case DTDAfterNotationSYSTEM:
+			if (stream.skipWhitespace()) {
+				return finishToken(offset, TokenType.Whitespace);
+			}
+
+			state = ScannerState.DTDWithinNotation;
+			url = stream.advanceIfRegExp(URL_VALUE_REGEX);
+			if (!url.equals("")) {
+				isDeclCompleted = true;
+				state = ScannerState.DTDAfterNotationName;
+				return finishToken(offset, TokenType.DTDNotationSystemId);
+			}
+			state = ScannerState.DTDWithinNotation;
+			return internalScan();
+
+		case DTDAfterNotationPublicId:
+			if (stream.skipWhitespace()) {
+				return finishToken(offset, TokenType.Whitespace);
+			}
+
+			state = ScannerState.DTDAfterNotationName;
+			url = stream.advanceIfRegExp(URL_VALUE_REGEX); // scan the System Identifier URL
+			if (!url.equals("")) {
+				isDeclCompleted = true;
+				return finishToken(offset, TokenType.DTDNotationSystemId);
+			}
 			return internalScan();
 		}
+
+		
+
+		
 
 		stream.advance(1);
 		state = isInsideDTDContent ? ScannerState.DTDWithinContent : ScannerState.WithinContent;

@@ -53,26 +53,43 @@ public enum TokenType {
 	DTDStartInternalSubset,
 	DTDEndInternalSubset,
 	// DTD Element declaration
-	DTDStartElementDecl,
-	DTDElementDeclName, 
-	DTDStartElementContent, 
+	DTDStartElement,
+	DTDElementDeclName,
 	DTDElementCategory, 
+	DTDStartElementContent, 
+	DTDElementContent, 
 	DTDEndElementContent, 
 	
 	// DTD AttrList declaration
-	DTDStartAttlistDecl,
+	DTDStartAttlist,
 	DTDAttlistElementName, 
-	DTDAttlistDeclName, 
 	DTDAttlistAttributeValue, 
-	DTDAttlistType, 
+	DTDAttlistAttributeType, 
 	DTDAttlistAttributeName,
 	
 	// DTD Entity
 	DTDStartEntity, 
+	DTDEntityPercent,
+	DTDEntityKindPUBLIC, 
+	DTDEntityKindSYSTEM,
+	DTDEntityPublicId,
+	DTDEntitySystemId,
 	DTDEntityName, 
 	DTDEntityValue, 
-	DTDEntityKind, 
-	DTDEntityURL,
+
+	// DTD Notation
+	DTDStartNotation, 
+	DTDNotationName, 
+	DTDNotationKindPUBLIC,
+	DTDNotationKindSYSTEM,
+	DTDNotationPublicId,
+	DTDNotationSystemId,
 	
+	//For any DTD Decl Tag that has an unrecognized parameter
+	DTDUnrecognizedParameters,
+
+	//End of any DTD Decl Tag
 	DTDEndTag;
+
+	
 }

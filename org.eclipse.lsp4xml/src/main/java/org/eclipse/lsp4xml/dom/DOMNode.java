@@ -37,6 +37,21 @@ public abstract class DOMNode implements Node {
 	 */
 	public static final short DTD_ATT_LIST_NODE = 102;
 
+	/**
+	 * The node is a <code>DTD Entity Declaraction</code>.
+	 */
+	public static final short DTD_ENTITY_DECL_NODE = 103;
+
+	/**
+	 * The node is a <code>DTD Notation Declaraction</code>.
+	 */
+	public static final short DTD_NOTATION_DECL = 104;
+
+	/**
+	 * The node is a generic <code>DTD Decl Node</code>.
+	 */
+	public static final short DTD_DECL_NODE = 105;
+
 	boolean closed = false;
 
 	private XMLNamedNodeMap<DOMAttr> attributeNodes;
@@ -119,6 +134,7 @@ public abstract class DOMNode implements Node {
 		this.start = start;
 		this.end = end;
 		this.ownerDocument = ownerDocument;
+		this.closed = false;
 	}
 
 	public DOMDocument getOwnerDocument() {
@@ -341,7 +357,7 @@ public abstract class DOMNode implements Node {
 	}
 
 	/**
-	 * Add node child and set child.parent to this.
+	 * Add node child and set child.parent to {@code this}
 	 * 
 	 * @param child the node child to add.
 	 */
@@ -399,6 +415,11 @@ public abstract class DOMNode implements Node {
 		return getNodeType() == DOMNode.DOCUMENT_TYPE_NODE;
 	}
 
+	public boolean isGenericDTDDecl() {
+		return getNodeType() == DOMNode.DTD_DECL_NODE;
+	}
+	
+
 	public boolean isElement() {
 		return getNodeType() == DOMNode.ELEMENT_NODE;
 	}
@@ -425,6 +446,10 @@ public abstract class DOMNode implements Node {
 
 	public boolean isDTDEntityDecl() {
 		return getNodeType() == Node.ENTITY_NODE;
+	}
+
+	public boolean isDTDNotationDecl() {
+		return getNodeType() == DOMNode.DTD_NOTATION_DECL;
 	}
 
 	public int getStart() {
