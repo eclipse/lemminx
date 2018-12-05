@@ -230,7 +230,8 @@ public class XMLFormatterTest {
 	@Test
 	public void testCommentNested() throws BadLocationException {
 		String content = "<a><!-- CommentText --></a>";
-		String expected = "<a>" + lineSeparator() + //
+		String expected = 
+				"<a>" + lineSeparator() + //
 				"  <!-- CommentText -->" + lineSeparator() + //
 				"</a>";
 		format(content, expected);
@@ -632,6 +633,65 @@ public class XMLFormatterTest {
 	}
 
 
+	@Test public void testDontAddClosingBracket() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setSpaceBeforeEmptyCloseTag(false);
+		
+		String content = 
+				"<a>\r" + //
+				" <b\r" + //
+				"</a>";
+		String expected = 
+				"<a>\r" + //
+				"  <b\r" + //
+				"</a>";
+		format(content, expected, formattingOptions);
+	}
+
+	@Test public void testEndTagMissingCloseBracket() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setSpaceBeforeEmptyCloseTag(false);
+		
+		String content = 
+				"<a>\r" + //
+				" <b> Value </b\r" + //
+				"</a>";
+		String expected = 
+				"<a>\r" + //
+				"  <b> Value </b\r" + //
+				"</a>";
+		format(content, expected, formattingOptions);
+	}
+
+	@Test public void testEndTagMissingCloseBracket2() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setSpaceBeforeEmptyCloseTag(false);
+		formattingOptions.setSplitAttributes(true);
+		
+		String content = 
+				"<web-app \n" +
+				"         xmlns=\"http://xmlns.jcp.org/xml/ns/javaee\"\n" +
+				"         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+				"         xsi:schemaLocation=\"http://xmlns.jcp.org/xml/ns/javaee \n" +
+				"                http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd\"\n" +
+				"         version=\"3.1\">\n" +
+				"         <servlet>\n" +
+				"             <servlet-name>sssi</servlet-name>\n" +
+				"         </servlet\n" +
+				"</web-app>";
+		String expected = 
+				"<web-app\n" +
+				"    xmlns=\"http://xmlns.jcp.org/xml/ns/javaee\"\n" +
+				"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+				"    xsi:schemaLocation=\"http://xmlns.jcp.org/xml/ns/javaee \n" +
+				"                http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd\"\n" +
+				"    version=\"3.1\">\n" +
+				"  <servlet>\n" +
+				"    <servlet-name>sssi</servlet-name>\n" +
+				"  </servlet\n" +
+				"</web-app>";
+		format(content, expected, formattingOptions);
+	}
 
 	//-------------------------Tools-----------------------------------------
 

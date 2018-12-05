@@ -51,18 +51,28 @@ public class XMLBuilder {
 		return startElement(null, name, close);
 	}
 
+	public XMLBuilder endElement(String name, boolean isEndTagClosed) {
+		return endElement(null, name, isEndTagClosed);
+	}
+
 	public XMLBuilder endElement(String name) {
-		return endElement(null, name);
+		return endElement(null, name, true);
 	}
 
 	public XMLBuilder endElement(String prefix, String name) {
+		return endElement(prefix, name, true);
+	}
+
+	public XMLBuilder endElement(String prefix, String name, boolean isEndTagClosed) {
 		xml.append("</");
 		if (prefix != null && !prefix.isEmpty()) {
 			xml.append(prefix);
 			xml.append(":");
 		}
 		xml.append(name);
-		xml.append(">");
+		if(isEndTagClosed) {
+			xml.append(">");
+		}
 		return this;
 	}
 
@@ -71,7 +81,7 @@ public class XMLBuilder {
 		return this;
 	}
 
-	public XMLBuilder endElement() {
+	public XMLBuilder selfCloseElement() {
 		if (formattingOptions.isSpaceBeforeEmptyCloseTag()) {
 			xml.append(" ");
 		}

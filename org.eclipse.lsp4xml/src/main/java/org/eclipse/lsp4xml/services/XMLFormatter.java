@@ -160,7 +160,7 @@ class XMLFormatter {
 				String tag = element.getTagName();
 				if (element.hasEndTag() && !element.hasStartTag()) {
 					// bad element which have not start tag (ex: <\root>)
-					xml.endElement(tag);
+					xml.endElement(tag, element.isEndTagClosed());
 				} else {
 					xml.startElement(tag, false);
 					if (element.hasAttributes()) {
@@ -178,12 +178,17 @@ class XMLFormatter {
 							}
 						}
 					}
+
+					if(element.isStartTagClosed()) {
+						xml.closeStartElement();	
+					}
+
 					boolean hasElements = false;
-					boolean startElementClosed = false;
 					if (node.hasChildNodes()) {
 						// element has body
-						xml.closeStartElement();
-						startElementClosed = true;
+						
+						
+						//startElementClosed = true;
 						level++;
 						for (DOMNode child : node.getChildren()) {
 							boolean textElement = !child.isText();
@@ -194,7 +199,7 @@ class XMLFormatter {
 						}
 						level--;
 					}
-					if (node.isClosed()) {
+					if (element.hasEndTag()) {
 						if (hasElements) {
 							xml.linefeed();
 							xml.indent(level);
@@ -202,17 +207,13 @@ class XMLFormatter {
 						// end tag element is done, only if the element is closed
 						// the format, doesn't fix the close tag
 						if (element.hasEndTag() && element.getEndTagOpenOffset() <= end) {
-							if (!startElementClosed) {
-								xml.closeStartElement();
-							}
-							xml.endElement(tag);
+							xml.endElement(tag, element.isEndTagClosed());
 						} else {
-							xml.endElement();
+							xml.selfCloseElement();
 						}
-					} else if (element.hasStartTagClose()) {
-						if (!startElementClosed) {
-							xml.closeStartElement();
-						}
+					} else if (element.isSelfClosed()) {
+						xml.selfCloseElement();
+						
 					}
 				}
 				return;

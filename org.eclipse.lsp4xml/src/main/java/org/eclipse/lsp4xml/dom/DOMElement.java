@@ -30,13 +30,14 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 
 	String tag;
 	boolean selfClosed;
+	
+	//DomElement.start == startTagOpenOffset
+	Integer startTagOpenOffset; // |<root>
+	Integer startTagCloseOffset; // <root |>
 
-	Integer startTagOpenOffset;
-	Integer startTagCloseOffset; // <root|>
-	// Integer startTagSelfCloseOffset;
-	Integer endTagOpenOffset; // <root>|</root>
-	Integer endTagCloseOffset;
-	Integer endTagOffset;
+	Integer endTagOpenOffset; // <root> |</root >
+	Integer endTagCloseOffset;// <root> </root |>
+	//DomElement.end = <root> </root>| , is always scanner.getTokenEnd()
 
 	public DOMElement(int start, int end, DOMDocument ownerDocument) {
 		super(start, end, ownerDocument);
@@ -274,7 +275,7 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 			// case >|
 			return false;
 		}
-		if (offset > endTagOpenOffset && offset <= getEnd()) {
+		if (offset > endTagOpenOffset && offset < getEnd()) {
 			// case <\bean | >
 			return true;
 		}
@@ -295,6 +296,10 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 
 	public Integer getEndTagOpenOffset() {
 		return endTagOpenOffset;
+	}
+
+	public Integer getEndTagCloseOffset() {
+		return endTagCloseOffset;
 	}
 
 	/**
@@ -319,6 +324,28 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 	 */
 	public boolean hasEndTag() {
 		return endTagOpenOffset != null;
+	}
+
+	/**
+	 * If '>' exists in <root>
+	 */
+	public boolean isStartTagClosed() {
+		return startTagCloseOffset != null;
+	}
+
+	/**
+	 * If '>' exists in </root>
+	 */
+	public boolean isEndTagClosed() {
+		return endTagCloseOffset != null;
+	}
+
+	@Override
+	/**
+	 * If Element has a closing end tag eg: <a> </a> -> true , <a> </b> -> false 
+	 */
+	public boolean isClosed() {
+		return super.isClosed();
 	}
 
 	@Override

@@ -115,7 +115,7 @@ public class XMLGenerator {
 				xml.endElement(prefix, elementDeclaration.getName());
 			}
 		} else if (elementDeclaration.isEmpty() && autoCloseTags) {
-			xml.endElement();
+			xml.selfCloseElement();
 		} else {
 			xml.closeStartElement();
 			if (canSupportSnippets) {
