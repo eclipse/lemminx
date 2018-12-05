@@ -22,10 +22,10 @@ public enum ScannerState {
 
 	// DTD
 	DTDWithinDoctype, DTDAfterDoctypeName, DTDAfterDoctypePUBLIC, DTDAfterDoctypeSYSTEM,
-	DTDAfterDoctypePublicId, DTDAfterDoctypeSystemId, DTDAfterInternalStartBracket,
-	
-	DTDWithinContent, DTDWithinElement, DTDWithinAttlist, DTDWithinEntity, DTDAfterElementName, DTDWithinElementContent,
-	DTDAfterAttlistName, DTDAfterAttlistDeclName, DTDAfterAttlistElementName, DTDAfterAttlistAttributeName,
-	DTDAfterAttlistAttributeType, DTDAfterEntityName, DTDAfterEntityKind, DTDWithinTag;
+	DTDAfterDoctypePublicId,DTDWithinContent, DTDWithinElement, DTDWithinAttlist, DTDWithinEntity, 
+	DTDElementAfterName, DTDElementWithinContent, DTDAfterAttlistName, DTDAfterAttlistElementName, 
+	DTDAfterAttlistAttributeName, DTDAfterAttlistAttributeType, DTDAfterEntityName, DTDUnrecognizedParameters, 
+	DTDWithinNotation, DTDAfterNotationName, DTDAfterNotationPUBLIC, DTDAfterNotationSYSTEM, 
+	DTDAfterNotationPublicId, DTDAfterEntityPUBLIC, DTDAfterEntitySYSTEM;
 
 }

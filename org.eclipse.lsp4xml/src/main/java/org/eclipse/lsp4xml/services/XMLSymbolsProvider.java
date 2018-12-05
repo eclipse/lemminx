@@ -28,6 +28,7 @@ import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.dom.DTDAttlistDecl;
 import org.eclipse.lsp4xml.dom.DTDElementDecl;
+import org.eclipse.lsp4xml.dom.DTDNotationDecl;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.Element;
@@ -92,6 +93,7 @@ class XMLSymbolsProvider {
 			children = hasChildNodes || node.isDTDElementDecl() ? new ArrayList<>() : Collections.emptyList();
 			DocumentSymbol symbol = new DocumentSymbol(name, getSymbolKind(node), range, selectionRange, null,
 					children);
+			
 			symbols.add(symbol);
 			if (node.isDTDElementDecl()) {
 				// In the case of DTD ELEMENT we try to add in the children the DTD ATTLIST
@@ -155,7 +157,7 @@ class XMLSymbolsProvider {
 			return SymbolKind.Property;
 		} else if (node.isDoctype()) {
 			return SymbolKind.Struct;
-		} else if (node.isDTDElementDecl() || node.isDTDEntityDecl()) {
+		} else if (node.isDTDElementDecl() || node.isDTDEntityDecl() || node.isDTDNotationDecl()) {
 			return SymbolKind.Property;
 		} else if (node.isDTDAttListDecl()) {
 			return SymbolKind.Key;
@@ -165,7 +167,7 @@ class XMLSymbolsProvider {
 
 	private static boolean isNodeSymbol(DOMNode node) {
 		return node.isElement() || node.isDoctype() || node.isProcessingInstruction() || node.isProlog()
-				|| node.isDTDElementDecl() || node.isDTDAttListDecl() || node.isDTDEntityDecl();
+				|| node.isDTDElementDecl() || node.isDTDAttListDecl() || node.isDTDEntityDecl() || node.isDTDNotationDecl();
 	}
 
 	private static String nodeToName(DOMNode node) {
@@ -180,9 +182,12 @@ class XMLSymbolsProvider {
 			name = ((DTDElementDecl) node).getName();
 		} else if (node.isDTDAttListDecl()) {
 			DTDAttlistDecl attr = (DTDAttlistDecl) node;
-			name = attr.getName();
+			name = attr.getAttributeName();
 		} else if (node.isDTDEntityDecl()) {
 			name = node.getNodeName();
+		} else if (node.isDTDNotationDecl()) {
+			DTDNotationDecl notation = (DTDNotationDecl) node;
+			name = notation.getName();
 		}
 
 		if (node.hasAttributes()) {

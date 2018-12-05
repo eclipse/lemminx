@@ -23,24 +23,20 @@ public class DOMDocumentType extends DOMNode implements org.w3c.dom.DocumentType
 	}
 
 	// Offset values relative to start of the XML Document
-	int nameStart = -1;
-	int nameEnd = -1;
-	int kindStart = -1;
-	int kindEnd = -1;
-	int publicIdStart = -1;
-	int publicIdEnd = -1;
-	int systemIdStart = -1;
-	int systemIdEnd = -1;
-	Integer startInternalSubset;
-	Integer endInternalSubset;
+	Integer nameStart, nameEnd;
+	Integer kindStart, kindEnd;
+	Integer publicIdStart, publicIdEnd;
+	Integer systemIdStart, systemIdEnd;
+	Integer internalSubsetStart, internalSubsetEnd;
+	
 
 	private String name;
-	private String kind;
+	private String kind; // SYSTEM || PUBLIC
 	private String publicId;
 	private String systemId;
 	private String internalSubset;
 
-	private String content;
+	private String content; // |<!DOCTYPE ... >|
 
 	public DOMDocumentType(int start, int end, DOMDocument ownerDocument) {
 		super(start, end, ownerDocument);
@@ -63,7 +59,7 @@ public class DOMDocumentType extends DOMNode implements org.w3c.dom.DocumentType
 	 */
 	@Override
 	public String getName() {
-		if (name == null && this.nameStart != -1 && this.nameEnd != -1) {
+		if (name == null && this.nameStart != null && this.nameEnd != null) {
 			name = getSubstring(nameStart, nameEnd);
 		}
 		return name;
@@ -78,7 +74,7 @@ public class DOMDocumentType extends DOMNode implements org.w3c.dom.DocumentType
 	 * @return the DocumentTypeKind
 	 */
 	public String getKind() {
-		if (kind == null && kindStart != -1 && kindEnd != -1) {
+		if (kind == null && kindStart != null && kindEnd != null) {
 			kind = getSubstring(kindStart, kindEnd);
 		}
 		return kind;
@@ -129,8 +125,8 @@ public class DOMDocumentType extends DOMNode implements org.w3c.dom.DocumentType
 	 */
 	@Override
 	public String getInternalSubset() {
-		if (internalSubset == null && startInternalSubset != null && endInternalSubset != null) {
-			internalSubset = getSubstring(startInternalSubset + 1, endInternalSubset);
+		if (internalSubset == null && internalSubsetStart != null && internalSubsetEnd != null) {
+			internalSubset = getSubstring(internalSubsetStart + 1, internalSubsetEnd - 1);
 		}
 		return internalSubset;
 	}
@@ -141,7 +137,7 @@ public class DOMDocumentType extends DOMNode implements org.w3c.dom.DocumentType
 	 * @return the start offset of internal subset and null otherwise.
 	 */
 	public Integer getStartInternalSubset() {
-		return startInternalSubset;
+		return internalSubsetStart;
 	}
 
 	/**
@@ -150,7 +146,7 @@ public class DOMDocumentType extends DOMNode implements org.w3c.dom.DocumentType
 	 * @return the end offset of internal subset and null otherwise.
 	 */
 	public Integer getEndInternalSubset() {
-		return endInternalSubset;
+		return internalSubsetEnd;
 	}
 
 	/*
@@ -170,7 +166,7 @@ public class DOMDocumentType extends DOMNode implements org.w3c.dom.DocumentType
 	 */
 	@Override
 	public String getPublicId() {
-		if (publicId == null && publicIdStart != -1 && publicIdEnd != -1) {
+		if (publicId == null && publicIdStart != null && publicIdEnd != null) {
 			publicId = cleanURL(getSubstring(publicIdStart, publicIdEnd));
 		}
 		return publicId;
@@ -191,7 +187,7 @@ public class DOMDocumentType extends DOMNode implements org.w3c.dom.DocumentType
 	 */
 	@Override
 	public String getSystemId() {
-		if (systemId == null && systemIdStart != -1 && systemIdEnd != -1) {
+		if (systemId == null && systemIdStart != null && systemIdEnd != null) {
 			systemId = cleanURL(getSubstring(systemIdStart, systemIdEnd));
 		}
 		return systemId;
@@ -220,7 +216,11 @@ public class DOMDocumentType extends DOMNode implements org.w3c.dom.DocumentType
 		return url.substring(start, end);
 	}
 
-	private String getSubstring(int start, int end) {
+	/**
+	 * Since offset values are relative to 'this.start' we need to 
+	 * subtract getStart() to make them relative to 'content'
+	 */ 
+	public String getSubstring(int start, int end) {
 		return getContent().substring(start - getStart(), end - getStart());
 	}
 

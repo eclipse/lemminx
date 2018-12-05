@@ -18,12 +18,58 @@ import org.w3c.dom.Node;
  * 
  * @see https://www.w3.org/TR/REC-xml/#dt-entdecl
  */
-public class DTDEntityDecl extends DOMNode implements Entity {
+public class DTDEntityDecl extends DTDDeclNode implements Entity {
+
+
+	/**
+	* Formats:
+	* 
+	* <!ENTITY entity-name "entity-value">
+	* 
+	* or
+	* 
+	* <!ENTITY % entity-name "entity-value">
+	* 
+	* or
+	* 
+	* <!ENTITY % entity-name SYSTEM "systemId">
+	* 
+	* or
+	* 
+	* <!ENTITY % entity-name PUBLIC "publicId" "systemId">
+	* 
+	* or
+	* 
+	* <!ENTITY % entity-name SYSTEM "systemId" NDATA name>
+	* 
+	* or
+	* 
+	* <!ENTITY % entity-name PUBLIC "publicId" "systemId" NDATA name>
+	*/
 
 	String name;
+	String value;
+	String kind;
+	String publicId;
+	String systemId;
+
+	Integer percentStart, percentEnd;
+	Integer nameStart, nameEnd;
+	Integer valueStart, valueEnd;
+	Integer kindStart, kindEnd;
+	Integer publicIdStart, publicIdEnd;
+	Integer systemIdStart, systemIdEnd; 
+
 	
-	public DTDEntityDecl(int start, int end, DOMDocumentType documentType) {
-		super(start, end, documentType != null ? documentType.getOwnerDocument() : null);
+	public DTDEntityDecl(int start, int end, DOMDocumentType parentDocumentType) {
+		super(start, end, parentDocumentType);
+	}
+
+	public String getPercent() {
+		if(percentStart != null && percentEnd != null) {
+			return "%";
+		}
+		return null;
 	}
 
 	/*
@@ -33,7 +79,18 @@ public class DTDEntityDecl extends DOMNode implements Entity {
 	 */
 	@Override
 	public String getNodeName() {
+		name = getValueFromOffsets(parentDocumentType, name, nameStart, nameEnd);
 		return name;
+	}
+
+	public String getValue() {
+		value = getValueFromOffsets(parentDocumentType, value, valueStart, valueEnd);
+		return value;
+	}
+
+	public String getKind() {
+		kind = getValueFromOffsets(parentDocumentType, kind, kindStart, kindEnd);
+		return kind;
 	}
 
 	@Override
@@ -68,7 +125,8 @@ public class DTDEntityDecl extends DOMNode implements Entity {
 	 */
 	@Override
 	public String getPublicId() {
-		throw new UnsupportedOperationException();
+		publicId = getValueFromOffsets(parentDocumentType, publicId, publicIdStart, publicIdEnd);
+		return publicId;
 	}
 
 	/*
@@ -78,7 +136,8 @@ public class DTDEntityDecl extends DOMNode implements Entity {
 	 */
 	@Override
 	public String getSystemId() {
-		throw new UnsupportedOperationException();
+		systemId = getValueFromOffsets(parentDocumentType, systemId, systemIdStart, systemIdEnd);
+		return systemId;
 	}
 
 	/*

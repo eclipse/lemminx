@@ -133,6 +133,22 @@ class MultiLineStream {
 		return "";
 	}
 
+	/**
+	 * Advances stream on regex, but will grab the first group
+	 * @param regex
+	 * @return
+	 */
+	public String advanceIfRegExpGroup1(Pattern regex) {
+		Matcher match = getCachedMatcher(regex);
+		// Initialize start region where search must be started.
+		match.region(this.position, this.len);
+		if (match.find()) {
+			this.position = match.end(1);
+			return match.group(1);
+		}
+		return "";
+	}
+
 	public String advanceUntilRegExp(Pattern regex) {
 		String str = this.source.substring(this.position);
 		/*
