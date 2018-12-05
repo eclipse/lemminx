@@ -233,6 +233,11 @@ public class XMLAssert {
 
 	public static void testDiagnosticsFor(String xml, String catalogPath, Consumer<XMLLanguageService> configuration,
 			String fileURI, Diagnostic... expected) {
+		testDiagnosticsFor(xml, catalogPath, configuration, fileURI, true, expected);
+	}
+
+	public static void testDiagnosticsFor(String xml, String catalogPath, Consumer<XMLLanguageService> configuration,
+			String fileURI, boolean filter, Diagnostic... expected) {
 		TextDocument document = new TextDocument(xml, fileURI != null ? fileURI : "test.xml");
 
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
@@ -257,7 +262,7 @@ public class XMLAssert {
 
 		List<Diagnostic> actual = xmlLanguageService.doDiagnostics(xmlDocument, () -> {
 		});
-		assertDiagnostics(actual, expected);
+		assertDiagnostics(actual, Arrays.asList(expected), filter);
 
 	}
 
