@@ -153,6 +153,17 @@ public class DTDDiagnosticsTest {
 				"<Person Friend=\"\" />"; // <- error on @Friend value
 		XMLAssert.testDiagnosticsFor(xml, d(5, 15, 17, DTDErrorCode.IDREFInvalidWithNamespaces));
 	}
+	
+	@Test
+	public void IDREFSInvalid() throws Exception {
+		String xml = "<?xml version = \"1.0\"?>\r\n" + //
+				"<!DOCTYPE Person [\r\n" + //
+				"	<!ELEMENT Person EMPTY>\r\n" + //
+				"	<!ATTLIST Person Likes IDREFS #IMPLIED>\r\n" + //
+				"]>\r\n" + //
+				"<Person Likes=\"\" />"; // <- error on @Likes value
+		XMLAssert.testDiagnosticsFor(xml, d(5, 14, 16, DTDErrorCode.IDREFSInvalid));
+	}
 
 	@Test
 	public void testDoctypeDiagnosticsRefresh() throws Exception {
