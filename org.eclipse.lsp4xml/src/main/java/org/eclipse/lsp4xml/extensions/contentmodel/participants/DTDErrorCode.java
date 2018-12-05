@@ -30,8 +30,8 @@ import org.eclipse.lsp4xml.utils.XMLPositionUtility;
 public enum DTDErrorCode implements IXMLErrorCode {
 
 	MSG_ELEMENT_NOT_DECLARED, MSG_CONTENT_INCOMPLETE, MSG_CONTENT_INVALID, MSG_REQUIRED_ATTRIBUTE_NOT_SPECIFIED,
-	MSG_ATTRIBUTE_NOT_DECLARED, MSG_ATTRIBUTE_VALUE_NOT_IN_LIST, MSG_FIXED_ATTVALUE_INVALID,
-	IDInvalidWithNamespaces,
+	MSG_ATTRIBUTE_NOT_DECLARED, MSG_ATTRIBUTE_VALUE_NOT_IN_LIST, MSG_FIXED_ATTVALUE_INVALID, IDInvalidWithNamespaces,
+	IDREFInvalidWithNamespaces,
 
 	MSG_ELEMENT_TYPE_REQUIRED_IN_ELEMENTDECL, MSG_MARKUP_NOT_RECOGNIZED_IN_DTD, ElementDeclUnterminated,
 	MSG_OPEN_PAREN_OR_ELEMENT_TYPE_REQUIRED_IN_CHILDREN;
@@ -95,6 +95,7 @@ public enum DTDErrorCode implements IXMLErrorCode {
 			String attrName = (String) arguments[0];
 			return XMLPositionUtility.selectAttributeValueAt(attrName, offset, document);
 		}
+		case IDREFInvalidWithNamespaces:
 		case IDInvalidWithNamespaces: {
 			String attrValue = (String) arguments[0];
 			return XMLPositionUtility.selectAttributeValueByGivenValueAt(attrValue, offset, document);

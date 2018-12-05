@@ -1,0 +1,6 @@
+<?xml version = "1.0"?>
+<!DOCTYPE Person [
+	<!ELEMENT Person EMPTY>
+	<!ATTLIST Person Friend IDREF #IMPLIED>
+]>
+<Person Friend="" />

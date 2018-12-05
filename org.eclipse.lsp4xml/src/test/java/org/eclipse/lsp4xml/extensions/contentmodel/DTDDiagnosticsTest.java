@@ -142,7 +142,18 @@ public class DTDDiagnosticsTest {
 				"<Person Pin=\"7\" />"; // <- error on @Pin value
 		XMLAssert.testDiagnosticsFor(xml, d(5, 12, 15, DTDErrorCode.IDInvalidWithNamespaces));
 	}
-	
+
+	@Test
+	public void IDREFInvalidWithNamespaces() throws Exception {
+		String xml = "<?xml version = \"1.0\"?>\r\n" + //
+				"<!DOCTYPE Person [\r\n" + //
+				"	<!ELEMENT Person EMPTY>\r\n" + // 
+				"	<!ATTLIST Person Friend IDREF #IMPLIED>\r\n" + // 
+				"]>\r\n" + //
+				"<Person Friend=\"\" />"; // <- error on @Friend value
+		XMLAssert.testDiagnosticsFor(xml, d(5, 15, 17, DTDErrorCode.IDREFInvalidWithNamespaces));
+	}
+
 	@Test
 	public void testDoctypeDiagnosticsRefresh() throws Exception {
 		//@formatter:off
