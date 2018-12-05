@@ -11,7 +11,6 @@
 package org.eclipse.lsp4xml.services;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -49,7 +48,7 @@ class XMLSymbolsProvider {
 		boolean isDTD = xmlDocument.isDTD();
 		xmlDocument.getRoots().forEach(node -> {
 			try {
-				provideFileSymbolsInternal(node, "", symbols, (node.isDoctype() && isDTD), true);
+				provideFileSymbolsInternal(node, "", symbols, (node.isDoctype() && isDTD));
 			} catch (BadLocationException e) {
 				LOGGER.log(Level.SEVERE, "XMLSymbolsProvider was given a BadLocation by a 'node' variable", e);
 			}
@@ -58,8 +57,8 @@ class XMLSymbolsProvider {
 	}
 
 	private void provideFileSymbolsInternal(DOMNode node, String container, List<SymbolInformation> symbols,
-			boolean ignoreNode, boolean checkSymbol) throws BadLocationException {
-		if (checkSymbol && !isNodeSymbol(node)) {
+			boolean ignoreNode) throws BadLocationException {
+		if (!isNodeSymbol(node)) {
 			return;
 		}
 		String name = ignoreNode ? "" : nodeToName(node);
@@ -75,43 +74,30 @@ class XMLSymbolsProvider {
 		}
 		node.getChildren().forEach(child -> {
 			try {
-				provideFileSymbolsInternal(child, name, symbols, false, true);
+				provideFileSymbolsInternal(child, name, symbols, false);
 			} catch (BadLocationException e) {
 				LOGGER.log(Level.SEVERE, "XMLSymbolsProvider was given a BadLocation by the provided 'node' variable",
 						e);
 			}
 		});
-		if (node.isDTDElementDecl()) {
-			String elementName = node.getNodeName();
-			// Display DTD <!ATTLIST as children of the DTD element declaration !ELEMENT
-			Collection<DOMNode> attributes = node.getOwnerDocument().getDTDAttrList(elementName);
-			attributes.forEach(child -> {
-				try {
-					provideFileSymbolsInternal(child, elementName, symbols, false, false);
-				} catch (BadLocationException e) {
-					LOGGER.log(Level.SEVERE,
-							"XMLSymbolsProvider was given a BadLocation by the provided 'node' variable", e);
-				}
-			});
-
-		}
-
 	}
 
 	private SymbolKind getSymbolKind(DOMNode node) {
 		if (node.isProcessingInstruction() || node.isProlog()) {
 			return SymbolKind.Property;
 		} else if (node.isDoctype()) {
-			return SymbolKind.Enum;
-		} else if (node.isDTDElementDecl() || node.isDTDAttListDecl() || node.isDTDEntityDecl()) {
-			return SymbolKind.EnumMember;
+			return SymbolKind.Struct;
+		} else if (node.isDTDElementDecl() || node.isDTDEntityDecl()) {
+			return SymbolKind.Property;
+		} else if (node.isDTDAttListDecl()) {
+			return SymbolKind.Key;
 		}
 		return SymbolKind.Field;
 	}
 
 	private boolean isNodeSymbol(DOMNode node) {
 		return node.isElement() || node.isDoctype() || node.isProcessingInstruction() || node.isProlog()
-				|| node.isDTDElementDecl() || node.isDTDEntityDecl();
+				|| node.isDTDElementDecl() || node.isDTDAttListDecl() || node.isDTDEntityDecl();
 	}
 
 	private static String nodeToName(DOMNode node) {
