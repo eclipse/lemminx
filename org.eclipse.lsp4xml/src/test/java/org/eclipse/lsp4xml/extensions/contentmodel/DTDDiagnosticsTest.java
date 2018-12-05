@@ -131,6 +131,26 @@ public class DTDDiagnosticsTest {
 				"</foo>";
 		XMLAssert.testDiagnosticsFor(xml, d(7, 5, 8, DTDErrorCode.MSG_REQUIRED_ATTRIBUTE_NOT_SPECIFIED));
 	}
+
+	@Test
+	public void MSG_ELEMENT_WITH_ID_REQUIRED() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<!DOCTYPE Folks [\r\n" + //
+				"	<!ELEMENT Folks (Person*)>\r\n" + // 
+				"	<!ELEMENT Person (Name,Email?)>\r\n" + // 
+				"	<!ATTLIST Person Pin ID #REQUIRED>\r\n" + // 
+				"	<!ATTLIST Person Friend IDREF #IMPLIED>\r\n" + // 
+				"	<!ATTLIST Person Likes IDREFS #IMPLIED>\r\n" + //
+				"	<!ELEMENT Name (#PCDATA)>\r\n" + //
+				"	<!ELEMENT Email (#PCDATA)>\r\n" + //
+				"	]>\r\n" + //
+				"<Folks>\r\n" + //
+				"    <Person Pin=\"id2\" Likes=\"vfg\"> \r\n" + // 
+				"        <Name>Bob</Name>\r\n" + //
+				"    </Person>\r\n" + //
+				"</Folks>";
+		XMLAssert.testDiagnosticsFor(xml, d(10, 1, 6, DTDErrorCode.MSG_ELEMENT_WITH_ID_REQUIRED));
+	}
 	
 	@Test
 	public void IDInvalidWithNamespaces() throws Exception {

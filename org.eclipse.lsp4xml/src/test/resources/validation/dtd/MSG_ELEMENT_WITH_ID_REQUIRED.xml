@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Folks [
+	<!ELEMENT Folks (Person*)>
+	<!ELEMENT Person (Name,Email?)>
+	<!ATTLIST Person Pin ID #REQUIRED>
+	<!ATTLIST Person Friend IDREF #IMPLIED>
+	<!ATTLIST Person Likes IDREFS #IMPLIED>
+	<!ELEMENT Name (#PCDATA)>
+	<!ELEMENT Email (#PCDATA)>
+	]>
+<Folks>
+    <Person Pin="id2" Likes="vfg"> 
+        <Name>Bob</Name>
+    </Person>
+</Folks> 
