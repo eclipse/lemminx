@@ -27,6 +27,7 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.DocumentHighlight;
 import org.eclipse.lsp4j.DocumentLink;
+import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.FoldingRange;
 import org.eclipse.lsp4j.FoldingRangeCapabilities;
 import org.eclipse.lsp4j.Hover;
@@ -91,6 +92,10 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 
 	public List<SymbolInformation> findDocumentSymbols(DOMDocument xmlDocument) {
 		return symbolsProvider.findDocumentSymbols(xmlDocument);
+	}
+
+	public List<DocumentSymbol> findDocumentSymbols2(DOMDocument xmlDocument) {
+		return symbolsProvider.findDocumentSymbols2(xmlDocument);
 	}
 
 	public CompletionList doComplete(DOMDocument xmlDocument, Position position, CompletionSettings completionSettings,

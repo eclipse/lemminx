@@ -11,10 +11,12 @@
 package org.eclipse.lsp4xml.services;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -48,7 +50,7 @@ class XMLSymbolsProvider {
 		boolean isDTD = xmlDocument.isDTD();
 		xmlDocument.getRoots().forEach(node -> {
 			try {
-				provideFileSymbolsInternal(node, "", symbols, (node.isDoctype() && isDTD));
+				provideXMLSymbolsInternal(node, "", symbols, (node.isDoctype() && isDTD));
 			} catch (BadLocationException e) {
 				LOGGER.log(Level.SEVERE, "XMLSymbolsProvider was given a BadLocation by a 'node' variable", e);
 			}
@@ -56,25 +58,42 @@ class XMLSymbolsProvider {
 		return symbols;
 	}
 
-	private void provideFileSymbolsInternal(DOMNode node, String container, List<SymbolInformation> symbols,
-			boolean ignoreNode) throws BadLocationException {
+	public List<DocumentSymbol> findDocumentSymbols2(DOMDocument xmlDocument) {
+		List<DocumentSymbol> symbols = new ArrayList<>();
+		boolean isDTD = xmlDocument.isDTD();
+		xmlDocument.getRoots().forEach(node -> {
+			try {
+				provideXMLSymbolsInternal2(node, symbols, (node.isDoctype() && isDTD));
+			} catch (BadLocationException e) {
+				LOGGER.log(Level.SEVERE, "XMLSymbolsProvider was given a BadLocation by a 'node' variable", e);
+			}
+		});
+		return symbols;
+	}
+
+	private void provideXMLSymbolsInternal2(DOMNode node, List<DocumentSymbol> symbols, boolean ignoreNode)
+			throws BadLocationException {
 		if (!isNodeSymbol(node)) {
 			return;
 		}
-		String name = ignoreNode ? "" : nodeToName(node);
-		DOMDocument xmlDocument = node.getOwnerDocument();
-		Position start = xmlDocument.positionAt(node.getStart());
-		Position end = xmlDocument.positionAt(node.getEnd());
-		Range range = new Range(start, end);
-		Location location = new Location(xmlDocument.getDocumentURI(), range);
-		SymbolInformation symbol = new SymbolInformation(name, getSymbolKind(node), location, container);
-
+		List<DocumentSymbol> children = symbols;
 		if (!ignoreNode) {
+			String name = nodeToName(node);
+			DOMDocument xmlDocument = node.getOwnerDocument();
+			Range selectionRange = getSymbolRange(node);
+			Range range = getSymbolRange((node.getOwnerDocument() != null ? node.getOwnerDocument() : xmlDocument));
+			children = node.hasChildNodes() ? new ArrayList<>() : Collections.emptyList();
+			DocumentSymbol symbol = new DocumentSymbol(name, getSymbolKind(node), range, selectionRange, null,
+					children);
 			symbols.add(symbol);
 		}
+		if (!node.hasChildNodes()) {
+			return;
+		}
+		final List<DocumentSymbol> childrenOfChild = children;
 		node.getChildren().forEach(child -> {
 			try {
-				provideFileSymbolsInternal(child, name, symbols, false);
+				provideXMLSymbolsInternal2(child, childrenOfChild, false);
 			} catch (BadLocationException e) {
 				LOGGER.log(Level.SEVERE, "XMLSymbolsProvider was given a BadLocation by the provided 'node' variable",
 						e);
@@ -82,7 +101,39 @@ class XMLSymbolsProvider {
 		});
 	}
 
-	private SymbolKind getSymbolKind(DOMNode node) {
+	private void provideXMLSymbolsInternal(DOMNode node, String container, List<SymbolInformation> symbols,
+			boolean ignoreNode) throws BadLocationException {
+		if (!isNodeSymbol(node)) {
+			return;
+		}
+		String name = "";
+		if (!ignoreNode) {
+			name = nodeToName(node);
+			DOMDocument xmlDocument = node.getOwnerDocument();
+			Range range = getSymbolRange(node);
+			Location location = new Location(xmlDocument.getDocumentURI(), range);
+			SymbolInformation symbol = new SymbolInformation(name, getSymbolKind(node), location, container);
+			symbols.add(symbol);
+		}
+		final String containerName = name;
+		node.getChildren().forEach(child -> {
+			try {
+				provideXMLSymbolsInternal(child, containerName, symbols, false);
+			} catch (BadLocationException e) {
+				LOGGER.log(Level.SEVERE, "XMLSymbolsProvider was given a BadLocation by the provided 'node' variable",
+						e);
+			}
+		});
+	}
+
+	private static Range getSymbolRange(DOMNode node) throws BadLocationException {
+		DOMDocument xmlDocument = node.getOwnerDocument();
+		Position start = xmlDocument.positionAt(node.getStart());
+		Position end = xmlDocument.positionAt(node.getEnd());
+		return new Range(start, end);
+	}
+
+	private static SymbolKind getSymbolKind(DOMNode node) {
 		if (node.isProcessingInstruction() || node.isProlog()) {
 			return SymbolKind.Property;
 		} else if (node.isDoctype()) {
@@ -95,7 +146,7 @@ class XMLSymbolsProvider {
 		return SymbolKind.Field;
 	}
 
-	private boolean isNodeSymbol(DOMNode node) {
+	private static boolean isNodeSymbol(DOMNode node) {
 		return node.isElement() || node.isDoctype() || node.isProcessingInstruction() || node.isProlog()
 				|| node.isDTDElementDecl() || node.isDTDAttListDecl() || node.isDTDEntityDecl();
 	}

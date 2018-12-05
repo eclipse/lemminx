@@ -143,7 +143,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 	private ScheduledFuture<?> future;
 	private BasicCancelChecker monitor;
 	private boolean codeActionLiteralSupport;
-
+	private boolean hierarchicalDocumentSymbolSupport;
+	
 	public XMLTextDocumentService(XMLLanguageServer xmlLanguageServer) {
 		this.xmlLanguageServer = xmlLanguageServer;
 		this.documents = new TextDocuments();
@@ -164,6 +165,9 @@ public class XMLTextDocumentService implements TextDocumentService {
 			sharedCompletionSettings.setCapabilities(textDocumentClientCapabilities.getCompletion());
 			codeActionLiteralSupport = textDocumentClientCapabilities.getCodeAction() != null
 					&& textDocumentClientCapabilities.getCodeAction().getCodeActionLiteralSupport() != null;
+			hierarchicalDocumentSymbolSupport = textDocumentClientCapabilities.getDocumentSymbol() != null
+					&& textDocumentClientCapabilities.getDocumentSymbol().getHierarchicalDocumentSymbolSupport() != null
+					&& textDocumentClientCapabilities.getDocumentSymbol().getHierarchicalDocumentSymbolSupport();
 		}
 	}
 
@@ -221,6 +225,15 @@ public class XMLTextDocumentService implements TextDocumentService {
 		return computeAsync((monitor) -> {
 			TextDocument document = getDocument(params.getTextDocument().getUri());
 			DOMDocument xmlDocument = getXMLDocument(document);
+			if (hierarchicalDocumentSymbolSupport) {
+				return getXMLLanguageService().findDocumentSymbols2(xmlDocument) //
+						.stream() //
+						.map(s -> {
+							Either<SymbolInformation, DocumentSymbol> e = Either.forRight(s);
+							return e;
+						}) //
+						.collect(Collectors.toList());
+			}
 			return getXMLLanguageService().findDocumentSymbols(xmlDocument) //
 					.stream() //
 					.map(s -> {
