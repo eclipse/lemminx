@@ -78,7 +78,8 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 					}
 				}
 			}
-			// Get internal content document (ex : internal DTD declared in XML)
+			// Completion on tag based on internal content model (ex : internal DTD declared
+			// in XML)
 			CMElementDeclaration cmInternalElement = contentModelManager.findInternalCMElement(parentElement);
 			if (cmInternalElement != null) {
 				defaultPrefix = parentElement.getPrefix();
@@ -114,8 +115,9 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	@Override
 	public void onAttributeName(boolean generateValue, Range fullRange, ICompletionRequest request,
 			ICompletionResponse response) throws Exception {
-		if(request.getXMLDocument().hasSchemaInstancePrefix()) {
-			XSISchemaModel.computeCompletionResponses(request, response, fullRange, request.getXMLDocument(), generateValue);
+		if (request.getXMLDocument().hasSchemaInstancePrefix()) {
+			XSISchemaModel.computeCompletionResponses(request, response, fullRange, request.getXMLDocument(),
+					generateValue);
 		}
 		// otherwise, manage completion based on XML Schema, DTD.
 		DOMElement parentElement = request.getNode().isElement() ? (DOMElement) request.getNode() : null;
@@ -125,26 +127,40 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 		try {
 			boolean canSupportSnippet = request.getCompletionSettings().isCompletionSnippetsSupported();
 			ContentModelManager contentModelManager = request.getComponent(ContentModelManager.class);
+			// Completion on attribute based on external grammar
 			CMElementDeclaration cmElement = contentModelManager.findCMElement(parentElement);
-			if (cmElement != null) {
-				Collection<CMAttributeDeclaration> attributes = cmElement.getAttributes();
-				if (attributes != null) {
-					for (CMAttributeDeclaration cmAttribute : attributes) {
-						String attrName = cmAttribute.getName();
-						if (!parentElement.hasAttribute(attrName)) {
-							CompletionItem item = new AttributeCompletionItem(attrName, canSupportSnippet, fullRange,
-									generateValue, cmAttribute.getDefaultValue(), cmAttribute.getEnumerationValues());
-							String documentation = cmAttribute.getDocumentation();
-							if (documentation != null) {
-								item.setDetail(documentation);
-							}
-							response.addCompletionAttribute(item);
-						}
-					}
-				}
-			}
+			fillAttributesWithCMAttributeDeclarations(parentElement, fullRange, cmElement, canSupportSnippet,
+					generateValue, response);
+			// Completion on attribute based on internal grammar
+			cmElement = contentModelManager.findInternalCMElement(parentElement);
+			fillAttributesWithCMAttributeDeclarations(parentElement, fullRange, cmElement, canSupportSnippet,
+					generateValue, response);
 		} catch (CacheResourceDownloadingException e) {
 			// XML Schema, DTD is loading, ignore this error
+		}
+	}
+
+	private void fillAttributesWithCMAttributeDeclarations(DOMElement parentElement, Range fullRange,
+			CMElementDeclaration cmElement, boolean canSupportSnippet, boolean generateValue,
+			ICompletionResponse response) {
+		if (cmElement == null) {
+			return;
+		}
+		Collection<CMAttributeDeclaration> attributes = cmElement.getAttributes();
+		if (attributes == null) {
+			return;
+		}
+		for (CMAttributeDeclaration cmAttribute : attributes) {
+			String attrName = cmAttribute.getName();
+			if (!parentElement.hasAttribute(attrName)) {
+				CompletionItem item = new AttributeCompletionItem(attrName, canSupportSnippet, fullRange, generateValue,
+						cmAttribute.getDefaultValue(), cmAttribute.getEnumerationValues());
+				String documentation = cmAttribute.getDocumentation();
+				if (documentation != null) {
+					item.setDetail(documentation);
+				}
+				response.addCompletionAttribute(item);
+			}
 		}
 	}
 
@@ -157,23 +173,31 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 		}
 		try {
 			ContentModelManager contentModelManager = request.getComponent(ContentModelManager.class);
+			// Completion on attribute values based on external grammar
 			CMElementDeclaration cmElement = contentModelManager.findCMElement(parentElement);
-			if (cmElement != null) {
-				String attributeName = request.getCurrentAttributeName();
-				CMAttributeDeclaration cmAttribute = cmElement.findCMAttribute(attributeName);
-				if (cmAttribute != null) {
-					cmAttribute.getEnumerationValues().forEach(value -> {
-						CompletionItem item = new CompletionItem();
-						item.setLabel(value);
-						item.setKind(CompletionItemKind.Value);
-						response.addCompletionAttribute(item);
-					});
-				}
-			}
+			fillAttributeValuesWithCMAttributeDeclarations(cmElement, request, response);
+			// Completion on attribute values based on internal grammar
+			cmElement = contentModelManager.findInternalCMElement(parentElement);
+			fillAttributeValuesWithCMAttributeDeclarations(cmElement, request, response);
 		} catch (CacheResourceDownloadingException e) {
 			// XML Schema, DTD is loading, ignore this error
 		}
 	}
 
-	
+	private void fillAttributeValuesWithCMAttributeDeclarations(CMElementDeclaration cmElement,
+			ICompletionRequest request, ICompletionResponse response) {
+		if (cmElement != null) {
+			String attributeName = request.getCurrentAttributeName();
+			CMAttributeDeclaration cmAttribute = cmElement.findCMAttribute(attributeName);
+			if (cmAttribute != null) {
+				cmAttribute.getEnumerationValues().forEach(value -> {
+					CompletionItem item = new CompletionItem();
+					item.setLabel(value);
+					item.setKind(CompletionItemKind.Value);
+					response.addCompletionAttribute(item);
+				});
+			}
+		}
+	}
+
 }
