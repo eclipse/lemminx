@@ -333,7 +333,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 							return e;
 						} else {
 							List<Object> arguments = Arrays.asList(uri, document.getVersion(),
-									ca.getEdit().getDocumentChanges().get(0).getEdits());
+									ca.getEdit().getDocumentChanges().get(0).getLeft().getEdits());
 							Command command = new Command(ca.getTitle(), "_xml.applyCodeAction", arguments);
 							Either<Command, CodeAction> e = Either.forLeft(command);
 							return e;

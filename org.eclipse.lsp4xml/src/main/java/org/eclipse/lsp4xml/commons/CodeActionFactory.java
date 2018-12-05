@@ -11,6 +11,7 @@
 package org.eclipse.lsp4xml.commons;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
@@ -22,6 +23,7 @@ import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 /**
  * Factory for simple {@link CodeAction}
@@ -61,8 +63,9 @@ public class CodeActionFactory {
 		VersionedTextDocumentIdentifier versionedTextDocumentIdentifier = new VersionedTextDocumentIdentifier(
 				document.getUri(), document.getVersion());
 
-		WorkspaceEdit workspaceEdit = new WorkspaceEdit(
-				Arrays.asList(new TextDocumentEdit(versionedTextDocumentIdentifier, Arrays.asList(edit))));
+		TextDocumentEdit textDocumentEdit = new TextDocumentEdit(versionedTextDocumentIdentifier, Collections.singletonList(edit));
+		WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)));
+
 		insertContentAction.setEdit(workspaceEdit);
 		return insertContentAction;
 	}
@@ -76,8 +79,9 @@ public class CodeActionFactory {
 		VersionedTextDocumentIdentifier versionedTextDocumentIdentifier = new VersionedTextDocumentIdentifier(
 				document.getUri(), document.getVersion());
 
-		WorkspaceEdit workspaceEdit = new WorkspaceEdit(
-				Arrays.asList(new TextDocumentEdit(versionedTextDocumentIdentifier, Arrays.asList(edit))));
+		TextDocumentEdit textDocumentEdit = new TextDocumentEdit(versionedTextDocumentIdentifier, Collections.singletonList(edit));
+		WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)));
+
 		insertContentAction.setEdit(workspaceEdit);
 		return insertContentAction;
 	}

@@ -87,9 +87,9 @@ public class XMLCapabilitiesTest {
 		assertEquals(false, serverCapabilities.getDocumentSymbolProvider());
 		assertEquals(false, serverCapabilities.getHoverProvider());
 		assertEquals(false, serverCapabilities.getDocumentHighlightProvider());
-		assertEquals(false, serverCapabilities.getRenameProvider());
+		assertEquals(false, serverCapabilities.getRenameProvider().getLeft());
 		assertEquals(false, serverCapabilities.getFoldingRangeProvider().getLeft());
-		assertEquals(false, serverCapabilities.getCodeActionProvider());
+		assertEquals(false, serverCapabilities.getCodeActionProvider().getLeft());
 		assertEquals(null, serverCapabilities.getCompletionProvider());
 		assertEquals(null, serverCapabilities.getDocumentLinkProvider());
 	}
@@ -108,9 +108,9 @@ public class XMLCapabilitiesTest {
 		assertEquals(true, serverCapabilities.getDocumentSymbolProvider());
 		assertEquals(true, serverCapabilities.getHoverProvider());
 		assertEquals(true, serverCapabilities.getDocumentHighlightProvider());
-		assertEquals(true, serverCapabilities.getRenameProvider());
+		assertEquals(true, serverCapabilities.getRenameProvider().getLeft());
 		assertEquals(true, serverCapabilities.getFoldingRangeProvider().getLeft());
-		assertEquals(true, serverCapabilities.getCodeActionProvider());
+		assertEquals(true, serverCapabilities.getCodeActionProvider().getLeft());
 		assertEquals(DEFAULT_COMPLETION_OPTIONS, serverCapabilities.getCompletionProvider());
 		assertEquals(DEFAULT_LINK_OPTIONS, serverCapabilities.getDocumentLinkProvider());
 	}
@@ -150,9 +150,9 @@ public class XMLCapabilitiesTest {
 		assertEquals(false, serverCapabilities.getDocumentSymbolProvider());
 		assertEquals(true, serverCapabilities.getHoverProvider());
 		assertEquals(true, serverCapabilities.getDocumentHighlightProvider());
-		assertEquals(true, serverCapabilities.getRenameProvider());
+		assertEquals(true, serverCapabilities.getRenameProvider().getLeft());
 		assertEquals(true, serverCapabilities.getFoldingRangeProvider().getLeft());
-		assertEquals(true, serverCapabilities.getCodeActionProvider());
+		assertEquals(true, serverCapabilities.getCodeActionProvider().getLeft());
 		assertEquals(null, serverCapabilities.getCompletionProvider());
 		assertEquals(DEFAULT_LINK_OPTIONS, serverCapabilities.getDocumentLinkProvider());
 	}
