@@ -120,16 +120,27 @@ public class DTDDiagnosticsTest {
 
 	@Test
 	public void MSG_REQUIRED_ATTRIBUTE_NOT_SPECIFIED() throws Exception {
-		String xml = "<?xml version = \"1.0\"?>\r\n" + 
-				"<!DOCTYPE foo [\r\n" + 
-				"  <!ELEMENT foo (bar)>\r\n" + 
-				"  <!ELEMENT bar (#PCDATA)>\r\n" + 
-				"  <!ATTLIST bar fruit (one | two | three) #REQUIRED>\r\n" + 
-				"]>\r\n" + 
-				"<foo>\r\n" + 
+		String xml = "<?xml version = \"1.0\"?>\r\n" + //
+				"<!DOCTYPE foo [\r\n" + //
+				"  <!ELEMENT foo (bar)>\r\n" + // 
+				"  <!ELEMENT bar (#PCDATA)>\r\n" + // 
+				"  <!ATTLIST bar fruit (one | two | three) #REQUIRED>\r\n" + // 
+				"]>\r\n" + //
+				"<foo>\r\n" + // 
 				"    <bar />\r\n" + // <- error ("fruit" attribute is missing)
 				"</foo>";
 		XMLAssert.testDiagnosticsFor(xml, d(7, 5, 8, DTDErrorCode.MSG_REQUIRED_ATTRIBUTE_NOT_SPECIFIED));
+	}
+	
+	@Test
+	public void IDInvalidWithNamespaces() throws Exception {
+		String xml = "<?xml version = \"1.0\"?>\r\n" + //
+				"<!DOCTYPE Person [\r\n" + //
+				"	<!ELEMENT Person EMPTY>\r\n" + //
+				"	<!ATTLIST Person Pin ID #REQUIRED>\r\n" + //
+				"	]>\r\n" + //
+				"<Person Pin=\"7\" />"; // <- error on @Pin value
+		XMLAssert.testDiagnosticsFor(xml, d(5, 12, 15, DTDErrorCode.IDInvalidWithNamespaces));
 	}
 	
 	@Test
