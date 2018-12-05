@@ -18,6 +18,7 @@ import org.eclipse.lsp4xml.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelProvider;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
 import org.eclipse.lsp4xml.utils.DOMUtils;
+import org.eclipse.lsp4xml.utils.StringUtils;
 
 /**
  * DTD content model provider.
@@ -31,7 +32,11 @@ public class CMDTDContentModelProvider implements ContentModelProvider {
 	}
 
 	@Override
-	public boolean adaptFor(DOMDocument document) {
+	public boolean adaptFor(DOMDocument document, boolean internal) {
+		if (internal) {
+			DOMDocumentType documentType = document.getDoctype();
+			return documentType != null && !StringUtils.isEmpty(documentType.getInternalSubset());
+		}
 		return document.hasDTD();
 	}
 
@@ -65,5 +70,21 @@ public class CMDTDContentModelProvider implements ContentModelProvider {
 			return null;
 		}
 		return null;
+	}
+
+	@Override
+	public CMDocument createInternalCMDocument(DOMDocument xmlDocument) {
+		try {
+			CMDTDDocument document = new CMDTDDocument();
+			document.setEntityResolver(resolverExtensionManager);
+			DOMDocumentType documentType = xmlDocument.getDoctype();
+			String internalSubset = documentType.getInternalSubset();
+			String baseSystemId = null;
+			String systemId = null;
+			document.loadInternalDTD(internalSubset, baseSystemId, systemId);
+			return document;
+		} catch (Exception e) {
+			return null;
+		}
 	}
 }

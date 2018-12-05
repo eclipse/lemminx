@@ -24,15 +24,18 @@ public interface ContentModelProvider {
 	 * otherwise.
 	 * 
 	 * @param document
+	 * @param internal 
 	 * @return the content model provider by using standard association
 	 *         (xsi:schemaLocation, xsi:noNamespaceSchemaLocation, doctype) an dnull
 	 *         otherwise.
 	 */
-	boolean adaptFor(DOMDocument document);
+	boolean adaptFor(DOMDocument document, boolean internal);
 
 	boolean adaptFor(String uri);
 
 	String getSystemId(DOMDocument xmlDocument, String namespaceURI);
 
 	CMDocument createCMDocument(String key);
+
+	CMDocument createInternalCMDocument(DOMDocument xmlDocument);
 }

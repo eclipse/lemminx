@@ -41,13 +41,14 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	@Override
 	public void onTagOpen(ICompletionRequest request, ICompletionResponse response) throws Exception {
 		try {
+			DOMDocument document = request.getXMLDocument();
 			ContentModelManager contentModelManager = request.getComponent(ContentModelManager.class);
 			DOMElement parentElement = request.getParentElement();
 			if (parentElement == null) {
 				// XML is empty, in case of XML file associations, a XMl Schema/DTD can be bound
 				// check if it's root element (in the case of XML file associations, the link to
 				// XML Schema is done with pattern and not with XML root element)
-				CMDocument cmDocument = contentModelManager.findCMDocument(request.getXMLDocument(), null);
+				CMDocument cmDocument = contentModelManager.findCMDocument(document, null);
 				if (cmDocument != null) {
 					fillWithChildrenElementDeclaration(null, cmDocument.getElements(), null, false, request, response);
 				}
@@ -76,6 +77,13 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 								request, response);
 					}
 				}
+			}
+			// Get internal content document (ex : internal DTD declared in XML)
+			CMElementDeclaration cmInternalElement = contentModelManager.findInternalCMElement(parentElement);
+			if (cmInternalElement != null) {
+				defaultPrefix = parentElement.getPrefix();
+				fillWithChildrenElementDeclaration(parentElement, cmInternalElement.getElements(), defaultPrefix, false,
+						request, response);
 			}
 		} catch (CacheResourceDownloadingException e) {
 			// XML Schema, DTD is loading, ignore this error

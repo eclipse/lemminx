@@ -38,7 +38,10 @@ public class CMXSDContentModelProvider implements ContentModelProvider {
 	}
 
 	@Override
-	public boolean adaptFor(DOMDocument document) {
+	public boolean adaptFor(DOMDocument document, boolean internal) {
+		if (internal) {
+			return false;
+		}
 		return document.hasSchemaLocation() || document.hasNoNamespaceSchemaLocation();
 	}
 
@@ -72,6 +75,11 @@ public class CMXSDContentModelProvider implements ContentModelProvider {
 			// XML Schema can be loaded
 			return new CMXSDDocument(model);
 		}
+		return null;
+	}
+
+	@Override
+	public CMDocument createInternalCMDocument(DOMDocument xmlDocument) {
 		return null;
 	}
 

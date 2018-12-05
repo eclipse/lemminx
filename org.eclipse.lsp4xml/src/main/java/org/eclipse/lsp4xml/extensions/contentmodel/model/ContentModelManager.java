@@ -76,7 +76,7 @@ public class ContentModelManager {
 	}
 
 	public CMDocument findCMDocument(DOMDocument xmlDocument, String namespaceURI) {
-		ContentModelProvider modelProvider = getModelProviderByStandardAssociation(xmlDocument);
+		ContentModelProvider modelProvider = getModelProviderByStandardAssociation(xmlDocument, false);
 		String systemId = modelProvider != null ? modelProvider.getSystemId(xmlDocument, namespaceURI) : null;
 		return findCMDocument(xmlDocument.getDocumentURI(), namespaceURI, systemId, modelProvider);
 	}
@@ -122,6 +122,35 @@ public class ContentModelManager {
 		return cmDocument;
 	}
 
+	public CMElementDeclaration findInternalCMElement(DOMElement element) throws Exception {
+		return findInternalCMElement(element, element.getNamespaceURI());
+	}
+
+	/**
+	 * Returns the declared element which matches the given XML element and null
+	 * otherwise.
+	 * 
+	 * @param element the XML element
+	 * @return the declared element which matches the given XML element and null
+	 *         otherwise.
+	 */
+	public CMElementDeclaration findInternalCMElement(DOMElement element, String namespaceURI) throws Exception {
+		CMDocument cmDocument = findInternalCMDocument(element, namespaceURI);
+		return cmDocument != null ? cmDocument.findCMElement(element, namespaceURI) : null;
+	}
+
+	public CMDocument findInternalCMDocument(DOMElement element, String namespaceURI) {
+		return findInternalCMDocument(element.getOwnerDocument(), namespaceURI);
+	}
+
+	public CMDocument findInternalCMDocument(DOMDocument xmlDocument, String namespaceURI) {
+		ContentModelProvider modelProvider = getModelProviderByStandardAssociation(xmlDocument, true);
+		if (modelProvider != null) {
+			return modelProvider.createInternalCMDocument(xmlDocument);
+		}
+		return null;
+	}
+
 	/**
 	 * Returns the content model provider by using standard association
 	 * (xsi:schemaLocation, xsi:noNamespaceSchemaLocation, doctype) an dnull
@@ -132,9 +161,9 @@ public class ContentModelManager {
 	 *         (xsi:schemaLocation, xsi:noNamespaceSchemaLocation, doctype) an dnull
 	 *         otherwise.
 	 */
-	private ContentModelProvider getModelProviderByStandardAssociation(DOMDocument xmlDocument) {
+	private ContentModelProvider getModelProviderByStandardAssociation(DOMDocument xmlDocument, boolean internal) {
 		for (ContentModelProvider modelProvider : modelProviders) {
-			if (modelProvider.adaptFor(xmlDocument)) {
+			if (modelProvider.adaptFor(xmlDocument, internal)) {
 				return modelProvider;
 			}
 		}
