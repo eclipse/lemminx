@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -397,8 +398,8 @@ public class XMLAssert {
 		VersionedTextDocumentIdentifier versionedTextDocumentIdentifier = new VersionedTextDocumentIdentifier(FILE_URI,
 				0);
 
-		WorkspaceEdit workspaceEdit = new WorkspaceEdit(
-				Arrays.asList(new TextDocumentEdit(versionedTextDocumentIdentifier, Arrays.asList(te))));
+		TextDocumentEdit textDocumentEdit = new TextDocumentEdit(versionedTextDocumentIdentifier, Collections.singletonList(te));
+		WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)));
 		codeAction.setEdit(workspaceEdit);
 		return codeAction;
 	}

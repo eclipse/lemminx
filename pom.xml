@@ -8,7 +8,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<lsp4j.version>0.5.0.M1</lsp4j.version>
+		<lsp4j.version>0.6.0</lsp4j.version>
 	</properties>
 	<url>https://github.com/angelozerr/lsp4xml</url>
 	<licenses>
