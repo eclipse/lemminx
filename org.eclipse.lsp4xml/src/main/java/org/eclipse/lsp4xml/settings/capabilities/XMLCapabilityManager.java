@@ -48,6 +48,10 @@ import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 
 /**
  * Manager for capability related tasks
+ * 
+ * A capability is a service (Formatting, Highlighting, ...) that the server is
+ * able to provide. This server will tell the client about the services it is
+ * capable of.
  */
 public class XMLCapabilityManager {
 
@@ -150,7 +154,7 @@ public class XMLCapabilityManager {
 	 * {@link ServerCapabilitiesInitializer}
 	 */
 	public void syncDynamicCapabilitiesWithPreferences() {
-		XMLFormattingOptions formattingPreferences = this.textDocumentService.getSharedFormattingOptions();
+		XMLFormattingOptions formattingPreferences = this.textDocumentService.getSharedFormattingSettings();
 
 		if (this.getClientCapabilities().isFormattingDynamicRegistrationSupported()) {
 			toggleCapability(formattingPreferences.isEnabled(), FORMATTING_ID,

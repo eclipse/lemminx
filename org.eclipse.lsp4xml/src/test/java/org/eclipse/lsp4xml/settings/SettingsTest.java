@@ -44,6 +44,10 @@ public class SettingsTest {
 				"			\"catalogs\": [\r\n" + //
 				"				\"src\\\\test\\\\resources\\\\catalogs\\\\catalog.xml\"\r\n" + //
 				"			],\r\n" + //
+				"			\"validation\": {\r\n" + //
+				"				\"enabled\": true,\r\n" + //
+				"				\"schema\": false\r\n" + //
+				"			},\r\n" + //
 				// Client (commons) settings				
 				"			\"format\": {\r\n" + //
 				"				\"tabSize\": 10,\r\n" + //
@@ -80,6 +84,10 @@ public class SettingsTest {
 		Assert.assertEquals("src\\test\\resources\\xsd\\spring-beans-3.0.xsd",
 				cmSettings.getFileAssociations()[0].getSystemId());
 		Assert.assertEquals("**/test*.xml", cmSettings.getFileAssociations()[0].getPattern());
+		//Diagnostics
+		Assert.assertNotNull(cmSettings.getValidation());
+		Assert.assertEquals(true, cmSettings.getValidation().isEnabled());
+		Assert.assertEquals(false, cmSettings.getValidation().isSchema());
 	}
 
 	private static InitializeParams createInitializeParams(String json) {

@@ -33,6 +33,8 @@ import org.eclipse.lsp4j.services.WorkspaceService;
 import org.eclipse.lsp4xml.commons.ParentProcessWatcher.ProcessLanguageServer;
 import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.dom.DOMDocument;
+import org.eclipse.lsp4xml.extensions.contentmodel.settings.ContentModelSettings;
+import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lsp4xml.logs.LogHelper;
 import org.eclipse.lsp4xml.services.IXMLDocumentProvider;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
@@ -124,14 +126,14 @@ public class XMLLanguageServer
 			// Update format settings
 			XMLFormattingOptions formatterSettings = xmlClientSettings.getFormat();
 			if (formatterSettings != null) {
-				xmlTextDocumentService.getSharedFormattingOptions().merge(formatterSettings);
+				xmlTextDocumentService.getSharedFormattingSettings().merge(formatterSettings);
 			}
 
 			CompletionSettings newCompletions = xmlClientSettings.getCompletion();
 			if (newCompletions != null) {
 				xmlTextDocumentService.updateCompletionSettings(newCompletions);
 			}
-
+		
 			// Experimental capabilities
 			XMLExperimentalCapabilities experimental = xmlClientSettings.getExperimental();
 			if (experimental != null) {
@@ -140,6 +142,12 @@ public class XMLLanguageServer
 						&& experimental.getIncrementalSupport().getEnabled().booleanValue();
 				xmlTextDocumentService.setIncrementalSupport(incrementalSupport);
 			}
+		}
+		ContentModelSettings cmSettings = ContentModelSettings.getContentModelXMLSettings(initializationOptionsSettings);
+		if(cmSettings != null) {
+			XMLValidationSettings validationSettings = cmSettings.getValidation();
+			xmlTextDocumentService.getValidationSettings().merge(validationSettings);
+			
 		}
 		// Update XML language service extensions
 		xmlTextDocumentService.updateSettings(initializationOptionsSettings);

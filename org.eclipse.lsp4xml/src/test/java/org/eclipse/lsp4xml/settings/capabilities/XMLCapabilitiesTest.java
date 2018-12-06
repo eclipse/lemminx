@@ -64,7 +64,7 @@ public class XMLCapabilitiesTest {
 		formattingOptions.setEnabled(true);
 
 		textDocumentService = new XMLTextDocumentService(null);
-		textDocumentService.setSharedFormattingOptions(formattingOptions);
+		textDocumentService.setSharedFormattingSettings(formattingOptions);
 
 		textDocument = new TextDocumentClientCapabilities();
 		manager = new XMLCapabilityManager(languageClient, textDocumentService);
@@ -159,7 +159,7 @@ public class XMLCapabilitiesTest {
 
 	@Test
 	public void testDynamicFormattingWithPreferenceFalse() {
-		textDocumentService.getSharedFormattingOptions().setEnabled(false);
+		textDocumentService.getSharedFormattingSettings().setEnabled(false);
 		// Non Dynamic capabilities
 		textDocument.setRangeFormatting(new RangeFormattingCapabilities(true));
 		textDocument.setFormatting(new FormattingCapabilities(true));
@@ -177,7 +177,7 @@ public class XMLCapabilitiesTest {
 
 	@Test
 	public void testDynamicFormattingWithPreferenceTrue() {
-		textDocumentService.getSharedFormattingOptions().setEnabled(true);
+		textDocumentService.getSharedFormattingSettings().setEnabled(true);
 		// Dynamic capabilities
 		textDocument.setRangeFormatting(new RangeFormattingCapabilities(true));
 		textDocument.setFormatting(new FormattingCapabilities(true));

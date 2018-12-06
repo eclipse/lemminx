@@ -45,7 +45,7 @@ import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMParser;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.ContentModelSettings;
-import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLProblems;
+import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IXMLErrorCode;
@@ -241,6 +241,20 @@ public class XMLAssert {
 
 	public static void testDiagnosticsFor(String xml, String catalogPath, Consumer<XMLLanguageService> configuration,
 			String fileURI, boolean filter, Diagnostic... expected) {
+		ContentModelSettings settings = new ContentModelSettings();
+		settings.setUseCache(false);
+		XMLValidationSettings problems = new XMLValidationSettings();
+		problems.setNoGrammar("ignore");
+		settings.setValidation(problems);
+		if (catalogPath != null) {
+			// Configure XML catalog for XML schema
+			settings.setCatalogs(new String[] { catalogPath });
+		}
+		testDiagnosticsFor(xml, catalogPath, configuration, fileURI, filter, settings, expected);
+	}
+	
+	public static void testDiagnosticsFor(String xml, String catalogPath, Consumer<XMLLanguageService> configuration,
+			String fileURI, boolean filter, ContentModelSettings settings, Diagnostic... expected) {
 		TextDocument document = new TextDocument(xml, fileURI != null ? fileURI : "test.xml");
 
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
@@ -248,15 +262,6 @@ public class XMLAssert {
 				xmlLanguageService.getResolverExtensionManager());
 		xmlLanguageService.setDocumentProvider((uri) -> xmlDocument);
 
-		ContentModelSettings settings = new ContentModelSettings();
-		settings.setUseCache(false);
-		XMLProblems problems = new XMLProblems();
-		problems.setNoGrammar("ignore");
-		settings.setProblems(problems);
-		if (catalogPath != null) {
-			// Configure XML catalog for XML schema
-			settings.setCatalogs(new String[] { catalogPath });
-		}
 		xmlLanguageService.doSave(new SettingsSaveContext(settings));
 		if (configuration != null) {
 			xmlLanguageService.initializeIfNeeded();
@@ -264,7 +269,8 @@ public class XMLAssert {
 		}
 
 		List<Diagnostic> actual = xmlLanguageService.doDiagnostics(xmlDocument, () -> {
-		});
+		}, settings.getValidation());
+		
 		assertDiagnostics(actual, Arrays.asList(expected), filter);
 	}
 
@@ -295,6 +301,19 @@ public class XMLAssert {
 
 	public static Range r(int startLine, int startCharacter, int endLine, int endCharacter) {
 		return new Range(new Position(startLine, startCharacter), new Position(endLine, endCharacter));
+	}
+
+	public static ContentModelSettings getContentModelSettings(boolean isEnabled, boolean isSchema) {
+		ContentModelSettings settings = new ContentModelSettings();
+		settings.setUseCache(false);
+		XMLValidationSettings problems = new XMLValidationSettings();
+		problems.setNoGrammar("ignore");
+		settings.setValidation(problems);
+		XMLValidationSettings diagnostics = new XMLValidationSettings();
+		diagnostics.setEnabled(isEnabled);
+		diagnostics.setSchema(isSchema);
+		settings.setValidation(diagnostics);
+		return settings;
 	}
 
 	// ------------------- Publish Diagnostics assert
@@ -328,7 +347,7 @@ public class XMLAssert {
 			// Retrigger validation
 			publishDiagnostics(xmlDocument, actual, languageService);
 		}, () -> {
-		});
+		}, null);
 
 		if (error != null) {
 			try {

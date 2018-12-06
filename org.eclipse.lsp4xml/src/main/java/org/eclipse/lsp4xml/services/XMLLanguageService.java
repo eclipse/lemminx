@@ -44,6 +44,7 @@ import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMElement;
+import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
@@ -107,18 +108,19 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		return hover.doHover(xmlDocument, position);
 	}
 
-	public List<Diagnostic> doDiagnostics(DOMDocument xmlDocument, CancelChecker monitor) {
-		return diagnostics.doDiagnostics(xmlDocument, monitor);
+	public List<Diagnostic> doDiagnostics(DOMDocument xmlDocument, CancelChecker monitor, XMLValidationSettings validationSettings) {
+		return diagnostics.doDiagnostics(xmlDocument, monitor, validationSettings);
 	}
 
 	public CompletableFuture<Path> publishDiagnostics(DOMDocument xmlDocument,
 			Consumer<PublishDiagnosticsParams> publishDiagnostics, BiConsumer<String, Integer> triggerValidation,
-			CancelChecker monitor) {
+			CancelChecker monitor, XMLValidationSettings validationSettings) {
 		String uri = xmlDocument.getDocumentURI();
 		int version = xmlDocument.getTextDocument().getVersion();
 		try {
-			List<Diagnostic> diagnostics = this.doDiagnostics(xmlDocument, monitor);
+			List<Diagnostic> diagnostics = this.doDiagnostics(xmlDocument, monitor, validationSettings);
 			monitor.checkCanceled();
+			
 			publishDiagnostics.accept(new PublishDiagnosticsParams(uri, diagnostics));
 			return null;
 		} catch (CacheResourceDownloadingException e) {

@@ -22,9 +22,9 @@ public class ContentModelSettings {
 
 	private String[] catalogs;
 
-	private XMLProblems problems;
-
 	private XMLFileAssociation[] fileAssociations;
+
+	private XMLValidationSettings validation;
 
 	/**
 	 * Returns true if cache to download XML Schema, DTD must be activated and false
@@ -80,16 +80,16 @@ public class ContentModelSettings {
 		return fileAssociations;
 	}
 
-	public XMLProblems getProblems() {
-		return problems;
-	}
-
-	public void setProblems(XMLProblems problems) {
-		this.problems = problems;
-	}
-
 	public static ContentModelSettings getContentModelXMLSettings(Object initializationOptionsSettings) {
 		return JSONUtility.toModel(initializationOptionsSettings, ContentModelSettings.class);
+	}
+
+	public void setValidation(XMLValidationSettings validation) {
+		this.validation = validation;
+	}
+
+	public XMLValidationSettings getValidation() {
+		return validation;
 	}
 
 }

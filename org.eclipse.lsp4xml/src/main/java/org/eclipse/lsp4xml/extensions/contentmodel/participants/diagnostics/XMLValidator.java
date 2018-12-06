@@ -31,7 +31,7 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMElement;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.ContentModelSettings;
-import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLProblems;
+import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.LSPContentHandler;
 import org.eclipse.lsp4xml.uriresolver.CacheResourceDownloadingException;
 import org.eclipse.lsp4xml.uriresolver.IExternalSchemaLocationProvider;
@@ -51,7 +51,7 @@ public class XMLValidator {
 
 	public static void doDiagnostics(DOMDocument document, XMLEntityResolver entityResolver,
 			List<Diagnostic> diagnostics, ContentModelSettings contentModelSettings, CancelChecker monitor) {
-
+				
 		try {
 			XMLParserConfiguration configuration = new XIncludeAwareParserConfiguration(); // new
 																							// XMLGrammarCachingConfiguration();
@@ -76,13 +76,24 @@ public class XMLValidator {
 			}
 
 			boolean hasGrammar = document.hasGrammar();
-			checkExternalSchema(document.getExternalSchemaLocation(), reader);
+			
+			// If diagnostics for Schema preference is enabled
+			XMLValidationSettings validationSettings = contentModelSettings != null ? contentModelSettings.getValidation() : null;
+			if((validationSettings == null) || validationSettings.isSchema()) {
+
+				
+
+				checkExternalSchema(document.getExternalSchemaLocation(), reader);
+
+				reader.setFeature("http://apache.org/xml/features/validation/schema", hasGrammar); //$NON-NLS-1$
+
+				// warn if XML document is not bound to a grammar according the settings
+				warnNoGrammar(document, diagnostics, contentModelSettings);
+			} else {
+				hasGrammar = false; //validation for Schema was disabled
+			}
 
 			reader.setFeature("http://xml.org/sax/features/validation", hasGrammar); //$NON-NLS-1$
-			reader.setFeature("http://apache.org/xml/features/validation/schema", hasGrammar); //$NON-NLS-1$
-
-			// warn if XML document is not bound to a grammar according the settings
-			warnNoGrammar(document, diagnostics, contentModelSettings);
 
 			// Parse XML
 			String content = document.getText();
@@ -115,7 +126,7 @@ public class XMLValidator {
 			return;
 		}
 		// By default "hint" settings.
-		DiagnosticSeverity severity = XMLProblems.getNoGrammarSeverity(settings);
+		DiagnosticSeverity severity = XMLValidationSettings.getNoGrammarSeverity(settings);
 		if (severity == null) {
 			// "ignore" settings
 			return;

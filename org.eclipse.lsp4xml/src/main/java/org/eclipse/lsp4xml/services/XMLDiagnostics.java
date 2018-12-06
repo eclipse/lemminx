@@ -12,11 +12,14 @@ package org.eclipse.lsp4xml.services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.dom.DOMDocument;
+import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IDiagnosticsParticipant;
 
@@ -25,6 +28,7 @@ import org.eclipse.lsp4xml.services.extensions.diagnostics.IDiagnosticsParticipa
  *
  */
 class XMLDiagnostics {
+	private static Logger LOGGER = Logger.getLogger(XMLDiagnostics.class.getName());
 
 	private final XMLExtensionsRegistry extensionsRegistry;
 
@@ -32,14 +36,20 @@ class XMLDiagnostics {
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
-	public List<Diagnostic> doDiagnostics(DOMDocument xmlDocument, CancelChecker monitor) {
+	public List<Diagnostic> doDiagnostics(DOMDocument xmlDocument, CancelChecker monitor, XMLValidationSettings validationSettings) {
+
 		List<Diagnostic> diagnostics = new ArrayList<Diagnostic>();
-		try {
-			doBasicDiagnostics(xmlDocument, diagnostics, monitor);
-		} catch (BadLocationException e) {
-			e.printStackTrace();
+		if(validationSettings == null || validationSettings.isEnabled()) {
+			try {
+				//Doesn't do anything ATM
+				doBasicDiagnostics(xmlDocument, diagnostics, monitor);
+				
+			} catch (BadLocationException e) {
+				LOGGER.log(Level.WARNING, "BadLocationException thrown doing doBasicDiagnostics() in XMLDiagnostics.", e);;
+			}
+			
+			doExtensionsDiagnostics(xmlDocument, diagnostics, monitor);
 		}
-		doExtensionsDiagnostics(xmlDocument, diagnostics, monitor);
 		return diagnostics;
 	}
 
