@@ -47,6 +47,29 @@ Get started
 * Run `./mvnw clean verify` (OSX, Linux) or `mvnw.cmd clean verify` (Windows)
 * After successful compilation you can find the resulting `org.eclipse.lsp4xml-all.jar` in the folder `org.eclipse.lsp4xml/target`
 
+Developer
+--------------
+
+To debug the XML LS you can use XMLServerSocketLauncher:
+
+1. Run the XMLServerSocketLauncher in debug mode (e.g. in eclipse)
+2. Connect your client via socket port. Default port is 5008, but you can change it with start argument `--port` in step 1
+
+Client connection example using Theia and TypeScript:
+
+```
+            let socketPort = '5008'
+            console.log(`Connecting via port ${socketPort}`)
+            const socket = new net.Socket()
+            const serverConnection = createSocketConnection(socket,
+                socket, () => {
+                    socket.destroy()
+                });
+            this.forward(clientConnection, serverConnection)
+            socket.connect(socketPort)
+```
+
+
 Clients
 -------
 
