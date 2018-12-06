@@ -54,3 +54,4 @@ Here client which consumes this XML Language Server:
 
  * Eclipse with [lsp4e-xml](https://github.com/angelozerr/lsp4e-xml)
  * VSCode with [vscode-xml](https://github.com/gorkem/vscode-xml)
+ * Theia with [theia-xml](https://github.com/theia-ide/theia-xml-extension)
