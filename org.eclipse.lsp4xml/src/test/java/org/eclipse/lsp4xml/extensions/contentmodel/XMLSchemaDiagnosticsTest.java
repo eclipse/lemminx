@@ -18,6 +18,7 @@ import static org.eclipse.lsp4xml.XMLAssert.testCodeActionsFor;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.XMLSchemaErrorCode;
+import org.eclipse.lsp4xml.extensions.contentmodel.settings.ContentModelSettings;
 import org.junit.Test;
 
 /**
@@ -63,6 +64,17 @@ public class XMLSchemaDiagnosticsTest {
 				"	<XXX></XXX>\r\n" + // <- error
 				"</project>";
 		testDiagnosticsFor(xml, d(3, 2, 3, 5, XMLSchemaErrorCode.cvc_complex_type_2_4_a));
+	}
+
+	@Test
+	public void cvc_complex_type_2_4_a_Disabled_Validation() throws Exception {
+		String xml = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + //
+				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"	xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n"
+				+ //
+				"	<XXX></XXX>\r\n" + // <- error
+				"</project>";
+		testDiagnosticsDisabledValidation(xml);
 	}
 
 	@Test
@@ -302,6 +314,11 @@ public class XMLSchemaDiagnosticsTest {
 
 	private static void testDiagnosticsFor(String xml, Diagnostic... expected) {
 		XMLAssert.testDiagnosticsFor(xml, "src/test/resources/catalogs/catalog.xml", expected);
+	}
+
+	private static void testDiagnosticsDisabledValidation(String xml) {
+		ContentModelSettings settings = XMLAssert.getContentModelSettings(true, false);
+		XMLAssert.testDiagnosticsFor(xml, "src/test/resources/catalogs/catalog.xml", null, null, true, settings);
 	}
 
 }

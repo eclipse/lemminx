@@ -17,7 +17,9 @@ import static org.eclipse.lsp4xml.XMLAssert.testCodeActionsFor;
 import static org.eclipse.lsp4xml.XMLAssert.testDiagnosticsFor;
 
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.XMLSyntaxErrorCode;
+import org.eclipse.lsp4xml.extensions.contentmodel.settings.ContentModelSettings;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -235,6 +237,12 @@ public class XMLSyntaxDiagnosticsTest {
 	}
 
 	@Test
+	public void testOpenQuoteExpectedDisabledPreference() throws Exception {
+		String xml = " <InstdAmt Ccy==\"JPY\">10000000</InstdAmt>";
+		testDiagnosticsFor(xml, null, null, null, true, XMLAssert.getContentModelSettings(false, true)); //validation is disabled
+	}
+
+	@Test
 	public void testPITargetRequired() throws Exception {
 		String xml = "<? encoding=\"UTF-8\"?>";
 		testDiagnosticsFor(xml, d(0, 2, 0, 2, XMLSyntaxErrorCode.PITargetRequired));
@@ -315,4 +323,5 @@ public class XMLSyntaxDiagnosticsTest {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?";
 		testDiagnosticsFor(xml, d(0, 37, 0, 37, XMLSyntaxErrorCode.XMLDeclUnterminated));
 	}
+
 }

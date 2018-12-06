@@ -17,7 +17,7 @@ import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.ContentModelSettings;
-import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLProblems;
+import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLValidationSettings;
 import org.junit.Test;
 
 /**
@@ -38,9 +38,9 @@ public class XMLProblemsTest {
 		// Set noGrammar has 'hint'
 		XMLAssert.testDiagnosticsFor(xml, null, ls -> {
 			ContentModelSettings settings = new ContentModelSettings();
-			XMLProblems problems = new XMLProblems();
+			XMLValidationSettings problems = new XMLValidationSettings();
 			problems.setNoGrammar("hint");
-			settings.setProblems(problems);
+			settings.setValidation(problems);
 			ls.doSave(new XMLAssert.SettingsSaveContext(settings));
 		}, null, false, new Diagnostic(r(0, 1, 0, 5), "No grammar constraints (DTD or XML Schema).",
 				DiagnosticSeverity.Hint, "test.xml", "XML"));

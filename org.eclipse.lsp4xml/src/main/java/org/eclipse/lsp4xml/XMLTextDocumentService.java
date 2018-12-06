@@ -67,6 +67,7 @@ import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.commons.TextDocuments;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMParser;
+import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.services.extensions.save.AbstractSaveContext;
@@ -83,7 +84,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 	private final LanguageModelCache<DOMDocument> xmlDocuments;
 	private final CompletionSettings sharedCompletionSettings;
 	private final FoldingRangeCapabilities sharedFoldingsSettings;
-	private XMLFormattingOptions sharedFormattingOptions;
+	private XMLFormattingOptions sharedFormattingSettings;
+	private XMLValidationSettings sharedValidationSettings;
 
 	class BasicCancelChecker implements CancelChecker {
 
@@ -154,8 +156,9 @@ public class XMLTextDocumentService implements TextDocumentService {
 		});
 		this.sharedCompletionSettings = new CompletionSettings();
 		this.sharedFoldingsSettings = new FoldingRangeCapabilities();
-		this.sharedFormattingOptions = new XMLFormattingOptions(true); // to be sure that formattings options is not
+		this.sharedFormattingSettings = new XMLFormattingOptions(true); // to be sure that formattings options is not
 																		// null.
+		this.sharedValidationSettings = new XMLValidationSettings();	
 	}
 
 	public void updateClientCapabilities(ClientCapabilities capabilities) {
@@ -169,10 +172,6 @@ public class XMLTextDocumentService implements TextDocumentService {
 					&& textDocumentClientCapabilities.getDocumentSymbol().getHierarchicalDocumentSymbolSupport() != null
 					&& textDocumentClientCapabilities.getDocumentSymbol().getHierarchicalDocumentSymbolSupport();
 		}
-	}
-
-	public void updateCompletionSettings(CompletionSettings newCompletion) {
-		sharedCompletionSettings.setAutoCloseTags(newCompletion.isAutoCloseTags());
 	}
 
 	public TextDocument getDocument(String uri) {
@@ -207,7 +206,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	private XMLFormattingOptions getFormattingSettings(String uri) {
 		// TODO: manage formattings per document URI (to support .editorconfig for
 		// instance).
-		return sharedFormattingOptions;
+		return sharedFormattingSettings;
 	}
 
 	@Override
@@ -421,7 +420,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 			DOMDocument xmlDocument = getXMLDocument(currDocument);
 			getXMLLanguageService().publishDiagnostics(xmlDocument,
 					params -> xmlLanguageServer.getLanguageClient().publishDiagnostics(params),
-					(u, v) -> triggerValidation(u, v), monitor);
+					(u, v) -> triggerValidation(u, v), monitor, sharedValidationSettings);
 		}
 	}
 
@@ -429,20 +428,35 @@ public class XMLTextDocumentService implements TextDocumentService {
 		return xmlLanguageServer.getXMLLanguageService();
 	}
 
-	public void setSharedFormattingOptions(XMLFormattingOptions formattingOptions) {
-		this.sharedFormattingOptions = formattingOptions;
+	public void setSharedFormattingSettings(XMLFormattingOptions formattingOptions) {
+		this.sharedFormattingSettings = formattingOptions;
+	}
+
+	public void updateCompletionSettings(CompletionSettings newCompletion) {
+		sharedCompletionSettings.setAutoCloseTags(newCompletion.isAutoCloseTags());
 	}
 
 	public boolean isIncrementalSupport() {
 		return documents.isIncremental();
 	}
 
-	public XMLFormattingOptions getSharedFormattingOptions() {
-		return this.sharedFormattingOptions;
+	public XMLFormattingOptions getSharedFormattingSettings() {
+		return this.sharedFormattingSettings;
 	}
 
 	public void setIncrementalSupport(boolean incrementalSupport) {
 		this.documents.setIncremental(incrementalSupport);
+	}
+
+	public void setValidationSettings(XMLValidationSettings settings) {
+		this.sharedValidationSettings = settings;
+	}
+
+	public XMLValidationSettings getValidationSettings() {
+		if(sharedValidationSettings == null) {
+			sharedValidationSettings = new XMLValidationSettings();
+		}
+		return sharedValidationSettings;
 	}
 
 }

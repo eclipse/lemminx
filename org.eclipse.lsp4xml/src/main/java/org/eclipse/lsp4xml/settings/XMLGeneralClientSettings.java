@@ -14,7 +14,22 @@ import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.utils.JSONUtility;
 
 /**
- * XML client settings
+ * Class to hold all settings from the client side.
+ * 
+ * See https://github.com/angelozerr/lsp4xml/wiki/Configuration for more information.
+ * 
+ * This class is created through the deseralization of a JSON object.
+ * Each internal setting must be represented by a class and have:
+ * 
+ * 1) A constructor with no parameters
+ * 
+ * 2) The JSON key/parent for the settings must have the same
+ *    name as a varible.
+ * 
+ *    eg: {"format" : {...}, "completion" : {...}}
+ * 
+ * 		In this class must exist both a "format" and "completion" variable
+ * 		with the appropriate Class to represent the value of each key
  *
  */
 public class XMLGeneralClientSettings {
@@ -65,6 +80,5 @@ public class XMLGeneralClientSettings {
 
 	public static XMLGeneralClientSettings getGeneralXMLSettings(Object initializationOptionsSettings) {
 		return JSONUtility.toModel(initializationOptionsSettings, XMLGeneralClientSettings.class);
-	}
-	
+	}	
 }

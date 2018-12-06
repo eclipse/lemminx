@@ -20,7 +20,7 @@ import org.eclipse.lsp4xml.extensions.contentmodel.ContentModelPlugin;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IDiagnosticsParticipant;
 
 /**
- * Validate XML file with Xerces for syntax validation and XML Schema, DTD.
+ * Validate XML files with Xerces for general SYNTAX validation and XML Schema, DTD.
  *
  */
 public class ContentModelDiagnosticsParticipant implements IDiagnosticsParticipant {

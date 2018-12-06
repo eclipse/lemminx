@@ -27,7 +27,9 @@ public class ServerCapabilitiesInitializer {
 	}
 
 	/**
-	 * Returns all default server capabilities that aren't dynamic
+	 * Returns all server capabilities (with default values) that aren't dynamic.
+	 * 
+	 * A service's dynamic capability is indicated by the client.
 	 * 
 	 * @param clientCapabilities
 	 * @return ServerCapabilities object
