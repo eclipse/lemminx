@@ -206,7 +206,7 @@ public class XMLSymbolsTest {
 		expectedSymbolInfos.add(currentSymbolInfo);
 
 		currentLocation = createLocation(testURI, 20, 40, xmlDocument);
-		currentSymbolInfo = createSymbolInformation("br/@%all;", SymbolKind.Key, currentLocation, "");
+		currentSymbolInfo = createSymbolInformation("%all;", SymbolKind.Key, currentLocation, "");
 		expectedSymbolInfos.add(currentSymbolInfo);
 
 		assertSymbols(expectedSymbolInfos, actualSymbolInfos);
@@ -231,7 +231,7 @@ public class XMLSymbolsTest {
 		expectedSymbolInfos.add(currentSymbolInfo);
 
 		currentLocation = createLocation(testURI, 39, 60, xmlDocument);
-		currentSymbolInfo = createSymbolInformation("br/@%all;", SymbolKind.Key, currentLocation, "DOCTYPE:br");
+		currentSymbolInfo = createSymbolInformation("%all;", SymbolKind.Key, currentLocation, "DOCTYPE:br");
 		expectedSymbolInfos.add(currentSymbolInfo);
 
 		currentLocation = createLocation(testURI, 64, 70, xmlDocument);
