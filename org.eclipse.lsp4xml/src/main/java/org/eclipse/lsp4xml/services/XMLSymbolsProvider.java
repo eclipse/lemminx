@@ -45,55 +45,58 @@ class XMLSymbolsProvider {
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
-	public List<SymbolInformation> findDocumentSymbols(DOMDocument xmlDocument) {
+	public List<SymbolInformation> findSymbolInformations(DOMDocument xmlDocument) {
 		List<SymbolInformation> symbols = new ArrayList<>();
 		boolean isDTD = xmlDocument.isDTD();
 		xmlDocument.getRoots().forEach(node -> {
 			try {
-				provideXMLSymbolsInternal(node, "", symbols, (node.isDoctype() && isDTD));
+				findSymbolInformations(node, "", symbols, (node.isDoctype() && isDTD));
 			} catch (BadLocationException e) {
-				LOGGER.log(Level.SEVERE, "XMLSymbolsProvider was given a BadLocation by a 'node' variable", e);
+				LOGGER.log(Level.SEVERE,
+						"XMLSymbolsProvider#findSymbolInformations was given a BadLocation by a 'node' variable", e);
 			}
 		});
 		return symbols;
 	}
 
-	public List<DocumentSymbol> findDocumentSymbols2(DOMDocument xmlDocument) {
+	public List<DocumentSymbol> findDocumentSymbols(DOMDocument xmlDocument) {
 		List<DocumentSymbol> symbols = new ArrayList<>();
 		boolean isDTD = xmlDocument.isDTD();
 		xmlDocument.getRoots().forEach(node -> {
 			try {
-				provideXMLSymbolsInternal2(node, symbols, (node.isDoctype() && isDTD));
+				findDocumentSymbols(node, symbols, (node.isDoctype() && isDTD));
 			} catch (BadLocationException e) {
-				LOGGER.log(Level.SEVERE, "XMLSymbolsProvider was given a BadLocation by a 'node' variable", e);
+				LOGGER.log(Level.SEVERE,
+						"XMLSymbolsProvider#findDocumentSymbols was given a BadLocation by a 'node' variable", e);
 			}
 		});
 		return symbols;
 	}
 
-	private void provideXMLSymbolsInternal2(DOMNode node, List<DocumentSymbol> symbols, boolean ignoreNode)
+	private void findDocumentSymbols(DOMNode node, List<DocumentSymbol> symbols, boolean ignoreNode)
 			throws BadLocationException {
 		if (!isNodeSymbol(node)) {
 			return;
 		}
+		boolean hasChildNodes = node.hasChildNodes();
 		List<DocumentSymbol> children = symbols;
 		if (!ignoreNode) {
 			String name = nodeToName(node);
 			DOMDocument xmlDocument = node.getOwnerDocument();
 			Range selectionRange = getSymbolRange(node);
-			Range range = getSymbolRange((node.getOwnerDocument() != null ? node.getOwnerDocument() : xmlDocument));
-			children = node.hasChildNodes() ? new ArrayList<>() : Collections.emptyList();
+			Range range = selectionRange; // getSymbolRange((node.getOwnerDocument() != null ? node.getOwnerDocument() : xmlDocument));
+			children = hasChildNodes ? new ArrayList<>() : Collections.emptyList();
 			DocumentSymbol symbol = new DocumentSymbol(name, getSymbolKind(node), range, selectionRange, null,
 					children);
 			symbols.add(symbol);
 		}
-		if (!node.hasChildNodes()) {
+		if (!hasChildNodes) {
 			return;
 		}
 		final List<DocumentSymbol> childrenOfChild = children;
 		node.getChildren().forEach(child -> {
 			try {
-				provideXMLSymbolsInternal2(child, childrenOfChild, false);
+				findDocumentSymbols(child, childrenOfChild, false);
 			} catch (BadLocationException e) {
 				LOGGER.log(Level.SEVERE, "XMLSymbolsProvider was given a BadLocation by the provided 'node' variable",
 						e);
@@ -101,7 +104,7 @@ class XMLSymbolsProvider {
 		});
 	}
 
-	private void provideXMLSymbolsInternal(DOMNode node, String container, List<SymbolInformation> symbols,
+	private void findSymbolInformations(DOMNode node, String container, List<SymbolInformation> symbols,
 			boolean ignoreNode) throws BadLocationException {
 		if (!isNodeSymbol(node)) {
 			return;
@@ -118,7 +121,7 @@ class XMLSymbolsProvider {
 		final String containerName = name;
 		node.getChildren().forEach(child -> {
 			try {
-				provideXMLSymbolsInternal(child, containerName, symbols, false);
+				findSymbolInformations(child, containerName, symbols, false);
 			} catch (BadLocationException e) {
 				LOGGER.log(Level.SEVERE, "XMLSymbolsProvider was given a BadLocation by the provided 'node' variable",
 						e);
