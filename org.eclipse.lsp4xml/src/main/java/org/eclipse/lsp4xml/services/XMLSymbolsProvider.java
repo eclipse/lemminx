@@ -11,6 +11,7 @@
 package org.eclipse.lsp4xml.services;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
@@ -62,9 +63,13 @@ class XMLSymbolsProvider {
 	public List<DocumentSymbol> findDocumentSymbols(DOMDocument xmlDocument) {
 		List<DocumentSymbol> symbols = new ArrayList<>();
 		boolean isDTD = xmlDocument.isDTD();
+		List<DOMNode> nodesToIgnore = new ArrayList<>();
 		xmlDocument.getRoots().forEach(node -> {
 			try {
-				findDocumentSymbols(node, symbols, (node.isDoctype() && isDTD));
+				if ((node.isDoctype() && isDTD)) {
+					nodesToIgnore.add(node);
+				}
+				findDocumentSymbols(node, symbols, nodesToIgnore);
 			} catch (BadLocationException e) {
 				LOGGER.log(Level.SEVERE,
 						"XMLSymbolsProvider#findDocumentSymbols was given a BadLocation by a 'node' variable", e);
@@ -73,22 +78,31 @@ class XMLSymbolsProvider {
 		return symbols;
 	}
 
-	private void findDocumentSymbols(DOMNode node, List<DocumentSymbol> symbols, boolean ignoreNode)
+	private void findDocumentSymbols(DOMNode node, List<DocumentSymbol> symbols, List<DOMNode> nodesToIgnore)
 			throws BadLocationException {
 		if (!isNodeSymbol(node)) {
 			return;
 		}
 		boolean hasChildNodes = node.hasChildNodes();
 		List<DocumentSymbol> children = symbols;
-		if (!ignoreNode) {
+		if (!nodesToIgnore.contains(node)) {
 			String name = nodeToName(node);
-			DOMDocument xmlDocument = node.getOwnerDocument();
 			Range selectionRange = getSymbolRange(node);
-			Range range = selectionRange; // getSymbolRange((node.getOwnerDocument() != null ? node.getOwnerDocument() : xmlDocument));
-			children = hasChildNodes ? new ArrayList<>() : Collections.emptyList();
+			Range range = selectionRange;
+			children = hasChildNodes || node.isDTDElementDecl() ? new ArrayList<>() : Collections.emptyList();
 			DocumentSymbol symbol = new DocumentSymbol(name, getSymbolKind(node), range, selectionRange, null,
 					children);
 			symbols.add(symbol);
+			if (node.isDTDElementDecl()) {
+				// In the case of DTD ELEMENT we try to add in the children the DTD ATTLIST
+				DTDElementDecl elementDecl = (DTDElementDecl) node;
+				String elementName = elementDecl.getName();
+				Collection<DOMNode> attlistDecls = node.getOwnerDocument().findDTDAttrList(elementName);
+				for (DOMNode attrDecl : attlistDecls) {
+					findDocumentSymbols(attrDecl, children, nodesToIgnore);
+					nodesToIgnore.add(attrDecl);
+				}
+			}
 		}
 		if (!hasChildNodes) {
 			return;
@@ -96,7 +110,7 @@ class XMLSymbolsProvider {
 		final List<DocumentSymbol> childrenOfChild = children;
 		node.getChildren().forEach(child -> {
 			try {
-				findDocumentSymbols(child, childrenOfChild, false);
+				findDocumentSymbols(child, childrenOfChild, nodesToIgnore);
 			} catch (BadLocationException e) {
 				LOGGER.log(Level.SEVERE, "XMLSymbolsProvider was given a BadLocation by the provided 'node' variable",
 						e);
@@ -166,7 +180,7 @@ class XMLSymbolsProvider {
 			name = ((DTDElementDecl) node).getName();
 		} else if (node.isDTDAttListDecl()) {
 			DTDAttlistDecl attr = (DTDAttlistDecl) node;
-			name = attr.getElementName() + "/@" + attr.getName();
+			name = attr.getName();
 		} else if (node.isDTDEntityDecl()) {
 			name = node.getNodeName();
 		}

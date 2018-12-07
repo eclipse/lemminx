@@ -760,7 +760,15 @@ public class DOMDocument extends DOMNode implements Document {
 		return false;
 	}
 
-	public Collection<DOMNode> getDTDAttrList(String elementName) {
+	/**
+	 * Returns the DTD Attribute list for the given element name and empty
+	 * otherwise.
+	 * 
+	 * @param elementName
+	 * @return the DTD Attribute list for the given element name and empty
+	 *         otherwise.
+	 */
+	public Collection<DOMNode> findDTDAttrList(String elementName) {
 		DOMDocumentType docType = getDoctype();
 		if (docType == null) {
 			return Collections.emptyList();
@@ -768,4 +776,5 @@ public class DOMDocument extends DOMNode implements Document {
 		return docType.getChildren().stream().filter(DOMNode::isDTDAttListDecl)
 				.filter(n -> elementName.equals(((DTDAttlistDecl) n).getElementName())).collect(Collectors.toList());
 	}
+
 }
