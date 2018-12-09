@@ -226,7 +226,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 			TextDocument document = getDocument(params.getTextDocument().getUri());
 			DOMDocument xmlDocument = getXMLDocument(document);
 			if (hierarchicalDocumentSymbolSupport) {
-				return getXMLLanguageService().findDocumentSymbols2(xmlDocument) //
+				return getXMLLanguageService().findDocumentSymbols(xmlDocument) //
 						.stream() //
 						.map(s -> {
 							Either<SymbolInformation, DocumentSymbol> e = Either.forRight(s);
@@ -234,7 +234,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 						}) //
 						.collect(Collectors.toList());
 			}
-			return getXMLLanguageService().findDocumentSymbols(xmlDocument) //
+			return getXMLLanguageService().findSymbolInformations(xmlDocument) //
 					.stream() //
 					.map(s -> {
 						Either<SymbolInformation, DocumentSymbol> e = Either.forLeft(s);

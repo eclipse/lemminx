@@ -18,9 +18,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * XMLSymbolsTest
+ * XML symbols test with {@link SymbolInformation}.
  */
-public class XMLSymbolsTest {
+public class XMLSymbolInformationsTest {
 	private static final String testURI = "test:URI";
 	private XMLLanguageService languageService;
 	private DOMDocument xmlDocument;
@@ -248,7 +248,7 @@ public class XMLSymbolsTest {
 
 	private void initializeTestObjects(String xmlText, String uri) {
 		xmlDocument = DOMParser.getInstance().parse(xmlText, uri, null);
-		actualSymbolInfos = languageService.findDocumentSymbols(xmlDocument);
+		actualSymbolInfos = languageService.findSymbolInformations(xmlDocument);
 		expectedSymbolInfos = new ArrayList<SymbolInformation>();
 	}
 

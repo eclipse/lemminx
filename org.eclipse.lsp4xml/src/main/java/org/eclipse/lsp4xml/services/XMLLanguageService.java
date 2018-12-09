@@ -90,11 +90,11 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		return highlighting.findDocumentHighlights(xmlDocument, position);
 	}
 
-	public List<SymbolInformation> findDocumentSymbols(DOMDocument xmlDocument) {
+	public List<SymbolInformation> findSymbolInformations(DOMDocument xmlDocument) {
 		return symbolsProvider.findSymbolInformations(xmlDocument);
 	}
 
-	public List<DocumentSymbol> findDocumentSymbols2(DOMDocument xmlDocument) {
+	public List<DocumentSymbol> findDocumentSymbols(DOMDocument xmlDocument) {
 		return symbolsProvider.findDocumentSymbols(xmlDocument);
 	}
 

@@ -27,12 +27,14 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DocumentLink;
+import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.MarkedString;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.SymbolKind;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
@@ -398,7 +400,8 @@ public class XMLAssert {
 		VersionedTextDocumentIdentifier versionedTextDocumentIdentifier = new VersionedTextDocumentIdentifier(FILE_URI,
 				0);
 
-		TextDocumentEdit textDocumentEdit = new TextDocumentEdit(versionedTextDocumentIdentifier, Collections.singletonList(te));
+		TextDocumentEdit textDocumentEdit = new TextDocumentEdit(versionedTextDocumentIdentifier,
+				Collections.singletonList(te));
 		WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)));
 		codeAction.setEdit(workspaceEdit);
 		return codeAction;
@@ -493,6 +496,40 @@ public class XMLAssert {
 			Assert.assertEquals(" Target test '" + i + "' link", Paths.get(expected[i].getTarget()).toUri().toString(),
 					actual.get(i).getTarget());
 		}
+	}
+
+	// ------------------- DocumentSymbol assert
+
+	public static void testDocumentSymbolsFor(String xml, DocumentSymbol... expected) {
+		testDocumentSymbolsFor(xml, null, expected);
+	}
+
+	public static void testDocumentSymbolsFor(String xml, String fileURI, DocumentSymbol... expected) {
+		TextDocument document = new TextDocument(xml, fileURI != null ? fileURI : "test.xml");
+
+		XMLLanguageService xmlLanguageService = new XMLLanguageService();
+
+		ContentModelSettings settings = new ContentModelSettings();
+		settings.setUseCache(false);
+		xmlLanguageService.doSave(new SettingsSaveContext(settings));
+
+		DOMDocument xmlDocument = DOMParser.getInstance().parse(document,
+				xmlLanguageService.getResolverExtensionManager());
+		xmlLanguageService.setDocumentProvider((uri) -> xmlDocument);
+
+		List<DocumentSymbol> actual = xmlLanguageService.findDocumentSymbols(xmlDocument);
+		assertDocumentSymbols(actual, expected);
+
+	}
+
+	public static DocumentSymbol ds(final String name, final SymbolKind kind, final Range range,
+			final Range selectionRange, final String detail, final List<DocumentSymbol> children) {
+		return new DocumentSymbol(name, kind, range, selectionRange, detail, children);
+	}
+
+	public static void assertDocumentSymbols(List<DocumentSymbol> actual, DocumentSymbol... expected) {
+		Assert.assertEquals(expected.length, actual.size());
+		Assert.assertArrayEquals(expected, actual.toArray());
 	}
 
 }
