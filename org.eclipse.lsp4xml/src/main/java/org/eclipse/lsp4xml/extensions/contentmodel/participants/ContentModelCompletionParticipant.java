@@ -31,6 +31,7 @@ import org.eclipse.lsp4xml.services.extensions.CompletionParticipantAdapter;
 import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
 import org.eclipse.lsp4xml.uriresolver.CacheResourceDownloadingException;
+import org.eclipse.lsp4xml.utils.MarkdownConverter;
 
 /**
  * Extension to support XML completion based on content model (XML Schema
@@ -103,7 +104,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			item.setKind(CompletionItemKind.Property);
 			String documentation = child.getDocumentation();
 			if (documentation != null) {
-				item.setDetail(documentation);
+				item.setDetail(MarkdownConverter.convert(documentation));
 			}
 			String xml = generator.generate(child, prefix);
 			item.setTextEdit(new TextEdit(request.getReplaceRange(), xml));
