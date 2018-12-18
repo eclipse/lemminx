@@ -373,6 +373,7 @@ public abstract class DOMNode implements Node {
 			if (parent.isElement()) {
 				return (DOMElement) parent;
 			}
+			parent = parent.getParentNode();
 		}
 		return null;
 	}
