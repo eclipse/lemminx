@@ -34,20 +34,16 @@ public class DTDAttlistDecl extends DTDDeclNode {
 	 * >
 	 */
 
-	Integer elementNameStart, elementNameEnd;
-	Integer attributeNameStart, attributeNameEnd;
-	Integer attributeTypeStart, attributeTypeEnd;
-	Integer attributeValueStart, attributeValueEnd;
+	public DTDDeclParameter elementName;
+	public DTDDeclParameter attributeName;
+	public DTDDeclParameter attributeType;
+	public DTDDeclParameter attributeValue;
 
-	String elementName;
-	String attributeName;
-	String attributeType;
-	String attributeValue;
-
-	ArrayList<DTDAttlistDecl> internalChildren;
+	ArrayList<DTDAttlistDecl> internalChildren; //Holds all additional internal attlist declaractions
 	
 	public DTDAttlistDecl(int start, int end, DOMDocumentType parentDocumentType) {
 		super(start, end, parentDocumentType);
+		declType = new DTDDeclParameter(parentDocumentType, start + 2, start + 9);
 	}
 
 	public DOMDocumentType getParentDocumentType() {
@@ -65,8 +61,11 @@ public class DTDAttlistDecl extends DTDDeclNode {
 	 * @return the element name
 	 */
 	public String getElementName() {
-		elementName = getValueFromOffsets(parentDocumentType, elementName, elementNameStart, elementNameEnd);
-		return elementName;
+		return elementName != null ? elementName.getParameter() : null;
+	}
+
+	public void setElementName(int start, int end) {
+		elementName = addNewParameter(start, end);
 	}
 
 	/**
@@ -75,18 +74,27 @@ public class DTDAttlistDecl extends DTDDeclNode {
 	 * @return the attribute name
 	 */
 	public String getAttributeName() {
-		attributeName = getValueFromOffsets(parentDocumentType, attributeName, attributeNameStart, attributeNameEnd);
-		return attributeName;
+		return attributeName != null ? attributeName.getParameter() : null;
+	}
+
+	public void setAttributeName(int start, int end) {
+		attributeName = addNewParameter(start, end);
 	}
 	
 	public String getAttributeType() {
-		attributeType = getValueFromOffsets(parentDocumentType, attributeType, attributeTypeStart, attributeTypeEnd);
-		return attributeType;
+		return attributeType != null ? attributeType.getParameter() : null;
+	}
+
+	public void setAttributeType(int start, int end) {
+		attributeType = addNewParameter(start, end);
 	}
 
 	public String getAttributeValue() {
-		attributeValue = getValueFromOffsets(parentDocumentType, attributeValue, attributeValueStart, attributeValueEnd);
-		return attributeValue;
+		return attributeValue != null ? attributeValue.getParameter() : null;
+	}
+
+	public void setAttributeValue(int start, int end) {
+		attributeValue = addNewParameter(start, end);
 	}
 
 	@Override

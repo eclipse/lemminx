@@ -723,6 +723,39 @@ public class XMLScannerForExternalDTDTest {
 		assertOffsetAndToken(31, TokenType.DTDEndTag);
 		assertOffsetAndToken(32, TokenType.EOS);
 	}
+	
+	@Test
+	public void dtdUnrecognizedContent2() {
+		String dtd = 
+				"<![ %HTML.Reserved; [\r\n" + 
+				"<!ENTITY % reserved\r\n" + 
+				" \"datasrc     %URI;          #IMPLIED  -- \"\r\n" + 
+				"  >\r\n" + 
+				"]]>\r\n" + 
+				"\r\n" + 
+				"<!--=================== Text Markup ======================================-->";
+
+		scanner = XMLScanner.createScanner(dtd, true);
+	
+		assertOffsetAndToken(0, TokenType.Content);
+
+		assertOffsetAndToken(23, TokenType.DTDStartEntity);
+		assertOffsetAndToken(31, TokenType.Whitespace);
+		assertOffsetAndToken(32, TokenType.DTDEntityPercent);
+		assertOffsetAndToken(33, TokenType.Whitespace);
+		assertOffsetAndToken(34, TokenType.DTDEntityName);
+		assertOffsetAndToken(42, TokenType.Whitespace);
+		assertOffsetAndToken(45, TokenType.DTDEntityValue);
+		assertOffsetAndToken(87, TokenType.Whitespace);
+		assertOffsetAndToken(91, TokenType.DTDEndTag);
+
+		assertOffsetAndToken(92, TokenType.Content); // " ... ]]> ..."
+
+		assertOffsetAndToken(101, TokenType.StartCommentTag);
+		assertOffsetAndToken(105, TokenType.Comment);
+		assertOffsetAndToken(175, TokenType.EndCommentTag);
+		assertOffsetAndToken(178, TokenType.EOS);
+	}
 
 	public void assertOffsetAndToken(int tokenOffset, TokenType tokenType) {
 		TokenType token = scanner.scan();

@@ -46,30 +46,25 @@ public class DTDEntityDecl extends DTDDeclNode implements Entity {
 	* 
 	* <!ENTITY % entity-name PUBLIC "publicId" "systemId" NDATA name>
 	*/
-
-	String name;
-	String value;
-	String kind;
-	String publicId;
-	String systemId;
-
-	Integer percentStart, percentEnd;
-	Integer nameStart, nameEnd;
-	Integer valueStart, valueEnd;
-	Integer kindStart, kindEnd;
-	Integer publicIdStart, publicIdEnd;
-	Integer systemIdStart, systemIdEnd; 
+	DTDDeclParameter percent;
+	DTDDeclParameter name;
+	DTDDeclParameter value;
+	DTDDeclParameter kind;
+	DTDDeclParameter publicId;
+	DTDDeclParameter systemId;
 
 	
 	public DTDEntityDecl(int start, int end, DOMDocumentType parentDocumentType) {
 		super(start, end, parentDocumentType);
+		declType = new DTDDeclParameter(parentDocumentType, start + 2, start + 8);
 	}
 
 	public String getPercent() {
-		if(percentStart != null && percentEnd != null) {
-			return "%";
-		}
-		return null;
+		return percent != null ? percent.getParameter() : null;
+	}
+
+	public void setPercent(int start, int end) {
+		percent = addNewParameter(start, end);
 	}
 
 	/*
@@ -79,18 +74,27 @@ public class DTDEntityDecl extends DTDDeclNode implements Entity {
 	 */
 	@Override
 	public String getNodeName() {
-		name = getValueFromOffsets(parentDocumentType, name, nameStart, nameEnd);
-		return name;
+		return name != null ? name.getParameter() : null;
+	}
+
+	public void setNodeName(int start, int end) {
+		name = addNewParameter(start, end);
 	}
 
 	public String getValue() {
-		value = getValueFromOffsets(parentDocumentType, value, valueStart, valueEnd);
-		return value;
+		return value != null ? value.getParameter() : null;
+	}
+
+	public void setValue(int start, int end) {
+		value = addNewParameter(start, end);
 	}
 
 	public String getKind() {
-		kind = getValueFromOffsets(parentDocumentType, kind, kindStart, kindEnd);
-		return kind;
+		return kind != null ? kind.getParameter() : null;
+	}
+
+	public void setKind(int start, int end) {
+		kind = addNewParameter(start, end);
 	}
 
 	@Override
@@ -125,8 +129,11 @@ public class DTDEntityDecl extends DTDDeclNode implements Entity {
 	 */
 	@Override
 	public String getPublicId() {
-		publicId = getValueFromOffsets(parentDocumentType, publicId, publicIdStart, publicIdEnd);
-		return publicId;
+		return publicId != null ? publicId.getParameter() : null;
+	}
+
+	public void setPublicId(int start, int end) {
+		publicId = addNewParameter(start, end);
 	}
 
 	/*
@@ -136,8 +143,11 @@ public class DTDEntityDecl extends DTDDeclNode implements Entity {
 	 */
 	@Override
 	public String getSystemId() {
-		systemId = getValueFromOffsets(parentDocumentType, systemId, systemIdStart, systemIdEnd);
-		return systemId;
+		return systemId != null ? systemId.getParameter() : null;
+	}
+
+	public void setSystemId(int start, int end) {
+		systemId = addNewParameter(start, end);
 	}
 
 	/*
@@ -159,5 +169,4 @@ public class DTDEntityDecl extends DTDDeclNode implements Entity {
 	public String getXmlVersion() {
 		throw new UnsupportedOperationException();
 	}
-
 }

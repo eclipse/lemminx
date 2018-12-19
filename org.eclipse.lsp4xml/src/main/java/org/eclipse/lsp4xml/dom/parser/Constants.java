@@ -51,6 +51,8 @@ public class Constants {
 	public final static int _mVL = "m".codePointAt(0);
 	public final static int _lVL = "l".codePointAt(0);
 	public final static int _PCT = "%".codePointAt(0);
+	public final static int _AST = "*".codePointAt(0);
+	public final static int _PLS = "+".codePointAt(0);
 
 	public static final Pattern ENTITY_NAME_REGEX = Pattern.compile("");
 
@@ -70,7 +72,7 @@ public class Constants {
 
 	public static final Pattern DTD_ELEMENT_CATEGORY = Pattern.compile("^(EMPTY|ANY)([\\s<>\"'])");
 
-	public static final Pattern DTD_ELEMENT_CONTENT = Pattern.compile("^(\\(((\\S,)*(\\S))\\)|\\(\\))");
+	public static final Pattern DTD_ELEMENT_CONTENT = Pattern.compile("^(\\((([^\\s,]+,)*[^\\s,]+)\\))|\\(\\)");
 
 	public static final Pattern DTD_PCDATA = Pattern.compile("^#PCDATA");
 

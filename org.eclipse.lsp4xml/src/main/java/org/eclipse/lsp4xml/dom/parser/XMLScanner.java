@@ -34,26 +34,28 @@ public class XMLScanner implements Scanner {
 	String url;
 	boolean isInsideDTDContent = false; // Either internal dtd in xml file OR external dtd in dtd file
 	boolean isDeclCompleted = false; // If any type of DTD declaration was supplied with all the required properties
-
+	TokenType tempToken;
+	boolean isDTDFile;
 	/**
 	 * boolean completedInitialAttDef;
 	 * 
 	 * If the first attribute definition was completed in an ATTLIST declaration
 	 * eg:
 	 * <!ATTLIST unit
-			|power NMTOKEN #IMPLIED|  << WHEN THIS IS COMPLETE, will be set to true
+			|power NMTOKEN #IMPLIED|  << AFTER THIS IS COMPLETE, will be set to true
 			description CDATA #IMPLIED
 		>
 	 */
 	boolean isInitialAttlistDeclCompleted = false; 
 	private int nbBraceOpened;
 
-	public XMLScanner(String input, int initialOffset, ScannerState initialState) {
+	public XMLScanner(String input, int initialOffset, ScannerState initialState, boolean isDTDFile) {
 		stream = new MultiLineStream(input, initialOffset);
 		state = initialState;
 		tokenOffset = 0;
 		isInsideDTDContent = ScannerState.DTDWithinContent.equals(initialState);
 		tokenType = TokenType.Unknown;
+		this.isDTDFile = isDTDFile;
 	}
 
 	String nextElementName() {
@@ -65,7 +67,7 @@ public class XMLScanner implements Scanner {
 	}
 
 	String doctypeName() {
-		return stream.advanceIfRegExp(ATTRIBUTE_NAME_REGEX).toLowerCase();
+		return stream.advanceIfRegExp(ELEMENT_NAME_REGEX).toLowerCase();
 	}
 
 	/**
@@ -394,7 +396,7 @@ public class XMLScanner implements Scanner {
 				state = ScannerState.DTDAfterDoctypeSYSTEM;
 				return finishToken(offset, TokenType.DTDDocTypeKindSYSTEM);
 			}
-			state = ScannerState.DTDWithinDoctype;
+			state = ScannerState.DTDUnrecognizedParameters;
 			return internalScan();
 
 		case DTDAfterDoctypePUBLIC:
@@ -407,7 +409,7 @@ public class XMLScanner implements Scanner {
 				return finishToken(offset, TokenType.DTDDoctypePublicId);
 			}
 
-			state = ScannerState.DTDWithinDoctype;
+			state = ScannerState.DTDUnrecognizedParameters;
 			return internalScan();
 
 		case DTDAfterDoctypeSYSTEM:
@@ -420,6 +422,8 @@ public class XMLScanner implements Scanner {
 			if (!url.equals("")) {
 				return finishToken(offset, TokenType.DTDDoctypeSystemId);
 			}
+
+			state = ScannerState.DTDUnrecognizedParameters;
 			return internalScan();
 
 		case DTDAfterDoctypePublicId:
@@ -432,10 +436,12 @@ public class XMLScanner implements Scanner {
 			if (!url.equals("")) {
 				return finishToken(offset, TokenType.DTDDoctypeSystemId);
 			}
+
+			state = ScannerState.DTDUnrecognizedParameters;
 			return internalScan();
 
 		case DTDWithinContent:
-			if (stream.advanceIfChar(_CSB)) { // ]
+			if (!isDTDFile && (stream.advanceIfChar(_CSB) || stream.peekChar() == _RAN)) { // ] || >
 				state = ScannerState.DTDWithinDoctype;
 				isInsideDTDContent = false;
 				return finishToken(offset, TokenType.DTDEndInternalSubset);
@@ -468,16 +474,14 @@ public class XMLScanner implements Scanner {
 					return finishToken(offset, TokenType.Content);
 				}
 			}
-
-			if (stream.advanceIfChar(_CSB)) { // ]
-				state = ScannerState.DTDWithinDoctype;
-				isInsideDTDContent = false;
-				return finishToken(offset, TokenType.DTDEndInternalSubset);
+			if(isDTDFile) {
+				stream.advanceUntilChar(_LAN); // <
+			} else {
+				stream.advanceUntilAnyOfChars(_RAN, _LAN, _CSB); // > || < || ]
 			}
-
-			stream.advanceUntilAnyOfChars(_LAN, _CSB); // < || ]
 			return finishToken(offset, TokenType.Content);
 			
+	
 
 		case DTDUnrecognizedParameters:
 
@@ -486,12 +490,13 @@ public class XMLScanner implements Scanner {
 			}
 
 			if(stream.advanceIfChar(_RAN)) { // >
-				state = ScannerState.DTDWithinContent;
-				return finishToken(offset, TokenType.DTDEndTag);
+				state = isInsideDTDContent ? ScannerState.DTDWithinContent : ScannerState.WithinContent;
+				tempToken = isInsideDTDContent ? TokenType.DTDEndTag : TokenType.EndTagClose;
+				return finishToken(offset, tempToken);
 			}
 
 			if(stream.peekChar() == _LAN) { // <
-				state = ScannerState.DTDWithinContent;
+				state = isInsideDTDContent ? ScannerState.DTDWithinContent : ScannerState.WithinContent;
 				return internalScan();
 			}
 
@@ -500,9 +505,19 @@ public class XMLScanner implements Scanner {
 				return internalScan();
 			}
 
+			//If in DOCTYPE this will skip over the whole internal subset
+			if(!isInsideDTDContent) {
+				stream.advanceUntilAnyOfChars(_OSB, _RAN, _LAN); // [ | < | >
+				if(stream.peekChar() == _OSB) {
+					stream.advance(1);
+					stream.advanceUntilCharUsingStack(_CSB);// ]
+					
+				}
+			}
+			
 			if(stream.advanceUntilCharOrNewTag(_RAN)) { // >
 				if(stream.peekChar() == _LAN) { // <
-					state = ScannerState.DTDWithinContent;
+					state = isInsideDTDContent ? ScannerState.DTDWithinContent : ScannerState.DTDWithinDoctype;
 				}
 			}
 			return finishToken(offset, TokenType.DTDUnrecognizedParameters);
@@ -556,6 +571,7 @@ public class XMLScanner implements Scanner {
 			if(stream.advanceIfChar(_CRB)) { // )
 				isDeclCompleted = true;
 				state = ScannerState.DTDWithinElement;
+				stream.advanceIfAnyOfChars(_QMA, _AST, _PLS); // ? | * | +
 				return finishToken(offset, TokenType.DTDEndElementContent);
 			}
 
@@ -852,6 +868,10 @@ public class XMLScanner implements Scanner {
 		return string;
 	}
 
+	public int getLastNonWhitespaceOffset() {
+		return stream.getLastNonWhitespaceOffset();
+	}
+
 	@Override
 	public TokenType getTokenType() {
 		return tokenType;
@@ -913,13 +933,17 @@ public class XMLScanner implements Scanner {
 		return createScanner(input, initialOffset, false);
 	}
 
-	public static Scanner createScanner(String input, int initialOffset, boolean insideDTD) {
+	public static Scanner createScanner(String input, int initialOffset, boolean isDTDFile) {
 		return createScanner(input, initialOffset,
-				insideDTD ? ScannerState.DTDWithinContent : ScannerState.WithinContent);
+				isDTDFile ? ScannerState.DTDWithinContent : ScannerState.WithinContent, isDTDFile);
 	}
 
 	public static Scanner createScanner(String input, int initialOffset, ScannerState initialState) {
-		return new XMLScanner(input, initialOffset, initialState);
+		return new XMLScanner(input, initialOffset, initialState, false);
+	}
+
+	public static Scanner createScanner(String input, int initialOffset, ScannerState initialState, boolean isDTDFile) {
+		return new XMLScanner(input, initialOffset, initialState, isDTDFile);
 	}
 
 }

@@ -27,17 +27,14 @@ public class DTDElementDecl extends DTDDeclNode {
 	 
 	 */
 
-	Integer nameStart, nameEnd; // <!ELEMENT |element-name| category>
-	Integer categoryStart, categoryEnd; // <!ELEMENT element-name |category|>
-	Integer contentStart,contentEnd; // <!ELEMENT element-name |(element-content)|>
-
-	String name;
-	String category;
-	String content;
+	DTDDeclParameter name;
+	DTDDeclParameter category;
+	DTDDeclParameter content;
 	
 
 	public DTDElementDecl(int start, int end, DOMDocumentType parentDocumentType) {
 		super(start, end, parentDocumentType);
+		declType = new DTDDeclParameter(parentDocumentType, start + 2, start + 9);
 	}
 
 	public DOMDocumentType getParentDocumentType() {
@@ -50,18 +47,27 @@ public class DTDElementDecl extends DTDDeclNode {
 	}
 
 	public String getName() {
-		name = getValueFromOffsets(parentDocumentType, name, nameStart, nameEnd);
-		return name;
+		return name != null ? name.getParameter() : null;
+	}
+
+	public void setName(int start, int end) {
+		name = addNewParameter(start, end);
 	}
 
 	public String getCategory() {
-		category = getValueFromOffsets(parentDocumentType, category, categoryStart, categoryEnd);
-		return category;
+		return category != null ? category.getParameter() : null;
+	}
+
+	public void setCategory(int start, int end) {
+		category = addNewParameter(start, end);
 	}
 
 	public String getContent() {
-		content = getValueFromOffsets(parentDocumentType, content, contentStart, contentEnd);
-		return content;
+		return content != null ? content.getParameter() : null;
+	}
+
+	public void setContent(int start, int end) {
+		content = addNewParameter(start, end);
 	}
 
 	@Override
@@ -77,5 +83,6 @@ public class DTDElementDecl extends DTDDeclNode {
 	public int getEndElementTag() {
 		return getStart() + "<!ELEMENT".length();
 	}
+
 
 }

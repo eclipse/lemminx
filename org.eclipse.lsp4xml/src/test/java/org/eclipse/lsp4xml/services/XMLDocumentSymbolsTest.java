@@ -61,6 +61,5 @@ public class XMLDocumentSymbolsTest {
 						ds("Email", SymbolKind.Property, r(8, 1, 8, 27), r(8, 1, 8, 27), null, Collections.emptyList()) //
 				)), //
 				ds("Folks", SymbolKind.Field, r(10, 0, 12, 8), r(10, 0, 12, 8), null, Collections.emptyList()));
-
 	}
 }

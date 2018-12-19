@@ -45,6 +45,7 @@ public class DOMParser {
 
 	public DOMDocument parse(TextDocument document, URIResolverExtensionManager resolverExtensionManager) {
 		boolean isDTD = DOMUtils.isDTD(document.getUri());
+		boolean inDTDInternalSubset = false;
 		String text = document.getText();
 		Scanner scanner = XMLScanner.createScanner(text, 0, isDTD);
 		DOMDocument xmlDocument = new DOMDocument(document, resolverExtensionManager);
@@ -73,11 +74,12 @@ public class DOMParser {
 					curr.end = scanner.getTokenOffset();
 				}
 				if((curr.isClosed()) || curr.isDoctype()) {
-					//The next node is being considered is a child of 'curr'
+					//The next node being considered is a child of 'curr'
 					//and if 'curr' is already closed then 'curr' was not updated properly.
 					//Or if we get a Doctype node then we know it was not closed and 'curr'
 					//wasn't updated properly.
 					curr = curr.parent;
+					inDTDInternalSubset = false; //In case it was previously in the internal subset
 				}
 				DOMElement child = xmlDocument.createElement(scanner.getTokenOffset(), scanner.getTokenEnd());
 				child.startTagOpenOffset = scanner.getTokenOffset();
@@ -170,7 +172,11 @@ public class DOMParser {
 					if(lastClosed.isElement()) {
 						((DOMElement) curr).endTagCloseOffset = scanner.getTokenOffset();
 					}
+					if(curr.isDoctype()) {
+						curr.closed = true;
+					}
 					curr = curr.parent;
+					
 				}
 				break;
 
@@ -254,8 +260,10 @@ public class DOMParser {
 			}
 
 			case StartCommentTag: {
-				if(xmlDocument.isDTD()) {
-					if(!curr.isDoctype()) {
+				//Incase the tag before the comment tag (curr) was not properly closed
+				//curr should be set to the root node.
+				if(xmlDocument.isDTD() || inDTDInternalSubset) {
+					while(!curr.isDoctype()) {
 						curr = curr.parent;
 					}
 				}
@@ -263,9 +271,6 @@ public class DOMParser {
 					curr = curr.parent;
 				}
 				DOMComment comment = xmlDocument.createComment(scanner.getTokenOffset(), text.length());
-				if(curr.parent != null && curr.parent.isDoctype()) {
-					curr.parent.addChild(comment);
-				}
 				curr.addChild(comment);
 				curr = comment;
 				try {
@@ -357,7 +362,8 @@ public class DOMParser {
 
 			case DTDStartInternalSubset: {
 				DOMDocumentType doctype = (DOMDocumentType) curr;
-				doctype.internalSubsetStart = scanner.getTokenOffset();
+				doctype.setStartInternalSubset(scanner.getTokenOffset());
+				inDTDInternalSubset = true;
 				break;
 			}
 
@@ -366,16 +372,16 @@ public class DOMParser {
 					curr.end = scanner.getTokenOffset() - 1;
 					curr = curr.getParentNode();
 				}
-				
+				inDTDInternalSubset = false;
 				DOMDocumentType doctype = (DOMDocumentType) curr;
-				doctype.internalSubsetEnd = scanner.getTokenEnd();
+				doctype.setEndInternalSubset(scanner.getTokenEnd());
 				break;
 			}
 
 			case DTDStartElement: {
-				//If previous 'curr' was an unclosed ENTITY, ELEMENT, or ATTLIST
+				//If previous 'curr' was an unclosed DTD Declaration
 				if (!curr.isDoctype()) {
-					curr.end = scanner.getTokenOffset() - 1;
+					curr.end = scanner.getTokenOffset();
 					curr = curr.getParentNode();
 				}
 				
@@ -388,38 +394,37 @@ public class DOMParser {
 
 			case DTDElementDeclName: {
 				DTDElementDecl element = (DTDElementDecl) curr;
-				element.nameStart = scanner.getTokenOffset();
-				element.nameEnd = scanner.getTokenEnd();
+				element.setName(scanner.getTokenOffset(), scanner.getTokenEnd());
 				break;
 			}
 
 			case DTDElementCategory: {
 				DTDElementDecl element = (DTDElementDecl) curr;
-				element.categoryStart = scanner.getTokenOffset();
-				element.categoryEnd = scanner.getTokenEnd();
+				element.setCategory(scanner.getTokenOffset(), scanner.getTokenEnd());
 				break;
 			}
 
 			case DTDStartElementContent: {
 				DTDElementDecl element = (DTDElementDecl) curr;
-				element.contentStart = scanner.getTokenOffset();
+				element.setContent(scanner.getTokenOffset(), scanner.getTokenEnd());
 				break;
 			}
 
 			case DTDElementContent: {
 				DTDElementDecl element = (DTDElementDecl) curr;
-				element.contentEnd = scanner.getTokenEnd();
+				element.updateLastParameterEnd(scanner.getTokenEnd());
+				break;
 			}
 
 			case DTDEndElementContent: {
 				DTDElementDecl element = (DTDElementDecl) curr;
-				element.contentEnd = scanner.getTokenEnd();
+				element.updateLastParameterEnd(scanner.getTokenEnd());
 				break;
 			}
 
 			case DTDStartAttlist: {
 				if (!curr.isDoctype()) { // If previous DTD Decl was unclosed
-					curr.end = scanner.getTokenOffset() - 1;
+					curr.end = scanner.getTokenOffset();
 					curr = curr.getParentNode();
 				}
 				DTDAttlistDecl child = new DTDAttlistDecl(scanner.getTokenOffset(), text.length(),
@@ -428,18 +433,15 @@ public class DOMParser {
 				isInitialDeclaration = true;
 				curr.addChild(child);
 				curr = child;
-				
 				break;
 			}
 
 			case DTDAttlistElementName: {
 				DTDAttlistDecl attribute = (DTDAttlistDecl) curr;
-				attribute.elementNameStart = scanner.getTokenOffset();
-				attribute.elementNameEnd = scanner.getTokenEnd();
+				attribute.setElementName(scanner.getTokenOffset(), scanner.getTokenEnd());
 				break;
 			}
 
-			
 			case DTDAttlistAttributeName: {
 				DTDAttlistDecl attribute = (DTDAttlistDecl) curr;
 				if(isInitialDeclaration == false) {
@@ -451,23 +453,19 @@ public class DOMParser {
 					attribute = child;
 					curr = child;
 				}
-				
-				attribute.attributeNameStart = scanner.getTokenOffset();
-				attribute.attributeNameEnd = scanner.getTokenEnd();
+				attribute.setAttributeName(scanner.getTokenOffset(), scanner.getTokenEnd());
 				break;
 			}
 
 			case DTDAttlistAttributeType: {
 				DTDAttlistDecl attribute = (DTDAttlistDecl) curr;
-				attribute.attributeTypeStart = scanner.getTokenOffset();
-				attribute.attributeTypeEnd = scanner.getTokenEnd();
+				attribute.setAttributeType(scanner.getTokenOffset(), scanner.getTokenEnd());
 				break;
 			}
 
 			case DTDAttlistAttributeValue: {
 				DTDAttlistDecl attribute = (DTDAttlistDecl) curr;
-				attribute.attributeValueStart = scanner.getTokenOffset();
-				attribute.attributeValueEnd = scanner.getTokenEnd();
+				attribute.setAttributeValue(scanner.getTokenOffset(), scanner.getTokenEnd());
 
 				if(attribute.parent.isDTDAttListDecl()) { // Is not the root/main ATTLIST node
 					curr = attribute.parent;
@@ -477,11 +475,10 @@ public class DOMParser {
 				}
 				break;
 			}
-			
-			
+		
 			case DTDStartEntity: {
 				if (!curr.isDoctype()) { // If previous DTD Decl was unclosed
-					curr.end = scanner.getTokenOffset() - 1;
+					curr.end = scanner.getTokenOffset();
 					curr = curr.getParentNode();
 				}
 				DTDEntityDecl child = new DTDEntityDecl(scanner.getTokenOffset(), text.length(), (DOMDocumentType) curr);
@@ -492,52 +489,44 @@ public class DOMParser {
 
 			case DTDEntityPercent: {
 				DTDEntityDecl entity = (DTDEntityDecl) curr;
-				entity.percentStart = scanner.getTokenOffset();
-				entity.percentEnd = scanner.getTokenEnd();
+				entity.setPercent(scanner.getTokenOffset(), scanner.getTokenEnd());
 				break;
 			}
 
 			case DTDEntityName : {
 				DTDEntityDecl entity = (DTDEntityDecl) curr;
-				entity.nameStart = scanner.getTokenOffset();
-				entity.nameEnd = scanner.getTokenEnd();
+				entity.setNodeName(scanner.getTokenOffset(), scanner.getTokenEnd());
 				break;
 			}
 
 			case DTDEntityValue : {
 				DTDEntityDecl entity = (DTDEntityDecl) curr;
-				entity.valueStart = scanner.getTokenOffset();
-				entity.valueEnd = scanner.getTokenEnd();
+				entity.setValue(scanner.getTokenOffset(), scanner.getTokenEnd());
 				break;
 			}
 
 			case DTDEntityKindPUBLIC:
 			case DTDEntityKindSYSTEM: {
 				DTDEntityDecl entity = (DTDEntityDecl) curr;
-				entity.kindStart = scanner.getTokenOffset();
-				entity.kindEnd = scanner.getTokenEnd();
+				entity.setKind(scanner.getTokenOffset(), scanner.getTokenEnd());
 				break;
 			}
 
 			case DTDEntityPublicId: {
 				DTDEntityDecl entity = (DTDEntityDecl) curr;
-				entity.publicIdStart = scanner.getTokenOffset();
-				entity.publicIdEnd = scanner.getTokenEnd();
+				entity.setPublicId(scanner.getTokenOffset(), scanner.getTokenEnd());
 				break;
 			}
 
 			case DTDEntitySystemId: {
 				DTDEntityDecl entity = (DTDEntityDecl) curr;
-				entity.systemIdStart = scanner.getTokenOffset();
-				entity.systemIdEnd = scanner.getTokenEnd();
+				entity.setSystemId(scanner.getTokenOffset(), scanner.getTokenEnd());
 				break;
 			}
 
-			
-
 			case DTDStartNotation: {
 				if (!curr.isDoctype()) { // If previous DTD Decl was unclosed
-					curr.end = scanner.getTokenOffset() - 1;
+					curr.end = scanner.getTokenOffset();
 					curr = curr.getParentNode();
 				}
 				DTDNotationDecl child = new DTDNotationDecl(scanner.getTokenOffset(), text.length(), (DOMDocumentType) curr);
@@ -578,8 +567,8 @@ public class DOMParser {
 			}
 
 			case DTDEndTag: {
-				if ((curr.isDTDElementDecl() || curr.isDTDAttListDecl() || curr.isDTDEntityDecl() || curr.isDTDNotationDecl()) && curr.parent != null) {
-					if(curr.isDTDNotationDecl() && curr.parent.isDoctype() == false) {
+				if ((curr.isDTDElementDecl() || curr.isDTDAttListDecl() || curr.isDTDEntityDecl() || curr.isDTDNotationDecl()) ) {
+					while(curr.parent != null && !curr.parent.isDoctype()) {
 						curr = curr.parent;
 					}
 					curr.end = scanner.getTokenEnd();
@@ -590,7 +579,7 @@ public class DOMParser {
 			}
 			
 			case DTDEndDoctypeTag: {
-				((DOMDocumentType) curr).setEnd(scanner.getTokenEnd());
+				((DOMDocumentType) curr).end = scanner.getTokenEnd();
 				curr.closed = true;
 				curr = curr.parent;
 				break;
@@ -598,8 +587,7 @@ public class DOMParser {
 
 			case DTDUnrecognizedParameters: {
 				DTDDeclNode node = (DTDDeclNode) curr;
-				node.unrecognizedStart = scanner.getTokenOffset();
-				node.unrecognizedEnd = scanner.getTokenEnd();
+				node.setUnrecognized(scanner.getTokenOffset(), ((XMLScanner)scanner).getLastNonWhitespaceOffset());
 				break;
 			}
 

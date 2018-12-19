@@ -12,6 +12,9 @@
 
 package org.eclipse.lsp4xml.dom;
 
+import java.util.ArrayList;
+
+
 /**
  * DTDNode
  */
@@ -25,14 +28,23 @@ public class DTDDeclNode extends DOMNode{
 	 */
 	
 	protected final DOMDocumentType parentDocumentType;
+	protected final DOMDocument parentDocument;
 
-	Integer unrecognizedStart, unrecognizedEnd;
+	DTDDeclParameter unrecognized; // holds all content after parsing goes wrong in a DTD declaration (ENTITY, ATTLIST, ELEMENT).
+	DTDDeclParameter declType;
 
-	String unrecognized; // holds all content after parsing goes wrong in a DTD declaration (ENTITY, ATTLIST, ELEMENT).
+	ArrayList<DTDDeclParameter> parameters;
 
 	public DTDDeclNode(int start, int end, DOMDocumentType parentDocumentType) {
 		super(start, end, parentDocumentType != null ? parentDocumentType.getOwnerDocument() : null);
 		this.parentDocumentType = parentDocumentType;
+		this.parentDocument = null;
+	}
+
+	public DTDDeclNode(int start, int end, DOMDocument parentDocumentType) {
+		super(start, end, parentDocumentType != null ? parentDocumentType : null);
+		this.parentDocument = parentDocumentType;
+		this.parentDocumentType = null;
 	}
 
 	@Override
@@ -46,8 +58,11 @@ public class DTDDeclNode extends DOMNode{
 	}
 
 	public String getUnrecognized() {
-		unrecognized = getValueFromOffsets(parentDocumentType, unrecognized, unrecognizedStart, unrecognizedEnd);
-		return unrecognized;
+		return unrecognized.getParameter();
+	}
+
+	public void setUnrecognized(int start, int end) {
+		unrecognized = addNewParameter(start, end);
 	}
 
 	public static String getValueFromOffsets(DOMDocumentType document, String value, Integer start, Integer end) {
@@ -55,7 +70,38 @@ public class DTDDeclNode extends DOMNode{
 			return document.getSubstring(start, end);
 		}
 		return value;
+	}	
+
+	public DTDDeclParameter addNewParameter(int start, int end) {
+		if(parameters == null) {
+			parameters = new ArrayList<DTDDeclParameter>();
+		}
+		DTDDeclParameter parameter =
+				new DTDDeclParameter(parentDocumentType == null ? parentDocument.getDoctype() : parentDocumentType, start, end);
+		parameters.add(parameter);
+		this.end = end; // updates end position of the node.
+		return parameter;
 	}
 
-	
+	public void updateLastParameterEnd(int end) {
+		if(parameters != null && parameters.size() > 0) {
+			DTDDeclParameter last = parameters.get(parameters.size() - 1);
+			last.end = end;
+			this.end = end;
+		}
+	}
+
+	public ArrayList<DTDDeclParameter> getParameters() {
+		if(parameters == null) {
+			parameters = new ArrayList<DTDDeclParameter>();
+		}
+		return parameters;
+	}
+
+	public String getDeclType() {
+		if(declType != null) {
+			return declType.getParameter();
+		}
+		return null;
+	}
 }

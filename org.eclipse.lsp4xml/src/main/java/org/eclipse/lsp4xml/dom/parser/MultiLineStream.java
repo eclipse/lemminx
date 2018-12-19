@@ -16,6 +16,11 @@ import static org.eclipse.lsp4xml.dom.parser.Constants._LFD;
 import static org.eclipse.lsp4xml.dom.parser.Constants._NWL;
 import static org.eclipse.lsp4xml.dom.parser.Constants._TAB;
 import static org.eclipse.lsp4xml.dom.parser.Constants._WSP;
+import static org.eclipse.lsp4xml.dom.parser.Constants._LAN;
+import static org.eclipse.lsp4xml.dom.parser.Constants._RAN;
+import static org.eclipse.lsp4xml.dom.parser.Constants._OSB;
+import static org.eclipse.lsp4xml.dom.parser.Constants._CSB;
+
 
 import java.util.HashMap;
 import java.util.Map;
@@ -100,6 +105,18 @@ class MultiLineStream {
 		return this.source.codePointAt(pos);
 	}
 
+	/**
+	 * Peeks at the char at position 'offset' of the whole document
+	 * @param offset
+	 * @return
+	 */
+	public int peekCharAtOffset(int offset) {
+		if (offset >= len || offset < 0) {
+			return -1;
+		}
+		return this.source.codePointAt(offset);
+	}
+
 	public boolean advanceIfChar(int ch) {
 		if (ch == peekChar()) {
 			this.position++;
@@ -120,6 +137,19 @@ class MultiLineStream {
 		}
 		this.advance(i);
 		return true;
+	}
+
+	public int advanceIfAnyOfChars(int... ch) {
+		int i;
+		if (this.position + 1 > this.len) {
+			return -1;
+		}
+		for (i = 0; i < ch.length; i++) {
+			if (advanceIfChar(ch[i])) {
+				return ch[i];
+			}
+		}
+		return -1;
 	}
 
 	public String advanceIfRegExp(Pattern regex) {
@@ -202,6 +232,40 @@ class MultiLineStream {
 		return false;
 	}
 
+	/**
+	 * Will advance the stream position until 'closingBracket' or using a stack
+	 * to consider possible open/closed bracket pairs in between.
+	 * 
+	 * 'closingBracket' should be the closing bracket eg: > | ]
+	 */
+	public boolean advanceUntilCharUsingStack(int closingBracket) {
+
+		int openingBracket;
+		if(closingBracket == _RAN) { // >
+			openingBracket = _LAN;// <			
+		}
+		else if(closingBracket == _CSB) { // ]
+			openingBracket = _OSB; // [
+		}
+		else {
+			return false; // The provided closingBracket is not implemented
+		}
+		int stack = 0;
+		while (this.position < this.len) {
+			if(peekChar() == openingBracket) {
+				stack ++;
+			}
+			else if(peekChar() == closingBracket) {
+				if(stack == 0) {
+					return true;
+				}
+				stack--;
+			}
+			this.advance(1);
+		}
+		return false;
+	}
+
 	public boolean advanceUntilChars(int... ch) {
 		while (this.position + ch.length <= this.len) {
 			int i = 0;
@@ -271,5 +335,13 @@ class MultiLineStream {
 			regexpCache.put(regex, matcher);
 		}
 		return matcher;
+	}
+
+	public int getLastNonWhitespaceOffset() {
+		int posNow = this.position;
+		while (posNow > 0 && WHITESPACE_PREDICATE.test(peekCharAtOffset(posNow - 1))) {
+			posNow--;
+		}
+		return posNow;
 	}
 }

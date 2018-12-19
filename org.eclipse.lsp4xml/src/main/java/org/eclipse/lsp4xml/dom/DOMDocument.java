@@ -770,7 +770,7 @@ public class DOMDocument extends DOMNode implements Document {
 	 */
 	public Collection<DOMNode> findDTDAttrList(String elementName) {
 		DOMDocumentType docType = getDoctype();
-		if (docType == null) {
+		if (docType == null || elementName == null) {
 			return Collections.emptyList();
 		}
 		return docType.getChildren().stream().filter(DOMNode::isDTDAttListDecl)

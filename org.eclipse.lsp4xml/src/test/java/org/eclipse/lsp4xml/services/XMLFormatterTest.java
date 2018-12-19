@@ -724,6 +724,600 @@ public class XMLFormatterTest {
 				"</web-app>";
 		format(content, expected, formattingOptions);
 	}
+	
+	@Test public void testDoctypeNoInternalSubset() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		
+		String content = 
+				"<!DOCTYPE    note\r\n" + 
+				"\r\n" + 
+				">\r\n" + 
+				"<note>\r\n" + 
+				"  <to>Fred</to>\r\n" + 
+				"\r\n" + 
+				"  <from>Jani</from>\r\n" + 
+				"\r\n" + 
+				"  <heading>Reminder</heading>\r\n" + 
+				"  \r\n" + 
+				"  <body>Don't forget me this weekend</body>\r\n" + 
+				"</note>";
+		String expected = 
+				"<!DOCTYPE note>\r\n" + 
+				"<note>\r\n" + 
+				"  <to>Fred</to>\r\n" + 
+				"  <from>Jani</from>\r\n" + 
+				"  <heading>Reminder</heading>\r\n" + 
+				"  <body>Don't forget me this weekend</body>\r\n" + 
+				"</note>";
+		format(content, expected, formattingOptions);
+	}
+	
+	@Test public void testDoctypeInternalSubset() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		
+		String content = 
+				"<!DOCTYPE note\r\n" + 
+				"\r\n" + 
+				"\r\n" + 
+				"[        <!ELEMENT note (to,from,heading,body)>\r\n" + 
+				"  <!ELEMENT to (#PCDATA)><!ELEMENT from (#PCDATA)>\r\n" + 
+				"  \r\n" + 
+				"  \r\n" + 
+				"  <!ELEMENT heading (#PCDATA)>\r\n" + 
+				"  <!ELEMENT body (#PCDATA)>\r\n" + 
+				"]>\r\n" + 
+				"<note>\r\n" + 
+				"  <to>Fred</to>\r\n" + 
+				"\r\n" + 
+				"\r\n" + 
+				"  <from>Jani</from>\r\n" + 
+				"  \r\n" + 
+				"  <heading>Reminder</heading>\r\n" + 
+				"  <body>Don't forget me this weekend</body>\r\n" + 
+				"</note>";
+		String expected = 
+				"<!DOCTYPE note [\r\n" + 
+				"  <!ELEMENT note (to,from,heading,body)>\r\n" + 
+				"  <!ELEMENT to (#PCDATA)>\r\n" + 
+				"  <!ELEMENT from (#PCDATA)>\r\n" + 
+				"  <!ELEMENT heading (#PCDATA)>\r\n" + 
+				"  <!ELEMENT body (#PCDATA)>\r\n" + 
+				"]>\r\n" + 
+				"<note>\r\n" + 
+				"  <to>Fred</to>\r\n" + 
+				"  <from>Jani</from>\r\n" + 
+				"  <heading>Reminder</heading>\r\n" + 
+				"  <body>Don't forget me this weekend</body>\r\n" + 
+				"</note>";
+		format(content, expected, formattingOptions);
+	}
+	
+	@Test public void testDoctypeInternalDeclSpacesBetweenParameters() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		
+		String content = 
+				"<!DOCTYPE note [\r\n" + 
+				"  <!ELEMENT    note (to,from,heading,body)>\r\n" + 
+				"  <!ELEMENT   to     (#PCDATA)>\r\n" + 
+				"  <!ELEMENT from (#PCDATA)>\r\n" + 
+				"  <!ELEMENT heading   (#PCDATA)>\r\n" + 
+				"  <!ELEMENT body (#PCDATA)>\r\n" + 
+				"]>\r\n" + 
+				"<note>\r\n" + 
+				"  <to>Fred</to>\r\n" + 
+				"  <from>Jani</from>\r\n" + 
+				"  <heading>Reminder</heading>\r\n" + 
+				"  <body>Don't forget me this weekend</body>\r\n" + 
+				"</note> ";
+		String expected = 
+				"<!DOCTYPE note [\r\n" + 
+
+				"  <!ELEMENT note (to,from,heading,body)>\r\n" + 
+				"  <!ELEMENT to (#PCDATA)>\r\n" + 
+				"  <!ELEMENT from (#PCDATA)>\r\n" + 
+				"  <!ELEMENT heading (#PCDATA)>\r\n" + 
+				"  <!ELEMENT body (#PCDATA)>\r\n" + 
+				"]>\r\n" + 
+				"<note>\r\n" + 
+				"  <to>Fred</to>\r\n" + 
+				"  <from>Jani</from>\r\n" + 
+				"  <heading>Reminder</heading>\r\n" + 
+				"  <body>Don't forget me this weekend</body>\r\n" + 
+				"</note>";
+		format(content, expected, formattingOptions);
+	}
+	
+	@Test public void testDoctypeInternalWithAttlist() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		
+		String content = 
+				"<!DOCTYPE note \r\n" + 
+				"[\r\n" + 
+				"  <!ELEMENT note (to,from,heading,body)>\r\n" + 
+				"\r\n" + 
+				"  <!ELEMENT to (#PCDATA)>\r\n" + 
+				"\r\n" + 
+				"  <!ATTLIST payment type CDATA \"check\">\r\n" + 
+				"\r\n" + 
+				"]>\r\n" + 
+				"\r\n" + 
+				"<note>\r\n" + 
+				"  \r\n" + 
+				"  <to>Fred</to>\r\n" + 
+				"</note>";
+		String expected = 
+				"<!DOCTYPE note [\r\n" + 
+				"  <!ELEMENT note (to,from,heading,body)>\r\n" + 
+				"  <!ELEMENT to (#PCDATA)>\r\n" + 
+				"  <!ATTLIST payment type CDATA \"check\">\r\n" + 
+				"]>\r\n" + 
+				"<note>\r\n" + 
+				"  <to>Fred</to>\r\n" + 
+				"</note>";
+		format(content, expected, formattingOptions);
+	}
+	
+	@Test public void testDoctypeInternalAllDecls() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		
+		String content = 
+				"<!DOCTYPE note\r\n" + 
+				"[\r\n" + 
+				"\r\n" + 
+				"  <!ELEMENT note (to,from,heading,body)>\r\n" + 
+				"\r\n" + 
+				"  <!ATTLIST payment type CDATA \"check\">\r\n" + 
+				"\r\n" + 
+				"  <!ENTITY copyright SYSTEM \"https://www.w3schools.com/entities.dtd\">\r\n" + 
+				"\r\n" + 
+				"  <!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\">\r\n" + 
+				"]>\r\n" + 
+				"";
+		String expected = 
+				"<!DOCTYPE note [\r\n" + 
+				"  <!ELEMENT note (to,from,heading,body)>\r\n" + 
+				"  <!ATTLIST payment type CDATA \"check\">\r\n" + 
+				"  <!ENTITY copyright SYSTEM \"https://www.w3schools.com/entities.dtd\">\r\n" + 
+				"  <!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\">\r\n" + 
+				"]>\r\n" + 
+				"";
+		format(content, expected, formattingOptions);
+	}
+	
+	@Test public void testDoctypeInternalWithComments() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		
+		String content = 
+				"<!DOCTYPE note\r\n" + 
+				"[ \r\n" + 
+				"  <!-- comment -->\r\n" + 
+				"\r\n" + 
+				"  <!ELEMENT note (to,from,heading,body)>\r\n" + 
+				"  \r\n" + 
+				"  \r\n" + 
+				"  <!ATTLIST payment type CDATA \"check\">\r\n" + 
+				"  \r\n" + 
+				"  <!-- comment -->\r\n" + 
+				"  \r\n" + 
+				"  <!ENTITY copyright SYSTEM \"https://www.w3schools.com/entities.dtd\">\r\n" + 
+				"  <!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\">\r\n" + 
+				"]>\r\n" + 
+				"";
+		String expected = 
+				"<!DOCTYPE note [\r\n" + 
+				"  <!-- comment -->\r\n" + 
+				"  <!ELEMENT note (to,from,heading,body)>\r\n" + 
+				"  <!ATTLIST payment type CDATA \"check\">\r\n" + 
+				"  <!-- comment -->\r\n" + 
+				"  <!ENTITY copyright SYSTEM \"https://www.w3schools.com/entities.dtd\">\r\n" + 
+				"  <!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\">\r\n" + 
+				"]>\r\n" + 
+				"";
+		format(content, expected, formattingOptions);
+	}
+	
+	@Test public void testDoctypeInternalWithText() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		
+		String content = 
+				"<!DOCTYPE note\r\n" + 
+				"[\r\n" + 
+				"  <!ELEMENT note (to,from,heading,body)>\r\n" + 
+				"\r\n" + 
+				"\r\n" + 
+				"  garbageazg df\r\n" + 
+				"                gdf\r\n" + 
+				"garbageazgdfg\r\n" + 
+				"  df\r\n" + 
+				"  gd\r\n" + 
+				"\r\n" + 
+				"\r\n" + 
+				"  \r\n" + 
+				"  <!ELEMENT note (to,from,heading,body)>\r\n" + 
+				"  \r\n" + 
+				"]>";
+		String expected = 
+				"<!DOCTYPE note [\r\n" + 
+				"  <!ELEMENT note (to,from,heading,body)>\r\n" + 
+				"  garbageazg df\r\n" + 
+				"                gdf\r\n" + 
+				"garbageazgdfg\r\n" + 
+				"  df\r\n" + 
+				"  gd\r\n" + 
+				"  <!ELEMENT note (to,from,heading,body)>\r\n" + 
+				"]>\r\n";
+		format(content, expected, formattingOptions);
+	}
+	
+	@Test public void testDTDMultiParameterAttlist() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		
+		String content = 
+				"\r\n<!ATTLIST array name CDATA #IMPLIED description CDATA #IMPLIED disabled CDATA #IMPLIED>";
+		String expected = 
+				"<!ATTLIST array\r\n" + 
+				"  name CDATA #IMPLIED\r\n" + 
+				"  description CDATA #IMPLIED\r\n" + 
+				"  disabled CDATA #IMPLIED\r\n" +
+				">";
+		format(content, expected, formattingOptions, "test.dtd");
+	}
+	
+	@Test public void testDTDIndentation() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		
+		String content = 
+				"  <!ELEMENT note (to,from,heading,body)>\r\n" + 
+				"			\r\n" + 
+				"			<!ATTLIST payment type CDATA \"check\">\r\n" + 
+				"			\r\n" + 
+				"				  <!ENTITY copyright SYSTEM \"https://www.w3schools.com/entities.dtd\">\r\n" + 
+				"				\r\n" + 
+				"				  <!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\">";
+		String expected = 
+				"<!ELEMENT note (to,from,heading,body)>\r\n" + 
+				"<!ATTLIST payment type CDATA \"check\">\r\n" + 
+				"<!ENTITY copyright SYSTEM \"https://www.w3schools.com/entities.dtd\">\r\n" + 
+				"<!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\">";
+		format(content, expected, formattingOptions, "test.dtd");
+	}
+	
+	@Test public void testDTDNotEndBrackets() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		
+		String content = 
+				"<!ELEMENT note (to,from,heading,body)\r\n" + 
+				"\r\n" + 
+				"<!ATTLIST payment type CDATA \"check\"\r\n" + 
+				"\r\n" + 
+				"<!ENTITY copyright SYSTEM \"https://www.w3schools.com/entities.dtd\"\r\n" + 
+				"<!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\"";
+		String expected = 
+				"<!ELEMENT note (to,from,heading,body)\r\n" + 
+				"<!ATTLIST payment type CDATA \"check\"\r\n" + 
+				"<!ENTITY copyright SYSTEM \"https://www.w3schools.com/entities.dtd\"\r\n" + 
+				"<!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\"";
+		format(content, expected, formattingOptions, "test.dtd");
+	}
+	
+	@Test public void testDTDUnknownDeclNameAndText() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		
+		String content = 
+				"<!ELEMENT note (to,from,heading,body)>\r\n" + 
+				"\r\n" + 
+				"\r\n" + 
+				"  <!hellament afsfas >\r\n" + 
+				"\r\n" + 
+				"  asdasd\r\n" + 
+				"  asd\r\n" + 
+				"\r\n" + 
+				"<!ATTLIST payment type CDATA \"check\">\r\n" + 
+				"<!ENTITY copyright SYSTEM \"https://www.w3schools.com/entities.dtd\">\r\n" + 
+				"<!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\">";
+		String expected = 
+				"<!ELEMENT note (to,from,heading,body)>\r\n" + 
+				"<!hellament afsfas >\r\n" + 
+				"asdasd\r\n" + 
+				"  asd\r\n" + 
+				"<!ATTLIST payment type CDATA \"check\">\r\n" + 
+				"<!ENTITY copyright SYSTEM \"https://www.w3schools.com/entities.dtd\">\r\n" + 
+				"<!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\">";
+		format(content, expected, formattingOptions, "test.dtd");
+	}
+	
+	@Test public void testAllDoctypeParameters() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		
+		String content = 
+				"<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\r\n" + 
+				"<!DOCTYPE web-app PUBLIC \"-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN\" \"http://java.sun.com/dtd/web-app_2_3.dtd\" [\r\n" + 
+				"        <!ELEMENT h1 %horiz.model;>\r\n" + 
+				"  <!ATTLIST h1 %all;>\r\n" + 
+				"  <!ELEMENT h2 %horiz.model;>\r\n" + 
+				"\r\n" + 
+				"\r\n" + 
+				"          <!ATTLIST h2 %all;>\r\n" + 
+				"  <!ELEMENT h3 %horiz.model;>\r\n" + 
+				"  <!ATTLIST h3 %all;>\r\n" + 
+				"]\r\n" + 
+				"\r\n" + 
+				"\r\n" + 
+				">\r\n" + 
+				"<web-app>\r\n" + 
+				"  <display-name>sdsd</display-name>\r\n" + 
+				"\r\n" + 
+				"  <servlet>\r\n" + 
+				"    \r\n" + 
+				"    <servlet-name>er</servlet-name>\r\n" + 
+				"    <servlet-class>dd</servlet-class>\r\n" + 
+				"  </servlet>\r\n" + 
+				"</web-app>";
+		String expected = 
+				"<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\r\n" + 
+				"<!DOCTYPE web-app PUBLIC \"-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN\" \"http://java.sun.com/dtd/web-app_2_3.dtd\" [\r\n" + 
+				"  <!ELEMENT h1 %horiz.model;>\r\n" + 
+				"  <!ATTLIST h1 %all;>\r\n" + 
+				"  <!ELEMENT h2 %horiz.model;>\r\n" + 
+				"  <!ATTLIST h2 %all;>\r\n" + 
+				"  <!ELEMENT h3 %horiz.model;>\r\n" + 
+				"  <!ATTLIST h3 %all;>\r\n" + 
+				"]>\r\n" + 
+				"<web-app>\r\n" + 
+				"  <display-name>sdsd</display-name>\r\n" + 
+				"  <servlet>\r\n" + 
+				"    <servlet-name>er</servlet-name>\r\n" + 
+				"    <servlet-class>dd</servlet-class>\r\n" + 
+				"  </servlet>\r\n" + 
+				"</web-app>";
+		format(content, expected, formattingOptions);
+	}
+	
+	@Test public void testDTDElementContentWithAsterisk() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		
+		String content = 
+				"<!ELEMENT data    (#PCDATA | data | d0)*   >";
+		String expected = 
+				"<!ELEMENT data (#PCDATA | data | d0)*>";
+		format(content, expected, formattingOptions, "test.dtd", false);
+	}
+	
+	@Test public void testDoctypeSingleLineFormat() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		
+		String content = 
+				"<!DOCTYPE name [<!-- MY COMMENT --><!NOTATION postscript SYSTEM \"ghostview\">]>\r\n" + 
+				"";
+		String expected = 
+				"<!DOCTYPE name [\r\n" + 
+				"  <!-- MY COMMENT -->\r\n" + 
+				"  <!NOTATION postscript SYSTEM \"ghostview\">\r\n" + 
+				"]>\r\n" + 
+				"";
+		format(content, expected, formattingOptions);
+	}
+	
+	@Test public void testDoctypeInvalidParameter() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+	
+		String content = 
+				"<!DOCTYPE name \"url\" [\r\n" + 
+				"  <!-- MY COMMENT -->\r\n" + 
+				"  <!NOTATION postscript SYSTEM \"ghostview\">\r\n" + 
+				"]>";
+		String expected = 
+				"<!DOCTYPE name \"url\" [\r\n" + 
+				"  <!-- MY COMMENT -->\r\n" + 
+				"  <!NOTATION postscript SYSTEM \"ghostview\">\r\n" + 
+				"]>\r\n";
+		format(content, expected, formattingOptions);
+	}
+	
+	@Test public void testDoctypeInvalidParameterUnclosed() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		
+		String content = 
+				"<!DOCTYPE name \"url\"[ <!-- MY COMMENT -->\r\n" + 
+				"  <!NOTATION postscript SYSTEM \"ghostview\">\r\n" + 
+				"]\r\n" + 
+				"\r\n" + 
+				"\r\n" + 
+				"<a></a>";
+		String expected = 
+				"<!DOCTYPE name \"url\"[ <!-- MY COMMENT -->\r\n" + 
+				"  <!NOTATION postscript SYSTEM \"ghostview\">\r\n" + 
+				"]\r\n" + 
+				"<a></a>";
+		format(content, expected, formattingOptions);
+	}
+	
+	@Test 
+	public void testUnclosedSystemId() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		
+		String content = 
+				"<!DOCTYPE name PUBLIC \"lass\" \"bass [ <!-- MY COMMENT -->\r\n" + 
+				"\r\n" + 
+				"  <!NOTATION postscript SYSTEM \"ghostview\">\r\n" + 
+				"]>\r\n" + 
+				"\r\n" + 
+				"<a></a>";
+		String expected = 
+				"<!DOCTYPE name PUBLIC \"lass\" \"bass [ <!-- MY COMMENT -->\r\n" + 
+				"\r\n" + 
+				"  <!NOTATION postscript SYSTEM \"ghostview\">\r\n" + 
+				"]>\r\n" + 
+				"<a></a>";
+		format(content, expected, formattingOptions);
+	}
+	
+	@Test 
+	public void testUnclosedPublicId() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		
+		String content = 
+				"<!DOCTYPE name PUBLIC \"lass  [ <!-- MY COMMENT -->\r\n" + 
+				"\r\n" + 
+				"  <!NOTATION postscript SYSTEM \"ghostview\">\r\n" + 
+				"]>\r\n" + 
+				"\r\n" + 
+				"<a></a>";
+		String expected = 
+				"<!DOCTYPE name PUBLIC \"lass  [ <!-- MY COMMENT -->\r\n" + 
+				"\r\n" + 
+				"  <!NOTATION postscript SYSTEM \"ghostview\">\r\n" + 
+				"]>\r\n" + 
+				"<a></a>";
+		format(content, expected, formattingOptions);
+	}
+	
+	@Test 
+	public void testCommentAfterMissingClosingBracket() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		
+		String content = 
+				"<!DOCTYPE name [\r\n" + 
+				"  <!ENTITY % astroTerms SYSTEM \"http://xml.gsfc.nasa.gov/DTD/entities/astroTerms.ent\"\r\n" + 
+				"\r\n" + 
+				"  <!-- MY COMMENT -->\r\n" + 
+				"]>\r\n" + 
+				"\r\n" + 
+				"<a></a>";
+		String expected = 
+				"<!DOCTYPE name [\r\n" + 
+				"  <!ENTITY % astroTerms SYSTEM \"http://xml.gsfc.nasa.gov/DTD/entities/astroTerms.ent\"\r\n" + 
+				"  <!-- MY COMMENT -->\r\n" + 
+				"]>\r\n" + 
+				"<a></a>";
+		format(content, expected, formattingOptions);
+	}
+
+	@Test 
+	public void testHTMLDTD() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		
+		String content = 
+				"<!--\r\n" + 
+				"  Further information about HTML 4.01 is available at:\r\n" + 
+				"-->\r\n" + 
+				"<!ENTITY % HTML.Version \"-//W3C//DTD HTML 4.01 Frameset//EN\"\r\n" + 
+				"  -- Typical usage:\r\n" + 
+				"\r\n" + 
+				"    <!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Frameset//EN\"\r\n" + 
+				"            \"http://www.w3.org/TR/html4/frameset.dtd\">\r\n" + 
+				"    <html>\r\n" + 
+				"    <head>\r\n" + 
+				"    ...\r\n" + 
+				"    </head>\r\n" + 
+				"    <frameset>\r\n" + 
+				"    ...\r\n" + 
+				"    </frameset>\r\n" + 
+				"    </html>\r\n" + 
+				"-->\r\n" + 
+				"\r\n" + 
+				"<!ENTITY % HTML.Frameset \"INCLUDE\">\r\n" + 
+				"<!ENTITY % HTML4.dtd PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">\r\n" + 
+				"%HTML4.dtd;";
+		String expected = 
+				"<!--\r\n" + 
+				"  Further information about HTML 4.01 is available at:\r\n" + 
+				"-->\r\n" + 
+				"<!ENTITY % HTML.Version \"-//W3C//DTD HTML 4.01 Frameset//EN\" -- Typical usage:\r\n" + 
+				"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Frameset//EN\"\r\n" + 
+				"            \"http://www.w3.org/TR/html4/frameset.dtd\">\r\n" + 
+				"<html>\r\n" + 
+				"<head>\r\n" + 
+				"...\r\n" + 
+				"</head>\r\n" + 
+				"<frameset>\r\n" + 
+				"...\r\n" + 
+				"</frameset>\r\n" + 
+				"</html>\r\n" + 
+				"-->\r\n" + 
+				"<!ENTITY % HTML.Frameset \"INCLUDE\">\r\n" + 
+				"<!ENTITY % HTML4.dtd PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">\r\n" + 
+				"%HTML4.dtd;";
+		format(content, expected, formattingOptions, "test.dtd");
+	}
+	
+	@Test 
+	public void testXMLInDTDFile() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		
+		String content = 
+				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + 
+				"<resources variant=\"\">\r\n" + 
+				"    <resource name=\"res00\" >\r\n" + 
+				"        <property name=\"propA\" value=\"...\" />\r\n" + 
+				"        <property name=\"propB\" value=\"...\" />\r\n" + 
+				"    </resource>\r\n" + 
+				"</resources>";
+		String expected = 
+				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + 
+				"<resources variant=\"\">\r\n" + 
+				"<resource name=\"res00\" >\r\n" + 
+				"<property name=\"propA\" value=\"...\" />\r\n" + 
+				"<property name=\"propB\" value=\"...\" />\r\n" + 
+				"</resource>\r\n" + 
+				"</resources>";
+		format(content, expected, formattingOptions, "test.dtd");
+	}
+	
+	@Test 
+	public void testBadDTDFile() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		
+		String content = 
+				"<![ %HTML.Reserved; [\r\n" + 
+				"\r\n" + 
+				"\r\n" + 
+				"<!ENTITY % reserved\r\n" + 
+				" \"datasrc     %URI;          #IMPLIED  -- \"\r\n" + 
+				"  >\r\n" + 
+				"\r\n" + 
+				"]]>\r\n" + 
+				"\r\n" + 
+				"<!--=================== Text Markup ======================================-->";
+		String expected = 
+				"<![ %HTML.Reserved; [\r\n" + 
+				"<!ENTITY % reserved \"datasrc     %URI;          #IMPLIED  -- \">\r\n" + 
+				"]]>\r\n" + 
+				"<!--=================== Text Markup ======================================-->";
+		format(content, expected, formattingOptions, "test.dtd");
+	}
+	
+	@Test 
+	public void testIncompleteAttlistInternalDecl() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		
+		String content = 
+				"<!ATTLIST img src CDATA #REQUIRED %all;\r\n" + 
+				">\r\n" + 
+				"\r\n" + 
+				"<!-- Hypertext anchors. -->";
+		String expected = 
+				"<!ATTLIST img\r\n" + 
+				"  src CDATA #REQUIRED\r\n" + 
+				"  %all;\r\n" + 
+				">\r\n" + 
+				"<!-- Hypertext anchors. -->";
+		format(content, expected, formattingOptions, "test.dtd");
+	}
+	
+	
+	@Test 
+	public void testTemplate() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		
+		String content = 
+				"";
+		String expected = 
+				"";
+		format(content, expected, formattingOptions);
+	}
+	
+	
 
 	//-------------------------Tools-----------------------------------------
 
@@ -733,10 +1327,20 @@ public class XMLFormatterTest {
 
 	private static void format(String unformatted, String expected, XMLFormattingOptions formattingOptions)
 			throws BadLocationException {
+		format(unformatted, expected, formattingOptions, "test://test.html");
+	}
+	
+	private static void format(String unformatted, String expected, XMLFormattingOptions formattingOptions, String uri)
+			throws BadLocationException {
+		format(unformatted, expected, formattingOptions, uri, true);
+	}
+
+	private static void format(String unformatted, String expected, XMLFormattingOptions formattingOptions, String uri, Boolean considerRangeFormat)
+			throws BadLocationException {
+		
 		Range range = null;
-		String uri = "test://test.html";
-		int rangeStart = unformatted.indexOf('|');
-		int rangeEnd = unformatted.lastIndexOf('|');
+		int rangeStart = considerRangeFormat ? unformatted.indexOf('|') : -1;
+		int rangeEnd = considerRangeFormat ? unformatted.lastIndexOf('|') : -1;
 		if (rangeStart != -1 && rangeEnd != -1) {
 			// remove '|'
 			unformatted = unformatted.substring(0, rangeStart) + unformatted.substring(rangeStart + 1, rangeEnd)
@@ -756,7 +1360,10 @@ public class XMLFormatterTest {
 					+ unformatted.substring(rangeEnd - 1, unformatted.length());
 		}
 		Assert.assertEquals(expected, formatted);
+	
 	}
+
+
 
 	private static XMLFormattingOptions createDefaultFormattingOptions() {
 		return new XMLFormattingOptions(2, true);

@@ -53,7 +53,7 @@ public class CMDTDContentModelProvider implements ContentModelProvider {
 		 * "http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd">
 		 */
 		DOMDocumentType documentType = xmlDocument.getDoctype();
-		return documentType.getSystemId();
+		return documentType.getSystemIdWithoutQuotes();
 	}
 
 	@Override
