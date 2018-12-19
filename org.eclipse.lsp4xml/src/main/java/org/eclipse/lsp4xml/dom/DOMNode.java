@@ -189,6 +189,9 @@ public abstract class DOMNode implements Node {
 		return result.toString();
 	}
 
+	/**
+	 * Returns the node before 
+	 */
 	public DOMNode findNodeBefore(int offset) {
 		List<DOMNode> children = getChildren();
 		int idx = findFirst(children, c -> offset <= c.start) - 1;

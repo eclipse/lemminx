@@ -308,7 +308,7 @@ public class DOMParser {
 				}
 				if (curr instanceof DTDDeclNode) {
 					curr.end = scanner.getTokenOffset() - 1;
-					if(!curr.isDoctype()) {
+					while(!curr.isDoctype()) {
 						curr = curr.getParentNode();
 					}	
 				}
@@ -368,7 +368,7 @@ public class DOMParser {
 			}
 
 			case DTDEndInternalSubset: {
-				if (!curr.isDoctype()) {
+				while (!curr.isDoctype()) {
 					curr.end = scanner.getTokenOffset() - 1;
 					curr = curr.getParentNode();
 				}
@@ -380,7 +380,7 @@ public class DOMParser {
 
 			case DTDStartElement: {
 				//If previous 'curr' was an unclosed DTD Declaration
-				if (!curr.isDoctype()) {
+				while (!curr.isDoctype()) {
 					curr.end = scanner.getTokenOffset();
 					curr = curr.getParentNode();
 				}
@@ -423,7 +423,7 @@ public class DOMParser {
 			}
 
 			case DTDStartAttlist: {
-				if (!curr.isDoctype()) { // If previous DTD Decl was unclosed
+				while (!curr.isDoctype()) { // If previous DTD Decl was unclosed
 					curr.end = scanner.getTokenOffset();
 					curr = curr.getParentNode();
 				}
@@ -446,7 +446,7 @@ public class DOMParser {
 				DTDAttlistDecl attribute = (DTDAttlistDecl) curr;
 				if(isInitialDeclaration == false) {
 					// All additional declarations are created as new DTDAttlistDecl's
-					DTDAttlistDecl child = new DTDAttlistDecl(-1, -1, attribute.getParentDocumentType()); // Wont use these values
+					DTDAttlistDecl child = new DTDAttlistDecl(attribute.getStart(), attribute.getEnd(), attribute.getParentDocumentType());
 					attribute.addAdditionalAttDecl(child);
 					child.parent = attribute;
 
@@ -477,7 +477,7 @@ public class DOMParser {
 			}
 		
 			case DTDStartEntity: {
-				if (!curr.isDoctype()) { // If previous DTD Decl was unclosed
+				while (!curr.isDoctype()) { // If previous DTD Decl was unclosed
 					curr.end = scanner.getTokenOffset();
 					curr = curr.getParentNode();
 				}
@@ -525,7 +525,7 @@ public class DOMParser {
 			}
 
 			case DTDStartNotation: {
-				if (!curr.isDoctype()) { // If previous DTD Decl was unclosed
+				while (!curr.isDoctype()) { // If previous DTD Decl was unclosed
 					curr.end = scanner.getTokenOffset();
 					curr = curr.getParentNode();
 				}

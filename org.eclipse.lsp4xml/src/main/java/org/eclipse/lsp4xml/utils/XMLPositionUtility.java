@@ -10,6 +10,7 @@
  */
 package org.eclipse.lsp4xml.utils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.xerces.xni.XMLLocator;
@@ -23,6 +24,9 @@ import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMElement;
 import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.dom.DOMProcessingInstruction;
+import org.eclipse.lsp4xml.dom.DTDAttlistDecl;
+import org.eclipse.lsp4xml.dom.DTDDeclNode;
+import org.eclipse.lsp4xml.dom.DTDDeclParameter;
 import org.eclipse.lsp4xml.dom.DTDElementDecl;
 
 /**
@@ -359,14 +363,130 @@ public class XMLPositionUtility {
 		return null;
 	}
 
-	public static Range selectDTDElementDeclTagAt(int offset, DOMDocument document) {
+	/**
+	 * Will give the range for the last VALID DTD Decl parameter at 'offset'.
+	 * An unrecognized Parameter is not considered VALID,
+	 * 
+	 * eg: "<!ELEMENT elementName (content) UNRECOGNIZED_CONTENT"
+	 * 		will give the range of 1 character length, after '(content)'
+	 */
+	public static Range getLastValidDTDDeclParameter(int offset, DOMDocument document, boolean selectWholeParameter) {
 		DOMNode node = document.findNodeAt(offset);
-		if (node != null && node.isDTDElementDecl()) {
-			DTDElementDecl elementDecl = (DTDElementDecl) node;
-			return createRange(elementDecl.getStart(), elementDecl.getEndElementTag(), document);
+		if (node instanceof DTDDeclNode) {
+			DTDDeclNode decl = (DTDDeclNode) node;
+			ArrayList<DTDDeclParameter> params = decl.getParameters();
+			DTDDeclParameter finalParam;
+			if(params == null || params.isEmpty()) {
+				return createRange(decl.declType.getStart(), decl.declType.getEnd(), document);
+			}
+			if(decl.unrecognized != null && decl.unrecognized.equals(params.get(params.size() - 1))) {
+				if(params.size() > 1) { // not only an unrecognized parameter
+					finalParam = params.get(params.size() - 2);
+				} else {
+					finalParam = decl.declType; // no valid parameters
+				}
+			}
+			else {
+				finalParam = params.get(params.size() - 1);
+			}
+			if(selectWholeParameter) {
+				return createRange(finalParam.getStart(), finalParam.getEnd(), document);
+			}
+			return createRange(finalParam.getEnd(), finalParam.getEnd() + 1, document);
 		}
 		return null;
 	}
 
+	public static Range getLastValidDTDDeclParameter(int offset, DOMDocument document) {
+		return getLastValidDTDDeclParameter(offset, document, false);
+	}
+
+	/**
+	 * Will give the range for the last VALID DTD Decl parameter at 'offset'.
+	 * An unrecognized Parameter is not considered VALID,
+	 * 
+	 * eg: <!ELEMENT elementName (content) UNRECOGNIZED_CONTENT
+	 * 		will give the range 1 character after '(content)'
+	 */
+	public static Range getLastValidDTDDeclParameterOrUnrecognized(int offset, DOMDocument document) {
+		DOMNode node = document.findNodeAt(offset);
+		if (node instanceof DTDDeclNode) {
+			DTDDeclNode decl = (DTDDeclNode) node;
+			if(decl instanceof DTDAttlistDecl) {
+				DTDAttlistDecl attlist = (DTDAttlistDecl) decl;
+				ArrayList<DTDAttlistDecl> internal = attlist.getInternalChildren();
+				if(internal != null && !internal.isEmpty()) {
+					decl = internal.get(internal.size() - 1); //get last internal decl
+				}
+			}
+			ArrayList<DTDDeclParameter> params = decl.getParameters();
+			if(params == null || params.isEmpty()) {
+				return createRange(decl.declType.getStart(), decl.declType.getEnd(), document);
+			}
+			DTDDeclParameter finalParam = params.get(params.size() - 1);
+			if(decl.unrecognized != null && decl.unrecognized.equals(finalParam)) {
+				return createRange(finalParam.getStart(), finalParam.getEnd(), document);
+			}
+			return createRange(finalParam.getEnd(), finalParam.getEnd() + 1, document);
+		}
+		return null;
+	}
+
+	/**
+	 * Will give the range for the last DTD Decl parameter at 'offset'.
+	 * An unrecognized Parameter is considered as well.
+	 * 
+	 * eg: <!ELEMENT elementName (content) UNRECOGNIZED_CONTENT
+	 * 		will give the range 1 character after '(content)'
+	 */
+	public static Range getLastDTDDeclParameter(int offset, DOMDocument document) {
+		DOMNode node = document.findNodeAt(offset);
+		if (node instanceof DTDDeclNode) {
+			DTDDeclNode decl = (DTDDeclNode) node;
+			ArrayList<DTDDeclParameter> params = decl.getParameters();
+			DTDDeclParameter lastParam;
+			if(params != null && !params.isEmpty()) {
+				lastParam = params.get(params.size() - 1);
+				return createRange(lastParam.getStart(), lastParam.getEnd(), document);
+			}
+		}
+		return null;
+	}
+
+	public static Range selectDTDDeclTagNameAt(int offset, DOMDocument document) {
+		DOMNode node = document.findNodeAt(offset);
+		if (node instanceof DTDDeclNode) {
+			DTDDeclNode declNode = (DTDDeclNode) node;
+			return createRange(declNode.declType.getStart(), declNode.declType.getEnd(), document);
+		}
+		return null;
+	}
+
+	public static Range selectWholeTag(int offset, DOMDocument document) {
+		DOMNode node = document.findNodeAt(offset);
+		if(node != null) {
+			return createRange(node.getStart(), node.getEnd(), document);
+		}
+		return null;
+	}
+
+	public static Range getElementDeclMissingContentOrCategory(int offset, DOMDocument document) {
+		DOMNode node = document.findNodeAt(offset);
+		if (node instanceof DTDElementDecl) {
+			DTDElementDecl declNode = (DTDElementDecl) node;
+			ArrayList<DTDDeclParameter> params = declNode.getParameters();
+			if(params.isEmpty()) {
+				return null;
+			}
+			if(params.size() == 1) {
+				DTDDeclParameter param = params.get(0);
+				return createRange(param.getEnd(), param.getEnd() + 1, document);
+			}
+			else { 
+				return createRange(params.get(1).getStart(), params.get(1).getEnd(), document);
+			}
+		}
+		return null;
+	}
 
 }

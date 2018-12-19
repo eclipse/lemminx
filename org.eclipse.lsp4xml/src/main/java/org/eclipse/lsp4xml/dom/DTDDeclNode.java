@@ -30,8 +30,8 @@ public class DTDDeclNode extends DOMNode{
 	protected final DOMDocumentType parentDocumentType;
 	protected final DOMDocument parentDocument;
 
-	DTDDeclParameter unrecognized; // holds all content after parsing goes wrong in a DTD declaration (ENTITY, ATTLIST, ELEMENT).
-	DTDDeclParameter declType;
+	public DTDDeclParameter unrecognized; // holds all content after parsing goes wrong in a DTD declaration (ENTITY, ATTLIST, ...).
+	public DTDDeclParameter declType; // represents the actual name of the decl eg: ENTITY, ATTLIST, ...
 
 	ArrayList<DTDDeclParameter> parameters;
 
@@ -96,6 +96,10 @@ public class DTDDeclNode extends DOMNode{
 			parameters = new ArrayList<DTDDeclParameter>();
 		}
 		return parameters;
+	}
+
+	public void setDeclType(int start, int end) {
+		declType = new DTDDeclParameter(parentDocumentType, start, end);
 	}
 
 	public String getDeclType() {

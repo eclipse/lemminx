@@ -43,7 +43,7 @@ public class DTDAttlistDecl extends DTDDeclNode {
 	
 	public DTDAttlistDecl(int start, int end, DOMDocumentType parentDocumentType) {
 		super(start, end, parentDocumentType);
-		declType = new DTDDeclParameter(parentDocumentType, start + 2, start + 9);
+		setDeclType(start + 2, start + 9);
 	}
 
 	public DOMDocumentType getParentDocumentType() {

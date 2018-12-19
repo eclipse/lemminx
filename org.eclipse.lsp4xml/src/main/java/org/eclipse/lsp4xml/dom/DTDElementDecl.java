@@ -27,14 +27,14 @@ public class DTDElementDecl extends DTDDeclNode {
 	 
 	 */
 
-	DTDDeclParameter name;
-	DTDDeclParameter category;
-	DTDDeclParameter content;
+	public DTDDeclParameter name;
+	public DTDDeclParameter category;
+	public DTDDeclParameter content;
 	
 
 	public DTDElementDecl(int start, int end, DOMDocumentType parentDocumentType) {
 		super(start, end, parentDocumentType);
-		declType = new DTDDeclParameter(parentDocumentType, start + 2, start + 9);
+		setDeclType(start + 2, start + 9);
 	}
 
 	public DOMDocumentType getParentDocumentType() {
