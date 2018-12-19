@@ -305,7 +305,11 @@ public class XMLPositionUtility {
 	/**
 	 * Finds the offset of the first tag it comes across behind the given offset.
 	 * 
-	 * This excludes the tag it starts in if offset is within a tag.
+	 * This includes the tag it starts in if offset is within a tag's content.
+	 * 
+	 * eg:
+	 *   <a> <b> | </b> </a> , will give 'b'
+	 *   <a> <b|>  </b> </a> , will give 'a'
 	 */
 	public static Range selectPreviousEndTag(int offset, DOMDocument document) {
 		// boolean firstBracket = false;
@@ -313,12 +317,7 @@ public class XMLPositionUtility {
 		char c = document.getText().charAt(i);
 		while (i >= 0) {
 			if (c == '>') {
-				// if(firstBracket) {
-				return selectStartTag(i, document);
-				// }
-				// else {
-				// firstBracket = true;
-				// }
+				return selectEndTag(i, document);
 			}
 			i--;
 			c = document.getText().charAt(i);
