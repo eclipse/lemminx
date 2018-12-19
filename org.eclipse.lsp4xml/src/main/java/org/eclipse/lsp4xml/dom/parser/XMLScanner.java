@@ -843,6 +843,9 @@ public class XMLScanner implements Scanner {
 		}
 
 		
+
+		
+
 		stream.advance(1);
 		state = isInsideDTDContent ? ScannerState.DTDWithinContent : ScannerState.WithinContent;
 		return finishToken(offset, TokenType.Unknown, errorMessage);

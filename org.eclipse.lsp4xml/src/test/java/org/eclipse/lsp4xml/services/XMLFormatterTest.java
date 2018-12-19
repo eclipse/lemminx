@@ -211,21 +211,6 @@ public class XMLFormatterTest {
 	}
 
 	@Test
-	public void testUnclosedEndTagBracketTrailingElement() throws BadLocationException {
-		String content = 
-		"<root>" + lineSeparator() +
-		"         <a> content </a" + lineSeparator() + 
-		"      <b></b>" + lineSeparator() +
-		"</root>";
-		String expected = 
-		"<root>" + lineSeparator() +
-		"  <a> content </a" + lineSeparator() + 
-		"  <b></b>" + lineSeparator() +
-		"</root>";
-		format(content, expected);
-	}
-
-	@Test
 	public void testComment() throws BadLocationException {
 		String content = "<!-- CommentText --><a>Val</a>";
 		String expected = "<!-- CommentText -->" + lineSeparator() + //
@@ -303,23 +288,6 @@ public class XMLFormatterTest {
 		"   line 2" + lineSeparator() +
 		" -->";
 		String expected = "<!-- line 1 line 2 -->" + lineSeparator();
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setJoinCommentLines(true);
-		format(content, expected, formattingOptions);
-	}
-
-	@Test
-	public void testUnclosedEndTagTrailingComment() throws BadLocationException {
-		String content = 
-		"<root>" + lineSeparator() +
-		"    <a> content </a" + lineSeparator() + 
-		"        <!-- comment -->" + lineSeparator() +
-		" </root>";
-		String expected = 
-		"<root>" + lineSeparator() +
-		"  <a> content </a" + lineSeparator() + 
-		"  <!-- comment -->" + lineSeparator() +
-		"</root>";
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		formattingOptions.setJoinCommentLines(true);
 		format(content, expected, formattingOptions);

@@ -66,15 +66,10 @@ public class DOMParser {
 		while (token != TokenType.EOS) {
 			switch (token) {
 			case StartTagOpen: {
-				if(!curr.isClosed() && curr.parent != null) {
-					//The next node's parent is not closed at this point
-					//so the node's parent (curr) will have its end position updated
-					//to the beginning of this new node.
+				if(curr.parent != null) {
 					curr.end = scanner.getTokenOffset();
 				}
-				if((curr.isClosed()) || (curr.isDoctype() && curr.parent != null)) {
-					//The next node is being considered a child of 'curr'
-					//and if 'curr' is already closed then it was not updated properly (mostlikey EndTagClose was not triggered).
+				if(curr.isDoctype() && curr.parent != null) {
 					curr = curr.parent;
 				}
 				DOMElement child = xmlDocument.createElement(scanner.getTokenOffset(), scanner.getTokenEnd());
@@ -141,7 +136,7 @@ public class DOMParser {
 					}
 					curr.end = scanner.getTokenEnd();
 				} else {
-					// element open tag not found (ex: <root>) add a fake element which only has an
+					// element open tag not found (ex: <root>) add a fake element which have just
 					// end tag (no start tag).
 					DOMElement element = xmlDocument.createElement(scanner.getTokenOffset() - 2, scanner.getTokenEnd());
 					element.endTagOpenOffset = endTagOpenOffset;
@@ -252,9 +247,6 @@ public class DOMParser {
 			}
 
 			case StartCommentTag: {
-				if((curr.isClosed()) || (curr.isDoctype() && curr.parent != null)) {
-					curr = curr.parent;
-				}
 				DOMComment comment = xmlDocument.createComment(scanner.getTokenOffset(), text.length());
 				if(curr.parent != null && curr.parent.isDoctype()) {
 					curr.parent.addChild(comment);

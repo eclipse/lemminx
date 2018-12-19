@@ -127,7 +127,7 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 			return XMLPositionUtility.selectAttributeValueByGivenValueAt(attrValue, offset, document);
 		}
 		case ETagUnterminated:
-			return XMLPositionUtility.selectPreviousEndTag(offset - 1, document);
+			return XMLPositionUtility.selectEndTag(offset - 1, document);
 		case CustomETag:
 			return XMLPositionUtility.selectEndTag(offset, document);
 		case ETagRequired: {

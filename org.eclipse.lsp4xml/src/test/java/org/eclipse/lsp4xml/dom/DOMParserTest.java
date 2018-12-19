@@ -360,34 +360,6 @@ public class DOMParserTest {
 	}
 
 	@Test
-	public void testUnclosedEndTagWithTrailingElement() {
-		DOMNode root = createElement("root", 0, 29, 36, true);
-		DOMNode elementA = createElement("a", 7, 17, 20, true);
-		DOMNode elementB = createElement("b", 21, 24, 28, true);
-		DOMText content = createTextNode("Content", 10, 17, true);
-
-		root.addChild(elementA);
-		root.addChild(elementB);
-		elementA.addChild(content);
-
-		assertDocument("<root> <a>Content</a <b></b> </root>", root);
-	}
-
-	@Test
-	public void testUnclosedEndTagWithTrailingComment() {
-		DOMNode root = createElement("root", 0, 38, 45, true);
-		DOMNode elementA = createElement("a", 7, 17, 20, true);
-		DOMNode comment = createCommentNode(" comment ", 21, 37, true);
-		DOMText content = createTextNode("Content", 10, 17, true);
-
-		root.addChild(elementA);
-		root.addChild(comment);
-		elementA.addChild(content);
-
-		assertDocument("<root> <a>Content</a <!-- comment --> </root>", root);
-	}
-
-	@Test
 	public void elementOffsets() {
 		DOMDocument document = DOMParser.getInstance().parse("<a></a>", null, null);
 		DOMElement a = document.getDocumentElement();
