@@ -157,10 +157,14 @@ class XMLSymbolsProvider {
 			return SymbolKind.Property;
 		} else if (node.isDoctype()) {
 			return SymbolKind.Struct;
-		} else if (node.isDTDElementDecl() || node.isDTDEntityDecl() || node.isDTDNotationDecl()) {
+		} else if (node.isDTDElementDecl()) {
 			return SymbolKind.Property;
+		} else if (node.isDTDEntityDecl()) {
+			return SymbolKind.Namespace;
 		} else if (node.isDTDAttListDecl()) {
 			return SymbolKind.Key;
+		} else if (node.isDTDNotationDecl()) {
+			return SymbolKind.Variable;
 		}
 		return SymbolKind.Field;
 	}

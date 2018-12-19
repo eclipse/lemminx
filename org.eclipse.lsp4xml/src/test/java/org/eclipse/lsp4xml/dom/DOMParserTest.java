@@ -360,6 +360,34 @@ public class DOMParserTest {
 	}
 
 	@Test
+	public void testUnclosedEndTagWithTrailingElement() {
+		DOMNode root = createElement("root", 0, 29, 36, true);
+		DOMNode elementA = createElement("a", 7, 17, 20, true);
+		DOMNode elementB = createElement("b", 21, 24, 28, true);
+		DOMText content = createTextNode("Content", 10, 17, true);
+
+		root.addChild(elementA);
+		root.addChild(elementB);
+		elementA.addChild(content);
+
+		assertDocument("<root> <a>Content</a <b></b> </root>", root);
+	}
+
+	@Test
+	public void testUnclosedEndTagWithTrailingComment() {
+		DOMNode root = createElement("root", 0, 38, 45, true);
+		DOMNode elementA = createElement("a", 7, 17, 20, true);
+		DOMNode comment = createCommentNode(" comment ", 21, 37, true);
+		DOMText content = createTextNode("Content", 10, 17, true);
+
+		root.addChild(elementA);
+		root.addChild(comment);
+		elementA.addChild(content);
+
+		assertDocument("<root> <a>Content</a <!-- comment --> </root>", root);
+	}
+
+	@Test
 	public void elementOffsets() {
 		DOMDocument document = DOMParser.getInstance().parse("<a></a>", null, null);
 		DOMElement a = document.getDocumentElement();
@@ -693,6 +721,22 @@ public class DOMParserTest {
 		DOMText text = createTextNode("<!DOTATION png PUBLIC \"JPG 1.0\" \"image/gif\" BAD>", 0, 48, true);
 		
 		doctype.addChild(text);
+
+		DOMDocument document = DOMParser.getInstance().parse(dtd, "name.dtd", null);
+		compareTrees(doctype, document.getChild(0));
+	}
+
+	@Test
+	public void testExternalDTDCommentBeforeDecl() {
+		String dtd = "<!-- c --> <!ELEMENT png PUBLIC \"JPG 1.0\" \"image/gif\" BAD>";
+
+		DOMNode doctype = createDoctypeNode(0, 58, null, null, null, null, null, null, null, null, null, null);
+		doctype.closed = true;
+		DOMComment comment = createCommentNode(" c ", 0, 10, true);
+		DTDElementDecl element = createElementDecl(11, 58, 21, 24, null, null, null, null, 25, 57);
+		element.closed = true;
+		doctype.addChild(comment);
+		doctype.addChild(element);
 
 		DOMDocument document = DOMParser.getInstance().parse(dtd, "name.dtd", null);
 		compareTrees(doctype, document.getChild(0));
