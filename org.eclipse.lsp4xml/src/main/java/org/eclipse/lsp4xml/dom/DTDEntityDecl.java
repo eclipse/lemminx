@@ -56,7 +56,7 @@ public class DTDEntityDecl extends DTDDeclNode implements Entity {
 	
 	public DTDEntityDecl(int start, int end, DOMDocumentType parentDocumentType) {
 		super(start, end, parentDocumentType);
-		declType = new DTDDeclParameter(parentDocumentType, start + 2, start + 8);
+		setDeclType(start + 2, start + 8);
 	}
 
 	public String getPercent() {

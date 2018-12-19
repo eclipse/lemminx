@@ -40,7 +40,7 @@ public class DTDNotationDecl extends DTDDeclNode {
 
 	public DTDNotationDecl(int start, int end, DOMDocumentType parentDocumentType) {
 		super(start, end, parentDocumentType);
-		declType = new DTDDeclParameter(parentDocumentType, start + 2, start + 10);
+		setDeclType(start + 2, start + 10);
 	}
 
 	void setName(int start, int end) {

@@ -10,6 +10,8 @@
  */
 package org.eclipse.lsp4xml.dom;
 
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -850,9 +852,26 @@ public class DOMParserForInternalDTDTest {
 		Assert.assertEquals("foo", documentType.getName());
 		Assert.assertEquals(14, documentType.unrecognized.start);
 		Assert.assertEquals(82, documentType.unrecognized.end);
-		Assert.assertTrue(documentType.isClosed());
+		Assert.assertTrue(documentType.isClosed());	
+	}
 
-		
+	@Test
+	public void testAttlistUncompletedInternalDecl() {
+		//Ensure unrecognized content goes all the way till the end
+		String dtd = 
+		"<!DOCTYPE foo [\n" +
+		"    <!ATTLIST payment type CDATA \"check\" BAD \n" +
+		"    <!NOTATION Name SYSTEM \"PublicID\" \"SystemID\"> \n" +
+		"    ]\n" +
+		">";
+
+		DOMDocument actual = createDOMDocument(dtd);
+		Assert.assertEquals(1, actual.getChildren().size());
+		Assert.assertTrue(actual.getChild(0).isDoctype());
+		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
+		Assert.assertEquals(2, documentType.getChildren().size());
+		assertTrue(documentType.getChild(0) instanceof DTDAttlistDecl);
+		assertTrue(documentType.getChild(1) instanceof DTDNotationDecl);
 	}
 
 

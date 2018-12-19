@@ -29,7 +29,7 @@ public class DTDDoctypeDiagnosticsTest {
 				"  <!ELEMENT \r\n" + // <-- error
 				"]>\r\n" + //
 				"<student />";
-		XMLAssert.testDiagnosticsFor(xml, d(2, 2, 11, DTDErrorCode.MSG_ELEMENT_TYPE_REQUIRED_IN_ELEMENTDECL));
+		XMLAssert.testDiagnosticsFor(xml, d(2, 4, 11, DTDErrorCode.MSG_ELEMENT_TYPE_REQUIRED_IN_ELEMENTDECL));
 	}
 
 	@Test
@@ -40,7 +40,7 @@ public class DTDDoctypeDiagnosticsTest {
 				"  <!ELEMENT surname (#PCDATA)\r\n" + // <- error
 				"]>\r\n" + //
 				"<student />";
-		XMLAssert.testDiagnosticsFor(xml, d(3, 2, 30, DTDErrorCode.ElementDeclUnterminated));
+		XMLAssert.testDiagnosticsFor(xml, d(3, 29, 30, DTDErrorCode.ElementDeclUnterminated));
 	}
 
 	@Test
@@ -51,7 +51,7 @@ public class DTDDoctypeDiagnosticsTest {
 				"]>\r\n" + //
 				"<student />";
 		XMLAssert.testDiagnosticsFor(xml,
-				d(2, 2, 20, DTDErrorCode.MSG_OPEN_PAREN_OR_ELEMENT_TYPE_REQUIRED_IN_CHILDREN));
+				d(2, 19, 20, DTDErrorCode.MSG_OPEN_PAREN_OR_ELEMENT_TYPE_REQUIRED_IN_CHILDREN));
 	}
 
 }

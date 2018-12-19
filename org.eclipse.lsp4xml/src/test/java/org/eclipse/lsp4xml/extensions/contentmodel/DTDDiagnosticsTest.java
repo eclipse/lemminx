@@ -71,7 +71,7 @@ public class DTDDiagnosticsTest {
 				"    <heading>Reminder</heading>\r\n" + //
 				"    <body>Don't forget me this weekend</body>\r\n" + //
 				"</note> ";
-		XMLAssert.testDiagnosticsFor(xml, d(10, 10, 14, DTDErrorCode.MSG_ATTRIBUTE_NOT_DECLARED));
+		XMLAssert.testDiagnosticsFor(xml, d(10, 15, 17, DTDErrorCode.MSG_ATTRIBUTE_NOT_DECLARED));
 	}
 
 	@Test
@@ -183,6 +183,139 @@ public class DTDDiagnosticsTest {
 				"]>\r\n" + //
 				"<Person Likes=\"\" />"; // <- error on @Likes value
 		XMLAssert.testDiagnosticsFor(xml, d(5, 14, 16, DTDErrorCode.IDREFSInvalid));
+	}
+
+	@Test
+	public void MSG_MARKUP_NOT_RECOGNIZED_IN_DTD() throws Exception {
+		String xml = "<?xml version = \"1.0\"?>\r\n" + //
+				"<!DOCTYPE Person [\r\n" + //
+				"	<!ELEMENT Person EMPTY>\r\n" + //
+				"   Bad Value   " +
+				"	<!ATTLIST Person Likes IDREFS #IMPLIED>\r\n" + //
+				"]>\r\n" + //
+				"<Person Likes=\"\" />"; // <- error on @Likes value
+		XMLAssert.testDiagnosticsFor(xml, d(2, 24, 3, 16, DTDErrorCode.MSG_MARKUP_NOT_RECOGNIZED_IN_DTD));
+	}
+
+	@Test
+	public void QuoteRequiredInPublicID() throws Exception {
+		String xml = "<?xml version = \"1.0\"?>\r\n" + //
+				"<!DOCTYPE Person [\r\n" + //
+				"	<!NOTATION    name PUBLIC asd > \r\n" + //
+				"]>\r\n" + //
+				"<Person Likes=\"\" />"; // <- error on @Likes value
+		XMLAssert.testDiagnosticsFor(xml, d(2, 27, 30, DTDErrorCode.QuoteRequiredInPublicID));
+	}
+
+	@Test
+	public void QuoteRequiredInPublicID2() throws Exception {
+		String xml = "<?xml version = \"1.0\"?>\r\n" + //
+				"<!DOCTYPE Person [\r\n" + //
+				"	<!NOTATION name PUBLIC    >  \r\n" + //
+				"]>\r\n" + //
+				"<Person Likes=\"\" />"; // <- error on @Likes value
+		XMLAssert.testDiagnosticsFor(xml, d(2, 23, 24, DTDErrorCode.QuoteRequiredInPublicID));
+	}
+
+	@Test
+	public void QuoteRequiredInSystemID() throws Exception {
+		String xml = "<?xml version = \"1.0\"?>\r\n" + //
+				"<!DOCTYPE Person [\r\n" + //
+				"	<!NOTATION name SYSTEM    >  \r\n" + //
+				"]>\r\n" + //
+				"<Person Likes=\"\" />"; // <- error on @Likes value
+		XMLAssert.testDiagnosticsFor(xml, d(2, 23, 24, DTDErrorCode.QuoteRequiredInSystemID));
+	}
+
+	@Test
+	public void OpenQuoteMissingInDecl() throws Exception {
+		String xml = "<?xml version = \"1.0\"?>\r\n" + //
+				"<!DOCTYPE Person [\r\n" + //
+				"	<!ENTITY asd >   \r\n" + //
+				"]>\r\n" + //
+				"<Person Likes=\"\" />"; // <- error on @Likes value
+		XMLAssert.testDiagnosticsFor(xml, d(2, 13, 14, DTDErrorCode.OpenQuoteMissingInDecl));
+	}
+
+	@Test
+	public void SpaceRequiredAfterSYSTEM() throws Exception {
+		String xml = "<?xml version = \"1.0\"?>\r\n" + //
+				"<!DOCTYPE Person [\r\n" + //
+				"	<!NOTATION name SYSTEM>  \r\n" + //
+				"]>\r\n" + //
+				"<Person Likes=\"\" />"; // <- error on @Likes value
+		XMLAssert.testDiagnosticsFor(xml, d(2, 23, 24, DTDErrorCode.SpaceRequiredAfterSYSTEM));
+	}
+
+	@Test
+	public void MSG_SPACE_REQUIRED_AFTER_NOTATION_NAME_IN_NOTATIONDECL() throws Exception {
+		String xml = "<?xml version = \"1.0\"?>\r\n" + //
+				"<!DOCTYPE Person [\r\n" + //
+				"	<!NOTATION name>  \r\n" + //
+				"]>\r\n" + //
+				"<Person Likes=\"\" />"; // <- error on @Likes value
+		XMLAssert.testDiagnosticsFor(xml, d(2, 16, 17, DTDErrorCode.MSG_SPACE_REQUIRED_AFTER_NOTATION_NAME_IN_NOTATIONDECL));
+	}
+
+	@Test
+	public void AttTypeRequiredInAttDef() throws Exception {
+		String xml = "<?xml version = \"1.0\"?>\r\n" + //
+				"<!DOCTYPE Person [\r\n" + //
+				"	<!ATTLIST payment name BadType >  \r\n" + //
+				"]>\r\n" + //
+				"<Person Likes=\"\" />"; // <- error on @Likes value
+		XMLAssert.testDiagnosticsFor(xml, d(2, 24, 31, DTDErrorCode.AttTypeRequiredInAttDef));
+	}
+
+	@Test
+	public void EntityDeclUnterminated() throws Exception {
+		String xml = "<?xml version = \"1.0\"?>\r\n" + //
+				"<!DOCTYPE Person [\r\n" + //
+				"	<!ENTITY copyright \"Copyright W3Schools.\"  \r\n" + //
+				"]>\r\n" + //
+				"<Person Likes=\"\" />"; // <- error on @Likes value
+		XMLAssert.testDiagnosticsFor(xml, d(2, 42, 43, DTDErrorCode.EntityDeclUnterminated));
+	}
+
+	@Test
+	public void NotationDeclUnterminated() throws Exception {
+		String xml = "<?xml version = \"1.0\"?>\r\n" + //
+				"<!DOCTYPE Person [\r\n" + //
+				"	<!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\"  \r\n" + //
+				"]>\r\n" + //
+				"<Person Likes=\"\" />"; // <- error on @Likes value
+		XMLAssert.testDiagnosticsFor(xml, d(2, 44, 45, DTDErrorCode.NotationDeclUnterminated));
+	}
+
+	@Test
+	public void ElementDeclUnterminated() throws Exception {
+		String xml = "<?xml version = \"1.0\"?>\r\n" + //
+				"<!DOCTYPE Person [\r\n" + //
+				"	<!ELEMENT element-name (element-content) \r\n" + //
+				"]>\r\n" + //
+				"<Person Likes=\"\" />"; // <- error on @Likes value
+		XMLAssert.testDiagnosticsFor(xml, d(2, 41, 42, DTDErrorCode.ElementDeclUnterminated));
+	}
+
+	@Test
+	public void PEReferenceWithinMarkup() throws Exception {
+		String xml = "<?xml version = \"1.0\"?>\r\n" + //
+				"<!DOCTYPE Folks [\r\n" + //
+				"	<!ENTITY % Folks \"(%bar;)*\"> \r\n" + // <- error on "(%bar;)*"
+				"]>\r\n" + //
+				"<Folks></Folks>"; // 
+		XMLAssert.testDiagnosticsFor(xml, d(2, 18, 28, DTDErrorCode.PEReferenceWithinMarkup));
+	}
+
+	@Test
+	public void MSG_ELEMENT_ALREADY_DECLARED() throws Exception {
+		String xml = "<?xml version = \"1.0\"?>\r\n" + //
+				"<!DOCTYPE Email [\r\n" + //
+				"	<!ELEMENT Email (#PCDATA)> \r\n" + //
+				"	<!ELEMENT Email (#PCDATA)> \r\n" + // <- error on 'ELEMENT'
+				"]>\r\n" + //
+				"<Email></Email>"; // 
+		XMLAssert.testDiagnosticsFor(xml, d(3, 3, 10, DTDErrorCode.MSG_ELEMENT_ALREADY_DECLARED));
 	}
 
 	@Test

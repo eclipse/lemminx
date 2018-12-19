@@ -841,7 +841,7 @@ public class XMLScanner implements Scanner {
 				state = ScannerState.DTDAfterNotationName;
 				return finishToken(offset, TokenType.DTDNotationSystemId);
 			}
-			state = ScannerState.DTDWithinNotation;
+			state = ScannerState.DTDUnrecognizedParameters;
 			return internalScan();
 
 		case DTDAfterNotationPublicId:
@@ -855,6 +855,8 @@ public class XMLScanner implements Scanner {
 				isDeclCompleted = true;
 				return finishToken(offset, TokenType.DTDNotationSystemId);
 			}
+
+			state = ScannerState.DTDUnrecognizedParameters;
 			return internalScan();
 		}
 

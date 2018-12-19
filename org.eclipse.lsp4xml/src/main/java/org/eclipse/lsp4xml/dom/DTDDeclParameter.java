@@ -29,6 +29,13 @@ public class DTDDeclParameter {
 		this.end = end;
 	}
 
+	public int getStart() {
+		return start;
+	}
+
+	public int getEnd() {
+		return end;
+	}
 
 	public String getParameter() {
 		if (parameter == null) {
