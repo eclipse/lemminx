@@ -394,6 +394,10 @@ public abstract class DOMNode implements Node {
 		return null;
 	}
 
+	public String getNodeAsString() {
+		return ownerDocument.getText().substring(start, end);
+	}
+
 	public boolean isComment() {
 		return getNodeType() == DOMNode.COMMENT_NODE;
 	}

@@ -33,58 +33,46 @@ public class DTDNotationDecl extends DTDDeclNode {
 	 * <!NOTATION Name SYSTEM SystemID>
 	 */
 
-	Integer nameStart, nameEnd;
-	Integer kindStart, kindEnd;
-	Integer publicIdStart, publicIdEnd;
-	Integer systemIdStart, systemIdEnd;
-
-	String name;
-	String kind;
-	String publicId;
-	String systemId;
+	DTDDeclParameter name;
+	DTDDeclParameter kind;
+	DTDDeclParameter publicId;
+	DTDDeclParameter systemId;
 
 	public DTDNotationDecl(int start, int end, DOMDocumentType parentDocumentType) {
 		super(start, end, parentDocumentType);
+		declType = new DTDDeclParameter(parentDocumentType, start + 2, start + 10);
 	}
 
 	void setName(int start, int end) {
-		nameStart = start;
-		nameEnd = end;
+		name = addNewParameter(start, end);
 	}
 
 	public String getName() {
-		name = getValueFromOffsets(parentDocumentType, name, nameStart, nameEnd);
-		return name;
+		return name != null ? name.getParameter() : null;
 	}
 
 	void setKind(int start, int end) {
-		kindStart = start;
-		kindEnd = end;
+		kind = addNewParameter(start, end);
 	}
 
 	public String getKind() {
-		kind = getValueFromOffsets(parentDocumentType, kind, kindStart, kindEnd);
-		return kind;
+		return kind != null ? kind.getParameter() : null;
 	}
 
 	void setPublicId(int start, int end) {
-		publicIdStart = start;
-		publicIdEnd = end;
+		publicId = addNewParameter(start, end);
 	}
 
 	public String getPublicId() {
-		publicId = getValueFromOffsets(parentDocumentType, publicId, publicIdStart, publicIdEnd);
-		return publicId;
+		return publicId != null ? publicId.getParameter() : null;
 	}
 
 	void setSystemId(int start, int end) {
-		systemIdStart = start;
-		systemIdEnd = end;
+		systemId = addNewParameter(start, end);
 	}
 
 	public String getSystemId() {
-		systemId = getValueFromOffsets(parentDocumentType, systemId, systemIdStart, systemIdEnd);
-		return systemId;
+		return systemId != null ? systemId.getParameter() : null;
 	}
 
 	@Override

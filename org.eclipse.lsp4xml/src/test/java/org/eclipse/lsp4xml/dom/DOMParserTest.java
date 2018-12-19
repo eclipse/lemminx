@@ -441,7 +441,7 @@ public class DOMParserTest {
 		"    <!ENTITY writer \"Writer: Donald Duck.\">\n" +
 		"    <!ENTITY copyright \"Copyright: W3Schools.\">\n  ";
 		DOMDocument document = DOMParser.getInstance().parse(xml, null, null);
-		assertDoctype((DOMDocumentType)(document.getChild(0)), 0, 212, "html", DocumentTypeKind.SYSTEM.name(), null, "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd", internal);
+		assertDoctype((DOMDocumentType)(document.getChild(0)), 0, 212, "html", DocumentTypeKind.SYSTEM.name(), null, "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"", internal);
 	}
 
 
@@ -548,7 +548,7 @@ public class DOMParserTest {
 		doctype.closed = true;
 		DOMNode entity = createEntityDecl(0, 24, 9, 15, null, null, 16, 22, null, null, null, null, null, null);
 		entity.closed = true;
-		DOMNode element = createElementDecl(25, 49, 35, 39, null, null, 40, 49, null, null);
+		DOMNode element = createElementDecl(25, 50, 35, 39, null, null, 40, 49, null, null);
 		element.closed = false;
 		DOMNode attlist = createAttlistDecl(50, 81, 60, 67, 68, 72, null, null, null, null, 73, 80);
 		attlist.closed = true;
@@ -571,9 +571,9 @@ public class DOMParserTest {
 
 		DOMNode doctype = createDoctypeNode(0, 81, null, null, null, null, null, null, null, null, null, null);
 		doctype.closed = true;
-		DOMNode entity = createEntityDecl(0, 24, 9, 15, null, null, 16, 22, null, null, null, null, null, null);
+		DOMNode entity = createEntityDecl(0, 25, 9, 15, null, null, 16, 22, null, null, null, null, null, null);
 		entity.closed = false;
-		DOMNode element = createElementDecl(25, 49, 35, 39, null, null, 40, 49, null, null);
+		DOMNode element = createElementDecl(25, 50, 35, 39, null, null, 40, 49, null, null);
 		element.closed = false;
 		DOMNode attlist = createAttlistDecl(50, 81, 60, 67, 68, 72, null, null, null, null, 73, 80);
 		attlist.closed = true;
@@ -595,7 +595,7 @@ public class DOMParserTest {
 
 		DOMNode doctype = createDoctypeNode(0, 32, null, null, null, null, null, null, null, null, null, null);
 		doctype.closed = true;
-		DOMNode attlist = createAttlistDecl(0, 15, 10, 14, null, null, null, null, null, null, null, null);
+		DOMNode attlist = createAttlistDecl(0, 16, 10, 14, null, null, null, null, null, null, null, null);
 		attlist.closed = false;
 		DOMNode element = createElementDecl(16, 32, 26, 30, null, null, null, null, null, null);
 		element.closed = true;
@@ -680,7 +680,7 @@ public class DOMParserTest {
 
 		DOMNode doctype = createDoctypeNode(0, 77, null, null, null, null, null, null, null, null, null, null);
 		doctype.closed = true;
-		DTDNotationDecl notation1 = createNotationDecl(0, 32, 11, 14, 15, 21, 22, 32, null, null, null, null);
+		DTDNotationDecl notation1 = createNotationDecl(0, 33, 11, 14, 15, 21, 22, 32, null, null, null, null);
 		notation1.closed = false;
 		DTDNotationDecl notation2 = createNotationDecl(33, 77, 44, 47, 48, 54, 55, 64, 65, 76, null, null);
 		notation2.closed = true;
@@ -700,7 +700,7 @@ public class DOMParserTest {
 
 		DOMNode doctype = createDoctypeNode(0, 81, null, null, null, null, null, null, null, null, null, null);
 		doctype.closed = true;
-		DTDNotationDecl notation1 = createNotationDecl(0, 32, 11, 14, 15, 21, 22, 32, null, null, null, null);
+		DTDNotationDecl notation1 = createNotationDecl(0, 33, 11, 14, 15, 21, 22, 32, null, null, null, null);
 		notation1.closed = false;
 		DTDNotationDecl notation2 = createNotationDecl(33, 81, 44, 47, 48, 54, 55, 64, 65, 76, 77, 80);
 		notation2.closed = true;
@@ -786,30 +786,21 @@ public class DOMParserTest {
 			Integer attributeNameEnd, Integer attributeTypeStart, Integer attributeTypeEnd, Integer attributeValueStart, Integer attributeValueEnd, 
 			Integer unrecognizedStart, Integer unrecognizedEnd) {
 		DTDAttlistDecl attlist = new DTDAttlistDecl(start, end, null);
-		attlist.elementNameStart = elementNameStart;
-		attlist.elementNameEnd = elementNameEnd;
-		attlist.attributeNameStart = attributeNameStart;
-		attlist.attributeNameEnd = attributeNameEnd;
-		attlist.attributeTypeStart = attributeTypeStart;
-		attlist.attributeTypeEnd = attributeTypeEnd;
-		attlist.attributeValueStart = attributeValueStart;
-		attlist.attributeValueEnd = attributeValueEnd;
-		attlist.unrecognizedStart = unrecognizedStart;
-		attlist.unrecognizedEnd = unrecognizedEnd;
+		attlist.elementName = elementNameStart != null ? new DTDDeclParameter(null, elementNameStart, elementNameEnd) : null;
+		attlist.attributeName = attributeNameStart != null ? new DTDDeclParameter(null, attributeNameStart, attributeNameEnd) : null;
+		attlist.attributeType = attributeTypeStart != null ? new DTDDeclParameter(null, attributeTypeStart, attributeTypeEnd) : null;
+		attlist.attributeValue = attributeValueStart != null ? new DTDDeclParameter(null, attributeValueStart, attributeValueEnd) : null;
+		attlist.unrecognized = unrecognizedStart != null ? new DTDDeclParameter(null, unrecognizedStart, unrecognizedEnd) : null;
 		return attlist;
 	}
 
 	private static DTDElementDecl createElementDecl(int start, int end, Integer nameStart, Integer nameEnd, Integer categoryStart, 
 			Integer categoryEnd, Integer contentStart, Integer contentEnd, Integer unrecognizedStart, Integer unrecognizedEnd) {
 		DTDElementDecl element = new DTDElementDecl(start, end, null);
-		element.nameStart = nameStart;
-		element.nameEnd = nameEnd;
-		element.categoryStart = categoryStart;
-		element.categoryEnd = categoryEnd;
-		element.contentStart = contentStart;
-		element.contentEnd = contentEnd;
-		element.unrecognizedStart = unrecognizedStart;
-		element.unrecognizedEnd = unrecognizedEnd;
+		element.name = nameStart != null ? new DTDDeclParameter(null, nameStart, nameEnd) : null;
+		element.category = categoryStart != null ? new DTDDeclParameter(null, categoryStart, categoryEnd) : null;
+		element.content = contentStart != null ? new DTDDeclParameter(null, contentStart, contentEnd) : null;
+		element.unrecognized = unrecognizedStart != null ? new DTDDeclParameter(null, unrecognizedStart, unrecognizedEnd) : null;
 		return element;
 	}
 
@@ -817,34 +808,23 @@ public class DOMParserTest {
 			Integer valueEnd, Integer kindStart, Integer kindEnd, Integer publicIdStart, Integer publicIdEnd, Integer systemIdStart, 
 			Integer systemIdEnd, Integer unrecognizedStart, Integer unrecognizedEnd) {
 		DTDEntityDecl entity = new DTDEntityDecl(start, end, null);
-		entity.nameStart = nameStart;
-		entity.nameEnd = nameEnd;
-		entity.valueStart = valueStart;
-		entity.valueEnd = valueEnd;
-		entity.kindStart = kindStart;
-		entity.kindEnd = kindEnd;
-		entity.publicIdStart = publicIdStart;
-		entity.publicIdEnd = publicIdEnd;
-		entity.systemIdStart = systemIdStart;
-		entity.systemIdEnd = systemIdEnd;
-		entity.unrecognizedStart = unrecognizedStart;
-		entity.unrecognizedEnd = unrecognizedEnd;
+		entity.name = nameStart != null ? new DTDDeclParameter(null, nameStart, nameEnd) : null;
+		entity.value = valueStart != null ? new DTDDeclParameter(null, valueStart, valueEnd) : null;
+		entity.kind = kindStart != null ? new DTDDeclParameter(null, kindStart, kindEnd) : null;
+		entity.publicId = publicIdStart != null ? new DTDDeclParameter(null, publicIdStart, publicIdEnd) : null;
+		entity.systemId = systemIdStart != null ? new DTDDeclParameter(null, systemIdStart, systemIdEnd) : null;
+		entity.unrecognized = unrecognizedStart != null ? new DTDDeclParameter(null, unrecognizedStart, unrecognizedEnd) : null;
 		return entity;
 	} 
 	
 	private static DTDNotationDecl createNotationDecl(int start, int end, Integer nameStart, Integer nameEnd, Integer kindStart, Integer kindEnd, 
 			Integer publicIdStart, Integer publicIdEnd, Integer systemIdStart, Integer systemIdEnd, Integer unrecognizedStart, Integer unrecognizedEnd) {
 		DTDNotationDecl notation = new DTDNotationDecl(start, end, null);
-		notation.nameStart = nameStart;
-		notation.nameEnd = nameEnd;
-		notation.kindStart = kindStart;
-		notation.kindEnd = kindEnd;
-		notation.publicIdStart = publicIdStart;
-		notation.publicIdEnd = publicIdEnd;
-		notation.systemIdStart = systemIdStart;
-		notation.systemIdEnd = systemIdEnd;
-		notation.unrecognizedStart = unrecognizedStart;
-		notation.unrecognizedEnd = unrecognizedEnd;
+		notation.name = nameStart != null ? new DTDDeclParameter(null, nameStart, nameEnd) : null;
+		notation.kind = kindStart != null ? new DTDDeclParameter(null, kindStart, kindEnd) : null;
+		notation.publicId = publicIdStart != null ? new DTDDeclParameter(null, publicIdStart, publicIdEnd) : null;
+		notation.systemId = systemIdStart != null ? new DTDDeclParameter(null, systemIdStart, systemIdEnd) : null;
+		notation.unrecognized = unrecognizedStart != null ? new DTDDeclParameter(null, unrecognizedStart, unrecognizedEnd) : null;
 		return notation;
 	}
 
@@ -852,16 +832,11 @@ public class DOMParserTest {
 			Integer kindEnd, Integer publicIdStart, Integer publicIdEnd, Integer systemIdStart, Integer systemIdEnd, 
 			Integer internalSubsetStart, Integer internalSubsetEnd) {
 		DOMDocumentType doctype = new DOMDocumentType(start, end, null);
-		doctype.nameStart = nameStart;
-		doctype.nameEnd = nameEnd;
-		doctype.kindStart = kindStart;
-		doctype.kindEnd = kindEnd;
-		doctype.publicIdStart = publicIdStart;
-		doctype.publicIdEnd = publicIdEnd;
-		doctype.systemIdStart = systemIdStart;
-		doctype.systemIdEnd = systemIdEnd;
-		doctype.internalSubsetStart = internalSubsetStart;
-		doctype.internalSubsetEnd = internalSubsetEnd;
+		doctype.name = nameStart != null ? new DTDDeclParameter(null, nameStart, nameEnd) : null;;
+		doctype.kind = kindStart != null ? new DTDDeclParameter(null, kindStart, kindEnd) : null;;
+		doctype.publicId = publicIdStart != null ? new DTDDeclParameter(null, publicIdStart, publicIdEnd) : null;;
+		doctype.systemId = systemIdEnd != null ? new DTDDeclParameter(null, systemIdStart, systemIdEnd) : null;;
+		doctype.internalSubset = internalSubsetStart != null ? new DTDDeclParameter(null, internalSubsetStart, internalSubsetEnd) : null;;
 		return doctype;
 	}
 
@@ -1011,16 +986,11 @@ public class DOMParserTest {
 			assertEquals(true, actualNode.isDTDAttListDecl());
 			DTDAttlistDecl expectedTemp = (DTDAttlistDecl) expectedNode;
 			DTDAttlistDecl actualTemp = (DTDAttlistDecl) actualNode;
-			assertEquals(expectedTemp.elementNameStart, actualTemp.elementNameStart);
-			assertEquals(expectedTemp.elementNameEnd, actualTemp.elementNameEnd);
-			assertEquals(expectedTemp.attributeNameStart, actualTemp.attributeNameStart);
-			assertEquals(expectedTemp.attributeNameEnd, actualTemp.attributeNameEnd);
-			assertEquals(expectedTemp.attributeTypeStart, actualTemp.attributeTypeStart);
-			assertEquals(expectedTemp.attributeTypeEnd, actualTemp.attributeTypeEnd);
-			assertEquals(expectedTemp.attributeValueStart, actualTemp.attributeValueStart);
-			assertEquals(expectedTemp.attributeValueEnd, actualTemp.attributeValueEnd);
-			assertEquals(expectedTemp.unrecognizedStart, actualTemp.unrecognizedStart);
-			assertEquals(expectedTemp.unrecognizedEnd, actualTemp.unrecognizedEnd);
+			assertEquals(expectedTemp.elementName, actualTemp.elementName);
+			assertEquals(expectedTemp.attributeName, actualTemp.attributeName);
+			assertEquals(expectedTemp.attributeType, actualTemp.attributeType);
+			assertEquals(expectedTemp.attributeValue, actualTemp.attributeValue);
+			assertEquals(expectedTemp.unrecognized, actualTemp.unrecognized);
 
 			ArrayList<DTDAttlistDecl> expectedInternalChildren = expectedTemp.getInternalChildren();
 			ArrayList<DTDAttlistDecl> actualInternalChildren = actualTemp.getInternalChildren();
@@ -1037,72 +1007,52 @@ public class DOMParserTest {
 			assertEquals(true, actualNode.isDTDElementDecl());
 			DTDElementDecl expectedTemp = (DTDElementDecl) expectedNode;
 			DTDElementDecl actualTemp = (DTDElementDecl) actualNode;
-			assertEquals(expectedTemp.nameStart, actualTemp.nameStart);
-			assertEquals(expectedTemp.nameEnd, actualTemp.nameEnd);
-			assertEquals(expectedTemp.categoryStart, actualTemp.categoryStart);
-			assertEquals(expectedTemp.categoryEnd, actualTemp.categoryEnd);
-			assertEquals(expectedTemp.contentStart, actualTemp.contentStart);
-			assertEquals(expectedTemp.contentEnd, actualTemp.contentEnd);
-			assertEquals(expectedTemp.unrecognizedStart, actualTemp.unrecognizedStart);
-			assertEquals(expectedTemp.unrecognizedEnd, actualTemp.unrecognizedEnd);
+			assertEquals(expectedTemp.name, actualTemp.name);
+			assertEquals(expectedTemp.category, actualTemp.category);
+			assertEquals(expectedTemp.content, actualTemp.content);
+			assertEquals(expectedTemp.unrecognized, actualTemp.unrecognized);
 		}
 
 		else if(expectedNode.isDTDEntityDecl()) {
 			assertEquals(true, actualNode.isDTDEntityDecl());
 			DTDEntityDecl expectedTemp = (DTDEntityDecl) expectedNode;
 			DTDEntityDecl actualTemp = (DTDEntityDecl) actualNode;
-			assertEquals(expectedTemp.nameStart, actualTemp.nameStart);
-			assertEquals(expectedTemp.nameEnd, actualTemp.nameEnd);
-			assertEquals(expectedTemp.valueStart, actualTemp.valueStart);
-			assertEquals(expectedTemp.valueEnd, actualTemp.valueEnd);
-			assertEquals(expectedTemp.kindStart, actualTemp.kindStart);
-			assertEquals(expectedTemp.kindEnd, actualTemp.kindEnd);
-			assertEquals(expectedTemp.publicIdStart, actualTemp.publicIdStart);
-			assertEquals(expectedTemp.publicIdEnd, actualTemp.publicIdEnd);
-			assertEquals(expectedTemp.systemIdStart, actualTemp.systemIdStart);
-			assertEquals(expectedTemp.systemIdEnd, actualTemp.systemIdEnd);
-			assertEquals(expectedTemp.unrecognizedStart, actualTemp.unrecognizedStart);
-			assertEquals(expectedTemp.unrecognizedEnd, actualTemp.unrecognizedEnd);
+			assertEquals(expectedTemp.name, actualTemp.name);
+			assertEquals(expectedTemp.value, actualTemp.value);
+			assertEquals(expectedTemp.kind, actualTemp.kind);
+			assertEquals(expectedTemp.publicId, actualTemp.publicId);
+			assertEquals(expectedTemp.systemId, actualTemp.systemId);
+			assertEquals(expectedTemp.unrecognized, actualTemp.unrecognized);
 		}
 
 		else if(expectedNode.isDTDNotationDecl()) {
 			assertEquals(true, actualNode.isDTDNotationDecl());
 			DTDNotationDecl expectedTemp = (DTDNotationDecl) expectedNode;
 			DTDNotationDecl actualTemp = (DTDNotationDecl) actualNode;
-			assertEquals(expectedTemp.nameStart, actualTemp.nameStart);
-			assertEquals(expectedTemp.nameEnd, actualTemp.nameEnd);
-			assertEquals(expectedTemp.kindStart, actualTemp.kindStart);
-			assertEquals(expectedTemp.kindEnd, actualTemp.kindEnd);
-			assertEquals(expectedTemp.publicIdStart, actualTemp.publicIdStart);
-			assertEquals(expectedTemp.publicIdEnd, actualTemp.publicIdEnd);
-			assertEquals(expectedTemp.systemIdStart, actualTemp.systemIdStart);
-			assertEquals(expectedTemp.systemIdEnd, actualTemp.systemIdEnd);
-			assertEquals(expectedTemp.unrecognizedStart, actualTemp.unrecognizedStart);
-			assertEquals(expectedTemp.unrecognizedEnd, actualTemp.unrecognizedEnd);
+			assertEquals(expectedTemp.name, actualTemp.name);
+			assertEquals(expectedTemp.kind, actualTemp.kind);
+			assertEquals(expectedTemp.publicId, actualTemp.publicId);
+			assertEquals(expectedTemp.systemId, actualTemp.systemId);
+			assertEquals(expectedTemp.unrecognized, actualTemp.unrecognized);
 		}
 
 		else if(expectedNode.isDoctype()) {
 			assertEquals(true, actualNode.isDoctype());
 			DOMDocumentType expectedTemp = (DOMDocumentType) expectedNode;
 			DOMDocumentType actualTemp = (DOMDocumentType) actualNode;
-			assertEquals(expectedTemp.nameStart, actualTemp.nameStart);
-			assertEquals(expectedTemp.nameEnd, actualTemp.nameEnd);
-			assertEquals(expectedTemp.kindStart, actualTemp.kindStart);
-			assertEquals(expectedTemp.kindEnd, actualTemp.kindEnd);
-			assertEquals(expectedTemp.publicIdStart, actualTemp.publicIdStart);
-			assertEquals(expectedTemp.publicIdEnd, actualTemp.publicIdEnd);
-			assertEquals(expectedTemp.systemIdStart, actualTemp.systemIdStart);
-			assertEquals(expectedTemp.systemIdEnd, actualTemp.systemIdEnd);
-			assertEquals(expectedTemp.internalSubsetStart, actualTemp.internalSubsetStart);
-			assertEquals(expectedTemp.internalSubsetEnd, actualTemp.internalSubsetEnd);
+			assertEquals(expectedTemp.name, actualTemp.name);
+			assertEquals(expectedTemp.kind, actualTemp.kind);
+			assertEquals(expectedTemp.publicId, actualTemp.publicId);
+			assertEquals(expectedTemp.systemId, actualTemp.systemId);
+			assertEquals(expectedTemp.internalSubset, actualTemp.internalSubset);
 		}
 
 		else if(expectedNode.isGenericDTDDecl()) {
 			DTDDeclNode expectedTemp = (DTDDeclNode) expectedNode;
 			DTDDeclNode actualTemp = (DTDDeclNode) actualNode;
 
-			assertEquals(expectedTemp.unrecognizedStart, actualTemp.unrecognizedStart);
-			assertEquals(expectedTemp.unrecognizedEnd, actualTemp.unrecognizedEnd);
+			assertEquals(expectedTemp.unrecognized.start, actualTemp.unrecognized.start);
+			assertEquals(expectedTemp.unrecognized.end, actualTemp.unrecognized.end);
 		}
 
 		assertEquals(expectedNode.isClosed(), actualNode.isClosed());
@@ -1117,24 +1067,12 @@ public class DOMParserTest {
 	}
 
 	public static void assertInternalAttlist(DTDAttlistDecl expected, DTDAttlistDecl actual) {
-		assertEquals(expected.attributeNameStart, actual.attributeNameStart);
-		assertEquals(expected.attributeNameEnd, actual.attributeNameEnd);
-		assertEquals(expected.attributeTypeStart, actual.attributeTypeStart);
-		assertEquals(expected.attributeTypeEnd, actual.attributeTypeEnd);
-		assertEquals(expected.attributeValueStart, actual.attributeValueStart);
-		assertEquals(expected.attributeValueEnd, actual.attributeValueEnd);
+		assertEquals(expected.elementName, actual.elementName);
+		assertEquals(expected.attributeName, actual.attributeName);
+		assertEquals(expected.attributeType, actual.attributeType);
+		assertEquals(expected.attributeValue, actual.attributeValue);
 	}
 
-	public static void assertInternalNotation(DTDNotationDecl expected, DTDNotationDecl actual) {
-		assertEquals(expected.nameStart, actual.nameStart);
-		assertEquals(expected.nameEnd, actual.nameEnd);
-		assertEquals(expected.kindStart, actual.kindStart);
-		assertEquals(expected.kindEnd, actual.kindEnd);
-		assertEquals(expected.publicIdStart, actual.publicIdStart);
-		assertEquals(expected.publicIdEnd, actual.publicIdEnd);
-		assertEquals(expected.systemIdStart, actual.systemIdStart);
-		assertEquals(expected.systemIdEnd, actual.systemIdEnd);
-	}
 
 	public void insertIntoAttributes(DOMNode n, String key, String value) {
 		n.setAttribute(key, value);

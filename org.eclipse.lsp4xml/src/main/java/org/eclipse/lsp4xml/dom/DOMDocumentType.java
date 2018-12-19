@@ -16,27 +16,20 @@ import org.w3c.dom.NamedNodeMap;
  * A doctype node.
  *
  */
-public class DOMDocumentType extends DOMNode implements org.w3c.dom.DocumentType {
+public class DOMDocumentType extends DTDDeclNode implements org.w3c.dom.DocumentType {
 
 	public enum DocumentTypeKind {
 		PUBLIC, SYSTEM, INVALID
 	}
-
-	// Offset values relative to start of the XML Document
-	Integer nameStart, nameEnd;
-	Integer kindStart, kindEnd;
-	Integer publicIdStart, publicIdEnd;
-	Integer systemIdStart, systemIdEnd;
-	Integer internalSubsetStart, internalSubsetEnd;
 	
-
-	private String name;
-	private String kind; // SYSTEM || PUBLIC
-	private String publicId;
-	private String systemId;
-	private String internalSubset;
+	DTDDeclParameter name;
+	DTDDeclParameter kind; // SYSTEM || PUBLIC
+	DTDDeclParameter publicId;
+	DTDDeclParameter systemId;
+	DTDDeclParameter internalSubset;
 
 	private String content; // |<!DOCTYPE ... >|
+	//private String unrecognizedParameters;
 
 	public DOMDocumentType(int start, int end, DOMDocument ownerDocument) {
 		super(start, end, ownerDocument);
@@ -49,43 +42,30 @@ public class DOMDocumentType extends DOMNode implements org.w3c.dom.DocumentType
 		return content;
 	}
 
-	void setEnd(int end) {
-		this.end = end;
-		this.content = getOwnerDocument().getText().substring(start, end);
-	}
-
 	/**
 	 * The text immediately after DOCTYPE, "<!DOCTYPE this_is_the_name ..."
 	 */
 	@Override
 	public String getName() {
-		if (name == null && this.nameStart != null && this.nameEnd != null) {
-			name = getSubstring(nameStart, nameEnd);
-		}
-		return name;
+		return name != null ? name.getParameter() : null;
 	}
 
 	void setName(int start, int end) {
-		nameStart = start;
-		nameEnd = end;
+		name = addNewParameter(start, end);
 	}
 
 	/**
 	 * @return the DocumentTypeKind
 	 */
 	public String getKind() {
-		if (kind == null && kindStart != null && kindEnd != null) {
-			kind = getSubstring(kindStart, kindEnd);
-		}
-		return kind;
+		return kind != null ? kind.getParameter() : null;
 	}
 
 	/**
 	 * @param kind the DocumentTypeKind to set
 	 */
 	void setKind(int start, int end) {
-		kindStart = start;
-		kindEnd = end;
+		kind = addNewParameter(start, end);
 	}
 
 	/*
@@ -125,28 +105,31 @@ public class DOMDocumentType extends DOMNode implements org.w3c.dom.DocumentType
 	 */
 	@Override
 	public String getInternalSubset() {
-		if (internalSubset == null && internalSubsetStart != null && internalSubsetEnd != null) {
-			internalSubset = getSubstring(internalSubsetStart + 1, internalSubsetEnd - 1);
+		String subset;
+		if(internalSubset != null) {
+			subset = internalSubset.getParameter();
+			subset = subset.substring(1, subset.length() - 1);
+			internalSubset.parameter = subset; // Set parameter to a value without '[' and ']'
+			return subset;
+
 		}
-		return internalSubset;
+		return null;
 	}
 
-	/**
-	 * Returns the start offset of internal subset and null otherwise.
-	 * 
-	 * @return the start offset of internal subset and null otherwise.
-	 */
-	public Integer getStartInternalSubset() {
-		return internalSubsetStart;
+
+	public void setStartInternalSubset(int start) {
+		internalSubset = addNewParameter(start, start + 1);
 	}
 
-	/**
-	 * Returns the end offset of internal subset and null otherwise.
-	 * 
-	 * @return the end offset of internal subset and null otherwise.
-	 */
-	public Integer getEndInternalSubset() {
-		return internalSubsetEnd;
+	public void setEndInternalSubset(int end) {
+		updateLastParameterEnd(end);
+	}
+
+	public boolean isInternalSubset(DTDDeclParameter parameter) {
+		if(this.internalSubset != null) {
+			return this.internalSubset.equals(parameter);
+		}	
+		return false;
 	}
 
 	/*
@@ -166,18 +149,18 @@ public class DOMDocumentType extends DOMNode implements org.w3c.dom.DocumentType
 	 */
 	@Override
 	public String getPublicId() {
-		if (publicId == null && publicIdStart != null && publicIdEnd != null) {
-			publicId = cleanURL(getSubstring(publicIdStart, publicIdEnd));
-		}
-		return publicId;
+		return publicId != null ? publicId.getParameter() : null;
+	}
+
+	public String getPublicIdWithoutQuotes() {
+		return publicId != null ? publicId.getParameterWithoutFirstAndLastChar() : null;
 	}
 
 	/**
 	 * @param publicId the publicId to set
 	 */
 	void setPublicId(int start, int end) {
-		publicIdStart = start;
-		publicIdEnd = end;
+		publicId = addNewParameter(start, end);
 	}
 
 	/*
@@ -187,18 +170,18 @@ public class DOMDocumentType extends DOMNode implements org.w3c.dom.DocumentType
 	 */
 	@Override
 	public String getSystemId() {
-		if (systemId == null && systemIdStart != null && systemIdEnd != null) {
-			systemId = cleanURL(getSubstring(systemIdStart, systemIdEnd));
-		}
-		return systemId;
+		return systemId != null ? systemId.getParameter() : null;
+	}
+
+	public String getSystemIdWithoutQuotes() {
+		return systemId != null ? systemId.getParameterWithoutFirstAndLastChar() : null;
 	}
 
 	/**
 	 * @param systemId the systemId to set
 	 */
 	void setSystemId(int start, int end) {
-		systemIdStart = start;
-		systemIdEnd = end;
+		systemId = addNewParameter(start, end);
 	}
 
 	/**
@@ -217,6 +200,9 @@ public class DOMDocumentType extends DOMNode implements org.w3c.dom.DocumentType
 	}
 
 	/**
+	 * Returns a substring of the whole document.
+	 *
+	 * 
 	 * Since offset values are relative to 'this.start' we need to 
 	 * subtract getStart() to make them relative to 'content'
 	 */ 

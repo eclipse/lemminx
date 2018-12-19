@@ -644,8 +644,8 @@ public class DOMParserForInternalDTDTest {
 		Assert.assertEquals("CDATA", attlistDecl.getAttributeType());
 		Assert.assertEquals(null, attlistDecl.getAttributeValue());
 
-		Assert.assertEquals(55, attlistDecl.unrecognizedStart.intValue());
-		Assert.assertEquals(75, attlistDecl.unrecognizedEnd.intValue());
+		Assert.assertEquals(55, attlistDecl.unrecognized.start);
+		Assert.assertEquals(75, attlistDecl.unrecognized.end);
 
 	}
 
@@ -705,7 +705,7 @@ public class DOMParserForInternalDTDTest {
 		DTDElementDecl elementDecl = (DTDElementDecl) documentType.getChild(0);
 		
 		Assert.assertEquals(16, elementDecl.getStart());
-		Assert.assertEquals(27, elementDecl.getEnd());
+		Assert.assertEquals(28, elementDecl.getEnd());
 		Assert.assertEquals(null, elementDecl.getName());
 		Assert.assertEquals(null, elementDecl.getContent());
 		Assert.assertEquals(null, elementDecl.getCategory());
@@ -714,14 +714,14 @@ public class DOMParserForInternalDTDTest {
 		DTDAttlistDecl attlistDecl = (DTDAttlistDecl) documentType.getChild(1);
 		
 		Assert.assertEquals(28, attlistDecl.getStart());
-		Assert.assertEquals(44, attlistDecl.getEnd());
+		Assert.assertEquals(45, attlistDecl.getEnd());
 		Assert.assertEquals("elName", attlistDecl.getElementName());
 		Assert.assertFalse(attlistDecl.isClosed());
 
 		DTDEntityDecl entityDecl = (DTDEntityDecl) documentType.getChild(2);
 		
 		Assert.assertEquals(45, entityDecl.getStart());
-		Assert.assertEquals(63, entityDecl.getEnd());
+		Assert.assertEquals(64, entityDecl.getEnd());
 		Assert.assertEquals("garbage", entityDecl.getNodeName());
 		Assert.assertFalse(entityDecl.isClosed());
 
@@ -761,8 +761,8 @@ public class DOMParserForInternalDTDTest {
 		Assert.assertEquals("elName", elementDecl.getName());
 		Assert.assertEquals("(aa1,bb2,cc3)", elementDecl.getContent());
 		Assert.assertEquals(null, elementDecl.getCategory());
-		Assert.assertEquals(51, elementDecl.unrecognizedStart.intValue());
-		Assert.assertEquals(75, elementDecl.unrecognizedEnd.intValue());
+		Assert.assertEquals(51, elementDecl.unrecognized.start);
+		Assert.assertEquals(75, elementDecl.unrecognized.end);
 		Assert.assertTrue(elementDecl.isClosed());
 	}
 
@@ -797,6 +797,62 @@ public class DOMParserForInternalDTDTest {
 		Assert.assertEquals("\"SystemID\"", elementDecl.getSystemId());
 		
 		Assert.assertTrue(elementDecl.isClosed());
+	}
+
+	@Test
+	public void dtdNotationSYSTEMUnrecognizedParameter() {
+		
+		String dtd = 
+		"<!DOCTYPE foo [\n" +
+		"    <!NOTATION Name SYSTEM \"PublicID\" \"SystemID\"> \n" +
+		"    ]\n" +
+		">";
+
+		DOMDocument actual = createDOMDocument(dtd);
+		Assert.assertEquals(1, actual.getChildren().size());
+		Assert.assertTrue(actual.getChild(0).isDoctype());
+		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
+		Assert.assertEquals(0, documentType.getStart());
+		Assert.assertEquals(74, documentType.getEnd());
+		Assert.assertEquals("foo", documentType.getName());
+		Assert.assertTrue(documentType.isClosed());
+
+		// <!NOTATION
+		Assert.assertEquals(1, documentType.getChildren().size());
+		Assert.assertTrue(documentType.getChild(0).isDTDNotationDecl());
+		DTDNotationDecl elementDecl = (DTDNotationDecl) documentType.getChild(0);
+		
+		Assert.assertEquals(20, elementDecl.getStart());
+		Assert.assertEquals(65, elementDecl.getEnd());
+		Assert.assertEquals("Name", elementDecl.getName());
+		Assert.assertEquals("SYSTEM", elementDecl.getKind());
+		Assert.assertEquals("\"PublicID\"", elementDecl.getSystemId());
+		Assert.assertEquals("\"SystemID\"", elementDecl.getUnrecognized());
+		
+		Assert.assertTrue(elementDecl.isClosed());
+	}
+
+	@Test
+	public void testDoctypeUnrecognizedContent() {
+		//Ensure unrecognized content goes all the way till the end
+		String dtd = 
+		"<!DOCTYPE foo BAD_VALUE [\n" +
+		"    <!NOTATION Name SYSTEM \"PublicID\" \"SystemID\"> \n" +
+		"    ]\n" +
+		">";
+
+		DOMDocument actual = createDOMDocument(dtd);
+		Assert.assertEquals(1, actual.getChildren().size());
+		Assert.assertTrue(actual.getChild(0).isDoctype());
+		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
+		Assert.assertEquals(0, documentType.getStart());
+		Assert.assertEquals(84, documentType.getEnd());
+		Assert.assertEquals("foo", documentType.getName());
+		Assert.assertEquals(14, documentType.unrecognized.start);
+		Assert.assertEquals(82, documentType.unrecognized.end);
+		Assert.assertTrue(documentType.isClosed());
+
+		
 	}
 
 

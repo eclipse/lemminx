@@ -13,6 +13,9 @@ package org.eclipse.lsp4xml.utils;
 import static org.eclipse.lsp4xml.utils.StringUtils.normalizeSpace;
 
 import org.eclipse.lsp4xml.dom.DOMComment;
+import org.eclipse.lsp4xml.dom.DOMDocumentType;
+import org.eclipse.lsp4xml.dom.DOMNode;
+import org.eclipse.lsp4xml.dom.DTDDeclNode;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 
 /**
@@ -206,21 +209,34 @@ public class XMLBuilder {
 		return this;
 	}
 
-	public XMLBuilder startDoctype(String name) {
-		xml.append("<!DOCTYPE");
-		if (name != null) {
-			xml.append(" ");
-			xml.append(name);
-		}
+	public XMLBuilder addDeclTagStart(DTDDeclNode tag) {
+		
+		xml.append("<!" + tag.getDeclType());
 		return this;
 	}
 
-	public XMLBuilder setDoctypeInternalSubset(String internalSubset) {
-		if (internalSubset != null) {
-			xml.append(" [");
-			xml.append(internalSubset);
-			xml.append("]");
-		}
+	public XMLBuilder startDoctype() {
+		xml.append("<!DOCTYPE");
+		return this;
+	}
+
+	public XMLBuilder addParameter(String parameter) {
+		xml.append(" " + parameter);
+		return this;
+	}
+
+	public XMLBuilder addUnindentedParameter(String parameter) {
+		xml.append(parameter);
+		return this;
+	}
+
+	public XMLBuilder startDoctypeInternalSubset() {
+		xml.append(" [");
+		return this;
+	}
+
+	public XMLBuilder endDoctypeInternalSubset() {
+		xml.append("]");
 		return this;
 	}
 
