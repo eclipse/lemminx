@@ -3,14 +3,12 @@
 	// Hover to view descriptions of existing attributes.
 	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
 	"version": "0.2.0",
-	"configurations": [
-	  {
+	"configurations": [{
 		"type": "java",
-		"name": "Debug (Attach)",
+		"name": "Debug (Attach) - Remote",
 		"request": "attach",
 		"hostName": "localhost",
 		"port": 1054,
 		"projectName": "org.eclipse.lsp4xml"
-	  }
-	]
-  }
+	}]
+}

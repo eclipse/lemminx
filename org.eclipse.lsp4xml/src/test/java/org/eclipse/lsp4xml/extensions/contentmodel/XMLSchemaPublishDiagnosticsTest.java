@@ -17,6 +17,7 @@ import java.util.function.Consumer;
 
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
+import org.eclipse.lsp4xml.AbstractCacheBasedTest;
 import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.XMLSchemaErrorCode;
@@ -27,7 +28,7 @@ import org.junit.Test;
  * Test with published diagnostics.
  *
  */
-public class XMLSchemaPublishDiagnosticsTest {
+public class XMLSchemaPublishDiagnosticsTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void schemaWithUrlWithoutCache() throws Exception {
@@ -77,11 +78,13 @@ public class XMLSchemaPublishDiagnosticsTest {
 				" xsi:noNamespaceSchemaLocation=\"http://invoice.xsd\">\r\n" + //
 				"</invoice> \r\n" + //
 				"";
+
+		String expectedLocation = TEST_WORK_DIRECTORY.resolve("cache/http/invoice.xsd").toString();
 		XMLAssert.testPublishDiagnosticsFor(xml, fileURI, configuration,
 				pd(fileURI,
 						new Diagnostic(r(1, 1, 1, 8), "The resource 'http://invoice.xsd' is downloading.",
 								DiagnosticSeverity.Information, "XML")),
-				pd(fileURI, new Diagnostic(r(1, 1, 1, 8), "Error while downloading 'http://invoice.xsd'.",
+				pd(fileURI, new Diagnostic(r(1, 1, 1, 8), "Error while downloading 'http://invoice.xsd' to "+expectedLocation+".",
 						DiagnosticSeverity.Error, "XML")));
 	}
 
