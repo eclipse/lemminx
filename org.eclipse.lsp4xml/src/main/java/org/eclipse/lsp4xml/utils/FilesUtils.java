@@ -19,18 +19,37 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Scanner;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
+
 /**
  * Files utilities.
  *
  */
 public class FilesUtils {
 
-	private FilesUtils(){}
+	public static final String LSP4XML_WORKDIR_KEY = "lsp4xml.workdir";
 
-	private static final Path DEPLOYED_BASE_PATH = getDeployedBasePath();
+	private FilesUtils() {
+	}
+
+	public static Supplier<Path> DEPLOYED_BASE_PATH;
+
+	static {
+		resetDeployPath();
+	}
+
+	/** Public for test purposes */
+	public static void resetDeployPath() {
+		DEPLOYED_BASE_PATH = Suppliers.memoize(() -> getDeployedBasePath());
+	}
 
 	private static Path getDeployedBasePath() {
-		String dir = System.getProperty("user.home");
+		String dir = System.getProperty(LSP4XML_WORKDIR_KEY);
+		if (dir != null) {
+			return Paths.get(dir);
+		}
+		dir = System.getProperty("user.home");
 		if (dir == null) {
 			dir = System.getProperty("user.dir");
 		}
@@ -48,7 +67,7 @@ public class FilesUtils {
 	 * @throws IOException
 	 */
 	public static Path getDeployedPath(Path path) throws IOException {
-		return DEPLOYED_BASE_PATH.resolve(path);
+		return DEPLOYED_BASE_PATH.get().resolve(path);
 	}
 
 	/**
@@ -86,5 +105,4 @@ public class FilesUtils {
 			return s.hasNext() ? s.next() : "";
 		}
 	}
-
 }

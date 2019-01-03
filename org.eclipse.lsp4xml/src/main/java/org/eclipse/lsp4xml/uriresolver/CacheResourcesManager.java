@@ -27,8 +27,13 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+
 
 import org.eclipse.lsp4xml.utils.FilesUtils;
 import org.eclipse.lsp4xml.utils.URIUtils;
@@ -38,6 +43,7 @@ import org.eclipse.lsp4xml.utils.URIUtils;
  *
  */
 public class CacheResourcesManager {
+	protected final Cache<String, Boolean> unavailableURICache;
 
 	private static final String CACHE_PATH = "cache";
 	private static final Logger LOGGER = Logger.getLogger(CacheResourcesManager.class.getName());
@@ -79,7 +85,12 @@ public class CacheResourcesManager {
 	}
 
 	public CacheResourcesManager() {
+		this(CacheBuilder.newBuilder().maximumSize(100).expireAfterWrite(30, TimeUnit.SECONDS).build());
+	}
+
+	public CacheResourcesManager(Cache<String, Boolean> cache) {
 		resourcesLoading = new HashMap<>();
+		unavailableURICache = cache;
 	}
 
 	public Path getResource(final String resourceURI) throws IOException {
@@ -87,6 +98,12 @@ public class CacheResourcesManager {
 		if (Files.exists(resourceCachePath)) {
 			return resourceCachePath;
 		}
+
+		if(unavailableURICache.getIfPresent(resourceURI) != null) {
+			LOGGER.info("Ignored unavailable schema URI: " + resourceURI + "\n");
+			return null;
+		}
+
 		CompletableFuture<Path> f = null;
 		synchronized (resourcesLoading) {
 			if (resourcesLoading.containsKey(resourceURI)) {
@@ -139,11 +156,12 @@ public class CacheResourcesManager {
 				LOGGER.info("Downloaded " + resourceURI + " to " + resourceCachePath + " in " + elapsed + "ms");
 			} catch (Exception e) {
 				// Do nothing
+				unavailableURICache.put(resourceURI, true);
 				Throwable rootCause = getRootCause(e);
 				String error = "[" + rootCause.getClass().getTypeName() + "] " + rootCause.getMessage();
 				LOGGER.log(Level.SEVERE,
 						"Error while downloading " + resourceURI + " to " + resourceCachePath + " : " + error);
-				throw new CacheResourceDownloadedException("Error while downloading '" + resourceURI + "'.", e);
+				throw new CacheResourceDownloadedException("Error while downloading '" + resourceURI + "' to " + resourceCachePath + ".", e);
 			} finally {
 				synchronized (resourcesLoading) {
 					resourcesLoading.remove(resourceURI);
