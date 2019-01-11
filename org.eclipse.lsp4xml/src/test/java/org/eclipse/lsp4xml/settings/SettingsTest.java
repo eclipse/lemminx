@@ -26,30 +26,33 @@ public class SettingsTest {
 
 	@Test
 	public void initializationOptionsSettings() {
-		String json = "{\r\n" + //
+		String json = 
+				"{\r\n" + //
 				"	\"settings\": {\r\n" + //
 				// Content model settings
-				"		\"fileAssociations\": [\r\n" + //
-				"			{\r\n" + //
-				"				\"systemId\": \"src\\\\test\\\\resources\\\\xsd\\\\spring-beans-3.0.xsd\",\r\n" + //
-				"				\"pattern\": \"**/test*.xml\"\r\n" + //
-				"			},\r\n" + //
-				"			{\r\n" + //
-				"				\"systemId\": \"src\\\\test\\\\resources\\\\xsd\\\\projectDescription.xsd\",\r\n" + //
-				"				\"pattern\": \"projectDescription.xml\"\r\n" + //
-				"			}\r\n" + //
-				"		],\r\n" + //
-				"		\"catalogs\": [\r\n" + //
-				"			\"src\\\\test\\\\resources\\\\catalogs\\\\catalog.xml\"\r\n" + //
-				"		],\r\n" + //
+				"		\"xml\": {\r\n" +
+				"			\"fileAssociations\": [\r\n" + //
+				"				{\r\n" + //
+				"					\"systemId\": \"src\\\\test\\\\resources\\\\xsd\\\\spring-beans-3.0.xsd\",\r\n" + //
+				"					\"pattern\": \"**/test*.xml\"\r\n" + //
+				"				},\r\n" + //
+				"				{\r\n" + //
+				"					\"systemId\": \"src\\\\test\\\\resources\\\\xsd\\\\projectDescription.xsd\",\r\n" + //
+				"					\"pattern\": \"projectDescription.xml\"\r\n" + //
+				"				}\r\n" + //
+				"			],\r\n" + //
+				"			\"catalogs\": [\r\n" + //
+				"				\"src\\\\test\\\\resources\\\\catalogs\\\\catalog.xml\"\r\n" + //
+				"			],\r\n" + //
 				// Client (commons) settings				
-				"		\"format\": {\r\n" + //
-				"			\"tabSize\": 10,\r\n" + //
-				"			\"insertSpaces\": false,\r\n" + //
-				"			\"splitAttributes\": true,\r\n" + //
-				"			\"joinCDATALines\": true,\r\n" + //
-				"			\"formatComments\": true,\r\n" + //
-				"			\"joinCommentLines\": true\r\n" + //
+				"			\"format\": {\r\n" + //
+				"				\"tabSize\": 10,\r\n" + //
+				"				\"insertSpaces\": false,\r\n" + //
+				"				\"splitAttributes\": true,\r\n" + //
+				"				\"joinCDATALines\": true,\r\n" + //
+				"				\"formatComments\": true,\r\n" + //
+				"				\"joinCommentLines\": true\r\n" + //
+				"			}\r\n" + 
 				"		}\r\n" + 
 				"	}\r\n" + 
 				"}";
@@ -60,11 +63,12 @@ public class SettingsTest {
 		Object initializationOptionsSettings = InitializationOptionsSettings.getSettings(params);
 
 		// Test client commons settings
-		XMLClientSettings settings = XMLClientSettings.getSettings(initializationOptionsSettings);
+		initializationOptionsSettings = AllXMLSettings.getAllXMLSettings(initializationOptionsSettings);
+		XMLGeneralClientSettings settings = XMLGeneralClientSettings.getGeneralXMLSettings(initializationOptionsSettings);
 		Assert.assertNotNull(settings);
 
 		// Test content model extension settings
-		ContentModelSettings cmSettings = ContentModelSettings.getSettings(initializationOptionsSettings);
+		ContentModelSettings cmSettings = ContentModelSettings.getContentModelXMLSettings(initializationOptionsSettings);
 		Assert.assertNotNull(cmSettings);
 		// Catalog
 		Assert.assertNotNull(cmSettings.getCatalogs());

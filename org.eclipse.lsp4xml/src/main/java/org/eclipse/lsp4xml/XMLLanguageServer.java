@@ -37,9 +37,10 @@ import org.eclipse.lsp4xml.logs.LogHelper;
 import org.eclipse.lsp4xml.services.IXMLDocumentProvider;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
+import org.eclipse.lsp4xml.settings.AllXMLSettings;
 import org.eclipse.lsp4xml.settings.InitializationOptionsSettings;
 import org.eclipse.lsp4xml.settings.LogsSettings;
-import org.eclipse.lsp4xml.settings.XMLClientSettings;
+import org.eclipse.lsp4xml.settings.XMLGeneralClientSettings;
 import org.eclipse.lsp4xml.settings.XMLExperimentalCapabilities;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesInitializer;
@@ -112,27 +113,27 @@ public class XMLLanguageServer
 			return;
 		}
 		// Update client settings
-
-		XMLClientSettings clientSettings = XMLClientSettings.getSettings(initializationOptionsSettings);
-		if (clientSettings != null) {
+		initializationOptionsSettings = AllXMLSettings.getAllXMLSettings(initializationOptionsSettings);
+		XMLGeneralClientSettings xmlClientSettings = XMLGeneralClientSettings.getGeneralXMLSettings(initializationOptionsSettings);
+		if (xmlClientSettings != null) {
 			// Update logs settings
-			LogsSettings logsSettings = clientSettings.getLogs();
+			LogsSettings logsSettings = xmlClientSettings.getLogs();
 			if (logsSettings != null) {
 				LogHelper.initializeRootLogger(languageClient, logsSettings);
 			}
 			// Update format settings
-			XMLFormattingOptions formatterSettings = clientSettings.getFormat();
+			XMLFormattingOptions formatterSettings = xmlClientSettings.getFormat();
 			if (formatterSettings != null) {
 				xmlTextDocumentService.getSharedFormattingOptions().merge(formatterSettings);
 			}
 
-			CompletionSettings newCompletions = clientSettings.getCompletion();
+			CompletionSettings newCompletions = xmlClientSettings.getCompletion();
 			if (newCompletions != null) {
 				xmlTextDocumentService.updateCompletionSettings(newCompletions);
 			}
 
 			// Experimental capabilities
-			XMLExperimentalCapabilities experimental = clientSettings.getExperimental();
+			XMLExperimentalCapabilities experimental = xmlClientSettings.getExperimental();
 			if (experimental != null) {
 				boolean incrementalSupport = experimental.getIncrementalSupport() != null
 						&& experimental.getIncrementalSupport().getEnabled() != null

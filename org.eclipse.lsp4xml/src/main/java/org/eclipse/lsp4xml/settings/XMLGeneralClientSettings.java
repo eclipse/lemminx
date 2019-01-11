@@ -17,7 +17,7 @@ import org.eclipse.lsp4xml.utils.JSONUtility;
  * XML client settings
  *
  */
-public class XMLClientSettings {
+public class XMLGeneralClientSettings {
 
 	private LogsSettings logs;
 
@@ -63,8 +63,8 @@ public class XMLClientSettings {
 		return completion;
 	}
 
-
-	public static XMLClientSettings getSettings(Object initializationOptionsSettings) {
-		return JSONUtility.toModel(initializationOptionsSettings, XMLClientSettings.class);
+	public static XMLGeneralClientSettings getGeneralXMLSettings(Object initializationOptionsSettings) {
+		return JSONUtility.toModel(initializationOptionsSettings, XMLGeneralClientSettings.class);
 	}
+	
 }

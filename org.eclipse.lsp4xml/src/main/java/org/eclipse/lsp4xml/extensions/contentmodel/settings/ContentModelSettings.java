@@ -88,7 +88,7 @@ public class ContentModelSettings {
 		this.problems = problems;
 	}
 
-	public static ContentModelSettings getSettings(Object initializationOptionsSettings) {
+	public static ContentModelSettings getContentModelXMLSettings(Object initializationOptionsSettings) {
 		return JSONUtility.toModel(initializationOptionsSettings, ContentModelSettings.class);
 	}
 
