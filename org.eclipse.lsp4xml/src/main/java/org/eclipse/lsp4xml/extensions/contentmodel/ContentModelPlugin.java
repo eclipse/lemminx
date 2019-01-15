@@ -75,7 +75,7 @@ public class ContentModelPlugin implements IXMLExtension {
 
 	private void updateSettings(ISaveContext saveContext) {
 		Object initializationOptionsSettings = saveContext.getSettings();
-		cmSettings = ContentModelSettings.getSettings(initializationOptionsSettings);
+		cmSettings = ContentModelSettings.getContentModelXMLSettings(initializationOptionsSettings);
 		if (cmSettings != null) {
 			updateSettings(cmSettings, saveContext);
 		}
