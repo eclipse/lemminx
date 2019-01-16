@@ -83,15 +83,79 @@ public class DTDCompletionExtensionsTest {
 				c("Friend", te(11, 9, 11, 9, "Friend=\"\""), "Friend"), //
 				c("Likes", te(11, 9, 11, 9, "Likes=\"\""), "Likes"));
 	}
+
+	@Test
+	public void externalDTDCompletionElementDecl() throws BadLocationException {
+		// completion on <|
+		String xml = "<?xml version = \"1.0\"?>\r\n" + //
+				"<!DOCTYPE Folks [\r\n" + //
+				"	<!ELEMENT Folks (Person*)>\r\n" + //
+				"	<!ELEMENT|\r\n" + //
+				"]>\r\n" + //
+				"<Folks>\r\n" + //
+				"	" + //
+				"</Folks>";
+		testCompletionFor(xml, c("Insert DTD Element declaration", te(3, 1, 3, 11, "<!ELEMENT ${1:element-name} (${2:#PCDATA})>"), "<!ELEMENT "));
+	}
+
+	@Test
+	public void externalDTDCompletionElementDecl2() throws BadLocationException {
+		// completion on <|
+		String xml = "<?xml version = \"1.0\"?>\r\n" + //
+				"<!DOCTYPE Folks [\r\n" + //
+				"	<!ELEMENT Folks (Person*)>\r\n" + //
+				"	<!ELEM|\r\n" + //
+				"]>\r\n" + //
+				"<Folks>\r\n" + //
+				"	" + //
+				"</Folks>";
+		testCompletionFor(xml, c("Insert DTD Element declaration", te(3, 1, 3, 7, "<!ELEMENT ${1:element-name} (${2:#PCDATA})>"), "<!ELEMENT "));
+	}
+	@Test
+	public void externalDTDCompletionAllDecls() throws BadLocationException {
+		// completion on <|
+		String xml = "<?xml version = \"1.0\"?>\r\n" + //
+				"<!DOCTYPE Folks [\r\n" + //
+				"	<!ELEMENT Folks (Person*)>\r\n" + //
+				"	|\r\n" + //
+				"]>\r\n" + //
+				"<Folks>\r\n" + //
+				"	" + //
+				"</Folks>";
+		testCompletionFor(xml, true, 4, c("Insert DTD Element declaration", te(3, 1, 3, 1, "<!ELEMENT ${1:element-name} (${2:#PCDATA})>"), "<!ELEMENT ")
+		,c("Insert Internal DTD Entity declaration", te(3, 1, 3, 1, "<!ENTITY ${1:entity-name} \"${2:entity-value}\">"), "<!ENTITY ")
+		,c("Insert DTD Attributes list declaration", te(3, 1, 3, 1, "<!ATTLIST ${1:element-name} ${2:attribute-name} ${3:ID} ${4:#REQUIRED}>"), "<!ATTLIST ")
+		,c("Insert External DTD Entity declaration", te(3, 1, 3, 1, "<!ENTITY ${1:entity-name} SYSTEM \"${2:entity-value}\">"), "<!ENTITY "));
+	}
+
+	@Test
+	public void externalDTDCompletionAllDeclsSnippetsNotSupported() throws BadLocationException {
+		// completion on <|
+		String xml = "<?xml version = \"1.0\"?>\r\n" + //
+				"<!DOCTYPE Folks [\r\n" + //
+				"	<!ELEMENT Folks (Person*)>\r\n" + //
+				"	|\r\n" + //
+				"]>\r\n" + //
+				"<Folks>\r\n" + //
+				"	" + //
+				"</Folks>";
+		testCompletionFor(xml, false, 4, c("Insert DTD Element declaration", te(3, 1, 3, 1, "<!ELEMENT element-name (#PCDATA)>"), "<!ELEMENT ")
+		,c("Insert Internal DTD Entity declaration", te(3, 1, 3, 1, "<!ENTITY entity-name \"entity-value\">"), "<!ENTITY ")
+		,c("Insert DTD Attributes list declaration", te(3, 1, 3, 1, "<!ATTLIST element-name attribute-name ID #REQUIRED>"), "<!ATTLIST ")
+		,c("Insert External DTD Entity declaration", te(3, 1, 3, 1, "<!ENTITY entity-name SYSTEM \"entity-value\">"), "<!ENTITY "));
+	}
 	
 	private void testCompletionFor(String xml, CompletionItem... expectedItems) throws BadLocationException {
+		testCompletionFor(xml,true, null, expectedItems);
+	}
+
+	private void testCompletionFor(String xml, boolean isSnippetsSupported, Integer expectedCount, CompletionItem... expectedItems) throws BadLocationException {
 		CompletionSettings completionSettings = new CompletionSettings();
 		CompletionCapabilities completionCapabilities = new CompletionCapabilities();
-		CompletionItemCapabilities completionItem = new CompletionItemCapabilities(true); // activate snippets
+		CompletionItemCapabilities completionItem = new CompletionItemCapabilities(isSnippetsSupported); // activate snippets
 		completionCapabilities.setCompletionItem(completionItem);
 		completionSettings.setCapabilities(completionCapabilities);
 		XMLAssert.testCompletionFor(new XMLLanguageService(), xml, "src/test/resources/catalogs/catalog.xml", null,
-				null, null, completionSettings, expectedItems);
-		;
+				null, expectedCount, completionSettings, expectedItems);
 	}
 }
