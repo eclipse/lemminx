@@ -18,7 +18,5 @@ script:
 deploy:
   provider: script
   script: ./deploy.sh
-  on:
-    tags: true
 notifications:
   email: true

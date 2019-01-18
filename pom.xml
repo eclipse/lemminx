@@ -86,7 +86,7 @@
 	<distributionManagement>
 		<snapshotRepository>
 			<id>lsp4xml-snapshots</id>
-			<url>https://api.bintray.com/maven/lsp4xml/releases/lsp4xml/;publish=1</url>
+			<url>https://oss.jfrog.org/artifactory/oss-snapshot-local</url>
 		</snapshotRepository>
 		<repository>
 			<id>lsp4xml-releases</id>
