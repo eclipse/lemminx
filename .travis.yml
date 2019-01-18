@@ -9,7 +9,7 @@ script:
 - "./mvnw clean verify"
 deploy:
   provider: script
-  script: "./mvnw --settings travis-settings.xml deploy  "
+  script: "./mvnw versions:set -DnewVersion=0.0.0 & ./mvnw --settings travis-settings.xml deploy  "
   skip_cleanup: true
 jdk:
 - oraclejdk8
