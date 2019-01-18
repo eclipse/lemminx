@@ -1,0 +1,1 @@
+./mvnw versions:set -DnewVersion=0.0.0 & ./mvnw --settings travis-settings.xml deploy
