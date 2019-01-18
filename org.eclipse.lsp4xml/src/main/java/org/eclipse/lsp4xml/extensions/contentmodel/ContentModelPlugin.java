@@ -38,7 +38,7 @@ public class ContentModelPlugin implements IXMLExtension {
 
 	private final ContentModelDocumentLinkParticipant documentLinkParticipant;
 
-	private ContentModelManager contentModelManager;
+	ContentModelManager contentModelManager;
 
 	private ContentModelSettings cmSettings;
 	

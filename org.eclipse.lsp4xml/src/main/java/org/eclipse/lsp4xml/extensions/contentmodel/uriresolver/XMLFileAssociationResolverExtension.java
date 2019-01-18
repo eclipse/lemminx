@@ -11,6 +11,7 @@
 package org.eclipse.lsp4xml.extensions.contentmodel.uriresolver;
 
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 
@@ -39,7 +40,7 @@ public class XMLFileAssociationResolverExtension implements URIResolverExtension
 		XMLFileAssociation[] oldFileAssociations = this.fileAssociations;
 		this.fileAssociations = fileAssociations;
 		expandSystemId();
-		return !Objects.equals(oldFileAssociations, fileAssociations);
+		return !Arrays.equals(oldFileAssociations, fileAssociations);
 	}
 
 	@Override
