@@ -44,13 +44,12 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
-				<version>3.1.0</version>
+				<version>3.1.1</version>
 				<configuration>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
-					<finalName>${project.artifactId}-all</finalName>
-					<appendAssemblyId>false</appendAssemblyId>
+					<descriptors>
+						<descriptor>src/assembly/distribution.xml</descriptor>
+					</descriptors>
+					<finalName>${project.artifactId}</finalName>
 					<archive>
 						<manifest>
 							<mainClass>org.eclipse.lsp4xml.XMLServerLauncher</mainClass>
