@@ -201,6 +201,13 @@ class XMLCompletions {
 				}
 				break;
 			case Content:
+				if(completionRequest.getXMLDocument().isDTD() || completionRequest.getXMLDocument().isWithinInternalDTD(offset)) {
+					if (scanner.getTokenOffset() <= offset) {
+						collectInsideDTDContent(completionRequest, completionResponse, true);
+						return completionResponse;
+					}
+					break;
+				}
 				if (offset <= scanner.getTokenEnd()) {
 					collectInsideContent(completionRequest, completionResponse);
 					return completionResponse;
@@ -248,6 +255,12 @@ class XMLCompletions {
 				break;
 			}
 			// DTD
+			case DTDAttlistAttributeName:
+			case DTDAttlistAttributeType:
+			case DTDAttlistAttributeValue:
+			case DTDStartAttlist:
+			case DTDStartElement:
+			case DTDStartEntity:
 			case DTDEndTag:
 			case DTDStartInternalSubset:
 			case DTDEndInternalSubset: {
@@ -691,21 +704,40 @@ class XMLCompletions {
 	}
 
 	private void collectInsideDTDContent(CompletionRequest request, CompletionResponse response) {
+		collectInsideDTDContent(request,response, false);
+	}
+	private void collectInsideDTDContent(CompletionRequest request, CompletionResponse response, boolean isContent) {
 		// Insert DTD Element Declaration
 		// see https://www.w3.org/TR/REC-xml/#dt-eldecl
+		boolean isSnippetsSupported = request.getCompletionSettings().isCompletionSnippetsSupported();
+		InsertTextFormat insertFormat = isSnippetsSupported ? InsertTextFormat.Snippet : InsertTextFormat.PlainText;
 		CompletionItem elementDecl = new CompletionItem();
 		elementDecl.setLabel("Insert DTD Element declaration");
 		elementDecl.setKind(CompletionItemKind.EnumMember);
-		elementDecl.setFilterText("<!ELEMENT");
-		elementDecl.setInsertTextFormat(InsertTextFormat.Snippet);
+		elementDecl.setFilterText("<!ELEMENT ");
+		elementDecl.setInsertTextFormat(insertFormat);
 		int startOffset = request.getOffset();
+		Range editRange = null;
+		DOMDocument document = request.getXMLDocument();
+		DOMNode node = document.findNodeAt(startOffset);
 		try {
-			Range editRange = getReplaceRange(startOffset, startOffset, request);
-			elementDecl.setTextEdit(new TextEdit(editRange, "<!ELEMENT ${0:element-name} (${1:#PCDATA})>"));
-			elementDecl.setDocumentation("<!ELEMENT element-name (#PCDATA)>");
+			if(node.isDoctype()) {
+				editRange = getReplaceRange(startOffset, startOffset, request);
+			} else {
+				if(isContent) {
+					editRange = document.getTrimmedRange(node.getStart(), node.getEnd());
+				} 
+				if(editRange == null) {
+					editRange = getReplaceRange(node.getStart(), node.getEnd(), request);
+				}
+			}
 		} catch (BadLocationException e) {
-			LOGGER.log(Level.SEVERE, "While performing getReplaceRange for DTD !ELEMENT completion.", e);
+			LOGGER.log(Level.SEVERE, "While performing getReplaceRange for DTD completion.", e);
 		}
+		String textEdit = isSnippetsSupported ? "<!ELEMENT ${1:element-name} (${2:#PCDATA})>" : "<!ELEMENT element-name (#PCDATA)>";
+		elementDecl.setTextEdit(new TextEdit(editRange, textEdit));
+		elementDecl.setDocumentation("<!ELEMENT element-name (#PCDATA)>");
+		
 		response.addCompletionItem(elementDecl);
 
 		// Insert DTD AttrList Declaration
@@ -713,17 +745,15 @@ class XMLCompletions {
 		CompletionItem attrListDecl = new CompletionItem();
 		attrListDecl.setLabel("Insert DTD Attributes list declaration");
 		attrListDecl.setKind(CompletionItemKind.EnumMember);
-		attrListDecl.setFilterText("<!ATTLIST");
-		attrListDecl.setInsertTextFormat(InsertTextFormat.Snippet);
+		attrListDecl.setFilterText("<!ATTLIST ");
+		attrListDecl.setInsertTextFormat(insertFormat);
 		startOffset = request.getOffset();
-		try {
-			Range editRange = getReplaceRange(startOffset, startOffset, request);
-			attrListDecl.setTextEdit(new TextEdit(editRange,
-					"<!ATTLIST ${0:element-name} ${1:attribute-name} ${2:ID} ${3:#REQUIRED} >"));
-			attrListDecl.setDocumentation("<!ATTLIST element-name attribute-name ID #REQUIRED >");
-		} catch (BadLocationException e) {
-			LOGGER.log(Level.SEVERE, "While performing getReplaceRange for DTD !ATTLIST completion.", e);
-		}
+		
+		textEdit = isSnippetsSupported ? "<!ATTLIST ${1:element-name} ${2:attribute-name} ${3:ID} ${4:#REQUIRED}>" 
+										: "<!ATTLIST element-name attribute-name ID #REQUIRED>";
+		attrListDecl.setTextEdit(new TextEdit(editRange, textEdit));
+		attrListDecl.setDocumentation("<!ATTLIST element-name attribute-name ID #REQUIRED>");
+		
 		response.addCompletionItem(attrListDecl);
 
 		// Insert Internal DTD Entity Declaration
@@ -731,16 +761,14 @@ class XMLCompletions {
 		CompletionItem internalEntity = new CompletionItem();
 		internalEntity.setLabel("Insert Internal DTD Entity declaration");
 		internalEntity.setKind(CompletionItemKind.EnumMember);
-		internalEntity.setFilterText("<!ENTITY");
-		internalEntity.setInsertTextFormat(InsertTextFormat.Snippet);
+		internalEntity.setFilterText("<!ENTITY ");
+		internalEntity.setInsertTextFormat(insertFormat);
 		startOffset = request.getOffset();
-		try {
-			Range editRange = getReplaceRange(startOffset, startOffset, request);
-			internalEntity.setTextEdit(new TextEdit(editRange, "<!ENTITY ${0:entity-name} \"${1:entity-value}\" >"));
-			internalEntity.setDocumentation("<!ENTITY entity-name \"entity-value\" >");
-		} catch (BadLocationException e) {
-			LOGGER.log(Level.SEVERE, "While performing getReplaceRange for DTD !ENTITY completion.", e);
-		}
+		
+		textEdit = isSnippetsSupported ? "<!ENTITY ${1:entity-name} \"${2:entity-value}\">" : "<!ENTITY entity-name \"entity-value\">";
+		internalEntity.setTextEdit(new TextEdit(editRange, textEdit));
+		internalEntity.setDocumentation("<!ENTITY entity-name \"entity-value\">");
+		
 		response.addCompletionItem(internalEntity);
 
 		// Insert External DTD Entity Declaration
@@ -748,17 +776,15 @@ class XMLCompletions {
 		CompletionItem externalEntity = new CompletionItem();
 		externalEntity.setLabel("Insert External DTD Entity declaration");
 		externalEntity.setKind(CompletionItemKind.EnumMember);
-		externalEntity.setFilterText("<!ENTITY");
-		externalEntity.setInsertTextFormat(InsertTextFormat.Snippet);
+		externalEntity.setFilterText("<!ENTITY ");
+		externalEntity.setInsertTextFormat(insertFormat);
 		startOffset = request.getOffset();
-		try {
-			Range editRange = getReplaceRange(startOffset, startOffset, request);
-			externalEntity
-					.setTextEdit(new TextEdit(editRange, "<!ENTITY ${0:entity-name} SYSTEM \"${1:entity-value}\" >"));
-			externalEntity.setDocumentation("<!ENTITY entity-name SYSTEM \"entity-value\" >");
-		} catch (BadLocationException e) {
-			LOGGER.log(Level.SEVERE, "While performing getReplaceRange for DTD !ENTITY completion.", e);
-		}
+		
+		textEdit = isSnippetsSupported ? "<!ENTITY ${1:entity-name} SYSTEM \"${2:entity-value}\">" : "<!ENTITY entity-name SYSTEM \"entity-value\">";
+		externalEntity
+				.setTextEdit(new TextEdit(editRange, textEdit));
+		externalEntity.setDocumentation("<!ENTITY entity-name SYSTEM \"entity-value\">");
+		
 		response.addCompletionItem(externalEntity);
 	}
 

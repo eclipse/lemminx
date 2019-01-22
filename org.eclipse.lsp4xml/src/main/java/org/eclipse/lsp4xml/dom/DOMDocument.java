@@ -26,6 +26,7 @@ import org.eclipse.lsp4xml.dom.parser.Constants;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
 import org.eclipse.lsp4xml.utils.DOMUtils;
 import org.eclipse.lsp4xml.utils.StringUtils;
+import org.eclipse.lsp4xml.utils.XMLPositionUtility;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.DOMConfiguration;
 import org.w3c.dom.DOMException;
@@ -758,6 +759,48 @@ public class DOMDocument extends DOMNode implements Document {
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Returns true if 'offset' is within an internal DOCTYPE dtd.
+	 * Else false.
+	 * @param offset
+	 * @return 
+	 */
+	public boolean isWithinInternalDTD(int offset) {
+		DOMDocumentType doctype = this.getDoctype();
+		if(doctype != null && doctype.internalSubset != null) {
+			return offset > doctype.internalSubset.start && offset < doctype.internalSubset.end;
+		}
+		return false;
+	}
+
+	public Range getTrimmedRange(Range range) {
+		if(range != null) {
+			return getTrimmedRange(range.getStart().getCharacter(), range.getEnd().getCharacter());
+		}
+		return null;
+
+	}
+
+	public Range getTrimmedRange(int start, int end) {
+		String text = getText();
+		char c = text.charAt(start);
+		while(Character.isWhitespace(c)) {
+			start++;
+			c = text.charAt(start);
+		}
+		if(start == end) {
+			return null;
+		}
+		end--;
+		c = text.charAt(end);
+		while(Character.isWhitespace(c)) {
+			end--;
+			c = text.charAt(end);
+		}
+		end++;
+		return XMLPositionUtility.createRange(start, end, this);
 	}
 
 	/**

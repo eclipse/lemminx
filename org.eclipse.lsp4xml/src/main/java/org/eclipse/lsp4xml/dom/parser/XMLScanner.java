@@ -446,9 +446,9 @@ public class XMLScanner implements Scanner {
 				isInsideDTDContent = false;
 				return finishToken(offset, TokenType.DTDEndInternalSubset);
 			}
-
+			boolean startsWithLessThanBracket = false;
 			if (stream.advanceIfChar(_LAN)) { // <
-				
+				startsWithLessThanBracket = true;
 				if (!stream.eos() && stream.peekChar() == _EXL) { // !
 					isDeclCompleted = false;
 					if (stream.advanceIfChars(_EXL, _EVL, _LVL, _EVL, _MVL, _EVL, _NVL, _TVL)) { // !ELEMENT
@@ -469,15 +469,23 @@ public class XMLScanner implements Scanner {
 						return finishToken(offset, TokenType.StartCommentTag);
 					}
 				}
-				if (stream.advanceUntilCharOrNewTag(_RAN)) { // >
-					stream.advanceIfChar(_RAN); // >
-					return finishToken(offset, TokenType.Content);
-				}
 			}
 			if(isDTDFile) {
-				stream.advanceUntilChar(_LAN); // <
+				if(startsWithLessThanBracket) {
+					if(stream.advanceUntilCharOrNewTag(_RAN)){ // >
+						if(stream.peekChar() == _RAN) {
+							stream.advance(1); //consume '>'
+						}
+					}
+				}
+				else {
+					stream.advanceUntilAnyOfChars(_LAN); // <
+				}
 			} else {
 				stream.advanceUntilAnyOfChars(_RAN, _LAN, _CSB); // > || < || ]
+				if(startsWithLessThanBracket && stream.peekChar() == _RAN) {
+					stream.advance(1); //consume '>'
+				}
 			}
 			return finishToken(offset, TokenType.Content);
 			

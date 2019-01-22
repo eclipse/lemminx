@@ -112,6 +112,7 @@ public class XMLAssert {
 				new CompletionSettings(autoCloseTags), expectedItems);
 	}
 
+
 	public static void testCompletionFor(XMLLanguageService xmlLanguageService, String value, String catalogPath,
 			Consumer<XMLLanguageService> customConfiguration, String fileURI, Integer expectedCount,
 			CompletionSettings completionSettings, CompletionItem... expectedItems) throws BadLocationException {
