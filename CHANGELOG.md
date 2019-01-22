@@ -1,5 +1,44 @@
 # Change Log
 
+## [0.3.0](https://github.com/angelozerr/lsp4xml/milestone/3?closed=1) (January 28, 2019)
+
+### Enhancements
+
+* Addded root element 'xml' to preferences JSON. See [#257](https://github.com/angelozerr/lsp4xml/issues/257).
+* Added ability to format DTD/DOCTYPE content. See [#268](https://github.com/angelozerr/lsp4xml/issues/268).
+* Added outline for DTD elements. See [#226](https://github.com/angelozerr/lsp4xml/issues/226).
+* Ability to start the server in socket mode. See [#259](https://github.com/angelozerr/lsp4xml/pull/259).
+* XML completion based on internal DTD. See [#251](https://github.com/angelozerr/lsp4xml/issues/251).
+* XML completion based on external DTD. See [#106](https://github.com/angelozerr/lsp4xml/issues/106).
+* Completion for DTD <!ELEMENT, <!ATTRIBUTE, ... . See [#232](https://github.com/angelozerr/lsp4xml/issues/232).
+* Provide automatic completion/validation in catalog files. See [#204](https://github.com/angelozerr/lsp4xml/issues/204).
+* Hover for XSI attributes. See [#164](https://github.com/angelozerr/lsp4xml/issues/164).
+* Show attribute value completion based on XML Schema/DTD. See [#242](https://github.com/angelozerr/lsp4xml/issues/242).
+* Added `xml.format.spaceBeforeEmptyCloseTag` preference to insert whitespace before closing empty end-tag. See [#197](https://github.com/angelozerr/lsp4xml/issues/197).
+* Completion for XSI attributes. See [#163](https://github.com/angelozerr/lsp4xml/issues/163).
+* Changing the content of catalog.xml refreshes the catalogs and triggers validation. See [#212](https://github.com/angelozerr/lsp4xml/issues/212).
+* Switched to lsp4j 0.6.0 release. See [#254](https://github.com/angelozerr/lsp4xml/issues/254).
+* Added `xml.validation.noGrammar` preference, to indicate document won't be validated. See [#218](https://github.com/angelozerr/lsp4xml/issues/218).
+* Added preference to enable/disable validation `xml.validation.enabled` and `xml.validation.schema`. See [#260](https://github.com/angelozerr/lsp4xml/issues/260).
+* Deploy lsp4xml to a public Maven repository. [#229](https://github.com/angelozerr/lsp4xml/issues/229).
+
+### Bug Fixes
+
+* Formatting unclosed tag would be in wrong location. See [#269](https://github.com/angelozerr/lsp4xml/issues/269).
+* Formatting removes DOCTYPE's public declaration. See [#250](https://github.com/angelozerr/lsp4xml/issues/250).
+* Infinite loop when `<` was typed into an empty DTD file. See [#266](https://github.com/angelozerr/lsp4xml/issues/266).
+* Formatting malformed xml removed content. See [#227](https://github.com/angelozerr/lsp4xml/issues/227).
+* Misplace diagnostic for cvc-elt.3.1. See [#241](https://github.com/angelozerr/lsp4xml/issues/241).
+* javax.xml.soap.Node is not available in Java 11. See [#238](https://github.com/angelozerr/lsp4xml/issues/238).
+* Adjust range for DTD validation errors. See [#107](https://github.com/angelozerr/lsp4xml/issues/107).
+* Adjust range error for internal DTD declaration. See [#225](https://github.com/angelozerr/lsp4xml/issues/225).
+* Don't add sibling element when completion items is filled with grammar. See [#211](https://github.com/angelozerr/lsp4xml/issues/211).
+* Validation needs additional `<uri>` catalog entry. See [#217](https://github.com/angelozerr/lsp4xml/issues/217).
+* XML Schema completion prefix did not work in some cases. See [#214](https://github.com/angelozerr/lsp4xml/issues/214).
+* Support rootUri for XML catalog configuration. See [#206](https://github.com/angelozerr/lsp4xml/issues/206).
+* CacheResourcesManager keeps trying to download unavailable resources. See [#201](https://github.com/angelozerr/lsp4xml/issues/201).
+* Support rootUri for XML catalog configuration. See [#206](https://github.com/angelozerr/lsp4xml/issues/206).
+* CacheResourcesManager keeps trying to download unavailable resources. See [#201](https://github.com/angelozerr/lsp4xml/issues/201).
 
 ## [0.0.2](https://github.com/angelozerr/lsp4xml/milestone/1?closed=1) (November 8, 2018)
 
