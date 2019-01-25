@@ -45,7 +45,7 @@ Get started
 * Clone this repository
 * Open the folder in your terminal / command line
 * Run `./mvnw clean verify` (OSX, Linux) or `mvnw.cmd clean verify` (Windows)
-* After successful compilation you can find the resulting `org.eclipse.lsp4xml-all.jar` in the folder `org.eclipse.lsp4xml/target`
+* After successful compilation you can find the resulting `org.eclipse.lsp4xml-uber.jar` in the folder `org.eclipse.lsp4xml/target`
 
 Developer
 --------------
