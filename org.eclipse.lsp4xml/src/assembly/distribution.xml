@@ -5,7 +5,7 @@
   Copied from jar-with-dependencies because we want to both control the local name 
   AND attach the binary to the project build artifacts. Workaround for https://issues.apache.org/jira/browse/MASSEMBLY-824
    -->
-  <id>all</id>
+  <id>uber</id>
   <formats>
     <format>jar</format>
   </formats>
