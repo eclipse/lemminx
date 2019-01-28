@@ -39,6 +39,7 @@
 * CacheResourcesManager keeps trying to download unavailable resources. See [#201](https://github.com/angelozerr/lsp4xml/issues/201).
 * Support rootUri for XML catalog configuration. See [#206](https://github.com/angelozerr/lsp4xml/issues/206).
 * CacheResourcesManager keeps trying to download unavailable resources. See [#201](https://github.com/angelozerr/lsp4xml/issues/201).
+* Fix license headers according to project's declared EPL v2.0. See [#256](https://github.com/angelozerr/lsp4xml/issues/256).
 
 ## [0.0.2](https://github.com/angelozerr/lsp4xml/milestone/1?closed=1) (November 8, 2018)
 
