@@ -78,14 +78,14 @@ Here are the Maven coordinates for lsp4xml (replace the `X.Y.Z` version with the
     <groupId>org.lsp4xml</groupId>
     <artifactId>org.eclipse.lsp4xml</artifactId>
     <version>X.Y.Z</version>
-    <!-- classifier:all includes all dependencies -->
-    <classifier>all</classifier>
+    <!-- classifier:uber includes all dependencies -->
+    <classifier>uber</classifier>
 </dependency>
 ```
 
 for Gradle:
 ```
-compile(group: 'org.lsp4xml', name: 'org.eclipse.lsp4xml', version: 'X.Y.Z', classifier: 'all')
+compile(group: 'org.lsp4xml', name: 'org.eclipse.lsp4xml', version: 'X.Y.Z', classifier: 'uber')
 ```
 
 You will have to reference the Maven repository hosting the dependency you need. E.g. for Maven, add this repository to your pom.xml or settings.xml :
