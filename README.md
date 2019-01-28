@@ -69,6 +69,52 @@ Client connection example using Theia and TypeScript:
             socket.connect(socketPort)
 ```
 
+Maven coordinates:
+------------------
+
+Here are the Maven coordinates for lsp4xml (replace the `X.Y.Z` version with the [latest release](https://bintray.com/beta/#/lsp4xml/releases/lsp4xml):
+```xml
+<dependency>
+    <groupId>org.lsp4xml</groupId>
+    <artifactId>org.eclipse.lsp4xml</artifactId>
+    <version>X.Y.Z</version>
+    <!-- classifier:all includes all dependencies -->
+    <classifier>all</classifier>
+</dependency>
+```
+
+for Gradle:
+```
+compile(group: 'org.lsp4xml', name: 'org.eclipse.lsp4xml', version: 'X.Y.Z', classifier: 'all')
+```
+
+You will have to reference the Maven repository hosting the dependency you need. E.g. for Maven, add this repository to your pom.xml or settings.xml :
+```xml
+<repository>
+  <id>lsp4xml-releases</id>
+  <url>https://dl.bintray.com/lsp4xml/releases</url>
+  <snapshots>
+    <enabled>false</enabled>
+  </snapshots>
+  <releases>
+    <enabled>true</enabled>
+  </releases>
+</repository>
+```
+
+And if you want to consume the SNAPSHOT builds instead:
+```xml
+<repository>
+  <id>lsp4xml-snapshots</id>
+  <url>https://oss.jfrog.org/artifactory/libs-snapshot</url>
+  <releases>
+    <enabled>false</enabled>
+  </releases>
+  <snapshots>
+    <enabled>true</enabled>
+  </snapshots>
+</repository>
+```
 
 Clients
 -------
