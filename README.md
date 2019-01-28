@@ -72,7 +72,7 @@ Client connection example using Theia and TypeScript:
 Maven coordinates:
 ------------------
 
-Here are the Maven coordinates for lsp4xml (replace the `X.Y.Z` version with the [latest release](https://bintray.com/beta/#/lsp4xml/releases/lsp4xml):
+Here are the Maven coordinates for lsp4xml (replace the `X.Y.Z` version with the [latest release](https://bintray.com/beta/#/lsp4xml/releases/lsp4xml)):
 ```xml
 <dependency>
     <groupId>org.lsp4xml</groupId>
