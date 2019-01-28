@@ -788,11 +788,12 @@ public class DOMDocument extends DOMNode implements Document {
 		char c = text.charAt(start);
 		while(Character.isWhitespace(c)) {
 			start++;
+			if(start >= end) {
+				return XMLPositionUtility.createRange(start, start, this); 
+			}
 			c = text.charAt(start);
 		}
-		if(start == end) {
-			return null;
-		}
+		
 		end--;
 		c = text.charAt(end);
 		while(Character.isWhitespace(c)) {

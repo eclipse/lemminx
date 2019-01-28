@@ -74,7 +74,7 @@ class XMLCompletions {
 		DOMNode node = completionRequest.getNode();
 
 		String text = xmlDocument.getText();
-		if (text.isEmpty()) {
+		if (!xmlDocument.isDTD() && text.isEmpty()) {
 			// When XML document is empty, try to collect root element (from file
 			// association)
 			collectInsideContent(completionRequest, completionResponse);

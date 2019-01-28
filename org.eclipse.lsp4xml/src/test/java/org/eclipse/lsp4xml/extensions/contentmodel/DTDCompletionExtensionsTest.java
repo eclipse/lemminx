@@ -144,18 +144,34 @@ public class DTDCompletionExtensionsTest {
 		,c("Insert DTD Attributes list declaration", te(3, 1, 3, 1, "<!ATTLIST element-name attribute-name ID #REQUIRED>"), "<!ATTLIST ")
 		,c("Insert External DTD Entity declaration", te(3, 1, 3, 1, "<!ENTITY entity-name SYSTEM \"entity-value\">"), "<!ENTITY "));
 	}
+
+	@Test
+	public void externalDTDCompletionAllDeclsEmptyFile() throws BadLocationException {
+		// completion on <|
+		String xml = " |     ";
+		testCompletionFor(xml, true, "test://test/test.dtd", 4, c("Insert DTD Element declaration", te(0,1,0,1, "<!ELEMENT ${1:element-name} (${2:#PCDATA})>"), "<!ELEMENT ")
+		,c("Insert Internal DTD Entity declaration", te(0,1,0,1, "<!ENTITY ${1:entity-name} \"${2:entity-value}\">"), "<!ENTITY ")
+		,c("Insert DTD Attributes list declaration", te(0,1,0,1, "<!ATTLIST ${1:element-name} ${2:attribute-name} ${3:ID} ${4:#REQUIRED}>"), "<!ATTLIST ")
+		,c("Insert External DTD Entity declaration", te(0,1,0,1, "<!ENTITY ${1:entity-name} SYSTEM \"${2:entity-value}\">"), "<!ENTITY "));
+	}
 	
 	private void testCompletionFor(String xml, CompletionItem... expectedItems) throws BadLocationException {
 		testCompletionFor(xml,true, null, expectedItems);
 	}
 
+	
+
 	private void testCompletionFor(String xml, boolean isSnippetsSupported, Integer expectedCount, CompletionItem... expectedItems) throws BadLocationException {
+		testCompletionFor(xml, isSnippetsSupported, "src/test/resources/catalogs/catalog.xml", expectedCount, expectedItems);	
+	}
+
+	private void testCompletionFor(String xml, boolean isSnippetsSupported, String fileName, Integer expectedCount, CompletionItem... expectedItems) throws BadLocationException {
 		CompletionSettings completionSettings = new CompletionSettings();
 		CompletionCapabilities completionCapabilities = new CompletionCapabilities();
 		CompletionItemCapabilities completionItem = new CompletionItemCapabilities(isSnippetsSupported); // activate snippets
 		completionCapabilities.setCompletionItem(completionItem);
 		completionSettings.setCapabilities(completionCapabilities);
-		XMLAssert.testCompletionFor(new XMLLanguageService(), xml, "src/test/resources/catalogs/catalog.xml", null,
-				null, expectedCount, completionSettings, expectedItems);
+		XMLAssert.testCompletionFor(new XMLLanguageService(), xml, null, null,
+				fileName, expectedCount, completionSettings, expectedItems);
 	}
 }
