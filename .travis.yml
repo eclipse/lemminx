@@ -16,7 +16,14 @@ env:
 script:
 - "./mvnw clean verify"
 deploy:
-  provider: script
-  script: ./deploy.sh
+  - provider: script
+    script: ./deploy.sh
+    on:
+      branch: master
+  - deploy:
+    provider: script
+    script: ./deploy.sh
+    on:
+      tags: true
 notifications:
   email: true
