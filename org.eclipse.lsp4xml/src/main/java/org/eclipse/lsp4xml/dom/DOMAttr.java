@@ -25,9 +25,13 @@ public class DOMAttr extends DOMNode implements org.w3c.dom.Attr {
 
 	private DOMNode nodeAttrValue;
 
-	private String value;
+	private String quotelessValue;//Value without quotes
+
+	private String originalValue;//Exact value from document
 
 	private final DOMNode ownerElement;
+
+	private boolean hasDelimiter; // has '='
 
 	class AttrNameOrValue extends DOMNode {
 
@@ -110,7 +114,7 @@ public class DOMAttr extends DOMNode implements org.w3c.dom.Attr {
 	 */
 	@Override
 	public String getValue() {
-		return value;
+		return quotelessValue;
 	}
 
 	/*
@@ -157,21 +161,69 @@ public class DOMAttr extends DOMNode implements org.w3c.dom.Attr {
 		return nodeAttrName;
 	}
 
+	public void setDelimiter(boolean hasDelimiter) {
+		this.hasDelimiter = hasDelimiter;
+	}
+
+	public boolean hasDelimiter() {
+		return this.hasDelimiter;
+	}
+
+	/**
+	 * Get original attribute value from the document.
+	 * 
+	 * This will include quotations (", ').
+	 * @return attribute value with quotations if it had them.
+	 */
+	public String getOriginalValue() {
+		return originalValue;
+	}
+
 	public void setValue(String value, int start, int end) {
-		this.value = getValue(value);
+		this.originalValue = value;
+		this.quotelessValue = convertToQuotelessValue(value);
 		this.nodeAttrValue = start != -1 ? new AttrNameOrValue(start, end, this) : null;
 	}
 
-	private static String getValue(String value) {
+	/**
+	 * Returns a String of 'value' without surrounding quotes if it had them.
+	 * @param value
+	 * @return
+	 */
+	public static String convertToQuotelessValue(String value) {
 		if (value == null) {
 			return null;
 		}
 		if (value.isEmpty()) {
 			return value;
 		}
-		int start = value.charAt(0) == '\"' ? 1 : 0;
-		int end = value.charAt(value.length() - 1) == '\"' ? value.length() - 1 : value.length();
+		char quoteValue = value.charAt(0);
+		int start = quoteValue == '\"' || quoteValue == '\'' ? 1 : 0;
+		quoteValue = value.charAt(value.length() - 1);
+		int end = quoteValue == '\"' || quoteValue == '\'' ? value.length() - 1 : value.length();
 		return value.substring(start, end);
+	}
+
+	/**
+	 * Checks if 'value' has matching surrounding quotations.
+	 * @param value
+	 * @return
+	 */
+	public static boolean isQuoted(String value) {
+		if (value == null) {
+			return false;
+		}
+		if (value.isEmpty()) {
+			return false;
+		}
+		char quoteValueStart = value.charAt(0);
+		boolean start = quoteValueStart == '\"' || quoteValueStart == '\'' ? true : false;
+		if(start == false) {
+			return false;
+		}
+		char quoteValueEnd = value.charAt(value.length() - 1);
+		boolean end = (quoteValueEnd == '\"' || quoteValueEnd == '\'') && quoteValueEnd == quoteValueStart ? true : false;
+		return end;
 	}
 
 	public DOMNode getNodeAttrValue() {
@@ -201,7 +253,7 @@ public class DOMAttr extends DOMNode implements org.w3c.dom.Attr {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((value == null) ? 0 : value.hashCode());
+		result = prime * result + ((quotelessValue == null) ? 0 : quotelessValue.hashCode());
 		return result;
 	}
 
@@ -219,10 +271,10 @@ public class DOMAttr extends DOMNode implements org.w3c.dom.Attr {
 				return false;
 		} else if (!name.equals(other.name))
 			return false;
-		if (value == null) {
-			if (other.value != null)
+		if (quotelessValue == null) {
+			if (other.quotelessValue != null)
 				return false;
-		} else if (!value.equals(other.value))
+		} else if (!quotelessValue.equals(other.quotelessValue))
 			return false;
 		return true;
 	}

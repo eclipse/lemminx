@@ -154,9 +154,9 @@ public class XMLGenerator {
 			String value = generateAttributeValue(defaultValue, enumerationValues, canSupportSnippets, snippetIndex,
 					false);
 			if (attributesSize != 1) {
-				xml.addAttribute(attributeDeclaration.getName(), value, attributeIndex, level, tagName);
+				xml.addAttribute(attributeDeclaration.getName(), value, level, true);
 			} else {
-				xml.addSingleAttribute(attributeDeclaration.getName(), value);
+				xml.addSingleAttribute(attributeDeclaration.getName(), value, true);
 			}
 			attributeIndex++;
 		}

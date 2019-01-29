@@ -189,6 +189,15 @@ public class DOMParser {
 				break;
 			}
 
+			case DelimiterAssign: {
+				if(attr != null) {
+					//Sets the value to the '=' position in case there is no AttributeValue
+					attr.setValue(null, scanner.getTokenOffset(), scanner.getTokenEnd());
+					attr.setDelimiter(true);
+				}
+				break;
+			}
+
 			case AttributeValue: {
 				String value = scanner.getTokenText();
 				if (curr.hasAttributes() && attr != null) {

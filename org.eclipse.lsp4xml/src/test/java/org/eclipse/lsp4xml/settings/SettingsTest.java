@@ -55,7 +55,8 @@ public class SettingsTest {
 				"				\"splitAttributes\": true,\r\n" + //
 				"				\"joinCDATALines\": true,\r\n" + //
 				"				\"formatComments\": true,\r\n" + //
-				"				\"joinCommentLines\": true\r\n" + //
+				"				\"joinCommentLines\": true,\r\n" + //
+				"				\"quotations\": " + XMLFormattingOptions.DOUBLE_QUOTES_VALUE + "\r\n" + //
 				"			}\r\n" + 
 				"		}\r\n" + 
 				"	}\r\n" + 
@@ -103,18 +104,27 @@ public class SettingsTest {
 		sharedXMLFormattingOptions.setTabSize(10);
 		sharedXMLFormattingOptions.setInsertSpaces(true);
 		sharedXMLFormattingOptions.setJoinCommentLines(true);
+		sharedXMLFormattingOptions.setQuotations(XMLFormattingOptions.SINGLE_QUOTES_VALUE);
 
 		// formatting options coming from request
 		FormattingOptions formattingOptions = new FormattingOptions();
 		formattingOptions.setTabSize(5);
 		formattingOptions.setInsertSpaces(false);
+		
+		
 
 		XMLFormattingOptions xmlFormattingOptions = new XMLFormattingOptions(formattingOptions);
+		
+		xmlFormattingOptions.setQuotations("InvalidValue"); // set a value that is not recognized
+
 		Assert.assertEquals(5, xmlFormattingOptions.getTabSize()); // value coming from the request formattingOptions
 		Assert.assertFalse(xmlFormattingOptions.isInsertSpaces()); // formattingOptions doesn't defines insert spaces
 																	// flag
 
 		Assert.assertFalse(xmlFormattingOptions.isJoinCommentLines());//Since default for JoinCommentLines is False
+
+		// Assumes the "InvalidValue" will be overridden
+		Assert.assertTrue(xmlFormattingOptions.getQuotations().equals(XMLFormattingOptions.DOUBLE_QUOTES_VALUE));
 
 		// merge with shared sharedXMLFormattingOptions (formatting settings created in
 		// the InitializeParams
@@ -125,5 +135,7 @@ public class SettingsTest {
 		Assert.assertFalse(xmlFormattingOptions.isInsertSpaces()); // insert spaces is kept as false because only the request's
 																   // formattingOptions object is allowed to define it.
 		Assert.assertTrue(xmlFormattingOptions.isJoinCommentLines());
+
+		Assert.assertTrue(xmlFormattingOptions.getQuotations().equals(XMLFormattingOptions.SINGLE_QUOTES_VALUE));
 	}
 }
