@@ -17,6 +17,8 @@ import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConsta
 
 import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
+import org.eclipse.lsp4j.WorkspaceFoldersOptions;
+import org.eclipse.lsp4j.WorkspaceServerCapabilities;
 
 /**
  * All default capabilities of this server
@@ -61,6 +63,14 @@ public class ServerCapabilitiesInitializer {
 		if (!clientCapabilities.isCompletionDynamicRegistrationSupported()) {
 			serverCapabilities.setCompletionProvider(DEFAULT_COMPLETION_OPTIONS);
 		}
+		
+		WorkspaceServerCapabilities wsCapabilities = new WorkspaceServerCapabilities();
+		WorkspaceFoldersOptions wsFoldersOptions = new WorkspaceFoldersOptions();
+		wsFoldersOptions.setSupported(Boolean.TRUE);
+		wsFoldersOptions.setChangeNotifications(Boolean.TRUE);
+		wsCapabilities.setWorkspaceFolders(wsFoldersOptions);
+		serverCapabilities.setWorkspace(wsCapabilities);
+		
 		return serverCapabilities;
 	}
 }
