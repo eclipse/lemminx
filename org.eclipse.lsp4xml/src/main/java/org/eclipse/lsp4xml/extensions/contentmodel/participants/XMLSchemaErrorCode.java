@@ -34,7 +34,6 @@ import org.eclipse.lsp4xml.utils.XMLPositionUtility;
  *
  */
 public enum XMLSchemaErrorCode implements IXMLErrorCode {
-
 	cvc_complex_type_2_3("cvc-complex-type.2.3"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-2-3
 	cvc_complex_type_2_1("cvc-complex-type.2.1"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-2-1
 	cvc_complex_type_2_4_a("cvc-complex-type.2.4.a"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-2-4-a
@@ -57,7 +56,9 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 	cvc_maxExclusive_valid("cvc-maxExclusive-valid"), // https://wiki.xmldation.com/Support/validator/cvc-maxexclusive-valid
 	cvc_maxInclusive_valid("cvc-maxInclusive-valid"), // https://wiki.xmldation.com/Support/validator/cvc-maxinclusive-valid
 	cvc_minExclusive_valid("cvc-minExclusive-valid"), // https://wiki.xmldation.com/Support/validator/cvc-minexclusive-valid
-	cvc_minInclusive_valid("cvc-minInclusive-valid"); // https://wiki.xmldation.com/Support/validator/cvc-mininclusive-valid
+	cvc_minInclusive_valid("cvc-minInclusive-valid"), // https://wiki.xmldation.com/Support/validator/cvc-mininclusive-valid
+	TargetNamespace_2("TargetNamespace.2"),
+	schema_reference_4("schema_reference.4"); // 
 
 	private final String code;
 
@@ -117,6 +118,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 		case cvc_complex_type_2_4_d:
 		case cvc_elt_1_a:
 		case cvc_complex_type_4:
+		case TargetNamespace_2:
 			return XMLPositionUtility.selectStartTag(offset, document);
 		case cvc_complex_type_3_2_2: {
 			String attrName = (String) arguments[1];

@@ -12,7 +12,6 @@ package org.eclipse.lsp4xml.extensions.contentmodel;
 
 import static org.eclipse.lsp4xml.XMLAssert.d;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.function.Consumer;
@@ -23,10 +22,8 @@ import com.google.gson.JsonObject;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4xml.XMLAssert;
-import org.eclipse.lsp4xml.XMLTextDocumentService;
 import org.eclipse.lsp4xml.XMLAssert.SettingsSaveContext;
 import org.eclipse.lsp4xml.commons.BadLocationException;
-import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.XMLSchemaErrorCode;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.ContentModelSettings;
@@ -41,7 +38,7 @@ import org.junit.Test;
  * XML file associations diagnostics tests.
  */
 public class XMLFileAssociationsDiagnosticsTest {
-
+	
 	@Test
 	public void validationOnRoot() throws BadLocationException {
 		Consumer<XMLLanguageService> configuration = ls -> {

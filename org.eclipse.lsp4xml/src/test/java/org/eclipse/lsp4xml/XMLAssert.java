@@ -280,10 +280,19 @@ public class XMLAssert {
 
 	public static void assertDiagnostics(List<Diagnostic> actual, List<Diagnostic> expected, boolean filter) {
 		List<Diagnostic> received = actual;
+		final boolean filterMessage;
+		if(expected != null && !expected.isEmpty() && expected.get(0).getMessage() != null) {
+			filterMessage = true;
+		} else {
+			filterMessage = false;
+		}
 		if (filter) {
 			received = actual.stream().map(d -> {
 				Diagnostic simpler = new Diagnostic(d.getRange(), null);
 				simpler.setCode(d.getCode());
+				if(filterMessage) {
+					simpler.setMessage(d.getMessage());
+				}
 				return simpler;
 			}).collect(Collectors.toList());
 		}
@@ -291,12 +300,17 @@ public class XMLAssert {
 	}
 
 	public static Diagnostic d(int startLine, int startCharacter, int endLine, int endCharacter, IXMLErrorCode code) {
-		return new Diagnostic(r(startLine, startCharacter, endLine, endCharacter), null, null, null, code.getCode());
+		return d(startLine, startCharacter, endLine, endCharacter, code, null);
 	}
 
 	public static Diagnostic d(int startLine, int startCharacter, int endCharacter, IXMLErrorCode code) {
 		// Diagnostic on 1 line
 		return d(startLine, startCharacter, startLine, endCharacter, code);
+	}
+
+	public static Diagnostic d(int startLine, int startCharacter, int endLine, int endCharacter, IXMLErrorCode code, String message) {
+		// Diagnostic on 1 line
+		return new Diagnostic(r(startLine, startCharacter, endLine, endCharacter), message, null, null, code.getCode());
 	}
 
 	public static Range r(int startLine, int startCharacter, int endLine, int endCharacter) {
@@ -335,7 +349,7 @@ public class XMLAssert {
 		Assert.assertEquals(expected.length, actual.size());
 		for (int i = 0; i < expected.length; i++) {
 			Assert.assertEquals(fileURI, actual.get(i).getUri());
-			assertDiagnostics(expected[i].getDiagnostics(), actual.get(i).getDiagnostics(), false);
+			assertDiagnostics(actual.get(i).getDiagnostics(), expected[i].getDiagnostics(), false);
 		}
 	}
 

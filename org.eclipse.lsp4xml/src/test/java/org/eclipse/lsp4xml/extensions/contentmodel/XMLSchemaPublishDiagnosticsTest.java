@@ -123,7 +123,7 @@ public class XMLSchemaPublishDiagnosticsTest extends AbstractCacheBasedTest {
 
 		XMLAssert.testPublishDiagnosticsFor(xml, fileURI, configuration, pd(fileURI, //
 				new Diagnostic(r(3, 8, 3, 26),
-						"cvc-datatype-valid.1.2.1: '2017-11-30_INVALID' is not a valid value for 'date'.",
+				"Content of type 'date' is expected.\n\nThe following content is not a valid type:\n '2017-11-30_INVALID'\n\nCode:",
 						DiagnosticSeverity.Error, "xml", XMLSchemaErrorCode.cvc_datatype_valid_1_2_1.getCode()), //
 				new Diagnostic(r(3, 8, 3, 26),
 						"cvc-type.3.1.3: The value '2017-11-30_INVALID' of element 'date' is not valid.",
@@ -167,7 +167,7 @@ public class XMLSchemaPublishDiagnosticsTest extends AbstractCacheBasedTest {
 
 		XMLAssert.testPublishDiagnosticsFor(xml, fileURI, configuration, pd(fileURI, //
 				new Diagnostic(r(3, 8, 3, 26),
-						"cvc-datatype-valid.1.2.1: '2017-11-30_INVALID' is not a valid value for 'date'.",
+						"Content of type 'date' is expected.\n\nThe following content is not a valid type:\n '2017-11-30_INVALID'\n\nCode:",
 						DiagnosticSeverity.Error, "xml", XMLSchemaErrorCode.cvc_datatype_valid_1_2_1.getCode()), //
 				new Diagnostic(r(3, 8, 3, 26),
 						"cvc-type.3.1.3: The value '2017-11-30_INVALID' of element 'date' is not valid.",
