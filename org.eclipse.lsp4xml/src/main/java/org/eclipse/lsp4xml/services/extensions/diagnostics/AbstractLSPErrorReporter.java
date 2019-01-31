@@ -49,7 +49,7 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 		XMLMessageFormatter xmft = new XMLMessageFormatter();
 		super.putMessageFormatter(XMLMessageFormatter.XML_DOMAIN, xmft);
 		super.putMessageFormatter(XMLMessageFormatter.XMLNS_DOMAIN, xmft);
-		super.putMessageFormatter(XSMessageFormatter.SCHEMA_DOMAIN, new XSMessageFormatter());
+		super.putMessageFormatter(XSMessageFormatter.SCHEMA_DOMAIN, new LSPMessageFormatter());
 	}
 
 	public String reportError(XMLLocator location, String domain, String key, Object[] arguments, short severity,

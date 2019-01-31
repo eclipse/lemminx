@@ -33,6 +33,8 @@ public class Constants {
 	public final static int _CSB = "]".codePointAt(0);
 	public final static int _ORB = "(".codePointAt(0);
 	public final static int _CRB = ")".codePointAt(0);
+	public final static int _OCB = "{".codePointAt(0);
+	public final static int _CCB = "}".codePointAt(0);
 	public final static int _CVL = "C".codePointAt(0);
 	public final static int _DVL = "D".codePointAt(0);
 	public final static int _AVL = "A".codePointAt(0);

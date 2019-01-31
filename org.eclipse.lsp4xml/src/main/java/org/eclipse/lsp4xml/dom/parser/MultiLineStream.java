@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
  * Multi line stream.
  *
  */
-class MultiLineStream {
+public class MultiLineStream {
 
 	private static final Predicate<Integer> WHITESPACE_PREDICATE = ch -> {
 		return ch == _WSP || ch == _TAB || ch == _NWL || ch == _LFD || ch == _CAR;

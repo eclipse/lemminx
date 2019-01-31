@@ -36,7 +36,7 @@ public class XMLSchemaDiagnosticsTest {
 				"		XXXXXXXXXXXXX\r\n" + // <-- error
 				"	</bean>\r\n" + //
 				"</beans>";
-		Diagnostic d = d(3, 2, 3, 15, XMLSchemaErrorCode.cvc_complex_type_2_3);
+		Diagnostic d = d(3, 2, 3, 15, XMLSchemaErrorCode.cvc_complex_type_2_3, "Element \'bean\' cannot contain text content.\nThe content type is defined as element-only.\n\nCode:");
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(3, 2, 3, 15, "")));
 	}
@@ -50,7 +50,7 @@ public class XMLSchemaDiagnosticsTest {
 				"		<property></property>\r\n" + //
 				"	</bean>\r\n" + //
 				"</beans>";
-		Diagnostic d = d(3, 3, 3, 11, XMLSchemaErrorCode.cvc_complex_type_4);
+		Diagnostic d = d(3, 3, 3, 11, XMLSchemaErrorCode.cvc_complex_type_4, "Attribute:\n - name\nis required in element:\n - property\n\nCode:");
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(3, 11, 3, 11, " name=\"\"")));
 	}
@@ -63,7 +63,9 @@ public class XMLSchemaDiagnosticsTest {
 				+ //
 				"	<XXX></XXX>\r\n" + // <- error
 				"</project>";
-		testDiagnosticsFor(xml, d(3, 2, 3, 5, XMLSchemaErrorCode.cvc_complex_type_2_4_a));
+
+		String message = "Invalid element name:\n - XXX\n\nOne of the following is expected:\n - modelVersion\n - parent\n - groupId\n - artifactId\n - version\n - packaging\n - name\n - description\n - url\n - inceptionYear\n - organization\n - licenses\n - developers\n - contributors\n - mailingLists\n - prerequisites\n - modules\n - scm\n - issueManagement\n - ciManagement\n - distributionManagement\n - properties\n - dependencyManagement\n - dependencies\n - repositories\n - pluginRepositories\n - build\n - reports\n - reporting\n - profiles\n\nError indicated by:\n {http://maven.apache.org/POM/4.0.0}\nwith code:";
+		testDiagnosticsFor(xml, d(3, 2, 3, 5, XMLSchemaErrorCode.cvc_complex_type_2_4_a, message));
 	}
 
 	@Test
@@ -293,7 +295,7 @@ public class XMLSchemaDiagnosticsTest {
 				+ //
 				"  \r\n" + //
 				"</edmx:Edmx>";
-		Diagnostic d = d(1, 1, 1, 10, XMLSchemaErrorCode.cvc_complex_type_2_4_b);
+		Diagnostic d = d(1, 1, 1, 10, XMLSchemaErrorCode.cvc_complex_type_2_4_b, "Child elements are missing from element:\n - edmx:Edmx\n\nThe following elements are expected:\n - Reference\n - DataServices\n\nError indicated by\n {http://docs.oasis-open.org/odata/ns/edmx\":Reference, \"http://docs.oasis-open.org/odata/ns/edmx}\nwith code:");
 		testDiagnosticsFor(xml, d);
 	}
 
