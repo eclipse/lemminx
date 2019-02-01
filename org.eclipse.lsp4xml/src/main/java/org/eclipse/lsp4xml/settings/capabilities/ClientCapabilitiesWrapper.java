@@ -14,6 +14,8 @@ package org.eclipse.lsp4xml.settings.capabilities;
 import org.eclipse.lsp4j.ClientCapabilities;
 import org.eclipse.lsp4j.DynamicRegistrationCapabilities;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
+import org.eclipse.lsp4j.WorkspaceClientCapabilities;
+import org.eclipse.lsp4j.services.LanguageClient;
 
 /**
  * Determines if a client supports a specific capability dynamically
@@ -30,6 +32,7 @@ public class ClientCapabilitiesWrapper {
 
 	public ClientCapabilitiesWrapper(ClientCapabilities capabilities) {
 		this.capabilities = capabilities;
+		//ClientCapabilities were introduced in Version 3.0 of the LSP
 		this.v3Supported = capabilities != null ? capabilities.getTextDocument() != null : false;
 	}
 
@@ -37,6 +40,13 @@ public class ClientCapabilitiesWrapper {
 	 * IMPORTANT
 	 * 
 	 * This should be up to date with all Server supported capabilities
+	 * 
+	 * INFO:
+	 * 
+	 * A dynamic registration supported service is one that allows the ability to
+	 * be disabled/enabled during runtime through 
+	 * {@link LanguageClient#registerCapability(org.eclipse.lsp4j.RegistrationParams)}
+	 * {@link LanguageClient#unregisterCapability(org.eclipse.lsp4j.RegistrationParams)}
 	 * 
 	 */
 
@@ -88,6 +98,15 @@ public class ClientCapabilitiesWrapper {
 		return v3Supported && isDynamicRegistrationSupported(getTextDocument().getDocumentHighlight());
 	}
 
+	/**
+	 * Returns true if the client indicated they support multi-root workspace folders.
+	 * @return
+	 */
+	public boolean isMultiRootWorkspaceFoldersSupported() {
+		WorkspaceClientCapabilities wsClientCapabilities = getWorkspace();
+		return v3Supported && wsClientCapabilities.getWorkspaceFolders() != null && wsClientCapabilities.getWorkspaceFolders();
+	}
+
 	private boolean isDynamicRegistrationSupported(DynamicRegistrationCapabilities capability) {
 		return capability != null && capability.getDynamicRegistration() != null
 				&& capability.getDynamicRegistration().booleanValue();
@@ -95,6 +114,15 @@ public class ClientCapabilitiesWrapper {
 
 	public TextDocumentClientCapabilities getTextDocument() {
 		return this.capabilities.getTextDocument();
+	}
+
+	/**
+	 * Gets the workspace capabilities from the client
+	 * which indicate what capabilities it supports.
+	 * @return
+	 */
+	public WorkspaceClientCapabilities getWorkspace() {
+		return this.capabilities.getWorkspace();
 	}
 
 }

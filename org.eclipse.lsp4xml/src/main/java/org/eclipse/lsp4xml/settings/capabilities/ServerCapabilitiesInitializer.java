@@ -29,7 +29,8 @@ public class ServerCapabilitiesInitializer {
 	}
 
 	/**
-	 * Returns all server capabilities (with default values) that aren't dynamic.
+	 * Returns all server capabilities (with default values if required) that aren't 
+	 * indicated as dynamic by the client.
 	 * 
 	 * A service's dynamic capability is indicated by the client.
 	 * 
@@ -39,6 +40,7 @@ public class ServerCapabilitiesInitializer {
 	public static ServerCapabilities getNonDynamicServerCapabilities(ClientCapabilitiesWrapper clientCapabilities,
 			boolean isIncremental) {
 		ServerCapabilities serverCapabilities = new ServerCapabilities();
+		
 
 		serverCapabilities.setTextDocumentSync(DEFAULT_SYNC_OPTION);
 
@@ -63,13 +65,14 @@ public class ServerCapabilitiesInitializer {
 		if (!clientCapabilities.isCompletionDynamicRegistrationSupported()) {
 			serverCapabilities.setCompletionProvider(DEFAULT_COMPLETION_OPTIONS);
 		}
-		
-		WorkspaceServerCapabilities wsCapabilities = new WorkspaceServerCapabilities();
-		WorkspaceFoldersOptions wsFoldersOptions = new WorkspaceFoldersOptions();
-		wsFoldersOptions.setSupported(Boolean.TRUE);
-		wsFoldersOptions.setChangeNotifications(Boolean.TRUE);
-		wsCapabilities.setWorkspaceFolders(wsFoldersOptions);
-		serverCapabilities.setWorkspace(wsCapabilities);
+		if(clientCapabilities.isMultiRootWorkspaceFoldersSupported()) {
+			WorkspaceServerCapabilities wsCapabilities = new WorkspaceServerCapabilities();
+			WorkspaceFoldersOptions wsFoldersOptions = new WorkspaceFoldersOptions();
+			wsFoldersOptions.setSupported(Boolean.TRUE);
+			wsFoldersOptions.setChangeNotifications(Boolean.FALSE);
+			wsCapabilities.setWorkspaceFolders(wsFoldersOptions);
+			serverCapabilities.setWorkspace(wsCapabilities);
+		}
 		
 		return serverCapabilities;
 	}
