@@ -66,7 +66,7 @@ public class XMLCapabilityManager {
 	}
 
 	/**
-	 * Creates and sets a {@link ClientCapabilitiesWrapper} instance formed from
+	 * Creates and sets a {@link ClientCapabilitiesWrapper} instance which consumes
 	 * clientCapabilities
 	 * 
 	 * @param clientCapabilities
@@ -82,7 +82,14 @@ public class XMLCapabilityManager {
 		return this.clientWrapper;
 	}
 
-	public void toggleCapability(boolean enabled, String id, String capability, Object options) {
+	/**
+	 * Register/unregister a capability that the server does/doesn't support.
+	 * @param enabled {@code true} to register. {@code false} to unregister.
+	 * @param id A unique id for this specific capability
+	 * @param capability A predetermined value found in {@link ServerCapabilitiesConstants}
+	 * @param options Possible options/settings for a capability being registered. See {@link ServerCapabilitiesConstants}.
+	 */
+	public void setCapabilityRegistration(boolean enabled, String id, String capability, Object options) {
 		if (enabled) {
 			registerCapability(id, capability, options);
 		} else {
@@ -112,10 +119,11 @@ public class XMLCapabilityManager {
 	}
 
 	/**
-	 * Registers all dynamic capabilities that the server does not support client
-	 * side preferences turning on/off
+	 * The server registers all dynamic capabilities that it itself can support, and
+	 * only if the client has indicated that it allows dynamic registration for that capability.
+	 * 
 	 */
-	public void initializeCapabilities() {
+	public void registerAllDynamicCapabilities() {
 		if (this.getClientCapabilities().isCodeActionDynamicRegistered()) {
 			registerCapability(CODE_ACTION_ID, TEXT_DOCUMENT_CODE_ACTION);
 		}
@@ -143,12 +151,18 @@ public class XMLCapabilityManager {
 		if (this.getClientCapabilities().isDefinitionDynamicRegistered()) {
 			registerCapability(DEFINITION_ID, TEXT_DOCUMENT_DEFINITION);
 		}
+
+		//register dynamic capabilities that also have an `enabled` preference.
 		syncDynamicCapabilitiesWithPreferences();
 	}
 
 	/**
-	 * Registers all capabilities that this server can support client side
-	 * preferences to turn on/off
+	 * The server registers/unregisters all the following capabilities based on if they
+	 * are dynamic as well as if the client preference/setting indicates it should be enabled.
+	 * 
+	 * These settings are similar to the ones in {@link XMLCapabilityManager#registerAllDynamicCapabilities()}
+	 * except they also have a preference that must be set. These methods must have different capabilities
+	 * from eachother.
 	 * 
 	 * If a capability is not dynamic, it's handled by
 	 * {@link ServerCapabilitiesInitializer}
@@ -157,12 +171,12 @@ public class XMLCapabilityManager {
 		XMLFormattingOptions formattingPreferences = this.textDocumentService.getSharedFormattingSettings();
 
 		if (this.getClientCapabilities().isFormattingDynamicRegistrationSupported()) {
-			toggleCapability(formattingPreferences.isEnabled(), FORMATTING_ID,
+			setCapabilityRegistration(formattingPreferences.isEnabled(), FORMATTING_ID,
 					ServerCapabilitiesConstants.TEXT_DOCUMENT_FORMATTING, null);
 		}
 
 		if (this.getClientCapabilities().isRangeFormattingDynamicRegistrationSupported()) {
-			toggleCapability(formattingPreferences.isEnabled(), FORMATTING_RANGE_ID,
+			setCapabilityRegistration(formattingPreferences.isEnabled(), FORMATTING_RANGE_ID,
 					ServerCapabilitiesConstants.TEXT_DOCUMENT_RANGE_FORMATTING, null);
 		}
 	}

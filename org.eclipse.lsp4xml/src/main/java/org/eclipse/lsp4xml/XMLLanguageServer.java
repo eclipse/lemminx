@@ -102,7 +102,7 @@ public class XMLLanguageServer
 	 */
 	@Override
 	public void initialized(InitializedParams params) {
-		capabilityManager.initializeCapabilities();
+		capabilityManager.registerAllDynamicCapabilities();
 	}
 
 	/**
