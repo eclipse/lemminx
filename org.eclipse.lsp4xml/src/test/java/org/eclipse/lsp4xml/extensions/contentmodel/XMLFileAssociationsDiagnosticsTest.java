@@ -21,6 +21,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.XMLTextDocumentService;
@@ -36,6 +37,7 @@ import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.settings.AllXMLSettings;
 import org.eclipse.lsp4xml.settings.InitializationOptionsSettings;
 import org.junit.Test;
+import static org.eclipse.lsp4xml.XMLAssert.r;
 
 /**
  * XML file associations diagnostics tests.
@@ -60,7 +62,41 @@ public class XMLFileAssociationsDiagnosticsTest {
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"  <Configuration></Configuration>";
 		testDiagnosticsFor(xml, "file:///test/Test.Format.ps1xml", configuration);
+	}
 
+	@Test
+	public void validationOnRootBadPath() throws BadLocationException {
+		Consumer<XMLLanguageService> configuration = ls -> {
+			ContentModelManager contentModelManager = ls.getComponent(ContentModelManager.class);
+			// Use root URI which is the wrong directory
+			contentModelManager.setRootURI("src/test/java/");
+			XMLFileAssociation format = new XMLFileAssociation();
+			format.setSystemId("../resources/xsd/Format.xsd");//absolute path when concatenated with rootURI
+			format.setPattern("**/*.Format.ps1xml");
+			contentModelManager.setFileAssociations(new XMLFileAssociation[] {format});
+		};
+
+		// Use Format.xsd which defines Configuration as root element
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"  <Bad-Root></Bad-Root>";
+		testDiagnosticsFor(xml, "file:///test/Test.Format.ps1xml", configuration,
+				d(1, 3, 1, 11, XMLSchemaErrorCode.cvc_elt_1_a));
+
+		// This configuration does not count for the invalid rootURI
+		configuration = ls -> {
+			ContentModelManager contentModelManager = ls.getComponent(ContentModelManager.class);
+			// Use root URI which ends with slash
+			XMLFileAssociation format = new XMLFileAssociation();
+			format.setSystemId("Format.xsd");
+			format.setPattern("**/*.Format.ps1xml");
+			contentModelManager.setFileAssociations(new XMLFileAssociation[] {format});
+		};
+	
+		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"  <Bad-Root></Bad-Root>";
+		testDiagnosticsFor(xml, "file:///test/Test.Format.ps1xml", configuration,
+			new Diagnostic(r(1, 12, 1, 12), null, null, null, "schema_reference.4"), //
+			new Diagnostic(r(1, 3, 1, 11), null, null, null, "cvc-elt.1.a"));
 	}
 
 	@Test
@@ -237,11 +273,11 @@ public class XMLFileAssociationsDiagnosticsTest {
 
 	private static XMLFileAssociation[] createAssociations(String baseSystemId) {
 		XMLFileAssociation format = new XMLFileAssociation();
-		format.setPattern("**/*.Format.ps1xml");
 		format.setSystemId(baseSystemId + "Format.xsd");
+		format.setPattern("**/*.Format.ps1xml");
 		XMLFileAssociation resources = new XMLFileAssociation();
-		resources.setPattern("**/*resources*.xml");
 		resources.setSystemId(baseSystemId + "resources.xsd");
+		resources.setPattern("**/*resources*.xml");
 		return new XMLFileAssociation[] { format, resources };
 	}
 
