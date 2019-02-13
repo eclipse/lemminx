@@ -203,6 +203,7 @@ public class XMLBuilder {
 		if (isJoinCommentLines()) {
 			xml.append(" ");
 			xml.append(normalizeSpace(content));
+			xml.append(" ");
 		} else {
 			xml.append(content);
 		}

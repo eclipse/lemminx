@@ -28,7 +28,7 @@ public class XMLSchemaHoverExtensionsTest {
 				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
 				+ "	<bea|n>";
 		assertHover(xml,
-				"Defines a single (usually named) bean. A bean definition may contain nested tags for constructor arguments, property values, lookup methods, and replaced methods. Mixing constructor injection and setter injection on the same bean is explicitly supported. ",
+				"Defines a single (usually named) bean. A bean definition may contain nested tags for constructor arguments, property values, lookup methods, and replaced methods. Mixing constructor injection and setter injection on the same bean is explicitly supported.",
 				2);
 
 	};
@@ -39,7 +39,7 @@ public class XMLSchemaHoverExtensionsTest {
 				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
 				+ "	<bean clas|s=>";
 		assertHover(xml,
-				"The fully qualified name of the bean's class, except if it serves only as a parent definition for child bean definitions. ",
+				"The fully qualified name of the bean's class, except if it serves only as a parent definition for child bean definitions.",
 				null);
 	};
 
