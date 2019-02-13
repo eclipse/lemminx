@@ -287,7 +287,7 @@ public class XMLFormatterTest {
 		"line 2" + lineSeparator() + 
 		"line 3" + lineSeparator() + 
 		"]]> </a>";
-		String expected = "<a>" + lineSeparator() + "  <![CDATA[line 1 line 2 line 3 ]]>" + lineSeparator() + "</a>";
+		String expected = "<a>" + lineSeparator() + "  <![CDATA[line 1 line 2 line 3]]>" + lineSeparator() + "</a>";
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		formattingOptions.setJoinCDATALines(true);
 		format(content, expected, formattingOptions);
@@ -353,7 +353,7 @@ public class XMLFormatterTest {
 		" Content" + lineSeparator() +
 		"</a> <!-- My Comment -->";
 		String expected = 
-		"<a>Content </a> <!-- My Comment -->" + lineSeparator() +
+		"<a>Content</a> <!-- My Comment -->" + lineSeparator() +
 		"";
 	
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
@@ -397,7 +397,7 @@ public class XMLFormatterTest {
 		"  Content5" + lineSeparator() +
 		"</a>";
 		String expected = 
-		"<a>Content Content2 Content3 Content4 Content5 </a>";
+		"<a>Content Content2 Content3 Content4 Content5</a>";
 		
 	
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
@@ -515,8 +515,8 @@ public class XMLFormatterTest {
 		" </b>" + lineSeparator() +
 		"</a>";
 		String expected = 
-		"<a>Content " + lineSeparator() +
-		"  <b>Content2 Content3 </b>" + lineSeparator() +
+		"<a>Content" + lineSeparator() +
+		"  <b>Content2 Content3</b>" + lineSeparator() +
 		"</a>";
 		
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
@@ -587,7 +587,7 @@ public class XMLFormatterTest {
 		String content = 
 		"<a> content </a>";
 		String expected = 
-		"<a>content </a>";
+		"<a>content</a>";
 		
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		formattingOptions.setJoinContentLines(true);
@@ -601,7 +601,7 @@ public class XMLFormatterTest {
 		" Content" + lineSeparator() +
 		"</a>";
 		String expected = 
-		"<a>Content </a>";
+		"<a>Content</a>";
 		
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		formattingOptions.setJoinContentLines(true);

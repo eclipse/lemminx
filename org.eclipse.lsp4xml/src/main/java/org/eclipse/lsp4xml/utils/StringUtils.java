@@ -39,14 +39,18 @@ public class StringUtils {
 	 * @return the result of normalize space of the given string.
 	 */
 	public static void normalizeSpace(String str, StringBuilder b) {
+		String space = "";
 		for (int i = 0; i < str.length(); ++i) {
 			char c = str.charAt(i);
 			if (Character.isWhitespace(c)) {
-				if (i <= 0 || Character.isWhitespace(str.charAt(i - 1)))
+				if (i == 0 || Character.isWhitespace(str.charAt(i - 1))) {
 					continue;
-				b.append(' ');
+				}
+				space = " ";
 				continue;
 			}
+			b.append(space);
+			space = "";
 			b.append(c);
 		}
 	}
