@@ -43,10 +43,14 @@
 				</executions>
 			</plugin>
 			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+			</plugin>
+			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>3.1.1</version>
 				<configuration>
-					<descriptors>
+					<descriptors combine.children="append">
 						<descriptor>src/assembly/distribution.xml</descriptor>
 					</descriptors>
 					<finalName>${project.artifactId}</finalName>
@@ -120,4 +124,25 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+	<profiles>
+		<profile>
+			<id>generate-p2</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.eclipse.tycho.extras</groupId>
+						<artifactId>tycho-eclipserun-plugin</artifactId>
+					</plugin>
+					<plugin>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<configuration>
+							<descriptors combine.children="append">
+								<descriptor>src/assembly/p2repo.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
