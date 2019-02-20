@@ -866,6 +866,8 @@ public class XMLScanner implements Scanner {
 
 			state = ScannerState.DTDUnrecognizedParameters;
 			return internalScan();
+
+		default:
 		}
 
 		

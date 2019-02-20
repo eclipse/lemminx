@@ -34,7 +34,6 @@ public class XMLReferencesCompletionParticipant extends CompletionParticipantAda
 			XMLReferencesManager.getInstance().collect(node, n -> {
 				DOMDocument doc = n.getOwnerDocument();
 				Range range = XMLPositionUtility.createRange(node.getStart(), node.getEnd(), doc);
-				String oldValue = node.getNodeValue();
 				String label = n.getNodeValue();
 				CompletionItem item = new CompletionItem();
 				item.setLabel(label);
