@@ -13,7 +13,6 @@ package org.eclipse.lsp4xml.extensions.contentmodel.uriresolver;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Objects;
 
 import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.util.URI.MalformedURIException;

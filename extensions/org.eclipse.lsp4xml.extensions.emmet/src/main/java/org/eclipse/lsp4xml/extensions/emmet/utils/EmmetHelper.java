@@ -215,13 +215,6 @@ public class EmmetHelper {
 
 	}
 
-	private static String removeTabStops(String expandedWord) {
-		return expandedWord;
-		// return expandedWord.replace(/([^\\])\$\{\d+\}/g,
-		// '$1').replace(/\$\{\d+:([^\}]+)\}/g,'$1');
-
-	}
-
 	private static String escapeNonTabStopDollar(String text) {
 		return text;
 		// return text != null ? text.replace(/([^\\])(\$)([^\{])/g, '$1\\$2$3') : text;

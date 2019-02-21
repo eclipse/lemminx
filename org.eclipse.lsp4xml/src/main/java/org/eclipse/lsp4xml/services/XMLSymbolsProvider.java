@@ -194,19 +194,6 @@ class XMLSymbolsProvider {
 			name = notation.getName();
 		}
 
-		if (node.hasAttributes()) {
-			String id = node.getAttribute("id");
-			String classes = node.getAttribute("class");
-
-//			if (id) {
-//				name += `#${id.replace(/[\"\']/g, '')}`;
-//			}
-//
-//			if (classes) {
-//				name += classes.replace(/[\"\']/g, '').split(/\s+/).map(className => `.${className}`).join('');
-//			}
-		}
-
 		return name != null ? name : "?";
 	}
 }

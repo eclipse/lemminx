@@ -350,7 +350,6 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 
 	@Override
 	public String getAttributeNS(String arg0, String arg1) throws DOMException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -361,86 +360,66 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 
 	@Override
 	public DOMAttr getAttributeNodeNS(String arg0, String arg1) throws DOMException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public NodeList getElementsByTagName(String arg0) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public NodeList getElementsByTagNameNS(String arg0, String arg1) throws DOMException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public TypeInfo getSchemaTypeInfo() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public boolean hasAttributeNS(String arg0, String arg1) throws DOMException {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public void removeAttribute(String arg0) throws DOMException {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void removeAttributeNS(String arg0, String arg1) throws DOMException {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public DOMAttr removeAttributeNode(org.w3c.dom.Attr arg0) throws DOMException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void setAttributeNS(String arg0, String arg1, String arg2) throws DOMException {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public DOMAttr setAttributeNode(org.w3c.dom.Attr arg0) throws DOMException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public DOMAttr setAttributeNodeNS(org.w3c.dom.Attr arg0) throws DOMException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void setIdAttribute(String arg0, boolean arg1) throws DOMException {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setIdAttributeNS(String arg0, String arg1, boolean arg2) throws DOMException {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setIdAttributeNode(org.w3c.dom.Attr arg0, boolean arg1) throws DOMException {
-		// TODO Auto-generated method stub
-
 	}
 
 }

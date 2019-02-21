@@ -636,7 +636,6 @@ public abstract class DOMNode implements Node {
 
 	@Override
 	public Object getUserData(String arg0) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -652,85 +651,67 @@ public abstract class DOMNode implements Node {
 
 	@Override
 	public org.w3c.dom.Node insertBefore(org.w3c.dom.Node arg0, org.w3c.dom.Node arg1) throws DOMException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public boolean isDefaultNamespace(String arg0) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean isEqualNode(org.w3c.dom.Node arg0) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean isSameNode(org.w3c.dom.Node arg0) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean isSupported(String arg0, String arg1) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public String lookupNamespaceURI(String arg0) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public String lookupPrefix(String arg0) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void normalize() {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public org.w3c.dom.Node removeChild(org.w3c.dom.Node arg0) throws DOMException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public org.w3c.dom.Node replaceChild(org.w3c.dom.Node arg0, org.w3c.dom.Node arg1) throws DOMException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void setNodeValue(String arg0) throws DOMException {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setPrefix(String arg0) throws DOMException {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setTextContent(String arg0) throws DOMException {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public Object setUserData(String arg0, Object arg1, UserDataHandler arg2) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
