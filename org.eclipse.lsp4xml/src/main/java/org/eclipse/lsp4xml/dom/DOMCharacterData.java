@@ -12,6 +12,8 @@ package org.eclipse.lsp4xml.dom;
 
 import static java.lang.System.lineSeparator;
 
+import java.util.List;
+
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.utils.StringUtils;
 import org.w3c.dom.DOMException;
@@ -25,6 +27,8 @@ public abstract class DOMCharacterData extends DOMNode implements org.w3c.dom.Ch
 	private String data;
 
 	private String normalizedData;
+
+	private boolean isWhitespace;
 
 	public DOMCharacterData(int start, int end, DOMDocument ownerDocument) {
 		super(start, end, ownerDocument);
@@ -40,23 +44,51 @@ public abstract class DOMCharacterData extends DOMNode implements org.w3c.dom.Ch
 	}
 
 	/**
-	 * If data ends with a new line character
+	 * If data ends with a new line character.
 	 * 
-	 * Returns false if a character is found before a new line, but will ignore
-	 * whitespace while searching
+	 * Returns false if a character is found before a new line.
+	 * Non-newline whitespace will be ignored while searching.
 	 * 
-	 * @return
+	 * If no data exists, returns false.
+	 * 
+	 * @return true if newline character ocurrs before non-whitespace character
 	 */
 	public boolean endsWithNewLine() {
-		for (int i = data.length() - 1; i >= 0; i--) {
-			char c = data.charAt(i);
-			if (!Character.isWhitespace(c)) {
-				return false;
+		if(hasData()) {
+			for (int i = data.length() - 1; i >= 0; i--) {
+				char c = data.charAt(i);
+				if (!Character.isWhitespace(c)) {
+					return false;
+				}
+				if (c == '\n') {
+					return true;
+				}
+	
 			}
-			if (c == '\n') {
-				return true;
-			}
+		}
+		return false;
+	}
 
+	/**
+	 * If data ends with a new line character.
+	 * 
+	 * Returns false if a character is found before a new line.
+	 * Non-newline whitespace will be ignored while searching.
+	 * 
+	 * @return true if newline character ocurrs before non-whitespace character
+	 */
+	public boolean startsWithNewLine() {
+		if(hasData()) {
+			for (int i = 0; i < data.length(); i++) {
+				char c = data.charAt(i);
+				if (!Character.isWhitespace(c)) {
+					return false;
+				}
+				if (c == '\n' || c == '\r') {
+					return true;
+				}
+	
+			}
 		}
 		return false;
 	}
@@ -70,6 +102,14 @@ public abstract class DOMCharacterData extends DOMNode implements org.w3c.dom.Ch
 
 	public boolean hasData() {
 		return !getData().isEmpty();
+	}
+
+	/**
+	 * Returns true if this node has sibling nodes.
+	 */
+	public boolean hasSiblings() {
+		List<DOMNode> childrenOfParent = this.parent.getChildren();
+		return childrenOfParent.size() > 1;
 	}
 
 	public int getStartContent() {
@@ -101,6 +141,21 @@ public abstract class DOMCharacterData extends DOMNode implements org.w3c.dom.Ch
 	@Override
 	public String getNodeValue() throws DOMException {
 		return getData();
+	}
+
+	/**
+	 * @return the isWhitespace
+	 */
+	public boolean isWhitespace() {
+		return isWhitespace;
+	}
+
+	/**
+	 * Set true if this node's data is all whitespace
+	 * @param isWhitespace
+	 */
+	public void setWhitespace(boolean isWhitespace) {
+		this.isWhitespace = isWhitespace;
 	}
 
 	/*

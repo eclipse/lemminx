@@ -269,6 +269,8 @@ public class DOMParserTest {
 		DOMNode n = createElement("n", 6, 12, 16, true);
 		DOMNode t = createElement("t", 0, 17, 21, true);
 		t.addChild(n);
+		DOMNode text = createTextNode("\n  ", 9, 12, true);
+		n.addChild(text);
 		assertDocument("<t>\n  <n>\n  </n>\n</t>", t);
 	}
 
