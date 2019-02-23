@@ -19,7 +19,6 @@ import static org.eclipse.lsp4xml.XMLAssert.testDiagnosticsFor;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.XMLSyntaxErrorCode;
-import org.eclipse.lsp4xml.extensions.contentmodel.settings.ContentModelSettings;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -28,7 +27,7 @@ import org.junit.Test;
  *
  */
 public class XMLSyntaxDiagnosticsTest {
-
+	
 	/**
 	 * AttributeNotUnique tests
 	 * 

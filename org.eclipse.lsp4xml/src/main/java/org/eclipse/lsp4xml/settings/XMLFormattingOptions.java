@@ -26,7 +26,6 @@ public class XMLFormattingOptions extends FormattingOptions {
 	private static final String JOIN_CDATA_LINES = "joinCDATALines";
 	private static final String FORMAT_COMMENTS = "formatComments";
 	private static final String JOIN_COMMENT_LINES = "joinCommentLines";
-	private static final String JOIN_CONTENT_LINES = "joinContentLines";
 	private static final String ENABLED = "enabled";
 	private static final String SPACE_BEFORE_EMPTY_CLOSE_TAG = "spaceBeforeEmptyCloseTag";
 	private static final String QUOTATIONS = "quotations";
@@ -37,6 +36,7 @@ public class XMLFormattingOptions extends FormattingOptions {
 	enum Quotations {
 		doubleQuotes, singleQuotes
 	}	
+	private static final String PRESERVE_EMPTY_CONTENT = "preserveEmptyContent";
 
 	public XMLFormattingOptions() {
 		this(false);
@@ -60,10 +60,10 @@ public class XMLFormattingOptions extends FormattingOptions {
 		this.setJoinCDATALines(false);
 		this.setFormatComments(true);
 		this.setJoinCommentLines(false);
-		this.setJoinContentLines(false);
 		this.setEnabled(true);
 		this.setSpaceBeforeEmptyCloseTag(true);
 		this.setQuotations(DOUBLE_QUOTES_VALUE);
+		this.setPreserveEmptyContent(false);
 	}
 
 	public XMLFormattingOptions(int tabSize, boolean insertSpaces, boolean initializeDefaultSettings) {
@@ -140,19 +140,6 @@ public class XMLFormattingOptions extends FormattingOptions {
 		this.putBoolean(XMLFormattingOptions.JOIN_COMMENT_LINES, Boolean.valueOf(joinCommentLines));
 	}
 
-	public boolean isJoinContentLines() {
-		final Boolean value = this.getBoolean(XMLFormattingOptions.JOIN_CONTENT_LINES);
-		if ((value != null)) {
-			return (value).booleanValue();
-		} else {
-			return false;
-		}
-	}
-
-	public void setJoinContentLines(final boolean joinContentLines) {
-		this.putBoolean(XMLFormattingOptions.JOIN_CONTENT_LINES, Boolean.valueOf(joinContentLines));
-	}
-
 	public boolean isEnabled() {
 		final Boolean value = this.getBoolean(XMLFormattingOptions.ENABLED);
 		if ((value != null)) {
@@ -217,6 +204,19 @@ public class XMLFormattingOptions extends FormattingOptions {
 	public boolean isQuotations(String quotation) {
 		String value = getQuotations();
 		return Objects.equals(value, quotation);
+	}
+
+	public void setPreserveEmptyContent(final boolean spaceBeforeEmptyCloseTag) {
+		this.putBoolean(XMLFormattingOptions.PRESERVE_EMPTY_CONTENT, Boolean.valueOf(spaceBeforeEmptyCloseTag));
+	}
+
+	public boolean isPreserveEmptyContent() {
+		final Boolean value = this.getBoolean(XMLFormattingOptions.PRESERVE_EMPTY_CONTENT);
+		if ((value != null)) {
+			return (value).booleanValue();
+		} else {
+			return true;
+		}
 	}
 
 	public XMLFormattingOptions merge(FormattingOptions formattingOptions) {

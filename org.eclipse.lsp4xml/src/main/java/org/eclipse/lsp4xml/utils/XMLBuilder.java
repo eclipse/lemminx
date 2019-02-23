@@ -210,9 +210,14 @@ public class XMLBuilder {
 	}
 
 	public XMLBuilder addContent(String text) {
-		if (isJoinContentLines()) {
-			normalizeSpace(text, xml);
-		} else {
+		return addContent(text, false, false);
+	}
+
+	public XMLBuilder addContent(String text, Boolean isWhitespaceContent, Boolean hasSiblings) {
+		if (!isWhitespaceContent || !hasSiblings && isPreserveEmptyContent()) {
+			if(hasSiblings) {
+				text = text.trim();
+			}
 			xml.append(text);
 		}
 		return this;
@@ -352,7 +357,8 @@ public class XMLBuilder {
 		return formattingOptions != null ? formattingOptions.getTabSize() : 0;
 	}
 
-	public boolean isJoinContentLines() {
-		return formattingOptions != null && formattingOptions.isJoinContentLines();
+	private boolean isPreserveEmptyContent() {
+		return formattingOptions != null && formattingOptions.isPreserveEmptyContent();
 	}
+
 }

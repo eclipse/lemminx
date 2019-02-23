@@ -20,6 +20,7 @@ import org.eclipse.lsp4xml.dom.parser.TokenType;
 import org.eclipse.lsp4xml.dom.parser.XMLScanner;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
 import org.eclipse.lsp4xml.utils.DOMUtils;
+import org.eclipse.lsp4xml.utils.StringUtils;
 
 /**
  * Tolerant XML parser.
@@ -62,9 +63,13 @@ public class DOMParser {
 		DOMAttr attr = null;
 		int endTagOpenOffset = -1;
 		String pendingAttribute = null;
+		DOMNode tempWhitespaceContent = null;
 		boolean isInitialDeclaration = true; // A declaration can have multiple internal declarations
 		TokenType token = scanner.scan();
 		while (token != TokenType.EOS) {
+			if(tempWhitespaceContent != null && token != TokenType.EndTagOpen) {
+				tempWhitespaceContent = null;
+			}
 			switch (token) {
 			case StartTagOpen: {
 				if(!curr.isClosed() && curr.parent != null) {
@@ -120,6 +125,10 @@ public class DOMParser {
 				break;
 
 			case EndTagOpen:
+				if(tempWhitespaceContent != null) {
+					curr.addChild(tempWhitespaceContent);
+					tempWhitespaceContent = null;
+				}
 				endTagOpenOffset = scanner.getTokenOffset();
 				curr.end = scanner.getTokenOffset();
 				break;
@@ -310,11 +319,8 @@ public class DOMParser {
 
 			case Content: {
 				// FIXME: don't use getTokenText (substring) to know if the content is only
-				// spaces or line feed (scanner should know that).
-				String content = scanner.getTokenText();
-				if (content.trim().length() == 0) { // if string is only whitespaces
-					break;
-				}
+				// spaces or line feed (scanner should know that). 
+
 				if (curr instanceof DTDDeclNode) {
 					curr.end = scanner.getTokenOffset() - 1;
 					while(!curr.isDoctype()) {
@@ -325,6 +331,17 @@ public class DOMParser {
 				int end = scanner.getTokenEnd();
 				DOMText textNode = xmlDocument.createText(start, end);
 				textNode.closed = true;
+
+				String content = scanner.getTokenText();
+				if(StringUtils.isWhitespace(content)) {
+					if(curr.hasChildNodes()) {
+						break;
+					}
+					textNode.setWhitespace(true);
+					tempWhitespaceContent = textNode;
+					break;
+				}
+
 				curr.addChild(textNode);
 				break;
 			}

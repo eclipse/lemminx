@@ -81,5 +81,4 @@ public class DOMText extends DOMCharacterData implements org.w3c.dom.Text {
 	public DOMText splitText(int offset) throws DOMException {
 		throw new UnsupportedOperationException();
 	}
-
 }

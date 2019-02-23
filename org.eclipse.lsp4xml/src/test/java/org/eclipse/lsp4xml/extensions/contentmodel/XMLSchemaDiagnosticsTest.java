@@ -19,6 +19,7 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.XMLSchemaErrorCode;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.ContentModelSettings;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -269,7 +270,7 @@ public class XMLSchemaDiagnosticsTest {
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(5, 25, 5, 38, "/>")));
 	}
-
+	
 	@Test
 	public void cvc_complex_type_2_1WithLinefeed() throws Exception {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
@@ -280,7 +281,7 @@ public class XMLSchemaDiagnosticsTest {
 				"      xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n" + //
 				"	<alias name=\"\" alias=\"\" >\r\n   \r\n</alias>\r\n" + // <- error
 				"</beans>";
-		Diagnostic d = d(5, 2, 5, 7, XMLSchemaErrorCode.cvc_complex_type_2_1);
+		Diagnostic d = d(5, 26, 7, 0, XMLSchemaErrorCode.cvc_complex_type_2_1);
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(5, 25, 7, 8, "/>")));
 	}

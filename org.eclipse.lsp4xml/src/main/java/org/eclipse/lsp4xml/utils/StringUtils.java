@@ -32,8 +32,26 @@ public class StringUtils {
 		return value == null || value.isEmpty();
 	}
 
+	public static boolean isWhitespace(String value) {
+		if(value == null) {
+			return false;
+		}
+		char c;
+		int end = value.length();
+		int index = 0;
+		while(index < end) {
+			c = value.charAt(index);
+			if(Character.isWhitespace(c) == false) {
+				return false;
+			}
+			index++;
+		}
+		return true;
+	}
+
 	/**
-	 * Returns the result of normalize space of the given string.
+	 * Normalizes the whitespace characters of a given string and applies it
+	 * to the given string builder.
 	 * 
 	 * @param str
 	 * @return the result of normalize space of the given string.
@@ -137,5 +155,22 @@ public class StringUtils {
 		trimNewLines(value, s);
 		return s.toString();
 	}
+
+	public static String lTrim(String value) {
+		int len = value.length();
+		int i = 0;
+		char[] val = value.toCharArray();
+		char c = val[i];
+
+		// left trim
+		while(i < value.length() && Character.isWhitespace(c)) {
+			i++;
+			c = val[i];
+		}
+
+		return value.substring(i, len);
+	}
+
+	
 
 }
