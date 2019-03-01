@@ -12,6 +12,7 @@ package org.eclipse.lsp4xml.utils;
 
 import static org.eclipse.lsp4xml.utils.StringUtils.normalizeSpace;
 
+import org.eclipse.lsp4xml.dom.DOMAttr;
 import org.eclipse.lsp4xml.dom.DOMComment;
 import org.eclipse.lsp4xml.dom.DOMDocumentType;
 import org.eclipse.lsp4xml.dom.DOMNode;
@@ -32,7 +33,7 @@ public class XMLBuilder {
 
 	public XMLBuilder(XMLFormattingOptions formattingOptions, String whitespacesIndent, String lineDelimiter) {
 		this.whitespacesIndent = whitespacesIndent;
-		this.formattingOptions = formattingOptions;
+		this.formattingOptions = formattingOptions != null ? formattingOptions : new XMLFormattingOptions(true);
 		this.lineDelimiter = lineDelimiter;
 		this.xml = new StringBuilder();
 	}
@@ -93,17 +94,40 @@ public class XMLBuilder {
 	}
 
 	public XMLBuilder addSingleAttribute(String name, String value) {
+		return addSingleAttribute(name, value, false);
+	}
+
+	/**
+	 * Used when only one attribute is being added to a node.
+	 * 
+	 * It will not perform any linefeeds and only basic indentation.
+	 * 
+	 * @param name attribute name
+	 * @param value attribute value
+	 * @return
+	 */
+	public XMLBuilder addSingleAttribute(String name, String value, boolean surroundWithQuotes) {
 		xml.append(" ");
-		xml.append(name);
-		xml.append("=\"");
-		if (value != null) {
-			xml.append(value);
-		}
-		xml.append("\"");
+		addAttributeContents(name, true, value, surroundWithQuotes);
+		
 		return this;
 	}
 
-	public XMLBuilder addAttribute(String name, String value, int index, int level, String tagName) {
+	public XMLBuilder addAttribute(String name, String value, int level) {
+		return addAttribute(name, value, level, false);
+	}
+
+	/**
+	 * Used when you are knowingly adding multiple attributes.
+	 * 
+	 * It will do linefeeds and indentation.
+	 * 
+	 * @param name
+	 * @param value
+	 * @param level
+	 * @return
+	 */
+	public XMLBuilder addAttribute(String name, String value, int level, boolean surroundWithQuotes) {
 		if (isSplitAttributes()) {
 			linefeed();
 			indent(level + splitAttributesIndent);
@@ -111,13 +135,70 @@ public class XMLBuilder {
 			xml.append(" ");
 		}
 
-		xml.append(name);
-		xml.append("=\"");
-		if (value != null) {
-			xml.append(value);
-		}
-		xml.append("\"");
+		addAttributeContents(name, true, value, surroundWithQuotes);
 		return this;
+	}
+
+	public XMLBuilder addAttribute(DOMAttr attr, int level) {
+		return addAttribute(attr, level, false);
+	}
+
+	public XMLBuilder addAttribute(DOMAttr attr, int level, boolean surroundWithQuotes) {
+		if (isSplitAttributes()) {
+			linefeed();
+			indent(level + splitAttributesIndent);
+		} else {
+			xml.append(" ");
+		}
+
+		addAttributeContents(attr.getName(), attr.hasDelimiter(), attr.getOriginalValue(), surroundWithQuotes);
+		return this;
+	}
+
+	/**
+	 * Builds the attribute name, '=', and value.
+	 * 
+	 * Never puts quotes around unquoted values unless indicated to by 'surroundWithQuotes'
+	 */
+	private void addAttributeContents(String name, Boolean equalsSign, String originalValue, boolean surroundWithQuotes) {
+		if(name != null) {
+			xml.append(name);
+		}
+		if(equalsSign) {
+			xml.append("=");
+		}
+		if(originalValue != null) {
+			String quote = formattingOptions.isQuotations(XMLFormattingOptions.DOUBLE_QUOTES_VALUE) ? "\"" : "'";
+			
+			if(DOMAttr.isQuoted(originalValue)) {
+				if(originalValue.charAt(0) == '\'' && formattingOptions.isQuotations(XMLFormattingOptions.DOUBLE_QUOTES_VALUE) ||
+				   originalValue.charAt(0) == '\"' && formattingOptions.isQuotations(XMLFormattingOptions.SINGLE_QUOTES_VALUE)) {
+
+					originalValue = DOMAttr.convertToQuotelessValue(originalValue);
+					xml.append(quote);
+					if (originalValue != null) {
+						xml.append(originalValue);
+					}
+					xml.append(quote);
+					return;
+				} 
+				else {
+					xml.append(originalValue);
+					return;
+				}		
+			}
+			else if(surroundWithQuotes) {
+				xml.append(quote);
+				if (originalValue != null) {
+					xml.append(originalValue);
+				}
+				xml.append(quote);
+				return;
+			}
+			else {
+				xml.append(originalValue);
+			}
+		}	
 	}
 
 	public XMLBuilder linefeed() {

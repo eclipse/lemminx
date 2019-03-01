@@ -322,6 +322,8 @@ public class MultiLineStream {
 		if (matcher == null) {
 			matcher = regex.matcher(source);
 			regexpCache.put(regex, matcher);
+		} else {
+			matcher.reset(); // Cached regex caused issues, needed to reset it.
 		}
 		return matcher;
 	}

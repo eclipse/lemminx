@@ -119,12 +119,12 @@ class XMLFormatter {
 						List<DOMAttr> attributes = element.getAttributeNodes();
 						if (attributes.size() == 1) {
 							DOMAttr singleAttribute = attributes.get(0);
-							xml.addSingleAttribute(singleAttribute.getName(), singleAttribute.getValue());
+							xml.addSingleAttribute(singleAttribute.getName(), singleAttribute.getOriginalValue());
 						} else {
 							int attributeIndex = 0;
 							for (DOMAttr attr : attributes) {
 								String attributeName = attr.getName();
-								xml.addAttribute(attributeName, attr.getValue(), attributeIndex, level, tag);
+								xml.addAttribute(attr, level);
 								attributeIndex++;
 							}
 						}
@@ -205,7 +205,7 @@ class XMLFormatter {
 						if (value == null) {
 							continue;
 						}
-						xml.addSingleAttribute(name, value);
+						xml.addSingleAttribute(name, value, true);
 					}
 				}
 				xml.endPrologOrPI();

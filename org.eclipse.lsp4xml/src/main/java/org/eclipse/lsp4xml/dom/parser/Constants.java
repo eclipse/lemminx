@@ -62,7 +62,7 @@ public class Constants {
 
 	public static final Pattern ATTRIBUTE_NAME_REGEX = Pattern.compile("^[^\\s\"'<>/=\\x00-\\x0F\\x7F\\x80-\\x9F]*");
 
-	public static final Pattern ATTRIBUTE_VALUE_REGEX = Pattern.compile("^[^\\s\"'`=<>\\/]+");
+	public static final Pattern ATTRIBUTE_VALUE_REGEX = Pattern.compile("^(\"[^\"]*\"?)|(\'[^\']*\'?)");
 
 	public static final Pattern URL_VALUE_REGEX = Pattern.compile("^(\"|\')[^<>\"]*(\"|\')");
 

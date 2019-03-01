@@ -545,11 +545,11 @@ public class XMLScannerTest {
 		assertOffsetAndToken(4, TokenType.Whitespace);
 		assertOffsetAndToken(5, TokenType.AttributeName);
 		assertOffsetAndToken(8, TokenType.DelimiterAssign);
-		assertOffsetAndToken(9, TokenType.AttributeValue);
+		assertOffsetAndToken(9, TokenType.AttributeName);
 		assertOffsetAndToken(12, TokenType.Whitespace);
 		assertOffsetAndToken(13, TokenType.AttributeName);
 		assertOffsetAndToken(16, TokenType.DelimiterAssign);
-		assertOffsetAndToken(17, TokenType.AttributeValue);
+		assertOffsetAndToken(17, TokenType.AttributeName);
 		assertOffsetAndToken(24, TokenType.StartTagClose);
 	}
 
@@ -562,7 +562,7 @@ public class XMLScannerTest {
 		assertOffsetAndToken(4, TokenType.Whitespace);
 		assertOffsetAndToken(5, TokenType.AttributeName);
 		assertOffsetAndToken(8, TokenType.DelimiterAssign);
-		assertOffsetAndToken(9, TokenType.AttributeValue);
+		assertOffsetAndToken(9, TokenType.AttributeName);
 		assertOffsetAndToken(12, TokenType.StartTagSelfClose);
 	}
 
