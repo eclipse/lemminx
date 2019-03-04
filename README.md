@@ -121,6 +121,6 @@ Clients
 
 Here client which consumes this XML Language Server:
 
- * Eclipse with [lsp4e-xml](https://github.com/angelozerr/lsp4e-xml)
+ * Eclipse IDE with [Wild Web Developer](https://github.com/eclipse/wildwebdeveloper)
  * VSCode with [vscode-xml](https://github.com/redhat-developer/vscode-xml)
  * Theia with [theia-xml](https://github.com/theia-ide/theia-xml-extension)
