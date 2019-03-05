@@ -155,4 +155,112 @@ public class DOMDocumentTest {
 		java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
 		return s.hasNext() ? s.next() : "";
 	}
+
+	@Test
+	public void testUsesSchemaTrue1WithNamespace() {
+		String text = 
+								"<root\n" +
+								"  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+								"  xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 testXSD.xsd\"> </root> ";
+		TextDocument textDocument = new TextDocument(text, "/home/nikolas/testXML.xml");
+		DOMDocument d = DOMParser.getInstance().parse(text, textDocument.getUri(), null);
+		Assert.assertTrue(d.hasSchemaInstancePrefix());
+		Assert.assertTrue(d.usesSchema("/home/nikolas/testXSD.xsd"));
+	}
+
+	@Test
+	public void testUsesSchemaTrue2WithNamespace() {
+		String text = 
+								"<root\n" +
+								"  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+								"  xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 nested/testXSD.xsd\"> </root> ";
+		TextDocument textDocument = new TextDocument(text, "/home/nikolas/testXML.xml");
+		DOMDocument d = DOMParser.getInstance().parse(text, textDocument.getUri(), null);
+		Assert.assertTrue(d.hasSchemaInstancePrefix());
+		Assert.assertTrue(d.usesSchema("/home/nikolas/nested/testXSD.xsd"));
+	}
+
+	@Test
+	public void testUsesSchemaTrue3WithNamespace() {
+		String text = 
+								"<root\n" +
+								"  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+								"  xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 file:///home/nikolas/nested/testXSD.xsd\"> </root> ";
+		TextDocument textDocument = new TextDocument(text, "/home/nikolas/testXML.xml");
+		DOMDocument d = DOMParser.getInstance().parse(text, textDocument.getUri(), null);
+		Assert.assertTrue(d.hasSchemaInstancePrefix());
+		Assert.assertTrue(d.usesSchema("/home/nikolas/nested/testXSD.xsd"));
+	}
+
+	@Test
+	public void testUsesSchemaTrue1NoNamespace() {
+		String text = 
+								"<root\n" +
+								"  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+								"  xsi:noNamespaceSchemaLocation=\"testXSD.xsd\"> </root> ";
+		TextDocument textDocument = new TextDocument(text, "/home/nikolas/testXML.xml");
+		DOMDocument d = DOMParser.getInstance().parse(text, textDocument.getUri(), null);
+		Assert.assertTrue(d.hasSchemaInstancePrefix());
+		Assert.assertTrue(d.usesSchema("/home/nikolas/testXSD.xsd"));
+	}
+
+	@Test
+	public void testUsesSchemaTrue2NoNamespace() {
+		String text = 
+								"<root\n" +
+								"  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+								"  xsi:noNamespaceSchemaLocation=\"nested/testXSD.xsd\"> </root> ";
+		TextDocument textDocument = new TextDocument(text, "/home/nikolas/testXML.xml");
+		DOMDocument d = DOMParser.getInstance().parse(text, textDocument.getUri(), null);
+		Assert.assertTrue(d.hasSchemaInstancePrefix());
+		Assert.assertTrue(d.usesSchema("/home/nikolas/nested/testXSD.xsd"));
+	}
+
+	@Test
+	public void testUsesSchemaTrue3NoNamespace() {
+		String text = 
+								"<root\n" +
+								"  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+								"  xsi:noNamespaceSchemaLocation=\"file:///home/nikolas/nested/testXSD.xsd\"> </root> ";
+		TextDocument textDocument = new TextDocument(text, "/home/nikolas/testXML.xml");
+		DOMDocument d = DOMParser.getInstance().parse(text, textDocument.getUri(), null);
+		Assert.assertTrue(d.hasSchemaInstancePrefix());
+		Assert.assertTrue(d.usesSchema("/home/nikolas/nested/testXSD.xsd"));
+	}
+
+	@Test
+	public void testUsesSchemaFalseWithNamespace() {
+		String text = 
+								"<root\n" +
+								"  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+								"  xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 testXSD.xsd\"> </root> ";
+		TextDocument textDocument = new TextDocument(text, "/home/nikolas/testXML.xml");
+		DOMDocument d = DOMParser.getInstance().parse(text, textDocument.getUri(), null);
+		Assert.assertTrue(d.hasSchemaInstancePrefix());
+		Assert.assertFalse(d.usesSchema("/home/NOT_NIKOLAS/testXSD.xsd")); //bad path
+	}
+
+	@Test
+	public void testUsesSchemaFalseNoNamespace() {
+		String text = 
+								"<root\n" +
+								"  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+								"  xsi:noNamespaceSchemaLocation=\"nested/testXSD.xsd\"> </root> ";
+		TextDocument textDocument = new TextDocument(text, "/home/nikolas/testXML.xml");
+		DOMDocument d = DOMParser.getInstance().parse(text, textDocument.getUri(), null);
+		Assert.assertTrue(d.hasSchemaInstancePrefix());
+		Assert.assertFalse(d.usesSchema("/home/NOT_NIKOLAS/nested/testXSD.xsd")); //bad path
+	}
+
+	@Test
+	public void testUsesSchemaTrueAbsolutePath() {
+		String text = 
+								"<root\n" +
+								"  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+								"  xsi:noNamespaceSchemaLocation=\"/home/nikolas/nested/testXSD.xsd\"> </root> ";
+		TextDocument textDocument = new TextDocument(text, "/home/nikolas/testXML.xml");
+		DOMDocument d = DOMParser.getInstance().parse(text, textDocument.getUri(), null);
+		Assert.assertTrue(d.hasSchemaInstancePrefix());
+		Assert.assertTrue(d.usesSchema("/home/nikolas/nested/testXSD.xsd")); //bad path
+	}
 }

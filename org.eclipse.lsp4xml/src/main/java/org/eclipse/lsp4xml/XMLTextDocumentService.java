@@ -279,6 +279,9 @@ public class XMLTextDocumentService implements TextDocumentService {
 	}
 
 	@Override
+	/**
+	 * This method is triggered when the user types on an XML document.
+	 */
 	public void didChange(DidChangeTextDocumentParams params) {
 		documents.onDidChangeTextDocument(params);
 		triggerValidation(params.getTextDocument().getUri(), params.getTextDocument().getVersion());

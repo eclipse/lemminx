@@ -12,6 +12,8 @@ package org.eclipse.lsp4xml.dom;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -820,4 +822,34 @@ public class DOMDocument extends DOMNode implements Document {
 				.filter(n -> elementName.equals(((DTDAttlistDecl) n).getElementName())).collect(Collectors.toList());
 	}
 
+	/**
+	 * Given a schema URI, this will return true if the given schemaURI
+	 * matches the one defined in this DOMDocument(xml document).
+	 * 
+	 * It will check either xsi:schemaLocation or xsi:noNamespaceSchemaLocation.
+	 */
+	public boolean usesSchema(String xsdURI) {
+		String rootURI = URI.create(textDocument.getUri()).getPath(); //remove "file://" if exists
+		if(rootURI == null || xsdURI == null) {
+			return false;
+		}
+
+		Path rootPath = Paths.get(rootURI).getParent(); 
+		xsdURI = URI.create(xsdURI).getPath();
+		Path xsdPath = Paths.get(xsdURI);
+
+		if(schemaLocation != null) {
+			return schemaLocation.usesSchema(rootPath ,xsdPath);
+		}
+		else if (noNamespaceSchemaLocation != null) {	
+			String noNamespaceURI = URI.create(noNamespaceSchemaLocation.getLocation()).getPath();
+			Path noNamespacePath = Paths.get(noNamespaceURI).normalize();
+
+			if(!noNamespacePath.isAbsolute()) {
+				noNamespacePath = rootPath.resolve(noNamespacePath);
+			}
+			return xsdPath.equals(noNamespacePath);
+		}
+		return false;
+	}
 }
