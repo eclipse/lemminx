@@ -10,9 +10,14 @@
  */
 package org.eclipse.lsp4xml.dom;
 
+import java.net.URI;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
+
+import org.apache.xerces.util.URI.MalformedURIException;
 
 /**
  * 
@@ -30,17 +35,35 @@ public class SchemaLocation {
 			String locationHint = st.hasMoreTokens() ? st.nextToken() : null;
 			if (namespaceURI == null || locationHint == null)
 				break;
-//			try {
-//				//locationHint = XMLEntityManager.expandSystemId(locationHint, base, false);
-//			} catch (MalformedURIException e) {
-//				// Do nothing
-//			}
 			schemaLocationValuePairs.put(namespaceURI, locationHint);
 		} while (true);
 	}
 
 	public String getLocationHint(String namespaceURI) {
 		return schemaLocationValuePairs.get(namespaceURI);
+	}
+
+	/**
+	 * Given a schema URI, this will return true if the given URI
+	 * matches the defined path in xsi:schemaLocation.
+	 */
+	public boolean usesSchema(Path rootPath, Path xsdPath) {
+		if (rootPath == null || xsdPath == null) {
+			return false;
+		}
+
+		for (String value : schemaLocationValuePairs.values()) {
+			String valueWithoutSchema = URI.create(value).normalize().getPath();
+			Path currentSchemaURI = Paths.get(valueWithoutSchema);
+			if(!currentSchemaURI.isAbsolute()) {
+				currentSchemaURI = rootPath.resolve(currentSchemaURI);
+			}
+			
+			if(xsdPath.equals(currentSchemaURI)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }

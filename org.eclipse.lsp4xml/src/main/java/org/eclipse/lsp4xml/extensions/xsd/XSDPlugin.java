@@ -11,6 +11,7 @@
 package org.eclipse.lsp4xml.extensions.xsd;
 
 import org.eclipse.lsp4j.InitializeParams;
+import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelProvider;
 import org.eclipse.lsp4xml.extensions.xsd.contentmodel.CMXSDContentModelProvider;
@@ -21,6 +22,7 @@ import org.eclipse.lsp4xml.services.extensions.IXMLExtension;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lsp4xml.services.extensions.save.ISaveContext;
+import org.eclipse.lsp4xml.utils.DOMUtils;
 
 /**
  * XSD plugin.
@@ -40,7 +42,14 @@ public class XSDPlugin implements IXMLExtension {
 
 	@Override
 	public void doSave(ISaveContext context) {
-
+		String documentURI = context.getUri();
+		DOMDocument document = context.getDocument(documentURI);
+		if(DOMUtils.isXSD(document)) {
+			context.collectDocumentToValidate(d -> {
+				DOMDocument xml = context.getDocument(d.getDocumentURI());
+				return xml.usesSchema(context.getUri());
+			});
+		}
 	}
 
 	@Override

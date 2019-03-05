@@ -27,6 +27,9 @@ public class DOMUtils {
 	 * @return true if the XML document is a XML Schema and false otherwise.
 	 */
 	public static boolean isXSD(DOMDocument document) {
+		if(document == null) {
+			return false;
+		}
 		String uri = document.getDocumentURI();
 		if (isXSD(uri)) {
 			return true;
