@@ -16,6 +16,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.eclipse.lsp4j.jsonrpc.MessageConsumer;
@@ -95,9 +96,14 @@ public final class ParentProcessWatcher implements Runnable, Function<MessageCon
 				process.destroy();
 				finished = process.waitFor(POLL_DELAY_SECS, TimeUnit.SECONDS); // wait for the process to stop
 			}
+			if (isWindows && finished && process.exitValue() > 1) {
+				// the tasklist command should return 0 (parent process exists) or 1 (parent process doesn't exist)
+				LOGGER.warning("The tasklist command: '" + command + "' returns " + process.exitValue());
+				return true;
+			}
 			return !finished || process.exitValue() == 0;
 		} catch (IOException | InterruptedException e) {
-			// JavaLanguageServerPlugin.logException(e.getMessage(), e);
+			LOGGER.log(Level.WARNING, e.getMessage(), e);
 			return true;
 		} finally {
 			if (process != null) {
