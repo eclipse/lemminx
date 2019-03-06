@@ -101,7 +101,7 @@ You will have to reference the Maven repository hosting the dependency you need.
   </releases>
 </repository>
 ```
-or P2 repository: https://dl.bintray.com/lsp4xml/p2/`<VERSION>`
+or P2 repository: [https://dl.bintray.com/lsp4xml/p2/`<VERSION>`](https://dl.bintray.com/lsp4xml/p2/) 
 
 
 And if you want to consume the SNAPSHOT builds instead:
@@ -118,7 +118,7 @@ And if you want to consume the SNAPSHOT builds instead:
 </repository>
 ```
 or P2 repository:
-https://lsp4xml.jfrog.io/lsp4xml/generic-local/p2/lsp4xml/`<VERSION>`
+[https://lsp4xml.jfrog.io/lsp4xml/generic-local/p2/lsp4xml/`<VERSION>`](https://lsp4xml.jfrog.io/lsp4xml/generic-local/p2/lsp4xml/)
 
 Clients
 -------
