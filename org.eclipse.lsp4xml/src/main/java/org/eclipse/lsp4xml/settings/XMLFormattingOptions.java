@@ -29,6 +29,7 @@ public class XMLFormattingOptions extends FormattingOptions {
 	private static final String ENABLED = "enabled";
 	private static final String SPACE_BEFORE_EMPTY_CLOSE_TAG = "spaceBeforeEmptyCloseTag";
 	private static final String QUOTATIONS = "quotations";
+	private static final String JOIN_CONTENT_LINES = "joinContentLines";
 
 	// Values for QUOTATIONS
 	public static final String DOUBLE_QUOTES_VALUE = "doubleQuotes";
@@ -60,6 +61,7 @@ public class XMLFormattingOptions extends FormattingOptions {
 		this.setJoinCDATALines(false);
 		this.setFormatComments(true);
 		this.setJoinCommentLines(false);
+		this.setJoinContentLines(false);
 		this.setEnabled(true);
 		this.setSpaceBeforeEmptyCloseTag(true);
 		this.setQuotations(DOUBLE_QUOTES_VALUE);
@@ -138,6 +140,19 @@ public class XMLFormattingOptions extends FormattingOptions {
 
 	public void setJoinCommentLines(final boolean joinCommentLines) {
 		this.putBoolean(XMLFormattingOptions.JOIN_COMMENT_LINES, Boolean.valueOf(joinCommentLines));
+	}
+
+	public boolean isJoinContentLines() {
+		final Boolean value = this.getBoolean(XMLFormattingOptions.JOIN_CONTENT_LINES);
+		if ((value != null)) {
+			return (value).booleanValue();
+		} else {
+			return false;
+		}
+	}
+
+	public void setJoinContentLines(final boolean joinContentLines) {
+		this.putBoolean(XMLFormattingOptions.JOIN_CONTENT_LINES, Boolean.valueOf(joinContentLines));
 	}
 
 	public boolean isEnabled() {

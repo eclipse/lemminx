@@ -214,10 +214,16 @@ public class XMLBuilder {
 	}
 
 	public XMLBuilder addContent(String text, Boolean isWhitespaceContent, Boolean hasSiblings) {
-		if (!isWhitespaceContent || !hasSiblings && isPreserveEmptyContent()) {
-			if(hasSiblings) {
+		if(!isWhitespaceContent) {
+			if(isJoinContentLines()) {
+				text = StringUtils.normalizeSpace(text);
+			}
+			else if(hasSiblings) {
 				text = text.trim();
 			}
+			xml.append(text);
+		}
+		else if (!hasSiblings && isPreserveEmptyContent()) {
 			xml.append(text);
 		}
 		return this;
@@ -355,6 +361,10 @@ public class XMLBuilder {
 
 	private int getTabSize() {
 		return formattingOptions != null ? formattingOptions.getTabSize() : 0;
+	}
+
+	private boolean isJoinContentLines() {
+		return formattingOptions != null && formattingOptions.isJoinContentLines();
 	}
 
 	private boolean isPreserveEmptyContent() {
