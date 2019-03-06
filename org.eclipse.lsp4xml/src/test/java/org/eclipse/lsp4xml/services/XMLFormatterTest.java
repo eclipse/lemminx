@@ -712,6 +712,109 @@ public class XMLFormatterTest {
 		format(content, expected, formattingOptions);
 	}
 
+	@Test public void testPreserveEmptyContentWithJoinContentLines() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setPreserveEmptyContent(true);
+		formattingOptions.setJoinContentLines(true);
+		
+		String content = 
+				"<a>\n" + //
+				"   zz  \n" + //
+				"   zz  \n" + //
+				"   <a>  </a>  \n" + //
+				"</a>";
+		String expected = 
+				"<a>\n" + //
+				"  zz zz\n" + //
+				"  <a>  </a>\n" + //
+				"</a>";
+		format(content, expected, formattingOptions);
+	}
+
+	@Test public void testJoinContentLinesTrue() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setPreserveEmptyContent(false);
+		formattingOptions.setJoinContentLines(true);
+		
+		String content = 
+				"<a>\n" + //
+				"   zz  \n" + //
+				"   zz  " + //
+				"</a>";
+		String expected = 
+				"<a>zz zz</a>";
+		format(content, expected, formattingOptions);
+	}
+
+	@Test public void testJoinContentLinesTrue2() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setPreserveEmptyContent(false);
+		formattingOptions.setJoinContentLines(true);
+		
+		String content = 
+				"<a>zz zz zz</a>";
+		String expected = 
+				"<a>zz zz zz</a>";
+		format(content, expected, formattingOptions);
+	}
+
+	@Test public void testJoinContentLinesFalse() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setPreserveEmptyContent(false);
+		formattingOptions.setJoinContentLines(false);
+		
+		String content = 
+				"<a>\n" + //
+				"   zz  \n" + //
+				"   zz  " + //
+				"</a>";
+		String expected = 
+				"<a>\n" + //
+				"   zz  \n" + //
+				"   zz  " + //
+				"</a>";
+		format(content, expected, formattingOptions);
+	}
+
+	@Test public void testJoinContentLinesWithSiblingElementTrue() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setPreserveEmptyContent(false);
+		formattingOptions.setJoinContentLines(true);
+		
+		String content = 
+				"<a>\n" + //
+				"   zz  \n" + //
+				"   zz  \n" + //
+				"   <a>  </a>  \n" + //
+				"</a>";
+		String expected = 
+				"<a>\n" + //
+				"  zz zz\n" + //
+				"  <a></a>\n" + //
+				"</a>";
+		format(content, expected, formattingOptions);
+	}
+
+	@Test public void testJoinContentLinesWithSiblingElementFalse() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setPreserveEmptyContent(false);
+		formattingOptions.setJoinContentLines(false);
+		
+		String content = 
+				"<a>\n" + //
+				"   zz  \n" + //
+				"   zz  \n" + //
+				"   <a>  </a>  \n" + //
+				"</a>";
+		String expected = 
+				"<a>\n" + //
+				"  zz  \n" + //
+				"   zz\n" + //
+				"  <a></a>\n" + //
+				"</a>";
+		format(content, expected, formattingOptions);
+	}
+
 	@Test public void testEndTagMissingCloseBracket2() throws BadLocationException {
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		formattingOptions.setSpaceBeforeEmptyCloseTag(false);
