@@ -123,7 +123,7 @@ or P2 repository:
 Clients
 -------
 
-Here client which consumes this XML Language Server:
+Here are some clients consuming this XML Language Server:
 
  * Eclipse IDE with [Wild Web Developer](https://github.com/eclipse/wildwebdeveloper)
  * VSCode with [vscode-xml](https://github.com/redhat-developer/vscode-xml)
