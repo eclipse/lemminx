@@ -10,20 +10,28 @@
  */
 package org.eclipse.lsp4xml.services;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.Hover;
+import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.MarkupKind;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.dom.DOMAttr;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMElement;
+import org.eclipse.lsp4xml.dom.DOMNode;
+import org.eclipse.lsp4xml.extensions.contentmodel.utils.XMLGenerator;
 import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
 import org.eclipse.lsp4xml.services.extensions.IHoverRequest;
+import org.eclipse.lsp4xml.settings.SharedSettings;
 import org.eclipse.lsp4xml.utils.StringUtils;
 
 /**
@@ -31,6 +39,7 @@ import org.eclipse.lsp4xml.utils.StringUtils;
  * https://www.w3.org/2001/XMLSchema-instance
  */
 public class XSISchemaModel {
+
 	private static String lineSeparator = System.lineSeparator();
 	public static final String TYPE_DOC = "Specifies the type of an element. This attribute labels an element as a particular type, even though there might not be an element declaration in the schema binding that element to the type."; 
 	public static final String NIL_DOC = "Indicates if an element should contain content. Valid values are `true` or `false`";
@@ -74,7 +83,7 @@ public class XSISchemaModel {
 		boolean schemaLocationExists = document.hasSchemaLocation();
 		boolean noNamespaceSchemaLocationExists = document.hasNoNamespaceSchemaLocation();
 		//Indicates that no values are allowed inside an XML element
-		if(!attributeAlreadyExists(nodeAtOffset, actualPrefix, "nil")) {
+		if(!hasAttribute(nodeAtOffset, actualPrefix, "nil")) {
 			documentation = NIL_DOC;
 			name = actualPrefix + ":nil";
 			createCompletionItem(name, isSnippetsSupported, generateValue, editRange, StringUtils.TRUE, 
@@ -84,7 +93,7 @@ public class XSISchemaModel {
 		//a content type which does not require or even necessarily allow empty content. 
 		//An element may be ·valid· without content if it has the attribute xsi:nil with 
 		//the value true.
-		if(!attributeAlreadyExists(nodeAtOffset, actualPrefix, "type")) {
+		if(!hasAttribute(nodeAtOffset, actualPrefix, "type")) {
 			documentation = TYPE_DOC;
 			name = actualPrefix + ":type";
 			createCompletionItem(name, isSnippetsSupported, generateValue, editRange, null, null, documentation, response);	
@@ -114,8 +123,59 @@ public class XSISchemaModel {
 		response.addCompletionItem(item);
 	}
 
-	private static boolean attributeAlreadyExists(DOMElement root, String actualPrefix, String suffix) {
-		return root.getAttributeNode(actualPrefix + ":" + suffix) != null;
+	public static void computeValueCompletionResponses(ICompletionRequest request, 
+			ICompletionResponse response, Range editRange, DOMDocument document, SharedSettings settings) throws BadLocationException {
+		
+		int offset = document.offsetAt(editRange.getStart());
+		DOMElement nodeAtOffset = (DOMElement) document.findNodeAt(offset);
+		
+		String actualPrefix = document.getSchemaInstancePrefix();
+		
+		// Value completion for 'nil' attribute
+		DOMAttr nilAttr = nodeAtOffset.getAttributeNode(actualPrefix, "nil");
+		if(nilAttr != null) {
+			createCompletionItemsForValues(StringUtils.TRUE_FALSE_ARRAY, editRange, document, response, settings);
+		}
+	}
+
+	private static void createSingleCompletionItemForValue(String value, Range editRange, DOMDocument document, ICompletionResponse response, SharedSettings settings) {
+		createCompletionItemsForValues(Arrays.asList(value), editRange, document, response, settings);
+	}
+
+	private static void createCompletionItemsForValues(Collection<String> enumerationValues, Range editRange, DOMDocument document, ICompletionResponse response, SharedSettings settings) {
+		
+		// Figure out which quotation to use for filter text
+		String settingQuotation = settings.formattingSettings.getQuotationAsString();
+		String currentQuotation = settingQuotation;
+		try {
+			int start = document.offsetAt(editRange.getStart());
+			int end = document.offsetAt(editRange.getEnd());
+			if(start != end) {
+				currentQuotation = String.valueOf(document.getText().charAt(start));
+			}
+		} catch (BadLocationException e) {
+		}
+
+		CompletionItem item;
+		for (String option : enumerationValues) {
+			String optionWithQuotes = settingQuotation + option + settingQuotation;
+			item = new CompletionItem();
+			item.setLabel(option);
+			item.setFilterText(currentQuotation + option + currentQuotation);
+			item.setKind(CompletionItemKind.Enum);
+			item.setTextEdit(new TextEdit(editRange, optionWithQuotes));
+			response.addCompletionItem(item);
+		}
+	}
+
+	/**
+	 * Checks if a given root has an attribute with the name:
+	 * 	{@code prefix:suffix}.
+	 * If no prefix exists, put the name in {@code suffix}
+	 */
+	private static boolean hasAttribute(DOMElement root, String prefix, String suffix) {
+		return root.getAttributeNode(prefix, suffix) != null;
+		
 	}
 
 	public static Hover computeHoverResponse(DOMAttr attribute, IHoverRequest request) {

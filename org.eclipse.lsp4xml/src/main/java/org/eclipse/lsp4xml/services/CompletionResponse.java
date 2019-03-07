@@ -60,6 +60,7 @@ class CompletionResponse extends CompletionList implements ICompletionResponse {
 		if (seenAttributes == null) {
 			seenAttributes = new ArrayList<>();
 		}
+		// TODO: Add quotations to the completion item.
 		seenAttributes.add(completionItem.getLabel());
 		addCompletionItem(completionItem);
 	}

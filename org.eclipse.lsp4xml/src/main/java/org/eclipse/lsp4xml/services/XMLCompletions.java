@@ -41,7 +41,9 @@ import org.eclipse.lsp4xml.services.extensions.ICompletionParticipant;
 import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lsp4xml.settings.SharedSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
+import org.eclipse.lsp4xml.utils.StringUtils;
 
 /**
  * XML completions support.
@@ -58,13 +60,12 @@ class XMLCompletions {
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
-	public CompletionList doComplete(DOMDocument xmlDocument, Position position, CompletionSettings completionSettings,
-			XMLFormattingOptions formattingSettings) {
+	public CompletionList doComplete(DOMDocument xmlDocument, Position position,
+			SharedSettings settings) {
 		CompletionResponse completionResponse = new CompletionResponse();
 		CompletionRequest completionRequest = null;
 		try {
-			completionRequest = new CompletionRequest(xmlDocument, position, completionSettings, formattingSettings,
-					extensionsRegistry);
+			completionRequest = new CompletionRequest(xmlDocument, position, settings, extensionsRegistry);
 		} catch (BadLocationException e) {
 			LOGGER.log(Level.SEVERE, "Creation of CompletionRequest failed", e);
 			return completionResponse;
@@ -113,14 +114,14 @@ class XMLCompletions {
 			case DelimiterAssign:
 				if (scanner.getTokenEnd() == offset) {
 					int endPos = scanNextForEndPos(offset, scanner, TokenType.AttributeValue);
-					collectAttributeValueSuggestions(offset, endPos, completionRequest, completionResponse);
+					collectAttributeValueSuggestions(offset, endPos, completionRequest, completionResponse, settings);
 					return completionResponse;
 				}
 				break;
 			case AttributeValue:
 				if (scanner.getTokenOffset() <= offset && offset <= scanner.getTokenEnd()) {
 					collectAttributeValueSuggestions(scanner.getTokenOffset(), scanner.getTokenEnd(), completionRequest,
-							completionResponse);
+							completionResponse, settings);
 					return completionResponse;
 				}
 				break;
@@ -138,7 +139,7 @@ class XMLCompletions {
 						return completionResponse;
 					case BeforeAttributeValue:
 						collectAttributeValueSuggestions(scanner.getTokenEnd(), offset, completionRequest,
-								completionResponse);
+								completionResponse, settings);
 						return completionResponse;
 					case AfterOpeningEndTag:
 						collectCloseTagSuggestions(scanner.getTokenOffset() - 1, false, offset, completionRequest,
@@ -649,13 +650,15 @@ class XMLCompletions {
 	}
 
 	private void collectAttributeValueSuggestions(int valueStart, int valueEnd, CompletionRequest completionRequest,
-			CompletionResponse completionResponse) {
+			CompletionResponse completionResponse, SharedSettings settings) {
 		Range range = null;
 		boolean addQuotes = false;
 		String valuePrefix;
 		int offset = completionRequest.getOffset();
 		String text = completionRequest.getXMLDocument().getText();
-		if (offset > valueStart && offset <= valueEnd && isQuote(text.charAt(valueStart))) {
+		
+		// Adjusts range to handle if quotations for the value exist
+		if (offset > valueStart && offset <= valueEnd && StringUtils.isQuote(text.charAt(valueStart))) {
 			// inside quoted attribute
 			int valueContentStart = valueStart + 1;
 			int valueContentEnd = valueEnd;
@@ -692,7 +695,7 @@ class XMLCompletions {
 				Range fullRange = getReplaceRange(valueStart, valueEnd, completionRequest);
 				for (ICompletionParticipant participant : completionParticipants) {
 					participant.onAttributeValue(valuePrefix, fullRange, addQuotes, completionRequest,
-							completionResponse);
+							completionResponse, settings);
 				}
 			} catch (BadLocationException e) {
 				LOGGER.log(Level.SEVERE,
@@ -807,10 +810,6 @@ class XMLCompletions {
 		return extensionsRegistry.getCompletionParticipants();
 	}
 
-	// Utilities class.
-	private static boolean isQuote(char c) {
-		return c == '\'' || c == '"';
-	}
 
 	private static boolean isFollowedBy(String s, int offset, ScannerState intialState, TokenType expectedToken) {
 		return getOffsetFollowedBy(s, offset, intialState, expectedToken) != -1;

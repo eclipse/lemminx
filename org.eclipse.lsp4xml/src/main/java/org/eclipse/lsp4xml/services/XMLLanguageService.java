@@ -47,6 +47,7 @@ import org.eclipse.lsp4xml.dom.DOMElement;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lsp4xml.settings.SharedSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.uriresolver.CacheResourceDownloadingException;
 import org.eclipse.lsp4xml.utils.XMLPositionUtility;
@@ -99,9 +100,8 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		return symbolsProvider.findDocumentSymbols(xmlDocument);
 	}
 
-	public CompletionList doComplete(DOMDocument xmlDocument, Position position, CompletionSettings completionSettings,
-			XMLFormattingOptions formattingSettings) {
-		return completions.doComplete(xmlDocument, position, completionSettings, formattingSettings);
+	public CompletionList doComplete(DOMDocument xmlDocument, Position position, SharedSettings settings) {
+		return completions.doComplete(xmlDocument, position, settings);
 	}
 
 	public Hover doHover(DOMDocument xmlDocument, Position position) {

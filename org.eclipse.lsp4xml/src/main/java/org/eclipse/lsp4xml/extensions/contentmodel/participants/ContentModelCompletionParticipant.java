@@ -30,6 +30,7 @@ import org.eclipse.lsp4xml.services.XSISchemaModel;
 import org.eclipse.lsp4xml.services.extensions.CompletionParticipantAdapter;
 import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
+import org.eclipse.lsp4xml.settings.SharedSettings;
 import org.eclipse.lsp4xml.uriresolver.CacheResourceDownloadingException;
 
 /**
@@ -115,10 +116,6 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	@Override
 	public void onAttributeName(boolean generateValue, Range fullRange, ICompletionRequest request,
 			ICompletionResponse response) throws Exception {
-		if (request.getXMLDocument().hasSchemaInstancePrefix()) {
-			XSISchemaModel.computeCompletionResponses(request, response, fullRange, request.getXMLDocument(),
-					generateValue);
-		}
 		// otherwise, manage completion based on XML Schema, DTD.
 		DOMElement parentElement = request.getNode().isElement() ? (DOMElement) request.getNode() : null;
 		if (parentElement == null) {
@@ -166,7 +163,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 
 	@Override
 	public void onAttributeValue(String valuePrefix, Range fullRange, boolean addQuotes, ICompletionRequest request,
-			ICompletionResponse response) throws Exception {
+			ICompletionResponse response, SharedSettings settings) throws Exception {
 		DOMElement parentElement = request.getNode().isElement() ? (DOMElement) request.getNode() : null;
 		if (parentElement == null) {
 			return;

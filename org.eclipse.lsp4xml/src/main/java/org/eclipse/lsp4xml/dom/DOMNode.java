@@ -282,6 +282,22 @@ public abstract class DOMNode implements Node {
 	}
 
 	public DOMAttr getAttributeNode(String name) {
+		return getAttributeNode(null, name);
+	}
+
+	/**
+	 * Returns the attribute that matches the given name.
+	 * 
+	 * If there is no namespace, set prefix to null.
+	 */
+	public DOMAttr getAttributeNode(String prefix, String suffix) {
+		StringBuilder sb = new StringBuilder();
+		if(prefix != null) {
+			sb.append(prefix);
+			sb.append(":");
+		}
+		sb.append(suffix);
+		String name = sb.toString();
 		if (!hasAttributes()) {
 			return null;
 		}

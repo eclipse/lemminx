@@ -163,6 +163,11 @@ public class XMLGenerator {
 		return snippetIndex;
 	}
 
+	/**
+	 * Creates the string value for a CompletionItem TextEdit
+	 * 
+	 * Can create an enumerated TextEdit if given a collection of values.
+	 */
 	public static String generateAttributeValue(String defaultValue, Collection<String> enumerationValues,
 			boolean canSupportSnippets, int snippetIndex, boolean withQuote) {
 		StringBuilder value = new StringBuilder();

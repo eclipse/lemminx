@@ -19,6 +19,7 @@ import org.eclipse.lsp4xml.extensions.contentmodel.utils.XMLGenerator;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lsp4xml.settings.SharedSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 
 /**
@@ -39,12 +40,11 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 
 	private boolean hasOpenBracket;
 
-	public CompletionRequest(DOMDocument xmlDocument, Position position, CompletionSettings completionSettings,
-			XMLFormattingOptions formattingSettings, XMLExtensionsRegistry extensionsRegistry)
+	public CompletionRequest(DOMDocument xmlDocument, Position position, SharedSettings settings, XMLExtensionsRegistry extensionsRegistry)
 			throws BadLocationException {
 		super(xmlDocument, position);
-		this.formattingSettings = formattingSettings;
-		this.completionSettings = completionSettings;
+		this.formattingSettings = settings.formattingSettings;
+		this.completionSettings = settings.completionSettings;
 		this.extensionsRegistry = extensionsRegistry;
 	}
 

@@ -28,6 +28,7 @@ import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMParser;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
+import org.eclipse.lsp4xml.settings.SharedSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.junit.Before;
 import org.junit.Test;
@@ -236,8 +237,11 @@ public class XMLCompletionTest {
 		} catch (Exception e) {
 			fail("Couldn't get position at offset");
 		}
-		CompletionList completionList = languageService.doComplete(xmlDocument, position, sharedCompletionSettings,
-				new XMLFormattingOptions(4, false));
+
+		SharedSettings sharedSettings = new SharedSettings();
+		sharedSettings.setFormattingSettings(new XMLFormattingOptions(4, false));
+
+		CompletionList completionList = languageService.doComplete(xmlDocument, position, sharedSettings);
 		return completionList;
 	}
 

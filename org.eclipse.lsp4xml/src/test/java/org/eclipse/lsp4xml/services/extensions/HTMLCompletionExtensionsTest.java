@@ -21,6 +21,7 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
+import org.eclipse.lsp4xml.settings.SharedSettings;
 import org.junit.Test;
 
 /**
@@ -178,7 +179,7 @@ public class HTMLCompletionExtensionsTest {
 
 			@Override
 			public void onAttributeValue(String valuePrefix, Range fullRange, boolean addQuotes,
-					ICompletionRequest completionRequest, ICompletionResponse completionResponse) {
+					ICompletionRequest completionRequest, ICompletionResponse completionResponse, SharedSettings settings) {
 				String tag = completionRequest.getCurrentTag();
 				String attributeName = completionRequest.getCurrentAttributeName();
 				HTMLTag htmlTag = HTMLTag.getHTMLTag(tag);

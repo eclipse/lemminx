@@ -50,6 +50,7 @@ import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IXMLErrorCode;
 import org.eclipse.lsp4xml.services.extensions.save.AbstractSaveContext;
+import org.eclipse.lsp4xml.settings.SharedSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.junit.Assert;
 
@@ -123,21 +124,24 @@ public class XMLAssert {
 		DOMDocument htmlDoc = DOMParser.getInstance().parse(document, xmlLanguageService.getResolverExtensionManager());
 		xmlLanguageService.setDocumentProvider((uri) -> htmlDoc);
 
-		ContentModelSettings settings = new ContentModelSettings();
-		settings.setUseCache(false);
+		ContentModelSettings cmSettings = new ContentModelSettings();
+		cmSettings.setUseCache(false);
 		// Configure XML catalog for XML schema
 		if (catalogPath != null) {
-			settings.setCatalogs(new String[] { catalogPath });
+			cmSettings.setCatalogs(new String[] { catalogPath });
 		}
-		xmlLanguageService.doSave(new SettingsSaveContext(settings));
+		xmlLanguageService.doSave(new SettingsSaveContext(cmSettings));
 		xmlLanguageService.initializeIfNeeded();
 
 		if (customConfiguration != null) {
 			customConfiguration.accept(xmlLanguageService);
 		}
 
-		CompletionList list = xmlLanguageService.doComplete(htmlDoc, position, completionSettings,
-				new XMLFormattingOptions(4, false));
+		SharedSettings sharedSettings = new SharedSettings();
+		sharedSettings.setFormattingSettings(new XMLFormattingOptions(4, false));
+		sharedSettings.setCompletionSettings(completionSettings);
+
+		CompletionList list = xmlLanguageService.doComplete(htmlDoc, position, sharedSettings);
 
 		// no duplicate labels
 		List<String> labels = list.getItems().stream().map(i -> i.getLabel()).sorted().collect(Collectors.toList());
