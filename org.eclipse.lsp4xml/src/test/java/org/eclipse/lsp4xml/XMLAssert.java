@@ -42,6 +42,7 @@ import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
+import org.eclipse.lsp4xml.customservice.AutoCloseTagResponse;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMParser;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.ContentModelSettings;
@@ -220,7 +221,12 @@ public class XMLAssert {
 		Position position = document.positionAt(offset);
 		DOMDocument htmlDoc = DOMParser.getInstance().parse(document, ls.getResolverExtensionManager());
 
-		String actual = ls.doTagComplete(htmlDoc, position);
+		AutoCloseTagResponse response = ls.doTagComplete(htmlDoc, position);
+		if(expected == null) {
+			Assert.assertNull(response);
+			return;
+		}
+		String actual = response.snippet;
 		Assert.assertEquals(expected, actual);
 	}
 

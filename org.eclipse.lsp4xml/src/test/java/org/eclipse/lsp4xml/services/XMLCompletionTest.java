@@ -25,6 +25,7 @@ import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.BadLocationException;
+import org.eclipse.lsp4xml.customservice.AutoCloseTagResponse;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMParser;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
@@ -121,8 +122,8 @@ public class XMLCompletionTest {
 		testTagCompletion("<div>|</div>", null);
 		testTagCompletion("<div class=\"\">|", "$0</div>");
 		testTagCompletion("<img />|", null);
-		testTagCompletion("<div><br /></|", "div>");
-		testTagCompletion("<div><br /><span></span></|", "div>");
+		testTagCompletion("<div><br /></|", "div>$0");
+		testTagCompletion("<div><br /><span></span></|", "div>$0");
 		// testTagCompletion("<div><h1><br /><span></span><img /></| </h1></div>",
 		// "h1>");
 	}
@@ -133,6 +134,17 @@ public class XMLCompletionTest {
 		assertAutoCloseEndTagCompletion("<a><b>|</a>", "$0</b>");
 		assertAutoCloseEndTagCompletion("<a>   <b>|</a>", "$0</b>");
 		assertAutoCloseEndTagCompletion("<a><b>|", "$0</b>");
+		assertAutoCloseEndTagCompletion("<a></|", "a>$0");
+		assertAutoCloseEndTagCompletion("<a/|", ">$0");
+		assertAutoCloseEndTagCompletion("<a/|</b>", ">$0");
+		assertAutoCloseEndTagCompletion("<a><a>|</a>", "$0</a>");
+	}
+
+	@Test
+	public void testAutoCloseTagCompletionWithRange() {
+		assertAutoCloseEndTagCompletionWithRange("<a/|></a>", ">$0", new Range(new Position(0, 3), new Position(0,8)));
+		assertAutoCloseEndTagCompletionWithRange("<a/| </a>", ">$0", new Range(new Position(0, 3), new Position(0,8)));
+		assertAutoCloseEndTagCompletionWithRange("<a> <a/|> </a> </a>", ">$0", new Range(new Position(0, 7), new Position(0,13)));
 	}
 
 	@Test
@@ -208,6 +220,10 @@ public class XMLCompletionTest {
 	}
 
 	public void assertAutoCloseEndTagCompletion(String xmlText, String expectedTextEdit) {
+		assertAutoCloseEndTagCompletionWithRange(xmlText, expectedTextEdit, null);
+	}
+
+	public void assertAutoCloseEndTagCompletionWithRange(String xmlText, String expectedTextEdit, Range range) {
 		int offset = getOffset(xmlText);
 		DOMDocument xmlDocument = initializeXMLDocument(xmlText, offset);
 		Position position = null;
@@ -216,8 +232,10 @@ public class XMLCompletionTest {
 		} catch (Exception e) {
 			fail("Couldn't get position at offset");
 		}
-		String completionList = languageService.doTagComplete(xmlDocument, position);
+		AutoCloseTagResponse response = languageService.doTagComplete(xmlDocument, position);
+		String completionList = response.snippet;
 		assertEquals(expectedTextEdit, completionList);
+		assertEquals(range, response.range);
 	}
 
 	public int getOffset(String xmlText) {

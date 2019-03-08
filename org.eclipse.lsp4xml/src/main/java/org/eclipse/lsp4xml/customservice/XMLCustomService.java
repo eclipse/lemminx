@@ -8,7 +8,7 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lsp4xml;
+package org.eclipse.lsp4xml.customservice;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -24,5 +24,7 @@ import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 public interface XMLCustomService {
 
 	@JsonRequest
-	CompletableFuture<String> closeTag(TextDocumentPositionParams params);
+	CompletableFuture<AutoCloseTagResponse> closeTag(TextDocumentPositionParams params);
 }
+
+

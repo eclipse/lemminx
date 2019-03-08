@@ -31,6 +31,8 @@ import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
 import org.eclipse.lsp4xml.commons.ParentProcessWatcher.ProcessLanguageServer;
+import org.eclipse.lsp4xml.customservice.AutoCloseTagResponse;
+import org.eclipse.lsp4xml.customservice.XMLCustomService;
 import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.ContentModelSettings;
@@ -202,7 +204,7 @@ public class XMLLanguageServer
 	}
 
 	@Override
-	public CompletableFuture<String> closeTag(TextDocumentPositionParams params) {
+	public CompletableFuture<AutoCloseTagResponse> closeTag(TextDocumentPositionParams params) {
 		return computeAsync((monitor) -> {
 			TextDocument document = xmlTextDocumentService.getDocument(params.getTextDocument().getUri());
 			DOMDocument xmlDocument = xmlTextDocumentService.getXMLDocument(document);
