@@ -274,9 +274,11 @@ public class XMLScanner implements Scanner {
 					return finishToken(offset, TokenType.AttributeName);
 				}
 			
-			if (stream.advanceIfChars(_FSL, _RAN)) { // />
+			if (stream.advanceIfChar(_FSL)) { // /
 				state = ScannerState.WithinContent;
-				return finishToken(offset, TokenType.StartTagSelfClose);
+				if(stream.advanceIfChar(_RAN)) { // >
+					return finishToken(offset, TokenType.StartTagSelfClose);
+				}
 			}
 			if (stream.advanceIfChar(_RAN)) { // >
 				state = ScannerState.WithinContent;

@@ -73,7 +73,7 @@ public class DOMParser {
 			switch (token) {
 			case StartTagOpen: {
 				if(!curr.isClosed() && curr.parent != null) {
-					//The next node's parent is not closed at this point
+					//The next node's parent (curr) is not closed at this point
 					//so the node's parent (curr) will have its end position updated
 					//to a newer end position.
 					curr.end = scanner.getTokenOffset();

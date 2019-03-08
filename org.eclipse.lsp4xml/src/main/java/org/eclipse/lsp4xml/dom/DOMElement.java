@@ -253,6 +253,59 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 		return selfClosed;
 	}
 
+
+	/**
+	 * Will traverse backwards from the start offset
+	 * returning an offset of the given character if it's found 
+	 * before another character. Whitespace is ignored.
+	 * 
+	 * Returns null if the character is not found.
+	 * 
+	 * The initial value for the start offset is not included.
+	 * So have the offset 1 position after the character you want
+	 * to start at.
+	 */
+	public Integer endsWith(char c, int startOffset) {
+		String text = this.getOwnerDocument().getText();
+		if(startOffset > text.length() || startOffset < 0) {
+			return null;
+		}
+		startOffset--;
+		while(startOffset >= 0) {
+			char current = text.charAt(startOffset);
+			if(Character.isWhitespace(current)) {
+				startOffset--;
+				continue;
+			}
+			if(current != c) {
+				return null;
+			}
+			return startOffset;
+		}
+		return null;
+	}
+
+	public Integer isNextChar(char c, int startOffset) {
+		String text = this.getOwnerDocument().getText();
+		if(startOffset > text.length() || startOffset < 0) {
+			return null;
+		}
+		
+		while(startOffset < text.length()) {
+			char current = text.charAt(startOffset);
+			if(Character.isWhitespace(current)) {
+				startOffset++;
+				continue;
+			}
+			if(current != c) {
+				return null;
+			}
+			return startOffset;
+		}
+		return null;
+	}
+
+
 	public boolean isSameTag(String tagInLowerCase) {
 		return this.tag != null && tagInLowerCase != null && this.tag.length() == tagInLowerCase.length()
 				&& this.tag.toLowerCase().equals(tagInLowerCase);

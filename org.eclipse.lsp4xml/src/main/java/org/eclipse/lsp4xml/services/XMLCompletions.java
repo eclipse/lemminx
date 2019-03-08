@@ -29,6 +29,7 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
+import org.eclipse.lsp4xml.customservice.AutoCloseTagResponse;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMElement;
 import org.eclipse.lsp4xml.dom.DOMNode;
@@ -302,10 +303,28 @@ class XMLCompletions {
 		return (node.getParentNode() != null && node.getParentNode().isDoctype());
 	}
 
-	public String doTagComplete(DOMDocument xmlDocument, Position position) {
+	public boolean isBalanced(DOMNode node) {
+		if(node.isClosed() == false) {
+			return false;
+		}
+		String name = node.getNodeName();
+		DOMNode parent = node.getParentElement();
+		while(parent != null && name.equals(parent.getNodeName())) {
+			if(parent.isClosed() == false) {
+				return false;
+			}
+			parent = parent.getParentElement();
+		}
+		return true;
+	}
+
+	public AutoCloseTagResponse doTagComplete(DOMDocument xmlDocument, Position position) {
 		int offset;
 		try {
 			offset = xmlDocument.offsetAt(position);
+			if(offset - 2 < 0) { //There is not enough content for autoClose
+				return null;
+			}
 		} catch (BadLocationException e) {
 			LOGGER.log(Level.SEVERE, "doTagComplete failed", e);
 			return null;
@@ -314,37 +333,92 @@ class XMLCompletions {
 			return null;
 		}
 		char c = xmlDocument.getText().charAt(offset - 1);
-		if (c == '>') {
+		char cBefore = xmlDocument.getText().charAt(offset - 2);
+		String snippet = null;
+		if (c == '>') { // Case: <a>|
 			DOMNode node = xmlDocument.findNodeBefore(offset);
-			if (node != null && node.isElement() && ((DOMElement) node).getTagName() != null
-					&& !isEmptyElement(((DOMElement) node).getTagName()) && node.getStart() < offset
-					&& (!((DOMElement) node).hasEndTag() || ((DOMElement) node).getEndTagOpenOffset() > offset)) {
-				Scanner scanner = XMLScanner.createScanner(xmlDocument.getText(), node.getStart());
-				TokenType token = scanner.scan();
-				while (token != TokenType.EOS && scanner.getTokenEnd() <= offset) {
-					if (token == TokenType.StartTagClose && scanner.getTokenEnd() == offset) {
-						return "$0</" + ((DOMElement) node).getTagName() + ">";
-					}
-					token = scanner.scan();
-				}
+			DOMElement element = ((DOMElement) node);
+			if (node != null 
+					&& node.isElement() 
+					&& !element.isSelfClosed() 
+					&& element.getTagName() != null
+					&& !isEmptyElement(((DOMElement) node).getTagName()) 
+					&& node.getStart() < offset
+					&& (!element.hasEndTag() || 
+						(element.getTagName().equals(node.getParentNode().getNodeName()) && !isBalanced(node)))) {
+				snippet = "$0</" + ((DOMElement) node).getTagName() + ">";
+				
 			}
-		} else if (c == '/') {
+		} else if (cBefore == '<' && c == '/') { // Case: <a> </|
 			DOMNode node = xmlDocument.findNodeBefore(offset);
 			while (node != null && node.isClosed()) {
 				node = node.getParentNode();
 			}
 			if (node != null && node.isElement() && ((DOMElement) node).getTagName() != null) {
-				Scanner scanner = XMLScanner.createScanner(xmlDocument.getText(), node.getStart());
-				TokenType token = scanner.scan();
-				while (token != TokenType.EOS && scanner.getTokenEnd() <= offset) {
-					if (token == TokenType.EndTagOpen && scanner.getTokenEnd() == offset) {
-						return ((DOMElement) node).getTagName() + ">";
+				snippet = ((DOMElement) node).getTagName() + ">$0";
+			}
+		} else {
+			DOMNode node = xmlDocument.findNodeBefore(offset);
+			if(node.isElement() && node.getNodeName() != null) {
+				DOMElement element1 = (DOMElement) node;
+				Integer slashOffset = element1.endsWith('/', offset);
+				Position end = null;
+				if(slashOffset != null) { //The typed characted was '/'
+					Integer closeBracket = element1.isNextChar('>', offset); // After the slash is a close bracket
+					
+					// Case: <a/|
+					if(closeBracket == null) { // no '>' after slash
+						snippet = ">$0";
+						if(element1.hasEndTag()) { // Case: <a/| </a>
+							try {
+								end = xmlDocument.positionAt(element1.getEnd());
+							} catch (BadLocationException e) {
+								return null;
+							}
+						}
+					} 
+					else {
+						DOMNode nextSibling = node.getNextSibling();
+						if(nextSibling != null && nextSibling.isElement()){ // Case: <a/|></a>
+							DOMElement element2 = (DOMElement) nextSibling;
+							if(!element2.hasStartTag() && node.getNodeName().equals(element2.getNodeName())) {
+								try {
+									snippet = ">$0";
+									end = xmlDocument.positionAt(element2.getEnd());
+								} catch (BadLocationException e) {
+									return null;
+								}
+							}
+						}
+						else if(nextSibling == null) { // Case: <a> <a/|> </a> </a>
+							DOMElement parentElement = node.getParentElement();
+							if(parentElement != null && node.getNodeName().equals(parentElement.getTagName())) {
+								DOMNode nodeAfterParent = parentElement.getNextSibling();
+								if(nodeAfterParent != null && nodeAfterParent.isElement()) {
+									DOMElement elementAfterParent = (DOMElement) nodeAfterParent;
+									if(parentElement.getTagName().equals(elementAfterParent.getTagName())
+										 && !elementAfterParent.hasStartTag()) {
+										try {
+											snippet = ">$0";
+											end = xmlDocument.positionAt(parentElement.getEnd());
+										} catch (BadLocationException e) {
+											return null;
+										}	
+									}
+								}
+							}
+						}
 					}
-					token = scanner.scan();
+					if(snippet != null && end != null) {
+						return new AutoCloseTagResponse(snippet, new Range(position, end));
+					}
 				}
 			}
 		}
-		return null;
+		if(snippet == null) {
+			return null;
+		}
+		return new AutoCloseTagResponse(snippet);
 	}
 
 	// ---------------- Tags completion

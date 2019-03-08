@@ -42,6 +42,7 @@ import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
+import org.eclipse.lsp4xml.customservice.AutoCloseTagResponse;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMElement;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLValidationSettings;
@@ -188,11 +189,11 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		return codeActions.doCodeActions(context, range, document, formattingSettings);
 	}
 
-	public String doTagComplete(DOMDocument xmlDocument, Position position) {
+	public AutoCloseTagResponse doTagComplete(DOMDocument xmlDocument, Position position) {
 		return completions.doTagComplete(xmlDocument, position);
 	}
 
-	public String doAutoClose(DOMDocument xmlDocument, Position position) {
+	public AutoCloseTagResponse doAutoClose(DOMDocument xmlDocument, Position position) {
 		try {
 			int offset = xmlDocument.offsetAt(position);
 			String text = xmlDocument.getText();
