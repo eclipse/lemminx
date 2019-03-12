@@ -93,7 +93,7 @@ public enum XSDErrorCode implements IXMLErrorCode {
 			return XMLPositionUtility.selectAttributeValueAt(attrName, offset, document);
 		}
 		case s4s_elt_character:
-			return XMLPositionUtility.selectText(offset, document);
+			return XMLPositionUtility.selectContent(offset, document);
 		case src_resolve_4_2:
 		case src_resolve:
 			String attrValue = (String) arguments[2];

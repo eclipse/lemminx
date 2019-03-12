@@ -271,7 +271,7 @@ public class LSPMessageFormatter implements MessageFormatter {
 		}
 		element = "- " + (String) arguments[0];
 		return new Object[] { element, missingChildElements , schema };
-	}	
+	}
 
 	public static Object[] enumeration_valid_solution(Object[] arguments) {
 		return new Object[] { (String) arguments[0], reformatArrayElementNames((String)arguments[1])};

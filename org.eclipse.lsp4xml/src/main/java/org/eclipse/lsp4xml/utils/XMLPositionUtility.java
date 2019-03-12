@@ -309,13 +309,42 @@ public class XMLPositionUtility {
 	/**
 	 * Finds the offset of the first tag it comes across behind the given offset.
 	 * 
-	 * This includes the tag it starts in if offset is within a tag's content.
+	 * <p>This will include the tag it starts in if the offset is within a tag's content: </p>
+	 * <p>		
+	 * 		{@code  <a> <b> | </b> </a> } , will give {@code </b>} 
+	 * </p>
 	 * 
-	 * eg:
-	 *   <a> <b> | </b> </a> , will give 'b'
-	 *   <a> <b|>  </b> </a> , will give 'a'
+	 * or within an unclosed end tag:
+	 * 
+	 * <p>		
+	 * 		{@code  <a> <b>  </b> </a| <c>} , will give  {@code </a>} 
+	 * </p>
+	 * 
+	 * 
+	 * <p>		
+	 * 		{@code  <a> <b|>  </b> </a>} , will give  {@code </a>} 
+	 * </p>
+	 * 
 	 */
-	public static Range selectPreviousEndTag(int offset, DOMDocument document) {
+	public static Range selectPreviousNodesEndTag(int offset, DOMDocument document) {
+		
+		DOMNode node = null;
+		DOMNode nodeAt = document.findNodeAt(offset);
+		if(nodeAt != null && nodeAt.isElement()) {
+			node = nodeAt;
+		} else {
+			DOMNode nodeBefore = document.findNodeBefore(offset);
+			if(nodeBefore != null && nodeBefore.isElement()) {
+				node = nodeBefore;
+			}
+		}
+		if(node != null) {
+			DOMElement element = (DOMElement) node;
+			if(element.isClosed() && element.getEndTagCloseOffset() == null) {
+				return selectEndTag(element.getEnd(), document);
+			}
+		}
+		
 		// boolean firstBracket = false;
 		int i = offset;
 		char c = document.getText().charAt(i);
@@ -337,18 +366,15 @@ public class XMLPositionUtility {
 		}
 	}
 
-	public static Range selectText(int offset, DOMDocument document) {
+	public static Range selectContent(int offset, DOMDocument document) {
 		DOMNode node = document.findNodeAt(offset);
 		if (node != null) {
-			if (node.hasChildNodes()) {
-				// <root>BAD TEXT</root>
-				for (DOMNode child : node.getChildren()) {
-					if (child.isText()) {
-						return createRange(child.getStart(), child.getEnd(), document);
-					}
+			if (node.isElement()) {
+				DOMElement element = (DOMElement) node;
+				if(node.hasChildNodes()) {
+					return createRange(element.getStartTagCloseOffset() + 1, element.getEndTagOpenOffset(), document);
 				}
-			} else if (node.isElement()) {
-				// node has NONE text (ex: <root></root>, select the start tag
+				// node has NO content (ex: <root></root>, select the start tag
 				return selectStartTag(node);
 			}
 		}

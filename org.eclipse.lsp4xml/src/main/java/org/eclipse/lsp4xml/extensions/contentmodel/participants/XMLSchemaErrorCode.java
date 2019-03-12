@@ -46,8 +46,10 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 	cvc_datatype_valid_1_2_1("cvc-datatype-valid.1.2.1"), // https://wiki.xmldation.com/Support/Validator/cvc-datatype-valid-1-2-1
 	cvc_elt_1_a("cvc-elt.1.a"), // https://wiki.xmldation.com/Support/Validator/cvc-elt-1
 	cvc_elt_3_1("cvc-elt.3.1"), // https://wiki.xmldation.com/Support/Validator/cvc-elt-3-1
+	cvc_elt_3_2_1("cvc-elt.3.2.1"), //https://wiki.xmldation.com/Support/Validator/cvc-elt-3-2-1
 	cvc_elt_4_2("cvc-elt.4.2"), // https://wiki.xmldation.com/Support/Validator/cvc-elt-4-2
 	cvc_type_3_1_1("cvc-type.3.1.1"), // https://wiki.xmldation.com/Support/Validator/cvc-type-3-1-1
+	cvc_type_3_1_2("cvc-type.3.1.2"), // https://wiki.xmldation.com/Support/Validator/cvc-type-3-1-2
 	cvc_type_3_1_3("cvc-type.3.1.3"), // https://wiki.xmldation.com/Support/Validator/cvc-type-3-1-3,
 	cvc_attribute_3("cvc-attribute.3"), // https://wiki.xmldation.com/Support/Validator/cvc-attribute-3
 	cvc_enumeration_valid("cvc-enumeration-valid"), // https://wiki.xmldation.com/Support/Validator/cvc-enumeration-valid
@@ -148,7 +150,8 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 			return XMLPositionUtility.selectAllAttributes(offset, document);
 		case cvc_complex_type_2_1:
 		case cvc_type_3_1_3:
-			return XMLPositionUtility.selectText(offset, document);
+		case cvc_elt_3_2_1:
+			return XMLPositionUtility.selectContent(offset, document);
 		case cvc_enumeration_valid:
 		case cvc_datatype_valid_1_2_1:
 		case cvc_maxlength_valid:
@@ -165,9 +168,11 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 				return range;
 			} else {
 				// Try with text
-				return XMLPositionUtility.selectText(offset, document);
+				return XMLPositionUtility.selectContent(offset, document);
 			}
 		}
+		case cvc_type_3_1_2:
+			return XMLPositionUtility.selectStartTag(offset, document);
 		default:
 		}
 		return null;
