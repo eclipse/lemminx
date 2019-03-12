@@ -190,6 +190,25 @@ public class XMLSyntaxDiagnosticsTest {
 		testDiagnosticsFor(xml, d(0, 26, 0, 31, XMLSyntaxErrorCode.ETagUnterminated));
 	}
 
+	/**
+	 * Test ETagUnterminated
+	 * 
+	 * @see https://wiki.xmldation.com/Support/Validator/ETagUnterminated
+	 * @throws Exception
+	 */
+	@Test
+	public void testETagUnterminated2() throws Exception {
+		String xml = 
+				"<a>\r\n" + //
+				"  <b>\r\n" + //
+				"    <c></c>\r\n" + //
+				"  </b\r\n" + // <- error
+				"</a>";
+		testDiagnosticsFor(xml, d(3, 4, 3, 5, XMLSyntaxErrorCode.ETagUnterminated));
+	}
+
+
+
 	@Test
 	public void testIllegalQName() throws Exception {
 		String xml = "<a Ccy:\"JPY\">100</a>";

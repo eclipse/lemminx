@@ -19,7 +19,6 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.XMLSchemaErrorCode;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.ContentModelSettings;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -313,6 +312,43 @@ public class XMLSchemaDiagnosticsTest {
 				"</xs:schema>";
 		XMLAssert.testDiagnosticsFor(xml, d(7, 3, 7, 17, XMLSchemaErrorCode.cvc_elt_3_1));
 
+	}
+
+	@Test
+	public void cvc_type_3_2_1() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<invoice xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				" xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/invoice.xsd\">\r\n" + //
+				"  <date xsi:nil=\"true\">2017-11-30</date>\r\n" + // <- error
+				"  <number>0</number>\r\n" + //
+				"  <products>\r\n" + //
+				"  	<product price=\"1\" description=\"\"/>\r\n" + //
+				"  </products>\r\n" + //
+				"  <payments>\r\n" + //
+				"  	<payment amount=\"1\" method=\"credit\"/>\r\n" + //
+				"  </payments>\r\n" + //
+				"</invoice>";
+		testDiagnosticsFor(xml,	d(3, 23, 3, 33, XMLSchemaErrorCode.cvc_elt_3_2_1));
+	}
+
+	@Test
+	public void cvc_type_3_1_2() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<invoice xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				" xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/invoice.xsd\">\r\n" + //
+				"  <date>2017-11-30</date>\r\n" + // 
+				"  <number><a></a></number>\r\n" + //<- error
+				"  <products>\r\n" + //
+				"  	<product price=\"1\" description=\"\"/>\r\n" + //
+				"  </products>\r\n" + //
+				"  <payments>\r\n" + //
+				"  	<payment amount=\"1\" method=\"credit\"/>\r\n" + //
+				"  </payments>\r\n" + //
+				"</invoice>";
+		testDiagnosticsFor(xml,	
+					d(4, 3, 4, 9, XMLSchemaErrorCode.cvc_type_3_1_2),
+					d(4,10,4,17, XMLSchemaErrorCode.cvc_datatype_valid_1_2_1),
+					d(4,10,4,17, XMLSchemaErrorCode.cvc_type_3_1_3));
 	}
 
 	private static void testDiagnosticsFor(String xml, Diagnostic... expected) {
