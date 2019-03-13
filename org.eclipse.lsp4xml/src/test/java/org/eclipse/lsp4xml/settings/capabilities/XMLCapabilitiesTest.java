@@ -60,11 +60,9 @@ public class XMLCapabilitiesTest {
 
 	@Before
 	public void startup() {
-		XMLFormattingOptions formattingOptions = new XMLFormattingOptions(true);
-		formattingOptions.setEnabled(true);
 
 		textDocumentService = new XMLTextDocumentService(null);
-		textDocumentService.setSharedFormattingSettings(formattingOptions);
+		textDocumentService.getSharedSettings().formattingSettings.setEnabled(true);
 
 		textDocument = new TextDocumentClientCapabilities();
 		manager = new XMLCapabilityManager(languageClient, textDocumentService);

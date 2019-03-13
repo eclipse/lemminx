@@ -71,6 +71,7 @@ import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLValidationSetting
 import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.services.extensions.save.AbstractSaveContext;
+import org.eclipse.lsp4xml.settings.SharedSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 
 /**
@@ -82,10 +83,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	private final XMLLanguageServer xmlLanguageServer;
 	private final TextDocuments documents;
 	private final LanguageModelCache<DOMDocument> xmlDocuments;
-	private final CompletionSettings sharedCompletionSettings;
-	private final FoldingRangeCapabilities sharedFoldingsSettings;
-	private XMLFormattingOptions sharedFormattingSettings;
-	private XMLValidationSettings sharedValidationSettings;
+	private SharedSettings sharedSettings;
 
 	class BasicCancelChecker implements CancelChecker {
 
@@ -154,18 +152,15 @@ public class XMLTextDocumentService implements TextDocumentService {
 		this.xmlDocuments = new LanguageModelCache<DOMDocument>(10, 60, documents, document -> {
 			return parser.parse(document, getXMLLanguageService().getResolverExtensionManager());
 		});
-		this.sharedCompletionSettings = new CompletionSettings();
-		this.sharedFoldingsSettings = new FoldingRangeCapabilities();
-		this.sharedFormattingSettings = new XMLFormattingOptions(true); // to be sure that formattings options is not
-																		// null.
-		this.sharedValidationSettings = new XMLValidationSettings();	
+
+		this.sharedSettings = new SharedSettings();
 	}
 
 	public void updateClientCapabilities(ClientCapabilities capabilities) {
 		TextDocumentClientCapabilities textDocumentClientCapabilities = capabilities.getTextDocument();
 		if (textDocumentClientCapabilities != null) {
 			// Completion settings
-			sharedCompletionSettings.setCapabilities(textDocumentClientCapabilities.getCompletion());
+			sharedSettings.completionSettings.setCapabilities(textDocumentClientCapabilities.getCompletion());
 			codeActionLiteralSupport = textDocumentClientCapabilities.getCodeAction() != null
 					&& textDocumentClientCapabilities.getCodeAction().getCodeActionLiteralSupport() != null;
 			hierarchicalDocumentSymbolSupport = textDocumentClientCapabilities.getDocumentSymbol() != null
@@ -189,7 +184,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 			TextDocument document = getDocument(uri);
 			DOMDocument xmlDocument = getXMLDocument(document);
 			CompletionList list = getXMLLanguageService().doComplete(xmlDocument, params.getPosition(),
-					sharedCompletionSettings, getFormattingSettings(uri));
+					sharedSettings);
 			return Either.forRight(list);
 		});
 	}
@@ -206,7 +201,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	private XMLFormattingOptions getFormattingSettings(String uri) {
 		// TODO: manage formattings per document URI (to support .editorconfig for
 		// instance).
-		return sharedFormattingSettings;
+		return sharedSettings.formattingSettings;
 	}
 
 	@Override
@@ -299,7 +294,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	public CompletableFuture<List<FoldingRange>> foldingRange(FoldingRangeRequestParams params) {
 		return computeAsync((monitor) -> {
 			TextDocument document = getDocument(params.getTextDocument().getUri());
-			return getXMLLanguageService().getFoldingRanges(document, sharedFoldingsSettings);
+			return getXMLLanguageService().getFoldingRanges(document, sharedSettings.foldingSettings);
 		});
 	}
 
@@ -420,7 +415,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 			DOMDocument xmlDocument = getXMLDocument(currDocument);
 			getXMLLanguageService().publishDiagnostics(xmlDocument,
 					params -> xmlLanguageServer.getLanguageClient().publishDiagnostics(params),
-					(u, v) -> triggerValidation(u, v), monitor, sharedValidationSettings);
+					(u, v) -> triggerValidation(u, v), monitor, sharedSettings.validationSettings);
 		}
 	}
 
@@ -428,12 +423,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 		return xmlLanguageServer.getXMLLanguageService();
 	}
 
-	public void setSharedFormattingSettings(XMLFormattingOptions formattingOptions) {
-		this.sharedFormattingSettings = formattingOptions;
-	}
-
 	public void updateCompletionSettings(CompletionSettings newCompletion) {
-		sharedCompletionSettings.setAutoCloseTags(newCompletion.isAutoCloseTags());
+		sharedSettings.completionSettings.setAutoCloseTags(newCompletion.isAutoCloseTags());
 	}
 
 	public boolean isIncrementalSupport() {
@@ -441,22 +432,20 @@ public class XMLTextDocumentService implements TextDocumentService {
 	}
 
 	public XMLFormattingOptions getSharedFormattingSettings() {
-		return this.sharedFormattingSettings;
+		return sharedSettings.formattingSettings;
 	}
 
 	public void setIncrementalSupport(boolean incrementalSupport) {
 		this.documents.setIncremental(incrementalSupport);
 	}
 
-	public void setValidationSettings(XMLValidationSettings settings) {
-		this.sharedValidationSettings = settings;
+	public XMLValidationSettings getValidationSettings() {
+		
+		return sharedSettings.validationSettings;
 	}
 
-	public XMLValidationSettings getValidationSettings() {
-		if(sharedValidationSettings == null) {
-			sharedValidationSettings = new XMLValidationSettings();
-		}
-		return sharedValidationSettings;
+	public SharedSettings getSharedSettings() {
+		return this.sharedSettings;
 	}
 
 }

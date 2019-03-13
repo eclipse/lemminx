@@ -32,6 +32,11 @@ public class StringUtils {
 		return value == null || value.isEmpty();
 	}
 
+	// Utilities class.
+	public static boolean isQuote(char c) {
+		return c == '\'' || c == '"';
+	}
+
 	public static boolean isWhitespace(String value) {
 		if(value == null) {
 			return false;
