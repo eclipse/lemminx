@@ -128,13 +128,6 @@ public class XMLSyntaxDiagnosticsTest {
 		testDiagnosticsFor(xml, d(0, 20, 0, 22, XMLSyntaxErrorCode.EmptyPrefixedAttName));
 	}
 
-	@Ignore
-	@Test
-	public void testEncodingDeclRequired() throws Exception {
-		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" lang=\"en\" ?><a></a>";
-		testDiagnosticsFor(xml, d(0, 20, 0, 22, XMLSyntaxErrorCode.EncodingDeclRequired));
-	}
-
 	@Test
 	public void testEqRequiredInAttribute() throws Exception {
 		String xml = "<a Ccy>123.456</a>";
@@ -143,11 +136,10 @@ public class XMLSyntaxDiagnosticsTest {
 		testCodeActionsFor(xml, d, ca(d, te(0, 6, 0, 6, "=\"\"")));
 	}
 
-	@Ignore("This test works on OS Windows but fails in travis, why? ")
 	@Test
 	public void testEqRequiredInXMLDecl() throws Exception {
 		String xml = "<?xml version:\"1.0\" encoding=\"UTF-8\"?><a></a>";
-		testDiagnosticsFor(xml, d(0, 14, 0, 14, XMLSyntaxErrorCode.EqRequiredInXMLDecl));
+		testDiagnosticsFor(xml, d(0, 6, 0, 14, XMLSyntaxErrorCode.EqRequiredInXMLDecl));
 	}
 
 	/**
@@ -157,24 +149,20 @@ public class XMLSyntaxDiagnosticsTest {
 	 *      Exception
 	 */
 	@Test
-	@Ignore
 	public void testETagRequired() throws Exception {
 		String xml = "<UltmtDbtr>\r\n" + //
 				"  		<Nm>Name\r\n" + //
 				"		</UltmtDbtr> \r\n" + //
 				"			</Nm>  ";
-		testDiagnosticsFor(xml, d(1, 5, 1, 7, XMLSyntaxErrorCode.ETagRequired),
-				d(2, 4, 2, 13, XMLSyntaxErrorCode.ETagRequired));
+		testDiagnosticsFor(xml, d(1, 5, 1, 7, XMLSyntaxErrorCode.ETagRequired));
 	}
 
 	@Test
-	@Ignore // Nm is not created properly
 	public void testETagRequired2() throws Exception {
 		String xml = "<UltmtDbtr>\r\n" + //
 				"  		Nm>Name</Nm>\r\n" + //
 				"		</UltmtDbtr>";
-		testDiagnosticsFor(xml, d(0, 1, 0, 10, XMLSyntaxErrorCode.ETagRequired),
-				d(2, 4, 2, 13, XMLSyntaxErrorCode.ETagRequired));
+		testDiagnosticsFor(xml, d(1, 13, 1, 15, XMLSyntaxErrorCode.ETagRequired));
 	}
 
 	/**
@@ -312,17 +300,6 @@ public class XMLSyntaxDiagnosticsTest {
 		testDiagnosticsFor(xml, d(2, 7, 2, 10, XMLSyntaxErrorCode.OpenQuoteExpected));
 	}
 
-	/**
-	 * @see https://wiki.xmldation.com/Support/Validator/the-element-type-lmsg
-	 * @throws Exception
-	 */
-	@Ignore
-	@Test
-	public void testTheElementTypeLmsg() throws Exception {
-		String xml = "<Issr>ADE</Lssr>";
-		testDiagnosticsFor(xml, d(0, 20, 0, 22, XMLSyntaxErrorCode.the_element_type_lmsg));
-	}
-
 	@Test
 	public void testVersionInfoRequired() throws Exception {
 		String xml = "<?xml encoding=\"UTF-8\"?>";
@@ -334,12 +311,4 @@ public class XMLSyntaxDiagnosticsTest {
 		String xml = "<?xml version=\"5000.0\"encoding=\"UTF-8\"?>";
 		testDiagnosticsFor(xml, d(0, 14, 0, 22, XMLSyntaxErrorCode.VersionNotSupported));
 	}
-
-	@Ignore
-	@Test
-	public void testXMLDeclUnterminated() throws Exception {
-		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?";
-		testDiagnosticsFor(xml, d(0, 37, 0, 37, XMLSyntaxErrorCode.XMLDeclUnterminated));
-	}
-
 }

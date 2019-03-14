@@ -182,6 +182,10 @@ public class XMLPositionUtility {
 			if (child != null) {
 				return createRange(child.getStart() + 1, child.getStart() + 1 + childTag.length(), document);
 			}
+			if(parent.isElement()) {
+				String parentName = ((DOMElement) parent).getTagName();
+				return createRange(parent.getStart() + 2, parent.getStart() + 2 + parentName.length(), document);
+			}
 		}
 		return null;
 	}
