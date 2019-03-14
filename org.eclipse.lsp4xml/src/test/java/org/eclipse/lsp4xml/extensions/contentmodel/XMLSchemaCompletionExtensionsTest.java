@@ -96,7 +96,6 @@ public class XMLSchemaCompletionExtensionsTest {
 	}
 
 	@Test
-	@Ignore
 	public void completionInChildElementNoOpenBracket() throws BadLocationException {
 		String xml = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + //
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //

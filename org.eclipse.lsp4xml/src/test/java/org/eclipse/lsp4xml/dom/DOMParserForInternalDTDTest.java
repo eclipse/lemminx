@@ -333,33 +333,6 @@ public class DOMParserForInternalDTDTest {
 		Assert.assertTrue(actual.getChild(1).isElement());
 	}
 
-	//This will fail because the Attribute name regex in Constants.java considers the ']' after 'a' a valid attribute name
-	@Ignore
-	@Test
-	public void attListDeclWithNameNotClosed() {
-		String xml = "<!DOCTYPE foo [<!ATTLIST a]><foo/>";
-
-		DOMDocument actual = createDOMDocument(xml);
-		Assert.assertEquals(2, actual.getChildren().size());
-		Assert.assertTrue(actual.getChild(0).isDoctype());
-		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
-		Assert.assertEquals(0, documentType.getStart());
-		Assert.assertEquals(28, documentType.getEnd());
-		Assert.assertEquals("foo", documentType.getName());
-		Assert.assertTrue(documentType.isClosed());
-
-		// <!ATTLIST
-		Assert.assertEquals(1, documentType.getChildren().size());
-		Assert.assertTrue(documentType.getChild(0).isDTDAttListDecl());
-		DTDAttlistDecl attListDecl = (DTDAttlistDecl) documentType.getChild(0);
-		Assert.assertEquals(15, attListDecl.getStart());
-		Assert.assertEquals(25, attListDecl.getEnd());
-		Assert.assertFalse(attListDecl.isClosed());
-
-		// <foo />element
-		Assert.assertTrue(actual.getChild(1).isElement());
-	}
-
 	@Test
 	public void attListDeclClosed() {
 		String xml = "<!DOCTYPE foo [<!ATTLIST >]><foo/>";
