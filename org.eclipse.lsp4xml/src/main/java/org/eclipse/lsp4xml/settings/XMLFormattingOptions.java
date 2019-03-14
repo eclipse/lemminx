@@ -203,7 +203,9 @@ public class XMLFormattingOptions extends FormattingOptions {
 	/**
 	 * Returns the actual quotation value as a String.
 	 * 
-	 * Either a {@code '} or {@code "}
+	 * Either a {@code '} or {@code "}.
+	 * 
+	 * Defaults to {@code "}.
 	 */
 	public String getQuotationAsString() {
 		return XMLFormattingOptions.DOUBLE_QUOTES_VALUE.equals(getQuotations()) ? "\"" : "\'";

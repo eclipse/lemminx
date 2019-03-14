@@ -32,7 +32,7 @@ public class CompletionParticipantAdapter implements ICompletionParticipant {
 
 	@Override
 	public void onAttributeName(boolean generateValue, Range fullRange, ICompletionRequest request,
-			ICompletionResponse response) throws Exception {
+			ICompletionResponse response, SharedSettings settings) throws Exception {
 		// Do nothing
 	}
 
