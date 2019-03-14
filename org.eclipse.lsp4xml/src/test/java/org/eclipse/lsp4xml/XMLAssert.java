@@ -117,10 +117,17 @@ public class XMLAssert {
 	public static void testCompletionFor(XMLLanguageService xmlLanguageService, String value, String catalogPath,
 			Consumer<XMLLanguageService> customConfiguration, String fileURI, Integer expectedCount,
 			CompletionSettings completionSettings, CompletionItem... expectedItems) throws BadLocationException {
+		testCompletionFor(xmlLanguageService, value, catalogPath, customConfiguration, fileURI, expectedCount, completionSettings, new XMLFormattingOptions(4, true), expectedItems);
+	}
+
+	public static void testCompletionFor(XMLLanguageService xmlLanguageService, String value, String catalogPath,
+			Consumer<XMLLanguageService> customConfiguration, String fileURI, Integer expectedCount,
+			CompletionSettings completionSettings, XMLFormattingOptions formattingSettings, CompletionItem... expectedItems)
+			throws BadLocationException {
 		int offset = value.indexOf('|');
 		value = value.substring(0, offset) + value.substring(offset + 1);
 
-		TextDocument document = new TextDocument(value, fileURI != null ? fileURI : "test://test/test.html");
+		TextDocument document = new TextDocument(value, fileURI != null ? fileURI : "test://test/test.xml");
 		Position position = document.positionAt(offset);
 		DOMDocument htmlDoc = DOMParser.getInstance().parse(document, xmlLanguageService.getResolverExtensionManager());
 		xmlLanguageService.setDocumentProvider((uri) -> htmlDoc);
@@ -139,7 +146,7 @@ public class XMLAssert {
 		}
 
 		SharedSettings sharedSettings = new SharedSettings();
-		sharedSettings.setFormattingSettings(new XMLFormattingOptions(4, false));
+		sharedSettings.setFormattingSettings(formattingSettings);
 		sharedSettings.setCompletionSettings(completionSettings);
 
 		CompletionList list = xmlLanguageService.doComplete(htmlDoc, position, sharedSettings);

@@ -14,6 +14,7 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.services.extensions.CompletionParticipantAdapter;
 import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
+import org.eclipse.lsp4xml.settings.SharedSettings;
 
 /**
  * XSD completion for xs:
@@ -23,7 +24,7 @@ public class XSDCompletionParticipant extends CompletionParticipantAdapter {
 
 	@Override
 	public void onAttributeName(boolean generateValue, Range fullRange, ICompletionRequest request,
-			ICompletionResponse response) throws Exception {
+			ICompletionResponse response, SharedSettings settings) throws Exception {
 		// TODO: manage compeltion for types declared in XML Schema xsd
 	}
 }

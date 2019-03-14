@@ -18,6 +18,7 @@ import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4xml.extensions.contentmodel.utils.XMLGenerator;
+import org.eclipse.lsp4xml.settings.SharedSettings;
 
 public class AttributeCompletionItem extends CompletionItem {
 
@@ -34,7 +35,7 @@ public class AttributeCompletionItem extends CompletionItem {
 	 * @param enumerationValues  the enumeration values of attribute.
 	 */
 	public AttributeCompletionItem(String attrName, boolean canSupportSnippets, Range fullRange, boolean generateValue,
-			String defaultValue, Collection<String> enumerationValues) {
+			String defaultValue, Collection<String> enumerationValues, SharedSettings settings) {
 		super.setLabel(attrName);
 		super.setKind(CompletionItemKind.Unit);
 		super.setFilterText(attrName);
@@ -42,7 +43,7 @@ public class AttributeCompletionItem extends CompletionItem {
 		if (generateValue) {
 			// Generate attribute value content
 			String attributeValue = XMLGenerator.generateAttributeValue(defaultValue, enumerationValues,
-					canSupportSnippets, 1, true);
+					canSupportSnippets, 1, true, settings);
 			attributeContent.append(attributeValue);
 		}
 		super.setTextEdit(new TextEdit(fullRange, attributeContent.toString()));

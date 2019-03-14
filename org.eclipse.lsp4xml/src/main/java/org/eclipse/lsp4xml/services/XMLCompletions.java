@@ -107,7 +107,7 @@ class XMLCompletions {
 			case AttributeName:
 				if (scanner.getTokenOffset() <= offset && offset <= scanner.getTokenEnd()) {
 					collectAttributeNameSuggestions(scanner.getTokenOffset(), scanner.getTokenEnd(), completionRequest,
-							completionResponse);
+							completionResponse, settings);
 					return completionResponse;
 				}
 				completionRequest.setCurrentAttributeName(scanner.getTokenText());
@@ -136,7 +136,7 @@ class XMLCompletions {
 						return completionResponse;
 					case WithinTag:
 					case AfterAttributeName:
-						collectAttributeNameSuggestions(scanner.getTokenEnd(), completionRequest, completionResponse);
+						collectAttributeNameSuggestions(scanner.getTokenEnd(), completionRequest, completionResponse, settings);
 						return completionResponse;
 					case BeforeAttributeValue:
 						collectAttributeValueSuggestions(scanner.getTokenEnd(), offset, completionRequest,
@@ -694,13 +694,13 @@ class XMLCompletions {
 	}
 
 	private void collectAttributeNameSuggestions(int nameStart, CompletionRequest completionRequest,
-			CompletionResponse completionResponse) {
+			CompletionResponse completionResponse, SharedSettings settings) {
 		collectAttributeNameSuggestions(nameStart, completionRequest.getOffset(), completionRequest,
-				completionResponse);
+				completionResponse, settings);
 	}
 
 	private void collectAttributeNameSuggestions(int nameStart, int nameEnd, CompletionRequest completionRequest,
-			CompletionResponse completionResponse) {
+			CompletionResponse completionResponse, SharedSettings settings) {
 		int replaceEnd = completionRequest.getOffset();
 		String text = completionRequest.getXMLDocument().getText();
 		while (replaceEnd < nameEnd && text.charAt(replaceEnd) != '<') { // < is a valid attribute name character, but
@@ -713,7 +713,7 @@ class XMLCompletions {
 			boolean generateValue = !isFollowedBy(text, nameEnd, ScannerState.AfterAttributeName,
 					TokenType.DelimiterAssign);
 			for (ICompletionParticipant participant : getCompletionParticipants()) {
-				participant.onAttributeName(generateValue, range, completionRequest, completionResponse);
+				participant.onAttributeName(generateValue, range, completionRequest, completionResponse, settings);
 			}
 		} catch (BadLocationException e) {
 			LOGGER.log(Level.SEVERE, "While performing Completions, getReplaceRange() was given a bad Offset location",

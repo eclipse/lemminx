@@ -16,18 +16,14 @@ import java.util.Collection;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.Hover;
-import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.MarkupKind;
-import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.dom.DOMAttr;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMElement;
-import org.eclipse.lsp4xml.dom.DOMNode;
-import org.eclipse.lsp4xml.extensions.contentmodel.utils.XMLGenerator;
 import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
 import org.eclipse.lsp4xml.services.extensions.IHoverRequest;
@@ -64,8 +60,10 @@ public class XSISchemaModel {
 				"  <!-- ... -->  " + lineSeparator +
 				"</root>  " + lineSeparator +
 				"```" ;
+	public static final String XSI_WEBSITE = "http://www.w3.org/2001/XMLSchema-instance";
+	public static final String XSI_DOC = "The namespace that defines important attributes such as `noNamespaceSchemaLocation` and `schemaLocation`.";
 	public static void computeCompletionResponses(ICompletionRequest request, 
-			ICompletionResponse response, Range editRange, DOMDocument document, boolean generateValue) throws BadLocationException {
+			ICompletionResponse response, Range editRange, DOMDocument document, boolean generateValue, SharedSettings settings) throws BadLocationException {
 		
 		DOMElement rootElement = document.getDocumentElement();
 		int offset = document.offsetAt(editRange.getStart());
@@ -74,9 +72,23 @@ public class XSISchemaModel {
 		if(rootElement.equals(nodeAtOffset)) {
 			inRootElement = true;
 		}
-		
+
 		boolean isSnippetsSupported = request.getCompletionSettings().isCompletionSnippetsSupported();
+		if(inRootElement) {
+			if(!hasAttribute(nodeAtOffset, "xmlns") && !response.hasAttribute("xmlns")) { // "xmlns" completion
+				createCompletionItem("xmlns", isSnippetsSupported, generateValue, editRange, null, null, null, response, settings);
+			}
+			if(document.hasSchemaInstancePrefix() == false) { // "xmlns:xsi" completion
+				createCompletionItem("xmlns:xsi", isSnippetsSupported, generateValue, editRange, XSI_WEBSITE, null, XSI_DOC, response, settings);
+				return;// All the following completion cases dont exist, so return.
+			}
+		}
+		
 		String actualPrefix = document.getSchemaInstancePrefix();
+		if(actualPrefix == null) {
+			return;
+		}
+		
 		String name;
 		String documentation;
 		
@@ -87,7 +99,7 @@ public class XSISchemaModel {
 			documentation = NIL_DOC;
 			name = actualPrefix + ":nil";
 			createCompletionItem(name, isSnippetsSupported, generateValue, editRange, StringUtils.TRUE, 
-				StringUtils.TRUE_FALSE_ARRAY, documentation, response);
+				StringUtils.TRUE_FALSE_ARRAY, documentation, response, settings);
 		}
 		//Signals that an element should be accepted as ·valid· when it has no content despite 
 		//a content type which does not require or even necessarily allow empty content. 
@@ -96,26 +108,29 @@ public class XSISchemaModel {
 		if(!hasAttribute(nodeAtOffset, actualPrefix, "type")) {
 			documentation = TYPE_DOC;
 			name = actualPrefix + ":type";
-			createCompletionItem(name, isSnippetsSupported, generateValue, editRange, null, null, documentation, response);	
+			createCompletionItem(name, isSnippetsSupported, generateValue, editRange, null, null, documentation, response, settings);	
 		}
-		//The xsi:schemaLocation and xsi:noNamespaceSchemaLocation attributes can be used in a document 
-		//to provide hints as to the physical location of schema documents which may be used for ·assessment·.
-		if(inRootElement && !schemaLocationExists && !noNamespaceSchemaLocationExists) {
-			documentation = SCHEMA_LOCATION_DOC;
-			name = actualPrefix + ":schemaLocation";
-			createCompletionItem(name, isSnippetsSupported, generateValue, editRange, null, null, documentation, response);	
-			
-			documentation = NO_NAMESPACE_SCHEMA_LOCATION_DOC;
-			name = actualPrefix + ":noNamespaceSchemaLocation";
-			createCompletionItem(name, isSnippetsSupported, generateValue, editRange, null, null, documentation, response);		
+		
+		if(inRootElement) {
+			if(!schemaLocationExists && !noNamespaceSchemaLocationExists) {
+				//The xsi:schemaLocation and xsi:noNamespaceSchemaLocation attributes can be used in a document 
+				//to provide hints as to the physical location of schema documents which may be used for ·assessment·.
+				documentation = SCHEMA_LOCATION_DOC;
+				name = actualPrefix + ":schemaLocation";
+				createCompletionItem(name, isSnippetsSupported, generateValue, editRange, null, null, documentation, response, settings);	
+				
+				documentation = NO_NAMESPACE_SCHEMA_LOCATION_DOC;
+				name = actualPrefix + ":noNamespaceSchemaLocation";
+				createCompletionItem(name, isSnippetsSupported, generateValue, editRange, null, null, documentation, response, settings);	
+			}	
 		}
 	}
 
 	private static void createCompletionItem(String attrName, boolean canSupportSnippet, boolean generateValue,
 			Range editRange, String defaultValue, Collection<String> enumerationValues, String documentation,
-			ICompletionResponse response) {
+			ICompletionResponse response, SharedSettings settings){
 		CompletionItem item = new AttributeCompletionItem(attrName, canSupportSnippet, editRange, generateValue,
-				defaultValue, enumerationValues);
+				defaultValue, enumerationValues, settings);
 		MarkupContent markup = new MarkupContent();
 		markup.setKind(MarkupKind.MARKDOWN);
 		markup.setValue(documentation);
@@ -129,12 +144,21 @@ public class XSISchemaModel {
 		int offset = document.offsetAt(editRange.getStart());
 		DOMElement nodeAtOffset = (DOMElement) document.findNodeAt(offset);
 		
-		String actualPrefix = document.getSchemaInstancePrefix();
 		
-		// Value completion for 'nil' attribute
-		DOMAttr nilAttr = nodeAtOffset.getAttributeNode(actualPrefix, "nil");
-		if(nilAttr != null) {
-			createCompletionItemsForValues(StringUtils.TRUE_FALSE_ARRAY, editRange, document, response, settings);
+		String actualPrefix = document.getSchemaInstancePrefix();
+		DOMAttr attrAtOffset = nodeAtOffset.findAttrAt(offset);
+		String attrName = attrAtOffset.getName();
+		
+		if(attrName != null) {
+			if(actualPrefix != null && attrName.equals(actualPrefix + ":nil")) { // Value completion for 'nil' attribute
+				createCompletionItemsForValues(StringUtils.TRUE_FALSE_ARRAY, editRange, document, response, settings);
+			}
+			else if(document.getDocumentElement().equals(nodeAtOffset)) { // if in the root element
+				if(attrName.equals("xmlns:xsi")) {
+					createSingleCompletionItemForValue(XSI_WEBSITE, editRange, document, response, settings);
+				}
+			}
+			
 		}
 	}
 
@@ -176,6 +200,10 @@ public class XSISchemaModel {
 	private static boolean hasAttribute(DOMElement root, String prefix, String suffix) {
 		return root.getAttributeNode(prefix, suffix) != null;
 		
+	}
+
+	private static boolean hasAttribute(DOMElement root, String name) {
+		return hasAttribute(root, null, name);
 	}
 
 	public static Hover computeHoverResponse(DOMAttr attribute, IHoverRequest request) {

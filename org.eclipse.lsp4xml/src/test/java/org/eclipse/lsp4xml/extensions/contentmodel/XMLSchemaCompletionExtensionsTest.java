@@ -345,12 +345,13 @@ public class XMLSchemaCompletionExtensionsTest {
 				+ "            <xs:attribute name=\"variant\" type=\"xs:string\" use=\"required\"/>\r\n"
 				+ "        </xs:complexType>\r\n" + "    </xs:element>\r\n" + "</xs:schema>";
 		Files.write(Paths.get("target/xsd/resources.xsd"), schema.getBytes());
-		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null, "target/resources.xml", 3, false,
+		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null, "target/resources.xml", 4, false,
 				c("variant", "variant=\"\""));
 
 		// Update resources.xsd, Schema doesn't define variant attribute -> no
 		// completion
-		schema = "<?xml version=\"1.0\"?>\r\n" + "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\r\n"
+		schema = "<?xml version=\"1.0\"?>\r\n" 
+				+ "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\r\n"
 				+ "\r\n" + "    <xs:complexType name=\"property\">\r\n"
 				+ "        <xs:attribute name=\"name\" type=\"xs:string\" />\r\n"
 				+ "        <xs:attribute name=\"value\" type=\"xs:string\" />\r\n" + "    </xs:complexType>\r\n"
@@ -365,7 +366,7 @@ public class XMLSchemaCompletionExtensionsTest {
 				// + " <xs:attribute name=\"variant\" type=\"xs:string\" use=\"required\"/>\r\n"
 				+ "        </xs:complexType>\r\n" + "    </xs:element>\r\n" + "</xs:schema>";
 		Files.write(Paths.get("target/xsd/resources.xsd"), schema.getBytes());
-		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null, "target/resources.xml", 2, false);
+		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null, "target/resources.xml", 3, false);
 
 	}
 
@@ -451,7 +452,7 @@ public class XMLSchemaCompletionExtensionsTest {
 	}
 
 	@Test
-	public void xsiCompletionDoesntAppearSinceDoesntExist() throws BadLocationException {
+	public void xmlnsXSICompletion() throws BadLocationException {
 		String xml = 
 		"<project\r\n" +
 		"    xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" +
@@ -459,7 +460,19 @@ public class XMLSchemaCompletionExtensionsTest {
 		"  <modelVersion></modelVersion>\r\n" +
 		"</project>";
 
-		XMLAssert.testCompletionFor(xml, 0);
+		XMLAssert.testCompletionFor(xml, 1, c("xmlns:xsi", "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""));
+	}
+
+	@Test
+	public void xmlnsXSIValueCompletion() throws BadLocationException {
+		String xml = 
+		"<project\r\n" +
+		"    xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" +
+		"    xmlns:xsi=|>\r\n" +
+		"  <modelVersion></modelVersion>\r\n" +
+		"</project>";
+
+		XMLAssert.testCompletionFor(xml, 1, c("http://www.w3.org/2001/XMLSchema-instance", "\"http://www.w3.org/2001/XMLSchema-instance\""));
 	}
 
 	@Test

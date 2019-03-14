@@ -115,7 +115,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 
 	@Override
 	public void onAttributeName(boolean generateValue, Range fullRange, ICompletionRequest request,
-			ICompletionResponse response) throws Exception {
+			ICompletionResponse response, SharedSettings settings) throws Exception {
 		// otherwise, manage completion based on XML Schema, DTD.
 		DOMElement parentElement = request.getNode().isElement() ? (DOMElement) request.getNode() : null;
 		if (parentElement == null) {
@@ -127,11 +127,11 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			// Completion on attribute based on external grammar
 			CMElementDeclaration cmElement = contentModelManager.findCMElement(parentElement);
 			fillAttributesWithCMAttributeDeclarations(parentElement, fullRange, cmElement, canSupportSnippet,
-					generateValue, response);
+					generateValue, response, settings);
 			// Completion on attribute based on internal grammar
 			cmElement = contentModelManager.findInternalCMElement(parentElement);
 			fillAttributesWithCMAttributeDeclarations(parentElement, fullRange, cmElement, canSupportSnippet,
-					generateValue, response);
+					generateValue, response, settings);
 		} catch (CacheResourceDownloadingException e) {
 			// XML Schema, DTD is loading, ignore this error
 		}
@@ -139,7 +139,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 
 	private void fillAttributesWithCMAttributeDeclarations(DOMElement parentElement, Range fullRange,
 			CMElementDeclaration cmElement, boolean canSupportSnippet, boolean generateValue,
-			ICompletionResponse response) {
+			ICompletionResponse response, SharedSettings settings) {
 		if (cmElement == null) {
 			return;
 		}
@@ -151,7 +151,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			String attrName = cmAttribute.getName();
 			if (!parentElement.hasAttribute(attrName)) {
 				CompletionItem item = new AttributeCompletionItem(attrName, canSupportSnippet, fullRange, generateValue,
-						cmAttribute.getDefaultValue(), cmAttribute.getEnumerationValues());
+						cmAttribute.getDefaultValue(), cmAttribute.getEnumerationValues(), settings);
 				String documentation = cmAttribute.getDocumentation();
 				if (documentation != null) {
 					item.setDetail(documentation);

@@ -17,6 +17,7 @@ import java.util.List;
 import org.eclipse.lsp4xml.commons.SnippetsBuilder;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMElementDeclaration;
+import org.eclipse.lsp4xml.settings.SharedSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.utils.XMLBuilder;
 
@@ -170,9 +171,23 @@ public class XMLGenerator {
 	 */
 	public static String generateAttributeValue(String defaultValue, Collection<String> enumerationValues,
 			boolean canSupportSnippets, int snippetIndex, boolean withQuote) {
+		return generateAttributeValue(defaultValue, enumerationValues, canSupportSnippets, snippetIndex, withQuote, null);
+	}
+
+	/**
+	 * Creates the string value for a CompletionItem TextEdit
+	 * 
+	 * Can create an enumerated TextEdit if given a collection of values.
+	 */
+	public static String generateAttributeValue(String defaultValue, Collection<String> enumerationValues,
+			boolean canSupportSnippets, int snippetIndex, boolean withQuote, SharedSettings settings) {
 		StringBuilder value = new StringBuilder();
+		String quotation = "\"";
 		if (withQuote) {
-			value.append("=\"");
+			if(settings != null) {
+				quotation = settings.formattingSettings.getQuotationAsString();
+			} 
+			value.append("=" + quotation);
 		}
 		if (!canSupportSnippets) {
 			if (defaultValue != null) {
@@ -191,7 +206,7 @@ public class XMLGenerator {
 			}
 		}
 		if (withQuote) {
-			value.append("\"");
+			value.append(quotation);
 			if (canSupportSnippets) {
 				SnippetsBuilder.tabstops(0, value); // "$0"
 			}

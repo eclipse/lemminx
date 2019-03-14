@@ -16,6 +16,10 @@ import static org.eclipse.lsp4xml.XMLAssert.te;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.commons.BadLocationException;
+import org.eclipse.lsp4xml.services.XMLLanguageService;
+import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
+import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -23,6 +27,16 @@ import org.junit.Test;
  *
  */
 public class XSICompletionExtensionsTest {
+	
+	public static XMLFormattingOptions formattingSettingsSingleQuotes = new XMLFormattingOptions(true);
+	
+	@BeforeClass
+	public static void runOnceBeforeClass() {
+		formattingSettingsSingleQuotes.setQuotations(XMLFormattingOptions.SINGLE_QUOTES_VALUE);
+	}
+
+	
+	
 
 	@Test
 	public void completion() throws BadLocationException {
@@ -30,8 +44,8 @@ public class XSICompletionExtensionsTest {
 		String xml = "<?xml version=\"1.0\"?>\r\n" + //
 				"<project xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=|>";
 		testCompletionFor(xml,
-				c("true", te(1, 71, 1, 71, "\"true\""), "\"true\""), // <-- coming from substition group of xsl:declaration
-				c("false", te(1, 71, 1, 71, "\"false\""), "\"false\"")); // coming from stylesheet children
+				c("true", te(1, 71, 1, 71, "\"true\""), "\"true\""), 
+				c("false", te(1, 71, 1, 71, "\"false\""), "\"false\"")); 
 	}
 
 	@Test
@@ -40,8 +54,8 @@ public class XSICompletionExtensionsTest {
 		String xml = "<?xml version=\"1.0\"?>\r\n" + //
 				"<project xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"|\">";
 		testCompletionFor(xml,
-				c("true", te(1, 71, 1, 73, "\"true\""), "\"true\""), // <-- coming from substition group of xsl:declaration
-				c("false", te(1, 71, 1, 73, "\"false\""), "\"false\"")); // coming from stylesheet children
+				c("true", te(1, 71, 1, 73, "\"true\""), "\"true\""), 
+				c("false", te(1, 71, 1, 73, "\"false\""), "\"false\"")); 
 	}
 
 	@Test
@@ -51,11 +65,95 @@ public class XSICompletionExtensionsTest {
 				"<project xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" >\r\n" +
 				"  <a xsi:nil=|> </a> ";
 		testCompletionFor(xml,
-				c("true", te(2, 13, 2, 13, "\"true\""), "\"true\""), // <-- coming from substition group of xsl:declaration
-				c("false", te(2, 13, 2, 13, "\"false\""), "\"false\"")); // coming from stylesheet children
+				c("true", te(2, 13, 2, 13, "\"true\""), "\"true\""), 
+				c("false", te(2, 13, 2, 13, "\"false\""), "\"false\"")); 
+	}
+
+	@Test
+	public void completion3NNamespace() throws BadLocationException {
+		// completion on |
+		String xml = "<?xml version=\"1.0\"?>\r\n" + //
+				"<project >\r\n" +
+				"  <a xsi:nil=|> </a> ";
+		testCompletionFor(xml); 
+	}
+
+	@Test
+	public void completion4() throws BadLocationException {
+		// completion on |
+		String xml = "<?xml version=\"1.0\"?>\r\n" + //
+				"<project xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" >\r\n" +
+				"  <a xsi:nil=|> </a> ";
+				
+		testCompletionFor(xml, formattingSettingsSingleQuotes,
+				c("true", te(2, 13, 2, 13, "\'true\'"), "\'true\'"), 
+				c("false", te(2, 13, 2, 13, "\'false\'"), "\'false\'")); 
+	}
+
+	@Test
+	public void completionXMLNSXSIValue() throws BadLocationException {
+		// completion on |
+		String xml = "<?xml version=\"1.0\"?>\r\n" + //
+				"<project xmlns:xsi=| >\r\n" +
+				"  <a> </a> \r\n"+
+				"</project>";
+		testCompletionFor(xml,
+				c("http://www.w3.org/2001/XMLSchema-instance", te(1, 19, 1, 19, "\"http://www.w3.org/2001/XMLSchema-instance\""), "\"http://www.w3.org/2001/XMLSchema-instance\"")
+				); // coming from stylesheet children
+	}
+
+	@Test
+	public void completionXMLNSXSIValueSingleQuotes() throws BadLocationException {
+		// completion on |
+		String xml = "<?xml version=\"1.0\"?>\r\n" + //
+				"<project xmlns:xsi=| >\r\n" +
+				"  <a> </a> \r\n"+
+				"</project>";
+		testCompletionFor(xml, formattingSettingsSingleQuotes,
+				c("http://www.w3.org/2001/XMLSchema-instance", te(1, 19, 1, 19, "\'http://www.w3.org/2001/XMLSchema-instance\'"), "\'http://www.w3.org/2001/XMLSchema-instance\'")
+				); // coming from stylesheet children
+	}
+
+	@Test
+	public void completionXMLNSXSIWhole() throws BadLocationException {
+		// completion on |
+		String xml = "<?xml version=\"1.0\"?>\r\n" + //
+				"<project xmlns:x| >\r\n" +
+				"  <a> </a> \r\n"+
+				"</project>";
+		testCompletionFor(xml,
+				c("xmlns:xsi", te(1, 9, 1, 16, "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""), "xmlns:xsi")
+				); // coming from stylesheet children
+	}
+
+	@Test
+	public void completionXMLNS() throws BadLocationException {
+		// completion on |
+		String xml = "<?xml version=\"1.0\"?>\r\n" + //
+				"<project x| >\r\n" +
+				"  <a> </a> \r\n"+
+				"</project>";
+		testCompletionFor(xml,
+				c("xmlns", te(1, 9, 1, 10, "xmlns=\"\""), "xmlns")
+				); // coming from stylesheet children
+	}
+
+	@Test
+	public void completionXMLNSOnlyInRoot() throws BadLocationException {
+		// completion on |
+		String xml = "<?xml version=\"1.0\"?>\r\n" + //
+				"<project>\r\n" +
+				"  <a x|> </a> \r\n"+
+				"</project>";
+		testCompletionFor(xml
+				); // coming from stylesheet children
 	}
 
 	private void testCompletionFor(String xml, CompletionItem... expectedItems) throws BadLocationException {
 		XMLAssert.testCompletionFor(xml, null, expectedItems);
+	}
+
+	private void testCompletionFor(String xml, XMLFormattingOptions formattingSettings, CompletionItem... expectedItems) throws BadLocationException {
+		XMLAssert.testCompletionFor(new XMLLanguageService(), xml, null, null, null, null, new CompletionSettings(true), formattingSettings, expectedItems);
 	}
 }

@@ -152,7 +152,7 @@ public class HTMLCompletionExtensionsTest {
 
 			@Override
 			public void onAttributeName(boolean generateValue, Range replaceRange, ICompletionRequest completionRequest,
-					ICompletionResponse completionResponse) {
+					ICompletionResponse completionResponse, SharedSettings settings) {
 				String tag = completionRequest.getCurrentTag();
 				HTMLTag htmlTag = HTMLTag.getHTMLTag(tag);
 				if (htmlTag != null) {

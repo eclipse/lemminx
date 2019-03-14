@@ -25,11 +25,11 @@ public class XSICompletionParticipant extends CompletionParticipantAdapter {
 	
 	@Override
 	public void onAttributeName(boolean generateValue, Range fullRange, ICompletionRequest request,
-			ICompletionResponse response) throws Exception {
-		if (request.getXMLDocument().hasSchemaInstancePrefix()) {
+			ICompletionResponse response, SharedSettings settings) throws Exception {
+		//if (request.getXMLDocument().hasSchemaInstancePrefix()) {
 			XSISchemaModel.computeCompletionResponses(request, response, fullRange, request.getXMLDocument(),
-					generateValue);
-		}
+					generateValue, settings);
+		
 	}
 
 	@Override
