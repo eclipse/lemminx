@@ -16,8 +16,10 @@ import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.function.Function;
 
 import org.eclipse.lsp4j.jsonrpc.Launcher;
+import org.eclipse.lsp4j.jsonrpc.MessageConsumer;
 import org.eclipse.lsp4j.launch.LSPLauncher;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4xml.commons.ParentProcessWatcher;
@@ -55,8 +57,14 @@ public class XMLServerLauncher {
 	 */
 	public static Future<?> launch(InputStream in, OutputStream out) {
 		XMLLanguageServer server = new XMLLanguageServer();
+		Function<MessageConsumer, MessageConsumer> wrapper;
+		if ("false".equals(System.getProperty("watchParentProcess"))) {
+			wrapper = it -> it;
+		} else {
+			wrapper = new ParentProcessWatcher(server);
+		}
 		Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(server, in, out,
-				Executors.newCachedThreadPool(), new ParentProcessWatcher(server));
+				Executors.newCachedThreadPool(), wrapper);
 		server.setClient(launcher.getRemoteProxy());
 		return launcher.startListening();
 	}
