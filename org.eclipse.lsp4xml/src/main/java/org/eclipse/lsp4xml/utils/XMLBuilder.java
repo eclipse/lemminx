@@ -38,6 +38,11 @@ public class XMLBuilder {
 		this.xml = new StringBuilder();
 	}
 
+	public XMLBuilder appendSpace() {
+		xml.append(" ");
+		return this;
+	}
+
 	public XMLBuilder startElement(String prefix, String name, boolean close) {
 		xml.append("<");
 		if (prefix != null && !prefix.isEmpty()) {
@@ -113,6 +118,13 @@ public class XMLBuilder {
 		return this;
 	}
 
+	public XMLBuilder addAttributesOnSingleLine(DOMAttr attr, Boolean surroundWithQuotes) {
+		xml.append(" ");
+		addAttributeContents(attr.getName(), attr.hasDelimiter(), attr.getValue(), surroundWithQuotes);
+
+		return this;
+	}
+
 	public XMLBuilder addAttribute(String name, String value, int level) {
 		return addAttribute(name, value, level, false);
 	}
@@ -156,7 +168,7 @@ public class XMLBuilder {
 	}
 
 	/**
-	 * Builds the attribute name, '=', and value.
+	 * Builds the attribute {name, '=', and value}.
 	 * 
 	 * Never puts quotes around unquoted values unless indicated to by 'surroundWithQuotes'
 	 */

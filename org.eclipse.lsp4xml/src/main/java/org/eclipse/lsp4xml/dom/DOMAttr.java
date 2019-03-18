@@ -108,9 +108,8 @@ public class DOMAttr extends DOMNode implements org.w3c.dom.Attr {
 	}
 
 	/*
-	 * (non-Javadoc)
 	 * 
-	 * @see org.w3c.dom.Attr#getValue()
+	 * Returns the attribute's value without quotes.
 	 */
 	@Override
 	public String getValue() {

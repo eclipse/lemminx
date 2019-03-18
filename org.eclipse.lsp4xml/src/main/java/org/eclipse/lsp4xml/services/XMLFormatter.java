@@ -124,11 +124,8 @@ class XMLFormatter {
 							DOMAttr singleAttribute = attributes.get(0);
 							xml.addSingleAttribute(singleAttribute.getName(), singleAttribute.getOriginalValue());
 						} else {
-							int attributeIndex = 0;
 							for (DOMAttr attr : attributes) {
-								String attributeName = attr.getName();
 								xml.addAttribute(attr, level);
-								attributeIndex++;
 							}
 						}
 					}
@@ -188,7 +185,13 @@ class XMLFormatter {
 			} else if (node.isProcessingInstruction()) {
 				DOMProcessingInstruction processingInstruction = (DOMProcessingInstruction) node;
 				xml.startPrologOrPI(processingInstruction.getTarget());
-				xml.addContentPI(processingInstruction.getData());
+				if(processingInstruction.hasAttributes()) {
+					addAttributes(processingInstruction, xml);
+				} 
+				else {
+					xml.addContentPI(processingInstruction.getData());
+				}
+				
 				xml.endPrologOrPI();
 				if (level == 0) {
 					xml.linefeed();
@@ -197,19 +200,7 @@ class XMLFormatter {
 				DOMProcessingInstruction processingInstruction = (DOMProcessingInstruction) node;
 				xml.startPrologOrPI(processingInstruction.getTarget());
 				if (node.hasAttributes()) {
-					// generate attributes
-					String[] attributes = new String[3];
-					attributes[0] = "version";
-					attributes[1] = "encoding";
-					attributes[2] = "standalone";
-
-					for (String name : attributes) {
-						String value = node.getAttribute(name);
-						if (value == null) {
-							continue;
-						}
-						xml.addSingleAttribute(name, value, true);
-					}
+					addAttributes(node, xml);
 				}
 				xml.endPrologOrPI();
 				xml.linefeed();
@@ -353,5 +344,19 @@ class XMLFormatter {
 	private static boolean isPreviousSiblingNodeType(DOMNode node, short nodeType) {
 		DOMNode previousNode = node.getPreviousSibling();
 		return previousNode != null && previousNode.getNodeType() == nodeType;
+	}
+
+	/**
+	 * Will add all attributes, to the given builder, on a single line
+	 */
+	private static void addAttributes(DOMNode node, XMLBuilder xml) {
+		List<DOMAttr> attrs = node.getAttributeNodes();
+		if(attrs == null) {
+			return;
+		}
+		for (DOMAttr attr : attrs) {
+			xml.addAttributesOnSingleLine(attr, true);
+		}
+		xml.appendSpace();
 	}
 }

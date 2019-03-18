@@ -135,7 +135,11 @@ public class XMLScanner implements Scanner {
 					state = ScannerState.WithinTag;
 					return finishToken(offset, TokenType.PrologName);
 				}
-				if (PI_TAG_NAME.matcher(name).matches()) { // {name} eg: m2e
+				// if(PI_WITH_VARIABLES.matcher(name).matches()) { // name eg: xml-stylesheet
+				// 	state = ScannerState.WithinTag;
+				// 	return finishToken(offset, TokenType.PIName);
+				// }
+				if (ATTRIBUTE_NAME_REGEX.matcher(name).matches()) { // {name} eg: m2e
 					state = ScannerState.WithinPI;
 					return finishToken(offset, TokenType.PIName);
 				}
@@ -296,7 +300,7 @@ public class XMLScanner implements Scanner {
 				return finishToken(offset, TokenType.Whitespace);
 			}
 
-			if (stream.advanceIfChar(_EQS)) {
+			if (stream.advanceIfChar(_EQS)) { // =
 				state = ScannerState.BeforeAttributeValue;
 				return finishToken(offset, TokenType.DelimiterAssign);
 			}

@@ -195,8 +195,6 @@ public class XMLSyntaxDiagnosticsTest {
 		testDiagnosticsFor(xml, d(3, 4, 3, 5, XMLSyntaxErrorCode.ETagUnterminated));
 	}
 
-
-
 	@Test
 	public void testIllegalQName() throws Exception {
 		String xml = "<a Ccy:\"JPY\">100</a>";

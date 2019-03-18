@@ -16,6 +16,7 @@ import java.util.ArrayList;
 
 import org.eclipse.lsp4xml.dom.DOMDocumentType.DocumentTypeKind;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -290,6 +291,27 @@ public class DOMParserTest {
 		html.addChild(processingInstruction);
 
 		assertDocument("<html><?m2e he haa?></html>", html);
+	}
+
+	@Ignore
+	@Test
+	public void testPIXMLStyleSheet() {
+		DOMNode processingInstruction = createPINode("xml-stylesheet", 6, 60, true, "");
+		insertIntoAttributes(processingInstruction, "href", "\"my-style.css\"");
+		insertIntoAttributes(processingInstruction, "type", "\"text/css\"");
+		DOMNode html = createElement("html", 0, 60, 67, true);
+		html.addChild(processingInstruction);
+
+		assertDocument("<html><?xml-stylesheet href=\"my-style.css\" type=\"text/css\"?></html>", html);
+	}
+
+	@Test
+	public void testPIXMLStyleSheetMispelled() {
+		// This PI name is not recognized by the regex and considers the attributes as content.
+		DOMNode processingInstruction = createPINode("xml-stylesheetBAD", 6, 63, true, "href=\"my-style.css\" type=\"text/css\"");
+		DOMNode html = createElement("html", 0, 63, 70, true);
+		html.addChild(processingInstruction);
+		assertDocument("<html><?xml-stylesheetBAD href=\"my-style.css\" type=\"text/css\"?></html>", html);
 	}
 
 	@Test
