@@ -60,17 +60,22 @@ public class Constants {
 
 	public static final Pattern ELEMENT_NAME_REGEX = Pattern.compile("^[_:\\w][_:\\w-.\\d]*");
 
-	public static final Pattern ATTRIBUTE_NAME_REGEX = Pattern.compile("^[^\\s\"'<>/=\\x00-\\x0F\\x7F\\x80-\\x9F]*");
+	public static final Pattern ATTRIBUTE_NAME_REGEX = Pattern.compile("^[^\\s\\?\"'<>/=\\x00-\\x0F\\x7F\\x80-\\x9F]*");
 
 	public static final Pattern ATTRIBUTE_VALUE_REGEX = Pattern.compile("^(\"[^\"]*\"?)|(\'[^\']*\'?)");
 
 	public static final Pattern URL_VALUE_REGEX = Pattern.compile("^(\"|\')[^<>\"]*(\"|\')");
 
-	public static final Pattern PROLOG_NAME_OPTIONS = Pattern.compile("^(xml|xml-stylesheet)");
+	public static final Pattern PROLOG_NAME_OPTIONS = Pattern.compile("^(xml)[\\s<>?]?");
+
+	public static final Pattern PI_TAG_NAME = Pattern.compile("^[a-zA-Z0-9]+");
+
+	//Add comming processing instructions that are defined to have attributes as content
+	public static final Pattern PI_WITH_VARIABLES = Pattern.compile("^(xml-stylesheet)[\\s<>?]?");
 
 	public static final Pattern DOCTYPE_KIND_OPTIONS = Pattern.compile("^(PUBLIC|SYSTEM)([\\s<>\"'])");
 
-	public static final Pattern PI_TAG_NAME = Pattern.compile("^[a-zA-Z0-9]+");
+	
 
 	public static final Pattern DTD_ELEMENT_CATEGORY = Pattern.compile("^(EMPTY|ANY)([\\s<>\"'])");
 
