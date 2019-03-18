@@ -77,8 +77,13 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 			message = str.toString();
 		}
 
+		Range adjustedRange = internalToLSPRange(location, key, arguments, xmlDocument);
+
+		if(adjustedRange == null) {
+			return null;
+		}
 		// Fill diagnostic
-		diagnostics.add(new Diagnostic(internalToLSPRange(location, key, arguments, xmlDocument), message,
+		diagnostics.add(new Diagnostic(adjustedRange, message,
 				toLSPSeverity(severity), source, key));
 
 		if (severity == SEVERITY_FATAL_ERROR && !fContinueAfterFatalError) {
@@ -126,6 +131,10 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 		}
 		int startOffset = location.getCharacterOffset() - 1;
 		int endOffset = location.getCharacterOffset() - 1;
+
+		if(startOffset < 0 || endOffset < 0) {
+			return null;
+		}
 
 		// Create LSP range
 		Position start = toLSPPosition(startOffset, location, document.getTextDocument());

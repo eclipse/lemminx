@@ -28,6 +28,18 @@ import org.junit.Test;
 public class XMLSchemaDiagnosticsTest {
 
 	@Test
+	public void prematureEOFNoErrorReported() throws Exception {
+		String xml = " ";
+		testDiagnosticsFor(xml);
+	}
+
+	@Test
+	public void prematureEOFWithPrologNoErrorReported() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?> ";
+		testDiagnosticsFor(xml);
+	}
+
+	@Test
 	public void cvc_complex_type_2_3() throws Exception {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"

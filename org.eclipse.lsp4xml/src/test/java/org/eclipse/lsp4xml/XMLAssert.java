@@ -10,6 +10,8 @@
  */
 package org.eclipse.lsp4xml;
 
+import static org.junit.Assert.assertTrue;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -280,7 +282,10 @@ public class XMLAssert {
 
 		List<Diagnostic> actual = xmlLanguageService.doDiagnostics(xmlDocument, () -> {
 		}, settings.getValidation());
-		
+		if(expected == null) {
+			assertTrue(actual.isEmpty());
+			return;
+		}
 		assertDiagnostics(actual, Arrays.asList(expected), filter);
 	}
 
