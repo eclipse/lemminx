@@ -19,6 +19,8 @@ import static org.eclipse.lsp4xml.XMLAssert.testDiagnosticsFor;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.XMLSyntaxErrorCode;
+import org.eclipse.lsp4xml.settings.SharedSettings;
+import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -237,7 +239,73 @@ public class XMLSyntaxDiagnosticsTest {
 	@Test
 	public void testOpenQuoteExpected() throws Exception {
 		String xml = " <InstdAmt Ccy==\"JPY\">10000000</InstdAmt>";
-		testDiagnosticsFor(xml, d(0, 11, 0, 14, XMLSyntaxErrorCode.OpenQuoteExpected));
+		Diagnostic diagnostic1 = d(0, 11, 0, 14, XMLSyntaxErrorCode.OpenQuoteExpected);
+		testDiagnosticsFor(xml, diagnostic1);
+		testCodeActionsFor(xml, diagnostic1, ca(diagnostic1, te(0, 15, 0, 15, "\"\"")));
+	}
+
+	@Test
+	public void testMissingQuotesForAttribute() throws Exception {
+		String xml = 
+		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
+		"<foo>\r\n" +
+		"  <bar one= two=\"\">\r\n" +
+		"  </bar>\r\n" +
+		"</foo>";
+		Diagnostic diagnostic1 = d(2, 7, 2, 10, XMLSyntaxErrorCode.OpenQuoteExpected);
+		testDiagnosticsFor(xml, diagnostic1);
+		testCodeActionsFor(xml, diagnostic1, ca(diagnostic1, te(2, 11, 2, 11, "\"\"")));
+	}
+
+	@Test
+	public void testMissingQuotesForAttributeSelfClosing() throws Exception {
+		String xml = 
+		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
+		"<foo>\r\n" +
+		"  <bar one= two=\"\"/>\r\n" +
+		"</foo>";
+		Diagnostic diagnostic1 = d(2, 7, 2, 10, XMLSyntaxErrorCode.OpenQuoteExpected);
+		testDiagnosticsFor(xml, diagnostic1);
+		testCodeActionsFor(xml, diagnostic1, ca(diagnostic1, te(2, 11, 2, 11, "\"\"")));
+	}
+
+	@Test
+	public void testMissingQuotesForAttributeSelfClosing2() throws Exception {
+		String xml = 
+		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
+		"<foo>\r\n" +
+		"  <bar one=/>\r\n" +
+		"</foo>";
+		Diagnostic diagnostic1 = d(2, 7, 2, 10, XMLSyntaxErrorCode.OpenQuoteExpected);
+		testDiagnosticsFor(xml, diagnostic1);
+		testCodeActionsFor(xml, diagnostic1, ca(diagnostic1, te(2, 11, 2, 11, "\"\"")));
+	}
+
+	@Test
+	public void testMissingQuotesForAttributeUsingNextValue() throws Exception {
+		String xml = 
+		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
+		"<foo>\r\n" +
+		"  <bar one= two/>\r\n" +
+		"</foo>";
+		Diagnostic diagnostic1 = d(2, 7, 2, 10, XMLSyntaxErrorCode.OpenQuoteExpected);
+		testDiagnosticsFor(xml, diagnostic1);
+		testCodeActionsFor(xml, diagnostic1, ca(diagnostic1, te(2, 11, 2, 15, "\"two\"")));
+	}
+
+	@Test
+	public void testMissingQuotesForAttributeSingleQuotes() throws Exception {
+		String xml = 
+		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
+		"<foo>\r\n" +
+		"  <bar one= two=\"\"/>\r\n" +
+		"</foo>";
+		Diagnostic diagnostic1 = d(2, 7, 2, 10, XMLSyntaxErrorCode.OpenQuoteExpected);
+		testDiagnosticsFor(xml, diagnostic1);
+		SharedSettings settings = new SharedSettings();
+		settings.formattingSettings = new XMLFormattingOptions();
+		settings.formattingSettings.setQuotations(XMLFormattingOptions.SINGLE_QUOTES_VALUE);
+		testCodeActionsFor(xml, diagnostic1, null, settings, ca(diagnostic1, te(2, 11, 2, 11, "\'\'")));
 	}
 
 	@Test
@@ -286,16 +354,6 @@ public class XMLSyntaxDiagnosticsTest {
 	public void testSpaceRequiredInPI() throws Exception {
 		String xml = "<?xmlversion=\"1.0\" encoding=\"UTF-8\"?>";
 		testDiagnosticsFor(xml, d(0, 1, 0, 12, XMLSyntaxErrorCode.SpaceRequiredInPI));
-	}
-
-	@Test
-	public void testMissingQuotesForAttribute() throws Exception {
-		String xml = 
-		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
-		"<foo>\r\n" +
-		"  <bar one= two=\"\"/>\r\n" +
-		"</foo>";
-		testDiagnosticsFor(xml, d(2, 7, 2, 10, XMLSyntaxErrorCode.OpenQuoteExpected));
 	}
 
 	@Test

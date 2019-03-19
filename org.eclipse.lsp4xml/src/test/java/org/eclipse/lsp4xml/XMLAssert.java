@@ -408,24 +408,40 @@ public class XMLAssert {
 
 	public static void testCodeActionsFor(String xml, Diagnostic diagnostic, String catalogPath,
 			CodeAction... expected) {
+		SharedSettings settings = new SharedSettings();
+		settings.setFormattingSettings(new XMLFormattingOptions(4, false));
+		testCodeActionsFor(xml, diagnostic, catalogPath, settings, expected);
+		
+	}
+
+	public static void testCodeActionsFor(String xml, Diagnostic diagnostic, String catalogPath, SharedSettings sharedSettings,
+			CodeAction... expected) {
 		TextDocument document = new TextDocument(xml.toString(), FILE_URI);
 
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
 
-		ContentModelSettings settings = new ContentModelSettings();
-		settings.setUseCache(false);
+		ContentModelSettings cmSettings = new ContentModelSettings();
+		cmSettings.setUseCache(false);
 		if (catalogPath != null) {
 			// Configure XML catalog for XML schema
-			settings.setCatalogs(new String[] { catalogPath });
+			cmSettings.setCatalogs(new String[] { catalogPath });
 		}
-		xmlLanguageService.doSave(new SettingsSaveContext(settings));
+		xmlLanguageService.doSave(new SettingsSaveContext(cmSettings));
 
 		CodeActionContext context = new CodeActionContext();
 		context.setDiagnostics(Arrays.asList(diagnostic));
 		Range range = diagnostic.getRange();
 		DOMDocument xmlDoc = DOMParser.getInstance().parse(document, xmlLanguageService.getResolverExtensionManager());
+
+		XMLFormattingOptions formattingSettings;
+		if(sharedSettings != null && sharedSettings.formattingSettings != null) {
+			formattingSettings = sharedSettings.formattingSettings;
+		}
+		else {
+			formattingSettings = new XMLFormattingOptions(4, false);
+		}
 		List<CodeAction> actual = xmlLanguageService.doCodeActions(context, range, xmlDoc,
-				new XMLFormattingOptions(4, false));
+				formattingSettings);
 		assertCodeActions(actual, expected);
 	}
 

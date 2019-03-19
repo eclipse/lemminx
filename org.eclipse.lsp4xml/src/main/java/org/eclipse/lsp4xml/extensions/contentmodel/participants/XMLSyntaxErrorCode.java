@@ -21,6 +21,7 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.codeactions.ElementUnterminatedCodeAction;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.codeactions.EqRequiredInAttributeCodeAction;
+import org.eclipse.lsp4xml.extensions.contentmodel.participants.codeactions.OpenQuoteExpectedCodeAction;
 import org.eclipse.lsp4xml.services.extensions.ICodeActionParticipant;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IXMLErrorCode;
 import org.eclipse.lsp4xml.utils.XMLPositionUtility;
@@ -160,8 +161,9 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 			return XMLPositionUtility.createRange(offset, offset + 1, document);
 		case NameRequiredInReference:
 			break;
-		case OpenQuoteExpected:
+		case OpenQuoteExpected: {
 			return XMLPositionUtility.selectAttributeNameAt(offset - 1, document);
+		}
 		case PITargetRequired:
 			// Working
 			break;
@@ -185,6 +187,7 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 
 	public static void registerCodeActionParticipants(Map<String, ICodeActionParticipant> codeActions) {
 		codeActions.put(ElementUnterminated.getCode(), new ElementUnterminatedCodeAction());
-		codeActions.put(EqRequiredInAttribute.getCode(), new EqRequiredInAttributeCodeAction());		
+		codeActions.put(EqRequiredInAttribute.getCode(), new EqRequiredInAttributeCodeAction());
+		codeActions.put(OpenQuoteExpected.getCode(), new OpenQuoteExpectedCodeAction());
 	}
 }
