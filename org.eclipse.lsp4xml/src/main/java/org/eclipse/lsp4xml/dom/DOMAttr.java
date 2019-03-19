@@ -10,6 +10,8 @@
  */
 package org.eclipse.lsp4xml.dom;
 
+import java.util.List;
+
 import org.w3c.dom.DOMException;
 import org.w3c.dom.TypeInfo;
 
@@ -235,6 +237,22 @@ public class DOMAttr extends DOMNode implements org.w3c.dom.Attr {
 
 	public boolean valueContainsOffset(int offset) {
 		return nodeAttrValue != null && offset >= nodeAttrValue.getStart() && offset < nodeAttrValue.getEnd();
+	}
+	
+		/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Node#getNextSibling()
+	 */
+	@Override
+	public DOMNode getNextSibling() {
+		DOMNode parentNode = getOwnerElement();
+		if (parentNode == null) {
+			return null;
+		}
+		List<DOMAttr> children = parentNode.getAttributeNodes();
+		int nextIndex = children.indexOf(this) + 1;
+		return nextIndex < children.size() ? children.get(nextIndex) : null;
 	}
 
 	public boolean isIncluded(int offset) {
