@@ -12,8 +12,8 @@ package org.eclipse.lsp4xml.extensions.contentmodel;
 
 import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.commons.BadLocationException;
+import org.eclipse.lsp4xml.extensions.xsi.XSISchemaModel;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
-import org.eclipse.lsp4xml.services.XSISchemaModel;
 import org.junit.Test;
 
 /**

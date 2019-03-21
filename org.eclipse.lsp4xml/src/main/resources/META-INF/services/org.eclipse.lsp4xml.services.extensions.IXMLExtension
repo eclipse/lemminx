@@ -5,3 +5,4 @@ org.eclipse.lsp4xml.extensions.dtd.DTDPlugin
 org.eclipse.lsp4xml.extensions.xsl.XSLPlugin
 org.eclipse.lsp4xml.extensions.catalog.XMLCatalogPlugin
 org.eclipse.lsp4xml.extensions.xsi.XSISchemaPlugin
+org.eclipse.lsp4xml.extensions.prolog.PrologPlugin

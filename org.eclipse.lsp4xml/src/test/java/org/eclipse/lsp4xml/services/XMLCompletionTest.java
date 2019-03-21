@@ -156,40 +156,6 @@ public class XMLCompletionTest {
 		testCompletionFor("<a>   <div|    <a>", true, c("div", "<div></div>"));
 	}
 
-	@Test
-	public void testAutoCompletionPrologWithXML() throws BadLocationException {
-		//With 'xml' label
-		testCompletionFor("<?xml|", false, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 5),
-				"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
-		testCompletionFor("<?xml|>", true, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 6),
-				"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
-		testCompletionFor("<?xml|?>", true, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 7),
-				"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
-	}
-
-	@Test
-	public void testAutoCompletionPrologWithoutXML() throws BadLocationException {
-		//No 'xml' label
-		testCompletionFor("<?|", false, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 2),
-			"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
-		testCompletionFor("<?|>", true, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 3),
-			"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
-		testCompletionFor("<?|?>", true, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 4),
-			"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
-	}
-
-	@Test
-	public void testAutoCompletionPrologWithPartialXML() throws BadLocationException {
-		testCompletionFor("<?x|", false, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 3),
-			"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
-		testCompletionFor("<?xm|", false, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 4),
-			"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
-		testCompletionFor("<?x|", false, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 3),
-			"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
-		testCompletionFor("<?xm|?>", false, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 6),
-			"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
-	}
-
 	// -------------------Tools----------------------------------------------------------
 
 	public void assertOpenStartTagCompletion(String xmlText, int expectedStartTagOffset, boolean startWithTagOpen,

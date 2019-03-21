@@ -9,37 +9,32 @@
  *  Red Hat Inc. - initial API and implementation
  */
 
-package org.eclipse.lsp4xml.extensions.xsi;
+package org.eclipse.lsp4xml.extensions.prolog;
 
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4xml.services.extensions.ICompletionParticipant;
-import org.eclipse.lsp4xml.services.extensions.IHoverParticipant;
 import org.eclipse.lsp4xml.services.extensions.IXMLExtension;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.services.extensions.save.ISaveContext;
 
 /**
- * Plugin to handle the xml prolog:
- *  {@code <?xml ... ?>}.  
- * 
+ * Plugin to handle `xsi` attributes or a namespace with the value of:
+ * "http://www.w3.org/2001/XMLSchema-instance"
  * 
  * Loaded by service loader in 'resources' folder.
  */
-public class XSISchemaPlugin implements IXMLExtension {
+public class PrologPlugin implements IXMLExtension {
 
-	ICompletionParticipant completionParticipant = new XSICompletionParticipant();
-	IHoverParticipant hoverParticipant = new XSIHoverParticipant();
+	ICompletionParticipant completionParticipant = new PrologCompletionParticipant();
 
 	@Override
 	public void start(InitializeParams params, XMLExtensionsRegistry registry) {
 		registry.registerCompletionParticipant(completionParticipant);
-		registry.registerHoverParticipant(hoverParticipant);
 	}
 
 	@Override
 	public void stop(XMLExtensionsRegistry registry) {
 		registry.unregisterCompletionParticipant(completionParticipant);
-		registry.unregisterHoverParticipant(hoverParticipant);
 	}
 
 	@Override

@@ -257,6 +257,16 @@ public class DOMDocument extends DOMNode implements Document {
 		}
 	}
 
+	/**
+	 * If document has {@code <?xml ... ?>}
+	 * 
+	 * @return
+	 */
+	public boolean hasProlog() {
+		List<DOMNode> children = getChildren();
+		return (children != null && !children.isEmpty() && children.get(0).isProlog());
+	}
+
 	private SchemaLocation createSchemaLocation(DOMNode root, String schemaInstancePrefix) {
 		String value = root.getAttribute(getPrefixedName(schemaInstancePrefix, "schemaLocation"));
 		if (value == null) {
