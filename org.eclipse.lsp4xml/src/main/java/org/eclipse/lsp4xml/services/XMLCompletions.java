@@ -37,6 +37,7 @@ import org.eclipse.lsp4xml.dom.parser.Scanner;
 import org.eclipse.lsp4xml.dom.parser.ScannerState;
 import org.eclipse.lsp4xml.dom.parser.TokenType;
 import org.eclipse.lsp4xml.dom.parser.XMLScanner;
+import org.eclipse.lsp4xml.extensions.prolog.PrologModel;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.services.extensions.ICompletionParticipant;
 import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
@@ -50,7 +51,7 @@ import org.eclipse.lsp4xml.utils.StringUtils;
  * XML completions support.
  *
  */
-class XMLCompletions {
+public class XMLCompletions {
 
 	private static final Logger LOGGER = Logger.getLogger(XMLCompletions.class.getName());
 	private static final Pattern regionCompletionRegExpr = Pattern.compile("^(\\s*)(<(!(-(-\\s*(#\\w*)?)?)?)?)?$");
@@ -114,8 +115,8 @@ class XMLCompletions {
 				break;
 			case DelimiterAssign:
 				if (scanner.getTokenEnd() == offset) {
-					int endPos = scanNextForEndPos(offset, scanner, TokenType.AttributeValue);
-					collectAttributeValueSuggestions(offset, endPos, completionRequest, completionResponse, settings);
+					//int endPos = scanNextForEndPos(offset, scanner, TokenType.AttributeValue);
+					collectAttributeValueSuggestions(offset, offset, completionRequest, completionResponse, settings);
 					return completionResponse;
 				}
 				break;
@@ -219,7 +220,7 @@ class XMLCompletions {
 				try {
 					boolean isFirstNode = xmlDocument.positionAt(scanner.getTokenOffset()).getLine() == 0;
 					if (isFirstNode && offset <= scanner.getTokenEnd()) {
-						collectPrologSuggestion(scanner.getTokenEnd(), "", completionRequest, completionResponse);
+						collectPrologSuggestion(scanner.getTokenEnd(), "", completionRequest, completionResponse, settings);
 						return completionResponse;
 					}
 				} catch (BadLocationException e) {
@@ -233,8 +234,8 @@ class XMLCompletions {
 					if (isFirstNode && offset <= scanner.getTokenEnd()) {
 						String substringXML = "xml".substring(0, scanner.getTokenText().length());
 						if (scanner.getTokenText().equals(substringXML)) {
-							collectPrologSuggestion(scanner.getTokenEnd(), scanner.getTokenText(), completionRequest,
-									completionResponse, true);
+							PrologModel.computePrologCompletionResponses(scanner.getTokenEnd(), scanner.getTokenText(), completionRequest,
+									completionResponse, true, settings);
 							return completionResponse;
 						}
 					}
@@ -248,7 +249,7 @@ class XMLCompletions {
 					boolean isFirstNode = xmlDocument.positionAt(scanner.getTokenOffset()).getLine() == 0;
 					if (isFirstNode && offset <= scanner.getTokenEnd()) {
 						collectPrologSuggestion(scanner.getTokenEnd(), scanner.getTokenText(), completionRequest,
-								completionResponse);
+								completionResponse, settings);
 						return completionResponse;
 					}
 				} catch (BadLocationException e) {
@@ -516,47 +517,8 @@ class XMLCompletions {
 	 * @param response
 	 */
 	private void collectPrologSuggestion(int startOffset, String tag, CompletionRequest request,
-			CompletionResponse response) {
-		collectPrologSuggestion(startOffset, tag, request, response, false);
-	}
-
-	private void collectPrologSuggestion(int tokenEndOffset, String tag, CompletionRequest request,
-			CompletionResponse response, boolean inPIState) {
-		DOMDocument document = request.getXMLDocument();
-		CompletionItem item = new CompletionItem();
-		item.setLabel("<?xml ... ?>");
-		item.setKind(CompletionItemKind.Property);
-		item.setFilterText("xml version=\"1.0\" encoding=\"UTF-8\"?>");
-		item.setInsertTextFormat(InsertTextFormat.Snippet);
-		int closingBracketOffset;
-		if (inPIState) {
-			closingBracketOffset = getOffsetFollowedBy(document.getText(), tokenEndOffset, ScannerState.WithinPI,
-					TokenType.PIEnd);
-		} else {// prolog state
-			closingBracketOffset = getOffsetFollowedBy(document.getText(), tokenEndOffset, ScannerState.WithinTag,
-					TokenType.PrologEnd);
-		}
-
-		if (closingBracketOffset != -1) {
-			// Include '?>'
-			closingBracketOffset += 2;
-		} else {
-			closingBracketOffset = getOffsetFollowedBy(document.getText(), tokenEndOffset, ScannerState.WithinTag,
-					TokenType.StartTagClose);
-			if (closingBracketOffset == -1) {
-				closingBracketOffset = tokenEndOffset;
-			} else {
-				closingBracketOffset++;
-			}
-		}
-		int startOffset = tokenEndOffset - tag.length();
-		try {
-			Range editRange = getReplaceRange(startOffset, closingBracketOffset, request);
-			item.setTextEdit(new TextEdit(editRange, "xml version=\"1.0\" encoding=\"UTF-8\"?>" + "$0"));
-		} catch (BadLocationException e) {
-			LOGGER.log(Level.SEVERE, "While performing getReplaceRange for prolog completion.", e);
-		}
-		response.addCompletionItem(item);
+			CompletionResponse response, SharedSettings settings) {
+		PrologModel.computePrologCompletionResponses(startOffset, tag, request, response, false, settings);
 	}
 
 	private void collectCloseTagSuggestions(int afterOpenBracket, boolean inOpenTag, int tagNameEnd,
@@ -703,7 +665,7 @@ class XMLCompletions {
 			CompletionResponse completionResponse, SharedSettings settings) {
 		int replaceEnd = completionRequest.getOffset();
 		String text = completionRequest.getXMLDocument().getText();
-		while (replaceEnd < nameEnd && text.charAt(replaceEnd) != '<') { // < is a valid attribute name character, but
+		while (replaceEnd < nameEnd && text.charAt(replaceEnd) != '<' && text.charAt(replaceEnd) != '?') { // < is a valid attribute name character, but
 																			// we rather assume the attribute name ends.
 																			// See #23236.
 			replaceEnd++;
@@ -899,7 +861,7 @@ class XMLCompletions {
 	 * @param expectedToken
 	 * @return
 	 */
-	private static int getOffsetFollowedBy(String s, int offset, ScannerState intialState, TokenType expectedToken) {
+	public static int getOffsetFollowedBy(String s, int offset, ScannerState intialState, TokenType expectedToken) {
 		Scanner scanner = XMLScanner.createScanner(s, offset, intialState);
 		TokenType token = scanner.scan();
 		while (token == TokenType.Whitespace) {
@@ -922,7 +884,7 @@ class XMLCompletions {
 		return offset;
 	}
 
-	private static Range getReplaceRange(int replaceStart, int replaceEnd, ICompletionRequest context)
+	public static Range getReplaceRange(int replaceStart, int replaceEnd, ICompletionRequest context)
 			throws BadLocationException {
 		int offset = context.getOffset();
 		if (replaceStart > offset) {

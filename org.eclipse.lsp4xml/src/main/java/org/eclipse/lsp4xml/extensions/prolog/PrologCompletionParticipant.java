@@ -9,7 +9,7 @@
  *  Red Hat Inc. - initial API and implementation
  */
 
-package org.eclipse.lsp4xml.extensions.xsi;
+package org.eclipse.lsp4xml.extensions.prolog;
 
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.services.extensions.CompletionParticipantAdapter;
@@ -18,22 +18,21 @@ import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
 import org.eclipse.lsp4xml.settings.SharedSettings;
 
 /**
- * XSICompletionParticipant
+ * PrologCompletionParticipant
  */
-public class XSICompletionParticipant extends CompletionParticipantAdapter {
+public class PrologCompletionParticipant extends CompletionParticipantAdapter {
 	
 	@Override
 	public void onAttributeName(boolean generateValue, Range fullRange, ICompletionRequest request,
 			ICompletionResponse response, SharedSettings settings) throws Exception {
-			XSISchemaModel.computeCompletionResponses(request, response, fullRange, request.getXMLDocument(),
-					generateValue, settings);
-		
+			PrologModel.computeAttributeNameCompletionResponses(request, response, fullRange, request.getXMLDocument(),
+					settings);
 	}
 
 	@Override
 	public void onAttributeValue(String valuePrefix, Range fullRange, boolean addQuotes, ICompletionRequest request,
 			ICompletionResponse response, SharedSettings settings) throws Exception {
-		XSISchemaModel.computeValueCompletionResponses(request, response, fullRange, request.getXMLDocument(), settings);
+		PrologModel.computeValueCompletionResponses(request, response, fullRange, request.getXMLDocument(), settings);
 	}
 	
 }

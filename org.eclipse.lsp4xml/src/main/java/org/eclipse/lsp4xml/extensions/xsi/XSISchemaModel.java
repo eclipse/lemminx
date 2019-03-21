@@ -8,7 +8,7 @@
  *  Contributors:
  *  Red Hat Inc. - initial API and implementation
  */
-package org.eclipse.lsp4xml.services;
+package org.eclipse.lsp4xml.extensions.xsi;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -24,6 +24,8 @@ import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.dom.DOMAttr;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMElement;
+import org.eclipse.lsp4xml.dom.DOMNode;
+import org.eclipse.lsp4xml.services.AttributeCompletionItem;
 import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
 import org.eclipse.lsp4xml.services.extensions.IHoverRequest;
@@ -67,15 +69,25 @@ public class XSISchemaModel {
 		
 		DOMElement rootElement = document.getDocumentElement();
 		int offset = document.offsetAt(editRange.getStart());
+		if(rootElement == null || offset <= rootElement.getStart() || offset >= rootElement.getEnd()) {
+			return;
+		}
 		boolean inRootElement = false;
-		DOMElement nodeAtOffset = (DOMElement) document.findNodeAt(offset);
+		DOMNode nodeAtOffset =  document.findNodeAt(offset);
+		DOMElement elementAtOffset;
+		if(nodeAtOffset != null && nodeAtOffset.isElement()) {
+			elementAtOffset = (DOMElement) nodeAtOffset;
+		}
+		else {
+			return;
+		}
 		if(rootElement.equals(nodeAtOffset)) {
 			inRootElement = true;
 		}
 
 		boolean isSnippetsSupported = request.getCompletionSettings().isCompletionSnippetsSupported();
 		if(inRootElement) {
-			if(!hasAttribute(nodeAtOffset, "xmlns") && !response.hasAttribute("xmlns")) { // "xmlns" completion
+			if(!hasAttribute(elementAtOffset, "xmlns") && !response.hasAttribute("xmlns")) { // "xmlns" completion
 				createCompletionItem("xmlns", isSnippetsSupported, generateValue, editRange, null, null, null, response, settings);
 			}
 			if(document.hasSchemaInstancePrefix() == false) { // "xmlns:xsi" completion
@@ -95,7 +107,7 @@ public class XSISchemaModel {
 		boolean schemaLocationExists = document.hasSchemaLocation();
 		boolean noNamespaceSchemaLocationExists = document.hasNoNamespaceSchemaLocation();
 		//Indicates that no values are allowed inside an XML element
-		if(!hasAttribute(nodeAtOffset, actualPrefix, "nil")) {
+		if(!hasAttribute(elementAtOffset, actualPrefix, "nil")) {
 			documentation = NIL_DOC;
 			name = actualPrefix + ":nil";
 			createCompletionItem(name, isSnippetsSupported, generateValue, editRange, StringUtils.TRUE, 
@@ -105,7 +117,7 @@ public class XSISchemaModel {
 		//a content type which does not require or even necessarily allow empty content. 
 		//An element may be ·valid· without content if it has the attribute xsi:nil with 
 		//the value true.
-		if(!hasAttribute(nodeAtOffset, actualPrefix, "type")) {
+		if(!hasAttribute(elementAtOffset, actualPrefix, "type")) {
 			documentation = TYPE_DOC;
 			name = actualPrefix + ":type";
 			createCompletionItem(name, isSnippetsSupported, generateValue, editRange, null, null, documentation, response, settings);	
@@ -142,8 +154,7 @@ public class XSISchemaModel {
 			ICompletionResponse response, Range editRange, DOMDocument document, SharedSettings settings) throws BadLocationException {
 		
 		int offset = document.offsetAt(editRange.getStart());
-		DOMElement nodeAtOffset = (DOMElement) document.findNodeAt(offset);
-		
+		DOMNode nodeAtOffset = document.findNodeAt(offset);
 		
 		String actualPrefix = document.getSchemaInstancePrefix();
 		DOMAttr attrAtOffset = nodeAtOffset.findAttrAt(offset);
@@ -153,12 +164,11 @@ public class XSISchemaModel {
 			if(actualPrefix != null && attrName.equals(actualPrefix + ":nil")) { // Value completion for 'nil' attribute
 				createCompletionItemsForValues(StringUtils.TRUE_FALSE_ARRAY, editRange, document, response, settings);
 			}
-			else if(document.getDocumentElement().equals(nodeAtOffset)) { // if in the root element
+			else if(document.getDocumentElement() != null && document.getDocumentElement().equals(nodeAtOffset)) { // if in the root element
 				if(attrName.equals("xmlns:xsi")) {
 					createSingleCompletionItemForValue(XSI_WEBSITE, editRange, document, response, settings);
 				}
 			}
-			
 		}
 	}
 

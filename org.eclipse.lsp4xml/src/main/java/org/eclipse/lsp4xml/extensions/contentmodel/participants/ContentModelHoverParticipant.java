@@ -18,7 +18,7 @@ import org.eclipse.lsp4xml.dom.DOMElement;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelManager;
-import org.eclipse.lsp4xml.services.XSISchemaModel;
+import org.eclipse.lsp4xml.extensions.xsi.XSISchemaModel;
 import org.eclipse.lsp4xml.services.extensions.HoverParticipantAdapter;
 import org.eclipse.lsp4xml.services.extensions.IHoverRequest;
 import org.eclipse.lsp4xml.uriresolver.CacheResourceDownloadingException;
@@ -55,13 +55,6 @@ public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 		
 		DOMAttr attribute = (DOMAttr) hoverRequest.getNode();
 
-		//Attempts to compute specifically for XSI related attributes since
-		//the XSD itself does not have enough information. Should create a mock XSD eventually.
-		Hover temp = XSISchemaModel.computeHoverResponse(attribute, hoverRequest);
-		if(temp != null) {
-			return temp;
-		}
-		
 		try {
 			ContentModelManager contentModelManager = hoverRequest.getComponent(ContentModelManager.class);
 			
