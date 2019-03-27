@@ -37,6 +37,15 @@ public class cvc_complex_type_4CodeAction implements ICodeActionParticipant {
 	@Override
 	public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
 			XMLFormattingOptions formattingSettings, IComponentProvider componentProvider) {
+		
+		if(diagnostic == null) {
+			return;
+		}
+		
+		if(codeAlreadyActionExists(codeActions, diagnostic)) {
+			return;
+		}
+
 		Range diagnosticRange = diagnostic.getRange();
 		try {
 			int offset = document.offsetAt(range.getStart());
@@ -69,6 +78,18 @@ public class cvc_complex_type_4CodeAction implements ICodeActionParticipant {
 		} catch (Exception e) {
 			// Do nothing
 		}
+	}
+
+	private boolean codeAlreadyActionExists(List<CodeAction> codeActions, Diagnostic diagnostic ) {
+		for (CodeAction codeAction : codeActions) {
+			for (Diagnostic codeActionDiagnostic : codeAction.getDiagnostics()) {
+				if(codeActionDiagnostic.getCode().equals(diagnostic.getCode()) && codeActionDiagnostic.getRange().equals(diagnostic.getRange())){
+					return true;
+				}
+			}
+		}
+		return false;
+
 	}
 
 }
