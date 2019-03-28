@@ -17,8 +17,11 @@ import java.io.StringReader;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.apache.xerces.impl.dv.ValidatedInfo;
 import org.apache.xerces.xs.XSAnnotation;
+import org.apache.xerces.xs.XSMultiValueFacet;
 import org.apache.xerces.xs.XSObjectList;
+import org.apache.xerces.xs.datatypes.ObjectList;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -47,12 +50,36 @@ class XSDAnnotationModel {
 	}
 
 	public static String getDocumentation(XSObjectList annotations) {
+		return getDocumentation(annotations, null);
+	}
+
+	public static String getDocumentation(XSObjectList annotations, String value) {
 		if (annotations == null) {
 			return "";
 		}
 		StringBuilder doc = new StringBuilder();
 		for (Object object : annotations) {
-			XSAnnotation annotation = (XSAnnotation) object;
+			XSAnnotation annotation = null;
+			if(object instanceof XSMultiValueFacet && value != null) {
+				XSMultiValueFacet multiValueFacet = (XSMultiValueFacet) object;
+				ObjectList enumerationValues = multiValueFacet.getEnumerationValues();
+				XSObjectList annotationValues = multiValueFacet.getAnnotations();
+				for (int i = 0; i < enumerationValues.getLength(); i++) {
+					Object enumValue = enumerationValues.get(i);
+
+					//Assuming always ValidatedInfo
+					String enumString = ((ValidatedInfo) enumValue).stringValue();
+				
+					if(value.equals(enumString)) {
+						annotation = (XSAnnotation) annotationValues.get(i);
+						break;
+					}
+				}
+			}
+			else if(object instanceof XSAnnotation) {
+				annotation = (XSAnnotation) object;
+			}
+			
 			XSDAnnotationModel annotationModel = XSDAnnotationModel.load(annotation);
 			if (annotationModel != null) {
 				if (annotationModel.getAppInfo() != null) {

@@ -31,6 +31,8 @@ public interface CMAttributeDeclaration {
 	
 	String getDocumentation();
 
+	String getValueDocumentation(String value);
+
 	/**
 	 * Returns true if the attribute is required and false otherwise.
 	 * 

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+
+<!-- definition of simpleTypes -->
+
+<xs:simpleType name="curr">
+  <xs:restriction base="xs:string">
+    <xs:enumeration value="pounds" >
+      <xs:annotation>
+        <xs:documentation>Pound Hover</xs:documentation>
+      </xs:annotation>
+    </xs:enumeration>
+    <xs:enumeration value="euros" >
+    <xs:annotation>
+        <xs:documentation>Euro Hover</xs:documentation>
+      </xs:annotation>
+    </xs:enumeration>
+    <xs:enumeration value="dollars" >
+      <xs:annotation>
+        <xs:documentation>Dollar Hover</xs:documentation>
+      </xs:annotation>
+    </xs:enumeration>
+  </xs:restriction>
+</xs:simpleType>
+
+<xs:element name="money" >
+        <xs:complexType>
+              <xs:attribute name="currency" type="curr" use="required" >
+                <xs:annotation>
+                  <xs:documentation>Currency name Hover</xs:documentation>
+                </xs:annotation>
+              </xs:attribute>
+        </xs:complexType>
+</xs:element>
+
+</xs:schema>

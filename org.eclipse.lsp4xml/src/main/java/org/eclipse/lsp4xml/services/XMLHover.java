@@ -17,6 +17,7 @@ import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.BadLocationException;
+import org.eclipse.lsp4xml.dom.DOMAttr;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMElement;
 import org.eclipse.lsp4xml.dom.DOMNode;
@@ -69,8 +70,12 @@ class XMLHover {
 				return getTagHover(hoverRequest, tagRange, true);
 			}
 		} else if (node.isAttribute()) {
+			DOMAttr attr = (DOMAttr) node;
+			if(attr.valueContainsOffset(offset)) {
+				return getAttrValueHover(hoverRequest, null);
+			}
 			// Attribute is hover
-			return getAttrHover(hoverRequest, null);
+			return getAttrNameHover(hoverRequest, null);
 		}
 		return null;
 	}
@@ -126,12 +131,35 @@ class XMLHover {
 	 * @param attrRange     the attribute  range
 	 * @return the LSP hover from the hovered attribute.
 	 */
-	private Hover getAttrHover(HoverRequest hoverRequest, Range attrRange) {
+	private Hover getAttrNameHover(HoverRequest hoverRequest, Range attrRange) {
 		//hoverRequest.setTagRange(tagRange);
 		//hoverRequest.setOpen(open);
 		for (IHoverParticipant participant : extensionsRegistry.getHoverParticipants()) {
 			try {
 				Hover hover = participant.onAttributeName(hoverRequest);
+				if (hover != null) {
+					return hover;
+				}
+			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE, "While performing IHoverParticipant#onTag", e);
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Returns the LSP hover from the hovered attribute.
+	 * 
+	 * @param hoverRequest the hover request.
+	 * @param attrRange     the attribute  range
+	 * @return the LSP hover from the hovered attribute.
+	 */
+	private Hover getAttrValueHover(HoverRequest hoverRequest, Range attrRange) {
+		//hoverRequest.setTagRange(tagRange);
+		//hoverRequest.setOpen(open);
+		for (IHoverParticipant participant : extensionsRegistry.getHoverParticipants()) {
+			try {
+				Hover hover = participant.onAttributeValue(hoverRequest);
 				if (hover != null) {
 					return hover;
 				}

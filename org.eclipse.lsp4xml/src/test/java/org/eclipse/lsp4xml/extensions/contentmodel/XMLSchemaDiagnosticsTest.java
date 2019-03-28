@@ -302,6 +302,15 @@ public class XMLSchemaDiagnosticsTest {
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(5, 25, 5, 38, "/>")));
 	}
+
+	@Test
+	public void cvc_complex_type_2_1_SelfClosing() throws Exception {
+		String xml = "<money xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/money.xsd\" currency=\"euros\"> </money>";
+		
+		Diagnostic d = d(0, 143, 0, 144, XMLSchemaErrorCode.cvc_complex_type_2_1);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(0, 142, 0, 152, "/>")));
+	}
 	
 	@Test
 	public void cvc_complex_type_2_1WithLinefeed() throws Exception {

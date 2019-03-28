@@ -30,7 +30,6 @@ public class XMLSchemaHoverExtensionsTest {
 		assertHover(xml,
 				"Defines a single (usually named) bean. A bean definition may contain nested tags for constructor arguments, property values, lookup methods, and replaced methods. Mixing constructor injection and setter injection on the same bean is explicitly supported.",
 				2);
-
 	};
 
 	@Test
@@ -146,6 +145,40 @@ public class XMLSchemaHoverExtensionsTest {
 		
 		XMLAssert.assertHover(new XMLLanguageService(), xml, null, "src/test/resources/invoice.xml",
 				null, null);
+	};
+
+	@Test
+	public void testHoverAttributeValueEuro() throws BadLocationException {
+		String xml = 
+		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
+		"<money xmlns=\"http://money\" currency=\"eu|ros\"\r\n" + // <- Hover
+		"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" +
+		"	xsi:schemaLocation=\"http://money xsd/money.xsd\"></money>";
+		XMLAssert.assertHover(new XMLLanguageService(), xml, null, "src/test/resources/money.xml",
+				"Euro Hover", null);
+	};
+
+	@Test
+	public void testHoverAttributeValuePound() throws BadLocationException {
+		String xml = 
+		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
+		"<money xmlns=\"http://money\" currency=\"pou|nds\"\r\n" + // <- Hover
+		"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" +
+		"	xsi:schemaLocation=\"http://money xsd/money.xsd\"></money>";
+		XMLAssert.assertHover(new XMLLanguageService(), xml, null, "src/test/resources/money.xml",
+				"Pound Hover", null);
+	};
+
+
+	@Test
+	public void testHoverAttributeValueNonExistent() throws BadLocationException {
+		String xml = 
+		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
+		"<money xmlns=\"http://money\" curr|ency=\"pounds\"\r\n" + // <- Hover
+		"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" +
+		"	xsi:schemaLocation=\"http://money xsd/money.xsd\"></money>";
+		XMLAssert.assertHover(new XMLLanguageService(), xml, null, "src/test/resources/money.xml",
+				"Currency name Hover", null);
 	};
 
 	private static void assertHover(String value, String expectedHoverLabel, Integer expectedHoverOffset)
