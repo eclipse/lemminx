@@ -23,6 +23,8 @@
 		
 	<system systemId="http://invoice.xsd" uri="../xsd/invoice.xsd" />
 
+	<system systemId="http://money.xsd" uri="../xsd/money.xsd" />
+
 	<uri name="http://docs.oasis-open.org/odata/ns/edmx"
 		uri="../xsd/edmx.xsd" />
 	<uri name="http://docs.oasis-open.org/odata/ns/edm"

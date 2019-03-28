@@ -234,6 +234,10 @@ public class DOMAttr extends DOMNode implements org.w3c.dom.Attr {
 		this.nodeAttrValue = nodeAttrValue;
 	}
 
+	public boolean valueContainsOffset(int offset) {
+		return nodeAttrValue != null && offset >= nodeAttrValue.getStart() && offset < nodeAttrValue.getEnd();
+	}
+
 	public boolean isIncluded(int offset) {
 		return DOMNode.isIncluded(getStart(), getEnd(), offset);
 	}

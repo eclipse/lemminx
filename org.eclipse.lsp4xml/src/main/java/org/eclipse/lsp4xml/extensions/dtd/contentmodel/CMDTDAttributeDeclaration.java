@@ -53,4 +53,9 @@ public class CMDTDAttributeDeclaration extends XMLAttributeDecl implements CMAtt
 		return super.simpleType.defaultType == XMLSimpleType.DEFAULT_TYPE_REQUIRED;
 	}
 
+	@Override
+	public String getValueDocumentation(String value) {
+		return null;
+	}
+
 }

@@ -39,7 +39,13 @@ public class cvc_complex_type_2_1CodeAction implements ICodeActionParticipant {
 			DOMNode node = document.findNodeAt(offset);
 			if (node != null && node.isElement()) {
 				DOMElement element = (DOMElement) node;
-				int startOffset = element.getStartTagCloseOffset();
+				int startOffset;
+				if(element.isSelfClosed()) {
+					startOffset = element.getEnd();
+				}
+				else {
+					startOffset = element.getStartTagCloseOffset();
+				}
 				int endOffset = element.getEnd();
 				Range diagnosticRange = XMLPositionUtility.createRange(startOffset, endOffset, document);
 				CodeAction removeContentAction = CodeActionFactory.replace("Set element as empty", diagnosticRange,

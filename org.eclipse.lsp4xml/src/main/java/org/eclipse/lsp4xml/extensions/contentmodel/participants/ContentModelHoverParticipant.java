@@ -57,13 +57,48 @@ public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 
 		try {
 			ContentModelManager contentModelManager = hoverRequest.getComponent(ContentModelManager.class);
-			
 			CMElementDeclaration cmElement = contentModelManager.findCMElement(attribute.getOwnerElement());
 			if (cmElement != null) {
 				String attributeName = attribute.getName();
 				CMAttributeDeclaration cmAttribute = cmElement.findCMAttribute(attributeName);
 				if (cmAttribute != null) {
 					String doc = cmAttribute.getDocumentation();
+					if (doc != null && doc.length() > 0) {
+						MarkupContent content = new MarkupContent();
+						content.setKind(MarkupKind.PLAINTEXT);
+						content.setValue(doc);
+						return new Hover(content);
+					}
+				}
+			}
+		} catch (CacheResourceDownloadingException e) {
+			return getCacheWarningHover(e);
+		}
+		return null;
+	}
+
+	@Override
+	public Hover onAttributeValue(IHoverRequest hoverRequest) throws Exception {
+		DOMAttr attribute = (DOMAttr) hoverRequest.getNode();
+
+		//Attempts to compute specifically for XSI related attributes since
+		//the XSD itself does not have enough information. Should create a mock XSD eventually.
+		Hover temp = XSISchemaModel.computeHoverResponse(attribute, hoverRequest);
+		if(temp != null) {
+			return temp;
+		}
+		
+		try {
+			ContentModelManager contentModelManager = hoverRequest.getComponent(ContentModelManager.class);
+			
+			CMElementDeclaration cmElement = contentModelManager.findCMElement(attribute.getOwnerElement());
+			if (cmElement != null) {
+				String attributeName = attribute.getName();
+				CMAttributeDeclaration cmAttribute = cmElement.findCMAttribute(attributeName);
+				
+				String attributeValue = attribute.getValue();
+				if (cmAttribute != null) {
+					String doc = cmAttribute.getValueDocumentation(attributeValue);
 					if (doc != null && doc.length() > 0) {
 						MarkupContent content = new MarkupContent();
 						content.setKind(MarkupKind.PLAINTEXT);
