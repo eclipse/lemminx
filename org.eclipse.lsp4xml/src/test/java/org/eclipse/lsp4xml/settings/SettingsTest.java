@@ -12,9 +12,17 @@ package org.eclipse.lsp4xml.settings;
 
 import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.InitializeParams;
+import org.eclipse.lsp4xml.XMLLanguageServer;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.ContentModelSettings;
+import org.eclipse.lsp4xml.utils.FilesUtils;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import java.io.File;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -24,43 +32,56 @@ import com.google.gson.JsonObject;
  */
 public class SettingsTest {
 
+	private static String testFolder = "TestXMLCacheFolder";
+	private static String targetTestFolder = "target/generated-test-sources";
+	
+	
+	@After
+	public void cleanup() {
+		String path = System.getProperty("user.dir") + "/" + targetTestFolder + "/" + testFolder;
+		
+		File f = new File(path);
+		if (f.exists()) {
+			f.delete();
+		}
+	}
+
+	private final String json = "{\r\n" + //
+			"	\"settings\": {\r\n" + //
+			// Content model settings
+			"		\"xml\": {\r\n" + "			\"fileAssociations\": [\r\n" + //
+			"				{\r\n" + //
+			"					\"systemId\": \"src\\\\test\\\\resources\\\\xsd\\\\spring-beans-3.0.xsd\",\r\n" + //
+			"					\"pattern\": \"**/test*.xml\"\r\n" + //
+			"				},\r\n" + //
+			"				{\r\n" + //
+			"					\"systemId\": \"src\\\\test\\\\resources\\\\xsd\\\\projectDescription.xsd\",\r\n" + //
+			"					\"pattern\": \"projectDescription.xml\"\r\n" + //
+			"				}\r\n" + //
+			"			],\r\n" + //
+			"			\"catalogs\": [\r\n" + //
+			"				\"src\\\\test\\\\resources\\\\catalogs\\\\catalog.xml\"\r\n" + //
+			"			],\r\n" + //
+			"			\"validation\": {\r\n" + //
+			"				\"enabled\": true,\r\n" + //
+			"				\"schema\": false\r\n" + //
+			"			},\r\n" + //
+			// Client (commons) settings
+			"			\"format\": {\r\n" + //
+			"				\"tabSize\": 10,\r\n" + //
+			"				\"insertSpaces\": false,\r\n" + //
+			"				\"splitAttributes\": true,\r\n" + //
+			"				\"joinCDATALines\": true,\r\n" + //
+			"				\"formatComments\": true,\r\n" + //
+			"				\"joinCommentLines\": true,\r\n" + //
+			"				\"quotations\": " + XMLFormattingOptions.DOUBLE_QUOTES_VALUE + "\r\n" + //
+			"			},\r\n" + "			\"server\": {\r\n" + //
+			"				\"workDir\": \"~/" + testFolder + "/Nested\"\r\n" + //
+			"			}\r\n" + "		}\r\n" + "	}\r\n" + "}";
+
 	@Test
 	public void initializationOptionsSettings() {
-		String json = 
-				"{\r\n" + //
-				"	\"settings\": {\r\n" + //
-				// Content model settings
-				"		\"xml\": {\r\n" +
-				"			\"fileAssociations\": [\r\n" + //
-				"				{\r\n" + //
-				"					\"systemId\": \"src\\\\test\\\\resources\\\\xsd\\\\spring-beans-3.0.xsd\",\r\n" + //
-				"					\"pattern\": \"**/test*.xml\"\r\n" + //
-				"				},\r\n" + //
-				"				{\r\n" + //
-				"					\"systemId\": \"src\\\\test\\\\resources\\\\xsd\\\\projectDescription.xsd\",\r\n" + //
-				"					\"pattern\": \"projectDescription.xml\"\r\n" + //
-				"				}\r\n" + //
-				"			],\r\n" + //
-				"			\"catalogs\": [\r\n" + //
-				"				\"src\\\\test\\\\resources\\\\catalogs\\\\catalog.xml\"\r\n" + //
-				"			],\r\n" + //
-				"			\"validation\": {\r\n" + //
-				"				\"enabled\": true,\r\n" + //
-				"				\"schema\": false\r\n" + //
-				"			},\r\n" + //
-				// Client (commons) settings				
-				"			\"format\": {\r\n" + //
-				"				\"tabSize\": 10,\r\n" + //
-				"				\"insertSpaces\": false,\r\n" + //
-				"				\"splitAttributes\": true,\r\n" + //
-				"				\"joinCDATALines\": true,\r\n" + //
-				"				\"formatComments\": true,\r\n" + //
-				"				\"joinCommentLines\": true,\r\n" + //
-				"				\"quotations\": " + XMLFormattingOptions.DOUBLE_QUOTES_VALUE + "\r\n" + //
-				"			}\r\n" + 
-				"		}\r\n" + 
-				"	}\r\n" + 
-				"}";
+
 		// Emulate InitializeParams#getInitializationOptions() object created as
 		// JSONObject when XMLLanguageServer#initialize(InitializeParams params) is
 		// called
@@ -71,6 +92,8 @@ public class SettingsTest {
 		initializationOptionsSettings = AllXMLSettings.getAllXMLSettings(initializationOptionsSettings);
 		XMLGeneralClientSettings settings = XMLGeneralClientSettings.getGeneralXMLSettings(initializationOptionsSettings);
 		Assert.assertNotNull(settings);
+		// Server
+		Assert.assertEquals("~/" + testFolder + "/Nested", settings.getServer().getWorkDir());
 
 		// Test content model extension settings
 		ContentModelSettings cmSettings = ContentModelSettings.getContentModelXMLSettings(initializationOptionsSettings);
@@ -85,7 +108,7 @@ public class SettingsTest {
 		Assert.assertEquals("src\\test\\resources\\xsd\\spring-beans-3.0.xsd",
 				cmSettings.getFileAssociations()[0].getSystemId());
 		Assert.assertEquals("**/test*.xml", cmSettings.getFileAssociations()[0].getPattern());
-		//Diagnostics
+		// Diagnostics
 		Assert.assertNotNull(cmSettings.getValidation());
 		Assert.assertEquals(true, cmSettings.getValidation().isEnabled());
 		Assert.assertEquals(false, cmSettings.getValidation().isSchema());
@@ -110,18 +133,16 @@ public class SettingsTest {
 		FormattingOptions formattingOptions = new FormattingOptions();
 		formattingOptions.setTabSize(5);
 		formattingOptions.setInsertSpaces(false);
-		
-		
 
 		XMLFormattingOptions xmlFormattingOptions = new XMLFormattingOptions(formattingOptions);
-		
+
 		xmlFormattingOptions.setQuotations("InvalidValue"); // set a value that is not recognized
 
 		Assert.assertEquals(5, xmlFormattingOptions.getTabSize()); // value coming from the request formattingOptions
 		Assert.assertFalse(xmlFormattingOptions.isInsertSpaces()); // formattingOptions doesn't defines insert spaces
-																	// flag
+		// flag
 
-		Assert.assertFalse(xmlFormattingOptions.isJoinCommentLines());//Since default for JoinCommentLines is False
+		Assert.assertFalse(xmlFormattingOptions.isJoinCommentLines());// Since default for JoinCommentLines is False
 
 		// Assumes the "InvalidValue" will be overridden
 		Assert.assertTrue(xmlFormattingOptions.getQuotations().equals(XMLFormattingOptions.DOUBLE_QUOTES_VALUE));
@@ -130,12 +151,44 @@ public class SettingsTest {
 		// the InitializeParams
 		xmlFormattingOptions.merge(sharedXMLFormattingOptions);
 		Assert.assertEquals(5, xmlFormattingOptions.getTabSize()); // tab size is kept as 5 (and not updated with
-																   // shared value 10), because only the request's
-																   // formattingOptions object is allowed to define it.
-		Assert.assertFalse(xmlFormattingOptions.isInsertSpaces()); // insert spaces is kept as false because only the request's
-																   // formattingOptions object is allowed to define it.
+		// shared value 10), because only the request's
+		// formattingOptions object is allowed to define it.
+		Assert.assertFalse(xmlFormattingOptions.isInsertSpaces()); // insert spaces is kept as false because only the
+																																// request's
+		// formattingOptions object is allowed to define it.
 		Assert.assertTrue(xmlFormattingOptions.isJoinCommentLines());
 
 		Assert.assertTrue(xmlFormattingOptions.getQuotations().equals(XMLFormattingOptions.SINGLE_QUOTES_VALUE));
+	}
+
+	@Test
+	public void cachePathSettings() {
+		// Emulate InitializeParams#getInitializationOptions() object created as
+		// JSONObject when XMLLanguageServer#initialize(InitializeParams params) is
+		// called
+		
+		InitializeParams params = createInitializeParams(json);
+		Object initializationOptionsSettings = InitializationOptionsSettings.getSettings(params);
+		XMLLanguageServer languageServer = new XMLLanguageServer();
+
+		String originalUserHome = System.getProperty("user.home");
+		String userDir = System.getProperty("user.dir");
+		try {
+			System.setProperty("user.home", userDir + "/" + targetTestFolder); // .../org.eclipse.lsp4xml/target/generated-test-sources/
+		
+			languageServer.updateSettings(initializationOptionsSettings);
+
+			//Ensure the expanded absolute path is being used.
+			Assert.assertEquals(System.getProperty("user.home") + "/" + testFolder + "/Nested", FilesUtils.getCachePathSetting());
+		} catch (Exception e) {
+			fail();
+		} finally {
+			//Reset static cache path
+			FilesUtils.setCachePathSetting(null);
+			System.setProperty("user.home", originalUserHome);
+		}
+		
+
+		
 	}
 }

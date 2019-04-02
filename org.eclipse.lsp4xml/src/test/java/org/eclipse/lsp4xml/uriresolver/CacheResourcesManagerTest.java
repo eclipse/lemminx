@@ -95,7 +95,6 @@ public class CacheResourcesManagerTest extends AbstractCacheBasedTest {
 		} catch (CacheResourceDownloadingException ignored) {
 		}
 		TimeUnit.MILLISECONDS.sleep(200);
-
 		assertNotNull(cacheResourcesManager.getResource(uri));
 
 		server.stop();
@@ -108,5 +107,4 @@ public class CacheResourcesManagerTest extends AbstractCacheBasedTest {
 	private Cache<String, Boolean> testingCache() {
 		return CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.SECONDS).maximumSize(1).build();
 	}
-
 }

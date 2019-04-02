@@ -42,6 +42,8 @@ public class XMLGeneralClientSettings {
 
 	private CompletionSettings completion;
 
+	private ServerSettings server;
+
 	public void setLogs(LogsSettings logs) {
 		this.logs = logs;
 	}
@@ -76,6 +78,20 @@ public class XMLGeneralClientSettings {
 	 */
 	public CompletionSettings getCompletion() {
 		return completion;
+	}
+
+		/**
+	 * @return the server
+	 */
+	public ServerSettings getServer() {
+		return server;
+	}
+
+	/**
+	 * @param server the server to set
+	 */
+	public void setServer(ServerSettings server) {
+		this.server = server;
 	}
 
 	public static XMLGeneralClientSettings getGeneralXMLSettings(Object initializationOptionsSettings) {

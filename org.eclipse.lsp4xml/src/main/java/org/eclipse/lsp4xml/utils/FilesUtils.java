@@ -29,6 +29,21 @@ import com.google.common.base.Suppliers;
 public class FilesUtils {
 
 	public static final String LSP4XML_WORKDIR_KEY = "lsp4xml.workdir";
+	private static String cachePathSetting = null;
+
+	public static String getCachePathSetting() {
+		return cachePathSetting;
+	}
+
+	public static void setCachePathSetting(String cachePathSetting) {
+		if(StringUtils.isEmpty(cachePathSetting)) {
+			FilesUtils.cachePathSetting = null;
+		}
+		else {
+			FilesUtils.cachePathSetting = cachePathSetting;
+		}
+		resetDeployPath();
+	}
 
 	private FilesUtils() {
 	}
@@ -44,10 +59,27 @@ public class FilesUtils {
 		DEPLOYED_BASE_PATH = Suppliers.memoize(() -> getDeployedBasePath());
 	}
 
+	/**
+	 * Given a file path as a string, will normalize it
+	 * and return the normalized string if valid, or null if not.
+	 */
+	public static String normalizePath(String pathString) {
+		if(pathString != null && !pathString.isEmpty()) {
+			pathString = pathString.replaceFirst("^~", System.getProperty("user.home"));
+			Path p = Paths.get(pathString);
+			pathString = p.normalize().toString();
+			return pathString;
+		}
+		return null;
+	}
+
 	private static Path getDeployedBasePath() {
 		String dir = System.getProperty(LSP4XML_WORKDIR_KEY);
 		if (dir != null) {
 			return Paths.get(dir);
+		}
+		if(cachePathSetting != null && !cachePathSetting.isEmpty()) {
+			return Paths.get(cachePathSetting);
 		}
 		dir = System.getProperty("user.home");
 		if (dir == null) {
