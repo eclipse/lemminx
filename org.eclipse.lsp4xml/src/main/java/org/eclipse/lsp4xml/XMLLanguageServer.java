@@ -14,6 +14,12 @@ package org.eclipse.lsp4xml;
 import static org.eclipse.lsp4j.jsonrpc.CompletableFutures.computeAsync;
 import static org.eclipse.lsp4xml.utils.VersionHelper.getVersion;
 
+import java.io.File;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -44,11 +50,13 @@ import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.settings.AllXMLSettings;
 import org.eclipse.lsp4xml.settings.InitializationOptionsSettings;
 import org.eclipse.lsp4xml.settings.LogsSettings;
+import org.eclipse.lsp4xml.settings.ServerSettings;
 import org.eclipse.lsp4xml.settings.XMLGeneralClientSettings;
 import org.eclipse.lsp4xml.settings.XMLExperimentalCapabilities;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesInitializer;
 import org.eclipse.lsp4xml.settings.capabilities.XMLCapabilityManager;
+import org.eclipse.lsp4xml.utils.FilesUtils;
 
 /**
  * XML language server.
@@ -134,6 +142,12 @@ public class XMLLanguageServer
 			CompletionSettings newCompletions = xmlClientSettings.getCompletion();
 			if (newCompletions != null) {
 				xmlTextDocumentService.updateCompletionSettings(newCompletions);
+			}
+
+			ServerSettings serverSettings = xmlClientSettings.getServer();
+			if(serverSettings != null) {
+				String workDir = serverSettings.getNormalizedWorkDir();
+				FilesUtils.setCachePathSetting(workDir);
 			}
 		
 			// Experimental capabilities
