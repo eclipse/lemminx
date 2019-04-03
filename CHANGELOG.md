@@ -1,5 +1,37 @@
 # Change Log
 
+## [0.5.0](https://github.com/angelozerr/lsp4xml/milestone/5?closed=1) (April 05, 2019)
+
+### Enhancements
+
+* More detailed completion for Prolog. See [#155](https://github.com/angelozerr/lsp4xml/issues/155).
+* Added completion for xmlns attribute. See [#208](https://github.com/angelozerr/lsp4xml/issues/208).
+* Have value completion for `xmlns:xsi`. See [#326](https://github.com/angelozerr/lsp4xml/issues/326).
+* Make ParentProcessWatcher optional. See [#328](https://github.com/angelozerr/lsp4xml/issues/328).
+* Autoclose self-closing tags. See [#239](https://github.com/angelozerr/lsp4xml/issues/239).
+* Don't autoclose tag if the closing tag already exists. See [#314](https://github.com/angelozerr/lsp4xml/issues/314).
+* Changing the content of an XML Schema triggers validation. See [#213](https://github.com/angelozerr/lsp4xml/issues/213).
+* Preference `xml.server.workDir` to set schema cache folder. See [#222](https://github.com/angelozerr/lsp4xml/issues/222).
+* Code action to close missing quotes for attributes. See [#137](https://github.com/angelozerr/lsp4xml/issues/137).
+* Hover for attribute value documentation from XSD's. See [#12](https://github.com/angelozerr/lsp4xml/issues/12).
+* Autocompletion for `xsi:nil` values. See [#247](https://github.com/angelozerr/lsp4xml/issues/247).
+
+### Bug Fixes
+
+* `textDocument/publishDiagnostics` failed with message: Illegal argument: line must be non-negative. See [#157](https://github.com/angelozerr/lsp4xml/pull/157).
+* XSI completion item messages were incorrect. See [#296](https://github.com/angelozerr/lsp4xml/issues/296).
+* Removed trailing whitespace from normalized strings on format. See [#300](https://github.com/angelozerr/lsp4xml/pull/300).
+* Format of attribute without value loses data. See [#294](https://github.com/angelozerr/lsp4xml/issues/294).
+* Cleaned up skipped unit tests. See [#319](https://github.com/angelozerr/lsp4xml/issues/319).
+* Verified that logger settings were actually set on startup before updating settings. See [#81](https://github.com/angelozerr/lsp4xml/issues/81).
+* Fixed error range of cvc-type.3.1.2. See [#318](https://github.com/angelozerr/lsp4xml/issues/318).
+* Fixed error range of ETagUnterminated. See [#317](https://github.com/angelozerr/lsp4xml/issues/317).
+* Fixed error range of cvc-elt.3.2.1. See [#321](https://github.com/angelozerr/lsp4xml/issues/321).
+* Multiple `'insert required attribute'` code actions shown when multiple attributes are missing. See [#209](https://github.com/angelozerr/lsp4xml/issues/209).
+* Self closing tag causes NPE in `cvc_complex_type_2_1CodeAction.doCodeAction`. See [#339](https://github.com/angelozerr/lsp4xml/issues/339).
+* Closing CDATA tag throws exception. See [#341](https://github.com/angelozerr/lsp4xml/issues/341).
+* Fix formatting issue with processing instruction attributes. See [#331](https://github.com/angelozerr/lsp4xml/issues/331).
+  
 ## [0.4.0](https://github.com/angelozerr/lsp4xml/milestone/4?closed=1) (March 07, 2019)
 
 ### Enhancements
