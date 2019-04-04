@@ -156,6 +156,15 @@ public class XMLCompletionTest {
 		testCompletionFor("<a>   <div|    <a>", true, c("div", "<div></div>"));
 	}
 
+	@Test
+	public void testnoCDATANPE() {
+		try {
+			testCompletionFor("<a> <![CDATA[<b>foo</b>]]| </a>", 0);
+		} catch (BadLocationException e) {
+			fail();
+		}
+	}
+
 	// -------------------Tools----------------------------------------------------------
 
 	public void assertOpenStartTagCompletion(String xmlText, int expectedStartTagOffset, boolean startWithTagOpen,

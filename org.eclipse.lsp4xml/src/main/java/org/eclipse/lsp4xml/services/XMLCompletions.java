@@ -338,6 +338,9 @@ public class XMLCompletions {
 		String snippet = null;
 		if (c == '>') { // Case: <a>|
 			DOMNode node = xmlDocument.findNodeBefore(offset);
+			if(!(node instanceof DOMElement)) {
+				return null;
+			}
 			DOMElement element = ((DOMElement) node);
 			if (node != null 
 					&& node.isElement() 
