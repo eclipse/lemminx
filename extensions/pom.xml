@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.lsp4xml</groupId>
 		<artifactId>lsp4xml</artifactId>
-		<version>0.5.0-SNAPSHOT</version>
+		<version>0.5.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>lsp4xml-extensions</artifactId>
 	<packaging>pom</packaging>
