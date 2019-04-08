@@ -51,6 +51,7 @@ import org.eclipse.lsp4xml.settings.AllXMLSettings;
 import org.eclipse.lsp4xml.settings.InitializationOptionsSettings;
 import org.eclipse.lsp4xml.settings.LogsSettings;
 import org.eclipse.lsp4xml.settings.ServerSettings;
+import org.eclipse.lsp4xml.settings.SharedSettings;
 import org.eclipse.lsp4xml.settings.XMLGeneralClientSettings;
 import org.eclipse.lsp4xml.settings.XMLExperimentalCapabilities;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
@@ -206,6 +207,10 @@ public class XMLLanguageServer
 
 	public XMLLanguageService getXMLLanguageService() {
 		return xmlLanguageService;
+	}
+
+	public SharedSettings getSettings() {
+		return xmlTextDocumentService.getSharedSettings();
 	}
 
 	public ScheduledFuture<?> schedule(Runnable command, int delay, TimeUnit unit) {
