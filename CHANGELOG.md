@@ -1,5 +1,12 @@
 # Change Log
 
+## [0.5.1](https://github.com/angelozerr/lsp4xml/milestone/7?closed=1) (April 08, 2019)
+
+### Bug Fixes
+
+* Fixed incorrect expansion of the `~` directory on Windows, for `xml.server.workDir`. See [#348](https://github.com/angelozerr/lsp4xml/pull/348).
+
+
 ## [0.5.0](https://github.com/angelozerr/lsp4xml/milestone/5?closed=1) (April 05, 2019)
 
 ### Enhancements
