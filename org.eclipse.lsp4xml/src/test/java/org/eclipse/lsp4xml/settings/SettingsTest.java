@@ -19,13 +19,13 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.io.File;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import static java.io.File.separator;
 
 /**
  * Tests for settings.
@@ -33,12 +33,12 @@ import com.google.gson.JsonObject;
 public class SettingsTest {
 
 	private static String testFolder = "TestXMLCacheFolder";
-	private static String targetTestFolder = "target/generated-test-sources";
+	private static String targetTestFolder = "target" + separator +"generated-test-sources";
 	
 	
 	@After
 	public void cleanup() {
-		String path = System.getProperty("user.dir") + "/" + targetTestFolder + "/" + testFolder;
+		String path = System.getProperty("user.dir") + separator + targetTestFolder + separator + testFolder;
 		
 		File f = new File(path);
 		if (f.exists()) {
@@ -49,7 +49,8 @@ public class SettingsTest {
 	private final String json = "{\r\n" + //
 			"	\"settings\": {\r\n" + //
 			// Content model settings
-			"		\"xml\": {\r\n" + "			\"fileAssociations\": [\r\n" + //
+			"		\"xml\": {\r\n" + 
+			"			\"fileAssociations\": [\r\n" + //
 			"				{\r\n" + //
 			"					\"systemId\": \"src\\\\test\\\\resources\\\\xsd\\\\spring-beans-3.0.xsd\",\r\n" + //
 			"					\"pattern\": \"**/test*.xml\"\r\n" + //
@@ -75,9 +76,13 @@ public class SettingsTest {
 			"				\"formatComments\": true,\r\n" + //
 			"				\"joinCommentLines\": true,\r\n" + //
 			"				\"quotations\": " + XMLFormattingOptions.DOUBLE_QUOTES_VALUE + "\r\n" + //
-			"			},\r\n" + "			\"server\": {\r\n" + //
+			"			},\r\n" + 
+			"			\"server\": {\r\n" + //
 			"				\"workDir\": \"~/" + testFolder + "/Nested\"\r\n" + //
-			"			}\r\n" + "		}\r\n" + "	}\r\n" + "}";
+			"			}\r\n" + 
+			"		}\r\n" + 
+			"	}\r\n" + 
+			"}";
 
 	@Test
 	public void initializationOptionsSettings() {
@@ -174,12 +179,12 @@ public class SettingsTest {
 		String originalUserHome = System.getProperty("user.home");
 		String userDir = System.getProperty("user.dir");
 		try {
-			System.setProperty("user.home", userDir + "/" + targetTestFolder); // .../org.eclipse.lsp4xml/target/generated-test-sources/
+			System.setProperty("user.home", userDir + separator + targetTestFolder); // .../org.eclipse.lsp4xml/target/generated-test-sources/
 		
 			languageServer.updateSettings(initializationOptionsSettings);
 
 			//Ensure the expanded absolute path is being used.
-			Assert.assertEquals(System.getProperty("user.home") + "/" + testFolder + "/Nested", FilesUtils.getCachePathSetting());
+			Assert.assertEquals(System.getProperty("user.home") + separator + testFolder + separator + "Nested", FilesUtils.getCachePathSetting());
 		} catch (Exception e) {
 			fail();
 		} finally {
@@ -187,8 +192,5 @@ public class SettingsTest {
 			FilesUtils.setCachePathSetting(null);
 			System.setProperty("user.home", originalUserHome);
 		}
-		
-
-		
 	}
 }

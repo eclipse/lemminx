@@ -17,6 +17,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.junit.Test;
+import static java.io.File.separator;
 
 /**
  * FilesUtilsTest
@@ -27,18 +28,19 @@ public class FilesUtilsTest {
 	public void testFilesCachePathPreference() throws Exception {	
 		System.clearProperty(FilesUtils.LSP4XML_WORKDIR_KEY);
 		String newBasePathString = System.getProperty("user.home");
-		String newSubPathString = "New/Sub/Path";
+		String newSubPathString = Paths.get("New", "Sub", "Path").toString();
 		Path newSubPath = Paths.get(newSubPathString);
 		FilesUtils.setCachePathSetting(newBasePathString);
 		Path finalPath = FilesUtils.getDeployedPath(newSubPath);
-		assertEquals(newBasePathString + "/" + newSubPathString, finalPath.toString());
+		assertEquals(Paths.get(newBasePathString, newSubPathString).toString(), finalPath.toString());
 	}
 
 	@Test
 	public void normalizePathTest() {
-		assertEquals(System.getProperty("user.home") + "/Test/Folder", FilesUtils.normalizePath("~/Test/Folder"));
-		assertEquals("/Test/~/Folder", FilesUtils.normalizePath("/Test/~/Folder"));
-		assertEquals("~/Test/Folder", FilesUtils.normalizePath("./~/Test/Folder"));
-		assertEquals("/Folder", FilesUtils.normalizePath("/Test/../Folder"));
+		assertEquals(Paths.get(System.getProperty("user.home"), "Test", "Folder").toString(), FilesUtils.normalizePath("~/Test/Folder"));
+		assertEquals(Paths.get(separator, "Test", "~", "Folder").toString(), FilesUtils.normalizePath("/Test/~/Folder"));
+		assertEquals(Paths.get("~", "Test", "Folder").toString(), FilesUtils.normalizePath("./~/Test/Folder"));
+		assertEquals(Paths.get(separator, "Folder").toString(), FilesUtils.normalizePath("/Test/../Folder"));
+		assertEquals(Paths.get(separator, "Users", "Nikolas").toString(), FilesUtils.normalizePath("\\Users\\Nikolas\\"));
 	}
 }

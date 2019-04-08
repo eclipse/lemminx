@@ -10,6 +10,7 @@
  */
 package org.eclipse.lsp4xml.utils;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
@@ -62,10 +63,17 @@ public class FilesUtils {
 	/**
 	 * Given a file path as a string, will normalize it
 	 * and return the normalized string if valid, or null if not.
+	 * 
+	 * The '~' home symbol will be converted into the actual home path.
+	 * Slashes will be corrected depending on the OS.
 	 */
 	public static String normalizePath(String pathString) {
-		if(pathString != null && !pathString.isEmpty()) {
-			pathString = pathString.replaceFirst("^~", System.getProperty("user.home"));
+		if (pathString != null && !pathString.isEmpty()) {
+			if (pathString.indexOf("~") == 0) {
+				pathString = System.getProperty("user.home") + (pathString.length() > 1? pathString.substring(1):"");
+			}
+			pathString = pathString.replace("/", File.separator);
+			pathString = pathString.replace("\\", File.separator);
 			Path p = Paths.get(pathString);
 			pathString = p.normalize().toString();
 			return pathString;

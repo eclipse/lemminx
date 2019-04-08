@@ -397,7 +397,7 @@ public class XMLFormatterTest {
 		String expected = 
 		"<a>" + lineSeparator() +
 		" Content" + lineSeparator() +
-		"</a> <!-- My Comment -->\n";
+		"</a> <!-- My Comment -->" + lineSeparator();
 	
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		formattingOptions.setJoinCommentLines(true);
@@ -1544,8 +1544,8 @@ public class XMLFormatterTest {
 		String content = 
 				"<a name = test> </a>";
 		String expected = 
-				"<a\n" +
-				"    name=\n" +
+				"<a" + lineSeparator() +
+				"    name=" + lineSeparator() +
 				"    test></a>";
 		format(content, expected, formattingOptions);
 	}

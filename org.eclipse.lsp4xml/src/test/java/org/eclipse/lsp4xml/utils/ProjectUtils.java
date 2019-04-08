@@ -10,6 +10,7 @@
 
 package org.eclipse.lsp4xml.utils;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -23,7 +24,7 @@ public class ProjectUtils {
 	 * @return the current lsp4xml project directory
 	 */
 	public static Path getProjectDirectory() {
-		String currPath = ProjectUtils.class.getClassLoader().getResource("").getFile();
+		String currPath = new File(ProjectUtils.class.getClassLoader().getResource("").getPath()).toString();
 		Path dir = Paths.get(currPath);
 		while (!Files.exists(dir.resolve("pom.xml")) && dir.getParent() != null) {
 			dir = dir.getParent();
