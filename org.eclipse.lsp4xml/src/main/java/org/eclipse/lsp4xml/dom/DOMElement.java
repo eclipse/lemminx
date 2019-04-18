@@ -13,6 +13,7 @@ package org.eclipse.lsp4xml.dom;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import org.eclipse.lsp4xml.utils.StringUtils;
 import org.w3c.dom.DOMException;
@@ -30,14 +31,16 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 
 	String tag;
 	boolean selfClosed;
-	
-	//DomElement.start == startTagOpenOffset
+
+	// DomElement.start == startTagOpenOffset
 	Integer startTagOpenOffset; // |<root>
 	Integer startTagCloseOffset; // <root |>
 
 	Integer endTagOpenOffset; // <root> |</root >
 	Integer endTagCloseOffset;// <root> </root |>
-	//DomElement.end = <root> </root>| , is always scanner.getTokenEnd()
+	// DomElement.end = <root> </root>| , is always scanner.getTokenEnd()
+
+	List<DOMElement> childElements;
 
 	public DOMElement(int start, int end, DOMDocument ownerDocument) {
 		super(start, end, ownerDocument);
@@ -253,31 +256,29 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 		return selfClosed;
 	}
 
-
 	/**
-	 * Will traverse backwards from the start offset
-	 * returning an offset of the given character if it's found 
-	 * before another character. Whitespace is ignored.
+	 * Will traverse backwards from the start offset returning an offset of the
+	 * given character if it's found before another character. Whitespace is
+	 * ignored.
 	 * 
 	 * Returns null if the character is not found.
 	 * 
-	 * The initial value for the start offset is not included.
-	 * So have the offset 1 position after the character you want
-	 * to start at.
+	 * The initial value for the start offset is not included. So have the offset 1
+	 * position after the character you want to start at.
 	 */
 	public Integer endsWith(char c, int startOffset) {
 		String text = this.getOwnerDocument().getText();
-		if(startOffset > text.length() || startOffset < 0) {
+		if (startOffset > text.length() || startOffset < 0) {
 			return null;
 		}
 		startOffset--;
-		while(startOffset >= 0) {
+		while (startOffset >= 0) {
 			char current = text.charAt(startOffset);
-			if(Character.isWhitespace(current)) {
+			if (Character.isWhitespace(current)) {
 				startOffset--;
 				continue;
 			}
-			if(current != c) {
+			if (current != c) {
 				return null;
 			}
 			return startOffset;
@@ -287,24 +288,23 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 
 	public Integer isNextChar(char c, int startOffset) {
 		String text = this.getOwnerDocument().getText();
-		if(startOffset > text.length() || startOffset < 0) {
+		if (startOffset > text.length() || startOffset < 0) {
 			return null;
 		}
-		
-		while(startOffset < text.length()) {
+
+		while (startOffset < text.length()) {
 			char current = text.charAt(startOffset);
-			if(Character.isWhitespace(current)) {
+			if (Character.isWhitespace(current)) {
 				startOffset++;
 				continue;
 			}
-			if(current != c) {
+			if (current != c) {
 				return null;
 			}
 			return startOffset;
 		}
 		return null;
 	}
-
 
 	public boolean isSameTag(String tagInLowerCase) {
 		return this.tag != null && tagInLowerCase != null && this.tag.length() == tagInLowerCase.length()
@@ -393,9 +393,65 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 		return endTagCloseOffset != null;
 	}
 
+	public boolean hasChildElement(String name) {
+		if (name == null) {
+			return false;
+		}
+		DOMElement child = getChildElement(name);
+		if (child == null) {
+			return false;
+		}
+		return name.equals(child.getTagName());
+	}
+
+	public DOMElement getChildElement(String name) {
+		if (!hasChildNodes() || name == null || name.isEmpty()) {
+			return null;
+		}
+		List<DOMElement> children = getChildElements();
+		for (DOMElement child : children) {
+			if (child instanceof DOMElement) {
+				if (name.equals(child.getTagName())) {
+					return child;
+				}
+			}
+		}
+		return null;
+	}
+
+	public DOMElement getChildElementAfterOffset(int offset) {
+		List<DOMElement> children = getChildElements();
+		for (DOMElement child : children) {
+			if (child instanceof DOMElement) {
+				if (child.getStart() > offset) {
+					return child;
+				}
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public void addChild(DOMNode child) {
+		if (child instanceof DOMElement) {
+			if (childElements == null) {
+				childElements = new ArrayList<DOMElement>();
+			}
+			childElements.add((DOMElement) child);
+		}
+		super.addChild(child);
+	}
+
+	public List<DOMElement> getChildElements() {
+		if (childElements == null) {
+			childElements = new ArrayList<DOMElement>();
+		}
+		return this.childElements;
+	}
+
 	@Override
 	/**
-	 * If Element has a closing end tag eg: <a> </a> -> true , <a> </b> -> false 
+	 * If Element has a closing end tag eg: <a> </a> -> true , <a> </b> -> false
 	 */
 	public boolean isClosed() {
 		return super.isClosed();
@@ -417,8 +473,69 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 	}
 
 	@Override
-	public NodeList getElementsByTagName(String arg0) {
+	public NodeList getElementsByTagName(String elementName) {
 		return null;
+	}
+
+	/**
+	 * Returns the number of same named child elements immediately surrounding the childElement.
+	 * 
+	 * If an element that does not have the same name is found it stops.
+	 * 
+	 * This looks at before and after the given element.
+	 * 
+	 * 
+	 * @param childElement
+	 * @return
+	 */
+	public int getNumberOfSameSurroundingElements(DOMElement childElement) {
+		if(childElement == null || childElement.getTagName() == null) {
+			return -1;
+		}
+		String childElementName = childElement.getTagName();
+
+		int counter = 1;
+		List<DOMElement> elements = getChildElements();
+		int startIndex = elements.indexOf(childElement);
+		int i = startIndex - 1;
+
+		while(i >= 0) {
+			DOMElement currentElement = elements.get(i);
+			if(childElementName.equals(currentElement.getTagName())) {
+				counter++;
+				i--;
+			}
+			else {
+				break;
+			}
+		}
+
+		i = startIndex + 1;
+		while(i < childElements.size()) {
+			DOMElement currentElement = elements.get(i);
+			if(childElementName.equals(currentElement.getTagName())) {
+				counter++;
+				i++;
+			}
+			else {
+				break;
+			}
+		}
+
+		return counter;
+	}
+
+	public int getNumberOfChildElementsWithTagName(String elementName) {
+		if (elementName == null) {
+			return 0;
+		}
+		int occurrences = 0;
+		for (DOMElement childElement : childElements) {
+			if (elementName.equals(childElement.getTagName())) {
+				occurrences++;
+			}
+		}
+		return occurrences;
 	}
 
 	@Override

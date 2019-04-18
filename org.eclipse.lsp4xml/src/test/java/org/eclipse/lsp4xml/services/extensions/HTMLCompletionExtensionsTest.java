@@ -163,14 +163,14 @@ public class HTMLCompletionExtensionsTest {
 							if (index != -1) {
 								attribute = attribute.substring(0, index);
 							}
-							if (!completionResponse.hasAttribute(attribute)) {
+							if (!completionResponse.hasSeen(attribute)) {
 								CompletionItem item = new CompletionItem();
 								item.setLabel(attribute);
 								item.setKind(CompletionItemKind.Value);
 								String value = generateValue ? "=\"$1\"" : "";
 								item.setTextEdit(new TextEdit(replaceRange, attribute + value));
 								item.setInsertTextFormat(InsertTextFormat.Snippet);
-								completionResponse.addCompletionAttribute(item);
+								completionResponse.addCompletionItemAsSeen(item);
 							}
 						}
 					}
@@ -205,7 +205,7 @@ public class HTMLCompletionExtensionsTest {
 									item.setKind(CompletionItemKind.Unit);
 									item.setTextEdit(new TextEdit(fullRange, insertText));
 									item.setInsertTextFormat(InsertTextFormat.PlainText);
-									completionResponse.addCompletionAttribute(item);
+									completionResponse.addCompletionItemAsSeen(item);
 								}
 								break;
 							}

@@ -21,7 +21,6 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -199,8 +198,17 @@ public class XMLSchemaCompletionExtensionsTest {
 				+ //
 				"  <ViewDefinitions>\r\n" + //
 				"    <View><|";
-		XMLAssert.testCompletionFor(xml, null, "src/test/resources/Format.xml", null, c("Name", "<Name></Name>"),
-				c("ViewSelectedBy", "<ViewSelectedBy></ViewSelectedBy>"));
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/Format.xml", null, c("Name", "<Name></Name>"));
+	}
+	
+	@Test
+	public void noNamespaceSchemaLocationCompletionAfterName() throws BadLocationException {
+		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
+				"<Configuration xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"xsd/Format.xsd\">\r\n"
+				+ //
+				"  <ViewDefinitions>\r\n" + //
+				"    <View><Name></Name><|";
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/Format.xml", null, c("ViewSelectedBy","<ViewSelectedBy></ViewSelectedBy>"));
 	}
 
 	@Test
@@ -210,7 +218,7 @@ public class XMLSchemaCompletionExtensionsTest {
 				+ " xsi:schemaLocation=\"http://invoice xsd/invoice.xsd \">\r\n" + //
 				"  <|";
 		XMLAssert.testCompletionFor(xml, null, "src/test/resources/invoice.xml", null, c("date", "<date></date>"),
-				c("number", "<number></number>"));
+				c("date", "<date></date>"));
 	}
 
 	@Test
@@ -500,6 +508,259 @@ public class XMLSchemaCompletionExtensionsTest {
 
 		XMLAssert.testCompletionFor(xml, 2, c("xsi:nil", "xsi:nil=\"true\""), c("xsi:type", "xsi:type=\"\""));
 	}
+
+
+	@Test
+	public void testXSDSequenceCompletion() throws BadLocationException {
+		String xml = 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" +
+			"<data\r\n" +
+			"    xmlns=\"http://sequence\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" +
+			"    xsi:schemaLocation=\"http://sequence ../xsd/modelGroup/sequence.xsd\">\r\n" +
+			"  <e1></e1>\r\n" +
+			"  <e2></e2>\r\n" +
+			"  |\r\n" +
+			"</data>\r\n";
+		XMLAssert.testCompletionFor(xml,  null, "src/test/resources/catalog/catalog.xml", null, c("e3", "<e3></e3>"));
+	};
+
+	@Test
+	public void testXSDSequenceCompletion2() throws BadLocationException {
+		String xml = 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" +
+			"<data\r\n" +
+			"    xmlns=\"http://sequence\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" +
+			"    xsi:schemaLocation=\"http://sequence ../xsd/modelGroup/sequence.xsd\">\r\n" +
+			"  <e1></e1>\r\n" +
+			"  <e2></e2>\r\n" +
+			"  |\r\n" +
+			"</data>\r\n";
+		XMLAssert.testCompletionFor(xml,  null, "src/test/resources/catalog/catalog.xml", null, c("e3", "<e3></e3>"), c("optional2", "<optional2></optional2>"), c("optional22", "<optional22></optional22>"));
+	};
+	
+	@Test
+	public void testXSDSequenceCompletion3() throws BadLocationException {
+		String xml = 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" +
+			"<data\r\n" +
+			"    xmlns=\"http://sequence\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" +
+			"    xsi:schemaLocation=\"http://sequence ../xsd/modelGroup/sequence.xsd\">\r\n" +
+			"  <e1></e1>\r\n" +
+			"  <e2></e2>\r\n" +
+			"  |\r\n" +
+			"</data>\r\n";
+		XMLAssert.testCompletionFor(xml,  null, "src/test/resources/catalog/catalog.xml", 5, c("e3", "<e3></e3>"), c("optional2", "<optional2></optional2>"), c("optional22", "<optional22></optional22>"));
+		// The added 2 completions are the start/end folding range completions
+	};
+	
+	@Test
+	public void testXSDSequenceCompletion4() throws BadLocationException {
+		String xml = 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" +
+			"<data\r\n" +
+			"    xmlns=\"http://sequence\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" +
+			"    xsi:schemaLocation=\"http://sequence ../xsd/modelGroup/sequence.xsd\">\r\n" +
+			"  |\r\n" +
+			"</data>\r\n";
+		XMLAssert.testCompletionFor(xml,  null, "src/test/resources/catalog/catalog.xml", 4, c("optional0", "<optional0></optional0>"), c("e1", "<e1></e1>"));
+	};
+	
+	@Test
+	public void testXSDSequenceCompletionMaxOccursAndNextRequired() throws BadLocationException {
+		String xml = 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" +
+			"<data\r\n" +
+			"    xmlns=\"http://sequence\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" +
+			"    xsi:schemaLocation=\"http://sequence ../xsd/modelGroup/sequence.xsd\">\r\n" +
+			"  <optional0></optional0>\r\n" +
+			"  <optional0></optional0>\r\n" +
+			"  <optional0></optional0>\r\n" +
+			"  |\r\n" +
+			"</data>\r\n";
+		XMLAssert.testCompletionFor(xml,  null, "src/test/resources/catalog/catalog.xml", 4, c("optional0", "<optional0></optional0>"), c("e1", "<e1></e1>"));
+	};
+	
+	@Test
+	public void testXSDSequenceCompletionMaxOccursInsideSameElement() throws BadLocationException {
+		String xml = 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" +
+			"<data\r\n" +
+			"    xmlns=\"http://sequence\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" +
+			"    xsi:schemaLocation=\"http://sequence ../xsd/modelGroup/sequence.xsd\">\r\n" +
+			"  <optional0></optional0>\r\n" +
+			"  |\r\n" +
+			"  <optional0></optional0>\r\n" +	
+			"</data>\r\n";
+		XMLAssert.testCompletionFor(xml,  null, "src/test/resources/catalog/catalog.xml", 3, c("optional0", "<optional0></optional0>"));
+	};
+
+	@Test
+	public void testXSDSequenceCompletionDidntReachMaxOccursAtEnd() throws BadLocationException {
+		String xml = 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" +
+			"<data\r\n" +
+			"    xmlns=\"http://sequence\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" +
+			"    xsi:schemaLocation=\"http://sequence ../xsd/modelGroup/sequenceMaxOccurs.xsd\">\r\n" +
+			"  <e1></e1>\r\n" +
+			"  <e2></e2>\r\n" +
+			"  |" +
+			"</data>\r\n";
+		XMLAssert.testCompletionFor(xml,  null, "src/test/resources/catalog/catalog.xml", 3, c("e2", "<e2></e2>"));
+	};
+
+	@Test
+	public void testXSDSequenceCompletionReachedMaxOccursAtEnd() throws BadLocationException {
+		String xml = 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" +
+			"<data\r\n" +
+			"    xmlns=\"http://sequence\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" +
+			"    xsi:schemaLocation=\"http://sequence ../xsd/modelGroup/sequenceMaxOccurs.xsd\">\r\n" +
+			"  <e1></e1>\r\n" +
+			"  <e2></e2>\r\n" +
+			"  <e2></e2>\r\n" +
+			"  |" +
+			"</data>\r\n";
+		XMLAssert.testCompletionFor(xml,  null, "src/test/resources/catalog/catalog.xml", 2);
+	};
+
+	@Test
+	public void testXSDSequenceCompletion5() throws BadLocationException {
+		String xml = 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" +
+			"<data\r\n" +
+			"    xmlns=\"http://sequence\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" +
+			"    xsi:schemaLocation=\"http://sequence ../xsd/modelGroup/sequence.xsd\">\r\n" +
+			"  <optional0></optional0>\r\n" +
+			"  <e1></e1>\r\n" +
+			"  <optional1></optional1>\r\n" +
+			"  |\r\n" +
+			"</data>\r\n";
+		XMLAssert.testCompletionFor(xml,  null, "src/test/resources/catalog/catalog.xml", 5, c("optional1", "<optional1></optional1>"), c("optional11", "<optional11></optional11>"), c("e2", "<e2></e2>"));
+	};
+	
+	@Test
+	public void testXSDSequenceCompletionNoMoreCompletions() throws BadLocationException {
+		String xml = 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" +
+			"<data\r\n" +
+			"    xmlns=\"http://sequence\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" +
+			"    xsi:schemaLocation=\"http://sequence ../xsd/modelGroup/sequence.xsd\">\r\n" +
+			"  <optional0></optional0>\r\n" +
+			"  <e1></e1>\r\n" +
+			"  <e2></e2>\r\n" +
+			"  <e3></e3>\r\n" +
+			"  <optional3></optional3>\r\n" +
+			"  |\r\n" +
+			"</data>\r\n";
+		XMLAssert.testCompletionFor(xml,  null, "src/test/resources/catalog/catalog.xml", 2);
+	};
+	
+	@Test
+	public void testXSDSequenceSubstitutionGroup() throws BadLocationException {
+		String xml = 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" +
+			"<data\r\n" +
+			"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" +
+			"    xsi:noNamespaceSchemaLocation=\"../xsd/modelGroup/sequenceSubstitutionGroup.xsd\">\r\n" +
+			"  <optional0></optional0>\r\n" +
+			"  <e1></e1>\r\n" +
+			"  |\r\n" +
+			"</data>\r\n";
+		XMLAssert.testCompletionFor(xml,  null, "src/test/resources/catalog/catalog.xml", 6,  c("optional1", "<optional1></optional1>"), c("substituteElement", "<substituteElement></substituteElement>") , c("substituted1", "<substituted1></substituted1>"),  c("substituted2", "<substituted2></substituted2>"));
+	};
+	
+	@Test
+	public void testXSDChoice() throws BadLocationException {
+		String xml = 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" +
+			"<data\r\n" +
+			"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" +
+			"    xsi:noNamespaceSchemaLocation=\"../xsd/modelGroup/choice.xsd\">\r\n" +
+			"  |\r\n" +
+			"</data>\r\n";
+		XMLAssert.testCompletionFor(xml,  null, "src/test/resources/catalog/catalog.xml", 5,  c("e1", "<e1></e1>"), c("e2", "<e2></e2>"), c("e3", "<e3></e3>") );
+	};
+
+	@Test
+	public void testXSDChoiceOneAlreadyExists() throws BadLocationException {
+		String xml = 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" +
+			"<data\r\n" +
+			"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" +
+			"    xsi:noNamespaceSchemaLocation=\"../xsd/modelGroup/choice.xsd\">\r\n" +
+			"  <e3></e3>\r\n" +
+			"  |\r\n" +
+			"</data>\r\n";
+		XMLAssert.testCompletionFor(xml,  null, "src/test/resources/catalog/catalog.xml", 2);
+	};
+	
+	@Test
+	public void testXSDChoiceWithMaxOccurs() throws BadLocationException {
+		String xml = 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" +
+			"<data\r\n" +
+			"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" +
+			"    xsi:noNamespaceSchemaLocation=\"../xsd/modelGroup/choiceMaxOccurs.xsd\">\r\n" +
+			"  <e3></e3>\r\n" +
+			"  <e3></e3>\r\n" +
+			"  |\r\n" +
+			"</data>\r\n";
+		XMLAssert.testCompletionFor(xml,  null, "src/test/resources/catalog/catalog.xml", 4, c("e1", "<e1></e1>"), c("e2", "<e2></e2>"));
+	};
+	
+	@Test
+	public void testXSDChoiceWithMaxOccursOnlyInChoice() throws BadLocationException {
+		String xml = 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" +
+			"<data\r\n" +
+			"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" +
+			"    xsi:noNamespaceSchemaLocation=\"../xsd/modelGroup/choiceMaxOccursOnlyChoice.xsd\">\r\n" +
+			"  <e3></e3>\r\n" +
+			"  <e2></e2>\r\n" +
+			"  |\r\n" +
+			"</data>\r\n";
+		XMLAssert.testCompletionFor(xml,  null, "src/test/resources/catalog/catalog.xml", 3, c("e1", "<e1></e1>"));
+	};
+	
+	@Test
+	public void testXSDChoiceWithMaxOccursOnlyInChoiceWithMultipleMissing() throws BadLocationException {
+		String xml = 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" +
+			"<data\r\n" +
+			"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" +
+			"    xsi:noNamespaceSchemaLocation=\"../xsd/modelGroup/choiceMaxOccursOnlyChoice.xsd\">\r\n" +
+			"  <e3></e3>\r\n" +
+			"  |\r\n" +
+			"</data>\r\n";
+		XMLAssert.testCompletionFor(xml,  null, "src/test/resources/catalog/catalog.xml", 4, c("e1", "<e1></e1>"), c("e2", "<e2></e2>"));
+	};
+	
+	@Test
+	public void testXSDAll() throws BadLocationException {
+		String xml = 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" +
+			"<data\r\n" +
+			"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" +
+			"    xsi:noNamespaceSchemaLocation=\"../xsd/modelGroup/all.xsd\">\r\n" +
+			"  |\r\n" +
+			"</data>\r\n";
+		XMLAssert.testCompletionFor(xml,  null, "src/test/resources/catalog/catalog.xml", 5,  c("e1", "<e1></e1>"), c("e2", "<e2></e2>"), c("e3", "<e3></e3>") );
+	};
+	
+	@Test
+	public void testXSDAllOneAlreadyExists() throws BadLocationException {
+		String xml = 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" +
+			"<data\r\n" +
+			"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" +
+			"    xsi:noNamespaceSchemaLocation=\"../xsd/modelGroup/all.xsd\">\r\n" +
+			"  <e3></e3>\r\n" +
+			"  |\r\n" +
+			"</data>\r\n";
+		XMLAssert.testCompletionFor(xml,  null, "src/test/resources/catalog/catalog.xml", 4, c("e1", "<e1></e1>"), c("e2", "<e2></e2>") );
+	};
+
+
 
 	private void testCompletionFor(String xml, CompletionItem... expectedItems) throws BadLocationException {
 		XMLAssert.testCompletionFor(xml, "src/test/resources/catalogs/catalog.xml", expectedItems);

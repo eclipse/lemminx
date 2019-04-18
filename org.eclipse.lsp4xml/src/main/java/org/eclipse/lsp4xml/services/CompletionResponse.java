@@ -33,8 +33,19 @@ class CompletionResponse extends CompletionList implements ICompletionResponse {
 	public void addCompletionItem(CompletionItem completionItem, boolean fromGrammar) {
 		if (fromGrammar) {
 			hasSomeItemFromGrammar = true;
+
+		}
+		if(completionItem == null) {
+			return;
 		}
 		addCompletionItem(completionItem);
+	}
+
+	/**
+	 * Indicates to not create anymore completion items.
+	 */
+	public void doNotCreateAnymoreItems() {
+		this.hasSomeItemFromGrammar = true;
 	}
 
 	@Override
@@ -48,15 +59,16 @@ class CompletionResponse extends CompletionList implements ICompletionResponse {
 	}
 
 	@Override
-	public boolean hasAttribute(String attribute) {
+	public boolean hasSeen(String label) {
 		/*
 		 * if (node != null && node.hasAttribute(attribute)) { return true; }
 		 */
-		return seenAttributes != null ? seenAttributes.contains(attribute) : false;
+		return seenAttributes != null ? seenAttributes.contains(label) : false;
 	}
 
 	@Override
-	public void addCompletionAttribute(CompletionItem completionItem) {
+	public void addCompletionItemAsSeen(CompletionItem completionItem) {
+		hasSomeItemFromGrammar = true;
 		if (seenAttributes == null) {
 			seenAttributes = new ArrayList<>();
 		}

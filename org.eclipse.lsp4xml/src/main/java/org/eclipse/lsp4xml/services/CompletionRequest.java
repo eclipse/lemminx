@@ -50,7 +50,11 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 
 	@Override
 	protected DOMNode findNodeAt(DOMDocument xmlDocument, int offset) {
-		return xmlDocument.findNodeBefore(offset);
+		DOMNode node = xmlDocument.findNodeBefore(offset);
+		if(node.isClosed() && offset >= node.getEnd()) {
+			node = node.getParentNode();
+		}
+		return node;
 	}
 
 	@Override

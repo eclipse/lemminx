@@ -43,7 +43,7 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 	private List<String> hierachies;
 
 	@Override
-	public Collection<CMElementDeclaration> getElements() {
+	public List<CMElementDeclaration> getElements() {
 		if (elements == null) {
 			elements = new ArrayList<>();
 			int index = grammar.getFirstElementDeclIndex();

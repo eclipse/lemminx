@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    <xs:element name="data">
+        <xs:complexType>
+            <xs:sequence>
+								<xs:element name="optional0" minOccurs="0" maxOccurs="unbounded" />
+                <xs:element name="e1"/>
+								<xs:element name="optional1" minOccurs="0" maxOccurs="unbounded" />
+								<xs:element ref="substituteElement" />
+								<xs:element name="optional11" minOccurs="0" maxOccurs="2" />
+                <xs:element name="e2" />
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+		<xs:element name="substituteElement" abstract="false" >
+		</xs:element>
+
+		<xs:element name="substituted1" substitutionGroup="substituteElement" />
+		<xs:element name="substituted2" substitutionGroup="substituteElement" />
+</xs:schema>

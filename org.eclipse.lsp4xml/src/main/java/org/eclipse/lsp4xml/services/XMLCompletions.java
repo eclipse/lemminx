@@ -486,6 +486,14 @@ public class XMLCompletions {
 		}
 		DOMElement parentNode = completionRequest.getParentElement();
 		if (parentNode != null && !completionResponse.hasSomeItemFromGrammar()) {
+
+			/**
+			 * If no CompletionParticipants create a completion item then
+			 * this will create completions of existing elements. There is
+			 * a chance this is invalid based off of the schema.
+			 */
+
+
 			// no grammar, collect similar tags from the parent node
 			Set<String> seenElements = new HashSet<>();
 			if (parentNode != null && parentNode.isElement() && parentNode.hasChildNodes()) {
@@ -641,7 +649,7 @@ public class XMLCompletions {
 				beginProposal.setSortText("za");
 				beginProposal.setKind(CompletionItemKind.Snippet);
 				beginProposal.setInsertTextFormat(InsertTextFormat.Snippet);
-				response.addCompletionAttribute(beginProposal);
+				response.addCompletionItemAsSeen(beginProposal);
 
 				CompletionItem endProposal = new CompletionItem("#endregion");
 				endProposal.setKind(CompletionItemKind.Snippet);
@@ -649,7 +657,7 @@ public class XMLCompletions {
 				endProposal.setDocumentation("Folding Region End");
 				endProposal.setFilterText(match.group());
 				endProposal.setSortText("zb");
-				response.addCompletionAttribute(endProposal);
+				response.addCompletionItemAsSeen(endProposal);
 			}
 		} catch (BadLocationException e) {
 			LOGGER.log(Level.SEVERE, "While performing collectRegionCompletion", e);

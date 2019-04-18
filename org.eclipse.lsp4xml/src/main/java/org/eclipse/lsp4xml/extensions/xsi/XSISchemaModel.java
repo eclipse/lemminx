@@ -87,7 +87,7 @@ public class XSISchemaModel {
 
 		boolean isSnippetsSupported = request.getCompletionSettings().isCompletionSnippetsSupported();
 		if(inRootElement) {
-			if(!hasAttribute(elementAtOffset, "xmlns") && !response.hasAttribute("xmlns")) { // "xmlns" completion
+			if(!hasAttribute(elementAtOffset, "xmlns") && !response.hasSeen("xmlns")) { // "xmlns" completion
 				createCompletionItem("xmlns", isSnippetsSupported, generateValue, editRange, null, null, null, response, settings);
 			}
 			if(document.hasSchemaInstancePrefix() == false) { // "xmlns:xsi" completion
@@ -196,7 +196,7 @@ public class XSISchemaModel {
 			item = new CompletionItem();
 			item.setLabel(option);
 			item.setFilterText(currentQuotation + option + currentQuotation);
-			item.setKind(CompletionItemKind.Enum);
+			item.setKind(CompletionItemKind.Value);
 			item.setTextEdit(new TextEdit(editRange, optionWithQuotes));
 			response.addCompletionItem(item);
 		}

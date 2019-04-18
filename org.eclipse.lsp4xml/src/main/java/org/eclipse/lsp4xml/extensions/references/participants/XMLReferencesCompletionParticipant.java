@@ -38,7 +38,7 @@ public class XMLReferencesCompletionParticipant extends CompletionParticipantAda
 				CompletionItem item = new CompletionItem();
 				item.setLabel(label);
 				String insertText = label;
-				item.setKind(CompletionItemKind.Property);
+				item.setKind(CompletionItemKind.Text);
 				item.setDocumentation(Either.forLeft(label));
 				item.setFilterText(insertText);
 				item.setTextEdit(new TextEdit(range, insertText));

@@ -33,14 +33,14 @@ public interface ICompletionResponse {
 	 */
 	void addCompletionItem(CompletionItem completionItem);
 
-	boolean hasAttribute(String attribute);
+	boolean hasSeen(String label);
 
 	/**
 	 * Add completion attribute.
 	 * 
 	 * @param item
 	 */
-	void addCompletionAttribute(CompletionItem item);
+	void addCompletionItemAsSeen(CompletionItem item);
 
 	/**
 	 * Returns <code>true</code> if there are completion items coming from grammar

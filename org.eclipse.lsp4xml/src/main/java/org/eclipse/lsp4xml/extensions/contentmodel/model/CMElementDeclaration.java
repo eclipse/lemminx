@@ -11,6 +11,7 @@
 package org.eclipse.lsp4xml.extensions.contentmodel.model;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Content model element which abstracts element declaration from a given
@@ -57,7 +58,7 @@ public interface CMElementDeclaration {
 	 * 
 	 * @return the children declared element of this declared element.
 	 */
-	Collection<CMElementDeclaration> getElements();
+	List<CMElementDeclaration> getElements();
 
 	/**
 	 * Returns the declared element which matches the given XML tag name / namespace

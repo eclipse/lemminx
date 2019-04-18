@@ -10,7 +10,7 @@
  */
 package org.eclipse.lsp4xml.extensions.contentmodel.model;
 
-import java.util.Collection;
+import java.util.List;
 
 import org.eclipse.lsp4xml.dom.DOMElement;
 
@@ -20,8 +20,8 @@ import org.eclipse.lsp4xml.dom.DOMElement;
  */
 public interface CMDocument {
 
-	Collection<CMElementDeclaration> getElements();
-	
+	List<CMElementDeclaration> getElements();
+
 	/**
 	 * Returns the declared element which matches the given XML element and null
 	 * otherwise.

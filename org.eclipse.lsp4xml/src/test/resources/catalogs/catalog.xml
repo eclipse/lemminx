@@ -25,6 +25,8 @@
 
 	<system systemId="http://money.xsd" uri="../xsd/money.xsd" />
 
+	<system systemId="http://sequence.xsd" uri="../xsd/modelGroup/sequence.xsd" /> 
+
 	<uri name="http://docs.oasis-open.org/odata/ns/edmx"
 		uri="../xsd/edmx.xsd" />
 	<uri name="http://docs.oasis-open.org/odata/ns/edm"

@@ -13,9 +13,11 @@ package org.eclipse.lsp4xml.extensions.xsd.contentmodel;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import org.apache.xerces.impl.dv.xs.XSSimpleTypeDecl;
 import org.apache.xerces.impl.xs.XSComplexTypeDecl;
+import org.apache.xerces.impl.xs.XSElementDecl;
 import org.apache.xerces.xs.XSAttributeUse;
 import org.apache.xerces.xs.XSComplexTypeDefinition;
 import org.apache.xerces.xs.XSConstants;
@@ -32,6 +34,18 @@ import org.eclipse.lsp4xml.extensions.contentmodel.model.CMElementDeclaration;
 
 /**
  * XSD element declaration implementation.
+ * 
+ * VARIABLE_NAME(CLASS)[RETRIEVAL_METHOD\]
+ * 
+ * elementDeclaration(XSElementDeclaration, XSConstants.ELEMENT_DECLARATION)
+ * fName(String)[getName()]
+ * fSubGroup(XSElementDeclaration)[getSubstitutionGroupAffiliation()]
+ * fType(XSTypeDefinition->Simple/Complex)[getTypeDefinition()]
+ * fParticle(XSParticle)[getParticle()] fValue(XSTerm -> XSConstants.MODEL_GROUP
+ * || XSConstants.ELEMENT_DECLARATION)[getTerm()] fCompositor(short ->
+ * XSModelGroup.X)[getCompositor()] fParticles(XSParticle[])[getParticles]
+ * 
+ * TYPE(XSConstants)[getType()]
  *
  */
 public class CMXSDElementDeclaration implements CMElementDeclaration {
@@ -42,9 +56,11 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 
 	private Collection<CMAttributeDeclaration> attributes;
 
-	private Collection<CMElementDeclaration> elements;
+	private List<CMElementDeclaration> elements;
 
 	private String documentation;
+
+	public boolean isOptional;
 
 	public CMXSDElementDeclaration(CMXSDDocument document, XSElementDeclaration elementDeclaration) {
 		this.document = document;
@@ -99,7 +115,13 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 	}
 
 	@Override
-	public Collection<CMElementDeclaration> getElements() {
+	/**
+	 * Gets all possible children elements of this element.
+	 * 
+	 * The modelGroup(all, choice, equence) and existing elements in the XML are not
+	 * considered and must be handled.
+	 */
+	public List<CMElementDeclaration> getElements() {
 		if (elements == null) {
 			elements = new ArrayList<>();
 			collectElementsDeclaration(elementDeclaration, elements);
@@ -107,9 +129,58 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 		return elements;
 	}
 
-	private void collectElementsDeclaration(XSElementDeclaration elementDecl,
-			Collection<CMElementDeclaration> elements) {
+	public XSParticle getParticle() {
+		if (elementDeclaration instanceof XSElementDecl) {
+			XSElementDecl decl = (XSElementDecl) elementDeclaration;
+			short type = elementDeclaration.getTypeDefinition().getTypeCategory();
+			if (type != XSTypeDefinition.COMPLEX_TYPE) {
+				return null;
+			}
+			XSComplexTypeDefinition complexType = (XSComplexTypeDefinition) decl.fType;
+			return complexType.getParticle();
+		}
+		return null;
+	}
+
+	/**
+	 * The term is the object that holds the content inside a complex type tag.
+	 * 
+	 * The fValue of an XSParticleDecl
+	 * 
+	 * XSModelGroup | XSWildCard | XSElementDecl
+	 */
+	public XSTerm getTerm() {
+		XSParticle particle = getParticle();
+		return particle != null ? particle.getTerm() : null;
+	}
+
+	/**
+	 * Returns the model group short value or -1 if the term is not a model group
+	 * 
+	 * @return
+	 */
+	public short getModelGroup() {
+		XSTerm term = getTerm();
+		if (term == null || XSConstants.MODEL_GROUP != term.getType()) {
+			return -1;
+		}
+		XSModelGroup modelGroup = (XSModelGroup) term;
+		return modelGroup.getCompositor();
+	}
+
+	/**
+	 * True if xsd element contains: <xs:complexType> <xs:sequence> ...
+	 * </xs:sequence> <xs:complexType>
+	 * 
+	 * @return
+	 */
+	public boolean isModelGroupSequence() {
+		return XSModelGroup.COMPOSITOR_SEQUENCE == getModelGroup();
+	}
+
+	private void collectElementsDeclaration(XSElementDeclaration elementDecl, Collection<CMElementDeclaration> elements) {
 		XSTypeDefinition typeDefinition = elementDecl.getTypeDefinition();
+		
 		switch (typeDefinition.getTypeCategory()) {
 		case XSTypeDefinition.SIMPLE_TYPE:
 			// TODO...
@@ -129,11 +200,13 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void collectElementsDeclaration(XSTerm term, Collection<CMElementDeclaration> elements) {
+	public void collectElementsDeclaration(XSTerm term, Collection<CMElementDeclaration> elements) {
 		if (term == null) {
 			return;
 		}
+
 		switch (term.getType()) {
+
 		case XSConstants.WILDCARD:
 			// XSWildcard wildcard = (XSWildcard) term;
 			// ex : xsd:any
@@ -235,4 +308,18 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 		return Collections.emptyList();
 	}
 
+	/**
+	 * @return the document
+	 */
+	public CMXSDDocument getDocument() {
+		return document;
+	}
+
+	public void setOptional(boolean isOptional) {
+		this.isOptional = isOptional;
+	}
+
+	public boolean isOptional() {
+		return isOptional;
+	}
 }

@@ -41,7 +41,7 @@ public class CMXSDDocument implements CMDocument {
 
 	private final Map<XSElementDeclaration, CMXSDElementDeclaration> elementMappings;
 
-	private Collection<CMElementDeclaration> elements;
+	private List<CMElementDeclaration> elements;
 
 	public CMXSDDocument(XSModel model) {
 		this.model = model;
@@ -49,7 +49,7 @@ public class CMXSDDocument implements CMDocument {
 	}
 
 	@Override
-	public Collection<CMElementDeclaration> getElements() {
+	public List<CMElementDeclaration> getElements() {
 		if (elements == null) {
 			elements = new ArrayList<>();
 			XSNamedMap map = model.getComponents(XSConstants.ELEMENT_DECLARATION);
@@ -62,36 +62,50 @@ public class CMXSDDocument implements CMDocument {
 	}
 
 	/**
+	 * https://stackoverflow.com/questions/8854144/xml-schema-root-element#answer-8854292
+	 * @return
+	 */
+	public List<CMElementDeclaration> getTopLevelElements() {
+		return null;
+	}
+ 
+	/**
 	 * Fill the given elements list from the given Xerces elementDeclaration
 	 * 
 	 * @param elementDeclaration
 	 * @param elements
 	 */
-	void collectElement(XSElementDeclaration elementDeclaration, Collection<CMElementDeclaration> elements) {
-		if (elementDeclaration.getAbstract()) {
-			// element declaration is marked as abstract
-			// ex with xsl: <xs:element name="declaration" type="xsl:generic-element-type"
-			// abstract="true"/>
-			XSObjectList list = model.getSubstitutionGroup(elementDeclaration);
-			if (list != null) {
-				// it exists elements list bind with this abstract declaration with
-				// substitutionGroup
-				// ex xsl : <xs:element name="template" substitutionGroup="xsl:declaration">
-				for (int i = 0; i < list.getLength(); i++) {
-					XSObject object = list.item(i);
-					if (object.getType() == XSConstants.ELEMENT_DECLARATION) {
-						XSElementDeclaration subElementDeclaration = (XSElementDeclaration) object;
-						collectElement(subElementDeclaration, elements);
-					}
-				}
-			}
-		} else {
+	public void collectElement(XSElementDeclaration elementDeclaration, Collection<CMElementDeclaration> elements) {
+		
+		// if element declaration is marked as abstract
+		// ex with xsl: <xs:element name="declaration" type="xsl:generic-element-type"
+		// abstract="true"/>
+		// then dont consider this as an option
+		// From: https://www.w3schools.com/xml/schema_complex_subst.asp#midcontentadcontainer
+		// it looks like an element with a substitution group is also considered
+		// if abstract == false
+		if (!elementDeclaration.getAbstract()) {
 			CMElementDeclaration cmElement = getXSDElement(elementDeclaration);
 			// check element declaration is not already added (ex: xs:annotation)
 			if (!elements.contains(cmElement)) {
 				elements.add(cmElement);
 			}
 		}
+		
+		XSObjectList list = model.getSubstitutionGroup(elementDeclaration);
+		if (list != null) {
+			// it exists elements list bind with this abstract declaration with
+			// substitutionGroup
+			// ex xsl : <xs:element name="template" substitutionGroup="xsl:declaration">
+			for (int i = 0; i < list.getLength(); i++) {
+				XSObject object = list.item(i);
+				if (object.getType() == XSConstants.ELEMENT_DECLARATION) {
+					XSElementDeclaration subElementDeclaration = (XSElementDeclaration) object;
+					collectElement(subElementDeclaration, elements);
+				}
+			}
+		}
+		
 	}
 
 	@Override

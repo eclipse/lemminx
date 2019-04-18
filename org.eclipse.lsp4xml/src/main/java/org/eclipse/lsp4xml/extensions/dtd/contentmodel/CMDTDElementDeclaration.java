@@ -54,7 +54,7 @@ public class CMDTDElementDeclaration extends XMLElementDecl implements CMElement
 	}
 
 	@Override
-	public Collection<CMElementDeclaration> getElements() {
+	public List<CMElementDeclaration> getElements() {
 		if (elements == null) {
 			elements = new ArrayList<>();
 			document.collectElementsDeclaration(getName(), elements);
