@@ -135,13 +135,13 @@ public class DOMParser {
 
 			case EndTag:
 				// end tag (ex: </root>)
-				String closeTag = scanner.getTokenText().toLowerCase();
+				String closeTag = scanner.getTokenText();
 				DOMNode current = curr;
 
 				/**
 				eg: <a><b><c></d> will set a,b,c end position to the start of |</d>
 				*/
-				while (!(curr.isElement() && ((DOMElement) curr).isSameTag(closeTag)) && curr.parent != null) {
+				while (!(curr.isElement() && ((DOMElement) curr).isSameTag(closeTag.toLowerCase())) && curr.parent != null) {
 					curr.end = endTagOpenOffset;
 					curr = curr.parent;
 				}

@@ -263,7 +263,7 @@ public class XMLScanner implements Scanner {
 			}
 			return finishToken(offset, TokenType.Unknown);
 
-		case WithinTag:
+		case WithinTag: {
 			if (stream.skipWhitespace()) {
 				return finishToken(offset, TokenType.Whitespace);
 			}
@@ -272,18 +272,26 @@ public class XMLScanner implements Scanner {
 				return finishToken(offset, TokenType.PrologEnd);
 			}
 			
-				lastAttributeName = nextAttributeName();
-				if (lastAttributeName.length() > 0) {
-					state = ScannerState.AfterAttributeName;
-					return finishToken(offset, TokenType.AttributeName);
-				}
-			
+			lastAttributeName = nextAttributeName();
+			if (lastAttributeName.length() > 0) {
+				state = ScannerState.AfterAttributeName;
+				return finishToken(offset, TokenType.AttributeName);
+			}
+
 			if (stream.advanceIfChar(_FSL)) { // /
-				state = ScannerState.WithinContent;
+				state = ScannerState.WithinTag;
 				if(stream.advanceIfChar(_RAN)) { // >
+					state = ScannerState.WithinContent;
 					return finishToken(offset, TokenType.StartTagSelfClose);
 				}
+				return finishToken(offset, TokenType.Unknown);
 			}
+			int c = stream.peekChar();
+			if (c == _DQO || c == _SIQ) { // " || '
+				state = ScannerState.BeforeAttributeValue;
+				return internalScan();
+			}
+
 			if (stream.advanceIfChar(_RAN)) { // >
 				state = ScannerState.WithinContent;
 				return finishToken(offset, TokenType.StartTagClose);
@@ -294,7 +302,7 @@ public class XMLScanner implements Scanner {
 				return internalScan();
 			}
 			return finishToken(offset, TokenType.Unknown);
-
+		}
 		case AfterAttributeName:
 			if (stream.skipWhitespace()) {
 				return finishToken(offset, TokenType.Whitespace);

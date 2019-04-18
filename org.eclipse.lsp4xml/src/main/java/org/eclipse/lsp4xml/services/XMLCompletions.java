@@ -14,6 +14,7 @@ import static java.lang.Character.isWhitespace;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,6 +31,7 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.customservice.AutoCloseTagResponse;
+import org.eclipse.lsp4xml.dom.DOMAttr;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMElement;
 import org.eclipse.lsp4xml.dom.DOMNode;
@@ -189,7 +191,7 @@ public class XMLCompletions {
 				break;
 			case StartTagSelfClose:
 				if (offset <= scanner.getTokenEnd()) {
-					if (currentTag != null && currentTag.length() > 0) {
+					if (currentTag != null && currentTag.length() > 0 && xmlDocument.getText().charAt(offset - 1) == '>') { // if the actual character typed was '>'
 						collectInsideContent(completionRequest, completionResponse);
 						return completionResponse;
 					}
@@ -365,13 +367,25 @@ public class XMLCompletions {
 			DOMNode node = xmlDocument.findNodeBefore(offset);
 			if(node.isElement() && node.getNodeName() != null) {
 				DOMElement element1 = (DOMElement) node;
+				
 				Integer slashOffset = element1.endsWith('/', offset);
 				Position end = null;
-				if(slashOffset != null) { //The typed characted was '/'
-					Integer closeBracket = element1.isNextChar('>', offset); // After the slash is a close bracket
+				if(!element1.isInEndTag(offset) && slashOffset != null) { //The typed characted was '/'
+					List<DOMAttr> attrList = element1.getAttributeNodes();
+					if(attrList != null) {
+						DOMAttr lastAttr = attrList.get(attrList.size() - 1);
+						if(slashOffset < lastAttr.getEnd()) { //slash in attribute value
+							return null;
+						}
+					}
+					String text = xmlDocument.getText();
+					boolean closeBracketAfterSlash = offset < text.length() ? text.charAt(offset) == '>' : false; // After the slash is a close bracket
 					
-					// Case: <a/|
-					if(closeBracket == null) { // no '>' after slash
+					// Case: <a/| ...
+					if(closeBracketAfterSlash == false) { // no '>' after slash
+						if(element1.getStartTagCloseOffset() != null) { // tag has closing '>', but slash is in incorrect area (not directly before the '>')
+							return null;
+						}
 						snippet = ">$0";
 						if(element1.hasEndTag()) { // Case: <a/| </a>
 							try {
@@ -383,6 +397,7 @@ public class XMLCompletions {
 					} 
 					else {
 						DOMNode nextSibling = node.getNextSibling();
+						//If there is text in between the tags it will skip this
 						if(nextSibling != null && nextSibling.isElement()){ // Case: <a/|></a>
 							DOMElement element2 = (DOMElement) nextSibling;
 							if(!element2.hasStartTag() && node.getNodeName().equals(element2.getNodeName())) {
