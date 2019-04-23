@@ -448,7 +448,7 @@ public class XMLSchemaCompletionExtensionsTest {
 		"  <modelVersion></modelVersion>\r\n" +
 		"</project>";
 
-		XMLAssert.testCompletionFor(xml, 2, c("XXY:nil", "XXY:nil=\"true\""), c("XXY:type", "XXY:type=\"\""));
+		XMLAssert.testCompletionFor(xml, 3, c("XXY:nil", "XXY:nil=\"true\""), c("XXY:type", "XXY:type=\"\""));
 	}
 
 	@Test
@@ -485,7 +485,7 @@ public class XMLSchemaCompletionExtensionsTest {
 		"  <modelVersion></modelVersion>\r\n" +
 		"</project>";
 
-		XMLAssert.testCompletionFor(xml, 2, c("xsi:nil", "xsi:nil=\"true\""), c("xsi:type", "xsi:type=\"\""));
+		XMLAssert.testCompletionFor(xml, 3, c("xsi:nil", "xsi:nil=\"true\""), c("xsi:type", "xsi:type=\"\""));
 	}
 
 	@Test
