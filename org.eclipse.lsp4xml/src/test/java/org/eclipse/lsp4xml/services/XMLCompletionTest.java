@@ -15,6 +15,7 @@ import static org.eclipse.lsp4xml.XMLAssert.r;
 import static org.eclipse.lsp4xml.XMLAssert.testCompletionFor;
 import static org.eclipse.lsp4xml.XMLAssert.testTagCompletion;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import java.util.Arrays;
@@ -146,6 +147,19 @@ public class XMLCompletionTest {
 		assertAutoCloseEndTagCompletionWithRange("<a/|></a>", ">$0", new Range(new Position(0, 3), new Position(0,8)));
 		assertAutoCloseEndTagCompletionWithRange("<a/| </a>", ">$0", new Range(new Position(0, 3), new Position(0,8)));
 		assertAutoCloseEndTagCompletionWithRange("<a> <a/|> </a> </a>", ">$0", new Range(new Position(0, 7), new Position(0,13)));
+		assertAutoCloseEndTagCompletionWithRange("<a var=\"asd\"/|></a>", ">$0", new Range(new Position(0, 13), new Position(0,18)));
+		assertAutoCloseEndTagCompletionWithRange("<a  var=\"asd\"  /| </a>", ">$0", new Range(new Position(0, 16), new Position(0,21)));
+		assertAutoCloseEndTagCompletionWithRange("<aB/|></aB>", ">$0", new Range(new Position(0, 4), new Position(0,10)));
+	}
+
+	@Test
+	public void testAutoCloseTagCompletionWithSlashAtBadLocations() {
+		assertAutoCloseEndTagCompletionWithRange("<a zz=\"a/|\"></a>", null, null);
+		assertAutoCloseEndTagCompletionWithRange("<a zz=/|\"aa\"> </a>", null, null);
+		assertAutoCloseEndTagCompletionWithRange("<a  /|  > </a>", null, null);
+		assertAutoCloseEndTagCompletionWithRange("<a> </a/|>", null, null);
+		assertAutoCloseEndTagCompletionWithRange("<a> </|a>", null, null);
+		
 	}
 
 	@Test
@@ -154,6 +168,7 @@ public class XMLCompletionTest {
 		testCompletionFor("<a><div|<a>", true, c("div", "<div></div>"));
 		testCompletionFor("<a>  <div|    <a>", false, c("div", "<div>"));
 		testCompletionFor("<a>   <div|    <a>", true, c("div", "<div></div>"));
+		assertAutoCloseEndTagCompletionWithRange("<a/|>Text</a>", null, null);
 	}
 
 	@Test
@@ -209,6 +224,11 @@ public class XMLCompletionTest {
 			fail("Couldn't get position at offset");
 		}
 		AutoCloseTagResponse response = languageService.doTagComplete(xmlDocument, position);
+		if(response == null) {
+			assertNull(expectedTextEdit);
+			assertNull(range);
+			return;
+		}
 		String completionList = response.snippet;
 		assertEquals(expectedTextEdit, completionList);
 		assertEquals(range, response.range);
