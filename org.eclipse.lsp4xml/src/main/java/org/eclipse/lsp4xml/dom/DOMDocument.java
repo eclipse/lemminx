@@ -268,11 +268,11 @@ public class DOMDocument extends DOMNode implements Document {
 	}
 
 	private SchemaLocation createSchemaLocation(DOMNode root, String schemaInstancePrefix) {
-		String value = root.getAttribute(getPrefixedName(schemaInstancePrefix, "schemaLocation"));
-		if (value == null) {
+		DOMAttr attr = root.getAttributeNode(getPrefixedName(schemaInstancePrefix, "schemaLocation"));
+		if (attr == null) {
 			return null;
 		}
-		return new SchemaLocation(root.getOwnerDocument().getDocumentURI(), value);
+		return new SchemaLocation(root.getOwnerDocument().getDocumentURI(), attr);
 	}
 
 	private NoNamespaceSchemaLocation createNoNamespaceSchemaLocation(DOMNode root, String schemaInstancePrefix) {

@@ -13,9 +13,16 @@ package org.eclipse.lsp4xml.extensions.contentmodel.participants;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.xml.validation.Schema;
+
 import org.apache.xerces.xni.XMLLocator;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.dom.DOMDocument;
+import org.eclipse.lsp4xml.dom.DOMNode;
+import org.eclipse.lsp4xml.dom.NoNamespaceSchemaLocation;
+import org.eclipse.lsp4xml.dom.SchemaLocation;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.codeactions.cvc_attribute_3CodeAction;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.codeactions.cvc_complex_type_2_1CodeAction;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.codeactions.cvc_complex_type_2_3CodeAction;
@@ -46,7 +53,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 	cvc_datatype_valid_1_2_1("cvc-datatype-valid.1.2.1"), // https://wiki.xmldation.com/Support/Validator/cvc-datatype-valid-1-2-1
 	cvc_elt_1_a("cvc-elt.1.a"), // https://wiki.xmldation.com/Support/Validator/cvc-elt-1
 	cvc_elt_3_1("cvc-elt.3.1"), // https://wiki.xmldation.com/Support/Validator/cvc-elt-3-1
-	cvc_elt_3_2_1("cvc-elt.3.2.1"), //https://wiki.xmldation.com/Support/Validator/cvc-elt-3-2-1
+	cvc_elt_3_2_1("cvc-elt.3.2.1"), // https://wiki.xmldation.com/Support/Validator/cvc-elt-3-2-1
 	cvc_elt_4_2("cvc-elt.4.2"), // https://wiki.xmldation.com/Support/Validator/cvc-elt-4-2
 	cvc_type_3_1_1("cvc-type.3.1.1"), // https://wiki.xmldation.com/Support/Validator/cvc-type-3-1-1
 	cvc_type_3_1_2("cvc-type.3.1.2"), // https://wiki.xmldation.com/Support/Validator/cvc-type-3-1-2
@@ -59,8 +66,9 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 	cvc_maxInclusive_valid("cvc-maxInclusive-valid"), // https://wiki.xmldation.com/Support/validator/cvc-maxinclusive-valid
 	cvc_minExclusive_valid("cvc-minExclusive-valid"), // https://wiki.xmldation.com/Support/validator/cvc-minexclusive-valid
 	cvc_minInclusive_valid("cvc-minInclusive-valid"), // https://wiki.xmldation.com/Support/validator/cvc-mininclusive-valid
-	TargetNamespace_2("TargetNamespace.2"),
-	schema_reference_4("schema_reference.4"); // 
+	TargetNamespace_2("TargetNamespace.2"), 
+	SchemaLocation("SchemaLocation"),
+	schema_reference_4("schema_reference.4"); //
 
 	private final String code;
 
@@ -104,7 +112,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 	 * @param location
 	 * @param key
 	 * @param arguments
-	 * @param           document.ge
+	 * @param document
 	 * @return the LSP range from the SAX error.
 	 */
 	public static Range toLSPRange(XMLLocator location, XMLSchemaErrorCode code, Object[] arguments,
@@ -127,7 +135,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 			return XMLPositionUtility.selectAttributeNameFromGivenNameAt(attrName, offset, document);
 		}
 		case cvc_elt_3_1: {
-			String namespaceAntAttrName = (String) arguments[1]; // http://www.w3.org/2001/XMLSchema-instance,nil			
+			String namespaceAntAttrName = (String) arguments[1]; // http://www.w3.org/2001/XMLSchema-instance,nil
 			String attrName = namespaceAntAttrName;
 			int index = namespaceAntAttrName.indexOf(",");
 			if (index != -1) {
@@ -139,6 +147,32 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 				}
 			}
 			return XMLPositionUtility.selectAttributeFromGivenNameAt(attrName, offset, document);
+		}
+		case SchemaLocation:
+		case schema_reference_4: {
+			DOMNode attrValueNode;
+			if(code.equals(SchemaLocation)) {
+				SchemaLocation schemaLocation = document.getSchemaLocation();
+				attrValueNode = schemaLocation.getAttr().getNodeAttrValue();
+			}
+			else {
+				NoNamespaceSchemaLocation noNamespaceSchemaLocation = document.getNoNamespaceSchemaLocation();
+				attrValueNode = noNamespaceSchemaLocation.getAttr().getNodeAttrValue();
+			}
+			
+			if (attrValueNode != null) {
+				int startOffset = attrValueNode.getStart();
+				int endOffset = attrValueNode.getEnd();
+				try {
+					Position startPosition = document.positionAt(startOffset);
+					Position endPosition = document.positionAt(endOffset);
+					return new Range(startPosition, endPosition);
+
+				} catch (BadLocationException e) {
+					return null;
+				}
+			}
+			return null;
 		}
 		case cvc_attribute_3:
 		case cvc_complex_type_3_1:

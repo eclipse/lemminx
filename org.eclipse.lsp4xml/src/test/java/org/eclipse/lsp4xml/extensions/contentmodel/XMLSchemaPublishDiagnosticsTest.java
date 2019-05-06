@@ -51,9 +51,68 @@ public class XMLSchemaPublishDiagnosticsTest extends AbstractCacheBasedTest {
 				"</invoice> \r\n" + //
 				"";
 		XMLAssert.testPublishDiagnosticsFor(xml, fileURI, configuration, pd(fileURI, //
-				new Diagnostic(r(2, 52, 2, 52),
+				new Diagnostic(r(2, 31, 2, 51),
 						"schema_reference.4: Failed to read schema document 'http://invoice.xsd', because 1) could not find the document; 2) the document could not be read; 3) the root element of the document is not <xsd:schema>.",
 						DiagnosticSeverity.Warning, "xml", "schema_reference.4"), //
+				new Diagnostic(r(1, 1, 1, 8), "cvc-elt.1.a: Cannot find the declaration of element 'invoice'.",
+						DiagnosticSeverity.Error, "xml", "cvc-elt.1.a")));
+	}
+
+	@Test
+	public void schemaWithUrlWithoutCacheNoDuplicateWarning() throws Exception {
+		// Here we test the following context:
+		// - XML which have xsi:noNamespaceSchemaLocation="http://invoice.xsd"
+		// - XMLCacheResolverExtension which is disabled
+		// Result of test is to have one published diagnostics with several Xerces
+		// errors (schema)
+
+		Consumer<XMLLanguageService> configuration = ls -> {
+			ContentModelManager contentModelManager = ls.getComponent(ContentModelManager.class);
+			// Use cache on file system
+			contentModelManager.setUseCache(false);
+		};
+
+		String fileURI = "test.xml";
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<invoice xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				" xsi:noNamespaceSchemaLocation=\"http://invoice.xsd\">\r\n" + //
+				"  <a></a>\r\n" + //
+				"  <b></b>\r\n" + //
+				"  <c></c>\r\n" + //
+				"</invoice> \r\n" + //
+				"";
+		XMLAssert.testPublishDiagnosticsFor(xml, fileURI, configuration, pd(fileURI, //
+				new Diagnostic(r(2, 31, 2, 51),
+						"schema_reference.4: Failed to read schema document 'http://invoice.xsd', because 1) could not find the document; 2) the document could not be read; 3) the root element of the document is not <xsd:schema>.",
+						DiagnosticSeverity.Warning, "xml", "schema_reference.4"), //
+				new Diagnostic(r(1, 1, 1, 8), "cvc-elt.1.a: Cannot find the declaration of element 'invoice'.",
+						DiagnosticSeverity.Error, "xml", "cvc-elt.1.a")));
+	}
+
+	@Test
+	public void schemaWithUrlInvalidPathWithNamespace() throws Exception {
+		// Here we test the following context:
+		// - XML which have xsi:noNamespaceSchemaLocation="http://invoice.xsd"
+		// - XMLCacheResolverExtension which is disabled
+		// Result of test is to have one published diagnostics with several Xerces
+		// errors (schema)
+
+		Consumer<XMLLanguageService> configuration = ls -> {
+			ContentModelManager contentModelManager = ls.getComponent(ContentModelManager.class);
+			// Use cache on file system
+			contentModelManager.setUseCache(false);
+		};
+
+		String fileURI = "test.xml";
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<invoice xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				" xsi:schemaLocation=\"http://invoice.xsd\">\r\n" + //
+				"</invoice> \r\n" + //
+				"";
+		XMLAssert.testPublishDiagnosticsFor(xml, fileURI, configuration, pd(fileURI, //
+				new Diagnostic(r(2, 20, 2, 40),
+				"SchemaLocation: schemaLocation value = 'http://invoice.xsd' must have even number of URI's.",
+						DiagnosticSeverity.Warning, "xml", "SchemaLocation"), //
 				new Diagnostic(r(1, 1, 1, 8), "cvc-elt.1.a: Cannot find the declaration of element 'invoice'.",
 						DiagnosticSeverity.Error, "xml", "cvc-elt.1.a")));
 	}
