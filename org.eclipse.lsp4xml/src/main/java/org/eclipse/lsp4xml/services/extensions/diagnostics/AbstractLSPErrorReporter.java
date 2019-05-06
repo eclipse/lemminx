@@ -82,9 +82,13 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 		if(adjustedRange == null) {
 			return null;
 		}
+
+		Diagnostic d = new Diagnostic(adjustedRange, message, toLSPSeverity(severity), source, key);
+		if(diagnostics.contains(d)) {
+			return null;
+		}
 		// Fill diagnostic
-		diagnostics.add(new Diagnostic(adjustedRange, message,
-				toLSPSeverity(severity), source, key));
+		diagnostics.add(d);
 
 		if (severity == SEVERITY_FATAL_ERROR && !fContinueAfterFatalError) {
 			XMLParseException parseException = (exception != null) ? new XMLParseException(location, message, exception)

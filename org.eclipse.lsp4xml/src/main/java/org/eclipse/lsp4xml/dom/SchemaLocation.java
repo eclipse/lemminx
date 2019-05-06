@@ -27,8 +27,12 @@ public class SchemaLocation {
 
 	private final Map<String, String> schemaLocationValuePairs;
 
-	public SchemaLocation(String base, String value) {
+	private final DOMAttr attr;
+
+	public SchemaLocation(String base, DOMAttr attr) {
+		this.attr = attr;
 		this.schemaLocationValuePairs = new HashMap<>();
+		String value = attr.getValue();
 		StringTokenizer st = new StringTokenizer(value);
 		do {
 			String namespaceURI = st.hasMoreTokens() ? st.nextToken() : null;
@@ -64,6 +68,10 @@ public class SchemaLocation {
 			}
 		}
 		return false;
+	}
+
+	public DOMAttr getAttr() {
+		return attr;
 	}
 
 }
