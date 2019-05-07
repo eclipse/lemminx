@@ -30,16 +30,28 @@ public abstract class DOMCharacterData extends DOMNode implements org.w3c.dom.Ch
 
 	private boolean isWhitespace;
 
+	private int newLineCount;
+
+	private String delimiter;
+
 	public DOMCharacterData(int start, int end, DOMDocument ownerDocument) {
 		super(start, end, ownerDocument);
 	}
 
 	public boolean hasMultiLine() {
+		return getData().contains(getDelimiter());
+	}
+
+	public String getDelimiter() {
+		if(delimiter != null) {
+			return delimiter;
+		}
 		try {
-			String delimiter = getOwnerDocument().getTextDocument().lineDelimiter(0);
-			return getData().contains(delimiter);
+			delimiter = getOwnerDocument().getTextDocument().lineDelimiter(0);
+			return delimiter;
 		} catch (BadLocationException e) {
-			return getData().contains(lineSeparator());
+			delimiter = lineSeparator();
+			return delimiter;
 		}
 	}
 

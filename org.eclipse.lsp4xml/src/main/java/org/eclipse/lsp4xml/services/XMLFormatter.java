@@ -11,7 +11,6 @@
 package org.eclipse.lsp4xml.services;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -72,7 +71,7 @@ class XMLFormatter {
 			// Parse the content to format to create an XML document with full data (CData,
 			// comments, etc)
 			String text = document.getText().substring(start, end);
-			DOMDocument doc = DOMParser.getInstance().parse(text, document.getUri(), null);
+			DOMDocument doc = DOMParser.getInstance().parse(text, document.getUri(), null, false);
 
 			// Format the content
 			XMLBuilder xml = new XMLBuilder(formattingOptions, "", document.lineDelimiter(startPosition.getLine()));
@@ -98,7 +97,7 @@ class XMLFormatter {
 				doLineFeed = false;
 			} else {
 				doLineFeed = !(node.isComment() && ((DOMComment) node).isCommentSameLineEndTag())
-					&& (!node.isText() || ((DOMText) node).hasSiblings());
+					&& (!node.isText() || (!((DOMText) node).isWhitespace() && ((DOMText) node).hasSiblings()));
 
 					//&& (!isPreviousSiblingNodeType(node, DOMNode.TEXT_NODE) || !((DOMText) node.getPreviousSibling()).endsWithNewLine())
 			}
@@ -209,7 +208,7 @@ class XMLFormatter {
 				
 				// Generate content
 				String content = textNode.getData();
-				xml.addContent(content, textNode.isWhitespace(), textNode.hasSiblings());
+				xml.addContent(content, textNode.isWhitespace(), textNode.hasSiblings(), textNode.getDelimiter(), level);
 				return;
 			} else if (node.isDoctype()) {
 				boolean isDTD = node.getOwnerDocument().isDTD();

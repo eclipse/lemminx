@@ -176,6 +176,43 @@ public class StringUtils {
 		return value.substring(i, len);
 	}
 
-	
+	/**
+	 * Given a string that is only whitespace,
+	 * this will return the amount of newline characters.
+	 * 
+	 * If the newLineCounter becomes > newLineLimit, then the value of
+	 * newLineLimit is always returned.
+	 * @param text
+	 * @param isWhitespace
+	 * @param delimiter
+	 * @return
+	 */
+	public static int getNumberOfNewLines(String text, boolean isWhitespace, String delimiter, int newLineLimit) {
+		if(!isWhitespace){
+			return 0;
+		}
+
+		int newLineCounter = 0;
+		boolean delimiterHasTwoCharacters = delimiter.length() == 2;
+		for(int i = 0; newLineCounter <= newLineLimit && i < text.length(); i++) {
+			String c;
+			if(delimiterHasTwoCharacters) {
+				if(i + 1 < text.length()) {
+					c = text.substring(i, i + 2);
+					if(delimiter.equals(c)) {
+						newLineCounter++;
+						i++; //skip the second char of the delimiter
+					}
+				}
+			}
+			else {
+				c = String.valueOf(text.charAt(i));
+				if(delimiter.equals(c)) {
+					newLineCounter++;
+				}
+			}
+		}
+		return newLineCounter;
+	}
 
 }
