@@ -30,6 +30,7 @@ public class XMLFormattingOptions extends FormattingOptions {
 	private static final String SPACE_BEFORE_EMPTY_CLOSE_TAG = "spaceBeforeEmptyCloseTag";
 	private static final String QUOTATIONS = "quotations";
 	private static final String JOIN_CONTENT_LINES = "joinContentLines";
+	private static final String PRESERVED_NEWLINES = "preservedNewlines";
 
 	// Values for QUOTATIONS
 	public static final String DOUBLE_QUOTES_VALUE = "doubleQuotes";
@@ -66,6 +67,7 @@ public class XMLFormattingOptions extends FormattingOptions {
 		this.setSpaceBeforeEmptyCloseTag(true);
 		this.setQuotations(DOUBLE_QUOTES_VALUE);
 		this.setPreserveEmptyContent(false);
+		this.setPreservedNewlines(2);
 	}
 
 	public XMLFormattingOptions(int tabSize, boolean insertSpaces, boolean initializeDefaultSettings) {
@@ -242,6 +244,20 @@ public class XMLFormattingOptions extends FormattingOptions {
 			return (value).booleanValue();
 		} else {
 			return true;
+		}
+	}
+
+	public void setPreservedNewlines(final int preservedNewlines) {
+		this.putNumber(XMLFormattingOptions.PRESERVED_NEWLINES, preservedNewlines);
+	}
+
+	public int getPreservedNewlines() {
+		
+		final Number value = this.getNumber(XMLFormattingOptions.PRESERVED_NEWLINES);
+		if ((value != null)) {
+			return value.intValue();
+		} else {
+			return 2;
 		}
 	}
 

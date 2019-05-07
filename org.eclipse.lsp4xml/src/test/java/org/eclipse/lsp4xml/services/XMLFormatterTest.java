@@ -906,7 +906,39 @@ public class XMLFormatterTest {
 		String expected = 
 				"<!DOCTYPE note>\r\n" + 
 				"<note>\r\n" + 
+				"  <to>Fred</to>\r\n" +
+				"  \r\n" + 
+				"  <from>Jani</from>\r\n" + 
+				"  \r\n" + 
+				"  <heading>Reminder</heading>\r\n" + 
+				"  \r\n" + 
+				"  <body>Don't forget me this weekend</body>\r\n" + 
+				"</note>";
+		format(content, expected, formattingOptions);
+	}
+
+	@Test 
+	public void testDoctypeNoInternalSubsetNoNewlines() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setPreservedNewlines(0);
+		
+		String content = 
+				"<!DOCTYPE    note\r\n" + 
+				"\r\n" + 
+				">\r\n" + 
+				"<note>\r\n" + 
 				"  <to>Fred</to>\r\n" + 
+				"\r\n" + 
+				"  <from>Jani</from>\r\n" + 
+				"\r\n" + 
+				"  <heading>Reminder</heading>\r\n" + 
+				"  \r\n" + 
+				"  <body>Don't forget me this weekend</body>\r\n" + 
+				"</note>";
+		String expected = 
+				"<!DOCTYPE note>\r\n" + 
+				"<note>\r\n" + 
+				"  <to>Fred</to>\r\n" +
 				"  <from>Jani</from>\r\n" + 
 				"  <heading>Reminder</heading>\r\n" + 
 				"  <body>Don't forget me this weekend</body>\r\n" + 
@@ -946,8 +978,52 @@ public class XMLFormatterTest {
 				"  <!ELEMENT body (#PCDATA)>\r\n" + 
 				"]>\r\n" + 
 				"<note>\r\n" + 
+				"  <to>Fred</to>\r\n" +
+				"  \r\n" +
+				"  \r\n" + 
+				"  <from>Jani</from>\r\n" +
+				"  \r\n" + 
+				"  <heading>Reminder</heading>\r\n" + 
+				"  <body>Don't forget me this weekend</body>\r\n" + 
+				"</note>";
+		format(content, expected, formattingOptions);
+	}
+
+	@Test public void testDoctypeInternalSubsetNoNewlines() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setPreservedNewlines(0);
+
+		String content = 
+				"<!DOCTYPE note\r\n" + 
+				"\r\n" + 
+				"\r\n" + 
+				"[        <!ELEMENT note (to,from,heading,body)>\r\n" + 
+				"  <!ELEMENT to (#PCDATA)><!ELEMENT from (#PCDATA)>\r\n" + 
+				"  \r\n" + 
+				"  \r\n" + 
+				"  <!ELEMENT heading (#PCDATA)>\r\n" + 
+				"  <!ELEMENT body (#PCDATA)>\r\n" + 
+				"]>\r\n" + 
+				"<note>\r\n" + 
 				"  <to>Fred</to>\r\n" + 
+				"\r\n" + 
+				"\r\n" + 
 				"  <from>Jani</from>\r\n" + 
+				"  \r\n" + 
+				"  <heading>Reminder</heading>\r\n" + 
+				"  <body>Don't forget me this weekend</body>\r\n" + 
+				"</note>";
+		String expected = 
+				"<!DOCTYPE note [\r\n" + 
+				"  <!ELEMENT note (to,from,heading,body)>\r\n" + 
+				"  <!ELEMENT to (#PCDATA)>\r\n" + 
+				"  <!ELEMENT from (#PCDATA)>\r\n" + 
+				"  <!ELEMENT heading (#PCDATA)>\r\n" + 
+				"  <!ELEMENT body (#PCDATA)>\r\n" + 
+				"]>\r\n" + 
+				"<note>\r\n" + 
+				"  <to>Fred</to>\r\n" +
+				"  <from>Jani</from>\r\n" +
 				"  <heading>Reminder</heading>\r\n" + 
 				"  <body>Don't forget me this weekend</body>\r\n" + 
 				"</note>";
@@ -1012,8 +1088,10 @@ public class XMLFormatterTest {
 				"  <!ELEMENT note (to,from,heading,body)>\r\n" + 
 				"  <!ELEMENT to (#PCDATA)>\r\n" + 
 				"  <!ATTLIST payment type CDATA \"check\">\r\n" + 
-				"]>\r\n" + 
-				"<note>\r\n" + 
+				"]>\r\n" +
+				"\r\n" + 
+				"<note>\r\n" +
+				"  \r\n" + 
 				"  <to>Fred</to>\r\n" + 
 				"</note>";
 		format(content, expected, formattingOptions);
@@ -1188,7 +1266,8 @@ public class XMLFormatterTest {
 		format(content, expected, formattingOptions, "test.dtd");
 	}
 	
-	@Test public void testAllDoctypeParameters() throws BadLocationException {
+	@Test 
+	public void testAllDoctypeParameters() throws BadLocationException {
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		
 		String content = 
@@ -1226,8 +1305,10 @@ public class XMLFormatterTest {
 				"  <!ATTLIST h3 %all;>\r\n" + 
 				"]>\r\n" + 
 				"<web-app>\r\n" + 
-				"  <display-name>sdsd</display-name>\r\n" + 
+				"  <display-name>sdsd</display-name>\r\n" +
+				"  \r\n" + 
 				"  <servlet>\r\n" + 
+				"    \r\n" + 
 				"    <servlet-name>er</servlet-name>\r\n" + 
 				"    <servlet-class>dd</servlet-class>\r\n" + 
 				"  </servlet>\r\n" + 
@@ -1309,7 +1390,8 @@ public class XMLFormatterTest {
 				"<!DOCTYPE name PUBLIC \"lass\" \"bass [ <!-- MY COMMENT -->\r\n" + 
 				"\r\n" + 
 				"  <!NOTATION postscript SYSTEM \"ghostview\">\r\n" + 
-				"]>\r\n" + 
+				"]>\r\n" +
+				"\r\n" + 
 				"<a></a>";
 		format(content, expected, formattingOptions);
 	}
@@ -1329,7 +1411,8 @@ public class XMLFormatterTest {
 				"<!DOCTYPE name PUBLIC \"lass  [ <!-- MY COMMENT -->\r\n" + 
 				"\r\n" + 
 				"  <!NOTATION postscript SYSTEM \"ghostview\">\r\n" + 
-				"]>\r\n" + 
+				"]>\r\n" +
+				"\r\n" + 
 				"<a></a>";
 		format(content, expected, formattingOptions);
 	}
@@ -1350,7 +1433,8 @@ public class XMLFormatterTest {
 				"<!DOCTYPE name [\r\n" + 
 				"  <!ENTITY % astroTerms SYSTEM \"http://xml.gsfc.nasa.gov/DTD/entities/astroTerms.ent\"\r\n" + 
 				"  <!-- MY COMMENT -->\r\n" + 
-				"]>\r\n" + 
+				"]>\r\n" +
+				"\r\n" + 
 				"<a></a>";
 		format(content, expected, formattingOptions);
 	}
@@ -1633,6 +1717,158 @@ public class XMLFormatterTest {
 				"</xml>";
 		format(content, expected, formattingOptions);
 	}
+
+	@Test 
+	public void testPreserveNewlines() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		String content = 
+				"<xml>\r\n" + 
+				"  <a></a>\r\n" + 
+				"  \r\n" +
+				"  \r\n" +
+				"  \r\n" +
+				"</xml>";
+		String expected = 
+				"<xml>\r\n" + 
+				"  <a></a>\r\n" + 
+				"  \r\n" +
+				"  \r\n" +
+				"</xml>";
+		format(content, expected, formattingOptions);
+	}
+
+	@Test 
+	public void testPreserveNewlines3Max() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setPreservedNewlines(3);
+		String content = 
+				"<xml>\r\n" + 
+				"  <a></a>\r\n" + 
+				"  \r\n" +
+				"  \r\n" +
+				"  \r\n" +
+				"</xml>";
+		String expected = 
+				"<xml>\r\n" + 
+				"  <a></a>\r\n" + 
+				"  \r\n" +
+				"  \r\n" +
+				"  \r\n" +
+				"</xml>";
+		format(content, expected, formattingOptions);
+	}
+
+	@Test 
+	public void testPreserveNewlines2() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		String content = 
+				"<xml>\r\n" + 
+				"  <a></a>\r\n" + 
+				"  \r\n" +
+				"  \r\n" +
+				"  \r\n" +
+				"  \r\n" +
+				"</xml>";
+		String expected = 
+				"<xml>\r\n" + 
+				"  <a></a>\r\n" + 
+				"  \r\n" +
+				"  \r\n" +
+				"</xml>";
+		format(content, expected, formattingOptions);
+	}
+
+	@Test 
+	public void testPreserveNewlinesBothSides() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		String content = 
+				"<xml>\r\n" + 
+				"  \r\n" +
+				"  \r\n" +
+				"  \r\n" +
+				"  \r\n" +
+				"  <a></a>\r\n" + 
+				"  \r\n" +
+				"  \r\n" +
+				"  \r\n" +
+				"  \r\n" +
+				"</xml>";
+		String expected = 
+				"<xml>\r\n" + 
+				"  \r\n" +
+				"  \r\n" +
+				"  <a></a>\r\n" + 
+				"  \r\n" +
+				"  \r\n" +
+				"</xml>";
+		format(content, expected, formattingOptions);
+	}
+
+	@Test 
+	public void testPreserveNewlinesBothSidesMultipleTags() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		String content = 
+				"<xml>\r\n" + 
+				"  \r\n" +
+				"  \r\n" +
+				"  \r\n" +
+				"  \r\n" +
+				"  <a></a>\r\n" + 
+				"  \r\n" +
+				"  \r\n" +
+				"  \r\n" +
+				"  \r\n" +
+				"  \r\n" +
+				"  <b></b>\r\n" + 
+				"  \r\n" +
+				"  \r\n" +
+				"  \r\n" +
+				"  \r\n" +
+				"</xml>";
+		String expected = 
+				"<xml>\r\n" + 
+				"  \r\n" +
+				"  \r\n" +
+				"  <a></a>\r\n" + 
+				"  \r\n" +
+				"  \r\n" +
+				"  <b></b>\r\n" + 
+				"  \r\n" +
+				"  \r\n" +
+				"</xml>";
+		format(content, expected, formattingOptions);
+	}
+
+	@Test 
+	public void testPreserveNewlinesSingleLine() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		String content = 
+				"<xml>\r\n" + 
+				"  <a></a>\r\n" + 
+				"  \r\n" +
+				"</xml>";
+		String expected = 
+				"<xml>\r\n" + 
+				"  <a></a>\r\n" + 
+				"  \r\n" +
+				"</xml>";
+		format(content, expected, formattingOptions);
+	}
+
+	@Test 
+	public void testPreserveNewlines4() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		String content = 
+				"<xml>\r\n" + 
+				"  <a></a>\r\n" + 
+				"</xml>";
+		String expected = 
+				"<xml>\r\n" + 
+				"  <a></a>\r\n" + 
+				"</xml>";
+		format(content, expected, formattingOptions);
+	}
+
 	
 	
 	@Test 
@@ -1688,8 +1924,8 @@ public class XMLFormatterTest {
 			formatted = unformatted.substring(0, rangeStart) + formatted
 					+ unformatted.substring(rangeEnd - 1, unformatted.length());
 		}
+		
 		Assert.assertEquals(expected, formatted);
-	
 	}
 
 

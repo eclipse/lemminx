@@ -14,6 +14,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 
+import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4xml.dom.DOMDocumentType.DocumentTypeKind;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -409,6 +410,34 @@ public class DOMParserTest {
 		elementA.addChild(content);
 
 		assertDocument("<root> <a>Content</a <!-- comment --> </root>", root);
+	}
+
+	@Test
+	public void testWhitespaceIsParsed() {
+		DOMNode textNodeBefore = createTextNode("\r\n\r\n", 3, 7, true);
+		DOMNode a = createElement("a", 0, 18, 22, true);
+		DOMNode b = createElement("b", 7, 10, 14, true);
+		DOMNode textNodeAfter = createTextNode("\r\n\r\n", 14, 18, true);
+		a.addChild(textNodeBefore);
+		a.addChild(b);
+		a.addChild(textNodeAfter);
+		
+
+		assertDocument("<a>\r\n\r\n<b></b>\r\n\r\n</a>", a, false);
+	}
+
+	@Test
+	public void testPreserveWhitespaceContent() {
+		
+		DOMNode a = createElement("a", 0, 14, 18, true);
+		DOMNode b = createElement("b", 3, 10, 14, true);
+		DOMNode whitespaceContent = createTextNode("\r\n\r\n", 6, 10, true);
+		
+		a.addChild(b);
+		b.addChild(whitespaceContent);
+		
+
+		assertDocument("<a><b>\r\n\r\n</b></a>", a);
 	}
 
 	@Test
@@ -984,6 +1013,12 @@ public class DOMParserTest {
 
 	private static void assertDocument(String input, DOMNode expectedNode) {
 		DOMDocument document = DOMParser.getInstance().parse(input, "uri", null);
+		DOMNode actualNode = document.getChild(0);
+		compareTrees(expectedNode, actualNode);
+	}
+
+	private static void assertDocument(String input, DOMNode expectedNode, boolean ignoreWhitespace) {
+		DOMDocument document = DOMParser.getInstance().parse(input, "uri", null, ignoreWhitespace);
 		DOMNode actualNode = document.getChild(0);
 		compareTrees(expectedNode, actualNode);
 	}

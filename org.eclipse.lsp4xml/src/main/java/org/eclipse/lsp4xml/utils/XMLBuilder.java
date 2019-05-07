@@ -14,8 +14,6 @@ import static org.eclipse.lsp4xml.utils.StringUtils.normalizeSpace;
 
 import org.eclipse.lsp4xml.dom.DOMAttr;
 import org.eclipse.lsp4xml.dom.DOMComment;
-import org.eclipse.lsp4xml.dom.DOMDocumentType;
-import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.dom.DTDDeclNode;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 
@@ -222,10 +220,10 @@ public class XMLBuilder {
 	}
 
 	public XMLBuilder addContent(String text) {
-		return addContent(text, false, false);
+		return addContent(text, false, false, null, 0);
 	}
 
-	public XMLBuilder addContent(String text, Boolean isWhitespaceContent, Boolean hasSiblings) {
+	public XMLBuilder addContent(String text, Boolean isWhitespaceContent, Boolean hasSiblings, String delimiter, int level) {
 		if(!isWhitespaceContent) {
 			if(isJoinContentLines()) {
 				text = StringUtils.normalizeSpace(text);
@@ -237,6 +235,17 @@ public class XMLBuilder {
 		}
 		else if (!hasSiblings && isPreserveEmptyContent()) {
 			xml.append(text);
+		}
+		else if(hasSiblings) {
+			int preservedNewLines = getPreservedNewlines();
+			if(preservedNewLines > 0) {
+				int newLineCount = StringUtils.getNumberOfNewLines(text, isWhitespaceContent, delimiter, preservedNewLines);				
+				for (int i = 0; i < newLineCount - 1; i++) { // - 1 because the node after will insert a delimiter
+					xml.append(delimiter);
+					this.indent(level);
+				}
+			}
+			
 		}
 		return this;
 	}
@@ -381,6 +390,13 @@ public class XMLBuilder {
 
 	private boolean isPreserveEmptyContent() {
 		return formattingOptions != null && formattingOptions.isPreserveEmptyContent();
+	}
+
+	private int getPreservedNewlines() {
+		if(formattingOptions != null) {
+			return formattingOptions.getPreservedNewlines();
+		}
+		return 2; // default
 	}
 
 }

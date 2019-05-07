@@ -44,7 +44,15 @@ public class DOMParser {
 		return parse(new TextDocument(text, uri), resolverExtensionManager);
 	}
 
+	public DOMDocument parse(String text, String uri, URIResolverExtensionManager resolverExtensionManager, boolean ignoreWhitespaceContent) {
+		return parse(new TextDocument(text, uri), resolverExtensionManager, ignoreWhitespaceContent);
+	}
+
 	public DOMDocument parse(TextDocument document, URIResolverExtensionManager resolverExtensionManager) {
+		return parse(document, resolverExtensionManager, true);
+	}
+
+	public DOMDocument parse(TextDocument document, URIResolverExtensionManager resolverExtensionManager, boolean ignoreWhitespaceContent) {
 		boolean isDTD = DOMUtils.isDTD(document.getUri());
 		boolean inDTDInternalSubset = false;
 		String text = document.getText();
@@ -320,8 +328,8 @@ public class DOMParser {
 			case Content: {
 				// FIXME: don't use getTokenText (substring) to know if the content is only
 				// spaces or line feed (scanner should know that). 
-
-				if (curr instanceof DTDDeclNode) {
+				boolean currIsDeclNode = curr instanceof DTDDeclNode;
+				if (currIsDeclNode) {
 					curr.end = scanner.getTokenOffset() - 1;
 					while(!curr.isDoctype()) {
 						curr = curr.getParentNode();
@@ -334,12 +342,22 @@ public class DOMParser {
 
 				String content = scanner.getTokenText();
 				if(StringUtils.isWhitespace(content)) {
-					if(curr.hasChildNodes()) {
+					if(ignoreWhitespaceContent) {
+						if(curr.hasChildNodes()) {
+							break;
+						}
+						
+						tempWhitespaceContent = textNode;
+						break;
+						
+					}
+					else if(!currIsDeclNode) {
+						textNode.setWhitespace(true);
+					}
+					else {
 						break;
 					}
-					textNode.setWhitespace(true);
-					tempWhitespaceContent = textNode;
-					break;
+					
 				}
 
 				curr.addChild(textNode);
