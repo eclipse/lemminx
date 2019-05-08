@@ -131,13 +131,15 @@ public class TextDocument extends TextDocumentItem {
 	 * @param changes the text document changes.
 	 */
 	public void update(List<TextDocumentContentChangeEvent> changes) {
-		if (changes.size() < 1) {
+ 		if (changes.size() < 1) {
 			// no changes, ignore it.
 			return;
 		}
 		if (isIncremental()) {
 			try {
 				synchronized (buffer) {
+					ListLineTracker lt = new ListLineTracker();
+					lt.set(buffer.toString());
 					for (TextDocumentContentChangeEvent changeEvent : changes) {
 
 						Range range = changeEvent.getRange();
@@ -147,11 +149,11 @@ public class TextDocument extends TextDocumentItem {
 							length = changeEvent.getRangeLength().intValue();
 						} else {
 							// range is optional and if not given, the whole file content is replaced
-							length = getText().length();
-							range = new Range(positionAt(0), positionAt(length));
+							length = buffer.toString().length();
+							range = new Range(lt.getPositionAt(0), lt.getPositionAt(length));
 						}
 						String text = changeEvent.getText();
-						int startOffset = offsetAt(range.getStart());
+						int startOffset = lt.getOffsetAt(range.getStart());
 						buffer.replace(startOffset, startOffset + length, text);
 					}
 					setText(buffer.toString());
