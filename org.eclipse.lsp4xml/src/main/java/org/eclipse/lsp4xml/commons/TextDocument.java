@@ -138,10 +138,9 @@ public class TextDocument extends TextDocumentItem {
 		if (isIncremental()) {
 			try {
 				synchronized (buffer) {
-					ListLineTracker lt = new ListLineTracker();
-					lt.set(buffer.toString());
 					for (TextDocumentContentChangeEvent changeEvent : changes) {
-
+						ListLineTracker lt = new ListLineTracker();
+						lt.set(buffer.toString());
 						Range range = changeEvent.getRange();
 						int length = 0;
 
