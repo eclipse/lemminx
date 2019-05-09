@@ -165,7 +165,8 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 					if(!modelGroupParticle.getMaxOccursUnbounded()) {
 						int elementCounter = 0;
 						List<CMElementDeclaration> zz = new ArrayList<CMElementDeclaration>();
-						parentCMElement.collectElementsDeclaration(modelGroup, zz);
+						DOMElement rootElement = element.getOwnerDocument().getDocumentElement();
+						collectElementsDeclaration(modelGroup, zz,parentCMElement.getDocument(), rootElement, prefix, request);
 						for (DOMElement domElement : domElements) {
 							for (CMElementDeclaration cmElement : zz) {
 								if(domElement.getLocalName().equals(cmElement.getName())) {
@@ -209,7 +210,6 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 					for (DOMElement childDom: domElements) {
 						int matchingDeclIndex = getElementOffsetInList(currentDeclElements, childDom);
 						if(matchingDeclIndex >= 0) {
-							//CMElementDeclaration matchingDecl = currentDeclElements.get(matchingDeclIndex);
 							if(modelGroupType == XSModelGroup.COMPOSITOR_CHOICE) { // choice only allows for one of it's options
 								boolean isUnderMaxOccurs = particle.getMaxOccurs() > element.getNumberOfChildElementsWithTagName(childDom.getTagName());
 								if(modelGroupParticle.getMaxOccursUnbounded() || isUnderMaxOccurs) {
@@ -243,8 +243,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	}
 
 
-	
-	private void collectElementsFromWildcard(XSTerm term , Collection<CMElementDeclaration> elements, DOMElement rootElement, String prefix, ICompletionRequest request) {
+	public static void collectElementsFromWildcard(XSTerm term , Collection<CMElementDeclaration> elements, DOMElement rootElement, String prefix, ICompletionRequest request) {
 		XSWildcardDecl wc = (XSWildcardDecl) term;
 		Collection<String> prefixes = rootElement.getAllPrefixes();
 		boolean useOnlyOtherNamespaces = false; // ##other
@@ -271,6 +270,30 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			}
 		}
 	}
+
+	@SuppressWarnings("unchecked")
+	public void collectElementsDeclaration(XSTerm term, Collection<CMElementDeclaration> elements, CMXSDDocument document, DOMElement rootElement, String prefix, ICompletionRequest request) {
+		if (term == null) {
+			return;
+		}
+
+		switch (term.getType()) {
+
+		case XSConstants.WILDCARD:
+			// XSWildcard wildcard = (XSWildcard) term;
+			// ex : xsd:any
+			collectElementsFromWildcard(term, elements, rootElement, prefix, request);
+			break;
+		case XSConstants.MODEL_GROUP:
+			XSObjectList particles = ((XSModelGroup) term).getParticles();
+			particles.forEach(p -> collectElementsDeclaration(((XSParticle) p).getTerm(), elements, document, rootElement, prefix, request));
+			break;
+		case XSConstants.ELEMENT_DECLARATION:
+			XSElementDeclaration elementDeclaration = (XSElementDeclaration) term;
+			document.collectElement(elementDeclaration, elements);
+			break;
+		}
+	}
 	
 	private List<CMElementDeclaration> getNextValidElementInSequence(DOMElement parentDOMElement, CMXSDElementDeclaration parentCMElement, XSTerm termModelGroup,
 	String prefix, boolean forceUseOfPrefix, ICompletionRequest request, ICompletionResponse response, int offset) throws BadLocationException {
@@ -281,9 +304,10 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 		}
 		XSModelGroup modelGroup = (XSModelGroup) termModelGroup;
 		// In the case of multiple unique optional decls and the (eg 3rd) one exists
-		// and completion is attempted before it, we queue all previous optional declarations
-		// in case we find one that exists later, meaning we can discard all previous to it
-		// since the most recent existing optional declaration is the lower bound.
+		// and completion is attempted before it: we queue all previous optional declarations
+		// in case we find one that exists later, if true we discard/clear all previous to it
+		// since the most recent existing optional declaration is the lower bound. Else we add
+		// the queued up optional decls
 		List<CMElementDeclaration> optionalElementDeclarations = new ArrayList<>();
 		List<CMElementDeclaration> allValidDeclarations = new ArrayList<>();
 		List<DOMElement> domElements = parentDOMElement != null ? parentDOMElement.getChildElements() : null;
@@ -307,6 +331,10 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 					continue;
 				}
 				currentElementDeclarations.addAll(l);
+				
+
+				// DOMElement rootElement = parentDOMElement.getOwnerDocument().getDocumentElement();
+				// collectElementsDeclaration(term, currentElementDeclarations, cmXSDDocument, rootElement, prefix, request);
 			}
 			else if(term.getType() == XSConstants.WILDCARD) {
 				DOMDocument domDocument = parentDOMElement.getOwnerDocument();

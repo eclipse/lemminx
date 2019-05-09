@@ -27,12 +27,26 @@ public class XSDCompletionExtensionsTest {
 	@Test
 	public void completion() throws BadLocationException {
 		// completion on |
-		String xml = "<?xml version=\"1.1\"?>\r\n"
-				+ "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">   \r\n"
-				+ //
+		String xml = 
+				"<?xml version=\"1.1\"?>\r\n" + 
+				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">   \r\n" + //
 				"|";
 		testCompletionFor(xml, c("xs:annotation", te(2, 0, 2, 0, "<xs:annotation></xs:annotation>"), "xs:annotation"),
-				c("xs:attribute", te(2, 0, 2, 0, "<xs:attribute name=\"\"></xs:attribute>"), "xs:attribute"));
+				c("xs:attribute", te(2, 0, 2, 0, "<xs:attribute name=\"\"></xs:attribute>"), "xs:attribute"),
+				c("xs:complexType", te(2, 0, 2, 0, "<xs:complexType name=\"\"></xs:complexType>"), "xs:complexType"));
+	}
+
+	@Test
+	public void completionAlreadyComplexType() throws BadLocationException {
+		// completion on |
+		String xml = 
+				"<?xml version=\"1.1\"?>\r\n" + 
+				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">   \r\n" + //
+				"  <xs:complexType></xs:complexType>\r\n" +
+				"  |";
+		testCompletionFor(xml, c("xs:annotation", te(2, 0, 2, 0, "<xs:annotation></xs:annotation>"), "xs:annotation"),
+				c("xs:attribute", te(2, 0, 2, 0, "<xs:attribute name=\"\"></xs:attribute>"), "xs:attribute"),
+				c("xs:complexType", te(2, 0, 2, 0, "<xs:complexType name=\"\"></xs:complexType>"), "xs:complexType"));
 	}
 
 	private void testCompletionFor(String xml, CompletionItem... expectedItems) throws BadLocationException {

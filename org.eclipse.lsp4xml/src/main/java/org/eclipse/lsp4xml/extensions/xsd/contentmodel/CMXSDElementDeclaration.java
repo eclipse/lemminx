@@ -210,11 +210,12 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 		case XSConstants.WILDCARD:
 			// XSWildcard wildcard = (XSWildcard) term;
 			// ex : xsd:any
-			document.getElements().forEach(e -> {
-				if (!elements.contains(e)) {
-					elements.add(e);
-				}
-			});
+			// document.getElements().forEach(e -> {
+			// 	if (!elements.contains(e)) {
+			// 		elements.add(e);
+			// 	}
+			// });
+			
 			break;
 		case XSConstants.MODEL_GROUP:
 			XSObjectList particles = ((XSModelGroup) term).getParticles();

@@ -1,0 +1,17 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+	<xs:element name="main">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:group ref="schemaTop"/>
+				<xs:element name="bbb" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:group name="schemaTop">
+		<xs:choice>
+			<xs:element name="element"/>
+			<xs:element name="attribute"/>
+			<xs:element name="notation"/>
+		</xs:choice>
+	</xs:group>
+</xs:schema>
