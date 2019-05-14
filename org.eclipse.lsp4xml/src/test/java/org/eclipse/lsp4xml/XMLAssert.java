@@ -194,7 +194,8 @@ public class XMLAssert {
 			if (expected.getTextEdit().getNewText() != null) {
 				Assert.assertEquals(expected.getTextEdit().getNewText(), match.getTextEdit().getNewText());
 			}
-			if (expected.getTextEdit().getRange() != null) {
+			Range r = expected.getTextEdit().getRange();
+			if (r != null && r.getStart() != null && r.getEnd() != null) {
 				Assert.assertEquals(expected.getTextEdit().getRange(), match.getTextEdit().getRange());
 			}
 		}
@@ -217,7 +218,7 @@ public class XMLAssert {
 	}
 
 	public static CompletionItem c(String label, String newText, String filterText) {
-		return c(label, newText, null, filterText);
+		return c(label, newText, new Range(), filterText);
 	}
 
 	public static CompletionItem c(String label, String newText, Range range, String filterText) {
@@ -303,14 +304,14 @@ public class XMLAssert {
 	public static void assertDiagnostics(List<Diagnostic> actual, List<Diagnostic> expected, boolean filter) {
 		List<Diagnostic> received = actual;
 		final boolean filterMessage;
-		if(expected != null && !expected.isEmpty() && expected.get(0).getMessage() != null) {
+		if(expected != null && !expected.isEmpty() && expected.get(0).getMessage() != null && expected.get(0).getMessage().isEmpty() == false) {
 			filterMessage = true;
 		} else {
 			filterMessage = false;
 		}
 		if (filter) {
 			received = actual.stream().map(d -> {
-				Diagnostic simpler = new Diagnostic(d.getRange(), null);
+				Diagnostic simpler = new Diagnostic(d.getRange(), "");
 				simpler.setCode(d.getCode());
 				if(filterMessage) {
 					simpler.setMessage(d.getMessage());
@@ -322,7 +323,7 @@ public class XMLAssert {
 	}
 
 	public static Diagnostic d(int startLine, int startCharacter, int endLine, int endCharacter, IXMLErrorCode code) {
-		return d(startLine, startCharacter, endLine, endCharacter, code, null);
+		return d(startLine, startCharacter, endLine, endCharacter, code, "");
 	}
 
 	public static Diagnostic d(int startLine, int startCharacter, int endCharacter, IXMLErrorCode code) {
