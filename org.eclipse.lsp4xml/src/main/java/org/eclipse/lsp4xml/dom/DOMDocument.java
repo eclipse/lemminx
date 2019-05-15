@@ -249,10 +249,9 @@ public class DOMDocument extends DOMNode implements Document {
 				}
 			}
 			if (schemaInstancePrefix != null) {
+				// DOM document can declared xsi:noNamespaceSchemaLocation and xsi:schemaLocation both even it's not valid
 				noNamespaceSchemaLocation = createNoNamespaceSchemaLocation(documentElement, schemaInstancePrefix);
-				if (noNamespaceSchemaLocation == null) {
-					schemaLocation = createSchemaLocation(documentElement, schemaInstancePrefix);
-				}
+				schemaLocation = createSchemaLocation(documentElement, schemaInstancePrefix);				
 			}
 		}
 	}
