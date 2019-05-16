@@ -49,6 +49,7 @@ import org.eclipse.lsp4j.FoldingRangeCapabilities;
 import org.eclipse.lsp4j.FoldingRangeRequestParams;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Location;
+import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameParams;
@@ -144,7 +145,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	private BasicCancelChecker monitor;
 	private boolean codeActionLiteralSupport;
 	private boolean hierarchicalDocumentSymbolSupport;
-	
+
 	public XMLTextDocumentService(XMLLanguageServer xmlLanguageServer) {
 		this.xmlLanguageServer = xmlLanguageServer;
 		this.documents = new TextDocuments();
@@ -183,8 +184,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 			String uri = params.getTextDocument().getUri();
 			TextDocument document = getDocument(uri);
 			DOMDocument xmlDocument = getXMLDocument(document);
-			CompletionList list = getXMLLanguageService().doComplete(xmlDocument, params.getPosition(),
-					sharedSettings);
+			CompletionList list = getXMLLanguageService().doComplete(xmlDocument, params.getPosition(), sharedSettings);
 			return Either.forRight(list);
 		});
 	}
@@ -311,11 +311,13 @@ public class XMLTextDocumentService implements TextDocumentService {
 	}
 
 	@Override
-	public CompletableFuture<List<? extends Location>> definition(TextDocumentPositionParams params) {
+	public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> definition(
+			TextDocumentPositionParams params) {
 		return computeAsync((monitor) -> {
 			TextDocument document = getDocument(params.getTextDocument().getUri());
 			DOMDocument xmlDocument = getXMLDocument(document);
-			return getXMLLanguageService().findDefinition(xmlDocument, params.getPosition());
+			Either e = Either.forLeft(getXMLLanguageService().findDefinition(xmlDocument, params.getPosition()));
+			return e;
 		});
 	}
 

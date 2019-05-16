@@ -145,7 +145,7 @@ public class XSISchemaModel {
 				defaultValue, enumerationValues, settings);
 		MarkupContent markup = new MarkupContent();
 		markup.setKind(MarkupKind.MARKDOWN);
-		markup.setValue(documentation);
+		markup.setValue(StringUtils.getDefaultString(documentation));
 		item.setDocumentation(markup);
 		response.addCompletionItem(item);
 	}

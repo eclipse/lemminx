@@ -442,7 +442,7 @@ public class DOMParserTest {
 
 	@Test
 	public void elementOffsets() {
-		DOMDocument document = DOMParser.getInstance().parse("<a></a>", null, null);
+		DOMDocument document = DOMParser.getInstance().parse("<a></a>", "", null);
 		DOMElement a = document.getDocumentElement();
 		Assert.assertNotNull(a);
 		Assert.assertEquals(a.getTagName(), "a");
@@ -493,7 +493,7 @@ public class DOMParserTest {
 		"    <!ENTITY nbsp \"&#xA0;\"> \n" +
 		"    <!ENTITY writer \"Writer: Donald Duck.\">\n" +
 		"    <!ENTITY copyright \"Copyright: W3Schools.\">\n  ";
-		DOMDocument document = DOMParser.getInstance().parse(xml, null, null);
+		DOMDocument document = DOMParser.getInstance().parse(xml, "", null);
 		assertDoctype((DOMDocumentType)(document.getChild(0)), 0, 212, "html", DocumentTypeKind.SYSTEM.name(), null, "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"", internal);
 	}
 
@@ -511,7 +511,7 @@ public class DOMParserTest {
 		entity.closed = true;
 		doctype.addChild(entity);
 
-		DOMDocument document = DOMParser.getInstance().parse(xml, null, null);
+		DOMDocument document = DOMParser.getInstance().parse(xml, "", null);
 		compareTrees(doctype, document.getChild(0));
 		
 	}
@@ -538,7 +538,7 @@ public class DOMParserTest {
 		doctype.addChild(element);
 		doctype.addChild(attlist);
 
-		DOMDocument document = DOMParser.getInstance().parse(xml, null, null);
+		DOMDocument document = DOMParser.getInstance().parse(xml, "", null);
 		compareTrees(doctype, document.getChild(0));
 		
 	}
@@ -885,8 +885,8 @@ public class DOMParserTest {
 			Integer kindEnd, Integer publicIdStart, Integer publicIdEnd, Integer systemIdStart, Integer systemIdEnd, 
 			Integer internalSubsetStart, Integer internalSubsetEnd) {
 		DOMDocumentType doctype = new DOMDocumentType(start, end, null);
-		doctype.name = nameStart != null ? new DTDDeclParameter(null, nameStart, nameEnd) : null;;
-		doctype.kind = kindStart != null ? new DTDDeclParameter(null, kindStart, kindEnd) : null;;
+		doctype.name = nameStart != null ? new DTDDeclParameter(null, nameStart, nameEnd) : null;
+		doctype.kind = kindStart != null ? new DTDDeclParameter(null, kindStart, kindEnd) : null;
 		doctype.publicId = publicIdStart != null ? new DTDDeclParameter(null, publicIdStart, publicIdEnd) : null;;
 		doctype.systemId = systemIdEnd != null ? new DTDDeclParameter(null, systemIdStart, systemIdEnd) : null;;
 		doctype.internalSubset = internalSubsetStart != null ? new DTDDeclParameter(null, internalSubsetStart, internalSubsetEnd) : null;;

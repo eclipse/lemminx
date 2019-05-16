@@ -215,4 +215,18 @@ public class StringUtils {
 		return newLineCounter;
 	}
 
+	/**
+	 * Given a string will give back a non null string that is either
+	 * the given string, or an empty string.
+	 * 
+	 * @param text
+	 * @return
+	 */
+	public static String getDefaultString(String text) {
+		if(text != null) {
+			return text;
+		}
+		return "";
+	}
+
 }
