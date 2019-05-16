@@ -55,6 +55,7 @@ import org.eclipse.lsp4xml.services.extensions.diagnostics.IXMLErrorCode;
 import org.eclipse.lsp4xml.services.extensions.save.AbstractSaveContext;
 import org.eclipse.lsp4xml.settings.SharedSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
+import org.eclipse.lsp4xml.utils.StringUtils;
 import org.junit.Assert;
 
 /**
@@ -82,6 +83,7 @@ public class XMLAssert {
 		public void collectDocumentToValidate(Predicate<DOMDocument> validateDocumentPredicate) {
 
 		}
+
 	}
 
 	public static void testCompletionFor(String value, CompletionItem... expectedItems) throws BadLocationException {
@@ -194,7 +196,8 @@ public class XMLAssert {
 			if (expected.getTextEdit().getNewText() != null) {
 				Assert.assertEquals(expected.getTextEdit().getNewText(), match.getTextEdit().getNewText());
 			}
-			if (expected.getTextEdit().getRange() != null) {
+			Range r = expected.getTextEdit().getRange();
+			if (r != null && r.getStart() != null && r.getEnd() != null) {
 				Assert.assertEquals(expected.getTextEdit().getRange(), match.getTextEdit().getRange());
 			}
 		}
@@ -217,7 +220,7 @@ public class XMLAssert {
 	}
 
 	public static CompletionItem c(String label, String newText, String filterText) {
-		return c(label, newText, null, filterText);
+		return c(label, newText, new Range(), filterText);
 	}
 
 	public static CompletionItem c(String label, String newText, Range range, String filterText) {
@@ -303,14 +306,14 @@ public class XMLAssert {
 	public static void assertDiagnostics(List<Diagnostic> actual, List<Diagnostic> expected, boolean filter) {
 		List<Diagnostic> received = actual;
 		final boolean filterMessage;
-		if(expected != null && !expected.isEmpty() && expected.get(0).getMessage() != null) {
+		if(expected != null && !expected.isEmpty() && !StringUtils.isEmpty(expected.get(0).getMessage())) {
 			filterMessage = true;
 		} else {
 			filterMessage = false;
 		}
 		if (filter) {
 			received = actual.stream().map(d -> {
-				Diagnostic simpler = new Diagnostic(d.getRange(), null);
+				Diagnostic simpler = new Diagnostic(d.getRange(), "");
 				simpler.setCode(d.getCode());
 				if(filterMessage) {
 					simpler.setMessage(d.getMessage());
@@ -322,7 +325,7 @@ public class XMLAssert {
 	}
 
 	public static Diagnostic d(int startLine, int startCharacter, int endLine, int endCharacter, IXMLErrorCode code) {
-		return d(startLine, startCharacter, endLine, endCharacter, code, null);
+		return d(startLine, startCharacter, endLine, endCharacter, code, "");
 	}
 
 	public static Diagnostic d(int startLine, int startCharacter, int endCharacter, IXMLErrorCode code) {
@@ -450,21 +453,23 @@ public class XMLAssert {
 			// we don't want to compare title, etc
 			ca.setCommand(null);
 			ca.setKind(null);
-			ca.setTitle(null);
+			ca.setTitle("");
 			if (ca.getDiagnostics() != null) {
 				ca.getDiagnostics().forEach(d -> {
 					d.setSeverity(null);
-					d.setMessage(null);
+					d.setMessage("");
 					d.setSource(null);
 				});
 			}
 		});
+
 		Assert.assertEquals(expected.length, actual.size());
 		Assert.assertArrayEquals(expected, actual.toArray());
 	}
 
 	public static CodeAction ca(Diagnostic d, TextEdit te) {
 		CodeAction codeAction = new CodeAction();
+		codeAction.setTitle("");
 		codeAction.setDiagnostics(Arrays.asList(d));
 
 		VersionedTextDocumentIdentifier versionedTextDocumentIdentifier = new VersionedTextDocumentIdentifier(FILE_URI,

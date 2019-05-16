@@ -37,6 +37,7 @@ import org.eclipse.lsp4xml.services.XMLCompletions;
 import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
 import org.eclipse.lsp4xml.settings.SharedSettings;
+import org.eclipse.lsp4xml.utils.StringUtils;
 
 /**
  * This class holds values that represent the XSI xsd. Can be seen at
@@ -124,7 +125,7 @@ public class PrologModel {
 		MarkupContent markup = new MarkupContent();
 		markup.setKind(MarkupKind.MARKDOWN);
 		
-		markup.setValue(documentation);
+		markup.setValue(StringUtils.getDefaultString(documentation));
 		item.setDocumentation(markup);
 		response.addCompletionItem(item);
 	}
