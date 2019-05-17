@@ -11,37 +11,4 @@
 	"editor.detectIndentation": false,
 	"editor.tabSize": 4,
 	"editor.insertSpaces": false,
-	"java.test.defaultConfig": "config-41b2e8",
-	"java.test.config": [
-		{
-			"run": {
-				"default": "",
-				"items": [
-					{
-						"name": "lsp4xml",
-						"projectName": "lsp4xml",
-						"workingDirectory": "",
-						"args": [],
-						"vmargs": [],
-						"preLaunchTask": ""
-					}
-				]
-			},
-			"debug": {
-				"default": "",
-				"items": [
-					{
-						"name": "lsp4xml",
-						"projectName": "lsp4xml",
-						"workingDirectory": "",
-						"args": [],
-						"vmargs": [],
-						"preLaunchTask": ""
-					}
-				]
-			},
-			"name": "config-41b2e8"
-		}
-	]
-	
 }
