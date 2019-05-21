@@ -221,7 +221,7 @@ public class XMLSyntaxDiagnosticsTest {
 				+ "<Document xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"urn:iso:std:iso:20022:tech:xsd:pain.001.001.03\">\r\n"
 				+ "<CstmrCdtTrfInitn>\r\n" + //
 				"</CstmrCdtTrfInitn>";
-		testDiagnosticsFor(xml, d(3, 18, 3, 19, XMLSyntaxErrorCode.MarkupEntityMismatch));
+		testDiagnosticsFor(xml, d(1, 1, 1, 9, XMLSyntaxErrorCode.MarkupEntityMismatch));
 	}
 
 	@Test

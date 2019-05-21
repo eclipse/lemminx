@@ -157,8 +157,9 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 		case IllegalQName:
 		case InvalidCommentStart:
 		case MarkupNotRecognizedInContent:
-		case MarkupEntityMismatch:
 			return XMLPositionUtility.createRange(offset, offset + 1, document);
+		case MarkupEntityMismatch:
+			return XMLPositionUtility.selectRootStartTag(document);
 		case NameRequiredInReference:
 			break;
 		case OpenQuoteExpected: {
