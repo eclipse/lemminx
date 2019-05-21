@@ -128,6 +128,21 @@ public class XMLSchemaDiagnosticsTest {
 	}
 
 	@Test
+	public void cvc_complex_type_2_4_f() throws Exception {
+		String xml = 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
+			"<root\r\n" + //
+			"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+			"    xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/sequence.xsd\">\r\n" + //
+			"  <tag></tag>\r\n" + //
+			"  <optional></optional>\r\n" + //
+			"  <optional></optional>\r\n" + //
+			"  <optional></optional>\r\n" + //
+			"</root>";
+		testDiagnosticsFor(xml, d(7, 3, 7, 11, XMLSchemaErrorCode.cvc_complex_type_2_4_f));
+	}
+
+	@Test
 	public void cvc_type_3_1_1() throws Exception {
 		String xml = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + //
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
