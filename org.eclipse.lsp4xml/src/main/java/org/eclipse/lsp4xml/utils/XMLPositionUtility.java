@@ -200,6 +200,11 @@ public class XMLPositionUtility {
 		return null;
 	}
 
+	public static Range selectRootStartTag(DOMDocument document) {
+		DOMNode root = document.getDocumentElement();
+		return selectStartTag(root);
+	}
+
 	public static Range selectStartTag(int offset, DOMDocument document) {
 		DOMNode element = document.findNodeAt(offset);
 		if (element != null) {
