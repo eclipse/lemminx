@@ -124,13 +124,14 @@ public class XSISchemaModel {
 		}
 		
 		if(inRootElement) {
-			if(!schemaLocationExists && !noNamespaceSchemaLocationExists) {
+			if(!schemaLocationExists) {
 				//The xsi:schemaLocation and xsi:noNamespaceSchemaLocation attributes can be used in a document 
 				//to provide hints as to the physical location of schema documents which may be used for ·assessment·.
 				documentation = SCHEMA_LOCATION_DOC;
 				name = actualPrefix + ":schemaLocation";
 				createCompletionItem(name, isSnippetsSupported, generateValue, editRange, null, null, documentation, response, settings);	
-				
+			}
+			if(!noNamespaceSchemaLocationExists) {
 				documentation = NO_NAMESPACE_SCHEMA_LOCATION_DOC;
 				name = actualPrefix + ":noNamespaceSchemaLocation";
 				createCompletionItem(name, isSnippetsSupported, generateValue, editRange, null, null, documentation, response, settings);	
