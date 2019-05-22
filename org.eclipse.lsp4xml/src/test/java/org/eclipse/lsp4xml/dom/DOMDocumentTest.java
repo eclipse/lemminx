@@ -263,4 +263,18 @@ public class DOMDocumentTest {
 		Assert.assertTrue(d.hasSchemaInstancePrefix());
 		Assert.assertTrue(d.usesSchema("/home/nikolas/nested/testXSD.xsd")); //bad path
 	}
+	
+	@Test
+	public void testNoNamespaceSchemaLocationAndShemaLocationBoth() {
+		String text = "<root\n" + //
+				"  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + //
+				 "  xsi:noNamespaceSchemaLocation=\"/home/nikolas/nested/testXSD.xsd\"" + //
+				 " xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 testXSD.xsd\"" + //
+				 ">" + //
+				 " </root> ";
+		TextDocument textDocument = new TextDocument(text, "/home/test.xml");
+		DOMDocument d = DOMParser.getInstance().parse(text, textDocument.getUri(), null);
+		Assert.assertNotNull(d.getNoNamespaceSchemaLocation());
+		Assert.assertNotNull(d.getSchemaLocation());
+	}
 }

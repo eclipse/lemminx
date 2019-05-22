@@ -1,0 +1,11 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://gotNS">
+	<xs:element name="yesNS">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="dog"></xs:element>
+				<xs:any id="other"></xs:any>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

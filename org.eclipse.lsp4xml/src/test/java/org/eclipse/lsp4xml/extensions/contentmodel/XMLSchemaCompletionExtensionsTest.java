@@ -21,7 +21,6 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -345,7 +344,7 @@ public class XMLSchemaCompletionExtensionsTest {
 				+ "            <xs:attribute name=\"variant\" type=\"xs:string\" use=\"required\"/>\r\n"
 				+ "        </xs:complexType>\r\n" + "    </xs:element>\r\n" + "</xs:schema>";
 		Files.write(Paths.get("target/xsd/resources.xsd"), schema.getBytes());
-		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null, "target/resources.xml", 4, false,
+		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null, "target/resources.xml", 5, false,
 				c("variant", "variant=\"\""));
 
 		// Update resources.xsd, Schema doesn't define variant attribute -> no
@@ -366,7 +365,7 @@ public class XMLSchemaCompletionExtensionsTest {
 				// + " <xs:attribute name=\"variant\" type=\"xs:string\" use=\"required\"/>\r\n"
 				+ "        </xs:complexType>\r\n" + "    </xs:element>\r\n" + "</xs:schema>";
 		Files.write(Paths.get("target/xsd/resources.xsd"), schema.getBytes());
-		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null, "target/resources.xml", 3, false);
+		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null, "target/resources.xml", 4, false);
 
 	}
 
@@ -448,7 +447,7 @@ public class XMLSchemaCompletionExtensionsTest {
 		"  <modelVersion></modelVersion>\r\n" +
 		"</project>";
 
-		XMLAssert.testCompletionFor(xml, 3, c("XXY:nil", "XXY:nil=\"true\""), c("XXY:type", "XXY:type=\"\""));
+		XMLAssert.testCompletionFor(xml, 4, c("XXY:nil", "XXY:nil=\"true\""), c("XXY:type", "XXY:type=\"\""), c("XXY:noNamespaceSchemaLocation", "XXY:noNamespaceSchemaLocation=\"\""));
 	}
 
 	@Test
@@ -485,7 +484,7 @@ public class XMLSchemaCompletionExtensionsTest {
 		"  <modelVersion></modelVersion>\r\n" +
 		"</project>";
 
-		XMLAssert.testCompletionFor(xml, 3, c("xsi:nil", "xsi:nil=\"true\""), c("xsi:type", "xsi:type=\"\""));
+		XMLAssert.testCompletionFor(xml, 4, c("xsi:nil", "xsi:nil=\"true\""), c("xsi:type", "xsi:type=\"\""), c("xsi:noNamespaceSchemaLocation", "xsi:noNamespaceSchemaLocation=\"\""));
 	}
 
 	@Test
@@ -498,7 +497,7 @@ public class XMLSchemaCompletionExtensionsTest {
 		"  <modelVersion></modelVersion>\r\n" +
 		"</project>";
 
-		XMLAssert.testCompletionFor(xml, 2, c("xsi:nil", "xsi:nil=\"true\""), c("xsi:type", "xsi:type=\"\""));
+		XMLAssert.testCompletionFor(xml, 3, c("xsi:nil", "xsi:nil=\"true\""), c("xsi:type", "xsi:type=\"\""), c("xsi:schemaLocation", "xsi:schemaLocation=\"\""));
 	}
 
 	private void testCompletionFor(String xml, CompletionItem... expectedItems) throws BadLocationException {
