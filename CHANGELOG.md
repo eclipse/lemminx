@@ -1,5 +1,25 @@
 # Change Log
 
+## [0.6.0](https://github.com/angelozerr/lsp4xml/milestone/6?closed=1) (May 22, 2019)
+
+### Enhancements
+
+* Attribute completion for both `xsi:schemaLocation` and `xsi:noNamespaceSchemaLocation` are independent of each other. See [#382](https://github.com/angelozerr/lsp4xml/pull/382).
+* Upgraded to lsp4j version 0.7.1. See [#370](https://github.com/angelozerr/lsp4xml/issues/370).
+* Preference `xml.format.preservedNewLines` to preserve new lines on format. See [#350](https://github.com/angelozerr/lsp4xml/issues/350).
+
+### Bug Fixes
+
+* Fixed error range for `cvc-complex-type.2.4.f`. See [#368](https://github.com/angelozerr/lsp4xml/issues/368).
+* Fixed error range for `SchemaLocation` warning. See [#343](https://github.com/angelozerr/lsp4xml/issues/343).
+* Fixed error range for `MarkupEntityMismatch`. See [#367](https://github.com/angelozerr/lsp4xml/issues/367).
+* Missing schema would generate too many/redundant warnings. See [#336](https://github.com/angelozerr/lsp4xml/issues/336).
+* Self-closing tag did not remove end tag if tag name contained uppercase characters. See [#354](https://github.com/angelozerr/lsp4xml/issues/354).
+* Placing a `/` in an attribute value triggered autoclosing. See [vscode-xml#126](https://github.com/redhat-developer/vscode-xml/issues/126).
+* New Maven POM attribute was breaking tests. See [#356](https://github.com/angelozerr/lsp4xml/pull/356).
+* Removed unused settings for testing. See [#356](https://github.com/angelozerr/lsp4xml/pull/378).
+
+
 ## [0.5.1](https://github.com/angelozerr/lsp4xml/milestone/7?closed=1) (April 08, 2019)
 
 ### Bug Fixes
