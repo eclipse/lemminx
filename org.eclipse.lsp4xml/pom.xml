@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>org.lsp4xml</groupId>
 		<artifactId>lsp4xml</artifactId>
-		<version>0.6.0-SNAPSHOT</version>
+		<version>0.7.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>org.eclipse.lsp4xml</artifactId>
 	<properties>
