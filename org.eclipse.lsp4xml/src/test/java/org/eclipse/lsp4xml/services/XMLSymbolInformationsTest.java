@@ -205,7 +205,7 @@ public class XMLSymbolInformationsTest {
 		currentSymbolInfo = createSymbolInformation("br", SymbolKind.Property, currentLocation, "");
 		expectedSymbolInfos.add(currentSymbolInfo);
 
-		currentLocation = createLocation(testURI, 20, 40, xmlDocument);
+		currentLocation = createLocation(testURI, 34, 39, xmlDocument);
 		currentSymbolInfo = createSymbolInformation("%all;", SymbolKind.Key, currentLocation, "");
 		expectedSymbolInfos.add(currentSymbolInfo);
 
@@ -230,7 +230,7 @@ public class XMLSymbolInformationsTest {
 		currentSymbolInfo = createSymbolInformation("br", SymbolKind.Property, currentLocation, "DOCTYPE:br");
 		expectedSymbolInfos.add(currentSymbolInfo);
 
-		currentLocation = createLocation(testURI, 39, 60, xmlDocument);
+		currentLocation = createLocation(testURI, 54, 59, xmlDocument);
 		currentSymbolInfo = createSymbolInformation("%all;", SymbolKind.Key, currentLocation, "DOCTYPE:br");
 		expectedSymbolInfos.add(currentSymbolInfo);
 
