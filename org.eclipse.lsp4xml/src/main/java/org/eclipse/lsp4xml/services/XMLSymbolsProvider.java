@@ -27,6 +27,7 @@ import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.dom.DTDAttlistDecl;
+import org.eclipse.lsp4xml.dom.DTDDeclParameter;
 import org.eclipse.lsp4xml.dom.DTDElementDecl;
 import org.eclipse.lsp4xml.dom.DTDNotationDecl;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
@@ -85,31 +86,60 @@ class XMLSymbolsProvider {
 			return;
 		}
 		boolean hasChildNodes = node.hasChildNodes();
-		List<DocumentSymbol> children = symbols;
-		if (!nodesToIgnore.contains(node)) {
-			String name = nodeToName(node);
-			Range selectionRange = getSymbolRange(node);
+		List<DocumentSymbol> childrenSymbols = symbols;
+		if (nodesToIgnore == null || !nodesToIgnore.contains(node)) {
+			String name;
+			Range selectionRange;
+
+			if (nodesToIgnore != null && node.isDTDAttListDecl()) { // attlistdecl with no elementdecl references
+				DTDAttlistDecl decl = (DTDAttlistDecl) node;
+				name = decl.getElementName();
+				selectionRange = getSymbolRange(node, true);
+			}
+			else { // regular node
+				name = nodeToName(node);
+				selectionRange = getSymbolRange(node);
+				
+			}
 			Range range = selectionRange;
-			children = hasChildNodes || node.isDTDElementDecl() ? new ArrayList<>() : Collections.emptyList();
-			DocumentSymbol symbol = new DocumentSymbol(name, getSymbolKind(node), range, selectionRange, null,
-					children);
-			
+			childrenSymbols = hasChildNodes || node.isDTDElementDecl() || node.isDTDAttListDecl() ? new ArrayList<>() : Collections.emptyList();
+			DocumentSymbol symbol = new DocumentSymbol(name, getSymbolKind(node), range, selectionRange, null, childrenSymbols);
 			symbols.add(symbol);
-			if (node.isDTDElementDecl()) {
+
+			if (node.isDTDElementDecl() || (nodesToIgnore != null && node.isDTDAttListDecl())) {
 				// In the case of DTD ELEMENT we try to add in the children the DTD ATTLIST
-				DTDElementDecl elementDecl = (DTDElementDecl) node;
-				String elementName = elementDecl.getName();
-				Collection<DOMNode> attlistDecls = node.getOwnerDocument().findDTDAttrList(elementName);
+				Collection<DOMNode> attlistDecls;
+				if(node.isDTDElementDecl()) {
+					DTDElementDecl elementDecl = (DTDElementDecl) node;
+					String elementName = elementDecl.getName();
+					attlistDecls = node.getOwnerDocument().findDTDAttrList(elementName);
+				}
+				else {
+					attlistDecls = new ArrayList<DOMNode>();
+					attlistDecls.add(node);
+				}
+				
 				for (DOMNode attrDecl : attlistDecls) {
-					findDocumentSymbols(attrDecl, children, nodesToIgnore);
+					findDocumentSymbols(attrDecl, childrenSymbols, null);
+					if(attrDecl instanceof DTDAttlistDecl) {
+						DTDAttlistDecl decl = (DTDAttlistDecl) attrDecl;
+						List<DTDAttlistDecl> otherAttributeDecls = decl.getInternalChildren();
+						if(otherAttributeDecls != null) {
+							for (DTDAttlistDecl internalDecl : otherAttributeDecls) {
+								findDocumentSymbols(internalDecl, childrenSymbols, null);
+							}
+						}
+					}
 					nodesToIgnore.add(attrDecl);
 				}
 			}
+
+			
 		}
 		if (!hasChildNodes) {
 			return;
 		}
-		final List<DocumentSymbol> childrenOfChild = children;
+		final List<DocumentSymbol> childrenOfChild = childrenSymbols;
 		node.getChildren().forEach(child -> {
 			try {
 				findDocumentSymbols(child, childrenOfChild, nodesToIgnore);
@@ -145,10 +175,28 @@ class XMLSymbolsProvider {
 		});
 	}
 
-	private static Range getSymbolRange(DOMNode node) throws BadLocationException {
+	private static Range getSymbolRange(DOMNode node)  throws BadLocationException{
+		return getSymbolRange(node, false);
+	}
+
+	private static Range getSymbolRange(DOMNode node, boolean useAttlistElementName) throws BadLocationException{
+		Position start;
+		Position end;
 		DOMDocument xmlDocument = node.getOwnerDocument();
-		Position start = xmlDocument.positionAt(node.getStart());
-		Position end = xmlDocument.positionAt(node.getEnd());
+
+		if(node.isDTDAttListDecl() && !useAttlistElementName) {
+			DTDAttlistDecl attlistDecl = (DTDAttlistDecl) node;
+			DTDDeclParameter attributeNameDecl = attlistDecl.attributeName;
+			
+			if(attributeNameDecl != null) {
+				start = xmlDocument.positionAt(attributeNameDecl.getStart());
+				end = xmlDocument.positionAt(attributeNameDecl.getEnd());
+				return new Range(start, end);
+			}
+		}
+		
+		start = xmlDocument.positionAt(node.getStart());
+		end = xmlDocument.positionAt(node.getEnd());
 		return new Range(start, end);
 	}
 
