@@ -101,7 +101,9 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 
 	@Override
 	public void element(String elementName, Augmentations augs) throws XNIException {
-		hierachies.add(elementName);
+		if (!hierachies.contains(elementName)) {
+			hierachies.add(elementName);
+		}
 		super.element(elementName, augs);
 	}
 
