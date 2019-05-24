@@ -32,11 +32,11 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 	boolean selfClosed;
 	
 	//DomElement.start == startTagOpenOffset
-	Integer startTagOpenOffset; // |<root>
-	Integer startTagCloseOffset; // <root |>
+	int startTagOpenOffset = NULL_VALUE; // |<root>
+	int startTagCloseOffset = NULL_VALUE; // <root |>
 
-	Integer endTagOpenOffset; // <root> |</root >
-	Integer endTagCloseOffset;// <root> </root |>
+	int endTagOpenOffset = NULL_VALUE; // <root> |</root >
+	int endTagCloseOffset = NULL_VALUE;// <root> </root |>
 	//DomElement.end = <root> </root>| , is always scanner.getTokenEnd()
 
 	public DOMElement(int start, int end, DOMDocument ownerDocument) {
@@ -312,7 +312,7 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 	}
 
 	public boolean isInStartTag(int offset) {
-		if (startTagOpenOffset == null || startTagCloseOffset == null) {
+		if (startTagOpenOffset == NULL_VALUE || startTagCloseOffset == NULL_VALUE) {
 			// case <|
 			return true;
 		}
@@ -324,7 +324,7 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 	}
 
 	public boolean isInEndTag(int offset) {
-		if (endTagOpenOffset == null) {
+		if (endTagOpenOffset == NULL_VALUE) {
 			// case >|
 			return false;
 		}
@@ -335,23 +335,48 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 		return false;
 	}
 
-	public boolean hasStartTagClose() {
-		return startTagCloseOffset != null;
-	}
-
-	public Integer getStartTagOpenOffset() {
+	/**
+	 * Returns the start tag open offset and {@link DOMNode#NULL_VALUE} if it
+	 * doesn't exist.
+	 * 
+	 * @return the start tag open offset and {@link DOMNode#NULL_VALUE} if it
+	 *         doesn't exist.
+	 */
+	public int getStartTagOpenOffset() {
 		return startTagOpenOffset;
 	}
 
-	public Integer getStartTagCloseOffset() {
+	/**
+	 * Returns the start tag close offset and {@link DOMNode#NULL_VALUE} if it
+	 * doesn't exist.
+	 * 
+	 * @return the start tag close offset and {@link DOMNode#NULL_VALUE} if it
+	 *         doesn't exist.
+	 */
+	public int getStartTagCloseOffset() {
 		return startTagCloseOffset;
 	}
 
-	public Integer getEndTagOpenOffset() {
+	/**
+	 * Returns the end tag open offset and {@link DOMNode#NULL_VALUE} if it doesn't
+	 * exist.
+	 * 
+	 * @return the end tag open offset and {@link DOMNode#NULL_VALUE} if it doesn't
+	 *         exist.
+	 */
+	public int getEndTagOpenOffset() {
 		return endTagOpenOffset;
 	}
 
-	public Integer getEndTagCloseOffset() {
+	
+	/**
+	 * Returns the end tag close offset and {@link DOMNode#NULL_VALUE} if it doesn't
+	 * exist.
+	 * 
+	 * @return the end tag close offset and {@link DOMNode#NULL_VALUE} if it doesn't
+	 *         exist.
+	 */
+	public int getEndTagCloseOffset() {
 		return endTagCloseOffset;
 	}
 
@@ -364,7 +389,7 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 	 * @return true if has a start tag.
 	 */
 	public boolean hasStartTag() {
-		return startTagOpenOffset != null;
+		return getStartTagOpenOffset() != NULL_VALUE;
 	}
 
 	/**
@@ -376,27 +401,27 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 	 * @return true if has an end tag.
 	 */
 	public boolean hasEndTag() {
-		return endTagOpenOffset != null;
+		return getEndTagOpenOffset() != NULL_VALUE;
 	}
 
 	/**
 	 * If '>' exists in <root>
 	 */
 	public boolean isStartTagClosed() {
-		return startTagCloseOffset != null;
+		return getStartTagCloseOffset() != NULL_VALUE;
 	}
 
 	/**
 	 * If '>' exists in </root>
 	 */
 	public boolean isEndTagClosed() {
-		return endTagCloseOffset != null;
+		return getEndTagCloseOffset() != NULL_VALUE;
 	}
-
-	@Override
+	
 	/**
 	 * If Element has a closing end tag eg: <a> </a> -> true , <a> </b> -> false 
 	 */
+	@Override
 	public boolean isClosed() {
 		return super.isClosed();
 	}

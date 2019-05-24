@@ -63,13 +63,6 @@ public class DTDDeclNode extends DOMNode{
 
 	public void setUnrecognized(int start, int end) {
 		unrecognized = addNewParameter(start, end);
-	}
-
-	public static String getValueFromOffsets(DOMDocumentType document, String value, Integer start, Integer end) {
-		if(value == null && start != null && end != null) {
-			return document.getSubstring(start, end);
-		}
-		return value;
 	}	
 
 	public DTDDeclParameter addNewParameter(int start, int end) {

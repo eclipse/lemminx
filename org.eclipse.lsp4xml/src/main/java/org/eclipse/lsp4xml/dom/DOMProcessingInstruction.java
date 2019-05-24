@@ -24,7 +24,7 @@ public class DOMProcessingInstruction extends DOMCharacterData implements org.w3
 	boolean processingInstruction = false;
 	int startContent;
 	int endContent;
-	Integer endTagOpenOffset;
+	int endTagOpenOffset = NULL_VALUE;
 
 	public DOMProcessingInstruction(int start, int end, DOMDocument ownerDocument) {
 		super(start, end, ownerDocument);
@@ -46,7 +46,14 @@ public class DOMProcessingInstruction extends DOMCharacterData implements org.w3
 		return endContent;
 	}
 
-	public Integer getEndTagStart() {
+	/**
+	 * Returns the end tag start offset and {@link DOMNode#NULL_VALUE} if it doesn't
+	 * exist.
+	 * 
+	 * @return the end tag start offset and {@link DOMNode#NULL_VALUE} if it doesn't
+	 *         exist.
+	 */
+	public int getEndTagStart() {
 		return endTagOpenOffset;
 	}
 

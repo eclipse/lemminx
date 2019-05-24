@@ -14,7 +14,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 
-import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4xml.dom.DOMDocumentType.DocumentTypeKind;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -96,8 +95,7 @@ public class DOMParserTest {
 		assertDocument("</meta>", meta);
 		Assert.assertFalse(meta.hasStartTag());
 		Assert.assertTrue(meta.hasEndTag());
-		Assert.assertNotNull(meta.getEndTagOpenOffset());
-		Assert.assertEquals(meta.getEndTagOpenOffset().intValue(), 0); // |</meta>
+		Assert.assertEquals(meta.getEndTagOpenOffset(), 0); // |</meta>
 	}
 
 	@Test
@@ -109,8 +107,7 @@ public class DOMParserTest {
 		assertDocument("<html></meta></html>", html);
 		Assert.assertFalse(meta.hasStartTag());
 		Assert.assertTrue(meta.hasEndTag());
-		Assert.assertNotNull(meta.getEndTagOpenOffset());
-		Assert.assertEquals(meta.getEndTagOpenOffset().intValue(), 6); // |</meta>
+		Assert.assertEquals(meta.getEndTagOpenOffset(), 6); // |</meta>
 	}
 
 	@Test
@@ -447,11 +444,9 @@ public class DOMParserTest {
 		Assert.assertNotNull(a);
 		Assert.assertEquals(a.getTagName(), "a");
 		Assert.assertEquals(a.getStart(), 0); // |<a></a>
-		Assert.assertNotNull(a.getStartTagOpenOffset()); // |<a></a>
-		Assert.assertEquals(a.getStartTagOpenOffset().intValue(), 0); // |<a></a>
-		Assert.assertNotNull(a.getStartTagCloseOffset()); // <a|></a>
-		Assert.assertEquals(a.getStartTagCloseOffset().intValue(), 2); // <a|></a>
-		Assert.assertEquals(a.getEndTagOpenOffset().intValue(), 3); // <a>|</a>
+		Assert.assertEquals(a.getStartTagOpenOffset(), 0); // |<a></a>
+		Assert.assertEquals(a.getStartTagCloseOffset(), 2); // <a|></a>
+		Assert.assertEquals(a.getEndTagOpenOffset(), 3); // <a>|</a>
 		Assert.assertEquals(a.getEnd(), 7); // <a></a>|
 
 		Assert.assertFalse(a.isInStartTag(0)); // |<a></a>
@@ -1003,10 +998,10 @@ public class DOMParserTest {
 	private static void setRestOfNode(DOMNode n, String tag, Integer endTagStart, boolean closed) {
 		if (n.isElement()) {
 			((DOMElement) n).tag = tag;
-			((DOMElement) n).endTagOpenOffset = endTagStart;
+			((DOMElement) n).endTagOpenOffset = endTagStart != null ? endTagStart : DOMNode.NULL_VALUE;
 		} else if (n instanceof DOMProcessingInstruction) {
 			((DOMProcessingInstruction) n).target = tag;
-			((DOMProcessingInstruction) n).endTagOpenOffset = endTagStart;
+			((DOMProcessingInstruction) n).endTagOpenOffset = endTagStart != null ? endTagStart : DOMNode.NULL_VALUE;
 		}
 		n.closed = closed;
 	}
