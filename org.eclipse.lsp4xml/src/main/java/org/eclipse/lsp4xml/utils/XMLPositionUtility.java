@@ -24,6 +24,7 @@ import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMElement;
 import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.dom.DOMProcessingInstruction;
+import org.eclipse.lsp4xml.dom.DOMText;
 import org.eclipse.lsp4xml.dom.DTDAttlistDecl;
 import org.eclipse.lsp4xml.dom.DTDDeclNode;
 import org.eclipse.lsp4xml.dom.DTDDeclParameter;
@@ -385,6 +386,9 @@ public class XMLPositionUtility {
 				}
 				// node has NO content (ex: <root></root>, select the start tag
 				return selectStartTag(node);
+			} else if (node.isText()) {
+				DOMText text = (DOMText) node;
+				return createRange(text.getStartContent(), text.getEndContent(), document);
 			}
 		}
 		return null;
