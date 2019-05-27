@@ -383,7 +383,7 @@ public class XMLCompletions {
 					
 					// Case: <a/| ...
 					if(closeBracketAfterSlash == false) { // no '>' after slash
-						if(element1.getStartTagCloseOffset() != null) { // tag has closing '>', but slash is in incorrect area (not directly before the '>')
+						if(element1.isStartTagClosed()) { // tag has closing '>', but slash is in incorrect area (not directly before the '>')
 							return null;
 						}
 						snippet = ">$0";

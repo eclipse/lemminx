@@ -349,7 +349,7 @@ public class XMLPositionUtility {
 		}
 		if(node != null) {
 			DOMElement element = (DOMElement) node;
-			if(element.isClosed() && element.getEndTagCloseOffset() == null) {
+			if(element.isClosed() && !element.isEndTagClosed()) {
 				return selectEndTag(element.getEnd(), document);
 			}
 		}

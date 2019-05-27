@@ -28,6 +28,11 @@ import org.w3c.dom.UserDataHandler;
 public abstract class DOMNode implements Node {
 
 	/**
+	 * Null value used for offset.
+	 */
+	public static final int NULL_VALUE = -1;
+
+	/**
 	 * The node is a <code>DTD Element Declaration</code>.
 	 */
 	public static final short DTD_ELEMENT_DECL_NODE = 101;
@@ -190,7 +195,7 @@ public abstract class DOMNode implements Node {
 	}
 
 	/**
-	 * Returns the node before 
+	 * Returns the node before
 	 */
 	public DOMNode findNodeBefore(int offset) {
 		List<DOMNode> children = getChildren();
@@ -292,7 +297,7 @@ public abstract class DOMNode implements Node {
 	 */
 	public DOMAttr getAttributeNode(String prefix, String suffix) {
 		StringBuilder sb = new StringBuilder();
-		if(prefix != null) {
+		if (prefix != null) {
 			sb.append(prefix);
 			sb.append(":");
 		}
@@ -441,7 +446,6 @@ public abstract class DOMNode implements Node {
 	public boolean isGenericDTDDecl() {
 		return getNodeType() == DOMNode.DTD_DECL_NODE;
 	}
-	
 
 	public boolean isElement() {
 		return getNodeType() == DOMNode.ELEMENT_NODE;

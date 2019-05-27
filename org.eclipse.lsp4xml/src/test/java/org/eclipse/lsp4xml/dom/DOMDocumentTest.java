@@ -1,5 +1,7 @@
 package org.eclipse.lsp4xml.dom;
 
+import static org.eclipse.lsp4xml.utils.IOUtils.convertStreamToString;
+
 import java.io.InputStream;
 
 import javax.xml.xpath.XPath;
@@ -149,11 +151,6 @@ public class DOMDocumentTest {
 		NodeList elts = (NodeList) result;
 		Assert.assertEquals(2, elts.getLength());
 
-	}
-
-	static String convertStreamToString(InputStream is) {
-		java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
-		return s.hasNext() ? s.next() : "";
 	}
 
 	@Test
