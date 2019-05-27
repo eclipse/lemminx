@@ -8,9 +8,13 @@
     		<xsd:documentation>An invoice type...</xsd:documentation>
     	</xsd:annotation>
     	<xsd:sequence>
-    		<xsd:element name="date" type="xsd:date" nillable="true"></xsd:element>
-            <xsd:element name="number" type="xsd:int"></xsd:element>
-            <xsd:element name="products" type="productsType"></xsd:element>
+    		<xsd:element name="date" type="xsd:date" nillable="true">
+				<xsd:annotation>
+					<xsd:documentation>Date Description</xsd:documentation>
+				</xsd:annotation>	
+			</xsd:element>
+			<xsd:element name="number" type="xsd:int"></xsd:element>
+			<xsd:element name="products" type="productsType"></xsd:element>
     		<xsd:element name="payments" type="paymentsType"></xsd:element>
     	</xsd:sequence>
     </xsd:complexType>

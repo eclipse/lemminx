@@ -59,7 +59,7 @@ public class CMDTDContentModelProvider implements ContentModelProvider {
 	@Override
 	public CMDocument createCMDocument(String key) {
 		try {
-			CMDTDDocument document = new CMDTDDocument();
+			CMDTDDocument document = new CMDTDDocument(key);
 			document.setEntityResolver(resolverExtensionManager);
 			Grammar grammar = document.loadGrammar(new XMLInputSource(null, key, null));
 			if (grammar != null) {

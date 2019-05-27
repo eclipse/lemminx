@@ -45,6 +45,18 @@ public class DTDCompletionExtensionsTest {
 	}
 
 	@Test
+	public void testCompletionDetailWithSource() throws BadLocationException {
+		// completion on <|
+		String xml = "<?xml version=\"1.0\"?>\r\n" + //
+				"  <!DOCTYPE catalog\r\n" + //
+				"    PUBLIC \"-//OASIS//DTD Entity Resolution XML Catalog V1.0//EN\"\r\n" + //
+				"           \"http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd\">\r\n" + //
+				"\r\n" + //
+				"  <|";
+		testCompletionFor(xml, c("catalog", te(5, 2, 5, 3, "<catalog>$1</catalog>$0"), "<catalog", "Source: catalog.dtd"));
+	}
+
+	@Test
 	public void externalDTDCompletionElement() throws BadLocationException {
 		// completion on <|
 		String xml = "<?xml version = \"1.0\"?>\r\n" + //

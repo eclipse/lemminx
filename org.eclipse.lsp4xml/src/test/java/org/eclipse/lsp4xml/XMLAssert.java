@@ -205,6 +205,19 @@ public class XMLAssert {
 			Assert.assertEquals(expected.getFilterText(), match.getFilterText());
 		}
 
+		if(expected.getDetail() != null) {
+			Assert.assertEquals(expected.getDetail(), match.getDetail());
+		}
+
+	}
+
+	public static CompletionItem c(String label, TextEdit textEdit, String filterText, String detail) {
+		CompletionItem item = new CompletionItem();
+		item.setLabel(label);
+		item.setFilterText(filterText);
+		item.setTextEdit(textEdit);
+		item.setDetail(detail);
+		return item;
 	}
 
 	public static CompletionItem c(String label, TextEdit textEdit, String filterText) {

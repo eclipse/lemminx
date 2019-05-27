@@ -43,6 +43,13 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 	private List<CMElementDeclaration> elements;
 	private DTDGrammar grammar;
 	private Set<String> hierarchies;
+	private String uri;
+
+	public CMDTDDocument() {}
+
+	public CMDTDDocument(String uri) {
+		this.uri = uri;
+	}
 
 	@Override
 	public Collection<CMElementDeclaration> getElements() {
@@ -58,6 +65,16 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 
 		}
 		return elements;
+	}
+
+	
+	/**
+	 * Returns the URI of this document, is none was provided this
+	 * returns null.
+	 */
+	@Override
+	public String getURI() {
+		return uri;
 	}
 
 	@Override
