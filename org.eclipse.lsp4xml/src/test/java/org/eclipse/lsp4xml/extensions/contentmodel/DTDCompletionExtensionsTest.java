@@ -145,6 +145,23 @@ public class DTDCompletionExtensionsTest {
 		,c("Insert External DTD Entity declaration", te(3, 1, 3, 1, "<!ENTITY entity-name SYSTEM \"entity-value\">"), "<!ENTITY "));
 	}
 	
+	@Test
+	public void testNoDuplicateCompletionItems() throws BadLocationException {
+		// completion on <|
+		String xml = 
+				"<?xml version=\"1.0\" standalone=\"no\" ?>\n" +
+				"<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.0//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg.dtd\">\n" +
+				"<svg xmlns=\"http://www.w3.org/2000/svg\">\n" +
+				"    <animate attributeName=\"foo\">\n" +
+				"        <|\n" + // <-- completion
+				"    </animate>\n" +
+				"</svg>";
+		testCompletionFor(xml, false, 3, c("desc", te(4, 8, 4, 9, "<desc></desc>"), "<desc")
+		,c("metadata", te(4, 8, 4, 9, "<metadata></metadata>"), "<metadata")
+		,c("title", te(4, 8, 4, 9, "<title></title>"), "<title")
+		);
+	}
+		
 	private void testCompletionFor(String xml, CompletionItem... expectedItems) throws BadLocationException {
 		testCompletionFor(xml,true, null, expectedItems);
 	}

@@ -15,8 +15,10 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.xerces.impl.dtd.DTDGrammar;
 import org.apache.xerces.impl.dtd.XMLDTDLoader;
@@ -37,10 +39,10 @@ import org.eclipse.lsp4xml.extensions.contentmodel.model.CMElementDeclaration;
  */
 public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 
-	private Map<String, List<String>> hierachiesMap;
+	private Map<String, Set<String>> hierachiesMap;
 	private List<CMElementDeclaration> elements;
 	private DTDGrammar grammar;
-	private List<String> hierachies;
+	private Set<String> hierarchies;
 
 	@Override
 	public Collection<CMElementDeclaration> getElements() {
@@ -94,20 +96,20 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 		if (hierachiesMap == null) {
 			hierachiesMap = new HashMap<>();
 		}
-		hierachies = new ArrayList<>();
-		hierachiesMap.put(elementName, hierachies);
+		hierarchies = new LinkedHashSet<String>();
+		hierachiesMap.put(elementName, hierarchies);
 		super.startContentModel(elementName, augs);
 	}
 
 	@Override
 	public void element(String elementName, Augmentations augs) throws XNIException {
-		hierachies.add(elementName);
+		hierarchies.add(elementName);
 		super.element(elementName, augs);
 	}
 
 	@Override
 	public void endContentModel(Augmentations augs) throws XNIException {
-		hierachies = null;
+		hierarchies = null;
 		super.endContentModel(augs);
 	}
 
@@ -137,7 +139,7 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 		if (hierachiesMap == null) {
 			return;
 		}
-		List<String> children = hierachiesMap.get(elementName);
+		Set<String> children = hierachiesMap.get(elementName);
 		if (children == null) {
 			return;
 		}

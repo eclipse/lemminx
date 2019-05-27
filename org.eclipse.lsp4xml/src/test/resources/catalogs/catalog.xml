@@ -20,6 +20,10 @@
 	<system
 		systemId="http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd"
 		uri="../dtd/catalog.dtd" />
+
+	<system
+		systemId="http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg.dtd"
+		uri="../dtd/svg.dtd" />
 		
 	<system systemId="http://invoice.xsd" uri="../xsd/invoice.xsd" />
 
