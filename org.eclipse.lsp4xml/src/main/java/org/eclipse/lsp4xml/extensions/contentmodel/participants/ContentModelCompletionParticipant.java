@@ -10,6 +10,8 @@
  */
 package org.eclipse.lsp4xml.extensions.contentmodel.participants;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 
 import org.eclipse.lsp4j.CompletionItem;
@@ -31,6 +33,7 @@ import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
 import org.eclipse.lsp4xml.settings.SharedSettings;
 import org.eclipse.lsp4xml.uriresolver.CacheResourceDownloadingException;
+import org.eclipse.lsp4xml.utils.StringUtils;
 
 /**
  * Extension to support XML completion based on content model (XML Schema
@@ -42,26 +45,34 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	public void onTagOpen(ICompletionRequest request, ICompletionResponse response) throws Exception {
 		try {
 			DOMDocument document = request.getXMLDocument();
+			String schemaURI;
+			String fileURI;
 			ContentModelManager contentModelManager = request.getComponent(ContentModelManager.class);
 			DOMElement parentElement = request.getParentElement();
+			CMDocument cmDocument;
 			if (parentElement == null) {
 				// XML is empty, in case of XML file associations, a XMl Schema/DTD can be bound
 				// check if it's root element (in the case of XML file associations, the link to
 				// XML Schema is done with pattern and not with XML root element)
-				CMDocument cmDocument = contentModelManager.findCMDocument(document, null);
+				cmDocument = contentModelManager.findCMDocument(document, null);
 				if (cmDocument != null) {
-					fillWithChildrenElementDeclaration(null, cmDocument.getElements(), null, false, request, response);
+					schemaURI = cmDocument.getURI();
+					fillWithChildrenElementDeclaration(null, cmDocument.getElements(), null, false, request, response, schemaURI);
 				}
 				return;
 			}
 			// Try to retrieve XML Schema/DTD element declaration for the parent element
 			// where completion was triggered.
+			cmDocument = contentModelManager.findCMDocument(parentElement, parentElement.getNamespaceURI());
+			
+			schemaURI = cmDocument != null ? cmDocument.getURI() : null;
 			CMElementDeclaration cmElement = contentModelManager.findCMElement(parentElement);
 			String defaultPrefix = null;
+			
 			if (cmElement != null) {
 				defaultPrefix = parentElement.getPrefix();
 				fillWithChildrenElementDeclaration(parentElement, cmElement.getElements(), defaultPrefix, false,
-						request, response);
+						request, response, schemaURI);
 			}
 			if (parentElement.isDocumentElement()) {
 				// root document element
@@ -71,10 +82,10 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 						continue;
 					}
 					String namespaceURI = parentElement.getNamespaceURI(prefix);
-					CMDocument cmDocument = contentModelManager.findCMDocument(parentElement, namespaceURI);
+					cmDocument = contentModelManager.findCMDocument(parentElement, namespaceURI);
 					if (cmDocument != null) {
 						fillWithChildrenElementDeclaration(parentElement, cmDocument.getElements(), prefix, true,
-								request, response);
+								request, response, cmDocument.getURI());
 					}
 				}
 			}
@@ -84,7 +95,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			if (cmInternalElement != null) {
 				defaultPrefix = parentElement.getPrefix();
 				fillWithChildrenElementDeclaration(parentElement, cmInternalElement.getElements(), defaultPrefix, false,
-						request, response);
+						request, response, schemaURI);
 			}
 		} catch (CacheResourceDownloadingException e) {
 			// XML Schema, DTD is loading, ignore this error
@@ -92,7 +103,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	}
 
 	private void fillWithChildrenElementDeclaration(DOMElement element, Collection<CMElementDeclaration> cmElements,
-			String p, boolean forceUseOfPrefix, ICompletionRequest request, ICompletionResponse response)
+			String p, boolean forceUseOfPrefix, ICompletionRequest request, ICompletionResponse response, String schemaURI)
 			throws BadLocationException {
 		XMLGenerator generator = request.getXMLGenerator();
 		for (CMElementDeclaration child : cmElements) {
@@ -101,8 +112,26 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			CompletionItem item = new CompletionItem(label);
 			item.setFilterText(request.getFilterForStartTagName(label));
 			item.setKind(CompletionItemKind.Property);
-			String documentation = child.getDocumentation();
-			if (documentation != null) {
+			StringBuilder sb = new StringBuilder();
+			String documentation;
+			String tempDoc = child.getDocumentation();
+			boolean tempDocHasContent = !StringUtils.isEmpty(tempDoc);
+			if(tempDocHasContent) {
+				sb.append(tempDoc);
+			}
+			
+			if(schemaURI != null) {
+				if(tempDocHasContent) {
+					String lineSeparator = System.getProperty("line.separator");
+					sb.append(lineSeparator);
+					sb.append(lineSeparator);
+				}
+				Path schemaPath = Paths.get(schemaURI);
+				sb.append("Source: ");
+				sb.append(schemaPath.getFileName().toString());
+			}
+			documentation = sb.toString();
+			if (documentation != null && !documentation.isEmpty()) {
 				item.setDetail(documentation);
 			}
 			String xml = generator.generate(child, prefix);

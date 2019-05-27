@@ -39,10 +39,18 @@ import org.eclipse.lsp4xml.extensions.contentmodel.model.CMElementDeclaration;
  */
 public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 
-	private Map<String, Set<String>> hierachiesMap;
+	private Map<String, Set<String>> hierarchiesMap;
 	private List<CMElementDeclaration> elements;
 	private DTDGrammar grammar;
 	private Set<String> hierarchies;
+	private String uri;
+
+
+	public CMDTDDocument() {}
+
+	public CMDTDDocument(String uri) {
+		this.uri = uri;
+	}
 
 	@Override
 	public Collection<CMElementDeclaration> getElements() {
@@ -58,6 +66,15 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 
 		}
 		return elements;
+	}
+
+	@Override
+	/**
+	 * Returns the URI of this document, is none was provided this
+	 * returns null.
+	 */
+	public String getURI() {
+		return uri;
 	}
 
 	@Override
@@ -93,11 +110,11 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 
 	@Override
 	public void startContentModel(String elementName, Augmentations augs) throws XNIException {
-		if (hierachiesMap == null) {
-			hierachiesMap = new HashMap<>();
+		if (hierarchiesMap == null) {
+			hierarchiesMap = new HashMap<>();
 		}
 		hierarchies = new LinkedHashSet<String>();
-		hierachiesMap.put(elementName, hierarchies);
+		hierarchiesMap.put(elementName, hierarchies);
 		super.startContentModel(elementName, augs);
 	}
 
@@ -136,10 +153,10 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 	}
 
 	void collectElementsDeclaration(String elementName, List<CMElementDeclaration> elements) {
-		if (hierachiesMap == null) {
+		if (hierarchiesMap == null) {
 			return;
 		}
-		Set<String> children = hierachiesMap.get(elementName);
+		Set<String> children = hierarchiesMap.get(elementName);
 		if (children == null) {
 			return;
 		}

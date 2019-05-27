@@ -43,9 +43,22 @@ public class CMXSDDocument implements CMDocument {
 
 	private Collection<CMElementDeclaration> elements;
 
+	private String uri;
+
 	public CMXSDDocument(XSModel model) {
 		this.model = model;
 		this.elementMappings = new HashMap<>();
+	}
+
+	public CMXSDDocument(XSModel model, String uri) {
+		this.model = model;
+		this.elementMappings = new HashMap<>();
+		this.uri = uri;
+	}
+
+	@Override
+	public String getURI() {
+		return uri;
 	}
 
 	@Override
