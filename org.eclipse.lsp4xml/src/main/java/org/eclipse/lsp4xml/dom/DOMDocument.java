@@ -57,7 +57,7 @@ public class DOMDocument extends DOMNode implements Document {
 	private boolean hasExternalGrammar;
 
 	public DOMDocument(TextDocument textDocument, URIResolverExtensionManager resolverExtensionManager) {
-		super(0, textDocument.getText().length(), null);
+		super(0, textDocument.getText().length());
 		this.textDocument = textDocument;
 		this.resolverExtensionManager = resolverExtensionManager;
 		resetGrammar();
@@ -364,23 +364,23 @@ public class DOMDocument extends DOMNode implements Document {
 	}
 
 	public DOMElement createElement(int start, int end) {
-		return new DOMElement(start, end, this);
+		return new DOMElement(start, end);
 	}
 
 	public DOMCDATASection createCDataSection(int start, int end) {
-		return new DOMCDATASection(start, end, this);
+		return new DOMCDATASection(start, end);
 	}
 
 	public DOMProcessingInstruction createProcessingInstruction(int start, int end) {
-		return new DOMProcessingInstruction(start, end, this);
+		return new DOMProcessingInstruction(start, end);
 	}
 
 	public DOMComment createComment(int start, int end) {
-		return new DOMComment(start, end, this);
+		return new DOMComment(start, end);
 	}
 
 	public DOMText createText(int start, int end) {
-		return new DOMText(start, end, this);
+		return new DOMText(start, end);
 	}
 
 	public DOMDocumentType createDocumentType(int start, int end) {

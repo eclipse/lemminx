@@ -66,7 +66,6 @@ public abstract class DOMNode implements Node {
 	int end; // <root> </root>|
 
 	DOMNode parent;
-	private final DOMDocument ownerDocument;
 
 	class XMLNodeList<T extends DOMNode> extends ArrayList<T> implements NodeList {
 
@@ -135,15 +134,26 @@ public abstract class DOMNode implements Node {
 
 	}
 
-	public DOMNode(int start, int end, DOMDocument ownerDocument) {
+	public DOMNode(int start, int end) {
 		this.start = start;
 		this.end = end;
-		this.ownerDocument = ownerDocument;
 		this.closed = false;
 	}
 
+	/**
+	 * Returns the owner document and null otherwise.
+	 * 
+	 * @return the owner document and null otherwise.
+	 */
 	public DOMDocument getOwnerDocument() {
-		return ownerDocument;
+		Node node = parent;
+		while (node != null) {
+			if (node.getNodeType() == Node.DOCUMENT_NODE) {
+				return (DOMDocument) node;
+			}
+			node = node.getParentNode();
+		}
+		return null;
 	}
 
 	@Override
@@ -409,17 +419,14 @@ public abstract class DOMNode implements Node {
 
 	public DOMElement getParentElement() {
 		DOMNode parent = getParentNode();
-		while (parent != null && parent != getOwnerDocument()) {
+		DOMDocument ownerDocument = getOwnerDocument();
+		while (parent != null && parent != ownerDocument) {
 			if (parent.isElement()) {
 				return (DOMElement) parent;
 			}
 			parent = parent.getParentNode();
 		}
 		return null;
-	}
-
-	public String getNodeAsString() {
-		return ownerDocument.getText().substring(start, end);
 	}
 
 	public boolean isComment() {

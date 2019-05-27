@@ -18,8 +18,8 @@ import org.w3c.dom.DOMException;
  */
 public class DOMText extends DOMCharacterData implements org.w3c.dom.Text {
 
-	public DOMText(int start, int end, DOMDocument ownerDocument) {
-		super(start, end, ownerDocument);
+	public DOMText(int start, int end) {
+		super(start, end);
 	}
 
 	/*

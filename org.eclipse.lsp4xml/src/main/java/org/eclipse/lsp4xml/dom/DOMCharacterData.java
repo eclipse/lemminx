@@ -34,8 +34,8 @@ public abstract class DOMCharacterData extends DOMNode implements org.w3c.dom.Ch
 
 	private String delimiter;
 
-	public DOMCharacterData(int start, int end, DOMDocument ownerDocument) {
-		super(start, end, ownerDocument);
+	public DOMCharacterData(int start, int end) {
+		super(start, end);
 	}
 
 	public boolean hasMultiLine() {

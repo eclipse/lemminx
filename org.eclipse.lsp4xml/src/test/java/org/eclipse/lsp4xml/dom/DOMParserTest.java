@@ -909,8 +909,8 @@ public class DOMParserTest {
 
 		public String content;
 
-		public MockProcessingInstruction(int start, int end, DOMDocument ownerDocument) {
-			super(start, end, ownerDocument);
+		public MockProcessingInstruction(int start, int end) {
+			super(start, end);
 		}
 
 		@Override
@@ -923,8 +923,8 @@ public class DOMParserTest {
 
 		public String content;
 
-		public MockCDataSection(int start, int end, DOMDocument ownerDocument) {
-			super(start, end, ownerDocument);
+		public MockCDataSection(int start, int end) {
+			super(start, end);
 		}
 
 		@Override
@@ -937,8 +937,8 @@ public class DOMParserTest {
 
 		public String content;
 
-		public MockText(int start, int end, DOMDocument ownerDocument) {
-			super(start, end, ownerDocument);
+		public MockText(int start, int end) {
+			super(start, end);
 		}
 
 		@Override
@@ -951,8 +951,8 @@ public class DOMParserTest {
 
 		public String content;
 
-		public MockComment(int start, int end, DOMDocument ownerDocument) {
-			super(start, end, ownerDocument);
+		public MockComment(int start, int end) {
+			super(start, end);
 		}
 
 		@Override
@@ -963,8 +963,8 @@ public class DOMParserTest {
 
 	private static class MockNode extends DOMNode {
 
-		public MockNode(int start, int end, DOMDocument ownerDocument) {
-			super(start, end, ownerDocument);
+		public MockNode(int start, int end) {
+			super(start, end);
 		}
 
 		@Override
@@ -982,17 +982,17 @@ public class DOMParserTest {
 	private static DOMNode createNode(short nodeType, int start, int end) {
 		switch (nodeType) {
 		case DOMNode.ELEMENT_NODE:
-			return new DOMElement(start, end, null);
+			return new DOMElement(start, end);
 		case DOMNode.PROCESSING_INSTRUCTION_NODE:
-			return new MockProcessingInstruction(start, end, null);
+			return new MockProcessingInstruction(start, end);
 		case DOMNode.CDATA_SECTION_NODE:
-			return new MockCDataSection(start, end, null);
+			return new MockCDataSection(start, end);
 		case DOMNode.TEXT_NODE:
-			return new MockText(start, end, null);
+			return new MockText(start, end);
 		case DOMNode.COMMENT_NODE:
-			return new MockComment(start, end, null);
+			return new MockComment(start, end);
 		}
-		return new MockNode(start, end, null);
+		return new MockNode(start, end);
 	}
 
 	private static void setRestOfNode(DOMNode n, String tag, Integer endTagStart, boolean closed) {
