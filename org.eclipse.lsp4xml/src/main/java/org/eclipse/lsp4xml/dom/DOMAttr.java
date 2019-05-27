@@ -40,7 +40,7 @@ public class DOMAttr extends DOMNode implements org.w3c.dom.Attr {
 		private final DOMAttr ownerAttr;
 
 		public AttrNameOrValue(int start, int end, DOMAttr ownerAttr) {
-			super(start, end, ownerAttr.getOwnerDocument());
+			super(start, end);
 			this.ownerAttr = ownerAttr;
 		}
 
@@ -64,7 +64,7 @@ public class DOMAttr extends DOMNode implements org.w3c.dom.Attr {
 	}
 
 	public DOMAttr(String name, int start, int end, DOMNode ownerElement) {
-		super(-1, -1, ownerElement.getOwnerDocument());
+		super(-1, -1);
 		this.name = name;
 		this.nodeAttrName = start != -1 ? new AttrNameOrValue(start, end, this) : null;
 		this.ownerElement = ownerElement;

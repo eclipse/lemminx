@@ -39,8 +39,8 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 	int endTagCloseOffset = NULL_VALUE;// <root> </root |>
 	//DomElement.end = <root> </root>| , is always scanner.getTokenEnd()
 
-	public DOMElement(int start, int end, DOMDocument ownerDocument) {
-		super(start, end, ownerDocument);
+	public DOMElement(int start, int end) {
+		super(start, end);
 	}
 
 	/*

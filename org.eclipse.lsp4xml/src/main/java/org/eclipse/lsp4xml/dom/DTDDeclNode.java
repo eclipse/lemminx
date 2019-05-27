@@ -36,13 +36,13 @@ public class DTDDeclNode extends DOMNode{
 	ArrayList<DTDDeclParameter> parameters;
 
 	public DTDDeclNode(int start, int end, DOMDocumentType parentDocumentType) {
-		super(start, end, parentDocumentType != null ? parentDocumentType.getOwnerDocument() : null);
+		super(start, end);
 		this.parentDocumentType = parentDocumentType;
 		this.parentDocument = null;
 	}
 
 	public DTDDeclNode(int start, int end, DOMDocument parentDocumentType) {
-		super(start, end, parentDocumentType != null ? parentDocumentType : null);
+		super(start, end);
 		this.parentDocument = parentDocumentType;
 		this.parentDocumentType = null;
 	}

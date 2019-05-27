@@ -26,8 +26,8 @@ public class DOMProcessingInstruction extends DOMCharacterData implements org.w3
 	int endContent;
 	int endTagOpenOffset = NULL_VALUE;
 
-	public DOMProcessingInstruction(int start, int end, DOMDocument ownerDocument) {
-		super(start, end, ownerDocument);
+	public DOMProcessingInstruction(int start, int end) {
+		super(start, end);
 	}
 
 	public boolean isProlog() {

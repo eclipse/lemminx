@@ -22,8 +22,8 @@ public class DOMComment extends DOMCharacterData implements org.w3c.dom.Comment 
 
 	int endContent;
 
-	public DOMComment(int start, int end, DOMDocument ownerDocument) {
-		super(start, end, ownerDocument);
+	public DOMComment(int start, int end) {
+		super(start, end);
 	}
 
 	public boolean isCommentSameLineEndTag() {

@@ -21,8 +21,8 @@ public class DOMCDATASection extends DOMText implements CDATASection {
 	int startContent;
 	int endContent;
 
-	public DOMCDATASection(int start, int end, DOMDocument ownerDocument) {
-		super(start, end, ownerDocument);
+	public DOMCDATASection(int start, int end) {
+		super(start, end);
 	}
 
 	@Override
