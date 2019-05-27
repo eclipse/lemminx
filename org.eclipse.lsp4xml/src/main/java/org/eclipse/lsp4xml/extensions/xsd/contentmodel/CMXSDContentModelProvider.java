@@ -73,7 +73,8 @@ public class CMXSDContentModelProvider implements ContentModelProvider {
 		XSModel model = getLoader().loadURI(key);
 		if (model != null) {
 			// XML Schema can be loaded
-			return new CMXSDDocument(model);
+			CMXSDDocument document = new CMXSDDocument(model, key);
+			return document;
 		}
 		return null;
 	}

@@ -32,4 +32,6 @@ public interface CMDocument {
 	 */
 	CMElementDeclaration findCMElement(DOMElement element, String namespace);
 
+	String getURI();
+
 }
