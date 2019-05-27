@@ -167,6 +167,16 @@ public class XMLSyntaxDiagnosticsTest {
 		testDiagnosticsFor(xml, d(1, 13, 1, 15, XMLSyntaxErrorCode.ETagRequired));
 	}
 
+	@Test
+	public void testETagRequired3() throws Exception {
+		String xml = "<UltmtDbtr>\r\n" +
+				"    <Nm>Name</Nm>\r\n" +
+				"    <Ad>\r\n" +
+				"    <Ph>\r\n" +
+				"</UltmtDbtr>";
+		testDiagnosticsFor(xml, d(3, 5, 3, 7, XMLSyntaxErrorCode.ETagRequired));
+	}
+
 	/**
 	 * Test ETagUnterminated
 	 * 

@@ -177,20 +177,32 @@ public class XMLPositionUtility {
 		if (parent == null || !parent.isElement() || ((DOMElement) parent).getTagName() == null) {
 			return null;
 		}
-		if (parent != null) {
-			DOMNode child = findChildNode(childTag, parent.getChildren());
-			if (child != null) {
+
+		DOMNode curr = parent;
+		DOMNode child;
+		while (curr != null) {
+			child = findUnclosedChildNode(childTag, curr.getChildren());
+			if (child == null) {
+				curr = findUnclosedChildNode(curr.getChildren());
+			} else {
 				return createRange(child.getStart() + 1, child.getStart() + 1 + childTag.length(), document);
 			}
-			if(parent.isElement()) {
-				String parentName = ((DOMElement) parent).getTagName();
-				return createRange(parent.getStart() + 2, parent.getStart() + 2 + parentName.length(), document);
+		}
+
+		String parentName = ((DOMElement) parent).getTagName();
+		return createRange(parent.getStart() + 2, parent.getStart() + 2 + parentName.length(), document);
+	}
+
+	public static DOMNode findUnclosedChildNode(List<DOMNode> children) {
+		for (DOMNode child: children) {
+			if (!child.isClosed()) {
+				return child;
 			}
 		}
 		return null;
 	}
 
-	static DOMNode findChildNode(String childTag, List<DOMNode> children) {
+	static DOMNode findUnclosedChildNode(String childTag, List<DOMNode> children) {
 		for (DOMNode child : children) {
 			if (child.isElement() && childTag != null && childTag.equals(((DOMElement) child).getTagName())
 					&& !child.isClosed()) {
