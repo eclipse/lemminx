@@ -10,6 +10,7 @@
  */
 package org.eclipse.lsp4xml.extensions.contentmodel.model;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,6 +23,7 @@ import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLFileAssociation;
 import org.eclipse.lsp4xml.extensions.contentmodel.uriresolver.XMLCacheResolverExtension;
 import org.eclipse.lsp4xml.extensions.contentmodel.uriresolver.XMLCatalogResolverExtension;
 import org.eclipse.lsp4xml.extensions.contentmodel.uriresolver.XMLFileAssociationResolverExtension;
+import org.eclipse.lsp4xml.uriresolver.CacheResourceDownloadingException;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
 import org.eclipse.lsp4xml.utils.URIUtils;
 
@@ -114,7 +116,23 @@ public class ContentModelManager {
 			cmDocument = cmDocumentCache.get(key);
 		}
 		if (cmDocument == null) {
-			cmDocument = modelProvider.createCMDocument(key);
+			if (isCacheable && cacheResolverExtension.isUseCache()) {
+				// Try to load the DTD/XML Schema with the cache manager
+				try {
+					Path file = cacheResolverExtension.getCachedResource(key);
+					if (file != null) {
+						cmDocument = modelProvider.createCMDocument(file.toFile().getPath());
+					}
+				} catch (CacheResourceDownloadingException e) {
+					// the DTD/XML Schema is downloading
+					return null;
+				} catch (Exception e) {
+					// other error like network which is not available
+					cmDocument = modelProvider.createCMDocument(key);
+				}
+			} else {
+				cmDocument = modelProvider.createCMDocument(key);
+			}
 			if (isCacheable && cmDocument != null) {
 				cmDocumentCache.put(key, cmDocument);
 			}
