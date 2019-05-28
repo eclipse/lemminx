@@ -38,9 +38,9 @@ public class FilesUtilsTest {
 	@Test
 	public void normalizePathTest() {
 		assertEquals(Paths.get(System.getProperty("user.home"), "Test", "Folder").toString(), FilesUtils.normalizePath("~/Test/Folder"));
-		assertEquals(Paths.get(separator, "Test", "~", "Folder").toString(), FilesUtils.normalizePath("/Test/~/Folder"));
+		assertEquals(Paths.get(separator + "Test", "~", "Folder").toString(), FilesUtils.normalizePath("/Test/~/Folder"));
 		assertEquals(Paths.get("~", "Test", "Folder").toString(), FilesUtils.normalizePath("./~/Test/Folder"));
-		assertEquals(Paths.get(separator, "Folder").toString(), FilesUtils.normalizePath("/Test/../Folder"));
-		assertEquals(Paths.get(separator, "Users", "Nikolas").toString(), FilesUtils.normalizePath("\\Users\\Nikolas\\"));
+		assertEquals(Paths.get(separator +  "Folder").toString(), FilesUtils.normalizePath("/Test/../Folder"));
+		assertEquals(Paths.get(separator + "Users", "Nikolas").toString(), FilesUtils.normalizePath("\\Users\\Nikolas\\"));
 	}
 }
