@@ -17,6 +17,7 @@ import java.nio.file.Path;
 import org.apache.xerces.xni.XMLResourceIdentifier;
 import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.parser.XMLInputSource;
+import org.eclipse.lsp4xml.uriresolver.CacheResourceDownloadedException;
 import org.eclipse.lsp4xml.uriresolver.CacheResourcesManager;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtension;
 
@@ -44,18 +45,34 @@ public class XMLCacheResolverExtension implements URIResolverExtension {
 	@Override
 	public XMLInputSource resolveEntity(XMLResourceIdentifier resourceIdentifier) throws XNIException, IOException {
 		String url = resourceIdentifier.getExpandedSystemId();
+		// Try to get the downloaded resource. In the case where the resource is
+		// downloading but takes too long, a CacheResourceDownloadingException is
+		// thrown.
+		Path file = getCachedResource(url);
+		if (file != null) {
+			// The resource was downloaded locally, use it.
+			XMLInputSource source = new XMLInputSource(resourceIdentifier);
+			source.setByteStream(Files.newInputStream(file));
+			return source;
+		}
+		return null;
+	}
+
+	/**
+	 * Returns the cached resource path from the given url and null otherwise.
+	 * 
+	 * @param url the url
+	 * @return the cached resource path from the given url and null otherwise.
+	 * @throws IOException
+	 * @throws CacheResourceDownloadedException throws when resource is downloading.
+	 */
+	public Path getCachedResource(String url) throws IOException, CacheResourceDownloadedException {
 		// Cache is used only for resource coming from "http(s)" or "ftp".
 		if (cacheResourcesManager.canUseCache(url)) {
 			// Try to get the downloaded resource. In the case where the resource is
 			// downloading but takes too long, a CacheResourceDownloadingException is
 			// thrown.
-			Path file = cacheResourcesManager.getResource(url);
-			if (file != null) {
-				// The resource was downloaded locally, use it.
-				XMLInputSource source = new XMLInputSource(resourceIdentifier);
-				source.setByteStream(Files.newInputStream(file));
-				return source;
-			}
+			return cacheResourcesManager.getResource(url);
 		}
 		return null;
 	}
@@ -68,6 +85,17 @@ public class XMLCacheResolverExtension implements URIResolverExtension {
 	 */
 	public void setUseCache(boolean useCache) {
 		cacheResourcesManager.setUseCache(useCache);
+	}
+
+	/**
+	 * Returns <code>true</code> if cache must be used, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return <code>true</code> if cache must be used, <code>false</code>
+	 *         otherwise.
+	 */
+	public boolean isUseCache() {
+		return cacheResourcesManager.isUseCache();
 	}
 
 }
