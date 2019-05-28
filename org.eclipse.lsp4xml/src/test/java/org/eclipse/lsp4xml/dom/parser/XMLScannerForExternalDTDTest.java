@@ -264,6 +264,37 @@ public class XMLScannerForExternalDTDTest {
 	}
 
 	@Test
+	public void elementDeclContentWithProlog() {
+		String dtd =
+		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+		"<!ELEMENT note (to,from,heading,body)>";
+
+		scanner = XMLScanner.createScanner(dtd, true);
+
+		assertOffsetAndToken(0, TokenType.StartPrologOrPI);
+		assertOffsetAndToken(2, TokenType.PrologName, "xml");
+		assertOffsetAndToken(5, TokenType.Whitespace);
+		assertOffsetAndToken(6, TokenType.AttributeName);
+		assertOffsetAndToken(13, TokenType.DelimiterAssign);
+		assertOffsetAndToken(14, TokenType.AttributeValue);
+		assertOffsetAndToken(19, TokenType.Whitespace);
+		assertOffsetAndToken(20, TokenType.AttributeName);
+		assertOffsetAndToken(28, TokenType.DelimiterAssign);
+		assertOffsetAndToken(29, TokenType.AttributeValue);
+		assertOffsetAndToken(36, TokenType.PrologEnd);
+		assertOffsetAndToken(38, TokenType.Content);
+		assertOffsetAndToken(39, TokenType.DTDStartElement);
+		assertOffsetAndToken(48, TokenType.Whitespace);
+		assertOffsetAndToken(49, TokenType.DTDElementDeclName);
+		assertOffsetAndToken(53, TokenType.Whitespace);
+		assertOffsetAndToken(54, TokenType.DTDStartElementContent);
+		assertOffsetAndToken(55, TokenType.DTDElementContent);
+		assertOffsetAndToken(75, TokenType.DTDEndElementContent);
+		assertOffsetAndToken(76, TokenType.DTDEndTag);
+		assertOffsetAndToken(77, TokenType.EOS);
+	}
+
+	@Test
 	public void elementOnlyName() {
 		String dtd = "<!ELEMENT note > <!ENTITY>";
 		scanner = XMLScanner.createScanner(dtd, true);
@@ -364,6 +395,37 @@ public class XMLScannerForExternalDTDTest {
 		assertOffsetAndToken(31, TokenType.DTDAttlistAttributeValue);
 		assertOffsetAndToken(43, TokenType.DTDEndTag);
 		assertOffsetAndToken(44, TokenType.EOS);
+	}
+
+	@Test
+	public void attlistDeclWithProlog() {
+		String dtd =
+		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+		"<!ATTLIST elName attName CDATA \"defaultVal\">";
+		scanner = XMLScanner.createScanner(dtd, true);
+		assertOffsetAndToken(0, TokenType.StartPrologOrPI);
+		assertOffsetAndToken(2, TokenType.PrologName, "xml");
+		assertOffsetAndToken(5, TokenType.Whitespace);
+		assertOffsetAndToken(6, TokenType.AttributeName);
+		assertOffsetAndToken(13, TokenType.DelimiterAssign);
+		assertOffsetAndToken(14, TokenType.AttributeValue);
+		assertOffsetAndToken(19, TokenType.Whitespace);
+		assertOffsetAndToken(20, TokenType.AttributeName);
+		assertOffsetAndToken(28, TokenType.DelimiterAssign);
+		assertOffsetAndToken(29, TokenType.AttributeValue);
+		assertOffsetAndToken(36, TokenType.PrologEnd);
+		assertOffsetAndToken(38, TokenType.Content);
+		assertOffsetAndToken(39, TokenType.DTDStartAttlist);
+		assertOffsetAndToken(48, TokenType.Whitespace);
+		assertOffsetAndToken(49, TokenType.DTDAttlistElementName);
+		assertOffsetAndToken(55, TokenType.Whitespace);
+		assertOffsetAndToken(56, TokenType.DTDAttlistAttributeName);
+		assertOffsetAndToken(63, TokenType.Whitespace);
+		assertOffsetAndToken(64, TokenType.DTDAttlistAttributeType);
+		assertOffsetAndToken(69, TokenType.Whitespace);
+		assertOffsetAndToken(70, TokenType.DTDAttlistAttributeValue);
+		assertOffsetAndToken(82, TokenType.DTDEndTag);
+		assertOffsetAndToken(83, TokenType.EOS);
 	}
 
 	@Test

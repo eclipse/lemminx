@@ -162,6 +162,15 @@ public class XMLFormatterTest {
 		format(content, expected);
 	}
 
+	@Test
+	public void testPINoContent() throws BadLocationException {
+		String content = "<a><?m2e?></a>";
+		String expected = "<a>" + lineSeparator() + //
+				"  <?m2e ?>" + lineSeparator() + //
+				"</a>";
+		format(content, expected);
+	}
+
 	@Ignore
 	@Test
 	public void testDefinedPIWithVariables() throws BadLocationException {
@@ -1500,7 +1509,7 @@ public class XMLFormatterTest {
 				"    </resource>\r\n" + 
 				"</resources>";
 		String expected = 
-				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + 
+				"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + 
 				"<resources variant=\"\">\r\n" + 
 				"<resource name=\"res00\" >\r\n" + 
 				"<property name=\"propA\" value=\"...\" />\r\n" + 

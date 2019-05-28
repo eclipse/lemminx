@@ -181,26 +181,12 @@ class XMLFormatter {
 					xml.linefeed();
 				}
 			} else if (node.isProcessingInstruction()) {
-				DOMProcessingInstruction processingInstruction = (DOMProcessingInstruction) node;
-				xml.startPrologOrPI(processingInstruction.getTarget());
-				if(processingInstruction.hasAttributes()) {
-					addAttributes(processingInstruction, xml);
-				} 
-				else {
-					xml.addContentPI(processingInstruction.getData());
-				}
-				
-				xml.endPrologOrPI();
+				addPIToXMLBuilder(node, xml);
 				if (level == 0) {
 					xml.linefeed();
 				}
 			} else if (node.isProlog()) {
-				DOMProcessingInstruction processingInstruction = (DOMProcessingInstruction) node;
-				xml.startPrologOrPI(processingInstruction.getTarget());
-				if (node.hasAttributes()) {
-					addAttributes(node, xml);
-				}
-				xml.endPrologOrPI();
+				addPrologToXMLBuilder(node, xml);
 				xml.linefeed();
 			} else if (node.isText()) {
 				DOMText textNode = (DOMText) node;
@@ -214,7 +200,7 @@ class XMLFormatter {
 				DOMDocumentType documentType = (DOMDocumentType) node;
 				if(!isDTD) {
 					xml.startDoctype();
-					ArrayList<DTDDeclParameter> params = documentType.getParameters();
+					List<DTDDeclParameter> params = documentType.getParameters();
 					for (DTDDeclParameter param : params) {
 						if(!documentType.isInternalSubset(param)) {
 							xml.addParameter(param.getParameter());
@@ -253,81 +239,78 @@ class XMLFormatter {
 
 			xml.indent(level);
 			
-			if(node.isText()) {
+			if (node.isText()) {
 				xml.addContent(((DOMText)node).getData().trim());
-			}
-			else {
-				if(node.isComment()) {
-					DOMComment comment = (DOMComment) node;
-					xml.startComment(comment);
-					xml.addContentComment(comment.getData());
-					xml.endComment();
-				}
-				else {
-					boolean setEndBracketOnNewLine = false;
-					DTDDeclNode decl = (DTDDeclNode) node;
-					xml.addDeclTagStart(decl);
+			} else if (node.isComment()) {
+				DOMComment comment = (DOMComment) node;
+				xml.startComment(comment);
+				xml.addContentComment(comment.getData());
+				xml.endComment();
+			} else if (node.isProcessingInstruction()) {
+				addPIToXMLBuilder(node, xml);
+			} else if (node.isProlog()) {
+				addPrologToXMLBuilder(node, xml);
+			} else {
+				boolean setEndBracketOnNewLine = false;
+				DTDDeclNode decl = (DTDDeclNode) node;
+				xml.addDeclTagStart(decl);
 
-					if(decl.isDTDAttListDecl()) {
-						DTDAttlistDecl attlist = (DTDAttlistDecl) decl;
-						ArrayList<DTDAttlistDecl> internalDecls = attlist.getInternalChildren();
+				if (decl.isDTDAttListDecl()) {
+					DTDAttlistDecl attlist = (DTDAttlistDecl) decl;
+					List<DTDAttlistDecl> internalDecls = attlist.getInternalChildren();
 
-						if(internalDecls == null) {
-							for (DTDDeclParameter param : decl.getParameters()) {
-								xml.addParameter(param.getParameter());	
-							}
-						}
-						else {
-							boolean multipleInternalAttlistDecls = false;
-
-							ArrayList<DTDDeclParameter> params = attlist.getParameters();
-							DTDDeclParameter param;
-							for(int i = 0; i < params.size(); i++) {
-								param = params.get(i);
-								if(attlist.elementName.equals(param)) {
-									xml.addParameter(param.getParameter());
-									if(attlist.getParameters().size() > 1) { //has parameters after elementName
-										xml.linefeed();
-										xml.indent(level + 1);
-										setEndBracketOnNewLine = true;
-										multipleInternalAttlistDecls = true;
-									}
-								} else {
-									if(multipleInternalAttlistDecls && i == 1) {
-										xml.addUnindentedParameter(param.getParameter());
-									} else {
-										xml.addParameter(param.getParameter());	
-									}
-									
-								}
-							}
-
-							for (DTDAttlistDecl attlistDecl : internalDecls) {
-								xml.linefeed();
-								xml.indent(level + 1);
-								params = attlistDecl.getParameters();
-								for(int i = 0; i < params.size(); i++) {
-									param = params.get(i);
-									if(i == 0) {
-										xml.addUnindentedParameter(param.getParameter());
-									} else {
-										xml.addParameter(param.getParameter());	
-									}
-								}
-							}
-						}
-					} else {
+					if (internalDecls == null) {
 						for (DTDDeclParameter param : decl.getParameters()) {
 							xml.addParameter(param.getParameter());	
 						}
+					} else {
+						boolean multipleInternalAttlistDecls = false;
+						List<DTDDeclParameter> params = attlist.getParameters();
+						DTDDeclParameter param;
+						for(int i = 0; i < params.size(); i++) {
+							param = params.get(i);
+							if(attlist.elementName.equals(param)) {
+								xml.addParameter(param.getParameter());
+								if(attlist.getParameters().size() > 1) { //has parameters after elementName
+									xml.linefeed();
+									xml.indent(level + 1);
+									setEndBracketOnNewLine = true;
+									multipleInternalAttlistDecls = true;
+								}
+							} else {
+								if(multipleInternalAttlistDecls && i == 1) {
+									xml.addUnindentedParameter(param.getParameter());
+								} else {
+									xml.addParameter(param.getParameter());	
+								}
+							}
+						}
+
+						for (DTDAttlistDecl attlistDecl : internalDecls) {
+							xml.linefeed();
+							xml.indent(level + 1);
+							params = attlistDecl.getParameters();
+							for(int i = 0; i < params.size(); i++) {
+								param = params.get(i);
+								if(i == 0) {
+									xml.addUnindentedParameter(param.getParameter());
+								} else {
+									xml.addParameter(param.getParameter());	
+								}
+							}
+						}
 					}
-					if(setEndBracketOnNewLine) {
-						xml.linefeed();
-						xml.indent(level);
+				} else {
+					for (DTDDeclParameter param : decl.getParameters()) {
+						xml.addParameter(param.getParameter());	
 					}
-					if(decl.isClosed()) {
-						xml.closeStartElement();
-					}
+				}
+				if(setEndBracketOnNewLine) {
+					xml.linefeed();
+					xml.indent(level);
+				}
+				if(decl.isClosed()) {
+					xml.closeStartElement();
 				}
 			}
 			previous = node;
@@ -342,6 +325,29 @@ class XMLFormatter {
 	private static boolean isPreviousSiblingNodeType(DOMNode node, short nodeType) {
 		DOMNode previousNode = node.getPreviousSibling();
 		return previousNode != null && previousNode.getNodeType() == nodeType;
+	}
+
+	private static void addPIToXMLBuilder(DOMNode node, XMLBuilder xml) {
+		DOMProcessingInstruction processingInstruction = (DOMProcessingInstruction) node;
+		xml.startPrologOrPI(processingInstruction.getTarget());
+
+		String content = processingInstruction.getData();
+		if (content.length() > 0) {
+			xml.addContentPI(content);
+		} else {
+			xml.addContent(" ");
+		}
+
+		xml.endPrologOrPI();
+	}
+
+	private static void addPrologToXMLBuilder(DOMNode node, XMLBuilder xml) {
+		DOMProcessingInstruction processingInstruction = (DOMProcessingInstruction) node;
+		xml.startPrologOrPI(processingInstruction.getTarget());
+		if (node.hasAttributes()) {
+			addAttributes(node, xml);
+		}
+		xml.endPrologOrPI();
 	}
 
 	/**

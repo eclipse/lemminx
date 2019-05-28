@@ -13,6 +13,7 @@
 package org.eclipse.lsp4xml.dom;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -33,7 +34,7 @@ public class DTDDeclNode extends DOMNode{
 	public DTDDeclParameter unrecognized; // holds all content after parsing goes wrong in a DTD declaration (ENTITY, ATTLIST, ...).
 	public DTDDeclParameter declType; // represents the actual name of the decl eg: ENTITY, ATTLIST, ...
 
-	ArrayList<DTDDeclParameter> parameters;
+	private List<DTDDeclParameter> parameters;
 
 	public DTDDeclNode(int start, int end, DOMDocumentType parentDocumentType) {
 		super(start, end);
@@ -84,7 +85,7 @@ public class DTDDeclNode extends DOMNode{
 		}
 	}
 
-	public ArrayList<DTDDeclParameter> getParameters() {
+	public List<DTDDeclParameter> getParameters() {
 		if(parameters == null) {
 			parameters = new ArrayList<DTDDeclParameter>();
 		}
