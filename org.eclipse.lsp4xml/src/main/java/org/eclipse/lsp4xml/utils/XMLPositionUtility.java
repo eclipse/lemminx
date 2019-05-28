@@ -432,7 +432,7 @@ public class XMLPositionUtility {
 		DOMNode node = document.findNodeAt(offset);
 		if (node instanceof DTDDeclNode) {
 			DTDDeclNode decl = (DTDDeclNode) node;
-			ArrayList<DTDDeclParameter> params = decl.getParameters();
+			List<DTDDeclParameter> params = decl.getParameters();
 			DTDDeclParameter finalParam;
 			if(params == null || params.isEmpty()) {
 				return createRange(decl.declType.getStart(), decl.declType.getEnd(), document);
@@ -477,7 +477,7 @@ public class XMLPositionUtility {
 					decl = internal.get(internal.size() - 1); //get last internal decl
 				}
 			}
-			ArrayList<DTDDeclParameter> params = decl.getParameters();
+			List<DTDDeclParameter> params = decl.getParameters();
 			if(params == null || params.isEmpty()) {
 				return createRange(decl.declType.getStart(), decl.declType.getEnd(), document);
 			}
@@ -501,7 +501,7 @@ public class XMLPositionUtility {
 		DOMNode node = document.findNodeAt(offset);
 		if (node instanceof DTDDeclNode) {
 			DTDDeclNode decl = (DTDDeclNode) node;
-			ArrayList<DTDDeclParameter> params = decl.getParameters();
+			List<DTDDeclParameter> params = decl.getParameters();
 			DTDDeclParameter lastParam;
 			if(params != null && !params.isEmpty()) {
 				lastParam = params.get(params.size() - 1);
@@ -532,7 +532,7 @@ public class XMLPositionUtility {
 		DOMNode node = document.findNodeAt(offset);
 		if (node instanceof DTDElementDecl) {
 			DTDElementDecl declNode = (DTDElementDecl) node;
-			ArrayList<DTDDeclParameter> params = declNode.getParameters();
+			List<DTDDeclParameter> params = declNode.getParameters();
 			if(params.isEmpty()) {
 				return null;
 			}

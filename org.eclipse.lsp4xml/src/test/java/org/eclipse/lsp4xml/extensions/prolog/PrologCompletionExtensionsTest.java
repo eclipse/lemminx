@@ -181,8 +181,57 @@ public class PrologCompletionExtensionsTest {
 			"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
 	}
 
+	@Test
+	public void testAutoCompletionPrologDTDFileWithXML() throws BadLocationException {
+		// With 'xml' label
+		String dtdFileURI = "test://test/test.dtd";
+		testCompletionFor("<?xml|", dtdFileURI, false, true, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 5),
+			"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+		testCompletionFor("<?xml|>", dtdFileURI, true, true, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 6),
+			"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+		testCompletionFor("<?xml|?>", dtdFileURI, true, true, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 7),
+			"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+	}
+
+	@Test
+	public void testAutoCompletionPrologDTDFileWithoutXML() throws BadLocationException {
+		//No 'xml' label
+		String dtdFileURI = "test://test/test.dtd";
+		testCompletionFor("<?|", dtdFileURI, false, true, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 2),
+			"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+		testCompletionFor("<?|", dtdFileURI, false, false, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>", r(0, 2, 0, 2),
+			"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+		testCompletionFor("<?|>", dtdFileURI, true, true, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 3),
+			"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+		testCompletionFor("<?|?>", dtdFileURI, true, true, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 4),
+			"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+	}
+
+	@Test
+	public void testAutoCompletionPrologDTFFileWithPartialXML() throws BadLocationException {
+		String dtdFileURI = "test://test/test.dtd";
+		testCompletionFor("<?x|", dtdFileURI, true, true, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 3),
+			"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+		testCompletionFor("<?xm|", dtdFileURI, true, true, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 4),
+			"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+		testCompletionFor("<?x|", dtdFileURI, true, true, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 3),
+			"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+		testCompletionFor("<?xm|?>", dtdFileURI, true, true, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 6),
+			"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+		testCompletionFor("<?xm|?>", dtdFileURI, true, false, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>", r(0, 2, 0, 6),
+			"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+	}
+
 	private void testCompletionFor(String xml, CompletionItem... expectedItems) throws BadLocationException {
 		XMLAssert.testCompletionFor(xml, null, expectedItems);
+	}
+
+	private void testCompletionFor(String xml, String fileURI, boolean autoCloseTags, boolean isSnippetsSupported, CompletionItem... expectedItems) throws BadLocationException {
+		testCompletionFor(xml, fileURI, formattingSettings, createCompletionSettings(autoCloseTags, isSnippetsSupported), expectedItems);
+	}
+
+	private void testCompletionFor(String xml, String fileURI, XMLFormattingOptions formattingSettings, CompletionSettings completionSettings, CompletionItem... expectedItems) throws BadLocationException {
+		XMLAssert.testCompletionFor(new XMLLanguageService(), xml, null, null, fileURI, null, completionSettings, formattingSettings, expectedItems);
 	}
 
 	private void testCompletionFor(String xml, boolean autoCloseTags, boolean isSnippetsSupported, CompletionItem... expectedItems) throws BadLocationException {

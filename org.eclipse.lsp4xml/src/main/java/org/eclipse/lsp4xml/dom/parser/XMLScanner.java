@@ -126,7 +126,7 @@ public class XMLScanner implements Scanner {
 
 		case PrologOrPI:
 			if (stream.advanceIfChars(_QMA, _RAN)) { // ?>
-				state = ScannerState.WithinContent;
+				state = getWithinContentState();
 				return finishToken(offset, TokenType.PIEnd);
 			}
 			if (stream.advanceUntilAnyOfChars(_NWL, _CAR, _WSP, _QMA, _RAN) || stream.eos()) { // \n or \r or ' ' or '?'
@@ -156,12 +156,12 @@ public class XMLScanner implements Scanner {
 			}
 
 			if (stream.advanceIfChars(_QMA, _RAN)) {
-				state = ScannerState.WithinContent;
+				state = getWithinContentState();
 				return finishToken(offset, TokenType.PIEnd);
 			}
 			if (stream.advanceUntilCharsOrNewTag(_QMA, _RAN)) { // ?>
 				if (stream.peekChar() == _LAN) {
-					state = ScannerState.WithinContent;
+					state = getWithinContentState();
 				}
 				if (getTokenTextFromOffset(offset).length() == 0) {
 					return finishToken(offset, TokenType.PIEnd);
@@ -268,7 +268,7 @@ public class XMLScanner implements Scanner {
 				return finishToken(offset, TokenType.Whitespace);
 			}
 			if (stream.advanceIfChars(_QMA, _RAN)) { // ?>
-				state = ScannerState.WithinContent;
+				state = getWithinContentState();
 				return finishToken(offset, TokenType.PrologEnd);
 			}
 			
@@ -467,6 +467,10 @@ public class XMLScanner implements Scanner {
 			}
 			if(isDTDFile) {
 				if(startsWithLessThanBracket) {
+					if (stream.advanceIfChar(_QMA)) { // ?
+						state = ScannerState.PrologOrPI;
+						return finishToken(offset, TokenType.StartPrologOrPI);
+					}
 					if(stream.advanceUntilCharOrNewTag(_RAN)){ // >
 						if(stream.peekChar() == _RAN) {
 							stream.advance(1); //consume '>'
@@ -873,6 +877,13 @@ public class XMLScanner implements Scanner {
 
 	private String localize(String string, String string2) {
 		return string;
+	}
+
+	private ScannerState getWithinContentState() {
+		if (isDTDFile) {
+			return ScannerState.DTDWithinContent;
+		}
+		return ScannerState.WithinContent;
 	}
 
 	public int getLastNonWhitespaceOffset() {
