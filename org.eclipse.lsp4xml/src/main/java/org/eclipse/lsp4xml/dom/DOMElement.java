@@ -10,6 +10,9 @@
  */
 package org.eclipse.lsp4xml.dom;
 
+import static org.eclipse.lsp4xml.dom.DOMAttr.XMLNS_ATTR;
+import static org.eclipse.lsp4xml.dom.DOMAttr.XMLNS_NO_DEFAULT_ATTR;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,8 +28,7 @@ import org.w3c.dom.TypeInfo;
  */
 public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 
-	private static final String XMLNS_ATTR = "xmlns";
-	private static final String XMLNS_NO_DEFAULT_ATTR = "xmlns:";
+	
 
 	String tag;
 	boolean selfClosed;
@@ -147,20 +149,13 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 			Collection<String> prefixes = new ArrayList<>();
 			for (DOMAttr attr : getAttributeNodes()) {
 				String attributeName = attr.getName();
-				if (isNoDefaultXmlns(attributeName)) {
-					prefixes.add(extractPrefixFromXmlns(attributeName));
+				if (attr.isNoDefaultXmlns()) {
+					prefixes.add(attr.extractPrefixFromXmlns());
 				}
 			}
 			return prefixes;
 		}
 		return Collections.emptyList();
-	}
-
-	private static String extractPrefixFromXmlns(String attributeName) {
-		if (isDefaultXmlns(attributeName)) {
-			return attributeName.substring(XMLNS_ATTR.length(), attributeName.length());
-		}
-		return attributeName.substring(XMLNS_NO_DEFAULT_ATTR.length(), attributeName.length());
 	}
 
 	/**
@@ -175,17 +170,9 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 		}
 		if (hasAttributes()) {
 			for (DOMAttr attr : getAttributeNodes()) {
-				String attributeName = attr.getName();
-				if (isXmlns(attributeName)) {
-					String namespace = attr.getValue();
-					if (namespace != null && namespace.equals(namespaceURI)) {
-						if (isDefaultXmlns(attributeName)) {
-							// xmlns="http://"
-							return "";
-						}
-						// xmlns:xxx="http://"
-						return extractPrefixFromXmlns(attributeName);
-					}
+				String prefix = attr.getPrefixIfMatchesURI(namespaceURI);
+				if(prefix != null) {
+					return prefix;
 				}
 			}
 		}
@@ -202,40 +189,6 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 			parent = parent.getParentNode();
 		}
 		return null;
-	}
-
-	/**
-	 * Returns true if attribute name is a xmlns attribute and false otherwise.
-	 * 
-	 * @param attributeName
-	 * @return true if attribute name is a xmlns attribute and false otherwise.
-	 */
-	private static boolean isXmlns(String attributeName) {
-		return attributeName.startsWith(XMLNS_ATTR);
-	}
-
-	/**
-	 * Returns true if attribute name is the default xmlns attribute and false
-	 * otherwise.
-	 * 
-	 * @param attributeName
-	 * @return true if attribute name is the default xmlns attribute and false
-	 *         otherwise.
-	 */
-	private static boolean isDefaultXmlns(String attributeName) {
-		return attributeName.equals(XMLNS_ATTR);
-	}
-
-	/**
-	 * Returns true if attribute name is the no default xmlns attribute and false
-	 * otherwise.
-	 * 
-	 * @param attributeName
-	 * @return true if attribute name is the no default xmlns attribute and false
-	 *         otherwise.
-	 */
-	private static boolean isNoDefaultXmlns(String attributeName) {
-		return attributeName.startsWith(XMLNS_NO_DEFAULT_ATTR);
 	}
 
 	public String getNamespaceURI(String prefix) {

@@ -45,7 +45,6 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 	private Set<String> hierarchies;
 	private String uri;
 
-
 	public CMDTDDocument() {}
 
 	public CMDTDDocument(String uri) {
@@ -68,11 +67,12 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 		return elements;
 	}
 
-	@Override
+	
 	/**
 	 * Returns the URI of this document, is none was provided this
 	 * returns null.
 	 */
+	@Override
 	public String getURI() {
 		return uri;
 	}

@@ -12,13 +12,10 @@ package org.eclipse.lsp4xml.services;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionContext;
@@ -69,6 +66,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 	private XMLDefinition definition;
 	private XMLReference reference;
 	private final XMLCodeActions codeActions;
+	private final XMLRename rename;
 
 	public XMLLanguageService() {
 		this.formatter = new XMLFormatter(this);
@@ -82,6 +80,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		this.definition = new XMLDefinition(this);
 		this.reference = new XMLReference(this);
 		this.codeActions = new XMLCodeActions(this);
+		this.rename = new XMLRename(this);
 	}
 
 	public List<? extends TextEdit> format(TextDocument document, Range range, XMLFormattingOptions options) {
@@ -163,11 +162,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 	}
 
 	public WorkspaceEdit doRename(DOMDocument xmlDocument, Position position, String newText) {
-		List<TextEdit> textEdits = findDocumentHighlights(xmlDocument, position).stream()
-				.map(h -> new TextEdit(h.getRange(), newText)).collect(Collectors.toList());
-		Map<String, List<TextEdit>> changes = new HashMap<>();
-		changes.put(xmlDocument.getDocumentURI(), textEdits);
-		return new WorkspaceEdit(changes);
+		return rename.doRename(xmlDocument, position, newText);
 	}
 
 	public List<DocumentLink> findDocumentLinks(DOMDocument document) {

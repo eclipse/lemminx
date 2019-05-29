@@ -10,8 +10,6 @@
  */
 package org.eclipse.lsp4xml.extensions.contentmodel.participants;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 
 import org.eclipse.lsp4j.CompletionItem;
@@ -33,7 +31,6 @@ import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
 import org.eclipse.lsp4xml.settings.SharedSettings;
 import org.eclipse.lsp4xml.uriresolver.CacheResourceDownloadingException;
-import org.eclipse.lsp4xml.utils.StringUtils;
 
 /**
  * Extension to support XML completion based on content model (XML Schema
@@ -112,27 +109,9 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			CompletionItem item = new CompletionItem(label);
 			item.setFilterText(request.getFilterForStartTagName(label));
 			item.setKind(CompletionItemKind.Property);
-			StringBuilder sb = new StringBuilder();
-			String documentation;
-			String tempDoc = child.getDocumentation();
-			boolean tempDocHasContent = !StringUtils.isEmpty(tempDoc);
-			if(tempDocHasContent) {
-				sb.append(tempDoc);
-			}
-			
-			if(schemaURI != null) {
-				if(tempDocHasContent) {
-					String lineSeparator = System.getProperty("line.separator");
-					sb.append(lineSeparator);
-					sb.append(lineSeparator);
-				}
-				Path schemaPath = Paths.get(schemaURI);
-				sb.append("Source: ");
-				sb.append(schemaPath.getFileName().toString());
-			}
-			documentation = sb.toString();
-			if (documentation != null && !documentation.isEmpty()) {
-				item.setDetail(documentation);
+			String detail = XMLGenerator.generateDocumentation(child.getDocumentation(), schemaURI);
+			if (detail != null) {
+				item.setDetail(detail);
 			}
 			String xml = generator.generate(child, prefix);
 			item.setTextEdit(new TextEdit(request.getReplaceRange(), xml));

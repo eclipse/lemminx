@@ -51,8 +51,7 @@ public class CMXSDDocument implements CMDocument {
 	}
 
 	public CMXSDDocument(XSModel model, String uri) {
-		this.model = model;
-		this.elementMappings = new HashMap<>();
+		this(model);
 		this.uri = uri;
 	}
 

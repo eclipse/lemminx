@@ -88,6 +88,84 @@ public class XMLRenameTest {
 		assertRename("<html|></meta></html>", "newText", edits("newText", r(0, 1, 5), r(0, 15, 19)));
 	}
 
+	@Test
+	public void testNamespaceRename() throws BadLocationException {
+		String xml = 
+			"<aa:a xmlns:a|a=\"aa.com\" xmlns:qq=\"qq.com\">\n" +
+			"  <aa:b></aa:b>\n" +
+			"  <aa:b></aa:b>\n" +
+			"  <aa:c/>\n" +
+			"  <t type=\"aa:b\"/>\n" +
+			"  <qq:b></qq:b>\n" +
+			"</aa:a>";
+		assertRename(xml, "ns", edits("ns", r(0, 12, 14), r(0, 1, 3), r(6, 2, 4), //root attribute, start tag, end tag
+																					r(1, 3, 5), r(1, 10, 12), 
+																					r(2, 3, 5), r(2, 10, 12), 
+																					r(3, 3, 5), //<aa:c
+																					r(4, 11, 13))); // attribute value
+	}
+
+	@Test
+	public void testNamespaceRenameEndTagPrefix() throws BadLocationException {
+		String xml = 
+			"<aa:a xmlns:aa=\"aa.com\" xmlns:qq=\"qq.com\">\n" +
+			"  <aa:b></aa:b>\n" +
+			"  <aa:b></a|a:b>\n" +
+			"  <aa:c/>\n" +
+			"  <t type=\"aa:b\"/>\n" +
+			"  <qq:b></qq:b>\n" +
+			"</aa:a>";
+		assertRename(xml, "ns", edits("ns", r(2, 3, 5), r(2, 10, 12))); 
+	}
+
+	@Test
+	public void testNamespaceRenameStartTagPrefix() throws BadLocationException {
+		String xml = 
+			"<aa:a xmlns:aa=\"aa.com\" xmlns:qq=\"qq.com\">\n" +
+			"  <aa:b></aa:b>\n" +
+			"  <a|a:b></aa:b>\n" +
+			"  <aa:c/>\n" +
+			"  <t type=\"aa:b\"/>\n" +
+			"  <qq:b></qq:b>\n" +
+			"</aa:a>";
+		assertRename(xml, "ns", edits("ns", r(2, 3, 5), r(2, 10, 12))); 
+	}
+
+	@Test
+	public void testNamespaceRenameEndTagSuffix() throws BadLocationException {
+		String xml = 
+			"<aa:a xmlns:aa=\"aa.com\" xmlns:qq=\"qq.com\">\n" +
+			"  <aa:b></aa:b>\n" +
+			"  <aa:|b></aa:b>\n" +
+			"  <aa:c/>\n" +
+			"  <t type=\"aa:b\"/>\n" +
+			"  <qq:b></qq:b>\n" +
+			"</aa:a>";
+		assertRename(xml, "BB", edits("BB", r(2, 6, 7), r(2, 13, 14))); 
+	}
+
+	@Test
+	public void testNamespaceRenameStartTagSuffix() throws BadLocationException {
+		String xml = 
+			"<aa:a xmlns:aa=\"aa.com\" xmlns:qq=\"qq.com\">\n" +
+			"  <aa:b></aa:b>\n" +
+			"  <aa:b></aa:b|>\n" +
+			"  <aa:c/>\n" +
+			"  <t type=\"aa:b\"/>\n" +
+			"  <qq:b></qq:b>\n" +
+			"</aa:a>";
+			assertRename(xml, "BB", edits("BB", r(2, 6, 7), r(2, 13, 14))); 
+	}
+
+	@Test
+	public void testTryToRenameXMLNS() throws BadLocationException {
+		String xml = 
+			"<aa:a xml|ns:aa=\"aa.com\" xmlns:qq=\"qq.com\">\n" +
+			"  <aa:b></aa:b>\n" +
+			"</aa:a>";
+			assertRename(xml, "BBBB"); 
+	}
+
 	private void assertRename(String value, String newText) throws BadLocationException {
 		assertRename(value, newText, Collections.emptyList());
 	}
