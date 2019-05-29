@@ -34,6 +34,7 @@ public class DOMParserPerformance {
 		while (true) {
 			long start = System.currentTimeMillis();
 			DOMDocument xmlDocument = DOMParser.getInstance().parse(document, null);
+			xmlDocument.dispose();
 			System.err.println("Parsed 'nasa.xml' with DOMParser in " + (System.currentTimeMillis() - start) + " ms.");
 		}
 	}
