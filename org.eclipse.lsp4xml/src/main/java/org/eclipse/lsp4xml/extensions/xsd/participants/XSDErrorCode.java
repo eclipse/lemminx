@@ -35,7 +35,7 @@ public enum XSDErrorCode implements IXMLErrorCode {
 	s4s_att_invalid_value("s4s-att-invalid-value"), //
 	s4s_elt_character("s4s-elt-character"), //
 	src_resolve_4_2("src-resolve.4.2"), //
-	src_resolve("src-resolve");
+	src_resolve("src-resolve"), src_element_2_1("src-element.2.1");
 
 	private final String code;
 
@@ -85,19 +85,26 @@ public enum XSDErrorCode implements IXMLErrorCode {
 		case s4s_elt_must_match_1:
 		case s4s_att_must_appear:
 		case s4s_elt_invalid_content_2:
+		case src_element_2_1:
 			return XMLPositionUtility.selectStartTag(offset, document);
-		case s4s_att_not_allowed:
-			return XMLPositionUtility.selectAttributeNameAt(offset, document);
+		case s4s_att_not_allowed: {
+			String attrName = (String) arguments[1];
+			return XMLPositionUtility.selectAttributeNameFromGivenNameAt(attrName, offset, document);
+		}
 		case s4s_att_invalid_value: {
-			String attrName = "";
+			String attrName = (String) arguments[1];
 			return XMLPositionUtility.selectAttributeValueAt(attrName, offset, document);
 		}
 		case s4s_elt_character:
 			return XMLPositionUtility.selectContent(offset, document);
-		case src_resolve_4_2:
-		case src_resolve:
+		case src_resolve_4_2: {
 			String attrValue = (String) arguments[2];
 			return XMLPositionUtility.selectAttributeValueByGivenValueAt(attrValue, offset, document);
+		}
+		case src_resolve: {
+			String attrValue = (String) arguments[0];
+			return XMLPositionUtility.selectAttributeValueByGivenValueAt(attrValue, offset, document);
+		}
 		}
 		return null;
 	}

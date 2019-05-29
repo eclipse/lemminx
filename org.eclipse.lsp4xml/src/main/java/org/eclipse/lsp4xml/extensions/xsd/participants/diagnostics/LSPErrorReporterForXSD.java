@@ -16,6 +16,7 @@ import org.apache.xerces.xni.XMLLocator;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.dom.DOMDocument;
+import org.eclipse.lsp4xml.extensions.contentmodel.participants.XMLSyntaxErrorCode;
 import org.eclipse.lsp4xml.extensions.xsd.participants.XSDErrorCode;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.AbstractLSPErrorReporter;
 import org.xml.sax.ErrorHandler;
@@ -50,6 +51,13 @@ public class LSPErrorReporterForXSD extends AbstractLSPErrorReporter {
 		XSDErrorCode xsdCode = XSDErrorCode.get(key);
 		if (xsdCode != null) {
 			Range range = XSDErrorCode.toLSPRange(location, xsdCode, arguments, document);
+			if (range != null) {
+				return range;
+			}
+		}
+		XMLSyntaxErrorCode syntaxCode = XMLSyntaxErrorCode.get(key);
+		if (syntaxCode != null) {
+			Range range = XMLSyntaxErrorCode.toLSPRange(location, syntaxCode, arguments, document);
 			if (range != null) {
 				return range;
 			}

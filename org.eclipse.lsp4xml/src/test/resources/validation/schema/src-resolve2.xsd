@@ -1,0 +1,16 @@
+<?xml version="1.1" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	elementFormDefault="qualified" attributeFormDefault="unqualified">
+
+	<xs:simpleType name="carType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Audi" />
+			<xs:enumeration value="Golf" />
+			<xs:enumeration value="BMW" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:element name="car" type="carType" />
+	<xs:element name="foo" type="fooType" />
+
+</xs:schema>

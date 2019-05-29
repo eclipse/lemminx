@@ -15,26 +15,127 @@ import static org.eclipse.lsp4xml.XMLAssert.d;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.commons.BadLocationException;
-import org.eclipse.lsp4xml.extensions.contentmodel.participants.XMLSchemaErrorCode;
+import org.eclipse.lsp4xml.extensions.xsd.participants.XSDErrorCode;
+import org.eclipse.lsp4xml.extensions.xsd.participants.diagnostics.XSDValidator;
 import org.junit.Test;
 
 /**
- * XSD diagnostics tests which test the {@link XSDURIResolverExtension}.
+ * XSD diagnostics tests which test the {@link XSDValidator}.
  *
  */
 public class XSDValidationExtensionsTest {
 
 	@Test
-	public void xsdInvalid() throws BadLocationException {
-		String xml = "<?xml version=\"1.1\"?>\r\n"
-				+ "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">   \r\n"
-				+ //
-				"   <foo>bar</foo>\r\n" + // <- error foo doesn't exist
+	public void s4s_elt_invalid_content_1() throws BadLocationException {
+		String xml = "<?xml version=\"1.1\"?>\r\n" + //
+				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\r\n" + //
+				"	elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">\r\n" + //
+				"	<foo></foo>\r\n" + // <- error foo doesn't exist
 				"</xs:schema>";
-		testDiagnosticsFor(xml, d(2, 4, 2, 7, XMLSchemaErrorCode.cvc_complex_type_2_4_a));
+		testDiagnosticsFor(xml, d(3, 2, 3, 5, XSDErrorCode.s4s_elt_invalid_content_1));
 	}
 
-	private void testDiagnosticsFor(String xml, Diagnostic... expected) throws BadLocationException {
-		XMLAssert.testDiagnosticsFor(xml, expected);
+	@Test
+	public void s4s_elt_character() throws BadLocationException {
+		String xml = "<?xml version=\"1.1\"?>\r\n" + //
+				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\r\n" + //
+				"	elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">\r\n" + //
+				"	<xs:element name=\"foo\">bar</xs:element>\r\n" + // <- error with bar text
+				"</xs:schema>";
+		testDiagnosticsFor(xml, d(3, 24, 3, 27, XSDErrorCode.s4s_elt_character));
+	}
+
+	@Test
+	public void s4s_att_must_appear() throws BadLocationException {
+		String xml = "<?xml version=\"1.1\"?>\r\n" + //
+				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\r\n" + //
+				"	elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">\r\n" + //
+				"	<xs:element></xs:element>\r\n" + // <- error with @name missing
+				"</xs:schema>";
+		testDiagnosticsFor(xml, d(3, 2, 3, 12, XSDErrorCode.s4s_att_must_appear));
+	}
+
+	@Test
+	public void s4s_att_not_allowed() throws BadLocationException {
+		String xml = "<?xml version=\"1.1\"?>\r\n" + //
+				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\r\n" + //
+				"	elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">\r\n" + //
+				"	<xs:element foo=\"bar\" ></xs:element>\r\n" + // <- error with foo attribute which is not allowed
+				"</xs:schema>";
+		testDiagnosticsFor(xml, d(3, 13, 3, 16, XSDErrorCode.s4s_att_not_allowed),
+				d(3, 2, 3, 12, XSDErrorCode.s4s_att_must_appear));
+	}
+
+	@Test
+	public void s4s_att_invalid_value() throws BadLocationException {
+		String xml = "<?xml version=\"1.1\"?>\r\n" + //
+				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\r\n" + //
+				"	elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">\r\n" + //
+				"	<xs:element name=\"\" ></xs:element>\r\n" + // <- error with @name which is empty
+				"</xs:schema>";
+		testDiagnosticsFor(xml, d(3, 18, 3, 20, XSDErrorCode.s4s_att_invalid_value),
+				d(3, 2, 3, 12, XSDErrorCode.s4s_att_must_appear));
+	}
+
+	@Test
+	public void src_resolve() throws BadLocationException {
+		String xml = "<?xml version=\"1.1\"?>\r\n" + //
+				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\r\n" + //
+				"	elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">\r\n" + //
+				"	<xs:element name=\"A\">\r\n" + //
+				"		<xs:complexType>\r\n" + //
+				"			<xs:sequence>\r\n" + //
+				"				<xs:element name=\"A.1\" type=\"xs:string\" />\r\n" + //
+				"				<xs:element name=\"A.2\" type=\"XXXXX\" /> \r\n" + // <- error with XXXXX
+				"			</xs:sequence>\r\n" + //
+				"		</xs:complexType>\r\n" + //
+				"	</xs:element> \r\n" + //
+				"</xs:schema>";
+		testDiagnosticsFor(xml, d(7, 32, 7, 39, XSDErrorCode.src_resolve));
+	}
+
+	@Test
+	public void src_resolve2() throws BadLocationException {
+		String xml = "<?xml version=\"1.1\" ?>\r\n" + //
+				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\r\n" + //
+				"	elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">\r\n" + //
+				"\r\n" + //
+				"	<xs:simpleType name=\"carType\">\r\n" + //
+				"		<xs:restriction base=\"xs:string\">\r\n" + //
+				"			<xs:enumeration value=\"Audi\" />\r\n" + //
+				"			<xs:enumeration value=\"Golf\" />\r\n" + //
+				"			<xs:enumeration value=\"BMW\" />\r\n" + //
+				"		</xs:restriction>\r\n" + //
+				"	</xs:simpleType>\r\n" + //
+				"\r\n" + //
+				"	<xs:element name=\"car\" type=\"carType\" />\r\n" + //
+				"	<xs:element name=\"foo\" type=\"fooType\" />\r\n" + // <- error with fooType which doesn't exists
+				"\r\n" + //
+				"</xs:schema>";
+		testDiagnosticsFor(xml, d(13, 29, 13, 38, XSDErrorCode.src_resolve));
+	}
+
+	@Test
+	public void src_element_2_1() throws BadLocationException {
+		String xml = "<?xml version='1.0'?>\r\n" + //
+				"<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'>\r\n" + //
+				"    <xs:element name='note'>\r\n" + //
+				"        <xs:complexType>\r\n" + //
+				"            <xs:sequence>\r\n" + //
+				"                <xs:element nhame='to' type='xs:string' nillable='false' />\r\n" + // <- error nhame
+																									// doesn't exists
+				"                <xs:element name='from' type='xs:string' />\r\n" + //
+				"                <xs:element name='heading' type='xs:string' />\r\n" + //
+				"                <xs:element name='body' type='xs:string' nillable='false' />\r\n" + //
+				"            </xs:sequence>\r\n" + //
+				"        </xs:complexType>\r\n" + //
+				"    </xs:element>\r\n" + //
+				"</xs:schema>";
+		testDiagnosticsFor(xml, d(5, 28, 5, 33, XSDErrorCode.s4s_att_not_allowed),
+				d(5, 17, 5, 27, XSDErrorCode.src_element_2_1));
+	}
+
+	private static void testDiagnosticsFor(String xml, Diagnostic... expected) throws BadLocationException {
+		XMLAssert.testDiagnosticsFor(xml, null, null, "test.xsd", expected);
 	}
 }
