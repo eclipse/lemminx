@@ -10,6 +10,8 @@
  */
 package org.eclipse.lsp4xml.extensions.contentmodel.utils;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -19,6 +21,7 @@ import org.eclipse.lsp4xml.extensions.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lsp4xml.settings.SharedSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
+import org.eclipse.lsp4xml.utils.StringUtils;
 import org.eclipse.lsp4xml.utils.XMLBuilder;
 
 /**
@@ -212,6 +215,37 @@ public class XMLGenerator {
 			}
 		}
 		return value.toString();
+	}
+
+	/**
+	 * Returns a properly formatted documentation string with source.
+	 * 
+	 * If there is no content then null is returned.
+	 * @param documentation
+	 * @param schemaURI
+	 * @return
+	 */
+	public static String generateDocumentation(String documentation, String schemaURI) {
+		StringBuilder sb = new StringBuilder();
+		boolean tempDocHasContent = !StringUtils.isEmpty(documentation);
+		if(tempDocHasContent) {
+			sb.append(documentation);
+		}
+		
+		if(schemaURI != null) {
+			if(tempDocHasContent) {
+				String lineSeparator = System.getProperty("line.separator");
+				sb.append(lineSeparator);
+				sb.append(lineSeparator);
+			}
+			
+			sb.append("Source: ");
+			
+			Path schemaPath = Paths.get(schemaURI);
+			sb.append(schemaPath.getFileName().toString());
+		}
+		String finalDocumentation = sb.toString();
+		return !finalDocumentation.isEmpty() ? finalDocumentation : null;
 	}
 
 }

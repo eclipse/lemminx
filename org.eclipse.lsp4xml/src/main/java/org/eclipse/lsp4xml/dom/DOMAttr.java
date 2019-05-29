@@ -35,6 +35,9 @@ public class DOMAttr extends DOMNode implements org.w3c.dom.Attr {
 
 	private boolean hasDelimiter; // has '='
 
+	public static final String XMLNS_ATTR = "xmlns";
+	public static final String XMLNS_NO_DEFAULT_ATTR = "xmlns:";
+
 	class AttrNameOrValue extends DOMNode {
 
 		private final DOMAttr ownerAttr;
@@ -97,6 +100,15 @@ public class DOMAttr extends DOMNode implements org.w3c.dom.Attr {
 	 */
 	@Override
 	public String getName() {
+		return name;
+	}
+
+	@Override
+	public String getLocalName() {
+		int colonIndex = name.indexOf(":");
+		if(colonIndex > 0) {
+			return name.substring(colonIndex + 1);
+		}
 		return name;
 	}
 
@@ -238,7 +250,81 @@ public class DOMAttr extends DOMNode implements org.w3c.dom.Attr {
 	public boolean valueContainsOffset(int offset) {
 		return nodeAttrValue != null && offset >= nodeAttrValue.getStart() && offset < nodeAttrValue.getEnd();
 	}
+
+	/**
+	 * Returns true if attribute name is a xmlns attribute and false otherwise.
+	 * 
+	 * @param attributeName
+	 * @return true if attribute name is a xmlns attribute and false otherwise.
+	 */
+	public boolean isXmlns() {
+		return isXmlns(name);
+	}
+
+	public static boolean isXmlns(String attributeName) {
+		return attributeName.startsWith(XMLNS_ATTR);
+	}
+
+	/**
+	 * Returns true if attribute name is the default xmlns attribute and false
+	 * otherwise.
+	 * 
+	 * @param attributeName
+	 * @return true if attribute name is the default xmlns attribute and false
+	 *         otherwise.
+	 */
+	public boolean isDefaultXmlns() {
+		return isDefaultXmlns(name);
+	}
+
+	public static boolean isDefaultXmlns(String attributeName) {
+		return attributeName.equals(XMLNS_ATTR);
+	}
+
+	public String extractPrefixFromXmlns() {
+		if (isDefaultXmlns()) {
+			return name.substring(XMLNS_ATTR.length(), name.length());
+		}
+		return name.substring(XMLNS_NO_DEFAULT_ATTR.length(), name.length());
+	}
+
+	/**
+	 * Returns the prefix if the given URI matches this attributes value.
+	 * 
+	 * If the URI doesnt match, null is returned.
+	 * @param uri
+	 * @return
+	 */
+	public String getPrefixIfMatchesURI(String uri) {
+		if (isXmlns()) {
+			if (quotelessValue != null && quotelessValue.equals(uri)) {
+				if (isDefaultXmlns()) {
+					// xmlns="http://"
+					return null;
+				}
+				// xmlns:xxx="http://"
+				return extractPrefixFromXmlns();
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Returns true if attribute name is the no default xmlns attribute and false
+	 * otherwise.
+	 * 
+	 * @param attributeName
+	 * @return true if attribute name is the no default xmlns attribute and false
+	 *         otherwise.
+	 */
+	public boolean isNoDefaultXmlns() {
+		return isNoDefaultXmlns(name);
+	}
 	
+	public static boolean isNoDefaultXmlns(String attributeName) {
+		return attributeName.startsWith(XMLNS_NO_DEFAULT_ATTR);
+	}
+
 		/*
 	 * (non-Javadoc)
 	 * 

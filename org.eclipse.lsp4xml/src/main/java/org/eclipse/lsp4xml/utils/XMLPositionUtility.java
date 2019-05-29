@@ -12,6 +12,8 @@ package org.eclipse.lsp4xml.utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.xerces.xni.XMLLocator;
 import org.eclipse.lsp4j.Position;
@@ -29,12 +31,17 @@ import org.eclipse.lsp4xml.dom.DTDAttlistDecl;
 import org.eclipse.lsp4xml.dom.DTDDeclNode;
 import org.eclipse.lsp4xml.dom.DTDDeclParameter;
 import org.eclipse.lsp4xml.dom.DTDElementDecl;
+import org.eclipse.lsp4xml.dom.parser.Scanner;
+import org.eclipse.lsp4xml.dom.parser.TokenType;
+import org.eclipse.lsp4xml.dom.parser.XMLScanner;
 
 /**
  * XML position utility.
  *
  */
 public class XMLPositionUtility {
+
+	private static final Logger LOGGER = Logger.getLogger(XMLPositionUtility.class.getName());
 
 	private XMLPositionUtility() {
 	}
@@ -523,6 +530,41 @@ public class XMLPositionUtility {
 			}
 			else { 
 				return createRange(params.get(1).getStart(), params.get(1).getEnd(), document);
+			}
+		}
+		return null;
+	}
+
+	public static boolean doesTagCoverPosition(Range startTagRange, Range endTagRange, Position position) {
+		return startTagRange != null && covers(startTagRange, position)
+				|| endTagRange != null && covers(endTagRange, position);
+	}
+
+	public static boolean covers(Range range, Position position) {
+		return isBeforeOrEqual(range.getStart(), position) && isBeforeOrEqual(position, range.getEnd());
+	}
+
+	public static boolean isBeforeOrEqual(Position pos1, Position pos2) {
+		return pos1.getLine() < pos2.getLine()
+				|| (pos1.getLine() == pos2.getLine() && pos1.getCharacter() <= pos2.getCharacter());
+	}
+
+	public static Range getTagNameRange(TokenType tokenType, int startOffset, DOMDocument xmlDocument) {
+
+		Scanner scanner = XMLScanner.createScanner(xmlDocument.getText(), startOffset);
+
+		TokenType token = scanner.scan();
+		while (token != TokenType.EOS && token != tokenType) {
+			token = scanner.scan();
+		}
+		if (token != TokenType.EOS) {
+			try {
+				return new Range(xmlDocument.positionAt(scanner.getTokenOffset()),
+						xmlDocument.positionAt(scanner.getTokenEnd()));
+			} catch (BadLocationException e) {
+				LOGGER.log(Level.SEVERE,
+						"While creating Range in XMLHighlighting the Scanner's Offset was a BadLocation", e);
+				return null;
 			}
 		}
 		return null;
