@@ -13,7 +13,6 @@ package org.eclipse.lsp4xml.dom;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**

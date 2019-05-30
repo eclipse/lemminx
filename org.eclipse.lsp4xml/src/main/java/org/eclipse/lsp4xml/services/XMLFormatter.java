@@ -35,7 +35,6 @@ import org.eclipse.lsp4xml.dom.DTDDeclNode;
 import org.eclipse.lsp4xml.dom.DTDDeclParameter;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
-import org.eclipse.lsp4xml.utils.StringUtils;
 import org.eclipse.lsp4xml.utils.XMLBuilder;
 
 /**

@@ -12,8 +12,6 @@
 
 package org.eclipse.lsp4xml.dom;
 
-import java.util.ArrayList;
-
 /**
  * DTDNotationDecl
  */

@@ -12,7 +12,6 @@ package org.eclipse.lsp4xml.services.extensions;
 
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.settings.SharedSettings;
-import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 
 /**
  * Completion participant API.

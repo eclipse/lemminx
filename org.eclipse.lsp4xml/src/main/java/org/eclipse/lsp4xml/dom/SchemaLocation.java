@@ -17,8 +17,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.apache.xerces.util.URI.MalformedURIException;
-
 /**
  * 
  * The declared "xsi:schemaLocation"

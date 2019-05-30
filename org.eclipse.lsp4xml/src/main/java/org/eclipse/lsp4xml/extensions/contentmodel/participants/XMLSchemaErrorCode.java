@@ -13,8 +13,6 @@ package org.eclipse.lsp4xml.extensions.contentmodel.participants;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.validation.Schema;
-
 import org.apache.xerces.xni.XMLLocator;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;

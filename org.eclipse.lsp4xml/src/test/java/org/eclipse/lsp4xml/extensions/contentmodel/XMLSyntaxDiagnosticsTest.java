@@ -21,7 +21,6 @@ import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.XMLSyntaxErrorCode;
 import org.eclipse.lsp4xml.settings.SharedSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**

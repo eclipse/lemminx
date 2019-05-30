@@ -15,7 +15,6 @@ import java.util.Collections;
 
 import org.apache.xerces.impl.dv.xs.XSSimpleTypeDecl;
 import org.apache.xerces.impl.xs.XSComplexTypeDecl;
-import org.apache.xerces.xs.StringList;
 import org.apache.xerces.xs.XSAttributeDeclaration;
 import org.apache.xerces.xs.XSAttributeUse;
 import org.apache.xerces.xs.XSMultiValueFacet;
@@ -23,7 +22,6 @@ import org.apache.xerces.xs.XSObjectList;
 import org.apache.xerces.xs.XSSimpleTypeDefinition;
 import org.apache.xerces.xs.XSTypeDefinition;
 import org.apache.xerces.xs.XSValue;
-import org.apache.xerces.xs.datatypes.ObjectList;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMAttributeDeclaration;
 
 /**

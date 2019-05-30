@@ -42,7 +42,6 @@ import org.eclipse.lsp4j.ShowMessageRequestParams;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4xml.XMLTextDocumentService;
-import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.junit.Before;
 import org.junit.Test;
 
