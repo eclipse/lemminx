@@ -10,8 +10,6 @@
  */
 package org.eclipse.lsp4xml.extensions.contentmodel.utils;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -141,7 +139,6 @@ public class XMLGenerator {
 
 	private int generate(Collection<CMAttributeDeclaration> attributes, int level, int snippetIndex, XMLBuilder xml,
 			String tagName) {
-		int attributeIndex = 0;
 		List<CMAttributeDeclaration> requiredAttributes = new ArrayList<CMAttributeDeclaration>();
 		for (CMAttributeDeclaration att : attributes) {
 			if (att.isRequired()) {
@@ -162,7 +159,6 @@ public class XMLGenerator {
 			} else {
 				xml.addSingleAttribute(attributeDeclaration.getName(), value, true);
 			}
-			attributeIndex++;
 		}
 		return snippetIndex;
 	}
@@ -174,7 +170,8 @@ public class XMLGenerator {
 	 */
 	public static String generateAttributeValue(String defaultValue, Collection<String> enumerationValues,
 			boolean canSupportSnippets, int snippetIndex, boolean withQuote) {
-		return generateAttributeValue(defaultValue, enumerationValues, canSupportSnippets, snippetIndex, withQuote, null);
+		return generateAttributeValue(defaultValue, enumerationValues, canSupportSnippets, snippetIndex, withQuote,
+				null);
 	}
 
 	/**
@@ -187,9 +184,9 @@ public class XMLGenerator {
 		StringBuilder value = new StringBuilder();
 		String quotation = "\"";
 		if (withQuote) {
-			if(settings != null) {
+			if (settings != null) {
 				quotation = settings.formattingSettings.getQuotationAsString();
-			} 
+			}
 			value.append("=" + quotation);
 		}
 		if (!canSupportSnippets) {
@@ -221,31 +218,39 @@ public class XMLGenerator {
 	 * Returns a properly formatted documentation string with source.
 	 * 
 	 * If there is no content then null is returned.
+	 * 
 	 * @param documentation
 	 * @param schemaURI
 	 * @return
 	 */
 	public static String generateDocumentation(String documentation, String schemaURI) {
-		StringBuilder sb = new StringBuilder();
-		boolean tempDocHasContent = !StringUtils.isEmpty(documentation);
-		if(tempDocHasContent) {
-			sb.append(documentation);
-		}
-		
-		if(schemaURI != null) {
-			if(tempDocHasContent) {
-				String lineSeparator = System.getProperty("line.separator");
-				sb.append(lineSeparator);
-				sb.append(lineSeparator);
+		StringBuilder doc = new StringBuilder(documentation != null ? documentation : "");
+		if (schemaURI != null) {
+			if (doc.length() != 0) {
+				doc.append(System.lineSeparator());
+				doc.append(System.lineSeparator());
 			}
-			
-			sb.append("Source: ");
-			
-			Path schemaPath = Paths.get(schemaURI);
-			sb.append(schemaPath.getFileName().toString());
+			doc.append("Source: ");
+			doc.append(getFileName(schemaURI));
 		}
-		String finalDocumentation = sb.toString();
-		return !finalDocumentation.isEmpty() ? finalDocumentation : null;
+		return doc.length() > 0 ? doc.toString() : null;
+	}
+
+	/**
+	 * Returns the file name from the given schema URI
+	 * 
+	 * @param schemaURI the schema URI
+	 * @return the file name from the given schema URI
+	 */
+	private static String getFileName(String schemaURI) {
+		int index = schemaURI.lastIndexOf('/');
+		if (index == -1) {
+			index = schemaURI.lastIndexOf('\\');
+		}
+		if (index == -1) {
+			return schemaURI;
+		}
+		return schemaURI.substring(index + 1, schemaURI.length());
 	}
 
 }
