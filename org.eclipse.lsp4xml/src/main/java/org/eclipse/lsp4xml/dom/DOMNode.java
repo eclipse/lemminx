@@ -486,6 +486,17 @@ public abstract class DOMNode implements Node {
 		return getNodeType() == DOMNode.DTD_NOTATION_DECL;
 	}
 
+	public boolean isOwnerDocument() {
+		return getNodeType() == Node.DOCUMENT_NODE;
+	}
+
+	public boolean isChildOfOwnerDocument() {
+		if (parent == null) {
+			return false;
+		}
+		return parent.getNodeType() == Node.DOCUMENT_NODE;
+	}
+
 	public int getStart() {
 		return start;
 	}
@@ -649,6 +660,14 @@ public abstract class DOMNode implements Node {
 		List<DOMNode> children = parentNode.getChildren();
 		int previousIndex = children.indexOf(this) - 1;
 		return previousIndex >= 0 ? children.get(previousIndex) : null;
+	}
+
+	public DOMNode getPreviousNonTextSibling() {
+		DOMNode prev = getPreviousSibling();
+		while (prev != null && prev.isText()) {
+			prev = prev.getPreviousSibling();
+		}
+		return prev;
 	}
 
 	/*

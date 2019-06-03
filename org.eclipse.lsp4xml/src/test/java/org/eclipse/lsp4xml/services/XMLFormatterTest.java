@@ -119,6 +119,182 @@ public class XMLFormatterTest {
 	}
 
 	@Test
+	public void rangeChildrenFullSelection() throws BadLocationException {
+		String content =
+		"<licenses>\n" +
+		"  <license>\n" +
+		"    <name>License Name</name>\n" +
+		"|           <url>abcdefghijklmnop</url>\n" +
+		"            <distribution>repo</distribution>|\n" +
+		"  </license>\n" +
+		"</licenses>";
+
+		String expected =
+		"<licenses>\n" +
+		"  <license>\n" +
+		"    <name>License Name</name>\n" +
+		"    <url>abcdefghijklmnop</url>\n" +
+		"    <distribution>repo</distribution>\n" +
+		"  </license>\n" +
+		"</licenses>";
+		
+		format(content, expected);
+	}
+
+	@Test
+	public void rangeChildrenPartialSelection() throws BadLocationException {
+		String content =
+		"<licenses>\n" +
+		"  <license>\n" +
+		"  <name>Licen|se Name</name>\n" +
+		"              <url>abcdefghijklmnop</url>\n" +
+		"              <distribution>repo</distribution>|\n" +
+		"  </license>\n" +
+		"</licenses>";
+
+		String expected =
+		"<licenses>\n" +
+		"  <license>\n" +
+		"    <name>License Name</name>\n" +
+		"    <url>abcdefghijklmnop</url>\n" +
+		"    <distribution>repo</distribution>\n" +
+		"  </license>\n" +
+		"</licenses>";
+		
+		format(content, expected);
+	}
+
+	@Test
+	public void rangeSelectAll() throws BadLocationException {
+		String content = 
+		"<licenses>\n" +
+		"                                            <license>\n" +
+		"                        <name>License Name</name>\n" +
+		"        <url>abcdefghijklmnop</url>\n" +
+		"        <distribution>repo</distribution>\n" +
+		"                                        </license>\n" +
+		"                                                                </licenses>";
+
+		String expected =
+		"<licenses>\n" +
+		"  <license>\n" +
+		"    <name>License Name</name>\n" +
+		"    <url>abcdefghijklmnop</url>\n" +
+		"    <distribution>repo</distribution>\n" +
+		"  </license>\n" +
+		"</licenses>";
+		
+		format(content, expected);
+	}
+
+	@Test
+	public void rangeSelectOnlyPartialStartTagAndChildren() throws BadLocationException {
+		String content = 
+		"<licenses>\n" +
+		"                                 <lice|nse>\n" +
+		"                <name>License Name</name>\n" +
+		"                        <url>abcdefghijklmnop</url>\n" +
+		"            <distribution>repo</distribution>|\n" +
+		"  </license>\n" +
+		"</licenses>";
+
+		String expected =
+		"<licenses>\n" +
+		"  <license>\n" +
+		"    <name>License Name</name>\n" +
+		"    <url>abcdefghijklmnop</url>\n" +
+		"    <distribution>repo</distribution>\n" +
+		"  </license>\n" +
+		"</licenses>";
+		
+		format(content, expected);
+	}
+
+	@Test
+	public void rangeSelectOnlyFullStartTagAndChildren() throws BadLocationException {
+		String content = 
+		"<licenses>\n" +
+		"                                 |<license>\n" +
+		"                <name>License Name</name>\n" +
+		"                        <url>abcdefghijklmnop</url>\n" +
+		"            <distribution>repo</distribution>|\n" +
+		"  </license>\n" +
+		"</licenses>";
+
+		String expected =
+		"<licenses>\n" +
+		"  <license>\n" +
+		"    <name>License Name</name>\n" +
+		"    <url>abcdefghijklmnop</url>\n" +
+		"    <distribution>repo</distribution>\n" +
+		"  </license>\n" +
+		"</licenses>";
+		
+		format(content, expected);
+	}
+
+	@Test
+	public void rangeSelectOnlyPartialEndTagAndChildren() throws BadLocationException {
+		String content = 
+		"<licenses>\n" +
+		"  <license>\n" +
+		"                <nam|e>License Name</name>\n" +
+		"                        <url>abcdefghijklmnop</url>\n" +
+		"            <distribution>repo</distribution>\n" +
+		"  </licen|se>\n" +
+		"</licenses>";
+
+		String expected =
+		"<licenses>\n" +
+		"  <license>\n" +
+		"    <name>License Name</name>\n" +
+		"    <url>abcdefghijklmnop</url>\n" +
+		"    <distribution>repo</distribution>\n" +
+		"  </license>\n" +
+		"</licenses>";
+		
+		format(content, expected);
+	}
+
+	@Test
+	public void rangeSelectOnlyFullEndTagAndChildren() throws BadLocationException {
+		String content = 
+		"<licenses>\n" +
+		"  <license>\n" +
+		"                <nam|e>License Name</name>\n" +
+		"                        <url>abcdefghijklmnop</url>\n" +
+		"            <distribution>repo</distribution>\n" +
+		"  </license>|\n" +
+		"</licenses>";
+
+		String expected =
+		"<licenses>\n" +
+		"  <license>\n" +
+		"    <name>License Name</name>\n" +
+		"    <url>abcdefghijklmnop</url>\n" +
+		"    <distribution>repo</distribution>\n" +
+		"  </license>\n" +
+		"</licenses>";
+		
+		format(content, expected);
+	}
+	
+	@Test
+	public void rangeSelectWithinText() throws BadLocationException {
+		String content = 
+		"<licenses>\n" +
+		"                <name>Lic|en|se</name>\n" +
+		"</licenses>";
+
+		String expected =
+		"<licenses>\n" +
+		"  <name>License</name>\n" +
+		"</licenses>";
+		
+		format(content, expected);
+	}
+
+	@Test
 	public void testProlog() throws BadLocationException {
 		String content = "<?xml version=   \"1.0\"       encoding=\"UTF-8\"  ?>" + lineSeparator();
 		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>" + lineSeparator();
@@ -1727,6 +1903,93 @@ public class XMLFormatterTest {
 		format(content, expected, formattingOptions);
 	}
 
+	@Test
+	public void testAttributeNameValueTwoLines() throws BadLocationException {
+		String content = 
+			"<xml>\r\n" +
+			"  <a \r\n" +
+			"   |a             =         \"aa\"|>\r\n" +
+			"    <b></b>\r\n" +
+			"  </a>\r\n" +
+			"</xml>";
+		String expected = 
+			"<xml>\r\n" +
+			"  <a a=\"aa\">\r\n" +
+			"    <b></b>\r\n" +
+			"  </a>\r\n" +
+			"</xml>";
+		format(content, expected);
+	}
+
+	@Test
+	public void testAttributeNameValueMultipleLines() throws BadLocationException {
+		String content = 
+			"<xml>\r\n" +
+			"  <a \r\n" +
+			"  |a\r\n" +
+			"  =\r\n" +
+			"  \"aa\"\r\n" +
+			"  \r\n" +
+			"  >|\r\n" +
+			"    <b></b>\r\n" +
+			"  </a>\r\n" +
+			"</xml>";
+		String expected = 
+			"<xml>\r\n" +
+			"  <a a=\"aa\">\r\n" +
+			"    <b></b>\r\n" +
+			"  </a>\r\n" +
+			"</xml>";
+		format(content, expected);
+	}
+
+	@Test
+	public void testAttributeNameValueMultipleLinesWithChild() throws BadLocationException {
+		String content = 
+			"<xml>\r\n" +
+			"  <a \r\n" +
+			"   |a          =        \r\n" +
+			"   \r\n" +
+			"   \"aa\">|<b></b>\r\n" +
+			"  </a>\r\n" +
+			"</xml>";
+		String expected = 
+			"<xml>\r\n" +
+			"  <a a=\"aa\">\r\n" +
+			"    <b></b>\r\n" +
+			"  </a>\r\n" +
+			"</xml>";
+		format(content, expected);
+	}
+
+	@Test
+	public void testAttributeNameValueMultipleLinesWithChildrenSiblings() throws BadLocationException {
+		String content = 
+			"<xml>\r\n" +
+			"  <a \r\n" +
+			"  |a\r\n" +
+			"  =\r\n" +
+			"  \"aa\"\r\n" +
+			"  \r\n" +
+			"  >\r\n" +
+			"        <b>\r\n" +
+			"          <c></c>\r\n" +
+			"    </b>\r\n" +
+			"  </a>\r\n" +
+			"        <d></d>|\r\n" +
+			"</xml>";
+		String expected = 
+			"<xml>\r\n" +
+			"  <a a=\"aa\">\r\n" +
+			"    <b>\r\n" +
+			"      <c></c>\r\n" +
+			"    </b>\r\n" +
+			"  </a>\r\n" +
+			"  <d></d>\r\n" +
+			"</xml>";
+		format(content, expected);
+	}
+
 	@Test 
 	public void testPreserveNewlines() throws BadLocationException {
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
@@ -1928,10 +2191,16 @@ public class XMLFormatterTest {
 		TextDocument document = new TextDocument(unformatted, uri);
 		XMLLanguageService languageService = new XMLLanguageService();
 		List<? extends TextEdit> edits = languageService.format(document, range, formattingOptions);
+		
 		String formatted = edits.stream().map(edit -> edit.getNewText()).collect(Collectors.joining(""));
-		if (rangeStart != -1 && rangeEnd != -1) {
-			formatted = unformatted.substring(0, rangeStart) + formatted
-					+ unformatted.substring(rangeEnd - 1, unformatted.length());
+
+		Range textEditRange = edits.get(0).getRange();
+		int textEditStartOffset = document.offsetAt(textEditRange.getStart());
+		int textEditEndOffset = document.offsetAt(textEditRange.getEnd()) + 1;
+
+		if (textEditStartOffset != -1 && textEditEndOffset != -1) {
+			formatted = unformatted.substring(0, textEditStartOffset) + formatted
+					+ unformatted.substring(textEditEndOffset - 1, unformatted.length());
 		}
 		
 		Assert.assertEquals(expected, formatted);
