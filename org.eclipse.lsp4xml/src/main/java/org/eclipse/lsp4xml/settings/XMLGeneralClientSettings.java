@@ -44,8 +44,18 @@ public class XMLGeneralClientSettings {
 
 	private ServerSettings server;
 
+	private XMLSymbolSettings symbols;
+
 	public void setLogs(LogsSettings logs) {
 		this.logs = logs;
+	}
+
+	public XMLSymbolSettings getSymbols() {
+		return symbols;
+	}
+
+	public void setSymbols(XMLSymbolSettings symbols) {
+		this.symbols = symbols;
 	}
 
 	public LogsSettings getLogs() {

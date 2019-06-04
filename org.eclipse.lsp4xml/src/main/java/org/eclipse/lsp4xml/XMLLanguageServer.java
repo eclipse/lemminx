@@ -49,6 +49,7 @@ import org.eclipse.lsp4xml.settings.SharedSettings;
 import org.eclipse.lsp4xml.settings.XMLExperimentalCapabilities;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.settings.XMLGeneralClientSettings;
+import org.eclipse.lsp4xml.settings.XMLSymbolSettings;
 import org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesInitializer;
 import org.eclipse.lsp4xml.settings.capabilities.XMLCapabilityManager;
 import org.eclipse.lsp4xml.utils.FilesUtils;
@@ -137,6 +138,11 @@ public class XMLLanguageServer
 			CompletionSettings newCompletions = xmlClientSettings.getCompletion();
 			if (newCompletions != null) {
 				xmlTextDocumentService.updateCompletionSettings(newCompletions);
+			}
+
+			XMLSymbolSettings newSymbols = xmlClientSettings.getSymbols();
+			if(newSymbols != null) {
+				xmlTextDocumentService.updateSymbolSettings(newSymbols);
 			}
 
 			ServerSettings serverSettings = xmlClientSettings.getServer();
