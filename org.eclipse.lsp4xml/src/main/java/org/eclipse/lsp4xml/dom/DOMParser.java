@@ -13,6 +13,7 @@ package org.eclipse.lsp4xml.dom;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.dom.parser.Scanner;
@@ -53,12 +54,17 @@ public class DOMParser {
 	}
 
 	public DOMDocument parse(TextDocument document, URIResolverExtensionManager resolverExtensionManager, boolean ignoreWhitespaceContent) {
+		return parse(document, resolverExtensionManager, ignoreWhitespaceContent, null);
+	}
+
+	public DOMDocument parse(TextDocument document, URIResolverExtensionManager resolverExtensionManager, boolean ignoreWhitespaceContent, CancelChecker monitor) {
 		boolean isDTD = DOMUtils.isDTD(document.getUri());
 		boolean inDTDInternalSubset = false;
 		String text = document.getText();
 		Scanner scanner = XMLScanner.createScanner(text, 0, isDTD);
 		DOMDocument xmlDocument = new DOMDocument(document, resolverExtensionManager);
-
+		xmlDocument.setCancelChecker(monitor);
+		
 		DOMNode curr = isDTD ? new DOMDocumentType(0, text.length(), xmlDocument) : xmlDocument;
 		if (isDTD) {
 			xmlDocument.addChild(curr);
@@ -75,6 +81,9 @@ public class DOMParser {
 		boolean isInitialDeclaration = true; // A declaration can have multiple internal declarations
 		TokenType token = scanner.scan();
 		while (token != TokenType.EOS) {
+			if (monitor != null) {
+				monitor.checkCanceled();
+			}
 			if(tempWhitespaceContent != null && token != TokenType.EndTagOpen) {
 				tempWhitespaceContent = null;
 			}

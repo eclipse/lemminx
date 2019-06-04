@@ -28,7 +28,7 @@ public class TextDocument extends TextDocumentItem {
 
 	private static String DEFAULT_DELIMTER = System.lineSeparator();
 
-	private ListLineTracker lineTracker;
+	private final ListLineTracker lineTracker;
 
 	// Buffer of the text document used only in incremental mode.
 	private StringBuilder buffer;
@@ -40,8 +40,9 @@ public class TextDocument extends TextDocumentItem {
 	}
 
 	public TextDocument(String text, String uri) {
+		this.lineTracker = new ListLineTracker();
 		super.setUri(uri);
-		super.setText(text);
+		setText(text);
 	}
 
 	public void setIncremental(boolean incremental) {
@@ -55,7 +56,7 @@ public class TextDocument extends TextDocumentItem {
 	@Override
 	public void setText(String text) {
 		super.setText(text);
-		lineTracker = null;
+		lineTracker.set(text);
 	}
 
 	public Position positionAt(int position) throws BadLocationException {
@@ -117,10 +118,6 @@ public class TextDocument extends TextDocumentItem {
 	}
 
 	private ListLineTracker getLineTracker() {
-		if (lineTracker == null) {
-			lineTracker = new ListLineTracker();
-			lineTracker.set(super.getText());
-		}
 		return lineTracker;
 	}
 
@@ -147,7 +144,7 @@ public class TextDocument extends TextDocumentItem {
 							length = changeEvent.getRangeLength().intValue();
 						} else {
 							// range is optional and if not given, the whole file content is replaced
-							length = getText().length();
+							length = buffer.length();
 							range = new Range(positionAt(0), positionAt(length));
 						}
 						String text = changeEvent.getText();

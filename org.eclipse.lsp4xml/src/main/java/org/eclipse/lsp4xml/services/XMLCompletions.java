@@ -28,6 +28,7 @@ import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.customservice.AutoCloseTagResponse;
@@ -64,7 +65,7 @@ public class XMLCompletions {
 	}
 
 	public CompletionList doComplete(DOMDocument xmlDocument, Position position,
-			SharedSettings settings) {
+			SharedSettings settings, CancelChecker cancelChecker) {
 		CompletionResponse completionResponse = new CompletionResponse();
 		CompletionRequest completionRequest = null;
 		try {
@@ -320,7 +321,7 @@ public class XMLCompletions {
 		return true;
 	}
 
-	public AutoCloseTagResponse doTagComplete(DOMDocument xmlDocument, Position position) {
+	public AutoCloseTagResponse doTagComplete(DOMDocument xmlDocument, Position position, CancelChecker cancelChecker) {
 		int offset;
 		try {
 			offset = xmlDocument.offsetAt(position);

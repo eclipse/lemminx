@@ -122,7 +122,8 @@ public class XMLLanguageServer
 		}
 		// Update client settings
 		initializationOptionsSettings = AllXMLSettings.getAllXMLSettings(initializationOptionsSettings);
-		XMLGeneralClientSettings xmlClientSettings = XMLGeneralClientSettings.getGeneralXMLSettings(initializationOptionsSettings);
+		XMLGeneralClientSettings xmlClientSettings = XMLGeneralClientSettings
+				.getGeneralXMLSettings(initializationOptionsSettings);
 		if (xmlClientSettings != null) {
 			// Update logs settings
 			LogsSettings logsSettings = xmlClientSettings.getLogs();
@@ -146,11 +147,11 @@ public class XMLLanguageServer
 			}
 
 			ServerSettings serverSettings = xmlClientSettings.getServer();
-			if(serverSettings != null) {
+			if (serverSettings != null) {
 				String workDir = serverSettings.getNormalizedWorkDir();
 				FilesUtils.setCachePathSetting(workDir);
 			}
-		
+
 			// Experimental capabilities
 			XMLExperimentalCapabilities experimental = xmlClientSettings.getExperimental();
 			if (experimental != null) {
@@ -160,11 +161,12 @@ public class XMLLanguageServer
 				xmlTextDocumentService.setIncrementalSupport(incrementalSupport);
 			}
 		}
-		ContentModelSettings cmSettings = ContentModelSettings.getContentModelXMLSettings(initializationOptionsSettings);
-		if(cmSettings != null) {
+		ContentModelSettings cmSettings = ContentModelSettings
+				.getContentModelXMLSettings(initializationOptionsSettings);
+		if (cmSettings != null) {
 			XMLValidationSettings validationSettings = cmSettings.getValidation();
 			xmlTextDocumentService.getValidationSettings().merge(validationSettings);
-			
+
 		}
 		// Update XML language service extensions
 		xmlTextDocumentService.updateSettings(initializationOptionsSettings);
@@ -224,10 +226,10 @@ public class XMLLanguageServer
 
 	@Override
 	public CompletableFuture<AutoCloseTagResponse> closeTag(TextDocumentPositionParams params) {
-		return computeAsync((monitor) -> {
-			TextDocument document = xmlTextDocumentService.getDocument(params.getTextDocument().getUri());
-			DOMDocument xmlDocument = xmlTextDocumentService.getXMLDocument(document);
-			return getXMLLanguageService().doAutoClose(xmlDocument, params.getPosition());
+		return computeAsync((cancelChecker) -> {
+			DOMDocument xmlDocument = xmlTextDocumentService.getXMLDocument(params.getTextDocument().getUri(),
+					cancelChecker);
+			return getXMLLanguageService().doAutoClose(xmlDocument, params.getPosition(), cancelChecker);
 		});
 	}
 

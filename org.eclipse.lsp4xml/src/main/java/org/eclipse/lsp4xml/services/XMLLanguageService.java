@@ -14,7 +14,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import org.eclipse.lsp4j.CodeAction;
@@ -39,6 +38,7 @@ import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
+import org.eclipse.lsp4xml.commons.TextDocumentVersionChecker;
 import org.eclipse.lsp4xml.customservice.AutoCloseTagResponse;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMElement;
@@ -54,6 +54,14 @@ import org.eclipse.lsp4xml.utils.XMLPositionUtility;
  *
  */
 public class XMLLanguageService extends XMLExtensionsRegistry {
+
+	private static final CancelChecker NULL_CHECKER = new CancelChecker() {
+
+		@Override
+		public void checkCanceled() {
+			// Do nothing
+		}
+	};
 
 	private final XMLFormatter formatter;
 	private final XMLHighlighting highlighting;
@@ -88,38 +96,61 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 	}
 
 	public List<DocumentHighlight> findDocumentHighlights(DOMDocument xmlDocument, Position position) {
-		return highlighting.findDocumentHighlights(xmlDocument, position);
+		return findDocumentHighlights(xmlDocument, position, NULL_CHECKER);
+	}
+
+	public List<DocumentHighlight> findDocumentHighlights(DOMDocument xmlDocument, Position position,
+			CancelChecker cancelChecker) {
+		return highlighting.findDocumentHighlights(xmlDocument, position, cancelChecker);
 	}
 
 	public List<SymbolInformation> findSymbolInformations(DOMDocument xmlDocument) {
-		return symbolsProvider.findSymbolInformations(xmlDocument);
+		return findSymbolInformations(xmlDocument, NULL_CHECKER);
+	}
+
+	public List<SymbolInformation> findSymbolInformations(DOMDocument xmlDocument, CancelChecker cancelChecker) {
+		return symbolsProvider.findSymbolInformations(xmlDocument, cancelChecker);
 	}
 
 	public List<DocumentSymbol> findDocumentSymbols(DOMDocument xmlDocument) {
-		return symbolsProvider.findDocumentSymbols(xmlDocument);
+		return findDocumentSymbols(xmlDocument, NULL_CHECKER);
+	}
+
+	public List<DocumentSymbol> findDocumentSymbols(DOMDocument xmlDocument, CancelChecker cancelChecker) {
+		return symbolsProvider.findDocumentSymbols(xmlDocument, cancelChecker);
 	}
 
 	public CompletionList doComplete(DOMDocument xmlDocument, Position position, SharedSettings settings) {
-		return completions.doComplete(xmlDocument, position, settings);
+		return doComplete(xmlDocument, position, settings, NULL_CHECKER);
+	}
+
+	public CompletionList doComplete(DOMDocument xmlDocument, Position position, SharedSettings settings,
+			CancelChecker cancelChecker) {
+		return completions.doComplete(xmlDocument, position, settings, cancelChecker);
 	}
 
 	public Hover doHover(DOMDocument xmlDocument, Position position) {
-		return hover.doHover(xmlDocument, position);
+		return doHover(xmlDocument, position, NULL_CHECKER);
 	}
 
-	public List<Diagnostic> doDiagnostics(DOMDocument xmlDocument, CancelChecker monitor, XMLValidationSettings validationSettings) {
+	public Hover doHover(DOMDocument xmlDocument, Position position, CancelChecker cancelChecker) {
+		return hover.doHover(xmlDocument, position, cancelChecker);
+	}
+
+	public List<Diagnostic> doDiagnostics(DOMDocument xmlDocument, CancelChecker monitor,
+			XMLValidationSettings validationSettings) {
 		return diagnostics.doDiagnostics(xmlDocument, monitor, validationSettings);
 	}
 
 	public CompletableFuture<Path> publishDiagnostics(DOMDocument xmlDocument,
-			Consumer<PublishDiagnosticsParams> publishDiagnostics, BiConsumer<String, Integer> triggerValidation,
-			CancelChecker monitor, XMLValidationSettings validationSettings) {
+			Consumer<PublishDiagnosticsParams> publishDiagnostics, Consumer<TextDocument> triggerValidation,
+			XMLValidationSettings validationSettings) {
 		String uri = xmlDocument.getDocumentURI();
-		int version = xmlDocument.getTextDocument().getVersion();
+		TextDocument document = xmlDocument.getTextDocument();
+		CancelChecker monitor = new TextDocumentVersionChecker(document, document.getVersion());
 		try {
 			List<Diagnostic> diagnostics = this.doDiagnostics(xmlDocument, monitor, validationSettings);
 			monitor.checkCanceled();
-			
 			publishDiagnostics.accept(new PublishDiagnosticsParams(uri, diagnostics));
 			return null;
 		} catch (CacheResourceDownloadingException e) {
@@ -140,7 +171,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 					}) //
 					.thenAccept((path) -> {
 						if (path != null) {
-							triggerValidation.accept(uri, version);
+							triggerValidation.accept(document);
 						}
 					});
 			return e.getFuture();
@@ -157,8 +188,13 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		publishDiagnostics.accept(new PublishDiagnosticsParams(uri, diagnostics));
 	}
 
-	public List<FoldingRange> getFoldingRanges(TextDocument document, FoldingRangeCapabilities context) {
-		return foldings.getFoldingRanges(document, context);
+	public List<FoldingRange> getFoldingRanges(DOMDocument xmlDocument, FoldingRangeCapabilities context) {
+		return getFoldingRanges(xmlDocument, context, NULL_CHECKER);
+	}
+
+	public List<FoldingRange> getFoldingRanges(DOMDocument xmlDocument, FoldingRangeCapabilities context,
+			CancelChecker cancelChecker) {
+		return foldings.getFoldingRanges(xmlDocument.getTextDocument(), context, cancelChecker);
 	}
 
 	public WorkspaceEdit doRename(DOMDocument xmlDocument, Position position, String newText) {
@@ -184,17 +220,21 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 	}
 
 	public AutoCloseTagResponse doTagComplete(DOMDocument xmlDocument, Position position) {
-		return completions.doTagComplete(xmlDocument, position);
+		return doTagComplete(xmlDocument, position, NULL_CHECKER);
 	}
 
-	public AutoCloseTagResponse doAutoClose(DOMDocument xmlDocument, Position position) {
+	public AutoCloseTagResponse doTagComplete(DOMDocument xmlDocument, Position position, CancelChecker cancelChecker) {
+		return completions.doTagComplete(xmlDocument, position, cancelChecker);
+	}
+
+	public AutoCloseTagResponse doAutoClose(DOMDocument xmlDocument, Position position, CancelChecker cancelChecker) {
 		try {
 			int offset = xmlDocument.offsetAt(position);
 			String text = xmlDocument.getText();
 			if (offset > 0) {
 				char c = text.charAt(offset - 1);
 				if (c == '>' || c == '/') {
-					return doTagComplete(xmlDocument, position);
+					return doTagComplete(xmlDocument, position, cancelChecker);
 				}
 			}
 			return null;
@@ -202,4 +242,5 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 			return null;
 		}
 	}
+
 }

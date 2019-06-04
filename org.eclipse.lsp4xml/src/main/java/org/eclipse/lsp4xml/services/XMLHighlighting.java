@@ -24,12 +24,14 @@ import org.eclipse.lsp4j.DocumentHighlight;
 import org.eclipse.lsp4j.DocumentHighlightKind;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMElement;
 import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.dom.parser.TokenType;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
+
 /**
  * XML highlighting support.
  *
@@ -44,7 +46,8 @@ class XMLHighlighting {
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
-	public List<DocumentHighlight> findDocumentHighlights(DOMDocument xmlDocument, Position position) {
+	public List<DocumentHighlight> findDocumentHighlights(DOMDocument xmlDocument, Position position,
+			CancelChecker cancelChecker) {
 		int offset = -1;
 		try {
 			offset = xmlDocument.offsetAt(position);
@@ -83,7 +86,8 @@ class XMLHighlighting {
 		} else if (node.isElement()) {
 			DOMElement element = (DOMElement) node;
 			startTagRange = getTagNameRange(TokenType.StartTag, node.getStart(), xmlDocument);
-			endTagRange = element.hasEndTag() ? getTagNameRange(TokenType.EndTag, element.getEndTagOpenOffset(), xmlDocument)
+			endTagRange = element.hasEndTag()
+					? getTagNameRange(TokenType.EndTag, element.getEndTagOpenOffset(), xmlDocument)
 					: null;
 			if (doesTagCoverPosition(startTagRange, endTagRange, position)) {
 				return getHighlightsList(startTagRange, endTagRange);
