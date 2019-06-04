@@ -45,6 +45,7 @@ import org.eclipse.lsp4j.UnregistrationParams;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4xml.XMLTextDocumentService;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
+import org.eclipse.lsp4xml.settings.XMLSymbolSettings;
 
 /**
  * Manager for capability related tasks
@@ -125,9 +126,6 @@ public class XMLCapabilityManager {
 		if (this.getClientCapabilities().isDocumentHighlightDynamicRegistered()) {
 			registerCapability(DOCUMENT_HIGHLIGHT_ID, TEXT_DOCUMENT_HIGHLIGHT);
 		}
-		if (this.getClientCapabilities().isDocumentSymbolDynamicRegistered()) {
-			registerCapability(DOCUMENT_SYMBOL_ID, TEXT_DOCUMENT_DOCUMENT_SYMBOL);
-		}
 		if (this.getClientCapabilities().isRangeFoldingDynamicRegistrationSupported()) {
 			registerCapability(FOLDING_RANGE_ID, TEXT_DOCUMENT_FOLDING_RANGE);
 		}
@@ -164,6 +162,13 @@ public class XMLCapabilityManager {
 		if (this.getClientCapabilities().isRangeFormattingDynamicRegistrationSupported()) {
 			toggleCapability(formattingPreferences.isEnabled(), FORMATTING_RANGE_ID,
 					ServerCapabilitiesConstants.TEXT_DOCUMENT_RANGE_FORMATTING, null);
+		}
+
+		XMLSymbolSettings symbolSettings = this.textDocumentService.getSharedSymbolSettings();
+
+		if (this.getClientCapabilities().isDocumentSymbolDynamicRegistrationSupported()) {
+			toggleCapability(symbolSettings.isEnabled(), DOCUMENT_SYMBOL_ID,
+					TEXT_DOCUMENT_DOCUMENT_SYMBOL, null);
 		}
 	}
 

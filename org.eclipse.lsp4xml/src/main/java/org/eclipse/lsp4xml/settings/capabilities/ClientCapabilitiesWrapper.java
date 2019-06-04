@@ -68,7 +68,7 @@ public class ClientCapabilitiesWrapper {
 		return v3Supported && isDynamicRegistrationSupported(getTextDocument().getRename());
 	}
 
-	public boolean isDocumentSymbolDynamicRegistered() {
+	public boolean isDocumentSymbolDynamicRegistrationSupported() {
 		return v3Supported && isDynamicRegistrationSupported(getTextDocument().getDocumentSymbol());
 	}
 

@@ -24,12 +24,14 @@ public class SharedSettings {
 	public final FoldingRangeCapabilities foldingSettings;
 	public XMLFormattingOptions formattingSettings;
 	public final XMLValidationSettings validationSettings;
+	public final XMLSymbolSettings symbolSettings;
 
 	public SharedSettings() {
 		this.completionSettings = new CompletionSettings();
 		this.foldingSettings = new FoldingRangeCapabilities();
 		this.formattingSettings = new XMLFormattingOptions(true);
 		this.validationSettings = new XMLValidationSettings();
+		this.symbolSettings = new XMLSymbolSettings();
 	}
 
 	public void setFormattingSettings(XMLFormattingOptions formattingOptions) {

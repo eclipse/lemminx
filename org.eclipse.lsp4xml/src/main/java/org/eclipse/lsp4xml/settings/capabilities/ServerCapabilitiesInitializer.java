@@ -37,19 +37,14 @@ public class ServerCapabilitiesInitializer {
 	public static ServerCapabilities getNonDynamicServerCapabilities(ClientCapabilitiesWrapper clientCapabilities,
 			boolean isIncremental) {
 		ServerCapabilities serverCapabilities = new ServerCapabilities();
-
+		// @formatter:off
 		serverCapabilities.setTextDocumentSync(DEFAULT_SYNC_OPTION);
-
-		serverCapabilities
-				.setTextDocumentSync(isIncremental ? TextDocumentSyncKind.Incremental : TextDocumentSyncKind.Full);
-
-		serverCapabilities.setDocumentSymbolProvider(!clientCapabilities.isDocumentSymbolDynamicRegistered());
+		serverCapabilities.setTextDocumentSync(isIncremental ? TextDocumentSyncKind.Incremental : TextDocumentSyncKind.Full);
+		serverCapabilities.setDocumentSymbolProvider(!clientCapabilities.isDocumentSymbolDynamicRegistrationSupported());
 		serverCapabilities.setDocumentHighlightProvider(!clientCapabilities.isDocumentHighlightDynamicRegistered());
 		serverCapabilities.setCodeActionProvider(!clientCapabilities.isCodeActionDynamicRegistered());
-		serverCapabilities
-				.setDocumentFormattingProvider(!clientCapabilities.isFormattingDynamicRegistrationSupported());
-		serverCapabilities.setDocumentRangeFormattingProvider(
-				!clientCapabilities.isRangeFormattingDynamicRegistrationSupported());
+		serverCapabilities.setDocumentFormattingProvider(!clientCapabilities.isFormattingDynamicRegistrationSupported());
+		serverCapabilities.setDocumentRangeFormattingProvider(!clientCapabilities.isRangeFormattingDynamicRegistrationSupported());
 		serverCapabilities.setHoverProvider(!clientCapabilities.isHoverDynamicRegistered());
 		serverCapabilities.setRenameProvider(!clientCapabilities.isRenameDynamicRegistrationSupported());
 		serverCapabilities.setFoldingRangeProvider(!clientCapabilities.isRangeFoldingDynamicRegistrationSupported());

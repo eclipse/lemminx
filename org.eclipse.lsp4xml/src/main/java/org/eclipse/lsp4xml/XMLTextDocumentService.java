@@ -15,6 +15,7 @@ import static org.eclipse.lsp4j.jsonrpc.CompletableFutures.computeAsync;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
@@ -73,6 +74,7 @@ import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.services.extensions.save.AbstractSaveContext;
 import org.eclipse.lsp4xml.settings.SharedSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
+import org.eclipse.lsp4xml.settings.XMLSymbolSettings;
 
 /**
  * XML text document service.
@@ -215,6 +217,11 @@ public class XMLTextDocumentService implements TextDocumentService {
 	@Override
 	public CompletableFuture<List<Either<SymbolInformation, DocumentSymbol>>> documentSymbol(
 			DocumentSymbolParams params) {
+		
+		if(!sharedSettings.symbolSettings.isEnabled()) {
+			return CompletableFuture.completedFuture(Collections.emptyList());
+		}
+
 		return computeAsync((monitor) -> {
 			TextDocument document = getDocument(params.getTextDocument().getUri());
 			DOMDocument xmlDocument = getXMLDocument(document);
@@ -429,6 +436,14 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	public void updateCompletionSettings(CompletionSettings newCompletion) {
 		sharedSettings.completionSettings.setAutoCloseTags(newCompletion.isAutoCloseTags());
+	}
+
+	public void updateSymbolSettings(XMLSymbolSettings newSettings) {
+		sharedSettings.symbolSettings.setEnabled(newSettings.isEnabled());
+	}
+
+	public XMLSymbolSettings getSharedSymbolSettings() {
+		return sharedSettings.symbolSettings;
 	}
 
 	public boolean isIncrementalSupport() {
