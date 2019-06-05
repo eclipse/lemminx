@@ -30,6 +30,7 @@ import org.apache.xerces.util.XMLGrammarPoolImpl;
 import org.apache.xerces.xni.grammars.XMLGrammarDescription;
 import org.apache.xerces.xni.parser.XMLEntityResolver;
 import org.apache.xerces.xni.parser.XMLInputSource;
+import org.apache.xerces.xni.parser.XMLParseException;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.dom.DOMDocument;
@@ -87,10 +88,10 @@ public class XSDValidator {
 			XMLInputSource is = new XMLInputSource(null, uri, uri, inputStream, null);
 			grammarPreparser.getLoader(XMLGrammarDescription.XML_SCHEMA);
 			grammarPreparser.preparseGrammar(XMLGrammarDescription.XML_SCHEMA, is);
-		} catch (IOException | CancellationException exception) {
+		} catch (IOException | CancellationException | XMLParseException exception) {
 			// ignore error
 		} catch (Exception e) {
-			LOGGER.log(Level.SEVERE, "Unexpected XMLValidator error", e);
+			LOGGER.log(Level.SEVERE, "Unexpected XSDValidator error", e);
 		}
 	}
 
