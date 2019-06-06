@@ -12,13 +12,12 @@ package org.eclipse.lsp4xml.commons;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
-import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
+import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentItem;
 
 /**
@@ -41,7 +40,9 @@ public class TextDocuments implements ITextDocumentFactory {
 	 */
 	public void setIncremental(boolean incremental) {
 		this.incremental = incremental;
-		documents.values().forEach(document -> document.setIncremental(incremental));
+		synchronized (documents) {
+			documents.values().forEach(document -> document.setIncremental(incremental));
+		}
 	}
 
 	/**
@@ -63,12 +64,9 @@ public class TextDocuments implements ITextDocumentFactory {
 	 * @return the text document or `undefined`.
 	 */
 	public TextDocument get(String uri) {
-		return documents.get(uri);
-	}
-
-	public void onDidOpenTextDocument(DidOpenTextDocumentParams params) {
-		TextDocumentItem document = params.getTextDocument();
-		documents.put(document.getUri(), createDocument(document));
+		synchronized (documents) {
+			return documents.get(uri);
+		}
 	}
 
 	@Override
@@ -78,17 +76,39 @@ public class TextDocuments implements ITextDocumentFactory {
 		return doc;
 	}
 
-	public void onDidChangeTextDocument(DidChangeTextDocumentParams params) {
-		List<TextDocumentContentChangeEvent> changes = params.getContentChanges();
-		TextDocument document = get(params.getTextDocument().getUri());
-		if (document != null) {
-			document.setVersion(params.getTextDocument().getVersion());
-			document.update(changes);
+	public TextDocument onDidChangeTextDocument(DidChangeTextDocumentParams params) {
+		synchronized (documents) {
+			TextDocument document = getDocument(params.getTextDocument());
+			if (document != null) {
+				document.setVersion(params.getTextDocument().getVersion());
+				document.update(params.getContentChanges());
+				return document;
+			}
+		}
+		return null;
+	}
+
+	public TextDocument onDidOpenTextDocument(DidOpenTextDocumentParams params) {
+		TextDocumentItem item = params.getTextDocument();
+		synchronized (documents) {
+			TextDocument document = createDocument(item);
+			documents.put(document.getUri(), document);
+			return document;
 		}
 	}
 
-	public void onDidCloseTextDocument(DidCloseTextDocumentParams params) {
-		documents.remove(params.getTextDocument().getUri());
+	public TextDocument onDidCloseTextDocument(DidCloseTextDocumentParams params) {
+		synchronized (documents) {
+			TextDocument document = getDocument(params.getTextDocument());
+			if (document != null) {
+				documents.remove(params.getTextDocument().getUri());
+			}
+			return document;
+		}
+	}
+
+	private TextDocument getDocument(TextDocumentIdentifier identifier) {
+		return documents.get(identifier.getUri());
 	}
 
 	/**
@@ -97,6 +117,8 @@ public class TextDocuments implements ITextDocumentFactory {
 	 * @return the all opened documents.
 	 */
 	public Collection<TextDocument> all() {
-		return documents.values();
+		synchronized (documents) {
+			return documents.values();
+		}
 	}
 }

@@ -397,11 +397,10 @@ public class XMLAssert {
 			XMLLanguageService languageService) {
 		CompletableFuture<Path> error = languageService.publishDiagnostics(xmlDocument, params -> {
 			actual.add(params);
-		}, (uri, version) -> {
+		}, (doc) -> {
 			// Retrigger validation
 			publishDiagnostics(xmlDocument, actual, languageService);
-		}, () -> {
-		}, null);
+		}, null, () -> {});
 
 		if (error != null) {
 			try {

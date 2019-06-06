@@ -17,6 +17,8 @@ import java.util.List;
 import org.eclipse.lsp4j.FoldingRange;
 import org.eclipse.lsp4j.FoldingRangeCapabilities;
 import org.eclipse.lsp4xml.commons.TextDocument;
+import org.eclipse.lsp4xml.dom.DOMDocument;
+import org.eclipse.lsp4xml.dom.DOMParser;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -222,12 +224,12 @@ public class XMLFoldingsTest {
 
 	private static void assertRanges(String[] lines, ExpectedIndentRange[] expected, String message, Integer nRanges) {
 		TextDocument document = new TextDocument(String.join("\n", lines), "test://foo/bar.json");
-
+		DOMDocument xmlDocument = DOMParser.getInstance().parse(document, null);
 		XMLLanguageService languageService = new XMLLanguageService();
 
 		FoldingRangeCapabilities context = new FoldingRangeCapabilities();
 		context.setRangeLimit(nRanges);
-		List<FoldingRange> actual = languageService.getFoldingRanges(document, context);
+		List<FoldingRange> actual = languageService.getFoldingRanges(xmlDocument, context);
 
 		List<ExpectedIndentRange> actualRanges = new ArrayList<>();
 		for (FoldingRange f : actual) {

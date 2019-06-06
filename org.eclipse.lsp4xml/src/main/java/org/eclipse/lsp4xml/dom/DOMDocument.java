@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.dom.parser.Constants;
@@ -55,6 +56,7 @@ public class DOMDocument extends DOMNode implements Document {
 	private Map<String, String> externalSchemaLocation;
 	private String schemaInstancePrefix;
 	private boolean hasExternalGrammar;
+	private CancelChecker cancelChecker;
 
 	public DOMDocument(TextDocument textDocument, URIResolverExtensionManager resolverExtensionManager) {
 		super(0, textDocument.getText().length());
@@ -62,24 +64,32 @@ public class DOMDocument extends DOMNode implements Document {
 		this.resolverExtensionManager = resolverExtensionManager;
 		resetGrammar();
 	}
+	
+	public void setCancelChecker(CancelChecker cancelChecker) {
+		this.cancelChecker = cancelChecker;
+	}
 
 	public List<DOMNode> getRoots() {
 		return super.getChildren();
 	}
 
 	public Position positionAt(int position) throws BadLocationException {
+		checkCanceled();
 		return textDocument.positionAt(position);
 	}
 
 	public int offsetAt(Position position) throws BadLocationException {
+		checkCanceled();
 		return textDocument.offsetAt(position);
 	}
 
 	public String lineText(int lineNumber) throws BadLocationException {
+		checkCanceled();
 		return textDocument.lineText(lineNumber);
 	}
 
 	public String lineDelimiter(int lineNumber) throws BadLocationException {
+		checkCanceled();
 		return textDocument.lineDelimiter(lineNumber);
 	}
 
@@ -99,6 +109,7 @@ public class DOMDocument extends DOMNode implements Document {
 	 *         otherwise.
 	 */
 	public Range getElementNameRangeAt(int textOffset) {
+		checkCanceled();
 		return textDocument.getWordRangeAt(textOffset, Constants.ELEMENT_NAME_REGEX);
 	}
 
@@ -860,5 +871,11 @@ public class DOMDocument extends DOMNode implements Document {
 			return xsdPath.equals(noNamespacePath);
 		}
 		return false;
+	}
+	
+	private void checkCanceled() {
+		if (cancelChecker != null) {
+			cancelChecker.checkCanceled();
+		}
 	}
 }

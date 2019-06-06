@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 import org.eclipse.lsp4j.FoldingRange;
 import org.eclipse.lsp4j.FoldingRangeCapabilities;
 import org.eclipse.lsp4j.FoldingRangeKind;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.dom.parser.Scanner;
@@ -58,7 +59,7 @@ class XMLFoldings {
 		}
 	}
 
-	public List<FoldingRange> getFoldingRanges(TextDocument document, FoldingRangeCapabilities context) {		
+	public List<FoldingRange> getFoldingRanges(TextDocument document, FoldingRangeCapabilities context, CancelChecker cancelChecker) {		
 		Scanner scanner = XMLScanner.createScanner(document.getText());
 		TokenType token = scanner.scan();
 		List<FoldingRange> ranges = new ArrayList<>();
@@ -69,6 +70,7 @@ class XMLFoldings {
 
 		try {
 			while (token != TokenType.EOS) {
+				cancelChecker.checkCanceled();
 				switch (token) {
 				case StartTag: {
 					String tagName = scanner.getTokenText();

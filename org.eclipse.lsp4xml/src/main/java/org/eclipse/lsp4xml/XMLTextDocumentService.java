@@ -21,7 +21,6 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -65,6 +64,7 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4xml.commons.LanguageModelCache;
 import org.eclipse.lsp4xml.commons.TextDocument;
+import org.eclipse.lsp4xml.commons.TextDocumentVersionChecker;
 import org.eclipse.lsp4xml.commons.TextDocuments;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMParser;
@@ -86,23 +86,6 @@ public class XMLTextDocumentService implements TextDocumentService {
 	private final TextDocuments documents;
 	private final LanguageModelCache<DOMDocument> xmlDocuments;
 	private SharedSettings sharedSettings;
-
-	class BasicCancelChecker implements CancelChecker {
-
-		private boolean canceled;
-
-		@Override
-		public void checkCanceled() {
-			if (canceled) {
-				throw new CancellationException();
-			}
-		}
-
-		public void setCanceled(boolean canceled) {
-			this.canceled = canceled;
-		}
-
-	}
 
 	/**
 	 * Save context.
@@ -142,8 +125,6 @@ public class XMLTextDocumentService implements TextDocumentService {
 	}
 
 	final ScheduledExecutorService delayer = Executors.newScheduledThreadPool(2);
-	private ScheduledFuture<?> future;
-	private BasicCancelChecker monitor;
 	private boolean codeActionLiteralSupport;
 	private boolean hierarchicalDocumentSymbolSupport;
 
@@ -151,8 +132,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 		this.xmlLanguageServer = xmlLanguageServer;
 		this.documents = new TextDocuments();
 		DOMParser parser = DOMParser.getInstance();
-		this.xmlDocuments = new LanguageModelCache<DOMDocument>(10, 60, documents, document -> {
-			return parser.parse(document, getXMLLanguageService().getResolverExtensionManager());
+		this.xmlDocuments = new LanguageModelCache<DOMDocument>(10, 60, documents, (document, cancelChecker) -> {
+			return parser.parse(document, getXMLLanguageService().getResolverExtensionManager(), true, cancelChecker);
 		});
 
 		this.sharedSettings = new SharedSettings();
@@ -179,23 +160,32 @@ public class XMLTextDocumentService implements TextDocumentService {
 		return xmlDocuments.get(document);
 	}
 
+	public DOMDocument getXMLDocument(String uri, CancelChecker cancelChecker) {
+		TextDocument document = getDocument(uri, cancelChecker);
+		cancelChecker.checkCanceled();
+		return getXMLDocument(document);
+	}
+
+	TextDocument getDocument(String uri, CancelChecker cancelChecker) {
+		cancelChecker.checkCanceled();
+		return getDocument(uri);
+	}
+
 	@Override
 	public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(CompletionParams params) {
-		return computeAsync((monitor) -> {
-			String uri = params.getTextDocument().getUri();
-			TextDocument document = getDocument(uri);
-			DOMDocument xmlDocument = getXMLDocument(document);
-			CompletionList list = getXMLLanguageService().doComplete(xmlDocument, params.getPosition(), sharedSettings);
+		return computeAsync((cancelChecker) -> {
+			DOMDocument xmlDocument = getXMLDocument(params.getTextDocument().getUri(), cancelChecker);
+			CompletionList list = getXMLLanguageService().doComplete(xmlDocument, params.getPosition(), sharedSettings,
+					cancelChecker);
 			return Either.forRight(list);
 		});
 	}
 
 	@Override
 	public CompletableFuture<Hover> hover(TextDocumentPositionParams params) {
-		return computeAsync((monitor) -> {
-			TextDocument document = getDocument(params.getTextDocument().getUri());
-			DOMDocument xmlDocument = getXMLDocument(document);
-			return getXMLLanguageService().doHover(xmlDocument, params.getPosition());
+		return computeAsync((cancelChecker) -> {
+			DOMDocument xmlDocument = getXMLDocument(params.getTextDocument().getUri(), cancelChecker);
+			return getXMLLanguageService().doHover(xmlDocument, params.getPosition(), cancelChecker);
 		});
 	}
 
@@ -207,26 +197,22 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	@Override
 	public CompletableFuture<List<? extends DocumentHighlight>> documentHighlight(TextDocumentPositionParams params) {
-		return computeAsync((monitor) -> {
-			TextDocument document = getDocument(params.getTextDocument().getUri());
-			DOMDocument xmlDocument = getXMLDocument(document);
-			return getXMLLanguageService().findDocumentHighlights(xmlDocument, params.getPosition());
+		return computeAsync((cancelChecker) -> {
+			DOMDocument xmlDocument = getXMLDocument(params.getTextDocument().getUri(), cancelChecker);
+			return getXMLLanguageService().findDocumentHighlights(xmlDocument, params.getPosition(), cancelChecker);
 		});
 	}
 
 	@Override
 	public CompletableFuture<List<Either<SymbolInformation, DocumentSymbol>>> documentSymbol(
 			DocumentSymbolParams params) {
-		
-		if(!sharedSettings.symbolSettings.isEnabled()) {
+		if (!sharedSettings.symbolSettings.isEnabled()) {
 			return CompletableFuture.completedFuture(Collections.emptyList());
 		}
-
-		return computeAsync((monitor) -> {
-			TextDocument document = getDocument(params.getTextDocument().getUri());
-			DOMDocument xmlDocument = getXMLDocument(document);
+		return computeAsync((cancelChecker) -> {
+			DOMDocument xmlDocument = getXMLDocument(params.getTextDocument().getUri(), cancelChecker);
 			if (hierarchicalDocumentSymbolSupport) {
-				return getXMLLanguageService().findDocumentSymbols(xmlDocument) //
+				return getXMLLanguageService().findDocumentSymbols(xmlDocument, cancelChecker) //
 						.stream() //
 						.map(s -> {
 							Either<SymbolInformation, DocumentSymbol> e = Either.forRight(s);
@@ -234,7 +220,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 						}) //
 						.collect(Collectors.toList());
 			}
-			return getXMLLanguageService().findSymbolInformations(xmlDocument) //
+			return getXMLLanguageService().findSymbolInformations(xmlDocument, cancelChecker) //
 					.stream() //
 					.map(s -> {
 						Either<SymbolInformation, DocumentSymbol> e = Either.forLeft(s);
@@ -246,9 +232,9 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	@Override
 	public CompletableFuture<List<? extends TextEdit>> formatting(DocumentFormattingParams params) {
-		return computeAsync((monitor) -> {
+		return computeAsync((cancelChecker) -> {
 			String uri = params.getTextDocument().getUri();
-			TextDocument document = getDocument(uri);
+			TextDocument document = getDocument(uri, cancelChecker);
 			return getXMLLanguageService().format(document, null,
 					XMLFormattingOptions.create(params.getOptions(), getFormattingSettings(uri)));
 		});
@@ -256,9 +242,9 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	@Override
 	public CompletableFuture<List<? extends TextEdit>> rangeFormatting(DocumentRangeFormattingParams params) {
-		return computeAsync((monitor) -> {
+		return computeAsync((cancelChecker) -> {
 			String uri = params.getTextDocument().getUri();
-			TextDocument document = getDocument(uri);
+			TextDocument document = getDocument(uri, cancelChecker);
 			return getXMLLanguageService().format(document, params.getRange(),
 					XMLFormattingOptions.create(params.getOptions(), getFormattingSettings(uri)));
 		});
@@ -275,17 +261,17 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	@Override
 	public void didOpen(DidOpenTextDocumentParams params) {
-		documents.onDidOpenTextDocument(params);
-		triggerValidation(params.getTextDocument().getUri(), params.getTextDocument().getVersion());
+		TextDocument document = documents.onDidOpenTextDocument(params);
+		triggerValidationFor(document);
 	}
 
-	@Override
 	/**
 	 * This method is triggered when the user types on an XML document.
 	 */
+	@Override
 	public void didChange(DidChangeTextDocumentParams params) {
-		documents.onDidChangeTextDocument(params);
-		triggerValidation(params.getTextDocument().getUri(), params.getTextDocument().getVersion());
+		TextDocument document = documents.onDidChangeTextDocument(params);
+		triggerValidationFor(document);
 	}
 
 	@Override
@@ -296,22 +282,20 @@ public class XMLTextDocumentService implements TextDocumentService {
 		String uri = document.getUri();
 		xmlLanguageServer.getLanguageClient()
 				.publishDiagnostics(new PublishDiagnosticsParams(uri, new ArrayList<Diagnostic>()));
-
 	}
 
 	@Override
 	public CompletableFuture<List<FoldingRange>> foldingRange(FoldingRangeRequestParams params) {
-		return computeAsync((monitor) -> {
-			TextDocument document = getDocument(params.getTextDocument().getUri());
-			return getXMLLanguageService().getFoldingRanges(document, sharedSettings.foldingSettings);
+		return computeAsync((cancelChecker) -> {
+			DOMDocument xmlDocument = getXMLDocument(params.getTextDocument().getUri(), cancelChecker);
+			return getXMLLanguageService().getFoldingRanges(xmlDocument, sharedSettings.foldingSettings, cancelChecker);
 		});
 	}
 
 	@Override
 	public CompletableFuture<List<DocumentLink>> documentLink(DocumentLinkParams params) {
-		return computeAsync((monitor) -> {
-			TextDocument document = getDocument(params.getTextDocument().getUri());
-			DOMDocument xmlDocument = getXMLDocument(document);
+		return computeAsync((cancelChecker) -> {
+			DOMDocument xmlDocument = getXMLDocument(params.getTextDocument().getUri(), cancelChecker);
 			return getXMLLanguageService().findDocumentLinks(xmlDocument);
 		});
 	}
@@ -319,9 +303,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 	@Override
 	public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> definition(
 			TextDocumentPositionParams params) {
-		return computeAsync((monitor) -> {
-			TextDocument document = getDocument(params.getTextDocument().getUri());
-			DOMDocument xmlDocument = getXMLDocument(document);
+		return computeAsync((cancelChecker) -> {
+			DOMDocument xmlDocument = getXMLDocument(params.getTextDocument().getUri(), cancelChecker);
 			Either e = Either.forLeft(getXMLLanguageService().findDefinition(xmlDocument, params.getPosition()));
 			return e;
 		});
@@ -329,8 +312,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	@Override
 	public CompletableFuture<List<? extends Location>> references(ReferenceParams params) {
-		return computeAsync((monitor) -> {
-			TextDocument document = getDocument(params.getTextDocument().getUri());
+		return computeAsync((cancelChecker) -> {
+			TextDocument document = getDocument(params.getTextDocument().getUri(), cancelChecker);
 			DOMDocument xmlDocument = getXMLDocument(document);
 			return getXMLLanguageService().findReferences(xmlDocument, params.getPosition(), params.getContext());
 		});
@@ -338,10 +321,9 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	@Override
 	public CompletableFuture<List<Either<Command, CodeAction>>> codeAction(CodeActionParams params) {
-		return computeAsync((monitor) -> {
+		return computeAsync((cancelChecker) -> {
 			String uri = params.getTextDocument().getUri();
-			TextDocument document = getDocument(uri);
-			DOMDocument xmlDocument = getXMLDocument(document);
+			DOMDocument xmlDocument = getXMLDocument(params.getTextDocument().getUri(), cancelChecker);
 			return getXMLLanguageService()
 					.doCodeActions(params.getContext(), params.getRange(), xmlDocument, getFormattingSettings(uri)) //
 					.stream() //
@@ -350,7 +332,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 							Either<Command, CodeAction> e = Either.forRight(ca);
 							return e;
 						} else {
-							List<Object> arguments = Arrays.asList(uri, document.getVersion(),
+							List<Object> arguments = Arrays.asList(uri, xmlDocument.getTextDocument().getVersion(),
 									ca.getEdit().getDocumentChanges().get(0).getLeft().getEdits());
 							Command command = new Command(ca.getTitle(), "_xml.applyCodeAction", arguments);
 							Either<Command, CodeAction> e = Either.forLeft(command);
@@ -395,39 +377,30 @@ public class XMLTextDocumentService implements TextDocumentService {
 		if (!documents.isEmpty()) {
 			xmlLanguageServer.schedule(() -> {
 				documents.forEach(document -> {
-					String uri = document.getUri();
-					int version = document.getVersion();
-					doTriggerValidation(uri, version, monitor);
+					try {
+						CancelChecker cancelChecker = new TextDocumentVersionChecker(document, document.getVersion());
+						validate(document, cancelChecker);
+					} catch (CancellationException e) {
+						// Ignore the error and continue to validate other documents
+					}
 				});
 			}, 500, TimeUnit.MILLISECONDS);
 		}
 	}
 
-	private void triggerValidation(String uri, int version) {
-		if (future != null && !future.isCancelled()) {
-			future.cancel(true);
-		}
-		if (monitor != null) {
-			monitor.setCanceled(true);
-		}
-		monitor = new BasicCancelChecker();
-		triggerValidation(uri, version, monitor);
-	}
-
-	private void triggerValidation(String uri, int version, CancelChecker monitor) {
-		future = xmlLanguageServer.schedule(() -> {
-			doTriggerValidation(uri, version, monitor);
+	private void triggerValidationFor(TextDocument document) {
+		CancelChecker cancelChecker = new TextDocumentVersionChecker(document, document.getVersion());
+		xmlLanguageServer.schedule(() -> {
+			validate(document, cancelChecker);
 		}, 500, TimeUnit.MILLISECONDS);
 	}
 
-	private void doTriggerValidation(String uri, int version, CancelChecker monitor) {
-		TextDocument currDocument = getDocument(uri);
-		if (currDocument != null && currDocument.getVersion() == version) {
-			DOMDocument xmlDocument = getXMLDocument(currDocument);
-			getXMLLanguageService().publishDiagnostics(xmlDocument,
-					params -> xmlLanguageServer.getLanguageClient().publishDiagnostics(params),
-					(u, v) -> triggerValidation(u, v), monitor, sharedSettings.validationSettings);
-		}
+	private void validate(TextDocument document, CancelChecker cancelChecker) throws CancellationException {
+		cancelChecker.checkCanceled();
+		DOMDocument xmlDocument = getXMLDocument(document);
+		getXMLLanguageService().publishDiagnostics(xmlDocument,
+				params -> xmlLanguageServer.getLanguageClient().publishDiagnostics(params),
+				(doc) -> triggerValidationFor(doc), sharedSettings.validationSettings, cancelChecker);
 	}
 
 	private XMLLanguageService getXMLLanguageService() {
@@ -459,7 +432,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	}
 
 	public XMLValidationSettings getValidationSettings() {
-		
+
 		return sharedSettings.validationSettings;
 	}
 
