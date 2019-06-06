@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.dom.DOMAttr;
 import org.eclipse.lsp4xml.dom.DOMDocument;
@@ -41,7 +42,7 @@ class XMLHover {
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
-	public Hover doHover(DOMDocument xmlDocument, Position position) {
+	public Hover doHover(DOMDocument xmlDocument, Position position, CancelChecker cancelChecker) {
 		HoverRequest hoverRequest = null;
 		try {
 			hoverRequest = new HoverRequest(xmlDocument, position, extensionsRegistry);
