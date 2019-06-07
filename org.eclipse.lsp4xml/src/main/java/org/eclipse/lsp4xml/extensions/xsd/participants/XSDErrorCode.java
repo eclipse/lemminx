@@ -26,7 +26,8 @@ import org.eclipse.lsp4xml.utils.XMLPositionUtility;
  *
  */
 public enum XSDErrorCode implements IXMLErrorCode {
-
+	
+	cos_all_limited_2("cos-all-limited.2"),
 	s4s_elt_invalid_content_1("s4s-elt-invalid-content.1"), //
 	s4s_elt_must_match_1("s4s-elt-must-match.1"), //
 	s4s_att_must_appear("s4s-att-must-appear"), //
@@ -81,6 +82,7 @@ public enum XSDErrorCode implements IXMLErrorCode {
 		int offset = location.getCharacterOffset() - 1;
 		// adjust positions
 		switch (code) {
+		case cos_all_limited_2:
 		case s4s_elt_invalid_content_1:
 		case s4s_elt_must_match_1:
 		case s4s_att_must_appear:

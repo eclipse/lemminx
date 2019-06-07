@@ -26,6 +26,21 @@ import org.junit.Test;
 public class XSDValidationExtensionsTest {
 
 	@Test
+	public void cos_all_limited_2() throws BadLocationException {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
+				"<xs:schema \r\n" +
+				"	xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\r\n" +
+				"	\r\n" +
+				"	<xs:complexType name=\"testType\">\r\n" +
+				"		<xs:all>\r\n" +
+				"			<xs:element name=\"testEle\" minOccurs=\"2\" maxOccurs=\"unbounded\" type=\"xs:string\"/>\r\n" +
+				"		</xs:all>\r\n" +
+				"	</xs:complexType>\r\n" +
+				"</xs:schema>";;
+		testDiagnosticsFor(xml, d(5, 3, 5, 9, XSDErrorCode.cos_all_limited_2));
+	}
+
+	@Test
 	public void s4s_elt_invalid_content_1() throws BadLocationException {
 		String xml = "<?xml version=\"1.1\"?>\r\n" + //
 				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\r\n" + //
