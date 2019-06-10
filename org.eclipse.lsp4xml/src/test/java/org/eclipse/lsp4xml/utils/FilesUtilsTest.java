@@ -11,13 +11,13 @@
 
 package org.eclipse.lsp4xml.utils;
 
+import static java.io.File.separator;
 import static org.junit.Assert.assertEquals;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.junit.Test;
-import static java.io.File.separator;
 
 /**
  * FilesUtilsTest
@@ -42,5 +42,21 @@ public class FilesUtilsTest {
 		assertEquals(Paths.get("~", "Test", "Folder").toString(), FilesUtils.normalizePath("./~/Test/Folder"));
 		assertEquals(Paths.get(separator +  "Folder").toString(), FilesUtils.normalizePath("/Test/../Folder"));
 		assertEquals(Paths.get(separator + "Users", "Nikolas").toString(), FilesUtils.normalizePath("\\Users\\Nikolas\\"));
+	}
+
+	@Test
+	public void getFilePathSlashTest() {
+		assertEquals("/", FilesUtils.getFilePathSlash("src/a/b/c"));
+		assertEquals("\\", FilesUtils.getFilePathSlash("src\\a\\b\\c"));
+		assertEquals("/", FilesUtils.getFilePathSlash("src"));
+		assertEquals("/", FilesUtils.getFilePathSlash(""));
+	}
+
+	@Test
+	public void cleanPathForWindows() {
+		assertEquals("C:\\Users\\Home\\Documents", FilesUtils.convertToWindowsPath("\\C:\\Users\\Home\\Documents"));
+		assertEquals("C:\\Users\\Home\\Documents\\", FilesUtils.convertToWindowsPath("\\C:\\Users\\Home\\Documents\\"));
+		assertEquals("C:\\Users\\Home\\Documents\\", FilesUtils.convertToWindowsPath("/C:/Users/Home/Documents/"));
+		assertEquals("C:\\Users\\Home\\Documents\\", FilesUtils.convertToWindowsPath("C:/Users/Home/Documents/"));
 	}
 }

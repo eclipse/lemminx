@@ -24,6 +24,7 @@ public class StringUtils {
 	public static final String TRUE = "true";
 	public static final String FALSE = "false";
 	public static final Collection<String> TRUE_FALSE_ARRAY = Arrays.asList(TRUE, FALSE);
+	
 
 	private StringUtils() {
 	}
@@ -38,15 +39,15 @@ public class StringUtils {
 	}
 
 	public static boolean isWhitespace(String value) {
-		if(value == null) {
+		if (value == null) {
 			return false;
 		}
 		char c;
 		int end = value.length();
 		int index = 0;
-		while(index < end) {
+		while (index < end) {
 			c = value.charAt(index);
-			if(Character.isWhitespace(c) == false) {
+			if (Character.isWhitespace(c) == false) {
 				return false;
 			}
 			index++;
@@ -55,8 +56,8 @@ public class StringUtils {
 	}
 
 	/**
-	 * Normalizes the whitespace characters of a given string and applies it
-	 * to the given string builder.
+	 * Normalizes the whitespace characters of a given string and applies it to the
+	 * given string builder.
 	 * 
 	 * @param str
 	 * @return the result of normalize space of the given string.
@@ -168,7 +169,7 @@ public class StringUtils {
 		char c = val[i];
 
 		// left trim
-		while(i < value.length() && Character.isWhitespace(c)) {
+		while (i < value.length() && Character.isWhitespace(c)) {
 			i++;
 			c = val[i];
 		}
@@ -177,37 +178,37 @@ public class StringUtils {
 	}
 
 	/**
-	 * Given a string that is only whitespace,
-	 * this will return the amount of newline characters.
+	 * Given a string that is only whitespace, this will return the amount of
+	 * newline characters.
 	 * 
-	 * If the newLineCounter becomes > newLineLimit, then the value of
-	 * newLineLimit is always returned.
+	 * If the newLineCounter becomes > newLineLimit, then the value of newLineLimit
+	 * is always returned.
+	 * 
 	 * @param text
 	 * @param isWhitespace
 	 * @param delimiter
 	 * @return
 	 */
 	public static int getNumberOfNewLines(String text, boolean isWhitespace, String delimiter, int newLineLimit) {
-		if(!isWhitespace){
+		if (!isWhitespace) {
 			return 0;
 		}
 
 		int newLineCounter = 0;
 		boolean delimiterHasTwoCharacters = delimiter.length() == 2;
-		for(int i = 0; newLineCounter <= newLineLimit && i < text.length(); i++) {
+		for (int i = 0; newLineCounter <= newLineLimit && i < text.length(); i++) {
 			String c;
-			if(delimiterHasTwoCharacters) {
-				if(i + 1 < text.length()) {
+			if (delimiterHasTwoCharacters) {
+				if (i + 1 < text.length()) {
 					c = text.substring(i, i + 2);
-					if(delimiter.equals(c)) {
+					if (delimiter.equals(c)) {
 						newLineCounter++;
-						i++; //skip the second char of the delimiter
+						i++; // skip the second char of the delimiter
 					}
 				}
-			}
-			else {
+			} else {
 				c = String.valueOf(text.charAt(i));
-				if(delimiter.equals(c)) {
+				if (delimiter.equals(c)) {
 					newLineCounter++;
 				}
 			}
@@ -216,17 +217,66 @@ public class StringUtils {
 	}
 
 	/**
-	 * Given a string will give back a non null string that is either
-	 * the given string, or an empty string.
+	 * Given a string will give back a non null string that is either the given
+	 * string, or an empty string.
 	 * 
 	 * @param text
 	 * @return
 	 */
 	public static String getDefaultString(String text) {
-		if(text != null) {
+		if (text != null) {
 			return text;
 		}
 		return "";
+	}
+
+	/**
+	 * Traverses backwards from the endOffset until it finds a whitespace character.
+	 * 
+	 * The offset of the character after the whitespace is returned.
+	 * 
+	 * (text = "abcd efg|h", endOffset = 8) -> 5
+	 * 
+	 * 
+	 * @param text
+	 * @param endOffset non-inclusive
+	 * @return Start offset directly after the first whitespace.
+	 */
+	public static int getOffsetAfterWhitespace(String text, int endOffset) {
+		if (text == null || endOffset <= 0 || endOffset > text.length()) {
+			return -1;
+		}
+
+		char c = text.charAt(endOffset - 1);
+		int i = endOffset;
+
+		if (!Character.isWhitespace(c)) {
+			while (!Character.isWhitespace(c)) {
+				i--;
+				if (i <= 0) {
+					break;
+				}
+				c = text.charAt(i - 1);
+
+			}
+			return i;
+		}
+		return -1;
+	}
+
+	public static String cleanPathForWindows(String pathString) {
+		if(pathString.startsWith("/") ) {
+			if(pathString.length() > 3) {
+				char letter = pathString.charAt(1);
+				char colon = pathString.charAt(2);
+				if(Character.isLetter(letter) && ':' == colon) {
+					pathString = pathString.substring(1);
+				}
+			}
+			
+		}
+		pathString = pathString.replace("/", "\\");
+		return pathString;
 	}
 
 }
