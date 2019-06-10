@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.lsp4xml.commons;
 
+import static org.eclipse.lsp4xml.utils.OSUtils.isWindows;
+
 import java.io.IOException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -19,16 +21,17 @@ import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.google.common.io.Closeables;
+
 import org.eclipse.lsp4j.jsonrpc.MessageConsumer;
 import org.eclipse.lsp4j.services.LanguageServer;
 
-import com.google.common.io.Closeables;
-
 /**
  * Watches the parent process PID and invokes exit if it is no longer available.
- * This implementation waits for periods of inactivity to start querying the PIDs.
+ * This implementation waits for periods of inactivity to start querying the
+ * PIDs.
  */
-public final class ParentProcessWatcher implements Runnable, Function<MessageConsumer, MessageConsumer>{
+public final class ParentProcessWatcher implements Runnable, Function<MessageConsumer, MessageConsumer> {
 
 	private static final Logger LOGGER = Logger.getLogger(ParentProcessWatcher.class.getName());
 	private static final boolean isJava1x = System.getProperty("java.version").startsWith("1.");
@@ -38,9 +41,7 @@ public final class ParentProcessWatcher implements Runnable, Function<MessageCon
 	 */
 	private static final int FORCED_EXIT_CODE = 1;
 
-	private static final boolean isWindows = System.getProperty("os.name").toLowerCase().indexOf("win") >= 0;
-	
-	private static final long INACTIVITY_DELAY_SECS = 30 *1000;
+	private static final long INACTIVITY_DELAY_SECS = 30 * 1000;
 	private static final int POLL_DELAY_SECS = 10;
 	private volatile long lastActivityTime;
 	private final ProcessLanguageServer server;
@@ -50,14 +51,14 @@ public final class ParentProcessWatcher implements Runnable, Function<MessageCon
 	public interface ProcessLanguageServer extends LanguageServer {
 
 		long getParentProcessId();
-		
+
 		void exit(int exitCode);
 	}
-	
-	public ParentProcessWatcher(ProcessLanguageServer server ) {
+
+	public ParentProcessWatcher(ProcessLanguageServer server) {
 		this.server = server;
 		service = Executors.newScheduledThreadPool(1);
-		task =  service.scheduleWithFixedDelay(this, POLL_DELAY_SECS, POLL_DELAY_SECS, TimeUnit.SECONDS);
+		task = service.scheduleWithFixedDelay(this, POLL_DELAY_SECS, POLL_DELAY_SECS, TimeUnit.SECONDS);
 	}
 
 	@Override
@@ -70,8 +71,8 @@ public final class ParentProcessWatcher implements Runnable, Function<MessageCon
 	}
 
 	/**
-	 * Checks whether the parent process is still running.
-	 * If not, then we assume it has crashed, and we have to terminate the Java Language Server.
+	 * Checks whether the parent process is still running. If not, then we assume it
+	 * has crashed, and we have to terminate the Java Language Server.
 	 *
 	 * @return true if the parent process is still running
 	 */

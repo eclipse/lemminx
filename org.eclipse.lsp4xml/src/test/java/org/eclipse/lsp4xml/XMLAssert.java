@@ -121,13 +121,14 @@ public class XMLAssert {
 	public static void testCompletionFor(XMLLanguageService xmlLanguageService, String value, String catalogPath,
 			Consumer<XMLLanguageService> customConfiguration, String fileURI, Integer expectedCount,
 			CompletionSettings completionSettings, CompletionItem... expectedItems) throws BadLocationException {
-		testCompletionFor(xmlLanguageService, value, catalogPath, customConfiguration, fileURI, expectedCount, completionSettings, new XMLFormattingOptions(4, true), expectedItems);
+		testCompletionFor(xmlLanguageService, value, catalogPath, customConfiguration, fileURI, expectedCount,
+				completionSettings, new XMLFormattingOptions(4, true), expectedItems);
 	}
 
 	public static void testCompletionFor(XMLLanguageService xmlLanguageService, String value, String catalogPath,
 			Consumer<XMLLanguageService> customConfiguration, String fileURI, Integer expectedCount,
-			CompletionSettings completionSettings, XMLFormattingOptions formattingSettings, CompletionItem... expectedItems)
-			throws BadLocationException {
+			CompletionSettings completionSettings, XMLFormattingOptions formattingSettings,
+			CompletionItem... expectedItems) throws BadLocationException {
 		int offset = value.indexOf('|');
 		value = value.substring(0, offset) + value.substring(offset + 1);
 
@@ -205,7 +206,7 @@ public class XMLAssert {
 			Assert.assertEquals(expected.getFilterText(), match.getFilterText());
 		}
 
-		if(expected.getDetail() != null) {
+		if (expected.getDetail() != null) {
 			Assert.assertEquals(expected.getDetail(), match.getDetail());
 		}
 
@@ -251,7 +252,7 @@ public class XMLAssert {
 		DOMDocument htmlDoc = DOMParser.getInstance().parse(document, ls.getResolverExtensionManager());
 
 		AutoCloseTagResponse response = ls.doTagComplete(htmlDoc, position);
-		if(expected == null) {
+		if (expected == null) {
 			Assert.assertNull(response);
 			return;
 		}
@@ -287,7 +288,7 @@ public class XMLAssert {
 		}
 		testDiagnosticsFor(xml, catalogPath, configuration, fileURI, filter, settings, expected);
 	}
-	
+
 	public static void testDiagnosticsFor(String xml, String catalogPath, Consumer<XMLLanguageService> configuration,
 			String fileURI, boolean filter, ContentModelSettings settings, Diagnostic... expected) {
 		TextDocument document = new TextDocument(xml, fileURI != null ? fileURI : "test.xml");
@@ -305,7 +306,7 @@ public class XMLAssert {
 
 		List<Diagnostic> actual = xmlLanguageService.doDiagnostics(xmlDocument, () -> {
 		}, settings.getValidation());
-		if(expected == null) {
+		if (expected == null) {
 			assertTrue(actual.isEmpty());
 			return;
 		}
@@ -319,7 +320,7 @@ public class XMLAssert {
 	public static void assertDiagnostics(List<Diagnostic> actual, List<Diagnostic> expected, boolean filter) {
 		List<Diagnostic> received = actual;
 		final boolean filterMessage;
-		if(expected != null && !expected.isEmpty() && !StringUtils.isEmpty(expected.get(0).getMessage())) {
+		if (expected != null && !expected.isEmpty() && !StringUtils.isEmpty(expected.get(0).getMessage())) {
 			filterMessage = true;
 		} else {
 			filterMessage = false;
@@ -328,7 +329,7 @@ public class XMLAssert {
 			received = actual.stream().map(d -> {
 				Diagnostic simpler = new Diagnostic(d.getRange(), "");
 				simpler.setCode(d.getCode());
-				if(filterMessage) {
+				if (filterMessage) {
 					simpler.setMessage(d.getMessage());
 				}
 				return simpler;
@@ -346,7 +347,8 @@ public class XMLAssert {
 		return d(startLine, startCharacter, startLine, endCharacter, code);
 	}
 
-	public static Diagnostic d(int startLine, int startCharacter, int endLine, int endCharacter, IXMLErrorCode code, String message) {
+	public static Diagnostic d(int startLine, int startCharacter, int endLine, int endCharacter, IXMLErrorCode code,
+			String message) {
 		// Diagnostic on 1 line
 		return new Diagnostic(r(startLine, startCharacter, endLine, endCharacter), message, null, null, code.getCode());
 	}
@@ -427,11 +429,11 @@ public class XMLAssert {
 		SharedSettings settings = new SharedSettings();
 		settings.setFormattingSettings(new XMLFormattingOptions(4, false));
 		testCodeActionsFor(xml, diagnostic, catalogPath, settings, expected);
-		
+
 	}
 
-	public static void testCodeActionsFor(String xml, Diagnostic diagnostic, String catalogPath, SharedSettings sharedSettings,
-			CodeAction... expected) {
+	public static void testCodeActionsFor(String xml, Diagnostic diagnostic, String catalogPath,
+			SharedSettings sharedSettings, CodeAction... expected) {
 		TextDocument document = new TextDocument(xml.toString(), FILE_URI);
 
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
@@ -450,14 +452,12 @@ public class XMLAssert {
 		DOMDocument xmlDoc = DOMParser.getInstance().parse(document, xmlLanguageService.getResolverExtensionManager());
 
 		XMLFormattingOptions formattingSettings;
-		if(sharedSettings != null && sharedSettings.formattingSettings != null) {
+		if (sharedSettings != null && sharedSettings.formattingSettings != null) {
 			formattingSettings = sharedSettings.formattingSettings;
-		}
-		else {
+		} else {
 			formattingSettings = new XMLFormattingOptions(4, false);
 		}
-		List<CodeAction> actual = xmlLanguageService.doCodeActions(context, range, xmlDoc,
-				formattingSettings);
+		List<CodeAction> actual = xmlLanguageService.doCodeActions(context, range, xmlDoc, formattingSettings);
 		assertCodeActions(actual, expected);
 	}
 

@@ -70,7 +70,7 @@ public class Constants {
 
 	public static final Pattern PI_TAG_NAME = Pattern.compile("^[a-zA-Z0-9]+");
 
-	//Add comming processing instructions that are defined to have attributes as content
+	//Add coming processing instructions that are defined to have attributes as content
 	public static final Pattern PI_WITH_VARIABLES = Pattern.compile("^(xml-stylesheet)[\\s<>?]?");
 
 	public static final Pattern DOCTYPE_KIND_OPTIONS = Pattern.compile("^(PUBLIC|SYSTEM)([\\s<>\"'])");
@@ -91,4 +91,5 @@ public class Constants {
 
 	public static final Pattern DOCTYPE_NAME =
 	Pattern.compile("^[_:\\w][_:\\w-.\\d]*");
+
 }
