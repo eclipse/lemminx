@@ -185,7 +185,14 @@ public class FilesUtils {
 		int lastIndexOfSlash = givenPath.lastIndexOf(SLASH);
 
 		// in case the given path is incomplete, trim the end
-		String givenPathCleaned = lastIndexOfSlash > -1 ? givenPath.substring(0, lastIndexOfSlash) : null;
+		String givenPathCleaned;
+		if(lastIndexOfSlash == 0) { // Looks like `/someFileOrFolder`
+			return Paths.get(SLASH);
+		}
+		else {
+			givenPathCleaned = lastIndexOfSlash > -1 ? givenPath.substring(0, lastIndexOfSlash) : null;
+		}
+		
 
 		Path p;
 
