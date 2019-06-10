@@ -1,5 +1,28 @@
 # Change Log
 
+## [0.7.0](https://github.com/angelozerr/lsp4xml/milestone/8?closed=1) (June XX, 2019)
+
+### Enhancements
+
+* Display Java runtime used to launch the server. See [#415](https://github.com/angelozerr/lsp4xml/pull/415).
+* Preference, `xml.symbols.enabled`, to enable/disable Document Symbols. See [#413](https://github.com/angelozerr/lsp4xml/issues/413).
+* Validation for an XML Schema. See [#190](https://github.com/angelozerr/lsp4xml/issues/190).
+* Ability for XML Prolog completion in DTD files. See [#267](https://github.com/angelozerr/lsp4xml/issues/267).
+* Ability to rename a namespace/namespace renaming improvements. See [#366](https://github.com/angelozerr/lsp4xml/issues/366).
+* Startup time for SVG DTD file completion was too slow. See [#397](https://github.com/angelozerr/lsp4xml/issues/397).
+* Mark element source coming from XML Schema/DTD for completion. See [#210](https://github.com/angelozerr/lsp4xml/issues/210).
+
+### Bug Fixes
+
+* `XSDValidator` aggressively logs validation error stacktrace. See [#416](https://github.com/angelozerr/lsp4xml/issues/416).
+* Ignore `XMLParserException` to fix #416. See [#417](https://github.com/angelozerr/lsp4xml/pull/417).
+* Memory usage improvements. See [#389](https://github.com/angelozerr/lsp4xml/issues/389).
+* Fix completion source crash on Windows OS. See [#408](https://github.com/angelozerr/lsp4xml/pull/408).
+* Fix error range for `ETagRequired`. See [#387](https://github.com/angelozerr/lsp4xml/issues/387).
+* Fix `normalizePath` test for Windows OS. See [#399](https://github.com/angelozerr/lsp4xml/pull/399).
+* Document Symbols only returns the 1st `ATTLIST` value. See [#265](https://github.com/angelozerr/lsp4xml/issues/265).
+* Completion in SVG DTD file proposed duplicate completions. See [#386](https://github.com/angelozerr/lsp4xml/issues/386).
+
 ## [0.6.0](https://github.com/angelozerr/lsp4xml/milestone/6?closed=1) (May 22, 2019)
 
 ### Enhancements
