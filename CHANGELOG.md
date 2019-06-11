@@ -5,7 +5,7 @@
 ### Enhancements
 
 * Display Java runtime used to launch the server. See [#415](https://github.com/angelozerr/lsp4xml/pull/415).
-* Preference, `xml.symbols.enabled`, to enable/disable Document Symbols. See [#413](https://github.com/angelozerr/lsp4xml/issues/413).
+* Added `xml.symbols.enabled` preference, to enable/disable Document Symbols. See [#413](https://github.com/angelozerr/lsp4xml/issues/413).
 * File completion in attribute value. See [#345](https://github.com/angelozerr/lsp4xml/issues/345).
 * Validation for an XML Schema. See [#190](https://github.com/angelozerr/lsp4xml/issues/190).
 * Ability for XML Prolog completion in DTD files. See [#267](https://github.com/angelozerr/lsp4xml/issues/267).
@@ -16,8 +16,6 @@
 
 ### Bug Fixes
 
-* `XSDValidator` aggressively logs validation error stacktrace. See [#416](https://github.com/angelozerr/lsp4xml/issues/416).
-* Ignore `XMLParserException` to fix #416. See [#417](https://github.com/angelozerr/lsp4xml/pull/417).
 * Memory usage improvements. See [#389](https://github.com/angelozerr/lsp4xml/issues/389).
 * Fix completion source crash on Windows OS. See [#408](https://github.com/angelozerr/lsp4xml/pull/408).
 * Fix error range for `ETagRequired`. See [#387](https://github.com/angelozerr/lsp4xml/issues/387).
