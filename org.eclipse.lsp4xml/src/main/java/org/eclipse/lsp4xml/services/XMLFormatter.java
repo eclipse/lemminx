@@ -214,7 +214,20 @@ class XMLFormatter {
 		}
 
 		private DOMElement getFullDocElemFromRangeElem(DOMElement elemFromRangeDoc) {
-			int fullOffset = getFullOffsetFromRangeOffset(elemFromRangeDoc.getEnd());
+			int fullOffset = -1;
+
+			if (elemFromRangeDoc.hasStartTag()) {
+				fullOffset = getFullOffsetFromRangeOffset(elemFromRangeDoc.getStartTagOpenOffset()) + 1; 
+				// +1 because offset must be here: <|root
+				// for DOMNode.findNodeAt() to find the correct element
+			} else if (elemFromRangeDoc.hasEndTag()) {
+				fullOffset = getFullOffsetFromRangeOffset(elemFromRangeDoc.getEndTagCloseOffset()) - 1;
+				// -1 because offset must be here: root|>
+				// for DOMNode.findNodeAt() to find the correct element
+			} else {
+				return null;
+			}
+
 			DOMElement elemFromFullDoc = (DOMElement) this.fullDomDocument.findNodeAt(fullOffset);
 			return elemFromFullDoc;
 		}
@@ -224,7 +237,7 @@ class XMLFormatter {
 				return false;
 			}
 
-			return ((DOMElement) node).getStartTagOpenOffset() != DOMNode.NULL_VALUE;
+			return ((DOMElement) node).hasStartTag();
 		}
 
 		private boolean startTagExistsInFullDocument(DOMNode node) {
@@ -238,7 +251,7 @@ class XMLFormatter {
 				return false;
 			}
 
-			return elemFromFullDoc.getStartTagOpenOffset() != DOMNode.NULL_VALUE;
+			return elemFromFullDoc.hasStartTag();
 		}
 
 		private void format(DOMNode node) throws BadLocationException {
@@ -279,7 +292,7 @@ class XMLFormatter {
 						if (element.hasAttributes()) {
 							// generate attributes
 							List<DOMAttr> attributes = element.getAttributeNodes();
-							if (attributes.size() == 1) {
+							if (hasSingleAttributeInFullDoc(element)) {
 								DOMAttr singleAttribute = attributes.get(0);
 								xmlBuilder.addSingleAttribute(singleAttribute.getName(),
 										singleAttribute.getOriginalValue());
@@ -480,6 +493,11 @@ class XMLFormatter {
 				previous = node;
 			}
 			return true;
+		}
+
+		private boolean hasSingleAttributeInFullDoc(DOMElement element) {
+			DOMElement fullElement = getFullDocElemFromRangeElem(element);
+			return fullElement.getAttributeNodes().size() == 1;
 		}
 
 		private List<? extends TextEdit> getFormatTextEdit() throws BadLocationException {
