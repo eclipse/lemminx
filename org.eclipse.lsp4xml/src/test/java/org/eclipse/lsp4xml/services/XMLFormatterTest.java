@@ -438,6 +438,51 @@ public class XMLFormatterTest {
 	}
 
 	@Test
+	public void testSplitAttributesRangeOneLine() throws BadLocationException {
+		String content =
+		"<note>\r\n" +
+		"  <from\r\n" +
+		"      |foo     =           \"bar\"|\r\n" +
+		"      bar=\"foo\">sss</from>\r\n" +
+		"</note>";
+
+		String expected = 
+		"<note>\r\n" +
+		"  <from\r\n" +
+		"      foo=\"bar\"\r\n" +
+		"      bar=\"foo\">sss</from>\r\n" +
+		"</note>";
+
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setSplitAttributes(true);
+		format(content, expected, formattingOptions);
+	}
+
+	public void testSplitAttributesRangeMultipleLines() throws BadLocationException {
+		String content =
+		"<note>\r\n" +
+		"  <from\r\n" +
+		"        |foo       =       \"bar\"\r\n" +
+		"bar  =    \"foo\"   abc  =  \r\n" +
+		"    \"def\"\r\n" +
+		"      ghi=\"jkl\"|>sss</from>\r\n" +
+		"</note>";
+		
+		String expected = 
+		"<note>\r\n" +
+		"  <from\r\n" +
+		"      foo=\"bar\"\r\n" +
+		"      bar=\"foo\"\r\n" +
+		"      abc=\"def\"\r\n" +
+		"      ghi=\"jkl\">sss</from>\r\n" +
+		"</note>";;
+
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setSplitAttributes(true);
+		format(content, expected, formattingOptions);
+	}
+
+	@Test
 	public void testUnclosedEndTagBracketTrailingElement() throws BadLocationException {
 		String content = 
 		"<root>" + lineSeparator() +
@@ -1989,6 +2034,8 @@ public class XMLFormatterTest {
 			"</xml>";
 		format(content, expected);
 	}
+
+
 
 	@Test 
 	public void testPreserveNewlines() throws BadLocationException {
