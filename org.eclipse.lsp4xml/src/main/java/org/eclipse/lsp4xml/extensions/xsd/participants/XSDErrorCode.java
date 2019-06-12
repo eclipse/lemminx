@@ -38,6 +38,7 @@ public enum XSDErrorCode implements IXMLErrorCode {
 	s4s_att_not_allowed("s4s-att-not-allowed"), //
 	s4s_att_invalid_value("s4s-att-invalid-value"), //
 	s4s_elt_character("s4s-elt-character"), //
+	src_element_3("src-element.3"),
 	src_resolve_4_2("src-resolve.4.2"), //
 	src_resolve("src-resolve"), src_element_2_1("src-element.2.1");
 
@@ -104,6 +105,7 @@ public enum XSDErrorCode implements IXMLErrorCode {
 		case s4s_att_must_appear:
 		case s4s_elt_invalid_content_2:
 		case src_element_2_1:
+		case src_element_3:
 			return XMLPositionUtility.selectStartTag(offset, document);
 		case s4s_att_not_allowed: {
 			String attrName = (String) arguments[1];

@@ -67,7 +67,8 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 	cvc_minInclusive_valid("cvc-minInclusive-valid"), // https://wiki.xmldation.com/Support/validator/cvc-mininclusive-valid
 	TargetNamespace_2("TargetNamespace.2"), 
 	SchemaLocation("SchemaLocation"),
-	schema_reference_4("schema_reference.4"); //
+	schema_reference_4("schema_reference.4"), //
+	src_element_3("src-element.3");
 
 	private final String code;
 
@@ -128,6 +129,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 		case cvc_complex_type_2_4_f:
 		case cvc_elt_1_a:
 		case cvc_complex_type_4:
+		case src_element_3:
 		case TargetNamespace_2:
 			return XMLPositionUtility.selectStartTag(offset, document);
 		case cvc_complex_type_3_2_2: {

@@ -202,6 +202,20 @@ public class XSDValidationExtensionsTest {
 				d(5, 17, 5, 27, XSDErrorCode.src_element_2_1));
 	}
 
+	@Test
+	public void src_element_3() throws BadLocationException {
+		String xml = "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\r\n" +
+			"  <xs:element name=\"a\" type=\"xs:integer\">\r\n" +
+			"    <xs:complexType>\r\n" +
+			"      <xs:sequence>\r\n" +
+			"        <xs:element name=\"b\"></xs:element>\r\n" +
+			"      </xs:sequence>\r\n" +
+			"    </xs:complexType>\r\n" +
+			"  </xs:element>\r\n" +
+			"</xs:schema>";
+		testDiagnosticsFor(xml, d(1, 3, 1, 13, XSDErrorCode.src_element_3));
+	}
+
 	private static void testDiagnosticsFor(String xml, Diagnostic... expected) throws BadLocationException {
 		XMLAssert.testDiagnosticsFor(xml, null, null, "test.xsd", expected);
 	}
