@@ -59,15 +59,15 @@ public class XMLScanner implements Scanner {
 	}
 
 	String nextElementName() {
-		return stream.advanceIfRegExp(ELEMENT_NAME_REGEX).toLowerCase();
+		return stream.advanceIfRegExp(ELEMENT_NAME_REGEX);
 	}
 
 	String nextAttributeName() {
-		return stream.advanceIfRegExp(ATTRIBUTE_NAME_REGEX).toLowerCase();
+		return stream.advanceIfRegExp(ATTRIBUTE_NAME_REGEX);
 	}
 
 	String doctypeName() {
-		return stream.advanceIfRegExp(ELEMENT_NAME_REGEX).toLowerCase();
+		return stream.advanceIfRegExp(ELEMENT_NAME_REGEX);
 	}
 
 	/**

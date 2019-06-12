@@ -16,6 +16,7 @@ import static org.eclipse.lsp4xml.dom.DOMAttr.XMLNS_NO_DEFAULT_ATTR;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
 
 import org.eclipse.lsp4xml.utils.StringUtils;
 import org.w3c.dom.DOMException;
@@ -148,7 +149,6 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 		if (hasAttributes()) {
 			Collection<String> prefixes = new ArrayList<>();
 			for (DOMAttr attr : getAttributeNodes()) {
-				String attributeName = attr.getName();
 				if (attr.isNoDefaultXmlns()) {
 					prefixes.add(attr.extractPrefixFromXmlns());
 				}
@@ -259,9 +259,16 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 	}
 
 
-	public boolean isSameTag(String tagInLowerCase) {
-		return this.tag != null && tagInLowerCase != null && this.tag.length() == tagInLowerCase.length()
-				&& this.tag.toLowerCase().equals(tagInLowerCase);
+	/**
+	 * Returns true if the given tag is the same tag of this element and false
+	 * otherwise.
+	 * 
+	 * @param tag tag element
+	 * @return true if the given tag is the same tag of this element and false
+	 *         otherwise.
+	 */
+	public boolean isSameTag(String tag) {
+		return Objects.equals(this.tag, tag);
 	}
 
 	public boolean isInStartTag(int offset) {

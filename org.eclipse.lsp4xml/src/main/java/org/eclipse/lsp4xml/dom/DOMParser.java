@@ -158,7 +158,7 @@ public class DOMParser {
 				/**
 				eg: <a><b><c></d> will set a,b,c end position to the start of |</d>
 				*/
-				while (!(curr.isElement() && ((DOMElement) curr).isSameTag(closeTag.toLowerCase())) && curr.parent != null) {
+				while (!(curr.isElement() && ((DOMElement) curr).isSameTag(closeTag)) && curr.parent != null) {
 					curr.end = endTagOpenOffset;
 					curr = curr.parent;
 				}
