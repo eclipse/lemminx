@@ -78,9 +78,9 @@ public class XMLRenameTest {
 	}
 
 	@Test
-	public void caseInsensivity() throws BadLocationException {
-		assertRename("<HTML><diV><Div></dIV></dI|v></html>", "newText", edits("newText", r(0, 7, 10), r(0, 24, 27)));
-		assertRename("<HTML><diV|><Div></dIV></dIv></html>", "newText", edits("newText", r(0, 7, 10), r(0, 24, 27)));
+	public void caseSensitive() throws BadLocationException {
+		assertRename("<HTML><diV><Div></dIV></dI|v></html>", "newText", edits("newText", r(0, 24, 27)));
+		assertRename("<HTML><diV|><Div></dIV></dIv></html>", "newText", edits("newText", r(0, 7, 10)));
 	}
 
 	@Test

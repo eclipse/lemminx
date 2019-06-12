@@ -73,9 +73,9 @@ public class XMLHighlightingTest {
 	}
 
 	@Test
-	public void caseInsensivity() throws BadLocationException {
-		assertHighlights("<HTML><diV><Div></dIV></dI|v></html>", new int[] { 7, 24 }, "div");
-		assertHighlights("<HTML><diV|><Div></dIV></dIv></html>", new int[] { 7, 24 }, "div");
+	public void caseSensitive() throws BadLocationException {
+		assertHighlights("<HTML><diV><Div></dIV></dI|v></html>", new int[] { 24 }, "div");
+		assertHighlights("<HTML><diV|><Div></dIV></dIv></html>", new int[] { 7 }, "div");
 	}
 	
 	@Test
