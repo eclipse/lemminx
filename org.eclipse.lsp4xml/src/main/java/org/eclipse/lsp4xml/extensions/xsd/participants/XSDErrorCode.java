@@ -11,11 +11,13 @@
 package org.eclipse.lsp4xml.extensions.xsd.participants;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.xerces.xni.XMLLocator;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.dom.DOMDocument;
+import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IXMLErrorCode;
 import org.eclipse.lsp4xml.utils.XMLPositionUtility;
 
@@ -82,7 +84,18 @@ public enum XSDErrorCode implements IXMLErrorCode {
 		int offset = location.getCharacterOffset() - 1;
 		// adjust positions
 		switch (code) {
-		case cos_all_limited_2:
+		case cos_all_limited_2: {
+			String nameValue = (String) arguments[1];
+			DOMNode parent = document.findNodeAt(offset);
+			List<DOMNode> children = parent.getChildrenWithAttributeValue("name", nameValue);
+
+			if (children.isEmpty()) {
+				return XMLPositionUtility.selectStartTag(offset, document);
+			}
+
+			offset = children.get(0).getStart() + 1;
+			return XMLPositionUtility.selectAttributeValueAt("maxOccurs", offset, document);
+		}
 		case s4s_elt_invalid_content_1:
 		case s4s_elt_must_match_1:
 		case s4s_att_must_appear:

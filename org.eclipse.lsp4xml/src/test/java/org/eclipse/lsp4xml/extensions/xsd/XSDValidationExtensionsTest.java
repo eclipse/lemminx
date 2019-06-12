@@ -27,17 +27,38 @@ public class XSDValidationExtensionsTest {
 
 	@Test
 	public void cos_all_limited_2() throws BadLocationException {
-		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
-				"<xs:schema \r\n" +
-				"	xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\r\n" +
-				"	\r\n" +
-				"	<xs:complexType name=\"testType\">\r\n" +
-				"		<xs:all>\r\n" +
-				"			<xs:element name=\"testEle\" minOccurs=\"2\" maxOccurs=\"unbounded\" type=\"xs:string\"/>\r\n" +
-				"		</xs:all>\r\n" +
-				"	</xs:complexType>\r\n" +
-				"</xs:schema>";;
-		testDiagnosticsFor(xml, d(5, 3, 5, 9, XSDErrorCode.cos_all_limited_2));
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<xs:schema \r\n" + //
+				"	xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\r\n" + //
+				"	\r\n" + //
+				"	<xs:complexType name=\"testType\">\r\n" + //
+				"		<xs:all>\r\n" + //
+				"			<xs:element name=\"testEle1\" minOccurs=\"2\" maxOccurs=\"unbounded\" type=\"xs:string\"/>\r\n" + //
+				"		</xs:all>\r\n" + //
+				"	</xs:complexType>\r\n" + //
+				"</xs:schema>";
+		testDiagnosticsFor(xml, d(6, 55, 6, 66, XSDErrorCode.cos_all_limited_2));
+	}
+
+	@Test
+	public void cos_all_limited_2_multiple() throws BadLocationException {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<xs:schema \r\n" + //
+				"	xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\r\n" + //
+				"	\r\n" + //
+				"	<xs:complexType name=\"testType\">\r\n" + //
+				"		<xs:all>\r\n" + //
+				"			<xs:element name=\"testEle1\" minOccurs=\"2\" maxOccurs=\"unbounded\" type=\"xs:string\"/>\r\n" + //
+				"			<xs:element name=\"testEle2\" minOccurs=\"2\" maxOccurs=\"unbounded\" type=\"xs:string\"/>\r\n" + //
+				"			<xs:element name=\"test3\" minOccurs=\"2\" maxOccurs=\"unbounded\" type=\"xs:string\"/>\r\n" + //
+				"		</xs:all>\r\n" + //
+				"	</xs:complexType>\r\n" + //
+				"</xs:schema>";
+
+		Diagnostic first = d(6, 55, 6, 66, XSDErrorCode.cos_all_limited_2);
+		Diagnostic second = d(7, 55, 7, 66, XSDErrorCode.cos_all_limited_2);
+		Diagnostic third = d(8, 52, 8, 63, XSDErrorCode.cos_all_limited_2);
+		testDiagnosticsFor(xml, first, second, third);
 	}
 
 	@Test
