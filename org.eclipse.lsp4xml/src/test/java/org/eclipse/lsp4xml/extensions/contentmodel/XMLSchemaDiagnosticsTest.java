@@ -393,6 +393,15 @@ public class XMLSchemaDiagnosticsTest {
 					d(4,10,4,17, XMLSchemaErrorCode.cvc_type_3_1_3));
 	}
 
+	@Test
+	public void testSrcElement3() throws Exception {
+		String xml = "<a xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+		"	xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/srcElement3.xsd\">\r\n" +
+		"	<b></b>\r\n" +
+		"</a>";
+		testDiagnosticsFor(xml, d(0, 1, 0, 2, XMLSchemaErrorCode.src_element_3));
+	}
+
 	private static void testDiagnosticsFor(String xml, Diagnostic... expected) {
 		XMLAssert.testDiagnosticsFor(xml, "src/test/resources/catalogs/catalog.xml", expected);
 	}
