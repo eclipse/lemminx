@@ -13,7 +13,6 @@ package org.eclipse.lsp4xml.settings.capabilities;
 
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_COMPLETION_OPTIONS;
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_LINK_OPTIONS;
-import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_SYNC_OPTION;
 
 import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
@@ -37,9 +36,9 @@ public class ServerCapabilitiesInitializer {
 	public static ServerCapabilities getNonDynamicServerCapabilities(ClientCapabilitiesWrapper clientCapabilities,
 			boolean isIncremental) {
 		ServerCapabilities serverCapabilities = new ServerCapabilities();
-		// @formatter:off
-		serverCapabilities.setTextDocumentSync(DEFAULT_SYNC_OPTION);
+
 		serverCapabilities.setTextDocumentSync(isIncremental ? TextDocumentSyncKind.Incremental : TextDocumentSyncKind.Full);
+
 		serverCapabilities.setDocumentSymbolProvider(!clientCapabilities.isDocumentSymbolDynamicRegistrationSupported());
 		serverCapabilities.setDocumentHighlightProvider(!clientCapabilities.isDocumentHighlightDynamicRegistered());
 		serverCapabilities.setCodeActionProvider(!clientCapabilities.isCodeActionDynamicRegistered());

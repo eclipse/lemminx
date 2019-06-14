@@ -25,9 +25,9 @@ import org.eclipse.lsp4j.TextDocumentItem;
  */
 public class TextDocuments implements ITextDocumentFactory {
 
-	private boolean incremental;
-
 	private final Map<String, TextDocument> documents;
+
+	private boolean incremental = true; //default on
 
 	public TextDocuments() {
 		documents = new HashMap<>();
@@ -72,7 +72,7 @@ public class TextDocuments implements ITextDocumentFactory {
 	@Override
 	public TextDocument createDocument(TextDocumentItem document) {
 		TextDocument doc = new TextDocument(document);
-		doc.setIncremental(incremental);
+		doc.setIncremental(isIncremental());
 		return doc;
 	}
 
@@ -121,4 +121,5 @@ public class TextDocuments implements ITextDocumentFactory {
 			return documents.values();
 		}
 	}
+
 }

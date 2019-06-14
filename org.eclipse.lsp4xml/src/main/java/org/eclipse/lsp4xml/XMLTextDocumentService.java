@@ -74,6 +74,7 @@ import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.services.extensions.save.AbstractSaveContext;
 import org.eclipse.lsp4xml.settings.SharedSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
+import org.eclipse.lsp4xml.settings.XMLIncrementalSupportSettings;
 import org.eclipse.lsp4xml.settings.XMLSymbolSettings;
 
 /**
@@ -412,7 +413,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	}
 
 	public void updateCompletionSettings(CompletionSettings newCompletion) {
-		sharedSettings.completionSettings.setAutoCloseTags(newCompletion.isAutoCloseTags());
+		sharedSettings.setCompletionSettings(newCompletion);
 	}
 
 	public void updateSymbolSettings(XMLSymbolSettings newSettings) {
@@ -436,10 +437,6 @@ public class XMLTextDocumentService implements TextDocumentService {
 		return sharedSettings.formattingSettings;
 	}
 
-	public void setIncrementalSupport(boolean incrementalSupport) {
-		this.documents.setIncremental(incrementalSupport);
-	}
-
 	public XMLValidationSettings getValidationSettings() {
 
 		return sharedSettings.validationSettings;
@@ -447,6 +444,11 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	public SharedSettings getSharedSettings() {
 		return this.sharedSettings;
+	}
+
+	public void updateIncrementalSettings(XMLIncrementalSupportSettings settings) {
+		sharedSettings.experimentalSettings.getIncrementalSupport().setEnabled(settings.getEnabled());
+		this.documents.setIncremental(sharedSettings.experimentalSettings.getIncrementalSupport().getEnabled());
 	}
 
 }

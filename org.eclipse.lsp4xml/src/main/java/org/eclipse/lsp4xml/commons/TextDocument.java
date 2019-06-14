@@ -26,12 +26,13 @@ import org.eclipse.lsp4j.TextDocumentItem;
  */
 public class TextDocument extends TextDocumentItem {
 
+	private final Object lock = new Object();
+
 	private static String DEFAULT_DELIMTER = System.lineSeparator();
 
-	private ListLineTracker lineTracker;
+	private final ListLineTracker lineTracker;
 
-	// Buffer of the text document used only in incremental mode.
-	private StringBuilder buffer;
+	private boolean incremental;
 
 	public TextDocument(TextDocumentItem document) {
 		this(document.getText(), document.getUri());
@@ -40,22 +41,23 @@ public class TextDocument extends TextDocumentItem {
 	}
 
 	public TextDocument(String text, String uri) {
+		this.lineTracker = new ListLineTracker();
 		super.setUri(uri);
-		super.setText(text);
+		this.setText(text);
 	}
 
 	public void setIncremental(boolean incremental) {
-		if (incremental) {
-			buffer = new StringBuilder(getText());
-		} else {
-			buffer = null;
-		}
+		this.incremental = incremental;
+	}
+
+	public boolean isIncremental() {
+		return incremental;
 	}
 
 	@Override
 	public void setText(String text) {
 		super.setText(text);
-		lineTracker = null;
+		lineTracker.set(text);
 	}
 
 	public Position positionAt(int position) throws BadLocationException {
@@ -117,10 +119,6 @@ public class TextDocument extends TextDocumentItem {
 	}
 
 	private ListLineTracker getLineTracker() {
-		if (lineTracker == null) {
-			lineTracker = new ListLineTracker();
-			lineTracker.set(super.getText());
-		}
 		return lineTracker;
 	}
 
@@ -137,8 +135,17 @@ public class TextDocument extends TextDocumentItem {
 		}
 		if (isIncremental()) {
 			try {
-				synchronized (buffer) {
-					for (TextDocumentContentChangeEvent changeEvent : changes) {
+				// Initialize buffer and line tracker from the current text document
+				String initialText = getText();
+				StringBuilder buffer = new StringBuilder(getText());
+				ListLineTracker lt = new ListLineTracker();
+				lt.set(initialText);
+				synchronized (lock) {
+					for (int i = 0; i < changes.size(); i++) {
+						if (i > 0) {
+							lt.set(buffer.toString());
+						}
+						TextDocumentContentChangeEvent changeEvent = changes.get(i);
 
 						Range range = changeEvent.getRange();
 						int length = 0;
@@ -147,17 +154,18 @@ public class TextDocument extends TextDocumentItem {
 							length = changeEvent.getRangeLength().intValue();
 						} else {
 							// range is optional and if not given, the whole file content is replaced
-							length = getText().length();
-							range = new Range(positionAt(0), positionAt(length));
+							length = buffer.length();
+							range = new Range(lt.getPositionAt(0), lt.getPositionAt(length));
 						}
 						String text = changeEvent.getText();
-						int startOffset = offsetAt(range.getStart());
+						int startOffset = lt.getOffsetAt(range.getStart());
 						buffer.replace(startOffset, startOffset + length, text);
 					}
+					// Update the new text content from the updated buffer
 					setText(buffer.toString());
 				}
 			} catch (BadLocationException e) {
-				// Should never occurs.
+				// Should never occur.
 			}
 		} else {
 			// like vscode does, get the last changes
@@ -168,10 +176,6 @@ public class TextDocument extends TextDocumentItem {
 				setText(last.getText());
 			}
 		}
-	}
-
-	public boolean isIncremental() {
-		return buffer != null;
 	}
 
 }

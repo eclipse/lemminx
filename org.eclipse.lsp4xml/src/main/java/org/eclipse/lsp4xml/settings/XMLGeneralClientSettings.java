@@ -37,8 +37,6 @@ public class XMLGeneralClientSettings {
 	private LogsSettings logs;
 
 	private XMLFormattingOptions format;
-	
-	private XMLExperimentalCapabilities experimental;
 
 	private CompletionSettings completion;
 
@@ -46,9 +44,26 @@ public class XMLGeneralClientSettings {
 
 	private XMLSymbolSettings symbols;
 
+	private XMLExperimentalSettings experimental;
+
+
+
+	public XMLExperimentalSettings getExperimental() {
+		return experimental;
+	}
+
+	public void setExperimental(XMLExperimentalSettings experimental) {
+		this.experimental = experimental;
+	}
+
 	public void setLogs(LogsSettings logs) {
 		this.logs = logs;
 	}
+
+	public LogsSettings getLogs() {
+		return logs;
+	}
+
 
 	public XMLSymbolSettings getSymbols() {
 		return symbols;
@@ -58,20 +73,13 @@ public class XMLGeneralClientSettings {
 		this.symbols = symbols;
 	}
 
-	public LogsSettings getLogs() {
-		return logs;
-	}
-
+	
 	public void setFormat(XMLFormattingOptions format) {
 		this.format = format;
 	}
 
 	public XMLFormattingOptions getFormat() {
 		return format;
-	}
-	
-	public XMLExperimentalCapabilities getExperimental() {
-		return experimental;
 	}
 
 	/**
