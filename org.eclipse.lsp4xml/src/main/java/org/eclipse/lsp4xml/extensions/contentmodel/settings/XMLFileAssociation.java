@@ -10,34 +10,20 @@
  */
 package org.eclipse.lsp4xml.extensions.contentmodel.settings;
 
-import java.net.URI;
-import java.nio.file.FileSystems;
-import java.nio.file.PathMatcher;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.lsp4xml.settings.PathPatternMatcher;
 import org.eclipse.lsp4xml.uriresolver.IExternalSchemaLocationProvider;
 
 /**
  * XML file association between a XML file pattern (glob) and an XML Schema file
  * (systemId).
  **/
-public class XMLFileAssociation {
+public class XMLFileAssociation extends PathPatternMatcher {
 
-	private transient PathMatcher pathMatcher;
 	private transient Map<String, String> externalSchemaLocation;
-	private String pattern;
 	private String systemId;
-
-	public String getPattern() {
-		return pattern;
-	}
-
-	public void setPattern(String pattern) {
-		this.pattern = pattern;
-		this.pathMatcher = null;
-	}
 
 	public String getSystemId() {
 		return systemId;
@@ -46,35 +32,6 @@ public class XMLFileAssociation {
 	public void setSystemId(String systemId) {
 		this.systemId = systemId;
 		this.externalSchemaLocation = null;
-	}
-
-	public boolean matches(String uri) {
-		try {
-			return matches(new URI(uri));
-		} catch (Exception e) {
-			return false;
-		}
-	}
-
-	public boolean matches(URI uri) {
-		if (pattern.length() < 1) {
-			return false;
-		}
-		if (pathMatcher == null) {
-			char c = pattern.charAt(0);
-			String glob = pattern;
-			if (c != '*' && c != '?' && c != '/') {
-				// in case of pattern like this pattern="myFile*.xml", we must add '**/' before
-				glob = "**/" + glob;
-			}
-			pathMatcher = FileSystems.getDefault().getPathMatcher("glob:" + glob);
-		}
-		try {
-			return pathMatcher.matches(Paths.get(uri));
-		} catch (Exception e) {
-			// e.printStackTrace();
-		}
-		return false;
 	}
 
 	public Map<String, String> getExternalSchemaLocation() {
@@ -89,7 +46,7 @@ public class XMLFileAssociation {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((pattern == null) ? 0 : pattern.hashCode());
+		result = prime * result + ((getPattern() == null) ? 0 : getPattern().hashCode());
 		result = prime * result + ((systemId == null) ? 0 : systemId.hashCode());
 		return result;
 	}
@@ -103,10 +60,12 @@ public class XMLFileAssociation {
 		if (getClass() != obj.getClass())
 			return false;
 		XMLFileAssociation other = (XMLFileAssociation) obj;
-		if (pattern == null) {
-			if (other.pattern != null)
+		String thisPattern = getPattern();
+		String otherPattern = other.getPattern();
+		if (thisPattern == null) {
+			if (otherPattern != null)
 				return false;
-		} else if (!pattern.equals(other.pattern))
+		} else if (!thisPattern.equals(otherPattern))
 			return false;
 		if (systemId == null) {
 			if (other.systemId != null)

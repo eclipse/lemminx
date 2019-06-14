@@ -206,11 +206,15 @@ public class XMLTextDocumentService implements TextDocumentService {
 	@Override
 	public CompletableFuture<List<Either<SymbolInformation, DocumentSymbol>>> documentSymbol(
 			DocumentSymbolParams params) {
-		if (!sharedSettings.symbolSettings.isEnabled()) {
+		
+		TextDocument document = getDocument(params.getTextDocument().getUri());
+		
+		if(!sharedSettings.symbolSettings.isEnabled() || sharedSettings.symbolSettings.isExcluded(document.getUri())) {
 			return CompletableFuture.completedFuture(Collections.emptyList());
 		}
+
 		return computeAsync((cancelChecker) -> {
-			DOMDocument xmlDocument = getXMLDocument(params.getTextDocument().getUri(), cancelChecker);
+			DOMDocument xmlDocument = getXMLDocument(document);
 			if (hierarchicalDocumentSymbolSupport) {
 				return getXMLLanguageService().findDocumentSymbols(xmlDocument, cancelChecker) //
 						.stream() //
@@ -412,7 +416,12 @@ public class XMLTextDocumentService implements TextDocumentService {
 	}
 
 	public void updateSymbolSettings(XMLSymbolSettings newSettings) {
-		sharedSettings.symbolSettings.setEnabled(newSettings.isEnabled());
+		XMLSymbolSettings symbolSettings = sharedSettings.symbolSettings;
+		symbolSettings.setEnabled(newSettings.isEnabled());
+		String[] newPatterns = newSettings.getExcluded();
+		if(newPatterns != null) {
+			symbolSettings.setExcluded(newPatterns);
+		}
 	}
 
 	public XMLSymbolSettings getSharedSymbolSettings() {
