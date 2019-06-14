@@ -11,6 +11,7 @@
 package org.eclipse.lsp4xml.settings;
 
 import static java.io.File.separator;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -25,6 +26,7 @@ import com.google.gson.JsonObject;
 import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4xml.XMLLanguageServer;
+import org.eclipse.lsp4xml.XMLTextDocumentService;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.ContentModelSettings;
 import org.eclipse.lsp4xml.utils.FilesUtils;
 import org.junit.After;
@@ -84,7 +86,8 @@ public class SettingsTest {
 	"				\"workDir\": \"~/" + testFolder + "/Nested\"\r\n" + //
 	"			},\r\n" + 
 	"			\"symbols\": {\r\n" + //
-	"				\"enabled\": true\r\n" + //
+	"				\"enabled\": true,\r\n" + //
+	"				\"excluded\": [\"**\\\\*.xsd\", \"**\\\\*.xml\"]\r\n" + //
 	"			}\r\n" + 
 	"		}\r\n" + 
 	"	}\r\n" + 
@@ -126,6 +129,7 @@ public class SettingsTest {
 		// Symbols
 		assertNotNull(settings.getSymbols());
 		assertEquals(true, settings.getSymbols().isEnabled());
+		assertArrayEquals(new String[]{"**\\*.xsd", "**\\*.xml"}, settings.getSymbols().getExcluded());
 
 	}
 
@@ -204,4 +208,24 @@ public class SettingsTest {
 			System.setProperty("user.home", originalUserHome);
 		}
 	}
+
+	@Test
+	public void symbolSettingsTest() {
+		//Tests that when the settings are updated the shared settings are also updated correctly
+
+		InitializeParams params = createInitializeParams(json);
+		Object initializationOptionsSettings = InitializationOptionsSettings.getSettings(params);
+		XMLLanguageServer languageServer = new XMLLanguageServer();
+		languageServer.updateSettings(initializationOptionsSettings); // This should set/update the sharedSettings
+
+		XMLExcludedSymbolFile xsdFile = new XMLExcludedSymbolFile("**\\*.xsd"); 
+		XMLExcludedSymbolFile xmlFile = new XMLExcludedSymbolFile("**\\*.xml");
+		XMLExcludedSymbolFile[] expectedExcludedFiles = new XMLExcludedSymbolFile[] {xsdFile, xmlFile};
+
+		XMLExcludedSymbolFile[] actualExpectedFiles = languageServer.getSettings().symbolSettings.getExcludedFiles();
+		assertArrayEquals(expectedExcludedFiles, actualExpectedFiles);
+
+		XMLTextDocumentService textDocumentService = (XMLTextDocumentService) languageServer.getTextDocumentService();
+	}
+
 }

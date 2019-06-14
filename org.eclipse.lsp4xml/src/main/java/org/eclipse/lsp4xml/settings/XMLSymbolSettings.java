@@ -15,7 +15,15 @@ package org.eclipse.lsp4xml.settings;
  */
 public class XMLSymbolSettings {
 
+	private transient XMLExcludedSymbolFile[] excludedFiles;
+
 	private boolean enabled = true;
+
+	private String[] excluded;
+
+	public XMLExcludedSymbolFile[] getExcludedFiles() {
+		return excludedFiles;
+	}
 
 	public boolean isEnabled() {
 		return enabled;
@@ -24,4 +32,43 @@ public class XMLSymbolSettings {
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 	}
+
+	public String[] getExcluded() {
+		return excluded;
+	}
+
+	/**
+	 * Will use the excluded pattern strings to create a list of
+	 * {@link XMLExcludedSymbolFile} objects within this object.
+	 * @param excluded
+	 */
+	public void setExcluded(String[] excluded) {
+		XMLExcludedSymbolFile[] exclusions = new XMLExcludedSymbolFile[excluded.length];
+
+		for(int i = 0; i < excluded.length; i++) {
+			exclusions[i] = new XMLExcludedSymbolFile(excluded[i]);
+		}
+
+		excludedFiles = exclusions;
+	}
+
+	/**
+	 * Given a file URI, this will check if it matches any of the given
+	 * file patterns.
+	 * 
+	 * A uri is 'excluded' if it matches any of the given patterns.
+	 * 
+	 * **Important:** Set the excluded file patterns before calling this using 'setExcluded()'.
+	 * @param uri
+	 * @return
+	 */
+	public boolean isExcluded(String uri) {
+		for (XMLExcludedSymbolFile excludedFile : excludedFiles) {
+			if(excludedFile.matches(uri)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 }
