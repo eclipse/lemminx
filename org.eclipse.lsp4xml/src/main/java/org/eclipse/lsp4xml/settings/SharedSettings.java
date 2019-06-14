@@ -25,6 +25,7 @@ public class SharedSettings {
 	public XMLFormattingOptions formattingSettings;
 	public final XMLValidationSettings validationSettings;
 	public final XMLSymbolSettings symbolSettings;
+	public final XMLExperimentalSettings experimentalSettings;
 
 	public SharedSettings() {
 		this.completionSettings = new CompletionSettings();
@@ -32,6 +33,7 @@ public class SharedSettings {
 		this.formattingSettings = new XMLFormattingOptions(true);
 		this.validationSettings = new XMLValidationSettings();
 		this.symbolSettings = new XMLSymbolSettings();
+		this.experimentalSettings = new XMLExperimentalSettings();
 	}
 
 	public void setFormattingSettings(XMLFormattingOptions formattingOptions) {

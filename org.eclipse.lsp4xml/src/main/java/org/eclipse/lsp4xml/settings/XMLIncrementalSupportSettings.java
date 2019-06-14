@@ -14,11 +14,14 @@ package org.eclipse.lsp4xml.settings;
  * XML experimental incremental support capabilities.
  *
  */
-public class XMLIncrementalSupportCapabilities {
+public class XMLIncrementalSupportSettings {
 
 	private Boolean enabled;
 
 	public Boolean getEnabled() {
+		if(enabled == null) {
+			enabled = true; // default on
+		}
 		return enabled;
 	}
 

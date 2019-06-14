@@ -145,8 +145,10 @@ public class XMLCapabilityManager {
 	}
 
 	/**
-	 * Registers all capabilities that this server can support client side
-	 * preferences to turn on/off
+	 * Registers(indicates the servers ability to support the service) all capabilities that have the ability to be turned
+	 * on/off on the client side through preferences.
+	 * 
+	 * In the case the preference is set to off/false this server will tell the cliet it does not support this capability.
 	 * 
 	 * If a capability is not dynamic, it's handled by
 	 * {@link ServerCapabilitiesInitializer}
