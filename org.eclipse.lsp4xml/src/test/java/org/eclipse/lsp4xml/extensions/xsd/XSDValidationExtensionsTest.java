@@ -62,6 +62,37 @@ public class XSDValidationExtensionsTest {
 	}
 
 	@Test
+	public void p_props_correct_2_1() throws BadLocationException {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" +
+				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\r\n" +
+				"	<xs:complexType name=\"testType\">\r\n" +
+				"		<xs:all>\r\n" +
+				"			<xs:element name=\"testEle\" minOccurs=\"1\" maxOccurs=\"0\" type=\"xs:string\"/>\r\n" +
+				"		</xs:all>\r\n" +
+				"	</xs:complexType>\r\n" +
+				"</xs:schema>";
+		testDiagnosticsFor(xml, d(4, 30, 4, 43, XSDErrorCode.p_props_correct_2_1));
+	}
+
+	@Test
+	public void p_props_correct_2_1_multiple() throws BadLocationException {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" +
+			"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\r\n" +
+			"	<xs:complexType name=\"testType\">\r\n" +
+			"		<xs:all>\r\n" +
+			"			<xs:element name=\"testEle\" minOccurs=\"1\" maxOccurs=\"0\" type=\"xs:string\"/>\r\n" +
+			"			<xs:element name=\"test\" minOccurs=\"5\" maxOccurs=\"0\" type=\"xs:string\"/>\r\n" +
+			"		</xs:all>\r\n" +
+			"	</xs:complexType>\r\n" +
+			"</xs:schema>";
+		
+		Diagnostic first = d(4, 30, 4, 43, XSDErrorCode.p_props_correct_2_1);
+		Diagnostic second = d(5, 27, 5, 40, XSDErrorCode.p_props_correct_2_1);
+		testDiagnosticsFor(xml, first, second);
+	}
+
+
+	@Test
 	public void s4s_elt_invalid_content_1() throws BadLocationException {
 		String xml = "<?xml version=\"1.1\"?>\r\n" + //
 				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\r\n" + //
