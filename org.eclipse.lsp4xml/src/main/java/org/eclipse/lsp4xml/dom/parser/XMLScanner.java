@@ -10,7 +10,49 @@
  */
 package org.eclipse.lsp4xml.dom.parser;
 
-import static org.eclipse.lsp4xml.dom.parser.Constants.*;
+import static org.eclipse.lsp4xml.dom.parser.Constants.ATTRIBUTE_NAME_REGEX;
+import static org.eclipse.lsp4xml.dom.parser.Constants.DOCTYPE_KIND_OPTIONS;
+import static org.eclipse.lsp4xml.dom.parser.Constants.DTD_ELEMENT_CATEGORY;
+import static org.eclipse.lsp4xml.dom.parser.Constants.ELEMENT_NAME_REGEX;
+import static org.eclipse.lsp4xml.dom.parser.Constants.PROLOG_NAME_OPTIONS;
+import static org.eclipse.lsp4xml.dom.parser.Constants.URL_VALUE_REGEX;
+import static org.eclipse.lsp4xml.dom.parser.Constants._AST;
+import static org.eclipse.lsp4xml.dom.parser.Constants._AVL;
+import static org.eclipse.lsp4xml.dom.parser.Constants._CAR;
+import static org.eclipse.lsp4xml.dom.parser.Constants._CRB;
+import static org.eclipse.lsp4xml.dom.parser.Constants._CSB;
+import static org.eclipse.lsp4xml.dom.parser.Constants._CVL;
+import static org.eclipse.lsp4xml.dom.parser.Constants._DDT;
+import static org.eclipse.lsp4xml.dom.parser.Constants._DOT;
+import static org.eclipse.lsp4xml.dom.parser.Constants._DQO;
+import static org.eclipse.lsp4xml.dom.parser.Constants._DVL;
+import static org.eclipse.lsp4xml.dom.parser.Constants._EQS;
+import static org.eclipse.lsp4xml.dom.parser.Constants._EVL;
+import static org.eclipse.lsp4xml.dom.parser.Constants._EXL;
+import static org.eclipse.lsp4xml.dom.parser.Constants._FSL;
+import static org.eclipse.lsp4xml.dom.parser.Constants._IVL;
+import static org.eclipse.lsp4xml.dom.parser.Constants._LAN;
+import static org.eclipse.lsp4xml.dom.parser.Constants._LVL;
+import static org.eclipse.lsp4xml.dom.parser.Constants._MIN;
+import static org.eclipse.lsp4xml.dom.parser.Constants._MVL;
+import static org.eclipse.lsp4xml.dom.parser.Constants._NVL;
+import static org.eclipse.lsp4xml.dom.parser.Constants._NWL;
+import static org.eclipse.lsp4xml.dom.parser.Constants._ORB;
+import static org.eclipse.lsp4xml.dom.parser.Constants._OSB;
+import static org.eclipse.lsp4xml.dom.parser.Constants._OVL;
+import static org.eclipse.lsp4xml.dom.parser.Constants._PCT;
+import static org.eclipse.lsp4xml.dom.parser.Constants._PLS;
+import static org.eclipse.lsp4xml.dom.parser.Constants._PVL;
+import static org.eclipse.lsp4xml.dom.parser.Constants._QMA;
+import static org.eclipse.lsp4xml.dom.parser.Constants._RAN;
+import static org.eclipse.lsp4xml.dom.parser.Constants._SIQ;
+import static org.eclipse.lsp4xml.dom.parser.Constants._SVL;
+import static org.eclipse.lsp4xml.dom.parser.Constants._TVL;
+import static org.eclipse.lsp4xml.dom.parser.Constants._UDS;
+import static org.eclipse.lsp4xml.dom.parser.Constants._WSP;
+import static org.eclipse.lsp4xml.dom.parser.Constants._YVL;
+
+import java.util.function.Predicate;
 
 import org.eclipse.lsp4xml.dom.DOMDocumentType.DocumentTypeKind;;
 
@@ -20,16 +62,26 @@ import org.eclipse.lsp4xml.dom.DOMDocumentType.DocumentTypeKind;;
  */
 public class XMLScanner implements Scanner {
 
+	private static final Predicate<Integer> START_ELEMENT_NAME_PREDICATE = ch -> {
+		return ch == _UDS || ch == _DDT || Character.isLetter(ch);
+	};
+
+	private static final Predicate<Integer> ELEMENT_NAME_PREDICATE = ch -> {
+		return ch == _UDS || ch == _DDT || ch == _DOT || Character.isLetterOrDigit(ch);
+	};
+
+	private static final Predicate<Integer> ATTRIBUTE_NAME_PREDICATE = ch -> {
+		// ^[^\s\?\"'<>\/=\x00-\x0F\x7F\x80-\x9F]*
+		return !Character.isWhitespace(ch) && ch != _QMA && ch != _DQO && ch != _SIQ && ch != _LAN && ch != _RAN
+				&& ch != _FSL && ch != _EQS && !(ch >= 0x00 && ch <= 0x0F) && ch != 0x7F && !(ch >= 0x80 && ch <= 0x9F);
+	};
+	
 	MultiLineStream stream;
 	ScannerState state;
 	int tokenOffset;
 	TokenType tokenType;
 	String tokenError;
 
-	
-	String lastTag;
-	String lastAttributeName;
-	String lastTypeValue;
 	String lastDoctypeKind;
 	String url;
 	boolean isInsideDTDContent = false; // Either internal dtd in xml file OR external dtd in dtd file
@@ -58,14 +110,36 @@ public class XMLScanner implements Scanner {
 		this.isDTDFile = isDTDFile;
 	}
 
-	String nextElementName() {
-		return stream.advanceIfRegExp(ELEMENT_NAME_REGEX);
+	boolean nextElementName() {
+		// Manage regexp : ^[_:\w][_:\w-.\d]*
+		// ^[_:\w]
+		int n = stream.advanceWhileChar(START_ELEMENT_NAME_PREDICATE, 1);
+		if (n == 0) {
+			return false;
+		}
+		// [_:\w-.\d]*
+		stream.advanceWhileChar(ELEMENT_NAME_PREDICATE);
+		return true;
 	}
 
-	String nextAttributeName() {
-		return stream.advanceIfRegExp(ATTRIBUTE_NAME_REGEX);
+	boolean nextAttributeName() {
+		// ^[^\s\?\"'<>\/=\x00-\x0F\x7F\x80-\x9F]*
+		return stream.advanceWhileChar(ATTRIBUTE_NAME_PREDICATE) > 0;
 	}
 
+	boolean nextAttributeValue() {
+		// ^("[^"]*"?)|('[^']*'?)
+		int first = stream.peekChar();
+		if (first == _SIQ || first == _DQO) {
+			stream.advance(1);
+			if( stream.advanceUntilChar(first)) {
+				stream.advance(1);
+			}
+			return true;
+		}
+		return false;
+	}
+	
 	String doctypeName() {
 		return stream.advanceIfRegExp(ELEMENT_NAME_REGEX);
 	}
@@ -210,8 +284,7 @@ public class XMLScanner implements Scanner {
 			return finishToken(offset, TokenType.CDATAContent);
 
 		case AfterOpeningEndTag:
-			String tagName = nextElementName();
-			if (tagName.length() > 0) {
+			if (nextElementName()) {
 				state = ScannerState.WithinEndTag;
 				return finishToken(offset, TokenType.EndTag);
 			}
@@ -243,10 +316,7 @@ public class XMLScanner implements Scanner {
 			return finishToken(offset, TokenType.Whitespace);
 
 		case AfterOpeningStartTag:
-			lastTag = nextElementName();
-			lastTypeValue = null;
-			lastAttributeName = null;
-			if (lastTag.length() > 0) {
+			if (nextElementName()) {
 				state = ScannerState.WithinTag;
 				return finishToken(offset, TokenType.StartTag);
 			}
@@ -272,8 +342,7 @@ public class XMLScanner implements Scanner {
 				return finishToken(offset, TokenType.PrologEnd);
 			}
 			
-			lastAttributeName = nextAttributeName();
-			if (lastAttributeName.length() > 0) {
+			if (nextAttributeName()) {
 				state = ScannerState.AfterAttributeName;
 				return finishToken(offset, TokenType.AttributeName);
 			}
@@ -319,11 +388,7 @@ public class XMLScanner implements Scanner {
 			if (stream.skipWhitespace()) {
 				return finishToken(offset, TokenType.Whitespace);
 			}
-			String attributeValue = stream.advanceIfRegExp(ATTRIBUTE_VALUE_REGEX);
-			if (attributeValue.length() > 0) {
-				if ("type".equals(lastAttributeName)) {
-					lastTypeValue = attributeValue;
-				}
+			if (nextAttributeValue()) {
 				state = ScannerState.WithinTag;
 				return finishToken(offset, TokenType.AttributeValue);
 			}

@@ -23,14 +23,15 @@ import org.eclipse.lsp4j.TextDocumentItem;
 /**
  * A manager for simple text documents
  */
-public class TextDocuments implements ITextDocumentFactory {
+public class TextDocuments<T extends TextDocument> {
 
 	private boolean incremental;
 
-	private final Map<String, TextDocument> documents;
+	private final Map<String, T> documents;
 
-	public TextDocuments() {
-		documents = new HashMap<>();
+	public TextDocuments() {		
+incremental = true;
+documents = new HashMap<>();
 	}
 
 	/**
@@ -63,22 +64,21 @@ public class TextDocuments implements ITextDocumentFactory {
 	 * @param uri The text document's URI to retrieve.
 	 * @return the text document or `undefined`.
 	 */
-	public TextDocument get(String uri) {
+	public T get(String uri) {
 		synchronized (documents) {
 			return documents.get(uri);
 		}
 	}
 
-	@Override
-	public TextDocument createDocument(TextDocumentItem document) {
+	public T createDocument(TextDocumentItem document) {
 		TextDocument doc = new TextDocument(document);
 		doc.setIncremental(incremental);
-		return doc;
+		return (T) doc;
 	}
 
-	public TextDocument onDidChangeTextDocument(DidChangeTextDocumentParams params) {
+	public T onDidChangeTextDocument(DidChangeTextDocumentParams params) {
 		synchronized (documents) {
-			TextDocument document = getDocument(params.getTextDocument());
+			T document = getDocument(params.getTextDocument());
 			if (document != null) {
 				document.setVersion(params.getTextDocument().getVersion());
 				document.update(params.getContentChanges());
@@ -88,18 +88,18 @@ public class TextDocuments implements ITextDocumentFactory {
 		return null;
 	}
 
-	public TextDocument onDidOpenTextDocument(DidOpenTextDocumentParams params) {
+	public T onDidOpenTextDocument(DidOpenTextDocumentParams params) {
 		TextDocumentItem item = params.getTextDocument();
 		synchronized (documents) {
-			TextDocument document = createDocument(item);
+			T document = createDocument(item);
 			documents.put(document.getUri(), document);
 			return document;
 		}
 	}
 
-	public TextDocument onDidCloseTextDocument(DidCloseTextDocumentParams params) {
+	public T onDidCloseTextDocument(DidCloseTextDocumentParams params) {
 		synchronized (documents) {
-			TextDocument document = getDocument(params.getTextDocument());
+			T document = getDocument(params.getTextDocument());
 			if (document != null) {
 				documents.remove(params.getTextDocument().getUri());
 			}
@@ -107,7 +107,7 @@ public class TextDocuments implements ITextDocumentFactory {
 		}
 	}
 
-	private TextDocument getDocument(TextDocumentIdentifier identifier) {
+	private T getDocument(TextDocumentIdentifier identifier) {
 		return documents.get(identifier.getUri());
 	}
 
@@ -116,7 +116,7 @@ public class TextDocuments implements ITextDocumentFactory {
 	 * 
 	 * @return the all opened documents.
 	 */
-	public Collection<TextDocument> all() {
+	public Collection<T> all() {
 		synchronized (documents) {
 			return documents.values();
 		}

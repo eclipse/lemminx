@@ -16,6 +16,9 @@ public class Constants {
 
 	public final static int _EXL = "!".codePointAt(0);
 	public final static int _MIN = "-".codePointAt(0);
+	public final static int _UDS = "_".codePointAt(0);
+	public final static int _DDT = ":".codePointAt(0);
+	public final static int _DOT = ".".codePointAt(0);
 	public final static int _LAN = "<".codePointAt(0);
 	public final static int _RAN = ">".codePointAt(0);
 	public final static int _FSL = "/".codePointAt(0);
@@ -70,12 +73,11 @@ public class Constants {
 
 	public static final Pattern PI_TAG_NAME = Pattern.compile("^[a-zA-Z0-9]+");
 
-	//Add coming processing instructions that are defined to have attributes as content
+	// Add coming processing instructions that are defined to have attributes as
+	// content
 	public static final Pattern PI_WITH_VARIABLES = Pattern.compile("^(xml-stylesheet)[\\s<>?]?");
 
 	public static final Pattern DOCTYPE_KIND_OPTIONS = Pattern.compile("^(PUBLIC|SYSTEM)([\\s<>\"'])");
-
-	
 
 	public static final Pattern DTD_ELEMENT_CATEGORY = Pattern.compile("^(EMPTY|ANY)([\\s<>\"'])");
 
@@ -83,13 +85,14 @@ public class Constants {
 
 	public static final Pattern DTD_PCDATA = Pattern.compile("^#PCDATA");
 
-	public static final Pattern DTD_ATTLIST_ATTRIBUTE_TYPE = Pattern.compile("^(CDATA|IDREFS|IDREF|ID|NMTOKENS|NMTOKEN|ENTITIES|ENTITY|NOTATION|xml:|\\(.*\\))([\\s<>\"'])");
+	public static final Pattern DTD_ATTLIST_ATTRIBUTE_TYPE = Pattern
+			.compile("^(CDATA|IDREFS|IDREF|ID|NMTOKENS|NMTOKEN|ENTITIES|ENTITY|NOTATION|xml:|\\(.*\\))([\\s<>\"'])");
 
-	public static final Pattern DTD_ATTLIST_ATTRIBUTE_VALUE = Pattern.compile("^(#REQUIRED|#IMPLIED|\".*\"|#FIXED \".*\")([\\s<>\"'])");
+	public static final Pattern DTD_ATTLIST_ATTRIBUTE_VALUE = Pattern
+			.compile("^(#REQUIRED|#IMPLIED|\".*\"|#FIXED \".*\")([\\s<>\"'])");
 
 	public static final Pattern DTD_ENTITY_VALUE = Pattern.compile("^\".*\"");
 
-	public static final Pattern DOCTYPE_NAME =
-	Pattern.compile("^[_:\\w][_:\\w-.\\d]*");
+	public static final Pattern DOCTYPE_NAME = Pattern.compile("^[_:\\w][_:\\w-.\\d]*");
 
 }

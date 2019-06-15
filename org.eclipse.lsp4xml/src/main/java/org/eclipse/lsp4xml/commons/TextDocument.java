@@ -28,10 +28,11 @@ public class TextDocument extends TextDocumentItem {
 
 	private static String DEFAULT_DELIMTER = System.lineSeparator();
 
-	private ListLineTracker lineTracker;
+	private final TreeLineTracker lineTracker;
 
-	// Buffer of the text document used only in incremental mode.
-	private StringBuilder buffer;
+	private boolean incremental;
+
+	private final Object lock = new Object();
 
 	public TextDocument(TextDocumentItem document) {
 		this(document.getText(), document.getUri());
@@ -40,43 +41,44 @@ public class TextDocument extends TextDocumentItem {
 	}
 
 	public TextDocument(String text, String uri) {
+		this.lineTracker = new TreeLineTracker(new ListLineTracker());
 		super.setUri(uri);
-		super.setText(text);
+		setText(text);
+		lineTracker.set(text);
 	}
 
 	public void setIncremental(boolean incremental) {
-		if (incremental) {
-			buffer = new StringBuilder(getText());
-		} else {
-			buffer = null;
-		}
+		this.incremental = incremental;
+	}
+
+	public boolean isIncremental() {
+		return incremental;
 	}
 
 	@Override
 	public void setText(String text) {
 		super.setText(text);
-		lineTracker = null;
 	}
 
 	public Position positionAt(int position) throws BadLocationException {
-		ListLineTracker lineTracker = getLineTracker();
+		TreeLineTracker lineTracker = getLineTracker();
 		return lineTracker.getPositionAt(position);
 	}
 
 	public int offsetAt(Position position) throws BadLocationException {
-		ListLineTracker lineTracker = getLineTracker();
+		TreeLineTracker lineTracker = getLineTracker();
 		return lineTracker.getOffsetAt(position);
 	}
 
 	public String lineText(int lineNumber) throws BadLocationException {
-		ListLineTracker lineTracker = getLineTracker();
+		TreeLineTracker lineTracker = getLineTracker();
 		Line line = lineTracker.getLineInformation(lineNumber);
 		String text = super.getText();
 		return text.substring(line.offset, line.offset + line.length);
 	}
 
 	public String lineDelimiter(int lineNumber) throws BadLocationException {
-		ListLineTracker lineTracker = getLineTracker();
+		TreeLineTracker lineTracker = getLineTracker();
 		String lineDelimiter = lineTracker.getLineDelimiter(lineNumber);
 		if (lineDelimiter == null) {
 			if (lineTracker.getNumberOfLines() > 0) {
@@ -92,7 +94,7 @@ public class TextDocument extends TextDocumentItem {
 	public Range getWordRangeAt(int textOffset, Pattern wordDefinition) {
 		try {
 			Position pos = positionAt(textOffset);
-			ListLineTracker lineTracker = getLineTracker();
+			TreeLineTracker lineTracker = getLineTracker();
 			Line line = lineTracker.getLineInformation(pos.getLine());
 			String text = super.getText();
 			String lineText = text.substring(line.offset, textOffset);
@@ -116,11 +118,7 @@ public class TextDocument extends TextDocumentItem {
 		}
 	}
 
-	private ListLineTracker getLineTracker() {
-		if (lineTracker == null) {
-			lineTracker = new ListLineTracker();
-			lineTracker.set(super.getText());
-		}
+	private TreeLineTracker getLineTracker() {
 		return lineTracker;
 	}
 
@@ -137,9 +135,22 @@ public class TextDocument extends TextDocumentItem {
 		}
 		if (isIncremental()) {
 			try {
-				synchronized (buffer) {
-					for (TextDocumentContentChangeEvent changeEvent : changes) {
+				long start = System.currentTimeMillis();
+				synchronized (lock) {
+					// Initialize buffer and line tracker from the current text document
+					long start4 = System.currentTimeMillis();
+					String initialText = getText();
+					// System.err.println(initialText);
+					StringBuilder buffer = new StringBuilder(initialText);
+					// System.err.println("Updated initial text in " + (System.currentTimeMillis() -
+					// start4) + "ms");
+					// ListLineTracker lt = new ListLineTracker();
+					// lt.set(initialText);
 
+					// Loop for each changes and update the buffer
+					for (int i = 0; i < changes.size(); i++) {
+
+						TextDocumentContentChangeEvent changeEvent = changes.get(i);
 						Range range = changeEvent.getRange();
 						int length = 0;
 
@@ -147,15 +158,22 @@ public class TextDocument extends TextDocumentItem {
 							length = changeEvent.getRangeLength().intValue();
 						} else {
 							// range is optional and if not given, the whole file content is replaced
-							length = getText().length();
-							range = new Range(positionAt(0), positionAt(length));
+							length = buffer.length();
+							range = new Range(lineTracker.getPositionAt(0), lineTracker.getPositionAt(length));
 						}
 						String text = changeEvent.getText();
-						int startOffset = offsetAt(range.getStart());
+						long start2 = System.currentTimeMillis();
+						int startOffset = lineTracker.getOffsetAt(range.getStart());
 						buffer.replace(startOffset, startOffset + length, text);
+						lineTracker.replace(startOffset, length, text);
+						System.err.println("Updated buffer in " + (System.currentTimeMillis() - start2) + "ms");
 					}
+					// Update the new text content from the updated buffer
+					long start3 = System.currentTimeMillis();
 					setText(buffer.toString());
+					System.err.println("Updated setText in " + (System.currentTimeMillis() - start3) + "ms");
 				}
+				System.err.println("Updated in " + (System.currentTimeMillis() - start) + "ms");
 			} catch (BadLocationException e) {
 				// Should never occurs.
 			}
@@ -165,13 +183,16 @@ public class TextDocument extends TextDocumentItem {
 			// https://github.com/Microsoft/vscode-languageserver-node/blob/master/server/src/main.ts
 			TextDocumentContentChangeEvent last = changes.size() > 0 ? changes.get(changes.size() - 1) : null;
 			if (last != null) {
+				String oldText = getText();
 				setText(last.getText());
+				try {
+					lineTracker.replace(0, oldText.length(), last.getText());
+				} catch (BadLocationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
-	}
-
-	public boolean isIncremental() {
-		return buffer != null;
 	}
 
 }

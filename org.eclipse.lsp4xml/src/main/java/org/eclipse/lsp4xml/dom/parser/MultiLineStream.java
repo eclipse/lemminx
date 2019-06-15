@@ -92,6 +92,7 @@ public class MultiLineStream {
 
 	/**
 	 * Peeks at next char at position + n. peekChar() == peekChar(0)
+	 * 
 	 * @param n
 	 * @return
 	 */
@@ -105,6 +106,7 @@ public class MultiLineStream {
 
 	/**
 	 * Peeks at the char at position 'offset' of the whole document
+	 * 
 	 * @param offset
 	 * @return
 	 */
@@ -163,6 +165,7 @@ public class MultiLineStream {
 
 	/**
 	 * Advances stream on regex, but will grab the first group
+	 * 
 	 * @param regex
 	 * @return
 	 */
@@ -222,30 +225,27 @@ public class MultiLineStream {
 	}
 
 	/**
-	 * Will advance the stream position until 'closingBracket' or using a stack
-	 * to consider possible open/closed bracket pairs in between.
+	 * Will advance the stream position until 'closingBracket' or using a stack to
+	 * consider possible open/closed bracket pairs in between.
 	 * 
 	 * 'closingBracket' should be the closing bracket eg: > | ]
 	 */
 	public boolean advanceUntilCharUsingStack(int closingBracket) {
 
 		int openingBracket;
-		if(closingBracket == _RAN) { // >
-			openingBracket = _LAN;// <			
-		}
-		else if(closingBracket == _CSB) { // ]
+		if (closingBracket == _RAN) { // >
+			openingBracket = _LAN;// <
+		} else if (closingBracket == _CSB) { // ]
 			openingBracket = _OSB; // [
-		}
-		else {
+		} else {
 			return false; // The provided closingBracket is not implemented
 		}
 		int stack = 0;
 		while (this.position < this.len) {
-			if(peekChar() == openingBracket) {
-				stack ++;
-			}
-			else if(peekChar() == closingBracket) {
-				if(stack == 0) {
+			if (peekChar() == openingBracket) {
+				stack++;
+			} else if (peekChar() == closingBracket) {
+				if (stack == 0) {
 					return true;
 				}
 				stack--;
@@ -290,23 +290,25 @@ public class MultiLineStream {
 		return false;
 	}
 
+	/**
+	 * Advances until it reaches a whitespace character
+	 */
 	public boolean skipWhitespace() {
 		int n = this.advanceWhileChar(WHITESPACE_PREDICATE);
 		return n > 0;
 	}
 
-	/**
-	 * Advances until it reaches a whitespace character
-	 */
-	public boolean readNextWord() {
-		int n = this.advanceWhileChar(CHARACTER_PREDICATE);
-		return n > 0;
+	public int advanceWhileChar(Predicate<Integer> condition) {
+		return advanceWhileChar(condition, null);
 	}
 
-	public int advanceWhileChar(Predicate<Integer> condition) {
+	public int advanceWhileChar(Predicate<Integer> condition, Integer nbChars) {
 		int posNow = this.position;
 		while (this.position < this.len && condition.test(peekChar())) {
 			this.position++;
+			if (nbChars != null && nbChars == (this.position - posNow)) {
+				break;
+			}
 		}
 		return this.position - posNow;
 	}
