@@ -63,6 +63,9 @@ public class XMLSymbolSettings {
 	 * @return
 	 */
 	public boolean isExcluded(String uri) {
+		if (excludedFiles == null) {
+			return false;
+		}
 		for (XMLExcludedSymbolFile excludedFile : excludedFiles) {
 			if(excludedFile.matches(uri)) {
 				return true;
