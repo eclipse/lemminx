@@ -16,7 +16,8 @@ import org.apache.xerces.xni.parser.XMLEntityResolver;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.dom.DOMDocument;
-import org.eclipse.lsp4xml.extensions.contentmodel.ContentModelPlugin;
+import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelManager;
+import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lsp4xml.utils.DOMUtils;
 
@@ -26,11 +27,10 @@ import org.eclipse.lsp4xml.utils.DOMUtils;
  *
  */
 public class ContentModelDiagnosticsParticipant implements IDiagnosticsParticipant {
+	private final XMLExtensionsRegistry registry;
 
-	private final ContentModelPlugin contentModelPlugin;
-
-	public ContentModelDiagnosticsParticipant(ContentModelPlugin contentModelPlugin) {
-		this.contentModelPlugin = contentModelPlugin;
+	public ContentModelDiagnosticsParticipant(XMLExtensionsRegistry registry) {
+		this.registry = registry;
 	}
 
 	@Override
@@ -43,8 +43,8 @@ public class ContentModelDiagnosticsParticipant implements IDiagnosticsParticipa
 		// associations settings., ...)
 		XMLEntityResolver entityResolver = xmlDocument.getResolverExtensionManager();
 		// Process validation
-		XMLValidator.doDiagnostics(xmlDocument, entityResolver, diagnostics,
-				contentModelPlugin.getContentModelSettings(), monitor);
+		ContentModelManager manager = registry.getComponent(ContentModelManager.class);
+		XMLValidator.doDiagnostics(xmlDocument, entityResolver, diagnostics, manager.getSettings(), monitor);
 	}
 
 }

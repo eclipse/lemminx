@@ -26,6 +26,7 @@ import org.apache.xerces.impl.xs.SchemaGrammar;
 import org.apache.xerces.impl.xs.XSComplexTypeDecl;
 import org.apache.xerces.impl.xs.XSElementDecl;
 import org.apache.xerces.impl.xs.XSElementDeclHelper;
+import org.apache.xerces.impl.xs.models.CMBuilder;
 import org.apache.xerces.impl.xs.util.SimpleLocator;
 import org.apache.xerces.xni.QName;
 import org.apache.xerces.xni.XMLLocator;
@@ -70,18 +71,17 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 
 	private final Map<XSElementDeclaration, CMXSDElementDeclaration> elementMappings;
 
+	private final CMBuilder cmBuilder;
+
+	private final String uri;
+
 	private Collection<CMElementDeclaration> elements;
 
-	private String uri;
-
-	public CMXSDDocument(XSModel model) {
+	public CMXSDDocument(XSModel model, String uri, CMBuilder cmBuilder) {
 		this.model = model;
 		this.elementMappings = new HashMap<>();
-	}
-
-	public CMXSDDocument(XSModel model, String uri) {
-		this(model);
 		this.uri = uri;
+		this.cmBuilder = cmBuilder;
 	}
 
 	@Override
@@ -553,5 +553,9 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 			}
 		}
 		return null;
+	}
+	
+	CMBuilder getCMBuilder() {
+		return cmBuilder;
 	}
 }

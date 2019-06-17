@@ -58,14 +58,17 @@ public class XMLValidator {
 	private static final String DTD_NOT_FOUND = "Cannot find DTD ''{0}''.\nCreate the DTD file or configure an XML catalog for this DTD.";
 
 	public static void doDiagnostics(DOMDocument document, XMLEntityResolver entityResolver,
-			List<Diagnostic> diagnostics, ContentModelSettings contentModelSettings, CancelChecker monitor) {
+			List<Diagnostic> diagnostics, ContentModelSettings settings, CancelChecker monitor) {
 		try {
 			// It should be better to cache XML Schema with XMLGrammarCachingConfiguration,
 			// but we cannot use
 			// XMLGrammarCachingConfiguration because cache is done with target namespaces.
 			// There are conflicts when
 			// 2 XML Schemas don't define target namespaces.
-			LSPXMLParserConfiguration configuration = new LSPXMLParserConfiguration(
+
+			// Configure the XSD schema version
+			String namespaceSchemaVersion = XMLValidationSettings.getNamespaceSchemaVersion(settings);
+			LSPXMLParserConfiguration configuration = new LSPXMLParserConfiguration(namespaceSchemaVersion,
 					isDisableOnlyDTDValidation(document));
 
 			if (entityResolver != null) {
@@ -74,6 +77,7 @@ public class XMLValidator {
 
 			final LSPErrorReporterForXML reporter = new LSPErrorReporterForXML(document, diagnostics);
 			boolean externalDTDValid = checkExternalDTD(document, reporter, configuration);
+
 			SAXParser parser = new SAXParser(configuration);
 			// Add LSP error reporter to fill LSP diagnostics from Xerces errors
 			parser.setProperty("http://apache.org/xml/properties/internal/error-reporter", reporter);
@@ -87,9 +91,7 @@ public class XMLValidator {
 			boolean hasGrammar = document.hasGrammar();
 
 			// If diagnostics for Schema preference is enabled
-			XMLValidationSettings validationSettings = contentModelSettings != null
-					? contentModelSettings.getValidation()
-					: null;
+			XMLValidationSettings validationSettings = settings != null ? settings.getValidation() : null;
 			if ((validationSettings == null) || validationSettings.isSchema()) {
 
 				checkExternalSchema(document.getExternalSchemaLocation(), parser);
@@ -97,7 +99,7 @@ public class XMLValidator {
 				parser.setFeature("http://apache.org/xml/features/validation/schema", hasGrammar); //$NON-NLS-1$
 
 				// warn if XML document is not bound to a grammar according the settings
-				warnNoGrammar(document, diagnostics, contentModelSettings);
+				warnNoGrammar(document, diagnostics, settings);
 			} else {
 				hasGrammar = false; // validation for Schema was disabled
 			}

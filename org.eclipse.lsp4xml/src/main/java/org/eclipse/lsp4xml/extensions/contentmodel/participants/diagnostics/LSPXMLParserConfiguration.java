@@ -9,7 +9,9 @@
 *******************************************************************************/
 package org.eclipse.lsp4xml.extensions.contentmodel.participants.diagnostics;
 
+import org.apache.xerces.impl.Constants;
 import org.apache.xerces.impl.dtd.XMLDTDValidator;
+import org.apache.xerces.impl.xs.XMLSchemaValidator;
 import org.apache.xerces.parsers.XIncludeAwareParserConfiguration;
 import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.parser.XMLComponentManager;
@@ -25,10 +27,40 @@ import org.apache.xerces.xni.parser.XMLConfigurationException;
  */
 class LSPXMLParserConfiguration extends XIncludeAwareParserConfiguration {
 
+	private static final String XML_SCHEMA_VERSION = Constants.XERCES_PROPERTY_PREFIX
+			+ Constants.XML_SCHEMA_VERSION_PROPERTY;
+
+	private static final String SCHEMA_VALIDATOR = Constants.XERCES_PROPERTY_PREFIX
+			+ Constants.SCHEMA_VALIDATOR_PROPERTY;
+
+	private final String namespaceSchemaVersion;
+
 	private final boolean disableDTDValidation;
 
-	public LSPXMLParserConfiguration(boolean disableDTDValidation) {
+	public LSPXMLParserConfiguration(String namespaceSchemaVersion, boolean disableDTDValidation) {
+		this.namespaceSchemaVersion = namespaceSchemaVersion;
 		this.disableDTDValidation = disableDTDValidation;
+	}
+
+	@Override
+	protected void configurePipeline() {
+		super.configurePipeline();
+		configureSchemaVersion();
+	}
+
+	@Override
+	protected void configureXML11Pipeline() {
+		super.configureXML11Pipeline();
+		configureSchemaVersion();
+	}
+
+	private void configureSchemaVersion() {
+		if (namespaceSchemaVersion != null) {
+			XMLSchemaValidator validator = (XMLSchemaValidator) super.getProperty(SCHEMA_VALIDATOR);
+			if (validator != null) {
+				validator.setProperty(XML_SCHEMA_VERSION, namespaceSchemaVersion);
+			}
+		}
 	}
 
 	@Override

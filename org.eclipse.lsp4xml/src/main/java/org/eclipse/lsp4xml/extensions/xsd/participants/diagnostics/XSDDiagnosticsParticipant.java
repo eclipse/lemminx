@@ -16,6 +16,8 @@ import org.apache.xerces.xni.parser.XMLEntityResolver;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.dom.DOMDocument;
+import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelManager;
+import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lsp4xml.utils.DOMUtils;
 
@@ -24,6 +26,12 @@ import org.eclipse.lsp4xml.utils.DOMUtils;
  *
  */
 public class XSDDiagnosticsParticipant implements IDiagnosticsParticipant {
+
+	private final XMLExtensionsRegistry registry;
+
+	public XSDDiagnosticsParticipant(XMLExtensionsRegistry registry) {
+		this.registry = registry;
+	}
 
 	@Override
 	public void doDiagnostics(DOMDocument xmlDocument, List<Diagnostic> diagnostics, CancelChecker monitor) {
@@ -35,7 +43,8 @@ public class XSDDiagnosticsParticipant implements IDiagnosticsParticipant {
 		// associations settings., ...)
 		XMLEntityResolver entityResolver = xmlDocument.getResolverExtensionManager();
 		// Process validation
-		XSDValidator.doDiagnostics(xmlDocument, entityResolver, diagnostics, monitor);
+		ContentModelManager manager = registry.getComponent(ContentModelManager.class);
+		XSDValidator.doDiagnostics(xmlDocument, entityResolver, diagnostics, manager.getSettings(), monitor);
 	}
 
 }
