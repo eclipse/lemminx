@@ -41,8 +41,7 @@ public class XSDPlugin implements IXMLExtension {
 
 	private final IDefinitionParticipant definitionParticipant;
 
-	private final IDiagnosticsParticipant diagnosticsParticipant;
-
+	private IDiagnosticsParticipant diagnosticsParticipant;
 	private final IReferenceParticipant referenceParticipant;
 	private final ICodeLensParticipant codeLensParticipant;
 	private final IHighlightingParticipant highlightingParticipant;
@@ -53,7 +52,6 @@ public class XSDPlugin implements IXMLExtension {
 	public XSDPlugin() {
 		completionParticipant = new XSDCompletionParticipant();
 		definitionParticipant = new XSDDefinitionParticipant();
-		diagnosticsParticipant = new XSDDiagnosticsParticipant();
 		referenceParticipant = new XSDReferenceParticipant();
 		codeLensParticipant = new XSDCodeLensParticipant();
 		highlightingParticipant = new XSDHighlightingParticipant();
@@ -73,12 +71,14 @@ public class XSDPlugin implements IXMLExtension {
 
 	@Override
 	public void start(InitializeParams params, XMLExtensionsRegistry registry) {
+		diagnosticsParticipant = new XSDDiagnosticsParticipant(registry);
 		// Register resolver
 		uiResolver = new XSDURIResolverExtension(registry.getDocumentProvider());
 		registry.getResolverExtensionManager().registerResolver(uiResolver);
 		// register XSD content model provider
-		ContentModelProvider modelProvider = new CMXSDContentModelProvider(registry.getResolverExtensionManager());
 		modelManager = registry.getComponent(ContentModelManager.class);
+		ContentModelProvider modelProvider = new CMXSDContentModelProvider(registry.getResolverExtensionManager(),
+				modelManager);
 		modelManager.registerModelProvider(modelProvider);
 		// register completion, diagnostic participant
 		registry.registerCompletionParticipant(completionParticipant);

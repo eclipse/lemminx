@@ -37,7 +37,7 @@ public class ContentModelPlugin implements IXMLExtension {
 
 	private final IHoverParticipant hoverParticipant;
 
-	private final IDiagnosticsParticipant diagnosticsParticipant;
+	private IDiagnosticsParticipant diagnosticsParticipant;
 
 	private final ICodeActionParticipant codeActionParticipant;
 
@@ -47,12 +47,9 @@ public class ContentModelPlugin implements IXMLExtension {
 
 	ContentModelManager contentModelManager;
 
-	private ContentModelSettings cmSettings;
-
 	public ContentModelPlugin() {
 		completionParticipant = new ContentModelCompletionParticipant();
 		hoverParticipant = new ContentModelHoverParticipant();
-		diagnosticsParticipant = new ContentModelDiagnosticsParticipant(this);
 		codeActionParticipant = new ContentModelCodeActionParticipant();
 		documentLinkParticipant = new ContentModelDocumentLinkParticipant();
 		typeDefinitionParticipant = new ContentModelTypeDefinitionParticipant();
@@ -83,10 +80,12 @@ public class ContentModelPlugin implements IXMLExtension {
 
 	private void updateSettings(ISaveContext saveContext) {
 		Object initializationOptionsSettings = saveContext.getSettings();
-		cmSettings = ContentModelSettings.getContentModelXMLSettings(initializationOptionsSettings);
+		ContentModelSettings cmSettings = ContentModelSettings
+				.getContentModelXMLSettings(initializationOptionsSettings);
 		if (cmSettings != null) {
 			updateSettings(cmSettings, saveContext);
 		}
+		contentModelManager.setSettings(cmSettings);
 	}
 
 	private void updateSettings(ContentModelSettings settings, ISaveContext context) {
@@ -126,6 +125,7 @@ public class ContentModelPlugin implements IXMLExtension {
 
 	@Override
 	public void start(InitializeParams params, XMLExtensionsRegistry registry) {
+		diagnosticsParticipant = new ContentModelDiagnosticsParticipant(registry);
 		URIResolverExtensionManager resolverManager = registry.getComponent(URIResolverExtensionManager.class);
 		contentModelManager = new ContentModelManager(resolverManager);
 		registry.registerComponent(contentModelManager);
@@ -148,9 +148,5 @@ public class ContentModelPlugin implements IXMLExtension {
 		registry.unregisterCodeActionParticipant(codeActionParticipant);
 		registry.unregisterDocumentLinkParticipant(documentLinkParticipant);
 		registry.unregisterTypeDefinitionParticipant(typeDefinitionParticipant);
-	}
-
-	public ContentModelSettings getContentModelSettings() {
-		return cmSettings;
 	}
 }

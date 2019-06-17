@@ -41,7 +41,7 @@ public class ContentModelManagerDependsOnGrammarTest {
 		modelManager.registerModelProvider(modelProvider);
 
 		// XSD -> See XSDPlugin
-		modelProvider = new CMXSDContentModelProvider(resolverExtensionManager);
+		modelProvider = new CMXSDContentModelProvider(resolverExtensionManager, modelManager);
 		modelManager.registerModelProvider(modelProvider);
 	}
 

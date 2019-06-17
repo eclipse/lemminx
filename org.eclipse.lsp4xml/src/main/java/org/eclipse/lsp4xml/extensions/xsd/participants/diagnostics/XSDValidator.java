@@ -34,6 +34,8 @@ import org.apache.xerces.xni.parser.XMLParseException;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.dom.DOMDocument;
+import org.eclipse.lsp4xml.extensions.contentmodel.settings.ContentModelSettings;
+import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLValidationSettings;
 
 /**
  * XSD validator utilities class.
@@ -41,12 +43,15 @@ import org.eclipse.lsp4xml.dom.DOMDocument;
  */
 public class XSDValidator {
 
+	private static final String XML_SCHEMA_VERSION = Constants.XERCES_PROPERTY_PREFIX
+			+ Constants.XML_SCHEMA_VERSION_PROPERTY;
+
 	private static final Logger LOGGER = Logger.getLogger(XSDValidator.class.getName());
 
 	private static boolean canCustomizeReporter = true;
 
 	public static void doDiagnostics(DOMDocument document, XMLEntityResolver entityResolver,
-			List<Diagnostic> diagnostics, CancelChecker monitor) {
+			List<Diagnostic> diagnostics, ContentModelSettings settings, CancelChecker monitor) {
 
 		try {
 			XMLErrorReporter reporter = new LSPErrorReporterForXSD(document, diagnostics);
@@ -82,6 +87,12 @@ public class XSDValidator {
 				grammarPreparser.setEntityResolver(entityResolver);
 			}
 
+			// Configure the XSD schema version
+			String namespaceSchemaVersion = XMLValidationSettings.getNamespaceSchemaVersion(settings);
+			if (namespaceSchemaVersion != null) {
+				grammarPreparser.setProperty(XML_SCHEMA_VERSION, namespaceSchemaVersion);
+			}
+			
 			String content = document.getText();
 			String uri = document.getDocumentURI();
 			InputStream inputStream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
@@ -125,6 +136,7 @@ public class XSDValidator {
 				SchemaDOMParser domParser = (SchemaDOMParser) g.get(handler);
 				domParser.setProperty("http://apache.org/xml/properties/internal/error-reporter", reporter);
 			} catch (Exception e) {
+				e.printStackTrace();
 				canCustomizeReporter = false;
 			}
 		}
