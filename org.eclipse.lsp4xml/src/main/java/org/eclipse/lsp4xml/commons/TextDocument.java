@@ -11,6 +11,8 @@
 package org.eclipse.lsp4xml.commons;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,11 +28,13 @@ import org.eclipse.lsp4j.TextDocumentItem;
  */
 public class TextDocument extends TextDocumentItem {
 
+	private static final Logger LOGGER = Logger.getLogger(TextDocument.class.getName());
+
 	private final Object lock = new Object();
 
 	private static String DEFAULT_DELIMTER = System.lineSeparator();
 
-	private final ListLineTracker lineTracker;
+	private ILineTracker lineTracker;
 
 	private boolean incremental;
 
@@ -41,44 +45,40 @@ public class TextDocument extends TextDocumentItem {
 	}
 
 	public TextDocument(String text, String uri) {
-		this.lineTracker = new ListLineTracker();
 		super.setUri(uri);
-		this.setText(text);
+		super.setText(text);
 	}
 
 	public void setIncremental(boolean incremental) {
 		this.incremental = incremental;
+		// reset line tracker
+		lineTracker = null;
+		getLineTracker();
 	}
 
 	public boolean isIncremental() {
 		return incremental;
 	}
 
-	@Override
-	public void setText(String text) {
-		super.setText(text);
-		lineTracker.set(text);
-	}
-
 	public Position positionAt(int position) throws BadLocationException {
-		ListLineTracker lineTracker = getLineTracker();
+		ILineTracker lineTracker = getLineTracker();
 		return lineTracker.getPositionAt(position);
 	}
 
 	public int offsetAt(Position position) throws BadLocationException {
-		ListLineTracker lineTracker = getLineTracker();
+		ILineTracker lineTracker = getLineTracker();
 		return lineTracker.getOffsetAt(position);
 	}
 
 	public String lineText(int lineNumber) throws BadLocationException {
-		ListLineTracker lineTracker = getLineTracker();
+		ILineTracker lineTracker = getLineTracker();
 		Line line = lineTracker.getLineInformation(lineNumber);
 		String text = super.getText();
 		return text.substring(line.offset, line.offset + line.length);
 	}
 
 	public String lineDelimiter(int lineNumber) throws BadLocationException {
-		ListLineTracker lineTracker = getLineTracker();
+		ILineTracker lineTracker = getLineTracker();
 		String lineDelimiter = lineTracker.getLineDelimiter(lineNumber);
 		if (lineDelimiter == null) {
 			if (lineTracker.getNumberOfLines() > 0) {
@@ -94,7 +94,7 @@ public class TextDocument extends TextDocumentItem {
 	public Range getWordRangeAt(int textOffset, Pattern wordDefinition) {
 		try {
 			Position pos = positionAt(textOffset);
-			ListLineTracker lineTracker = getLineTracker();
+			ILineTracker lineTracker = getLineTracker();
 			Line line = lineTracker.getLineInformation(pos.getLine());
 			String text = super.getText();
 			String lineText = text.substring(line.offset, textOffset);
@@ -118,7 +118,19 @@ public class TextDocument extends TextDocumentItem {
 		}
 	}
 
-	private ListLineTracker getLineTracker() {
+	private ILineTracker getLineTracker() {
+		if (lineTracker == null) {
+			lineTracker = createLineTracker();
+		}
+		return lineTracker;
+	}
+
+	private synchronized ILineTracker createLineTracker() {
+		if (lineTracker != null) {
+			return lineTracker;
+		}
+		ILineTracker lineTracker = isIncremental() ? new TreeLineTracker(new ListLineTracker()) : new ListLineTracker();
+		lineTracker.set(super.getText());
 		return lineTracker;
 	}
 
@@ -135,18 +147,15 @@ public class TextDocument extends TextDocumentItem {
 		}
 		if (isIncremental()) {
 			try {
-				// Initialize buffer and line tracker from the current text document
-				String initialText = getText();
-				StringBuilder buffer = new StringBuilder(getText());
-				ListLineTracker lt = new ListLineTracker();
-				lt.set(initialText);
+				long start = System.currentTimeMillis();
 				synchronized (lock) {
-					for (int i = 0; i < changes.size(); i++) {
-						if (i > 0) {
-							lt.set(buffer.toString());
-						}
-						TextDocumentContentChangeEvent changeEvent = changes.get(i);
+					// Initialize buffer and line tracker from the current text document
+					StringBuilder buffer = new StringBuilder(getText());
 
+					// Loop for each changes and update the buffer
+					for (int i = 0; i < changes.size(); i++) {
+
+						TextDocumentContentChangeEvent changeEvent = changes.get(i);
 						Range range = changeEvent.getRange();
 						int length = 0;
 
@@ -155,15 +164,18 @@ public class TextDocument extends TextDocumentItem {
 						} else {
 							// range is optional and if not given, the whole file content is replaced
 							length = buffer.length();
-							range = new Range(lt.getPositionAt(0), lt.getPositionAt(length));
+							range = new Range(positionAt(0), positionAt(length));
 						}
 						String text = changeEvent.getText();
-						int startOffset = lt.getOffsetAt(range.getStart());
+						int startOffset = offsetAt(range.getStart());
 						buffer.replace(startOffset, startOffset + length, text);
+						lineTracker.replace(startOffset, length, text);
 					}
 					// Update the new text content from the updated buffer
 					setText(buffer.toString());
 				}
+				LOGGER.log(Level.INFO,
+						"Text document content updated in " + (System.currentTimeMillis() - start) + "ms");
 			} catch (BadLocationException e) {
 				// Should never occur.
 			}
@@ -174,8 +186,8 @@ public class TextDocument extends TextDocumentItem {
 			TextDocumentContentChangeEvent last = changes.size() > 0 ? changes.get(changes.size() - 1) : null;
 			if (last != null) {
 				setText(last.getText());
+				lineTracker.set(last.getText());
 			}
 		}
 	}
-
 }
