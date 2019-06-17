@@ -20,6 +20,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.eclipse.lsp4xml.dom.DOMAttr;
 import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.xpath.matcher.XPathMatcher;
 import org.w3c.dom.NodeList;
@@ -32,7 +33,7 @@ public class XMLReference {
 
 	private final String from;
 
-	private final List<XPathExpression> tos;
+	private final List<String> tos;
 
 	private XPathMatcher matcher;
 
@@ -43,8 +44,7 @@ public class XMLReference {
 	}
 
 	public XMLReference to(String to) throws XPathExpressionException {
-		XPath xPath = XPathFactory.newInstance().newXPath();
-		this.tos.add(xPath.compile(to));
+		this.tos.add(to);
 		return this;
 	}
 
@@ -53,13 +53,23 @@ public class XMLReference {
 	}
 
 	void collect(DOMNode node, Consumer<DOMNode> collector) throws XPathExpressionException {
-		for (XPathExpression expression : tos) {
-			NodeList result = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
+		for (String to : tos) {
+			XPathExpression expression = getXPathExpression(to, node);
+			NodeList result = (NodeList) expression.evaluate(node.getOwnerDocument(), XPathConstants.NODESET);
 			for (int i = 0; i < result.getLength(); i++) {
 				collector.accept((DOMNode) result.item(i));
 			}
 		}
+	}
 
+	private XPathExpression getXPathExpression(String to, DOMNode node) throws XPathExpressionException {
+		XPath xPath = XPathFactory.newInstance().newXPath();
+		int index = to.lastIndexOf("/@");
+		String path = to.substring(0, index);
+		String targetNode = to.substring(index + 2, to.length());
+		String x = new StringBuilder(path).append("[@").append(targetNode).append("='")
+				.append(((DOMAttr) node).getValue()).append("']").append("/@").append(targetNode).toString();
+		return xPath.compile(x);
 	}
 
 }

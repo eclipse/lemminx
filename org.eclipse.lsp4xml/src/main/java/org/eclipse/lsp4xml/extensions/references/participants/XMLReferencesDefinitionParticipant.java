@@ -15,30 +15,26 @@ import java.util.List;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.extensions.references.XMLReferencesManager;
-import org.eclipse.lsp4xml.services.extensions.IDefinitionParticipant;
+import org.eclipse.lsp4xml.services.extensions.AbstractDefinitionParticipant;
 import org.eclipse.lsp4xml.utils.XMLPositionUtility;
 
-public class XMLReferencesDefinitionParticipant implements IDefinitionParticipant {
+public class XMLReferencesDefinitionParticipant extends AbstractDefinitionParticipant {
 
 	@Override
-	public void findDefinition(DOMDocument document, Position position, List<Location> locations) {
-		try {
-			int offset = document.offsetAt(position);
-			DOMNode node = document.findNodeAt(offset);
-			if (node != null) {
-				XMLReferencesManager.getInstance().collect(node, n -> {
-					DOMDocument doc = n.getOwnerDocument();
-					Range range = XMLPositionUtility.createRange(n.getStart(), n.getEnd(), doc);
-					locations.add(new Location(doc.getDocumentURI(), range));
-				});
-			}
-		} catch (BadLocationException e) {
+	protected boolean match(DOMDocument document, Position position) {
+		return true;
+	}
 
-		}
+	@Override
+	protected void findDefinition(DOMNode node, Position position, List<Location> locations) {
+		XMLReferencesManager.getInstance().collect(node, n -> {
+			DOMDocument doc = n.getOwnerDocument();
+			Range range = XMLPositionUtility.createRange(n.getStart(), n.getEnd(), doc);
+			locations.add(new Location(doc.getDocumentURI(), range));
+		});
 	}
 
 }

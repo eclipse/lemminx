@@ -36,6 +36,8 @@ public class XPathMatcher extends ArrayList<XPathElementMatcher> {
 
 	private int nbWildCard = -1;
 
+	private String targetAttribute;
+
 	/**
 	 * Constructor of XPath Matcher with a XPath expression.
 	 * 
@@ -66,75 +68,84 @@ public class XPathMatcher extends ArrayList<XPathElementMatcher> {
 		String[] paths = xpathExpression.split("/");
 		for (int i = 0; i < paths.length; i++) {
 			localName = paths[i];
-			if (StringUtils.isEmpty(localName)) {
-				this.createElementMatcher();
-			} else {
-				int indexNS = localName.indexOf(':');
-				if (indexNS != -1) {
-					prefix = localName.substring(0, indexNS);
-					localName = localName.substring(indexNS + 1, localName.length());
+			if (i == paths.length - 1) {
+				// target node
+				if (localName.charAt(0) == '@') {
+					// attribute target
+					targetAttribute = localName.substring(1, localName.length());
 				}
-				int indexSquareBracket = localName.indexOf("[");
-				if (indexSquareBracket == -1) {
-					// Element name condition
-					// ex : p=pipeline
-					this.createElementMatcher(prefix, localName);
+			} else {
+				if (StringUtils.isEmpty(localName)) {
+					this.createElementMatcher();
 				} else {
-					// ex : p=transformer[@type='pipeline'][@src='p1']
-					String elementName = localName.substring(0, indexSquareBracket);
-					elementmatcher = this.createElementMatcher(prefix, elementName);
+					int indexNS = localName.indexOf(':');
+					if (indexNS != -1) {
+						prefix = localName.substring(0, indexNS);
+						localName = localName.substring(indexNS + 1, localName.length());
+					}
+					int indexSquareBracket = localName.indexOf("[");
+					if (indexSquareBracket == -1) {
+						// Element name condition
+						// ex : p=pipeline
+						this.createElementMatcher(prefix, localName);
+					} else {
+						// ex : p=transformer[@type='pipeline'][@src='p1']
+						String elementName = localName.substring(0, indexSquareBracket);
+						elementmatcher = this.createElementMatcher(prefix, elementName);
 
-					String attributesCondition = localName.substring(indexSquareBracket, localName.length());
-					// ex : attributesCondition=[@type='pipeline'][@src='p1']
+						String attributesCondition = localName.substring(indexSquareBracket, localName.length());
+						// ex : attributesCondition=[@type='pipeline'][@src='p1']
 
-					char c;
-					StringBuilder attrName = null;
-					StringBuilder attrValue = null;
-					boolean firstQuote = false;
-					boolean attrCondition = false;
-					char[] chars = attributesCondition.toCharArray();
-					for (int j = 0; j < chars.length; j++) {
-						c = chars[j];
-						if (attrName == null) {
-							if (c == '[' || /* c == '@' || */c == ']') {
-								continue;
-							}
-							attrName = new StringBuilder();
-							attrName.append(c);
-							attrCondition = (c == '@');
-						} else {
-							if (attrValue == null) {
-								if (c != '=') {
-									attrName.append(c);
-								} else {
-									attrValue = new StringBuilder();
+						char c;
+						StringBuilder attrName = null;
+						StringBuilder attrValue = null;
+						boolean firstQuote = false;
+						boolean attrCondition = false;
+						char[] chars = attributesCondition.toCharArray();
+						for (int j = 0; j < chars.length; j++) {
+							c = chars[j];
+							if (attrName == null) {
+								if (c == '[' || /* c == '@' || */c == ']') {
+									continue;
 								}
+								attrName = new StringBuilder();
+								attrName.append(c);
+								attrCondition = (c == '@');
 							} else {
-								if (c == '\'') {
-									if (!firstQuote) {
-										firstQuote = true;
-										continue;
+								if (attrValue == null) {
+									if (c != '=') {
+										attrName.append(c);
 									} else {
-										// second quote, add attribute name
-										// condition
-										if (attrCondition) {
-											XPathAttributeMatcher attributematcher = this.createAttributeMatcher(
-													elementmatcher, attrName.toString().substring(1, attrName.length()),
-													attrValue.toString());
-											if (attributematcher.hasWildcard()) {
-												int index = attributematcher.getIndexWildcard();
-												if (index > nbWildCard) {
-													nbWildCard = index;
-												}
-											}
-										}
-										attrName = null;
-										attrValue = null;
-										firstQuote = false;
-										attrCondition = false;
+										attrValue = new StringBuilder();
 									}
 								} else {
-									attrValue.append(c);
+									if (c == '\'') {
+										if (!firstQuote) {
+											firstQuote = true;
+											continue;
+										} else {
+											// second quote, add attribute name
+											// condition
+											if (attrCondition) {
+												XPathAttributeMatcher attributematcher = this.createAttributeMatcher(
+														elementmatcher,
+														attrName.toString().substring(1, attrName.length()),
+														attrValue.toString());
+												if (attributematcher.hasWildcard()) {
+													int index = attributematcher.getIndexWildcard();
+													if (index > nbWildCard) {
+														nbWildCard = index;
+													}
+												}
+											}
+											attrName = null;
+											attrValue = null;
+											firstQuote = false;
+											attrCondition = false;
+										}
+									} else {
+										attrValue.append(c);
+									}
 								}
 							}
 						}
@@ -143,7 +154,7 @@ public class XPathMatcher extends ArrayList<XPathElementMatcher> {
 			}
 		}
 		if (endsWithAny) {
-			this.createElementMatcher();
+			// this.createElementMatcher();
 		}
 	}
 
@@ -172,6 +183,12 @@ public class XPathMatcher extends ArrayList<XPathElementMatcher> {
 			return false;
 		}
 		Node testNode = node;
+		if (targetAttribute != null) {
+			if (!(node.getNodeType() == Node.ATTRIBUTE_NODE && targetAttribute.equals(node.getNodeName()))) {
+				return false;
+			}
+			testNode = ((Attr) node).getOwnerElement();
+		}
 		XPathElementMatcher condition = null;
 		for (int i = super.size() - 1; i >= 0; i--) {
 			condition = super.get(i);
@@ -292,6 +309,10 @@ public class XPathMatcher extends ArrayList<XPathElementMatcher> {
 		XPathAttributeMatcher matcher = new XPathAttributeMatcher(attrName, attrValue, this);
 		elementmatcher.add(matcher);
 		return matcher;
+	}
+
+	public String getTargetAttribute() {
+		return targetAttribute;
 	}
 
 }
