@@ -79,6 +79,7 @@
 					<version>3.0.0-M1</version>
 					<configuration>
 						<runOrder>random</runOrder>
+						<argLine>-Xmx8192m</argLine>
 					</configuration>
 				</plugin>
 				<plugin>
