@@ -65,6 +65,20 @@ public class XMLScannerTest {
   }
 
   @Test
+  public void testMinusElement() {
+    scanner = XMLScanner.createScanner("<hello-word></hello-word>");
+    
+    //<hello-word>
+    assertOffsetAndToken(0, TokenType.StartTagOpen);
+    assertOffsetAndToken(1, TokenType.StartTag, "hello-word");
+    assertOffsetAndToken(11, TokenType.StartTagClose);
+    //</hello-word>
+    assertOffsetAndToken(12, TokenType.EndTagOpen);
+    assertOffsetAndToken(14, TokenType.EndTag, "hello-word");
+    assertOffsetAndToken(24, TokenType.EndTagClose);
+  }
+  
+  @Test
   public void testElementWithAttribute() {
     scanner = XMLScanner.createScanner("<hello key=\"value\"></hello>");
     
