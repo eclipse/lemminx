@@ -174,8 +174,7 @@ public class TextDocument extends TextDocumentItem {
 					// Update the new text content from the updated buffer
 					setText(buffer.toString());
 				}
-				LOGGER.log(Level.INFO,
-						"Text document content updated in " + (System.currentTimeMillis() - start) + "ms");
+				LOGGER.fine("Text document content updated in " + (System.currentTimeMillis() - start) + "ms");
 			} catch (BadLocationException e) {
 				// Should never occur.
 			}

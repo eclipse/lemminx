@@ -37,9 +37,9 @@ public class LogHelper {
 
 		Logger logger = Logger.getLogger("");
 		unregisterAllHandlers(logger.getHandlers());
-		logger.setLevel(Level.INFO);
+		logger.setLevel(getLogLevel());
 		logger.setUseParentHandlers(false);// Stops output to console
-
+		
 		// Configure logging LSP client handler
 		if (settings.getClient()) {
 			try {
@@ -58,12 +58,35 @@ public class LogHelper {
 				logger.addHandler(fh);
 
 			} catch (SecurityException | IOException e) {
-				logger.log(Level.WARNING, "Error at creation of FileHandler for logging");
+				logger.warning("Error at creation of FileHandler for logging");
 			}
 		} else {
-			logger.log(Level.INFO, "Log file could not be created, path not provided");
+			logger.info("Log file could not be created, path not provided");
 		}
 
+	}
+
+	private static Level getLogLevel() {
+		String logLevel = System.getProperty("log.level", "info").toLowerCase();
+		switch (logLevel) {
+		case "info":
+			return Level.INFO;
+		case "off":
+			return Level.OFF;
+		case "all":
+		case "debug":
+		case "fine":
+		case "finer":
+		case "finest":
+			return Level.FINEST;
+		case "warn":
+		case "warning":
+			return Level.WARNING;
+		case "error":
+		case "fatal":
+			return Level.SEVERE;
+		}
+		return Level.INFO;
 	}
 
 	private static void createDirectoryPath(String path) {
