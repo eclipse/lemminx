@@ -13,8 +13,9 @@ package org.eclipse.lsp4xml.services;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.lsp4j.Location;
+import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.services.extensions.IDefinitionParticipant;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
@@ -31,10 +32,10 @@ class XMLDefinition {
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
-	public List<? extends Location> findDefinition(DOMDocument document, Position position) {
-		List<Location> locations = new ArrayList<>();
+	public List<? extends LocationLink> findDefinition(DOMDocument document, Position position, CancelChecker cancelChecker) {
+		List<LocationLink> locations = new ArrayList<>();
 		for (IDefinitionParticipant participant : extensionsRegistry.getDefinitionParticipants()) {
-			participant.findDefinition(document, position, locations);
+			participant.findDefinition(document, position, locations, cancelChecker);
 		}
 		return locations;
 	}

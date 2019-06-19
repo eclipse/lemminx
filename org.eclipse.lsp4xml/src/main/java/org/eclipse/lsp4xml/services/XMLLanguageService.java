@@ -28,6 +28,7 @@ import org.eclipse.lsp4j.FoldingRange;
 import org.eclipse.lsp4j.FoldingRangeCapabilities;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Location;
+import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
@@ -38,7 +39,6 @@ import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
-import org.eclipse.lsp4xml.commons.TextDocumentVersionChecker;
 import org.eclipse.lsp4xml.customservice.AutoCloseTagResponse;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMElement;
@@ -204,8 +204,8 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		return documentLink.findDocumentLinks(document);
 	}
 
-	public List<? extends Location> findDefinition(DOMDocument xmlDocument, Position position) {
-		return definition.findDefinition(xmlDocument, position);
+	public List<? extends LocationLink> findDefinition(DOMDocument xmlDocument, Position position, CancelChecker cancelChecker) {
+		return definition.findDefinition(xmlDocument, position, cancelChecker);
 	}
 
 	public List<? extends Location> findReferences(DOMDocument xmlDocument, Position position,

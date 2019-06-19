@@ -76,6 +76,7 @@ import org.eclipse.lsp4xml.settings.SharedSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.settings.XMLIncrementalSupportSettings;
 import org.eclipse.lsp4xml.settings.XMLSymbolSettings;
+import org.eclipse.lsp4xml.utils.XMLPositionUtility;
 
 /**
  * XML text document service.
@@ -128,6 +129,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	final ScheduledExecutorService delayer = Executors.newScheduledThreadPool(2);
 	private boolean codeActionLiteralSupport;
 	private boolean hierarchicalDocumentSymbolSupport;
+	private boolean definitionLinkSupport;
 
 	public XMLTextDocumentService(XMLLanguageServer xmlLanguageServer) {
 		this.xmlLanguageServer = xmlLanguageServer;
@@ -148,6 +150,9 @@ public class XMLTextDocumentService implements TextDocumentService {
 			hierarchicalDocumentSymbolSupport = textDocumentClientCapabilities.getDocumentSymbol() != null
 					&& textDocumentClientCapabilities.getDocumentSymbol().getHierarchicalDocumentSymbolSupport() != null
 					&& textDocumentClientCapabilities.getDocumentSymbol().getHierarchicalDocumentSymbolSupport();
+			definitionLinkSupport = textDocumentClientCapabilities.getDefinition() != null
+					&& textDocumentClientCapabilities.getDefinition().getLinkSupport() != null
+					&& textDocumentClientCapabilities.getDefinition().getLinkSupport();
 		}
 	}
 
@@ -279,7 +284,15 @@ public class XMLTextDocumentService implements TextDocumentService {
 	public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> definition(
 			TextDocumentPositionParams params) {
 		return computeDOMAsync(params.getTextDocument(), (cancelChecker, xmlDocument) -> {
-			return Either.forLeft(getXMLLanguageService().findDefinition(xmlDocument, params.getPosition()));
+			if (definitionLinkSupport) {
+				return Either.forRight(getXMLLanguageService().findDefinition(xmlDocument, params.getPosition(), cancelChecker));
+			}
+			List<? extends Location> locations = getXMLLanguageService()
+					.findDefinition(xmlDocument, params.getPosition(), cancelChecker) //
+					.stream() //
+					.map(locationLink -> XMLPositionUtility.toLocation(locationLink)) //
+					.collect(Collectors.toList());
+			return Either.forLeft(locations);
 		});
 	}
 

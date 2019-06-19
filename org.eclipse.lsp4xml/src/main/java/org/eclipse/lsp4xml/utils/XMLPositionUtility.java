@@ -16,6 +16,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.xerces.xni.XMLLocator;
+import org.eclipse.lsp4j.Location;
+import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.BadLocationException;
@@ -146,13 +148,13 @@ public class XMLPositionUtility {
 		}
 		return null;
 	}
-	
+
 	private static Range createAttrRange(DOMAttr attr, DOMDocument document) {
 		int startOffset = attr.getStart();
 		int endOffset = attr.getEnd();
 		return createRange(startOffset, endOffset, document);
 	}
-	
+
 	private static int adjustOffsetForAttribute(int offset, DOMDocument document) {
 		// For attribute value, Xerces report the error offset after the spaces which
 		// are after " of the attribute value
@@ -202,7 +204,7 @@ public class XMLPositionUtility {
 	}
 
 	public static DOMNode findUnclosedChildNode(List<DOMNode> children) {
-		for (DOMNode child: children) {
+		for (DOMNode child : children) {
 			if (!child.isClosed()) {
 				return child;
 			}
@@ -338,42 +340,45 @@ public class XMLPositionUtility {
 	/**
 	 * Finds the offset of the first tag it comes across behind the given offset.
 	 * 
-	 * <p>This will include the tag it starts in if the offset is within a tag's content: </p>
-	 * <p>		
-	 * 		{@code  <a> <b> | </b> </a> } , will give {@code </b>} 
+	 * <p>
+	 * This will include the tag it starts in if the offset is within a tag's
+	 * content:
+	 * </p>
+	 * <p>
+	 * {@code  <a> <b> | </b> </a> } , will give {@code </b>}
 	 * </p>
 	 * 
 	 * or within an unclosed end tag:
 	 * 
-	 * <p>		
-	 * 		{@code  <a> <b>  </b> </a| <c>} , will give  {@code </a>} 
+	 * <p>
+	 * {@code  <a> <b>  </b> </a| <c>} , will give {@code </a>}
 	 * </p>
 	 * 
 	 * 
-	 * <p>		
-	 * 		{@code  <a> <b|>  </b> </a>} , will give  {@code </a>} 
+	 * <p>
+	 * {@code  <a> <b|>  </b> </a>} , will give {@code </a>}
 	 * </p>
 	 * 
 	 */
 	public static Range selectPreviousNodesEndTag(int offset, DOMDocument document) {
-		
+
 		DOMNode node = null;
 		DOMNode nodeAt = document.findNodeAt(offset);
-		if(nodeAt != null && nodeAt.isElement()) {
+		if (nodeAt != null && nodeAt.isElement()) {
 			node = nodeAt;
 		} else {
 			DOMNode nodeBefore = document.findNodeBefore(offset);
-			if(nodeBefore != null && nodeBefore.isElement()) {
+			if (nodeBefore != null && nodeBefore.isElement()) {
 				node = nodeBefore;
 			}
 		}
-		if(node != null) {
+		if (node != null) {
 			DOMElement element = (DOMElement) node;
-			if(element.isClosed() && !element.isEndTagClosed()) {
+			if (element.isClosed() && !element.isEndTagClosed()) {
 				return selectEndTag(element.getEnd(), document);
 			}
 		}
-		
+
 		// boolean firstBracket = false;
 		int i = offset;
 		char c = document.getText().charAt(i);
@@ -395,12 +400,22 @@ public class XMLPositionUtility {
 		}
 	}
 
+	public static LocationLink createLocationLink(DOMNode origin, DOMNode target) {
+		DOMDocument originDocument = origin.getOwnerDocument();
+		Range originSelectionRange = XMLPositionUtility.createRange(origin.getStart(), origin.getEnd(), originDocument);
+		DOMDocument targetDocument = target.getOwnerDocument();
+		Range targetRange = XMLPositionUtility.createRange(target.getStart(), target.getEnd(), targetDocument);
+		Range targetSelectionRange = targetRange;
+		return new LocationLink(targetDocument.getDocumentURI(), targetRange, targetSelectionRange,
+				originSelectionRange);
+	}
+
 	public static Range selectContent(int offset, DOMDocument document) {
 		DOMNode node = document.findNodeAt(offset);
 		if (node != null) {
 			if (node.isElement()) {
 				DOMElement element = (DOMElement) node;
-				if(node.hasChildNodes()) {
+				if (node.hasChildNodes()) {
 					return createRange(element.getStartTagCloseOffset() + 1, element.getEndTagOpenOffset(), document);
 				}
 				// node has NO content (ex: <root></root>, select the start tag
@@ -412,7 +427,7 @@ public class XMLPositionUtility {
 		}
 		return null;
 	}
-	
+
 	public static Range selectDTDElementDeclAt(int offset, DOMDocument document) {
 		DOMNode node = document.findNodeAt(offset);
 		if (node != null && node.isDTDElementDecl()) {
@@ -422,11 +437,11 @@ public class XMLPositionUtility {
 	}
 
 	/**
-	 * Will give the range for the last VALID DTD Decl parameter at 'offset'.
-	 * An unrecognized Parameter is not considered VALID,
+	 * Will give the range for the last VALID DTD Decl parameter at 'offset'. An
+	 * unrecognized Parameter is not considered VALID,
 	 * 
-	 * eg: "<!ELEMENT elementName (content) UNRECOGNIZED_CONTENT"
-	 * 		will give the range of 1 character length, after '(content)'
+	 * eg: "<!ELEMENT elementName (content) UNRECOGNIZED_CONTENT" will give the
+	 * range of 1 character length, after '(content)'
 	 */
 	public static Range getLastValidDTDDeclParameter(int offset, DOMDocument document, boolean selectWholeParameter) {
 		DOMNode node = document.findNodeAt(offset);
@@ -434,20 +449,19 @@ public class XMLPositionUtility {
 			DTDDeclNode decl = (DTDDeclNode) node;
 			List<DTDDeclParameter> params = decl.getParameters();
 			DTDDeclParameter finalParam;
-			if(params == null || params.isEmpty()) {
+			if (params == null || params.isEmpty()) {
 				return createRange(decl.declType.getStart(), decl.declType.getEnd(), document);
 			}
-			if(decl.unrecognized != null && decl.unrecognized.equals(params.get(params.size() - 1))) {
-				if(params.size() > 1) { // not only an unrecognized parameter
+			if (decl.unrecognized != null && decl.unrecognized.equals(params.get(params.size() - 1))) {
+				if (params.size() > 1) { // not only an unrecognized parameter
 					finalParam = params.get(params.size() - 2);
 				} else {
 					finalParam = decl.declType; // no valid parameters
 				}
-			}
-			else {
+			} else {
 				finalParam = params.get(params.size() - 1);
 			}
-			if(selectWholeParameter) {
+			if (selectWholeParameter) {
 				return createRange(finalParam.getStart(), finalParam.getEnd(), document);
 			}
 			return createRange(finalParam.getEnd(), finalParam.getEnd() + 1, document);
@@ -460,29 +474,29 @@ public class XMLPositionUtility {
 	}
 
 	/**
-	 * Will give the range for the last VALID DTD Decl parameter at 'offset'.
-	 * An unrecognized Parameter is not considered VALID,
+	 * Will give the range for the last VALID DTD Decl parameter at 'offset'. An
+	 * unrecognized Parameter is not considered VALID,
 	 * 
-	 * eg: <!ELEMENT elementName (content) UNRECOGNIZED_CONTENT
-	 * 		will give the range 1 character after '(content)'
+	 * eg: <!ELEMENT elementName (content) UNRECOGNIZED_CONTENT will give the range
+	 * 1 character after '(content)'
 	 */
 	public static Range getLastValidDTDDeclParameterOrUnrecognized(int offset, DOMDocument document) {
 		DOMNode node = document.findNodeAt(offset);
 		if (node instanceof DTDDeclNode) {
 			DTDDeclNode decl = (DTDDeclNode) node;
-			if(decl instanceof DTDAttlistDecl) {
+			if (decl instanceof DTDAttlistDecl) {
 				DTDAttlistDecl attlist = (DTDAttlistDecl) decl;
 				ArrayList<DTDAttlistDecl> internal = attlist.getInternalChildren();
-				if(internal != null && !internal.isEmpty()) {
-					decl = internal.get(internal.size() - 1); //get last internal decl
+				if (internal != null && !internal.isEmpty()) {
+					decl = internal.get(internal.size() - 1); // get last internal decl
 				}
 			}
 			List<DTDDeclParameter> params = decl.getParameters();
-			if(params == null || params.isEmpty()) {
+			if (params == null || params.isEmpty()) {
 				return createRange(decl.declType.getStart(), decl.declType.getEnd(), document);
 			}
 			DTDDeclParameter finalParam = params.get(params.size() - 1);
-			if(decl.unrecognized != null && decl.unrecognized.equals(finalParam)) {
+			if (decl.unrecognized != null && decl.unrecognized.equals(finalParam)) {
 				return createRange(finalParam.getStart(), finalParam.getEnd(), document);
 			}
 			return createRange(finalParam.getEnd(), finalParam.getEnd() + 1, document);
@@ -491,11 +505,11 @@ public class XMLPositionUtility {
 	}
 
 	/**
-	 * Will give the range for the last DTD Decl parameter at 'offset'.
-	 * An unrecognized Parameter is considered as well.
+	 * Will give the range for the last DTD Decl parameter at 'offset'. An
+	 * unrecognized Parameter is considered as well.
 	 * 
-	 * eg: <!ELEMENT elementName (content) UNRECOGNIZED_CONTENT
-	 * 		will give the range 1 character after '(content)'
+	 * eg: <!ELEMENT elementName (content) UNRECOGNIZED_CONTENT will give the range
+	 * 1 character after '(content)'
 	 */
 	public static Range getLastDTDDeclParameter(int offset, DOMDocument document) {
 		DOMNode node = document.findNodeAt(offset);
@@ -503,7 +517,7 @@ public class XMLPositionUtility {
 			DTDDeclNode decl = (DTDDeclNode) node;
 			List<DTDDeclParameter> params = decl.getParameters();
 			DTDDeclParameter lastParam;
-			if(params != null && !params.isEmpty()) {
+			if (params != null && !params.isEmpty()) {
 				lastParam = params.get(params.size() - 1);
 				return createRange(lastParam.getStart(), lastParam.getEnd(), document);
 			}
@@ -522,7 +536,7 @@ public class XMLPositionUtility {
 
 	public static Range selectWholeTag(int offset, DOMDocument document) {
 		DOMNode node = document.findNodeAt(offset);
-		if(node != null) {
+		if (node != null) {
 			return createRange(node.getStart(), node.getEnd(), document);
 		}
 		return null;
@@ -533,14 +547,13 @@ public class XMLPositionUtility {
 		if (node instanceof DTDElementDecl) {
 			DTDElementDecl declNode = (DTDElementDecl) node;
 			List<DTDDeclParameter> params = declNode.getParameters();
-			if(params.isEmpty()) {
+			if (params.isEmpty()) {
 				return null;
 			}
-			if(params.size() == 1) {
+			if (params.size() == 1) {
 				DTDDeclParameter param = params.get(0);
 				return createRange(param.getEnd(), param.getEnd() + 1, document);
-			}
-			else { 
+			} else {
 				return createRange(params.get(1).getStart(), params.get(1).getEnd(), document);
 			}
 		}
@@ -580,6 +593,10 @@ public class XMLPositionUtility {
 			}
 		}
 		return null;
+	}
+
+	public static Location toLocation(LocationLink locationLink) {
+		return new Location(locationLink.getTargetUri(), locationLink.getTargetRange());
 	}
 
 }
