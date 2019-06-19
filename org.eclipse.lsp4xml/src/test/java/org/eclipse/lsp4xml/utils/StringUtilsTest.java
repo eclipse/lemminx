@@ -10,8 +10,12 @@
  */
 package org.eclipse.lsp4xml.utils;
 
+import static org.eclipse.lsp4xml.utils.StringUtils.getOffsetAfterWhitespace;
+import static org.eclipse.lsp4xml.utils.StringUtils.isTagOutsideOfBackticks;
 import static org.eclipse.lsp4xml.utils.StringUtils.trimNewLines;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -55,11 +59,27 @@ public class StringUtilsTest {
 
 	@Test
 	public void testGetOffsetAfterWhitespace() {
-		assertEquals(4, StringUtils.getOffsetAfterWhitespace("abc 123", 7));
-		assertEquals(4, StringUtils.getOffsetAfterWhitespace("abc 123", 6));
-		assertEquals(-1, StringUtils.getOffsetAfterWhitespace("abc 123", 4));
-		assertEquals(0, StringUtils.getOffsetAfterWhitespace("123", 3));
-		assertEquals(-1, StringUtils.getOffsetAfterWhitespace("123", 0));
+		assertEquals(4, getOffsetAfterWhitespace("abc 123", 7));
+		assertEquals(4, getOffsetAfterWhitespace("abc 123", 6));
+		assertEquals(-1, getOffsetAfterWhitespace("abc 123", 4));
+		assertEquals(0, getOffsetAfterWhitespace("123", 3));
+		assertEquals(-1, getOffsetAfterWhitespace("123", 0));
+	}
+
+	@Test
+	public void testIsTagOutsideOfBackTicks() {
+		assertFalse(isTagOutsideOfBackticks("abc `<def></def>`"));
+		assertFalse(isTagOutsideOfBackticks("abc `<def>` abc"));
+		assertFalse(isTagOutsideOfBackticks("asd `<abc></abc>"));
+		assertFalse(isTagOutsideOfBackticks("`<hij></hij>`"));
+		assertFalse(isTagOutsideOfBackticks(""));
+		assertFalse(isTagOutsideOfBackticks("A"));
+
+		assertTrue(isTagOutsideOfBackticks("<A></A>"));
+		assertTrue(isTagOutsideOfBackticks("test `<a></a>` <A></A>"));
+		assertTrue(isTagOutsideOfBackticks("<A></A> `<a></a>`"));
+		assertTrue(isTagOutsideOfBackticks("<A> `<a></a>`"));
+		
 	}
 
 	private static void assertTrimNewLines(String valueToTrim, String expected) {

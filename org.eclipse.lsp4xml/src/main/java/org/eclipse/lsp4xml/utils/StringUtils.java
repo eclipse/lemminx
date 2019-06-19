@@ -279,4 +279,54 @@ public class StringUtils {
 		return pathString;
 	}
 
+	public static String escapeBackticks(String text) {
+		int i = text.length() - 1;
+		StringBuilder b = new StringBuilder(text);
+		while(i >= 0) {
+			char c = text.charAt(i);
+			if(c == '`') {
+				b.insert(i, "\\");
+			}
+			i--;
+		}
+		return b.toString();
+	}
+
+	public static boolean isTagOutsideOfBackticks(String text) {
+		int i = 0;
+		boolean inBacktick = false;
+		while(i < text.length()) {
+			char c = text.charAt(i);
+			if(c == '`') {
+				if(inBacktick) {
+					inBacktick = false;
+				}
+				else {
+					inBacktick = true;
+				}	
+			}
+			else if(c == '<') {
+				i++;
+				while(i < text.length()) {
+					c = text.charAt(i);
+					if(c == '`') {
+						i--;
+						break;
+					}
+					if(c == '>') {
+						if(!inBacktick) {
+							return true;
+						}
+						break;
+					}
+					i++;
+				}
+			}
+
+			i++;
+		}
+		return false;
+		
+	}
+
 }

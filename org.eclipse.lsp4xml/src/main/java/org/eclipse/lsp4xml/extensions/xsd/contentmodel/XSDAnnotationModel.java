@@ -10,9 +10,12 @@
  */
 package org.eclipse.lsp4xml.extensions.xsd.contentmodel;
 
+import static org.eclipse.lsp4xml.dom.parser.Constants.DOCUMENTATION_CONTENT;
+import static org.eclipse.lsp4xml.utils.StringUtils.isEmpty;
 import static org.eclipse.lsp4xml.utils.StringUtils.normalizeSpace;
 
 import java.io.StringReader;
+import java.util.regex.Matcher;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -60,26 +63,25 @@ class XSDAnnotationModel {
 		StringBuilder doc = new StringBuilder();
 		for (Object object : annotations) {
 			XSAnnotation annotation = null;
-			if(object instanceof XSMultiValueFacet && value != null) {
+			if (object instanceof XSMultiValueFacet && value != null) {
 				XSMultiValueFacet multiValueFacet = (XSMultiValueFacet) object;
 				ObjectList enumerationValues = multiValueFacet.getEnumerationValues();
 				XSObjectList annotationValues = multiValueFacet.getAnnotations();
 				for (int i = 0; i < enumerationValues.getLength(); i++) {
 					Object enumValue = enumerationValues.get(i);
 
-					//Assuming always ValidatedInfo
+					// Assuming always ValidatedInfo
 					String enumString = ((ValidatedInfo) enumValue).stringValue();
-				
-					if(value.equals(enumString)) {
+
+					if (value.equals(enumString)) {
 						annotation = (XSAnnotation) annotationValues.get(i);
 						break;
 					}
 				}
-			}
-			else if(object instanceof XSAnnotation) {
+			} else if (object instanceof XSAnnotation) {
 				annotation = (XSAnnotation) object;
 			}
-			
+
 			XSDAnnotationModel annotationModel = XSDAnnotationModel.load(annotation);
 			if (annotationModel != null) {
 				if (annotationModel.getAppInfo() != null) {
@@ -87,6 +89,11 @@ class XSDAnnotationModel {
 				}
 				if (annotationModel.getDocumentation() != null) {
 					doc.append(annotationModel.getDocumentation());
+				} else {
+					String annotationString = annotation.getAnnotationString();
+					if (!isEmpty(annotationString)) {
+						doc.append(getDocumentation(annotationString));
+					}
 				}
 			}
 		}
@@ -122,8 +129,7 @@ class XSDAnnotationModel {
 		}
 
 		@Override
-		public void startElement(String uri, String localName, String qName, Attributes attributes)
-				throws SAXException {
+		public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 			super.startElement(uri, localName, qName, attributes);
 			if (qName.endsWith(DOCUMENTATION_ELEMENT) || qName.endsWith(APPINFO_ELEMENT)) {
 				current = new StringBuilder();
@@ -151,6 +157,14 @@ class XSDAnnotationModel {
 			super.characters(ch, start, length);
 		}
 
+	}
+
+	public static String getDocumentation(String xml) {
+		Matcher m = DOCUMENTATION_CONTENT.matcher(xml);
+		if(m.find()) {
+			return m.group(1);
+		}
+		return null;
 	}
 
 }

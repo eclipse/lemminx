@@ -95,4 +95,6 @@ public class Constants {
 
 	public static final Pattern DOCTYPE_NAME = Pattern.compile("^[_:\\w][_:\\w-.\\d]*");
 
+	public static final Pattern DOCUMENTATION_CONTENT = Pattern.compile(".*<[\\S]+:?documentation[^\\>]*>(.*)<\\/[\\S]+:?documentation[\\s]*>.*");
+
 }
