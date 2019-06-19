@@ -22,6 +22,7 @@ import org.eclipse.lsp4xml.extensions.xsi.XSISchemaModel;
 import org.eclipse.lsp4xml.services.extensions.HoverParticipantAdapter;
 import org.eclipse.lsp4xml.services.extensions.IHoverRequest;
 import org.eclipse.lsp4xml.uriresolver.CacheResourceDownloadingException;
+import org.eclipse.lsp4xml.utils.MarkdownConverter;
 
 /**
  * Extension to support XML hover based on content model (XML Schema completion,
@@ -38,9 +39,10 @@ public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 			if (cmElement != null) {
 				String doc = cmElement.getDocumentation();
 				if (doc != null && doc.length() > 0) {
+					String markdown = MarkdownConverter.convert(doc);
 					MarkupContent content = new MarkupContent();
-					content.setKind(MarkupKind.PLAINTEXT);
-					content.setValue(doc);
+					content.setKind(MarkupKind.MARKDOWN);
+					content.setValue(markdown);
 					return new Hover(content, hoverRequest.getTagRange());
 				}
 			}
@@ -100,9 +102,10 @@ public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 				if (cmAttribute != null) {
 					String doc = cmAttribute.getValueDocumentation(attributeValue);
 					if (doc != null && doc.length() > 0) {
+						String markdown = MarkdownConverter.convert(doc);
 						MarkupContent content = new MarkupContent();
-						content.setKind(MarkupKind.PLAINTEXT);
-						content.setValue(doc);
+						content.setKind(MarkupKind.MARKDOWN);
+						content.setValue(markdown);
 						return new Hover(content);
 					}
 				}
@@ -116,7 +119,7 @@ public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 	private Hover getCacheWarningHover(CacheResourceDownloadingException e) {
 		// Here cache is enabled and some XML Schema, DTD, etc are loading
 		MarkupContent content = new MarkupContent();
-		content.setKind(MarkupKind.PLAINTEXT);
+		content.setKind(MarkupKind.MARKDOWN);
 		content.setValue("Cannot process " + (e.isDTD() ? "DTD" : "XML Schema") + " hover: " + e.getMessage());
 		return new Hover(content);
 	}
