@@ -68,6 +68,10 @@ public class DOMDocument extends DOMNode implements Document {
 	public void setCancelChecker(CancelChecker cancelChecker) {
 		this.cancelChecker = cancelChecker;
 	}
+	
+	public CancelChecker getCancelChecker() {
+		return cancelChecker;
+	}
 
 	public List<DOMNode> getRoots() {
 		return super.getChildren();
