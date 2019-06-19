@@ -12,8 +12,9 @@ package org.eclipse.lsp4xml.services.extensions;
 
 import java.util.List;
 
-import org.eclipse.lsp4j.Location;
+import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 
 /**
@@ -26,9 +27,11 @@ public interface IDefinitionParticipant {
 	 * Find definition.
 	 * 
 	 * @param document
-	 * @param position 
+	 * @param position
 	 * @param locations
+	 * @param cancelChecker
 	 */
-	void findDefinition(DOMDocument document, Position position, List<Location> locations);
+	void findDefinition(DOMDocument document, Position position, List<LocationLink> locations,
+			CancelChecker cancelChecker);
 
 }

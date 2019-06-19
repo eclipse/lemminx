@@ -31,6 +31,7 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DocumentLink;
 import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.Hover;
+import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.MarkedString;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.Position;
@@ -400,7 +401,8 @@ public class XMLAssert {
 		}, (doc) -> {
 			// Retrigger validation
 			publishDiagnostics(xmlDocument, actual, languageService);
-		}, null, () -> {});
+		}, null, () -> {
+		});
 
 		if (error != null) {
 			try {
@@ -615,6 +617,45 @@ public class XMLAssert {
 	}
 
 	public static void assertDocumentSymbols(List<DocumentSymbol> actual, DocumentSymbol... expected) {
+		Assert.assertEquals(expected.length, actual.size());
+		Assert.assertArrayEquals(expected, actual.toArray());
+	}
+
+	// ------------------- Definition assert
+
+	public static void testDefinitionFor(String xml, LocationLink... expected) throws BadLocationException {
+		testDefinitionFor(xml, null, expected);
+	}
+
+	public static void testDefinitionFor(String value, String fileURI, LocationLink... expected)
+			throws BadLocationException {
+		int offset = value.indexOf('|');
+		value = value.substring(0, offset) + value.substring(offset + 1);
+
+		TextDocument document = new TextDocument(value, fileURI != null ? fileURI : "test://test/test.xml");
+		Position position = document.positionAt(offset);
+
+		XMLLanguageService xmlLanguageService = new XMLLanguageService();
+
+		ContentModelSettings settings = new ContentModelSettings();
+		settings.setUseCache(false);
+		xmlLanguageService.doSave(new SettingsSaveContext(settings));
+
+		DOMDocument xmlDocument = DOMParser.getInstance().parse(document,
+				xmlLanguageService.getResolverExtensionManager());
+		xmlLanguageService.setDocumentProvider((uri) -> xmlDocument);
+
+		List<? extends LocationLink> actual = xmlLanguageService.findDefinition(xmlDocument, position, () -> {
+		});
+		assertLocationLink(actual, expected);
+
+	}
+
+	public static LocationLink l(final String uri, final Range originRange, Range targetRange) {
+		return new LocationLink(uri, targetRange, targetRange, originRange);
+	}
+
+	public static void assertLocationLink(List<? extends LocationLink> actual, LocationLink... expected) {
 		Assert.assertEquals(expected.length, actual.size());
 		Assert.assertArrayEquals(expected, actual.toArray());
 	}

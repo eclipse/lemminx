@@ -27,9 +27,9 @@ public class DOMAttr extends DOMNode implements org.w3c.dom.Attr {
 
 	private DOMNode nodeAttrValue;
 
-	private String quotelessValue;//Value without quotes
+	private String quotelessValue;// Value without quotes
 
-	private String originalValue;//Exact value from document
+	private String originalValue;// Exact value from document
 
 	private final DOMNode ownerElement;
 
@@ -104,9 +104,14 @@ public class DOMAttr extends DOMNode implements org.w3c.dom.Attr {
 	}
 
 	@Override
+	public String getNodeValue() throws DOMException {
+		return getValue();
+	}
+
+	@Override
 	public String getLocalName() {
 		int colonIndex = name.indexOf(":");
-		if(colonIndex > 0) {
+		if (colonIndex > 0) {
 			return name.substring(colonIndex + 1);
 		}
 		return name;
@@ -119,6 +124,11 @@ public class DOMAttr extends DOMNode implements org.w3c.dom.Attr {
 	 */
 	public DOMElement getOwnerElement() {
 		return ownerElement.isElement() ? (DOMElement) ownerElement : null;
+	}
+	
+	@Override
+	public DOMDocument getOwnerDocument() {
+		return ownerElement != null ? ownerElement.getOwnerDocument() : null;
 	}
 
 	/*
@@ -186,6 +196,7 @@ public class DOMAttr extends DOMNode implements org.w3c.dom.Attr {
 	 * Get original attribute value from the document.
 	 * 
 	 * This will include quotations (", ').
+	 * 
 	 * @return attribute value with quotations if it had them.
 	 */
 	public String getOriginalValue() {
@@ -200,6 +211,7 @@ public class DOMAttr extends DOMNode implements org.w3c.dom.Attr {
 
 	/**
 	 * Returns a String of 'value' without surrounding quotes if it had them.
+	 * 
 	 * @param value
 	 * @return
 	 */
@@ -219,6 +231,7 @@ public class DOMAttr extends DOMNode implements org.w3c.dom.Attr {
 
 	/**
 	 * Checks if 'value' has matching surrounding quotations.
+	 * 
 	 * @param value
 	 * @return
 	 */
@@ -231,11 +244,12 @@ public class DOMAttr extends DOMNode implements org.w3c.dom.Attr {
 		}
 		char quoteValueStart = value.charAt(0);
 		boolean start = quoteValueStart == '\"' || quoteValueStart == '\'' ? true : false;
-		if(start == false) {
+		if (start == false) {
 			return false;
 		}
 		char quoteValueEnd = value.charAt(value.length() - 1);
-		boolean end = (quoteValueEnd == '\"' || quoteValueEnd == '\'') && quoteValueEnd == quoteValueStart ? true : false;
+		boolean end = (quoteValueEnd == '\"' || quoteValueEnd == '\'') && quoteValueEnd == quoteValueStart ? true
+				: false;
 		return end;
 	}
 
@@ -292,6 +306,7 @@ public class DOMAttr extends DOMNode implements org.w3c.dom.Attr {
 	 * Returns the prefix if the given URI matches this attributes value.
 	 * 
 	 * If the URI doesnt match, null is returned.
+	 * 
 	 * @param uri
 	 * @return
 	 */
@@ -320,12 +335,12 @@ public class DOMAttr extends DOMNode implements org.w3c.dom.Attr {
 	public boolean isNoDefaultXmlns() {
 		return isNoDefaultXmlns(name);
 	}
-	
+
 	public static boolean isNoDefaultXmlns(String attributeName) {
 		return attributeName.startsWith(XMLNS_NO_DEFAULT_ATTR);
 	}
 
-		/*
+	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see org.w3c.dom.Node#getNextSibling()
