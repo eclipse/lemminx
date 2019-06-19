@@ -30,8 +30,8 @@ import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
+import org.eclipse.lsp4xml.commons.ModelTextDocument;
 import org.eclipse.lsp4xml.commons.ParentProcessWatcher.ProcessLanguageServer;
-import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.customservice.AutoCloseTagResponse;
 import org.eclipse.lsp4xml.customservice.XMLCustomService;
 import org.eclipse.lsp4xml.dom.DOMDocument;
@@ -82,7 +82,7 @@ public class XMLLanguageServer
 
 	@Override
 	public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
-		LOGGER.info("Initializing LSP4XML server " + getVersion()+" with " + System.getProperty("java.home"));
+		LOGGER.info("Initializing LSP4XML server " + getVersion() + " with " + System.getProperty("java.home"));
 		this.parentProcessId = params.getProcessId();
 
 		// Update XML language service extensions with InitializeParams
@@ -143,7 +143,7 @@ public class XMLLanguageServer
 			}
 
 			XMLSymbolSettings newSymbols = xmlClientSettings.getSymbols();
-			if(newSymbols != null) {
+			if (newSymbols != null) {
 				xmlTextDocumentService.updateSymbolSettings(newSymbols);
 			}
 
@@ -154,9 +154,9 @@ public class XMLLanguageServer
 			}
 
 			XMLExperimentalSettings experimentalSettings = xmlClientSettings.getExperimental();
-			if(experimentalSettings != null) {
+			if (experimentalSettings != null) {
 				XMLIncrementalSupportSettings incrementalSettings = experimentalSettings.getIncrementalSupport();
-				if(incrementalSettings != null) {
+				if (incrementalSettings != null) {
 					xmlTextDocumentService.updateIncrementalSettings(incrementalSettings);
 				}
 			}
@@ -226,17 +226,14 @@ public class XMLLanguageServer
 
 	@Override
 	public CompletableFuture<AutoCloseTagResponse> closeTag(TextDocumentPositionParams params) {
-		return computeAsync((cancelChecker) -> {
-			DOMDocument xmlDocument = xmlTextDocumentService.getXMLDocument(params.getTextDocument().getUri(),
-					cancelChecker);
+		return xmlTextDocumentService.computeDOMAsync(params.getTextDocument(), (cancelChecker, xmlDocument) -> {
 			return getXMLLanguageService().doAutoClose(xmlDocument, params.getPosition(), cancelChecker);
 		});
 	}
 
 	@Override
 	public DOMDocument getDocument(String uri) {
-		TextDocument document = xmlTextDocumentService.getDocument(uri);
-		return document != null ? xmlTextDocumentService.getXMLDocument(document) : null;
+		ModelTextDocument<DOMDocument> document = xmlTextDocumentService.getDocument(uri);
+		return document != null ? document.getModel().getNow(null) : null;
 	}
-
 }
