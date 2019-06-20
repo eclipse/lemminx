@@ -107,9 +107,20 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 		}
 		case EncodingDeclRequired:
 		case EqRequiredInXMLDecl:
-		case AttributeNotUnique:
-		case AttributeNSNotUnique:
 			return XMLPositionUtility.selectAttributeNameAt(offset, document);
+		case AttributeNSNotUnique: {
+			String attrName = (String) arguments[1];
+			Range xmlns = XMLPositionUtility.selectAttributeNameFromGivenNameAt("xmlns:" + attrName, offset, document);
+			if (xmlns != null) {
+				return xmlns;
+			}
+			return XMLPositionUtility.selectAttributeNameFromGivenNameAt(attrName, offset, document);
+		}
+		case AttributeNotUnique: {
+			String attrName = (String) arguments[1];
+			return XMLPositionUtility.selectAttributeNameFromGivenNameAt(attrName, offset, document);
+		}
+			
 		case LessthanInAttValue: {
 			String attrName = (String) arguments[1];
 			return XMLPositionUtility.selectAttributeValueAt(attrName, offset, document);
