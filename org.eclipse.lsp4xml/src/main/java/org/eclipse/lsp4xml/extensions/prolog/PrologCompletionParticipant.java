@@ -11,28 +11,27 @@
 
 package org.eclipse.lsp4xml.extensions.prolog;
 
-import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.services.extensions.CompletionParticipantAdapter;
 import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
-import org.eclipse.lsp4xml.settings.SharedSettings;
 
 /**
  * PrologCompletionParticipant
  */
 public class PrologCompletionParticipant extends CompletionParticipantAdapter {
-	
+
 	@Override
-	public void onAttributeName(boolean generateValue, Range fullRange, ICompletionRequest request,
-			ICompletionResponse response, SharedSettings settings) throws Exception {
-			PrologModel.computeAttributeNameCompletionResponses(request, response, fullRange, request.getXMLDocument(),
-					settings);
+	public void onAttributeName(boolean generateValue, ICompletionRequest request, ICompletionResponse response)
+			throws Exception {
+		PrologModel.computeAttributeNameCompletionResponses(request, response, request.getReplaceRange(),
+				request.getXMLDocument(), request.getFormattingSettings());
 	}
 
 	@Override
-	public void onAttributeValue(String valuePrefix, Range fullRange, boolean addQuotes, ICompletionRequest request,
-			ICompletionResponse response, SharedSettings settings) throws Exception {
-		PrologModel.computeValueCompletionResponses(request, response, fullRange, request.getXMLDocument(), settings);
+	public void onAttributeValue(String valuePrefix, ICompletionRequest request, ICompletionResponse response)
+			throws Exception {
+		PrologModel.computeValueCompletionResponses(request, response, request.getReplaceRange(),
+				request.getXMLDocument(), request.getFormattingSettings());
 	}
-	
+
 }

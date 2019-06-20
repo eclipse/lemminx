@@ -21,6 +21,7 @@ import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.settings.SharedSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
+import org.eclipse.lsp4xml.utils.StringUtils;
 
 /**
  * Completion request implementation.
@@ -40,8 +41,10 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 
 	private boolean hasOpenBracket;
 
-	public CompletionRequest(DOMDocument xmlDocument, Position position, SharedSettings settings, XMLExtensionsRegistry extensionsRegistry)
-			throws BadLocationException {
+	private boolean addQuotes;
+
+	public CompletionRequest(DOMDocument xmlDocument, Position position, SharedSettings settings,
+			XMLExtensionsRegistry extensionsRegistry) throws BadLocationException {
 		super(xmlDocument, position);
 		this.formattingSettings = settings.formattingSettings;
 		this.completionSettings = settings.completionSettings;
@@ -96,5 +99,27 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 	@Override
 	public <T> T getComponent(Class clazz) {
 		return extensionsRegistry.getComponent(clazz);
+	}
+
+	public void setAddQuotes(boolean addQuotes) {
+		this.addQuotes = addQuotes;
+	}
+
+	public boolean isAddQuotes() {
+		return addQuotes;
+	}
+
+	@Override
+	public String getInsertAttrValue(String value) {
+		if (!addQuotes) {
+			return value;
+		}
+		String quotation = getQuotation();
+		return quotation + value + quotation;
+	}
+
+	private String getQuotation() {
+		String quotation = formattingSettings != null ? formattingSettings.getQuotationAsString() : null;
+		return StringUtils.isEmpty(quotation) ? XMLFormattingOptions.DEFAULT_QUOTATION : quotation;
 	}
 }

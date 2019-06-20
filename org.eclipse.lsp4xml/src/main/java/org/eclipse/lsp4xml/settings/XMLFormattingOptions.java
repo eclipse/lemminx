@@ -21,6 +21,9 @@ import org.eclipse.lsp4j.FormattingOptions;
  * All defaults should be set here to eventually be overridden if needed.
  */
 public class XMLFormattingOptions extends FormattingOptions {
+	
+	public static final String DEFAULT_QUOTATION = "\"";
+	
 	// All possible keys
 	private static final String SPLIT_ATTRIBUTES = "splitAttributes";
 	private static final String JOIN_CDATA_LINES = "joinCDATALines";
@@ -210,7 +213,7 @@ public class XMLFormattingOptions extends FormattingOptions {
 	 * Defaults to {@code "}.
 	 */
 	public String getQuotationAsString() {
-		return XMLFormattingOptions.DOUBLE_QUOTES_VALUE.equals(getQuotations()) ? "\"" : "\'";
+		return XMLFormattingOptions.DOUBLE_QUOTES_VALUE.equals(getQuotations()) ? DEFAULT_QUOTATION : "\'";
 	}
 
 	/**

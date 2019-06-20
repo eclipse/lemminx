@@ -30,4 +30,6 @@ public interface ICompletionRequest extends IPositionRequest {
 	XMLGenerator getXMLGenerator() throws BadLocationException;
 
 	String getFilterForStartTagName(String tagName);
+	
+	String getInsertAttrValue(String value);
 }

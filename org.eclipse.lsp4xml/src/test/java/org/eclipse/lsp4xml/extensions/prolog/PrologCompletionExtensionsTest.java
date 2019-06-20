@@ -118,8 +118,8 @@ public class PrologCompletionExtensionsTest {
 		String xml = "<?xml encoding=\"UTF-8\" encoding=\"Win|\" ?>\r\n" + //
 				"<project xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">";
 		testCompletionFor(xml,
-				c(PrologModel.WINDOWS_1251, te(0, 32, 0, 37, "\"" + PrologModel.WINDOWS_1251 + "\""), "\"" + PrologModel.WINDOWS_1251 + "\""),
-				c(PrologModel.WINDOWS_1252, te(0, 32, 0, 37, "\"" + PrologModel.WINDOWS_1252 + "\""), "\"" + PrologModel.WINDOWS_1252 + "\"")); 
+				c(PrologModel.WINDOWS_1251, te(0, 33, 0, 36, PrologModel.WINDOWS_1251), PrologModel.WINDOWS_1251),
+				c(PrologModel.WINDOWS_1252, te(0, 33, 0, 36, PrologModel.WINDOWS_1252), PrologModel.WINDOWS_1252)); 
 	}
 
 	@Test

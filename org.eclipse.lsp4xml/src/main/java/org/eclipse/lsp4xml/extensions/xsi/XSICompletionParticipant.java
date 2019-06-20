@@ -8,32 +8,28 @@
  *  Contributors:
  *  Red Hat Inc. - initial API and implementation
  */
-
 package org.eclipse.lsp4xml.extensions.xsi;
 
-import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.services.extensions.CompletionParticipantAdapter;
 import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
-import org.eclipse.lsp4xml.settings.SharedSettings;
 
 /**
  * XSICompletionParticipant
  */
 public class XSICompletionParticipant extends CompletionParticipantAdapter {
-	
+
 	@Override
-	public void onAttributeName(boolean generateValue, Range fullRange, ICompletionRequest request,
-			ICompletionResponse response, SharedSettings settings) throws Exception {
-			XSISchemaModel.computeCompletionResponses(request, response, fullRange, request.getXMLDocument(),
-					generateValue, settings);
-		
+	public void onAttributeName(boolean generateValue, ICompletionRequest request, ICompletionResponse response)
+			throws Exception {
+		XSISchemaModel.computeCompletionResponses(request, response, request.getXMLDocument(), generateValue,
+				request.getFormattingSettings());
 	}
 
 	@Override
-	public void onAttributeValue(String valuePrefix, Range fullRange, boolean addQuotes, ICompletionRequest request,
-			ICompletionResponse response, SharedSettings settings) throws Exception {
-		XSISchemaModel.computeValueCompletionResponses(request, response, fullRange, request.getXMLDocument(), settings);
+	public void onAttributeValue(String valuePrefix, ICompletionRequest request, ICompletionResponse response)
+			throws Exception {
+		XSISchemaModel.computeValueCompletionResponses(request, response, request.getXMLDocument());
 	}
-	
+
 }

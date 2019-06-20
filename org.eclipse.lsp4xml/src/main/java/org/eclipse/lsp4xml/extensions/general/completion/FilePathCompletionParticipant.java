@@ -31,7 +31,6 @@ import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.services.extensions.CompletionParticipantAdapter;
 import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
-import org.eclipse.lsp4xml.settings.SharedSettings;
 import org.eclipse.lsp4xml.utils.CompletionSortTextHelper;
 import org.eclipse.lsp4xml.utils.FilesUtils;
 import org.eclipse.lsp4xml.utils.StringUtils;
@@ -44,15 +43,15 @@ public class FilePathCompletionParticipant extends CompletionParticipantAdapter 
 	public static final String FILE_SCHEME = "file";
 
 	@Override
-	public void onAttributeValue(String valuePrefix, Range fullRange, boolean addQuotes, ICompletionRequest request,
-			ICompletionResponse response, SharedSettings settings) throws Exception {
+	public void onAttributeValue(String valuePrefix,
+			ICompletionRequest request, ICompletionResponse response) throws Exception {
 
 		DOMDocument xmlDocument = request.getXMLDocument();
 		String text = xmlDocument.getText();
-
+		Range fullRange = request.getReplaceRange();
+		
 		// Get full attribute value range
-		// + 1 since it includes the quotations
-		int documentStartOffset = xmlDocument.offsetAt(fullRange.getStart()) + 1;
+		int documentStartOffset = xmlDocument.offsetAt(fullRange.getStart());
 		
 		String fullAttributeValue = valuePrefix;
 		if (isEmpty(fullAttributeValue)) {
@@ -234,8 +233,4 @@ public class FilePathCompletionParticipant extends CompletionParticipantAdapter 
 		response.addCompletionItem(item);
 	}
 
-	
-
-
-	
 }

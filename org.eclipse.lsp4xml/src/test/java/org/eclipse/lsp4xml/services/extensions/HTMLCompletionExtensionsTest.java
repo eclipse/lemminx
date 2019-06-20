@@ -151,13 +151,14 @@ public class HTMLCompletionExtensionsTest {
 			}
 
 			@Override
-			public void onAttributeName(boolean generateValue, Range replaceRange, ICompletionRequest completionRequest,
-					ICompletionResponse completionResponse, SharedSettings settings) {
+			public void onAttributeName(boolean generateValue, ICompletionRequest completionRequest,
+					ICompletionResponse completionResponse) {
 				String tag = completionRequest.getCurrentTag();
 				HTMLTag htmlTag = HTMLTag.getHTMLTag(tag);
 				if (htmlTag != null) {
 					String[] attributes = htmlTag.getAttributes();
 					if (attributes != null) {
+						Range replaceRange = completionRequest.getReplaceRange();
 						for (String attribute : attributes) {
 							int index = attribute.indexOf(":");
 							if (index != -1) {
@@ -178,8 +179,8 @@ public class HTMLCompletionExtensionsTest {
 			}
 
 			@Override
-			public void onAttributeValue(String valuePrefix, Range fullRange, boolean addQuotes,
-					ICompletionRequest completionRequest, ICompletionResponse completionResponse, SharedSettings settings) {
+			public void onAttributeValue(String valuePrefix,
+					ICompletionRequest completionRequest, ICompletionResponse completionResponse) {
 				String tag = completionRequest.getCurrentTag();
 				String attributeName = completionRequest.getCurrentAttributeName();
 				HTMLTag htmlTag = HTMLTag.getHTMLTag(tag);
@@ -195,10 +196,11 @@ public class HTMLCompletionExtensionsTest {
 								attrType = attribute.substring(index + 1, attribute.length());
 							}
 							if (attrType != null && attributeName.equals(attrName)) {
+								Range fullRange = completionRequest.getReplaceRange();
 								String[] values = HTMLTag.getAttributeValues(attrType);
 								for (String value : values) {
-									String insertText = addQuotes ? '"' + value + '"' : value;
-
+									String insertText = completionRequest.getInsertAttrValue(value);
+									
 									CompletionItem item = new CompletionItem();
 									item.setLabel(value);
 									item.setFilterText(insertText);
