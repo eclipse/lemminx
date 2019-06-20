@@ -20,12 +20,13 @@ import org.junit.Test;
 /**
  * XSD definition tests.
  *
+ * @author Angelo ZERR
  */
 public class XSDDefinitionExtensionsTest {
 
 	@Test
-	public void elementTypeDefinition() throws BadLocationException {
-		// completion on |
+	public void definitionOnElementType() throws BadLocationException {
+		// definition on |
 		String xml = "<?xml version=\"1.1\" ?>\r\n" + //
 				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">\r\n"
 				+ //
@@ -38,12 +39,12 @@ public class XSDDefinitionExtensionsTest {
 				"	</xs:complexType>\r\n" + //
 				"	\r\n" + //
 				"</xs:schema>";
-		testDefinitionFor(xml, l("test.xsd", r(3, 29, 3, 50), r(5, 17, 5, 38)));
+		testDefinitionFor(xml, l("test.xsd", r(3, 34, 3, 50), r(5, 22, 5, 38)));
 	}
 
 	@Test
-	public void extensionBaseDefinition() throws BadLocationException {
-		// completion on |
+	public void definitionOnExtensionBase() throws BadLocationException {
+		// definition on |
 		String xml = "<?xml version=\"1.1\" ?>\r\n" + //
 				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">\r\n"
 				+ //
@@ -62,11 +63,11 @@ public class XSDDefinitionExtensionsTest {
 				"	</xs:complexType>\r\n" + //
 				"	\r\n" + //
 				"</xs:schema>";
-		testDefinitionFor(xml, l("test.xsd", r(9, 17, 9, 34), r(3, 17, 3, 34)));
+		testDefinitionFor(xml, l("test.xsd", r(9, 22, 9, 34), r(3, 22, 3, 34)));
 	}
 
 	@Test
-	public void targetDefinition() throws BadLocationException {
+	public void definitionWithTargetNamespace() throws BadLocationException {
 		// completion on |
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n"
 				+ "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:tns=\"http://camel.apache.org/schema/spring\" elementFormDefault=\"qualified\" targetNamespace=\"http://camel.apache.org/schema/spring\" version=\"1.0\">\r\n"
@@ -82,7 +83,63 @@ public class XSDDefinitionExtensionsTest {
 				"	</xs:complexType>\r\n" + //
 				"	\r\n" + //
 				"</xs:schema>";
-		testDefinitionFor(xml, l("test.xsd", r(3, 30, 3, 60), r(6, 17, 6, 43)));
+		testDefinitionFor(xml, l("test.xsd", r(3, 35, 3, 60), r(6, 22, 6, 43)));
+	}
+
+	@Test
+	public void definitionOnElementRef() throws BadLocationException {
+		// definition on | xs:element/@ref -> xs:element/@name
+		String xml = "<?xml version=\"1.1\" ?>\r\n" + //
+				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" targetNamespace=\"http://www.w3.org/2001/XMLSchema\" version=\"1.0\">\r\n"
+				+ //
+				"	\r\n" + //
+				"	<xs:group name=\"schemaTop\">\r\n" + //
+				"		<xs:choice>\r\n" + //
+				"			<xs:group ref=\"xs:redefinable\" />\r\n" + //
+				"			<xs:element ref=\"xs:element\" />\r\n" + //
+				"			<xs:element ref=\"xs:attribute\" />\r\n" + //
+				"			<xs:element ref=\"|xs:notation\" />\r\n" + // here definition go to the
+																		// elmeent/@name='notation'
+				"		</xs:choice>\r\n" + //
+				"	</xs:group>\r\n" + //
+				"	\r\n" + //
+				"	<xs:group name=\"redefinable\">\r\n" + //
+				"		<xs:choice></xs:choice>\r\n" + //
+				"	</xs:group>\r\n" + //
+				"	\r\n" + //
+				"	<xs:element name=\"element\" />\r\n" + //
+				"	<xs:element name=\"attribute\" />\r\n" + //
+				"	<xs:element name=\"notation\" />\r\n" + //
+				"</xs:schema>";
+		testDefinitionFor(xml, l("test.xsd", r(8, 19, 8, 32), r(18, 18, 18, 28)));
+	}
+
+	@Test
+	public void definitionOnGroupRef() throws BadLocationException {
+		// definition on | xs:groupt/@ref -> xs:group/@name
+		String xml = "<?xml version=\"1.1\" ?>\r\n" + //
+				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" targetNamespace=\"http://www.w3.org/2001/XMLSchema\" version=\"1.0\">\r\n"
+				+ //
+				"	\r\n" + //
+				"	<xs:group name=\"schemaTop\">\r\n" + //
+				"		<xs:choice>\r\n" + //
+				"			<xs:group ref=\"|xs:redefinable\" />\r\n" + // here definition go to the
+																		// group/@name='redefinable'
+				"			<xs:element ref=\"xs:element\" />\r\n" + //
+				"			<xs:element ref=\"xs:attribute\" />\r\n" + //
+				"			<xs:element ref=\"xs:notation\" />\r\n" + //
+				"		</xs:choice>\r\n" + //
+				"	</xs:group>\r\n" + //
+				"	\r\n" + //
+				"	<xs:group name=\"redefinable\">\r\n" + //
+				"		<xs:choice></xs:choice>\r\n" + //
+				"	</xs:group>\r\n" + //
+				"	\r\n" + //
+				"	<xs:element name=\"element\" />\r\n" + //
+				"	<xs:element name=\"attribute\" />\r\n" + //
+				"	<xs:element name=\"notation\" />\r\n" + //
+				"</xs:schema>";
+		testDefinitionFor(xml, l("test.xsd", r(5, 17, 5, 33), r(12, 16, 12, 29)));
 	}
 
 	private static void testDefinitionFor(String xml, LocationLink... expectedItems) throws BadLocationException {

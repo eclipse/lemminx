@@ -54,8 +54,8 @@ public class XSICompletionExtensionsTest {
 		String xml = "<?xml version=\"1.0\"?>\r\n" + //
 				"<project xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"|\">";
 		testCompletionFor(xml,
-				c("true", te(1, 71, 1, 73, "\"true\""), "\"true\""), 
-				c("false", te(1, 71, 1, 73, "\"false\""), "\"false\"")); 
+				c("true", te(1, 72, 1, 72, "true"), "true"), 
+				c("false", te(1, 72, 1, 72, "false"), "false")); 
 	}
 
 	@Test

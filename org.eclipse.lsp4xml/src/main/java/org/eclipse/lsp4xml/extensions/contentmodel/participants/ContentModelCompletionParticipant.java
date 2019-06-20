@@ -29,7 +29,7 @@ import org.eclipse.lsp4xml.services.AttributeCompletionItem;
 import org.eclipse.lsp4xml.services.extensions.CompletionParticipantAdapter;
 import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
-import org.eclipse.lsp4xml.settings.SharedSettings;
+import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.uriresolver.CacheResourceDownloadingException;
 
 /**
@@ -43,7 +43,6 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 		try {
 			DOMDocument document = request.getXMLDocument();
 			String schemaURI;
-			String fileURI;
 			ContentModelManager contentModelManager = request.getComponent(ContentModelManager.class);
 			DOMElement parentElement = request.getParentElement();
 			CMDocument cmDocument;
@@ -54,18 +53,19 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 				cmDocument = contentModelManager.findCMDocument(document, null);
 				if (cmDocument != null) {
 					schemaURI = cmDocument.getURI();
-					fillWithChildrenElementDeclaration(null, cmDocument.getElements(), null, false, request, response, schemaURI);
+					fillWithChildrenElementDeclaration(null, cmDocument.getElements(), null, false, request, response,
+							schemaURI);
 				}
 				return;
 			}
 			// Try to retrieve XML Schema/DTD element declaration for the parent element
 			// where completion was triggered.
 			cmDocument = contentModelManager.findCMDocument(parentElement, parentElement.getNamespaceURI());
-			
+
 			schemaURI = cmDocument != null ? cmDocument.getURI() : null;
 			CMElementDeclaration cmElement = contentModelManager.findCMElement(parentElement);
 			String defaultPrefix = null;
-			
+
 			if (cmElement != null) {
 				defaultPrefix = parentElement.getPrefix();
 				fillWithChildrenElementDeclaration(parentElement, cmElement.getElements(), defaultPrefix, false,
@@ -100,8 +100,8 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	}
 
 	private void fillWithChildrenElementDeclaration(DOMElement element, Collection<CMElementDeclaration> cmElements,
-			String p, boolean forceUseOfPrefix, ICompletionRequest request, ICompletionResponse response, String schemaURI)
-			throws BadLocationException {
+			String p, boolean forceUseOfPrefix, ICompletionRequest request, ICompletionResponse response,
+			String schemaURI) throws BadLocationException {
 		XMLGenerator generator = request.getXMLGenerator();
 		for (CMElementDeclaration child : cmElements) {
 			String prefix = forceUseOfPrefix ? p : (element != null ? element.getPrefix(child.getNamespace()) : null);
@@ -121,24 +121,26 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	}
 
 	@Override
-	public void onAttributeName(boolean generateValue, Range fullRange, ICompletionRequest request,
-			ICompletionResponse response, SharedSettings settings) throws Exception {
+	public void onAttributeName(boolean generateValue, ICompletionRequest request,
+			ICompletionResponse response) throws Exception {
 		// otherwise, manage completion based on XML Schema, DTD.
 		DOMElement parentElement = request.getNode().isElement() ? (DOMElement) request.getNode() : null;
 		if (parentElement == null) {
 			return;
 		}
 		try {
+			Range fullRange = request.getReplaceRange();
 			boolean canSupportSnippet = request.getCompletionSettings().isCompletionSnippetsSupported();
+			XMLFormattingOptions formattingSettings = request.getFormattingSettings();
 			ContentModelManager contentModelManager = request.getComponent(ContentModelManager.class);
 			// Completion on attribute based on external grammar
 			CMElementDeclaration cmElement = contentModelManager.findCMElement(parentElement);
 			fillAttributesWithCMAttributeDeclarations(parentElement, fullRange, cmElement, canSupportSnippet,
-					generateValue, response, settings);
+					generateValue, response, formattingSettings);
 			// Completion on attribute based on internal grammar
 			cmElement = contentModelManager.findInternalCMElement(parentElement);
 			fillAttributesWithCMAttributeDeclarations(parentElement, fullRange, cmElement, canSupportSnippet,
-					generateValue, response, settings);
+					generateValue, response, formattingSettings);
 		} catch (CacheResourceDownloadingException e) {
 			// XML Schema, DTD is loading, ignore this error
 		}
@@ -146,7 +148,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 
 	private void fillAttributesWithCMAttributeDeclarations(DOMElement parentElement, Range fullRange,
 			CMElementDeclaration cmElement, boolean canSupportSnippet, boolean generateValue,
-			ICompletionResponse response, SharedSettings settings) {
+			ICompletionResponse response, XMLFormattingOptions formattingOptions) {
 		if (cmElement == null) {
 			return;
 		}
@@ -158,7 +160,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			String attrName = cmAttribute.getName();
 			if (!parentElement.hasAttribute(attrName)) {
 				CompletionItem item = new AttributeCompletionItem(attrName, canSupportSnippet, fullRange, generateValue,
-						cmAttribute.getDefaultValue(), cmAttribute.getEnumerationValues(), settings);
+						cmAttribute.getDefaultValue(), cmAttribute.getEnumerationValues(), formattingOptions);
 				String documentation = cmAttribute.getDocumentation();
 				if (documentation != null) {
 					item.setDetail(documentation);
@@ -169,8 +171,8 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	}
 
 	@Override
-	public void onAttributeValue(String valuePrefix, Range fullRange, boolean addQuotes, ICompletionRequest request,
-			ICompletionResponse response, SharedSettings settings) throws Exception {
+	public void onAttributeValue(String valuePrefix, ICompletionRequest request,
+			ICompletionResponse response) throws Exception {
 		DOMElement parentElement = request.getNode().isElement() ? (DOMElement) request.getNode() : null;
 		if (parentElement == null) {
 			return;
@@ -194,11 +196,17 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			String attributeName = request.getCurrentAttributeName();
 			CMAttributeDeclaration cmAttribute = cmElement.findCMAttribute(attributeName);
 			if (cmAttribute != null) {
+				Range fullRange = request.getReplaceRange();
 				cmAttribute.getEnumerationValues().forEach(value -> {
 					CompletionItem item = new CompletionItem();
 					item.setLabel(value);
+					String insertText = request.getInsertAttrValue(value);
+					item.setLabel(value);
 					item.setKind(CompletionItemKind.Value);
-					response.addCompletionAttribute(item);
+					item.setFilterText(insertText);
+					item.setTextEdit(new TextEdit(fullRange, insertText));
+					response.addCompletionItem(item);
+
 				});
 			}
 		}

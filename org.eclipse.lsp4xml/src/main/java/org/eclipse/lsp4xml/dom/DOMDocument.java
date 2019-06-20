@@ -55,6 +55,7 @@ public class DOMDocument extends DOMNode implements Document {
 	private boolean hasNamespaces;
 	private Map<String, String> externalSchemaLocation;
 	private String schemaInstancePrefix;
+	private String schemaPrefix;
 	private boolean hasExternalGrammar;
 	private CancelChecker cancelChecker;
 
@@ -64,11 +65,11 @@ public class DOMDocument extends DOMNode implements Document {
 		this.resolverExtensionManager = resolverExtensionManager;
 		resetGrammar();
 	}
-	
+
 	public void setCancelChecker(CancelChecker cancelChecker) {
 		this.cancelChecker = cancelChecker;
 	}
-	
+
 	public CancelChecker getCancelChecker() {
 		return cancelChecker;
 	}
@@ -246,6 +247,7 @@ public class DOMDocument extends DOMNode implements Document {
 			return;
 		}
 		schemaInstancePrefix = null;
+		schemaPrefix = null;
 		// Search if document element root declares namespace with "xmlns".
 		if (documentElement.hasAttributes()) {
 			for (DOMAttr attr : documentElement.getAttributeNodes()) {
@@ -254,19 +256,23 @@ public class DOMDocument extends DOMNode implements Document {
 					if (attributeName.equals("xmlns") || attributeName.startsWith("xmlns:")) //$NON-NLS-1$ //$NON-NLS-2$
 					{
 						hasNamespaces = true;
-					}
-					String attributeValue = documentElement.getAttribute(attributeName);
-					if (attributeValue != null && attributeValue.startsWith("http://www.w3.org/") //$NON-NLS-1$
-							&& attributeValue.endsWith("/XMLSchema-instance")) //$NON-NLS-1$
-					{
-						schemaInstancePrefix = attributeName.equals("xmlns") ? "" : getUnprefixedName(attributeName); //$NON-NLS-1$ //$NON-NLS-2$
+						String attributeValue = documentElement.getAttribute(attributeName);
+						if (attributeValue != null && attributeValue.startsWith("http://www.w3.org/")) {
+							if (attributeValue.endsWith("/XMLSchema-instance")) {
+								schemaInstancePrefix = attributeName.equals("xmlns") ? ""
+										: getUnprefixedName(attributeName);
+							} else if (attributeValue.endsWith("/XMLSchema")) {
+								schemaPrefix = attributeName.equals("xmlns") ? "" : getUnprefixedName(attributeName);
+							}
+						}
 					}
 				}
 			}
 			if (schemaInstancePrefix != null) {
-				// DOM document can declared xsi:noNamespaceSchemaLocation and xsi:schemaLocation both even it's not valid
+				// DOM document can declared xsi:noNamespaceSchemaLocation and
+				// xsi:schemaLocation both even it's not valid
 				noNamespaceSchemaLocation = createNoNamespaceSchemaLocation(documentElement, schemaInstancePrefix);
-				schemaLocation = createSchemaLocation(documentElement, schemaInstancePrefix);				
+				schemaLocation = createSchemaLocation(documentElement, schemaInstancePrefix);
 			}
 		}
 	}
@@ -788,21 +794,21 @@ public class DOMDocument extends DOMNode implements Document {
 	}
 
 	/**
-	 * Returns true if 'offset' is within an internal DOCTYPE dtd.
-	 * Else false.
+	 * Returns true if 'offset' is within an internal DOCTYPE dtd. Else false.
+	 * 
 	 * @param offset
-	 * @return 
+	 * @return
 	 */
 	public boolean isWithinInternalDTD(int offset) {
 		DOMDocumentType doctype = this.getDoctype();
-		if(doctype != null && doctype.internalSubset != null) {
+		if (doctype != null && doctype.internalSubset != null) {
 			return offset > doctype.internalSubset.start && offset < doctype.internalSubset.end;
 		}
 		return false;
 	}
 
 	public Range getTrimmedRange(Range range) {
-		if(range != null) {
+		if (range != null) {
 			return getTrimmedRange(range.getStart().getCharacter(), range.getEnd().getCharacter());
 		}
 		return null;
@@ -812,16 +818,16 @@ public class DOMDocument extends DOMNode implements Document {
 	public Range getTrimmedRange(int start, int end) {
 		String text = getText();
 		char c = text.charAt(start);
-		while(Character.isWhitespace(c)) {
+		while (Character.isWhitespace(c)) {
 			start++;
 			c = text.charAt(start);
 		}
-		if(start == end) {
+		if (start == end) {
 			return null;
 		}
 		end--;
 		c = text.charAt(end);
-		while(Character.isWhitespace(c)) {
+		while (Character.isWhitespace(c)) {
 			end--;
 			c = text.charAt(end);
 		}
@@ -847,36 +853,47 @@ public class DOMDocument extends DOMNode implements Document {
 	}
 
 	/**
-	 * Given a schema URI, this will return true if the given schemaURI
-	 * matches the one defined in this DOMDocument(xml document).
+	 * Given a schema URI, this will return true if the given schemaURI matches the
+	 * one defined in this DOMDocument(xml document).
 	 * 
 	 * It will check either xsi:schemaLocation or xsi:noNamespaceSchemaLocation.
 	 */
 	public boolean usesSchema(String xsdURI) {
-		String rootURI = URI.create(textDocument.getUri()).getPath(); //remove "file://" if exists
-		if(rootURI == null || xsdURI == null) {
+		String rootURI = URI.create(textDocument.getUri()).getPath(); // remove "file://" if exists
+		if (rootURI == null || xsdURI == null) {
 			return false;
 		}
 
-		Path rootPath = Paths.get(rootURI).getParent(); 
+		Path rootPath = Paths.get(rootURI).getParent();
 		xsdURI = URI.create(xsdURI).getPath();
 		Path xsdPath = Paths.get(xsdURI);
 
-		if(schemaLocation != null) {
-			return schemaLocation.usesSchema(rootPath ,xsdPath);
-		}
-		else if (noNamespaceSchemaLocation != null) {	
+		if (schemaLocation != null) {
+			return schemaLocation.usesSchema(rootPath, xsdPath);
+		} else if (noNamespaceSchemaLocation != null) {
 			String noNamespaceURI = URI.create(noNamespaceSchemaLocation.getLocation()).getPath();
 			Path noNamespacePath = Paths.get(noNamespaceURI).normalize();
 
-			if(!noNamespacePath.isAbsolute()) {
+			if (!noNamespacePath.isAbsolute()) {
 				noNamespacePath = rootPath.resolve(noNamespacePath);
 			}
 			return xsdPath.equals(noNamespacePath);
 		}
 		return false;
 	}
-	
+
+	/**
+	 * Returns the XML Schema prefix (ex : 'xs' for
+	 * xmlns:xs="http://www.w3.org/2001/XMLSchema")
+	 * 
+	 * @return the XML Schema prefix (ex : 'xs' for
+	 *         xmlns:xs="http://www.w3.org/2001/XMLSchema")
+	 */
+	public String getSchemaPrefix() {
+		initializeReferencedSchemaIfNeeded();
+		return schemaPrefix;
+	}
+
 	private void checkCanceled() {
 		if (cancelChecker != null) {
 			cancelChecker.checkCanceled();

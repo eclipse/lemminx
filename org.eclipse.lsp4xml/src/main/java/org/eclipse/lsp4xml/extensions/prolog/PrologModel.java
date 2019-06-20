@@ -37,6 +37,7 @@ import org.eclipse.lsp4xml.services.XMLCompletions;
 import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
 import org.eclipse.lsp4xml.settings.SharedSettings;
+import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.utils.StringUtils;
 
 /**
@@ -119,9 +120,9 @@ public class PrologModel {
 
 	private static void createCompletionItem(String attrName, boolean canSupportSnippet, boolean generateValue,
 			Range editRange, String defaultValue, Collection<String> enumerationValues, String documentation,
-			ICompletionResponse response, SharedSettings settings){
+			ICompletionResponse response, XMLFormattingOptions formattingsSettings){
 		CompletionItem item = new AttributeCompletionItem(attrName, canSupportSnippet, editRange, generateValue,
-				defaultValue, enumerationValues, settings);
+				defaultValue, enumerationValues, formattingsSettings);
 		MarkupContent markup = new MarkupContent();
 		markup.setKind(MarkupKind.MARKDOWN);
 		
@@ -131,7 +132,7 @@ public class PrologModel {
 	}
 
 	public static void computeAttributeNameCompletionResponses(ICompletionRequest request, 
-	ICompletionResponse response, Range editRange, DOMDocument document, SharedSettings settings)
+	ICompletionResponse response, Range editRange, DOMDocument document, XMLFormattingOptions formattingsSettings)
 			throws BadLocationException {
 
 		if (document.hasProlog() == false) {
@@ -145,21 +146,21 @@ public class PrologModel {
 		boolean isSnippetsSupported = request.getCompletionSettings().isCompletionSnippetsSupported();
 		
 		if(!prolog.hasAttribute(VERSION_NAME)) {
-			createCompletionItem(VERSION_NAME, isSnippetsSupported, true, editRange, VERSION_1, VERSION_VALUES, null, response, settings);
+			createCompletionItem(VERSION_NAME, isSnippetsSupported, true, editRange, VERSION_1, VERSION_VALUES, null, response, formattingsSettings);
 		}
 
 		if(!prolog.hasAttribute(ENCODING_NAME)) {
-			createCompletionItem(ENCODING_NAME, isSnippetsSupported, true, editRange, UTF_8, ENCODING_VALUES, null, response, settings);
+			createCompletionItem(ENCODING_NAME, isSnippetsSupported, true, editRange, UTF_8, ENCODING_VALUES, null, response, formattingsSettings);
 		}
 
 		if(!prolog.hasAttribute(STANDALONE_NAME)) {
-			createCompletionItem(STANDALONE_NAME, isSnippetsSupported, true, editRange, YES, STANDALONE_VALUES, null, response, settings);
+			createCompletionItem(STANDALONE_NAME, isSnippetsSupported, true, editRange, YES, STANDALONE_VALUES, null, response, formattingsSettings);
 		}
 
 	}
 
 	public static void computeValueCompletionResponses(ICompletionRequest request, 
-			ICompletionResponse response, Range editRange, DOMDocument document, SharedSettings settings) throws BadLocationException {
+			ICompletionResponse response, Range editRange, DOMDocument document, XMLFormattingOptions formattingSettings) throws BadLocationException {
 		
 		if (document.hasProlog() == false) {
 			return;
@@ -172,40 +173,28 @@ public class PrologModel {
 
 		DOMAttr attr = prolog.findAttrAt(offset);
 		if(VERSION_NAME.equals(attr.getName())) { // version
-			createCompletionItemsForValues(VERSION_VALUES, editRange, document, response, settings);
+			createCompletionItemsForValues(VERSION_VALUES, editRange, document, request, response);
 		}
 
 		else if(ENCODING_NAME.equals(attr.getName())) { // encoding
-			createCompletionItemsForValues(ENCODING_VALUES, editRange, document, response, settings);
+			createCompletionItemsForValues(ENCODING_VALUES, editRange, document, request, response);
 		}
 
 		else if(STANDALONE_NAME.equals(attr.getName())) {
-			createCompletionItemsForValues(STANDALONE_VALUES, editRange, document, response, settings);
+			createCompletionItemsForValues(STANDALONE_VALUES, editRange, document, request, response);
 		}
 	}
 
-	private static void createCompletionItemsForValues(Collection<String> enumerationValues, Range editRange, DOMDocument document, ICompletionResponse response, SharedSettings settings) {
-		
-		// Figure out which quotation to use for filter text
-		String settingQuotation = settings.formattingSettings.getQuotationAsString();
-		String currentQuotation = settingQuotation;
-		try {
-			int start = document.offsetAt(editRange.getStart());
-			int end = document.offsetAt(editRange.getEnd());
-			if(start != end) {
-				currentQuotation = String.valueOf(document.getText().charAt(start));
-			}
-		} catch (BadLocationException e) {
-		}
+	private static void createCompletionItemsForValues(Collection<String> enumerationValues, Range editRange, DOMDocument document, ICompletionRequest request, ICompletionResponse response) {
 		int sortText = 1;
 		CompletionItem item;
 		for (String option : enumerationValues) {
-			String optionWithQuotes = settingQuotation + option + settingQuotation;
+			String insertText = request.getInsertAttrValue(option);
 			item = new CompletionItem();
 			item.setLabel(option);
-			item.setFilterText(currentQuotation + option + currentQuotation);
+			item.setFilterText(insertText);
 			item.setKind(CompletionItemKind.Enum);
-			item.setTextEdit(new TextEdit(editRange, optionWithQuotes));
+			item.setTextEdit(new TextEdit(editRange, insertText));
 			item.setSortText(Integer.toString(sortText));
 			sortText++;
 			response.addCompletionItem(item);

@@ -60,6 +60,11 @@ public class DOMAttr extends DOMNode implements org.w3c.dom.Attr {
 		public DOMAttr getOwnerAttr() {
 			return ownerAttr;
 		}
+		
+		@Override
+		public DOMDocument getOwnerDocument() {
+			return ownerAttr.getOwnerDocument();
+		}
 	}
 
 	public DOMAttr(String name, DOMNode ownerElement) {

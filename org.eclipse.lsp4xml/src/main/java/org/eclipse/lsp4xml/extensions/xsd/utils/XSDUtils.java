@@ -30,39 +30,94 @@ import com.google.common.base.Objects;
 public class XSDUtils {
 
 	/**
-	 * Returns true if the given attribute is bound to complexType/@name attribute
-	 * and false otherwise.
-	 * 
-	 * @param attr the attribute
-	 * @return true if the given attribute is bound to complexType/@name attribute
-	 *         and false otherwise.
+	 * Binding type of xs attribute.
+	 *
 	 */
-	public static boolean isBoundToComplexTypes(DOMAttr attr) {
-		if (attr == null) {
-			return false;
+	public enum BindingType {
+
+		COMPLEX, SIMPLE, COMPLEX_AND_SIMPLE, NONE, REF, ELEMENT;
+
+		public boolean isSimple() {
+			return BindingType.COMPLEX_AND_SIMPLE.equals(this) || BindingType.SIMPLE.equals(this);
 		}
-		if ("type".equals(attr.getName()) && "element".equals(attr.getOwnerElement().getLocalName())) {
-			// - xs:element/@type -> xs:complexType/@name
-			return true;
+
+		public boolean isComplex() {
+			return BindingType.COMPLEX_AND_SIMPLE.equals(this) || BindingType.COMPLEX.equals(this);
 		}
-		if ("base".equals(attr.getName()) && "extension".equals(attr.getOwnerElement().getLocalName())) {
-			// - xs:extension/@base -> xs:complexType/@name
-			return true;
-		}
-		return false;
 	}
 
 	/**
-	 * Collect complexType/@name attributes declared inside the document of the
-	 * given attribute.
+	 * Returns the binding type of the given attribute.
+	 * 
+	 * @param attr the attribute
+	 * @return the binding type of the given attribute.
+	 */
+	public static BindingType getBindingType(DOMAttr attr) {
+		String name = attr.getName();
+		if ("type".equals(name)) {
+			if ("attribute".equals(attr.getOwnerElement().getLocalName())) {
+				// - <xs:attribute type="
+				return BindingType.SIMPLE;
+			}
+			// - <xs:element type="
+			return BindingType.COMPLEX_AND_SIMPLE;
+		}
+		if ("base".equals(name)) {
+			// - <xs:restriction base="
+			// - <xs:extension base="
+			DOMElement element = attr.getOwnerElement();
+			DOMElement parent = element.getParentElement();
+			if (parent != null) {
+				if (parent.getLocalName().equals("complexContent") | isComplexType(parent)) {
+					// parent element is complexContent or complexType -> bounded type is complex
+					return BindingType.COMPLEX;
+				}
+				if (parent.getLocalName().equals("simpleContent") || isSimpleType(parent)) {
+					// parent element is simpleContent or simpleType -> bounded type is simple
+					return BindingType.SIMPLE;
+				}
+			}
+			return BindingType.NONE;
+		}
+		if ("ref".equals(name)) {
+			// - <xs:element ref="
+			// - <xs:group ref="
+			return BindingType.REF;
+		}
+		if ("itemType".equals(name)) {
+			// - <xs:list itemType="
+			return BindingType.COMPLEX_AND_SIMPLE;
+		}
+		if ("memberTypes".equals(name)) {
+			// - <xs:union memberTypes="
+			return BindingType.COMPLEX_AND_SIMPLE;
+		}
+		if ("substitutionGroup".equals(name)) {
+			// - <xs:element substitutionGroup
+			return BindingType.ELEMENT;
+		}
+		return BindingType.NONE;
+	}
+
+	/**
+	 * Collect XSD types declared in the XML Schema according the given attribute
+	 * and binding type.
+	 * 
+	 * - xs:complexType/@name attributes - xs:simpleType/@name attributes -
+	 * xs:element/@name attributes if attribute is xs:element/@ref - xs:group/@name
+	 * attributes if attribute is xs:group/@ref
 	 * 
 	 * @param originAttr the origin attribute.
 	 * @param matchAttr  true if the attribute value must match the value of
 	 *                   complexType/@name and false otherwise.
-	 * @param collector  collector to collect complexType/@name attributes.
+	 * @param collector  collector to collect XSD types attributes.
 	 */
-	public static void collectComplexTypes(DOMAttr originAttr, boolean matchAttr,
+	public static void collectXSTypes(DOMAttr originAttr, BindingType bindingType, boolean matchAttr,
 			BiConsumer<String, DOMAttr> collector) {
+		if (bindingType == BindingType.NONE) {
+			return;
+		}
+
 		DOMDocument document = originAttr.getOwnerDocument();
 		DOMElement documentElement = document != null ? document.getDocumentElement() : null;
 		if (documentElement == null) {
@@ -80,15 +135,18 @@ public class XSDUtils {
 																					// http://camel.apache.org/schema/spring
 		String targetNamespacePrefix = documentElement.getPrefix(targetNamespace); // -> tns
 
-		String complexTypeName = attrValue;
-		String prefix = null;
-		int index = attrValue.indexOf(":");
-		if (index != -1) {
-			prefix = attrValue.substring(0, index);
-			if (!Objects.equal(prefix, targetNamespacePrefix)) {
-				return;
+		String matchAttrName = null;
+		if (matchAttr) {
+			matchAttrName = attrValue;
+			String prefix = null;
+			int index = attrValue.indexOf(":");
+			if (index != -1) {
+				prefix = attrValue.substring(0, index);
+				if (!Objects.equal(prefix, targetNamespacePrefix)) {
+					return;
+				}
+				matchAttrName = attrValue.substring(index + 1, attrValue.length());
 			}
-			complexTypeName = attrValue.substring(index + 1, attrValue.length());
 		}
 
 		// Loop for element complexType.
@@ -96,17 +154,40 @@ public class XSDUtils {
 		for (int i = 0; i < children.getLength(); i++) {
 			Node node = children.item(i);
 			if (node.getNodeType() == Node.ELEMENT_NODE) {
-				Element element = (Element) node;
-				if ("complexType".equals(element.getLocalName())) {
-					// node is a complexType element
-					// get the attribute complexType/@name
-					DOMAttr targetAttr = (DOMAttr) element.getAttributeNode("name");
-					if (!matchAttr || complexTypeName.equals(targetAttr.getValue())) {
+				Element targetElement = (Element) node;
+				if (canCollectElement(originAttr, targetElement, bindingType)) {
+					// node is a xs:complexType, xs:simpleType element, xsl:element, xs:group which
+					// matches the binding type of the originAttr
+					DOMAttr targetAttr = (DOMAttr) targetElement.getAttributeNode("name");
+					if (targetAttr != null && (!matchAttr || matchAttrName.equals(targetAttr.getValue()))) {
 						collector.accept(targetNamespacePrefix, targetAttr);
 					}
 				}
 			}
 		}
+	}
+
+	private static boolean canCollectElement(DOMAttr originAttr, Element targetElement, BindingType bindingType) {
+		if (isComplexType(targetElement)) {
+			return bindingType.isComplex();
+		} else if (isSimpleType(targetElement)) {
+			return bindingType.isSimple();
+		} else if (bindingType == BindingType.REF) {
+			// - xs:element/@name attributes if originAttr is xs:element/@ref
+			// - xs:group/@name attributes if originAttr is xs:group/@ref
+			return (originAttr.getOwnerElement().getLocalName().equals(targetElement.getLocalName()));
+		} else if (bindingType == BindingType.ELEMENT) {
+			return "element".equals(targetElement.getLocalName());
+		}
+		return false;
+	}
+
+	public static boolean isComplexType(Element element) {
+		return "complexType".equals(element.getLocalName());
+	}
+
+	public static boolean isSimpleType(Element element) {
+		return "simpleType".equals(element.getLocalName());
 	}
 
 }

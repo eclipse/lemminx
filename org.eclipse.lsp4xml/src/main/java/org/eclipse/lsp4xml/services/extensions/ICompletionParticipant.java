@@ -10,9 +10,6 @@
  */
 package org.eclipse.lsp4xml.services.extensions;
 
-import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4xml.settings.SharedSettings;
-
 /**
  * Completion participant API.
  *
@@ -23,10 +20,10 @@ public interface ICompletionParticipant {
 
 	void onXMLContent(ICompletionRequest request, ICompletionResponse response) throws Exception;
 
-	void onAttributeName(boolean generateValue, Range fullRange, ICompletionRequest request, ICompletionResponse response,
-			SharedSettings settings) throws Exception;
+	void onAttributeName(boolean generateValue, ICompletionRequest request, ICompletionResponse response)
+			throws Exception;
 
-	void onAttributeValue(String valuePrefix, Range fullRange, boolean addQuotes, ICompletionRequest request,
-			ICompletionResponse response, SharedSettings settings) throws Exception;
+	void onAttributeValue(String valuePrefix, ICompletionRequest request, ICompletionResponse response)
+			throws Exception;
 
 }

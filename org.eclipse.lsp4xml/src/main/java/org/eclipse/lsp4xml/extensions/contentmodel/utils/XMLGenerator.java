@@ -180,12 +180,12 @@ public class XMLGenerator {
 	 * Can create an enumerated TextEdit if given a collection of values.
 	 */
 	public static String generateAttributeValue(String defaultValue, Collection<String> enumerationValues,
-			boolean canSupportSnippets, int snippetIndex, boolean withQuote, SharedSettings settings) {
+			boolean canSupportSnippets, int snippetIndex, boolean withQuote, XMLFormattingOptions formattingSettings) {
 		StringBuilder value = new StringBuilder();
 		String quotation = "\"";
 		if (withQuote) {
-			if (settings != null) {
-				quotation = settings.formattingSettings.getQuotationAsString();
+			if (formattingSettings != null) {
+				quotation = formattingSettings.getQuotationAsString();
 			}
 			value.append("=" + quotation);
 		}
