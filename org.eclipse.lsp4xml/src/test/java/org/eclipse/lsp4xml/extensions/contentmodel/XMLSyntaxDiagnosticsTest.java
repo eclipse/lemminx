@@ -38,7 +38,13 @@ public class XMLSyntaxDiagnosticsTest {
 	@Test
 	public void testAttributeNotUnique() throws Exception {
 		String xml = "<InstdAmt Ccy=\"JPY\" Ccy=\"JPY\" >10000000</InstdAmt>";
-		testDiagnosticsFor(xml, d(0, 20, 0, 23, XMLSyntaxErrorCode.AttributeNotUnique));
+		testDiagnosticsFor(xml, d(0, 10, 0, 13, XMLSyntaxErrorCode.AttributeNotUnique));
+	}
+
+	@Test
+	public void testAttributeNotUnique2() throws Exception {
+		String xml = "<a attr=\"\" attr=\"\" attr2=\"\" />";
+		testDiagnosticsFor(xml, d(0, 3, 0, 7, XMLSyntaxErrorCode.AttributeNotUnique));
 	}
 
 	/**
@@ -52,7 +58,16 @@ public class XMLSyntaxDiagnosticsTest {
 		String xml = "<Document xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"urn:iso:std:iso:20022:tech:xsd:pain.001.001.03\"\r\n"
 				+ "\r\n" + //
 				"xmlns=\"urn:iso:std:iso:20022:tech:xsd:pain.001.001.03\"> ";
-		testDiagnosticsFor(xml, d(2, 0, 2, 5, XMLSyntaxErrorCode.AttributeNSNotUnique));
+		testDiagnosticsFor(xml, d(0, 64, 0, 69, XMLSyntaxErrorCode.AttributeNSNotUnique));
+	}
+
+	@Test
+	public void testAttributeNSNotUnique2() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" +
+				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" \r\n" +
+				"	xmlns:tns=\"http://camel.apache.org/schema/spring\"\r\n" +
+				"	xmlns:tns=\"http://camel.apache.org/schema/spring\" version=\"1.0\">";
+		testDiagnosticsFor(xml, d(2, 1, 2, 10, XMLSyntaxErrorCode.AttributeNSNotUnique));
 	}
 
 	/**
