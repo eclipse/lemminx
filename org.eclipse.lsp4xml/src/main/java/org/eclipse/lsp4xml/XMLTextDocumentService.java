@@ -435,11 +435,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	 * @return the text document from the given uri.
 	 */
 	public ModelTextDocument<DOMDocument> getDocument(String uri) {
-		ModelTextDocument<DOMDocument> document = documents.get(uri);
-		if (document == null) {
-			throw new CancellationException("Cannot find a text document for the uri='" + uri + "'.");
-		}
-		return document;
+		return documents.get(uri);
 	}
 
 	/**
