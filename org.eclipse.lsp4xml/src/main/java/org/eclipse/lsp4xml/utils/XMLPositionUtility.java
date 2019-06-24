@@ -410,6 +410,12 @@ public class XMLPositionUtility {
 				originSelectionRange);
 	}
 
+	public static Location createLocation(DOMNode target) {
+		DOMDocument targetDocument = target.getOwnerDocument();
+		Range targetRange = XMLPositionUtility.createRange(target.getStart(), target.getEnd(), targetDocument);
+		return new Location(targetDocument.getDocumentURI(), targetRange);
+	}
+
 	public static Range selectContent(int offset, DOMDocument document) {
 		DOMNode node = document.findNodeAt(offset);
 		if (node != null) {

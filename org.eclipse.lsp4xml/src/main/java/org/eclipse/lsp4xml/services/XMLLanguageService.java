@@ -71,8 +71,8 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 	private final XMLDiagnostics diagnostics;
 	private final XMLFoldings foldings;
 	private final XMLDocumentLink documentLink;
-	private XMLDefinition definition;
-	private XMLReference reference;
+	private final XMLDefinition definition;
+	private final XMLReference reference;
 	private final XMLCodeActions codeActions;
 	private final XMLRename rename;
 
@@ -204,13 +204,14 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		return documentLink.findDocumentLinks(document);
 	}
 
-	public List<? extends LocationLink> findDefinition(DOMDocument xmlDocument, Position position, CancelChecker cancelChecker) {
+	public List<? extends LocationLink> findDefinition(DOMDocument xmlDocument, Position position,
+			CancelChecker cancelChecker) {
 		return definition.findDefinition(xmlDocument, position, cancelChecker);
 	}
 
-	public List<? extends Location> findReferences(DOMDocument xmlDocument, Position position,
-			ReferenceContext context) {
-		return reference.findReferences(xmlDocument, position, context);
+	public List<? extends Location> findReferences(DOMDocument xmlDocument, Position position, ReferenceContext context,
+			CancelChecker cancelChecker) {
+		return reference.findReferences(xmlDocument, position, context, cancelChecker);
 	}
 
 	public List<CodeAction> doCodeActions(CodeActionContext context, Range range, DOMDocument document,

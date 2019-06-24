@@ -9,13 +9,19 @@
 *******************************************************************************/
 package org.eclipse.lsp4xml.extensions.xsd.utils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BiConsumer;
 
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.dom.DOMAttr;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMElement;
+import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.utils.StringUtils;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -68,11 +74,11 @@ public class XSDUtils {
 			DOMElement element = attr.getOwnerElement();
 			DOMElement parent = element.getParentElement();
 			if (parent != null) {
-				if (parent.getLocalName().equals("complexContent") | isComplexType(parent)) {
+				if (parent.getLocalName().equals("complexContent") || isXSComplexType(parent)) {
 					// parent element is complexContent or complexType -> bounded type is complex
 					return BindingType.COMPLEX;
 				}
-				if (parent.getLocalName().equals("simpleContent") || isSimpleType(parent)) {
+				if (parent.getLocalName().equals("simpleContent") || isXSSimpleType(parent)) {
 					// parent element is simpleContent or simpleType -> bounded type is simple
 					return BindingType.SIMPLE;
 				}
@@ -123,8 +129,8 @@ public class XSDUtils {
 		if (documentElement == null) {
 			return;
 		}
-		String attrValue = originAttr.getValue();
-		if (matchAttr && StringUtils.isEmpty(attrValue)) {
+		String originAttrValue = originAttr.getValue();
+		if (matchAttr && StringUtils.isEmpty(originAttrValue)) {
 			return;
 		}
 
@@ -135,18 +141,9 @@ public class XSDUtils {
 																					// http://camel.apache.org/schema/spring
 		String targetNamespacePrefix = documentElement.getPrefix(targetNamespace); // -> tns
 
-		String matchAttrName = null;
+		String originName = null;
 		if (matchAttr) {
-			matchAttrName = attrValue;
-			String prefix = null;
-			int index = attrValue.indexOf(":");
-			if (index != -1) {
-				prefix = attrValue.substring(0, index);
-				if (!Objects.equal(prefix, targetNamespacePrefix)) {
-					return;
-				}
-				matchAttrName = attrValue.substring(index + 1, attrValue.length());
-			}
+			originName = getOriginName(originAttrValue, targetNamespacePrefix);
 		}
 
 		// Loop for element complexType.
@@ -155,11 +152,11 @@ public class XSDUtils {
 			Node node = children.item(i);
 			if (node.getNodeType() == Node.ELEMENT_NODE) {
 				Element targetElement = (Element) node;
-				if (canCollectElement(originAttr, targetElement, bindingType)) {
+				if (isBounded(originAttr.getOwnerElement(), bindingType, targetElement)) {
 					// node is a xs:complexType, xs:simpleType element, xsl:element, xs:group which
 					// matches the binding type of the originAttr
 					DOMAttr targetAttr = (DOMAttr) targetElement.getAttributeNode("name");
-					if (targetAttr != null && (!matchAttr || matchAttrName.equals(targetAttr.getValue()))) {
+					if (targetAttr != null && (!matchAttr || originName.equals(targetAttr.getValue()))) {
 						collector.accept(targetNamespacePrefix, targetAttr);
 					}
 				}
@@ -167,27 +164,177 @@ public class XSDUtils {
 		}
 	}
 
-	private static boolean canCollectElement(DOMAttr originAttr, Element targetElement, BindingType bindingType) {
-		if (isComplexType(targetElement)) {
-			return bindingType.isComplex();
-		} else if (isSimpleType(targetElement)) {
-			return bindingType.isSimple();
-		} else if (bindingType == BindingType.REF) {
+	private static String getOriginName(String originAttrValue, String targetNamespacePrefix) {
+		int index = originAttrValue.indexOf(":");
+		if (index != -1) {
+			String prefix = originAttrValue.substring(0, index);
+			if (!Objects.equal(prefix, targetNamespacePrefix)) {
+				return null;
+			}
+			return originAttrValue.substring(index + 1, originAttrValue.length());
+		}
+		return originAttrValue;
+	}
+
+	private static boolean isBounded(Element originElement, BindingType originBinding, Element targetElement) {
+		if (isXSComplexType(targetElement)) {
+			return originBinding.isComplex();
+		} else if (isXSSimpleType(targetElement)) {
+			return originBinding.isSimple();
+		} else if (originBinding == BindingType.REF) {
 			// - xs:element/@name attributes if originAttr is xs:element/@ref
 			// - xs:group/@name attributes if originAttr is xs:group/@ref
-			return (originAttr.getOwnerElement().getLocalName().equals(targetElement.getLocalName()));
-		} else if (bindingType == BindingType.ELEMENT) {
-			return "element".equals(targetElement.getLocalName());
+			return (originElement.getLocalName().equals(targetElement.getLocalName()));
+		} else if (originBinding == BindingType.ELEMENT) {
+			return isXSElement(targetElement);
 		}
 		return false;
 	}
 
-	public static boolean isComplexType(Element element) {
+	/**
+	 * Collect references types from the given referenced node.
+	 * 
+	 * @param targetNode the referenced node
+	 * @param collector  the collector to collect reference origin and target node.
+	 */
+	public static void collectXSReferenceTypes(DOMNode targetNode, BiConsumer<DOMAttr, DOMAttr> collector,
+			CancelChecker cancelChecker) {
+		// get referenced attribute nodes from the given referenced node
+		List<DOMAttr> targetAttrs = getTargetAttrs(targetNode);
+		if (targetAttrs.isEmpty()) {
+			// None referenced nodes, stop the search of references
+			return;
+		}
+
+		// Here referencedNodes is filled with a list of attributes
+		// xs:complexType/@name,
+		// xs:simpleType/@name, xs:element/@name, xs:group/@name
+
+		DOMDocument document = targetNode.getOwnerDocument();
+		DOMElement documentElement = document.getDocumentElement();
+
+		// <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+		// xmlns:tns="http://camel.apache.org/schema/spring"
+		// targetNamespace="http://camel.apache.org/schema/spring" version="1.0">
+		String targetNamespace = documentElement.getAttribute("targetNamespace"); // ->
+																					// http://camel.apache.org/schema/spring
+		String targetNamespacePrefix = documentElement.getPrefix(targetNamespace); // -> tns
+
+		// Collect references for each references nodes
+
+		NodeList nodes = documentElement.getChildNodes();
+		collectXSReferenceTypes(nodes, targetAttrs, targetNamespacePrefix, collector, cancelChecker);
+	}
+
+	/**
+	 * Returns the referenced attributes list from the given referenced node.
+	 * 
+	 * @param referencedNode the referenced node.
+	 * @return the referenced attributes list from the given referenced node.
+	 */
+	private static List<DOMAttr> getTargetAttrs(DOMNode referencedNode) {
+		List<DOMAttr> referencedNodes = new ArrayList<>();
+		Document document = referencedNode.getOwnerDocument();
+		switch (referencedNode.getNodeType()) {
+		case Node.ATTRIBUTE_NODE:
+			// The referenced node is an attribute, add it to search references from it.
+		case Node.ELEMENT_NODE:
+			// The referenced node is an element, get the attribute name) and add it to
+			// search references from it.
+			addReferenceNode(referencedNode, referencedNodes);
+			break;
+		case Node.DOCUMENT_NODE:
+			// The referenced node is the DOM document, collect all attributes
+			// xs:complexType/@name, xs:simpleType/@name, xs:element/@name, xs:group/@name
+			// which can be referenced
+			NodeList nodes = document.getDocumentElement().getChildNodes();
+			for (int i = 0; i < nodes.getLength(); i++) {
+				Node n = nodes.item(i);
+				if (n.getNodeType() == Node.ELEMENT_NODE) {
+					DOMElement element = (DOMElement) n;
+					if (isXSComplexType(element) || isXSSimpleType(element) || isXSElement(element)
+							|| isXSGroup(element)) {
+						addReferenceNode(element, referencedNodes);
+					}
+				}
+			}
+		}
+		return referencedNodes;
+	}
+
+	/**
+	 * Add the given node as reference node if it is applicable.
+	 * 
+	 * @param node        the node to add.
+	 * @param targetAttrs the list of referenced nodes.
+	 */
+	private static void addReferenceNode(DOMNode node, List<DOMAttr> targetAttrs) {
+		DOMAttr attr = null;
+		switch (node.getNodeType()) {
+		case Node.ATTRIBUTE_NODE:
+			attr = (DOMAttr) node;
+			break;
+		case Node.ELEMENT_NODE:
+			attr = ((DOMElement) node).getAttributeNode("name");
+			break;
+		}
+		// Attribute must exists and her value must be not empty.
+		if (attr != null && !StringUtils.isEmpty(attr.getValue())) {
+			targetAttrs.add(attr);
+		}
+	}
+
+	private static void collectXSReferenceTypes(NodeList nodes, List<DOMAttr> targetAttrs, String targetNamespacePrefix,
+			BiConsumer<DOMAttr, DOMAttr> collector, CancelChecker cancelChecker) {
+		for (int i = 0; i < nodes.getLength(); i++) {
+			if (cancelChecker != null) {
+				cancelChecker.checkCanceled();
+			}
+			Node node = nodes.item(i);
+			if (node.getNodeType() == Node.ELEMENT_NODE) {
+				DOMElement originElement = (DOMElement) node;
+				NamedNodeMap originAttributes = originElement.getAttributes();
+				if (originAttributes != null) {
+					for (int j = 0; j < originAttributes.getLength(); j++) {
+						DOMAttr originAttr = (DOMAttr) originAttributes.item(j);
+						BindingType originBnding = XSDUtils.getBindingType(originAttr);
+						if (originBnding != BindingType.NONE) {
+							String originName = getOriginName(originAttr.getValue(), targetNamespacePrefix);
+							for (DOMAttr targetAttr : targetAttrs) {
+								Element targetElement = targetAttr.getOwnerElement();
+								if (isBounded(originAttr.getOwnerElement(), originBnding, targetElement)) {
+									// node is a xs:complexType, xs:simpleType element, xsl:element, xs:group which
+									// matches the binding type of the originAttr
+									if (targetAttr != null && (originName.equals(targetAttr.getValue()))) {
+										collector.accept(originAttr, targetAttr);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			if (node.hasChildNodes()) {
+				collectXSReferenceTypes(node.getChildNodes(), targetAttrs, targetNamespacePrefix, collector,
+						cancelChecker);
+			}
+		}
+
+	}
+
+	public static boolean isXSComplexType(Element element) {
 		return "complexType".equals(element.getLocalName());
 	}
 
-	public static boolean isSimpleType(Element element) {
+	public static boolean isXSSimpleType(Element element) {
 		return "simpleType".equals(element.getLocalName());
 	}
 
+	public static boolean isXSElement(Element element) {
+		return "element".equals(element.getLocalName());
+	}
+
+	public static boolean isXSGroup(Element element) {
+		return "group".equals(element.getLocalName());
+	}
 }

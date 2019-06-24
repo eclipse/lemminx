@@ -285,7 +285,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 			TextDocumentPositionParams params) {
 		return computeDOMAsync(params.getTextDocument(), (cancelChecker, xmlDocument) -> {
 			if (definitionLinkSupport) {
-				return Either.forRight(getXMLLanguageService().findDefinition(xmlDocument, params.getPosition(), cancelChecker));
+				return Either.forRight(
+						getXMLLanguageService().findDefinition(xmlDocument, params.getPosition(), cancelChecker));
 			}
 			List<? extends Location> locations = getXMLLanguageService()
 					.findDefinition(xmlDocument, params.getPosition(), cancelChecker) //
@@ -299,7 +300,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 	@Override
 	public CompletableFuture<List<? extends Location>> references(ReferenceParams params) {
 		return computeDOMAsync(params.getTextDocument(), (cancelChecker, xmlDocument) -> {
-			return getXMLLanguageService().findReferences(xmlDocument, params.getPosition(), params.getContext());
+			return getXMLLanguageService().findReferences(xmlDocument, params.getPosition(), params.getContext(),
+					cancelChecker);
 		});
 	}
 

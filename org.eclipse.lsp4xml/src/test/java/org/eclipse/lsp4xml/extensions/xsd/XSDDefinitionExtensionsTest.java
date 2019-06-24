@@ -9,7 +9,7 @@
 *******************************************************************************/
 package org.eclipse.lsp4xml.extensions.xsd;
 
-import static org.eclipse.lsp4xml.XMLAssert.l;
+import static org.eclipse.lsp4xml.XMLAssert.ll;
 import static org.eclipse.lsp4xml.XMLAssert.r;
 
 import org.eclipse.lsp4j.LocationLink;
@@ -39,7 +39,7 @@ public class XSDDefinitionExtensionsTest {
 				"	</xs:complexType>\r\n" + //
 				"	\r\n" + //
 				"</xs:schema>";
-		testDefinitionFor(xml, l("test.xsd", r(3, 34, 3, 50), r(5, 22, 5, 38)));
+		testDefinitionFor(xml, ll("test.xsd", r(3, 34, 3, 50), r(5, 22, 5, 38)));
 	}
 
 	@Test
@@ -63,7 +63,7 @@ public class XSDDefinitionExtensionsTest {
 				"	</xs:complexType>\r\n" + //
 				"	\r\n" + //
 				"</xs:schema>";
-		testDefinitionFor(xml, l("test.xsd", r(9, 22, 9, 34), r(3, 22, 3, 34)));
+		testDefinitionFor(xml, ll("test.xsd", r(9, 22, 9, 34), r(3, 22, 3, 34)));
 	}
 
 	@Test
@@ -83,7 +83,7 @@ public class XSDDefinitionExtensionsTest {
 				"	</xs:complexType>\r\n" + //
 				"	\r\n" + //
 				"</xs:schema>";
-		testDefinitionFor(xml, l("test.xsd", r(3, 35, 3, 60), r(6, 22, 6, 43)));
+		testDefinitionFor(xml, ll("test.xsd", r(3, 35, 3, 60), r(6, 22, 6, 43)));
 	}
 
 	@Test
@@ -111,7 +111,7 @@ public class XSDDefinitionExtensionsTest {
 				"	<xs:element name=\"attribute\" />\r\n" + //
 				"	<xs:element name=\"notation\" />\r\n" + //
 				"</xs:schema>";
-		testDefinitionFor(xml, l("test.xsd", r(8, 19, 8, 32), r(18, 18, 18, 28)));
+		testDefinitionFor(xml, ll("test.xsd", r(8, 19, 8, 32), r(18, 18, 18, 28)));
 	}
 
 	@Test
@@ -139,7 +139,7 @@ public class XSDDefinitionExtensionsTest {
 				"	<xs:element name=\"attribute\" />\r\n" + //
 				"	<xs:element name=\"notation\" />\r\n" + //
 				"</xs:schema>";
-		testDefinitionFor(xml, l("test.xsd", r(5, 17, 5, 33), r(12, 16, 12, 29)));
+		testDefinitionFor(xml, ll("test.xsd", r(5, 17, 5, 33), r(12, 16, 12, 29)));
 	}
 
 	private static void testDefinitionFor(String xml, LocationLink... expectedItems) throws BadLocationException {

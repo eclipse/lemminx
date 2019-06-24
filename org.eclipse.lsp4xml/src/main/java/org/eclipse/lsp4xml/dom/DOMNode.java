@@ -147,6 +147,7 @@ public abstract class DOMNode implements Node {
 	 * 
 	 * @return the owner document and null otherwise.
 	 */
+	@Override
 	public DOMDocument getOwnerDocument() {
 		Node node = parent;
 		while (node != null) {

@@ -15,6 +15,7 @@ import java.util.List;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.ReferenceContext;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 
 /**
@@ -23,6 +24,6 @@ import org.eclipse.lsp4xml.dom.DOMDocument;
  */
 public interface IReferenceParticipant {
 
-	void findReference(DOMDocument document, Position position, ReferenceContext context, List<Location> locations);
+	void findReference(DOMDocument document, Position position, ReferenceContext context, List<Location> locations, CancelChecker cancelChecker);
 
 }

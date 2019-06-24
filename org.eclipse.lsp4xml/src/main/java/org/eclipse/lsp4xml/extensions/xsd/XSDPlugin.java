@@ -17,9 +17,11 @@ import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelProvider;
 import org.eclipse.lsp4xml.extensions.xsd.contentmodel.CMXSDContentModelProvider;
 import org.eclipse.lsp4xml.extensions.xsd.participants.XSDCompletionParticipant;
 import org.eclipse.lsp4xml.extensions.xsd.participants.XSDDefinitionParticipant;
+import org.eclipse.lsp4xml.extensions.xsd.participants.XSDReferenceParticipant;
 import org.eclipse.lsp4xml.extensions.xsd.participants.diagnostics.XSDDiagnosticsParticipant;
 import org.eclipse.lsp4xml.services.extensions.ICompletionParticipant;
 import org.eclipse.lsp4xml.services.extensions.IDefinitionParticipant;
+import org.eclipse.lsp4xml.services.extensions.IReferenceParticipant;
 import org.eclipse.lsp4xml.services.extensions.IXMLExtension;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IDiagnosticsParticipant;
@@ -37,12 +39,15 @@ public class XSDPlugin implements IXMLExtension {
 
 	private final IDiagnosticsParticipant diagnosticsParticipant;
 
+	private final IReferenceParticipant referenceParticipant;
+
 	private XSDURIResolverExtension uiResolver;
 
 	public XSDPlugin() {
 		completionParticipant = new XSDCompletionParticipant();
 		definitionParticipant = new XSDDefinitionParticipant();
 		diagnosticsParticipant = new XSDDiagnosticsParticipant();
+		referenceParticipant = new XSDReferenceParticipant();
 	}
 
 	@Override
@@ -70,6 +75,7 @@ public class XSDPlugin implements IXMLExtension {
 		registry.registerCompletionParticipant(completionParticipant);
 		registry.registerDefinitionParticipant(definitionParticipant);
 		registry.registerDiagnosticsParticipant(diagnosticsParticipant);
+		registry.registerReferenceParticipant(referenceParticipant);
 	}
 
 	@Override
@@ -78,5 +84,6 @@ public class XSDPlugin implements IXMLExtension {
 		registry.unregisterCompletionParticipant(completionParticipant);
 		registry.unregisterDefinitionParticipant(definitionParticipant);
 		registry.unregisterDiagnosticsParticipant(diagnosticsParticipant);
+		registry.unregisterReferenceParticipant(referenceParticipant);
 	}
 }

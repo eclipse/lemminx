@@ -76,6 +76,10 @@ public class ClientCapabilitiesWrapper {
 		return v3Supported && isDynamicRegistrationSupported(getTextDocument().getDefinition());
 	}
 	
+	public boolean isReferencesDynamicRegistrationSupported() {
+		return v3Supported && isDynamicRegistrationSupported(getTextDocument().getReferences());
+	}
+
 	public boolean isCodeActionDynamicRegistered() {
 		return v3Supported && isDynamicRegistrationSupported(getTextDocument().getCodeAction());
 	}
@@ -87,7 +91,7 @@ public class ClientCapabilitiesWrapper {
 	public boolean isDocumentHighlightDynamicRegistered() {
 		return v3Supported && isDynamicRegistrationSupported(getTextDocument().getDocumentHighlight());
 	}
-
+	
 	private boolean isDynamicRegistrationSupported(DynamicRegistrationCapabilities capability) {
 		return capability != null && capability.getDynamicRegistration() != null
 				&& capability.getDynamicRegistration().booleanValue();

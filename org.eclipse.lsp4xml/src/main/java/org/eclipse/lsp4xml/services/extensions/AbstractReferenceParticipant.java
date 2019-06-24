@@ -11,24 +11,25 @@ package org.eclipse.lsp4xml.services.extensions;
 
 import java.util.List;
 
-import org.eclipse.lsp4j.LocationLink;
+import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.ReferenceContext;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMNode;
 
 /**
- * Abstract class for definition.
+ * Abstract class for reference participant.
  * 
  * @author Angelo ZERR
  *
  */
-public abstract class AbstractDefinitionParticipant implements IDefinitionParticipant {
+public abstract class AbstractReferenceParticipant implements IReferenceParticipant {
 
 	@Override
-	public void findDefinition(DOMDocument document, Position position, List<LocationLink> locations,
-			CancelChecker cancelChecker) {
+	public void findReference(DOMDocument document, Position position, ReferenceContext context,
+			List<Location> locations, CancelChecker cancelChecker) {
 		if (!match(document)) {
 			return;
 		}
@@ -36,7 +37,7 @@ public abstract class AbstractDefinitionParticipant implements IDefinitionPartic
 			int offset = document.offsetAt(position);
 			DOMNode node = document.findNodeAt(offset);
 			if (node != null) {
-				findDefinition(node, position, offset, locations, cancelChecker);
+				findReferences(node, position, offset, context, locations, cancelChecker);
 			}
 		} catch (BadLocationException e) {
 
@@ -44,17 +45,17 @@ public abstract class AbstractDefinitionParticipant implements IDefinitionPartic
 	}
 
 	/**
-	 * Returns true if the definition support is applicable for the given document
+	 * Returns true if the reference support is applicable for the given document
 	 * and false otherwise.
 	 * 
 	 * @param document
-	 * @return true if the definition support is applicable for the given document
+	 * @return true if the reference support is applicable for the given document
 	 *         and false otherwise.
 	 */
 	protected abstract boolean match(DOMDocument document);
 
 	/**
-	 * Find the definition
+	 * Find the references
 	 * 
 	 * @param node
 	 * @param position
@@ -62,7 +63,7 @@ public abstract class AbstractDefinitionParticipant implements IDefinitionPartic
 	 * @param locations
 	 * @param cancelChecker
 	 */
-	protected abstract void findDefinition(DOMNode node, Position position, int offset, List<LocationLink> locations,
-			CancelChecker cancelChecker);
+	protected abstract void findReferences(DOMNode node, Position position, int offset, ReferenceContext context,
+			List<Location> locations, CancelChecker cancelChecker);
 
 }
