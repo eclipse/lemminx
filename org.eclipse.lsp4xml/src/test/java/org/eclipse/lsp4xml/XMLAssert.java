@@ -31,12 +31,14 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DocumentLink;
 import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.Hover;
+import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.MarkedString;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.ReferenceContext;
 import org.eclipse.lsp4j.SymbolKind;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
@@ -651,11 +653,51 @@ public class XMLAssert {
 
 	}
 
-	public static LocationLink l(final String uri, final Range originRange, Range targetRange) {
+	public static LocationLink ll(final String uri, final Range originRange, Range targetRange) {
 		return new LocationLink(uri, targetRange, targetRange, originRange);
 	}
 
 	public static void assertLocationLink(List<? extends LocationLink> actual, LocationLink... expected) {
+		Assert.assertEquals(expected.length, actual.size());
+		Assert.assertArrayEquals(expected, actual.toArray());
+	}
+
+	// ------------------- Reference assert
+
+	public static void testReferencesFor(String xml, Location... expected) throws BadLocationException {
+		testReferencesFor(xml, null, expected);
+	}
+
+	public static void testReferencesFor(String value, String fileURI, Location... expected)
+			throws BadLocationException {
+		int offset = value.indexOf('|');
+		value = value.substring(0, offset) + value.substring(offset + 1);
+
+		TextDocument document = new TextDocument(value, fileURI != null ? fileURI : "test://test/test.xml");
+		Position position = document.positionAt(offset);
+
+		XMLLanguageService xmlLanguageService = new XMLLanguageService();
+
+		ContentModelSettings settings = new ContentModelSettings();
+		settings.setUseCache(false);
+		xmlLanguageService.doSave(new SettingsSaveContext(settings));
+
+		DOMDocument xmlDocument = DOMParser.getInstance().parse(document,
+				xmlLanguageService.getResolverExtensionManager());
+		xmlLanguageService.setDocumentProvider((uri) -> xmlDocument);
+
+		List<? extends Location> actual = xmlLanguageService.findReferences(xmlDocument, position,
+				new ReferenceContext(), () -> {
+				});
+		assertLocation(actual, expected);
+
+	}
+
+	public static Location l(final String uri, final Range range) {
+		return new Location(uri, range);
+	}
+
+	public static void assertLocation(List<? extends Location> actual, Location... expected) {
 		Assert.assertEquals(expected.length, actual.size());
 		Assert.assertArrayEquals(expected, actual.toArray());
 	}

@@ -16,6 +16,7 @@ import java.util.List;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.ReferenceContext;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.services.extensions.IReferenceParticipant;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
@@ -32,10 +33,11 @@ class XMLReference {
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
-	public List<? extends Location> findReferences(DOMDocument document, Position position, ReferenceContext context) {
+	public List<? extends Location> findReferences(DOMDocument document, Position position, ReferenceContext context,
+			CancelChecker cancelChecker) {
 		List<Location> locations = new ArrayList<>();
 		for (IReferenceParticipant participant : extensionsRegistry.getReferenceParticipants()) {
-			participant.findReference(document, position, context, locations);
+			participant.findReference(document, position, context, locations, cancelChecker);
 		}
 		return locations;
 	}

@@ -80,10 +80,10 @@ public class DataType {
 		doc.append(attr.getValue());
 		doc.append("**");
 		DOMElement element = attr.getOwnerElement();
-		if (XSDUtils.isComplexType(element)) {
+		if (XSDUtils.isXSComplexType(element)) {
 			doc.append(lineSeparator);
 			doc.append(" - Type: `Complex Type` ");
-		} else if (XSDUtils.isSimpleType(element)) {
+		} else if (XSDUtils.isXSSimpleType(element)) {
 			doc.append(lineSeparator);
 			doc.append(" - Type: `Simple Type` ");
 		}

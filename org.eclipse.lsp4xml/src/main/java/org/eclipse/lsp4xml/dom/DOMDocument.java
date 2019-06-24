@@ -464,11 +464,6 @@ public class DOMDocument extends DOMNode implements Document {
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.lsp4xml.dom.Node#getOwnerDocument()
-	 */
 	@Override
 	public DOMDocument getOwnerDocument() {
 		return this;

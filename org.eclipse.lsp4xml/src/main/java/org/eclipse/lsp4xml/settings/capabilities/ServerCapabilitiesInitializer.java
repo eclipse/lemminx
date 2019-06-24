@@ -48,6 +48,7 @@ public class ServerCapabilitiesInitializer {
 		serverCapabilities.setRenameProvider(!clientCapabilities.isRenameDynamicRegistrationSupported());
 		serverCapabilities.setFoldingRangeProvider(!clientCapabilities.isRangeFoldingDynamicRegistrationSupported());
 		serverCapabilities.setDefinitionProvider(!clientCapabilities.isDefinitionDynamicRegistered());
+		serverCapabilities.setReferencesProvider(!clientCapabilities.isReferencesDynamicRegistrationSupported());
 		
 		if (!clientCapabilities.isLinkDynamicRegistrationSupported()) {
 			serverCapabilities.setDocumentLinkProvider(DEFAULT_LINK_OPTIONS);
