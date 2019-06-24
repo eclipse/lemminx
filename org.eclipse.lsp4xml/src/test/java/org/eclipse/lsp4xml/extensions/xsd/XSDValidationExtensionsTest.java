@@ -62,6 +62,20 @@ public class XSDValidationExtensionsTest {
 	}
 
 	@Test
+	public void ct_props_correct_3() throws BadLocationException {
+		String xml = "<?xml version=\"1.1\" ?>\r\n" +
+			"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">\r\n" +
+			"	<xs:complexType name=\"fullpersoninfo\">\r\n" +
+			"		<xs:complexContent>\r\n" +
+			"			<xs:extension base=\"fullpersoninfo\">\r\n" +
+			"			</xs:extension>\r\n" +
+			"		</xs:complexContent>\r\n" +
+			"	</xs:complexType>\r\n" +
+			"</xs:schema>";
+		testDiagnosticsFor(xml, d(4, 22, 4, 38, XSDErrorCode.ct_props_correct_3));
+	}
+
+	@Test
 	public void p_props_correct_2_1() throws BadLocationException {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" +
 				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\r\n" +

@@ -30,6 +30,7 @@ import org.eclipse.lsp4xml.utils.XMLPositionUtility;
 public enum XSDErrorCode implements IXMLErrorCode {
 	
 	cos_all_limited_2("cos-all-limited.2"),
+	ct_props_correct_3("ct-props-correct.3"),
 	p_props_correct_2_1("p-props-correct.2.1"),
 	s4s_elt_invalid_content_1("s4s-elt-invalid-content.1"), //
 	s4s_elt_must_match_1("s4s-elt-must-match.1"), //
@@ -98,6 +99,11 @@ public enum XSDErrorCode implements IXMLErrorCode {
 
 			offset = children.get(0).getStart() + 1;
 			return XMLPositionUtility.selectAttributeValueAt("maxOccurs", offset, document);
+		}
+		case ct_props_correct_3: {
+			String argument = (String) arguments[0];
+			String attrName = argument.substring(argument.indexOf(":") + 1);
+			return XMLPositionUtility.selectAttributeValueFromGivenValue(attrName, offset, document);
 		}
 		case p_props_correct_2_1:
 			return XMLPositionUtility.selectAttributeFromGivenNameAt("minOccurs", offset, document);
