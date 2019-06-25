@@ -127,6 +127,15 @@ public class XSDValidationExtensionsTest {
 	}
 
 	@Test
+	public void s4s_elt_must_match_2() throws BadLocationException {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" +
+				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" version=\"1.0\">\r\n" +
+				"	<xs:simpleType name=\"X\"></xs:simpleType>\r\n" +
+				"</xs:schema>";
+		testDiagnosticsFor(xml, d(2, 2, 2, 15, XSDErrorCode.s4s_elt_must_match_2));
+	}
+
+	@Test
 	public void s4s_att_must_appear() throws BadLocationException {
 		String xml = "<?xml version=\"1.1\"?>\r\n" + //
 				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\r\n" + //
