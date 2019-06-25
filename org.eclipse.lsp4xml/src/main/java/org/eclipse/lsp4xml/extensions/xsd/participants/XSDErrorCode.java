@@ -34,6 +34,7 @@ public enum XSDErrorCode implements IXMLErrorCode {
 	p_props_correct_2_1("p-props-correct.2.1"),
 	s4s_elt_invalid_content_1("s4s-elt-invalid-content.1"), //
 	s4s_elt_must_match_1("s4s-elt-must-match.1"), //
+	s4s_elt_must_match_2("s4s-elt-must-match.2"),
 	s4s_att_must_appear("s4s-att-must-appear"), //
 	s4s_elt_invalid_content_2("s4s-elt-invalid-content.2"), //
 	s4s_att_not_allowed("s4s-att-not-allowed"), //
@@ -109,6 +110,7 @@ public enum XSDErrorCode implements IXMLErrorCode {
 			return XMLPositionUtility.selectAttributeFromGivenNameAt("minOccurs", offset, document);
 		case s4s_elt_invalid_content_1:
 		case s4s_elt_must_match_1:
+		case s4s_elt_must_match_2:
 		case s4s_att_must_appear:
 		case s4s_elt_invalid_content_2:
 		case src_element_2_1:
