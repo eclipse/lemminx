@@ -40,6 +40,7 @@ public enum XSDErrorCode implements IXMLErrorCode {
 	s4s_att_not_allowed("s4s-att-not-allowed"), //
 	s4s_att_invalid_value("s4s-att-invalid-value"), //
 	s4s_elt_character("s4s-elt-character"), //
+	sch_props_correct_2("sch-props-correct.2"),
 	src_ct_1("src-ct.1"),
 	src_element_3("src-element.3"),
 	src_resolve_4_2("src-resolve.4.2"), //
@@ -128,7 +129,12 @@ public enum XSDErrorCode implements IXMLErrorCode {
 		}
 		case s4s_elt_character:
 			return XMLPositionUtility.selectContent(offset, document);
-		case src_ct_1: 
+		case sch_props_correct_2: {
+			String argument = (String) arguments[0];
+			String attrName = argument.substring(argument.indexOf(",") + 1);
+			return XMLPositionUtility.selectAttributeValueFromGivenValue(attrName, offset, document);
+		}
+		case src_ct_1:
 			return XMLPositionUtility.selectAttributeValueAt("base", offset, document);
 		case src_resolve_4_2: {
 			String attrValue = (String) arguments[2];
