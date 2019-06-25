@@ -102,9 +102,11 @@ public enum XSDErrorCode implements IXMLErrorCode {
 			return XMLPositionUtility.selectAttributeValueAt("maxOccurs", offset, document);
 		}
 		case ct_props_correct_3: {
-			String argument = (String) arguments[0];
-			String attrName = argument.substring(argument.indexOf(":") + 1);
-			return XMLPositionUtility.selectAttributeValueFromGivenValue(attrName, offset, document);
+			String attrValue = (String) arguments[0];
+			if (attrValue.charAt(0) == ':') {
+				attrValue = attrValue.substring(1);
+			}
+			return XMLPositionUtility.selectAttributeValueFromGivenValue(attrValue, offset, document);
 		}
 		case p_props_correct_2_1:
 			return XMLPositionUtility.selectAttributeFromGivenNameAt("minOccurs", offset, document);
