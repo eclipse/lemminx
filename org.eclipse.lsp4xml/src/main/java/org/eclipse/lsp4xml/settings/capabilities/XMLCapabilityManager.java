@@ -11,6 +11,7 @@
 package org.eclipse.lsp4xml.settings.capabilities;
 
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.CODE_ACTION_ID;
+import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.CODE_LENS_ID;
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.COMPLETION_ID;
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_COMPLETION_OPTIONS;
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_LINK_OPTIONS;
@@ -22,8 +23,10 @@ import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConsta
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.FORMATTING_RANGE_ID;
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.HOVER_ID;
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.LINK_ID;
+import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.REFERENCES_ID;
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.RENAME_ID;
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_CODE_ACTION;
+import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_CODE_LENS;
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_COMPLETION;
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_DEFINITION;
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_DOCUMENT_SYMBOL;
@@ -31,9 +34,8 @@ import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConsta
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_HIGHLIGHT;
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_HOVER;
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_LINK;
-import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_RENAME;
-import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.REFERENCES_ID;
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_REFERENCES;
+import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_RENAME;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -46,6 +48,7 @@ import org.eclipse.lsp4j.Unregistration;
 import org.eclipse.lsp4j.UnregistrationParams;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4xml.XMLTextDocumentService;
+import org.eclipse.lsp4xml.settings.XMLCodeLensSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.settings.XMLSymbolSettings;
 
@@ -174,9 +177,13 @@ public class XMLCapabilityManager {
 		}
 
 		XMLSymbolSettings symbolSettings = this.textDocumentService.getSharedSymbolSettings();
-
 		if (this.getClientCapabilities().isDocumentSymbolDynamicRegistrationSupported()) {
 			toggleCapability(symbolSettings.isEnabled(), DOCUMENT_SYMBOL_ID, TEXT_DOCUMENT_DOCUMENT_SYMBOL, null);
+		}
+
+		XMLCodeLensSettings codeLensSettings = this.textDocumentService.getSharedCodeLensSettings();
+		if (this.getClientCapabilities().isCodeLensDynamicRegistrationSupported()) {
+			toggleCapability(codeLensSettings.isEnabled(), CODE_LENS_ID, TEXT_DOCUMENT_CODE_LENS, null);
 		}
 	}
 

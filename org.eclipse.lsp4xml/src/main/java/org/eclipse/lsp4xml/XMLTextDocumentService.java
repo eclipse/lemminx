@@ -29,6 +29,8 @@ import java.util.stream.Collectors;
 import org.eclipse.lsp4j.ClientCapabilities;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionParams;
+import org.eclipse.lsp4j.CodeLens;
+import org.eclipse.lsp4j.CodeLensParams;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
@@ -73,6 +75,7 @@ import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.services.extensions.save.AbstractSaveContext;
 import org.eclipse.lsp4xml.settings.SharedSettings;
+import org.eclipse.lsp4xml.settings.XMLCodeLensSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.settings.XMLIncrementalSupportSettings;
 import org.eclipse.lsp4xml.settings.XMLSymbolSettings;
@@ -306,6 +309,16 @@ public class XMLTextDocumentService implements TextDocumentService {
 	}
 
 	@Override
+	public CompletableFuture<List<? extends CodeLens>> codeLens(CodeLensParams params) {
+		if (!sharedSettings.getCodeLensSettings().isEnabled()) {
+			return CompletableFuture.completedFuture(Collections.emptyList());
+		}
+		return computeDOMAsync(params.getTextDocument(), (cancelChecker, xmlDocument) -> {
+			return getXMLLanguageService().getCodeLens(xmlDocument, cancelChecker);
+		});
+	}
+
+	@Override
 	public CompletableFuture<List<Either<Command, CodeAction>>> codeAction(CodeActionParams params) {
 		return computeDOMAsync(params.getTextDocument(), (cancelChecker, xmlDocument) -> {
 			String uri = params.getTextDocument().getUri();
@@ -404,8 +417,17 @@ public class XMLTextDocumentService implements TextDocumentService {
 		}
 	}
 
+	public void updateCodeLensSettings(XMLCodeLensSettings newSettings) {
+		XMLCodeLensSettings codeLensSettings = sharedSettings.getCodeLensSettings();
+		codeLensSettings.setEnabled(newSettings.isEnabled());
+	}
+
 	public XMLSymbolSettings getSharedSymbolSettings() {
 		return sharedSettings.symbolSettings;
+	}
+
+	public XMLCodeLensSettings getSharedCodeLensSettings() {
+		return sharedSettings.getCodeLensSettings();
 	}
 
 	public boolean isIncrementalSupport() {

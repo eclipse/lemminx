@@ -11,6 +11,7 @@
 
 package org.eclipse.lsp4xml.settings.capabilities;
 
+import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_CODELENS_OPTIONS;
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_COMPLETION_OPTIONS;
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_LINK_OPTIONS;
 
@@ -37,24 +38,31 @@ public class ServerCapabilitiesInitializer {
 			boolean isIncremental) {
 		ServerCapabilities serverCapabilities = new ServerCapabilities();
 
-		serverCapabilities.setTextDocumentSync(isIncremental ? TextDocumentSyncKind.Incremental : TextDocumentSyncKind.Full);
+		serverCapabilities
+				.setTextDocumentSync(isIncremental ? TextDocumentSyncKind.Incremental : TextDocumentSyncKind.Full);
 
-		serverCapabilities.setDocumentSymbolProvider(!clientCapabilities.isDocumentSymbolDynamicRegistrationSupported());
+		serverCapabilities
+				.setDocumentSymbolProvider(!clientCapabilities.isDocumentSymbolDynamicRegistrationSupported());
 		serverCapabilities.setDocumentHighlightProvider(!clientCapabilities.isDocumentHighlightDynamicRegistered());
 		serverCapabilities.setCodeActionProvider(!clientCapabilities.isCodeActionDynamicRegistered());
-		serverCapabilities.setDocumentFormattingProvider(!clientCapabilities.isFormattingDynamicRegistrationSupported());
-		serverCapabilities.setDocumentRangeFormattingProvider(!clientCapabilities.isRangeFormattingDynamicRegistrationSupported());
+		serverCapabilities
+				.setDocumentFormattingProvider(!clientCapabilities.isFormattingDynamicRegistrationSupported());
+		serverCapabilities.setDocumentRangeFormattingProvider(
+				!clientCapabilities.isRangeFormattingDynamicRegistrationSupported());
 		serverCapabilities.setHoverProvider(!clientCapabilities.isHoverDynamicRegistered());
 		serverCapabilities.setRenameProvider(!clientCapabilities.isRenameDynamicRegistrationSupported());
 		serverCapabilities.setFoldingRangeProvider(!clientCapabilities.isRangeFoldingDynamicRegistrationSupported());
 		serverCapabilities.setDefinitionProvider(!clientCapabilities.isDefinitionDynamicRegistered());
 		serverCapabilities.setReferencesProvider(!clientCapabilities.isReferencesDynamicRegistrationSupported());
-		
+
 		if (!clientCapabilities.isLinkDynamicRegistrationSupported()) {
 			serverCapabilities.setDocumentLinkProvider(DEFAULT_LINK_OPTIONS);
 		}
 		if (!clientCapabilities.isCompletionDynamicRegistrationSupported()) {
 			serverCapabilities.setCompletionProvider(DEFAULT_COMPLETION_OPTIONS);
+		}
+		if (!clientCapabilities.isCodeLensDynamicRegistrationSupported()) {
+			serverCapabilities.setCodeLensProvider(DEFAULT_CODELENS_OPTIONS);
 		}
 		return serverCapabilities;
 	}

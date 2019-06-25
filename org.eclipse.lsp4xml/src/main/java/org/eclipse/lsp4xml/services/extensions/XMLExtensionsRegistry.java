@@ -29,7 +29,7 @@ import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
  * XML extensions registry.
  *
  */
-public class XMLExtensionsRegistry implements IComponentProvider{
+public class XMLExtensionsRegistry implements IComponentProvider {
 
 	private static final Logger LOGGER = Logger.getLogger(XMLExtensionsRegistry.class.getName());
 
@@ -42,6 +42,7 @@ public class XMLExtensionsRegistry implements IComponentProvider{
 	private final List<IDocumentLinkParticipant> documentLinkParticipants;
 	private final List<IDefinitionParticipant> definitionParticipants;
 	private final List<IReferenceParticipant> referenceParticipants;
+	private final List<ICodeLensParticipant> codeLensParticipants;
 
 	private IXMLDocumentProvider documentProvider;
 
@@ -62,6 +63,7 @@ public class XMLExtensionsRegistry implements IComponentProvider{
 		documentLinkParticipants = new ArrayList<>();
 		definitionParticipants = new ArrayList<>();
 		referenceParticipants = new ArrayList<>();
+		codeLensParticipants = new ArrayList<>();
 		resolverExtensionManager = new URIResolverExtensionManager();
 		components = new HashMap<>();
 		registerComponent(resolverExtensionManager);
@@ -70,7 +72,7 @@ public class XMLExtensionsRegistry implements IComponentProvider{
 	public void registerComponent(Object component) {
 		this.components.put(component.getClass(), component);
 	}
-	
+
 	@Override
 	public <T> T getComponent(Class clazz) {
 		return (T) components.get(clazz);
@@ -130,6 +132,11 @@ public class XMLExtensionsRegistry implements IComponentProvider{
 	public Collection<IReferenceParticipant> getReferenceParticipants() {
 		initializeIfNeeded();
 		return referenceParticipants;
+	}
+
+	public Collection<ICodeLensParticipant> getCodeLensParticipants() {
+		initializeIfNeeded();
+		return codeLensParticipants;
 	}
 
 	public void initializeIfNeeded() {
@@ -223,6 +230,14 @@ public class XMLExtensionsRegistry implements IComponentProvider{
 		referenceParticipants.add(referenceParticipant);
 	}
 
+	public void registerCodeLensParticipant(ICodeLensParticipant codeLensParticipant) {
+		codeLensParticipants.add(codeLensParticipant);
+	}
+
+	public void unregisterCodeLensParticipant(ICodeLensParticipant codeLensParticipant) {
+		codeLensParticipants.add(codeLensParticipant);
+	}
+
 	/**
 	 * Returns the XML Document provider and null otherwise.
 	 * 
@@ -244,4 +259,5 @@ public class XMLExtensionsRegistry implements IComponentProvider{
 	public URIResolverExtensionManager getResolverExtensionManager() {
 		return resolverExtensionManager;
 	}
+
 }

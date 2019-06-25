@@ -25,6 +25,8 @@ import java.util.stream.Collectors;
 
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionContext;
+import org.eclipse.lsp4j.CodeLens;
+import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.Diagnostic;
@@ -702,4 +704,49 @@ public class XMLAssert {
 		Assert.assertArrayEquals(expected, actual.toArray());
 	}
 
+	// ------------------- CodeLens assert
+
+	public static void testCodeLensFor(String xml, CodeLens... expected) throws BadLocationException {
+		testCodeLensFor(xml, null, expected);
+	}
+
+	public static void testCodeLensFor(String value, String fileURI, CodeLens... expected) throws BadLocationException {
+
+		TextDocument document = new TextDocument(value, fileURI != null ? fileURI : "test://test/test.xml");
+
+		XMLLanguageService xmlLanguageService = new XMLLanguageService();
+
+		ContentModelSettings settings = new ContentModelSettings();
+		settings.setUseCache(false);
+		xmlLanguageService.doSave(new SettingsSaveContext(settings));
+
+		DOMDocument xmlDocument = DOMParser.getInstance().parse(document,
+				xmlLanguageService.getResolverExtensionManager());
+		xmlLanguageService.setDocumentProvider((uri) -> xmlDocument);
+
+		List<? extends CodeLens> actual = xmlLanguageService.getCodeLens(xmlDocument, () -> {
+		});
+		assertCodeLens(actual, expected);
+
+	}
+
+	public static CodeLens cl(Range range, String title) {
+		Command command = new Command();
+		command.setTitle(title);
+		return new CodeLens(range, command, null);
+	}
+
+	public static void assertCodeLens(List<? extends CodeLens> actual, CodeLens... expected) {
+		Assert.assertEquals(expected.length, actual.size());
+		for (int i = 0; i < expected.length; i++) {
+			Assert.assertEquals(expected[i].getRange(), actual.get(i).getRange());
+			Command expectedCommand = expected[i].getCommand();
+			Command actualCommand = actual.get(i).getCommand();
+			if (expectedCommand != null && actualCommand != null) {
+				Assert.assertEquals(expectedCommand.getTitle(), actualCommand.getTitle());	
+				Assert.assertEquals(expectedCommand.getCommand(), actualCommand.getCommand());
+			}
+			Assert.assertEquals(expected[i].getData(), actual.get(i).getData());
+		}
+	}
 }

@@ -14,6 +14,7 @@ package org.eclipse.lsp4xml.settings.capabilities;
 import java.util.Arrays;
 import java.util.UUID;
 
+import org.eclipse.lsp4j.CodeLensOptions;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.DocumentLinkOptions;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
@@ -74,4 +75,5 @@ public class ServerCapabilitiesConstants {
 	public static final CompletionOptions DEFAULT_COMPLETION_OPTIONS = new CompletionOptions(false, Arrays.asList(".", ":", "<", "\"", "=", "/", "\\", "?", "\'"));
 	public static final TextDocumentSyncKind DEFAULT_SYNC_OPTION = TextDocumentSyncKind.Full;
 	public static final DocumentLinkOptions DEFAULT_LINK_OPTIONS = new DocumentLinkOptions(true);
+	public static final CodeLensOptions DEFAULT_CODELENS_OPTIONS = new CodeLensOptions();
 }
