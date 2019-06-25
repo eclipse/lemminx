@@ -191,6 +191,16 @@ public class XSDValidationExtensionsTest {
 	}
 
 	@Test
+	public void sch_props_correct_2() throws BadLocationException {
+		String xml = "<?xml version=\"1.1\" ?>\r\n" +
+				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\r\n" +
+				"	<xs:element name=\"elt1\" />\r\n" +
+				"	<xs:element name=\"elt1\" />\r\n" +
+				"</xs:schema>";
+		testDiagnosticsFor(xml, d(3, 18, 3, 24, XSDErrorCode.sch_props_correct_2));
+	}
+
+	@Test
 	public void src_ct_1() throws BadLocationException {
 		String xml = "<?xml version=\"1.1\" ?>\r\n" +
 				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">\r\n" +
