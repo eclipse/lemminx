@@ -16,20 +16,20 @@ import org.eclipse.lsp4xml.utils.JSONUtility;
 /**
  * Class to hold all settings from the client side.
  * 
- * See https://github.com/angelozerr/lsp4xml/wiki/Configuration for more information.
+ * See https://github.com/angelozerr/lsp4xml/wiki/Configuration for more
+ * information.
  * 
- * This class is created through the deseralization of a JSON object.
- * Each internal setting must be represented by a class and have:
+ * This class is created through the deseralization of a JSON object. Each
+ * internal setting must be represented by a class and have:
  * 
  * 1) A constructor with no parameters
  * 
- * 2) The JSON key/parent for the settings must have the same
- *    name as a varible.
+ * 2) The JSON key/parent for the settings must have the same name as a varible.
  * 
- *    eg: {"format" : {...}, "completion" : {...}}
+ * eg: {"format" : {...}, "completion" : {...}}
  * 
- * 		In this class must exist both a "format" and "completion" variable
- * 		with the appropriate Class to represent the value of each key
+ * In this class must exist both a "format" and "completion" variable with the
+ * appropriate Class to represent the value of each key
  *
  */
 public class XMLGeneralClientSettings {
@@ -44,9 +44,9 @@ public class XMLGeneralClientSettings {
 
 	private XMLSymbolSettings symbols;
 
+	private XMLCodeLensSettings codeLens;
+
 	private XMLExperimentalSettings experimental;
-
-
 
 	public XMLExperimentalSettings getExperimental() {
 		return experimental;
@@ -64,7 +64,6 @@ public class XMLGeneralClientSettings {
 		return logs;
 	}
 
-
 	public XMLSymbolSettings getSymbols() {
 		return symbols;
 	}
@@ -73,7 +72,24 @@ public class XMLGeneralClientSettings {
 		this.symbols = symbols;
 	}
 
-	
+	/**
+	 * Returns the code lens settings.
+	 * 
+	 * @return the code lens settings.
+	 */
+	public XMLCodeLensSettings getCodeLens() {
+		return codeLens;
+	}
+
+	/**
+	 * Set the code lens settings.
+	 * 
+	 * @param codeLens
+	 */
+	public void setCodeLens(XMLCodeLensSettings codeLens) {
+		this.codeLens = codeLens;
+	}
+
 	public void setFormat(XMLFormattingOptions format) {
 		this.format = format;
 	}
@@ -84,6 +100,7 @@ public class XMLGeneralClientSettings {
 
 	/**
 	 * Set completion settings
+	 * 
 	 * @param completion
 	 */
 	public void setCompletion(CompletionSettings completion) {
@@ -92,13 +109,14 @@ public class XMLGeneralClientSettings {
 
 	/**
 	 * Get completion settings
+	 * 
 	 * @param completion
 	 */
 	public CompletionSettings getCompletion() {
 		return completion;
 	}
 
-		/**
+	/**
 	 * @return the server
 	 */
 	public ServerSettings getServer() {
@@ -114,5 +132,5 @@ public class XMLGeneralClientSettings {
 
 	public static XMLGeneralClientSettings getGeneralXMLSettings(Object initializationOptionsSettings) {
 		return JSONUtility.toModel(initializationOptionsSettings, XMLGeneralClientSettings.class);
-	}	
+	}
 }

@@ -26,7 +26,8 @@ public class SharedSettings {
 	public final XMLValidationSettings validationSettings;
 	public final XMLSymbolSettings symbolSettings;
 	public final XMLExperimentalSettings experimentalSettings;
-
+	private final XMLCodeLensSettings codeLensSettings;
+	
 	public SharedSettings() {
 		this.completionSettings = new CompletionSettings();
 		this.foldingSettings = new FoldingRangeCapabilities();
@@ -34,6 +35,7 @@ public class SharedSettings {
 		this.validationSettings = new XMLValidationSettings();
 		this.symbolSettings = new XMLSymbolSettings();
 		this.experimentalSettings = new XMLExperimentalSettings();
+		this.codeLensSettings = new XMLCodeLensSettings();
 	}
 
 	public void setFormattingSettings(XMLFormattingOptions formattingOptions) {
@@ -42,5 +44,9 @@ public class SharedSettings {
 
 	public void setCompletionSettings(CompletionSettings completionSettings) {
 		this.completionSettings = completionSettings;
+	}
+	
+	public XMLCodeLensSettings getCodeLensSettings() {
+		return codeLensSettings;
 	}
 }

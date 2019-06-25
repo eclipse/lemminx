@@ -46,6 +46,7 @@ import org.eclipse.lsp4xml.settings.InitializationOptionsSettings;
 import org.eclipse.lsp4xml.settings.LogsSettings;
 import org.eclipse.lsp4xml.settings.ServerSettings;
 import org.eclipse.lsp4xml.settings.SharedSettings;
+import org.eclipse.lsp4xml.settings.XMLCodeLensSettings;
 import org.eclipse.lsp4xml.settings.XMLExperimentalSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.settings.XMLGeneralClientSettings;
@@ -145,6 +146,11 @@ public class XMLLanguageServer
 			XMLSymbolSettings newSymbols = xmlClientSettings.getSymbols();
 			if (newSymbols != null) {
 				xmlTextDocumentService.updateSymbolSettings(newSymbols);
+			}
+
+			XMLCodeLensSettings newCodeLens = xmlClientSettings.getCodeLens();
+			if (newCodeLens != null) {
+				xmlTextDocumentService.updateCodeLensSettings(newCodeLens);
 			}
 
 			ServerSettings serverSettings = xmlClientSettings.getServer();

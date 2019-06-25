@@ -18,6 +18,7 @@ import java.util.function.Consumer;
 
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionContext;
+import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
@@ -73,6 +74,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 	private final XMLDocumentLink documentLink;
 	private final XMLDefinition definition;
 	private final XMLReference reference;
+	private final XMLCodeLens codelens;
 	private final XMLCodeActions codeActions;
 	private final XMLRename rename;
 
@@ -87,6 +89,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		this.documentLink = new XMLDocumentLink(this);
 		this.definition = new XMLDefinition(this);
 		this.reference = new XMLReference(this);
+		this.codelens = new XMLCodeLens(this);
 		this.codeActions = new XMLCodeActions(this);
 		this.rename = new XMLRename(this);
 	}
@@ -212,6 +215,10 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 	public List<? extends Location> findReferences(DOMDocument xmlDocument, Position position, ReferenceContext context,
 			CancelChecker cancelChecker) {
 		return reference.findReferences(xmlDocument, position, context, cancelChecker);
+	}
+
+	public List<? extends CodeLens> getCodeLens(DOMDocument xmlDocument, CancelChecker cancelChecker) {
+		return codelens.getCodelens(xmlDocument, cancelChecker);
 	}
 
 	public List<CodeAction> doCodeActions(CodeActionContext context, Range range, DOMDocument document,

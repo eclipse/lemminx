@@ -156,7 +156,7 @@ public class XSDUtils {
 					// node is a xs:complexType, xs:simpleType element, xsl:element, xs:group which
 					// matches the binding type of the originAttr
 					DOMAttr targetAttr = (DOMAttr) targetElement.getAttributeNode("name");
-					if (targetAttr != null && (!matchAttr || originName.equals(targetAttr.getValue()))) {
+					if (targetAttr != null && (!matchAttr || Objects.equal(originName, targetAttr.getValue()))) {
 						collector.accept(targetNamespacePrefix, targetAttr);
 					}
 				}
@@ -305,7 +305,7 @@ public class XSDUtils {
 								if (isBounded(originAttr.getOwnerElement(), originBnding, targetElement)) {
 									// node is a xs:complexType, xs:simpleType element, xsl:element, xs:group which
 									// matches the binding type of the originAttr
-									if (targetAttr != null && (originName.equals(targetAttr.getValue()))) {
+									if (targetAttr != null && (Objects.equal(originName, targetAttr.getValue()))) {
 										collector.accept(originAttr, targetAttr);
 									}
 								}
