@@ -30,6 +30,8 @@ import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.DocumentHighlight;
+import org.eclipse.lsp4j.DocumentHighlightKind;
 import org.eclipse.lsp4j.DocumentLink;
 import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.Hover;
@@ -743,10 +745,77 @@ public class XMLAssert {
 			Command expectedCommand = expected[i].getCommand();
 			Command actualCommand = actual.get(i).getCommand();
 			if (expectedCommand != null && actualCommand != null) {
-				Assert.assertEquals(expectedCommand.getTitle(), actualCommand.getTitle());	
+				Assert.assertEquals(expectedCommand.getTitle(), actualCommand.getTitle());
 				Assert.assertEquals(expectedCommand.getCommand(), actualCommand.getCommand());
 			}
 			Assert.assertEquals(expected[i].getData(), actual.get(i).getData());
+		}
+	}
+
+	// ------------------- Highlights assert
+
+	public static void testHighlightsFor(String xml, DocumentHighlight... expected) throws BadLocationException {
+		testHighlightsFor(xml, null, expected);
+	}
+
+	public static void testHighlightsFor(String value, String fileURI, DocumentHighlight... expected)
+			throws BadLocationException {
+		int offset = value.indexOf('|');
+		value = value.substring(0, offset) + value.substring(offset + 1);
+
+		TextDocument document = new TextDocument(value, fileURI != null ? fileURI : "test://test/test.xml");
+		Position position = document.positionAt(offset);
+
+		XMLLanguageService xmlLanguageService = new XMLLanguageService();
+
+		ContentModelSettings settings = new ContentModelSettings();
+		settings.setUseCache(false);
+		xmlLanguageService.doSave(new SettingsSaveContext(settings));
+
+		DOMDocument xmlDocument = DOMParser.getInstance().parse(document,
+				xmlLanguageService.getResolverExtensionManager());
+		xmlLanguageService.setDocumentProvider((uri) -> xmlDocument);
+
+		List<? extends DocumentHighlight> actual = xmlLanguageService.findDocumentHighlights(xmlDocument, position,
+				() -> {
+				});
+		assertDocumentHighlight(actual, expected);
+	}
+
+	public static void assertDocumentHighlight(List<? extends DocumentHighlight> actual,
+			DocumentHighlight... expected) {
+		Assert.assertEquals(expected.length, actual.size());
+		Assert.assertArrayEquals(expected, actual.toArray());
+	}
+
+	public static DocumentHighlight hl(Range range) {
+		return hl(range, DocumentHighlightKind.Read);
+	}
+
+	public static DocumentHighlight hl(Range range, DocumentHighlightKind kind) {
+		return new DocumentHighlight(range, kind);
+	}
+
+	public static void assertHighlights(String value, int[] expectedMatches, String elementName)
+			throws BadLocationException {
+		int offset = value.indexOf("|");
+		value = value.substring(0, offset) + value.substring(offset + 1);
+
+		DOMDocument document = DOMParser.getInstance().parse(value, "test://test/test.html", null);
+
+		Position position = document.positionAt(offset);
+
+		XMLLanguageService languageService = new XMLLanguageService();
+		List<DocumentHighlight> highlights = languageService.findDocumentHighlights(document, position);
+		Assert.assertEquals(expectedMatches.length, highlights.size());
+		for (int i = 0; i < highlights.size(); i++) {
+			DocumentHighlight highlight = highlights.get(i);
+			int actualStartOffset = document.offsetAt(highlight.getRange().getStart());
+			Assert.assertEquals(expectedMatches[i], actualStartOffset);
+			int actualEndOffset = document.offsetAt(highlight.getRange().getEnd());
+			Assert.assertEquals(expectedMatches[i] + (elementName != null ? elementName.length() : 0), actualEndOffset);
+			Assert.assertEquals(elementName,
+					document.getText().substring(actualStartOffset, actualEndOffset).toLowerCase());
 		}
 	}
 }

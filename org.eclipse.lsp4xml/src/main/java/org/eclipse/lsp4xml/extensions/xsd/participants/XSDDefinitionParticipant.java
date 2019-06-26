@@ -51,7 +51,7 @@ public class XSDDefinitionParticipant extends AbstractDefinitionParticipant {
 		DOMAttr attr = node.findAttrAt(offset);
 		BindingType bindingType = XSDUtils.getBindingType(attr);
 		if (bindingType != BindingType.NONE) {
-			XSDUtils.collectXSTypes(attr, bindingType, true, (targetNamespacePrefix, targetAttr) -> {
+			XSDUtils.searchXSTargetAttributes(attr, bindingType, true, (targetNamespacePrefix, targetAttr) -> {
 				LocationLink location = XMLPositionUtility.createLocationLink(attr.getNodeAttrValue(),
 						targetAttr.getNodeAttrValue());
 				locations.add(location);

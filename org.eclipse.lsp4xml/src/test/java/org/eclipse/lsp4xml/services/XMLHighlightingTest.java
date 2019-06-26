@@ -10,29 +10,15 @@
  */
 package org.eclipse.lsp4xml.services;
 
-import java.util.List;
+import static org.eclipse.lsp4xml.XMLAssert.assertHighlights;
 
-import org.eclipse.lsp4j.DocumentHighlight;
-import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4xml.commons.BadLocationException;
-import org.eclipse.lsp4xml.dom.DOMDocument;
-import org.eclipse.lsp4xml.dom.DOMParser;
-import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
-
 /**
  * XML highlighting services tests
  *
  */
 public class XMLHighlightingTest {
-
-	private XMLLanguageService languageService;
-
-	@Before
-	public void initializeLanguageService() {
-		languageService = new XMLLanguageService();
-	}
 
 	@Test
 	public void single() throws BadLocationException {
@@ -81,28 +67,6 @@ public class XMLHighlightingTest {
 	@Test
 	public void insideEndTag() throws BadLocationException {		
 		assertHighlights("<html|></meta></html>", new int[] { 1, 15 }, "html");
-	}
-
-	private void assertHighlights(String value, int[] expectedMatches, String elementName) throws BadLocationException {
-		int offset = value.indexOf("|");
-		value = value.substring(0, offset) + value.substring(offset + 1);
-
-		DOMDocument document = DOMParser.getInstance().parse(value, "test://test/test.html", null);
-
-		Position position = document.positionAt(offset);
-		// XMLDocument htmlDoc = ls.parseHTMLDocument(document);
-
-		List<DocumentHighlight> highlights = languageService.findDocumentHighlights(document, position);
-		Assert.assertEquals(expectedMatches.length, highlights.size());
-		for (int i = 0; i < highlights.size(); i++) {
-			DocumentHighlight highlight = highlights.get(i);
-			int actualStartOffset = document.offsetAt(highlight.getRange().getStart());
-			Assert.assertEquals(expectedMatches[i], actualStartOffset);
-			int actualEndOffset = document.offsetAt(highlight.getRange().getEnd());
-			Assert.assertEquals(expectedMatches[i] + (elementName != null ? elementName.length() : 0), actualEndOffset);
-			Assert.assertEquals(elementName,
-					document.getText().substring(actualStartOffset, actualEndOffset).toLowerCase());
-		}
 	}
 
 }

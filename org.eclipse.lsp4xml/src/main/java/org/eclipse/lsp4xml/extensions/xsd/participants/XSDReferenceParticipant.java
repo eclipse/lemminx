@@ -43,8 +43,9 @@ public class XSDReferenceParticipant extends AbstractReferenceParticipant {
 		if (attr != null) {
 			node = attr;
 		}
-		XSDUtils.collectXSReferenceTypes(node,
-				(from, to) -> locations.add(XMLPositionUtility.createLocation(from.getNodeAttrValue())), cancelChecker);
+		XSDUtils.searchXSOriginAttributes(node,
+				(origin, target) -> locations.add(XMLPositionUtility.createLocation(origin.getNodeAttrValue())),
+				cancelChecker);
 	}
 
 }
