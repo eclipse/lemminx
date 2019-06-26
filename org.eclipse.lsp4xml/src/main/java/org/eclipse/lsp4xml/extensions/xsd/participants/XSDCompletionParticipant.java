@@ -54,7 +54,7 @@ public class XSDCompletionParticipant extends CompletionParticipantAdapter {
 			// - @type (ex : xs:element/@type)
 			// - @base (ex : xs:extension/@base)
 			// bound to complextTypes/@name
-			XSDUtils.collectXSTypes(originAttr, bindingType, false, (targetNamespacePrefix, targetAttr) -> {
+			XSDUtils.searchXSTargetAttributes(originAttr, bindingType, false, (targetNamespacePrefix, targetAttr) -> {
 				CompletionItem item = new CompletionItem();
 				item.setDocumentation(new MarkupContent(MarkupKind.MARKDOWN, DataType.getDocumentation(targetAttr)));
 				String value = createComplexTypeValue(targetAttr, targetNamespacePrefix);

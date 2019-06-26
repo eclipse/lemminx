@@ -53,15 +53,17 @@ public class XSDUtils {
 	}
 
 	/**
-	 * Returns the binding type of the given attribute.
+	 * Returns the binding type of the origin attribute which bounds an another
+	 * target attribute.
 	 * 
-	 * @param attr the attribute
-	 * @return the binding type of the given attribute.
+	 * @param originAttr the origin attribute
+	 * @return the binding type of the origin attribute which bounds an another
+	 *         target attribute.
 	 */
-	public static BindingType getBindingType(DOMAttr attr) {
-		String name = attr.getName();
+	public static BindingType getBindingType(DOMAttr originAttr) {
+		String name = originAttr.getName();
 		if ("type".equals(name)) {
-			if ("attribute".equals(attr.getOwnerElement().getLocalName())) {
+			if ("attribute".equals(originAttr.getOwnerElement().getLocalName())) {
 				// - <xs:attribute type="
 				return BindingType.SIMPLE;
 			}
@@ -71,7 +73,7 @@ public class XSDUtils {
 		if ("base".equals(name)) {
 			// - <xs:restriction base="
 			// - <xs:extension base="
-			DOMElement element = attr.getOwnerElement();
+			DOMElement element = originAttr.getOwnerElement();
 			DOMElement parent = element.getParentElement();
 			if (parent != null) {
 				if (parent.getLocalName().equals("complexContent") || isXSComplexType(parent)) {
@@ -106,19 +108,15 @@ public class XSDUtils {
 	}
 
 	/**
-	 * Collect XSD types declared in the XML Schema according the given attribute
-	 * and binding type.
-	 * 
-	 * - xs:complexType/@name attributes - xs:simpleType/@name attributes -
-	 * xs:element/@name attributes if attribute is xs:element/@ref - xs:group/@name
-	 * attributes if attribute is xs:group/@ref
+	 * Collect XSD target attributes declared in the XML Schema according the given
+	 * attribute and binding type.
 	 * 
 	 * @param originAttr the origin attribute.
-	 * @param matchAttr  true if the attribute value must match the value of
-	 *                   complexType/@name and false otherwise.
-	 * @param collector  collector to collect XSD types attributes.
+	 * @param matchAttr  true if the attribute value must match the value of target
+	 *                   attribute value and false otherwise.
+	 * @param collector  collector to collect XSD target attributes.
 	 */
-	public static void collectXSTypes(DOMAttr originAttr, BindingType bindingType, boolean matchAttr,
+	public static void searchXSTargetAttributes(DOMAttr originAttr, BindingType bindingType, boolean matchAttr,
 			BiConsumer<String, DOMAttr> collector) {
 		if (bindingType == BindingType.NONE) {
 			return;
@@ -192,12 +190,13 @@ public class XSDUtils {
 	}
 
 	/**
-	 * Collect references types from the given referenced node.
+	 * Search origin attributes from the given target node..
 	 * 
 	 * @param targetNode the referenced node
-	 * @param collector  the collector to collect reference origin and target node.
+	 * @param collector  the collector to collect reference between an origin and
+	 *                   target attribute.
 	 */
-	public static void collectXSReferenceTypes(DOMNode targetNode, BiConsumer<DOMAttr, DOMAttr> collector,
+	public static void searchXSOriginAttributes(DOMNode targetNode, BiConsumer<DOMAttr, DOMAttr> collector,
 			CancelChecker cancelChecker) {
 		// get referenced attribute nodes from the given referenced node
 		List<DOMAttr> targetAttrs = getTargetAttrs(targetNode);
@@ -223,7 +222,7 @@ public class XSDUtils {
 		// Collect references for each references nodes
 
 		NodeList nodes = documentElement.getChildNodes();
-		collectXSReferenceTypes(nodes, targetAttrs, targetNamespacePrefix, collector, cancelChecker);
+		searchXSOriginAttributes(nodes, targetAttrs, targetNamespacePrefix, collector, cancelChecker);
 	}
 
 	/**
@@ -241,7 +240,7 @@ public class XSDUtils {
 		case Node.ELEMENT_NODE:
 			// The referenced node is an element, get the attribute name) and add it to
 			// search references from it.
-			addReferenceNode(referencedNode, referencedNodes);
+			addTargetNode(referencedNode, referencedNodes);
 			break;
 		case Node.DOCUMENT_NODE:
 			// The referenced node is the DOM document, collect all attributes
@@ -252,9 +251,8 @@ public class XSDUtils {
 				Node n = nodes.item(i);
 				if (n.getNodeType() == Node.ELEMENT_NODE) {
 					DOMElement element = (DOMElement) n;
-					if (isXSComplexType(element) || isXSSimpleType(element) || isXSElement(element)
-							|| isXSGroup(element)) {
-						addReferenceNode(element, referencedNodes);
+					if (isXSTargetElement(element)) {
+						addTargetNode(element, referencedNodes);
 					}
 				}
 			}
@@ -268,7 +266,7 @@ public class XSDUtils {
 	 * @param node        the node to add.
 	 * @param targetAttrs the list of referenced nodes.
 	 */
-	private static void addReferenceNode(DOMNode node, List<DOMAttr> targetAttrs) {
+	private static void addTargetNode(DOMNode node, List<DOMAttr> targetAttrs) {
 		DOMAttr attr = null;
 		switch (node.getNodeType()) {
 		case Node.ATTRIBUTE_NODE:
@@ -284,7 +282,7 @@ public class XSDUtils {
 		}
 	}
 
-	private static void collectXSReferenceTypes(NodeList nodes, List<DOMAttr> targetAttrs, String targetNamespacePrefix,
+	private static void searchXSOriginAttributes(NodeList nodes, List<DOMAttr> targetAttrs, String targetNamespacePrefix,
 			BiConsumer<DOMAttr, DOMAttr> collector, CancelChecker cancelChecker) {
 		for (int i = 0; i < nodes.getLength(); i++) {
 			if (cancelChecker != null) {
@@ -315,7 +313,7 @@ public class XSDUtils {
 				}
 			}
 			if (node.hasChildNodes()) {
-				collectXSReferenceTypes(node.getChildNodes(), targetAttrs, targetNamespacePrefix, collector,
+				searchXSOriginAttributes(node.getChildNodes(), targetAttrs, targetNamespacePrefix, collector,
 						cancelChecker);
 			}
 		}
@@ -336,5 +334,9 @@ public class XSDUtils {
 
 	public static boolean isXSGroup(Element element) {
 		return "group".equals(element.getLocalName());
+	}
+
+	public static boolean isXSTargetElement(Element element) {
+		return isXSComplexType(element) || isXSSimpleType(element) || isXSElement(element) || isXSGroup(element);
 	}
 }

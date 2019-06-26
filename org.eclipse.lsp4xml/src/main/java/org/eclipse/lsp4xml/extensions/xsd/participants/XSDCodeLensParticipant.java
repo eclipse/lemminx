@@ -56,7 +56,7 @@ public class XSDCodeLensParticipant implements ICodeLensParticipant {
 		// Add references CodeLens for each xs:simpleType, xs:complexType, xs:element,
 		// xs:group root element.
 		Map<DOMElement, CodeLens> cache = new HashMap<>();
-		XSDUtils.collectXSReferenceTypes(xmlDocument, (origin, target) -> {
+		XSDUtils.searchXSOriginAttributes(xmlDocument, (origin, target) -> {
 			// Increment references count Codelens for the given target element
 			DOMElement targetElement = target.getOwnerElement();
 			CodeLens codeLens = cache.get(targetElement);

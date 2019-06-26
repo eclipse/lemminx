@@ -43,6 +43,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	private final List<IDefinitionParticipant> definitionParticipants;
 	private final List<IReferenceParticipant> referenceParticipants;
 	private final List<ICodeLensParticipant> codeLensParticipants;
+	private final List<IHighlightingParticipant> highlightingParticipants;
 
 	private IXMLDocumentProvider documentProvider;
 
@@ -64,6 +65,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 		definitionParticipants = new ArrayList<>();
 		referenceParticipants = new ArrayList<>();
 		codeLensParticipants = new ArrayList<>();
+		highlightingParticipants = new ArrayList<>();
 		resolverExtensionManager = new URIResolverExtensionManager();
 		components = new HashMap<>();
 		registerComponent(resolverExtensionManager);
@@ -137,6 +139,11 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	public Collection<ICodeLensParticipant> getCodeLensParticipants() {
 		initializeIfNeeded();
 		return codeLensParticipants;
+	}
+
+	public Collection<IHighlightingParticipant> getHighlightingParticipants() {
+		initializeIfNeeded();
+		return highlightingParticipants;
 	}
 
 	public void initializeIfNeeded() {
@@ -236,6 +243,14 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 
 	public void unregisterCodeLensParticipant(ICodeLensParticipant codeLensParticipant) {
 		codeLensParticipants.add(codeLensParticipant);
+	}
+
+	public void registerHighlightingParticipant(IHighlightingParticipant highlightingParticipant) {
+		highlightingParticipants.add(highlightingParticipant);
+	}
+
+	public void unregisterHighlightingParticipant(IHighlightingParticipant highlightingParticipant) {
+		highlightingParticipants.add(highlightingParticipant);
 	}
 
 	/**

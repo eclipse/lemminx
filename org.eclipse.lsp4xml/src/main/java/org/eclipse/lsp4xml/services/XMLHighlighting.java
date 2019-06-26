@@ -30,6 +30,7 @@ import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMElement;
 import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.dom.parser.TokenType;
+import org.eclipse.lsp4xml.services.extensions.IHighlightingParticipant;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 
 /**
@@ -56,10 +57,22 @@ class XMLHighlighting {
 			return Collections.emptyList();
 		}
 		DOMNode node = xmlDocument.findNodeAt(offset);
-		if (node == null || !node.isElement() || ((DOMElement) node).getTagName() == null) {
+		if (node == null) {
 			return Collections.emptyList();
 		}
+		List<DocumentHighlight> highlights = new ArrayList<>();
+		fillWithDefaultHighlights(node, position, offset, highlights, cancelChecker);
+		fillWithCustomHighlights(node, position, offset, highlights, cancelChecker);
+		return highlights;
+	}
 
+	private static void fillWithDefaultHighlights(DOMNode node, Position position, int offset,
+			List<DocumentHighlight> highlights, CancelChecker cancelChecker) {
+		if (!node.isElement() || ((DOMElement) node).getTagName() == null) {
+			return;
+		}
+
+		DOMDocument xmlDocument = node.getOwnerDocument();
 		Range startTagRange = null;
 		Range endTagRange = null;
 		if (node.isCDATA()) {
@@ -73,16 +86,15 @@ class XMLHighlighting {
 
 			} catch (BadLocationException e) {
 				LOGGER.log(Level.SEVERE, "In XMLHighlighting the Node at provided Offset is a BadLocation", e);
-				return Collections.emptyList();
+				return;
 			}
 			if (covers(tempRange, position)) {
 				startPos.setCharacter(startPos.getCharacter() + 1); // {Cursor}<![CDATA[ -> <{Cursor}![CDATA[
 				endPos.setCharacter(endPos.getCharacter() - 1); // ]]>{Cursor} -> ]]{Cursor}>
 				Position startPosEnd = new Position(startPos.getLine(), startPos.getCharacter() + 8);
 				Position endPosStart = new Position(endPos.getLine(), endPos.getCharacter() - 2);
-				return getHighlightsList(new Range(startPos, startPosEnd), new Range(endPosStart, endPos));
+				fillHighlightsList(new Range(startPos, startPosEnd), new Range(endPosStart, endPos), highlights);
 			}
-			return Collections.emptyList();
 		} else if (node.isElement()) {
 			DOMElement element = (DOMElement) node;
 			startTagRange = getTagNameRange(TokenType.StartTag, node.getStart(), xmlDocument);
@@ -90,22 +102,25 @@ class XMLHighlighting {
 					? getTagNameRange(TokenType.EndTag, element.getEndTagOpenOffset(), xmlDocument)
 					: null;
 			if (doesTagCoverPosition(startTagRange, endTagRange, position)) {
-				return getHighlightsList(startTagRange, endTagRange);
+				fillHighlightsList(startTagRange, endTagRange, highlights);
 			}
 		}
-		return Collections.emptyList();
 	}
 
-	private static List<DocumentHighlight> getHighlightsList(Range startTagRange, Range endTagRange) {
-
-		List<DocumentHighlight> result = new ArrayList<>(2);
+	private static void fillHighlightsList(Range startTagRange, Range endTagRange, List<DocumentHighlight> result) {
 		if (startTagRange != null) {
 			result.add(new DocumentHighlight(startTagRange, DocumentHighlightKind.Read));
 		}
 		if (endTagRange != null) {
 			result.add(new DocumentHighlight(endTagRange, DocumentHighlightKind.Read));
 		}
-		return result;
 	}
 
+	private void fillWithCustomHighlights(DOMNode node, Position position, int offset,
+			List<DocumentHighlight> highlights, CancelChecker cancelChecker) {
+		// Consume highlighting participant
+		for (IHighlightingParticipant highlightingParticipant : extensionsRegistry.getHighlightingParticipants()) {
+			highlightingParticipant.findDocumentHighlights(node, position, offset,highlights, cancelChecker);
+		}
+	}
 }
