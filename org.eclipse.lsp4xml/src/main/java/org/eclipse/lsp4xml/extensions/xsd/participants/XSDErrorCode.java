@@ -43,7 +43,8 @@ public enum XSDErrorCode implements IXMLErrorCode {
 	src_ct_1("src-ct.1"),
 	src_element_3("src-element.3"),
 	src_resolve_4_2("src-resolve.4.2"), //
-	src_resolve("src-resolve"), src_element_2_1("src-element.2.1");
+	src_resolve("src-resolve"), src_element_2_1("src-element.2.1"),
+	EmptyTargetNamespace("EmptyTargetNamespace");
 
 	private final String code;
 
@@ -138,6 +139,8 @@ public enum XSDErrorCode implements IXMLErrorCode {
 			String attrValue = (String) arguments[0];
 			return XMLPositionUtility.selectAttributeValueByGivenValueAt(attrValue, offset, document);
 		}
+		case EmptyTargetNamespace:
+			return XMLPositionUtility.selectAttributeValueAt("targetNamespace", offset, document);
 		}
 		return null;
 	}
