@@ -89,6 +89,16 @@ public class XSDValidationExtensionsTest {
 	}
 
 	@Test
+	public void emptyTargetNamespace() throws BadLocationException {
+		String xml = "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\r\n" +
+			"	elementFormDefault=\"qualified\" xml:lang=\"EN\"\r\n" +
+			"	targetNamespace=\"\"\r\n" +
+			"	version=\"1.0\">\r\n" +
+			"</xs:schema>";
+		testDiagnosticsFor(xml, d(2, 17, 2, 19, XSDErrorCode.EmptyTargetNamespace));
+	}
+
+	@Test
 	public void p_props_correct_2_1() throws BadLocationException {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" +
 				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\r\n" +
