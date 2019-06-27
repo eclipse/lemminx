@@ -15,7 +15,6 @@ import static java.lang.System.lineSeparator;
 import java.util.List;
 
 import org.eclipse.lsp4xml.commons.BadLocationException;
-import org.eclipse.lsp4xml.utils.StringUtils;
 import org.w3c.dom.DOMException;
 
 /**
@@ -26,11 +25,7 @@ public abstract class DOMCharacterData extends DOMNode implements org.w3c.dom.Ch
 
 	private String data;
 
-	private String normalizedData;
-
 	private boolean isWhitespace;
-
-	private int newLineCount;
 
 	private String delimiter;
 
@@ -43,7 +38,7 @@ public abstract class DOMCharacterData extends DOMNode implements org.w3c.dom.Ch
 	}
 
 	public String getDelimiter() {
-		if(delimiter != null) {
+		if (delimiter != null) {
 			return delimiter;
 		}
 		try {
@@ -58,15 +53,15 @@ public abstract class DOMCharacterData extends DOMNode implements org.w3c.dom.Ch
 	/**
 	 * If data ends with a new line character.
 	 * 
-	 * Returns false if a character is found before a new line.
-	 * Non-newline whitespace will be ignored while searching.
+	 * Returns false if a character is found before a new line. Non-newline
+	 * whitespace will be ignored while searching.
 	 * 
 	 * If no data exists, returns false.
 	 * 
 	 * @return true if newline character ocurrs before non-whitespace character
 	 */
 	public boolean endsWithNewLine() {
-		if(hasData()) {
+		if (hasData()) {
 			for (int i = data.length() - 1; i >= 0; i--) {
 				char c = data.charAt(i);
 				if (!Character.isWhitespace(c)) {
@@ -75,7 +70,7 @@ public abstract class DOMCharacterData extends DOMNode implements org.w3c.dom.Ch
 				if (c == '\n') {
 					return true;
 				}
-	
+
 			}
 		}
 		return false;
@@ -84,13 +79,13 @@ public abstract class DOMCharacterData extends DOMNode implements org.w3c.dom.Ch
 	/**
 	 * If data ends with a new line character.
 	 * 
-	 * Returns false if a character is found before a new line.
-	 * Non-newline whitespace will be ignored while searching.
+	 * Returns false if a character is found before a new line. Non-newline
+	 * whitespace will be ignored while searching.
 	 * 
 	 * @return true if newline character ocurrs before non-whitespace character
 	 */
 	public boolean startsWithNewLine() {
-		if(hasData()) {
+		if (hasData()) {
 			for (int i = 0; i < data.length(); i++) {
 				char c = data.charAt(i);
 				if (!Character.isWhitespace(c)) {
@@ -99,17 +94,10 @@ public abstract class DOMCharacterData extends DOMNode implements org.w3c.dom.Ch
 				if (c == '\n' || c == '\r') {
 					return true;
 				}
-	
+
 			}
 		}
 		return false;
-	}
-
-	public String getNormalizedData() {
-		if (normalizedData == null) {
-			normalizedData = StringUtils.normalizeSpace(getData());
-		}
-		return normalizedData;
 	}
 
 	public boolean hasData() {
@@ -164,9 +152,10 @@ public abstract class DOMCharacterData extends DOMNode implements org.w3c.dom.Ch
 
 	/**
 	 * Set true if this node's data is all whitespace
+	 * 
 	 * @param isWhitespace
 	 */
-	public void setWhitespace(boolean isWhitespace) {
+	void setWhitespace(boolean isWhitespace) {
 		this.isWhitespace = isWhitespace;
 	}
 
