@@ -70,6 +70,12 @@ public class XMLSyntaxDiagnosticsTest {
 		testDiagnosticsFor(xml, d(2, 1, 2, 10, XMLSyntaxErrorCode.AttributeNSNotUnique));
 	}
 
+	@Test
+	public void testAttributePrefixUnbound() throws Exception {
+		String xml = "<a xsi:xxxxx=\"\"></a>";
+		testDiagnosticsFor(xml, d(0, 3, 0, 6, XMLSyntaxErrorCode.AttributePrefixUnbound));
+	}
+
 	/**
 	 * ContentIllegalInProlog tests
 	 * 
