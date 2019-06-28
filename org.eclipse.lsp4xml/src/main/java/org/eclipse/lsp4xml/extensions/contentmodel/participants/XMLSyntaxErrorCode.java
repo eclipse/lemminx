@@ -33,9 +33,10 @@ import org.eclipse.lsp4xml.utils.XMLPositionUtility;
  *
  */
 public enum XMLSyntaxErrorCode implements IXMLErrorCode {
-
+	
 	AttributeNotUnique, // https://wiki.xmldation.com/Support/Validator/AttributeNotUnique
 	AttributeNSNotUnique, // https://wiki.xmldation.com/Support/Validator/AttributeNSNotUnique
+	AttributePrefixUnbound,
 	ContentIllegalInProlog, // https://wiki.xmldation.com/Support/Validator/ContentIllegalInProlog
 	DashDashInComment, // https://wiki.xmldation.com/Support/Validator/DashDashInComment
 	ElementUnterminated, // https://wiki.xmldation.com/Support/Validator/ElementUnterminated
@@ -120,7 +121,9 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 			String attrName = (String) arguments[1];
 			return XMLPositionUtility.selectAttributeNameFromGivenNameAt(attrName, offset, document);
 		}
-			
+		case AttributePrefixUnbound: {
+			return XMLPositionUtility.selectAttributePrefixFromGivenNameAt((String) arguments[1], offset, document);
+		}
 		case LessthanInAttValue: {
 			String attrName = (String) arguments[1];
 			return XMLPositionUtility.selectAttributeValueAt(attrName, offset, document);

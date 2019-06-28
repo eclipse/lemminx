@@ -132,6 +132,26 @@ public class XMLPositionUtility {
 		return null;
 	}
 
+	/**
+	 * Returns the range of the prefix of an attribute name
+	 * 
+	 * For example, if attrName = "xsi:example", the range for 
+	 * "xsi" will be returned
+	 */
+	public static Range selectAttributePrefixFromGivenNameAt(String attrName, int offset, DOMDocument document) {
+		DOMNode element = document.findNodeAt(offset);
+		int prefixLength = attrName.indexOf(':');
+		if (element != null && element.hasAttributes()) {
+			DOMAttr attr = element.getAttributeNode(attrName);
+			if (attr != null) {
+				int startOffset = attr.getNodeAttrName().getStart();
+				int endOffset = startOffset + prefixLength;
+				return createRange(startOffset, endOffset, document);
+			}
+		}
+		return null;
+	}
+
 	private static Range createAttrNameRange(DOMAttr attr, DOMDocument document) {
 		int startOffset = attr.getNodeAttrName().getStart();
 		int endOffset = attr.getNodeAttrName().getEnd();
