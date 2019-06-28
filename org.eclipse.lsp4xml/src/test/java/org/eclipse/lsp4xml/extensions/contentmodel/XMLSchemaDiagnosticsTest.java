@@ -342,6 +342,17 @@ public class XMLSchemaDiagnosticsTest {
 		testCodeActionsFor(xml, d, ca(d, te(5, 25, 7, 8, "/>")));
 	}
 
+	@Test
+	public void cvc_pattern_valid() throws Exception {
+		String xml = "<Annotation\r\n" +
+				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" +
+				"	xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/pattern.xsd\"\r\n" +
+				"	Term=\"X\"></Annotation>";
+		Diagnostic patternValid = d(3, 6, 3, 9, XMLSchemaErrorCode.cvc_pattern_valid);
+		Diagnostic cvcAttribute3 = d(3, 6, 3, 9, XMLSchemaErrorCode.cvc_attribute_3);
+		testDiagnosticsFor(xml, patternValid, cvcAttribute3);
+	}
+
 	/**
 	 * @see https://github.com/angelozerr/lsp4xml/issues/217
 	 */
