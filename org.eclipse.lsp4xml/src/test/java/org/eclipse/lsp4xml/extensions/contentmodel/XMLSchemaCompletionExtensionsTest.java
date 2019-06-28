@@ -400,6 +400,38 @@ public class XMLSchemaCompletionExtensionsTest {
 				c("ComplexType", "<ComplexType Name=\"\"></ComplexType>"));
 	}
 
+	/**
+	 * @see https://github.com/angelozerr/lsp4xml/issues/311
+	 * 
+	 * @throws BadLocationException
+	 */
+	@Test
+	public void issue311() throws BadLocationException {
+		// with xmlns:edm="http://docs.oasis-open.org/odata/ns/edm"
+		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"
+				+ "<edmx:Edmx xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\" xmlns:edm=\"http://docs.oasis-open.org/odata/ns/edm\" Version=\"4.0\">\r\n"
+				+ "  | \r\n" //
+				+ "</edmx:Edmx>";
+		XMLAssert.testCompletionFor(xml, "src/test/resources/catalogs/catalog.xml", "test.xsd",
+				4 /*
+					 * edmx:DataServices, <edmx:DataServices, #region, #endregion AND NOT
+					 * edm:Annotation
+					 */, c("edmx:DataServices", "<edmx:DataServices></edmx:DataServices>"), //
+				c("edmx:Reference", "<edmx:Reference Uri=\"\"></edmx:Reference>"));
+
+		// with xmlns="http://docs.oasis-open.org/odata/ns/edm"
+		xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"
+				+ "<edmx:Edmx xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\" xmlns=\"http://docs.oasis-open.org/odata/ns/edm\" Version=\"4.0\">\r\n"
+				+ "  | \r\n" //
+				+ "</edmx:Edmx>";
+		XMLAssert.testCompletionFor(xml, "src/test/resources/catalogs/catalog.xml", "test.xsd",
+				4 /*
+					 * edmx:DataServices, <edmx:DataServices, #region, #endregion AND NOT
+					 * edm:Annotation
+					 */, c("edmx:DataServices", "<edmx:DataServices></edmx:DataServices>"), //
+				c("edmx:Reference", "<edmx:Reference Uri=\"\"></edmx:Reference>"));
+	}
+
 	@Test
 	public void xsiCompletionTestAllItems() throws BadLocationException {
 		String xml = 

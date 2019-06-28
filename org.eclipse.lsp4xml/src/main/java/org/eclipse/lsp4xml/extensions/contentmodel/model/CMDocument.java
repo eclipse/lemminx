@@ -20,8 +20,23 @@ import org.eclipse.lsp4xml.dom.DOMElement;
  */
 public interface CMDocument {
 
+	/**
+	 * Returns true if the model document defines the given namespace and false
+	 * otherwise.
+	 * 
+	 * @param namespaceURI
+	 * @return true if the model document defines the given namespace and false
+	 *         otherwise.
+	 */
+	boolean hasNamespace(String namespaceURI);
+
+	/**
+	 * Returns the elements declaration of the model document root.
+	 * 
+	 * @return the elements declaration of the model document root.
+	 */
 	Collection<CMElementDeclaration> getElements();
-	
+
 	/**
 	 * Returns the declared element which matches the given XML element and null
 	 * otherwise.
@@ -32,6 +47,11 @@ public interface CMDocument {
 	 */
 	CMElementDeclaration findCMElement(DOMElement element, String namespace);
 
+	/**
+	 * Returns the URI of the model document.
+	 * 
+	 * @return the URI of the model document.
+	 */
 	String getURI();
 
 }
