@@ -45,12 +45,11 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			String schemaURI;
 			ContentModelManager contentModelManager = request.getComponent(ContentModelManager.class);
 			DOMElement parentElement = request.getParentElement();
-			CMDocument cmDocument;
 			if (parentElement == null) {
 				// XML is empty, in case of XML file associations, a XMl Schema/DTD can be bound
 				// check if it's root element (in the case of XML file associations, the link to
 				// XML Schema is done with pattern and not with XML root element)
-				cmDocument = contentModelManager.findCMDocument(document, null);
+				CMDocument cmDocument = contentModelManager.findCMDocument(document, null);
 				if (cmDocument != null) {
 					schemaURI = cmDocument.getURI();
 					fillWithChildrenElementDeclaration(null, cmDocument.getElements(), null, false, request, response,
@@ -60,9 +59,10 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			}
 			// Try to retrieve XML Schema/DTD element declaration for the parent element
 			// where completion was triggered.
-			cmDocument = contentModelManager.findCMDocument(parentElement, parentElement.getNamespaceURI());
+			final CMDocument cmRootDocument = contentModelManager.findCMDocument(parentElement,
+					parentElement.getNamespaceURI());
 
-			schemaURI = cmDocument != null ? cmDocument.getURI() : null;
+			schemaURI = cmRootDocument != null ? cmRootDocument.getURI() : null;
 			CMElementDeclaration cmElement = contentModelManager.findCMElement(parentElement);
 			String defaultPrefix = null;
 
@@ -72,17 +72,21 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 						request, response, schemaURI);
 			}
 			if (parentElement.isDocumentElement()) {
-				// root document element
+				// completion on root document element
 				Collection<String> prefixes = parentElement.getAllPrefixes();
 				for (String prefix : prefixes) {
 					if (defaultPrefix != null && prefix.equals(defaultPrefix)) {
 						continue;
 					}
 					String namespaceURI = parentElement.getNamespaceURI(prefix);
-					cmDocument = contentModelManager.findCMDocument(parentElement, namespaceURI);
-					if (cmDocument != null) {
-						fillWithChildrenElementDeclaration(parentElement, cmDocument.getElements(), prefix, true,
-								request, response, cmDocument.getURI());
+					if (!cmRootDocument.hasNamespace(namespaceURI)) {
+						// The model document root doesn't define the namespace, try to load the
+						// external model document (XML Schema, DTD)
+						CMDocument cmDocument = contentModelManager.findCMDocument(parentElement, namespaceURI);
+						if (cmDocument != null) {
+							fillWithChildrenElementDeclaration(parentElement, cmDocument.getElements(), prefix, true,
+									request, response, cmRootDocument.getURI());
+						}
 					}
 				}
 			}
@@ -121,8 +125,8 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	}
 
 	@Override
-	public void onAttributeName(boolean generateValue, ICompletionRequest request,
-			ICompletionResponse response) throws Exception {
+	public void onAttributeName(boolean generateValue, ICompletionRequest request, ICompletionResponse response)
+			throws Exception {
 		// otherwise, manage completion based on XML Schema, DTD.
 		DOMElement parentElement = request.getNode().isElement() ? (DOMElement) request.getNode() : null;
 		if (parentElement == null) {
@@ -171,8 +175,8 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	}
 
 	@Override
-	public void onAttributeValue(String valuePrefix, ICompletionRequest request,
-			ICompletionResponse response) throws Exception {
+	public void onAttributeValue(String valuePrefix, ICompletionRequest request, ICompletionResponse response)
+			throws Exception {
 		DOMElement parentElement = request.getNode().isElement() ? (DOMElement) request.getNode() : null;
 		if (parentElement == null) {
 			return;

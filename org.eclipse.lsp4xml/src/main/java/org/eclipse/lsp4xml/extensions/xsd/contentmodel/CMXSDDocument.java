@@ -56,6 +56,14 @@ public class CMXSDDocument implements CMDocument {
 	}
 
 	@Override
+	public boolean hasNamespace(String namespaceURI) {
+		if (namespaceURI == null || model.getNamespaces() == null) {
+			return false;
+		}
+		return model.getNamespaces().contains(namespaceURI);
+	}
+
+	@Override
 	public String getURI() {
 		return uri;
 	}

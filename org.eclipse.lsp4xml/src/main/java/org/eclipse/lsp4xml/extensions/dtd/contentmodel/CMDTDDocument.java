@@ -45,10 +45,16 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 	private Set<String> hierarchies;
 	private String uri;
 
-	public CMDTDDocument() {}
+	public CMDTDDocument() {
+	}
 
 	public CMDTDDocument(String uri) {
 		this.uri = uri;
+	}
+
+	@Override
+	public boolean hasNamespace(String namespaceURI) {
+		return false;
 	}
 
 	@Override
@@ -67,10 +73,8 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 		return elements;
 	}
 
-	
 	/**
-	 * Returns the URI of this document, is none was provided this
-	 * returns null.
+	 * Returns the URI of this document, is none was provided this returns null.
 	 */
 	@Override
 	public String getURI() {
