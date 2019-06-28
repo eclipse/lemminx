@@ -51,7 +51,7 @@ public class DOMDocument extends DOMNode implements Document {
 	private boolean referencedSchemaInitialized;
 	private final URIResolverExtensionManager resolverExtensionManager;
 
-	private final TextDocument textDocument;
+	private TextDocument textDocument;
 	private boolean hasNamespaces;
 	private Map<String, String> externalSchemaLocation;
 	private String schemaInstancePrefix;
@@ -893,5 +893,11 @@ public class DOMDocument extends DOMNode implements Document {
 		if (cancelChecker != null) {
 			cancelChecker.checkCanceled();
 		}
+	}
+	
+	@Override
+	public void dispose() {
+		super.dispose();
+		textDocument = null;
 	}
 }

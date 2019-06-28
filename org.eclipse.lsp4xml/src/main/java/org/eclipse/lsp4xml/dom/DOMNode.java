@@ -13,10 +13,10 @@ package org.eclipse.lsp4xml.dom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 
-import java.util.Objects;
-
+import org.eclipse.lsp4xml.commons.Disposable;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -27,7 +27,7 @@ import org.w3c.dom.UserDataHandler;
  * DOM node.
  *
  */
-public abstract class DOMNode implements Node {
+public abstract class DOMNode implements Node, Disposable {
 
 	/**
 	 * Null value used for offset.
@@ -69,7 +69,7 @@ public abstract class DOMNode implements Node {
 
 	DOMNode parent;
 
-	class XMLNodeList<T extends DOMNode> extends ArrayList<T> implements NodeList {
+	static class XMLNodeList<T extends DOMNode> extends ArrayList<T> implements NodeList {
 
 		private static final long serialVersionUID = 1L;
 
@@ -85,7 +85,7 @@ public abstract class DOMNode implements Node {
 
 	}
 
-	class XMLNamedNodeMap<T extends DOMNode> extends ArrayList<T> implements NamedNodeMap {
+	static class XMLNamedNodeMap<T extends DOMNode> extends ArrayList<T> implements NamedNodeMap {
 
 		private static final long serialVersionUID = 1L;
 
@@ -784,4 +784,20 @@ public abstract class DOMNode implements Node {
 		return null;
 	}
 
+	@Override
+	public void dispose() {
+		if (children != null) {
+			for (DOMNode child : children) {
+				child.dispose();
+			}
+			children = null;
+		}
+		if (attributeNodes != null) {
+			for (DOMAttr attr : attributeNodes) {
+				attr.dispose();
+			}
+			attributeNodes = null;
+		}
+		parent = null;
+	}
 }

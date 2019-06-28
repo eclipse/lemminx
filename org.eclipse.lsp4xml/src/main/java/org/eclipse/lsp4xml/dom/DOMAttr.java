@@ -23,7 +23,7 @@ public class DOMAttr extends DOMNode implements org.w3c.dom.Attr {
 
 	private final String name;
 
-	private final DOMNode nodeAttrName;
+	private DOMNode nodeAttrName;
 
 	private DOMNode nodeAttrValue;
 
@@ -31,7 +31,7 @@ public class DOMAttr extends DOMNode implements org.w3c.dom.Attr {
 
 	private String originalValue;// Exact value from document
 
-	private final DOMNode ownerElement;
+	private DOMNode ownerElement;
 
 	private boolean hasDelimiter; // has '='
 
@@ -40,11 +40,9 @@ public class DOMAttr extends DOMNode implements org.w3c.dom.Attr {
 
 	class AttrNameOrValue extends DOMNode {
 
-		private final DOMAttr ownerAttr;
 
-		public AttrNameOrValue(int start, int end, DOMAttr ownerAttr) {
+		public AttrNameOrValue(int start, int end) {
 			super(start, end);
-			this.ownerAttr = ownerAttr;
 		}
 
 		@Override
@@ -58,12 +56,12 @@ public class DOMAttr extends DOMNode implements org.w3c.dom.Attr {
 		}
 
 		public DOMAttr getOwnerAttr() {
-			return ownerAttr;
+			return DOMAttr.this;
 		}
 		
 		@Override
 		public DOMDocument getOwnerDocument() {
-			return ownerAttr.getOwnerDocument();
+			return getOwnerAttr().getOwnerDocument();
 		}
 	}
 
@@ -74,7 +72,7 @@ public class DOMAttr extends DOMNode implements org.w3c.dom.Attr {
 	public DOMAttr(String name, int start, int end, DOMNode ownerElement) {
 		super(-1, -1);
 		this.name = name;
-		this.nodeAttrName = start != -1 ? new AttrNameOrValue(start, end, this) : null;
+		this.nodeAttrName = start != -1 ? new AttrNameOrValue(start, end) : null;
 		this.ownerElement = ownerElement;
 	}
 
@@ -211,7 +209,7 @@ public class DOMAttr extends DOMNode implements org.w3c.dom.Attr {
 	public void setValue(String value, int start, int end) {
 		this.originalValue = value;
 		this.quotelessValue = convertToQuotelessValue(value);
-		this.nodeAttrValue = start != -1 ? new AttrNameOrValue(start, end, this) : null;
+		this.nodeAttrValue = start != -1 ? new AttrNameOrValue(start, end) : null;
 	}
 
 	/**
@@ -406,4 +404,18 @@ public class DOMAttr extends DOMNode implements org.w3c.dom.Attr {
 		return true;
 	}
 
+	
+	@Override
+	public void dispose() {		
+		if (nodeAttrName != null) {
+			nodeAttrName.dispose();
+			nodeAttrName = null;
+		}
+		if (nodeAttrValue != null) {
+			nodeAttrValue.dispose();
+			nodeAttrValue = null;
+		}
+		ownerElement = null;
+		super.dispose();
+	}
 }
