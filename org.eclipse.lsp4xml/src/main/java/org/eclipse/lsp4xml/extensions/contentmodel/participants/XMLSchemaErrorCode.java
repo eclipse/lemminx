@@ -54,6 +54,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 	cvc_elt_3_1("cvc-elt.3.1"), // https://wiki.xmldation.com/Support/Validator/cvc-elt-3-1
 	cvc_elt_3_2_1("cvc-elt.3.2.1"), // https://wiki.xmldation.com/Support/Validator/cvc-elt-3-2-1
 	cvc_elt_4_2("cvc-elt.4.2"), // https://wiki.xmldation.com/Support/Validator/cvc-elt-4-2
+	cvc_pattern_valid("cvc-pattern-valid"), // https://wiki.xmldation.com/Support/Validator/cvc-pattern-valid
 	cvc_type_3_1_1("cvc-type.3.1.1"), // https://wiki.xmldation.com/Support/Validator/cvc-type-3-1-1
 	cvc_type_3_1_2("cvc-type.3.1.2"), // https://wiki.xmldation.com/Support/Validator/cvc-type-3-1-2
 	cvc_type_3_1_3("cvc-type.3.1.3"), // https://wiki.xmldation.com/Support/Validator/cvc-type-3-1-3,
@@ -149,6 +150,10 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 				}
 			}
 			return XMLPositionUtility.selectAttributeFromGivenNameAt(attrName, offset, document);
+		}
+		case cvc_pattern_valid: {
+			String attrValue = (String) arguments[0];
+			return XMLPositionUtility.selectAttributeValueByGivenValueAt(attrValue, offset, document);
 		}
 		case SchemaLocation:
 		case schema_reference_4: {

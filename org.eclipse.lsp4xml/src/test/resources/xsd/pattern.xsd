@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	elementFormDefault="qualified" attributeFormDefault="unqualified">
+
+	<xs:element name="Annotation">
+		<xs:complexType>
+			<xs:attribute name="Term" type="TQualifiedName"
+				use="required" />
+		</xs:complexType>
+	</xs:element>
+
+
+	<xs:simpleType name="TQualifiedName">
+		<xs:restriction base="xs:NCName">
+			<xs:pattern
+				value="[\p{L}\p{Nl}_][\p{L}\p{Nl}\p{Nd}\p{Mn}\p{Mc}\p{Pc}\p{Cf}]{0,}(\.[\p{L}\p{Nl}_][\p{L}\p{Nl}\p{Nd}\p{Mn}\p{Mc}\p{Pc}\p{Cf}]{0,}){1,}" />
+		</xs:restriction>
+	</xs:simpleType>
+
+</xs:schema>
