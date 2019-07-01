@@ -8,15 +8,21 @@
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
 
-package org.eclipse.lsp4xml.utils;
+package org.eclipse.lsp4xml.settings;
 
 /**
- * OSUtils
+ * Telemetry settings
  */
-public class OSUtils {
-	
-	public static final boolean isWindows = System.getProperty("os.name").toLowerCase().indexOf("win") >= 0;
-	public static String SLASH = isWindows ? "\\" : "/";
+public class XMLTelemetrySettings {
 
-	
+	private boolean enabled;
+
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+
 }

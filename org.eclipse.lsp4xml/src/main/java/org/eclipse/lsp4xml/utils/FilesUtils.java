@@ -10,7 +10,7 @@
  */
 package org.eclipse.lsp4xml.utils;
 
-import static org.eclipse.lsp4xml.utils.OSUtils.SLASH;
+import static org.eclipse.lsp4xml.Platform.SLASH;
 
 import java.io.File;
 import java.io.IOException;

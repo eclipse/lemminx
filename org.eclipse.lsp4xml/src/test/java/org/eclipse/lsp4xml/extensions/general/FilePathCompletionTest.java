@@ -10,10 +10,10 @@
 
 package org.eclipse.lsp4xml.extensions.general;
 
+import static org.eclipse.lsp4xml.Platform.SLASH;
+import static org.eclipse.lsp4xml.Platform.isWindows;
 import static org.eclipse.lsp4xml.XMLAssert.c;
 import static org.eclipse.lsp4xml.XMLAssert.te;
-import static org.eclipse.lsp4xml.utils.OSUtils.SLASH;
-import static org.eclipse.lsp4xml.utils.OSUtils.isWindows;
 
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4xml.XMLAssert;

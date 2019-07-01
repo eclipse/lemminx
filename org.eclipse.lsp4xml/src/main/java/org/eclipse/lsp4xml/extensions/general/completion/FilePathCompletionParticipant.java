@@ -10,10 +10,10 @@
 
 package org.eclipse.lsp4xml.extensions.general.completion;
 
+import static org.eclipse.lsp4xml.Platform.isWindows;
 import static org.eclipse.lsp4xml.utils.FilesUtils.convertToWindowsPath;
 import static org.eclipse.lsp4xml.utils.FilesUtils.getFilePathSlash;
 import static org.eclipse.lsp4xml.utils.FilesUtils.getNormalizedPath;
-import static org.eclipse.lsp4xml.utils.OSUtils.isWindows;
 import static org.eclipse.lsp4xml.utils.StringUtils.isEmpty;
 
 import java.io.File;

@@ -53,9 +53,11 @@ import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.settings.XMLGeneralClientSettings;
 import org.eclipse.lsp4xml.settings.XMLIncrementalSupportSettings;
 import org.eclipse.lsp4xml.settings.XMLSymbolSettings;
+import org.eclipse.lsp4xml.settings.XMLTelemetrySettings;
 import org.eclipse.lsp4xml.settings.capabilities.InitializationOptionsExtendedClientCapabilities;
 import org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesInitializer;
 import org.eclipse.lsp4xml.settings.capabilities.XMLCapabilityManager;
+import org.eclipse.lsp4xml.telemetry.TelemetryManager;
 import org.eclipse.lsp4xml.utils.FilesUtils;
 
 /**
@@ -74,6 +76,7 @@ public class XMLLanguageServer
 	private final ScheduledExecutorService delayer;
 	private Integer parentProcessId;
 	public XMLCapabilityManager capabilityManager;
+	private TelemetryManager telemetryManager;
 
 	public XMLLanguageServer() {
 		xmlLanguageService = new XMLLanguageService();
@@ -116,6 +119,7 @@ public class XMLLanguageServer
 	@Override
 	public void initialized(InitializedParams params) {
 		capabilityManager.initializeCapabilities();
+		getTelemetryManager().onInitialized(params);
 	}
 
 	/**
@@ -162,6 +166,11 @@ public class XMLLanguageServer
 			if (serverSettings != null) {
 				String workDir = serverSettings.getNormalizedWorkDir();
 				FilesUtils.setCachePathSetting(workDir);
+			}
+
+			XMLTelemetrySettings newTelemetry = xmlClientSettings.getTelemetry();
+			if (newTelemetry != null) {
+				getTelemetryManager().setEnabled(newTelemetry.isEnabled());
 			}
 
 			XMLExperimentalSettings experimentalSettings = xmlClientSettings.getExperimental();
@@ -212,6 +221,7 @@ public class XMLLanguageServer
 	public void setClient(LanguageClient languageClient) {
 		this.languageClient = languageClient;
 		capabilityManager = new XMLCapabilityManager(this.languageClient, xmlTextDocumentService);
+		telemetryManager = new TelemetryManager(languageClient);
 	}
 
 	public LanguageClient getLanguageClient() {
@@ -246,5 +256,14 @@ public class XMLLanguageServer
 	public DOMDocument getDocument(String uri) {
 		ModelTextDocument<DOMDocument> document = xmlTextDocumentService.getDocument(uri);
 		return document != null ? document.getModel().getNow(null) : null;
+	}
+
+	/**
+	 * Returns the telemetry manager.
+	 * 
+	 * @return the telemetry manager.
+	 */
+	public TelemetryManager getTelemetryManager() {
+		return telemetryManager;
 	}
 }

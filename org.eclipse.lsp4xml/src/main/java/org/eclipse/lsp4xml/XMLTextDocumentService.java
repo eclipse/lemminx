@@ -80,6 +80,7 @@ import org.eclipse.lsp4xml.settings.XMLCodeLensSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.settings.XMLIncrementalSupportSettings;
 import org.eclipse.lsp4xml.settings.XMLSymbolSettings;
+import org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants;
 import org.eclipse.lsp4xml.utils.XMLPositionUtility;
 
 /**
@@ -144,8 +145,11 @@ public class XMLTextDocumentService implements TextDocumentService {
 		this.sharedSettings = new SharedSettings();
 	}
 
-	public void updateClientCapabilities(ClientCapabilities capabilities, ExtendedClientCapabilities extendedClientCapabilities) {
-		TextDocumentClientCapabilities textDocumentClientCapabilities = capabilities.getTextDocument();
+	public void updateClientCapabilities(ClientCapabilities capabilities,
+			ExtendedClientCapabilities extendedClientCapabilities) {
+		TextDocumentClientCapabilities textDocumentClientCapabilities = capabilities != null
+				? capabilities.getTextDocument()
+				: null;
 		if (textDocumentClientCapabilities != null) {
 			// Completion settings
 			sharedSettings.completionSettings.setCapabilities(textDocumentClientCapabilities.getCompletion());
@@ -160,7 +164,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 		}
 		if (extendedClientCapabilities != null) {
 			// Extended client capabilities
-			sharedSettings.getCodeLensSettings().setCodeLens(extendedClientCapabilities.getCodeLens());			
+			sharedSettings.getCodeLensSettings().setCodeLens(extendedClientCapabilities.getCodeLens());
 		}
 	}
 
@@ -225,6 +229,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	@Override
 	public CompletableFuture<List<? extends TextEdit>> formatting(DocumentFormattingParams params) {
+		xmlLanguageServer.getTelemetryManager().onServiceCall(ServerCapabilitiesConstants.TEXT_DOCUMENT_FORMATTING);
 		return computeAsync((cancelChecker) -> {
 			String uri = params.getTextDocument().getUri();
 			TextDocument document = getDocument(uri);
@@ -235,6 +240,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	@Override
 	public CompletableFuture<List<? extends TextEdit>> rangeFormatting(DocumentRangeFormattingParams params) {
+		xmlLanguageServer.getTelemetryManager()
+				.onServiceCall(ServerCapabilitiesConstants.TEXT_DOCUMENT_RANGE_FORMATTING);
 		return computeAsync((cancelChecker) -> {
 			String uri = params.getTextDocument().getUri();
 			TextDocument document = getDocument(uri);
@@ -245,6 +252,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	@Override
 	public CompletableFuture<WorkspaceEdit> rename(RenameParams params) {
+		xmlLanguageServer.getTelemetryManager().onServiceCall(ServerCapabilitiesConstants.TEXT_DOCUMENT_RENAME);
 		return computeDOMAsync(params.getTextDocument(), (cancelChecker, xmlDocument) -> {
 			return getXMLLanguageService().doRename(xmlDocument, params.getPosition(), params.getNewName());
 		});
@@ -319,7 +327,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 			return CompletableFuture.completedFuture(Collections.emptyList());
 		}
 		return computeDOMAsync(params.getTextDocument(), (cancelChecker, xmlDocument) -> {
-			return getXMLLanguageService().getCodeLens(xmlDocument, sharedSettings.getCodeLensSettings(), cancelChecker);
+			return getXMLLanguageService().getCodeLens(xmlDocument, sharedSettings.getCodeLensSettings(),
+					cancelChecker);
 		});
 	}
 

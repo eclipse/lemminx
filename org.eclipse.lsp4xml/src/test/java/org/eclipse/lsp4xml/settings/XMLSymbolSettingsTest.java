@@ -10,7 +10,6 @@
 
 package org.eclipse.lsp4xml.settings;
 
-import static org.eclipse.lsp4xml.utils.OSUtils.isWindows;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 

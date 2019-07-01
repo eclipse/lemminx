@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.lsp4xml.commons;
 
-import static org.eclipse.lsp4xml.utils.OSUtils.isWindows;
+import static org.eclipse.lsp4xml.Platform.isWindows;
 
 import java.io.IOException;
 import java.util.concurrent.Executors;

@@ -46,6 +46,8 @@ public class XMLGeneralClientSettings {
 
 	private XMLCodeLensSettings codeLens;
 
+	private XMLTelemetrySettings telemetry;
+
 	private XMLExperimentalSettings experimental;
 
 	public XMLExperimentalSettings getExperimental() {
@@ -88,6 +90,24 @@ public class XMLGeneralClientSettings {
 	 */
 	public void setCodeLens(XMLCodeLensSettings codeLens) {
 		this.codeLens = codeLens;
+	}
+
+	/**
+	 * Returns the telemetry settings.
+	 * 
+	 * @return the telemetry settings.
+	 */
+	public XMLTelemetrySettings getTelemetry() {
+		return telemetry;
+	}
+
+	/**
+	 * Set the telemetry settings
+	 * 
+	 * @param telemetry the telementry setting
+	 */
+	public void setTelemetry(XMLTelemetrySettings telemetry) {
+		this.telemetry = telemetry;
 	}
 
 	public void setFormat(XMLFormattingOptions format) {
