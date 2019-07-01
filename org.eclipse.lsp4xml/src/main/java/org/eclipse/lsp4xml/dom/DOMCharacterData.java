@@ -30,8 +30,6 @@ public abstract class DOMCharacterData extends DOMNode implements org.w3c.dom.Ch
 
 	private boolean isWhitespace;
 
-	private int newLineCount;
-
 	private String delimiter;
 
 	public DOMCharacterData(int start, int end) {
