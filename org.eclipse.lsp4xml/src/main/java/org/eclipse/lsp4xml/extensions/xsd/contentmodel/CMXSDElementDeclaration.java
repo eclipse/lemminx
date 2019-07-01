@@ -17,8 +17,10 @@ import java.util.List;
 import java.util.Vector;
 
 import org.apache.xerces.impl.dv.xs.XSSimpleTypeDecl;
+import org.apache.xerces.impl.xs.SchemaGrammar;
 import org.apache.xerces.impl.xs.SubstitutionGroupHandler;
 import org.apache.xerces.impl.xs.XSComplexTypeDecl;
+import org.apache.xerces.impl.xs.XSElementDecl;
 import org.apache.xerces.impl.xs.models.CMBuilder;
 import org.apache.xerces.impl.xs.models.CMNodeFactory;
 import org.apache.xerces.impl.xs.models.XSCMValidator;
@@ -28,6 +30,7 @@ import org.apache.xerces.xs.XSComplexTypeDefinition;
 import org.apache.xerces.xs.XSConstants;
 import org.apache.xerces.xs.XSElementDeclaration;
 import org.apache.xerces.xs.XSModelGroup;
+import org.apache.xerces.xs.XSNamespaceItem;
 import org.apache.xerces.xs.XSObject;
 import org.apache.xerces.xs.XSObjectList;
 import org.apache.xerces.xs.XSParticle;
@@ -334,6 +337,16 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 			return CMXSDDocument.getEnumerationValues((XSSimpleTypeDefinition) typeDefinition);
 		}
 		return Collections.emptyList();
+	}
+
+	XSElementDeclaration getElementDeclaration() {
+		return elementDeclaration;
+	}
+
+	@Override
+	public String getDocumentURI() {
+		SchemaGrammar schemaGrammar = document.getOwnerSchemaGrammar(elementDeclaration);
+		return CMXSDDocument.getSchemaURI(schemaGrammar);
 	}
 
 }

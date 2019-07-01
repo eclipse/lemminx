@@ -7,12 +7,17 @@ import org.eclipse.lsp4xml.extensions.contentmodel.participants.ContentModelCode
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.ContentModelCompletionParticipant;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.ContentModelDocumentLinkParticipant;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.ContentModelHoverParticipant;
+import org.eclipse.lsp4xml.extensions.contentmodel.participants.ContentModelTypeDefinitionParticipant;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.diagnostics.ContentModelDiagnosticsParticipant;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.ContentModelSettings;
+import org.eclipse.lsp4xml.services.extensions.ICodeActionParticipant;
 import org.eclipse.lsp4xml.services.extensions.ICompletionParticipant;
+import org.eclipse.lsp4xml.services.extensions.IDocumentLinkParticipant;
 import org.eclipse.lsp4xml.services.extensions.IHoverParticipant;
+import org.eclipse.lsp4xml.services.extensions.ITypeDefinitionParticipant;
 import org.eclipse.lsp4xml.services.extensions.IXMLExtension;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lsp4xml.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lsp4xml.services.extensions.save.ISaveContext;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
 import org.eclipse.lsp4xml.utils.DOMUtils;
@@ -32,22 +37,25 @@ public class ContentModelPlugin implements IXMLExtension {
 
 	private final IHoverParticipant hoverParticipant;
 
-	private final ContentModelDiagnosticsParticipant diagnosticsParticipant;
+	private final IDiagnosticsParticipant diagnosticsParticipant;
 
-	private final ContentModelCodeActionParticipant codeActionParticipant;
+	private final ICodeActionParticipant codeActionParticipant;
 
-	private final ContentModelDocumentLinkParticipant documentLinkParticipant;
+	private final IDocumentLinkParticipant documentLinkParticipant;
+
+	private final ITypeDefinitionParticipant typeDefinitionParticipant;
 
 	ContentModelManager contentModelManager;
 
 	private ContentModelSettings cmSettings;
-	
+
 	public ContentModelPlugin() {
 		completionParticipant = new ContentModelCompletionParticipant();
 		hoverParticipant = new ContentModelHoverParticipant();
 		diagnosticsParticipant = new ContentModelDiagnosticsParticipant(this);
 		codeActionParticipant = new ContentModelCodeActionParticipant();
 		documentLinkParticipant = new ContentModelDocumentLinkParticipant();
+		typeDefinitionParticipant = new ContentModelTypeDefinitionParticipant();
 	}
 
 	@Override
@@ -99,8 +107,7 @@ public class ContentModelPlugin implements IXMLExtension {
 		}
 		if (settings.getFileAssociations() != null) {
 			// Update XML file associations
-			boolean fileAssociationsChanged = contentModelManager
-					.setFileAssociations(settings.getFileAssociations());
+			boolean fileAssociationsChanged = contentModelManager.setFileAssociations(settings.getFileAssociations());
 			if (fileAssociationsChanged) {
 				// Validate all opened XML files
 				context.collectDocumentToValidate(d -> {
@@ -130,6 +137,7 @@ public class ContentModelPlugin implements IXMLExtension {
 		registry.registerDiagnosticsParticipant(diagnosticsParticipant);
 		registry.registerCodeActionParticipant(codeActionParticipant);
 		registry.registerDocumentLinkParticipant(documentLinkParticipant);
+		registry.registerTypeDefinitionParticipant(typeDefinitionParticipant);
 	}
 
 	@Override
@@ -139,6 +147,7 @@ public class ContentModelPlugin implements IXMLExtension {
 		registry.unregisterDiagnosticsParticipant(diagnosticsParticipant);
 		registry.unregisterCodeActionParticipant(codeActionParticipant);
 		registry.unregisterDocumentLinkParticipant(documentLinkParticipant);
+		registry.unregisterTypeDefinitionParticipant(typeDefinitionParticipant);
 	}
 
 	public ContentModelSettings getContentModelSettings() {

@@ -83,6 +83,10 @@ public class ClientCapabilitiesWrapper {
 		return v3Supported && isDynamicRegistrationSupported(getTextDocument().getDefinition());
 	}
 
+	public boolean isTypeDefinitionDynamicRegistered() {
+		return v3Supported && isDynamicRegistrationSupported(getTextDocument().getTypeDefinition());
+	}
+
 	public boolean isReferencesDynamicRegistrationSupported() {
 		return v3Supported && isDynamicRegistrationSupported(getTextDocument().getReferences());
 	}

@@ -107,4 +107,6 @@ public interface CMElementDeclaration {
 
 	Collection<String> getEnumerationValues();
 
+	String getDocumentURI();
+
 }

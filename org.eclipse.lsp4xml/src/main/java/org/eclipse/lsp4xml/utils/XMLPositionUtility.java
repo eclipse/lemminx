@@ -422,7 +422,12 @@ public class XMLPositionUtility {
 
 	public static LocationLink createLocationLink(DOMNode origin, DOMNode target) {
 		DOMDocument originDocument = origin.getOwnerDocument();
-		Range originSelectionRange = XMLPositionUtility.createRange(origin.getStart(), origin.getEnd(), originDocument);
+		Range originSelectionRange  = null;
+		if (origin.isElement()) {
+			originSelectionRange = selectStartTag(origin);
+		} else {
+			originSelectionRange = XMLPositionUtility.createRange(origin.getStart(), origin.getEnd(), originDocument);
+		}
 		DOMDocument targetDocument = target.getOwnerDocument();
 		Range targetRange = XMLPositionUtility.createRange(target.getStart(), target.getEnd(), targetDocument);
 		Range targetSelectionRange = targetRange;

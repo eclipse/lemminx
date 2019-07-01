@@ -74,6 +74,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 	private final XMLFoldings foldings;
 	private final XMLDocumentLink documentLink;
 	private final XMLDefinition definition;
+	private final XMLTypeDefinition typeDefinition;
 	private final XMLReference reference;
 	private final XMLCodeLens codelens;
 	private final XMLCodeActions codeActions;
@@ -89,6 +90,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		this.foldings = new XMLFoldings(this);
 		this.documentLink = new XMLDocumentLink(this);
 		this.definition = new XMLDefinition(this);
+		this.typeDefinition = new XMLTypeDefinition(this);
 		this.reference = new XMLReference(this);
 		this.codelens = new XMLCodeLens(this);
 		this.codeActions = new XMLCodeActions(this);
@@ -213,6 +215,11 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		return definition.findDefinition(xmlDocument, position, cancelChecker);
 	}
 
+	public List<? extends LocationLink> findTypeDefinition(DOMDocument xmlDocument, Position position,
+			CancelChecker cancelChecker) {
+		return typeDefinition.findTypeDefinition(xmlDocument, position, cancelChecker);
+	}
+	
 	public List<? extends Location> findReferences(DOMDocument xmlDocument, Position position, ReferenceContext context,
 			CancelChecker cancelChecker) {
 		return reference.findReferences(xmlDocument, position, context, cancelChecker);

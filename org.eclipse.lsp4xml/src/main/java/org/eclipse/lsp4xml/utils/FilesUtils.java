@@ -20,7 +20,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -126,7 +125,7 @@ public class FilesUtils {
 	 * @throws IOException
 	 */
 	public static void saveToFile(InputStream in, Path outFile) throws IOException {
-		saveToFile(toString(in), outFile);
+		saveToFile(IOUtils.convertStreamToString(in), outFile);
 	}
 
 	/**
@@ -143,13 +142,6 @@ public class FilesUtils {
 		}
 		try (Writer writer = Files.newBufferedWriter(outFile, StandardCharsets.UTF_8)) {
 			writer.write(content);
-		}
-	}
-
-	static String toString(InputStream is) {
-		try (Scanner s = new Scanner(is)) {
-			s.useDelimiter("\\A");
-			return s.hasNext() ? s.next() : "";
 		}
 	}
 

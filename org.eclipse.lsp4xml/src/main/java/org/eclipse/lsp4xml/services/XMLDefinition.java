@@ -11,13 +11,18 @@
 package org.eclipse.lsp4xml.services;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.services.extensions.IDefinitionParticipant;
+import org.eclipse.lsp4xml.services.extensions.IDefinitionRequest;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 
 /**
@@ -26,16 +31,26 @@ import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
  */
 class XMLDefinition {
 
+	private static final Logger LOGGER = Logger.getLogger(XMLTypeDefinition.class.getName());
+
 	private final XMLExtensionsRegistry extensionsRegistry;
 
 	public XMLDefinition(XMLExtensionsRegistry extensionsRegistry) {
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
-	public List<? extends LocationLink> findDefinition(DOMDocument document, Position position, CancelChecker cancelChecker) {
+	public List<? extends LocationLink> findDefinition(DOMDocument document, Position position,
+			CancelChecker cancelChecker) {
+		IDefinitionRequest request = null;
+		try {
+			request = new DefinitionRequest(document, position, extensionsRegistry);
+		} catch (BadLocationException e) {
+			LOGGER.log(Level.SEVERE, "Failed creating TypeDefinitionRequest", e);
+			return Collections.emptyList();
+		}
 		List<LocationLink> locations = new ArrayList<>();
 		for (IDefinitionParticipant participant : extensionsRegistry.getDefinitionParticipants()) {
-			participant.findDefinition(document, position, locations, cancelChecker);
+			participant.findDefinition(request, locations, cancelChecker);
 		}
 		return locations;
 	}

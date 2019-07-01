@@ -12,7 +12,6 @@ package org.eclipse.lsp4xml.extensions.xsd.participants;
 import java.util.List;
 
 import org.eclipse.lsp4j.LocationLink;
-import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.dom.DOMAttr;
 import org.eclipse.lsp4xml.dom.DOMDocument;
@@ -20,6 +19,7 @@ import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.extensions.xsd.utils.XSDUtils;
 import org.eclipse.lsp4xml.extensions.xsd.utils.XSDUtils.BindingType;
 import org.eclipse.lsp4xml.services.extensions.AbstractDefinitionParticipant;
+import org.eclipse.lsp4xml.services.extensions.IDefinitionRequest;
 import org.eclipse.lsp4xml.utils.DOMUtils;
 import org.eclipse.lsp4xml.utils.XMLPositionUtility;
 
@@ -43,12 +43,17 @@ public class XSDDefinitionParticipant extends AbstractDefinitionParticipant {
 	}
 
 	@Override
-	protected void findDefinition(DOMNode node, Position position, int offset, List<LocationLink> locations,
+	protected void doFindDefinition(IDefinitionRequest request, List<LocationLink> locations,
 			CancelChecker cancelChecker) {
+
 		// - xs:element/@type -> xs:complexType/@name
 		// - xs:extension/@base -> xs:complexType/@name
 		// - xs:element/@ref -> xs:complexType/@name
-		DOMAttr attr = node.findAttrAt(offset);
+		DOMNode node = request.getNode();
+		if (!node.isAttribute()) {
+			return;
+		}
+		DOMAttr attr = (DOMAttr) node;
 		BindingType bindingType = XSDUtils.getBindingType(attr);
 		if (bindingType != BindingType.NONE) {
 			XSDUtils.searchXSTargetAttributes(attr, bindingType, true, (targetNamespacePrefix, targetAttr) -> {

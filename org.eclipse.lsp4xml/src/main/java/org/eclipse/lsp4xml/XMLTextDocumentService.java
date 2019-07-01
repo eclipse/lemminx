@@ -134,7 +134,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 	private boolean codeActionLiteralSupport;
 	private boolean hierarchicalDocumentSymbolSupport;
 	private boolean definitionLinkSupport;
-
+	private boolean typeDefinitionLinkSupport;
+	
 	public XMLTextDocumentService(XMLLanguageServer xmlLanguageServer) {
 		this.xmlLanguageServer = xmlLanguageServer;
 		DOMParser parser = DOMParser.getInstance();
@@ -157,6 +158,9 @@ public class XMLTextDocumentService implements TextDocumentService {
 			definitionLinkSupport = textDocumentClientCapabilities.getDefinition() != null
 					&& textDocumentClientCapabilities.getDefinition().getLinkSupport() != null
 					&& textDocumentClientCapabilities.getDefinition().getLinkSupport();
+			typeDefinitionLinkSupport = textDocumentClientCapabilities.getTypeDefinition() != null
+					&& textDocumentClientCapabilities.getTypeDefinition().getLinkSupport() != null
+					&& textDocumentClientCapabilities.getTypeDefinition().getLinkSupport();			
 		}
 		if (extendedClientCapabilities != null) {
 			// Extended client capabilities
@@ -298,6 +302,23 @@ public class XMLTextDocumentService implements TextDocumentService {
 			}
 			List<? extends Location> locations = getXMLLanguageService()
 					.findDefinition(xmlDocument, params.getPosition(), cancelChecker) //
+					.stream() //
+					.map(locationLink -> XMLPositionUtility.toLocation(locationLink)) //
+					.collect(Collectors.toList());
+			return Either.forLeft(locations);
+		});
+	}
+	
+	@Override
+	public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> typeDefinition(
+			TextDocumentPositionParams params) {
+		return computeDOMAsync(params.getTextDocument(), (cancelChecker, xmlDocument) -> {
+			if (typeDefinitionLinkSupport) {
+				return Either.forRight(
+						getXMLLanguageService().findTypeDefinition(xmlDocument, params.getPosition(), cancelChecker));
+			}
+			List<? extends Location> locations = getXMLLanguageService()
+					.findTypeDefinition(xmlDocument, params.getPosition(), cancelChecker) //
 					.stream() //
 					.map(locationLink -> XMLPositionUtility.toLocation(locationLink)) //
 					.collect(Collectors.toList());

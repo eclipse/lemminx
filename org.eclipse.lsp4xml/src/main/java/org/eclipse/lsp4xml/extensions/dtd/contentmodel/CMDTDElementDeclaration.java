@@ -108,4 +108,8 @@ public class CMDTDElementDeclaration extends XMLElementDecl implements CMElement
 		return index;
 	}
 
+	@Override
+	public String getDocumentURI() {
+		return document.getURI();
+	}
 }
