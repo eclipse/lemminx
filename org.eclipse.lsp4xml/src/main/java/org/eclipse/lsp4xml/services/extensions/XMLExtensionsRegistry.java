@@ -41,6 +41,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	private final List<ICodeActionParticipant> codeActionsParticipants;
 	private final List<IDocumentLinkParticipant> documentLinkParticipants;
 	private final List<IDefinitionParticipant> definitionParticipants;
+	private final List<ITypeDefinitionParticipant> typeDefinitionParticipants;
 	private final List<IReferenceParticipant> referenceParticipants;
 	private final List<ICodeLensParticipant> codeLensParticipants;
 	private final List<IHighlightingParticipant> highlightingParticipants;
@@ -63,6 +64,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 		codeActionsParticipants = new ArrayList<>();
 		documentLinkParticipants = new ArrayList<>();
 		definitionParticipants = new ArrayList<>();
+		typeDefinitionParticipants = new ArrayList<>();
 		referenceParticipants = new ArrayList<>();
 		codeLensParticipants = new ArrayList<>();
 		highlightingParticipants = new ArrayList<>();
@@ -129,6 +131,11 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	public Collection<IDefinitionParticipant> getDefinitionParticipants() {
 		initializeIfNeeded();
 		return definitionParticipants;
+	}
+
+	public Collection<ITypeDefinitionParticipant> getTypeDefinitionParticipants() {
+		initializeIfNeeded();
+		return typeDefinitionParticipants;
 	}
 
 	public Collection<IReferenceParticipant> getReferenceParticipants() {
@@ -227,6 +234,14 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 
 	public void unregisterDefinitionParticipant(IDefinitionParticipant definitionParticipant) {
 		definitionParticipants.add(definitionParticipant);
+	}
+
+	public void registerTypeDefinitionParticipant(ITypeDefinitionParticipant typeDefinitionParticipant) {
+		typeDefinitionParticipants.add(typeDefinitionParticipant);
+	}
+
+	public void unregisterTypeDefinitionParticipant(ITypeDefinitionParticipant typeDefinitionParticipant) {
+		typeDefinitionParticipants.add(typeDefinitionParticipant);
 	}
 
 	public void registerReferenceParticipant(IReferenceParticipant referenceParticipant) {

@@ -16,41 +16,41 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 
 /**
- * Abstract class for definition.
+ * Abstract class for type definition.
  * 
  * @author Angelo ZERR
  *
  */
-public abstract class AbstractDefinitionParticipant implements IDefinitionParticipant {
+public abstract class AbstractTypeDefinitionParticipant implements ITypeDefinitionParticipant {
 
 	@Override
-	public final void findDefinition(IDefinitionRequest request, List<LocationLink> locations,
+	public final void findTypeDefinition(ITypeDefinitionRequest request, List<LocationLink> locations,
 			CancelChecker cancelChecker) {
 		DOMDocument document = request.getXMLDocument();
 		if (!match(document)) {
 			return;
 		}
-		doFindDefinition(request, locations, cancelChecker);
+		doFindTypeDefinition(request, locations, cancelChecker);
 	}
 
 	/**
-	 * Returns true if the definition support is applicable for the given document
-	 * and false otherwise.
+	 * Returns true if the type definition support is applicable for the given
+	 * document and false otherwise.
 	 * 
 	 * @param document
-	 * @return true if the definition support is applicable for the given document
-	 *         and false otherwise.
+	 * @return true if the type definition support is applicable for the given
+	 *         document and false otherwise.
 	 */
 	protected abstract boolean match(DOMDocument document);
 
 	/**
-	 * Find the definition
+	 * Find the type definition
 	 * 
 	 * @param request
 	 * @param locations
 	 * @param cancelChecker
 	 */
-	protected abstract void doFindDefinition(IDefinitionRequest request, List<LocationLink> locations,
+	protected abstract void doFindTypeDefinition(ITypeDefinitionRequest request, List<LocationLink> locations,
 			CancelChecker cancelChecker);
 
 }

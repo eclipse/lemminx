@@ -51,7 +51,6 @@ import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4xml.client.CodeLensKind;
 import org.eclipse.lsp4xml.client.CodeLensKindCapabilities;
-import org.eclipse.lsp4xml.client.ExtendedClientCapabilities;
 import org.eclipse.lsp4xml.client.ExtendedCodeLensCapabilities;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
@@ -668,7 +667,55 @@ public class XMLAssert {
 
 	public static void assertLocationLink(List<? extends LocationLink> actual, LocationLink... expected) {
 		Assert.assertEquals(expected.length, actual.size());
+		for (int i = 0; i < expected.length; i++) {
+			actual.get(i).setTargetUri(actual.get(i).getTargetUri().replaceAll("file:///", "file:/"));
+			expected[i].setTargetUri(expected[i].getTargetUri().replaceAll("file:///", "file:/"));
+		}
 		Assert.assertArrayEquals(expected, actual.toArray());
+	}
+
+	// ------------------- Type Definition assert
+
+	public static void testTypeDefinitionFor(XMLLanguageService xmlLanguageService, String value, String fileURI,
+			LocationLink... expected) throws BadLocationException {
+		testTypeDefinitionFor(xmlLanguageService, null, value, fileURI, expected);
+	}
+
+	public static void testTypeDefinitionFor(XMLLanguageService xmlLanguageService, String catalogPath, String value,
+			String fileURI, LocationLink... expected) throws BadLocationException {
+		testTypeDefinitionFor(xmlLanguageService, catalogPath, null, value, fileURI, expected);
+	}
+
+	public static void testTypeDefinitionFor(XMLLanguageService xmlLanguageService, String catalogPath,
+			Consumer<XMLLanguageService> customConfiguration, String value, String fileURI, LocationLink... expected)
+			throws BadLocationException {
+		int offset = value.indexOf('|');
+		value = value.substring(0, offset) + value.substring(offset + 1);
+
+		TextDocument document = new TextDocument(value, fileURI != null ? fileURI : "test://test/test.xml");
+		Position position = document.positionAt(offset);
+
+		ContentModelSettings cmSettings = new ContentModelSettings();
+		cmSettings.setUseCache(false);
+		// Configure XML catalog for XML schema
+		if (catalogPath != null) {
+			cmSettings.setCatalogs(new String[] { catalogPath });
+		}
+		xmlLanguageService.doSave(new SettingsSaveContext(cmSettings));
+		xmlLanguageService.initializeIfNeeded();
+
+		if (customConfiguration != null) {
+			customConfiguration.accept(xmlLanguageService);
+		}
+
+		DOMDocument xmlDocument = DOMParser.getInstance().parse(document,
+				xmlLanguageService.getResolverExtensionManager());
+		xmlLanguageService.setDocumentProvider((uri) -> xmlDocument);
+
+		List<? extends LocationLink> actual = xmlLanguageService.findTypeDefinition(xmlDocument, position, () -> {
+		});
+		assertLocationLink(actual, expected);
+
 	}
 
 	// ------------------- Reference assert

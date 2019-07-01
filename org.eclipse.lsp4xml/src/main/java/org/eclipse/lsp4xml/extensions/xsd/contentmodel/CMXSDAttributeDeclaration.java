@@ -171,7 +171,7 @@ public class CMXSDAttributeDeclaration implements CMAttributeDeclaration {
 		return attributeUse.getRequired();
 	}
 
-	private XSAttributeDeclaration getAttrDeclaration() {
+	XSAttributeDeclaration getAttrDeclaration() {
 		return attributeUse.getAttrDeclaration();
 	}
 

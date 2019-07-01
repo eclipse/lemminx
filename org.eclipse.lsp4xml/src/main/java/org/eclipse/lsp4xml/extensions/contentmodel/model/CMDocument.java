@@ -12,7 +12,9 @@ package org.eclipse.lsp4xml.extensions.contentmodel.model;
 
 import java.util.Collection;
 
+import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4xml.dom.DOMElement;
+import org.eclipse.lsp4xml.dom.DOMNode;
 
 /**
  * Content model document which abstracts element declaration from a given
@@ -48,10 +50,17 @@ public interface CMDocument {
 	CMElementDeclaration findCMElement(DOMElement element, String namespace);
 
 	/**
-	 * Returns the URI of the model document.
+	 * Returns the root URI of the model document.
 	 * 
-	 * @return the URI of the model document.
+	 * @return the root URI of the model document.
 	 */
 	String getURI();
 
+	/**
+	 * Returns the location of the type definition of the given node.
+	 * 
+	 * @param node the node
+	 * @return the location of the type definition of the given node.
+	 */
+	LocationLink findTypeLocation(DOMNode node);
 }

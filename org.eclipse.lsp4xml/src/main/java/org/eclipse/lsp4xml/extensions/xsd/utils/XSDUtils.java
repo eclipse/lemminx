@@ -341,4 +341,8 @@ public class XSDUtils {
 	public static boolean isXSTargetElement(Element element) {
 		return isXSComplexType(element) || isXSSimpleType(element) || isXSElement(element) || isXSGroup(element);
 	}
+
+	public static boolean isXSAttribute(DOMElement element) {
+		return "attribute".equals(element.getLocalName());
+	}
 }

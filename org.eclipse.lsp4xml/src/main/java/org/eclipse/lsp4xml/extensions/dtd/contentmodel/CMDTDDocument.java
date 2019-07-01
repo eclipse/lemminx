@@ -26,7 +26,9 @@ import org.apache.xerces.xni.Augmentations;
 import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.grammars.Grammar;
 import org.apache.xerces.xni.parser.XMLInputSource;
+import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4xml.dom.DOMElement;
+import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMElementDeclaration;
@@ -181,5 +183,10 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 			attributes.add(attributeDecl);
 			index = grammar.getNextAttributeDeclIndex(index);
 		}
+	}
+
+	@Override
+	public LocationLink findTypeLocation(DOMNode node) {
+		return null;
 	}
 }

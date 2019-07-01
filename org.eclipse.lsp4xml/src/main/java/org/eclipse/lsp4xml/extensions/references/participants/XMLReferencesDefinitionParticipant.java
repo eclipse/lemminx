@@ -13,12 +13,12 @@ package org.eclipse.lsp4xml.extensions.references.participants;
 import java.util.List;
 
 import org.eclipse.lsp4j.LocationLink;
-import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.extensions.references.XMLReferencesManager;
 import org.eclipse.lsp4xml.services.extensions.AbstractDefinitionParticipant;
+import org.eclipse.lsp4xml.services.extensions.IDefinitionRequest;
 import org.eclipse.lsp4xml.utils.XMLPositionUtility;
 
 public class XMLReferencesDefinitionParticipant extends AbstractDefinitionParticipant {
@@ -29,8 +29,9 @@ public class XMLReferencesDefinitionParticipant extends AbstractDefinitionPartic
 	}
 
 	@Override
-	protected void findDefinition(DOMNode origin, Position position, int offset, List<LocationLink> locations,
+	protected void doFindDefinition(IDefinitionRequest request, List<LocationLink> locations,
 			CancelChecker cancelChecker) {
+		DOMNode origin = request.getNode();
 		XMLReferencesManager.getInstance().collect(origin, target -> {
 			LocationLink location = XMLPositionUtility.createLocationLink(origin, target);
 			locations.add(location);
