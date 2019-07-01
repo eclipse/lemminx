@@ -61,48 +61,50 @@ public class XSDUtils {
 	 *         target attribute.
 	 */
 	public static BindingType getBindingType(DOMAttr originAttr) {
-		String name = originAttr.getName();
-		if ("type".equals(name)) {
-			if ("attribute".equals(originAttr.getOwnerElement().getLocalName())) {
-				// - <xs:attribute type="
-				return BindingType.SIMPLE;
-			}
-			// - <xs:element type="
-			return BindingType.COMPLEX_AND_SIMPLE;
-		}
-		if ("base".equals(name)) {
-			// - <xs:restriction base="
-			// - <xs:extension base="
-			DOMElement element = originAttr.getOwnerElement();
-			DOMElement parent = element.getParentElement();
-			if (parent != null) {
-				if (parent.getLocalName().equals("complexContent") || isXSComplexType(parent)) {
-					// parent element is complexContent or complexType -> bounded type is complex
-					return BindingType.COMPLEX;
-				}
-				if (parent.getLocalName().equals("simpleContent") || isXSSimpleType(parent)) {
-					// parent element is simpleContent or simpleType -> bounded type is simple
+		if (originAttr != null) {
+			String name = originAttr.getName();
+			if ("type".equals(name)) {
+				if ("attribute".equals(originAttr.getOwnerElement().getLocalName())) {
+					// - <xs:attribute type="
 					return BindingType.SIMPLE;
 				}
+				// - <xs:element type="
+				return BindingType.COMPLEX_AND_SIMPLE;
 			}
-			return BindingType.NONE;
-		}
-		if ("ref".equals(name)) {
-			// - <xs:element ref="
-			// - <xs:group ref="
-			return BindingType.REF;
-		}
-		if ("itemType".equals(name)) {
-			// - <xs:list itemType="
-			return BindingType.COMPLEX_AND_SIMPLE;
-		}
-		if ("memberTypes".equals(name)) {
-			// - <xs:union memberTypes="
-			return BindingType.COMPLEX_AND_SIMPLE;
-		}
-		if ("substitutionGroup".equals(name)) {
-			// - <xs:element substitutionGroup
-			return BindingType.ELEMENT;
+			if ("base".equals(name)) {
+				// - <xs:restriction base="
+				// - <xs:extension base="
+				DOMElement element = originAttr.getOwnerElement();
+				DOMElement parent = element.getParentElement();
+				if (parent != null) {
+					if (parent.getLocalName().equals("complexContent") || isXSComplexType(parent)) {
+						// parent element is complexContent or complexType -> bounded type is complex
+						return BindingType.COMPLEX;
+					}
+					if (parent.getLocalName().equals("simpleContent") || isXSSimpleType(parent)) {
+						// parent element is simpleContent or simpleType -> bounded type is simple
+						return BindingType.SIMPLE;
+					}
+				}
+				return BindingType.NONE;
+			}
+			if ("ref".equals(name)) {
+				// - <xs:element ref="
+				// - <xs:group ref="
+				return BindingType.REF;
+			}
+			if ("itemType".equals(name)) {
+				// - <xs:list itemType="
+				return BindingType.COMPLEX_AND_SIMPLE;
+			}
+			if ("memberTypes".equals(name)) {
+				// - <xs:union memberTypes="
+				return BindingType.COMPLEX_AND_SIMPLE;
+			}
+			if ("substitutionGroup".equals(name)) {
+				// - <xs:element substitutionGroup
+				return BindingType.ELEMENT;
+			}
 		}
 		return BindingType.NONE;
 	}
@@ -282,8 +284,8 @@ public class XSDUtils {
 		}
 	}
 
-	private static void searchXSOriginAttributes(NodeList nodes, List<DOMAttr> targetAttrs, String targetNamespacePrefix,
-			BiConsumer<DOMAttr, DOMAttr> collector, CancelChecker cancelChecker) {
+	private static void searchXSOriginAttributes(NodeList nodes, List<DOMAttr> targetAttrs,
+			String targetNamespacePrefix, BiConsumer<DOMAttr, DOMAttr> collector, CancelChecker cancelChecker) {
 		for (int i = 0; i < nodes.getLength(); i++) {
 			if (cancelChecker != null) {
 				cancelChecker.checkCanceled();
