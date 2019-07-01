@@ -69,7 +69,7 @@ public abstract class DOMNode implements Node {
 
 	DOMNode parent;
 
-	class XMLNodeList<T extends DOMNode> extends ArrayList<T> implements NodeList {
+	static class XMLNodeList<T extends DOMNode> extends ArrayList<T> implements NodeList {
 
 		private static final long serialVersionUID = 1L;
 
@@ -85,7 +85,7 @@ public abstract class DOMNode implements Node {
 
 	}
 
-	class XMLNamedNodeMap<T extends DOMNode> extends ArrayList<T> implements NamedNodeMap {
+	static class XMLNamedNodeMap<T extends DOMNode> extends ArrayList<T> implements NamedNodeMap {
 
 		private static final long serialVersionUID = 1L;
 
