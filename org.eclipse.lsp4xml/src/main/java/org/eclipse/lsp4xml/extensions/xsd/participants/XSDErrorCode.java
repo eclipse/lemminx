@@ -18,6 +18,8 @@ import org.apache.xerces.xni.XMLLocator;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMNode;
+import org.eclipse.lsp4xml.extensions.contentmodel.participants.codeactions.s4s_elt_invalid_content_3CodeAction;
+import org.eclipse.lsp4xml.services.extensions.ICodeActionParticipant;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IXMLErrorCode;
 import org.eclipse.lsp4xml.utils.XMLPositionUtility;
 
@@ -40,6 +42,7 @@ public enum XSDErrorCode implements IXMLErrorCode {
 	s4s_att_not_allowed("s4s-att-not-allowed"), //
 	s4s_att_invalid_value("s4s-att-invalid-value"), //
 	s4s_elt_character("s4s-elt-character"), //
+	s4s_elt_invalid_content_3("s4s-elt-invalid-content.3"), //
 	sch_props_correct_2("sch-props-correct.2"),
 	src_ct_1("src-ct.1"),
 	src_element_3("src-element.3"),
@@ -117,6 +120,7 @@ public enum XSDErrorCode implements IXMLErrorCode {
 		case s4s_elt_must_match_2:
 		case s4s_att_must_appear:
 		case s4s_elt_invalid_content_2:
+		case s4s_elt_invalid_content_3:
 		case src_element_2_1:
 		case src_element_3:
 			return XMLPositionUtility.selectStartTag(offset, document);
@@ -149,5 +153,9 @@ public enum XSDErrorCode implements IXMLErrorCode {
 			return XMLPositionUtility.selectAttributeValueAt("targetNamespace", offset, document);
 		}
 		return null;
+	}
+
+	public static void registerCodeActionParticipants(Map<String, ICodeActionParticipant> codeActions) {
+		codeActions.put(s4s_elt_invalid_content_3.getCode(), new s4s_elt_invalid_content_3CodeAction());
 	}
 }

@@ -10,7 +10,10 @@
  */
 package org.eclipse.lsp4xml.extensions.xsd;
 
+import static org.eclipse.lsp4xml.XMLAssert.ca;
 import static org.eclipse.lsp4xml.XMLAssert.d;
+import static org.eclipse.lsp4xml.XMLAssert.te;
+import static org.eclipse.lsp4xml.XMLAssert.testCodeActionsFor;
 
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4xml.XMLAssert;
@@ -188,6 +191,28 @@ public class XSDValidationExtensionsTest {
 				"</xs:schema>";
 		testDiagnosticsFor(xml, d(3, 18, 3, 20, XSDErrorCode.s4s_att_invalid_value),
 				d(3, 2, 3, 12, XSDErrorCode.s4s_att_must_appear));
+	}
+
+	@Test
+	public void s4s_elt_invalid_content_3WithClosingTag() throws BadLocationException {
+		String xml = "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" elementFormDefault=\"qualified\">\r\n" +
+				"	<xs:element name=\"project\" type=\"xs:string\"></xs:element>\r\n" +
+				"	<xs:import></xs:import>\r\n" +
+				"</xs:schema>";
+		Diagnostic d = d(2, 2, 2, 11, XSDErrorCode.s4s_elt_invalid_content_3);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(2, 1, 2, 24, "")));
+	}
+
+	@Test
+	public void s4s_elt_invalid_content_3WithSelfClosingTag() throws BadLocationException {
+		String xml = "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" elementFormDefault=\"qualified\">\r\n" +
+				"	<xs:element name=\"project\" type=\"xs:string\"></xs:element>\r\n" +
+				"	<xs:import/>\r\n" +
+				"</xs:schema>";
+		Diagnostic d = d(2, 2, 2, 11, XSDErrorCode.s4s_elt_invalid_content_3);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(2, 1, 2, 13, "")));
 	}
 
 	@Test

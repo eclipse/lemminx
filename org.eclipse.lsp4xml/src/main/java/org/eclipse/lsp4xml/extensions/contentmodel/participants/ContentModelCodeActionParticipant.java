@@ -18,6 +18,7 @@ import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.dom.DOMDocument;
+import org.eclipse.lsp4xml.extensions.xsd.participants.XSDErrorCode;
 import org.eclipse.lsp4xml.services.extensions.ICodeActionParticipant;
 import org.eclipse.lsp4xml.services.extensions.IComponentProvider;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
@@ -35,6 +36,7 @@ public class ContentModelCodeActionParticipant implements ICodeActionParticipant
 		XMLSyntaxErrorCode.registerCodeActionParticipants(codeActionParticipants);
 		DTDErrorCode.registerCodeActionParticipants(codeActionParticipants);
 		XMLSchemaErrorCode.registerCodeActionParticipants(codeActionParticipants);
+		XSDErrorCode.registerCodeActionParticipants(codeActionParticipants);
 	}
 
 	@Override
