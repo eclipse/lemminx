@@ -30,6 +30,7 @@ import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
+import org.eclipse.lsp4xml.client.ExtendedClientCapabilities;
 import org.eclipse.lsp4xml.commons.ModelTextDocument;
 import org.eclipse.lsp4xml.commons.ParentProcessWatcher.ProcessLanguageServer;
 import org.eclipse.lsp4xml.customservice.AutoCloseTagResponse;
@@ -52,6 +53,7 @@ import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.settings.XMLGeneralClientSettings;
 import org.eclipse.lsp4xml.settings.XMLIncrementalSupportSettings;
 import org.eclipse.lsp4xml.settings.XMLSymbolSettings;
+import org.eclipse.lsp4xml.settings.capabilities.InitializationOptionsExtendedClientCapabilities;
 import org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesInitializer;
 import org.eclipse.lsp4xml.settings.capabilities.XMLCapabilityManager;
 import org.eclipse.lsp4xml.utils.FilesUtils;
@@ -89,10 +91,13 @@ public class XMLLanguageServer
 		// Update XML language service extensions with InitializeParams
 		xmlLanguageService.initializeParams(params);
 
-		capabilityManager.setClientCapabilities(params.getCapabilities());
+		ExtendedClientCapabilities extendedClientCapabilities = InitializationOptionsExtendedClientCapabilities
+				.getExtendedClientCapabilities(params);
+		capabilityManager.setClientCapabilities(params.getCapabilities(), extendedClientCapabilities);
 		updateSettings(InitializationOptionsSettings.getSettings(params));
 
-		xmlTextDocumentService.updateClientCapabilities(capabilityManager.getClientCapabilities().capabilities);
+		xmlTextDocumentService.updateClientCapabilities(capabilityManager.getClientCapabilities().capabilities,
+				capabilityManager.getClientCapabilities().getExtendedCapabilities());
 		ServerCapabilities nonDynamicServerCapabilities = ServerCapabilitiesInitializer.getNonDynamicServerCapabilities(
 				capabilityManager.getClientCapabilities(), xmlTextDocumentService.isIncrementalSupport());
 

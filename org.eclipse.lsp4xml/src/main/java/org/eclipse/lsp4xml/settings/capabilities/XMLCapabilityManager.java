@@ -48,6 +48,7 @@ import org.eclipse.lsp4j.Unregistration;
 import org.eclipse.lsp4j.UnregistrationParams;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4xml.XMLTextDocumentService;
+import org.eclipse.lsp4xml.client.ExtendedClientCapabilities;
 import org.eclipse.lsp4xml.settings.XMLCodeLensSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.settings.XMLSymbolSettings;
@@ -61,10 +62,11 @@ import org.eclipse.lsp4xml.settings.XMLSymbolSettings;
  */
 public class XMLCapabilityManager {
 
+	private final Set<String> registeredCapabilities = new HashSet<>(3);
+	private final LanguageClient languageClient;
+	private final XMLTextDocumentService textDocumentService;
+
 	private ClientCapabilitiesWrapper clientWrapper;
-	private Set<String> registeredCapabilities = new HashSet<>(3);
-	private LanguageClient languageClient;
-	private XMLTextDocumentService textDocumentService;
 
 	public XMLCapabilityManager(LanguageClient languageClient, XMLTextDocumentService textDocumentService) {
 		this.languageClient = languageClient;
@@ -76,9 +78,11 @@ public class XMLCapabilityManager {
 	 * clientCapabilities
 	 * 
 	 * @param clientCapabilities
+	 * @param extendedClientCapabilities
 	 */
-	public void setClientCapabilities(ClientCapabilities clientCapabilities) {
-		this.clientWrapper = new ClientCapabilitiesWrapper(clientCapabilities);
+	public void setClientCapabilities(ClientCapabilities clientCapabilities,
+			ExtendedClientCapabilities extendedClientCapabilities) {
+		this.clientWrapper = new ClientCapabilitiesWrapper(clientCapabilities, extendedClientCapabilities);
 	}
 
 	public ClientCapabilitiesWrapper getClientCapabilities() {

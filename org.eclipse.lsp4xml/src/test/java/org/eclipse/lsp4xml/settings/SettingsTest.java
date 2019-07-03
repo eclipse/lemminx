@@ -20,17 +20,21 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-
 import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4xml.XMLLanguageServer;
 import org.eclipse.lsp4xml.XMLTextDocumentService;
+import org.eclipse.lsp4xml.client.CodeLensKind;
+import org.eclipse.lsp4xml.client.ExtendedClientCapabilities;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.ContentModelSettings;
+import org.eclipse.lsp4xml.settings.capabilities.InitializationOptionsExtendedClientCapabilities;
 import org.eclipse.lsp4xml.utils.FilesUtils;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Test;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 /**
  * Tests for settings.
@@ -90,7 +94,16 @@ public class SettingsTest {
 	"				\"excluded\": [\"**\\\\*.xsd\", \"**\\\\*.xml\"]\r\n" + //
 	"			}\r\n" + 
 	"		}\r\n" + 
-	"	}\r\n" + 
+	"	}\r\n" +
+	"	,\"extendedClientCapabilities\": {\r\n" + 
+	"      \"codeLens\": {\r\n" + 
+	"        \"codeLensKind\": {\r\n" + 
+	"          \"valueSet\": [\r\n" + 
+	"            \"references\"\r\n" + 
+	"          ]\r\n" + 
+	"        }\r\n" + 
+	"      }\r\n" + 
+	"   }" +	
 	"}";
 	// @formatter:on
 
@@ -228,4 +241,17 @@ public class SettingsTest {
 		XMLTextDocumentService textDocumentService = (XMLTextDocumentService) languageServer.getTextDocumentService();
 	}
 
+	@Test
+	public void extendedClientCapabilitiesTest() {
+		InitializeParams params = createInitializeParams(json);
+		ExtendedClientCapabilities clientCapabilities = InitializationOptionsExtendedClientCapabilities
+				.getExtendedClientCapabilities(params);
+		Assert.assertNotNull(clientCapabilities);
+		Assert.assertNotNull(clientCapabilities.getCodeLens());
+		Assert.assertNotNull(clientCapabilities.getCodeLens().getCodeLensKind());
+		Assert.assertNotNull(clientCapabilities.getCodeLens().getCodeLensKind().getValueSet());
+		Assert.assertEquals(1, clientCapabilities.getCodeLens().getCodeLensKind().getValueSet().size());
+		Assert.assertEquals(CodeLensKind.References,
+				clientCapabilities.getCodeLens().getCodeLensKind().getValueSet().get(0));
+	}
 }

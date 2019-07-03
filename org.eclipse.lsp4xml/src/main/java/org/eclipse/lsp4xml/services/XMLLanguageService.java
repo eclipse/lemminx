@@ -46,6 +46,7 @@ import org.eclipse.lsp4xml.dom.DOMElement;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.settings.SharedSettings;
+import org.eclipse.lsp4xml.settings.XMLCodeLensSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.uriresolver.CacheResourceDownloadingException;
 import org.eclipse.lsp4xml.utils.XMLPositionUtility;
@@ -217,8 +218,8 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		return reference.findReferences(xmlDocument, position, context, cancelChecker);
 	}
 
-	public List<? extends CodeLens> getCodeLens(DOMDocument xmlDocument, CancelChecker cancelChecker) {
-		return codelens.getCodelens(xmlDocument, cancelChecker);
+	public List<? extends CodeLens> getCodeLens(DOMDocument xmlDocument, XMLCodeLensSettings settings, CancelChecker cancelChecker) {
+		return codelens.getCodelens(xmlDocument, settings, cancelChecker);
 	}
 
 	public List<CodeAction> doCodeActions(CodeActionContext context, Range range, DOMDocument document,

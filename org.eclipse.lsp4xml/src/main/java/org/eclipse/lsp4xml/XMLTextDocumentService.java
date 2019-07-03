@@ -64,6 +64,7 @@ import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.TextDocumentService;
+import org.eclipse.lsp4xml.client.ExtendedClientCapabilities;
 import org.eclipse.lsp4xml.commons.ModelTextDocument;
 import org.eclipse.lsp4xml.commons.ModelTextDocuments;
 import org.eclipse.lsp4xml.commons.TextDocument;
@@ -143,7 +144,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 		this.sharedSettings = new SharedSettings();
 	}
 
-	public void updateClientCapabilities(ClientCapabilities capabilities) {
+	public void updateClientCapabilities(ClientCapabilities capabilities, ExtendedClientCapabilities extendedClientCapabilities) {
 		TextDocumentClientCapabilities textDocumentClientCapabilities = capabilities.getTextDocument();
 		if (textDocumentClientCapabilities != null) {
 			// Completion settings
@@ -156,6 +157,10 @@ public class XMLTextDocumentService implements TextDocumentService {
 			definitionLinkSupport = textDocumentClientCapabilities.getDefinition() != null
 					&& textDocumentClientCapabilities.getDefinition().getLinkSupport() != null
 					&& textDocumentClientCapabilities.getDefinition().getLinkSupport();
+		}
+		if (extendedClientCapabilities != null) {
+			// Extended client capabilities
+			sharedSettings.getCodeLensSettings().setCodeLens(extendedClientCapabilities.getCodeLens());			
 		}
 	}
 
@@ -314,7 +319,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 			return CompletableFuture.completedFuture(Collections.emptyList());
 		}
 		return computeDOMAsync(params.getTextDocument(), (cancelChecker, xmlDocument) -> {
-			return getXMLLanguageService().getCodeLens(xmlDocument, cancelChecker);
+			return getXMLLanguageService().getCodeLens(xmlDocument, sharedSettings.getCodeLensSettings(), cancelChecker);
 		});
 	}
 

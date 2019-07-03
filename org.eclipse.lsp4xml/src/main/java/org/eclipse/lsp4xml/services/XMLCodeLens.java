@@ -17,7 +17,9 @@ import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.services.extensions.ICodeLensParticipant;
+import org.eclipse.lsp4xml.services.extensions.ICodeLensRequest;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lsp4xml.settings.XMLCodeLensSettings;
 
 /**
  * XML Code Lens support.
@@ -31,10 +33,11 @@ class XMLCodeLens {
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
-	public List<? extends CodeLens> getCodelens(DOMDocument xmlDocument, CancelChecker cancelChecker) {
+	public List<? extends CodeLens> getCodelens(DOMDocument xmlDocument, XMLCodeLensSettings settings, CancelChecker cancelChecker) {
+		ICodeLensRequest request = new CodeLensRequest(xmlDocument, settings);
 		List<CodeLens> lenses = new ArrayList<>();
 		for (ICodeLensParticipant participant : extensionsRegistry.getCodeLensParticipants()) {
-			participant.doCodeLens(xmlDocument, lenses, cancelChecker);
+			participant.doCodeLens(request, lenses, cancelChecker);
 		}
 		return lenses;
 	}
