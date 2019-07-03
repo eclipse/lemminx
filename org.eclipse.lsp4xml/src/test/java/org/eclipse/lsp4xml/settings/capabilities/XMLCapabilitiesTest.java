@@ -211,7 +211,7 @@ public class XMLCapabilitiesTest {
 
 	private void setAndInitializeCapabilities() {
 		clientCapabilities.setTextDocument(textDocument);
-		manager.setClientCapabilities(clientCapabilities);
+		manager.setClientCapabilities(clientCapabilities, null);
 		manager.initializeCapabilities();
 		capabilityIDs = manager.getRegisteredCapabilities();
 	}

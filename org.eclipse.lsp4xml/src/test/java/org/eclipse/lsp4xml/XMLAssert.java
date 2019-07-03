@@ -49,6 +49,10 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.eclipse.lsp4xml.client.CodeLensKind;
+import org.eclipse.lsp4xml.client.CodeLensKindCapabilities;
+import org.eclipse.lsp4xml.client.ExtendedClientCapabilities;
+import org.eclipse.lsp4xml.client.ExtendedCodeLensCapabilities;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.customservice.AutoCloseTagResponse;
@@ -61,6 +65,7 @@ import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IXMLErrorCode;
 import org.eclipse.lsp4xml.services.extensions.save.AbstractSaveContext;
 import org.eclipse.lsp4xml.settings.SharedSettings;
+import org.eclipse.lsp4xml.settings.XMLCodeLensSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.utils.StringUtils;
 import org.junit.Assert;
@@ -726,16 +731,18 @@ public class XMLAssert {
 				xmlLanguageService.getResolverExtensionManager());
 		xmlLanguageService.setDocumentProvider((uri) -> xmlDocument);
 
-		List<? extends CodeLens> actual = xmlLanguageService.getCodeLens(xmlDocument, () -> {
+		XMLCodeLensSettings codeLensSettings = new XMLCodeLensSettings();
+		ExtendedCodeLensCapabilities codeLensCapabilities = new ExtendedCodeLensCapabilities(
+				new CodeLensKindCapabilities(Arrays.asList(CodeLensKind.References)));
+		codeLensSettings.setCodeLens(codeLensCapabilities);
+		List<? extends CodeLens> actual = xmlLanguageService.getCodeLens(xmlDocument, codeLensSettings, () -> {
 		});
 		assertCodeLens(actual, expected);
 
 	}
 
-	public static CodeLens cl(Range range, String title) {
-		Command command = new Command();
-		command.setTitle(title);
-		return new CodeLens(range, command, null);
+	public static CodeLens cl(Range range, String title, String command) {
+		return new CodeLens(range, new Command(title, command), null);
 	}
 
 	public static void assertCodeLens(List<? extends CodeLens> actual, CodeLens... expected) {

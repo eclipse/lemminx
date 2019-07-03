@@ -14,6 +14,7 @@ package org.eclipse.lsp4xml.settings.capabilities;
 import org.eclipse.lsp4j.ClientCapabilities;
 import org.eclipse.lsp4j.DynamicRegistrationCapabilities;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
+import org.eclipse.lsp4xml.client.ExtendedClientCapabilities;
 
 /**
  * Determines if a client supports a specific capability dynamically
@@ -23,14 +24,16 @@ public class ClientCapabilitiesWrapper {
 
 	public ClientCapabilities capabilities;
 
+	private final ExtendedClientCapabilities extendedCapabilities;
+
 	public ClientCapabilitiesWrapper() {
-		this.capabilities = new ClientCapabilities();
-		this.v3Supported = false;
+		this(new ClientCapabilities(), null);
 	}
 
-	public ClientCapabilitiesWrapper(ClientCapabilities capabilities) {
+	public ClientCapabilitiesWrapper(ClientCapabilities capabilities, ExtendedClientCapabilities extendedCapabilities) {
 		this.capabilities = capabilities;
 		this.v3Supported = capabilities != null ? capabilities.getTextDocument() != null : false;
+		this.extendedCapabilities = extendedCapabilities;
 	}
 
 	/**
@@ -75,11 +78,11 @@ public class ClientCapabilitiesWrapper {
 	public boolean isCodeLensDynamicRegistrationSupported() {
 		return v3Supported && isDynamicRegistrationSupported(getTextDocument().getCodeLens());
 	}
-	
+
 	public boolean isDefinitionDynamicRegistered() {
 		return v3Supported && isDynamicRegistrationSupported(getTextDocument().getDefinition());
 	}
-	
+
 	public boolean isReferencesDynamicRegistrationSupported() {
 		return v3Supported && isDynamicRegistrationSupported(getTextDocument().getReferences());
 	}
@@ -95,7 +98,7 @@ public class ClientCapabilitiesWrapper {
 	public boolean isDocumentHighlightDynamicRegistered() {
 		return v3Supported && isDynamicRegistrationSupported(getTextDocument().getDocumentHighlight());
 	}
-	
+
 	private boolean isDynamicRegistrationSupported(DynamicRegistrationCapabilities capability) {
 		return capability != null && capability.getDynamicRegistration() != null
 				&& capability.getDynamicRegistration().booleanValue();
@@ -105,4 +108,7 @@ public class ClientCapabilitiesWrapper {
 		return this.capabilities.getTextDocument();
 	}
 
+	public ExtendedClientCapabilities getExtendedCapabilities() {
+		return extendedCapabilities;
+	}
 }
