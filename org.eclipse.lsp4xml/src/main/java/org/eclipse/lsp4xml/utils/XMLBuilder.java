@@ -242,7 +242,6 @@ public class XMLBuilder {
 				int newLineCount = StringUtils.getNumberOfNewLines(text, isWhitespaceContent, delimiter, preservedNewLines);				
 				for (int i = 0; i < newLineCount - 1; i++) { // - 1 because the node after will insert a delimiter
 					xml.append(delimiter);
-					this.indent(level);
 				}
 			}
 			

@@ -1137,11 +1137,11 @@ public class XMLFormatterTest {
 				"<!DOCTYPE note>\r\n" + 
 				"<note>\r\n" + 
 				"  <to>Fred</to>\r\n" +
-				"  \r\n" + 
+				"\r\n" + 
 				"  <from>Jani</from>\r\n" + 
-				"  \r\n" + 
+				"\r\n" + 
 				"  <heading>Reminder</heading>\r\n" + 
-				"  \r\n" + 
+				"\r\n" + 
 				"  <body>Don't forget me this weekend</body>\r\n" + 
 				"</note>";
 		format(content, expected, formattingOptions);
@@ -1209,10 +1209,10 @@ public class XMLFormatterTest {
 				"]>\r\n" + 
 				"<note>\r\n" + 
 				"  <to>Fred</to>\r\n" +
-				"  \r\n" +
-				"  \r\n" + 
+				"\r\n" +
+				"\r\n" + 
 				"  <from>Jani</from>\r\n" +
-				"  \r\n" + 
+				"\r\n" + 
 				"  <heading>Reminder</heading>\r\n" + 
 				"  <body>Don't forget me this weekend</body>\r\n" + 
 				"</note>";
@@ -1321,7 +1321,7 @@ public class XMLFormatterTest {
 				"]>\r\n" +
 				"\r\n" + 
 				"<note>\r\n" +
-				"  \r\n" + 
+				"\r\n" + 
 				"  <to>Fred</to>\r\n" + 
 				"</note>";
 		format(content, expected, formattingOptions);
@@ -1536,9 +1536,9 @@ public class XMLFormatterTest {
 				"]>\r\n" + 
 				"<web-app>\r\n" + 
 				"  <display-name>sdsd</display-name>\r\n" +
-				"  \r\n" + 
+				"\r\n" + 
 				"  <servlet>\r\n" + 
-				"    \r\n" + 
+				"\r\n" + 
 				"    <servlet-name>er</servlet-name>\r\n" + 
 				"    <servlet-class>dd</servlet-class>\r\n" + 
 				"  </servlet>\r\n" + 
@@ -2050,8 +2050,8 @@ public class XMLFormatterTest {
 		String expected = 
 				"<xml>\r\n" + 
 				"  <a></a>\r\n" + 
-				"  \r\n" +
-				"  \r\n" +
+				"\r\n" +
+				"\r\n" +
 				"</xml>";
 		format(content, expected, formattingOptions);
 	}
@@ -2070,9 +2070,9 @@ public class XMLFormatterTest {
 		String expected = 
 				"<xml>\r\n" + 
 				"  <a></a>\r\n" + 
-				"  \r\n" +
-				"  \r\n" +
-				"  \r\n" +
+				"\r\n" +
+				"\r\n" +
+				"\r\n" +
 				"</xml>";
 		format(content, expected, formattingOptions);
 	}
@@ -2091,8 +2091,8 @@ public class XMLFormatterTest {
 		String expected = 
 				"<xml>\r\n" + 
 				"  <a></a>\r\n" + 
-				"  \r\n" +
-				"  \r\n" +
+				"\r\n" +
+				"\r\n" +
 				"</xml>";
 		format(content, expected, formattingOptions);
 	}
@@ -2114,11 +2114,11 @@ public class XMLFormatterTest {
 				"</xml>";
 		String expected = 
 				"<xml>\r\n" + 
-				"  \r\n" +
-				"  \r\n" +
+				"\r\n" +
+				"\r\n" +
 				"  <a></a>\r\n" + 
-				"  \r\n" +
-				"  \r\n" +
+				"\r\n" +
+				"\r\n" +
 				"</xml>";
 		format(content, expected, formattingOptions);
 	}
@@ -2146,14 +2146,14 @@ public class XMLFormatterTest {
 				"</xml>";
 		String expected = 
 				"<xml>\r\n" + 
-				"  \r\n" +
-				"  \r\n" +
+				"\r\n" +
+				"\r\n" +
 				"  <a></a>\r\n" + 
-				"  \r\n" +
-				"  \r\n" +
+				"\r\n" +
+				"\r\n" +
 				"  <b></b>\r\n" + 
-				"  \r\n" +
-				"  \r\n" +
+				"\r\n" +
+				"\r\n" +
 				"</xml>";
 		format(content, expected, formattingOptions);
 	}
@@ -2169,7 +2169,7 @@ public class XMLFormatterTest {
 		String expected = 
 				"<xml>\r\n" + 
 				"  <a></a>\r\n" + 
-				"  \r\n" +
+				"\r\n" +
 				"</xml>";
 		format(content, expected, formattingOptions);
 	}
@@ -2188,6 +2188,29 @@ public class XMLFormatterTest {
 		format(content, expected, formattingOptions);
 	}
 
+	@Test 
+	public void testNoSpacesOnNewLine() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		String content = 
+				"<a>\r\n" +
+				"  <b></b>\r\n" +
+				"\r\n" +
+				"\r\n" +
+				"  \r\n" +
+				"\r\n" +
+				"\r\n" +
+				"             \r\n" +
+				"\r\n" +
+				"\r\n" +
+				"</a>";
+		String expected = 
+				"<a>\r\n" +
+				"  <b></b>\r\n" +
+				"\r\n" +
+				"\r\n" +
+				"</a>";
+		format(content, expected, formattingOptions);
+	}
 	
 	
 	@Test 
