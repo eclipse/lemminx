@@ -311,7 +311,6 @@ class XMLFormatter {
 						if (node.hasChildNodes()) {
 							// element has body
 							
-							// startElementClosed = true;
 							this.indentLevel++;
 							for (DOMNode child : node.getChildren()) {
 								boolean textElement = !child.isText();
