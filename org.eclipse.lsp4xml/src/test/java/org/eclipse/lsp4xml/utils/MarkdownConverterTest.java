@@ -23,39 +23,39 @@ public class MarkdownConverterTest {
 	@Test
 	public void testHTMLConversion() {
 		assertEquals("This is `my code`", convert("This is <code>my code</code>"));
-		assertEquals("This is\n**bold**", convert("This is<br><b>bold</b>"));
+		assertEquals("This is" + System.lineSeparator() + "**bold**", convert("This is<br><b>bold</b>"));
 		assertEquals("The `<project>` element is the root of the descriptor.", convert("The <code>&lt;project&gt;</code> element is the root of the descriptor."));
 		assertEquals("# Hey Man #", convert("<h1>Hey Man</h1>"));
 		assertEquals("[Placeholder](https://www.xml.com)", convert("<a href=\"https://www.xml.com\">Placeholder</a>"));
 
 		String htmlList =
-			"<ul>\n" +
-			"  <li>Coffee</li>\n" +
-			"  <li>Tea</li>\n" +
-			"  <li>Milk</li>\n" +
+			"<ul>" + System.lineSeparator() + 
+			"  <li>Coffee</li>" + System.lineSeparator() +
+			"  <li>Tea</li>" + System.lineSeparator() +
+			"  <li>Milk</li>" + System.lineSeparator() +
 			"</ul>";
 		String expectedList = 
-			" *  Coffee\n" +
-			" *  Tea\n" +
+			" *  Coffee" + System.lineSeparator() +
+			" *  Tea" + System.lineSeparator() +
 			" *  Milk";
 		assertEquals(expectedList, convert(htmlList));
 		assertEquals("ONLY_THIS_TEXT", convert("<p>ONLY_THIS_TEXT</p>"));
 
 		String multilineHTML = 
-			"multi\n" +
-			"line\n" +
-			"<code>HTML</code>\n" +
+			"multi" + System.lineSeparator() +
+			"line" + System.lineSeparator() +
+			"<code>HTML</code>" + System.lineSeparator() +
 			"stuff";
 		assertEquals("multi line `HTML` stuff", convert(multilineHTML));
 
 		String multilineHTML2 = 
-			"<p>multi<p>\n" +
-			"line\n" +
-			"<code>HTML</code>\n" +
+			"<p>multi<p>" + System.lineSeparator() +
+			"line" + System.lineSeparator() +
+			"<code>HTML</code>" + System.lineSeparator() +
 			"stuff";
 			String multilineHTML2Expected = 
-			"multi\n" +
-			"\n" +
+			"multi" + System.lineSeparator() +
+			"" + System.lineSeparator() +
 			"line `HTML` stuff";
 		assertEquals(multilineHTML2Expected, convert(multilineHTML2));
 	}
