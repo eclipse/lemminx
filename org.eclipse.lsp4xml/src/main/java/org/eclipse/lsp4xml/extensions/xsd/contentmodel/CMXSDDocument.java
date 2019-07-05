@@ -18,6 +18,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.xerces.impl.dv.XSSimpleType;
+import org.apache.xerces.impl.xs.XSElementDecl;
+import org.apache.xerces.impl.xs.XSElementDeclHelper;
+import org.apache.xerces.xni.QName;
 import org.apache.xerces.xs.StringList;
 import org.apache.xerces.xs.XSConstants;
 import org.apache.xerces.xs.XSElementDeclaration;
@@ -35,7 +38,7 @@ import org.eclipse.lsp4xml.utils.StringUtils;
  * XSD document implementation.
  *
  */
-public class CMXSDDocument implements CMDocument {
+public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 
 	private final XSModel model;
 
@@ -172,5 +175,10 @@ public class CMXSDDocument implements CMDocument {
 			return ((XSSimpleType) typeDefinition).getPrimitiveKind() == XSSimpleType.PRIMITIVE_BOOLEAN;
 		}
 		return false;
+	}
+	
+	@Override
+	public XSElementDecl getGlobalElementDecl(QName element) {
+		return (XSElementDecl) model.getElementDeclaration(element.localpart, element.uri);
 	}
 }

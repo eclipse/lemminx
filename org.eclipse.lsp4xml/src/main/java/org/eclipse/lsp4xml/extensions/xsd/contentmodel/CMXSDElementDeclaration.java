@@ -13,9 +13,16 @@ package org.eclipse.lsp4xml.extensions.xsd.contentmodel;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
+import java.util.Vector;
 
 import org.apache.xerces.impl.dv.xs.XSSimpleTypeDecl;
+import org.apache.xerces.impl.xs.SubstitutionGroupHandler;
 import org.apache.xerces.impl.xs.XSComplexTypeDecl;
+import org.apache.xerces.impl.xs.models.CMBuilder;
+import org.apache.xerces.impl.xs.models.CMNodeFactory;
+import org.apache.xerces.impl.xs.models.XSCMValidator;
+import org.apache.xerces.xni.QName;
 import org.apache.xerces.xs.XSAttributeUse;
 import org.apache.xerces.xs.XSComplexTypeDefinition;
 import org.apache.xerces.xs.XSConstants;
@@ -27,8 +34,13 @@ import org.apache.xerces.xs.XSParticle;
 import org.apache.xerces.xs.XSSimpleTypeDefinition;
 import org.apache.xerces.xs.XSTerm;
 import org.apache.xerces.xs.XSTypeDefinition;
+import org.eclipse.lsp4xml.dom.DOMElement;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMElementDeclaration;
+import org.eclipse.lsp4xml.utils.StringUtils;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * XSD element declaration implementation.
@@ -105,6 +117,95 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 			collectElementsDeclaration(elementDeclaration, elements);
 		}
 		return elements;
+	}
+
+	@Override
+	public Collection<CMElementDeclaration> getPossibleElements(DOMElement parentElement, int offset) {
+		XSTypeDefinition typeDefinition = elementDeclaration.getTypeDefinition();
+		if (typeDefinition != null && typeDefinition.getTypeCategory() == XSTypeDefinition.COMPLEX_TYPE) {
+			// The type definition is complex (ex: xs:all; xs:sequence), returns list of
+			// element declaration according those XML Schema constraints
+
+			// Compute list of child element (QName)
+			List<QName> qNames = toQNames(parentElement, offset);
+
+			// Initialize Xerces validator
+			CMBuilder cmBuilder = new CMBuilder(new CMNodeFactory());
+			XSCMValidator validator = ((XSComplexTypeDecl) typeDefinition).getContentModel(cmBuilder);
+			SubstitutionGroupHandler handler = new SubstitutionGroupHandler(document);
+
+			// Loop for each element (QName) and check if it is valid according the XML
+			// Schema constraint
+			int[] states = validator.startContentModel();
+			for (QName elementName : qNames) {
+				Object decl = validator.oneTransition(elementName, states, handler);
+				if (decl == null) {
+					return Collections.emptyList();
+				}
+			}
+
+			// At this step, all child elements are valid, the call of
+			// XSCMValidator#oneTransition has updated the states flag.
+			// Collect the next valid elements according the XML Schema constraints
+			Vector<?> result = validator.whatCanGoHere(states);
+			if (result.isEmpty()) {
+				return Collections.emptyList();
+			}
+
+			// Compute list of possible elements
+			Collection<CMElementDeclaration> possibleElements = new ArrayList<>();
+			for (Object object : result) {
+				if (object instanceof XSElementDeclaration) {
+					XSElementDeclaration elementDecl = (XSElementDeclaration) object;
+					document.collectElement(elementDecl, possibleElements);
+				}
+			}
+			return possibleElements;
+		}
+		return getElements();
+	}
+
+	/**
+	 * Returns list of element (QName) of child elements of the given parent element
+	 * upon the given offset
+	 * 
+	 * @param parentElement the parent element
+	 * @param offset        the offset where child element must be belong to
+	 * @return list of element (QName) of child elements of the given parent element
+	 *         upon the given offset
+	 */
+	private static List<QName> toQNames(DOMElement parentElement, int offset) {
+		if (parentElement == null || !parentElement.hasChildNodes()) {
+			return Collections.emptyList();
+		}
+		List<QName> qNames = new ArrayList<>();
+		NodeList children = parentElement.getChildNodes();
+		for (int i = 0; i < children.getLength(); i++) {
+			Node child = children.item(i);
+			if (child.getNodeType() == Node.ELEMENT_NODE) {
+				// child node is an element
+				DOMElement element = (DOMElement) child;
+				if (element.getEnd() > offset) {
+					// child element is after the given offset, stop the computing
+					break;
+				}
+				if (!element.isClosed()) {
+					// Element is not closed, ignore it
+					continue;
+				}
+				qNames.add(createQName(element));
+			}
+		}
+		return qNames;
+	}
+
+	private static QName createQName(Element tag) {
+		// intern must be called since Xerces uses == to compare String ?
+		// -> see
+		// https://github.com/apache/xerces2-j/blob/trunk/src/org/apache/xerces/impl/xs/SubstitutionGroupHandler.java#L55
+		String namespace = tag.getNamespaceURI();
+		return new QName(tag.getPrefix(), tag.getLocalName().intern(), tag.getTagName().intern(),
+				StringUtils.isEmpty(namespace) ? null : namespace.intern());
 	}
 
 	private void collectElementsDeclaration(XSElementDeclaration elementDecl,

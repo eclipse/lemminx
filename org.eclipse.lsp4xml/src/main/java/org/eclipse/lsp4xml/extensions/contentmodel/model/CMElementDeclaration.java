@@ -12,6 +12,8 @@ package org.eclipse.lsp4xml.extensions.contentmodel.model;
 
 import java.util.Collection;
 
+import org.eclipse.lsp4xml.dom.DOMElement;
+
 /**
  * Content model element which abstracts element declaration from a given
  * grammar (XML Schema, DTD).
@@ -58,6 +60,15 @@ public interface CMElementDeclaration {
 	 * @return the children declared element of this declared element.
 	 */
 	Collection<CMElementDeclaration> getElements();
+
+	/**
+	 * Returns the possible declared elements for the given DOM after element.
+	 * 
+	 * @param afterElement the after element
+	 * @param i 
+	 * @return the possible declared elements for the given DOM after element.
+	 */
+	Collection<CMElementDeclaration> getPossibleElements(DOMElement parentElement, int offset);
 
 	/**
 	 * Returns the declared element which matches the given XML tag name / namespace

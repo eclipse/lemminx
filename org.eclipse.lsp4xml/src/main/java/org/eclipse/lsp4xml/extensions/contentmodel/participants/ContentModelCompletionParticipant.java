@@ -68,8 +68,8 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 
 			if (cmElement != null) {
 				defaultPrefix = parentElement.getPrefix();
-				fillWithChildrenElementDeclaration(parentElement, cmElement.getElements(), defaultPrefix, false,
-						request, response, schemaURI);
+				fillWithChildrenElementDeclaration(parentElement, cmElement.getPossibleElements(parentElement, request.getOffset()),
+						defaultPrefix, false, request, response, schemaURI);
 			}
 			if (parentElement.isDocumentElement()) {
 				// completion on root document element
@@ -95,8 +95,9 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			CMElementDeclaration cmInternalElement = contentModelManager.findInternalCMElement(parentElement);
 			if (cmInternalElement != null) {
 				defaultPrefix = parentElement.getPrefix();
-				fillWithChildrenElementDeclaration(parentElement, cmInternalElement.getElements(), defaultPrefix, false,
-						request, response, schemaURI);
+				fillWithChildrenElementDeclaration(parentElement,
+						cmInternalElement.getPossibleElements(parentElement, request.getOffset()), defaultPrefix, false, request,
+						response, schemaURI);
 			}
 		} catch (CacheResourceDownloadingException e) {
 			// XML Schema, DTD is loading, ignore this error
