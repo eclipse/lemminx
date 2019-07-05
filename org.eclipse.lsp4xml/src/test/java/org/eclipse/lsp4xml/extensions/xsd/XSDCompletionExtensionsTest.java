@@ -58,8 +58,7 @@ public class XSDCompletionExtensionsTest {
 		String lineSeparator = System.getProperty("line.separator");
 		XMLAssert.testCompletionFor(xml, null, "src/test/resources/invoice.xml", null,
 				c("date", te(3, 2, 3, 3, "<date></date>"), "<date",
-						"Date Description" + lineSeparator + lineSeparator + "Source: invoice.xsd"),
-				c("number", "<number></number>"));
+						"Date Description" + lineSeparator + lineSeparator + "Source: invoice.xsd"));
 	}
 
 	@Test

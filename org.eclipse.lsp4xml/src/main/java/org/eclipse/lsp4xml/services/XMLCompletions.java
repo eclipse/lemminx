@@ -118,7 +118,6 @@ public class XMLCompletions {
 				break;
 			case DelimiterAssign:
 				if (scanner.getTokenEnd() == offset) {
-					// int endPos = scanNextForEndPos(offset, scanner, TokenType.AttributeValue);
 					collectAttributeValueSuggestions(offset, offset, completionRequest, completionResponse);
 					return completionResponse;
 				}
@@ -491,7 +490,7 @@ public class XMLCompletions {
 			}
 		}
 		DOMElement parentNode = completionRequest.getParentElement();
-		if (parentNode != null && !completionResponse.hasSomeItemFromGrammar()) {
+		if (parentNode != null && !parentNode.getOwnerDocument().hasGrammar()) {
 			// no grammar, collect similar tags from the parent node
 			Set<String> seenElements = new HashSet<>();
 			if (parentNode != null && parentNode.isElement() && parentNode.hasChildNodes()) {

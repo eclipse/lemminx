@@ -133,7 +133,7 @@ public class XMLSchemaDiagnosticsTest {
 			"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
 			"<root\r\n" + //
 			"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
-			"    xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/sequence.xsd\">\r\n" + //
+			"    xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/tag.xsd\">\r\n" + //
 			"  <tag></tag>\r\n" + //
 			"  <optional></optional>\r\n" + //
 			"  <optional></optional>\r\n" + //

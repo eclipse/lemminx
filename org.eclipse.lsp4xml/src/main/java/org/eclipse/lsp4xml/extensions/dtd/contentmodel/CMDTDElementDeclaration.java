@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.xerces.impl.dtd.XMLElementDecl;
+import org.eclipse.lsp4xml.dom.DOMElement;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMElementDeclaration;
 
@@ -60,6 +61,12 @@ public class CMDTDElementDeclaration extends XMLElementDecl implements CMElement
 			document.collectElementsDeclaration(getName(), elements);
 		}
 		return elements;
+	}
+
+	@Override
+	public Collection<CMElementDeclaration> getPossibleElements(DOMElement parentElement, int offset) {
+		// TODO: support valid element declaration for DTD
+		return getElements();
 	}
 
 	@Override

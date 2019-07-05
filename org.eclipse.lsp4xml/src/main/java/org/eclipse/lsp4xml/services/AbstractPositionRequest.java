@@ -52,15 +52,18 @@ abstract class AbstractPositionRequest implements IPositionRequest {
 	@Override
 	public DOMElement getParentElement() {
 		DOMNode currentNode = getNode();
-		if (!currentNode.isElement() || currentNode.getEnd() < offset) {
+		if (!currentNode.isElement()) {
 			// Node is not an element, search parent element.
 			return currentNode.getParentElement();
 		}
 		DOMElement element = (DOMElement) currentNode;
-		// node is an element, there are 2 cases
-		// case 1: <| or <bean | > --> in this case we must search parent of bean
-		// element
-		if (element.isInStartTag(offset) || element.isInEndTag(offset)) {
+		// node is an element, there are 3 cases
+		// - case 1: <|
+		// - case 2: <bean | >
+		// - case 3: <bean /> | or <bean></bean> |
+		// --> in thoses cases we must search parent of bean element
+		if (element.isInStartTag(offset) || element.isInEndTag(offset)
+				|| (element.isEndTagClosed() && element.getEnd() <= offset)) {
 			return element.getParentElement();
 		}
 		// case 2: <bean> | --> in this case, parent element is the bean

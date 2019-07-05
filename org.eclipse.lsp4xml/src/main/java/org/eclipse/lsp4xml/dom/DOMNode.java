@@ -13,9 +13,8 @@ package org.eclipse.lsp4xml.dom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Function;
-
 import java.util.Objects;
+import java.util.function.Function;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.NamedNodeMap;
@@ -382,15 +381,16 @@ public abstract class DOMNode implements Node {
 	}
 
 	/**
-	 * Returns a list of children, each having an attribute called name, with a value
-	 * of value
-	 * @param name name of attribute
+	 * Returns a list of children, each having an attribute called name, with a
+	 * value of value
+	 * 
+	 * @param name  name of attribute
 	 * @param value value of attribute
-	 * @return  list of children, each having a specified attribute name and value
+	 * @return list of children, each having a specified attribute name and value
 	 */
 	public List<DOMNode> getChildrenWithAttributeValue(String name, String value) {
 		List<DOMNode> result = new ArrayList<>();
-		for (DOMNode child: getChildren()) {
+		for (DOMNode child : getChildren()) {
 			if (child.hasAttribute(name)) {
 				String attrValue = child.getAttribute(name);
 				if (Objects.equals(attrValue, value)) {

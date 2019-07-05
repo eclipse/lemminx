@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema elementFormDefault="qualified" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://invoice" xmlns:i="http://invoice">
+
+    <xsd:element name="invoice" type="i:invoiceType"></xsd:element>
+    
+    <xsd:complexType name="invoiceType">
+    	<xsd:annotation>
+    		<xsd:documentation>An invoice type...</xsd:documentation>
+    	</xsd:annotation>
+    	<xsd:sequence>
+    		<xsd:element name="date" type="xsd:date" nillable="true">
+					<xsd:annotation>
+						<xsd:documentation>Date Description</xsd:documentation>
+					</xsd:annotation>	
+				</xsd:element>
+				<xsd:element name="number" type="xsd:int"></xsd:element>
+				<xsd:element name="products" type="i:productsType"></xsd:element>
+    		<xsd:element name="payments" type="i:paymentsType"></xsd:element>
+    	</xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="productsType">
+    	<xsd:choice minOccurs="1" maxOccurs="unbounded">
+    		<xsd:element name="product" type="i:productType"></xsd:element>
+    	</xsd:choice>
+    </xsd:complexType>
+
+    <xsd:complexType name="productType">
+    	<xsd:attribute name="price" type="xsd:float" use="required"></xsd:attribute>
+    	<xsd:attribute name="description" type="xsd:string" use="required"></xsd:attribute>
+    </xsd:complexType>
+
+
+    <xsd:complexType name="paymentsType">
+    	<xsd:sequence minOccurs="1" maxOccurs="unbounded">
+    		<xsd:element name="payment" type="i:paymentType"></xsd:element>
+    	</xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="paymentType">
+    	<xsd:attribute name="amount" type="xsd:float" use="required"></xsd:attribute>
+    	<xsd:attribute name="method" type="i:paymentMethodType" use="required"></xsd:attribute>
+    </xsd:complexType>
+
+    <xsd:simpleType name="paymentMethodType">
+    	<xsd:restriction base="xsd:string">
+    		<xsd:enumeration value="credit"></xsd:enumeration>
+    		<xsd:enumeration value="debit"></xsd:enumeration>
+    		<xsd:enumeration value="cash"></xsd:enumeration>
+    	</xsd:restriction>
+    </xsd:simpleType>
+</xsd:schema>
