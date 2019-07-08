@@ -25,6 +25,7 @@ import java.util.concurrent.CompletableFuture;
 import org.eclipse.lsp4j.ClientCapabilities;
 import org.eclipse.lsp4j.CodeActionCapabilities;
 import org.eclipse.lsp4j.CompletionCapabilities;
+import org.eclipse.lsp4j.DidChangeWatchedFilesCapabilities;
 import org.eclipse.lsp4j.DocumentHighlightCapabilities;
 import org.eclipse.lsp4j.DocumentLinkCapabilities;
 import org.eclipse.lsp4j.DocumentSymbolCapabilities;
@@ -40,6 +41,7 @@ import org.eclipse.lsp4j.RenameCapabilities;
 import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.ShowMessageRequestParams;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
+import org.eclipse.lsp4j.WorkspaceClientCapabilities;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4xml.XMLTextDocumentService;
 import org.junit.Before;
@@ -54,6 +56,7 @@ public class XMLCapabilitiesTest {
 	private XMLCapabilityManager manager;
 	private ClientCapabilities clientCapabilities;
 	private TextDocumentClientCapabilities textDocument;
+	private WorkspaceClientCapabilities workspace;
 	private XMLTextDocumentService textDocumentService;
 	private Set<String> capabilityIDs;
 
@@ -64,6 +67,7 @@ public class XMLCapabilitiesTest {
 		textDocumentService.getSharedSettings().formattingSettings.setEnabled(true);
 
 		textDocument = new TextDocumentClientCapabilities();
+		workspace = new WorkspaceClientCapabilities();
 		manager = new XMLCapabilityManager(languageClient, textDocumentService);
 		clientCapabilities = new ClientCapabilities();
 		capabilityIDs = null;
@@ -75,7 +79,7 @@ public class XMLCapabilitiesTest {
 		setAllCapabilities(true);
 		setAndInitializeCapabilities();
 
-		assertEquals(10, capabilityIDs.size());
+		assertEquals(11, capabilityIDs.size());
 
 		ServerCapabilities serverCapabilities = ServerCapabilitiesInitializer
 				.getNonDynamicServerCapabilities(manager.getClientCapabilities(), false);
@@ -121,6 +125,7 @@ public class XMLCapabilitiesTest {
 		completion.setDynamicRegistration(true);
 		textDocument.setCompletion(completion);
 		textDocument.setDocumentSymbol(new DocumentSymbolCapabilities(true));
+		workspace.setDidChangeWatchedFiles(new DidChangeWatchedFilesCapabilities(true));
 
 		// Non dynamic capabilities
 		textDocument.setHover(new HoverCapabilities(false));
@@ -134,7 +139,7 @@ public class XMLCapabilitiesTest {
 
 		setAndInitializeCapabilities();
 
-		assertEquals(4, capabilityIDs.size());
+		assertEquals(5, capabilityIDs.size());
 		assertEquals(true, capabilityIDs.contains(FORMATTING_ID));
 		assertEquals(true, capabilityIDs.contains(FORMATTING_RANGE_ID));
 		assertEquals(true, capabilityIDs.contains(COMPLETION_ID));
@@ -207,10 +212,12 @@ public class XMLCapabilitiesTest {
 		textDocument.setFoldingRange(folding);
 		textDocument.setDocumentLink(new DocumentLinkCapabilities(areAllDynamic));
 		textDocument.setCodeAction(new CodeActionCapabilities(areAllDynamic));
+		workspace.setDidChangeWatchedFiles(new DidChangeWatchedFilesCapabilities(areAllDynamic));
 	}
 
 	private void setAndInitializeCapabilities() {
 		clientCapabilities.setTextDocument(textDocument);
+		clientCapabilities.setWorkspace(workspace);
 		manager.setClientCapabilities(clientCapabilities, null);
 		manager.initializeCapabilities();
 		capabilityIDs = manager.getRegisteredCapabilities();

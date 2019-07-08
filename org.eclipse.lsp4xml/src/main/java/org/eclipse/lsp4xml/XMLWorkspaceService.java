@@ -15,10 +15,11 @@ import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
+import org.eclipse.lsp4j.FileEvent;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.WorkspaceSymbolParams;
 import org.eclipse.lsp4j.services.WorkspaceService;
-
+import org.eclipse.lsp4xml.XMLTextDocumentService;
 /**
  * XML workspace service.
  *
@@ -44,9 +45,12 @@ public class XMLWorkspaceService implements WorkspaceService {
 
 	@Override
 	public void didChangeWatchedFiles(DidChangeWatchedFilesParams params) {
-
+		XMLTextDocumentService xmlTextDocumentService = (XMLTextDocumentService) xmlLanguageServer.getTextDocumentService();
+		List<FileEvent> changes = params.getChanges();
+		for (FileEvent change: changes) {
+			if (!xmlTextDocumentService.documentIsOpen(change.getUri())) {
+				xmlTextDocumentService.doSave(change.getUri());
+			}
+		}
 	}
-
-	
-
 }
