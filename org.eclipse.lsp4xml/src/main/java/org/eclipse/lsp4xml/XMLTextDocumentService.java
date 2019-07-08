@@ -366,6 +366,11 @@ public class XMLTextDocumentService implements TextDocumentService {
 		doSave(context);
 	}
 
+	void doSave(String uri) {
+		SaveContext context = new SaveContext(uri);
+		doSave(context);
+	}
+
 	/**
 	 * Save settings or XML file.
 	 * 
@@ -465,6 +470,11 @@ public class XMLTextDocumentService implements TextDocumentService {
 	 */
 	public ModelTextDocument<DOMDocument> getDocument(String uri) {
 		return documents.get(uri);
+	}
+
+	public boolean documentIsOpen(String uri) {
+		ModelTextDocument<DOMDocument> document = getDocument(uri);
+		return document != null;
 	}
 
 	/**

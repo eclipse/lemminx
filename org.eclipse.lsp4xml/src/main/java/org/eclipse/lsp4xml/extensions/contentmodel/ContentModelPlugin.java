@@ -56,17 +56,17 @@ public class ContentModelPlugin implements IXMLExtension {
 			// The save is done for a given XML file
 			String documentURI = context.getUri();
 			DOMDocument document = context.getDocument(documentURI);
-			if (DOMUtils.isCatalog(document)) {
+			if (document != null && DOMUtils.isCatalog(document)) {
 				// the XML document which has changed is a XML catalog.
 				// 1) refresh catalogs
 				contentModelManager.refreshCatalogs();
-				// 2) Validate all opened XML files except the catalog which have changed
-				context.collectDocumentToValidate(d -> {
-					DOMDocument xml = context.getDocument(d.getDocumentURI());
-					xml.resetGrammar();
-					return !documentURI.equals(d.getDocumentURI());
-				});
 			}
+			// 2) Validate all opened XML files except the catalog which have changed
+			context.collectDocumentToValidate(d -> {
+				DOMDocument xml = context.getDocument(d.getDocumentURI());
+				xml.resetGrammar();
+				return !documentURI.equals(d.getDocumentURI());
+			});
 		} else {
 			// Settings
 			updateSettings(context);
@@ -89,6 +89,9 @@ public class ContentModelPlugin implements IXMLExtension {
 				// Validate all opened XML files
 				context.collectDocumentToValidate(d -> {
 					DOMDocument xml = context.getDocument(d.getDocumentURI());
+					if (xml == null) {
+						return false;
+					}
 					xml.resetGrammar();
 					return true;
 				});

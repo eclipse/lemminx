@@ -99,6 +99,10 @@ public class ClientCapabilitiesWrapper {
 		return v3Supported && isDynamicRegistrationSupported(getTextDocument().getDocumentHighlight());
 	}
 
+	public boolean isDidChangeWatchedFilesRegistered() {
+		return v3Supported && isDynamicRegistrationSupported(capabilities.getWorkspace().getDidChangeWatchedFiles());
+	}
+
 	private boolean isDynamicRegistrationSupported(DynamicRegistrationCapabilities capability) {
 		return capability != null && capability.getDynamicRegistration() != null
 				&& capability.getDynamicRegistration().booleanValue();

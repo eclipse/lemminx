@@ -36,12 +36,18 @@ import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConsta
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_LINK;
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_REFERENCES;
 import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_RENAME;
+import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.WORKSPACE_WATCHED_FILES;
+import static org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesConstants.WORKSPACE_WATCHED_FILES_ID;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.lsp4j.ClientCapabilities;
+import org.eclipse.lsp4j.DidChangeWatchedFilesRegistrationOptions;
+import org.eclipse.lsp4j.FileSystemWatcher;
 import org.eclipse.lsp4j.Registration;
 import org.eclipse.lsp4j.RegistrationParams;
 import org.eclipse.lsp4j.Unregistration;
@@ -153,7 +159,19 @@ public class XMLCapabilityManager {
 		if (this.getClientCapabilities().isReferencesDynamicRegistrationSupported()) {
 			registerCapability(REFERENCES_ID, TEXT_DOCUMENT_REFERENCES);
 		}
+		if (this.getClientCapabilities().isDidChangeWatchedFilesRegistered()) {
+			registerWatchedFiles();
+		}
+		
 		syncDynamicCapabilitiesWithPreferences();
+	}
+
+	private void registerWatchedFiles() {
+		List<FileSystemWatcher> watchers = new ArrayList<>(2);
+		watchers.add(new FileSystemWatcher("**/*.xsd"));
+		watchers.add(new FileSystemWatcher("**/*.dtd"));
+		DidChangeWatchedFilesRegistrationOptions options = new DidChangeWatchedFilesRegistrationOptions(watchers);
+		registerCapability(WORKSPACE_WATCHED_FILES_ID, WORKSPACE_WATCHED_FILES, options);
 	}
 
 	/**
