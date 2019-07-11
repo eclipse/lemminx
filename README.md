@@ -57,16 +57,16 @@ To debug the XML LS you can use XMLServerSocketLauncher:
 
 Client connection example using Theia and TypeScript:
 
-```
-            let socketPort = '5008'
-            console.log(`Connecting via port ${socketPort}`)
-            const socket = new net.Socket()
-            const serverConnection = createSocketConnection(socket,
-                socket, () => {
-                    socket.destroy()
-                });
-            this.forward(clientConnection, serverConnection)
-            socket.connect(socketPort)
+```js
+let socketPort = '5008'
+console.log(`Connecting via port ${socketPort}`)
+const socket = new net.Socket()
+const serverConnection = createSocketConnection(socket,
+    socket, () => {
+        socket.destroy()
+    });
+this.forward(clientConnection, serverConnection)
+socket.connect(socketPort)
 ```
 
 Maven coordinates:
