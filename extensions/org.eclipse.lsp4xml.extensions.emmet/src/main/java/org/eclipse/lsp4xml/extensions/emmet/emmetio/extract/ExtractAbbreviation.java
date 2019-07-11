@@ -75,9 +75,9 @@ public class ExtractAbbreviation {
 				return null;
 			}
 			String abbreviation = (String) s.get("abbreviation");
-			Double location = (Double) s.get("location");
-			Double start = (Double) s.get("start");
-			Double end = (Double) s.get("end");
+			Number location = (Number) s.get("location");
+			Number start = (Number) s.get("start");
+			Number end = (Number) s.get("end");
 			return new ExtractAbbreviationResult(abbreviation, location != null ? location.intValue() : 0,
 					start != null ? start.intValue() : 0, end != null ? end.intValue() : 0);
 		} catch (Exception e) {
