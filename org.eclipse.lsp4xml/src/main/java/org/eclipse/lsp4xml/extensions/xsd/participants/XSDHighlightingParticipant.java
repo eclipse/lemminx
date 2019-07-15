@@ -40,9 +40,9 @@ public class XSDHighlightingParticipant implements IHighlightingParticipant {
 		if (!DOMUtils.isXSD(document)) {
 			return;
 		}
-		// Highlight works ony when attribute is selected (orign or target attribute)
+		// Highlight works only when attribute is selected (origin or target attribute)
 		DOMAttr attr = node.findAttrAt(offset);
-		if (attr == null) {
+		if (attr == null || attr.getNodeAttrValue() == null) {
 			return;
 		}
 		// Try to get the binding from the origin attribute

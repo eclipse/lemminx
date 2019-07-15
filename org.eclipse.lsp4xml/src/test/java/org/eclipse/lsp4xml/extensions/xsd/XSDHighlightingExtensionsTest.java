@@ -136,4 +136,17 @@ public class XSDHighlightingExtensionsTest {
 				"</xs:schema>";
 		testHighlightsFor(xml, hl(r(15, 21, 15, 35), Write), hl(r(5, 22, 5, 39), Read));
 	}
+
+	@Test
+	public void noHighlightOnRefWithoutValue() throws BadLocationException {
+		// highlighting on xs:simpleType/@name
+		String xml = "<?xml version=\"1.0\" ?>\r\n" + //
+				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\r\n" + //
+				"\r\n" + //
+				"	<xs:element name=\"resources\">\r\n" + //
+				"		<xs:complexType>\r\n" + //
+				"			<xs:sequence>\r\n" + //
+				"				<xs:element re|f"; //
+		testHighlightsFor(xml);
+	}
 }
