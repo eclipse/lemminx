@@ -21,7 +21,7 @@ public class DOMDocumentType extends DTDDeclNode implements org.w3c.dom.Document
 	public enum DocumentTypeKind {
 		PUBLIC, SYSTEM, INVALID
 	}
-	
+
 	DTDDeclParameter name;
 	DTDDeclParameter kind; // SYSTEM || PUBLIC
 	DTDDeclParameter publicId;
@@ -29,7 +29,6 @@ public class DOMDocumentType extends DTDDeclNode implements org.w3c.dom.Document
 	DTDDeclParameter internalSubset;
 
 	private String content; // |<!DOCTYPE ... >|
-	//private String unrecognizedParameters;
 
 	public DOMDocumentType(int start, int end, DOMDocument ownerDocument) {
 		super(start, end, ownerDocument);
@@ -55,10 +54,21 @@ public class DOMDocumentType extends DTDDeclNode implements org.w3c.dom.Document
 	}
 
 	/**
-	 * @return the DocumentTypeKind
+	 * Returns the document type kind (PUBLIC or SYSTEM)
+	 * 
+	 * @return the document type kind (PUBLIC or SYSTEM)
 	 */
 	public String getKind() {
 		return kind != null ? kind.getParameter() : null;
+	}
+
+	/**
+	 * Returns the node where document type kind (PUBLIC or SYSTEM) is declared
+	 * 
+	 * @return the node where document type kind (PUBLIC or SYSTEM) is declared
+	 */
+	public DTDDeclParameter getKindNode() {
+		return kind;
 	}
 
 	/**
@@ -106,7 +116,7 @@ public class DOMDocumentType extends DTDDeclNode implements org.w3c.dom.Document
 	@Override
 	public String getInternalSubset() {
 		String subset;
-		if(internalSubset != null) {
+		if (internalSubset != null) {
 			subset = internalSubset.getParameter();
 			subset = subset.substring(1, subset.length() - 1);
 			internalSubset.parameter = subset; // Set parameter to a value without '[' and ']'
@@ -115,7 +125,6 @@ public class DOMDocumentType extends DTDDeclNode implements org.w3c.dom.Document
 		}
 		return null;
 	}
-
 
 	public void setStartInternalSubset(int start) {
 		internalSubset = addNewParameter(start, start + 1);
@@ -126,9 +135,9 @@ public class DOMDocumentType extends DTDDeclNode implements org.w3c.dom.Document
 	}
 
 	public boolean isInternalSubset(DTDDeclParameter parameter) {
-		if(this.internalSubset != null) {
+		if (this.internalSubset != null) {
 			return this.internalSubset.equals(parameter);
-		}	
+		}
 		return false;
 	}
 
@@ -173,6 +182,10 @@ public class DOMDocumentType extends DTDDeclNode implements org.w3c.dom.Document
 		return systemId != null ? systemId.getParameter() : null;
 	}
 
+	public DTDDeclParameter getSystemIdNode() {
+		return systemId;
+	}
+
 	public String getSystemIdWithoutQuotes() {
 		return systemId != null ? systemId.getParameterWithoutFirstAndLastChar() : null;
 	}
@@ -185,27 +198,12 @@ public class DOMDocumentType extends DTDDeclNode implements org.w3c.dom.Document
 	}
 
 	/**
-	 * Removes trailing " characters
-	 */
-	private static String cleanURL(String url) {
-		if (url == null) {
-			return null;
-		}
-		if (url.isEmpty()) {
-			return url;
-		}
-		int start = url.charAt(0) == '\"' ? 1 : 0;
-		int end = url.charAt(url.length() - 1) == '\"' ? url.length() - 1 : url.length();
-		return url.substring(start, end);
-	}
-
-	/**
 	 * Returns a substring of the whole document.
 	 *
 	 * 
-	 * Since offset values are relative to 'this.start' we need to 
-	 * subtract getStart() to make them relative to 'content'
-	 */ 
+	 * Since offset values are relative to 'this.start' we need to subtract
+	 * getStart() to make them relative to 'content'
+	 */
 	public String getSubstring(int start, int end) {
 		return getContent().substring(start - getStart(), end - getStart());
 	}

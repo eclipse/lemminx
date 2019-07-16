@@ -67,7 +67,7 @@ public class Constants {
 
 	public static final Pattern ATTRIBUTE_VALUE_REGEX = Pattern.compile("^(\"[^\"]*\"?)|(\'[^\']*\'?)");
 
-	public static final Pattern URL_VALUE_REGEX = Pattern.compile("^(\"|\')[^<>\"]*(\"|\')");
+	public static final Pattern URL_VALUE_REGEX = Pattern.compile("^(\"[^<>\"]*\")|(\'[^<>\']*\')");
 
 	public static final Pattern PROLOG_NAME_OPTIONS = Pattern.compile("^(xml)[\\s<>?]?");
 

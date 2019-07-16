@@ -32,8 +32,6 @@ import org.eclipse.lsp4xml.utils.XMLPositionUtility;
  */
 public enum DTDErrorCode implements IXMLErrorCode {
 
-	
-	
 	AttNameRequiredInAttDef,
 	AttTypeRequiredInAttDef,
 	ElementDeclUnterminated,
@@ -65,8 +63,9 @@ public enum DTDErrorCode implements IXMLErrorCode {
 	PEReferenceWithinMarkup,
 	QuoteRequiredInPublicID,
 	QuoteRequiredInSystemID,
-	SpaceRequiredAfterSYSTEM;
-
+	SpaceRequiredAfterSYSTEM,
+	dtd_not_found("dtd-not-found");
+			
 	private final String code;
 
 	private DTDErrorCode() {
