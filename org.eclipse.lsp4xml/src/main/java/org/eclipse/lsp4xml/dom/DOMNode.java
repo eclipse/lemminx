@@ -68,6 +68,19 @@ public abstract class DOMNode implements Node {
 
 	DOMNode parent;
 
+	private static final NodeList EMPTY_CHILDREN = new NodeList() {
+		
+		@Override
+		public Node item(int index) {
+			return null;
+		}
+		
+		@Override
+		public int getLength() {
+			return 0;
+		}
+	};
+	
 	static class XMLNodeList<T extends DOMNode> extends ArrayList<T> implements NodeList {
 
 		private static final long serialVersionUID = 1L;
@@ -585,7 +598,7 @@ public abstract class DOMNode implements Node {
 	 */
 	@Override
 	public NodeList getChildNodes() {
-		return children;
+		return children != null ? children : EMPTY_CHILDREN;
 	}
 
 	/*

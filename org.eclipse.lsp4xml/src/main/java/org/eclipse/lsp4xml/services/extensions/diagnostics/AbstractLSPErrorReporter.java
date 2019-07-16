@@ -79,16 +79,13 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 
 		Range adjustedRange = internalToLSPRange(location, key, arguments, xmlDocument);
 
-		if(adjustedRange == null) {
+		if (adjustedRange == null) {
 			return null;
 		}
 
-		Diagnostic d = new Diagnostic(adjustedRange, message, toLSPSeverity(severity), source, key);
-		if(diagnostics.contains(d)) {
+		if (!addDiagnostic(adjustedRange, message, toLSPSeverity(severity), key)) {
 			return null;
 		}
-		// Fill diagnostic
-		diagnostics.add(d);
 
 		if (severity == SEVERITY_FATAL_ERROR && !fContinueAfterFatalError) {
 			XMLParseException parseException = (exception != null) ? new XMLParseException(location, message, exception)
@@ -96,6 +93,16 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 			throw parseException;
 		}
 		return message;
+	}
+
+	public boolean addDiagnostic(Range adjustedRange, String message, DiagnosticSeverity severity, String key) {
+		Diagnostic d = new Diagnostic(adjustedRange, message, severity, source, key);
+		if (diagnostics.contains(d)) {
+			return false;
+		}
+		// Fill diagnostic
+		diagnostics.add(d);
+		return true;
 	}
 
 	/**
@@ -136,7 +143,7 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 		int startOffset = location.getCharacterOffset() - 1;
 		int endOffset = location.getCharacterOffset() - 1;
 
-		if(startOffset < 0 || endOffset < 0) {
+		if (startOffset < 0 || endOffset < 0) {
 			return null;
 		}
 

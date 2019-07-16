@@ -15,6 +15,7 @@ import static org.eclipse.lsp4xml.XMLAssert.d;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.DTDErrorCode;
+import org.eclipse.lsp4xml.extensions.contentmodel.participants.XMLSyntaxErrorCode;
 import org.junit.Test;
 
 /**
@@ -349,6 +350,36 @@ public class DTDDiagnosticsTest {
 
 	}
 
+	@Test
+	public void testDTDNotFoundWithSYSTEM() throws Exception {
+		String xml = "<?xml version=\"1.0\" standalone=\"no\" ?>\r\n" + //
+				"<!DOCTYPE inEQUAL_PMT SYSTEM \"inEQUAL_PMT.dtd\">\r\n" + // <- error DTD not found
+				"<inEQUAL_PMT>\r\n" + //
+				"  \r\n" + //
+				"    <!-- The Proceeds and Term -->\r\n" + //
+				"   <Proceeds>10000.00</Proceed>\r\n" + // <- error, it misses 's' for </Proceed>
+				"   <Term>36</Term>\r\n" + //
+				"   \r\n" + //
+				"</inEQUAL_PMT>";
+		XMLAssert.testDiagnosticsFor(xml, d(1, 29, 1, 46, DTDErrorCode.dtd_not_found),
+				d(5, 23, 5, 30, XMLSyntaxErrorCode.ETagRequired));
+	}
+
+	@Test
+	public void testDTDNotFoundWithPUBLIC() throws Exception {
+		String xml = "<?xml version=\"1.0\" standalone=\"no\" ?>\r\n" + //
+				"<!DOCTYPE inEQUAL_PMT PUBLIC 'X' \"inEQUAL_PMT.dtd\">\r\n" + // <- error DTD not found
+				"<inEQUAL_PMT>\r\n" + //
+				"  \r\n" + //
+				"    <!-- The Proceeds and Term -->\r\n" + //
+				"   <Proceeds>10000.00</Proceed>\r\n" + // <- error, it misses 's' for </Proceed>
+				"   <Term>36</Term>\r\n" + //
+				"   \r\n" + //
+				"</inEQUAL_PMT>";
+		XMLAssert.testDiagnosticsFor(xml, d(1, 33, 1, 50, DTDErrorCode.dtd_not_found),
+				d(5, 23, 5, 30, XMLSyntaxErrorCode.ETagRequired));
+	}
+	
 	private static void testDiagnosticsFor(String xml, Diagnostic... expected) {
 		XMLAssert.testDiagnosticsFor(xml, "src/test/resources/catalogs/catalog.xml", expected);
 	}

@@ -13,23 +13,30 @@ package org.eclipse.lsp4xml.extensions.contentmodel.participants.diagnostics;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.parsers.SAXParser;
 import org.apache.xerces.parsers.XIncludeAwareParserConfiguration;
+import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.parser.XMLEntityResolver;
+import org.apache.xerces.xni.parser.XMLInputSource;
 import org.apache.xerces.xni.parser.XMLParserConfiguration;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.dom.DOMDocument;
+import org.eclipse.lsp4xml.dom.DOMDocumentType;
 import org.eclipse.lsp4xml.dom.DOMElement;
+import org.eclipse.lsp4xml.extensions.contentmodel.participants.DTDErrorCode;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.ContentModelSettings;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.LSPContentHandler;
@@ -49,51 +56,56 @@ public class XMLValidator {
 
 	private static final Logger LOGGER = Logger.getLogger(XMLValidator.class.getName());
 
+	private static final String DTD_NOT_FOUND = "Cannot find DTD ''{0}''.\nCreate the DTD file or configure an XML catalog for this DTD.";
+
 	public static void doDiagnostics(DOMDocument document, XMLEntityResolver entityResolver,
 			List<Diagnostic> diagnostics, ContentModelSettings contentModelSettings, CancelChecker monitor) {
-				
 		try {
-			XMLParserConfiguration configuration = new XIncludeAwareParserConfiguration(); // new
-																							// XMLGrammarCachingConfiguration();
 			// it should be better to cache XML Schema with XMLGrammarCachingConfiguration,
 			// but we cannot use
 			// XMLGrammarCachingConfiguration because cache is done with target namespaces.
 			// There are conflicts when
 			// 2 XML Schemas don't define target namespaces.
-			SAXParser reader = new SAXParser(configuration);
-			// Add LSP error reporter to fill LSP diagnostics from Xerces errors
-			reader.setProperty("http://apache.org/xml/properties/internal/error-reporter",
-					new LSPErrorReporterForXML(document, diagnostics));
-			reader.setFeature("http://apache.org/xml/features/continue-after-fatal-error", false); //$NON-NLS-1$
-			reader.setFeature("http://xml.org/sax/features/namespace-prefixes", true /* document.hasNamespaces() */); //$NON-NLS-1$
-			reader.setFeature("http://xml.org/sax/features/namespaces", true /* document.hasNamespaces() */); //$NON-NLS-1$
-
-			// Add LSP content handler to stop XML parsing if monitor is canceled.
-			reader.setContentHandler(new LSPContentHandler(monitor));
+			XMLParserConfiguration configuration = new XIncludeAwareParserConfiguration(); // new
+																							// XMLGrammarCachingConfiguration();
 
 			if (entityResolver != null) {
-				reader.setProperty("http://apache.org/xml/properties/internal/entity-resolver", entityResolver); //$NON-NLS-1$
+				configuration.setProperty("http://apache.org/xml/properties/internal/entity-resolver", entityResolver); //$NON-NLS-1$
 			}
 
+			final LSPErrorReporterForXML reporter = new LSPErrorReporterForXML(document, diagnostics);
+			boolean externalDTDValid = checkExternalDTD(document, reporter, configuration);
+
+			SAXParser parser = new SAXParser(configuration);
+			// Add LSP error reporter to fill LSP diagnostics from Xerces errors
+			parser.setProperty("http://apache.org/xml/properties/internal/error-reporter", reporter);
+			parser.setFeature("http://apache.org/xml/features/continue-after-fatal-error", false); //$NON-NLS-1$
+			parser.setFeature("http://xml.org/sax/features/namespace-prefixes", true /* document.hasNamespaces() */); //$NON-NLS-1$
+			parser.setFeature("http://xml.org/sax/features/namespaces", true /* document.hasNamespaces() */); //$NON-NLS-1$
+
+			// Add LSP content handler to stop XML parsing if monitor is canceled.
+			parser.setContentHandler(new LSPContentHandler(monitor));
+
 			boolean hasGrammar = document.hasGrammar();
-			
+
 			// If diagnostics for Schema preference is enabled
-			XMLValidationSettings validationSettings = contentModelSettings != null ? contentModelSettings.getValidation() : null;
-			if((validationSettings == null) || validationSettings.isSchema()) {
+			XMLValidationSettings validationSettings = contentModelSettings != null
+					? contentModelSettings.getValidation()
+					: null;
+			if ((validationSettings == null) || validationSettings.isSchema()) {
 
-				
+				checkExternalSchema(document.getExternalSchemaLocation(), parser);
 
-				checkExternalSchema(document.getExternalSchemaLocation(), reader);
-
-				reader.setFeature("http://apache.org/xml/features/validation/schema", hasGrammar); //$NON-NLS-1$
+				parser.setFeature("http://apache.org/xml/features/validation/schema", hasGrammar); //$NON-NLS-1$
 
 				// warn if XML document is not bound to a grammar according the settings
 				warnNoGrammar(document, diagnostics, contentModelSettings);
 			} else {
-				hasGrammar = false; //validation for Schema was disabled
+				hasGrammar = false; // validation for Schema was disabled
 			}
 
-			reader.setFeature("http://xml.org/sax/features/validation", hasGrammar); //$NON-NLS-1$
+			parser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", externalDTDValid);
+			parser.setFeature("http://xml.org/sax/features/validation", hasGrammar && externalDTDValid); //$NON-NLS-1$
 
 			// Parse XML
 			String content = document.getText();
@@ -101,15 +113,92 @@ public class XMLValidator {
 			InputSource inputSource = new InputSource();
 			inputSource.setByteStream(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)));
 			inputSource.setSystemId(uri);
-			reader.parse(inputSource);
+			parser.parse(inputSource);
 
 		} catch (IOException | SAXException | CancellationException exception) {
+			exception.printStackTrace();
 			// ignore error
 		} catch (CacheResourceDownloadingException e) {
 			throw e;
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, "Unexpected XMLValidator error", e);
 		}
+	}
+
+	/**
+	 * Returns true if the given document has a valid DTD (or doesn't define a DTD)
+	 * and false otherwise.
+	 * 
+	 * @param document      the DOM document
+	 * @param reporter      the reporter
+	 * @param configuration the configuration
+	 * @return true if the given document has a valid DTD (or doesn't define a DTD)
+	 *         and false otherwise.
+	 */
+	private static boolean checkExternalDTD(DOMDocument document, LSPErrorReporterForXML reporter,
+			XMLParserConfiguration configuration) {
+		if (!document.hasDTD()) {
+			return true;
+		}
+		DOMDocumentType docType = document.getDoctype();
+		if (docType.getKindNode() == null) {
+			return true;
+		}
+		
+		// When XML is bound with a DTD path which doesn't exist, Xerces throws an
+		// IOException which breaks the validation of XML syntax instead of reporting it
+		// (like XML Schema). Here we parse only the
+		// DOCTYPE to catch this error. If there is an error
+		// the next validation with be disabled by using
+		// http://xml.org/sax/features/validation &
+		// http://apache.org/xml/features/nonvalidating/load-external-dtd (disable uses
+		// of DTD for validation)
+
+		// Parse only the DOCTYPE of the DOM document
+
+		int end = document.getDoctype().getEnd();
+		String xml = document.getText().substring(0, end);
+		xml += "<root/>";
+		try {
+			
+			// Customize the entity manager to collect the error when DTD doesn't exist.
+			XMLEntityManager entityManager = new XMLEntityManager() {
+				@Override
+				public String setupCurrentEntity(String name, XMLInputSource xmlInputSource, boolean literal,
+						boolean isExternal) throws IOException, XNIException {
+					// Catch the setupCurrentEntity method which throws an IOException when DTD is
+					// not found
+					try {
+						return super.setupCurrentEntity(name, xmlInputSource, literal, isExternal);
+					} catch (IOException e) {
+						// Report the DTD invalid error
+						try {
+							Range range = new Range(document.positionAt(docType.getSystemIdNode().getStart()),
+									document.positionAt(docType.getSystemIdNode().getEnd()));
+							reporter.addDiagnostic(range,
+									MessageFormat.format(DTD_NOT_FOUND, xmlInputSource.getSystemId()),
+									DiagnosticSeverity.Error, DTDErrorCode.dtd_not_found.getCode());
+						} catch (BadLocationException e1) {
+							// Do nothing
+						}
+						throw e;
+					}
+				}
+			};
+			entityManager.reset(configuration);
+			
+			SAXParser parser = new SAXParser(configuration);
+			parser.setProperty("http://apache.org/xml/properties/internal/entity-manager", entityManager);
+			InputSource inputSource = new InputSource();
+			inputSource.setByteStream(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
+			inputSource.setSystemId(document.getDocumentURI());
+			parser.parse(inputSource);
+		} catch (SAXException | CancellationException exception) {
+			// ignore error
+		} catch (IOException e) {
+			return false;
+		}
+		return true;
 	}
 
 	/**
