@@ -311,6 +311,30 @@ public class XSDValidationExtensionsTest {
 		testDiagnosticsFor(xml, d(1, 3, 1, 13, XSDErrorCode.src_element_3));
 	}
 
+	@Test
+	public void src_import_1_2xs() throws BadLocationException {
+		String xml = "<?xml version=\'1.0\'?>\r\n" +
+			"<xs:schema xmlns:xs=\'http://www.w3.org/2001/XMLSchema\'>\r\n" +
+			"	<xs:import></xs:import>\r\n" +
+			"</xs:schema>";
+
+		Diagnostic d = d(2, 2, 2, 11, XSDErrorCode.src_import_1_2);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(2, 11, 2, 11, " namespace=\"\"")), ca(d, te(1, 54, 1, 54, " targetNamespace=\"\"")));
+	}
+
+	@Test
+	public void src_import_1_2() throws BadLocationException {
+		String xml = "<?xml version=\'1.0\'?>\r\n" +
+			"<schema xmlns=\'http://www.w3.org/2001/XMLSchema\'>\r\n" +
+			"	<import></import>\r\n" +
+			"</schema>";
+
+		Diagnostic d = d(2, 2, 2, 8, XSDErrorCode.src_import_1_2);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(2, 8, 2, 8, " namespace=\"\"")), ca(d, te(1, 48, 1, 48, " targetNamespace=\"\"")));
+	}
+
 	private static void testDiagnosticsFor(String xml, Diagnostic... expected) throws BadLocationException {
 		XMLAssert.testDiagnosticsFor(xml, null, null, "test.xsd", expected);
 	}
