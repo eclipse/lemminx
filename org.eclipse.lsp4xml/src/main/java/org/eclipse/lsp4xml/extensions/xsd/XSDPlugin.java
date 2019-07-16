@@ -48,6 +48,8 @@ public class XSDPlugin implements IXMLExtension {
 	private final IHighlightingParticipant highlightingParticipant;
 	private XSDURIResolverExtension uiResolver;
 
+	private ContentModelManager modelManager;
+
 	public XSDPlugin() {
 		completionParticipant = new XSDCompletionParticipant();
 		definitionParticipant = new XSDDefinitionParticipant();
@@ -64,7 +66,7 @@ public class XSDPlugin implements IXMLExtension {
 		if (DOMUtils.isXSD(document)) {
 			context.collectDocumentToValidate(d -> {
 				DOMDocument xml = context.getDocument(d.getDocumentURI());
-				return xml.usesSchema(context.getUri());
+				return modelManager.dependsOnGrammar(xml, context.getUri());
 			});
 		}
 	}
@@ -76,9 +78,9 @@ public class XSDPlugin implements IXMLExtension {
 		registry.getResolverExtensionManager().registerResolver(uiResolver);
 		// register XSD content model provider
 		ContentModelProvider modelProvider = new CMXSDContentModelProvider(registry.getResolverExtensionManager());
-		ContentModelManager modelManager = registry.getComponent(ContentModelManager.class);
+		modelManager = registry.getComponent(ContentModelManager.class);
 		modelManager.registerModelProvider(modelProvider);
-		// register completion, diagnostic particpant
+		// register completion, diagnostic participant
 		registry.registerCompletionParticipant(completionParticipant);
 		registry.registerDefinitionParticipant(definitionParticipant);
 		registry.registerDiagnosticsParticipant(diagnosticsParticipant);
