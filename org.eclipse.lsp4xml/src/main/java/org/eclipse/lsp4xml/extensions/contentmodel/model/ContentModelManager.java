@@ -25,6 +25,7 @@ import org.eclipse.lsp4xml.extensions.contentmodel.uriresolver.XMLCatalogResolve
 import org.eclipse.lsp4xml.extensions.contentmodel.uriresolver.XMLFileAssociationResolverExtension;
 import org.eclipse.lsp4xml.uriresolver.CacheResourceDownloadingException;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
+import org.eclipse.lsp4xml.utils.StringUtils;
 import org.eclipse.lsp4xml.utils.URIUtils;
 
 /**
@@ -81,6 +82,25 @@ public class ContentModelManager {
 		ContentModelProvider modelProvider = getModelProviderByStandardAssociation(xmlDocument, false);
 		String systemId = modelProvider != null ? modelProvider.getSystemId(xmlDocument, namespaceURI) : null;
 		return findCMDocument(xmlDocument.getDocumentURI(), namespaceURI, systemId, modelProvider);
+	}
+
+	/**
+	 * Returns true if the given document is linked to the given grammar URI (XML
+	 * Schema, DTD) and false otherwise.
+	 * 
+	 * @param document the DOM document
+	 * @param grammarURI  the grammar URI
+	 * @return true if the given document is linked to the given grammar URI (XML
+	 *         Schema, DTD) and false otherwise.
+	 */
+	public boolean dependsOnGrammar(DOMDocument document, String grammarURI) {
+		if (StringUtils.isEmpty(grammarURI)) {
+			return false;
+		}
+		ContentModelProvider modelProvider = getModelProviderByStandardAssociation(document, false);
+		String systemId = modelProvider != null ? modelProvider.getSystemId(document, document.getNamespaceURI()) : null;
+		String key = resolverManager.resolve(document.getDocumentURI(), null, systemId);
+		return grammarURI.equals(key);
 	}
 
 	/**
