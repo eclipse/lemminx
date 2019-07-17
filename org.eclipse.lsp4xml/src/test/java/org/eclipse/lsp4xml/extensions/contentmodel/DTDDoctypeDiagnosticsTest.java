@@ -54,4 +54,40 @@ public class DTDDoctypeDiagnosticsTest {
 				d(2, 19, 20, DTDErrorCode.MSG_OPEN_PAREN_OR_ELEMENT_TYPE_REQUIRED_IN_CHILDREN));
 	}
 
+	@Test
+	public void disableDTDValidationWhenNoElementDecl() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<!DOCTYPE article [\r\n" + //
+				"  <!ENTITY nbsp \"entity-value\">\r\n" + //
+				"]>           \r\n" + //
+				"<article>\r\n" + //
+				"	&nbsp;\r\n" + //
+				"</article>";
+		// No error, here DOCTYPE declares only ENTITY -> DTD validation is disabled
+		XMLAssert.testDiagnosticsFor(xml);
+
+		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<!DOCTYPE article [\r\n" + //
+				"  <!ENTITY nbsp \"entity-value\">\r\n" + //
+				"  <!ELEMENT element-name (#PCDATA)>\r\n" + //
+				"]>           \r\n" + //
+				"<article>\r\n" + //
+				"	&nbsp;\r\n" + //
+				"</article>";
+		// Error -> DTD validation defines a !ELEMENT entity-value which doesn't match
+		// the article root element
+		XMLAssert.testDiagnosticsFor(xml, d(5, 1, 8, DTDErrorCode.MSG_ELEMENT_NOT_DECLARED));
+
+		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<!DOCTYPE article [\r\n" + //
+				"  <!ENTITY nbsp \"entity-value\">\r\n" + //
+				"  <!ELEMENT article (#PCDATA)>\r\n" + //
+				"]>           \r\n" + //
+				"<article>\r\n" + //
+				"	&nbsp;\r\n" + //
+				"</article>";
+		// No error, DTD validation is done and XML matches the article element
+		// declaration
+		XMLAssert.testDiagnosticsFor(xml);
+	}
 }

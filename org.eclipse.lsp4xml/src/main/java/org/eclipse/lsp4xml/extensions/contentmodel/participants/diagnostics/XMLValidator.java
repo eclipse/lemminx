@@ -22,7 +22,6 @@ import java.util.logging.Logger;
 
 import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.parsers.SAXParser;
-import org.apache.xerces.parsers.XIncludeAwareParserConfiguration;
 import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.parser.XMLEntityResolver;
 import org.apache.xerces.xni.parser.XMLInputSource;
@@ -61,13 +60,13 @@ public class XMLValidator {
 	public static void doDiagnostics(DOMDocument document, XMLEntityResolver entityResolver,
 			List<Diagnostic> diagnostics, ContentModelSettings contentModelSettings, CancelChecker monitor) {
 		try {
-			// it should be better to cache XML Schema with XMLGrammarCachingConfiguration,
+			// It should be better to cache XML Schema with XMLGrammarCachingConfiguration,
 			// but we cannot use
 			// XMLGrammarCachingConfiguration because cache is done with target namespaces.
 			// There are conflicts when
 			// 2 XML Schemas don't define target namespaces.
-			XMLParserConfiguration configuration = new XIncludeAwareParserConfiguration(); // new
-																							// XMLGrammarCachingConfiguration();
+			LSPXMLParserConfiguration configuration = new LSPXMLParserConfiguration(
+					isDisableOnlyDTDValidation(document));
 
 			if (entityResolver != null) {
 				configuration.setProperty("http://apache.org/xml/properties/internal/entity-resolver", entityResolver); //$NON-NLS-1$
@@ -75,7 +74,6 @@ public class XMLValidator {
 
 			final LSPErrorReporterForXML reporter = new LSPErrorReporterForXML(document, diagnostics);
 			boolean externalDTDValid = checkExternalDTD(document, reporter, configuration);
-
 			SAXParser parser = new SAXParser(configuration);
 			// Add LSP error reporter to fill LSP diagnostics from Xerces errors
 			parser.setProperty("http://apache.org/xml/properties/internal/error-reporter", reporter);
@@ -125,6 +123,31 @@ public class XMLValidator {
 	}
 
 	/**
+	 * Returns true is DTD validation must be disabled and false otherwise.
+	 * 
+	 * @param document the DOM document
+	 * @return true is DTD validation must be disabled and false otherwise.
+	 */
+	private static boolean isDisableOnlyDTDValidation(DOMDocument document) {
+		// When XML declares a DOCTYPE only to define entities like
+		// <!DOCTYPE root [
+		// <!ENTITY foo "Bar">
+		// ]>
+		// Xerces try to validate the XML and report an error on each XML elements
+		// because they are not declared in the DOCTYPE.
+		// In this case, DTD validation must be disabled.
+		if (!document.hasDTD()) {
+			return false;
+		}
+		DOMDocumentType docType = document.getDoctype();
+		if (docType.getKindNode() != null) {
+			return false;
+		}
+		// Disable the DTD validation only if there are not <!ELEMENT or an <!ATTRLIST
+		return !docType.getChildren().stream().anyMatch(node -> node.isDTDElementDecl() || node.isDTDAttListDecl());
+	}
+
+	/**
 	 * Returns true if the given document has a valid DTD (or doesn't define a DTD)
 	 * and false otherwise.
 	 * 
@@ -143,7 +166,7 @@ public class XMLValidator {
 		if (docType.getKindNode() == null) {
 			return true;
 		}
-		
+
 		// When XML is bound with a DTD path which doesn't exist, Xerces throws an
 		// IOException which breaks the validation of XML syntax instead of reporting it
 		// (like XML Schema). Here we parse only the
@@ -159,7 +182,7 @@ public class XMLValidator {
 		String xml = document.getText().substring(0, end);
 		xml += "<root/>";
 		try {
-			
+
 			// Customize the entity manager to collect the error when DTD doesn't exist.
 			XMLEntityManager entityManager = new XMLEntityManager() {
 				@Override
@@ -185,7 +208,7 @@ public class XMLValidator {
 				}
 			};
 			entityManager.reset(configuration);
-			
+
 			SAXParser parser = new SAXParser(configuration);
 			parser.setProperty("http://apache.org/xml/properties/internal/entity-manager", entityManager);
 			InputSource inputSource = new InputSource();
