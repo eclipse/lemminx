@@ -116,7 +116,6 @@ public class XMLValidator {
 			parser.parse(inputSource);
 
 		} catch (IOException | SAXException | CancellationException exception) {
-			exception.printStackTrace();
 			// ignore error
 		} catch (CacheResourceDownloadingException e) {
 			throw e;
