@@ -131,7 +131,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 		}
 		try {
 			Range fullRange = request.getReplaceRange();
-			boolean canSupportSnippet = request.getCompletionSettings().isCompletionSnippetsSupported();
+			boolean canSupportSnippet = request.isCompletionSnippetsSupported();
 			XMLFormattingOptions formattingSettings = request.getFormattingSettings();
 			ContentModelManager contentModelManager = request.getComponent(ContentModelManager.class);
 			// Completion on attribute based on external grammar

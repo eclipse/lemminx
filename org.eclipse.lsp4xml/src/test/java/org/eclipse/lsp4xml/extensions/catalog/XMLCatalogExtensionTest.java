@@ -31,7 +31,7 @@ public class XMLCatalogExtensionTest {
 				"<catalog xmlns=\"urn:oasis:names:tc:entity:xmlns:xml:catalog\">\r\n" + //
 				"    |";
 
-		XMLAssert.testCompletionFor(xml, 15, c("public", "<public publicId=\"\" uri=\"\" />"));
+		XMLAssert.testCompletionFor(xml, 15 + 2 /* CDATA and Comments */, c("public", "<public publicId=\"\" uri=\"\" />"));
 	}
 
 	@Test

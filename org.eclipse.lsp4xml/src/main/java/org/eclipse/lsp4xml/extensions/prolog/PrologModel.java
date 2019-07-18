@@ -80,7 +80,7 @@ public class PrologModel {
 		item.setLabel("<?xml ... ?>");
 		item.setKind(CompletionItemKind.Property);
 		item.setFilterText("xml version=\"1.0\" encoding=\"UTF-8\"?>");
-		boolean isSnippetsSupported = request.getCompletionSettings().isCompletionSnippetsSupported();
+		boolean isSnippetsSupported = request.isCompletionSnippetsSupported();
 		InsertTextFormat insertText = isSnippetsSupported ? InsertTextFormat.Snippet : InsertTextFormat.PlainText;
 		item.setInsertTextFormat(insertText);
 		int closingBracketOffset;
@@ -143,7 +143,7 @@ public class PrologModel {
 		if(!prolog.isProlog()) {
 			return;
 		}
-		boolean isSnippetsSupported = request.getCompletionSettings().isCompletionSnippetsSupported();
+		boolean isSnippetsSupported = request.isCompletionSnippetsSupported();
 		
 		if(!prolog.hasAttribute(VERSION_NAME)) {
 			createCompletionItem(VERSION_NAME, isSnippetsSupported, true, editRange, VERSION_1, VERSION_VALUES, null, response, formattingsSettings);

@@ -24,7 +24,6 @@ public class StringUtils {
 	public static final String TRUE = "true";
 	public static final String FALSE = "false";
 	public static final Collection<String> TRUE_FALSE_ARRAY = Arrays.asList(TRUE, FALSE);
-	
 
 	private StringUtils() {
 	}
@@ -265,15 +264,15 @@ public class StringUtils {
 	}
 
 	public static String cleanPathForWindows(String pathString) {
-		if(pathString.startsWith("/") ) {
-			if(pathString.length() > 3) {
+		if (pathString.startsWith("/")) {
+			if (pathString.length() > 3) {
 				char letter = pathString.charAt(1);
 				char colon = pathString.charAt(2);
-				if(Character.isLetter(letter) && ':' == colon) {
+				if (Character.isLetter(letter) && ':' == colon) {
 					pathString = pathString.substring(1);
 				}
 			}
-			
+
 		}
 		pathString = pathString.replace("/", "\\");
 		return pathString;
@@ -282,9 +281,9 @@ public class StringUtils {
 	public static String escapeBackticks(String text) {
 		int i = text.length() - 1;
 		StringBuilder b = new StringBuilder(text);
-		while(i >= 0) {
+		while (i >= 0) {
 			char c = text.charAt(i);
-			if(c == '`') {
+			if (c == '`') {
 				b.insert(i, "\\");
 			}
 			i--;
@@ -295,26 +294,24 @@ public class StringUtils {
 	public static boolean isTagOutsideOfBackticks(String text) {
 		int i = 0;
 		boolean inBacktick = false;
-		while(i < text.length()) {
+		while (i < text.length()) {
 			char c = text.charAt(i);
-			if(c == '`') {
-				if(inBacktick) {
+			if (c == '`') {
+				if (inBacktick) {
 					inBacktick = false;
-				}
-				else {
+				} else {
 					inBacktick = true;
-				}	
-			}
-			else if(c == '<') {
+				}
+			} else if (c == '<') {
 				i++;
-				while(i < text.length()) {
+				while (i < text.length()) {
 					c = text.charAt(i);
-					if(c == '`') {
+					if (c == '`') {
 						i--;
 						break;
 					}
-					if(c == '>') {
-						if(!inBacktick) {
+					if (c == '>') {
+						if (!inBacktick) {
 							return true;
 						}
 						break;
@@ -326,7 +323,33 @@ public class StringUtils {
 			i++;
 		}
 		return false;
-		
+
+	}
+
+	public static int findExprBeforeAt(String text, String expr, int offset) {
+		if (offset <= 0) {
+			return -1;
+		}
+		expr = expr.toUpperCase();
+		int startOffset = -1;
+		char first = expr.charAt(0);
+		int length = Math.min(offset, expr.length());
+		int i = 0;
+		for (i = 1; i <= length; i++) {
+			if (Character.toUpperCase(text.charAt(offset - i)) == first) {
+				startOffset = offset - i;
+				break;
+			}
+		}
+		if (startOffset == -1) {
+			return -1;
+		}
+		for (int j = 0; j < i; j++) {
+			if (Character.toUpperCase(text.charAt(startOffset + j)) != expr.charAt(j)) {
+				return -1;
+			}
+		}
+		return startOffset - 1;
 	}
 
 }

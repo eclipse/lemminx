@@ -10,6 +10,7 @@
  */
 package org.eclipse.lsp4xml.services.extensions;
 
+import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.extensions.contentmodel.utils.XMLGenerator;
@@ -34,4 +35,27 @@ public interface ICompletionRequest extends IPositionRequest, IMarkupKindSupport
 	String getFilterForStartTagName(String tagName);
 
 	String getInsertAttrValue(String value);
+
+	/**
+	 * Returns <code>true</code> if the client support snippet and
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return <code>true</code> if the client support snippet and
+	 *         <code>false</code> otherwise.
+	 */
+	boolean isCompletionSnippetsSupported();
+
+	/**
+	 * Returns true if tag should be autoclosed with an end tag and false otherwise.
+	 * 
+	 * @return true if tag should be autoclosed with an end tag and false otherwise.
+	 */
+	public boolean isAutoCloseTags();
+
+	/**
+	 * Returns the proper insert text format according the support of snippet.
+	 * 
+	 * @return the proper insert text format according the support of snippet.
+	 */
+	InsertTextFormat getInsertTextFormat();
 }

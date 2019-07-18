@@ -86,7 +86,7 @@ public class XSISchemaModel {
 			inRootElement = true;
 		}
 
-		boolean isSnippetsSupported = request.getCompletionSettings().isCompletionSnippetsSupported();
+		boolean isSnippetsSupported = request.isCompletionSnippetsSupported();
 		if(inRootElement) {
 			if(!hasAttribute(elementAtOffset, "xmlns") && !response.hasAttribute("xmlns")) { // "xmlns" completion
 				createCompletionItem("xmlns", isSnippetsSupported, generateValue, editRange, null, null, null, response, formattingSettings);

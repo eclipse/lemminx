@@ -41,7 +41,7 @@ public class StringUtilsTest {
 		assertTrimNewLines("  a\nbcd  ", "  a\nbcd  ");
 		assertTrimNewLines("  a\r\nbcd  ", "  a\r\nbcd  ");
 	}
-	
+
 	@Test
 	public void testTrimOfSpace() {
 		assertTrimNewLines(" ", " ");
@@ -79,7 +79,21 @@ public class StringUtilsTest {
 		assertTrue(isTagOutsideOfBackticks("test `<a></a>` <A></A>"));
 		assertTrue(isTagOutsideOfBackticks("<A></A> `<a></a>`"));
 		assertTrue(isTagOutsideOfBackticks("<A> `<a></a>`"));
+
+	}
+
+	@Test
+	public void testMatch() {
+		String content = "    <!CDATA      ";
+		String expr = "<!CDATA";
+
+		int offset = 10;
+		int startOffset = StringUtils.findExprBeforeAt(content, expr, offset);
+		Assert.assertEquals(3, startOffset);
 		
+		offset = 9;
+		startOffset = StringUtils.findExprBeforeAt(content, expr, offset);
+		Assert.assertEquals(3, startOffset);
 	}
 
 	private static void assertTrimNewLines(String valueToTrim, String expected) {

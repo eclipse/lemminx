@@ -31,7 +31,6 @@ import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMParser;
 import org.eclipse.lsp4xml.settings.XMLCompletionSettings;
 import org.eclipse.lsp4xml.settings.SharedSettings;
-import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -53,22 +52,22 @@ public class XMLCompletionTest {
 
 	@Test
 	public void successfulEndTagCompletion() throws BadLocationException {
-		testCompletionFor("<a>|", 1, c("End with '</a>'", "</a>", r(0, 3, 0, 3), "</a>"));
-		testCompletionFor("<a>a|", 1, c("End with '</a>'", "</a>", r(0, 3, 0, 4), "</a>"));
-		testCompletionFor("<a><|", 1, c("End with '</a>'", "/a>", r(0, 4, 0, 4), "/a>"));
+		testCompletionFor("<a>|", 1 + 2 /* CDATA and Comments */, c("End with '</a>'", "</a>", r(0, 3, 0, 3), "</a>"));
+		testCompletionFor("<a>a|", 1 + 2 /* CDATA and Comments */, c("End with '</a>'", "</a>", r(0, 3, 0, 4), "</a>"));
+		testCompletionFor("<a><|", 1 + 2 /* CDATA and Comments */, c("End with '</a>'", "/a>", r(0, 4, 0, 4), "/a>"));
 		testCompletionFor("<a></|", 1, c("End with '</a>'", "/a>", r(0, 4, 0, 5), "/a>"));
 
-		testCompletionFor("<a><b>|</a>", 1, c("End with '</b>'", "</b>", r(0, 6, 0, 6), "</b>"));
-		testCompletionFor("<a><b><|</a>", 1, c("End with '</b>'", "/b>", r(0, 7, 0, 7), "/b>"));
+		testCompletionFor("<a><b>|</a>", 1 + 2 /* CDATA and Comments */, c("End with '</b>'", "</b>", r(0, 6, 0, 6), "</b>"));
+		testCompletionFor("<a><b><|</a>", 1 + 2 /* CDATA and Comments */, c("End with '</b>'", "/b>", r(0, 7, 0, 7), "/b>"));
 		testCompletionFor("<a><b></|</a>", 1, c("End with '</b>'", "/b>", r(0, 7, 0, 8), "/b>"));
 
-		testCompletionFor("<a>   <b>|</a>", 1, c("End with '</b>'", "</b>", r(0, 9, 0, 9), "</b>"));
-		testCompletionFor("<a>   <b><|</a>", 1, c("End with '</b>'", "/b>", r(0, 10, 0, 10), "/b>"));
+		testCompletionFor("<a>   <b>|</a>", 1 + 2 /* CDATA and Comments */, c("End with '</b>'", "</b>", r(0, 9, 0, 9), "</b>"));
+		testCompletionFor("<a>   <b><|</a>", 1 + 2 /* CDATA and Comments */, c("End with '</b>'", "/b>", r(0, 10, 0, 10), "/b>"));
 		testCompletionFor("<a>   <b></|</a>", 1, c("End with '</b>'", "/b>", r(0, 10, 0, 11), "/b>"));
 
-		testCompletionFor("<a><b>|", 2, c("End with '</b>'", "</b>", r(0, 6, 0, 6), "</b>"),
+		testCompletionFor("<a><b>|", 2 + 2 /* CDATA and Comments */, c("End with '</b>'", "</b>", r(0, 6, 0, 6), "</b>"),
 				c("End with '</a>'", "</a>", r(0, 6, 0, 6), "</a>"));
-		testCompletionFor("<a><b><|", 2, c("End with '</b>'", "/b>", r(0, 7, 0, 7), "/b>"),
+		testCompletionFor("<a><b><|", 2 + 2 /* CDATA and Comments */, c("End with '</b>'", "/b>", r(0, 7, 0, 7), "/b>"),
 				c("End with '</a>'", "/a>", r(0, 7, 0, 7), "/a>"));
 		testCompletionFor("<a><b></|", 2, c("End with '</b>'", "/b>", r(0, 7, 0, 8), "/b>"),
 				c("End with '</a>'", "/a>", r(0, 7, 0, 8), "/a>"));
@@ -77,30 +76,30 @@ public class XMLCompletionTest {
 	@Test
 	public void successfulEndTagCompletionWithIndent() throws BadLocationException {
 		testCompletionFor("  <a>\r\n" + //
-				"|", 3, //
+				"|", 3 + 2 /* CDATA and Comments */, //
 				c("End with '</a>'", "  </a>", r(1, 0, 1, 0), "</a>"), //
-				c("#region", "<!-- #region $1-->", r(1, 0, 1, 0), ""), //
+				c("#region", "<!-- #region -->", r(1, 0, 1, 0), ""), //
 				c("#endregion", "<!-- #endregion-->", r(1, 0, 1, 0), ""));
 		testCompletionFor("  <a>\r\n" + //
-				"<|", 1, //
+				"<|", 1 + 2 /* CDATA and Comments */, //
 				c("End with '</a>'", "  </a>", r(1, 0, 1, 1), "</a>"));
 		testCompletionFor("<a></|", 1, c("End with '</a>'", "/a>", r(0, 4, 0, 5), "/a>"));
 
 		testCompletionFor("  <a>\r\n" + //
 				"     <b>\r\n" + //
-				"<|", 2, //
+				"<|", 2 + 2 /* CDATA and Comments */, //
 				c("End with '</b>'", "     </b>", r(2, 0, 2, 1), "</b>"), //
 				c("End with '</a>'", "  </a>", r(2, 0, 2, 1), "</a>"));
 	}
 
 	@Test
 	public void unneededEndTagCompletion() throws BadLocationException {
-		testCompletionFor("<a>|</a>", 0);
-		testCompletionFor("<a><|</a>", 0);
+		testCompletionFor("<a>|</a>", 0 + 2 /* CDATA and Comments */);
+		testCompletionFor("<a><|</a>", 0 + 2 /* CDATA and Comments */);
 		testCompletionFor("<a></|</a>", 0);
 
-		testCompletionFor("<a><b>|</b></a>", 0);
-		testCompletionFor("<a><b><|</b></a>", 0);
+		testCompletionFor("<a><b>|</b></a>", 0 + 2 /* CDATA and Comments */);
+		testCompletionFor("<a><b><|</b></a>", 0 + 2 /* CDATA and Comments */);
 		testCompletionFor("<a><b></|</b></a>", 0);
 	}
 

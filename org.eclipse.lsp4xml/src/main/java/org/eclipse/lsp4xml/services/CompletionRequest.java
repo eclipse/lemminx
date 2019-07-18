@@ -10,6 +10,7 @@
  */
 package org.eclipse.lsp4xml.services;
 
+import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.BadLocationException;
@@ -18,8 +19,8 @@ import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.extensions.contentmodel.utils.XMLGenerator;
 import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
-import org.eclipse.lsp4xml.settings.XMLCompletionSettings;
 import org.eclipse.lsp4xml.settings.SharedSettings;
+import org.eclipse.lsp4xml.settings.XMLCompletionSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.utils.StringUtils;
 
@@ -77,9 +78,9 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 
 	public XMLGenerator getXMLGenerator() throws BadLocationException {
 		if (generator == null) {
-			generator = new XMLGenerator(getFormattingSettings(), getCompletionSettings().isAutoCloseTags(),
+			generator = new XMLGenerator(getFormattingSettings(), isAutoCloseTags(),
 					getLineIndentInfo().getWhitespacesIndent(), getLineIndentInfo().getLineDelimiter(),
-					getCompletionSettings().isCompletionSnippetsSupported(), 0);
+					isCompletionSnippetsSupported(), 0);
 		}
 		return generator;
 	}
@@ -130,6 +131,21 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 				&& completionSettings.getCompletionCapabilities().getCompletionItem().getDocumentationFormat() != null
 				&& completionSettings.getCompletionCapabilities().getCompletionItem().getDocumentationFormat()
 						.contains(kind);
+	}
+
+	@Override
+	public boolean isCompletionSnippetsSupported() {
+		return getCompletionSettings().isCompletionSnippetsSupported();
+	}
+
+	@Override
+	public boolean isAutoCloseTags() {
+		return getCompletionSettings().isAutoCloseTags();
+	}
+
+	@Override
+	public InsertTextFormat getInsertTextFormat() {
+		return isCompletionSnippetsSupported() ? InsertTextFormat.Snippet : InsertTextFormat.PlainText;
 	}
 
 }

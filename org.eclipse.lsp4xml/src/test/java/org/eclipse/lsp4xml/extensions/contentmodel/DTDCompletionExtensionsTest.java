@@ -169,7 +169,7 @@ public class DTDCompletionExtensionsTest {
 				"        <|\n" + // <-- completion
 				"    </animate>\n" +
 				"</svg>";
-		testCompletionFor(xml, false, 3, c("desc", te(4, 8, 4, 9, "<desc></desc>"), "<desc")
+		testCompletionFor(xml, false, 3 + 2 /* CDATA and Comments */, c("desc", te(4, 8, 4, 9, "<desc></desc>"), "<desc")
 		,c("metadata", te(4, 8, 4, 9, "<metadata></metadata>"), "<metadata")
 		,c("title", te(4, 8, 4, 9, "<title></title>"), "<title")
 		);

@@ -45,7 +45,6 @@ import org.eclipse.lsp4xml.services.extensions.ICompletionParticipant;
 import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
-import org.eclipse.lsp4xml.settings.XMLCompletionSettings;
 import org.eclipse.lsp4xml.settings.SharedSettings;
 import org.eclipse.lsp4xml.utils.StringUtils;
 
@@ -97,6 +96,13 @@ public class XMLCompletions {
 				if (scanner.getTokenEnd() == offset) {
 					int endPos = scanNextForEndPos(offset, scanner, TokenType.StartTag);
 					collectTagSuggestions(offset, endPos, completionRequest, completionResponse);
+					collectCDATACompletion(completionRequest, completionResponse);
+					collectCommentCompletion(completionRequest, completionResponse);
+					return completionResponse;
+				} else if (text.charAt(scanner.getTokenOffset() + 1) == '!') {
+					// Case where completion was triggered after <!
+					collectCDATACompletion(completionRequest, completionResponse);
+					collectCommentCompletion(completionRequest, completionResponse);
 					return completionResponse;
 				}
 				break;
@@ -513,12 +519,10 @@ public class XMLCompletions {
 						xml.append(" />");
 					} else {
 						xml.append(">");
-						XMLCompletionSettings completionSettings = completionRequest.getCompletionSettings();
-
-						if (completionSettings.isCompletionSnippetsSupported()) {
+						if (completionRequest.isCompletionSnippetsSupported()) {
 							xml.append("$0");
 						}
-						if (completionSettings.isAutoCloseTags()) {
+						if (completionRequest.isAutoCloseTags()) {
 							xml.append("</").append(tag).append(">");
 						}
 					}
@@ -624,6 +628,8 @@ public class XMLCompletions {
 			}
 		}
 		collectionRegionProposals(request, response);
+		collectCDATACompletion(request, response);
+		collectCommentCompletion(request, response);
 		collectCharacterEntityProposals(request, response);
 	}
 
@@ -637,27 +643,103 @@ public class XMLCompletions {
 			String lineUntilPos = lineText.substring(0, pos.getCharacter());
 			Matcher match = regionCompletionRegExpr.matcher(lineUntilPos);
 			if (match.find()) {
+				InsertTextFormat insertFormat = request.getInsertTextFormat();
 				Range range = new Range(new Position(pos.getLine(), pos.getCharacter() + match.regionStart()), pos);
 
+				String text = request.isCompletionSnippetsSupported() ? "<!-- #region $1-->" : "<!-- #region -->";
 				CompletionItem beginProposal = new CompletionItem("#region");
-				beginProposal.setTextEdit(new TextEdit(range, "<!-- #region $1-->"));
-				beginProposal.setDocumentation("Folding Region Start");
+				beginProposal.setTextEdit(new TextEdit(range, text));
+				beginProposal.setDocumentation("Insert Folding Region Start");
 				beginProposal.setFilterText(match.group());
 				beginProposal.setSortText("za");
 				beginProposal.setKind(CompletionItemKind.Snippet);
-				beginProposal.setInsertTextFormat(InsertTextFormat.Snippet);
+				beginProposal.setInsertTextFormat(insertFormat);
 				response.addCompletionAttribute(beginProposal);
 
 				CompletionItem endProposal = new CompletionItem("#endregion");
-				endProposal.setKind(CompletionItemKind.Snippet);
 				endProposal.setTextEdit(new TextEdit(range, "<!-- #endregion-->"));
-				endProposal.setDocumentation("Folding Region End");
+				endProposal.setDocumentation("Insert Folding Region End");
 				endProposal.setFilterText(match.group());
 				endProposal.setSortText("zb");
+				endProposal.setKind(CompletionItemKind.Snippet);
+				endProposal.setInsertTextFormat(InsertTextFormat.PlainText);
 				response.addCompletionAttribute(endProposal);
 			}
 		} catch (BadLocationException e) {
 			LOGGER.log(Level.SEVERE, "While performing collectRegionCompletion", e);
+		}
+	}
+
+	private void collectCDATACompletion(ICompletionRequest request, ICompletionResponse response) {
+		try {
+			boolean isSnippetsSupported = request.isCompletionSnippetsSupported();
+			InsertTextFormat insertFormat = request.getInsertTextFormat();
+
+			DOMDocument document = request.getXMLDocument();
+
+			String filter = "<!CDATA";
+			int startOffset = StringUtils.findExprBeforeAt(document.getText(), filter, request.getOffset());
+			if (startOffset == -1) {
+				startOffset = StringUtils.findExprBeforeAt(document.getText(), "CDATA", request.getOffset());
+				if (startOffset != - -1) {
+					filter = "CDATA";
+				}
+			}
+			if (startOffset == -1) {
+				startOffset = request.getOffset();
+			}
+			int endOffset = request.getOffset();
+			Range editRange = getReplaceRange(startOffset + 1, endOffset, request);
+
+			// Insert CDATA Section
+			CompletionItem cdataProposal = new CompletionItem("cdata");
+			cdataProposal.setKind(CompletionItemKind.Snippet);
+			cdataProposal.setFilterText(filter);
+			cdataProposal.setSortText("zc");
+			cdataProposal.setInsertTextFormat(insertFormat);
+
+			String textEdit = isSnippetsSupported ? "<![CDATA[ $1]]>" : "<![CDATA[ ]]>";
+			cdataProposal.setTextEdit(new TextEdit(editRange, textEdit));
+			cdataProposal.setDocumentation("Insert <![CDATA[ ]]>");
+			response.addCompletionItem(cdataProposal);
+		} catch (BadLocationException e) {
+			LOGGER.log(Level.SEVERE, "While performing collectCDATACompletion", e);
+		}
+	}
+
+	private void collectCommentCompletion(ICompletionRequest request, ICompletionResponse response) {
+		try {
+			boolean isSnippetsSupported = request.isCompletionSnippetsSupported();
+			InsertTextFormat insertFormat = request.getInsertTextFormat();
+
+			DOMDocument document = request.getXMLDocument();
+			String filter = "<!--";
+			int startOffset = StringUtils.findExprBeforeAt(document.getText(), filter, request.getOffset());
+			if (startOffset == -1) {
+				startOffset = StringUtils.findExprBeforeAt(document.getText(), "comment", request.getOffset());
+				if (startOffset != - -1) {
+					filter = "comment";
+				}
+			}
+			if (startOffset == -1) {
+				startOffset = request.getOffset();
+			}
+			int endOffset = request.getOffset();
+			Range editRange = getReplaceRange(startOffset + 1, endOffset, request);
+
+			// Insert Comment Section
+			CompletionItem commentProposal = new CompletionItem("comment");
+			commentProposal.setKind(CompletionItemKind.Snippet);
+			commentProposal.setFilterText(filter);
+			commentProposal.setSortText("zd");
+			commentProposal.setInsertTextFormat(insertFormat);
+
+			String textEdit = isSnippetsSupported ? "<!-- $1-->" : "<!-- -->";
+			commentProposal.setTextEdit(new TextEdit(editRange, textEdit));
+			commentProposal.setDocumentation("Insert <!-- -->");
+			response.addCompletionItem(commentProposal);
+		} catch (BadLocationException e) {
+			LOGGER.log(Level.SEVERE, "While performing collectCommentCompletion", e);
 		}
 	}
 
@@ -748,8 +830,7 @@ public class XMLCompletions {
 				completionRequest.setReplaceRange(replaceRange);
 				completionRequest.setAddQuotes(addQuotes);
 				for (ICompletionParticipant participant : completionParticipants) {
-					participant.onAttributeValue(valuePrefix, completionRequest,
-							completionResponse);
+					participant.onAttributeValue(valuePrefix, completionRequest, completionResponse);
 				}
 			} catch (BadLocationException e) {
 				LOGGER.log(Level.SEVERE,
@@ -767,8 +848,8 @@ public class XMLCompletions {
 	private void collectInsideDTDContent(CompletionRequest request, CompletionResponse response, boolean isContent) {
 		// Insert DTD Element Declaration
 		// see https://www.w3.org/TR/REC-xml/#dt-eldecl
-		boolean isSnippetsSupported = request.getCompletionSettings().isCompletionSnippetsSupported();
-		InsertTextFormat insertFormat = isSnippetsSupported ? InsertTextFormat.Snippet : InsertTextFormat.PlainText;
+		boolean isSnippetsSupported = request.isCompletionSnippetsSupported();
+		InsertTextFormat insertFormat = request.getInsertTextFormat();
 		CompletionItem elementDecl = new CompletionItem();
 		elementDecl.setLabel("Insert DTD Element declaration");
 		elementDecl.setKind(CompletionItemKind.EnumMember);
@@ -796,7 +877,6 @@ public class XMLCompletions {
 				: "<!ELEMENT element-name (#PCDATA)>";
 		elementDecl.setTextEdit(new TextEdit(editRange, textEdit));
 		elementDecl.setDocumentation("<!ELEMENT element-name (#PCDATA)>");
-
 		response.addCompletionItem(elementDecl);
 
 		// Insert DTD AttrList Declaration
@@ -812,7 +892,6 @@ public class XMLCompletions {
 				: "<!ATTLIST element-name attribute-name ID #REQUIRED>";
 		attrListDecl.setTextEdit(new TextEdit(editRange, textEdit));
 		attrListDecl.setDocumentation("<!ATTLIST element-name attribute-name ID #REQUIRED>");
-
 		response.addCompletionItem(attrListDecl);
 
 		// Insert Internal DTD Entity Declaration
@@ -828,7 +907,6 @@ public class XMLCompletions {
 				: "<!ENTITY entity-name \"entity-value\">";
 		internalEntity.setTextEdit(new TextEdit(editRange, textEdit));
 		internalEntity.setDocumentation("<!ENTITY entity-name \"entity-value\">");
-
 		response.addCompletionItem(internalEntity);
 
 		// Insert External DTD Entity Declaration
@@ -844,7 +922,6 @@ public class XMLCompletions {
 				: "<!ENTITY entity-name SYSTEM \"entity-value\">";
 		externalEntity.setTextEdit(new TextEdit(editRange, textEdit));
 		externalEntity.setDocumentation("<!ENTITY entity-name SYSTEM \"entity-value\">");
-
 		response.addCompletionItem(externalEntity);
 	}
 
