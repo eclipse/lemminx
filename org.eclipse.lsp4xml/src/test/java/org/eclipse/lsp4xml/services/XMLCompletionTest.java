@@ -252,7 +252,8 @@ public class XMLCompletionTest {
 		}
 
 		SharedSettings sharedSettings = new SharedSettings();
-		sharedSettings.setFormattingSettings(new XMLFormattingOptions(4, false));
+		sharedSettings.getFormattingSettings().setTabSize(4);
+		sharedSettings.getFormattingSettings().setInsertSpaces(false);
 
 		CompletionList completionList = languageService.doComplete(xmlDocument, position, sharedSettings);
 		return completionList;

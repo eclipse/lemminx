@@ -78,7 +78,6 @@ import org.eclipse.lsp4xml.services.extensions.save.AbstractSaveContext;
 import org.eclipse.lsp4xml.settings.SharedSettings;
 import org.eclipse.lsp4xml.settings.XMLCodeLensSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
-import org.eclipse.lsp4xml.settings.XMLIncrementalSupportSettings;
 import org.eclipse.lsp4xml.settings.XMLSymbolSettings;
 import org.eclipse.lsp4xml.utils.XMLPositionUtility;
 
@@ -135,7 +134,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	private boolean hierarchicalDocumentSymbolSupport;
 	private boolean definitionLinkSupport;
 	private boolean typeDefinitionLinkSupport;
-	
+
 	public XMLTextDocumentService(XMLLanguageServer xmlLanguageServer) {
 		this.xmlLanguageServer = xmlLanguageServer;
 		DOMParser parser = DOMParser.getInstance();
@@ -145,11 +144,12 @@ public class XMLTextDocumentService implements TextDocumentService {
 		this.sharedSettings = new SharedSettings();
 	}
 
-	public void updateClientCapabilities(ClientCapabilities capabilities, ExtendedClientCapabilities extendedClientCapabilities) {
+	public void updateClientCapabilities(ClientCapabilities capabilities,
+			ExtendedClientCapabilities extendedClientCapabilities) {
 		TextDocumentClientCapabilities textDocumentClientCapabilities = capabilities.getTextDocument();
 		if (textDocumentClientCapabilities != null) {
 			// Completion settings
-			sharedSettings.completionSettings.setCapabilities(textDocumentClientCapabilities.getCompletion());
+			sharedSettings.getCompletionSettings().setCapabilities(textDocumentClientCapabilities.getCompletion());
 			codeActionLiteralSupport = textDocumentClientCapabilities.getCodeAction() != null
 					&& textDocumentClientCapabilities.getCodeAction().getCodeActionLiteralSupport() != null;
 			hierarchicalDocumentSymbolSupport = textDocumentClientCapabilities.getDocumentSymbol() != null
@@ -160,11 +160,11 @@ public class XMLTextDocumentService implements TextDocumentService {
 					&& textDocumentClientCapabilities.getDefinition().getLinkSupport();
 			typeDefinitionLinkSupport = textDocumentClientCapabilities.getTypeDefinition() != null
 					&& textDocumentClientCapabilities.getTypeDefinition().getLinkSupport() != null
-					&& textDocumentClientCapabilities.getTypeDefinition().getLinkSupport();			
+					&& textDocumentClientCapabilities.getTypeDefinition().getLinkSupport();
 		}
 		if (extendedClientCapabilities != null) {
 			// Extended client capabilities
-			sharedSettings.getCodeLensSettings().setCodeLens(extendedClientCapabilities.getCodeLens());			
+			sharedSettings.getCodeLensSettings().setCodeLens(extendedClientCapabilities.getCodeLens());
 		}
 	}
 
@@ -187,7 +187,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	private XMLFormattingOptions getFormattingSettings(String uri) {
 		// TODO: manage formattings per document URI (to support .editorconfig for
 		// instance).
-		return sharedSettings.formattingSettings;
+		return sharedSettings.getFormattingSettings();
 	}
 
 	@Override
@@ -203,7 +203,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 		TextDocument document = getDocument(params.getTextDocument().getUri());
 
-		if (!sharedSettings.symbolSettings.isEnabled() || sharedSettings.symbolSettings.isExcluded(document.getUri())) {
+		if (!sharedSettings.getSymbolSettings().isEnabled()
+				|| sharedSettings.getSymbolSettings().isExcluded(document.getUri())) {
 			return CompletableFuture.completedFuture(Collections.emptyList());
 		}
 
@@ -281,7 +282,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 	@Override
 	public CompletableFuture<List<FoldingRange>> foldingRange(FoldingRangeRequestParams params) {
 		return computeDOMAsync(params.getTextDocument(), (cancelChecker, xmlDocument) -> {
-			return getXMLLanguageService().getFoldingRanges(xmlDocument, sharedSettings.foldingSettings, cancelChecker);
+			return getXMLLanguageService().getFoldingRanges(xmlDocument, sharedSettings.getFoldingSettings(),
+					cancelChecker);
 		});
 	}
 
@@ -308,7 +310,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 			return Either.forLeft(locations);
 		});
 	}
-	
+
 	@Override
 	public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> typeDefinition(
 			TextDocumentPositionParams params) {
@@ -340,7 +342,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 			return CompletableFuture.completedFuture(Collections.emptyList());
 		}
 		return computeDOMAsync(params.getTextDocument(), (cancelChecker, xmlDocument) -> {
-			return getXMLLanguageService().getCodeLens(xmlDocument, sharedSettings.getCodeLensSettings(), cancelChecker);
+			return getXMLLanguageService().getCodeLens(xmlDocument, sharedSettings.getCodeLensSettings(),
+					cancelChecker);
 		});
 	}
 
@@ -428,7 +431,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 		cancelChecker.checkCanceled();
 		getXMLLanguageService().publishDiagnostics(xmlDocument,
 				params -> xmlLanguageServer.getLanguageClient().publishDiagnostics(params),
-				(doc) -> triggerValidationFor(doc), sharedSettings.validationSettings, cancelChecker);
+				(doc) -> triggerValidationFor(doc), sharedSettings.getValidationSettings(), cancelChecker);
 	}
 
 	private XMLLanguageService getXMLLanguageService() {
@@ -436,11 +439,11 @@ public class XMLTextDocumentService implements TextDocumentService {
 	}
 
 	public void updateCompletionSettings(CompletionSettings newCompletion) {
-		sharedSettings.setCompletionSettings(newCompletion);
+		sharedSettings.getCompletionSettings().merge(newCompletion);
 	}
 
 	public void updateSymbolSettings(XMLSymbolSettings newSettings) {
-		XMLSymbolSettings symbolSettings = sharedSettings.symbolSettings;
+		XMLSymbolSettings symbolSettings = sharedSettings.getSymbolSettings();
 		symbolSettings.setEnabled(newSettings.isEnabled());
 		String[] newPatterns = newSettings.getExcluded();
 		if (newPatterns != null) {
@@ -454,7 +457,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	}
 
 	public XMLSymbolSettings getSharedSymbolSettings() {
-		return sharedSettings.symbolSettings;
+		return sharedSettings.getSymbolSettings();
 	}
 
 	public XMLCodeLensSettings getSharedCodeLensSettings() {
@@ -466,21 +469,15 @@ public class XMLTextDocumentService implements TextDocumentService {
 	}
 
 	public XMLFormattingOptions getSharedFormattingSettings() {
-		return sharedSettings.formattingSettings;
+		return sharedSettings.getFormattingSettings();
 	}
 
 	public XMLValidationSettings getValidationSettings() {
-
-		return sharedSettings.validationSettings;
+		return sharedSettings.getValidationSettings();
 	}
 
 	public SharedSettings getSharedSettings() {
 		return this.sharedSettings;
-	}
-
-	public void updateIncrementalSettings(XMLIncrementalSupportSettings settings) {
-		sharedSettings.experimentalSettings.getIncrementalSupport().setEnabled(settings.getEnabled());
-		this.documents.setIncremental(sharedSettings.experimentalSettings.getIncrementalSupport().getEnabled());
 	}
 
 	/**

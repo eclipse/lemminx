@@ -333,8 +333,7 @@ public class XMLSyntaxDiagnosticsTest {
 		Diagnostic diagnostic1 = d(2, 7, 2, 10, XMLSyntaxErrorCode.OpenQuoteExpected);
 		testDiagnosticsFor(xml, diagnostic1);
 		SharedSettings settings = new SharedSettings();
-		settings.formattingSettings = new XMLFormattingOptions();
-		settings.formattingSettings.setQuotations(XMLFormattingOptions.SINGLE_QUOTES_VALUE);
+		settings.getFormattingSettings().setQuotations(XMLFormattingOptions.SINGLE_QUOTES_VALUE);
 		testCodeActionsFor(xml, diagnostic1, null, settings, ca(diagnostic1, te(2, 11, 2, 11, "\'\'")));
 	}
 

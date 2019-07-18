@@ -40,6 +40,7 @@ public class CompletionSettings {
 
 	/**
 	 * Tag should be autoclosed with an end tag.
+	 * 
 	 * @param autoCloseTags
 	 */
 	public void setAutoCloseTags(boolean autoCloseTags) {
@@ -48,6 +49,7 @@ public class CompletionSettings {
 
 	/**
 	 * If tag should be autoclosed with an end tag.
+	 * 
 	 * @return
 	 */
 	public boolean isAutoCloseTags() {
@@ -65,5 +67,15 @@ public class CompletionSettings {
 		return completionCapabilities != null && completionCapabilities.getCompletionItem() != null
 				&& completionCapabilities.getCompletionItem().getSnippetSupport() != null
 				&& completionCapabilities.getCompletionItem().getSnippetSupport();
+	}
+
+	/**
+	 * Merge only the given completion settings (and not the capability) in the
+	 * settings.
+	 * 
+	 * @param newCompletion the new settings to merge.
+	 */
+	public void merge(CompletionSettings newCompletion) {
+		this.setAutoCloseTags(newCompletion.isAutoCloseTags());
 	}
 }

@@ -162,9 +162,9 @@ public class XMLAssert {
 		}
 
 		SharedSettings sharedSettings = new SharedSettings();
-		sharedSettings.setFormattingSettings(formattingSettings);
-		sharedSettings.setCompletionSettings(completionSettings);
-
+		sharedSettings.getFormattingSettings().merge(formattingSettings);
+		sharedSettings.getCompletionSettings().merge(completionSettings);
+		sharedSettings.getCompletionSettings().setCapabilities(completionSettings.getCompletionCapabilities());
 		CompletionList list = xmlLanguageService.doComplete(htmlDoc, position, sharedSettings);
 
 		// no duplicate labels
@@ -438,7 +438,8 @@ public class XMLAssert {
 	public static void testCodeActionsFor(String xml, Diagnostic diagnostic, String catalogPath,
 			CodeAction... expected) {
 		SharedSettings settings = new SharedSettings();
-		settings.setFormattingSettings(new XMLFormattingOptions(4, false));
+		settings.getFormattingSettings().setTabSize(4);
+		settings.getFormattingSettings().setInsertSpaces(false);
 		testCodeActionsFor(xml, diagnostic, catalogPath, settings, expected);
 
 	}
@@ -463,8 +464,8 @@ public class XMLAssert {
 		DOMDocument xmlDoc = DOMParser.getInstance().parse(document, xmlLanguageService.getResolverExtensionManager());
 
 		XMLFormattingOptions formattingSettings;
-		if (sharedSettings != null && sharedSettings.formattingSettings != null) {
-			formattingSettings = sharedSettings.formattingSettings;
+		if (sharedSettings != null && sharedSettings.getFormattingSettings() != null) {
+			formattingSettings = sharedSettings.getFormattingSettings();
 		} else {
 			formattingSettings = new XMLFormattingOptions(4, false);
 		}
