@@ -48,10 +48,8 @@ import org.eclipse.lsp4xml.settings.LogsSettings;
 import org.eclipse.lsp4xml.settings.ServerSettings;
 import org.eclipse.lsp4xml.settings.SharedSettings;
 import org.eclipse.lsp4xml.settings.XMLCodeLensSettings;
-import org.eclipse.lsp4xml.settings.XMLExperimentalSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.settings.XMLGeneralClientSettings;
-import org.eclipse.lsp4xml.settings.XMLIncrementalSupportSettings;
 import org.eclipse.lsp4xml.settings.XMLSymbolSettings;
 import org.eclipse.lsp4xml.settings.capabilities.InitializationOptionsExtendedClientCapabilities;
 import org.eclipse.lsp4xml.settings.capabilities.ServerCapabilitiesInitializer;
@@ -162,14 +160,6 @@ public class XMLLanguageServer
 			if (serverSettings != null) {
 				String workDir = serverSettings.getNormalizedWorkDir();
 				FilesUtils.setCachePathSetting(workDir);
-			}
-
-			XMLExperimentalSettings experimentalSettings = xmlClientSettings.getExperimental();
-			if (experimentalSettings != null) {
-				XMLIncrementalSupportSettings incrementalSettings = experimentalSettings.getIncrementalSupport();
-				if (incrementalSettings != null) {
-					xmlTextDocumentService.updateIncrementalSettings(incrementalSettings);
-				}
 			}
 		}
 		ContentModelSettings cmSettings = ContentModelSettings

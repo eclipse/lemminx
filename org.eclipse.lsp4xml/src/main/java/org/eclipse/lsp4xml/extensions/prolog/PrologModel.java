@@ -107,7 +107,7 @@ public class PrologModel {
 		int startOffset = tokenEndOffset - tag.length();
 		try {
 			Range editRange = XMLCompletions.getReplaceRange(startOffset, closingBracketOffset, request);
-			String q = settings.formattingSettings.getQuotationAsString();
+			String q = settings.getFormattingSettings().getQuotationAsString();
 			String cursor = isSnippetsSupported ? "$0" : "";
 			String text = MessageFormat.format("xml version={0}{1}{0} encoding={0}{2}{0}?>" + cursor , q, VERSION_1, UTF_8);
 			item.setTextEdit(new TextEdit(editRange, text));

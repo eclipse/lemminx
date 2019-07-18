@@ -235,7 +235,7 @@ public class SettingsTest {
 		XMLExcludedSymbolFile xmlFile = new XMLExcludedSymbolFile("**\\*.xml");
 		XMLExcludedSymbolFile[] expectedExcludedFiles = new XMLExcludedSymbolFile[] {xsdFile, xmlFile};
 
-		XMLExcludedSymbolFile[] actualExpectedFiles = languageServer.getSettings().symbolSettings.getExcludedFiles();
+		XMLExcludedSymbolFile[] actualExpectedFiles = languageServer.getSettings().getSymbolSettings().getExcludedFiles();
 		assertArrayEquals(expectedExcludedFiles, actualExpectedFiles);
 
 		XMLTextDocumentService textDocumentService = (XMLTextDocumentService) languageServer.getTextDocumentService();

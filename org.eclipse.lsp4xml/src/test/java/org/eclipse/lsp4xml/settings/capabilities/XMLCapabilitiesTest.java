@@ -64,7 +64,7 @@ public class XMLCapabilitiesTest {
 	public void startup() {
 
 		textDocumentService = new XMLTextDocumentService(null);
-		textDocumentService.getSharedSettings().formattingSettings.setEnabled(true);
+		textDocumentService.getSharedSettings().getFormattingSettings().setEnabled(true);
 
 		textDocument = new TextDocumentClientCapabilities();
 		workspace = new WorkspaceClientCapabilities();

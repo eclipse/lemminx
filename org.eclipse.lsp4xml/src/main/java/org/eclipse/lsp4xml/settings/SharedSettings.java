@@ -8,7 +8,6 @@
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
 
-
 package org.eclipse.lsp4xml.settings;
 
 import org.eclipse.lsp4j.FoldingRangeCapabilities;
@@ -20,33 +19,44 @@ import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
  */
 public class SharedSettings {
 
-	public CompletionSettings completionSettings;
-	public final FoldingRangeCapabilities foldingSettings;
-	public XMLFormattingOptions formattingSettings;
-	public final XMLValidationSettings validationSettings;
-	public final XMLSymbolSettings symbolSettings;
-	public final XMLExperimentalSettings experimentalSettings;
+	private final CompletionSettings completionSettings;
+	private final FoldingRangeCapabilities foldingSettings;
+	private final XMLFormattingOptions formattingSettings;
+	private final XMLValidationSettings validationSettings;
+	private final XMLSymbolSettings symbolSettings;
 	private final XMLCodeLensSettings codeLensSettings;
-	
+
 	public SharedSettings() {
 		this.completionSettings = new CompletionSettings();
 		this.foldingSettings = new FoldingRangeCapabilities();
 		this.formattingSettings = new XMLFormattingOptions(true);
 		this.validationSettings = new XMLValidationSettings();
 		this.symbolSettings = new XMLSymbolSettings();
-		this.experimentalSettings = new XMLExperimentalSettings();
 		this.codeLensSettings = new XMLCodeLensSettings();
 	}
 
-	public void setFormattingSettings(XMLFormattingOptions formattingOptions) {
-		formattingSettings = formattingOptions;
+	public CompletionSettings getCompletionSettings() {
+		return completionSettings;
 	}
 
-	public void setCompletionSettings(CompletionSettings completionSettings) {
-		this.completionSettings = completionSettings;
+	public FoldingRangeCapabilities getFoldingSettings() {
+		return foldingSettings;
 	}
-	
+
+	public XMLFormattingOptions getFormattingSettings() {
+		return formattingSettings;
+	}
+
+	public XMLValidationSettings getValidationSettings() {
+		return validationSettings;
+	}
+
+	public XMLSymbolSettings getSymbolSettings() {
+		return symbolSettings;
+	}
+
 	public XMLCodeLensSettings getCodeLensSettings() {
 		return codeLensSettings;
 	}
+
 }

@@ -46,16 +46,6 @@ public class XMLGeneralClientSettings {
 
 	private XMLCodeLensSettings codeLens;
 
-	private XMLExperimentalSettings experimental;
-
-	public XMLExperimentalSettings getExperimental() {
-		return experimental;
-	}
-
-	public void setExperimental(XMLExperimentalSettings experimental) {
-		this.experimental = experimental;
-	}
-
 	public void setLogs(LogsSettings logs) {
 		this.logs = logs;
 	}

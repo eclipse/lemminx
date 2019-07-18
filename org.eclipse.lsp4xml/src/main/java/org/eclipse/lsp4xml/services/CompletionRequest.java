@@ -46,8 +46,8 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 	public CompletionRequest(DOMDocument xmlDocument, Position position, SharedSettings settings,
 			XMLExtensionsRegistry extensionsRegistry) throws BadLocationException {
 		super(xmlDocument, position);
-		this.formattingSettings = settings.formattingSettings;
-		this.completionSettings = settings.completionSettings;
+		this.formattingSettings = settings.getFormattingSettings();
+		this.completionSettings = settings.getCompletionSettings();
 		this.extensionsRegistry = extensionsRegistry;
 	}
 

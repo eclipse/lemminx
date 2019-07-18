@@ -64,7 +64,6 @@ public class EmmetCompletionTest {
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
 
 		SharedSettings sharedSettings = new SharedSettings();
-		sharedSettings.setFormattingSettings(new XMLFormattingOptions(4, false));
 		
 		CompletionList list = xmlLanguageService.doComplete(htmlDoc, position, sharedSettings);
 
