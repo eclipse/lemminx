@@ -206,7 +206,7 @@ public class XMLSchemaCompletionExtensionsTest {
 				"  <ViewDefinitions>\r\n" + //
 				"    <View><|";
 		// Completion only with Name
-		XMLAssert.testCompletionFor(xml, null, "src/test/resources/Format.xml", 4, c("Name", "<Name></Name>"),
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/Format.xml", 4 + 2 /* CDATA and Comments */, c("Name", "<Name></Name>"),
 				c("End with '</Configuration>'", "/Configuration>"),
 				c("End with '</ViewDefinitions>'", "/ViewDefinitions>"), c("End with '</View>'", "/View>"));
 
@@ -216,7 +216,7 @@ public class XMLSchemaCompletionExtensionsTest {
 				"  <ViewDefinitions>\r\n" + //
 				"    <View><Name /><|";
 		// Completion only with Name
-		XMLAssert.testCompletionFor(xml, null, "src/test/resources/Format.xml", 5,
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/Format.xml", 5 + 2 /* CDATA and Comments */,
 				c("OutOfBand", "<OutOfBand></OutOfBand>"), c("ViewSelectedBy", "<ViewSelectedBy></ViewSelectedBy>"),
 				c("End with '</Configuration>'", "/Configuration>"),
 				c("End with '</ViewDefinitions>'", "/ViewDefinitions>"), c("End with '</View>'", "/View>"));
@@ -229,7 +229,7 @@ public class XMLSchemaCompletionExtensionsTest {
 				+ " xsi:schemaLocation=\"http://invoice xsd/invoice-ns.xsd \">\r\n" + //
 				"  <|";
 		// Completion only for date
-		XMLAssert.testCompletionFor(xml, null, "src/test/resources/invoice.xml", 2, c("date", "<date></date>"),
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/invoice.xml", 2 + 2 /* CDATA and Comments */, c("date", "<date></date>"),
 				c("End with '</invoice>'", "</invoice>"));
 
 		// Completion only for number
@@ -237,7 +237,7 @@ public class XMLSchemaCompletionExtensionsTest {
 				"<invoice xmlns=\"http://invoice\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n"
 				+ " xsi:schemaLocation=\"http://invoice xsd/invoice-ns.xsd \">\r\n" + //
 				"  <date></date>|";
-		XMLAssert.testCompletionFor(xml, null, "src/test/resources/invoice.xml", 2, c("number", "<number></number>"),
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/invoice.xml", 2 + 2 /* CDATA and Comments */, c("number", "<number></number>"),
 				c("End with '</invoice>'", "</invoice>"));
 	}
 
@@ -404,7 +404,7 @@ public class XMLSchemaCompletionExtensionsTest {
 	 * @throws MalformedURIException
 	 */
 	@Test
-	public void issue214() throws BadLocationException, MalformedURIException {
+	public void issue214() throws BadLocationException {
 		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
 				"<edmx:Edmx xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\" xmlns=\"http://docs.oasis-open.org/odata/ns/edm\" Version=\"4.0\">\r\n"
 				+ //
@@ -476,7 +476,7 @@ public class XMLSchemaCompletionExtensionsTest {
 				4 /*
 					 * edmx:DataServices, <edmx:DataServices, #region, #endregion AND NOT
 					 * edm:Annotation
-					 */, c("edmx:DataServices", "<edmx:DataServices></edmx:DataServices>"), //
+					 */ + 2 /* CDATA and Comments */, c("edmx:DataServices", "<edmx:DataServices></edmx:DataServices>"), //
 				c("edmx:Reference", "<edmx:Reference Uri=\"\"></edmx:Reference>"));
 
 		// with xmlns="http://docs.oasis-open.org/odata/ns/edm"
@@ -488,7 +488,7 @@ public class XMLSchemaCompletionExtensionsTest {
 				4 /*
 					 * edmx:DataServices, <edmx:DataServices, #region, #endregion AND NOT
 					 * edm:Annotation
-					 */, c("edmx:DataServices", "<edmx:DataServices></edmx:DataServices>"), //
+					 */ + 2 /* CDATA and Comments */, c("edmx:DataServices", "<edmx:DataServices></edmx:DataServices>"), //
 				c("edmx:Reference", "<edmx:Reference Uri=\"\"></edmx:Reference>"));
 	}
 
@@ -597,7 +597,7 @@ public class XMLSchemaCompletionExtensionsTest {
 				" <employee /> <| " + //
 				"</person>";
 		// Completion only member or employee
-		XMLAssert.testCompletionFor(xml, null, "src/test/resources/choice.xml", 2, c("member", "<member></member>"),
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/choice.xml", 2 + 2 /* CDATA and Comments */,
 				c("employee", "<employee></employee>"));
 
 		xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
@@ -608,7 +608,7 @@ public class XMLSchemaCompletionExtensionsTest {
 				" <employee /> <| " + //
 				"</person>";
 		// maxOccurs = 3, completion should be empty
-		XMLAssert.testCompletionFor(xml, null, "src/test/resources/choice.xml", 0);
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/choice.xml", 2 /* CDATA and Comments */);
 	}
 
 	@Test
@@ -660,8 +660,9 @@ public class XMLSchemaCompletionExtensionsTest {
 				"	xsi:noNamespaceSchemaLocation=\"xsd/sequence.xsd\">\r\n" + //
 				"	<e1></e1><e2></e2><e3 /><optional3></optional3><optional3></optional3>|";
 		// optional3 is not return by completion since optional3 has a max=2 occurences
-		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 1,
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 1 + 2 /* CDATA and Comments */,
 				c("End with '</data>'", "</data>"));
+
 
 	}
 
@@ -671,58 +672,61 @@ public class XMLSchemaCompletionExtensionsTest {
 				"<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
 				"	xsi:noNamespaceSchemaLocation=\"xsd/tag.xsd\">\r\n" + //
 				"	|";
-		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 4, c("tag", "<tag></tag>"),
-				c("End with '</root>'", "</root>"), c("#region", "<!-- #region $1-->"),
-				c("#endregion", "<!-- #endregion-->"));
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 4 + 2 /* CDATA and Comments */,
+				c("tag", "<tag></tag>"), c("End with '</root>'", "</root>"), c("#region", "<!-- #region -->"),
+				c("#endregion", "<!-- #endregion-->"), c("cdata", "<![CDATA[ ]]>"),
+				c("comment", "<!-- -->"));
 
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
 				"<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
 				"	xsi:noNamespaceSchemaLocation=\"xsd/tag.xsd\">\r\n" + //
 				"	|\r\n" + //
 				"</root>";
-		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 3, c("tag", "<tag></tag>"),
-				c("#region", "<!-- #region $1-->"), c("#endregion", "<!-- #endregion-->"));
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 3 + 2 /* CDATA and Comments */,
+				c("tag", "<tag></tag>"), c("#region", "<!-- #region -->"), c("#endregion", "<!-- #endregion-->"),
+				c("cdata", "<![CDATA[ ]]>"), c("comment", "<!-- -->"));
 
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
 				"<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
 				"	xsi:noNamespaceSchemaLocation=\"xsd/tag.xsd\">\r\n" + //
 				"	<|";
-		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 2, c("tag", "<tag></tag>"),
-				c("End with '</root>'", "</root>"));
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 2 + 2 /* CDATA and Comments */,
+				c("tag", "<tag></tag>"), c("End with '</root>'", "</root>"));
 
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
 				"<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
 				"	xsi:noNamespaceSchemaLocation=\"xsd/tag.xsd\">\r\n" + //
 				"	<|\r\n" + //
 				"</root>";
-		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 1, c("tag", "<tag></tag>"));
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 1 + 2 /* CDATA and Comments */,
+				c("tag", "<tag></tag>"));
 
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
 				"<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
 				"	xsi:noNamespaceSchemaLocation=\"xsd/tag.xsd\">\r\n" + //
 				"	<tag />|";
-		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 2,
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 2 + 2 /* CDATA and Comments */,
 				c("optional", "<optional></optional>"), c("End with '</root>'", "</root>"));
 
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
 				"<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
 				"	xsi:noNamespaceSchemaLocation=\"xsd/tag.xsd\">\r\n" + //
 				"	<tag />|\r\n" + "</root>";
-		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 1,
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 1 + 2 /* CDATA and Comments */,
 				c("optional", "<optional></optional>"));
 
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
 				"<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
 				"	xsi:noNamespaceSchemaLocation=\"xsd/tag.xsd\">\r\n" + //
 				"	<tag /><|";
-		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 2,
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 2 + 2 /* CDATA and Comments */,
 				c("optional", "<optional></optional>"), c("End with '</root>'", "/root>"));
 
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
 				"<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
 				"	xsi:noNamespaceSchemaLocation=\"xsd/tag.xsd\">\r\n" + //
 				"	<tag /><|\r\n" + "</root>";
-		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 1,
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 1 + 2 /* CDATA and Comments */,
 				c("optional", "<optional></optional>"));
 
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
@@ -730,17 +734,17 @@ public class XMLSchemaCompletionExtensionsTest {
 				"	xsi:noNamespaceSchemaLocation=\"xsd/tag.xsd\">\r\n" + //
 				"	<tag />\r\n" + //
 				"|";
-		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 4,
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 4 + 2 /* CDATA and Comments */,
 				c("optional", "<optional></optional>"), c("End with '</root>'", "</root>"),
-				c("#region", "<!-- #region $1-->"), c("#endregion", "<!-- #endregion-->"));
+				c("#region", "<!-- #region -->"), c("#endregion", "<!-- #endregion-->"));
 
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
 				"<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
 				"	xsi:noNamespaceSchemaLocation=\"xsd/tag.xsd\">\r\n" + //
 				"	<tag />\r\n" + //
 				"|r\n" + "</root>";
-		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 3,
-				c("optional", "<optional></optional>"), c("#region", "<!-- #region $1-->"),
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 3 + 2 /* CDATA and Comments */,
+				c("optional", "<optional></optional>"), c("#region", "<!-- #region -->"),
 				c("#endregion", "<!-- #endregion-->"));
 
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
@@ -748,7 +752,7 @@ public class XMLSchemaCompletionExtensionsTest {
 				"	xsi:noNamespaceSchemaLocation=\"xsd/tag.xsd\">\r\n" + //
 				"	<tag />\r\n" + //
 				"<|";
-		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 2,
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 2 + 2 /* CDATA and Comments */,
 				c("optional", "<optional></optional>"), c("End with '</root>'", "/root>"));
 
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
@@ -756,7 +760,7 @@ public class XMLSchemaCompletionExtensionsTest {
 				"	xsi:noNamespaceSchemaLocation=\"xsd/tag.xsd\">\r\n" + //
 				"	<tag />\r\n" + //
 				"<|\r\n" + "</root>";
-		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 1,
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 1 + 2 /* CDATA and Comments */,
 				c("optional", "<optional></optional>"));
 
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
@@ -765,9 +769,9 @@ public class XMLSchemaCompletionExtensionsTest {
 				"	<tag />\r\n" + //
 				"	<optional />\r\n" + //
 				"|";
-		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 4,
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 4 + 2 /* CDATA and Comments */,
 				c("optional", "<optional></optional>"), c("End with '</root>'", "</root>"),
-				c("#region", "<!-- #region $1-->"), c("#endregion", "<!-- #endregion-->"));
+				c("#region", "<!-- #region -->"), c("#endregion", "<!-- #endregion-->"));
 
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
 				"<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
@@ -775,7 +779,7 @@ public class XMLSchemaCompletionExtensionsTest {
 				"	<tag />\r\n" + //
 				"	<optional />\r\n" + //
 				"<|";
-		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 2,
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 2 + 2 /* CDATA and Comments */,
 				c("optional", "<optional></optional>"), c("End with '</root>'", "/root>"));
 
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
@@ -785,8 +789,9 @@ public class XMLSchemaCompletionExtensionsTest {
 				"	<optional />\r\n" + //
 				"	<optional />\r\n" + //
 				"|";
-		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 3, c("End with '</root>'", "</root>"),
-				c("#region", "<!-- #region $1-->"), c("#endregion", "<!-- #endregion-->"));
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 3 + 2 /* CDATA and Comments */,
+				c("End with '</root>'", "</root>"), c("#region", "<!-- #region -->"),
+				c("#endregion", "<!-- #endregion-->"));
 
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
 				"<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
@@ -795,7 +800,8 @@ public class XMLSchemaCompletionExtensionsTest {
 				"	<optional />\r\n" + //
 				"	<optional />\r\n" + //
 				"<|";
-		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 1, c("End with '</root>'", "/root>"));
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 1 + 2 /* CDATA and Comments */,
+				c("End with '</root>'", "/root>"));
 
 	}
 
