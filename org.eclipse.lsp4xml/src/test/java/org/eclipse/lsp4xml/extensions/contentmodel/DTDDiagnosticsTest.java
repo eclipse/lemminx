@@ -289,6 +289,19 @@ public class DTDDiagnosticsTest {
 	}
 
 	@Test
+	public void EntityNotDeclared() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
+				"<!DOCTYPE article [\r\n" +
+				"	<!ELEMENT article (#PCDATA)>\r\n" +
+				"]>\r\n" +
+				"<article>\r\n" +
+				"	&nbsp;\r\n" +
+				"</article>";
+
+		XMLAssert.testDiagnosticsFor(xml, d(5, 1, 7, DTDErrorCode.EntityNotDeclared));
+	}
+
+	@Test
 	public void ElementDeclUnterminated() throws Exception {
 		String xml = "<?xml version = \"1.0\"?>\r\n" + //
 				"<!DOCTYPE Person [\r\n" + //
