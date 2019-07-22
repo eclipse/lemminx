@@ -20,6 +20,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.dom.DOMDocument;
+import org.eclipse.lsp4xml.dom.DOMElement;
 import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.dom.NoNamespaceSchemaLocation;
 import org.eclipse.lsp4xml.dom.SchemaLocation;
@@ -32,6 +33,7 @@ import org.eclipse.lsp4xml.extensions.contentmodel.participants.codeactions.cvc_
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.codeactions.cvc_type_3_1_1CodeAction;
 import org.eclipse.lsp4xml.services.extensions.ICodeActionParticipant;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IXMLErrorCode;
+import org.eclipse.lsp4xml.utils.DOMUtils;
 import org.eclipse.lsp4xml.utils.XMLPositionUtility;
 
 /**
@@ -192,11 +194,26 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 		case cvc_type_3_1_1:
 			return XMLPositionUtility.selectAllAttributes(offset, document);
 		case cvc_complex_type_2_1:
-		case cvc_type_3_1_3:
 		case cvc_elt_3_2_1:
 			return XMLPositionUtility.selectContent(offset, document);
+		case cvc_type_3_1_3:
+		case cvc_datatype_valid_1_2_1: {
+			String attrValue = getString(arguments[0]);
+			Range range = XMLPositionUtility.selectAttributeValueFromGivenValue(attrValue, offset, document);
+			
+			if (range != null) {
+				return range;
+			}
+
+			DOMElement element = (DOMElement) document.findNodeAt(offset);
+
+			if (DOMUtils.containsTextOnly(element)) {
+				return XMLPositionUtility.selectTextTrimmed(offset, document);
+			} else {
+				return XMLPositionUtility.selectFirstChild(offset, document);
+			}
+		}
 		case cvc_enumeration_valid:
-		case cvc_datatype_valid_1_2_1:
 		case cvc_maxlength_valid:
 		case cvc_minlength_valid:
 		case cvc_maxExclusive_valid:

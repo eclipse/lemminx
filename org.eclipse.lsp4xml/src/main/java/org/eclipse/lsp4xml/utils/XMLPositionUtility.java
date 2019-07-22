@@ -489,6 +489,43 @@ public class XMLPositionUtility {
 		return new Location(targetDocument.getDocumentURI(), targetRange);
 	}
 
+	/**
+	 * Returns the range covering the first child of the node located
+	 * at offset.
+	 * 
+	 * Returns null if node is not a DOMElement, or if a node does not
+	 * exist at offset.
+	 * 
+	 * @param offset
+	 * @param document
+	 * @return range covering the first child of the node located
+	 * at offset
+	 */
+	public static Range selectFirstChild(int offset, DOMDocument document) {
+		DOMNode node = document.findNodeAt(offset);
+		if (node == null || !node.isElement()) {
+			return null;
+		}
+
+		DOMElement element = (DOMElement) node;
+		DOMNode child = element.getFirstChild();
+
+		if (child == null) {
+			return null;
+		}
+
+		int startOffset = child.getStart();
+		int endOffset = child.getEnd();
+
+		try {
+			Position startPosition = document.positionAt(startOffset);
+			Position endPosition = document.positionAt(endOffset);
+			return new Range(startPosition, endPosition);
+		} catch (BadLocationException e) {
+			return null;
+		}
+	}
+
 	public static Range selectContent(int offset, DOMDocument document) {
 		DOMNode node = document.findNodeAt(offset);
 		if (node != null) {
@@ -504,6 +541,59 @@ public class XMLPositionUtility {
 				return createRange(text.getStartContent(), text.getEndContent(), document);
 			}
 		}
+		return null;
+	}
+
+	/**
+	 * Returns the range covering the trimmed text belonging to the node
+	 * located at offset. 
+	 * 
+	 * This method assumes that the node located at offset only contains
+	 * text.
+	 * 
+	 * For example, if the node located at offset is:
+	 * 
+	 * <a>
+	 *        hello       
+	 *       
+	 * </a>
+	 * 
+	 * the returned range will cover only "hello".
+	 * 
+	 * @param offset
+	 * @param document
+	 * @return range covering the trimmed text belonging to the node
+	 * located at offset
+	 */
+	public static Range selectTextTrimmed(int offset, DOMDocument document) {
+		DOMNode node = document.findNodeAt(offset);
+		if (node == null || !node.isElement()) {
+			return null;
+		}
+
+		DOMElement element = (DOMElement) node;
+
+		if (DOMUtils.containsTextOnly(element)) {
+			DOMNode textNode = (DOMNode) element.getFirstChild();
+			String text = element.getFirstChild().getTextContent();
+
+			int startOffset = textNode.getStart();
+			int endOffset = textNode.getEnd();
+
+			if (!StringUtils.isWhitespace(text)) {
+				startOffset += StringUtils.getFrontWhitespaceLength(text);
+				endOffset -= StringUtils.getTrailingWhitespaceLength(text);
+			}
+			
+			try {
+				Position startPosition = document.positionAt(startOffset);
+				Position endPosition = document.positionAt(endOffset);
+				return new Range(startPosition, endPosition);
+			} catch (BadLocationException e) {
+				return null;
+			}
+		}
+
 		return null;
 	}
 

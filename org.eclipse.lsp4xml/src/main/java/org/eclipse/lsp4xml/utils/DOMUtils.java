@@ -89,4 +89,12 @@ public class DOMUtils {
 		return uri != null
 				&& (uri.endsWith(DTD_EXTENSION) || uri.endsWith(ENT_EXTENSION) || uri.endsWith(MOD_EXTENSION));
 	}
+
+	/**
+	 * Returns true if element contains only DOMText and false otherwise.
+	 * @return true if element contains only DOMText and false otherwise.
+	 */
+	public static boolean containsTextOnly(DOMElement element) {
+		return element.getChildNodes().getLength() == 1 && element.getFirstChild().isText();
+	}
 }
