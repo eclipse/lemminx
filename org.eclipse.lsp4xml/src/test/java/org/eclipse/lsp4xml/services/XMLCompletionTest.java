@@ -29,7 +29,7 @@ import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.customservice.AutoCloseTagResponse;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMParser;
-import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
+import org.eclipse.lsp4xml.settings.XMLCompletionSettings;
 import org.eclipse.lsp4xml.settings.SharedSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.junit.Before;
@@ -42,12 +42,12 @@ import org.junit.Test;
 public class XMLCompletionTest {
 
 	private XMLLanguageService languageService;
-	private CompletionSettings sharedCompletionSettings;
+	private XMLCompletionSettings sharedCompletionSettings;
 
 	@Before
 	public void initializeLanguageService() {
 		languageService = new XMLLanguageService();
-		sharedCompletionSettings = new CompletionSettings();
+		sharedCompletionSettings = new XMLCompletionSettings();
 
 	}
 

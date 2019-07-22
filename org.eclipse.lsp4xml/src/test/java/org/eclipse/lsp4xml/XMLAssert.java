@@ -35,6 +35,7 @@ import org.eclipse.lsp4j.DocumentHighlightKind;
 import org.eclipse.lsp4j.DocumentLink;
 import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.Hover;
+import org.eclipse.lsp4j.HoverCapabilities;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.MarkedString;
@@ -61,12 +62,13 @@ import org.eclipse.lsp4xml.dom.DOMParser;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.ContentModelSettings;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
-import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IXMLErrorCode;
 import org.eclipse.lsp4xml.services.extensions.save.AbstractSaveContext;
 import org.eclipse.lsp4xml.settings.SharedSettings;
 import org.eclipse.lsp4xml.settings.XMLCodeLensSettings;
+import org.eclipse.lsp4xml.settings.XMLCompletionSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
+import org.eclipse.lsp4xml.settings.XMLHoverSettings;
 import org.eclipse.lsp4xml.utils.StringUtils;
 import org.junit.Assert;
 
@@ -127,19 +129,19 @@ public class XMLAssert {
 			Consumer<XMLLanguageService> customConfiguration, String fileURI, Integer expectedCount,
 			boolean autoCloseTags, CompletionItem... expectedItems) throws BadLocationException {
 		testCompletionFor(xmlLanguageService, value, catalogPath, customConfiguration, fileURI, expectedCount,
-				new CompletionSettings(autoCloseTags), expectedItems);
+				new XMLCompletionSettings(autoCloseTags), expectedItems);
 	}
 
 	public static void testCompletionFor(XMLLanguageService xmlLanguageService, String value, String catalogPath,
 			Consumer<XMLLanguageService> customConfiguration, String fileURI, Integer expectedCount,
-			CompletionSettings completionSettings, CompletionItem... expectedItems) throws BadLocationException {
+			XMLCompletionSettings completionSettings, CompletionItem... expectedItems) throws BadLocationException {
 		testCompletionFor(xmlLanguageService, value, catalogPath, customConfiguration, fileURI, expectedCount,
 				completionSettings, new XMLFormattingOptions(4, true), expectedItems);
 	}
 
 	public static void testCompletionFor(XMLLanguageService xmlLanguageService, String value, String catalogPath,
 			Consumer<XMLLanguageService> customConfiguration, String fileURI, Integer expectedCount,
-			CompletionSettings completionSettings, XMLFormattingOptions formattingSettings,
+			XMLCompletionSettings completionSettings, XMLFormattingOptions formattingSettings,
 			CompletionItem... expectedItems) throws BadLocationException {
 		int offset = value.indexOf('|');
 		value = value.substring(0, offset) + value.substring(offset + 1);
@@ -553,7 +555,10 @@ public class XMLAssert {
 		}
 		xmlLanguageService.doSave(new SettingsSaveContext(settings));
 
-		Hover hover = xmlLanguageService.doHover(htmlDoc, position);
+		XMLHoverSettings hoverSettings = new XMLHoverSettings();
+		HoverCapabilities capabilities = new HoverCapabilities(Arrays.asList(MarkupKind.MARKDOWN), false);
+		hoverSettings.setCapabilities(capabilities);
+		Hover hover = xmlLanguageService.doHover(htmlDoc, position, hoverSettings);
 		if (expectedHoverLabel == null) {
 			Assert.assertNull(hover);
 		} else {

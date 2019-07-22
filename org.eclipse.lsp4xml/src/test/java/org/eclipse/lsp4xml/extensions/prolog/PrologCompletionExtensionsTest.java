@@ -19,7 +19,7 @@ import org.eclipse.lsp4j.CompletionItemCapabilities;
 import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
-import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
+import org.eclipse.lsp4xml.settings.XMLCompletionSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -252,7 +252,7 @@ public class PrologCompletionExtensionsTest {
 	}
 
 	private void testCompletionFor(String xml, String fileURI, XMLFormattingOptions formattingSettings,
-			CompletionSettings completionSettings, CompletionItem... expectedItems) throws BadLocationException {
+			XMLCompletionSettings completionSettings, CompletionItem... expectedItems) throws BadLocationException {
 		XMLAssert.testCompletionFor(new XMLLanguageService(), xml, null, null, fileURI, null, completionSettings,
 				formattingSettings, expectedItems);
 	}
@@ -264,13 +264,13 @@ public class PrologCompletionExtensionsTest {
 	}
 
 	private void testCompletionFor(String xml, XMLFormattingOptions formattingSettings,
-			CompletionSettings completionSettings, CompletionItem... expectedItems) throws BadLocationException {
+			XMLCompletionSettings completionSettings, CompletionItem... expectedItems) throws BadLocationException {
 		XMLAssert.testCompletionFor(new XMLLanguageService(), xml, null, null, null, null, completionSettings,
 				formattingSettings, expectedItems);
 	}
 
-	private CompletionSettings createCompletionSettings(boolean autoCloseTags, boolean isSnippetsSupported) {
-		CompletionSettings completionSettings = new CompletionSettings(autoCloseTags);
+	private XMLCompletionSettings createCompletionSettings(boolean autoCloseTags, boolean isSnippetsSupported) {
+		XMLCompletionSettings completionSettings = new XMLCompletionSettings(autoCloseTags);
 		CompletionCapabilities capabilities = new CompletionCapabilities();
 		CompletionItemCapabilities itemCapabilities = new CompletionItemCapabilities(isSnippetsSupported);
 		capabilities.setCompletionItem(itemCapabilities);

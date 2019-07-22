@@ -18,6 +18,7 @@ import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.services.extensions.IHoverRequest;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lsp4xml.settings.XMLHoverSettings;
 
 /**
  * Hover request implementation.
@@ -25,15 +26,18 @@ import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
  */
 class HoverRequest extends AbstractPositionRequest implements IHoverRequest {
 
+	private final XMLHoverSettings settings;
+
 	private final XMLExtensionsRegistry extensionsRegistry;
 
 	private Range tagRange;
 
 	private boolean open;
 
-	public HoverRequest(DOMDocument xmlDocument, Position position, XMLExtensionsRegistry extensionsRegistry)
-			throws BadLocationException {
+	public HoverRequest(DOMDocument xmlDocument, Position position, XMLHoverSettings settings,
+			XMLExtensionsRegistry extensionsRegistry) throws BadLocationException {
 		super(xmlDocument, position);
+		this.settings = settings;
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
@@ -74,7 +78,9 @@ class HoverRequest extends AbstractPositionRequest implements IHoverRequest {
 
 	@Override
 	public boolean canSupportMarkupKind(String kind) {
-		// FIXME : use the hover capability to know if the given kind is supported
-		return true;
+		return settings != null && settings.getCapabilities() != null
+				&& settings.getCapabilities().getContentFormat() != null
+				&& settings.getCapabilities().getContentFormat().contains(kind);
+
 	}
 }

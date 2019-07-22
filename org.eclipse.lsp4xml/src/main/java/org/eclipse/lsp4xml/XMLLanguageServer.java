@@ -41,8 +41,8 @@ import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLValidationSetting
 import org.eclipse.lsp4xml.logs.LogHelper;
 import org.eclipse.lsp4xml.services.IXMLDocumentProvider;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
-import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.settings.AllXMLSettings;
+import org.eclipse.lsp4xml.settings.XMLCompletionSettings;
 import org.eclipse.lsp4xml.settings.InitializationOptionsSettings;
 import org.eclipse.lsp4xml.settings.LogsSettings;
 import org.eclipse.lsp4xml.settings.ServerSettings;
@@ -141,7 +141,7 @@ public class XMLLanguageServer
 				xmlTextDocumentService.getSharedFormattingSettings().merge(formatterSettings);
 			}
 
-			CompletionSettings newCompletions = xmlClientSettings.getCompletion();
+			XMLCompletionSettings newCompletions = xmlClientSettings.getCompletion();
 			if (newCompletions != null) {
 				xmlTextDocumentService.updateCompletionSettings(newCompletions);
 			}

@@ -16,9 +16,9 @@ import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.extensions.contentmodel.utils.XMLGenerator;
-import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lsp4xml.settings.XMLCompletionSettings;
 import org.eclipse.lsp4xml.settings.SharedSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.utils.StringUtils;
@@ -29,7 +29,7 @@ import org.eclipse.lsp4xml.utils.StringUtils;
  */
 class CompletionRequest extends AbstractPositionRequest implements ICompletionRequest {
 
-	private final CompletionSettings completionSettings;
+	private final XMLCompletionSettings completionSettings;
 
 	private final XMLFormattingOptions formattingSettings;
 
@@ -62,7 +62,7 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 	}
 
 	@Override
-	public CompletionSettings getCompletionSettings() {
+	public XMLCompletionSettings getCompletionSettings() {
 		return completionSettings;
 	}
 

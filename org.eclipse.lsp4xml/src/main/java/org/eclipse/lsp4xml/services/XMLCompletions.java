@@ -41,11 +41,11 @@ import org.eclipse.lsp4xml.dom.parser.ScannerState;
 import org.eclipse.lsp4xml.dom.parser.TokenType;
 import org.eclipse.lsp4xml.dom.parser.XMLScanner;
 import org.eclipse.lsp4xml.extensions.prolog.PrologModel;
-import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.services.extensions.ICompletionParticipant;
 import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lsp4xml.settings.XMLCompletionSettings;
 import org.eclipse.lsp4xml.settings.SharedSettings;
 import org.eclipse.lsp4xml.utils.StringUtils;
 
@@ -513,7 +513,7 @@ public class XMLCompletions {
 						xml.append(" />");
 					} else {
 						xml.append(">");
-						CompletionSettings completionSettings = completionRequest.getCompletionSettings();
+						XMLCompletionSettings completionSettings = completionRequest.getCompletionSettings();
 
 						if (completionSettings.isCompletionSnippetsSupported()) {
 							xml.append("$0");

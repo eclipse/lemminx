@@ -10,7 +10,7 @@ import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
-import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
+import org.eclipse.lsp4xml.settings.XMLCompletionSettings;
 import org.junit.Test;
 
 public class DTDCompletionExtensionsTest {
@@ -180,7 +180,7 @@ public class DTDCompletionExtensionsTest {
 	}
 
 	private void testCompletionFor(String xml, boolean isSnippetsSupported, Integer expectedCount, CompletionItem... expectedItems) throws BadLocationException {
-		CompletionSettings completionSettings = new CompletionSettings();
+		XMLCompletionSettings completionSettings = new XMLCompletionSettings();
 		CompletionCapabilities completionCapabilities = new CompletionCapabilities();
 		CompletionItemCapabilities completionItem = new CompletionItemCapabilities(isSnippetsSupported); // activate snippets
 		completionCapabilities.setCompletionItem(completionItem);

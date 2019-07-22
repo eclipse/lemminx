@@ -13,6 +13,7 @@ package org.eclipse.lsp4xml.services.extensions;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.extensions.contentmodel.utils.XMLGenerator;
+import org.eclipse.lsp4xml.settings.XMLCompletionSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.utils.MarkupContentFactory.IMarkupKindSupport;
 
@@ -26,7 +27,7 @@ public interface ICompletionRequest extends IPositionRequest, IMarkupKindSupport
 
 	XMLFormattingOptions getFormattingSettings();
 
-	CompletionSettings getCompletionSettings();
+	XMLCompletionSettings getCompletionSettings();
 
 	XMLGenerator getXMLGenerator() throws BadLocationException;
 
