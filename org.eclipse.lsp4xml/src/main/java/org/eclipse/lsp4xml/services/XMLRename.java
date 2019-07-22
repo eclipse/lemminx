@@ -111,7 +111,7 @@ public class XMLRename {
 	}
 
 	/**
-     * Returns <code>DOMElement</code> associated with 
+	 * Returns <code>DOMElement</code> associated with 
 	 * <code>node</code>
 	 * 
 	 * @param node node representing an element or attribute

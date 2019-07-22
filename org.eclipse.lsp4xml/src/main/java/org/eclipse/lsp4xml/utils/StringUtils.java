@@ -263,6 +263,48 @@ public class StringUtils {
 		return -1;
 	}
 
+	/**
+	 * Returns the number of consecutive whitespace characters in front
+	 * of text 
+	 * @param text String of interest
+	 * @return the number of consecutive whitespace characters in front
+	 * of text 
+	 */
+	public static int getFrontWhitespaceLength(String text) {
+
+		if (StringUtils.isWhitespace(text)) {
+			return text.length();
+		}
+
+		int i = 0;
+		while (Character.isWhitespace(text.charAt(i))) {
+			i++;
+		}
+
+		return i;
+	}
+
+	/**
+	 * Returns the number of consecutive whitespace characters from
+	 * the end of text
+	 * @param text String of interest
+	 * @return the number of consecutive whitespace characters from
+	 * the end of text
+	 */
+	public static int getTrailingWhitespaceLength(String text) {
+		
+		if (StringUtils.isWhitespace(text)) {
+			return text.length();
+		}
+
+		int i = text.length() - 1;
+		while (Character.isWhitespace(text.charAt(i))) {
+			i--;
+		}
+
+		return text.length() - i - 1;
+	}
+
 	public static String cleanPathForWindows(String pathString) {
 		if (pathString.startsWith("/")) {
 			if (pathString.length() > 3) {

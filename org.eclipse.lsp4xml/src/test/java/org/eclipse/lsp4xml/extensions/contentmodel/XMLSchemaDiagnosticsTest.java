@@ -279,6 +279,47 @@ public class XMLSchemaDiagnosticsTest {
 	}
 
 	@Test
+	public void cvc_datatype_valid_1_2_1_TextOnlyWithWhitespace() throws Exception {
+		String xml = "<a xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \r\n" +
+				"    xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/integerElement.xsd\">\r\n" +
+				"\r\n" +
+				"    TEXT\r\n" +
+				"\r\n" +
+				"</a>";
+		testDiagnosticsFor(xml, d(3, 4, 3, 8, XMLSchemaErrorCode.cvc_datatype_valid_1_2_1),
+				d(3, 4, 3, 8, XMLSchemaErrorCode.cvc_type_3_1_3));
+	}
+
+	@Test
+	public void cvc_datatype_valid_1_2_1_OneElement() throws Exception {
+		String xml = "<a xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \r\n" +
+				"    xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/integerElement.xsd\">\r\n" +
+				"\r\n" +
+				"    <b></b>\r\n" +
+				"\r\n" +
+				"</a>";
+
+		testDiagnosticsFor(xml, d(0, 1, 0, 2 , XMLSchemaErrorCode.cvc_type_3_1_2),
+				d(3, 4, 3, 11, XMLSchemaErrorCode.cvc_datatype_valid_1_2_1),
+				d(3, 4, 3, 11, XMLSchemaErrorCode.cvc_type_3_1_3));
+	}
+
+	@Test
+	public void cvc_datatype_valid_1_2_1_TwoElements() throws Exception {
+		String xml = "<a xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \r\n" +
+				"    xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/integerElement.xsd\">\r\n" +
+				"\r\n" +
+				"    <b></b>\r\n" +
+				"    <c></c>\r\n" +
+				"\r\n" +
+				"</a>";
+
+		testDiagnosticsFor(xml, d(0, 1, 0, 2 , XMLSchemaErrorCode.cvc_type_3_1_2),
+				d(3, 4, 3, 11, XMLSchemaErrorCode.cvc_datatype_valid_1_2_1),
+				d(3, 4, 3, 11, XMLSchemaErrorCode.cvc_type_3_1_3));
+	}
+
+	@Test
 	public void cvc_maxLength_validOnAttribute() throws Exception {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<team\r\n" + //
