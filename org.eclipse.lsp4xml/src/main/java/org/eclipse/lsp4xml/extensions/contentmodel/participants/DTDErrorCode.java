@@ -17,6 +17,7 @@ import org.apache.xerces.xni.XMLLocator;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.BadLocationException;
+import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMElement;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.codeactions.ElementDeclUnterminatedCodeAction;
@@ -36,6 +37,7 @@ public enum DTDErrorCode implements IXMLErrorCode {
 	AttTypeRequiredInAttDef,
 	ElementDeclUnterminated,
 	EntityDeclUnterminated,
+	EntityNotDeclared,
 	ExternalIDorPublicIDRequired,
 	IDInvalidWithNamespaces,
 	IDREFInvalidWithNamespaces,
@@ -154,7 +156,23 @@ public enum DTDErrorCode implements IXMLErrorCode {
 		case PEReferenceWithinMarkup: {
 			return XMLPositionUtility.getLastValidDTDDeclParameter(offset, document, true);
 		}
-		
+		case EntityNotDeclared: {
+			try {
+				Position position = document.positionAt(offset);
+				int line = position.getLine();
+				String text = document.lineText(line);
+				String name = (String) arguments[0];
+				String subString = "&" + name + ";";
+				int start = text.indexOf(subString);
+				int end = start + subString.length();
+				Position startPosition = new Position(line, start);
+				Position endPosition = new Position(line, end);
+				return new Range(startPosition, endPosition);
+			} catch (BadLocationException e) {
+
+			}
+
+		}
 		case QuoteRequiredInPublicID:
 		case QuoteRequiredInSystemID:
 		case OpenQuoteMissingInDecl:
