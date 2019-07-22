@@ -15,7 +15,6 @@ import java.util.Collection;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
-import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4xml.commons.BadLocationException;
@@ -32,7 +31,6 @@ import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.uriresolver.CacheResourceDownloadingException;
-import org.eclipse.lsp4xml.utils.StringUtils;
 
 /**
  * Extension to support XML completion based on content model (XML Schema
@@ -70,9 +68,8 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 
 			if (cmElement != null) {
 				defaultPrefix = parentElement.getPrefix();
-				fillWithChildrenElementDeclaration(parentElement,
-						cmElement.getPossibleElements(parentElement, request.getOffset()), defaultPrefix, false,
-						request, response, schemaURI);
+				fillWithChildrenElementDeclaration(parentElement, cmElement.getPossibleElements(parentElement, request.getOffset()),
+						defaultPrefix, false, request, response, schemaURI);
 			}
 			if (parentElement.isDocumentElement()) {
 				// completion on root document element
@@ -99,8 +96,8 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			if (cmInternalElement != null) {
 				defaultPrefix = parentElement.getPrefix();
 				fillWithChildrenElementDeclaration(parentElement,
-						cmInternalElement.getPossibleElements(parentElement, request.getOffset()), defaultPrefix, false,
-						request, response, schemaURI);
+						cmInternalElement.getPossibleElements(parentElement, request.getOffset()), defaultPrefix, false, request,
+						response, schemaURI);
 			}
 		} catch (CacheResourceDownloadingException e) {
 			// XML Schema, DTD is loading, ignore this error
@@ -117,8 +114,10 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			CompletionItem item = new CompletionItem(label);
 			item.setFilterText(request.getFilterForStartTagName(label));
 			item.setKind(CompletionItemKind.Property);
-			String documentation = XMLGenerator.generateDocumentation(child.getDocumentation(), schemaURI);
-			updateDocumentation(item, documentation, request);
+			String detail = XMLGenerator.generateDocumentation(child.getDocumentation(), schemaURI);
+			if (detail != null) {
+				item.setDetail(detail);
+			}
 			String xml = generator.generate(child, prefix);
 			item.setTextEdit(new TextEdit(request.getReplaceRange(), xml));
 			item.setInsertTextFormat(InsertTextFormat.Snippet);
@@ -142,11 +141,11 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			// Completion on attribute based on external grammar
 			CMElementDeclaration cmElement = contentModelManager.findCMElement(parentElement);
 			fillAttributesWithCMAttributeDeclarations(parentElement, fullRange, cmElement, canSupportSnippet,
-					generateValue, request, response, formattingSettings);
+					generateValue, response, formattingSettings);
 			// Completion on attribute based on internal grammar
 			cmElement = contentModelManager.findInternalCMElement(parentElement);
 			fillAttributesWithCMAttributeDeclarations(parentElement, fullRange, cmElement, canSupportSnippet,
-					generateValue, request, response, formattingSettings);
+					generateValue, response, formattingSettings);
 		} catch (CacheResourceDownloadingException e) {
 			// XML Schema, DTD is loading, ignore this error
 		}
@@ -154,7 +153,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 
 	private void fillAttributesWithCMAttributeDeclarations(DOMElement parentElement, Range fullRange,
 			CMElementDeclaration cmElement, boolean canSupportSnippet, boolean generateValue,
-			ICompletionRequest request, ICompletionResponse response, XMLFormattingOptions formattingOptions) {
+			ICompletionResponse response, XMLFormattingOptions formattingOptions) {
 		if (cmElement == null) {
 			return;
 		}
@@ -168,7 +167,9 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 				CompletionItem item = new AttributeCompletionItem(attrName, canSupportSnippet, fullRange, generateValue,
 						cmAttribute.getDefaultValue(), cmAttribute.getEnumerationValues(), formattingOptions);
 				String documentation = cmAttribute.getDocumentation();
-				updateDocumentation(item, documentation, request);
+				if (documentation != null) {
+					item.setDetail(documentation);
+				}
 				response.addCompletionAttribute(item);
 			}
 		}
@@ -216,7 +217,4 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 		}
 	}
 
-	private static void updateDocumentation(CompletionItem item, String documentation, ICompletionRequest request) {
-		item.setDocumentation(request.createMarkupContent(documentation, MarkupKind.MARKDOWN));
-	}
 }

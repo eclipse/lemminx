@@ -10,8 +10,6 @@
  */
 package org.eclipse.lsp4xml.services;
 
-import org.eclipse.lsp4j.MarkupContent;
-import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.BadLocationException;
@@ -23,7 +21,6 @@ import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.settings.SharedSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
-import org.eclipse.lsp4xml.utils.MarkdownConverter;
 import org.eclipse.lsp4xml.utils.StringUtils;
 
 /**
@@ -124,28 +121,5 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 	private String getQuotation() {
 		String quotation = formattingSettings != null ? formattingSettings.getQuotationAsString() : null;
 		return StringUtils.isEmpty(quotation) ? XMLFormattingOptions.DEFAULT_QUOTATION : quotation;
-	}
-
-	@Override
-	public boolean canSupportMarkupKind(String kind) {
-		return completionSettings != null && completionSettings.getCompletionCapabilities() != null
-				&& completionSettings.getCompletionCapabilities().getCompletionItem() != null
-				&& completionSettings.getCompletionCapabilities().getCompletionItem().getDocumentationFormat() != null
-				&& completionSettings.getCompletionCapabilities().getCompletionItem().getDocumentationFormat()
-						.contains(kind);
-	}
-
-	@Override
-	public MarkupContent createMarkupContent(String value, String kind) {
-		MarkupContent content = new MarkupContent();
-		if (MarkupKind.MARKDOWN.equals(kind) && canSupportMarkupKind(kind)) {
-			String markdown = MarkdownConverter.convert(value);
-			content.setValue(markdown);
-			content.setKind(MarkupKind.MARKDOWN);
-		} else {
-			content.setValue(value);
-			content.setKind(MarkupKind.PLAINTEXT);
-		}
-		return content;
 	}
 }

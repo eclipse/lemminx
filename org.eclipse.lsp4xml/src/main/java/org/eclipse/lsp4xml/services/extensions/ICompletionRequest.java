@@ -10,8 +10,6 @@
  */
 package org.eclipse.lsp4xml.services.extensions;
 
-import org.eclipse.lsp4j.MarkupContent;
-import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.extensions.contentmodel.utils.XMLGenerator;
@@ -35,24 +33,4 @@ public interface ICompletionRequest extends IPositionRequest {
 
 	String getInsertAttrValue(String value);
 
-	/**
-	 * Returns <code>true</code> if client can support the given Markup kind for
-	 * documentation and <code>false</code> otherwise.
-	 * 
-	 * @param kind the markup kind
-	 * @return <code>true</code> if client can support the given Markup kind for
-	 *         documentation and <code>false</code> otherwise.
-	 */
-	boolean canSupportMarkupKind(String kind);
-
-	/**
-	 * Create the markup content according the given markup kind and the capability
-	 * of the client.
-	 * 
-	 * @param value the documentation value
-	 * @param kind  the {@link MarkupKind}
-	 * @return the markup content according the given markup kind and the capability
-	 *         of the client.
-	 */
-	MarkupContent createMarkupContent(String value, String kind);
 }
