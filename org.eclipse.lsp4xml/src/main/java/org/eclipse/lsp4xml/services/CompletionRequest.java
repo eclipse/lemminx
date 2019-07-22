@@ -122,4 +122,14 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 		String quotation = formattingSettings != null ? formattingSettings.getQuotationAsString() : null;
 		return StringUtils.isEmpty(quotation) ? XMLFormattingOptions.DEFAULT_QUOTATION : quotation;
 	}
+
+	@Override
+	public boolean canSupportMarkupKind(String kind) {
+		return completionSettings != null && completionSettings.getCompletionCapabilities() != null
+				&& completionSettings.getCompletionCapabilities().getCompletionItem() != null
+				&& completionSettings.getCompletionCapabilities().getCompletionItem().getDocumentationFormat() != null
+				&& completionSettings.getCompletionCapabilities().getCompletionItem().getDocumentationFormat()
+						.contains(kind);
+	}
+
 }

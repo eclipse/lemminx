@@ -71,4 +71,10 @@ class HoverRequest extends AbstractPositionRequest implements IHoverRequest {
 	public <T> T getComponent(Class clazz) {
 		return extensionsRegistry.getComponent(clazz);
 	}
+
+	@Override
+	public boolean canSupportMarkupKind(String kind) {
+		// FIXME : use the hover capability to know if the given kind is supported
+		return true;
+	}
 }

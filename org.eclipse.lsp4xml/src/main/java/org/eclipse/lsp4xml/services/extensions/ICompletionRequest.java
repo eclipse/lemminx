@@ -14,12 +14,13 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.extensions.contentmodel.utils.XMLGenerator;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
+import org.eclipse.lsp4xml.utils.MarkupContentFactory.IMarkupKindSupport;
 
 /**
  * Completion request API.
  *
  */
-public interface ICompletionRequest extends IPositionRequest {
+public interface ICompletionRequest extends IPositionRequest, IMarkupKindSupport {
 
 	Range getReplaceRange();
 
@@ -32,5 +33,4 @@ public interface ICompletionRequest extends IPositionRequest {
 	String getFilterForStartTagName(String tagName);
 
 	String getInsertAttrValue(String value);
-
 }

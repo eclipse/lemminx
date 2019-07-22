@@ -11,12 +11,13 @@
 package org.eclipse.lsp4xml.services.extensions;
 
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4xml.utils.MarkupContentFactory.IMarkupKindSupport;
 
 /**
  * Hover request API.
  *
  */
-public interface IHoverRequest extends IPositionRequest {
+public interface IHoverRequest extends IPositionRequest, IMarkupKindSupport {
 
 	Range getTagRange();
 

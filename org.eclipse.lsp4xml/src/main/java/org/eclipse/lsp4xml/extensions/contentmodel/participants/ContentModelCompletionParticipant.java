@@ -15,6 +15,7 @@ import java.util.Collection;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
+import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4xml.commons.BadLocationException;
@@ -42,7 +43,6 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	public void onTagOpen(ICompletionRequest request, ICompletionResponse response) throws Exception {
 		try {
 			DOMDocument document = request.getXMLDocument();
-			String schemaURI;
 			ContentModelManager contentModelManager = request.getComponent(ContentModelManager.class);
 			DOMElement parentElement = request.getParentElement();
 			if (parentElement == null) {
@@ -51,9 +51,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 				// XML Schema is done with pattern and not with XML root element)
 				CMDocument cmDocument = contentModelManager.findCMDocument(document, null);
 				if (cmDocument != null) {
-					schemaURI = cmDocument.getURI();
-					fillWithChildrenElementDeclaration(null, cmDocument.getElements(), null, false, request, response,
-							schemaURI);
+					fillWithChildrenElementDeclaration(null, cmDocument.getElements(), null, false, request, response);
 				}
 				return;
 			}
@@ -62,14 +60,14 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			final CMDocument cmRootDocument = contentModelManager.findCMDocument(parentElement,
 					parentElement.getNamespaceURI());
 
-			schemaURI = cmRootDocument != null ? cmRootDocument.getURI() : null;
 			CMElementDeclaration cmElement = contentModelManager.findCMElement(parentElement);
 			String defaultPrefix = null;
 
 			if (cmElement != null) {
 				defaultPrefix = parentElement.getPrefix();
-				fillWithChildrenElementDeclaration(parentElement, cmElement.getPossibleElements(parentElement, request.getOffset()),
-						defaultPrefix, false, request, response, schemaURI);
+				fillWithChildrenElementDeclaration(parentElement,
+						cmElement.getPossibleElements(parentElement, request.getOffset()), defaultPrefix, false,
+						request, response);
 			}
 			if (parentElement.isDocumentElement()) {
 				// completion on root document element
@@ -85,7 +83,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 						CMDocument cmDocument = contentModelManager.findCMDocument(parentElement, namespaceURI);
 						if (cmDocument != null) {
 							fillWithChildrenElementDeclaration(parentElement, cmDocument.getElements(), prefix, true,
-									request, response, cmRootDocument.getURI());
+									request, response);
 						}
 					}
 				}
@@ -96,8 +94,8 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			if (cmInternalElement != null) {
 				defaultPrefix = parentElement.getPrefix();
 				fillWithChildrenElementDeclaration(parentElement,
-						cmInternalElement.getPossibleElements(parentElement, request.getOffset()), defaultPrefix, false, request,
-						response, schemaURI);
+						cmInternalElement.getPossibleElements(parentElement, request.getOffset()), defaultPrefix, false,
+						request, response);
 			}
 		} catch (CacheResourceDownloadingException e) {
 			// XML Schema, DTD is loading, ignore this error
@@ -105,8 +103,8 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	}
 
 	private void fillWithChildrenElementDeclaration(DOMElement element, Collection<CMElementDeclaration> cmElements,
-			String p, boolean forceUseOfPrefix, ICompletionRequest request, ICompletionResponse response,
-			String schemaURI) throws BadLocationException {
+			String p, boolean forceUseOfPrefix, ICompletionRequest request, ICompletionResponse response)
+			throws BadLocationException {
 		XMLGenerator generator = request.getXMLGenerator();
 		for (CMElementDeclaration child : cmElements) {
 			String prefix = forceUseOfPrefix ? p : (element != null ? element.getPrefix(child.getNamespace()) : null);
@@ -114,10 +112,8 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			CompletionItem item = new CompletionItem(label);
 			item.setFilterText(request.getFilterForStartTagName(label));
 			item.setKind(CompletionItemKind.Property);
-			String detail = XMLGenerator.generateDocumentation(child.getDocumentation(), schemaURI);
-			if (detail != null) {
-				item.setDetail(detail);
-			}
+			MarkupContent documentation = XMLGenerator.createMarkupContent(child, request);
+			item.setDocumentation(documentation);
 			String xml = generator.generate(child, prefix);
 			item.setTextEdit(new TextEdit(request.getReplaceRange(), xml));
 			item.setInsertTextFormat(InsertTextFormat.Snippet);
@@ -141,11 +137,11 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			// Completion on attribute based on external grammar
 			CMElementDeclaration cmElement = contentModelManager.findCMElement(parentElement);
 			fillAttributesWithCMAttributeDeclarations(parentElement, fullRange, cmElement, canSupportSnippet,
-					generateValue, response, formattingSettings);
+					generateValue, request, response, formattingSettings);
 			// Completion on attribute based on internal grammar
 			cmElement = contentModelManager.findInternalCMElement(parentElement);
 			fillAttributesWithCMAttributeDeclarations(parentElement, fullRange, cmElement, canSupportSnippet,
-					generateValue, response, formattingSettings);
+					generateValue, request, response, formattingSettings);
 		} catch (CacheResourceDownloadingException e) {
 			// XML Schema, DTD is loading, ignore this error
 		}
@@ -153,7 +149,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 
 	private void fillAttributesWithCMAttributeDeclarations(DOMElement parentElement, Range fullRange,
 			CMElementDeclaration cmElement, boolean canSupportSnippet, boolean generateValue,
-			ICompletionResponse response, XMLFormattingOptions formattingOptions) {
+			ICompletionRequest request, ICompletionResponse response, XMLFormattingOptions formattingOptions) {
 		if (cmElement == null) {
 			return;
 		}
@@ -166,10 +162,8 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			if (!parentElement.hasAttribute(attrName)) {
 				CompletionItem item = new AttributeCompletionItem(attrName, canSupportSnippet, fullRange, generateValue,
 						cmAttribute.getDefaultValue(), cmAttribute.getEnumerationValues(), formattingOptions);
-				String documentation = cmAttribute.getDocumentation();
-				if (documentation != null) {
-					item.setDetail(documentation);
-				}
+				MarkupContent documentation = XMLGenerator.createMarkupContent(cmAttribute, cmElement, request);
+				item.setDocumentation(documentation);
 				response.addCompletionAttribute(item);
 			}
 		}
@@ -210,8 +204,10 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 					item.setKind(CompletionItemKind.Value);
 					item.setFilterText(insertText);
 					item.setTextEdit(new TextEdit(fullRange, insertText));
+					MarkupContent documentation = XMLGenerator.createMarkupContent(cmAttribute, value, cmElement,
+							request);
+					item.setDocumentation(documentation);
 					response.addCompletionItem(item);
-
 				});
 			}
 		}

@@ -16,11 +16,19 @@ import static org.eclipse.lsp4xml.XMLAssert.te;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
+import org.apache.xerces.impl.XMLEntityManager;
+import org.apache.xerces.util.URI.MalformedURIException;
+import org.eclipse.lsp4j.CompletionCapabilities;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.CompletionItemCapabilities;
+import org.eclipse.lsp4j.MarkupKind;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
+import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.junit.Test;
 
 /**
@@ -395,9 +403,10 @@ public class XMLSchemaCompletionExtensionsTest {
 	 * @see https://github.com/angelozerr/lsp4xml/issues/214
 	 * 
 	 * @throws BadLocationException
+	 * @throws MalformedURIException 
 	 */
 	@Test
-	public void issue214() throws BadLocationException {
+	public void issue214() throws BadLocationException, MalformedURIException {
 		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
 				"<edmx:Edmx xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\" xmlns=\"http://docs.oasis-open.org/odata/ns/edm\" Version=\"4.0\">\r\n"
 				+ //
@@ -417,6 +426,37 @@ public class XMLSchemaCompletionExtensionsTest {
 				"    <Schema Namespace=\"ODataDemo\">\r\n" + //
 				" |";
 		testCompletionFor(xml, c("Action", "<Action Name=\"\"></Action>"), //
+				c("Annotation", "<Annotation Term=\"\"></Annotation>"), //
+				c("Annotations", "<Annotations Target=\"\"></Annotations>"), //
+				c("ComplexType", "<ComplexType Name=\"\"></ComplexType>"));
+	}
+
+	@Test
+	public void issue214WithMarkdown() throws BadLocationException, MalformedURIException {
+		String edmxURI = getXMLSchemaFileURI("edmx.xsd");
+		String edmURI = getXMLSchemaFileURI("edm.xsd");
+		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
+				"<edmx:Edmx xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\" xmlns=\"http://docs.oasis-open.org/odata/ns/edm\" Version=\"4.0\">\r\n"
+				+ //
+				"  <edmx:Reference Uri=\"https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Core.V1.xml\">\r\n"
+				+ //
+				"    <edmx:Include Namespace=\"Org.OData.Core.V1\" Alias=\"Core\">\r\n" + //
+				"      <Annotation Term=\"Core.DefaultNamespace\" />      \r\n" + //
+				"    </edmx:Include>\r\n" + //
+				" |";
+		testCompletionMarkdownSupporytFor(xml,
+				c("Annotation", te(6, 1, 6, 1, "<Annotation Term=\"\"></Annotation>"), "Annotation",
+						"Source: [edm.xsd](" + edmURI + ")", MarkupKind.MARKDOWN), //
+				c("edmx:Include", te(6, 1, 6, 1, "<edmx:Include Namespace=\"\"></edmx:Include>"), "edmx:Include",
+						"Source: [edmx.xsd](" + edmxURI + ")", MarkupKind.MARKDOWN), //
+				c("edmx:IncludeAnnotations", "<edmx:IncludeAnnotations TermNamespace=\"\" />"));
+
+		xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"
+				+ "<edmx:Edmx xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\" xmlns=\"http://docs.oasis-open.org/odata/ns/edm\" Version=\"4.0\">   \r\n"
+				+ "  <edmx:DataServices>\r\n" + //
+				"    <Schema Namespace=\"ODataDemo\">\r\n" + //
+				" |";
+		testCompletionMarkdownSupporytFor(xml, c("Action", "<Action Name=\"\"></Action>"), //
 				c("Annotation", "<Annotation Term=\"\"></Annotation>"), //
 				c("Annotations", "<Annotations Target=\"\"></Annotations>"), //
 				c("ComplexType", "<ComplexType Name=\"\"></ComplexType>"));
@@ -782,7 +822,60 @@ public class XMLSchemaCompletionExtensionsTest {
 
 	}
 
+	@Test
+	public void documentationAsPlainText() throws BadLocationException {
+		String xml = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + //
+				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"	xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n"
+				+ //
+				"	<|" + //
+				"</project>";
+		testCompletionFor(xml, c("groupId", te(3, 1, 3, 2, "<groupId></groupId>"), "<groupId",
+				"A universally unique identifier for a project. It is normal to use a fully-qualified package name to distinguish it from other projects with a similar name "
+						+ "(eg. <code>org.apache.maven</code>)." + //
+						System.lineSeparator() + //
+						System.lineSeparator() + //
+						"Source: maven-4.0.0.xsd",
+				MarkupKind.PLAINTEXT));
+
+	}
+
+	@Test
+	public void documentationAsMarkdown() throws BadLocationException, MalformedURIException {
+		String xml = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + //
+				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"	xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n"
+				+ //
+				"	<|" + //
+				"</project>";
+
+		String mavenFileURI = getXMLSchemaFileURI("maven-4.0.0.xsd");
+		testCompletionMarkdownSupporytFor(xml, c("groupId", te(3, 1, 3, 2, "<groupId></groupId>"), "<groupId",
+				"A universally unique identifier for a project. It is normal to use a fully-qualified package name to distinguish it from other projects with a similar name "
+						+ "(eg. `org.apache.maven`)." + //
+						System.lineSeparator() + //
+						System.lineSeparator() + //
+						"Source: [maven-4.0.0.xsd](" + mavenFileURI + ")",
+				MarkupKind.MARKDOWN));
+	}
+
+	private static String getXMLSchemaFileURI(String schemaURI) throws MalformedURIException {
+		return XMLEntityManager.expandSystemId("xsd/" + schemaURI, "src/test/resources/test.xml", true)
+				.replace("///", "/");
+	}
+
 	private void testCompletionFor(String xml, CompletionItem... expectedItems) throws BadLocationException {
 		XMLAssert.testCompletionFor(xml, "src/test/resources/catalogs/catalog.xml", expectedItems);
+	}
+	
+	private void testCompletionMarkdownSupporytFor(String xml, CompletionItem... expectedItems) throws BadLocationException {
+		CompletionSettings completionSettings = new CompletionSettings();
+		CompletionCapabilities completionCapabilities = new CompletionCapabilities();
+		CompletionItemCapabilities completionItem = new CompletionItemCapabilities(false);
+		completionItem.setDocumentationFormat(Arrays.asList(MarkupKind.MARKDOWN));
+		completionCapabilities.setCompletionItem(completionItem);
+		completionSettings.setCapabilities(completionCapabilities);
+		XMLAssert.testCompletionFor(new XMLLanguageService(), xml, "src/test/resources/catalogs/catalog.xml", null,
+				null, null, completionSettings, expectedItems);
 	}
 }
