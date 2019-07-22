@@ -6,6 +6,7 @@ import static org.eclipse.lsp4xml.XMLAssert.te;
 import org.eclipse.lsp4j.CompletionCapabilities;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemCapabilities;
+import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
@@ -45,7 +46,7 @@ public class DTDCompletionExtensionsTest {
 	}
 
 	@Test
-	public void testCompletionDetailWithSource() throws BadLocationException {
+	public void testCompletionDocumentationWithSource() throws BadLocationException {
 		// completion on <|
 		String xml = "<?xml version=\"1.0\"?>\r\n" + //
 				"  <!DOCTYPE catalog\r\n" + //
@@ -53,7 +54,7 @@ public class DTDCompletionExtensionsTest {
 				"           \"http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd\">\r\n" + //
 				"\r\n" + //
 				"  <|";
-		testCompletionFor(xml, c("catalog", te(5, 2, 5, 3, "<catalog>$1</catalog>$0"), "<catalog", "Source: catalog.dtd"));
+		testCompletionFor(xml, c("catalog", te(5, 2, 5, 3, "<catalog>$1</catalog>$0"), "<catalog", "Source: catalog.dtd", MarkupKind.PLAINTEXT));
 	}
 
 	@Test

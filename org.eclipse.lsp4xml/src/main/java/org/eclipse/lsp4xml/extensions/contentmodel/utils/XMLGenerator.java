@@ -14,12 +14,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.eclipse.lsp4j.MarkupContent;
+import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4xml.commons.SnippetsBuilder;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMElementDeclaration;
-import org.eclipse.lsp4xml.settings.SharedSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
-import org.eclipse.lsp4xml.utils.StringUtils;
+import org.eclipse.lsp4xml.utils.MarkupContentFactory;
+import org.eclipse.lsp4xml.utils.MarkupContentFactory.IMarkupKindSupport;
 import org.eclipse.lsp4xml.utils.XMLBuilder;
 
 /**
@@ -223,15 +225,27 @@ public class XMLGenerator {
 	 * @param schemaURI
 	 * @return
 	 */
-	public static String generateDocumentation(String documentation, String schemaURI) {
+	public static String generateDocumentation(String documentation, String schemaURI, boolean html) {
 		StringBuilder doc = new StringBuilder(documentation != null ? documentation : "");
 		if (schemaURI != null) {
 			if (doc.length() != 0) {
 				doc.append(System.lineSeparator());
 				doc.append(System.lineSeparator());
 			}
+			if (html) {
+				doc.append("<p>");
+			}
 			doc.append("Source: ");
+			if (html) {
+				doc.append("<a href=\"");
+				doc.append(schemaURI);
+				doc.append("\">");
+			}
 			doc.append(getFileName(schemaURI));
+			if (html) {
+				doc.append("</a>");
+				doc.append("</p>");
+			}
 		}
 		return doc.length() > 0 ? doc.toString() : null;
 	}
@@ -253,4 +267,58 @@ public class XMLGenerator {
 		return schemaURI.substring(index + 1, schemaURI.length());
 	}
 
+	/**
+	 * Returns a markup content for element documentation and null otherwise.
+	 * 
+	 * @param cmElement
+	 * @param support
+	 * @return a markup content for element documentation and null otherwise.
+	 */
+	public static MarkupContent createMarkupContent(CMElementDeclaration cmElement, IMarkupKindSupport support) {
+		String documentation = XMLGenerator.generateDocumentation(cmElement.getDocumentation(),
+				cmElement.getDocumentURI(), support.canSupportMarkupKind(MarkupKind.MARKDOWN));
+		if (documentation != null) {
+			return MarkupContentFactory.createMarkupContent(documentation, MarkupKind.MARKDOWN, support);
+		}
+		return null;
+	}
+
+	/**
+	 * Returns a markup content for attribute name documentation and null otherwise.
+	 * 
+	 * @param cmAttribute
+	 * @param ownerElement
+	 * @param support
+	 * @return a markup content for attribute name documentation and null otherwise.
+	 */
+	public static MarkupContent createMarkupContent(CMAttributeDeclaration cmAttribute,
+			CMElementDeclaration ownerElement, IMarkupKindSupport support) {
+		String documentation = XMLGenerator.generateDocumentation(cmAttribute.getDocumentation(),
+				ownerElement.getDocumentURI(), support.canSupportMarkupKind(MarkupKind.MARKDOWN));
+		if (documentation != null) {
+			return MarkupContentFactory.createMarkupContent(documentation, MarkupKind.MARKDOWN, support);
+		}
+		return null;
+	}
+
+	/**
+	 * Returns a markup content for attribute value documentation and null
+	 * otherwise.
+	 * 
+	 * @param cmAttribute
+	 * @param attributeValue
+	 * @param ownerElement
+	 * @param support
+	 * @return a markup content for attribute value documentation and null
+	 *         otherwise.
+	 */
+	public static MarkupContent createMarkupContent(CMAttributeDeclaration cmAttribute, String attributeValue,
+			CMElementDeclaration ownerElement, IMarkupKindSupport support) {
+		String documentation = XMLGenerator.generateDocumentation(cmAttribute.getValueDocumentation(attributeValue),
+				ownerElement.getDocumentURI(), support.canSupportMarkupKind(MarkupKind.MARKDOWN));
+		if (documentation != null) {
+			return MarkupContentFactory.createMarkupContent(documentation, MarkupKind.MARKDOWN, support);
+		}
+		return null;
+	}
 }

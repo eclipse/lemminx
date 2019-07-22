@@ -18,11 +18,13 @@ import org.eclipse.lsp4xml.dom.DOMElement;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelManager;
+import org.eclipse.lsp4xml.extensions.contentmodel.utils.XMLGenerator;
 import org.eclipse.lsp4xml.extensions.xsi.XSISchemaModel;
 import org.eclipse.lsp4xml.services.extensions.HoverParticipantAdapter;
 import org.eclipse.lsp4xml.services.extensions.IHoverRequest;
 import org.eclipse.lsp4xml.uriresolver.CacheResourceDownloadingException;
-import org.eclipse.lsp4xml.utils.MarkdownConverter;
+import org.eclipse.lsp4xml.utils.MarkupContentFactory;
+import org.eclipse.lsp4xml.utils.MarkupContentFactory.IMarkupKindSupport;
 
 /**
  * Extension to support XML hover based on content model (XML Schema completion,
@@ -37,26 +39,20 @@ public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 			DOMElement node = (DOMElement) hoverRequest.getNode();
 			CMElementDeclaration cmElement = contentModelManager.findCMElement(node);
 			if (cmElement != null) {
-				String doc = cmElement.getDocumentation();
-				if (doc != null && doc.length() > 0) {
-					String markdown = MarkdownConverter.convert(doc);
-					MarkupContent content = new MarkupContent();
-					content.setKind(MarkupKind.MARKDOWN);
-					content.setValue(markdown);
+				MarkupContent content = XMLGenerator.createMarkupContent(cmElement, hoverRequest);
+				if (content != null) {
 					return new Hover(content, hoverRequest.getTagRange());
 				}
 			}
 		} catch (CacheResourceDownloadingException e) {
-			return getCacheWarningHover(e);
+			return getCacheWarningHover(e, hoverRequest);
 		}
 		return null;
 	}
 
 	@Override
 	public Hover onAttributeName(IHoverRequest hoverRequest) throws Exception {
-		
 		DOMAttr attribute = (DOMAttr) hoverRequest.getNode();
-
 		try {
 			ContentModelManager contentModelManager = hoverRequest.getComponent(ContentModelManager.class);
 			CMElementDeclaration cmElement = contentModelManager.findCMElement(attribute.getOwnerElement());
@@ -64,17 +60,14 @@ public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 				String attributeName = attribute.getName();
 				CMAttributeDeclaration cmAttribute = cmElement.findCMAttribute(attributeName);
 				if (cmAttribute != null) {
-					String doc = cmAttribute.getDocumentation();
-					if (doc != null && doc.length() > 0) {
-						MarkupContent content = new MarkupContent();
-						content.setKind(MarkupKind.PLAINTEXT);
-						content.setValue(doc);
-						return new Hover(content);
+					MarkupContent content = XMLGenerator.createMarkupContent(cmAttribute, cmElement, hoverRequest);
+					if (content != null) {
+						return new Hover(content, hoverRequest.getTagRange());
 					}
 				}
 			}
 		} catch (CacheResourceDownloadingException e) {
-			return getCacheWarningHover(e);
+			return getCacheWarningHover(e, hoverRequest);
 		}
 		return null;
 	}
@@ -83,44 +76,41 @@ public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 	public Hover onAttributeValue(IHoverRequest hoverRequest) throws Exception {
 		DOMAttr attribute = (DOMAttr) hoverRequest.getNode();
 
-		//Attempts to compute specifically for XSI related attributes since
-		//the XSD itself does not have enough information. Should create a mock XSD eventually.
+		// Attempts to compute specifically for XSI related attributes since
+		// the XSD itself does not have enough information. Should create a mock XSD
+		// eventually.
 		Hover temp = XSISchemaModel.computeHoverResponse(attribute, hoverRequest);
-		if(temp != null) {
+		if (temp != null) {
 			return temp;
 		}
-		
+
 		try {
 			ContentModelManager contentModelManager = hoverRequest.getComponent(ContentModelManager.class);
-			
 			CMElementDeclaration cmElement = contentModelManager.findCMElement(attribute.getOwnerElement());
 			if (cmElement != null) {
 				String attributeName = attribute.getName();
 				CMAttributeDeclaration cmAttribute = cmElement.findCMAttribute(attributeName);
-				
+
 				String attributeValue = attribute.getValue();
 				if (cmAttribute != null) {
-					String doc = cmAttribute.getValueDocumentation(attributeValue);
-					if (doc != null && doc.length() > 0) {
-						String markdown = MarkdownConverter.convert(doc);
-						MarkupContent content = new MarkupContent();
-						content.setKind(MarkupKind.MARKDOWN);
-						content.setValue(markdown);
-						return new Hover(content);
+					MarkupContent content = XMLGenerator.createMarkupContent(cmAttribute, attributeValue, cmElement,
+							hoverRequest);
+					if (content != null) {
+						return new Hover(content, hoverRequest.getTagRange());
 					}
 				}
 			}
 		} catch (CacheResourceDownloadingException e) {
-			return getCacheWarningHover(e);
+			return getCacheWarningHover(e, hoverRequest);
 		}
 		return null;
 	}
 
-	private Hover getCacheWarningHover(CacheResourceDownloadingException e) {
+	private static Hover getCacheWarningHover(CacheResourceDownloadingException e, IMarkupKindSupport support) {
 		// Here cache is enabled and some XML Schema, DTD, etc are loading
-		MarkupContent content = new MarkupContent();
-		content.setKind(MarkupKind.MARKDOWN);
-		content.setValue("Cannot process " + (e.isDTD() ? "DTD" : "XML Schema") + " hover: " + e.getMessage());
+		MarkupContent content = MarkupContentFactory.createMarkupContent(
+				"Cannot process " + (e.isDTD() ? "DTD" : "XML Schema") + " hover: " + e.getMessage(),
+				MarkupKind.MARKDOWN, support);
 		return new Hover(content);
 	}
 }

@@ -14,6 +14,7 @@ import static org.eclipse.lsp4xml.XMLAssert.c;
 import static org.eclipse.lsp4xml.XMLAssert.te;
 
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.junit.Test;
@@ -36,7 +37,7 @@ public class XSDCompletionExtensionsTest {
 	}
 
 	@Test
-	public void completionWithSourceDetail() throws BadLocationException {
+	public void completionWithSourceDocumentation() throws BadLocationException {
 		// completion on |
 		String xml = "<?xml version=\"1.1\"?>\r\n"
 				+ "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">   \r\n"
@@ -44,13 +45,13 @@ public class XSDCompletionExtensionsTest {
 				"|";
 		testCompletionFor(xml,
 				c("xs:annotation", te(2, 0, 2, 0, "<xs:annotation></xs:annotation>"), "xs:annotation",
-						"Source: XMLSchema.xsd"),
+						"Source: XMLSchema.xsd", MarkupKind.PLAINTEXT),
 				c("xs:attribute", te(2, 0, 2, 0, "<xs:attribute name=\"\"></xs:attribute>"), "xs:attribute",
-						"Source: XMLSchema.xsd"));
+						"Source: XMLSchema.xsd", MarkupKind.PLAINTEXT));
 	}
 
 	@Test
-	public void completionWithSourceDescriptionAndDetail() throws BadLocationException {
+	public void completionWithSourceDescriptionAndDocumentation() throws BadLocationException {
 		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
 				"<invoice xmlns=\"http://invoice\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n"
 				+ " xsi:schemaLocation=\"http://invoice xsd/invoice.xsd \">\r\n" + //
@@ -58,7 +59,7 @@ public class XSDCompletionExtensionsTest {
 		String lineSeparator = System.getProperty("line.separator");
 		XMLAssert.testCompletionFor(xml, null, "src/test/resources/invoice.xml", null,
 				c("date", te(3, 2, 3, 3, "<date></date>"), "<date",
-						"Date Description" + lineSeparator + lineSeparator + "Source: invoice.xsd"));
+						"Date Description" + lineSeparator + lineSeparator + "Source: invoice.xsd", MarkupKind.PLAINTEXT));
 	}
 
 	@Test

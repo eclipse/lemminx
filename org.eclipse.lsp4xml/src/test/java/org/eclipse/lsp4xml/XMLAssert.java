@@ -39,6 +39,7 @@ import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.MarkedString;
 import org.eclipse.lsp4j.MarkupContent;
+import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
@@ -217,18 +218,27 @@ public class XMLAssert {
 			Assert.assertEquals(expected.getFilterText(), match.getFilterText());
 		}
 
-		if (expected.getDetail() != null) {
-			Assert.assertEquals(expected.getDetail(), match.getDetail());
+		if (expected.getDocumentation() != null) {
+			Assert.assertEquals(expected.getDocumentation(), match.getDocumentation());
 		}
 
 	}
 
-	public static CompletionItem c(String label, TextEdit textEdit, String filterText, String detail) {
+	public static CompletionItem c(String label, TextEdit textEdit, String filterText, String documentation) {
+		return c(label, textEdit, filterText, documentation, null);
+	}
+
+	public static CompletionItem c(String label, TextEdit textEdit, String filterText, String documentation,
+			String kind) {
 		CompletionItem item = new CompletionItem();
 		item.setLabel(label);
 		item.setFilterText(filterText);
 		item.setTextEdit(textEdit);
-		item.setDetail(detail);
+		if (kind == null) {
+			item.setDocumentation(documentation);
+		} else {
+			item.setDocumentation(new MarkupContent(kind, documentation));
+		}
 		return item;
 	}
 
