@@ -21,6 +21,7 @@ import java.util.concurrent.CompletableFuture;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import com.google.common.io.MoreFiles;
+import com.google.common.io.RecursiveDeleteOption;
 
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
@@ -53,7 +54,7 @@ public class XMLExternalTest {
 
 	private int threadSleepMs = 600;
 	
-	private static String tempDirPath = "./target/temp/";
+	private static String tempDirPath = "target/temp/";
 	private static URI tempDirUri = Paths.get(tempDirPath).toAbsolutePath().toUri();
 
 	private List<PublishDiagnosticsParams> actualDiagnostics;
@@ -79,7 +80,7 @@ public class XMLExternalTest {
 	private static void deleteTempDirIfExists() throws IOException {
 		File tempDir = new File(tempDirUri);
 		if (tempDir.exists()) {
-			MoreFiles.deleteRecursively(tempDir.toPath());
+			MoreFiles.deleteRecursively(tempDir.toPath(), RecursiveDeleteOption.ALLOW_INSECURE);
 		}
 	}
 
