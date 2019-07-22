@@ -10,7 +10,6 @@
  */
 package org.eclipse.lsp4xml.settings;
 
-import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.utils.JSONUtility;
 
 /**
@@ -38,7 +37,7 @@ public class XMLGeneralClientSettings {
 
 	private XMLFormattingOptions format;
 
-	private CompletionSettings completion;
+	private XMLCompletionSettings completion;
 
 	private ServerSettings server;
 
@@ -93,7 +92,7 @@ public class XMLGeneralClientSettings {
 	 * 
 	 * @param completion
 	 */
-	public void setCompletion(CompletionSettings completion) {
+	public void setCompletion(XMLCompletionSettings completion) {
 		this.completion = completion;
 	}
 
@@ -102,7 +101,7 @@ public class XMLGeneralClientSettings {
 	 * 
 	 * @param completion
 	 */
-	public CompletionSettings getCompletion() {
+	public XMLCompletionSettings getCompletion() {
 		return completion;
 	}
 

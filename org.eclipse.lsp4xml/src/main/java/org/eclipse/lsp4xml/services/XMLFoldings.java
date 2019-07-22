@@ -23,7 +23,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.lsp4j.FoldingRange;
-import org.eclipse.lsp4j.FoldingRangeCapabilities;
 import org.eclipse.lsp4j.FoldingRangeKind;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.commons.BadLocationException;
@@ -32,6 +31,7 @@ import org.eclipse.lsp4xml.dom.parser.Scanner;
 import org.eclipse.lsp4xml.dom.parser.TokenType;
 import org.eclipse.lsp4xml.dom.parser.XMLScanner;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lsp4xml.settings.XMLFoldingSettings;
 
 /**
  * XML folding support.
@@ -59,7 +59,8 @@ class XMLFoldings {
 		}
 	}
 
-	public List<FoldingRange> getFoldingRanges(TextDocument document, FoldingRangeCapabilities context, CancelChecker cancelChecker) {		
+	public List<FoldingRange> getFoldingRanges(TextDocument document, XMLFoldingSettings context,
+			CancelChecker cancelChecker) {
 		Scanner scanner = XMLScanner.createScanner(document.getText());
 		TokenType token = scanner.scan();
 		List<FoldingRange> ranges = new ArrayList<>();
@@ -153,10 +154,10 @@ class XMLFoldings {
 			}
 		} catch (BadLocationException e) {
 			LOGGER.log(Level.SEVERE, "Foldings received a BadLocation while scanning the document", e);
-		}
-		catch(StackOverflowError e) {
+		} catch (StackOverflowError e) {
 			// This exception occurs with large file, why?
 			// For the moment we catch it.
+			LOGGER.log(Level.SEVERE, "Foldings received a StackOverflowError while scanning the document", e);
 		}
 		return ranges;
 	}

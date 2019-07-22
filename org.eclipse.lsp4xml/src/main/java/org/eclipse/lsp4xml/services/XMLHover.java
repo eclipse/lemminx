@@ -27,6 +27,7 @@ import org.eclipse.lsp4xml.dom.parser.TokenType;
 import org.eclipse.lsp4xml.dom.parser.XMLScanner;
 import org.eclipse.lsp4xml.services.extensions.IHoverParticipant;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lsp4xml.settings.XMLHoverSettings;
 
 /**
  * XML hover support.
@@ -42,10 +43,11 @@ class XMLHover {
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
-	public Hover doHover(DOMDocument xmlDocument, Position position, CancelChecker cancelChecker) {
+	public Hover doHover(DOMDocument xmlDocument, Position position, XMLHoverSettings settings,
+			CancelChecker cancelChecker) {
 		HoverRequest hoverRequest = null;
 		try {
-			hoverRequest = new HoverRequest(xmlDocument, position, extensionsRegistry);
+			hoverRequest = new HoverRequest(xmlDocument, position, settings, extensionsRegistry);
 		} catch (BadLocationException e) {
 			LOGGER.log(Level.SEVERE, "Failed creating HoverRequest", e);
 			return null;
@@ -72,7 +74,7 @@ class XMLHover {
 			}
 		} else if (node.isAttribute()) {
 			DOMAttr attr = (DOMAttr) node;
-			if(attr.valueContainsOffset(offset)) {
+			if (attr.valueContainsOffset(offset)) {
 				return getAttrValueHover(hoverRequest, null);
 			}
 			// Attribute is hover
@@ -129,12 +131,12 @@ class XMLHover {
 	 * Returns the LSP hover from the hovered attribute.
 	 * 
 	 * @param hoverRequest the hover request.
-	 * @param attrRange     the attribute  range
+	 * @param attrRange    the attribute range
 	 * @return the LSP hover from the hovered attribute.
 	 */
 	private Hover getAttrNameHover(HoverRequest hoverRequest, Range attrRange) {
-		//hoverRequest.setTagRange(tagRange);
-		//hoverRequest.setOpen(open);
+		// hoverRequest.setTagRange(tagRange);
+		// hoverRequest.setOpen(open);
 		for (IHoverParticipant participant : extensionsRegistry.getHoverParticipants()) {
 			try {
 				Hover hover = participant.onAttributeName(hoverRequest);
@@ -152,12 +154,12 @@ class XMLHover {
 	 * Returns the LSP hover from the hovered attribute.
 	 * 
 	 * @param hoverRequest the hover request.
-	 * @param attrRange     the attribute  range
+	 * @param attrRange    the attribute range
 	 * @return the LSP hover from the hovered attribute.
 	 */
 	private Hover getAttrValueHover(HoverRequest hoverRequest, Range attrRange) {
-		//hoverRequest.setTagRange(tagRange);
-		//hoverRequest.setOpen(open);
+		// hoverRequest.setTagRange(tagRange);
+		// hoverRequest.setOpen(open);
 		for (IHoverParticipant participant : extensionsRegistry.getHoverParticipants()) {
 			try {
 				Hover hover = participant.onAttributeValue(hoverRequest);

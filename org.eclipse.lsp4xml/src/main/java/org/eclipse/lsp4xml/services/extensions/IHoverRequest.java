@@ -22,5 +22,4 @@ public interface IHoverRequest extends IPositionRequest, IMarkupKindSupport {
 	Range getTagRange();
 
 	boolean isOpen();
-
 }

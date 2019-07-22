@@ -26,7 +26,6 @@ import org.eclipse.lsp4j.DocumentHighlight;
 import org.eclipse.lsp4j.DocumentLink;
 import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.FoldingRange;
-import org.eclipse.lsp4j.FoldingRangeCapabilities;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
@@ -47,7 +46,9 @@ import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLValidationSetting
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.settings.SharedSettings;
 import org.eclipse.lsp4xml.settings.XMLCodeLensSettings;
+import org.eclipse.lsp4xml.settings.XMLFoldingSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
+import org.eclipse.lsp4xml.settings.XMLHoverSettings;
 import org.eclipse.lsp4xml.uriresolver.CacheResourceDownloadingException;
 import org.eclipse.lsp4xml.utils.XMLPositionUtility;
 
@@ -135,12 +136,13 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		return completions.doComplete(xmlDocument, position, settings, cancelChecker);
 	}
 
-	public Hover doHover(DOMDocument xmlDocument, Position position) {
-		return doHover(xmlDocument, position, NULL_CHECKER);
+	public Hover doHover(DOMDocument xmlDocument, Position position, XMLHoverSettings settings) {
+		return doHover(xmlDocument, position, settings, NULL_CHECKER);
 	}
 
-	public Hover doHover(DOMDocument xmlDocument, Position position, CancelChecker cancelChecker) {
-		return hover.doHover(xmlDocument, position, cancelChecker);
+	public Hover doHover(DOMDocument xmlDocument, Position position, XMLHoverSettings settings,
+			CancelChecker cancelChecker) {
+		return hover.doHover(xmlDocument, position, settings, cancelChecker);
 	}
 
 	public List<Diagnostic> doDiagnostics(DOMDocument xmlDocument, CancelChecker monitor,
@@ -193,11 +195,11 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		publishDiagnostics.accept(new PublishDiagnosticsParams(uri, diagnostics));
 	}
 
-	public List<FoldingRange> getFoldingRanges(DOMDocument xmlDocument, FoldingRangeCapabilities context) {
+	public List<FoldingRange> getFoldingRanges(DOMDocument xmlDocument, XMLFoldingSettings context) {
 		return getFoldingRanges(xmlDocument, context, NULL_CHECKER);
 	}
 
-	public List<FoldingRange> getFoldingRanges(DOMDocument xmlDocument, FoldingRangeCapabilities context,
+	public List<FoldingRange> getFoldingRanges(DOMDocument xmlDocument, XMLFoldingSettings context,
 			CancelChecker cancelChecker) {
 		return foldings.getFoldingRanges(xmlDocument.getTextDocument(), context, cancelChecker);
 	}
@@ -219,13 +221,14 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 			CancelChecker cancelChecker) {
 		return typeDefinition.findTypeDefinition(xmlDocument, position, cancelChecker);
 	}
-	
+
 	public List<? extends Location> findReferences(DOMDocument xmlDocument, Position position, ReferenceContext context,
 			CancelChecker cancelChecker) {
 		return reference.findReferences(xmlDocument, position, context, cancelChecker);
 	}
 
-	public List<? extends CodeLens> getCodeLens(DOMDocument xmlDocument, XMLCodeLensSettings settings, CancelChecker cancelChecker) {
+	public List<? extends CodeLens> getCodeLens(DOMDocument xmlDocument, XMLCodeLensSettings settings,
+			CancelChecker cancelChecker) {
 		return codelens.getCodelens(xmlDocument, settings, cancelChecker);
 	}
 

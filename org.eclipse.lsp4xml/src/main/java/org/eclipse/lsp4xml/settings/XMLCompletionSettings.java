@@ -8,7 +8,7 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lsp4xml.services.extensions;
+package org.eclipse.lsp4xml.settings;
 
 import org.eclipse.lsp4j.CompletionCapabilities;
 
@@ -16,17 +16,17 @@ import org.eclipse.lsp4j.CompletionCapabilities;
  * A wrapper around LSP {@link CompletionCapabilities}.
  *
  */
-public class CompletionSettings {
+public class XMLCompletionSettings {
 
 	private CompletionCapabilities completionCapabilities;
 
 	private boolean autoCloseTags;
 
-	public CompletionSettings(boolean autoCloseTags) {
+	public XMLCompletionSettings(boolean autoCloseTags) {
 		this.autoCloseTags = autoCloseTags;
 	}
 
-	public CompletionSettings() {
+	public XMLCompletionSettings() {
 		this(true);
 	}
 
@@ -75,7 +75,7 @@ public class CompletionSettings {
 	 * 
 	 * @param newCompletion the new settings to merge.
 	 */
-	public void merge(CompletionSettings newCompletion) {
+	public void merge(XMLCompletionSettings newCompletion) {
 		this.setAutoCloseTags(newCompletion.isAutoCloseTags());
 	}
 }

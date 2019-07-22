@@ -19,6 +19,7 @@ import org.eclipse.lsp4j.FoldingRangeCapabilities;
 import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMParser;
+import org.eclipse.lsp4xml.settings.XMLFoldingSettings;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -229,7 +230,9 @@ public class XMLFoldingsTest {
 
 		FoldingRangeCapabilities context = new FoldingRangeCapabilities();
 		context.setRangeLimit(nRanges);
-		List<FoldingRange> actual = languageService.getFoldingRanges(xmlDocument, context);
+		XMLFoldingSettings settings = new XMLFoldingSettings();
+		settings.setCapabilities(context);
+		List<FoldingRange> actual = languageService.getFoldingRanges(xmlDocument, settings);
 
 		List<ExpectedIndentRange> actualRanges = new ArrayList<>();
 		for (FoldingRange f : actual) {

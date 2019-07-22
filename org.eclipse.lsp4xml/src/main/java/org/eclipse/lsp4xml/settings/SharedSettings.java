@@ -10,36 +10,36 @@
 
 package org.eclipse.lsp4xml.settings;
 
-import org.eclipse.lsp4j.FoldingRangeCapabilities;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLValidationSettings;
-import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 
 /**
  * SharedSettings
  */
 public class SharedSettings {
 
-	private final CompletionSettings completionSettings;
-	private final FoldingRangeCapabilities foldingSettings;
+	private final XMLCompletionSettings completionSettings;
+	private final XMLFoldingSettings foldingSettings;
 	private final XMLFormattingOptions formattingSettings;
 	private final XMLValidationSettings validationSettings;
 	private final XMLSymbolSettings symbolSettings;
 	private final XMLCodeLensSettings codeLensSettings;
+	private final XMLHoverSettings hoverSettings;
 
 	public SharedSettings() {
-		this.completionSettings = new CompletionSettings();
-		this.foldingSettings = new FoldingRangeCapabilities();
+		this.completionSettings = new XMLCompletionSettings();
+		this.foldingSettings = new XMLFoldingSettings();
 		this.formattingSettings = new XMLFormattingOptions(true);
 		this.validationSettings = new XMLValidationSettings();
 		this.symbolSettings = new XMLSymbolSettings();
 		this.codeLensSettings = new XMLCodeLensSettings();
+		this.hoverSettings = new XMLHoverSettings();
 	}
 
-	public CompletionSettings getCompletionSettings() {
+	public XMLCompletionSettings getCompletionSettings() {
 		return completionSettings;
 	}
 
-	public FoldingRangeCapabilities getFoldingSettings() {
+	public XMLFoldingSettings getFoldingSettings() {
 		return foldingSettings;
 	}
 
@@ -57,6 +57,10 @@ public class SharedSettings {
 
 	public XMLCodeLensSettings getCodeLensSettings() {
 		return codeLensSettings;
+	}
+
+	public XMLHoverSettings getHoverSettings() {
+		return hoverSettings;
 	}
 
 }

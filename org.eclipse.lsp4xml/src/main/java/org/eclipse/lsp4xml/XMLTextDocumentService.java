@@ -73,10 +73,10 @@ import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMParser;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
-import org.eclipse.lsp4xml.services.extensions.CompletionSettings;
 import org.eclipse.lsp4xml.services.extensions.save.AbstractSaveContext;
 import org.eclipse.lsp4xml.settings.SharedSettings;
 import org.eclipse.lsp4xml.settings.XMLCodeLensSettings;
+import org.eclipse.lsp4xml.settings.XMLCompletionSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.settings.XMLSymbolSettings;
 import org.eclipse.lsp4xml.utils.XMLPositionUtility;
@@ -148,8 +148,9 @@ public class XMLTextDocumentService implements TextDocumentService {
 			ExtendedClientCapabilities extendedClientCapabilities) {
 		TextDocumentClientCapabilities textDocumentClientCapabilities = capabilities.getTextDocument();
 		if (textDocumentClientCapabilities != null) {
-			// Completion settings
 			sharedSettings.getCompletionSettings().setCapabilities(textDocumentClientCapabilities.getCompletion());
+			sharedSettings.getFoldingSettings().setCapabilities(textDocumentClientCapabilities.getFoldingRange());
+			sharedSettings.getHoverSettings().setCapabilities(textDocumentClientCapabilities.getHover());
 			codeActionLiteralSupport = textDocumentClientCapabilities.getCodeAction() != null
 					&& textDocumentClientCapabilities.getCodeAction().getCodeActionLiteralSupport() != null;
 			hierarchicalDocumentSymbolSupport = textDocumentClientCapabilities.getDocumentSymbol() != null
@@ -180,7 +181,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 	@Override
 	public CompletableFuture<Hover> hover(TextDocumentPositionParams params) {
 		return computeDOMAsync(params.getTextDocument(), (cancelChecker, xmlDocument) -> {
-			return getXMLLanguageService().doHover(xmlDocument, params.getPosition(), cancelChecker);
+			return getXMLLanguageService().doHover(xmlDocument, params.getPosition(), sharedSettings.getHoverSettings(),
+					cancelChecker);
 		});
 	}
 
@@ -438,7 +440,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 		return xmlLanguageServer.getXMLLanguageService();
 	}
 
-	public void updateCompletionSettings(CompletionSettings newCompletion) {
+	public void updateCompletionSettings(XMLCompletionSettings newCompletion) {
 		sharedSettings.getCompletionSettings().merge(newCompletion);
 	}
 
