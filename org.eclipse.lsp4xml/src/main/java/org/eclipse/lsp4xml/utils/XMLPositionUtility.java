@@ -135,8 +135,8 @@ public class XMLPositionUtility {
 	/**
 	 * Returns the range of the prefix of an attribute name
 	 * 
-	 * For example, if attrName = "xsi:example", the range for 
-	 * "xsi" will be returned
+	 * For example, if attrName = "xsi:example", the range for "xsi" will be
+	 * returned
 	 */
 	public static Range selectAttributePrefixFromGivenNameAt(String attrName, int offset, DOMDocument document) {
 		DOMNode element = document.findNodeAt(offset);
@@ -255,6 +255,14 @@ public class XMLPositionUtility {
 		return null;
 	}
 
+	/**
+	 * Returns the range of the start tag of the given <code>element</code> and null
+	 * otherwise.
+	 * 
+	 * @param element the DOM element
+	 * @return the range of the start tag of the given <code>element</code> and null
+	 *         otherwise.
+	 */
 	public static Range selectStartTag(DOMNode element) {
 		int startOffset = element.getStart() + 1; // <
 		int endOffset = startOffset + getStartTagLength(element);
@@ -292,11 +300,24 @@ public class XMLPositionUtility {
 		DOMNode node = document.findNodeAt(offset);
 		if (node != null && node.isElement()) {
 			DOMElement element = (DOMElement) node;
-			if (element.hasEndTag()) {
-				int startOffset = element.getEndTagOpenOffset() + 2; // <\
-				int endOffset = startOffset + getStartTagLength(element);
-				return createRange(startOffset, endOffset, document);
-			}
+			return selectEndTag(element);
+		}
+		return null;
+	}
+
+	/**
+	 * Returns the range of the end tag of the given <code>element</code> and null
+	 * otherwise.
+	 * 
+	 * @param element the DOM element
+	 * @return the range of the end tag of the given <code>element</code> and null
+	 *         otherwise.
+	 */
+	public static Range selectEndTag(DOMElement element) {
+		if (element.hasEndTag()) {
+			int startOffset = element.getEndTagOpenOffset() + 2; // <\
+			int endOffset = startOffset + getStartTagLength(element);
+			return createRange(startOffset, endOffset, element.getOwnerDocument());
 		}
 		return null;
 	}
@@ -422,7 +443,7 @@ public class XMLPositionUtility {
 
 	public static LocationLink createLocationLink(DOMNode origin, DOMNode target) {
 		DOMDocument originDocument = origin.getOwnerDocument();
-		Range originSelectionRange  = null;
+		Range originSelectionRange = null;
 		if (origin.isElement()) {
 			originSelectionRange = selectStartTag(origin);
 		} else {

@@ -25,12 +25,12 @@ import org.junit.Test;
 public class XSDDefinitionExtensionsTest {
 
 	@Test
-	public void noDefinition() throws BadLocationException {
+	public void noXSDefinition() throws BadLocationException {
 		// definition on |
-		String xml = "<?xml version='1.0'?>\r\n" + // 
-				"<xs:sche|ma xmlns:xs='http://www.w3.org/2001/XMLSchema'>\r\n" + // 
+		String xml = "<?xml version='1.0'?>\r\n" + //
+				"<xs:sche|ma xmlns:xs='http://www.w3.org/2001/XMLSchema'>\r\n" + //
 				"</xs:schema>"; //
-		testDefinitionFor(xml);
+		testDefinitionFor(xml, ll("test.xsd", r(1, 1, 1, 10), r(2, 2, 2, 11)));
 	}
 	
 	@Test
