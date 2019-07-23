@@ -20,11 +20,13 @@ import org.eclipse.lsp4xml.extensions.xsd.participants.XSDCompletionParticipant;
 import org.eclipse.lsp4xml.extensions.xsd.participants.XSDDefinitionParticipant;
 import org.eclipse.lsp4xml.extensions.xsd.participants.XSDHighlightingParticipant;
 import org.eclipse.lsp4xml.extensions.xsd.participants.XSDReferenceParticipant;
+import org.eclipse.lsp4xml.extensions.xsd.participants.XSDRenameParticipant;
 import org.eclipse.lsp4xml.extensions.xsd.participants.diagnostics.XSDDiagnosticsParticipant;
 import org.eclipse.lsp4xml.services.extensions.ICompletionParticipant;
 import org.eclipse.lsp4xml.services.extensions.IDefinitionParticipant;
 import org.eclipse.lsp4xml.services.extensions.IHighlightingParticipant;
 import org.eclipse.lsp4xml.services.extensions.IReferenceParticipant;
+import org.eclipse.lsp4xml.services.extensions.IRenameParticipant;
 import org.eclipse.lsp4xml.services.extensions.IXMLExtension;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.services.extensions.codelens.ICodeLensParticipant;
@@ -46,6 +48,7 @@ public class XSDPlugin implements IXMLExtension {
 	private final IReferenceParticipant referenceParticipant;
 	private final ICodeLensParticipant codeLensParticipant;
 	private final IHighlightingParticipant highlightingParticipant;
+	private final IRenameParticipant renameParticipant;
 	private XSDURIResolverExtension uiResolver;
 
 	private ContentModelManager modelManager;
@@ -57,6 +60,7 @@ public class XSDPlugin implements IXMLExtension {
 		referenceParticipant = new XSDReferenceParticipant();
 		codeLensParticipant = new XSDCodeLensParticipant();
 		highlightingParticipant = new XSDHighlightingParticipant();
+		renameParticipant = new XSDRenameParticipant();
 	}
 
 	@Override
@@ -87,6 +91,7 @@ public class XSDPlugin implements IXMLExtension {
 		registry.registerReferenceParticipant(referenceParticipant);
 		registry.registerCodeLensParticipant(codeLensParticipant);
 		registry.registerHighlightingParticipant(highlightingParticipant);
+		registry.registerRenameParticipant(renameParticipant);
 	}
 
 	@Override
@@ -98,5 +103,6 @@ public class XSDPlugin implements IXMLExtension {
 		registry.unregisterReferenceParticipant(referenceParticipant);
 		registry.unregisterCodeLensParticipant(codeLensParticipant);
 		registry.unregisterHighlightingParticipant(highlightingParticipant);
+		registry.unregisterRenameParticipant(renameParticipant);
 	}
 }

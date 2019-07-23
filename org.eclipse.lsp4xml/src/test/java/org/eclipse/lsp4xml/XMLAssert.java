@@ -888,4 +888,24 @@ public class XMLAssert {
 					document.getText().substring(actualStartOffset, actualEndOffset).toLowerCase());
 		}
 	}
+
+	// ------------------- Rename assert
+
+	public static void assertRename(String value, String newText) throws BadLocationException {
+		assertRename(value, newText, Collections.emptyList());
+	}
+
+	public static void assertRename(String value, String newText, List<TextEdit> expectedEdits) throws BadLocationException {
+		int offset = value.indexOf("|");
+		value = value.substring(0, offset) + value.substring(offset + 1);
+
+		DOMDocument document = DOMParser.getInstance().parse(value, "test://test/test.html", null);
+
+		Position position = document.positionAt(offset);
+		
+		XMLLanguageService languageService = new XMLLanguageService();
+		WorkspaceEdit workspaceEdit = languageService.doRename(document, position, newText);
+		List<TextEdit> actualEdits = workspaceEdit.getChanges().get("test://test/test.html");
+		Assert.assertArrayEquals(expectedEdits.toArray(), actualEdits.toArray());
+	}
 }
