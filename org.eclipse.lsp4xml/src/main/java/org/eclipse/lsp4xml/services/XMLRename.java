@@ -25,6 +25,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 
+import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -35,7 +36,9 @@ import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMElement;
 import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.dom.parser.TokenType;
+import org.eclipse.lsp4xml.extensions.xsd.utils.XSDUtils;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lsp4xml.utils.XMLPositionUtility;
 
 /**
  * Handle all rename requests
@@ -169,10 +172,63 @@ public class XMLRename {
 					}
 				}
 			}
+
+			if (XSDUtils.isXSComplexType(element)) {
+
+				List<DOMAttr> attributes = element.getAttributeNodes();
+				DOMAttr attrForValueRename = getAttributeForValueRename(xmlDocument, attributes, position);
+
+				if (attrForValueRename == null) {
+					return Collections.emptyList();
+				}
+				
+				if (attrForValueRename.getName().equals("name")) {
+					List<Location> locations = getReferenceLocations(node);
+					return renameAttributeValueTextEdits(xmlDocument, attrForValueRename, newText, locations);
+				}
+			}
 		}
 
 		return Collections.emptyList();
 	}
+
+	/**
+	 * Returns the DOMAttr in attributes whose range overlaps with renamePosition
+	 * @param document
+	 * @param attributes List of attributes to consider
+	 * @param renamePosition Position of interest
+	 * @return
+	 */
+	private DOMAttr getAttributeForValueRename(DOMDocument document, List<DOMAttr> attributes, Position renamePosition) {
+		try {
+			int renameLocationOffset = document.offsetAt(renamePosition);
+			for (DOMAttr attr : attributes) {
+				DOMNode attrValue = attr.getNodeAttrValue();
+				int valueStart = attrValue.getStart();
+				int valueEnd = attrValue.getEnd();
+				
+				if (valueStart <= renameLocationOffset && renameLocationOffset <= valueEnd) {
+					return attr;
+				}
+			}
+		} catch (BadLocationException e) {
+
+		}
+
+		return null;
+	}
+
+	private List<Location> getReferenceLocations(DOMNode node) {
+
+		List<Location> locations = new ArrayList<>();
+
+		XSDUtils.searchXSOriginAttributes(node,
+		(origin, target) -> locations.add(XMLPositionUtility.createLocation(origin.getNodeAttrValue())),
+		null);
+
+		return locations;
+	}
+
 
 	/**
 	 * Creates a list of start and end tag rename's.
@@ -183,13 +239,31 @@ public class XMLRename {
 	 */
 	private static List<TextEdit> getRenameList(Range startTagRange, Range endTagRange, String newText) {
 		List<TextEdit> result = new ArrayList<>(2);
-				if (startTagRange != null) {
-					result.add(new TextEdit(startTagRange, newText));
-				}
-				if (endTagRange != null) {
-					result.add(new TextEdit(endTagRange, newText));
-				}
-				return result;
+		if (startTagRange != null) {
+			result.add(new TextEdit(startTagRange, newText));
+		}
+		if (endTagRange != null) {
+			result.add(new TextEdit(endTagRange, newText));
+		}
+		return result;
+	}
+
+	private List<TextEdit> renameAttributeValueTextEdits(DOMDocument document, DOMAttr attribute, String newText, List<Location> locations) {
+		DOMNode attrValue = attribute.getNodeAttrValue();
+		List<TextEdit> textEdits = new ArrayList<>();
+		String textToInsert = "\"" + newText + "\"";
+
+		int valueStart = attrValue.getStart();
+		int valueEnd = attrValue.getEnd();
+		Range range = XMLPositionUtility.createRange(valueStart, valueEnd, document);
+		textEdits.add(new TextEdit(range, textToInsert));
+
+		for (Location location: locations) {
+			TextEdit textEdit = new TextEdit(location.getRange(), textToInsert);
+			textEdits.add(textEdit);
+		}
+
+		return textEdits;
 	}
 
 	/**

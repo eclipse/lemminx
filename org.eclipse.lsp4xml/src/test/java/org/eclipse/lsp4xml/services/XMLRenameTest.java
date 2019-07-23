@@ -157,6 +157,23 @@ public class XMLRenameTest {
 			assertRename(xml, "BB", edits("BB", r(2, 6, 7), r(2, 13, 14))); 
 	}
 
+	public void testRenameComplexTypeName() throws BadLocationException {
+		String xml = 
+			"<?xml version=\"1.1\" ?>\r\n" +
+			"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\r\n" +
+			"\r\n" +
+			"  <xs:element name=\"employee\" type=\"personinfo\"></xs:element>\r\n" +
+			"  <xs:complexType name=\"|personinfo\"></xs:complexType>\r\n" +
+			"  <xs:complexType name=\"fullpersoninfo\">\r\n" +
+			"    <xs:complexContent>\r\n" +
+			"      <xs:extension base=\"personinfo\"></xs:extension>\r\n" +
+			"    </xs:complexContent>\r\n" +
+			"  </xs:complexType>\r\n" +
+			"</xs:schema>";
+
+			assertRename(xml, "newName", edits("\"newName\"", r(4, 23, 35), r(3, 35, 47), r(7, 25, 37))); 
+	}
+
 	@Test
 	public void testTryToRenameXMLNS() throws BadLocationException {
 		String xml = 
