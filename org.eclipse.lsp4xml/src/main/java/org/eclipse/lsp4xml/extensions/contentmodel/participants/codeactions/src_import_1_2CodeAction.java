@@ -23,7 +23,6 @@ import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.services.extensions.ICodeActionParticipant;
 import org.eclipse.lsp4xml.services.extensions.IComponentProvider;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
-import org.eclipse.lsp4xml.utils.XMLPositionUtility;
 
 /**
  * Code action to fix cvc-attribute-3 error.

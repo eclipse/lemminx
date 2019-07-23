@@ -10,7 +10,8 @@
  */
 package org.eclipse.lsp4xml.services;
 
-import java.util.Collections;
+import static org.eclipse.lsp4xml.XMLAssert.assertRename;
+
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -18,12 +19,7 @@ import java.util.stream.Stream;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4xml.commons.BadLocationException;
-import org.eclipse.lsp4xml.dom.DOMDocument;
-import org.eclipse.lsp4xml.dom.DOMParser;
-import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -31,13 +27,6 @@ import org.junit.Test;
  *
  */
 public class XMLRenameTest {
-
-	private XMLLanguageService languageService;
-
-	@Before
-	public void initializeLanguageService() {
-		languageService = new XMLLanguageService();
-	}
 
 	@Test
 	public void single() throws BadLocationException {
@@ -166,22 +155,7 @@ public class XMLRenameTest {
 			assertRename(xml, "BBBB"); 
 	}
 
-	private void assertRename(String value, String newText) throws BadLocationException {
-		assertRename(value, newText, Collections.emptyList());
-	}
 
-	private void assertRename(String value, String newText, List<TextEdit> expectedEdits) throws BadLocationException {
-		int offset = value.indexOf("|");
-		value = value.substring(0, offset) + value.substring(offset + 1);
-
-		DOMDocument document = DOMParser.getInstance().parse(value, "test://test/test.html", null);
-
-		Position position = document.positionAt(offset);
-
-		WorkspaceEdit workspaceEdit = languageService.doRename(document, position, newText);
-		List<TextEdit> actualEdits = workspaceEdit.getChanges().get("test://test/test.html");
-		Assert.assertArrayEquals(expectedEdits.toArray(), actualEdits.toArray());
-	}
 
 	private static Range r(int line, int startCharacter, int endCharacter) {
 		return new Range(new Position(line, startCharacter), new Position(line, endCharacter));

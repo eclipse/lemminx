@@ -46,6 +46,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	private final List<IReferenceParticipant> referenceParticipants;
 	private final List<ICodeLensParticipant> codeLensParticipants;
 	private final List<IHighlightingParticipant> highlightingParticipants;
+	private final List<IRenameParticipant> renameParticipants;
 
 	private IXMLDocumentProvider documentProvider;
 
@@ -69,6 +70,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 		referenceParticipants = new ArrayList<>();
 		codeLensParticipants = new ArrayList<>();
 		highlightingParticipants = new ArrayList<>();
+		renameParticipants = new ArrayList<>();
 		resolverExtensionManager = new URIResolverExtensionManager();
 		components = new HashMap<>();
 		registerComponent(resolverExtensionManager);
@@ -154,6 +156,11 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 		return highlightingParticipants;
 	}
 
+	public Collection<IRenameParticipant> getRenameParticipants() {
+		initializeIfNeeded();
+		return renameParticipants;
+	}
+
 	public void initializeIfNeeded() {
 		if (initialized) {
 			return;
@@ -162,9 +169,11 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	}
 
 	private synchronized void initialize() {
+		
 		if (initialized) {
 			return;
 		}
+
 		ServiceLoader<IXMLExtension> extensions = ServiceLoader.load(IXMLExtension.class);
 		extensions.forEach(extension -> {
 			registerExtension(extension);
@@ -267,6 +276,14 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 
 	public void unregisterHighlightingParticipant(IHighlightingParticipant highlightingParticipant) {
 		highlightingParticipants.add(highlightingParticipant);
+	}
+
+	public void registerRenameParticipant(IRenameParticipant renameParticipant) {
+		renameParticipants.add(renameParticipant);
+	}
+
+	public void unregisterRenameParticipant(IRenameParticipant renameParticipant) {
+		renameParticipants.add(renameParticipant);
 	}
 
 	/**

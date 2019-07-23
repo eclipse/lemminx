@@ -35,6 +35,8 @@ import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMElement;
 import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.dom.parser.TokenType;
+import org.eclipse.lsp4xml.services.RenameRequest;
+import org.eclipse.lsp4xml.services.extensions.IRenameParticipant;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 
 /**
@@ -54,124 +56,191 @@ public class XMLRename {
 	}
 
 	public WorkspaceEdit doRename(DOMDocument xmlDocument, Position position, String newText) {
-		List<TextEdit> textEdits = getRenameTextEdits(xmlDocument, position, newText);
-		Map<String, List<TextEdit>> changes = new HashMap<>();
-		changes.put(xmlDocument.getDocumentURI(), textEdits);
-		return new WorkspaceEdit(changes);
+
+		RenameRequest renameRequest = null;
+
+		try {
+			renameRequest = new RenameRequest(xmlDocument, position, newText, extensionsRegistry);
+		} catch (BadLocationException e) {
+			LOGGER.log(Level.SEVERE, "Failed creating RenameRequest", e);
+			return null;
+		}
+
+		DOMNode node = renameRequest.getNode();
+
+		if (node == null ||
+			(!node.isAttribute() && !node.isElement()) ||
+			(node.isElement() && ((DOMElement) node).getTagName() == null)) {
+				
+			return createWorkspaceEdit(xmlDocument.getDocumentURI(), Collections.emptyList());
+		}
+
+		List<TextEdit> textEdits = new ArrayList<>();
+		
+		for (IRenameParticipant participant : extensionsRegistry.getRenameParticipants()) {
+			participant.doRename(renameRequest, textEdits);
+		}
+
+		for (TextEdit textEdit: getRenameTextEdits(xmlDocument, node, position, newText)) {
+			textEdits.add(textEdit);
+		}
+
+		return createWorkspaceEdit(xmlDocument.getDocumentURI(), textEdits);
 	}
 
-	public List<TextEdit> getRenameTextEdits(DOMDocument xmlDocument, Position position, String newText) {
-		int offset = -1;
-		try {
-			offset = xmlDocument.offsetAt(position);
-		} catch (BadLocationException e) {
-			LOGGER.log(Level.SEVERE, "In XMLHighlighting the client provided Position is at a BadLocation", e);
+	private List<TextEdit> getRenameTextEdits(DOMDocument xmlDocument, DOMNode node, Position position, String newText) {
+
+		DOMElement element = getAssociatedElement(node);
+		if (node == null) {
 			return Collections.emptyList();
 		}
-		DOMNode node = xmlDocument.findNodeAt(offset);
-		if (node == null || !node.isElement() || ((DOMElement) node).getTagName() == null) {
-			return Collections.emptyList();
+
+		if (node.isCDATA()) {
+			return getCDATARenameTextEdits(xmlDocument, element, position, newText);
 		}
-		Range startTagRange;
-		Range endTagRange;
-		if(node.isCDATA()) {
-			Position startPos = null;
-			Position endPos = null;
-			Range tempRange = null;
-			try {
-				startPos = xmlDocument.positionAt(node.getStart());
-				endPos = xmlDocument.positionAt(node.getEnd());
-				tempRange = new Range(startPos, endPos);
 
-			} catch (BadLocationException e) {
-				LOGGER.log(Level.SEVERE, "In XMLRename the Node at provided Offset is a BadLocation", e);
-				return Collections.emptyList();
-			}
-			if (covers(tempRange, position)) {
-				startPos.setCharacter(startPos.getCharacter() + 1); // {Cursor}<![CDATA[ -> <{Cursor}![CDATA[
-				endPos.setCharacter(endPos.getCharacter() - 1); // ]]>{Cursor} -> ]]{Cursor}>
-				Position startPosEnd = new Position(startPos.getLine(), startPos.getCharacter() + 8);
-				Position endPosStart = new Position(endPos.getLine(), endPos.getCharacter() - 2);
-				startTagRange = new Range(startPos, startPosEnd);
-				endTagRange = new Range(endPosStart, endPos);
-				return getRenameList(startTagRange, endTagRange, newText);
-			}
-			return Collections.emptyList();
+		if (isRenameTagName(xmlDocument, element, position)) {
+			return getTagNameRenameTextEdits(xmlDocument, element, position, newText);
 		}
-		else if(node.isElement()) {
-			DOMElement element = (DOMElement) node;
-			startTagRange = getTagNameRange(TokenType.StartTag, node.getStart(), xmlDocument);
-			endTagRange = element.hasEndTag() ? getTagNameRange(TokenType.EndTag, element.getEndTagOpenOffset(), xmlDocument)
-					: null;
-			if (doesTagCoverPosition(startTagRange, endTagRange, position)) {
-				//Check if xsd namespace rename
-				String fullNodeName = node.getNodeName();
-				int indexOfColon = fullNodeName.indexOf(":");
-				if(indexOfColon > 0) {
-					Position startTagStartPosition = startTagRange.getStart();
-					Position startTagPrefixPosition = new Position(startTagStartPosition.getLine(), startTagStartPosition.getCharacter() + indexOfColon);
 
-					Position endTagStartPosition = endTagRange.getStart();
-					Position endTagPrefixPosition = new Position(endTagStartPosition.getLine(), endTagStartPosition.getCharacter() + indexOfColon);
-
-					Range startTagPrefixRange = new Range(startTagStartPosition, startTagPrefixPosition);
-					Range endTagPrefixRange = new Range(endTagStartPosition, endTagPrefixPosition);
-
-					if(doesTagCoverPosition(startTagPrefixRange, endTagPrefixRange, position)) {// Element prefix rename
-						String prefix = element.getPrefix();
-						return renameElementNamespace(xmlDocument, element, prefix.length(), newText);
-					}
-					else { //suffix rename without wiping namespace
-						String suffixName = element.getLocalName();
-						int suffixLength = suffixName.length();
-						Position startTagEndPosition = startTagRange.getEnd();
-						Position suffixStartPositionStart = new Position(startTagEndPosition.getLine(), startTagEndPosition.getCharacter() - suffixLength);
-
-						Position endTagEndPosition = endTagRange.getEnd();
-						Position suffixEndPositionStart = new Position(endTagEndPosition.getLine(), endTagEndPosition.getCharacter() - suffixLength);
-
-						Range suffixRangeStart = new Range(suffixStartPositionStart, startTagEndPosition);
-						Range suffixRangeEnd = new Range(suffixEndPositionStart, endTagEndPosition);
-
-						return getRenameList(suffixRangeStart, suffixRangeEnd, newText);
-					}
-				}
-				//Regular tag name rename
-				return getRenameList(startTagRange, endTagRange, newText);
-			}
-
-			if(element.equals(xmlDocument.getDocumentElement())) { // If attribute xmlns:ATT_NAME was renamed
-				List<DOMAttr> attributes = element.getAttributeNodes();
-
-				if(attributes == null) {
-					return Collections.emptyList();
-				}
-
-				for (DOMAttr attr : attributes) {
-					DOMNode nameNode = attr.getNodeAttrName();
-
-					if(!attr.isXmlns()) {
-						continue;
-					}
-
-					Position start;
-					Position end;
-					try {
-						start = xmlDocument.positionAt(nameNode.getStart() + "xmlns:".length());
-						end = xmlDocument.positionAt(nameNode.getEnd());
-					} catch (BadLocationException e) {
-						continue;
-					}
-					
-					if(covers(new Range(start, end), position)) { // Rename over the suffix of 'xmlns:XXX'
-						String namespaceName = attr.getLocalName();
-						return renameAllNamespaceOccurrences(xmlDocument, namespaceName, newText, attr);
-					}
-				}
-			}
+		if (element.isDocumentElement()) { // If attribute xmlns:ATT_NAME was renamed
+			return getXmlnsAttrRenameTextEdits(xmlDocument, element, position, newText);
 		}
 
 		return Collections.emptyList();
+	}
+
+	/**
+     * Returns <code>DOMElement</code> associated with 
+	 * <code>node</code>
+	 * 
+	 * @param node node representing an element or attribute
+	 * @return associated <code>DOMElement</code>
+	 */
+	private DOMElement getAssociatedElement(DOMNode node) {
+		if (node == null || (!node.isElement() && !node.isAttribute())) {
+			return null;
+		}
+
+		if (node.isAttribute()) {
+			return ((DOMAttr) node).getOwnerElement();
+		}
+		
+		return (DOMElement) node;
+	}
+
+	private List<TextEdit> getCDATARenameTextEdits(DOMDocument xmlDocument, DOMElement element, Position position, String newText) {
+		Position startPos = null;
+		Position endPos = null;
+		Range tempRange = null;
+
+		try {
+			startPos = xmlDocument.positionAt(element.getStart());
+			endPos = xmlDocument.positionAt(element.getEnd());
+			tempRange = new Range(startPos, endPos);
+
+		} catch (BadLocationException e) {
+			LOGGER.log(Level.SEVERE, "In XMLRename the Node at provided Offset is a BadLocation", e);
+			return Collections.emptyList();
+		}
+		
+		if (covers(tempRange, position)) {
+			startPos.setCharacter(startPos.getCharacter() + 1); // {Cursor}<![CDATA[ -> <{Cursor}![CDATA[
+			endPos.setCharacter(endPos.getCharacter() - 1); // ]]>{Cursor} -> ]]{Cursor}>
+			Position startPosEnd = new Position(startPos.getLine(), startPos.getCharacter() + 8);
+			Position endPosStart = new Position(endPos.getLine(), endPos.getCharacter() - 2);
+			Range startTagRange = new Range(startPos, startPosEnd);
+			Range endTagRange = new Range(endPosStart, endPos);
+			return getRenameList(startTagRange, endTagRange, newText);
+		}
+
+		return Collections.emptyList();
+	}
+
+	private boolean isRenameTagName(DOMDocument document, DOMElement element, Position position) {
+		Range startTagRange = getTagNameRange(TokenType.StartTag, element.getStart(), document);
+		Range endTagRange = element.hasEndTag() ? getTagNameRange(TokenType.EndTag, element.getEndTagOpenOffset(), document)
+				: null;
+		
+		return doesTagCoverPosition(startTagRange, endTagRange, position);
+	}
+
+	private List<TextEdit> getTagNameRenameTextEdits(DOMDocument xmlDocument, DOMElement element, Position position, String newText) {
+		
+		Range startTagRange = getTagNameRange(TokenType.StartTag, element.getStart(), xmlDocument);
+		Range endTagRange = element.hasEndTag() ? getTagNameRange(TokenType.EndTag, element.getEndTagOpenOffset(), xmlDocument)
+			: null;
+		
+		//Check if xsd namespace rename
+		String fullNodeName = element.getNodeName();
+		int indexOfColon = fullNodeName.indexOf(":");
+		if(indexOfColon > 0) {
+			Position startTagStartPosition = startTagRange.getStart();
+			Position startTagPrefixPosition = new Position(startTagStartPosition.getLine(), startTagStartPosition.getCharacter() + indexOfColon);
+
+			Position endTagStartPosition = endTagRange.getStart();
+			Position endTagPrefixPosition = new Position(endTagStartPosition.getLine(), endTagStartPosition.getCharacter() + indexOfColon);
+
+			Range startTagPrefixRange = new Range(startTagStartPosition, startTagPrefixPosition);
+			Range endTagPrefixRange = new Range(endTagStartPosition, endTagPrefixPosition);
+
+			if (doesTagCoverPosition(startTagPrefixRange, endTagPrefixRange, position)) {// Element prefix rename
+				String prefix = element.getPrefix();
+				return renameElementNamespace(xmlDocument, element, prefix.length(), newText);
+			} else { //suffix rename without wiping namespace
+				String suffixName = element.getLocalName();
+				int suffixLength = suffixName.length();
+				Position startTagEndPosition = startTagRange.getEnd();
+				Position suffixStartPositionStart = new Position(startTagEndPosition.getLine(), startTagEndPosition.getCharacter() - suffixLength);
+
+				Position endTagEndPosition = endTagRange.getEnd();
+				Position suffixEndPositionStart = new Position(endTagEndPosition.getLine(), endTagEndPosition.getCharacter() - suffixLength);
+
+				Range suffixRangeStart = new Range(suffixStartPositionStart, startTagEndPosition);
+				Range suffixRangeEnd = new Range(suffixEndPositionStart, endTagEndPosition);
+
+				return getRenameList(suffixRangeStart, suffixRangeEnd, newText);
+			}
+		}
+		//Regular tag name rename
+		return getRenameList(startTagRange, endTagRange, newText);
+	}
+
+	private List<TextEdit> getXmlnsAttrRenameTextEdits(DOMDocument xmlDocument, DOMElement element, Position position, String newText) {
+		List<DOMAttr> attributes = element.getAttributeNodes();
+
+		if(attributes == null) {
+			return Collections.emptyList();
+		}
+
+		for (DOMAttr attr : attributes) {
+			DOMNode nameNode = attr.getNodeAttrName();
+
+			if(!attr.isXmlns()) {
+				continue;
+			}
+
+			Position start;
+			Position end;
+			try {
+				start = xmlDocument.positionAt(nameNode.getStart() + "xmlns:".length());
+				end = xmlDocument.positionAt(nameNode.getEnd());
+			} catch (BadLocationException e) {
+				continue;
+			}
+			
+			if(covers(new Range(start, end), position)) { // Rename over the suffix of 'xmlns:XXX'
+				String namespaceName = attr.getLocalName();
+				return renameAllNamespaceOccurrences(xmlDocument, namespaceName, newText, attr);
+			}
+		}
+		return Collections.emptyList();
+	}
+
+	private WorkspaceEdit createWorkspaceEdit(String documentURI, List<TextEdit> textEdits) {
+		Map<String, List<TextEdit>> changes = new HashMap<>();
+		changes.put(documentURI, textEdits);
+		return new WorkspaceEdit(changes);
 	}
 
 	/**
@@ -183,13 +252,13 @@ public class XMLRename {
 	 */
 	private static List<TextEdit> getRenameList(Range startTagRange, Range endTagRange, String newText) {
 		List<TextEdit> result = new ArrayList<>(2);
-				if (startTagRange != null) {
-					result.add(new TextEdit(startTagRange, newText));
-				}
-				if (endTagRange != null) {
-					result.add(new TextEdit(endTagRange, newText));
-				}
-				return result;
+		if (startTagRange != null) {
+			result.add(new TextEdit(startTagRange, newText));
+		}
+		if (endTagRange != null) {
+			result.add(new TextEdit(endTagRange, newText));
+		}
+		return result;
 	}
 
 	/**
@@ -255,7 +324,6 @@ public class XMLRename {
 		}
 		
 		return edits;
-		
 	}
 
 	/**
