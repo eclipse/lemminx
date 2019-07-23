@@ -27,11 +27,8 @@ public class DTDAttlistDecl extends DTDDeclNode {
 	 * 
 	 * or
 	 * 
-	 * <!ATTLIST element-name 
-	 * 			 attribute-name1 attribute-type1 "attribute-value1"
-	 * 			 attribute-name2 attribute-type2 "attribute-value2"
-	 * 			 ...
-	 * >
+	 * <!ATTLIST element-name attribute-name1 attribute-type1 "attribute-value1"
+	 * attribute-name2 attribute-type2 "attribute-value2" ... >
 	 */
 
 	public DTDDeclParameter elementName;
@@ -39,20 +36,20 @@ public class DTDAttlistDecl extends DTDDeclNode {
 	public DTDDeclParameter attributeType;
 	public DTDDeclParameter attributeValue;
 
-	ArrayList<DTDAttlistDecl> internalChildren; //Holds all additional internal attlist declaractions
-	
+	ArrayList<DTDAttlistDecl> internalChildren; // Holds all additional internal attlist declaractions
+
 	public DTDAttlistDecl(int start, int end, DOMDocumentType parentDocumentType) {
 		super(start, end, parentDocumentType);
 		setDeclType(start + 2, start + 9);
 	}
 
-	public DOMDocumentType getParentDocumentType() {
+	public DOMDocumentType getOwnerDoctype() {
 		return parentDocumentType;
 	}
 
 	@Override
 	public String getNodeName() {
-		return getAttributeName();
+		return getElementName();
 	}
 
 	/**
@@ -64,8 +61,19 @@ public class DTDAttlistDecl extends DTDDeclNode {
 		return elementName != null ? elementName.getParameter() : null;
 	}
 
-	public void setElementName(int start, int end) {
+	public DTDDeclParameter getElementNameNode() {
+		return elementName;
+	}
+
+	void setElementName(int start, int end) {
 		elementName = addNewParameter(start, end);
+	}
+
+	public boolean isInElementName(int offset) {
+		if (elementName == null) {
+			return false;
+		}
+		return DOMNode.isIncluded(elementName.getStart(), elementName.getEnd(), offset);
 	}
 
 	/**
@@ -80,7 +88,7 @@ public class DTDAttlistDecl extends DTDDeclNode {
 	public void setAttributeName(int start, int end) {
 		attributeName = addNewParameter(start, end);
 	}
-	
+
 	public String getAttributeType() {
 		return attributeType != null ? attributeType.getParameter() : null;
 	}
@@ -105,11 +113,11 @@ public class DTDAttlistDecl extends DTDDeclNode {
 	/**
 	 * Add another internal attlist declaration to the list of children.
 	 * 
-	 * An ATTLIST decl can internally declare multiple declarations, see top of file.
-	 * This will add another one to its list of additional declarations.
+	 * An ATTLIST decl can internally declare multiple declarations, see top of
+	 * file. This will add another one to its list of additional declarations.
 	 */
 	void addAdditionalAttDecl(DTDAttlistDecl child) {
-		if(internalChildren == null) {
+		if (internalChildren == null) {
 			internalChildren = new ArrayList<DTDAttlistDecl>();
 		}
 		internalChildren.add(child);
@@ -120,12 +128,11 @@ public class DTDAttlistDecl extends DTDDeclNode {
 	}
 
 	/**
-	 * Returns true if this node's parent is the Doctype node.  
+	 * Returns true if this node's parent is the Doctype node.
 	 * 
 	 * 
-	 * This is used because an Attlist declaration can have multiple
-	 * attribute declarations within a tag that are each represented
-	 * by this class.
+	 * This is used because an Attlist declaration can have multiple attribute
+	 * declarations within a tag that are each represented by this class.
 	 */
 	public boolean isRootAttlist() {
 		return this.parent.isDoctype();

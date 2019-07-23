@@ -14,7 +14,17 @@ import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelProvider;
 import org.eclipse.lsp4xml.extensions.dtd.contentmodel.CMDTDContentModelProvider;
-import org.eclipse.lsp4xml.extensions.dtd.diagnostics.DTDDiagnosticsParticipant;
+import org.eclipse.lsp4xml.extensions.dtd.participants.DTDCodeLensParticipant;
+import org.eclipse.lsp4xml.extensions.dtd.participants.DTDCompletionParticipant;
+import org.eclipse.lsp4xml.extensions.dtd.participants.DTDDefinitionParticipant;
+import org.eclipse.lsp4xml.extensions.dtd.participants.DTDHighlightingParticipant;
+import org.eclipse.lsp4xml.extensions.dtd.participants.DTDReferenceParticipant;
+import org.eclipse.lsp4xml.extensions.dtd.participants.diagnostics.DTDDiagnosticsParticipant;
+import org.eclipse.lsp4xml.services.extensions.ICodeLensParticipant;
+import org.eclipse.lsp4xml.services.extensions.ICompletionParticipant;
+import org.eclipse.lsp4xml.services.extensions.IDefinitionParticipant;
+import org.eclipse.lsp4xml.services.extensions.IHighlightingParticipant;
+import org.eclipse.lsp4xml.services.extensions.IReferenceParticipant;
 import org.eclipse.lsp4xml.services.extensions.IXMLExtension;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IDiagnosticsParticipant;
@@ -27,8 +37,23 @@ public class DTDPlugin implements IXMLExtension {
 
 	private final IDiagnosticsParticipant diagnosticsParticipant;
 
+	private final IDefinitionParticipant definitionParticipant;
+
+	private final IHighlightingParticipant highlightingParticipant;
+
+	private final ICodeLensParticipant codeLensParticipant;
+
+	private final IReferenceParticipant referenceParticipant;
+
+	private final ICompletionParticipant completionParticipant;
+	
 	public DTDPlugin() {
 		diagnosticsParticipant = new DTDDiagnosticsParticipant();
+		definitionParticipant = new DTDDefinitionParticipant();
+		highlightingParticipant = new DTDHighlightingParticipant();
+		codeLensParticipant = new DTDCodeLensParticipant();
+		referenceParticipant = new DTDReferenceParticipant();
+		completionParticipant = new DTDCompletionParticipant();
 	}
 
 	@Override
@@ -44,11 +69,31 @@ public class DTDPlugin implements IXMLExtension {
 		modelManager.registerModelProvider(modelProvider);
 		// register diagnostic participant
 		registry.registerDiagnosticsParticipant(diagnosticsParticipant);
+		// register definition participant
+		registry.registerDefinitionParticipant(definitionParticipant);
+		// register highlighting participant
+		registry.registerHighlightingParticipant(highlightingParticipant);
+		// register codelens participant
+		registry.registerCodeLensParticipant(codeLensParticipant);
+		// register reference participant
+		registry.registerReferenceParticipant(referenceParticipant);
+		// register completion participant
+		registry.registerCompletionParticipant(completionParticipant);
 	}
 
 	@Override
 	public void stop(XMLExtensionsRegistry registry) {
 		// unregister diagnostic participant
 		registry.unregisterDiagnosticsParticipant(diagnosticsParticipant);
+		// unregister definition participant
+		registry.unregisterDefinitionParticipant(definitionParticipant);
+		// unregister highlighting participant
+		registry.unregisterHighlightingParticipant(highlightingParticipant);
+		// unregister codelens participant
+		registry.unregisterCodeLensParticipant(codeLensParticipant);
+		// unregister reference participant
+		registry.unregisterReferenceParticipant(referenceParticipant);
+		// unregister completion participant
+		registry.unregisterCompletionParticipant(completionParticipant);
 	}
 }

@@ -71,7 +71,7 @@ public class DTDDeclNode extends DOMNode{
 			parameters = new ArrayList<DTDDeclParameter>();
 		}
 		DTDDeclParameter parameter =
-				new DTDDeclParameter(parentDocumentType == null ? parentDocument.getDoctype() : parentDocumentType, start, end);
+				new DTDDeclParameter(this, start, end);
 		parameters.add(parameter);
 		this.end = end; // updates end position of the node.
 		return parameter;
@@ -93,7 +93,7 @@ public class DTDDeclNode extends DOMNode{
 	}
 
 	public void setDeclType(int start, int end) {
-		declType = new DTDDeclParameter(parentDocumentType, start, end);
+		declType = new DTDDeclParameter(this, start, end);
 	}
 
 	public String getDeclType() {
@@ -102,4 +102,9 @@ public class DTDDeclNode extends DOMNode{
 		}
 		return null;
 	}
+	
+	public DOMDocumentType getOwnerDoctype() {
+		return parentDocumentType;
+	}
+
 }

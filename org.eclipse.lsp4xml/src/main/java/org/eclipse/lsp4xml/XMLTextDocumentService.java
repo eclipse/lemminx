@@ -340,9 +340,6 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	@Override
 	public CompletableFuture<List<? extends CodeLens>> codeLens(CodeLensParams params) {
-		if (!sharedSettings.getCodeLensSettings().isEnabled()) {
-			return CompletableFuture.completedFuture(Collections.emptyList());
-		}
 		return computeDOMAsync(params.getTextDocument(), (cancelChecker, xmlDocument) -> {
 			return getXMLLanguageService().getCodeLens(xmlDocument, sharedSettings.getCodeLensSettings(),
 					cancelChecker);

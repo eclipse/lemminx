@@ -39,4 +39,8 @@ public class CompletionParticipantAdapter implements ICompletionParticipant {
 		// Do nothing
 	}
 
+	@Override
+	public void onDTDContent(ICompletionRequest request, ICompletionResponse response, boolean isContent) throws Exception {
+		// Do nothing
+	}
 }

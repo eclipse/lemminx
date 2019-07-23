@@ -14,7 +14,7 @@
 
     Public identifier:
       PUBLIC "-//W3C//DTD SVG 1.0//EN"
-
+ 
     URI for the DTD:
       http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd
 ============================================================================= -->
@@ -406,7 +406,7 @@
      DECLARATIONS CORRESPONDING TO: Document Structure 
      ============================================================== -->
 
-<!ENTITY % svgExt "" >
+<!ENTITY % svgExt "" > 
 <!ELEMENT svg (desc|title|metadata|defs|
                    path|text|rect|circle|ellipse|line|polyline|polygon|
                    use|image|svg|g|view|switch|a|altGlyphDef|

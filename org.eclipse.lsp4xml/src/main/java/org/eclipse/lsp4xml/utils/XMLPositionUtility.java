@@ -28,6 +28,7 @@ import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMElement;
 import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.dom.DOMProcessingInstruction;
+import org.eclipse.lsp4xml.dom.DOMRange;
 import org.eclipse.lsp4xml.dom.DOMText;
 import org.eclipse.lsp4xml.dom.DTDAttlistDecl;
 import org.eclipse.lsp4xml.dom.DTDDeclNode;
@@ -433,6 +434,10 @@ public class XMLPositionUtility {
 		return null;
 	}
 
+	public static Range createRange(DOMRange range) {
+		return createRange(range.getStart(), range.getEnd(), range.getOwnerDocument());
+	}
+
 	public static Range createRange(int startOffset, int endOffset, DOMDocument document) {
 		try {
 			return new Range(document.positionAt(startOffset), document.positionAt(endOffset));
@@ -441,11 +446,11 @@ public class XMLPositionUtility {
 		}
 	}
 
-	public static LocationLink createLocationLink(DOMNode origin, DOMNode target) {
+	public static LocationLink createLocationLink(DOMRange origin, DOMRange target) {
 		DOMDocument originDocument = origin.getOwnerDocument();
 		Range originSelectionRange = null;
-		if (origin.isElement()) {
-			originSelectionRange = selectStartTag(origin);
+		if (origin instanceof DOMElement) {
+			originSelectionRange = selectStartTag((DOMElement) origin);
 		} else {
 			originSelectionRange = XMLPositionUtility.createRange(origin.getStart(), origin.getEnd(), originDocument);
 		}
@@ -456,7 +461,7 @@ public class XMLPositionUtility {
 				originSelectionRange);
 	}
 
-	public static Location createLocation(DOMNode target) {
+	public static Location createLocation(DOMRange target) {
 		DOMDocument targetDocument = target.getOwnerDocument();
 		Range targetRange = XMLPositionUtility.createRange(target.getStart(), target.getEnd(), targetDocument);
 		return new Location(targetDocument.getDocumentURI(), targetRange);

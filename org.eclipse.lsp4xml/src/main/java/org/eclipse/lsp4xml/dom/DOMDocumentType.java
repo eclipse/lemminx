@@ -208,4 +208,8 @@ public class DOMDocumentType extends DTDDeclNode implements org.w3c.dom.Document
 		return getContent().substring(start - getStart(), end - getStart());
 	}
 
+	@Override
+	public DOMDocumentType getOwnerDoctype() {
+		return this;
+	}
 }

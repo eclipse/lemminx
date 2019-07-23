@@ -499,7 +499,7 @@ public class DOMParser {
 				DTDAttlistDecl attribute = (DTDAttlistDecl) curr;
 				if(isInitialDeclaration == false) {
 					// All additional declarations are created as new DTDAttlistDecl's
-					DTDAttlistDecl child = new DTDAttlistDecl(attribute.getStart(), attribute.getEnd(), attribute.getParentDocumentType());
+					DTDAttlistDecl child = new DTDAttlistDecl(attribute.getStart(), attribute.getEnd(), attribute.getOwnerDoctype());
 					attribute.addAdditionalAttDecl(child);
 					child.parent = attribute;
 

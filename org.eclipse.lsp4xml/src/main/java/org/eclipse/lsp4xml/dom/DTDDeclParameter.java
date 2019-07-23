@@ -15,31 +15,46 @@ package org.eclipse.lsp4xml.dom;
 /**
  * DTDDeclParameter
  */
-public class DTDDeclParameter {
+public class DTDDeclParameter implements DOMRange {
 
 	String parameter;
 
 	int start, end;
 
-	DOMDocumentType parentDoctype;
+	DTDDeclNode ownerNode;
 
-	public DTDDeclParameter(DOMDocumentType doctype, int start, int end) {
-		this.parentDoctype = doctype;
+	public DTDDeclParameter(DTDDeclNode ownerNode, int start, int end) {
+		this.ownerNode = ownerNode;
 		this.start = start;
 		this.end = end;
 	}
 
+	@Override
+	public DOMDocument getOwnerDocument() {
+		return getOwnerDoctype().getOwnerDocument();
+	}
+
+	public DOMDocumentType getOwnerDoctype() {
+		return getOwnerNode().getOwnerDoctype();
+	}
+
+	public DTDDeclNode getOwnerNode() {
+		return ownerNode;
+	}
+
+	@Override
 	public int getStart() {
 		return start;
 	}
 
+	@Override
 	public int getEnd() {
 		return end;
 	}
 
 	public String getParameter() {
 		if (parameter == null) {
-			parameter = parentDoctype.getSubstring(start, end);
+			parameter = getOwnerDoctype().getSubstring(start, end);
 		}
 		return parameter;
 	}
@@ -51,21 +66,18 @@ public class DTDDeclParameter {
 	 */
 	public String getParameterWithoutFirstAndLastChar() {
 		if (parameter == null) {
-			parameter = parentDoctype.getSubstring(start + 1, end - 1);
+			parameter = getOwnerDoctype().getSubstring(start + 1, end - 1);
 		}
 		return parameter;
 	}
 
-
 	@Override
 	public boolean equals(Object obj) {
-		if(!(obj instanceof DTDDeclParameter)) {
+		if (!(obj instanceof DTDDeclParameter)) {
 			return false;
 		}
 		DTDDeclParameter temp = (DTDDeclParameter) obj;
 		return start == temp.start && end == temp.end;
 	}
-
-	
 
 }

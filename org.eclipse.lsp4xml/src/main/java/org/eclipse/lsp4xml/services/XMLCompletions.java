@@ -846,83 +846,16 @@ public class XMLCompletions {
 	}
 
 	private void collectInsideDTDContent(CompletionRequest request, CompletionResponse response, boolean isContent) {
-		// Insert DTD Element Declaration
-		// see https://www.w3.org/TR/REC-xml/#dt-eldecl
-		boolean isSnippetsSupported = request.isCompletionSnippetsSupported();
-		InsertTextFormat insertFormat = request.getInsertTextFormat();
-		CompletionItem elementDecl = new CompletionItem();
-		elementDecl.setLabel("Insert DTD Element declaration");
-		elementDecl.setKind(CompletionItemKind.EnumMember);
-		elementDecl.setFilterText("<!ELEMENT ");
-		elementDecl.setInsertTextFormat(insertFormat);
-		int startOffset = request.getOffset();
-		Range editRange = null;
-		DOMDocument document = request.getXMLDocument();
-		DOMNode node = document.findNodeAt(startOffset);
-		try {
-			if (node.isDoctype()) {
-				editRange = getReplaceRange(startOffset, startOffset, request);
-			} else {
-				if (isContent) {
-					editRange = document.getTrimmedRange(node.getStart(), node.getEnd());
-				}
-				if (editRange == null) {
-					editRange = getReplaceRange(node.getStart(), node.getEnd(), request);
+		Collection<ICompletionParticipant> completionParticipants = getCompletionParticipants();
+		if (completionParticipants.size() > 0) {
+			for (ICompletionParticipant participant : completionParticipants) {
+				try {
+					participant.onDTDContent(request, response, isContent);
+				} catch (Exception e) {
+					LOGGER.log(Level.SEVERE, "While performing ICompletionParticipant#onDTDContent", e);
 				}
 			}
-		} catch (BadLocationException e) {
-			LOGGER.log(Level.SEVERE, "While performing getReplaceRange for DTD completion.", e);
 		}
-		String textEdit = isSnippetsSupported ? "<!ELEMENT ${1:element-name} (${2:#PCDATA})>"
-				: "<!ELEMENT element-name (#PCDATA)>";
-		elementDecl.setTextEdit(new TextEdit(editRange, textEdit));
-		elementDecl.setDocumentation("<!ELEMENT element-name (#PCDATA)>");
-		response.addCompletionItem(elementDecl);
-
-		// Insert DTD AttrList Declaration
-		// see https://www.w3.org/TR/REC-xml/#attdecls
-		CompletionItem attrListDecl = new CompletionItem();
-		attrListDecl.setLabel("Insert DTD Attributes list declaration");
-		attrListDecl.setKind(CompletionItemKind.EnumMember);
-		attrListDecl.setFilterText("<!ATTLIST ");
-		attrListDecl.setInsertTextFormat(insertFormat);
-		startOffset = request.getOffset();
-
-		textEdit = isSnippetsSupported ? "<!ATTLIST ${1:element-name} ${2:attribute-name} ${3:ID} ${4:#REQUIRED}>"
-				: "<!ATTLIST element-name attribute-name ID #REQUIRED>";
-		attrListDecl.setTextEdit(new TextEdit(editRange, textEdit));
-		attrListDecl.setDocumentation("<!ATTLIST element-name attribute-name ID #REQUIRED>");
-		response.addCompletionItem(attrListDecl);
-
-		// Insert Internal DTD Entity Declaration
-		// see https://www.w3.org/TR/REC-xml/#dt-entdecl
-		CompletionItem internalEntity = new CompletionItem();
-		internalEntity.setLabel("Insert Internal DTD Entity declaration");
-		internalEntity.setKind(CompletionItemKind.EnumMember);
-		internalEntity.setFilterText("<!ENTITY ");
-		internalEntity.setInsertTextFormat(insertFormat);
-		startOffset = request.getOffset();
-
-		textEdit = isSnippetsSupported ? "<!ENTITY ${1:entity-name} \"${2:entity-value}\">"
-				: "<!ENTITY entity-name \"entity-value\">";
-		internalEntity.setTextEdit(new TextEdit(editRange, textEdit));
-		internalEntity.setDocumentation("<!ENTITY entity-name \"entity-value\">");
-		response.addCompletionItem(internalEntity);
-
-		// Insert External DTD Entity Declaration
-		// see https://www.w3.org/TR/REC-xml/#dt-entdecl
-		CompletionItem externalEntity = new CompletionItem();
-		externalEntity.setLabel("Insert External DTD Entity declaration");
-		externalEntity.setKind(CompletionItemKind.EnumMember);
-		externalEntity.setFilterText("<!ENTITY ");
-		externalEntity.setInsertTextFormat(insertFormat);
-		startOffset = request.getOffset();
-
-		textEdit = isSnippetsSupported ? "<!ENTITY ${1:entity-name} SYSTEM \"${2:entity-value}\">"
-				: "<!ENTITY entity-name SYSTEM \"entity-value\">";
-		externalEntity.setTextEdit(new TextEdit(editRange, textEdit));
-		externalEntity.setDocumentation("<!ENTITY entity-name SYSTEM \"entity-value\">");
-		response.addCompletionItem(externalEntity);
 	}
 
 	private static int scanNextForEndPos(int offset, Scanner scanner, TokenType nextToken) {

@@ -26,7 +26,7 @@ import org.w3c.dom.UserDataHandler;
  * DOM node.
  *
  */
-public abstract class DOMNode implements Node {
+public abstract class DOMNode implements Node, DOMRange {
 
 	/**
 	 * Null value used for offset.
@@ -69,18 +69,18 @@ public abstract class DOMNode implements Node {
 	DOMNode parent;
 
 	private static final NodeList EMPTY_CHILDREN = new NodeList() {
-		
+
 		@Override
 		public Node item(int index) {
 			return null;
 		}
-		
+
 		@Override
 		public int getLength() {
 			return 0;
 		}
 	};
-	
+
 	static class XMLNodeList<T extends DOMNode> extends ArrayList<T> implements NodeList {
 
 		private static final long serialVersionUID = 1L;
@@ -533,10 +533,12 @@ public abstract class DOMNode implements Node {
 		return parent.getNodeType() == Node.DOCUMENT_NODE;
 	}
 
+	@Override
 	public int getStart() {
 		return start;
 	}
 
+	@Override
 	public int getEnd() {
 		return end;
 	}
