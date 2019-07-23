@@ -72,13 +72,13 @@ class XMLDefinition {
 		DOMNode node = request.getNode();
 		if (node != null && node.isElement()) {
 			// Node is a DOM element
-			int offset = request.getOffset();
 			DOMElement element = (DOMElement) node;
 			if (element.hasStartTag() && element.hasEndTag()) {
 				// The DOM element has end and start tag
 				DOMDocument document = element.getOwnerDocument();
 				Range startRange = XMLPositionUtility.selectStartTag(element);
 				Range endRange = XMLPositionUtility.selectEndTag(element);
+				int offset = request.getOffset();
 				if (element.isInStartTag(offset)) {
 					// Start tag was clicked, jump to the end tag
 					locations.add(new LocationLink(document.getDocumentURI(), endRange, endRange, startRange));
