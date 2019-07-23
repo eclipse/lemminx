@@ -1,5 +1,63 @@
 # Change Log
 
+## [0.8.0](https://github.com/angelozerr/lsp4xml/milestone/9?closed=1) (July 23, 2019)
+
+### Enhancements
+
+ * `Markdown` support for `hover` documentation. See [#24](https://github.com/angelozerr/lsp4xml/issues/245)
+ * `Markdown` support for `completion` documentation. See [#526](https://github.com/angelozerr/lsp4xml/issues/526)
+ * Add completion for `comment` and `#region`. See [#54](https://github.com/angelozerr/lsp4xml/issues/54)
+ * Add completion for `CDATA` block. See [#168](https://github.com/redhat-developer/vscode-xml/issues/168)
+ * Find definition for start/end tag element. See [#535](https://github.com/angelozerr/lsp4xml/issues/535)
+ * Show `relevant XML` completion options based on XML Schema. See [#347](https://github.com/angelozerr/lsp4xml/issues/347) 
+ * Improve `XSD source` information for XML completion. See [#529](https://github.com/angelozerr/lsp4xml/issues/529)
+ * Add support for `textDocument/documentHighlight` for XML Schema types. See [#470](https://github.com/angelozerr/lsp4xml/issues/470)
+ * Add support for `textDocument/completion` for xs:element/@name / xs:extension/@base. See [#451](https://github.com/angelozerr/lsp4xml/issues/451)
+ * Add support for selective outline enablement per file. See [#427](https://github.com/angelozerr/lsp4xml/issues/427)
+ * Parse `.ent` and `.mod` files as DTD files. See [#380](https://github.com/angelozerr/lsp4xml/issues/380)
+ * Add support for `textDocument/typeDefinition` from XML to XMLSchema/DTD. See [#371](https://github.com/angelozerr/lsp4xml/issues/371)
+ * Add support for `textDocument/definition` for XML Schema. See [#148](https://github.com/angelozerr/lsp4xml/issues/148)
+ * Add support for `textDocument/references` for XML Schema types. See [#58](https://github.com/angelozerr/lsp4xml/issues/58)
+ * Add support for `textDocument/codelens` for XML Schema types. See [#55](https://github.com/angelozerr/lsp4xml/issues/55)
+ * Add support for clickable`XSD CodeLens`. See [#490](https://github.com/angelozerr/lsp4xml/issues/490)
+ * Improved XML validation when XSD files are saved. See [#506](https://github.com/angelozerr/lsp4xml/issues/506)
+ 
+### Bug Fixes
+
+ * Hover markup response ignored the hover client capability. See [#525](https://github.com/angelozerr/lsp4xml/issues/525)
+ * Completion capability was lost in specific scenarios. See [#522](https://github.com/angelozerr/lsp4xml/issues/522)
+ * Fixed NPE in `textDocument/definition` in XSD files. See [#488](https://github.com/angelozerr/lsp4xml/issues/488) 
+ * Fixed case sensitivity problems for element and attribute names. See [#433](https://github.com/angelozerr/lsp4xml/issues/433)
+ * Selection formatting ignores attribute indentation preference. See [#429](https://github.com/angelozerr/lsp4xml/issues/429)
+ * Fixed error range for `EntityNotDeclared`. See [#518](https://github.com/angelozerr/lsp4xml/issues/518)
+ * Fixed error range for `src-import.1.2`. See [#499](https://github.com/angelozerr/lsp4xml/issues/499)
+ * Fixed error range for `s4s-elt-invalid-content.3`. See [#496](https://github.com/angelozerr/lsp4xml/issues/496)
+ * Fixed error range for `cvc-pattern-valid`. See [#477](https://github.com/angelozerr/lsp4xml/issues/477)
+ * Fixed error range for `AttributePrefixUnbound`. See [#476](https://github.com/angelozerr/lsp4xml/issues/476)
+ * Fixed error range for `EmptyTargetNamespace`. See [#472](https://github.com/angelozerr/lsp4xml/issues/472)
+ * Fixed error range for `ct-props-correct.3`. See [#467](https://github.com/angelozerr/lsp4xml/issues/467)
+ * Fixed error range for `sch-props-correct.2`. See [#462](https://github.com/angelozerr/lsp4xml/issues/462)
+ * Fixed error range for `s4s-elt-must-match.2`. See [#458](https://github.com/angelozerr/lsp4xml/issues/458)
+ * Fixed error range for `ct-props-correct.3`. See [#455](https://github.com/angelozerr/lsp4xml/issues/455)
+ * Fixed error range for `src-ct.1`. See [#453](https://github.com/angelozerr/lsp4xml/issues/453)
+ * Fixed error range for `duplicate attribute`.. See [#452](https://github.com/angelozerr/lsp4xml/issues/452)
+ * Fixed error range for `p-props-correct.2.1`. See [#436](https://github.com/angelozerr/lsp4xml/issues/436)
+ * Fixed error range for `cos-all-limited.2`. See [#428](https://github.com/angelozerr/lsp4xml/issues/428)
+ * Fixed error range for `src-element.3`. See [#420](https://github.com/angelozerr/lsp4xml/issues/420)
+ * Documents with an Internal Subset DOCTYPE had stopped trying to bind. See [#379](https://github.com/angelozerr/lsp4xml/issues/379)
+ * Fixed discrepancy in completion between prefixed and default namespaces. See [#311](https://github.com/angelozerr/lsp4xml/issues/311)
+ * XML did not validate when bounded DTD file was not found. See [#167](https://github.com/redhat-developer/vscode-xml/issues/167)
+ * Formatter inserts spaces in empty lines. See [#157](https://github.com/redhat-developer/vscode-xml/issues/157)
+ * VSCode was not revalidating XML files when relevant XSD files were modified outside VSCode. See [#131](https://github.com/redhat-developer/vscode-xml/issues/131)
+
+### Performance
+
+ * Improve XML Scanner performance. See [#444](https://github.com/angelozerr/lsp4xml/issues/444)
+ * Use CompletableFuture to load DOMDocument. See [#439](https://github.com/angelozerr/lsp4xml/issues/439)
+ * Examined memory usage. See [#438](https://github.com/angelozerr/lsp4xml/issues/438)
+ * Improved `TextDocument` update (in async) performance with `TreeLineTracker`. See [#426](https://github.com/angelozerr/lsp4xml/issues/426)
+ * Tested large files for performance. See [#48](https://github.com/angelozerr/lsp4xml/issues/48)
+
 ## [0.7.0](https://github.com/angelozerr/lsp4xml/milestone/8?closed=1) (June 11, 2019)
 
 ### Enhancements
