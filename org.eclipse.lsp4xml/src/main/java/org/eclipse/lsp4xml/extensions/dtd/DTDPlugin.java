@@ -16,9 +16,11 @@ import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelProvider;
 import org.eclipse.lsp4xml.extensions.dtd.contentmodel.CMDTDContentModelProvider;
 import org.eclipse.lsp4xml.extensions.dtd.participants.DTDDefinitionParticipant;
 import org.eclipse.lsp4xml.extensions.dtd.participants.DTDHighlightingParticipant;
+import org.eclipse.lsp4xml.extensions.dtd.participants.DTDReferenceParticipant;
 import org.eclipse.lsp4xml.extensions.dtd.participants.diagnostics.DTDDiagnosticsParticipant;
 import org.eclipse.lsp4xml.services.extensions.IDefinitionParticipant;
 import org.eclipse.lsp4xml.services.extensions.IHighlightingParticipant;
+import org.eclipse.lsp4xml.services.extensions.IReferenceParticipant;
 import org.eclipse.lsp4xml.services.extensions.IXMLExtension;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IDiagnosticsParticipant;
@@ -32,11 +34,13 @@ public class DTDPlugin implements IXMLExtension {
 	private final IDiagnosticsParticipant diagnosticsParticipant;
 	private final IDefinitionParticipant definitionParticipant;
 	private IHighlightingParticipant highlightingParticipant;
+	private IReferenceParticipant referenceParticipant;
 
 	public DTDPlugin() {
 		diagnosticsParticipant = new DTDDiagnosticsParticipant();
 		definitionParticipant = new DTDDefinitionParticipant();
 		highlightingParticipant = new DTDHighlightingParticipant();
+		referenceParticipant = new DTDReferenceParticipant();
 	}
 
 	@Override
@@ -56,6 +60,8 @@ public class DTDPlugin implements IXMLExtension {
 		registry.registerDefinitionParticipant(definitionParticipant);
 		// register highlighting participant
 		registry.registerHighlightingParticipant(highlightingParticipant);
+		// register reference participant
+		registry.registerReferenceParticipant(referenceParticipant);
 	}
 
 	@Override
@@ -66,5 +72,7 @@ public class DTDPlugin implements IXMLExtension {
 		registry.unregisterDefinitionParticipant(definitionParticipant);
 		// unregister highlighting participant
 		registry.unregisterHighlightingParticipant(highlightingParticipant);
+		// register reference participant
+		registry.unregisterReferenceParticipant(referenceParticipant);
 	}
 }
