@@ -31,22 +31,13 @@ public class DTDNotationDecl extends DTDDeclNode {
 	 * <!NOTATION Name SYSTEM SystemID>
 	 */
 
-	DTDDeclParameter name;
 	DTDDeclParameter kind;
 	DTDDeclParameter publicId;
 	DTDDeclParameter systemId;
 
-	public DTDNotationDecl(int start, int end, DOMDocumentType parentDocumentType) {
-		super(start, end, parentDocumentType);
+	public DTDNotationDecl(int start, int end) {
+		super(start, end);
 		setDeclType(start + 2, start + 10);
-	}
-
-	void setName(int start, int end) {
-		name = addNewParameter(start, end);
-	}
-
-	public String getName() {
-		return name != null ? name.getParameter() : null;
 	}
 
 	void setKind(int start, int end) {

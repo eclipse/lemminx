@@ -22,7 +22,6 @@ public class DOMDocumentType extends DTDDeclNode implements org.w3c.dom.Document
 		PUBLIC, SYSTEM, INVALID
 	}
 
-	DTDDeclParameter name;
 	DTDDeclParameter kind; // SYSTEM || PUBLIC
 	DTDDeclParameter publicId;
 	DTDDeclParameter systemId;
@@ -30,8 +29,13 @@ public class DOMDocumentType extends DTDDeclNode implements org.w3c.dom.Document
 
 	private String content; // |<!DOCTYPE ... >|
 
-	public DOMDocumentType(int start, int end, DOMDocument ownerDocument) {
-		super(start, end, ownerDocument);
+	public DOMDocumentType(int start, int end) {
+		super(start, end);
+	}
+	
+	@Override
+	public DOMDocumentType getOwnerDocType() {
+		return this;
 	}
 
 	public String getContent() {
@@ -39,18 +43,6 @@ public class DOMDocumentType extends DTDDeclNode implements org.w3c.dom.Document
 			content = getOwnerDocument().getText().substring(getStart(), getEnd());
 		}
 		return content;
-	}
-
-	/**
-	 * The text immediately after DOCTYPE, "<!DOCTYPE this_is_the_name ..."
-	 */
-	@Override
-	public String getName() {
-		return name != null ? name.getParameter() : null;
-	}
-
-	void setName(int start, int end) {
-		name = addNewParameter(start, end);
 	}
 
 	/**

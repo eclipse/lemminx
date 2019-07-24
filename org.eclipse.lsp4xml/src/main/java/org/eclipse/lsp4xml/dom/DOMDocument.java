@@ -403,7 +403,7 @@ public class DOMDocument extends DOMNode implements Document {
 	}
 
 	public DOMDocumentType createDocumentType(int start, int end) {
-		return new DOMDocumentType(start, end, this);
+		return new DOMDocumentType(start, end);
 	}
 
 	/*

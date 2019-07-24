@@ -76,9 +76,10 @@ public class XSDCodeLensParticipant implements ICodeLensParticipant {
 			DOMElement targetElement = target.getOwnerElement();
 			CodeLens codeLens = cache.get(targetElement);
 			if (codeLens == null) {
-				Range range = XMLPositionUtility.createRange(target.getStart(), target.getEnd(), xmlDocument);
+				Range range = XMLPositionUtility.createRange(target);
 				codeLens = new CodeLens(range);
-				codeLens.setCommand(new ReferenceCommand(xmlDocument.getDocumentURI(), range.getStart(), supportedByClient));
+				codeLens.setCommand(
+						new ReferenceCommand(xmlDocument.getDocumentURI(), range.getStart(), supportedByClient));
 				cache.put(targetElement, codeLens);
 				lenses.add(codeLens);
 			} else {

@@ -18,7 +18,7 @@ import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.junit.Test;
 
 /**
- * XSD highlighting tests.
+ * XSD definition tests.
  *
  * @author Angelo ZERR
  */

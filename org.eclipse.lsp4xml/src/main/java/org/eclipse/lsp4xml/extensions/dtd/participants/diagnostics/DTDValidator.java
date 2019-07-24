@@ -8,7 +8,7 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lsp4xml.extensions.dtd.diagnostics;
+package org.eclipse.lsp4xml.extensions.dtd.participants.diagnostics;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

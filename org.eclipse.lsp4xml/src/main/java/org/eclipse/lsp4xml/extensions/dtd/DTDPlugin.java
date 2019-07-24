@@ -14,7 +14,9 @@ import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelProvider;
 import org.eclipse.lsp4xml.extensions.dtd.contentmodel.CMDTDContentModelProvider;
-import org.eclipse.lsp4xml.extensions.dtd.diagnostics.DTDDiagnosticsParticipant;
+import org.eclipse.lsp4xml.extensions.dtd.participants.DTDDefinitionParticipant;
+import org.eclipse.lsp4xml.extensions.dtd.participants.diagnostics.DTDDiagnosticsParticipant;
+import org.eclipse.lsp4xml.services.extensions.IDefinitionParticipant;
 import org.eclipse.lsp4xml.services.extensions.IXMLExtension;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IDiagnosticsParticipant;
@@ -26,9 +28,11 @@ import org.eclipse.lsp4xml.services.extensions.save.ISaveContext;
 public class DTDPlugin implements IXMLExtension {
 
 	private final IDiagnosticsParticipant diagnosticsParticipant;
+	private final IDefinitionParticipant definitionParticipant;
 
 	public DTDPlugin() {
 		diagnosticsParticipant = new DTDDiagnosticsParticipant();
+		definitionParticipant = new DTDDefinitionParticipant();
 	}
 
 	@Override
@@ -44,11 +48,15 @@ public class DTDPlugin implements IXMLExtension {
 		modelManager.registerModelProvider(modelProvider);
 		// register diagnostic participant
 		registry.registerDiagnosticsParticipant(diagnosticsParticipant);
+		// register definition participant
+		registry.registerDefinitionParticipant(definitionParticipant);
 	}
 
 	@Override
 	public void stop(XMLExtensionsRegistry registry) {
 		// unregister diagnostic participant
 		registry.unregisterDiagnosticsParticipant(diagnosticsParticipant);
+		// unregister definition participant
+		registry.unregisterDefinitionParticipant(definitionParticipant);
 	}
 }

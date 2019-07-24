@@ -10,7 +10,6 @@
  */
 package org.eclipse.lsp4xml.utils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,6 +27,7 @@ import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMElement;
 import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.dom.DOMProcessingInstruction;
+import org.eclipse.lsp4xml.dom.DOMRange;
 import org.eclipse.lsp4xml.dom.DOMText;
 import org.eclipse.lsp4xml.dom.DTDAttlistDecl;
 import org.eclipse.lsp4xml.dom.DTDDeclNode;
@@ -433,6 +433,16 @@ public class XMLPositionUtility {
 		return null;
 	}
 
+	/**
+	 * Returns the range for the given <code>node</code>.
+	 * 
+	 * @param node the node
+	 * @return the range for the given <code>node</code>.
+	 */
+	public static Range createRange(DOMRange range) {
+		return createRange(range.getStart(), range.getEnd(), range.getOwnerDocument());
+	}
+
 	public static Range createRange(int startOffset, int endOffset, DOMDocument document) {
 		try {
 			return new Range(document.positionAt(startOffset), document.positionAt(endOffset));
@@ -441,22 +451,36 @@ public class XMLPositionUtility {
 		}
 	}
 
-	public static LocationLink createLocationLink(DOMNode origin, DOMNode target) {
-		DOMDocument originDocument = origin.getOwnerDocument();
+	/**
+	 * Returns the location link for the given <code>origin</code> and
+	 * <code>target</code> nodes.
+	 * 
+	 * @param origin the origin node.
+	 * @param target the target node.
+	 * @return the location link for the given <code>origin</code> and
+	 *         <code>target</code> nodes.
+	 */
+	public static LocationLink createLocationLink(DOMRange origin, DOMRange target) {
 		Range originSelectionRange = null;
-		if (origin.isElement()) {
-			originSelectionRange = selectStartTag(origin);
+		if (origin instanceof DOMElement) {
+			originSelectionRange = selectStartTag((DOMElement) origin);
 		} else {
-			originSelectionRange = XMLPositionUtility.createRange(origin.getStart(), origin.getEnd(), originDocument);
+			originSelectionRange = XMLPositionUtility.createRange(origin);
 		}
-		DOMDocument targetDocument = target.getOwnerDocument();
-		Range targetRange = XMLPositionUtility.createRange(target.getStart(), target.getEnd(), targetDocument);
+		Range targetRange = XMLPositionUtility.createRange(target);
 		Range targetSelectionRange = targetRange;
+		DOMDocument targetDocument = target.getOwnerDocument();
 		return new LocationLink(targetDocument.getDocumentURI(), targetRange, targetSelectionRange,
 				originSelectionRange);
 	}
 
-	public static Location createLocation(DOMNode target) {
+	/**
+	 * Returns the location for the given <code>target</code> node.
+	 * 
+	 * @param target the target node.
+	 * @return the location for the given <code>target</code> node.
+	 */
+	public static Location createLocation(DOMRange target) {
 		DOMDocument targetDocument = target.getOwnerDocument();
 		Range targetRange = XMLPositionUtility.createRange(target.getStart(), target.getEnd(), targetDocument);
 		return new Location(targetDocument.getDocumentURI(), targetRange);
@@ -538,7 +562,7 @@ public class XMLPositionUtility {
 			DTDDeclNode decl = (DTDDeclNode) node;
 			if (decl instanceof DTDAttlistDecl) {
 				DTDAttlistDecl attlist = (DTDAttlistDecl) decl;
-				ArrayList<DTDAttlistDecl> internal = attlist.getInternalChildren();
+				List<DTDAttlistDecl> internal = attlist.getInternalChildren();
 				if (internal != null && !internal.isEmpty()) {
 					decl = internal.get(internal.size() - 1); // get last internal decl
 				}

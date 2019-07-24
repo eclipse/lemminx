@@ -15,42 +15,72 @@ package org.eclipse.lsp4xml.dom;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.w3c.dom.Node;
 
 /**
  * DTDNode
  */
-public class DTDDeclNode extends DOMNode{
+public class DTDDeclNode extends DOMNode {
 
 	/**
 	 * This class is the base for all declaration nodes for DTD's.
 	 * 
-	 * It can also be used to represent an undefined tag, meaning
-	 * it is not any of: ELEMENT, ATTLIST, ENTITY, or NOTATION
+	 * It can also be used to represent an undefined tag, meaning it is not any of:
+	 * ELEMENT, ATTLIST, ENTITY, or NOTATION
 	 */
-	
-	protected final DOMDocumentType parentDocumentType;
-	protected final DOMDocument parentDocument;
 
-	public DTDDeclParameter unrecognized; // holds all content after parsing goes wrong in a DTD declaration (ENTITY, ATTLIST, ...).
+	public DTDDeclParameter unrecognized; // holds all content after parsing goes wrong in a DTD declaration (ENTITY,
+											// ATTLIST, ...).
 	public DTDDeclParameter declType; // represents the actual name of the decl eg: ENTITY, ATTLIST, ...
 
 	private List<DTDDeclParameter> parameters;
+	private DTDDeclParameter name;
 
-	public DTDDeclNode(int start, int end, DOMDocumentType parentDocumentType) {
+	public DTDDeclNode(int start, int end) {
 		super(start, end);
-		this.parentDocumentType = parentDocumentType;
-		this.parentDocument = null;
 	}
 
-	public DTDDeclNode(int start, int end, DOMDocument parentDocumentType) {
-		super(start, end);
-		this.parentDocument = parentDocumentType;
-		this.parentDocumentType = null;
+	public String getName() {
+		DTDDeclParameter name = getNameParameter();
+		return name != null ? name.getParameter() : null;
 	}
 
+	public DTDDeclParameter getNameParameter() {
+		return name;
+	}
+
+	protected DTDDeclParameter getParameterAtIndex(int index) {
+		return parameters != null && parameters.size() > index ? parameters.get(index) : null;
+	}
+
+	public void setName(int start, int end) {
+		name = addNewParameter(start, end);
+	}
+
+	public boolean isInNameParameter(int offset) {
+		DTDDeclParameter name = getNameParameter();
+		return DOMNode.isIncluded(name, offset);
+	}
+
+	public DOMDocumentType getOwnerDocType() {
+		Node node = parent;
+		while (node != null) {
+			if (node.getNodeType() == Node.DOCUMENT_TYPE_NODE) {
+				return (DOMDocumentType) node;
+			}
+			node = node.getParentNode();
+		}
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Node#getNodeName()
+	 */
 	@Override
 	public String getNodeName() {
-		return null;
+		return getName();
 	}
 
 	@Override
@@ -64,21 +94,20 @@ public class DTDDeclNode extends DOMNode{
 
 	public void setUnrecognized(int start, int end) {
 		unrecognized = addNewParameter(start, end);
-	}	
+	}
 
 	public DTDDeclParameter addNewParameter(int start, int end) {
-		if(parameters == null) {
+		if (parameters == null) {
 			parameters = new ArrayList<DTDDeclParameter>();
 		}
-		DTDDeclParameter parameter =
-				new DTDDeclParameter(parentDocumentType == null ? parentDocument.getDoctype() : parentDocumentType, start, end);
+		DTDDeclParameter parameter = new DTDDeclParameter(this, start, end);
 		parameters.add(parameter);
 		this.end = end; // updates end position of the node.
 		return parameter;
 	}
 
 	public void updateLastParameterEnd(int end) {
-		if(parameters != null && parameters.size() > 0) {
+		if (parameters != null && parameters.size() > 0) {
 			DTDDeclParameter last = parameters.get(parameters.size() - 1);
 			last.end = end;
 			this.end = end;
@@ -86,19 +115,39 @@ public class DTDDeclNode extends DOMNode{
 	}
 
 	public List<DTDDeclParameter> getParameters() {
-		if(parameters == null) {
+		if (parameters == null) {
 			parameters = new ArrayList<DTDDeclParameter>();
 		}
 		return parameters;
 	}
 
 	public void setDeclType(int start, int end) {
-		declType = new DTDDeclParameter(parentDocumentType, start, end);
+		declType = new DTDDeclParameter(this, start, end);
 	}
 
 	public String getDeclType() {
-		if(declType != null) {
+		if (declType != null) {
 			return declType.getParameter();
+		}
+		return null;
+	}
+
+	/**
+	 * Returns the parameter name which references a DTD element declaration
+	 * (<!ELEMENT) at the given offset and null otherwise.
+	 * 
+	 * <p>
+	 * <!ATTLIST element-name ... will return position of 'element-name' which
+	 * references the <!ELEMENT element-name
+	 * </p>
+	 * 
+	 * @param offset the offset
+	 * @return the parameter name which references a DTD element declaration
+	 *         (<!ELEMENT) at the given offset and null otherwise.
+	 */
+	public DTDDeclParameter getReferencedElementNameAt(int offset) {
+		if (isInNameParameter(offset)) {
+			return getNameParameter();
 		}
 		return null;
 	}
