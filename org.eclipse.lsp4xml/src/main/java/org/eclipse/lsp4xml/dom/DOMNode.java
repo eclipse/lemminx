@@ -26,7 +26,7 @@ import org.w3c.dom.UserDataHandler;
  * DOM node.
  *
  */
-public abstract class DOMNode implements Node {
+public abstract class DOMNode implements Node, DOMRange {
 
 	/**
 	 * Null value used for offset.
@@ -260,11 +260,11 @@ public abstract class DOMNode implements Node {
 	 * @param offset
 	 * @return true if the node included the given offset and false otherwise.
 	 */
-	public static boolean isIncluded(DOMNode node, int offset) {
+	public static boolean isIncluded(DOMRange node, int offset) {
 		if (node == null) {
 			return false;
 		}
-		return isIncluded(node.start, node.end, offset);
+		return isIncluded(node.getStart(), node.getEnd(), offset);
 	}
 
 	public static boolean isIncluded(int start, int end, int offset) {
@@ -533,10 +533,12 @@ public abstract class DOMNode implements Node {
 		return parent.getNodeType() == Node.DOCUMENT_NODE;
 	}
 
+	@Override
 	public int getStart() {
 		return start;
 	}
 
+	@Override
 	public int getEnd() {
 		return end;
 	}

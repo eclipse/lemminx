@@ -444,7 +444,7 @@ class XMLFormatter {
 							DTDDeclParameter param;
 							for (int i = 0; i < params.size(); i++) {
 								param = params.get(i);
-								if (attlist.elementName.equals(param)) {
+								if (attlist.getNameParameter().equals(param)) {
 									xmlBuilder.addParameter(param.getParameter());
 									if (attlist.getParameters().size() > 1) { // has parameters after elementName
 										xmlBuilder.linefeed();

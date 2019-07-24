@@ -20,42 +20,39 @@ import org.w3c.dom.Node;
  */
 public class DTDEntityDecl extends DTDDeclNode implements Entity {
 
-
 	/**
-	* Formats:
-	* 
-	* <!ENTITY entity-name "entity-value">
-	* 
-	* or
-	* 
-	* <!ENTITY % entity-name "entity-value">
-	* 
-	* or
-	* 
-	* <!ENTITY % entity-name SYSTEM "systemId">
-	* 
-	* or
-	* 
-	* <!ENTITY % entity-name PUBLIC "publicId" "systemId">
-	* 
-	* or
-	* 
-	* <!ENTITY % entity-name SYSTEM "systemId" NDATA name>
-	* 
-	* or
-	* 
-	* <!ENTITY % entity-name PUBLIC "publicId" "systemId" NDATA name>
-	*/
+	 * Formats:
+	 * 
+	 * <!ENTITY entity-name "entity-value">
+	 * 
+	 * or
+	 * 
+	 * <!ENTITY % entity-name "entity-value">
+	 * 
+	 * or
+	 * 
+	 * <!ENTITY % entity-name SYSTEM "systemId">
+	 * 
+	 * or
+	 * 
+	 * <!ENTITY % entity-name PUBLIC "publicId" "systemId">
+	 * 
+	 * or
+	 * 
+	 * <!ENTITY % entity-name SYSTEM "systemId" NDATA name>
+	 * 
+	 * or
+	 * 
+	 * <!ENTITY % entity-name PUBLIC "publicId" "systemId" NDATA name>
+	 */
 	DTDDeclParameter percent;
-	DTDDeclParameter name;
 	DTDDeclParameter value;
 	DTDDeclParameter kind;
 	DTDDeclParameter publicId;
 	DTDDeclParameter systemId;
 
-	
-	public DTDEntityDecl(int start, int end, DOMDocumentType parentDocumentType) {
-		super(start, end, parentDocumentType);
+	public DTDEntityDecl(int start, int end) {
+		super(start, end);
 		setDeclType(start + 2, start + 8);
 	}
 
@@ -65,20 +62,6 @@ public class DTDEntityDecl extends DTDDeclNode implements Entity {
 
 	public void setPercent(int start, int end) {
 		percent = addNewParameter(start, end);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.Node#getNodeName()
-	 */
-	@Override
-	public String getNodeName() {
-		return name != null ? name.getParameter() : null;
-	}
-
-	public void setNodeName(int start, int end) {
-		name = addNewParameter(start, end);
 	}
 
 	public String getValue() {

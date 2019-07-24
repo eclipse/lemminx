@@ -577,10 +577,10 @@ public class DOMParserForInternalDTDTest {
 		Assert.assertEquals("CDATA", attlistDecl.getAttributeType());
 		Assert.assertEquals("#REQUIRED", attlistDecl.getAttributeValue());
 
-		Assert.assertNotNull(attlistDecl.internalChildren);
-		Assert.assertEquals(1, attlistDecl.internalChildren.size());
+		Assert.assertNotNull(attlistDecl.getInternalChildren());
+		Assert.assertEquals(1, attlistDecl.getInternalChildren().size());
 
-		DTDAttlistDecl internalDecl = (DTDAttlistDecl) attlistDecl.internalChildren.get(0);
+		DTDAttlistDecl internalDecl = (DTDAttlistDecl) attlistDecl.getInternalChildren().get(0);
 
 		Assert.assertEquals("from", internalDecl.getAttributeName());
 		Assert.assertEquals("CDATA", internalDecl.getAttributeType());

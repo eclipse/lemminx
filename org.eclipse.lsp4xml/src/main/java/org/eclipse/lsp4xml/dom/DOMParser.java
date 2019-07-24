@@ -65,7 +65,7 @@ public class DOMParser {
 		DOMDocument xmlDocument = new DOMDocument(document, resolverExtensionManager);
 		xmlDocument.setCancelChecker(monitor);
 		
-		DOMNode curr = isDTD ? new DOMDocumentType(0, text.length(), xmlDocument) : xmlDocument;
+		DOMNode curr = isDTD ? new DOMDocumentType(0, text.length()) : xmlDocument;
 		if (isDTD) {
 			xmlDocument.addChild(curr);
 
@@ -438,8 +438,7 @@ public class DOMParser {
 					curr = curr.getParentNode();
 				}
 				
-				DTDElementDecl child = new DTDElementDecl(scanner.getTokenOffset(), text.length(),
-						(DOMDocumentType) curr);
+				DTDElementDecl child = new DTDElementDecl(scanner.getTokenOffset(), text.length());
 				curr.addChild(child);
 				curr = child;
 				break;
@@ -480,8 +479,7 @@ public class DOMParser {
 					curr.end = scanner.getTokenOffset();
 					curr = curr.getParentNode();
 				}
-				DTDAttlistDecl child = new DTDAttlistDecl(scanner.getTokenOffset(), text.length(),
-						(DOMDocumentType) curr);
+				DTDAttlistDecl child = new DTDAttlistDecl(scanner.getTokenOffset(), text.length());
 		
 				isInitialDeclaration = true;
 				curr.addChild(child);
@@ -491,7 +489,7 @@ public class DOMParser {
 
 			case DTDAttlistElementName: {
 				DTDAttlistDecl attribute = (DTDAttlistDecl) curr;
-				attribute.setElementName(scanner.getTokenOffset(), scanner.getTokenEnd());
+				attribute.setName(scanner.getTokenOffset(), scanner.getTokenEnd());
 				break;
 			}
 
@@ -499,7 +497,7 @@ public class DOMParser {
 				DTDAttlistDecl attribute = (DTDAttlistDecl) curr;
 				if(isInitialDeclaration == false) {
 					// All additional declarations are created as new DTDAttlistDecl's
-					DTDAttlistDecl child = new DTDAttlistDecl(attribute.getStart(), attribute.getEnd(), attribute.getParentDocumentType());
+					DTDAttlistDecl child = new DTDAttlistDecl(attribute.getStart(), attribute.getEnd());
 					attribute.addAdditionalAttDecl(child);
 					child.parent = attribute;
 
@@ -534,7 +532,7 @@ public class DOMParser {
 					curr.end = scanner.getTokenOffset();
 					curr = curr.getParentNode();
 				}
-				DTDEntityDecl child = new DTDEntityDecl(scanner.getTokenOffset(), text.length(), (DOMDocumentType) curr);
+				DTDEntityDecl child = new DTDEntityDecl(scanner.getTokenOffset(), text.length());
 				curr.addChild(child);
 				curr = child;
 				break;
@@ -548,7 +546,7 @@ public class DOMParser {
 
 			case DTDEntityName : {
 				DTDEntityDecl entity = (DTDEntityDecl) curr;
-				entity.setNodeName(scanner.getTokenOffset(), scanner.getTokenEnd());
+				entity.setName(scanner.getTokenOffset(), scanner.getTokenEnd());
 				break;
 			}
 
@@ -582,7 +580,7 @@ public class DOMParser {
 					curr.end = scanner.getTokenOffset();
 					curr = curr.getParentNode();
 				}
-				DTDNotationDecl child = new DTDNotationDecl(scanner.getTokenOffset(), text.length(), (DOMDocumentType) curr);
+				DTDNotationDecl child = new DTDNotationDecl(scanner.getTokenOffset(), text.length());
 				curr.addChild(child);
 				curr = child;
 				isInitialDeclaration = true;
