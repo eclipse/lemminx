@@ -9,10 +9,16 @@
 *******************************************************************************/
 package org.eclipse.lsp4xml.extensions.dtd.utils;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.dom.DOMDocumentType;
 import org.eclipse.lsp4xml.dom.DOMNode;
+import org.eclipse.lsp4xml.dom.DTDAttlistDecl;
+import org.eclipse.lsp4xml.dom.DTDDeclNode;
 import org.eclipse.lsp4xml.dom.DTDDeclParameter;
 import org.eclipse.lsp4xml.dom.DTDElementDecl;
 import org.w3c.dom.Node;
@@ -31,8 +37,8 @@ public class DTDUtils {
 	 * node.
 	 * 
 	 * @param originNameNode the origin name node (<ex :<!ATTLIST name).
-	 * @param matchName      true if the attribute value must match the value of
-	 *                       target attribute value and false otherwise.
+	 * @param matchName      true if the origin name must match the value of target
+	 *                       name and false otherwise.
 	 * @param collector      collector to collect DTD <!ELEMENT target name.
 	 */
 	public static void searchDTDTargetElementDecl(DTDDeclParameter originNameNode, boolean matchName,
@@ -55,6 +61,108 @@ public class DTDUtils {
 						}
 					}
 				}
+			}
+		}
+	}
+
+	/**
+	 * Search origin DTD node (<!ATTRLIST element-name) or (child <!ELEMENT
+	 * element-name (child)) from the given target DTD node (<!ELEMENT element-name.
+	 * 
+	 * @param targetNode the referenced node
+	 * @param collector  the collector to collect reference between an origin and
+	 *                   target attribute.
+	 */
+	public static void searchDTDOriginElementDecls(DTDDeclNode targetNode,
+			BiConsumer<DTDDeclParameter, DTDDeclParameter> collector, CancelChecker cancelChecker) {
+		// Collect all potential target DTD nodes (all <!ELEMENT)
+		List<DTDDeclNode> targetNodes = getTargetNodes(targetNode);
+		if (targetNodes.isEmpty()) {
+			// None referenced nodes, stop the search of references
+			return;
+		}
+
+		// Loop for each <!ELEMENT and check for each target DTD nodes if it reference
+		// it.
+		DOMDocumentType docType = targetNode.getOwnerDocType();
+		if (docType.hasChildNodes()) {
+			// Loop for <!ELEMENT.
+			NodeList children = docType.getChildNodes();
+			for (int i = 0; i < children.getLength(); i++) {
+				if (cancelChecker != null) {
+					cancelChecker.checkCanceled();
+				}
+				Node origin = children.item(i);
+				for (DTDDeclNode target : targetNodes) {
+					if (target.isDTDElementDecl()) {
+						// target node is <!ELEMENT, check if it is references by the current origin
+						// node
+						DTDElementDecl targetElement = (DTDElementDecl) target;
+						switch (origin.getNodeType()) {
+						case DOMNode.DTD_ELEMENT_DECL_NODE:
+							// check if the current <!ELEMENT origin defines a child which references the
+							// target node <!ELEMENT
+							// <!ELEMENT from > --> here target node is 'from'
+							// <!ELEMENT note(from)> --> here origin node is 'note'
+							// --> here 'note' has a 'from' as child and it should be collected
+							DTDElementDecl originElement = (DTDElementDecl) origin;
+							originElement.collectParameters(targetElement.getNameParameter(), collector);
+							break;
+						case DOMNode.DTD_ATT_LIST_NODE:
+							String name = targetElement.getName();
+							// check if the current <!ATTLIST element-name reference the current <!ELEMENT
+							// element-name
+							// <!ELEMENT note --> here target node is 'note'
+							// <!ATTLIST note ... -> here origin node is 'note'
+							// --> here <!ATTLIST defines 'note' as element name, and it should be collected
+							DTDAttlistDecl originAttribute = (DTDAttlistDecl) origin;
+							if (name.equals(originAttribute.getElementName())) {
+								// <!ATTLIST origin has the same name than <!ELEMENT target
+								collector.accept(originAttribute.getNameParameter(), targetElement.getNameParameter());
+							}
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Returns the referenced attributes list from the given referenced node.
+	 * 
+	 * @param referencedNode the referenced node.
+	 * @return the referenced attributes list from the given referenced node.
+	 */
+	private static List<DTDDeclNode> getTargetNodes(DTDDeclNode referencedNode) {
+		List<DTDDeclNode> referencedNodes = new ArrayList<>();
+		switch (referencedNode.getNodeType()) {
+		case DOMNode.DTD_ELEMENT_DECL_NODE:
+			addTargetNode(referencedNode, referencedNodes);
+			break;
+		case Node.DOCUMENT_TYPE_NODE:
+			DOMDocumentType docType = (DOMDocumentType) referencedNode;
+			if (docType.hasChildNodes()) {
+				// Loop for element <!ELEMENT.
+				NodeList children = docType.getChildNodes();
+				for (int i = 0; i < children.getLength(); i++) {
+					Node node = children.item(i);
+					if (node.getNodeType() == DOMNode.DTD_ELEMENT_DECL_NODE) {
+						addTargetNode((DTDElementDecl) node, referencedNodes);
+					}
+				}
+			}
+			break;
+		}
+		return referencedNodes;
+	}
+
+	private static void addTargetNode(DTDDeclNode referencedNode, List<DTDDeclNode> referencedNodes) {
+		if (referencedNode.isDTDElementDecl()) {
+			// Add only <!ELEMENT which defines a name.
+			DTDElementDecl elementDecl = (DTDElementDecl) referencedNode;
+			if (isValid(elementDecl)) {
+				referencedNodes.add(elementDecl);
 			}
 		}
 	}
