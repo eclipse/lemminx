@@ -10,18 +10,10 @@
 package org.eclipse.lsp4xml.extensions.contentmodel;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URI;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-
-import com.google.common.base.Charsets;
-import com.google.common.io.Files;
-import com.google.common.io.MoreFiles;
-import com.google.common.io.RecursiveDeleteOption;
 
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
@@ -36,9 +28,6 @@ import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4xml.XMLLanguageServer;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Test;
 
 /**
@@ -50,43 +39,17 @@ import org.junit.Test;
  * @author David Kwon
  *
  */
-public class XMLExternalTest {
+public class XMLExternalTest extends BaseFileTempTest  {
 
 	private int threadSleepMs = 600;
 	
-	private static String tempDirPath = "target/temp/";
-	private static URI tempDirUri = Paths.get(tempDirPath).toAbsolutePath().toUri();
-
 	private List<PublishDiagnosticsParams> actualDiagnostics;
 	private XMLLanguageServer languageServer;
-
-	@BeforeClass
-	public static void setup() throws FileNotFoundException, IOException {
-		deleteTempDirIfExists();
-		createTempDir();
-	}
-
-	@AfterClass
-	public static void tearDown() throws IOException {
-		deleteTempDirIfExists();
-	}
 
 	@Before
 	public void before() {
 		actualDiagnostics = new ArrayList<>();
 		languageServer = createServer(actualDiagnostics);
-	}
-
-	private static void deleteTempDirIfExists() throws IOException {
-		File tempDir = new File(tempDirUri);
-		if (tempDir.exists()) {
-			MoreFiles.deleteRecursively(tempDir.toPath(), RecursiveDeleteOption.ALLOW_INSECURE);
-		}
-	}
-
-	private static void createTempDir() {
-		File tempDir = new File(tempDirUri);
-		tempDir.mkdir();
 	}
 
 	@Test
@@ -218,10 +181,6 @@ public class XMLExternalTest {
 		};
 		languageServer.setClient(client);
 		return languageServer;
-	}
-
-	private void createFile(String path, String contents) throws IOException {
-		Files.asCharSink(new File(path), Charsets.UTF_8).write(contents);
 	}
 
 	private TextDocumentItem getXMLTextDocumentItem(String filename, String xmlContents) {

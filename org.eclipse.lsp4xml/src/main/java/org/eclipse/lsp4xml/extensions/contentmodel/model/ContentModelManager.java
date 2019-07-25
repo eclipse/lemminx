@@ -88,8 +88,8 @@ public class ContentModelManager {
 	 * Returns true if the given document is linked to the given grammar URI (XML
 	 * Schema, DTD) and false otherwise.
 	 * 
-	 * @param document the DOM document
-	 * @param grammarURI  the grammar URI
+	 * @param document   the DOM document
+	 * @param grammarURI the grammar URI
 	 * @return true if the given document is linked to the given grammar URI (XML
 	 *         Schema, DTD) and false otherwise.
 	 */
@@ -98,7 +98,8 @@ public class ContentModelManager {
 			return false;
 		}
 		ContentModelProvider modelProvider = getModelProviderByStandardAssociation(document, false);
-		String systemId = modelProvider != null ? modelProvider.getSystemId(document, document.getNamespaceURI()) : null;
+		String systemId = modelProvider != null ? modelProvider.getSystemId(document, document.getNamespaceURI())
+				: null;
 		String key = resolverManager.resolve(document.getDocumentURI(), null, systemId);
 		return grammarURI.equals(key);
 	}
@@ -130,36 +131,56 @@ public class ContentModelManager {
 		if (modelProvider == null) {
 			return null;
 		}
-		CMDocument cmDocument = null;
-		boolean isCacheable = isCacheable(key);
-		if (isCacheable) {
-			cmDocument = cmDocumentCache.get(key);
+		// Try to get the document from the cache
+		CMDocument cmDocument = getCMDocumentFromCache(key);
+		if (cmDocument != null) {
+			return cmDocument;
 		}
-		if (cmDocument == null) {
-			if (isCacheable && cacheResolverExtension.isUseCache()) {
-				// Try to load the DTD/XML Schema with the cache manager
-				try {
-					Path file = cacheResolverExtension.getCachedResource(key);
-					if (file != null) {
-						cmDocument = modelProvider.createCMDocument(file.toFile().getPath());
-					}
-				} catch (CacheResourceDownloadingException e) {
-					// the DTD/XML Schema is downloading
-					return null;
-				} catch (Exception e) {
-					// other error like network which is not available
-					cmDocument = modelProvider.createCMDocument(key);
+		boolean isFileResource = URIUtils.isFileResource(uri);
+		if (!isFileResource && cacheResolverExtension.isUseCache()) {
+			// The DTD/XML Schema comes from http://, ftp:// etc and cache manager is
+			// activated
+			// Try to load the DTD/XML Schema with the cache manager
+			try {
+				Path file = cacheResolverExtension.getCachedResource(key);
+				if (file != null) {
+					cmDocument = modelProvider.createCMDocument(file.toFile().getPath());
 				}
-			} else {
+			} catch (CacheResourceDownloadingException e) {
+				// the DTD/XML Schema is downloading
+				return null;
+			} catch (Exception e) {
+				// other error like network which is not available
 				cmDocument = modelProvider.createCMDocument(key);
 			}
-			if (isCacheable && cmDocument != null) {
-				cmDocumentCache.put(key, cmDocument);
-			}
+		} else {
+			cmDocument = modelProvider.createCMDocument(key);
+		}
+		// Cache the document
+		if (cmDocument != null) {
+			cache(key, cmDocument);
 		}
 		return cmDocument;
 	}
 
+	private CMDocument getCMDocumentFromCache(String key) {
+		CMDocument document = null;
+		synchronized (cmDocumentCache) {
+			document = cmDocumentCache.get(key);
+			if (document != null && document.isDirty()) {
+				cmDocumentCache.remove(key);
+				return null;
+			}
+		}
+		return document;
+	}
+
+	private void cache(String key, CMDocument cmDocument) {
+		synchronized (cmDocumentCache) {
+			cmDocumentCache.put(key, cmDocument);
+		}
+	}
+	
 	public CMElementDeclaration findInternalCMElement(DOMElement element) throws Exception {
 		return findInternalCMElement(element, element.getNamespaceURI());
 	}
@@ -215,10 +236,6 @@ public class ContentModelManager {
 			}
 		}
 		return null;
-	}
-
-	private boolean isCacheable(String uri) {
-		return !URIUtils.isFileResource(uri);
 	}
 
 	/**

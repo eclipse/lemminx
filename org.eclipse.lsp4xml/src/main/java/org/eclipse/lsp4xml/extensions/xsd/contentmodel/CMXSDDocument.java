@@ -16,8 +16,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -49,6 +52,7 @@ import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.dom.DOMParser;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMElementDeclaration;
+import org.eclipse.lsp4xml.extensions.contentmodel.model.FilesChangedTracker;
 import org.eclipse.lsp4xml.extensions.xsd.utils.XSDUtils;
 import org.eclipse.lsp4xml.utils.IOUtils;
 import org.eclipse.lsp4xml.utils.StringUtils;
@@ -68,20 +72,53 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 
 	private final XSModel model;
 
+	private final String uri;
+
 	private final Map<XSElementDeclaration, CMXSDElementDeclaration> elementMappings;
 
 	private Collection<CMElementDeclaration> elements;
 
-	private String uri;
-
-	public CMXSDDocument(XSModel model) {
-		this.model = model;
-		this.elementMappings = new HashMap<>();
-	}
+	private final FilesChangedTracker tracker;
 
 	public CMXSDDocument(XSModel model, String uri) {
-		this(model);
+		this.model = model;
+		this.elementMappings = new HashMap<>();
 		this.uri = uri;
+		this.tracker = new FilesChangedTracker();
+		updateFilesChangedTracker();
+	}
+
+	/**
+	 * Update files tracker by adding all XML Schema (root and imported)
+	 */
+	private void updateFilesChangedTracker() {
+		Set<SchemaGrammar> trackedGrammars = new HashSet<>();
+		XSNamespaceItemList grammars = model.getNamespaceItems();
+		for (int i = 0; i < grammars.getLength(); i++) {
+			SchemaGrammar grammar = getSchemaGrammar(grammars.item(i));
+			updateTracker(grammar, trackedGrammars, tracker);
+		}
+	}
+
+	private static void updateTracker(SchemaGrammar grammar, Set<SchemaGrammar> trackedGrammars,
+			FilesChangedTracker tracker) {
+		if (grammar == null || trackedGrammars.contains(grammar)) {
+			return;
+		}
+		trackedGrammars.add(grammar);
+		// Track the grammar
+		String schemaURI = getSchemaURI(grammar);
+		if (schemaURI != null && URIUtils.isFileResource(schemaURI)) {
+			// The schema is a file, track when file changed
+			tracker.addFileURI(schemaURI);
+		}
+		// Track the imported grammars
+		Vector importedGrammars = grammar.getImportedGrammars();
+		if (importedGrammars != null) {
+			for (Object importedGrammar : importedGrammars) {
+				updateTracker((SchemaGrammar) importedGrammar, trackedGrammars, tracker);
+			}
+		}
 	}
 
 	@Override
@@ -553,5 +590,10 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public boolean isDirty() {
+		return tracker.isDirty();
 	}
 }

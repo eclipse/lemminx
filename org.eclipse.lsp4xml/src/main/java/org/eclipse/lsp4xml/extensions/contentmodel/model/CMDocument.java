@@ -63,4 +63,11 @@ public interface CMDocument {
 	 * @return the location of the type definition of the given node.
 	 */
 	LocationLink findTypeLocation(DOMNode node);
+
+	/**
+	 * Returns true if the content model document is dirty and false otherwise.
+	 * 
+	 * @return true if the content model document is dirty and false otherwise.
+	 */
+	boolean isDirty();
 }
