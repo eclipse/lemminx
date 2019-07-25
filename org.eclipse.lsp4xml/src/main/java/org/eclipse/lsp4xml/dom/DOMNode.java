@@ -268,7 +268,7 @@ public abstract class DOMNode implements Node, DOMRange {
 	}
 
 	public static boolean isIncluded(int start, int end, int offset) {
-		return offset > start && offset <= end;
+		return offset >= start && offset <= end;
 	}
 
 	public DOMAttr findAttrAt(int offset) {
