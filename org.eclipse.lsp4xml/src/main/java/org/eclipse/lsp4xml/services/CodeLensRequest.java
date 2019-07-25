@@ -10,7 +10,7 @@
 package org.eclipse.lsp4xml.services;
 
 import org.eclipse.lsp4xml.dom.DOMDocument;
-import org.eclipse.lsp4xml.services.extensions.ICodeLensRequest;
+import org.eclipse.lsp4xml.services.extensions.codelens.ICodeLensRequest;
 import org.eclipse.lsp4xml.settings.XMLCodeLensSettings;
 
 /**

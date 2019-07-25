@@ -14,6 +14,7 @@ import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelProvider;
 import org.eclipse.lsp4xml.extensions.dtd.contentmodel.CMDTDContentModelProvider;
+import org.eclipse.lsp4xml.extensions.dtd.participants.DTDCodeLensParticipant;
 import org.eclipse.lsp4xml.extensions.dtd.participants.DTDDefinitionParticipant;
 import org.eclipse.lsp4xml.extensions.dtd.participants.DTDHighlightingParticipant;
 import org.eclipse.lsp4xml.extensions.dtd.participants.DTDReferenceParticipant;
@@ -23,6 +24,7 @@ import org.eclipse.lsp4xml.services.extensions.IHighlightingParticipant;
 import org.eclipse.lsp4xml.services.extensions.IReferenceParticipant;
 import org.eclipse.lsp4xml.services.extensions.IXMLExtension;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lsp4xml.services.extensions.codelens.ICodeLensParticipant;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lsp4xml.services.extensions.save.ISaveContext;
 
@@ -33,14 +35,16 @@ public class DTDPlugin implements IXMLExtension {
 
 	private final IDiagnosticsParticipant diagnosticsParticipant;
 	private final IDefinitionParticipant definitionParticipant;
-	private IHighlightingParticipant highlightingParticipant;
-	private IReferenceParticipant referenceParticipant;
+	private final IHighlightingParticipant highlightingParticipant;
+	private final IReferenceParticipant referenceParticipant;
+	private final ICodeLensParticipant codeLensParticipant;
 
 	public DTDPlugin() {
 		diagnosticsParticipant = new DTDDiagnosticsParticipant();
 		definitionParticipant = new DTDDefinitionParticipant();
 		highlightingParticipant = new DTDHighlightingParticipant();
 		referenceParticipant = new DTDReferenceParticipant();
+		codeLensParticipant = new DTDCodeLensParticipant();
 	}
 
 	@Override
@@ -62,6 +66,8 @@ public class DTDPlugin implements IXMLExtension {
 		registry.registerHighlightingParticipant(highlightingParticipant);
 		// register reference participant
 		registry.registerReferenceParticipant(referenceParticipant);
+		// register codelens participant
+		registry.registerCodeLensParticipant(codeLensParticipant);
 	}
 
 	@Override
@@ -74,5 +80,7 @@ public class DTDPlugin implements IXMLExtension {
 		registry.unregisterHighlightingParticipant(highlightingParticipant);
 		// register reference participant
 		registry.unregisterReferenceParticipant(referenceParticipant);
+		// unregister codelens participant
+		registry.unregisterCodeLensParticipant(codeLensParticipant);
 	}
 }

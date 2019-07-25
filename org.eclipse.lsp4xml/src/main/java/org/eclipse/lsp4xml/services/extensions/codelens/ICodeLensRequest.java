@@ -7,7 +7,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4xml.services.extensions;
+package org.eclipse.lsp4xml.services.extensions.codelens;
 
 import org.eclipse.lsp4xml.dom.DOMDocument;
 

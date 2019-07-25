@@ -21,6 +21,7 @@ import java.util.logging.Logger;
 
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4xml.services.IXMLDocumentProvider;
+import org.eclipse.lsp4xml.services.extensions.codelens.ICodeLensParticipant;
 import org.eclipse.lsp4xml.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lsp4xml.services.extensions.save.ISaveContext;
 import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
