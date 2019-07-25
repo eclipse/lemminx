@@ -16,9 +16,9 @@ import java.util.List;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.dom.DOMDocument;
-import org.eclipse.lsp4xml.services.extensions.ICodeLensParticipant;
-import org.eclipse.lsp4xml.services.extensions.ICodeLensRequest;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lsp4xml.services.extensions.codelens.ICodeLensParticipant;
+import org.eclipse.lsp4xml.services.extensions.codelens.ICodeLensRequest;
 import org.eclipse.lsp4xml.settings.XMLCodeLensSettings;
 
 /**

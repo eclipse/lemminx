@@ -18,7 +18,7 @@ import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.junit.Test;
 
 /**
- * XSD references tests
+ * XSD codelens tests
  *
  */
 public class XSDCodeLensExtensionsTest {
