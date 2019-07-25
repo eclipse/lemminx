@@ -26,4 +26,6 @@ public interface ICompletionParticipant {
 	void onAttributeValue(String valuePrefix, ICompletionRequest request, ICompletionResponse response)
 			throws Exception;
 
+	void onDTDContent(ICompletionRequest request, ICompletionResponse response, boolean isContent) throws Exception;
+
 }

@@ -15,10 +15,12 @@ import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.ContentModelProvider;
 import org.eclipse.lsp4xml.extensions.dtd.contentmodel.CMDTDContentModelProvider;
 import org.eclipse.lsp4xml.extensions.dtd.participants.DTDCodeLensParticipant;
+import org.eclipse.lsp4xml.extensions.dtd.participants.DTDCompletionParticipant;
 import org.eclipse.lsp4xml.extensions.dtd.participants.DTDDefinitionParticipant;
 import org.eclipse.lsp4xml.extensions.dtd.participants.DTDHighlightingParticipant;
 import org.eclipse.lsp4xml.extensions.dtd.participants.DTDReferenceParticipant;
 import org.eclipse.lsp4xml.extensions.dtd.participants.diagnostics.DTDDiagnosticsParticipant;
+import org.eclipse.lsp4xml.services.extensions.ICompletionParticipant;
 import org.eclipse.lsp4xml.services.extensions.IDefinitionParticipant;
 import org.eclipse.lsp4xml.services.extensions.IHighlightingParticipant;
 import org.eclipse.lsp4xml.services.extensions.IReferenceParticipant;
@@ -38,6 +40,7 @@ public class DTDPlugin implements IXMLExtension {
 	private final IHighlightingParticipant highlightingParticipant;
 	private final IReferenceParticipant referenceParticipant;
 	private final ICodeLensParticipant codeLensParticipant;
+	private final ICompletionParticipant completionParticipant;
 
 	public DTDPlugin() {
 		diagnosticsParticipant = new DTDDiagnosticsParticipant();
@@ -45,6 +48,7 @@ public class DTDPlugin implements IXMLExtension {
 		highlightingParticipant = new DTDHighlightingParticipant();
 		referenceParticipant = new DTDReferenceParticipant();
 		codeLensParticipant = new DTDCodeLensParticipant();
+		completionParticipant = new DTDCompletionParticipant();
 	}
 
 	@Override
@@ -68,6 +72,8 @@ public class DTDPlugin implements IXMLExtension {
 		registry.registerReferenceParticipant(referenceParticipant);
 		// register codelens participant
 		registry.registerCodeLensParticipant(codeLensParticipant);
+		// register completion participant
+		registry.registerCompletionParticipant(completionParticipant);
 	}
 
 	@Override
@@ -82,5 +88,7 @@ public class DTDPlugin implements IXMLExtension {
 		registry.unregisterReferenceParticipant(referenceParticipant);
 		// unregister codelens participant
 		registry.unregisterCodeLensParticipant(codeLensParticipant);
+		// unregister completion participant
+		registry.unregisterCompletionParticipant(completionParticipant);
 	}
 }
