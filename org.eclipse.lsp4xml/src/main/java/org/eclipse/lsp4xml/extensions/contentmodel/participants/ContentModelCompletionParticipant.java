@@ -77,7 +77,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 						continue;
 					}
 					String namespaceURI = parentElement.getNamespaceURI(prefix);
-					if (!cmRootDocument.hasNamespace(namespaceURI)) {
+					if (cmRootDocument == null || !cmRootDocument.hasNamespace(namespaceURI)) {
 						// The model document root doesn't define the namespace, try to load the
 						// external model document (XML Schema, DTD)
 						CMDocument cmDocument = contentModelManager.findCMDocument(parentElement, namespaceURI);

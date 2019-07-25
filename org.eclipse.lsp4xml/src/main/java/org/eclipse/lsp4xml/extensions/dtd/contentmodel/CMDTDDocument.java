@@ -15,6 +15,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -32,22 +33,27 @@ import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMElementDeclaration;
+import org.eclipse.lsp4xml.extensions.contentmodel.model.FilesChangedTracker;
+import org.eclipse.lsp4xml.utils.URIUtils;
 
 /**
  * DTD document.
  * 
- * @author azerr
+ * @author Angelo ZERR
  *
  */
 public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
+
+	private final String uri;
 
 	private Map<String, Set<String>> hierarchiesMap;
 	private List<CMElementDeclaration> elements;
 	private DTDGrammar grammar;
 	private Set<String> hierarchies;
-	private String uri;
+	private FilesChangedTracker tracker;
 
 	public CMDTDDocument() {
+		this(null);
 	}
 
 	public CMDTDDocument(String uri) {
@@ -139,7 +145,35 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 	@Override
 	public Grammar loadGrammar(XMLInputSource source) throws IOException, XNIException {
 		grammar = (DTDGrammar) super.loadGrammar(source);
+		this.tracker = new FilesChangedTracker();
+		updateFilesChangedTracker();
 		return grammar;
+	}
+
+	/**
+	 * Update files tracker by adding DTD
+	 */
+	private void updateFilesChangedTracker() {
+		Set<DTDGrammar> trackedGrammars = new HashSet<>();
+		updateTracker(grammar, trackedGrammars, tracker);
+	}
+
+	private static void updateTracker(DTDGrammar grammar, Set<DTDGrammar> trackedGrammars,
+			FilesChangedTracker tracker) {
+		if (grammar == null || trackedGrammars.contains(grammar)) {
+			return;
+		}
+		trackedGrammars.add(grammar);
+		// Track the grammar
+		String dtdURI = getDTDURI(grammar);
+		if (dtdURI != null && URIUtils.isFileResource(dtdURI)) {
+			// The DTD is a file, track when file changed
+			tracker.addFileURI(dtdURI);
+		}
+	}
+
+	private static String getDTDURI(DTDGrammar grammar) {
+		return grammar.getGrammarDescription().getExpandedSystemId();
 	}
 
 	public void loadInternalDTD(String internalSubset, String baseSystemId, String systemId)
@@ -188,5 +222,10 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 	@Override
 	public LocationLink findTypeLocation(DOMNode node) {
 		return null;
+	}
+
+	@Override
+	public boolean isDirty() {
+		return tracker != null ? tracker.isDirty() : null;
 	}
 }
