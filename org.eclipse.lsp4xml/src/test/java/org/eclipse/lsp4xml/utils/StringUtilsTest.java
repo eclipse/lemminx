@@ -79,7 +79,6 @@ public class StringUtilsTest {
 		assertTrue(isTagOutsideOfBackticks("test `<a></a>` <A></A>"));
 		assertTrue(isTagOutsideOfBackticks("<A></A> `<a></a>`"));
 		assertTrue(isTagOutsideOfBackticks("<A> `<a></a>`"));
-
 	}
 
 	@Test
@@ -94,6 +93,17 @@ public class StringUtilsTest {
 		offset = 9;
 		startOffset = StringUtils.findExprBeforeAt(content, expr, offset);
 		Assert.assertEquals(3, startOffset);
+	}
+
+	@Test
+	public void testGetString() {
+		StringBuffer buffer = new StringBuffer();
+		String bufferText = "This is buffer text";
+		buffer.append(bufferText);
+		assertEquals(bufferText, StringUtils.getString(buffer));
+
+		String regularText = "This is regular text";
+		assertEquals(regularText, StringUtils.getString(regularText));
 	}
 
 	private static void assertTrimNewLines(String valueToTrim, String expected) {

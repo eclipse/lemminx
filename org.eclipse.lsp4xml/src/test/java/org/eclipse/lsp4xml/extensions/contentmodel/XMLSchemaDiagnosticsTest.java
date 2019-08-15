@@ -353,6 +353,24 @@ public class XMLSchemaDiagnosticsTest {
 		testDiagnosticsFor(xml, patternValid, cvcAttribute3);
 	}
 
+	@Test
+	public void cvc_pattern_valid_With_Buffer() throws Exception {
+		String xml =
+			"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?>\r\n" +
+			"<cpr xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \r\n" +
+			"     xsi:noNamespaceSchemaLocation=\"https://www.dgai.de/cpr/schema/ev/cpr-ev-2.0.xsd\">\r\n" +
+			"    <cprev>\r\n" +
+			"        <VERSION>2.0</VERSION>\r\n" +
+			"        <DATUM>2019-08-09</DATUM>\r\n" +
+			"        <STOKENN>FIX_ERROR_RANGE_HERE</STOKENN>\r\n" + // <-- Error should follow pattern [0-9]{8}
+			"    </cprev>\r\n" +
+			"</cpr>";
+		Diagnostic patternValid = d(6, 47, 6, 47, XMLSchemaErrorCode.cvc_pattern_valid);
+		Diagnostic cvcType313 = d(6, 17, 6, 37, XMLSchemaErrorCode.cvc_type_3_1_3);
+		Diagnostic cvcType24b = d(3, 5, 3, 10, XMLSchemaErrorCode.cvc_complex_type_2_4_b);
+		testDiagnosticsFor(xml, patternValid, cvcType313, cvcType24b);
+	}
+
 	/**
 	 * @see https://github.com/angelozerr/lsp4xml/issues/217
 	 */

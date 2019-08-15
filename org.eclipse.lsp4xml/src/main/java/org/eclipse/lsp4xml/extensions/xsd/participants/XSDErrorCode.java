@@ -10,6 +10,8 @@
  */
 package org.eclipse.lsp4xml.extensions.xsd.participants;
 
+import static org.eclipse.lsp4xml.utils.StringUtils.getString;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -97,7 +99,7 @@ public enum XSDErrorCode implements IXMLErrorCode {
 		// adjust positions
 		switch (code) {
 		case cos_all_limited_2: {
-			String nameValue = (String) arguments[1];
+			String nameValue = getString(arguments[1]);
 			DOMNode parent = document.findNodeAt(offset);
 			List<DOMNode> children = parent.getChildrenWithAttributeValue("name", nameValue);
 
@@ -109,7 +111,7 @@ public enum XSDErrorCode implements IXMLErrorCode {
 			return XMLPositionUtility.selectAttributeValueAt("maxOccurs", offset, document);
 		}
 		case ct_props_correct_3: {
-			String attrValue = (String) arguments[0];
+			String attrValue = getString(arguments[0]);
 			if (attrValue.charAt(0) == ':') {
 				attrValue = attrValue.substring(1);
 			}
@@ -128,28 +130,28 @@ public enum XSDErrorCode implements IXMLErrorCode {
 		case src_import_1_2:
 			return XMLPositionUtility.selectStartTag(offset, document);
 		case s4s_att_not_allowed: {
-			String attrName = (String) arguments[1];
+			String attrName = getString(arguments[1]);
 			return XMLPositionUtility.selectAttributeNameFromGivenNameAt(attrName, offset, document);
 		}
 		case s4s_att_invalid_value: {
-			String attrName = (String) arguments[1];
+			String attrName = getString(arguments[1]);
 			return XMLPositionUtility.selectAttributeValueAt(attrName, offset, document);
 		}
 		case s4s_elt_character:
 			return XMLPositionUtility.selectContent(offset, document);
 		case sch_props_correct_2: {
-			String argument = (String) arguments[0];
+			String argument = getString(arguments[0]);
 			String attrName = argument.substring(argument.indexOf(",") + 1);
 			return XMLPositionUtility.selectAttributeValueFromGivenValue(attrName, offset, document);
 		}
 		case src_ct_1:
 			return XMLPositionUtility.selectAttributeValueAt("base", offset, document);
 		case src_resolve_4_2: {
-			String attrValue = (String) arguments[2];
+			String attrValue = getString(arguments[2]);
 			return XMLPositionUtility.selectAttributeValueByGivenValueAt(attrValue, offset, document);
 		}
 		case src_resolve: {
-			String attrValue = (String) arguments[0];
+			String attrValue = getString(arguments[0]);
 			return XMLPositionUtility.selectAttributeValueByGivenValueAt(attrValue, offset, document);
 		}
 		case EmptyTargetNamespace:
