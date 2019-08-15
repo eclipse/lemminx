@@ -352,4 +352,11 @@ public class StringUtils {
 		return startOffset - 1;
 	}
 
+	public static String getString(Object obj) {
+		if(obj != null) {
+			return obj.toString();
+		}
+		return null;
+	}
+
 }

@@ -28,6 +28,7 @@ import org.eclipse.lsp4xml.dom.parser.MultiLineStream;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.XMLSchemaErrorCode;
 
 import static org.eclipse.lsp4xml.dom.parser.Constants.*;
+import static org.eclipse.lsp4xml.utils.StringUtils.getString;
 
 /**
  * SchemaMessageProvider implements an XMLMessageProvider that provides
@@ -220,7 +221,7 @@ public class LSPMessageFormatter implements MessageFormatter {
 	 * @return
 	 */
 	private static Object[] cvc_2_4_a_solution(Object[] arguments) {
-		Matcher m = getNamespaceMatcher((String) arguments[0]);
+		Matcher m = getNamespaceMatcher(getString(arguments[0]));
 		String schema = null;
 		String name = null;
 		String validNames = null;
@@ -228,11 +229,11 @@ public class LSPMessageFormatter implements MessageFormatter {
 		if (m.matches()) {
 			name = m.group(2);
 			schema = "{" + m.group(1) + "}";
-			validNames = reformatElementNames(true, (String)arguments[1]);
+			validNames = reformatElementNames(true, getString(arguments[1]));
 		} else { // No namespace, so just element name
-			name = (String) arguments[0];
+			name = getString(arguments[0]);
 			schema = "{the schema}";
-			validNames = reformatElementNames(false, (String)arguments[1]);
+			validNames = reformatElementNames(false, getString(arguments[1]));
 		}
 		name = "- " + name;
 		return new Object[] { name, validNames, schema };
@@ -255,25 +256,25 @@ public class LSPMessageFormatter implements MessageFormatter {
 	 * @return
 	 */
 	private static Object[] cvc_2_4_b_solution(Object[] arguments) {
-		Matcher m = getNamespaceMatcher((String) arguments[1]);
+		Matcher m = getNamespaceMatcher(getString(arguments[1]));
 
 		String element = null;
 		String missingChildElements = null;
 		String schema = null;
 	
 		if (m.matches()) {
-			missingChildElements = reformatElementNames(true, (String)arguments[1]);
+			missingChildElements = reformatElementNames(true, getString(arguments[1]));
 			schema = "{" + m.group(1) + "}";
 		} else { 
 			// No namespace, so just element name
-			missingChildElements = reformatElementNames(false, (String)arguments[1]);
+			missingChildElements = reformatElementNames(false, getString(arguments[1]));
 			schema = "{the schema}";
 		}
-		element = "- " + (String) arguments[0];
+		element = "- " + getString(arguments[0]);
 		return new Object[] { element, missingChildElements , schema };
 	}
 
 	public static Object[] enumeration_valid_solution(Object[] arguments) {
-		return new Object[] { (String) arguments[0], reformatArrayElementNames((String)arguments[1])};
+		return new Object[] { getString(arguments[0]), reformatArrayElementNames(getString(arguments[1]))};
 	}
 }

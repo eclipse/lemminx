@@ -139,6 +139,9 @@ public class XMLPositionUtility {
 	 * returned
 	 */
 	public static Range selectAttributePrefixFromGivenNameAt(String attrName, int offset, DOMDocument document) {
+		if(attrName == null) {
+			return null;
+		}
 		DOMNode element = document.findNodeAt(offset);
 		int prefixLength = attrName.indexOf(':');
 		if (element != null && element.hasAttributes()) {

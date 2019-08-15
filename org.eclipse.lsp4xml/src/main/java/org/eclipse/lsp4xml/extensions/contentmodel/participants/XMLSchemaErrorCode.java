@@ -10,6 +10,8 @@
  */
 package org.eclipse.lsp4xml.extensions.contentmodel.participants;
 
+import static org.eclipse.lsp4xml.utils.StringUtils.getString;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -134,11 +136,11 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 		case TargetNamespace_2:
 			return XMLPositionUtility.selectStartTag(offset, document);
 		case cvc_complex_type_3_2_2: {
-			String attrName = (String) arguments[1];
+			String attrName = getString(arguments[1]);
 			return XMLPositionUtility.selectAttributeNameFromGivenNameAt(attrName, offset, document);
 		}
 		case cvc_elt_3_1: {
-			String namespaceAntAttrName = (String) arguments[1]; // http://www.w3.org/2001/XMLSchema-instance,nil
+			String namespaceAntAttrName = getString(arguments[1]); // http://www.w3.org/2001/XMLSchema-instance,nil
 			String attrName = namespaceAntAttrName;
 			int index = namespaceAntAttrName.indexOf(",");
 			if (index != -1) {
@@ -152,7 +154,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 			return XMLPositionUtility.selectAttributeFromGivenNameAt(attrName, offset, document);
 		}
 		case cvc_pattern_valid: {
-			String attrValue = (String) arguments[0];
+			String attrValue = getString(arguments[0]);
 			return XMLPositionUtility.selectAttributeValueByGivenValueAt(attrValue, offset, document);
 		}
 		case SchemaLocation:
@@ -184,7 +186,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 		case cvc_attribute_3:
 		case cvc_complex_type_3_1:
 		case cvc_elt_4_2: {
-			String attrName = (String) arguments[1];
+			String attrName = getString(arguments[1]);
 			return XMLPositionUtility.selectAttributeValueAt(attrName, offset, document);
 		}
 		case cvc_type_3_1_1:
@@ -203,7 +205,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 		case cvc_minInclusive_valid: {
 			// this error can occur for attribute value or text
 			// Try for attribute value
-			String attrValue = (String) arguments[0];
+			String attrValue = getString(arguments[0]);
 			Range range = XMLPositionUtility.selectAttributeValueFromGivenValue(attrValue, offset, document);
 			if (range != null) {
 				return range;

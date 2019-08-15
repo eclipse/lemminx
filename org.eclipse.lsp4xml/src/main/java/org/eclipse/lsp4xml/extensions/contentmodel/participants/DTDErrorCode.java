@@ -10,6 +10,8 @@
  */
 package org.eclipse.lsp4xml.extensions.contentmodel.participants;
 
+import static org.eclipse.lsp4xml.utils.StringUtils.getString;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -119,14 +121,14 @@ public enum DTDErrorCode implements IXMLErrorCode {
 			return XMLPositionUtility.selectStartTag(offset, document);
 		}
 		case MSG_ATTRIBUTE_NOT_DECLARED: {
-			return XMLPositionUtility.selectAttributeValueAt((String)arguments[1], offset, document);
+			return XMLPositionUtility.selectAttributeValueAt(getString(arguments[1]), offset, document);
 		}
 		case MSG_FIXED_ATTVALUE_INVALID: {
-			String attrName = (String) arguments[1];
+			String attrName = getString(arguments[1]);
 			return XMLPositionUtility.selectAttributeValueAt(attrName, offset, document);
 		}
 		case MSG_ATTRIBUTE_VALUE_NOT_IN_LIST: {
-			String attrName = (String) arguments[0];
+			String attrName = getString(arguments[0]);
 			return XMLPositionUtility.selectAttributeValueAt(attrName, offset, document);
 		}
 		
@@ -139,7 +141,7 @@ public enum DTDErrorCode implements IXMLErrorCode {
 		case IDREFSInvalid:
 		case IDREFInvalidWithNamespaces:
 		case IDInvalidWithNamespaces: {
-			String attrValue = (String) arguments[0];
+			String attrValue = getString(arguments[0]);
 			return XMLPositionUtility.selectAttributeValueByGivenValueAt(attrValue, offset, document);
 		}
 
@@ -161,7 +163,7 @@ public enum DTDErrorCode implements IXMLErrorCode {
 				Position position = document.positionAt(offset);
 				int line = position.getLine();
 				String text = document.lineText(line);
-				String name = (String) arguments[0];
+				String name = getString(arguments[0]);
 				String subString = "&" + name + ";";
 				int start = text.indexOf(subString);
 				int end = start + subString.length();

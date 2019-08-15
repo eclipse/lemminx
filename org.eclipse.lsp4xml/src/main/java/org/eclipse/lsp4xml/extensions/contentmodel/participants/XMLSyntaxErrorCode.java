@@ -10,6 +10,7 @@
  */
 package org.eclipse.lsp4xml.extensions.contentmodel.participants;
 
+import static org.eclipse.lsp4xml.utils.StringUtils.getString;
 import static org.eclipse.lsp4xml.utils.XMLPositionUtility.selectCurrentTagOffset;
 
 import java.util.HashMap;
@@ -103,14 +104,14 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 		case ElementUnterminated:
 			return XMLPositionUtility.selectStartTag(offset, document);
 		case EqRequiredInAttribute: {
-			String attrName = (String) arguments[1];
+			String attrName = getString(arguments[1]);
 			return XMLPositionUtility.selectAttributeNameFromGivenNameAt(attrName, offset, document);
 		}
 		case EncodingDeclRequired:
 		case EqRequiredInXMLDecl:
 			return XMLPositionUtility.selectAttributeNameAt(offset, document);
 		case AttributeNSNotUnique: {
-			String attrName = (String) arguments[1];
+			String attrName = getString(arguments[1]);
 			Range xmlns = XMLPositionUtility.selectAttributeNameFromGivenNameAt("xmlns:" + attrName, offset, document);
 			if (xmlns != null) {
 				return xmlns;
@@ -118,18 +119,18 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 			return XMLPositionUtility.selectAttributeNameFromGivenNameAt(attrName, offset, document);
 		}
 		case AttributeNotUnique: {
-			String attrName = (String) arguments[1];
+			String attrName = getString(arguments[1]);
 			return XMLPositionUtility.selectAttributeNameFromGivenNameAt(attrName, offset, document);
 		}
 		case AttributePrefixUnbound: {
-			return XMLPositionUtility.selectAttributePrefixFromGivenNameAt((String) arguments[1], offset, document);
+			return XMLPositionUtility.selectAttributePrefixFromGivenNameAt(getString(arguments[1]), offset, document);
 		}
 		case LessthanInAttValue: {
-			String attrName = (String) arguments[1];
+			String attrName = getString(arguments[1]);
 			return XMLPositionUtility.selectAttributeValueAt(attrName, offset, document);
 		}
 		case QuoteRequiredInXMLDecl: {
-			String attrName = (String) arguments[0];
+			String attrName = getString(arguments[0]);
 			return XMLPositionUtility.selectAttributeValueAt(attrName, offset, document);
 		}
 		case EmptyPrefixedAttName: {
@@ -138,7 +139,7 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 		}
 		case SDDeclInvalid:
 		case VersionNotSupported: {
-			String attrValue = (String) arguments[0];
+			String attrValue = getString(arguments[0]);
 			return XMLPositionUtility.selectAttributeValueByGivenValueAt(attrValue, offset, document);
 		}
 		case ETagUnterminated:
@@ -155,7 +156,7 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 		case CustomETag:
 			return XMLPositionUtility.selectEndTag(offset, document);
 		case ETagRequired: {
-			String tag = (String) arguments[0];
+			String tag = getString(arguments[0]);
 			return XMLPositionUtility.selectChildEndTag(tag, offset, document);
 		}
 		case ContentIllegalInProlog: {
