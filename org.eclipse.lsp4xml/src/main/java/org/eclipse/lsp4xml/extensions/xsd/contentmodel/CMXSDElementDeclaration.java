@@ -13,7 +13,9 @@ package org.eclipse.lsp4xml.extensions.xsd.contentmodel;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Vector;
 
 import org.apache.xerces.impl.dv.xs.XSSimpleTypeDecl;
@@ -22,7 +24,7 @@ import org.apache.xerces.impl.xs.SubstitutionGroupHandler;
 import org.apache.xerces.impl.xs.XSComplexTypeDecl;
 import org.apache.xerces.impl.xs.XSElementDecl;
 import org.apache.xerces.impl.xs.models.CMBuilder;
-import org.apache.xerces.impl.xs.models.CMNodeFactory;
+import org.apache.xerces.impl.xs.models.XS11AllCM;
 import org.apache.xerces.impl.xs.models.XSCMValidator;
 import org.apache.xerces.xni.QName;
 import org.apache.xerces.xs.XSAttributeUse;
@@ -30,7 +32,6 @@ import org.apache.xerces.xs.XSComplexTypeDefinition;
 import org.apache.xerces.xs.XSConstants;
 import org.apache.xerces.xs.XSElementDeclaration;
 import org.apache.xerces.xs.XSModelGroup;
-import org.apache.xerces.xs.XSNamespaceItem;
 import org.apache.xerces.xs.XSObject;
 import org.apache.xerces.xs.XSObjectList;
 import org.apache.xerces.xs.XSParticle;
@@ -133,25 +134,40 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 			List<QName> qNames = toQNames(parentElement, offset);
 
 			// Initialize Xerces validator
-			CMBuilder cmBuilder = new CMBuilder(new CMNodeFactory());
+			CMBuilder cmBuilder = document.getCMBuilder();
 			XSCMValidator validator = ((XSComplexTypeDecl) typeDefinition).getContentModel(cmBuilder);
 			SubstitutionGroupHandler handler = new SubstitutionGroupHandler(document);
 
 			// Loop for each element (QName) and check if it is valid according the XML
 			// Schema constraint
 			int[] states = validator.startContentModel();
+			// Xerces has a bug with xs:all and xs:element maxOccurs="unbound"
+			// see https://issues.apache.org/jira/browse/XERCESJ-1710, to fix it we add the
+			// missing xs:element in a set
+			boolean xsALl11 = isXSAll11(validator);
+			Set<XSElementDeclaration> missingEltDeclForXSALL11 = null;
 			for (QName elementName : qNames) {
-				Object decl = validator.oneTransition(elementName, states, handler);
+				Object decl = validator.oneTransition(elementName, states, handler, document);
 				if (decl == null) {
+					// the current elemntName doesn't match the XSD constraints, return an empty
+					// list
 					return Collections.emptyList();
 				}
+				if (xsALl11) {
+					// Check if the xs:element has defined a maxOccurs="unbound"
+					if (isMaxOccursUnbounded11(decl)) {
+						if (missingEltDeclForXSALL11 == null) {
+							missingEltDeclForXSALL11 = new HashSet<>();
+						}
+						missingEltDeclForXSALL11.add((XSElementDeclaration) decl);
+					}
+				}
 			}
-
 			// At this step, all child elements are valid, the call of
 			// XSCMValidator#oneTransition has updated the states flag.
 			// Collect the next valid elements according the XML Schema constraints
 			Vector<?> result = validator.whatCanGoHere(states);
-			if (result.isEmpty()) {
+			if (result.isEmpty() && missingEltDeclForXSALL11 == null) {
 				return Collections.emptyList();
 			}
 
@@ -161,11 +177,64 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 				if (object instanceof XSElementDeclaration) {
 					XSElementDeclaration elementDecl = (XSElementDeclaration) object;
 					document.collectElement(elementDecl, possibleElements);
+					// Remove the element declaration from the missing xs:element for xs:all 1.1
+					if (missingEltDeclForXSALL11 != null) {
+						missingEltDeclForXSALL11.remove(elementDecl);
+					}
+				}
+			}
+			// Add missing xs:element for xs:all 1.1
+			if (missingEltDeclForXSALL11 != null) {
+				for (XSElementDeclaration decl : missingEltDeclForXSALL11) {
+					document.collectElement(decl, possibleElements);
 				}
 			}
 			return possibleElements;
 		}
 		return getElements();
+	}
+
+	/**
+	 * Returns true if the given validator is a xs:all for XSD 1.1 and false
+	 * otherwise.
+	 * 
+	 * @param validator the CM Xerces validator
+	 * @return true if the given validator is a xs:all for XSD 1.1 and false
+	 *         otherwise.
+	 */
+	private static boolean isXSAll11(XSCMValidator validator) {
+		return validator instanceof XS11AllCM;
+	}
+
+	/**
+	 * Returns true if the current xs:element defined a maxOccurs="unbound" and
+	 * false otherwise.
+	 * 
+	 * @param decl the xs:element
+	 * @return true if the current xs:element defined a maxOccurs="unbound" and
+	 *         false otherwise.
+	 */
+	private static boolean isMaxOccursUnbounded11(Object decl) {
+		if (!(decl instanceof XSElementDecl)) {
+			return false;
+		}
+		// Get the xs:all type
+		XSElementDecl elementDecl = (XSElementDecl) decl;
+		XSComplexTypeDefinition allType = elementDecl.getEnclosingCTDefinition();
+		if (allType == null || allType.getParticle() == null || allType.getParticle().getTerm() == null
+				|| !(allType.getParticle().getTerm() instanceof XSModelGroup)) {
+			return false;
+		}
+		XSModelGroup group = (XSModelGroup) allType.getParticle().getTerm();
+		// Loop for each particle to retrieve the proper particle of the xs:element
+		XSObjectList particles = group.getParticles();
+		for (int i = 0; i < particles.getLength(); i++) {
+			XSParticle particle = (XSParticle) particles.item(i);
+			if (elementDecl.equals(particle.getTerm())) {
+				return particle.getMaxOccursUnbounded();
+			}
+		}
+		return false;
 	}
 
 	/**

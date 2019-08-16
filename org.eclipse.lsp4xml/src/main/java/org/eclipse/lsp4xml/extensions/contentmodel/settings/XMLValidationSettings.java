@@ -11,16 +11,46 @@
 
 package org.eclipse.lsp4xml.extensions.contentmodel.settings;
 
+import org.apache.xerces.impl.Constants;
 import org.eclipse.lsp4j.DiagnosticSeverity;
+import org.eclipse.lsp4xml.utils.StringUtils;
 
 /**
  * XMLValidationSettings
  */
 public class XMLValidationSettings {
 
+	/**
+	 * Schema version.
+	 * 
+	 * <p>
+	 * Supported version by Xerces are 1.0, 1.1 and 1.0EX.
+	 * </p>
+	 * 
+	 * @see https://github.com/apache/xerces2-j/blob/xml-schema-1.1-dev/src/org/apache/xerces/impl/Constants.java#L42
+	 *
+	 */
+	public enum SchemaVersion {
+
+		V10("1.0"), V11("1.1"), V10EX("1.0EX");
+
+		private final String version;
+
+		private SchemaVersion(String version) {
+			this.version = version;
+		}
+
+		public String getVersion() {
+			return version;
+		}
+
+	}
+
 	private Boolean schema;
 
 	private Boolean enabled;
+
+	private String schemaVersion;
 
 	/**
 	 * This severity preference to mark the root element of XML document which is
@@ -31,7 +61,7 @@ public class XMLValidationSettings {
 	private String noGrammar;
 
 	public XMLValidationSettings() {
-		//set defaults
+		// set defaults
 		schema = true;
 		enabled = true;
 	}
@@ -62,6 +92,30 @@ public class XMLValidationSettings {
 	 */
 	public void setSchema(boolean schema) {
 		this.schema = schema;
+	}
+
+	/**
+	 * Returns the schema version.
+	 * 
+	 * <p>
+	 * Supported version by Xerces are 1.0, 1.1 and 1.0EX.
+	 * </p>
+	 * 
+	 * @see https://github.com/apache/xerces2-j/blob/xml-schema-1.1-dev/src/org/apache/xerces/impl/Constants.java#L42
+	 * 
+	 * @return the schema version
+	 */
+	public String getSchemaVersion() {
+		return schemaVersion;
+	}
+
+	/**
+	 * Set the schema version
+	 * 
+	 * @param schemaVersion the schema version
+	 */
+	public void setSchemaVersion(String schemaVersion) {
+		this.schemaVersion = schemaVersion;
 	}
 
 	public void setNoGrammar(String noGrammar) {
@@ -100,12 +154,35 @@ public class XMLValidationSettings {
 		return defaultSeverity;
 	}
 
+	/**
+	 * Returns the Xerces namespace of the schema version to use and 1.0 otherwise.
+	 * 
+	 * @param settings the settings
+	 * @return the Xerces namespace of the schema version to use and 1.0 otherwise.
+	 */
+	public static String getNamespaceSchemaVersion(ContentModelSettings settings) {
+		if (settings == null || settings.getValidation() == null) {
+			return Constants.W3C_XML_SCHEMA10_NS_URI;
+		}
+		String schemaVersion = settings.getValidation().getSchemaVersion();
+		if (StringUtils.isEmpty(schemaVersion)) {
+			return Constants.W3C_XML_SCHEMA10_NS_URI;
+		}
+		if (SchemaVersion.V11.getVersion().equals(schemaVersion)) {
+			return Constants.W3C_XML_SCHEMA11_NS_URI;
+		}
+		if (SchemaVersion.V10EX.getVersion().equals(schemaVersion)) {
+			return Constants.W3C_XML_SCHEMA10EX_NS_URI;
+		}
+		return Constants.W3C_XML_SCHEMA10_NS_URI;
+	}
+
 	public XMLValidationSettings merge(XMLValidationSettings settings) {
-		if(settings != null) {
+		if (settings != null) {
 			this.schema = settings.schema;
 			this.enabled = settings.enabled;
 		}
 		return this;
 	}
-	
+
 }

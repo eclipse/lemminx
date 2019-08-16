@@ -22,6 +22,7 @@ Features
 * [textDocument/hover](https://microsoft.github.io/language-server-protocol/specification#textDocument_hover).
 * [textDocument/rangeFormatting](https://microsoft.github.io/language-server-protocol/specification#textDocument_rangeFormatting)
 * [textDocument/rename](https://microsoft.github.io/language-server-protocol/specification#textDocument_rename).
+* XML Schema `1.0` and `1.1` support.t
 
 See screenshots in the [wiki](https://github.com/angelozerr/lsp4xml/wiki/Features).
 

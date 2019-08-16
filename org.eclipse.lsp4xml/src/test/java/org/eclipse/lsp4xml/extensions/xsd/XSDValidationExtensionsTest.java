@@ -334,7 +334,7 @@ public class XSDValidationExtensionsTest {
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(2, 8, 2, 8, " namespace=\"\"")), ca(d, te(1, 48, 1, 48, " targetNamespace=\"\"")));
 	}
-
+	
 	private static void testDiagnosticsFor(String xml, Diagnostic... expected) throws BadLocationException {
 		XMLAssert.testDiagnosticsFor(xml, null, null, "test.xsd", expected);
 	}

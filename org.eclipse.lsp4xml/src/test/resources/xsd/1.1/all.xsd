@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema 
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+	xmlns:t="test" 
+	xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" 
+	targetNamespace="test" 
+	elementFormDefault="qualified" 
+	vc:minVersion="1.1">
+	
+	<xs:complexType name="testType">
+		<xs:all>
+			<xs:element name="testEle" minOccurs="1" maxOccurs="unbounded" type="xs:string"/>
+			<xs:element name="testEleTwo" type="xs:string"/>
+		</xs:all>
+	</xs:complexType>
+	
+	<xs:element name="testDoc">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="testContainer" type="t:testType"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+</xs:schema>

@@ -19,6 +19,7 @@ import java.util.Map;
 
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMElement;
+import org.eclipse.lsp4xml.extensions.contentmodel.settings.ContentModelSettings;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLFileAssociation;
 import org.eclipse.lsp4xml.extensions.contentmodel.uriresolver.XMLCacheResolverExtension;
 import org.eclipse.lsp4xml.extensions.contentmodel.uriresolver.XMLCatalogResolverExtension;
@@ -43,6 +44,8 @@ public class ContentModelManager {
 	private final XMLCatalogResolverExtension catalogResolverExtension;
 	private final XMLFileAssociationResolverExtension fileAssociationResolver;
 
+	private ContentModelSettings settings;
+
 	public ContentModelManager(URIResolverExtensionManager resolverManager) {
 		this.resolverManager = resolverManager;
 		modelProviders = new ArrayList<>();
@@ -55,6 +58,14 @@ public class ContentModelManager {
 		resolverManager.registerResolver(cacheResolverExtension);
 		// Use cache by default
 		setUseCache(true);
+	}
+
+	public void setSettings(ContentModelSettings settings) {
+		this.settings = settings;
+	}
+
+	public ContentModelSettings getSettings() {
+		return settings;
 	}
 
 	public CMElementDeclaration findCMElement(DOMElement element) throws Exception {
