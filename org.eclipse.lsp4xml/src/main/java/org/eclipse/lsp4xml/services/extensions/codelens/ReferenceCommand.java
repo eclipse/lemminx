@@ -26,16 +26,16 @@ public class ReferenceCommand extends Command {
 	private transient int nbReferences = 1;
 
 	public ReferenceCommand(String uri, Position position, boolean supportedByClient) {
-		super(getTitle(1), supportedByClient ? ClientCommands.SHOW_REFERENCES : "");
+		super(computeTitle(1), supportedByClient ? ClientCommands.SHOW_REFERENCES : "");
 		super.setArguments(Arrays.asList(uri, position));
 	}
 
 	public void increment() {
 		nbReferences++;
-		super.setTitle(getTitle(nbReferences));
+		super.setTitle(computeTitle(nbReferences));
 	}
 
-	private static String getTitle(int nbReferences) {
+	private static String computeTitle(int nbReferences) {
 		if (nbReferences == 1) {
 			return nbReferences + " reference";
 		}
