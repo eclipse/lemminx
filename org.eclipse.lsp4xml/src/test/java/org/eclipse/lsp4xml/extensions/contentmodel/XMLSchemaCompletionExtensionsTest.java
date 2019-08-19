@@ -13,6 +13,7 @@ package org.eclipse.lsp4xml.extensions.contentmodel;
 import static org.eclipse.lsp4xml.XMLAssert.c;
 import static org.eclipse.lsp4xml.XMLAssert.te;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -206,8 +207,8 @@ public class XMLSchemaCompletionExtensionsTest {
 				"  <ViewDefinitions>\r\n" + //
 				"    <View><|";
 		// Completion only with Name
-		XMLAssert.testCompletionFor(xml, null, "src/test/resources/Format.xml", 4 + 2 /* CDATA and Comments */, c("Name", "<Name></Name>"),
-				c("End with '</Configuration>'", "/Configuration>"),
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/Format.xml", 4 + 2 /* CDATA and Comments */,
+				c("Name", "<Name></Name>"), c("End with '</Configuration>'", "/Configuration>"),
 				c("End with '</ViewDefinitions>'", "/ViewDefinitions>"), c("End with '</View>'", "/View>"));
 
 		xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
@@ -229,16 +230,16 @@ public class XMLSchemaCompletionExtensionsTest {
 				+ " xsi:schemaLocation=\"http://invoice xsd/invoice-ns.xsd \">\r\n" + //
 				"  <|";
 		// Completion only for date
-		XMLAssert.testCompletionFor(xml, null, "src/test/resources/invoice.xml", 2 + 2 /* CDATA and Comments */, c("date", "<date></date>"),
-				c("End with '</invoice>'", "</invoice>"));
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/invoice.xml", 2 + 2 /* CDATA and Comments */,
+				c("date", "<date></date>"), c("End with '</invoice>'", "</invoice>"));
 
 		// Completion only for number
 		xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
 				"<invoice xmlns=\"http://invoice\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n"
 				+ " xsi:schemaLocation=\"http://invoice xsd/invoice-ns.xsd \">\r\n" + //
 				"  <date></date>|";
-		XMLAssert.testCompletionFor(xml, null, "src/test/resources/invoice.xml", 2 + 2 /* CDATA and Comments */, c("number", "<number></number>"),
-				c("End with '</invoice>'", "</invoice>"));
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/invoice.xml", 2 + 2 /* CDATA and Comments */,
+				c("number", "<number></number>"), c("End with '</invoice>'", "</invoice>"));
 	}
 
 	@Test
@@ -662,8 +663,105 @@ public class XMLSchemaCompletionExtensionsTest {
 		// optional3 is not return by completion since optional3 has a max=2 occurences
 		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 1 + 2 /* CDATA and Comments */,
 				c("End with '</data>'", "</data>"));
+	}
 
+	@Test
+	public void xsAny() throws IOException, BadLocationException {
+		Path dir = Paths.get("target/xsd/");
+		if (!Files.isDirectory(dir)) {
+			Files.createDirectory(dir);
+		}
+		Files.deleteIfExists(Paths.get(dir.toString(), "any.xsd"));
+		XMLLanguageService xmlLanguageService = new XMLLanguageService();
 
+		// Test completion with xs:any processContents="strict"
+		String schema = "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\r\n" + //
+				"	targetNamespace=\"http://ui\">\r\n" + //
+				"	<xs:element name=\"textbox\"></xs:element>\r\n" + //
+				"	<xs:element name=\"page\">\r\n" + //
+				"		<xs:complexType>\r\n" + //
+				"			<xs:sequence>				\r\n" + //
+				"				<xs:element name=\"title\" />\r\n" + //
+				"				<xs:any processContents=\"strict\" />\r\n" + // <-- xs:any processContents="strict"
+				"			</xs:sequence>			\r\n" + //
+				"		</xs:complexType>\r\n" + //
+				"	</xs:element>\r\n" + //
+				"</xs:schema>";
+		Files.write(Paths.get("target/xsd/any.xsd"), schema.getBytes());
+
+		String xml = "<ui:page xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:ui=\"http://ui\" xsi:schemaLocation=\"http://ui xsd/any.xsd\" >\r\n"
+				+ //
+				"	|	\r\n" + //
+				"	<a/>" + //
+				"</ui:page>";
+		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null, "target/any.xml", 4 + 1, true,
+				c("title", "<title></title>"));
+
+		// xs:any completion with strict -> only XML Schema global element declaration
+		// available in completion
+		xml = "<ui:page xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:ui=\"http://ui\" xsi:schemaLocation=\"http://ui xsd/any.xsd\" >\r\n"
+				+ //
+				"	<title></title>\r\n" + //
+				"	|	\r\n" + //
+				"	<a/>" + //
+				"</ui:page>";
+		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null, "target/any.xml", 4 + 2, true,
+				c("ui:page", "<ui:page></ui:page>"), c("ui:textbox", "<ui:textbox></ui:textbox>"));
+
+		// no completion
+		xml = "<ui:page xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:ui=\"http://ui\" xsi:schemaLocation=\"http://ui xsd/any.xsd\" >\r\n"
+				+ //
+				"	<title></title>\r\n" + //
+				"	<ui:textbox></ui:textbox>\r\n" + //
+				"	|	\r\n" + //
+				"	<a/>" + //
+				"</ui:page>";
+		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null, "target/any.xml", 4, true);
+
+		// Test completion with xs:any processContents="lax" (or processContents="skip")
+		schema = "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\r\n" + //
+				"	targetNamespace=\"http://ui\">\r\n" + //
+				"	<xs:element name=\"textbox\"></xs:element>\r\n" + //
+				"	<xs:element name=\"page\">\r\n" + //
+				"		<xs:complexType>\r\n" + //
+				"			<xs:sequence>				\r\n" + //
+				"				<xs:element name=\"title\" />\r\n" + //
+				"				<xs:any processContents=\"lax\" />\r\n" + // <-- xs:any processContents="lax"
+				"			</xs:sequence>			\r\n" + //
+				"		</xs:complexType>\r\n" + //
+				"	</xs:element>\r\n" + //
+				"</xs:schema>";
+
+		Files.write(Paths.get("target/xsd/any.xsd"), schema.getBytes());
+
+		xml = "<ui:page xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:ui=\"http://ui\" xsi:schemaLocation=\"http://ui xsd/any.xsd\" >\r\n"
+				+ //
+				"	|	\r\n" + //
+				"	<a/>" + //
+				"</ui:page>";
+		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null, "target/any.xml", 4 + 1, true,
+				c("title", "<title></title>"));
+
+		// xs:any completion with strict -> all XML Schema element declaration
+		// available in completion + tags completion
+		xml = "<ui:page xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:ui=\"http://ui\" xsi:schemaLocation=\"http://ui xsd/any.xsd\" >\r\n"
+				+ //
+				"	<title></title>\r\n" + //
+				"	|	\r\n" + //
+				"	<a/>" + //
+				"</ui:page>";
+		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null, "target/any.xml", 4 + 4, true,
+				c("title", "<title></title>"), c("a", "<a/>"), c("ui:page", "<ui:page></ui:page>"), c("ui:textbox", "<ui:textbox></ui:textbox>"));
+
+		// no completion
+		xml = "<ui:page xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:ui=\"http://ui\" xsi:schemaLocation=\"http://ui xsd/any.xsd\" >\r\n"
+				+ //
+				"	<title></title>\r\n" + //
+				"	<ui:textbox></ui:textbox>\r\n" + //
+				"	|	\r\n" + //
+				"	<a/>" + //
+				"</ui:page>";
+		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null, "target/any.xml", 4, true);
 	}
 
 	@Test
@@ -674,7 +772,7 @@ public class XMLSchemaCompletionExtensionsTest {
 				"	|";
 		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 4 + 2 /* CDATA and Comments */,
 				c("tag", "<tag></tag>"), c("End with '</root>'", "</root>"), c("#region", "<!-- #region -->"),
-				c("#endregion", "<!-- #endregion-->"), c("cdata", "<![CDATA[ ]]>"),
+				c("#endregion", "<!-- #endregion-->"), c("cdata", "<![CDATA[ ]]>"), //
 				c("comment", "<!-- -->"));
 
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //

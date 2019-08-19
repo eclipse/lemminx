@@ -10,7 +10,9 @@
  */
 package org.eclipse.lsp4xml.extensions.contentmodel.model;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.eclipse.lsp4xml.dom.DOMElement;
 
@@ -19,6 +21,9 @@ import org.eclipse.lsp4xml.dom.DOMElement;
  * grammar (XML Schema, DTD).
  */
 public interface CMElementDeclaration {
+
+	public static final Collection<CMElementDeclaration> ANY_ELEMENT_DECLARATIONS = Collections
+			.unmodifiableCollection(Arrays.asList());
 
 	/**
 	 * Returns the declared element name.
@@ -62,11 +67,13 @@ public interface CMElementDeclaration {
 	Collection<CMElementDeclaration> getElements();
 
 	/**
-	 * Returns the possible declared elements for the given DOM after element.
+	 * Returns the possible declared elements at the given offset of the given
+	 * parent element.
 	 * 
-	 * @param afterElement the after element
-	 * @param i 
-	 * @return the possible declared elements for the given DOM after element.
+	 * @param parentElement the parent element
+	 * @param offset        the offset
+	 * @return the possible declared elements at the given offset of the given
+	 *         parent element.
 	 */
 	Collection<CMElementDeclaration> getPossibleElements(DOMElement parentElement, int offset);
 
@@ -105,8 +112,18 @@ public interface CMElementDeclaration {
 	 */
 	boolean isEmpty();
 
+	/**
+	 * Return the enumeration values.
+	 * 
+	 * @return the enumeration values.
+	 */
 	Collection<String> getEnumerationValues();
 
+	/**
+	 * Returns the owner document URI where the element is declared.
+	 * 
+	 * @return the owner document URI where the element is declared.
+	 */
 	String getDocumentURI();
 
 }

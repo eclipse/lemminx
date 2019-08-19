@@ -11,6 +11,8 @@
 package org.eclipse.lsp4xml.extensions.contentmodel.participants;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -32,6 +34,9 @@ import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.uriresolver.CacheResourceDownloadingException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * Extension to support XML completion based on content model (XML Schema
@@ -51,7 +56,8 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 				// XML Schema is done with pattern and not with XML root element)
 				CMDocument cmDocument = contentModelManager.findCMDocument(document, null);
 				if (cmDocument != null) {
-					fillWithChildrenElementDeclaration(null, cmDocument.getElements(), null, false, request, response);
+					fillWithChildrenElementDeclaration(null, null, cmDocument.getElements(), null, false, request,
+							response);
 				}
 				return;
 			}
@@ -65,8 +71,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 
 			if (cmElement != null) {
 				defaultPrefix = parentElement.getPrefix();
-				fillWithChildrenElementDeclaration(parentElement,
-						cmElement.getPossibleElements(parentElement, request.getOffset()), defaultPrefix, false,
+				fillWithPossibleElementDeclaration(parentElement, cmElement, defaultPrefix, contentModelManager,
 						request, response);
 			}
 			if (parentElement.isDocumentElement()) {
@@ -76,14 +81,14 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 					if (defaultPrefix != null && prefix.equals(defaultPrefix)) {
 						continue;
 					}
-					String namespaceURI = parentElement.getNamespaceURI(prefix);
+					String namespaceURI = DOMElement.getNamespaceURI(prefix, parentElement);
 					if (cmRootDocument == null || !cmRootDocument.hasNamespace(namespaceURI)) {
 						// The model document root doesn't define the namespace, try to load the
 						// external model document (XML Schema, DTD)
 						CMDocument cmDocument = contentModelManager.findCMDocument(parentElement, namespaceURI);
 						if (cmDocument != null) {
-							fillWithChildrenElementDeclaration(parentElement, cmDocument.getElements(), prefix, true,
-									request, response);
+							fillWithChildrenElementDeclaration(parentElement, null, cmDocument.getElements(), prefix,
+									true, request, response);
 						}
 					}
 				}
@@ -93,8 +98,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			CMElementDeclaration cmInternalElement = contentModelManager.findInternalCMElement(parentElement);
 			if (cmInternalElement != null) {
 				defaultPrefix = parentElement.getPrefix();
-				fillWithChildrenElementDeclaration(parentElement,
-						cmInternalElement.getPossibleElements(parentElement, request.getOffset()), defaultPrefix, false,
+				fillWithPossibleElementDeclaration(parentElement, cmInternalElement, defaultPrefix, contentModelManager,
 						request, response);
 			}
 		} catch (CacheResourceDownloadingException e) {
@@ -102,23 +106,116 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 		}
 	}
 
-	private void fillWithChildrenElementDeclaration(DOMElement element, Collection<CMElementDeclaration> cmElements,
-			String p, boolean forceUseOfPrefix, ICompletionRequest request, ICompletionResponse response)
-			throws BadLocationException {
-		XMLGenerator generator = request.getXMLGenerator();
-		for (CMElementDeclaration child : cmElements) {
-			String prefix = forceUseOfPrefix ? p : (element != null ? element.getPrefix(child.getNamespace()) : null);
-			String label = child.getName(prefix);
-			CompletionItem item = new CompletionItem(label);
-			item.setFilterText(request.getFilterForStartTagName(label));
-			item.setKind(CompletionItemKind.Property);
-			MarkupContent documentation = XMLGenerator.createMarkupContent(child, request);
-			item.setDocumentation(documentation);
-			String xml = generator.generate(child, prefix);
-			item.setTextEdit(new TextEdit(request.getReplaceRange(), xml));
-			item.setInsertTextFormat(InsertTextFormat.Snippet);
-			response.addCompletionItem(item, true);
+	/**
+	 * Fill with possible element declarations.
+	 * 
+	 * @param parentElement       the parent DOM element
+	 * @param cmElement           the content model element declaration
+	 * @param defaultPrefix
+	 * @param contentModelManager
+	 * @param request
+	 * @param response
+	 * @throws BadLocationException
+	 */
+	private static void fillWithPossibleElementDeclaration(DOMElement parentElement, CMElementDeclaration cmElement,
+			String defaultPrefix, ContentModelManager contentModelManager, ICompletionRequest request,
+			ICompletionResponse response) throws BadLocationException {
+		// Get possible elements
+		Collection<CMElementDeclaration> possibleElements = cmElement.getPossibleElements(parentElement,
+				request.getOffset());
+		boolean isAny = CMElementDeclaration.ANY_ELEMENT_DECLARATIONS.equals(possibleElements);
+		CMDocument cmDocument = null;
+		if (isAny) {
+			// It's a xs:any, get the XML Schema/DTD document to retrieve the all elements
+			// declarations
+			cmDocument = contentModelManager.findCMDocument(parentElement.getOwnerDocument(),
+					parentElement.getNamespaceURI());
 		}
+		fillWithChildrenElementDeclaration(parentElement, cmDocument, possibleElements, defaultPrefix, false, request,
+				response);
+	}
+
+	/**
+	 * Fill with children element declarations
+	 * 
+	 * @param element
+	 * @param document
+	 * @param cmElements
+	 * @param defaultPrefix
+	 * @param forceUseOfPrefix
+	 * @param request
+	 * @param response
+	 * @throws BadLocationException
+	 */
+	private static void fillWithChildrenElementDeclaration(DOMElement element, CMDocument document,
+			Collection<CMElementDeclaration> cmElements, String defaultPrefix, boolean forceUseOfPrefix,
+			ICompletionRequest request, ICompletionResponse response) throws BadLocationException {
+		XMLGenerator generator = request.getXMLGenerator();
+		if (document != null) {
+			// xs:any case
+			Set<String> tags = new HashSet<>();
+			// Fill with all CM element declarations
+			for (CMElementDeclaration child : document.getAllElements()) {
+				CompletionItem item = addCompletionItem(child, element, defaultPrefix, forceUseOfPrefix, request,
+						response, generator);
+				tags.add(item.getLabel());
+			}
+			// Fill with all tags elements from the document
+			Document document2 = element.getOwnerDocument();
+			NodeList list = document2.getChildNodes();
+			addTagName(list, tags, request, response);
+		} else {
+			for (CMElementDeclaration child : cmElements) {
+				addCompletionItem(child, element, defaultPrefix, forceUseOfPrefix, request, response, generator);
+			}
+		}
+	}
+
+	/**
+	 * Add completion item with all tag names of the node list.
+	 * 
+	 * @param list
+	 * @param tags
+	 * @param request
+	 * @param response
+	 */
+	private static void addTagName(NodeList list, Set<String> tags, ICompletionRequest request,
+			ICompletionResponse response) {
+		for (int i = 0; i < list.getLength(); i++) {
+			Node node = list.item(i);
+			if (Node.ELEMENT_NODE == node.getNodeType()) {
+				DOMElement elt = (DOMElement) node;
+				String tagName = elt.getTagName();
+				if (!tags.contains(tagName)) {
+					CompletionItem item = new CompletionItem(tagName);
+					item.setKind(CompletionItemKind.Property);
+					item.setFilterText(request.getFilterForStartTagName(tagName));
+					String xml = elt.getOwnerDocument().getText().substring(elt.getStart(), elt.getEnd());
+					item.setTextEdit(new TextEdit(request.getReplaceRange(), xml));
+					response.addCompletionItem(item);
+					tags.add(item.getLabel());
+				}
+				addTagName(elt.getChildNodes(), tags, request, response);
+			}
+		}
+	}
+
+	private static CompletionItem addCompletionItem(CMElementDeclaration elementDeclaration, DOMElement element,
+			String defaultPrefix, boolean forceUseOfPrefix, ICompletionRequest request, ICompletionResponse response,
+			XMLGenerator generator) {
+		String prefix = forceUseOfPrefix ? defaultPrefix
+				: (element != null ? element.getPrefix(elementDeclaration.getNamespace()) : null);
+		String label = elementDeclaration.getName(prefix);
+		CompletionItem item = new CompletionItem(label);
+		item.setFilterText(request.getFilterForStartTagName(label));
+		item.setKind(CompletionItemKind.Property);
+		MarkupContent documentation = XMLGenerator.createMarkupContent(elementDeclaration, request);
+		item.setDocumentation(documentation);
+		String xml = generator.generate(elementDeclaration, prefix);
+		item.setTextEdit(new TextEdit(request.getReplaceRange(), xml));
+		item.setInsertTextFormat(InsertTextFormat.Snippet);
+		response.addCompletionItem(item, true);
+		return item;
 	}
 
 	@Override

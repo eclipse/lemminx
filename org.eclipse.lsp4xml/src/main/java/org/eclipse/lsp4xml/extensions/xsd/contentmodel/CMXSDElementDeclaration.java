@@ -13,6 +13,7 @@ package org.eclipse.lsp4xml.extensions.xsd.contentmodel;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Vector;
 
@@ -20,7 +21,6 @@ import org.apache.xerces.impl.dv.xs.XSSimpleTypeDecl;
 import org.apache.xerces.impl.xs.SchemaGrammar;
 import org.apache.xerces.impl.xs.SubstitutionGroupHandler;
 import org.apache.xerces.impl.xs.XSComplexTypeDecl;
-import org.apache.xerces.impl.xs.XSElementDecl;
 import org.apache.xerces.impl.xs.models.CMBuilder;
 import org.apache.xerces.impl.xs.models.CMNodeFactory;
 import org.apache.xerces.impl.xs.models.XSCMValidator;
@@ -30,13 +30,13 @@ import org.apache.xerces.xs.XSComplexTypeDefinition;
 import org.apache.xerces.xs.XSConstants;
 import org.apache.xerces.xs.XSElementDeclaration;
 import org.apache.xerces.xs.XSModelGroup;
-import org.apache.xerces.xs.XSNamespaceItem;
 import org.apache.xerces.xs.XSObject;
 import org.apache.xerces.xs.XSObjectList;
 import org.apache.xerces.xs.XSParticle;
 import org.apache.xerces.xs.XSSimpleTypeDefinition;
 import org.apache.xerces.xs.XSTerm;
 import org.apache.xerces.xs.XSTypeDefinition;
+import org.apache.xerces.xs.XSWildcard;
 import org.eclipse.lsp4xml.dom.DOMElement;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMElementDeclaration;
@@ -50,6 +50,8 @@ import org.w3c.dom.NodeList;
  *
  */
 public class CMXSDElementDeclaration implements CMElementDeclaration {
+
+	private static final short PC_UNKWOWN = -1;
 
 	private final CMXSDDocument document;
 
@@ -108,7 +110,6 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 					XSAttributeUse attributeUse = (XSAttributeUse) object;
 					attributes.add(new CMXSDAttributeDeclaration(attributeUse));
 				}
-
 			}
 		}
 	}
@@ -129,14 +130,16 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 			// The type definition is complex (ex: xs:all; xs:sequence), returns list of
 			// element declaration according those XML Schema constraints
 
-			// Compute list of child element (QName)
-			List<QName> qNames = toQNames(parentElement, offset);
-
 			// Initialize Xerces validator
 			CMBuilder cmBuilder = new CMBuilder(new CMNodeFactory());
 			XSCMValidator validator = ((XSComplexTypeDecl) typeDefinition).getContentModel(cmBuilder);
-			SubstitutionGroupHandler handler = new SubstitutionGroupHandler(document);
+			if (validator == null) {
+				return Collections.emptyList();
+			}
 
+			SubstitutionGroupHandler handler = new SubstitutionGroupHandler(document);
+			// Compute list of child element (QName)
+			List<QName> qNames = toQNames(parentElement, offset);
 			// Loop for each element (QName) and check if it is valid according the XML
 			// Schema constraint
 			int[] states = validator.startContentModel();
@@ -156,16 +159,70 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 			}
 
 			// Compute list of possible elements
-			Collection<CMElementDeclaration> possibleElements = new ArrayList<>();
+			Collection<CMElementDeclaration> possibleElements = new HashSet<>();
 			for (Object object : result) {
 				if (object instanceof XSElementDeclaration) {
 					XSElementDeclaration elementDecl = (XSElementDeclaration) object;
 					document.collectElement(elementDecl, possibleElements);
+				} else {
+					// case with xs:any. Ex:
+					// <xs:sequence>
+					// <xs:any maxOccurs="2" processContents="lax" />
+					// </xs:sequence>
+					Collection<CMElementDeclaration> anyElements = getXSAnyElements(object);
+					if (anyElements != null) {
+						return anyElements;
+					}
 				}
 			}
 			return possibleElements;
 		}
 		return getElements();
+	}
+
+	/**
+	 * Returns the possible elements declaration if the given declaration is an
+	 * xs:any and null otherwise.
+	 * 
+	 * @param declaration the element, wildcard declaration.
+	 * @return the possible elements declaration if the given declaration is an
+	 *         xs:any and null otherwise.
+	 * 
+	 */
+	private Collection<CMElementDeclaration> getXSAnyElements(Object declaration) {
+		short processContents = getXSAnyProcessContents(declaration);
+		if (processContents != PC_UNKWOWN) {
+			// xs:any
+			switch (processContents) {
+			case XSWildcard.PC_STRICT:
+				// <xs:any processContents="strict" />
+				// only global element declaration from the XML Schema are allowed
+				return document.getElements();
+			default:
+				// <xs:any processContents="lax" /> or <xs:any processContents="skip" />
+				// all tags are allowed.
+				return ANY_ELEMENT_DECLARATIONS;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Returns the value of the xs:any/@processContents if the given element is a
+	 * xs:any and {@link #PC_UNKWOWN} otherwise.
+	 * 
+	 * @param declaration the element, wildcard declaration.
+	 * @return the value of the xs:any/@processContents if the given element is a
+	 *         xs:any and {@link #PC_UNKWOWN} otherwise.
+	 */
+	private static short getXSAnyProcessContents(Object declaration) {
+		if (declaration instanceof XSWildcard) {
+			XSWildcard wildcard = (XSWildcard) declaration;
+			if ((wildcard.getConstraintType() == XSWildcard.NSCONSTRAINT_ANY)) {
+				return wildcard.getProcessContents();
+			}
+		}
+		return PC_UNKWOWN;
 	}
 
 	/**

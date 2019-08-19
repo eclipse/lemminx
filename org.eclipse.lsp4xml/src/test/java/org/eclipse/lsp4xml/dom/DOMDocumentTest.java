@@ -194,4 +194,46 @@ public class DOMDocumentTest {
 		DOMNode modElemmodDecl = modDocType.getChild(0);
 		Assert.assertTrue(modElemmodDecl.isDTDElementDecl());
 	}
+
+	@Test
+	public void defaultNamespaceURI() {
+		String xml = "<beans xmlns=\"http://www.springframework.org/schema/beans\"\r\n"
+				+ "       xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n"
+				+ "       xmlns:camel=\"http://camel.apache.org/schema/spring\"\r\n"
+				+ "       xsi:schemaLocation=\"\r\n"
+				+ "       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\r\n"
+				+ "       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd\r\n"
+				+ "    \">" + "<bean /><camel:camelContext>";
+		DOMDocument dom = DOMParser.getInstance().parse(xml, "test.xml", null);
+
+		DOMElement bean = (DOMElement) dom.getDocumentElement().getFirstChild();
+		Assert.assertNull(bean.getPrefix());
+		Assert.assertEquals("http://www.springframework.org/schema/beans", bean.getNamespaceURI());
+
+		DOMElement camel = (DOMElement) bean.getNextSibling();
+		Assert.assertEquals("camel", camel.getPrefix());
+		Assert.assertEquals("http://camel.apache.org/schema/spring", camel.getNamespaceURI());
+
+	}
+	
+	@Test
+	public void noDefaultNamespaceURI() {
+		String xml = "<b:beans xmlns:b=\"http://www.springframework.org/schema/beans\"\r\n"
+				+ "       xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n"
+				+ "       xmlns:camel=\"http://camel.apache.org/schema/spring\"\r\n"
+				+ "       xsi:schemaLocation=\"\r\n"
+				+ "       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\r\n"
+				+ "       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd\r\n"
+				+ "    \">" + "<bean /><camel:camelContext>";
+		DOMDocument dom = DOMParser.getInstance().parse(xml, "test.xml", null);
+
+		DOMElement bean = (DOMElement) dom.getDocumentElement().getFirstChild();
+		Assert.assertNull(bean.getPrefix());
+		Assert.assertNull(bean.getNamespaceURI());
+
+		DOMElement camel = (DOMElement) bean.getNextSibling();
+		Assert.assertEquals("camel", camel.getPrefix());
+		Assert.assertEquals("http://camel.apache.org/schema/spring", camel.getNamespaceURI());
+
+	}
 }

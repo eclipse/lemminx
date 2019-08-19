@@ -29,18 +29,16 @@ import org.w3c.dom.TypeInfo;
  */
 public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 
-	
-
 	String tag;
 	boolean selfClosed;
-	
-	//DomElement.start == startTagOpenOffset
+
+	// DomElement.start == startTagOpenOffset
 	int startTagOpenOffset = NULL_VALUE; // |<root>
 	int startTagCloseOffset = NULL_VALUE; // <root |>
 
 	int endTagOpenOffset = NULL_VALUE; // <root> |</root >
 	int endTagCloseOffset = NULL_VALUE;// <root> </root |>
-	//DomElement.end = <root> </root>| , is always scanner.getTokenEnd()
+	// DomElement.end = <root> </root>| , is always scanner.getTokenEnd()
 
 	public DOMElement(int start, int end) {
 		super(start, end);
@@ -121,21 +119,17 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 	@Override
 	public String getNamespaceURI() {
 		String prefix = getPrefix();
-		boolean hasPrefix = !StringUtils.isEmpty(prefix);
-		// Try to get xmlns attribute in the element
-		String rootElementNamespaceDeclarationName = (hasPrefix) ? XMLNS_NO_DEFAULT_ATTR + prefix // $NON-NLS-1$
-				: XMLNS_ATTR; // $NON-NLS-1$
-		String rootElementNamespace = this.getAttribute(rootElementNamespaceDeclarationName);
-		if (!StringUtils.isEmpty(rootElementNamespace)) {
-			return rootElementNamespace;
+		// Try to get xmlns attribute from the element
+		String namespaceURI = getNamespaceURI(prefix, this);
+		if (namespaceURI != null) {
+			return namespaceURI;
 		}
-		// try to get the namespace in the parent element
+		// try to get the namespace from the parent element
 		DOMNode parent = getParentNode();
 		while (parent != null) {
 			if (parent.getNodeType() == DOMNode.ELEMENT_NODE) {
 				DOMElement parentElement = ((DOMElement) parent);
-				String namespaceURI = hasPrefix ? parentElement.getAttribute(XMLNS_NO_DEFAULT_ATTR + prefix)
-						: parentElement.getNamespaceURI();
+				namespaceURI = getNamespaceURI(prefix, parentElement);
 				if (namespaceURI != null) {
 					return namespaceURI;
 				}
@@ -143,6 +137,20 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 			parent = parent.getParentNode();
 		}
 		return null;
+	}
+
+	/**
+	 * Returns the namespace URI from the given prefix declared in the given element
+	 * and null otherwise.
+	 * 
+	 * @param prefix  the prefix
+	 * @param element the DOM element
+	 * @return the namespace URI from the given prefix declared in the given element
+	 *         and null otherwise.
+	 */
+	public static String getNamespaceURI(String prefix, DOMElement element) {
+		boolean hasPrefix = !StringUtils.isEmpty(prefix);
+		return hasPrefix ? element.getAttribute(XMLNS_NO_DEFAULT_ATTR + prefix) : element.getAttribute(XMLNS_ATTR);
 	}
 
 	public Collection<String> getAllPrefixes() {
@@ -171,7 +179,7 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 		if (hasAttributes()) {
 			for (DOMAttr attr : getAttributeNodes()) {
 				String prefix = attr.getPrefixIfMatchesURI(namespaceURI);
-				if(prefix != null) {
+				if (prefix != null) {
 					return prefix;
 				}
 			}
@@ -191,13 +199,6 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 		return null;
 	}
 
-	public String getNamespaceURI(String prefix) {
-		if (prefix == null || prefix.isEmpty()) {
-			return getNamespaceURI();
-		}
-		return getAttribute(XMLNS_NO_DEFAULT_ATTR + prefix);
-	}
-
 	public boolean isDocumentElement() {
 		return this.equals(getOwnerDocument().getDocumentElement());
 	}
@@ -206,31 +207,29 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 		return selfClosed;
 	}
 
-
 	/**
-	 * Will traverse backwards from the start offset
-	 * returning an offset of the given character if it's found 
-	 * before another character. Whitespace is ignored.
+	 * Will traverse backwards from the start offset returning an offset of the
+	 * given character if it's found before another character. Whitespace is
+	 * ignored.
 	 * 
 	 * Returns null if the character is not found.
 	 * 
-	 * The initial value for the start offset is not included.
-	 * So have the offset 1 position after the character you want
-	 * to start at.
+	 * The initial value for the start offset is not included. So have the offset 1
+	 * position after the character you want to start at.
 	 */
 	public Integer endsWith(char c, int startOffset) {
 		String text = this.getOwnerDocument().getText();
-		if(startOffset > text.length() || startOffset < 0) {
+		if (startOffset > text.length() || startOffset < 0) {
 			return null;
 		}
 		startOffset--;
-		while(startOffset >= 0) {
+		while (startOffset >= 0) {
 			char current = text.charAt(startOffset);
-			if(Character.isWhitespace(current)) {
+			if (Character.isWhitespace(current)) {
 				startOffset--;
 				continue;
 			}
-			if(current != c) {
+			if (current != c) {
 				return null;
 			}
 			return startOffset;
@@ -240,24 +239,23 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 
 	public Integer isNextChar(char c, int startOffset) {
 		String text = this.getOwnerDocument().getText();
-		if(startOffset > text.length() || startOffset < 0) {
+		if (startOffset > text.length() || startOffset < 0) {
 			return null;
 		}
-		
-		while(startOffset < text.length()) {
+
+		while (startOffset < text.length()) {
 			char current = text.charAt(startOffset);
-			if(Character.isWhitespace(current)) {
+			if (Character.isWhitespace(current)) {
 				startOffset++;
 				continue;
 			}
-			if(current != c) {
+			if (current != c) {
 				return null;
 			}
 			return startOffset;
 		}
 		return null;
 	}
-
 
 	/**
 	 * Returns true if the given tag is the same tag of this element and false
@@ -328,7 +326,6 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 		return endTagOpenOffset;
 	}
 
-	
 	/**
 	 * Returns the end tag close offset and {@link DOMNode#NULL_VALUE} if it doesn't
 	 * exist.
@@ -377,9 +374,9 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 	public boolean isEndTagClosed() {
 		return getEndTagCloseOffset() != NULL_VALUE;
 	}
-	
+
 	/**
-	 * If Element has a closing end tag eg: <a> </a> -> true , <a> </b> -> false 
+	 * If Element has a closing end tag eg: <a> </a> -> true , <a> </b> -> false
 	 */
 	@Override
 	public boolean isClosed() {
