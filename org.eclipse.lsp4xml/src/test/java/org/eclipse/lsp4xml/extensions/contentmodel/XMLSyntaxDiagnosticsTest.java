@@ -362,6 +362,19 @@ public class XMLSyntaxDiagnosticsTest {
 	}
 
 	@Test
+	public void testRootElementTypeMustMatchDoctypedecl() {
+		String xml =
+		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
+		"<!DOCTYPE efgh [ \r\n" +
+		"<!ELEMENT abcd (#PCDATA)>\r\n" +
+		"<!ELEMENT efgh (#PCDATA)>\r\n" +
+		"]> \r\n" +
+		"<abcd/>";
+
+		testDiagnosticsFor(xml, d(5, 1, 5, 5, XMLSyntaxErrorCode.RootElementTypeMustMatchDoctypedecl));
+	}
+
+	@Test
 	public void testSDDeclInvalid() throws Exception {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"en\"?>";
 		testDiagnosticsFor(xml, d(0, 48, 0, 52, XMLSyntaxErrorCode.SDDeclInvalid));
