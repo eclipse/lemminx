@@ -46,11 +46,13 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 	EncodingDeclRequired, // https://wiki.xmldation.com/Support/Validator/EncodingDeclRequired
 	ETagRequired, // https://wiki.xmldation.com/Support/Validator/ETagRequired
 	ETagUnterminated, // https://wiki.xmldation.com/Support/Validator/ETagUnterminated
-	EqRequiredInAttribute, the_element_type_lmsg("the-element-type-lmsg"), EqRequiredInXMLDecl, IllegalQName,
+	EqRequiredInAttribute, // https://wiki.xmldation.com/Support/Validator/EqRequiredInAttribute
+	the_element_type_lmsg("the-element-type-lmsg"), EqRequiredInXMLDecl, IllegalQName,
 	InvalidCommentStart, LessthanInAttValue, MarkupEntityMismatch, MarkupNotRecognizedInContent,
 	NameRequiredInReference, OpenQuoteExpected, PITargetRequired, PseudoAttrNameExpected, QuoteRequiredInXMLDecl,
-	SDDeclInvalid, SpaceRequiredBeforeEncodingInXMLDecl, SpaceRequiredBeforeStandalone, SpaceRequiredInPI,
-	VersionInfoRequired, VersionNotSupported, XMLDeclUnterminated, CustomETag, PrematureEOF; // https://wiki.xmldation.com/Support/Validator/EqRequiredInAttribute
+	RootElementTypeMustMatchDoctypedecl, SDDeclInvalid, SpaceRequiredBeforeEncodingInXMLDecl,
+	SpaceRequiredBeforeStandalone, SpaceRequiredInPI,VersionInfoRequired, VersionNotSupported, 
+	XMLDeclUnterminated, CustomETag, PrematureEOF;
 
 	private final String code;
 
@@ -102,6 +104,7 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 		case VersionInfoRequired:
 		case ElementPrefixUnbound:
 		case ElementUnterminated:
+		case RootElementTypeMustMatchDoctypedecl:
 			return XMLPositionUtility.selectStartTag(offset, document);
 		case EqRequiredInAttribute: {
 			String attrName = getString(arguments[1]);
