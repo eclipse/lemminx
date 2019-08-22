@@ -139,7 +139,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	 * Fill with children element declarations
 	 * 
 	 * @param element
-	 * @param document
+	 * @param cmDocument
 	 * @param cmElements
 	 * @param defaultPrefix
 	 * @param forceUseOfPrefix
@@ -147,26 +147,40 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	 * @param response
 	 * @throws BadLocationException
 	 */
-	private static void fillWithChildrenElementDeclaration(DOMElement element, CMDocument document,
+	private static void fillWithChildrenElementDeclaration(DOMElement element, CMDocument cmDocument,
 			Collection<CMElementDeclaration> cmElements, String defaultPrefix, boolean forceUseOfPrefix,
 			ICompletionRequest request, ICompletionResponse response) throws BadLocationException {
 		XMLGenerator generator = request.getXMLGenerator();
-		if (document != null) {
+		if (cmDocument != null) {
 			// xs:any case
 			Set<String> tags = new HashSet<>();
-			// Fill with all CM element declarations
-			for (CMElementDeclaration child : document.getAllElements()) {
-				CompletionItem item = addCompletionItem(child, element, defaultPrefix, forceUseOfPrefix, request,
-						response, generator);
-				tags.add(item.getLabel());
-			}
-			// Fill with all tags elements from the document
-			Document document2 = element.getOwnerDocument();
-			NodeList list = document2.getChildNodes();
+
+			// Fill with all element declarations from the XML Schema/DTD document
+			Set<CMElementDeclaration> processedElements = new HashSet<>();
+			Collection<CMElementDeclaration> elements = cmDocument.getElements();
+			fillCompletionItem(elements, element, defaultPrefix, forceUseOfPrefix, request, response, generator, tags,
+					processedElements);
+
+			// Fill with all element tags from the DOM document
+			Document document = element.getOwnerDocument();
+			NodeList list = document.getChildNodes();
 			addTagName(list, tags, request, response);
 		} else {
 			for (CMElementDeclaration child : cmElements) {
-				addCompletionItem(child, element, defaultPrefix, forceUseOfPrefix, request, response, generator);
+				addCompletionItem(child, element, defaultPrefix, forceUseOfPrefix, request, response, generator, null);
+			}
+		}
+	}
+
+	private static void fillCompletionItem(Collection<CMElementDeclaration> elements, DOMElement element,
+			String defaultPrefix, boolean forceUseOfPrefix, ICompletionRequest request, ICompletionResponse response,
+			XMLGenerator generator, Set<String> tags, Set<CMElementDeclaration> processedElements) {
+		for (CMElementDeclaration child : elements) {
+			if (!processedElements.contains(child)) {
+				processedElements.add(child);
+				addCompletionItem(child, element, defaultPrefix, forceUseOfPrefix, request, response, generator, tags);
+				fillCompletionItem(child.getElements(), element, defaultPrefix, forceUseOfPrefix, request, response,
+						generator, tags, processedElements);
 			}
 		}
 	}
@@ -200,12 +214,20 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 		}
 	}
 
-	private static CompletionItem addCompletionItem(CMElementDeclaration elementDeclaration, DOMElement element,
+	private static void addCompletionItem(CMElementDeclaration elementDeclaration, DOMElement element,
 			String defaultPrefix, boolean forceUseOfPrefix, ICompletionRequest request, ICompletionResponse response,
-			XMLGenerator generator) {
+			XMLGenerator generator, Set<String> tags) {
 		String prefix = forceUseOfPrefix ? defaultPrefix
 				: (element != null ? element.getPrefix(elementDeclaration.getNamespace()) : null);
 		String label = elementDeclaration.getName(prefix);
+		if (tags != null) {
+			if (tags.contains(label)) {
+				return;
+			} else {
+				tags.add(label);
+			}
+		}
+
 		CompletionItem item = new CompletionItem(label);
 		item.setFilterText(request.getFilterForStartTagName(label));
 		item.setKind(CompletionItemKind.Property);
@@ -215,7 +237,6 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 		item.setTextEdit(new TextEdit(request.getReplaceRange(), xml));
 		item.setInsertTextFormat(InsertTextFormat.Snippet);
 		response.addCompletionItem(item, true);
-		return item;
 	}
 
 	@Override

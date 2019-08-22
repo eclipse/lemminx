@@ -751,7 +751,8 @@ public class XMLSchemaCompletionExtensionsTest {
 				"	<a/>" + //
 				"</ui:page>";
 		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null, "target/any.xml", 4 + 4, true,
-				c("title", "<title></title>"), c("a", "<a/>"), c("ui:page", "<ui:page></ui:page>"), c("ui:textbox", "<ui:textbox></ui:textbox>"));
+				c("title", "<title></title>"), c("a", "<a/>"), c("ui:page", "<ui:page></ui:page>"),
+				c("ui:textbox", "<ui:textbox></ui:textbox>"));
 
 		// no completion
 		xml = "<ui:page xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:ui=\"http://ui\" xsi:schemaLocation=\"http://ui xsd/any.xsd\" >\r\n"
@@ -762,6 +763,21 @@ public class XMLSchemaCompletionExtensionsTest {
 				"	<a/>" + //
 				"</ui:page>";
 		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null, "target/any.xml", 4, true);
+	}
+
+	@Test
+	public void xsAnyDuplicate() throws IOException, BadLocationException {
+		String xml = "<Page loaded=\"pageLoaded\" class=\"page\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"xsd/tns.xsd\" >\r\n"
+				+ //
+				"\r\n" + //
+				" | ";
+		// testCompletionFor checks the duplicate label
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/tns.xml", null,
+				c("Page", te(2, 1, 2, 1, "<Page></Page>"), "Page", "Source: tns.xsd", MarkupKind.PLAINTEXT),
+				c("AbsoluteLayout", te(2, 1, 2, 1, "<AbsoluteLayout></AbsoluteLayout>"), "AbsoluteLayout",
+						"Source: tns.xsd", MarkupKind.PLAINTEXT),
+				c("DockLayout", te(2, 1, 2, 1, "<DockLayout></DockLayout>"), "DockLayout", "Source: tns.xsd",
+						MarkupKind.PLAINTEXT));
 	}
 
 	@Test
