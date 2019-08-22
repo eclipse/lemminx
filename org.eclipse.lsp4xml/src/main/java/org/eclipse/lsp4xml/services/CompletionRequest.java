@@ -34,8 +34,6 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 
 	private final XMLFormattingOptions formattingSettings;
 
-	private final XMLExtensionsRegistry extensionsRegistry;
-
 	private Range replaceRange;
 
 	private XMLGenerator generator;
@@ -46,12 +44,11 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 
 	public CompletionRequest(DOMDocument xmlDocument, Position position, SharedSettings settings,
 			XMLExtensionsRegistry extensionsRegistry) throws BadLocationException {
-		super(xmlDocument, position);
+		super(xmlDocument, position, extensionsRegistry);
 		this.formattingSettings = settings.getFormattingSettings();
 		this.completionSettings = settings.getCompletionSettings();
-		this.extensionsRegistry = extensionsRegistry;
 	}
-
+	
 	@Override
 	protected DOMNode findNodeAt(DOMDocument xmlDocument, int offset) {
 		return xmlDocument.findNodeBefore(offset);
@@ -95,11 +92,6 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 
 	public void setHasOpenBracket(boolean hasOpenBracket) {
 		this.hasOpenBracket = hasOpenBracket;
-	}
-
-	@Override
-	public <T> T getComponent(Class clazz) {
-		return extensionsRegistry.getComponent(clazz);
 	}
 
 	public void setAddQuotes(boolean addQuotes) {

@@ -69,18 +69,18 @@ public abstract class DOMNode implements Node, DOMRange {
 	DOMNode parent;
 
 	private static final NodeList EMPTY_CHILDREN = new NodeList() {
-		
+
 		@Override
 		public Node item(int index) {
 			return null;
 		}
-		
+
 		@Override
 		public int getLength() {
 			return 0;
 		}
 	};
-	
+
 	static class XMLNodeList<T extends DOMNode> extends ArrayList<T> implements NodeList {
 
 		private static final long serialVersionUID = 1L;
@@ -276,7 +276,7 @@ public abstract class DOMNode implements Node, DOMRange {
 		return findAttrAt(node, offset);
 	}
 
-	public DOMAttr findAttrAt(DOMNode node, int offset) {
+	public static DOMAttr findAttrAt(DOMNode node, int offset) {
 		if (node != null && node.hasAttributes()) {
 			for (DOMAttr attr : node.getAttributeNodes()) {
 				if (attr.isIncluded(offset)) {
@@ -285,6 +285,17 @@ public abstract class DOMNode implements Node, DOMRange {
 			}
 		}
 		return null;
+	}
+
+	public static DOMNode findNodeOrAttrAt(DOMDocument document, int offset) {
+		DOMNode node = document.findNodeAt(offset);
+		if (node != null) {
+			DOMAttr attr = findAttrAt(node, offset);
+			if (attr != null) {
+				return attr;
+			}
+		}
+		return node;
 	}
 
 	/**

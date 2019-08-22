@@ -17,6 +17,7 @@ import org.eclipse.lsp4xml.dom.DOMElement;
 import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.dom.LineIndentInfo;
 import org.eclipse.lsp4xml.services.extensions.IPositionRequest;
+import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 
 /**
  * Abstract class for position request.
@@ -26,15 +27,18 @@ abstract class AbstractPositionRequest implements IPositionRequest {
 
 	private final DOMDocument xmlDocument;
 	private final Position position;
+	private final XMLExtensionsRegistry extensionsRegistry;
 	private final int offset;
 
 	private String currentAttributeName;
 	private final DOMNode node;
 	private LineIndentInfo indentInfo;
 
-	public AbstractPositionRequest(DOMDocument xmlDocument, Position position) throws BadLocationException {
+	public AbstractPositionRequest(DOMDocument xmlDocument, Position position, XMLExtensionsRegistry extensionsRegistry)
+			throws BadLocationException {
 		this.xmlDocument = xmlDocument;
 		this.position = position;
+		this.extensionsRegistry = extensionsRegistry;
 		offset = xmlDocument.offsetAt(position);
 		this.node = findNodeAt(xmlDocument, offset);
 		if (node == null) {
@@ -42,7 +46,9 @@ abstract class AbstractPositionRequest implements IPositionRequest {
 		}
 	}
 
-	protected abstract DOMNode findNodeAt(DOMDocument xmlDocument, int offset);
+	protected DOMNode findNodeAt(DOMDocument document, int offset) {
+		return DOMNode.findNodeOrAttrAt(document, offset);
+	}
 
 	@Override
 	public DOMNode getNode() {
@@ -110,4 +116,10 @@ abstract class AbstractPositionRequest implements IPositionRequest {
 		}
 		return indentInfo;
 	}
+
+	@Override
+	public <T> T getComponent(Class clazz) {
+		return extensionsRegistry.getComponent(clazz);
+	}
+
 }
