@@ -11,8 +11,6 @@
 package org.eclipse.lsp4xml.extensions.contentmodel.model;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4xml.dom.DOMElement;
@@ -72,27 +70,4 @@ public interface CMDocument {
 	 * @return true if the content model document is dirty and false otherwise.
 	 */
 	boolean isDirty();
-
-	/**
-	 * Returns the all elements declaration of the model.
-	 * 
-	 * @return the all elements declaration of the model.
-	 */
-	default Collection<CMElementDeclaration> getAllElements() {
-		Set<CMElementDeclaration> all = new HashSet<>();
-		for (CMElementDeclaration element : this.getElements()) {
-			fillElements(element, all);
-		}
-		return all;
-	}
-
-	default void fillElements(CMElementDeclaration element, Set<CMElementDeclaration> all) {
-		if (!all.add(element)) {
-			return;
-		}
-		for (CMElementDeclaration child : element.getElements()) {
-			fillElements(child, all);
-		}
-	}
-
 }

@@ -44,6 +44,7 @@ import org.apache.xerces.xs.XSNamespaceItemList;
 import org.apache.xerces.xs.XSObject;
 import org.apache.xerces.xs.XSObjectList;
 import org.apache.xerces.xs.XSSimpleTypeDefinition;
+import org.apache.xerces.xs.XSTypeDefinition;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4xml.dom.DOMAttr;
 import org.eclipse.lsp4xml.dom.DOMDocument;
@@ -333,7 +334,10 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 	 *         null otherwise.
 	 */
 	SchemaGrammar getOwnerSchemaGrammar(XSElementDeclaration elementDeclaration) {
-		XSComplexTypeDefinition enclosingType = elementDeclaration.getEnclosingCTDefinition();
+		XSTypeDefinition enclosingType = elementDeclaration.getEnclosingCTDefinition();
+		if (enclosingType == null && elementDeclaration.getScope() == XSConstants.SCOPE_ABSENT) {
+			enclosingType = elementDeclaration.getTypeDefinition();
+		}
 		// 1) when XSD element declaration has namespace, it is bound with the grammar.
 		XSNamespaceItem namespaceItem = enclosingType != null ? enclosingType.getNamespaceItem()
 				: elementDeclaration.getNamespaceItem();
@@ -358,7 +362,6 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 
 		// 2.2) XSD local element, get the parent xs:complexType of the XSD element and
 		// loop for each xs:complexType of the SchemaGrammar
-
 		if (enclosingType == null) {
 			return null;
 		}
