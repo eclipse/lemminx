@@ -28,17 +28,14 @@ class HoverRequest extends AbstractPositionRequest implements IHoverRequest {
 
 	private final XMLHoverSettings settings;
 
-	private final XMLExtensionsRegistry extensionsRegistry;
-
 	private Range tagRange;
 
 	private boolean open;
 
 	public HoverRequest(DOMDocument xmlDocument, Position position, XMLHoverSettings settings,
 			XMLExtensionsRegistry extensionsRegistry) throws BadLocationException {
-		super(xmlDocument, position);
+		super(xmlDocument, position, extensionsRegistry);
 		this.settings = settings;
-		this.extensionsRegistry = extensionsRegistry;
 	}
 
 	@Override
@@ -69,11 +66,6 @@ class HoverRequest extends AbstractPositionRequest implements IHoverRequest {
 
 	public void setOpen(boolean open) {
 		this.open = open;
-	}
-
-	@Override
-	public <T> T getComponent(Class clazz) {
-		return extensionsRegistry.getComponent(clazz);
 	}
 
 	@Override
