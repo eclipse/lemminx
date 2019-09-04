@@ -12,6 +12,7 @@ package org.eclipse.lsp4xml.extensions.contentmodel.participants.diagnostics;
 import org.apache.xerces.impl.dtd.XMLDTDValidator;
 import org.apache.xerces.parsers.XIncludeAwareParserConfiguration;
 import org.apache.xerces.xni.XNIException;
+import org.apache.xerces.xni.grammars.XMLGrammarPool;
 import org.apache.xerces.xni.parser.XMLComponentManager;
 import org.apache.xerces.xni.parser.XMLConfigurationException;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLValidationSettings;
@@ -21,6 +22,10 @@ import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLValidationSetting
  * 
  * <ul>
  * <li>disable only DTD validation if required</li>
+ * <li>disable doctype declaration according validation settings</li>
+ * <li>disable external entities according validation settings</li>
+ * <li>manage a custom grammar pool to retrieve compiled XML Schema/DTD from a
+ * given XML file path</li>
  * </ul>
  *
  */
@@ -28,7 +33,9 @@ class LSPXMLParserConfiguration extends XIncludeAwareParserConfiguration {
 
 	private final boolean disableDTDValidation;
 
-	public LSPXMLParserConfiguration(boolean disableDTDValidation, XMLValidationSettings validationSettings) {
+	public LSPXMLParserConfiguration(XMLGrammarPool grammarPool, boolean disableDTDValidation,
+			XMLValidationSettings validationSettings) {
+		super(null, grammarPool);
 		this.disableDTDValidation = disableDTDValidation;
 		// Disable DOCTYPE declaration if settings is set to true.
 		boolean disallowDocTypeDecl = validationSettings != null ? validationSettings.isDisallowDocTypeDecl() : false;

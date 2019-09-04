@@ -10,15 +10,23 @@
 package org.eclipse.lsp4xml.extensions.xsd.utils;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.Vector;
 import java.util.function.BiConsumer;
 
+import org.apache.xerces.impl.xs.SchemaGrammar;
+import org.apache.xerces.xs.StringList;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.dom.DOMAttr;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMElement;
 import org.eclipse.lsp4xml.dom.DOMNode;
+import org.eclipse.lsp4xml.extensions.contentmodel.model.FilesChangedTracker;
 import org.eclipse.lsp4xml.utils.StringUtils;
+import org.eclipse.lsp4xml.utils.URIUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -345,4 +353,46 @@ public class XSDUtils {
 	public static boolean isXSAttribute(DOMElement element) {
 		return "attribute".equals(element.getLocalName());
 	}
+
+	public static FilesChangedTracker createFilesChangedTracker(SchemaGrammar grammar) {
+		return createFilesChangedTracker(Collections.singleton(grammar));
+	}
+
+	public static FilesChangedTracker createFilesChangedTracker(Set<SchemaGrammar> grammars) {
+		FilesChangedTracker tracker = new FilesChangedTracker();
+		Set<SchemaGrammar> trackedGrammars = new HashSet<>();
+		Set<String> trackedURIs = new HashSet<>();
+		for (SchemaGrammar grammar : grammars) {
+			updateTracker(grammar, trackedGrammars, trackedURIs, tracker);
+		}
+		return tracker;
+	}
+
+	private static void updateTracker(SchemaGrammar grammar, Set<SchemaGrammar> trackedGrammars,
+			Set<String> trackedURIs, FilesChangedTracker tracker) {
+		if (grammar == null || trackedGrammars.contains(grammar)) {
+			return;
+		}
+		trackedGrammars.add(grammar);
+		// Loop for all XML Schema (root + included) to track it
+		StringList locations = grammar.getDocumentLocations();
+		for (int i = 0; i < locations.getLength(); i++) {
+			String location = locations.item(i);
+			if (!trackedURIs.contains(location)) {
+				trackedURIs.add(location);
+			}
+			if (location != null && URIUtils.isFileResource(location)) {
+				// The schema is a file, track when file changed
+				tracker.addFileURI(location);
+			}
+		}
+		// Track the imported grammars
+		Vector importedGrammars = grammar.getImportedGrammars();
+		if (importedGrammars != null) {
+			for (Object importedGrammar : importedGrammars) {
+				updateTracker((SchemaGrammar) importedGrammar, trackedGrammars, trackedURIs, tracker);
+			}
+		}
+	}
+
 }

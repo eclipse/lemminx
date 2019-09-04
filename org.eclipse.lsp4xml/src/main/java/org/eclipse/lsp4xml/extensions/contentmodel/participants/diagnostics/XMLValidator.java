@@ -23,6 +23,7 @@ import java.util.logging.Logger;
 import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.parsers.SAXParser;
 import org.apache.xerces.xni.XNIException;
+import org.apache.xerces.xni.grammars.XMLGrammarPool;
 import org.apache.xerces.xni.parser.XMLEntityResolver;
 import org.apache.xerces.xni.parser.XMLInputSource;
 import org.apache.xerces.xni.parser.XMLParserConfiguration;
@@ -58,12 +59,13 @@ public class XMLValidator {
 	private static final String DTD_NOT_FOUND = "Cannot find DTD ''{0}''.\nCreate the DTD file or configure an XML catalog for this DTD.";
 
 	public static void doDiagnostics(DOMDocument document, XMLEntityResolver entityResolver,
-			List<Diagnostic> diagnostics, ContentModelSettings contentModelSettings, CancelChecker monitor) {
+			List<Diagnostic> diagnostics, ContentModelSettings contentModelSettings, XMLGrammarPool grammarPool,
+			CancelChecker monitor) {
 		try {
 			XMLValidationSettings validationSettings = contentModelSettings != null
 					? contentModelSettings.getValidation()
 					: null;
-			LSPXMLParserConfiguration configuration = new LSPXMLParserConfiguration(
+			LSPXMLParserConfiguration configuration = new LSPXMLParserConfiguration(grammarPool,
 					isDisableOnlyDTDValidation(document), validationSettings);
 
 			if (entityResolver != null) {

@@ -93,6 +93,7 @@ public class XMLExternalTest extends BaseFileTempTest  {
 		Thread.sleep(threadSleepMs);
 
 		Assert.assertEquals(2, actualDiagnostics.size());
+		Assert.assertFalse(actualDiagnostics.get(1).getDiagnostics().isEmpty());
 		Assert.assertEquals("MSG_ELEMENT_NOT_DECLARED", actualDiagnostics.get(1).getDiagnostics().get(0).getCode());
 	}
 

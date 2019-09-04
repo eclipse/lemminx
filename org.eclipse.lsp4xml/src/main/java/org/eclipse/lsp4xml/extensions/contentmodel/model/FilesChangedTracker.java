@@ -38,10 +38,12 @@ public class FilesChangedTracker {
 
 		public FileChangedTracker(Path file) {
 			this.file = file;
-			try {
-				lastModified = Files.getLastModifiedTime(file);
-			} catch (IOException e) {
-				LOGGER.log(Level.SEVERE, "Get last modified time failed", e);
+			if (Files.exists(file)) {
+				try {
+					lastModified = Files.getLastModifiedTime(file);
+				} catch (IOException e) {
+					LOGGER.log(Level.SEVERE, "Get last modified time failed", e);
+				}
 			}
 		}
 

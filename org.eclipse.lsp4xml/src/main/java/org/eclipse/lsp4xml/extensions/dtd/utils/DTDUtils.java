@@ -10,10 +10,13 @@
 package org.eclipse.lsp4xml.extensions.dtd.utils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import org.apache.xerces.impl.dtd.DTDGrammar;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4xml.dom.DOMDocumentType;
 import org.eclipse.lsp4xml.dom.DOMNode;
@@ -21,6 +24,8 @@ import org.eclipse.lsp4xml.dom.DTDAttlistDecl;
 import org.eclipse.lsp4xml.dom.DTDDeclNode;
 import org.eclipse.lsp4xml.dom.DTDDeclParameter;
 import org.eclipse.lsp4xml.dom.DTDElementDecl;
+import org.eclipse.lsp4xml.extensions.contentmodel.model.FilesChangedTracker;
+import org.eclipse.lsp4xml.utils.URIUtils;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -181,4 +186,28 @@ public class DTDUtils {
 		return elementDecl.getNameParameter() != null;
 	}
 
+	public static FilesChangedTracker createFilesChangedTracker(DTDGrammar grammar) {
+		FilesChangedTracker tracker = new FilesChangedTracker();
+		Set<DTDGrammar> trackedGrammars = new HashSet<>();
+		updateTracker(grammar, trackedGrammars, tracker);
+		return tracker;
+	}
+
+	private static void updateTracker(DTDGrammar grammar, Set<DTDGrammar> trackedGrammars,
+			FilesChangedTracker tracker) {
+		if (grammar == null || trackedGrammars.contains(grammar)) {
+			return;
+		}
+		trackedGrammars.add(grammar);
+		// Track the grammar
+		String dtdURI = getDTDURI(grammar);
+		if (dtdURI != null && URIUtils.isFileResource(dtdURI)) {
+			// The DTD is a file, track when file changed
+			tracker.addFileURI(dtdURI);
+		}
+	}
+
+	private static String getDTDURI(DTDGrammar grammar) {
+		return grammar.getGrammarDescription().getExpandedSystemId();
+	}
 }

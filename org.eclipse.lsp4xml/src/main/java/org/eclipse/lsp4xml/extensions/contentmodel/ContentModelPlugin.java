@@ -153,4 +153,9 @@ public class ContentModelPlugin implements IXMLExtension {
 	public ContentModelSettings getContentModelSettings() {
 		return cmSettings;
 	}
+	
+	public ContentModelManager getContentModelManager() {
+		return contentModelManager;
+	}
+	
 }
