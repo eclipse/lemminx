@@ -17,8 +17,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.xerces.xni.grammars.XMLGrammarPool;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMElement;
+import org.eclipse.lsp4xml.extensions.contentmodel.participants.diagnostics.LSPXMLGrammarPool;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLFileAssociation;
 import org.eclipse.lsp4xml.extensions.contentmodel.uriresolver.XMLCacheResolverExtension;
 import org.eclipse.lsp4xml.extensions.contentmodel.uriresolver.XMLCatalogResolverExtension;
@@ -42,6 +44,7 @@ public class ContentModelManager {
 	private final XMLCacheResolverExtension cacheResolverExtension;
 	private final XMLCatalogResolverExtension catalogResolverExtension;
 	private final XMLFileAssociationResolverExtension fileAssociationResolver;
+	private final XMLGrammarPool grammarPool;
 
 	public ContentModelManager(URIResolverExtensionManager resolverManager) {
 		this.resolverManager = resolverManager;
@@ -53,6 +56,7 @@ public class ContentModelManager {
 		resolverManager.registerResolver(catalogResolverExtension);
 		cacheResolverExtension = new XMLCacheResolverExtension();
 		resolverManager.registerResolver(cacheResolverExtension);
+		grammarPool = new LSPXMLGrammarPool();
 		// Use cache by default
 		setUseCache(true);
 	}
@@ -180,7 +184,7 @@ public class ContentModelManager {
 			cmDocumentCache.put(key, cmDocument);
 		}
 	}
-	
+
 	public CMElementDeclaration findInternalCMElement(DOMElement element) throws Exception {
 		return findInternalCMElement(element, element.getNamespaceURI());
 	}
@@ -273,6 +277,9 @@ public class ContentModelManager {
 
 	public void setUseCache(boolean useCache) {
 		cacheResolverExtension.setUseCache(useCache);
+		if (!useCache) {
+			grammarPool.clear();
+		}
 	}
 
 	public void registerModelProvider(ContentModelProvider modelProvider) {
@@ -281,6 +288,10 @@ public class ContentModelManager {
 
 	public void unregisterModelProvider(ContentModelProvider modelProvider) {
 		modelProviders.remove(modelProvider);
+	}
+
+	public XMLGrammarPool getGrammarPool() {
+		return cacheResolverExtension.isUseCache() ? grammarPool : null;
 	}
 
 }
