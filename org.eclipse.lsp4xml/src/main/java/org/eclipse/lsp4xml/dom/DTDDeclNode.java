@@ -62,6 +62,19 @@ public class DTDDeclNode extends DOMNode {
 		return DOMNode.isIncluded(name, offset);
 	}
 
+	public boolean isInBeforeNameParameter(int offset) {
+		DTDDeclParameter name = getNameParameter();
+		return name == null || name.getStart() >= offset;
+	}
+
+	public boolean isInAfterNameParameter(int offset) {
+		DTDDeclParameter name = getNameParameter();
+		if (name == null) {
+			return false;
+		}
+		return name.getEnd() <= offset;
+	}
+
 	public DOMDocumentType getOwnerDocType() {
 		Node node = parent;
 		while (node != null) {

@@ -87,9 +87,9 @@ public class DTDElementDecl extends DTDDeclNode {
 	 * @return the parameter (start/end offset) at the given offset and null
 	 *         otherwise.
 	 */
-	public DTDDeclParameter getParameterAt(int offset) {
+	public DTDDeclParameter getParameterAt(int offset, boolean strict) {
 		// Check if offset is in the <!ELEMENT nam|e
-		if (isInNameParameter(offset)) {
+		if (!isInAfterNameParameter(offset)) {
 			return null;
 		}
 		// We are after the <!ELEMENT name, search the parameter
@@ -104,14 +104,18 @@ public class DTDElementDecl extends DTDDeclNode {
 		int paramEnd = findEndWord(text, offset, end);
 		if (paramStart == -1 || paramEnd == -1) {
 			// no word
-			return null;
+			if (strict) {
+				return null;
+			}
+			paramStart = paramStart != -1 ? paramStart : offset;
+			paramEnd = paramEnd != -1 ? paramEnd : offset;
 		}
 		return new DTDDeclParameter(this, paramStart, paramEnd);
 	}
 
 	@Override
 	public DTDDeclParameter getReferencedElementNameAt(int offset) {
-		return getParameterAt(offset);
+		return getParameterAt(offset, true);
 	}
 
 	/**

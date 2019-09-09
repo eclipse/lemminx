@@ -49,7 +49,7 @@ public class DTDHighlightingParticipant implements IHighlightingParticipant {
 			} else {
 				// <!ELEMENT name (chi|ld --> here cursor is in the child element
 				// we must find only the <!ELEMENT child
-				parameter = elementDecl.getParameterAt(offset);
+				parameter = elementDecl.getParameterAt(offset, true);
 			}
 		} else if (node.isDTDAttListDecl()) {
 			DTDAttlistDecl attlistDecl = (DTDAttlistDecl) node;
