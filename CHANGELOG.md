@@ -1,5 +1,26 @@
 # Change Log
 
+## [0.9.0](https://github.com/angelozerr/lsp4xml/milestone/10?closed=1) (September 10, 2019)
+
+### Enhancements
+
+ * Add support for `textDocument/documentHighlight` for DTD. See [#545](https://github.com/angelozerr/lsp4xml/issues/545)
+ * Ability to `rename` a `complexType/@name` inside XML Schema. See [#454](https://github.com/angelozerr/lsp4xml/issues/454)
+ * Add support for `textDocument/codeLens` for XML DTD. See [#252](https://github.com/angelozerr/lsp4xml/issues/252)
+ * Add support for `textDocument/references` for DTD. See [#234](https://github.com/angelozerr/lsp4xml/issues/234)
+ * Add support for `textDocument/definition` for DTD. See [#233](https://github.com/angelozerr/lsp4xml/issues/233)
+
+### Bug Fixes
+
+ * Cache completion based on XML Schema/DTD. See [#547](https://github.com/angelozerr/lsp4xml/issues/547)
+ * Fix error range for `cvc-datatype-valid-1-2-1`. See [#323](https://github.com/angelozerr/lsp4xml/issues/323)
+ * Support completion with `xs:any`. See [#177](https://github.com/angelozerr/lsp4xml/pull/563)
+ * Fixes issue with error messages not showing. See [#557](https://github.com/angelozerr/lsp4xml/pull/557)
+ * Validation Error Message Fails on Certain Cases. See [#553](https://github.com/angelozerr/lsp4xml/issues/553)
+ * Error range for `RootElementTypeMustMatchDoctypedecl`. See [#537](https://github.com/angelozerr/lsp4xml/issues/537)
+
+# Change Log
+
 ## [0.8.0](https://github.com/angelozerr/lsp4xml/milestone/9?closed=1) (July 23, 2019)
 
 ### Enhancements
