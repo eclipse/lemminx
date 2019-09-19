@@ -137,6 +137,30 @@ class XMLFormatter {
 			}
 			return ((DOMElement) fullNode).isInStartTag(fullDocOffset);
 		}
+// ATSEC
+		private boolean putTagInline(String tag) {
+			return (tag.equals("b")||
+			tag.equals("bibref")||
+			tag.equals("color")||
+			tag.equals("em")||
+			tag.equals("figure")||
+			tag.equals("i")||
+			tag.equals("it")||
+			tag.equals("link")||
+			tag.equals("mark")||
+			tag.equals("note")||
+			tag.equals("s")||
+			tag.equals("sub")||
+			tag.equals("sup")||
+			tag.equals("tt")||
+			tag.equals("u")||
+			tag.equals("xref")||
+			tag.equals("show-number")||
+			tag.equals("show-page")||
+			tag.equals("show-id")||
+			tag.equals("show-label")||
+			tag.equals("show-title"));
+		}
 
 		private void adjustOffsetToStartTag() throws BadLocationException {
 			int tagContentOffset = this.rangeDomDocument.getChild(0).getStart();
@@ -261,23 +285,59 @@ class XMLFormatter {
 				if (node.getOwnerDocument().isDTD()) {
 					doLineFeed = false;
 				} else {
-					doLineFeed = !(node.isComment() && ((DOMComment) node).isCommentSameLineEndTag())
-							&& (!node.isText() || (!((DOMText) node).isWhitespace() && ((DOMText) node).hasSiblings()));
+// ATSEC
+					doLineFeed =
+						!(node.isComment() &&
+						((DOMComment) node).isCommentSameLineEndTag())
+						&& (
+						!node.isText() ||
+						(
+						!((DOMText) node).isWhitespace() &&
+						((DOMText) node).hasSiblings()
+						)
+						);
+				}
+				if (node.isElement()) {
+					DOMElement element = (DOMElement) node;
+					String tag = element.getTagName();
+					if (putTagInline(tag)) {
+						doLineFeed = false;
+						//this.xmlBuilder.addContent("[trace-4]");
+						if (!node.isText()) {
+							//this.xmlBuilder.appendSpace();
+						}
+					}
 				}
 
 				if (this.indentLevel > 0 && doLineFeed) {
 					// add new line + indent
 					if (!node.isChildOfOwnerDocument() || node.getPreviousNonTextSibling() != null) {
-						this.xmlBuilder.linefeed();
+						if (node.isElement()) {
+							DOMElement element = (DOMElement) node;
+							String tag = element.getTagName();
+							if (!putTagInline(tag)) {
+								//this.xmlBuilder.addContent("[trace-1]");
+								this.xmlBuilder.linefeed();
+							}
+						} else {
+							if (!node.isText()) {
+								//this.xmlBuilder.addContent("[trace-2]");
+								this.xmlBuilder.linefeed();
+							}
+						}
 					}
 
 					if (!startTagExistsInRangeDocument(node) && startTagExistsInFullDocument(node)) {
 						DOMNode startNode = getFullDocElemFromRangeElem((DOMElement) node);
 						int currentIndentLevel = getNodeIndentLevel(startNode);
+						//this.xmlBuilder.addContent("[trace-5]");
 						this.xmlBuilder.indent(currentIndentLevel);
 						this.indentLevel = currentIndentLevel;
 					} else {
-						this.xmlBuilder.indent(this.indentLevel);
+						if (!node.isText()) {
+							//this.xmlBuilder.addContent("[trace-3]");
+							this.xmlBuilder.indent(this.indentLevel);
+						}
 					}
 				}
 				// generate start element
@@ -323,19 +383,25 @@ class XMLFormatter {
 						}
 						if (element.hasEndTag()) {
 							if (hasElements) {
-								this.xmlBuilder.linefeed();
-								this.xmlBuilder.indent(this.indentLevel);
+								//this.xmlBuilder.addContent("[trace-8]");
+								if (!putTagInline(tag)) {
+									this.xmlBuilder.linefeed();
+									this.xmlBuilder.indent(this.indentLevel);
+								}
 							}
 							// end tag element is done, only if the element is closed
 							// the format, doesn't fix the close tag
 							if (element.hasEndTag() && element.getEndTagOpenOffset() <= this.endOffset) {
+								//this.xmlBuilder.addContent("[trace-6b]");
 								this.xmlBuilder.endElement(tag, element.isEndTagClosed());
 							} else {
+								//this.xmlBuilder.addContent("[trace-6a]");
 								this.xmlBuilder.selfCloseElement();
 							}
+							//this.xmlBuilder.appendSpace();
 						} else if (element.isSelfClosed()) {
 							this.xmlBuilder.selfCloseElement();
-
+							//this.xmlBuilder.addContent("[trace-7]");
 						}
 					}
 					return;
@@ -366,7 +432,8 @@ class XMLFormatter {
 
 					// Generate content
 					String content = textNode.getData();
-					xmlBuilder.addContent(content, textNode.isWhitespace(), textNode.hasSiblings(),
+                                        //this.xmlBuilder.addContent(content);
+					this.xmlBuilder.addContent(content, textNode.isWhitespace(), textNode.hasSiblings(),
 							textNode.getDelimiter(), this.indentLevel);
 					return;
 				} else if (node.isDoctype()) {

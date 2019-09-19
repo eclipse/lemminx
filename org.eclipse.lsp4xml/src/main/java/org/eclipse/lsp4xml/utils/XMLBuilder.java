@@ -11,6 +11,7 @@
 package org.eclipse.lsp4xml.utils;
 
 import static org.eclipse.lsp4xml.utils.StringUtils.normalizeSpace;
+import static org.eclipse.lsp4xml.utils.StringUtils.normalizeSpace2;
 
 import org.eclipse.lsp4xml.dom.DOMAttr;
 import org.eclipse.lsp4xml.dom.DOMComment;
@@ -226,11 +227,16 @@ public class XMLBuilder {
 	public XMLBuilder addContent(String text, Boolean isWhitespaceContent, Boolean hasSiblings, String delimiter, int level) {
 		if(!isWhitespaceContent) {
 			if(isJoinContentLines()) {
-				text = StringUtils.normalizeSpace(text);
-			}
-			else if(hasSiblings) {
+// ATSEC
+//				xml.append("A:");
+				text = StringUtils.normalizeSpace2(text);
+			} else if(hasSiblings) {
+//				xml.append("B:");
 				text = text.trim();
-			}
+//			} else {
+//				xml.append("C:");
+                        }
+//			xml.append("["+text+"]");
 			xml.append(text);
 		}
 		else if (!hasSiblings && isPreserveEmptyContent()) {
@@ -253,7 +259,8 @@ public class XMLBuilder {
 		for (int i = 0; i < level; i++) {
 			if (isInsertSpaces()) {
 				for (int j = 0; j < getTabSize(); j++) {
-					xml.append(" ");
+  					xml.append(" ");
+//					xml.append("x");
 				}
 			} else {
 				xml.append("\t");
@@ -314,7 +321,7 @@ public class XMLBuilder {
 	public XMLBuilder addContentComment(String content) {
 		if (isJoinCommentLines()) {
 			xml.append(" ");
-			xml.append(normalizeSpace(content));
+			xml.append(normalizeSpace2(content));
 			xml.append(" ");
 		} else {
 			xml.append(content);

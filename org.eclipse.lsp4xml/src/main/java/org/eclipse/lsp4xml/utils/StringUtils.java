@@ -37,6 +37,10 @@ public class StringUtils {
 		return c == '\'' || c == '"';
 	}
 
+	public static boolean isTabOrSpace(char c) {
+		return c == '\t' || c == ' ';
+	}
+
 	public static boolean isWhitespace(String value) {
 		if (value == null) {
 			return false;
@@ -53,6 +57,7 @@ public class StringUtils {
 		}
 		return true;
 	}
+
 
 	/**
 	 * Normalizes the whitespace characters of a given string and applies it to the
@@ -76,6 +81,26 @@ public class StringUtils {
 			space = "";
 			b.append(c);
 		}
+        }
+
+// ATSEC
+        public static void normalizeSpace2(String str, StringBuilder b) {
+                String space = "";
+                char c;
+                int i = 0, len = str.length();
+
+                while (i < len) {
+                    c = str.charAt(i);
+                    if (c != '\n') {
+                       if (isTabOrSpace(c)) {
+                           for (int j = i + 1; j < len && isTabOrSpace(str.charAt(j)); ++j) {
+                               i = j;
+                           }
+                       }
+                       b.append(c);
+                    }
+                    i++;
+                }
 	}
 
 	/**
@@ -89,6 +114,14 @@ public class StringUtils {
 		normalizeSpace(str, b);
 		return b.toString();
 	}
+
+// ATSEC
+	public static String normalizeSpace2(String str) {
+		StringBuilder b = new StringBuilder(str.length());
+		normalizeSpace2(str, b);
+		return b.toString();
+	}
+
 
 	/**
 	 * Returns the start whitespaces of the given line text.
