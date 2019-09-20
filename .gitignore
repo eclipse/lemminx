@@ -35,3 +35,4 @@ target/
 
 **/adhoctest/
 lsp4xml.code-workspace
+.vscode/**
