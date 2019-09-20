@@ -58,7 +58,6 @@ public class StringUtils {
 		return true;
 	}
 
-
 	/**
 	 * Normalizes the whitespace characters of a given string and applies it to the
 	 * given string builder.
@@ -81,26 +80,25 @@ public class StringUtils {
 			space = "";
 			b.append(c);
 		}
-        }
+    }
 
 // ATSEC
-        public static void normalizeSpace2(String str, StringBuilder b) {
-                String space = "";
-                char c;
-                int i = 0, len = str.length();
+    public static void normalizeSpace2(String str, StringBuilder b) {
+		char c;
+		int i = 0, len = str.length();
 
-                while (i < len) {
-                    c = str.charAt(i);
-                    if (c != '\n') {
-                       if (isTabOrSpace(c)) {
-                           for (int j = i + 1; j < len && isTabOrSpace(str.charAt(j)); ++j) {
-                               i = j;
-                           }
-                       }
-                       b.append(c);
-                    }
-                    i++;
-                }
+		while (i < len) {
+			c = str.charAt(i);
+			if (c != '\n') {
+				if (isTabOrSpace(c)) {
+					for (int j = i + 1; j < len && isTabOrSpace(str.charAt(j)); ++j) {
+						i = j;
+					}
+				}
+				b.append(c);
+			}
+			i++;
+		}
 	}
 
 	/**
