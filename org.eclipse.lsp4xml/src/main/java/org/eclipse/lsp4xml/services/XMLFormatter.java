@@ -644,3 +644,9 @@ class XMLFormatter {
 		return null;
 	}
 }
+
+// Local Variables:
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:

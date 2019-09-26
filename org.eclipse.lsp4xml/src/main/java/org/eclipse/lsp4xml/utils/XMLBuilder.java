@@ -23,7 +23,7 @@ import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
  *
  */
 public class XMLBuilder {
-
+	
 	private final XMLFormattingOptions formattingOptions;
 	private final String lineDelimiter;
 	private final StringBuilder xml;
@@ -409,3 +409,9 @@ public class XMLBuilder {
 	}
 
 }
+
+// Local Variables:
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:
