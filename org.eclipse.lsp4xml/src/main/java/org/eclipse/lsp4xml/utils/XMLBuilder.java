@@ -226,34 +226,36 @@ public class XMLBuilder {
 
 	public XMLBuilder addContent(String text, Boolean isWhitespaceContent, Boolean hasSiblings, String delimiter, int level) {
             if (isWhitespaceContent) {
-                // whoah: terriable, but this one seems to preserve single space.
-                if (text.length() == 1) {
-                    xml.append(text);
-                }
-            } else if (!isWhitespaceContent) {
-                if(isJoinContentLines()) {
-                    // ATSEC
-                    // xml.append("A:");
-                    text = StringUtils.normalizeSpace2(text);
-                } else if(hasSiblings) {
-                    // xml.append("B:");
-                    text = text.trim();
-                    //	} else {
-                    // 	xml.append("C:");
-                }
-                // xml.append("["+text+"]");
-                xml.append(text);
+		    // whoah: terriable, but this one seems to preserve single space.
+		    if (text.length() == 1) {
+			    xml.append(text);
+		    }
+            }
+	    // "compatible" if() follow, changes are based on basically no understanding what's really going on here.
+	    if (!isWhitespaceContent) {
+		    if(isJoinContentLines()) {
+			    // ATSEC
+			    // xml.append("A:");
+			    text = StringUtils.normalizeSpace2(text);
+		    } else if(hasSiblings) {
+			    // xml.append("B:");
+			    text = text.trim();
+			    //	} else {
+			    // 	xml.append("C:");
+		    }
+		    // xml.append("["+text+"]");
+		    xml.append(text);
             } else if (!hasSiblings && isPreserveEmptyContent()) {
-                xml.append(text);
+		    xml.append(text);
             } else if(hasSiblings) {
-                int preservedNewLines = getPreservedNewlines();
-                if(preservedNewLines > 0) {
-                    int newLineCount = StringUtils.getNumberOfNewLines(text, isWhitespaceContent, delimiter, preservedNewLines);
-                    for (int i = 0; i < newLineCount - 1; i++) { // - 1 because the node after will insert a delimiter
-                        xml.append(delimiter);
-                    }
-                }
-			
+		    int preservedNewLines = getPreservedNewlines();
+		    if(preservedNewLines > 0) {
+			    int newLineCount = StringUtils.getNumberOfNewLines(text, isWhitespaceContent, delimiter, preservedNewLines);
+			    for (int i = 0; i < newLineCount - 1; i++) { // - 1 because the node after will insert a delimiter
+				    xml.append(delimiter);
+			    }
+		    }
+		    
             }
             return this;
 	}
