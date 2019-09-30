@@ -112,7 +112,7 @@ class XMLFormatter {
 				adjustOffsetToStartTag();
 				rangeText = fullText.substring(this.startOffset, this.endOffset);
 				this.rangeDomDocument = DOMParser.getInstance().parse(rangeText, this.textDocument.getUri(), null, false);
-			}	
+			}
 
 			this.xmlBuilder = new XMLBuilder(this.options, "", textDocument.lineDelimiter(startPosition.getLine()));
 		}
@@ -159,7 +159,8 @@ class XMLFormatter {
 			tag.equals("show-page")||
 			tag.equals("show-id")||
 			tag.equals("show-label")||
-			tag.equals("show-title"));
+			tag.equals("show-title")||
+			tag.equals("footnote"));
 		}
 
 		private void adjustOffsetToStartTag() throws BadLocationException {
@@ -241,7 +242,7 @@ class XMLFormatter {
 			int fullOffset = -1;
 
 			if (elemFromRangeDoc.hasStartTag()) {
-				fullOffset = getFullOffsetFromRangeOffset(elemFromRangeDoc.getStartTagOpenOffset()) + 1; 
+				fullOffset = getFullOffsetFromRangeOffset(elemFromRangeDoc.getStartTagOpenOffset()) + 1;
 				// +1 because offset must be here: <|root
 				// for DOMNode.findNodeAt() to find the correct element
 			} else if (elemFromRangeDoc.hasEndTag()) {
@@ -370,7 +371,7 @@ class XMLFormatter {
 						boolean hasElements = false;
 						if (node.hasChildNodes()) {
 							// element has body
-							
+
 							this.indentLevel++;
 							for (DOMNode child : node.getChildren()) {
 								boolean textElement = !child.isText();
