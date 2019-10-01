@@ -23,7 +23,7 @@ import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
  *
  */
 public class XMLBuilder {
-	
+
 	private final XMLFormattingOptions formattingOptions;
 	private final String lineDelimiter;
 	private final StringBuilder xml;
@@ -103,9 +103,9 @@ public class XMLBuilder {
 
 	/**
 	 * Used when only one attribute is being added to a node.
-	 * 
+	 *
 	 * It will not perform any linefeeds and only basic indentation.
-	 * 
+	 *
 	 * @param name attribute name
 	 * @param value attribute value
 	 * @return
@@ -113,7 +113,7 @@ public class XMLBuilder {
 	public XMLBuilder addSingleAttribute(String name, String value, boolean surroundWithQuotes) {
 		xml.append(" ");
 		addAttributeContents(name, true, value, surroundWithQuotes);
-		
+
 		return this;
 	}
 
@@ -130,9 +130,9 @@ public class XMLBuilder {
 
 	/**
 	 * Used when you are knowingly adding multiple attributes.
-	 * 
+	 *
 	 * It will do linefeeds and indentation.
-	 * 
+	 *
 	 * @param name
 	 * @param value
 	 * @param level
@@ -168,7 +168,7 @@ public class XMLBuilder {
 
 	/**
 	 * Builds the attribute {name, '=', and value}.
-	 * 
+	 *
 	 * Never puts quotes around unquoted values unless indicated to by 'surroundWithQuotes'
 	 */
 	private void addAttributeContents(String name, Boolean equalsSign, String originalValue, boolean surroundWithQuotes) {
@@ -180,7 +180,7 @@ public class XMLBuilder {
 		}
 		if(originalValue != null) {
 			String quote = formattingOptions.isQuotations(XMLFormattingOptions.DOUBLE_QUOTES_VALUE) ? "\"" : "'";
-			
+
 			if(DOMAttr.isQuoted(originalValue)) {
 				if(originalValue.charAt(0) == '\'' && formattingOptions.isQuotations(XMLFormattingOptions.DOUBLE_QUOTES_VALUE) ||
 				   originalValue.charAt(0) == '\"' && formattingOptions.isQuotations(XMLFormattingOptions.SINGLE_QUOTES_VALUE)) {
@@ -192,11 +192,11 @@ public class XMLBuilder {
 					}
 					xml.append(quote);
 					return;
-				} 
+				}
 				else {
 					xml.append(originalValue);
 					return;
-				}		
+				}
 			}
 			else if(surroundWithQuotes) {
 				xml.append(quote);
@@ -209,7 +209,7 @@ public class XMLBuilder {
 			else {
 				xml.append(originalValue);
 			}
-		}	
+		}
 	}
 
 	public XMLBuilder linefeed() {
@@ -228,6 +228,7 @@ public class XMLBuilder {
             if (isWhitespaceContent) {
 		    // whoah: terriable, but this one seems to preserve single space.
 		    if (text.length() == 1) {
+			    //xml.append("+");
 			    xml.append(text);
 		    }
             }
@@ -235,15 +236,15 @@ public class XMLBuilder {
 	    if (!isWhitespaceContent) {
 		    if(isJoinContentLines()) {
 			    // ATSEC
-			    // xml.append("A:");
+			    //xml.append("A:");
 			    text = StringUtils.normalizeSpace2(text);
 		    } else if(hasSiblings) {
-			    // xml.append("B:");
+			    //xml.append("B:");
 			    text = text.trim();
 			    //	} else {
 			    // 	xml.append("C:");
 		    }
-		    // xml.append("["+text+"]");
+		    //xml.append("-["+text+"]-");
 		    xml.append(text);
             } else if (!hasSiblings && isPreserveEmptyContent()) {
 		    xml.append(text);
@@ -252,10 +253,11 @@ public class XMLBuilder {
 		    if(preservedNewLines > 0) {
 			    int newLineCount = StringUtils.getNumberOfNewLines(text, isWhitespaceContent, delimiter, preservedNewLines);
 			    for (int i = 0; i < newLineCount - 1; i++) { // - 1 because the node after will insert a delimiter
+				    //xml.append("+");
 				    xml.append(delimiter);
 			    }
 		    }
-		    
+
             }
             return this;
 	}
@@ -265,10 +267,11 @@ public class XMLBuilder {
 			if (isInsertSpaces()) {
 				for (int j = 0; j < getTabSize(); j++) {
   					xml.append(" ");
-//					xml.append("x");
+					//xml.append("x");
 				}
 			} else {
 				xml.append("\t");
+				//xml.append("y");
 			}
 		}
 		return this;
@@ -335,7 +338,7 @@ public class XMLBuilder {
 	}
 
 	public XMLBuilder addDeclTagStart(DTDDeclNode tag) {
-		
+
 		xml.append("<!" + tag.getDeclType());
 		return this;
 	}

@@ -80,13 +80,13 @@ public class StringUtils {
 			space = "";
 			b.append(c);
 		}
-    }
+	}
 
-// ATSEC
-    public static void normalizeSpace2(String str, StringBuilder b) {
+	// ATSEC
+	public static void normalizeSpace2(String str, StringBuilder b) {
 		char c;
 		int i = 0, len = str.length();
-
+		
 		while (i < len) {
 			c = str.charAt(i);
 			if (c != '\n') {
@@ -113,7 +113,7 @@ public class StringUtils {
 		return b.toString();
 	}
 
-// ATSEC
+	// ATSEC
 	public static String normalizeSpace2(String str) {
 		StringBuilder b = new StringBuilder(str.length());
 		normalizeSpace2(str, b);
@@ -433,3 +433,9 @@ public class StringUtils {
 	}
 
 }
+
+// Local Variables:
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:

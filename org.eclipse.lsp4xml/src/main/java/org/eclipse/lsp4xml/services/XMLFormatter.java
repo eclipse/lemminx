@@ -112,7 +112,7 @@ class XMLFormatter {
 				adjustOffsetToStartTag();
 				rangeText = fullText.substring(this.startOffset, this.endOffset);
 				this.rangeDomDocument = DOMParser.getInstance().parse(rangeText, this.textDocument.getUri(), null, false);
-			}
+			}	
 
 			this.xmlBuilder = new XMLBuilder(this.options, "", textDocument.lineDelimiter(startPosition.getLine()));
 		}
@@ -159,8 +159,7 @@ class XMLFormatter {
 			tag.equals("show-page")||
 			tag.equals("show-id")||
 			tag.equals("show-label")||
-			tag.equals("show-title")||
-			tag.equals("footnote"));
+			tag.equals("show-title"));
 		}
 
 		private void adjustOffsetToStartTag() throws BadLocationException {
@@ -242,7 +241,7 @@ class XMLFormatter {
 			int fullOffset = -1;
 
 			if (elemFromRangeDoc.hasStartTag()) {
-				fullOffset = getFullOffsetFromRangeOffset(elemFromRangeDoc.getStartTagOpenOffset()) + 1;
+				fullOffset = getFullOffsetFromRangeOffset(elemFromRangeDoc.getStartTagOpenOffset()) + 1; 
 				// +1 because offset must be here: <|root
 				// for DOMNode.findNodeAt() to find the correct element
 			} else if (elemFromRangeDoc.hasEndTag()) {
@@ -286,17 +285,16 @@ class XMLFormatter {
 				if (node.getOwnerDocument().isDTD()) {
 					doLineFeed = false;
 				} else {
-// ATSEC
+					// ATSEC
 					doLineFeed =
-						!(node.isComment() &&
-						((DOMComment) node).isCommentSameLineEndTag())
+						!(node.isComment() && ((DOMComment) node).isCommentSameLineEndTag())
 						&& (
-						!node.isText() ||
-						(
-						!((DOMText) node).isWhitespace() &&
-						((DOMText) node).hasSiblings()
-						)
-						);
+						    !node.isText() ||
+						    (
+						     !((DOMText) node).isWhitespace() &&
+						     ((DOMText) node).hasSiblings()
+						     )
+						    );
 				}
 				if (node.isElement()) {
 					DOMElement element = (DOMElement) node;
@@ -371,8 +369,9 @@ class XMLFormatter {
 						boolean hasElements = false;
 						if (node.hasChildNodes()) {
 							// element has body
-
+							
 							this.indentLevel++;
+							//this.xmlBuilder.addContent("+>");
 							for (DOMNode child : node.getChildren()) {
 								boolean textElement = !child.isText();
 
@@ -381,8 +380,10 @@ class XMLFormatter {
 								format(child);
 							}
 							this.indentLevel--;
+							//this.xmlBuilder.addContent("<+");
 						}
 						if (element.hasEndTag()) {
+							//this.xmlBuilder.addContent("<E>");
 							if (hasElements) {
 								//this.xmlBuilder.addContent("[trace-8]");
 								if (!putTagInline(tag)) {
@@ -419,7 +420,11 @@ class XMLFormatter {
 					this.xmlBuilder.endComment();
 					if (this.indentLevel == 0) {
 						this.xmlBuilder.linefeed();
+					} else if (this.indentLevel > 0 && !comment.isCommentSameLineEndTag()) {
+						this.xmlBuilder.linefeed();
+						this.xmlBuilder.indent(this.indentLevel);
 					}
+
 				} else if (node.isProcessingInstruction()) {
 					addPIToXMLBuilder(node, this.xmlBuilder);
 					if (this.indentLevel == 0) {
@@ -433,7 +438,7 @@ class XMLFormatter {
 
 					// Generate content
 					String content = textNode.getData();
-                                        //this.xmlBuilder.addContent(content);
+                                        //this.xmlBuilder.addContent("["+content+"]");
 					this.xmlBuilder.addContent(content, textNode.isWhitespace(), textNode.hasSiblings(),
 							textNode.getDelimiter(), this.indentLevel);
 					return;
