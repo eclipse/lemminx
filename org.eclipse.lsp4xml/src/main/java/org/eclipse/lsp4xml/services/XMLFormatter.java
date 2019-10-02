@@ -137,29 +137,29 @@ class XMLFormatter {
 			}
 			return ((DOMElement) fullNode).isInStartTag(fullDocOffset);
 		}
-// ATSEC
+		// ATSEC
 		private boolean putTagInline(String tag) {
 			return (tag.equals("b")||
-			tag.equals("bibref")||
-			tag.equals("color")||
-			tag.equals("em")||
-			tag.equals("figure")||
-			tag.equals("i")||
-			tag.equals("it")||
-			tag.equals("link")||
-			tag.equals("mark")||
-			tag.equals("note")||
-			tag.equals("s")||
-			tag.equals("sub")||
-			tag.equals("sup")||
-			tag.equals("tt")||
-			tag.equals("u")||
-			tag.equals("xref")||
-			tag.equals("show-number")||
-			tag.equals("show-page")||
-			tag.equals("show-id")||
-			tag.equals("show-label")||
-			tag.equals("show-title"));
+				tag.equals("bibref")||
+				tag.equals("color")||
+				tag.equals("em")||
+				tag.equals("figure")||
+				tag.equals("i")||
+				tag.equals("it")||
+				tag.equals("link")||
+				tag.equals("mark")||
+				tag.equals("note")||
+				tag.equals("s")||
+				tag.equals("sub")||
+				tag.equals("sup")||
+				tag.equals("tt")||
+				tag.equals("u")||
+				tag.equals("xref")||
+				tag.equals("show-number")||
+				tag.equals("show-page")||
+				tag.equals("show-id")||
+				tag.equals("show-label")||
+				tag.equals("show-title"));
 		}
 
 		private void adjustOffsetToStartTag() throws BadLocationException {
@@ -286,6 +286,21 @@ class XMLFormatter {
 					doLineFeed = false;
 				} else {
 					// ATSEC
+					// if (node.isComment()) {
+					// 	this.xmlBuilder.addContent("+isComment+");
+					// 	if (((DOMComment) node).isCommentSameLineEndTag()) {
+					// 		this.xmlBuilder.addContent("+commentSameLine+");
+					// 	}
+					// }
+					// if (node.isText()) {
+					// 	this.xmlBuilder.addContent("+isText+");
+					// 	if (((DOMText) node).isWhitespace()) {
+					// 		this.xmlBuilder.addContent("+WS+");
+					// 	}
+					// 	if (((DOMText) node).hasSiblings()) {
+					// 		this.xmlBuilder.addContent("+SIBL+");
+					// 	}
+					// }
 					doLineFeed =
 						!(node.isComment() && ((DOMComment) node).isCommentSameLineEndTag())
 						&& (

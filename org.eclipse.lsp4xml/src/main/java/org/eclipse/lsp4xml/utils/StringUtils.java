@@ -86,7 +86,8 @@ public class StringUtils {
 	public static void normalizeSpace2(String str, StringBuilder b) {
 		char c;
 		int i = 0, len = str.length();
-		
+
+		//b.append("["+str+"]");
 		while (i < len) {
 			c = str.charAt(i);
 			if (c != '\n') {
@@ -99,6 +100,7 @@ public class StringUtils {
 			}
 			i++;
 		}
+		//b.append("!["+b+"]!");
 	}
 
 	/**
