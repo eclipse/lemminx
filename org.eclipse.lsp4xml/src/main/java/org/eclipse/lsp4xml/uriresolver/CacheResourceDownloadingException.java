@@ -24,10 +24,18 @@ public class CacheResourceDownloadingException extends RuntimeException {
 
 	private static final String RESOURCE_LOADING_MSG = "The resource ''{0}'' is downloading.";
 
+	private static final String RESOURCE_NOT_IN_DEPLOYED_PATH_MSG = "The resource ''{0}'' cannot be downloaded in the cache path.";
+	
 	private final String resourceURI;
 
 	private final CompletableFuture<Path> future;
-	
+
+	public CacheResourceDownloadingException(String resourceURI) {
+		super(MessageFormat.format(RESOURCE_NOT_IN_DEPLOYED_PATH_MSG, resourceURI));
+		this.resourceURI = resourceURI;
+		this.future = null;
+	}
+
 	public CacheResourceDownloadingException(String resourceURI, CompletableFuture<Path> future) {
 		super(MessageFormat.format(RESOURCE_LOADING_MSG, resourceURI));
 		this.resourceURI = resourceURI;
