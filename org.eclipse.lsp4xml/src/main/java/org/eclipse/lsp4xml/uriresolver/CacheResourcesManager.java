@@ -31,12 +31,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-
-
 import org.eclipse.lsp4xml.utils.FilesUtils;
 import org.eclipse.lsp4xml.utils.URIUtils;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 /**
  * Cache resources manager.
@@ -98,8 +97,10 @@ public class CacheResourcesManager {
 		if (Files.exists(resourceCachePath)) {
 			return resourceCachePath;
 		}
-
-		if(unavailableURICache.getIfPresent(resourceURI) != null) {
+		if (!FilesUtils.isIncludedInDeployedPath(resourceCachePath)) {
+			throw new CacheResourceDownloadingException(resourceURI);
+		}
+		if (unavailableURICache.getIfPresent(resourceURI) != null) {
 			LOGGER.info("Ignored unavailable schema URI: " + resourceURI + "\n");
 			return null;
 		}
@@ -161,7 +162,8 @@ public class CacheResourcesManager {
 				String error = "[" + rootCause.getClass().getTypeName() + "] " + rootCause.getMessage();
 				LOGGER.log(Level.SEVERE,
 						"Error while downloading " + resourceURI + " to " + resourceCachePath + " : " + error);
-				throw new CacheResourceDownloadedException("Error while downloading '" + resourceURI + "' to " + resourceCachePath + ".", e);
+				throw new CacheResourceDownloadedException(
+						"Error while downloading '" + resourceURI + "' to " + resourceCachePath + ".", e);
 			} finally {
 				synchronized (resourcesLoading) {
 					resourcesLoading.remove(resourceURI);

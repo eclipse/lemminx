@@ -16,15 +16,17 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
-
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 
 import org.eclipse.lsp4xml.AbstractCacheBasedTest;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 public class CacheResourcesManagerTest extends AbstractCacheBasedTest {
 
@@ -32,7 +34,6 @@ public class CacheResourcesManagerTest extends AbstractCacheBasedTest {
 
 	private FileServer server;
 
-	
 	@Before
 	public void setup() throws Exception {
 		cacheResourcesManager = new CacheResourcesManager(testingCache());
@@ -71,12 +72,12 @@ public class CacheResourcesManagerTest extends AbstractCacheBasedTest {
 		} catch (CacheResourceDownloadingException ignored) {
 		}
 		TimeUnit.MILLISECONDS.sleep(200);
-		//failed to download so returns null
+		// failed to download so returns null
 		assertNull(cacheResourcesManager.getResource(uri));
 
-		TimeUnit.SECONDS.sleep(1);//wait past the cache expiration date
+		TimeUnit.SECONDS.sleep(1);// wait past the cache expiration date
 
-		//Manager should retry downloading
+		// Manager should retry downloading
 		try {
 			cacheResourcesManager.getResource(uri);
 			fail("cacheResourcesManager should be busy re-downloading the url");
@@ -98,10 +99,24 @@ public class CacheResourcesManagerTest extends AbstractCacheBasedTest {
 		assertNotNull(cacheResourcesManager.getResource(uri));
 
 		server.stop();
-		TimeUnit.SECONDS.sleep(1);//wait past the cache expiration date
+		TimeUnit.SECONDS.sleep(1);// wait past the cache expiration date
 
-		//Manager should return cached content, even if server is offline
+		// Manager should return cached content, even if server is offline
 		assertNotNull(cacheResourcesManager.getResource(uri));
+	}
+
+	@Test
+	public void testGetBadResource() throws IOException {
+		CacheResourceDownloadingException actual = null;
+		try {
+			cacheResourcesManager.getResource("http://localhost/../../../../../test.txt");
+		} catch (CacheResourceDownloadingException e) {
+			actual = e;
+		}
+		Assert.assertNotNull(actual);
+		Assert.assertEquals(
+				"The resource 'http://localhost/../../../../../test.txt' cannot be downloaded in the cache path.",
+				actual.getMessage());
 	}
 
 	private Cache<String, Boolean> testingCache() {
