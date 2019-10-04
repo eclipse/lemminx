@@ -14,6 +14,7 @@ import org.apache.xerces.parsers.XIncludeAwareParserConfiguration;
 import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.parser.XMLComponentManager;
 import org.apache.xerces.xni.parser.XMLConfigurationException;
+import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLValidationSettings;
 
 /**
  * Custom Xerces XML parser configuration to :
@@ -27,8 +28,16 @@ class LSPXMLParserConfiguration extends XIncludeAwareParserConfiguration {
 
 	private final boolean disableDTDValidation;
 
-	public LSPXMLParserConfiguration(boolean disableDTDValidation) {
+	public LSPXMLParserConfiguration(boolean disableDTDValidation, XMLValidationSettings validationSettings) {
 		this.disableDTDValidation = disableDTDValidation;
+		// Disable DOCTYPE declaration if settings is set to true.
+		boolean disallowDocTypeDecl = validationSettings != null ? validationSettings.isDisallowDocTypeDecl() : false;
+		super.setFeature("http://apache.org/xml/features/disallow-doctype-decl", disallowDocTypeDecl);
+		// Resolve external entities if settings is set to true.
+		boolean resolveExternalEntities = validationSettings != null ? validationSettings.isResolveExternalEntities()
+				: false;
+		super.setFeature("http://xml.org/sax/features/external-general-entities", resolveExternalEntities);
+		super.setFeature("http://xml.org/sax/features/external-parameter-entities", resolveExternalEntities);
 	}
 
 	@Override

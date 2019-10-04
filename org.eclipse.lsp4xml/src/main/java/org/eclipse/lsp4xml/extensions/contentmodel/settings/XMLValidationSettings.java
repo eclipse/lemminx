@@ -22,6 +22,10 @@ public class XMLValidationSettings {
 
 	private Boolean enabled;
 
+	private boolean disallowDocTypeDecl;
+
+	private boolean resolveExternalEntities;
+
 	/**
 	 * This severity preference to mark the root element of XML document which is
 	 * not bound to a XML Schema/DTD.
@@ -31,9 +35,11 @@ public class XMLValidationSettings {
 	private String noGrammar;
 
 	public XMLValidationSettings() {
-		//set defaults
-		schema = true;
-		enabled = true;
+		// set defaults
+		setSchema(true);
+		setEnabled(true);
+		setDisallowDocTypeDecl(false);
+		setResolveExternalEntities(false);
 	}
 
 	/**
@@ -73,6 +79,45 @@ public class XMLValidationSettings {
 	}
 
 	/**
+	 * Returns true if a fatal error is thrown if the incoming document contains a
+	 * DOCTYPE declaration and false otherwise.
+	 * 
+	 * @return true if a fatal error is thrown if the incoming document contains a
+	 *         DOCTYPE declaration and false otherwise.
+	 */
+	public boolean isDisallowDocTypeDecl() {
+		return disallowDocTypeDecl;
+	}
+
+	/**
+	 * Set true if a fatal error is thrown if the incoming document contains a
+	 * DOCTYPE declaration and false otherwise.
+	 * 
+	 * @param disallowDocTypeDecl disallow DOCTYPE declaration.
+	 */
+	public void setDisallowDocTypeDecl(boolean disallowDocTypeDecl) {
+		this.disallowDocTypeDecl = disallowDocTypeDecl;
+	}
+
+	/**
+	 * Returns true if external entities must be resolved and false otherwise.
+	 * 
+	 * @return true if external entities must be resolved and false otherwise.
+	 */
+	public boolean isResolveExternalEntities() {
+		return resolveExternalEntities;
+	}
+
+	/**
+	 * Set true if external entities must be resolved and false otherwise.
+	 * 
+	 * @param resolveExternalEntities resolve extrenal entities
+	 */
+	public void setResolveExternalEntities(boolean resolveExternalEntities) {
+		this.resolveExternalEntities = resolveExternalEntities;
+	}
+
+	/**
 	 * Returns the <code>noGrammar</code> severity according the given settings and
 	 * {@link DiagnosticSeverity#Hint} otherwise.
 	 * 
@@ -101,11 +146,13 @@ public class XMLValidationSettings {
 	}
 
 	public XMLValidationSettings merge(XMLValidationSettings settings) {
-		if(settings != null) {
+		if (settings != null) {
 			this.schema = settings.schema;
 			this.enabled = settings.enabled;
+			this.disallowDocTypeDecl = settings.disallowDocTypeDecl;
+			this.resolveExternalEntities = settings.resolveExternalEntities;
 		}
 		return this;
 	}
-	
+
 }
