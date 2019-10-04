@@ -20,6 +20,7 @@ import org.apache.xerces.xni.QName;
 import org.apache.xerces.xni.XMLLocator;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.dom.DOMDocument;
+import org.eclipse.lsp4xml.dom.DOMDocumentType;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.codeactions.ElementUnterminatedCodeAction;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.codeactions.EqRequiredInAttributeCodeAction;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.codeactions.OpenQuoteExpectedCodeAction;
@@ -34,11 +35,10 @@ import org.eclipse.lsp4xml.utils.XMLPositionUtility;
  *
  */
 public enum XMLSyntaxErrorCode implements IXMLErrorCode {
-	
+
 	AttributeNotUnique, // https://wiki.xmldation.com/Support/Validator/AttributeNotUnique
 	AttributeNSNotUnique, // https://wiki.xmldation.com/Support/Validator/AttributeNSNotUnique
-	AttributePrefixUnbound,
-	ContentIllegalInProlog, // https://wiki.xmldation.com/Support/Validator/ContentIllegalInProlog
+	AttributePrefixUnbound, ContentIllegalInProlog, // https://wiki.xmldation.com/Support/Validator/ContentIllegalInProlog
 	DashDashInComment, // https://wiki.xmldation.com/Support/Validator/DashDashInComment
 	ElementUnterminated, // https://wiki.xmldation.com/Support/Validator/ElementUnterminated
 	ElementPrefixUnbound, // https://wiki.xmldation.com/Support/Validator/ElementPrefixUnbound
@@ -47,12 +47,11 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 	ETagRequired, // https://wiki.xmldation.com/Support/Validator/ETagRequired
 	ETagUnterminated, // https://wiki.xmldation.com/Support/Validator/ETagUnterminated
 	EqRequiredInAttribute, // https://wiki.xmldation.com/Support/Validator/EqRequiredInAttribute
-	the_element_type_lmsg("the-element-type-lmsg"), EqRequiredInXMLDecl, IllegalQName,
-	InvalidCommentStart, LessthanInAttValue, MarkupEntityMismatch, MarkupNotRecognizedInContent,
-	NameRequiredInReference, OpenQuoteExpected, PITargetRequired, PseudoAttrNameExpected, QuoteRequiredInXMLDecl,
-	RootElementTypeMustMatchDoctypedecl, SDDeclInvalid, SpaceRequiredBeforeEncodingInXMLDecl,
-	SpaceRequiredBeforeStandalone, SpaceRequiredInPI,VersionInfoRequired, VersionNotSupported, 
-	XMLDeclUnterminated, CustomETag, PrematureEOF;
+	the_element_type_lmsg("the-element-type-lmsg"), EqRequiredInXMLDecl, IllegalQName, InvalidCommentStart,
+	LessthanInAttValue, MarkupEntityMismatch, MarkupNotRecognizedInContent, NameRequiredInReference, OpenQuoteExpected,
+	PITargetRequired, PseudoAttrNameExpected, QuoteRequiredInXMLDecl, RootElementTypeMustMatchDoctypedecl,
+	SDDeclInvalid, SpaceRequiredBeforeEncodingInXMLDecl, SpaceRequiredBeforeStandalone, SpaceRequiredInPI,
+	VersionInfoRequired, VersionNotSupported, XMLDeclUnterminated, CustomETag, PrematureEOF, DoctypeNotAllowed;
 
 	private final String code;
 
@@ -183,6 +182,9 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 		case OpenQuoteExpected: {
 			return XMLPositionUtility.selectAttributeNameAt(offset - 1, document);
 		}
+		case DoctypeNotAllowed:
+			DOMDocumentType docType = document.getDoctype();
+			return XMLPositionUtility.createRange(docType);		
 		case PITargetRequired:
 			// Working
 			break;

@@ -12,8 +12,12 @@ package org.eclipse.lsp4xml.extensions.contentmodel;
 
 import static org.eclipse.lsp4xml.XMLAssert.d;
 
+import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.DTDErrorCode;
+import org.eclipse.lsp4xml.extensions.contentmodel.participants.XMLSyntaxErrorCode;
+import org.eclipse.lsp4xml.extensions.contentmodel.settings.ContentModelSettings;
+import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLValidationSettings;
 import org.junit.Test;
 
 /**
@@ -90,4 +94,25 @@ public class DTDDoctypeDiagnosticsTest {
 		// declaration
 		XMLAssert.testDiagnosticsFor(xml);
 	}
+
+	@Test
+	public void doctypeNotAllowed() throws Exception {
+		String xml = "<?xml version=\"1.0\"?>\r\n" + //
+				"<!DOCTYPE student [\r\n" + // <-- error DOCTYPE is disallow
+				"  <!ELEMENT \r\n" + //
+				"]>\r\n" + //
+				"<student />";
+		testDiagnosticsDisallowDocTypeDecl(xml, d(1, 0, 3, 2, XMLSyntaxErrorCode.DoctypeNotAllowed));
+	}
+
+	private static void testDiagnosticsDisallowDocTypeDecl(String xml, Diagnostic diagnostic) {
+		ContentModelSettings settings = new ContentModelSettings();
+		settings.setUseCache(false);
+		XMLValidationSettings validationSettings = new XMLValidationSettings();
+		validationSettings.setDisallowDocTypeDecl(true);
+		settings.setValidation(validationSettings);
+
+		XMLAssert.testDiagnosticsFor(xml, null, null, null, true, settings, diagnostic);
+	}
+
 }
