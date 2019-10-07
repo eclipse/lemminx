@@ -117,8 +117,8 @@ public class ContentModelManager {
 	private CMDocument findCMDocument(String uri, String publicId, String systemId,
 			ContentModelProvider modelProvider) {
 		// Resolve the XML Schema/DTD uri (file, http, etc)
-		String key = resolverManager.resolve(uri, publicId, systemId);
-		if (key == null) {
+		String resolvedUri = resolverManager.resolve(uri, publicId, systemId);
+		if (resolvedUri == null) {
 			return null;
 		}
 		// the XML Schema, DTD can be resolved
@@ -126,23 +126,23 @@ public class ContentModelManager {
 			// the model provider cannot be get with standard mean (xsi:schemaLocation,
 			// xsi:noNamespaceSchemaLocation, doctype)
 			// try to get it by using extension (ex: .xsd, .dtd)
-			modelProvider = getModelProviderByURI(key);
+			modelProvider = getModelProviderByURI(resolvedUri);
 		}
 		if (modelProvider == null) {
 			return null;
 		}
 		// Try to get the document from the cache
-		CMDocument cmDocument = getCMDocumentFromCache(key);
+		CMDocument cmDocument = getCMDocumentFromCache(resolvedUri);
 		if (cmDocument != null) {
 			return cmDocument;
 		}
-		boolean isFileResource = URIUtils.isFileResource(uri);
+		boolean isFileResource = URIUtils.isFileResource(resolvedUri);
 		if (!isFileResource && cacheResolverExtension.isUseCache()) {
 			// The DTD/XML Schema comes from http://, ftp:// etc and cache manager is
 			// activated
 			// Try to load the DTD/XML Schema with the cache manager
 			try {
-				Path file = cacheResolverExtension.getCachedResource(key);
+				Path file = cacheResolverExtension.getCachedResource(resolvedUri);
 				if (file != null) {
 					cmDocument = modelProvider.createCMDocument(file.toFile().getPath());
 				}
@@ -151,14 +151,14 @@ public class ContentModelManager {
 				return null;
 			} catch (Exception e) {
 				// other error like network which is not available
-				cmDocument = modelProvider.createCMDocument(key);
+				cmDocument = modelProvider.createCMDocument(resolvedUri);
 			}
 		} else {
-			cmDocument = modelProvider.createCMDocument(key);
+			cmDocument = modelProvider.createCMDocument(resolvedUri);
 		}
 		// Cache the document
 		if (cmDocument != null) {
-			cache(key, cmDocument);
+			cache(resolvedUri, cmDocument);
 		}
 		return cmDocument;
 	}
