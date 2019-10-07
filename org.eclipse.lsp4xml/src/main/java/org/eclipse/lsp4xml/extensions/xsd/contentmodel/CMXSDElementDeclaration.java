@@ -164,6 +164,14 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 				if (object instanceof XSElementDeclaration) {
 					XSElementDeclaration elementDecl = (XSElementDeclaration) object;
 					document.collectElement(elementDecl, possibleElements);
+					// Collect substitution group
+					XSObjectList group = document.getSubstitutionGroup(elementDecl);
+					if (group != null) {
+						for (int i = 0; i < group.getLength(); i++) {
+							XSElementDeclaration o = (XSElementDeclaration) group.item(i);
+							document.collectElement(o, possibleElements);
+						}
+					}
 				} else {
 					// case with xs:any. Ex:
 					// <xs:sequence>

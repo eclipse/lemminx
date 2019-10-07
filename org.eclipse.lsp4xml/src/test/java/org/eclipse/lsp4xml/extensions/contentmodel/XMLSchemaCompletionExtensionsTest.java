@@ -779,6 +779,15 @@ public class XMLSchemaCompletionExtensionsTest {
 				c("DockLayout", te(2, 1, 2, 1, "<DockLayout></DockLayout>"), "DockLayout", "Source: tns.xsd",
 						MarkupKind.PLAINTEXT));
 	}
+	
+	@Test
+	public void substitutionGroup() throws BadLocationException {
+		String xml = "<fleet xmlns=\"http://example/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://example/ xsd/substitutionGroup.xsd\">\r\n"
+				+ "	   | ";
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/substitutionGroup.xml", null,
+				c("truck", "<truck />"), //
+				c("automobile", "<automobile />"));
+	}
 
 	@Test
 	public void tag() throws BadLocationException {

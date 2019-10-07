@@ -1,0 +1,25 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://example/" targetNamespace="http://example/">
+    <xs:complexType name="AutomobileType">
+        <xs:attribute name="topSpeed" type="xs:float" />
+    </xs:complexType>
+    <xs:complexType name="TruckType">
+        <xs:complexContent>
+            <xs:extension base="AutomobileType">
+                <xs:attribute name="payloadCapacity" type="xs:float" />
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:element name="automobile" type="AutomobileType"/>
+    <xs:element name="truck" type="TruckType" substitutionGroup="automobile"/>
+
+    <xs:element name="fleet">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:choice maxOccurs="unbounded">
+                    <xs:element ref="automobile" minOccurs="0" maxOccurs="unbounded" />
+                </xs:choice>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

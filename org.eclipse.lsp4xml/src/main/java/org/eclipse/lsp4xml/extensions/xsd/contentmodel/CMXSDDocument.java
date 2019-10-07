@@ -159,7 +159,7 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 			// element declaration is marked as abstract
 			// ex with xsl: <xs:element name="declaration" type="xsl:generic-element-type"
 			// abstract="true"/>
-			XSObjectList list = model.getSubstitutionGroup(elementDeclaration);
+			XSObjectList list = getSubstitutionGroup(elementDeclaration);
 			if (list != null) {
 				// it exists elements list bind with this abstract declaration with
 				// substitutionGroup
@@ -179,6 +179,10 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 				elements.add(cmElement);
 			}
 		}
+	}
+
+	XSObjectList getSubstitutionGroup(XSElementDeclaration elementDeclaration) {
+		return model.getSubstitutionGroup(elementDeclaration);
 	}
 
 	@Override
