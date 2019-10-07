@@ -472,6 +472,15 @@ public class XMLSchemaDiagnosticsTest {
 		testDiagnosticsFor(xml, d(0, 1, 0, 2, XMLSchemaErrorCode.src_element_3));
 	}
 
+	@Test
+	public void schema_reference_4_withSchemaLocation() {
+		String xml = "<IODevice xmlns=\"http://www.io-link.com/IODD/2010/10\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \r\n"
+				+ "			  xsi:schemaLocation=\"http://www.io-link.com/IODD/2010/10 IODD1.1.xsd\">\r\n"
+				+ "	</IODevice>";
+		testDiagnosticsFor(xml, d(1, 24, 1, 73, XMLSchemaErrorCode.schema_reference_4), //
+				d(0, 1, 0, 9, XMLSchemaErrorCode.cvc_elt_1_a));
+	}
+
 	private static void testDiagnosticsFor(String xml, Diagnostic... expected) {
 		XMLAssert.testDiagnosticsFor(xml, "src/test/resources/catalogs/catalog.xml", expected);
 	}
