@@ -1,5 +1,23 @@
 # Change Log
 
+## [0.9.1](https://github.com/angelozerr/lsp4xml/milestone/11?closed=1) (October 17, 2019)
+
+### Bug Fixes
+
+ * XSD: IntelliSense and element substitutions. See [#568](https://github.com/angelozerr/lsp4xml/pull/568)
+ * Completion doesn't use file cache for included XML schema. See [#570](https://github.com/angelozerr/lsp4xml/pull/570)
+ * Prevent from NPE validation with schemaLocaton and "schema.reference.4" error. See [#569](https://github.com/angelozerr/lsp4xml/pull/569)
+
+### Performance
+
+ * Improve performance and memory for validation by caching XML Schema / DTD. See [#534](https://github.com/angelozerr/lsp4xml/issues/534)
+
+### Others
+
+ * Update lsp4j version to 0.8.1. See [#571](https://github.com/angelozerr/lsp4xml/pull/571)
+ * Reject download of resource which are not in the cache folder. See [#567](https://github.com/angelozerr/lsp4xml/pull/567)
+ * Add disallowDocTypeDecl & resolveExternalEntities validation settings. See [#566](https://github.com/angelozerr/lsp4xml/pull/566)
+
 ## [0.9.0](https://github.com/angelozerr/lsp4xml/milestone/10?closed=1) (September 10, 2019)
 
 ### Enhancements
