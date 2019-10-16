@@ -13,6 +13,7 @@ import static org.eclipse.lsp4xml.XMLAssert.c;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.commons.BadLocationException;
@@ -74,7 +75,7 @@ public class ContentModelManagerCacheTest extends BaseFileTempTest {
 				"    </xs:complexType>\r\n" + //
 				"  </xs:element>\r\n" + //
 				"</xs:schema>";
-		createFile(xsdPath, xsd);
+		updateFile(xsdPath, xsd);
 
 		XMLAssert.testCompletionFor(xml, null, xmlPath, 5 /* region, endregion, cdata, comment, label */,
 				c("label", "<label></label>"));
