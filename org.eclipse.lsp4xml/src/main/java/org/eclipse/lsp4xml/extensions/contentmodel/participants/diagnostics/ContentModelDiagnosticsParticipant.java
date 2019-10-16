@@ -44,7 +44,8 @@ public class ContentModelDiagnosticsParticipant implements IDiagnosticsParticipa
 		XMLEntityResolver entityResolver = xmlDocument.getResolverExtensionManager();
 		// Process validation
 		XMLValidator.doDiagnostics(xmlDocument, entityResolver, diagnostics,
-				contentModelPlugin.getContentModelSettings(), monitor);
+				contentModelPlugin.getContentModelSettings(),
+				contentModelPlugin.getContentModelManager().getGrammarPool(), monitor);
 	}
 
 }

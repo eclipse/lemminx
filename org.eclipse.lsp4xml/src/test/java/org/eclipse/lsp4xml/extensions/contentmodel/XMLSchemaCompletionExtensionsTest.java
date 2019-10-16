@@ -31,11 +31,14 @@ import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.eclipse.lsp4xml.settings.XMLCompletionSettings;
 import org.junit.Test;
 
+import com.google.common.io.MoreFiles;
+import com.google.common.io.RecursiveDeleteOption;
+
 /**
  * XSD completion tests.
  *
  */
-public class XMLSchemaCompletionExtensionsTest {
+public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 
 	@Test
 	public void completionInRoot() throws BadLocationException {
@@ -338,17 +341,12 @@ public class XMLSchemaCompletionExtensionsTest {
 	@Test
 	public void completionWithXMLSchemaContentChanged() throws Exception {
 		// This https://github.com/angelozerr/lsp4xml/issues/194 for the test scenario
-		Path dir = Paths.get("target/xsd/");
-		if (!Files.isDirectory(dir)) {
-			Files.createDirectory(dir);
-		}
-		Files.deleteIfExists(Paths.get(dir.toString(), "resources.xsd"));
-
+		String xsdPath = tempDirUri.getPath() + "/resources.xsd";
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
 
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
 				+ "<resources | xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " //
-				+ "xsi:noNamespaceSchemaLocation=\"xsd/resources.xsd\">\r\n" + //
+				+ "xsi:noNamespaceSchemaLocation=\"" + xsdPath + "\">\r\n" + //
 				"    <resource name=\"res00\" >\r\n" + //
 				"        <property name=\"propA\" value=\"...\" />\r\n" + //
 				"        <property name=\"propB\" value=\"...\" />\r\n" + //
@@ -373,7 +371,8 @@ public class XMLSchemaCompletionExtensionsTest {
 				+ "            </xs:sequence>\r\n"
 				+ "            <xs:attribute name=\"variant\" type=\"xs:string\" use=\"required\"/>\r\n"
 				+ "        </xs:complexType>\r\n" + "    </xs:element>\r\n" + "</xs:schema>";
-		Files.write(Paths.get("target/xsd/resources.xsd"), schema.getBytes());
+		
+		createFile(xsdPath, schema);
 		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null, "target/resources.xml", 5, false,
 				c("variant", "variant=\"\""));
 
@@ -393,7 +392,7 @@ public class XMLSchemaCompletionExtensionsTest {
 				+ "            </xs:sequence>\r\n"
 				// + " <xs:attribute name=\"variant\" type=\"xs:string\" use=\"required\"/>\r\n"
 				+ "        </xs:complexType>\r\n" + "    </xs:element>\r\n" + "</xs:schema>";
-		Files.write(Paths.get("target/xsd/resources.xsd"), schema.getBytes());
+		createFile(xsdPath, schema);
 		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null, "target/resources.xml", 4, false);
 
 	}
@@ -778,6 +777,15 @@ public class XMLSchemaCompletionExtensionsTest {
 						"Source: tns.xsd", MarkupKind.PLAINTEXT),
 				c("DockLayout", te(2, 1, 2, 1, "<DockLayout></DockLayout>"), "DockLayout", "Source: tns.xsd",
 						MarkupKind.PLAINTEXT));
+	}
+	
+	@Test
+	public void substitutionGroup() throws BadLocationException {
+		String xml = "<fleet xmlns=\"http://example/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://example/ xsd/substitutionGroup.xsd\">\r\n"
+				+ "	   | ";
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/substitutionGroup.xml", null,
+				c("truck", "<truck />"), //
+				c("automobile", "<automobile />"));
 	}
 
 	@Test

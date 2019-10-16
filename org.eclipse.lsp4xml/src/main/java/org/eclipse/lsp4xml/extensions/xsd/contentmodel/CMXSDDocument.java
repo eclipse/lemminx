@@ -20,7 +20,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -85,41 +84,26 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 		this.model = model;
 		this.elementMappings = new HashMap<>();
 		this.uri = uri;
-		this.tracker = new FilesChangedTracker();
-		updateFilesChangedTracker();
+		this.tracker = createFilesChangedTracker(model);
 	}
 
 	/**
-	 * Update files tracker by adding all XML Schema (root and imported)
+	 * Create files tracker to track all XML Schema (root and imported) from the XS
+	 * model.
+	 * 
+	 * @return a files tracker to track all XML Schema (root and imported) from the
+	 *         XS model.
 	 */
-	private void updateFilesChangedTracker() {
-		Set<SchemaGrammar> trackedGrammars = new HashSet<>();
-		XSNamespaceItemList grammars = model.getNamespaceItems();
-		for (int i = 0; i < grammars.getLength(); i++) {
-			SchemaGrammar grammar = getSchemaGrammar(grammars.item(i));
-			updateTracker(grammar, trackedGrammars, tracker);
-		}
-	}
-
-	private static void updateTracker(SchemaGrammar grammar, Set<SchemaGrammar> trackedGrammars,
-			FilesChangedTracker tracker) {
-		if (grammar == null || trackedGrammars.contains(grammar)) {
-			return;
-		}
-		trackedGrammars.add(grammar);
-		// Track the grammar
-		String schemaURI = getSchemaURI(grammar);
-		if (schemaURI != null && URIUtils.isFileResource(schemaURI)) {
-			// The schema is a file, track when file changed
-			tracker.addFileURI(schemaURI);
-		}
-		// Track the imported grammars
-		Vector importedGrammars = grammar.getImportedGrammars();
-		if (importedGrammars != null) {
-			for (Object importedGrammar : importedGrammars) {
-				updateTracker((SchemaGrammar) importedGrammar, trackedGrammars, tracker);
+	private static FilesChangedTracker createFilesChangedTracker(XSModel model) {
+		Set<SchemaGrammar> grammars = new HashSet<>();
+		XSNamespaceItemList namespaces = model.getNamespaceItems();
+		for (int i = 0; i < namespaces.getLength(); i++) {
+			SchemaGrammar grammar = getSchemaGrammar(namespaces.item(i));
+			if (grammar != null) {
+				grammars.add(grammar);
 			}
 		}
+		return XSDUtils.createFilesChangedTracker(grammars);
 	}
 
 	@Override
@@ -159,7 +143,7 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 			// element declaration is marked as abstract
 			// ex with xsl: <xs:element name="declaration" type="xsl:generic-element-type"
 			// abstract="true"/>
-			XSObjectList list = model.getSubstitutionGroup(elementDeclaration);
+			XSObjectList list = getSubstitutionGroup(elementDeclaration);
 			if (list != null) {
 				// it exists elements list bind with this abstract declaration with
 				// substitutionGroup
@@ -179,6 +163,10 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 				elements.add(cmElement);
 			}
 		}
+	}
+
+	XSObjectList getSubstitutionGroup(XSElementDeclaration elementDeclaration) {
+		return model.getSubstitutionGroup(elementDeclaration);
 	}
 
 	@Override

@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>org.lsp4xml</groupId>
 		<artifactId>lsp4xml</artifactId>
-		<version>0.9.0-SNAPSHOT</version>
+		<version>0.9.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>org.eclipse.lsp4xml</artifactId>
 	<properties>
@@ -130,7 +130,7 @@
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-server</artifactId>
-			<version>9.4.14.v20181114</version>
+			<version>9.4.17.v20190418</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

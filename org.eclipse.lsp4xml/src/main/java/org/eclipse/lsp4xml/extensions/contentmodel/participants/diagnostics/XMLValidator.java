@@ -23,6 +23,7 @@ import java.util.logging.Logger;
 import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.parsers.SAXParser;
 import org.apache.xerces.xni.XNIException;
+import org.apache.xerces.xni.grammars.XMLGrammarPool;
 import org.apache.xerces.xni.parser.XMLEntityResolver;
 import org.apache.xerces.xni.parser.XMLInputSource;
 import org.apache.xerces.xni.parser.XMLParserConfiguration;
@@ -58,15 +59,14 @@ public class XMLValidator {
 	private static final String DTD_NOT_FOUND = "Cannot find DTD ''{0}''.\nCreate the DTD file or configure an XML catalog for this DTD.";
 
 	public static void doDiagnostics(DOMDocument document, XMLEntityResolver entityResolver,
-			List<Diagnostic> diagnostics, ContentModelSettings contentModelSettings, CancelChecker monitor) {
+			List<Diagnostic> diagnostics, ContentModelSettings contentModelSettings, XMLGrammarPool grammarPool,
+			CancelChecker monitor) {
 		try {
-			// It should be better to cache XML Schema with XMLGrammarCachingConfiguration,
-			// but we cannot use
-			// XMLGrammarCachingConfiguration because cache is done with target namespaces.
-			// There are conflicts when
-			// 2 XML Schemas don't define target namespaces.
-			LSPXMLParserConfiguration configuration = new LSPXMLParserConfiguration(
-					isDisableOnlyDTDValidation(document));
+			XMLValidationSettings validationSettings = contentModelSettings != null
+					? contentModelSettings.getValidation()
+					: null;
+			LSPXMLParserConfiguration configuration = new LSPXMLParserConfiguration(grammarPool,
+					isDisableOnlyDTDValidation(document), validationSettings);
 
 			if (entityResolver != null) {
 				configuration.setProperty("http://apache.org/xml/properties/internal/entity-resolver", entityResolver); //$NON-NLS-1$
@@ -87,9 +87,6 @@ public class XMLValidator {
 			boolean hasGrammar = document.hasGrammar();
 
 			// If diagnostics for Schema preference is enabled
-			XMLValidationSettings validationSettings = contentModelSettings != null
-					? contentModelSettings.getValidation()
-					: null;
 			if ((validationSettings == null) || validationSettings.isSchema()) {
 
 				checkExternalSchema(document.getExternalSchemaLocation(), parser);
@@ -211,6 +208,8 @@ public class XMLValidator {
 
 			SAXParser parser = new SAXParser(configuration);
 			parser.setProperty("http://apache.org/xml/properties/internal/entity-manager", entityManager);
+			parser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", true);
+
 			InputSource inputSource = new InputSource();
 			inputSource.setByteStream(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
 			inputSource.setSystemId(document.getDocumentURI());

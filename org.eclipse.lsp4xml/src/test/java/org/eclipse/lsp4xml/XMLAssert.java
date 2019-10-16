@@ -314,9 +314,15 @@ public class XMLAssert {
 
 	public static void testDiagnosticsFor(String xml, String catalogPath, Consumer<XMLLanguageService> configuration,
 			String fileURI, boolean filter, ContentModelSettings settings, Diagnostic... expected) {
+		testDiagnosticsFor(new XMLLanguageService(), xml, catalogPath, configuration, fileURI, filter, settings,
+				expected);
+	}
+
+	public static void testDiagnosticsFor(XMLLanguageService xmlLanguageService, String xml, String catalogPath,
+			Consumer<XMLLanguageService> configuration, String fileURI, boolean filter, ContentModelSettings settings,
+			Diagnostic... expected) {
 		TextDocument document = new TextDocument(xml, fileURI != null ? fileURI : "test.xml");
 
-		XMLLanguageService xmlLanguageService = new XMLLanguageService();
 		DOMDocument xmlDocument = DOMParser.getInstance().parse(document,
 				xmlLanguageService.getResolverExtensionManager());
 		xmlLanguageService.setDocumentProvider((uri) -> xmlDocument);
@@ -895,14 +901,15 @@ public class XMLAssert {
 		assertRename(value, newText, Collections.emptyList());
 	}
 
-	public static void assertRename(String value, String newText, List<TextEdit> expectedEdits) throws BadLocationException {
+	public static void assertRename(String value, String newText, List<TextEdit> expectedEdits)
+			throws BadLocationException {
 		int offset = value.indexOf("|");
 		value = value.substring(0, offset) + value.substring(offset + 1);
 
 		DOMDocument document = DOMParser.getInstance().parse(value, "test://test/test.html", null);
 
 		Position position = document.positionAt(offset);
-		
+
 		XMLLanguageService languageService = new XMLLanguageService();
 		WorkspaceEdit workspaceEdit = languageService.doRename(document, position, newText);
 		List<TextEdit> actualEdits = workspaceEdit.getChanges().get("test://test/test.html");

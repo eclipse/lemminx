@@ -70,9 +70,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 	cvc_maxInclusive_valid("cvc-maxInclusive-valid"), // https://wiki.xmldation.com/Support/validator/cvc-maxinclusive-valid
 	cvc_minExclusive_valid("cvc-minExclusive-valid"), // https://wiki.xmldation.com/Support/validator/cvc-minexclusive-valid
 	cvc_minInclusive_valid("cvc-minInclusive-valid"), // https://wiki.xmldation.com/Support/validator/cvc-mininclusive-valid
-	TargetNamespace_2("TargetNamespace.2"), 
-	SchemaLocation("SchemaLocation"),
-	schema_reference_4("schema_reference.4"), //
+	TargetNamespace_2("TargetNamespace.2"), SchemaLocation("SchemaLocation"), schema_reference_4("schema_reference.4"), //
 	src_element_3("src-element.3");
 
 	private final String code;
@@ -162,15 +160,19 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 		case SchemaLocation:
 		case schema_reference_4: {
 			DOMNode attrValueNode;
-			if(code.equals(SchemaLocation)) {
+			if (code.equals(SchemaLocation)) {
 				SchemaLocation schemaLocation = document.getSchemaLocation();
 				attrValueNode = schemaLocation.getAttr().getNodeAttrValue();
-			}
-			else {
+			} else {
 				NoNamespaceSchemaLocation noNamespaceSchemaLocation = document.getNoNamespaceSchemaLocation();
-				attrValueNode = noNamespaceSchemaLocation.getAttr().getNodeAttrValue();
+				if (noNamespaceSchemaLocation != null) {
+					attrValueNode = noNamespaceSchemaLocation.getAttr().getNodeAttrValue();
+				} else {
+					SchemaLocation schemaLocation = document.getSchemaLocation();
+					attrValueNode = schemaLocation.getAttr().getNodeAttrValue();
+				}
 			}
-			
+
 			if (attrValueNode != null) {
 				int startOffset = attrValueNode.getStart();
 				int endOffset = attrValueNode.getEnd();
@@ -178,7 +180,6 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 					Position startPosition = document.positionAt(startOffset);
 					Position endPosition = document.positionAt(endOffset);
 					return new Range(startPosition, endPosition);
-
 				} catch (BadLocationException e) {
 					return null;
 				}
@@ -200,7 +201,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 		case cvc_datatype_valid_1_2_1: {
 			String attrValue = getString(arguments[0]);
 			Range range = XMLPositionUtility.selectAttributeValueFromGivenValue(attrValue, offset, document);
-			
+
 			if (range != null) {
 				return range;
 			}

@@ -17,8 +17,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.xerces.xni.grammars.XMLGrammarPool;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMElement;
+import org.eclipse.lsp4xml.extensions.contentmodel.participants.diagnostics.LSPXMLGrammarPool;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLFileAssociation;
 import org.eclipse.lsp4xml.extensions.contentmodel.uriresolver.XMLCacheResolverExtension;
 import org.eclipse.lsp4xml.extensions.contentmodel.uriresolver.XMLCatalogResolverExtension;
@@ -42,6 +44,7 @@ public class ContentModelManager {
 	private final XMLCacheResolverExtension cacheResolverExtension;
 	private final XMLCatalogResolverExtension catalogResolverExtension;
 	private final XMLFileAssociationResolverExtension fileAssociationResolver;
+	private final XMLGrammarPool grammarPool;
 
 	public ContentModelManager(URIResolverExtensionManager resolverManager) {
 		this.resolverManager = resolverManager;
@@ -53,6 +56,7 @@ public class ContentModelManager {
 		resolverManager.registerResolver(catalogResolverExtension);
 		cacheResolverExtension = new XMLCacheResolverExtension();
 		resolverManager.registerResolver(cacheResolverExtension);
+		grammarPool = new LSPXMLGrammarPool();
 		// Use cache by default
 		setUseCache(true);
 	}
@@ -117,8 +121,8 @@ public class ContentModelManager {
 	private CMDocument findCMDocument(String uri, String publicId, String systemId,
 			ContentModelProvider modelProvider) {
 		// Resolve the XML Schema/DTD uri (file, http, etc)
-		String key = resolverManager.resolve(uri, publicId, systemId);
-		if (key == null) {
+		String resolvedUri = resolverManager.resolve(uri, publicId, systemId);
+		if (resolvedUri == null) {
 			return null;
 		}
 		// the XML Schema, DTD can be resolved
@@ -126,23 +130,23 @@ public class ContentModelManager {
 			// the model provider cannot be get with standard mean (xsi:schemaLocation,
 			// xsi:noNamespaceSchemaLocation, doctype)
 			// try to get it by using extension (ex: .xsd, .dtd)
-			modelProvider = getModelProviderByURI(key);
+			modelProvider = getModelProviderByURI(resolvedUri);
 		}
 		if (modelProvider == null) {
 			return null;
 		}
 		// Try to get the document from the cache
-		CMDocument cmDocument = getCMDocumentFromCache(key);
+		CMDocument cmDocument = getCMDocumentFromCache(resolvedUri);
 		if (cmDocument != null) {
 			return cmDocument;
 		}
-		boolean isFileResource = URIUtils.isFileResource(uri);
+		boolean isFileResource = URIUtils.isFileResource(resolvedUri);
 		if (!isFileResource && cacheResolverExtension.isUseCache()) {
 			// The DTD/XML Schema comes from http://, ftp:// etc and cache manager is
 			// activated
 			// Try to load the DTD/XML Schema with the cache manager
 			try {
-				Path file = cacheResolverExtension.getCachedResource(key);
+				Path file = cacheResolverExtension.getCachedResource(resolvedUri);
 				if (file != null) {
 					cmDocument = modelProvider.createCMDocument(file.toFile().getPath());
 				}
@@ -151,14 +155,14 @@ public class ContentModelManager {
 				return null;
 			} catch (Exception e) {
 				// other error like network which is not available
-				cmDocument = modelProvider.createCMDocument(key);
+				cmDocument = modelProvider.createCMDocument(resolvedUri);
 			}
 		} else {
-			cmDocument = modelProvider.createCMDocument(key);
+			cmDocument = modelProvider.createCMDocument(resolvedUri);
 		}
 		// Cache the document
 		if (cmDocument != null) {
-			cache(key, cmDocument);
+			cache(resolvedUri, cmDocument);
 		}
 		return cmDocument;
 	}
@@ -180,7 +184,7 @@ public class ContentModelManager {
 			cmDocumentCache.put(key, cmDocument);
 		}
 	}
-	
+
 	public CMElementDeclaration findInternalCMElement(DOMElement element) throws Exception {
 		return findInternalCMElement(element, element.getNamespaceURI());
 	}
@@ -273,6 +277,9 @@ public class ContentModelManager {
 
 	public void setUseCache(boolean useCache) {
 		cacheResolverExtension.setUseCache(useCache);
+		if (!useCache) {
+			grammarPool.clear();
+		}
 	}
 
 	public void registerModelProvider(ContentModelProvider modelProvider) {
@@ -281,6 +288,10 @@ public class ContentModelManager {
 
 	public void unregisterModelProvider(ContentModelProvider modelProvider) {
 		modelProviders.remove(modelProvider);
+	}
+
+	public XMLGrammarPool getGrammarPool() {
+		return cacheResolverExtension.isUseCache() ? grammarPool : null;
 	}
 
 }
