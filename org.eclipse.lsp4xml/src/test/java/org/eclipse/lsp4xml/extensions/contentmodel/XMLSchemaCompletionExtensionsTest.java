@@ -31,9 +31,6 @@ import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.eclipse.lsp4xml.settings.XMLCompletionSettings;
 import org.junit.Test;
 
-import com.google.common.io.MoreFiles;
-import com.google.common.io.RecursiveDeleteOption;
-
 /**
  * XSD completion tests.
  *
@@ -392,7 +389,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				+ "            </xs:sequence>\r\n"
 				// + " <xs:attribute name=\"variant\" type=\"xs:string\" use=\"required\"/>\r\n"
 				+ "        </xs:complexType>\r\n" + "    </xs:element>\r\n" + "</xs:schema>";
-		createFile(xsdPath, schema);
+		updateFile(xsdPath, schema);
 		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null, "target/resources.xml", 4, false);
 
 	}

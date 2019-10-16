@@ -53,9 +53,9 @@ public class FilesChangedTracker {
 					// This case occurs when user delete the XML Schema / DTD file
 					return true;
 				}
-				FileTime currentLastMofied = Files.getLastModifiedTime(file);
-				if (!currentLastMofied.equals(lastModified)) {
-					lastModified = currentLastMofied;
+				FileTime currentLastModified = Files.getLastModifiedTime(file);
+				if (!currentLastModified.equals(lastModified)) {
+					lastModified = currentLastModified;
 					return true;
 				}
 			} catch (IOException e) {
