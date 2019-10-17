@@ -127,7 +127,7 @@ public class XMLValidationPoolCacheTest extends BaseFileTempTest {
 				"\r\n" + //
 				"	<xs:element name=\"Root\" type=\"Root\"></xs:element>\r\n" + //
 				"</xs:schema>";
-		createFile(schemaAPath, schemaA);
+		updateFile(schemaAPath, schemaA);
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
 				"<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\""
 				+ schemaAPath + "\">\r\n" + //
@@ -159,7 +159,7 @@ public class XMLValidationPoolCacheTest extends BaseFileTempTest {
 				"\r\n" + //
 				"	<xs:element name=\"Root\" type=\"Root\"></xs:element>\r\n" + //
 				"</xs:schema>";
-		createFile(schemaAPath, schemaA);
+		updateFile(schemaAPath, schemaA);
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
 				"<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\""
 				+ schemaAPath + "\">\r\n" + //
@@ -186,7 +186,7 @@ public class XMLValidationPoolCacheTest extends BaseFileTempTest {
 				"	</xs:element>\r\n" + //
 				"\r\n" + //
 				"</xs:schema>";
-		createFile(schemaBPath, schemaB);
+		updateFile(schemaBPath, schemaB);
 
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
 				"<Root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\""
@@ -235,7 +235,7 @@ public class XMLValidationPoolCacheTest extends BaseFileTempTest {
 		dtd = "<!ELEMENT note (to,from)>\r\n" + //
 				"<!ELEMENT to (#PCDATA)>\r\n" + //
 				"";
-		createFile(dtdPath, dtd);
+		updateFile(dtdPath, dtd);
 		d = d(2, 1, 5, DTDErrorCode.MSG_CONTENT_INCOMPLETE);
 		testDiagnosticsFor(xmlLanguageService, xml, d);
 	}
