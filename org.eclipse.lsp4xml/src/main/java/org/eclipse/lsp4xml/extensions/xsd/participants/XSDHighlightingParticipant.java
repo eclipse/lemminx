@@ -48,6 +48,7 @@ public class XSDHighlightingParticipant implements IHighlightingParticipant {
 		// Try to get the binding from the origin attribute
 		BindingType bindingType = XSDUtils.getBindingType(attr);
 		if (bindingType != BindingType.NONE) {
+			String documentURI = document.getDocumentURI();
 			// It's an origin attribute, highlight the origin and target attribute
 			DOMAttr originAttr = attr;
 			highlights
@@ -55,10 +56,17 @@ public class XSDHighlightingParticipant implements IHighlightingParticipant {
 							originAttr.getNodeAttrValue().getEnd(), document), DocumentHighlightKind.Read));
 			// Search target attributes
 			XSDUtils.searchXSTargetAttributes(originAttr, bindingType, true, (targetNamespacePrefix, targetAttr) -> {
-				highlights.add(new DocumentHighlight(
-						XMLPositionUtility.createRange(targetAttr.getNodeAttrValue().getStart(),
-								targetAttr.getNodeAttrValue().getEnd(), targetAttr.getOwnerDocument()),
-						DocumentHighlightKind.Write));
+				DOMDocument targetDocument = targetAttr.getOwnerDocument();
+				if (!documentURI.equals(targetDocument.getDocumentURI())) {
+					// The target not to highlight is not the same origin XML Schema document,
+					// ignore it.
+					return;
+				}
+				highlights
+						.add(new DocumentHighlight(
+								XMLPositionUtility.createRange(targetAttr.getNodeAttrValue().getStart(),
+										targetAttr.getNodeAttrValue().getEnd(), targetDocument),
+								DocumentHighlightKind.Write));
 			});
 
 		} else if (XSDUtils.isXSTargetElement(attr.getOwnerElement())) {

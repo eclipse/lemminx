@@ -11,7 +11,6 @@
 package org.eclipse.lsp4xml.extensions.xsd.contentmodel;
 
 import java.lang.reflect.Field;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -49,12 +48,11 @@ import org.eclipse.lsp4xml.dom.DOMAttr;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMElement;
 import org.eclipse.lsp4xml.dom.DOMNode;
-import org.eclipse.lsp4xml.dom.DOMParser;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.FilesChangedTracker;
 import org.eclipse.lsp4xml.extensions.xsd.utils.XSDUtils;
-import org.eclipse.lsp4xml.utils.IOUtils;
+import org.eclipse.lsp4xml.utils.DOMUtils;
 import org.eclipse.lsp4xml.utils.StringUtils;
 import org.eclipse.lsp4xml.utils.URIUtils;
 import org.eclipse.lsp4xml.utils.XMLPositionUtility;
@@ -268,7 +266,8 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 			// xs:attribute.
 			// To retrieve the proper location of xs:element, xs:attribute, we load the XML
 			// Schema in the DOM Document of LSP4XML which stores location.
-			DOMDocument targetSchema = getSchemaDocument(documentURI);
+			DOMDocument targetSchema = DOMUtils.loadDocument(documentURI,
+					originNode.getOwnerDocument().getResolverExtensionManager());
 			if (targetSchema == null) {
 				return null;
 			}
@@ -378,22 +377,6 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 	 */
 	private static SchemaGrammar getSchemaGrammar(XSNamespaceItem namespaceItem) {
 		return (namespaceItem != null && namespaceItem instanceof SchemaGrammar) ? (SchemaGrammar) namespaceItem : null;
-	}
-
-	/**
-	 * Returns the DOM document from the given XML Schema uri.
-	 * 
-	 * @param documentURI the schema URI
-	 * @return the DOM document from the given XML Schema uri.
-	 */
-	private static DOMDocument getSchemaDocument(String documentURI) {
-		try {
-			return DOMParser.getInstance().parse(IOUtils.convertStreamToString(new URL(documentURI).openStream()),
-					documentURI, null);
-		} catch (Exception e) {
-			LOGGER.log(Level.SEVERE, "Error while loading XML Schema '" + documentURI + "'.", e);
-			return null;
-		}
 	}
 
 	/**

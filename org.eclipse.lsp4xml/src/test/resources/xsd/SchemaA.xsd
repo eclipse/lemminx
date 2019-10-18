@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<xs:schema id="tns" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:include schemaLocation="SchemaB.xsd" />
+  
+	<xs:complexType name="Bar">
+		<xs:sequence>
+			<xs:element name="FooBar" type="xs:string" />
+			<xs:element ref="TypeFromB" />
+			<xs:element ref="TypeFromC" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="Root">
+		<xs:sequence>
+			<xs:element name="Bar" type="Bar" minOccurs="1" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:element name="Root" type="Root"></xs:element>
+</xs:schema>
