@@ -25,6 +25,8 @@ import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMElement;
 import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.FilesChangedTracker;
+import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
+import org.eclipse.lsp4xml.utils.DOMUtils;
 import org.eclipse.lsp4xml.utils.StringUtils;
 import org.eclipse.lsp4xml.utils.URIUtils;
 import org.w3c.dom.Document;
@@ -121,13 +123,16 @@ public class XSDUtils {
 	 * Collect XSD target attributes declared in the XML Schema according the given
 	 * attribute and binding type.
 	 * 
-	 * @param originAttr the origin attribute.
-	 * @param matchAttr  true if the attribute value must match the value of target
-	 *                   attribute value and false otherwise.
-	 * @param collector  collector to collect XSD target attributes.
+	 * @param originAttr             the origin attribute.
+	 * @param matchAttr              true if the attribute value must match the
+	 *                               value of target attribute value and false
+	 *                               otherwise.
+	 * @param searchInExternalSchema true if search must be done in included XML
+	 *                               Schema (xs:include) and false otherwise.
+	 * @param collector              collector to collect XSD target attributes.
 	 */
 	public static void searchXSTargetAttributes(DOMAttr originAttr, BindingType bindingType, boolean matchAttr,
-			BiConsumer<String, DOMAttr> collector) {
+			boolean searchInExternalSchema, BiConsumer<String, DOMAttr> collector) {
 		if (bindingType == BindingType.NONE) {
 			return;
 		}
@@ -155,6 +160,20 @@ public class XSDUtils {
 		}
 
 		// Loop for element complexType.
+		searchXSTargetAttributes(originAttr, bindingType, matchAttr, collector, documentElement, targetNamespacePrefix,
+				originName, new HashSet<>(), searchInExternalSchema);
+	}
+
+	private static void searchXSTargetAttributes(DOMAttr originAttr, BindingType bindingType, boolean matchAttr,
+			BiConsumer<String, DOMAttr> collector, DOMElement documentElement, String targetNamespacePrefix,
+			String originName, Set<String> visitedURIs, boolean searchInExternalSchema) {
+		DOMDocument document = documentElement.getOwnerDocument();
+		String documentURI = document.getDocumentURI();
+		if (visitedURIs.contains(documentURI)) {
+			return;
+		}
+		visitedURIs.add(documentURI);
+		Set<String> externalURIS = null;
 		NodeList children = documentElement.getChildNodes();
 		for (int i = 0; i < children.getLength(); i++) {
 			Node node = children.item(i);
@@ -166,6 +185,31 @@ public class XSDUtils {
 					DOMAttr targetAttr = (DOMAttr) targetElement.getAttributeNode("name");
 					if (targetAttr != null && (!matchAttr || Objects.equal(originName, targetAttr.getValue()))) {
 						collector.accept(targetNamespacePrefix, targetAttr);
+					}
+				} else if (isXSInclude(targetElement)) {
+					// collect xs:include XML Schema location
+					String schemaLocation = targetElement.getAttribute("schemaLocation");
+					if (schemaLocation != null) {
+						if (externalURIS == null) {
+							externalURIS = new HashSet<>();
+						}
+						externalURIS.add(schemaLocation);
+					}
+				}
+			}
+		}
+		if (searchInExternalSchema && externalURIS != null) {
+			// Search in xs:include XML Schema location
+			URIResolverExtensionManager resolverExtensionManager = document.getResolverExtensionManager();
+			for (String externalURI : externalURIS) {
+				String resourceURI = resolverExtensionManager.resolve(documentURI, null, externalURI);
+				if (URIUtils.isFileResource(resourceURI)) {
+					DOMDocument externalDocument = DOMUtils.loadDocument(resourceURI,
+							document.getResolverExtensionManager());
+					if (externalDocument != null) {
+						searchXSTargetAttributes(originAttr, bindingType, matchAttr, collector,
+								externalDocument.getDocumentElement(), targetNamespacePrefix, originName, visitedURIs,
+								searchInExternalSchema);
 					}
 				}
 			}
@@ -346,6 +390,10 @@ public class XSDUtils {
 		return "group".equals(element.getLocalName());
 	}
 
+	public static boolean isXSInclude(Element element) {
+		return "include".equals(element.getLocalName());
+	}
+
 	public static boolean isXSTargetElement(Element element) {
 		return isXSComplexType(element) || isXSSimpleType(element) || isXSElement(element) || isXSGroup(element);
 	}
@@ -394,5 +442,4 @@ public class XSDUtils {
 			}
 		}
 	}
-
 }

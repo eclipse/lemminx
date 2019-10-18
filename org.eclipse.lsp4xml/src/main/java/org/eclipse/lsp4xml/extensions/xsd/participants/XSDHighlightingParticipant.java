@@ -53,13 +53,16 @@ public class XSDHighlightingParticipant implements IHighlightingParticipant {
 			highlights
 					.add(new DocumentHighlight(XMLPositionUtility.createRange(originAttr.getNodeAttrValue().getStart(),
 							originAttr.getNodeAttrValue().getEnd(), document), DocumentHighlightKind.Read));
-			// Search target attributes
-			XSDUtils.searchXSTargetAttributes(originAttr, bindingType, true, (targetNamespacePrefix, targetAttr) -> {
-				highlights.add(new DocumentHighlight(
-						XMLPositionUtility.createRange(targetAttr.getNodeAttrValue().getStart(),
-								targetAttr.getNodeAttrValue().getEnd(), targetAttr.getOwnerDocument()),
-						DocumentHighlightKind.Write));
-			});
+			// Search target attributes only in the XML Schema and not in xs:include since
+			// LSP highlighting works only for a given file
+			boolean searchInExternalSchema = false;
+			XSDUtils.searchXSTargetAttributes(originAttr, bindingType, true, searchInExternalSchema,
+					(targetNamespacePrefix, targetAttr) -> {
+						highlights.add(new DocumentHighlight(
+								XMLPositionUtility.createRange(targetAttr.getNodeAttrValue().getStart(),
+										targetAttr.getNodeAttrValue().getEnd(), targetAttr.getOwnerDocument()),
+								DocumentHighlightKind.Write));
+					});
 
 		} else if (XSDUtils.isXSTargetElement(attr.getOwnerElement())) {
 			// It's an target attribute, highlight all origin attributes linked to this

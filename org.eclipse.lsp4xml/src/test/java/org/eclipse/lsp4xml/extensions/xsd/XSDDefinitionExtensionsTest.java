@@ -12,6 +12,8 @@ package org.eclipse.lsp4xml.extensions.xsd;
 import static org.eclipse.lsp4xml.XMLAssert.ll;
 import static org.eclipse.lsp4xml.XMLAssert.r;
 
+import java.nio.file.Paths;
+
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.commons.BadLocationException;
@@ -32,7 +34,7 @@ public class XSDDefinitionExtensionsTest {
 				"</xs:schema>"; //
 		testDefinitionFor(xml, ll("test.xsd", r(1, 1, 1, 10), r(2, 2, 2, 11)));
 	}
-	
+
 	@Test
 	public void definitionOnElementType() throws BadLocationException {
 		// definition on |
@@ -149,6 +151,41 @@ public class XSDDefinitionExtensionsTest {
 				"	<xs:element name=\"notation\" />\r\n" + //
 				"</xs:schema>";
 		testDefinitionFor(xml, ll("test.xsd", r(5, 17, 5, 33), r(12, 16, 12, 29)));
+	}
+
+	@Test
+	public void definitionWithXSInclude() throws BadLocationException {
+		// - SchemaA includes SchemaB (which defines 'TypeFromB' xs:element)
+		// - SchemaB includes SchemaC (which defines 'TypeFromC' xs:element)
+
+		// defintion from Schema A -> Schema B
+		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n" + //
+				"<xs:schema id=\"tns\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">\r\n"
+				+ //
+				"	<xs:include schemaLocation=\"src/test/resources/xsd/SchemaB.xsd\" />\r\n" + //
+				"  \r\n" + //
+				"	<xs:complexType name=\"Bar\">\r\n" + //
+				"		<xs:sequence>\r\n" + //
+				"			<xs:element ref=\"TypeFr|omB\" />\r\n" + //
+				"		</xs:sequence>\r\n" + //
+				"	</xs:complexType>";
+		String schemaBPath = Paths.get("src/test/resources/xsd/SchemaB.xsd").toUri().toString();
+		testDefinitionFor(xml, ll(schemaBPath, r(6, 19, 6, 30), r(4, 18, 4, 29)));
+
+		// defintion from Schema A -> Schema C
+		xml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n" + //
+				"<xs:schema id=\"tns\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">\r\n"
+				+ //
+				"	<xs:include schemaLocation=\"src/test/resources/xsd/SchemaB.xsd\" />\r\n" + //
+				"  \r\n" + //
+				"	<xs:complexType name=\"Bar\">\r\n" + //
+				"		<xs:sequence>\r\n" + //
+				"			<xs:element ref=\"TypeFr|omC\" />\r\n" + //
+				"		</xs:sequence>\r\n" + //
+				"	</xs:complexType>";
+		String schemaCPath = Paths.get("src/test/resources/xsd/SchemaC.xsd").toUri().toString();
+		testDefinitionFor(xml, ll(schemaCPath, r(6,19,6,30), r(3, 18, 3, 29)));
+
 	}
 
 	private static void testDefinitionFor(String xml, LocationLink... expectedItems) throws BadLocationException {
