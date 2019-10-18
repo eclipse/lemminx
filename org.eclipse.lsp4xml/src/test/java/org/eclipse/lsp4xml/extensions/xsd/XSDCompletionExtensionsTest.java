@@ -149,6 +149,25 @@ public class XSDCompletionExtensionsTest {
 				c("xs:schemaTop", te(5, 18, 5, 18, "xs:schemaTop"), "xs:schemaTop"));
 	}
 
+	@Test
+	public void complectionWithXSInclude() throws BadLocationException {
+		// - SchemaA includes SchemaB (which defines 'TypeFromB' xs:element)
+		// - SchemaB includes SchemaC (which defines 'TypeFromC' xs:element)
+		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n" + //
+				"<xs:schema id=\"tns\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">\r\n"
+				+ //
+				"	<xs:include schemaLocation=\"src/test/resources/xsd/SchemaB.xsd\" />\r\n" + //
+				"  \r\n" + //
+				"	<xs:complexType name=\"Bar\">\r\n" + //
+				"		<xs:sequence>\r\n" + //
+				"			<xs:element ref=\"|\" />\r\n" + // here completion shows TypeFromB, TypeFromC
+				"		</xs:sequence>\r\n" + //
+				"	</xs:complexType>";
+		XMLAssert.testCompletionFor(xml, null, "test.xml", 2,
+				c("TypeFromB", te(6, 20, 6, 20, "TypeFromB"), "TypeFromB"),
+				c("TypeFromC", te(6, 20, 6, 20, "TypeFromC"), "TypeFromC"));
+	}
+
 	private void testCompletionFor(String xml, CompletionItem... expectedItems) throws BadLocationException {
 		XMLAssert.testCompletionFor(xml, null, expectedItems);
 	}

@@ -1,13 +1,21 @@
 package org.eclipse.lsp4xml.utils;
 
+import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMElement;
+import org.eclipse.lsp4xml.dom.DOMParser;
+import org.eclipse.lsp4xml.uriresolver.URIResolverExtensionManager;
 
 /**
  * DOM Utilities.
  *
  */
 public class DOMUtils {
+
+	private static final Logger LOGGER = Logger.getLogger(DOMUtils.class.getName());
 
 	private static final String XSD_EXTENSION = ".xsd";
 
@@ -92,9 +100,27 @@ public class DOMUtils {
 
 	/**
 	 * Returns true if element contains only DOMText and false otherwise.
+	 * 
 	 * @return true if element contains only DOMText and false otherwise.
 	 */
 	public static boolean containsTextOnly(DOMElement element) {
 		return element.getChildNodes().getLength() == 1 && element.getFirstChild().isText();
+	}
+
+	/**
+	 * Returns the DOM document from the given XML Schema uri.
+	 * 
+	 * @param documentURI              the schema URI
+	 * @param resolverExtensionManager
+	 * @return the DOM document from the given XML Schema uri.
+	 */
+	public static DOMDocument loadDocument(String documentURI, URIResolverExtensionManager resolverExtensionManager) {
+		try {
+			return DOMParser.getInstance().parse(IOUtils.convertStreamToString(new URL(documentURI).openStream()),
+					documentURI, resolverExtensionManager);
+		} catch (Exception e) {
+			LOGGER.log(Level.SEVERE, "Error while loading XML Schema '" + documentURI + "'.", e);
+			return null;
+		}
 	}
 }
