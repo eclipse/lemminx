@@ -406,7 +406,7 @@ public class XMLSchemaDiagnosticsTest {
 			"        <STOKENN>FIX_ERROR_RANGE_HERE</STOKENN>\r\n" + // <-- Error should follow pattern [0-9]{8}
 			"    </cprev>\r\n" +
 			"</cpr>";
-		Diagnostic patternValid = d(6, 47, 6, 47, XMLSchemaErrorCode.cvc_pattern_valid);
+		Diagnostic patternValid = d(6, 17, 6, 37, XMLSchemaErrorCode.cvc_pattern_valid);
 		Diagnostic cvcType313 = d(6, 17, 6, 37, XMLSchemaErrorCode.cvc_type_3_1_3);
 		Diagnostic cvcType24b = d(3, 5, 3, 10, XMLSchemaErrorCode.cvc_complex_type_2_4_b);
 		testDiagnosticsFor(xml, patternValid, cvcType313, cvcType24b);
