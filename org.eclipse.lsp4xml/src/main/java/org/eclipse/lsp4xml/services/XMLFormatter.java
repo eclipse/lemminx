@@ -435,11 +435,7 @@ class XMLFormatter {
 					this.xmlBuilder.endComment();
 					if (this.indentLevel == 0) {
 						this.xmlBuilder.linefeed();
-					} else if (this.indentLevel > 0 && !comment.isCommentSameLineEndTag()) {
-						this.xmlBuilder.linefeed();
-						this.xmlBuilder.indent(this.indentLevel);
 					}
-
 				} else if (node.isProcessingInstruction()) {
 					addPIToXMLBuilder(node, this.xmlBuilder);
 					if (this.indentLevel == 0) {
