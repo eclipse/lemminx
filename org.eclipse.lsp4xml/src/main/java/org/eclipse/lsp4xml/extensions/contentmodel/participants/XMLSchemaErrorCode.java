@@ -154,8 +154,12 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 			return XMLPositionUtility.selectAttributeFromGivenNameAt(attrName, offset, document);
 		}
 		case cvc_pattern_valid: {
-			String attrValue = getString(arguments[0]);
-			return XMLPositionUtility.selectAttributeValueByGivenValueAt(attrValue, offset, document);
+			String value = getString(arguments[0]);
+			Range result = XMLPositionUtility.selectAttributeValueByGivenValueAt(value, offset, document);
+			if(result != null) {
+				return result;
+			}
+			return XMLPositionUtility.selectTrimmedText(offset, document);
 		}
 		case SchemaLocation:
 		case schema_reference_4: {
@@ -209,7 +213,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 			DOMElement element = (DOMElement) document.findNodeAt(offset);
 
 			if (DOMUtils.containsTextOnly(element)) {
-				return XMLPositionUtility.selectTextTrimmed(offset, document);
+				return XMLPositionUtility.selectTrimmedText(offset, document);
 			} else {
 				return XMLPositionUtility.selectFirstChild(offset, document);
 			}
