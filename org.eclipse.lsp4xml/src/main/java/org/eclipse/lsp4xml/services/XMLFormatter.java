@@ -155,6 +155,7 @@ class XMLFormatter {
 				tag.equals("tt")||
 				tag.equals("u")||
 				tag.equals("xref")||
+				tag.equals("quote")||
 				tag.equals("show-number")||
 				tag.equals("show-page")||
 				tag.equals("show-id")||
