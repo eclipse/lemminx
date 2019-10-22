@@ -9,6 +9,8 @@
 *******************************************************************************/
 package org.eclipse.lsp4xml.utils;
 
+import java.util.List;
+
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.MarkupKind;
 
@@ -56,5 +58,30 @@ public class MarkupContentFactory {
 			content.setKind(MarkupKind.PLAINTEXT);
 		}
 		return content;
+	}
+
+	/**
+	 * Create the markup content according the given markup kind and the capability
+	 * of the client.
+	 * 
+	 * @param values         the list of documentation values
+	 * @return the markup content according the given markup kind and the capability
+	 *         of the client.
+	 */
+	public static MarkupContent creatMarkupContent(List<String> values, IMarkupKindSupport request) {
+		String kind = request.canSupportMarkupKind(MarkupKind.MARKDOWN) ? MarkupKind.MARKDOWN : MarkupKind.PLAINTEXT;
+		if (values.size() ==1) {
+			return new MarkupContent(kind, values.get(0));
+		}
+		StringBuilder retValue = new StringBuilder();
+		for (String value : values) {
+			retValue.append(value);
+			if (kind.equals(MarkupKind.MARKDOWN)) {
+				retValue.append("___");
+			}
+			retValue.append(System.lineSeparator() );
+			retValue.append(System.lineSeparator() );
+		}
+		return new MarkupContent(kind, retValue.toString());
 	}
 }

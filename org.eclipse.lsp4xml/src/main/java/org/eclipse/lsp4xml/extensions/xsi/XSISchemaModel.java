@@ -15,7 +15,6 @@ import java.util.Collection;
 
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
-import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.Range;
@@ -29,7 +28,6 @@ import org.eclipse.lsp4xml.services.AttributeCompletionItem;
 import org.eclipse.lsp4xml.services.extensions.ICompletionRequest;
 import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
 import org.eclipse.lsp4xml.services.extensions.IHoverRequest;
-import org.eclipse.lsp4xml.settings.SharedSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.utils.StringUtils;
 
@@ -206,7 +204,7 @@ public class XSISchemaModel {
 		return hasAttribute(root, null, name);
 	}
 
-	public static Hover computeHoverResponse(DOMAttr attribute, IHoverRequest request) {
+	public static String computeHoverResponse(DOMAttr attribute, IHoverRequest request) {
 
 		String name = attribute.getName();
 		if(!name.startsWith(request.getXMLDocument().getSchemaInstancePrefix() + ":")) {
@@ -239,10 +237,7 @@ public class XSISchemaModel {
 				return null;
 			}
 		}
-		
-		MarkupContent content = new MarkupContent();
-		content.setKind(MarkupKind.MARKDOWN);
-		content.setValue(doc);
-		return new Hover(content);
+
+		return doc;
 	}
 }

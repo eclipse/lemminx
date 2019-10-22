@@ -10,8 +10,6 @@
  */
 package org.eclipse.lsp4xml.services.extensions;
 
-import org.eclipse.lsp4j.Hover;
-import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
@@ -60,12 +58,10 @@ public class HTMLHoverExtensionsTest {
 		class HTMLHoverParticipant extends HoverParticipantAdapter {
 
 			@Override
-			public Hover onTag(IHoverRequest request) {
+			public String onTag(IHoverRequest request) {
 				String tag = request.getCurrentTag();
 				String tagLabel = request.isOpen() ? "<" + tag + ">" : "</" + tag + ">";
-				MarkupContent content = new MarkupContent();
-				content.setValue(tagLabel);
-				return new Hover(content, request.getTagRange());
+				return tagLabel;
 			}
 		}
 	}

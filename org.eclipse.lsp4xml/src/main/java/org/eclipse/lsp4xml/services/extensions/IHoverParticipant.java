@@ -10,18 +10,34 @@
  */
 package org.eclipse.lsp4xml.services.extensions;
 
-import org.eclipse.lsp4j.Hover;
-
 /**
  * Hover participant API.
  *
  */
 public interface IHoverParticipant {
 
-	Hover onTag(IHoverRequest request) throws Exception;
+	/**
+	 * onTag method
+	 *
+	 * @param hoverRequest the hover request.
+	 * @return the Value of MarkupContent {@link String}
+	 */
+	String onTag(IHoverRequest request) throws Exception;
 
-	Hover onAttributeName(IHoverRequest request) throws Exception;
+	/**
+	 * onAttributeName method
+	 *
+	 * @param hoverRequest the hover request.
+	 * @return the Value of MarkupContent {@link String}
+	 */
+	String onAttributeName(IHoverRequest request) throws Exception;
 
-	Hover onAttributeValue(IHoverRequest request) throws Exception;
+	/**
+	 * onAttributeValue method
+	 *
+	 * @param hoverRequest the hover request.
+	 * @return the Value of MarkupContent {@link String}
+	 */
+	String onAttributeValue(IHoverRequest request) throws Exception;
 
 }
