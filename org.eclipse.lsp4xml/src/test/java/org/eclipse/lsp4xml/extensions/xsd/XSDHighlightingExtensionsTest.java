@@ -149,4 +149,24 @@ public class XSDHighlightingExtensionsTest {
 				"				<xs:element re|f"; //
 		testHighlightsFor(xml);
 	}
+
+	@Test
+	public void highlightWithXSInclude() throws BadLocationException {
+		// - SchemaA includes SchemaB (which defines 'TypeFromB' xs:element)
+		// - SchemaB includes SchemaC (which defines 'TypeFromC' xs:element)
+
+		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n" + //
+				"<xs:schema id=\"tns\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">\r\n"
+				+ //
+				"	<xs:include schemaLocation=\"src/test/resources/xsd/SchemaB.xsd\" />\r\n" + //
+				"  \r\n" + //
+				"	<xs:complexType name=\"Bar\">\r\n" + //
+				"		<xs:sequence>\r\n" + //
+				"			<xs:element ref=\"TypeFr|omB\" />\r\n" + //
+				"		</xs:sequence>\r\n" + //
+				"	</xs:complexType>";
+		// TypeFromB is defined in the SchemaB, don't highlight it
+		testHighlightsFor(xml, hl(r(6, 19, 6, 30), Read));
+
+	}
 }

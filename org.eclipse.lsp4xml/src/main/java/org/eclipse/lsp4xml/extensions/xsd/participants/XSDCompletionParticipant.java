@@ -54,17 +54,19 @@ public class XSDCompletionParticipant extends CompletionParticipantAdapter {
 			// - @type (ex : xs:element/@type)
 			// - @base (ex : xs:extension/@base)
 			// bound to complextTypes/@name
-			XSDUtils.searchXSTargetAttributes(originAttr, bindingType, false, (targetNamespacePrefix, targetAttr) -> {
-				CompletionItem item = new CompletionItem();
-				item.setDocumentation(new MarkupContent(MarkupKind.MARKDOWN, DataType.getDocumentation(targetAttr)));
-				String value = createComplexTypeValue(targetAttr, targetNamespacePrefix);
-				String insertText = request.getInsertAttrValue(value);
-				item.setLabel(value);
-				item.setKind(CompletionItemKind.Value);
-				item.setFilterText(insertText);
-				item.setTextEdit(new TextEdit(fullRange, insertText));
-				response.addCompletionItem(item);
-			});
+			XSDUtils.searchXSTargetAttributes(originAttr, bindingType, false, true,
+					(targetNamespacePrefix, targetAttr) -> {
+						CompletionItem item = new CompletionItem();
+						item.setDocumentation(
+								new MarkupContent(MarkupKind.MARKDOWN, DataType.getDocumentation(targetAttr)));
+						String value = createComplexTypeValue(targetAttr, targetNamespacePrefix);
+						String insertText = request.getInsertAttrValue(value);
+						item.setLabel(value);
+						item.setKind(CompletionItemKind.Value);
+						item.setFilterText(insertText);
+						item.setTextEdit(new TextEdit(fullRange, insertText));
+						response.addCompletionItem(item);
+					});
 			if (bindingType.isSimple()) {
 				// Completion on @type (ex : xs:element/@type) bound to Built-in types (ex:
 				// xs:string) ->
