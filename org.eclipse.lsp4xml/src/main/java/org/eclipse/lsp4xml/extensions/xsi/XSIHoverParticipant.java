@@ -10,7 +10,6 @@
 
 package org.eclipse.lsp4xml.extensions.xsi;
 
-import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4xml.dom.DOMAttr;
 import org.eclipse.lsp4xml.services.extensions.HoverParticipantAdapter;
 import org.eclipse.lsp4xml.services.extensions.IHoverRequest;
@@ -21,14 +20,14 @@ import org.eclipse.lsp4xml.services.extensions.IHoverRequest;
 public class XSIHoverParticipant extends HoverParticipantAdapter{
 
 	@Override
-	public Hover onAttributeName(IHoverRequest request) throws Exception {
+	public String onAttributeName(IHoverRequest request) throws Exception {
 
 		DOMAttr attribute = (DOMAttr) request.getNode();
 		return XSISchemaModel.computeHoverResponse(attribute, request);
 	}
 
 	@Override
-	public Hover onAttributeValue(IHoverRequest request) throws Exception {
+	public String onAttributeValue(IHoverRequest request) throws Exception {
 		return null;
 	}
 }

@@ -10,7 +10,6 @@
  */
 package org.eclipse.lsp4xml.extensions.contentmodel.participants;
 
-import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4xml.dom.DOMAttr;
@@ -33,7 +32,7 @@ import org.eclipse.lsp4xml.utils.MarkupContentFactory.IMarkupKindSupport;
 public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 
 	@Override
-	public Hover onTag(IHoverRequest hoverRequest) throws Exception {
+	public String onTag(IHoverRequest hoverRequest) throws Exception {
 		try {
 			ContentModelManager contentModelManager = hoverRequest.getComponent(ContentModelManager.class);
 			DOMElement node = (DOMElement) hoverRequest.getNode();
@@ -41,7 +40,7 @@ public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 			if (cmElement != null) {
 				MarkupContent content = XMLGenerator.createMarkupContent(cmElement, hoverRequest);
 				if (content != null) {
-					return new Hover(content, hoverRequest.getTagRange());
+					return content.getValue();
 				}
 			}
 		} catch (CacheResourceDownloadingException e) {
@@ -51,7 +50,7 @@ public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 	}
 
 	@Override
-	public Hover onAttributeName(IHoverRequest hoverRequest) throws Exception {
+	public String onAttributeName(IHoverRequest hoverRequest) throws Exception {
 		DOMAttr attribute = (DOMAttr) hoverRequest.getNode();
 		try {
 			ContentModelManager contentModelManager = hoverRequest.getComponent(ContentModelManager.class);
@@ -62,7 +61,7 @@ public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 				if (cmAttribute != null) {
 					MarkupContent content = XMLGenerator.createMarkupContent(cmAttribute, cmElement, hoverRequest);
 					if (content != null) {
-						return new Hover(content, hoverRequest.getTagRange());
+						return content.getValue();
 					}
 				}
 			}
@@ -73,13 +72,13 @@ public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 	}
 
 	@Override
-	public Hover onAttributeValue(IHoverRequest hoverRequest) throws Exception {
+	public String onAttributeValue(IHoverRequest hoverRequest) throws Exception {
 		DOMAttr attribute = (DOMAttr) hoverRequest.getNode();
 
 		// Attempts to compute specifically for XSI related attributes since
 		// the XSD itself does not have enough information. Should create a mock XSD
 		// eventually.
-		Hover temp = XSISchemaModel.computeHoverResponse(attribute, hoverRequest);
+		String temp = XSISchemaModel.computeHoverResponse(attribute, hoverRequest);
 		if (temp != null) {
 			return temp;
 		}
@@ -96,7 +95,7 @@ public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 					MarkupContent content = XMLGenerator.createMarkupContent(cmAttribute, attributeValue, cmElement,
 							hoverRequest);
 					if (content != null) {
-						return new Hover(content, hoverRequest.getTagRange());
+						return content.getValue();
 					}
 				}
 			}
@@ -106,11 +105,11 @@ public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 		return null;
 	}
 
-	private static Hover getCacheWarningHover(CacheResourceDownloadingException e, IMarkupKindSupport support) {
+	private static String getCacheWarningHover(CacheResourceDownloadingException e, IMarkupKindSupport support) {
 		// Here cache is enabled and some XML Schema, DTD, etc are loading
 		MarkupContent content = MarkupContentFactory.createMarkupContent(
 				"Cannot process " + (e.isDTD() ? "DTD" : "XML Schema") + " hover: " + e.getMessage(),
 				MarkupKind.MARKDOWN, support);
-		return new Hover(content);
+		return content.getValue();
 	}
 }
