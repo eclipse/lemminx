@@ -15,8 +15,8 @@
 ### Others
 
  * Update lsp4j version to 0.8.1. See [#571](https://github.com/angelozerr/lsp4xml/pull/571)
- * Reject download of resource which are not in the cache folder. See [#567](https://github.com/angelozerr/lsp4xml/pull/567)
- * Add disallowDocTypeDecl & resolveExternalEntities validation settings. See [#566](https://github.com/angelozerr/lsp4xml/pull/566)
+ * Reject download of resource which are not in the cache folder. Fixes [CVE-2019-18212](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-18212). See [#567](https://github.com/angelozerr/lsp4xml/pull/567)
+ * Add disallowDocTypeDecl & resolveExternalEntities validation settings. Fixes [CVE-2019-18213](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-18213). See [#566](https://github.com/angelozerr/lsp4xml/pull/566)
 
 ## [0.9.0](https://github.com/angelozerr/lsp4xml/milestone/10?closed=1) (September 10, 2019)
 
