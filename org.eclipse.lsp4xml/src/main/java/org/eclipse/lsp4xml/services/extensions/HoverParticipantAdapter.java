@@ -19,17 +19,17 @@ import org.eclipse.lsp4j.Hover;
 public class HoverParticipantAdapter implements IHoverParticipant {
 
 	@Override
-	public Hover onTag(IHoverRequest request) throws Exception {
+	public String onTag(IHoverRequest request) throws Exception {
 		return null;
 	}
 
 	@Override
-	public Hover onAttributeName(IHoverRequest request) throws Exception {
+	public String onAttributeName(IHoverRequest request) throws Exception {
 		return null;
 	}
 
 	@Override
-	public Hover onAttributeValue(IHoverRequest request) throws Exception {
+	public String onAttributeValue(IHoverRequest request) throws Exception {
 		return null;
 	}
 

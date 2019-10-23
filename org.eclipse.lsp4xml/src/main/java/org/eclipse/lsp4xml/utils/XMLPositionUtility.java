@@ -565,7 +565,7 @@ public class XMLPositionUtility {
 	 * @return range covering the trimmed text belonging to the node
 	 * located at offset
 	 */
-	public static Range selectTextTrimmed(int offset, DOMDocument document) {
+	public static Range selectTrimmedText(int offset, DOMDocument document) {
 		DOMNode node = document.findNodeAt(offset);
 		if (node == null || !node.isElement()) {
 			return null;
