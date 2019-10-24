@@ -12,12 +12,14 @@ package org.eclipse.lsp4xml.services;
 
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4xml.commons.BadLocationException;
+import org.eclipse.lsp4xml.dom.DOMAttr;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMElement;
 import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.dom.LineIndentInfo;
 import org.eclipse.lsp4xml.services.extensions.IPositionRequest;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
+import org.w3c.dom.Node;
 
 /**
  * Abstract class for position request.
@@ -30,7 +32,6 @@ abstract class AbstractPositionRequest implements IPositionRequest {
 	private final XMLExtensionsRegistry extensionsRegistry;
 	private final int offset;
 
-	private String currentAttributeName;
 	private final DOMNode node;
 	private LineIndentInfo indentInfo;
 
@@ -101,11 +102,27 @@ abstract class AbstractPositionRequest implements IPositionRequest {
 
 	@Override
 	public String getCurrentAttributeName() {
-		return currentAttributeName;
+		DOMAttr attr = getCurrentAttribute();
+		return attr != null ? attr.getName() : null;
 	}
 
-	void setCurrentAttributeName(String currentAttributeName) {
-		this.currentAttributeName = currentAttributeName;
+	/**
+	 * Returns the current attribute at the given offset and null otherwise.
+	 * 
+	 * @return the current attribute at the given offset and null otherwise.
+	 */
+	private DOMAttr getCurrentAttribute() {
+		if (node == null) {
+			return null;
+		}
+		switch (node.getNodeType()) {
+		case Node.ELEMENT_NODE:
+			return node.findAttrAt(offset);
+		case Node.ATTRIBUTE_NODE:
+			return ((DOMAttr) node);
+		default:
+			return null;
+		}
 	}
 
 	@Override
