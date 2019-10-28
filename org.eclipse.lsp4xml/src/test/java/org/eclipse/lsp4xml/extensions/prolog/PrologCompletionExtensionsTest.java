@@ -40,27 +40,53 @@ public class PrologCompletionExtensionsTest {
 	}
 
 	@Test
-	public void completionVersion() throws BadLocationException {
+	public void completionVersionWithV() throws BadLocationException {
 		// completion on |
 		String xml = "<?xml v|?>\r\n" + //
 				"<project xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">";
-		testCompletionFor(xml, c("version", te(0, 6, 0, 7, "version=\"1.0\""), "version"));
+		testCompletionFor(xml, 1, c("version", te(0, 6, 0, 7, "version=\"1.0\""), "version"));
 	}
 
 	@Test
-	public void completionEncoding() throws BadLocationException {
+	public void completionVersion() throws BadLocationException {
 		// completion on |
-		String xml = "<?xml e|?>\r\n" + //
+		String xml = "<?xml |?>\r\n" + //
 				"<project xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">";
-		testCompletionFor(xml, c("encoding", te(0, 6, 0, 7, "encoding=\"UTF-8\""), "encoding"));
+		testCompletionFor(xml, c("version", te(0, 6, 0, 6, "version=\"1.0\""), "version"));
+	}
+
+	@Test
+	public void completionEncodingAndStandalone() throws BadLocationException {
+		// completion on |
+		String xml = "<?xml version=\"1.0\" |?>\r\n" + //
+				"<project xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">";
+		testCompletionFor(xml, 2, 
+			c("encoding", te(0, 20, 0, 20, "encoding=\"UTF-8\""), "encoding"), 
+			c("standalone", te(0, 20, 0, 20, "standalone=\"yes\""), "standalone"));
 	}
 
 	@Test
 	public void completionStandalone() throws BadLocationException {
 		// completion on |
-		String xml = "<?xml s|?>\r\n" + //
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" |?>\r\n" + //
 				"<project xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">";
-		testCompletionFor(xml, c("standalone", te(0, 6, 0, 7, "standalone=\"yes\""), "standalone"));
+		testCompletionFor(xml, 1, c("standalone", te(0, 37, 0, 37, "standalone=\"yes\""), "standalone"));
+	}
+
+	@Test
+	public void noCompletionsAfterStandalone() throws BadLocationException {
+		// completion on |
+		String xml = "<?xml version=\"1.0\" standalone=\"yes\" |?>\r\n" + //
+				"<project xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">";
+		testCompletionFor(xml, 0, (CompletionItem []) null);
+	}
+
+	@Test
+	public void completionEncodingBeforeStandalone() throws BadLocationException {
+		// completion on |
+		String xml = "<?xml version=\"1.0\" | standalone=\"yes\" ?>\r\n" + //
+				"<project xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">";
+		testCompletionFor(xml, 1, c("encoding", te(0, 20, 0, 20, "encoding=\"UTF-8\""), "encoding"));
 	}
 
 	@Test
@@ -243,6 +269,10 @@ public class PrologCompletionExtensionsTest {
 
 	private void testCompletionFor(String xml, CompletionItem... expectedItems) throws BadLocationException {
 		XMLAssert.testCompletionFor(xml, null, expectedItems);
+	}
+
+	private void testCompletionFor(String xml, int expectedCount, CompletionItem... expectedItems) throws BadLocationException {
+		XMLAssert.testCompletionFor(xml, expectedCount, expectedItems);
 	}
 
 	private void testCompletionFor(String xml, String fileURI, boolean autoCloseTags, boolean isSnippetsSupported,

@@ -39,6 +39,7 @@ import org.eclipse.lsp4xml.services.extensions.ICompletionResponse;
 import org.eclipse.lsp4xml.settings.SharedSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.utils.StringUtils;
+import org.w3c.dom.NamedNodeMap;
 
 /**
  * This class holds values that represent the XSI xsd. Can be seen at
@@ -144,17 +145,35 @@ public class PrologModel {
 			return;
 		}
 		boolean isSnippetsSupported = request.isCompletionSnippetsSupported();
-		
-		if(!prolog.hasAttribute(VERSION_NAME)) {
+		int attrIndex = getAttributeCompletionPosition(offset, prolog);
+
+		if(attrIndex == 0) { // 1st attribute
+			if(isCurrentAttributeEqual(VERSION_NAME, prolog, 0)) {
+				return;
+			}
 			createCompletionItem(VERSION_NAME, isSnippetsSupported, true, editRange, VERSION_1, VERSION_VALUES, null, response, formattingsSettings);
+			return;
 		}
 
-		if(!prolog.hasAttribute(ENCODING_NAME)) {
-			createCompletionItem(ENCODING_NAME, isSnippetsSupported, true, editRange, UTF_8, ENCODING_VALUES, null, response, formattingsSettings);
+		if(attrIndex == 1) { // 2nd attribute
+			if(!isCurrentAttributeEqual(ENCODING_NAME, prolog, 1)) {
+				createCompletionItem(ENCODING_NAME, isSnippetsSupported, true, editRange, UTF_8, ENCODING_VALUES, null, response, formattingsSettings);
+			} else {
+				return;
+			}
+
+			if(!isCurrentAttributeEqual(STANDALONE_NAME, prolog, 1)) {
+				createCompletionItem(STANDALONE_NAME, isSnippetsSupported, true, editRange, YES, STANDALONE_VALUES, null, response, formattingsSettings);
+			}
+			return;
 		}
 
-		if(!prolog.hasAttribute(STANDALONE_NAME)) {
-			createCompletionItem(STANDALONE_NAME, isSnippetsSupported, true, editRange, YES, STANDALONE_VALUES, null, response, formattingsSettings);
+		if(attrIndex == 2) { // 3rd attribute
+			DOMAttr attrBefore = prolog.getAttributeAtIndex(1);
+			if(!STANDALONE_NAME.equals(attrBefore.getName()) && !isCurrentAttributeEqual(STANDALONE_NAME, prolog, 2)) {
+				createCompletionItem(STANDALONE_NAME, isSnippetsSupported, true, editRange, YES, STANDALONE_VALUES, null, response, formattingsSettings);
+			}
+			return;
 		}
 
 	}
@@ -199,6 +218,72 @@ public class PrologModel {
 			sortText++;
 			response.addCompletionItem(item);
 		}
+	}
+
+	/**
+	 * Returns the position the offset is in in relation to the attributes and their order
+	 * 
+	 * example:
+	 * 
+	 * <element a="1" b="2" | c="3">
+	 * 
+	 * This will return 2 since if you insert a new attribute there you can access
+	 * it from the list of attributes with this index.
+	 * @param completionOffset
+	 * @param element
+	 * @return
+	 */
+	private static int getAttributeCompletionPosition(int completionOffset, DOMNode element) {
+		
+		NamedNodeMap attributeList = element.getAttributes();
+		
+		if(attributeList == null) {
+			return 0;
+		}
+		
+		int attributeListLength = attributeList.getLength();
+		
+
+		if(attributeListLength == 0) {
+			return 0;
+		}
+		
+		DOMAttr attr;
+
+		for (int i = 0; i < attributeListLength; i++) {
+			attr = element.getAttributeAtIndex(i);
+			if(completionOffset <= attr.getStart()) {
+				return i;
+			}
+		}
+		
+		return attributeListLength;
+	}
+
+	/**
+	 * Returns true if the current attribute in the given position of the element's list of attributes
+	 * equals the provided attributeName
+	 * @param attributeName
+	 * @param element
+	 * @param position
+	 * @return
+	 */
+	private static boolean isCurrentAttributeEqual(String attributeName, DOMNode element, int index) {
+		NamedNodeMap attributeList = element.getAttributes();
+
+		if(attributeList == null) {
+			return false;
+		}
+
+		if(index >= attributeList.getLength()) {
+			return false;
+		}
+
+		if(attributeName.equals(element.getAttributeAtIndex(index).getName())) {
+			return true;
+		}
+
+		return false;
 	}
 
 }
