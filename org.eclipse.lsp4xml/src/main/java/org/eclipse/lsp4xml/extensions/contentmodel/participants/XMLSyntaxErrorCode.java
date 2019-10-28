@@ -51,7 +51,7 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 	LessthanInAttValue, MarkupEntityMismatch, MarkupNotRecognizedInContent, NameRequiredInReference, OpenQuoteExpected,
 	PITargetRequired, PseudoAttrNameExpected, QuoteRequiredInXMLDecl, RootElementTypeMustMatchDoctypedecl,
 	SDDeclInvalid, SpaceRequiredBeforeEncodingInXMLDecl, SpaceRequiredBeforeStandalone, SpaceRequiredInPI,
-	VersionInfoRequired, VersionNotSupported, XMLDeclUnterminated, CustomETag, PrematureEOF, DoctypeNotAllowed;
+	VersionInfoRequired, VersionNotSupported, XMLDeclUnterminated, CustomETag, PrematureEOF, DoctypeNotAllowed, NoMorePseudoAttributes;
 
 	private final String code;
 
@@ -109,6 +109,7 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 			String attrName = getString(arguments[1]);
 			return XMLPositionUtility.selectAttributeNameFromGivenNameAt(attrName, offset, document);
 		}
+		case NoMorePseudoAttributes:
 		case EncodingDeclRequired:
 		case EqRequiredInXMLDecl:
 			return XMLPositionUtility.selectAttributeNameAt(offset, document);

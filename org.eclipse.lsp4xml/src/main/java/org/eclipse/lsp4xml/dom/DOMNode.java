@@ -370,6 +370,23 @@ public abstract class DOMNode implements Node, DOMRange {
 		return value;
 	}
 
+	/**
+	 * Returns the attribute at the given index, the order is how the attributes
+	 * appear in the document.
+	 * @param index Starting at 0, index of attribute you want
+	 * @return
+	 */
+	public DOMAttr getAttributeAtIndex(int index) {
+		if(!hasAttributes()) {
+			return null;
+		}
+
+		if(index > attributeNodes.getLength() - 1) {
+			return null;
+		}
+		return attributeNodes.get(index);
+	}
+
 	public boolean hasAttribute(String name) {
 		return hasAttributes() && getAttributeNode(name) != null;
 	}

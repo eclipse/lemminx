@@ -164,6 +164,12 @@ public class XMLSyntaxDiagnosticsTest {
 		testDiagnosticsFor(xml, d(0, 6, 0, 14, XMLSyntaxErrorCode.EqRequiredInXMLDecl));
 	}
 
+	@Test
+	public void testNoMorePseudoAttributes() throws Exception {
+		String xml = "<?xml version=\"1.0\" standalone=\"yes\" encoding=\"UTF-8\"?><a></a>";
+		testDiagnosticsFor(xml, d(0, 37, 0, 45, XMLSyntaxErrorCode.NoMorePseudoAttributes));
+	}
+
 	/**
 	 * ETagRequired tests
 	 * 
