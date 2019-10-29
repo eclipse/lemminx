@@ -86,12 +86,18 @@ public class AggregetedHoverValuesTest {
 
 			@Override
 			public String onTag(IHoverRequest request) throws Exception {
-				return TEST_FOR_TAG_HOVER;
+				if ("bean".equals(request.getCurrentTag())) {
+					return TEST_FOR_TAG_HOVER;
+				}
+				return null;
 			}
 
 			@Override
 			public String onAttributeName(IHoverRequest request) throws Exception {
-				return TEST_FOR_ATTRIBUTENAME_HOVER;
+				if ("class".equals(request.getCurrentAttributeName())) {
+					return TEST_FOR_ATTRIBUTENAME_HOVER;
+				}
+				return null;
 			}
 		}
 	}

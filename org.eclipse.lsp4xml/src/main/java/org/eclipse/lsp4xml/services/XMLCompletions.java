@@ -87,7 +87,6 @@ public class XMLCompletions {
 
 		Scanner scanner = XMLScanner.createScanner(text, node.getStart(), isInsideDTDContent(node, xmlDocument));
 		String currentTag = "";
-		completionRequest.setCurrentAttributeName(null);
 		TokenType token = scanner.scan();
 		while (token != TokenType.EOS && scanner.getTokenOffset() <= offset) {
 			cancelChecker.checkCanceled();
@@ -120,7 +119,6 @@ public class XMLCompletions {
 							completionResponse);
 					return completionResponse;
 				}
-				completionRequest.setCurrentAttributeName(scanner.getTokenText());
 				break;
 			case DelimiterAssign:
 				if (scanner.getTokenEnd() == offset) {
