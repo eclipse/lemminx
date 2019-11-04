@@ -16,6 +16,7 @@ import static org.eclipse.lsp4xml.XMLAssert.te;
 import static org.eclipse.lsp4xml.XMLAssert.testCodeActionsFor;
 
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.XMLSchemaErrorCode;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.ContentModelSettings;
@@ -90,10 +91,10 @@ public class XMLSchemaDiagnosticsTest {
 
 	@Test
 	public void cvc_complex_type_2_4_a() throws Exception {
-		String xml = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + //
+		String xml = 
+				"<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + //
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
-				"	xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n"
-				+ //
+				"	xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n"+ //
 				"	<XXX></XXX>\r\n" + // <- error
 				"</project>";
 
@@ -481,6 +482,75 @@ public class XMLSchemaDiagnosticsTest {
 				d(0, 1, 0, 9, XMLSchemaErrorCode.cvc_elt_1_a));
 	}
 
+	@Test
+	public void fuzzyElementNameCodeActionTest() throws Exception {
+		String xml = 
+		"<project xmlns=\"http://maven.apache.org/POM/4.0.0\" \r\n" +
+		"         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" +
+		"         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n" +
+		"    <modules>\r\n" +
+		"      <bodule></bodule>\r\n" + // should be 'module'
+		"    </modules>\r\n" +
+		"</project>";
+		Diagnostic diagnostic = d(4, 7, 4, 13, XMLSchemaErrorCode.cvc_complex_type_2_4_a,
+			"Invalid element name:\n - bodule\n\nOne of the following is expected:\n - module\n\nError indicated by:\n {http://maven.apache.org/POM/4.0.0}\nwith code:");
+		testDiagnosticsFor(xml, diagnostic);
+
+		testCodeActionsFor(xml, diagnostic, ca(diagnostic, te(4, 7, 4, 13, "module"), te(4, 16, 4, 22, "module")));
+	}
+
+	@Test
+	public void fuzzyElementNamesWithOtherOptionsCodeActionTest() throws Exception {
+		String xml = 
+		"<project xmlns=\"http://maven.apache.org/POM/4.0.0\" \r\n" +
+		"         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" +
+		"         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n" +
+		"    <ciManagement>\r\n" +
+		"      <XXXXXXXXX></XXXXXXXXX>\r\n" + // does not fuzzy match any, so provide code action for all possible
+		"    </ciManagement>\r\n" +
+		"</project>";
+		Diagnostic diagnostic = d(4, 7, 4, 16, XMLSchemaErrorCode.cvc_complex_type_2_4_a,
+		"Invalid element name:\n - XXXXXXXXX\n\nOne of the following is expected:\n - system\n - url\n - notifiers\n\nError indicated by:\n {http://maven.apache.org/POM/4.0.0}\nwith code:");
+		testDiagnosticsFor(xml, diagnostic);
+
+		testCodeActionsFor(xml, diagnostic, ca(diagnostic, te(4, 7, 4, 16, "notifiers"), te(4, 19, 4, 28, "notifiers")), ca(diagnostic, te(4, 7, 4, 16, "system"), te(4, 19, 4, 28, "system")), ca(diagnostic, te(4, 7, 4, 16, "url"), te(4, 19, 4, 28, "url")));
+	}
+
+	@Test
+	public void fuzzyElementNamesWithPrefix() throws Exception {
+		String xml = 
+		"<beans xmlns=\"http://www.springframework.org/schema/beans\"\n" +
+		"        xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+		"        xmlns:camel=\"http://camel.apache.org/schema/spring\"\n" +
+		"        xsi:schemaLocation=\"\n" +
+		"           http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\n" +
+		"           http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd\"> \n" +
+		"    <camel:beani></camel:beani>\n" +
+		"</beans>";
+		Diagnostic diagnostic = d(6, 5, 6, 16, XMLSchemaErrorCode.cvc_complex_type_2_4_c,
+		"cvc-complex-type.2.4.c: The matching wildcard is strict, but no declaration can be found for element 'camel:beani'.");
+		testDiagnosticsFor(xml, diagnostic);
+
+		testCodeActionsFor(xml, diagnostic, ca(diagnostic, te(6, 11, 6, 16, "bean"), te(6, 25, 6, 30, "bean")),
+											ca(diagnostic, te(6, 11, 6, 16, "beanio"), te(6, 25, 6, 30, "beanio")));
+	}
+
+	@Test
+	public void fuzzyElementNamesWithPrefixAndNoMatch() throws Exception {
+		String xml = 
+		"<schemaB:BRootElement \n" +
+		"      xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \n" +
+		"      xsi:schemaLocation=\"http://schemaA src/test/resources/xsd/fuzzyCodeAction/FuzzySchemaA.xsd http://schemaB src/test/resources/xsd/fuzzyCodeAction/FuzzySchemaB.xsd\" \n" +
+		"      xmlns:schemaA=\"http://schemaA\" \n" +
+		"      xmlns:schemaB=\"http://schemaB\">\n" +
+		"   <schemaA:XXXXX></schemaA:XXXXX>\n" +
+		"</schemaB:BRootElement>";
+		Diagnostic diagnostic = d(5, 4, 5, 17, XMLSchemaErrorCode.cvc_complex_type_2_4_c, "cvc-complex-type.2.4.c: The matching wildcard is strict, but no declaration can be found for element 'schemaA:XXXXX'.");
+		testDiagnosticsFor(xml, diagnostic);
+		testCodeActionsFor(xml, diagnostic, ca(diagnostic, te(5, 12, 5, 17, "AElement1"), te(5, 28, 5, 33, "AElement1")), 
+											ca(diagnostic, te(5, 12, 5, 17, "AElement2"), te(5, 28, 5, 33, "AElement2")));
+	}
+
 	private static void testDiagnosticsFor(String xml, Diagnostic... expected) {
 		XMLAssert.testDiagnosticsFor(xml, "src/test/resources/catalogs/catalog.xml", expected);
 	}
@@ -491,3 +561,5 @@ public class XMLSchemaDiagnosticsTest {
 	}
 
 }
+
+	

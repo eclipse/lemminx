@@ -198,7 +198,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 			Consumer<PublishDiagnosticsParams> publishDiagnostics) {
 		String uri = document.getDocumentURI();
 		DOMElement documentElement = document.getDocumentElement();
-		Range range = XMLPositionUtility.selectStartTag(documentElement);
+		Range range = XMLPositionUtility.selectStartTagName(documentElement);
 		List<Diagnostic> diagnostics = new ArrayList<>();
 		diagnostics.add(new Diagnostic(range, message, severity, "XML"));
 		publishDiagnostics.accept(new PublishDiagnosticsParams(uri, diagnostics));

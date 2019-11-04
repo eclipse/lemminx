@@ -246,7 +246,7 @@ public class XMLValidator {
 			Range range = null;
 			DOMElement documentElement = document.getDocumentElement();
 			if (documentElement != null) {
-				range = XMLPositionUtility.selectStartTag(documentElement);
+				range = XMLPositionUtility.selectStartTagName(documentElement);
 			}
 			if (range == null) {
 				range = new Range(new Position(0, 0), new Position(0, 0));

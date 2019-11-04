@@ -117,7 +117,7 @@ public enum DTDErrorCode implements IXMLErrorCode {
 		case MSG_REQUIRED_ATTRIBUTE_NOT_SPECIFIED:
 		case MSG_ELEMENT_NOT_DECLARED:
 		case MSG_CONTENT_INVALID: {
-			return XMLPositionUtility.selectStartTag(offset, document);
+			return XMLPositionUtility.selectStartTagName(offset, document);
 		}
 		case MSG_ATTRIBUTE_NOT_DECLARED: {
 			return XMLPositionUtility.selectAttributeValueAt(getString(arguments[1]), offset, document);
@@ -134,7 +134,7 @@ public enum DTDErrorCode implements IXMLErrorCode {
 		case MSG_ELEMENT_WITH_ID_REQUIRED: {
 			DOMElement element = document.getDocumentElement();
 			if (element != null) {
-				return XMLPositionUtility.selectStartTag(element);
+				return XMLPositionUtility.selectStartTagName(element);
 			}
 		}
 		case IDREFSInvalid:

@@ -524,7 +524,7 @@ public class XMLAssert {
 		Assert.assertArrayEquals(expected, actual.toArray());
 	}
 
-	public static CodeAction ca(Diagnostic d, TextEdit te) {
+	public static CodeAction ca(Diagnostic d, TextEdit... te) {
 		CodeAction codeAction = new CodeAction();
 		codeAction.setTitle("");
 		codeAction.setDiagnostics(Arrays.asList(d));
@@ -533,7 +533,7 @@ public class XMLAssert {
 				0);
 
 		TextDocumentEdit textDocumentEdit = new TextDocumentEdit(versionedTextDocumentIdentifier,
-				Collections.singletonList(te));
+				Arrays.asList(te));
 		WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)));
 		codeAction.setEdit(workspaceEdit);
 		return codeAction;
