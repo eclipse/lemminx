@@ -10,8 +10,11 @@
  */
 package org.eclipse.lsp4xml.commons;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
@@ -80,6 +83,26 @@ public class CodeActionFactory {
 				document.getUri(), document.getVersion());
 
 		TextDocumentEdit textDocumentEdit = new TextDocumentEdit(versionedTextDocumentIdentifier, Collections.singletonList(edit));
+		WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)));
+
+		insertContentAction.setEdit(workspaceEdit);
+		return insertContentAction;
+	}
+
+	public static CodeAction replaceAt(String title, String replaceText, TextDocumentItem document,
+			Diagnostic diagnostic, Collection<Range> ranges) {
+		CodeAction insertContentAction = new CodeAction(title);
+		insertContentAction.setKind(CodeActionKind.QuickFix);
+		insertContentAction.setDiagnostics(Arrays.asList(diagnostic));
+		
+		VersionedTextDocumentIdentifier versionedTextDocumentIdentifier = new VersionedTextDocumentIdentifier(
+				document.getUri(), document.getVersion());
+		ArrayList<TextEdit> edits = new ArrayList<TextEdit>();
+		for (Range range : ranges) {
+			TextEdit edit = new TextEdit(range, replaceText);
+			edits.add(edit);
+		}
+		TextDocumentEdit textDocumentEdit = new TextDocumentEdit(versionedTextDocumentIdentifier, edits);
 		WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)));
 
 		insertContentAction.setEdit(workspaceEdit);

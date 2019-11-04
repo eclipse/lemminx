@@ -27,6 +27,7 @@ import org.eclipse.lsp4xml.dom.SchemaLocation;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.codeactions.cvc_attribute_3CodeAction;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.codeactions.cvc_complex_type_2_1CodeAction;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.codeactions.cvc_complex_type_2_3CodeAction;
+import org.eclipse.lsp4xml.extensions.contentmodel.participants.codeactions.cvc_complex_type_2_4_aCodeAction;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.codeactions.cvc_complex_type_3_2_2CodeAction;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.codeactions.cvc_complex_type_4CodeAction;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.codeactions.cvc_enumeration_validCodeAction;
@@ -134,7 +135,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 		case cvc_complex_type_4:
 		case src_element_3:
 		case TargetNamespace_2:
-			return XMLPositionUtility.selectStartTag(offset, document);
+			return XMLPositionUtility.selectStartTagName(offset, document);
 		case cvc_complex_type_3_2_2: {
 			String attrName = getString(arguments[1]);
 			return XMLPositionUtility.selectAttributeNameFromGivenNameAt(attrName, offset, document);
@@ -237,13 +238,15 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 			}
 		}
 		case cvc_type_3_1_2:
-			return XMLPositionUtility.selectStartTag(offset, document);
+			return XMLPositionUtility.selectStartTagName(offset, document);
 		default:
 		}
 		return null;
 	}
 
 	public static void registerCodeActionParticipants(Map<String, ICodeActionParticipant> codeActions) {
+		codeActions.put(cvc_complex_type_2_4_a.getCode(), new cvc_complex_type_2_4_aCodeAction());
+		codeActions.put(cvc_complex_type_2_4_c.getCode(), new cvc_complex_type_2_4_aCodeAction());
 		codeActions.put(cvc_complex_type_2_3.getCode(), new cvc_complex_type_2_3CodeAction());
 		codeActions.put(cvc_complex_type_4.getCode(), new cvc_complex_type_4CodeAction());
 		codeActions.put(cvc_type_3_1_1.getCode(), new cvc_type_3_1_1CodeAction());

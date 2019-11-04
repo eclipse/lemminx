@@ -76,8 +76,8 @@ class XMLDefinition {
 			if (element.hasStartTag() && element.hasEndTag()) {
 				// The DOM element has end and start tag
 				DOMDocument document = element.getOwnerDocument();
-				Range startRange = XMLPositionUtility.selectStartTag(element);
-				Range endRange = XMLPositionUtility.selectEndTag(element);
+				Range startRange = XMLPositionUtility.selectStartTagName(element);
+				Range endRange = XMLPositionUtility.selectEndTagName(element);
 				int offset = request.getOffset();
 				if (element.isInStartTag(offset)) {
 					// Start tag was clicked, jump to the end tag

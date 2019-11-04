@@ -104,7 +104,7 @@ public enum XSDErrorCode implements IXMLErrorCode {
 			List<DOMNode> children = parent.getChildrenWithAttributeValue("name", nameValue);
 
 			if (children.isEmpty()) {
-				return XMLPositionUtility.selectStartTag(offset, document);
+				return XMLPositionUtility.selectStartTagName(offset, document);
 			}
 
 			offset = children.get(0).getStart() + 1;
@@ -128,7 +128,7 @@ public enum XSDErrorCode implements IXMLErrorCode {
 		case src_element_2_1:
 		case src_element_3:
 		case src_import_1_2:
-			return XMLPositionUtility.selectStartTag(offset, document);
+			return XMLPositionUtility.selectStartTagName(offset, document);
 		case s4s_att_not_allowed: {
 			String attrName = getString(arguments[1]);
 			return XMLPositionUtility.selectAttributeNameFromGivenNameAt(attrName, offset, document);

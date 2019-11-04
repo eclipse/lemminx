@@ -247,28 +247,65 @@ public class XMLPositionUtility {
 
 	public static Range selectRootStartTag(DOMDocument document) {
 		DOMNode root = document.getDocumentElement();
-		return selectStartTag(root);
+		return selectStartTagName(root);
 	}
 
-	public static Range selectStartTag(int offset, DOMDocument document) {
+	public static Range selectStartTagName(int offset, DOMDocument document) {
 		DOMNode element = document.findNodeAt(offset);
 		if (element != null) {
-			return selectStartTag(element);
+			return selectStartTagName(element);
 		}
 		return null;
 	}
 
 	/**
-	 * Returns the range of the start tag of the given <code>element</code> and null
+	 * Returns the range of the start tag name (excludes the '<') of the given <code>element</code> and null
 	 * otherwise.
 	 * 
 	 * @param element the DOM element
 	 * @return the range of the start tag of the given <code>element</code> and null
 	 *         otherwise.
 	 */
-	public static Range selectStartTag(DOMNode element) {
-		int startOffset = element.getStart() + 1; // <
-		int endOffset = startOffset + getStartTagLength(element);
+	public static Range selectStartTagName(DOMNode element) {
+		return selectStartTagName(element, false);
+	}
+
+	/**
+	 * Returns the range of a tag's local name. If the tag does not have a prefix, implying
+	 * it doesn't have a local name, it will return null.
+	 * @param element
+	 * @return
+	 */
+	public static Range selectStartTagLocalName(DOMNode element) {
+		return selectStartTagName(element, true);
+	}
+
+	/**
+	 * Returns the range of the start tag name (excludes the '<') of the given <code>element</code> and null
+	 * otherwise.
+	 * 
+	 * If suffixOnly is true then it will try to return the range of the localName/suffix. Else
+	 * it will return null.
+	 * 
+	 * @param element the DOM element
+	 * @param suffixOnly select the suffix portion, only when a prefix exists
+	 * @return the range of the start tag of the given <code>element</code> and null
+	 *         otherwise.
+	 */
+	private static Range selectStartTagName(DOMNode element, boolean localNameOnly) {
+		int initialStartOffset = element.getStart() + 1; // <
+		int finalStartOffset = initialStartOffset;
+		if(localNameOnly) {
+			String prefix = element.getPrefix();
+			if(prefix != null) {
+				finalStartOffset += prefix.length() + 1; // skips prefix name and ':'
+			}
+			else {
+				return null;
+			}
+		}
+
+		int endOffset = initialStartOffset + getStartTagLength(element);
 		if (element.isProcessingInstruction() || element.isProlog()) {
 			// in the case of prolog or processing instruction, tag is equals to "xml"
 			// without '?' -> <?xml
@@ -276,7 +313,7 @@ public class XMLPositionUtility {
 			endOffset++;
 		}
 		DOMDocument document = element.getOwnerDocument();
-		return createRange(startOffset, endOffset, document);
+		return createRange(finalStartOffset, endOffset, document);
 	}
 
 	private static int getStartTagLength(DOMNode node) {
@@ -299,13 +336,37 @@ public class XMLPositionUtility {
 		return -1;
 	}
 
-	public static Range selectEndTag(int offset, DOMDocument document) {
+	public static Range selectEndTagName(int offset, DOMDocument document) {
 		DOMNode node = document.findNodeAt(offset);
 		if (node != null && node.isElement()) {
 			DOMElement element = (DOMElement) node;
-			return selectEndTag(element);
+			return selectEndTagName(element);
 		}
 		return null;
+	}
+
+	/**
+	 * Returns the range of the end tag of the given <code>element</code> name and null
+	 * otherwise.
+	 * 
+	 * @param element the DOM element
+	 * @return the range of the end tag of the given <code>element</code> and null
+	 *         otherwise.
+	 */
+	public static Range selectEndTagName(DOMElement element) {
+		return selectEndTagName(element, false);
+	}
+
+	/**
+	 * Returns the range of the end tag of the given LOCAL <code>element</code> name and null
+	 * otherwise.
+	 * 
+	 * @param element the DOM element
+	 * @return the range of the end tag of the given <code>element</code> and null
+	 *         otherwise.
+	 */
+	public static Range selectEndTagLocalName(DOMElement element) {
+		return selectEndTagName(element, true);
 	}
 
 	/**
@@ -316,11 +377,21 @@ public class XMLPositionUtility {
 	 * @return the range of the end tag of the given <code>element</code> and null
 	 *         otherwise.
 	 */
-	public static Range selectEndTag(DOMElement element) {
+	public static Range selectEndTagName(DOMElement element, boolean localNameOnly) {
 		if (element.hasEndTag()) {
-			int startOffset = element.getEndTagOpenOffset() + 2; // <\
-			int endOffset = startOffset + getStartTagLength(element);
-			return createRange(startOffset, endOffset, element.getOwnerDocument());
+			int initialStartOffset = element.getEndTagOpenOffset() + 2; // <\
+			int finalStartOffset = initialStartOffset;
+			if(localNameOnly) {
+				String prefix = element.getPrefix();
+				if(prefix != null) {
+					finalStartOffset += prefix.length() + 1; // skips prefix and ':'
+				}
+				else {
+					return null;
+				}
+			}
+			int endOffset = initialStartOffset + getStartTagLength(element);
+			return createRange(finalStartOffset, endOffset, element.getOwnerDocument());
 		}
 		return null;
 	}
@@ -419,7 +490,7 @@ public class XMLPositionUtility {
 		if (node != null) {
 			DOMElement element = (DOMElement) node;
 			if (element.isClosed() && !element.isEndTagClosed()) {
-				return selectEndTag(element.getEnd(), document);
+				return selectEndTagName(element.getEnd(), document);
 			}
 		}
 
@@ -428,7 +499,7 @@ public class XMLPositionUtility {
 		char c = document.getText().charAt(i);
 		while (i >= 0) {
 			if (c == '>') {
-				return selectEndTag(i, document);
+				return selectEndTagName(i, document);
 			}
 			i--;
 			c = document.getText().charAt(i);
@@ -466,7 +537,7 @@ public class XMLPositionUtility {
 	public static LocationLink createLocationLink(DOMRange origin, DOMRange target) {
 		Range originSelectionRange = null;
 		if (origin instanceof DOMElement) {
-			originSelectionRange = selectStartTag((DOMElement) origin);
+			originSelectionRange = selectStartTagName((DOMElement) origin);
 		} else {
 			originSelectionRange = XMLPositionUtility.createRange(origin);
 		}
@@ -535,7 +606,7 @@ public class XMLPositionUtility {
 					return createRange(element.getStartTagCloseOffset() + 1, element.getEndTagOpenOffset(), document);
 				}
 				// node has NO content (ex: <root></root>, select the start tag
-				return selectStartTag(node);
+				return selectStartTagName(node);
 			} else if (node.isText()) {
 				DOMText text = (DOMText) node;
 				return createRange(text.getStartContent(), text.getEndContent(), document);
