@@ -1,0 +1,845 @@
+<!--
+<!DOCTYPE service-builder PUBLIC
+	"-//Liferay//DTD Service Builder 7.2.0//EN"
+	"http://www.liferay.com/dtd/liferay-service-builder_7_2_0.dtd">
+-->
+
+        <!--
+        The service-builder element is the root of the deployment descriptor for
+        a Service Builder descriptor that is used to generate services available to
+        portlets. The Service Builder saves the developer time by generating Spring
+        utilities, SOAP utilities, and Hibernate persistence classes to ease the
+        development of services.
+        -->
+        <!ELEMENT service-builder (author?, namespace, entity*, exceptions?,
+                service-builder-import*)>
+
+        <!--
+        The package-path value specifies the package of the generated code.
+        -->
+        <!ATTLIST service-builder
+                package-path CDATA #REQUIRED
+                >
+
+        <!--
+        The auto-import-default-references value specifies whether or not to
+        automatically default references. The default value is true.
+        -->
+        <!ATTLIST service-builder
+                auto-import-default-references CDATA #IMPLIED
+                >
+
+        <!--
+        The auto-namespace-tables value specifies whether or not to automatically
+        namespace tables. The default value is false for core services and true for
+        plugin services.
+        -->
+        <!ATTLIST service-builder
+                auto-namespace-tables CDATA #IMPLIED
+                >
+
+        <!--
+        The dependency-injector value specifies which dependency injector to use. Valid
+        values are "spring" and "ds". For new OSGi modules, the default value is "ds",
+        for existing modules or WARs, the default value is "spring".
+        -->
+        <!ATTLIST service-builder
+                dependency-injector CDATA #IMPLIED
+                >
+
+        <!--
+        The mvcc-enabled value specifies whether or not to enable MVCC by default for
+        entities to prevent lost updates. The default value is false.
+        -->
+        <!ATTLIST service-builder
+                mvcc-enabled CDATA #IMPLIED
+                >
+
+        <!--
+        The author element is the name of the user associated with the generated code.
+        -->
+        <!ELEMENT author (#PCDATA)>
+
+        <!--
+        The namespace element must be a unique namespace for this component. Table names
+        will be prepended with this namespace. Generated JSON JavaScript will be scoped
+        to this namespace as well (i.e., Liferay.Service.Test.* if the namespace is
+        Test).
+        -->
+        <!ELEMENT namespace (#PCDATA)>
+
+        <!--
+        An entity usually represents a business facade and a table in the database. If
+        an entity does not have any columns, then it only represents a business facade.
+        The Service Builder will always generate an empty business facade POJO if it
+        does not exist. Upon subsequent generations, the Service Builder will check to
+        see if the business facade already exists. If it exists and has additional
+        methods, then the Service Builder will also update the SOAP wrappers.
+
+        If an entity does have columns, then the value object, the POJO class that
+        is mapped to the database, and other persistence utilities are also generated
+        based on the order and finder elements.
+        -->
+        <!ELEMENT entity (column*, localized-entity?, order?, finder*, reference*, tx-required*)>
+
+        <!--
+        The name value specifies the name of the entity.
+        -->
+        <!ATTLIST entity
+                name CDATA #REQUIRED
+                >
+
+        <!--
+        The human-name value specifies the readable name to use when generating
+        documentation for this entity. If none is specified, one will be generated from
+        the name.
+        -->
+        <!ATTLIST entity
+                human-name CDATA #IMPLIED
+                >
+
+        <!--
+        The table value specifies the name of the table that this entity maps to in the
+        database. If this value is not set, then the name of the table is the same as
+        the name of the entity.
+        -->
+        <!ATTLIST entity
+                table CDATA #IMPLIED
+                >
+
+        <!--
+        If the uuid value is true, then the service will generate a UUID column for the
+        service. This column will automatically be populated with a UUID. Developers
+        will also be able to find and remove based on that UUID. The default value is
+        false.
+        -->
+        <!ATTLIST entity
+                uuid CDATA #IMPLIED
+                >
+
+        <!--
+        If the uuid-accessor value is true, then the service will generate a UUID column
+        accessor for the service. This accessor will provide a fast and type-safe way to
+        access entity's UUID.
+        -->
+        <!ATTLIST entity
+                uuid-accessor CDATA #IMPLIED
+                >
+
+        <!--
+        If the external-reference-code values is true, then the service will generate a
+        externalReferenceCode column for the service. The default value is false.
+        -->
+        <!ATTLIST entity
+                external-reference-code CDATA #IMPLIED
+                >
+
+        <!--
+        If the local-service value is true, then the service will generate the local
+        interfaces for the service. The default value is false.
+        -->
+        <!ATTLIST entity
+                local-service CDATA #IMPLIED
+                >
+
+        <!--
+        If the remote-service value is true, then the service will generate remote
+        interfaces for the service. The default value is true.
+        -->
+        <!ATTLIST entity
+                remote-service CDATA #IMPLIED
+                >
+
+        <!--
+        If the persistence value is true, then the service will generate persistence
+        interfaces and database files for the service. The default value is true.
+        -->
+        <!ATTLIST entity
+                persistence CDATA #IMPLIED
+                >
+
+        <!--
+        The persistence-class value specifies the name of your custom persistence class.
+        This class must implement the generated persistence interface or extend the
+        generated persistence class. This allows you to override default behavior
+        without modifying the generated persistence class.
+        -->
+        <!ATTLIST entity
+                persistence-class CDATA #IMPLIED
+                >
+
+        <!--
+        The data-source value specifies the data source target that is set to the
+        persistence class. The default value is the Liferay data source. This is used in
+        conjunction with session-factory. See data-source-spring.xml.
+
+        You can generate classes to use a custom data source and session factory.
+        Point "spring.configs" in portal.properties to load your custom Spring XML with
+        the definitions of your custom data source and session factory. Then set the
+        data-source and session-factory values to your custom values.
+        -->
+        <!ATTLIST entity
+                data-source CDATA #IMPLIED
+                >
+
+        <!--
+        The session-factory value specifies the session factory that is set to the
+        persistence class. The default value is the Liferay session factory. This is
+        used in conjunction with data-source. See data-source-spring.xml.
+
+        You can generate classes to use a custom data source and session factory.
+        Point "spring.configs" in portal.properties to load your custom Spring XML with
+        the definitions of your custom data source and session factory. Then set the
+        data-source and session-factory values to your custom values.
+        -->
+        <!ATTLIST entity
+                session-factory CDATA #IMPLIED
+                >
+
+        <!--
+        The tx-manager value specifies the transaction manager that Spring uses. The
+        default value is the Spring Hibernate transaction manager that wraps the Liferay
+        data source and session factory. See data-source-spring.xml. Set this attribute
+        to "none" to disable transaction management.
+        -->
+        <!ATTLIST entity
+                tx-manager CDATA #IMPLIED
+                >
+
+        <!--
+        The cache-enabled value specifies whether or not to cache this queries for this
+        entity. Set this to false if data in the table will be updated by other
+        programs. The default value is true.
+        -->
+        <!ATTLIST entity
+                cache-enabled CDATA #IMPLIED
+                >
+
+        <!--
+        The dynamic-update-enabled value specifies whether or not unmodified properties
+        are excluded in the SQL update statement. The default value is the value of the
+        attribute mvcc-enabled.
+        -->
+        <!ATTLIST entity
+                dynamic-update-enabled CDATA #IMPLIED
+                >
+
+        <!--
+        The json-enabled value specifies whether or not the entity should be annotated
+        for JSON serialization. By default, if the remote-service value is true, then
+        the json-enabled value is true.
+        -->
+        <!ATTLIST entity
+                json-enabled CDATA #IMPLIED
+                >
+
+        <!--
+        The mvcc-enabled value specifies whether or not to enable MVCC for this
+        entity to prevent lost updates. The default value is based on the mvcc-enabled
+        attribute in the service-builder element.
+        -->
+        <!ATTLIST entity
+                mvcc-enabled CDATA #IMPLIED
+                >
+
+        <!--
+        The trash-enabled value specifies whether trash related methods should be
+        generated or not.
+        -->
+        <!ATTLIST entity
+                trash-enabled CDATA #IMPLIED
+                >
+
+        <!--
+        The uad-application-name value specifies the name of the application that the
+        entity type belongs to in the GDPR UI.
+        -->
+        <!ATTLIST entity
+                uad-applicaiton-name CDATA #IMPLIED
+                >
+
+        <!--
+        The uad-auto-delete value specifies whether or not the entity should be
+        automatically deleted during the auto-anonymization.
+        -->
+        <!ATTLIST entity
+                uad-auto-delete CDATA #IMPLIED
+                >
+
+        <!--
+        The uad-dir-path value specifies the directory path of the generated UAD
+        implementations.
+        -->
+        <!ATTLIST entity
+                uad-dir-path CDATA #IMPLIED
+                >
+
+        <!--
+        The uad-package-path value specifies the package path for the generated UAD
+        classes.
+        -->
+        <!ATTLIST entity
+                uad-package-path CDATA #IMPLIED
+                >
+
+        <!--
+        If the versioned value is true, then the service will generate a version table,
+        columns, and methods to version the entity.
+        -->
+        <!ATTLIST entity
+                versioned CDATA #IMPLIED
+                >
+
+        <!--
+        The deprecated value specifies whether the entity's services are deprecated.
+        -->
+        <!ATTLIST entity
+                deprecated CDATA #IMPLIED
+                >
+
+        <!--
+        The column element represents a column in the database.
+        -->
+        <!ELEMENT column (#PCDATA)>
+
+        <!--
+        The name value specifies the getter and setter name in the entity.
+        -->
+        <!ATTLIST column
+                name CDATA #REQUIRED
+                >
+
+        <!--
+        Set db-name to map the field to a physical database column that is different
+        from the column name.
+        -->
+        <!ATTLIST column
+                db-name CDATA #IMPLIED
+                >
+
+        <!--
+        The type value specifies whether the column is a String, Boolean, or int, etc.
+
+        For example:
+
+        <column name="companyId" db-name="companyId" type="String" />
+
+        The above column specifies that there will be a getter called
+        pojo.getCompanyId() that will return a String.
+        -->
+        <!ATTLIST column
+                type CDATA #REQUIRED
+                >
+
+        <!--
+        If the primary value is set to true, then this column is part of the primary key
+        of the entity. If multiple columns have the primary value set to true, then a
+        compound key will be created.
+        -->
+        <!ATTLIST column
+                primary CDATA #IMPLIED
+                >
+
+        <!--
+        This accessor value specifies whether or not to generate an accessor for this
+        column. This accessor will provide a fast and type-safe way to access column
+        value.
+        -->
+        <!ATTLIST column
+                accessor CDATA #IMPLIED
+                >
+
+        <!--
+        The filter-primary value specifies the column to use as the primary key column
+        when using filter finders. Only one column should ever have this value set to
+        true. If no column has this set to true, then the default primary column will be
+        used.
+        -->
+        <!ATTLIST column
+                filter-primary CDATA #IMPLIED
+                >
+
+        <!--
+        If the entity and mapping-table attributes are specified, then the Service
+        Builder will assume you are specifying a many to many relationship.
+
+        For example:
+
+        <column
+            name="roles"
+            type="Collection"
+            entity="Role"
+            mapping-table="Groups_Roles"
+        />
+
+        The above column specifies that there will be a getter called
+        pojo.getRoles() that will return a collection. It will use a mapping table
+        called Groups_Roles to give a many to many relationship between groups and
+        roles.
+
+        If you are creating a mapping table for an entity defined in another
+        service.xml, you need to specify the full package path.
+
+        For example:
+
+        <column
+            name="organizations"
+            type="Collection"
+            entity="com.liferay.portal.Organization"
+            mapping-table="Foo_Organizations"
+        />
+        -->
+        <!ATTLIST column
+                entity CDATA #IMPLIED
+                >
+
+        <!--
+        See the entity attribute's description for more information.
+        -->
+        <!ATTLIST column
+                mapping-table CDATA #IMPLIED
+                >
+
+        <!--
+        The id-type and id-param values are used in order to create an auto-generated,
+        auto-incrementing primary key when inserting records into a table. This can be
+        implemented in 4 different ways, depending on the type of database being used.
+        In all cases, the primary key of the model object should be assigned a value of
+        null, and Hibernate will know to replace the null value with an auto-generated,
+        auto-incremented value. If no id-type value is used, it is assumed that the
+        primary key will be assigned and not auto-generated.
+
+        The first implementation uses a class to generate a primary key.
+
+        For example:
+
+        <column
+            name="id"
+            type="Integer"
+            primary="true"
+            id-type="class"
+            id-param="com.liferay.counter.service.persistence.IDGenerator"
+        />
+
+        In this implementation, the class specified in the id-param value will be called
+        to retrieve a unique identifier (in the example above, an Integer) that will be
+        used as the primary key for the new record. This implementation works for all
+        supported databases.
+
+        The second implementation generates identifiers that are unique only when no
+        other process is inserting data into the same table. This implementation should
+        NOT be used in a clustered environment, but it does work for all supported
+        databases.
+
+        For example:
+
+        <column
+            name="id"
+            type="Integer"
+            primary="true"
+            id-type="increment"
+        />
+
+        The third implementation uses an identity column to generate a primary key.
+
+        For example:
+
+        <column
+            name="id"
+            type="Integer"
+            primary="true"
+            id-type="identity"
+        />
+
+        In this implementation, the create table SQL generated for this entity will
+        create an identity column that natively auto-generates a primary key whenever
+        an insert occurs. This implementation is only supported by DB2, MySQL, and
+        MS SQL Server.
+
+        The fourth implementation uses a sequence to generate a primary key.
+
+        For example:
+
+        <column
+            name="id"
+            type="Integer"
+            primary="true"
+            id-type="sequence"
+            id-param="id_sequence"
+        />
+
+        In this implementation, a create sequence SQL statement is created based on
+        the id-param value (stored in /sql/sequences.sql). This sequence is then
+        accessed to generate a unique identifier whenever an insert occurs. This
+        implementation is only supported by DB2, Oracle, PostgreSQL, and SAP DB.
+        -->
+        <!ATTLIST column
+                id-type CDATA #IMPLIED
+                >
+
+        <!--
+        See the id-type attribute's description for more information.
+        -->
+        <!ATTLIST column
+                id-param CDATA #IMPLIED
+                >
+
+        <!--
+        The convert-null value specifies whether or not the column value is
+        automatically converted to a non null value if it is null. This only applies if
+        the type value is String. This is particularly useful if your entity is
+        referencing a read only table or a database view so that Hibernate does not try
+        to issue unnecessary updates. The default value is true.
+        -->
+        <!ATTLIST column
+                convert-null CDATA #IMPLIED
+                >
+
+        <!--
+        The lazy value is only valid when type is Blob. It specifies whether or not to
+        do a lazy fetch for Blob. The default value is true.
+        -->
+        <!ATTLIST column
+                lazy CDATA #IMPLIED
+                >
+
+        <!--
+        The localized value specifies whether or not the value of the column can have
+        different values for different locales. The default value is false. Localization
+        can also be performed by using a generated localization table using the
+        localized-entity and localized-column elements. The localized value cannot be
+        set to true when the entity contains a localized-entity element. Using the
+        localized-entity element with a separate table is recommended.
+        -->
+        <!ATTLIST column
+                localized CDATA #IMPLIED
+                >
+
+        <!--
+        The json-enabled value specifies whether or not the column should be annotated
+        for JSON serialization. By default, if the json-enabled value in the entity
+        element is true, then the json-enabled value in the column element is true.
+        -->
+        <!ATTLIST column
+                json-enabled CDATA #IMPLIED
+                >
+
+        <!--
+        The container-model value specifies whether the column represents the primary
+        key of a container model.
+        -->
+        <!ATTLIST column
+                container-model CDATA #IMPLIED
+                >
+
+        <!--
+        The parent-container-model value specifies whether the column represents the
+        primary key of a parent container model.
+        -->
+        <!ATTLIST column
+                parent-container-model CDATA #IMPLIED
+                >
+
+        <!--
+        The uad-anonymize-field-name value specifies the anonymous user field that
+        should be used to replace this column's value during auto anonymization. For
+        example, if "fullName" is specified, the anonymous user's full name will replace
+        this column's value during auto anonymization. The uad-anonymize-field-name
+        value should only be used with user name columns (e.g. "statusByUserName").
+        -->
+        <!ATTLIST column
+                uad-anonymize-field-name CDATA #IMPLIED
+                >
+
+        <!--
+        The uad-nonanonymizable value specifies whether the column represents data
+        associated with a specific user that should be reviewed by an administrator in
+        the event of a GDPR compliance request. This implies the data cannot be
+        anonymized automatically.
+        -->
+        <!ATTLIST column
+                uad-nonanonymizable CDATA #IMPLIED
+                >
+
+        <!--
+        The localized-entity element represents a table with a one to many mapping from
+        the entity table to the localized entity table. The localized entity table is
+        designed to be used instead of setting a column element's localized attribute to
+        true. A defaultLanguageId column is generated for the entity table and several
+        columns, finders, and update methods are generated for the localized entity.
+        -->
+        <!ELEMENT localized-entity (column*, localized-column+, order?, finder*)>
+
+        <!--
+        The name value specifies the name of the localized entity. If this value is not
+        set, then the parent entity's name is used with "Localization" appended.
+        -->
+        <!ATTLIST localized-entity
+                name CDATA #IMPLIED
+                >
+
+        <!--
+        The table value specifies the name of the table that this localized entity maps
+        to in the database. If this value is not set, then the name of the table is the
+        same as the name of the localized entity.
+        -->
+        <!ATTLIST localized-entity
+                table CDATA #IMPLIED
+                >
+
+        <!--
+        The localized-column element represents a column in the localization table.
+        -->
+        <!ELEMENT localized-column (#PCDATA)>
+
+        <!--
+        The name value specifies the getter and setter name in the entity and
+        localization entity.
+        -->
+        <!ATTLIST localized-column
+                name CDATA #REQUIRED
+                >
+
+        <!--
+        Set db-name to map the field to a physical database column that is different
+        from the localized-column name.
+        -->
+        <!ATTLIST localized-column
+                db-name CDATA #IMPLIED
+                >
+
+        <!--
+        The order element specifies a default ordering and sorting of the entities when
+        they are retrieved from the database.
+        -->
+        <!ELEMENT order (order-column+)>
+
+        <!--
+        Set the by attribute to "asc" or "desc" to order by ascending or descending.
+        -->
+        <!ATTLIST order
+                by CDATA #IMPLIED
+                >
+
+        <!--
+        The order-column element allows you to order the entities by specific columns.
+
+        The attributes of the order-column element allows you to fine tune the ordering
+        of the entity.
+
+        For example:
+
+        <order by="asc">
+            <order-column name="parentLayoutId" />
+            <order-column name="priority" />
+        </order>
+
+        The above settings will order by parentLayoutId and then by priority in an
+        ascending manner.
+
+        For example:
+
+        <order by="asc">
+            <order-column name="name" case-sensitive="false" />
+        </order>
+
+        The above settings will order by name and will not be case sensitive.
+
+        For example:
+
+        <order>
+            <order-column name="articleId" order-by="asc" />
+            <order-column name="version" order-by="desc" />
+        </order>
+
+        The above settings will order by articleId in an ascending manner and then by
+        version in a descending manner.
+        -->
+        <!ELEMENT order-column (#PCDATA)>
+
+        <!--
+        The name value specifies the name of the entity.
+        -->
+        <!ATTLIST order-column
+                name CDATA #REQUIRED
+                >
+
+        <!--
+        The case-sensitive value specifies whether or not the name is case sensitive.
+        The default value is true.
+        -->
+        <!ATTLIST order-column
+                case-sensitive CDATA #IMPLIED
+                >
+
+        <!--
+        The order-by value specifies how to order the entity names. Possible values for
+        this attribute are "asc" (ascending) or "desc" (descending).
+        -->
+        <!ATTLIST order-column
+                order-by CDATA #IMPLIED
+                >
+
+        <!--
+        The finder element represents a generated finder method.
+        -->
+        <!ELEMENT finder (finder-column+)>
+
+        <!--
+        The name value specifies the name of the finder method.
+        -->
+        <!ATTLIST finder
+                name CDATA #REQUIRED
+                >
+
+        <!--
+        The return-type value specifies the return type of the finder. Valid values are
+        "Collection" or the name of the entity. If the value is "Collection", then this
+        finder returns a list of entities. If the value is the name of the entity, then
+        this finder returns at most one entity.
+        -->
+        <!ATTLIST finder
+                return-type CDATA #REQUIRED
+                >
+
+        <!--
+        If the unique value is true, then the finder must return a unique entity.
+        -->
+        <!ATTLIST finder
+                unique CDATA #IMPLIED
+                >
+
+        <!ATTLIST finder
+                where CDATA #IMPLIED
+                >
+
+        <!--
+        If the db-index value is true, then the service will automatically generate a
+        SQL index for this finder. The default value is true.
+        -->
+        <!ATTLIST finder
+                db-index CDATA #IMPLIED
+                >
+
+        <!--
+        The finder-column element specifies the columns to find by.
+        -->
+        <!ELEMENT finder-column (#PCDATA)>
+
+        <!--
+        The name value specifies the name of the finder method.
+
+        For example:
+
+        <finder name="CompanyId" return-type="Collection">
+            <finder-column name="companyId" />
+        </finder>
+
+        The above settings will create a finder with the name findByCompanyId that will
+        return a Collection and require a given companyId. It will also generate
+        several more findByCompanyId methods that take in pagination fields (int begin,
+        int end) and more sorting options. The easiest way to understand this is to
+        look at a generated PersistenceImpl class. The Service Builder will also
+        generate removeByCompanyId and countByCompanyId.
+
+        See com.liferay.portal.service.persistence.impl.LayoutPersistenceImpl for a good
+        example.
+        -->
+        <!ATTLIST finder-column
+                name CDATA #REQUIRED
+                >
+
+        <!--
+        The attribute case-sensitive is a boolean value and is only used if the column
+        is a String value.
+        -->
+        <!ATTLIST finder-column
+                case-sensitive CDATA #IMPLIED
+                >
+
+        <!--
+        The attribute comparator takes in the values =, !=, <, <=, >, >=, or LIKE and is
+        used to compare this column.
+        -->
+        <!ATTLIST finder-column
+                comparator CDATA #IMPLIED
+                >
+
+        <!--
+        The attribute arrayable-operator takes in the values AND or OR and will
+        generate an additional finder where this column's parameter takes an array
+        instead of a single value. Every value in this array will be compared with the
+        column using the comparator, and the conditions will be combined with either an
+        AND or OR operator. For example, a finder column with the = comparator and an
+        arrayable-operator of OR will act like an IN clause.
+        -->
+        <!ATTLIST finder-column
+                arrayable-operator CDATA #IMPLIED
+                >
+
+        <!--
+        The attribute arrayable-pagination is a boolean value and is used to signal if
+        the entity column can be paginated.
+        -->
+        <!ATTLIST finder-column
+                arrayable-pagination CDATA #IMPLIED
+                >
+
+        <!--
+        The reference element allows you to inject services from another service.xml
+        within the same class loader. For example, if you inject the Resource entity,
+        then you'll be able to reference the Resource services from your service
+        implementation via the methods getResourceLocalService and getResourceService.
+        You'll also be able to reference the Resource services via the variables
+        resourceLocalService and resourceService.
+        -->
+        <!ELEMENT reference (#PCDATA)>
+
+        <!--
+        See the comments in reference element.
+        -->
+        <!ATTLIST reference
+                package-path CDATA #IMPLIED
+                entity CDATA #IMPLIED
+                >
+
+        <!--
+        The tx-required element has a text value that will be used to match method names
+        that require transactions. By default, the methods: add*, check*, clear*,
+        delete*, set*, and update* require propagation of transactions. All other
+        methods support transactions but are assumed to be read only. If you want
+        additional methods to fall under transactions, add the method name to this
+        element.
+
+        The tx-required attribute is deprecated in favor annotating the service impl
+        method with com.liferay.portal.kernel.transaction.Transactional.
+        -->
+        <!ELEMENT tx-required (#PCDATA)>
+
+        <!--
+        The exceptions element contain a list of generated exceptions. This doesn't save
+        a lot of typing, but can still be helpful.
+        -->
+        <!ELEMENT exceptions (exception*)>
+
+        <!--
+        See the comments in exceptions element.
+        -->
+        <!ELEMENT exception (#PCDATA)>
+
+        <!--
+        The service-builder-import allows you to split up a large Service Builder file
+        into smaller files by aggregrating the smaller Service Builder into one file.
+        Note that there can be at most one author element among all the files. There can
+        also only be one and only one namespace element among all the files.
+
+        The attribute file is interpreted as relative to the file that is importing it.
+        -->
+        <!ELEMENT service-builder-import (#PCDATA)>
+
+        <!--
+        Set the comments in the service-builder-import element.
+        -->
+        <!ATTLIST service-builder-import
+                file CDATA #REQUIRED
+                >

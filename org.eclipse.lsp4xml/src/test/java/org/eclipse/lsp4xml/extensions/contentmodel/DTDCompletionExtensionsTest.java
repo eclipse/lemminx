@@ -54,7 +54,10 @@ public class DTDCompletionExtensionsTest {
 				"           \"http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd\">\r\n" + //
 				"\r\n" + //
 				"  <|";
-		testCompletionFor(xml, c("catalog", te(5, 2, 5, 3, "<catalog>$1</catalog>$0"), "<catalog", "Source: catalog.dtd", MarkupKind.PLAINTEXT));
+		testCompletionFor(xml, c("catalog", te(5, 2, 5, 3, "<catalog>$1</catalog>$0"), "<catalog", " $Id: catalog.dtd,v 1.10 2002/10/18 23:54:58 ndw Exp $ "
+				+ 
+				System.lineSeparator() +
+				System.lineSeparator() + "Source: catalog.dtd", MarkupKind.PLAINTEXT));
 	}
 
 	@Test

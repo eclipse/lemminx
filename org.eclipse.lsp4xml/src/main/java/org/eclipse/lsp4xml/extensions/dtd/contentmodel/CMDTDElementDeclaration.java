@@ -13,11 +13,14 @@ package org.eclipse.lsp4xml.extensions.dtd.contentmodel;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.xerces.impl.dtd.XMLElementDecl;
 import org.eclipse.lsp4xml.dom.DOMElement;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lsp4xml.extensions.contentmodel.model.CMElementDeclaration;
+import org.eclipse.lsp4xml.extensions.dtd.contentmodel.CMDTDDocument.DTDElementInfo;
+import org.eclipse.lsp4xml.extensions.dtd.contentmodel.CMDTDDocument.DTDNodeInfo;
 
 /**
  * DTD element declaration.
@@ -29,6 +32,7 @@ public class CMDTDElementDeclaration extends XMLElementDecl implements CMElement
 	private final CMDTDDocument document;
 	private List<CMElementDeclaration> elements;
 	private List<CMAttributeDeclaration> attributes;
+	private String documentation;
 
 	public CMDTDElementDeclaration(CMDTDDocument document, int index) {
 		this.document = document;
@@ -91,7 +95,28 @@ public class CMDTDElementDeclaration extends XMLElementDecl implements CMElement
 
 	@Override
 	public String getDocumentation() {
-		return null;
+		if (documentation != null) {
+			return documentation;
+		}
+		Map<String, DTDElementInfo> hierarchiesMap = document.getHierarchiesMap();
+		if (hierarchiesMap != null) {
+			DTDElementInfo dtdElementInfo = hierarchiesMap.get(getName());
+			documentation = dtdElementInfo.getComment();
+		}
+		return documentation;
+	}
+
+	public String getDocumentation(String attrName) {
+		Map<String, DTDElementInfo> hierarchiesMap = document.getHierarchiesMap();
+		if (hierarchiesMap != null) {
+			DTDElementInfo dtdElementInfo = hierarchiesMap.get(getName());
+			Map<String, DTDNodeInfo> attributesMap = dtdElementInfo.getAttributes();
+			DTDNodeInfo nodeInfo = attributesMap.get(attrName);
+			if (nodeInfo != null) {
+				documentation = nodeInfo.getComment();
+			}
+		}
+		return documentation;
 	}
 
 	@Override
