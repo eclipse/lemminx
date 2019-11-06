@@ -24,6 +24,13 @@ import org.eclipse.lsp4xml.extensions.contentmodel.model.CMAttributeDeclaration;
  */
 public class CMDTDAttributeDeclaration extends XMLAttributeDecl implements CMAttributeDeclaration {
 
+	private String documentation;
+	private CMDTDElementDeclaration elementDecl;
+
+	public CMDTDAttributeDeclaration(CMDTDElementDeclaration elementDecl) {
+		this.elementDecl = elementDecl;
+	}
+
 	@Override
 	public String getName() {
 		return super.name.localpart;
@@ -45,7 +52,11 @@ public class CMDTDAttributeDeclaration extends XMLAttributeDecl implements CMAtt
 
 	@Override
 	public String getDocumentation() {
-		return null;
+		if (documentation != null) {
+			return documentation;
+		}
+		documentation = elementDecl.getDocumentation(getName());
+		return documentation;
 	}
 
 	@Override
