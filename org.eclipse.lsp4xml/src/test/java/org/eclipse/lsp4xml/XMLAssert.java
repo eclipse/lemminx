@@ -449,12 +449,13 @@ public class XMLAssert {
 
 	// ------------------- CodeAction assert
 
-	public static void testCodeActionsFor(String xml, Diagnostic diagnostic, CodeAction... expected) {
+	public static void testCodeActionsFor(String xml, Diagnostic diagnostic,
+			CodeAction... expected) throws BadLocationException {
 		testCodeActionsFor(xml, diagnostic, null, expected);
 	}
 
 	public static void testCodeActionsFor(String xml, Diagnostic diagnostic, String catalogPath,
-			CodeAction... expected) {
+			CodeAction... expected) throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setTabSize(4);
 		settings.getFormattingSettings().setInsertSpaces(false);
@@ -463,8 +464,22 @@ public class XMLAssert {
 	}
 
 	public static void testCodeActionsFor(String xml, Diagnostic diagnostic, String catalogPath,
-			SharedSettings sharedSettings, CodeAction... expected) {
+			SharedSettings sharedSettings, CodeAction... expected) throws BadLocationException {
+
+		int offset = xml.indexOf('|');
+		Range range = null;
+
+		if (offset != -1) {
+			xml = xml.substring(0, offset) + xml.substring(offset + 1);
+		}
 		TextDocument document = new TextDocument(xml.toString(), FILE_URI);
+
+		if (offset != -1) {
+			Position position = document.positionAt(offset);
+			range = new Range(position, position);
+		} else {
+			range = diagnostic.getRange();
+		}
 
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
 
@@ -478,7 +493,6 @@ public class XMLAssert {
 
 		CodeActionContext context = new CodeActionContext();
 		context.setDiagnostics(Arrays.asList(diagnostic));
-		Range range = diagnostic.getRange();
 		DOMDocument xmlDoc = DOMParser.getInstance().parse(document, xmlLanguageService.getResolverExtensionManager());
 
 		XMLFormattingOptions formattingSettings;

@@ -16,6 +16,7 @@ import static org.eclipse.lsp4xml.XMLAssert.te;
 import static org.eclipse.lsp4xml.XMLAssert.testCodeActionsFor;
 
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4xml.XMLAssert;
 import org.eclipse.lsp4xml.commons.BadLocationException;
 import org.eclipse.lsp4xml.extensions.xsd.participants.XSDErrorCode;
@@ -333,6 +334,17 @@ public class XSDValidationExtensionsTest {
 		Diagnostic d = d(2, 2, 2, 8, XSDErrorCode.src_import_1_2);
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(2, 8, 2, 8, " namespace=\"\"")), ca(d, te(1, 48, 1, 48, " targetNamespace=\"\"")));
+	}
+
+	@Test
+	public void src_import_1_2_different_range() throws BadLocationException {
+		String xml = "<?xml version=\'1.0\'?>\r\n" +
+		"<xs:schema xmlns:xs=\'http://www.w3.org/2001/XMLSchema\'>\r\n" +
+		"	<xs:imp|ort></xs:import>\r\n" +
+		"</xs:schema>";
+
+		Diagnostic d = d(2, 2, 2, 11, XSDErrorCode.src_import_1_2);
+		testCodeActionsFor(xml, d, ca(d, te(2, 11, 2, 11, " namespace=\"\"")), ca(d, te(1, 54, 1, 54, " targetNamespace=\"\"")));
 	}
 
 	private static void testDiagnosticsFor(String xml, Diagnostic... expected) throws BadLocationException {
