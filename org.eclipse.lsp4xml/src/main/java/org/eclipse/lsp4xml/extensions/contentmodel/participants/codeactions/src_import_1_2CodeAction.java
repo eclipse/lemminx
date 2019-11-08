@@ -67,7 +67,7 @@ public class src_import_1_2CodeAction implements ICodeActionParticipant {
 			message = "Insert 'namespace' attribute in 'import' element";
 		}
 
-		return CodeActionFactory.insert(message, range.getEnd(), " namespace=\"\"", document.getTextDocument(), diagnostic);
+		return CodeActionFactory.insert(message, diagnostic.getRange().getEnd(), " namespace=\"\"", document.getTextDocument(), diagnostic);
 	}
 
 	private CodeAction createTargetNamespaceCodeAction(Diagnostic diagnostic, DOMDocument document, String prefix) throws BadLocationException {
