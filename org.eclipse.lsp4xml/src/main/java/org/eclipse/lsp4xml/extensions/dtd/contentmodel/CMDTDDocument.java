@@ -23,6 +23,7 @@ import java.util.Set;
 import org.apache.xerces.impl.dtd.DTDGrammar;
 import org.apache.xerces.impl.dtd.XMLDTDLoader;
 import org.apache.xerces.xni.Augmentations;
+import org.apache.xerces.xni.XMLString;
 import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.grammars.Grammar;
 import org.apache.xerces.xni.parser.XMLInputSource;
@@ -43,13 +44,59 @@ import org.eclipse.lsp4xml.extensions.dtd.utils.DTDUtils;
  */
 public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 
+
+	static class DTDNodeInfo {
+
+		private String comment;
+
+		public DTDNodeInfo() {
+			this.comment = null;
+		}
+
+		public String getComment() {
+			return comment;
+		}
+
+		public void setComment(String comment) {
+			this.comment = comment;
+		}
+	}
+
+	static class DTDElementInfo extends DTDNodeInfo {
+
+		private final Set<String> hierarchies;
+		private final Map<String, DTDNodeInfo> attributes;
+
+		public DTDElementInfo() {
+			this.hierarchies = new LinkedHashSet<String>();
+			this.attributes = new HashMap<>();
+		}
+
+		public Set<String> getHierarchies() {
+			return hierarchies;
+		}
+
+		public Map<String, DTDNodeInfo> getAttributes() {
+			return attributes;
+		}
+
+		public String getComment(String attrName) {
+			DTDNodeInfo attr = attributes.get(attrName);
+			return attr != null ? attr.getComment() : null;
+		}
+	}
+
 	private final String uri;
 
-	private Map<String, Set<String>> hierarchiesMap;
+	private Map<String, DTDElementInfo> hierarchiesMap;
 	private List<CMElementDeclaration> elements;
 	private DTDGrammar grammar;
 	private Set<String> hierarchies;
 	private FilesChangedTracker tracker;
+	private String comment;
+	private DTDElementInfo dtdElementInfo;
+	private Map<String, DTDNodeInfo> attributes;
+	private DTDNodeInfo nodeInfo;
 
 	public CMDTDDocument() {
 		this(null);
@@ -124,21 +171,53 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 		if (hierarchiesMap == null) {
 			hierarchiesMap = new HashMap<>();
 		}
-		hierarchies = new LinkedHashSet<String>();
-		hierarchiesMap.put(elementName, hierarchies);
+		dtdElementInfo = new DTDElementInfo();
+		if (comment != null) {
+			dtdElementInfo.setComment(comment);
+		}
+		hierarchiesMap.put(elementName, dtdElementInfo);
 		super.startContentModel(elementName, augs);
 	}
 
 	@Override
 	public void element(String elementName, Augmentations augs) throws XNIException {
+		hierarchies = dtdElementInfo.getHierarchies();
 		hierarchies.add(elementName);
 		super.element(elementName, augs);
 	}
 
 	@Override
 	public void endContentModel(Augmentations augs) throws XNIException {
+		comment = null;
 		hierarchies = null;
 		super.endContentModel(augs);
+	}
+
+	@Override
+	public void startAttlist(String elementName, Augmentations augs) throws XNIException {
+		attributes = dtdElementInfo.getAttributes();
+		super.startAttlist(elementName, augs);
+	}
+
+	@Override
+	public void attributeDecl(String elementName, String attributeName, String type, String[] enumeration,
+			String defaultType, XMLString defaultValue, XMLString nonNormalizedDefaultValue, Augmentations augs)
+			throws XNIException {
+		if (comment != null) {
+			nodeInfo = new DTDNodeInfo();
+			nodeInfo.setComment(comment);
+			attributes.put(attributeName, nodeInfo);
+		}
+		super.attributeDecl(elementName, attributeName, type, enumeration, defaultType, defaultValue, nonNormalizedDefaultValue,
+				augs);
+	}
+
+	@Override
+	public void endAttlist(Augmentations augs) throws XNIException {
+		comment = null;
+		attributes = null;
+		nodeInfo = null;
+		super.endAttlist(augs);
 	}
 
 	@Override
@@ -164,11 +243,24 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 		fDTDScanner.scanDTDInternalSubset(true, false, systemId != null);
 	}
 
+	@Override
+	public void comment(XMLString text, Augmentations augs) throws XNIException {
+		if (text != null) {
+			comment = text.toString();
+		}
+		super.comment(text, augs);
+	}
+
+	public Map<String, DTDElementInfo> getHierarchiesMap() {
+		return hierarchiesMap;
+	}
+
 	void collectElementsDeclaration(String elementName, List<CMElementDeclaration> elements) {
 		if (hierarchiesMap == null) {
 			return;
 		}
-		Set<String> children = hierarchiesMap.get(elementName);
+		DTDElementInfo elementInfo = hierarchiesMap.get(elementName);
+		Set<String> children = elementInfo.getHierarchies();
 		if (children == null) {
 			return;
 		}
@@ -184,7 +276,7 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 		int elementDeclIndex = grammar.getElementDeclIndex(elementDecl.name);
 		int index = grammar.getFirstAttributeDeclIndex(elementDeclIndex);
 		while (index != -1) {
-			CMDTDAttributeDeclaration attributeDecl = new CMDTDAttributeDeclaration();
+			CMDTDAttributeDeclaration attributeDecl = new CMDTDAttributeDeclaration(elementDecl);
 			grammar.getAttributeDecl(index, attributeDecl);
 			attributes.add(attributeDecl);
 			index = grammar.getNextAttributeDeclIndex(index);
@@ -200,4 +292,5 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 	public boolean isDirty() {
 		return tracker != null ? tracker.isDirty() : null;
 	}
+
 }
