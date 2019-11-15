@@ -104,7 +104,7 @@ public class StringUtils {
 					}
 				}
 				b.append(c);
-				lastWasSpace = false;
+				lastWasSpace = c == ' ';
 			} else {
 				// do not append a space twice (CRLF)
 				if (!lastWasSpace) {
