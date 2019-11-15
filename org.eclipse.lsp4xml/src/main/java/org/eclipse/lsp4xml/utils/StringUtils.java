@@ -61,7 +61,7 @@ public class StringUtils {
 	/**
 	 * Normalizes the whitespace characters of a given string and applies it to the
 	 * given string builder.
-	 * 
+	 *
 	 * @param str
 	 * @return the result of normalize space of the given string.
 	 */
@@ -83,29 +83,42 @@ public class StringUtils {
 	}
 
 	// ATSEC
+	/**
+	 * Normalizes the whitespace characters of a given string differently and applies it to the
+	 * given string builder.
+	 *
+	 * @param str
+	 * @return the result of normalize space of the given string.
+	 */
 	public static void normalizeSpace2(String str, StringBuilder b) {
 		char c;
 		int i = 0, len = str.length();
+		boolean lastWasSpace = false;
 
-		//b.append("["+str+"]");
 		while (i < len) {
 			c = str.charAt(i);
-			if (c != '\n') {
+			if ((c != '\n') && (c != '\r')) {
 				if (isTabOrSpace(c)) {
 					for (int j = i + 1; j < len && isTabOrSpace(str.charAt(j)); ++j) {
 						i = j;
 					}
 				}
 				b.append(c);
+				lastWasSpace = false;
+			} else {
+				// do not append a space twice (CRLF)
+				if (!lastWasSpace) {
+					b.append(" ");
+					lastWasSpace = true;
+				}
 			}
 			i++;
 		}
-		//b.append("!["+b+"]!");
 	}
 
 	/**
 	 * Returns the result of normalize space of the given string.
-	 * 
+	 *
 	 * @param str
 	 * @return the result of normalize space of the given string.
 	 */
@@ -125,7 +138,7 @@ public class StringUtils {
 
 	/**
 	 * Returns the start whitespaces of the given line text.
-	 * 
+	 *
 	 * @param lineText
 	 * @return the start whitespaces of the given line text.
 	 */
@@ -212,10 +225,10 @@ public class StringUtils {
 	/**
 	 * Given a string that is only whitespace, this will return the amount of
 	 * newline characters.
-	 * 
+	 *
 	 * If the newLineCounter becomes > newLineLimit, then the value of newLineLimit
 	 * is always returned.
-	 * 
+	 *
 	 * @param text
 	 * @param isWhitespace
 	 * @param delimiter
@@ -251,7 +264,7 @@ public class StringUtils {
 	/**
 	 * Given a string will give back a non null string that is either the given
 	 * string, or an empty string.
-	 * 
+	 *
 	 * @param text
 	 * @return
 	 */
@@ -264,12 +277,12 @@ public class StringUtils {
 
 	/**
 	 * Traverses backwards from the endOffset until it finds a whitespace character.
-	 * 
+	 *
 	 * The offset of the character after the whitespace is returned.
-	 * 
+	 *
 	 * (text = "abcd efg|h", endOffset = 8) -> 5
-	 * 
-	 * 
+	 *
+	 *
 	 * @param text
 	 * @param endOffset non-inclusive
 	 * @return Start offset directly after the first whitespace.
@@ -298,10 +311,10 @@ public class StringUtils {
 
 	/**
 	 * Returns the number of consecutive whitespace characters in front
-	 * of text 
+	 * of text
 	 * @param text String of interest
 	 * @return the number of consecutive whitespace characters in front
-	 * of text 
+	 * of text
 	 */
 	public static int getFrontWhitespaceLength(String text) {
 
@@ -325,7 +338,7 @@ public class StringUtils {
 	 * the end of text
 	 */
 	public static int getTrailingWhitespaceLength(String text) {
-		
+
 		if (StringUtils.isWhitespace(text)) {
 			return text.length();
 		}
