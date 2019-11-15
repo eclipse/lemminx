@@ -86,27 +86,31 @@ public class StringUtils {
 	/**
 	 * Normalizes the whitespace characters of a given string differently and applies it to the
 	 * given string builder.
-	 *
+	 * XXX: not sure whether this is really needed and the function above already is what we need...
 	 * @param str
 	 * @return the result of normalize space of the given string.
 	 */
 	public static void normalizeSpace2(String str, StringBuilder b) {
-		char c;
 		int i = 0, len = str.length();
 		boolean lastWasSpace = false;
 
 		while (i < len) {
-			c = str.charAt(i);
+			char c = str.charAt(i);
 			if ((c != '\n') && (c != '\r')) {
-				if (isTabOrSpace(c)) {
-					for (int j = i + 1; j < len && isTabOrSpace(str.charAt(j)); ++j) {
+				boolean isWS = Character.isWhitespace(c);
+				if (isWS) {
+					for (int j = i + 1; j < len && Character.isWhitespace(str.charAt(j)); ++j) {
 						i = j;
 					}
 				}
+				// normalize to " " not the first WS char
+				if (isWS) {
+					c = ' ';
+				}
 				b.append(c);
-				lastWasSpace = isTabOrSpace(c);
+				lastWasSpace = isWS;
 			} else {
-				// do not append a space twice (CRLF)
+				// do not append a space twice
 				if (!lastWasSpace) {
 					b.append(" ");
 					lastWasSpace = true;
