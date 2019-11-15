@@ -104,7 +104,7 @@ public class StringUtils {
 					}
 				}
 				b.append(c);
-				lastWasSpace = c == ' ';
+				lastWasSpace = isTabOrSpace(c);
 			} else {
 				// do not append a space twice (CRLF)
 				if (!lastWasSpace) {
