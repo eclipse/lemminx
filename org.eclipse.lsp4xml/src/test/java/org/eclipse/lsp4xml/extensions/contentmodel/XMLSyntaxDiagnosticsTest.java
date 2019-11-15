@@ -182,7 +182,9 @@ public class XMLSyntaxDiagnosticsTest {
 				"  		<Nm>Name\r\n" + //
 				"		</UltmtDbtr> \r\n" + //
 				"			</Nm>  ";
-		testDiagnosticsFor(xml, d(1, 5, 1, 7, XMLSyntaxErrorCode.ETagRequired));
+		Diagnostic d = d(1, 5, 1, 7, XMLSyntaxErrorCode.ETagRequired);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(1, 8, 1, 8, "</Nm>")));
 	}
 
 	@Test
@@ -200,7 +202,9 @@ public class XMLSyntaxDiagnosticsTest {
 				"    <Ad>\r\n" +
 				"    <Ph>\r\n" +
 				"</UltmtDbtr>";
-		testDiagnosticsFor(xml, d(3, 5, 3, 7, XMLSyntaxErrorCode.ETagRequired));
+		Diagnostic d = d(3, 5, 3, 7, XMLSyntaxErrorCode.ETagRequired);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(3, 8, 3, 8, "</Ph>")));
 	}
 
 	/**
@@ -255,9 +259,21 @@ public class XMLSyntaxDiagnosticsTest {
 	public void testMarkupEntityMismatch() throws Exception {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
 				+ "<Document xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"urn:iso:std:iso:20022:tech:xsd:pain.001.001.03\">\r\n"
-				+ "<CstmrCdtTrfInitn>\r\n" + //
-				"</CstmrCdtTrfInitn>";
-		testDiagnosticsFor(xml, d(1, 1, 1, 9, XMLSyntaxErrorCode.MarkupEntityMismatch));
+				+ "<CstmrCdtTrfInitn>\r\n"
+				+ "</CstmrCdtTrfInitn>";
+		
+		Diagnostic d = d(1, 1, 1, 9, XMLSyntaxErrorCode.MarkupEntityMismatch);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(3, 0, 3, 0, "</Document>")));
+	}
+
+	@Test
+	public void testMarkupEntityMismatch2() throws Exception {
+		String xml = "<ABC>";
+		
+		Diagnostic d = d(0, 1, 0, 4, XMLSyntaxErrorCode.MarkupEntityMismatch);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(0, 5, 0, 5, "</ABC>")));
 	}
 
 	@Test
