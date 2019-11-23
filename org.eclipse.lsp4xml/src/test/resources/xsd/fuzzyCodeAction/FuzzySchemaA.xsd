@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://schemaA">
+
+    <xs:element name="AElement1"></xs:element>
+    <xs:element name="AElement2"></xs:element>
+
+</xs:schema>

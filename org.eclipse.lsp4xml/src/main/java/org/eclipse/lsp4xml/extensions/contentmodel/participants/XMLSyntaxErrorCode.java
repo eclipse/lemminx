@@ -104,7 +104,7 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 		case ElementPrefixUnbound:
 		case ElementUnterminated:
 		case RootElementTypeMustMatchDoctypedecl:
-			return XMLPositionUtility.selectStartTag(offset, document);
+			return XMLPositionUtility.selectStartTagName(offset, document);
 		case EqRequiredInAttribute: {
 			String attrName = getString(arguments[1]);
 			return XMLPositionUtility.selectAttributeNameFromGivenNameAt(attrName, offset, document);
@@ -157,7 +157,7 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 			 */
 			return XMLPositionUtility.selectPreviousNodesEndTag(offset, document);
 		case CustomETag:
-			return XMLPositionUtility.selectEndTag(offset, document);
+			return XMLPositionUtility.selectEndTagName(offset, document);
 		case ETagRequired: {
 			String tag = getString(arguments[0]);
 			return XMLPositionUtility.selectChildEndTag(tag, offset, document);
