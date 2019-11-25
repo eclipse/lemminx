@@ -76,9 +76,9 @@ public class DOMDocument extends DOMNode implements Document {
 		return super.getChildren();
 	}
 
-	public Position positionAt(int position) throws BadLocationException {
+	public Position positionAt(int offset) throws BadLocationException {
 		checkCanceled();
-		return textDocument.positionAt(position);
+		return textDocument.positionAt(offset);
 	}
 
 	public int offsetAt(Position position) throws BadLocationException {
