@@ -839,4 +839,38 @@ public class XMLPositionUtility {
 		return new Location(locationLink.getTargetUri(), locationLink.getTargetRange());
 	}
 
+	public static Position getMatchingTagPosition(DOMDocument xmlDocument, Position position) {
+		try {
+			int offset = xmlDocument.offsetAt(position);
+			DOMNode node = xmlDocument.findNodeAt(offset);
+			
+			if(node.isElement()) {
+				DOMElement element = (DOMElement) node;
+				
+				if(!element.hasEndTag() || element.isSelfClosed() || !element.hasStartTag()){
+					return null;
+				}
+				int tagNameLength = element.getTagName().length();
+				int startTagNameStart = element.getStartTagOpenOffset() + 1;
+				int startTagNameEnd = startTagNameStart + tagNameLength;
+				int endTagNameStart = element.getEndTagOpenOffset() + 2;
+				int endTagNameEnd = endTagNameStart + tagNameLength;
+
+				if(offset <= startTagNameEnd && offset >= startTagNameStart) {
+					int mirroredCursorOffset = endTagNameStart + (offset - startTagNameStart);
+					return xmlDocument.positionAt(mirroredCursorOffset);
+				}
+				else {
+					if(offset >= endTagNameStart && offset <= endTagNameEnd) {
+						int mirroredCursorOffset = startTagNameStart + (offset - endTagNameStart);
+						return xmlDocument.positionAt(mirroredCursorOffset);
+					}
+				}
+			}
+		} catch (BadLocationException e) {
+			return null;
+		}
+		return null;
+	}
+
 }

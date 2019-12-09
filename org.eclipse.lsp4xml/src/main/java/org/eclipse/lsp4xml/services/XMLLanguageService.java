@@ -42,6 +42,7 @@ import org.eclipse.lsp4xml.commons.TextDocument;
 import org.eclipse.lsp4xml.customservice.AutoCloseTagResponse;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMElement;
+import org.eclipse.lsp4xml.dom.DOMNode;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lsp4xml.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4xml.settings.SharedSettings;
@@ -268,6 +269,10 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		} catch (BadLocationException e) {
 			return null;
 		}
+	}
+
+	public Position getMatchingTagPosition(DOMDocument xmlDocument, Position position, CancelChecker cancelChecker) {
+		return XMLPositionUtility.getMatchingTagPosition(xmlDocument, position);
 	}
 
 }

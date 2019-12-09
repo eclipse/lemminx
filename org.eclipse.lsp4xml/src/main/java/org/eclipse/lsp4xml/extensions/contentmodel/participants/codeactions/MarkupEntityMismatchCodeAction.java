@@ -54,6 +54,9 @@ public class MarkupEntityMismatchCodeAction implements ICodeActionParticipant {
 			
 			DOMElement element = (DOMElement) node;
 			int startOffset = element.getStartTagOpenOffset();
+			if(startOffset == -1) {
+				return;
+			}
 			Position startPosition = document.positionAt(startOffset);
 			Position endPosition;
 			
