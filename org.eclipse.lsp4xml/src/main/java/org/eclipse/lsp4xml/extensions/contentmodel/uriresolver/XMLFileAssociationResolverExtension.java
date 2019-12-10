@@ -13,6 +13,8 @@ package org.eclipse.lsp4xml.extensions.contentmodel.uriresolver;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.util.URI.MalformedURIException;
@@ -25,6 +27,8 @@ import org.eclipse.lsp4xml.uriresolver.URIResolverExtension;
  *
  */
 public class XMLFileAssociationResolverExtension implements URIResolverExtension, IExternalSchemaLocationProvider {
+
+	private static Logger LOGGER = Logger.getLogger(XMLFileAssociationResolverExtension.class.getName());
 
 	private String rootUri;
 
@@ -83,9 +87,9 @@ public class XMLFileAssociationResolverExtension implements URIResolverExtension
 	}
 
 	private void expandSystemId() {
-		if (fileAssociations != null && rootUri != null) {
+		if (fileAssociations != null) {
 			for (XMLFileAssociation fileAssociation : fileAssociations) {
-				// Expand original system id by using the root uri.
+				// Expand original system id, if rootUri is null then it uses just the systemId.
 				try {
 					String expandSystemId = XMLEntityManager.expandSystemId(fileAssociation.getSystemId(), rootUri,
 							false);
@@ -93,7 +97,7 @@ public class XMLFileAssociationResolverExtension implements URIResolverExtension
 						fileAssociation.setSystemId(expandSystemId);
 					}
 				} catch (MalformedURIException e) {
-					// Do nothing
+					LOGGER.log(Level.WARNING, "Issue expanding the provided systemId from the file associations.", e);
 				}
 			}
 		}
