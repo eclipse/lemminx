@@ -1,5 +1,26 @@
 # Change Log
 
+## [0.10.0](https://github.com/angelozerr/lsp4xml/milestone/11?closed=1) (December 13, 2019)
+
+### Enhancements
+
+* (Experimental) Ability to edit start/end tag simultaneously under `xml.mirrorCursorOnMatchingTag` preference. See [#597](https://github.com/angelozerr/lsp4xml/pull/597).
+* Allows File Associations to be used without Workspace. See [#598](https://github.com/angelozerr/lsp4xml/pull/598).
+* CodeAction for missing root end tag. See [#595](https://github.com/angelozerr/lsp4xml/pull/595).
+* DTD hover/completion support for documentation. See [#592](https://github.com/angelozerr/lsp4xml/pull/592).
+* CodeAction for similar looking element names if it doesn't match the schema. See [#591](https://github.com/angelozerr/lsp4xml/pull/591).
+* Navigation and intellisense for xs:include-ed types. See [#579](https://github.com/angelozerr/lsp4xml/pull/579).
+
+
+### Bug Fixes
+
+* xs:import code action was inserting inside the tag name. See [#593](https://github.com/angelozerr/lsp4xml/pull/593).
+* Prolog attribute completion was providing invalid values. See [#587](https://github.com/angelozerr/lsp4xml/pull/587).
+* getCurrentAttribute method was not returning the correct attribute name. See [#584](https://github.com/angelozerr/lsp4xml/pull/584).
+* Hover was not returning all hover responses. See [#582](https://github.com/angelozerr/lsp4xml/pull/582).
+* cvc-pattern error range fix. See [#580](https://github.com/angelozerr/lsp4xml/pull/580).
+
+
 ## [0.9.1](https://github.com/angelozerr/lsp4xml/milestone/11?closed=1) (October 17, 2019)
 
 ### Bug Fixes
