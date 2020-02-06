@@ -203,7 +203,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	}
 
 	public void unregisterCompletionParticipant(ICompletionParticipant completionParticipant) {
-		completionParticipants.add(completionParticipant);
+		completionParticipants.remove(completionParticipant);
 	}
 
 	public void registerHoverParticipant(IHoverParticipant hoverParticipant) {
@@ -211,7 +211,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	}
 
 	public void unregisterHoverParticipant(IHoverParticipant hoverParticipant) {
-		hoverParticipants.add(hoverParticipant);
+		hoverParticipants.remove(hoverParticipant);
 	}
 
 	public void registerDiagnosticsParticipant(IDiagnosticsParticipant diagnosticsParticipant) {
@@ -219,7 +219,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	}
 
 	public void unregisterDiagnosticsParticipant(IDiagnosticsParticipant diagnosticsParticipant) {
-		diagnosticsParticipants.add(diagnosticsParticipant);
+		diagnosticsParticipants.remove(diagnosticsParticipant);
 	}
 
 	public void registerCodeActionParticipant(ICodeActionParticipant codeActionsParticipant) {
@@ -227,7 +227,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	}
 
 	public void unregisterCodeActionParticipant(ICodeActionParticipant codeActionsParticipant) {
-		codeActionsParticipants.add(codeActionsParticipant);
+		codeActionsParticipants.remove(codeActionsParticipant);
 	}
 
 	public void registerDocumentLinkParticipant(IDocumentLinkParticipant documentLinkParticipant) {
@@ -235,7 +235,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	}
 
 	public void unregisterDocumentLinkParticipant(IDocumentLinkParticipant documentLinkParticipant) {
-		documentLinkParticipants.add(documentLinkParticipant);
+		documentLinkParticipants.remove(documentLinkParticipant);
 	}
 
 	public void registerDefinitionParticipant(IDefinitionParticipant definitionParticipant) {
@@ -243,7 +243,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	}
 
 	public void unregisterDefinitionParticipant(IDefinitionParticipant definitionParticipant) {
-		definitionParticipants.add(definitionParticipant);
+		definitionParticipants.remove(definitionParticipant);
 	}
 
 	public void registerTypeDefinitionParticipant(ITypeDefinitionParticipant typeDefinitionParticipant) {
@@ -251,7 +251,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	}
 
 	public void unregisterTypeDefinitionParticipant(ITypeDefinitionParticipant typeDefinitionParticipant) {
-		typeDefinitionParticipants.add(typeDefinitionParticipant);
+		typeDefinitionParticipants.remove(typeDefinitionParticipant);
 	}
 
 	public void registerReferenceParticipant(IReferenceParticipant referenceParticipant) {
@@ -259,7 +259,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	}
 
 	public void unregisterReferenceParticipant(IReferenceParticipant referenceParticipant) {
-		referenceParticipants.add(referenceParticipant);
+		referenceParticipants.remove(referenceParticipant);
 	}
 
 	public void registerCodeLensParticipant(ICodeLensParticipant codeLensParticipant) {
@@ -267,7 +267,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	}
 
 	public void unregisterCodeLensParticipant(ICodeLensParticipant codeLensParticipant) {
-		codeLensParticipants.add(codeLensParticipant);
+		codeLensParticipants.remove(codeLensParticipant);
 	}
 
 	public void registerHighlightingParticipant(IHighlightingParticipant highlightingParticipant) {
@@ -275,7 +275,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	}
 
 	public void unregisterHighlightingParticipant(IHighlightingParticipant highlightingParticipant) {
-		highlightingParticipants.add(highlightingParticipant);
+		highlightingParticipants.remove(highlightingParticipant);
 	}
 
 	public void registerRenameParticipant(IRenameParticipant renameParticipant) {
@@ -283,7 +283,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	}
 
 	public void unregisterRenameParticipant(IRenameParticipant renameParticipant) {
-		renameParticipants.add(renameParticipant);
+		renameParticipants.remove(renameParticipant);
 	}
 
 	/**
