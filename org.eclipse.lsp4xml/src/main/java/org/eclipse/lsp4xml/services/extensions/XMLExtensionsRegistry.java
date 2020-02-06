@@ -87,7 +87,14 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 
 	public void initializeParams(InitializeParams params) {
 		if (initialized) {
-			extensions.stream().forEach(extension -> extension.start(params, this));
+			extensions.stream().forEach(extension -> {
+				try {
+					extension.start(params, this);
+				} catch (Exception e) {
+					LOGGER.log(Level.SEVERE, "Error while starting extension <" + extension.getClass().getName() + ">",
+							e);
+				}
+			});
 		} else {
 			this.params = params;
 		}
@@ -169,7 +176,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	}
 
 	private synchronized void initialize() {
-		
+
 		if (initialized) {
 			return;
 		}
@@ -194,8 +201,22 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	}
 
 	void unregisterExtension(IXMLExtension extension) {
-		extensions.remove(extension);
-		extension.stop(this);
+		try {
+			extensions.remove(extension);
+			extension.stop(this);
+		} catch (Exception e) {
+			LOGGER.log(Level.SEVERE, "Error while stopping extension <" + extension.getClass().getName() + ">", e);
+		}
+	}
+
+	/**
+	 * Unregisters all registered extensions.
+	 */
+	public void dispose() {
+		// Copy the list of extensions to avoid ConcurrentModificationError
+		List<IXMLExtension> extensionReferences = new ArrayList<>();
+		extensions.forEach(extensionReferences::add);
+		extensionReferences.forEach(this::unregisterExtension);
 	}
 
 	public void registerCompletionParticipant(ICompletionParticipant completionParticipant) {
