@@ -1,15 +1,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.lsp4xml</groupId>
-	<artifactId>lsp4xml</artifactId>
+	<groupId>org.eclipse</groupId>
+	<artifactId>lemminx</artifactId>
 	<version>0.9.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<description>lsp4xml is an XML specific implementation of the Language Server Protocol (LSP), and can be used with any editor that supports LSP, to offer an outstanding XML editing experience</description>
+	<description>LemMinX is a XML Language Server Protocol (LSP), and can be used with any editor that supports LSP, to offer an outstanding XML editing experience</description>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<lsp4j.version>0.8.1</lsp4j.version>
 	</properties>
-	<url>https://github.com/angelozerr/lsp4xml</url>
+	<url>https://github.com/eclipse/lemminx</url>
 	<licenses>
 		<license>
 			<name>Eclipse Public License - v 2.0</name>
@@ -18,13 +18,12 @@
 		</license>
 	</licenses>
 	<scm>
-		<connection>scm:git:git@github.com:angelozerr/lsp4xml.git</connection>
-		<developerConnection>scm:git:git@github.com:angelozerr/lsp4xml.git</developerConnection>
-		<url>https://github.com/angelozerr/lsp4xml</url>
+		<connection>scm:git:git@github.com:angelozerr/lemminx.git</connection>
+		<developerConnection>scm:git:git@github.com:eclipse/lemminx.git</developerConnection>
+		<url>https://github.com/eclipse/lemminx</url>
 	</scm>
 	<modules>
-		<module>org.eclipse.lsp4xml</module>
-		<module>extensions</module>
+		<module>org.eclipse.lemminx</module>
 	</modules>
 	<dependencyManagement>
 		<dependencies>
@@ -55,8 +54,8 @@
 				<scope>test</scope>
 			</dependency>
 			<dependency>
-				<groupId>org.lsp4xml</groupId>
-				<artifactId>org.eclipse.lsp4xml</artifactId>
+				<groupId>org.eclipse</groupId>
+				<artifactId>org.eclipse.lemminx</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 		</dependencies>
@@ -115,12 +114,12 @@
 	</build>
 	<distributionManagement>
 		<snapshotRepository>
-			<id>lsp4xml-snapshots</id>
+			<id>lemminx-snapshots</id>
 			<url>https://oss.jfrog.org/artifactory/oss-snapshot-local</url>
 		</snapshotRepository>
 		<repository>
-			<id>lsp4xml-releases</id>
-			<url>https://api.bintray.com/maven/lsp4xml/releases/lsp4xml/;publish=1</url>
+			<id>lemminx-releases</id>
+			<url>https://api.bintray.com/maven/lemminx/releases/lemminx/;publish=1</url>
 		</repository>
 	</distributionManagement>
 	<profiles>

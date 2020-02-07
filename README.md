@@ -1,9 +1,9 @@
-XML Language Server (lsp4xml)
+XML Language Server (LemMinX)
 ===========================
 
-[![Build Status](https://travis-ci.org/angelozerr/lsp4xml.svg?branch=master)](http://travis-ci.org/angelozerr/lsp4xml)
+[![Build Status](https://travis-ci.org/eclipse/lemminx.svg?branch=master)](http://travis-ci.org/eclipse/lemminx)
 
-The **lsp4xml** is a XML language specific implementation of the [Language Server Protocol](https://github.com/Microsoft/language-server-protocol)
+**LemMinX** is a XML language specific implementation of the [Language Server Protocol](https://github.com/Microsoft/language-server-protocol)
 and can be used with any editor that supports the protocol, to offer good support for the **XML Language**. The server is based on:
 
  * [Eclipse LSP4J](https://github.com/eclipse/lsp4j), the Java binding for the Language Server Protocol.
@@ -23,7 +23,7 @@ Features
 * [textDocument/rangeFormatting](https://microsoft.github.io/language-server-protocol/specification#textDocument_rangeFormatting)
 * [textDocument/rename](https://microsoft.github.io/language-server-protocol/specification#textDocument_rename).
 
-See screenshots in the [wiki](https://github.com/angelozerr/lsp4xml/wiki/Features).
+See screenshots in the [wiki](https://github.com/eclipse/lemminx/wiki/Features).
 
 See the [changelog](CHANGELOG.md) for the latest release.
 
@@ -45,7 +45,7 @@ Get started
 * Clone this repository
 * Open the folder in your terminal / command line
 * Run `./mvnw clean verify` (OSX, Linux) or `mvnw.cmd clean verify` (Windows)
-* After successful compilation you can find the resulting `org.eclipse.lsp4xml-uber.jar` in the folder `org.eclipse.lsp4xml/target`
+* After successful compilation you can find the resulting `org.eclipse.lemminx-uber.jar` in the folder `org.eclipse.lemminx/target`
 
 Developer
 --------------
@@ -72,11 +72,11 @@ socket.connect(socketPort)
 Maven coordinates:
 ------------------
 
-Here are the Maven coordinates for lsp4xml (replace the `X.Y.Z` version with the [latest release](https://bintray.com/beta/#/lsp4xml/releases/lsp4xml)):
+Here are the Maven coordinates for lemminx (replace the `X.Y.Z` version with the [latest release](https://bintray.com/beta/#/lemminx/releases/lemminx)):
 ```xml
 <dependency>
-    <groupId>org.lsp4xml</groupId>
-    <artifactId>org.eclipse.lsp4xml</artifactId>
+    <groupId>org.lemminx</groupId>
+    <artifactId>org.eclipse.lemminx</artifactId>
     <version>X.Y.Z</version>
     <!-- classifier:uber includes all dependencies -->
     <classifier>uber</classifier>
@@ -85,14 +85,14 @@ Here are the Maven coordinates for lsp4xml (replace the `X.Y.Z` version with the
 
 for Gradle:
 ```
-compile(group: 'org.lsp4xml', name: 'org.eclipse.lsp4xml', version: 'X.Y.Z', classifier: 'uber')
+compile(group: 'org.lemminx', name: 'org.eclipse.lemminx', version: 'X.Y.Z', classifier: 'uber')
 ```
 
 You will have to reference the Maven repository hosting the dependency you need. E.g. for Maven, add this repository to your pom.xml or settings.xml :
 ```xml
 <repository>
-  <id>lsp4xml-releases</id>
-  <url>https://dl.bintray.com/lsp4xml/releases</url>
+  <id>lemminx-releases</id>
+  <url>https://dl.bintray.com/lemminx/releases</url>
   <snapshots>
     <enabled>false</enabled>
   </snapshots>
@@ -101,13 +101,13 @@ You will have to reference the Maven repository hosting the dependency you need.
   </releases>
 </repository>
 ```
-or P2 repository: [https://dl.bintray.com/lsp4xml/p2/`<VERSION>`](https://dl.bintray.com/lsp4xml/p2/) 
+or P2 repository: [https://dl.bintray.com/lemminx/p2/`<VERSION>`](https://dl.bintray.com/lemminx/p2/) 
 
 
 And if you want to consume the SNAPSHOT builds instead:
 ```xml
 <repository>
-  <id>lsp4xml-snapshots</id>
+  <id>lemminx-snapshots</id>
   <url>https://oss.jfrog.org/artifactory/libs-snapshot</url>
   <releases>
     <enabled>false</enabled>
@@ -118,7 +118,7 @@ And if you want to consume the SNAPSHOT builds instead:
 </repository>
 ```
 or P2 repository:
-[https://lsp4xml.jfrog.io/lsp4xml/generic-local/p2/lsp4xml/`<VERSION>`](https://lsp4xml.jfrog.io/lsp4xml/generic-local/p2/lsp4xml/)
+[https://lemminx.jfrog.io/lemminx/generic-local/p2/lemminx/`<VERSION>`](https://lemminx.jfrog.io/lemminx/generic-local/p2/lemminx/)
 
 Clients
 -------
