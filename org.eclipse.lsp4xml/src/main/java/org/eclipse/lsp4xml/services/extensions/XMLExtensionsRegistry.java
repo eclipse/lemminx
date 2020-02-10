@@ -87,7 +87,14 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 
 	public void initializeParams(InitializeParams params) {
 		if (initialized) {
-			extensions.stream().forEach(extension -> extension.start(params, this));
+			extensions.stream().forEach(extension -> {
+				try {
+					extension.start(params, this);
+				} catch (Exception e) {
+					LOGGER.log(Level.SEVERE, "Error while starting extension <" + extension.getClass().getName() + ">",
+							e);
+				}
+			});
 		} else {
 			this.params = params;
 		}
@@ -169,7 +176,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	}
 
 	private synchronized void initialize() {
-		
+
 		if (initialized) {
 			return;
 		}
@@ -194,8 +201,22 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	}
 
 	void unregisterExtension(IXMLExtension extension) {
-		extensions.remove(extension);
-		extension.stop(this);
+		try {
+			extensions.remove(extension);
+			extension.stop(this);
+		} catch (Exception e) {
+			LOGGER.log(Level.SEVERE, "Error while stopping extension <" + extension.getClass().getName() + ">", e);
+		}
+	}
+
+	/**
+	 * Unregisters all registered extensions.
+	 */
+	public void dispose() {
+		// Copy the list of extensions to avoid ConcurrentModificationError
+		List<IXMLExtension> extensionReferences = new ArrayList<>();
+		extensions.forEach(extensionReferences::add);
+		extensionReferences.forEach(this::unregisterExtension);
 	}
 
 	public void registerCompletionParticipant(ICompletionParticipant completionParticipant) {
@@ -203,7 +224,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	}
 
 	public void unregisterCompletionParticipant(ICompletionParticipant completionParticipant) {
-		completionParticipants.add(completionParticipant);
+		completionParticipants.remove(completionParticipant);
 	}
 
 	public void registerHoverParticipant(IHoverParticipant hoverParticipant) {
@@ -211,7 +232,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	}
 
 	public void unregisterHoverParticipant(IHoverParticipant hoverParticipant) {
-		hoverParticipants.add(hoverParticipant);
+		hoverParticipants.remove(hoverParticipant);
 	}
 
 	public void registerDiagnosticsParticipant(IDiagnosticsParticipant diagnosticsParticipant) {
@@ -219,7 +240,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	}
 
 	public void unregisterDiagnosticsParticipant(IDiagnosticsParticipant diagnosticsParticipant) {
-		diagnosticsParticipants.add(diagnosticsParticipant);
+		diagnosticsParticipants.remove(diagnosticsParticipant);
 	}
 
 	public void registerCodeActionParticipant(ICodeActionParticipant codeActionsParticipant) {
@@ -227,7 +248,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	}
 
 	public void unregisterCodeActionParticipant(ICodeActionParticipant codeActionsParticipant) {
-		codeActionsParticipants.add(codeActionsParticipant);
+		codeActionsParticipants.remove(codeActionsParticipant);
 	}
 
 	public void registerDocumentLinkParticipant(IDocumentLinkParticipant documentLinkParticipant) {
@@ -235,7 +256,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	}
 
 	public void unregisterDocumentLinkParticipant(IDocumentLinkParticipant documentLinkParticipant) {
-		documentLinkParticipants.add(documentLinkParticipant);
+		documentLinkParticipants.remove(documentLinkParticipant);
 	}
 
 	public void registerDefinitionParticipant(IDefinitionParticipant definitionParticipant) {
@@ -243,7 +264,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	}
 
 	public void unregisterDefinitionParticipant(IDefinitionParticipant definitionParticipant) {
-		definitionParticipants.add(definitionParticipant);
+		definitionParticipants.remove(definitionParticipant);
 	}
 
 	public void registerTypeDefinitionParticipant(ITypeDefinitionParticipant typeDefinitionParticipant) {
@@ -251,7 +272,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	}
 
 	public void unregisterTypeDefinitionParticipant(ITypeDefinitionParticipant typeDefinitionParticipant) {
-		typeDefinitionParticipants.add(typeDefinitionParticipant);
+		typeDefinitionParticipants.remove(typeDefinitionParticipant);
 	}
 
 	public void registerReferenceParticipant(IReferenceParticipant referenceParticipant) {
@@ -259,7 +280,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	}
 
 	public void unregisterReferenceParticipant(IReferenceParticipant referenceParticipant) {
-		referenceParticipants.add(referenceParticipant);
+		referenceParticipants.remove(referenceParticipant);
 	}
 
 	public void registerCodeLensParticipant(ICodeLensParticipant codeLensParticipant) {
@@ -267,7 +288,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	}
 
 	public void unregisterCodeLensParticipant(ICodeLensParticipant codeLensParticipant) {
-		codeLensParticipants.add(codeLensParticipant);
+		codeLensParticipants.remove(codeLensParticipant);
 	}
 
 	public void registerHighlightingParticipant(IHighlightingParticipant highlightingParticipant) {
@@ -275,7 +296,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	}
 
 	public void unregisterHighlightingParticipant(IHighlightingParticipant highlightingParticipant) {
-		highlightingParticipants.add(highlightingParticipant);
+		highlightingParticipants.remove(highlightingParticipant);
 	}
 
 	public void registerRenameParticipant(IRenameParticipant renameParticipant) {
@@ -283,7 +304,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	}
 
 	public void unregisterRenameParticipant(IRenameParticipant renameParticipant) {
-		renameParticipants.add(renameParticipant);
+		renameParticipants.remove(renameParticipant);
 	}
 
 	/**

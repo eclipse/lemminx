@@ -43,12 +43,12 @@ import org.eclipse.lsp4xml.logs.LogHelper;
 import org.eclipse.lsp4xml.services.IXMLDocumentProvider;
 import org.eclipse.lsp4xml.services.XMLLanguageService;
 import org.eclipse.lsp4xml.settings.AllXMLSettings;
-import org.eclipse.lsp4xml.settings.XMLCompletionSettings;
 import org.eclipse.lsp4xml.settings.InitializationOptionsSettings;
 import org.eclipse.lsp4xml.settings.LogsSettings;
 import org.eclipse.lsp4xml.settings.ServerSettings;
 import org.eclipse.lsp4xml.settings.SharedSettings;
 import org.eclipse.lsp4xml.settings.XMLCodeLensSettings;
+import org.eclipse.lsp4xml.settings.XMLCompletionSettings;
 import org.eclipse.lsp4xml.settings.XMLFormattingOptions;
 import org.eclipse.lsp4xml.settings.XMLGeneralClientSettings;
 import org.eclipse.lsp4xml.settings.XMLSymbolSettings;
@@ -176,6 +176,7 @@ public class XMLLanguageServer
 
 	@Override
 	public CompletableFuture<Object> shutdown() {
+		xmlLanguageService.dispose();
 		return computeAsync(cc -> new Object());
 	}
 
