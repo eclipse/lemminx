@@ -9,6 +9,6 @@
 		"request": "attach",
 		"hostName": "localhost",
 		"port": 1054,
-		"projectName": "org.eclipse.lsp4xml"
+		"projectName": "org.eclipse.lemminx"
 	}]
 }

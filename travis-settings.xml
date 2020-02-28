@@ -1,12 +1,12 @@
 <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
   <servers>
     <server>
-      <id>lsp4xml-releases</id>
+      <id>lemminx-releases</id>
       <username>${env.RELEASES_USERNAME}</username>
       <password>${env.RELEASES_PASSWORD}</password>
     </server>
 	<server>
-      <id>lsp4xml-snapshots</id>
+      <id>lemminx-snapshots</id>
       <username>${env.SNAPSHOTS_USERNAME}</username>
       <password>${env.SNAPSHOTS_PASSWORD}</password>
     </server>
