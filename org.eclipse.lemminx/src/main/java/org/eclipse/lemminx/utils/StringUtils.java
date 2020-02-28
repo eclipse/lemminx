@@ -88,7 +88,6 @@ public class StringUtils {
 	/**
 	 * Normalizes the whitespace characters of a given string differently and applies it to the
 	 * given string builder.
-	 * XXX: not sure whether this is really needed and the function above already is what we need...
 	 * @param str
 	 * @return the result of normalize space of the given string.
 	 */
