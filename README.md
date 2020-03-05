@@ -69,56 +69,10 @@ this.forward(clientConnection, serverConnection)
 socket.connect(socketPort)
 ```
 
-Maven coordinates:
-------------------
+Binaries
+--------
+No binaries are currently published, as we're in the process of setting up our CI infrastructure at the Eclipse Foundation.
 
-Here are the Maven coordinates for lemminx (replace the `X.Y.Z` version with the [latest release](https://bintray.com/beta/#/lemminx/releases/lemminx)):
-```xml
-<dependency>
-    <groupId>org.lemminx</groupId>
-    <artifactId>org.eclipse.lemminx</artifactId>
-    <version>X.Y.Z</version>
-    <!-- classifier:uber includes all dependencies -->
-    <classifier>uber</classifier>
-</dependency>
-```
-
-for Gradle:
-```
-compile(group: 'org.lemminx', name: 'org.eclipse.lemminx', version: 'X.Y.Z', classifier: 'uber')
-```
-
-You will have to reference the Maven repository hosting the dependency you need. E.g. for Maven, add this repository to your pom.xml or settings.xml :
-```xml
-<repository>
-  <id>lemminx-releases</id>
-  <url>https://dl.bintray.com/lemminx/releases</url>
-  <snapshots>
-    <enabled>false</enabled>
-  </snapshots>
-  <releases>
-    <enabled>true</enabled>
-  </releases>
-</repository>
-```
-or P2 repository: [https://dl.bintray.com/lemminx/p2/`<VERSION>`](https://dl.bintray.com/lemminx/p2/) 
-
-
-And if you want to consume the SNAPSHOT builds instead:
-```xml
-<repository>
-  <id>lemminx-snapshots</id>
-  <url>https://oss.jfrog.org/artifactory/libs-snapshot</url>
-  <releases>
-    <enabled>false</enabled>
-  </releases>
-  <snapshots>
-    <enabled>true</enabled>
-  </snapshots>
-</repository>
-```
-or P2 repository:
-[https://lemminx.jfrog.io/lemminx/generic-local/p2/lemminx/`<VERSION>`](https://lemminx.jfrog.io/lemminx/generic-local/p2/lemminx/)
 
 Clients
 -------
@@ -130,8 +84,3 @@ Here are some clients consuming this XML Language Server:
  * Theia with [theia-xml](https://github.com/theia-ide/theia-xml-extension)
  * [Spring Tools 4](https://github.com/spring-projects/sts4) - re-using the XML parser for Spring-specific analysis and content-assist
  * Vim/Neovim with [coc-xml](https://github.com/fannheyward/coc-xml)
-
- ---
-
- ![Gracefully powered by Artifactory](images/Powered-by-artifactory_01.png)
- 
