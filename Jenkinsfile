@@ -10,9 +10,7 @@ pipeline{
   stages{
       stage("Maven Build"){
           steps {
-              withMaven(
-                  jdk: 'adoptopenjdk-hotspot-jdk8-latest'
-              ) {
+              withMaven {
                 sh './mvnw clean verify -B -Pci,generate-p2'
               }
           }

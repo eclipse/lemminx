@@ -178,6 +178,7 @@
 										<goal>eclipse-run</goal>
 									</goals>
 									<configuration>
+										<executionEnvironment>JavaSE-1.8</executionEnvironment>
 										<repositories>
 											<repository>
 												<id>eclipse-4.10</id>
