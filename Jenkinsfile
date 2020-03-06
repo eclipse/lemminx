@@ -1,5 +1,8 @@
 pipeline{
   agent any
+  tools {
+    jdk 'jdk1.8.0-latest'
+  }
   environment {
     MAVEN_HOME = '$WORKSPACE/.m2/'
     MAVEN_USER_HOME = '$MAVEN_HOME'
@@ -7,7 +10,7 @@ pipeline{
   stages{
       stage("Maven Build"){
           steps {
-              withMaven(jdk: 'jdk1.8.0-latest') {
+              withMaven {
                 sh './mvnw clean verify -B -Pci,generate-p2'
               }
           }
