@@ -1,7 +1,7 @@
 pipeline{
   agent any
   tools {
-    jdk 'jdk1.8.0-latest'
+    jdk 'adoptopenjdk-hotspot-jdk8-latest'
   }
   environment {
     MAVEN_HOME = '$WORKSPACE/.m2/'
