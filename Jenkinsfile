@@ -7,7 +7,7 @@ pipeline{
   stages{
       stage("Maven Build"){
           steps {
-              withMaven(jdk: 'JDK8') {
+              withMaven(jdk: 'jdk1.8.0-latest') {
                 sh './mvnw clean verify -B -Pci,generate-p2'
               }
           }
