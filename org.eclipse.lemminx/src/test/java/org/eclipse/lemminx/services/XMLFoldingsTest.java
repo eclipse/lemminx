@@ -19,7 +19,6 @@ import java.util.List;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMParser;
-import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.settings.XMLFoldingSettings;
 import org.eclipse.lsp4j.FoldingRange;
 import org.eclipse.lsp4j.FoldingRangeCapabilities;

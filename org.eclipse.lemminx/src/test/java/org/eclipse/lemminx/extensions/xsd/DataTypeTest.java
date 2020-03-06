@@ -11,7 +11,6 @@
 *******************************************************************************/
 package org.eclipse.lemminx.extensions.xsd;
 
-import org.eclipse.lemminx.extensions.xsd.DataType;
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -437,7 +437,7 @@ public class XSDUtils {
 			}
 		}
 		// Track the imported grammars
-		Vector importedGrammars = grammar.getImportedGrammars();
+		Vector<?> importedGrammars = grammar.getImportedGrammars();
 		if (importedGrammars != null) {
 			for (Object importedGrammar : importedGrammars) {
 				updateTracker((SchemaGrammar) importedGrammar, trackedGrammars, trackedURIs, tracker);

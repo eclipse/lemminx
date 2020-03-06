@@ -22,16 +22,14 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
 import org.eclipse.lemminx.XMLLanguageServer;
 import org.eclipse.lemminx.XMLTextDocumentService;
 import org.eclipse.lemminx.client.CodeLensKind;
 import org.eclipse.lemminx.client.ExtendedClientCapabilities;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
-import org.eclipse.lemminx.settings.AllXMLSettings;
-import org.eclipse.lemminx.settings.InitializationOptionsSettings;
-import org.eclipse.lemminx.settings.XMLExcludedSymbolFile;
-import org.eclipse.lemminx.settings.XMLFormattingOptions;
-import org.eclipse.lemminx.settings.XMLGeneralClientSettings;
 import org.eclipse.lemminx.settings.capabilities.InitializationOptionsExtendedClientCapabilities;
 import org.eclipse.lemminx.utils.FilesUtils;
 import org.eclipse.lsp4j.FormattingOptions;
@@ -39,9 +37,6 @@ import org.eclipse.lsp4j.InitializeParams;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 
 /**
  * Tests for settings.

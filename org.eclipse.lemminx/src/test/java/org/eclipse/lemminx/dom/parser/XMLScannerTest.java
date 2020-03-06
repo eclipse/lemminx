@@ -14,9 +14,6 @@ package org.eclipse.lemminx.dom.parser;
 
 import static org.junit.Assert.assertEquals;
 
-import org.eclipse.lemminx.dom.parser.Scanner;
-import org.eclipse.lemminx.dom.parser.TokenType;
-import org.eclipse.lemminx.dom.parser.XMLScanner;
 import org.junit.Before;
 import org.junit.Test;
 

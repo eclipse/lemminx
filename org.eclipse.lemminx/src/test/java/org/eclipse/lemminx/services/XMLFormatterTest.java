@@ -21,7 +21,6 @@ import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMParser;
-import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.settings.XMLFormattingOptions;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;

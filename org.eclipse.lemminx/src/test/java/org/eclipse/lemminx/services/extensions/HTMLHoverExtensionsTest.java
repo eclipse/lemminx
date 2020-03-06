@@ -15,9 +15,6 @@ package org.eclipse.lemminx.services.extensions;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.services.XMLLanguageService;
-import org.eclipse.lemminx.services.extensions.HoverParticipantAdapter;
-import org.eclipse.lemminx.services.extensions.IHoverParticipant;
-import org.eclipse.lemminx.services.extensions.IHoverRequest;
 import org.junit.Test;
 
 /**

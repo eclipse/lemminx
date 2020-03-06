@@ -24,7 +24,6 @@ import com.google.gson.JsonObject;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.XMLAssert.SettingsSaveContext;
 import org.eclipse.lemminx.commons.BadLocationException;
-import org.eclipse.lemminx.extensions.contentmodel.ContentModelPlugin;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSchemaErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;

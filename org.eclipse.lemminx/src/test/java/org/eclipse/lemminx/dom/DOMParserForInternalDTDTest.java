@@ -14,14 +14,6 @@ package org.eclipse.lemminx.dom;
 
 import static org.junit.Assert.assertTrue;
 
-import org.eclipse.lemminx.dom.DOMDocument;
-import org.eclipse.lemminx.dom.DOMDocumentType;
-import org.eclipse.lemminx.dom.DOMParser;
-import org.eclipse.lemminx.dom.DOMText;
-import org.eclipse.lemminx.dom.DTDAttlistDecl;
-import org.eclipse.lemminx.dom.DTDElementDecl;
-import org.eclipse.lemminx.dom.DTDEntityDecl;
-import org.eclipse.lemminx.dom.DTDNotationDecl;
 import org.junit.Assert;
 import org.junit.Test;
 

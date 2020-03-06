@@ -13,7 +13,6 @@ package org.eclipse.lemminx.utils;
 
 import static org.junit.Assert.assertEquals;
 
-import org.eclipse.lemminx.utils.CompletionSortTextHelper;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.junit.Test;
 

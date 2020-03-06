@@ -13,8 +13,6 @@ package org.eclipse.lemminx.services.extensions;
 
 import static org.junit.Assert.assertTrue;
 
-import org.eclipse.lemminx.services.extensions.IXMLExtension;
-import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.services.extensions.save.ISaveContext;
 import org.eclipse.lsp4j.InitializeParams;
 import org.junit.Test;

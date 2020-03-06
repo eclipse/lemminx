@@ -12,8 +12,6 @@
  */
 package org.eclipse.lemminx.commons;
 
-import org.eclipse.lemminx.commons.BadLocationException;
-import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lsp4j.Position;
 import org.junit.Assert;
 import org.junit.Test;

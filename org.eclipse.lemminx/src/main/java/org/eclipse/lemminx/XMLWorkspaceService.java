@@ -15,7 +15,6 @@ package org.eclipse.lemminx;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import org.eclipse.lemminx.XMLTextDocumentService;
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.FileEvent;

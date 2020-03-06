@@ -24,8 +24,6 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.lemminx.XMLTextDocumentService;
-import org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesInitializer;
-import org.eclipse.lemminx.settings.capabilities.XMLCapabilityManager;
 import org.eclipse.lsp4j.ClientCapabilities;
 import org.eclipse.lsp4j.CodeActionCapabilities;
 import org.eclipse.lsp4j.CompletionCapabilities;
