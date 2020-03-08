@@ -26,7 +26,7 @@ pipeline{
             ssh genie.lemminx@projects-storage.eclipse.org rm -rf $targetDir
             ssh genie.lemminx@projects-storage.eclipse.org mkdir -p $targetDir
             scp -r org.eclipse.lemminx/target/org.eclipse.lemminx-* genie.lemminx@projects-storage.eclipse.org:$targetDir
-            ssh genie.lemminx@projects-storage.eclipse.org unzip $targetDir/org.eclipse.lemminx-p2repo.zip
+            ssh genie.lemminx@projects-storage.eclipse.org unzip $targetDir/org.eclipse.lemminx-p2repo.zip repository
             '''
         }
       }
