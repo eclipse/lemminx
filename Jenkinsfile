@@ -22,11 +22,11 @@ pipeline{
       steps {
         sshagent ( ['projects-storage.eclipse.org-bot-ssh']) {
           sh '''
-            targetDir=/home/data/httpd/download.eclipse.org/lemminx/snapshots/
+            targetDir=/home/data/httpd/download.eclipse.org/lemminx/snapshots
             ssh genie.lemminx@projects-storage.eclipse.org rm -rf $targetDir
             ssh genie.lemminx@projects-storage.eclipse.org mkdir -p $targetDir
             scp -r org.eclipse.lemminx/target/org.eclipse.lemminx-* genie.lemminx@projects-storage.eclipse.org:$targetDir
-            ssh genie.lemminx@projects-storage.eclipse.org unzip $targetDir\*.zip
+            ssh genie.lemminx@projects-storage.eclipse.org unzip $targetDir/org.eclipse.lemminx-p2repo.zip
             '''
         }
       }
