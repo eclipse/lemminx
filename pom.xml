@@ -18,13 +18,19 @@
 		</license>
 	</licenses>
 	<scm>
-		<connection>scm:git:git@github.com:angelozerr/lemminx.git</connection>
+		<connection>scm:git:git@github.com:eclipse/lemminx.git</connection>
 		<developerConnection>scm:git:git@github.com:eclipse/lemminx.git</developerConnection>
 		<url>https://github.com/eclipse/lemminx</url>
 	</scm>
 	<modules>
 		<module>org.eclipse.lemminx</module>
 	</modules>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>cbi-release</id>
+			<url>https://repo.eclipse.org/content/repositories/cbi-releases/</url>
+		</pluginRepository>
+	</pluginRepositories>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
