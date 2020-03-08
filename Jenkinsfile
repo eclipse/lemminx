@@ -17,7 +17,7 @@ pipeline{
     }
     stage('Deploy') {
       when {
-        branch 'master'}
+        branch 'master'
       }
       steps {
         sshagent ( ['projects-storage.eclipse.org-bot-ssh']) {
