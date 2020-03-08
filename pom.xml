@@ -184,7 +184,7 @@
 												<id>eclipse-4.10</id>
 												<layout>p2</layout>
 												<url>http://download.eclipse.org/eclipse/updates/4.10/R-4.10-201812060815/</url>
-					 						</repository>
+											</repository>
 										</repositories>
 										<dependencies>
 											<dependency>

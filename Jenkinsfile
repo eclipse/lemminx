@@ -11,7 +11,7 @@ pipeline{
     stage("Maven Build"){
         steps {
           withMaven {
-            sh './mvnw clean verify -B -Pci,generate-p2'
+            sh './mvnw clean verify -B -Pci,eclipse-sign,generate-p2'
           }
         }
     }

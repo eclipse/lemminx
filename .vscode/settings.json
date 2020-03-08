@@ -6,7 +6,7 @@
 		"**/.factorypath": true
 	},
 	"editor.formatOnSave": false,
-	"editor.renderWhitespace": "boundary",
+	"editor.renderWhitespace": "all",
 	//Use consistent indentation
 	"editor.detectIndentation": false,
 	"editor.tabSize": 4,
