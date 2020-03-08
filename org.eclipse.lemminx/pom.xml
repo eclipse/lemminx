@@ -146,6 +146,7 @@
 						<executions>
 							<execution>
 								<id>sign</id>
+								<phase>package</phase>
 								<goals>
 									<goal>sign</goal>
 								</goals>
