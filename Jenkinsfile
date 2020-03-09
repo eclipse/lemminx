@@ -15,7 +15,7 @@ pipeline{
           }
         }
     }
-    stage('Deploy') {
+    stage('Deploy to downloads.eclipse.org') {
       when {
         branch 'master'
       }
@@ -28,6 +28,16 @@ pipeline{
             scp -r org.eclipse.lemminx/target/org.eclipse.lemminx-* genie.lemminx@projects-storage.eclipse.org:$targetDir
             ssh genie.lemminx@projects-storage.eclipse.org unzip $targetDir/org.eclipse.lemminx-p2repo.zip -d $targetDir/repository
             '''
+        }
+      }
+    }
+    stage ('Deploy Maven artifacts') {
+      when {
+          branch 'master'
+      }
+      steps {
+        withMaven {
+          sh './mvnw clean deploy -B -Pci,generate-p2 -DskipTests'
         }
       }
     }
