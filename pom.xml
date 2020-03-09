@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.eclipse</groupId>
 	<artifactId>lemminx</artifactId>
-	<version>0.9.2-SNAPSHOT</version>
+	<version>0.11.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<description>LemMinX is a XML Language Server Protocol (LSP), and can be used with any editor that supports LSP, to offer an outstanding XML editing experience</description>
 	<properties>
@@ -140,7 +140,7 @@
 						<executions>
 							<execution>
 								<id>attach-sources</id>
-								<phase>verify</phase>
+								<phase>package</phase>
 								<goals>
 									<goal>jar</goal>
 								</goals>
@@ -154,7 +154,7 @@
 						<executions>
 							<execution>
 								<id>attach-javadocs</id>
-								<phase>verify</phase>
+								<phase>package</phase>
 								<goals>
 									<goal>jar</goal>
 								</goals>
@@ -179,7 +179,7 @@
 							<executions>
 								<execution>
 									<id>generate-p2-site</id>
-									<phase>process-classes</phase>
+									<phase>package</phase>
 									<goals>
 										<goal>eclipse-run</goal>
 									</goals>
