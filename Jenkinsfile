@@ -37,7 +37,7 @@ pipeline{
       }
       steps {
         withMaven {
-          sh './mvnw clean deploy -B -Pci,generate-p2 -DskipTests'
+          sh './mvnw deploy -B -Pci,generate-p2 -DskipTests' //don't clean to keep previous test results
         }
       }
     }
