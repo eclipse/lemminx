@@ -17,7 +17,6 @@ import static org.junit.Assert.assertEquals;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.eclipse.lemminx.utils.FilesUtils;
 import org.junit.Test;
 
 /**

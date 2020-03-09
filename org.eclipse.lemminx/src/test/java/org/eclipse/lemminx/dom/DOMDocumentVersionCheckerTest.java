@@ -16,8 +16,6 @@ import java.util.concurrent.CancellationException;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.commons.TextDocumentVersionChecker;
-import org.eclipse.lemminx.dom.DOMDocument;
-import org.eclipse.lemminx.dom.DOMParser;
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -593,15 +593,6 @@ class XMLFormatter {
 			return edits;
 		}
 
-		private static boolean isFirstChildNode(DOMNode node) {
-			return node.equals(node.getParentNode().getFirstChild());
-		}
-
-		private static boolean isPreviousSiblingNodeType(DOMNode node, short nodeType) {
-			DOMNode previousNode = node.getPreviousSibling();
-			return previousNode != null && previousNode.getNodeType() == nodeType;
-		}
-
 		private static void addPIToXMLBuilder(DOMNode node, XMLBuilder xml) {
 			DOMProcessingInstruction processingInstruction = (DOMProcessingInstruction) node;
 			xml.startPrologOrPI(processingInstruction.getTarget());

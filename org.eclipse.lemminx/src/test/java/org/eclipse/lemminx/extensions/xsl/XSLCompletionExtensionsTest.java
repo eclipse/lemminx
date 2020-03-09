@@ -17,7 +17,6 @@ import static org.eclipse.lemminx.XMLAssert.te;
 
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
-import org.eclipse.lemminx.extensions.xsl.XSLURIResolverExtension;
 import org.eclipse.lsp4j.CompletionItem;
 import org.junit.Test;
 

@@ -14,7 +14,6 @@ package org.eclipse.lemminx.extensions.contentmodel.model;
 import java.io.IOException;
 
 import org.eclipse.lemminx.extensions.contentmodel.BaseFileTempTest;
-import org.eclipse.lemminx.extensions.contentmodel.model.FilesChangedTracker;
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -16,22 +16,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
-import org.eclipse.lemminx.dom.DOMCDATASection;
-import org.eclipse.lemminx.dom.DOMCharacterData;
-import org.eclipse.lemminx.dom.DOMComment;
-import org.eclipse.lemminx.dom.DOMDocument;
-import org.eclipse.lemminx.dom.DOMDocumentType;
-import org.eclipse.lemminx.dom.DOMElement;
-import org.eclipse.lemminx.dom.DOMNode;
-import org.eclipse.lemminx.dom.DOMParser;
-import org.eclipse.lemminx.dom.DOMProcessingInstruction;
-import org.eclipse.lemminx.dom.DOMText;
-import org.eclipse.lemminx.dom.DTDAttlistDecl;
-import org.eclipse.lemminx.dom.DTDDeclNode;
-import org.eclipse.lemminx.dom.DTDDeclParameter;
-import org.eclipse.lemminx.dom.DTDElementDecl;
-import org.eclipse.lemminx.dom.DTDEntityDecl;
-import org.eclipse.lemminx.dom.DTDNotationDecl;
 import org.eclipse.lemminx.dom.DOMDocumentType.DocumentTypeKind;
 import org.junit.Assert;
 import org.junit.Ignore;

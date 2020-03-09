@@ -44,7 +44,7 @@ class HoverRequest extends AbstractPositionRequest implements IHoverRequest {
 	protected DOMNode findNodeAt(DOMDocument xmlDocument, int offset) {
 		DOMNode node = xmlDocument.findNodeAt(offset);
 		if (node != null && node.isElement()) {
-			DOMAttr attr = xmlDocument.findAttrAt(node, offset);
+			DOMAttr attr = DOMNode.findAttrAt(node, offset);
 			if (attr != null) {
 				return attr;
 			}

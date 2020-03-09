@@ -18,7 +18,7 @@ import static org.eclipse.lemminx.XMLAssert.te;
 
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
-import org.eclipse.lemminx.extensions.prolog.PrologModel;
+import org.eclipse.lemminx.extensions.xsl.XSLURIResolverExtension;
 import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.settings.XMLCompletionSettings;
 import org.eclipse.lemminx.settings.XMLFormattingOptions;

@@ -32,7 +32,6 @@ import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.dom.parser.TokenType;
-import org.eclipse.lemminx.services.RenameRequest;
 import org.eclipse.lemminx.services.extensions.IRenameParticipant;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lsp4j.Position;

@@ -13,7 +13,6 @@
 package org.eclipse.lemminx.utils;
 
 import org.eclipse.lemminx.settings.XMLFormattingOptions;
-import org.eclipse.lemminx.utils.XMLBuilder;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

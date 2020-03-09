@@ -18,8 +18,6 @@ import org.apache.xerces.util.URI.MalformedURIException;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.services.XMLLanguageService;
-import org.eclipse.lemminx.services.extensions.HoverParticipantAdapter;
-import org.eclipse.lemminx.services.extensions.IHoverRequest;
 import org.junit.Test;
 
 /**

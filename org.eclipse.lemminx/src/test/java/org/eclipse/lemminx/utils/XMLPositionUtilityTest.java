@@ -14,7 +14,6 @@ package org.eclipse.lemminx.utils;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMParser;
-import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.Position;
 import org.junit.Assert;
 import org.junit.Test;

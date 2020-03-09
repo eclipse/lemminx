@@ -20,16 +20,14 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+
 import org.eclipse.lemminx.AbstractCacheBasedTest;
-import org.eclipse.lemminx.uriresolver.CacheResourceDownloadingException;
-import org.eclipse.lemminx.uriresolver.CacheResourcesManager;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 
 public class CacheResourcesManagerTest extends AbstractCacheBasedTest {
 

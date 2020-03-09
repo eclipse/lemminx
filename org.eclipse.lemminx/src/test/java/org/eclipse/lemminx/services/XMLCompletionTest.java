@@ -27,9 +27,7 @@ import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.customservice.AutoCloseTagResponse;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMParser;
-import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.settings.SharedSettings;
-import org.eclipse.lemminx.settings.XMLCompletionSettings;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.Position;
@@ -44,13 +42,10 @@ import org.junit.Test;
 public class XMLCompletionTest {
 
 	private XMLLanguageService languageService;
-	private XMLCompletionSettings sharedCompletionSettings;
 
 	@Before
 	public void initializeLanguageService() {
 		languageService = new XMLLanguageService();
-		sharedCompletionSettings = new XMLCompletionSettings();
-
 	}
 
 	@Test
