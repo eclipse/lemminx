@@ -247,8 +247,22 @@ public class XMLPositionUtility {
 		return null;
 	}
 
+	/**
+	 * Returns the range of the root start tag (excludes the '<') of the given
+	 * <code>document</code> and null otherwise.
+	 * 
+	 * @param document the DOM document.
+	 * @return the range of the root start tag (excludes the '<') of the given
+	 *         <code>document</code> and null otherwise.
+	 */
 	public static Range selectRootStartTag(DOMDocument document) {
 		DOMNode root = document.getDocumentElement();
+		if (root == null) {
+			root = document.getChild(0);
+		}
+		if (root == null) {
+			return null;
+		}
 		return selectStartTagName(root);
 	}
 

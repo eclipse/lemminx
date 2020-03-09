@@ -279,6 +279,14 @@ public class XMLSyntaxDiagnosticsTest {
 	}
 
 	@Test
+	public void testMarkupEntityMismatch3() throws Exception {
+		String xml = "<?";
+		
+		Diagnostic d = d(0, 1, 0, 1, XMLSyntaxErrorCode.MarkupEntityMismatch);
+		testDiagnosticsFor(xml, d);
+	}
+	
+	@Test
 	public void testMarkupNotRecognizedInContent() throws Exception {
 		String xml = "<GrpHdr>\r\n" + "<- almost a comment-->\r\n" + "<MsgId>2.012.001</MsgId>";
 		testDiagnosticsFor(xml, d(1, 0, 1, 1, XMLSyntaxErrorCode.MarkupNotRecognizedInContent));
