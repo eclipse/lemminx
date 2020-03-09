@@ -140,7 +140,7 @@
 						<executions>
 							<execution>
 								<id>attach-sources</id>
-								<phase>verify</phase>
+								<phase>package</phase>
 								<goals>
 									<goal>jar</goal>
 								</goals>
@@ -154,7 +154,7 @@
 						<executions>
 							<execution>
 								<id>attach-javadocs</id>
-								<phase>verify</phase>
+								<phase>package</phase>
 								<goals>
 									<goal>jar</goal>
 								</goals>
@@ -179,7 +179,7 @@
 							<executions>
 								<execution>
 									<id>generate-p2-site</id>
-									<phase>process-classes</phase>
+									<phase>package</phase>
 									<goals>
 										<goal>eclipse-run</goal>
 									</goals>
