@@ -12,9 +12,8 @@
  */
 package org.eclipse.lemminx.extensions.contentmodel.participants.diagnostics;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.io.StringReader;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
@@ -107,11 +106,7 @@ public class XMLValidator {
 			// Parse XML
 			String content = document.getText();
 			String uri = document.getDocumentURI();
-			InputSource inputSource = new InputSource();
-			inputSource.setByteStream(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)));
-			inputSource.setSystemId(uri);
-			parser.parse(inputSource);
-
+			parseXML(content, uri, parser);
 		} catch (IOException | SAXException | CancellationException exception) {
 			// ignore error
 		} catch (CacheResourceDownloadingException e) {
@@ -119,6 +114,13 @@ public class XMLValidator {
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, "Unexpected XMLValidator error", e);
 		}
+	}
+
+	private static void parseXML(String content, String uri, SAXParser parser) throws SAXException, IOException {
+		InputSource inputSource = new InputSource();
+		inputSource.setCharacterStream(new StringReader(content));
+		inputSource.setSystemId(uri);
+		parser.parse(inputSource);
 	}
 
 	/**
@@ -212,10 +214,7 @@ public class XMLValidator {
 			parser.setProperty("http://apache.org/xml/properties/internal/entity-manager", entityManager);
 			parser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", true);
 
-			InputSource inputSource = new InputSource();
-			inputSource.setByteStream(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
-			inputSource.setSystemId(document.getDocumentURI());
-			parser.parse(inputSource);
+			parseXML(xml, document.getDocumentURI(), parser);
 		} catch (SAXException | CancellationException exception) {
 			// ignore error
 		} catch (IOException e) {

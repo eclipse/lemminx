@@ -90,6 +90,12 @@ public class XMLSyntaxDiagnosticsTest {
 		testDiagnosticsFor(xml, d(0, 1, 0, 4, XMLSyntaxErrorCode.ContentIllegalInProlog));
 	}
 
+	@Test
+	public void testEncodingUTF_16() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-16\" standalone=\"no\"?><root />";
+		testDiagnosticsFor(xml);
+	}
+	
 	/**
 	 * DashDashInComment tests
 	 * 
