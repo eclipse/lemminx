@@ -69,10 +69,52 @@ this.forward(clientConnection, serverConnection)
 socket.connect(socketPort)
 ```
 
-Binaries
---------
-No binaries are currently published, as we're in the process of setting up our CI infrastructure at the Eclipse Foundation.
+Maven coordinates:
+------------------
 
+Here are the Maven coordinates for lemminx (replace the `X.Y.Z` version with the [latest release](https://repo.eclipse.org/content/repositories/lemminx-releases)):
+```xml
+<dependency>
+    <groupId>org.lemminx</groupId>
+    <artifactId>org.eclipse.lemminx</artifactId>
+    <version>X.Y.Z</version>
+    <!-- classifier:uber includes all dependencies -->
+    <classifier>uber</classifier>
+</dependency>
+```
+
+for Gradle:
+```
+compile(group: 'org.lemminx', name: 'org.eclipse.lemminx', version: 'X.Y.Z', classifier: 'uber')
+```
+
+You will have to reference the Maven repository hosting the dependency you need. E.g. for Maven, add this repository to your pom.xml or settings.xml :
+```xml
+<repository>
+  <id>lemminx-releases</id>
+  <url>https://repo.eclipse.org/content/repositories/lemminx-releases/</url>
+  <snapshots>
+    <enabled>false</enabled>
+  </snapshots>
+  <releases>
+    <enabled>true</enabled>
+  </releases>
+</repository>
+```
+
+And if you want to consume the SNAPSHOT builds instead:
+```xml
+<repository>
+  <id>lemminx-snapshots</id>
+  <url>https://repo.eclipse.org/content/repositories/lemminx-snapshots/</url>
+  <releases>
+    <enabled>false</enabled>
+  </releases>
+  <snapshots>
+    <enabled>true</enabled>
+  </snapshots>
+</repository>
+```
 
 Clients
 -------
