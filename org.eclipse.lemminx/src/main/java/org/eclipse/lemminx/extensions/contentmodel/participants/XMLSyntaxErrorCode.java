@@ -167,8 +167,23 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 			return XMLPositionUtility.selectChildEndTag(tag, offset, document);
 		}
 		case ContentIllegalInProlog: {
-			int endOffset = document.getText().indexOf("<");
 			int startOffset = offset + 1;
+			int endOffset = 0;
+			int errorOffset = offset + 1;
+			String text = document.getText();
+			int startPrologOffset = text.indexOf("<");
+			if (errorOffset < startPrologOffset) {
+				// Invalid content given before prolog. Prolog should be the first thing in the
+				// file if given.
+				startOffset = errorOffset;
+				endOffset = startPrologOffset;
+			} else {
+				// Invalid content given after prolog. Either root tag or comment should be
+				// present
+				int firstStartTagOffset = text.indexOf("<", errorOffset);
+				startOffset = errorOffset;
+				endOffset = firstStartTagOffset != -1 ? firstStartTagOffset : text.length();
+			}
 			return XMLPositionUtility.createRange(startOffset, endOffset, document);
 		}
 		case DashDashInComment: {
