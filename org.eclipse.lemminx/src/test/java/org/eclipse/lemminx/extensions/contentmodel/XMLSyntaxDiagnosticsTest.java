@@ -85,9 +85,33 @@ public class XMLSyntaxDiagnosticsTest {
 	 * @throws Exception
 	 */
 	@Test
-	public void testContentIllegalInProlog() throws Exception {
+	public void testBeforeContentIllegalInProlog() throws Exception {
 		String xml = " ab?<xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>";
 		testDiagnosticsFor(xml, d(0, 1, 0, 4, XMLSyntaxErrorCode.ContentIllegalInProlog));
+	}
+
+	/**
+	 * ContentIllegalInProlog tests
+	 * 
+	 * @see https://wiki.xmldation.com/Support/Validator/ContentIllegalInProlog
+	 * @throws Exception
+	 */
+	@Test
+	public void testAfterContentIllegalInProlog() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>ab\ncd";
+		testDiagnosticsFor(xml, d(0, 54, 1, 2, XMLSyntaxErrorCode.ContentIllegalInProlog));
+	}
+
+	/**
+	 * ContentIllegalInProlog tests
+	 * 
+	 * @see https://wiki.xmldation.com/Support/Validator/ContentIllegalInProlog
+	 * @throws Exception
+	 */
+	@Test
+	public void testAfterContentIllegalInProlog2() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>ab\ncd<root>";
+		testDiagnosticsFor(xml, d(0, 54, 1, 2, XMLSyntaxErrorCode.ContentIllegalInProlog));
 	}
 
 	@Test
