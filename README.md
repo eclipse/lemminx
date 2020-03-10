@@ -1,7 +1,6 @@
 XML Language Server (LemMinX)
 ===========================
-
-[![Build Status](https://travis-ci.org/eclipse/lemminx.svg?branch=master)](http://travis-ci.org/eclipse/lemminx)
+[![Build Status](https://ci.eclipse.org/lemminx/buildStatus/icon?job=lemminx%2Fmaster)](https://ci.eclipse.org/lemminx/job/lemminx/job/master/)
 
 **LemMinX** is a XML language specific implementation of the [Language Server Protocol](https://github.com/Microsoft/language-server-protocol)
 and can be used with any editor that supports the protocol, to offer good support for the **XML Language**. The server is based on:
