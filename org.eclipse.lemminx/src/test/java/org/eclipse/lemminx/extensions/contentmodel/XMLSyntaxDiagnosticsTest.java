@@ -85,11 +85,41 @@ public class XMLSyntaxDiagnosticsTest {
 	 * @throws Exception
 	 */
 	@Test
-	public void testContentIllegalInProlog() throws Exception {
+	public void testBeforeContentIllegalInProlog() throws Exception {
 		String xml = " ab?<xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>";
 		testDiagnosticsFor(xml, d(0, 1, 0, 4, XMLSyntaxErrorCode.ContentIllegalInProlog));
 	}
 
+	/**
+	 * ContentIllegalInProlog tests
+	 * 
+	 * @see https://wiki.xmldation.com/Support/Validator/ContentIllegalInProlog
+	 * @throws Exception
+	 */
+	@Test
+	public void testAfterContentIllegalInProlog() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>ab\ncd";
+		testDiagnosticsFor(xml, d(0, 54, 1, 2, XMLSyntaxErrorCode.ContentIllegalInProlog));
+	}
+
+	/**
+	 * ContentIllegalInProlog tests
+	 * 
+	 * @see https://wiki.xmldation.com/Support/Validator/ContentIllegalInProlog
+	 * @throws Exception
+	 */
+	@Test
+	public void testAfterContentIllegalInProlog2() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>ab\ncd<root>";
+		testDiagnosticsFor(xml, d(0, 54, 1, 2, XMLSyntaxErrorCode.ContentIllegalInProlog));
+	}
+
+	@Test
+	public void testEncodingUTF_16() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-16\" standalone=\"no\"?><root />";
+		testDiagnosticsFor(xml);
+	}
+	
 	/**
 	 * DashDashInComment tests
 	 * 
@@ -278,6 +308,14 @@ public class XMLSyntaxDiagnosticsTest {
 		testCodeActionsFor(xml, d, ca(d, te(0, 5, 0, 5, "</ABC>")));
 	}
 
+	@Test
+	public void testMarkupEntityMismatch3() throws Exception {
+		String xml = "<?";
+		
+		Diagnostic d = d(0, 1, 0, 1, XMLSyntaxErrorCode.MarkupEntityMismatch);
+		testDiagnosticsFor(xml, d);
+	}
+	
 	@Test
 	public void testMarkupNotRecognizedInContent() throws Exception {
 		String xml = "<GrpHdr>\r\n" + "<- almost a comment-->\r\n" + "<MsgId>2.012.001</MsgId>";

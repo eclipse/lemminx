@@ -119,14 +119,16 @@
 		</pluginManagement>
 	</build>
 	<distributionManagement>
-		<snapshotRepository>
-			<id>lemminx-snapshots</id>
-			<url>https://oss.jfrog.org/artifactory/oss-snapshot-local</url>
-		</snapshotRepository>
 		<repository>
-			<id>lemminx-releases</id>
-			<url>https://api.bintray.com/maven/lemminx/releases/lemminx/;publish=1</url>
+			<id>repo.eclipse.org</id>
+			<name>lemminx-releases</name>
+			<url>https://repo.eclipse.org/content/repositories/lemminx-releases/</url>
 		</repository>
+		<snapshotRepository>
+			<id>repo.eclipse.org</id>
+			<name>lemminx-snapshots</name>
+			<url>https://repo.eclipse.org/content/repositories/lemminx-snapshots/</url>
+		</snapshotRepository>
 	</distributionManagement>
 	<profiles>
 		<profile>
