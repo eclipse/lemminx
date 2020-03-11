@@ -1,8 +1,3 @@
-**experimental**
-================
-
-attempts to implement a different formatting strategy where not every tag is in a new line, but some are kept inline (see https://github.com/angelozerr/lsp4xml/issues/594).
-
 **LemMinX** is a XML language specific implementation of the [Language Server Protocol](https://github.com/Microsoft/language-server-protocol)
 and can be used with any editor that supports the protocol, to offer good support for the **XML Language**. The server is based on:
 
