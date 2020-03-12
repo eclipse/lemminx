@@ -33,4 +33,9 @@ public class HoverParticipantAdapter implements IHoverParticipant {
 		return null;
 	}
 
+	@Override
+	public String onText(IHoverRequest request) throws Exception {
+		return null;
+	}
+
 }

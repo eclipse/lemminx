@@ -39,6 +39,9 @@ public class HTMLHoverExtensionsTest {
 		assertHover("<html></htm|l>", "</html>", 8);
 		assertHover("<html></html|>", "</html>", 8);
 		assertHover("<html></html>|");
+		assertHover("<html>hover|Text</html>", "hoverText", 6);
+		assertHover("<html>h|overText</html>", "hoverText", 6);
+		assertHover("<html> |</html>", " ", 6);
 	};
 
 	private static void assertHover(String value) throws BadLocationException {
@@ -64,6 +67,10 @@ public class HTMLHoverExtensionsTest {
 				String tag = request.getCurrentTag();
 				String tagLabel = request.isOpen() ? "<" + tag + ">" : "</" + tag + ">";
 				return tagLabel;
+			}
+			@Override
+			public String onText(IHoverRequest request) throws Exception {
+				return request.getNode().getTextContent();
 			}
 		}
 	}
