@@ -23,14 +23,14 @@ import java.util.Arrays;
 
 import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.util.URI.MalformedURIException;
-import org.eclipse.lsp4j.CompletionCapabilities;
-import org.eclipse.lsp4j.CompletionItem;
-import org.eclipse.lsp4j.CompletionItemCapabilities;
-import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.settings.XMLCompletionSettings;
+import org.eclipse.lsp4j.CompletionCapabilities;
+import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.CompletionItemCapabilities;
+import org.eclipse.lsp4j.MarkupKind;
 import org.junit.Test;
 
 /**
@@ -370,7 +370,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				+ "            </xs:sequence>\r\n"
 				+ "            <xs:attribute name=\"variant\" type=\"xs:string\" use=\"required\"/>\r\n"
 				+ "        </xs:complexType>\r\n" + "    </xs:element>\r\n" + "</xs:schema>";
-		
+
 		createFile(xsdPath, schema);
 		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null, "target/resources.xml", 5, false,
 				c("variant", "variant=\"\""));
@@ -764,6 +764,42 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 	}
 
 	@Test
+	public void xsAnySkip() throws BadLocationException {
+		String xml = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + //
+				"	xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"\r\n"
+				+ //
+				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n" + //
+				"	<modelVersion>4.0.0</modelVersion>\r\n" + //
+				"\r\n" + //
+				"	<groupId>org.test</groupId>\r\n" + //
+				"	<artifactId>test</artifactId>\r\n" + //
+				"	<version>0.0.1-SNAPSHOT</version>\r\n" + //
+				"	<packaging>pom</packaging>\r\n" + //
+				"	\r\n" + //
+				"	<build>\r\n" + //
+				"		<plugins>\r\n" + //
+				"			<plugin>\r\n" + //
+				"				<groupId>org.apache.maven.plugins</groupId>\r\n" + //
+				"				<artifactId>maven-dependency-plugin</artifactId>\r\n" + //
+				"				<version>3.1.1</version>\r\n" + //
+				"				<executions>\r\n" + //
+				"					<execution>\r\n" + //
+				"						<goals><goal>list</goal></goals>\r\n" + //
+				"						<configuration>\r\n" + //
+				"							<|>\r\n" + // <-- completion is triggered here (configuration has xs:any
+														// processContents="skip"), it must return only project element.
+				"						</configuration>\r\n" + //
+				"					</execution>\r\n" + //
+				"				</executions>\r\n" + //
+				"			</plugin>\r\n" + //
+				"		</plugins>\r\n" + //
+				"	</build>\r\n" + //
+				"</project>";
+		XMLAssert.testCompletionFor(xml, "src/test/resources/catalogs/catalog.xml", null,
+				3 /* project, comment and cdata */, c("project", te(20, 7, 20, 9, "<project></project>"), "<project"));
+	}
+
+	@Test
 	public void xsAnyDuplicate() throws IOException, BadLocationException {
 		String xml = "<Page loaded=\"pageLoaded\" class=\"page\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"xsd/tns.xsd\" >\r\n"
 				+ //
@@ -777,7 +813,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				c("DockLayout", te(2, 1, 2, 1, "<DockLayout></DockLayout>"), "DockLayout", "Source: tns.xsd",
 						MarkupKind.PLAINTEXT));
 	}
-	
+
 	@Test
 	public void substitutionGroup() throws BadLocationException {
 		String xml = "<fleet xmlns=\"http://example/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://example/ xsd/substitutionGroup.xsd\">\r\n"
