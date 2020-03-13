@@ -41,5 +41,13 @@ public interface IHoverParticipant {
 	 * @return the Value of MarkupContent {@link String}
 	 */
 	String onAttributeValue(IHoverRequest request) throws Exception;
+	
+	/**
+	 * onText method
+	 *
+	 * @param hoverRequest the hover request.
+	 * @return the Value of MarkupContent {@link String}
+	 */
+	String onText(IHoverRequest request) throws Exception;
 
 }

@@ -22,6 +22,7 @@ import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
+import org.eclipse.lemminx.dom.DOMText;
 import org.eclipse.lemminx.dom.parser.Scanner;
 import org.eclipse.lemminx.dom.parser.TokenType;
 import org.eclipse.lemminx.dom.parser.XMLScanner;
@@ -84,8 +85,34 @@ class XMLHover {
 			}
 			// Attribute is hover
 			return getAttrNameHover(hoverRequest, null);
+		} else if (node.isText()) {
+			// Text is hover
+			DOMText text = (DOMText) node;
+			try {
+				Range textRange = new Range(xmlDocument.positionAt(text.getStart()),
+						xmlDocument.positionAt(text.getEnd()));
+				return getTextHover(hoverRequest, textRange);
+			} catch (BadLocationException e) {
+				LOGGER.log(Level.SEVERE, "While creating Range in XMLHover the text's Offset was a BadLocation", e);
+			}
 		}
 		return null;
+	}
+
+	private Hover getTextHover(HoverRequest hoverRequest, Range textRange) {
+		hoverRequest.setTagRange(textRange);
+		List<String> contentValues = new ArrayList<String>();
+		for (IHoverParticipant participant : extensionsRegistry.getHoverParticipants()) {
+			try {
+				String contentValue = participant.onText(hoverRequest);
+				if (contentValue != null) {
+					contentValues.add(contentValue);
+				}
+			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE, "While performing IHoverParticipant#onTagText", e);
+			}
+		}
+		return createHover(contentValues, hoverRequest);
 	}
 
 	/**
@@ -111,7 +138,7 @@ class XMLHover {
 				LOGGER.log(Level.SEVERE, "While performing IHoverParticipant#onTag", e);
 			}
 		}
-		return creatHover(contentValues, hoverRequest);
+		return createHover(contentValues, hoverRequest);
 	}
 
 	private Range getTagNameRange(TokenType tokenType, int startOffset, int offset, DOMDocument document) {
@@ -154,7 +181,7 @@ class XMLHover {
 				LOGGER.log(Level.SEVERE, "While performing IHoverParticipant#onTag", e);
 			}
 		}
-		return creatHover(contentValues, hoverRequest);
+		return createHover(contentValues, hoverRequest);
 	}
 
 	/**
@@ -178,7 +205,7 @@ class XMLHover {
 				LOGGER.log(Level.SEVERE, "While performing IHoverParticipant#onTag", e);
 			}
 		}
-		return creatHover(contentValues, hoverRequest);
+		return createHover(contentValues, hoverRequest);
 	}
 
 	/**
@@ -188,7 +215,7 @@ class XMLHover {
 	 * @param hoverRequest the hover request.
 	 * @return the aggregated LSP hover from the value list.
 	 */
-	private static Hover creatHover(List<String> contentValues, HoverRequest hoverRequest) {
+	private static Hover createHover(List<String> contentValues, HoverRequest hoverRequest) {
 		if (!contentValues.isEmpty()) {
 			return new Hover(MarkupContentFactory.creatMarkupContent(contentValues, hoverRequest), hoverRequest.getTagRange());
 		}

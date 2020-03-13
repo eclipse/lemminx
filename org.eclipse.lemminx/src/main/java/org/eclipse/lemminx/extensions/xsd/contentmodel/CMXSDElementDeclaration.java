@@ -205,11 +205,12 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 			// xs:any
 			switch (processContents) {
 			case XSWildcard.PC_STRICT:
-				// <xs:any processContents="strict" />
+			case XSWildcard.PC_SKIP:
+				// <xs:any processContents="strict" /> or <xs:any processContents="skip" />
 				// only global element declaration from the XML Schema are allowed
 				return document.getElements();
 			default:
-				// <xs:any processContents="lax" /> or <xs:any processContents="skip" />
+				// <xs:any processContents="lax" />
 				// all tags are allowed.
 				return ANY_ELEMENT_DECLARATIONS;
 			}

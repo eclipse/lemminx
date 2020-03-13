@@ -30,6 +30,7 @@ import org.eclipse.lemminx.services.extensions.ICompletionRequest;
 import org.eclipse.lemminx.services.extensions.ICompletionResponse;
 import org.eclipse.lemminx.settings.XMLFormattingOptions;
 import org.eclipse.lemminx.uriresolver.CacheResourceDownloadingException;
+import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
@@ -202,7 +203,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			if (Node.ELEMENT_NODE == node.getNodeType()) {
 				DOMElement elt = (DOMElement) node;
 				String tagName = elt.getTagName();
-				if (!tags.contains(tagName)) {
+				if (!StringUtils.isEmpty(tagName) && !tags.contains(tagName)) {
 					CompletionItem item = new CompletionItem(tagName);
 					item.setKind(CompletionItemKind.Property);
 					item.setFilterText(request.getFilterForStartTagName(tagName));
