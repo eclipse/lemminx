@@ -415,7 +415,7 @@ public class XMLSchemaDiagnosticsTest {
 	}
 
 	/**
-	 * @see https://github.com/angelozerr/lsp4xml/issues/217
+	 * @see https://github.com/eclipse/lemminx/issues/217
 	 */
 	@Test
 	public void issue217() {
