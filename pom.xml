@@ -115,6 +115,15 @@
 						</execution>
 					</executions>
 				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-release-plugin</artifactId>
+					<version>3.0.0-M1</version>
+					<configuration>
+						<tagNameFormat>v@{project.version}</tagNameFormat>
+						<arguments>-DskipTests=true -Dcbi.jarsigner.skip=false -Pci,generate-p2</arguments>
+					</configuration>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
