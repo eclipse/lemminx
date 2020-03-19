@@ -339,7 +339,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 
 	@Test
 	public void completionWithXMLSchemaContentChanged() throws Exception {
-		// This https://github.com/angelozerr/lsp4xml/issues/194 for the test scenario
+		// This https://github.com/eclipse/lemminx/issues/194 for the test scenario
 		String xsdPath = tempDirUri.getPath() + "/resources.xsd";
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
 
@@ -397,7 +397,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 	}
 
 	/**
-	 * @see https://github.com/angelozerr/lsp4xml/issues/214
+	 * @see https://github.com/eclipse/lemminx/issues/214
 	 * 
 	 * @throws BadLocationException
 	 * @throws MalformedURIException
@@ -460,7 +460,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 	}
 
 	/**
-	 * @see https://github.com/angelozerr/lsp4xml/issues/311
+	 * @see https://github.com/eclipse/lemminx/issues/311
 	 * 
 	 * @throws BadLocationException
 	 */
