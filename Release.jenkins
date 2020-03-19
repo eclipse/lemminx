@@ -4,8 +4,8 @@ pipeline{
     jdk 'adoptopenjdk-hotspot-jdk8-latest'
   }
   environment {
-    MAVEN_HOME = '$WORKSPACE/.m2/'
-    MAVEN_USER_HOME = '$MAVEN_HOME'
+    MAVEN_HOME = "$WORKSPACE/.m2/"
+    MAVEN_USER_HOME = "$MAVEN_HOME"
   }
   parameters {
       booleanParam(name: 'PERFORM_RELEASE', defaultValue: false, description: 'Perform a release?')
