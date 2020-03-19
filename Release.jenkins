@@ -20,8 +20,12 @@ pipeline{
         }
         sshagent ( ['github-bot-ssh']) {
           withMaven {
-            sh './mvnw clean release:clean release:prepare -B'
-            sh './mvnw clean release:perform -B'
+            sh '''
+                git config --global user.email "lemminx-bot@eclipse.org"
+                git config --global user.name "LemMinX GitHub Bot"
+                ./mvnw clean release:clean release:prepare -B
+                ./mvnw clean release:perform -B
+            '''
           }
         }
       }
