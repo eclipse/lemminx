@@ -1,5 +1,22 @@
 # Change Log
 
+## [0.11.0](https://github.com/eclipse/lemminx/milestone/13?closed=1) (March 19, 2020)
+
+### Enhancements
+
+ * Contribute lsp4xml to the Eclipse foundation. See [#283](https://github.com/eclipse/lemminx/issues/283)
+ * Add onTagText to IHoverParticipant (or extend IHoverParticipant). See [#609](https://github.com/eclipse/lemminx/issues/609)
+
+
+### Bug Fixes
+
+ * NPE when typing <?. See [#614](https://github.com/eclipse/lemminx/issues/614)
+ * NPE when document contains an empty tag. See [#613](https://github.com/eclipse/lemminx/issues/613)
+ * In Maven <configuration>, all known XML elements from schema are suggested as completion. See [#612](https://github.com/eclipse/lemminx/issues/612)
+ * UTF-16 not supported. See [#611](https://github.com/eclipse/lemminx/issues/611)
+ * Unregister language server extension on LS shutdown. See [#605](https://github.com/eclipse/lemminx/issues/605)
+
+
 ## [0.10.0](https://github.com/eclipse/lemminx/milestone/11?closed=1) (December 13, 2019)
 
 ### Enhancements
