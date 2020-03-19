@@ -11,18 +11,17 @@ pipeline{
       booleanParam(name: 'PERFORM_RELEASE', defaultValue: false, description: 'Perform a release?')
   }
   stages {
-      stage("Maven Release"){
-        steps {
-          script {
-            if (!(params.PERFORM_RELEASE) {
-              error('Not releasing')
-            }
+    stage("Maven Release"){
+      steps {
+        script {
+          if (!params.PERFORM_RELEASE) {
+            error('Not releasing')
           }
-          sshagent ( ['github-bot-ssh']) {
-            withMaven {
-                sh './mvnw clean release:clean release:prepare -B -DdryRun=true'
-                sh './mvnw clean release:perform -B -DdryRun=true'
-            }
+        }
+        sshagent ( ['github-bot-ssh']) {
+          withMaven {
+            sh './mvnw clean release:clean release:prepare -B'
+            sh './mvnw clean release:perform -B'
           }
         }
       }
@@ -32,7 +31,7 @@ pipeline{
         sshagent ( ['projects-storage.eclipse.org-bot-ssh']) {
           sh '''
             version=`cat ./org.eclipse.lemminx/target/maven-archiver/pom.properties | grep "version" | cut -d'=' -f2`
-            targetDir=/home/data/httpd/download.eclipse.org/lemminx/releases/$version'
+            targetDir=/home/data/httpd/download.eclipse.org/lemminx/releases/$version
             ssh genie.lemminx@projects-storage.eclipse.org mkdir -p $targetDir
             scp -r org.eclipse.lemminx/target/org.eclipse.lemminx-* genie.lemminx@projects-storage.eclipse.org:$targetDir
             ssh genie.lemminx@projects-storage.eclipse.org unzip $targetDir/org.eclipse.lemminx-p2repo.zip -d $targetDir/repository
