@@ -74,7 +74,7 @@ Maven coordinates:
 Here are the Maven coordinates for lemminx (replace the `X.Y.Z` version with the [latest release](https://repo.eclipse.org/content/repositories/lemminx-releases)):
 ```xml
 <dependency>
-    <groupId>org.lemminx</groupId>
+    <groupId>org.eclipse.lemminx</groupId>
     <artifactId>org.eclipse.lemminx</artifactId>
     <version>X.Y.Z</version>
     <!-- classifier:uber includes all dependencies -->
