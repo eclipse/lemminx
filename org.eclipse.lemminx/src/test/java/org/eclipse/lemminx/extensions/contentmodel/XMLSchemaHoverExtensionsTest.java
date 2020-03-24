@@ -192,6 +192,36 @@ public class XMLSchemaHoverExtensionsTest {
 				null);
 	};
 
+	/**
+	 * See https://github.com/redhat-developer/vscode-xml/issues/233
+	 * 
+	 * @throws BadLocationException
+	 * @throws MalformedURIException
+	 */
+	@Test
+	public void hoverCacheBug() throws BadLocationException, MalformedURIException {
+		String schemaURI = getXMLSchemaFileURI("money.xsd");
+
+		XMLLanguageService ls = new XMLLanguageService();
+
+		String xmlAttNameHover = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<money xmlns=\"http://money\" curr|ency=\"pounds\"\r\n" + // <- Hover
+				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"	xsi:schemaLocation=\"http://money xsd/money.xsd\"></money>";
+		XMLAssert.assertHover(ls, xmlAttNameHover, null, "src/test/resources/money.xml", "Currency name Hover" + //
+				System.lineSeparator() + //
+				System.lineSeparator() + "Source: [money.xsd](" + schemaURI + ")", null);
+
+		String xmlAttValueHover = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<money xmlns=\"http://money\" currency=\"po|unds\"\r\n" + // <- Hover
+				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"	xsi:schemaLocation=\"http://money xsd/money.xsd\"></money>";
+		XMLAssert.assertHover(ls, xmlAttValueHover, null, "src/test/resources/money.xml", "Pound Hover" + //
+				System.lineSeparator() + //
+				System.lineSeparator() + "Source: [money.xsd](" + schemaURI + ")", null);
+
+	}
+
 	private static void assertHover(String value, String expectedHoverLabel, Integer expectedHoverOffset)
 			throws BadLocationException {
 		XMLAssert.assertHover(new XMLLanguageService(), value, "src/test/resources/catalogs/catalog.xml", null,

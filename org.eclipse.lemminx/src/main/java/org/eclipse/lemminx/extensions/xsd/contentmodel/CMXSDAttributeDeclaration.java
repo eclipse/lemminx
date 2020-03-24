@@ -14,6 +14,8 @@ package org.eclipse.lemminx.extensions.xsd.contentmodel;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.xerces.impl.dv.xs.XSSimpleTypeDecl;
 import org.apache.xerces.impl.xs.XSComplexTypeDecl;
@@ -35,6 +37,8 @@ public class CMXSDAttributeDeclaration implements CMAttributeDeclaration {
 	private final XSAttributeUse attributeUse;
 	private String documentation;
 
+	private Map<String, String> valuesDocumentation;
+	
 	public CMXSDAttributeDeclaration(XSAttributeUse attributeUse) {
 		this.attributeUse = attributeUse;
 	}
@@ -68,12 +72,17 @@ public class CMXSDAttributeDeclaration implements CMAttributeDeclaration {
 
 	@Override
 	public String getValueDocumentation(String value) {
+		if (valuesDocumentation == null) {
+			valuesDocumentation = new HashMap<>();
+		}
+		String documentation = valuesDocumentation.get(value);
 		if (documentation != null) {
 			return documentation;
 		}
 		// Try get xs:annotation from the element declaration or type
 		XSObjectList annotations = getValueAnnotations();
 		documentation = XSDAnnotationModel.getDocumentation(annotations, value);
+		valuesDocumentation.put(value, documentation);
 		return documentation;
 	}
 
