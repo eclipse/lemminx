@@ -1,12 +1,17 @@
 # Change Log
 
+## [0.11.1](https://github.com/eclipse/lemminx/milestone/14?closed=1) (March 25, 2020)
+
+### Bug Fixes
+
+ * Enumeration documentation is not displayed. See [#623](https://github.com/eclipse/lemminx/pull/623)
+
 ## [0.11.0](https://github.com/eclipse/lemminx/milestone/13?closed=1) (March 19, 2020)
 
 ### Enhancements
 
  * Contribute lsp4xml to the Eclipse foundation. See [#283](https://github.com/eclipse/lemminx/issues/283)
  * Add onTagText to IHoverParticipant (or extend IHoverParticipant). See [#609](https://github.com/eclipse/lemminx/issues/609)
-
 
 ### Bug Fixes
 
@@ -15,7 +20,6 @@
  * In Maven <configuration>, all known XML elements from schema are suggested as completion. See [#612](https://github.com/eclipse/lemminx/issues/612)
  * UTF-16 not supported. See [#611](https://github.com/eclipse/lemminx/issues/611)
  * Unregister language server extension on LS shutdown. See [#605](https://github.com/eclipse/lemminx/issues/605)
-
 
 ## [0.10.0](https://github.com/eclipse/lemminx/milestone/11?closed=1) (December 13, 2019)
 
@@ -27,7 +31,6 @@
 * DTD hover/completion support for documentation. See [#592](https://github.com/eclipse/lemminx/pull/592).
 * CodeAction for similar looking element names if it doesn't match the schema. See [#591](https://github.com/eclipse/lemminx/pull/591).
 * Navigation and intellisense for xs:include-ed types. See [#579](https://github.com/eclipse/lemminx/pull/579).
-
 
 ### Bug Fixes
 
