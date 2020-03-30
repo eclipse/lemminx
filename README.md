@@ -130,3 +130,4 @@ Here are some clients consuming this XML Language Server:
  * Theia with [theia-xml](https://github.com/theia-ide/theia-xml-extension)
  * [Spring Tools 4](https://github.com/spring-projects/sts4) - re-using the XML parser for Spring-specific analysis and content-assist
  * Vim/Neovim with [coc-xml](https://github.com/fannheyward/coc-xml)
+ * Emacs with [lsp-mode](https://github.com/emacs-lsp/lsp-mode)
