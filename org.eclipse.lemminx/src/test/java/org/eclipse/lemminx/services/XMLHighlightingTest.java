@@ -15,7 +15,7 @@ package org.eclipse.lemminx.services;
 import static org.eclipse.lemminx.XMLAssert.assertHighlights;
 
 import org.eclipse.lemminx.commons.BadLocationException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 /**
  * XML highlighting services tests
  *

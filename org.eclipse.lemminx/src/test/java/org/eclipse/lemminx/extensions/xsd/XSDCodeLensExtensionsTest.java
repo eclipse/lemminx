@@ -17,7 +17,7 @@ import static org.eclipse.lemminx.client.ClientCommands.SHOW_REFERENCES;
 
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * XSD codelens tests

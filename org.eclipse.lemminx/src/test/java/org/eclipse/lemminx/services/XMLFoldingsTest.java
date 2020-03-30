@@ -12,6 +12,8 @@
  */
 package org.eclipse.lemminx.services;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -22,8 +24,7 @@ import org.eclipse.lemminx.dom.DOMParser;
 import org.eclipse.lemminx.settings.XMLFoldingSettings;
 import org.eclipse.lsp4j.FoldingRange;
 import org.eclipse.lsp4j.FoldingRangeCapabilities;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * XML foldings services tests
@@ -241,7 +242,7 @@ public class XMLFoldingsTest {
 			actualRanges.add(r(f.getStartLine(), f.getEndLine(), f.getKind()));
 		}
 		Collections.sort(actualRanges, (r1, r2) -> r1.startLine - r2.startLine);
-		Assert.assertArrayEquals(message, expected, actualRanges.toArray());
+		assertArrayEquals(expected, actualRanges.toArray(), message);
 	}
 
 	private static ExpectedIndentRange r(int startLine, int endLine) {

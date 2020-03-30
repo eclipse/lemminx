@@ -12,10 +12,13 @@
  */
 package org.eclipse.lemminx.dom;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * DOMParsre test with internal DTD.
@@ -28,14 +31,14 @@ public class DOMParserForInternalDTDTest {
 		String xml = "<!DOCTYPE ";
 
 		DOMDocument actual = createDOMDocument(xml);
-		Assert.assertEquals(1, actual.getChildren().size());
-		Assert.assertTrue(actual.getChild(0).isDoctype());
+		assertEquals(1, actual.getChildren().size());
+		assertTrue(actual.getChild(0).isDoctype());
 		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
-		Assert.assertEquals(0, documentType.getStart());
-		Assert.assertEquals(10, documentType.getEnd());
-		Assert.assertNull(documentType.getName());
-		Assert.assertFalse(documentType.isClosed());
-		Assert.assertEquals(0, documentType.getChildren().size());
+		assertEquals(0, documentType.getStart());
+		assertEquals(10, documentType.getEnd());
+		assertNull(documentType.getName());
+		assertFalse(documentType.isClosed());
+		assertEquals(0, documentType.getChildren().size());
 	}
 
 	@Test
@@ -43,14 +46,14 @@ public class DOMParserForInternalDTDTest {
 		String xml = "<!DOCTYPE foo";
 
 		DOMDocument actual = createDOMDocument(xml);
-		Assert.assertEquals(1, actual.getChildren().size());
-		Assert.assertTrue(actual.getChild(0).isDoctype());
+		assertEquals(1, actual.getChildren().size());
+		assertTrue(actual.getChild(0).isDoctype());
 		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
-		Assert.assertEquals(0, documentType.getStart());
-		Assert.assertEquals(13, documentType.getEnd());
-		Assert.assertEquals("foo", documentType.getName());
-		Assert.assertFalse(documentType.isClosed());
-		Assert.assertEquals(0, documentType.getChildren().size());
+		assertEquals(0, documentType.getStart());
+		assertEquals(13, documentType.getEnd());
+		assertEquals("foo", documentType.getName());
+		assertFalse(documentType.isClosed());
+		assertEquals(0, documentType.getChildren().size());
 	}
 
 	@Test
@@ -58,14 +61,14 @@ public class DOMParserForInternalDTDTest {
 		String xml = "<!DOCTYPE foo [";
 
 		DOMDocument actual = createDOMDocument(xml);
-		Assert.assertEquals(1, actual.getChildren().size());
-		Assert.assertTrue(actual.getChild(0).isDoctype());
+		assertEquals(1, actual.getChildren().size());
+		assertTrue(actual.getChild(0).isDoctype());
 		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
-		Assert.assertEquals(0, documentType.getStart());
-		Assert.assertEquals(15, documentType.getEnd());
-		Assert.assertEquals("foo", documentType.getName());
-		Assert.assertFalse(documentType.isClosed());
-		Assert.assertEquals(0, documentType.getChildren().size());
+		assertEquals(0, documentType.getStart());
+		assertEquals(15, documentType.getEnd());
+		assertEquals("foo", documentType.getName());
+		assertFalse(documentType.isClosed());
+		assertEquals(0, documentType.getChildren().size());
 	}
 
 	@Test
@@ -73,18 +76,18 @@ public class DOMParserForInternalDTDTest {
 		String xml = "<!DOCTYPE foo [aaa";
 
 		DOMDocument actual = createDOMDocument(xml);
-		Assert.assertEquals(1, actual.getChildren().size());
-		Assert.assertTrue(actual.getChild(0).isDoctype());
+		assertEquals(1, actual.getChildren().size());
+		assertTrue(actual.getChild(0).isDoctype());
 		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
-		Assert.assertEquals(0, documentType.getStart());
-		Assert.assertEquals(18, documentType.getEnd());
-		Assert.assertEquals("foo", documentType.getName());
-		Assert.assertFalse(documentType.isClosed());
+		assertEquals(0, documentType.getStart());
+		assertEquals(18, documentType.getEnd());
+		assertEquals("foo", documentType.getName());
+		assertFalse(documentType.isClosed());
 
-		Assert.assertEquals(1, documentType.getChildren().size());
-		Assert.assertTrue(documentType.getChild(0).isText());
+		assertEquals(1, documentType.getChildren().size());
+		assertTrue(documentType.getChild(0).isText());
 		DOMText text = (DOMText) documentType.getChild(0);
-		Assert.assertEquals("aaa", text.getTextContent());
+		assertEquals("aaa", text.getTextContent());
 	}
 
 	@Test
@@ -92,13 +95,13 @@ public class DOMParserForInternalDTDTest {
 		String xml = "<!DOCTYPE foo []<foo/>";
 
 		DOMDocument actual = createDOMDocument(xml);
-		Assert.assertEquals(2, actual.getChildren().size());
-		Assert.assertTrue(actual.getChild(0).isDoctype());
+		assertEquals(2, actual.getChildren().size());
+		assertTrue(actual.getChild(0).isDoctype());
 		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
-		Assert.assertEquals(0, documentType.getStart());
-		Assert.assertEquals(16, documentType.getEnd());
-		Assert.assertEquals("foo", documentType.getName());
-		Assert.assertTrue(actual.getChild(1).isClosed()); // here close comes from the '>' of <foo />
+		assertEquals(0, documentType.getStart());
+		assertEquals(16, documentType.getEnd());
+		assertEquals("foo", documentType.getName());
+		assertTrue(actual.getChild(1).isClosed()); // here close comes from the '>' of <foo />
 	}
 
 	@Test
@@ -106,16 +109,16 @@ public class DOMParserForInternalDTDTest {
 		String xml = "<!DOCTYPE foo []><foo/>";
 
 		DOMDocument actual = createDOMDocument(xml);
-		Assert.assertEquals(2, actual.getChildren().size());
-		Assert.assertTrue(actual.getChild(0).isDoctype());
+		assertEquals(2, actual.getChildren().size());
+		assertTrue(actual.getChild(0).isDoctype());
 		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
-		Assert.assertEquals(0, documentType.getStart());
-		Assert.assertEquals(17, documentType.getEnd());
-		Assert.assertEquals("foo", documentType.getName());
-		Assert.assertTrue(documentType.isClosed());
+		assertEquals(0, documentType.getStart());
+		assertEquals(17, documentType.getEnd());
+		assertEquals("foo", documentType.getName());
+		assertTrue(documentType.isClosed());
 
 		// <foo/> element
-		Assert.assertTrue(actual.getChild(1).isElement());
+		assertTrue(actual.getChild(1).isElement());
 
 	}
 
@@ -124,16 +127,16 @@ public class DOMParserForInternalDTDTest {
 		String xml = "<!DOCTYPE foo ><foo/>";
 
 		DOMDocument actual = createDOMDocument(xml);
-		Assert.assertEquals(2, actual.getChildren().size());
-		Assert.assertTrue(actual.getChild(0).isDoctype());
+		assertEquals(2, actual.getChildren().size());
+		assertTrue(actual.getChild(0).isDoctype());
 		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
-		Assert.assertEquals(0, documentType.getStart());
-		Assert.assertEquals(15, documentType.getEnd());
-		Assert.assertEquals("foo", documentType.getName());
-		Assert.assertTrue(documentType.isClosed());
+		assertEquals(0, documentType.getStart());
+		assertEquals(15, documentType.getEnd());
+		assertEquals("foo", documentType.getName());
+		assertTrue(documentType.isClosed());
 
 		// <foo/> element
-		Assert.assertTrue(actual.getChild(1).isElement());
+		assertTrue(actual.getChild(1).isElement());
 
 	}
 
@@ -142,16 +145,16 @@ public class DOMParserForInternalDTDTest {
 		String xml = "<!DOCTYPE foo [aaaa]><foo/>";
 
 		DOMDocument actual = createDOMDocument(xml);
-		Assert.assertEquals(2, actual.getChildren().size());
-		Assert.assertTrue(actual.getChild(0).isDoctype());
+		assertEquals(2, actual.getChildren().size());
+		assertTrue(actual.getChild(0).isDoctype());
 		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
-		Assert.assertEquals(0, documentType.getStart());
-		Assert.assertEquals(21, documentType.getEnd());
-		Assert.assertEquals("foo", documentType.getName());
-		Assert.assertTrue(documentType.isClosed());
+		assertEquals(0, documentType.getStart());
+		assertEquals(21, documentType.getEnd());
+		assertEquals("foo", documentType.getName());
+		assertTrue(documentType.isClosed());
 
 		// <foo />element
-		Assert.assertTrue(actual.getChild(1).isElement());
+		assertTrue(actual.getChild(1).isElement());
 
 	}
 
@@ -160,24 +163,24 @@ public class DOMParserForInternalDTDTest {
 		String xml = "<!DOCTYPE foo [<!ELEMENT]><foo/>";
 
 		DOMDocument actual = createDOMDocument(xml);
-		Assert.assertEquals(2, actual.getChildren().size());
-		Assert.assertTrue(actual.getChild(0).isDoctype());
+		assertEquals(2, actual.getChildren().size());
+		assertTrue(actual.getChild(0).isDoctype());
 		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
-		Assert.assertEquals(0, documentType.getStart());
-		Assert.assertEquals(26, documentType.getEnd());
-		Assert.assertEquals("foo", documentType.getName());
-		Assert.assertTrue(documentType.isClosed());
+		assertEquals(0, documentType.getStart());
+		assertEquals(26, documentType.getEnd());
+		assertEquals("foo", documentType.getName());
+		assertTrue(documentType.isClosed());
 
 		// <!ELEMENT
-		Assert.assertEquals(1, documentType.getChildren().size());
-		Assert.assertTrue(documentType.getChild(0).isDTDElementDecl());
+		assertEquals(1, documentType.getChildren().size());
+		assertTrue(documentType.getChild(0).isDTDElementDecl());
 		DTDElementDecl elementDecl = (DTDElementDecl) documentType.getChild(0);
-		Assert.assertEquals(15, elementDecl.getStart());
-		Assert.assertEquals(23, elementDecl.getEnd());
-		Assert.assertFalse(elementDecl.isClosed());
+		assertEquals(15, elementDecl.getStart());
+		assertEquals(23, elementDecl.getEnd());
+		assertFalse(elementDecl.isClosed());
 
 		// <foo />element
-		Assert.assertTrue(actual.getChild(1).isElement());
+		assertTrue(actual.getChild(1).isElement());
 	}
 
 	@Test
@@ -185,24 +188,24 @@ public class DOMParserForInternalDTDTest {
 		String xml = "<!DOCTYPE foo [<!ELEMENT a]><foo/>";
 
 		DOMDocument actual = createDOMDocument(xml);
-		Assert.assertEquals(2, actual.getChildren().size());
-		Assert.assertTrue(actual.getChild(0).isDoctype());
+		assertEquals(2, actual.getChildren().size());
+		assertTrue(actual.getChild(0).isDoctype());
 		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
-		Assert.assertEquals(0, documentType.getStart());
-		Assert.assertEquals(28, documentType.getEnd());
-		Assert.assertEquals("foo", documentType.getName());
-		Assert.assertTrue(documentType.isClosed());
+		assertEquals(0, documentType.getStart());
+		assertEquals(28, documentType.getEnd());
+		assertEquals("foo", documentType.getName());
+		assertTrue(documentType.isClosed());
 
 		// <!ELEMENT
-		Assert.assertEquals(1, documentType.getChildren().size());
-		Assert.assertTrue(documentType.getChild(0).isDTDElementDecl());
+		assertEquals(1, documentType.getChildren().size());
+		assertTrue(documentType.getChild(0).isDTDElementDecl());
 		DTDElementDecl elementDecl = (DTDElementDecl) documentType.getChild(0);
-		Assert.assertEquals(15, elementDecl.getStart());
-		Assert.assertEquals(25, elementDecl.getEnd());
-		Assert.assertFalse(elementDecl.isClosed());
+		assertEquals(15, elementDecl.getStart());
+		assertEquals(25, elementDecl.getEnd());
+		assertFalse(elementDecl.isClosed());
 
 		// <foo />element
-		Assert.assertTrue(actual.getChild(1).isElement());
+		assertTrue(actual.getChild(1).isElement());
 	}
 
 	@Test
@@ -210,24 +213,24 @@ public class DOMParserForInternalDTDTest {
 		String xml = "<!DOCTYPE foo [<!ELEMENT >]><foo/>";
 
 		DOMDocument actual = createDOMDocument(xml);
-		Assert.assertEquals(2, actual.getChildren().size());
-		Assert.assertTrue(actual.getChild(0).isDoctype());
+		assertEquals(2, actual.getChildren().size());
+		assertTrue(actual.getChild(0).isDoctype());
 		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
-		Assert.assertEquals(0, documentType.getStart());
-		Assert.assertEquals(28, documentType.getEnd());
-		Assert.assertEquals("foo", documentType.getName());
-		Assert.assertTrue(documentType.isClosed());
+		assertEquals(0, documentType.getStart());
+		assertEquals(28, documentType.getEnd());
+		assertEquals("foo", documentType.getName());
+		assertTrue(documentType.isClosed());
 
 		// <!ELEMENT
-		Assert.assertEquals(1, documentType.getChildren().size());
-		Assert.assertTrue(documentType.getChild(0).isDTDElementDecl());
+		assertEquals(1, documentType.getChildren().size());
+		assertTrue(documentType.getChild(0).isDTDElementDecl());
 		DTDElementDecl elementDecl = (DTDElementDecl) documentType.getChild(0);
-		Assert.assertEquals(15, elementDecl.getStart());
-		Assert.assertEquals(26, elementDecl.getEnd());
-		Assert.assertTrue(elementDecl.isClosed());
+		assertEquals(15, elementDecl.getStart());
+		assertEquals(26, elementDecl.getEnd());
+		assertTrue(elementDecl.isClosed());
 
 		// <foo />element
-		Assert.assertTrue(actual.getChild(1).isElement());
+		assertTrue(actual.getChild(1).isElement());
 	}
 
 	@Test
@@ -235,24 +238,24 @@ public class DOMParserForInternalDTDTest {
 		String xml = "<!DOCTYPE foo [<!ELEMENT a >]><foo/>";
 
 		DOMDocument actual = createDOMDocument(xml);
-		Assert.assertEquals(2, actual.getChildren().size());
-		Assert.assertTrue(actual.getChild(0).isDoctype());
+		assertEquals(2, actual.getChildren().size());
+		assertTrue(actual.getChild(0).isDoctype());
 		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
-		Assert.assertEquals(0, documentType.getStart());
-		Assert.assertEquals(30, documentType.getEnd());
-		Assert.assertEquals("foo", documentType.getName());
-		Assert.assertTrue(documentType.isClosed());
+		assertEquals(0, documentType.getStart());
+		assertEquals(30, documentType.getEnd());
+		assertEquals("foo", documentType.getName());
+		assertTrue(documentType.isClosed());
 
 		// <!ELEMENT
-		Assert.assertEquals(1, documentType.getChildren().size());
-		Assert.assertTrue(documentType.getChild(0).isDTDElementDecl());
+		assertEquals(1, documentType.getChildren().size());
+		assertTrue(documentType.getChild(0).isDTDElementDecl());
 		DTDElementDecl elementDecl = (DTDElementDecl) documentType.getChild(0);
-		Assert.assertEquals(15, elementDecl.getStart());
-		Assert.assertEquals(28, elementDecl.getEnd());
-		Assert.assertTrue(elementDecl.isClosed());
+		assertEquals(15, elementDecl.getStart());
+		assertEquals(28, elementDecl.getEnd());
+		assertTrue(elementDecl.isClosed());
 
 		// <foo />element
-		Assert.assertTrue(actual.getChild(1).isElement());
+		assertTrue(actual.getChild(1).isElement());
 	}
 
 	@Test
@@ -260,26 +263,26 @@ public class DOMParserForInternalDTDTest {
 		String xml = "<!DOCTYPE error-page [<!ELEMENT error-page ((error-code | exception-type), location)>]><error-page/>";
 
 		DOMDocument actual = createDOMDocument(xml);
-		Assert.assertEquals(2, actual.getChildren().size());
-		Assert.assertTrue(actual.getChild(0).isDoctype());
+		assertEquals(2, actual.getChildren().size());
+		assertTrue(actual.getChild(0).isDoctype());
 		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
-		Assert.assertEquals(0, documentType.getStart());
-		Assert.assertEquals(87, documentType.getEnd());
-		Assert.assertEquals("error-page", documentType.getName());
-		Assert.assertTrue(documentType.isClosed());
+		assertEquals(0, documentType.getStart());
+		assertEquals(87, documentType.getEnd());
+		assertEquals("error-page", documentType.getName());
+		assertTrue(documentType.isClosed());
 
 		// <!ELEMENT
-		Assert.assertEquals(1, documentType.getChildren().size());
-		Assert.assertTrue(documentType.getChild(0).isDTDElementDecl());
+		assertEquals(1, documentType.getChildren().size());
+		assertTrue(documentType.getChild(0).isDTDElementDecl());
 		DTDElementDecl elementDecl = (DTDElementDecl) documentType.getChild(0);
-		Assert.assertEquals(22, elementDecl.getStart());
-		Assert.assertEquals(85, elementDecl.getEnd());
-		Assert.assertTrue(elementDecl.isClosed());
-		Assert.assertEquals("error-page", elementDecl.getName());
-		Assert.assertEquals("((error-code | exception-type), location)", elementDecl.getContent());
+		assertEquals(22, elementDecl.getStart());
+		assertEquals(85, elementDecl.getEnd());
+		assertTrue(elementDecl.isClosed());
+		assertEquals("error-page", elementDecl.getName());
+		assertEquals("((error-code | exception-type), location)", elementDecl.getContent());
 
 		// <error-page />element
-		Assert.assertTrue(actual.getChild(1).isElement());
+		assertTrue(actual.getChild(1).isElement());
 	}
 	
 	@Test
@@ -287,26 +290,26 @@ public class DOMParserForInternalDTDTest {
 		String xml = "<!DOCTYPE error-page [<!ELEMENT error-page ((error-code | exception-type), location)]><error-page/>";
 
 		DOMDocument actual = createDOMDocument(xml);
-		Assert.assertEquals(2, actual.getChildren().size());
-		Assert.assertTrue(actual.getChild(0).isDoctype());
+		assertEquals(2, actual.getChildren().size());
+		assertTrue(actual.getChild(0).isDoctype());
 		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
-		Assert.assertEquals(0, documentType.getStart());
-		Assert.assertEquals(86, documentType.getEnd());
-		Assert.assertEquals("error-page", documentType.getName());
-		Assert.assertTrue(documentType.isClosed());
+		assertEquals(0, documentType.getStart());
+		assertEquals(86, documentType.getEnd());
+		assertEquals("error-page", documentType.getName());
+		assertTrue(documentType.isClosed());
 
 		// <!ELEMENT
-		Assert.assertEquals(1, documentType.getChildren().size());
-		Assert.assertTrue(documentType.getChild(0).isDTDElementDecl());
+		assertEquals(1, documentType.getChildren().size());
+		assertTrue(documentType.getChild(0).isDTDElementDecl());
 		DTDElementDecl elementDecl = (DTDElementDecl) documentType.getChild(0);
-		Assert.assertEquals(22, elementDecl.getStart());
-		Assert.assertEquals(83, elementDecl.getEnd());
-		Assert.assertEquals("error-page", elementDecl.getName());
-		Assert.assertEquals("((error-code | exception-type), location)", elementDecl.getContent());
-		Assert.assertFalse(elementDecl.isClosed());
+		assertEquals(22, elementDecl.getStart());
+		assertEquals(83, elementDecl.getEnd());
+		assertEquals("error-page", elementDecl.getName());
+		assertEquals("((error-code | exception-type), location)", elementDecl.getContent());
+		assertFalse(elementDecl.isClosed());
 
 		// <error-page />element
-		Assert.assertTrue(actual.getChild(1).isElement());
+		assertTrue(actual.getChild(1).isElement());
 	}
 	
 	@Test
@@ -314,24 +317,24 @@ public class DOMParserForInternalDTDTest {
 		String xml = "<!DOCTYPE foo [<!ATTLIST]><foo/>";
 
 		DOMDocument actual = createDOMDocument(xml);
-		Assert.assertEquals(2, actual.getChildren().size());
-		Assert.assertTrue(actual.getChild(0).isDoctype());
+		assertEquals(2, actual.getChildren().size());
+		assertTrue(actual.getChild(0).isDoctype());
 		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
-		Assert.assertEquals(0, documentType.getStart());
-		Assert.assertEquals(26, documentType.getEnd());
-		Assert.assertEquals("foo", documentType.getName());
-		Assert.assertTrue(documentType.isClosed());
+		assertEquals(0, documentType.getStart());
+		assertEquals(26, documentType.getEnd());
+		assertEquals("foo", documentType.getName());
+		assertTrue(documentType.isClosed());
 
 		// <!ATTLIST
-		Assert.assertEquals(1, documentType.getChildren().size());
-		Assert.assertTrue(documentType.getChild(0).isDTDAttListDecl());
+		assertEquals(1, documentType.getChildren().size());
+		assertTrue(documentType.getChild(0).isDTDAttListDecl());
 		DTDAttlistDecl attListDecl = (DTDAttlistDecl) documentType.getChild(0);
-		Assert.assertEquals(15, attListDecl.getStart());
-		Assert.assertEquals(23, attListDecl.getEnd());
-		Assert.assertFalse(attListDecl.isClosed());
+		assertEquals(15, attListDecl.getStart());
+		assertEquals(23, attListDecl.getEnd());
+		assertFalse(attListDecl.isClosed());
 
 		// <foo />element
-		Assert.assertTrue(actual.getChild(1).isElement());
+		assertTrue(actual.getChild(1).isElement());
 	}
 
 	@Test
@@ -339,24 +342,24 @@ public class DOMParserForInternalDTDTest {
 		String xml = "<!DOCTYPE foo [<!ATTLIST >]><foo/>";
 
 		DOMDocument actual = createDOMDocument(xml);
-		Assert.assertEquals(2, actual.getChildren().size());
-		Assert.assertTrue(actual.getChild(0).isDoctype());
+		assertEquals(2, actual.getChildren().size());
+		assertTrue(actual.getChild(0).isDoctype());
 		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
-		Assert.assertEquals(0, documentType.getStart());
-		Assert.assertEquals(28, documentType.getEnd());
-		Assert.assertEquals("foo", documentType.getName());
-		Assert.assertTrue(documentType.isClosed());
+		assertEquals(0, documentType.getStart());
+		assertEquals(28, documentType.getEnd());
+		assertEquals("foo", documentType.getName());
+		assertTrue(documentType.isClosed());
 
 		// <!ATTLIST
-		Assert.assertEquals(1, documentType.getChildren().size());
-		Assert.assertTrue(documentType.getChild(0).isDTDAttListDecl());
+		assertEquals(1, documentType.getChildren().size());
+		assertTrue(documentType.getChild(0).isDTDAttListDecl());
 		DTDAttlistDecl attListDecl = (DTDAttlistDecl) documentType.getChild(0);
-		Assert.assertEquals(15, attListDecl.getStart());
-		Assert.assertEquals(26, attListDecl.getEnd());
-		Assert.assertTrue(attListDecl.isClosed());
+		assertEquals(15, attListDecl.getStart());
+		assertEquals(26, attListDecl.getEnd());
+		assertTrue(attListDecl.isClosed());
 
 		// <foo />element
-		Assert.assertTrue(actual.getChild(1).isElement());
+		assertTrue(actual.getChild(1).isElement());
 	}
 
 	@Test
@@ -364,24 +367,24 @@ public class DOMParserForInternalDTDTest {
 		String xml = "<!DOCTYPE foo [<!ATTLIST a >]><foo/>";
 
 		DOMDocument actual = createDOMDocument(xml);
-		Assert.assertEquals(2, actual.getChildren().size());
-		Assert.assertTrue(actual.getChild(0).isDoctype());
+		assertEquals(2, actual.getChildren().size());
+		assertTrue(actual.getChild(0).isDoctype());
 		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
-		Assert.assertEquals(0, documentType.getStart());
-		Assert.assertEquals(30, documentType.getEnd());
-		Assert.assertEquals("foo", documentType.getName());
-		Assert.assertTrue(documentType.isClosed());
+		assertEquals(0, documentType.getStart());
+		assertEquals(30, documentType.getEnd());
+		assertEquals("foo", documentType.getName());
+		assertTrue(documentType.isClosed());
 
 		// <!ATTLIST
-		Assert.assertEquals(1, documentType.getChildren().size());
-		Assert.assertTrue(documentType.getChild(0).isDTDAttListDecl());
+		assertEquals(1, documentType.getChildren().size());
+		assertTrue(documentType.getChild(0).isDTDAttListDecl());
 		DTDAttlistDecl attListDecl = (DTDAttlistDecl) documentType.getChild(0);
-		Assert.assertEquals(15, attListDecl.getStart());
-		Assert.assertEquals(28, attListDecl.getEnd());
-		Assert.assertTrue(attListDecl.isClosed());
+		assertEquals(15, attListDecl.getStart());
+		assertEquals(28, attListDecl.getEnd());
+		assertTrue(attListDecl.isClosed());
 
 		// <foo />element
-		Assert.assertTrue(actual.getChild(1).isElement());
+		assertTrue(actual.getChild(1).isElement());
 	}
 
 	@Test
@@ -389,25 +392,25 @@ public class DOMParserForInternalDTDTest {
 		String xml = "<!DOCTYPE foo [<!ENTITY]><foo/>";
 
 		DOMDocument actual = createDOMDocument(xml);
-		Assert.assertEquals(2, actual.getChildren().size());
-		Assert.assertTrue(actual.getChild(0).isDoctype());
+		assertEquals(2, actual.getChildren().size());
+		assertTrue(actual.getChild(0).isDoctype());
 		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
-		Assert.assertEquals(0, documentType.getStart());
-		Assert.assertEquals(25, documentType.getEnd());
-		Assert.assertEquals("foo", documentType.getName());
-		Assert.assertTrue(documentType.isClosed());
+		assertEquals(0, documentType.getStart());
+		assertEquals(25, documentType.getEnd());
+		assertEquals("foo", documentType.getName());
+		assertTrue(documentType.isClosed());
 
 		// <!ENTITY
-		Assert.assertEquals(1, documentType.getChildren().size());
-		Assert.assertTrue(documentType.getChild(0).isDTDEntityDecl());
+		assertEquals(1, documentType.getChildren().size());
+		assertTrue(documentType.getChild(0).isDTDEntityDecl());
 		DTDEntityDecl entityDecl = (DTDEntityDecl) documentType.getChild(0);
-		Assert.assertEquals(15, entityDecl.getStart());
-		Assert.assertEquals(22, entityDecl.getEnd());
-		Assert.assertFalse(entityDecl.isClosed());
-		Assert.assertNull(entityDecl.getNodeName());
+		assertEquals(15, entityDecl.getStart());
+		assertEquals(22, entityDecl.getEnd());
+		assertFalse(entityDecl.isClosed());
+		assertNull(entityDecl.getNodeName());
 
 		// <foo />element
-		Assert.assertTrue(actual.getChild(1).isElement());
+		assertTrue(actual.getChild(1).isElement());
 	}
 
 	@Test
@@ -415,25 +418,25 @@ public class DOMParserForInternalDTDTest {
 		String xml = "<!DOCTYPE foo [<!ENTITY a]><foo/>";
 
 		DOMDocument actual = createDOMDocument(xml);
-		Assert.assertEquals(2, actual.getChildren().size());
-		Assert.assertTrue(actual.getChild(0).isDoctype());
+		assertEquals(2, actual.getChildren().size());
+		assertTrue(actual.getChild(0).isDoctype());
 		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
-		Assert.assertEquals(0, documentType.getStart());
-		Assert.assertEquals(27, documentType.getEnd());
-		Assert.assertEquals("foo", documentType.getName());
-		Assert.assertTrue(documentType.isClosed());
+		assertEquals(0, documentType.getStart());
+		assertEquals(27, documentType.getEnd());
+		assertEquals("foo", documentType.getName());
+		assertTrue(documentType.isClosed());
 
 		// <!ENTITY
-		Assert.assertEquals(1, documentType.getChildren().size());
-		Assert.assertTrue(documentType.getChild(0).isDTDEntityDecl());
+		assertEquals(1, documentType.getChildren().size());
+		assertTrue(documentType.getChild(0).isDTDEntityDecl());
 		DTDEntityDecl entityDecl = (DTDEntityDecl) documentType.getChild(0);
-		Assert.assertEquals(15, entityDecl.getStart());
-		Assert.assertEquals(24, entityDecl.getEnd());
-		Assert.assertFalse(entityDecl.isClosed());
-		Assert.assertEquals("a", entityDecl.getNodeName());
+		assertEquals(15, entityDecl.getStart());
+		assertEquals(24, entityDecl.getEnd());
+		assertFalse(entityDecl.isClosed());
+		assertEquals("a", entityDecl.getNodeName());
 
 		// <foo />element
-		Assert.assertTrue(actual.getChild(1).isElement());
+		assertTrue(actual.getChild(1).isElement());
 	}
 
 	@Test
@@ -441,25 +444,25 @@ public class DOMParserForInternalDTDTest {
 		String xml = "<!DOCTYPE foo [<!ENTITY >]><foo/>";
 
 		DOMDocument actual = createDOMDocument(xml);
-		Assert.assertEquals(2, actual.getChildren().size());
-		Assert.assertTrue(actual.getChild(0).isDoctype());
+		assertEquals(2, actual.getChildren().size());
+		assertTrue(actual.getChild(0).isDoctype());
 		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
-		Assert.assertEquals(0, documentType.getStart());
-		Assert.assertEquals(27, documentType.getEnd());
-		Assert.assertEquals("foo", documentType.getName());
-		Assert.assertTrue(documentType.isClosed());
+		assertEquals(0, documentType.getStart());
+		assertEquals(27, documentType.getEnd());
+		assertEquals("foo", documentType.getName());
+		assertTrue(documentType.isClosed());
 
 		// <!ENTITY
-		Assert.assertEquals(1, documentType.getChildren().size());
-		Assert.assertTrue(documentType.getChild(0).isDTDEntityDecl());
+		assertEquals(1, documentType.getChildren().size());
+		assertTrue(documentType.getChild(0).isDTDEntityDecl());
 		DTDEntityDecl entityDecl = (DTDEntityDecl) documentType.getChild(0);
-		Assert.assertEquals(15, entityDecl.getStart());
-		Assert.assertEquals(25, entityDecl.getEnd());
-		Assert.assertTrue(entityDecl.isClosed());
-		Assert.assertNull(entityDecl.getNodeName());
+		assertEquals(15, entityDecl.getStart());
+		assertEquals(25, entityDecl.getEnd());
+		assertTrue(entityDecl.isClosed());
+		assertNull(entityDecl.getNodeName());
 
 		// <foo />element
-		Assert.assertTrue(actual.getChild(1).isElement());
+		assertTrue(actual.getChild(1).isElement());
 	}
 
 	@Test
@@ -467,25 +470,25 @@ public class DOMParserForInternalDTDTest {
 		String xml = "<!DOCTYPE foo [<!ENTITY a >]><foo/>";
 
 		DOMDocument actual = createDOMDocument(xml);
-		Assert.assertEquals(2, actual.getChildren().size());
-		Assert.assertTrue(actual.getChild(0).isDoctype());
+		assertEquals(2, actual.getChildren().size());
+		assertTrue(actual.getChild(0).isDoctype());
 		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
-		Assert.assertEquals(0, documentType.getStart());
-		Assert.assertEquals(29, documentType.getEnd());
-		Assert.assertEquals("foo", documentType.getName());
-		Assert.assertTrue(documentType.isClosed());
+		assertEquals(0, documentType.getStart());
+		assertEquals(29, documentType.getEnd());
+		assertEquals("foo", documentType.getName());
+		assertTrue(documentType.isClosed());
 
 		// <!ENTITY
-		Assert.assertEquals(1, documentType.getChildren().size());
-		Assert.assertTrue(documentType.getChild(0).isDTDEntityDecl());
+		assertEquals(1, documentType.getChildren().size());
+		assertTrue(documentType.getChild(0).isDTDEntityDecl());
 		DTDEntityDecl entityDecl = (DTDEntityDecl) documentType.getChild(0);
-		Assert.assertEquals(15, entityDecl.getStart());
-		Assert.assertEquals(27, entityDecl.getEnd());
-		Assert.assertTrue(entityDecl.isClosed());
-		Assert.assertEquals("a", entityDecl.getNodeName());
+		assertEquals(15, entityDecl.getStart());
+		assertEquals(27, entityDecl.getEnd());
+		assertTrue(entityDecl.isClosed());
+		assertEquals("a", entityDecl.getNodeName());
 
 		// <foo />element
-		Assert.assertTrue(actual.getChild(1).isElement());
+		assertTrue(actual.getChild(1).isElement());
 	}
 
 	@Test
@@ -493,29 +496,29 @@ public class DOMParserForInternalDTDTest {
 		String xml = "<!DOCTYPE foo [<!ENTITY % eName PUBLIC \"publicId\" \"systemId\" >]><foo/>";
 
 		DOMDocument actual = createDOMDocument(xml);
-		Assert.assertEquals(2, actual.getChildren().size());
-		Assert.assertTrue(actual.getChild(0).isDoctype());
+		assertEquals(2, actual.getChildren().size());
+		assertTrue(actual.getChild(0).isDoctype());
 		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
-		Assert.assertEquals(0, documentType.getStart());
-		Assert.assertEquals(64, documentType.getEnd());
-		Assert.assertEquals("foo", documentType.getName());
-		Assert.assertTrue(documentType.isClosed());
+		assertEquals(0, documentType.getStart());
+		assertEquals(64, documentType.getEnd());
+		assertEquals("foo", documentType.getName());
+		assertTrue(documentType.isClosed());
 
 		// <!ENTITY
-		Assert.assertEquals(1, documentType.getChildren().size());
-		Assert.assertTrue(documentType.getChild(0).isDTDEntityDecl());
+		assertEquals(1, documentType.getChildren().size());
+		assertTrue(documentType.getChild(0).isDTDEntityDecl());
 		DTDEntityDecl entityDecl = (DTDEntityDecl) documentType.getChild(0);
-		Assert.assertEquals(15, entityDecl.getStart());
-		Assert.assertEquals(62, entityDecl.getEnd());
-		Assert.assertTrue(entityDecl.isClosed());
-		Assert.assertEquals("%", entityDecl.getPercent());
-		Assert.assertEquals("eName", entityDecl.getNodeName());
-		Assert.assertEquals("PUBLIC", entityDecl.getKind());
-		Assert.assertEquals("\"publicId\"", entityDecl.getPublicId());
-		Assert.assertEquals("\"systemId\"", entityDecl.getSystemId());
+		assertEquals(15, entityDecl.getStart());
+		assertEquals(62, entityDecl.getEnd());
+		assertTrue(entityDecl.isClosed());
+		assertEquals("%", entityDecl.getPercent());
+		assertEquals("eName", entityDecl.getNodeName());
+		assertEquals("PUBLIC", entityDecl.getKind());
+		assertEquals("\"publicId\"", entityDecl.getPublicId());
+		assertEquals("\"systemId\"", entityDecl.getSystemId());
 
 		// <foo />element
-		Assert.assertTrue(actual.getChild(1).isElement());
+		assertTrue(actual.getChild(1).isElement());
 	}
 
 	@Test
@@ -523,29 +526,29 @@ public class DOMParserForInternalDTDTest {
 		String xml = "<!DOCTYPE foo [<!ENTITY % eName PUBLIC \"publicId\" >]><foo/>";
 
 		DOMDocument actual = createDOMDocument(xml);
-		Assert.assertEquals(2, actual.getChildren().size());
-		Assert.assertTrue(actual.getChild(0).isDoctype());
+		assertEquals(2, actual.getChildren().size());
+		assertTrue(actual.getChild(0).isDoctype());
 		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
-		Assert.assertEquals(0, documentType.getStart());
-		Assert.assertEquals(53, documentType.getEnd());
-		Assert.assertEquals("foo", documentType.getName());
-		Assert.assertTrue(documentType.isClosed());
+		assertEquals(0, documentType.getStart());
+		assertEquals(53, documentType.getEnd());
+		assertEquals("foo", documentType.getName());
+		assertTrue(documentType.isClosed());
 
 		// <!ENTITY
-		Assert.assertEquals(1, documentType.getChildren().size());
-		Assert.assertTrue(documentType.getChild(0).isDTDEntityDecl());
+		assertEquals(1, documentType.getChildren().size());
+		assertTrue(documentType.getChild(0).isDTDEntityDecl());
 		DTDEntityDecl entityDecl = (DTDEntityDecl) documentType.getChild(0);
-		Assert.assertEquals(15, entityDecl.getStart());
-		Assert.assertEquals(51, entityDecl.getEnd());
-		Assert.assertTrue(entityDecl.isClosed());
-		Assert.assertEquals("%", entityDecl.getPercent());
-		Assert.assertEquals("eName", entityDecl.getNodeName());
-		Assert.assertEquals("PUBLIC", entityDecl.getKind());
-		Assert.assertEquals("\"publicId\"", entityDecl.getPublicId());
-		Assert.assertEquals(null, entityDecl.getSystemId());
+		assertEquals(15, entityDecl.getStart());
+		assertEquals(51, entityDecl.getEnd());
+		assertTrue(entityDecl.isClosed());
+		assertEquals("%", entityDecl.getPercent());
+		assertEquals("eName", entityDecl.getNodeName());
+		assertEquals("PUBLIC", entityDecl.getKind());
+		assertEquals("\"publicId\"", entityDecl.getPublicId());
+		assertEquals(null, entityDecl.getSystemId());
 
 		// <foo />element
-		Assert.assertTrue(actual.getChild(1).isElement());
+		assertTrue(actual.getChild(1).isElement());
 	}
 
 	
@@ -559,34 +562,34 @@ public class DOMParserForInternalDTDTest {
 		">";
 
 		DOMDocument actual = createDOMDocument(dtd);
-		Assert.assertEquals(1, actual.getChildren().size());
-		Assert.assertTrue(actual.getChild(0).isDoctype());
+		assertEquals(1, actual.getChildren().size());
+		assertTrue(actual.getChild(0).isDoctype());
 		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
-		Assert.assertEquals(0, documentType.getStart());
-		Assert.assertEquals(88, documentType.getEnd());
-		Assert.assertEquals("foo", documentType.getName());
-		Assert.assertTrue(documentType.isClosed());
+		assertEquals(0, documentType.getStart());
+		assertEquals(88, documentType.getEnd());
+		assertEquals("foo", documentType.getName());
+		assertTrue(documentType.isClosed());
 
 		// <!ATTLIST
-		Assert.assertEquals(1, documentType.getChildren().size());
-		Assert.assertTrue(documentType.getChild(0).isDTDAttListDecl());
+		assertEquals(1, documentType.getChildren().size());
+		assertTrue(documentType.getChild(0).isDTDAttListDecl());
 		DTDAttlistDecl attlistDecl = (DTDAttlistDecl) documentType.getChild(0);
 		
-		Assert.assertEquals(15, attlistDecl.getStart());
-		Assert.assertEquals(85, attlistDecl.getEnd());
-		Assert.assertEquals("Institution", attlistDecl.getElementName());
-		Assert.assertEquals("to", attlistDecl.getAttributeName());
-		Assert.assertEquals("CDATA", attlistDecl.getAttributeType());
-		Assert.assertEquals("#REQUIRED", attlistDecl.getAttributeValue());
+		assertEquals(15, attlistDecl.getStart());
+		assertEquals(85, attlistDecl.getEnd());
+		assertEquals("Institution", attlistDecl.getElementName());
+		assertEquals("to", attlistDecl.getAttributeName());
+		assertEquals("CDATA", attlistDecl.getAttributeType());
+		assertEquals("#REQUIRED", attlistDecl.getAttributeValue());
 
-		Assert.assertNotNull(attlistDecl.getInternalChildren());
-		Assert.assertEquals(1, attlistDecl.getInternalChildren().size());
+		assertNotNull(attlistDecl.getInternalChildren());
+		assertEquals(1, attlistDecl.getInternalChildren().size());
 
 		DTDAttlistDecl internalDecl = (DTDAttlistDecl) attlistDecl.getInternalChildren().get(0);
 
-		Assert.assertEquals("from", internalDecl.getAttributeName());
-		Assert.assertEquals("CDATA", internalDecl.getAttributeType());
-		Assert.assertEquals("#REQUIRED", internalDecl.getAttributeValue());
+		assertEquals("from", internalDecl.getAttributeName());
+		assertEquals("CDATA", internalDecl.getAttributeType());
+		assertEquals("#REQUIRED", internalDecl.getAttributeValue());
 
 	}
 
@@ -600,28 +603,28 @@ public class DOMParserForInternalDTDTest {
 		">";
 
 		DOMDocument actual = createDOMDocument(dtd);
-		Assert.assertEquals(1, actual.getChildren().size());
-		Assert.assertTrue(actual.getChild(0).isDoctype());
+		assertEquals(1, actual.getChildren().size());
+		assertTrue(actual.getChild(0).isDoctype());
 		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
-		Assert.assertEquals(0, documentType.getStart());
-		Assert.assertEquals(79, documentType.getEnd());
-		Assert.assertEquals("foo", documentType.getName());
-		Assert.assertTrue(documentType.isClosed());
+		assertEquals(0, documentType.getStart());
+		assertEquals(79, documentType.getEnd());
+		assertEquals("foo", documentType.getName());
+		assertTrue(documentType.isClosed());
 
 		// <!ATTLIST
-		Assert.assertEquals(1, documentType.getChildren().size());
-		Assert.assertTrue(documentType.getChild(0).isDTDAttListDecl());
+		assertEquals(1, documentType.getChildren().size());
+		assertTrue(documentType.getChild(0).isDTDAttListDecl());
 		DTDAttlistDecl attlistDecl = (DTDAttlistDecl) documentType.getChild(0);
 		
-		Assert.assertEquals(15, attlistDecl.getStart());
-		Assert.assertEquals(76, attlistDecl.getEnd());
-		Assert.assertEquals("Institution", attlistDecl.getElementName());
-		Assert.assertEquals("to", attlistDecl.getAttributeName());
-		Assert.assertEquals("CDATA", attlistDecl.getAttributeType());
-		Assert.assertEquals(null, attlistDecl.getAttributeValue());
+		assertEquals(15, attlistDecl.getStart());
+		assertEquals(76, attlistDecl.getEnd());
+		assertEquals("Institution", attlistDecl.getElementName());
+		assertEquals("to", attlistDecl.getAttributeName());
+		assertEquals("CDATA", attlistDecl.getAttributeType());
+		assertEquals(null, attlistDecl.getAttributeValue());
 
-		Assert.assertEquals(55, attlistDecl.unrecognized.start);
-		Assert.assertEquals(75, attlistDecl.unrecognized.end);
+		assertEquals(55, attlistDecl.unrecognized.start);
+		assertEquals(75, attlistDecl.unrecognized.end);
 
 	}
 
@@ -635,25 +638,25 @@ public class DOMParserForInternalDTDTest {
 		">";
 
 		DOMDocument actual = createDOMDocument(dtd);
-		Assert.assertEquals(1, actual.getChildren().size());
-		Assert.assertTrue(actual.getChild(0).isDoctype());
+		assertEquals(1, actual.getChildren().size());
+		assertTrue(actual.getChild(0).isDoctype());
 		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
-		Assert.assertEquals(0, documentType.getStart());
-		Assert.assertEquals(59, documentType.getEnd());
-		Assert.assertEquals("foo", documentType.getName());
-		Assert.assertTrue(documentType.isClosed());
+		assertEquals(0, documentType.getStart());
+		assertEquals(59, documentType.getEnd());
+		assertEquals("foo", documentType.getName());
+		assertTrue(documentType.isClosed());
 
 		// <!ELEMENT
-		Assert.assertEquals(1, documentType.getChildren().size());
-		Assert.assertTrue(documentType.getChild(0).isDTDElementDecl());
+		assertEquals(1, documentType.getChildren().size());
+		assertTrue(documentType.getChild(0).isDTDElementDecl());
 		DTDElementDecl elementDecl = (DTDElementDecl) documentType.getChild(0);
 		
-		Assert.assertEquals(20, elementDecl.getStart());
-		Assert.assertEquals(55, elementDecl.getEnd());
-		Assert.assertEquals("elName", elementDecl.getName());
-		Assert.assertEquals("(aa1,bb2,cc3)", elementDecl.getContent());
-		Assert.assertEquals(null, elementDecl.getCategory());
-		Assert.assertFalse(elementDecl.isClosed());
+		assertEquals(20, elementDecl.getStart());
+		assertEquals(55, elementDecl.getEnd());
+		assertEquals("elName", elementDecl.getName());
+		assertEquals("(aa1,bb2,cc3)", elementDecl.getContent());
+		assertEquals(null, elementDecl.getCategory());
+		assertFalse(elementDecl.isClosed());
 	}
 
 	@Test
@@ -663,50 +666,50 @@ public class DOMParserForInternalDTDTest {
 		"<!DOCTYPE foo [ <!ELEMENT   <!ATTLIST elName <!ENTITY garbage   <!NOTATION garbage  ]>";
 
 		DOMDocument actual = createDOMDocument(dtd);
-		Assert.assertEquals(1, actual.getChildren().size());
-		Assert.assertTrue(actual.getChild(0).isDoctype());
+		assertEquals(1, actual.getChildren().size());
+		assertTrue(actual.getChild(0).isDoctype());
 		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
-		Assert.assertEquals(0, documentType.getStart());
-		Assert.assertEquals(86, documentType.getEnd());
-		Assert.assertEquals("foo", documentType.getName());
-		Assert.assertTrue(documentType.isClosed());
+		assertEquals(0, documentType.getStart());
+		assertEquals(86, documentType.getEnd());
+		assertEquals("foo", documentType.getName());
+		assertTrue(documentType.isClosed());
 
 		// <!ELEMENT
-		Assert.assertEquals(4, documentType.getChildren().size());
-		Assert.assertTrue(documentType.getChild(0).isDTDElementDecl());
-		Assert.assertTrue(documentType.getChild(1).isDTDAttListDecl());
-		Assert.assertTrue(documentType.getChild(2).isDTDEntityDecl());
-		Assert.assertTrue(documentType.getChild(3).isDTDNotationDecl());
+		assertEquals(4, documentType.getChildren().size());
+		assertTrue(documentType.getChild(0).isDTDElementDecl());
+		assertTrue(documentType.getChild(1).isDTDAttListDecl());
+		assertTrue(documentType.getChild(2).isDTDEntityDecl());
+		assertTrue(documentType.getChild(3).isDTDNotationDecl());
 
 		DTDElementDecl elementDecl = (DTDElementDecl) documentType.getChild(0);
 		
-		Assert.assertEquals(16, elementDecl.getStart());
-		Assert.assertEquals(28, elementDecl.getEnd());
-		Assert.assertEquals(null, elementDecl.getName());
-		Assert.assertEquals(null, elementDecl.getContent());
-		Assert.assertEquals(null, elementDecl.getCategory());
-		Assert.assertFalse(elementDecl.isClosed());
+		assertEquals(16, elementDecl.getStart());
+		assertEquals(28, elementDecl.getEnd());
+		assertEquals(null, elementDecl.getName());
+		assertEquals(null, elementDecl.getContent());
+		assertEquals(null, elementDecl.getCategory());
+		assertFalse(elementDecl.isClosed());
 
 		DTDAttlistDecl attlistDecl = (DTDAttlistDecl) documentType.getChild(1);
 		
-		Assert.assertEquals(28, attlistDecl.getStart());
-		Assert.assertEquals(45, attlistDecl.getEnd());
-		Assert.assertEquals("elName", attlistDecl.getElementName());
-		Assert.assertFalse(attlistDecl.isClosed());
+		assertEquals(28, attlistDecl.getStart());
+		assertEquals(45, attlistDecl.getEnd());
+		assertEquals("elName", attlistDecl.getElementName());
+		assertFalse(attlistDecl.isClosed());
 
 		DTDEntityDecl entityDecl = (DTDEntityDecl) documentType.getChild(2);
 		
-		Assert.assertEquals(45, entityDecl.getStart());
-		Assert.assertEquals(64, entityDecl.getEnd());
-		Assert.assertEquals("garbage", entityDecl.getNodeName());
-		Assert.assertFalse(entityDecl.isClosed());
+		assertEquals(45, entityDecl.getStart());
+		assertEquals(64, entityDecl.getEnd());
+		assertEquals("garbage", entityDecl.getNodeName());
+		assertFalse(entityDecl.isClosed());
 
 		DTDNotationDecl notationDecl = (DTDNotationDecl) documentType.getChild(3);
 		
-		Assert.assertEquals(64, notationDecl.getStart());
-		Assert.assertEquals(83, notationDecl.getEnd());
-		Assert.assertEquals("garbage", notationDecl.getName());
-		Assert.assertFalse(notationDecl.isClosed());
+		assertEquals(64, notationDecl.getStart());
+		assertEquals(83, notationDecl.getEnd());
+		assertEquals("garbage", notationDecl.getName());
+		assertFalse(notationDecl.isClosed());
 	}
 
 	@Test
@@ -719,27 +722,27 @@ public class DOMParserForInternalDTDTest {
 		">";
 
 		DOMDocument actual = createDOMDocument(dtd);
-		Assert.assertEquals(1, actual.getChildren().size());
-		Assert.assertTrue(actual.getChild(0).isDoctype());
+		assertEquals(1, actual.getChildren().size());
+		assertTrue(actual.getChild(0).isDoctype());
 		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
-		Assert.assertEquals(0, documentType.getStart());
-		Assert.assertEquals(85, documentType.getEnd());
-		Assert.assertEquals("foo", documentType.getName());
-		Assert.assertTrue(documentType.isClosed());
+		assertEquals(0, documentType.getStart());
+		assertEquals(85, documentType.getEnd());
+		assertEquals("foo", documentType.getName());
+		assertTrue(documentType.isClosed());
 
 		// <!ELEMENT
-		Assert.assertEquals(1, documentType.getChildren().size());
-		Assert.assertTrue(documentType.getChild(0).isDTDElementDecl());
+		assertEquals(1, documentType.getChildren().size());
+		assertTrue(documentType.getChild(0).isDTDElementDecl());
 		DTDElementDecl elementDecl = (DTDElementDecl) documentType.getChild(0);
 		
-		Assert.assertEquals(20, elementDecl.getStart());
-		Assert.assertEquals(76, elementDecl.getEnd());
-		Assert.assertEquals("elName", elementDecl.getName());
-		Assert.assertEquals("(aa1,bb2,cc3)", elementDecl.getContent());
-		Assert.assertEquals(null, elementDecl.getCategory());
-		Assert.assertEquals(51, elementDecl.unrecognized.start);
-		Assert.assertEquals(75, elementDecl.unrecognized.end);
-		Assert.assertTrue(elementDecl.isClosed());
+		assertEquals(20, elementDecl.getStart());
+		assertEquals(76, elementDecl.getEnd());
+		assertEquals("elName", elementDecl.getName());
+		assertEquals("(aa1,bb2,cc3)", elementDecl.getContent());
+		assertEquals(null, elementDecl.getCategory());
+		assertEquals(51, elementDecl.unrecognized.start);
+		assertEquals(75, elementDecl.unrecognized.end);
+		assertTrue(elementDecl.isClosed());
 	}
 
 	@Test
@@ -752,27 +755,27 @@ public class DOMParserForInternalDTDTest {
 		">";
 
 		DOMDocument actual = createDOMDocument(dtd);
-		Assert.assertEquals(1, actual.getChildren().size());
-		Assert.assertTrue(actual.getChild(0).isDoctype());
+		assertEquals(1, actual.getChildren().size());
+		assertTrue(actual.getChild(0).isDoctype());
 		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
-		Assert.assertEquals(0, documentType.getStart());
-		Assert.assertEquals(74, documentType.getEnd());
-		Assert.assertEquals("foo", documentType.getName());
-		Assert.assertTrue(documentType.isClosed());
+		assertEquals(0, documentType.getStart());
+		assertEquals(74, documentType.getEnd());
+		assertEquals("foo", documentType.getName());
+		assertTrue(documentType.isClosed());
 
 		// <!NOTATION
-		Assert.assertEquals(1, documentType.getChildren().size());
-		Assert.assertTrue(documentType.getChild(0).isDTDNotationDecl());
+		assertEquals(1, documentType.getChildren().size());
+		assertTrue(documentType.getChild(0).isDTDNotationDecl());
 		DTDNotationDecl elementDecl = (DTDNotationDecl) documentType.getChild(0);
 		
-		Assert.assertEquals(20, elementDecl.getStart());
-		Assert.assertEquals(65, elementDecl.getEnd());
-		Assert.assertEquals("Name", elementDecl.getName());
-		Assert.assertEquals("PUBLIC", elementDecl.getKind());
-		Assert.assertEquals("\"PublicID\"", elementDecl.getPublicId());
-		Assert.assertEquals("\"SystemID\"", elementDecl.getSystemId());
+		assertEquals(20, elementDecl.getStart());
+		assertEquals(65, elementDecl.getEnd());
+		assertEquals("Name", elementDecl.getName());
+		assertEquals("PUBLIC", elementDecl.getKind());
+		assertEquals("\"PublicID\"", elementDecl.getPublicId());
+		assertEquals("\"SystemID\"", elementDecl.getSystemId());
 		
-		Assert.assertTrue(elementDecl.isClosed());
+		assertTrue(elementDecl.isClosed());
 	}
 
 	@Test
@@ -785,27 +788,27 @@ public class DOMParserForInternalDTDTest {
 		">";
 
 		DOMDocument actual = createDOMDocument(dtd);
-		Assert.assertEquals(1, actual.getChildren().size());
-		Assert.assertTrue(actual.getChild(0).isDoctype());
+		assertEquals(1, actual.getChildren().size());
+		assertTrue(actual.getChild(0).isDoctype());
 		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
-		Assert.assertEquals(0, documentType.getStart());
-		Assert.assertEquals(74, documentType.getEnd());
-		Assert.assertEquals("foo", documentType.getName());
-		Assert.assertTrue(documentType.isClosed());
+		assertEquals(0, documentType.getStart());
+		assertEquals(74, documentType.getEnd());
+		assertEquals("foo", documentType.getName());
+		assertTrue(documentType.isClosed());
 
 		// <!NOTATION
-		Assert.assertEquals(1, documentType.getChildren().size());
-		Assert.assertTrue(documentType.getChild(0).isDTDNotationDecl());
+		assertEquals(1, documentType.getChildren().size());
+		assertTrue(documentType.getChild(0).isDTDNotationDecl());
 		DTDNotationDecl elementDecl = (DTDNotationDecl) documentType.getChild(0);
 		
-		Assert.assertEquals(20, elementDecl.getStart());
-		Assert.assertEquals(65, elementDecl.getEnd());
-		Assert.assertEquals("Name", elementDecl.getName());
-		Assert.assertEquals("SYSTEM", elementDecl.getKind());
-		Assert.assertEquals("\"PublicID\"", elementDecl.getSystemId());
-		Assert.assertEquals("\"SystemID\"", elementDecl.getUnrecognized());
+		assertEquals(20, elementDecl.getStart());
+		assertEquals(65, elementDecl.getEnd());
+		assertEquals("Name", elementDecl.getName());
+		assertEquals("SYSTEM", elementDecl.getKind());
+		assertEquals("\"PublicID\"", elementDecl.getSystemId());
+		assertEquals("\"SystemID\"", elementDecl.getUnrecognized());
 		
-		Assert.assertTrue(elementDecl.isClosed());
+		assertTrue(elementDecl.isClosed());
 	}
 
 	@Test
@@ -818,15 +821,15 @@ public class DOMParserForInternalDTDTest {
 		">";
 
 		DOMDocument actual = createDOMDocument(dtd);
-		Assert.assertEquals(1, actual.getChildren().size());
-		Assert.assertTrue(actual.getChild(0).isDoctype());
+		assertEquals(1, actual.getChildren().size());
+		assertTrue(actual.getChild(0).isDoctype());
 		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
-		Assert.assertEquals(0, documentType.getStart());
-		Assert.assertEquals(84, documentType.getEnd());
-		Assert.assertEquals("foo", documentType.getName());
-		Assert.assertEquals(14, documentType.unrecognized.start);
-		Assert.assertEquals(82, documentType.unrecognized.end);
-		Assert.assertTrue(documentType.isClosed());	
+		assertEquals(0, documentType.getStart());
+		assertEquals(84, documentType.getEnd());
+		assertEquals("foo", documentType.getName());
+		assertEquals(14, documentType.unrecognized.start);
+		assertEquals(82, documentType.unrecognized.end);
+		assertTrue(documentType.isClosed());	
 	}
 
 	@Test
@@ -840,10 +843,10 @@ public class DOMParserForInternalDTDTest {
 		">";
 
 		DOMDocument actual = createDOMDocument(dtd);
-		Assert.assertEquals(1, actual.getChildren().size());
-		Assert.assertTrue(actual.getChild(0).isDoctype());
+		assertEquals(1, actual.getChildren().size());
+		assertTrue(actual.getChild(0).isDoctype());
 		DOMDocumentType documentType = (DOMDocumentType) actual.getChild(0);
-		Assert.assertEquals(2, documentType.getChildren().size());
+		assertEquals(2, documentType.getChildren().size());
 		assertTrue(documentType.getChild(0) instanceof DTDAttlistDecl);
 		assertTrue(documentType.getChild(1) instanceof DTDNotationDecl);
 	}

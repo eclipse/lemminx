@@ -19,7 +19,7 @@ import static org.eclipse.lemminx.utils.OSUtils.isWindows;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lsp4j.CompletionItem;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * FilePathCompletionTest
@@ -34,9 +34,6 @@ public class FilePathCompletionTest {
 	private static final String userDirForwardSlash = userDir.replace("\\", "/");
 	private static final String fileScheme = "file://";
 	private static final String fileSchemeWithRoot = fileScheme + "/";
-	private static final String userDirURI = fileSchemeWithRoot + userDirForwardSlash; // C:/../../folderName
-
-	private static final int userDirURILength = userDirURI.length();
 
 	@Test
 	public void testFilePathCompletion() throws BadLocationException {

@@ -20,8 +20,8 @@ import com.google.common.io.RecursiveDeleteOption;
 
 import org.eclipse.lemminx.utils.FilesUtils;
 import org.eclipse.lemminx.utils.ProjectUtils;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 /**
  * AbstractCacheBasedTest
@@ -30,13 +30,13 @@ public abstract class AbstractCacheBasedTest {
 
 	protected static Path TEST_WORK_DIRECTORY = ProjectUtils.getProjectDirectory().resolve("target/test-cache");
 
-	@Before
+	@BeforeEach
 	public final void setupCache() throws Exception {
 		clearCache();
 		System.setProperty(FilesUtils.LEMMINX_WORKDIR_KEY, TEST_WORK_DIRECTORY.toAbsolutePath().toString());
 	}
 
-	@After
+	@AfterEach
 	public final void clearCache() throws IOException {
 		if (Files.exists(TEST_WORK_DIRECTORY)) {
 			MoreFiles.deleteDirectoryContents(TEST_WORK_DIRECTORY,RecursiveDeleteOption.ALLOW_INSECURE);

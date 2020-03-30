@@ -21,24 +21,24 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-
 import com.google.common.io.MoreFiles;
 import com.google.common.io.RecursiveDeleteOption;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 
 public class BaseFileTempTest {
 
 	private static final Path tempDirPath = Paths.get("target/temp/");
 	protected static final URI tempDirUri = tempDirPath.toAbsolutePath().toUri();
 
-	@BeforeClass
+	@BeforeAll
 	public static void setup() throws FileNotFoundException, IOException {
 		deleteTempDirIfExists();
 		createTempDir();
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void tearDown() throws IOException {
 		deleteTempDirIfExists();
 	}

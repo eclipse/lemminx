@@ -22,7 +22,7 @@ import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLFileAssociation;
 import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lsp4j.CompletionItem;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * XML file associations completion tests.

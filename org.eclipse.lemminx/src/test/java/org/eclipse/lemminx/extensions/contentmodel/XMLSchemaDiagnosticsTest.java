@@ -21,7 +21,7 @@ import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSchemaErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
 import org.eclipse.lsp4j.Diagnostic;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * XML diagnostics services tests

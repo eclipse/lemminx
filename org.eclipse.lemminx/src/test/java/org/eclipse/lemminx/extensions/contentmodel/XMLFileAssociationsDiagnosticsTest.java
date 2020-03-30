@@ -13,8 +13,8 @@
 package org.eclipse.lemminx.extensions.contentmodel;
 
 import static org.eclipse.lemminx.XMLAssert.d;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.function.Consumer;
 
@@ -34,7 +34,7 @@ import org.eclipse.lemminx.settings.AllXMLSettings;
 import org.eclipse.lemminx.settings.InitializationOptionsSettings;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.InitializeParams;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * XML file associations diagnostics tests.

@@ -11,6 +11,10 @@
 *******************************************************************************/
 package org.eclipse.lemminx.extensions.contentmodel;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMParser;
@@ -19,9 +23,8 @@ import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelProvider;
 import org.eclipse.lemminx.extensions.dtd.contentmodel.CMDTDContentModelProvider;
 import org.eclipse.lemminx.extensions.xsd.contentmodel.CMXSDContentModelProvider;
 import org.eclipse.lemminx.uriresolver.URIResolverExtensionManager;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test with {@link ContentModelManager#dependsOnGrammar(DOMDocument, String)}
@@ -33,7 +36,7 @@ public class ContentModelManagerDependsOnGrammarTest {
 
 	private ContentModelManager modelManager;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		URIResolverExtensionManager resolverExtensionManager = new URIResolverExtensionManager();
 		modelManager = new ContentModelManager(resolverExtensionManager);
@@ -55,8 +58,8 @@ public class ContentModelManagerDependsOnGrammarTest {
 				"";
 		TextDocument textDocument = new TextDocument(text, "/home/nikolas/testXML.xml");
 		DOMDocument d = DOMParser.getInstance().parse(text, textDocument.getUri(), null);
-		Assert.assertTrue(d.hasSchemaInstancePrefix());
-		Assert.assertTrue(modelManager.dependsOnGrammar(d, "file:///home/nikolas/testXSD.xsd"));
+		assertTrue(d.hasSchemaInstancePrefix());
+		assertTrue(modelManager.dependsOnGrammar(d, "file:///home/nikolas/testXSD.xsd"));
 	}
 
 	@Test
@@ -67,8 +70,8 @@ public class ContentModelManagerDependsOnGrammarTest {
 				"";
 		TextDocument textDocument = new TextDocument(text, "/home/nikolas/testXML.xml");
 		DOMDocument d = DOMParser.getInstance().parse(text, textDocument.getUri(), null);
-		Assert.assertTrue(d.hasSchemaInstancePrefix());
-		Assert.assertTrue(modelManager.dependsOnGrammar(d, "file:///home/nikolas/nested/testXSD.xsd"));
+		assertTrue(d.hasSchemaInstancePrefix());
+		assertTrue(modelManager.dependsOnGrammar(d, "file:///home/nikolas/nested/testXSD.xsd"));
 	}
 
 	@Test
@@ -78,8 +81,8 @@ public class ContentModelManagerDependsOnGrammarTest {
 				"  xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 file:///home/nikolas/nested/testXSD.xsd\">";
 		TextDocument textDocument = new TextDocument(text, "/home/nikolas/testXML.xml");
 		DOMDocument d = DOMParser.getInstance().parse(text, textDocument.getUri(), null);
-		Assert.assertTrue(d.hasSchemaInstancePrefix());
-		Assert.assertTrue(modelManager.dependsOnGrammar(d, "file:///home/nikolas/nested/testXSD.xsd"));
+		assertTrue(d.hasSchemaInstancePrefix());
+		assertTrue(modelManager.dependsOnGrammar(d, "file:///home/nikolas/nested/testXSD.xsd"));
 	}
 
 	@Test
@@ -89,8 +92,8 @@ public class ContentModelManagerDependsOnGrammarTest {
 				"  xsi:noNamespaceSchemaLocation=\"testXSD.xsd\"> ";
 		TextDocument textDocument = new TextDocument(text, "/home/nikolas/testXML.xml");
 		DOMDocument d = DOMParser.getInstance().parse(text, textDocument.getUri(), null);
-		Assert.assertTrue(d.hasSchemaInstancePrefix());
-		Assert.assertTrue(modelManager.dependsOnGrammar(d, "file:///home/nikolas/testXSD.xsd"));
+		assertTrue(d.hasSchemaInstancePrefix());
+		assertTrue(modelManager.dependsOnGrammar(d, "file:///home/nikolas/testXSD.xsd"));
 	}
 
 	@Test
@@ -100,8 +103,8 @@ public class ContentModelManagerDependsOnGrammarTest {
 				"  xsi:noNamespaceSchemaLocation=\"nested/testXSD.xsd\">";
 		TextDocument textDocument = new TextDocument(text, "/home/nikolas/testXML.xml");
 		DOMDocument d = DOMParser.getInstance().parse(text, textDocument.getUri(), null);
-		Assert.assertTrue(d.hasSchemaInstancePrefix());
-		Assert.assertTrue(modelManager.dependsOnGrammar(d, "file:///home/nikolas/nested/testXSD.xsd"));
+		assertTrue(d.hasSchemaInstancePrefix());
+		assertTrue(modelManager.dependsOnGrammar(d, "file:///home/nikolas/nested/testXSD.xsd"));
 	}
 
 	@Test
@@ -111,8 +114,8 @@ public class ContentModelManagerDependsOnGrammarTest {
 				"  xsi:noNamespaceSchemaLocation=\"file:///home/nikolas/nested/testXSD.xsd\">";
 		TextDocument textDocument = new TextDocument(text, "/home/nikolas/testXML.xml");
 		DOMDocument d = DOMParser.getInstance().parse(text, textDocument.getUri(), null);
-		Assert.assertTrue(d.hasSchemaInstancePrefix());
-		Assert.assertTrue(modelManager.dependsOnGrammar(d, "file:///home/nikolas/nested/testXSD.xsd"));
+		assertTrue(d.hasSchemaInstancePrefix());
+		assertTrue(modelManager.dependsOnGrammar(d, "file:///home/nikolas/nested/testXSD.xsd"));
 	}
 
 	@Test
@@ -122,8 +125,8 @@ public class ContentModelManagerDependsOnGrammarTest {
 				"  xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 testXSD.xsd\">";
 		TextDocument textDocument = new TextDocument(text, "/home/nikolas/testXML.xml");
 		DOMDocument d = DOMParser.getInstance().parse(text, textDocument.getUri(), null);
-		Assert.assertTrue(d.hasSchemaInstancePrefix());
-		Assert.assertFalse(modelManager.dependsOnGrammar(d, "file:///home/NOT_NIKOLAS/testXSD.xsd")); // bad path
+		assertTrue(d.hasSchemaInstancePrefix());
+		assertFalse(modelManager.dependsOnGrammar(d, "file:///home/NOT_NIKOLAS/testXSD.xsd")); // bad path
 	}
 
 	@Test
@@ -133,8 +136,8 @@ public class ContentModelManagerDependsOnGrammarTest {
 				"  xsi:noNamespaceSchemaLocation=\"nested/testXSD.xsd\">";
 		TextDocument textDocument = new TextDocument(text, "/home/nikolas/testXML.xml");
 		DOMDocument d = DOMParser.getInstance().parse(text, textDocument.getUri(), null);
-		Assert.assertTrue(d.hasSchemaInstancePrefix());
-		Assert.assertFalse(modelManager.dependsOnGrammar(d, "file:///home/NOT_NIKOLAS/nested/testXSD.xsd")); // bad path
+		assertTrue(d.hasSchemaInstancePrefix());
+		assertFalse(modelManager.dependsOnGrammar(d, "file:///home/NOT_NIKOLAS/nested/testXSD.xsd")); // bad path
 	}
 
 	@Test
@@ -144,8 +147,8 @@ public class ContentModelManagerDependsOnGrammarTest {
 				"  xsi:noNamespaceSchemaLocation=\"/home/nikolas/nested/testXSD.xsd\">";
 		TextDocument textDocument = new TextDocument(text, "/home/nikolas/testXML.xml");
 		DOMDocument d = DOMParser.getInstance().parse(text, textDocument.getUri(), null);
-		Assert.assertTrue(d.hasSchemaInstancePrefix());
-		Assert.assertTrue(modelManager.dependsOnGrammar(d, "file:///home/nikolas/nested/testXSD.xsd")); // bad path
+		assertTrue(d.hasSchemaInstancePrefix());
+		assertTrue(modelManager.dependsOnGrammar(d, "file:///home/nikolas/nested/testXSD.xsd")); // bad path
 	}
 
 	@Test
@@ -157,8 +160,8 @@ public class ContentModelManagerDependsOnGrammarTest {
 				">";
 		TextDocument textDocument = new TextDocument(text, "/home/test.xml");
 		DOMDocument d = DOMParser.getInstance().parse(text, textDocument.getUri(), null);
-		Assert.assertNotNull(d.getNoNamespaceSchemaLocation());
-		Assert.assertNotNull(d.getSchemaLocation());
+		assertNotNull(d.getNoNamespaceSchemaLocation());
+		assertNotNull(d.getSchemaLocation());
 	}
 
 }

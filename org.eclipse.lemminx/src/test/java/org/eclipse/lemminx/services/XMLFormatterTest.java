@@ -13,6 +13,7 @@
 package org.eclipse.lemminx.services;
 
 import static java.lang.System.lineSeparator;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,9 +26,8 @@ import org.eclipse.lemminx.settings.XMLFormattingOptions;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  * XML formatter services tests
@@ -349,7 +349,7 @@ public class XMLFormatterTest {
 		format(content, expected);
 	}
 
-	@Ignore
+	@Disabled
 	@Test
 	public void testDefinedPIWithVariables() throws BadLocationException {
 		String content = "<a><?xml-stylesheet   href=\"my-style.css\"     type=   \"text/css\"?></a>";
@@ -360,7 +360,7 @@ public class XMLFormatterTest {
 		format(content, expected);
 	}
 
-	@Ignore
+	@Disabled
 	@Test
 	public void testDefinedPIWithJustAttributeNames() throws BadLocationException {
 		String content = "<a><?xml-stylesheet    href     type  =       attName?></a>";
@@ -2275,7 +2275,7 @@ public class XMLFormatterTest {
 					+ unformatted.substring(textEditEndOffset - 1, unformatted.length());
 		}
 		
-		Assert.assertEquals(expected, formatted);
+		assertEquals(expected, formatted);
 	}
 
 

@@ -13,9 +13,9 @@
 package org.eclipse.lemminx.utils;
 
 import static java.lang.System.lineSeparator;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -39,9 +39,9 @@ import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.ShowMessageRequestParams;
 import org.eclipse.lsp4j.services.LanguageClient;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * LoggerTest
@@ -54,7 +54,7 @@ public class LoggerTest {
 	private Logger LOGGER = Logger.getLogger(LoggerTest.class.getName());
 	private TimeZone originalTimeZone = TimeZone.getDefault();
 
-	@Before
+	@BeforeEach
 	public void startup() {
 		TimeZone.setDefault(TimeZone.getTimeZone(("UTC")));
 		deleteLogFile();
@@ -68,7 +68,7 @@ public class LoggerTest {
 		logFile = new File(path);
 	}
 
-	@After
+	@AfterEach
 	public void cleanUp() {
 		Handler[] handlers = Logger.getLogger("").getHandlers();
 		LogHelper.unregisterAllHandlers(handlers);

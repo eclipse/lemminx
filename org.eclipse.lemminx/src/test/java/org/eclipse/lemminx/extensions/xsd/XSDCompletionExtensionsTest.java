@@ -19,7 +19,7 @@ import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.MarkupKind;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * XSD completion tests which test the {@link XDLURIResolverExtension}.

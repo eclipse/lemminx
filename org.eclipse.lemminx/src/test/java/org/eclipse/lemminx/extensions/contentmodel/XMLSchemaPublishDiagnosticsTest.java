@@ -24,7 +24,7 @@ import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSchemaErrorCo
 import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test with published diagnostics.

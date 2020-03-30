@@ -12,10 +12,11 @@
  */
 package org.eclipse.lemminx.utils;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.eclipse.lemminx.settings.XMLFormattingOptions;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * XML builder test.
@@ -25,7 +26,7 @@ public class XMLBuilderTest {
 
 	XMLFormattingOptions settings;
 
-	@Before
+	@BeforeEach
 	public void startup() {
 		settings = new XMLFormattingOptions(4, false);
 	}
@@ -33,20 +34,20 @@ public class XMLBuilderTest {
 	@Test
 	public void simple() throws Exception {
 		String xml = new XMLBuilder(settings, "", "\n").startElement("html", true).endElement("html").toString();
-		Assert.assertEquals("<html></html>", xml);
+		assertEquals("<html></html>", xml);
 	}
 
 	@Test
 	public void simpleLinefeed() throws Exception {
 		String xml = new XMLBuilder(settings, "", "\n").startElement("html", true).linefeed().endElement("html")
 				.toString();
-		Assert.assertEquals("<html>\n</html>", xml);
+		assertEquals("<html>\n</html>", xml);
 	}
 
 	@Test
 	public void elementWithChild() throws Exception {
 		String xml = new XMLBuilder(settings, "", "\n").startElement("html", true).linefeed().indent(1)
 				.startElement("head", false).selfCloseElement().linefeed().endElement("html").toString();
-		Assert.assertEquals("<html>\n\t<head />\n</html>", xml);
+		assertEquals("<html>\n\t<head />\n</html>", xml);
 	}
 }

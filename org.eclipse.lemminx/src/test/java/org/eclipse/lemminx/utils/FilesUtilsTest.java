@@ -12,12 +12,12 @@
 package org.eclipse.lemminx.utils;
 
 import static java.io.File.separator;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * FilesUtilsTest

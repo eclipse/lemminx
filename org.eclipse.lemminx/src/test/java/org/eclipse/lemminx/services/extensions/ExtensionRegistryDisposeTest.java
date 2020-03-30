@@ -11,11 +11,11 @@
 *******************************************************************************/
 package org.eclipse.lemminx.services.extensions;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.eclipse.lemminx.services.extensions.save.ISaveContext;
 import org.eclipse.lsp4j.InitializeParams;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Ensures XML LS extensions are correctly unregistered when
