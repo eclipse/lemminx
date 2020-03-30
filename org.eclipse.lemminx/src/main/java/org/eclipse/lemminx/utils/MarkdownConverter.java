@@ -17,7 +17,6 @@ import static org.apache.commons.lang3.StringEscapeUtils.unescapeXml;
 
 import java.lang.reflect.Field;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 
 import com.overzealous.remark.Options;
 import com.overzealous.remark.Options.FencedCodeBlocks;
@@ -37,9 +36,6 @@ public class MarkdownConverter {
 	private static final Logger LOGGER = Logger.getLogger(MarkdownConverter.class.getName());
 
 	private static Remark remark;
-
-	//Pattern looking for any form of tag eg: <head>
-	private static final Pattern markdownPattern = Pattern.compile("`[^`]*<[a-z][\\s\\S]*>[^`]*`");
 
 	private MarkdownConverter(){
 		//no public instanciation

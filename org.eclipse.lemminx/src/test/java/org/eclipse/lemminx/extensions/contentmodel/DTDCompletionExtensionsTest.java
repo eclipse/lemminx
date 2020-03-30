@@ -22,7 +22,7 @@ import org.eclipse.lsp4j.CompletionCapabilities;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemCapabilities;
 import org.eclipse.lsp4j.MarkupKind;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class DTDCompletionExtensionsTest {
 

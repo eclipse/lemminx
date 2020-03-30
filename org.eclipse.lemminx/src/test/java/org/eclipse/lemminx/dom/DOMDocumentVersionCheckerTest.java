@@ -11,13 +11,15 @@
 *******************************************************************************/
 package org.eclipse.lemminx.dom;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import java.util.concurrent.CancellationException;
 
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.commons.TextDocumentVersionChecker;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test to stop parse of {@link DOMDocument} when current version is not
@@ -44,7 +46,7 @@ public class DOMDocumentVersionCheckerTest {
 		} catch (CancellationException e) {
 			ex = e;
 		}
-		Assert.assertNull(ex);
+		assertNull(ex);
 
 		// text document version and checker version are NOT synchronized -> parse
 		// should be stopped
@@ -56,7 +58,7 @@ public class DOMDocumentVersionCheckerTest {
 		} catch (CancellationException e) {
 			ex = e;
 		}
-		Assert.assertNotNull(ex);
+		assertNotNull(ex);
 
 		// text document version and checker version are synchronized -> parse should be
 		// done
@@ -67,7 +69,7 @@ public class DOMDocumentVersionCheckerTest {
 		} catch (CancellationException e) {
 			ex = e;
 		}
-		Assert.assertNull(ex);
+		assertNull(ex);
 	}
 
 	@Test
@@ -87,7 +89,7 @@ public class DOMDocumentVersionCheckerTest {
 		} catch (CancellationException e) {
 			ex = e;
 		}
-		Assert.assertNull(ex);
+		assertNull(ex);
 
 		// text document version and checker version are NOT synchronized -> call of
 		// positionAt (which uses line tracker) should NOT work
@@ -98,7 +100,7 @@ public class DOMDocumentVersionCheckerTest {
 		} catch (CancellationException e) {
 			ex = e;
 		}
-		Assert.assertNotNull(ex);
+		assertNotNull(ex);
 	}
 
 	private static TextDocument createTextDocument() {

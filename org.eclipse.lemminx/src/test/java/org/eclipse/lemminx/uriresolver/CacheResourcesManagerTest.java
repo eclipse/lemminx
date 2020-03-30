@@ -11,11 +11,11 @@
 *******************************************************************************/
 package org.eclipse.lemminx.uriresolver;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -24,10 +24,9 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
 import org.eclipse.lemminx.AbstractCacheBasedTest;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class CacheResourcesManagerTest extends AbstractCacheBasedTest {
 
@@ -35,13 +34,13 @@ public class CacheResourcesManagerTest extends AbstractCacheBasedTest {
 
 	private FileServer server;
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		cacheResourcesManager = new CacheResourcesManager(testingCache());
 		cacheResourcesManager.setUseCache(true);
 	}
 
-	@After
+	@AfterEach
 	public void stopServer() throws Exception {
 		if (server != null) {
 			server.stop();
@@ -114,8 +113,8 @@ public class CacheResourcesManagerTest extends AbstractCacheBasedTest {
 		} catch (CacheResourceDownloadingException e) {
 			actual = e;
 		}
-		Assert.assertNotNull(actual);
-		Assert.assertEquals(
+		assertNotNull(actual);
+		assertEquals(
 				"The resource 'http://localhost/../../../../../test.txt' cannot be downloaded in the cache path.",
 				actual.getMessage());
 	}

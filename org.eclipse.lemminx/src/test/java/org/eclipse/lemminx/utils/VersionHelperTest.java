@@ -12,12 +12,12 @@
  */
 package org.eclipse.lemminx.utils;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class VersionHelperTest {
 
@@ -26,6 +26,6 @@ public class VersionHelperTest {
 		String version = VersionHelper.getVersion();
 		Pattern pattern = Pattern.compile("^(\\d+\\.\\d+\\.\\d+)(-.*)$");
 		Matcher matcher = pattern.matcher(version);
-		assertTrue("Unexpected format for :" + version, matcher.matches());
+		assertTrue(matcher.matches(), "Unexpected format for :" + version);
 	}
 }

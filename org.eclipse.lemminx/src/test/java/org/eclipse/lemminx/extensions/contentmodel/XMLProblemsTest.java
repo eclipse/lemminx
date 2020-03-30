@@ -20,7 +20,7 @@ import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * XML problems like noGrammar.

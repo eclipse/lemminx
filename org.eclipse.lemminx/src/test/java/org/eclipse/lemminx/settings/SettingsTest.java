@@ -13,12 +13,12 @@
 package org.eclipse.lemminx.settings;
 
 import static java.io.File.separator;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 
@@ -26,7 +26,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 import org.eclipse.lemminx.XMLLanguageServer;
-import org.eclipse.lemminx.XMLTextDocumentService;
 import org.eclipse.lemminx.client.CodeLensKind;
 import org.eclipse.lemminx.client.ExtendedClientCapabilities;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
@@ -34,9 +33,8 @@ import org.eclipse.lemminx.settings.capabilities.InitializationOptionsExtendedCl
 import org.eclipse.lemminx.utils.FilesUtils;
 import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.InitializeParams;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests for settings.
@@ -46,7 +44,7 @@ public class SettingsTest {
 	private static String testFolder = "TestXMLCacheFolder";
 	private static String targetTestFolder = "target" + separator + "generated-test-sources";
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		String path = System.getProperty("user.dir") + separator + targetTestFolder + separator + testFolder;
 
@@ -240,7 +238,6 @@ public class SettingsTest {
 		XMLExcludedSymbolFile[] actualExpectedFiles = languageServer.getSettings().getSymbolSettings().getExcludedFiles();
 		assertArrayEquals(expectedExcludedFiles, actualExpectedFiles);
 
-		XMLTextDocumentService textDocumentService = (XMLTextDocumentService) languageServer.getTextDocumentService();
 	}
 
 	@Test
@@ -248,12 +245,12 @@ public class SettingsTest {
 		InitializeParams params = createInitializeParams(json);
 		ExtendedClientCapabilities clientCapabilities = InitializationOptionsExtendedClientCapabilities
 				.getExtendedClientCapabilities(params);
-		Assert.assertNotNull(clientCapabilities);
-		Assert.assertNotNull(clientCapabilities.getCodeLens());
-		Assert.assertNotNull(clientCapabilities.getCodeLens().getCodeLensKind());
-		Assert.assertNotNull(clientCapabilities.getCodeLens().getCodeLensKind().getValueSet());
-		Assert.assertEquals(1, clientCapabilities.getCodeLens().getCodeLensKind().getValueSet().size());
-		Assert.assertEquals(CodeLensKind.References,
+		assertNotNull(clientCapabilities);
+		assertNotNull(clientCapabilities.getCodeLens());
+		assertNotNull(clientCapabilities.getCodeLens().getCodeLensKind());
+		assertNotNull(clientCapabilities.getCodeLens().getCodeLensKind().getValueSet());
+		assertEquals(1, clientCapabilities.getCodeLens().getCodeLensKind().getValueSet().size());
+		assertEquals(CodeLensKind.References,
 				clientCapabilities.getCodeLens().getCodeLensKind().getValueSet().get(0));
 	}
 }

@@ -22,7 +22,7 @@ import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSchemaErrorCo
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
 import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lsp4j.Diagnostic;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test to check the LSP XML Grammar Pool.

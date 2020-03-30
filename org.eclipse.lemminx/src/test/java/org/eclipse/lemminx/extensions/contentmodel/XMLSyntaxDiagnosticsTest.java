@@ -23,7 +23,7 @@ import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCo
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLFormattingOptions;
 import org.eclipse.lsp4j.Diagnostic;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * XML diagnostics services tests

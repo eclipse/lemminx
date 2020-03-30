@@ -22,7 +22,7 @@ import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * XML rename services tests

@@ -18,7 +18,7 @@ import static org.eclipse.lemminx.XMLAssert.d;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSchemaErrorCode;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test of catalog completion/validation which doesn't declare DTD or XML

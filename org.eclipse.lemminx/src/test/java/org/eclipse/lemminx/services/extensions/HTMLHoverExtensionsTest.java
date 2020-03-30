@@ -15,7 +15,7 @@ package org.eclipse.lemminx.services.extensions;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.services.XMLLanguageService;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * XML hover tests which uses the {@link IHoverParticipant} to emulate HTML

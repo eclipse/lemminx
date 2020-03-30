@@ -20,7 +20,7 @@ import java.util.Collections;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.SymbolKind;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * XML symbols test with {@link DocumentSymbol} (with hierarchies).

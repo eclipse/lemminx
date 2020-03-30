@@ -12,14 +12,16 @@
  */
 package org.eclipse.lemminx.dom;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
 import org.eclipse.lemminx.dom.DOMDocumentType.DocumentTypeKind;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  * XML parser tests.
@@ -95,9 +97,9 @@ public class DOMParserTest {
 	public void singleEndTag() {
 		DOMElement meta = (DOMElement) createElement("meta", 0, 0, 7, false);
 		assertDocument("</meta>", meta);
-		Assert.assertFalse(meta.hasStartTag());
-		Assert.assertTrue(meta.hasEndTag());
-		Assert.assertEquals(meta.getEndTagOpenOffset(), 0); // |</meta>
+		assertFalse(meta.hasStartTag());
+		assertTrue(meta.hasEndTag());
+		assertEquals(0, meta.getEndTagOpenOffset()); // |</meta>
 	}
 
 	@Test
@@ -107,9 +109,9 @@ public class DOMParserTest {
 		html.addChild(meta);
 
 		assertDocument("<html></meta></html>", html);
-		Assert.assertFalse(meta.hasStartTag());
-		Assert.assertTrue(meta.hasEndTag());
-		Assert.assertEquals(meta.getEndTagOpenOffset(), 6); // |</meta>
+		assertFalse(meta.hasStartTag());
+		assertTrue(meta.hasEndTag());
+		assertEquals(6, meta.getEndTagOpenOffset()); // |</meta>
 	}
 
 	@Test
@@ -293,7 +295,7 @@ public class DOMParserTest {
 		assertDocument("<html><?m2e he haa?></html>", html);
 	}
 
-	@Ignore
+	@Disabled
 	@Test
 	public void testPIXMLStyleSheet() {
 		DOMNode processingInstruction = createPINode("xml-stylesheet", 6, 60, true, "");
@@ -443,18 +445,18 @@ public class DOMParserTest {
 	public void elementOffsets() {
 		DOMDocument document = DOMParser.getInstance().parse("<a></a>", "", null);
 		DOMElement a = document.getDocumentElement();
-		Assert.assertNotNull(a);
-		Assert.assertEquals(a.getTagName(), "a");
-		Assert.assertEquals(a.getStart(), 0); // |<a></a>
-		Assert.assertEquals(a.getStartTagOpenOffset(), 0); // |<a></a>
-		Assert.assertEquals(a.getStartTagCloseOffset(), 2); // <a|></a>
-		Assert.assertEquals(a.getEndTagOpenOffset(), 3); // <a>|</a>
-		Assert.assertEquals(a.getEnd(), 7); // <a></a>|
+		assertNotNull(a);
+		assertEquals("a", a.getTagName());
+		assertEquals(0, a.getStart()); // |<a></a>
+		assertEquals(0, a.getStartTagOpenOffset()); // |<a></a>
+		assertEquals(2, a.getStartTagCloseOffset()); // <a|></a>
+		assertEquals(3, a.getEndTagOpenOffset()); // <a>|</a>
+		assertEquals(7, a.getEnd()); // <a></a>|
 
-		Assert.assertFalse(a.isInStartTag(0)); // |<a></a>
-		Assert.assertTrue(a.isInStartTag(1)); // <|a></a>
-		Assert.assertTrue(a.isInStartTag(2)); // <a|></a>
-		Assert.assertFalse(a.isInStartTag(3)); // <a>|</a>
+		assertFalse(a.isInStartTag(0)); // |<a></a>
+		assertTrue(a.isInStartTag(1)); // <|a></a>
+		assertTrue(a.isInStartTag(2)); // <a|></a>
+		assertFalse(a.isInStartTag(3)); // <a>|</a>
 	}
 
 	@Test

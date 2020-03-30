@@ -11,11 +11,13 @@
 *******************************************************************************/
 package org.eclipse.lemminx.extensions.contentmodel.model;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 
 import org.eclipse.lemminx.extensions.contentmodel.BaseFileTempTest;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test for {@link FilesChangedTracker}
@@ -32,11 +34,11 @@ public class FilesChangedTrackerTest extends BaseFileTempTest {
 		createFile(fileURI, "<root />");
 		tracker.addFileURI("file://" + fileURI);
 
-		Assert.assertFalse("No dirty after file creation", tracker.isDirty());
+		assertFalse(tracker.isDirty(),"No dirty after file creation");
 
 		updateFile(fileURI, "<root />");
-		Assert.assertTrue("Dirty after file modification on isDirty first call", tracker.isDirty());
-		Assert.assertFalse("NO Dirty after file modification on isDirty second call", tracker.isDirty());
+		assertTrue(tracker.isDirty(), "Dirty after file modification on isDirty first call");
+		assertFalse(tracker.isDirty(), "NO Dirty after file modification on isDirty second call");
 
 	}
 }

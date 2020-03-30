@@ -17,7 +17,7 @@ import static org.eclipse.lemminx.XMLAssert.r;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lsp4j.Location;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * XSD references tests

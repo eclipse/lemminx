@@ -11,6 +11,9 @@
 *******************************************************************************/
 package org.eclipse.lemminx.extensions.contentmodel;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,9 +31,8 @@ import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.ShowMessageRequestParams;
 import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.services.LanguageClient;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * This class tests the functionality where an XML file undergoes
@@ -48,7 +50,7 @@ public class XMLExternalTest extends BaseFileTempTest  {
 	private List<PublishDiagnosticsParams> actualDiagnostics;
 	private XMLLanguageServer languageServer;
 
-	@Before
+	@BeforeEach
 	public void before() {
 		actualDiagnostics = new ArrayList<>();
 		languageServer = createServer(actualDiagnostics);
@@ -86,17 +88,17 @@ public class XMLExternalTest extends BaseFileTempTest  {
 	
 		Thread.sleep(threadSleepMs);
 
-		Assert.assertEquals(1, actualDiagnostics.size());
-		Assert.assertEquals(0, actualDiagnostics.get(0).getDiagnostics().size());
+		assertEquals(1, actualDiagnostics.size());
+		assertEquals(0, actualDiagnostics.get(0).getDiagnostics().size());
 
 		editFile(testDtd, 2, "");
 		didChangedWatchedFiles(languageServer, testDtd);
 
 		Thread.sleep(threadSleepMs);
 
-		Assert.assertEquals(2, actualDiagnostics.size());
-		Assert.assertFalse(actualDiagnostics.get(1).getDiagnostics().isEmpty());
-		Assert.assertEquals("MSG_ELEMENT_NOT_DECLARED", actualDiagnostics.get(1).getDiagnostics().get(0).getCode());
+		assertEquals(2, actualDiagnostics.size());
+		assertFalse(actualDiagnostics.get(1).getDiagnostics().isEmpty());
+		assertEquals("MSG_ELEMENT_NOT_DECLARED", actualDiagnostics.get(1).getDiagnostics().get(0).getCode());
 	}
 
 	@Test
@@ -140,16 +142,16 @@ public class XMLExternalTest extends BaseFileTempTest  {
 	
 		Thread.sleep(threadSleepMs);
 
-		Assert.assertEquals(1, actualDiagnostics.size());
-		Assert.assertEquals(0, actualDiagnostics.get(0).getDiagnostics().size());
+		assertEquals(1, actualDiagnostics.size());
+		assertEquals(0, actualDiagnostics.get(0).getDiagnostics().size());
 
 		editFile(testXsd, 12, "            maxOccurs=\"2\"/>");
 		didChangedWatchedFiles(languageServer, testXsd);
 
 		Thread.sleep(threadSleepMs);
 
-		Assert.assertEquals(2, actualDiagnostics.size());
-		Assert.assertEquals("cvc-complex-type.2.4.f", actualDiagnostics.get(1).getDiagnostics().get(0).getCode());
+		assertEquals(2, actualDiagnostics.size());
+		assertEquals("cvc-complex-type.2.4.f", actualDiagnostics.get(1).getDiagnostics().get(0).getCode());
 	}
 
 	private static XMLLanguageServer createServer(List<PublishDiagnosticsParams> actualDiagnostics) {
