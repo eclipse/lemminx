@@ -20,7 +20,7 @@ import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCo
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lsp4j.Diagnostic;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * DTD doctype diagnostics services tests

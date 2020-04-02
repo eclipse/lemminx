@@ -16,9 +16,9 @@ import static org.eclipse.lemminx.XMLAssert.c;
 import static org.eclipse.lemminx.XMLAssert.r;
 import static org.eclipse.lemminx.XMLAssert.testCompletionFor;
 import static org.eclipse.lemminx.XMLAssert.testTagCompletion;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Arrays;
 import java.util.List;
@@ -32,8 +32,8 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * XML completion services tests
@@ -43,7 +43,7 @@ public class XMLCompletionTest {
 
 	private XMLLanguageService languageService;
 
-	@Before
+	@BeforeEach
 	public void initializeLanguageService() {
 		languageService = new XMLLanguageService();
 	}

@@ -13,6 +13,11 @@
 package org.eclipse.lemminx.dom;
 
 import static org.eclipse.lemminx.utils.IOUtils.convertStreamToString;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.InputStream;
 
@@ -25,8 +30,7 @@ import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.parser.Scanner;
 import org.eclipse.lemminx.dom.parser.TokenType;
 import org.eclipse.lemminx.dom.parser.XMLScanner;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.NodeList;
 
 public class DOMDocumentTest {
@@ -51,7 +55,7 @@ public class DOMDocumentTest {
 		String text = convertStreamToString(in);
 		TextDocument document = new TextDocument(text, "largeFile.xml");
 		long start = System.currentTimeMillis();
-		DOMDocument xmlDocument = DOMParser.getInstance().parse(document, null);
+		DOMParser.getInstance().parse(document, null);
 		System.err.println("Parsed 'largeFile.xml' with XMLParser in " + (System.currentTimeMillis() - start) + " ms.");
 	}
 
@@ -74,7 +78,7 @@ public class DOMDocumentTest {
 		String text = convertStreamToString(in);
 		TextDocument document = new TextDocument(text, "nasa.xml");
 		long start = System.currentTimeMillis();
-		DOMDocument xmlDocument = DOMParser.getInstance().parse(document, null);
+		DOMParser.getInstance().parse(document, null);
 		System.err.println("Parsed 'nasa.xml' with XMLParser in " + (System.currentTimeMillis() - start) + " ms.");
 	}
 
@@ -84,30 +88,30 @@ public class DOMDocumentTest {
 
 		// Get "c" element by w3c DOM model
 		DOMNode a = document.getDocumentElement();
-		Assert.assertNotNull(a);
-		Assert.assertEquals("a", a.getNodeName());
-		Assert.assertTrue(a.isElement());
+		assertNotNull(a);
+		assertEquals("a", a.getNodeName());
+		assertTrue(a.isElement());
 
 		DOMNode b = a.getFirstChild();
-		Assert.assertNotNull(b);
-		Assert.assertEquals("b", b.getNodeName());
-		Assert.assertTrue(b.isElement());
+		assertNotNull(b);
+		assertEquals("b", b.getNodeName());
+		assertTrue(b.isElement());
 
 		DOMNode c = b.getFirstChild();
-		Assert.assertNotNull(c);
-		Assert.assertEquals("c", c.getNodeName());
-		Assert.assertTrue(c.isElement());
+		assertNotNull(c);
+		assertEquals("c", c.getNodeName());
+		assertTrue(c.isElement());
 
 		// As XMLDocument implement w3c DOM model, we can use XPath.
 		// Get "c" element by XPath
 		XPath xPath = XPathFactory.newInstance().newXPath();
 		Object result = xPath.evaluate("/a/b/c", document, XPathConstants.NODE);
-		Assert.assertNotNull(result);
-		Assert.assertTrue(result instanceof DOMElement);
+		assertNotNull(result);
+		assertTrue(result instanceof DOMElement);
 		DOMElement elt = (DOMElement) result;
-		Assert.assertEquals("c", elt.getNodeName());
-		Assert.assertEquals(c, elt);
-		Assert.assertTrue(c.isElement());
+		assertEquals("c", elt.getNodeName());
+		assertEquals(c, elt);
+		assertTrue(c.isElement());
 	}
 
 	@Test
@@ -116,14 +120,14 @@ public class DOMDocumentTest {
 
 		XPath xPath = XPathFactory.newInstance().newXPath();
 		Object result = xPath.evaluate("/a/b/c/text()", document, XPathConstants.NODE);
-		Assert.assertNotNull(result);
-		Assert.assertTrue(result instanceof DOMText);
+		assertNotNull(result);
+		assertTrue(result instanceof DOMText);
 		DOMText text = (DOMText) result;
-		Assert.assertEquals("XXXX", text.getData());
+		assertEquals("XXXX", text.getData());
 
 		result = xPath.evaluate("/a/b/c/text()", document, XPathConstants.STRING);
-		Assert.assertNotNull(result);
-		Assert.assertEquals("XXXX", result.toString());
+		assertNotNull(result);
+		assertEquals("XXXX", result.toString());
 	}
 
 	@Test
@@ -131,26 +135,26 @@ public class DOMDocumentTest {
 		DOMDocument document = DOMParser.getInstance().parse("<a><b><c>XXXX</c><c>YYYY</c></b></a>", "test", null);
 
 		DOMNode a = document.getDocumentElement();
-		Assert.assertNotNull(a);
+		assertNotNull(a);
 		DOMNode b = a.getFirstChild();
-		Assert.assertNotNull(b);
+		assertNotNull(b);
 		DOMNode c1 = b.getFirstChild();
-		Assert.assertNotNull(c1);
+		assertNotNull(c1);
 		DOMNode t1 = c1.getFirstChild();
-		Assert.assertTrue(t1.isText());
+		assertTrue(t1.isText());
 		DOMText text1 = (DOMText) t1;
-		Assert.assertEquals("XXXX", text1.getData());
+		assertEquals("XXXX", text1.getData());
 
 		DOMNode c2 = c1.getNextSibling();
-		Assert.assertNotNull(c2);
+		assertNotNull(c2);
 		DOMNode t2 = c2.getFirstChild();
-		Assert.assertTrue(t2.isText());
+		assertTrue(t2.isText());
 		DOMText text2 = (DOMText) t2;
-		Assert.assertEquals("YYYY", text2.getData());
+		assertEquals("YYYY", text2.getData());
 
 		DOMNode c1Previous = c2.getPreviousSibling();
-		Assert.assertNotNull(c1Previous);
-		Assert.assertEquals(c1, c1Previous);
+		assertNotNull(c1Previous);
+		assertEquals(c1, c1Previous);
 	}
 
 	@Test
@@ -159,10 +163,10 @@ public class DOMDocumentTest {
 
 		XPath xPath = XPathFactory.newInstance().newXPath();
 		Object result = xPath.evaluate("/a/b//c", document, XPathConstants.NODESET);
-		Assert.assertNotNull(result);
-		Assert.assertTrue(result instanceof NodeList);
+		assertNotNull(result);
+		assertTrue(result instanceof NodeList);
 		NodeList elts = (NodeList) result;
-		Assert.assertEquals(2, elts.getLength());
+		assertEquals(2, elts.getLength());
 
 	}
 
@@ -172,39 +176,39 @@ public class DOMDocumentTest {
 
 		// .xml file extension
 		DOMDocument xml = DOMParser.getInstance().parse(content, "test.xml", null);
-		Assert.assertFalse(xml.isDTD());
+		assertFalse(xml.isDTD());
 		DOMNode element = xml.getChild(0);
-		Assert.assertTrue(element.isElement());
+		assertTrue(element.isElement());
 
 		// .unknown file extension
 		DOMDocument unknown = DOMParser.getInstance().parse(content, "test.unknown", null);
-		Assert.assertFalse(unknown.isDTD());
+		assertFalse(unknown.isDTD());
 		DOMNode unknownElement = unknown.getChild(0);
-		Assert.assertTrue(unknownElement.isElement());
+		assertTrue(unknownElement.isElement());
 
 		// .dtd file extension
 		DOMDocument dtd = DOMParser.getInstance().parse(content, "test.dtd", null);
-		Assert.assertTrue(dtd.isDTD());
+		assertTrue(dtd.isDTD());
 		DOMNode dtdDocType = dtd.getChild(0);
-		Assert.assertTrue(dtdDocType.isDoctype());
+		assertTrue(dtdDocType.isDoctype());
 		DOMNode dtdElementDecl = dtdDocType.getChild(0);
-		Assert.assertTrue(dtdElementDecl.isDTDElementDecl());
+		assertTrue(dtdElementDecl.isDTDElementDecl());
 
 		// .ent file extension
 		DOMDocument ent = DOMParser.getInstance().parse(content, "test.ent", null);
-		Assert.assertTrue(ent.isDTD());
+		assertTrue(ent.isDTD());
 		DOMNode entDocType = ent.getChild(0);
-		Assert.assertTrue(entDocType.isDoctype());
+		assertTrue(entDocType.isDoctype());
 		DOMNode entElementDecl = entDocType.getChild(0);
-		Assert.assertTrue(entElementDecl.isDTDElementDecl());
+		assertTrue(entElementDecl.isDTDElementDecl());
 
 		// .mod file extension
 		DOMDocument mod = DOMParser.getInstance().parse(content, "test.mod", null);
-		Assert.assertTrue(mod.isDTD());
+		assertTrue(mod.isDTD());
 		DOMNode modDocType = mod.getChild(0);
-		Assert.assertTrue(modDocType.isDoctype());
+		assertTrue(modDocType.isDoctype());
 		DOMNode modElemmodDecl = modDocType.getChild(0);
-		Assert.assertTrue(modElemmodDecl.isDTDElementDecl());
+		assertTrue(modElemmodDecl.isDTDElementDecl());
 	}
 
 	@Test
@@ -219,12 +223,12 @@ public class DOMDocumentTest {
 		DOMDocument dom = DOMParser.getInstance().parse(xml, "test.xml", null);
 
 		DOMElement bean = (DOMElement) dom.getDocumentElement().getFirstChild();
-		Assert.assertNull(bean.getPrefix());
-		Assert.assertEquals("http://www.springframework.org/schema/beans", bean.getNamespaceURI());
+		assertNull(bean.getPrefix());
+		assertEquals("http://www.springframework.org/schema/beans", bean.getNamespaceURI());
 
 		DOMElement camel = (DOMElement) bean.getNextSibling();
-		Assert.assertEquals("camel", camel.getPrefix());
-		Assert.assertEquals("http://camel.apache.org/schema/spring", camel.getNamespaceURI());
+		assertEquals("camel", camel.getPrefix());
+		assertEquals("http://camel.apache.org/schema/spring", camel.getNamespaceURI());
 
 	}
 
@@ -240,12 +244,12 @@ public class DOMDocumentTest {
 		DOMDocument dom = DOMParser.getInstance().parse(xml, "test.xml", null);
 
 		DOMElement bean = (DOMElement) dom.getDocumentElement().getFirstChild();
-		Assert.assertNull(bean.getPrefix());
-		Assert.assertNull(bean.getNamespaceURI());
+		assertNull(bean.getPrefix());
+		assertNull(bean.getNamespaceURI());
 
 		DOMElement camel = (DOMElement) bean.getNextSibling();
-		Assert.assertEquals("camel", camel.getPrefix());
-		Assert.assertEquals("http://camel.apache.org/schema/spring", camel.getNamespaceURI());
+		assertEquals("camel", camel.getPrefix());
+		assertEquals("http://camel.apache.org/schema/spring", camel.getNamespaceURI());
 
 	}
 }

@@ -21,8 +21,8 @@ import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.settings.XMLCompletionSettings;
 import org.eclipse.lemminx.settings.XMLFormattingOptions;
 import org.eclipse.lsp4j.CompletionItem;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 /**
  * XSL completion tests which test the {@link XSLURIResolverExtension}.
@@ -32,7 +32,7 @@ public class XSICompletionExtensionsTest {
 	
 	public static XMLFormattingOptions formattingSettingsSingleQuotes = new XMLFormattingOptions(true);
 	
-	@BeforeClass
+	@BeforeAll
 	public static void runOnceBeforeClass() {
 		formattingSettingsSingleQuotes.setQuotations(XMLFormattingOptions.SINGLE_QUOTES_VALUE);
 	}

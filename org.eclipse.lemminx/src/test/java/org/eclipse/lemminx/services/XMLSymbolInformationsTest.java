@@ -12,8 +12,8 @@
  */
 package org.eclipse.lemminx.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +26,8 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.SymbolKind;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * XML symbols test with {@link SymbolInformation}.
@@ -41,7 +41,7 @@ public class XMLSymbolInformationsTest {
 	private Location currentLocation;
 	private SymbolInformation currentSymbolInfo;
 
-	@Before
+	@BeforeEach
 	public void initializeLanguageService() {
 		languageService = new XMLLanguageService();
 	}
@@ -273,13 +273,13 @@ public class XMLSymbolInformationsTest {
 		for (int i = 0; i < expectedSymbolList.size(); i++) {
 			currentExpectedSymbol = expectedSymbolList.get(i);
 			currentActualSymbol = actualSymbolList.get(i);
-			assertEquals("Symbol index " + i, currentExpectedSymbol.getName(), currentActualSymbol.getName());
-			assertEquals("Symbol index " + i, currentExpectedSymbol.getKind(), currentActualSymbol.getKind());
-			assertEquals("Symbol index " + i, currentExpectedSymbol.getContainerName(),
-					currentActualSymbol.getContainerName());
-			assertEquals("Symbol index " + i, currentExpectedSymbol.getLocation(), currentActualSymbol.getLocation());
-			assertEquals("Symbol index " + i, currentExpectedSymbol.getDeprecated(),
-					currentActualSymbol.getDeprecated());
+			assertEquals(currentExpectedSymbol.getName(), currentActualSymbol.getName(),"Symbol index " + i);
+			assertEquals(currentExpectedSymbol.getKind(), currentActualSymbol.getKind(),"Symbol index " + i);
+			assertEquals(currentExpectedSymbol.getContainerName(),
+					currentActualSymbol.getContainerName(),"Symbol index " + i);
+			assertEquals(currentExpectedSymbol.getLocation(), currentActualSymbol.getLocation(),"Symbol index " + i);
+			assertEquals(currentExpectedSymbol.getDeprecated(),
+					currentActualSymbol.getDeprecated(),"Symbol index " + i);
 		}
 	}
 

@@ -12,10 +12,9 @@
  */
 package org.eclipse.lemminx.dom.parser;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * XML scanner tests.
@@ -24,11 +23,6 @@ import org.junit.Test;
 public class XMLScannerTest {
   public Scanner scanner;
   //public TokenType token;
-
-  @Before
-  public void before() {
-    
-  }
 
   @Test
   public void testSingleElement() {

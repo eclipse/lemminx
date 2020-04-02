@@ -22,7 +22,7 @@ import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.extensions.xsd.participants.XSDErrorCode;
 import org.eclipse.lemminx.extensions.xsd.participants.diagnostics.XSDValidator;
 import org.eclipse.lsp4j.Diagnostic;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * XSD diagnostics tests which test the {@link XSDValidator}.

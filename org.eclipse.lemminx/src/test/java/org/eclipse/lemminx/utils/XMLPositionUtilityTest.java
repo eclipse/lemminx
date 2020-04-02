@@ -11,12 +11,14 @@
 *******************************************************************************/
 package org.eclipse.lemminx.utils;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMParser;
 import org.eclipse.lsp4j.Position;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * XMLPositionUtilityTest
@@ -251,7 +253,7 @@ public class XMLPositionUtilityTest {
 				newCursorOffset = xmlDocument.offsetAt(newCursorPosition);
 			}
 		} catch (BadLocationException e) {
-			Assert.fail();
+			fail(e.getMessage());
 			return;
 		}
 
@@ -264,6 +266,6 @@ public class XMLPositionUtilityTest {
 			actualOutputString = initialCursorText;
 		}
 
-		Assert.assertEquals(expectedCursorText, actualOutputString);
+		assertEquals(expectedCursorText, actualOutputString);
 	}
 }

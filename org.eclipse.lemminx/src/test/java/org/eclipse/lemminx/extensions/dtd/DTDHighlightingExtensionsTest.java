@@ -18,7 +18,7 @@ import static org.eclipse.lsp4j.DocumentHighlightKind.Read;
 import static org.eclipse.lsp4j.DocumentHighlightKind.Write;
 
 import org.eclipse.lemminx.commons.BadLocationException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * DTD Highlighting tests.

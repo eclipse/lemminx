@@ -11,10 +11,10 @@
 *******************************************************************************/
 package org.eclipse.lemminx.utils;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.eclipse.lsp4j.CompletionItemKind;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * CompletionSortTextHelperTest

@@ -18,7 +18,7 @@ import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConsta
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.DOCUMENT_SYMBOL_ID;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.FORMATTING_ID;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.FORMATTING_RANGE_ID;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -45,8 +45,8 @@ import org.eclipse.lsp4j.ShowMessageRequestParams;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
 import org.eclipse.lsp4j.WorkspaceClientCapabilities;
 import org.eclipse.lsp4j.services.LanguageClient;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * XMLCapabilityManagerTest
@@ -61,7 +61,7 @@ public class XMLCapabilitiesTest {
 	private XMLTextDocumentService textDocumentService;
 	private Set<String> capabilityIDs;
 
-	@Before
+	@BeforeEach
 	public void startup() {
 
 		textDocumentService = new XMLTextDocumentService(null);

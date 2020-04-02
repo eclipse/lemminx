@@ -18,7 +18,7 @@ import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.extensions.xsi.XSISchemaModel;
 import org.eclipse.lemminx.services.XMLLanguageService;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * XML hover tests with XML Schema.

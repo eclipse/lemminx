@@ -26,7 +26,7 @@ import java.util.function.Consumer;
 import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.services.XMLLanguageService;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test with XML Schema type definition and cache.

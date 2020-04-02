@@ -18,7 +18,7 @@ import java.io.IOException;
 
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.io.MoreFiles;
 import com.google.common.io.RecursiveDeleteOption;

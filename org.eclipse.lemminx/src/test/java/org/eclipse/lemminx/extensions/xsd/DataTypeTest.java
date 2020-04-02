@@ -11,8 +11,10 @@
 *******************************************************************************/
 package org.eclipse.lemminx.extensions.xsd;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * XSD Data type tests
@@ -25,7 +27,7 @@ public class DataTypeTest {
 	@Test
 	public void xsString() {
 		DataType string = DataType.getDataType("string");
-		Assert.assertNotNull(string);
-		Assert.assertEquals(string.getName(), "string");
+		assertNotNull(string);
+		assertEquals("string", string.getName());
 	}
 }

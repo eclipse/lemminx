@@ -12,7 +12,7 @@
  */
 package org.eclipse.lemminx;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -72,10 +72,9 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
-import org.junit.Assert;
 
 /**
- * XML assert.
+ * XML 
  *
  */
 public class XMLAssert {
@@ -176,13 +175,13 @@ public class XMLAssert {
 		List<String> labels = list.getItems().stream().map(i -> i.getLabel()).sorted().collect(Collectors.toList());
 		String previous = null;
 		for (String label : labels) {
-			Assert.assertTrue(
-					"Duplicate label " + label + " in " + labels.stream().collect(Collectors.joining(",")) + "}",
-					previous != label);
+			assertNotEquals(previous, label, () -> {
+				return	"Duplicate label " + label + " in " + labels.stream().collect(Collectors.joining(",")) + "}";
+			});
 			previous = label;
 		}
 		if (expectedCount != null) {
-			Assert.assertEquals(expectedCount.intValue(), list.getItems().size());
+			assertEquals(expectedCount.intValue(), list.getItems().size());
 		}
 		if (expectedItems != null) {
 			for (CompletionItem item : expectedItems) {
@@ -197,33 +196,33 @@ public class XMLAssert {
 			return expected.getLabel().equals(completion.getLabel());
 		}).collect(Collectors.toList());
 
-		Assert.assertEquals(
-				expected.getLabel() + " should only exist once: Actual: "
-						+ completions.getItems().stream().map(c -> c.getLabel()).collect(Collectors.joining(",")),
-				1, matches.size());
+		assertEquals( 1, matches.size(), ()-> {
+			return expected.getLabel() + " should only exist once: Actual: "
+				+ completions.getItems().stream().map(c -> c.getLabel()).collect(Collectors.joining(","));
+			});
 
 		CompletionItem match = matches.get(0);
 		/*
 		 * if (expected.documentation != null) {
-		 * Assert.assertEquals(match.getDocumentation().getRight().getValue(),
-		 * expected.getd); } if (expected.kind) { Assert.assertEquals(match.kind,
+		 * assertEquals(match.getDocumentation().getRight().getValue(),
+		 * expected.getd); } if (expected.kind) { assertEquals(match.kind,
 		 * expected.kind); }
 		 */
 		if (expected.getTextEdit() != null && match.getTextEdit() != null) {
 			if (expected.getTextEdit().getNewText() != null) {
-				Assert.assertEquals(expected.getTextEdit().getNewText(), match.getTextEdit().getNewText());
+				assertEquals(expected.getTextEdit().getNewText(), match.getTextEdit().getNewText());
 			}
 			Range r = expected.getTextEdit().getRange();
 			if (r != null && r.getStart() != null && r.getEnd() != null) {
-				Assert.assertEquals(expected.getTextEdit().getRange(), match.getTextEdit().getRange());
+				assertEquals(expected.getTextEdit().getRange(), match.getTextEdit().getRange());
 			}
 		}
 		if (expected.getFilterText() != null && match.getFilterText() != null) {
-			Assert.assertEquals(expected.getFilterText(), match.getFilterText());
+			assertEquals(expected.getFilterText(), match.getFilterText());
 		}
 
 		if (expected.getDocumentation() != null) {
-			Assert.assertEquals(expected.getDocumentation(), match.getDocumentation());
+			assertEquals(expected.getDocumentation(), match.getDocumentation());
 		}
 
 	}
@@ -278,11 +277,11 @@ public class XMLAssert {
 
 		AutoCloseTagResponse response = ls.doTagComplete(htmlDoc, position);
 		if (expected == null) {
-			Assert.assertNull(response);
+			assertNull(response);
 			return;
 		}
 		String actual = response.snippet;
-		Assert.assertEquals(expected, actual);
+		assertEquals(expected, actual);
 	}
 
 	// ------------------- Diagnostics assert
@@ -366,7 +365,7 @@ public class XMLAssert {
 				return simpler;
 			}).collect(Collectors.toList());
 		}
-		Assert.assertEquals("Unexpected diagnostics:\n" + actual, expected, received);
+		assertIterableEquals(expected, received, "Unexpected diagnostics:\n" + actual);
 	}
 
 	public static Diagnostic d(int startLine, int startCharacter, int endLine, int endCharacter, IXMLErrorCode code) {
@@ -417,9 +416,9 @@ public class XMLAssert {
 
 		publishDiagnostics(xmlDocument, actual, xmlLanguageService);
 
-		Assert.assertEquals(expected.length, actual.size());
+		assertEquals(expected.length, actual.size());
 		for (int i = 0; i < expected.length; i++) {
-			Assert.assertEquals(fileURI, actual.get(i).getUri());
+			assertEquals(fileURI, actual.get(i).getUri());
 			assertDiagnostics(actual.get(i).getDiagnostics(), expected[i].getDiagnostics(), false);
 		}
 	}
@@ -522,8 +521,8 @@ public class XMLAssert {
 			}
 		});
 
-		Assert.assertEquals(expected.length, actual.size());
-		Assert.assertArrayEquals(expected, actual.toArray());
+		assertEquals(expected.length, actual.size());
+		assertArrayEquals(expected, actual.toArray());
 	}
 
 	public static CodeAction ca(Diagnostic d, TextEdit... te) {
@@ -582,14 +581,14 @@ public class XMLAssert {
 		hoverSettings.setCapabilities(capabilities);
 		Hover hover = xmlLanguageService.doHover(htmlDoc, position, hoverSettings);
 		if (expectedHoverLabel == null) {
-			Assert.assertNull(hover);
+			assertNull(hover);
 		} else {
 			String actualHoverLabel = getHoverLabel(hover);
-			Assert.assertEquals(expectedHoverLabel, actualHoverLabel);
+			assertEquals(expectedHoverLabel, actualHoverLabel);
 			if (expectedHoverOffset != null) {
-				Assert.assertNotNull(hover.getRange());
-				Assert.assertNotNull(hover.getRange().getStart());
-				Assert.assertEquals(expectedHoverOffset.intValue(), hover.getRange().getStart().getCharacter());
+				assertNotNull(hover.getRange());
+				assertNotNull(hover.getRange().getStart());
+				assertEquals(expectedHoverOffset.intValue(), hover.getRange().getStart().getCharacter());
 			}
 		}
 	}
@@ -627,11 +626,11 @@ public class XMLAssert {
 	}
 
 	public static void assertDocumentLinks(List<DocumentLink> actual, DocumentLink... expected) {
-		Assert.assertEquals(expected.length, actual.size());
+		assertEquals(expected.length, actual.size());
 		for (int i = 0; i < expected.length; i++) {
-			Assert.assertEquals(" Range test '" + i + "' link", expected[i].getRange(), actual.get(i).getRange());
-			Assert.assertEquals(" Target test '" + i + "' link", Paths.get(expected[i].getTarget()).toUri().toString(),
-					actual.get(i).getTarget());
+			assertEquals(expected[i].getRange(), actual.get(i).getRange()," Range test '" + i + "' link");
+			assertEquals(Paths.get(expected[i].getTarget()).toUri().toString(),
+					actual.get(i).getTarget()," Target test '" + i + "' link");
 		}
 	}
 
@@ -665,8 +664,8 @@ public class XMLAssert {
 	}
 
 	public static void assertDocumentSymbols(List<DocumentSymbol> actual, DocumentSymbol... expected) {
-		Assert.assertEquals(expected.length, actual.size());
-		Assert.assertArrayEquals(expected, actual.toArray());
+		assertEquals(expected.length, actual.size());
+		assertArrayEquals(expected, actual.toArray());
 	}
 
 	// ------------------- Definition assert
@@ -704,12 +703,12 @@ public class XMLAssert {
 	}
 
 	public static void assertLocationLink(List<? extends LocationLink> actual, LocationLink... expected) {
-		Assert.assertEquals(expected.length, actual.size());
+		assertEquals(expected.length, actual.size());
 		for (int i = 0; i < expected.length; i++) {
 			actual.get(i).setTargetUri(actual.get(i).getTargetUri().replaceAll("file:///", "file:/"));
 			expected[i].setTargetUri(expected[i].getTargetUri().replaceAll("file:///", "file:/"));
 		}
-		Assert.assertArrayEquals(expected, actual.toArray());
+		assertArrayEquals(expected, actual.toArray());
 	}
 
 	// ------------------- Type Definition assert
@@ -792,8 +791,8 @@ public class XMLAssert {
 	}
 
 	public static void assertLocation(List<? extends Location> actual, Location... expected) {
-		Assert.assertEquals(expected.length, actual.size());
-		Assert.assertArrayEquals(expected, actual.toArray());
+		assertEquals(expected.length, actual.size());
+		assertArrayEquals(expected, actual.toArray());
 	}
 
 	// ------------------- CodeLens assert
@@ -831,16 +830,16 @@ public class XMLAssert {
 	}
 
 	public static void assertCodeLens(List<? extends CodeLens> actual, CodeLens... expected) {
-		Assert.assertEquals(expected.length, actual.size());
+		assertEquals(expected.length, actual.size());
 		for (int i = 0; i < expected.length; i++) {
-			Assert.assertEquals(expected[i].getRange(), actual.get(i).getRange());
+			assertEquals(expected[i].getRange(), actual.get(i).getRange());
 			Command expectedCommand = expected[i].getCommand();
 			Command actualCommand = actual.get(i).getCommand();
 			if (expectedCommand != null && actualCommand != null) {
-				Assert.assertEquals(expectedCommand.getTitle(), actualCommand.getTitle());
-				Assert.assertEquals(expectedCommand.getCommand(), actualCommand.getCommand());
+				assertEquals(expectedCommand.getTitle(), actualCommand.getTitle());
+				assertEquals(expectedCommand.getCommand(), actualCommand.getCommand());
 			}
-			Assert.assertEquals(expected[i].getData(), actual.get(i).getData());
+			assertEquals(expected[i].getData(), actual.get(i).getData());
 		}
 	}
 
@@ -876,8 +875,8 @@ public class XMLAssert {
 
 	public static void assertDocumentHighlight(List<? extends DocumentHighlight> actual,
 			DocumentHighlight... expected) {
-		Assert.assertEquals(expected.length, actual.size());
-		Assert.assertArrayEquals(expected, actual.toArray());
+		assertEquals(expected.length, actual.size());
+		assertArrayEquals(expected, actual.toArray());
 	}
 
 	public static DocumentHighlight hl(Range range) {
@@ -899,14 +898,14 @@ public class XMLAssert {
 
 		XMLLanguageService languageService = new XMLLanguageService();
 		List<DocumentHighlight> highlights = languageService.findDocumentHighlights(document, position);
-		Assert.assertEquals(expectedMatches.length, highlights.size());
+		assertEquals(expectedMatches.length, highlights.size());
 		for (int i = 0; i < highlights.size(); i++) {
 			DocumentHighlight highlight = highlights.get(i);
 			int actualStartOffset = document.offsetAt(highlight.getRange().getStart());
-			Assert.assertEquals(expectedMatches[i], actualStartOffset);
+			assertEquals(expectedMatches[i], actualStartOffset);
 			int actualEndOffset = document.offsetAt(highlight.getRange().getEnd());
-			Assert.assertEquals(expectedMatches[i] + (elementName != null ? elementName.length() : 0), actualEndOffset);
-			Assert.assertEquals(elementName,
+			assertEquals(expectedMatches[i] + (elementName != null ? elementName.length() : 0), actualEndOffset);
+			assertEquals(elementName,
 					document.getText().substring(actualStartOffset, actualEndOffset).toLowerCase());
 		}
 	}
@@ -929,6 +928,6 @@ public class XMLAssert {
 		XMLLanguageService languageService = new XMLLanguageService();
 		WorkspaceEdit workspaceEdit = languageService.doRename(document, position, newText);
 		List<TextEdit> actualEdits = workspaceEdit.getChanges().get("test://test/test.html");
-		Assert.assertArrayEquals(expectedEdits.toArray(), actualEdits.toArray());
+		assertArrayEquals(expectedEdits.toArray(), actualEdits.toArray());
 	}
 }

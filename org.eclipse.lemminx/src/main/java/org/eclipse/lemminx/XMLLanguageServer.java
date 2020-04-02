@@ -55,7 +55,6 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.services.LanguageClient;
-import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
 
@@ -64,7 +63,7 @@ import org.eclipse.lsp4j.services.WorkspaceService;
  *
  */
 public class XMLLanguageServer
-		implements LanguageServer, ProcessLanguageServer, XMLCustomService, IXMLDocumentProvider {
+		implements ProcessLanguageServer, XMLCustomService, IXMLDocumentProvider {
 
 	private static final Logger LOGGER = Logger.getLogger(XMLLanguageServer.class.getName());
 

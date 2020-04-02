@@ -15,12 +15,11 @@ package org.eclipse.lemminx.utils;
 import static org.eclipse.lemminx.utils.StringUtils.getOffsetAfterWhitespace;
 import static org.eclipse.lemminx.utils.StringUtils.isTagOutsideOfBackticks;
 import static org.eclipse.lemminx.utils.StringUtils.trimNewLines;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * {@link StringUtils} tests.
@@ -90,11 +89,11 @@ public class StringUtilsTest {
 
 		int offset = 10;
 		int startOffset = StringUtils.findExprBeforeAt(content, expr, offset);
-		Assert.assertEquals(3, startOffset);
+		assertEquals(3, startOffset);
 		
 		offset = 9;
 		startOffset = StringUtils.findExprBeforeAt(content, expr, offset);
-		Assert.assertEquals(3, startOffset);
+		assertEquals(3, startOffset);
 	}
 
 	@Test
@@ -110,6 +109,6 @@ public class StringUtilsTest {
 
 	private static void assertTrimNewLines(String valueToTrim, String expected) {
 		String actual = trimNewLines(valueToTrim);
-		Assert.assertEquals(expected, actual);
+		assertEquals(expected, actual);
 	}
 }

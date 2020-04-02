@@ -19,7 +19,7 @@ import java.nio.file.Paths;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lsp4j.LocationLink;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * XSD definition tests.

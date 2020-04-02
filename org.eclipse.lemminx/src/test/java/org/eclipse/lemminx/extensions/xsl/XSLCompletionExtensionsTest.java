@@ -18,7 +18,7 @@ import static org.eclipse.lemminx.XMLAssert.te;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lsp4j.CompletionItem;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * XSL completion tests which test the {@link XSLURIResolverExtension}.
