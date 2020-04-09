@@ -122,6 +122,14 @@ public interface CMElementDeclaration {
 	Collection<String> getEnumerationValues();
 
 	/**
+	 * Returns the documentation for the given enumeration value and null otherwise.
+	 * 
+	 * @param value the enumeration value.
+	 * @return the documentation for the given enumeration value and null otherwise.
+	 */
+	String getValueDocumentation(String value);
+
+	/**
 	 * Returns the owner document URI where the element is declared.
 	 * 
 	 * @return the owner document URI where the element is declared.

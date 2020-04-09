@@ -13,6 +13,7 @@
 package org.eclipse.lemminx.extensions.contentmodel;
 
 import static org.eclipse.lemminx.XMLAssert.c;
+import static org.eclipse.lemminx.XMLAssert.r;
 import static org.eclipse.lemminx.XMLAssert.te;
 
 import java.io.IOException;
@@ -220,7 +221,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				"    <View><Name /><|";
 		// Completion only with Name
 		XMLAssert.testCompletionFor(xml, null, "src/test/resources/Format.xml", 5 + 2 /* CDATA and Comments */,
-				c("OutOfBand", "<OutOfBand></OutOfBand>"), c("ViewSelectedBy", "<ViewSelectedBy></ViewSelectedBy>"),
+				c("OutOfBand", "<OutOfBand>false</OutOfBand>"), c("ViewSelectedBy", "<ViewSelectedBy></ViewSelectedBy>"),
 				c("End with '</Configuration>'", "/Configuration>"),
 				c("End with '</ViewDefinitions>'", "/ViewDefinitions>"), c("End with '</View>'", "/View>"));
 	}
@@ -273,6 +274,47 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				"  </payments>";
 		XMLAssert.testCompletionFor(xml, null, "src/test/resources/invoice.xml", null, c("credit", "credit"),
 				c("debit", "debit"), c("cash", "cash"));
+	}
+
+	@Test
+	public void completionOnTextWithEnumeration() throws BadLocationException {
+		String xml = "<team xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"team_namespace\" xsi:schemaLocation=\"team_namespace xsd/team.xsd\">\r\n"
+				+ //
+				"	<member>\r\n" + //
+				"		<skills>\r\n" + //
+				"			|\r\n" + //
+				"		</skills>";
+		// Completion on skills Text node
+		// - without snippet
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/team.xml", null,
+				c("skill", "<skill>Java</skill>", r(3, 3, 3, 3), "skill"));
+		// - with snippet
+		testCompletionSnippetSupporytFor(xml, "src/test/resources/team.xml", null,
+				c("skill", "<skill>${1|Java,Node,XML|}$2</skill>$0", r(3, 3, 3, 3), "skill"));
+
+		xml = "<team xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"team_namespace\" xsi:schemaLocation=\"team_namespace xsd/team.xsd\">\r\n"
+				+ //
+				"	<member>\r\n" + //
+				"		<skills>\r\n" + //
+				"			<skill>|</skill>\r\n" + //
+				"		</skills>";
+		// Completion on skill Text node
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/team.xml", null, //
+				c("Java", "Java", r(3, 10, 3, 10), "Java"), //
+				c("Node", "Node", r(3, 10, 3, 10), "Node"), //
+				c("XML", "XML", r(3, 10, 3, 10), "XML"));
+
+		xml = "<team xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"team_namespace\" xsi:schemaLocation=\"team_namespace xsd/team.xsd\">\r\n"
+				+ //
+				"	<member>\r\n" + //
+				"		<skills>\r\n" + //
+				"			<skill> |</skill>\r\n" + //
+				"		</skills>";
+		// Completion on skill Text node
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/team.xml", null, //
+				c("Java", "Java", r(3, 10, 3, 11), " Java"), //
+				c("Node", "Node", r(3, 10, 3, 11), " Node"), //
+				c("XML", "XML", r(3, 10, 3, 11), " XML"));
 	}
 
 	@Test
@@ -1018,5 +1060,17 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 		completionSettings.setCapabilities(completionCapabilities);
 		XMLAssert.testCompletionFor(new XMLLanguageService(), xml, "src/test/resources/catalogs/catalog.xml", null,
 				null, null, completionSettings, expectedItems);
+	}
+
+	private void testCompletionSnippetSupporytFor(String xml, String fileURI, Integer expectedCount,
+			CompletionItem... expectedItems) throws BadLocationException {
+		XMLCompletionSettings completionSettings = new XMLCompletionSettings();
+		CompletionCapabilities completionCapabilities = new CompletionCapabilities();
+		CompletionItemCapabilities completionItem = new CompletionItemCapabilities(true);
+		completionItem.setDocumentationFormat(Arrays.asList(MarkupKind.MARKDOWN));
+		completionCapabilities.setCompletionItem(completionItem);
+		completionSettings.setCapabilities(completionCapabilities);
+		XMLAssert.testCompletionFor(new XMLLanguageService(), xml, null, null, fileURI, null, completionSettings,
+				expectedItems);
 	}
 }

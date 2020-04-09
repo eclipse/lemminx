@@ -454,7 +454,7 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 			// - fCTLocators array of locator
 			// - fComplexTypeDecls array of XSComplexTypeDecl
 
-			// As it's not an API, we must use Java Reflection to get thoses 2 arrays
+			// As it's not an API, we must use Java Reflection to get those 2 arrays
 			Field f = SchemaGrammar.class.getDeclaredField("fCTLocators");
 			f.setAccessible(true);
 			SimpleLocator[] fCTLocators = (SimpleLocator[]) f.get(grammar);

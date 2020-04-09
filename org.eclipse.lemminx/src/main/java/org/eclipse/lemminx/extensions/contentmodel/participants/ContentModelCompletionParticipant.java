@@ -1,5 +1,5 @@
 /**
- *  Copyright (c) 2018 Angelo ZERR
+ *  Copyright (c) 2018-2020 Angelo ZERR
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v2.0
  *  which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@
 package org.eclipse.lemminx.extensions.contentmodel.participants;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -35,6 +36,7 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.MarkupContent;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.w3c.dom.Document;
@@ -334,4 +336,46 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 		}
 	}
 
+	@Override
+	public void onXMLContent(ICompletionRequest request, ICompletionResponse response) throws Exception {
+		try {
+			ContentModelManager contentModelManager = request.getComponent(ContentModelManager.class);
+			DOMElement parentElement = request.getParentElement();
+			if (parentElement != null) {
+				CMElementDeclaration elementDeclaration = contentModelManager.findCMElement(parentElement);
+				Collection<String> values = elementDeclaration != null ? elementDeclaration.getEnumerationValues()
+						: Collections.emptyList();
+				if (!values.isEmpty()) {
+					// Completion for xs:enumeration inside Element Text node
+					DOMDocument document = parentElement.getOwnerDocument();
+					int startOffset = parentElement.getStartTagCloseOffset() + 1;
+					Position start = parentElement.getOwnerDocument().positionAt(startOffset);
+					Position end = request.getPosition();
+					int endOffset = parentElement.getEndTagOpenOffset();
+					if (endOffset > 0) {
+						end = document.positionAt(endOffset);
+					}
+					int completionOffset = request.getOffset();
+					String tokenStart = StringUtils.getWhitespaces(document.getText(), startOffset,
+							completionOffset);
+					Range fullRange = new Range(start, end);
+					values.forEach(value -> {
+						CompletionItem item = new CompletionItem();
+						item.setLabel(value);
+						String insertText = value; // request.getInsertAttrValue(value);
+						item.setLabel(value);
+						item.setKind(CompletionItemKind.Value);
+						item.setFilterText(tokenStart + insertText);
+						item.setTextEdit(new TextEdit(fullRange, insertText));
+						MarkupContent documentation = XMLGenerator.createMarkupContent(elementDeclaration, value,
+								request);
+						item.setDocumentation(documentation);
+						response.addCompletionItem(item);
+					});
+				}
+			}
+		} catch (CacheResourceDownloadingException e) {
+			// XML Schema, DTD is loading, ignore this error
+		}
+	}
 }

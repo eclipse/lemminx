@@ -99,10 +99,21 @@ public class StringUtils {
 	 * @return the start whitespaces of the given line text.
 	 */
 	public static String getStartWhitespaces(String lineText) {
+		return getWhitespaces(lineText, 0, lineText.length());
+	}
+
+	/**
+	 * Returns the whitespaces from the given range start/end of the given text.
+	 * 
+	 * @param start the range start
+	 * @param end   the range end
+	 * @param text  the text
+	 * @return the whitespaces from the given range start/end of the given text.
+	 */
+	public static String getWhitespaces(String text, int start, int end) {
 		StringBuilder whitespaces = new StringBuilder();
-		char[] chars = lineText.toCharArray();
-		for (int i = 0; i < chars.length; i++) {
-			char c = chars[i];
+		for (int i = start; i < end; i++) {
+			char c = text.charAt(i);
 			if (Character.isWhitespace(c)) {
 				whitespaces.append(c);
 			} else {
@@ -266,11 +277,10 @@ public class StringUtils {
 	}
 
 	/**
-	 * Returns the number of consecutive whitespace characters in front
-	 * of text 
+	 * Returns the number of consecutive whitespace characters in front of text
+	 * 
 	 * @param text String of interest
-	 * @return the number of consecutive whitespace characters in front
-	 * of text 
+	 * @return the number of consecutive whitespace characters in front of text
 	 */
 	public static int getFrontWhitespaceLength(String text) {
 
@@ -287,14 +297,13 @@ public class StringUtils {
 	}
 
 	/**
-	 * Returns the number of consecutive whitespace characters from
-	 * the end of text
+	 * Returns the number of consecutive whitespace characters from the end of text
+	 * 
 	 * @param text String of interest
-	 * @return the number of consecutive whitespace characters from
-	 * the end of text
+	 * @return the number of consecutive whitespace characters from the end of text
 	 */
 	public static int getTrailingWhitespaceLength(String text) {
-		
+
 		if (StringUtils.isWhitespace(text)) {
 			return text.length();
 		}
@@ -397,7 +406,7 @@ public class StringUtils {
 	}
 
 	public static String getString(Object obj) {
-		if(obj != null) {
+		if (obj != null) {
 			return obj.toString();
 		}
 		return null;

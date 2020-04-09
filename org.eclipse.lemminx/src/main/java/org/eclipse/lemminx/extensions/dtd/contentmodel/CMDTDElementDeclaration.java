@@ -14,6 +14,7 @@ package org.eclipse.lemminx.extensions.dtd.contentmodel;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -128,6 +129,11 @@ public class CMDTDElementDeclaration extends XMLElementDecl implements CMElement
 
 	@Override
 	public Collection<String> getEnumerationValues() {
+		return Collections.emptyList();
+	}
+
+	@Override
+	public String getValueDocumentation(String textContent) {
 		return null;
 	}
 

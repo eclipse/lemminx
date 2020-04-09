@@ -1,5 +1,5 @@
 /**
- *  Copyright (c) 2018 Angelo ZERR
+ *  Copyright (c) 2018-2020 Angelo ZERR
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v2.0
  *  which accompanies this distribution, and is available at
@@ -21,8 +21,8 @@ import org.eclipse.lemminx.extensions.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lemminx.settings.XMLFormattingOptions;
 import org.eclipse.lemminx.utils.MarkupContentFactory;
-import org.eclipse.lemminx.utils.XMLBuilder;
 import org.eclipse.lemminx.utils.MarkupContentFactory.IMarkupKindSupport;
+import org.eclipse.lemminx.utils.XMLBuilder;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.MarkupKind;
 
@@ -124,6 +124,20 @@ public class XMLGenerator {
 			xml.selfCloseElement();
 		} else {
 			xml.closeStartElement();
+			Collection<String> values = elementDeclaration.getEnumerationValues();
+			if (!values.isEmpty()) {
+				// The Element Text node has xs:enumeration.
+				if (canSupportSnippets) {
+					// Generate LSP choice.
+					// Ex : <skill>${1|Java,Node,XML|}$2</skill>$0"
+					snippetIndex++;
+					xml.addContent(SnippetsBuilder.choice(snippetIndex, values));
+				} else {
+					// Generate the first item
+					// Ex : <skill>Java</skill>"
+					xml.addContent(values.iterator().next());
+				}
+			}
 			if (canSupportSnippets) {
 				snippetIndex++;
 				xml.addContent(SnippetsBuilder.tabstops(snippetIndex));
@@ -318,6 +332,25 @@ public class XMLGenerator {
 			CMElementDeclaration ownerElement, IMarkupKindSupport support) {
 		String documentation = XMLGenerator.generateDocumentation(cmAttribute.getValueDocumentation(attributeValue),
 				ownerElement.getDocumentURI(), support.canSupportMarkupKind(MarkupKind.MARKDOWN));
+		if (documentation != null) {
+			return MarkupContentFactory.createMarkupContent(documentation, MarkupKind.MARKDOWN, support);
+		}
+		return null;
+	}
+
+	/**
+	 * Returns a markup content for element text documentation and null otherwise.
+	 * 
+	 * @param cmElement   element declaration.
+	 * @param textContent the text content.
+	 * @param support     markup kind support.
+	 * 
+	 * @return a markup content for element text documentation and null otherwise.
+	 */
+	public static MarkupContent createMarkupContent(CMElementDeclaration cmElement, String textContent,
+			IMarkupKindSupport support) {
+		String documentation = XMLGenerator.generateDocumentation(cmElement.getValueDocumentation(textContent),
+				cmElement.getDocumentURI(), support.canSupportMarkupKind(MarkupKind.MARKDOWN));
 		if (documentation != null) {
 			return MarkupContentFactory.createMarkupContent(documentation, MarkupKind.MARKDOWN, support);
 		}

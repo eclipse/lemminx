@@ -160,8 +160,11 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 	}
 
 	private CMElementDeclaration findElementDeclaration(String tag, String namespace) {
+		if (tag == null) {
+			return null;
+		}
 		for (CMElementDeclaration cmElement : getElements()) {
-			if (cmElement.getName().equals(tag)) {
+			if (tag.equals(cmElement.getName())) {
 				return cmElement;
 			}
 		}
