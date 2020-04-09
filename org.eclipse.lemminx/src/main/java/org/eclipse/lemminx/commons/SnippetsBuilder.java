@@ -46,9 +46,25 @@ public class SnippetsBuilder {
 	}
 
 	/**
+	 * Returns the LSP choices snippets content.
 	 * 
-	 * @param index
-	 * @param values
+	 * @param index the snippet index.
+	 * @param values the values for the choice.
+	 * @return the LSP choices snippets content.
+	 * 
+	 * @see https://github.com/Microsoft/language-server-protocol/blob/master/snippetSyntax.md#choice
+	 */
+	public static String choice(int index, Collection<String> values) {
+		StringBuilder snippets = new StringBuilder();
+		choice(index, values, snippets);
+		return snippets.toString();
+	}
+
+	/**
+	 * Add LSP choices snippets in the given snippets content.
+	 * 
+	 * @param index the snippet index.
+	 * @param values the values for the choice.
 	 * @return
 	 * 
 	 * @see https://github.com/Microsoft/language-server-protocol/blob/master/snippetSyntax.md#choice
