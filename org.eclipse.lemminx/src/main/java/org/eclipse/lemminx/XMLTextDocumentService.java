@@ -70,9 +70,12 @@ import org.eclipse.lsp4j.FoldingRangeRequestParams;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
+import org.eclipse.lsp4j.MessageParams;
+import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameParams;
+import org.eclipse.lsp4j.SymbolCapabilities;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
@@ -206,29 +209,38 @@ public class XMLTextDocumentService implements TextDocumentService {
 			DocumentSymbolParams params) {
 
 		TextDocument document = getDocument(params.getTextDocument().getUri());
+		XMLSymbolSettings symbolSettings = sharedSettings.getSymbolSettings();
 
-		if (!sharedSettings.getSymbolSettings().isEnabled()
-				|| sharedSettings.getSymbolSettings().isExcluded(document.getUri())) {
+		if (!symbolSettings.isEnabled()
+				|| symbolSettings.isExcluded(document.getUri())) {
 			return CompletableFuture.completedFuture(Collections.emptyList());
 		}
 
 		return computeDOMAsync(params.getTextDocument(), (cancelChecker, xmlDocument) -> {
-			if (hierarchicalDocumentSymbolSupport) {
-				return getXMLLanguageService().findDocumentSymbols(xmlDocument, cancelChecker) //
-						.stream() //
-						.map(s -> {
-							Either<SymbolInformation, DocumentSymbol> e = Either.forRight(s);
-							return e;
-						}) //
-						.collect(Collectors.toList());
-			}
-			return getXMLLanguageService().findSymbolInformations(xmlDocument, cancelChecker) //
+			// if (hierarchicalDocumentSymbolSupport) {
+			// 	return getXMLLanguageService().findDocumentSymbols(xmlDocument, symbolSettings, cancelChecker) //
+			// 			.stream() //
+			// 			.map(s -> {
+			// 				Either<SymbolInformation, DocumentSymbol> e = Either.forRight(s);
+			// 				return e;
+			// 			}) //
+			// 			.collect(Collectors.toList());
+			// }
+			List<Either<SymbolInformation, DocumentSymbol>> symbolInfo =  getXMLLanguageService().findSymbolInformations(xmlDocument, symbolSettings, cancelChecker) //
 					.stream() //
 					.map(s -> {
 						Either<SymbolInformation, DocumentSymbol> e = Either.forLeft(s);
 						return e;
 					}) //
 					.collect(Collectors.toList());
+			int maxItems = symbolSettings.getMaxItemsComputed();
+			if (symbolInfo.size() > maxItems) {
+				String message = xmlDocument.getLocalName() +
+						": For performance reasons, document symbols have been limited to " + maxItems + " items. ";
+				xmlLanguageServer.getLanguageClient().showMessage(new MessageParams(MessageType.Warning, message));
+				return symbolInfo.stream().limit(maxItems).collect(Collectors.toList());
+			}
+			return symbolInfo;
 		});
 	}
 
@@ -453,6 +465,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 		if (newPatterns != null) {
 			symbolSettings.setExcluded(newPatterns);
 		}
+		symbolSettings.setMaxItemsComputed(newSettings.getMaxItemsComputed());
 	}
 
 	public void updateCodeLensSettings(XMLCodeLensSettings newSettings) {

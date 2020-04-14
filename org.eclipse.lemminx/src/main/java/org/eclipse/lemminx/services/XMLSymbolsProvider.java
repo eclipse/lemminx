@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,6 +28,7 @@ import org.eclipse.lemminx.dom.DTDDeclParameter;
 import org.eclipse.lemminx.dom.DTDElementDecl;
 import org.eclipse.lemminx.dom.DTDNotationDecl;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lemminx.settings.XMLSymbolSettings;
 import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
@@ -34,6 +36,9 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.SymbolKind;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
+import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
+import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.Element;
 import org.w3c.dom.ProcessingInstruction;
@@ -42,6 +47,7 @@ import org.w3c.dom.ProcessingInstruction;
  * XML symbol provider.
  *
  */
+@JsonSegment("xml")
 class XMLSymbolsProvider {
 
 	private static final Logger LOGGER = Logger.getLogger(XMLSymbolsProvider.class.getName());
@@ -51,12 +57,12 @@ class XMLSymbolsProvider {
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
-	public List<SymbolInformation> findSymbolInformations(DOMDocument xmlDocument, CancelChecker cancelChecker) {
+	public List<SymbolInformation> findSymbolInformations(DOMDocument xmlDocument, XMLSymbolSettings symbolSettings, CancelChecker cancelChecker) {
 		List<SymbolInformation> symbols = new ArrayList<>();
 		boolean isDTD = xmlDocument.isDTD();
 		for (DOMNode node : xmlDocument.getRoots()) {
 			try {
-				findSymbolInformations(node, "", symbols, (node.isDoctype() && isDTD), cancelChecker);
+				findSymbolInformations(node, "", symbols, (node.isDoctype() && isDTD), symbolSettings.getMaxItemsComputed(), cancelChecker);
 			} catch (BadLocationException e) {
 				LOGGER.log(Level.SEVERE,
 						"XMLSymbolsProvider#findSymbolInformations was given a BadLocation by a 'node' variable", e);
@@ -69,7 +75,7 @@ class XMLSymbolsProvider {
 		return symbols;
 	}
 
-	public List<DocumentSymbol> findDocumentSymbols(DOMDocument xmlDocument, CancelChecker cancelChecker) {
+	public List<DocumentSymbol> findDocumentSymbols(DOMDocument xmlDocument, XMLSymbolSettings symbolSettings, CancelChecker cancelChecker) {
 		List<DocumentSymbol> symbols = new ArrayList<>();
 		boolean isDTD = xmlDocument.isDTD();
 		List<DOMNode> nodesToIgnore = new ArrayList<>();
@@ -158,8 +164,8 @@ class XMLSymbolsProvider {
 	}
 
 	private void findSymbolInformations(DOMNode node, String container, List<SymbolInformation> symbols,
-			boolean ignoreNode, CancelChecker cancelChecker) throws BadLocationException {
-		if (!isNodeSymbol(node)) {
+			boolean ignoreNode, int limit, CancelChecker cancelChecker) throws BadLocationException {
+		if (!isNodeSymbol(node) || symbols.size() > limit) {
 			return;
 		}
 		String name = "";
@@ -169,12 +175,16 @@ class XMLSymbolsProvider {
 			Range range = getSymbolRange(node);
 			Location location = new Location(xmlDocument.getDocumentURI(), range);
 			SymbolInformation symbol = new SymbolInformation(name, getSymbolKind(node), location, container);
+			
 			symbols.add(symbol);
+			if (symbols.size() > limit) {
+				return;
+			}
 		}
 		final String containerName = name;
 		node.getChildren().forEach(child -> {
 			try {
-				findSymbolInformations(child, containerName, symbols, false, cancelChecker);
+				findSymbolInformations(child, containerName, symbols, false, limit, cancelChecker);
 			} catch (BadLocationException e) {
 				LOGGER.log(Level.SEVERE, "XMLSymbolsProvider was given a BadLocation by the provided 'node' variable",
 						e);
