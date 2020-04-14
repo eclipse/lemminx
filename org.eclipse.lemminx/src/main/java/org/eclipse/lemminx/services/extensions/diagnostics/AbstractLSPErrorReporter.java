@@ -89,12 +89,16 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 			return null;
 		}
 
-		if (severity == SEVERITY_FATAL_ERROR && !fContinueAfterFatalError) {
+		if (severity == SEVERITY_FATAL_ERROR && !fContinueAfterFatalError && !isIgnoreFatalError(key)) {
 			XMLParseException parseException = (exception != null) ? new XMLParseException(location, message, exception)
 					: new XMLParseException(location, message);
 			throw parseException;
 		}
 		return message;
+	}
+
+	protected boolean isIgnoreFatalError(String key) {
+		return false;
 	}
 
 	public boolean addDiagnostic(Range adjustedRange, String message, DiagnosticSeverity severity, String key) {

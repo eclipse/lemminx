@@ -205,7 +205,7 @@ public class XMLValidationPoolCacheTest extends BaseFileTempTest {
 	}
 
 	@Test
-	public void dtd() throws IOException {
+	public void dtdELEMENT() throws IOException {
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
 
 		String dtdPath = tempDirUri.getPath() + "/note.dtd";
@@ -240,6 +240,62 @@ public class XMLValidationPoolCacheTest extends BaseFileTempTest {
 		updateFile(dtdPath, dtd);
 		d = d(2, 1, 5, DTDErrorCode.MSG_CONTENT_INCOMPLETE);
 		testDiagnosticsFor(xmlLanguageService, xml, d);
+	}
+
+	@Test
+	public void dtdENTITY() throws IOException {
+		// See https://github.com/redhat-developer/vscode-xml/issues/234
+
+		XMLLanguageService xmlLanguageService = new XMLLanguageService();
+
+		String dtdPath = tempDirUri.getPath() + "/base.dtd";
+		String dtd = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
+				"<!ELEMENT root-element (#PCDATA)>\r\n" + //
+				"<!ENTITY external \"EXTERNALLY DECLARED ENTITY\">"; //
+		createFile(dtdPath, dtd);
+
+		// One error
+		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
+				"<!DOCTYPE root-element SYSTEM \"" + dtdPath + "\" [\r\n" + //
+				"<!ENTITY local \"LOCALLY DECLARED ENTITY\">\r\n" + //
+				"]>\r\n" + //
+				"<root-element>\r\n" + //
+				"&local;\r\n" + //
+				"&external;\r\n" + //
+				"&undeclared;\r\n" + //
+				"</root-element>";
+
+		// First validation (DTD grammar is not in the cache)
+		Diagnostic d1 = d(7, 0, 12, DTDErrorCode.EntityNotDeclared);
+		testDiagnosticsFor(xmlLanguageService, xml, d1);
+
+		// Second validation (DTD grammar is in the cache)
+		testDiagnosticsFor(xmlLanguageService, xml, d1);
+
+		// Update DTD
+		dtd = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
+				"<!ELEMENT root-element (#PCDATA)>\r\n" + //
+				"<!ENTITY undeclared \"undeclared\" >\r\n" + //
+				"<!ENTITY external \"EXTERNALLY DECLARED ENTITY\">"; //
+		updateFile(dtdPath, dtd);
+
+		// First validation with updated DTD (DTD grammar is in the cache)
+		testDiagnosticsFor(xmlLanguageService, xml);
+		// Second validation (DTD grammar is in the cache)
+		testDiagnosticsFor(xmlLanguageService, xml);
+
+		// Remove entity local from the XML
+		xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
+				"<!DOCTYPE root-element SYSTEM \"" + dtdPath + "\" [\r\n" + //
+				// "<!ENTITY local \"LOCALLY DECLARED ENTITY\">\r\n" + //
+				"]>\r\n" + //
+				"<root-element>\r\n" + //
+				"&local;\r\n" + //
+				"&external;\r\n" + //
+				"&undeclared;\r\n" + //
+				"</root-element>";
+		Diagnostic d2 = d(4, 0, 7, DTDErrorCode.EntityNotDeclared);
+		testDiagnosticsFor(xmlLanguageService, xml, d2);
 	}
 
 	private static void testDiagnosticsFor(XMLLanguageService xmlLanguageService, String xml, Diagnostic... expected) {
