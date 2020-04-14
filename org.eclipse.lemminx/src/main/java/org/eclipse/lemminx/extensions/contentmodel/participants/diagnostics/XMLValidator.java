@@ -1,5 +1,5 @@
 /**
- *  Copyright (c) 2018 Angelo ZERR
+ *  Copyright (c) 2018-2020 Angelo ZERR
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v2.0
  *  which accompanies this distribution, and is available at
@@ -14,25 +14,18 @@ package org.eclipse.lemminx.extensions.contentmodel.participants.diagnostics;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.parsers.SAXParser;
-import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.grammars.XMLGrammarPool;
 import org.apache.xerces.xni.parser.XMLEntityResolver;
-import org.apache.xerces.xni.parser.XMLInputSource;
-import org.apache.xerces.xni.parser.XMLParserConfiguration;
-import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMDocumentType;
 import org.eclipse.lemminx.dom.DOMElement;
-import org.eclipse.lemminx.extensions.contentmodel.participants.DTDErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.services.extensions.diagnostics.LSPContentHandler;
@@ -57,8 +50,6 @@ public class XMLValidator {
 
 	private static final Logger LOGGER = Logger.getLogger(XMLValidator.class.getName());
 
-	private static final String DTD_NOT_FOUND = "Cannot find DTD ''{0}''.\nCreate the DTD file or configure an XML catalog for this DTD.";
-
 	public static void doDiagnostics(DOMDocument document, XMLEntityResolver entityResolver,
 			List<Diagnostic> diagnostics, ContentModelSettings contentModelSettings, XMLGrammarPool grammarPool,
 			CancelChecker monitor) {
@@ -74,14 +65,9 @@ public class XMLValidator {
 			}
 
 			final LSPErrorReporterForXML reporter = new LSPErrorReporterForXML(document, diagnostics);
-			boolean externalDTDValid = checkExternalDTD(document, reporter, configuration);
-			SAXParser parser = new SAXParser(configuration);
-			// Add LSP error reporter to fill LSP diagnostics from Xerces errors
-			parser.setProperty("http://apache.org/xml/properties/internal/error-reporter", reporter);
-			parser.setFeature("http://apache.org/xml/features/continue-after-fatal-error", false); //$NON-NLS-1$
-			parser.setFeature("http://xml.org/sax/features/namespace-prefixes", true /* document.hasNamespaces() */); //$NON-NLS-1$
-			parser.setFeature("http://xml.org/sax/features/namespaces", true /* document.hasNamespaces() */); //$NON-NLS-1$
 
+			SAXParser parser = new LSPSAXParser(document, reporter, configuration, grammarPool);
+			
 			// Add LSP content handler to stop XML parsing if monitor is canceled.
 			parser.setContentHandler(new LSPContentHandler(monitor));
 
@@ -99,9 +85,7 @@ public class XMLValidator {
 			} else {
 				hasGrammar = false; // validation for Schema was disabled
 			}
-
-			parser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", externalDTDValid);
-			parser.setFeature("http://xml.org/sax/features/validation", hasGrammar && externalDTDValid); //$NON-NLS-1$
+			parser.setFeature("http://xml.org/sax/features/validation", hasGrammar); //$NON-NLS-1$
 
 			// Parse XML
 			String content = document.getText();
@@ -146,81 +130,6 @@ public class XMLValidator {
 		}
 		// Disable the DTD validation only if there are not <!ELEMENT or an <!ATTRLIST
 		return !docType.getChildren().stream().anyMatch(node -> node.isDTDElementDecl() || node.isDTDAttListDecl());
-	}
-
-	/**
-	 * Returns true if the given document has a valid DTD (or doesn't define a DTD)
-	 * and false otherwise.
-	 * 
-	 * @param document      the DOM document
-	 * @param reporter      the reporter
-	 * @param configuration the configuration
-	 * @return true if the given document has a valid DTD (or doesn't define a DTD)
-	 *         and false otherwise.
-	 */
-	private static boolean checkExternalDTD(DOMDocument document, LSPErrorReporterForXML reporter,
-			XMLParserConfiguration configuration) {
-		if (!document.hasDTD()) {
-			return true;
-		}
-		DOMDocumentType docType = document.getDoctype();
-		if (docType.getKindNode() == null) {
-			return true;
-		}
-
-		// When XML is bound with a DTD path which doesn't exist, Xerces throws an
-		// IOException which breaks the validation of XML syntax instead of reporting it
-		// (like XML Schema). Here we parse only the
-		// DOCTYPE to catch this error. If there is an error
-		// the next validation with be disabled by using
-		// http://xml.org/sax/features/validation &
-		// http://apache.org/xml/features/nonvalidating/load-external-dtd (disable uses
-		// of DTD for validation)
-
-		// Parse only the DOCTYPE of the DOM document
-
-		int end = document.getDoctype().getEnd();
-		String xml = document.getText().substring(0, end);
-		xml += "<root/>";
-		try {
-
-			// Customize the entity manager to collect the error when DTD doesn't exist.
-			XMLEntityManager entityManager = new XMLEntityManager() {
-				@Override
-				public String setupCurrentEntity(String name, XMLInputSource xmlInputSource, boolean literal,
-						boolean isExternal) throws IOException, XNIException {
-					// Catch the setupCurrentEntity method which throws an IOException when DTD is
-					// not found
-					try {
-						return super.setupCurrentEntity(name, xmlInputSource, literal, isExternal);
-					} catch (IOException e) {
-						// Report the DTD invalid error
-						try {
-							Range range = new Range(document.positionAt(docType.getSystemIdNode().getStart()),
-									document.positionAt(docType.getSystemIdNode().getEnd()));
-							reporter.addDiagnostic(range,
-									MessageFormat.format(DTD_NOT_FOUND, xmlInputSource.getSystemId()),
-									DiagnosticSeverity.Error, DTDErrorCode.dtd_not_found.getCode());
-						} catch (BadLocationException e1) {
-							// Do nothing
-						}
-						throw e;
-					}
-				}
-			};
-			entityManager.reset(configuration);
-
-			SAXParser parser = new SAXParser(configuration);
-			parser.setProperty("http://apache.org/xml/properties/internal/entity-manager", entityManager);
-			parser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", true);
-
-			parseXML(xml, document.getDocumentURI(), parser);
-		} catch (SAXException | CancellationException exception) {
-			// ignore error
-		} catch (IOException e) {
-			return false;
-		}
-		return true;
 	}
 
 	/**
