@@ -122,7 +122,7 @@ public enum DTDErrorCode implements IXMLErrorCode {
 			return XMLPositionUtility.selectStartTagName(offset, document);
 		}
 		case MSG_ATTRIBUTE_NOT_DECLARED: {
-			return XMLPositionUtility.selectAttributeValueAt(getString(arguments[1]), offset, document);
+			return XMLPositionUtility.selectAttributeNameFromGivenNameAt(getString(arguments[1]), offset, document);
 		}
 		case MSG_FIXED_ATTVALUE_INVALID: {
 			String attrName = getString(arguments[1]);

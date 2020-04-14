@@ -74,7 +74,7 @@ public class DTDDiagnosticsTest {
 				"    <heading>Reminder</heading>\r\n" + //
 				"    <body>Don't forget me this weekend</body>\r\n" + //
 				"</note> ";
-		XMLAssert.testDiagnosticsFor(xml, d(10, 15, 17, DTDErrorCode.MSG_ATTRIBUTE_NOT_DECLARED));
+		XMLAssert.testDiagnosticsFor(xml, d(10, 10, 14, DTDErrorCode.MSG_ATTRIBUTE_NOT_DECLARED));
 	}
 
 	@Test
