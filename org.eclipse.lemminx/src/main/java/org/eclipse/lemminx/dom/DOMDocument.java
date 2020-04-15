@@ -14,6 +14,7 @@
  * Contributors:
  *  - Microsoft Corporation: Initial code, written in TypeScript, licensed under MIT license
  *  - Angelo Zerr <angelo.zerr@gmail.com> - translation and adaptation to Java
+ *  - Balduin Landolt <balduin.landolt@hotmail.com> - xml-model integration
  */
 package org.eclipse.lemminx.dom;
 
@@ -21,6 +22,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -42,7 +44,9 @@ import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.EntityReference;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.ProcessingInstruction;
 
 /**
  * XML document.
@@ -50,6 +54,7 @@ import org.w3c.dom.NodeList;
  */
 public class DOMDocument extends DOMNode implements Document {
 
+	private XMLModel xmlModel;
 	private SchemaLocation schemaLocation;
 	private NoNamespaceSchemaLocation noNamespaceSchemaLocation;
 	private boolean referencedExternalGrammarInitialized;
@@ -148,8 +153,63 @@ public class DOMDocument extends DOMNode implements Document {
 	 * @return true if the document is bound to a grammar and false otherwise.
 	 */
 	public boolean hasGrammar() {
-		return hasDTD() || hasSchemaLocation() || hasNoNamespaceSchemaLocation() || hasExternalGrammar();
+		return hasDTD() || hasSchemaLocation() || hasNoNamespaceSchemaLocation() || hasExternalGrammar() || hasXMLModel();
 	}
+
+	// -------------------------- Grammar with XML Model Processing Instruction
+
+	/**
+	 * Returns true, if an XML Model processing instruction {@code <?xml-model ...>} is declared, false otherwise.
+	 * 
+	 * @return true, if xml-model is declared; false otherwise.
+	 */
+	public boolean hasXMLModel() {
+		return getXMLModel() != null;
+	}
+
+	/**
+	 * Returns the xml-model {@code <?xml-model ...>}, if one is declared, of null otherwise.
+	 * 
+	 * @return the xml-model or null, i none is declared.
+	 */
+	private DOMNode getXMLModel() {
+		//TODO: make sure this information is stored somewhere
+
+		//initializeReferencedSchemaIfNeeded();
+		//return xmlModel;
+		//TODO: like this or more like dtd?
+
+		//LATER: handle multiple processing instructions
+
+		List<ProcessingInstruction> processingInstructions = getProcessingInstructions();
+		for (ProcessingInstruction pi: processingInstructions){
+			if (pi.getTarget().equals("xml-model")){//TODO: make this string a field
+				return (DOMNode) pi;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Returns a List of processing instructions, if any are declared, null otherwise.
+	 * 
+	 * @return List of processing instructions or null, if none are declared.
+	 */
+	private List<ProcessingInstruction> getProcessingInstructions(){
+		List<ProcessingInstruction> res = new LinkedList<>();
+		List<DOMNode> roots = getRoots();
+		if (roots != null) {
+			for (DOMNode node : roots) {
+				if (node.getNodeType() == Node.PROCESSING_INSTRUCTION_NODE) {
+					res.add((ProcessingInstruction)node);
+				}
+			}
+		}
+		return res.isEmpty() ? null : res;
+	}
+
+	
 
 	// -------------------------- Grammar with XML Schema
 
