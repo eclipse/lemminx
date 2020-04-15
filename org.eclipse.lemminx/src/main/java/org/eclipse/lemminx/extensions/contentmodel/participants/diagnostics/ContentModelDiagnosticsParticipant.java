@@ -37,7 +37,7 @@ public class ContentModelDiagnosticsParticipant implements IDiagnosticsParticipa
 
 	@Override
 	public void doDiagnostics(DOMDocument xmlDocument, List<Diagnostic> diagnostics, CancelChecker monitor) {
-		if (xmlDocument.isDTD() || DOMUtils.isXSD(xmlDocument)) {
+		if (xmlDocument.isDTD() || DOMUtils.isXSD(xmlDocument)) { //TODO: check for .rng aswell
 			// Don't validate DTD / XML Schema with XML validator
 			return;
 		}
