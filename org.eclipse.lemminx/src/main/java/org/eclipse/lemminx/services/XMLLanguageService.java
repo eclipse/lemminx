@@ -114,18 +114,16 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		return highlighting.findDocumentHighlights(xmlDocument, position, cancelChecker);
 	}
 
-	public List<SymbolInformation> findSymbolInformations(DOMDocument xmlDocument) {
-		// TODO get symbol settings from a parameter instead
-		return findSymbolInformations(xmlDocument, new XMLSymbolSettings(), NULL_CHECKER);
+	public List<SymbolInformation> findSymbolInformations(DOMDocument xmlDocument, XMLSymbolSettings symbolSettings) {
+		return findSymbolInformations(xmlDocument, symbolSettings, NULL_CHECKER);
 	}
 
 	public SymbolInformationsResult findSymbolInformations(DOMDocument xmlDocument, XMLSymbolSettings symbolSettings, CancelChecker cancelChecker) {
 		return symbolsProvider.findSymbolInformations(xmlDocument, symbolSettings, cancelChecker);
 	}
 
-	public List<DocumentSymbol> findDocumentSymbols(DOMDocument xmlDocument) {
-		// TODO get symbol settings from a parameter instead
-		return findDocumentSymbols(xmlDocument, new XMLSymbolSettings(), NULL_CHECKER);
+	public List<DocumentSymbol> findDocumentSymbols(DOMDocument xmlDocument, XMLSymbolSettings symbolSettings) {
+		return findDocumentSymbols(xmlDocument, symbolSettings, NULL_CHECKER);
 	}
 
 	public DocumentSymbolsResult findDocumentSymbols(DOMDocument xmlDocument, XMLSymbolSettings symbolSettings, CancelChecker cancelChecker) {

@@ -14,6 +14,7 @@ package org.eclipse.lemminx;
 
 import static org.eclipse.lsp4j.jsonrpc.CompletableFutures.computeAsync;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,7 +29,9 @@ import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.eclipse.lemminx.client.ClientCommands;
 import org.eclipse.lemminx.client.ExtendedClientCapabilities;
+import org.eclipse.lemminx.client.ExtendedSymbolCapabilities;
 import org.eclipse.lemminx.commons.ModelTextDocument;
 import org.eclipse.lemminx.commons.ModelTextDocuments;
 import org.eclipse.lemminx.commons.TextDocument;
@@ -39,6 +42,7 @@ import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSetting
 import org.eclipse.lemminx.services.DocumentSymbolsResult;
 import org.eclipse.lemminx.services.SymbolInformationsResult;
 import org.eclipse.lemminx.services.XMLLanguageService;
+import org.eclipse.lemminx.services.extensions.documentSymbol.SymbolsLimitExceededCommand;
 import org.eclipse.lemminx.services.extensions.save.AbstractSaveContext;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLCodeLensSettings;
@@ -172,6 +176,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 		if (extendedClientCapabilities != null) {
 			// Extended client capabilities
 			sharedSettings.getCodeLensSettings().setCodeLens(extendedClientCapabilities.getCodeLens());
+			sharedSettings.getSymbolSettings().setSymbol(extendedClientCapabilities.getSymbol());
 		}
 	}
 
@@ -218,12 +223,13 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 		return computeDOMAsync(params.getTextDocument(), (cancelChecker, xmlDocument) -> {
 			boolean resultLimitExceeded = false;
-			try {
+			List<Either<SymbolInformation, DocumentSymbol>> symbols = null;
+
 			if (hierarchicalDocumentSymbolSupport) {
 				DocumentSymbolsResult result = getXMLLanguageService().findDocumentSymbols(xmlDocument, symbolSettings,
 						cancelChecker);
 				resultLimitExceeded = result.isResultLimitExceeded();
-				return result //
+				symbols = result //
 						.stream() //
 						.map(s -> {
 							Either<SymbolInformation, DocumentSymbol> e = Either.forRight(s);
@@ -234,20 +240,24 @@ public class XMLTextDocumentService implements TextDocumentService {
 			SymbolInformationsResult result =  getXMLLanguageService()
 					.findSymbolInformations(xmlDocument, symbolSettings, cancelChecker);
 			resultLimitExceeded = result.isResultLimitExceeded();
-			return result.stream() //
+			symbols = result.stream() //
 					.map(s -> {
 						Either<SymbolInformation, DocumentSymbol> e = Either.forLeft(s);
 						return e;
 					}) //
 					.collect(Collectors.toList());
+			
+			if (resultLimitExceeded) {
+				String filename = Paths.get(xmlDocument.getTextDocument().getUri()).getFileName().toString();
+				String message = filename != null ? filename + ": " : "";
+				message += "For performance reasons, document symbols have been limited to " + symbolSettings.getMaxItemsComputed() + " items.";
+				if (symbolSettings.isSymbolsLimitExceededSupported()) {
+					xmlLanguageServer.getLanguageClient().symbolsLimitExceeded(new SymbolsLimitExceededCommand(message));
+				} else {
+					xmlLanguageServer.getLanguageClient().showMessage(new MessageParams(MessageType.Warning, message));
+				}
 			}
-			finally {
-				if (resultLimitExceeded) {
-					String message = xmlDocument.getLocalName()
-							+ ": For performance reasons, document symbols have been limited to " + symbolSettings.getMaxItemsComputed() + " items. ";
-					xmlLanguageServer.getLanguageClient().showMessage(new MessageParams(MessageType.Warning, message));					
-				}	
-			}
+			return symbols;
 		});
 	}
 

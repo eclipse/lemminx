@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.lemminx.XMLLanguageServer;
+import org.eclipse.lemminx.customservice.XMLLanguageClientAPI;
+import org.eclipse.lemminx.services.extensions.documentSymbol.SymbolsLimitExceededCommand;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.FileChangeType;
@@ -157,7 +159,7 @@ public class XMLExternalTest extends BaseFileTempTest  {
 	private static XMLLanguageServer createServer(List<PublishDiagnosticsParams> actualDiagnostics) {
 
 		XMLLanguageServer languageServer = new XMLLanguageServer();
-		LanguageClient client = new LanguageClient() {
+		XMLLanguageClientAPI client = new XMLLanguageClientAPI() {
 
 			@Override
 			public CompletableFuture<MessageActionItem> showMessageRequest(ShowMessageRequestParams requestParams) {
@@ -182,6 +184,11 @@ public class XMLExternalTest extends BaseFileTempTest  {
 			@Override
 			public void telemetryEvent(Object object) {
 
+			}
+
+			@Override
+			public void symbolsLimitExceeded(SymbolsLimitExceededCommand command) {
+				throw new UnsupportedOperationException();
 			}
 		};
 		languageServer.setClient(client);

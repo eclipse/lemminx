@@ -43,6 +43,7 @@ import org.eclipse.lemminx.settings.XMLCodeLensSettings;
 import org.eclipse.lemminx.settings.XMLCompletionSettings;
 import org.eclipse.lemminx.settings.XMLFormattingOptions;
 import org.eclipse.lemminx.settings.XMLHoverSettings;
+import org.eclipse.lemminx.settings.XMLSymbolSettings;
 import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionContext;
@@ -637,10 +638,17 @@ public class XMLAssert {
 	// ------------------- DocumentSymbol assert
 
 	public static void testDocumentSymbolsFor(String xml, DocumentSymbol... expected) {
-		testDocumentSymbolsFor(xml, null, expected);
+		testDocumentSymbolsFor(xml, null, new XMLSymbolSettings(), expected);
+	}
+	public static void testDocumentSymbolsFor(String xml, XMLSymbolSettings symbolSettings, DocumentSymbol... expected) {
+		testDocumentSymbolsFor(xml, null, symbolSettings, expected);
 	}
 
 	public static void testDocumentSymbolsFor(String xml, String fileURI, DocumentSymbol... expected) {
+		testDocumentSymbolsFor(xml, fileURI, new XMLSymbolSettings(), expected);
+	}
+
+	public static void testDocumentSymbolsFor(String xml, String fileURI, XMLSymbolSettings symbolSettings, DocumentSymbol... expected) {
 		TextDocument document = new TextDocument(xml, fileURI != null ? fileURI : "test.xml");
 
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
@@ -653,7 +661,7 @@ public class XMLAssert {
 				xmlLanguageService.getResolverExtensionManager());
 		xmlLanguageService.setDocumentProvider((uri) -> xmlDocument);
 
-		List<DocumentSymbol> actual = xmlLanguageService.findDocumentSymbols(xmlDocument);
+		List<DocumentSymbol> actual = xmlLanguageService.findDocumentSymbols(xmlDocument, symbolSettings);
 		assertDocumentSymbols(actual, expected);
 
 	}

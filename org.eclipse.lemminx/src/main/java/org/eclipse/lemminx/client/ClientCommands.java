@@ -27,4 +27,9 @@ public class ClientCommands {
 	 */
 	public static final String SHOW_REFERENCES = "xml.show.references";
 
+	/**
+	 * Symbols limit exceeded
+	 */
+	public static final String SYMBOLS_LIMIT_EXCEEDED = "xml.symbols.limitExceeded";
+
 }

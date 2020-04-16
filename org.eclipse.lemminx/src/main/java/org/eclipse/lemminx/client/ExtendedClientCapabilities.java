@@ -22,12 +22,22 @@ public class ExtendedClientCapabilities {
 
 	private ExtendedCodeLensCapabilities codeLens;
 
+	private ExtendedSymbolCapabilities symbol;
+
 	public ExtendedCodeLensCapabilities getCodeLens() {
 		return codeLens;
 	}
 
 	public void setCodeLens(ExtendedCodeLensCapabilities codeLens) {
 		this.codeLens = codeLens;
+	}
+
+	public ExtendedSymbolCapabilities getSymbol() {
+		return symbol;
+	}
+
+	public void setSymbol(ExtendedSymbolCapabilities symbol) {
+		this.symbol = symbol;
 	}
 
 }

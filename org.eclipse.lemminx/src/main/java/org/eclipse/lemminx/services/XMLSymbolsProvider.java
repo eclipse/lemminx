@@ -135,8 +135,8 @@ class XMLSymbolsProvider {
 					: Collections.emptyList();
 			DocumentSymbol symbol = new DocumentSymbol(name, getSymbolKind(node), range, selectionRange, null,
 					childrenSymbols);
-			symbols.add(symbol);
 			checkLimit(limit);
+			symbols.add(symbol);
 
 			if (node.isDTDElementDecl() || (nodesToIgnore != null && node.isDTDAttListDecl())) {
 				// In the case of DTD ELEMENT we try to add in the children the DTD ATTLIST
@@ -202,8 +202,8 @@ class XMLSymbolsProvider {
 			Location location = new Location(xmlDocument.getDocumentURI(), range);
 			SymbolInformation symbol = new SymbolInformation(name, getSymbolKind(node), location, container);
 
-			symbols.add(symbol);
 			checkLimit(limit);
+			symbols.add(symbol);
 		}
 		final String containerName = name;
 		node.getChildren().forEach(child -> {

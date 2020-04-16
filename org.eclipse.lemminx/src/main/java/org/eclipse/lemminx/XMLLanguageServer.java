@@ -27,6 +27,7 @@ import org.eclipse.lemminx.client.ExtendedClientCapabilities;
 import org.eclipse.lemminx.commons.ModelTextDocument;
 import org.eclipse.lemminx.commons.ParentProcessWatcher.ProcessLanguageServer;
 import org.eclipse.lemminx.customservice.AutoCloseTagResponse;
+import org.eclipse.lemminx.customservice.XMLLanguageClientAPI;
 import org.eclipse.lemminx.customservice.XMLCustomService;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
@@ -70,7 +71,7 @@ public class XMLLanguageServer
 	private final XMLLanguageService xmlLanguageService;
 	private final XMLTextDocumentService xmlTextDocumentService;
 	private final XMLWorkspaceService xmlWorkspaceService;
-	private LanguageClient languageClient;
+	private XMLLanguageClientAPI languageClient;
 	private final ScheduledExecutorService delayer;
 	private Integer parentProcessId;
 	public XMLCapabilityManager capabilityManager;
@@ -203,11 +204,11 @@ public class XMLLanguageServer
 	}
 
 	public void setClient(LanguageClient languageClient) {
-		this.languageClient = languageClient;
+		this.languageClient = (XMLLanguageClientAPI) languageClient;
 		capabilityManager = new XMLCapabilityManager(this.languageClient, xmlTextDocumentService);
 	}
 
-	public LanguageClient getLanguageClient() {
+	public XMLLanguageClientAPI getLanguageClient() {
 		return languageClient;
 	}
 
