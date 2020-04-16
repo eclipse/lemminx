@@ -401,10 +401,22 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 	@Override
 	public Collection<String> getEnumerationValues() {
 		XSTypeDefinition typeDefinition = elementDeclaration.getTypeDefinition();
-		if (typeDefinition != null && typeDefinition.getTypeCategory() == XSTypeDefinition.SIMPLE_TYPE) {
-			return CMXSDDocument.getEnumerationValues((XSSimpleTypeDefinition) typeDefinition);
+		if (typeDefinition != null) {
+			XSSimpleTypeDefinition simpleDefinition = null;
+			if (typeDefinition.getTypeCategory() == XSTypeDefinition.SIMPLE_TYPE) {
+				simpleDefinition = (XSSimpleTypeDefinition) typeDefinition;
+			} else if (typeDefinition.getTypeCategory() == XSTypeDefinition.COMPLEX_TYPE) {
+				simpleDefinition = ((XSComplexTypeDefinition) typeDefinition).getSimpleType();
+			}
+			return CMXSDDocument.getEnumerationValues(simpleDefinition);
 		}
 		return Collections.emptyList();
+	}
+
+	@Override
+	public String getValueDocumentation(String value) {
+		// FIXME: implement xsd:enumeration for Text node.
+		return null;
 	}
 
 	XSElementDeclaration getElementDeclaration() {
@@ -416,5 +428,4 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 		SchemaGrammar schemaGrammar = document.getOwnerSchemaGrammar(elementDeclaration);
 		return CMXSDDocument.getSchemaURI(schemaGrammar);
 	}
-
 }
