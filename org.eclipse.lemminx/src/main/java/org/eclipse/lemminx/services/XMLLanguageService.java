@@ -119,7 +119,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		return findSymbolInformations(xmlDocument, new XMLSymbolSettings(), NULL_CHECKER);
 	}
 
-	public List<SymbolInformation> findSymbolInformations(DOMDocument xmlDocument, XMLSymbolSettings symbolSettings, CancelChecker cancelChecker) {
+	public SymbolInformationsResult findSymbolInformations(DOMDocument xmlDocument, XMLSymbolSettings symbolSettings, CancelChecker cancelChecker) {
 		return symbolsProvider.findSymbolInformations(xmlDocument, symbolSettings, cancelChecker);
 	}
 
@@ -128,7 +128,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		return findDocumentSymbols(xmlDocument, new XMLSymbolSettings(), NULL_CHECKER);
 	}
 
-	public List<DocumentSymbol> findDocumentSymbols(DOMDocument xmlDocument, XMLSymbolSettings symbolSettings, CancelChecker cancelChecker) {
+	public DocumentSymbolsResult findDocumentSymbols(DOMDocument xmlDocument, XMLSymbolSettings symbolSettings, CancelChecker cancelChecker) {
 		return symbolsProvider.findDocumentSymbols(xmlDocument, symbolSettings, cancelChecker);
 	}
 
