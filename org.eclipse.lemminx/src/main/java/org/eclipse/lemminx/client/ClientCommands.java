@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2019 Red Hat Inc. and others.
+* Copyright (c) 2019-2020 Red Hat Inc. and others.
 * All rights reserved. This program and the accompanying materials
 * which accompanies this distribution, and is available at
 * http://www.eclipse.org/legal/epl-v20.html
@@ -28,8 +28,10 @@ public class ClientCommands {
 	public static final String SHOW_REFERENCES = "xml.show.references";
 
 	/**
-	 * Symbols limit exceeded
+	 * Open settings command
+	 * 
+	 * A <code>String settingId</code> parameter can be optionally provided
 	 */
-	public static final String SYMBOLS_LIMIT_EXCEEDED = "xml.symbols.limitExceeded";
+	public static final String OPEN_SETTINGS = "xml.openSettings";
 
 }

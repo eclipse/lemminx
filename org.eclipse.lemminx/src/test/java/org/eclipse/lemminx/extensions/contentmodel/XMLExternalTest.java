@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.lemminx.XMLLanguageServer;
+import org.eclipse.lemminx.customservice.ActionableNotification;
 import org.eclipse.lemminx.customservice.XMLLanguageClientAPI;
-import org.eclipse.lemminx.services.extensions.documentSymbol.SymbolsLimitExceededCommand;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.FileChangeType;
@@ -32,7 +32,6 @@ import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.ShowMessageRequestParams;
 import org.eclipse.lsp4j.TextDocumentItem;
-import org.eclipse.lsp4j.services.LanguageClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -187,7 +186,7 @@ public class XMLExternalTest extends BaseFileTempTest  {
 			}
 
 			@Override
-			public void symbolsLimitExceeded(SymbolsLimitExceededCommand command) {
+			public void actionableNotification(ActionableNotification notification) {
 				throw new UnsupportedOperationException();
 			}
 		};

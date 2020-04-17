@@ -31,18 +31,17 @@ import java.util.stream.Collectors;
 
 import org.eclipse.lemminx.client.ClientCommands;
 import org.eclipse.lemminx.client.ExtendedClientCapabilities;
-import org.eclipse.lemminx.client.ExtendedSymbolCapabilities;
 import org.eclipse.lemminx.commons.ModelTextDocument;
 import org.eclipse.lemminx.commons.ModelTextDocuments;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.commons.TextDocuments;
+import org.eclipse.lemminx.customservice.ActionableNotification;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMParser;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.services.DocumentSymbolsResult;
 import org.eclipse.lemminx.services.SymbolInformationsResult;
 import org.eclipse.lemminx.services.XMLLanguageService;
-import org.eclipse.lemminx.services.extensions.documentSymbol.SymbolsLimitExceededCommand;
 import org.eclipse.lemminx.services.extensions.save.AbstractSaveContext;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLCodeLensSettings;
@@ -176,7 +175,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 		if (extendedClientCapabilities != null) {
 			// Extended client capabilities
 			sharedSettings.getCodeLensSettings().setCodeLens(extendedClientCapabilities.getCodeLens());
-			sharedSettings.getSymbolSettings().setSymbol(extendedClientCapabilities.getSymbol());
+			sharedSettings.setActionableNotificationSupport(extendedClientCapabilities.isActionableNotificationSupport());
+			sharedSettings.setOpenSettingsCommandSupport(extendedClientCapabilities.isOpenSettingsCommandSupport());
 		}
 	}
 
@@ -251,8 +251,10 @@ public class XMLTextDocumentService implements TextDocumentService {
 				String filename = Paths.get(xmlDocument.getTextDocument().getUri()).getFileName().toString();
 				String message = filename != null ? filename + ": " : "";
 				message += "For performance reasons, document symbols have been limited to " + symbolSettings.getMaxItemsComputed() + " items.";
-				if (symbolSettings.isSymbolsLimitExceededSupported()) {
-					xmlLanguageServer.getLanguageClient().symbolsLimitExceeded(new SymbolsLimitExceededCommand(message));
+				if (sharedSettings.isActionableNotificationSupport() && sharedSettings.isOpenSettingsCommandSupport()) {
+					Command command = new Command("Configure limit", ClientCommands.OPEN_SETTINGS, Collections.singletonList("xml.symbols.maxItemsComputed"));
+					ActionableNotification notification = new ActionableNotification().withSeverity(MessageType.Info).withMessage(message).withCommands(Collections.singletonList(command));
+					xmlLanguageServer.getLanguageClient().actionableNotification(notification);
 				} else {
 					xmlLanguageServer.getLanguageClient().showMessage(new MessageParams(MessageType.Warning, message));
 				}

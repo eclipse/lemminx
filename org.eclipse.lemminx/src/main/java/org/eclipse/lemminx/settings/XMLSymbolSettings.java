@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2019 Red Hat Inc. and others.
+* Copyright (c) 2019-2020 Red Hat Inc. and others.
 * All rights reserved. This program and the accompanying materials
 * which accompanies this distribution, and is available at
 * http://www.eclipse.org/legal/epl-v20.html
@@ -10,8 +10,6 @@
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
 package org.eclipse.lemminx.settings;
-
-import org.eclipse.lemminx.client.ExtendedSymbolCapabilities;
 
 /**
  * XMLSymbolPreferences for Document Symbols
@@ -25,8 +23,6 @@ public class XMLSymbolSettings {
 	private String[] excluded;
 
 	private int maxItemsComputed;
-
-	private ExtendedSymbolCapabilities symbol;
 
 	public XMLExcludedSymbolFile[] getExcludedFiles() {
 		return excludedFiles;
@@ -71,7 +67,6 @@ public class XMLSymbolSettings {
 	 */
 	public boolean isExcluded(String uri) {
 		if (excludedFiles == null) {
-
 			return false;
 		}
 		for (XMLExcludedSymbolFile excludedFile : excludedFiles) {
@@ -88,18 +83,6 @@ public class XMLSymbolSettings {
 
 	public void setMaxItemsComputed(int maxItemsComputed) {
 		this.maxItemsComputed = maxItemsComputed;
-	}
-
-	public boolean isSymbolsLimitExceededSupported() {
-		return symbol.isSymbolsLimitExceededSupported();
-	}
-
-	public ExtendedSymbolCapabilities getSymbol() {
-		return symbol;
-	}
-
-	public void setSymbol(ExtendedSymbolCapabilities symbol) {
-		this.symbol = symbol;
 	}
 
 }

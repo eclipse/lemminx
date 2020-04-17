@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2019 Red Hat Inc. and others.
+* Copyright (c) 2019-2020 Red Hat Inc. and others.
 * All rights reserved. This program and the accompanying materials
 * which accompanies this distribution, and is available at
 * http://www.eclipse.org/legal/epl-v20.html
@@ -26,6 +26,9 @@ public class SharedSettings {
 	private final XMLCodeLensSettings codeLensSettings;
 	private final XMLHoverSettings hoverSettings;
 
+	private boolean actionableNotificationSupport;
+	private boolean openSettingsCommandSupport;
+
 	public SharedSettings() {
 		this.completionSettings = new XMLCompletionSettings();
 		this.foldingSettings = new XMLFoldingSettings();
@@ -34,6 +37,8 @@ public class SharedSettings {
 		this.symbolSettings = new XMLSymbolSettings();
 		this.codeLensSettings = new XMLCodeLensSettings();
 		this.hoverSettings = new XMLHoverSettings();
+		this.actionableNotificationSupport = false;
+		this.openSettingsCommandSupport = false;
 	}
 
 	public XMLCompletionSettings getCompletionSettings() {
@@ -62,6 +67,22 @@ public class SharedSettings {
 
 	public XMLHoverSettings getHoverSettings() {
 		return hoverSettings;
+	}
+
+	public boolean isActionableNotificationSupport() {
+		return actionableNotificationSupport;
+	}
+
+	public void setActionableNotificationSupport(boolean actionableNotificationSupport) {
+		this.actionableNotificationSupport = actionableNotificationSupport;
+	}
+
+	public boolean isOpenSettingsCommandSupport() {
+		return openSettingsCommandSupport;
+	}
+
+	public void setOpenSettingsCommandSupport(boolean openSettingsCommandSupport) {
+		this.openSettingsCommandSupport = openSettingsCommandSupport;
 	}
 
 }

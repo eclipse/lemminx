@@ -103,9 +103,8 @@ public class SettingsTest {
 	"				]\r\n" + 
 	"			}\r\n" + 
 	"		},\r\n" + 
-	"		\"symbol\": {\r\n" + 
-	"			\"symbolsLimitExceededSupported\": true\r\n" + 
-	"		}\r\n" + 
+	"		actionableNotificationSupport: true,\r\n" + 
+	"		openSettingsCommandSupport: true\r\n" + 
 	"	}" + 
 	"}";
 	// @formatter:on
@@ -254,7 +253,7 @@ public class SettingsTest {
 		assertEquals(1, clientCapabilities.getCodeLens().getCodeLensKind().getValueSet().size());
 		assertEquals(CodeLensKind.References,
 				clientCapabilities.getCodeLens().getCodeLensKind().getValueSet().get(0));
-		assertNotNull(clientCapabilities.getSymbol());
-		assertTrue(clientCapabilities.getSymbol().isSymbolsLimitExceededSupported());
+		assertTrue(clientCapabilities.isActionableNotificationSupport());
+		assertTrue(clientCapabilities.isOpenSettingsCommandSupport());
 	}
 }

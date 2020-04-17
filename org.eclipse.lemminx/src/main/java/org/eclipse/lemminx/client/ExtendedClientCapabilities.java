@@ -22,7 +22,9 @@ public class ExtendedClientCapabilities {
 
 	private ExtendedCodeLensCapabilities codeLens;
 
-	private ExtendedSymbolCapabilities symbol;
+	private boolean actionableNotificationSupport;
+
+	private boolean openSettingsCommandSupport;
 
 	public ExtendedCodeLensCapabilities getCodeLens() {
 		return codeLens;
@@ -32,12 +34,20 @@ public class ExtendedClientCapabilities {
 		this.codeLens = codeLens;
 	}
 
-	public ExtendedSymbolCapabilities getSymbol() {
-		return symbol;
+	public boolean isActionableNotificationSupport() {
+		return actionableNotificationSupport;
 	}
 
-	public void setSymbol(ExtendedSymbolCapabilities symbol) {
-		this.symbol = symbol;
+	public void setActionableNotificationSupport(boolean actionableNotificationSupport) {
+		this.actionableNotificationSupport = actionableNotificationSupport;
+	}
+
+	public boolean isOpenSettingsCommandSupport() {
+		return openSettingsCommandSupport;
+	}
+
+	public void setOpenSettingsCommandSupport(boolean openSettingsCommandSupport) {
+		this.openSettingsCommandSupport = openSettingsCommandSupport;
 	}
 
 }
