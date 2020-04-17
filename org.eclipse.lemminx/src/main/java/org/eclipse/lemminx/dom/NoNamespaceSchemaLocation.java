@@ -12,21 +12,15 @@
  */
 package org.eclipse.lemminx.dom;
 
-import org.apache.xerces.impl.XMLEntityManager;
-import org.apache.xerces.util.URI.MalformedURIException;
-
 /**
  * 
  * The declared "xsi:noNamespaceSchemaLocation"
  */
 public class NoNamespaceSchemaLocation {
 
-	private final String documentURI;
-
 	private final DOMAttr attr;
 
-	public NoNamespaceSchemaLocation(String documentURI, DOMAttr attr) {
-		this.documentURI = documentURI;
+	public NoNamespaceSchemaLocation(DOMAttr attr) {
 		this.attr = attr;
 	}
 
@@ -43,23 +37,6 @@ public class NoNamespaceSchemaLocation {
 	 */
 	public String getLocation() {
 		return attr.getValue();
-	}
-
-	/**
-	 * Returns the expanded system location
-	 * 
-	 * @return the expanded system location
-	 */
-	public String getResolvedLocation() {
-		return getResolvedLocation(documentURI, getLocation());
-	}
-
-	private String getResolvedLocation(String documentURI, String location) {
-		try {
-			return XMLEntityManager.expandSystemId(location, documentURI, false);
-		} catch (MalformedURIException e) {
-			return location;
-		}
 	}
 
 }
