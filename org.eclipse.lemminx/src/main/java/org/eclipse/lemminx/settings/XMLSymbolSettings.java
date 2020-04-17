@@ -22,8 +22,6 @@ public class XMLSymbolSettings {
 
 	private String[] excluded;
 
-	private int maxItemsComputed;
-
 	public XMLExcludedSymbolFile[] getExcludedFiles() {
 		return excludedFiles;
 	}
@@ -75,14 +73,6 @@ public class XMLSymbolSettings {
 			}
 		}
 		return false;
-	}
-
-	public int getMaxItemsComputed() {
-		return maxItemsComputed;
-	}
-
-	public void setMaxItemsComputed(int maxItemsComputed) {
-		this.maxItemsComputed = maxItemsComputed;
 	}
 
 }

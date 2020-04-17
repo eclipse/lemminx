@@ -224,9 +224,10 @@ public class XMLTextDocumentService implements TextDocumentService {
 		return computeDOMAsync(params.getTextDocument(), (cancelChecker, xmlDocument) -> {
 			boolean resultLimitExceeded = false;
 			List<Either<SymbolInformation, DocumentSymbol>> symbols = null;
+			int symbolsLimit = sharedSettings.getMaxItemsComputed();
 
 			if (hierarchicalDocumentSymbolSupport) {
-				DocumentSymbolsResult result = getXMLLanguageService().findDocumentSymbols(xmlDocument, symbolSettings,
+				DocumentSymbolsResult result = getXMLLanguageService().findDocumentSymbols(xmlDocument, symbolsLimit,
 						cancelChecker);
 				resultLimitExceeded = result.isResultLimitExceeded();
 				symbols = result //
@@ -238,7 +239,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 						.collect(Collectors.toList());
 			}
 			SymbolInformationsResult result =  getXMLLanguageService()
-					.findSymbolInformations(xmlDocument, symbolSettings, cancelChecker);
+					.findSymbolInformations(xmlDocument, symbolsLimit, cancelChecker);
 			resultLimitExceeded = result.isResultLimitExceeded();
 			symbols = result.stream() //
 					.map(s -> {
@@ -250,9 +251,9 @@ public class XMLTextDocumentService implements TextDocumentService {
 			if (resultLimitExceeded) {
 				String filename = Paths.get(xmlDocument.getTextDocument().getUri()).getFileName().toString();
 				String message = filename != null ? filename + ": " : "";
-				message += "For performance reasons, document symbols have been limited to " + symbolSettings.getMaxItemsComputed() + " items.";
+				message += "For performance reasons, document symbols have been limited to " + symbolsLimit + " items.";
 				if (sharedSettings.isActionableNotificationSupport() && sharedSettings.isOpenSettingsCommandSupport()) {
-					Command command = new Command("Configure limit", ClientCommands.OPEN_SETTINGS, Collections.singletonList("xml.symbols.maxItemsComputed"));
+					Command command = new Command("Configure limit", ClientCommands.OPEN_SETTINGS, Collections.singletonList("xml.maxItemsComputed"));
 					ActionableNotification notification = new ActionableNotification().withSeverity(MessageType.Info).withMessage(message).withCommands(Collections.singletonList(command));
 					xmlLanguageServer.getLanguageClient().actionableNotification(notification);
 				} else {
@@ -484,12 +485,15 @@ public class XMLTextDocumentService implements TextDocumentService {
 		if (newPatterns != null) {
 			symbolSettings.setExcluded(newPatterns);
 		}
-		symbolSettings.setMaxItemsComputed(newSettings.getMaxItemsComputed());
 	}
 
 	public void updateCodeLensSettings(XMLCodeLensSettings newSettings) {
 		XMLCodeLensSettings codeLensSettings = sharedSettings.getCodeLensSettings();
 		codeLensSettings.setEnabled(newSettings.isEnabled());
+	}
+
+	public void updateMaxItemsComputed(int maxItemsComputed) {
+		sharedSettings.setMaxItemsComputed(maxItemsComputed);
 	}
 
 	public XMLSymbolSettings getSharedSymbolSettings() {

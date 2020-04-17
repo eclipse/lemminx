@@ -114,20 +114,20 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		return highlighting.findDocumentHighlights(xmlDocument, position, cancelChecker);
 	}
 
-	public List<SymbolInformation> findSymbolInformations(DOMDocument xmlDocument, XMLSymbolSettings symbolSettings) {
-		return findSymbolInformations(xmlDocument, symbolSettings, NULL_CHECKER);
+	public List<SymbolInformation> findSymbolInformations(DOMDocument xmlDocument, int symbolsLimit) {
+		return findSymbolInformations(xmlDocument, symbolsLimit, NULL_CHECKER);
 	}
 
-	public SymbolInformationsResult findSymbolInformations(DOMDocument xmlDocument, XMLSymbolSettings symbolSettings, CancelChecker cancelChecker) {
-		return symbolsProvider.findSymbolInformations(xmlDocument, symbolSettings, cancelChecker);
+	public SymbolInformationsResult findSymbolInformations(DOMDocument xmlDocument, int symbolsLimit, CancelChecker cancelChecker) {
+		return symbolsProvider.findSymbolInformations(xmlDocument, symbolsLimit, cancelChecker);
 	}
 
-	public List<DocumentSymbol> findDocumentSymbols(DOMDocument xmlDocument, XMLSymbolSettings symbolSettings) {
-		return findDocumentSymbols(xmlDocument, symbolSettings, NULL_CHECKER);
+	public List<DocumentSymbol> findDocumentSymbols(DOMDocument xmlDocument, int symbolsLimit) {
+		return findDocumentSymbols(xmlDocument, symbolsLimit, NULL_CHECKER);
 	}
 
-	public DocumentSymbolsResult findDocumentSymbols(DOMDocument xmlDocument, XMLSymbolSettings symbolSettings, CancelChecker cancelChecker) {
-		return symbolsProvider.findDocumentSymbols(xmlDocument, symbolSettings, cancelChecker);
+	public DocumentSymbolsResult findDocumentSymbols(DOMDocument xmlDocument, int symbolsLimit, CancelChecker cancelChecker) {
+		return symbolsProvider.findDocumentSymbols(xmlDocument, symbolsLimit, cancelChecker);
 	}
 
 	public CompletionList doComplete(DOMDocument xmlDocument, Position position, SharedSettings settings) {

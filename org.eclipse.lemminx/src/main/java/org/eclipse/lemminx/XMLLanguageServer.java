@@ -164,6 +164,8 @@ public class XMLLanguageServer
 				String workDir = serverSettings.getNormalizedWorkDir();
 				FilesUtils.setCachePathSetting(workDir);
 			}
+
+			xmlTextDocumentService.updateMaxItemsComputed(xmlClientSettings.getMaxItemsComputed());
 		}
 		ContentModelSettings cmSettings = ContentModelSettings
 				.getContentModelXMLSettings(initializationOptionsSettings);

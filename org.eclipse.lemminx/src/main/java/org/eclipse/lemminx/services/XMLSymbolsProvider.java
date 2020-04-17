@@ -59,11 +59,11 @@ class XMLSymbolsProvider {
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
-	public SymbolInformationsResult findSymbolInformations(DOMDocument xmlDocument, XMLSymbolSettings symbolSettings,
+	public SymbolInformationsResult findSymbolInformations(DOMDocument xmlDocument, int symbolsLimit,
 			CancelChecker cancelChecker) {
 		SymbolInformationsResult symbols = new SymbolInformationsResult();
-		AtomicLong limit = symbolSettings.getMaxItemsComputed() > 0
-				? new AtomicLong(symbolSettings.getMaxItemsComputed())
+		AtomicLong limit = symbolsLimit > 0
+				? new AtomicLong(symbolsLimit)
 				: null;
 		boolean isDTD = xmlDocument.isDTD();
 		try {
@@ -82,11 +82,11 @@ class XMLSymbolsProvider {
 		return symbols;
 	}
 
-	public DocumentSymbolsResult findDocumentSymbols(DOMDocument xmlDocument, XMLSymbolSettings symbolSettings,
+	public DocumentSymbolsResult findDocumentSymbols(DOMDocument xmlDocument, int symbolsLimit,
 			CancelChecker cancelChecker) {
 		DocumentSymbolsResult symbols = new DocumentSymbolsResult();
-		AtomicLong limit = symbolSettings.getMaxItemsComputed() > 0
-				? new AtomicLong(symbolSettings.getMaxItemsComputed())
+		AtomicLong limit = symbolsLimit > 0
+				? new AtomicLong(symbolsLimit)
 				: null;
 		boolean isDTD = xmlDocument.isDTD();
 		List<DOMNode> nodesToIgnore = new ArrayList<>();
