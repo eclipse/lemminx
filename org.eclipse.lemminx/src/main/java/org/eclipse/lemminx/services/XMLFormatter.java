@@ -34,6 +34,7 @@ import org.eclipse.lemminx.dom.DTDDeclNode;
 import org.eclipse.lemminx.dom.DTDDeclParameter;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.settings.XMLFormattingOptions;
+import org.eclipse.lemminx.settings.XMLFormattingOptions.EmptyElements;
 import org.eclipse.lemminx.utils.XMLBuilder;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -52,6 +53,7 @@ class XMLFormatter {
 		private final TextDocument textDocument;
 		private final Range range;
 		private final XMLFormattingOptions options;
+		private final EmptyElements emptyElements;
 
 		private int startOffset;
 		private int endOffset;
@@ -67,11 +69,13 @@ class XMLFormatter {
 			this.textDocument = textDocument;
 			this.range = range;
 			this.options = options;
+			this.emptyElements = options.getEmptyElements();
 		}
 
 		/**
-		 * Returns a List containing a single TextEdit, containing the newly formatted changes
-		 * of this.textDocument
+		 * Returns a List containing a single TextEdit, containing the newly formatted
+		 * changes of this.textDocument
+		 * 
 		 * @return List containing a single TextEdit
 		 * @throws BadLocationException
 		 */
@@ -111,8 +115,9 @@ class XMLFormatter {
 			if (containsTextWithinStartTag()) {
 				adjustOffsetToStartTag();
 				rangeText = fullText.substring(this.startOffset, this.endOffset);
-				this.rangeDomDocument = DOMParser.getInstance().parse(rangeText, this.textDocument.getUri(), null, false);
-			}	
+				this.rangeDomDocument = DOMParser.getInstance().parse(rangeText, this.textDocument.getUri(), null,
+						false);
+			}
 
 			this.xmlBuilder = new XMLBuilder(this.options, "", textDocument.lineDelimiter(startPosition.getLine()));
 		}
@@ -217,7 +222,7 @@ class XMLFormatter {
 			int fullOffset = -1;
 
 			if (elemFromRangeDoc.hasStartTag()) {
-				fullOffset = getFullOffsetFromRangeOffset(elemFromRangeDoc.getStartTagOpenOffset()) + 1; 
+				fullOffset = getFullOffsetFromRangeOffset(elemFromRangeDoc.getStartTagOpenOffset()) + 1;
 				// +1 because offset must be here: <|root
 				// for DOMNode.findNodeAt() to find the correct element
 			} else if (elemFromRangeDoc.hasEndTag()) {
@@ -280,122 +285,27 @@ class XMLFormatter {
 						this.xmlBuilder.indent(this.indentLevel);
 					}
 				}
-				// generate start element
 				if (node.isElement()) {
-					DOMElement element = (DOMElement) node;
-					String tag = element.getTagName();
-					if (element.hasEndTag() && !element.hasStartTag()) {
-						// bad element which have not start tag (ex: <\root>)
-						xmlBuilder.endElement(tag, element.isEndTagClosed());
-					} else {
-						xmlBuilder.startElement(tag, false);
-						if (element.hasAttributes()) {
-							// generate attributes
-							List<DOMAttr> attributes = element.getAttributeNodes();
-							if (hasSingleAttributeInFullDoc(element)) {
-								DOMAttr singleAttribute = attributes.get(0);
-								xmlBuilder.addSingleAttribute(singleAttribute.getName(),
-										singleAttribute.getOriginalValue());
-							} else {
-								for (DOMAttr attr : attributes) {
-									xmlBuilder.addAttribute(attr, this.indentLevel);
-								}
-							}
-						}
-
-						if (element.isStartTagClosed()) {
-							xmlBuilder.closeStartElement();
-						}
-
-						boolean hasElements = false;
-						if (node.hasChildNodes()) {
-							// element has body
-							
-							this.indentLevel++;
-							for (DOMNode child : node.getChildren()) {
-								boolean textElement = !child.isText();
-
-								hasElements = hasElements | textElement;
-
-								format(child);
-							}
-							this.indentLevel--;
-						}
-						if (element.hasEndTag()) {
-							if (hasElements) {
-								this.xmlBuilder.linefeed();
-								this.xmlBuilder.indent(this.indentLevel);
-							}
-							// end tag element is done, only if the element is closed
-							// the format, doesn't fix the close tag
-							if (element.hasEndTag() && element.getEndTagOpenOffset() <= this.endOffset) {
-								this.xmlBuilder.endElement(tag, element.isEndTagClosed());
-							} else {
-								this.xmlBuilder.selfCloseElement();
-							}
-						} else if (element.isSelfClosed()) {
-							this.xmlBuilder.selfCloseElement();
-
-						}
-					}
-					return;
-
+					// Format Element
+					formatElement((DOMElement) node);
 				} else if (node.isCDATA()) {
-					DOMCDATASection cdata = (DOMCDATASection) node;
-					this.xmlBuilder.startCDATA();
-					this.xmlBuilder.addContentCDATA(cdata.getData());
-					this.xmlBuilder.endCDATA();
+					// Format CDATA
+					formatCDATA((DOMCDATASection) node);
 				} else if (node.isComment()) {
-					DOMComment comment = (DOMComment) node;
-					this.xmlBuilder.startComment(comment);
-					this.xmlBuilder.addContentComment(comment.getData());
-					this.xmlBuilder.endComment();
-					if (this.indentLevel == 0) {
-						this.xmlBuilder.linefeed();
-					}
+					// Format comment
+					formatComment((DOMComment) node);
 				} else if (node.isProcessingInstruction()) {
-					addPIToXMLBuilder(node, this.xmlBuilder);
-					if (this.indentLevel == 0) {
-						this.xmlBuilder.linefeed();
-					}
+					// Format processing instruction
+					formatProcessingInstruction(node);
 				} else if (node.isProlog()) {
-					addPrologToXMLBuilder(node, this.xmlBuilder);
-					this.xmlBuilder.linefeed();
+					// Format prolog
+					formatProlog(node);
 				} else if (node.isText()) {
-					DOMText textNode = (DOMText) node;
-
-					// Generate content
-					String content = textNode.getData();
-					xmlBuilder.addContent(content, textNode.isWhitespace(), textNode.hasSiblings(),
-							textNode.getDelimiter(), this.indentLevel);
-					return;
+					// Format Text
+					formatText((DOMText) node);
 				} else if (node.isDoctype()) {
-					boolean isDTD = node.getOwnerDocument().isDTD();
-					DOMDocumentType documentType = (DOMDocumentType) node;
-					if (!isDTD) {
-						this.xmlBuilder.startDoctype();
-						List<DTDDeclParameter> params = documentType.getParameters();
-
-						for (DTDDeclParameter param : params) {
-							if (!documentType.isInternalSubset(param)) {
-								xmlBuilder.addParameter(param.getParameter());
-							} else {
-								xmlBuilder.startDoctypeInternalSubset();
-								xmlBuilder.linefeed();
-								// level + 1 since the 'level' value is the doctype tag's level
-								formatDTD(documentType, this.indentLevel + 1, this.endOffset, this.xmlBuilder);
-								xmlBuilder.linefeed();
-								xmlBuilder.endDoctypeInternalSubset();
-							}
-						}
-						if (documentType.isClosed()) {
-							xmlBuilder.endDoctype();
-						}
-						xmlBuilder.linefeed();
-					} else {
-						formatDTD(documentType, 0, this.endOffset, this.xmlBuilder);
-					}
-					return;
+					// Format document type
+					formatDocumentType((DOMDocumentType) node);
 				}
 			} else if (node.hasChildNodes()) {
 				// Other nodes kind like root
@@ -403,6 +313,208 @@ class XMLFormatter {
 					format(child);
 				}
 			}
+		}
+
+		/**
+		 * Format the given DOM prolog
+		 * 
+		 * @param node the DOM prolog to format.
+		 */
+		private void formatProlog(DOMNode node) {
+			addPrologToXMLBuilder(node, this.xmlBuilder);
+			this.xmlBuilder.linefeed();
+		}
+
+		/**
+		 * Format the given DOM text node.
+		 * 
+		 * @param textNode the DOM text node to format.
+		 */
+		private void formatText(DOMText textNode) {
+			// Generate content
+			String content = textNode.getData();
+			xmlBuilder.addContent(content, textNode.isWhitespace(), textNode.hasSiblings(), textNode.getDelimiter(),
+					this.indentLevel);
+		}
+
+		/**
+		 * Format the given DOM document type.
+		 * 
+		 * @param documentType the DOM document type to format.
+		 */
+		private void formatDocumentType(DOMDocumentType documentType) {
+			boolean isDTD = documentType.getOwnerDocument().isDTD();
+			if (!isDTD) {
+				this.xmlBuilder.startDoctype();
+				List<DTDDeclParameter> params = documentType.getParameters();
+
+				for (DTDDeclParameter param : params) {
+					if (!documentType.isInternalSubset(param)) {
+						xmlBuilder.addParameter(param.getParameter());
+					} else {
+						xmlBuilder.startDoctypeInternalSubset();
+						xmlBuilder.linefeed();
+						// level + 1 since the 'level' value is the doctype tag's level
+						formatDTD(documentType, this.indentLevel + 1, this.endOffset, this.xmlBuilder);
+						xmlBuilder.linefeed();
+						xmlBuilder.endDoctypeInternalSubset();
+					}
+				}
+				if (documentType.isClosed()) {
+					xmlBuilder.endDoctype();
+				}
+				xmlBuilder.linefeed();
+			} else {
+				formatDTD(documentType, 0, this.endOffset, this.xmlBuilder);
+			}
+		}
+
+		/**
+		 * Format the given DOM ProcessingIntsruction.
+		 * 
+		 * @param element the DOM ProcessingIntsruction to format.
+		 * 
+		 */
+		private void formatProcessingInstruction(DOMNode node) {
+			addPIToXMLBuilder(node, this.xmlBuilder);
+			if (this.indentLevel == 0) {
+				this.xmlBuilder.linefeed();
+			}
+		}
+
+		/**
+		 * Format the given DOM Comment
+		 * 
+		 * @param element the DOM Comment to format.
+		 * 
+		 */
+		private void formatComment(DOMComment comment) {
+			this.xmlBuilder.startComment(comment);
+			this.xmlBuilder.addContentComment(comment.getData());
+			this.xmlBuilder.endComment();
+			if (this.indentLevel == 0) {
+				this.xmlBuilder.linefeed();
+			}
+		}
+
+		/**
+		 * Format the given DOM CDATA
+		 * 
+		 * @param element the DOM CDATA to format.
+		 * 
+		 */
+		private void formatCDATA(DOMCDATASection cdata) {
+			this.xmlBuilder.startCDATA();
+			this.xmlBuilder.addContentCDATA(cdata.getData());
+			this.xmlBuilder.endCDATA();
+		}
+
+		/**
+		 * Format the given DOM element
+		 * 
+		 * @param element the DOM element to format.
+		 * 
+		 * @throws BadLocationException
+		 */
+		private void formatElement(DOMElement element) throws BadLocationException {
+			String tag = element.getTagName();
+			if (element.hasEndTag() && !element.hasStartTag()) {
+				// bad element without start tag (ex: <\root>)
+				xmlBuilder.endElement(tag, element.isEndTagClosed());
+			} else {
+				// generate start element
+				xmlBuilder.startElement(tag, false);
+				if (element.hasAttributes()) {
+					// generate attributes
+					List<DOMAttr> attributes = element.getAttributeNodes();
+					if (hasSingleAttributeInFullDoc(element)) {
+						DOMAttr singleAttribute = attributes.get(0);
+						xmlBuilder.addSingleAttribute(singleAttribute.getName(), singleAttribute.getOriginalValue());
+					} else {
+						for (DOMAttr attr : attributes) {
+							xmlBuilder.addAttribute(attr, this.indentLevel);
+						}
+					}
+				}
+
+				EmptyElements emptyElements = getEmptyElements(element);
+				switch (emptyElements) {
+				case expand:
+					// expand empty element: <example /> -> <example></example>
+					xmlBuilder.closeStartElement();
+					// end tag element is done, only if the element is closed
+					// the format, doesn't fix the close tag
+					this.xmlBuilder.endElement(tag, true);
+					break;
+				case collapse:
+					// collapse empty element: <example></example> -> <example />
+					this.xmlBuilder.selfCloseElement();
+					break;
+				default:
+					if (element.isStartTagClosed()) {
+						xmlBuilder.closeStartElement();
+					}
+					boolean hasElements = false;
+					if (element.hasChildNodes()) {
+						// element has body
+
+						this.indentLevel++;
+						for (DOMNode child : element.getChildren()) {
+							boolean textElement = !child.isText();
+
+							hasElements = hasElements | textElement;
+
+							format(child);
+						}
+						this.indentLevel--;
+					}
+					if (element.hasEndTag()) {
+						if (hasElements) {
+							this.xmlBuilder.linefeed();
+							this.xmlBuilder.indent(this.indentLevel);
+						}
+						// end tag element is done, only if the element is closed
+						// the format, doesn't fix the close tag
+						if (element.hasEndTag() && element.getEndTagOpenOffset() <= this.endOffset) {
+							this.xmlBuilder.endElement(tag, element.isEndTagClosed());
+						} else {
+							this.xmlBuilder.selfCloseElement();
+						}
+					} else if (element.isSelfClosed()) {
+						this.xmlBuilder.selfCloseElement();
+					}
+				}
+			}
+		}
+
+		/**
+		 * Return the option to use to generate empty elements.
+		 * 
+		 * @param element the DOM element
+		 * @return the option to use to generate empty elements.
+		 */
+		private EmptyElements getEmptyElements(DOMElement element) {
+			if (this.emptyElements != EmptyElements.ignore) {
+				if (element.isClosed() && element.isEmpty()) {
+					// Element is empty and closed
+					switch (this.emptyElements) {
+					case expand:
+					case collapse: {
+						if (this.options.isPreserveEmptyContent()) {
+							// preserve content
+							if (element.hasChildNodes()) {
+								// The element is empty and contains somes spaces which must be preserved
+								return EmptyElements.ignore;
+							}
+						}
+						return this.emptyElements;
+					}
+					default:
+						return this.emptyElements;
+					}
+				}
+			}
+			return EmptyElements.ignore;
 		}
 
 		private static boolean formatDTD(DOMDocumentType doctype, int level, int end, XMLBuilder xmlBuilder) {
@@ -551,10 +663,11 @@ class XMLFormatter {
 	}
 
 	/**
-	 * Returns a List containing a single TextEdit, containing the newly formatted changes
-	 * of the document.
+	 * Returns a List containing a single TextEdit, containing the newly formatted
+	 * changes of the document.
+	 * 
 	 * @param textDocument document to perform formatting on
-	 * @param range specified range in which formatting will be done
+	 * @param range        specified range in which formatting will be done
 	 * @return List containing a TextEdit with formatting changes
 	 */
 	public List<? extends TextEdit> format(TextDocument textDocument, Range range,

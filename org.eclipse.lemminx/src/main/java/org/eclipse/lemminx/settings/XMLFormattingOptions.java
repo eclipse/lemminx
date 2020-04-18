@@ -23,9 +23,9 @@ import org.eclipse.lsp4j.FormattingOptions;
  * All defaults should be set here to eventually be overridden if needed.
  */
 public class XMLFormattingOptions extends FormattingOptions {
-	
+
 	public static final String DEFAULT_QUOTATION = "\"";
-	
+
 	// All possible keys
 	private static final String SPLIT_ATTRIBUTES = "splitAttributes";
 	private static final String JOIN_CDATA_LINES = "joinCDATALines";
@@ -40,18 +40,71 @@ public class XMLFormattingOptions extends FormattingOptions {
 	// Values for QUOTATIONS
 	public static final String DOUBLE_QUOTES_VALUE = "doubleQuotes";
 	public static final String SINGLE_QUOTES_VALUE = "singleQuotes";
+
 	enum Quotations {
 		doubleQuotes, singleQuotes
-	}	
+	}
+
 	private static final String PRESERVE_EMPTY_CONTENT = "preserveEmptyContent";
+
+	/**
+	 * Options for formatting empty elements.
+	 * 
+	 * <ul>
+	 * <li>{@link #expand} : expand empty elements. With this option the following
+	 * XML:
+	 * 
+	 * <pre>
+	 * {@code
+	 * <example />
+	 * }
+	 * </pre>
+	 * 
+	 * will be formatted to :
+	 * 
+	 * <pre>
+	 * {@code
+	 * <example><example>
+	 * }
+	 * </pre>
+	 * 
+	 * </li>
+	 * <li>{@link #collapse} : collapse empty elements. With this option the
+	 * following XML:
+	 * 
+	 * <pre>
+	 * {@code
+	 * <example></example>
+	 * }
+	 * </pre>
+	 * 
+	 * will be formatted to :
+	 * 
+	 * <pre>
+	 * {@code
+	 * <example />
+	 * }
+	 * </pre>
+	 * 
+	 * </li>
+	 * <li>{@link #ignore} : keeps the original XML content for empty elements.
+	 * </li>
+	 * </ul>
+	 *
+	 */
+	public static enum EmptyElements {
+		expand, collapse, ignore;
+	}
+
+	private static final String EMPTY_ELEMENTS = "emptyElements";
 
 	public XMLFormattingOptions() {
 		this(false);
 	}
 
 	/**
-	 * Create an XMLFormattingOptions instance with the option to initialize
-	 * default values for all supported settings. 
+	 * Create an XMLFormattingOptions instance with the option to initialize default
+	 * values for all supported settings.
 	 */
 	public XMLFormattingOptions(boolean initializeDefaults) {
 		if (initializeDefaults) {
@@ -59,8 +112,8 @@ public class XMLFormattingOptions extends FormattingOptions {
 		}
 	}
 
-	/** 
-	 * Necessary: Initialize default values in case client does not provide one 
+	/**
+	 * Necessary: Initialize default values in case client does not provide one
 	 */
 	public void initializeDefaultSettings() {
 		this.setSplitAttributes(false);
@@ -73,11 +126,12 @@ public class XMLFormattingOptions extends FormattingOptions {
 		this.setQuotations(DOUBLE_QUOTES_VALUE);
 		this.setPreserveEmptyContent(false);
 		this.setPreservedNewlines(2);
+		this.setEmptyElement(EmptyElements.ignore);
 	}
 
 	public XMLFormattingOptions(int tabSize, boolean insertSpaces, boolean initializeDefaultSettings) {
 		super(tabSize, insertSpaces);
-		if(initializeDefaultSettings) {
+		if (initializeDefaultSettings) {
 			initializeDefaultSettings();
 		}
 	}
@@ -87,7 +141,7 @@ public class XMLFormattingOptions extends FormattingOptions {
 	}
 
 	public XMLFormattingOptions(FormattingOptions options, boolean initializeDefaultSettings) {
-		if(initializeDefaultSettings) {
+		if (initializeDefaultSettings) {
 			initializeDefaultSettings();
 		}
 		merge(options);
@@ -195,7 +249,8 @@ public class XMLFormattingOptions extends FormattingOptions {
 	/**
 	 * Returns the value of the format.quotations preference.
 	 * 
-	 * If invalid or null, the default is {@link XMLFormattingOptions#DOUBLE_QUOTES_VALUE}.
+	 * If invalid or null, the default is
+	 * {@link XMLFormattingOptions#DOUBLE_QUOTES_VALUE}.
 	 */
 	public String getQuotations() {
 		final String value = this.getString(XMLFormattingOptions.QUOTATIONS);
@@ -222,6 +277,7 @@ public class XMLFormattingOptions extends FormattingOptions {
 	 * If the quotations preference is a valid option.
 	 * 
 	 * Keep up to date with new preferences.
+	 * 
 	 * @return
 	 */
 	private boolean isValidQuotations() {
@@ -230,8 +286,10 @@ public class XMLFormattingOptions extends FormattingOptions {
 	}
 
 	/**
-	 * Checks if {@code quotation} equals the current value for {@code format.quotations}.
-	 * @param quotation 
+	 * Checks if {@code quotation} equals the current value for
+	 * {@code format.quotations}.
+	 * 
+	 * @param quotation
 	 * @return
 	 */
 	public boolean isQuotations(String quotation) {
@@ -239,8 +297,8 @@ public class XMLFormattingOptions extends FormattingOptions {
 		return Objects.equals(value, quotation);
 	}
 
-	public void setPreserveEmptyContent(final boolean spaceBeforeEmptyCloseTag) {
-		this.putBoolean(XMLFormattingOptions.PRESERVE_EMPTY_CONTENT, Boolean.valueOf(spaceBeforeEmptyCloseTag));
+	public void setPreserveEmptyContent(final boolean preserveEmptyContent) {
+		this.putBoolean(XMLFormattingOptions.PRESERVE_EMPTY_CONTENT, Boolean.valueOf(preserveEmptyContent));
 	}
 
 	public boolean isPreserveEmptyContent() {
@@ -257,7 +315,7 @@ public class XMLFormattingOptions extends FormattingOptions {
 	}
 
 	public int getPreservedNewlines() {
-		
+
 		final Number value = this.getNumber(XMLFormattingOptions.PRESERVED_NEWLINES);
 		if ((value != null)) {
 			return value.intValue();
@@ -266,17 +324,30 @@ public class XMLFormattingOptions extends FormattingOptions {
 		}
 	}
 
+	public void setEmptyElement(EmptyElements emptyElement) {
+		this.putString(XMLFormattingOptions.EMPTY_ELEMENTS, emptyElement.name());
+	}
+
+	public EmptyElements getEmptyElements() {
+		String value = this.getString(XMLFormattingOptions.EMPTY_ELEMENTS);
+		if ((value != null)) {
+			try {
+				return EmptyElements.valueOf(value);
+			} catch (Exception e) {
+			}
+		}
+		return EmptyElements.ignore;
+	}
+
 	public XMLFormattingOptions merge(FormattingOptions formattingOptions) {
 		formattingOptions.entrySet().stream().forEach(entry -> {
 			String key = entry.getKey();
-			if(!key.equals("tabSize") && !key.equals("insertSpaces")) {
-				this.put(entry.getKey(), entry.getValue());	
-			} 
-			else {
+			if (!key.equals("tabSize") && !key.equals("insertSpaces")) {
+				this.put(entry.getKey(), entry.getValue());
+			} else {
 				this.putIfAbsent(entry.getKey(), entry.getValue());
 			}
-		}
-		);
+		});
 		return this;
 	}
 
