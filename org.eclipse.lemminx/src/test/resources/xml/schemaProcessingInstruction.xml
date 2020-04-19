@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<?xml-model href="../xsd/SchemaA.xsd"?>
+
+<Root>
+	<Bar>
+		<FooBar></FooBar>
+		<TypeFromB>
+			     
+		</TypeFromB>
+	</Bar>
+</Root>
