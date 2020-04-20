@@ -47,8 +47,6 @@ public class XMLGeneralClientSettings {
 
 	private XMLCodeLensSettings codeLens;
 
-	private int maxItemsComputed; 
-
 	public void setLogs(LogsSettings logs) {
 		this.logs = logs;
 	}
@@ -125,13 +123,5 @@ public class XMLGeneralClientSettings {
 
 	public static XMLGeneralClientSettings getGeneralXMLSettings(Object initializationOptionsSettings) {
 		return JSONUtility.toModel(initializationOptionsSettings, XMLGeneralClientSettings.class);
-	}
-
-	public int getMaxItemsComputed() {
-		return maxItemsComputed;
-	}
-
-	public void setMaxItemsComputed(int maxItemsComputed) {
-		this.maxItemsComputed = maxItemsComputed;
 	}
 }

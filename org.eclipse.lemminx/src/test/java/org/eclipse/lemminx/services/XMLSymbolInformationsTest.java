@@ -36,7 +36,6 @@ import org.junit.jupiter.api.Test;
  */
 public class XMLSymbolInformationsTest {
 	private static final String testURI = "test:URI";
-	private static final int defaultSymbolLimit = 5000;
 	private XMLLanguageService languageService;
 	private DOMDocument xmlDocument;
 	private List<SymbolInformation> actualSymbolInfos;
@@ -277,8 +276,9 @@ public class XMLSymbolInformationsTest {
 				"]>\n" + //
 				"<br />";
 		String testURI = "test.xml";
-
-		initializeTestObjects(xmlText, testURI, 4);
+		XMLSymbolSettings settings = new XMLSymbolSettings();
+		settings.setMaxItemsComputed(4);
+		initializeTestObjects(xmlText, testURI, settings);
 
 		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
 		currentLocation = createLocation(testURI, 0, 63, xmlDocument);
@@ -299,25 +299,27 @@ public class XMLSymbolInformationsTest {
 
 		assertSymbols(expectedSymbolInfos, actualSymbolInfos);
 
-		initializeTestObjects(xmlText, testURI, 10);
+		settings.setMaxItemsComputed(10);
+		initializeTestObjects(xmlText, testURI, settings);
 		assertSymbols(expectedSymbolInfos, actualSymbolInfos);
 
-		initializeTestObjects(xmlText, testURI, 3);
+		settings.setMaxItemsComputed(3);
+		initializeTestObjects(xmlText, testURI, settings);
 		assertSymbols(expectedSymbolInfos.stream().limit(3).collect(Collectors.toList()), actualSymbolInfos);
 	}
 	// -------------------Tools------------------------------
 
 	private void initializeTestObjects(String xmlText) {
-		initializeTestObjects(xmlText, testURI, defaultSymbolLimit);
+		initializeTestObjects(xmlText, testURI, new XMLSymbolSettings());
 	}
 
 	private void initializeTestObjects(String xmlText, String uri) {
-		initializeTestObjects(xmlText, uri, defaultSymbolLimit);
+		initializeTestObjects(xmlText, uri, new XMLSymbolSettings());
 	}
 
-	private void initializeTestObjects(String xmlText, String uri, int limit) {
+	private void initializeTestObjects(String xmlText, String uri, XMLSymbolSettings settings) {
 		xmlDocument = DOMParser.getInstance().parse(xmlText, uri, null);
-		actualSymbolInfos = languageService.findSymbolInformations(xmlDocument, limit);
+		actualSymbolInfos = languageService.findSymbolInformations(xmlDocument, settings);
 	}
 
 	private void assertSymbols(List<SymbolInformation> expectedSymbolList, List<SymbolInformation> actualSymbolList) {

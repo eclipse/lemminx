@@ -28,14 +28,12 @@ import org.junit.jupiter.api.Test;
  */
 public class XMLDocumentSymbolsTest {
 
-	private static final int defaultSymbolLimit = 5000;
-
 	@Test
 	public void externalDTD() {
 		String dtd = "<!ELEMENT br EMPTY>\n" + //
 				"<!ATTLIST br\n" + //
 				"	%all;>";
-		XMLAssert.testDocumentSymbolsFor(dtd, "test.dtd", defaultSymbolLimit, //
+		XMLAssert.testDocumentSymbolsFor(dtd, "test.dtd", //
 				ds("br", SymbolKind.Property, r(0, 0, 0, 19), r(0, 0, 0, 19), null, //
 						Arrays.asList(ds("%all;", SymbolKind.Key, r(2, 1, 2, 6), r(2, 1, 2, 6), null, Arrays.asList()))));
 
@@ -57,7 +55,7 @@ public class XMLDocumentSymbolsTest {
 			"          ep CDATA #IMPLIED\r\n" +
 			"          ep2 CDATA #IMPLIED>\r\n";
 
-		XMLAssert.testDocumentSymbolsFor(dtd, "test.dtd", defaultSymbolLimit, //
+		XMLAssert.testDocumentSymbolsFor(dtd, "test.dtd", 
 					ds("target", SymbolKind.Property, r(0, 0, 0, 23), r(0, 0, 0, 23), null,
 									Arrays.asList(
 										ds("tid", SymbolKind.Key, r(3, 10, 3, 13), r(3, 10, 3, 13), null, Arrays.asList()),
@@ -87,7 +85,7 @@ public class XMLDocumentSymbolsTest {
 				"<Folks>\r\n" + //
 				"	\r\n" + //
 				"</Folks>";
-		XMLAssert.testDocumentSymbolsFor(xml, "test.xml", defaultSymbolLimit, //
+		XMLAssert.testDocumentSymbolsFor(xml, "test.xml", //
 				ds("xml", SymbolKind.Property, r(0, 0, 0, 23), r(0, 0, 0, 23), null, //
 						Collections.emptyList()), //
 				ds("DOCTYPE:Folks", SymbolKind.Struct, r(1, 0, 9, 3), r(1, 0, 9, 3), null,
@@ -134,8 +132,14 @@ public class XMLDocumentSymbolsTest {
 						ds("Email", SymbolKind.Property, r(8, 1, 8, 27), r(8, 1, 8, 27), null, Collections.emptyList())));
 		DocumentSymbol symbol3 = ds("Folks", SymbolKind.Field, r(10, 0, 12, 8), r(10, 0, 12, 8), null, Collections.emptyList());
 
-		XMLAssert.testDocumentSymbolsFor(xml, "test.xml", 10, symbol1, symbol2, symbol3);
-		XMLAssert.testDocumentSymbolsFor(xml, "test.xml", 15, symbol1, symbol2, symbol3);
-		XMLAssert.testDocumentSymbolsFor(xml, "test.xml", 9, symbol1, symbol2);
+		XMLSymbolSettings settings = new XMLSymbolSettings();
+		settings.setMaxItemsComputed(10);
+		XMLAssert.testDocumentSymbolsFor(xml, "test.xml", settings, symbol1, symbol2, symbol3);
+		
+		settings.setMaxItemsComputed(15);
+		XMLAssert.testDocumentSymbolsFor(xml, "test.xml", settings, symbol1, symbol2, symbol3);
+
+		settings.setMaxItemsComputed(9);
+		XMLAssert.testDocumentSymbolsFor(xml, "test.xml", settings, symbol1, symbol2);
 	}
 }

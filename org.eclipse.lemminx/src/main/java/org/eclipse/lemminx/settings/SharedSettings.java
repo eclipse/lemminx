@@ -26,7 +26,6 @@ public class SharedSettings {
 	private final XMLCodeLensSettings codeLensSettings;
 	private final XMLHoverSettings hoverSettings;
 
-	private int maxItemsComputed;
 	private boolean actionableNotificationSupport;
 	private boolean openSettingsCommandSupport;
 
@@ -84,14 +83,6 @@ public class SharedSettings {
 
 	public void setOpenSettingsCommandSupport(boolean openSettingsCommandSupport) {
 		this.openSettingsCommandSupport = openSettingsCommandSupport;
-	}
-
-	public int getMaxItemsComputed() {
-		return maxItemsComputed;
-	}
-
-	public void setMaxItemsComputed(int maxItemsComputed) {
-		this.maxItemsComputed = maxItemsComputed;
 	}
 
 }

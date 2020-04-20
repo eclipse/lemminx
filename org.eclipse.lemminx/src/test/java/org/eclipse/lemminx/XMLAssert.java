@@ -637,11 +637,18 @@ public class XMLAssert {
 
 	// ------------------- DocumentSymbol assert
 
-	public static void testDocumentSymbolsFor(String xml, int symbolLimit, DocumentSymbol... expected) {
-		testDocumentSymbolsFor(xml, null, symbolLimit, expected);
+	public static void testDocumentSymbolsFor(String xml, DocumentSymbol... expected) {
+		testDocumentSymbolsFor(xml, null, new XMLSymbolSettings(), expected);
+	}
+	public static void testDocumentSymbolsFor(String xml, XMLSymbolSettings symbolSettings, DocumentSymbol... expected) {
+		testDocumentSymbolsFor(xml, null, symbolSettings, expected);
 	}
 
-	public static void testDocumentSymbolsFor(String xml, String fileURI, int symbolLimit, DocumentSymbol... expected) {
+	public static void testDocumentSymbolsFor(String xml, String fileURI, DocumentSymbol... expected) {
+		testDocumentSymbolsFor(xml, fileURI, new XMLSymbolSettings(), expected);
+	}
+
+	public static void testDocumentSymbolsFor(String xml, String fileURI, XMLSymbolSettings symbolSettings, DocumentSymbol... expected) {
 		TextDocument document = new TextDocument(xml, fileURI != null ? fileURI : "test.xml");
 
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
@@ -654,7 +661,7 @@ public class XMLAssert {
 				xmlLanguageService.getResolverExtensionManager());
 		xmlLanguageService.setDocumentProvider((uri) -> xmlDocument);
 
-		List<DocumentSymbol> actual = xmlLanguageService.findDocumentSymbols(xmlDocument, symbolLimit);
+		List<DocumentSymbol> actual = xmlLanguageService.findDocumentSymbols(xmlDocument, symbolSettings);
 		assertDocumentSymbols(actual, expected);
 
 	}
