@@ -71,7 +71,9 @@ public class SharedSettings {
 
 	/**
 	 * Returns true if the client supports actionable notifications and false otherwise
-	 * See ActionableNotification and XMLLanguageClientAPI
+	 * 
+	 * See {@link org.eclipse.lemminx.customservice.ActionableNotification} and
+	 * {@link org.eclipse.lemminx.customservice.XMLLanguageClientAPI}
 	 * 
 	 * @return true if the client supports actionable notifications and false otherwise
 	 */
@@ -90,7 +92,8 @@ public class SharedSettings {
 
 	/**
 	 * Returns true if the client supports the open settings command and false otherwise
-	 * See ClientCommands.OPEN_SETTINGS
+	 * 
+	 * See {@link org.eclipse.lemminx.client.ClientCommands#OPEN_SETTINGS}
 	 * 
 	 * @return true if the client supports the open settings command and false otherwise
 	 */

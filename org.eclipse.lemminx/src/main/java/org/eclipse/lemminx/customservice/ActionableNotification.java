@@ -27,7 +27,7 @@ import com.google.gson.annotations.SerializedName;
  * An instance of this class is sent to the client as a parameter
  * for the xml/actionableNotification notification.
  * 
- * See XMLLanguageClientAPI
+ * See {@link org.eclipse.lemminx.customservice.XMLLanguageClientAPI}
  */
 public class ActionableNotification {
 
