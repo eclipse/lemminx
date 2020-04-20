@@ -30,13 +30,12 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 
 /**
- * MarkupEntityMismatchCodeAction is a code action that triggers when the end tag of the
- * root element is missing. This will provide a codeaction that inserts that missing
- * end tag.
+ * MarkupEntityMismatchCodeAction is a code action that triggers when the end
+ * tag of the root element is missing. This will provide a codeaction that
+ * inserts that missing end tag.
  */
 public class MarkupEntityMismatchCodeAction implements ICodeActionParticipant {
 	private static final Logger LOGGER = Logger.getLogger(MarkupEntityMismatchCodeAction.class.getName());
-
 
 	@Override
 	public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
@@ -44,45 +43,46 @@ public class MarkupEntityMismatchCodeAction implements ICodeActionParticipant {
 		createEndTagInsertCodeAction(diagnostic, range, document, codeActions, formattingSettings, componentProvider);
 	}
 
-	public static void createEndTagInsertCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
-	XMLFormattingOptions formattingSettings, IComponentProvider componentProvider) {
+	public static void createEndTagInsertCodeAction(Diagnostic diagnostic, Range range, DOMDocument document,
+			List<CodeAction> codeActions, XMLFormattingOptions formattingSettings,
+			IComponentProvider componentProvider) {
 		try {
 			int offset = document.offsetAt(diagnostic.getRange().getStart());
 			DOMNode node = document.findNodeAt(offset);
-			if(!node.isElement()) {
+			if (!node.isElement()) {
 				return;
 			}
-			
+
 			DOMElement element = (DOMElement) node;
 			int startOffset = element.getStartTagOpenOffset();
-			if(startOffset == -1) {
+			if (startOffset == -1) {
 				return;
 			}
 			Position startPosition = document.positionAt(startOffset);
 			Position endPosition;
-			
-			XMLSyntaxErrorCode code = XMLSyntaxErrorCode.get(diagnostic.getCode());
+
+			XMLSyntaxErrorCode code = XMLSyntaxErrorCode.get(diagnostic.getCode().getLeft());
 			switch (code) {
-				case MarkupEntityMismatch:
-					endPosition = document.positionAt(document.getEnd());
-					if (endPosition.getLine() > startPosition.getLine()) {
-						endPosition.setCharacter(startPosition.getCharacter());
-					}
-					break;
-				case ETagRequired:
-					endPosition = document.positionAt(element.getStartTagCloseOffset() + 1);
-					break;
-				default:
-					return;
+			case MarkupEntityMismatch:
+				endPosition = document.positionAt(document.getEnd());
+				if (endPosition.getLine() > startPosition.getLine()) {
+					endPosition.setCharacter(startPosition.getCharacter());
+				}
+				break;
+			case ETagRequired:
+				endPosition = document.positionAt(element.getStartTagCloseOffset() + 1);
+				break;
+			default:
+				return;
 			}
 
 			String elementName = element.getTagName();
-			CodeAction action = CodeActionFactory.insert("Close with '</" + elementName + ">'", endPosition, "</" + elementName + ">", document.getTextDocument(), diagnostic);
+			CodeAction action = CodeActionFactory.insert("Close with '</" + elementName + ">'", endPosition,
+					"</" + elementName + ">", document.getTextDocument(), diagnostic);
 			codeActions.add(action);
 		} catch (BadLocationException e) {
 			LOGGER.log(Level.WARNING, "Exception while resolving the code action for " + diagnostic.getCode() + ":", e);
 		}
 	}
 
-	
 }
