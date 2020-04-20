@@ -40,7 +40,7 @@ import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMParser;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.services.DocumentSymbolsResult;
-import org.eclipse.lemminx.services.SymbolInformationsResult;
+import org.eclipse.lemminx.services.SymbolInformationResult;
 import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.services.extensions.save.AbstractSaveContext;
 import org.eclipse.lemminx.settings.SharedSettings;
@@ -237,7 +237,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 						}) //
 						.collect(Collectors.toList());
 			}
-			SymbolInformationsResult result =  getXMLLanguageService()
+			SymbolInformationResult result =  getXMLLanguageService()
 					.findSymbolInformations(xmlDocument, symbolSettings, cancelChecker);
 			resultLimitExceeded = result.isResultLimitExceeded();
 			symbols = result.stream() //
@@ -248,16 +248,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 					.collect(Collectors.toList());
 			
 			if (resultLimitExceeded) {
-				String filename = Paths.get(xmlDocument.getTextDocument().getUri()).getFileName().toString();
-				String message = filename != null ? filename + ": " : "";
-				message += "For performance reasons, document symbols have been limited to " + symbolSettings.getMaxItemsComputed() + " items.";
-				if (sharedSettings.isActionableNotificationSupport() && sharedSettings.isOpenSettingsCommandSupport()) {
-					Command command = new Command("Configure limit", ClientCommands.OPEN_SETTINGS, Collections.singletonList("xml.symbols.maxItemsComputed"));
-					ActionableNotification notification = new ActionableNotification().withSeverity(MessageType.Info).withMessage(message).withCommands(Collections.singletonList(command));
-					xmlLanguageServer.getLanguageClient().actionableNotification(notification);
-				} else {
-					xmlLanguageServer.getLanguageClient().showMessage(new MessageParams(MessageType.Warning, message));
-				}
+				sendSymbolLimitNotification(xmlDocument, symbolSettings);
 			}
 			return symbols;
 		});
@@ -558,5 +549,30 @@ public class XMLTextDocumentService implements TextDocumentService {
 		};
 		start.complete(cancelIndicator);
 		return result;
+	}
+
+	/**
+	 * Sends a notification that informs the user that the symbols limit has been exceeded
+	 * while computing symbols for textDocument/documentSymbol
+	 * 
+	 * @param xmlDocument    the xml document that symbols were being computed for
+	 * @param symbolSettings the symbol settings
+	 */
+	private void sendSymbolLimitNotification(DOMDocument xmlDocument, XMLSymbolSettings symbolSettings) {
+		String filename = Paths.get(xmlDocument.getTextDocument().getUri()).getFileName().toString();
+		String message = filename != null ? filename + ": " : "";
+		message += "For performance reasons, document symbols have been limited to " +
+				symbolSettings.getMaxItemsComputed() +
+				" items.\nIf a new limit is set, please close and reopen this file to recompute document symbols.";
+		
+		if (sharedSettings.isActionableNotificationSupport() && sharedSettings.isOpenSettingsCommandSupport()) {
+			// create command that opens the settings UI on the client side, in order to quickly edit xml.symbols.maxItemsComputed
+			Command command = new Command("Configure limit", ClientCommands.OPEN_SETTINGS, Collections.singletonList("xml.symbols.maxItemsComputed"));
+			ActionableNotification notification = new ActionableNotification().withSeverity(MessageType.Info).withMessage(message).withCommands(Collections.singletonList(command));
+			xmlLanguageServer.getLanguageClient().actionableNotification(notification);
+		} else {
+			// the open settings command is not supported by the client, display a simple message with LSP
+			xmlLanguageServer.getLanguageClient().showMessage(new MessageParams(MessageType.Warning, message));
+		}
 	}
 }

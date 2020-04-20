@@ -59,9 +59,9 @@ class XMLSymbolsProvider {
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
-	public SymbolInformationsResult findSymbolInformations(DOMDocument xmlDocument, XMLSymbolSettings symbolSettings,
+	public SymbolInformationResult findSymbolInformations(DOMDocument xmlDocument, XMLSymbolSettings symbolSettings,
 			CancelChecker cancelChecker) {
-		SymbolInformationsResult symbols = new SymbolInformationsResult();
+		SymbolInformationResult symbols = new SymbolInformationResult();
 		AtomicLong limit = symbolSettings.getMaxItemsComputed() > 0
 				? new AtomicLong(symbolSettings.getMaxItemsComputed())
 				: null;
@@ -179,6 +179,14 @@ class XMLSymbolsProvider {
 		});
 	}
 
+	/**
+	 * Decrements <code>limit</code>.
+	 * 
+	 * Throws a <code>ResultLimitExceededException</code>
+	 * if <code>limit</code> becomes negative.
+	 * 
+	 * @param limit the limit to decrement
+	 */
 	private void checkLimit(AtomicLong limit) {
 		if (limit == null) {
 			return;

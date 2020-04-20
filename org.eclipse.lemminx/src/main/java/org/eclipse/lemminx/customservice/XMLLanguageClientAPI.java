@@ -23,6 +23,11 @@ import org.eclipse.lsp4j.services.LanguageClient;
 @JsonSegment("xml")
 public interface XMLLanguageClientAPI extends LanguageClient {
 
+	/**
+	 * Notification to be sent to the client with a list of commands
+	 * 
+	 * @param command
+	 */
 	@JsonNotification
 	default void actionableNotification(ActionableNotification command) {
 		throw new UnsupportedOperationException();

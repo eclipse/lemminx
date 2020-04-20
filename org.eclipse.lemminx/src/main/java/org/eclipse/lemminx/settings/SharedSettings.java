@@ -69,18 +69,40 @@ public class SharedSettings {
 		return hoverSettings;
 	}
 
+	/**
+	 * Returns true if the client supports actionable notifications and false otherwise
+	 * See ActionableNotification and XMLLanguageClientAPI
+	 * 
+	 * @return true if the client supports actionable notifications and false otherwise
+	 */
 	public boolean isActionableNotificationSupport() {
 		return actionableNotificationSupport;
 	}
 
+	/**
+	 * Sets the actionableNotificationSupport boolean
+	 * 
+	 * @param actionableNotificationSupport
+	 */
 	public void setActionableNotificationSupport(boolean actionableNotificationSupport) {
 		this.actionableNotificationSupport = actionableNotificationSupport;
 	}
 
+	/**
+	 * Returns true if the client supports the open settings command and false otherwise
+	 * See ClientCommands.OPEN_SETTINGS
+	 * 
+	 * @return true if the client supports the open settings command and false otherwise
+	 */
 	public boolean isOpenSettingsCommandSupport() {
 		return openSettingsCommandSupport;
 	}
 
+	/**
+	 * Sets the openSettingsCommandSupport boolean
+	 * 
+	 * @param openSettingsCommandSupport
+	 */
 	public void setOpenSettingsCommandSupport(boolean openSettingsCommandSupport) {
 		this.openSettingsCommandSupport = openSettingsCommandSupport;
 	}

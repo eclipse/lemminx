@@ -31,11 +31,23 @@ public class DocumentSymbolsResult extends ArrayList<DocumentSymbol> {
 	 */
 	private transient boolean resultLimitExceeded;
 
+	/**
+	 * Returns true if the symbols limit has been exceeded while
+	 * computing document symbols, false otherwise
+	 * 
+	 * @return true if the symbols limit has been exceeded while
+	 * computing document symbols, false otherwise
+	 */
 	public boolean isResultLimitExceeded() {
 		return resultLimitExceeded;
 	}
 
-	public void setResultLimitExceeded(boolean resultLimitExceeded) {
+	/**
+	 * Sets the resultLimitExceeded boolean
+	 * 
+	 * @param resultLimitExceeded
+	 */
+	void setResultLimitExceeded(boolean resultLimitExceeded) {
 		this.resultLimitExceeded = resultLimitExceeded;
 	}
 

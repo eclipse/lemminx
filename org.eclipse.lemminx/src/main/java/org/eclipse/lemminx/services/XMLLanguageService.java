@@ -118,7 +118,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		return findSymbolInformations(xmlDocument, symbolSettings, NULL_CHECKER);
 	}
 
-	public SymbolInformationsResult findSymbolInformations(DOMDocument xmlDocument, XMLSymbolSettings symbolSettings, CancelChecker cancelChecker) {
+	public SymbolInformationResult findSymbolInformations(DOMDocument xmlDocument, XMLSymbolSettings symbolSettings, CancelChecker cancelChecker) {
 		return symbolsProvider.findSymbolInformations(xmlDocument, symbolSettings, cancelChecker);
 	}
 

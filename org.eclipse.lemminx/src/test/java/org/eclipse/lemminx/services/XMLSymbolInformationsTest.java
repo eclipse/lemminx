@@ -50,7 +50,7 @@ public class XMLSymbolInformationsTest {
 	@Test
 	public void testSingleSymbol() {
 		String xmlText = "<project></project>";
-		initializeTestObjects(xmlText);
+		initializeTestObjects(xmlText, testURI);
 
 		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
 		currentLocation = createLocation(testURI, 0, 19, xmlDocument);
@@ -63,7 +63,7 @@ public class XMLSymbolInformationsTest {
 	@Test
 	public void testNestedSymbol() {
 		String xmlText = "<project><inside></inside></project>";
-		initializeTestObjects(xmlText);
+		initializeTestObjects(xmlText, testURI);
 
 		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
 		currentLocation = createLocation(testURI, 0, 36, xmlDocument);
@@ -80,7 +80,7 @@ public class XMLSymbolInformationsTest {
 	@Test
 	public void testTwoNestedSymbols() {
 		String xmlText = "<a><b></b><c></c></a>";
-		initializeTestObjects(xmlText);
+		initializeTestObjects(xmlText, testURI);
 
 		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
 		currentLocation = createLocation(testURI, 0, 21, xmlDocument);
@@ -101,7 +101,7 @@ public class XMLSymbolInformationsTest {
 	@Test
 	public void testNestedTwice() {
 		String xmlText = "<a><b><c></c></b></a>";
-		initializeTestObjects(xmlText);
+		initializeTestObjects(xmlText, testURI);
 
 		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
 		currentLocation = createLocation(testURI, 0, 21, xmlDocument);
@@ -122,7 +122,7 @@ public class XMLSymbolInformationsTest {
 	@Test
 	public void testSelfClosingTag() {
 		String xmlText = "<a/>";
-		initializeTestObjects(xmlText);
+		initializeTestObjects(xmlText, testURI);
 
 		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
 		currentLocation = createLocation(testURI, 0, 4, xmlDocument);
@@ -135,7 +135,7 @@ public class XMLSymbolInformationsTest {
 	@Test
 	public void testNestedSelfClosingTag() {
 		String xmlText = "<a><b/></a>";
-		initializeTestObjects(xmlText);
+		initializeTestObjects(xmlText, testURI);
 
 		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
 		currentLocation = createLocation(testURI, 0, 11, xmlDocument);
@@ -152,7 +152,7 @@ public class XMLSymbolInformationsTest {
 	@Test
 	public void testUnclosedTag() {
 		String xmlText = "<a>";
-		initializeTestObjects(xmlText);
+		initializeTestObjects(xmlText, testURI);
 
 		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
 		currentLocation = createLocation(testURI, 0, 3, xmlDocument);
@@ -165,7 +165,7 @@ public class XMLSymbolInformationsTest {
 	@Test
 	public void testNestedUnclosedTag() {
 		String xmlText = "<a><b></a>";
-		initializeTestObjects(xmlText);
+		initializeTestObjects(xmlText, testURI);
 
 		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
 		currentLocation = createLocation(testURI, 0, 10, xmlDocument);
@@ -182,7 +182,7 @@ public class XMLSymbolInformationsTest {
 	@Test
 	public void testAllTagsUnclosed() {
 		String xmlText = "<a><b>";
-		initializeTestObjects(xmlText);
+		initializeTestObjects(xmlText, testURI);
 
 		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
 		currentLocation = createLocation(testURI, 0, 6, xmlDocument);
@@ -199,7 +199,7 @@ public class XMLSymbolInformationsTest {
 	@Test
 	public void singleEndTag() throws BadLocationException {
 		String xmlText = "</meta>";
-		initializeTestObjects(xmlText);
+		initializeTestObjects(xmlText, testURI);
 
 		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
 		currentLocation = createLocation(testURI, 0, 7, xmlDocument);
@@ -308,10 +308,6 @@ public class XMLSymbolInformationsTest {
 		assertSymbols(expectedSymbolInfos.stream().limit(3).collect(Collectors.toList()), actualSymbolInfos);
 	}
 	// -------------------Tools------------------------------
-
-	private void initializeTestObjects(String xmlText) {
-		initializeTestObjects(xmlText, testURI, new XMLSymbolSettings());
-	}
 
 	private void initializeTestObjects(String xmlText, String uri) {
 		initializeTestObjects(xmlText, uri, new XMLSymbolSettings());

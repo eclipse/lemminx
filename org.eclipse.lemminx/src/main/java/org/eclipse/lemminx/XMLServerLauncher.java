@@ -87,7 +87,7 @@ public class XMLServerLauncher {
 	 * @param wrapper         - a function for plugging in additional message
 	 *                        consumers
 	 */
-	public static Launcher<LanguageClient> createServerLauncher(LanguageServer server, InputStream in, OutputStream out,
+	private static Launcher<LanguageClient> createServerLauncher(LanguageServer server, InputStream in, OutputStream out,
 			ExecutorService executorService, Function<MessageConsumer, MessageConsumer> wrapper) {
 		return new Builder<LanguageClient>().
 				setLocalService(server)

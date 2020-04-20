@@ -21,10 +21,18 @@ import org.eclipse.lsp4j.jsonrpc.json.MessageJsonHandler;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+/**
+ * An ActionableNotification class.
+ * 
+ * An instance of this class is sent to the client as a parameter
+ * for the xml/actionableNotification notification.
+ * 
+ * See XMLLanguageClientAPI
+ */
 public class ActionableNotification {
 
 	/**
-	 * The message type. See {
+	 * The message type. See {@link MessageType}.
 	 *
 	 */
 	@SerializedName("severity")

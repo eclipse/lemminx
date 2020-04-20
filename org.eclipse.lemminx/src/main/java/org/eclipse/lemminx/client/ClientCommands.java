@@ -28,10 +28,10 @@ public class ClientCommands {
 	public static final String SHOW_REFERENCES = "xml.show.references";
 
 	/**
-	 * Open settings command
-	 * 
-	 * A <code>String settingId</code> parameter can be optionally provided
+	 * Open settings command.
+	 * This custom command is sent to the client in order to have the client
+	 * open its settings UI.
 	 */
-	public static final String OPEN_SETTINGS = "xml.openSettings";
+	public static final String OPEN_SETTINGS = "xml.open.settings";
 
 }
