@@ -98,7 +98,7 @@ public class XMLExternalTest extends BaseFileTempTest  {
 
 		assertEquals(2, actualDiagnostics.size());
 		assertFalse(actualDiagnostics.get(1).getDiagnostics().isEmpty());
-		assertEquals("MSG_ELEMENT_NOT_DECLARED", actualDiagnostics.get(1).getDiagnostics().get(0).getCode());
+		assertEquals("MSG_ELEMENT_NOT_DECLARED", actualDiagnostics.get(1).getDiagnostics().get(0).getCode().getLeft());
 	}
 
 	@Test
@@ -151,7 +151,7 @@ public class XMLExternalTest extends BaseFileTempTest  {
 		Thread.sleep(threadSleepMs);
 
 		assertEquals(2, actualDiagnostics.size());
-		assertEquals("cvc-complex-type.2.4.f", actualDiagnostics.get(1).getDiagnostics().get(0).getCode());
+		assertEquals("cvc-complex-type.2.4.f", actualDiagnostics.get(1).getDiagnostics().get(0).getCode().getLeft());
 	}
 
 	private static XMLLanguageServer createServer(List<PublishDiagnosticsParams> actualDiagnostics) {
