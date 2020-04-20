@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import org.eclipse.lemminx.XMLAssert;
+import org.eclipse.lemminx.settings.XMLSymbolSettings;
 import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.SymbolKind;
 import org.junit.jupiter.api.Test;
@@ -99,5 +100,46 @@ public class XMLDocumentSymbolsTest {
 								ds("Email", SymbolKind.Property, r(8, 1, 8, 27), r(8, 1, 8, 27), null, Collections.emptyList()) //
 						)), //
 				ds("Folks", SymbolKind.Field, r(10, 0, 12, 8), r(10, 0, 12, 8), null, Collections.emptyList()));
+	}
+
+	@Test
+	public void exceedSymbolLimit() {
+		String xml = "<?xml version = \"1.0\"?>\r\n" + //
+				"<!DOCTYPE Folks [\r\n" + //
+				"	<!ELEMENT Folks (Person*)>\r\n" + //
+				"	<!ELEMENT Person (Name,Email?)>\r\n" + //
+				"	<!ATTLIST Person Pin ID #REQUIRED>\r\n" + //
+				"	<!ATTLIST Person Friend IDREF #IMPLIED>\r\n" + //
+				"	<!ATTLIST Person Likes IDREFS #IMPLIED>\r\n" + //
+				"	<!ELEMENT Name (#PCDATA)>\r\n" + //
+				"	<!ELEMENT Email (#PCDATA)>\r\n" + //
+				"	]>\r\n" + //
+				"<Folks>\r\n" + //
+				"	\r\n" + //
+				"</Folks>";
+		
+		DocumentSymbol symbol1 = ds("xml", SymbolKind.Property, r(0, 0, 0, 23), r(0, 0, 0, 23), null, //
+				Collections.emptyList());
+		DocumentSymbol symbol2 = ds("DOCTYPE:Folks", SymbolKind.Struct, r(1, 0, 9, 3), r(1, 0, 9, 3), null,
+				Arrays.asList(
+						ds("Folks", SymbolKind.Property, r(2, 1, 2, 27), r(2, 1, 2, 27), null, Collections.emptyList()), //
+						ds("Person", SymbolKind.Property, r(3, 1, 3, 32), r(3, 1, 3, 32), null, //
+								Arrays.asList( //
+										ds("Pin", SymbolKind.Key, r(4, 18, 4, 21), r(4, 18, 4, 21), null, Collections.emptyList()), //
+										ds("Friend", SymbolKind.Key, r(5, 18, 5, 24), r(5, 18, 5, 24), null, Collections.emptyList()), //
+										ds("Likes", SymbolKind.Key, r(6, 18, 6, 23), r(6, 18, 6, 23), null, Collections.emptyList()))), //
+						ds("Name", SymbolKind.Property, r(7, 1, 7, 26), r(7, 1, 7, 26), null, Collections.emptyList()), //
+						ds("Email", SymbolKind.Property, r(8, 1, 8, 27), r(8, 1, 8, 27), null, Collections.emptyList())));
+		DocumentSymbol symbol3 = ds("Folks", SymbolKind.Field, r(10, 0, 12, 8), r(10, 0, 12, 8), null, Collections.emptyList());
+
+		XMLSymbolSettings settings = new XMLSymbolSettings();
+		settings.setMaxItemsComputed(10);
+		XMLAssert.testDocumentSymbolsFor(xml, "test.xml", settings, symbol1, symbol2, symbol3);
+		
+		settings.setMaxItemsComputed(15);
+		XMLAssert.testDocumentSymbolsFor(xml, "test.xml", settings, symbol1, symbol2, symbol3);
+
+		settings.setMaxItemsComputed(9);
+		XMLAssert.testDocumentSymbolsFor(xml, "test.xml", settings, symbol1, symbol2);
 	}
 }

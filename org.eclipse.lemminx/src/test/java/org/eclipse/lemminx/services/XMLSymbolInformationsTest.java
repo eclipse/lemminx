@@ -17,10 +17,12 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMParser;
+import org.eclipse.lemminx.settings.XMLSymbolSettings;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -37,7 +39,6 @@ public class XMLSymbolInformationsTest {
 	private XMLLanguageService languageService;
 	private DOMDocument xmlDocument;
 	private List<SymbolInformation> actualSymbolInfos;
-	private List<SymbolInformation> expectedSymbolInfos;
 	private Location currentLocation;
 	private SymbolInformation currentSymbolInfo;
 
@@ -49,8 +50,9 @@ public class XMLSymbolInformationsTest {
 	@Test
 	public void testSingleSymbol() {
 		String xmlText = "<project></project>";
-		initializeTestObjects(xmlText);
+		initializeTestObjects(xmlText, testURI);
 
+		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
 		currentLocation = createLocation(testURI, 0, 19, xmlDocument);
 		currentSymbolInfo = createSymbolInformation("project", SymbolKind.Field, currentLocation, "");
 		expectedSymbolInfos.add(currentSymbolInfo);
@@ -61,8 +63,9 @@ public class XMLSymbolInformationsTest {
 	@Test
 	public void testNestedSymbol() {
 		String xmlText = "<project><inside></inside></project>";
-		initializeTestObjects(xmlText);
+		initializeTestObjects(xmlText, testURI);
 
+		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
 		currentLocation = createLocation(testURI, 0, 36, xmlDocument);
 		currentSymbolInfo = createSymbolInformation("project", SymbolKind.Field, currentLocation, "");
 		expectedSymbolInfos.add(currentSymbolInfo);
@@ -77,8 +80,9 @@ public class XMLSymbolInformationsTest {
 	@Test
 	public void testTwoNestedSymbols() {
 		String xmlText = "<a><b></b><c></c></a>";
-		initializeTestObjects(xmlText);
+		initializeTestObjects(xmlText, testURI);
 
+		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
 		currentLocation = createLocation(testURI, 0, 21, xmlDocument);
 		currentSymbolInfo = createSymbolInformation("a", SymbolKind.Field, currentLocation, "");
 		expectedSymbolInfos.add(currentSymbolInfo);
@@ -97,8 +101,9 @@ public class XMLSymbolInformationsTest {
 	@Test
 	public void testNestedTwice() {
 		String xmlText = "<a><b><c></c></b></a>";
-		initializeTestObjects(xmlText);
+		initializeTestObjects(xmlText, testURI);
 
+		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
 		currentLocation = createLocation(testURI, 0, 21, xmlDocument);
 		currentSymbolInfo = createSymbolInformation("a", SymbolKind.Field, currentLocation, "");
 		expectedSymbolInfos.add(currentSymbolInfo);
@@ -117,8 +122,9 @@ public class XMLSymbolInformationsTest {
 	@Test
 	public void testSelfClosingTag() {
 		String xmlText = "<a/>";
-		initializeTestObjects(xmlText);
+		initializeTestObjects(xmlText, testURI);
 
+		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
 		currentLocation = createLocation(testURI, 0, 4, xmlDocument);
 		currentSymbolInfo = createSymbolInformation("a", SymbolKind.Field, currentLocation, "");
 		expectedSymbolInfos.add(currentSymbolInfo);
@@ -129,8 +135,9 @@ public class XMLSymbolInformationsTest {
 	@Test
 	public void testNestedSelfClosingTag() {
 		String xmlText = "<a><b/></a>";
-		initializeTestObjects(xmlText);
+		initializeTestObjects(xmlText, testURI);
 
+		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
 		currentLocation = createLocation(testURI, 0, 11, xmlDocument);
 		currentSymbolInfo = createSymbolInformation("a", SymbolKind.Field, currentLocation, "");
 		expectedSymbolInfos.add(currentSymbolInfo);
@@ -145,8 +152,9 @@ public class XMLSymbolInformationsTest {
 	@Test
 	public void testUnclosedTag() {
 		String xmlText = "<a>";
-		initializeTestObjects(xmlText);
+		initializeTestObjects(xmlText, testURI);
 
+		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
 		currentLocation = createLocation(testURI, 0, 3, xmlDocument);
 		currentSymbolInfo = createSymbolInformation("a", SymbolKind.Field, currentLocation, "");
 		expectedSymbolInfos.add(currentSymbolInfo);
@@ -157,8 +165,9 @@ public class XMLSymbolInformationsTest {
 	@Test
 	public void testNestedUnclosedTag() {
 		String xmlText = "<a><b></a>";
-		initializeTestObjects(xmlText);
+		initializeTestObjects(xmlText, testURI);
 
+		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
 		currentLocation = createLocation(testURI, 0, 10, xmlDocument);
 		currentSymbolInfo = createSymbolInformation("a", SymbolKind.Field, currentLocation, "");
 		expectedSymbolInfos.add(currentSymbolInfo);
@@ -173,8 +182,9 @@ public class XMLSymbolInformationsTest {
 	@Test
 	public void testAllTagsUnclosed() {
 		String xmlText = "<a><b>";
-		initializeTestObjects(xmlText);
+		initializeTestObjects(xmlText, testURI);
 
+		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
 		currentLocation = createLocation(testURI, 0, 6, xmlDocument);
 		currentSymbolInfo = createSymbolInformation("a", SymbolKind.Field, currentLocation, "");
 		expectedSymbolInfos.add(currentSymbolInfo);
@@ -189,8 +199,9 @@ public class XMLSymbolInformationsTest {
 	@Test
 	public void singleEndTag() throws BadLocationException {
 		String xmlText = "</meta>";
-		initializeTestObjects(xmlText);
+		initializeTestObjects(xmlText, testURI);
 
+		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
 		currentLocation = createLocation(testURI, 0, 7, xmlDocument);
 		currentSymbolInfo = createSymbolInformation("meta", SymbolKind.Field, currentLocation, "");
 		expectedSymbolInfos.add(currentSymbolInfo);
@@ -213,6 +224,7 @@ public class XMLSymbolInformationsTest {
 		String testURI = "test.dtd";
 		initializeTestObjects(xmlText, testURI);
 
+		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
 		currentLocation = createLocation(testURI, 0, 19, xmlDocument);
 		currentSymbolInfo = createSymbolInformation("br", SymbolKind.Property, currentLocation, "");
 		expectedSymbolInfos.add(currentSymbolInfo);
@@ -234,6 +246,8 @@ public class XMLSymbolInformationsTest {
 				"<br />";
 		String testURI = "test.xml";
 		initializeTestObjects(xmlText, testURI);
+
+		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
 		currentLocation = createLocation(testURI, 0, 63, xmlDocument);
 		currentSymbolInfo = createSymbolInformation("DOCTYPE:br", SymbolKind.Struct, currentLocation, "");
 		expectedSymbolInfos.add(currentSymbolInfo);
@@ -252,16 +266,56 @@ public class XMLSymbolInformationsTest {
 
 		assertSymbols(expectedSymbolInfos, actualSymbolInfos);
 	}
+
+	@Test
+	public void exceedSymbolLimit() {
+		String xmlText = "<!DOCTYPE br [\n" + //
+				"  	<!ELEMENT br EMPTY>\n" + //
+				"	<!ATTLIST br\n" + //
+				"		%all;>\n" + //
+				"]>\n" + //
+				"<br />";
+		String testURI = "test.xml";
+		XMLSymbolSettings settings = new XMLSymbolSettings();
+		settings.setMaxItemsComputed(4);
+		initializeTestObjects(xmlText, testURI, settings);
+
+		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
+		currentLocation = createLocation(testURI, 0, 63, xmlDocument);
+		currentSymbolInfo = createSymbolInformation("DOCTYPE:br", SymbolKind.Struct, currentLocation, "");
+		expectedSymbolInfos.add(currentSymbolInfo);
+
+		currentLocation = createLocation(testURI, 18, 37, xmlDocument);
+		currentSymbolInfo = createSymbolInformation("br", SymbolKind.Property, currentLocation, "DOCTYPE:br");
+		expectedSymbolInfos.add(currentSymbolInfo);
+
+		currentLocation = createLocation(testURI, 54, 59, xmlDocument);
+		currentSymbolInfo = createSymbolInformation("%all;", SymbolKind.Key, currentLocation, "DOCTYPE:br");
+		expectedSymbolInfos.add(currentSymbolInfo);
+
+		currentLocation = createLocation(testURI, 64, 70, xmlDocument);
+		currentSymbolInfo = createSymbolInformation("br", SymbolKind.Field, currentLocation, "");
+		expectedSymbolInfos.add(currentSymbolInfo);
+
+		assertSymbols(expectedSymbolInfos, actualSymbolInfos);
+
+		settings.setMaxItemsComputed(10);
+		initializeTestObjects(xmlText, testURI, settings);
+		assertSymbols(expectedSymbolInfos, actualSymbolInfos);
+
+		settings.setMaxItemsComputed(3);
+		initializeTestObjects(xmlText, testURI, settings);
+		assertSymbols(expectedSymbolInfos.stream().limit(3).collect(Collectors.toList()), actualSymbolInfos);
+	}
 	// -------------------Tools------------------------------
 
-	private void initializeTestObjects(String xmlText) {
-		initializeTestObjects(xmlText, testURI);
+	private void initializeTestObjects(String xmlText, String uri) {
+		initializeTestObjects(xmlText, uri, new XMLSymbolSettings());
 	}
 
-	private void initializeTestObjects(String xmlText, String uri) {
+	private void initializeTestObjects(String xmlText, String uri, XMLSymbolSettings settings) {
 		xmlDocument = DOMParser.getInstance().parse(xmlText, uri, null);
-		actualSymbolInfos = languageService.findSymbolInformations(xmlDocument);
-		expectedSymbolInfos = new ArrayList<SymbolInformation>();
+		actualSymbolInfos = languageService.findSymbolInformations(xmlDocument, settings);
 	}
 
 	private void assertSymbols(List<SymbolInformation> expectedSymbolList, List<SymbolInformation> actualSymbolList) {

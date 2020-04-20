@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.lemminx.XMLLanguageServer;
+import org.eclipse.lemminx.customservice.ActionableNotification;
+import org.eclipse.lemminx.customservice.XMLLanguageClientAPI;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.FileChangeType;
@@ -30,7 +32,6 @@ import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.ShowMessageRequestParams;
 import org.eclipse.lsp4j.TextDocumentItem;
-import org.eclipse.lsp4j.services.LanguageClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -157,7 +158,7 @@ public class XMLExternalTest extends BaseFileTempTest  {
 	private static XMLLanguageServer createServer(List<PublishDiagnosticsParams> actualDiagnostics) {
 
 		XMLLanguageServer languageServer = new XMLLanguageServer();
-		LanguageClient client = new LanguageClient() {
+		XMLLanguageClientAPI client = new XMLLanguageClientAPI() {
 
 			@Override
 			public CompletableFuture<MessageActionItem> showMessageRequest(ShowMessageRequestParams requestParams) {
@@ -182,6 +183,11 @@ public class XMLExternalTest extends BaseFileTempTest  {
 			@Override
 			public void telemetryEvent(Object object) {
 
+			}
+
+			@Override
+			public void actionableNotification(ActionableNotification notification) {
+				throw new UnsupportedOperationException();
 			}
 		};
 		languageServer.setClient(client);

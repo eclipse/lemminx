@@ -22,12 +22,57 @@ public class ExtendedClientCapabilities {
 
 	private ExtendedCodeLensCapabilities codeLens;
 
+	private boolean actionableNotificationSupport;
+
+	private boolean openSettingsCommandSupport;
+
 	public ExtendedCodeLensCapabilities getCodeLens() {
 		return codeLens;
 	}
 
 	public void setCodeLens(ExtendedCodeLensCapabilities codeLens) {
 		this.codeLens = codeLens;
+	}
+
+	/**
+	 * Returns true if the client supports actionable notifications and false otherwise
+	 * 
+	 * See {@link org.eclipse.lemminx.customservice.ActionableNotification} and
+	 * {@link org.eclipse.lemminx.customservice.XMLLanguageClientAPI}
+	 * 
+	 * @return true if the client supports actionable notifications and false otherwise
+	 */
+	public boolean isActionableNotificationSupport() {
+		return actionableNotificationSupport;
+	}
+
+	/**
+	 * Sets the actionableNotificationSupport boolean
+	 * 
+	 * @param actionableNotificationSupport
+	 */
+	public void setActionableNotificationSupport(boolean actionableNotificationSupport) {
+		this.actionableNotificationSupport = actionableNotificationSupport;
+	}
+
+	/**
+	 * Returns true if the client supports the open settings command and false otherwise
+	 * 
+	 * See {@link org.eclipse.lemminx.client.ClientCommands#OPEN_SETTINGS}
+	 * 
+	 * @return true if the client supports the open settings command and false otherwise
+	 */
+	public boolean isOpenSettingsCommandSupport() {
+		return openSettingsCommandSupport;
+	}
+
+	/**
+	 * Sets the openSettingsCommandSupport boolean
+	 * 
+	 * @param openSettingsCommandSupport
+	 */
+	public void setOpenSettingsCommandSupport(boolean openSettingsCommandSupport) {
+		this.openSettingsCommandSupport = openSettingsCommandSupport;
 	}
 
 }

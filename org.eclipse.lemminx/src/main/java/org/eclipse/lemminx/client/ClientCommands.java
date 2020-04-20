@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2019 Red Hat Inc. and others.
+* Copyright (c) 2019-2020 Red Hat Inc. and others.
 * All rights reserved. This program and the accompanying materials
 * which accompanies this distribution, and is available at
 * http://www.eclipse.org/legal/epl-v20.html
@@ -26,5 +26,12 @@ public class ClientCommands {
 	 * Show references
 	 */
 	public static final String SHOW_REFERENCES = "xml.show.references";
+
+	/**
+	 * Open settings command.
+	 * This custom command is sent to the client in order to have the client
+	 * open its settings UI.
+	 */
+	public static final String OPEN_SETTINGS = "xml.open.settings";
 
 }

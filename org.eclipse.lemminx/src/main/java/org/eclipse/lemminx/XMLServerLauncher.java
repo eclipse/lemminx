@@ -16,15 +16,18 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.function.Function;
 
 import org.eclipse.lemminx.commons.ParentProcessWatcher;
+import org.eclipse.lemminx.customservice.XMLLanguageClientAPI;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.jsonrpc.MessageConsumer;
-import org.eclipse.lsp4j.launch.LSPLauncher;
+import org.eclipse.lsp4j.launch.LSPLauncher.Builder;
 import org.eclipse.lsp4j.services.LanguageClient;
+import org.eclipse.lsp4j.services.LanguageServer;
 
 public class XMLServerLauncher {
 
@@ -65,9 +68,34 @@ public class XMLServerLauncher {
 		} else {
 			wrapper = new ParentProcessWatcher(server);
 		}
-		Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(server, in, out,
-				Executors.newCachedThreadPool(), wrapper);
+		Launcher<LanguageClient> launcher = createServerLauncher(server, in, out, Executors.newCachedThreadPool(), wrapper);
 		server.setClient(launcher.getRemoteProxy());
 		return launcher.startListening();
+	}
+
+	/**
+	 * Create a new Launcher for a language server and an input and output stream.
+	 * Threads are started with the given executor service. The wrapper function is
+	 * applied to the incoming and outgoing message streams so additional message
+	 * handling such as validation and tracing can be included.
+	 * 
+	 * @param server          - the server that receives method calls from the
+	 *                        remote client
+	 * @param in              - input stream to listen for incoming messages
+	 * @param out             - output stream to send outgoing messages
+	 * @param executorService - the executor service used to start threads
+	 * @param wrapper         - a function for plugging in additional message
+	 *                        consumers
+	 */
+	private static Launcher<LanguageClient> createServerLauncher(LanguageServer server, InputStream in, OutputStream out,
+			ExecutorService executorService, Function<MessageConsumer, MessageConsumer> wrapper) {
+		return new Builder<LanguageClient>().
+				setLocalService(server)
+				.setRemoteInterface(XMLLanguageClientAPI.class) // Set client as XML language client
+				.setInput(in)
+				.setOutput(out)
+				.setExecutorService(executorService)
+				.wrapMessages(wrapper)
+				.create();
 	}
 }

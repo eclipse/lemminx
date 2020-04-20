@@ -14,6 +14,7 @@ package org.eclipse.lemminx;
 
 import static org.eclipse.lsp4j.jsonrpc.CompletableFutures.computeAsync;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,14 +29,18 @@ import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.eclipse.lemminx.client.ClientCommands;
 import org.eclipse.lemminx.client.ExtendedClientCapabilities;
 import org.eclipse.lemminx.commons.ModelTextDocument;
 import org.eclipse.lemminx.commons.ModelTextDocuments;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.commons.TextDocuments;
+import org.eclipse.lemminx.customservice.ActionableNotification;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMParser;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
+import org.eclipse.lemminx.services.DocumentSymbolsResult;
+import org.eclipse.lemminx.services.SymbolInformationResult;
 import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.services.extensions.save.AbstractSaveContext;
 import org.eclipse.lemminx.settings.SharedSettings;
@@ -73,6 +78,8 @@ import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.HoverParams;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
+import org.eclipse.lsp4j.MessageParams;
+import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameParams;
@@ -171,6 +178,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 		if (extendedClientCapabilities != null) {
 			// Extended client capabilities
 			sharedSettings.getCodeLensSettings().setCodeLens(extendedClientCapabilities.getCodeLens());
+			sharedSettings.setActionableNotificationSupport(extendedClientCapabilities.isActionableNotificationSupport());
+			sharedSettings.setOpenSettingsCommandSupport(extendedClientCapabilities.isOpenSettingsCommandSupport());
 		}
 	}
 
@@ -209,15 +218,21 @@ public class XMLTextDocumentService implements TextDocumentService {
 			DocumentSymbolParams params) {
 
 		TextDocument document = getDocument(params.getTextDocument().getUri());
+		XMLSymbolSettings symbolSettings = sharedSettings.getSymbolSettings();
 
-		if (!sharedSettings.getSymbolSettings().isEnabled()
-				|| sharedSettings.getSymbolSettings().isExcluded(document.getUri())) {
+		if (!symbolSettings.isEnabled() || symbolSettings.isExcluded(document.getUri())) {
 			return CompletableFuture.completedFuture(Collections.emptyList());
 		}
 
 		return computeDOMAsync(params.getTextDocument(), (cancelChecker, xmlDocument) -> {
+			boolean resultLimitExceeded = false;
+			List<Either<SymbolInformation, DocumentSymbol>> symbols = null;
+
 			if (hierarchicalDocumentSymbolSupport) {
-				return getXMLLanguageService().findDocumentSymbols(xmlDocument, cancelChecker) //
+				DocumentSymbolsResult result = getXMLLanguageService().findDocumentSymbols(xmlDocument, symbolSettings,
+						cancelChecker);
+				resultLimitExceeded = result.isResultLimitExceeded();
+				symbols = result //
 						.stream() //
 						.map(s -> {
 							Either<SymbolInformation, DocumentSymbol> e = Either.forRight(s);
@@ -225,13 +240,20 @@ public class XMLTextDocumentService implements TextDocumentService {
 						}) //
 						.collect(Collectors.toList());
 			}
-			return getXMLLanguageService().findSymbolInformations(xmlDocument, cancelChecker) //
-					.stream() //
+			SymbolInformationResult result =  getXMLLanguageService()
+					.findSymbolInformations(xmlDocument, symbolSettings, cancelChecker);
+			resultLimitExceeded = result.isResultLimitExceeded();
+			symbols = result.stream() //
 					.map(s -> {
 						Either<SymbolInformation, DocumentSymbol> e = Either.forLeft(s);
 						return e;
 					}) //
 					.collect(Collectors.toList());
+			
+			if (resultLimitExceeded) {
+				sendSymbolLimitNotification(xmlDocument, symbolSettings);
+			}
+			return symbols;
 		});
 	}
 
@@ -456,6 +478,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 		if (newPatterns != null) {
 			symbolSettings.setExcluded(newPatterns);
 		}
+		symbolSettings.setMaxItemsComputed(newSettings.getMaxItemsComputed());
 	}
 
 	public void updateCodeLensSettings(XMLCodeLensSettings newSettings) {
@@ -529,5 +552,30 @@ public class XMLTextDocumentService implements TextDocumentService {
 		};
 		start.complete(cancelIndicator);
 		return result;
+	}
+
+	/**
+	 * Sends a notification that informs the user that the symbols limit has been exceeded
+	 * while computing symbols for textDocument/documentSymbol
+	 * 
+	 * @param xmlDocument    the xml document that symbols were being computed for
+	 * @param symbolSettings the symbol settings
+	 */
+	private void sendSymbolLimitNotification(DOMDocument xmlDocument, XMLSymbolSettings symbolSettings) {
+		String filename = Paths.get(xmlDocument.getTextDocument().getUri()).getFileName().toString();
+		String message = filename != null ? filename + ": " : "";
+		message += "For performance reasons, document symbols have been limited to " +
+				symbolSettings.getMaxItemsComputed() +
+				" items.\nIf a new limit is set, please close and reopen this file to recompute document symbols.";
+		
+		if (sharedSettings.isActionableNotificationSupport() && sharedSettings.isOpenSettingsCommandSupport()) {
+			// create command that opens the settings UI on the client side, in order to quickly edit xml.symbols.maxItemsComputed
+			Command command = new Command("Configure limit", ClientCommands.OPEN_SETTINGS, Collections.singletonList("xml.symbols.maxItemsComputed"));
+			ActionableNotification notification = new ActionableNotification().withSeverity(MessageType.Info).withMessage(message).withCommands(Collections.singletonList(command));
+			xmlLanguageServer.getLanguageClient().actionableNotification(notification);
+		} else {
+			// the open settings command is not supported by the client, display a simple message with LSP
+			xmlLanguageServer.getLanguageClient().showMessage(new MessageParams(MessageType.Warning, message));
+		}
 	}
 }

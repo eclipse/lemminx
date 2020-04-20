@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2019 Red Hat Inc. and others.
+* Copyright (c) 2019-2020 Red Hat Inc. and others.
 * All rights reserved. This program and the accompanying materials
 * which accompanies this distribution, and is available at
 * http://www.eclipse.org/legal/epl-v20.html
@@ -21,6 +21,8 @@ public class XMLSymbolSettings {
 	private boolean enabled = true;
 
 	private String[] excluded;
+
+	private int maxItemsComputed;
 
 	public XMLExcludedSymbolFile[] getExcludedFiles() {
 		return excludedFiles;
@@ -73,6 +75,14 @@ public class XMLSymbolSettings {
 			}
 		}
 		return false;
+	}
+
+	public int getMaxItemsComputed() {
+		return maxItemsComputed;
+	}
+
+	public void setMaxItemsComputed(int maxItemsComputed) {
+		this.maxItemsComputed = maxItemsComputed;
 	}
 
 }
