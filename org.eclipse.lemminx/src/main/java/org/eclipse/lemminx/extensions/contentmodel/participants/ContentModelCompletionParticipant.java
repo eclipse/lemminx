@@ -20,6 +20,7 @@ import java.util.Set;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
+import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMElementDeclaration;
@@ -219,11 +220,11 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 		}
 	}
 
-	private static void addCompletionItem(CMElementDeclaration elementDeclaration, DOMElement element,
+	private static void addCompletionItem(CMElementDeclaration elementDeclaration, DOMElement parentElement,
 			String defaultPrefix, boolean forceUseOfPrefix, ICompletionRequest request, ICompletionResponse response,
 			XMLGenerator generator, Set<String> tags) {
 		String prefix = forceUseOfPrefix ? defaultPrefix
-				: (element != null ? element.getPrefix(elementDeclaration.getNamespace()) : null);
+				: (parentElement != null ? parentElement.getPrefix(elementDeclaration.getNamespace()) : null);
 		String label = elementDeclaration.getName(prefix);
 		if (tags != null) {
 			if (tags.contains(label)) {
@@ -238,10 +239,18 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 		item.setKind(CompletionItemKind.Property);
 		MarkupContent documentation = XMLGenerator.createMarkupContent(elementDeclaration, request);
 		item.setDocumentation(documentation);
-		String xml = generator.generate(elementDeclaration, prefix);
+		String xml = generator.generate(elementDeclaration, prefix,
+				isGenerateEndTag(request.getNode(), request.getOffset(), label));
 		item.setTextEdit(new TextEdit(request.getReplaceRange(), xml));
 		item.setInsertTextFormat(InsertTextFormat.Snippet);
 		response.addCompletionItem(item, true);
+	}
+
+	private static boolean isGenerateEndTag(DOMNode node, int offset, String tagName) {
+		if (node == null) {
+			return true;
+		}
+		return node.getOrphanEndElement(offset, tagName) == null;
 	}
 
 	@Override
@@ -356,8 +365,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 						end = document.positionAt(endOffset);
 					}
 					int completionOffset = request.getOffset();
-					String tokenStart = StringUtils.getWhitespaces(document.getText(), startOffset,
-							completionOffset);
+					String tokenStart = StringUtils.getWhitespaces(document.getText(), startOffset, completionOffset);
 					Range fullRange = new Range(start, end);
 					values.forEach(value -> {
 						CompletionItem item = new CompletionItem();

@@ -18,6 +18,7 @@ import static org.eclipse.lemminx.dom.DOMAttr.XMLNS_NO_DEFAULT_ATTR;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 import org.eclipse.lemminx.utils.StringUtils;
@@ -378,7 +379,49 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 	}
 
 	/**
-	 * If Element has a closing end tag eg: <a> </a> -> true , <a> </b> -> false
+	 * Returns true if the given element is an orphan end tag (which has no start
+	 * tag, eg: </a>) and false otherwise.
+	 * 
+	 * @param tagName the end tag name.
+	 * @return true if the given element is an orphan end tag (which has no start
+	 *         tag, eg: </a>) and false otherwise.
+	 */
+	public boolean isOrphanEndTag(String tagName) {
+		return isSameTag(tagName) && hasEndTag() && !hasStartTag();
+	}
+
+	@Override
+	public DOMElement getOrphanEndElement(int offset, String tagName) {
+		if (getEnd() <= offset) {
+			// <employee />|
+			// <employee /> |
+			// <employee></employee> |
+			// check if next sibling node is an element like <\tagName>
+			return super.getOrphanEndElement(offset, tagName);
+		}
+		if (isSameTag(tagName) && isInStartTag(offset)) {
+			// <employe|e></employee>
+			return this;
+		}
+		// search if it exists an end tag
+		List<DOMNode> children = getChildren();
+		for (DOMNode child : children) {
+			if (child.isElement()) {
+				DOMElement childElement = (DOMElement) child;
+				if (childElement.isOrphanEndTag(tagName)) {
+					return childElement;
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Returns true if element has a closing end tag (eg: <a> </a>) and false
+	 * otherwise (eg: <a> </b>).
+	 * 
+	 * @return true if element has a closing end tag (eg: <a> </a>) and false
+	 *         otherwise (eg: <a> </b>).
 	 */
 	@Override
 	public boolean isClosed() {

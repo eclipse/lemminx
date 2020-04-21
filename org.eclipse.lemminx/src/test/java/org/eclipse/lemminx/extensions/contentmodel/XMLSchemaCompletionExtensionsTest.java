@@ -221,7 +221,8 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				"    <View><Name /><|";
 		// Completion only with Name
 		XMLAssert.testCompletionFor(xml, null, "src/test/resources/Format.xml", 5 + 2 /* CDATA and Comments */,
-				c("OutOfBand", "<OutOfBand>false</OutOfBand>"), c("ViewSelectedBy", "<ViewSelectedBy></ViewSelectedBy>"),
+				c("OutOfBand", "<OutOfBand>false</OutOfBand>"),
+				c("ViewSelectedBy", "<ViewSelectedBy></ViewSelectedBy>"),
 				c("End with '</Configuration>'", "/Configuration>"),
 				c("End with '</ViewDefinitions>'", "/ViewDefinitions>"), c("End with '</View>'", "/View>"));
 	}
@@ -1005,6 +1006,126 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 	}
 
 	@Test
+	public void generateOnlyStartElementOnText() throws BadLocationException {
+		// </employee> already exists, completion must generate only <employee>
+
+		// completion on empty text
+		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
+				"<person xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"xsd/choice.xsd\">\r\n"
+				+ //
+				"|</employee>";
+		testCompletionSnippetSupporytFor(xml, "src/test/resources/choice.xml", 2, //
+				c("member", te(2, 0, 2, 0, "<member>$1</member>$0"), "member"), //
+				c("employee", te(2, 0, 2, 0, "<employee>$1$0"), "employee")); // <-- here only start employee is
+																				// generated
+
+		// completion on text
+		xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
+				"<person xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"xsd/choice.xsd\">\r\n"
+				+ //
+				"em|</employee>";
+		testCompletionSnippetSupporytFor(xml, "src/test/resources/choice.xml", 2, //
+				c("member", te(2, 0, 2, 2, "<member>$1</member>$0"), "member"), //
+				c("employee", te(2, 0, 2, 2, "<employee>$1$0"), "employee")); // <-- here only start employee is
+																				// generated
+
+		// completion on text inside element
+		xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
+				"<person xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"xsd/choice.xsd\">\r\n"
+				+ //
+				"<employee>|</employee>";
+		testCompletionSnippetSupporytFor(xml, "src/test/resources/choice.xml", 3, //
+				c("person", te(2, 10, 2, 10, "<person>$1</person>$0"), "person"),
+				c("member", te(2, 10, 2, 10, "<member>$1</member>$0"), "member"), //
+				c("employee", te(2, 10, 2, 10, "<employee>$1</employee>$0"), "employee"));
+
+		// completion on text inside element with text content
+		xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
+				"<person xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"xsd/choice.xsd\">\r\n"
+				+ //
+				"<employee> |</employee>";
+		testCompletionSnippetSupporytFor(xml, "src/test/resources/choice.xml", 3, //
+				c("person", te(2, 11, 2, 11, "<person>$1</person>$0"), "person"),
+				c("member", te(2, 11, 2, 11, "<member>$1</member>$0"), "member"), //
+				c("employee", te(2, 11, 2, 11, "<employee>$1</employee>$0"), "employee"));
+
+		// completion on text inside element with text content
+		xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
+				"<person xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"xsd/choice.xsd\">\r\n"
+				+ //
+				"<employee>| </employee>";
+		testCompletionSnippetSupporytFor(xml, "src/test/resources/choice.xml", 3, //
+				c("person", te(2, 10, 2, 10, "<person>$1</person>$0"), "person"),
+				c("member", te(2, 10, 2, 10, "<member>$1</member>$0"), "member"), //
+				c("employee", te(2, 10, 2, 10, "<employee>$1</employee>$0"), "employee"));
+
+		// completion on text inside element with text content
+		xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
+				"<person xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"xsd/choice.xsd\">\r\n"
+				+ //
+				"<employee> | </employee>";
+		testCompletionSnippetSupporytFor(xml, "src/test/resources/choice.xml", 3, //
+				c("person", te(2, 11, 2, 11, "<person>$1</person>$0"), "person"),
+				c("member", te(2, 11, 2, 11, "<member>$1</member>$0"), "member"), //
+				c("employee", te(2, 11, 2, 11, "<employee>$1</employee>$0"), "employee"));
+
+		// completion on text inside element with text content
+		xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
+				"<person xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"xsd/choice.xsd\">\r\n"
+				+ //
+				"<employee> | </employee></employee>";
+		testCompletionSnippetSupporytFor(xml, "src/test/resources/choice.xml", 3, //
+				c("person", te(2, 11, 2, 11, "<person>$1</person>$0"), "person"),
+				c("member", te(2, 11, 2, 11, "<member>$1</member>$0"), "member"), //
+				c("employee", te(2, 11, 2, 11, "<employee>$1</employee>$0"), "employee"));
+
+		// completion on text inside element with text content
+		xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
+				"<person xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"xsd/choice.xsd\">\r\n"
+				+ //
+				"<employee></employee>\r\n" + //
+				"|</employee>";
+		testCompletionSnippetSupporytFor(xml, "src/test/resources/choice.xml", null, //
+				c("member", te(3, 0, 3, 0, "<member>$1</member>$0"), "member"), //
+				c("employee", te(3, 0, 3, 0, "<employee>$1$0"), "employee"));
+	}
+
+	@Test
+	public void generateOnlyStartElementOnElement() throws BadLocationException {
+		// </employee> already exists, completion must generate only <employee>
+
+		// completion on start tag
+		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
+				"<person xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"xsd/choice.xsd\">\r\n"
+				+ //
+				"<|</employee>";
+		testCompletionSnippetSupporytFor(xml, "src/test/resources/choice.xml", 2, //
+				c("member", te(2, 0, 2, 1, "<member>$1</member>$0"), "<member"), //
+				c("employee", te(2, 0, 2, 1, "<employee>$1$0"), "<employee")); // <-- here only start employee is
+																				// generated
+
+		// completion on start tag element
+		xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
+				"<person xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"xsd/choice.xsd\">\r\n"
+				+ //
+				"<em|</employee>";
+		testCompletionSnippetSupporytFor(xml, "src/test/resources/choice.xml", 2, //
+				c("member", te(2, 0, 2, 3, "<member>$1</member>$0"), "<member"), //
+				c("employee", te(2, 0, 2, 3, "<employee>$1$0"), "<employee")); // <-- here only start employee is
+																				// generated
+
+		// completion inside tag element
+		xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
+				"<person xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"xsd/choice.xsd\">\r\n"
+				+ //
+				"<employee|></employee>";
+		testCompletionSnippetSupporytFor(xml, "src/test/resources/choice.xml", 2, //
+				c("member", te(2, 0, 2, 10, "<member>$1</member>$0"), "<member"), //
+				c("employee", te(2, 0, 2, 10, "<employee>$1$0"), "<employee")); // <-- here only start employee is
+																				// generated
+	}
+
+	@Test
 	public void documentationAsPlainText() throws BadLocationException {
 		String xml = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + //
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
@@ -1019,7 +1140,6 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 						System.lineSeparator() + //
 						"Source: maven-4.0.0.xsd",
 				MarkupKind.PLAINTEXT));
-
 	}
 
 	@Test
