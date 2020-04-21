@@ -522,7 +522,7 @@ public class XMLCompletions {
 						if (completionRequest.isCompletionSnippetsSupported()) {
 							xml.append("$0");
 						}
-						if (completionRequest.isAutoCloseTags()) {
+						if (isGenerateEndTag(completionRequest, tag)) {
 							xml.append("</").append(tag).append(">");
 						}
 					}
@@ -533,6 +533,18 @@ public class XMLCompletions {
 				});
 			}
 		}
+	}
+
+	private static boolean isGenerateEndTag(CompletionRequest completionRequest, String tagName) {
+		if (!completionRequest.isAutoCloseTags()) {
+			return false;
+		}
+		DOMNode node = completionRequest.getNode();
+		if (node == null) {
+			return true;
+		}
+		int offset = completionRequest.getOffset();
+		return node.getOrphanEndElement(offset, tagName) == null;
 	}
 
 	/**
