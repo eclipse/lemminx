@@ -459,4 +459,26 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 	public void setIdAttributeNode(org.w3c.dom.Attr arg0, boolean arg1) throws DOMException {
 	}
 
+	/**
+	 * Returns true if the element is empty and false otherwise.
+	 * 
+	 * @return true if the element is empty and false otherwise.
+	 */
+	public boolean isEmpty() {
+		if (!hasChildNodes()) {
+			return true;
+		}
+		for (DOMNode child : getChildren()) {
+			if (child.isText()) {
+				DOMText text = (DOMText) child;
+				if (!text.isWhitespace()) {
+					return false;
+				}
+			} else {
+				return false;
+			}
+		}
+		return true;
+	}
+
 }
