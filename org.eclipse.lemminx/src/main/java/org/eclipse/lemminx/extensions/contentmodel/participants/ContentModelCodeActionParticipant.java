@@ -44,7 +44,10 @@ public class ContentModelCodeActionParticipant implements ICodeActionParticipant
 	@Override
 	public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
 			XMLFormattingOptions formattingSettings, IComponentProvider componentProvider) {
-		ICodeActionParticipant participant = codeActionParticipants.get(diagnostic.getCode());
+		if (!diagnostic.getCode().isLeft()) {
+			return;
+		}
+		ICodeActionParticipant participant = codeActionParticipants.get(diagnostic.getCode().getLeft());
 		if (participant != null) {
 			participant.doCodeAction(diagnostic, range, document, codeActions, formattingSettings, componentProvider);
 		}

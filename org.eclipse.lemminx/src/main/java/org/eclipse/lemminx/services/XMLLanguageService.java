@@ -30,6 +30,7 @@ import org.eclipse.lemminx.settings.XMLCodeLensSettings;
 import org.eclipse.lemminx.settings.XMLFoldingSettings;
 import org.eclipse.lemminx.settings.XMLFormattingOptions;
 import org.eclipse.lemminx.settings.XMLHoverSettings;
+import org.eclipse.lemminx.settings.XMLSymbolSettings;
 import org.eclipse.lemminx.uriresolver.CacheResourceDownloadingException;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.CodeAction;
@@ -113,20 +114,20 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		return highlighting.findDocumentHighlights(xmlDocument, position, cancelChecker);
 	}
 
-	public List<SymbolInformation> findSymbolInformations(DOMDocument xmlDocument) {
-		return findSymbolInformations(xmlDocument, NULL_CHECKER);
+	public List<SymbolInformation> findSymbolInformations(DOMDocument xmlDocument, XMLSymbolSettings symbolSettings) {
+		return findSymbolInformations(xmlDocument, symbolSettings, NULL_CHECKER);
 	}
 
-	public List<SymbolInformation> findSymbolInformations(DOMDocument xmlDocument, CancelChecker cancelChecker) {
-		return symbolsProvider.findSymbolInformations(xmlDocument, cancelChecker);
+	public SymbolInformationResult findSymbolInformations(DOMDocument xmlDocument, XMLSymbolSettings symbolSettings, CancelChecker cancelChecker) {
+		return symbolsProvider.findSymbolInformations(xmlDocument, symbolSettings, cancelChecker);
 	}
 
-	public List<DocumentSymbol> findDocumentSymbols(DOMDocument xmlDocument) {
-		return findDocumentSymbols(xmlDocument, NULL_CHECKER);
+	public List<DocumentSymbol> findDocumentSymbols(DOMDocument xmlDocument, XMLSymbolSettings symbolSettings) {
+		return findDocumentSymbols(xmlDocument, symbolSettings, NULL_CHECKER);
 	}
 
-	public List<DocumentSymbol> findDocumentSymbols(DOMDocument xmlDocument, CancelChecker cancelChecker) {
-		return symbolsProvider.findDocumentSymbols(xmlDocument, cancelChecker);
+	public DocumentSymbolsResult findDocumentSymbols(DOMDocument xmlDocument, XMLSymbolSettings symbolSettings, CancelChecker cancelChecker) {
+		return symbolsProvider.findDocumentSymbols(xmlDocument, symbolSettings, cancelChecker);
 	}
 
 	public CompletionList doComplete(DOMDocument xmlDocument, Position position, SharedSettings settings) {

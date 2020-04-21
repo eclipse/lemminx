@@ -94,16 +94,18 @@ public class SettingsTest {
 	"				\"excluded\": [\"**\\\\*.xsd\", \"**\\\\*.xml\"]\r\n" + //
 	"			}\r\n" + 
 	"		}\r\n" + 
-	"	}\r\n" +
-	"	,\"extendedClientCapabilities\": {\r\n" + 
-	"      \"codeLens\": {\r\n" + 
-	"        \"codeLensKind\": {\r\n" + 
-	"          \"valueSet\": [\r\n" + 
-	"            \"references\"\r\n" + 
-	"          ]\r\n" + 
-	"        }\r\n" + 
-	"      }\r\n" + 
-	"   }" +	
+	"	},\r\n" +
+	"	\"extendedClientCapabilities\": {\r\n" + 
+	"		\"codeLens\": {\r\n" + 
+	"			\"codeLensKind\": {\r\n" + 
+	"				\"valueSet\": [\r\n" + 
+	"					\"references\"\r\n" + 
+	"				]\r\n" + 
+	"			}\r\n" + 
+	"		},\r\n" + 
+	"		actionableNotificationSupport: true,\r\n" + 
+	"		openSettingsCommandSupport: true\r\n" + 
+	"	}" + 
 	"}";
 	// @formatter:on
 
@@ -237,7 +239,6 @@ public class SettingsTest {
 
 		XMLExcludedSymbolFile[] actualExpectedFiles = languageServer.getSettings().getSymbolSettings().getExcludedFiles();
 		assertArrayEquals(expectedExcludedFiles, actualExpectedFiles);
-
 	}
 
 	@Test
@@ -252,5 +253,7 @@ public class SettingsTest {
 		assertEquals(1, clientCapabilities.getCodeLens().getCodeLensKind().getValueSet().size());
 		assertEquals(CodeLensKind.References,
 				clientCapabilities.getCodeLens().getCodeLensKind().getValueSet().get(0));
+		assertTrue(clientCapabilities.isActionableNotificationSupport());
+		assertTrue(clientCapabilities.isOpenSettingsCommandSupport());
 	}
 }

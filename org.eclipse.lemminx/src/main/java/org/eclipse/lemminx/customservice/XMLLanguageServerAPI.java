@@ -24,7 +24,7 @@ import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
  *
  */
 @JsonSegment("xml")
-public interface XMLCustomService {
+public interface XMLLanguageServerAPI {
 
 	@JsonRequest
 	CompletableFuture<AutoCloseTagResponse> closeTag(TextDocumentPositionParams params);
