@@ -168,7 +168,7 @@ public class SettingsTest {
 		formattingOptions.setTabSize(5);
 		formattingOptions.setInsertSpaces(false);
 
-		XMLFormattingOptions xmlFormattingOptions = new XMLFormattingOptions(formattingOptions);
+		XMLFormattingOptions xmlFormattingOptions = new XMLFormattingOptions(formattingOptions, false);
 
 		xmlFormattingOptions.setQuotations("InvalidValue"); // set a value that is not recognized
 
