@@ -74,4 +74,11 @@ public class LSPErrorReporterForXML extends AbstractLSPErrorReporter {
 		}
 		return null;
 	}
+
+	@Override
+	protected boolean isIgnoreFatalError(String key) {
+		// Don't stop the validation when there are
+		// * EntityNotDeclared error
+		return DTDErrorCode.EntityNotDeclared.name().equals(key);
+	}
 }

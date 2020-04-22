@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
  *
  */
 public class DTDDiagnosticsTest {
-	
+
 	@Test
 	public void MSG_ELEMENT_NOT_DECLARED() throws Exception {
 		String xml = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> \r\n" + //
@@ -39,21 +39,21 @@ public class DTDDiagnosticsTest {
 		testDiagnosticsFor(xml, d(6, 2, 5, DTDErrorCode.MSG_ELEMENT_NOT_DECLARED),
 				d(5, 1, 8, DTDErrorCode.MSG_CONTENT_INVALID));
 	}
-	
+
 	@Test
 	public void MSG_CONTENT_INVALID() throws Exception {
 		String xml = "<?xml version=\"1.0\"?>\r\n" + //
 				"<!DOCTYPE note [\r\n" + //
-				"<!ELEMENT note (to,from,heading,body)>\r\n" + // 
+				"<!ELEMENT note (to,from,heading,body)>\r\n" + //
 				"    <!ELEMENT to (#PCDATA)>\r\n" + //
-				"        <!ELEMENT from (#PCDATA)>\r\n" + // 
-				"                <!ELEMENT heading (#PCDATA)>\r\n" + // 
+				"        <!ELEMENT from (#PCDATA)>\r\n" + //
+				"                <!ELEMENT heading (#PCDATA)>\r\n" + //
 				"            <!ELEMENT body (#PCDATA)>\r\n" + //
 				"]>\r\n" + //
-				"<note>\r\n" + // 
-				"	<from>Jani</from>\r\n" + // 
-				"	<heading>Reminder</heading>\r\n" + // 
-				"	<body>Don't forget me this weekend</body>\r\n" + // 
+				"<note>\r\n" + //
+				"	<from>Jani</from>\r\n" + //
+				"	<heading>Reminder</heading>\r\n" + //
+				"	<body>Don't forget me this weekend</body>\r\n" + //
 				"</note>";
 		XMLAssert.testDiagnosticsFor(xml, d(8, 1, 5, DTDErrorCode.MSG_CONTENT_INVALID));
 	}
@@ -70,7 +70,7 @@ public class DTDDiagnosticsTest {
 				"]>\r\n" + //
 				"<note>\r\n" + //
 				"    <to></to>\r\n" + //
-				"    <from XXXX=\"\" >Jani</from>\r\n" + // <- error 
+				"    <from XXXX=\"\" >Jani</from>\r\n" + // <- error
 				"    <heading>Reminder</heading>\r\n" + //
 				"    <body>Don't forget me this weekend</body>\r\n" + //
 				"</note> ";
@@ -96,13 +96,13 @@ public class DTDDiagnosticsTest {
 	public void MSG_ATTRIBUTE_VALUE_NOT_IN_LIST() throws Exception {
 		String xml = "<?xml version = \"1.0\"?>\r\n" + //
 				"<!DOCTYPE foo [\r\n" + //
-				"  <!ELEMENT foo (bar)*>\r\n" + // 
-				"  <!ELEMENT bar (#PCDATA)>\r\n" + // 
-				"  <!ATTLIST bar fruit (one | two | three) #REQUIRED>\r\n" + // 
-				"]>\r\n" + // 
-				"<foo>\r\n" + // 
+				"  <!ELEMENT foo (bar)*>\r\n" + //
+				"  <!ELEMENT bar (#PCDATA)>\r\n" + //
+				"  <!ATTLIST bar fruit (one | two | three) #REQUIRED>\r\n" + //
+				"]>\r\n" + //
+				"<foo>\r\n" + //
 				"    <bar fruit=\"four\"" + // <- error
-				">toto</bar>\r\n" + // 
+				">toto</bar>\r\n" + //
 				"</foo>";
 		XMLAssert.testDiagnosticsFor(xml, d(7, 15, 21, DTDErrorCode.MSG_ATTRIBUTE_VALUE_NOT_IN_LIST));
 	}
@@ -125,11 +125,11 @@ public class DTDDiagnosticsTest {
 	public void MSG_REQUIRED_ATTRIBUTE_NOT_SPECIFIED() throws Exception {
 		String xml = "<?xml version = \"1.0\"?>\r\n" + //
 				"<!DOCTYPE foo [\r\n" + //
-				"  <!ELEMENT foo (bar)>\r\n" + // 
-				"  <!ELEMENT bar (#PCDATA)>\r\n" + // 
-				"  <!ATTLIST bar fruit (one | two | three) #REQUIRED>\r\n" + // 
+				"  <!ELEMENT foo (bar)>\r\n" + //
+				"  <!ELEMENT bar (#PCDATA)>\r\n" + //
+				"  <!ATTLIST bar fruit (one | two | three) #REQUIRED>\r\n" + //
 				"]>\r\n" + //
-				"<foo>\r\n" + // 
+				"<foo>\r\n" + //
 				"    <bar />\r\n" + // <- error ("fruit" attribute is missing)
 				"</foo>";
 		XMLAssert.testDiagnosticsFor(xml, d(7, 5, 8, DTDErrorCode.MSG_REQUIRED_ATTRIBUTE_NOT_SPECIFIED));
@@ -139,22 +139,22 @@ public class DTDDiagnosticsTest {
 	public void MSG_ELEMENT_WITH_ID_REQUIRED() throws Exception {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<!DOCTYPE Folks [\r\n" + //
-				"	<!ELEMENT Folks (Person*)>\r\n" + // 
-				"	<!ELEMENT Person (Name,Email?)>\r\n" + // 
-				"	<!ATTLIST Person Pin ID #REQUIRED>\r\n" + // 
-				"	<!ATTLIST Person Friend IDREF #IMPLIED>\r\n" + // 
+				"	<!ELEMENT Folks (Person*)>\r\n" + //
+				"	<!ELEMENT Person (Name,Email?)>\r\n" + //
+				"	<!ATTLIST Person Pin ID #REQUIRED>\r\n" + //
+				"	<!ATTLIST Person Friend IDREF #IMPLIED>\r\n" + //
 				"	<!ATTLIST Person Likes IDREFS #IMPLIED>\r\n" + //
 				"	<!ELEMENT Name (#PCDATA)>\r\n" + //
 				"	<!ELEMENT Email (#PCDATA)>\r\n" + //
 				"	]>\r\n" + //
 				"<Folks>\r\n" + //
-				"    <Person Pin=\"id2\" Likes=\"vfg\"> \r\n" + // 
+				"    <Person Pin=\"id2\" Likes=\"vfg\"> \r\n" + //
 				"        <Name>Bob</Name>\r\n" + //
 				"    </Person>\r\n" + //
 				"</Folks>";
 		XMLAssert.testDiagnosticsFor(xml, d(10, 1, 6, DTDErrorCode.MSG_ELEMENT_WITH_ID_REQUIRED));
 	}
-	
+
 	@Test
 	public void IDInvalidWithNamespaces() throws Exception {
 		String xml = "<?xml version = \"1.0\"?>\r\n" + //
@@ -170,13 +170,13 @@ public class DTDDiagnosticsTest {
 	public void IDREFInvalidWithNamespaces() throws Exception {
 		String xml = "<?xml version = \"1.0\"?>\r\n" + //
 				"<!DOCTYPE Person [\r\n" + //
-				"	<!ELEMENT Person EMPTY>\r\n" + // 
-				"	<!ATTLIST Person Friend IDREF #IMPLIED>\r\n" + // 
+				"	<!ELEMENT Person EMPTY>\r\n" + //
+				"	<!ATTLIST Person Friend IDREF #IMPLIED>\r\n" + //
 				"]>\r\n" + //
 				"<Person Friend=\"\" />"; // <- error on @Friend value
 		XMLAssert.testDiagnosticsFor(xml, d(5, 15, 17, DTDErrorCode.IDREFInvalidWithNamespaces));
 	}
-	
+
 	@Test
 	public void IDREFSInvalid() throws Exception {
 		String xml = "<?xml version = \"1.0\"?>\r\n" + //
@@ -193,8 +193,7 @@ public class DTDDiagnosticsTest {
 		String xml = "<?xml version = \"1.0\"?>\r\n" + //
 				"<!DOCTYPE Person [\r\n" + //
 				"	<!ELEMENT Person EMPTY>\r\n" + //
-				"   Bad Value   " +
-				"	<!ATTLIST Person Likes IDREFS #IMPLIED>\r\n" + //
+				"   Bad Value   " + "	<!ATTLIST Person Likes IDREFS #IMPLIED>\r\n" + //
 				"]>\r\n" + //
 				"<Person Likes=\"\" />"; // <- error on @Likes value
 		XMLAssert.testDiagnosticsFor(xml, d(2, 24, 3, 16, DTDErrorCode.MSG_MARKUP_NOT_RECOGNIZED_IN_DTD));
@@ -257,7 +256,8 @@ public class DTDDiagnosticsTest {
 				"	<!NOTATION name>  \r\n" + //
 				"]>\r\n" + //
 				"<Person Likes=\"\" />"; // <- error on @Likes value
-		XMLAssert.testDiagnosticsFor(xml, d(2, 16, 17, DTDErrorCode.MSG_SPACE_REQUIRED_AFTER_NOTATION_NAME_IN_NOTATIONDECL));
+		XMLAssert.testDiagnosticsFor(xml,
+				d(2, 16, 17, DTDErrorCode.MSG_SPACE_REQUIRED_AFTER_NOTATION_NAME_IN_NOTATIONDECL));
 	}
 
 	@Test
@@ -292,13 +292,8 @@ public class DTDDiagnosticsTest {
 
 	@Test
 	public void EntityNotDeclared() throws Exception {
-		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
-				"<!DOCTYPE article [\r\n" +
-				"	<!ELEMENT article (#PCDATA)>\r\n" +
-				"]>\r\n" +
-				"<article>\r\n" +
-				"	&nbsp;\r\n" +
-				"</article>";
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + "<!DOCTYPE article [\r\n"
+				+ "	<!ELEMENT article (#PCDATA)>\r\n" + "]>\r\n" + "<article>\r\n" + "	&nbsp;\r\n" + "</article>";
 
 		XMLAssert.testDiagnosticsFor(xml, d(5, 1, 7, DTDErrorCode.EntityNotDeclared));
 	}
@@ -319,7 +314,7 @@ public class DTDDiagnosticsTest {
 				"<!DOCTYPE Folks [\r\n" + //
 				"	<!ENTITY % Folks \"(%bar;)*\"> \r\n" + // <- error on "(%bar;)*"
 				"]>\r\n" + //
-				"<Folks></Folks>"; // 
+				"<Folks></Folks>"; //
 		XMLAssert.testDiagnosticsFor(xml, d(2, 18, 28, DTDErrorCode.PEReferenceWithinMarkup));
 	}
 
@@ -330,37 +325,24 @@ public class DTDDiagnosticsTest {
 				"	<!ELEMENT Email (#PCDATA)> \r\n" + //
 				"	<!ELEMENT Email (#PCDATA)> \r\n" + // <- error on 'ELEMENT'
 				"]>\r\n" + //
-				"<Email></Email>"; // 
+				"<Email></Email>"; //
 		XMLAssert.testDiagnosticsFor(xml, d(3, 3, 10, DTDErrorCode.MSG_ELEMENT_ALREADY_DECLARED));
 	}
 
 	@Test
 	public void testDoctypeDiagnosticsRefresh() throws Exception {
-		//@formatter:off
-		String xml = "<?xml version=\"1.0\"?>\n" + 
-					"<!DOCTYPE student [\n" + 
-					"  <!ELEMENT student (surname,id)>\n" + 
-					"  <!ELEMENT surname (#PCDATA)>\n" + 
-					"]>\n" + 
-					"<student>\n" + 
-					"  <surname>Smith</surname>\n" + 
-					"  <id>567896</id>\n" + 
-					"</student>";
-		//@formatter:on
+		// @formatter:off
+		String xml = "<?xml version=\"1.0\"?>\n" + "<!DOCTYPE student [\n" + "  <!ELEMENT student (surname,id)>\n"
+				+ "  <!ELEMENT surname (#PCDATA)>\n" + "]>\n" + "<student>\n" + "  <surname>Smith</surname>\n"
+				+ "  <id>567896</id>\n" + "</student>";
+		// @formatter:on
 		XMLAssert.testDiagnosticsFor(xml, d(7, 3, 5, DTDErrorCode.MSG_ELEMENT_NOT_DECLARED));
 
-		//@formatter:off
-		xml = "<?xml version=\"1.0\"?>\n" + 
-			"<!DOCTYPE student [\n" + 
-			"  <!ELEMENT student (surname,id)>\n" + 
-			"  <!ELEMENT surname (#PCDATA)>\n" + 
-			"  <!ELEMENT id (#PCDATA)>\n" + 
-			"]>\n" + 
-			"<student>\n" + 
-			"  <surname>Smith</surname>\n" + 
-			"  <id>567896</id>\n" + 
-			"</student>";
-		//@formatter:on
+		// @formatter:off
+		xml = "<?xml version=\"1.0\"?>\n" + "<!DOCTYPE student [\n" + "  <!ELEMENT student (surname,id)>\n"
+				+ "  <!ELEMENT surname (#PCDATA)>\n" + "  <!ELEMENT id (#PCDATA)>\n" + "]>\n" + "<student>\n"
+				+ "  <surname>Smith</surname>\n" + "  <id>567896</id>\n" + "</student>";
+		// @formatter:on
 		XMLAssert.testDiagnosticsFor(xml, new Diagnostic[0]);
 
 	}
@@ -368,33 +350,37 @@ public class DTDDiagnosticsTest {
 	@Test
 	public void testDTDNotFoundWithSYSTEM() throws Exception {
 		String xml = "<?xml version=\"1.0\" standalone=\"no\" ?>\r\n" + //
-				"<!DOCTYPE inEQUAL_PMT SYSTEM \"inEQUAL_PMT.dtd\">\r\n" + // <- error DTD not found
-				"<inEQUAL_PMT>\r\n" + //
+				"<!DOCTYPE inEQUAL_PMT SYSTEM \"inEQUAL_PMT.dtd\">\r\n" + // <- [1] error DTD not found
+				"<inEQUAL_PMT>\r\n" + // [2]
 				"  \r\n" + //
 				"    <!-- The Proceeds and Term -->\r\n" + //
-				"   <Proceeds>10000.00</Proceed>\r\n" + // <- error, it misses 's' for </Proceed>
+				"   <Proceeds>10000.00</Proceed>\r\n" + // <- [3] and [4] error, it misses 's' for </Proceed>
 				"   <Term>36</Term>\r\n" + //
 				"   \r\n" + //
 				"</inEQUAL_PMT>";
-		XMLAssert.testDiagnosticsFor(xml, d(1, 29, 1, 46, DTDErrorCode.dtd_not_found),
-				d(5, 23, 5, 30, XMLSyntaxErrorCode.ETagRequired));
+		XMLAssert.testDiagnosticsFor(xml, d(1, 29, 1, 46, DTDErrorCode.dtd_not_found),// [1]
+				d(2, 1, 12, DTDErrorCode.MSG_ELEMENT_NOT_DECLARED), // [2]
+				d(5, 4, 12, DTDErrorCode.MSG_ELEMENT_NOT_DECLARED), // [3]
+				d(5, 23, 5, 30, XMLSyntaxErrorCode.ETagRequired)); // [4]
 	}
 
 	@Test
 	public void testDTDNotFoundWithPUBLIC() throws Exception {
 		String xml = "<?xml version=\"1.0\" standalone=\"no\" ?>\r\n" + //
-				"<!DOCTYPE inEQUAL_PMT PUBLIC 'X' \"inEQUAL_PMT.dtd\">\r\n" + // <- error DTD not found
-				"<inEQUAL_PMT>\r\n" + //
+				"<!DOCTYPE inEQUAL_PMT PUBLIC 'X' \"inEQUAL_PMT.dtd\">\r\n" + // <- [1] error DTD not found
+				"<inEQUAL_PMT>\r\n" + // [2]
 				"  \r\n" + //
 				"    <!-- The Proceeds and Term -->\r\n" + //
-				"   <Proceeds>10000.00</Proceed>\r\n" + // <- error, it misses 's' for </Proceed>
+				"   <Proceeds>10000.00</Proceed>\r\n" + // <- [3] and [4] error, it misses 's' for </Proceed>
 				"   <Term>36</Term>\r\n" + //
 				"   \r\n" + //
 				"</inEQUAL_PMT>";
-		XMLAssert.testDiagnosticsFor(xml, d(1, 33, 1, 50, DTDErrorCode.dtd_not_found),
-				d(5, 23, 5, 30, XMLSyntaxErrorCode.ETagRequired));
+		XMLAssert.testDiagnosticsFor(xml, d(1, 33, 1, 50, DTDErrorCode.dtd_not_found), // [1]
+				d(2, 1, 12, DTDErrorCode.MSG_ELEMENT_NOT_DECLARED), // [2]
+				d(5, 4, 12, DTDErrorCode.MSG_ELEMENT_NOT_DECLARED), // [3]
+				d(5, 23, 5, 30, XMLSyntaxErrorCode.ETagRequired)); // [4]
 	}
-	
+
 	private static void testDiagnosticsFor(String xml, Diagnostic... expected) {
 		XMLAssert.testDiagnosticsFor(xml, "src/test/resources/catalogs/catalog.xml", expected);
 	}
