@@ -41,6 +41,7 @@ import org.eclipse.lemminx.services.extensions.ICompletionResponse;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.utils.StringUtils;
+import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.CompletionList;
@@ -642,7 +643,6 @@ public class XMLCompletions {
 		collectionRegionProposals(request, response);
 		collectCDATACompletion(request, response);
 		collectCommentCompletion(request, response);
-		collectCharacterEntityProposals(request, response);
 	}
 
 	private void collectionRegionProposals(ICompletionRequest request, ICompletionResponse response) {
@@ -753,23 +753,6 @@ public class XMLCompletions {
 		} catch (BadLocationException e) {
 			LOGGER.log(Level.SEVERE, "While performing collectCommentCompletion", e);
 		}
-	}
-
-	private void collectCharacterEntityProposals(ICompletionRequest request, ICompletionResponse response) {
-		// character entities
-		/*
-		 * int offset = request.getOffset(); Position position = request.getPosition();
-		 * int k = offset - 1; int characterStart = position.getCharacter(); char ch =
-		 * request.getDocument().getText().charAt(characterStart); while (k >= 0 &&
-		 * (Character.isLetter(ch) || Character.isDigit(ch))) { k--; characterStart--; }
-		 * if (k >= 0 && text[k] == '&') { let range =
-		 * Range.create(Position.create(position.line, characterStart - 1), position);
-		 * for (String entity : entities) { if (endsWith(entity, ';')) { String label =
-		 * '&' + entity; result.items.push({ label, kind: CompletionItemKind.Keyword,
-		 * documentation: localize('entity.propose', `Character entity representing
-		 * '${entities[entity]}'`), textEdit: TextEdit.replace(range, label),
-		 * insertTextFormat: InsertTextFormat.PlainText }); } } }
-		 */
 	}
 
 	private void collectAttributeNameSuggestions(int nameStart, CompletionRequest completionRequest,
@@ -986,7 +969,7 @@ public class XMLCompletions {
 			replaceStart = offset;
 		}
 		DOMDocument document = context.getXMLDocument();
-		return new Range(document.positionAt(replaceStart), document.positionAt(replaceEnd));
+		return XMLPositionUtility.createRange(replaceStart, replaceEnd, document);
 	}
 
 	private static String getLineIndent(int offset, String text) {

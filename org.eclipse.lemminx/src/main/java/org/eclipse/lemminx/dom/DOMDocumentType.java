@@ -1,5 +1,5 @@
 /**
- *  Copyright (c) 2018 Angelo ZERR.
+ *  Copyright (c) 2018-2020 Angelo ZERR.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v2.0
  *  which accompanies this distribution, and is available at
@@ -12,6 +12,8 @@
  */
 package org.eclipse.lemminx.dom;
 
+import java.util.List;
+
 import org.w3c.dom.NamedNodeMap;
 
 /**
@@ -20,9 +22,11 @@ import org.w3c.dom.NamedNodeMap;
  */
 public class DOMDocumentType extends DTDDeclNode implements org.w3c.dom.DocumentType {
 
-	public enum DocumentTypeKind {
+	public static enum DocumentTypeKind {
 		PUBLIC, SYSTEM, INVALID
 	}
+
+	private XMLNamedNodeMap<DTDEntityDecl> entitiesNodes;
 
 	DTDDeclParameter kind; // SYSTEM || PUBLIC
 	DTDDeclParameter publicId;
@@ -34,7 +38,7 @@ public class DOMDocumentType extends DTDDeclNode implements org.w3c.dom.Document
 	public DOMDocumentType(int start, int end) {
 		super(start, end);
 	}
-	
+
 	@Override
 	public DOMDocumentType getOwnerDocType() {
 		return this;
@@ -99,7 +103,16 @@ public class DOMDocumentType extends DTDDeclNode implements org.w3c.dom.Document
 	 */
 	@Override
 	public NamedNodeMap getEntities() {
-		throw new UnsupportedOperationException();
+		if (entitiesNodes == null) {
+			entitiesNodes = new XMLNamedNodeMap<>();
+			List<DOMNode> children = super.getChildren();
+			for (DOMNode child : children) {
+				if (child.getNodeType() == DOMNode.ENTITY_NODE) {
+					entitiesNodes.add((DTDEntityDecl) child);
+				}
+			}
+		}
+		return entitiesNodes;
 	}
 
 	/*

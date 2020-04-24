@@ -67,7 +67,7 @@ public class DTDEntityDecl extends DTDDeclNode implements Entity {
 	}
 
 	public String getValue() {
-		return value != null ? value.getParameter() : null;
+		return value != null ? value.getParameterWithoutFirstAndLastChar() : null;
 	}
 
 	public void setValue(int start, int end) {

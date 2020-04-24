@@ -7,3 +7,4 @@ org.eclipse.lemminx.extensions.catalog.XMLCatalogPlugin
 org.eclipse.lemminx.extensions.xsi.XSISchemaPlugin
 org.eclipse.lemminx.extensions.prolog.PrologPlugin
 org.eclipse.lemminx.extensions.general.FilePathPlugin
+org.eclipse.lemminx.extensions.entities.EntitiesPlugin
