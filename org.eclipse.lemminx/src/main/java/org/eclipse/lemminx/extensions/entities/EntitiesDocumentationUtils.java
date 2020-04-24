@@ -45,8 +45,19 @@ public class EntitiesDocumentationUtils {
 	private EntitiesDocumentationUtils() {
 	}
 
-	public static MarkupContent getDocumentation(String entityName, String entityValue, boolean predefined,
-			boolean markdown) {
+	/**
+	 * Returns the entity documentation.
+	 * 
+	 * @param entityName  the entity name.
+	 * @param entityValue the entity value.
+	 * @param external    true if it's an external entity and false otherwise.
+	 * @param predefined  true if it's an predefined entity and false otherwise.
+	 * @param markdown    true if the documentation can be formatted as markdown and
+	 *                    false otherwise.
+	 * @return the entity documentation.
+	 */
+	public static MarkupContent getDocumentation(String entityName, String entityValue, boolean external,
+			boolean predefined, boolean markdown) {
 		StringBuilder documentation = new StringBuilder();
 
 		// Title
@@ -62,6 +73,7 @@ public class EntitiesDocumentationUtils {
 		if (entityValue != null && !entityValue.isEmpty()) {
 			addParameter("Value", entityValue, documentation, markdown);
 		}
+		addParameter("External", String.valueOf(external), documentation, markdown);
 		addParameter("Predefined", String.valueOf(predefined), documentation, markdown);
 
 		documentation.append(System.lineSeparator());
