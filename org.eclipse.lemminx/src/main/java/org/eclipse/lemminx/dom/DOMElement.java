@@ -401,7 +401,7 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 		}
 		if (isSameTag(tagName) && isInStartTag(offset)) {
 			// <employe|e></employee>
-			return this;
+			return hasEndTag() ? this : null;
 		}
 		// search if it exists an end tag
 		List<DOMNode> children = getChildren();
