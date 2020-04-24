@@ -55,15 +55,20 @@ public class XMLCompletionTest {
 		testCompletionFor("<a><|", 1 + 2 /* CDATA and Comments */, c("End with '</a>'", "/a>", r(0, 4, 0, 4), "/a>"));
 		testCompletionFor("<a></|", 1, c("End with '</a>'", "/a>", r(0, 4, 0, 5), "/a>"));
 
-		testCompletionFor("<a><b>|</a>", 1 + 2 /* CDATA and Comments */, c("End with '</b>'", "</b>", r(0, 6, 0, 6), "</b>"));
-		testCompletionFor("<a><b><|</a>", 1 + 2 /* CDATA and Comments */, c("End with '</b>'", "/b>", r(0, 7, 0, 7), "/b>"));
+		testCompletionFor("<a><b>|</a>", 1 + 2 /* CDATA and Comments */,
+				c("End with '</b>'", "</b>", r(0, 6, 0, 6), "</b>"));
+		testCompletionFor("<a><b><|</a>", 1 + 2 /* CDATA and Comments */,
+				c("End with '</b>'", "/b>", r(0, 7, 0, 7), "/b>"));
 		testCompletionFor("<a><b></|</a>", 1, c("End with '</b>'", "/b>", r(0, 7, 0, 8), "/b>"));
 
-		testCompletionFor("<a>   <b>|</a>", 1 + 2 /* CDATA and Comments */, c("End with '</b>'", "</b>", r(0, 9, 0, 9), "</b>"));
-		testCompletionFor("<a>   <b><|</a>", 1 + 2 /* CDATA and Comments */, c("End with '</b>'", "/b>", r(0, 10, 0, 10), "/b>"));
+		testCompletionFor("<a>   <b>|</a>", 1 + 2 /* CDATA and Comments */,
+				c("End with '</b>'", "</b>", r(0, 9, 0, 9), "</b>"));
+		testCompletionFor("<a>   <b><|</a>", 1 + 2 /* CDATA and Comments */,
+				c("End with '</b>'", "/b>", r(0, 10, 0, 10), "/b>"));
 		testCompletionFor("<a>   <b></|</a>", 1, c("End with '</b>'", "/b>", r(0, 10, 0, 11), "/b>"));
 
-		testCompletionFor("<a><b>|", 2 + 2 /* CDATA and Comments */, c("End with '</b>'", "</b>", r(0, 6, 0, 6), "</b>"),
+		testCompletionFor("<a><b>|", 2 + 2 /* CDATA and Comments */,
+				c("End with '</b>'", "</b>", r(0, 6, 0, 6), "</b>"),
 				c("End with '</a>'", "</a>", r(0, 6, 0, 6), "</a>"));
 		testCompletionFor("<a><b><|", 2 + 2 /* CDATA and Comments */, c("End with '</b>'", "/b>", r(0, 7, 0, 7), "/b>"),
 				c("End with '</a>'", "/a>", r(0, 7, 0, 7), "/a>"));
@@ -116,6 +121,14 @@ public class XMLCompletionTest {
 	}
 
 	@Test
+	public void completionBasedOnParent() throws BadLocationException {
+		testCompletionFor("<a><b />|</a>", 1 + 2 /* CDATA and Comments */, c("b", "<b />", r(0, 8, 0, 8), "b"));
+		testCompletionFor("<a><b /><|</a>", 1 + 2 /* CDATA and Comments */, c("b", "<b />", r(0, 8, 0, 9), "<b"));
+		testCompletionFor("<a>|</b></a>", 1 + 2 /* CDATA and Comments */, c("b", "<b>", r(0, 3, 0, 3), "b"));
+		testCompletionFor("<a><|b</b></a>", 1 + 2 /* CDATA and Comments */, c("b", "<b>", r(0, 3, 0, 5), "<b"));
+	}
+
+	@Test
 	public void doTagComplete() throws BadLocationException {
 		testTagCompletion("<div>|", "$0</div>");
 		testTagCompletion("<div>|</div>", null);
@@ -141,12 +154,16 @@ public class XMLCompletionTest {
 
 	@Test
 	public void testAutoCloseTagCompletionWithRange() {
-		assertAutoCloseEndTagCompletionWithRange("<a/|></a>", ">$0", new Range(new Position(0, 3), new Position(0,8)));
-		assertAutoCloseEndTagCompletionWithRange("<a/| </a>", ">$0", new Range(new Position(0, 3), new Position(0,8)));
-		assertAutoCloseEndTagCompletionWithRange("<a> <a/|> </a> </a>", ">$0", new Range(new Position(0, 7), new Position(0,13)));
-		assertAutoCloseEndTagCompletionWithRange("<a var=\"asd\"/|></a>", ">$0", new Range(new Position(0, 13), new Position(0,18)));
-		assertAutoCloseEndTagCompletionWithRange("<a  var=\"asd\"  /| </a>", ">$0", new Range(new Position(0, 16), new Position(0,21)));
-		assertAutoCloseEndTagCompletionWithRange("<aB/|></aB>", ">$0", new Range(new Position(0, 4), new Position(0,10)));
+		assertAutoCloseEndTagCompletionWithRange("<a/|></a>", ">$0", new Range(new Position(0, 3), new Position(0, 8)));
+		assertAutoCloseEndTagCompletionWithRange("<a/| </a>", ">$0", new Range(new Position(0, 3), new Position(0, 8)));
+		assertAutoCloseEndTagCompletionWithRange("<a> <a/|> </a> </a>", ">$0",
+				new Range(new Position(0, 7), new Position(0, 13)));
+		assertAutoCloseEndTagCompletionWithRange("<a var=\"asd\"/|></a>", ">$0",
+				new Range(new Position(0, 13), new Position(0, 18)));
+		assertAutoCloseEndTagCompletionWithRange("<a  var=\"asd\"  /| </a>", ">$0",
+				new Range(new Position(0, 16), new Position(0, 21)));
+		assertAutoCloseEndTagCompletionWithRange("<aB/|></aB>", ">$0",
+				new Range(new Position(0, 4), new Position(0, 10)));
 	}
 
 	@Test
@@ -156,7 +173,7 @@ public class XMLCompletionTest {
 		assertAutoCloseEndTagCompletionWithRange("<a  /|  > </a>", null, null);
 		assertAutoCloseEndTagCompletionWithRange("<a> </a/|>", null, null);
 		assertAutoCloseEndTagCompletionWithRange("<a> </|a>", null, null);
-		
+
 	}
 
 	@Test
@@ -221,7 +238,7 @@ public class XMLCompletionTest {
 			fail("Couldn't get position at offset");
 		}
 		AutoCloseTagResponse response = languageService.doTagComplete(xmlDocument, position);
-		if(response == null) {
+		if (response == null) {
 			assertNull(expectedTextEdit);
 			assertNull(range);
 			return;

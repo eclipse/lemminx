@@ -375,15 +375,16 @@ public abstract class DOMNode implements Node, DOMRange {
 	/**
 	 * Returns the attribute at the given index, the order is how the attributes
 	 * appear in the document.
+	 * 
 	 * @param index Starting at 0, index of attribute you want
 	 * @return
 	 */
 	public DOMAttr getAttributeAtIndex(int index) {
-		if(!hasAttributes()) {
+		if (!hasAttributes()) {
 			return null;
 		}
 
-		if(index > attributeNodes.getLength() - 1) {
+		if (index > attributeNodes.getLength() - 1) {
 			return null;
 		}
 		return attributeNodes.get(index);
@@ -736,6 +737,19 @@ public abstract class DOMNode implements Node, DOMRange {
 			prev = prev.getPreviousSibling();
 		}
 		return prev;
+	}
+
+	public DOMElement getOrphanEndElement(int offset, String tagName) {
+		DOMNode next = getNextSibling();
+		if (next == null || !next.isElement()) {
+			return null;
+		}
+		// emp| </employe>
+		DOMElement nextElement = (DOMElement) next;
+		if (nextElement.isOrphanEndTag(tagName)) {
+			return nextElement;
+		}
+		return null;
 	}
 
 	/*

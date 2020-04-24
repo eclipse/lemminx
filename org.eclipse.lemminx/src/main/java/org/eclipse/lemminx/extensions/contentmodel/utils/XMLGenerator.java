@@ -65,10 +65,6 @@ public class XMLGenerator {
 		this.canSupportSnippets = canSupportSnippets;
 	}
 
-	public String generate(CMElementDeclaration elementDeclaration) {
-		return generate(elementDeclaration, null);
-	}
-
 	/**
 	 * Returns the XML generated from the given element declaration.
 	 * 
@@ -76,20 +72,21 @@ public class XMLGenerator {
 	 * @param prefix
 	 * @return the XML generated from the given element declaration.
 	 */
-	public String generate(CMElementDeclaration elementDeclaration, String prefix) {
+	public String generate(CMElementDeclaration elementDeclaration, String prefix, boolean generateEndTag) {
 		XMLBuilder xml = new XMLBuilder(formattingOptions, whitespacesIndent, lineDelimiter);
-		generate(elementDeclaration, prefix, 0, 0, xml, new ArrayList<CMElementDeclaration>());
+		generate(elementDeclaration, prefix, generateEndTag, 0, 0, xml, new ArrayList<CMElementDeclaration>());
 		if (canSupportSnippets) {
 			xml.addContent(SnippetsBuilder.tabstops(0)); // "$0"
 		}
 		return xml.toString();
 	}
 
-	private int generate(CMElementDeclaration elementDeclaration, String prefix, int level, int snippetIndex,
+	private int generate(CMElementDeclaration elementDeclaration, String prefix, boolean generateEndTag, int level, int snippetIndex,
 			XMLBuilder xml, List<CMElementDeclaration> generatedElements) {
 		if (generatedElements.contains(elementDeclaration)) {
 			return snippetIndex;
 		}
+		boolean autoCloseTags = this.autoCloseTags && generateEndTag;
 		generatedElements.add(elementDeclaration);
 		if (level > 0) {
 			xml.linefeed();
@@ -106,7 +103,7 @@ public class XMLGenerator {
 			if ((level > maxLevel)) {
 				level++;
 				for (CMElementDeclaration child : children) {
-					snippetIndex = generate(child, prefix, level, snippetIndex, xml, generatedElements);
+					snippetIndex = generate(child, prefix, true, level, snippetIndex, xml, generatedElements);
 				}
 				level--;
 				xml.linefeed();
