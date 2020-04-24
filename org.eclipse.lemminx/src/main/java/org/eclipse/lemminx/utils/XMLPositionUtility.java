@@ -50,25 +50,6 @@ public class XMLPositionUtility {
 	private XMLPositionUtility() {
 	}
 
-	/**
-	 * Returns the LSP position from the SAX location.
-	 * 
-	 * @param offset   the adjusted offset.
-	 * @param location the original SAX location.
-	 * @param document the text document.
-	 * @return the LSP position from the SAX location.
-	 */
-	public static Position toLSPPosition(int offset, XMLLocator location, TextDocument document) {
-		if (location != null && offset == location.getCharacterOffset() - 1) {
-			return new Position(location.getLineNumber() - 1, location.getColumnNumber() - 1);
-		}
-		try {
-			return document.positionAt(offset);
-		} catch (BadLocationException e) {
-			return location != null ? new Position(location.getLineNumber() - 1, location.getColumnNumber() - 1) : null;
-		}
-	}
-
 	public static Range selectAttributeNameAt(int offset, DOMDocument document) {
 		offset = adjustOffsetForAttribute(offset, document);
 		DOMAttr attr = document.findAttrAt(offset);
