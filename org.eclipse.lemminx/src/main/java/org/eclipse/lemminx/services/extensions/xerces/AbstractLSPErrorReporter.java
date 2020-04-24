@@ -10,9 +10,7 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lemminx.services.extensions.diagnostics;
-
-import static org.eclipse.lemminx.utils.XMLPositionUtility.toLSPPosition;
+package org.eclipse.lemminx.services.extensions.xerces;
 
 import java.util.List;
 
@@ -23,6 +21,8 @@ import org.apache.xerces.util.MessageFormatter;
 import org.apache.xerces.xni.XMLLocator;
 import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.parser.XMLParseException;
+import org.eclipse.lemminx.commons.BadLocationException;
+import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
@@ -160,4 +160,24 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 	}
 
 	protected abstract Range toLSPRange(XMLLocator location, String key, Object[] arguments, DOMDocument document);
+	
+
+	/**
+	 * Returns the LSP position from the SAX location.
+	 * 
+	 * @param offset   the adjusted offset.
+	 * @param location the original SAX location.
+	 * @param document the text document.
+	 * @return the LSP position from the SAX location.
+	 */
+	private static Position toLSPPosition(int offset, XMLLocator location, TextDocument document) {
+		if (location != null && offset == location.getCharacterOffset() - 1) {
+			return new Position(location.getLineNumber() - 1, location.getColumnNumber() - 1);
+		}
+		try {
+			return document.positionAt(offset);
+		} catch (BadLocationException e) {
+			return location != null ? new Position(location.getLineNumber() - 1, location.getColumnNumber() - 1) : null;
+		}
+	}
 }
