@@ -18,7 +18,7 @@ import org.apache.xerces.xni.XMLLocator;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCode;
 import org.eclipse.lemminx.extensions.xsd.participants.XSDErrorCode;
-import org.eclipse.lemminx.services.extensions.diagnostics.AbstractLSPErrorReporter;
+import org.eclipse.lemminx.services.extensions.xerces.AbstractLSPErrorReporter;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Range;
 import org.xml.sax.ErrorHandler;
