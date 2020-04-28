@@ -16,9 +16,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.xerces.xni.XMLLocator;
 import org.eclipse.lemminx.commons.BadLocationException;
-import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMCharacterData;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -49,6 +47,8 @@ public class XMLPositionUtility {
 
 	private XMLPositionUtility() {
 	}
+
+	// ------------ Attributes selection
 
 	public static Range selectAttributeNameAt(int offset, DOMDocument document) {
 		offset = adjustOffsetForAttribute(offset, document);
@@ -122,7 +122,7 @@ public class XMLPositionUtility {
 	 * returned
 	 */
 	public static Range selectAttributePrefixFromGivenNameAt(String attrName, int offset, DOMDocument document) {
-		if(attrName == null) {
+		if (attrName == null) {
 			return null;
 		}
 		DOMNode element = document.findNodeAt(offset);
@@ -150,6 +150,28 @@ public class XMLPositionUtility {
 			DOMAttr attr = element.getAttributeNode(attrName);
 			if (attr != null) {
 				return createAttrRange(attr, document);
+			}
+		}
+		return null;
+	}
+
+	public static Range selectAllAttributes(int offset, DOMDocument document) {
+		DOMNode element = document.findNodeAt(offset);
+		if (element != null && element.hasAttributes()) {
+			int startOffset = -1;
+			int endOffset = 0;
+			List<DOMAttr> attributes = element.getAttributeNodes();
+			for (DOMAttr attr : attributes) {
+				if (startOffset == -1) {
+					startOffset = attr.getStart();
+					endOffset = attr.getEnd();
+				} else {
+					startOffset = Math.min(attr.getStart(), startOffset);
+					endOffset = Math.min(attr.getEnd(), startOffset);
+				}
+			}
+			if (startOffset != -1) {
+				return createRange(startOffset, endOffset, document);
 			}
 		}
 		return null;
@@ -188,6 +210,8 @@ public class XMLPositionUtility {
 		return offset;
 	}
 
+	// ------------ Element selection
+
 	public static Range selectChildEndTag(String childTag, int offset, DOMDocument document) {
 		DOMNode parent = document.findNodeAt(offset);
 		if (parent == null || !parent.isElement() || ((DOMElement) parent).getTagName() == null) {
@@ -209,7 +233,7 @@ public class XMLPositionUtility {
 		return createRange(parent.getStart() + 2, parent.getStart() + 2 + parentName.length(), document);
 	}
 
-	public static DOMNode findUnclosedChildNode(List<DOMNode> children) {
+	private static DOMNode findUnclosedChildNode(List<DOMNode> children) {
 		for (DOMNode child : children) {
 			if (!child.isClosed()) {
 				return child;
@@ -218,7 +242,7 @@ public class XMLPositionUtility {
 		return null;
 	}
 
-	static DOMNode findUnclosedChildNode(String childTag, List<DOMNode> children) {
+	private static DOMNode findUnclosedChildNode(String childTag, List<DOMNode> children) {
 		for (DOMNode child : children) {
 			if (child.isElement() && childTag != null && childTag.equals(((DOMElement) child).getTagName())
 					&& !child.isClosed()) {
@@ -256,8 +280,8 @@ public class XMLPositionUtility {
 	}
 
 	/**
-	 * Returns the range of the start tag name (excludes the '<') of the given <code>element</code> and null
-	 * otherwise.
+	 * Returns the range of the start tag name (excludes the '<') of the given
+	 * <code>element</code> and null otherwise.
 	 * 
 	 * @param element the DOM element
 	 * @return the range of the start tag of the given <code>element</code> and null
@@ -268,8 +292,9 @@ public class XMLPositionUtility {
 	}
 
 	/**
-	 * Returns the range of a tag's local name. If the tag does not have a prefix, implying
-	 * it doesn't have a local name, it will return null.
+	 * Returns the range of a tag's local name. If the tag does not have a prefix,
+	 * implying it doesn't have a local name, it will return null.
+	 * 
 	 * @param element
 	 * @return
 	 */
@@ -278,13 +303,13 @@ public class XMLPositionUtility {
 	}
 
 	/**
-	 * Returns the range of the start tag name (excludes the '<') of the given <code>element</code> and null
-	 * otherwise.
+	 * Returns the range of the start tag name (excludes the '<') of the given
+	 * <code>element</code> and null otherwise.
 	 * 
-	 * If suffixOnly is true then it will try to return the range of the localName/suffix. Else
-	 * it will return null.
+	 * If suffixOnly is true then it will try to return the range of the
+	 * localName/suffix. Else it will return null.
 	 * 
-	 * @param element the DOM element
+	 * @param element    the DOM element
 	 * @param suffixOnly select the suffix portion, only when a prefix exists
 	 * @return the range of the start tag of the given <code>element</code> and null
 	 *         otherwise.
@@ -292,12 +317,11 @@ public class XMLPositionUtility {
 	private static Range selectStartTagName(DOMNode element, boolean localNameOnly) {
 		int initialStartOffset = element.getStart() + 1; // <
 		int finalStartOffset = initialStartOffset;
-		if(localNameOnly) {
+		if (localNameOnly) {
 			String prefix = element.getPrefix();
-			if(prefix != null) {
+			if (prefix != null) {
 				finalStartOffset += prefix.length() + 1; // skips prefix name and ':'
-			}
-			else {
+			} else {
 				return null;
 			}
 		}
@@ -343,8 +367,8 @@ public class XMLPositionUtility {
 	}
 
 	/**
-	 * Returns the range of the end tag of the given <code>element</code> name and null
-	 * otherwise.
+	 * Returns the range of the end tag of the given <code>element</code> name and
+	 * null otherwise.
 	 * 
 	 * @param element the DOM element
 	 * @return the range of the end tag of the given <code>element</code> and null
@@ -355,8 +379,8 @@ public class XMLPositionUtility {
 	}
 
 	/**
-	 * Returns the range of the end tag of the given LOCAL <code>element</code> name and null
-	 * otherwise.
+	 * Returns the range of the end tag of the given LOCAL <code>element</code> name
+	 * and null otherwise.
 	 * 
 	 * @param element the DOM element
 	 * @return the range of the end tag of the given <code>element</code> and null
@@ -378,73 +402,16 @@ public class XMLPositionUtility {
 		if (element.hasEndTag()) {
 			int initialStartOffset = element.getEndTagOpenOffset() + 2; // <\
 			int finalStartOffset = initialStartOffset;
-			if(localNameOnly) {
+			if (localNameOnly) {
 				String prefix = element.getPrefix();
-				if(prefix != null) {
+				if (prefix != null) {
 					finalStartOffset += prefix.length() + 1; // skips prefix and ':'
-				}
-				else {
+				} else {
 					return null;
 				}
 			}
 			int endOffset = initialStartOffset + getStartTagLength(element);
 			return createRange(finalStartOffset, endOffset, element.getOwnerDocument());
-		}
-		return null;
-	}
-
-	public static Range selectAllAttributes(int offset, DOMDocument document) {
-		DOMNode element = document.findNodeAt(offset);
-		if (element != null && element.hasAttributes()) {
-			int startOffset = -1;
-			int endOffset = 0;
-			List<DOMAttr> attributes = element.getAttributeNodes();
-			for (DOMAttr attr : attributes) {
-				if (startOffset == -1) {
-					startOffset = attr.getStart();
-					endOffset = attr.getEnd();
-				} else {
-					startOffset = Math.min(attr.getStart(), startOffset);
-					endOffset = Math.min(attr.getEnd(), startOffset);
-				}
-			}
-			if (startOffset != -1) {
-				return createRange(startOffset, endOffset, document);
-			}
-		}
-		return null;
-	}
-
-	public static Range selectFirstNonWhitespaceText(int offset, DOMDocument document) {
-		DOMNode element = document.findNodeAt(offset);
-		if (element != null) {
-			for (DOMNode node : element.getChildren()) {
-				if (node.isCharacterData() && ((DOMCharacterData) node).hasMultiLine()) {
-					String content = ((DOMCharacterData) node).getData();
-					int start = node.getStart();
-					Integer end = null;
-					for (int i = 0; i < content.length(); i++) {
-						char c = content.charAt(i);
-						if (end == null) {
-							if (Character.isWhitespace(c)) {
-								start++;
-							} else {
-								end = start;
-							}
-						} else {
-							if (!Character.isWhitespace(c)) {
-								end++;
-							} else {
-								break;
-							}
-						}
-					}
-					if (end != null) {
-						end++;
-						return createRange(start, end, document);
-					}
-				}
-			}
 		}
 		return null;
 	}
@@ -504,94 +471,72 @@ public class XMLPositionUtility {
 		return null;
 	}
 
-	/**
-	 * Returns the range for the given <code>node</code>.
-	 * 
-	 * @param node the node
-	 * @return the range for the given <code>node</code>.
-	 */
-	public static Range createRange(DOMRange range) {
-		return createRange(range.getStart(), range.getEnd(), range.getOwnerDocument());
-	}
-
-	public static Range createRange(int startOffset, int endOffset, DOMDocument document) {
-		try {
-			return new Range(document.positionAt(startOffset), document.positionAt(endOffset));
-		} catch (BadLocationException e) {
-			return null;
-		}
-	}
+	// ------------ Entities selection
 
 	/**
-	 * Returns the location link for the given <code>origin</code> and
-	 * <code>target</code> nodes.
+	 * Returns the range of the used entity in a text node (ex : &amp;) and null
+	 * otherwise.
 	 * 
-	 * @param origin the origin node.
-	 * @param target the target node.
-	 * @return the location link for the given <code>origin</code> and
-	 *         <code>target</code> nodes.
+	 * @param offset   the offset
+	 * @param document the document
+	 * @return the range of the used entity in a text node (ex : &amp;) and null
+	 *         otherwise.
 	 */
-	public static LocationLink createLocationLink(DOMRange origin, DOMRange target) {
-		Range originSelectionRange = null;
-		if (origin instanceof DOMElement) {
-			originSelectionRange = selectStartTagName((DOMElement) origin);
-		} else {
-			originSelectionRange = XMLPositionUtility.createRange(origin);
+	public static Range selectEntity(int offset, DOMDocument document) {
+		String text = document.getText();
+		// Search '&' character on the left of the offset
+		int startEntityOffset = offset - 1;
+		while (startEntityOffset > -1 && Character.isLetterOrDigit(text.charAt(startEntityOffset))) {
+			startEntityOffset--;
 		}
-		Range targetRange = XMLPositionUtility.createRange(target);
-		Range targetSelectionRange = targetRange;
-		DOMDocument targetDocument = target.getOwnerDocument();
-		return new LocationLink(targetDocument.getDocumentURI(), targetRange, targetSelectionRange,
-				originSelectionRange);
+		if (startEntityOffset == -1 || text.charAt(startEntityOffset) != '&') {
+			return null;
+		}
+		// Search ';' (or character on the right of the offset
+		int endEntityOffset = offset;
+		while (endEntityOffset < text.length() && Character.isLetterOrDigit(text.charAt(endEntityOffset))) {
+			endEntityOffset++;
+		}
+		if (endEntityOffset + 1 < text.length() && text.charAt(endEntityOffset) == ';') {
+			endEntityOffset++;
+		}
+		return createRange(startEntityOffset, endEntityOffset, document);
 	}
 
-	/**
-	 * Returns the location for the given <code>target</code> node.
-	 * 
-	 * @param target the target node.
-	 * @return the location for the given <code>target</code> node.
-	 */
-	public static Location createLocation(DOMRange target) {
-		DOMDocument targetDocument = target.getOwnerDocument();
-		Range targetRange = XMLPositionUtility.createRange(target.getStart(), target.getEnd(), targetDocument);
-		return new Location(targetDocument.getDocumentURI(), targetRange);
-	}
+	// ------------ Text selection
 
-	/**
-	 * Returns the range covering the first child of the node located
-	 * at offset.
-	 * 
-	 * Returns null if node is not a DOMElement, or if a node does not
-	 * exist at offset.
-	 * 
-	 * @param offset
-	 * @param document
-	 * @return range covering the first child of the node located
-	 * at offset
-	 */
-	public static Range selectFirstChild(int offset, DOMDocument document) {
-		DOMNode node = document.findNodeAt(offset);
-		if (node == null || !node.isElement()) {
-			return null;
+	public static Range selectFirstNonWhitespaceText(int offset, DOMDocument document) {
+		DOMNode element = document.findNodeAt(offset);
+		if (element != null) {
+			for (DOMNode node : element.getChildren()) {
+				if (node.isCharacterData() && ((DOMCharacterData) node).hasMultiLine()) {
+					String content = ((DOMCharacterData) node).getData();
+					int start = node.getStart();
+					Integer end = null;
+					for (int i = 0; i < content.length(); i++) {
+						char c = content.charAt(i);
+						if (end == null) {
+							if (Character.isWhitespace(c)) {
+								start++;
+							} else {
+								end = start;
+							}
+						} else {
+							if (!Character.isWhitespace(c)) {
+								end++;
+							} else {
+								break;
+							}
+						}
+					}
+					if (end != null) {
+						end++;
+						return createRange(start, end, document);
+					}
+				}
+			}
 		}
-
-		DOMElement element = (DOMElement) node;
-		DOMNode child = element.getFirstChild();
-
-		if (child == null) {
-			return null;
-		}
-
-		int startOffset = child.getStart();
-		int endOffset = child.getEnd();
-
-		try {
-			Position startPosition = document.positionAt(startOffset);
-			Position endPosition = document.positionAt(endOffset);
-			return new Range(startPosition, endPosition);
-		} catch (BadLocationException e) {
-			return null;
-		}
+		return null;
 	}
 
 	public static Range selectContent(int offset, DOMDocument document) {
@@ -613,25 +558,23 @@ public class XMLPositionUtility {
 	}
 
 	/**
-	 * Returns the range covering the trimmed text belonging to the node
-	 * located at offset. 
+	 * Returns the range covering the trimmed text belonging to the node located at
+	 * offset.
 	 * 
-	 * This method assumes that the node located at offset only contains
-	 * text.
+	 * This method assumes that the node located at offset only contains text.
 	 * 
 	 * For example, if the node located at offset is:
 	 * 
-	 * <a>
-	 *        hello       
-	 *       
+	 * <a> hello
+	 * 
 	 * </a>
 	 * 
 	 * the returned range will cover only "hello".
 	 * 
 	 * @param offset
 	 * @param document
-	 * @return range covering the trimmed text belonging to the node
-	 * located at offset
+	 * @return range covering the trimmed text belonging to the node located at
+	 *         offset
 	 */
 	public static Range selectTrimmedText(int offset, DOMDocument document) {
 		DOMNode node = document.findNodeAt(offset);
@@ -652,7 +595,7 @@ public class XMLPositionUtility {
 				startOffset += StringUtils.getFrontWhitespaceLength(text);
 				endOffset -= StringUtils.getTrailingWhitespaceLength(text);
 			}
-			
+
 			try {
 				Position startPosition = document.positionAt(startOffset);
 				Position endPosition = document.positionAt(endOffset);
@@ -664,6 +607,8 @@ public class XMLPositionUtility {
 
 		return null;
 	}
+
+	// ------------ DTD selection
 
 	public static Range selectDTDElementDeclAt(int offset, DOMDocument document) {
 		DOMNode node = document.findNodeAt(offset);
@@ -771,14 +716,6 @@ public class XMLPositionUtility {
 		return null;
 	}
 
-	public static Range selectWholeTag(int offset, DOMDocument document) {
-		DOMNode node = document.findNodeAt(offset);
-		if (node != null) {
-			return createRange(node.getStart(), node.getEnd(), document);
-		}
-		return null;
-	}
-
 	public static Range getElementDeclMissingContentOrCategory(int offset, DOMDocument document) {
 		DOMNode node = document.findNodeAt(offset);
 		if (node instanceof DTDElementDecl) {
@@ -793,6 +730,104 @@ public class XMLPositionUtility {
 			} else {
 				return createRange(params.get(1).getStart(), params.get(1).getEnd(), document);
 			}
+		}
+		return null;
+	}
+
+	// ------------ Other selection
+
+	/**
+	 * Returns the range for the given <code>node</code>.
+	 * 
+	 * @param node the node
+	 * @return the range for the given <code>node</code>.
+	 */
+	public static Range createRange(DOMRange range) {
+		return createRange(range.getStart(), range.getEnd(), range.getOwnerDocument());
+	}
+
+	public static Range createRange(int startOffset, int endOffset, DOMDocument document) {
+		try {
+			return new Range(document.positionAt(startOffset), document.positionAt(endOffset));
+		} catch (BadLocationException e) {
+			return null;
+		}
+	}
+
+	/**
+	 * Returns the location link for the given <code>origin</code> and
+	 * <code>target</code> nodes.
+	 * 
+	 * @param origin the origin node.
+	 * @param target the target node.
+	 * @return the location link for the given <code>origin</code> and
+	 *         <code>target</code> nodes.
+	 */
+	public static LocationLink createLocationLink(DOMRange origin, DOMRange target) {
+		Range originSelectionRange = null;
+		if (origin instanceof DOMElement) {
+			originSelectionRange = selectStartTagName((DOMElement) origin);
+		} else {
+			originSelectionRange = XMLPositionUtility.createRange(origin);
+		}
+		Range targetRange = XMLPositionUtility.createRange(target);
+		Range targetSelectionRange = targetRange;
+		DOMDocument targetDocument = target.getOwnerDocument();
+		return new LocationLink(targetDocument.getDocumentURI(), targetRange, targetSelectionRange,
+				originSelectionRange);
+	}
+
+	/**
+	 * Returns the location for the given <code>target</code> node.
+	 * 
+	 * @param target the target node.
+	 * @return the location for the given <code>target</code> node.
+	 */
+	public static Location createLocation(DOMRange target) {
+		DOMDocument targetDocument = target.getOwnerDocument();
+		Range targetRange = XMLPositionUtility.createRange(target.getStart(), target.getEnd(), targetDocument);
+		return new Location(targetDocument.getDocumentURI(), targetRange);
+	}
+
+	/**
+	 * Returns the range covering the first child of the node located at offset.
+	 * 
+	 * Returns null if node is not a DOMElement, or if a node does not exist at
+	 * offset.
+	 * 
+	 * @param offset
+	 * @param document
+	 * @return range covering the first child of the node located at offset
+	 */
+	public static Range selectFirstChild(int offset, DOMDocument document) {
+		DOMNode node = document.findNodeAt(offset);
+		if (node == null || !node.isElement()) {
+			return null;
+		}
+
+		DOMElement element = (DOMElement) node;
+		DOMNode child = element.getFirstChild();
+
+		if (child == null) {
+			return null;
+		}
+
+		int startOffset = child.getStart();
+		int endOffset = child.getEnd();
+
+		try {
+			Position startPosition = document.positionAt(startOffset);
+			Position endPosition = document.positionAt(endOffset);
+			return new Range(startPosition, endPosition);
+		} catch (BadLocationException e) {
+			return null;
+		}
+	}
+
+	public static Range selectWholeTag(int offset, DOMDocument document) {
+		DOMNode node = document.findNodeAt(offset);
+		if (node != null) {
+			return createRange(node.getStart(), node.getEnd(), document);
 		}
 		return null;
 	}
@@ -840,11 +875,11 @@ public class XMLPositionUtility {
 		try {
 			int offset = xmlDocument.offsetAt(position);
 			DOMNode node = xmlDocument.findNodeAt(offset);
-			
-			if(node.isElement()) {
+
+			if (node.isElement()) {
 				DOMElement element = (DOMElement) node;
-				
-				if(!element.hasEndTag() || element.isSelfClosed() || !element.hasStartTag()){
+
+				if (!element.hasEndTag() || element.isSelfClosed() || !element.hasStartTag()) {
 					return null;
 				}
 				int tagNameLength = element.getTagName().length();
@@ -853,12 +888,11 @@ public class XMLPositionUtility {
 				int endTagNameStart = element.getEndTagOpenOffset() + 2;
 				int endTagNameEnd = endTagNameStart + tagNameLength;
 
-				if(offset <= startTagNameEnd && offset >= startTagNameStart) {
+				if (offset <= startTagNameEnd && offset >= startTagNameStart) {
 					int mirroredCursorOffset = endTagNameStart + (offset - startTagNameStart);
 					return xmlDocument.positionAt(mirroredCursorOffset);
-				}
-				else {
-					if(offset >= endTagNameStart && offset <= endTagNameEnd) {
+				} else {
+					if (offset >= endTagNameStart && offset <= endTagNameEnd) {
 						int mirroredCursorOffset = startTagNameStart + (offset - endTagNameStart);
 						return xmlDocument.positionAt(mirroredCursorOffset);
 					}

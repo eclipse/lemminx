@@ -31,13 +31,6 @@ See screenshots in the [wiki](https://github.com/eclipse/lemminx/wiki/Features).
 
 See the [changelog](CHANGELOG.md) for the latest release.
 
-Extension
---------------
-
-The XML Language Server is extensible with plugin kind (with SPI). Here existings extensions:
-
- * content model to provide completion, validation, hover based on XML Schema.
- * emmet to provide completion based on Emmet.
 
 Demo
 --------------
@@ -125,9 +118,22 @@ Clients
 
 Here are some clients consuming this XML Language Server:
 
- * Eclipse IDE with [Wild Web Developer](https://github.com/eclipse/wildwebdeveloper)
+ * Eclipse IDE with [Wild Web Developer](https://github.com/eclipse/wildwebdeveloper) and [m2e](https://www.eclipse.org/m2e/)
  * VSCode with [vscode-xml](https://github.com/redhat-developer/vscode-xml)
  * Theia with [theia-xml](https://github.com/theia-ide/theia-xml-extension)
  * [Spring Tools 4](https://github.com/spring-projects/sts4) - re-using the XML parser for Spring-specific analysis and content-assist
  * Vim/Neovim with [coc-xml](https://github.com/fannheyward/coc-xml)
  * Emacs with [lsp-mode](https://github.com/emacs-lsp/lsp-mode)
+ 
+ 
+Extensions
+----------
+
+The XML Language Server is extensible with plugin kind (with SPI). Additionally to XSD-based validation and assistance, those extensiosn allow to enrich the validation and assistance, typically for specific files or contexts.
+
+Example of extensions include:
+
+ * Built-in content model to provide completion, validation, hover based on XML Schema.
+ * Built-in completion based on Emmet
+ * [See all built-in extensions](https://github.com/eclipse/lemminx/tree/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/extensions)
+ * Eclipse [LemMinX Maven extension](https://github.com/eclipse/lemminx-maven/) provides extra assistance for Maven pom files, adding some pom validation (as diagnostics), hover for documentation and properties evaluation, completion for configuration element (not part of XSD), constrained node, file path, GAVs..., go to definition for properties and GAVs...

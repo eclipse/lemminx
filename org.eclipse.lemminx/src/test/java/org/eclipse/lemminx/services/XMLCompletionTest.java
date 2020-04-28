@@ -154,16 +154,12 @@ public class XMLCompletionTest {
 
 	@Test
 	public void testAutoCloseTagCompletionWithRange() {
-		assertAutoCloseEndTagCompletionWithRange("<a/|></a>", ">$0", new Range(new Position(0, 3), new Position(0, 8)));
-		assertAutoCloseEndTagCompletionWithRange("<a/| </a>", ">$0", new Range(new Position(0, 3), new Position(0, 8)));
-		assertAutoCloseEndTagCompletionWithRange("<a> <a/|> </a> </a>", ">$0",
-				new Range(new Position(0, 7), new Position(0, 13)));
-		assertAutoCloseEndTagCompletionWithRange("<a var=\"asd\"/|></a>", ">$0",
-				new Range(new Position(0, 13), new Position(0, 18)));
-		assertAutoCloseEndTagCompletionWithRange("<a  var=\"asd\"  /| </a>", ">$0",
-				new Range(new Position(0, 16), new Position(0, 21)));
-		assertAutoCloseEndTagCompletionWithRange("<aB/|></aB>", ">$0",
-				new Range(new Position(0, 4), new Position(0, 10)));
+		assertAutoCloseEndTagCompletionWithRange("<a/|></a>", ">$0", r(0, 3, 0, 8));
+		assertAutoCloseEndTagCompletionWithRange("<a/| </a>", ">$0", r(0, 3, 0, 8));
+		assertAutoCloseEndTagCompletionWithRange("<a> <a/|> </a> </a>", ">$0", r(0, 7, 0, 13));
+		assertAutoCloseEndTagCompletionWithRange("<a var=\"asd\"/|></a>", ">$0", r(0, 13, 0, 18));
+		assertAutoCloseEndTagCompletionWithRange("<a  var=\"asd\"  /| </a>", ">$0", r(0, 16, 0, 21));
+		assertAutoCloseEndTagCompletionWithRange("<aB/|></aB>", ">$0", r(0, 4, 0, 10));
 	}
 
 	@Test

@@ -14,7 +14,6 @@ package org.eclipse.lemminx;
 
 import static org.eclipse.lsp4j.jsonrpc.CompletableFutures.computeAsync;
 
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,13 +28,13 @@ import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import org.eclipse.lemminx.client.ClientCommands;
 import org.eclipse.lemminx.client.ExtendedClientCapabilities;
+import org.eclipse.lemminx.client.LimitExceededWarnings;
+import org.eclipse.lemminx.client.LimitFeature;
 import org.eclipse.lemminx.commons.ModelTextDocument;
 import org.eclipse.lemminx.commons.ModelTextDocuments;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.commons.TextDocuments;
-import org.eclipse.lemminx.customservice.ActionableNotification;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMParser;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
@@ -59,7 +58,6 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.CompletionParams;
 import org.eclipse.lsp4j.DefinitionParams;
-import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
@@ -78,8 +76,6 @@ import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.HoverParams;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
-import org.eclipse.lsp4j.MessageParams;
-import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameParams;
@@ -102,6 +98,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	private final XMLLanguageServer xmlLanguageServer;
 	private final TextDocuments<ModelTextDocument<DOMDocument>> documents;
 	private SharedSettings sharedSettings;
+	private LimitExceededWarnings limitExceededWarnings;
 
 	/**
 	 * Save context.
@@ -154,6 +151,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 			return parser.parse(document, getXMLLanguageService().getResolverExtensionManager(), true, cancelChecker);
 		});
 		this.sharedSettings = new SharedSettings();
+		this.limitExceededWarnings = null;
 	}
 
 	public void updateClientCapabilities(ClientCapabilities capabilities,
@@ -251,7 +249,9 @@ public class XMLTextDocumentService implements TextDocumentService {
 					.collect(Collectors.toList());
 			
 			if (resultLimitExceeded) {
-				sendSymbolLimitNotification(xmlDocument, symbolSettings);
+				// send warning
+				getLimitExceededWarnings().onResultLimitExceeded(xmlDocument.getTextDocument().getUri(),
+						LimitFeature.SYMBOLS);
 			}
 			return symbols;
 		});
@@ -305,7 +305,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 		TextDocumentIdentifier document = params.getTextDocument();
 		String uri = document.getUri();
 		xmlLanguageServer.getLanguageClient()
-				.publishDiagnostics(new PublishDiagnosticsParams(uri, new ArrayList<Diagnostic>()));
+				.publishDiagnostics(new PublishDiagnosticsParams(uri, Collections.emptyList()));
+		getLimitExceededWarnings().evict(uri);
 	}
 
 	@Override
@@ -554,28 +555,11 @@ public class XMLTextDocumentService implements TextDocumentService {
 		return result;
 	}
 
-	/**
-	 * Sends a notification that informs the user that the symbols limit has been exceeded
-	 * while computing symbols for textDocument/documentSymbol
-	 * 
-	 * @param xmlDocument    the xml document that symbols were being computed for
-	 * @param symbolSettings the symbol settings
-	 */
-	private void sendSymbolLimitNotification(DOMDocument xmlDocument, XMLSymbolSettings symbolSettings) {
-		String filename = Paths.get(xmlDocument.getTextDocument().getUri()).getFileName().toString();
-		String message = filename != null ? filename + ": " : "";
-		message += "For performance reasons, document symbols have been limited to " +
-				symbolSettings.getMaxItemsComputed() +
-				" items.\nIf a new limit is set, please close and reopen this file to recompute document symbols.";
-		
-		if (sharedSettings.isActionableNotificationSupport() && sharedSettings.isOpenSettingsCommandSupport()) {
-			// create command that opens the settings UI on the client side, in order to quickly edit xml.symbols.maxItemsComputed
-			Command command = new Command("Configure limit", ClientCommands.OPEN_SETTINGS, Collections.singletonList("xml.symbols.maxItemsComputed"));
-			ActionableNotification notification = new ActionableNotification().withSeverity(MessageType.Info).withMessage(message).withCommands(Collections.singletonList(command));
-			xmlLanguageServer.getLanguageClient().actionableNotification(notification);
-		} else {
-			// the open settings command is not supported by the client, display a simple message with LSP
-			xmlLanguageServer.getLanguageClient().showMessage(new MessageParams(MessageType.Warning, message));
+	public LimitExceededWarnings getLimitExceededWarnings() {
+		if (this.limitExceededWarnings == null) {
+			this.limitExceededWarnings =
+					new LimitExceededWarnings(this.xmlLanguageServer.getLanguageClient(), sharedSettings);
 		}
+		return this.limitExceededWarnings;
 	}
 }
