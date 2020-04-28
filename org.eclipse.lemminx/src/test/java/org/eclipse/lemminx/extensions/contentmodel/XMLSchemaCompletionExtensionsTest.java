@@ -874,8 +874,8 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				"	|";
 		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 4 + 2 /* CDATA and Comments */,
 				c("tag", "<tag></tag>"), c("End with '</root>'", "</root>"), c("#region", "<!-- #region -->"),
-				c("#endregion", "<!-- #endregion-->"), c("cdata", "<![CDATA[ ]]>"), //
-				c("comment", "<!-- -->"));
+				c("#endregion", "<!-- #endregion-->"), c("<![CDATA[", "<![CDATA[ ]]>"), //
+				c("<!--", "<!-- -->"));
 
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
 				"<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
@@ -884,7 +884,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				"</root>";
 		XMLAssert.testCompletionFor(xml, null, "src/test/resources/sequence.xml", 3 + 2 /* CDATA and Comments */,
 				c("tag", "<tag></tag>"), c("#region", "<!-- #region -->"), c("#endregion", "<!-- #endregion-->"),
-				c("cdata", "<![CDATA[ ]]>"), c("comment", "<!-- -->"));
+				c("<![CDATA[", "<![CDATA[ ]]>"), c("<!--", "<!-- -->"));
 
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
 				"<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //

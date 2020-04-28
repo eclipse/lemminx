@@ -83,20 +83,6 @@ public class StringUtilsTest {
 	}
 
 	@Test
-	public void testMatch() {
-		String content = "    <!CDATA      ";
-		String expr = "<!CDATA";
-
-		int offset = 10;
-		int startOffset = StringUtils.findExprBeforeAt(content, expr, offset);
-		assertEquals(3, startOffset);
-		
-		offset = 9;
-		startOffset = StringUtils.findExprBeforeAt(content, expr, offset);
-		assertEquals(3, startOffset);
-	}
-
-	@Test
 	public void testGetString() {
 		StringBuffer buffer = new StringBuffer();
 		String bufferText = "This is buffer text";

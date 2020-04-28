@@ -12,6 +12,8 @@
  */
 package org.eclipse.lemminx.services;
 
+import static org.eclipse.lemminx.XMLAssert.CDATA_SNIPPETS;
+import static org.eclipse.lemminx.XMLAssert.COMMENT_SNIPPETS;
 import static org.eclipse.lemminx.XMLAssert.c;
 import static org.eclipse.lemminx.XMLAssert.r;
 import static org.eclipse.lemminx.XMLAssert.testCompletionFor;
@@ -108,15 +110,24 @@ public class XMLCompletionTest {
 
 	@Test
 	public void startTagOpenBracket() throws BadLocationException {
-		testCompletionFor("<hello><h|</hello>", 1, c("h", "<h></h>", "<h"));
-		testCompletionFor("<hello><h1/><h2></h2><h|</hello>", 3, c("h", "<h></h>", "<h"), c("h1", "<h1 />", "<h1"),
-				c("h2", "<h2></h2>", "<h2"));
+		testCompletionFor("<hello><h|</hello>", 1 + //
+				CDATA_SNIPPETS /* CDATA snippets */ + //
+				COMMENT_SNIPPETS /* Comment snippets */ , //
+				c("h", "<h></h>", "<h"));
+		testCompletionFor("<hello><h1/><h2></h2><h|</hello>", 3 + //
+				CDATA_SNIPPETS /* CDATA snippets */ + //
+				COMMENT_SNIPPETS /* Comment snippets */ , //
+				c("h", "<h></h>", "<h"), c("h1", "<h1 />", "<h1"), c("h2", "<h2></h2>", "<h2"));
 	}
 
 	@Test
 	public void replaceRangeOUnusedfCloseTag() throws BadLocationException {
 		testCompletionFor("<hello><h|></hello>", 1, c("h", "<h></h>", "<h"));
-		testCompletionFor("<hello><h1/><h2></h2><h|</hello>", 3, c("h", "<h></h>", "<h"), c("h1", "<h1 />", "<h1"),
+		testCompletionFor("<hello><h1/><h2></h2><h|</hello>", 3 + //
+				CDATA_SNIPPETS /* CDATA snippets */ + //
+				COMMENT_SNIPPETS /* Comment snippets */ , //
+				c("h", "<h></h>", "<h"), //
+				c("h1", "<h1 />", "<h1"), //
 				c("h2", "<h2></h2>", "<h2"));
 	}
 
@@ -125,7 +136,7 @@ public class XMLCompletionTest {
 		testCompletionFor("<a><b />|</a>", 1 + 2 /* CDATA and Comments */, c("b", "<b />", r(0, 8, 0, 8), "b"));
 		testCompletionFor("<a><b /><|</a>", 1 + 2 /* CDATA and Comments */, c("b", "<b />", r(0, 8, 0, 9), "<b"));
 		testCompletionFor("<a>|</b></a>", 1 + 2 /* CDATA and Comments */, c("b", "<b>", r(0, 3, 0, 3), "b"));
-		testCompletionFor("<a><|b</b></a>", 1 + 2 /* CDATA and Comments */, c("b", "<b>", r(0, 3, 0, 5), "<b"));
+		testCompletionFor("<a><|b</b></a>", c("b", "<b>", r(0, 3, 0, 5), "<b"));
 	}
 
 	@Test

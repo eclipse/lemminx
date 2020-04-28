@@ -86,7 +86,25 @@ public class XMLAssert {
 
 	// ------------------- Completion assert
 
+	public static final int COMMENT_SNIPPETS = 1;
+
+	public static final int CDATA_SNIPPETS = 1;
+
+	public static final int DOCTYPE_SNIPPETS = 5;
+
+	public static final int DTDNODE_SNIPPETS = 4;
+
+	public static final int NEW_XML_SNIPPETS = 7;
+
+	public static final int NEW_XSD_SNIPPETS = 1;
+	
+	public static final int PROLOG_SNIPPETS = 2;
+
+	public static final int REGION_SNIPPETS = 2;
+
 	private static final String FILE_URI = "test.xml";
+
+	private static final List<String> DUPLICATE_LABELS = Arrays.asList("<?xml", "<!DOCTYPE", "<!ENTITY");
 
 	public static class SettingsSaveContext extends AbstractSaveContext {
 
@@ -137,8 +155,8 @@ public class XMLAssert {
 
 		SharedSettings settings = new SharedSettings();
 		settings.getCompletionSettings().setAutoCloseTags(autoCloseTags);
-		testCompletionFor(xmlLanguageService, value, catalogPath, customConfiguration, fileURI, expectedCount,
-				settings, expectedItems);
+		testCompletionFor(xmlLanguageService, value, catalogPath, customConfiguration, fileURI, expectedCount, settings,
+				expectedItems);
 	}
 
 	public static void testCompletionFor(XMLLanguageService xmlLanguageService, String value, String catalogPath,
@@ -171,6 +189,9 @@ public class XMLAssert {
 		List<String> labels = list.getItems().stream().map(i -> i.getLabel()).sorted().collect(Collectors.toList());
 		String previous = null;
 		for (String label : labels) {
+			if (isIgnoreDuplicateLabel(label)) {
+				continue;
+			}
 			assertNotEquals(previous, label, () -> {
 				return "Duplicate label " + label + " in " + labels.stream().collect(Collectors.joining(",")) + "}";
 			});
@@ -186,18 +207,29 @@ public class XMLAssert {
 		}
 	}
 
+	private static boolean isIgnoreDuplicateLabel(String label) {
+		return DUPLICATE_LABELS.contains(label);
+	}
+
 	private static void assertCompletion(CompletionList completions, CompletionItem expected, TextDocument document,
 			int offset) {
 		List<CompletionItem> matches = completions.getItems().stream().filter(completion -> {
 			return expected.getLabel().equals(completion.getLabel());
 		}).collect(Collectors.toList());
 
-		assertEquals(1, matches.size(), () -> {
-			return expected.getLabel() + " should only exist once: Actual: "
-					+ completions.getItems().stream().map(c -> c.getLabel()).collect(Collectors.joining(","));
-		});
+		if (isIgnoreDuplicateLabel(expected.getLabel())) {
+			assertTrue(matches.size() >= 1, () -> {
+				return expected.getLabel() + " should only exist once: Actual: "
+						+ completions.getItems().stream().map(c -> c.getLabel()).collect(Collectors.joining(","));
+			});
+		} else {
+			assertEquals(1, matches.size(), () -> {
+				return expected.getLabel() + " should only exist once: Actual: "
+						+ completions.getItems().stream().map(c -> c.getLabel()).collect(Collectors.joining(","));
+			});
+		}
 
-		CompletionItem match = matches.get(0);
+		CompletionItem match = getCompletionMatch(matches, expected);
 		if (expected.getTextEdit() != null && match.getTextEdit() != null) {
 			if (expected.getTextEdit().getNewText() != null) {
 				assertEquals(expected.getTextEdit().getNewText(), match.getTextEdit().getNewText());
@@ -215,6 +247,15 @@ public class XMLAssert {
 			assertEquals(expected.getDocumentation(), match.getDocumentation());
 		}
 
+	}
+
+	private static CompletionItem getCompletionMatch(List<CompletionItem> matches, CompletionItem expected) {
+		for (CompletionItem item : matches) {
+			if (expected.getTextEdit().getNewText().equals(item.getTextEdit().getNewText())) {
+				return item;
+			}
+		}
+		return matches.get(0);
 	}
 
 	public static CompletionItem c(String label, TextEdit textEdit, String filterText, String documentation) {
