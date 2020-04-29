@@ -24,6 +24,7 @@ import java.util.Set;
 
 import org.apache.xerces.impl.dtd.DTDGrammar;
 import org.apache.xerces.impl.dtd.XMLDTDLoader;
+import org.apache.xerces.impl.dtd.XMLEntityDecl;
 import org.apache.xerces.xni.Augmentations;
 import org.apache.xerces.xni.XMLString;
 import org.apache.xerces.xni.XNIException;
@@ -31,12 +32,14 @@ import org.apache.xerces.xni.grammars.Grammar;
 import org.apache.xerces.xni.parser.XMLInputSource;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
+import org.eclipse.lemminx.dom.DTDEntityDecl;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lemminx.extensions.contentmodel.model.FilesChangedTracker;
 import org.eclipse.lemminx.extensions.dtd.utils.DTDUtils;
 import org.eclipse.lsp4j.LocationLink;
+import org.w3c.dom.Entity;
 
 /**
  * DTD document.
@@ -45,7 +48,6 @@ import org.eclipse.lsp4j.LocationLink;
  *
  */
 public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
-
 
 	static class DTDNodeInfo {
 
@@ -99,6 +101,8 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 	private DTDElementInfo dtdElementInfo;
 	private Map<String, DTDNodeInfo> attributes;
 	private DTDNodeInfo nodeInfo;
+
+	private List<Entity> entities;
 
 	public CMDTDDocument() {
 		this(null);
@@ -213,8 +217,8 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 			nodeInfo.setComment(comment);
 			attributes.put(attributeName, nodeInfo);
 		}
-		super.attributeDecl(elementName, attributeName, type, enumeration, defaultType, defaultValue, nonNormalizedDefaultValue,
-				augs);
+		super.attributeDecl(elementName, attributeName, type, enumeration, defaultType, defaultValue,
+				nonNormalizedDefaultValue, augs);
 	}
 
 	@Override
@@ -298,4 +302,56 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 		return tracker != null ? tracker.isDirty() : null;
 	}
 
+	@Override
+	public List<Entity> getEntities() {
+		if (entities == null) {
+			entities = computeEntities();
+		}
+		return entities;
+	}
+
+	private synchronized List<Entity> computeEntities() {
+		if (entities != null) {
+			return entities;
+		}
+		List<Entity> entities = new ArrayList<>();
+		fillEntities(fDTDGrammar, entities);
+		return entities;
+	}
+
+	/**
+	 * Collect entities declared in the DTD grammar.
+	 * 
+	 * @param grammar  the DTD grammar.
+	 * @param entities list to fill.
+	 */
+	private static void fillEntities(DTDGrammar grammar, List<Entity> entities) {
+		int index = 0;
+		XMLEntityDecl entityDecl = new XMLEntityDecl() {
+
+			@Override
+			public void setValues(String name, String publicId, String systemId, String baseSystemId, String notation,
+					String value, boolean isPE, boolean inExternal) {
+				if (inExternal && !isPE) {
+					// Only external entities (entities declared in the DTD) and not entity with %
+					// must be collected.
+					Entity entity = new DTDEntityDecl(0, 0) {
+						@Override
+						public String getNodeName() {
+							return name;
+						}
+
+						@Override
+						public String getNotationName() {
+							return value;
+						}
+					};
+					entities.add(entity);
+				}
+			};
+		};
+		while (grammar.getEntityDecl(index, entityDecl)) {
+			index++;
+		}
+	}
 }

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!DOCTYPE root-element SYSTEM "../dtd/base.dtd" [
-
+	<!ENTITY mdash "&#x2014;">
 ]>
-<root-element />
+<root-element>
+
+</root-element>

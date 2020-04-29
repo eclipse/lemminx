@@ -61,6 +61,7 @@ class XMLFormatter {
 		private DOMDocument rangeDomDocument;
 		private XMLBuilder xmlBuilder;
 		private int indentLevel;
+		private boolean linefeedOnNextWrite;
 
 		/**
 		 * XML formatter document.
@@ -70,6 +71,7 @@ class XMLFormatter {
 			this.range = range;
 			this.options = options;
 			this.emptyElements = options.getEmptyElements();
+			this.linefeedOnNextWrite = false;
 		}
 
 		/**
@@ -286,6 +288,11 @@ class XMLFormatter {
 
 		private void format(DOMNode node) throws BadLocationException {
 
+			if (linefeedOnNextWrite && (!node.isText() || !((DOMText) node).isWhitespace())) {
+				this.xmlBuilder.linefeed();
+				linefeedOnNextWrite = false;
+			}
+
 			if (node.getNodeType() != DOMNode.DOCUMENT_NODE) {
 				boolean doLineFeed;
 				if (node.getOwnerDocument().isDTD()) {
@@ -397,7 +404,7 @@ class XMLFormatter {
 		 */
 		private void formatProlog(DOMNode node) {
 			addPrologToXMLBuilder(node, this.xmlBuilder);
-			this.xmlBuilder.linefeed();
+			linefeedOnNextWrite = true;
 		}
 
 		/**
@@ -406,10 +413,13 @@ class XMLFormatter {
 		 * @param textNode the DOM text node to format.
 		 */
 		private void formatText(DOMText textNode) {
-			// Generate content
 			String content = textNode.getData();
-			xmlBuilder.addContent(content, textNode.isWhitespace(), textNode.hasSiblings(), textNode.getDelimiter(),
-					this.indentLevel);
+			if (textNode.equals(this.fullDomDocument.getLastChild())) {
+				xmlBuilder.addContent(content);
+			} else {
+				xmlBuilder.addContent(content, textNode.isWhitespace(), textNode.hasSiblings(),
+						textNode.getDelimiter());
+			}
 		}
 
 		/**
@@ -438,7 +448,8 @@ class XMLFormatter {
 				if (documentType.isClosed()) {
 					xmlBuilder.endDoctype();
 				}
-				xmlBuilder.linefeed();
+				linefeedOnNextWrite = true;
+
 			} else {
 				formatDTD(documentType, 0, this.endOffset, this.xmlBuilder);
 			}
@@ -468,7 +479,7 @@ class XMLFormatter {
 			this.xmlBuilder.addContentComment(comment.getData());
 			this.xmlBuilder.endComment();
 			if (this.indentLevel == 0) {
-				this.xmlBuilder.linefeed();
+				linefeedOnNextWrite = true;
 			}
 		}
 
@@ -691,6 +702,19 @@ class XMLFormatter {
 			Position endPosition = this.textDocument.positionAt(this.endOffset);
 			Range r = new Range(startPosition, endPosition);
 			List<TextEdit> edits = new ArrayList<>();
+
+			// check if format range reaches the end of the document
+			if (this.endOffset == this.textDocument.getText().length()) {
+
+				if (options.isTrimFinalNewlines()) {
+					this.xmlBuilder.trimFinalNewlines();
+				}
+
+				if (this.options.isInsertFinalNewline() && !this.xmlBuilder.isLastLineEmptyOrWhitespace()) {
+					this.xmlBuilder.linefeed();
+				}
+			}
+
 			edits.add(new TextEdit(r, this.xmlBuilder.toString()));
 			return edits;
 		}
