@@ -237,7 +237,7 @@ public class XMLBuilder {
 		return addContent(text, false, false, null);
 	}
 
-	public XMLBuilder addContent(String text, Boolean isWhitespaceContent, Boolean hasSiblings, String delimiter, int level) {
+	public XMLBuilder addContent(String text, Boolean isWhitespaceContent, Boolean hasSiblings, String delimiter) {
             if (isWhitespaceContent) {
 		    // whoah: terriable, but this one seems to preserve single space.
 		    if (text.length() == 1) {
