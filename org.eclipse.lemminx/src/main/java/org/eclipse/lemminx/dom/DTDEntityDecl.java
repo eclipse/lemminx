@@ -104,7 +104,7 @@ public class DTDEntityDecl extends DTDDeclNode implements Entity {
 	 */
 	@Override
 	public String getNotationName() {
-		throw new UnsupportedOperationException();
+		return getValue();
 	}
 
 	/*

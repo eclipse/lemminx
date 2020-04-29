@@ -26,6 +26,8 @@ import org.junit.jupiter.api.Test;
  */
 public class EntitiesCompletionExtensionsTest {
 
+	// Test for internal entities
+
 	@Test
 	public void afterAmp() throws BadLocationException {
 		// &|
@@ -93,7 +95,7 @@ public class EntitiesCompletionExtensionsTest {
 	}
 
 	@Test
-	public void nonep() throws BadLocationException {
+	public void none() throws BadLocationException {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<!DOCTYPE article [\r\n" + //
 				"  <!ENTITY mdash \"&#x2014;\">\r\n" + //
@@ -103,4 +105,22 @@ public class EntitiesCompletionExtensionsTest {
 				"</root>";
 		testCompletionFor(xml, 2 + 2 /* CDATA and Comments */);
 	}
+
+	// Test for external entities
+	@Test
+	public void external() throws BadLocationException {
+		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n" + //
+				"<!DOCTYPE root-element SYSTEM \"src/test/resources/dtd/base.dtd\" [\r\n" + //
+				"	<!ENTITY mdash \"&#x2014;\">\r\n" + //
+				"]>\r\n" + //
+				"<root-element>\r\n" + //
+				"\r\n &|" + //
+				"</root-element>";
+		testCompletionFor(xml, null, "test.xml", 2 + //
+				2 /* CDATA and Comments */ + //
+				PredefinedEntity.values().length /* predefined entities */,
+				c("&mdash;", "&mdash;", r(6, 1, 6, 2), "&mdash;"), //
+				c("&foo;", "&foo;", r(6, 1, 6, 2), "&foo;"));
+	}
+
 }

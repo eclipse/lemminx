@@ -25,6 +25,8 @@ import org.eclipse.lsp4j.FormattingOptions;
 public class XMLFormattingOptions extends FormattingOptions {
 
 	public static final String DEFAULT_QUOTATION = "\"";
+	public static final int DEFAULT_PRESERVER_NEW_LINES = 2;
+	public static final int DEFAULT_TAB_SIZE = 2;
 
 	// All possible keys
 	private static final String SPLIT_ATTRIBUTES = "splitAttributes";
@@ -85,7 +87,7 @@ public class XMLFormattingOptions extends FormattingOptions {
 	 * <example />
 	 * }
 	 * </pre>
-	 * 
+	 *
 	 * </li>
 	 * <li>{@link #ignore} : keeps the original XML content for empty elements.
 	 * </li>
@@ -115,7 +117,9 @@ public class XMLFormattingOptions extends FormattingOptions {
 	/**
 	 * Necessary: Initialize default values in case client does not provide one
 	 */
-	public void initializeDefaultSettings() {
+	private void initializeDefaultSettings() {
+		super.setTabSize(DEFAULT_TAB_SIZE);
+		super.setInsertSpaces(true);
 		this.setSplitAttributes(false);
 		this.setJoinCDATALines(false);
 		this.setFormatComments(true);
@@ -125,15 +129,16 @@ public class XMLFormattingOptions extends FormattingOptions {
 		this.setSpaceBeforeEmptyCloseTag(true);
 		this.setQuotations(DOUBLE_QUOTES_VALUE);
 		this.setPreserveEmptyContent(false);
-		this.setPreservedNewlines(2);
+		this.setPreservedNewlines(DEFAULT_PRESERVER_NEW_LINES);
 		this.setEmptyElement(EmptyElements.ignore);
 	}
 
 	public XMLFormattingOptions(int tabSize, boolean insertSpaces, boolean initializeDefaultSettings) {
-		super(tabSize, insertSpaces);
 		if (initializeDefaultSettings) {
 			initializeDefaultSettings();
 		}
+		super.setTabSize(tabSize);
+		super.setInsertSpaces(insertSpaces);
 	}
 
 	public XMLFormattingOptions(int tabSize, boolean insertSpaces) {
@@ -315,7 +320,6 @@ public class XMLFormattingOptions extends FormattingOptions {
 	}
 
 	public int getPreservedNewlines() {
-
 		final Number value = this.getNumber(XMLFormattingOptions.PRESERVED_NEWLINES);
 		if ((value != null)) {
 			return value.intValue();

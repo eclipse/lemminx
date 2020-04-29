@@ -411,7 +411,7 @@ public class XMLFormatterTest {
 	@Test
 	public void testSplitAttributesProlog() throws BadLocationException {
 		String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
-		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>" + lineSeparator();
+		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		formattingOptions.setSplitAttributes(true);
 		format(content, expected, formattingOptions);
@@ -549,7 +549,7 @@ public class XMLFormatterTest {
 				" " + lineSeparator() + //
 				"   line 2" + lineSeparator() + //
 				" -->";
-		String expected = "<!-- line 1 line 2 -->" + lineSeparator();
+		String expected = "<!-- line 1 line 2 -->";
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		formattingOptions.setJoinCommentLines(true);
 		format(content, expected, formattingOptions);
@@ -596,7 +596,7 @@ public class XMLFormatterTest {
 				"</a> <!-- My   Comment   -->";
 		String expected = "<a>" + lineSeparator() + //
 				" Content" + lineSeparator() + //
-				"</a> <!-- My Comment -->" + lineSeparator();
+				"</a> <!-- My Comment -->";
 
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		formattingOptions.setJoinCommentLines(true);
@@ -1204,9 +1204,8 @@ public class XMLFormatterTest {
 				"  <from>Jani</from>\r\n" + //
 				"  <heading>Reminder</heading>\r\n" + //
 				"  <body>Don't forget me this weekend</body>\r\n" + //
-				"</note> ";
+				"</note>";
 		String expected = "<!DOCTYPE note [\r\n" + //
-
 				"  <!ELEMENT note (to,from,heading,body)>\r\n" + //
 				"  <!ELEMENT to (#PCDATA)>\r\n" + //
 				"  <!ELEMENT from (#PCDATA)>\r\n" + //
@@ -1338,7 +1337,7 @@ public class XMLFormatterTest {
 				"  df\r\n" + //
 				"  gd\r\n" + //
 				"  <!ELEMENT note (to,from,heading,body)>\r\n" + //
-				"]>\r\n";
+				"]>";
 		format(content, expected, formattingOptions);
 	}
 
@@ -1499,7 +1498,7 @@ public class XMLFormatterTest {
 		String expected = "<!DOCTYPE name \"url\" [\r\n" + //
 				"  <!-- MY COMMENT -->\r\n" + //
 				"  <!NOTATION postscript SYSTEM \"ghostview\">\r\n" + //
-				"]>\r\n";
+				"]>";
 		format(content, expected, formattingOptions);
 	}
 
@@ -1784,7 +1783,7 @@ public class XMLFormatterTest {
 
 		String content = "<a name1=  \" value1 \"  name2= \" value2 \"   name3= \' value3 \' > </a>\n";
 		String expected = "<a\n" + "    name1=\" value1 \"\n" + "    name2=\" value2 \"\n"
-				+ "    name3=\" value3 \"></a>";
+				+ "    name3=\" value3 \"></a>\n";
 		format(content, expected, formattingOptions);
 	}
 
@@ -1795,7 +1794,7 @@ public class XMLFormatterTest {
 		formattingOptions.setQuotations(XMLFormattingOptions.SINGLE_QUOTES_VALUE);
 		String content = "<a name1=  \" value1 \"  name2= \" value2 \"   name3= \' value3 \' > </a>\n";
 		String expected = "<a\n" + "    name1=\' value1 \'\n" + "    name2=\' value2 \'\n"
-				+ "    name3=\' value3 \'></a>";
+				+ "    name3=\' value3 \'></a>\n";
 		format(content, expected, formattingOptions);
 	}
 
@@ -2055,6 +2054,145 @@ public class XMLFormatterTest {
 		format(content, expected, formattingOptions);
 	}
 
+	@Test
+	public void testDontInsertFinalNewLine1() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setTrimFinalNewlines(false);
+		formattingOptions.setInsertFinalNewline(true);
+		String content = "";
+		format(content, content, formattingOptions);
+	}
+
+	@Test
+	public void testDontInsertFinalNewLine2() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setTrimFinalNewlines(false);
+		formattingOptions.setInsertFinalNewline(true);
+		String content = "<a  ></a>" + lineSeparator();
+		String expected = "<a></a>" + lineSeparator();
+		format(content, expected, formattingOptions);
+	}
+
+	@Test
+	public void testDontInsertFinalNewLine3() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setTrimFinalNewlines(false);
+		formattingOptions.setInsertFinalNewline(true);
+		String content = "<a  ></a>" + lineSeparator() + "   ";
+		String expected = "<a></a>" + lineSeparator() + "   ";
+		format(content, expected, formattingOptions);
+	}
+
+	@Test
+	public void testInsertFinalNewLine1() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setInsertFinalNewline(true);
+		String content = "<a></a>";
+		String expected = "<a></a>" + lineSeparator();
+		format(content, expected, formattingOptions);
+	}
+
+	@Test
+	public void testInsertFinalNewLine2() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setTrimFinalNewlines(true);
+		formattingOptions.setInsertFinalNewline(true);
+		String content = "<a></a>\r\n\r\n";
+		String expected = "<a></a>\r\n";
+		format(content, expected, formattingOptions);
+	}
+
+	@Test
+	public void testInsertFinalNewLine3() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setTrimFinalNewlines(true);
+		formattingOptions.setInsertFinalNewline(true);
+		String content = "<a></a>\n\n";
+		String expected = "<a></a>\n";
+		format(content, expected, formattingOptions);
+	}
+
+	@Test
+	public void testDontInsertFinalNewLineWithRange() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setInsertFinalNewline(true);
+		String content = "<div  class = \"foo\">" + lineSeparator() + //
+				"  |<img  src = \"foo\"|/>" + lineSeparator() + //
+				" </div>";
+		String expected = "<div  class = \"foo\">" + lineSeparator() + //
+				"  <img src=\"foo\" />" + lineSeparator() + //
+				" </div>";
+		format(content, expected, formattingOptions);
+	}
+
+	@Test
+	public void testInsertFinalNewLineWithRange2() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setInsertFinalNewline(true);
+		String content = "<div  class = \"foo\">" + lineSeparator() + //
+				"  |<img  src = \"foo\"/>" + lineSeparator() + //
+				" </div>|";
+		String expected = "<div  class = \"foo\">" + lineSeparator() + //
+				"  <img src=\"foo\" />" + lineSeparator() + //
+				"</div>" + lineSeparator();
+		format(content, expected, formattingOptions);
+	}
+
+	// Problem
+	@Test
+	public void testInsertFinalNewLineWithRange3() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setInsertFinalNewline(true);
+		String content = "<div  class = \"foo\">" + lineSeparator() + //
+				"  |<img  src = \"foo\"/>" + lineSeparator() + //
+				lineSeparator() + "|" + lineSeparator() + //
+				"<h1></h1>" + lineSeparator() + //
+				" </div>";
+		String expected = "<div  class = \"foo\">" + lineSeparator() + //
+				"  <img src=\"foo\" />" + lineSeparator() + //
+				lineSeparator() + //
+				"<h1></h1>" + lineSeparator() + //
+				" </div>";
+		format(content, expected, formattingOptions);
+	}
+
+	@Test
+	public void testDontTrimFinalNewLines() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setTrimFinalNewlines(false);
+		String content = "<a  ></a>" + lineSeparator() + lineSeparator() + lineSeparator();
+		String expected = "<a></a>" + lineSeparator() + lineSeparator() + lineSeparator();
+		format(content, expected, formattingOptions);
+	}
+
+	@Test
+	public void testDontTrimFinalNewLines2() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setTrimFinalNewlines(false);
+		String content = "<a  ></a>" + lineSeparator() + //
+				"   " + lineSeparator() + //
+				lineSeparator();
+		String expected = "<a></a>" + lineSeparator() + //
+		"   " + lineSeparator() + //
+				lineSeparator();
+		format(content, expected, formattingOptions);
+	}
+
+	@Test
+	public void testDontTrimFinalNewLines3() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setTrimFinalNewlines(false);
+		String content = "<a  ></a>" + lineSeparator() + //
+				"  text " + lineSeparator() + //
+				"  more text   " + lineSeparator() + //
+				"   " + lineSeparator();
+		String expected = "<a></a>" + lineSeparator() + //
+				"  text " + lineSeparator() + //
+				"  more text   " + lineSeparator() + //
+				"   " + lineSeparator();
+		format(content, expected, formattingOptions);
+	}
+
 	// ------------ Tests with format empty elements settings
 
 	@Test
@@ -2277,6 +2415,6 @@ public class XMLFormatterTest {
 	}
 
 	private static XMLFormattingOptions createDefaultFormattingOptions() {
-		return new XMLFormattingOptions(2, true);
+		return new XMLFormattingOptions(true);
 	}
 }

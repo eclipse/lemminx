@@ -13,10 +13,13 @@
 package org.eclipse.lemminx.extensions.contentmodel.model;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lsp4j.LocationLink;
+import org.w3c.dom.Entity;
 
 /**
  * Content model document which abstracts element declaration from a given
@@ -72,4 +75,13 @@ public interface CMDocument {
 	 * @return true if the content model document is dirty and false otherwise.
 	 */
 	boolean isDirty();
+
+	/**
+	 * Returns list of declared entities.
+	 * 
+	 * @return list of declared entities.
+	 */
+	default List<Entity> getEntities() {
+		return Collections.emptyList();
+	}
 }

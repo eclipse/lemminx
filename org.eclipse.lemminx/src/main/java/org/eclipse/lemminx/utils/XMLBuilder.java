@@ -79,7 +79,7 @@ public class XMLBuilder {
 			xml.append(":");
 		}
 		xml.append(name);
-		if(isEndTagClosed) {
+		if (isEndTagClosed) {
 			xml.append(">");
 		}
 		return this;
@@ -107,7 +107,7 @@ public class XMLBuilder {
 	 *
 	 * It will not perform any linefeeds and only basic indentation.
 	 *
-	 * @param name attribute name
+	 * @param name  attribute name
 	 * @param value attribute value
 	 * @return
 	 */
@@ -118,7 +118,7 @@ public class XMLBuilder {
 		return this;
 	}
 
-	public XMLBuilder addAttributesOnSingleLine(DOMAttr attr, Boolean surroundWithQuotes) {
+	public XMLBuilder addAttributesOnSingleLine(DOMAttr attr, boolean surroundWithQuotes) {
 		xml.append(" ");
 		addAttributeContents(attr.getName(), attr.hasDelimiter(), attr.getValue(), surroundWithQuotes);
 
@@ -167,24 +167,33 @@ public class XMLBuilder {
 		return this;
 	}
 
-	/**
-	 * Builds the attribute {name, '=', and value}.
-	 *
-	 * Never puts quotes around unquoted values unless indicated to by 'surroundWithQuotes'
-	 */
-	private void addAttributeContents(String name, Boolean equalsSign, String originalValue, boolean surroundWithQuotes) {
-		if(name != null) {
+	 /**
+	  * * Builds the attribute {name, '=', and value}.
+	  *
+	  * Never puts quotes around unquoted values unless indicated to by
+	  * 'surroundWithQuotes'
+	  *
+	  * @param name               name of the attribute
+	  * @param equalsSign         true if equals sign exists, false otherwise
+	  * @param originalValue      value of the attribute
+	  * @param surroundWithQuotes true if value should be added with quotes, false otherwise
+	  */
+	private void addAttributeContents(String name, boolean equalsSign, String originalValue,
+			boolean surroundWithQuotes) {
+		if (name != null) {
 			xml.append(name);
 		}
-		if(equalsSign) {
+		if (equalsSign) {
 			xml.append("=");
 		}
-		if(originalValue != null) {
+		if (originalValue != null) {
 			String quote = formattingOptions.isQuotations(XMLFormattingOptions.DOUBLE_QUOTES_VALUE) ? "\"" : "'";
 
-			if(DOMAttr.isQuoted(originalValue)) {
-				if(originalValue.charAt(0) == '\'' && formattingOptions.isQuotations(XMLFormattingOptions.DOUBLE_QUOTES_VALUE) ||
-				   originalValue.charAt(0) == '\"' && formattingOptions.isQuotations(XMLFormattingOptions.SINGLE_QUOTES_VALUE)) {
+			if (DOMAttr.isQuoted(originalValue)) {
+				if (originalValue.charAt(0) == '\''
+						&& formattingOptions.isQuotations(XMLFormattingOptions.DOUBLE_QUOTES_VALUE)
+						|| originalValue.charAt(0) == '\"'
+								&& formattingOptions.isQuotations(XMLFormattingOptions.SINGLE_QUOTES_VALUE)) {
 
 					originalValue = DOMAttr.convertToQuotelessValue(originalValue);
 					xml.append(quote);
@@ -193,21 +202,18 @@ public class XMLBuilder {
 					}
 					xml.append(quote);
 					return;
-				}
-				else {
+				} else {
 					xml.append(originalValue);
 					return;
 				}
-			}
-			else if(surroundWithQuotes) {
+			} else if (surroundWithQuotes) {
 				xml.append(quote);
 				if (originalValue != null) {
 					xml.append(originalValue);
 				}
 				xml.append(quote);
 				return;
-			}
-			else {
+			} else {
 				xml.append(originalValue);
 			}
 		}
@@ -221,11 +227,17 @@ public class XMLBuilder {
 		return this;
 	}
 
+	/**
+	 * Returns this XMLBuilder with <code>text</code> added
+	 *
+	 * @param text the text to add
+	 * @return this XMLBuilder with <code>text</code> added
+	 */
 	public XMLBuilder addContent(String text) {
-		return addContent(text, false, false, null, 0);
+		return addContent(text, false, false, null);
 	}
 
-	public XMLBuilder addContent(String text, Boolean isWhitespaceContent, Boolean hasSiblings, String delimiter, int level) {
+	public XMLBuilder addContent(String text, Boolean isWhitespaceContent, Boolean hasSiblings, String delimiter) {
             if (isWhitespaceContent) {
 		    // whoah: terriable, but this one seems to preserve single space.
 		    if (text.length() == 1) {
@@ -299,6 +311,16 @@ public class XMLBuilder {
 	@Override
 	public String toString() {
 		return xml.toString();
+	}
+
+	/**
+	 * Trims the trailing newlines for the current xml StringBuilder
+	 */
+	public void trimFinalNewlines() {
+		int i = xml.length() - 1;
+		while (i >= 0 && Character.isWhitespace(xml.charAt(i))) {
+			xml.deleteCharAt(i--);
+		}
 	}
 
 	public XMLBuilder startCDATA() {
@@ -379,6 +401,17 @@ public class XMLBuilder {
 		return this;
 	}
 
+	public boolean isLastLineEmptyOrWhitespace() {
+		if (this.xml.length() == 0) {
+			return true;
+		}
+		int i = this.xml.length() - 1;
+		while (i > 0 && Character.isSpaceChar(this.xml.charAt(i))) {
+			i--;
+		}
+		return i > 0 && (this.xml.charAt(i) == '\r' || this.xml.charAt(i) == '\n');
+	}
+
 	private boolean isJoinCommentLines() {
 		return formattingOptions != null && formattingOptions.isJoinCommentLines();
 	}
@@ -408,10 +441,10 @@ public class XMLBuilder {
 	}
 
 	private int getPreservedNewlines() {
-		if(formattingOptions != null) {
+		if (formattingOptions != null) {
 			return formattingOptions.getPreservedNewlines();
 		}
-		return 2; // default
+		return XMLFormattingOptions.DEFAULT_PRESERVER_NEW_LINES;
 	}
 
 }
