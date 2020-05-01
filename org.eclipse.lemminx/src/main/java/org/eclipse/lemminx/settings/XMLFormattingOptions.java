@@ -12,8 +12,6 @@
  */
 package org.eclipse.lemminx.settings;
 
-import java.util.Objects;
-
 import org.eclipse.lsp4j.FormattingOptions;
 
 /**
@@ -27,6 +25,8 @@ public class XMLFormattingOptions extends FormattingOptions {
 	public static final String DEFAULT_QUOTATION = "\"";
 	public static final int DEFAULT_PRESERVER_NEW_LINES = 2;
 	public static final int DEFAULT_TAB_SIZE = 2;
+	public static final EnforceQuoteStyle DEFAULT_ENFORCE_QUOTE_STYLE = EnforceQuoteStyle.preferred;
+	public static final QuoteStyle DEFAULT_QUOTE_STYLE = QuoteStyle.doubleQuotes;
 
 	// All possible keys
 	private static final String SPLIT_ATTRIBUTES = "splitAttributes";
@@ -35,14 +35,11 @@ public class XMLFormattingOptions extends FormattingOptions {
 	private static final String JOIN_COMMENT_LINES = "joinCommentLines";
 	private static final String ENABLED = "enabled";
 	private static final String SPACE_BEFORE_EMPTY_CLOSE_TAG = "spaceBeforeEmptyCloseTag";
-	private static final String QUOTATIONS = "quotations";
 	private static final String JOIN_CONTENT_LINES = "joinContentLines";
 	private static final String PRESERVED_NEWLINES = "preservedNewlines";
 	private static final String TRIM_FINAL_NEWLINES = "trimFinalNewlines";
-
-	// Values for QUOTATIONS
-	public static final String DOUBLE_QUOTES_VALUE = "doubleQuotes";
-	public static final String SINGLE_QUOTES_VALUE = "singleQuotes";
+	private static final String ENFORCE_QUOTE_STYLE = "enforceQuoteStyle";
+	private static final String QUOTE_STYLE = "quoteStyle";
 
 	enum Quotations {
 		doubleQuotes, singleQuotes
@@ -88,12 +85,12 @@ public class XMLFormattingOptions extends FormattingOptions {
 	 * <example />
 	 * }
 	 * </pre>
-	 *
+	 * 
 	 * </li>
 	 * <li>{@link #ignore} : keeps the original XML content for empty elements.
 	 * </li>
 	 * </ul>
-	 *
+	 * 
 	 */
 	public static enum EmptyElements {
 		expand, collapse, ignore;
@@ -128,10 +125,10 @@ public class XMLFormattingOptions extends FormattingOptions {
 		this.setJoinContentLines(false);
 		this.setEnabled(true);
 		this.setSpaceBeforeEmptyCloseTag(true);
-		this.setQuotations(DOUBLE_QUOTES_VALUE);
 		this.setPreserveEmptyContent(false);
 		this.setPreservedNewlines(DEFAULT_PRESERVER_NEW_LINES);
 		this.setEmptyElement(EmptyElements.ignore);
+		this.setQuoteStyle(DEFAULT_QUOTE_STYLE);
 	}
 
 	public XMLFormattingOptions(int tabSize, boolean insertSpaces, boolean initializeDefaultSettings) {
@@ -248,24 +245,16 @@ public class XMLFormattingOptions extends FormattingOptions {
 		}
 	}
 
-	public void setQuotations(final String quotations) {
-		this.putString(XMLFormattingOptions.QUOTATIONS, quotations);
-	}
-
 	/**
-	 * Returns the value of the format.quotations preference.
+	 * Returns the actual quotation value as a char.
 	 * 
-	 * If invalid or null, the default is
-	 * {@link XMLFormattingOptions#DOUBLE_QUOTES_VALUE}.
+	 * Either a {@code '} or {@code "}.
+	 * 
+	 * Defaults to {@code "}.
 	 */
-	public String getQuotations() {
-		final String value = this.getString(XMLFormattingOptions.QUOTATIONS);
-		if ((value != null) && isValidQuotations()) {
-			return value;
-		} else {
-			this.setQuotations(XMLFormattingOptions.DOUBLE_QUOTES_VALUE);
-			return DOUBLE_QUOTES_VALUE;// default
-		}
+	public char getQuotationAsChar() {
+		QuoteStyle style = getQuoteStyle();
+		return QuoteStyle.doubleQuotes.equals(style) ? '\"' : '\'';
 	}
 
 	/**
@@ -276,31 +265,7 @@ public class XMLFormattingOptions extends FormattingOptions {
 	 * Defaults to {@code "}.
 	 */
 	public String getQuotationAsString() {
-		return XMLFormattingOptions.DOUBLE_QUOTES_VALUE.equals(getQuotations()) ? DEFAULT_QUOTATION : "\'";
-	}
-
-	/**
-	 * If the quotations preference is a valid option.
-	 * 
-	 * Keep up to date with new preferences.
-	 * 
-	 * @return
-	 */
-	private boolean isValidQuotations() {
-		final String value = this.getString(XMLFormattingOptions.QUOTATIONS);
-		return SINGLE_QUOTES_VALUE.equals(value) || DOUBLE_QUOTES_VALUE.equals(value);
-	}
-
-	/**
-	 * Checks if {@code quotation} equals the current value for
-	 * {@code format.quotations}.
-	 * 
-	 * @param quotation
-	 * @return
-	 */
-	public boolean isQuotations(String quotation) {
-		String value = getQuotations();
-		return Objects.equals(value, quotation);
+		return Character.toString(getQuotationAsChar());
 	}
 
 	public void setPreserveEmptyContent(final boolean preserveEmptyContent) {
@@ -353,6 +318,32 @@ public class XMLFormattingOptions extends FormattingOptions {
 	public boolean isTrimFinalNewlines() {
 		final Boolean value = this.getBoolean(TRIM_FINAL_NEWLINES);
 		return (value == null) ? true: value;
+
+	public void setEnforceQuoteStyle(EnforceQuoteStyle enforce) {
+		this.putString(XMLFormattingOptions.ENFORCE_QUOTE_STYLE, enforce.name());
+	}
+
+	public EnforceQuoteStyle getEnforceQuoteStyle() {
+		String value = this.getString(XMLFormattingOptions.ENFORCE_QUOTE_STYLE);
+		EnforceQuoteStyle enforceStyle = null;
+		
+		try {
+			enforceStyle = value == null ? null : EnforceQuoteStyle.valueOf(value);
+		} catch (IllegalArgumentException e) {
+			return DEFAULT_ENFORCE_QUOTE_STYLE;
+		}
+		
+		return enforceStyle == null ? DEFAULT_ENFORCE_QUOTE_STYLE : enforceStyle;
+	}
+
+	public void setQuoteStyle(QuoteStyle style) {
+		this.putString(QUOTE_STYLE, style.getText());
+	}
+
+	public QuoteStyle getQuoteStyle() {
+		String style = this.getString(QUOTE_STYLE);
+		QuoteStyle value = QuoteStyle.fromString(style);
+		return value == null ? DEFAULT_QUOTE_STYLE : value;
 	}
 
 	public XMLFormattingOptions merge(FormattingOptions formattingOptions) {

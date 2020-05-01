@@ -18,6 +18,8 @@ import static org.eclipse.lemminx.XMLAssert.te;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.services.XMLLanguageService;
+import org.eclipse.lemminx.settings.EnforceQuoteStyle;
+import org.eclipse.lemminx.settings.QuoteStyle;
 import org.eclipse.lemminx.settings.XMLCompletionSettings;
 import org.eclipse.lemminx.settings.XMLFormattingOptions;
 import org.eclipse.lsp4j.CompletionItem;
@@ -34,11 +36,9 @@ public class XSICompletionExtensionsTest {
 	
 	@BeforeAll
 	public static void runOnceBeforeClass() {
-		formattingSettingsSingleQuotes.setQuotations(XMLFormattingOptions.SINGLE_QUOTES_VALUE);
+		formattingSettingsSingleQuotes.setQuoteStyle(QuoteStyle.singleQuotes);
+		formattingSettingsSingleQuotes.setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
 	}
-
-	
-	
 
 	@Test
 	public void completion() throws BadLocationException {

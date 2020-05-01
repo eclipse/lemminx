@@ -22,6 +22,8 @@ import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMParser;
+import org.eclipse.lemminx.settings.EnforceQuoteStyle;
+import org.eclipse.lemminx.settings.QuoteStyle;
 import org.eclipse.lemminx.settings.XMLFormattingOptions;
 import org.eclipse.lemminx.settings.XMLFormattingOptions.EmptyElements;
 import org.eclipse.lsp4j.Position;
@@ -1681,17 +1683,7 @@ public class XMLFormatterTest {
 	@Test
 	public void testUseDoubleQuotesFromDoubleQuotes() throws BadLocationException {
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setQuotations(XMLFormattingOptions.DOUBLE_QUOTES_VALUE);
-
-		String content = "<a name=  \" value \"> </a>";
-		String expected = "<a name=\" value \"></a>";
-		format(content, expected, formattingOptions);
-	}
-
-	@Test
-	public void testUseInvalidValueFromDoubleQuotes() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setQuotations("INVALID_VALUE");
+		formattingOptions.setQuoteStyle(QuoteStyle.doubleQuotes);
 
 		String content = "<a name=  \" value \"> </a>";
 		String expected = "<a name=\" value \"></a>";
@@ -1701,7 +1693,8 @@ public class XMLFormatterTest {
 	@Test
 	public void testUseSingleQuotesFromSingleQuotes() throws BadLocationException {
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setQuotations(XMLFormattingOptions.SINGLE_QUOTES_VALUE);
+		formattingOptions.setQuoteStyle(QuoteStyle.singleQuotes);
+		formattingOptions.setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
 		String content = "<a name=  \' value \'> </a>";
 		String expected = "<a name=\' value \'></a>";
 		format(content, expected, formattingOptions);
@@ -1710,7 +1703,8 @@ public class XMLFormatterTest {
 	@Test
 	public void testUseSingleQuotesFromDoubleQuotes() throws BadLocationException {
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setQuotations(XMLFormattingOptions.SINGLE_QUOTES_VALUE);
+		formattingOptions.setQuoteStyle(QuoteStyle.singleQuotes);
+		formattingOptions.setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
 
 		String content = "<a name=  \" value \"> </a>";
 		String expected = "<a name=\' value \'></a>";
@@ -1729,7 +1723,7 @@ public class XMLFormatterTest {
 	@Test
 	public void testUseSingleQuotesNoQuotes() throws BadLocationException {
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setQuotations(XMLFormattingOptions.SINGLE_QUOTES_VALUE);
+		formattingOptions.setQuoteStyle(QuoteStyle.singleQuotes);
 		String content = "<a name = test> </a>";
 		String expected = "<a name= test></a>";
 		format(content, expected, formattingOptions);
@@ -1738,7 +1732,7 @@ public class XMLFormatterTest {
 	@Test
 	public void testUseSingleQuotesNoQuotesSplit() throws BadLocationException {
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setQuotations(XMLFormattingOptions.SINGLE_QUOTES_VALUE);
+		formattingOptions.setQuoteStyle(QuoteStyle.singleQuotes);
 		formattingOptions.setSplitAttributes(true);
 		String content = "<a name = test> </a>";
 		String expected = "<a" + lineSeparator() + "    name=" + lineSeparator() + "    test></a>";
@@ -1748,7 +1742,7 @@ public class XMLFormatterTest {
 	@Test
 	public void testAttValueOnlyStartQuote() throws BadLocationException {
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setQuotations(XMLFormattingOptions.SINGLE_QUOTES_VALUE);
+		formattingOptions.setQuoteStyle(QuoteStyle.singleQuotes);
 		String content = "<a name = \"> </a>";
 		String expected = "<a name=\"> </a>";
 		format(content, expected, formattingOptions);
@@ -1766,8 +1760,8 @@ public class XMLFormatterTest {
 	@Test
 	public void testUseSingleQuotesMultipleAttributes() throws BadLocationException {
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setQuotations(XMLFormattingOptions.SINGLE_QUOTES_VALUE);
-
+		formattingOptions.setQuoteStyle(QuoteStyle.singleQuotes);
+		formattingOptions.setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
 		String content = "<a name1=  \" value1 \"  name2= \" value2 \"   name3= \' value3 \' > </a>";
 		String expected = "<a name1=\' value1 \' name2=\' value2 \' name3=\' value3 \'></a>";
 		format(content, expected, formattingOptions);
@@ -1788,7 +1782,7 @@ public class XMLFormatterTest {
 	public void testUseSingleQuotesMultipleAttributesSplit() throws BadLocationException {
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		formattingOptions.setSplitAttributes(true);
-		formattingOptions.setQuotations(XMLFormattingOptions.SINGLE_QUOTES_VALUE);
+		formattingOptions.setQuoteStyle(QuoteStyle.singleQuotes);
 		String content = "<a name1=  \" value1 \"  name2= \" value2 \"   name3= \' value3 \' > </a>\n";
 		String expected = "<a\n" + "    name1=\' value1 \'\n" + "    name2=\' value2 \'\n"
 				+ "    name3=\' value3 \'></a>";
@@ -1798,7 +1792,8 @@ public class XMLFormatterTest {
 	@Test
 	public void testAttributeNameTouchingPreviousValue() throws BadLocationException {
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setQuotations(XMLFormattingOptions.SINGLE_QUOTES_VALUE);
+		formattingOptions.setQuoteStyle(QuoteStyle.singleQuotes);
+		formattingOptions.setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
 		formattingOptions.setSplitAttributes(true);
 
 		String content = "<xml>\r\n" + //
@@ -2356,6 +2351,53 @@ public class XMLFormatterTest {
 				"</a>";
 		format(content, expected, formattingOptions);
 	}
+
+	@Test
+	public void enforceSingleQuoteStyle() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setQuoteStyle(QuoteStyle.singleQuotes);
+		formattingOptions.setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
+
+		String content = "<a  attr   =     \"value\" />";
+		String expected = "<a attr=\'value\' />";
+		format(content, expected, formattingOptions);
+		format(expected, expected, formattingOptions);
+	}
+
+	@Test
+	public void enforceDoubleQuoteStyle() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setQuoteStyle(QuoteStyle.doubleQuotes);
+		formattingOptions.setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
+
+		String content = "<a  attr   =     \'value\' />";
+		String expected = "<a attr=\"value\" />";
+		format(content, expected, formattingOptions);
+		format(expected, expected, formattingOptions);
+	}
+
+	@Test
+	public void dontEnforceSingleQuoteStyle() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setQuoteStyle(QuoteStyle.singleQuotes);
+		formattingOptions.setEnforceQuoteStyle(EnforceQuoteStyle.ignore);
+
+		String content = "<a attr  =   \"\'\" attr2   =     \'\"\' />";
+		String expected = "<a attr=\"\'\" attr2=\'\"\' />";
+		format(content, expected, formattingOptions);
+	}
+
+	@Test
+	public void dontEnforceDoubleQuoteStyle() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		formattingOptions.setQuoteStyle(QuoteStyle.doubleQuotes);
+		formattingOptions.setEnforceQuoteStyle(EnforceQuoteStyle.ignore);
+
+		String content = "<a attr  =   \"\'\" attr2   =     \'\"\' />";
+		String expected = "<a attr=\"\'\" attr2=\'\"\' />";
+		format(content, expected, formattingOptions);
+	}
+
 
 	@Test
 	public void testTemplate() throws BadLocationException {

@@ -83,8 +83,7 @@ public class SettingsTest {
 	"				\"splitAttributes\": true,\r\n" + //
 	"				\"joinCDATALines\": true,\r\n" + //
 	"				\"formatComments\": true,\r\n" + //
-	"				\"joinCommentLines\": true,\r\n" + //
-	"				\"quotations\": " + XMLFormattingOptions.DOUBLE_QUOTES_VALUE + "\r\n" + //
+	"				\"joinCommentLines\": true\r\n" + //
 	"			},\r\n" + 
 	"			\"server\": {\r\n" + //
 	"				\"workDir\": \"~/" + testFolder + "/Nested\"\r\n" + //
@@ -161,7 +160,7 @@ public class SettingsTest {
 		sharedXMLFormattingOptions.setTabSize(10);
 		sharedXMLFormattingOptions.setInsertSpaces(true);
 		sharedXMLFormattingOptions.setJoinCommentLines(true);
-		sharedXMLFormattingOptions.setQuotations(XMLFormattingOptions.SINGLE_QUOTES_VALUE);
+		sharedXMLFormattingOptions.setQuoteStyle(QuoteStyle.singleQuotes);
 
 		// formatting options coming from request
 		FormattingOptions formattingOptions = new FormattingOptions();
@@ -170,16 +169,13 @@ public class SettingsTest {
 
 		XMLFormattingOptions xmlFormattingOptions = new XMLFormattingOptions(formattingOptions, false);
 
-		xmlFormattingOptions.setQuotations("InvalidValue"); // set a value that is not recognized
 
 		assertEquals(5, xmlFormattingOptions.getTabSize()); // value coming from the request formattingOptions
 		assertFalse(xmlFormattingOptions.isInsertSpaces()); // formattingOptions doesn't defines insert spaces
 		// flag
 
 		assertFalse(xmlFormattingOptions.isJoinCommentLines());// Since default for JoinCommentLines is False
-
-		// Assumes the "InvalidValue" will be overridden
-		assertTrue(xmlFormattingOptions.getQuotations().equals(XMLFormattingOptions.DOUBLE_QUOTES_VALUE));
+		assertEquals(QuoteStyle.doubleQuotes, xmlFormattingOptions.getQuoteStyle());
 
 		// merge with shared sharedXMLFormattingOptions (formatting settings created in
 		// the InitializeParams
@@ -191,8 +187,7 @@ public class SettingsTest {
 																												// request's
 		// formattingOptions object is allowed to define it.
 		assertTrue(xmlFormattingOptions.isJoinCommentLines());
-
-		assertTrue(xmlFormattingOptions.getQuotations().equals(XMLFormattingOptions.SINGLE_QUOTES_VALUE));
+		assertEquals(QuoteStyle.singleQuotes, xmlFormattingOptions.getQuoteStyle());
 	}
 
 	@Test
@@ -233,7 +228,7 @@ public class SettingsTest {
 		XMLLanguageServer languageServer = new XMLLanguageServer();
 		languageServer.updateSettings(initializationOptionsSettings); // This should set/update the sharedSettings
 
-		XMLExcludedSymbolFile xsdFile = new XMLExcludedSymbolFile("**\\*.xsd"); 
+		XMLExcludedSymbolFile xsdFile = new XMLExcludedSymbolFile("**\\*.xsd");
 		XMLExcludedSymbolFile xmlFile = new XMLExcludedSymbolFile("**\\*.xml");
 		XMLExcludedSymbolFile[] expectedExcludedFiles = new XMLExcludedSymbolFile[] {xsdFile, xmlFile};
 

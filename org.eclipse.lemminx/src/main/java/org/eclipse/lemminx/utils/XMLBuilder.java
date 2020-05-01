@@ -17,6 +17,7 @@ import static org.eclipse.lemminx.utils.StringUtils.normalizeSpace;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMComment;
 import org.eclipse.lemminx.dom.DTDDeclNode;
+import org.eclipse.lemminx.settings.EnforceQuoteStyle;
 import org.eclipse.lemminx.settings.XMLFormattingOptions;
 
 /**
@@ -193,13 +194,11 @@ public class XMLBuilder {
 			xml.append("=");
 		}
 		if (originalValue != null) {
-			String quote = formattingOptions.isQuotations(XMLFormattingOptions.DOUBLE_QUOTES_VALUE) ? "\"" : "'";
+			char quote = formattingOptions.getQuotationAsChar();
 
 			if (DOMAttr.isQuoted(originalValue)) {
-				if (originalValue.charAt(0) == '\''
-						&& formattingOptions.isQuotations(XMLFormattingOptions.DOUBLE_QUOTES_VALUE)
-						|| originalValue.charAt(0) == '\"'
-								&& formattingOptions.isQuotations(XMLFormattingOptions.SINGLE_QUOTES_VALUE)) {
+				if (formattingOptions.getEnforceQuoteStyle() == EnforceQuoteStyle.preferred &&
+						originalValue.charAt(0) != quote) {
 
 					originalValue = DOMAttr.convertToQuotelessValue(originalValue);
 					xml.append(quote);
