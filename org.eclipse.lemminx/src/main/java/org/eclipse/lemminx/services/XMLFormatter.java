@@ -658,7 +658,7 @@ class XMLFormatter {
 			DOMProcessingInstruction processingInstruction = (DOMProcessingInstruction) node;
 			xml.startPrologOrPI(processingInstruction.getTarget());
 			if (node.hasAttributes()) {
-				addAttributes(node, xml);
+				addPrologAttributes(node, xml);
 			}
 			xml.endPrologOrPI();
 		}
@@ -666,15 +666,14 @@ class XMLFormatter {
 		/**
 		 * Will add all attributes, to the given builder, on a single line
 		 */
-		private static void addAttributes(DOMNode node, XMLBuilder xmlBuilder) {
+		private static void addPrologAttributes(DOMNode node, XMLBuilder xmlBuilder) {
 			List<DOMAttr> attrs = node.getAttributeNodes();
 			if (attrs == null) {
 				return;
 			}
 			for (DOMAttr attr : attrs) {
-				xmlBuilder.addAttributesOnSingleLine(attr, true);
+				xmlBuilder.addSingleAttribute(attr, true);
 			}
-			xmlBuilder.appendSpace();
 		}
 	}
 
