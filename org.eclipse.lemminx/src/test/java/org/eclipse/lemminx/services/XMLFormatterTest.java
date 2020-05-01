@@ -283,15 +283,15 @@ public class XMLFormatterTest {
 
 	@Test
 	public void testProlog() throws BadLocationException {
-		String content = "<?xml version=   \"1.0\"       encoding=\"UTF-8\"  ?>" + lineSeparator();
-		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>" + lineSeparator();
+		String content = "<?xml version=   \"1.0\"       encoding=\"UTF-8\"  ?>\r\n";
+		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n";
 		format(content, expected);
 	}
 
 	@Test
 	public void testProlog2() throws BadLocationException {
 		String content = "<?xml version=   \"1.0\"       encoding=\"UTF-8\"  ?><a>bb</a>";
-		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>" + lineSeparator() + //
+		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + lineSeparator() + //
 				"<a>bb</a>";
 		format(content, expected);
 	}
@@ -299,7 +299,7 @@ public class XMLFormatterTest {
 	@Test
 	public void testProlog3() throws BadLocationException {
 		String content = "<?xml version=   \"1.0\"       encoding=\"UTF-8\"  ?><a><b>c</b></a>";
-		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>" + lineSeparator() + //
+		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + lineSeparator() + //
 				"<a>" + lineSeparator() + //
 				"  <b>c</b>" + lineSeparator() + //
 				"</a>";
@@ -309,7 +309,7 @@ public class XMLFormatterTest {
 	@Test
 	public void testProlog4WithUnknownVariable() throws BadLocationException {
 		String content = "<?xml version=   \"1.0\"       encoding=\"UTF-8\"  unknown=\"unknownValue\" ?><a><b>c</b></a>";
-		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\" unknown=\"unknownValue\" ?>" + lineSeparator() + //
+		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\" unknown=\"unknownValue\"?>" + lineSeparator() + //
 				"<a>" + lineSeparator() + //
 				"  <b>c</b>" + lineSeparator() + //
 				"</a>";
@@ -411,7 +411,7 @@ public class XMLFormatterTest {
 	@Test
 	public void testSplitAttributesProlog() throws BadLocationException {
 		String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
-		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
+		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		formattingOptions.setSplitAttributes(true);
 		format(content, expected, formattingOptions);
@@ -1442,7 +1442,7 @@ public class XMLFormatterTest {
 				"    <servlet-class>dd</servlet-class>\r\n" + //
 				"  </servlet>\r\n" + //
 				"</web-app>";
-		String expected = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>\r\n" + //
+		String expected = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\r\n" + //
 				"<!DOCTYPE web-app PUBLIC \"-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN\" \"http://java.sun.com/dtd/web-app_2_3.dtd\" [\r\n"
 				+ //
 				"  <!ELEMENT h1 %horiz.model;>\r\n" + //
@@ -1634,7 +1634,7 @@ public class XMLFormatterTest {
 				"        <property name=\"propB\" value=\"...\" />\r\n" + //
 				"    </resource>\r\n" + //
 				"</resources>";
-		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
+		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<resources variant=\"\">\r\n" + //
 				"<resource name=\"res00\" >\r\n" + //
 				"<property name=\"propA\" value=\"...\" />\r\n" + //
