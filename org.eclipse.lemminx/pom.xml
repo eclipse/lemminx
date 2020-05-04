@@ -11,6 +11,7 @@
 		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
 		<dev.build.timestamp>${maven.build.timestamp}</dev.build.timestamp>
 		<cbi.jarsigner.skip>true</cbi.jarsigner.skip>
+		<graalvm.version>20.0.0</graalvm.version>
 	</properties>
 	<build>
 		<resources>
@@ -113,6 +114,53 @@
 	</build>
 	<profiles>
 		<profile>
+			<id>native</id>
+			<activation>
+				<property>
+					<name>native</name>
+					<value>true</value>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>kr.motd.maven</groupId>
+						<artifactId>os-maven-plugin</artifactId>
+						<version>1.6.1</version>
+						<executions>
+							<execution>
+								<phase>initialize</phase>
+								<goals>
+									<goal>detect</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.graalvm.nativeimage</groupId>
+						<artifactId>native-image-maven-plugin</artifactId>
+						<version>${graalvm.version}</version>
+						<executions>
+							<execution>
+								<goals>
+									<goal>native-image</goal>
+								</goals>
+								<phase>package</phase>
+							</execution>
+						</executions>
+						<configuration>
+							<skip>false</skip>
+							<imageName>lemminx-${os.detected.classifier}-${project.version}</imageName>
+							<buildArgs>
+								--no-fallback
+								-H:EnableURLProtocols=https,http
+							</buildArgs>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
 			<id>generate-p2</id>
 			<build>
 				<plugins>
@@ -204,5 +252,4 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
 </project>

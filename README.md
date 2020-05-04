@@ -61,6 +61,14 @@ this.forward(clientConnection, serverConnection)
 socket.connect(socketPort)
 ```
 
+Generating a native binary (WIP):
+---------------------------------
+To generate a native binary:
+- [Install GraalVM 20.0.0](https://www.graalvm.org/docs/getting-started/#install-graalvm)
+- In a terminal, run `gu install native-image`
+- Execute a Maven build activating the `native` profile: `./mvnw clean package -Pnative -DskipTests`
+- It will generate a native binary in `org.eclipse.lemminx/target/lemminx-{os.name}-{version}`
+
 Maven coordinates:
 ------------------
 
