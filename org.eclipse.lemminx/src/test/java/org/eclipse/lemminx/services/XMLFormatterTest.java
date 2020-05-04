@@ -284,7 +284,7 @@ public class XMLFormatterTest {
 	@Test
 	public void testProlog() throws BadLocationException {
 		String content = "<?xml version=   \"1.0\"       encoding=\"UTF-8\"  ?>\r\n";
-		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n";
+		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 		format(content, expected);
 	}
 
@@ -1273,8 +1273,7 @@ public class XMLFormatterTest {
 				"  <!ATTLIST payment type CDATA \"check\">\r\n" + //
 				"  <!ENTITY copyright SYSTEM \"https://www.w3schools.com/entities.dtd\">\r\n" + //
 				"  <!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\">\r\n" + //
-				"]>\r\n" + //
-				"";
+				"]>";
 		format(content, expected, formattingOptions);
 	}
 
@@ -1304,8 +1303,7 @@ public class XMLFormatterTest {
 				"  <!-- comment -->\r\n" + //
 				"  <!ENTITY copyright SYSTEM \"https://www.w3schools.com/entities.dtd\">\r\n" + //
 				"  <!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\">\r\n" + //
-				"]>\r\n" + //
-				"";
+				"]>";
 		format(content, expected, formattingOptions);
 	}
 
@@ -1482,8 +1480,7 @@ public class XMLFormatterTest {
 		String expected = "<!DOCTYPE name [\r\n" + //
 				"  <!-- MY COMMENT -->\r\n" + //
 				"  <!NOTATION postscript SYSTEM \"ghostview\">\r\n" + //
-				"]>\r\n" + //
-				"";
+				"]>";
 		format(content, expected, formattingOptions);
 	}
 
@@ -1783,7 +1780,7 @@ public class XMLFormatterTest {
 
 		String content = "<a name1=  \" value1 \"  name2= \" value2 \"   name3= \' value3 \' > </a>\n";
 		String expected = "<a\n" + "    name1=\" value1 \"\n" + "    name2=\" value2 \"\n"
-				+ "    name3=\" value3 \"></a>\n";
+				+ "    name3=\" value3 \"></a>";
 		format(content, expected, formattingOptions);
 	}
 
@@ -1794,7 +1791,7 @@ public class XMLFormatterTest {
 		formattingOptions.setQuotations(XMLFormattingOptions.SINGLE_QUOTES_VALUE);
 		String content = "<a name1=  \" value1 \"  name2= \" value2 \"   name3= \' value3 \' > </a>\n";
 		String expected = "<a\n" + "    name1=\' value1 \'\n" + "    name2=\' value2 \'\n"
-				+ "    name3=\' value3 \'></a>\n";
+				+ "    name3=\' value3 \'></a>";
 		format(content, expected, formattingOptions);
 	}
 
@@ -2055,6 +2052,14 @@ public class XMLFormatterTest {
 	}
 
 	@Test
+	public void testTrimFinalNewlinesDefault() throws BadLocationException {
+		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		String content = "<a  ></a>\r\n";
+		String expected = "<a></a>";
+		format(content, expected, formattingOptions);
+	}
+
+	@Test
 	public void testDontInsertFinalNewLine1() throws BadLocationException {
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		formattingOptions.setTrimFinalNewlines(false);
@@ -2068,8 +2073,8 @@ public class XMLFormatterTest {
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		formattingOptions.setTrimFinalNewlines(false);
 		formattingOptions.setInsertFinalNewline(true);
-		String content = "<a  ></a>" + lineSeparator();
-		String expected = "<a></a>" + lineSeparator();
+		String content = "<a  ></a>\r\n";
+		String expected = "<a></a>\r\n";
 		format(content, expected, formattingOptions);
 	}
 
@@ -2078,8 +2083,8 @@ public class XMLFormatterTest {
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		formattingOptions.setTrimFinalNewlines(false);
 		formattingOptions.setInsertFinalNewline(true);
-		String content = "<a  ></a>" + lineSeparator() + "   ";
-		String expected = "<a></a>" + lineSeparator() + "   ";
+		String content = "<a  ></a>\r\n" + "   ";
+		String expected = "<a></a>\r\n" + "   ";
 		format(content, expected, formattingOptions);
 	}
 
@@ -2116,11 +2121,11 @@ public class XMLFormatterTest {
 	public void testDontInsertFinalNewLineWithRange() throws BadLocationException {
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		formattingOptions.setInsertFinalNewline(true);
-		String content = "<div  class = \"foo\">" + lineSeparator() + //
-				"  |<img  src = \"foo\"|/>" + lineSeparator() + //
+		String content = "<div  class = \"foo\">\r\n" + //
+				"  |<img  src = \"foo\"|/>\r\n" + //
 				" </div>";
-		String expected = "<div  class = \"foo\">" + lineSeparator() + //
-				"  <img src=\"foo\" />" + lineSeparator() + //
+		String expected = "<div  class = \"foo\">\r\n" + //
+				"  <img src=\"foo\" />\r\n" + //
 				" </div>";
 		format(content, expected, formattingOptions);
 	}
@@ -2129,12 +2134,12 @@ public class XMLFormatterTest {
 	public void testInsertFinalNewLineWithRange2() throws BadLocationException {
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		formattingOptions.setInsertFinalNewline(true);
-		String content = "<div  class = \"foo\">" + lineSeparator() + //
-				"  |<img  src = \"foo\"/>" + lineSeparator() + //
+		String content = "<div  class = \"foo\">\r\n" + //
+				"  |<img  src = \"foo\"/>\r\n" + //
 				" </div>|";
-		String expected = "<div  class = \"foo\">" + lineSeparator() + //
-				"  <img src=\"foo\" />" + lineSeparator() + //
-				"</div>" + lineSeparator();
+		String expected = "<div  class = \"foo\">\r\n" + //
+				"  <img src=\"foo\" />\r\n" + //
+				"</div>\r\n";
 		format(content, expected, formattingOptions);
 	}
 
@@ -2143,15 +2148,15 @@ public class XMLFormatterTest {
 	public void testInsertFinalNewLineWithRange3() throws BadLocationException {
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		formattingOptions.setInsertFinalNewline(true);
-		String content = "<div  class = \"foo\">" + lineSeparator() + //
-				"  |<img  src = \"foo\"/>" + lineSeparator() + //
-				lineSeparator() + "|" + lineSeparator() + //
-				"<h1></h1>" + lineSeparator() + //
+		String content = "<div  class = \"foo\">\r\n" + //
+				"  |<img  src = \"foo\"/>\r\n" + //
+				"\r\n"+ "|" + "\r\n" + //
+				"<h1></h1>\r\n" + //
 				" </div>";
-		String expected = "<div  class = \"foo\">" + lineSeparator() + //
-				"  <img src=\"foo\" />" + lineSeparator() + //
-				lineSeparator() + //
-				"<h1></h1>" + lineSeparator() + //
+		String expected = "<div  class = \"foo\">\r\n" + //
+				"  <img src=\"foo\" />\r\n" + //
+				"\r\n" + //
+				"<h1></h1>" + "\r\n" + //
 				" </div>";
 		format(content, expected, formattingOptions);
 	}
@@ -2160,8 +2165,8 @@ public class XMLFormatterTest {
 	public void testDontTrimFinalNewLines() throws BadLocationException {
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		formattingOptions.setTrimFinalNewlines(false);
-		String content = "<a  ></a>" + lineSeparator() + lineSeparator() + lineSeparator();
-		String expected = "<a></a>" + lineSeparator() + lineSeparator() + lineSeparator();
+		String content = "<a  ></a>\r\n\r\n\r\n";
+		String expected = "<a></a>\r\n\r\n\r\n";
 		format(content, expected, formattingOptions);
 	}
 
@@ -2169,12 +2174,10 @@ public class XMLFormatterTest {
 	public void testDontTrimFinalNewLines2() throws BadLocationException {
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		formattingOptions.setTrimFinalNewlines(false);
-		String content = "<a  ></a>" + lineSeparator() + //
-				"   " + lineSeparator() + //
-				lineSeparator();
-		String expected = "<a></a>" + lineSeparator() + //
-		"   " + lineSeparator() + //
-				lineSeparator();
+		String content = "<a  ></a>\r\n" + //
+				"   \r\n\r\n";
+		String expected = "<a></a>\r\n" + //
+				"   \r\n\r\n";
 		format(content, expected, formattingOptions);
 	}
 
@@ -2182,14 +2185,14 @@ public class XMLFormatterTest {
 	public void testDontTrimFinalNewLines3() throws BadLocationException {
 		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		formattingOptions.setTrimFinalNewlines(false);
-		String content = "<a  ></a>" + lineSeparator() + //
-				"  text " + lineSeparator() + //
-				"  more text   " + lineSeparator() + //
-				"   " + lineSeparator();
-		String expected = "<a></a>" + lineSeparator() + //
-				"  text " + lineSeparator() + //
-				"  more text   " + lineSeparator() + //
-				"   " + lineSeparator();
+		String content = "<a  ></a>\r\n" + //
+				"  text \r\n" + //
+				"  more text   \r\n" + //
+				"   \r\n";
+		String expected = "<a></a>\r\n" + //
+				"  text \r\n" + //
+				"  more text   \r\n" + //
+				"   \r\n";
 		format(content, expected, formattingOptions);
 	}
 
@@ -2352,7 +2355,6 @@ public class XMLFormatterTest {
 				"  <b />\r\n" + //
 				"</a>";
 		format(content, expected, formattingOptions);
-
 	}
 
 	@Test
