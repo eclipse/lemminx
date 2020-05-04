@@ -424,7 +424,7 @@ public class XMLSyntaxDiagnosticsTest {
 	}
 
 	@Test
-	public void testRootElementTypeMustMatchDoctypedecl() {
+	public void testRootElementTypeMustMatchDoctypedecl() throws Exception {
 		String xml =
 		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
 		"<!DOCTYPE efgh [ \r\n" +
@@ -433,7 +433,26 @@ public class XMLSyntaxDiagnosticsTest {
 		"]> \r\n" +
 		"<abcd/>";
 
-		testDiagnosticsFor(xml, d(5, 1, 5, 5, XMLSyntaxErrorCode.RootElementTypeMustMatchDoctypedecl));
+		String expectedMessage = "Document root element \"abcd\", must match DOCTYPE root \"efgh\".";
+		Diagnostic d = d(5, 1, 5, 5, XMLSyntaxErrorCode.RootElementTypeMustMatchDoctypedecl, expectedMessage);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(5, 1, 5, 5, "efgh")));
+	}
+
+	@Test
+	public void testRootElementTypeMustMatchDoctypedecl2() throws Exception {
+		String xml =
+		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
+		"<!DOCTYPE efgh [ \r\n" +
+		"<!ELEMENT abcd (#PCDATA)>\r\n" +
+		"<!ELEMENT efgh (#PCDATA)>\r\n" +
+		"]> \r\n" +
+		"<abcd>test</abcd>";
+
+		String expectedMessage = "Document root element \"abcd\", must match DOCTYPE root \"efgh\".";
+		Diagnostic d = d(5, 1, 5, 5, XMLSyntaxErrorCode.RootElementTypeMustMatchDoctypedecl, expectedMessage);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(5, 1, 5, 5, "efgh"), te(5, 12, 5, 16, "efgh")));
 	}
 
 	@Test
