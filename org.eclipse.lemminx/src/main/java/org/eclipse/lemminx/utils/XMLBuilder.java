@@ -92,7 +92,7 @@ public class XMLBuilder {
 
 	public XMLBuilder selfCloseElement() {
 		if (formattingOptions.isSpaceBeforeEmptyCloseTag()) {
-			xml.append(" ");
+			appendSpace();
 		}
 		xml.append("/>");
 		return this;
@@ -107,32 +107,37 @@ public class XMLBuilder {
 	 *
 	 * It will not perform any linefeeds and only basic indentation.
 	 *
-	 * @param name  attribute name
-	 * @param value attribute value
-	 * @return
+	 * @param name               attribute name
+	 * @param value              attribute value
+	 * @param surroundWithQuotes true if quotes should be added around originalValue
+	 * @return this XML Builder
 	 */
 	public XMLBuilder addSingleAttribute(String name, String value, boolean surroundWithQuotes) {
-		xml.append(" ");
+		appendSpace();
 		addAttributeContents(name, true, value, surroundWithQuotes);
-
 		return this;
 	}
 
-	public XMLBuilder addAttributesOnSingleLine(DOMAttr attr, boolean surroundWithQuotes) {
-		xml.append(" ");
+	/**
+	 * Used when only one attribute is being added to a node.
+	 *
+	 * It will not perform any linefeeds and only basic indentation.
+	 *
+	 * @param attr               attribute
+	 * @param surroundWithQuotes true if value should be added with quotes, false
+	 *                           otherwise
+	 * @return this XML Builder
+	 */
+	public XMLBuilder addSingleAttribute(DOMAttr attr, boolean surroundWithQuotes) {
+		appendSpace();
 		addAttributeContents(attr.getName(), attr.hasDelimiter(), attr.getValue(), surroundWithQuotes);
-
 		return this;
-	}
-
-	public XMLBuilder addAttribute(String name, String value, int level) {
-		return addAttribute(name, value, level, false);
 	}
 
 	/**
 	 * Used when you are knowingly adding multiple attributes.
 	 *
-	 * It will do linefeeds and indentation.
+	 * Does linefeeds and indentation.
 	 *
 	 * @param name
 	 * @param value
@@ -144,7 +149,7 @@ public class XMLBuilder {
 			linefeed();
 			indent(level + splitAttributesIndent);
 		} else {
-			xml.append(" ");
+			appendSpace();
 		}
 
 		addAttributeContents(name, true, value, surroundWithQuotes);
@@ -160,24 +165,25 @@ public class XMLBuilder {
 			linefeed();
 			indent(level + splitAttributesIndent);
 		} else {
-			xml.append(" ");
+			appendSpace();
 		}
 
 		addAttributeContents(attr.getName(), attr.hasDelimiter(), attr.getOriginalValue(), surroundWithQuotes);
 		return this;
 	}
 
-	 /**
-	  * * Builds the attribute {name, '=', and value}.
-	  *
-	  * Never puts quotes around unquoted values unless indicated to by
-	  * 'surroundWithQuotes'
-	  *
-	  * @param name               name of the attribute
-	  * @param equalsSign         true if equals sign exists, false otherwise
-	  * @param originalValue      value of the attribute
-	  * @param surroundWithQuotes true if value should be added with quotes, false otherwise
-	  */
+	/**
+	 * Builds the attribute {name, '=', and value}.
+	 *
+	 * Never puts quotes around unquoted values unless indicated to by
+	 * 'surroundWithQuotes'
+	 *
+	 * @param name               name of the attribute
+	 * @param equalsSign         true if equals sign exists, false otherwise
+	 * @param originalValue      value of the attribute
+	 * @param surroundWithQuotes true if quotes should be added around originalValue,
+	 *                           false otherwise
+	 */
 	private void addAttributeContents(String name, boolean equalsSign, String originalValue,
 			boolean surroundWithQuotes) {
 		if (name != null) {
@@ -279,8 +285,7 @@ public class XMLBuilder {
 		for (int i = 0; i < level; i++) {
 			if (isInsertSpaces()) {
 				for (int j = 0; j < getTabSize(); j++) {
-  					xml.append(" ");
-					//xml.append("x");
+					appendSpace();
 				}
 			} else {
 				xml.append("\t");
@@ -297,9 +302,9 @@ public class XMLBuilder {
 	}
 
 	public XMLBuilder addContentPI(String content) {
-		xml.append(" ");
+		appendSpace();
 		xml.append(content);
-		xml.append(" ");
+		appendSpace();
 		return this;
 	}
 
@@ -343,7 +348,7 @@ public class XMLBuilder {
 
 	public XMLBuilder startComment(DOMComment comment) {
 		if (comment.isCommentSameLineEndTag()) {
-			xml.append(" ");
+			appendSpace();
 		}
 		xml.append("<!--");
 		return this;
@@ -351,9 +356,9 @@ public class XMLBuilder {
 
 	public XMLBuilder addContentComment(String content) {
 		if (isJoinCommentLines()) {
-			xml.append(" ");
-			xml.append(normalizeSpace2(content));
-			xml.append(" ");
+			appendSpace();
+			xml.append(normalizeSpace(content));
+			appendSpace();
 		} else {
 			xml.append(content);
 		}
