@@ -38,6 +38,7 @@ public class XMLFormattingOptions extends FormattingOptions {
 	private static final String QUOTATIONS = "quotations";
 	private static final String JOIN_CONTENT_LINES = "joinContentLines";
 	private static final String PRESERVED_NEWLINES = "preservedNewlines";
+	private static final String TRIM_FINAL_NEWLINES = "trimFinalNewlines";
 
 	// Values for QUOTATIONS
 	public static final String DOUBLE_QUOTES_VALUE = "doubleQuotes";
@@ -341,6 +342,17 @@ public class XMLFormattingOptions extends FormattingOptions {
 			}
 		}
 		return EmptyElements.ignore;
+	}
+
+	/**
+	 * Returns the value of trimFinalNewlines.
+	 * 
+	 * If the trimFinalNewlines does not exist, defaults to true.
+	 */
+	@Override
+	public boolean isTrimFinalNewlines() {
+		final Boolean value = this.getBoolean(TRIM_FINAL_NEWLINES);
+		return (value == null) ? true: value;
 	}
 
 	public XMLFormattingOptions merge(FormattingOptions formattingOptions) {
