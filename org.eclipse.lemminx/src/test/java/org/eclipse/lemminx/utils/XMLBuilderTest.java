@@ -14,7 +14,7 @@ package org.eclipse.lemminx.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.eclipse.lemminx.settings.XMLFormattingOptions;
+import org.eclipse.lemminx.settings.SharedSettings;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -24,11 +24,13 @@ import org.junit.jupiter.api.Test;
  */
 public class XMLBuilderTest {
 
-	XMLFormattingOptions settings;
+	SharedSettings settings;
 
 	@BeforeEach
 	public void startup() {
-		settings = new XMLFormattingOptions(4, false);
+		settings = new SharedSettings();
+		settings.getFormattingSettings().setInsertSpaces(false);
+		settings.getFormattingSettings().setTabSize(4);
 	}
 
 	@Test

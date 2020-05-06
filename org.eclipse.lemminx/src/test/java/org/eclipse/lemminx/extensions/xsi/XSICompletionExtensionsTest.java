@@ -17,13 +17,12 @@ import static org.eclipse.lemminx.XMLAssert.te;
 
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
+import org.eclipse.lemminx.extensions.xsl.XSLURIResolverExtension;
 import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.settings.EnforceQuoteStyle;
 import org.eclipse.lemminx.settings.QuoteStyle;
-import org.eclipse.lemminx.settings.XMLCompletionSettings;
-import org.eclipse.lemminx.settings.XMLFormattingOptions;
+import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.CompletionItem;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -31,14 +30,6 @@ import org.junit.jupiter.api.Test;
  *
  */
 public class XSICompletionExtensionsTest {
-	
-	public static XMLFormattingOptions formattingSettingsSingleQuotes = new XMLFormattingOptions(true);
-	
-	@BeforeAll
-	public static void runOnceBeforeClass() {
-		formattingSettingsSingleQuotes.setQuoteStyle(QuoteStyle.singleQuotes);
-		formattingSettingsSingleQuotes.setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
-	}
 
 	@Test
 	public void completion() throws BadLocationException {
@@ -87,7 +78,7 @@ public class XSICompletionExtensionsTest {
 				"<project xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" >\r\n" +
 				"  <a xsi:nil=|> </a> ";
 				
-		testCompletionFor(xml, formattingSettingsSingleQuotes,
+		testCompletionFor(xml, singleQuotesSharedSettings(),
 				c("true", te(2, 13, 2, 13, "\'true\'"), "\'true\'"), 
 				c("false", te(2, 13, 2, 13, "\'false\'"), "\'false\'")); 
 	}
@@ -111,7 +102,7 @@ public class XSICompletionExtensionsTest {
 				"<project xmlns:xsi=| >\r\n" +
 				"  <a> </a> \r\n"+
 				"</project>";
-		testCompletionFor(xml, formattingSettingsSingleQuotes,
+		testCompletionFor(xml, singleQuotesSharedSettings(),
 				c("http://www.w3.org/2001/XMLSchema-instance", te(1, 19, 1, 19, "\'http://www.w3.org/2001/XMLSchema-instance\'"), "\'http://www.w3.org/2001/XMLSchema-instance\'")
 				); // coming from stylesheet children
 	}
@@ -151,11 +142,18 @@ public class XSICompletionExtensionsTest {
 				); // coming from stylesheet children
 	}
 
+	private SharedSettings singleQuotesSharedSettings() {
+		SharedSettings settings = new SharedSettings();
+		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
+		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
+		return settings;
+	}
+
 	private void testCompletionFor(String xml, CompletionItem... expectedItems) throws BadLocationException {
 		XMLAssert.testCompletionFor(xml, null, expectedItems);
 	}
 
-	private void testCompletionFor(String xml, XMLFormattingOptions formattingSettings, CompletionItem... expectedItems) throws BadLocationException {
-		XMLAssert.testCompletionFor(new XMLLanguageService(), xml, null, null, null, null, new XMLCompletionSettings(true), formattingSettings, expectedItems);
+	private void testCompletionFor(String xml, SharedSettings sharedSettings, CompletionItem... expectedItems) throws BadLocationException {
+		XMLAssert.testCompletionFor(new XMLLanguageService(), xml, null, null, null, null, sharedSettings, expectedItems);
 	}
 }

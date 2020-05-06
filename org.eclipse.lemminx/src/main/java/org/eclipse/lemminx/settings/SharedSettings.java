@@ -25,6 +25,7 @@ public class SharedSettings {
 	private final XMLSymbolSettings symbolSettings;
 	private final XMLCodeLensSettings codeLensSettings;
 	private final XMLHoverSettings hoverSettings;
+	private final XMLPreferences preferences;
 
 	private boolean actionableNotificationSupport;
 	private boolean openSettingsCommandSupport;
@@ -37,8 +38,21 @@ public class SharedSettings {
 		this.symbolSettings = new XMLSymbolSettings();
 		this.codeLensSettings = new XMLCodeLensSettings();
 		this.hoverSettings = new XMLHoverSettings();
+		this.preferences = new XMLPreferences();
 		this.actionableNotificationSupport = false;
 		this.openSettingsCommandSupport = false;
+	}
+
+	public SharedSettings(SharedSettings newSettings) {
+		this();
+		this.completionSettings.merge(newSettings.getCompletionSettings());
+		this.formattingSettings.merge(newSettings.getFormattingSettings());
+		this.validationSettings.merge(newSettings.getValidationSettings());
+		this.symbolSettings.merge(newSettings.getSymbolSettings());
+		this.codeLensSettings.merge(newSettings.getCodeLensSettings());
+		this.preferences.merge(newSettings.getPreferences());
+		this.actionableNotificationSupport = newSettings.isActionableNotificationSupport();
+		this.openSettingsCommandSupport = newSettings.isOpenSettingsCommandSupport();
 	}
 
 	public XMLCompletionSettings getCompletionSettings() {
@@ -67,6 +81,10 @@ public class SharedSettings {
 
 	public XMLHoverSettings getHoverSettings() {
 		return hoverSettings;
+	}
+
+	public XMLPreferences getPreferences() {
+		return preferences;
 	}
 
 	/**

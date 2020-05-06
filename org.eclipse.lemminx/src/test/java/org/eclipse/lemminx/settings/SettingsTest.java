@@ -160,7 +160,6 @@ public class SettingsTest {
 		sharedXMLFormattingOptions.setTabSize(10);
 		sharedXMLFormattingOptions.setInsertSpaces(true);
 		sharedXMLFormattingOptions.setJoinCommentLines(true);
-		sharedXMLFormattingOptions.setQuoteStyle(QuoteStyle.singleQuotes);
 
 		// formatting options coming from request
 		FormattingOptions formattingOptions = new FormattingOptions();
@@ -175,19 +174,13 @@ public class SettingsTest {
 		// flag
 
 		assertFalse(xmlFormattingOptions.isJoinCommentLines());// Since default for JoinCommentLines is False
-		assertEquals(QuoteStyle.doubleQuotes, xmlFormattingOptions.getQuoteStyle());
 
 		// merge with shared sharedXMLFormattingOptions (formatting settings created in
 		// the InitializeParams
 		xmlFormattingOptions.merge(sharedXMLFormattingOptions);
-		assertEquals(5, xmlFormattingOptions.getTabSize()); // tab size is kept as 5 (and not updated with
-		// shared value 10), because only the request's
-		// formattingOptions object is allowed to define it.
-		assertFalse(xmlFormattingOptions.isInsertSpaces()); // insert spaces is kept as false because only the
-																												// request's
-		// formattingOptions object is allowed to define it.
+		assertEquals(10, xmlFormattingOptions.getTabSize());
+		assertTrue(xmlFormattingOptions.isInsertSpaces()); 
 		assertTrue(xmlFormattingOptions.isJoinCommentLines());
-		assertEquals(QuoteStyle.singleQuotes, xmlFormattingOptions.getQuoteStyle());
 	}
 
 	@Test

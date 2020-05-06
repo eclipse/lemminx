@@ -11,12 +11,17 @@
 *******************************************************************************/
 package org.eclipse.lemminx.settings;
 
-import com.google.gson.annotations.SerializedName;
+import org.eclipse.lsp4j.FormattingOptions;
 
 /**
- * Quote style (single quotes, double quotes)
+ * Composite settings class
+ * 
+ * Provides a new SharedSettings instance with a second
+ * setting merged
  */
-public enum QuoteStyle {
-	@SerializedName("single") singleQuotes,
-	@SerializedName("double") doubleQuotes;
+public class CompositeSettings extends SharedSettings {
+	public CompositeSettings(SharedSettings settings, FormattingOptions formatting) {
+		super(settings);
+		this.getFormattingSettings().merge(formatting);
+	}
 }

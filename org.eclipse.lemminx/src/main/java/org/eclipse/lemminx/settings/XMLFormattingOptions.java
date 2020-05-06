@@ -26,7 +26,6 @@ public class XMLFormattingOptions extends FormattingOptions {
 	public static final int DEFAULT_PRESERVER_NEW_LINES = 2;
 	public static final int DEFAULT_TAB_SIZE = 2;
 	public static final EnforceQuoteStyle DEFAULT_ENFORCE_QUOTE_STYLE = EnforceQuoteStyle.preferred;
-	public static final QuoteStyle DEFAULT_QUOTE_STYLE = QuoteStyle.doubleQuotes;
 
 	// All possible keys
 	private static final String SPLIT_ATTRIBUTES = "splitAttributes";
@@ -39,7 +38,6 @@ public class XMLFormattingOptions extends FormattingOptions {
 	private static final String PRESERVED_NEWLINES = "preservedNewlines";
 	private static final String TRIM_FINAL_NEWLINES = "trimFinalNewlines";
 	private static final String ENFORCE_QUOTE_STYLE = "enforceQuoteStyle";
-	private static final String QUOTE_STYLE = "quoteStyle";
 
 	enum Quotations {
 		doubleQuotes, singleQuotes
@@ -128,7 +126,6 @@ public class XMLFormattingOptions extends FormattingOptions {
 		this.setPreserveEmptyContent(false);
 		this.setPreservedNewlines(DEFAULT_PRESERVER_NEW_LINES);
 		this.setEmptyElement(EmptyElements.ignore);
-		this.setQuoteStyle(DEFAULT_QUOTE_STYLE);
 	}
 
 	public XMLFormattingOptions(int tabSize, boolean insertSpaces, boolean initializeDefaultSettings) {
@@ -245,29 +242,6 @@ public class XMLFormattingOptions extends FormattingOptions {
 		}
 	}
 
-	/**
-	 * Returns the actual quotation value as a char.
-	 * 
-	 * Either a {@code '} or {@code "}.
-	 * 
-	 * Defaults to {@code "}.
-	 */
-	public char getQuotationAsChar() {
-		QuoteStyle style = getQuoteStyle();
-		return QuoteStyle.doubleQuotes.equals(style) ? '\"' : '\'';
-	}
-
-	/**
-	 * Returns the actual quotation value as a String.
-	 * 
-	 * Either a {@code '} or {@code "}.
-	 * 
-	 * Defaults to {@code "}.
-	 */
-	public String getQuotationAsString() {
-		return Character.toString(getQuotationAsChar());
-	}
-
 	public void setPreserveEmptyContent(final boolean preserveEmptyContent) {
 		this.putBoolean(XMLFormattingOptions.PRESERVE_EMPTY_CONTENT, Boolean.valueOf(preserveEmptyContent));
 	}
@@ -318,6 +292,7 @@ public class XMLFormattingOptions extends FormattingOptions {
 	public boolean isTrimFinalNewlines() {
 		final Boolean value = this.getBoolean(TRIM_FINAL_NEWLINES);
 		return (value == null) ? true: value;
+	}
 
 	public void setEnforceQuoteStyle(EnforceQuoteStyle enforce) {
 		this.putString(XMLFormattingOptions.ENFORCE_QUOTE_STYLE, enforce.name());
@@ -336,24 +311,9 @@ public class XMLFormattingOptions extends FormattingOptions {
 		return enforceStyle == null ? DEFAULT_ENFORCE_QUOTE_STYLE : enforceStyle;
 	}
 
-	public void setQuoteStyle(QuoteStyle style) {
-		this.putString(QUOTE_STYLE, style.getText());
-	}
-
-	public QuoteStyle getQuoteStyle() {
-		String style = this.getString(QUOTE_STYLE);
-		QuoteStyle value = QuoteStyle.fromString(style);
-		return value == null ? DEFAULT_QUOTE_STYLE : value;
-	}
-
 	public XMLFormattingOptions merge(FormattingOptions formattingOptions) {
 		formattingOptions.entrySet().stream().forEach(entry -> {
-			String key = entry.getKey();
-			if (!key.equals("tabSize") && !key.equals("insertSpaces")) {
-				this.put(entry.getKey(), entry.getValue());
-			} else {
-				this.putIfAbsent(entry.getKey(), entry.getValue());
-			}
+			this.put(entry.getKey(), entry.getValue());
 		});
 		return this;
 	}

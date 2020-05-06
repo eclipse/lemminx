@@ -22,12 +22,10 @@ import org.eclipse.lemminx.extensions.xsl.XSLURIResolverExtension;
 import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.settings.EnforceQuoteStyle;
 import org.eclipse.lemminx.settings.QuoteStyle;
-import org.eclipse.lemminx.settings.XMLCompletionSettings;
-import org.eclipse.lemminx.settings.XMLFormattingOptions;
+import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.CompletionCapabilities;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemCapabilities;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -35,15 +33,6 @@ import org.junit.jupiter.api.Test;
  *
  */
 public class PrologCompletionExtensionsTest {
-
-	public static XMLFormattingOptions formattingSettingsSingleQuotes = new XMLFormattingOptions(true);
-	public static XMLFormattingOptions formattingSettings = new XMLFormattingOptions(true);
-
-	@BeforeAll
-	public static void runOnceBeforeClass() {
-		formattingSettingsSingleQuotes.setQuoteStyle(QuoteStyle.singleQuotes);
-		formattingSettingsSingleQuotes.setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
-	}
 
 	@Test
 	public void completionVersionWithV() throws BadLocationException {
@@ -165,7 +154,10 @@ public class PrologCompletionExtensionsTest {
 		// completion on |
 		String xml = "<?xml version=| ?>\r\n" + //
 				"<project xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">";
-		testCompletionFor(xml, formattingSettingsSingleQuotes, createCompletionSettings(true, true),
+		SharedSettings settings = createSharedSettings(true, true);
+		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
+		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
+		testCompletionFor(xml, settings,
 				c(PrologModel.VERSION_1, te(0, 14, 0, 14, "\'" + PrologModel.VERSION_1 + "\'"),
 						"\'" + PrologModel.VERSION_1 + "\'"),
 				c(PrologModel.VERSION_1_1, te(0, 14, 0, 14, "\'" + PrologModel.VERSION_1_1 + "\'"),
@@ -177,7 +169,10 @@ public class PrologCompletionExtensionsTest {
 		// completion on |
 		String xml = "<?xml encoding=| ?>\r\n" + //
 				"<project xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">";
-		testCompletionFor(xml, formattingSettingsSingleQuotes, createCompletionSettings(true, true),
+		SharedSettings settings = createSharedSettings(true, true);
+		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
+		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
+		testCompletionFor(xml, settings,
 				c(PrologModel.UTF_8, te(0, 15, 0, 15, "\'" + PrologModel.UTF_8 + "\'"),
 						"\'" + PrologModel.UTF_8 + "\'"),
 				c(PrologModel.SHIFT_JIS, te(0, 15, 0, 15, "\'" + PrologModel.SHIFT_JIS + "\'"),
@@ -283,34 +278,32 @@ public class PrologCompletionExtensionsTest {
 
 	private void testCompletionFor(String xml, String fileURI, boolean autoCloseTags, boolean isSnippetsSupported,
 			CompletionItem... expectedItems) throws BadLocationException {
-		testCompletionFor(xml, fileURI, formattingSettings,
-				createCompletionSettings(autoCloseTags, isSnippetsSupported), expectedItems);
+		testCompletionFor(xml, fileURI, createSharedSettings(autoCloseTags, isSnippetsSupported), expectedItems);
 	}
 
-	private void testCompletionFor(String xml, String fileURI, XMLFormattingOptions formattingSettings,
-			XMLCompletionSettings completionSettings, CompletionItem... expectedItems) throws BadLocationException {
-		XMLAssert.testCompletionFor(new XMLLanguageService(), xml, null, null, fileURI, null, completionSettings,
-				formattingSettings, expectedItems);
+	private void testCompletionFor(String xml, String fileURI, SharedSettings settings, CompletionItem... expectedItems) throws BadLocationException {
+		XMLAssert.testCompletionFor(new XMLLanguageService(), xml, null, null, fileURI, null,
+				settings, expectedItems);
 	}
 
 	private void testCompletionFor(String xml, boolean autoCloseTags, boolean isSnippetsSupported,
 			CompletionItem... expectedItems) throws BadLocationException {
-		testCompletionFor(xml, formattingSettings, createCompletionSettings(autoCloseTags, isSnippetsSupported),
+		testCompletionFor(xml, createSharedSettings(autoCloseTags, isSnippetsSupported),
 				expectedItems);
 	}
 
-	private void testCompletionFor(String xml, XMLFormattingOptions formattingSettings,
-			XMLCompletionSettings completionSettings, CompletionItem... expectedItems) throws BadLocationException {
-		XMLAssert.testCompletionFor(new XMLLanguageService(), xml, null, null, null, null, completionSettings,
-				formattingSettings, expectedItems);
+	private void testCompletionFor(String xml, SharedSettings settings,
+			CompletionItem... expectedItems) throws BadLocationException {
+		XMLAssert.testCompletionFor(new XMLLanguageService(), xml, null, null, null, null,
+				settings, expectedItems);
 	}
 
-	private XMLCompletionSettings createCompletionSettings(boolean autoCloseTags, boolean isSnippetsSupported) {
-		XMLCompletionSettings completionSettings = new XMLCompletionSettings(autoCloseTags);
+	private SharedSettings createSharedSettings(boolean autoCloseTags, boolean isSnippetsSupported) {
+		SharedSettings sharedSettings = new SharedSettings();
 		CompletionCapabilities capabilities = new CompletionCapabilities();
 		CompletionItemCapabilities itemCapabilities = new CompletionItemCapabilities(isSnippetsSupported);
 		capabilities.setCompletionItem(itemCapabilities);
-		completionSettings.setCapabilities(capabilities);
-		return completionSettings;
+		sharedSettings.getCompletionSettings().setCapabilities(capabilities);
+		return sharedSettings;
 	}
 }

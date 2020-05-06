@@ -28,7 +28,6 @@ import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLCodeLensSettings;
 import org.eclipse.lemminx.settings.XMLFoldingSettings;
-import org.eclipse.lemminx.settings.XMLFormattingOptions;
 import org.eclipse.lemminx.settings.XMLHoverSettings;
 import org.eclipse.lemminx.settings.XMLSymbolSettings;
 import org.eclipse.lemminx.uriresolver.CacheResourceDownloadingException;
@@ -101,8 +100,9 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		this.rename = new XMLRename(this);
 	}
 
-	public List<? extends TextEdit> format(TextDocument document, Range range, XMLFormattingOptions options) {
-		return formatter.format(document, range, options);
+	public List<? extends TextEdit> format(TextDocument document, Range range,
+			SharedSettings sharedSettings) {
+		return formatter.format(document, range, sharedSettings);
 	}
 
 	public List<DocumentHighlight> findDocumentHighlights(DOMDocument xmlDocument, Position position) {
@@ -245,8 +245,8 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 	}
 
 	public List<CodeAction> doCodeActions(CodeActionContext context, Range range, DOMDocument document,
-			XMLFormattingOptions formattingSettings) {
-		return codeActions.doCodeActions(context, range, document, formattingSettings);
+			SharedSettings sharedSettings) {
+		return codeActions.doCodeActions(context, range, document, sharedSettings);
 	}
 
 	public AutoCloseTagResponse doTagComplete(DOMDocument xmlDocument, Position position) {

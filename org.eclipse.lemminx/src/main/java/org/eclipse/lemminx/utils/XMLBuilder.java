@@ -18,7 +18,7 @@ import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMComment;
 import org.eclipse.lemminx.dom.DTDDeclNode;
 import org.eclipse.lemminx.settings.EnforceQuoteStyle;
-import org.eclipse.lemminx.settings.XMLFormattingOptions;
+import org.eclipse.lemminx.settings.SharedSettings;
 
 /**
  * XML content builder utilities.
@@ -26,15 +26,15 @@ import org.eclipse.lemminx.settings.XMLFormattingOptions;
  */
 public class XMLBuilder {
 
-	private final XMLFormattingOptions formattingOptions;
+	private final SharedSettings sharedSettings;
 	private final String lineDelimiter;
 	private final StringBuilder xml;
 	private final String whitespacesIndent;
 	private final int splitAttributesIndent = 2;
 
-	public XMLBuilder(XMLFormattingOptions formattingOptions, String whitespacesIndent, String lineDelimiter) {
+	public XMLBuilder(SharedSettings sharedSettings, String whitespacesIndent, String lineDelimiter) {
 		this.whitespacesIndent = whitespacesIndent;
-		this.formattingOptions = formattingOptions != null ? formattingOptions : new XMLFormattingOptions(true);
+		this.sharedSettings = sharedSettings;
 		this.lineDelimiter = lineDelimiter;
 		this.xml = new StringBuilder();
 	}
@@ -92,7 +92,7 @@ public class XMLBuilder {
 	}
 
 	public XMLBuilder selfCloseElement() {
-		if (formattingOptions.isSpaceBeforeEmptyCloseTag()) {
+		if (sharedSettings.getFormattingSettings().isSpaceBeforeEmptyCloseTag()) {
 			appendSpace();
 		}
 		xml.append("/>");
@@ -194,10 +194,10 @@ public class XMLBuilder {
 			xml.append("=");
 		}
 		if (originalValue != null) {
-			char quote = formattingOptions.getQuotationAsChar();
+			char quote = sharedSettings.getPreferences().getQuotationAsChar();
 
 			if (DOMAttr.isQuoted(originalValue)) {
-				if (formattingOptions.getEnforceQuoteStyle() == EnforceQuoteStyle.preferred &&
+				if (sharedSettings.getFormattingSettings().getEnforceQuoteStyle() == EnforceQuoteStyle.preferred &&
 						originalValue.charAt(0) != quote) {
 
 					originalValue = DOMAttr.convertToQuotelessValue(originalValue);
@@ -415,38 +415,35 @@ public class XMLBuilder {
 	}
 
 	private boolean isJoinCommentLines() {
-		return formattingOptions != null && formattingOptions.isJoinCommentLines();
+		return sharedSettings.getFormattingSettings().isJoinCommentLines();
 	}
 
 	private boolean isJoinCDATALines() {
-		return formattingOptions != null && formattingOptions.isJoinCDATALines();
+		return sharedSettings.getFormattingSettings().isJoinCDATALines();
 	}
 
 	private boolean isSplitAttributes() {
-		return formattingOptions != null && formattingOptions.isSplitAttributes();
+		return sharedSettings.getFormattingSettings().isSplitAttributes();
 	}
 
 	private boolean isInsertSpaces() {
-		return formattingOptions != null && formattingOptions.isInsertSpaces();
+		return sharedSettings.getFormattingSettings().isInsertSpaces();
 	}
 
 	private int getTabSize() {
-		return formattingOptions != null ? formattingOptions.getTabSize() : 0;
+		return sharedSettings.getFormattingSettings().getTabSize();
 	}
 
 	private boolean isJoinContentLines() {
-		return formattingOptions != null && formattingOptions.isJoinContentLines();
+		return sharedSettings.getFormattingSettings().isJoinContentLines();
 	}
 
 	private boolean isPreserveEmptyContent() {
-		return formattingOptions != null && formattingOptions.isPreserveEmptyContent();
+		return sharedSettings.getFormattingSettings().isPreserveEmptyContent();
 	}
 
 	private int getPreservedNewlines() {
-		if (formattingOptions != null) {
-			return formattingOptions.getPreservedNewlines();
-		}
-		return XMLFormattingOptions.DEFAULT_PRESERVER_NEW_LINES;
+		return sharedSettings.getFormattingSettings().getPreservedNewlines();
 	}
 
 }

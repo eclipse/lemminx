@@ -18,7 +18,7 @@ import java.util.List;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
-import org.eclipse.lemminx.settings.XMLFormattingOptions;
+import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.Diagnostic;
@@ -37,13 +37,13 @@ public class XMLCodeActions {
 	}
 
 	public List<CodeAction> doCodeActions(CodeActionContext context, Range range, DOMDocument document,
-			XMLFormattingOptions formattingSettings) {
+			SharedSettings sharedSettings) {
 		List<CodeAction> codeActions = new ArrayList<>();
 		if (context.getDiagnostics() != null) {
 			for (Diagnostic diagnostic : context.getDiagnostics()) {
 				for (ICodeActionParticipant codeActionParticipant : extensionsRegistry.getCodeActionsParticipants()) {
-					codeActionParticipant.doCodeAction(diagnostic, range, document, codeActions, formattingSettings,
-							extensionsRegistry);
+					codeActionParticipant.doCodeAction(diagnostic, range, document, codeActions,
+							sharedSettings, extensionsRegistry);
 				}
 			}
 		}
