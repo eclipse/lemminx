@@ -20,8 +20,6 @@ import org.eclipse.lemminx.services.extensions.ICompletionRequest;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLCompletionSettings;
-import org.eclipse.lemminx.settings.XMLFormattingOptions;
-import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -32,9 +30,7 @@ import org.eclipse.lsp4j.Range;
  */
 class CompletionRequest extends AbstractPositionRequest implements ICompletionRequest {
 
-	private final XMLCompletionSettings completionSettings;
-
-	private final XMLFormattingOptions formattingSettings;
+	private final SharedSettings sharedSettings;
 
 	private Range replaceRange;
 
@@ -47,8 +43,7 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 	public CompletionRequest(DOMDocument xmlDocument, Position position, SharedSettings settings,
 			XMLExtensionsRegistry extensionsRegistry) throws BadLocationException {
 		super(xmlDocument, position, extensionsRegistry);
-		this.formattingSettings = settings.getFormattingSettings();
-		this.completionSettings = settings.getCompletionSettings();
+		this.sharedSettings = settings;
 	}
 	
 	@Override
@@ -57,13 +52,8 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 	}
 
 	@Override
-	public XMLFormattingOptions getFormattingSettings() {
-		return formattingSettings;
-	}
-
-	@Override
-	public XMLCompletionSettings getCompletionSettings() {
-		return completionSettings;
+	public SharedSettings getSharedSettings() {
+		return sharedSettings;
 	}
 
 	public void setReplaceRange(Range replaceRange) {
@@ -77,7 +67,7 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 
 	public XMLGenerator getXMLGenerator() throws BadLocationException {
 		if (generator == null) {
-			generator = new XMLGenerator(getFormattingSettings(), isAutoCloseTags(),
+			generator = new XMLGenerator(getSharedSettings(), isAutoCloseTags(),
 					getLineIndentInfo().getWhitespacesIndent(), getLineIndentInfo().getLineDelimiter(),
 					isCompletionSnippetsSupported(), 0);
 		}
@@ -109,18 +99,14 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 		if (!addQuotes) {
 			return value;
 		}
-		String quotation = getQuotation();
+		String quotation = sharedSettings.getPreferences().getQuotationAsString();
 		return quotation + value + quotation;
-	}
-
-	private String getQuotation() {
-		String quotation = formattingSettings != null ? formattingSettings.getQuotationAsString() : null;
-		return StringUtils.isEmpty(quotation) ? XMLFormattingOptions.DEFAULT_QUOTATION : quotation;
 	}
 
 	@Override
 	public boolean canSupportMarkupKind(String kind) {
-		return completionSettings != null && completionSettings.getCompletionCapabilities() != null
+		XMLCompletionSettings completionSettings = sharedSettings.getCompletionSettings();
+		return completionSettings.getCompletionCapabilities() != null
 				&& completionSettings.getCompletionCapabilities().getCompletionItem() != null
 				&& completionSettings.getCompletionCapabilities().getCompletionItem().getDocumentationFormat() != null
 				&& completionSettings.getCompletionCapabilities().getCompletionItem().getDocumentationFormat()
@@ -129,12 +115,12 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 
 	@Override
 	public boolean isCompletionSnippetsSupported() {
-		return getCompletionSettings().isCompletionSnippetsSupported();
+		return sharedSettings.getCompletionSettings().isCompletionSnippetsSupported();
 	}
 
 	@Override
 	public boolean isAutoCloseTags() {
-		return getCompletionSettings().isAutoCloseTags();
+		return sharedSettings.getCompletionSettings().isAutoCloseTags();
 	}
 
 	@Override

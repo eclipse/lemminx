@@ -24,7 +24,7 @@ import org.eclipse.lemminx.services.AttributeCompletionItem;
 import org.eclipse.lemminx.services.extensions.ICompletionRequest;
 import org.eclipse.lemminx.services.extensions.ICompletionResponse;
 import org.eclipse.lemminx.services.extensions.IHoverRequest;
-import org.eclipse.lemminx.settings.XMLFormattingOptions;
+import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -66,7 +66,8 @@ public class XSISchemaModel {
 	public static final String XSI_WEBSITE = "http://www.w3.org/2001/XMLSchema-instance";
 	public static final String XSI_DOC = "The namespace that defines important attributes such as `noNamespaceSchemaLocation` and `schemaLocation`.";
 	public static void computeCompletionResponses(ICompletionRequest request, 
-			ICompletionResponse response, DOMDocument document, boolean generateValue, XMLFormattingOptions formattingSettings) throws BadLocationException {
+			ICompletionResponse response, DOMDocument document, boolean generateValue, 
+			SharedSettings sharedSettings) throws BadLocationException {
 		Range editRange = request.getReplaceRange();
 		DOMElement rootElement = document.getDocumentElement();
 		int offset = document.offsetAt(editRange.getStart());
@@ -89,10 +90,12 @@ public class XSISchemaModel {
 		boolean isSnippetsSupported = request.isCompletionSnippetsSupported();
 		if(inRootElement) {
 			if(!hasAttribute(elementAtOffset, "xmlns") && !response.hasAttribute("xmlns")) { // "xmlns" completion
-				createCompletionItem("xmlns", isSnippetsSupported, generateValue, editRange, null, null, null, response, formattingSettings);
+				createCompletionItem("xmlns", isSnippetsSupported, generateValue, editRange, null,
+						null, null, response, sharedSettings);
 			}
 			if(document.hasSchemaInstancePrefix() == false) { // "xmlns:xsi" completion
-				createCompletionItem("xmlns:xsi", isSnippetsSupported, generateValue, editRange, XSI_WEBSITE, null, XSI_DOC, response, formattingSettings);
+				createCompletionItem("xmlns:xsi", isSnippetsSupported, generateValue, editRange, XSI_WEBSITE,
+						null, XSI_DOC, response, sharedSettings);
 				return;// All the following completion cases dont exist, so return.
 			}
 		}
@@ -112,7 +115,7 @@ public class XSISchemaModel {
 			documentation = NIL_DOC;
 			name = actualPrefix + ":nil";
 			createCompletionItem(name, isSnippetsSupported, generateValue, editRange, StringUtils.TRUE, 
-				StringUtils.TRUE_FALSE_ARRAY, documentation, response, formattingSettings);
+				StringUtils.TRUE_FALSE_ARRAY, documentation, response, sharedSettings);
 		}
 		//Signals that an element should be accepted as ·valid· when it has no content despite 
 		//a content type which does not require or even necessarily allow empty content. 
@@ -121,7 +124,8 @@ public class XSISchemaModel {
 		if(!hasAttribute(elementAtOffset, actualPrefix, "type")) {
 			documentation = TYPE_DOC;
 			name = actualPrefix + ":type";
-			createCompletionItem(name, isSnippetsSupported, generateValue, editRange, null, null, documentation, response, formattingSettings);	
+			createCompletionItem(name, isSnippetsSupported, generateValue, editRange, null, null,
+					documentation, response, sharedSettings);
 		}
 		
 		if(inRootElement) {
@@ -130,21 +134,23 @@ public class XSISchemaModel {
 				//to provide hints as to the physical location of schema documents which may be used for ·assessment·.
 				documentation = SCHEMA_LOCATION_DOC;
 				name = actualPrefix + ":schemaLocation";
-				createCompletionItem(name, isSnippetsSupported, generateValue, editRange, null, null, documentation, response, formattingSettings);	
+				createCompletionItem(name, isSnippetsSupported, generateValue, editRange, null, null,
+						documentation, response, sharedSettings);
 			}
 			if(!noNamespaceSchemaLocationExists) {
 				documentation = NO_NAMESPACE_SCHEMA_LOCATION_DOC;
 				name = actualPrefix + ":noNamespaceSchemaLocation";
-				createCompletionItem(name, isSnippetsSupported, generateValue, editRange, null, null, documentation, response, formattingSettings);	
+				createCompletionItem(name, isSnippetsSupported, generateValue, editRange, null, null,
+						documentation, response, sharedSettings);
 			}	
 		}
 	}
 
 	private static void createCompletionItem(String attrName, boolean canSupportSnippet, boolean generateValue,
 			Range editRange, String defaultValue, Collection<String> enumerationValues, String documentation,
-			ICompletionResponse response, XMLFormattingOptions formattingSettings){
+			ICompletionResponse response, SharedSettings sharedSettings){
 		CompletionItem item = new AttributeCompletionItem(attrName, canSupportSnippet, editRange, generateValue,
-				defaultValue, enumerationValues, formattingSettings);
+				defaultValue, enumerationValues, sharedSettings);
 		MarkupContent markup = new MarkupContent();
 		markup.setKind(MarkupKind.MARKDOWN);
 		markup.setValue(StringUtils.getDefaultString(documentation));

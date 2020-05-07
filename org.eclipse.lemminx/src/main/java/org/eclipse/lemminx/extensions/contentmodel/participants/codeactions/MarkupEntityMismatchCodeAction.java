@@ -23,7 +23,7 @@ import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCode;
 import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.IComponentProvider;
-import org.eclipse.lemminx.settings.XMLFormattingOptions;
+import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
@@ -39,13 +39,12 @@ public class MarkupEntityMismatchCodeAction implements ICodeActionParticipant {
 
 	@Override
 	public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
-			XMLFormattingOptions formattingSettings, IComponentProvider componentProvider) {
-		createEndTagInsertCodeAction(diagnostic, range, document, codeActions, formattingSettings, componentProvider);
+			SharedSettings sharedSettings, IComponentProvider componentProvider) {
+		createEndTagInsertCodeAction(diagnostic, range, document, codeActions, componentProvider);
 	}
 
 	public static void createEndTagInsertCodeAction(Diagnostic diagnostic, Range range, DOMDocument document,
-			List<CodeAction> codeActions, XMLFormattingOptions formattingSettings,
-			IComponentProvider componentProvider) {
+			List<CodeAction> codeActions, IComponentProvider componentProvider) {
 		try {
 			int offset = document.offsetAt(diagnostic.getRange().getStart());
 			DOMNode node = document.findNodeAt(offset);

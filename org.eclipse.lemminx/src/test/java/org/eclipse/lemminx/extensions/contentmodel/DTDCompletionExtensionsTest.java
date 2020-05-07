@@ -17,7 +17,7 @@ import static org.eclipse.lemminx.XMLAssert.te;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.services.XMLLanguageService;
-import org.eclipse.lemminx.settings.XMLCompletionSettings;
+import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.CompletionCapabilities;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemCapabilities;
@@ -194,12 +194,13 @@ public class DTDCompletionExtensionsTest {
 	}
 
 	private void testCompletionFor(String xml, boolean isSnippetsSupported, Integer expectedCount, CompletionItem... expectedItems) throws BadLocationException {
-		XMLCompletionSettings completionSettings = new XMLCompletionSettings();
 		CompletionCapabilities completionCapabilities = new CompletionCapabilities();
 		CompletionItemCapabilities completionItem = new CompletionItemCapabilities(isSnippetsSupported); // activate snippets
 		completionCapabilities.setCompletionItem(completionItem);
-		completionSettings.setCapabilities(completionCapabilities);
+
+		SharedSettings sharedSettings = new SharedSettings();
+		sharedSettings.getCompletionSettings().setCapabilities(completionCapabilities);
 		XMLAssert.testCompletionFor(new XMLLanguageService(), xml, "src/test/resources/catalogs/catalog.xml", null,
-				null, expectedCount, completionSettings, expectedItems);
+				null, expectedCount, sharedSettings, expectedItems);
 	}
 }

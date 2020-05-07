@@ -25,7 +25,7 @@ public class XSICompletionParticipant extends CompletionParticipantAdapter {
 	public void onAttributeName(boolean generateValue, ICompletionRequest request, ICompletionResponse response)
 			throws Exception {
 		XSISchemaModel.computeCompletionResponses(request, response, request.getXMLDocument(), generateValue,
-				request.getFormattingSettings());
+				request.getSharedSettings());
 	}
 
 	@Override

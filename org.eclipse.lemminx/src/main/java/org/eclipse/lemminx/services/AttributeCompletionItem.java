@@ -15,7 +15,7 @@ package org.eclipse.lemminx.services;
 import java.util.Collection;
 
 import org.eclipse.lemminx.extensions.contentmodel.utils.XMLGenerator;
-import org.eclipse.lemminx.settings.XMLFormattingOptions;
+import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
@@ -35,10 +35,10 @@ public class AttributeCompletionItem extends CompletionItem {
 	 *                           otherwise.
 	 * @param defaultValue       the default value of attribute.
 	 * @param enumerationValues  the enumeration values of attribute.
-	 * @param formattingSettings formatting settings
+	 * @param sharedSettings     the settings containing quote preferences
 	 */
 	public AttributeCompletionItem(String attrName, boolean canSupportSnippets, Range fullRange, boolean generateValue,
-			String defaultValue, Collection<String> enumerationValues, XMLFormattingOptions formattingSettings) {
+			String defaultValue, Collection<String> enumerationValues, SharedSettings sharedSettings) {
 		super.setLabel(attrName);
 		super.setKind(CompletionItemKind.Unit);
 		super.setFilterText(attrName);
@@ -46,7 +46,7 @@ public class AttributeCompletionItem extends CompletionItem {
 		if (generateValue) {
 			// Generate attribute value content
 			String attributeValue = XMLGenerator.generateAttributeValue(defaultValue, enumerationValues,
-					canSupportSnippets, 1, true, formattingSettings);
+					canSupportSnippets, 1, true, sharedSettings);
 			attributeContent.append(attributeValue);
 		}
 		super.setTextEdit(new TextEdit(fullRange, attributeContent.toString()));

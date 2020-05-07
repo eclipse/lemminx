@@ -44,6 +44,7 @@ import org.eclipse.lemminx.settings.XMLCodeLensSettings;
 import org.eclipse.lemminx.settings.XMLCompletionSettings;
 import org.eclipse.lemminx.settings.XMLFormattingOptions;
 import org.eclipse.lemminx.settings.XMLGeneralClientSettings;
+import org.eclipse.lemminx.settings.XMLPreferences;
 import org.eclipse.lemminx.settings.XMLSymbolSettings;
 import org.eclipse.lemminx.settings.capabilities.InitializationOptionsExtendedClientCapabilities;
 import org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesInitializer;
@@ -157,6 +158,11 @@ public class XMLLanguageServer
 			XMLCodeLensSettings newCodeLens = xmlClientSettings.getCodeLens();
 			if (newCodeLens != null) {
 				xmlTextDocumentService.updateCodeLensSettings(newCodeLens);
+			}
+
+			XMLPreferences newPreferences = xmlClientSettings.getPreferences();
+			if (newPreferences != null) {
+				xmlTextDocumentService.updatePreferences(newPreferences);
 			}
 
 			ServerSettings serverSettings = xmlClientSettings.getServer();
