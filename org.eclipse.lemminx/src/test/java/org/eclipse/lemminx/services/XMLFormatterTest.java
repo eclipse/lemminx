@@ -2330,6 +2330,30 @@ public class XMLFormatterTest {
 	}
 
 	@Test
+	public void enforceSingleQuoteStyleProlog() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
+		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
+
+		String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+		String expected = "<?xml version=\'1.0\' encoding=\'UTF-8\'?>";
+		format(content, expected, settings);
+		format(expected, expected, settings);
+	}
+
+	@Test
+	public void enforceDoubleQuoteStyleProlog() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getPreferences().setQuoteStyle(QuoteStyle.doubleQuotes);
+		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
+
+		String content = "<?xml version=\'1.0\' encoding=\'UTF-8\'?>";
+		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+		format(content, expected, settings);
+		format(expected, expected, settings);
+	}
+
+	@Test
 	public void dontEnforceSingleQuoteStyle() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
@@ -2339,6 +2363,29 @@ public class XMLFormatterTest {
 		String expected = "<a attr=\"\'\" attr2=\'\"\' />";
 		format(content, expected, settings);
 	}
+
+	@Test
+	public void dontEnforceSingleQuoteStyleProlog() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
+		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.ignore);
+
+		String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+		String expected = content;
+		format(content, expected, settings);
+	}
+
+	@Test
+	public void dontEnforceDoubleQuoteStyleProlog() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
+		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.ignore);
+
+		String content = "<?xml version=\'1.0\' encoding=\'UTF-8\'?>";
+		String expected = content;
+		format(content, expected, settings);
+	}
+
 
 	@Test
 	public void dontEnforceDoubleQuoteStyle() throws BadLocationException {

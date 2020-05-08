@@ -120,18 +120,16 @@ public class XMLBuilder {
 	}
 
 	/**
-	 * Used when only one attribute is being added to a node.
+	 * Add prolog attribute
 	 * 
 	 * It will not perform any linefeeds and only basic indentation.
 	 * 
 	 * @param attr               attribute
-	 * @param surroundWithQuotes true if value should be added with quotes, false
-	 *                           otherwise
 	 * @return this XML Builder
 	 */
-	public XMLBuilder addSingleAttribute(DOMAttr attr, boolean surroundWithQuotes) {
+	public XMLBuilder addPrologAttribute(DOMAttr attr) {
 		appendSpace();
-		addAttributeContents(attr.getName(), attr.hasDelimiter(), attr.getValue(), surroundWithQuotes);
+		addAttributeContents(attr.getName(), attr.hasDelimiter(), attr.getOriginalValue(), false);
 		return this;
 	}
 
