@@ -31,7 +31,6 @@ import org.eclipse.lemminx.services.XMLCompletions;
 import org.eclipse.lemminx.services.extensions.ICompletionRequest;
 import org.eclipse.lemminx.services.extensions.ICompletionResponse;
 import org.eclipse.lemminx.settings.SharedSettings;
-import org.eclipse.lemminx.settings.XMLFormattingOptions;
 import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -109,7 +108,7 @@ public class PrologModel {
 		int startOffset = tokenEndOffset - tag.length();
 		try {
 			Range editRange = XMLCompletions.getReplaceRange(startOffset, closingBracketOffset, request);
-			String q = settings.getFormattingSettings().getQuotationAsString();
+			String q = settings.getPreferences().getQuotationAsString();
 			String cursor = isSnippetsSupported ? "$0" : "";
 			String text = MessageFormat.format("xml version={0}{1}{0} encoding={0}{2}{0}?>" + cursor , q, VERSION_1, UTF_8);
 			item.setTextEdit(new TextEdit(editRange, text));
@@ -122,9 +121,9 @@ public class PrologModel {
 
 	private static void createCompletionItem(String attrName, boolean canSupportSnippet, boolean generateValue,
 			Range editRange, String defaultValue, Collection<String> enumerationValues, String documentation,
-			ICompletionResponse response, XMLFormattingOptions formattingsSettings){
+			ICompletionResponse response, SharedSettings sharedSettings){
 		CompletionItem item = new AttributeCompletionItem(attrName, canSupportSnippet, editRange, generateValue,
-				defaultValue, enumerationValues, formattingsSettings);
+				defaultValue, enumerationValues, sharedSettings);
 		MarkupContent markup = new MarkupContent();
 		markup.setKind(MarkupKind.MARKDOWN);
 		
@@ -133,8 +132,9 @@ public class PrologModel {
 		response.addCompletionItem(item);
 	}
 
-	public static void computeAttributeNameCompletionResponses(ICompletionRequest request, 
-	ICompletionResponse response, Range editRange, DOMDocument document, XMLFormattingOptions formattingsSettings)
+	public static void computeAttributeNameCompletionResponses(ICompletionRequest request,
+			ICompletionResponse response, Range editRange, DOMDocument document,
+			SharedSettings sharedSettings)
 			throws BadLocationException {
 
 		if (document.hasProlog() == false) {
@@ -152,19 +152,22 @@ public class PrologModel {
 			if(isCurrentAttributeEqual(VERSION_NAME, prolog, 0)) {
 				return;
 			}
-			createCompletionItem(VERSION_NAME, isSnippetsSupported, true, editRange, VERSION_1, VERSION_VALUES, null, response, formattingsSettings);
+			createCompletionItem(VERSION_NAME, isSnippetsSupported, true, editRange,
+					VERSION_1, VERSION_VALUES, null, response, sharedSettings);
 			return;
 		}
 
 		if(attrIndex == 1) { // 2nd attribute
 			if(!isCurrentAttributeEqual(ENCODING_NAME, prolog, 1)) {
-				createCompletionItem(ENCODING_NAME, isSnippetsSupported, true, editRange, UTF_8, ENCODING_VALUES, null, response, formattingsSettings);
+				createCompletionItem(ENCODING_NAME, isSnippetsSupported, true, editRange,
+						UTF_8, ENCODING_VALUES, null, response, sharedSettings);
 			} else {
 				return;
 			}
 
 			if(!isCurrentAttributeEqual(STANDALONE_NAME, prolog, 1)) {
-				createCompletionItem(STANDALONE_NAME, isSnippetsSupported, true, editRange, YES, STANDALONE_VALUES, null, response, formattingsSettings);
+				createCompletionItem(STANDALONE_NAME, isSnippetsSupported, true, editRange, YES,
+						STANDALONE_VALUES, null, response, sharedSettings);
 			}
 			return;
 		}
@@ -172,15 +175,16 @@ public class PrologModel {
 		if(attrIndex == 2) { // 3rd attribute
 			DOMAttr attrBefore = prolog.getAttributeAtIndex(1);
 			if(!STANDALONE_NAME.equals(attrBefore.getName()) && !isCurrentAttributeEqual(STANDALONE_NAME, prolog, 2)) {
-				createCompletionItem(STANDALONE_NAME, isSnippetsSupported, true, editRange, YES, STANDALONE_VALUES, null, response, formattingsSettings);
+				createCompletionItem(STANDALONE_NAME, isSnippetsSupported, true, editRange, YES,
+						STANDALONE_VALUES, null, response, sharedSettings);
 			}
 			return;
 		}
 
 	}
 
-	public static void computeValueCompletionResponses(ICompletionRequest request, 
-			ICompletionResponse response, Range editRange, DOMDocument document, XMLFormattingOptions formattingSettings) throws BadLocationException {
+	public static void computeValueCompletionResponses(ICompletionRequest request,
+			ICompletionResponse response, Range editRange, DOMDocument document) throws BadLocationException {
 		
 		if (document.hasProlog() == false) {
 			return;

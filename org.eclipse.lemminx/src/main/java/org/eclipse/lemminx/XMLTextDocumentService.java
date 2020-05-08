@@ -42,10 +42,12 @@ import org.eclipse.lemminx.services.DocumentSymbolsResult;
 import org.eclipse.lemminx.services.SymbolInformationResult;
 import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.services.extensions.save.AbstractSaveContext;
+import org.eclipse.lemminx.settings.CompositeSettings;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLCodeLensSettings;
 import org.eclipse.lemminx.settings.XMLCompletionSettings;
 import org.eclipse.lemminx.settings.XMLFormattingOptions;
+import org.eclipse.lemminx.settings.XMLPreferences;
 import org.eclipse.lemminx.settings.XMLSymbolSettings;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.ClientCapabilities;
@@ -262,8 +264,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 		return computeAsync((cancelChecker) -> {
 			String uri = params.getTextDocument().getUri();
 			TextDocument document = getDocument(uri);
-			return getXMLLanguageService().format(document, null,
-					XMLFormattingOptions.create(params.getOptions(), getFormattingSettings(uri)));
+			CompositeSettings settings = new CompositeSettings(getSharedSettings(), params.getOptions());
+			return getXMLLanguageService().format(document, null, settings);
 		});
 	}
 
@@ -272,8 +274,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 		return computeAsync((cancelChecker) -> {
 			String uri = params.getTextDocument().getUri();
 			TextDocument document = getDocument(uri);
-			return getXMLLanguageService().format(document, params.getRange(),
-					XMLFormattingOptions.create(params.getOptions(), getFormattingSettings(uri)));
+			CompositeSettings settings = new CompositeSettings(getSharedSettings(), params.getOptions());
+			return getXMLLanguageService().format(document, params.getRange(), settings);
 		});
 	}
 
@@ -382,7 +384,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 		return computeDOMAsync(params.getTextDocument(), (cancelChecker, xmlDocument) -> {
 			String uri = params.getTextDocument().getUri();
 			return getXMLLanguageService()
-					.doCodeActions(params.getContext(), params.getRange(), xmlDocument, getFormattingSettings(uri)) //
+					.doCodeActions(params.getContext(), params.getRange(), xmlDocument, sharedSettings) //
 					.stream() //
 					.map(ca -> {
 						if (codeActionLiteralSupport) {
@@ -473,18 +475,15 @@ public class XMLTextDocumentService implements TextDocumentService {
 	}
 
 	public void updateSymbolSettings(XMLSymbolSettings newSettings) {
-		XMLSymbolSettings symbolSettings = sharedSettings.getSymbolSettings();
-		symbolSettings.setEnabled(newSettings.isEnabled());
-		String[] newPatterns = newSettings.getExcluded();
-		if (newPatterns != null) {
-			symbolSettings.setExcluded(newPatterns);
-		}
-		symbolSettings.setMaxItemsComputed(newSettings.getMaxItemsComputed());
+		sharedSettings.getSymbolSettings().merge(newSettings);
 	}
 
 	public void updateCodeLensSettings(XMLCodeLensSettings newSettings) {
-		XMLCodeLensSettings codeLensSettings = sharedSettings.getCodeLensSettings();
-		codeLensSettings.setEnabled(newSettings.isEnabled());
+		sharedSettings.getCodeLensSettings().merge(newSettings);
+	}
+
+	public void updatePreferences(XMLPreferences newPreferences) {
+		sharedSettings.getPreferences().merge(newPreferences);
 	}
 
 	public XMLSymbolSettings getSharedSymbolSettings() {
@@ -505,6 +504,10 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	public XMLValidationSettings getValidationSettings() {
 		return sharedSettings.getValidationSettings();
+	}
+
+	public XMLPreferences getPreferences() {
+		return sharedSettings.getPreferences();
 	}
 
 	public SharedSettings getSharedSettings() {

@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
@@ -76,16 +77,23 @@ public class CodeActionFactory {
 
 	public static CodeAction replace(String title, Range range, String replaceText, TextDocumentItem document,
 			Diagnostic diagnostic) {
+		TextEdit replace = new TextEdit(range, replaceText);
+		return replace(title, Collections.singletonList(replace), document,
+				diagnostic);
+	}
+
+	public static CodeAction replace(String title, List<TextEdit> replace, TextDocumentItem document,
+			Diagnostic diagnostic) {
+		
 		CodeAction insertContentAction = new CodeAction(title);
 		insertContentAction.setKind(CodeActionKind.QuickFix);
 		insertContentAction.setDiagnostics(Arrays.asList(diagnostic));
-		TextEdit edit = new TextEdit(range, replaceText);
+
 		VersionedTextDocumentIdentifier versionedTextDocumentIdentifier = new VersionedTextDocumentIdentifier(
 				document.getUri(), document.getVersion());
-
-		TextDocumentEdit textDocumentEdit = new TextDocumentEdit(versionedTextDocumentIdentifier, Collections.singletonList(edit));
+		TextDocumentEdit textDocumentEdit = new TextDocumentEdit(versionedTextDocumentIdentifier,
+				replace);
 		WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)));
-
 		insertContentAction.setEdit(workspaceEdit);
 		return insertContentAction;
 	}

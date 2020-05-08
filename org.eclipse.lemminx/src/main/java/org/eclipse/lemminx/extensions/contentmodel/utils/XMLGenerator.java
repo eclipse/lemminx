@@ -19,7 +19,7 @@ import java.util.List;
 import org.eclipse.lemminx.commons.SnippetsBuilder;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMElementDeclaration;
-import org.eclipse.lemminx.settings.XMLFormattingOptions;
+import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.utils.MarkupContentFactory;
 import org.eclipse.lemminx.utils.MarkupContentFactory.IMarkupKindSupport;
 import org.eclipse.lemminx.utils.XMLBuilder;
@@ -32,7 +32,7 @@ import org.eclipse.lsp4j.MarkupKind;
  */
 public class XMLGenerator {
 
-	private final XMLFormattingOptions formattingOptions;
+	private final SharedSettings sharedSettings;
 	private final String whitespacesIndent;
 	private final String lineDelimiter;
 	private final boolean canSupportSnippets;
@@ -42,8 +42,8 @@ public class XMLGenerator {
 	/**
 	 * XML generator constructor.
 	 * 
-	 * @param formattingOptions  the formatting options (uses spaces or tabs for
-	 *                           indentation, etc)
+	 * @param sharedSettings     the settings containing formatting options (uses spaces or tabs for
+	 *                           indentation, etc) and preferences
 	 * @param whitespacesIndent  the whitespaces to use to indent XML children
 	 *                           elements.
 	 * @param lineDelimiter      the line delimiter to use when several XML elements
@@ -51,14 +51,15 @@ public class XMLGenerator {
 	 * @param canSupportSnippets true if snippets can be supported and false
 	 *                           otherwise.
 	 */
-	public XMLGenerator(XMLFormattingOptions formattingOptions, String whitespacesIndent, String lineDelimiter,
-			boolean canSupportSnippets, int maxLevel) {
-		this(formattingOptions, true, whitespacesIndent, lineDelimiter, canSupportSnippets, maxLevel);
+	public XMLGenerator(SharedSettings sharedSettings,
+			String whitespacesIndent, String lineDelimiter, boolean canSupportSnippets, int maxLevel) {
+		this(sharedSettings, true, whitespacesIndent, lineDelimiter, canSupportSnippets, maxLevel);
 	}
 
-	public XMLGenerator(XMLFormattingOptions formattingOptions, boolean autoCloseTags, String whitespacesIndent,
+	public XMLGenerator(SharedSettings sharedSettings,
+			boolean autoCloseTags, String whitespacesIndent,
 			String lineDelimiter, boolean canSupportSnippets, int maxLevel) {
-		this.formattingOptions = formattingOptions;
+		this.sharedSettings = sharedSettings;
 		this.autoCloseTags = autoCloseTags;
 		this.whitespacesIndent = whitespacesIndent;
 		this.lineDelimiter = lineDelimiter;
@@ -73,7 +74,7 @@ public class XMLGenerator {
 	 * @return the XML generated from the given element declaration.
 	 */
 	public String generate(CMElementDeclaration elementDeclaration, String prefix, boolean generateEndTag) {
-		XMLBuilder xml = new XMLBuilder(formattingOptions, whitespacesIndent, lineDelimiter);
+		XMLBuilder xml = new XMLBuilder(sharedSettings, whitespacesIndent, lineDelimiter);
 		generate(elementDeclaration, prefix, generateEndTag, 0, 0, xml, new ArrayList<CMElementDeclaration>());
 		if (canSupportSnippets) {
 			xml.addContent(SnippetsBuilder.tabstops(0)); // "$0"
@@ -147,7 +148,7 @@ public class XMLGenerator {
 	}
 
 	public String generate(Collection<CMAttributeDeclaration> attributes, String tagName) {
-		XMLBuilder xml = new XMLBuilder(formattingOptions, whitespacesIndent, lineDelimiter);
+		XMLBuilder xml = new XMLBuilder(sharedSettings, whitespacesIndent, lineDelimiter);
 		generate(attributes, 0, 0, xml, tagName);
 		return xml.toString();
 	}
@@ -168,7 +169,7 @@ public class XMLGenerator {
 			String defaultValue = attributeDeclaration.getDefaultValue();
 			Collection<String> enumerationValues = attributeDeclaration.getEnumerationValues();
 			String value = generateAttributeValue(defaultValue, enumerationValues, canSupportSnippets, snippetIndex,
-					false);
+					false, sharedSettings);
 			if (attributesSize != 1) {
 				xml.addAttribute(attributeDeclaration.getName(), value, level, true);
 			} else {
@@ -184,24 +185,10 @@ public class XMLGenerator {
 	 * Can create an enumerated TextEdit if given a collection of values.
 	 */
 	public static String generateAttributeValue(String defaultValue, Collection<String> enumerationValues,
-			boolean canSupportSnippets, int snippetIndex, boolean withQuote) {
-		return generateAttributeValue(defaultValue, enumerationValues, canSupportSnippets, snippetIndex, withQuote,
-				null);
-	}
-
-	/**
-	 * Creates the string value for a CompletionItem TextEdit
-	 * 
-	 * Can create an enumerated TextEdit if given a collection of values.
-	 */
-	public static String generateAttributeValue(String defaultValue, Collection<String> enumerationValues,
-			boolean canSupportSnippets, int snippetIndex, boolean withQuote, XMLFormattingOptions formattingSettings) {
+			boolean canSupportSnippets, int snippetIndex, boolean withQuote, SharedSettings sharedSettings) {
 		StringBuilder value = new StringBuilder();
-		String quotation = "\"";
+		String quotation = sharedSettings.getPreferences().getQuotationAsString();
 		if (withQuote) {
-			if (formattingSettings != null) {
-				quotation = formattingSettings.getQuotationAsString();
-			}
 			value.append("=" + quotation);
 		}
 		if (!canSupportSnippets) {

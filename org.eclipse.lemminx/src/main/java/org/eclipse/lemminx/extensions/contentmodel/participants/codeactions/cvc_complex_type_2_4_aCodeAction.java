@@ -26,7 +26,7 @@ import org.eclipse.lemminx.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.IComponentProvider;
-import org.eclipse.lemminx.settings.XMLFormattingOptions;
+import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.utils.LevenshteinDistance;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.CodeAction;
@@ -42,7 +42,7 @@ public class cvc_complex_type_2_4_aCodeAction implements ICodeActionParticipant 
 
 	@Override
 	public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
-			XMLFormattingOptions formattingSettings, IComponentProvider componentProvider) {
+			SharedSettings sharedSettings, IComponentProvider componentProvider) {
 		try {
 			int offset = document.offsetAt(diagnostic.getRange().getStart());
 			DOMNode node = document.findNodeAt(offset);

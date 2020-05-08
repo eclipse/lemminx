@@ -22,7 +22,7 @@ import org.eclipse.lemminx.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.IComponentProvider;
-import org.eclipse.lemminx.settings.XMLFormattingOptions;
+import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
@@ -36,7 +36,7 @@ public class cvc_attribute_3CodeAction implements ICodeActionParticipant {
 
 	@Override
 	public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
-			XMLFormattingOptions formattingSettings, IComponentProvider componentProvider) {
+			SharedSettings sharedSettings, IComponentProvider componentProvider) {
 		try {
 			Range diagnosticRange = diagnostic.getRange();
 			int offset = document.offsetAt(range.getStart());

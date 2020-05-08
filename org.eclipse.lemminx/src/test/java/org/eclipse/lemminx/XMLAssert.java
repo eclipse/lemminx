@@ -12,7 +12,13 @@
  */
 package org.eclipse.lemminx;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -40,8 +46,6 @@ import org.eclipse.lemminx.services.extensions.diagnostics.IXMLErrorCode;
 import org.eclipse.lemminx.services.extensions.save.AbstractSaveContext;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLCodeLensSettings;
-import org.eclipse.lemminx.settings.XMLCompletionSettings;
-import org.eclipse.lemminx.settings.XMLFormattingOptions;
 import org.eclipse.lemminx.settings.XMLHoverSettings;
 import org.eclipse.lemminx.settings.XMLSymbolSettings;
 import org.eclipse.lemminx.utils.StringUtils;
@@ -75,7 +79,7 @@ import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 /**
- * XML 
+ * XML
  *
  */
 public class XMLAssert {
@@ -130,21 +134,16 @@ public class XMLAssert {
 	public static void testCompletionFor(XMLLanguageService xmlLanguageService, String value, String catalogPath,
 			Consumer<XMLLanguageService> customConfiguration, String fileURI, Integer expectedCount,
 			boolean autoCloseTags, CompletionItem... expectedItems) throws BadLocationException {
+
+		SharedSettings settings = new SharedSettings();
+		settings.getCompletionSettings().setAutoCloseTags(autoCloseTags);
 		testCompletionFor(xmlLanguageService, value, catalogPath, customConfiguration, fileURI, expectedCount,
-				new XMLCompletionSettings(autoCloseTags), expectedItems);
+				settings, expectedItems);
 	}
 
 	public static void testCompletionFor(XMLLanguageService xmlLanguageService, String value, String catalogPath,
 			Consumer<XMLLanguageService> customConfiguration, String fileURI, Integer expectedCount,
-			XMLCompletionSettings completionSettings, CompletionItem... expectedItems) throws BadLocationException {
-		testCompletionFor(xmlLanguageService, value, catalogPath, customConfiguration, fileURI, expectedCount,
-				completionSettings, new XMLFormattingOptions(4, true), expectedItems);
-	}
-
-	public static void testCompletionFor(XMLLanguageService xmlLanguageService, String value, String catalogPath,
-			Consumer<XMLLanguageService> customConfiguration, String fileURI, Integer expectedCount,
-			XMLCompletionSettings completionSettings, XMLFormattingOptions formattingSettings,
-			CompletionItem... expectedItems) throws BadLocationException {
+			SharedSettings sharedSettings, CompletionItem... expectedItems) throws BadLocationException {
 		int offset = value.indexOf('|');
 		value = value.substring(0, offset) + value.substring(offset + 1);
 
@@ -166,10 +165,6 @@ public class XMLAssert {
 			customConfiguration.accept(xmlLanguageService);
 		}
 
-		SharedSettings sharedSettings = new SharedSettings();
-		sharedSettings.getFormattingSettings().merge(formattingSettings);
-		sharedSettings.getCompletionSettings().merge(completionSettings);
-		sharedSettings.getCompletionSettings().setCapabilities(completionSettings.getCompletionCapabilities());
 		CompletionList list = xmlLanguageService.doComplete(htmlDoc, position, sharedSettings);
 
 		// no duplicate labels
@@ -177,7 +172,7 @@ public class XMLAssert {
 		String previous = null;
 		for (String label : labels) {
 			assertNotEquals(previous, label, () -> {
-				return	"Duplicate label " + label + " in " + labels.stream().collect(Collectors.joining(",")) + "}";
+				return "Duplicate label " + label + " in " + labels.stream().collect(Collectors.joining(",")) + "}";
 			});
 			previous = label;
 		}
@@ -197,18 +192,12 @@ public class XMLAssert {
 			return expected.getLabel().equals(completion.getLabel());
 		}).collect(Collectors.toList());
 
-		assertEquals( 1, matches.size(), ()-> {
+		assertEquals(1, matches.size(), () -> {
 			return expected.getLabel() + " should only exist once: Actual: "
-				+ completions.getItems().stream().map(c -> c.getLabel()).collect(Collectors.joining(","));
-			});
+					+ completions.getItems().stream().map(c -> c.getLabel()).collect(Collectors.joining(","));
+		});
 
 		CompletionItem match = matches.get(0);
-		/*
-		 * if (expected.documentation != null) {
-		 * assertEquals(match.getDocumentation().getRight().getValue(),
-		 * expected.getd); } if (expected.kind) { assertEquals(match.kind,
-		 * expected.kind); }
-		 */
 		if (expected.getTextEdit() != null && match.getTextEdit() != null) {
 			if (expected.getTextEdit().getNewText() != null) {
 				assertEquals(expected.getTextEdit().getNewText(), match.getTextEdit().getNewText());
@@ -451,13 +440,13 @@ public class XMLAssert {
 
 	// ------------------- CodeAction assert
 
-	public static void testCodeActionsFor(String xml, Diagnostic diagnostic,
-			CodeAction... expected) throws BadLocationException {
+	public static void testCodeActionsFor(String xml, Diagnostic diagnostic, CodeAction... expected)
+			throws BadLocationException {
 		testCodeActionsFor(xml, diagnostic, null, expected);
 	}
 
-	public static void testCodeActionsFor(String xml, Diagnostic diagnostic, String catalogPath,
-			CodeAction... expected) throws BadLocationException {
+	public static void testCodeActionsFor(String xml, Diagnostic diagnostic, String catalogPath, CodeAction... expected)
+			throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setTabSize(4);
 		settings.getFormattingSettings().setInsertSpaces(false);
@@ -497,13 +486,7 @@ public class XMLAssert {
 		context.setDiagnostics(Arrays.asList(diagnostic));
 		DOMDocument xmlDoc = DOMParser.getInstance().parse(document, xmlLanguageService.getResolverExtensionManager());
 
-		XMLFormattingOptions formattingSettings;
-		if (sharedSettings != null && sharedSettings.getFormattingSettings() != null) {
-			formattingSettings = sharedSettings.getFormattingSettings();
-		} else {
-			formattingSettings = new XMLFormattingOptions(4, false);
-		}
-		List<CodeAction> actual = xmlLanguageService.doCodeActions(context, range, xmlDoc, formattingSettings);
+		List<CodeAction> actual = xmlLanguageService.doCodeActions(context, range, xmlDoc, sharedSettings);
 		assertCodeActions(actual, expected);
 	}
 
@@ -534,8 +517,7 @@ public class XMLAssert {
 		VersionedTextDocumentIdentifier versionedTextDocumentIdentifier = new VersionedTextDocumentIdentifier(FILE_URI,
 				0);
 
-		TextDocumentEdit textDocumentEdit = new TextDocumentEdit(versionedTextDocumentIdentifier,
-				Arrays.asList(te));
+		TextDocumentEdit textDocumentEdit = new TextDocumentEdit(versionedTextDocumentIdentifier, Arrays.asList(te));
 		WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)));
 		codeAction.setEdit(workspaceEdit);
 		return codeAction;
@@ -629,9 +611,9 @@ public class XMLAssert {
 	public static void assertDocumentLinks(List<DocumentLink> actual, DocumentLink... expected) {
 		assertEquals(expected.length, actual.size());
 		for (int i = 0; i < expected.length; i++) {
-			assertEquals(expected[i].getRange(), actual.get(i).getRange()," Range test '" + i + "' link");
-			assertEquals(Paths.get(expected[i].getTarget()).toUri().toString(),
-					actual.get(i).getTarget()," Target test '" + i + "' link");
+			assertEquals(expected[i].getRange(), actual.get(i).getRange(), " Range test '" + i + "' link");
+			assertEquals(Paths.get(expected[i].getTarget()).toUri().toString(), actual.get(i).getTarget(),
+					" Target test '" + i + "' link");
 		}
 	}
 
@@ -640,7 +622,9 @@ public class XMLAssert {
 	public static void testDocumentSymbolsFor(String xml, DocumentSymbol... expected) {
 		testDocumentSymbolsFor(xml, null, new XMLSymbolSettings(), expected);
 	}
-	public static void testDocumentSymbolsFor(String xml, XMLSymbolSettings symbolSettings, DocumentSymbol... expected) {
+
+	public static void testDocumentSymbolsFor(String xml, XMLSymbolSettings symbolSettings,
+			DocumentSymbol... expected) {
 		testDocumentSymbolsFor(xml, null, symbolSettings, expected);
 	}
 
@@ -648,7 +632,8 @@ public class XMLAssert {
 		testDocumentSymbolsFor(xml, fileURI, new XMLSymbolSettings(), expected);
 	}
 
-	public static void testDocumentSymbolsFor(String xml, String fileURI, XMLSymbolSettings symbolSettings, DocumentSymbol... expected) {
+	public static void testDocumentSymbolsFor(String xml, String fileURI, XMLSymbolSettings symbolSettings,
+			DocumentSymbol... expected) {
 		TextDocument document = new TextDocument(xml, fileURI != null ? fileURI : "test.xml");
 
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
@@ -913,8 +898,7 @@ public class XMLAssert {
 			assertEquals(expectedMatches[i], actualStartOffset);
 			int actualEndOffset = document.offsetAt(highlight.getRange().getEnd());
 			assertEquals(expectedMatches[i] + (elementName != null ? elementName.length() : 0), actualEndOffset);
-			assertEquals(elementName,
-					document.getText().substring(actualStartOffset, actualEndOffset).toLowerCase());
+			assertEquals(elementName, document.getText().substring(actualStartOffset, actualEndOffset).toLowerCase());
 		}
 	}
 

@@ -25,7 +25,7 @@ import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.extensions.contentmodel.utils.XMLGenerator;
 import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.IComponentProvider;
-import org.eclipse.lemminx.settings.XMLFormattingOptions;
+import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Range;
@@ -38,7 +38,7 @@ public class cvc_complex_type_4CodeAction implements ICodeActionParticipant {
 
 	@Override
 	public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
-			XMLFormattingOptions formattingSettings, IComponentProvider componentProvider) {
+			SharedSettings sharedSettings, IComponentProvider componentProvider) {
 		
 		if(diagnostic == null) {
 			return;
@@ -70,7 +70,8 @@ public class cvc_complex_type_4CodeAction implements ICodeActionParticipant {
 			// CodeAction doesn't support snippet ->
 			// https://github.com/Microsoft/language-server-protocol/issues/592
 			boolean supportSnippet = false;
-			XMLGenerator generator = new XMLGenerator(null, "", "", supportSnippet, 0);
+			XMLGenerator generator = new XMLGenerator(sharedSettings, "", "",
+					supportSnippet, 0);
 			String xmlAttributes = generator.generate(requiredAttributes, element.getTagName());
 
 			// Insert required attributes

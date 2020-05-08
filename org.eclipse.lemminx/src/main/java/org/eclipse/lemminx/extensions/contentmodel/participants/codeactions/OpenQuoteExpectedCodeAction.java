@@ -20,7 +20,7 @@ import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.IComponentProvider;
-import org.eclipse.lemminx.settings.XMLFormattingOptions;
+import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
@@ -33,7 +33,7 @@ public class OpenQuoteExpectedCodeAction implements ICodeActionParticipant {
 
 	@Override
 	public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
-			XMLFormattingOptions formattingSettings, IComponentProvider componentProvider) {
+			SharedSettings sharedSettings, IComponentProvider componentProvider) {
 		Range diagnosticRange = diagnostic.getRange();
 		int offset;
 		try {
@@ -45,7 +45,7 @@ public class OpenQuoteExpectedCodeAction implements ICodeActionParticipant {
 		if(attr == null || !attr.isAttribute()) {
 			return;
 		}
-		String q = formattingSettings.getQuotationAsString();
+		String q = sharedSettings.getPreferences().getQuotationAsString();
 		Position codeactionPosition;
 		Position possibleEndPosition = null;
 		String possibleValue = null;

@@ -11,6 +11,8 @@
 *******************************************************************************/
 package org.eclipse.lemminx.settings;
 
+import java.util.Arrays;
+
 /**
  * XMLSymbolPreferences for Document Symbols
  */
@@ -83,6 +85,16 @@ public class XMLSymbolSettings {
 
 	public void setMaxItemsComputed(int maxItemsComputed) {
 		this.maxItemsComputed = maxItemsComputed;
+	}
+
+	public void merge(XMLSymbolSettings newSettings) {
+		this.setEnabled(newSettings.isEnabled());
+		String[] newPatterns = newSettings.getExcluded();
+		if (newPatterns != null) {
+			String[] newPatternsCopy = Arrays.copyOf(newPatterns, newPatterns.length);
+			this.setExcluded(newPatternsCopy);
+		}
+		this.setMaxItemsComputed(newSettings.getMaxItemsComputed());
 	}
 
 }
