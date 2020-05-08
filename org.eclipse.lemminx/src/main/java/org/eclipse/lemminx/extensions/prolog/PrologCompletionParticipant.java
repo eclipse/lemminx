@@ -25,14 +25,14 @@ public class PrologCompletionParticipant extends CompletionParticipantAdapter {
 	public void onAttributeName(boolean generateValue, ICompletionRequest request, ICompletionResponse response)
 			throws Exception {
 		PrologModel.computeAttributeNameCompletionResponses(request, response, request.getReplaceRange(),
-				request.getXMLDocument(), request.getFormattingSettings());
+				request.getXMLDocument(), request.getSharedSettings());
 	}
 
 	@Override
 	public void onAttributeValue(String valuePrefix, ICompletionRequest request, ICompletionResponse response)
 			throws Exception {
 		PrologModel.computeValueCompletionResponses(request, response, request.getReplaceRange(),
-				request.getXMLDocument(), request.getFormattingSettings());
+				request.getXMLDocument());
 	}
 
 }

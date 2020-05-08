@@ -27,6 +27,7 @@ import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.Elem
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.EqRequiredInAttributeCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.MarkupEntityMismatchCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.OpenQuoteExpectedCodeAction;
+import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.RootElementTypeMustMatchDoctypedeclCodeAction;
 import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IXMLErrorCode;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
@@ -232,5 +233,6 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 		codeActions.put(OpenQuoteExpected.getCode(), new OpenQuoteExpectedCodeAction());
 		codeActions.put(MarkupEntityMismatch.getCode(), new MarkupEntityMismatchCodeAction());
 		codeActions.put(ETagRequired.getCode(), new ETagRequiredCodeAction());
+		codeActions.put(RootElementTypeMustMatchDoctypedecl.getCode(), new RootElementTypeMustMatchDoctypedeclCodeAction());
 	}
 }

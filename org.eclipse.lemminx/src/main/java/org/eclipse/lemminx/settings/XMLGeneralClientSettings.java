@@ -47,6 +47,8 @@ public class XMLGeneralClientSettings {
 
 	private XMLCodeLensSettings codeLens;
 
+	private XMLPreferences preferences;
+
 	public void setLogs(LogsSettings logs) {
 		this.logs = logs;
 	}
@@ -73,7 +75,7 @@ public class XMLGeneralClientSettings {
 	}
 
 	/**
-	 * Set the code lens settings.
+	 * Sets the code lens settings.
 	 * 
 	 * @param codeLens
 	 */
@@ -81,16 +83,26 @@ public class XMLGeneralClientSettings {
 		this.codeLens = codeLens;
 	}
 
+	/**
+	 * Sets the formatting options
+	 * 
+	 * @param format
+	 */
 	public void setFormat(XMLFormattingOptions format) {
 		this.format = format;
 	}
 
+	/**
+	 * Returns the formatting options
+	 * 
+	 * @return the formatting options
+	 */
 	public XMLFormattingOptions getFormat() {
 		return format;
 	}
 
 	/**
-	 * Set completion settings
+	 * Sets the completion settings
 	 * 
 	 * @param completion
 	 */
@@ -99,15 +111,35 @@ public class XMLGeneralClientSettings {
 	}
 
 	/**
-	 * Get completion settings
+	 * Returns the completion settings
 	 * 
-	 * @param completion
+	 * @return the completion settings
 	 */
 	public XMLCompletionSettings getCompletion() {
 		return completion;
 	}
 
 	/**
+	 * Returns the XML preferences
+	 * 
+	 * @return the XML preferences
+	 */
+	public XMLPreferences getPreferences() {
+		return preferences;
+	}
+
+	/**
+	 * Sets the XML preferences
+	 * 
+	 * @param preferences
+	 */
+	public void setPreferences(XMLPreferences preferences) {
+		this.preferences = preferences;
+	}
+
+	/**
+	 * Returns the server
+	 * 
 	 * @return the server
 	 */
 	public ServerSettings getServer() {
@@ -115,12 +147,22 @@ public class XMLGeneralClientSettings {
 	}
 
 	/**
-	 * @param server the server to set
+	 * Sets the server
+	 * 
+	 * @param server
 	 */
 	public void setServer(ServerSettings server) {
 		this.server = server;
 	}
 
+	/**
+	 * Returns a new instance of <code>XMLGeneralClientSettings</code>
+	 * with contents from <code>initializationOptionsSettings</code>
+	 * 
+	 * @param initializationOptionsSettings
+	 * @return a new instance of <code>XMLGeneralClientSettings</code>
+	 * with contents from <code>initializationOptionsSettings</code>
+	 */
 	public static XMLGeneralClientSettings getGeneralXMLSettings(Object initializationOptionsSettings) {
 		return JSONUtility.toModel(initializationOptionsSettings, XMLGeneralClientSettings.class);
 	}

@@ -30,7 +30,7 @@ import org.eclipse.lemminx.services.AttributeCompletionItem;
 import org.eclipse.lemminx.services.extensions.CompletionParticipantAdapter;
 import org.eclipse.lemminx.services.extensions.ICompletionRequest;
 import org.eclipse.lemminx.services.extensions.ICompletionResponse;
-import org.eclipse.lemminx.settings.XMLFormattingOptions;
+import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.uriresolver.CacheResourceDownloadingException;
 import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lsp4j.CompletionItem;
@@ -264,16 +264,16 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 		try {
 			Range fullRange = request.getReplaceRange();
 			boolean canSupportSnippet = request.isCompletionSnippetsSupported();
-			XMLFormattingOptions formattingSettings = request.getFormattingSettings();
+			SharedSettings sharedSettings = request.getSharedSettings();
 			ContentModelManager contentModelManager = request.getComponent(ContentModelManager.class);
 			// Completion on attribute based on external grammar
 			CMElementDeclaration cmElement = contentModelManager.findCMElement(parentElement);
 			fillAttributesWithCMAttributeDeclarations(parentElement, fullRange, cmElement, canSupportSnippet,
-					generateValue, request, response, formattingSettings);
+					generateValue, request, response, sharedSettings);
 			// Completion on attribute based on internal grammar
 			cmElement = contentModelManager.findInternalCMElement(parentElement);
 			fillAttributesWithCMAttributeDeclarations(parentElement, fullRange, cmElement, canSupportSnippet,
-					generateValue, request, response, formattingSettings);
+					generateValue, request, response, sharedSettings);
 		} catch (CacheResourceDownloadingException e) {
 			// XML Schema, DTD is loading, ignore this error
 		}
@@ -281,7 +281,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 
 	private void fillAttributesWithCMAttributeDeclarations(DOMElement parentElement, Range fullRange,
 			CMElementDeclaration cmElement, boolean canSupportSnippet, boolean generateValue,
-			ICompletionRequest request, ICompletionResponse response, XMLFormattingOptions formattingOptions) {
+			ICompletionRequest request, ICompletionResponse response, SharedSettings sharedSettings) {
 		if (cmElement == null) {
 			return;
 		}
@@ -293,7 +293,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			String attrName = cmAttribute.getName();
 			if (!parentElement.hasAttribute(attrName)) {
 				CompletionItem item = new AttributeCompletionItem(attrName, canSupportSnippet, fullRange, generateValue,
-						cmAttribute.getDefaultValue(), cmAttribute.getEnumerationValues(), formattingOptions);
+						cmAttribute.getDefaultValue(), cmAttribute.getEnumerationValues(), sharedSettings);
 				MarkupContent documentation = XMLGenerator.createMarkupContent(cmAttribute, cmElement, request);
 				item.setDocumentation(documentation);
 				response.addCompletionAttribute(item);

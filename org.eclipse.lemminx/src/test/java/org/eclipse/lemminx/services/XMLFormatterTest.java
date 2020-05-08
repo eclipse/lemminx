@@ -22,7 +22,9 @@ import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMParser;
-import org.eclipse.lemminx.settings.XMLFormattingOptions;
+import org.eclipse.lemminx.settings.EnforceQuoteStyle;
+import org.eclipse.lemminx.settings.QuoteStyle;
+import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLFormattingOptions.EmptyElements;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -367,9 +369,9 @@ public class XMLFormatterTest {
 	public void testSplitAttributesSingle() throws BadLocationException {
 		String content = "<a k1=\"v1\"></a>";
 		String expected = "<a k1=\"v1\"></a>";
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setSplitAttributes(true);
-		format(content, expected, formattingOptions);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setSplitAttributes(true);
+		format(content, expected, settings);
 	}
 
 	@Test
@@ -377,9 +379,9 @@ public class XMLFormatterTest {
 		String content = "<a k1=\"v1\" k2=\"v2\"></a>";
 		String expected = "<a" + lineSeparator() + "    k1=\"v1\"" + lineSeparator() + //
 				"    k2=\"v2\"></a>";
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setSplitAttributes(true);
-		format(content, expected, formattingOptions);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setSplitAttributes(true);
+		format(content, expected, settings);
 	}
 
 	@Test
@@ -392,9 +394,9 @@ public class XMLFormatterTest {
 				"      aa=\"ok\"" + lineSeparator() + //
 				"      bb=\"oo\"></b>" + lineSeparator() + //
 				"</a>";
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setSplitAttributes(true);
-		format(content, expected, formattingOptions);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setSplitAttributes(true);
+		format(content, expected, settings);
 	}
 
 	@Test
@@ -403,18 +405,18 @@ public class XMLFormatterTest {
 		String expected = "<a k1=\"v1\" k2=\"v2\">" + lineSeparator() + //
 				"  <b aa=\"ok\" bb=\"oo\"></b>" + lineSeparator() + //
 				"</a>";
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setSplitAttributes(false);
-		format(content, expected, formattingOptions);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setSplitAttributes(false);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testSplitAttributesProlog() throws BadLocationException {
 		String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setSplitAttributes(true);
-		format(content, expected, formattingOptions);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setSplitAttributes(true);
+		format(content, expected, settings);
 	}
 
 	@Test
@@ -431,9 +433,9 @@ public class XMLFormatterTest {
 				"      bar=\"foo\">sss</from>\r\n" + //
 				"</note>";
 
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setSplitAttributes(true);
-		format(content, expected, formattingOptions);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setSplitAttributes(true);
+		format(content, expected, settings);
 	}
 
 	public void testSplitAttributesRangeMultipleLines() throws BadLocationException {
@@ -454,9 +456,9 @@ public class XMLFormatterTest {
 				"</note>";
 		;
 
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setSplitAttributes(true);
-		format(content, expected, formattingOptions);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setSplitAttributes(true);
+		format(content, expected, settings);
 	}
 
 	@Test
@@ -536,9 +538,9 @@ public class XMLFormatterTest {
 		String expected = "<a>" + lineSeparator() + //
 				"  <![CDATA[line 1 line 2 line 3]]>" + lineSeparator() + //
 				"</a>";
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setJoinCDATALines(true);
-		format(content, expected, formattingOptions);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setJoinCDATALines(true);
+		format(content, expected, settings);
 	}
 
 	@Test
@@ -550,9 +552,9 @@ public class XMLFormatterTest {
 				"   line 2" + lineSeparator() + //
 				" -->";
 		String expected = "<!-- line 1 line 2 -->";
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setJoinCommentLines(true);
-		format(content, expected, formattingOptions);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setJoinCommentLines(true);
+		format(content, expected, settings);
 	}
 
 	@Test
@@ -565,9 +567,9 @@ public class XMLFormatterTest {
 				"  <a> content </a" + lineSeparator() + //
 				"  <!-- comment -->" + lineSeparator() + //
 				"</root>";
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setJoinCommentLines(true);
-		format(content, expected, formattingOptions);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setJoinCommentLines(true);
+		format(content, expected, settings);
 	}
 
 	@Test
@@ -584,9 +586,9 @@ public class XMLFormatterTest {
 				"  <!-- line 1 line 2 -->" + lineSeparator() + //
 				"</a>";
 
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setJoinCommentLines(true);
-		format(content, expected, formattingOptions);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setJoinCommentLines(true);
+		format(content, expected, settings);
 	}
 
 	@Test
@@ -598,9 +600,9 @@ public class XMLFormatterTest {
 				" Content" + lineSeparator() + //
 				"</a> <!-- My Comment -->";
 
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setJoinCommentLines(true);
-		format(content, expected, formattingOptions);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setJoinCommentLines(true);
+		format(content, expected, settings);
 	}
 
 	@Test
@@ -620,8 +622,7 @@ public class XMLFormatterTest {
 				"  Content5\r" + //
 				"</a>";
 
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		format(content, expected, formattingOptions);
+		format(content, expected);
 	}
 
 	@Test
@@ -641,8 +642,7 @@ public class XMLFormatterTest {
 				" </b>\r" + //
 				"</a>";
 
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		format(content, expected, formattingOptions);
+		format(content, expected);
 	}
 
 	@Test
@@ -660,8 +660,7 @@ public class XMLFormatterTest {
 				"    Content3 </b>\r" + //
 				"</a>";
 
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		format(content, expected, formattingOptions);
+		format(content, expected);
 	}
 
 	@Test
@@ -669,14 +668,11 @@ public class XMLFormatterTest {
 		String content = "<a> content </a>";
 		String expected = "<a> content </a>";
 
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		format(content, expected, formattingOptions);
+		format(content, expected);
 	}
 
 	@Test
 	public void testContentFormatting6() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-
 		String content = "<a>\r" + //
 				"\r" + //
 				" Content\r" + //
@@ -685,7 +681,7 @@ public class XMLFormatterTest {
 				"\r" + //
 				" Content\r" + //
 				"</a>";
-		format(content, expected, formattingOptions);
+		format(content, expected);
 
 		content = "<a>\r\n" + //
 				"\r\n" + //
@@ -695,13 +691,13 @@ public class XMLFormatterTest {
 				"\r\n" + //
 				" Content\r\n" + //
 				"</a>";
-		format(content, expected, formattingOptions);
+		format(content, expected);
 	}
 
 	@Test
 	public void testSelfCloseTagSpace() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setSpaceBeforeEmptyCloseTag(true);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setSpaceBeforeEmptyCloseTag(true);
 
 		String content = "<a>\r" + //
 				" <b/>\r" + //
@@ -709,13 +705,13 @@ public class XMLFormatterTest {
 		String expected = "<a>\r" + //
 				"  <b />\r" + //
 				"</a>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testSelfCloseTagAlreadyHasSpace() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setSpaceBeforeEmptyCloseTag(true);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setSpaceBeforeEmptyCloseTag(true);
 
 		String content = "<a>\r" + //
 				" <b />\r" + //
@@ -723,13 +719,13 @@ public class XMLFormatterTest {
 		String expected = "<a>\r" + //
 				"  <b />\r" + //
 				"</a>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testSelfCloseTagSpaceFalse() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setSpaceBeforeEmptyCloseTag(false);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setSpaceBeforeEmptyCloseTag(false);
 
 		String content = "<a>\r" + //
 				" <b/>\r" + //
@@ -737,13 +733,13 @@ public class XMLFormatterTest {
 		String expected = "<a>\r" + //
 				"  <b/>\r" + //
 				"</a>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testSelfCloseTagSpaceFalseAlreadyHasSpace() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setSpaceBeforeEmptyCloseTag(false);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setSpaceBeforeEmptyCloseTag(false);
 
 		String content = "<a>\r" + //
 				" <b />\r" + //
@@ -751,13 +747,13 @@ public class XMLFormatterTest {
 		String expected = "<a>\r" + //
 				"  <b/>\r" + //
 				"</a>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testDontAddClosingBracket() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setSpaceBeforeEmptyCloseTag(false);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setSpaceBeforeEmptyCloseTag(false);
 
 		String content = "<a>\r" + //
 				" <b\r" + //
@@ -765,13 +761,13 @@ public class XMLFormatterTest {
 		String expected = "<a>\r" + //
 				"  <b\r" + //
 				"</a>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testEndTagMissingCloseBracket() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setSpaceBeforeEmptyCloseTag(false);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setSpaceBeforeEmptyCloseTag(false);
 
 		String content = "<a>\r" + //
 				" <b> Value </b\r" + //
@@ -779,13 +775,13 @@ public class XMLFormatterTest {
 		String expected = "<a>\r" + //
 				"  <b> Value </b\r" + //
 				"</a>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testPreserveEmptyContentTag() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setPreserveEmptyContent(true);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveEmptyContent(true);
 
 		String content = "<a>\r" + //
 				"     " + //
@@ -793,25 +789,25 @@ public class XMLFormatterTest {
 		String expected = "<a>\r" + //
 				"     " + //
 				"</a>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testDontPreserveEmptyContentTag() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setPreserveEmptyContent(false);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveEmptyContent(false);
 
 		String content = "<a>\r" + //
 				"     " + //
 				"</a>";
 		String expected = "<a></a>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testPreserveTextContent() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setPreserveEmptyContent(true);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveEmptyContent(true);
 
 		String content = "<a>\r" + //
 				"   aaa  " + //
@@ -819,13 +815,13 @@ public class XMLFormatterTest {
 		String expected = "<a>\r" + //
 				"   aaa  " + //
 				"</a>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testPreserveTextContent2() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setPreserveEmptyContent(false);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveEmptyContent(false);
 
 		String content = "<a>\r" + //
 				"   aaa  " + //
@@ -833,13 +829,13 @@ public class XMLFormatterTest {
 		String expected = "<a>\r" + //
 				"   aaa  " + //
 				"</a>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testPreserveEmptyContentTagWithSiblings() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setPreserveEmptyContent(true);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveEmptyContent(true);
 
 		String content = "<a>\r" + //
 				"     " + //
@@ -849,13 +845,13 @@ public class XMLFormatterTest {
 		String expected = "<a>\r" + //
 				"  <b>  </b>\r" + //
 				"</a>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testPreserveEmptyContentTagWithSiblingContent() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setPreserveEmptyContent(true);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveEmptyContent(true);
 
 		String content = "<a>\r" + //
 				"   zz  " + //
@@ -867,13 +863,13 @@ public class XMLFormatterTest {
 				"  <b>  </b>\r" + //
 				"  tt\r" + //
 				"</a>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testDontPreserveEmptyContentTagWithSiblingContent() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setPreserveEmptyContent(false);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveEmptyContent(false);
 
 		String content = "<a>\r" + //
 				"   zz  " + //
@@ -885,13 +881,13 @@ public class XMLFormatterTest {
 				"  <b></b>\r" + //
 				"  tt\r" + //
 				"</a>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testPreserveEmptyContentTagWithSiblingWithComment() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setPreserveEmptyContent(true);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveEmptyContent(true);
 
 		String content = "<a>\r" + //
 				"   zz  " + //
@@ -903,13 +899,13 @@ public class XMLFormatterTest {
 				"  <b>  </b>\r" + //
 				"  tt <!-- Comment -->\r" + //
 				"</a>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testDontPreserveEmptyContentTagWithSiblingWithComment() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setPreserveEmptyContent(false);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveEmptyContent(false);
 
 		String content = "<a>\r" + //
 				"   zz  " + //
@@ -921,14 +917,14 @@ public class XMLFormatterTest {
 				"  <b></b>\r" + //
 				"  tt <!-- Comment -->\r" + //
 				"</a>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testPreserveEmptyContentWithJoinContentLines() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setPreserveEmptyContent(true);
-		formattingOptions.setJoinContentLines(true);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveEmptyContent(true);
+		settings.getFormattingSettings().setJoinContentLines(true);
 
 		String content = "<a>\n" + //
 				"   zz  \n" + //
@@ -939,39 +935,39 @@ public class XMLFormatterTest {
 				"  zz zz\n" + //
 				"  <a>  </a>\n" + //
 				"</a>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testJoinContentLinesTrue() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setPreserveEmptyContent(false);
-		formattingOptions.setJoinContentLines(true);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveEmptyContent(false);
+		settings.getFormattingSettings().setJoinContentLines(true);
 
 		String content = "<a>\n" + //
 				"   zz  \n" + //
 				"   zz  " + //
 				"</a>";
 		String expected = "<a>zz zz</a>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testJoinContentLinesTrue2() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setPreserveEmptyContent(false);
-		formattingOptions.setJoinContentLines(true);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveEmptyContent(false);
+		settings.getFormattingSettings().setJoinContentLines(true);
 
 		String content = "<a>zz zz zz</a>";
 		String expected = "<a>zz zz zz</a>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testJoinContentLinesFalse() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setPreserveEmptyContent(false);
-		formattingOptions.setJoinContentLines(false);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveEmptyContent(false);
+		settings.getFormattingSettings().setJoinContentLines(false);
 
 		String content = "<a>\n" + //
 				"   zz  \n" + //
@@ -981,14 +977,14 @@ public class XMLFormatterTest {
 				"   zz  \n" + //
 				"   zz  " + //
 				"</a>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testJoinContentLinesWithSiblingElementTrue() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setPreserveEmptyContent(false);
-		formattingOptions.setJoinContentLines(true);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveEmptyContent(false);
+		settings.getFormattingSettings().setJoinContentLines(true);
 
 		String content = "<a>\n" + //
 				"   zz  \n" + //
@@ -999,14 +995,14 @@ public class XMLFormatterTest {
 				"  zz zz\n" + //
 				"  <a></a>\n" + //
 				"</a>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testJoinContentLinesWithSiblingElementFalse() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setPreserveEmptyContent(false);
-		formattingOptions.setJoinContentLines(false);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveEmptyContent(false);
+		settings.getFormattingSettings().setJoinContentLines(false);
 
 		String content = "<a>\n" + //
 				"   zz  \n" + //
@@ -1018,14 +1014,14 @@ public class XMLFormatterTest {
 				"   zz\n" + //
 				"  <a></a>\n" + //
 				"</a>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testEndTagMissingCloseBracket2() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setSpaceBeforeEmptyCloseTag(false);
-		formattingOptions.setSplitAttributes(true);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setSpaceBeforeEmptyCloseTag(false);
+		settings.getFormattingSettings().setSplitAttributes(true);
 
 		String content = "<web-app \n" + //
 				"         xmlns=\"http://xmlns.jcp.org/xml/ns/javaee\"\n" + //
@@ -1047,13 +1043,11 @@ public class XMLFormatterTest {
 				"    <servlet-name>sssi</servlet-name>\n" + //
 				"  </servlet\n" + //
 				"</web-app>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testDoctypeNoInternalSubset() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-
 		String content = "<!DOCTYPE    note\r\n" + //
 				"\r\n" + //
 				">\r\n" + //
@@ -1076,13 +1070,13 @@ public class XMLFormatterTest {
 				"\r\n" + //
 				"  <body>Don't forget me this weekend</body>\r\n" + //
 				"</note>";
-		format(content, expected, formattingOptions);
+		format(content, expected);
 	}
 
 	@Test
 	public void testDoctypeNoInternalSubsetNoNewlines() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setPreservedNewlines(0);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreservedNewlines(0);
 
 		String content = "<!DOCTYPE    note\r\n" + //
 				"\r\n" + //
@@ -1103,13 +1097,11 @@ public class XMLFormatterTest {
 				"  <heading>Reminder</heading>\r\n" + //
 				"  <body>Don't forget me this weekend</body>\r\n" + //
 				"</note>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testDoctypeInternalSubset() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-
 		String content = "<!DOCTYPE note\r\n" + //
 				"\r\n" + //
 				"\r\n" + //
@@ -1145,13 +1137,13 @@ public class XMLFormatterTest {
 				"  <heading>Reminder</heading>\r\n" + //
 				"  <body>Don't forget me this weekend</body>\r\n" + //
 				"</note>";
-		format(content, expected, formattingOptions);
+		format(content, expected);
 	}
 
 	@Test
 	public void testDoctypeInternalSubsetNoNewlines() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setPreservedNewlines(0);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreservedNewlines(0);
 
 		String content = "<!DOCTYPE note\r\n" + //
 				"\r\n" + //
@@ -1185,13 +1177,11 @@ public class XMLFormatterTest {
 				"  <heading>Reminder</heading>\r\n" + //
 				"  <body>Don't forget me this weekend</body>\r\n" + //
 				"</note>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testDoctypeInternalDeclSpacesBetweenParameters() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-
 		String content = "<!DOCTYPE note [\r\n" + //
 				"  <!ELEMENT    note (to,from,heading,body)>\r\n" + //
 				"  <!ELEMENT   to     (#PCDATA)>\r\n" + //
@@ -1218,13 +1208,11 @@ public class XMLFormatterTest {
 				"  <heading>Reminder</heading>\r\n" + //
 				"  <body>Don't forget me this weekend</body>\r\n" + //
 				"</note>";
-		format(content, expected, formattingOptions);
+		format(content, expected);
 	}
 
 	@Test
 	public void testDoctypeInternalWithAttlist() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-
 		String content = "<!DOCTYPE note \r\n" + //
 				"[\r\n" + //
 				"  <!ELEMENT note (to,from,heading,body)>\r\n" + //
@@ -1249,13 +1237,11 @@ public class XMLFormatterTest {
 				"\r\n" + //
 				"  <to>Fred</to>\r\n" + //
 				"</note>";
-		format(content, expected, formattingOptions);
+		format(content, expected);
 	}
 
 	@Test
 	public void testDoctypeInternalAllDecls() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-
 		String content = "<!DOCTYPE note\r\n" + //
 				"[\r\n" + //
 				"\r\n" + //
@@ -1274,13 +1260,11 @@ public class XMLFormatterTest {
 				"  <!ENTITY copyright SYSTEM \"https://www.w3schools.com/entities.dtd\">\r\n" + //
 				"  <!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\">\r\n" + //
 				"]>";
-		format(content, expected, formattingOptions);
+		format(content, expected);
 	}
 
 	@Test
 	public void testDoctypeInternalWithComments() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-
 		String content = "<!DOCTYPE note\r\n" + //
 				"[ \r\n" + //
 				"  <!-- comment -->\r\n" + //
@@ -1304,13 +1288,11 @@ public class XMLFormatterTest {
 				"  <!ENTITY copyright SYSTEM \"https://www.w3schools.com/entities.dtd\">\r\n" + //
 				"  <!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\">\r\n" + //
 				"]>";
-		format(content, expected, formattingOptions);
+		format(content, expected);
 	}
 
 	@Test
 	public void testDoctypeInternalWithText() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-
 		String content = "<!DOCTYPE note\r\n" + //
 				"[\r\n" + //
 				"  <!ELEMENT note (to,from,heading,body)>\r\n" + //
@@ -1336,12 +1318,12 @@ public class XMLFormatterTest {
 				"  gd\r\n" + //
 				"  <!ELEMENT note (to,from,heading,body)>\r\n" + //
 				"]>";
-		format(content, expected, formattingOptions);
+		format(content, expected);
 	}
 
 	@Test
 	public void testDTDMultiParameterAttlist() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		SharedSettings settings = new SharedSettings();
 
 		String content = "\r\n<!ATTLIST array name CDATA #IMPLIED description CDATA #IMPLIED disabled CDATA #IMPLIED>";
 		String expected = "<!ATTLIST array\r\n" + //
@@ -1349,12 +1331,12 @@ public class XMLFormatterTest {
 				"  description CDATA #IMPLIED\r\n" + //
 				"  disabled CDATA #IMPLIED\r\n" + //
 				">";
-		format(content, expected, formattingOptions, "test.dtd");
+		format(content, expected, settings, "test.dtd");
 	}
 
 	@Test
 	public void testDTDIndentation() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		SharedSettings settings = new SharedSettings();
 
 		String content = "  <!ELEMENT note (to,from,heading,body)>\r\n" + //
 				"			\r\n" + //
@@ -1367,12 +1349,12 @@ public class XMLFormatterTest {
 				"<!ATTLIST payment type CDATA \"check\">\r\n" + //
 				"<!ENTITY copyright SYSTEM \"https://www.w3schools.com/entities.dtd\">\r\n" + //
 				"<!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\">";
-		format(content, expected, formattingOptions, "test.dtd");
+		format(content, expected, settings, "test.dtd");
 	}
 
 	@Test
 	public void testDTDNotEndBrackets() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		SharedSettings settings = new SharedSettings();
 
 		String content = "<!ELEMENT note (to,from,heading,body)\r\n" + //
 				"\r\n" + //
@@ -1384,12 +1366,12 @@ public class XMLFormatterTest {
 				"<!ATTLIST payment type CDATA \"check\"\r\n" + //
 				"<!ENTITY copyright SYSTEM \"https://www.w3schools.com/entities.dtd\"\r\n" + //
 				"<!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\"";
-		format(content, expected, formattingOptions, "test.dtd");
+		format(content, expected, settings, "test.dtd");
 	}
 
 	@Test
 	public void testDTDUnknownDeclNameAndText() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		SharedSettings settings = new SharedSettings();
 
 		String content = "<!ELEMENT note (to,from,heading,body)>\r\n" + //
 				"\r\n" + //
@@ -1409,13 +1391,11 @@ public class XMLFormatterTest {
 				"<!ATTLIST payment type CDATA \"check\">\r\n" + //
 				"<!ENTITY copyright SYSTEM \"https://www.w3schools.com/entities.dtd\">\r\n" + //
 				"<!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\">";
-		format(content, expected, formattingOptions, "test.dtd");
+		format(content, expected, settings, "test.dtd");
 	}
 
 	@Test
 	public void testAllDoctypeParameters() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-
 		String content = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\r\n" + //
 				"<!DOCTYPE web-app PUBLIC \"-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN\" \"http://java.sun.com/dtd/web-app_2_3.dtd\" [\r\n"
 				+ //
@@ -1459,35 +1439,31 @@ public class XMLFormatterTest {
 				"    <servlet-class>dd</servlet-class>\r\n" + //
 				"  </servlet>\r\n" + //
 				"</web-app>";
-		format(content, expected, formattingOptions);
+		format(content, expected);
 	}
 
 	@Test
 	public void testDTDElementContentWithAsterisk() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		SharedSettings settings = new SharedSettings();
 
 		String content = "<!ELEMENT data    (#PCDATA | data | d0)*   >";
 		String expected = "<!ELEMENT data (#PCDATA | data | d0)*>";
-		format(content, expected, formattingOptions, "test.dtd", false);
+		format(content, expected, settings, "test.dtd", false);
 	}
 
 	@Test
 	public void testDoctypeSingleLineFormat() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-
 		String content = "<!DOCTYPE name [<!-- MY COMMENT --><!NOTATION postscript SYSTEM \"ghostview\">]>\r\n" + //
 				"";
 		String expected = "<!DOCTYPE name [\r\n" + //
 				"  <!-- MY COMMENT -->\r\n" + //
 				"  <!NOTATION postscript SYSTEM \"ghostview\">\r\n" + //
 				"]>";
-		format(content, expected, formattingOptions);
+		format(content, expected);
 	}
 
 	@Test
 	public void testDoctypeInvalidParameter() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-
 		String content = "<!DOCTYPE name \"url\" [\r\n" + //
 				"  <!-- MY COMMENT -->\r\n" + //
 				"  <!NOTATION postscript SYSTEM \"ghostview\">\r\n" + //
@@ -1496,13 +1472,11 @@ public class XMLFormatterTest {
 				"  <!-- MY COMMENT -->\r\n" + //
 				"  <!NOTATION postscript SYSTEM \"ghostview\">\r\n" + //
 				"]>";
-		format(content, expected, formattingOptions);
+		format(content, expected);
 	}
 
 	@Test
 	public void testDoctypeInvalidParameterUnclosed() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-
 		String content = "<!DOCTYPE name \"url\"[ <!-- MY COMMENT -->\r\n" + //
 				"  <!NOTATION postscript SYSTEM \"ghostview\">\r\n" + //
 				"]\r\n" + //
@@ -1513,13 +1487,11 @@ public class XMLFormatterTest {
 				"  <!NOTATION postscript SYSTEM \"ghostview\">\r\n" + //
 				"]\r\n" + //
 				"<a></a>";
-		format(content, expected, formattingOptions);
+		format(content, expected);
 	}
 
 	@Test
 	public void testUnclosedSystemId() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-
 		String content = "<!DOCTYPE name PUBLIC \"lass\" \"bass [ <!-- MY COMMENT -->\r\n" + //
 				"\r\n" + //
 				"  <!NOTATION postscript SYSTEM \"ghostview\">\r\n" + //
@@ -1532,13 +1504,11 @@ public class XMLFormatterTest {
 				"]>\r\n" + //
 				"\r\n" + //
 				"<a></a>";
-		format(content, expected, formattingOptions);
+		format(content, expected);
 	}
 
 	@Test
 	public void testUnclosedPublicId() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-
 		String content = "<!DOCTYPE name PUBLIC \"lass  [ <!-- MY COMMENT -->\r\n" + //
 				"\r\n" + //
 				"  <!NOTATION postscript SYSTEM \"ghostview\">\r\n" + //
@@ -1551,13 +1521,11 @@ public class XMLFormatterTest {
 				"]>\r\n" + //
 				"\r\n" + //
 				"<a></a>";
-		format(content, expected, formattingOptions);
+		format(content, expected);
 	}
 
 	@Test
 	public void testCommentAfterMissingClosingBracket() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-
 		String content = "<!DOCTYPE name [\r\n" + //
 				"  <!ENTITY % astroTerms SYSTEM \"http://xml.gsfc.nasa.gov/DTD/entities/astroTerms.ent\"\r\n" + //
 				"\r\n" + //
@@ -1571,12 +1539,12 @@ public class XMLFormatterTest {
 				"]>\r\n" + //
 				"\r\n" + //
 				"<a></a>";
-		format(content, expected, formattingOptions);
+		format(content, expected);
 	}
 
 	@Test
 	public void testHTMLDTD() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		SharedSettings settings = new SharedSettings();
 
 		String content = "<!--\r\n" + //
 				"  Further information about HTML 4.01 is available at:\r\n" + //
@@ -1617,12 +1585,12 @@ public class XMLFormatterTest {
 				"<!ENTITY % HTML.Frameset \"INCLUDE\">\r\n" + //
 				"<!ENTITY % HTML4.dtd PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">\r\n" + //
 				"%HTML4.dtd;";
-		format(content, expected, formattingOptions, "test.dtd");
+		format(content, expected, settings, "test.dtd");
 	}
 
 	@Test
 	public void testXMLInDTDFile() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		SharedSettings settings = new SharedSettings();
 
 		String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<resources variant=\"\">\r\n" + //
@@ -1638,12 +1606,12 @@ public class XMLFormatterTest {
 				"<property name=\"propB\" value=\"...\" />\r\n" + //
 				"</resource>\r\n" + //
 				"</resources>";
-		format(content, expected, formattingOptions, "test.dtd");
+		format(content, expected, settings, "test.dtd");
 	}
 
 	@Test
 	public void testBadDTDFile() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		SharedSettings settings = new SharedSettings();
 
 		String content = "<![ %HTML.Reserved; [\r\n" + //
 				"\r\n" + //
@@ -1659,12 +1627,12 @@ public class XMLFormatterTest {
 				"<!ENTITY % reserved \"datasrc     %URI;          #IMPLIED  -- \">\r\n" + //
 				"]]>\r\n" + //
 				"<!--=================== Text Markup ======================================-->";
-		format(content, expected, formattingOptions, "test.dtd");
+		format(content, expected, settings, "test.dtd");
 	}
 
 	@Test
 	public void testIncompleteAttlistInternalDecl() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+		SharedSettings settings = new SharedSettings();
 
 		String content = "<!ATTLIST img src CDATA #REQUIRED %all;\r\n" + //
 				">\r\n" + //
@@ -1675,131 +1643,120 @@ public class XMLFormatterTest {
 				"  %all;\r\n" + //
 				">\r\n" + //
 				"<!-- Hypertext anchors. -->";
-		format(content, expected, formattingOptions, "test.dtd");
+		format(content, expected, settings, "test.dtd");
 	}
 
 	@Test
 	public void testUseDoubleQuotesFromDoubleQuotes() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setQuotations(XMLFormattingOptions.DOUBLE_QUOTES_VALUE);
+		SharedSettings settings = new SharedSettings();
+		settings.getPreferences().setQuoteStyle(QuoteStyle.doubleQuotes);
 
 		String content = "<a name=  \" value \"> </a>";
 		String expected = "<a name=\" value \"></a>";
-		format(content, expected, formattingOptions);
-	}
-
-	@Test
-	public void testUseInvalidValueFromDoubleQuotes() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setQuotations("INVALID_VALUE");
-
-		String content = "<a name=  \" value \"> </a>";
-		String expected = "<a name=\" value \"></a>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testUseSingleQuotesFromSingleQuotes() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setQuotations(XMLFormattingOptions.SINGLE_QUOTES_VALUE);
+		SharedSettings settings = new SharedSettings();
+		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
+		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
 		String content = "<a name=  \' value \'> </a>";
 		String expected = "<a name=\' value \'></a>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testUseSingleQuotesFromDoubleQuotes() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setQuotations(XMLFormattingOptions.SINGLE_QUOTES_VALUE);
+		SharedSettings settings = new SharedSettings();
+		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
+		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
 
 		String content = "<a name=  \" value \"> </a>";
 		String expected = "<a name=\' value \'></a>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testUseDoubleQuotesFromSingleQuotes() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-
 		String content = "<a name=  \' value \'> </a>";
 		String expected = "<a name=\" value \"></a>";
-		format(content, expected, formattingOptions);
+		format(content, expected);
 	}
 
 	@Test
 	public void testUseSingleQuotesNoQuotes() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setQuotations(XMLFormattingOptions.SINGLE_QUOTES_VALUE);
+		SharedSettings settings = new SharedSettings();
+		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
 		String content = "<a name = test> </a>";
 		String expected = "<a name= test></a>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testUseSingleQuotesNoQuotesSplit() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setQuotations(XMLFormattingOptions.SINGLE_QUOTES_VALUE);
-		formattingOptions.setSplitAttributes(true);
+		SharedSettings settings = new SharedSettings();
+		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
+		settings.getFormattingSettings().setSplitAttributes(true);
 		String content = "<a name = test> </a>";
 		String expected = "<a" + lineSeparator() + "    name=" + lineSeparator() + "    test></a>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testAttValueOnlyStartQuote() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setQuotations(XMLFormattingOptions.SINGLE_QUOTES_VALUE);
+		SharedSettings settings = new SharedSettings();
+		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
 		String content = "<a name = \"> </a>";
 		String expected = "<a name=\"> </a>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testUseDoubleQuotesMultipleAttributes() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-
 		String content = "<a name1=  \" value1 \"  name2= \" value2 \"   name3= \' value3 \' > </a>";
 		String expected = "<a name1=\" value1 \" name2=\" value2 \" name3=\" value3 \"></a>";
-		format(content, expected, formattingOptions);
+		format(content, expected);
 	}
 
 	@Test
 	public void testUseSingleQuotesMultipleAttributes() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setQuotations(XMLFormattingOptions.SINGLE_QUOTES_VALUE);
-
+		SharedSettings settings = new SharedSettings();
+		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
+		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
 		String content = "<a name1=  \" value1 \"  name2= \" value2 \"   name3= \' value3 \' > </a>";
 		String expected = "<a name1=\' value1 \' name2=\' value2 \' name3=\' value3 \'></a>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testUseDoubleQuotesMultipleAttributesSplit() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setSplitAttributes(true);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setSplitAttributes(true);
 
 		String content = "<a name1=  \" value1 \"  name2= \" value2 \"   name3= \' value3 \' > </a>\n";
 		String expected = "<a\n" + "    name1=\" value1 \"\n" + "    name2=\" value2 \"\n"
 				+ "    name3=\" value3 \"></a>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testUseSingleQuotesMultipleAttributesSplit() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setSplitAttributes(true);
-		formattingOptions.setQuotations(XMLFormattingOptions.SINGLE_QUOTES_VALUE);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
 		String content = "<a name1=  \" value1 \"  name2= \" value2 \"   name3= \' value3 \' > </a>\n";
 		String expected = "<a\n" + "    name1=\' value1 \'\n" + "    name2=\' value2 \'\n"
 				+ "    name3=\' value3 \'></a>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testAttributeNameTouchingPreviousValue() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setQuotations(XMLFormattingOptions.SINGLE_QUOTES_VALUE);
-		formattingOptions.setSplitAttributes(true);
+		SharedSettings settings = new SharedSettings();
+		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
+		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
+		settings.getFormattingSettings().setSplitAttributes(true);
 
 		String content = "<xml>\r\n" + //
 				"  <a zz= tt = \"aa\"aa ></a>\r\n" + //
@@ -1810,7 +1767,7 @@ public class XMLFormatterTest {
 				"      tt='aa'\r\n" + //
 				"      aa></a>\r\n" + //
 				"</xml>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
@@ -1894,7 +1851,6 @@ public class XMLFormatterTest {
 
 	@Test
 	public void testPreserveNewlines() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		String content = "<xml>\r\n" + //
 				"  <a></a>\r\n" + //
 				"  \r\n" + //
@@ -1906,13 +1862,13 @@ public class XMLFormatterTest {
 				"\r\n" + //
 				"\r\n" + //
 				"</xml>";
-		format(content, expected, formattingOptions);
+		format(content, expected);
 	}
 
 	@Test
 	public void testPreserveNewlines3Max() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setPreservedNewlines(3);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreservedNewlines(3);
 		String content = "<xml>\r\n" + //
 				"  <a></a>\r\n" + //
 				"  \r\n" + //
@@ -1925,12 +1881,11 @@ public class XMLFormatterTest {
 				"\r\n" + //
 				"\r\n" + //
 				"</xml>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testPreserveNewlines2() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		String content = "<xml>\r\n" + //
 				"  <a></a>\r\n" + //
 				"  \r\n" + //
@@ -1943,12 +1898,11 @@ public class XMLFormatterTest {
 				"\r\n" + //
 				"\r\n" + //
 				"</xml>";
-		format(content, expected, formattingOptions);
+		format(content, expected);
 	}
 
 	@Test
 	public void testPreserveNewlinesBothSides() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		String content = "<xml>\r\n" + //
 				"  \r\n" + //
 				"  \r\n" + //
@@ -1967,12 +1921,11 @@ public class XMLFormatterTest {
 				"\r\n" + //
 				"\r\n" + //
 				"</xml>";
-		format(content, expected, formattingOptions);
+		format(content, expected);
 	}
 
 	@Test
 	public void testPreserveNewlinesBothSidesMultipleTags() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		String content = "<xml>\r\n" + //
 				"  \r\n" + //
 				"  \r\n" + //
@@ -2000,12 +1953,11 @@ public class XMLFormatterTest {
 				"\r\n" + //
 				"\r\n" + //
 				"</xml>";
-		format(content, expected, formattingOptions);
+		format(content, expected);
 	}
 
 	@Test
 	public void testPreserveNewlinesSingleLine() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		String content = "<xml>\r\n" + //
 				"  <a></a>\r\n" + //
 				"  \r\n" + //
@@ -2014,24 +1966,22 @@ public class XMLFormatterTest {
 				"  <a></a>\r\n" + //
 				"\r\n" + //
 				"</xml>";
-		format(content, expected, formattingOptions);
+		format(content, expected);
 	}
 
 	@Test
 	public void testPreserveNewlines4() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		String content = "<xml>\r\n" + //
 				"  <a></a>\r\n" + //
 				"</xml>";
 		String expected = "<xml>\r\n" + //
 				"  <a></a>\r\n" + //
 				"</xml>";
-		format(content, expected, formattingOptions);
+		format(content, expected);
 	}
 
 	@Test
 	public void testNoSpacesOnNewLine() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		String content = "<a>\r\n" + //
 				"  <b></b>\r\n" + //
 				"\r\n" + //
@@ -2048,106 +1998,104 @@ public class XMLFormatterTest {
 				"\r\n" + //
 				"\r\n" + //
 				"</a>";
-		format(content, expected, formattingOptions);
+		format(content, expected);
 	}
 
 	@Test
 	public void testTrimFinalNewlinesDefault() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
 		String content = "<a  ></a>\r\n";
 		String expected = "<a></a>";
-		format(content, expected, formattingOptions);
+		format(content, expected);
 	}
 
 	@Test
 	public void testDontInsertFinalNewLine1() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setTrimFinalNewlines(false);
-		formattingOptions.setInsertFinalNewline(true);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTrimFinalNewlines(false);
+		settings.getFormattingSettings().setInsertFinalNewline(true);
 		String content = "";
-		format(content, content, formattingOptions);
+		format(content, content, settings);
 	}
 
 	@Test
 	public void testDontInsertFinalNewLine2() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setTrimFinalNewlines(false);
-		formattingOptions.setInsertFinalNewline(true);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTrimFinalNewlines(false);
+		settings.getFormattingSettings().setInsertFinalNewline(true);
 		String content = "<a  ></a>\r\n";
 		String expected = "<a></a>\r\n";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testDontInsertFinalNewLine3() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setTrimFinalNewlines(false);
-		formattingOptions.setInsertFinalNewline(true);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTrimFinalNewlines(false);
+		settings.getFormattingSettings().setInsertFinalNewline(true);
 		String content = "<a  ></a>\r\n" + "   ";
 		String expected = "<a></a>\r\n" + "   ";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testInsertFinalNewLine1() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setInsertFinalNewline(true);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setInsertFinalNewline(true);
 		String content = "<a></a>";
 		String expected = "<a></a>" + lineSeparator();
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testInsertFinalNewLine2() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setTrimFinalNewlines(true);
-		formattingOptions.setInsertFinalNewline(true);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTrimFinalNewlines(true);
+		settings.getFormattingSettings().setInsertFinalNewline(true);
 		String content = "<a></a>\r\n\r\n";
 		String expected = "<a></a>\r\n";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testInsertFinalNewLine3() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setTrimFinalNewlines(true);
-		formattingOptions.setInsertFinalNewline(true);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTrimFinalNewlines(true);
+		settings.getFormattingSettings().setInsertFinalNewline(true);
 		String content = "<a></a>\n\n";
 		String expected = "<a></a>\n";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testDontInsertFinalNewLineWithRange() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setInsertFinalNewline(true);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setInsertFinalNewline(true);
 		String content = "<div  class = \"foo\">\r\n" + //
 				"  |<img  src = \"foo\"|/>\r\n" + //
 				" </div>";
 		String expected = "<div  class = \"foo\">\r\n" + //
 				"  <img src=\"foo\" />\r\n" + //
 				" </div>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testInsertFinalNewLineWithRange2() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setInsertFinalNewline(true);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setInsertFinalNewline(true);
 		String content = "<div  class = \"foo\">\r\n" + //
 				"  |<img  src = \"foo\"/>\r\n" + //
 				" </div>|";
 		String expected = "<div  class = \"foo\">\r\n" + //
 				"  <img src=\"foo\" />\r\n" + //
 				"</div>\r\n";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
-	// Problem
 	@Test
 	public void testInsertFinalNewLineWithRange3() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setInsertFinalNewline(true);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setInsertFinalNewline(true);
 		String content = "<div  class = \"foo\">\r\n" + //
 				"  |<img  src = \"foo\"/>\r\n" + //
 				"\r\n"+ "|" + "\r\n" + //
@@ -2158,33 +2106,33 @@ public class XMLFormatterTest {
 				"\r\n" + //
 				"<h1></h1>" + "\r\n" + //
 				" </div>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testDontTrimFinalNewLines() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setTrimFinalNewlines(false);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTrimFinalNewlines(false);
 		String content = "<a  ></a>\r\n\r\n\r\n";
 		String expected = "<a></a>\r\n\r\n\r\n";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testDontTrimFinalNewLines2() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setTrimFinalNewlines(false);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTrimFinalNewlines(false);
 		String content = "<a  ></a>\r\n" + //
 				"   \r\n\r\n";
 		String expected = "<a></a>\r\n" + //
 				"   \r\n\r\n";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testDontTrimFinalNewLines3() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setTrimFinalNewlines(false);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTrimFinalNewlines(false);
 		String content = "<a  ></a>\r\n" + //
 				"  text \r\n" + //
 				"  more text   \r\n" + //
@@ -2193,72 +2141,72 @@ public class XMLFormatterTest {
 				"  text \r\n" + //
 				"  more text   \r\n" + //
 				"   \r\n";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	// ------------ Tests with format empty elements settings
 
 	@Test
 	public void expandEmptyElements() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setEmptyElement(EmptyElements.expand);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setEmptyElement(EmptyElements.expand);
 
 		String content = "<example att=\"hello\" />";
 		String expected = "<example att=\"hello\"></example>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 
 		content = "<example \r\n" + //
 				"  att=\"hello\"\r\n" + //
 				"  />";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void collapseEmptyElements() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setEmptyElement(EmptyElements.collapse);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setEmptyElement(EmptyElements.collapse);
 
 		String content = "<example att=\"hello\"></example>";
 		String expected = "<example att=\"hello\" />";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 
 		content = "<example " + //
 				"  att=\"hello\"\r\n" + //
 				"  >\r\n" + //
 				"</example>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 
 		content = "<example att=\"hello\">   </example>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 
 		content = "<example att=\"hello\"> X </example>";
 		expected = "<example att=\"hello\"> X </example>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 
 		content = "<example att=\"hello\"> <X/> </example>";
 		expected = "<example att=\"hello\">" + lineSeparator() + //
 				"  <X />" + lineSeparator() + //
 				"</example>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void ignoreEmptyElements() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setEmptyElement(EmptyElements.ignore);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setEmptyElement(EmptyElements.ignore);
 
 		String content = "<example att=\"hello\"></example>";
-		format(content, content, formattingOptions);
+		format(content, content, settings);
 
 		content = "<example att=\"hello\" />";
-		format(content, content, formattingOptions);
+		format(content, content, settings);
 	}
 
 	@Test
 	public void expandEmptyElementsAndPreserveEmptyContent() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setEmptyElement(EmptyElements.expand);
-		formattingOptions.setPreserveEmptyContent(true);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setEmptyElement(EmptyElements.expand);
+		settings.getFormattingSettings().setPreserveEmptyContent(true);
 
 		String content = "<foo>\r\n" + //
 				"    <bar>\r\n" + //
@@ -2280,7 +2228,7 @@ public class XMLFormatterTest {
 				"        \r\n" + //
 				"    </bar>\r\n" + //
 				"</foo>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 
 		content = "<foo>\r\n" + //
 				"    <bar></bar>\r\n" + //
@@ -2288,14 +2236,14 @@ public class XMLFormatterTest {
 		expected = "<foo>\r\n" + //
 				"  <bar></bar>\r\n" + //
 				"</foo>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void collapseEmptyElementsAndPreserveEmptyContent() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setEmptyElement(EmptyElements.collapse);
-		formattingOptions.setPreserveEmptyContent(true);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setEmptyElement(EmptyElements.collapse);
+		settings.getFormattingSettings().setPreserveEmptyContent(true);
 
 		String content = "<foo>\r\n" + //
 				"    <bar>\r\n" + //
@@ -2317,7 +2265,7 @@ public class XMLFormatterTest {
 				"        \r\n" + //
 				"    </bar>\r\n" + //
 				"</foo>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 
 		content = "<foo>\r\n" + //
 				"    <bar></bar>\r\n" + //
@@ -2325,13 +2273,13 @@ public class XMLFormatterTest {
 		expected = "<foo>\r\n" + //
 				"  <bar />\r\n" + //
 				"</foo>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void collapseEmptyElementsInRange() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
-		formattingOptions.setEmptyElement(EmptyElements.collapse);
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setEmptyElement(EmptyElements.collapse);
 
 		// Range doesn't cover the b element, collapse cannot be done
 		String content = "<a>\r\n" + //
@@ -2343,7 +2291,7 @@ public class XMLFormatterTest {
 				"  <b>\r\n" + //
 				"</b>\r\n" + //
 				"</a>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 
 		// Range covers the b element, collapse is done
 		content = "<a>\r\n" + //
@@ -2354,35 +2302,80 @@ public class XMLFormatterTest {
 		expected = "<a>\r\n" + //
 				"  <b />\r\n" + //
 				"</a>";
-		format(content, expected, formattingOptions);
+		format(content, expected, settings);
 	}
 
 	@Test
-	public void testTemplate() throws BadLocationException {
-		XMLFormattingOptions formattingOptions = createDefaultFormattingOptions();
+	public void enforceSingleQuoteStyle() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
+		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
 
+		String content = "<a  attr   =     \"value\" />";
+		String expected = "<a attr=\'value\' />";
+		format(content, expected, settings);
+		format(expected, expected, settings);
+	}
+
+	@Test
+	public void enforceDoubleQuoteStyle() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getPreferences().setQuoteStyle(QuoteStyle.doubleQuotes);
+		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
+
+		String content = "<a  attr   =     \'value\' />";
+		String expected = "<a attr=\"value\" />";
+		format(content, expected, settings);
+		format(expected, expected, settings);
+	}
+
+	@Test
+	public void dontEnforceSingleQuoteStyle() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
+		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.ignore);
+
+		String content = "<a attr  =   \"\'\" attr2   =     \'\"\' />";
+		String expected = "<a attr=\"\'\" attr2=\'\"\' />";
+		format(content, expected, settings);
+	}
+
+	@Test
+	public void dontEnforceDoubleQuoteStyle() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getPreferences().setQuoteStyle(QuoteStyle.doubleQuotes);
+		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.ignore);
+
+		String content = "<a attr  =   \"\'\" attr2   =     \'\"\' />";
+		String expected = "<a attr=\"\'\" attr2=\'\"\' />";
+		format(content, expected, settings);
+	}
+
+
+	@Test
+	public void testTemplate() throws BadLocationException {
 		String content = "";
 		String expected = "";
-		format(content, expected, formattingOptions);
+		format(content, expected);
 	}
 
 	// -------------------------Tools-----------------------------------------
 
 	private static void format(String unformatted, String actual) throws BadLocationException {
-		format(unformatted, actual, createDefaultFormattingOptions());
+		format(unformatted, actual, new SharedSettings());
 	}
 
-	private static void format(String unformatted, String expected, XMLFormattingOptions formattingOptions)
+	private static void format(String unformatted, String expected, SharedSettings sharedSettings)
 			throws BadLocationException {
-		format(unformatted, expected, formattingOptions, "test://test.html");
+		format(unformatted, expected, sharedSettings, "test://test.html");
 	}
 
-	private static void format(String unformatted, String expected, XMLFormattingOptions formattingOptions, String uri)
+	private static void format(String unformatted, String expected, SharedSettings sharedSettings, String uri)
 			throws BadLocationException {
-		format(unformatted, expected, formattingOptions, uri, true);
+		format(unformatted, expected, sharedSettings, uri, true);
 	}
 
-	private static void format(String unformatted, String expected, XMLFormattingOptions formattingOptions, String uri,
+	private static void format(String unformatted, String expected, SharedSettings sharedSettings, String uri,
 			Boolean considerRangeFormat) throws BadLocationException {
 
 		Range range = null;
@@ -2400,7 +2393,7 @@ public class XMLFormatterTest {
 
 		TextDocument document = new TextDocument(unformatted, uri);
 		XMLLanguageService languageService = new XMLLanguageService();
-		List<? extends TextEdit> edits = languageService.format(document, range, formattingOptions);
+		List<? extends TextEdit> edits = languageService.format(document, range, sharedSettings);
 
 		String formatted = edits.stream().map(edit -> edit.getNewText()).collect(Collectors.joining(""));
 
@@ -2414,9 +2407,5 @@ public class XMLFormatterTest {
 		}
 
 		assertEquals(expected, formatted);
-	}
-
-	private static XMLFormattingOptions createDefaultFormattingOptions() {
-		return new XMLFormattingOptions(true);
 	}
 }

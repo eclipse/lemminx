@@ -65,4 +65,8 @@ public class XMLCodeLensSettings {
 	public void setCodeLens(ExtendedCodeLensCapabilities codeLens) {
 		this.codeLens = codeLens;
 	}
+
+	public void merge(XMLCodeLensSettings newSettings) {
+		this.setEnabled(newSettings.isEnabled());
+	}
 }

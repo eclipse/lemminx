@@ -27,7 +27,7 @@ import org.apache.xerces.util.URI.MalformedURIException;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.services.XMLLanguageService;
-import org.eclipse.lemminx.settings.XMLCompletionSettings;
+import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.CompletionCapabilities;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemCapabilities;
@@ -290,7 +290,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 		XMLAssert.testCompletionFor(xml, null, "src/test/resources/team.xml", null,
 				c("skill", "<skill>Java</skill>", r(3, 3, 3, 3), "skill"));
 		// - with snippet
-		testCompletionSnippetSupporytFor(xml, "src/test/resources/team.xml", null,
+		testCompletionSnippetSupportFor(xml, "src/test/resources/team.xml", null,
 				c("skill", "<skill>${1|Java,Node,XML|}$2</skill>$0", r(3, 3, 3, 3), "skill"));
 
 		xml = "<team xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"team_namespace\" xsi:schemaLocation=\"team_namespace xsd/team.xsd\">\r\n"
@@ -484,7 +484,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				"      <Annotation Term=\"Core.DefaultNamespace\" />      \r\n" + //
 				"    </edmx:Include>\r\n" + //
 				" |";
-		testCompletionMarkdownSupporytFor(xml,
+		testCompletionMarkdownSupportFor(xml,
 				c("Annotation", te(6, 1, 6, 1, "<Annotation Term=\"\"></Annotation>"), "Annotation",
 						"Source: [edm.xsd](" + edmURI + ")", MarkupKind.MARKDOWN), //
 				c("edmx:Include", te(6, 1, 6, 1, "<edmx:Include Namespace=\"\"></edmx:Include>"), "edmx:Include",
@@ -496,7 +496,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				+ "  <edmx:DataServices>\r\n" + //
 				"    <Schema Namespace=\"ODataDemo\">\r\n" + //
 				" |";
-		testCompletionMarkdownSupporytFor(xml, c("Action", "<Action Name=\"\"></Action>"), //
+		testCompletionMarkdownSupportFor(xml, c("Action", "<Action Name=\"\"></Action>"), //
 				c("Annotation", "<Annotation Term=\"\"></Annotation>"), //
 				c("Annotations", "<Annotations Target=\"\"></Annotations>"), //
 				c("ComplexType", "<ComplexType Name=\"\"></ComplexType>"));
@@ -1014,7 +1014,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				"<person xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"xsd/choice.xsd\">\r\n"
 				+ //
 				"|</employee>";
-		testCompletionSnippetSupporytFor(xml, "src/test/resources/choice.xml", 2, //
+		testCompletionSnippetSupportFor(xml, "src/test/resources/choice.xml", 2, //
 				c("member", te(2, 0, 2, 0, "<member>$1</member>$0"), "member"), //
 				c("employee", te(2, 0, 2, 0, "<employee>$1$0"), "employee")); // <-- here only start employee is
 																				// generated
@@ -1024,7 +1024,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				"<person xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"xsd/choice.xsd\">\r\n"
 				+ //
 				"em|</employee>";
-		testCompletionSnippetSupporytFor(xml, "src/test/resources/choice.xml", 2, //
+		testCompletionSnippetSupportFor(xml, "src/test/resources/choice.xml", 2, //
 				c("member", te(2, 0, 2, 2, "<member>$1</member>$0"), "member"), //
 				c("employee", te(2, 0, 2, 2, "<employee>$1$0"), "employee")); // <-- here only start employee is
 																				// generated
@@ -1034,7 +1034,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				"<person xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"xsd/choice.xsd\">\r\n"
 				+ //
 				"<employee>|</employee>";
-		testCompletionSnippetSupporytFor(xml, "src/test/resources/choice.xml", 3, //
+		testCompletionSnippetSupportFor(xml, "src/test/resources/choice.xml", 3, //
 				c("person", te(2, 10, 2, 10, "<person>$1</person>$0"), "person"),
 				c("member", te(2, 10, 2, 10, "<member>$1</member>$0"), "member"), //
 				c("employee", te(2, 10, 2, 10, "<employee>$1</employee>$0"), "employee"));
@@ -1044,7 +1044,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				"<person xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"xsd/choice.xsd\">\r\n"
 				+ //
 				"<employee> |</employee>";
-		testCompletionSnippetSupporytFor(xml, "src/test/resources/choice.xml", 3, //
+		testCompletionSnippetSupportFor(xml, "src/test/resources/choice.xml", 3, //
 				c("person", te(2, 11, 2, 11, "<person>$1</person>$0"), "person"),
 				c("member", te(2, 11, 2, 11, "<member>$1</member>$0"), "member"), //
 				c("employee", te(2, 11, 2, 11, "<employee>$1</employee>$0"), "employee"));
@@ -1054,7 +1054,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				"<person xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"xsd/choice.xsd\">\r\n"
 				+ //
 				"<employee>| </employee>";
-		testCompletionSnippetSupporytFor(xml, "src/test/resources/choice.xml", 3, //
+		testCompletionSnippetSupportFor(xml, "src/test/resources/choice.xml", 3, //
 				c("person", te(2, 10, 2, 10, "<person>$1</person>$0"), "person"),
 				c("member", te(2, 10, 2, 10, "<member>$1</member>$0"), "member"), //
 				c("employee", te(2, 10, 2, 10, "<employee>$1</employee>$0"), "employee"));
@@ -1064,7 +1064,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				"<person xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"xsd/choice.xsd\">\r\n"
 				+ //
 				"<employee> | </employee>";
-		testCompletionSnippetSupporytFor(xml, "src/test/resources/choice.xml", 3, //
+		testCompletionSnippetSupportFor(xml, "src/test/resources/choice.xml", 3, //
 				c("person", te(2, 11, 2, 11, "<person>$1</person>$0"), "person"),
 				c("member", te(2, 11, 2, 11, "<member>$1</member>$0"), "member"), //
 				c("employee", te(2, 11, 2, 11, "<employee>$1</employee>$0"), "employee"));
@@ -1074,7 +1074,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				"<person xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"xsd/choice.xsd\">\r\n"
 				+ //
 				"<employee> | </employee></employee>";
-		testCompletionSnippetSupporytFor(xml, "src/test/resources/choice.xml", 3, //
+		testCompletionSnippetSupportFor(xml, "src/test/resources/choice.xml", 3, //
 				c("person", te(2, 11, 2, 11, "<person>$1</person>$0"), "person"),
 				c("member", te(2, 11, 2, 11, "<member>$1</member>$0"), "member"), //
 				c("employee", te(2, 11, 2, 11, "<employee>$1</employee>$0"), "employee"));
@@ -1085,7 +1085,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				+ //
 				"<employee></employee>\r\n" + //
 				"|</employee>";
-		testCompletionSnippetSupporytFor(xml, "src/test/resources/choice.xml", null, //
+		testCompletionSnippetSupportFor(xml, "src/test/resources/choice.xml", null, //
 				c("member", te(3, 0, 3, 0, "<member>$1</member>$0"), "member"), //
 				c("employee", te(3, 0, 3, 0, "<employee>$1$0"), "employee"));
 	}
@@ -1099,7 +1099,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				"<person xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"xsd/choice.xsd\">\r\n"
 				+ //
 				"<|</employee>";
-		testCompletionSnippetSupporytFor(xml, "src/test/resources/choice.xml", 2, //
+		testCompletionSnippetSupportFor(xml, "src/test/resources/choice.xml", 2, //
 				c("member", te(2, 0, 2, 1, "<member>$1</member>$0"), "<member"), //
 				c("employee", te(2, 0, 2, 1, "<employee>$1$0"), "<employee")); // <-- here only start employee is
 																				// generated
@@ -1109,7 +1109,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				"<person xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"xsd/choice.xsd\">\r\n"
 				+ //
 				"<em|</employee>";
-		testCompletionSnippetSupporytFor(xml, "src/test/resources/choice.xml", 2, //
+		testCompletionSnippetSupportFor(xml, "src/test/resources/choice.xml", 2, //
 				c("member", te(2, 0, 2, 3, "<member>$1</member>$0"), "<member"), //
 				c("employee", te(2, 0, 2, 3, "<employee>$1$0"), "<employee")); // <-- here only start employee is
 																				// generated
@@ -1119,7 +1119,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				"<person xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"xsd/choice.xsd\">\r\n"
 				+ //
 				"<employee|></employee>";
-		testCompletionSnippetSupporytFor(xml, "src/test/resources/choice.xml", 2, //
+		testCompletionSnippetSupportFor(xml, "src/test/resources/choice.xml", 2, //
 				c("member", te(2, 0, 2, 10, "<member>$1</member>$0"), "<member"), //
 				c("employee", te(2, 0, 2, 10, "<employee>$1$0"), "<employee")); // <-- here only start employee is
 																				// generated
@@ -1152,7 +1152,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				"</project>";
 
 		String mavenFileURI = getXMLSchemaFileURI("maven-4.0.0.xsd");
-		testCompletionMarkdownSupporytFor(xml, c("groupId", te(3, 1, 3, 2, "<groupId></groupId>"), "<groupId",
+		testCompletionMarkdownSupportFor(xml, c("groupId", te(3, 1, 3, 2, "<groupId></groupId>"), "<groupId",
 				"A universally unique identifier for a project. It is normal to use a fully-qualified package name to distinguish it from other projects with a similar name "
 						+ "(eg. `org.apache.maven`)." + //
 						System.lineSeparator() + //
@@ -1170,27 +1170,29 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 		XMLAssert.testCompletionFor(xml, "src/test/resources/catalogs/catalog.xml", expectedItems);
 	}
 
-	private void testCompletionMarkdownSupporytFor(String xml, CompletionItem... expectedItems)
+	private void testCompletionMarkdownSupportFor(String xml, CompletionItem... expectedItems)
 			throws BadLocationException {
-		XMLCompletionSettings completionSettings = new XMLCompletionSettings();
 		CompletionCapabilities completionCapabilities = new CompletionCapabilities();
 		CompletionItemCapabilities completionItem = new CompletionItemCapabilities(false);
 		completionItem.setDocumentationFormat(Arrays.asList(MarkupKind.MARKDOWN));
 		completionCapabilities.setCompletionItem(completionItem);
-		completionSettings.setCapabilities(completionCapabilities);
+
+		SharedSettings sharedSettings = new SharedSettings();
+		sharedSettings.getCompletionSettings().setCapabilities(completionCapabilities);
 		XMLAssert.testCompletionFor(new XMLLanguageService(), xml, "src/test/resources/catalogs/catalog.xml", null,
-				null, null, completionSettings, expectedItems);
+				null, null, sharedSettings, expectedItems);
 	}
 
-	private void testCompletionSnippetSupporytFor(String xml, String fileURI, Integer expectedCount,
+	private void testCompletionSnippetSupportFor(String xml, String fileURI, Integer expectedCount,
 			CompletionItem... expectedItems) throws BadLocationException {
-		XMLCompletionSettings completionSettings = new XMLCompletionSettings();
 		CompletionCapabilities completionCapabilities = new CompletionCapabilities();
 		CompletionItemCapabilities completionItem = new CompletionItemCapabilities(true);
 		completionItem.setDocumentationFormat(Arrays.asList(MarkupKind.MARKDOWN));
 		completionCapabilities.setCompletionItem(completionItem);
-		completionSettings.setCapabilities(completionCapabilities);
-		XMLAssert.testCompletionFor(new XMLLanguageService(), xml, null, null, fileURI, null, completionSettings,
+
+		SharedSettings sharedSettings = new SharedSettings();
+		sharedSettings.getCompletionSettings().setCapabilities(completionCapabilities);
+		XMLAssert.testCompletionFor(new XMLLanguageService(), xml, null, null, fileURI, null, sharedSettings,
 				expectedItems);
 	}
 }
