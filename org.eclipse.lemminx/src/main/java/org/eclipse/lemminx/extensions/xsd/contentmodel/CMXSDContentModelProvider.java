@@ -12,12 +12,14 @@
  */
 package org.eclipse.lemminx.extensions.xsd.contentmodel;
 
+import org.apache.commons.lang3.ObjectUtils.Null;
 import org.apache.xerces.impl.Constants;
 import org.apache.xerces.impl.xs.XSLoaderImpl;
 import org.apache.xerces.xs.XSModel;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.NoNamespaceSchemaLocation;
 import org.eclipse.lemminx.dom.SchemaLocation;
+import org.eclipse.lemminx.dom.XMLModel;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelProvider;
 import org.eclipse.lemminx.uriresolver.CacheResourceDownloadingException;
@@ -65,9 +67,16 @@ public class CMXSDContentModelProvider implements ContentModelProvider {
 					return null;
 				}
 				return noNamespaceSchemaLocation.getLocation();
+			} else { // TODO: should be done better, I guess --- FIXME: Does nothing
+				XMLModel xmlModel = xmlDocument.getXMLModel();
+				if (xmlModel == null){
+					return null;
+				} else {
+					return xmlModel.getSchemaLocation();
+				}
 			}
 		}
-		return null;
+		//return null;
 	}
 
 	@Override
