@@ -69,6 +69,8 @@ public class DOMDocument extends DOMNode implements Document {
 	private boolean hasExternalGrammar;
 	private CancelChecker cancelChecker;
 
+	public static final String XML_MODEL = "xml-model";
+
 	public DOMDocument(TextDocument textDocument, URIResolverExtensionManager resolverExtensionManager) {
 		super(0, textDocument.getText().length());
 		this.textDocument = textDocument;
@@ -172,23 +174,9 @@ public class DOMDocument extends DOMNode implements Document {
 	 * 
 	 * @return the xml-model or null, i none is declared.
 	 */
-	private DOMNode getXMLModel() {
-		//TODO: make sure this information is stored somewhere
-
-		//initializeReferencedSchemaIfNeeded();
-		//return xmlModel;
-		//TODO: like this or more like dtd?
-
-		//LATER: handle multiple processing instructions
-
-		List<ProcessingInstruction> processingInstructions = getProcessingInstructions();
-		for (ProcessingInstruction pi: processingInstructions){
-			if (pi.getTarget().equals("xml-model")){//TODO: make this string a field
-				return (DOMNode) pi;
-			}
-		}
-
-		return null;
+	public XMLModel getXMLModel() {
+		initializeReferencedSchemaIfNeeded();
+		return xmlModel;
 	}
 
 	/**
@@ -286,7 +274,7 @@ public class DOMDocument extends DOMNode implements Document {
 	}
 
 	/**
-	 * Initialize schemaLocation, noNamespaceSchemaLocation and hasNamespaces
+	 * Initialize schemaLocation, xmlModel, noNamespaceSchemaLocation and hasNamespaces
 	 * information if needed.
 	 */
 	private void initializeReferencedSchemaIfNeeded() {
@@ -298,7 +286,7 @@ public class DOMDocument extends DOMNode implements Document {
 	}
 
 	/**
-	 * Initialize namespaces and schema location declaration .
+	 * Initialize namespaces and schema location declaration, including xml-model processing instruction.
 	 * 
 	 * @return
 	 */
@@ -340,6 +328,19 @@ public class DOMDocument extends DOMNode implements Document {
 				schemaLocation = createSchemaLocation(documentElement, schemaInstancePrefix);
 			}
 		}
+		// Search if document has xml-model processing instruction
+		List<ProcessingInstruction> processingInstructions = getProcessingInstructions();
+		for (ProcessingInstruction pi: processingInstructions){
+			if (pi.getTarget().toLowerCase().equals(XML_MODEL)){
+				xmlModel = createXMLModel(pi);
+				//LATER: handle multiple processing instructions
+			}
+		}
+	}
+
+	
+	public XMLModel createXMLModel(ProcessingInstruction pi){
+		return new XMLModel(pi);
 	}
 
 	/**
