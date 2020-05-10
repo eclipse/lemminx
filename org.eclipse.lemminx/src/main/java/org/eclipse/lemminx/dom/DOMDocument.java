@@ -22,6 +22,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,7 @@ import java.util.stream.Collectors;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.parser.Constants;
+import org.eclipse.lemminx.uriresolver.IExternalSchemaLocationProvider;
 import org.eclipse.lemminx.uriresolver.URIResolverExtensionManager;
 import org.eclipse.lemminx.utils.DOMUtils;
 import org.eclipse.lemminx.utils.StringUtils;
@@ -421,6 +423,14 @@ public class DOMDocument extends DOMNode implements Document {
 				}
 			} catch (URISyntaxException e) {
 				// Do nothing
+			}
+
+			//check xml-model
+			if (hasXMLModel() && getXMLModel().getSchemaLocation() != null){
+				externalSchemaLocation = new HashMap<>();
+				externalSchemaLocation.put(IExternalSchemaLocationProvider.NO_NAMESPACE_SCHEMA_LOCATION, getXMLModel().getSchemaLocation());
+				noNamespaceSchemaLocation = new NoNamespaceSchemaLocation(getXMLModel().getSchemaLocation(), null) ;
+				return true;
 			}
 
 			// None grammar found with standard mean and external schema location, check if
