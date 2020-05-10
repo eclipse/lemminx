@@ -18,10 +18,6 @@ import org.junit.jupiter.api.Test;
 public class XMLModelTest {
 	@Test
 	public void xmlModelDeclaration(){
-		//XMLTextDocumentService service = new XMLTextDocumentService(xmlLanguageServer)
-		//TODO: check if document with xml-model has grammar
-		//assertTrue(hasGrammar);
-
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
 				"<?xml-model href=\"http://www.docbook.org/xml/5.0/xsd/docbook.xsd\"?>\r\n" + //
 				"<book>\r\n" + //
