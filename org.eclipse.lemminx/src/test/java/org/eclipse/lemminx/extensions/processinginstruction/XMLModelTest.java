@@ -1,12 +1,8 @@
 package org.eclipse.lemminx.extensions.processinginstruction;
 
-import static org.eclipse.lemminx.XMLAssert.dl;
-import static org.eclipse.lemminx.XMLAssert.r;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import org.eclipse.lemminx.XMLAssert;
-import org.eclipse.lemminx.XMLTextDocumentService;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMParser;
