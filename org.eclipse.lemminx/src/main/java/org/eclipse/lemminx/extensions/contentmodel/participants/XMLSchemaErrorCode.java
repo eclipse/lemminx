@@ -166,7 +166,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 		}
 		case SchemaLocation:
 		case schema_reference_4: {
-			DOMNode attrValueNode;
+			DOMNode attrValueNode = null;
 			if (code.equals(SchemaLocation)) {
 				SchemaLocation schemaLocation = document.getSchemaLocation();
 				attrValueNode = schemaLocation.getAttr().getNodeAttrValue();
@@ -176,7 +176,9 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 					attrValueNode = noNamespaceSchemaLocation.getAttr().getNodeAttrValue();
 				} else {
 					SchemaLocation schemaLocation = document.getSchemaLocation();
-					attrValueNode = schemaLocation.getAttr().getNodeAttrValue();
+					if (schemaLocation != null) {
+						attrValueNode = schemaLocation.getAttr().getNodeAttrValue();
+					}
 				}
 			}
 

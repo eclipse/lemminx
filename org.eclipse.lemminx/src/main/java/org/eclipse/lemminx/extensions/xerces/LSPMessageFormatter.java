@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.eclipse.lemminx.services.extensions.xerces;
+package org.eclipse.lemminx.extensions.xerces;
 
 import static org.eclipse.lemminx.dom.parser.Constants.*;
 import static org.eclipse.lemminx.utils.StringUtils.getString;

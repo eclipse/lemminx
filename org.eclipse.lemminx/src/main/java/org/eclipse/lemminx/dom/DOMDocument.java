@@ -43,12 +43,15 @@ import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.EntityReference;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.ProcessingInstruction;
 
 /**
  * XML document.
  *
  */
 public class DOMDocument extends DOMNode implements Document {
+
+	private static final String XML_MODEL_PI = "xml-model";
 
 	private SchemaLocation schemaLocation;
 	private NoNamespaceSchemaLocation noNamespaceSchemaLocation;
@@ -148,7 +151,20 @@ public class DOMDocument extends DOMNode implements Document {
 	 * @return true if the document is bound to a grammar and false otherwise.
 	 */
 	public boolean hasGrammar() {
-		return hasDTD() || hasSchemaLocation() || hasNoNamespaceSchemaLocation() || hasExternalGrammar();
+		return hasGrammar(false);
+	}
+
+	/**
+	 * Returns true if the document is bound to a grammar and false otherwise.
+	 * 
+	 * @param excludeXMLModel true if xml-model must be excluded and false
+	 *                        otherwise.
+	 * 
+	 * @return true if the document is bound to a grammar and false otherwise.
+	 */
+	public boolean hasGrammar(boolean excludeXMLModel) {
+		return hasDTD() || hasSchemaLocation() || hasNoNamespaceSchemaLocation() || hasExternalGrammar()
+				|| (!excludeXMLModel && hasXMLModel());
 	}
 
 	// -------------------------- Grammar with XML Schema
@@ -317,6 +333,29 @@ public class DOMDocument extends DOMNode implements Document {
 	 */
 	public boolean hasDTD() {
 		return getDoctype() != null;
+	}
+
+	// -------------------------- Grammar with <?xml-model processing instruction
+
+	/**
+	 * Returns true if XML document has a xml-model processing declaration and false
+	 * otherwise.
+	 * 
+	 * @return true if XML document has a xml-model processing declaration and false
+	 *         otherwise.
+	 */
+	private boolean hasXMLModel() {
+		List<DOMNode> children = getChildren();
+		if (children != null && !children.isEmpty()) {
+			return children.stream().anyMatch(child -> {
+				return isXMLModel(child);
+			});
+		}
+		return false;
+	}
+
+	private static boolean isXMLModel(DOMNode node) {
+		return node.isProcessingInstruction() && XML_MODEL_PI.equals(((ProcessingInstruction) node).getTarget());
 	}
 
 	// -------------------------- External Grammar (XML file associations, catalog)

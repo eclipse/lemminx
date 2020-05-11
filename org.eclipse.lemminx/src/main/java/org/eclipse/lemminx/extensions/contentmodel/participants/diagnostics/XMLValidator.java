@@ -71,7 +71,7 @@ public class XMLValidator {
 			// Add LSP content handler to stop XML parsing if monitor is canceled.
 			parser.setContentHandler(new LSPContentHandler(monitor));
 
-			boolean hasGrammar = document.hasGrammar();
+			boolean hasGrammar = document.hasGrammar(true);
 
 			// If diagnostics for Schema preference is enabled
 			if ((validationSettings == null) || validationSettings.isSchema()) {
