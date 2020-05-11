@@ -10,7 +10,7 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lemminx.services.extensions.xerces;
+package org.eclipse.lemminx.extensions.xerces;
 
 import java.util.List;
 

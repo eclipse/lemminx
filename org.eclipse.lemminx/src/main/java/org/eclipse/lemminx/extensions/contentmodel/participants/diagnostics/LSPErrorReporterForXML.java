@@ -19,7 +19,7 @@ import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.participants.DTDErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSchemaErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCode;
-import org.eclipse.lemminx.services.extensions.xerces.AbstractLSPErrorReporter;
+import org.eclipse.lemminx.extensions.xerces.AbstractLSPErrorReporter;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Range;
 

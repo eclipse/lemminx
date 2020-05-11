@@ -1,0 +1,6 @@
+<?xml-model href="../xsd/choice.xsd" ?>
+<person>
+	<employee></employee>
+	<member></member>
+	<BAD_ELEMENT />
+</person>

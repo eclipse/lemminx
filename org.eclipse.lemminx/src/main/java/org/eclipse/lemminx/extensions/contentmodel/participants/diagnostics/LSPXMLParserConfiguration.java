@@ -12,12 +12,12 @@
 package org.eclipse.lemminx.extensions.contentmodel.participants.diagnostics;
 
 import org.apache.xerces.impl.dtd.XMLDTDValidator;
-import org.apache.xerces.parsers.XIncludeAwareParserConfiguration;
 import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.grammars.XMLGrammarPool;
 import org.apache.xerces.xni.parser.XMLComponentManager;
 import org.apache.xerces.xni.parser.XMLConfigurationException;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
+import org.eclipse.lemminx.extensions.xerces.xmlmodel.XMLModelAwareParserConfiguration;
 
 /**
  * Custom Xerces XML parser configuration to :
@@ -31,7 +31,7 @@ import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSetting
  * </ul>
  *
  */
-class LSPXMLParserConfiguration extends XIncludeAwareParserConfiguration {
+class LSPXMLParserConfiguration extends XMLModelAwareParserConfiguration {
 
 	private final boolean disableDTDValidation;
 
