@@ -150,7 +150,7 @@ public class ContentModelManager {
 			try {
 				Path file = cacheResolverExtension.getCachedResource(resolvedUri);
 				if (file != null) {
-					cmDocument = modelProvider.createCMDocument(file.toFile().getPath());
+					cmDocument = modelProvider.createCMDocument(file.toUri().toString());
 				}
 			} catch (CacheResourceDownloadingException e) {
 				// the DTD/XML Schema is downloading

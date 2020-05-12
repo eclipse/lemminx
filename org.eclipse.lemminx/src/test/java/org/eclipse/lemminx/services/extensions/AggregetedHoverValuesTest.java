@@ -13,11 +13,15 @@
  */
 package org.eclipse.lemminx.services.extensions;
 
+
+import static org.eclipse.lemminx.XMLAssert.r;
+
 import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.util.URI.MalformedURIException;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.services.XMLLanguageService;
+import org.eclipse.lsp4j.Range;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -45,7 +49,7 @@ public class AggregetedHoverValuesTest {
 						System.lineSeparator() + "Source: [spring-beans-3.0.xsd](" + schemaURI + ")" + HOVER_SEPARATOR +
 						System.lineSeparator() +
 						System.lineSeparator(),
-				2);
+						r(2, 2, 2, 6));
 	};
 
 	@Test
@@ -67,7 +71,7 @@ public class AggregetedHoverValuesTest {
 				null);
 	};
 
-	private static void assertHover(String value, String expectedHoverLabel, Integer expectedHoverOffset)
+	private static void assertHover(String value, String expectedHoverLabel, Range expectedHoverOffset)
 			throws BadLocationException {
 		XMLAssert.assertHover(new AggregatedHoverLanguageService(), value, "src/test/resources/catalogs/catalog.xml", null,
 				expectedHoverLabel, expectedHoverOffset);
