@@ -753,7 +753,7 @@ class XMLFormatter {
 				return;
 			}
 			for (DOMAttr attr : attrs) {
-				xmlBuilder.addSingleAttribute(attr, true);
+				xmlBuilder.addPrologAttribute(attr);
 			}
 		}
 	}
