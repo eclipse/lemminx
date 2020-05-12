@@ -16,7 +16,6 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -97,7 +96,7 @@ public class XMLAssert {
 	public static final int NEW_XML_SNIPPETS = 7;
 
 	public static final int NEW_XSD_SNIPPETS = 1;
-	
+
 	public static final int PROLOG_SNIPPETS = 2;
 
 	public static final int REGION_SNIPPETS = 2;
@@ -577,13 +576,21 @@ public class XMLAssert {
 		assertHover(value, null, null);
 	}
 
-	public static void assertHover(String value, String expectedHoverLabel, Integer expectedHoverOffset)
+	public static void assertHover(String value, String expectedHoverLabel, Range expectedHoverRange)
 			throws BadLocationException {
-		assertHover(new XMLLanguageService(), value, null, null, expectedHoverLabel, expectedHoverOffset);
+		assertHover(new XMLLanguageService(), value, null, null, expectedHoverLabel, expectedHoverRange);
 	}
 
 	public static void assertHover(XMLLanguageService xmlLanguageService, String value, String catalogPath,
-			String fileURI, String expectedHoverLabel, Integer expectedHoverOffset) throws BadLocationException {
+			String fileURI, String expectedHoverLabel, Range expectedHoverRange) throws BadLocationException {
+		ContentModelSettings settings = new ContentModelSettings();
+		settings.setUseCache(false);
+		assertHover(xmlLanguageService, value, catalogPath, fileURI, expectedHoverLabel, expectedHoverRange, settings);
+	}
+
+	public static void assertHover(XMLLanguageService xmlLanguageService, String value, String catalogPath,
+			String fileURI, String expectedHoverLabel, Range expectedHoverRange, ContentModelSettings settings)
+			throws BadLocationException {
 		int offset = value.indexOf("|");
 		value = value.substring(0, offset) + value.substring(offset + 1);
 
@@ -592,8 +599,6 @@ public class XMLAssert {
 		Position position = document.positionAt(offset);
 
 		DOMDocument htmlDoc = DOMParser.getInstance().parse(document, xmlLanguageService.getResolverExtensionManager());
-		ContentModelSettings settings = new ContentModelSettings();
-		settings.setUseCache(false);
 		// Configure XML catalog for XML schema
 		if (catalogPath != null) {
 			settings.setCatalogs(new String[] { catalogPath });
@@ -609,10 +614,8 @@ public class XMLAssert {
 		} else {
 			String actualHoverLabel = getHoverLabel(hover);
 			assertEquals(expectedHoverLabel, actualHoverLabel);
-			if (expectedHoverOffset != null) {
-				assertNotNull(hover.getRange());
-				assertNotNull(hover.getRange().getStart());
-				assertEquals(expectedHoverOffset.intValue(), hover.getRange().getStart().getCharacter());
+			if (expectedHoverRange != null) {
+				assertEquals(hover.getRange(), expectedHoverRange);
 			}
 		}
 	}
