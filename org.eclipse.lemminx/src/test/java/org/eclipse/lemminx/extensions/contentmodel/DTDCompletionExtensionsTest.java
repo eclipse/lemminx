@@ -11,6 +11,8 @@
 *******************************************************************************/
 package org.eclipse.lemminx.extensions.contentmodel;
 
+import static org.eclipse.lemminx.XMLAssert.COMMENT_SNIPPETS;
+import static org.eclipse.lemminx.XMLAssert.DTDNODE_SNIPPETS;
 import static org.eclipse.lemminx.XMLAssert.c;
 import static org.eclipse.lemminx.XMLAssert.te;
 
@@ -65,10 +67,11 @@ public class DTDCompletionExtensionsTest {
 				"           \"http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd\">\r\n" + //
 				"\r\n" + //
 				"  <|";
-		testCompletionFor(xml, c("catalog", te(5, 2, 5, 3, "<catalog>$1</catalog>$0"), "<catalog", " $Id: catalog.dtd,v 1.10 2002/10/18 23:54:58 ndw Exp $ "
-				+ 
-				System.lineSeparator() +
-				System.lineSeparator() + "Source: catalog.dtd", MarkupKind.PLAINTEXT));
+		testCompletionFor(xml,
+				c("catalog", te(5, 2, 5, 3, "<catalog>$1</catalog>$0"), "<catalog",
+						" $Id: catalog.dtd,v 1.10 2002/10/18 23:54:58 ndw Exp $ " + System.lineSeparator()
+								+ System.lineSeparator() + "Source: catalog.dtd",
+						MarkupKind.PLAINTEXT));
 	}
 
 	@Test
@@ -122,7 +125,8 @@ public class DTDCompletionExtensionsTest {
 				"<Folks>\r\n" + //
 				"	" + //
 				"</Folks>";
-		testCompletionFor(xml, c("Insert DTD Element declaration", te(3, 1, 3, 11, "<!ELEMENT ${1:element-name} (${2:#PCDATA})>"), "<!ELEMENT "));
+		testCompletionFor(xml, c("<!ELEMENT",
+				te(3, 1, 3, 10, "<!ELEMENT ${1:element-name} (${2:#PCDATA})>"), "<!ELEMENT"));
 	}
 
 	@Test
@@ -136,8 +140,10 @@ public class DTDCompletionExtensionsTest {
 				"<Folks>\r\n" + //
 				"	" + //
 				"</Folks>";
-		testCompletionFor(xml, c("Insert DTD Element declaration", te(3, 1, 3, 7, "<!ELEMENT ${1:element-name} (${2:#PCDATA})>"), "<!ELEMENT "));
+		testCompletionFor(xml, c("<!ELEMENT",
+				te(3, 1, 3, 7, "<!ELEMENT ${1:element-name} (${2:#PCDATA})>"), "<!ELEMENT"));
 	}
+
 	@Test
 	public void externalDTDCompletionAllDecls() throws BadLocationException {
 		// completion on <|
@@ -149,10 +155,18 @@ public class DTDCompletionExtensionsTest {
 				"<Folks>\r\n" + //
 				"	" + //
 				"</Folks>";
-		testCompletionFor(xml, true, 4, c("Insert DTD Element declaration", te(3, 1, 3, 1, "<!ELEMENT ${1:element-name} (${2:#PCDATA})>"), "<!ELEMENT ")
-		,c("Insert Internal DTD Entity declaration", te(3, 1, 3, 1, "<!ENTITY ${1:entity-name} \"${2:entity-value}\">"), "<!ENTITY ")
-		,c("Insert DTD Attributes list declaration", te(3, 1, 3, 1, "<!ATTLIST ${1:element-name} ${2:attribute-name} ${3:ID} ${4:#REQUIRED}>"), "<!ATTLIST ")
-		,c("Insert External DTD Entity declaration", te(3, 1, 3, 1, "<!ENTITY ${1:entity-name} SYSTEM \"${2:entity-value}\">"), "<!ENTITY "));
+		testCompletionFor(xml, true, //
+				DTDNODE_SNIPPETS /* DTD node snippets */ + //
+						COMMENT_SNIPPETS /* Comment snippets */ , //
+				c("<!ELEMENT", te(3, 1, 3, 1, "<!ELEMENT ${1:element-name} (${2:#PCDATA})>"),
+						"<!ELEMENT"),
+				c("<!ENTITY",
+						te(3, 1, 3, 1, "<!ENTITY ${1:entity-name} \"${2:entity-value}\">"), "<!ENTITY"),
+				c("<!ATTLIST",
+						te(3, 1, 3, 1, "<!ATTLIST ${1:element-name} ${2:attribute-name} ${3:ID} ${4:#REQUIRED}>"),
+						"<!ATTLIST"),
+				c("<!ENTITY",
+						te(3, 1, 3, 1, "<!ENTITY ${1:entity-name} SYSTEM \"${2:entity-value}\">"), "<!ENTITY"));
 	}
 
 	@Test
@@ -166,36 +180,41 @@ public class DTDCompletionExtensionsTest {
 				"<Folks>\r\n" + //
 				"	" + //
 				"</Folks>";
-		testCompletionFor(xml, false, 4, c("Insert DTD Element declaration", te(3, 1, 3, 1, "<!ELEMENT element-name (#PCDATA)>"), "<!ELEMENT ")
-		,c("Insert Internal DTD Entity declaration", te(3, 1, 3, 1, "<!ENTITY entity-name \"entity-value\">"), "<!ENTITY ")
-		,c("Insert DTD Attributes list declaration", te(3, 1, 3, 1, "<!ATTLIST element-name attribute-name ID #REQUIRED>"), "<!ATTLIST ")
-		,c("Insert External DTD Entity declaration", te(3, 1, 3, 1, "<!ENTITY entity-name SYSTEM \"entity-value\">"), "<!ENTITY "));
+		testCompletionFor(xml, false, //
+				DTDNODE_SNIPPETS /* DTD node snippets */ + //
+						COMMENT_SNIPPETS /* Comment snippets */ , //
+				c("<!ELEMENT", te(3, 1, 3, 1, "<!ELEMENT element-name (#PCDATA)>"), "<!ELEMENT"),
+				c("<!ENTITY", te(3, 1, 3, 1, "<!ENTITY entity-name \"entity-value\">"),
+						"<!ENTITY"),
+				c("<!ATTLIST",
+						te(3, 1, 3, 1, "<!ATTLIST element-name attribute-name ID #REQUIRED>"), "<!ATTLIST"),
+				c("<!ENTITY",
+						te(3, 1, 3, 1, "<!ENTITY entity-name SYSTEM \"entity-value\">"), "<!ENTITY"));
 	}
-	
+
 	@Test
 	public void testNoDuplicateCompletionItems() throws BadLocationException {
 		// completion on <|
-		String xml = 
-				"<?xml version=\"1.0\" standalone=\"no\" ?>\n" +
-				"<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.0//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg.dtd\">\n" +
-				"<svg xmlns=\"http://www.w3.org/2000/svg\">\n" +
-				"    <animate attributeName=\"foo\">\n" +
-				"        <|\n" + // <-- completion
-				"    </animate>\n" +
-				"</svg>";
-		testCompletionFor(xml, false, 3 + 2 /* CDATA and Comments */, c("desc", te(4, 8, 4, 9, "<desc></desc>"), "<desc")
-		,c("metadata", te(4, 8, 4, 9, "<metadata></metadata>"), "<metadata")
-		,c("title", te(4, 8, 4, 9, "<title></title>"), "<title")
-		);
-	}
-		
-	private void testCompletionFor(String xml, CompletionItem... expectedItems) throws BadLocationException {
-		testCompletionFor(xml,true, null, expectedItems);
+		String xml = "<?xml version=\"1.0\" standalone=\"no\" ?>\n"
+				+ "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.0//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg.dtd\">\n"
+				+ "<svg xmlns=\"http://www.w3.org/2000/svg\">\n" + "    <animate attributeName=\"foo\">\n"
+				+ "        <|\n" + // <-- completion
+				"    </animate>\n" + "</svg>";
+		testCompletionFor(xml, false, 3 + 2 /* CDATA and Comments */,
+				c("desc", te(4, 8, 4, 9, "<desc></desc>"), "<desc"),
+				c("metadata", te(4, 8, 4, 9, "<metadata></metadata>"), "<metadata"),
+				c("title", te(4, 8, 4, 9, "<title></title>"), "<title"));
 	}
 
-	private void testCompletionFor(String xml, boolean isSnippetsSupported, Integer expectedCount, CompletionItem... expectedItems) throws BadLocationException {
+	private void testCompletionFor(String xml, CompletionItem... expectedItems) throws BadLocationException {
+		testCompletionFor(xml, true, null, expectedItems);
+	}
+
+	private void testCompletionFor(String xml, boolean isSnippetsSupported, Integer expectedCount,
+			CompletionItem... expectedItems) throws BadLocationException {
 		CompletionCapabilities completionCapabilities = new CompletionCapabilities();
-		CompletionItemCapabilities completionItem = new CompletionItemCapabilities(isSnippetsSupported); // activate snippets
+		CompletionItemCapabilities completionItem = new CompletionItemCapabilities(isSnippetsSupported); // activate
+																											// snippets
 		completionCapabilities.setCompletionItem(completionItem);
 
 		SharedSettings sharedSettings = new SharedSettings();

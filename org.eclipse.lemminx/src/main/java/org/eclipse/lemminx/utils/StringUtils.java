@@ -39,17 +39,14 @@ public class StringUtils {
 		return c == '\'' || c == '"';
 	}
 
-	public static boolean isTabOrSpace(char c) {
-		return c == '\t' || c == ' ';
+	public static boolean isWhitespace(String value, int index) {
+		return isWhitespace(value, index, value.length());
 	}
-
-	public static boolean isWhitespace(String value) {
+	public static boolean isWhitespace(String value, int index, int end) {
 		if (value == null) {
 			return false;
 		}
 		char c;
-		int end = value.length();
-		int index = 0;
 		while (index < end) {
 			c = value.charAt(index);
 			if (Character.isWhitespace(c) == false) {
@@ -58,6 +55,10 @@ public class StringUtils {
 			index++;
 		}
 		return true;
+	}
+
+	public static boolean isWhitespace(String value) {
+		return isWhitespace(value, 0);
 	}
 
 	/**
@@ -426,32 +427,6 @@ public class StringUtils {
 		}
 		return false;
 
-	}
-
-	public static int findExprBeforeAt(String text, String expr, int offset) {
-		if (offset <= 0) {
-			return -1;
-		}
-		expr = expr.toUpperCase();
-		int startOffset = -1;
-		char first = expr.charAt(0);
-		int length = Math.min(offset, expr.length());
-		int i = 0;
-		for (i = 1; i <= length; i++) {
-			if (Character.toUpperCase(text.charAt(offset - i)) == first) {
-				startOffset = offset - i;
-				break;
-			}
-		}
-		if (startOffset == -1) {
-			return -1;
-		}
-		for (int j = 0; j < i; j++) {
-			if (Character.toUpperCase(text.charAt(startOffset + j)) != expr.charAt(j)) {
-				return -1;
-			}
-		}
-		return startOffset - 1;
 	}
 
 	public static String getString(Object obj) {

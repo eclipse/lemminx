@@ -13,6 +13,7 @@
 package org.eclipse.lemminx.extensions.contentmodel.uriresolver;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -31,6 +32,30 @@ import org.eclipse.lemminx.uriresolver.URIResolverExtension;
  * xml.xsd)
  */
 public class XMLCacheResolverExtension implements URIResolverExtension {
+
+	private static class XMLFileInputSource extends XMLInputSource {
+
+		private final Path file;
+
+		public XMLFileInputSource(XMLResourceIdentifier resourceIdentifier, Path file) {
+			super(resourceIdentifier);
+			this.file = file;
+		}
+
+		@Override
+		public InputStream getByteStream() {
+			// Load the file input stream only if it is used
+			InputStream input = super.getByteStream();
+			if (input == null) {
+				try {
+					super.setByteStream(Files.newInputStream(file));
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+			return super.getByteStream();
+		}
+	}
 
 	private final CacheResourcesManager cacheResourcesManager;
 
@@ -53,9 +78,7 @@ public class XMLCacheResolverExtension implements URIResolverExtension {
 		Path file = getCachedResource(url);
 		if (file != null) {
 			// The resource was downloaded locally, use it.
-			XMLInputSource source = new XMLInputSource(resourceIdentifier);
-			source.setByteStream(Files.newInputStream(file));
-			return source;
+			return new XMLFileInputSource(resourceIdentifier, file);
 		}
 		return null;
 	}

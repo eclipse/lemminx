@@ -296,6 +296,10 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 		return false;
 	}
 
+	public boolean isInInsideStartEndTag(int offset) {
+		return offset > startTagCloseOffset  && offset <= endTagOpenOffset;
+	}
+
 	/**
 	 * Returns the start tag open offset and {@link DOMNode#NULL_VALUE} if it
 	 * doesn't exist.

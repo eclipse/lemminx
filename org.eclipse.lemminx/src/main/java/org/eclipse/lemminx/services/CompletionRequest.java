@@ -45,7 +45,7 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 		super(xmlDocument, position, extensionsRegistry);
 		this.sharedSettings = settings;
 	}
-	
+
 	@Override
 	protected DOMNode findNodeAt(DOMDocument xmlDocument, int offset) {
 		return xmlDocument.findNodeBefore(offset);

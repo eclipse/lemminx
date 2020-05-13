@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.commons.TextDocument;
+import org.eclipse.lemminx.commons.snippets.SnippetRegistry;
 import org.eclipse.lemminx.customservice.AutoCloseTagResponse;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -34,11 +35,11 @@ import org.eclipse.lemminx.dom.parser.Scanner;
 import org.eclipse.lemminx.dom.parser.ScannerState;
 import org.eclipse.lemminx.dom.parser.TokenType;
 import org.eclipse.lemminx.dom.parser.XMLScanner;
-import org.eclipse.lemminx.extensions.prolog.PrologModel;
 import org.eclipse.lemminx.services.extensions.ICompletionParticipant;
 import org.eclipse.lemminx.services.extensions.ICompletionRequest;
 import org.eclipse.lemminx.services.extensions.ICompletionResponse;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lemminx.services.snippets.IXMLSnippetContext;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
@@ -46,6 +47,7 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.InsertTextFormat;
+import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -61,6 +63,7 @@ public class XMLCompletions {
 	private static final Pattern regionCompletionRegExpr = Pattern.compile("^(\\s*)(<(!(-(-\\s*(#\\w*)?)?)?)?)?$");
 
 	private final XMLExtensionsRegistry extensionsRegistry;
+	private SnippetRegistry snippetRegistry;
 
 	public XMLCompletions(XMLExtensionsRegistry extensionsRegistry) {
 		this.extensionsRegistry = extensionsRegistry;
@@ -77,226 +80,337 @@ public class XMLCompletions {
 			return completionResponse;
 		}
 
+		String text = xmlDocument.getText();
 		int offset = completionRequest.getOffset();
 		DOMNode node = completionRequest.getNode();
+		try {
+			if (text.isEmpty()) {
+				// When XML document is empty, try to collect root element (from file
+				// association)
+				collectInsideContent(completionRequest, completionResponse);
+				return completionResponse;
+			}
 
-		String text = xmlDocument.getText();
-		if (text.isEmpty()) {
-			// When XML document is empty, try to collect root element (from file
-			// association)
-			collectInsideContent(completionRequest, completionResponse);
-			return completionResponse;
-		}
-
-		Scanner scanner = XMLScanner.createScanner(text, node.getStart(), isInsideDTDContent(node, xmlDocument));
-		String currentTag = "";
-		TokenType token = scanner.scan();
-		while (token != TokenType.EOS && scanner.getTokenOffset() <= offset) {
-			cancelChecker.checkCanceled();
-			switch (token) {
-			case StartTagOpen:
-				if (scanner.getTokenEnd() == offset) {
-					int endPos = scanNextForEndPos(offset, scanner, TokenType.StartTag);
-					collectTagSuggestions(offset, endPos, completionRequest, completionResponse);
-					collectCDATACompletion(completionRequest, completionResponse);
-					collectCommentCompletion(completionRequest, completionResponse);
-					return completionResponse;
-				} else if (text.charAt(scanner.getTokenOffset() + 1) == '!') {
-					// Case where completion was triggered after <!
-					collectCDATACompletion(completionRequest, completionResponse);
-					collectCommentCompletion(completionRequest, completionResponse);
-					return completionResponse;
-				}
-				break;
-			case StartTag:
-				if (scanner.getTokenOffset() <= offset && offset <= scanner.getTokenEnd()) {
-					collectOpenTagSuggestions(scanner.getTokenOffset(), scanner.getTokenEnd(), completionRequest,
-							completionResponse);
-					return completionResponse;
-				}
-				currentTag = scanner.getTokenText();
-				break;
-			case AttributeName:
-				if (scanner.getTokenOffset() <= offset && offset <= scanner.getTokenEnd()) {
-					collectAttributeNameSuggestions(scanner.getTokenOffset(), scanner.getTokenEnd(), completionRequest,
-							completionResponse);
-					return completionResponse;
-				}
-				break;
-			case DelimiterAssign:
-				if (scanner.getTokenEnd() == offset) {
-					collectAttributeValueSuggestions(offset, offset, completionRequest, completionResponse);
-					return completionResponse;
-				}
-				break;
-			case AttributeValue:
-				if (scanner.getTokenOffset() <= offset && offset <= scanner.getTokenEnd()) {
-					collectAttributeValueSuggestions(scanner.getTokenOffset(), scanner.getTokenEnd(), completionRequest,
-							completionResponse);
-					return completionResponse;
-				}
-				break;
-			case Whitespace:
-				if (offset <= scanner.getTokenEnd()) {
-					switch (scanner.getScannerState()) {
-					case AfterOpeningStartTag:
-						int startPos = scanner.getTokenOffset();
-						int endTagPos = scanNextForEndPos(offset, scanner, TokenType.StartTag);
-						collectTagSuggestions(startPos, endTagPos, completionRequest, completionResponse);
+			Scanner scanner = XMLScanner.createScanner(text, node.getStart(), isInsideDTDContent(node, xmlDocument));
+			String currentTag = "";
+			TokenType token = scanner.scan();
+			while (token != TokenType.EOS && scanner.getTokenOffset() <= offset) {
+				cancelChecker.checkCanceled();
+				switch (token) {
+				case StartTagOpen:
+					if (scanner.getTokenEnd() == offset) {
+						int endPos = scanNextForEndPos(offset, scanner, TokenType.StartTag);
+						collectTagSuggestions(offset, endPos, completionRequest, completionResponse);
 						return completionResponse;
-					case WithinTag:
-					case AfterAttributeName:
-						collectAttributeNameSuggestions(scanner.getTokenEnd(), completionRequest, completionResponse);
-						return completionResponse;
-					case BeforeAttributeValue:
-						collectAttributeValueSuggestions(scanner.getTokenEnd(), offset, completionRequest,
-								completionResponse);
-						return completionResponse;
-					case AfterOpeningEndTag:
-						collectCloseTagSuggestions(scanner.getTokenOffset() - 1, false, offset, completionRequest,
-								completionResponse);
-						return completionResponse;
-					case WithinContent:
-						collectInsideContent(completionRequest, completionResponse);
-						return completionResponse;
-					default:
 					}
-				}
-				break;
-			case EndTagOpen:
-				if (offset <= scanner.getTokenEnd()) {
-					int afterOpenBracket = scanner.getTokenOffset() + 1;
-					int endOffset = scanNextForEndPos(offset, scanner, TokenType.EndTag);
-					collectCloseTagSuggestions(afterOpenBracket, false, endOffset, completionRequest,
-							completionResponse);
-					return completionResponse;
-				}
-				break;
-			case EndTag:
-				if (offset <= scanner.getTokenEnd()) {
-					int start = scanner.getTokenOffset() - 1;
-					while (start >= 0) {
-						char ch = text.charAt(start);
-						if (ch == '/') {
-							collectCloseTagSuggestions(start, false, scanner.getTokenEnd(), completionRequest,
+					break;
+				case StartTag:
+					if (scanner.getTokenOffset() <= offset && offset <= scanner.getTokenEnd()) {
+						collectOpenTagSuggestions(scanner.getTokenOffset(), scanner.getTokenEnd(), completionRequest,
+								completionResponse);
+						return completionResponse;
+					}
+					currentTag = scanner.getTokenText();
+					break;
+				case AttributeName:
+					if (scanner.getTokenOffset() <= offset && offset <= scanner.getTokenEnd()) {
+						collectAttributeNameSuggestions(scanner.getTokenOffset(), scanner.getTokenEnd(),
+								completionRequest, completionResponse);
+						return completionResponse;
+					}
+					break;
+				case DelimiterAssign:
+					if (scanner.getTokenEnd() == offset) {
+						collectAttributeValueSuggestions(offset, offset, completionRequest, completionResponse);
+						return completionResponse;
+					}
+					break;
+				case AttributeValue:
+					if (scanner.getTokenOffset() <= offset && offset <= scanner.getTokenEnd()) {
+						collectAttributeValueSuggestions(scanner.getTokenOffset(), scanner.getTokenEnd(),
+								completionRequest, completionResponse);
+						return completionResponse;
+					}
+					break;
+				case Whitespace:
+					if (offset <= scanner.getTokenEnd()) {
+						switch (scanner.getScannerState()) {
+						case AfterOpeningStartTag:
+							int startPos = scanner.getTokenOffset();
+							int endTagPos = scanNextForEndPos(offset, scanner, TokenType.StartTag);
+							collectTagSuggestions(startPos, endTagPos, completionRequest, completionResponse);
+							return completionResponse;
+						case WithinTag:
+						case AfterAttributeName:
+							collectAttributeNameSuggestions(scanner.getTokenEnd(), completionRequest,
 									completionResponse);
 							return completionResponse;
-						} else if (!isWhitespace(ch)) {
-							break;
+						case BeforeAttributeValue:
+							collectAttributeValueSuggestions(scanner.getTokenEnd(), offset, completionRequest,
+									completionResponse);
+							return completionResponse;
+						case AfterOpeningEndTag:
+							collectCloseTagSuggestions(scanner.getTokenOffset() - 1, false, offset, completionRequest,
+									completionResponse);
+							return completionResponse;
+						case WithinContent:
+							collectInsideContent(completionRequest, completionResponse);
+							return completionResponse;
+						default:
 						}
-						start--;
 					}
-				}
-				break;
-			case StartTagClose:
-				if (offset <= scanner.getTokenEnd()) {
-					if (currentTag != null && currentTag.length() > 0) {
+					break;
+				case EndTagOpen:
+					if (offset <= scanner.getTokenEnd()) {
+						int afterOpenBracket = scanner.getTokenOffset() + 1;
+						int endOffset = scanNextForEndPos(offset, scanner, TokenType.EndTag);
+						collectCloseTagSuggestions(afterOpenBracket, false, endOffset, completionRequest,
+								completionResponse);
+						return completionResponse;
+					}
+					break;
+				case EndTag:
+					if (offset <= scanner.getTokenEnd()) {
+						int start = scanner.getTokenOffset() - 1;
+						while (start >= 0) {
+							char ch = text.charAt(start);
+							if (ch == '/') {
+								collectCloseTagSuggestions(start, false, scanner.getTokenEnd(), completionRequest,
+										completionResponse);
+								return completionResponse;
+							} else if (!isWhitespace(ch)) {
+								break;
+							}
+							start--;
+						}
+					}
+					break;
+				case StartTagClose:
+					if (offset <= scanner.getTokenEnd()) {
+						if (currentTag != null && currentTag.length() > 0) {
+							collectInsideContent(completionRequest, completionResponse);
+							return completionResponse;
+						}
+					}
+					break;
+				case StartTagSelfClose:
+					if (offset <= scanner.getTokenEnd()) {
+						if (currentTag != null && currentTag.length() > 0
+								&& xmlDocument.getText().charAt(offset - 1) == '>') { // if the actual character typed
+																						// was
+																						// '>'
+							collectInsideContent(completionRequest, completionResponse);
+							return completionResponse;
+						}
+					}
+					break;
+				case EndTagClose:
+					if (offset <= scanner.getTokenEnd()) {
+						if (currentTag != null && currentTag.length() > 0) {
+							collectInsideContent(completionRequest, completionResponse);
+							return completionResponse;
+						}
+					}
+					break;
+				case Content:
+					if (completionRequest.getXMLDocument().isDTD()
+							|| completionRequest.getXMLDocument().isWithinInternalDTD(offset)) {
+						if (scanner.getTokenOffset() <= offset) {
+							return completionResponse;
+						}
+						break;
+					}
+					if (offset <= scanner.getTokenEnd()) {
 						collectInsideContent(completionRequest, completionResponse);
 						return completionResponse;
 					}
-				}
-				break;
-			case StartTagSelfClose:
-				if (offset <= scanner.getTokenEnd()) {
-					if (currentTag != null && currentTag.length() > 0
-							&& xmlDocument.getText().charAt(offset - 1) == '>') { // if the actual character typed was
-																					// '>'
-						collectInsideContent(completionRequest, completionResponse);
-						return completionResponse;
-					}
-				}
-				break;
-			case EndTagClose:
-				if (offset <= scanner.getTokenEnd()) {
-					if (currentTag != null && currentTag.length() > 0) {
-						collectInsideContent(completionRequest, completionResponse);
-						return completionResponse;
-					}
-				}
-				break;
-			case Content:
-				if (completionRequest.getXMLDocument().isDTD()
-						|| completionRequest.getXMLDocument().isWithinInternalDTD(offset)) {
+					break;
+				// DTD
+				case DTDAttlistAttributeName:
+				case DTDAttlistAttributeType:
+				case DTDAttlistAttributeValue:
+				case DTDStartAttlist:
+				case DTDStartElement:
+				case DTDStartEntity:
+				case DTDEndTag:
+				case DTDStartInternalSubset:
+				case DTDEndInternalSubset: {
 					if (scanner.getTokenOffset() <= offset) {
-						collectInsideDTDContent(completionRequest, completionResponse, true);
 						return completionResponse;
 					}
 					break;
 				}
-				if (offset <= scanner.getTokenEnd()) {
-					collectInsideContent(completionRequest, completionResponse);
-					return completionResponse;
-				}
-				break;
-			case StartPrologOrPI: {
-				try {
-					boolean isFirstNode = xmlDocument.positionAt(scanner.getTokenOffset()).getLine() == 0;
-					if (isFirstNode && offset <= scanner.getTokenEnd()) {
-						collectPrologSuggestion(scanner.getTokenEnd(), "", completionRequest, completionResponse,
-								settings);
-						return completionResponse;
-					}
-				} catch (BadLocationException e) {
-					LOGGER.log(Level.SEVERE, "In XMLCompletions, StartPrologOrPI position error", e);
-				}
-				break;
-			}
-			case PIName: {
-				try {
-					boolean isFirstNode = xmlDocument.positionAt(scanner.getTokenOffset()).getLine() == 0;
-					if (isFirstNode && offset <= scanner.getTokenEnd()) {
-						String substringXML = "xml".substring(0, scanner.getTokenText().length());
-						if (scanner.getTokenText().equals(substringXML)) {
-							PrologModel.computePrologCompletionResponses(scanner.getTokenEnd(), scanner.getTokenText(),
-									completionRequest, completionResponse, true, settings);
-							return completionResponse;
-						}
-					}
-				} catch (BadLocationException e) {
-					LOGGER.log(Level.SEVERE, "In XMLCompletions, StartPrologOrPI position error", e);
-				}
-				break;
-			}
-			case PrologName: {
-				try {
-					boolean isFirstNode = xmlDocument.positionAt(scanner.getTokenOffset()).getLine() == 0;
-					if (isFirstNode && offset <= scanner.getTokenEnd()) {
-						collectPrologSuggestion(scanner.getTokenEnd(), scanner.getTokenText(), completionRequest,
-								completionResponse, settings);
-						return completionResponse;
-					}
-				} catch (BadLocationException e) {
-					LOGGER.log(Level.SEVERE, "In XMLCompletions, PrologName position error", e);
-				}
-				break;
-			}
-			// DTD
-			case DTDAttlistAttributeName:
-			case DTDAttlistAttributeType:
-			case DTDAttlistAttributeValue:
-			case DTDStartAttlist:
-			case DTDStartElement:
-			case DTDStartEntity:
-			case DTDEndTag:
-			case DTDStartInternalSubset:
-			case DTDEndInternalSubset: {
-				if (scanner.getTokenOffset() <= offset) {
-					collectInsideDTDContent(completionRequest, completionResponse);
-					return completionResponse;
-				}
-				break;
-			}
 
-			default:
-				if (offset <= scanner.getTokenEnd()) {
-					return completionResponse;
+				default:
+					if (offset <= scanner.getTokenEnd()) {
+						return completionResponse;
+					}
+					break;
 				}
-				break;
+				token = scanner.scan();
 			}
-			token = scanner.scan();
+			return completionResponse;
+		} finally {
+			collectSnippetSuggestions(completionRequest, completionResponse);
 		}
+	}
 
-		return completionResponse;
+	/**
+	 * Collect snippets suggestions.
+	 * 
+	 * @param completionRequest  completion request.
+	 * @param completionResponse completion response.
+	 */
+	private void collectSnippetSuggestions(CompletionRequest completionRequest, CompletionResponse completionResponse) {
+		DOMDocument document = completionRequest.getXMLDocument();
+		String text = document.getText();
+		int endExpr = completionRequest.getOffset();
+		// compute the from for search expression according to the node
+		int fromSearchExpr = getExprLimitStart(completionRequest.getNode(), endExpr);
+		// compute the start expression
+		int startExpr = getExprStart(text, fromSearchExpr, endExpr);
+		try {
+			Range replaceRange = getReplaceRange(startExpr, endExpr, completionRequest);
+			completionRequest.setReplaceRange(replaceRange);
+			String lineDelimiter = document.lineDelimiter(replaceRange.getStart().getLine());
+			List<CompletionItem> snippets = getSnippetRegistry().getCompletionItems(replaceRange, lineDelimiter,
+					completionRequest.canSupportMarkupKind(MarkupKind.MARKDOWN),
+					completionRequest.getSharedSettings().getCompletionSettings().isCompletionSnippetsSupported(),
+					(context, model) -> {
+						if (context instanceof IXMLSnippetContext) {
+							return (((IXMLSnippetContext) context).isMatch(completionRequest, model));
+						}
+						return false;
+					}, (suffix) -> {
+						// Search the suffix from the right of completion offset.
+						for (int i = endExpr; i < text.length(); i++) {
+							char ch = text.charAt(i);
+							if (Character.isWhitespace(ch)) {
+								// whitespace, continue to eat character
+								continue;
+							} else {
+								// the current character is not a whitespace, search the sufix index
+								Integer eatIndex = getSuffixIndex(text, suffix, i);
+								if (eatIndex != null) {
+									try {
+										return document.positionAt(eatIndex);
+									} catch (BadLocationException e) {
+										return null;
+									}
+								}
+								return null;
+							}
+						}
+						return null;
+					});
+			for (CompletionItem completionItem : snippets) {
+				completionResponse.addCompletionItem(completionItem);
+			}
+
+		} catch (BadLocationException e) {
+			LOGGER.log(Level.SEVERE, "In XMLCompletions, collectSnippetSuggestions position error", e);
+		}
+	}
+
+	private static Integer getSuffixIndex(String text, String suffix, final int initOffset) {
+		int offset = initOffset;
+		char ch = text.charAt(offset);
+		// Try to search the first character which matches the suffix
+		Integer suffixIndex = null;
+		for (int j = 0; j < suffix.length(); j++) {
+			if (suffix.charAt(j) == ch) {
+				suffixIndex = j;
+				break;
+			}
+		}
+		if (suffixIndex != null) {
+			// There is one of character of the suffix
+			offset++;
+			if (suffixIndex == suffix.length()) {
+				// the suffix index is the last character of the suffix  
+				return offset;
+			}
+			// Try to eat the most characters of the suffix
+			for (; offset < text.length(); offset++) {								
+				suffixIndex++;
+				if (suffixIndex == suffix.length()) {
+					// the suffix index is the last character of the suffix  
+					return offset;
+				}	
+				ch = text.charAt(offset);
+				if (suffix.charAt(suffixIndex) != ch) {
+					return offset;
+				}
+			}
+			return offset;
+		}
+		return null;
+	}
+
+	/**
+	 * Returns the limit start offset of the expression according to the current
+	 * node.
+	 * 
+	 * @param currentNode the node.
+	 * @param offset      the offset.
+	 * @return the limit start offset of the expression according to the current
+	 *         node.
+	 */
+	private static int getExprLimitStart(DOMNode currentNode, int offset) {
+		if (currentNode == null) {
+			// should never occurs
+			return 0;
+		}
+		if (currentNode.isText()) {
+			return currentNode.getStart();
+		}
+		if (currentNode.isComment() || currentNode.isCDATA()) {
+			if (offset >= currentNode.getEnd()) {
+				return currentNode.isClosed() ? currentNode.getEnd() : currentNode.getStart();
+			}
+			return currentNode.getStart();
+		}
+		if (!currentNode.isElement()) {
+			if (offset >= currentNode.getEnd() && currentNode.isClosed()) {
+				// <?xml ?>|
+				// --> in this case the offset of '>' is returned
+				return currentNode.getEnd();
+			}
+			// processing instruction, comments, etc
+			// - <?xml | ?>
+			// - <?xml |
+			// --> in this case the offset of '<' is returned
+			return currentNode.getStart();
+		}
+		DOMElement element = (DOMElement) currentNode;
+		if (element.isInStartTag(offset)) {
+			return element.getStartTagOpenOffset();
+		}
+		if (element.isInEndTag(offset)) {
+			return element.getEndTagOpenOffset();
+		}
+		if (offset >= currentNode.getEnd()) {
+			// <a />|
+			return currentNode.getEnd();
+		}
+		return element.getStartTagCloseOffset() + 1;
+	}
+
+	private static int getExprStart(String value, int from, int to) {
+		if (to == 0) {
+			return to;
+		}
+		int index = to - 1;
+		while (index > 0) {
+			if (Character.isWhitespace(value.charAt(index))) {
+				return index + 1;
+			}
+			if (index <= from) {
+				return from;
+			}
+			index--;
+		}
+		return index;
 	}
 
 	/**
@@ -317,7 +431,7 @@ public class XMLCompletions {
 		return (node.getParentNode() != null && node.getParentNode().isDoctype());
 	}
 
-	public boolean isBalanced(DOMNode node) {
+	private boolean isBalanced(DOMNode node) {
 		if (node.isClosed() == false) {
 			return false;
 		}
@@ -548,19 +662,6 @@ public class XMLCompletions {
 		return node.getOrphanEndElement(offset, tagName) == null;
 	}
 
-	/**
-	 * Collect xml prolog completions.
-	 * 
-	 * @param startOffset
-	 * @param tag
-	 * @param request
-	 * @param response
-	 */
-	private void collectPrologSuggestion(int startOffset, String tag, CompletionRequest request,
-			CompletionResponse response, SharedSettings settings) {
-		PrologModel.computePrologCompletionResponses(startOffset, tag, request, response, false, settings);
-	}
-
 	private void collectCloseTagSuggestions(int afterOpenBracket, boolean inOpenTag, int tagNameEnd,
 			CompletionRequest completionRequest, CompletionResponse completionResponse) {
 		try {
@@ -641,8 +742,6 @@ public class XMLCompletions {
 			}
 		}
 		collectionRegionProposals(request, response);
-		collectCDATACompletion(request, response);
-		collectCommentCompletion(request, response);
 	}
 
 	private void collectionRegionProposals(ICompletionRequest request, ICompletionResponse response) {
@@ -679,79 +778,6 @@ public class XMLCompletions {
 			}
 		} catch (BadLocationException e) {
 			LOGGER.log(Level.SEVERE, "While performing collectRegionCompletion", e);
-		}
-	}
-
-	private void collectCDATACompletion(ICompletionRequest request, ICompletionResponse response) {
-		try {
-			boolean isSnippetsSupported = request.isCompletionSnippetsSupported();
-			InsertTextFormat insertFormat = request.getInsertTextFormat();
-
-			DOMDocument document = request.getXMLDocument();
-
-			String filter = "<!CDATA";
-			int startOffset = StringUtils.findExprBeforeAt(document.getText(), filter, request.getOffset());
-			if (startOffset == -1) {
-				startOffset = StringUtils.findExprBeforeAt(document.getText(), "CDATA", request.getOffset());
-				if (startOffset != - -1) {
-					filter = "CDATA";
-				}
-			}
-			if (startOffset == -1) {
-				startOffset = request.getOffset();
-			}
-			int endOffset = request.getOffset();
-			Range editRange = getReplaceRange(startOffset + 1, endOffset, request);
-
-			// Insert CDATA Section
-			CompletionItem cdataProposal = new CompletionItem("cdata");
-			cdataProposal.setKind(CompletionItemKind.Snippet);
-			cdataProposal.setFilterText(filter);
-			cdataProposal.setSortText("zc");
-			cdataProposal.setInsertTextFormat(insertFormat);
-
-			String textEdit = isSnippetsSupported ? "<![CDATA[ $1]]>" : "<![CDATA[ ]]>";
-			cdataProposal.setTextEdit(new TextEdit(editRange, textEdit));
-			cdataProposal.setDocumentation("Insert <![CDATA[ ]]>");
-			response.addCompletionItem(cdataProposal);
-		} catch (BadLocationException e) {
-			LOGGER.log(Level.SEVERE, "While performing collectCDATACompletion", e);
-		}
-	}
-
-	private void collectCommentCompletion(ICompletionRequest request, ICompletionResponse response) {
-		try {
-			boolean isSnippetsSupported = request.isCompletionSnippetsSupported();
-			InsertTextFormat insertFormat = request.getInsertTextFormat();
-
-			DOMDocument document = request.getXMLDocument();
-			String filter = "<!--";
-			int startOffset = StringUtils.findExprBeforeAt(document.getText(), filter, request.getOffset());
-			if (startOffset == -1) {
-				startOffset = StringUtils.findExprBeforeAt(document.getText(), "comment", request.getOffset());
-				if (startOffset != - -1) {
-					filter = "comment";
-				}
-			}
-			if (startOffset == -1) {
-				startOffset = request.getOffset();
-			}
-			int endOffset = request.getOffset();
-			Range editRange = getReplaceRange(startOffset + 1, endOffset, request);
-
-			// Insert Comment Section
-			CompletionItem commentProposal = new CompletionItem("comment");
-			commentProposal.setKind(CompletionItemKind.Snippet);
-			commentProposal.setFilterText(filter);
-			commentProposal.setSortText("zd");
-			commentProposal.setInsertTextFormat(insertFormat);
-
-			String textEdit = isSnippetsSupported ? "<!-- $1-->" : "<!-- -->";
-			commentProposal.setTextEdit(new TextEdit(editRange, textEdit));
-			commentProposal.setDocumentation("Insert <!-- -->");
-			response.addCompletionItem(commentProposal);
-		} catch (BadLocationException e) {
-			LOGGER.log(Level.SEVERE, "While performing collectCommentCompletion", e);
 		}
 	}
 
@@ -836,90 +862,6 @@ public class XMLCompletions {
 		}
 	}
 
-	private void collectInsideDTDContent(CompletionRequest request, CompletionResponse response) {
-		collectInsideDTDContent(request, response, false);
-	}
-
-	private void collectInsideDTDContent(CompletionRequest request, CompletionResponse response, boolean isContent) {
-		// Insert DTD Element Declaration
-		// see https://www.w3.org/TR/REC-xml/#dt-eldecl
-		boolean isSnippetsSupported = request.isCompletionSnippetsSupported();
-		InsertTextFormat insertFormat = request.getInsertTextFormat();
-		CompletionItem elementDecl = new CompletionItem();
-		elementDecl.setLabel("Insert DTD Element declaration");
-		elementDecl.setKind(CompletionItemKind.EnumMember);
-		elementDecl.setFilterText("<!ELEMENT ");
-		elementDecl.setInsertTextFormat(insertFormat);
-		int startOffset = request.getOffset();
-		Range editRange = null;
-		DOMDocument document = request.getXMLDocument();
-		DOMNode node = document.findNodeAt(startOffset);
-		try {
-			if (node.isDoctype()) {
-				editRange = getReplaceRange(startOffset, startOffset, request);
-			} else {
-				if (isContent) {
-					editRange = document.getTrimmedRange(node.getStart(), node.getEnd());
-				}
-				if (editRange == null) {
-					editRange = getReplaceRange(node.getStart(), node.getEnd(), request);
-				}
-			}
-		} catch (BadLocationException e) {
-			LOGGER.log(Level.SEVERE, "While performing getReplaceRange for DTD completion.", e);
-		}
-		String textEdit = isSnippetsSupported ? "<!ELEMENT ${1:element-name} (${2:#PCDATA})>"
-				: "<!ELEMENT element-name (#PCDATA)>";
-		elementDecl.setTextEdit(new TextEdit(editRange, textEdit));
-		elementDecl.setDocumentation("<!ELEMENT element-name (#PCDATA)>");
-		response.addCompletionItem(elementDecl);
-
-		// Insert DTD AttrList Declaration
-		// see https://www.w3.org/TR/REC-xml/#attdecls
-		CompletionItem attrListDecl = new CompletionItem();
-		attrListDecl.setLabel("Insert DTD Attributes list declaration");
-		attrListDecl.setKind(CompletionItemKind.EnumMember);
-		attrListDecl.setFilterText("<!ATTLIST ");
-		attrListDecl.setInsertTextFormat(insertFormat);
-		startOffset = request.getOffset();
-
-		textEdit = isSnippetsSupported ? "<!ATTLIST ${1:element-name} ${2:attribute-name} ${3:ID} ${4:#REQUIRED}>"
-				: "<!ATTLIST element-name attribute-name ID #REQUIRED>";
-		attrListDecl.setTextEdit(new TextEdit(editRange, textEdit));
-		attrListDecl.setDocumentation("<!ATTLIST element-name attribute-name ID #REQUIRED>");
-		response.addCompletionItem(attrListDecl);
-
-		// Insert Internal DTD Entity Declaration
-		// see https://www.w3.org/TR/REC-xml/#dt-entdecl
-		CompletionItem internalEntity = new CompletionItem();
-		internalEntity.setLabel("Insert Internal DTD Entity declaration");
-		internalEntity.setKind(CompletionItemKind.EnumMember);
-		internalEntity.setFilterText("<!ENTITY ");
-		internalEntity.setInsertTextFormat(insertFormat);
-		startOffset = request.getOffset();
-
-		textEdit = isSnippetsSupported ? "<!ENTITY ${1:entity-name} \"${2:entity-value}\">"
-				: "<!ENTITY entity-name \"entity-value\">";
-		internalEntity.setTextEdit(new TextEdit(editRange, textEdit));
-		internalEntity.setDocumentation("<!ENTITY entity-name \"entity-value\">");
-		response.addCompletionItem(internalEntity);
-
-		// Insert External DTD Entity Declaration
-		// see https://www.w3.org/TR/REC-xml/#dt-entdecl
-		CompletionItem externalEntity = new CompletionItem();
-		externalEntity.setLabel("Insert External DTD Entity declaration");
-		externalEntity.setKind(CompletionItemKind.EnumMember);
-		externalEntity.setFilterText("<!ENTITY ");
-		externalEntity.setInsertTextFormat(insertFormat);
-		startOffset = request.getOffset();
-
-		textEdit = isSnippetsSupported ? "<!ENTITY ${1:entity-name} SYSTEM \"${2:entity-value}\">"
-				: "<!ENTITY entity-name SYSTEM \"entity-value\">";
-		externalEntity.setTextEdit(new TextEdit(editRange, textEdit));
-		externalEntity.setDocumentation("<!ENTITY entity-name SYSTEM \"entity-value\">");
-		response.addCompletionItem(externalEntity);
-	}
-
 	private static int scanNextForEndPos(int offset, Scanner scanner, TokenType nextToken) {
 		if (offset == scanner.getTokenEnd()) {
 			TokenType token = scanner.scan();
@@ -962,7 +904,7 @@ public class XMLCompletions {
 		return (token == expectedToken) ? scanner.getTokenOffset() : -1;
 	}
 
-	public static Range getReplaceRange(int replaceStart, int replaceEnd, ICompletionRequest context)
+	private static Range getReplaceRange(int replaceStart, int replaceEnd, ICompletionRequest context)
 			throws BadLocationException {
 		int offset = context.getOffset();
 		if (replaceStart > offset) {
@@ -989,5 +931,12 @@ public class XMLCompletions {
 
 	private boolean isEmptyElement(String tag) {
 		return false;
+	}
+
+	private SnippetRegistry getSnippetRegistry() {
+		if (snippetRegistry == null) {
+			snippetRegistry = new SnippetRegistry();
+		}
+		return snippetRegistry;
 	}
 }

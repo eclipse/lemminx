@@ -1,5 +1,5 @@
 /**
- *  Copyright (c) 2018 Angelo ZERR
+ *  Copyright (c) 201r(0,8,0, 12)-2020 Angelo ZERR
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v2.0
  *  which accompanies this distribution, and is available at
@@ -12,9 +12,11 @@
  */
 package org.eclipse.lemminx.services.extensions;
 
+import static org.eclipse.lemminx.XMLAssert.r;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.services.XMLLanguageService;
+import org.eclipse.lsp4j.Range;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -27,28 +29,28 @@ public class HTMLHoverExtensionsTest {
 	@Test
 	public void testSingle() throws BadLocationException {
 		assertHover("|<html></html>");
-		assertHover("<|html></html>", "<html>", 1);
-		assertHover("<h|tml></html>", "<html>", 1);
-		assertHover("<htm|l></html>", "<html>", 1);
-		assertHover("<html|></html>", "<html>", 1);
+		assertHover("<|html></html>", "<html>", r(0, 1, 0, 5));
+		assertHover("<h|tml></html>", "<html>", r(0, 1, 0, 5));
+		assertHover("<htm|l></html>", "<html>", r(0, 1, 0, 5));
+		assertHover("<html|></html>", "<html>", r(0, 1, 0, 5));
 		assertHover("<html>|</html>");
 		assertHover("<html><|/html>");
-		assertHover("<html></|html>", "</html>", 8);
-		assertHover("<html></h|tml>", "</html>", 8);
-		assertHover("<html></ht|ml>", "</html>", 8);
-		assertHover("<html></htm|l>", "</html>", 8);
-		assertHover("<html></html|>", "</html>", 8);
+		assertHover("<html></|html>", "</html>", r(0, 8, 0, 12));
+		assertHover("<html></h|tml>", "</html>", r(0, 8, 0, 12));
+		assertHover("<html></ht|ml>", "</html>", r(0, 8, 0, 12));
+		assertHover("<html></htm|l>", "</html>", r(0, 8, 0, 12));
+		assertHover("<html></html|>", "</html>", r(0, 8, 0, 12));
 		assertHover("<html></html>|");
-		assertHover("<html>hover|Text</html>", "hoverText", 6);
-		assertHover("<html>h|overText</html>", "hoverText", 6);
-		assertHover("<html> |</html>", " ", 6);
+		assertHover("<html>hover|Text</html>", "hoverText", r(0, 6, 0, 15));
+		assertHover("<html>h|overText</html>", "hoverText", r(0, 6, 0, 15));
+		assertHover("<html> |</html>", " ", r(0, 6, 0, 7));
 	};
 
 	private static void assertHover(String value) throws BadLocationException {
 		assertHover(value, null, null);
 	}
 
-	private static void assertHover(String value, String expectedHoverLabel, Integer expectedHoverOffset)
+	private static void assertHover(String value, String expectedHoverLabel, Range expectedHoverOffset)
 			throws BadLocationException {
 		XMLAssert.assertHover(new HTMLLanguageService(), value, null, null, expectedHoverLabel, expectedHoverOffset);
 	}
@@ -68,6 +70,7 @@ public class HTMLHoverExtensionsTest {
 				String tagLabel = request.isOpen() ? "<" + tag + ">" : "</" + tag + ">";
 				return tagLabel;
 			}
+
 			@Override
 			public String onText(IHoverRequest request) throws Exception {
 				return request.getNode().getTextContent();
