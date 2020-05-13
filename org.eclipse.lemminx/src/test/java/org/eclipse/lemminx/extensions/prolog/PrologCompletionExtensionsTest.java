@@ -55,9 +55,8 @@ public class PrologCompletionExtensionsTest {
 		// completion on |
 		String xml = "<?xml version=\"1.0\" |?>\r\n" + //
 				"<project xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">";
-		testCompletionFor(xml, 2, 
-			c("encoding", te(0, 20, 0, 20, "encoding=\"UTF-8\""), "encoding"), 
-			c("standalone", te(0, 20, 0, 20, "standalone=\"yes\""), "standalone"));
+		testCompletionFor(xml, 2, c("encoding", te(0, 20, 0, 20, "encoding=\"UTF-8\""), "encoding"),
+				c("standalone", te(0, 20, 0, 20, "standalone=\"yes\""), "standalone"));
 	}
 
 	@Test
@@ -73,7 +72,7 @@ public class PrologCompletionExtensionsTest {
 		// completion on |
 		String xml = "<?xml version=\"1.0\" standalone=\"yes\" |?>\r\n" + //
 				"<project xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">";
-		testCompletionFor(xml, 0, (CompletionItem []) null);
+		testCompletionFor(xml, 0, (CompletionItem[]) null);
 	}
 
 	@Test
@@ -182,120 +181,181 @@ public class PrologCompletionExtensionsTest {
 	@Test
 	public void testAutoCompletionPrologWithXML() throws BadLocationException {
 		// With 'xml' label
-		testCompletionFor("<?xml|", false, true, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0",
-				r(0, 2, 0, 5), "xml version=\"1.0\" encoding=\"UTF-8\"?>"));
-		testCompletionFor("<?xml|>", true, true, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0",
-				r(0, 2, 0, 6), "xml version=\"1.0\" encoding=\"UTF-8\"?>"));
-		testCompletionFor("<?xml|?>", true, true, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0",
-				r(0, 2, 0, 7), "xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+		testCompletionFor("<?xml|", true, //
+				c("<?xml", //
+						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
+						r(0, 0, 0, 5), //
+						"<?xml"));
+		testCompletionFor("<?xml|>", true, //
+				c("<?xml", //
+						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
+						r(0, 0, 0, 6), //
+						"<?xml"));
+		testCompletionFor("<?xml|?>", true, //
+				c("<?xml", //
+						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
+						r(0, 0, 0, 7), //
+						"<?xml"));
 	}
 
 	@Test
 	public void testAutoCompletionPrologWithoutXML() throws BadLocationException {
 		// No 'xml' label
-		testCompletionFor("<?|", false, true, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0",
-				r(0, 2, 0, 2), "xml version=\"1.0\" encoding=\"UTF-8\"?>"));
-		testCompletionFor("<?|", false, false, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>",
-				r(0, 2, 0, 2), "xml version=\"1.0\" encoding=\"UTF-8\"?>"));
-		testCompletionFor("<?|>", true, true, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0",
-				r(0, 2, 0, 3), "xml version=\"1.0\" encoding=\"UTF-8\"?>"));
-		testCompletionFor("<?|?>", true, true, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0",
-				r(0, 2, 0, 4), "xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+		testCompletionFor("<?|", true, //
+				c("<?xml", //
+						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
+						r(0, 0, 0, 2), //
+						"<?xml"));
+		testCompletionFor("<?|", false, //
+				c("<?xml", //
+						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>", //
+						r(0, 0, 0, 2), //
+						"<?xml"));
+		testCompletionFor("<?|>", true, //
+				c("<?xml", //
+						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
+						r(0, 0, 0, 3), //
+						"<?xml"));
+		testCompletionFor("<?|?>", true, //
+				c("<?xml", //
+						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
+						r(0, 0, 0, 4), //
+						"<?xml"));
 	}
 
 	@Test
 	public void testAutoCompletionPrologWithPartialXML() throws BadLocationException {
-		testCompletionFor("<?x|", true, true, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0",
-				r(0, 2, 0, 3), "xml version=\"1.0\" encoding=\"UTF-8\"?>"));
-		testCompletionFor("<?xm|", true, true, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0",
-				r(0, 2, 0, 4), "xml version=\"1.0\" encoding=\"UTF-8\"?>"));
-		testCompletionFor("<?x|", true, true, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0",
-				r(0, 2, 0, 3), "xml version=\"1.0\" encoding=\"UTF-8\"?>"));
-		testCompletionFor("<?xm|?>", true, true, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0",
-				r(0, 2, 0, 6), "xml version=\"1.0\" encoding=\"UTF-8\"?>"));
-		testCompletionFor("<?xm|?>", true, false, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>",
-				r(0, 2, 0, 6), "xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+		testCompletionFor("<?x|", true, //
+				c("<?xml", //
+						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
+						r(0, 0, 0, 3), //
+						"<?xml"));
+		testCompletionFor("<?xm|", true, //
+				c("<?xml", //
+						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
+						r(0, 0, 0, 4), //
+						"<?xml"));
+		testCompletionFor("<?xml|", true, //
+				c("<?xml", //
+						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
+						r(0, 0, 0, 5), //
+						"<?xml"));
+		testCompletionFor("<?xml|?", true, //
+				c("<?xml", //
+						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
+						r(0, 0, 0, 6), //
+						"<?xml"));
+		testCompletionFor("<?xml|?>", true, //
+				c("<?xml", //
+						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
+						r(0, 0, 0, 7), //
+						"<?xml"));
 	}
 
 	@Test
 	public void testAutoCompletionPrologDTDFileWithXML() throws BadLocationException {
 		// With 'xml' label
 		String dtdFileURI = "test://test/test.dtd";
-		testCompletionFor("<?xml|", dtdFileURI, false, true,
-				c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 5),
-						"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
-		testCompletionFor("<?xml|>", dtdFileURI, true, true,
-				c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 6),
-						"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
-		testCompletionFor("<?xml|?>", dtdFileURI, true, true,
-				c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 7),
-						"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+		testCompletionFor("<?xml|", dtdFileURI, true, //
+				c("<?xml", //
+						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
+						r(0, 0, 0, 5), //
+						"<?xml"));
+		testCompletionFor("<?xml|>", dtdFileURI, true, //
+				c("<?xml", //
+						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
+						r(0, 0, 0, 6), //
+						"<?xml"));
+		testCompletionFor("<?xml|?>", dtdFileURI, true, //
+				c("<?xml", //
+						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
+						r(0, 0, 0, 7), //
+						"<?xml"));
 	}
 
 	@Test
 	public void testAutoCompletionPrologDTDFileWithoutXML() throws BadLocationException {
 		// No 'xml' label
 		String dtdFileURI = "test://test/test.dtd";
-		testCompletionFor("<?|", dtdFileURI, false, true,
-				c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 2),
-						"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
-		testCompletionFor("<?|", dtdFileURI, false, false, c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>",
-				r(0, 2, 0, 2), "xml version=\"1.0\" encoding=\"UTF-8\"?>"));
-		testCompletionFor("<?|>", dtdFileURI, true, true,
-				c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 3),
-						"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
-		testCompletionFor("<?|?>", dtdFileURI, true, true,
-				c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 4),
-						"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+		testCompletionFor("<?|", dtdFileURI, true, //
+				c("<?xml", //
+						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
+						r(0, 0, 0, 2), //
+						"<?xml"));
+		testCompletionFor("<?|", dtdFileURI, false, //
+				c("<?xml", //
+						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>", //
+						r(0, 0, 0, 2), //
+						"<?xml"));
+		testCompletionFor("<?|>", dtdFileURI, true, //
+				c("<?xml", //
+						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
+						r(0, 0, 0, 3), //
+						"<?xml"));
+		testCompletionFor("<?|?>", dtdFileURI, true, //
+				c("<?xml", //
+						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
+						r(0, 0, 0, 4), //
+						"<?xml"));
 	}
 
 	@Test
 	public void testAutoCompletionPrologDTFFileWithPartialXML() throws BadLocationException {
 		String dtdFileURI = "test://test/test.dtd";
-		testCompletionFor("<?x|", dtdFileURI, true, true,
-				c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 3),
-						"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
-		testCompletionFor("<?xm|", dtdFileURI, true, true,
-				c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 4),
-						"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
-		testCompletionFor("<?x|", dtdFileURI, true, true,
-				c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 3),
-						"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
-		testCompletionFor("<?xm|?>", dtdFileURI, true, true,
-				c("<?xml ... ?>", "xml version=\"1.0\" encoding=\"UTF-8\"?>$0", r(0, 2, 0, 6),
-						"xml version=\"1.0\" encoding=\"UTF-8\"?>"));
-		testCompletionFor("<?xm|?>", dtdFileURI, true, false, c("<?xml ... ?>",
-				"xml version=\"1.0\" encoding=\"UTF-8\"?>", r(0, 2, 0, 6), "xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+		testCompletionFor("<?x|", dtdFileURI, true, //
+				c("<?xml", //
+						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
+						r(0, 0, 0, 3), //
+						"<?xml"));
+		testCompletionFor("<?xm|", dtdFileURI, true, //
+				c("<?xml", //
+						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
+						r(0, 0, 0, 4), //
+						"<?xml"));
+		testCompletionFor("<?xml|", dtdFileURI, true, //
+				c("<?xml", //
+						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
+						r(0, 0, 0, 5), //
+						"<?xml"));
+		testCompletionFor("<?xml|?", dtdFileURI, true, //
+				c("<?xml", //
+						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
+						r(0, 0, 0, 6), //
+						"<?xml"));
+		testCompletionFor("<?xml|?>", dtdFileURI, true, //
+				c("<?xml", //
+						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
+						r(0, 0, 0, 7), //
+						"<?xml"));
 	}
 
 	private void testCompletionFor(String xml, CompletionItem... expectedItems) throws BadLocationException {
 		XMLAssert.testCompletionFor(xml, null, expectedItems);
 	}
 
-	private void testCompletionFor(String xml, int expectedCount, CompletionItem... expectedItems) throws BadLocationException {
+	private void testCompletionFor(String xml, int expectedCount, CompletionItem... expectedItems)
+			throws BadLocationException {
 		XMLAssert.testCompletionFor(xml, expectedCount, expectedItems);
 	}
 
-	private void testCompletionFor(String xml, String fileURI, boolean autoCloseTags, boolean isSnippetsSupported,
+	private void testCompletionFor(String xml, String fileURI, boolean isSnippetsSupported,
 			CompletionItem... expectedItems) throws BadLocationException {
-		testCompletionFor(xml, fileURI, createSharedSettings(autoCloseTags, isSnippetsSupported), expectedItems);
+		testCompletionFor(xml, fileURI, createSharedSettings(false, isSnippetsSupported), expectedItems);
 	}
 
-	private void testCompletionFor(String xml, String fileURI, SharedSettings settings, CompletionItem... expectedItems) throws BadLocationException {
-		XMLAssert.testCompletionFor(new XMLLanguageService(), xml, null, null, fileURI, null,
-				settings, expectedItems);
+	private void testCompletionFor(String xml, String fileURI, SharedSettings settings, CompletionItem... expectedItems)
+			throws BadLocationException {
+		XMLAssert.testCompletionFor(new XMLLanguageService(), xml, null, null, fileURI, null, settings, expectedItems);
 	}
 
-	private void testCompletionFor(String xml, boolean autoCloseTags, boolean isSnippetsSupported,
-			CompletionItem... expectedItems) throws BadLocationException {
-		testCompletionFor(xml, createSharedSettings(autoCloseTags, isSnippetsSupported),
-				expectedItems);
+	private void testCompletionFor(String xml, boolean isSnippetsSupported, CompletionItem... expectedItems)
+			throws BadLocationException {
+		testCompletionFor(xml, createSharedSettings(false, isSnippetsSupported), expectedItems);
 	}
 
-	private void testCompletionFor(String xml, SharedSettings settings,
-			CompletionItem... expectedItems) throws BadLocationException {
-		XMLAssert.testCompletionFor(new XMLLanguageService(), xml, null, null, null, null,
-				settings, expectedItems);
+	private void testCompletionFor(String xml, SharedSettings settings, CompletionItem... expectedItems)
+			throws BadLocationException {
+		XMLAssert.testCompletionFor(new XMLLanguageService(), xml, null, null, null, null, settings, expectedItems);
 	}
 
 	private SharedSettings createSharedSettings(boolean autoCloseTags, boolean isSnippetsSupported) {
@@ -304,6 +364,7 @@ public class PrologCompletionExtensionsTest {
 		CompletionItemCapabilities itemCapabilities = new CompletionItemCapabilities(isSnippetsSupported);
 		capabilities.setCompletionItem(itemCapabilities);
 		sharedSettings.getCompletionSettings().setCapabilities(capabilities);
+		sharedSettings.getCompletionSettings().setAutoCloseTags(autoCloseTags);
 		return sharedSettings;
 	}
 }

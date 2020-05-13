@@ -16,7 +16,6 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -86,7 +85,25 @@ public class XMLAssert {
 
 	// ------------------- Completion assert
 
+	public static final int COMMENT_SNIPPETS = 1;
+
+	public static final int CDATA_SNIPPETS = 1;
+
+	public static final int DOCTYPE_SNIPPETS = 5;
+
+	public static final int DTDNODE_SNIPPETS = 4;
+
+	public static final int NEW_XML_SNIPPETS = 7;
+
+	public static final int NEW_XSD_SNIPPETS = 1;
+
+	public static final int PROLOG_SNIPPETS = 2;
+
+	public static final int REGION_SNIPPETS = 2;
+
 	private static final String FILE_URI = "test.xml";
+
+	private static final List<String> DUPLICATE_LABELS = Arrays.asList("<?xml", "<!DOCTYPE", "<!ENTITY");
 
 	public static class SettingsSaveContext extends AbstractSaveContext {
 
@@ -137,8 +154,8 @@ public class XMLAssert {
 
 		SharedSettings settings = new SharedSettings();
 		settings.getCompletionSettings().setAutoCloseTags(autoCloseTags);
-		testCompletionFor(xmlLanguageService, value, catalogPath, customConfiguration, fileURI, expectedCount,
-				settings, expectedItems);
+		testCompletionFor(xmlLanguageService, value, catalogPath, customConfiguration, fileURI, expectedCount, settings,
+				expectedItems);
 	}
 
 	public static void testCompletionFor(XMLLanguageService xmlLanguageService, String value, String catalogPath,
@@ -171,6 +188,9 @@ public class XMLAssert {
 		List<String> labels = list.getItems().stream().map(i -> i.getLabel()).sorted().collect(Collectors.toList());
 		String previous = null;
 		for (String label : labels) {
+			if (isIgnoreDuplicateLabel(label)) {
+				continue;
+			}
 			assertNotEquals(previous, label, () -> {
 				return "Duplicate label " + label + " in " + labels.stream().collect(Collectors.joining(",")) + "}";
 			});
@@ -186,18 +206,29 @@ public class XMLAssert {
 		}
 	}
 
+	private static boolean isIgnoreDuplicateLabel(String label) {
+		return DUPLICATE_LABELS.contains(label);
+	}
+
 	private static void assertCompletion(CompletionList completions, CompletionItem expected, TextDocument document,
 			int offset) {
 		List<CompletionItem> matches = completions.getItems().stream().filter(completion -> {
 			return expected.getLabel().equals(completion.getLabel());
 		}).collect(Collectors.toList());
 
-		assertEquals(1, matches.size(), () -> {
-			return expected.getLabel() + " should only exist once: Actual: "
-					+ completions.getItems().stream().map(c -> c.getLabel()).collect(Collectors.joining(","));
-		});
+		if (isIgnoreDuplicateLabel(expected.getLabel())) {
+			assertTrue(matches.size() >= 1, () -> {
+				return expected.getLabel() + " should only exist once: Actual: "
+						+ completions.getItems().stream().map(c -> c.getLabel()).collect(Collectors.joining(","));
+			});
+		} else {
+			assertEquals(1, matches.size(), () -> {
+				return expected.getLabel() + " should only exist once: Actual: "
+						+ completions.getItems().stream().map(c -> c.getLabel()).collect(Collectors.joining(","));
+			});
+		}
 
-		CompletionItem match = matches.get(0);
+		CompletionItem match = getCompletionMatch(matches, expected);
 		if (expected.getTextEdit() != null && match.getTextEdit() != null) {
 			if (expected.getTextEdit().getNewText() != null) {
 				assertEquals(expected.getTextEdit().getNewText(), match.getTextEdit().getNewText());
@@ -215,6 +246,15 @@ public class XMLAssert {
 			assertEquals(expected.getDocumentation(), match.getDocumentation());
 		}
 
+	}
+
+	private static CompletionItem getCompletionMatch(List<CompletionItem> matches, CompletionItem expected) {
+		for (CompletionItem item : matches) {
+			if (expected.getTextEdit().getNewText().equals(item.getTextEdit().getNewText())) {
+				return item;
+			}
+		}
+		return matches.get(0);
 	}
 
 	public static CompletionItem c(String label, TextEdit textEdit, String filterText, String documentation) {
@@ -536,13 +576,21 @@ public class XMLAssert {
 		assertHover(value, null, null);
 	}
 
-	public static void assertHover(String value, String expectedHoverLabel, Integer expectedHoverOffset)
+	public static void assertHover(String value, String expectedHoverLabel, Range expectedHoverRange)
 			throws BadLocationException {
-		assertHover(new XMLLanguageService(), value, null, null, expectedHoverLabel, expectedHoverOffset);
+		assertHover(new XMLLanguageService(), value, null, null, expectedHoverLabel, expectedHoverRange);
 	}
 
 	public static void assertHover(XMLLanguageService xmlLanguageService, String value, String catalogPath,
-			String fileURI, String expectedHoverLabel, Integer expectedHoverOffset) throws BadLocationException {
+			String fileURI, String expectedHoverLabel, Range expectedHoverRange) throws BadLocationException {
+		ContentModelSettings settings = new ContentModelSettings();
+		settings.setUseCache(false);
+		assertHover(xmlLanguageService, value, catalogPath, fileURI, expectedHoverLabel, expectedHoverRange, settings);
+	}
+
+	public static void assertHover(XMLLanguageService xmlLanguageService, String value, String catalogPath,
+			String fileURI, String expectedHoverLabel, Range expectedHoverRange, ContentModelSettings settings)
+			throws BadLocationException {
 		int offset = value.indexOf("|");
 		value = value.substring(0, offset) + value.substring(offset + 1);
 
@@ -551,8 +599,6 @@ public class XMLAssert {
 		Position position = document.positionAt(offset);
 
 		DOMDocument htmlDoc = DOMParser.getInstance().parse(document, xmlLanguageService.getResolverExtensionManager());
-		ContentModelSettings settings = new ContentModelSettings();
-		settings.setUseCache(false);
 		// Configure XML catalog for XML schema
 		if (catalogPath != null) {
 			settings.setCatalogs(new String[] { catalogPath });
@@ -568,10 +614,8 @@ public class XMLAssert {
 		} else {
 			String actualHoverLabel = getHoverLabel(hover);
 			assertEquals(expectedHoverLabel, actualHoverLabel);
-			if (expectedHoverOffset != null) {
-				assertNotNull(hover.getRange());
-				assertNotNull(hover.getRange().getStart());
-				assertEquals(expectedHoverOffset.intValue(), hover.getRange().getStart().getCharacter());
+			if (expectedHoverRange != null) {
+				assertEquals(hover.getRange(), expectedHoverRange);
 			}
 		}
 	}

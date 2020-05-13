@@ -349,32 +349,37 @@ public class DOMDocument extends DOMNode implements Document {
 		if (referencedExternalGrammarInitialized) {
 			return hasExternalGrammar;
 		}
-		if (resolverExtensionManager != null) {
-			// None grammar found with standard mean, check if it some components like XML
-			// file associations bind this XML document to a grammar with external schema
-			// location.
-			try {
-				externalSchemaLocation = resolverExtensionManager.getExternalSchemaLocation(new URI(getDocumentURI()));
-				if (externalSchemaLocation != null) {
-					return true;
+		try {
+			if (resolverExtensionManager != null) {
+				// No grammar found with standard mean, check if it some components like XML
+				// file associations bind this XML document to a grammar with external schema
+				// location.
+				try {
+					externalSchemaLocation = resolverExtensionManager
+							.getExternalSchemaLocation(new URI(getDocumentURI()));
+					if (externalSchemaLocation != null) {
+						return true;
+					}
+				} catch (URISyntaxException e) {
+					// Do nothing
 				}
-			} catch (URISyntaxException e) {
-				// Do nothing
-			}
 
-			// None grammar found with standard mean and external schema location, check if
-			// it some components like XML
-			// Catalog, XSL and XSD resolvers, etc bind this XML document to a grammar.
-			// Get root element
-			DOMElement documentElement = getDocumentElement();
-			if (documentElement == null) {
-				return false;
-			}
-			String namespaceURI = documentElement.getNamespaceURI();
-			return resolverExtensionManager.resolve(getDocumentURI(), namespaceURI, null) != null;
+				// No grammar found with standard mean and external schema location, check if
+				// it some components like XML
+				// Catalog, XSL and XSD resolvers, etc bind this XML document to a grammar.
+				// Get root element
+				DOMElement documentElement = getDocumentElement();
+				if (documentElement == null) {
+					return false;
+				}
+				String namespaceURI = documentElement.getNamespaceURI();
+				return resolverExtensionManager.resolve(getDocumentURI(), namespaceURI, null) != null;
 
+			}
+			return false;
+		} finally {
+			referencedExternalGrammarInitialized = true;
 		}
-		return false;
 	}
 
 	private static String getUnprefixedName(String name) {

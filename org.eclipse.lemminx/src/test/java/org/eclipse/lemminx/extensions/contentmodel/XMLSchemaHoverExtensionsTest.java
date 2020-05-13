@@ -12,12 +12,15 @@
  */
 package org.eclipse.lemminx.extensions.contentmodel;
 
+import static org.eclipse.lemminx.XMLAssert.r;
+
 import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.util.URI.MalformedURIException;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.extensions.xsi.XSISchemaModel;
 import org.eclipse.lemminx.services.XMLLanguageService;
+import org.eclipse.lsp4j.Range;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -37,7 +40,7 @@ public class XMLSchemaHoverExtensionsTest {
 						+ //
 						System.lineSeparator() + //
 						System.lineSeparator() + "Source: [spring-beans-3.0.xsd](" + schemaURI + ")",
-				2);
+				r(2, 2, 2, 6));
 	};
 
 	@Test
@@ -222,10 +225,10 @@ public class XMLSchemaHoverExtensionsTest {
 
 	}
 
-	private static void assertHover(String value, String expectedHoverLabel, Integer expectedHoverOffset)
+	private static void assertHover(String value, String expectedHoverLabel, Range expectedHoverRange)
 			throws BadLocationException {
 		XMLAssert.assertHover(new XMLLanguageService(), value, "src/test/resources/catalogs/catalog.xml", null,
-				expectedHoverLabel, expectedHoverOffset);
+				expectedHoverLabel, expectedHoverRange);
 	}
 
 	private static String getXMLSchemaFileURI(String schemaURI) throws MalformedURIException {
