@@ -253,7 +253,7 @@ public class XMLBuilder {
 		    if(isJoinContentLines()) {
 			    // ATSEC
 			    //xml.append("A:");
-			    text = StringUtils.normalizeSpace2(text);
+			    text = normalizeSpace2(text);
 		    } else if(hasSiblings) {
 			    //xml.append("B:");
 			    text = text.trim();
