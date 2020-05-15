@@ -13,10 +13,13 @@
  *******************************************************************************/
 package org.eclipse.lemminx.dom;
 
+import org.eclipse.lemminx.utils.XMLPositionUtility;
+import org.eclipse.lsp4j.Range;
+
 /**
  * DTDDeclParameter
  */
-public class DTDDeclParameter implements DOMRange {
+public class DTDDeclParameter implements DOMRange, TargetRange {
 
 	private final DTDDeclNode ownerNode;
 
@@ -79,6 +82,16 @@ public class DTDDeclParameter implements DOMRange {
 		}
 		DTDDeclParameter temp = (DTDDeclParameter) obj;
 		return start == temp.start && end == temp.end;
+	}
+
+	@Override
+	public Range getTargetRange() {
+		return XMLPositionUtility.createRange(this);
+	}
+
+	@Override
+	public String getTargetURI() {
+		return getOwnerDocument().getDocumentURI();
 	}
 
 }

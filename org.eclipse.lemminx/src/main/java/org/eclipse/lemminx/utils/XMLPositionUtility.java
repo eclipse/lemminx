@@ -29,6 +29,7 @@ import org.eclipse.lemminx.dom.DTDAttlistDecl;
 import org.eclipse.lemminx.dom.DTDDeclNode;
 import org.eclipse.lemminx.dom.DTDDeclParameter;
 import org.eclipse.lemminx.dom.DTDElementDecl;
+import org.eclipse.lemminx.dom.TargetRange;
 import org.eclipse.lemminx.dom.parser.Scanner;
 import org.eclipse.lemminx.dom.parser.TokenType;
 import org.eclipse.lemminx.dom.parser.XMLScanner;
@@ -773,12 +774,35 @@ public class XMLPositionUtility {
 		return createLocationLink(originSelectionRange, target);
 	}
 
-	public static LocationLink createLocationLink(Range originSelectionRange, DOMRange target) {
+	/**
+	 * Returns the location link for the given <code>origin</code> and
+	 * <code>target</code> nodes.
+	 * 
+	 * @param origin the origin node.
+	 * @param target the target node.
+	 * @return the location link for the given <code>origin</code> and
+	 *         <code>target</code> nodes.
+	 */
+	public static LocationLink createLocationLink(Range origin, DOMRange target) {
 		Range targetRange = XMLPositionUtility.createRange(target);
 		Range targetSelectionRange = targetRange;
 		DOMDocument targetDocument = target.getOwnerDocument();
-		return new LocationLink(targetDocument.getDocumentURI(), targetRange, targetSelectionRange,
-				originSelectionRange);
+		return new LocationLink(targetDocument.getDocumentURI(), targetRange, targetSelectionRange, origin);
+	}
+
+	/**
+	 * Returns the location link for the given <code>origin</code> and
+	 * <code>target</code> nodes.
+	 * 
+	 * @param origin the origin node.
+	 * @param target the target node.
+	 * @return the location link for the given <code>origin</code> and
+	 *         <code>target</code> nodes.
+	 */
+	public static LocationLink createLocationLink(Range origin, TargetRange target) {
+		Range targetRange = target.getTargetRange();
+		Range targetSelectionRange = targetRange;
+		return new LocationLink(target.getTargetURI(), targetRange, targetSelectionRange, origin);
 	}
 
 	/**
