@@ -22,9 +22,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.xerces.impl.XMLEntityManager.ScannedEntity;
 import org.apache.xerces.impl.dtd.DTDGrammar;
 import org.apache.xerces.impl.dtd.XMLDTDLoader;
-import org.apache.xerces.impl.dtd.XMLEntityDecl;
 import org.apache.xerces.xni.Augmentations;
 import org.apache.xerces.xni.XMLString;
 import org.apache.xerces.xni.XNIException;
@@ -32,6 +32,7 @@ import org.apache.xerces.xni.grammars.Grammar;
 import org.apache.xerces.xni.parser.XMLInputSource;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
+import org.eclipse.lemminx.dom.DTDDeclParameter;
 import org.eclipse.lemminx.dom.DTDEntityDecl;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMDocument;
@@ -39,6 +40,8 @@ import org.eclipse.lemminx.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lemminx.extensions.contentmodel.model.FilesChangedTracker;
 import org.eclipse.lemminx.extensions.dtd.utils.DTDUtils;
 import org.eclipse.lsp4j.LocationLink;
+import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 import org.w3c.dom.Entity;
 
 /**
@@ -90,6 +93,94 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 		}
 	}
 
+	private static class ScannedDTDEntityDecl extends DTDEntityDecl {
+
+		private static final char[] ENTITY = "<!ENTITY".toCharArray();
+
+		private final String entityName;
+		private final String value;
+		private final DTDDeclParameter nameParameter;
+
+		public ScannedDTDEntityDecl(String name, String value, ScannedEntity scannedEntity) {
+			super(-1, -1);
+			this.entityName = name;
+			this.value = value;
+			this.nameParameter = createNameParameter(name, scannedEntity);
+		}
+
+		@Override
+		public DTDDeclParameter getNameParameter() {
+			return nameParameter;
+		}
+
+		@Override
+		public String getName() {
+			return getNodeName();
+		}
+
+		@Override
+		public String getNodeName() {
+			return entityName;
+		}
+
+		@Override
+		public String getNotationName() {
+			return value;
+		}
+
+		private static DTDDeclParameter createNameParameter(String name, ScannedEntity scannedEntity) {
+			String systemId = scannedEntity.entityLocation.getExpandedSystemId();
+			int lineNumber = scannedEntity.lineNumber - 1;
+			int startNameColumnNumber = getEntityNameStartColumnNumber(name, scannedEntity);
+			return new DTDDeclParameter(null, -1, -1) {
+
+				@Override
+				public Range getTargetRange() {
+					return new Range(new Position(lineNumber, startNameColumnNumber),
+							new Position(lineNumber, startNameColumnNumber + name.length()));
+				};
+
+				@Override
+				public String getTargetURI() {
+					return systemId;
+				}
+			};
+		}
+
+		/**
+		 * Returns the colunm number where entity name starts (<!ENTITY |name )
+		 * 
+		 * @param name          the entity name
+		 * @param scannedEntity the scanned entity
+		 * @return the colunm number where entity name starts (<!ENTITY |name )
+		 */
+		private static int getEntityNameStartColumnNumber(String name, ScannedEntity scannedEntity) {
+			int endEntityIndex = scannedEntity.position;
+			int startLineIndex = endEntityIndex - scannedEntity.columnNumber + 1;
+			char[] ch = scannedEntity.ch;
+			int wordIndex = 0;
+			// loop for line text where entity is declared
+			// --> <!ENTITY name >
+			for (int i = startLineIndex; i < endEntityIndex; i++) {
+				char c = ch[i];
+				// Search the index after the <!ENTITY
+				if (wordIndex < ENTITY.length) {
+					if (c == ENTITY[wordIndex]) {
+						wordIndex++;
+					} else {
+						wordIndex = 0;
+					}
+				} else {
+					// <!ENTITY index id found, search the index where entity name starts.
+					if (c == name.charAt(0)) {
+						return i - startLineIndex;
+					}
+				}
+			}
+			return scannedEntity.columnNumber;
+		}
+	}
+
 	private final String uri;
 
 	private Map<String, DTDElementInfo> hierarchiesMap;
@@ -102,7 +193,7 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 	private Map<String, DTDNodeInfo> attributes;
 	private DTDNodeInfo nodeInfo;
 
-	private List<Entity> entities;
+	private final List<Entity> entities;
 
 	public CMDTDDocument() {
 		this(null);
@@ -110,6 +201,7 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 
 	public CMDTDDocument(String uri) {
 		this.uri = uri;
+		this.entities = new ArrayList<>();
 	}
 
 	@Override
@@ -173,6 +265,13 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public void internalEntityDecl(String name, XMLString text, XMLString nonNormalizedText, Augmentations augs)
+			throws XNIException {
+		super.internalEntityDecl(name, text, nonNormalizedText, augs);
+		entities.add(new ScannedDTDEntityDecl(name, text.toString(), fEntityManager.getCurrentEntity()));
 	}
 
 	@Override
@@ -304,54 +403,6 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 
 	@Override
 	public List<Entity> getEntities() {
-		if (entities == null) {
-			entities = computeEntities();
-		}
 		return entities;
-	}
-
-	private synchronized List<Entity> computeEntities() {
-		if (entities != null) {
-			return entities;
-		}
-		List<Entity> entities = new ArrayList<>();
-		fillEntities(fDTDGrammar, entities);
-		return entities;
-	}
-
-	/**
-	 * Collect entities declared in the DTD grammar.
-	 * 
-	 * @param grammar  the DTD grammar.
-	 * @param entities list to fill.
-	 */
-	private static void fillEntities(DTDGrammar grammar, List<Entity> entities) {
-		int index = 0;
-		XMLEntityDecl entityDecl = new XMLEntityDecl() {
-
-			@Override
-			public void setValues(String name, String publicId, String systemId, String baseSystemId, String notation,
-					String value, boolean isPE, boolean inExternal) {
-				if (inExternal && !isPE) {
-					// Only external entities (entities declared in the DTD) and not entity with %
-					// must be collected.
-					Entity entity = new DTDEntityDecl(0, 0) {
-						@Override
-						public String getNodeName() {
-							return name;
-						}
-
-						@Override
-						public String getNotationName() {
-							return value;
-						}
-					};
-					entities.add(entity);
-				}
-			};
-		};
-		while (grammar.getEntityDecl(index, entityDecl)) {
-			index++;
-		}
 	}
 }
