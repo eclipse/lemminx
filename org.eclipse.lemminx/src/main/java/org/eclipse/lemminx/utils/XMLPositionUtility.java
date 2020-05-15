@@ -770,6 +770,10 @@ public class XMLPositionUtility {
 		} else {
 			originSelectionRange = XMLPositionUtility.createRange(origin);
 		}
+		return createLocationLink(originSelectionRange, target);
+	}
+
+	public static LocationLink createLocationLink(Range originSelectionRange, DOMRange target) {
 		Range targetRange = XMLPositionUtility.createRange(target);
 		Range targetSelectionRange = targetRange;
 		DOMDocument targetDocument = target.getOwnerDocument();

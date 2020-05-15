@@ -10,7 +10,7 @@
  *  Contributors:
  *  Red Hat Inc. - initial API and implementation
  */
-package org.eclipse.lemminx.extensions.entities;
+package org.eclipse.lemminx.extensions.entities.participants;
 
 import java.util.List;
 
@@ -18,6 +18,7 @@ import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMDocumentType;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
+import org.eclipse.lemminx.extensions.entities.EntitiesDocumentationUtils;
 import org.eclipse.lemminx.extensions.entities.EntitiesDocumentationUtils.PredefinedEntity;
 import org.eclipse.lemminx.services.extensions.CompletionParticipantAdapter;
 import org.eclipse.lemminx.services.extensions.ICompletionRequest;

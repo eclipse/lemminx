@@ -14,6 +14,7 @@ package org.eclipse.lemminx.utils;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.function.Predicate;
 
 /**
  * String utilities.
@@ -42,6 +43,7 @@ public class StringUtils {
 	public static boolean isWhitespace(String value, int index) {
 		return isWhitespace(value, index, value.length());
 	}
+
 	public static boolean isWhitespace(String value, int index, int end) {
 		if (value == null) {
 			return false;
@@ -389,6 +391,52 @@ public class StringUtils {
 			return obj.toString();
 		}
 		return null;
+	}
+
+	/**
+	 * Returns the start word offset from the left of the given <code>offset</code>
+	 * and -1 if no word.
+	 * 
+	 * @param text        the text
+	 * @param offset      the offset
+	 * @param isValidChar predicate to check if current character belong to the
+	 *                    word.
+	 * @return the start word offset from the left of the given <code>offset</code>
+	 *         and -1 if no word.
+	 */
+	public static int findStartWord(String text, int offset, Predicate<Character> isValidChar) {
+		if (!isValidChar.test(text.charAt(offset))) {
+			return -1;
+		}
+		for (int i = offset - 1; i >= 0; i--) {
+			if (!isValidChar.test(text.charAt(i))) {
+				return i + 1;
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * Returns the end word offset from the right of the given <code>offset</code>
+	 * and -1 if no word.
+	 * 
+	 * @param text        the text
+	 * @param offset      the offset
+	 * @param isValidChar predicate to check if current character belong to the
+	 *                    word.
+	 * @return the start word offset from the right of the given <code>offset</code>
+	 *         and -1 if no word.
+	 */
+	public static int findEndWord(String text, int offset, Predicate<Character> isValidChar) {
+		if (!isValidChar.test(text.charAt(offset))) {
+			return -1;
+		}
+		for (int i = offset + 1; i < text.length(); i++) {
+			if (!isValidChar.test(text.charAt(i))) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 }
