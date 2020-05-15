@@ -12,7 +12,11 @@
  */
 package org.eclipse.lemminx.dom;
 
+import static org.eclipse.lemminx.utils.StringUtils.findEndWord;
+import static org.eclipse.lemminx.utils.StringUtils.findStartWord;
+
 import java.util.function.BiConsumer;
+import java.util.function.Predicate;
 
 /**
  * DTD Element Declaration <!ELEMENT
@@ -21,6 +25,8 @@ import java.util.function.BiConsumer;
  *
  */
 public class DTDElementDecl extends DTDDeclNode {
+
+	private static final Predicate<Character> isValidChar = (c) -> Character.isJavaIdentifierPart(c) || c == '-';
 
 	/**
 	 * Formats:
@@ -82,7 +88,7 @@ public class DTDElementDecl extends DTDDeclNode {
 	 * </p>
 	 *
 	 * <p>
-	 * <!ELEMENT n|ote (to,from,head|ing,body)> will return null.
+	 * <!ELEMENT n|ote (to,from,heading,body)> will return null.
 	 * </p>
 	 * 
 	 * @param offset the offset
@@ -95,15 +101,13 @@ public class DTDElementDecl extends DTDDeclNode {
 			return null;
 		}
 		// We are after the <!ELEMENT name, search the parameter
-		int start = getNameParameter().getEnd();
-		int end = getEnd();
 		String text = getOwnerDocument().getText();
 		// Find the start word offset from the left of the offset (ex : (head|ing) will
 		// return offset of 'h'
-		int paramStart = findStartWord(text, start, offset);
+		int paramStart = findStartWord(text, offset, isValidChar);
 		// Find the end word to the right of the offset (ex : (head|ing) will return
 		// offset of 'g'
-		int paramEnd = findEndWord(text, offset, end);
+		int paramEnd = findEndWord(text, offset, isValidChar);
 		if (paramStart == -1 || paramEnd == -1) {
 			// no word
 			return null;
@@ -131,7 +135,6 @@ public class DTDElementDecl extends DTDDeclNode {
 		int end = getEnd();
 
 		String text = getOwnerDocument().getText();
-		text.length();
 		int wordStart = -1;
 		int wordEnd = -1;
 		// Loop for content after <!ELEMENT element-name (
@@ -143,7 +146,7 @@ public class DTDElementDecl extends DTDDeclNode {
 		for (int i = start; i < end; i++) {
 			char c = text.charAt(i);
 			// check if current character is valid for a word.
-			if (isValidChar(c)) {
+			if (isValidChar.test(c)) {
 				if (wordStart == -1) {
 					// start of the word
 					wordStart = i;
@@ -162,63 +165,6 @@ public class DTDElementDecl extends DTDDeclNode {
 				wordEnd = -1;
 			}
 		}
-	}
-
-	/**
-	 * Returns the start word offset from the <code>from</code> offset to the
-	 * <code>to</code> offse and -1 if no word.
-	 * 
-	 * @param text the text
-	 * @param from the from offset
-	 * @param to   the to offset
-	 * @return the start word offset from the <code>from</code> offset to the
-	 *         <code>to</code> offse and -1 if no word.
-	 */
-	private static int findStartWord(String text, int from, int to) {
-		int wordStart = -1;
-		int length = to - from;
-		for (int i = 0; i < length; i++) {
-			if (isValidChar(text.charAt(to - i))) {
-				wordStart = to - i;
-			} else {
-				return wordStart;
-			}
-		}
-		return wordStart;
-	}
-
-	/**
-	 * Returns the end word offset from the <code>from</code> offset to the
-	 * <code>to</code> offse and -1 if no word.
-	 * 
-	 * @param text the text
-	 * @param from the from offset
-	 * @param to   the to offset
-	 * @return the end word offset from the <code>from</code> offset to the
-	 *         <code>to</code> offse and -1 if no word.
-	 */
-	private static int findEndWord(String text, int from, int to) {
-		int wordEnd = -1;
-		int length = to - from;
-		for (int i = 0; i < length; i++) {
-			if (isValidChar(text.charAt(from + i))) {
-				wordEnd = from + i + 1;
-			} else {
-				return wordEnd;
-			}
-		}
-		return wordEnd;
-	}
-
-	/**
-	 * Return true if the given character belong to the element name and false
-	 * otherwise.
-	 * 
-	 * @param c the character
-	 * @return true if the given character belong to the element name and false
-	 */
-	private static boolean isValidChar(char c) {
-		return Character.isJavaIdentifierPart(c) || c == '-';
 	}
 
 	/**
