@@ -62,7 +62,7 @@ public class ContentModelCodeActionParticipant implements ICodeActionParticipant
 					return;
 				}
 				XMLSyntaxErrorCode.registerCodeActionParticipants(codeActionParticipants);
-				DTDErrorCode.registerCodeActionParticipants(codeActionParticipants);
+				DTDErrorCode.registerCodeActionParticipants(codeActionParticipants, sharedSettings);
 				XMLSchemaErrorCode.registerCodeActionParticipants(codeActionParticipants, sharedSettings);
 				XSDErrorCode.registerCodeActionParticipants(codeActionParticipants);
 			}

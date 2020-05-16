@@ -12,6 +12,7 @@
  */
 package org.eclipse.lemminx.extensions.contentmodel;
 
+import static java.lang.System.lineSeparator;
 import static org.eclipse.lemminx.XMLAssert.ca;
 import static org.eclipse.lemminx.XMLAssert.createFile;
 import static org.eclipse.lemminx.XMLAssert.d;
@@ -675,9 +676,13 @@ public class XMLSchemaDiagnosticsTest {
 		XMLAssert.testCodeActionsFor(xml, //
 				missingSchemaDiagnostic, //
 				settings, //
-				ca(missingSchemaDiagnostic,//
-				createFile("file:///salad.xsd", false), // 
-				teOp("file:///salad.xsd", 0, 0, 0, 0, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n\n</xs:schema>")));
+				ca(missingSchemaDiagnostic, //
+						createFile("file:///salad.xsd", false), //
+						teOp("file:///salad.xsd", 0, 0, 0, 0, //
+								"<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + lineSeparator() + //
+										"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">" + lineSeparator() + //
+										"  <xs:element name=\"invoice\" type=\"xs:string\" />" + lineSeparator() + //
+										"</xs:schema>")));
 	}
 
 	@Test

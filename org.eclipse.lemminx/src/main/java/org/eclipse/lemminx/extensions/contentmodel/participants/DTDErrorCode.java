@@ -23,12 +23,15 @@ import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.ElementDeclUnterminatedCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.EntityNotDeclaredCodeAction;
+import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.dtd_not_foundCodeAction;
 import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IXMLErrorCode;
+import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lemminx.utils.XMLPositionUtility.EntityReferenceRange;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.ResourceOperationKind;
 
 /**
  * DTD error code.
@@ -200,8 +203,12 @@ public enum DTDErrorCode implements IXMLErrorCode {
 		return null;
 	}
 
-	public static void registerCodeActionParticipants(Map<String, ICodeActionParticipant> codeActions) {
+	public static void registerCodeActionParticipants(Map<String, ICodeActionParticipant> codeActions,
+			SharedSettings sharedSettings) {
 		codeActions.put(ElementDeclUnterminated.getCode(), new ElementDeclUnterminatedCodeAction());
 		codeActions.put(EntityNotDeclared.getCode(), new EntityNotDeclaredCodeAction());
+		if (sharedSettings.getWorkspaceSettings().isResourceOperationSupported(ResourceOperationKind.Create)) {
+			codeActions.put(dtd_not_found.getCode(), new dtd_not_foundCodeAction());
+		}
 	}
 }

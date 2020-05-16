@@ -27,7 +27,6 @@ import org.eclipse.lemminx.services.extensions.IXMLExtension;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.services.extensions.codelens.ICodeLensParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
-import org.eclipse.lemminx.services.extensions.save.ISaveContext;
 import org.eclipse.lsp4j.InitializeParams;
 
 /**
@@ -47,11 +46,6 @@ public class DTDPlugin implements IXMLExtension {
 		highlightingParticipant = new DTDHighlightingParticipant();
 		referenceParticipant = new DTDReferenceParticipant();
 		codeLensParticipant = new DTDCodeLensParticipant();
-	}
-
-	@Override
-	public void doSave(ISaveContext context) {
-
 	}
 
 	@Override
