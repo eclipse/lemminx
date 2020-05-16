@@ -20,7 +20,6 @@ import org.eclipse.lemminx.services.extensions.IDefinitionParticipant;
 import org.eclipse.lemminx.services.extensions.IHoverParticipant;
 import org.eclipse.lemminx.services.extensions.IXMLExtension;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
-import org.eclipse.lemminx.services.extensions.save.ISaveContext;
 import org.eclipse.lsp4j.InitializeParams;
 
 /**
@@ -51,8 +50,4 @@ public class EntitiesPlugin implements IXMLExtension {
 		registry.unregisterHoverParticipant(hoverParticipant);
 	}
 
-	@Override
-	public void doSave(ISaveContext context) {
-
-	}
 }

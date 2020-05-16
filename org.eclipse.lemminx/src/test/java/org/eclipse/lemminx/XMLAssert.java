@@ -40,6 +40,8 @@ import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMParser;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
+import org.eclipse.lemminx.extensions.generators.FileContentGeneratorManager;
+import org.eclipse.lemminx.extensions.generators.FileContentGeneratorSettings;
 import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.services.extensions.diagnostics.IXMLErrorCode;
 import org.eclipse.lemminx.services.extensions.save.AbstractSaveContext;
@@ -78,6 +80,7 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.junit.jupiter.api.Assertions;
 
 /**
  * XML
@@ -1009,5 +1012,17 @@ public class XMLAssert {
 		WorkspaceEdit workspaceEdit = languageService.doRename(document, position, newText);
 		List<TextEdit> actualEdits = workspaceEdit.getChanges().get("test://test/test.html");
 		assertArrayEquals(expectedEdits.toArray(), actualEdits.toArray());
+	}
+
+	// ------------------- Generator assert
+
+	public static void assertGrammarGenerator(String xml, FileContentGeneratorSettings grammarSettings,
+			String expected) {
+		DOMDocument document = DOMParser.getInstance().parse(xml, "test.xml", null);
+		SharedSettings sharedSettings = new SharedSettings();
+		XMLLanguageService languageService = new XMLLanguageService();
+		FileContentGeneratorManager manager = new FileContentGeneratorManager(languageService);
+		String actual = manager.generate(document, sharedSettings, grammarSettings);
+		Assertions.assertEquals(expected, actual);
 	}
 }

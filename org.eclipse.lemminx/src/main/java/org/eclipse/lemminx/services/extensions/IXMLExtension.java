@@ -42,12 +42,7 @@ public interface IXMLExtension {
 	 */
 	void stop(XMLExtensionsRegistry registry);
 
-	void doSave(ISaveContext context);
-
-	/**
-	 * Update settings.
-	 * 
-	 * @param settings
-	 */
-	//void updateSettings(Object settings);
+	default void doSave(ISaveContext context) {
+		
+	}
 }

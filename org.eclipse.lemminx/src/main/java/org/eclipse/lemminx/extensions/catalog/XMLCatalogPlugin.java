@@ -14,7 +14,6 @@ package org.eclipse.lemminx.extensions.catalog;
 
 import org.eclipse.lemminx.services.extensions.IXMLExtension;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
-import org.eclipse.lemminx.services.extensions.save.ISaveContext;
 import org.eclipse.lsp4j.InitializeParams;
 
 /**
@@ -23,11 +22,6 @@ import org.eclipse.lsp4j.InitializeParams;
 public class XMLCatalogPlugin implements IXMLExtension {
 
 	private XMLCatalogURIResolverExtension uiResolver;
-
-	@Override
-	public void doSave(ISaveContext context) {
-
-	}
 
 	@Override
 	public void start(InitializeParams params, XMLExtensionsRegistry registry) {

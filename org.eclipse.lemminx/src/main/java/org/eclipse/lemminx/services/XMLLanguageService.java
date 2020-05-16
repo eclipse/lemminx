@@ -57,7 +57,7 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
  * XML Language service.
  *
  */
-public class XMLLanguageService extends XMLExtensionsRegistry {
+public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFullFormatter {
 
 	private static final CancelChecker NULL_CHECKER = new CancelChecker() {
 
@@ -99,8 +99,13 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		this.rename = new XMLRename(this);
 	}
 
-	public List<? extends TextEdit> format(TextDocument document, Range range,
-			SharedSettings sharedSettings) {
+	@Override
+	public String formatFull(String text, String uri, SharedSettings sharedSettings) {
+		List<? extends TextEdit> edits = this.format(new TextDocument(text, uri), null, sharedSettings);
+		return edits.isEmpty() ? null : edits.get(0).getNewText();
+	}
+
+	public List<? extends TextEdit> format(TextDocument document, Range range, SharedSettings sharedSettings) {
 		return formatter.format(document, range, sharedSettings);
 	}
 
@@ -117,7 +122,8 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		return findSymbolInformations(xmlDocument, symbolSettings, NULL_CHECKER);
 	}
 
-	public SymbolInformationResult findSymbolInformations(DOMDocument xmlDocument, XMLSymbolSettings symbolSettings, CancelChecker cancelChecker) {
+	public SymbolInformationResult findSymbolInformations(DOMDocument xmlDocument, XMLSymbolSettings symbolSettings,
+			CancelChecker cancelChecker) {
 		return symbolsProvider.findSymbolInformations(xmlDocument, symbolSettings, cancelChecker);
 	}
 
@@ -125,7 +131,8 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		return findDocumentSymbols(xmlDocument, symbolSettings, NULL_CHECKER);
 	}
 
-	public DocumentSymbolsResult findDocumentSymbols(DOMDocument xmlDocument, XMLSymbolSettings symbolSettings, CancelChecker cancelChecker) {
+	public DocumentSymbolsResult findDocumentSymbols(DOMDocument xmlDocument, XMLSymbolSettings symbolSettings,
+			CancelChecker cancelChecker) {
 		return symbolsProvider.findDocumentSymbols(xmlDocument, symbolSettings, cancelChecker);
 	}
 
