@@ -12,7 +12,10 @@
  */
 package org.eclipse.lemminx.extensions.entities;
 
+import org.eclipse.lemminx.extensions.entities.participants.EntitiesCompletionParticipant;
+import org.eclipse.lemminx.extensions.entities.participants.EntitiesDefinitionParticipant;
 import org.eclipse.lemminx.services.extensions.ICompletionParticipant;
+import org.eclipse.lemminx.services.extensions.IDefinitionParticipant;
 import org.eclipse.lemminx.services.extensions.IXMLExtension;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.services.extensions.save.ISaveContext;
@@ -25,15 +28,20 @@ public class EntitiesPlugin implements IXMLExtension {
 
 	private ICompletionParticipant completionParticipant;
 
+	private IDefinitionParticipant definitionParticipant;
+
 	@Override
 	public void start(InitializeParams params, XMLExtensionsRegistry registry) {
 		completionParticipant = new EntitiesCompletionParticipant();
 		registry.registerCompletionParticipant(completionParticipant);
+		definitionParticipant = new EntitiesDefinitionParticipant();
+		registry.registerDefinitionParticipant(definitionParticipant);
 	}
 
 	@Override
 	public void stop(XMLExtensionsRegistry registry) {
 		registry.unregisterCompletionParticipant(completionParticipant);
+		registry.unregisterDefinitionParticipant(definitionParticipant);
 	}
 
 	@Override
