@@ -1,0 +1,5 @@
+<?xml-model href="grammar.dtd" ?>
+<?xml-model href="grammar.xsd" ?>
+<grammar>
+	<from-xsd></from-xsd>	
+</grammar>

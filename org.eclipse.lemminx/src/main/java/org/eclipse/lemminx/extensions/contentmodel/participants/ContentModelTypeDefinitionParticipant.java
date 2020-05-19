@@ -12,6 +12,7 @@
  */
 package org.eclipse.lemminx.extensions.contentmodel.participants;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.lemminx.dom.DOMAttr;
@@ -51,15 +52,13 @@ public class ContentModelTypeDefinitionParticipant extends AbstractTypeDefinitio
 			element = ((DOMAttr) node).getOwnerElement();
 		}
 		if (element != null) {
-			CMDocument cmDocument = contentModelManager.findCMDocument(element.getOwnerDocument(),
-					element.getNamespaceURI());
-			if (cmDocument != null) {
+			Collection<CMDocument> cmDocuments = contentModelManager.findCMDocument(element);
+			for (CMDocument cmDocument : cmDocuments) {
 				LocationLink location = cmDocument.findTypeLocation(node);
 				if (location != null) {
 					locations.add(location);
 				}
 			}
-
 		}
 	}
 

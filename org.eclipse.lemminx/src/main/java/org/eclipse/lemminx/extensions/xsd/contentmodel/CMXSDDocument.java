@@ -71,18 +71,15 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 
 	private final XSModel model;
 
-	private final String uri;
-
 	private final Map<XSElementDeclaration, CMXSDElementDeclaration> elementMappings;
 
 	private Collection<CMElementDeclaration> elements;
 
 	private final FilesChangedTracker tracker;
 
-	public CMXSDDocument(XSModel model, String uri) {
+	public CMXSDDocument(XSModel model) {
 		this.model = model;
 		this.elementMappings = new HashMap<>();
-		this.uri = uri;
 		this.tracker = createFilesChangedTracker(model);
 	}
 
@@ -111,11 +108,6 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 			return false;
 		}
 		return model.getNamespaces().contains(namespaceURI);
-	}
-
-	@Override
-	public String getURI() {
-		return uri;
 	}
 
 	@Override

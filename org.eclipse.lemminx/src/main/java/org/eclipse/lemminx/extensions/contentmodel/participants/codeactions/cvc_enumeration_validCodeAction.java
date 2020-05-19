@@ -18,6 +18,7 @@ import org.eclipse.lemminx.commons.CodeActionFactory;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
+import org.eclipse.lemminx.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
@@ -39,17 +40,21 @@ public class cvc_enumeration_validCodeAction implements ICodeActionParticipant {
 			SharedSettings sharedSettings, IComponentProvider componentProvider) {
 		try {
 			int offset = document.offsetAt(range.getStart());
-			DOMNode element = document.findNodeBefore(offset);
-			if (element != null && element.isElement()) {
+			DOMNode node = document.findNodeBefore(offset);
+			if (node != null && node.isElement()) {
+				DOMElement element = (DOMElement) node;
 				ContentModelManager contentModelManager = componentProvider.getComponent(ContentModelManager.class);
-				CMElementDeclaration cmElement = contentModelManager.findCMElement((DOMElement) element);
-				if (cmElement != null) {
-					cmElement.getEnumerationValues().forEach(value -> {
-						// Replace text content
-						CodeAction replaceTextContentAction = CodeActionFactory.replace("Replace with '" + value + "'",
-								range, value, document.getTextDocument(), diagnostic);
-						codeActions.add(replaceTextContentAction);
-					});
+				for (CMDocument cmDocument : contentModelManager.findCMDocument(element)) {
+					CMElementDeclaration cmElement = cmDocument.findCMElement(element);
+					if (cmElement != null) {
+						cmElement.getEnumerationValues().forEach(value -> {
+							// Replace text content
+							CodeAction replaceTextContentAction = CodeActionFactory.replace(
+									"Replace with '" + value + "'", range, value, document.getTextDocument(),
+									diagnostic);
+							codeActions.add(replaceTextContentAction);
+						});
+					}
 				}
 			}
 		} catch (Exception e) {

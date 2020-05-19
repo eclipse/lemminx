@@ -27,10 +27,20 @@ import org.apache.xerces.xni.XMLString;
 public class XMLModelDeclaration {
 	private String href;
 
+	/**
+	 * Returns the location of the referenced schema
+	 * 
+	 * @return the location of the referenced schema
+	 */
 	public String getHref() {
 		return href;
 	}
 
+	/**
+	 * Set the location of the referenced schema
+	 * 
+	 * @param href the location of the referenced schema
+	 */
 	public void setHref(String href) {
 		this.href = href;
 	}
@@ -102,7 +112,6 @@ public class XMLModelDeclaration {
 				break;
 			}
 		}
-
 		return model;
 	}
 }

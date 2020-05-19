@@ -228,7 +228,6 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 	/**
 	 * Returns the URI of this document, is none was provided this returns null.
 	 */
-	@Override
 	public String getURI() {
 		return uri;
 	}

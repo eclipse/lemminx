@@ -1,0 +1,4 @@
+<!ELEMENT grammar (#PCDATA | from-dtd | from-xsd)* >
+<!ELEMENT from-dtd (#PCDATA)>
+<!-- DTD documentation for from-xsd -->
+<!ELEMENT from-xsd (#PCDATA)>

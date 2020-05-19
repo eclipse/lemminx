@@ -15,6 +15,7 @@ package org.eclipse.lemminx.extensions.entities.participants;
 import static org.eclipse.lemminx.utils.StringUtils.findEndWord;
 import static org.eclipse.lemminx.utils.StringUtils.findStartWord;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -109,15 +110,15 @@ public class EntitiesDefinitionParticipant extends AbstractDefinitionParticipant
 	private static void searchInExternalEntities(String entityName, Range entityRange, DOMDocument document,
 			List<LocationLink> locations, IDefinitionRequest request, CancelChecker cancelChecker) {
 		ContentModelManager contentModelManager = request.getComponent(ContentModelManager.class);
-		CMDocument cmDocument = contentModelManager.findCMDocument(document, null);
-		if (cmDocument != null) {
+		Collection<CMDocument> cmDocuments = contentModelManager.findCMDocument(document, null, false);
+		for (CMDocument cmDocument : cmDocuments) {
 			List<Entity> entities = cmDocument.getEntities();
 			for (Entity entity : entities) {
 				fillEntityLocation((DTDEntityDecl) entity, entityName, entityRange, locations);
 			}
 		}
 	}
-	
+
 	private static void fillEntityLocation(DTDEntityDecl entity, String entityName, Range entityRange,
 			List<LocationLink> locations) {
 		if (entityName.equals(entity.getName())) {

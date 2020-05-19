@@ -35,7 +35,7 @@ import org.eclipse.lsp4j.MarkupKind;
 import org.junit.jupiter.api.Test;
 
 /**
- * XSD completion tests.
+ * XML completion tests based on XML Schema.
  *
  */
 public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {

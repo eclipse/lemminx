@@ -186,6 +186,9 @@ public class XMLAssert {
 		List<String> labels = list.getItems().stream().map(i -> i.getLabel()).sorted().collect(Collectors.toList());
 		String previous = null;
 		for (String label : labels) {
+			if (expectedCount != null) {
+				continue;
+			}
 			assertNotEquals(previous, label, () -> {
 				return "Duplicate label " + label + " in " + labels.stream().collect(Collectors.joining(",")) + "}";
 			});
@@ -196,21 +199,28 @@ public class XMLAssert {
 		}
 		if (expectedItems != null) {
 			for (CompletionItem item : expectedItems) {
-				assertCompletion(list, item, document, offset);
+				assertCompletion(list, item, document, offset, expectedCount);
 			}
 		}
 	}
 
 	private static void assertCompletion(CompletionList completions, CompletionItem expected, TextDocument document,
-			int offset) {
+			int offset, Integer expectedCount) {
 		List<CompletionItem> matches = completions.getItems().stream().filter(completion -> {
 			return expected.getLabel().equals(completion.getLabel());
 		}).collect(Collectors.toList());
 
-		assertEquals(1, matches.size(), () -> {
-			return expected.getLabel() + " should only exist once: Actual: "
-					+ completions.getItems().stream().map(c -> c.getLabel()).collect(Collectors.joining(","));
-		});
+		if (expectedCount != null) {
+			assertTrue(matches.size() >= 1, () -> {
+				return expected.getLabel() + " should only exist once: Actual: "
+						+ completions.getItems().stream().map(c -> c.getLabel()).collect(Collectors.joining(","));
+			});
+		} else {
+			assertEquals(1, matches.size(), () -> {
+				return expected.getLabel() + " should only exist once: Actual: "
+						+ completions.getItems().stream().map(c -> c.getLabel()).collect(Collectors.joining(","));
+			});
+		}
 
 		CompletionItem match = getCompletionMatch(matches, expected);
 		if (expected.getTextEdit() != null && match.getTextEdit() != null) {

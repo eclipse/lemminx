@@ -43,7 +43,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.EntityReference;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.ProcessingInstruction;
 
 /**
  * XML document.
@@ -51,10 +50,10 @@ import org.w3c.dom.ProcessingInstruction;
  */
 public class DOMDocument extends DOMNode implements Document {
 
-	private static final String XML_MODEL_PI = "xml-model";
-
 	private SchemaLocation schemaLocation;
 	private NoNamespaceSchemaLocation noNamespaceSchemaLocation;
+	private List<XMLModel> xmlModels;
+
 	private boolean referencedExternalGrammarInitialized;
 	private boolean referencedSchemaInitialized;
 	private final URIResolverExtensionManager resolverExtensionManager;
@@ -255,13 +254,13 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/**
 	 * Initialize namespaces and schema location declaration .
-	 * 
-	 * @return
 	 */
 	private synchronized void initializeReferencedSchema() {
 		if (referencedSchemaInitialized) {
 			return;
 		}
+		// xml-model
+		xmlModels = XMLModel.createXMLModels(this);
 		// Get root element
 		DOMElement documentElement = getDocumentElement();
 		if (documentElement == null) {
@@ -308,7 +307,7 @@ public class DOMDocument extends DOMNode implements Document {
 		return (children != null && !children.isEmpty() && children.get(0).isProlog());
 	}
 
-	private SchemaLocation createSchemaLocation(DOMNode root, String schemaInstancePrefix) {
+	private static SchemaLocation createSchemaLocation(DOMNode root, String schemaInstancePrefix) {
 		DOMAttr attr = root.getAttributeNode(getPrefixedName(schemaInstancePrefix, "schemaLocation"));
 		if (attr == null) {
 			return null;
@@ -316,7 +315,8 @@ public class DOMDocument extends DOMNode implements Document {
 		return new SchemaLocation(root.getOwnerDocument().getDocumentURI(), attr);
 	}
 
-	private NoNamespaceSchemaLocation createNoNamespaceSchemaLocation(DOMNode root, String schemaInstancePrefix) {
+	private static NoNamespaceSchemaLocation createNoNamespaceSchemaLocation(DOMNode root,
+			String schemaInstancePrefix) {
 		DOMAttr attr = root.getAttributeNode(getPrefixedName(schemaInstancePrefix, "noNamespaceSchemaLocation"));
 		if (attr == null || attr.getValue() == null) {
 			return null;
@@ -344,18 +344,20 @@ public class DOMDocument extends DOMNode implements Document {
 	 * @return true if XML document has a xml-model processing declaration and false
 	 *         otherwise.
 	 */
-	private boolean hasXMLModel() {
-		List<DOMNode> children = getChildren();
-		if (children != null && !children.isEmpty()) {
-			return children.stream().anyMatch(child -> {
-				return isXMLModel(child);
-			});
-		}
-		return false;
+	public boolean hasXMLModel() {
+		return !getXMLModels().isEmpty();
 	}
 
-	private static boolean isXMLModel(DOMNode node) {
-		return node.isProcessingInstruction() && XML_MODEL_PI.equals(((ProcessingInstruction) node).getTarget());
+	/**
+	 * Returns the list of xml-model processing instruction declared in the
+	 * document.
+	 * 
+	 * @return the list of xml-model processing instruction declared in the
+	 *         document.
+	 */
+	public List<XMLModel> getXMLModels() {
+		initializeReferencedSchemaIfNeeded();
+		return xmlModels;
 	}
 
 	// -------------------------- External Grammar (XML file associations, catalog)
