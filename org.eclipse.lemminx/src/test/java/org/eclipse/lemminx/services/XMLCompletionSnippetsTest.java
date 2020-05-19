@@ -39,15 +39,15 @@ public class XMLCompletionSnippetsTest {
 				NEW_XML_SNIPPETS /* DOCTYPE snippets */ + //
 				PROLOG_SNIPPETS /* Prolog snippets */ + //
 				COMMENT_SNIPPETS /* Comment snippets */ , //
-				c("<!DOCTYPE", //
+				c("New XML with SYSTEM DOCTYPE", //
 						"<!DOCTYPE root-element SYSTEM \"file.dtd\">" + lineSeparator() + //
 								"<root-element>" + lineSeparator() + //
 								"</root-element>", //
 						r(0, 0, 0, 0), "<!DOCTYPE"),
-				c("<?xml", //
+				c("Insert XML Processing Instruction", //
 						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>", //
 						r(0, 0, 0, 0), "<?xml"),
-				c("schemaLocation", //
+				c("New XML bound with xsi:schemaLocation", //
 						"<root-element xmlns=\"https://github.com/eclipse/lemminx\"" + lineSeparator() + //
 								"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" + lineSeparator() + //
 								"	xsi:schemaLocation=\"" + lineSeparator() + //
@@ -55,7 +55,7 @@ public class XMLCompletionSnippetsTest {
 								"	" + lineSeparator() + //
 								"</root-element>", //
 						r(0, 0, 0, 0), "schemaLocation"),
-				c("noNamespaceSchemaLocation", //
+				c("New XML bound with xsi:noNamespaceSchemaLocation", //
 						"<root-element" + lineSeparator() + //
 								"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" + lineSeparator() + //
 								"	xsi:noNamespaceSchemaLocation=\"file.xsd\">" + lineSeparator() + //
@@ -69,12 +69,12 @@ public class XMLCompletionSnippetsTest {
 		testCompletionFor("<|", NEW_XML_SNIPPETS /* DOCTYPE snippets */ + //
 				PROLOG_SNIPPETS /* Prolog snippets */ + //
 				COMMENT_SNIPPETS /* Comment snippets */ , //
-				c("<!DOCTYPE", //
+				c("New XML with SYSTEM DOCTYPE", //
 						"<!DOCTYPE root-element SYSTEM \"file.dtd\">" + lineSeparator() + //
 								"<root-element>" + lineSeparator() + //
 								"</root-element>", //
 						r(0, 0, 0, 1), "<!DOCTYPE"),
-				c("<?xml", //
+				c("Insert XML Processing Instruction", //
 						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>", //
 						r(0, 0, 0, 1), "<?xml"),
 				c("<!--", //
@@ -84,12 +84,12 @@ public class XMLCompletionSnippetsTest {
 		testCompletionFor("<|>", NEW_XML_SNIPPETS /* DOCTYPE snippets */ + //
 				PROLOG_SNIPPETS /* Prolog snippets */ + //
 				COMMENT_SNIPPETS /* Comment snippets */ , //
-				c("<!DOCTYPE", //
+				c("New XML with SYSTEM DOCTYPE", //
 						"<!DOCTYPE root-element SYSTEM \"file.dtd\">" + lineSeparator() + //
 								"<root-element>" + lineSeparator() + //
 								"</root-element>", //
 						r(0, 0, 0, 2), "<!DOCTYPE"),
-				c("<?xml", //
+				c("Insert XML Processing Instruction", //
 						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>", //
 						r(0, 0, 0, 2), "<?xml"),
 				c("<!--", //
@@ -99,12 +99,12 @@ public class XMLCompletionSnippetsTest {
 		testCompletionFor("<!|", NEW_XML_SNIPPETS /* DOCTYPE snippets */ + //
 				PROLOG_SNIPPETS /* Prolog snippets */ + //
 				COMMENT_SNIPPETS /* Comment snippets */ , //
-				c("<!DOCTYPE", //
+				c("New XML with SYSTEM DOCTYPE", //
 						"<!DOCTYPE root-element SYSTEM \"file.dtd\">" + lineSeparator() + //
 								"<root-element>" + lineSeparator() + //
 								"</root-element>", //
 						r(0, 0, 0, 2), "<!DOCTYPE"),
-				c("<?xml", //
+				c("Insert XML Processing Instruction", //
 						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>", //
 						r(0, 0, 0, 2), "<?xml"),
 				c("<!--", //
@@ -118,7 +118,7 @@ public class XMLCompletionSnippetsTest {
 		testCompletionFor("<!-- -->|", NEW_XML_SNIPPETS /* DOCTYPE snippets */ + //
 				PROLOG_SNIPPETS /* Prolog snippets */ + //
 				COMMENT_SNIPPETS /* Comment snippets */ , //
-				c("<!DOCTYPE", //
+				c("New XML with SYSTEM DOCTYPE", //
 						"<!DOCTYPE root-element SYSTEM \"file.dtd\">" + lineSeparator() + //
 								"<root-element>" + lineSeparator() + //
 								"</root-element>", //
@@ -133,7 +133,7 @@ public class XMLCompletionSnippetsTest {
 		testCompletionFor("<?xml version=\"1.0\" encoding=\"UTF-8\"?>|", //
 				NEW_XML_SNIPPETS /* DOCTYPE snippets */ + //
 						COMMENT_SNIPPETS /* Comment snippets */ , //
-				c("<!DOCTYPE", //
+				c("New XML with SYSTEM DOCTYPE", //
 						"<!DOCTYPE root-element SYSTEM \"file.dtd\">" + lineSeparator() + //
 								"<root-element>" + lineSeparator() + //
 								"</root-element>", //
@@ -145,7 +145,7 @@ public class XMLCompletionSnippetsTest {
 		testCompletionFor("<?xml version=\"1.0\" encoding=\"UTF-8\"?><|", //
 				NEW_XML_SNIPPETS /* DOCTYPE snippets */ + //
 						COMMENT_SNIPPETS /* Comment snippets */ , //
-				c("<!DOCTYPE", //
+				c("New XML with SYSTEM DOCTYPE", //
 						"<!DOCTYPE root-element SYSTEM \"file.dtd\">" + lineSeparator() + //
 								"<root-element>" + lineSeparator() + //
 								"</root-element>", //
@@ -157,7 +157,7 @@ public class XMLCompletionSnippetsTest {
 		testCompletionFor("<?xml version=\"1.0\" encoding=\"UTF-8\"?><|!", //
 				NEW_XML_SNIPPETS /* DOCTYPE snippets */ + //
 						COMMENT_SNIPPETS /* Comment snippets */ , //
-				c("<!DOCTYPE", //
+				c("New XML with SYSTEM DOCTYPE", //
 						"<!DOCTYPE root-element SYSTEM \"file.dtd\">" + lineSeparator() + //
 								"<root-element>" + lineSeparator() + //
 								"</root-element>", //
@@ -169,7 +169,7 @@ public class XMLCompletionSnippetsTest {
 		testCompletionFor("<?xml version=\"1.0\" encoding=\"UTF-8\"?><!|", //
 				NEW_XML_SNIPPETS /* DOCTYPE snippets */ + //
 						COMMENT_SNIPPETS /* Comment snippets */ , //
-				c("<!DOCTYPE", //
+				c("New XML with SYSTEM DOCTYPE", //
 						"<!DOCTYPE root-element SYSTEM \"file.dtd\">" + lineSeparator() + //
 								"<root-element>" + lineSeparator() + //
 								"</root-element>", //
@@ -182,7 +182,7 @@ public class XMLCompletionSnippetsTest {
 				NEW_XML_SNIPPETS /* DOCTYPE snippets */ + //
 						REGION_SNIPPETS /* regions snippets */ + //
 						COMMENT_SNIPPETS /* Comment snippets */ , //
-				c("<!DOCTYPE", //
+				c("New XML with SYSTEM DOCTYPE", //
 						"<!DOCTYPE root-element SYSTEM \"file.dtd\">" + lineSeparator() + //
 								"<root-element>" + lineSeparator() + //
 								"</root-element>", //
@@ -202,14 +202,14 @@ public class XMLCompletionSnippetsTest {
 						NEW_XSD_SNIPPETS /* schema snippets */ + //
 						PROLOG_SNIPPETS /* Prolog snippets */ + //
 						COMMENT_SNIPPETS /* Comment snippets */ , //
-				c("<schema", //
+				c("New XML Schema", //
 						"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">" + lineSeparator() + //
 								"	<xs:element name=\"root-element\">" + lineSeparator() + //
 								"		" + lineSeparator() + //
 								"	</xs:element>" + lineSeparator() + //
 								"</xs:schema>", //
 						r(0, 0, 0, 0), "<schema"),
-				c("<?xml", //
+				c("Insert XML Processing Instruction", //
 						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>", //
 						r(0, 0, 0, 0), "<?xml"),
 				c("<!--", //
@@ -221,14 +221,14 @@ public class XMLCompletionSnippetsTest {
 				NEW_XSD_SNIPPETS /* schema snippets */ + //
 						PROLOG_SNIPPETS /* Prolog snippets */ + //
 						COMMENT_SNIPPETS /* Comment snippets */ , //
-				c("<schema", //
+				c("New XML Schema", //
 						"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">" + lineSeparator() + //
 								"	<xs:element name=\"root-element\">" + lineSeparator() + //
 								"		" + lineSeparator() + //
 								"	</xs:element>" + lineSeparator() + //
 								"</xs:schema>", //
 						r(0, 0, 0, 1), "<schema"),
-				c("<?xml", //
+				c("Insert XML Processing Instruction", //
 						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>", //
 						r(0, 0, 0, 1), "<?xml"),
 				c("<!--", //
@@ -240,14 +240,14 @@ public class XMLCompletionSnippetsTest {
 				NEW_XSD_SNIPPETS /* schema snippets */ + //
 						PROLOG_SNIPPETS /* Prolog snippets */ + //
 						COMMENT_SNIPPETS /* Comment snippets */ , //
-				c("<schema", //
+				c("New XML Schema", //
 						"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">" + lineSeparator() + //
 								"	<xs:element name=\"root-element\">" + lineSeparator() + //
 								"		" + lineSeparator() + //
 								"	</xs:element>" + lineSeparator() + //
 								"</xs:schema>", //
 						r(0, 0, 0, 2), "<schema"),
-				c("<?xml", //
+				c("Insert XML Processing Instruction", //
 						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>", //
 						r(0, 0, 0, 2), "<?xml"),
 				c("<!--", //
@@ -418,7 +418,7 @@ public class XMLCompletionSnippetsTest {
 				DOCTYPE_SNIPPETS /* DOCTYPE snippets */ + //
 						PROLOG_SNIPPETS /* Prolog snippets */ + //
 						COMMENT_SNIPPETS /* Comment snippets */ , //
-				c("<!DOCTYPE", //
+				c("Insert SYSTEM DOCTYPE", //
 						"<!DOCTYPE foo SYSTEM \"file.dtd\">", //
 						r(0, 0, 0, 0), "<!DOCTYPE"));
 
@@ -426,7 +426,7 @@ public class XMLCompletionSnippetsTest {
 				DOCTYPE_SNIPPETS /* DOCTYPE snippets */ + //
 						PROLOG_SNIPPETS /* Prolog snippets */ + //
 						COMMENT_SNIPPETS /* Comment snippets */ , //
-				c("<!DOCTYPE", //
+				c("Insert SYSTEM DOCTYPE", //
 						"<!DOCTYPE foo SYSTEM \"file.dtd\">", //
 						r(0, 8, 0, 8), "<!DOCTYPE"));
 
@@ -436,7 +436,7 @@ public class XMLCompletionSnippetsTest {
 				DOCTYPE_SNIPPETS /* DOCTYPE snippets */ + //
 						PROLOG_SNIPPETS /* Prolog snippets */ + //
 						COMMENT_SNIPPETS /* Comment snippets */ , //
-				c("<!DOCTYPE", //
+				c("Insert SYSTEM DOCTYPE", //
 						"<!DOCTYPE foo SYSTEM \"file.dtd\">", //
 						r(2, 0, 2, 0), "<!DOCTYPE"));
 	}
@@ -448,7 +448,7 @@ public class XMLCompletionSnippetsTest {
 		testCompletionFor("<?|", //
 				PROLOG_SNIPPETS /* Prolog snippets */ + //
 						COMMENT_SNIPPETS /* Comment snippets */ , //
-				c("<?xml", //
+				c("Insert XML Processing Instruction", //
 						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>", //
 						r(0, 0, 0, 2), "<?xml"));
 

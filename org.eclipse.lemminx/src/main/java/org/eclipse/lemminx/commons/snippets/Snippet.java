@@ -23,6 +23,8 @@ import java.util.function.BiPredicate;
  */
 public class Snippet {
 
+	private String label;
+
 	private List<String> prefixes;
 
 	private String suffix;
@@ -34,6 +36,14 @@ public class Snippet {
 	private String scope;
 
 	private ISnippetContext<?> context;
+
+	public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
+	}
 
 	public List<String> getPrefixes() {
 		return prefixes;
