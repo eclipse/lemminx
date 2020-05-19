@@ -58,27 +58,32 @@ public class SnippetRegistry {
 	private final List<Snippet> snippets;
 
 	public SnippetRegistry() {
-		this(null);
+		this(null, true);
 	}
 
 	/**
 	 * Snippet registry for a given language id.
 	 * 
-	 * @param languageId the language id and null otherwise.
+	 * @param languageId  the language id and null otherwise.
+	 * @param loadDefault true if default snippets from SPI must be loaded and false
+	 *                    otherwise.
 	 */
-	public SnippetRegistry(String languageId) {
+	public SnippetRegistry(String languageId, boolean loadDefault) {
 		snippets = new ArrayList<>();
 		// Load snippets from SPI
-		ServiceLoader<ISnippetRegistryLoader> loaders = ServiceLoader.load(ISnippetRegistryLoader.class);
-		loaders.forEach(loader -> {
-			if (Objects.equals(languageId, loader.getLanguageId())) {
-				try {
-					loader.load(this);
-				} catch (Exception e) {
-					LOGGER.log(Level.SEVERE, "Error while consumming snippet loader " + loader.getClass().getName(), e);
+		if (loadDefault) {
+			ServiceLoader<ISnippetRegistryLoader> loaders = ServiceLoader.load(ISnippetRegistryLoader.class);
+			loaders.forEach(loader -> {
+				if (Objects.equals(languageId, loader.getLanguageId())) {
+					try {
+						loader.load(this);
+					} catch (Exception e) {
+						LOGGER.log(Level.SEVERE, "Error while consumming snippet loader " + loader.getClass().getName(),
+								e);
+					}
 				}
-			}
-		});
+			});
+		}
 	}
 
 	/**
@@ -242,13 +247,13 @@ public class SnippetRegistry {
 		return getSnippets().stream().filter(snippet -> {
 			return snippet.match(contextFilter, model);
 		}).map(snippet -> {
-			String prefix = snippet.getPrefixes().get(0);
 			CompletionItem item = new CompletionItem();
-			item.setLabel(prefix);
+			item.setLabel(snippet.getLabel());
 			String insertText = getInsertText(snippet, model, !snippetsSupported, lineDelimiter);
 			item.setKind(CompletionItemKind.Snippet);
 			item.setDocumentation(
 					Either.forRight(createDocumentation(snippet, model, canSupportMarkdown, lineDelimiter)));
+			String prefix = snippet.getPrefixes().get(0);
 			item.setFilterText(prefix);
 			item.setDetail(snippet.getDescription());
 			Range range = replaceRange;
