@@ -12,6 +12,9 @@
  */
 package org.eclipse.lemminx.extensions.xsd.contentmodel;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.apache.xerces.impl.Constants;
 import org.apache.xerces.impl.xs.XSLoaderImpl;
 import org.apache.xerces.xs.XSModel;
@@ -23,6 +26,7 @@ import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelProvider;
 import org.eclipse.lemminx.uriresolver.CacheResourceDownloadingException;
 import org.eclipse.lemminx.uriresolver.URIResolverExtensionManager;
 import org.eclipse.lemminx.utils.DOMUtils;
+import org.eclipse.lemminx.utils.StringUtils;
 import org.w3c.dom.DOMError;
 import org.w3c.dom.DOMErrorHandler;
 
@@ -53,21 +57,27 @@ public class CMXSDContentModelProvider implements ContentModelProvider {
 	}
 
 	@Override
-	public String getSystemId(DOMDocument xmlDocument, String namespaceURI) {
+	public Collection<String> getSystemIds(DOMDocument xmlDocument, String namespaceURI) {
+		Collection<String> systemIds = new ArrayList<>();
 		SchemaLocation schemaLocation = xmlDocument.getSchemaLocation();
 		if (schemaLocation != null) {
-			return schemaLocation.getLocationHint(namespaceURI);
+			String location = schemaLocation.getLocationHint(namespaceURI);
+			if (!StringUtils.isEmpty(location)) {
+				systemIds.add(location);
+			}
 		} else {
 			NoNamespaceSchemaLocation noNamespaceSchemaLocation = xmlDocument.getNoNamespaceSchemaLocation();
 			if (noNamespaceSchemaLocation != null) {
-				if (namespaceURI != null) {
+				if (namespaceURI == null) {
 					// xsi:noNamespaceSchemaLocation doesn't define namespaces
-					return null;
+					String location = noNamespaceSchemaLocation.getLocation();
+					if (!StringUtils.isEmpty(location)) {
+						systemIds.add(location);
+					}
 				}
-				return noNamespaceSchemaLocation.getLocation();
 			}
 		}
-		return null;
+		return systemIds;
 	}
 
 	@Override
@@ -75,7 +85,7 @@ public class CMXSDContentModelProvider implements ContentModelProvider {
 		XSModel model = getLoader().loadURI(key);
 		if (model != null) {
 			// XML Schema can be loaded
-			return new CMXSDDocument(model, key);
+			return new CMXSDDocument(model);
 		}
 		return null;
 	}

@@ -12,9 +12,16 @@
  */
 package org.eclipse.lemminx.extensions.contentmodel.participants;
 
+import static org.eclipse.lemminx.utils.MarkupContentFactory.aggregateContent;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMAttributeDeclaration;
+import org.eclipse.lemminx.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.extensions.contentmodel.utils.XMLGenerator;
@@ -24,12 +31,13 @@ import org.eclipse.lemminx.services.extensions.IHoverRequest;
 import org.eclipse.lemminx.uriresolver.CacheResourceDownloadingException;
 import org.eclipse.lemminx.utils.MarkupContentFactory;
 import org.eclipse.lemminx.utils.MarkupContentFactory.IMarkupKindSupport;
+import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.MarkupKind;
 
 /**
- * Extension to support XML hover based on content model (XML Schema completion,
- * etc)
+ * Extension to support XML hover based on content model (XML Schema
+ * documentation, etc)
  */
 public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 
@@ -37,40 +45,55 @@ public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 	public String onTag(IHoverRequest hoverRequest) throws Exception {
 		try {
 			ContentModelManager contentModelManager = hoverRequest.getComponent(ContentModelManager.class);
-			DOMElement node = (DOMElement) hoverRequest.getNode();
-			CMElementDeclaration cmElement = contentModelManager.findCMElement(node);
-			if (cmElement != null) {
-				MarkupContent content = XMLGenerator.createMarkupContent(cmElement, hoverRequest);
-				if (content != null) {
-					return content.getValue();
+			DOMElement element = (DOMElement) hoverRequest.getNode();
+			Collection<CMDocument> cmDocuments = contentModelManager.findCMDocument(element);
+			if (cmDocuments.isEmpty()) {
+				// no bound grammar -> no documentation
+				return null;
+			}
+			// Compute element declaration documentation from bound grammars
+			List<String> contentValues = new ArrayList<>();
+			for (CMDocument cmDocument : cmDocuments) {
+				CMElementDeclaration cmElement = cmDocument.findCMElement(element);
+				if (cmElement != null) {
+					MarkupContent content = XMLGenerator.createMarkupContent(cmElement, hoverRequest);
+					fillHoverContent(content, contentValues);
 				}
 			}
+			return aggregateContent(contentValues, hoverRequest);
 		} catch (CacheResourceDownloadingException e) {
 			return getCacheWarningHover(e, hoverRequest);
 		}
-		return null;
 	}
 
 	@Override
 	public String onAttributeName(IHoverRequest hoverRequest) throws Exception {
 		DOMAttr attribute = (DOMAttr) hoverRequest.getNode();
+		DOMElement element = attribute.getOwnerElement();
 		try {
 			ContentModelManager contentModelManager = hoverRequest.getComponent(ContentModelManager.class);
-			CMElementDeclaration cmElement = contentModelManager.findCMElement(attribute.getOwnerElement());
-			if (cmElement != null) {
-				String attributeName = attribute.getName();
-				CMAttributeDeclaration cmAttribute = cmElement.findCMAttribute(attributeName);
-				if (cmAttribute != null) {
-					MarkupContent content = XMLGenerator.createMarkupContent(cmAttribute, cmElement, hoverRequest);
-					if (content != null) {
-						return content.getValue();
+			Collection<CMDocument> cmDocuments = contentModelManager.findCMDocument(element);
+			if (cmDocuments.isEmpty()) {
+				// no bound grammar -> no documentation
+				return null;
+			}
+			String attributeName = attribute.getName();
+			// Compute attribute name declaration documentation from bound grammars
+			List<String> contentValues = new ArrayList<>();
+			for (CMDocument cmDocument : cmDocuments) {
+				CMElementDeclaration cmElement = cmDocument.findCMElement(element);
+				if (cmElement != null) {
+					CMAttributeDeclaration cmAttribute = cmElement.findCMAttribute(attributeName);
+					if (cmAttribute != null) {
+						MarkupContent content = XMLGenerator.createMarkupContent(cmAttribute, cmElement, hoverRequest);
+						fillHoverContent(content, contentValues);
 					}
 				}
 			}
+			return aggregateContent(contentValues, hoverRequest);
 		} catch (CacheResourceDownloadingException e) {
 			return getCacheWarningHover(e, hoverRequest);
 		}
-		return null;
 	}
 
 	@Override
@@ -85,26 +108,33 @@ public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 			return temp;
 		}
 
+		DOMElement element = attribute.getOwnerElement();
 		try {
 			ContentModelManager contentModelManager = hoverRequest.getComponent(ContentModelManager.class);
-			CMElementDeclaration cmElement = contentModelManager.findCMElement(attribute.getOwnerElement());
-			if (cmElement != null) {
-				String attributeName = attribute.getName();
-				CMAttributeDeclaration cmAttribute = cmElement.findCMAttribute(attributeName);
-
-				String attributeValue = attribute.getValue();
-				if (cmAttribute != null) {
-					MarkupContent content = XMLGenerator.createMarkupContent(cmAttribute, attributeValue, cmElement,
-							hoverRequest);
-					if (content != null) {
-						return content.getValue();
+			Collection<CMDocument> cmDocuments = contentModelManager.findCMDocument(element);
+			if (cmDocuments.isEmpty()) {
+				// no bound grammar -> no documentation
+				return null;
+			}
+			String attributeName = attribute.getName();
+			String attributeValue = attribute.getValue();
+			// Compute attribute value declaration documentation from bound grammars
+			List<String> contentValues = new ArrayList<>();
+			for (CMDocument cmDocument : cmDocuments) {
+				CMElementDeclaration cmElement = cmDocument.findCMElement(element);
+				if (cmElement != null) {
+					CMAttributeDeclaration cmAttribute = cmElement.findCMAttribute(attributeName);
+					if (cmAttribute != null) {
+						MarkupContent content = XMLGenerator.createMarkupContent(cmAttribute, attributeValue, cmElement,
+								hoverRequest);
+						fillHoverContent(content, contentValues);
 					}
 				}
 			}
+			return aggregateContent(contentValues, hoverRequest);
 		} catch (CacheResourceDownloadingException e) {
 			return getCacheWarningHover(e, hoverRequest);
 		}
-		return null;
 	}
 
 	private static String getCacheWarningHover(CacheResourceDownloadingException e, IMarkupKindSupport support) {
@@ -114,4 +144,11 @@ public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 				MarkupKind.MARKDOWN, support);
 		return content.getValue();
 	}
+
+	private static void fillHoverContent(MarkupContent content, List<String> hoverContent) {
+		if (content != null && !StringUtils.isEmpty(content.getValue())) {
+			hoverContent.add(content.getValue());
+		}
+	}
+
 }

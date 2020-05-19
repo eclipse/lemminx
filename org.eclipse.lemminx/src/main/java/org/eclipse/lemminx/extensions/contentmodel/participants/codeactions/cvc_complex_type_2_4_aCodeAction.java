@@ -72,16 +72,15 @@ public class cvc_complex_type_2_4_aCodeAction implements ICodeActionParticipant 
 					boolean selectLocalNameOnly = element.getPrefix() != null;
 					List<Range> ranges = new ArrayList<>();
 					Range startRange, endRange;
-					if(selectLocalNameOnly) {
+					if (selectLocalNameOnly) {
 						startRange = XMLPositionUtility.selectStartTagLocalName(element);
 						endRange = XMLPositionUtility.selectEndTagLocalName(element);
-					}
-					else {
+					} else {
 						startRange = XMLPositionUtility.selectStartTagName(element);
 						endRange = XMLPositionUtility.selectEndTagName(element);
 					}
 					ranges.add(startRange);
-					
+
 					if (endRange != null) {
 						ranges.add(endRange);
 					}
@@ -128,22 +127,26 @@ public class cvc_complex_type_2_4_aCodeAction implements ICodeActionParticipant 
 		String parentPrefix = parentElement.getPrefix();
 		// check if prefix is the same than the parent profix
 		if (prefix != null && !prefix.equals(parentPrefix)) {
-			// We are in the case 
+			// We are in the case
 			// <b:bean><camel:beani
-			
+
 			// returns the all element for the camel XML Schema.
 			String namespaceURI = element.getNamespaceURI();
-			CMDocument cmDocument = contentModelManager.findCMDocument(parentElement, namespaceURI);
-			return cmDocument != null ? cmDocument.getElements() : null;
+			List<CMElementDeclaration> possibleElements = new ArrayList<>();
+			for (CMDocument cmDocument : contentModelManager.findCMDocument(parentElement, namespaceURI)) {
+				possibleElements.addAll(cmDocument.getElements());
+			}
+			return possibleElements;
 		}
 
-		CMElementDeclaration cmElement = contentModelManager.findCMElement(parentElement);
-		if (cmElement != null) {
-			// Collect all possible elements from the parent element upon the offset start
-			// of the element
-			return cmElement.getPossibleElements(parentElement, element.getStart());
+		List<CMElementDeclaration> possibleElements = new ArrayList<>();
+		for (CMDocument cmDocument : contentModelManager.findCMDocument(parentElement)) {
+			CMElementDeclaration cmElement = cmDocument.findCMElement(parentElement);
+			if (cmElement != null) {
+				possibleElements.addAll(cmElement.getPossibleElements(parentElement, element.getStart()));
+			}
 		}
-		return null;
+		return possibleElements;
 	}
 
 	private static boolean isSimilar(String reference, String current) {

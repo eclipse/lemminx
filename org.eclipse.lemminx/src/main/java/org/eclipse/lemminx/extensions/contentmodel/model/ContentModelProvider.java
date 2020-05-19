@@ -12,6 +12,8 @@
  */
 package org.eclipse.lemminx.extensions.contentmodel.model;
 
+import java.util.Collection;
+
 import org.eclipse.lemminx.dom.DOMDocument;
 
 /**
@@ -35,7 +37,7 @@ public interface ContentModelProvider {
 
 	boolean adaptFor(String uri);
 
-	String getSystemId(DOMDocument xmlDocument, String namespaceURI);
+	Collection<String> getSystemIds(DOMDocument xmlDocument, String namespaceURI);
 
 	CMDocument createCMDocument(String key);
 

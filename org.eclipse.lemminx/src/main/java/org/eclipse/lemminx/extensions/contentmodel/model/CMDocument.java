@@ -52,14 +52,25 @@ public interface CMDocument {
 	 * @return the declared element which matches the given XML element and null
 	 *         otherwise.
 	 */
-	CMElementDeclaration findCMElement(DOMElement element, String namespace);
+	default CMElementDeclaration findCMElement(DOMElement element) {
+		return findCMElement(element, element.getNamespaceURI());
+	}
 
 	/**
-	 * Returns the root URI of the model document.
+	 * Returns the declared element which matches the given XML element and null
+	 * otherwise.
 	 * 
-	 * @return the root URI of the model document.
+	 * @param element   the XML element
+	 * @param namespace the given namespace
+	 * @return the declared element which matches the given XML element and null
+	 *         otherwise.
 	 */
-	String getURI();
+	CMElementDeclaration findCMElement(DOMElement element, String namespace);
+
+	default CMAttributeDeclaration findCMAttribute(DOMElement element, String attributeName) {
+		CMElementDeclaration elementDeclaration = findCMElement(element);
+		return elementDeclaration != null ? elementDeclaration.findCMAttribute(attributeName) : null;
+	}
 
 	/**
 	 * Returns the location of the type definition of the given node.

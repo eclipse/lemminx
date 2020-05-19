@@ -12,6 +12,9 @@
  */
 package org.eclipse.lemminx.extensions.dtd.contentmodel;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import org.apache.xerces.xni.grammars.Grammar;
 import org.apache.xerces.xni.parser.XMLInputSource;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -48,14 +51,14 @@ public class CMDTDContentModelProvider implements ContentModelProvider {
 	}
 
 	@Override
-	public String getSystemId(DOMDocument xmlDocument, String namespaceURI) {
+	public Collection<String> getSystemIds(DOMDocument xmlDocument, String namespaceURI) {
 		/*
 		 * <!DOCTYPE catalog PUBLIC
 		 * "-//OASIS/DTD Entity Resolution XML Catalog V1.0//EN"
 		 * "http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd">
 		 */
 		DOMDocumentType documentType = xmlDocument.getDoctype();
-		return documentType.getSystemIdWithoutQuotes();
+		return Collections.singleton(documentType.getSystemIdWithoutQuotes());
 	}
 
 	@Override
