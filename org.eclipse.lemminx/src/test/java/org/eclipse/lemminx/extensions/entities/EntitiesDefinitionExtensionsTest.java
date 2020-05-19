@@ -16,6 +16,8 @@ import static org.eclipse.lemminx.XMLAssert.ll;
 import static org.eclipse.lemminx.XMLAssert.r;
 import static org.eclipse.lemminx.XMLAssert.testDefinitionFor;
 
+import org.apache.xerces.impl.XMLEntityManager;
+import org.apache.xerces.util.URI.MalformedURIException;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.junit.jupiter.api.Test;
 
@@ -73,4 +75,34 @@ public class EntitiesDefinitionExtensionsTest {
 		testDefinitionFor(xml, "test.xml", ll("test.xml", r(5, 7, 5, 12), r(2, 11, 2, 16)));
 	}
 
+	// Test for external entities
+
+	public void external() throws BadLocationException, MalformedURIException {
+		String dtdFileURI = getDTDFileURI("src/test/resources/dtd/base.dtd");
+		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n" + //
+				"<!DOCTYPE root-element SYSTEM \"src/test/resources/dtd/base.dtd\" [\r\n" + //
+				"<!ENTITY mdash \"&#x2014;\">\r\n" + //
+				"]>\r\n" + //
+				"<root-element>\r\n" + //
+				"\r\n &f|oo" + //
+				"</root-element>";
+		testDefinitionFor(xml, "test.xml", ll(dtdFileURI, r(6, 2, 6, 5), r(2, 9, 2, 12)));
+	}
+
+	@Test
+	public void externalWithIndent() throws BadLocationException, MalformedURIException {
+		String dtdFileURI = getDTDFileURI("src/test/resources/dtd/base.dtd");
+		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n" + //
+				"<!DOCTYPE root-element SYSTEM \"src/test/resources/dtd/base.dtd\" [\r\n" + //
+				"	<!ENTITY mdash \"&#x2014;\">\r\n" + //
+				"]>\r\n" + //
+				"<root-element>\r\n" + //
+				"\r\n &f|oo" + //
+				"</root-element>";
+		testDefinitionFor(xml, "test.xml", ll(dtdFileURI, r(6, 2, 6, 5), r(2, 9, 2, 12)));
+	}
+
+	private static String getDTDFileURI(String dtdURI) throws MalformedURIException {
+		return XMLEntityManager.expandSystemId(dtdURI, "test.xml", true).replace("///", "/");
+	}
 }

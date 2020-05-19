@@ -21,8 +21,8 @@ import java.util.function.Predicate;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMDocumentType;
 import org.eclipse.lemminx.dom.DOMNode;
-import org.eclipse.lemminx.dom.DTDDeclParameter;
 import org.eclipse.lemminx.dom.DTDEntityDecl;
+import org.eclipse.lemminx.dom.TargetRange;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.services.extensions.AbstractDefinitionParticipant;
@@ -92,10 +92,7 @@ public class EntitiesDefinitionParticipant extends AbstractDefinitionParticipant
 		for (int i = 0; i < entities.getLength(); i++) {
 			cancelChecker.checkCanceled();
 			DTDEntityDecl entity = (DTDEntityDecl) entities.item(i);
-			if (entityName.equals(entity.getName())) {
-				DTDDeclParameter name = entity.getNameParameter();
-				locations.add(XMLPositionUtility.createLocationLink(entityRange, name));
-			}
+			fillEntityLocation(entity, entityName, entityRange, locations);
 		}
 	}
 
@@ -116,10 +113,17 @@ public class EntitiesDefinitionParticipant extends AbstractDefinitionParticipant
 		if (cmDocument != null) {
 			List<Entity> entities = cmDocument.getEntities();
 			for (Entity entity : entities) {
-				if (entityName.equals(entity.getNodeName())) {
-					// TODO : retrieve location from the external entity?
-				}
+				fillEntityLocation((DTDEntityDecl) entity, entityName, entityRange, locations);
 			}
 		}
 	}
+	
+	private static void fillEntityLocation(DTDEntityDecl entity, String entityName, Range entityRange,
+			List<LocationLink> locations) {
+		if (entityName.equals(entity.getName())) {
+			TargetRange name = entity.getNameParameter();
+			locations.add(XMLPositionUtility.createLocationLink(entityRange, name));
+		}
+	}
+
 }

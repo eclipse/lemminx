@@ -14,11 +14,10 @@
 package org.eclipse.lemminx.extensions.contentmodel;
 
 import static org.eclipse.lemminx.XMLAssert.r;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.xerces.impl.XMLEntityManager;
@@ -74,15 +73,17 @@ public class DTDHoverExtensionsTest {
 			String httpDTDUri = server.getUri("/dtd/web-app_2_3.dtd");
 			Path cachedFilePath = CacheResourcesManager.getResourceCachePath(httpDTDUri);
 			Files.deleteIfExists(cachedFilePath);
-			
-			// Download the DTD by waiting 1 sec			
+
+			// Download the DTD by waiting 1 sec
 			CacheResourcesManager cacheResourcesManager = new CacheResourcesManager();
 			try {
-				cacheResourcesManager.getResource(httpDTDUri);				
+				cacheResourcesManager.getResource(httpDTDUri);
 			} catch (CacheResourceDownloadingException ignored) {
 			}
-			TimeUnit.MILLISECONDS.sleep(200);
-			
+			TimeUnit.MILLISECONDS.sleep(1000);
+			assertTrue(Files.exists(cachedFilePath),
+					"'" + cachedFilePath + "' file should be downloaded in the cache.");
+
 			// Process hover with the DTD (http dtd)
 			String dtdFileCacheURI = cachedFilePath.toUri().toString().replace("file:///", "file:/");
 			String xml = "<!DOCTYPE web-app PUBLIC\n" + //
@@ -96,7 +97,7 @@ public class DTDHoverExtensionsTest {
 					"The web-app element is the root of the deployment descriptor for a web application." + //
 							System.lineSeparator() + //
 							System.lineSeparator() + "Source: [web-app_2_3.dtd](" + dtdFileCacheURI + ")",
-					r(4, 1, 4, 8));			
+					r(4, 1, 4, 8));
 		} finally {
 			server.stop();
 		}
