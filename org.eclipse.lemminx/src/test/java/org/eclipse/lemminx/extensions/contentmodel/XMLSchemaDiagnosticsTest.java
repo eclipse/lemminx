@@ -552,6 +552,31 @@ public class XMLSchemaDiagnosticsTest {
 											ca(diagnostic, te(5, 12, 5, 17, "AElement2"), te(5, 28, 5, 33, "AElement2")));
 	}
 
+	@Test
+	public void cvc_complex_type_2_2_withElement() throws Exception {
+		String xml =
+		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + //
+		"<int xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://integer\" xsi:schemaLocation=\"http://integer src/test/resources/xsd/namedInteger.xsd\">\n" + //
+		"    <int>42</int>\n" + //
+		"</int>";
+		Diagnostic diagnostic = d(1, 1, 1, 4, XMLSchemaErrorCode.cvc_complex_type_2_2,
+			"cvc-complex-type.2.2: Element 'int' must have no element [children], and the value must be valid.");
+		testDiagnosticsFor(xml, diagnostic);
+	}
+
+	@Test
+	public void cvc_complex_type_2_2_withText() throws Exception {
+		String xml =
+		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + //
+		"<int xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://integer\" xsi:schemaLocation=\"http://integer src/test/resources/xsd/namedInteger.xsd\">\n" + //
+		"    Bob</int>";
+		Diagnostic diagnosticBob = d(2, 4, 2, 7, XMLSchemaErrorCode.cvc_datatype_valid_1_2_1,
+			"Content of type 'integer' is expected.\n\nThe following content is not a valid type:\n 'Bob'\n\nCode:");
+		Diagnostic diagnostic_cvc_2_2 = d(1, 1, 1, 4, XMLSchemaErrorCode.cvc_complex_type_2_2,
+			"cvc-complex-type.2.2: Element 'int' must have no element [children], and the value must be valid.");
+		testDiagnosticsFor(xml, diagnosticBob, diagnostic_cvc_2_2);
+	}
+
 	private static void testDiagnosticsFor(String xml, Diagnostic... expected) {
 		XMLAssert.testDiagnosticsFor(xml, "src/test/resources/catalogs/catalog.xml", expected);
 	}
@@ -563,4 +588,3 @@ public class XMLSchemaDiagnosticsTest {
 
 }
 
-	
