@@ -47,6 +47,7 @@ import org.eclipse.lsp4j.Range;
  */
 public enum XMLSchemaErrorCode implements IXMLErrorCode {
 	cvc_complex_type_2_3("cvc-complex-type.2.3"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-2-3
+	cvc_complex_type_2_2("cvc-complex-type.2.2"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-2-2
 	cvc_complex_type_2_1("cvc-complex-type.2.1"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-2-1
 	cvc_complex_type_2_4_a("cvc-complex-type.2.4.a"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-2-4-a
 	cvc_complex_type_2_4_b("cvc-complex-type.2.4.b"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-2-4-b
@@ -128,6 +129,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 		switch (code) {
 		case cvc_complex_type_2_3:
 			return XMLPositionUtility.selectFirstNonWhitespaceText(offset, document);
+		case cvc_complex_type_2_2:
 		case cvc_complex_type_2_4_a:
 		case cvc_complex_type_2_4_b:
 		case cvc_complex_type_2_4_c:
