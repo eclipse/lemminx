@@ -33,6 +33,7 @@ import org.eclipse.lemminx.dom.TargetRange;
 import org.eclipse.lemminx.dom.parser.Scanner;
 import org.eclipse.lemminx.dom.parser.TokenType;
 import org.eclipse.lemminx.dom.parser.XMLScanner;
+import org.eclipse.lsp4j.DocumentLink;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.Position;
@@ -815,6 +816,21 @@ public class XMLPositionUtility {
 		DOMDocument targetDocument = target.getOwnerDocument();
 		Range targetRange = XMLPositionUtility.createRange(target.getStart(), target.getEnd(), targetDocument);
 		return new Location(targetDocument.getDocumentURI(), targetRange);
+	}
+
+	/**
+	 * Create document link.
+	 * 
+	 * @param target
+	 * @param location
+	 * @return
+	 * @throws BadLocationException
+	 */
+	public static DocumentLink createDocumentLink(DOMRange target, String location) throws BadLocationException {
+		DOMDocument document = target.getOwnerDocument();
+		Position start = document.positionAt(target.getStart() + 1);
+		Position end = document.positionAt(target.getEnd() - 1);
+		return new DocumentLink(new Range(start, end), location);
 	}
 
 	/**

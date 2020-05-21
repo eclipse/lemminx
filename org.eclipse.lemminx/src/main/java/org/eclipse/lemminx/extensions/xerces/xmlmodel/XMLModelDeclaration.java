@@ -25,6 +25,8 @@ import org.apache.xerces.xni.XMLString;
  *
  */
 public class XMLModelDeclaration {
+
+	private int hrefOffset;
 	private String href;
 
 	/**
@@ -43,6 +45,24 @@ public class XMLModelDeclaration {
 	 */
 	public void setHref(String href) {
 		this.href = href;
+	}
+
+	/**
+	 * Returns the start offset where href is declared.
+	 * 
+	 * @return the start offset where href is declared.
+	 */
+	public int getHrefOffset() {
+		return hrefOffset;
+	}
+
+	/**
+	 * Set the start offset where href is declared.
+	 * 
+	 * @param hrefOffset the start offset where href is declared
+	 */
+	public void setHrefOffset(int hrefOffset) {
+		this.hrefOffset = hrefOffset;
 	}
 
 	private enum State {
@@ -101,7 +121,9 @@ public class XMLModelDeclaration {
 					state = State.Content;
 					switch (name.toString()) {
 					case XMLModelConstants.HREF_ATTR:
-						model.setHref(value.toString());
+						String href = value.toString();
+						model.setHrefOffset(i - href.length());
+						model.setHref(href);
 						break;
 					}
 					name.setLength(0);
