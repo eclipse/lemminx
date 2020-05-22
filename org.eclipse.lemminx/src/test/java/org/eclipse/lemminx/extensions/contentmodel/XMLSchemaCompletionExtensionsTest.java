@@ -1134,8 +1134,12 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				"	<|" + //
 				"</project>";
 		testCompletionFor(xml, c("groupId", te(3, 1, 3, 2, "<groupId></groupId>"), "<groupId",
-				"A universally unique identifier for a project. It is normal to use a fully-qualified package name to distinguish it from other projects with a similar name "
-						+ "(eg. <code>org.apache.maven</code>)." + //
+				"3.0.0+" + //
+						System.lineSeparator() + //
+						System.lineSeparator() + //
+						"A universally unique identifier for a project. It is normal to use " + //
+						"a fully-qualified package name to distinguish it from other projects with a similar name " + // 
+						"(eg. org.apache.maven)." + //
 						System.lineSeparator() + //
 						System.lineSeparator() + //
 						"Source: maven-4.0.0.xsd",
@@ -1153,8 +1157,12 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 
 		String mavenFileURI = getXMLSchemaFileURI("maven-4.0.0.xsd");
 		testCompletionMarkdownSupportFor(xml, c("groupId", te(3, 1, 3, 2, "<groupId></groupId>"), "<groupId",
-				"A universally unique identifier for a project. It is normal to use a fully-qualified package name to distinguish it from other projects with a similar name "
-						+ "(eg. `org.apache.maven`)." + //
+				"3.0.0+" + //
+						System.lineSeparator() + //
+						System.lineSeparator() + //
+						"A universally unique identifier for a project. It is normal to use " + //
+						"a fully-qualified package name to distinguish it from other projects with a similar name " + // 
+						"(eg. `org.apache.maven`)." + //
 						System.lineSeparator() + //
 						System.lineSeparator() + //
 						"Source: [maven-4.0.0.xsd](" + mavenFileURI + ")",

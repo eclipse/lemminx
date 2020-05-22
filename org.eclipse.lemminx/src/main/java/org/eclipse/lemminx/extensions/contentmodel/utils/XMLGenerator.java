@@ -19,9 +19,9 @@ import java.util.List;
 import org.eclipse.lemminx.commons.SnippetsBuilder;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMElementDeclaration;
+import org.eclipse.lemminx.services.extensions.ISharedSettingsRequest;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.utils.MarkupContentFactory;
-import org.eclipse.lemminx.utils.MarkupContentFactory.IMarkupKindSupport;
 import org.eclipse.lemminx.utils.XMLBuilder;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.MarkupKind;
@@ -274,8 +274,8 @@ public class XMLGenerator {
 	 * @param support
 	 * @return a markup content for element documentation and null otherwise.
 	 */
-	public static MarkupContent createMarkupContent(CMElementDeclaration cmElement, IMarkupKindSupport support) {
-		String documentation = XMLGenerator.generateDocumentation(cmElement.getDocumentation(),
+	public static MarkupContent createMarkupContent(CMElementDeclaration cmElement, ISharedSettingsRequest support) {
+		String documentation = XMLGenerator.generateDocumentation(cmElement.getDocumentation(support),
 				cmElement.getDocumentURI(), support.canSupportMarkupKind(MarkupKind.MARKDOWN));
 		if (documentation != null) {
 			return MarkupContentFactory.createMarkupContent(documentation, MarkupKind.MARKDOWN, support);
@@ -286,17 +286,17 @@ public class XMLGenerator {
 	/**
 	 * Returns a markup content for attribute name documentation and null otherwise.
 	 * 
-	 * @param cmAttribute
-	 * @param ownerElement
-	 * @param support
+	 * @param cmAttribute  the attribute declaration
+	 * @param ownerElement the owner element declaration
+	 * @param request      the request
 	 * @return a markup content for attribute name documentation and null otherwise.
 	 */
 	public static MarkupContent createMarkupContent(CMAttributeDeclaration cmAttribute,
-			CMElementDeclaration ownerElement, IMarkupKindSupport support) {
-		String documentation = XMLGenerator.generateDocumentation(cmAttribute.getDocumentation(),
-				ownerElement.getDocumentURI(), support.canSupportMarkupKind(MarkupKind.MARKDOWN));
+			CMElementDeclaration ownerElement, ISharedSettingsRequest request) {
+		String documentation = XMLGenerator.generateDocumentation(cmAttribute.getDocumentation(request),
+				ownerElement.getDocumentURI(), request.canSupportMarkupKind(MarkupKind.MARKDOWN));
 		if (documentation != null) {
-			return MarkupContentFactory.createMarkupContent(documentation, MarkupKind.MARKDOWN, support);
+			return MarkupContentFactory.createMarkupContent(documentation, MarkupKind.MARKDOWN, request);
 		}
 		return null;
 	}
@@ -313,8 +313,8 @@ public class XMLGenerator {
 	 *         otherwise.
 	 */
 	public static MarkupContent createMarkupContent(CMAttributeDeclaration cmAttribute, String attributeValue,
-			CMElementDeclaration ownerElement, IMarkupKindSupport support) {
-		String documentation = XMLGenerator.generateDocumentation(cmAttribute.getValueDocumentation(attributeValue),
+			CMElementDeclaration ownerElement, ISharedSettingsRequest support) {
+		String documentation = XMLGenerator.generateDocumentation(cmAttribute.getValueDocumentation(attributeValue, support),
 				ownerElement.getDocumentURI(), support.canSupportMarkupKind(MarkupKind.MARKDOWN));
 		if (documentation != null) {
 			return MarkupContentFactory.createMarkupContent(documentation, MarkupKind.MARKDOWN, support);
@@ -332,7 +332,7 @@ public class XMLGenerator {
 	 * @return a markup content for element text documentation and null otherwise.
 	 */
 	public static MarkupContent createMarkupContent(CMElementDeclaration cmElement, String textContent,
-			IMarkupKindSupport support) {
+			ISharedSettingsRequest support) {
 		String documentation = XMLGenerator.generateDocumentation(cmElement.getValueDocumentation(textContent),
 				cmElement.getDocumentURI(), support.canSupportMarkupKind(MarkupKind.MARKDOWN));
 		if (documentation != null) {

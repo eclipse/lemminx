@@ -12,14 +12,13 @@
  */
 package org.eclipse.lemminx.services.extensions;
 
-import org.eclipse.lemminx.utils.MarkupContentFactory.IMarkupKindSupport;
 import org.eclipse.lsp4j.Range;
 
 /**
  * Hover request API.
  *
  */
-public interface IHoverRequest extends IPositionRequest, IMarkupKindSupport {
+public interface IHoverRequest extends IPositionRequest, ISharedSettingsRequest {
 
 	Range getTagRange();
 

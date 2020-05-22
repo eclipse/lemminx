@@ -14,8 +14,6 @@ package org.eclipse.lemminx.services.extensions;
 
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.extensions.contentmodel.utils.XMLGenerator;
-import org.eclipse.lemminx.settings.SharedSettings;
-import org.eclipse.lemminx.utils.MarkupContentFactory.IMarkupKindSupport;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Range;
 
@@ -23,11 +21,9 @@ import org.eclipse.lsp4j.Range;
  * Completion request API.
  *
  */
-public interface ICompletionRequest extends IPositionRequest, IMarkupKindSupport {
+public interface ICompletionRequest extends IPositionRequest, ISharedSettingsRequest {
 
 	Range getReplaceRange();
-
-	SharedSettings getSharedSettings();
 
 	XMLGenerator getXMLGenerator() throws BadLocationException;
 
