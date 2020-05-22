@@ -30,7 +30,6 @@ import org.eclipse.lemminx.services.AttributeCompletionItem;
 import org.eclipse.lemminx.services.extensions.CompletionParticipantAdapter;
 import org.eclipse.lemminx.services.extensions.ICompletionRequest;
 import org.eclipse.lemminx.services.extensions.ICompletionResponse;
-import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.uriresolver.CacheResourceDownloadingException;
 import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lsp4j.CompletionItem;
@@ -271,7 +270,6 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 		try {
 			Range fullRange = request.getReplaceRange();
 			boolean canSupportSnippet = request.isCompletionSnippetsSupported();
-			SharedSettings sharedSettings = request.getSharedSettings();
 			ContentModelManager contentModelManager = request.getComponent(ContentModelManager.class);
 			// Completion on attribute name based on
 			// - internal grammar (ex: DOCTYPE with subset)
@@ -282,7 +280,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 						parentElement.getNamespaceURI());
 				if (cmElement != null) {
 					fillAttributesWithCMAttributeDeclarations(parentElement, fullRange, cmElement, canSupportSnippet,
-							generateValue, request, response, sharedSettings);
+							generateValue, request, response);
 				}
 			}
 		} catch (CacheResourceDownloadingException e) {
@@ -292,7 +290,8 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 
 	private void fillAttributesWithCMAttributeDeclarations(DOMElement parentElement, Range fullRange,
 			CMElementDeclaration cmElement, boolean canSupportSnippet, boolean generateValue,
-			ICompletionRequest request, ICompletionResponse response, SharedSettings sharedSettings) {
+			ICompletionRequest request, ICompletionResponse response) {
+
 		Collection<CMAttributeDeclaration> attributes = cmElement.getAttributes();
 		if (attributes == null) {
 			return;
@@ -301,7 +300,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			String attrName = cmAttribute.getName();
 			if (!parentElement.hasAttribute(attrName)) {
 				CompletionItem item = new AttributeCompletionItem(attrName, canSupportSnippet, fullRange, generateValue,
-						cmAttribute.getDefaultValue(), cmAttribute.getEnumerationValues(), sharedSettings);
+						cmAttribute.getDefaultValue(), cmAttribute.getEnumerationValues(), request.getSharedSettings());
 				MarkupContent documentation = XMLGenerator.createMarkupContent(cmAttribute, cmElement, request);
 				item.setDocumentation(documentation);
 				response.addCompletionAttribute(item);

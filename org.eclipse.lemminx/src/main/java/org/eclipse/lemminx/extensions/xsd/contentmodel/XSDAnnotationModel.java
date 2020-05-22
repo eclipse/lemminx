@@ -17,6 +17,9 @@ import static org.eclipse.lemminx.utils.StringUtils.isEmpty;
 import static org.eclipse.lemminx.utils.StringUtils.normalizeSpace;
 
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.regex.Matcher;
 
 import javax.xml.parsers.SAXParser;
@@ -25,8 +28,10 @@ import javax.xml.parsers.SAXParserFactory;
 import org.apache.xerces.impl.dv.ValidatedInfo;
 import org.apache.xerces.xs.XSAnnotation;
 import org.apache.xerces.xs.XSMultiValueFacet;
+import org.apache.xerces.xs.XSObject;
 import org.apache.xerces.xs.XSObjectList;
 import org.apache.xerces.xs.datatypes.ObjectList;
+import org.eclipse.lemminx.utils.StringUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -38,69 +43,143 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 class XSDAnnotationModel {
 
-	String appInfo;
+	private final List<String> appInfo;
 
-	String documentation;
+	private final List<String> documentation;
 
 	private XSDAnnotationModel() {
-
+		this.appInfo = new ArrayList<>();
+		this.documentation = new ArrayList<>();
 	}
 
-	public String getAppInfo() {
+	/**
+	 * Returns content from appinfo element(s)
+	 * 
+	 * @return content from appinfo element(s)
+	 */
+	public List<String> getAppInfo() {
 		return appInfo;
 	}
 
-	public String getDocumentation() {
+	/**
+	 * Returns content from documentation elements(s)
+	 * 
+	 * @return content from documentation elements(s)
+	 */
+	public List<String> getDocumentation() {
 		return documentation;
 	}
 
-	public static String getDocumentation(XSObjectList annotations) {
+	/**
+	 * Returns documentation content from the provided collection of annotations
+	 * 
+	 * @param annotations the collection of annotations
+	 * @return documentation content from the provided collection of annotations
+	 */
+	public static List<String> getDocumentation(XSObjectList annotations) {
 		return getDocumentation(annotations, null);
 	}
 
-	public static String getDocumentation(XSObjectList annotations, String value) {
+	/**
+	 * Returns documentation content from the provided collection of annotations
+	 * 
+	 * @param annotations the collection of attribute value annotations
+	 * @param value       the attribute value to find documentation content for
+	 * @return documentation content from the provided collection of annotations
+	 */
+	public static List<String> getDocumentation(XSObjectList annotations, String value) {
 		if (annotations == null) {
-			return "";
+			return Collections.emptyList();
 		}
-		StringBuilder doc = new StringBuilder();
+		List<String> result = new ArrayList<>();
 		for (Object object : annotations) {
-			XSAnnotation annotation = null;
-			if (object instanceof XSMultiValueFacet && value != null) {
-				XSMultiValueFacet multiValueFacet = (XSMultiValueFacet) object;
-				ObjectList enumerationValues = multiValueFacet.getEnumerationValues();
-				XSObjectList annotationValues = multiValueFacet.getAnnotations();
-				for (int i = 0; i < enumerationValues.getLength(); i++) {
-					Object enumValue = enumerationValues.get(i);
-
-					// Assuming always ValidatedInfo
-					String enumString = ((ValidatedInfo) enumValue).stringValue();
-
-					if (value.equals(enumString)) {
-						annotation = (XSAnnotation) annotationValues.get(i);
-						break;
-					}
-				}
-			} else if (object instanceof XSAnnotation) {
-				annotation = (XSAnnotation) object;
-			}
-
+			XSAnnotation annotation = getXSAnnotation((XSObject) object, value);
 			XSDAnnotationModel annotationModel = XSDAnnotationModel.load(annotation);
 			if (annotationModel != null) {
-				if (annotationModel.getAppInfo() != null) {
-					doc.append(annotationModel.getAppInfo());
-				}
-				if (annotationModel.getDocumentation() != null) {
-					doc.append(annotationModel.getDocumentation());
+				List<String> documentation = annotationModel.getDocumentation();
+				if (documentation.size() > 0) {
+					result.addAll(documentation);
 				} else {
 					String annotationString = annotation.getAnnotationString();
 					if (!isEmpty(annotationString)) {
-						doc.append(getDocumentation(annotationString));
+						String docFromPattern = getDocumentation(annotationString);
+						if (!isEmpty(docFromPattern)) {
+							result.add(docFromPattern);
+						}
 					}
 				}
 			}
 		}
-		return doc.toString();
+		return result;
 	}
+
+	/**
+	 * Returns appinfo content from the provided collection of annotations
+	 * 
+	 * @param annotations the collection of annotations
+	 * @return appinfo content from the provided collection of annotations
+	 */
+	public static List<String> getAppInfo(XSObjectList annotations) {
+		return getAppInfo(annotations, null);
+	}
+
+	/**
+	 * Returns appinfo content from the provided collection of annotations
+	 * 
+	 * @param annotations the collection of attribute value annotations
+	 * @param value       the attribute value to find appinfo content for
+	 * @return appinfo content from the provided collection of annotations
+	 */
+	public static List<String> getAppInfo(XSObjectList annotations, String value) {
+		if (annotations == null) {
+			return Collections.emptyList();
+		}
+		List<String> appinfo = new ArrayList<>();
+		for (Object object : annotations) {
+			XSAnnotation annotation = getXSAnnotation((XSObject) object, value);
+			XSDAnnotationModel annotationModel = XSDAnnotationModel.load(annotation);
+			if (annotationModel != null) {
+				appinfo.addAll(annotationModel.getAppInfo());
+			}
+		}
+		return appinfo;
+	}
+
+	/**
+	 * Returns the prefix (ie. xs) from the provided collection of annotations
+	 * 
+	 * @param annotations the collection of annotations
+	 * @return the prefix (ie. xs) from the provided collection of annotations
+	 */
+	public static String getPrefix(XSObjectList annotations) {
+		return getPrefix(annotations, null);
+	}
+
+	/**
+	 * Returns the prefix (ie. xs) from the provided collection of annotations
+	 * 
+	 * Prerequisite: <code>value</code> should be provided if <code>annotations</code>
+	 * is a collection of attribute value annotations
+	 * 
+	 * @param annotations the collection of annotations
+	 * @param value       the attribute value
+	 * @return the prefix (ie. xs) from the provided collection of annotations
+	 */
+	public static String getPrefix(XSObjectList annotations, String value) {
+		if (annotations == null) {
+			return "";
+		}
+		for (Object object : annotations) {
+			XSAnnotation annotation = getXSAnnotation((XSObject) object, value);
+			String content = annotation.getAnnotationString();
+			int index = content.indexOf(":");
+			if (index != -1) {
+				return content.substring(1, index);
+			}
+		}
+		return "";
+	}
+
 
 	public static XSDAnnotationModel load(XSAnnotation annotation) {
 		try {
@@ -112,6 +191,42 @@ class XSDAnnotationModel {
 		} catch (Exception e) {
 			return null;
 		}
+	}
+	
+	/**
+	 * Returns the <code>XSAnnotation</code> instance for the 
+	 * provided <code>annotation</code>
+	 * 
+	 * If <code>value</code> is provided, the <code>XSAnnotation</code> for
+	 * an attribute value will be searched for
+	 * 
+	 * If not provided, the <code>XSAnnotation</code> for
+	 * an attribute or element will be searched for
+	 * 
+	 * @param annotation the annotation object 
+	 * @param value      the attribute value
+	 * @return the <code>XSAnnotation</code> instance for the 
+	 * provided <code>annotation</code>
+	 */
+	private static XSAnnotation getXSAnnotation(XSObject annotation, String value) {
+		if (annotation instanceof XSMultiValueFacet && value != null) {
+			XSMultiValueFacet multiValueFacet = (XSMultiValueFacet) annotation;
+				ObjectList enumerationValues = multiValueFacet.getEnumerationValues();
+				XSObjectList annotationValues = multiValueFacet.getAnnotations();
+				for (int i = 0; i < enumerationValues.getLength(); i++) {
+					Object enumValue = enumerationValues.get(i);
+
+					// Assuming always ValidatedInfo
+					String enumString = ((ValidatedInfo) enumValue).stringValue();
+
+					if (value.equals(enumString)) {
+						return (XSAnnotation) annotationValues.get(i);
+					}
+				}
+		} else if (annotation instanceof XSAnnotation) {
+			return  (XSAnnotation) annotation;
+		}
+		return null;
 	}
 
 	private static class XSAnnotationHandler extends DefaultHandler {
@@ -143,9 +258,9 @@ class XSDAnnotationModel {
 			super.endElement(uri, localName, qName);
 			if (current != null) {
 				if (qName.endsWith(APPINFO_ELEMENT)) {
-					model.appInfo = normalizeSpace(current.toString());
+					addIfNonEmptyString(model.appInfo, normalizeSpace(current.toString()));
 				} else if (qName.endsWith(DOCUMENTATION_ELEMENT)) {
-					model.documentation = normalizeSpace(current.toString());
+					addIfNonEmptyString(model.documentation, normalizeSpace(current.toString()));
 				}
 				current = null;
 			}
@@ -157,6 +272,12 @@ class XSDAnnotationModel {
 				current.append(ch, start, length);
 			}
 			super.characters(ch, start, length);
+		}
+
+		private static void addIfNonEmptyString(List<String> list, String str) {
+			if (!StringUtils.isEmpty(str)) {
+				list.add(str);
+			}
 		}
 
 	}

@@ -139,13 +139,13 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 		return completions.doComplete(xmlDocument, position, settings, cancelChecker);
 	}
 
-	public Hover doHover(DOMDocument xmlDocument, Position position, XMLHoverSettings settings) {
-		return doHover(xmlDocument, position, settings, NULL_CHECKER);
+	public Hover doHover(DOMDocument xmlDocument, Position position, SharedSettings sharedSettings) {
+		return doHover(xmlDocument, position, sharedSettings, NULL_CHECKER);
 	}
 
-	public Hover doHover(DOMDocument xmlDocument, Position position, XMLHoverSettings settings,
+	public Hover doHover(DOMDocument xmlDocument, Position position, SharedSettings sharedSettings,
 			CancelChecker cancelChecker) {
-		return hover.doHover(xmlDocument, position, settings, cancelChecker);
+		return hover.doHover(xmlDocument, position, sharedSettings, cancelChecker);
 	}
 
 	public List<Diagnostic> doDiagnostics(DOMDocument xmlDocument, CancelChecker monitor,

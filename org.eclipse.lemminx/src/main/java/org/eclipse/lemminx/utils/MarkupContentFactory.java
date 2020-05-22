@@ -13,6 +13,7 @@ package org.eclipse.lemminx.utils;
 
 import java.util.List;
 
+import org.eclipse.lemminx.services.extensions.ISharedSettingsRequest;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.MarkupKind;
 
@@ -24,19 +25,6 @@ import org.eclipse.lsp4j.MarkupKind;
  */
 public class MarkupContentFactory {
 
-	public static interface IMarkupKindSupport {
-
-		/**
-		 * Returns <code>true</code> if the client can support the given Markup kind for
-		 * documentation and <code>false</code> otherwise.
-		 * 
-		 * @param kind the markup kind
-		 * @return <code>true</code> if the client can support the given Markup kind for
-		 *         documentation and <code>false</code> otherwise.
-		 */
-		boolean canSupportMarkupKind(String kind);
-	}
-
 	/**
 	 * Create the markup content according the given markup kind and the capability
 	 * of the client.
@@ -46,7 +34,7 @@ public class MarkupContentFactory {
 	 * @return the markup content according the given markup kind and the capability
 	 *         of the client.
 	 */
-	public static MarkupContent createMarkupContent(String value, String preferredKind, IMarkupKindSupport support) {
+	public static MarkupContent createMarkupContent(String value, String preferredKind, ISharedSettingsRequest support) {
 		if (value == null) {
 			return null;
 		}
@@ -71,7 +59,7 @@ public class MarkupContentFactory {
 	 * @return the markup content according the given markup kind and the capability
 	 *         of the client.
 	 */
-	public static MarkupContent creatMarkupContent(List<String> values, IMarkupKindSupport markupKindSupport) {
+	public static MarkupContent creatMarkupContent(List<String> values, ISharedSettingsRequest markupKindSupport) {
 		String kind = getKind(markupKindSupport);
 		if (values.size() == 1) {
 			return new MarkupContent(kind, values.get(0));
@@ -89,7 +77,7 @@ public class MarkupContentFactory {
 	 * @return the result of values aggregation according the given markup kind
 	 *         support.
 	 */
-	public static String aggregateContent(List<String> values, IMarkupKindSupport markupKindSupport) {
+	public static String aggregateContent(List<String> values, ISharedSettingsRequest markupKindSupport) {
 		if (values.size() == 1) {
 			return values.get(0);
 		}
@@ -97,7 +85,7 @@ public class MarkupContentFactory {
 		return aggregateContent(values, kind);
 	}
 
-	private static String getKind(IMarkupKindSupport request) {
+	private static String getKind(ISharedSettingsRequest request) {
 		return request.canSupportMarkupKind(MarkupKind.MARKDOWN) ? MarkupKind.MARKDOWN : MarkupKind.PLAINTEXT;
 	}
 

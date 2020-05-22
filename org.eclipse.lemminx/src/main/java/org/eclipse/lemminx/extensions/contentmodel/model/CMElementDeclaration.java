@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.eclipse.lemminx.dom.DOMElement;
+import org.eclipse.lemminx.services.extensions.ISharedSettingsRequest;
 
 /**
  * Content model element which abstracts element declaration from a given
@@ -99,11 +100,14 @@ public interface CMElementDeclaration {
 	CMAttributeDeclaration findCMAttribute(String attributeName);
 
 	/**
-	 * Returns the documentation of the declared element.
+	 * Returns formatted documentation of the declared element,
+	 * according to settings defined in <code>request</code>.
 	 * 
-	 * @return the documentation of the declared element.
+	 * @param request the request containing settings
+	 * @return formatted documentation of the declared element,
+	 * according to settings defined in <code>request</code>.
 	 */
-	String getDocumentation();
+	String getDocumentation(ISharedSettingsRequest request);
 
 	/**
 	 * Returns true if the element cannot contains element children or text content

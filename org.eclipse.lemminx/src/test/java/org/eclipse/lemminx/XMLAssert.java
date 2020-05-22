@@ -583,7 +583,25 @@ public class XMLAssert {
 	}
 
 	public static void assertHover(XMLLanguageService xmlLanguageService, String value, String catalogPath,
+			String fileURI, String expectedHoverLabel, Range expectedHoverRange, SharedSettings sharedSettings) throws BadLocationException {
+		ContentModelSettings settings = new ContentModelSettings();
+		settings.setUseCache(false);
+		assertHover(xmlLanguageService, value, catalogPath, fileURI, expectedHoverLabel, expectedHoverRange, settings, sharedSettings);
+	}
+
+	public static void assertHover(XMLLanguageService xmlLanguageService, String value, String catalogPath,
 			String fileURI, String expectedHoverLabel, Range expectedHoverRange, ContentModelSettings settings)
+			throws BadLocationException {
+		SharedSettings sharedSettings = new SharedSettings();
+		HoverCapabilities capabilities = new HoverCapabilities(Arrays.asList(MarkupKind.MARKDOWN), false);
+		sharedSettings.getHoverSettings().setCapabilities(capabilities);
+		assertHover(xmlLanguageService, value, catalogPath, fileURI,
+				expectedHoverLabel, expectedHoverRange, settings, sharedSettings);
+	}
+
+	public static void assertHover(XMLLanguageService xmlLanguageService, String value, String catalogPath,
+			String fileURI, String expectedHoverLabel, Range expectedHoverRange, ContentModelSettings settings,
+			SharedSettings sharedSettings)
 			throws BadLocationException {
 		int offset = value.indexOf("|");
 		value = value.substring(0, offset) + value.substring(offset + 1);
@@ -599,10 +617,7 @@ public class XMLAssert {
 		}
 		xmlLanguageService.doSave(new SettingsSaveContext(settings));
 
-		XMLHoverSettings hoverSettings = new XMLHoverSettings();
-		HoverCapabilities capabilities = new HoverCapabilities(Arrays.asList(MarkupKind.MARKDOWN), false);
-		hoverSettings.setCapabilities(capabilities);
-		Hover hover = xmlLanguageService.doHover(htmlDoc, position, hoverSettings);
+		Hover hover = xmlLanguageService.doHover(htmlDoc, position, sharedSettings);
 		if (expectedHoverLabel == null) {
 			assertNull(hover);
 		} else {

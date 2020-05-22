@@ -42,7 +42,10 @@ import org.apache.xerces.xs.XSWildcard;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMElementDeclaration;
+import org.eclipse.lemminx.services.extensions.ISharedSettingsRequest;
+import org.eclipse.lemminx.settings.SchemaDocumentationType;
 import org.eclipse.lemminx.utils.StringUtils;
+import org.eclipse.lsp4j.MarkupKind;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -64,6 +67,8 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 	private Collection<CMElementDeclaration> elements;
 
 	private String documentation;
+
+	private SchemaDocumentationType docStrategy;
 
 	public CMXSDElementDeclaration(CMXSDDocument document, XSElementDeclaration elementDeclaration) {
 		this.document = document;
@@ -327,16 +332,19 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 	}
 
 	@Override
-	public String getDocumentation() {
-		if (documentation != null) {
-			return documentation;
+	public String getDocumentation(ISharedSettingsRequest request) {
+		SchemaDocumentationType currStrategy = request.getSharedSettings().getPreferences().getShowSchemaDocumentationType();
+		if (this.documentation != null && this.docStrategy == currStrategy) {
+			return this.documentation;
 		}
-		// Try get xs:annotation from the element declaration or type
-		XSObjectList annotations = getAnnotations();
-		documentation = XSDAnnotationModel.getDocumentation(annotations);
-		return documentation;
-	}
 
+		this.docStrategy = currStrategy;
+		XSObjectList annotations = getAnnotations();
+		boolean markdownSupported = request.canSupportMarkupKind(MarkupKind.MARKDOWN);
+		this.documentation = (new XSDDocumentation(annotations, docStrategy, !markdownSupported))
+				.getFormattedDocumentation(markdownSupported);
+		return this.documentation;
+	}
 	/**
 	 * Returns list of xs:annotation from the element declaration or type
 	 * declaration.

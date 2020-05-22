@@ -28,7 +28,7 @@ import org.eclipse.lemminx.dom.parser.TokenType;
 import org.eclipse.lemminx.dom.parser.XMLScanner;
 import org.eclipse.lemminx.services.extensions.IHoverParticipant;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
-import org.eclipse.lemminx.settings.XMLHoverSettings;
+import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.utils.MarkupContentFactory;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Position;
@@ -49,7 +49,7 @@ class XMLHover {
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
-	public Hover doHover(DOMDocument xmlDocument, Position position, XMLHoverSettings settings,
+	public Hover doHover(DOMDocument xmlDocument, Position position, SharedSettings settings,
 			CancelChecker cancelChecker) {
 		HoverRequest hoverRequest = null;
 		try {
