@@ -66,24 +66,55 @@ public class MarkupContentFactory {
 	 * Create the markup content according the given markup kind and the capability
 	 * of the client.
 	 * 
-	 * @param values         the list of documentation values
+	 * @param values            the list of documentation values
+	 * @param markupKindSupport the markup kind support
 	 * @return the markup content according the given markup kind and the capability
 	 *         of the client.
 	 */
-	public static MarkupContent creatMarkupContent(List<String> values, IMarkupKindSupport request) {
-		String kind = request.canSupportMarkupKind(MarkupKind.MARKDOWN) ? MarkupKind.MARKDOWN : MarkupKind.PLAINTEXT;
-		if (values.size() ==1) {
+	public static MarkupContent creatMarkupContent(List<String> values, IMarkupKindSupport markupKindSupport) {
+		String kind = getKind(markupKindSupport);
+		if (values.size() == 1) {
 			return new MarkupContent(kind, values.get(0));
 		}
-		StringBuilder retValue = new StringBuilder();
-		for (String value : values) {
-			retValue.append(value);
-			if (kind.equals(MarkupKind.MARKDOWN)) {
-				retValue.append("___");
-			}
-			retValue.append(System.lineSeparator() );
-			retValue.append(System.lineSeparator() );
+		String retValue = aggregateContent(values, kind);
+		return new MarkupContent(kind, retValue);
+	}
+
+	/**
+	 * Returns the result of values aggregation according the given markup kind
+	 * support.
+	 * 
+	 * @param values            the list of documentation values
+	 * @param markupKindSupport the markup kind support
+	 * @return the result of values aggregation according the given markup kind
+	 *         support.
+	 */
+	public static String aggregateContent(List<String> values, IMarkupKindSupport markupKindSupport) {
+		if (values.size() == 1) {
+			return values.get(0);
 		}
-		return new MarkupContent(kind, retValue.toString());
+		String kind = getKind(markupKindSupport);
+		return aggregateContent(values, kind);
+	}
+
+	private static String getKind(IMarkupKindSupport request) {
+		return request.canSupportMarkupKind(MarkupKind.MARKDOWN) ? MarkupKind.MARKDOWN : MarkupKind.PLAINTEXT;
+	}
+
+	private static String aggregateContent(List<String> values, String kind) {
+		StringBuilder content = new StringBuilder();
+		for (String value : values) {
+			if (content.length() > 0) {
+				if (kind.equals(MarkupKind.MARKDOWN)) {
+					content.append(System.lineSeparator());
+					content.append(System.lineSeparator());
+					content.append("___");
+				}
+				content.append(System.lineSeparator());
+				content.append(System.lineSeparator());
+			}
+			content.append(value);
+		}
+		return content.toString();
 	}
 }

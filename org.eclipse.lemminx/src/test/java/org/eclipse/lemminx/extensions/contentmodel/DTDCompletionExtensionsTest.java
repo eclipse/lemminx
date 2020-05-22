@@ -125,7 +125,7 @@ public class DTDCompletionExtensionsTest {
 				"<Folks>\r\n" + //
 				"	" + //
 				"</Folks>";
-		testCompletionFor(xml, c("<!ELEMENT",
+		testCompletionFor(xml, c("Insert DTD Element Declaration",
 				te(3, 1, 3, 10, "<!ELEMENT ${1:element-name} (${2:#PCDATA})>"), "<!ELEMENT"));
 	}
 
@@ -140,7 +140,7 @@ public class DTDCompletionExtensionsTest {
 				"<Folks>\r\n" + //
 				"	" + //
 				"</Folks>";
-		testCompletionFor(xml, c("<!ELEMENT",
+		testCompletionFor(xml, c("Insert DTD Element Declaration",
 				te(3, 1, 3, 7, "<!ELEMENT ${1:element-name} (${2:#PCDATA})>"), "<!ELEMENT"));
 	}
 
@@ -158,14 +158,14 @@ public class DTDCompletionExtensionsTest {
 		testCompletionFor(xml, true, //
 				DTDNODE_SNIPPETS /* DTD node snippets */ + //
 						COMMENT_SNIPPETS /* Comment snippets */ , //
-				c("<!ELEMENT", te(3, 1, 3, 1, "<!ELEMENT ${1:element-name} (${2:#PCDATA})>"),
+				c("Insert DTD Element Declaration", te(3, 1, 3, 1, "<!ELEMENT ${1:element-name} (${2:#PCDATA})>"),
 						"<!ELEMENT"),
-				c("<!ENTITY",
+				c("Insert Internal DTD Entity Declaration",
 						te(3, 1, 3, 1, "<!ENTITY ${1:entity-name} \"${2:entity-value}\">"), "<!ENTITY"),
-				c("<!ATTLIST",
+				c("Insert DTD Attributes List Declaration",
 						te(3, 1, 3, 1, "<!ATTLIST ${1:element-name} ${2:attribute-name} ${3:ID} ${4:#REQUIRED}>"),
 						"<!ATTLIST"),
-				c("<!ENTITY",
+				c("Insert External DTD Entity Declaration",
 						te(3, 1, 3, 1, "<!ENTITY ${1:entity-name} SYSTEM \"${2:entity-value}\">"), "<!ENTITY"));
 	}
 
@@ -183,12 +183,12 @@ public class DTDCompletionExtensionsTest {
 		testCompletionFor(xml, false, //
 				DTDNODE_SNIPPETS /* DTD node snippets */ + //
 						COMMENT_SNIPPETS /* Comment snippets */ , //
-				c("<!ELEMENT", te(3, 1, 3, 1, "<!ELEMENT element-name (#PCDATA)>"), "<!ELEMENT"),
-				c("<!ENTITY", te(3, 1, 3, 1, "<!ENTITY entity-name \"entity-value\">"),
+				c("Insert DTD Element Declaration", te(3, 1, 3, 1, "<!ELEMENT element-name (#PCDATA)>"), "<!ELEMENT"),
+				c("Insert Internal DTD Entity Declaration", te(3, 1, 3, 1, "<!ENTITY entity-name \"entity-value\">"),
 						"<!ENTITY"),
-				c("<!ATTLIST",
+				c("Insert DTD Attributes List Declaration",
 						te(3, 1, 3, 1, "<!ATTLIST element-name attribute-name ID #REQUIRED>"), "<!ATTLIST"),
-				c("<!ENTITY",
+				c("Insert External DTD Entity Declaration",
 						te(3, 1, 3, 1, "<!ENTITY entity-name SYSTEM \"entity-value\">"), "<!ENTITY"));
 	}
 

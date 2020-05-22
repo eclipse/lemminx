@@ -13,7 +13,6 @@
  */
 package org.eclipse.lemminx.services.extensions;
 
-
 import static org.eclipse.lemminx.XMLAssert.r;
 
 import org.apache.xerces.impl.XMLEntityManager;
@@ -39,17 +38,16 @@ public class AggregetedHoverValuesTest {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
 				+ "	<bea|n>";
-		assertHover(xml,
-				TEST_FOR_TAG_HOVER + HOVER_SEPARATOR +
-						System.lineSeparator() +
-						System.lineSeparator() +
+		assertHover(xml, TEST_FOR_TAG_HOVER + //
+				System.lineSeparator() + //
+				System.lineSeparator() + //
+				HOVER_SEPARATOR + //
+				System.lineSeparator() + //
+				System.lineSeparator() + //
 				"Defines a single (usually named) bean. A bean definition may contain nested tags for constructor arguments, property values, lookup methods, and replaced methods. Mixing constructor injection and setter injection on the same bean is explicitly supported."
-						+ //
-						System.lineSeparator() + //
-						System.lineSeparator() + "Source: [spring-beans-3.0.xsd](" + schemaURI + ")" + HOVER_SEPARATOR +
-						System.lineSeparator() +
-						System.lineSeparator(),
-						r(2, 2, 2, 6));
+				+ //
+				System.lineSeparator() + //
+				System.lineSeparator() + "Source: [spring-beans-3.0.xsd](" + schemaURI + ")", r(2, 2, 2, 6));
 	};
 
 	@Test
@@ -58,23 +56,22 @@ public class AggregetedHoverValuesTest {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
 				+ "	<bean clas|s=>";
-		assertHover(xml,
-				TEST_FOR_ATTRIBUTENAME_HOVER + HOVER_SEPARATOR +
-						System.lineSeparator() +
-						System.lineSeparator() +
+		assertHover(xml, TEST_FOR_ATTRIBUTENAME_HOVER + //
+				System.lineSeparator() + //
+				System.lineSeparator() + //
+				HOVER_SEPARATOR + //
+				System.lineSeparator() + //
+				System.lineSeparator() + //
 				"The fully qualified name of the bean's class, except if it serves only as a parent definition for child bean definitions."
-						+ //
-						System.lineSeparator() + //
-						System.lineSeparator() + "Source: [spring-beans-3.0.xsd](" + schemaURI + ")" + HOVER_SEPARATOR +
-						System.lineSeparator() +
-						System.lineSeparator(),
-				null);
+				+ //
+				System.lineSeparator() + //
+				System.lineSeparator() + "Source: [spring-beans-3.0.xsd](" + schemaURI + ")", null);
 	};
 
 	private static void assertHover(String value, String expectedHoverLabel, Range expectedHoverOffset)
 			throws BadLocationException {
-		XMLAssert.assertHover(new AggregatedHoverLanguageService(), value, "src/test/resources/catalogs/catalog.xml", null,
-				expectedHoverLabel, expectedHoverOffset);
+		XMLAssert.assertHover(new AggregatedHoverLanguageService(), value, "src/test/resources/catalogs/catalog.xml",
+				null, expectedHoverLabel, expectedHoverOffset);
 	}
 
 	private static String getXMLSchemaFileURI(String schemaURI) throws MalformedURIException {

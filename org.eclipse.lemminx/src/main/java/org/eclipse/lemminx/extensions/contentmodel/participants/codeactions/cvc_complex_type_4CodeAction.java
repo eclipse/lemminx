@@ -20,6 +20,7 @@ import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMAttributeDeclaration;
+import org.eclipse.lemminx.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.extensions.contentmodel.utils.XMLGenerator;
@@ -39,12 +40,12 @@ public class cvc_complex_type_4CodeAction implements ICodeActionParticipant {
 	@Override
 	public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
 			SharedSettings sharedSettings, IComponentProvider componentProvider) {
-		
-		if(diagnostic == null) {
+
+		if (diagnostic == null) {
 			return;
 		}
-		
-		if(codeAlreadyActionExists(codeActions, diagnostic)) {
+
+		if (codeAlreadyActionExists(codeActions, diagnostic)) {
 			return;
 		}
 
@@ -57,36 +58,36 @@ public class cvc_complex_type_4CodeAction implements ICodeActionParticipant {
 			}
 			DOMElement element = (DOMElement) node;
 			ContentModelManager contentModelManager = componentProvider.getComponent(ContentModelManager.class);
-			CMElementDeclaration elementDeclaration = contentModelManager.findCMElement(element);
-			if (elementDeclaration == null) {
-				return;
+			for (CMDocument cmDocument : contentModelManager.findCMDocument(element)) {
+				CMElementDeclaration elementDeclaration = cmDocument.findCMElement(element);
+				if (elementDeclaration != null) {
+					List<CMAttributeDeclaration> requiredAttributes = elementDeclaration.getAttributes().stream()
+							.filter(CMAttributeDeclaration::isRequired) //
+							.filter(cmAttr -> !element.hasAttribute(cmAttr.getName())) //
+							.collect(Collectors.toList());
+
+					// CodeAction doesn't support snippet ->
+					// https://github.com/Microsoft/language-server-protocol/issues/592
+					boolean supportSnippet = false;
+					XMLGenerator generator = new XMLGenerator(sharedSettings, "", "", supportSnippet, 0);
+					String xmlAttributes = generator.generate(requiredAttributes, element.getTagName());
+
+					// Insert required attributes
+					CodeAction insertRequiredAttributesAction = CodeActionFactory.insert("Insert required attributes",
+							diagnosticRange.getEnd(), xmlAttributes, document.getTextDocument(), diagnostic);
+					codeActions.add(insertRequiredAttributesAction);
+				}
 			}
-
-			List<CMAttributeDeclaration> requiredAttributes = elementDeclaration.getAttributes().stream()
-					.filter(CMAttributeDeclaration::isRequired) //
-					.filter(cmAttr -> !element.hasAttribute(cmAttr.getName())) //
-					.collect(Collectors.toList());
-
-			// CodeAction doesn't support snippet ->
-			// https://github.com/Microsoft/language-server-protocol/issues/592
-			boolean supportSnippet = false;
-			XMLGenerator generator = new XMLGenerator(sharedSettings, "", "",
-					supportSnippet, 0);
-			String xmlAttributes = generator.generate(requiredAttributes, element.getTagName());
-
-			// Insert required attributes
-			CodeAction insertRequiredAttributesAction = CodeActionFactory.insert("Insert required attributes",
-					diagnosticRange.getEnd(), xmlAttributes, document.getTextDocument(), diagnostic);
-			codeActions.add(insertRequiredAttributesAction);
 		} catch (Exception e) {
 			// Do nothing
 		}
 	}
 
-	private boolean codeAlreadyActionExists(List<CodeAction> codeActions, Diagnostic diagnostic ) {
+	private boolean codeAlreadyActionExists(List<CodeAction> codeActions, Diagnostic diagnostic) {
 		for (CodeAction codeAction : codeActions) {
 			for (Diagnostic codeActionDiagnostic : codeAction.getDiagnostics()) {
-				if(codeActionDiagnostic.getCode().equals(diagnostic.getCode()) && codeActionDiagnostic.getRange().equals(diagnostic.getRange())){
+				if (codeActionDiagnostic.getCode().equals(diagnostic.getCode())
+						&& codeActionDiagnostic.getRange().equals(diagnostic.getRange())) {
 					return true;
 				}
 			}

@@ -1,0 +1,13 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="grammar">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="from-xsd" >
+				<xs:annotation>
+					<xs:documentation>XSD documentation for from-xsd</xs:documentation>
+				</xs:annotation>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

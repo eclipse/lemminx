@@ -14,6 +14,7 @@ package org.eclipse.lemminx.extensions.contentmodel.model;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -63,31 +64,78 @@ public class ContentModelManager {
 		setUseCache(true);
 	}
 
-	public CMElementDeclaration findCMElement(DOMElement element) throws Exception {
-		return findCMElement(element, element.getNamespaceURI());
+	/**
+	 * Returns the owner document of the declared element which matches the given
+	 * XML element and null otherwise.
+	 * 
+	 * @param element the XML element
+	 * 
+	 * @return the owner document of the declared element which matches the given
+	 *         XML element and null otherwise.
+	 */
+	public Collection<CMDocument> findCMDocument(DOMElement element) {
+		return findCMDocument(element.getOwnerDocument(), element.getNamespaceURI());
 	}
 
 	/**
-	 * Returns the declared element which matches the given XML element and null
-	 * otherwise.
+	 * Returns the owner document of the declared element which matches the given
+	 * XML element and null otherwise.
 	 * 
 	 * @param element the XML element
-	 * @return the declared element which matches the given XML element and null
-	 *         otherwise.
+	 * 
+	 * @return the owner document of the declared element which matches the given
+	 *         XML element and null otherwise.
 	 */
-	public CMElementDeclaration findCMElement(DOMElement element, String namespaceURI) throws Exception {
-		CMDocument cmDocument = findCMDocument(element, namespaceURI);
-		return cmDocument != null ? cmDocument.findCMElement(element, namespaceURI) : null;
-	}
-
-	public CMDocument findCMDocument(DOMElement element, String namespaceURI) {
+	public Collection<CMDocument> findCMDocument(DOMElement element, String namespaceURI) {
 		return findCMDocument(element.getOwnerDocument(), namespaceURI);
 	}
 
-	public CMDocument findCMDocument(DOMDocument xmlDocument, String namespaceURI) {
-		ContentModelProvider modelProvider = getModelProviderByStandardAssociation(xmlDocument, false);
-		String systemId = modelProvider != null ? modelProvider.getSystemId(xmlDocument, namespaceURI) : null;
-		return findCMDocument(xmlDocument.getDocumentURI(), namespaceURI, systemId, modelProvider);
+	public Collection<CMDocument> findCMDocument(DOMDocument xmlDocument, String namespaceURI) {
+		return findCMDocument(xmlDocument, namespaceURI, true);
+	}
+
+	/**
+	 * Returns the declared documents which match the given DOM document and null
+	 * otherwise.
+	 * 
+	 * @param xmlDocument  the DOM document.
+	 * @param namespaceURI the namespace URI
+	 * @return the declared documents which match the given DOM document and null
+	 *         otherwise.
+	 */
+	public Collection<CMDocument> findCMDocument(DOMDocument xmlDocument, String namespaceURI, boolean withInternal) {
+		Collection<CMDocument> documents = new ArrayList<>();
+		for (ContentModelProvider modelProvider : modelProviders) {
+			// internal grammar
+			if (withInternal) {
+				CMDocument internalCMDocument = modelProvider.createInternalCMDocument(xmlDocument);
+				if (internalCMDocument != null) {
+					documents.add(internalCMDocument);
+				}
+			}
+			// external grammar
+			if (modelProvider.adaptFor(xmlDocument, false)) {
+				// The content model provider can collect the system ids
+				// ex for <?xml-model , the model provider which takes care of xml-model returns
+				// the href of xml-model.
+				Collection<String> systemIds = modelProvider.getSystemIds(xmlDocument, namespaceURI);
+				for (String systemId : systemIds) {
+					// get the content model document from the current system id
+					CMDocument cmDocument = findCMDocument(xmlDocument.getDocumentURI(), namespaceURI, systemId,
+							modelProvider);
+					if (cmDocument != null) {
+						documents.add(cmDocument);
+					}
+				}
+			}
+		}
+		if (documents.isEmpty()) {
+			CMDocument cmDocument = findCMDocument(xmlDocument.getDocumentURI(), namespaceURI, null, null);
+			if (cmDocument != null) {
+				documents.add(cmDocument);
+			}
+		}
+		return documents;
 	}
 
 	/**
@@ -103,10 +151,18 @@ public class ContentModelManager {
 		if (StringUtils.isEmpty(grammarURI)) {
 			return false;
 		}
-		ContentModelProvider modelProvider = getModelProviderByStandardAssociation(document, false);
-		String systemId = modelProvider != null ? modelProvider.getSystemId(document, document.getNamespaceURI())
-				: null;
-		String key = resolverManager.resolve(document.getDocumentURI(), null, systemId);
+		for (ContentModelProvider modelProvider : modelProviders) {
+			if (modelProvider.adaptFor(document, false)) {
+				Collection<String> systemIds = modelProvider.getSystemIds(document, document.getNamespaceURI());
+				for (String systemId : systemIds) {
+					String key = resolverManager.resolve(document.getDocumentURI(), null, systemId);
+					if (grammarURI.equals(key)) {
+						return true;
+					}
+				}
+			}
+		}
+		String key = resolverManager.resolve(document.getDocumentURI(), null, null);
 		return grammarURI.equals(key);
 	}
 
@@ -187,55 +243,14 @@ public class ContentModelManager {
 		}
 	}
 
-	public CMElementDeclaration findInternalCMElement(DOMElement element) throws Exception {
-		return findInternalCMElement(element, element.getNamespaceURI());
-	}
-
 	/**
-	 * Returns the declared element which matches the given XML element and null
-	 * otherwise.
+	 * Returns the model provider by the given uri and null otherwise.
 	 * 
-	 * @param element the XML element
-	 * @return the declared element which matches the given XML element and null
-	 *         otherwise.
-	 */
-	public CMElementDeclaration findInternalCMElement(DOMElement element, String namespaceURI) throws Exception {
-		CMDocument cmDocument = findInternalCMDocument(element, namespaceURI);
-		return cmDocument != null ? cmDocument.findCMElement(element, namespaceURI) : null;
-	}
-
-	public CMDocument findInternalCMDocument(DOMElement element, String namespaceURI) {
-		return findInternalCMDocument(element.getOwnerDocument(), namespaceURI);
-	}
-
-	public CMDocument findInternalCMDocument(DOMDocument xmlDocument, String namespaceURI) {
-		ContentModelProvider modelProvider = getModelProviderByStandardAssociation(xmlDocument, true);
-		if (modelProvider != null) {
-			return modelProvider.createInternalCMDocument(xmlDocument);
-		}
-		return null;
-	}
-
-	/**
-	 * Returns the content model provider by using standard association
-	 * (xsi:schemaLocation, xsi:noNamespaceSchemaLocation, doctype) an dnull
-	 * otherwise.
+	 * @param uri the grammar URI
 	 * 
-	 * @param xmlDocument
-	 * @return the content model provider by using standard association
-	 *         (xsi:schemaLocation, xsi:noNamespaceSchemaLocation, doctype) an dnull
-	 *         otherwise.
+	 * @return the model provider by the given uri and null otherwise.
 	 */
-	private ContentModelProvider getModelProviderByStandardAssociation(DOMDocument xmlDocument, boolean internal) {
-		for (ContentModelProvider modelProvider : modelProviders) {
-			if (modelProvider.adaptFor(xmlDocument, internal)) {
-				return modelProvider;
-			}
-		}
-		return null;
-	}
-
-	private ContentModelProvider getModelProviderByURI(String uri) {
+	public ContentModelProvider getModelProviderByURI(String uri) {
 		for (ContentModelProvider modelProvider : modelProviders) {
 			if (modelProvider.adaptFor(uri)) {
 				return modelProvider;

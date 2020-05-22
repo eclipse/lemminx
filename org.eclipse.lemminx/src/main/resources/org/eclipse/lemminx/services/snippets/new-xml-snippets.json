@@ -9,6 +9,7 @@
       "<${1:root-element}>${0}",
       "</${1:root-element}>"
     ],
+    "label": "$description",
     "description": "New XML with SYSTEM DOCTYPE"
   },
   "New XML with PUBLIC DOCTYPE": {
@@ -21,6 +22,7 @@
       "<${1:root-element}>${0}",
       "</${1:root-element}>"
     ],
+    "label": "$description",
     "description": "New XML with PUBLIC DOCTYPE"
   },
   "New XML with SYSTEM DOCTYPE with subset": {
@@ -35,6 +37,7 @@
       "<${1:root-element}>${0}",
       "</${1:root-element}>"
     ],
+    "label": "$description",
     "description": "New XML with SYSTEM DOCTYPE with subset"
   },
   "New XML with PUBLIC DOCTYPE with subset": {
@@ -49,6 +52,7 @@
       "<${1:root-element}>${0}",
       "</${1:root-element}>"
     ],
+    "label": "$description",
     "description": "New XML with PUBLIC DOCTYPE with subset"
   },
   "New XML with DOCTYPE with subset": {
@@ -63,6 +67,7 @@
       "<${1:root-element}>${0}",
       "</${1:root-element}>"
     ],
+    "label": "$description",
     "description": "New XML with DOCTYPE with subset"
   },
   "New XML bound with schemaLocation": {
@@ -78,7 +83,8 @@
       "\t${0}",
       "</${1:root-element}>"
     ],
-    "description": "New XML bound with schemaLocation"
+    "label": "$description",
+    "description": "New XML bound with xsi:schemaLocation"
   },
   "New XML bound with noNamespaceShemaLocation": {
     "prefix": [
@@ -92,6 +98,7 @@
       "\t${0}",
       "</${1:root-element}>"
     ],
-    "description": "New XML bound with noNamespaceSchemaLocation"
+    "label": "$description",
+    "description": "New XML bound with xsi:noNamespaceSchemaLocation"
   }
  }

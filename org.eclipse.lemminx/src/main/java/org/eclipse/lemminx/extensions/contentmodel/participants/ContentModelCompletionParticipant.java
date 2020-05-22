@@ -13,7 +13,6 @@
 package org.eclipse.lemminx.extensions.contentmodel.participants;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -57,11 +56,11 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			ContentModelManager contentModelManager = request.getComponent(ContentModelManager.class);
 			DOMElement parentElement = request.getParentElement();
 			if (parentElement == null) {
-				// XML is empty, in case of XML file associations, a XMl Schema/DTD can be bound
+				// XML is empty, in case of XML file associations, a XML Schema/DTD can be bound
 				// check if it's root element (in the case of XML file associations, the link to
 				// XML Schema is done with pattern and not with XML root element)
-				CMDocument cmDocument = contentModelManager.findCMDocument(document, null);
-				if (cmDocument != null) {
+				Collection<CMDocument> cmDocuments = contentModelManager.findCMDocument(document, null);
+				for (CMDocument cmDocument : cmDocuments) {
 					fillWithChildrenElementDeclaration(null, null, cmDocument.getElements(), null, false, request,
 							response);
 				}
@@ -69,16 +68,18 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			}
 			// Try to retrieve XML Schema/DTD element declaration for the parent element
 			// where completion was triggered.
-			final CMDocument cmRootDocument = contentModelManager.findCMDocument(parentElement,
+			Collection<CMDocument> cmRootDocuments = contentModelManager.findCMDocument(parentElement,
 					parentElement.getNamespaceURI());
 
-			CMElementDeclaration cmElement = contentModelManager.findCMElement(parentElement);
 			String defaultPrefix = null;
-
-			if (cmElement != null) {
-				defaultPrefix = parentElement.getPrefix();
-				fillWithPossibleElementDeclaration(parentElement, cmElement, defaultPrefix, contentModelManager,
-						request, response);
+			for (CMDocument cmDocument : cmRootDocuments) {
+				CMElementDeclaration cmElement = cmDocument.findCMElement(parentElement,
+						parentElement.getNamespaceURI());
+				if (cmElement != null) {
+					defaultPrefix = parentElement.getPrefix();
+					fillWithPossibleElementDeclaration(parentElement, cmElement, defaultPrefix, contentModelManager,
+							request, response);
+				}
 			}
 			if (parentElement.isDocumentElement()) {
 				// completion on root document element
@@ -88,28 +89,33 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 						continue;
 					}
 					String namespaceURI = DOMElement.getNamespaceURI(prefix, parentElement);
-					if (cmRootDocument == null || !cmRootDocument.hasNamespace(namespaceURI)) {
+					if (!hasNamespace(namespaceURI, cmRootDocuments)) {
 						// The model document root doesn't define the namespace, try to load the
 						// external model document (XML Schema, DTD)
-						CMDocument cmDocument = contentModelManager.findCMDocument(parentElement, namespaceURI);
-						if (cmDocument != null) {
+						Collection<CMDocument> cmDocuments = contentModelManager.findCMDocument(parentElement,
+								namespaceURI);
+						for (CMDocument cmDocument : cmDocuments) {
 							fillWithChildrenElementDeclaration(parentElement, null, cmDocument.getElements(), prefix,
 									true, request, response);
 						}
 					}
 				}
 			}
-			// Completion on tag based on internal content model (ex : internal DTD declared
-			// in XML)
-			CMElementDeclaration cmInternalElement = contentModelManager.findInternalCMElement(parentElement);
-			if (cmInternalElement != null) {
-				defaultPrefix = parentElement.getPrefix();
-				fillWithPossibleElementDeclaration(parentElement, cmInternalElement, defaultPrefix, contentModelManager,
-						request, response);
-			}
 		} catch (CacheResourceDownloadingException e) {
 			// XML Schema, DTD is loading, ignore this error
 		}
+	}
+
+	private boolean hasNamespace(String namespaceURI, Collection<CMDocument> cmRootDocuments) {
+		if (cmRootDocuments.isEmpty()) {
+			return false;
+		}
+		for (CMDocument cmDocument : cmRootDocuments) {
+			if (cmDocument.hasNamespace(namespaceURI)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -130,14 +136,13 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 		Collection<CMElementDeclaration> possibleElements = cmElement.getPossibleElements(parentElement,
 				request.getOffset());
 		boolean isAny = CMElementDeclaration.ANY_ELEMENT_DECLARATIONS.equals(possibleElements);
-		CMDocument cmDocument = null;
+		Collection<CMDocument> cmDocuments = null;
 		if (isAny) {
 			// It's a xs:any, get the XML Schema/DTD document to retrieve the all elements
 			// declarations
-			cmDocument = contentModelManager.findCMDocument(parentElement.getOwnerDocument(),
-					parentElement.getNamespaceURI());
+			cmDocuments = contentModelManager.findCMDocument(parentElement);
 		}
-		fillWithChildrenElementDeclaration(parentElement, cmDocument, possibleElements, defaultPrefix, false, request,
+		fillWithChildrenElementDeclaration(parentElement, cmDocuments, possibleElements, defaultPrefix, false, request,
 				response);
 	}
 
@@ -153,20 +158,21 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	 * @param response
 	 * @throws BadLocationException
 	 */
-	private static void fillWithChildrenElementDeclaration(DOMElement element, CMDocument cmDocument,
+	private static void fillWithChildrenElementDeclaration(DOMElement element, Collection<CMDocument> cmDocuments,
 			Collection<CMElementDeclaration> cmElements, String defaultPrefix, boolean forceUseOfPrefix,
 			ICompletionRequest request, ICompletionResponse response) throws BadLocationException {
 		XMLGenerator generator = request.getXMLGenerator();
-		if (cmDocument != null) {
+		if (cmDocuments != null) {
 			// xs:any case
 			Set<String> tags = new HashSet<>();
 
 			// Fill with all element declarations from the XML Schema/DTD document
 			Set<CMElementDeclaration> processedElements = new HashSet<>();
-			Collection<CMElementDeclaration> elements = cmDocument.getElements();
-			fillCompletionItem(elements, element, defaultPrefix, forceUseOfPrefix, request, response, generator, tags,
-					processedElements);
-
+			for (CMDocument cmDocument : cmDocuments) {
+				Collection<CMElementDeclaration> elements = cmDocument.getElements();
+				fillCompletionItem(elements, element, defaultPrefix, forceUseOfPrefix, request, response, generator,
+						tags, processedElements);
+			}
 			// Fill with all element tags from the DOM document
 			Document document = element.getOwnerDocument();
 			NodeList list = document.getChildNodes();
@@ -266,14 +272,18 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			boolean canSupportSnippet = request.isCompletionSnippetsSupported();
 			SharedSettings sharedSettings = request.getSharedSettings();
 			ContentModelManager contentModelManager = request.getComponent(ContentModelManager.class);
-			// Completion on attribute based on external grammar
-			CMElementDeclaration cmElement = contentModelManager.findCMElement(parentElement);
-			fillAttributesWithCMAttributeDeclarations(parentElement, fullRange, cmElement, canSupportSnippet,
-					generateValue, request, response, sharedSettings);
-			// Completion on attribute based on internal grammar
-			cmElement = contentModelManager.findInternalCMElement(parentElement);
-			fillAttributesWithCMAttributeDeclarations(parentElement, fullRange, cmElement, canSupportSnippet,
-					generateValue, request, response, sharedSettings);
+			// Completion on attribute name based on
+			// - internal grammar (ex: DOCTYPE with subset)
+			// - external grammar (ex : DOCTYPE SYSTEM, xs:schemaLocation, etc)
+			Collection<CMDocument> cmDocuments = contentModelManager.findCMDocument(parentElement);
+			for (CMDocument cmDocument : cmDocuments) {
+				CMElementDeclaration cmElement = cmDocument.findCMElement(parentElement,
+						parentElement.getNamespaceURI());
+				if (cmElement != null) {
+					fillAttributesWithCMAttributeDeclarations(parentElement, fullRange, cmElement, canSupportSnippet,
+							generateValue, request, response, sharedSettings);
+				}
+			}
 		} catch (CacheResourceDownloadingException e) {
 			// XML Schema, DTD is loading, ignore this error
 		}
@@ -282,9 +292,6 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	private void fillAttributesWithCMAttributeDeclarations(DOMElement parentElement, Range fullRange,
 			CMElementDeclaration cmElement, boolean canSupportSnippet, boolean generateValue,
 			ICompletionRequest request, ICompletionResponse response, SharedSettings sharedSettings) {
-		if (cmElement == null) {
-			return;
-		}
 		Collection<CMAttributeDeclaration> attributes = cmElement.getAttributes();
 		if (attributes == null) {
 			return;
@@ -310,12 +317,17 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 		}
 		try {
 			ContentModelManager contentModelManager = request.getComponent(ContentModelManager.class);
-			// Completion on attribute values based on external grammar
-			CMElementDeclaration cmElement = contentModelManager.findCMElement(parentElement);
-			fillAttributeValuesWithCMAttributeDeclarations(cmElement, request, response);
-			// Completion on attribute values based on internal grammar
-			cmElement = contentModelManager.findInternalCMElement(parentElement);
-			fillAttributeValuesWithCMAttributeDeclarations(cmElement, request, response);
+			// Completion on attribute value based on
+			// - internal grammar (ex: DOCTYPE with subset)
+			// - external grammar (ex : DOCTYPE SYSTEM, xs:schemaLocation, etc)
+			Collection<CMDocument> cmDocuments = contentModelManager.findCMDocument(parentElement);
+			for (CMDocument cmDocument : cmDocuments) {
+				CMElementDeclaration cmElement = cmDocument.findCMElement(parentElement,
+						parentElement.getNamespaceURI());
+				if (cmElement != null) {
+					fillAttributeValuesWithCMAttributeDeclarations(cmElement, request, response);
+				}
+			}
 		} catch (CacheResourceDownloadingException e) {
 			// XML Schema, DTD is loading, ignore this error
 		}
@@ -323,25 +335,22 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 
 	private void fillAttributeValuesWithCMAttributeDeclarations(CMElementDeclaration cmElement,
 			ICompletionRequest request, ICompletionResponse response) {
-		if (cmElement != null) {
-			String attributeName = request.getCurrentAttributeName();
-			CMAttributeDeclaration cmAttribute = cmElement.findCMAttribute(attributeName);
-			if (cmAttribute != null) {
-				Range fullRange = request.getReplaceRange();
-				cmAttribute.getEnumerationValues().forEach(value -> {
-					CompletionItem item = new CompletionItem();
-					item.setLabel(value);
-					String insertText = request.getInsertAttrValue(value);
-					item.setLabel(value);
-					item.setKind(CompletionItemKind.Value);
-					item.setFilterText(insertText);
-					item.setTextEdit(new TextEdit(fullRange, insertText));
-					MarkupContent documentation = XMLGenerator.createMarkupContent(cmAttribute, value, cmElement,
-							request);
-					item.setDocumentation(documentation);
-					response.addCompletionItem(item);
-				});
-			}
+		String attributeName = request.getCurrentAttributeName();
+		CMAttributeDeclaration cmAttribute = cmElement.findCMAttribute(attributeName);
+		if (cmAttribute != null) {
+			Range fullRange = request.getReplaceRange();
+			cmAttribute.getEnumerationValues().forEach(value -> {
+				CompletionItem item = new CompletionItem();
+				item.setLabel(value);
+				String insertText = request.getInsertAttrValue(value);
+				item.setLabel(value);
+				item.setKind(CompletionItemKind.Value);
+				item.setFilterText(insertText);
+				item.setTextEdit(new TextEdit(fullRange, insertText));
+				MarkupContent documentation = XMLGenerator.createMarkupContent(cmAttribute, value, cmElement, request);
+				item.setDocumentation(documentation);
+				response.addCompletionItem(item);
+			});
 		}
 	}
 
@@ -351,35 +360,39 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			ContentModelManager contentModelManager = request.getComponent(ContentModelManager.class);
 			DOMElement parentElement = request.getParentElement();
 			if (parentElement != null) {
-				CMElementDeclaration elementDeclaration = contentModelManager.findCMElement(parentElement);
-				Collection<String> values = elementDeclaration != null ? elementDeclaration.getEnumerationValues()
-						: Collections.emptyList();
-				if (!values.isEmpty()) {
-					// Completion for xs:enumeration inside Element Text node
-					DOMDocument document = parentElement.getOwnerDocument();
-					int startOffset = parentElement.getStartTagCloseOffset() + 1;
-					Position start = parentElement.getOwnerDocument().positionAt(startOffset);
-					Position end = request.getPosition();
-					int endOffset = parentElement.getEndTagOpenOffset();
-					if (endOffset > 0) {
-						end = document.positionAt(endOffset);
+				Collection<CMDocument> cmDocuments = contentModelManager.findCMDocument(parentElement);
+				for (CMDocument cmDocument : cmDocuments) {
+					CMElementDeclaration elementDeclaration = cmDocument.findCMElement(parentElement,
+							parentElement.getNamespaceURI());
+					Collection<String> values = elementDeclaration.getEnumerationValues();
+					if (!values.isEmpty()) {
+						// Completion for xs:enumeration inside Element Text node
+						DOMDocument document = parentElement.getOwnerDocument();
+						int startOffset = parentElement.getStartTagCloseOffset() + 1;
+						Position start = parentElement.getOwnerDocument().positionAt(startOffset);
+						Position end = request.getPosition();
+						int endOffset = parentElement.getEndTagOpenOffset();
+						if (endOffset > 0) {
+							end = document.positionAt(endOffset);
+						}
+						int completionOffset = request.getOffset();
+						String tokenStart = StringUtils.getWhitespaces(document.getText(), startOffset,
+								completionOffset);
+						Range fullRange = new Range(start, end);
+						values.forEach(value -> {
+							CompletionItem item = new CompletionItem();
+							item.setLabel(value);
+							String insertText = value; // request.getInsertAttrValue(value);
+							item.setLabel(value);
+							item.setKind(CompletionItemKind.Value);
+							item.setFilterText(tokenStart + insertText);
+							item.setTextEdit(new TextEdit(fullRange, insertText));
+							MarkupContent documentation = XMLGenerator.createMarkupContent(elementDeclaration, value,
+									request);
+							item.setDocumentation(documentation);
+							response.addCompletionItem(item);
+						});
 					}
-					int completionOffset = request.getOffset();
-					String tokenStart = StringUtils.getWhitespaces(document.getText(), startOffset, completionOffset);
-					Range fullRange = new Range(start, end);
-					values.forEach(value -> {
-						CompletionItem item = new CompletionItem();
-						item.setLabel(value);
-						String insertText = value; // request.getInsertAttrValue(value);
-						item.setLabel(value);
-						item.setKind(CompletionItemKind.Value);
-						item.setFilterText(tokenStart + insertText);
-						item.setTextEdit(new TextEdit(fullRange, insertText));
-						MarkupContent documentation = XMLGenerator.createMarkupContent(elementDeclaration, value,
-								request);
-						item.setDocumentation(documentation);
-						response.addCompletionItem(item);
-					});
 				}
 			}
 		} catch (CacheResourceDownloadingException e) {
