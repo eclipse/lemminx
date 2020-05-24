@@ -13,6 +13,7 @@
 package org.eclipse.lemminx.utils;
 
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -46,6 +47,32 @@ import org.eclipse.lsp4j.Range;
 public class XMLPositionUtility {
 
 	private static final Logger LOGGER = Logger.getLogger(XMLPositionUtility.class.getName());
+
+	private static final Predicate<Character> ENTITY_NAME_PREDICATE = ch -> {
+		// [_:\w-.\d]*
+		return ch == '_' || ch == ':' || ch == '.' || ch == '-' || Character.isLetterOrDigit(ch);
+	};
+
+	public static class EntityReferenceRange {
+
+		private final String name;
+
+		private final Range range;
+
+		public EntityReferenceRange(String name, Range range) {
+			this.name = name;
+			this.range = range;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public Range getRange() {
+			return range;
+		}
+
+	}
 
 	private XMLPositionUtility() {
 	}
@@ -476,33 +503,103 @@ public class XMLPositionUtility {
 	// ------------ Entities selection
 
 	/**
-	 * Returns the range of the used entity in a text node (ex : &amp;) and null
-	 * otherwise.
+	 * Returns the range of the entity reference in a text node (ex : &amp;) and
+	 * null otherwise.
 	 * 
 	 * @param offset   the offset
 	 * @param document the document
-	 * @return the range of the used entity in a text node (ex : &amp;) and null
-	 *         otherwise.
+	 * @return the range of the entity reference in a text node (ex : &amp;) and
+	 *         null otherwise.
 	 */
-	public static Range selectEntity(int offset, DOMDocument document) {
+	public static EntityReferenceRange selectEntityReference(int offset, DOMDocument document) {
+		return selectEntityReference(offset, document, true);
+	}
+
+	/**
+	 * Returns the range of the entity reference in a text node (ex : &amp;) and
+	 * null otherwise.
+	 * 
+	 * @param offset            the offset
+	 * @param document          the document
+	 * @param endsWithSemicolon true if the entity reference must end with ';'
+	 *                          and false otherwise.
+	 * @return the range of the entity reference in a text node (ex : &amp;) and
+	 *         null otherwise.
+	 */
+	public static EntityReferenceRange selectEntityReference(int offset, DOMDocument document,
+			boolean endsWithSemicolon) {
 		String text = document.getText();
 		// Search '&' character on the left of the offset
-		int startEntityOffset = offset - 1;
-		while (startEntityOffset > -1 && Character.isLetterOrDigit(text.charAt(startEntityOffset))) {
-			startEntityOffset--;
-		}
-		if (startEntityOffset == -1 || text.charAt(startEntityOffset) != '&') {
+		int entityReferenceStart = getEntityReferenceStartOffset(text, offset);
+		if (entityReferenceStart == -1) {
 			return null;
 		}
 		// Search ';' (or character on the right of the offset
-		int endEntityOffset = offset;
-		while (endEntityOffset < text.length() && Character.isLetterOrDigit(text.charAt(endEntityOffset))) {
-			endEntityOffset++;
+		int entityReferenceEnd = getEntityReferenceEndOffset(text, offset);
+		if (entityReferenceEnd == -1) {
+			if (endsWithSemicolon) {
+				return null;
+			}
+			entityReferenceEnd = offset;
 		}
-		if (endEntityOffset + 1 < text.length() && text.charAt(endEntityOffset) == ';') {
-			endEntityOffset++;
+		String name = endsWithSemicolon ? document.getText().substring(entityReferenceStart + 1, entityReferenceEnd - 1)
+				: null;
+		return new EntityReferenceRange(name, createRange(entityReferenceStart, entityReferenceEnd, document));
+	}
+
+	/**
+	 * Returns the start offset of the entity reference (ex : &am|p;) from the left
+	 * of the given offset and -1 if no entity reference.
+	 * 
+	 * @param text   the XML content.
+	 * @param offset the offset.
+	 * @return the start offset of the entity reference (ex : &am|p;) from the left
+	 *         of the given offset and -1 if no entity reference.
+	 */
+	public static int getEntityReferenceStartOffset(String text, int offset) {
+		// adjust offset to get the left character of the offset
+		offset--;
+		if (offset < 0) {
+			// case where offset is on the first character
+			return -1;
 		}
-		return createRange(startEntityOffset, endEntityOffset, document);
+		if (text.charAt(offset) == '&') {
+			// case with &|abcd
+			return offset;
+		}
+		if (offset == 0) {
+			// case with a|bcd -> there are no '&'
+			return -1;
+		}
+		int startEntityOffset = StringUtils.findStartWord(text, offset, ENTITY_NAME_PREDICATE);
+		if (startEntityOffset <= 0) {
+			return -1;
+		}
+		// check if the left character is '&'
+		if (text.charAt(startEntityOffset - 1) != '&') {
+			return -1;
+		}
+		return startEntityOffset - 1;
+	}
+
+	/**
+	 * Returns the end offset of the entity reference (ex : &am|p;) from the right
+	 * of the given offset and -1 if no entity reference.
+	 * 
+	 * @param text   the XML content.
+	 * @param offset the offset.
+	 * @return the end offset of the entity reference (ex : &am|p;) from the right
+	 *         of the given offset and -1 if no entity reference.
+	 */
+	public static int getEntityReferenceEndOffset(String text, int offset) {
+		int endEntityOffset = StringUtils.findEndWord(text, offset, ENTITY_NAME_PREDICATE);
+		if (endEntityOffset == -1) {
+			return -1;
+		}
+		if (endEntityOffset >= text.length() || text.charAt(endEntityOffset) != ';') {
+			return -1;
+		}
+		return endEntityOffset + 1;
 	}
 
 	// ------------ Text selection

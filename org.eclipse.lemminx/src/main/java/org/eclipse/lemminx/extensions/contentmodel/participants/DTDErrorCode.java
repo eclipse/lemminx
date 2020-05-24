@@ -25,6 +25,7 @@ import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.Elem
 import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IXMLErrorCode;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
+import org.eclipse.lemminx.utils.XMLPositionUtility.EntityReferenceRange;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 
@@ -36,41 +37,41 @@ import org.eclipse.lsp4j.Range;
  */
 public enum DTDErrorCode implements IXMLErrorCode {
 
-	AttNameRequiredInAttDef,
-	AttTypeRequiredInAttDef,
-	ElementDeclUnterminated,
-	EntityDeclUnterminated,
-	EntityNotDeclared,
-	ExternalIDorPublicIDRequired,
-	IDInvalidWithNamespaces,
-	IDREFInvalidWithNamespaces,
-	IDREFSInvalid,
-	LessthanInAttValue,
-	MSG_ATTRIBUTE_NOT_DECLARED,
-	MSG_ATTRIBUTE_VALUE_NOT_IN_LIST,
-	MSG_CONTENT_INCOMPLETE,
-	MSG_CONTENT_INVALID,
-	MSG_ELEMENT_ALREADY_DECLARED,
-	MSG_ELEMENT_NOT_DECLARED,
-	MSG_ELEMENT_TYPE_REQUIRED_IN_ATTLISTDECL,
-	MSG_ELEMENT_TYPE_REQUIRED_IN_ELEMENTDECL,
-	MSG_ELEMENT_WITH_ID_REQUIRED,
-	MSG_ENTITY_NAME_REQUIRED_IN_ENTITYDECL,
-	MSG_FIXED_ATTVALUE_INVALID,
-	MSG_MARKUP_NOT_RECOGNIZED_IN_DTD,
-	MSG_NOTATION_NAME_REQUIRED_IN_NOTATIONDECL,
-	MSG_OPEN_PAREN_OR_ELEMENT_TYPE_REQUIRED_IN_CHILDREN,
-	MSG_REQUIRED_ATTRIBUTE_NOT_SPECIFIED,
-	MSG_SPACE_REQUIRED_AFTER_NOTATION_NAME_IN_NOTATIONDECL,
-	NotationDeclUnterminated,
-	OpenQuoteExpected,
-	OpenQuoteMissingInDecl,
-	PEReferenceWithinMarkup,
-	QuoteRequiredInPublicID,
-	QuoteRequiredInSystemID,
-	SpaceRequiredAfterSYSTEM,
+	AttNameRequiredInAttDef, //
+	AttTypeRequiredInAttDef, //
+	ElementDeclUnterminated, //
+	EntityDeclUnterminated, //
+	EntityNotDeclared, //
+	ExternalIDorPublicIDRequired, //
+	IDInvalidWithNamespaces, //
+	IDREFInvalidWithNamespaces, //
+	IDREFSInvalid, //
+	LessthanInAttValue, //
+	MSG_ATTRIBUTE_NOT_DECLARED, //
+	MSG_ATTRIBUTE_VALUE_NOT_IN_LIST, //
+	MSG_CONTENT_INCOMPLETE, //
+	MSG_CONTENT_INVALID, //
+	MSG_ELEMENT_ALREADY_DECLARED, //
+	MSG_ELEMENT_NOT_DECLARED, //
+	MSG_ELEMENT_TYPE_REQUIRED_IN_ATTLISTDECL, //
+	MSG_ELEMENT_TYPE_REQUIRED_IN_ELEMENTDECL, //
+	MSG_ELEMENT_WITH_ID_REQUIRED, //
+	MSG_ENTITY_NAME_REQUIRED_IN_ENTITYDECL, //
+	MSG_FIXED_ATTVALUE_INVALID, //
+	MSG_MARKUP_NOT_RECOGNIZED_IN_DTD, //
+	MSG_NOTATION_NAME_REQUIRED_IN_NOTATIONDECL, //
+	MSG_OPEN_PAREN_OR_ELEMENT_TYPE_REQUIRED_IN_CHILDREN, //
+	MSG_REQUIRED_ATTRIBUTE_NOT_SPECIFIED, //
+	MSG_SPACE_REQUIRED_AFTER_NOTATION_NAME_IN_NOTATIONDECL, //
+	NotationDeclUnterminated, //
+	OpenQuoteExpected, //
+	OpenQuoteMissingInDecl, //
+	PEReferenceWithinMarkup, //
+	QuoteRequiredInPublicID, //
+	QuoteRequiredInSystemID, //
+	SpaceRequiredAfterSYSTEM, //
 	dtd_not_found("dtd-not-found");
-			
+
 	private final String code;
 
 	private DTDErrorCode() {
@@ -132,7 +133,7 @@ public enum DTDErrorCode implements IXMLErrorCode {
 			String attrName = getString(arguments[0]);
 			return XMLPositionUtility.selectAttributeValueAt(attrName, offset, document);
 		}
-		
+
 		case MSG_ELEMENT_WITH_ID_REQUIRED: {
 			DOMElement element = document.getDocumentElement();
 			if (element != null) {
@@ -160,21 +161,8 @@ public enum DTDErrorCode implements IXMLErrorCode {
 			return XMLPositionUtility.getLastValidDTDDeclParameter(offset, document, true);
 		}
 		case EntityNotDeclared: {
-			try {
-				Position position = document.positionAt(offset);
-				int line = position.getLine();
-				String text = document.lineText(line);
-				String name = getString(arguments[0]);
-				String subString = "&" + name + ";";
-				int start = text.indexOf(subString);
-				int end = start + subString.length();
-				Position startPosition = new Position(line, start);
-				Position endPosition = new Position(line, end);
-				return new Range(startPosition, endPosition);
-			} catch (BadLocationException e) {
-
-			}
-
+			EntityReferenceRange range = XMLPositionUtility.selectEntityReference(offset - 1, document);
+			return range != null ? range.getRange() : null;
 		}
 		case QuoteRequiredInPublicID:
 		case QuoteRequiredInSystemID:
@@ -206,7 +194,6 @@ public enum DTDErrorCode implements IXMLErrorCode {
 			try {
 				return new Range(new Position(0, 0), document.positionAt(document.getEnd()));
 			} catch (BadLocationException e) {
-				
 			}
 		}
 		return null;

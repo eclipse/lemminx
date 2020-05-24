@@ -32,7 +32,7 @@ public class EntitiesCompletionExtensionsTest {
 	public void afterAmp() throws BadLocationException {
 		// &|
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
-				"<!DOCTYPE article [\r\n" + //
+				"<!DOCTYPE root [\r\n" + //
 				"  <!ENTITY mdash \"&#x2014;\">\r\n" + //
 				"]>\r\n" + //
 				"<root>\r\n" + //
@@ -49,7 +49,7 @@ public class EntitiesCompletionExtensionsTest {
 	public void afterCharacter() throws BadLocationException {
 		// &m|
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
-				"<!DOCTYPE article [\r\n" + //
+				"<!DOCTYPE root [\r\n" + //
 				"  <!ENTITY mdash \"&#x2014;\">\r\n" + //
 				"]>\r\n" + //
 				"<root>\r\n" + //
@@ -66,7 +66,7 @@ public class EntitiesCompletionExtensionsTest {
 	public void inside() throws BadLocationException {
 		// &m|dblablabla
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
-				"<!DOCTYPE article [\r\n" + //
+				"<!DOCTYPE root [\r\n" + //
 				"  <!ENTITY mdash \"&#x2014;\">\r\n" + //
 				"]>\r\n" + //
 				"<root>\r\n" + //
@@ -75,14 +75,32 @@ public class EntitiesCompletionExtensionsTest {
 		testCompletionFor(xml, 1 + //
 				2 /* CDATA and Comments */ + //
 				PredefinedEntity.values().length /* predefined entities */,
-				c("&mdash;", "&mdash;", r(5, 2, 5, 14), "&mdash;"));
+				c("&mdash;", "&mdash;", r(5, 2, 5, 4), "&mdash;"));
+	}
+
+	@Test
+	public void underscoreEntityName() throws BadLocationException {
+		// &foo_b|
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<!DOCTYPE root [\r\n" + //
+				"  <!ENTITY foo_bar \"&#x2014;\">\r\n" + //
+				"  <!ENTITY foo_baz \"&#x2014;\">\r\n" + //
+				"]>\r\n" + //
+				"<root>\r\n" + //
+				"  &foo_b|\r\n" + // <- here completion shows mdash entity
+				"</root>";
+		testCompletionFor(xml, 2 + //
+				2 /* CDATA and Comments */ + //
+				PredefinedEntity.values().length /* predefined entities */,
+				c("&foo_bar;", "&foo_bar;", r(6, 2, 6, 8), "&foo_bar;"), //
+				c("&foo_baz;", "&foo_baz;", r(6, 2, 6, 8), "&foo_baz;"));
 	}
 
 	@Test
 	public void insideWithAmp() throws BadLocationException {
 		// &m|d;blablabla
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
-				"<!DOCTYPE article [\r\n" + //
+				"<!DOCTYPE root [\r\n" + //
 				"  <!ENTITY mdash \"&#x2014;\">\r\n" + //
 				"]>\r\n" + //
 				"<root>\r\n" + //
@@ -97,7 +115,7 @@ public class EntitiesCompletionExtensionsTest {
 	@Test
 	public void none() throws BadLocationException {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
-				"<!DOCTYPE article [\r\n" + //
+				"<!DOCTYPE root [\r\n" + //
 				"  <!ENTITY mdash \"&#x2014;\">\r\n" + //
 				"]>\r\n" + //
 				"<root>\r\n" + //
