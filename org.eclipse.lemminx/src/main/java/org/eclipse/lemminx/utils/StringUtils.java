@@ -405,7 +405,7 @@ public class StringUtils {
 	 *         and -1 if no word.
 	 */
 	public static int findStartWord(String text, int offset, Predicate<Character> isValidChar) {
-		if (!isValidChar.test(text.charAt(offset))) {
+		if (offset < 0 || offset >= text.length() || !isValidChar.test(text.charAt(offset))) {
 			return -1;
 		}
 		for (int i = offset - 1; i >= 0; i--) {
@@ -413,7 +413,7 @@ public class StringUtils {
 				return i + 1;
 			}
 		}
-		return -1;
+		return 0;
 	}
 
 	/**
@@ -428,7 +428,7 @@ public class StringUtils {
 	 *         and -1 if no word.
 	 */
 	public static int findEndWord(String text, int offset, Predicate<Character> isValidChar) {
-		if (!isValidChar.test(text.charAt(offset))) {
+		if (offset < 0 || offset >= text.length() || !isValidChar.test(text.charAt(offset))) {
 			return -1;
 		}
 		for (int i = offset + 1; i < text.length(); i++) {

@@ -30,19 +30,19 @@ public class EntitiesDefinitionExtensionsTest {
 	@Test
 	public void local() throws BadLocationException {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
-				"<!DOCTYPE article [\r\n" + //
+				"<!DOCTYPE root [\r\n" + //
 				"  <!ENTITY mdash \"&#x2014;\">\r\n" + //
 				"]>\r\n" + //
 				"<root>\r\n" + //
-				"  &mdas|h\r\n" + // <- here definition for mdash
+				"  &mdas|h;\r\n" + // <- here definition for mdash
 				"</root>";
-		testDefinitionFor(xml, "test.xml", ll("test.xml", r(5, 3, 5, 8), r(2, 11, 2, 16)));
+		testDefinitionFor(xml, "test.xml", ll("test.xml", r(5, 2, 5, 9), r(2, 11, 2, 16)));
 	}
 
 	@Test
 	public void beforeAmp() throws BadLocationException {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
-				"<!DOCTYPE article [\r\n" + //
+				"<!DOCTYPE root [\r\n" + //
 				"  <!ENTITY mdash \"&#x2014;\">\r\n" + //
 				"]>\r\n" + //
 				"<root>\r\n" + //
@@ -54,7 +54,7 @@ public class EntitiesDefinitionExtensionsTest {
 	@Test
 	public void unknownEntity() throws BadLocationException {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
-				"<!DOCTYPE article [\r\n" + //
+				"<!DOCTYPE root [\r\n" + //
 				"  <!ENTITY mdash \"&#x2014;\">\r\n" + //
 				"]>\r\n" + //
 				"<root>\r\n" + //
@@ -66,13 +66,26 @@ public class EntitiesDefinitionExtensionsTest {
 	@Test
 	public void insideText() throws BadLocationException {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
-				"<!DOCTYPE article [\r\n" + //
+				"<!DOCTYPE root [\r\n" + //
 				"  <!ENTITY mdash \"&#x2014;\">\r\n" + //
 				"]>\r\n" + //
 				"<root>\r\n" + //
 				"  abcd&mdas|h;efgh\r\n" + // <- here definition for mdash
 				"</root>";
-		testDefinitionFor(xml, "test.xml", ll("test.xml", r(5, 7, 5, 12), r(2, 11, 2, 16)));
+		testDefinitionFor(xml, "test.xml", ll("test.xml", r(5, 6, 5, 13), r(2, 11, 2, 16)));
+	}
+
+	@Test
+	public void underscoreEntityName() throws BadLocationException {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<!DOCTYPE root [\r\n" + //
+				"  <!ENTITY foo_bar \"&#x2014;\">\r\n" + //
+				"  <!ENTITY foo_baz \"&#x2014;\">\r\n" + //
+				"]>\r\n" + //
+				"<root>\r\n" + //
+				" &foo_b|ar;efgh\r\n" + // <- here definition for foo_bar
+				"</root>";
+		testDefinitionFor(xml, "test.xml", ll("test.xml", r(6, 1, 6, 10), r(2, 11, 2, 18)));
 	}
 
 	// Test for external entities
@@ -97,9 +110,9 @@ public class EntitiesDefinitionExtensionsTest {
 				"	<!ENTITY mdash \"&#x2014;\">\r\n" + //
 				"]>\r\n" + //
 				"<root-element>\r\n" + //
-				"\r\n &f|oo" + //
+				"\r\n &f|oo;" + //
 				"</root-element>";
-		testDefinitionFor(xml, "test.xml", ll(dtdFileURI, r(6, 2, 6, 5), r(2, 9, 2, 12)));
+		testDefinitionFor(xml, "test.xml", ll(dtdFileURI, r(6, 1, 6, 6), r(2, 9, 2, 12)));
 	}
 
 	private static String getDTDFileURI(String dtdURI) throws MalformedURIException {
