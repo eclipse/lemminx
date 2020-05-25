@@ -54,7 +54,7 @@ public class XMLSchemaHoverExtensionsTest {
 						+ //
 						System.lineSeparator() + //
 						System.lineSeparator() + "Source: [spring-beans-3.0.xsd](" + schemaURI + ")",
-				null);
+				r(2, 7, 2, 12));
 	};
 
 	@Test
@@ -70,7 +70,7 @@ public class XMLSchemaHoverExtensionsTest {
 				"An invoice type..." + //
 						System.lineSeparator() + //
 						System.lineSeparator() + "Source: [invoice.xsd](" + schemaURI + ")",
-				null);
+				r(1, 1, 1, 8));
 	};
 
 	@Test
@@ -79,7 +79,7 @@ public class XMLSchemaHoverExtensionsTest {
 				"<invoice xmlns=\"http://invoice\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
 				" xsi:schema|Location=\"http://invoice xsd/invoice.xsd \">\r\n";
 		XMLAssert.assertHover(new XMLLanguageService(), xml, null, "src/test/resources/invoice.xml",
-				XSISchemaModel.SCHEMA_LOCATION_DOC, null);
+				XSISchemaModel.SCHEMA_LOCATION_DOC, r(2, 1, 2, 19));
 	};
 
 	@Test
@@ -88,7 +88,7 @@ public class XMLSchemaHoverExtensionsTest {
 				"<invoice xmlns=\"http://invoice\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
 				" xsi:noNamespace|SchemaLocation=\"http://invoice xsd/invoice.xsd \">\r\n";
 		XMLAssert.assertHover(new XMLLanguageService(), xml, null, "src/test/resources/invoice.xml",
-				XSISchemaModel.NO_NAMESPACE_SCHEMA_LOCATION_DOC, null);
+				XSISchemaModel.NO_NAMESPACE_SCHEMA_LOCATION_DOC, r(2, 1, 2, 30));
 	};
 
 	@Test
@@ -97,7 +97,7 @@ public class XMLSchemaHoverExtensionsTest {
 				"<invoice xmlns=\"http://invoice\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
 				" xsi:n|il=\"http://invoice xsd/invoice.xsd \">\r\n";
 		XMLAssert.assertHover(new XMLLanguageService(), xml, null, "src/test/resources/invoice.xml",
-				XSISchemaModel.NIL_DOC, null);
+				XSISchemaModel.NIL_DOC, r(2, 1, 2, 8));
 	};
 
 	@Test
@@ -106,7 +106,7 @@ public class XMLSchemaHoverExtensionsTest {
 				"<invoice xmlns=\"http://invoice\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
 				" xsi:ty|pe=\"http://invoice xsd/invoice.xsd \">\r\n";
 		XMLAssert.assertHover(new XMLLanguageService(), xml, null, "src/test/resources/invoice.xml",
-				XSISchemaModel.TYPE_DOC, null);
+				XSISchemaModel.TYPE_DOC, r(2, 1, 2, 9));
 	};
 
 	@Test
@@ -115,7 +115,7 @@ public class XMLSchemaHoverExtensionsTest {
 				"<invoice xmlns=\"http://invoice\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
 				" x|si:type=\"http://invoice xsd/invoice.xsd \">\r\n";
 		XMLAssert.assertHover(new XMLLanguageService(), xml, null, "src/test/resources/invoice.xml",
-				XSISchemaModel.TYPE_DOC, null);
+				XSISchemaModel.TYPE_DOC, r(2, 1, 2, 9));
 	};
 
 	@Test
@@ -123,7 +123,8 @@ public class XMLSchemaHoverExtensionsTest {
 		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
 				"<invoice xmlns=\"http://invoice\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
 				" BAD:t|ype=\"http://invoice xsd/invoice.xsd \">\r\n";
-		XMLAssert.assertHover(new XMLLanguageService(), xml, null, "src/test/resources/invoice.xml", null, null);
+		XMLAssert.assertHover(new XMLLanguageService(), xml, null, "src/test/resources/invoice.xml", null,
+				r(3, 2, 3, 6));
 	};
 
 	@Test
@@ -133,7 +134,7 @@ public class XMLSchemaHoverExtensionsTest {
 				">\r\n" + //
 				"<a xsi:ty|pe=\"\"></a>";
 		XMLAssert.assertHover(new XMLLanguageService(), xml, null, "src/test/resources/invoice.xml",
-				XSISchemaModel.TYPE_DOC, null);
+				XSISchemaModel.TYPE_DOC, r(3, 3, 3, 11));
 	};
 
 	@Test
@@ -144,7 +145,7 @@ public class XMLSchemaHoverExtensionsTest {
 				"<a xsi:n|il=\"\"></a>";
 
 		XMLAssert.assertHover(new XMLLanguageService(), xml, null, "src/test/resources/invoice.xml",
-				XSISchemaModel.NIL_DOC, null);
+				XSISchemaModel.NIL_DOC, r(3, 3, 3, 10));
 	};
 
 	@Test
@@ -154,7 +155,8 @@ public class XMLSchemaHoverExtensionsTest {
 				">\r\n" + //
 				"<a xsi:noNamespa|ceSchemaLocation\"\"></a>";
 
-		XMLAssert.assertHover(new XMLLanguageService(), xml, null, "src/test/resources/invoice.xml", null, null);
+		XMLAssert.assertHover(new XMLLanguageService(), xml, null, "src/test/resources/invoice.xml", null,
+				r(3, 2, 3, 6));
 	};
 
 	@Test
@@ -166,7 +168,7 @@ public class XMLSchemaHoverExtensionsTest {
 				"	xsi:schemaLocation=\"http://money xsd/money.xsd\"></money>";
 		XMLAssert.assertHover(new XMLLanguageService(), xml, null, "src/test/resources/money.xml", "Euro Hover" + //
 				System.lineSeparator() + //
-				System.lineSeparator() + "Source: [money.xsd](" + schemaURI + ")", null);
+				System.lineSeparator() + "Source: [money.xsd](" + schemaURI + ")", r(1, 37, 1, 44));
 	};
 
 	@Test
@@ -178,7 +180,7 @@ public class XMLSchemaHoverExtensionsTest {
 				"	xsi:schemaLocation=\"http://money xsd/money.xsd\"></money>";
 		XMLAssert.assertHover(new XMLLanguageService(), xml, null, "src/test/resources/money.xml", "Pound Hover" + //
 				System.lineSeparator() + //
-				System.lineSeparator() + "Source: [money.xsd](" + schemaURI + ")", null);
+				System.lineSeparator() + "Source: [money.xsd](" + schemaURI + ")", r(1, 37, 1, 45));
 	};
 
 	@Test
@@ -192,7 +194,7 @@ public class XMLSchemaHoverExtensionsTest {
 				"Currency name Hover" + //
 						System.lineSeparator() + //
 						System.lineSeparator() + "Source: [money.xsd](" + schemaURI + ")",
-				null);
+				r(1, 28, 1, 36));
 	};
 
 	/**
@@ -213,7 +215,7 @@ public class XMLSchemaHoverExtensionsTest {
 				"	xsi:schemaLocation=\"http://money xsd/money.xsd\"></money>";
 		XMLAssert.assertHover(ls, xmlAttNameHover, null, "src/test/resources/money.xml", "Currency name Hover" + //
 				System.lineSeparator() + //
-				System.lineSeparator() + "Source: [money.xsd](" + schemaURI + ")", null);
+				System.lineSeparator() + "Source: [money.xsd](" + schemaURI + ")", r(1, 28, 1, 36));
 
 		String xmlAttValueHover = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<money xmlns=\"http://money\" currency=\"po|unds\"\r\n" + // <- Hover
@@ -221,7 +223,7 @@ public class XMLSchemaHoverExtensionsTest {
 				"	xsi:schemaLocation=\"http://money xsd/money.xsd\"></money>";
 		XMLAssert.assertHover(ls, xmlAttValueHover, null, "src/test/resources/money.xml", "Pound Hover" + //
 				System.lineSeparator() + //
-				System.lineSeparator() + "Source: [money.xsd](" + schemaURI + ")", null);
+				System.lineSeparator() + "Source: [money.xsd](" + schemaURI + ")", r(1, 37, 1, 45));
 
 	}
 

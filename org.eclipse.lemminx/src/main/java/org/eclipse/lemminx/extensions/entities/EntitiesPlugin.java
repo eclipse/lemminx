@@ -14,8 +14,10 @@ package org.eclipse.lemminx.extensions.entities;
 
 import org.eclipse.lemminx.extensions.entities.participants.EntitiesCompletionParticipant;
 import org.eclipse.lemminx.extensions.entities.participants.EntitiesDefinitionParticipant;
+import org.eclipse.lemminx.extensions.entities.participants.EntitiesHoverParticipant;
 import org.eclipse.lemminx.services.extensions.ICompletionParticipant;
 import org.eclipse.lemminx.services.extensions.IDefinitionParticipant;
+import org.eclipse.lemminx.services.extensions.IHoverParticipant;
 import org.eclipse.lemminx.services.extensions.IXMLExtension;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.services.extensions.save.ISaveContext;
@@ -30,18 +32,23 @@ public class EntitiesPlugin implements IXMLExtension {
 
 	private IDefinitionParticipant definitionParticipant;
 
+	private IHoverParticipant hoverParticipant;
+
 	@Override
 	public void start(InitializeParams params, XMLExtensionsRegistry registry) {
 		completionParticipant = new EntitiesCompletionParticipant();
 		registry.registerCompletionParticipant(completionParticipant);
 		definitionParticipant = new EntitiesDefinitionParticipant();
 		registry.registerDefinitionParticipant(definitionParticipant);
+		hoverParticipant = new EntitiesHoverParticipant();
+		registry.registerHoverParticipant(hoverParticipant);
 	}
 
 	@Override
 	public void stop(XMLExtensionsRegistry registry) {
 		registry.unregisterCompletionParticipant(completionParticipant);
 		registry.unregisterDefinitionParticipant(definitionParticipant);
+		registry.unregisterHoverParticipant(hoverParticipant);
 	}
 
 	@Override

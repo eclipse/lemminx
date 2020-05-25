@@ -31,7 +31,7 @@ class HoverRequest extends AbstractPositionRequest implements IHoverRequest {
 
 	private final SharedSettings settings;
 
-	private Range tagRange;
+	private Range hoverRange;
 
 	private boolean open;
 
@@ -54,12 +54,12 @@ class HoverRequest extends AbstractPositionRequest implements IHoverRequest {
 	}
 
 	@Override
-	public Range getTagRange() {
-		return tagRange;
+	public Range getHoverRange() {
+		return hoverRange;
 	}
 
-	public void setTagRange(Range tagRange) {
-		this.tagRange = tagRange;
+	public void setHoverRange(Range hoverRange) {
+		this.hoverRange = hoverRange;
 	}
 
 	@Override

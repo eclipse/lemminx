@@ -50,20 +50,20 @@ public class EntitiesDefinitionParticipant extends AbstractDefinitionParticipant
 		if (!node.isText()) {
 			return;
 		}
-		// definition is done in a text node, check if it's a referenced entity
+		// Definition is done in a text node, check if it's a entity reference
 		DOMDocument document = request.getXMLDocument();
 		int offset = request.getOffset();
 		EntityReferenceRange entityRange = XMLPositionUtility.selectEntityReference(offset, document);
 		if (entityRange != null) {
 			String entityName = entityRange.getName();
 			Range range = entityRange.getRange();
-			searchInInternalEntities(entityName, range, document, locations, cancelChecker);
+			searchInLocalEntities(entityName, range, document, locations, cancelChecker);
 			searchInExternalEntities(entityName, range, document, locations, request, cancelChecker);
 		}
 	}
 
 	/**
-	 * Search the given entity name in the internal entities.
+	 * Search the given entity name in the local entities.
 	 * 
 	 * @param document      the DOM document.
 	 * @param entityName    the entity name.
@@ -71,7 +71,7 @@ public class EntitiesDefinitionParticipant extends AbstractDefinitionParticipant
 	 * @param locations     the location links
 	 * @param cancelChecker the cancel checker.
 	 */
-	private static void searchInInternalEntities(String entityName, Range entityRange, DOMDocument document,
+	private static void searchInLocalEntities(String entityName, Range entityRange, DOMDocument document,
 			List<LocationLink> locations, CancelChecker cancelChecker) {
 		DOMDocumentType docType = document.getDoctype();
 		if (docType == null) {

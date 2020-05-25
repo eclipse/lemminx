@@ -79,13 +79,34 @@ public class XMLPositionUtility {
 
 	// ------------ Attributes selection
 
+	/**
+	 * Returns the attribute name range and null otherwise.
+	 * 
+	 * @param attr the attribute.
+	 * @return the attribute name range and null otherwise.
+	 */
+	public static Range selectAttributeName(DOMAttr attr) {
+		if (attr != null) {
+			return createAttrNameRange(attr, attr.getOwnerDocument());
+		}
+		return null;
+	}
+
 	public static Range selectAttributeNameAt(int offset, DOMDocument document) {
 		offset = adjustOffsetForAttribute(offset, document);
 		DOMAttr attr = document.findAttrAt(offset);
+		return createAttrNameRange(attr, document);
+	}
+
+	/**
+	 * Returns the attribute value range and null otherwise.
+	 * 
+	 * @param attr the attribute.
+	 * @return the attribute value range and null otherwise.
+	 */
+	public static Range selectAttributeValue(DOMAttr attr) {
 		if (attr != null) {
-			int startOffset = attr.getNodeAttrName().getStart();
-			int endOffset = attr.getNodeAttrName().getEnd();
-			return createRange(startOffset, endOffset, document);
+			return createAttrValueRange(attr, attr.getOwnerDocument());
 		}
 		return null;
 	}
@@ -115,8 +136,12 @@ public class XMLPositionUtility {
 	}
 
 	private static Range createAttrValueRange(DOMAttr attr, DOMDocument document) {
-		int startOffset = attr.getNodeAttrValue().getStart();
-		int endOffset = attr.getNodeAttrValue().getEnd();
+		DOMNode attrValue = attr.getNodeAttrValue();
+		if (attrValue == null) {
+			return null;
+		}
+		int startOffset = attrValue.getStart();
+		int endOffset = attrValue.getEnd();
 		return createRange(startOffset, endOffset, document);
 	}
 
@@ -638,6 +663,20 @@ public class XMLPositionUtility {
 		return null;
 	}
 
+	/**
+	 * Returns the text content range and null otherwise.
+	 * 
+	 * @param text the DOM text node..
+	 * @return the text content range and null otherwise.
+	 */
+	public static Range selectText(DOMText text) {
+		return selectText(text, text.getOwnerDocument());
+	}
+
+	private static Range selectText(DOMText text, DOMDocument document) {
+		return createRange(text.getStartContent(), text.getEndContent(), document);
+	}
+
 	public static Range selectContent(int offset, DOMDocument document) {
 		DOMNode node = document.findNodeAt(offset);
 		if (node != null) {
@@ -650,7 +689,7 @@ public class XMLPositionUtility {
 				return selectStartTagName(node);
 			} else if (node.isText()) {
 				DOMText text = (DOMText) node;
-				return createRange(text.getStartContent(), text.getEndContent(), document);
+				return selectText(text, document);
 			}
 		}
 		return null;
@@ -849,6 +888,7 @@ public class XMLPositionUtility {
 		try {
 			return new Range(document.positionAt(startOffset), document.positionAt(endOffset));
 		} catch (BadLocationException e) {
+			LOGGER.log(Level.SEVERE, "While creating Range the Offset was a BadLocation", e);
 			return null;
 		}
 	}

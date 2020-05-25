@@ -28,6 +28,7 @@ import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
+import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.Range;
@@ -212,7 +213,7 @@ public class XSISchemaModel {
 		return hasAttribute(root, null, name);
 	}
 
-	public static String computeHoverResponse(DOMAttr attribute, IHoverRequest request) {
+	public static Hover computeHoverResponse(DOMAttr attribute, IHoverRequest request) {
 
 		String name = attribute.getName();
 		if(!name.startsWith(request.getXMLDocument().getSchemaInstancePrefix() + ":")) {
@@ -246,6 +247,9 @@ public class XSISchemaModel {
 			}
 		}
 
-		return doc;
+		MarkupContent content = new MarkupContent();
+		content.setKind(MarkupKind.MARKDOWN);
+		content.setValue(doc);
+		return new Hover(content);
 	}
 }

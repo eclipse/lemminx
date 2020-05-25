@@ -14,21 +14,17 @@ package org.eclipse.lemminx.extensions.xsi;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.services.extensions.HoverParticipantAdapter;
 import org.eclipse.lemminx.services.extensions.IHoverRequest;
+import org.eclipse.lsp4j.Hover;
 
 /**
  * XSIHoverParticipant
  */
-public class XSIHoverParticipant extends HoverParticipantAdapter{
+public class XSIHoverParticipant extends HoverParticipantAdapter {
 
 	@Override
-	public String onAttributeName(IHoverRequest request) throws Exception {
-
+	public Hover onAttributeName(IHoverRequest request) throws Exception {
 		DOMAttr attribute = (DOMAttr) request.getNode();
 		return XSISchemaModel.computeHoverResponse(attribute, request);
 	}
 
-	@Override
-	public String onAttributeValue(IHoverRequest request) throws Exception {
-		return null;
-	}
 }
