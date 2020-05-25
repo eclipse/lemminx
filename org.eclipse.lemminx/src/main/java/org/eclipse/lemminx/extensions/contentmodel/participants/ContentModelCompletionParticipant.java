@@ -13,6 +13,7 @@
 package org.eclipse.lemminx.extensions.contentmodel.participants;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -362,9 +363,10 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			if (parentElement != null) {
 				Collection<CMDocument> cmDocuments = contentModelManager.findCMDocument(parentElement);
 				for (CMDocument cmDocument : cmDocuments) {
-					CMElementDeclaration elementDeclaration = cmDocument.findCMElement(parentElement,
+					CMElementDeclaration cmElement = cmDocument.findCMElement(parentElement,
 							parentElement.getNamespaceURI());
-					Collection<String> values = elementDeclaration.getEnumerationValues();
+					Collection<String> values = cmElement != null ? cmElement.getEnumerationValues()
+							: Collections.emptyList();
 					if (!values.isEmpty()) {
 						// Completion for xs:enumeration inside Element Text node
 						DOMDocument document = parentElement.getOwnerDocument();
@@ -387,7 +389,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 							item.setKind(CompletionItemKind.Value);
 							item.setFilterText(tokenStart + insertText);
 							item.setTextEdit(new TextEdit(fullRange, insertText));
-							MarkupContent documentation = XMLGenerator.createMarkupContent(elementDeclaration, value,
+							MarkupContent documentation = XMLGenerator.createMarkupContent(cmElement, value,
 									request);
 							item.setDocumentation(documentation);
 							response.addCompletionItem(item);

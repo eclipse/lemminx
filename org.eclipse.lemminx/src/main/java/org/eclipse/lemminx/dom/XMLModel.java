@@ -35,6 +35,39 @@ public class XMLModel {
 	private final DOMProcessingInstruction processingInstruction;
 	private XMLModelDeclaration declaration;
 
+	private DOMRange hrefNode;
+
+	private static class SimpleDOMRange implements DOMRange {
+
+		private final int start;
+
+		private final int end;
+
+		private final DOMDocument ownerDocument;
+
+		public SimpleDOMRange(int start, int end, DOMDocument ownerDocument) {
+			this.start = start;
+			this.end = end;
+			this.ownerDocument = ownerDocument;
+		}
+
+		@Override
+		public int getStart() {
+			return start;
+		}
+
+		@Override
+		public int getEnd() {
+			return end;
+		}
+
+		@Override
+		public DOMDocument getOwnerDocument() {
+			return ownerDocument;
+		}
+
+	}
+
 	public XMLModel(DOMProcessingInstruction processingInstruction) {
 		this.processingInstruction = processingInstruction;
 	}
@@ -45,6 +78,11 @@ public class XMLModel {
 	 * @return the location of the referenced schema
 	 */
 	public String getHref() {
+		XMLModelDeclaration declaration = getModelDeclaration();
+		return declaration != null ? declaration.getHref() : null;
+	}
+
+	private XMLModelDeclaration getModelDeclaration() {
 		String data = processingInstruction.getData();
 		if (data == null) {
 			return null;
@@ -52,7 +90,7 @@ public class XMLModel {
 		if (declaration == null) {
 			declaration = XMLModelDeclaration.parse(data.toCharArray(), 0, data.length());
 		}
-		return declaration.getHref();
+		return declaration;
 	}
 
 	/**
@@ -81,6 +119,24 @@ public class XMLModel {
 	 */
 	public static boolean isXMLModel(DOMNode node) {
 		return node.isProcessingInstruction() && XML_MODEL_PI.equals(((ProcessingInstruction) node).getTarget());
+	}
+
+	/**
+	 * Returns the href range and null otherwise.
+	 * 
+	 * @return the href range and null otherwise.
+	 */
+	public DOMRange getHrefNode() {
+		if (hrefNode == null) {
+			XMLModelDeclaration declaration = getModelDeclaration();
+			if (declaration == null || declaration.getHref() == null) {
+				return null;
+			}
+			int start = processingInstruction.getStartContent() + declaration.getHrefOffset() - 1;
+			int end = start + declaration.getHref().length() + 2;
+			hrefNode = new SimpleDOMRange(start, end, processingInstruction.getOwnerDocument());
+		}
+		return hrefNode;
 	}
 
 }

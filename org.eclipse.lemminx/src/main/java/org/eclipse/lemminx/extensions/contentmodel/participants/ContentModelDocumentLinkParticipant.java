@@ -12,6 +12,8 @@
  */
 package org.eclipse.lemminx.extensions.contentmodel.participants;
 
+import static org.eclipse.lemminx.utils.XMLPositionUtility.createDocumentLink;
+
 import java.util.List;
 
 import org.apache.xerces.impl.XMLEntityManager;
@@ -19,13 +21,11 @@ import org.apache.xerces.util.URI.MalformedURIException;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMDocumentType;
-import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.dom.DOMRange;
 import org.eclipse.lemminx.dom.NoNamespaceSchemaLocation;
+import org.eclipse.lemminx.dom.XMLModel;
 import org.eclipse.lemminx.services.extensions.IDocumentLinkParticipant;
 import org.eclipse.lsp4j.DocumentLink;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
 
 /**
  * Document link for :
@@ -49,10 +49,10 @@ public class ContentModelDocumentLinkParticipant implements IDocumentLinkPartici
 				String location = getResolvedLocation(document.getDocumentURI(),
 						noNamespaceSchemaLocation.getLocation());
 				if (location != null) {
-					DOMNode attrValue = noNamespaceSchemaLocation.getAttr().getNodeAttrValue();
-					Position start = document.positionAt(attrValue.getStart() + 1);
-					Position end = document.positionAt(attrValue.getEnd() - 1);
-					links.add(new DocumentLink(new Range(start, end), location));
+					DOMRange attrValue = noNamespaceSchemaLocation.getAttr().getNodeAttrValue();
+					if (attrValue != null) {
+						links.add(createDocumentLink(attrValue, location));
+					}
 				}
 			} catch (BadLocationException e) {
 				// Do nothing
@@ -64,10 +64,25 @@ public class ContentModelDocumentLinkParticipant implements IDocumentLinkPartici
 			String location = getResolvedLocation(document.getDocumentURI(), docType.getSystemIdWithoutQuotes());
 			if (location != null) {
 				try {
-					DOMRange sytemIdRange = docType.getSystemIdNode();
-					Position start = document.positionAt(sytemIdRange.getStart() + 1);
-					Position end = document.positionAt(sytemIdRange.getEnd() - 1);
-					links.add(new DocumentLink(new Range(start, end), location));
+					DOMRange systemIdRange = docType.getSystemIdNode();
+					if (systemIdRange != null) {
+						links.add(createDocumentLink(systemIdRange, location));
+					}
+				} catch (BadLocationException e) {
+					// Do nothing
+				}
+			}
+		}
+		// Document link for xml-model/href
+		List<XMLModel> xmlModels = document.getXMLModels();
+		for (XMLModel xmlModel : xmlModels) {
+			String location = getResolvedLocation(document.getDocumentURI(), xmlModel.getHref());
+			if (location != null) {
+				try {
+					DOMRange hrefRange = xmlModel.getHrefNode();
+					if (hrefRange != null) {
+						links.add(createDocumentLink(hrefRange, location));
+					}
 				} catch (BadLocationException e) {
 					// Do nothing
 				}
