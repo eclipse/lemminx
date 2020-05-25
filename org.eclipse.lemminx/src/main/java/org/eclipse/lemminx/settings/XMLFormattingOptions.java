@@ -25,7 +25,7 @@ public class XMLFormattingOptions extends FormattingOptions {
 	public static final String DEFAULT_QUOTATION = "\"";
 	public static final int DEFAULT_PRESERVER_NEW_LINES = 2;
 	public static final int DEFAULT_TAB_SIZE = 2;
-	public static final EnforceQuoteStyle DEFAULT_ENFORCE_QUOTE_STYLE = EnforceQuoteStyle.preferred;
+	public static final EnforceQuoteStyle DEFAULT_ENFORCE_QUOTE_STYLE = EnforceQuoteStyle.ignore;
 
 	// All possible keys
 	private static final String SPLIT_ATTRIBUTES = "splitAttributes";
