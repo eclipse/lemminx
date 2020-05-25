@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
  */
 public class EntitiesCompletionExtensionsTest {
 
-	// Test for internal entities
+	// Test for local entities
 
 	@Test
 	public void afterAmp() throws BadLocationException {

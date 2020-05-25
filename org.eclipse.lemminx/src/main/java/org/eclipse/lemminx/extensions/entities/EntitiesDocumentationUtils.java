@@ -21,6 +21,21 @@ import org.eclipse.lsp4j.MarkupKind;
  */
 public class EntitiesDocumentationUtils {
 
+	public static enum EntityOriginType {
+
+		PREDEFINED("Predefined"), LOCAL("Local"), EXTERNAL("External");
+
+		private final String label;
+
+		private EntityOriginType(String label) {
+			this.label = label;
+		}
+
+		public String getLabel() {
+			return label;
+		}
+	}
+
 	/**
 	 * Predefined entities.
 	 * 
@@ -37,6 +52,10 @@ public class EntitiesDocumentationUtils {
 			this.value = value;
 		}
 
+		public String getName() {
+			return name();
+		}
+
 		public String getValue() {
 			return value;
 		}
@@ -50,14 +69,13 @@ public class EntitiesDocumentationUtils {
 	 * 
 	 * @param entityName  the entity name.
 	 * @param entityValue the entity value.
-	 * @param external    true if it's an external entity and false otherwise.
-	 * @param predefined  true if it's an predefined entity and false otherwise.
+	 * @param type        the entity type (local, external or predefined)
 	 * @param markdown    true if the documentation can be formatted as markdown and
 	 *                    false otherwise.
 	 * @return the entity documentation.
 	 */
-	public static MarkupContent getDocumentation(String entityName, String entityValue, boolean external,
-			boolean predefined, boolean markdown) {
+	public static MarkupContent getDocumentation(String entityName, String entityValue, EntityOriginType type,
+			boolean markdown) {
 		StringBuilder documentation = new StringBuilder();
 
 		// Title
@@ -73,10 +91,7 @@ public class EntitiesDocumentationUtils {
 		if (entityValue != null && !entityValue.isEmpty()) {
 			addParameter("Value", entityValue, documentation, markdown);
 		}
-		addParameter("External", String.valueOf(external), documentation, markdown);
-		addParameter("Predefined", String.valueOf(predefined), documentation, markdown);
-
-		documentation.append(System.lineSeparator());
+		addParameter("Type", type.getLabel(), documentation, markdown);
 		return new MarkupContent(markdown ? MarkupKind.MARKDOWN : MarkupKind.PLAINTEXT, documentation.toString());
 	}
 

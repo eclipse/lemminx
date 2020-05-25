@@ -14,12 +14,16 @@
 package org.eclipse.lemminx.services.extensions;
 
 import static org.eclipse.lemminx.XMLAssert.r;
+import static org.eclipse.lemminx.utils.MarkupContentFactory.MARKDOWN_SEPARATOR;
 
 import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.util.URI.MalformedURIException;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.services.XMLLanguageService;
+import org.eclipse.lsp4j.Hover;
+import org.eclipse.lsp4j.MarkupContent;
+import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.Range;
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +34,6 @@ import org.junit.jupiter.api.Test;
 public class AggregetedHoverValuesTest {
 	private static final String TEST_FOR_TAG_HOVER = "test for tag hover";
 	private static final String TEST_FOR_ATTRIBUTENAME_HOVER = "test for attribute name hover";
-	private static final String HOVER_SEPARATOR = "___";
 
 	@Test
 	public void testTagHover() throws BadLocationException, MalformedURIException {
@@ -41,7 +44,7 @@ public class AggregetedHoverValuesTest {
 		assertHover(xml, TEST_FOR_TAG_HOVER + //
 				System.lineSeparator() + //
 				System.lineSeparator() + //
-				HOVER_SEPARATOR + //
+				MARKDOWN_SEPARATOR + //
 				System.lineSeparator() + //
 				System.lineSeparator() + //
 				"Defines a single (usually named) bean. A bean definition may contain nested tags for constructor arguments, property values, lookup methods, and replaced methods. Mixing constructor injection and setter injection on the same bean is explicitly supported."
@@ -59,7 +62,7 @@ public class AggregetedHoverValuesTest {
 		assertHover(xml, TEST_FOR_ATTRIBUTENAME_HOVER + //
 				System.lineSeparator() + //
 				System.lineSeparator() + //
-				HOVER_SEPARATOR + //
+				MARKDOWN_SEPARATOR + //
 				System.lineSeparator() + //
 				System.lineSeparator() + //
 				"The fully qualified name of the bean's class, except if it serves only as a parent definition for child bean definitions."
@@ -88,20 +91,25 @@ public class AggregetedHoverValuesTest {
 		class AggregatedHoverParticipant extends HoverParticipantAdapter {
 
 			@Override
-			public String onTag(IHoverRequest request) throws Exception {
+			public Hover onTag(IHoverRequest request) throws Exception {
 				if ("bean".equals(request.getCurrentTag())) {
-					return TEST_FOR_TAG_HOVER;
+					return createHover(TEST_FOR_TAG_HOVER);
 				}
 				return null;
 			}
 
 			@Override
-			public String onAttributeName(IHoverRequest request) throws Exception {
+			public Hover onAttributeName(IHoverRequest request) throws Exception {
 				if ("class".equals(request.getCurrentAttributeName())) {
-					return TEST_FOR_ATTRIBUTENAME_HOVER;
+					return createHover(TEST_FOR_ATTRIBUTENAME_HOVER);
 				}
 				return null;
 			}
+
+			private Hover createHover(String value) {
+				return new Hover(new MarkupContent(MarkupKind.PLAINTEXT, value));
+			}
+
 		}
 	}
 }

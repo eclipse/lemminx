@@ -572,7 +572,12 @@ public class XMLAssert {
 
 	public static void assertHover(String value, String expectedHoverLabel, Range expectedHoverRange)
 			throws BadLocationException {
-		assertHover(new XMLLanguageService(), value, null, null, expectedHoverLabel, expectedHoverRange);
+		assertHover(value, null, expectedHoverLabel, expectedHoverRange);
+	}
+
+	public static void assertHover(String value, String fileURI, String expectedHoverLabel, Range expectedHoverRange)
+			throws BadLocationException {
+		assertHover(new XMLLanguageService(), value, null, fileURI, expectedHoverLabel, expectedHoverRange);
 	}
 
 	public static void assertHover(XMLLanguageService xmlLanguageService, String value, String catalogPath,
@@ -624,7 +629,7 @@ public class XMLAssert {
 			String actualHoverLabel = getHoverLabel(hover);
 			assertEquals(expectedHoverLabel, actualHoverLabel);
 			if (expectedHoverRange != null) {
-				assertEquals(hover.getRange(), expectedHoverRange);
+				assertEquals(expectedHoverRange, hover.getRange());
 			}
 		}
 	}

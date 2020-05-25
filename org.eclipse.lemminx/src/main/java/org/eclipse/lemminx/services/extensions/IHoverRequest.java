@@ -20,7 +20,17 @@ import org.eclipse.lsp4j.Range;
  */
 public interface IHoverRequest extends IPositionRequest, ISharedSettingsRequest {
 
-	Range getTagRange();
+	/**
+	 * Returns the hover range and null otherwise.
+	 * 
+	 * @return the hover range and null otherwise.
+	 */
+	Range getHoverRange();
 
+	/**
+	 * Returns true if hovered tag is opened and false otherwise.
+	 * 
+	 * @return true if hovered tag is opened and false otherwise.
+	 */
 	boolean isOpen();
 }

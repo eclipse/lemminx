@@ -12,6 +12,8 @@
  */
 package org.eclipse.lemminx.services.extensions;
 
+import org.eclipse.lsp4j.Hover;
+
 /**
  * Hover participant adapter.
  *
@@ -19,22 +21,22 @@ package org.eclipse.lemminx.services.extensions;
 public class HoverParticipantAdapter implements IHoverParticipant {
 
 	@Override
-	public String onTag(IHoverRequest request) throws Exception {
+	public Hover onTag(IHoverRequest request) throws Exception {
 		return null;
 	}
 
 	@Override
-	public String onAttributeName(IHoverRequest request) throws Exception {
+	public Hover onAttributeName(IHoverRequest request) throws Exception {
 		return null;
 	}
 
 	@Override
-	public String onAttributeValue(IHoverRequest request) throws Exception {
+	public Hover onAttributeValue(IHoverRequest request) throws Exception {
 		return null;
 	}
 
 	@Override
-	public String onText(IHoverRequest request) throws Exception {
+	public Hover onText(IHoverRequest request) throws Exception {
 		return null;
 	}
 

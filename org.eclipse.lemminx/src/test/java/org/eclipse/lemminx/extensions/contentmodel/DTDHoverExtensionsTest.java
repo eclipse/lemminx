@@ -61,7 +61,8 @@ public class DTDHoverExtensionsTest {
 		assertHover(xml, "The package-path value specifies the package of the generated code." + //
 
 				System.lineSeparator() + //
-				System.lineSeparator() + "Source: [liferay-service-builder_7_2_0.dtd](" + dtdURI + ")", null);
+				System.lineSeparator() + "Source: [liferay-service-builder_7_2_0.dtd](" + dtdURI + ")",
+				r(1, 182, 1, 194));
 	}
 
 	@Test

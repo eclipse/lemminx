@@ -95,13 +95,11 @@ public class ContentModelManager {
 	}
 
 	/**
-	 * Returns the declared documents which match the given DOM document and null
-	 * otherwise.
+	 * Returns the declared documents which match the given DOM document.
 	 * 
 	 * @param xmlDocument  the DOM document.
 	 * @param namespaceURI the namespace URI
-	 * @return the declared documents which match the given DOM document and null
-	 *         otherwise.
+	 * @return the declared documents which match the given DOM document.
 	 */
 	public Collection<CMDocument> findCMDocument(DOMDocument xmlDocument, String namespaceURI, boolean withInternal) {
 		Collection<CMDocument> documents = new ArrayList<>();
