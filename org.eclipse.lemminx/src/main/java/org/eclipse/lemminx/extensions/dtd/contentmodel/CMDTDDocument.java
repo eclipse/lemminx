@@ -212,12 +212,15 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 	@Override
 	public Collection<CMElementDeclaration> getElements() {
 		if (elements == null) {
-			elements = new ArrayList<>();
+			elements = new ArrayList<>(); 
+			// Xerces returns 0 even if there are no element declarations
 			int index = grammar.getFirstElementDeclIndex();
 			while (index != -1) {
 				CMDTDElementDeclaration elementDecl = new CMDTDElementDeclaration(this, index);
-				grammar.getElementDecl(index, elementDecl);
-				elements.add(elementDecl);
+				if (grammar.getElementDecl(index, elementDecl)) {
+					// case when there are one or several element declarations
+					elements.add(elementDecl);
+				}
 				index = grammar.getNextElementDeclIndex(index);
 			}
 

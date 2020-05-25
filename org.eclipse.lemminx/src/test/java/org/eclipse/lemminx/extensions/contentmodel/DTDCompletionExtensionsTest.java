@@ -206,6 +206,36 @@ public class DTDCompletionExtensionsTest {
 				c("title", te(4, 8, 4, 9, "<title></title>"), "<title"));
 	}
 
+	@Test
+	public void elementCompletionWithDoctypeSubsetWithNoElements() throws BadLocationException {
+		String xml = "<!DOCTYPE web-app PUBLIC \"-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN\" \"http://java.sun.com/dtd/web-app_2_3.dtd\" [\r\n"
+				+ //
+				"  <!ENTITY mdash \"&#x2014;\">\r\n" + //
+				"]>\r\n" + //
+				"m|\r\n" + // <-- completion here
+				"<web-app>\r\n" + //
+				"  <display-name>Servlet 2.3 aWeb Application</display-name>\r\n" + //
+				"</web-app>";
+		testCompletionFor(xml, false, 76 + 2 /* CDATA and Comments */,
+				c("web-app", te(3, 0, 3, 1, "<web-app></web-app>"), "web-app"),
+				c("auth-constraint", te(3, 0, 3, 1, "<auth-constraint></auth-constraint>"), "auth-constraint"));
+	}
+
+	@Test
+	public void attributeCompletionWithDoctypeSubsetWithNoElements() throws BadLocationException {
+		String xml = "<!DOCTYPE web-app PUBLIC \"-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN\" \"http://java.sun.com/dtd/web-app_2_3.dtd\" [\r\n"
+				+ //
+				"  <!ENTITY mdash \"&#x2014;\">\r\n" + //
+				"]>\r\n" + //
+				"<web-app a|>\r\n" + // <-- completion here
+				"  <display-name>Servlet 2.3 aWeb Application</display-name>\r\n" + //
+				"</web-app>";
+		testCompletionFor(xml, false, 3, c("id", te(3, 9, 3, 10, "id=\"\""), "id"), //
+				c("xmlns", te(3, 9, 3, 10, "xmlns=\"\""), "xmlns"), //
+				c("xmlns:xsi", te(3, 9, 3, 10, "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""),
+						"xmlns:xsi"));
+	}
+
 	private void testCompletionFor(String xml, CompletionItem... expectedItems) throws BadLocationException {
 		testCompletionFor(xml, true, null, expectedItems);
 	}
