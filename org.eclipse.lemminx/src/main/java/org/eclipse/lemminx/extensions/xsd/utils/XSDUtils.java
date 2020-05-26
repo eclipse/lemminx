@@ -19,6 +19,8 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.function.BiConsumer;
 
+import com.google.common.base.Objects;
+
 import org.apache.xerces.impl.xs.SchemaGrammar;
 import org.apache.xerces.xs.StringList;
 import org.eclipse.lemminx.dom.DOMAttr;
@@ -36,8 +38,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import com.google.common.base.Objects;
 
 /**
  * XSD utilities.
@@ -404,6 +404,10 @@ public class XSDUtils {
 		return "attribute".equals(element.getLocalName());
 	}
 
+	public static boolean isXSSchema(Element element) {
+		return "schema".equals(element.getLocalName());
+	}
+
 	public static FilesChangedTracker createFilesChangedTracker(SchemaGrammar grammar) {
 		return createFilesChangedTracker(Collections.singleton(grammar));
 	}
@@ -443,5 +447,12 @@ public class XSDUtils {
 				updateTracker((SchemaGrammar) importedGrammar, trackedGrammars, trackedURIs, tracker);
 			}
 		}
+	}
+
+	public static DOMAttr getSchemaLocation(DOMElement includeElement) {
+		if (!isXSInclude(includeElement)) {
+			return null;
+		}
+		return includeElement.getAttributeNode("schemaLocation");
 	}
 }
