@@ -195,7 +195,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	@Override
 	public CompletableFuture<Hover> hover(HoverParams params) {
 		return computeDOMAsync(params.getTextDocument(), (cancelChecker, xmlDocument) -> {
-			return getXMLLanguageService().doHover(xmlDocument, params.getPosition(), sharedSettings.getHoverSettings(),
+			return getXMLLanguageService().doHover(xmlDocument, params.getPosition(), sharedSettings,
 					cancelChecker);
 		});
 	}

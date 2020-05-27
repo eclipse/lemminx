@@ -27,6 +27,9 @@ import org.apache.xerces.xs.XSSimpleTypeDefinition;
 import org.apache.xerces.xs.XSTypeDefinition;
 import org.apache.xerces.xs.XSValue;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMAttributeDeclaration;
+import org.eclipse.lemminx.services.extensions.ISharedSettingsRequest;
+import org.eclipse.lemminx.settings.SchemaDocumentationType;
+import org.eclipse.lsp4j.MarkupKind;
 
 /**
  * XSD attribute declaration implementation.
@@ -35,12 +38,16 @@ import org.eclipse.lemminx.extensions.contentmodel.model.CMAttributeDeclaration;
 public class CMXSDAttributeDeclaration implements CMAttributeDeclaration {
 
 	private final XSAttributeUse attributeUse;
-	private String documentation;
 
-	private Map<String, String> valuesDocumentation;
+	private final Map<String, String> valuesDocumentation;
+
+	private String attrDocumentation;
+
+	private SchemaDocumentationType docStrategy;
 	
 	public CMXSDAttributeDeclaration(XSAttributeUse attributeUse) {
 		this.attributeUse = attributeUse;
+		this.valuesDocumentation = new HashMap<>();
 	}
 
 	@Override
@@ -60,30 +67,45 @@ public class CMXSDAttributeDeclaration implements CMAttributeDeclaration {
 	}
 
 	@Override
-	public String getDocumentation() {
-		if (documentation != null) {
-			return documentation;
+	public String getDocumentation(ISharedSettingsRequest request) {
+		SchemaDocumentationType currStrategy = request.getSharedSettings().getPreferences().getShowSchemaDocumentationType();
+		if (this.docStrategy != currStrategy) {
+			clearDocumentation();
+		} else if (this.attrDocumentation != null) {
+			return this.attrDocumentation;
 		}
+		this.docStrategy = currStrategy;
 		// Try get xs:annotation from the element declaration or type
 		XSObjectList annotations = getAnnotations();
-		documentation = XSDAnnotationModel.getDocumentation(annotations);
-		return documentation;
+		boolean markdownSupported = request.canSupportMarkupKind(MarkupKind.MARKDOWN);
+		this.attrDocumentation = new XSDDocumentation(annotations, docStrategy, !markdownSupported)
+				.getFormattedDocumentation(markdownSupported);
+		return this.attrDocumentation;
 	}
 
 	@Override
-	public String getValueDocumentation(String value) {
-		if (valuesDocumentation == null) {
-			valuesDocumentation = new HashMap<>();
+	public String getValueDocumentation(String value, ISharedSettingsRequest request) {
+		SchemaDocumentationType currStrategy = request.getSharedSettings().getPreferences().getShowSchemaDocumentationType();
+		if (this.docStrategy != currStrategy) {
+			clearDocumentation();
 		}
 		String documentation = valuesDocumentation.get(value);
 		if (documentation != null) {
 			return documentation;
 		}
+		this.docStrategy = currStrategy;
 		// Try get xs:annotation from the element declaration or type
 		XSObjectList annotations = getValueAnnotations();
-		documentation = XSDAnnotationModel.getDocumentation(annotations, value);
+		boolean markdownSupported = request.canSupportMarkupKind(MarkupKind.MARKDOWN);
+		documentation = new XSDDocumentation(annotations, value, docStrategy, !markdownSupported)
+				.getFormattedDocumentation(markdownSupported);
 		valuesDocumentation.put(value, documentation);
 		return documentation;
+	}
+
+	private void clearDocumentation() {
+		this.valuesDocumentation.clear();
+		this.attrDocumentation = null;
 	}
 
 	/**
@@ -195,5 +217,4 @@ public class CMXSDAttributeDeclaration implements CMAttributeDeclaration {
 		}
 		return Collections.emptyList();
 	}
-
 }

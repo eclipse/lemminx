@@ -28,9 +28,9 @@ import org.eclipse.lemminx.extensions.contentmodel.utils.XMLGenerator;
 import org.eclipse.lemminx.extensions.xsi.XSISchemaModel;
 import org.eclipse.lemminx.services.extensions.HoverParticipantAdapter;
 import org.eclipse.lemminx.services.extensions.IHoverRequest;
+import org.eclipse.lemminx.services.extensions.ISharedSettingsRequest;
 import org.eclipse.lemminx.uriresolver.CacheResourceDownloadingException;
 import org.eclipse.lemminx.utils.MarkupContentFactory;
-import org.eclipse.lemminx.utils.MarkupContentFactory.IMarkupKindSupport;
 import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.MarkupKind;
@@ -137,7 +137,7 @@ public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 		}
 	}
 
-	private static String getCacheWarningHover(CacheResourceDownloadingException e, IMarkupKindSupport support) {
+	private static String getCacheWarningHover(CacheResourceDownloadingException e, ISharedSettingsRequest support) {
 		// Here cache is enabled and some XML Schema, DTD, etc are loading
 		MarkupContent content = MarkupContentFactory.createMarkupContent(
 				"Cannot process " + (e.isDTD() ? "DTD" : "XML Schema") + " hover: " + e.getMessage(),

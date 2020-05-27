@@ -18,11 +18,16 @@ package org.eclipse.lemminx.settings;
 public class XMLPreferences {
 	
 	public static final QuoteStyle DEFAULT_QUOTE_STYLE = QuoteStyle.doubleQuotes;
+	
+	public static final SchemaDocumentationType DEFAULT_SCHEMA_DOCUMENTATION_TYPE = SchemaDocumentationType.all;
 
 	private QuoteStyle quoteStyle;
 
+	private SchemaDocumentationType showSchemaDocumentationType;
+
 	public XMLPreferences() {
 		this.quoteStyle = DEFAULT_QUOTE_STYLE;
+		this.showSchemaDocumentationType = DEFAULT_SCHEMA_DOCUMENTATION_TYPE;
 	}
 
 	/**
@@ -66,7 +71,30 @@ public class XMLPreferences {
 		return this.quoteStyle;
 	}
 
+	/**
+	 * Returns the showSchemaDocumentationType
+	 */
+	public SchemaDocumentationType getShowSchemaDocumentationType() {
+		return this.showSchemaDocumentationType;
+	}
+
+	/**
+	 * Sets the showSchemaDocumentationType
+	 * 
+	 * @param showSchemaDocumentationType
+	 */
+	public void setShowSchemaDocumentationType(SchemaDocumentationType showSchemaDocumentationType) {
+		this.showSchemaDocumentationType = showSchemaDocumentationType;
+	}
+
+	/**
+	 * Merges the contents of <code>newPreferences</code> to the current
+	 * <code>XMLPreferences</code> instance
+	 * 
+	 * @param newPreferences
+	 */
 	public void merge(XMLPreferences newPreferences) {
 		this.setQuoteStyle(newPreferences.getQuoteStyle());
+		this.setShowSchemaDocumentationType(newPreferences.getShowSchemaDocumentationType());
 	}
 }

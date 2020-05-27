@@ -19,6 +19,7 @@ import java.util.Collections;
 import org.apache.xerces.impl.dtd.XMLAttributeDecl;
 import org.apache.xerces.impl.dtd.XMLSimpleType;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMAttributeDeclaration;
+import org.eclipse.lemminx.services.extensions.ISharedSettingsRequest;
 
 /**
  * DTD attribute declaration.
@@ -53,7 +54,7 @@ public class CMDTDAttributeDeclaration extends XMLAttributeDecl implements CMAtt
 	}
 
 	@Override
-	public String getDocumentation() {
+	public String getDocumentation(ISharedSettingsRequest request) {
 		if (documentation != null) {
 			return documentation;
 		}
@@ -67,7 +68,7 @@ public class CMDTDAttributeDeclaration extends XMLAttributeDecl implements CMAtt
 	}
 
 	@Override
-	public String getValueDocumentation(String value) {
+	public String getValueDocumentation(String value, ISharedSettingsRequest settings) {
 		return null;
 	}
 

@@ -18,6 +18,7 @@ import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.services.extensions.IHoverRequest;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLHoverSettings;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -28,13 +29,13 @@ import org.eclipse.lsp4j.Range;
  */
 class HoverRequest extends AbstractPositionRequest implements IHoverRequest {
 
-	private final XMLHoverSettings settings;
+	private final SharedSettings settings;
 
 	private Range tagRange;
 
 	private boolean open;
 
-	public HoverRequest(DOMDocument xmlDocument, Position position, XMLHoverSettings settings,
+	public HoverRequest(DOMDocument xmlDocument, Position position, SharedSettings settings,
 			XMLExtensionsRegistry extensionsRegistry) throws BadLocationException {
 		super(xmlDocument, position, extensionsRegistry);
 		this.settings = settings;
@@ -72,9 +73,14 @@ class HoverRequest extends AbstractPositionRequest implements IHoverRequest {
 
 	@Override
 	public boolean canSupportMarkupKind(String kind) {
-		return settings != null && settings.getCapabilities() != null
-				&& settings.getCapabilities().getContentFormat() != null
-				&& settings.getCapabilities().getContentFormat().contains(kind);
+		XMLHoverSettings hoverSettings = settings.getHoverSettings();
+		return settings != null && hoverSettings.getCapabilities() != null
+				&& hoverSettings.getCapabilities().getContentFormat() != null
+				&& hoverSettings.getCapabilities().getContentFormat().contains(kind);
+	}
 
+	@Override
+	public SharedSettings getSharedSettings() {
+		return settings;
 	}
 }

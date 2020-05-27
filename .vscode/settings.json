@@ -10,6 +10,5 @@
 	//Use consistent indentation
 	"editor.detectIndentation": false,
 	"editor.tabSize": 4,
-	"editor.insertSpaces": false,
-	"java.test.defaultConfig": "default",
+	"editor.insertSpaces": false
 }

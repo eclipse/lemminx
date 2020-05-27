@@ -14,6 +14,8 @@ package org.eclipse.lemminx.extensions.contentmodel.model;
 
 import java.util.Collection;
 
+import org.eclipse.lemminx.services.extensions.ISharedSettingsRequest;
+
 /**
  * Content model element which abstracts attribute declaration from a given
  * grammar (XML Schema, DTD).
@@ -31,9 +33,26 @@ public interface CMAttributeDeclaration {
 
 	Collection<String> getEnumerationValues(); 
 	
-	String getDocumentation();
+	/**
+	 * Returns formatted documentation of the declared
+	 * attribute according to settings defined in <code>request</code>
+	 * 
+	 * @param request the request that contains settings
+	 * @return formatted documentation of the declared
+	 * attribute according to settings defined in <code>request</code>
+	 */
+	String getDocumentation(ISharedSettingsRequest request);
 
-	String getValueDocumentation(String value);
+	/**
+	 * Returns formatted documentation about <code>value</code>,
+	 * according to settings defined in <code>request</code>
+	 * 
+	 * @param value the attribute value to find documentation for
+	 * @param request the request containing settings
+	 * @return formatted documentation about <code>value</code>,
+	 * according to settings defined in <code>request</code>
+	 */
+	String getValueDocumentation(String value, ISharedSettingsRequest request);
 
 	/**
 	 * Returns true if the attribute is required and false otherwise.
