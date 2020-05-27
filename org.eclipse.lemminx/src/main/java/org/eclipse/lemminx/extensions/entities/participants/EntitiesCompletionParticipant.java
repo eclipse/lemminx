@@ -25,6 +25,7 @@ import org.eclipse.lemminx.services.extensions.CompletionParticipantAdapter;
 import org.eclipse.lemminx.services.extensions.ICompletionRequest;
 import org.eclipse.lemminx.services.extensions.ICompletionResponse;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
+import org.eclipse.lemminx.utils.XMLPositionUtility.EntityReferenceRange;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
@@ -42,16 +43,18 @@ public class EntitiesCompletionParticipant extends CompletionParticipantAdapter 
 
 	@Override
 	public void onXMLContent(ICompletionRequest request, ICompletionResponse response) throws Exception {
-		Range entityRange = XMLPositionUtility.selectEntity(request.getOffset(), request.getXMLDocument());
+		EntityReferenceRange entityRange = XMLPositionUtility.selectEntityReference(request.getOffset(),
+				request.getXMLDocument(), false);
 		if (entityRange == null) {
 			return;
 		}
+		Range range = entityRange.getRange();
 		// There is the '&' character before the offset where completion was triggered
 		boolean markdown = request.canSupportMarkupKind(MarkupKind.MARKDOWN);
 		DOMDocument document = request.getXMLDocument();
-		collectInternalEntityProposals(document, entityRange, markdown, response);
-		collectExternalEntityProposals(document, entityRange, markdown, request, response);
-		collectPredefinedEntityProposals(entityRange, markdown, request, response);
+		collectInternalEntityProposals(document, range, markdown, response);
+		collectExternalEntityProposals(document, range, markdown, request, response);
+		collectPredefinedEntityProposals(range, markdown, request, response);
 	}
 
 	/**
@@ -95,7 +98,7 @@ public class EntitiesCompletionParticipant extends CompletionParticipantAdapter 
 			ICompletionRequest request, ICompletionResponse response) {
 		ContentModelManager contentModelManager = request.getComponent(ContentModelManager.class);
 		Collection<CMDocument> cmDocuments = contentModelManager.findCMDocument(document, null, false);
-		for (CMDocument cmDocument : cmDocuments) {			
+		for (CMDocument cmDocument : cmDocuments) {
 			List<Entity> entities = cmDocument.getEntities();
 			for (Entity entity : entities) {
 				if (entity.getNodeName() != null) {

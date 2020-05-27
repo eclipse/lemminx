@@ -12,12 +12,8 @@
  */
 package org.eclipse.lemminx.extensions.entities.participants;
 
-import static org.eclipse.lemminx.utils.StringUtils.findEndWord;
-import static org.eclipse.lemminx.utils.StringUtils.findStartWord;
-
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Predicate;
 
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMDocumentType;
@@ -29,6 +25,7 @@ import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.services.extensions.AbstractDefinitionParticipant;
 import org.eclipse.lemminx.services.extensions.IDefinitionRequest;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
+import org.eclipse.lemminx.utils.XMLPositionUtility.EntityReferenceRange;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
@@ -40,8 +37,6 @@ import org.w3c.dom.NamedNodeMap;
  *
  */
 public class EntitiesDefinitionParticipant extends AbstractDefinitionParticipant {
-
-	private static final Predicate<Character> isValidChar = (c) -> Character.isJavaIdentifierPart(c) || c == '-';
 
 	@Override
 	protected boolean match(DOMDocument document) {
@@ -58,17 +53,12 @@ public class EntitiesDefinitionParticipant extends AbstractDefinitionParticipant
 		// definition is done in a text node, check if it's a referenced entity
 		DOMDocument document = request.getXMLDocument();
 		int offset = request.getOffset();
-		String text = document.getText();
-
-		int paramStart = findStartWord(text, offset, isValidChar);
-		if (paramStart > 0 && text.charAt(paramStart - 1) == '&') {
-			int paramEnd = findEndWord(text, offset, isValidChar);
-			// Find definition of the entity
-			// abcd &loc|al; --> in this case search local entity
-			String entityName = text.substring(paramStart, paramEnd);
-			Range entityRange = XMLPositionUtility.createRange(paramStart, paramEnd, document);
-			searchInInternalEntities(entityName, entityRange, document, locations, cancelChecker);
-			searchInExternalEntities(entityName, entityRange, document, locations, request, cancelChecker);
+		EntityReferenceRange entityRange = XMLPositionUtility.selectEntityReference(offset, document);
+		if (entityRange != null) {
+			String entityName = entityRange.getName();
+			Range range = entityRange.getRange();
+			searchInInternalEntities(entityName, range, document, locations, cancelChecker);
+			searchInExternalEntities(entityName, range, document, locations, request, cancelChecker);
 		}
 	}
 

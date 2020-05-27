@@ -1649,6 +1649,7 @@ public class XMLFormatterTest {
 	@Test
 	public void testUseDoubleQuotesFromDoubleQuotes() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
 		settings.getPreferences().setQuoteStyle(QuoteStyle.doubleQuotes);
 
 		String content = "<a name=  \" value \"> </a>";
@@ -1679,14 +1680,17 @@ public class XMLFormatterTest {
 
 	@Test
 	public void testUseDoubleQuotesFromSingleQuotes() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
 		String content = "<a name=  \' value \'> </a>";
 		String expected = "<a name=\" value \"></a>";
-		format(content, expected);
+		format(content, expected, settings);
 	}
 
 	@Test
 	public void testUseSingleQuotesNoQuotes() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
 		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
 		String content = "<a name = test> </a>";
 		String expected = "<a name= test></a>";
@@ -1714,9 +1718,11 @@ public class XMLFormatterTest {
 
 	@Test
 	public void testUseDoubleQuotesMultipleAttributes() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
 		String content = "<a name1=  \" value1 \"  name2= \" value2 \"   name3= \' value3 \' > </a>";
 		String expected = "<a name1=\" value1 \" name2=\" value2 \" name3=\" value3 \"></a>";
-		format(content, expected);
+		format(content, expected, settings);
 	}
 
 	@Test
@@ -1733,6 +1739,7 @@ public class XMLFormatterTest {
 	public void testUseDoubleQuotesMultipleAttributesSplit() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
 
 		String content = "<a name1=  \" value1 \"  name2= \" value2 \"   name3= \' value3 \' > </a>\n";
 		String expected = "<a\n" + "    name1=\" value1 \"\n" + "    name2=\" value2 \"\n"
@@ -1745,9 +1752,21 @@ public class XMLFormatterTest {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setSplitAttributes(true);
 		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
+		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
 		String content = "<a name1=  \" value1 \"  name2= \" value2 \"   name3= \' value3 \' > </a>\n";
 		String expected = "<a\n" + "    name1=\' value1 \'\n" + "    name2=\' value2 \'\n"
 				+ "    name3=\' value3 \'></a>";
+		format(content, expected, settings);
+	}
+
+	@Test
+	public void testDontFormatQuotesByDefault() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
+		String content = "<a number=\'\"one\"\' /></a>";
+		String expected = content;
+		format(content, expected, settings);
+		settings.getPreferences().setQuoteStyle(QuoteStyle.doubleQuotes);
 		format(content, expected, settings);
 	}
 
