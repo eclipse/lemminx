@@ -28,13 +28,13 @@ import org.eclipse.lemminx.extensions.xsd.utils.XSDUtils;
 import org.eclipse.lemminx.services.extensions.IDocumentLinkParticipant;
 import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lsp4j.DocumentLink;
-import org.w3c.dom.Element;
 
 /**
  * 
  * Implements document links in .xsd files for
  * <ul>
- * <li>xs:include schemaLocation</li>
+ * <li>xs:include/schemaLocation</li>
+ * <li>xs:import/schemaLocation</li>
  * </ul>
  * 
  */
@@ -51,17 +51,18 @@ public class XSDDocumentLinkParticipant implements IDocumentLinkParticipant {
 		String xmlSchemaPrefix = root.getPrefix();
 		List<DOMNode> children = root.getChildren();
 		for (DOMNode child : children) {
-			if (child.isElement() && XSDUtils.isXSInclude((Element) child)
-					&& Objects.equals(child.getPrefix(), xmlSchemaPrefix)) {
-				DOMElement includeElement = (DOMElement) child;
-				DOMAttr schemaLocationAttr = XSDUtils.getSchemaLocation(includeElement);
-				if (schemaLocationAttr != null && !StringUtils.isEmpty(schemaLocationAttr.getValue())) {
-					String location = getResolvedLocation(document.getDocumentURI(), schemaLocationAttr.getValue());
-					DOMRange schemaLocationRange = schemaLocationAttr.getNodeAttrValue();
-					try {
-						links.add(createDocumentLink(schemaLocationRange, location));
-					} catch (BadLocationException e) {
-						LOGGER.log(Level.SEVERE, "Creation of document link failed", e);
+			if (child.isElement() && Objects.equals(child.getPrefix(), xmlSchemaPrefix)) {
+				DOMElement xsdElement = (DOMElement) child;
+				if (XSDUtils.isXSInclude(xsdElement) || XSDUtils.isXSImport(xsdElement)) {
+					DOMAttr schemaLocationAttr = XSDUtils.getSchemaLocation(xsdElement);
+					if (schemaLocationAttr != null && !StringUtils.isEmpty(schemaLocationAttr.getValue())) {
+						String location = getResolvedLocation(document.getDocumentURI(), schemaLocationAttr.getValue());
+						DOMRange schemaLocationRange = schemaLocationAttr.getNodeAttrValue();
+						try {
+							links.add(createDocumentLink(schemaLocationRange, location));
+						} catch (BadLocationException e) {
+							LOGGER.log(Level.SEVERE, "Creation of document link failed", e);
+						}
 					}
 				}
 			}

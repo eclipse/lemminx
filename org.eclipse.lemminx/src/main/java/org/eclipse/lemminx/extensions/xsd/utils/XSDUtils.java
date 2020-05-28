@@ -396,6 +396,11 @@ public class XSDUtils {
 		return "include".equals(element.getLocalName());
 	}
 
+	
+	public static boolean isXSImport(Element child) {
+		return "import".equals(child.getLocalName());
+	}
+
 	public static boolean isXSTargetElement(Element element) {
 		return isXSComplexType(element) || isXSSimpleType(element) || isXSElement(element) || isXSGroup(element);
 	}
@@ -449,10 +454,11 @@ public class XSDUtils {
 		}
 	}
 
-	public static DOMAttr getSchemaLocation(DOMElement includeElement) {
-		if (!isXSInclude(includeElement)) {
+	public static DOMAttr getSchemaLocation(DOMElement element) {
+		if (!(isXSInclude(element) || isXSImport(element))) {
 			return null;
 		}
-		return includeElement.getAttributeNode("schemaLocation");
+		return element.getAttributeNode("schemaLocation");
 	}
+
 }
