@@ -65,6 +65,22 @@
                         <xs:appinfo>third element appinfo</xs:appinfo>
                     </xs:annotation>
                 </xs:element>
+				<xs:element name='elementNoAnnotation'></xs:element>
+				<xs:element name='elementWhitespaceAnnotation'>
+					<xs:annotation>
+						<xs:documentation>
+
+
+
+
+						</xs:documentation>
+						<xs:appinfo>
+									  
+						   
+						</xs:appinfo>
+						<xs:appinfo>  		  </xs:appinfo>
+					</xs:annotation>
+				</xs:element>
             </xs:sequence>
 
             <xs:attribute name='attributeNameOnlyDocumentation' type='attributeValue' use='required'>

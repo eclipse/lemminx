@@ -22,6 +22,7 @@ import org.eclipse.lemminx.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lemminx.services.extensions.ISharedSettingsRequest;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.utils.MarkupContentFactory;
+import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lemminx.utils.XMLBuilder;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.MarkupKind;
@@ -226,12 +227,15 @@ public class XMLGenerator {
 	 * @return
 	 */
 	public static String generateDocumentation(String documentation, String schemaURI, boolean html) {
-		StringBuilder doc = new StringBuilder(documentation != null ? documentation : "");
+		if (StringUtils.isBlank(documentation)) {
+			return null;
+		}
+
+		StringBuilder doc = new StringBuilder(documentation);
+
 		if (schemaURI != null) {
-			if (doc.length() != 0) {
-				doc.append(System.lineSeparator());
-				doc.append(System.lineSeparator());
-			}
+			doc.append(System.lineSeparator());
+			doc.append(System.lineSeparator());
 			if (html) {
 				doc.append("<p>");
 			}
@@ -247,7 +251,7 @@ public class XMLGenerator {
 				doc.append("</p>");
 			}
 		}
-		return doc.length() > 0 ? doc.toString() : null;
+		return doc.toString();
 	}
 
 	/**
