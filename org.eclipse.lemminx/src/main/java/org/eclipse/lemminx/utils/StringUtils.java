@@ -64,6 +64,21 @@ public class StringUtils {
 	}
 
 	/**
+	 * Checks if a string is null or consists of only whitespace characters.
+	 * 
+	 * @param value The string to check
+	 * @return <code>true</code> if any of the below hold, and false otherwise:
+	 * <ul>
+	 * <li>The String is <code>null</code></li>
+	 * <li>The String is of length 0</li>
+	 * <li>The String contains only whitespace characters</li>
+	 * </ul>
+	 */
+	public static boolean isBlank(String value) {
+		return isEmpty(value) || isWhitespace(value);
+	}
+
+	/**
 	 * Normalizes the whitespace characters of a given string and applies it to the
 	 * given string builder.
 	 * 

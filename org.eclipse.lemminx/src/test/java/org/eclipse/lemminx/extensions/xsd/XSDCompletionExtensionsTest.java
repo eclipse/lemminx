@@ -47,9 +47,9 @@ public class XSDCompletionExtensionsTest {
 				"|";
 		testCompletionFor(xml,
 				c("xs:annotation", te(2, 0, 2, 0, "<xs:annotation></xs:annotation>"), "xs:annotation",
-						"Source: XMLSchema.xsd", MarkupKind.PLAINTEXT),
+						null, null),
 				c("xs:attribute", te(2, 0, 2, 0, "<xs:attribute name=\"\"></xs:attribute>"), "xs:attribute",
-						"Source: XMLSchema.xsd", MarkupKind.PLAINTEXT));
+						null, null));
 	}
 
 	@Test
