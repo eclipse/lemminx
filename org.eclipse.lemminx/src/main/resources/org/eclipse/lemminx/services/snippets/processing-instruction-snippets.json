@@ -16,7 +16,7 @@
 	  ],
 	  "suffix": "?>",
 	  "body": [
-		"<?xml-model href=\"${1:location}\" type=\"${2|application/xml,application/dtd,application/relax-ng-compact-syntax|}\"?>${0}"
+		"<?xml-model href=\"${1:location}\" type=\"${2|application/xml,application/xml-dtd,application/relax-ng-compact-syntax|}\"?>${0}"
 	  ],
 	  "label": "$description",
 	  "description": "Insert XML Model Processing Instruction for Schema Association including Type"
@@ -32,6 +32,17 @@
 	  "label": "$description",
 	  "description": "Insert XML Model Processing Instruction for Schema Association including Schematypens"
 	},
+	"Insert XML Model Schema Association with Type and Schematypens": {
+	  "prefix": [
+		"<?xml-model"
+	  ],
+	  "suffix": "?>",
+	  "body": [
+		"<?xml-model href=\"${1:location}\" ${2|type=\"application/xml-dtd\",type=\"application/xml\" schematypens=\"http://www.w3.org/2001/XMLSchema\",type=\"application/xml\" schematypens=\"http://relaxng.org/ns/structure/1.0\",type=\"application/relax-ng-compact-syntax\",type=\"application/xml\" schematypens=\"http://purl.oclc.org/dsdl/schematron\",type=\"application/xml\" schematypens=\"http://purl.oclc.org/dsdl/nvdl/ns/structure/1.0\"|}?>${0}"
+	  ],
+	  "label": "$description",
+	  "description": "Insert XML Model Processing Instruction for Schema Association including Type and Schematypens"
+	},
 	"Insert XML Model Schema Association with All Attributes": {
 	  "prefix": [
 		"<?xml-model"
@@ -39,7 +50,7 @@
 	  "suffix": "?>",
 	  "body": [
 		"<?xml-model href=\"${1:location}\"",
-			"    type=\"${2|application/xml,application/dtd,application/relax-ng-compact-syntax|}\"",
+			"    type=\"${2|application/xml,application/xml-dtd,application/relax-ng-compact-syntax|}\"",
 			"    schematypens=\"${3|http://www.w3.org/2001/XMLSchema,http://relaxng.org/ns/structure/1.0,http://purl.oclc.org/dsdl/schematron,http://purl.oclc.org/dsdl/nvdl/ns/structure/1.0|}\"",
 			"    charset=\"${4|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"",
 				"    title=\"${5:title}\"",
