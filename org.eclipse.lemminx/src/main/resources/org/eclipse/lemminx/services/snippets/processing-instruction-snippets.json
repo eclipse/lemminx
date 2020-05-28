@@ -27,7 +27,7 @@
 	  ],
 	  "suffix": "?>",
 	  "body": [
-		"<?xml-model href=\"${1:location}\" schematypens=\"${2:schematypens}\"?>${0}"
+		"<?xml-model href=\"${1:location}\" schematypens=\"${2|http://www.w3.org/2001/XMLSchema,http://relaxng.org/ns/structure/1.0,http://purl.oclc.org/dsdl/schematron,http://purl.oclc.org/dsdl/nvdl/ns/structure/1.0|}\"?>${0}"
 	  ],
 	  "label": "$description",
 	  "description": "Insert XML Model Processing Instruction for Schema Association including Schematypens"
@@ -40,7 +40,7 @@
 	  "body": [
 		"<?xml-model href=\"${1:location}\"",
 			"    type=\"${2|application/xml,application/dtd,application/relax-ng-compact-syntax|}\"",
-			"    schematypens=\"${3:schematypens}\"",
+			"    schematypens=\"${3|http://www.w3.org/2001/XMLSchema,http://relaxng.org/ns/structure/1.0,http://purl.oclc.org/dsdl/schematron,http://purl.oclc.org/dsdl/nvdl/ns/structure/1.0|}\"",
 			"    charset=\"${4|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"",
 				"    title=\"${5:title}\"",
 				"    group=\"${6:group}\"",
