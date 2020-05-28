@@ -85,10 +85,13 @@ public class CMDTDContentModelProvider implements ContentModelProvider {
 	@Override
 	public CMDocument createInternalCMDocument(DOMDocument xmlDocument) {
 		try {
+			DOMDocumentType documentType = xmlDocument.getDoctype();
+			String internalSubset = documentType != null ? documentType.getInternalSubset() : null;
+			if (internalSubset == null) {
+				return null;
+			}
 			CMDTDDocument document = new CMDTDDocument();
 			document.setEntityResolver(resolverExtensionManager);
-			DOMDocumentType documentType = xmlDocument.getDoctype();
-			String internalSubset = documentType.getInternalSubset();
 			String baseSystemId = null;
 			String systemId = null;
 			document.loadInternalDTD(internalSubset, baseSystemId, systemId);
