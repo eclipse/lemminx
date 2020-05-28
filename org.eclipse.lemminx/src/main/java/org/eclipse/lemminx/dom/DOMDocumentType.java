@@ -122,13 +122,9 @@ public class DOMDocumentType extends DTDDeclNode implements org.w3c.dom.Document
 	 */
 	@Override
 	public String getInternalSubset() {
-		String subset;
 		if (internalSubset != null) {
-			subset = internalSubset.getParameter();
-			subset = subset.substring(1, subset.length() - 1);
-			internalSubset.parameter = subset; // Set parameter to a value without '[' and ']'
-			return subset;
-
+			// Returns subset without '[' and ']'
+			return internalSubset.getParameterWithoutFirstAndLastChar();
 		}
 		return null;
 	}

@@ -21,6 +21,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.xerces.impl.XMLEntityManager.ScannedEntity;
 import org.apache.xerces.impl.dtd.DTDGrammar;
@@ -51,6 +53,8 @@ import org.w3c.dom.Entity;
  *
  */
 public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
+
+	private static final Logger LOGGER = Logger.getLogger(CMDTDDocument.class.getName());
 
 	static class DTDNodeInfo {
 
@@ -155,7 +159,7 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 		 * @return the colunm number where entity name starts (<!ENTITY |name )
 		 */
 		private static int getEntityNameStartColumnNumber(String name, ScannedEntity scannedEntity) {
-			int endEntityIndex = scannedEntity.position;
+			int endEntityIndex = scannedEntity.startPosition + scannedEntity.position;
 			int startLineIndex = endEntityIndex - scannedEntity.columnNumber + 1;
 			char[] ch = scannedEntity.ch;
 			int wordIndex = 0;
@@ -212,7 +216,7 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 	@Override
 	public Collection<CMElementDeclaration> getElements() {
 		if (elements == null) {
-			elements = new ArrayList<>(); 
+			elements = new ArrayList<>();
 			// Xerces returns 0 even if there are no element declarations
 			int index = grammar.getFirstElementDeclIndex();
 			while (index != -1) {
@@ -273,7 +277,11 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 	public void internalEntityDecl(String name, XMLString text, XMLString nonNormalizedText, Augmentations augs)
 			throws XNIException {
 		super.internalEntityDecl(name, text, nonNormalizedText, augs);
-		entities.add(new ScannedDTDEntityDecl(name, text.toString(), fEntityManager.getCurrentEntity()));
+		try {
+			entities.add(new ScannedDTDEntityDecl(name, text.toString(), fEntityManager.getCurrentEntity()));
+		} catch (Exception e) {
+			LOGGER.log(Level.SEVERE, "Error while extracting information for the entity '" + name + "'", e);
+		}
 	}
 
 	@Override

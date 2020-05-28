@@ -141,4 +141,22 @@ public class EntitiesCompletionExtensionsTest {
 				c("&foo;", "&foo;", r(6, 1, 6, 2), "&foo;"));
 	}
 
+	@Test
+	public void bug_vscode_xml_262() throws BadLocationException {
+		// See
+		// https://github.com/redhat-developer/vscode-xml/issues/262#issuecomment-634716408
+		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
+				"<!DOCTYPE alex-update-sequence SYSTEM \"src/test/resources/dtd/bug_vscode-xml_262.dtd\" [<!-- {{{ -->\r\n"
+				+ //
+				"]>\r\n" + //
+				"<!-- }}} -->\r\n" + //
+				"<root>\r\n" + //
+				"&|\r\n" + //
+				"</root>";
+		testCompletionFor(xml, null, "test.xml", 29 + //
+				2 /* CDATA and Comments */ + //
+				PredefinedEntity.values().length /* predefined entities */, //
+				c("&fdcuf_hide_actions_column;", "&fdcuf_hide_actions_column;", r(5, 0, 5, 1),
+						"&fdcuf_hide_actions_column;"));
+	}
 }
