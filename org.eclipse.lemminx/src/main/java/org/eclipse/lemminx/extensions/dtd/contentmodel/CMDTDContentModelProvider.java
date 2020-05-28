@@ -14,6 +14,8 @@ package org.eclipse.lemminx.extensions.dtd.contentmodel;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.xerces.xni.grammars.Grammar;
 import org.apache.xerces.xni.parser.XMLInputSource;
@@ -21,6 +23,7 @@ import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMDocumentType;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelProvider;
+import org.eclipse.lemminx.services.XMLCompletions;
 import org.eclipse.lemminx.uriresolver.URIResolverExtensionManager;
 import org.eclipse.lemminx.utils.DOMUtils;
 import org.eclipse.lemminx.utils.StringUtils;
@@ -29,6 +32,8 @@ import org.eclipse.lemminx.utils.StringUtils;
  * DTD content model provider.
  */
 public class CMDTDContentModelProvider implements ContentModelProvider {
+
+	private static final Logger LOGGER = Logger.getLogger(XMLCompletions.class.getName());
 
 	private final URIResolverExtensionManager resolverExtensionManager;
 
@@ -89,6 +94,7 @@ public class CMDTDContentModelProvider implements ContentModelProvider {
 			document.loadInternalDTD(internalSubset, baseSystemId, systemId);
 			return document;
 		} catch (Exception e) {
+			LOGGER.log(Level.SEVERE, "Error while loading DOCTYPE subset", e);
 			return null;
 		}
 	}

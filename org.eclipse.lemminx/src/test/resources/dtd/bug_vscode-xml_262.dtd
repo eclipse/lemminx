@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!ENTITY xxx "XXX">
+
+<!-- Catalog flags {{{ -->
+<!ENTITY cf_dropdown           "2"> <!-- jako dropdown -->
+<!ENTITY cf_privileges         "4"> <!-- podle pristupovych prav -->
+<!ENTITY cf_links              "8"> <!-- vcetne linku -->
+<!ENTITY cf_cur_user           "16"> <!-- 0x0010: dovolit filtr podle akt. usera -->
+<!ENTITY cf_cur_part           "32"> <!-- 0x0020: dovolit filtr podle akt. partnera -->
+<!ENTITY cf_l10n               "64"> <!-- 0x0040: lokalizované stringy -->
+<!ENTITY cf_sums               "4096"> <!-- u tabparamu zobrazit sumy / prumery -->
+<!ENTITY cf_revision           "8192"> <!-- zpristupnit data revize -->
+<!ENTITY cf_flatten_tree       "16384"> <!-- 0x004000 -->
+<!ENTITY fdcuf_flatten_tree    "16384"> <!-- 0x004000 -->
+<!ENTITY cf_choosable_only     "65536"> <!-- 0x010000 -->
+<!ENTITY fdcuf_choosable_only  "65536"> <!-- 0x010000 -->
+<!ENTITY cf_cur_role           "131072"> <!-- 0x20000: dovolit filtr podle akt. role -->
+<!ENTITY cf_currole_flt        "131072">  <!-- 0x020000 -->
+<!ENTITY fdcuf_currole_flt     "131072">  <!-- 0x020000 -->
+<!ENTITY cf_download_file      "524288">  <!-- 0x080000: CTLG: Add download file button to edit dialog -->
+<!ENTITY cf_edit               "4194304"> <!-- 0x400000: CTLG: Add edit button to edit dialog -->
+<!ENTITY cf_preview            "8388608"> <!-- 0x800000: CTLG: Add preview button to edit dialog -->
+<!ENTITY cf_workflow          "16777216"> <!-- 0x1000000: CTLG: Add workflow data -->
+<!ENTITY cf_edit_online       "33554432"> <!-- 0x2000000: CTLG: Add edit_online button to edit dialog -->
+<!-- }}} -->
+<!-- Tabparam flags {{{ -->
+<!ENTITY fdcuf_noedit           "128">  <!-- 0x000080 -->
+<!ENTITY fdcuf_nodelete         "256">  <!-- 0x000100 -->
+<!ENTITY fdcuf_nonew            "512">  <!-- 0x000200 --> 
+<!ENTITY fdcuf_noallatonce      "1024"> <!-- 0x000400 -->
+<!ENTITY fdcuf_tab_nodata       "2048"> <!-- 0x000800 -->
+<!ENTITY fdcuf_tab_sumrow       "4096"> <!-- 0x001000 -->
+<!ENTITY fdcuf_always_inplace   "1048576"> <!-- 0x100000 -->
+<!ENTITY fdcuf_hide_actions_column "2097152"> <!-- 0x200000 -->
+<!-- }}} -->
