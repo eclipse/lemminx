@@ -114,7 +114,7 @@ public class DTDEntityDecl extends DTDDeclNode implements Entity {
 	 */
 	@Override
 	public String getPublicId() {
-		return publicId != null ? publicId.getParameter() : null;
+		return publicId != null ? publicId.getParameterWithoutFirstAndLastChar() : null;
 	}
 
 	public void setPublicId(int start, int end) {
@@ -128,7 +128,7 @@ public class DTDEntityDecl extends DTDDeclNode implements Entity {
 	 */
 	@Override
 	public String getSystemId() {
-		return systemId != null ? systemId.getParameter() : null;
+		return systemId != null ? systemId.getParameterWithoutFirstAndLastChar() : null;
 	}
 
 	public void setSystemId(int start, int end) {
