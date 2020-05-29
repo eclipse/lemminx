@@ -17,8 +17,9 @@ import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.services.extensions.ICompletionRequest;
+import org.eclipse.lemminx.utils.DOMUtils;
 
-public class XMLModelSnippetContext implements IXMLSnippetContext {
+public class XMLModelSnippetContext implements IXMLSnippetContext { // FIXME: rename to ProcessingInstructionSnippetContext
 
 	public static IXMLSnippetContext DEFAULT_CONTEXT = new XMLModelSnippetContext();
 
@@ -33,6 +34,11 @@ public class XMLModelSnippetContext implements IXMLSnippetContext {
 
  		DOMDocument document = request.getXMLDocument();
 		DOMElement documentElement = document.getDocumentElement();
+
+		if (document.isDTD() || DOMUtils.isXSD(document)) {
+			// triggered in a DTD or XSD file
+			return false;
+		}
 
  		if (document.hasProlog() && offset == 0){
 			 // triggered before prolog

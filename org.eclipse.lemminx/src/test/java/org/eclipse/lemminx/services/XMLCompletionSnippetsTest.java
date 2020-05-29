@@ -17,6 +17,7 @@ import static org.eclipse.lemminx.XMLAssert.DOCTYPE_SNIPPETS;
 import static org.eclipse.lemminx.XMLAssert.NEW_XML_SNIPPETS;
 import static org.eclipse.lemminx.XMLAssert.NEW_XSD_SNIPPETS;
 import static org.eclipse.lemminx.XMLAssert.PROLOG_SNIPPETS;
+import static org.eclipse.lemminx.XMLAssert.PROCESSING_INSTRUCTION_SNIPPETS;
 import static org.eclipse.lemminx.XMLAssert.REGION_SNIPPETS;
 import static org.eclipse.lemminx.XMLAssert.c;
 import static org.eclipse.lemminx.XMLAssert.r;
@@ -38,6 +39,7 @@ public class XMLCompletionSnippetsTest {
 		testCompletionFor("|", REGION_SNIPPETS /* #region */ + //
 				NEW_XML_SNIPPETS /* DOCTYPE snippets */ + //
 				PROLOG_SNIPPETS /* Prolog snippets */ + //
+				PROCESSING_INSTRUCTION_SNIPPETS /* Processing Instruction snippets */ + //
 				COMMENT_SNIPPETS /* Comment snippets */ , //
 				c("New XML with SYSTEM DOCTYPE", //
 						"<!DOCTYPE root-element SYSTEM \"file.dtd\">" + lineSeparator() + //
@@ -47,6 +49,12 @@ public class XMLCompletionSnippetsTest {
 				c("Insert XML Processing Instruction", //
 						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>", //
 						r(0, 0, 0, 0), "<?xml"),
+				c("Insert XML Model Processing Instruction to Associate XSD Schema", //
+						"<?xml-model href=\"file.xsd\" type=\"application/xml\" schematypens=\"http://www.w3.org/2001/XMLSchema\"?>", //
+						r(0, 0, 0, 0), "<?xml-model"),
+				c("Insert XML Model Processing Instruction to Associate Document Type Description (DTD)", //
+						"<?xml-model href=\"file.dtd\" type=\"application/xml-dtd\"?>", //
+						r(0, 0, 0, 0), "<?xml-model"),
 				c("New XML bound with xsi:schemaLocation", //
 						"<root-element xmlns=\"https://github.com/eclipse/lemminx\"" + lineSeparator() + //
 								"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" + lineSeparator() + //
@@ -68,6 +76,7 @@ public class XMLCompletionSnippetsTest {
 
 		testCompletionFor("<|", NEW_XML_SNIPPETS /* DOCTYPE snippets */ + //
 				PROLOG_SNIPPETS /* Prolog snippets */ + //
+				PROCESSING_INSTRUCTION_SNIPPETS /* Processing Instruction snippets */ + //
 				COMMENT_SNIPPETS /* Comment snippets */ , //
 				c("New XML with SYSTEM DOCTYPE", //
 						"<!DOCTYPE root-element SYSTEM \"file.dtd\">" + lineSeparator() + //
@@ -77,12 +86,19 @@ public class XMLCompletionSnippetsTest {
 				c("Insert XML Processing Instruction", //
 						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>", //
 						r(0, 0, 0, 1), "<?xml"),
+				c("Insert XML Model Processing Instruction to Associate XSD Schema", //
+						"<?xml-model href=\"file.xsd\" type=\"application/xml\" schematypens=\"http://www.w3.org/2001/XMLSchema\"?>", //
+						r(0, 0, 0, 1), "<?xml-model"),
+				c("Insert XML Model Processing Instruction to Associate Document Type Description (DTD)", //
+						"<?xml-model href=\"file.dtd\" type=\"application/xml-dtd\"?>", //
+						r(0, 0, 0, 1), "<?xml-model"),
 				c("<!--", //
 						"<!-- -->", //
 						r(0, 0, 0, 1), "<!--"));
 
 		testCompletionFor("<|>", NEW_XML_SNIPPETS /* DOCTYPE snippets */ + //
 				PROLOG_SNIPPETS /* Prolog snippets */ + //
+				PROCESSING_INSTRUCTION_SNIPPETS /* Processing Instruction snippets */ + //
 				COMMENT_SNIPPETS /* Comment snippets */ , //
 				c("New XML with SYSTEM DOCTYPE", //
 						"<!DOCTYPE root-element SYSTEM \"file.dtd\">" + lineSeparator() + //
@@ -92,12 +108,19 @@ public class XMLCompletionSnippetsTest {
 				c("Insert XML Processing Instruction", //
 						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>", //
 						r(0, 0, 0, 2), "<?xml"),
+				c("Insert XML Model Processing Instruction to Associate XSD Schema", //
+						"<?xml-model href=\"file.xsd\" type=\"application/xml\" schematypens=\"http://www.w3.org/2001/XMLSchema\"?>", //
+						r(0, 0, 0, 2), "<?xml-model"),
+				c("Insert XML Model Processing Instruction to Associate Document Type Description (DTD)", //
+						"<?xml-model href=\"file.dtd\" type=\"application/xml-dtd\"?>", //
+						r(0, 0, 0, 2), "<?xml-model"),
 				c("<!--", //
 						"<!-- -->", //
 						r(0, 0, 0, 2), "<!--"));
 
-		testCompletionFor("<!|", NEW_XML_SNIPPETS /* DOCTYPE snippets */ + //
+		testCompletionFor("<!|", NEW_XML_SNIPPETS /* DOCTYPE snippets */ + // TODO: why does that trigger these completions? is that intended?
 				PROLOG_SNIPPETS /* Prolog snippets */ + //
+				PROCESSING_INSTRUCTION_SNIPPETS /* Processing Instruction snippets */ + //
 				COMMENT_SNIPPETS /* Comment snippets */ , //
 				c("New XML with SYSTEM DOCTYPE", //
 						"<!DOCTYPE root-element SYSTEM \"file.dtd\">" + lineSeparator() + //
@@ -117,12 +140,19 @@ public class XMLCompletionSnippetsTest {
 	public void afterComment() throws BadLocationException {
 		testCompletionFor("<!-- -->|", NEW_XML_SNIPPETS /* DOCTYPE snippets */ + //
 				PROLOG_SNIPPETS /* Prolog snippets */ + //
+				PROCESSING_INSTRUCTION_SNIPPETS /* Processing Instruction snippets */ + //
 				COMMENT_SNIPPETS /* Comment snippets */ , //
 				c("New XML with SYSTEM DOCTYPE", //
 						"<!DOCTYPE root-element SYSTEM \"file.dtd\">" + lineSeparator() + //
 								"<root-element>" + lineSeparator() + //
 								"</root-element>", //
 						r(0, 8, 0, 8), "<!DOCTYPE"),
+				c("Insert XML Model Processing Instruction to Associate XSD Schema", //
+						"<?xml-model href=\"file.xsd\" type=\"application/xml\" schematypens=\"http://www.w3.org/2001/XMLSchema\"?>", //
+						r(0, 8, 0, 8), "<?xml-model"),
+				c("Insert XML Model Processing Instruction to Associate Document Type Description (DTD)", //
+						"<?xml-model href=\"file.dtd\" type=\"application/xml-dtd\"?>", //
+						r(0, 8, 0, 8), "<?xml-model"),
 				c("<!--", //
 						"<!-- -->", //
 						r(0, 8, 0, 8), "<!--"));
@@ -132,54 +162,83 @@ public class XMLCompletionSnippetsTest {
 	public void afterProlog() throws BadLocationException {
 		testCompletionFor("<?xml version=\"1.0\" encoding=\"UTF-8\"?>|", //
 				NEW_XML_SNIPPETS /* DOCTYPE snippets */ + //
+						PROCESSING_INSTRUCTION_SNIPPETS /* Processing Instruction snippets */ + //
 						COMMENT_SNIPPETS /* Comment snippets */ , //
 				c("New XML with SYSTEM DOCTYPE", //
 						"<!DOCTYPE root-element SYSTEM \"file.dtd\">" + lineSeparator() + //
 								"<root-element>" + lineSeparator() + //
 								"</root-element>", //
 						r(0, 38, 0, 38), "<!DOCTYPE"),
+				c("Insert XML Model Processing Instruction to Associate XSD Schema", //
+						"<?xml-model href=\"file.xsd\" type=\"application/xml\" schematypens=\"http://www.w3.org/2001/XMLSchema\"?>", //
+						r(0, 38, 0, 38), "<?xml-model"),
+				c("Insert XML Model Processing Instruction to Associate Document Type Description (DTD)", //
+						"<?xml-model href=\"file.dtd\" type=\"application/xml-dtd\"?>", //
+						r(0, 38, 0, 38), "<?xml-model"),
 				c("<!--", //
 						"<!-- -->", //
 						r(0, 38, 0, 38), "<!--"));
 
 		testCompletionFor("<?xml version=\"1.0\" encoding=\"UTF-8\"?><|", //
 				NEW_XML_SNIPPETS /* DOCTYPE snippets */ + //
+						PROCESSING_INSTRUCTION_SNIPPETS /* Processing Instruction snippets */ + //
 						COMMENT_SNIPPETS /* Comment snippets */ , //
 				c("New XML with SYSTEM DOCTYPE", //
 						"<!DOCTYPE root-element SYSTEM \"file.dtd\">" + lineSeparator() + //
 								"<root-element>" + lineSeparator() + //
 								"</root-element>", //
 						r(0, 38, 0, 39), "<!DOCTYPE"),
+				c("Insert XML Model Processing Instruction to Associate XSD Schema", //
+						"<?xml-model href=\"file.xsd\" type=\"application/xml\" schematypens=\"http://www.w3.org/2001/XMLSchema\"?>", //
+						r(0, 38, 0, 39), "<?xml-model"),
+				c("Insert XML Model Processing Instruction to Associate Document Type Description (DTD)", //
+						"<?xml-model href=\"file.dtd\" type=\"application/xml-dtd\"?>", //
+						r(0, 38, 0, 39), "<?xml-model"),
 				c("<!--", //
 						"<!-- -->", //
 						r(0, 38, 0, 39), "<!--"));
 
-		testCompletionFor("<?xml version=\"1.0\" encoding=\"UTF-8\"?><|!", //
+		testCompletionFor("<?xml version=\"1.0\" encoding=\"UTF-8\"?><|!", // TODO: what does this test?
 				NEW_XML_SNIPPETS /* DOCTYPE snippets */ + //
+						PROCESSING_INSTRUCTION_SNIPPETS /* Processing Instruction snippets */ + //
 						COMMENT_SNIPPETS /* Comment snippets */ , //
 				c("New XML with SYSTEM DOCTYPE", //
 						"<!DOCTYPE root-element SYSTEM \"file.dtd\">" + lineSeparator() + //
 								"<root-element>" + lineSeparator() + //
 								"</root-element>", //
 						r(0, 38, 0, 39), "<!DOCTYPE"),
+				c("Insert XML Model Processing Instruction to Associate XSD Schema", //
+						"<?xml-model href=\"file.xsd\" type=\"application/xml\" schematypens=\"http://www.w3.org/2001/XMLSchema\"?>", //
+						r(0, 38, 0, 39), "<?xml-model"),
+				c("Insert XML Model Processing Instruction to Associate Document Type Description (DTD)", //
+						"<?xml-model href=\"file.dtd\" type=\"application/xml-dtd\"?>", //
+						r(0, 38, 0, 39), "<?xml-model"),
 				c("<!--", //
 						"<!-- -->", //
 						r(0, 38, 0, 39), "<!--"));
 
-		testCompletionFor("<?xml version=\"1.0\" encoding=\"UTF-8\"?><!|", //
+		testCompletionFor("<?xml version=\"1.0\" encoding=\"UTF-8\"?><!|", // TODO: why does this pass?
 				NEW_XML_SNIPPETS /* DOCTYPE snippets */ + //
+						PROCESSING_INSTRUCTION_SNIPPETS /* Processing Instruction snippets */ + //
 						COMMENT_SNIPPETS /* Comment snippets */ , //
 				c("New XML with SYSTEM DOCTYPE", //
 						"<!DOCTYPE root-element SYSTEM \"file.dtd\">" + lineSeparator() + //
 								"<root-element>" + lineSeparator() + //
 								"</root-element>", //
 						r(0, 38, 0, 40), "<!DOCTYPE"),
+				c("Insert XML Model Processing Instruction to Associate XSD Schema", //
+						"<?xml-model href=\"file.xsd\" type=\"application/xml\" schematypens=\"http://www.w3.org/2001/XMLSchema\"?>", //
+						r(0, 38, 0, 40), "<?xml-model"),
+				c("Insert XML Model Processing Instruction to Associate Document Type Description (DTD)", //
+						"<?xml-model href=\"file.dtd\" type=\"application/xml-dtd\"?>", //
+						r(0, 38, 0, 40), "<?xml-model"),
 				c("<!--", //
 						"<!-- -->", //
 						r(0, 38, 0, 40), "<!--"));
 
 		testCompletionFor("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n|", //
 				NEW_XML_SNIPPETS /* DOCTYPE snippets */ + //
+						PROCESSING_INSTRUCTION_SNIPPETS /* Processing Instruction snippets */ + //
 						REGION_SNIPPETS /* regions snippets */ + //
 						COMMENT_SNIPPETS /* Comment snippets */ , //
 				c("New XML with SYSTEM DOCTYPE", //
@@ -187,6 +246,12 @@ public class XMLCompletionSnippetsTest {
 								"<root-element>" + lineSeparator() + //
 								"</root-element>", //
 						r(1, 0, 1, 0), "<!DOCTYPE"),
+				c("Insert XML Model Processing Instruction to Associate XSD Schema", //
+						"<?xml-model href=\"file.xsd\" type=\"application/xml\" schematypens=\"http://www.w3.org/2001/XMLSchema\"?>", //
+						r(1, 0, 1, 0), "<?xml-model"),
+				c("Insert XML Model Processing Instruction to Associate Document Type Description (DTD)", //
+						"<?xml-model href=\"file.dtd\" type=\"application/xml-dtd\"?>", //
+						r(1, 0, 1, 0), "<?xml-model"),
 				c("<!--", //
 						"<!-- -->", //
 						r(1, 0, 1, 0), "<!--"));
@@ -417,6 +482,7 @@ public class XMLCompletionSnippetsTest {
 		testCompletionFor("|<foo>", //
 				DOCTYPE_SNIPPETS /* DOCTYPE snippets */ + //
 						PROLOG_SNIPPETS /* Prolog snippets */ + //
+						PROCESSING_INSTRUCTION_SNIPPETS /* Processing Instruction snippets */ + //
 						COMMENT_SNIPPETS /* Comment snippets */ , //
 				c("Insert SYSTEM DOCTYPE", //
 						"<!DOCTYPE foo SYSTEM \"file.dtd\">", //
@@ -425,6 +491,7 @@ public class XMLCompletionSnippetsTest {
 		testCompletionFor("<!-- -->|<foo>", //
 				DOCTYPE_SNIPPETS /* DOCTYPE snippets */ + //
 						PROLOG_SNIPPETS /* Prolog snippets */ + //
+						PROCESSING_INSTRUCTION_SNIPPETS /* Processing Instruction snippets */ + //
 						COMMENT_SNIPPETS /* Comment snippets */ , //
 				c("Insert SYSTEM DOCTYPE", //
 						"<!DOCTYPE foo SYSTEM \"file.dtd\">", //
@@ -435,6 +502,7 @@ public class XMLCompletionSnippetsTest {
 				"|<foo>", //
 				DOCTYPE_SNIPPETS /* DOCTYPE snippets */ + //
 						PROLOG_SNIPPETS /* Prolog snippets */ + //
+						PROCESSING_INSTRUCTION_SNIPPETS /* Processing Instruction snippets */ + //
 						COMMENT_SNIPPETS /* Comment snippets */ , //
 				c("Insert SYSTEM DOCTYPE", //
 						"<!DOCTYPE foo SYSTEM \"file.dtd\">", //
@@ -447,6 +515,7 @@ public class XMLCompletionSnippetsTest {
 	public void prolog() throws BadLocationException {
 		testCompletionFor("<?|", //
 				PROLOG_SNIPPETS /* Prolog snippets */ + //
+						PROCESSING_INSTRUCTION_SNIPPETS /* Processing Instruction Snippets */ + //
 						COMMENT_SNIPPETS /* Comment snippets */ , //
 				c("Insert XML Processing Instruction", //
 						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>", //

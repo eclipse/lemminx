@@ -99,6 +99,8 @@ public class XMLAssert {
 
 	public static final int PROLOG_SNIPPETS = 2;
 
+	public static final int PROCESSING_INSTRUCTION_SNIPPETS = 2;
+
 	public static final int REGION_SNIPPETS = 2;
 
 	private static final String FILE_URI = "test.xml";
