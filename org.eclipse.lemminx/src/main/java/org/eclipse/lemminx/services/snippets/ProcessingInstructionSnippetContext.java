@@ -32,6 +32,11 @@ public class ProcessingInstructionSnippetContext implements IXMLSnippetContext {
 			return false;
 		}
 
+		if (node.getParentNode() != null && node.getParentNode().isDoctype()) {
+			// completion was triggered after element inside doctype
+			return false;
+		}
+
  		DOMDocument document = request.getXMLDocument();
 		DOMElement documentElement = document.getDocumentElement();
 

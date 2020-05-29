@@ -196,7 +196,7 @@ public class DTDCompletionExtensionsTest {
 	public void testNoDuplicateCompletionItems() throws BadLocationException {
 		// completion on <|
 		String xml = "<?xml version=\"1.0\" standalone=\"no\" ?>\n"
-				+ "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.0//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg.dtd\">\n"
+				+ "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.0//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg.dtd\">\n" // FIXME: I can't find this file. does it still exist?
 				+ "<svg xmlns=\"http://www.w3.org/2000/svg\">\n" + "    <animate attributeName=\"foo\">\n"
 				+ "        <|\n" + // <-- completion
 				"    </animate>\n" + "</svg>";
@@ -216,7 +216,7 @@ public class DTDCompletionExtensionsTest {
 				"<web-app>\r\n" + //
 				"  <display-name>Servlet 2.3 aWeb Application</display-name>\r\n" + //
 				"</web-app>";
-		testCompletionFor(xml, false, 76 + 2 /* CDATA and Comments */,
+		testCompletionFor(xml, false, 76 + 4 /* XML-Model, CDATA and Comments */,
 				c("web-app", te(3, 0, 3, 1, "<web-app></web-app>"), "web-app"),
 				c("auth-constraint", te(3, 0, 3, 1, "<auth-constraint></auth-constraint>"), "auth-constraint"));
 	}
