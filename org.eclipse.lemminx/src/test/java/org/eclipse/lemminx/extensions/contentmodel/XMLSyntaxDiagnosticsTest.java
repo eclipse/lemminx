@@ -492,4 +492,39 @@ public class XMLSyntaxDiagnosticsTest {
 		String xml = "<?xml version=\"5000.0\"encoding=\"UTF-8\"?>";
 		testDiagnosticsFor(xml, d(0, 14, 0, 22, XMLSyntaxErrorCode.VersionNotSupported));
 	}
+
+	@Test
+	public void testEntitySemicolonRequiredInReference() throws Exception {
+		String xml = "<!DOCTYPE root [\n" + //
+				"    <!ELEMENT root (#PCDATA)>\n" + //
+				"    <!ENTITY mdash \"&#x2014;\">\n" + //
+				"]>\n" + //
+				"<root>\n" + //
+				"    &mdash \n" + //
+				"</root>";
+		testDiagnosticsFor(xml, d(5, 4, 5, 10, XMLSyntaxErrorCode.SemicolonRequiredInReference));
+	}
+
+	@Test
+	public void testEntitySemicolonRequiredInReferenceOddSpacing() throws Exception {
+		String xml = "<!DOCTYPE root [\n" + //
+				"    <!ELEMENT root (#PCDATA)>\n" + //
+				"    <!ENTITY mdash \"&#x2014;\">\n" + //
+				"]>\n" + //
+				"<root>\n" + //
+				"    &mdash</root>";
+		testDiagnosticsFor(xml, d(5, 4, 5, 10, XMLSyntaxErrorCode.SemicolonRequiredInReference));
+	}
+
+	@Test
+	public void testEntitySemicolonRequiredInReferenceShortName() throws Exception {
+		String xml = "<!DOCTYPE root [\n" + //
+				"    <!ELEMENT root (#PCDATA)>\n" + //
+				"    <!ENTITY m \"&#x2014;\">\n" + //
+				"]>\n" + //
+				"<root>\n" + //
+				"    &m \n" + //
+				"</root>";
+		testDiagnosticsFor(xml, d(5, 4, 5, 6, XMLSyntaxErrorCode.SemicolonRequiredInReference));
+	}
 }
