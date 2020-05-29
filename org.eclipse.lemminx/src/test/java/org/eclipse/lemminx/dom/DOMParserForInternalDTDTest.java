@@ -514,8 +514,8 @@ public class DOMParserForInternalDTDTest {
 		assertEquals("%", entityDecl.getPercent());
 		assertEquals("eName", entityDecl.getNodeName());
 		assertEquals("PUBLIC", entityDecl.getKind());
-		assertEquals("\"publicId\"", entityDecl.getPublicId());
-		assertEquals("\"systemId\"", entityDecl.getSystemId());
+		assertEquals("publicId", entityDecl.getPublicId());
+		assertEquals("systemId", entityDecl.getSystemId());
 
 		// <foo />element
 		assertTrue(actual.getChild(1).isElement());
@@ -544,7 +544,7 @@ public class DOMParserForInternalDTDTest {
 		assertEquals("%", entityDecl.getPercent());
 		assertEquals("eName", entityDecl.getNodeName());
 		assertEquals("PUBLIC", entityDecl.getKind());
-		assertEquals("\"publicId\"", entityDecl.getPublicId());
+		assertEquals("publicId", entityDecl.getPublicId());
 		assertEquals(null, entityDecl.getSystemId());
 
 		// <foo />element
@@ -772,8 +772,8 @@ public class DOMParserForInternalDTDTest {
 		assertEquals(65, elementDecl.getEnd());
 		assertEquals("Name", elementDecl.getName());
 		assertEquals("PUBLIC", elementDecl.getKind());
-		assertEquals("\"PublicID\"", elementDecl.getPublicId());
-		assertEquals("\"SystemID\"", elementDecl.getSystemId());
+		assertEquals("PublicID", elementDecl.getPublicId());
+		assertEquals("SystemID", elementDecl.getSystemId());
 		
 		assertTrue(elementDecl.isClosed());
 	}
@@ -805,7 +805,7 @@ public class DOMParserForInternalDTDTest {
 		assertEquals(65, elementDecl.getEnd());
 		assertEquals("Name", elementDecl.getName());
 		assertEquals("SYSTEM", elementDecl.getKind());
-		assertEquals("\"PublicID\"", elementDecl.getSystemId());
+		assertEquals("PublicID", elementDecl.getSystemId());
 		assertEquals("\"SystemID\"", elementDecl.getUnrecognized());
 		
 		assertTrue(elementDecl.isClosed());

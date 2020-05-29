@@ -17,6 +17,7 @@ import java.util.List;
 
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMDocumentType;
+import org.eclipse.lemminx.dom.DTDEntityDecl;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.extensions.entities.EntitiesDocumentationUtils;
@@ -30,6 +31,7 @@ import org.eclipse.lemminx.utils.XMLPositionUtility.EntityReferenceRange;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
+import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -78,8 +80,9 @@ public class EntitiesCompletionParticipant extends CompletionParticipantAdapter 
 			Entity entity = (Entity) entities.item(i);
 			if (entity.getNodeName() != null) {
 				// provide completion for the locally declared entity
-				fillCompletion(entity.getNodeName(), entity.getNotationName(), EntityOriginType.LOCAL, entityRange,
-						markdown, response);
+				MarkupContent documentation = EntitiesDocumentationUtils.getDocumentation((DTDEntityDecl) entity,
+						EntityOriginType.LOCAL, markdown);
+				fillCompletion(entity.getNodeName(), documentation, entityRange, response);
 			}
 		}
 	}
@@ -103,8 +106,9 @@ public class EntitiesCompletionParticipant extends CompletionParticipantAdapter 
 			for (Entity entity : entities) {
 				if (entity.getNodeName() != null) {
 					// provide completion for the external declared entity
-					fillCompletion(entity.getNodeName(), entity.getNotationName(), EntityOriginType.EXTERNAL,
-							entityRange, markdown, response);
+					MarkupContent documentation = EntitiesDocumentationUtils.getDocumentation((DTDEntityDecl) entity,
+							EntityOriginType.EXTERNAL, markdown);
+					fillCompletion(entity.getNodeName(), documentation, entityRange, response);
 				}
 			}
 		}
@@ -123,13 +127,14 @@ public class EntitiesCompletionParticipant extends CompletionParticipantAdapter 
 	private void collectPredefinedEntityProposals(Range entityRange, boolean markdown, ICompletionResponse response) {
 		PredefinedEntity[] entities = PredefinedEntity.values();
 		for (PredefinedEntity entity : entities) {
-			fillCompletion(entity.getName(), entity.getValue(), EntityOriginType.PREDEFINED, entityRange, markdown,
-					response);
+			MarkupContent documentation = EntitiesDocumentationUtils.getDocumentation(entity.getName(),
+					entity.getValue(), EntityOriginType.PREDEFINED, markdown);
+			fillCompletion(entity.getName(), documentation, entityRange, response);
 		}
 	}
 
-	private static void fillCompletion(String name, String entityValue, EntityOriginType type, Range entityRange,
-			boolean markdown, ICompletionResponse response) {
+	private static void fillCompletion(String name, MarkupContent documentation, Range entityRange,
+			ICompletionResponse response) {
 		String entityName = "&" + name + ";";
 		CompletionItem item = new CompletionItem();
 		item.setLabel(entityName);
@@ -138,7 +143,7 @@ public class EntitiesCompletionParticipant extends CompletionParticipantAdapter 
 		String insertText = entityName;
 		item.setFilterText(insertText);
 		item.setTextEdit(new TextEdit(entityRange, insertText));
-		item.setDocumentation(EntitiesDocumentationUtils.getDocumentation(name, entityValue, type, markdown));
+		item.setDocumentation(documentation);
 		response.addCompletionItem(item);
 	}
 

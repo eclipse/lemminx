@@ -29,6 +29,21 @@ public class EntitiesCompletionExtensionsTest {
 	// Test for local entities
 
 	@Test
+	public void localWithSYSTEM() throws BadLocationException {
+		// &|
+		String xml = "<?xml version=\"1.0\" standalone=\"no\" ?>\r\n" + //
+				"	<!DOCTYPE copyright [\r\n" + //
+				"	  <!ELEMENT copyright (#PCDATA)>\r\n" + //
+				"	  <!ENTITY c SYSTEM \"http://www.xmlwriter.net/copyright.xml\">\r\n" + //
+				"	]>\r\n" + //
+				"	<copyright>&|</copyright>";
+		testCompletionFor(xml, 1 + //
+				2 /* CDATA and Comments */ + //
+				PredefinedEntity.values().length /* predefined entities */, //
+				c("&c;", "&c;", r(5, 12, 5, 13), "&c;"));
+	}
+
+	@Test
 	public void afterAmp() throws BadLocationException {
 		// &|
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
@@ -125,10 +140,11 @@ public class EntitiesCompletionExtensionsTest {
 	}
 
 	// Test for external entities
+
 	@Test
 	public void external() throws BadLocationException {
 		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n" + //
-				"<!DOCTYPE root-element SYSTEM \"src/test/resources/dtd/base.dtd\" [\r\n" + //
+				"<!DOCTYPE root-element SYSTEM \"src/test/resources/dtd/entities/base.dtd\" [\r\n" + //
 				"	<!ENTITY mdash \"&#x2014;\">\r\n" + //
 				"]>\r\n" + //
 				"<root-element>\r\n" + //
@@ -142,11 +158,23 @@ public class EntitiesCompletionExtensionsTest {
 	}
 
 	@Test
+	public void externalWithSYSTEM() throws BadLocationException {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<!DOCTYPE author SYSTEM \"src/test/resources/dtd/entities/base-system.dtd\">\r\n" + //
+				"<author>&|</author>";
+		testCompletionFor(xml, null, "test.xml", 2 + //
+				2 /* CDATA and Comments */ + //
+				PredefinedEntity.values().length /* predefined entities */,
+				c("&writer;", "&writer;", r(2, 8, 2, 9), "&writer;"), //
+				c("&copyright;", "&copyright;", r(2, 8, 2, 9), "&copyright;"));
+	}
+
+	@Test
 	public void bug_vscode_xml_262() throws BadLocationException {
 		// See
 		// https://github.com/redhat-developer/vscode-xml/issues/262#issuecomment-634716408
 		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
-				"<!DOCTYPE alex-update-sequence SYSTEM \"src/test/resources/dtd/bug_vscode-xml_262.dtd\" [<!-- {{{ -->\r\n"
+				"<!DOCTYPE alex-update-sequence SYSTEM \"src/test/resources/dtd/entities/bug_vscode-xml_262.dtd\" [<!-- {{{ -->\r\n"
 				+ //
 				"]>\r\n" + //
 				"<!-- }}} -->\r\n" + //
