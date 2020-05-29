@@ -31,6 +31,7 @@ import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.Root
 import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IXMLErrorCode;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
+import org.eclipse.lemminx.utils.XMLPositionUtility.EntityReferenceRange;
 import org.eclipse.lsp4j.Range;
 
 /**
@@ -55,7 +56,7 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 	the_element_type_lmsg("the-element-type-lmsg"), EqRequiredInXMLDecl, IllegalQName, InvalidCommentStart,
 	LessthanInAttValue, MarkupEntityMismatch, MarkupNotRecognizedInContent, NameRequiredInReference, OpenQuoteExpected,
 	PITargetRequired, PseudoAttrNameExpected, QuoteRequiredInXMLDecl, RootElementTypeMustMatchDoctypedecl,
-	SDDeclInvalid, SpaceRequiredBeforeEncodingInXMLDecl, SpaceRequiredBeforeStandalone, SpaceRequiredInPI,
+	SDDeclInvalid, SemicolonRequiredInReference, SpaceRequiredBeforeEncodingInXMLDecl, SpaceRequiredBeforeStandalone, SpaceRequiredInPI,
 	VersionInfoRequired, VersionNotSupported, XMLDeclUnterminated, CustomETag, PrematureEOF, DoctypeNotAllowed, NoMorePseudoAttributes;
 
 	private final String code;
@@ -166,6 +167,10 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 		case ETagRequired: {
 			String tag = getString(arguments[0]);
 			return XMLPositionUtility.selectChildEndTag(tag, offset, document);
+		}
+		case SemicolonRequiredInReference: {
+			EntityReferenceRange range = XMLPositionUtility.selectEntityReference(offset + 1, document, false);
+			return range != null ? range.getRange() : null;
 		}
 		case ContentIllegalInProlog: {
 			int startOffset = offset + 1;
