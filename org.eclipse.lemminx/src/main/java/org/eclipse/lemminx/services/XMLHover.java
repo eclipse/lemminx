@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMAttr;
@@ -30,7 +31,9 @@ import org.eclipse.lemminx.services.extensions.IHoverParticipant;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.utils.MarkupContentFactory;
+import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.Hover;
+import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
@@ -64,7 +67,7 @@ class XMLHover {
 			return null;
 		}
 		if (node.isElement() && ((DOMElement) node).getTagName() != null) {
-			// Element is hover
+			// Element is hovered
 			DOMElement element = (DOMElement) node;
 			if (element.hasEndTag() && offset >= element.getEndTagOpenOffset()) {
 				Range tagRange = getTagNameRange(TokenType.EndTag, element.getEndTagOpenOffset(), offset, xmlDocument);
@@ -79,40 +82,23 @@ class XMLHover {
 				return getTagHover(hoverRequest, tagRange, true);
 			}
 		} else if (node.isAttribute()) {
+			// Attribute is hovered
 			DOMAttr attr = (DOMAttr) node;
 			if (attr.valueContainsOffset(offset)) {
-				return getAttrValueHover(hoverRequest, null);
+				// Attribute value is hovered
+				Range attrRange = XMLPositionUtility.selectAttributeValue(attr);
+				return getAttrValueHover(hoverRequest, attrRange);
 			}
-			// Attribute is hover
-			return getAttrNameHover(hoverRequest, null);
+			// Attribute name is hovered
+			Range attrRange = XMLPositionUtility.selectAttributeName(attr);
+			return getAttrNameHover(hoverRequest, attrRange);
 		} else if (node.isText()) {
-			// Text is hover
+			// Text is hovered
 			DOMText text = (DOMText) node;
-			try {
-				Range textRange = new Range(xmlDocument.positionAt(text.getStart()),
-						xmlDocument.positionAt(text.getEnd()));
-				return getTextHover(hoverRequest, textRange);
-			} catch (BadLocationException e) {
-				LOGGER.log(Level.SEVERE, "While creating Range in XMLHover the text's Offset was a BadLocation", e);
-			}
+			Range textRange = XMLPositionUtility.selectText(text);
+			return getTextHover(hoverRequest, textRange);
 		}
 		return null;
-	}
-
-	private Hover getTextHover(HoverRequest hoverRequest, Range textRange) {
-		hoverRequest.setTagRange(textRange);
-		List<String> contentValues = new ArrayList<String>();
-		for (IHoverParticipant participant : extensionsRegistry.getHoverParticipants()) {
-			try {
-				String contentValue = participant.onText(hoverRequest);
-				if (contentValue != null) {
-					contentValues.add(contentValue);
-				}
-			} catch (Exception e) {
-				LOGGER.log(Level.SEVERE, "While performing IHoverParticipant#onTagText", e);
-			}
-		}
-		return createHover(contentValues, hoverRequest);
 	}
 
 	/**
@@ -125,20 +111,20 @@ class XMLHover {
 	 * @return the LSP hover from the hovered element.
 	 */
 	private Hover getTagHover(HoverRequest hoverRequest, Range tagRange, boolean open) {
-		hoverRequest.setTagRange(tagRange);
+		hoverRequest.setHoverRange(tagRange);
 		hoverRequest.setOpen(open);
-		List<String> contentValues = new ArrayList<String>();
+		List<Hover> hovers = new ArrayList<>();
 		for (IHoverParticipant participant : extensionsRegistry.getHoverParticipants()) {
 			try {
-				String contentValue = participant.onTag(hoverRequest);
-				if (contentValue != null) {
-					contentValues.add(contentValue);
+				Hover hover = participant.onTag(hoverRequest);
+				if (hover != null) {
+					hovers.add(hover);
 				}
 			} catch (Exception e) {
 				LOGGER.log(Level.SEVERE, "While performing IHoverParticipant#onTag", e);
 			}
 		}
-		return createHover(contentValues, hoverRequest);
+		return mergeHover(hovers, tagRange);
 	}
 
 	private Range getTagNameRange(TokenType tokenType, int startOffset, int offset, DOMDocument document) {
@@ -168,20 +154,19 @@ class XMLHover {
 	 * @return the LSP hover from the hovered attribute.
 	 */
 	private Hover getAttrNameHover(HoverRequest hoverRequest, Range attrRange) {
-		// hoverRequest.setTagRange(tagRange);
-		// hoverRequest.setOpen(open);
-		List<String> contentValues = new ArrayList<String>();
+		hoverRequest.setHoverRange(attrRange);
+		List<Hover> hovers = new ArrayList<>();
 		for (IHoverParticipant participant : extensionsRegistry.getHoverParticipants()) {
 			try {
-				String contentValue = participant.onAttributeName(hoverRequest);
-				if (contentValue != null) {
-					contentValues.add(contentValue);
+				Hover hover = participant.onAttributeName(hoverRequest);
+				if (hover != null) {
+					hovers.add(hover);
 				}
 			} catch (Exception e) {
-				LOGGER.log(Level.SEVERE, "While performing IHoverParticipant#onTag", e);
+				LOGGER.log(Level.SEVERE, "While performing IHoverParticipant#onAttributeName", e);
 			}
 		}
-		return createHover(contentValues, hoverRequest);
+		return mergeHover(hovers, attrRange);
 	}
 
 	/**
@@ -192,33 +177,83 @@ class XMLHover {
 	 * @return the LSP hover from the hovered attribute.
 	 */
 	private Hover getAttrValueHover(HoverRequest hoverRequest, Range attrRange) {
-		// hoverRequest.setTagRange(tagRange);
-		// hoverRequest.setOpen(open);
-		List<String> contentValues = new ArrayList<String>();
+		hoverRequest.setHoverRange(attrRange);
+		List<Hover> hovers = new ArrayList<>();
 		for (IHoverParticipant participant : extensionsRegistry.getHoverParticipants()) {
 			try {
-				String contentValue = participant.onAttributeValue(hoverRequest);
-				if (contentValue != null) {
-					contentValues.add(contentValue);
+				Hover hover = participant.onAttributeValue(hoverRequest);
+				if (hover != null) {
+					hovers.add(hover);
 				}
 			} catch (Exception e) {
-				LOGGER.log(Level.SEVERE, "While performing IHoverParticipant#onTag", e);
+				LOGGER.log(Level.SEVERE, "While performing IHoverParticipant#onAttributeValue", e);
 			}
 		}
-		return createHover(contentValues, hoverRequest);
+		return mergeHover(hovers, attrRange);
 	}
 
 	/**
-	 * Returns the aggregated LSP hover from the value list.
+	 * Returns the LSP hover from the hovered text.
 	 * 
-	 * @param contentValues the content values.
 	 * @param hoverRequest the hover request.
-	 * @return the aggregated LSP hover from the value list.
+	 * @param attrRange    the attribute range
+	 * @return the LSP hover from the hovered text.
 	 */
-	private static Hover createHover(List<String> contentValues, HoverRequest hoverRequest) {
-		if (!contentValues.isEmpty()) {
-			return new Hover(MarkupContentFactory.creatMarkupContent(contentValues, hoverRequest), hoverRequest.getTagRange());
+	private Hover getTextHover(HoverRequest hoverRequest, Range textRange) {
+		hoverRequest.setHoverRange(textRange);
+		List<Hover> hovers = new ArrayList<>();
+		for (IHoverParticipant participant : extensionsRegistry.getHoverParticipants()) {
+			try {
+				Hover hover = participant.onText(hoverRequest);
+				if (hover != null) {
+					hovers.add(hover);
+				}
+			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE, "While performing IHoverParticipant#onText", e);
+			}
 		}
-		return null;
+		return mergeHover(hovers, textRange);
+	}
+
+	/**
+	 * Returns the aggregated LSP hover from the given hover list.
+	 * 
+	 * @param hovers       the hover list.
+	 * @param defaultRange the default range according to the hovered DOM node.
+	 * @return the aggregated LSP hover from the given hover list.
+	 */
+	private static Hover mergeHover(List<Hover> hovers, Range defaultRange) {
+		if (hovers.isEmpty()) {
+			// no hover
+			return null;
+		}
+		if (hovers.size() == 1) {
+			// One hover
+			Hover hover = hovers.get(0);
+			if (hover.getRange() == null) {
+				hover.setRange(defaultRange);
+			}
+			return hover;
+		}
+		// Several hovers.
+
+		// Get list of markup content
+		List<MarkupContent> contents = hovers.stream() //
+				.filter(hover -> hover.getContents() != null && hover.getContents().isRight()
+						&& hover.getContents().getRight() != null) //
+				.map(hover -> hover.getContents().getRight()).collect(Collectors.toList());
+
+		// Find the best hover range
+		Range range = defaultRange;
+		for (Hover hover : hovers) {
+			if (hover.getRange() != null) {
+				if (range == null) {
+					range = hover.getRange();
+				} else {
+					// TODO : compute the best range
+				}
+			}
+		}
+		return MarkupContentFactory.createHover(contents, range);
 	}
 }

@@ -17,7 +17,8 @@ import org.eclipse.lemminx.commons.BadLocationException;
 import org.junit.jupiter.api.Test;
 
 /**
- * Tests for the docuement links in .xsd provided by <code>XSDDocumentLinkParticipant</code>
+ * Tests for the document links in .xsd provided by
+ * <code>XSDDocumentLinkParticipant</code>
  * 
  * @see org.eclipse.lemminx.extensions.xsd.participants.XSDDocumentLinkParticipant
  */
@@ -53,7 +54,7 @@ public class XSDDocumentLinkingExtensionsTest {
 
 	@Test
 	public void xsIncludeEmptySchemaLocation() throws BadLocationException {
-		String xml = "<xs:schema xmlns:xs=\"http://example.org\">\n" + //
+		String xml = "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n" + //
 				"    <xs:include schemaLocation=\"\"></xs:include>\n" + //
 				"    <xs:element name=\"int\">\n" + //
 				"        <xs:simpleType>\n" + //
@@ -91,6 +92,93 @@ public class XSDDocumentLinkingExtensionsTest {
 				"    </xs:element>\n" + //
 				"</xs:schema>";
 		XMLAssert.testDocumentLinkFor(xml, "src/test/resources/xsd/unnamed-integer.xsd");
+	}
+
+	@Test
+	public void xsImportUsualNamespace() throws BadLocationException {
+		String xml = "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n" + //
+				"    <xs:import namespace=\"\" schemaLocation=\"choice.xsd\"></xs:import>\n" + //
+				"    <xs:element name=\"int\">\n" + //
+				"        <xs:simpleType>\n" + //
+				"            <xs:restriction base=\"xs:integer\"/>\n" + //
+				"        </xs:simpleType>\n" + //
+				"    </xs:element>\n" + //
+				"</xs:schema>";
+		XMLAssert.testDocumentLinkFor(xml, "src/test/resources/xsd/unnamed-integer.xsd",
+				dl(r(1, 44, 1, 54), "src/test/resources/xsd/choice.xsd"));
+	}
+
+	@Test
+	public void xsImportDifferentNamespace() throws BadLocationException {
+		String xml = "<schemanamespace:schema xmlns:schemanamespace=\"http://www.w3.org/2001/XMLSchema\">\n" + //
+				"    <schemanamespace:import namespace=\"\" schemaLocation=\"choice.xsd\" />\n" + //
+				"    <schemanamespace:element name=\"int\">\n" + //
+				"        <schemanamespace:simpleType>\n" + //
+				"            <schemanamespace:restriction base=\"schemanamespace:integer\"/>\n" + //
+				"        </schemanamespace:simpleType>\n" + //
+				"    </schemanamespace:element>\n" + //
+				"</schemanamespace:schema>";
+		XMLAssert.testDocumentLinkFor(xml, "src/test/resources/xsd/unnamed-integer.xsd",
+				dl(r(1, 57, 1, 67), "src/test/resources/xsd/choice.xsd"));
+	}
+
+	@Test
+	public void xsImportEmptySchemaLocation() throws BadLocationException {
+		String xml = "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n" + //
+				"    <xs:import namespace=\"\" schemaLocation=\"\" />\n" + //
+				"    <xs:element name=\"int\">\n" + //
+				"        <xs:simpleType>\n" + //
+				"            <xs:restriction base=\"xs:integer\"/>\n" + //
+				"        </xs:simpleType>\n" + //
+				"    </xs:element>\n" + //
+				"</xs:schema>";
+		XMLAssert.testDocumentLinkFor(xml, "src/test/resources/xsd/unnamed-integer.xsd");
+	}
+
+	@Test
+	public void xsImportManyOccurences() throws BadLocationException {
+		// TOFU:
+		String xml = "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n" + //
+				"    <xs:import namespace=\"\" schemaLocation=\"choice.xsd\" />\n" + //
+				"    <xs:import namespace=\"\" schemaLocation=\"pattern.xsd\" />\n" + //
+				"    <xs:element name=\"int\">\n" + //
+				"        <xs:simpleType>\n" + //
+				"            <xs:restriction base=\"xs:integer\"/>\n" + //
+				"        </xs:simpleType>\n" + //
+				"    </xs:element>\n" + //
+				"</xs:schema>";
+		XMLAssert.testDocumentLinkFor(xml, "src/test/resources/xsd/unnamed-integer.xsd",
+				dl(r(1, 44, 1, 54), "src/test/resources/xsd/choice.xsd"),
+				dl(r(2, 44, 2, 55), "src/test/resources/xsd/pattern.xsd"));
+	}
+
+	@Test
+	public void xsImportNoSchemaLocation() throws BadLocationException {
+		String xml = "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n" + //
+				"    <xs:import namespace=\"\" />\n" + //
+				"    <xs:element name=\"int\">\n" + //
+				"        <xs:simpleType>\n" + //
+				"            <xs:restriction base=\"xs:integer\"/>\n" + //
+				"        </xs:simpleType>\n" + //
+				"    </xs:element>\n" + //
+				"</xs:schema>";
+		XMLAssert.testDocumentLinkFor(xml, "src/test/resources/xsd/unnamed-integer.xsd");
+	}
+
+	@Test
+	public void mixedIncludeImport() throws BadLocationException {
+		String xml = "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n" + //
+				"    <xs:import namespace=\"\" schemaLocation=\"pattern.xsd\" />\n" + //
+				"    <xs:include schemaLocation=\"choice.xsd\" />\n" + //
+				"    <xs:element name=\"int\">\n" + //
+				"        <xs:simpleType>\n" + //
+				"            <xs:restriction base=\"xs:integer\"/>\n" + //
+				"        </xs:simpleType>\n" + //
+				"    </xs:element>\n" + //
+				"</xs:schema>";
+		XMLAssert.testDocumentLinkFor(xml, "src/test/resources/xsd/unnamed-integer.xsd",
+				dl(r(1, 44, 1, 55), "src/test/resources/xsd/pattern.xsd"),
+				dl(r(2, 32, 2, 42), "src/test/resources/xsd/choice.xsd"));
 	}
 
 }

@@ -13,9 +13,13 @@
 package org.eclipse.lemminx.services.extensions;
 
 import static org.eclipse.lemminx.XMLAssert.r;
+
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.services.XMLLanguageService;
+import org.eclipse.lsp4j.Hover;
+import org.eclipse.lsp4j.MarkupContent;
+import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.Range;
 import org.junit.jupiter.api.Test;
 
@@ -65,15 +69,22 @@ public class HTMLHoverExtensionsTest {
 		class HTMLHoverParticipant extends HoverParticipantAdapter {
 
 			@Override
-			public String onTag(IHoverRequest request) {
+			public Hover onTag(IHoverRequest request) {
 				String tag = request.getCurrentTag();
 				String tagLabel = request.isOpen() ? "<" + tag + ">" : "</" + tag + ">";
-				return tagLabel;
+				return createHover(tagLabel);
 			}
 
 			@Override
-			public String onText(IHoverRequest request) throws Exception {
-				return request.getNode().getTextContent();
+			public Hover onText(IHoverRequest request) throws Exception {
+				return createHover(request.getNode().getTextContent());
+			}
+
+			private Hover createHover(String value) {
+				if (value == null) {
+					return null;
+				}
+				return new Hover(new MarkupContent(MarkupKind.PLAINTEXT, value));
 			}
 		}
 	}

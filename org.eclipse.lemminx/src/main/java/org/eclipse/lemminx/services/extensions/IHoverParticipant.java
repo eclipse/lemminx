@@ -12,6 +12,8 @@
  */
 package org.eclipse.lemminx.services.extensions;
 
+import org.eclipse.lsp4j.Hover;
+
 /**
  * Hover participant API.
  *
@@ -24,7 +26,7 @@ public interface IHoverParticipant {
 	 * @param hoverRequest the hover request.
 	 * @return the Value of MarkupContent {@link String}
 	 */
-	String onTag(IHoverRequest request) throws Exception;
+	Hover onTag(IHoverRequest request) throws Exception;
 
 	/**
 	 * onAttributeName method
@@ -32,7 +34,7 @@ public interface IHoverParticipant {
 	 * @param hoverRequest the hover request.
 	 * @return the Value of MarkupContent {@link String}
 	 */
-	String onAttributeName(IHoverRequest request) throws Exception;
+	Hover onAttributeName(IHoverRequest request) throws Exception;
 
 	/**
 	 * onAttributeValue method
@@ -40,7 +42,7 @@ public interface IHoverParticipant {
 	 * @param hoverRequest the hover request.
 	 * @return the Value of MarkupContent {@link String}
 	 */
-	String onAttributeValue(IHoverRequest request) throws Exception;
+	Hover onAttributeValue(IHoverRequest request) throws Exception;
 	
 	/**
 	 * onText method
@@ -48,6 +50,6 @@ public interface IHoverParticipant {
 	 * @param hoverRequest the hover request.
 	 * @return the Value of MarkupContent {@link String}
 	 */
-	String onText(IHoverRequest request) throws Exception;
+	Hover onText(IHoverRequest request) throws Exception;
 
 }

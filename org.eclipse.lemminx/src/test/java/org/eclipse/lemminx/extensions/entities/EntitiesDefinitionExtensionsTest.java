@@ -90,18 +90,6 @@ public class EntitiesDefinitionExtensionsTest {
 
 	// Test for external entities
 
-	public void external() throws BadLocationException, MalformedURIException {
-		String dtdFileURI = getDTDFileURI("src/test/resources/dtd/base.dtd");
-		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n" + //
-				"<!DOCTYPE root-element SYSTEM \"src/test/resources/dtd/base.dtd\" [\r\n" + //
-				"<!ENTITY mdash \"&#x2014;\">\r\n" + //
-				"]>\r\n" + //
-				"<root-element>\r\n" + //
-				"\r\n &f|oo" + //
-				"</root-element>";
-		testDefinitionFor(xml, "test.xml", ll(dtdFileURI, r(6, 2, 6, 5), r(2, 9, 2, 12)));
-	}
-
 	@Test
 	public void externalWithIndent() throws BadLocationException, MalformedURIException {
 		String dtdFileURI = getDTDFileURI("src/test/resources/dtd/base.dtd");

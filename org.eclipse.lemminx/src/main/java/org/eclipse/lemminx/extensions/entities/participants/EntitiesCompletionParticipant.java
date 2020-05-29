@@ -20,6 +20,7 @@ import org.eclipse.lemminx.dom.DOMDocumentType;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.extensions.entities.EntitiesDocumentationUtils;
+import org.eclipse.lemminx.extensions.entities.EntitiesDocumentationUtils.EntityOriginType;
 import org.eclipse.lemminx.extensions.entities.EntitiesDocumentationUtils.PredefinedEntity;
 import org.eclipse.lemminx.services.extensions.CompletionParticipantAdapter;
 import org.eclipse.lemminx.services.extensions.ICompletionRequest;
@@ -52,22 +53,21 @@ public class EntitiesCompletionParticipant extends CompletionParticipantAdapter 
 		// There is the '&' character before the offset where completion was triggered
 		boolean markdown = request.canSupportMarkupKind(MarkupKind.MARKDOWN);
 		DOMDocument document = request.getXMLDocument();
-		collectInternalEntityProposals(document, range, markdown, response);
+		collectLocalEntityProposals(document, range, markdown, response);
 		collectExternalEntityProposals(document, range, markdown, request, response);
-		collectPredefinedEntityProposals(range, markdown, request, response);
+		collectPredefinedEntityProposals(range, markdown, response);
 	}
 
 	/**
-	 * Collect internal entities.
+	 * Collect local entities declared in the DOCTYPE.
 	 * 
 	 * @param document    the DOM document.
 	 * @param entityRange the entity range.
 	 * @param markdown    true if the documentation can be formatted as markdown and
 	 *                    false otherwise.
-	 * @param request     the completion request.
 	 * @param response    the completion response.
 	 */
-	private static void collectInternalEntityProposals(DOMDocument document, Range entityRange, boolean markdown,
+	private static void collectLocalEntityProposals(DOMDocument document, Range entityRange, boolean markdown,
 			ICompletionResponse response) {
 		DOMDocumentType docType = document.getDoctype();
 		if (docType == null) {
@@ -78,8 +78,8 @@ public class EntitiesCompletionParticipant extends CompletionParticipantAdapter 
 			Entity entity = (Entity) entities.item(i);
 			if (entity.getNodeName() != null) {
 				// provide completion for the locally declared entity
-				fillCompletion(entity.getNodeName(), entity.getNotationName(), false, false, entityRange, markdown,
-						response);
+				fillCompletion(entity.getNodeName(), entity.getNotationName(), EntityOriginType.LOCAL, entityRange,
+						markdown, response);
 			}
 		}
 	}
@@ -103,8 +103,8 @@ public class EntitiesCompletionParticipant extends CompletionParticipantAdapter 
 			for (Entity entity : entities) {
 				if (entity.getNodeName() != null) {
 					// provide completion for the external declared entity
-					fillCompletion(entity.getNodeName(), entity.getNotationName(), true, false, entityRange, markdown,
-							response);
+					fillCompletion(entity.getNodeName(), entity.getNotationName(), EntityOriginType.EXTERNAL,
+							entityRange, markdown, response);
 				}
 			}
 		}
@@ -116,21 +116,20 @@ public class EntitiesCompletionParticipant extends CompletionParticipantAdapter 
 	 * @param entityRange the entity range.
 	 * @param markdown    true if the documentation can be formatted as markdown and
 	 *                    false otherwise.
-	 * @param request     the completion request.
 	 * @param response    the completion response.
 	 * 
 	 * @see https://www.w3.org/TR/xml/#sec-predefined-ent
 	 */
-	private void collectPredefinedEntityProposals(Range entityRange, boolean markdown, ICompletionRequest request,
-			ICompletionResponse response) {
+	private void collectPredefinedEntityProposals(Range entityRange, boolean markdown, ICompletionResponse response) {
 		PredefinedEntity[] entities = PredefinedEntity.values();
 		for (PredefinedEntity entity : entities) {
-			fillCompletion(entity.name(), entity.getValue(), false, true, entityRange, markdown, response);
+			fillCompletion(entity.getName(), entity.getValue(), EntityOriginType.PREDEFINED, entityRange, markdown,
+					response);
 		}
 	}
 
-	private static void fillCompletion(String name, String entityValue, boolean external, boolean predefined,
-			Range entityRange, boolean markdown, ICompletionResponse response) {
+	private static void fillCompletion(String name, String entityValue, EntityOriginType type, Range entityRange,
+			boolean markdown, ICompletionResponse response) {
 		String entityName = "&" + name + ";";
 		CompletionItem item = new CompletionItem();
 		item.setLabel(entityName);
@@ -139,8 +138,7 @@ public class EntitiesCompletionParticipant extends CompletionParticipantAdapter 
 		String insertText = entityName;
 		item.setFilterText(insertText);
 		item.setTextEdit(new TextEdit(entityRange, insertText));
-		item.setDocumentation(
-				EntitiesDocumentationUtils.getDocumentation(name, entityValue, external, predefined, markdown));
+		item.setDocumentation(EntitiesDocumentationUtils.getDocumentation(name, entityValue, type, markdown));
 		response.addCompletionItem(item);
 	}
 
