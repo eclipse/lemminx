@@ -182,17 +182,17 @@ public class PrologCompletionExtensionsTest {
 	public void testAutoCompletionPrologWithXML() throws BadLocationException {
 		// With 'xml' label
 		testCompletionFor("<?xml|", true, //
-				c("Insert XML Processing Instruction", //
+				c("Insert XML Declaration", //
 						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
 						r(0, 0, 0, 5), //
 						"<?xml"));
 		testCompletionFor("<?xml|>", true, //
-				c("Insert XML Processing Instruction", //
+				c("Insert XML Declaration", //
 						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
 						r(0, 0, 0, 6), //
 						"<?xml"));
 		testCompletionFor("<?xml|?>", true, //
-				c("Insert XML Processing Instruction", //
+				c("Insert XML Declaration", //
 						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
 						r(0, 0, 0, 7), //
 						"<?xml"));
@@ -202,22 +202,22 @@ public class PrologCompletionExtensionsTest {
 	public void testAutoCompletionPrologWithoutXML() throws BadLocationException {
 		// No 'xml' label
 		testCompletionFor("<?|", true, //
-				c("Insert XML Processing Instruction", //
+				c("Insert XML Declaration", //
 						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
 						r(0, 0, 0, 2), //
 						"<?xml"));
 		testCompletionFor("<?|", false, //
-				c("Insert XML Processing Instruction", //
+				c("Insert XML Declaration", //
 						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>", //
 						r(0, 0, 0, 2), //
 						"<?xml"));
 		testCompletionFor("<?|>", true, //
-				c("Insert XML Processing Instruction", //
+				c("Insert XML Declaration", //
 						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
 						r(0, 0, 0, 3), //
 						"<?xml"));
 		testCompletionFor("<?|?>", true, //
-				c("Insert XML Processing Instruction", //
+				c("Insert XML Declaration", //
 						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
 						r(0, 0, 0, 4), //
 						"<?xml"));
@@ -226,27 +226,27 @@ public class PrologCompletionExtensionsTest {
 	@Test
 	public void testAutoCompletionPrologWithPartialXML() throws BadLocationException {
 		testCompletionFor("<?x|", true, //
-				c("Insert XML Processing Instruction", //
+				c("Insert XML Declaration", //
 						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
 						r(0, 0, 0, 3), //
 						"<?xml"));
 		testCompletionFor("<?xm|", true, //
-				c("Insert XML Processing Instruction", //
+				c("Insert XML Declaration", //
 						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
 						r(0, 0, 0, 4), //
 						"<?xml"));
 		testCompletionFor("<?xml|", true, //
-				c("Insert XML Processing Instruction", //
+				c("Insert XML Declaration", //
 						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
 						r(0, 0, 0, 5), //
 						"<?xml"));
 		testCompletionFor("<?xml|?", true, //
-				c("Insert XML Processing Instruction", //
+				c("Insert XML Declaration", //
 						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
 						r(0, 0, 0, 6), //
 						"<?xml"));
 		testCompletionFor("<?xml|?>", true, //
-				c("Insert XML Processing Instruction", //
+				c("Insert XML Declaration", //
 						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
 						r(0, 0, 0, 7), //
 						"<?xml"));
@@ -257,17 +257,17 @@ public class PrologCompletionExtensionsTest {
 		// With 'xml' label
 		String dtdFileURI = "test://test/test.dtd";
 		testCompletionFor("<?xml|", dtdFileURI, true, //
-				c("Insert XML Processing Instruction", //
+				c("Insert XML Declaration", //
 						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
 						r(0, 0, 0, 5), //
 						"<?xml"));
 		testCompletionFor("<?xml|>", dtdFileURI, true, //
-				c("Insert XML Processing Instruction", //
+				c("Insert XML Declaration", //
 						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
 						r(0, 0, 0, 6), //
 						"<?xml"));
 		testCompletionFor("<?xml|?>", dtdFileURI, true, //
-				c("Insert XML Processing Instruction", //
+				c("Insert XML Declaration", //
 						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
 						r(0, 0, 0, 7), //
 						"<?xml"));
@@ -278,22 +278,22 @@ public class PrologCompletionExtensionsTest {
 		// No 'xml' label
 		String dtdFileURI = "test://test/test.dtd";
 		testCompletionFor("<?|", dtdFileURI, true, //
-				c("Insert XML Processing Instruction", //
+				c("Insert XML Declaration", //
 						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
 						r(0, 0, 0, 2), //
 						"<?xml"));
 		testCompletionFor("<?|", dtdFileURI, false, //
-				c("Insert XML Processing Instruction", //
+				c("Insert XML Declaration", //
 						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>", //
 						r(0, 0, 0, 2), //
 						"<?xml"));
 		testCompletionFor("<?|>", dtdFileURI, true, //
-				c("Insert XML Processing Instruction", //
+				c("Insert XML Declaration", //
 						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
 						r(0, 0, 0, 3), //
 						"<?xml"));
 		testCompletionFor("<?|?>", dtdFileURI, true, //
-				c("Insert XML Processing Instruction", //
+				c("Insert XML Declaration", //
 						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
 						r(0, 0, 0, 4), //
 						"<?xml"));
@@ -303,27 +303,27 @@ public class PrologCompletionExtensionsTest {
 	public void testAutoCompletionPrologDTFFileWithPartialXML() throws BadLocationException {
 		String dtdFileURI = "test://test/test.dtd";
 		testCompletionFor("<?x|", dtdFileURI, true, //
-				c("Insert XML Processing Instruction", //
+				c("Insert XML Declaration", //
 						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
 						r(0, 0, 0, 3), //
 						"<?xml"));
 		testCompletionFor("<?xm|", dtdFileURI, true, //
-				c("Insert XML Processing Instruction", //
+				c("Insert XML Declaration", //
 						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
 						r(0, 0, 0, 4), //
 						"<?xml"));
 		testCompletionFor("<?xml|", dtdFileURI, true, //
-				c("Insert XML Processing Instruction", //
+				c("Insert XML Declaration", //
 						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
 						r(0, 0, 0, 5), //
 						"<?xml"));
 		testCompletionFor("<?xml|?", dtdFileURI, true, //
-				c("Insert XML Processing Instruction", //
+				c("Insert XML Declaration", //
 						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
 						r(0, 0, 0, 6), //
 						"<?xml"));
 		testCompletionFor("<?xml|?>", dtdFileURI, true, //
-				c("Insert XML Processing Instruction", //
+				c("Insert XML Declaration", //
 						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
 						r(0, 0, 0, 7), //
 						"<?xml"));
