@@ -37,7 +37,7 @@ public class XMLSnippetRegistryLoader implements ISnippetRegistryLoader {
 		registry.registerSnippets(XMLSnippetRegistryLoader.class.getResourceAsStream("dtdnode-snippets.json"),
 				DTDNodeSnippetContext.DEFAULT_CONTEXT);
 		registry.registerSnippets(XMLSnippetRegistryLoader.class.getResourceAsStream("processing-instruction-snippets.json"),
-				XMLModelSnippetContext.DEFAULT_CONTEXT);
+				ProcessingInstructionSnippetContext.DEFAULT_CONTEXT);
 	}
 
 }

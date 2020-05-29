@@ -19,9 +19,9 @@ import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.services.extensions.ICompletionRequest;
 import org.eclipse.lemminx.utils.DOMUtils;
 
-public class XMLModelSnippetContext implements IXMLSnippetContext { // FIXME: rename to ProcessingInstructionSnippetContext
+public class ProcessingInstructionSnippetContext implements IXMLSnippetContext {
 
-	public static IXMLSnippetContext DEFAULT_CONTEXT = new XMLModelSnippetContext();
+	public static IXMLSnippetContext DEFAULT_CONTEXT = new ProcessingInstructionSnippetContext();
 
 	@Override
 	public boolean isMatch(ICompletionRequest request, Map<String, String> model) {
