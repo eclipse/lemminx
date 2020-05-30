@@ -7,7 +7,7 @@
 	  "body": [
 		"<?xml-model href=\"${1:file.xsd}\" type=\"application/xml\" schematypens=\"http://www.w3.org/2001/XMLSchema\"?>${0}"
 	  ],
-	  "label": "$description",
+	  "label": "Insert XML Schema association",
 	  "description": "Insert XML Model Processing Instruction to Associate XSD Schema"
 	},
 	"Insert XML Model: DTD": {
@@ -18,7 +18,7 @@
 		"body": [
 		  "<?xml-model href=\"${1:file.dtd}\" type=\"application/xml-dtd\"?>${0}"
 		],
-		"label": "$description",
+		"label": "Insert DTD association",
 		"description": "Insert XML Model Processing Instruction to Associate Document Type Description (DTD)"
 	  }
 }

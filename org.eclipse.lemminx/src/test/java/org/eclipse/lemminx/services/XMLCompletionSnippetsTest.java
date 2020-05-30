@@ -118,7 +118,7 @@ public class XMLCompletionSnippetsTest {
 						"<!-- -->", //
 						r(0, 0, 0, 2), "<!--"));
 
-		testCompletionFor("<!|", NEW_XML_SNIPPETS /* DOCTYPE snippets */ + // TODO: why does that trigger these completions? is that intended?
+		testCompletionFor("<!|", NEW_XML_SNIPPETS /* DOCTYPE snippets */ + //
 				PROLOG_SNIPPETS /* Prolog snippets */ + //
 				PROCESSING_INSTRUCTION_SNIPPETS /* Processing Instruction snippets */ + //
 				COMMENT_SNIPPETS /* Comment snippets */ , //
@@ -198,7 +198,7 @@ public class XMLCompletionSnippetsTest {
 						"<!-- -->", //
 						r(0, 38, 0, 39), "<!--"));
 
-		testCompletionFor("<?xml version=\"1.0\" encoding=\"UTF-8\"?><|!", // TODO: what does this test?
+		testCompletionFor("<?xml version=\"1.0\" encoding=\"UTF-8\"?><|!", //
 				NEW_XML_SNIPPETS /* DOCTYPE snippets */ + //
 						PROCESSING_INSTRUCTION_SNIPPETS /* Processing Instruction snippets */ + //
 						COMMENT_SNIPPETS /* Comment snippets */ , //
@@ -217,7 +217,7 @@ public class XMLCompletionSnippetsTest {
 						"<!-- -->", //
 						r(0, 38, 0, 39), "<!--"));
 
-		testCompletionFor("<?xml version=\"1.0\" encoding=\"UTF-8\"?><!|", // TODO: why does this pass?
+		testCompletionFor("<?xml version=\"1.0\" encoding=\"UTF-8\"?><!|", //
 				NEW_XML_SNIPPETS /* DOCTYPE snippets */ + //
 						PROCESSING_INSTRUCTION_SNIPPETS /* Processing Instruction snippets */ + //
 						COMMENT_SNIPPETS /* Comment snippets */ , //

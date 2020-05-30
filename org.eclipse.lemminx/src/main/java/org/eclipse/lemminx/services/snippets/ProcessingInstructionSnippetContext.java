@@ -4,6 +4,8 @@
 * which accompanies this distribution, and is available at
 * http://www.eclipse.org/legal/epl-v20.html
 *
+* SPDX-License-Identifier: EPL-2.0
+*
 * Contributors:
 *     Balduin Landolt - initial API and implementation
 *******************************************************************************/
@@ -19,6 +21,10 @@ import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.services.extensions.ICompletionRequest;
 import org.eclipse.lemminx.utils.DOMUtils;
 
+/**
+ * Snippet context used to filter if Processing Instruction Snippets should be triggered or not.
+ *
+ */
 public class ProcessingInstructionSnippetContext implements IXMLSnippetContext {
 
 	public static IXMLSnippetContext DEFAULT_CONTEXT = new ProcessingInstructionSnippetContext();
