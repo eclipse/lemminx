@@ -14,16 +14,16 @@ package org.eclipse.lemminx.extensions.dtd.contentmodel;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.grammars.Grammar;
+import org.apache.xerces.xni.parser.XMLErrorHandler;
 import org.apache.xerces.xni.parser.XMLInputSource;
+import org.apache.xerces.xni.parser.XMLParseException;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMDocumentType;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelProvider;
-import org.eclipse.lemminx.services.XMLCompletions;
 import org.eclipse.lemminx.uriresolver.URIResolverExtensionManager;
 import org.eclipse.lemminx.utils.DOMUtils;
 import org.eclipse.lemminx.utils.StringUtils;
@@ -33,7 +33,23 @@ import org.eclipse.lemminx.utils.StringUtils;
  */
 public class CMDTDContentModelProvider implements ContentModelProvider {
 
-	private static final Logger LOGGER = Logger.getLogger(XMLCompletions.class.getName());
+	private static final XMLErrorHandler SILENT_ERROR_HANDLER = new XMLErrorHandler() {
+
+		@Override
+		public void warning(String domain, String key, XMLParseException exception) throws XNIException {
+			// Do nothing
+		}
+
+		@Override
+		public void fatalError(String domain, String key, XMLParseException exception) throws XNIException {
+			// Do nothing
+		}
+
+		@Override
+		public void error(String domain, String key, XMLParseException exception) throws XNIException {
+			// Do nothing
+		}
+	};
 
 	private final URIResolverExtensionManager resolverExtensionManager;
 
@@ -71,6 +87,7 @@ public class CMDTDContentModelProvider implements ContentModelProvider {
 		try {
 			CMDTDDocument document = new CMDTDDocument(key);
 			document.setEntityResolver(resolverExtensionManager);
+			document.setErrorHandler(SILENT_ERROR_HANDLER);
 			Grammar grammar = document.loadGrammar(new XMLInputSource(null, key, null));
 			if (grammar != null) {
 				// DTD can be loaded
@@ -84,6 +101,8 @@ public class CMDTDContentModelProvider implements ContentModelProvider {
 
 	@Override
 	public CMDocument createInternalCMDocument(DOMDocument xmlDocument) {
+		// This method create a CMDocument for DOCTYPE subset to manage XML completion,
+		// hover based on DTD
 		try {
 			DOMDocumentType documentType = xmlDocument.getDoctype();
 			String internalSubset = documentType != null ? documentType.getInternalSubset() : null;
@@ -92,12 +111,14 @@ public class CMDTDContentModelProvider implements ContentModelProvider {
 			}
 			CMDTDDocument document = new CMDTDDocument();
 			document.setEntityResolver(resolverExtensionManager);
+			document.setErrorHandler(SILENT_ERROR_HANDLER);
 			String baseSystemId = null;
 			String systemId = null;
 			document.loadInternalDTD(internalSubset, baseSystemId, systemId);
 			return document;
 		} catch (Exception e) {
-			LOGGER.log(Level.SEVERE, "Error while loading DOCTYPE subset", e);
+			// Don't log error, because DOCTYPE subset is never valid when user type some
+			// content in the DTD subset
 			return null;
 		}
 	}
