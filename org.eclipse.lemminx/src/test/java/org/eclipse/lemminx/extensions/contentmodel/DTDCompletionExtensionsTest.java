@@ -13,6 +13,8 @@ package org.eclipse.lemminx.extensions.contentmodel;
 
 import static org.eclipse.lemminx.XMLAssert.COMMENT_SNIPPETS;
 import static org.eclipse.lemminx.XMLAssert.DTDNODE_SNIPPETS;
+import static org.eclipse.lemminx.XMLAssert.CDATA_SNIPPETS;
+import static org.eclipse.lemminx.XMLAssert.PROCESSING_INSTRUCTION_SNIPPETS;
 import static org.eclipse.lemminx.XMLAssert.c;
 import static org.eclipse.lemminx.XMLAssert.te;
 
@@ -216,7 +218,10 @@ public class DTDCompletionExtensionsTest {
 				"<web-app>\r\n" + //
 				"  <display-name>Servlet 2.3 aWeb Application</display-name>\r\n" + //
 				"</web-app>";
-		testCompletionFor(xml, false, 76 + 2 /* CDATA and Comments */,
+		testCompletionFor(xml, false, 76 + //
+				CDATA_SNIPPETS /* CDATA */ + //
+				COMMENT_SNIPPETS /* Comments */ + //
+				PROCESSING_INSTRUCTION_SNIPPETS /* Processing Instruction Snippets */,
 				c("web-app", te(3, 0, 3, 1, "<web-app></web-app>"), "web-app"),
 				c("auth-constraint", te(3, 0, 3, 1, "<auth-constraint></auth-constraint>"), "auth-constraint"));
 	}
