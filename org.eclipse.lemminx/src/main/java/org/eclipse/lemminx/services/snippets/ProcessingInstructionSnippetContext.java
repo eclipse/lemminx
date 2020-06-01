@@ -51,9 +51,9 @@ public class ProcessingInstructionSnippetContext implements IXMLSnippetContext {
 			return false;
 		}
 
- 		if (document.hasProlog() && offset == 0){
-			 // triggered before prolog
-			 return false;
+		if (document.isBeforeProlog(offset)){
+			// triggered before prolog
+			return false;
 		}
 
 		if (documentElement != null && documentElement.getTagName() != null) {

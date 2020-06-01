@@ -37,8 +37,8 @@ public class XMLDeclarationSnippetContext implements IXMLSnippetContext {
 			// --> <?xml version="1.0" encoding="UTF-8" | ?>
 			return false;
 		}
-		// check if document already defined a xml processing instruction.
-		if (hasProlog(document, offset)) {
+		// check if document already defined a xml declaration.
+		if (document.isBeforeProlog(offset) || inProlog(document, offset)) {
 			return false;
 		}
 		Position start = request.getReplaceRange().getStart();
@@ -55,7 +55,7 @@ public class XMLDeclarationSnippetContext implements IXMLSnippetContext {
 		return true;
 	}
 
-	private static boolean hasProlog(DOMDocument document, int offset) {
+	private static boolean inProlog(DOMDocument document, int offset) {
 		DOMNode node = document.getFirstChild();
 		if (node == null) {
 			return false;

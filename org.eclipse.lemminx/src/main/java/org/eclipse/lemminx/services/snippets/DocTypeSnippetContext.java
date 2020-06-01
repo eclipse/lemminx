@@ -58,6 +58,11 @@ public class DocTypeSnippetContext implements IXMLSnippetContext {
 			return false;
 		}
 
+		if (document.isBeforeProlog(offset)){
+			// triggered before prolog
+			return false;
+		}
+
 		if (offset > documentElement.getStart()) {
 			return false;
 		}

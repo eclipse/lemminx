@@ -307,6 +307,29 @@ public class DOMDocument extends DOMNode implements Document {
 		return (children != null && !children.isEmpty() && children.get(0).isProlog());
 	}
 
+	/**
+	 * If document has {@code <?xml ... ?>}, return this prolog, null otherwise
+	 * 
+	 * @return prolog DOMNode, if the document has one, null otherwise
+	 */
+	public DOMNode getProlog() {
+		if (hasProlog()) {
+			return getChild(0);
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * Returns true, if the given offset is before XML declaration ({@code <?xml ...?>}), false otherwise.
+	 * 
+	 * @param offset the offset position in question
+	 * @return true, if before xml declaration; false otherwise
+	 */
+	public boolean isBeforeProlog(int offset){
+		return hasProlog() && offset <= getProlog().getStart();
+	}
+
 	private static SchemaLocation createSchemaLocation(DOMNode root, String schemaInstancePrefix) {
 		DOMAttr attr = root.getAttributeNode(getPrefixedName(schemaInstancePrefix, "schemaLocation"));
 		if (attr == null) {
