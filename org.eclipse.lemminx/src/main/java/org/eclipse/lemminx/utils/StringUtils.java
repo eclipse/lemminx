@@ -454,4 +454,47 @@ public class StringUtils {
 		return -1;
 	}
 
+	/**
+	 * Checks if 'value' has matching surrounding quotations.
+	 * 
+	 * @param value
+	 * @return
+	 */
+	public static boolean isQuoted(String value) {
+		if (value == null) {
+			return false;
+		}
+		if (value.isEmpty()) {
+			return false;
+		}
+		char quoteValueStart = value.charAt(0);
+		boolean start = quoteValueStart == '\"' || quoteValueStart == '\'' ? true : false;
+		if (start == false) {
+			return false;
+		}
+		char quoteValueEnd = value.charAt(value.length() - 1);
+		boolean end = (quoteValueEnd == '\"' || quoteValueEnd == '\'') && quoteValueEnd == quoteValueStart ? true
+				: false;
+		return end;
+	}
+
+	/**
+	 * Returns a String of 'value' without surrounding quotes if it had them.
+	 * 
+	 * @param value
+	 * @return
+	 */
+	public static String convertToQuotelessValue(String value) {
+		if (value == null) {
+			return null;
+		}
+		if (value.isEmpty()) {
+			return value;
+		}
+		char quoteValue = value.charAt(0);
+		int start = quoteValue == '\"' || quoteValue == '\'' ? 1 : 0;
+		quoteValue = value.charAt(value.length() - 1);
+		int end = quoteValue == '\"' || quoteValue == '\'' ? value.length() - 1 : value.length();
+		return value.substring(start, end);
+	}
 }

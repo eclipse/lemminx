@@ -478,7 +478,12 @@ public class XMLAssert {
 
 	public static void testCodeActionsFor(String xml, Diagnostic diagnostic, CodeAction... expected)
 			throws BadLocationException {
-		testCodeActionsFor(xml, diagnostic, null, expected);
+		testCodeActionsFor(xml, diagnostic, (String) null, expected);
+	}
+
+	public static void testCodeActionsFor(String xml, Diagnostic diagnostic, SharedSettings settings, CodeAction... expected)
+			throws BadLocationException {
+		testCodeActionsFor(xml, diagnostic, null, settings, expected);
 	}
 
 	public static void testCodeActionsFor(String xml, Diagnostic diagnostic, String catalogPath, CodeAction... expected)
@@ -487,7 +492,6 @@ public class XMLAssert {
 		settings.getFormattingSettings().setTabSize(4);
 		settings.getFormattingSettings().setInsertSpaces(false);
 		testCodeActionsFor(xml, diagnostic, catalogPath, settings, expected);
-
 	}
 
 	public static void testCodeActionsFor(String xml, Diagnostic diagnostic, String catalogPath,

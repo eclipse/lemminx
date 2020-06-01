@@ -194,11 +194,11 @@ public class XMLBuilder {
 		if (originalValue != null) {
 			char quote = sharedSettings.getPreferences().getQuotationAsChar();
 
-			if (DOMAttr.isQuoted(originalValue)) {
+			if (StringUtils.isQuoted(originalValue)) {
 				if (sharedSettings.getFormattingSettings().getEnforceQuoteStyle() == EnforceQuoteStyle.preferred &&
 						originalValue.charAt(0) != quote) {
 
-					originalValue = DOMAttr.convertToQuotelessValue(originalValue);
+					originalValue = StringUtils.convertToQuotelessValue(originalValue);
 					xml.append(quote);
 					if (originalValue != null) {
 						xml.append(originalValue);
@@ -361,8 +361,12 @@ public class XMLBuilder {
 	}
 
 	public XMLBuilder addDeclTagStart(DTDDeclNode tag) {
-
 		xml.append("<!" + tag.getDeclType());
+		return this;
+	}
+
+	public XMLBuilder addDeclTagStart(String declTagName) {
+		xml.append("<!" + declTagName);
 		return this;
 	}
 
@@ -372,17 +376,21 @@ public class XMLBuilder {
 	}
 
 	public XMLBuilder addParameter(String parameter) {
-		xml.append(" " + parameter);
-		return this;
+		return addUnindentedParameter(" " + replaceQuotesIfNeeded(parameter));
 	}
 
 	public XMLBuilder addUnindentedParameter(String parameter) {
-		xml.append(parameter);
+		xml.append(replaceQuotesIfNeeded(parameter));
 		return this;
 	}
 
 	public XMLBuilder startDoctypeInternalSubset() {
 		xml.append(" [");
+		return this;
+	}
+
+	public XMLBuilder startUnindentedDoctypeInternalSubset() {
+		xml.append("[");
 		return this;
 	}
 
@@ -410,6 +418,17 @@ public class XMLBuilder {
 			i--;
 		}
 		return i > 0 && (this.xml.charAt(i) == '\r' || this.xml.charAt(i) == '\n');
+	}
+
+	private String replaceQuotesIfNeeded(String str) {
+		if (this.sharedSettings.getFormattingSettings().getEnforceQuoteStyle() != EnforceQuoteStyle.preferred) {
+			return str;
+		}
+		if (StringUtils.isQuoted(str)) {
+			String quote = this.sharedSettings.getPreferences().getQuotationAsString();
+			return quote + StringUtils.convertToQuotelessValue(str) + quote;
+		}
+		return str;
 	}
 
 	private boolean isJoinCommentLines() {

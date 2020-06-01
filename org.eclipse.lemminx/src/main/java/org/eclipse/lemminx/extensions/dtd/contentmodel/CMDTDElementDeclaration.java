@@ -25,7 +25,6 @@ import org.eclipse.lemminx.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lemminx.extensions.dtd.contentmodel.CMDTDDocument.DTDElementInfo;
 import org.eclipse.lemminx.extensions.dtd.contentmodel.CMDTDDocument.DTDNodeInfo;
 import org.eclipse.lemminx.services.extensions.ISharedSettingsRequest;
-import org.eclipse.lemminx.settings.SharedSettings;
 
 /**
  * DTD element declaration.
