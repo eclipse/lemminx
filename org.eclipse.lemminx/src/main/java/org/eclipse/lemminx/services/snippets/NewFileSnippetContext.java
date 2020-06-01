@@ -63,6 +63,10 @@ public abstract class NewFileSnippetContext implements IXMLSnippetContext {
 			// --> <?xml version="1.0" encoding="UTF-8" | ?>
 			return false;
 		}
+		if (document.isBeforeProlog(offset)) {
+			// triggered before prolog
+			return false;
+		}
 		// The file contains some contents, the contents allowed are:
 		// - comments
 		// - processing instruction
