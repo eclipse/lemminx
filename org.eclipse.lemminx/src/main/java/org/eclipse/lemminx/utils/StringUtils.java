@@ -455,46 +455,39 @@ public class StringUtils {
 	}
 
 	/**
-	 * Checks if 'value' has matching surrounding quotations.
+	 * Returns <code>value</code> without surrounding quotes.
+	 * 
+	 * If <code>value</code> does not have matching surrounding quotes,
+	 * returns <code>value</code>.
 	 * 
 	 * @param value
-	 * @return
+	 * @return <code>value</code> without surrounding quotes.
 	 */
-	public static boolean isQuoted(String value) {
-		if (value == null) {
-			return false;
+	public static String convertToQuotelessValue(String value) {
+		if (value == null || !isQuoted(value)) {
+			return value;
 		}
-		if (value.isEmpty()) {
-			return false;
-		}
-		char quoteValueStart = value.charAt(0);
-		boolean start = quoteValueStart == '\"' || quoteValueStart == '\'' ? true : false;
-		if (start == false) {
-			return false;
-		}
-		char quoteValueEnd = value.charAt(value.length() - 1);
-		boolean end = (quoteValueEnd == '\"' || quoteValueEnd == '\'') && quoteValueEnd == quoteValueStart ? true
-				: false;
-		return end;
+
+		return value.substring(1, value.length() - 1);
 	}
 
 	/**
-	 * Returns a String of 'value' without surrounding quotes if it had them.
+	 * Returns true if <code>value</code> has matching surrounding quotes
+	 * and false otherwise.
 	 * 
 	 * @param value
-	 * @return
+	 * @return true if <code>value</code> has matching surrounding quotes.
 	 */
-	public static String convertToQuotelessValue(String value) {
-		if (value == null) {
-			return null;
+	public static boolean isQuoted(String value) {
+		if (value == null || value.length() < 2) {
+			return false;
 		}
-		if (value.isEmpty()) {
-			return value;
+
+		char quoteValueStart = value.charAt(0);
+		if (quoteValueStart != '\"' && quoteValueStart != '\'') {
+			return false;
 		}
-		char quoteValue = value.charAt(0);
-		int start = quoteValue == '\"' || quoteValue == '\'' ? 1 : 0;
-		quoteValue = value.charAt(value.length() - 1);
-		int end = quoteValue == '\"' || quoteValue == '\'' ? value.length() - 1 : value.length();
-		return value.substring(start, end);
+		char quoteValueEnd = value.charAt(value.length() - 1);
+		return quoteValueEnd == quoteValueStart;
 	}
 }
