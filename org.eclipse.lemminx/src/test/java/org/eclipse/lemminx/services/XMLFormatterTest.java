@@ -1760,6 +1760,60 @@ public class XMLFormatterTest {
 	}
 
 	@Test
+	public void testUseSingleQuotesLocalDTD() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
+		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
+		String content = "<!DOCTYPE note SYSTEM \"note.dtd\">";
+		String expected = "<!DOCTYPE note SYSTEM \'note.dtd\'>";
+		format(content, expected, settings);
+	}
+
+	@Test
+	public void testUseSingleQuotesLocalDTDWithSubset() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
+		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
+		String content = "<!DOCTYPE article [\n" + //
+				"  <!ENTITY AUTHOR \"John Doe\">\n" + //
+				"  <!ENTITY COMPANY \"JD Power Tools, Inc.\">\n" + //
+				"  <!ENTITY EMAIL \"jd@jd-tools.com\">\n" + //
+				"  <!ELEMENT E EMPTY>\n" + //
+				"  <!ATTLIST E WIDTH CDATA \"0\">\n" + //
+				"]>\n" + //
+				"\n" + //
+				"<root attr=\"hello\"></root>";
+		String expected = "<!DOCTYPE article [\n" + //
+				"  <!ENTITY AUTHOR \'John Doe\'>\n" + //
+				"  <!ENTITY COMPANY \'JD Power Tools, Inc.\'>\n" + //
+				"  <!ENTITY EMAIL \'jd@jd-tools.com\'>\n" + //
+				"  <!ELEMENT E EMPTY>\n" + //
+				"  <!ATTLIST E WIDTH CDATA \'0\'>\n" + //
+				"]>\n" + //
+				"\n" + //
+				"<root attr=\'hello\'></root>";
+		format(content, expected, settings);
+	}
+
+	@Test
+	public void testUseSingleQuotesDTDFile() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
+		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
+		String content = "<!ENTITY AUTHOR \"John Doe\">\n" + //
+				"<!ENTITY COMPANY \"JD Power Tools, Inc.\">\n" + //
+				"<!ENTITY EMAIL \"jd@jd-tools.com\">\n" + //
+				"<!ELEMENT E EMPTY>\n" + //
+				"<!ATTLIST E WIDTH CDATA \"0\">";
+		String expected = "<!ENTITY AUTHOR \'John Doe\'>\n" + //
+				"<!ENTITY COMPANY \'JD Power Tools, Inc.\'>\n" + //
+				"<!ENTITY EMAIL \'jd@jd-tools.com\'>\n" + //
+				"<!ELEMENT E EMPTY>\n" + //
+				"<!ATTLIST E WIDTH CDATA \'0\'>";
+		format(content, expected, settings, "test.dtd");
+	}
+
+	@Test
 	public void testDontFormatQuotesByDefault() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
