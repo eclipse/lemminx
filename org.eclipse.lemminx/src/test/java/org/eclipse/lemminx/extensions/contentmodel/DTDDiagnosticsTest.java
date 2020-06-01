@@ -13,10 +13,16 @@
 package org.eclipse.lemminx.extensions.contentmodel;
 
 import static org.eclipse.lemminx.XMLAssert.d;
+import static org.eclipse.lemminx.XMLAssert.ca;
+import static org.eclipse.lemminx.XMLAssert.te;
+import static org.eclipse.lemminx.XMLAssert.testCodeActionsFor;
 
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.extensions.contentmodel.participants.DTDErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCode;
+import org.eclipse.lemminx.settings.EnforceQuoteStyle;
+import org.eclipse.lemminx.settings.QuoteStyle;
+import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.Diagnostic;
 import org.junit.jupiter.api.Test;
 
@@ -278,6 +284,176 @@ public class DTDDiagnosticsTest {
 				"]>\r\n" + //
 				"<Person Likes=\"\" />"; // <- error on @Likes value
 		XMLAssert.testDiagnosticsFor(xml, d(2, 42, 43, DTDErrorCode.EntityDeclUnterminated));
+	}
+
+	@Test
+	public void EntityNotDeclaredAddToSubset() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<!DOCTYPE article [\r\n" + //
+				"	<!ELEMENT article (#PCDATA)>\r\n" + //
+				"]>\r\n" + //
+				"<article>\r\n" + //
+				"	&nbsp;\r\n" + //
+				"</article>";
+
+		Diagnostic d = d(5, 1, 5, 7, DTDErrorCode.EntityNotDeclared, "The entity \"nbsp\" was referenced, but not declared.");
+		XMLAssert.testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(2, 29, 2, 29, "\r\n\t<!ENTITY nbsp \"entity-value\">")));
+	}
+
+	@Test
+	public void EntityNotDeclaredAddToSubsetOneChar() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<!DOCTYPE article [\r\n" + //
+				"	<!ELEMENT article (#PCDATA)>\r\n" + //
+				"]>\r\n" + //
+				"<article>\r\n" + //
+				"	&a;\r\n" + //
+				"</article>";
+
+		Diagnostic d = d(5, 1, 5, 4, DTDErrorCode.EntityNotDeclared, "The entity \"a\" was referenced, but not declared.");
+		XMLAssert.testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(2, 29, 2, 29, "\r\n\t<!ENTITY a \"entity-value\">")));
+	}
+
+	@Test
+	public void EntityNotDeclaredNoPrologNoDoctype() throws Exception {
+		String xml = "<article>\r\n" + //
+				"	&nbsp;\r\n" + //
+				"</article>";
+
+		Diagnostic d = d(1, 1, 1, 7, DTDErrorCode.EntityNotDeclared, "The entity \"nbsp\" was referenced, but not declared.");
+		XMLAssert.testDiagnosticsFor(xml, d);
+
+		testCodeActionsFor(xml, d, ca(d, te(0, 0, 0, 0, "<!DOCTYPE article [\r\n" +
+				"\t<!ENTITY nbsp \"entity-value\">\r\n" +
+				"]>\r\n")));
+	}
+
+	@Test
+	public void EntityNotDeclaredWithPrologNoDoctype() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<article>\r\n" + //
+				"	&nbsp;\r\n" + //
+				"</article>";
+
+		Diagnostic d = d(2, 1, 2, 7, DTDErrorCode.EntityNotDeclared, "The entity \"nbsp\" was referenced, but not declared.");
+		XMLAssert.testDiagnosticsFor(xml, d);
+
+		testCodeActionsFor(xml, d, ca(d, te(0, 38, 0, 38, "\r\n<!DOCTYPE article [\r\n" +
+				"\t<!ENTITY nbsp \"entity-value\">\r\n" +
+				"]>")));
+	}
+
+	@Test
+	public void EntityNotDeclaredWithPrologWithRootSameLine() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><text1>\n" +
+				"<text2>\n" +
+				"\t&c;\n" +
+				"</text2>\n" +
+				"</text1>";
+
+		Diagnostic d = d(2, 1, 2, 4, DTDErrorCode.EntityNotDeclared, "The entity \"c\" was referenced, but not declared.");
+		XMLAssert.testDiagnosticsFor(xml, d);
+
+		testCodeActionsFor(xml, d, ca(d, te(0, 38, 0, 38, "\n<!DOCTYPE text1 [\n" +
+				"\t<!ENTITY c \"entity-value\">\n" +
+				"]>\n")));
+	}
+
+	@Test
+	public void EntityNotDeclaredDoctypeNoSubset() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + //
+				"<!DOCTYPE article >\n" + //
+				"<article>\n" + //
+				"	&nbsp;\n" + //
+				"</article>";
+
+		Diagnostic d = d(3, 1, 3, 7, DTDErrorCode.EntityNotDeclared, "The entity \"nbsp\" was referenced, but not declared.");
+		XMLAssert.testDiagnosticsFor(xml, d);
+
+		testCodeActionsFor(xml, d,
+				ca(d, te(1, 18, 1, 18, "[\n\t<!ENTITY nbsp \"entity-value\">\n]")));
+	}
+
+	@Test
+	public void EntityNotDeclaredDoctypeNoSubsetNoSpace() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + //
+				"<!DOCTYPE article>\n" + //
+				"<article>\n" + //
+				"	&nbsp;\n" + //
+				"</article>";
+
+		Diagnostic d = d(3, 1, 3, 7, DTDErrorCode.EntityNotDeclared, "The entity \"nbsp\" was referenced, but not declared.");
+		XMLAssert.testDiagnosticsFor(xml, d);
+
+		testCodeActionsFor(xml, d,
+				ca(d, te(1, 17, 1, 17, " [\n\t<!ENTITY nbsp \"entity-value\">\n]")));
+	}
+
+	@Test
+	public void EntityNotDeclaredDoctypeNoSubsetEndBracketNewLine() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + //
+				"<!DOCTYPE article\n" + //
+				">\n" + //
+				"<article>\n" + //
+				"	&nbsp;\n" + //
+				"</article>";
+
+		Diagnostic d = d(4, 1, 4, 7, DTDErrorCode.EntityNotDeclared, "The entity \"nbsp\" was referenced, but not declared.");
+		XMLAssert.testDiagnosticsFor(xml, d);
+
+		testCodeActionsFor(xml, d,
+				ca(d, te(2, 0, 2, 0, "[\n\t<!ENTITY nbsp \"entity-value\">\n]")));
+	}
+
+	@Test
+	public void EntityNotDeclaredDoctypeEmptySubset() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + //
+				"<!DOCTYPE article []>\n" + //
+				"<article>\n" + //
+				"	&nbsp;\n" + //
+				"</article>";
+
+		Diagnostic d = d(3, 1, 3, 7, DTDErrorCode.EntityNotDeclared, "The entity \"nbsp\" was referenced, but not declared.");
+		XMLAssert.testDiagnosticsFor(xml, d);
+
+		testCodeActionsFor(xml, d,
+				ca(d, te(1, 19, 1, 19, "\n\t<!ENTITY nbsp \"entity-value\">\n")));
+	}
+
+	@Test
+	public void EntityNotDeclaredDoctypeEmptySubsetWithNewline() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + //
+				"<!DOCTYPE article [\n" + //
+				"]>\n" + //
+				"<article>\n" + //
+				"	&nbsp;\n" + //
+				"</article>";
+
+		Diagnostic d = d(4, 1, 4, 7, DTDErrorCode.EntityNotDeclared, "The entity \"nbsp\" was referenced, but not declared.");
+		XMLAssert.testDiagnosticsFor(xml, d);
+
+		testCodeActionsFor(xml, d,
+				ca(d, te(2, 0, 2, 0, "\t<!ENTITY nbsp \"entity-value\">\n")));
+	}
+
+	@Test
+	public void EntityNotDeclaredSingleQuotes() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<!DOCTYPE article [\r\n" + //
+				"	<!ELEMENT article (#PCDATA)>\r\n" + //
+				"]>\r\n" + //
+				"<article>\r\n" + //
+				"	&nbsp;\r\n" + //
+				"</article>";
+		SharedSettings settings = new SharedSettings();
+		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
+		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
+		settings.getFormattingSettings().setInsertSpaces(false);
+		Diagnostic d = d(5, 1, 5, 7, DTDErrorCode.EntityNotDeclared, "The entity \"nbsp\" was referenced, but not declared.");
+		XMLAssert.testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, settings, ca(d, te(2, 29, 2, 29, "\r\n\t<!ENTITY nbsp \'entity-value\'>")));
 	}
 
 	@Test

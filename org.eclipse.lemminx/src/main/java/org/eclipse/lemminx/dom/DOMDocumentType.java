@@ -44,7 +44,8 @@ public class DOMDocumentType extends DTDDeclNode implements org.w3c.dom.Document
 		return this;
 	}
 
-	public String getContent() {
+	@Override
+	public String getTextContent() {
 		if (content == null) {
 			content = getOwnerDocument().getText().substring(getStart(), getEnd());
 		}
@@ -208,7 +209,11 @@ public class DOMDocumentType extends DTDDeclNode implements org.w3c.dom.Document
 	 * getStart() to make them relative to 'content'
 	 */
 	public String getSubstring(int start, int end) {
-		return getContent().substring(start - getStart(), end - getStart());
+		String textContent = getTextContent();
+		if (textContent == null) {
+			return null;
+		}
+		return textContent.substring(start - getStart(), end - getStart());
 	}
 
 }
