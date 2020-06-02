@@ -22,6 +22,8 @@ import org.apache.xerces.xni.QName;
 import org.apache.xerces.xni.XMLLocator;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMDocumentType;
+import org.eclipse.lemminx.dom.DOMElement;
+import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.ETagRequiredCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.ElementUnterminatedCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.EqRequiredInAttributeCodeAction;
@@ -44,7 +46,8 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 
 	AttributeNotUnique, // https://wiki.xmldation.com/Support/Validator/AttributeNotUnique
 	AttributeNSNotUnique, // https://wiki.xmldation.com/Support/Validator/AttributeNSNotUnique
-	AttributePrefixUnbound, ContentIllegalInProlog, // https://wiki.xmldation.com/Support/Validator/ContentIllegalInProlog
+	AttributePrefixUnbound, //
+	ContentIllegalInProlog, // https://wiki.xmldation.com/Support/Validator/ContentIllegalInProlog
 	DashDashInComment, // https://wiki.xmldation.com/Support/Validator/DashDashInComment
 	ElementUnterminated, // https://wiki.xmldation.com/Support/Validator/ElementUnterminated
 	ElementPrefixUnbound, // https://wiki.xmldation.com/Support/Validator/ElementPrefixUnbound
@@ -53,11 +56,30 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 	ETagRequired, // https://wiki.xmldation.com/Support/Validator/ETagRequired
 	ETagUnterminated, // https://wiki.xmldation.com/Support/Validator/ETagUnterminated
 	EqRequiredInAttribute, // https://wiki.xmldation.com/Support/Validator/EqRequiredInAttribute
-	the_element_type_lmsg("the-element-type-lmsg"), EqRequiredInXMLDecl, IllegalQName, InvalidCommentStart,
-	LessthanInAttValue, MarkupEntityMismatch, MarkupNotRecognizedInContent, NameRequiredInReference, OpenQuoteExpected,
-	PITargetRequired, PseudoAttrNameExpected, QuoteRequiredInXMLDecl, RootElementTypeMustMatchDoctypedecl,
-	SDDeclInvalid, SemicolonRequiredInReference, SpaceRequiredBeforeEncodingInXMLDecl, SpaceRequiredBeforeStandalone, SpaceRequiredInPI,
-	VersionInfoRequired, VersionNotSupported, XMLDeclUnterminated, CustomETag, PrematureEOF, DoctypeNotAllowed, NoMorePseudoAttributes;
+	EqRequiredInXMLDecl, //
+	IllegalQName, //
+	InvalidCommentStart, //
+	LessthanInAttValue, //
+	MarkupEntityMismatch, //
+	MarkupNotRecognizedInContent, //
+	NameRequiredInReference, //
+	OpenQuoteExpected, //
+	PITargetRequired, //
+	PseudoAttrNameExpected, //
+	QuoteRequiredInXMLDecl, //
+	RootElementTypeMustMatchDoctypedecl, //
+	SDDeclInvalid, //
+	SemicolonRequiredInReference, //
+	SpaceRequiredBeforeEncodingInXMLDecl, //
+	SpaceRequiredBeforeStandalone, //
+	SpaceRequiredInPI, //
+	VersionInfoRequired, //
+	VersionNotSupported, //
+	XMLDeclUnterminated, //
+	CustomETag, //
+	PrematureEOF, //
+	DoctypeNotAllowed, //
+	NoMorePseudoAttributes;
 
 	private final String code;
 
@@ -108,12 +130,29 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 		case SpaceRequiredBeforeEncodingInXMLDecl:
 		case VersionInfoRequired:
 		case ElementPrefixUnbound:
-		case ElementUnterminated:
 		case RootElementTypeMustMatchDoctypedecl:
 			return XMLPositionUtility.selectStartTagName(offset, document);
 		case EqRequiredInAttribute: {
 			String attrName = getString(arguments[1]);
 			return XMLPositionUtility.selectAttributeNameFromGivenNameAt(attrName, offset, document);
+		}
+		case MarkupEntityMismatch:
+		case ElementUnterminated: {
+			String text = document.getText();
+			if (offset < text.length()) {
+				DOMNode element = document.findNodeAt(offset);
+				if (element.isElement() && !((DOMElement) element).isStartTagClosed()) {
+					// ex : <foo attr="" |
+					int endOffset = offset;
+					// remove spaces
+					while (Character.isWhitespace(text.charAt(endOffset))) {
+						endOffset--;
+					}
+					endOffset++;
+					return XMLPositionUtility.createRange(element.getStart() + 1, endOffset, document);
+				}
+			}
+			return XMLPositionUtility.selectRootStartTag(document);
 		}
 		case NoMorePseudoAttributes:
 		case EncodingDeclRequired:
@@ -201,8 +240,6 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 		case InvalidCommentStart:
 		case MarkupNotRecognizedInContent:
 			return XMLPositionUtility.createRange(offset, offset + 1, document);
-		case MarkupEntityMismatch:
-			return XMLPositionUtility.selectRootStartTag(document);
 		case NameRequiredInReference:
 			break;
 		case OpenQuoteExpected: {
@@ -210,7 +247,7 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 		}
 		case DoctypeNotAllowed:
 			DOMDocumentType docType = document.getDoctype();
-			return XMLPositionUtility.createRange(docType);		
+			return XMLPositionUtility.createRange(docType);
 		case PITargetRequired:
 			// Working
 			break;
@@ -238,6 +275,7 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 		codeActions.put(OpenQuoteExpected.getCode(), new OpenQuoteExpectedCodeAction());
 		codeActions.put(MarkupEntityMismatch.getCode(), new MarkupEntityMismatchCodeAction());
 		codeActions.put(ETagRequired.getCode(), new ETagRequiredCodeAction());
-		codeActions.put(RootElementTypeMustMatchDoctypedecl.getCode(), new RootElementTypeMustMatchDoctypedeclCodeAction());
+		codeActions.put(RootElementTypeMustMatchDoctypedecl.getCode(),
+				new RootElementTypeMustMatchDoctypedeclCodeAction());
 	}
 }

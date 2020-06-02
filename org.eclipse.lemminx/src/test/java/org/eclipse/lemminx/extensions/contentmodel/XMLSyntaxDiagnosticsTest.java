@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
  *
  */
 public class XMLSyntaxDiagnosticsTest {
-	
+
 	/**
 	 * AttributeNotUnique tests
 	 * 
@@ -66,9 +66,9 @@ public class XMLSyntaxDiagnosticsTest {
 
 	@Test
 	public void testAttributeNSNotUnique2() throws Exception {
-		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" +
-				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" \r\n" +
-				"	xmlns:tns=\"http://camel.apache.org/schema/spring\"\r\n" +
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
+				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" \r\n" + //
+				"	xmlns:tns=\"http://camel.apache.org/schema/spring\"\r\n" + //
 				"	xmlns:tns=\"http://camel.apache.org/schema/spring\" version=\"1.0\">";
 		testDiagnosticsFor(xml, d(2, 1, 2, 10, XMLSyntaxErrorCode.AttributeNSNotUnique));
 	}
@@ -120,7 +120,7 @@ public class XMLSyntaxDiagnosticsTest {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-16\" standalone=\"no\"?><root />";
 		testDiagnosticsFor(xml);
 	}
-	
+
 	/**
 	 * DashDashInComment tests
 	 * 
@@ -142,7 +142,7 @@ public class XMLSyntaxDiagnosticsTest {
 	 * @throws Exception
 	 */
 	@Test
-	public void testElementUnterminated() throws Exception {
+	public void elementUnterminated() throws Exception {
 		String xml = "<Id>\r\n" + //
 				"          <OrgId\r\n" + //
 				"            <Othr>\r\n" + //
@@ -152,8 +152,69 @@ public class XMLSyntaxDiagnosticsTest {
 				"        </Id>";
 		Diagnostic d = d(1, 11, 1, 16, XMLSyntaxErrorCode.ElementUnterminated);
 		testDiagnosticsFor(xml, d);
-		testCodeActionsFor(xml, d, ca(d, te(1, 16, 1, 16, "/>")), ca(d, te(1, 16, 1, 16, ">")),
-				ca(d, te(1, 16, 1, 16, "></OrgId>")));
+		testCodeActionsFor(xml, d, //
+				ca(d, te(1, 16, 1, 16, "/>")), //
+				ca(d, te(1, 16, 1, 16, "></OrgId>")), //
+				ca(d, te(1, 16, 1, 16, ">")));
+	}
+
+	@Test
+	public void testElementUnterminatedEndsWithSlash() throws Exception {
+		String xml = "<foo>\r\n" + //
+				"  <bar att=\"\" /\r\n" + //
+				"</foo>";
+		Diagnostic d = d(1, 3, 1, 15, XMLSyntaxErrorCode.ElementUnterminated);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, //
+				ca(d, te(1, 15, 1, 15, ">")));
+	}
+
+	@Test
+	public void testElementUnterminatedEndsWithSlashAndSpaces() throws Exception {
+		String xml = "<foo>\r\n" + //
+				"  <bar att=\"\" /     \r\n" + //
+				"</foo>";
+		Diagnostic d = d(1, 3, 1, 15, XMLSyntaxErrorCode.ElementUnterminated);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, //
+				ca(d, te(1, 15, 1, 15, ">")));
+	}
+
+	@Test
+	public void testElementUnterminatedEndsWithAttributes() throws Exception {
+		String xml = "<foo>\r\n" + //
+				"  <bar att=\"\"\r\n" + //
+				"</foo>";
+		Diagnostic d = d(1, 3, 1, 13, XMLSyntaxErrorCode.ElementUnterminated);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, //
+				ca(d, te(1, 13, 1, 13, "/>")), //
+				ca(d, te(1, 13, 1, 13, "></bar>")), //
+				ca(d, te(1, 13, 1, 13, ">")));
+	}
+
+	@Test
+	public void testElementUnterminatedEndsAndSpaces() throws Exception {
+		String xml = "<foo>\r\n" + //
+				"  <bar att=\"\"    \r\n" + //
+				"</foo>";
+		Diagnostic d = d(1, 3, 1, 13, XMLSyntaxErrorCode.ElementUnterminated);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, //
+				ca(d, te(1, 13, 1, 13, "/>")), //
+				ca(d, te(1, 13, 1, 13, "></bar>")), //
+				ca(d, te(1, 13, 1, 13, ">")));
+	}
+
+	@Test
+	public void testETagRequiredWithReplace() throws Exception {
+		String xml = "<a>\r\n" + //
+				"	<b>\r\n" + //
+				"		</c>";
+		Diagnostic d = d(2, 4, 2, 5, XMLSyntaxErrorCode.ETagRequired);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, //
+				ca(d, te(2, 4, 2, 5, "b")));
 	}
 
 	/**
@@ -217,7 +278,7 @@ public class XMLSyntaxDiagnosticsTest {
 				"			</Nm>  ";
 		Diagnostic d = d(1, 5, 1, 7, XMLSyntaxErrorCode.ETagRequired);
 		testDiagnosticsFor(xml, d);
-		testCodeActionsFor(xml, d, ca(d, te(1, 8, 1, 8, "</Nm>")));
+		testCodeActionsFor(xml, d, ca(d, te(1, 12, 1, 12, "</Nm>")));
 	}
 
 	@Test
@@ -230,10 +291,10 @@ public class XMLSyntaxDiagnosticsTest {
 
 	@Test
 	public void testETagRequired3() throws Exception {
-		String xml = "<UltmtDbtr>\r\n" +
-				"    <Nm>Name</Nm>\r\n" +
-				"    <Ad>\r\n" +
-				"    <Ph>\r\n" +
+		String xml = "<UltmtDbtr>\r\n" + //
+				"    <Nm>Name</Nm>\r\n" + //
+				"    <Ad>\r\n" + //
+				"    <Ph>\r\n" + //
 				"</UltmtDbtr>";
 		Diagnostic d = d(3, 5, 3, 7, XMLSyntaxErrorCode.ETagRequired);
 		testDiagnosticsFor(xml, d);
@@ -261,13 +322,22 @@ public class XMLSyntaxDiagnosticsTest {
 	 */
 	@Test
 	public void testETagUnterminated2() throws Exception {
-		String xml = 
-				"<a>\r\n" + //
+		String xml = "<a>\r\n" + //
 				"  <b>\r\n" + //
 				"    <c></c>\r\n" + //
 				"  </b\r\n" + // <- error
 				"</a>";
 		testDiagnosticsFor(xml, d(3, 4, 3, 5, XMLSyntaxErrorCode.ETagUnterminated));
+	}
+
+	@Test
+	public void testETagRequiredWithText() throws Exception {
+		String xml = "<root>\r\n" + //
+				"<ABC>def\r\n" + //
+				"</root>";
+		Diagnostic d = d(1, 1, 1, 4, XMLSyntaxErrorCode.ETagRequired);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(1, 8, 1, 8, "</ABC>")));
 	}
 
 	@Test
@@ -290,20 +360,19 @@ public class XMLSyntaxDiagnosticsTest {
 
 	@Test
 	public void testMarkupEntityMismatch() throws Exception {
-		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
-				+ "<Document xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"urn:iso:std:iso:20022:tech:xsd:pain.001.001.03\">\r\n"
-				+ "<CstmrCdtTrfInitn>\r\n"
-				+ "</CstmrCdtTrfInitn>";
-		
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<Document xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"urn:iso:std:iso:20022:tech:xsd:pain.001.001.03\">\r\n"
+				+ //
+				"<CstmrCdtTrfInitn>\r\n" + //
+				"</CstmrCdtTrfInitn>";
 		Diagnostic d = d(1, 1, 1, 9, XMLSyntaxErrorCode.MarkupEntityMismatch);
 		testDiagnosticsFor(xml, d);
-		testCodeActionsFor(xml, d, ca(d, te(3, 0, 3, 0, "</Document>")));
+		testCodeActionsFor(xml, d, ca(d, te(3, 19, 3, 19, "\r\n</Document>")));
 	}
 
 	@Test
 	public void testMarkupEntityMismatch2() throws Exception {
 		String xml = "<ABC>";
-		
 		Diagnostic d = d(0, 1, 0, 4, XMLSyntaxErrorCode.MarkupEntityMismatch);
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(0, 5, 0, 5, "</ABC>")));
@@ -312,11 +381,89 @@ public class XMLSyntaxDiagnosticsTest {
 	@Test
 	public void testMarkupEntityMismatch3() throws Exception {
 		String xml = "<?";
-		
 		Diagnostic d = d(0, 1, 0, 1, XMLSyntaxErrorCode.MarkupEntityMismatch);
 		testDiagnosticsFor(xml, d);
 	}
-	
+
+	@Test
+	public void testMarkupEntityMismatchWithoutClose() throws Exception {
+		String xml = "<ABC";
+		Diagnostic d = d(0, 1, 0, 4, XMLSyntaxErrorCode.MarkupEntityMismatch);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, //
+				ca(d, te(0, 4, 0, 4, "/>")), //
+				ca(d, te(0, 4, 0, 4, "></ABC>")), //
+				ca(d, te(0, 4, 0, 4, ">")));
+	}
+
+	@Test
+	public void testMarkupEntityMismatchWithoutCloseAndNewLine() throws Exception {
+		String xml = "<ABC\r\n";
+		Diagnostic d = d(0, 1, 0, 4, XMLSyntaxErrorCode.MarkupEntityMismatch);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, //
+				ca(d, te(0, 4, 0, 4, "/>")), //
+				ca(d, te(0, 4, 0, 4, "></ABC>")), //
+				ca(d, te(0, 4, 0, 4, ">")));
+	}
+
+	@Test
+	public void testMarkupEntityMismatchWithoutCloseAndSpaces() throws Exception {
+		String xml = "<ABC    ";
+		Diagnostic d = d(0, 1, 0, 4, XMLSyntaxErrorCode.MarkupEntityMismatch);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, //
+				ca(d, te(0, 4, 0, 4, "/>")), //
+				ca(d, te(0, 4, 0, 4, "></ABC>")), //
+				ca(d, te(0, 4, 0, 4, ">")));
+	}
+
+	@Test
+	public void testMarkupEntityMismatchWithAttributes() throws Exception {
+		String xml = "<ABC a=''   ";
+		Diagnostic d = d(0, 1, 0, 9, XMLSyntaxErrorCode.MarkupEntityMismatch);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, //
+				ca(d, te(0, 9, 0, 9, "/>")), //
+				ca(d, te(0, 9, 0, 9, "></ABC>")), //
+				ca(d, te(0, 9, 0, 9, ">")));
+	}
+
+	@Test
+	public void testMarkupEntityMismatchWithAttributesAndSlash() throws Exception {
+		String xml = "<ABC a='' /  ";
+		Diagnostic d = d(0, 1, 0, 11, XMLSyntaxErrorCode.ElementUnterminated);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, //
+				ca(d, te(0, 11, 0, 11, ">")));
+	}
+
+	@Test
+	public void testMarkupEntityMismatchWithText() throws Exception {
+		String xml = "<ABC>def";
+		Diagnostic d = d(0, 1, 0, 4, XMLSyntaxErrorCode.MarkupEntityMismatch);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(0, 8, 0, 8, "</ABC>")));
+	}
+
+	@Test
+	public void testMarkupEntityMismatchWithTextAndNewLine() throws Exception {
+		String xml = "<ABC>def\r\n";
+		Diagnostic d = d(0, 1, 0, 4, XMLSyntaxErrorCode.MarkupEntityMismatch);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(0, 8, 0, 8, "</ABC>")));
+	}
+
+	@Test
+	public void testMarkupEntityMismatchMultiLine() throws Exception {
+		String xml = "<foo action=\"toot\"\r\n" + //
+				"		    /";
+		Diagnostic d = d(0, 1, 1, 7, XMLSyntaxErrorCode.MarkupEntityMismatch);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, //
+				te(1, 7, 1, 7, ">")));
+	}
+
 	@Test
 	public void testMarkupNotRecognizedInContent() throws Exception {
 		String xml = "<GrpHdr>\r\n" + "<- almost a comment-->\r\n" + "<MsgId>2.012.001</MsgId>";
@@ -339,12 +486,11 @@ public class XMLSyntaxDiagnosticsTest {
 
 	@Test
 	public void testMissingQuotesForAttribute() throws Exception {
-		String xml = 
-		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
-		"<foo>\r\n" +
-		"  <bar one= two=\"\">\r\n" +
-		"  </bar>\r\n" +
-		"</foo>";
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<foo>\r\n" + //
+				"  <bar one= two=\"\">\r\n" + //
+				"  </bar>\r\n" + //
+				"</foo>";
 		Diagnostic diagnostic1 = d(2, 7, 2, 10, XMLSyntaxErrorCode.OpenQuoteExpected);
 		testDiagnosticsFor(xml, diagnostic1);
 		testCodeActionsFor(xml, diagnostic1, ca(diagnostic1, te(2, 11, 2, 11, "\"\"")));
@@ -352,11 +498,10 @@ public class XMLSyntaxDiagnosticsTest {
 
 	@Test
 	public void testMissingQuotesForAttributeSelfClosing() throws Exception {
-		String xml = 
-		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
-		"<foo>\r\n" +
-		"  <bar one= two=\"\"/>\r\n" +
-		"</foo>";
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<foo>\r\n" + //
+				"  <bar one= two=\"\"/>\r\n" + //
+				"</foo>";
 		Diagnostic diagnostic1 = d(2, 7, 2, 10, XMLSyntaxErrorCode.OpenQuoteExpected);
 		testDiagnosticsFor(xml, diagnostic1);
 		testCodeActionsFor(xml, diagnostic1, ca(diagnostic1, te(2, 11, 2, 11, "\"\"")));
@@ -364,11 +509,10 @@ public class XMLSyntaxDiagnosticsTest {
 
 	@Test
 	public void testMissingQuotesForAttributeSelfClosing2() throws Exception {
-		String xml = 
-		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
-		"<foo>\r\n" +
-		"  <bar one=/>\r\n" +
-		"</foo>";
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<foo>\r\n" + //
+				"  <bar one=/>\r\n" + //
+				"</foo>";
 		Diagnostic diagnostic1 = d(2, 7, 2, 10, XMLSyntaxErrorCode.OpenQuoteExpected);
 		testDiagnosticsFor(xml, diagnostic1);
 		testCodeActionsFor(xml, diagnostic1, ca(diagnostic1, te(2, 11, 2, 11, "\"\"")));
@@ -376,11 +520,10 @@ public class XMLSyntaxDiagnosticsTest {
 
 	@Test
 	public void testMissingQuotesForAttributeUsingNextValue() throws Exception {
-		String xml = 
-		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
-		"<foo>\r\n" +
-		"  <bar one= two/>\r\n" +
-		"</foo>";
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<foo>\r\n" + //
+				"  <bar one= two/>\r\n" + //
+				"</foo>";
 		Diagnostic diagnostic1 = d(2, 7, 2, 10, XMLSyntaxErrorCode.OpenQuoteExpected);
 		testDiagnosticsFor(xml, diagnostic1);
 		testCodeActionsFor(xml, diagnostic1, ca(diagnostic1, te(2, 11, 2, 15, "\"two\"")));
@@ -388,11 +531,10 @@ public class XMLSyntaxDiagnosticsTest {
 
 	@Test
 	public void testMissingQuotesForAttributeSingleQuotes() throws Exception {
-		String xml = 
-		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
-		"<foo>\r\n" +
-		"  <bar one= two=\"\"/>\r\n" +
-		"</foo>";
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<foo>\r\n" + //
+				"  <bar one= two=\"\"/>\r\n" + //
+				"</foo>";
 		Diagnostic diagnostic1 = d(2, 7, 2, 10, XMLSyntaxErrorCode.OpenQuoteExpected);
 		testDiagnosticsFor(xml, diagnostic1);
 		SharedSettings settings = new SharedSettings();
@@ -404,7 +546,9 @@ public class XMLSyntaxDiagnosticsTest {
 	@Test
 	public void testOpenQuoteExpectedDisabledPreference() throws Exception {
 		String xml = " <InstdAmt Ccy==\"JPY\">10000000</InstdAmt>";
-		testDiagnosticsFor(xml, null, null, null, true, XMLAssert.getContentModelSettings(false, true)); //validation is disabled
+		testDiagnosticsFor(xml, null, null, null, true, XMLAssert.getContentModelSettings(false, true)); // validation
+																											// is
+																											// disabled
 	}
 
 	@Test
@@ -427,14 +571,12 @@ public class XMLSyntaxDiagnosticsTest {
 
 	@Test
 	public void testRootElementTypeMustMatchDoctypedecl() throws Exception {
-		String xml =
-		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
-		"<!DOCTYPE efgh [ \r\n" +
-		"<!ELEMENT abcd (#PCDATA)>\r\n" +
-		"<!ELEMENT efgh (#PCDATA)>\r\n" +
-		"]> \r\n" +
-		"<abcd/>";
-
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<!DOCTYPE efgh [ \r\n" + //
+				"<!ELEMENT abcd (#PCDATA)>\r\n" + //
+				"<!ELEMENT efgh (#PCDATA)>\r\n" + //
+				"]> \r\n" + //
+				"<abcd/>";
 		String expectedMessage = "Document root element \"abcd\", must match DOCTYPE root \"efgh\".";
 		Diagnostic d = d(5, 1, 5, 5, XMLSyntaxErrorCode.RootElementTypeMustMatchDoctypedecl, expectedMessage);
 		testDiagnosticsFor(xml, d);
@@ -443,14 +585,12 @@ public class XMLSyntaxDiagnosticsTest {
 
 	@Test
 	public void testRootElementTypeMustMatchDoctypedecl2() throws Exception {
-		String xml =
-		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
-		"<!DOCTYPE efgh [ \r\n" +
-		"<!ELEMENT abcd (#PCDATA)>\r\n" +
-		"<!ELEMENT efgh (#PCDATA)>\r\n" +
-		"]> \r\n" +
-		"<abcd>test</abcd>";
-
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<!DOCTYPE efgh [ \r\n" + //
+				"<!ELEMENT abcd (#PCDATA)>\r\n" + //
+				"<!ELEMENT efgh (#PCDATA)>\r\n" + //
+				"]> \r\n" + //
+				"<abcd>test</abcd>";
 		String expectedMessage = "Document root element \"abcd\", must match DOCTYPE root \"efgh\".";
 		Diagnostic d = d(5, 1, 5, 5, XMLSyntaxErrorCode.RootElementTypeMustMatchDoctypedecl, expectedMessage);
 		testDiagnosticsFor(xml, d);

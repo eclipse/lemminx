@@ -12,56 +12,9 @@
  */
 package org.eclipse.lemminx.extensions.contentmodel.participants.codeactions;
 
-import java.util.List;
-
-import org.eclipse.lemminx.commons.BadLocationException;
-import org.eclipse.lemminx.commons.CodeActionFactory;
-import org.eclipse.lemminx.dom.DOMDocument;
-import org.eclipse.lemminx.dom.DOMElement;
-import org.eclipse.lemminx.dom.DOMNode;
-import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
-import org.eclipse.lemminx.services.extensions.IComponentProvider;
-import org.eclipse.lemminx.settings.SharedSettings;
-import org.eclipse.lsp4j.CodeAction;
-import org.eclipse.lsp4j.Diagnostic;
-import org.eclipse.lsp4j.Range;
-
 /**
  * Code action to fix ElementUnterminated error.
  *
  */
-public class ElementUnterminatedCodeAction implements ICodeActionParticipant {
-
-	@Override
-	public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
-			SharedSettings sharedSettings, IComponentProvider componentProvider) {
-		Range diagnosticRange = diagnostic.getRange();
-		// Close with '/>
-		CodeAction autoCloseAction = CodeActionFactory.insert("Close with '/>'", diagnosticRange.getEnd(), "/>",
-				document.getTextDocument(), diagnostic);
-		codeActions.add(autoCloseAction);
-
-		// Close with '>
-		CodeAction closeAction = CodeActionFactory.insert("Close with '>'", diagnosticRange.getEnd(), ">",
-				document.getTextDocument(), diagnostic);
-		codeActions.add(closeAction);
-
-		// Close with '$tag>
-		try {
-			int offset = document.offsetAt(range.getStart());
-			DOMNode node = document.findNodeAt(offset);
-			if (node != null && node.isElement()) {
-				String tagName = ((DOMElement) node).getTagName();
-				if (tagName != null) {
-					String insertText = "></" + tagName + ">";
-					CodeAction closeEndTagAction = CodeActionFactory.insert("Close with '" + insertText + "'",
-							diagnosticRange.getEnd(), insertText, document.getTextDocument(), diagnostic);
-					codeActions.add(closeEndTagAction);
-				}
-			}
-		} catch (BadLocationException e) {
-			// do nothing
-		}
-	}
-
+public class ElementUnterminatedCodeAction extends CloseStartTagCodeAction {
 }
