@@ -11,26 +11,9 @@
 *******************************************************************************/
 package org.eclipse.lemminx.extensions.contentmodel.participants.codeactions;
 
-import java.util.List;
-
-import org.eclipse.lemminx.dom.DOMDocument;
-import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
-import org.eclipse.lemminx.services.extensions.IComponentProvider;
-import org.eclipse.lemminx.settings.SharedSettings;
-import org.eclipse.lsp4j.CodeAction;
-import org.eclipse.lsp4j.Diagnostic;
-import org.eclipse.lsp4j.Range;
-
 /**
- * ETagRequiredCodeAction
+ * Code action to fix ETagRequired error.
  */
-public class ETagRequiredCodeAction implements ICodeActionParticipant {
+public class ETagRequiredCodeAction extends CloseStartTagCodeAction {
 
-	@Override
-	public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
-			SharedSettings sharedSettings, IComponentProvider componentProvider) {
-		MarkupEntityMismatchCodeAction.createEndTagInsertCodeAction(diagnostic, range, document, codeActions, componentProvider);
-	}
-
-	
 }
