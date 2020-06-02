@@ -136,8 +136,7 @@ public class EntitiesHoverParticipant extends HoverParticipantAdapter {
 			DTDEntityDecl entity = (DTDEntityDecl) entities.item(i);
 			if (entityName.equals(entity.getName())) {
 				boolean markdown = request.canSupportMarkupKind(MarkupKind.MARKDOWN);
-				return EntitiesDocumentationUtils.getDocumentation(entity.getName(), entity.getNotationName(),
-						EntityOriginType.LOCAL, markdown);
+				return EntitiesDocumentationUtils.getDocumentation(entity, EntityOriginType.LOCAL, markdown);
 			}
 		}
 		return null;
@@ -164,8 +163,7 @@ public class EntitiesHoverParticipant extends HoverParticipantAdapter {
 				DTDEntityDecl entity = (DTDEntityDecl) ent;
 				if (entityName.equals(entity.getName())) {
 					boolean markdown = request.canSupportMarkupKind(MarkupKind.MARKDOWN);
-					return EntitiesDocumentationUtils.getDocumentation(entity.getName(), entity.getNotationName(),
-							EntityOriginType.EXTERNAL, markdown);
+					return EntitiesDocumentationUtils.getDocumentation(entity, EntityOriginType.EXTERNAL, markdown);
 				}
 			}
 		}

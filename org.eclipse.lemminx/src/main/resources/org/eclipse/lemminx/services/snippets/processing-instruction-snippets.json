@@ -1,0 +1,24 @@
+{
+	"Insert XML Model: XSD": {
+	  "prefix": [
+		"<?xml-model"
+	  ],
+	  "suffix": "?>",
+	  "body": [
+		"<?xml-model href=\"${1:file.xsd}\" type=\"application/xml\" schematypens=\"http://www.w3.org/2001/XMLSchema\"?>${0}"
+	  ],
+	  "label": "Insert XML Schema association",
+	  "description": "Insert XML Model Processing Instruction to Associate XSD Schema"
+	},
+	"Insert XML Model: DTD": {
+		"prefix": [
+		  "<?xml-model"
+		],
+		"suffix": "?>",
+		"body": [
+		  "<?xml-model href=\"${1:file.dtd}\" type=\"application/xml-dtd\"?>${0}"
+		],
+		"label": "Insert DTD association",
+		"description": "Insert XML Model Processing Instruction to Associate Document Type Description (DTD)"
+	  }
+}

@@ -54,7 +54,7 @@ public class DTDNotationDecl extends DTDDeclNode {
 	}
 
 	public String getPublicId() {
-		return publicId != null ? publicId.getParameter() : null;
+		return publicId != null ? publicId.getParameterWithoutFirstAndLastChar() : null;
 	}
 
 	void setSystemId(int start, int end) {
@@ -62,7 +62,7 @@ public class DTDNotationDecl extends DTDDeclNode {
 	}
 
 	public String getSystemId() {
-		return systemId != null ? systemId.getParameter() : null;
+		return systemId != null ? systemId.getParameterWithoutFirstAndLastChar() : null;
 	}
 
 	@Override

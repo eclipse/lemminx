@@ -32,10 +32,12 @@ public class XMLSnippetRegistryLoader implements ISnippetRegistryLoader {
 				CommentSnippetContext.DEFAULT_CONTEXT);
 		registry.registerSnippets(XMLSnippetRegistryLoader.class.getResourceAsStream("doctype-snippets.json"),
 				DocTypeSnippetContext.DEFAULT_CONTEXT);
-		registry.registerSnippets(XMLSnippetRegistryLoader.class.getResourceAsStream("prolog-snippets.json"),
-				PrologSnippetContext.DEFAULT_CONTEXT);
+		registry.registerSnippets(XMLSnippetRegistryLoader.class.getResourceAsStream("xml-declaration-snippets.json"),
+				XMLDeclarationSnippetContext.DEFAULT_CONTEXT);
 		registry.registerSnippets(XMLSnippetRegistryLoader.class.getResourceAsStream("dtdnode-snippets.json"),
 				DTDNodeSnippetContext.DEFAULT_CONTEXT);
+		registry.registerSnippets(XMLSnippetRegistryLoader.class.getResourceAsStream("processing-instruction-snippets.json"),
+				ProcessingInstructionSnippetContext.DEFAULT_CONTEXT);
 	}
 
 }

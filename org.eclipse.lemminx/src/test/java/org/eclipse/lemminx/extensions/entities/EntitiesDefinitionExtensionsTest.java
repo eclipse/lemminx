@@ -40,6 +40,17 @@ public class EntitiesDefinitionExtensionsTest {
 	}
 
 	@Test
+	public void localWithSYSTEM() throws BadLocationException {
+		String xml = "<?xml version=\"1.0\" standalone=\"no\" ?>\r\n" + //
+				"	<!DOCTYPE copyright [\r\n" + //
+				"	  <!ELEMENT copyright (#PCDATA)>\r\n" + //
+				"	  <!ENTITY c SYSTEM \"http://www.xmlwriter.net/copyright.xml\">\r\n" + //
+				"	]>\r\n" + //
+				"	<copyright>&|c;</copyright>";
+		testDefinitionFor(xml, "test.xml", ll("test.xml", r(5, 12, 5, 15), r(3, 12, 3, 13)));
+	}
+
+	@Test
 	public void beforeAmp() throws BadLocationException {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<!DOCTYPE root [\r\n" + //
@@ -92,15 +103,123 @@ public class EntitiesDefinitionExtensionsTest {
 
 	@Test
 	public void externalWithIndent() throws BadLocationException, MalformedURIException {
-		String dtdFileURI = getDTDFileURI("src/test/resources/dtd/base.dtd");
+		String dtdFileURI = getDTDFileURI("src/test/resources/dtd/entities/base.dtd");
 		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n" + //
-				"<!DOCTYPE root-element SYSTEM \"src/test/resources/dtd/base.dtd\" [\r\n" + //
+				"<!DOCTYPE root-element SYSTEM \"src/test/resources/dtd/entities/base.dtd\" [\r\n" + //
 				"	<!ENTITY mdash \"&#x2014;\">\r\n" + //
 				"]>\r\n" + //
 				"<root-element>\r\n" + //
 				"\r\n &f|oo;" + //
 				"</root-element>";
 		testDefinitionFor(xml, "test.xml", ll(dtdFileURI, r(6, 1, 6, 6), r(2, 9, 2, 12)));
+	}
+
+	@Test
+	public void externalWithDTDIndent() throws BadLocationException, MalformedURIException {
+		String dtdFileURI = getDTDFileURI("src/test/resources/dtd/entities/base-indent.dtd");
+
+		// &external3;
+		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n" + //
+				"<!DOCTYPE root-element SYSTEM \"src/test/resources/dtd/entities/base-indent.dtd\" [\r\n" + //
+				"	<!ENTITY mdash \"&#x2014;\">\r\n" + //
+				"]>\r\n" + //
+				"<root-element>\r\n" + //
+				"\r\n &externa|l3;" + //
+				"</root-element>";
+		testDefinitionFor(xml, "test.xml", ll(dtdFileURI, r(6, 1, 6, 12), r(0, 9, 0, 18)));
+
+		// &external5;
+		xml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n" + //
+				"<!DOCTYPE root-element SYSTEM \"src/test/resources/dtd/entities/base-indent.dtd\" [\r\n" + //
+				"	<!ENTITY mdash \"&#x2014;\">\r\n" + //
+				"]>\r\n" + //
+				"<root-element>\r\n" + //
+				"\r\n &externa|l5;" + //
+				"</root-element>";
+		testDefinitionFor(xml, "test.xml", ll(dtdFileURI, r(6, 1, 6, 12), r(0, 34, 0, 43)));
+
+		// &external;
+		xml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n" + //
+				"<!DOCTYPE root-element SYSTEM \"src/test/resources/dtd/entities/base-indent.dtd\" [\r\n" + //
+				"	<!ENTITY mdash \"&#x2014;\">\r\n" + //
+				"]>\r\n" + //
+				"<root-element>\r\n" + //
+				"\r\n &externa|l;" + //
+				"</root-element>";
+		testDefinitionFor(xml, "test.xml", ll(dtdFileURI, r(6, 1, 6, 11), r(3, 15, 3, 23)));
+
+		// &external2;
+		xml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n" + //
+				"<!DOCTYPE root-element SYSTEM \"src/test/resources/dtd/entities/base-indent.dtd\" [\r\n" + //
+				"	<!ENTITY mdash \"&#x2014;\">\r\n" + //
+				"]>\r\n" + //
+				"<root-element>\r\n" + //
+				"\r\n &externa|l2;" + //
+				"</root-element>";
+		testDefinitionFor(xml, "test.xml", ll(dtdFileURI, r(6, 1, 6, 12), r(4, 9, 4, 18)));
+	}
+
+	@Test
+	public void externalWithDTDNoIndent() throws BadLocationException, MalformedURIException {
+		String dtdFileURI = getDTDFileURI("src/test/resources/dtd/entities/base-no-indent.dtd");
+
+		// &external3;
+		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n" + //
+				"<!DOCTYPE root-element SYSTEM \"src/test/resources/dtd/entities/base-no-indent.dtd\" [\r\n" + //
+				"	<!ENTITY mdash \"&#x2014;\">\r\n" + //
+				"]>\r\n" + //
+				"<root-element>\r\n" + //
+				"\r\n &externa|l3;" + //
+				"</root-element>";
+		testDefinitionFor(xml, "test.xml", ll(dtdFileURI, r(6, 1, 6, 12), r(0, 23, 0, 32)));
+
+		// &external5;
+		xml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n" + //
+				"<!DOCTYPE root-element SYSTEM \"src/test/resources/dtd/entities/base-no-indent.dtd\" [\r\n" + //
+				"	<!ENTITY mdash \"&#x2014;\">\r\n" + //
+				"]>\r\n" + //
+				"<root-element>\r\n" + //
+				"\r\n &externa|l5;" + //
+				"</root-element>";
+		testDefinitionFor(xml, "test.xml", ll(dtdFileURI, r(6, 1, 6, 12), r(0, 48, 0, 57)));
+
+		// &external;
+		xml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n" + //
+				"<!DOCTYPE root-element SYSTEM \"src/test/resources/dtd/entities/base-no-indent.dtd\" [\r\n" + //
+				"	<!ENTITY mdash \"&#x2014;\">\r\n" + //
+				"]>\r\n" + //
+				"<root-element>\r\n" + //
+				"\r\n &externa|l;" + //
+				"</root-element>";
+		testDefinitionFor(xml, "test.xml", ll(dtdFileURI, r(6, 1, 6, 11), r(3, 15, 3, 23)));
+
+		// &external2;
+		xml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n" + //
+				"<!DOCTYPE root-element SYSTEM \"src/test/resources/dtd/entities/base-no-indent.dtd\" [\r\n" + //
+				"	<!ENTITY mdash \"&#x2014;\">\r\n" + //
+				"]>\r\n" + //
+				"<root-element>\r\n" + //
+				"\r\n &externa|l2;" + //
+				"</root-element>";
+		testDefinitionFor(xml, "test.xml", ll(dtdFileURI, r(6, 1, 6, 12), r(4, 9, 4, 18)));
+	}
+
+	@Test
+	public void externalWithSYSTEM() throws BadLocationException, MalformedURIException {
+		String dtdFileURI = getDTDFileURI("src/test/resources/dtd/entities/base-system.dtd");
+
+		// &writer;
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<!DOCTYPE author SYSTEM \"src/test/resources/dtd/entities/base-system.dtd\">\r\n" + //
+				"<author>&wr|iter;&copyright;</author>";
+		testDefinitionFor(xml, "test.xml", ll(dtdFileURI, r(2, 8, 2, 16), r(1, 9, 1, 15)));
+
+		// &copyright;
+		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<!DOCTYPE author SYSTEM \"src/test/resources/dtd/entities/base-system.dtd\">\r\n" + //
+				"<author>&writer;&cop|yright;</author>";
+		testDefinitionFor(xml, "test.xml", ll(dtdFileURI, r(2, 16, 2, 27), r(2, 9, 2, 18)));
+
 	}
 
 	private static String getDTDFileURI(String dtdURI) throws MalformedURIException {

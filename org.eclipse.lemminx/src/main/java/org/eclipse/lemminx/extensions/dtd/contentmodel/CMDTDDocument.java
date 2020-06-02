@@ -28,6 +28,7 @@ import org.apache.xerces.impl.XMLEntityManager.ScannedEntity;
 import org.apache.xerces.impl.dtd.DTDGrammar;
 import org.apache.xerces.impl.dtd.XMLDTDLoader;
 import org.apache.xerces.xni.Augmentations;
+import org.apache.xerces.xni.XMLResourceIdentifier;
 import org.apache.xerces.xni.XMLString;
 import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.grammars.Grammar;
@@ -99,17 +100,31 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 
 	private static class ScannedDTDEntityDecl extends DTDEntityDecl {
 
-		private static final char[] ENTITY = "<!ENTITY".toCharArray();
-
 		private final String entityName;
 		private final String value;
+
 		private final DTDDeclParameter nameParameter;
 
-		public ScannedDTDEntityDecl(String name, String value, ScannedEntity scannedEntity) {
+		private final String publicId;
+
+		private final String systemId;
+
+		public ScannedDTDEntityDecl(String entityName, String value, ScannedEntity scannedEntity) {
+			this(entityName, value, null, scannedEntity);
+		}
+
+		public ScannedDTDEntityDecl(String name, XMLResourceIdentifier identifier, ScannedEntity scannedEntity) {
+			this(name, null, identifier, scannedEntity);
+		}
+
+		private ScannedDTDEntityDecl(String entityName, String value, XMLResourceIdentifier identifier,
+				ScannedEntity scannedEntity) {
 			super(-1, -1);
-			this.entityName = name;
+			this.entityName = entityName;
 			this.value = value;
-			this.nameParameter = createNameParameter(name, scannedEntity);
+			this.publicId = identifier != null ? identifier.getPublicId() : null;
+			this.systemId = identifier != null ? identifier.getLiteralSystemId() : null;
+			this.nameParameter = createNameParameter(entityName, scannedEntity);
 		}
 
 		@Override
@@ -132,14 +147,31 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 			return value;
 		}
 
+		@Override
+		public String getSystemId() {
+			return systemId;
+		}
+
+		@Override
+		public String getPublicId() {
+			return publicId;
+		}
+
 		private static DTDDeclParameter createNameParameter(String name, ScannedEntity scannedEntity) {
 			String systemId = scannedEntity.entityLocation.getExpandedSystemId();
 			int lineNumber = scannedEntity.lineNumber - 1;
+			int endEntityColumnNumber = scannedEntity.columnNumber - 1;
 			int startNameColumnNumber = getEntityNameStartColumnNumber(name, scannedEntity);
 			return new DTDDeclParameter(null, -1, -1) {
 
 				@Override
 				public Range getTargetRange() {
+					if (startNameColumnNumber < 0) {
+						// It should never occur, but in case computation of start name column cannot be
+						// done, we use the end entity column.
+						return new Range(new Position(lineNumber, endEntityColumnNumber),
+								new Position(lineNumber, endEntityColumnNumber));
+					}
 					return new Range(new Position(lineNumber, startNameColumnNumber),
 							new Position(lineNumber, startNameColumnNumber + name.length()));
 				};
@@ -154,34 +186,38 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 		/**
 		 * Returns the colunm number where entity name starts (<!ENTITY |name )
 		 * 
-		 * @param name          the entity name
+		 * @param entityName    the entity name
 		 * @param scannedEntity the scanned entity
 		 * @return the colunm number where entity name starts (<!ENTITY |name )
 		 */
-		private static int getEntityNameStartColumnNumber(String name, ScannedEntity scannedEntity) {
+		private static int getEntityNameStartColumnNumber(String entityName, ScannedEntity scannedEntity) {
+			// offset of the end of the entity
 			int endEntityIndex = scannedEntity.startPosition + scannedEntity.position;
-			int startLineIndex = endEntityIndex - scannedEntity.columnNumber + 1;
+			// char array of the DTD content.
 			char[] ch = scannedEntity.ch;
-			int wordIndex = 0;
-			// loop for line text where entity is declared
-			// --> <!ENTITY name >
-			for (int i = startLineIndex; i < endEntityIndex; i++) {
+			int wordIndex = entityName.length(); //
+			int startEntityNameIndex = -1;
+			// Loop for characters from the end of the entity (>) to search the entity name
+			// start offset
+			// <!ENTITY name .....> |
+			for (int i = endEntityIndex; i >= 0; i--) {
 				char c = ch[i];
-				// Search the index after the <!ENTITY
-				if (wordIndex < ENTITY.length) {
-					if (c == ENTITY[wordIndex]) {
-						wordIndex++;
-					} else {
-						wordIndex = 0;
-					}
+				// current character matches the entity name
+				if (c == entityName.charAt(wordIndex - 1)) {
+					wordIndex--;
 				} else {
-					// <!ENTITY index id found, search the index where entity name starts.
-					if (c == name.charAt(0)) {
-						return i - startLineIndex;
-					}
+					wordIndex = entityName.length();
+				}
+				if (wordIndex == 0) {
+					startEntityNameIndex = i;
+					break;
 				}
 			}
-			return scannedEntity.columnNumber;
+			if (startEntityNameIndex > -1) {
+				return scannedEntity.columnNumber - (endEntityIndex - startEntityNameIndex)
+						+ scannedEntity.startPosition - 1;
+			}
+			return -1;
 		}
 	}
 
@@ -280,7 +316,18 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 		try {
 			entities.add(new ScannedDTDEntityDecl(name, text.toString(), fEntityManager.getCurrentEntity()));
 		} catch (Exception e) {
-			LOGGER.log(Level.SEVERE, "Error while extracting information for the entity '" + name + "'", e);
+			LOGGER.log(Level.SEVERE, "Error while extracting information for the internal entity '" + name + "'", e);
+		}
+	}
+
+	@Override
+	public void externalEntityDecl(String name, XMLResourceIdentifier identifier, Augmentations augs)
+			throws XNIException {
+		super.externalEntityDecl(name, identifier, augs);
+		try {
+			entities.add(new ScannedDTDEntityDecl(name, identifier, fEntityManager.getCurrentEntity()));
+		} catch (Exception e) {
+			LOGGER.log(Level.SEVERE, "Error while extracting information for the external entity '" + name + "'", e);
 		}
 	}
 

@@ -1,0 +1,5 @@
+              <!ENTITY external3 "A B"><!ENTITY external5 "A B">
+                    <!ENTITY external4 "A B">     	
+<!ELEMENT root-element (#PCDATA)>
+				 	<!ENTITY external "A B">               
+<!ENTITY external2 "EXTERNALLY DECLARED ENTITY">

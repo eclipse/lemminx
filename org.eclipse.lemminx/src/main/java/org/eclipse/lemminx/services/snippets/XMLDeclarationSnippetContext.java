@@ -20,13 +20,12 @@ import org.eclipse.lemminx.services.extensions.ICompletionRequest;
 import org.eclipse.lsp4j.Position;
 
 /**
- * Prolog snippet context used to filter the xml processing instructions
- * snippets.
+ * Snippet context used to filter the XML declaration snippets.
  * 
  */
-public class PrologSnippetContext implements IXMLSnippetContext {
+public class XMLDeclarationSnippetContext implements IXMLSnippetContext {
 
-	public static IXMLSnippetContext DEFAULT_CONTEXT = new PrologSnippetContext();
+	public static IXMLSnippetContext DEFAULT_CONTEXT = new XMLDeclarationSnippetContext();
 
 	@Override
 	public boolean isMatch(ICompletionRequest request, Map<String, String> model) {
