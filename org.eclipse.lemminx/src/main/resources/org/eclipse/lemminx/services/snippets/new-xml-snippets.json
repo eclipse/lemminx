@@ -86,7 +86,7 @@
     "label": "$description",
     "description": "New XML bound with xsi:schemaLocation"
   },
-  "New XML bound with noNamespaceShemaLocation": {
+  "New XML bound with noNamespaceSchemaLocation": {
     "prefix": [
       "noNamespaceSchemaLocation"
     ],
