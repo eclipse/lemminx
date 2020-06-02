@@ -12,23 +12,22 @@
 package org.eclipse.lemminx.client;
 
 /**
- * Features that are associated with some limit
+ * Features that are associated with filePaths
  * 
- * For example, document symbols have a maximum limit for performance reasons
+ * For example, XML catalog support is associated with XML catalog filePaths
  */
-public enum LimitFeature implements IXMLSettingFeature {
+public enum PathFeature implements IXMLSettingFeature {
 	
-	SYMBOLS("document symbols", "xml.symbols.maxItemsComputed");
+	CATALOGS("XML catalog", "xml.catalogs");
 	
 	private final String name;
-
 	private final String settingId;
 	
-	private LimitFeature(String name, String settingId) {
+	private PathFeature(String name, String settingId) {
 		this.name = name;
 		this.settingId = settingId;
 	}
-
+	
 	@Override
 	public String getName() {
 		return name;

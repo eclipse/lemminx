@@ -38,7 +38,7 @@ public class ExtendedClientCapabilities {
 	 * Returns true if the client supports actionable notifications and false otherwise
 	 * 
 	 * See {@link org.eclipse.lemminx.customservice.ActionableNotification} and
-	 * {@link org.eclipse.lemminx.customservice.XMLLanguageClientAPI}
+	 * {@link org.eclipse.lemminx.customservice.XMLLanguageClientAPI#actionableNotification}
 	 * 
 	 * @return true if the client supports actionable notifications and false otherwise
 	 */
