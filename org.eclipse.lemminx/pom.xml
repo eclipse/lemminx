@@ -44,6 +44,30 @@
 				</executions>
 			</plugin>
 			<plugin>
+				<groupId>pl.project13.maven</groupId>
+				<artifactId>git-commit-id-plugin</artifactId>
+				<version>4.0.0</version>
+				<executions>
+						<execution>
+								<id>get-the-git-infos</id>
+								<goals>
+										<goal>revision</goal>
+								</goals>
+						</execution>
+				</executions>
+				<configuration>
+						<dotGitDirectory>${project.basedir}/../.git</dotGitDirectory>
+						<generateGitPropertiesFile>true</generateGitPropertiesFile>
+						<includeOnlyProperties>
+							<includeOnlyProperty>^git.commit.id.abbrev$</includeOnlyProperty>
+							<includeOnlyProperty>^git.commit.message.short$</includeOnlyProperty>
+							<includeOnlyProperty>^git.branch$</includeOnlyProperty>
+							<includeOnlyProperty>^git.build.version$</includeOnlyProperty>
+						</includeOnlyProperties>
+						<gitDescribe><skip>true</skip></gitDescribe>
+				</configuration>
+		</plugin>
+			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
 			</plugin>
