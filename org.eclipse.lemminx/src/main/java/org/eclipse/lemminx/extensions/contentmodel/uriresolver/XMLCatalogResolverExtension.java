@@ -144,9 +144,9 @@ public class XMLCatalogResolverExtension implements URIResolverExtension {
 	 * @param catalogFile catalog file to check.
 	 * @return true if the XML catalog file exists and false otherwise.
 	 */
-	private static boolean isXMLCatalogFileValid(String catalogFile) {
+	public static boolean isXMLCatalogFileValid(String catalogFile) {
 		try {
-			return new File(new URI(catalogFile).getPath()).exists();
+			return new File(new URI(catalogFile).toString()).exists();
 		} catch (URISyntaxException e) {
 			return new File(catalogFile).exists();
 		}

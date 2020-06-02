@@ -22,6 +22,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.eclipse.lemminx.services.IXMLDocumentProvider;
+import org.eclipse.lemminx.services.IXMLLanguageClientAPIProvider;
 import org.eclipse.lemminx.services.extensions.codelens.ICodeLensParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lemminx.services.extensions.save.ISaveContext;
@@ -51,6 +52,8 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	private final List<IRenameParticipant> renameParticipants;
 
 	private IXMLDocumentProvider documentProvider;
+
+	private IXMLLanguageClientAPIProvider clientAPIProvider;
 
 	private InitializeParams params;
 
@@ -325,6 +328,14 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	 */
 	public void setDocumentProvider(IXMLDocumentProvider documentProvider) {
 		this.documentProvider = documentProvider;
+	}
+
+	public IXMLLanguageClientAPIProvider getLanguageClientAPIProvider() {
+		return clientAPIProvider;
+	}
+
+	public void setClientAPIProvider(IXMLLanguageClientAPIProvider clientAPIProvider) {
+		this.clientAPIProvider = clientAPIProvider;
 	}
 
 	public URIResolverExtensionManager getResolverExtensionManager() {

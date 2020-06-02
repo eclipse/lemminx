@@ -34,6 +34,7 @@ import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.logs.LogHelper;
 import org.eclipse.lemminx.services.IXMLDocumentProvider;
+import org.eclipse.lemminx.services.IXMLLanguageClientAPIProvider;
 import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.settings.AllXMLSettings;
 import org.eclipse.lemminx.settings.InitializationOptionsSettings;
@@ -65,7 +66,7 @@ import org.eclipse.lsp4j.services.WorkspaceService;
  *
  */
 public class XMLLanguageServer
-		implements ProcessLanguageServer, XMLLanguageServerAPI, IXMLDocumentProvider {
+		implements ProcessLanguageServer, XMLLanguageServerAPI, IXMLDocumentProvider, IXMLLanguageClientAPIProvider {
 
 	private static final Logger LOGGER = Logger.getLogger(XMLLanguageServer.class.getName());
 
@@ -79,6 +80,7 @@ public class XMLLanguageServer
 
 	public XMLLanguageServer() {
 		xmlLanguageService = new XMLLanguageService();
+		xmlLanguageService.setClientAPIProvider(this);
 		xmlLanguageService.setDocumentProvider(this);
 		xmlTextDocumentService = new XMLTextDocumentService(this);
 		xmlWorkspaceService = new XMLWorkspaceService(this);
@@ -96,10 +98,12 @@ public class XMLLanguageServer
 		ExtendedClientCapabilities extendedClientCapabilities = InitializationOptionsExtendedClientCapabilities
 				.getExtendedClientCapabilities(params);
 		capabilityManager.setClientCapabilities(params.getCapabilities(), extendedClientCapabilities);
-		updateSettings(InitializationOptionsSettings.getSettings(params));
 
 		xmlTextDocumentService.updateClientCapabilities(capabilityManager.getClientCapabilities().capabilities,
 				capabilityManager.getClientCapabilities().getExtendedCapabilities());
+
+		updateSettings(InitializationOptionsSettings.getSettings(params));
+
 		ServerCapabilities nonDynamicServerCapabilities = ServerCapabilitiesInitializer.getNonDynamicServerCapabilities(
 				capabilityManager.getClientCapabilities(), xmlTextDocumentService.isIncrementalSupport());
 
@@ -214,6 +218,7 @@ public class XMLLanguageServer
 		capabilityManager = new XMLCapabilityManager(this.languageClient, xmlTextDocumentService);
 	}
 
+	@Override
 	public XMLLanguageClientAPI getLanguageClient() {
 		return languageClient;
 	}
