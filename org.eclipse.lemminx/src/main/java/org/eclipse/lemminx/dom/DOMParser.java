@@ -96,6 +96,10 @@ public class DOMParser {
 			}
 			switch (token) {
 			case StartTagOpen: {
+				if (curr instanceof DOMProcessingInstruction) {
+					// Processing instruction should not have child elements
+					curr.setContainsUnknownContent(true);
+				}
 				if(!curr.isClosed() && curr.parent != null) {
 					//The next node's parent (curr) is not closed at this point
 					//so the node's parent (curr) will have its end position updated
@@ -235,6 +239,8 @@ public class DOMParser {
 				String value = scanner.getTokenText();
 				if (curr.hasAttributes() && attr != null) {
 					attr.setValue(value, scanner.getTokenOffset(), scanner.getTokenOffset() + value.length());
+				} else {
+					curr.setContainsUnknownContent(true);
 				}
 				pendingAttribute = null;
 				attr = null;
@@ -649,6 +655,9 @@ public class DOMParser {
 				break;
 			}
 
+			case Unknown: {
+				curr.setContainsUnknownContent(true);
+			}
 			default:
 			}
 			token = scanner.scan();

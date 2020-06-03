@@ -64,6 +64,7 @@ public abstract class DOMNode implements Node, DOMRange {
 
 	private XMLNamedNodeMap<DOMAttr> attributeNodes;
 	private XMLNodeList<DOMNode> children;
+	private boolean containsUnknownContent = false;
 
 	final int start; // |<root> </root>
 	int end; // <root> </root>|
@@ -759,7 +760,7 @@ public abstract class DOMNode implements Node, DOMRange {
 	 */
 	@Override
 	public String getTextContent() throws DOMException {
-		return getNodeValue();
+		return getOwnerDocument().getText().substring(start, end);
 	}
 
 	@Override
@@ -841,6 +842,26 @@ public abstract class DOMNode implements Node, DOMRange {
 	@Override
 	public Object setUserData(String arg0, Object arg1, UserDataHandler arg2) {
 		return null;
+	}
+
+	/**
+	 * Returns true if this DOMNode contains unknown content and
+	 * false otherwise
+	 * 
+	 * @return true if this DOMNode contains unknown content and
+	 * false otherwise
+	 */
+	public boolean isContainsUnknownContent() {
+		return containsUnknownContent;
+	}
+
+	/**
+	 * Set containsMalformedContent
+	 *
+	 * @param containsMalformedContent
+	 */
+	public void setContainsUnknownContent(boolean containsUnknownContent) {
+		this.containsUnknownContent = containsUnknownContent;
 	}
 
 }

@@ -246,8 +246,9 @@ public class XMLScanner implements Scanner {
 			stream.advanceUntilCharsOrNewTag(_QMA, _RAN); // ?>
 			if (stream.peekChar() == _LAN) {
 				state = ScannerState.WithinContent; // TODO: check if EOF causes issues
+				return internalScan();
 			}
-			return internalScan();
+			return finishToken(offset, TokenType.Unknown);
 
 		case WithinPI:
 			if (stream.skipWhitespace()) {
@@ -334,11 +335,11 @@ public class XMLScanner implements Scanner {
 				state = ScannerState.WithinContent;
 				return finishToken(offset, TokenType.EndTagClose);
 			}
-			if (stream.advanceUntilChar(_LAN)) { // <
+			if (stream.peekChar() == _LAN) { // <
 				state = ScannerState.WithinContent;
 				return internalScan();
 			}
-			return finishToken(offset, TokenType.Whitespace);
+			return finishToken(offset, TokenType.Unknown);
 
 		case AfterOpeningStartTag:
 			if (hasNextElementName()) {

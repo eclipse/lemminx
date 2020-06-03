@@ -246,7 +246,7 @@ public class XMLBuilder {
 	 * <code>delimiter</code>
 	 * 
 	 * @param text                the proposed text to add
-	 * @param isWhitespaceContent whether or not the text contains whitespace content
+	 * @param isWhitespaceContent whether or not the text contains only whitespace content
 	 * @param hasSiblings         whether or not the corresponding text node has siblings
 	 * @param delimiter           line delimiter
 	 * @return this XMLBuilder with <code>text</code> added depending on

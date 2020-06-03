@@ -21,6 +21,7 @@ import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMCDATASection;
+import org.eclipse.lemminx.dom.DOMCharacterData;
 import org.eclipse.lemminx.dom.DOMComment;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMDocumentType;
@@ -64,6 +65,14 @@ class XMLFormatter {
 		private boolean linefeedOnNextWrite;
 
 		/**
+		 * Keeps track of if formatting was aborted.
+		 * 
+		 * Formatting is aborted when the formatter reaches a tag
+		 * that contains invalid content.
+		 */
+		private boolean aborted;
+
+		/**
 		 * XML formatter document.
 		 */
 		public XMLFormatterDocument(TextDocument textDocument, Range range, SharedSettings sharedSettings) {
@@ -72,6 +81,7 @@ class XMLFormatter {
 			this.sharedSettings = sharedSettings;
 			this.emptyElements = sharedSettings.getFormattingSettings().getEmptyElements();
 			this.linefeedOnNextWrite = false;
+			this.aborted = false;
 		}
 
 		/**
@@ -85,10 +95,10 @@ class XMLFormatter {
 			this.fullDomDocument = DOMParser.getInstance().parse(textDocument.getText(), textDocument.getUri(), null,
 					false);
 
-			if (range != null) {
-				setupRangeFormatting(range);
+			if (this.range != null) {
+				setupRangeFormatting();
 			} else {
-				setupFullFormatting(range);
+				setupFullFormatting();
 			}
 
 			this.indentLevel = getStartingIndentLevel();
@@ -98,16 +108,12 @@ class XMLFormatter {
 			return textEdits;
 		}
 
-		private void setupRangeFormatting(Range range) throws BadLocationException {
-			int startOffset = this.textDocument.offsetAt(range.getStart());
-			int endOffset = this.textDocument.offsetAt(range.getEnd());
+		private void setupRangeFormatting() throws BadLocationException {
 
-			Position startPosition = this.textDocument.positionAt(startOffset);
-			Position endPosition = this.textDocument.positionAt(endOffset);
-			enlargePositionToGutters(startPosition, endPosition);
+			enlargeRangeToGutters();
 
-			this.startOffset = this.textDocument.offsetAt(startPosition);
-			this.endOffset = this.textDocument.offsetAt(endPosition);
+			this.startOffset = this.textDocument.offsetAt(this.range.getStart());
+			this.endOffset = this.textDocument.offsetAt(this.range.getEnd());
 
 			String fullText = this.textDocument.getText();
 			String rangeText = fullText.substring(this.startOffset, this.endOffset);
@@ -122,7 +128,7 @@ class XMLFormatter {
 			}
 
 			this.xmlBuilder = new XMLBuilder(this.sharedSettings, "",
-					textDocument.lineDelimiter(startPosition.getLine()));
+					textDocument.lineDelimiter(this.range.getStart().getLine()));
 		}
 
 		private boolean containsTextWithinStartTag() {
@@ -155,7 +161,7 @@ class XMLFormatter {
 			this.startOffset = this.textDocument.offsetAt(nodePosition);
 		}
 
-		private void setupFullFormatting(Range range) throws BadLocationException {
+		private void setupFullFormatting() throws BadLocationException {
 			this.startOffset = 0;
 			this.endOffset = textDocument.getText().length();
 			this.rangeDomDocument = this.fullDomDocument;
@@ -165,14 +171,21 @@ class XMLFormatter {
 					"", textDocument.lineDelimiter(startPosition.getLine()));
 		}
 
-		private void enlargePositionToGutters(Position start, Position end) throws BadLocationException {
-			start.setCharacter(0);
+		/**
+		 * Enlarges the range to the ends of the document.
+		 * 
+		 * The start position's character is set to zero, the end position's
+		 * character is set to the last character in its line.
+		 */
+		private void enlargeRangeToGutters() throws BadLocationException {
+			this.range.getStart().setCharacter(0);
 
-			if (end.getCharacter() == 0 && end.getLine() > 0) {
-				end.setLine(end.getLine() - 1);
+			if (this.range.getEnd().getCharacter() == 0 && this.range.getEnd().getLine() > 0) {
+				this.range.getEnd().setLine(this.range.getEnd().getLine() - 1);
 			}
 
-			end.setCharacter(this.textDocument.lineText(end.getLine()).length());
+			int endChar = this.textDocument.lineText(this.range.getEnd().getLine()).length();
+			this.range.getEnd().setCharacter(endChar);
 		}
 
 		private int getStartingIndentLevel() throws BadLocationException {
@@ -230,13 +243,12 @@ class XMLFormatter {
 				// +1 because offset must be here: <|root
 				// for DOMNode.findNodeAt() to find the correct element
 			} else if (elemFromRangeDoc.hasEndTag()) {
-				fullOffset = getFullOffsetFromRangeOffset(elemFromRangeDoc.getEndTagCloseOffset()) - 1;
-				// -1 because offset must be here: root|>
+				fullOffset = getFullOffsetFromRangeOffset(elemFromRangeDoc.getEndTagOpenOffset()) + 1;
+				// +1 because offset must be here: <|/root
 				// for DOMNode.findNodeAt() to find the correct element
 			} else {
 				return null;
 			}
-
 			DOMElement elemFromFullDoc = (DOMElement) this.fullDomDocument.findNodeAt(fullOffset);
 			return elemFromFullDoc;
 		}
@@ -264,13 +276,16 @@ class XMLFormatter {
 		}
 
 		private void format(DOMNode node) throws BadLocationException {
-
 			if (linefeedOnNextWrite && (!node.isText() || !((DOMText) node).isWhitespace())) {
 				this.xmlBuilder.linefeed();
 				linefeedOnNextWrite = false;
 			}
 
 			if (node.getNodeType() != DOMNode.DOCUMENT_NODE) {
+				if (this.aborted) {
+					this.xmlBuilder.addContent(node.getTextContent());
+					return;
+				}
 				boolean doLineFeed = !node.getOwnerDocument().isDTD() &&
 						!(node.isComment() && ((DOMComment) node).isCommentSameLineEndTag()) &&
 						(!node.isText() || (!((DOMText) node).isWhitespace() && ((DOMText) node).hasSiblings()));
@@ -290,6 +305,15 @@ class XMLFormatter {
 						this.xmlBuilder.indent(this.indentLevel);
 					}
 				}
+
+				if (!this.aborted) {
+					if (node.isContainsUnknownContent()) {
+						this.aborted = true;
+						this.xmlBuilder.addContent(node.getTextContent());
+						return;
+					}
+				}
+
 				if (node.isElement()) {
 					// Format Element
 					formatElement((DOMElement) node);
@@ -324,8 +348,9 @@ class XMLFormatter {
 		 * Format the given DOM prolog
 		 *
 		 * @param node the DOM prolog to format.
+		 * @throws BadLocationException
 		 */
-		private void formatProlog(DOMNode node) {
+		private void formatProlog(DOMNode node) throws BadLocationException {
 			addPrologToXMLBuilder(node, this.xmlBuilder);
 			linefeedOnNextWrite = true;
 		}
@@ -478,7 +503,7 @@ class XMLFormatter {
 						this.indentLevel--;
 					}
 					if (element.hasEndTag()) {
-						if (hasElements) {
+						if (hasElements && !this.aborted) {
 							this.xmlBuilder.linefeed();
 							this.xmlBuilder.indent(this.indentLevel);
 						}
