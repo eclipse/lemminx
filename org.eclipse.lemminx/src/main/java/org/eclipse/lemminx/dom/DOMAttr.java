@@ -14,6 +14,7 @@ package org.eclipse.lemminx.dom;
 
 import java.util.List;
 
+import org.eclipse.lemminx.utils.StringUtils;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.TypeInfo;
 
@@ -209,52 +210,8 @@ public class DOMAttr extends DOMNode implements org.w3c.dom.Attr {
 
 	public void setValue(String value, int start, int end) {
 		this.originalValue = value;
-		this.quotelessValue = convertToQuotelessValue(value);
+		this.quotelessValue = StringUtils.convertToQuotelessValue(value);
 		this.nodeAttrValue = start != -1 ? new AttrNameOrValue(start, end) : null;
-	}
-
-	/**
-	 * Returns a String of 'value' without surrounding quotes if it had them.
-	 * 
-	 * @param value
-	 * @return
-	 */
-	public static String convertToQuotelessValue(String value) {
-		if (value == null) {
-			return null;
-		}
-		if (value.isEmpty()) {
-			return value;
-		}
-		char quoteValue = value.charAt(0);
-		int start = quoteValue == '\"' || quoteValue == '\'' ? 1 : 0;
-		quoteValue = value.charAt(value.length() - 1);
-		int end = quoteValue == '\"' || quoteValue == '\'' ? value.length() - 1 : value.length();
-		return value.substring(start, end);
-	}
-
-	/**
-	 * Checks if 'value' has matching surrounding quotations.
-	 * 
-	 * @param value
-	 * @return
-	 */
-	public static boolean isQuoted(String value) {
-		if (value == null) {
-			return false;
-		}
-		if (value.isEmpty()) {
-			return false;
-		}
-		char quoteValueStart = value.charAt(0);
-		boolean start = quoteValueStart == '\"' || quoteValueStart == '\'' ? true : false;
-		if (start == false) {
-			return false;
-		}
-		char quoteValueEnd = value.charAt(value.length() - 1);
-		boolean end = (quoteValueEnd == '\"' || quoteValueEnd == '\'') && quoteValueEnd == quoteValueStart ? true
-				: false;
-		return end;
 	}
 
 	public DOMNode getNodeAttrValue() {

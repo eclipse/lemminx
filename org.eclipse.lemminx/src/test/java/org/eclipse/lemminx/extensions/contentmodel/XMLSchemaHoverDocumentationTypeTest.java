@@ -181,6 +181,30 @@ public class XMLSchemaHoverDocumentationTypeTest {
 		assertElementMultipleBothHover(null, SchemaDocumentationType.none, false);
 	};
 
+	@Test
+	public void testHoverNoAnnotation() throws BadLocationException, MalformedURIException {
+		assertElementHoverNoAnnotation(SchemaDocumentationType.all, true);
+		assertElementHoverNoAnnotation(SchemaDocumentationType.appinfo, true);
+		assertElementHoverNoAnnotation(SchemaDocumentationType.documentation, true);
+		assertElementHoverNoAnnotation(SchemaDocumentationType.none, true);
+		assertElementHoverNoAnnotation(SchemaDocumentationType.all, false);
+		assertElementHoverNoAnnotation(SchemaDocumentationType.appinfo, false);
+		assertElementHoverNoAnnotation(SchemaDocumentationType.documentation, false);
+		assertElementHoverNoAnnotation(SchemaDocumentationType.none, false);
+	}
+
+	@Test
+	public void testHoverWhitespaceAnnotation() throws BadLocationException, MalformedURIException {
+		assertElementHoverWhitespaceAnnotation(SchemaDocumentationType.all, true);
+		assertElementHoverWhitespaceAnnotation(SchemaDocumentationType.appinfo, true);
+		assertElementHoverWhitespaceAnnotation(SchemaDocumentationType.documentation, true);
+		assertElementHoverWhitespaceAnnotation(SchemaDocumentationType.none, true);
+		assertElementHoverWhitespaceAnnotation(SchemaDocumentationType.all, false);
+		assertElementHoverWhitespaceAnnotation(SchemaDocumentationType.appinfo, false);
+		assertElementHoverWhitespaceAnnotation(SchemaDocumentationType.documentation, false);
+		assertElementHoverWhitespaceAnnotation(SchemaDocumentationType.none, false);
+	}
+
 	private void assertAttributeNameDocHover(String expected, SchemaDocumentationType docSource,
 			boolean markdownSupported) throws BadLocationException {
 		String xml = 
@@ -301,17 +325,37 @@ public class XMLSchemaHoverDocumentationTypeTest {
 		assertHover(xml, expected, docSource, markdownSupported);
 	}
 
+	private void assertElementHoverNoAnnotation(SchemaDocumentationType docSource, boolean markdownSupported) throws BadLocationException {
+		String xml =
+				"<root\n" + //
+				"	xmlns=\"http://docAppinfo\"\n" + //
+				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + //
+				"	xsi:schemaLocation=\"http://docAppinfo xsd/" + schemaName + "\"\n" + //
+				"	<e|lementNoAnnotation></elementNoAnnotation>\n" + //
+				"</root>\n";
+		assertHover(xml, null, docSource, markdownSupported);
+	}
+
+	private void assertElementHoverWhitespaceAnnotation(SchemaDocumentationType docSource, boolean markdownSupported) throws BadLocationException {
+		String xml =
+				"<root\n" + //
+				"	xmlns=\"http://docAppinfo\"\n" + //
+				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + //
+				"	xsi:schemaLocation=\"http://docAppinfo xsd/" + schemaName + "\"\n" + //
+				"	<e|lementWhitespaceAnnotation></elementWhitespaceAnnotation>\n" + //
+				"</root>\n";
+		assertHover(xml, null, docSource, markdownSupported);
+	}
+
 	private void assertHover(String xml, String expected, SchemaDocumentationType docSource, boolean markdownSupported) throws BadLocationException {
-		String currSource = markdownSupported ? source : plainTextSource;
 		
 		if (expected != null) {
+			String currSource = markdownSupported ? source : plainTextSource;
 			StringBuilder content = new StringBuilder(expected);
 			content.append(System.lineSeparator());
 			content.append(System.lineSeparator());
 			content.append(currSource);
 			expected = content.toString();
-		} else {
-			expected = currSource;
 		}
 
 		XMLAssert.assertHover(new XMLLanguageService(), xml, null, schemaPath,

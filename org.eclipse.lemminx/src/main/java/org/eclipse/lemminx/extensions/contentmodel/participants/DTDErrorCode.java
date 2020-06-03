@@ -22,6 +22,7 @@ import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.ElementDeclUnterminatedCodeAction;
+import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.EntityNotDeclaredCodeAction;
 import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IXMLErrorCode;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
@@ -201,5 +202,6 @@ public enum DTDErrorCode implements IXMLErrorCode {
 
 	public static void registerCodeActionParticipants(Map<String, ICodeActionParticipant> codeActions) {
 		codeActions.put(ElementDeclUnterminated.getCode(), new ElementDeclUnterminatedCodeAction());
+		codeActions.put(EntityNotDeclared.getCode(), new EntityNotDeclaredCodeAction());
 	}
 }

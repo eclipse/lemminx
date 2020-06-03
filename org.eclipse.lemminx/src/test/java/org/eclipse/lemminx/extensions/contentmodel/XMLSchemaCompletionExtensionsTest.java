@@ -486,9 +486,9 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				" |";
 		testCompletionMarkdownSupportFor(xml,
 				c("Annotation", te(6, 1, 6, 1, "<Annotation Term=\"\"></Annotation>"), "Annotation",
-						"Source: [edm.xsd](" + edmURI + ")", MarkupKind.MARKDOWN), //
+						null, null), //
 				c("edmx:Include", te(6, 1, 6, 1, "<edmx:Include Namespace=\"\"></edmx:Include>"), "edmx:Include",
-						"Source: [edmx.xsd](" + edmxURI + ")", MarkupKind.MARKDOWN), //
+						null, null), //
 				c("edmx:IncludeAnnotations", "<edmx:IncludeAnnotations TermNamespace=\"\" />"));
 
 		xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"
@@ -850,11 +850,10 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				" | ";
 		// testCompletionFor checks the duplicate label
 		XMLAssert.testCompletionFor(xml, null, "src/test/resources/tns.xml", null,
-				c("Page", te(2, 1, 2, 1, "<Page></Page>"), "Page", "Source: tns.xsd", MarkupKind.PLAINTEXT),
+				c("Page", te(2, 1, 2, 1, "<Page></Page>"), "Page", null, null),
 				c("AbsoluteLayout", te(2, 1, 2, 1, "<AbsoluteLayout></AbsoluteLayout>"), "AbsoluteLayout",
-						"Source: tns.xsd", MarkupKind.PLAINTEXT),
-				c("DockLayout", te(2, 1, 2, 1, "<DockLayout></DockLayout>"), "DockLayout", "Source: tns.xsd",
-						MarkupKind.PLAINTEXT));
+						null, null),
+				c("DockLayout", te(2, 1, 2, 1, "<DockLayout></DockLayout>"), "DockLayout", null, null));
 	}
 
 	@Test

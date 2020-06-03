@@ -123,15 +123,17 @@ public class XSDDocumentation {
 			result.append(applyPrefix(prefix, elementName, html));
 		}
 		for (String doc: content) {
-			if (html) {
-				result.append("<p>");
-			}
-			result.append(doc);
-			if (html) {
-				result.append("</p>");
-			} else {
-				result.append(System.lineSeparator());
-				result.append(System.lineSeparator());
+			if (!StringUtils.isBlank(doc)) {
+				if (html) {
+					result.append("<p>");
+				}
+				result.append(doc);
+				if (html) {
+					result.append("</p>");
+				} else {
+					result.append(System.lineSeparator());
+					result.append(System.lineSeparator());
+				}
 			}
 		}
 		return result.toString();

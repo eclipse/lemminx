@@ -152,7 +152,7 @@ public class ContentModelManagerDependsOnGrammarTest {
 	}
 
 	@Test
-	public void testNoNamespaceSchemaLocationAndShemaLocationBoth() {
+	public void testNoNamespaceSchemaLocationAndSchemaLocationBoth() {
 		String text = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" \r\n" + //
 				"  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + //
 				"  xsi:noNamespaceSchemaLocation=\"/home/nikolas/nested/testXSD.xsd\"" + // //

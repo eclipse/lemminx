@@ -82,6 +82,9 @@ public class RootElementTypeMustMatchDoctypedeclCodeAction implements ICodeActio
 	 * The provided <code>message</code> must match this format:
 	 * ... root element "<current root name>", must match DOCTYPE ...
 	 * 
+	 * TODO: This code is a workaround until this issue is fixed:
+	 * https://github.com/microsoft/language-server-protocol/issues/887
+	 * 
 	 * @param message the message to extract the root name from
 	 * @return the current root name, extracted from <code>message</code>
 	 */
@@ -105,6 +108,9 @@ public class RootElementTypeMustMatchDoctypedeclCodeAction implements ICodeActio
 	 * 
 	 * The provided <code>message</code> must match this format:
 	 * ... DOCTYPE root "<root name>".
+	 * 
+	 * TODO: This code is a workaround until this issue is fixed:
+	 * https://github.com/microsoft/language-server-protocol/issues/887
 	 * 
 	 * @param message the message to extract the root name from
 	 * @return the DOCTYPE root name, extracted from <code>message</code>

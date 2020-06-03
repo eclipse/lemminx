@@ -113,7 +113,7 @@ public class LimitExceededWarnings {
 					Collections.singletonList("xml.symbols.maxItemsComputed"));
 			ActionableNotification notification = new ActionableNotification().withSeverity(MessageType.Info)
 					.withMessage(message).withCommands(Collections.singletonList(command));
-					client.actionableNotification(notification);
+			client.actionableNotification(notification);
 		} else {
 			// the open settings command is not supported by the client, display a simple
 			// message with LSP
