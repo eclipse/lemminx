@@ -19,11 +19,14 @@ import java.util.Map;
 
 import org.apache.xerces.xni.XMLLocator;
 import org.eclipse.lemminx.commons.BadLocationException;
+import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.dom.NoNamespaceSchemaLocation;
 import org.eclipse.lemminx.dom.SchemaLocation;
+import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.TargetNamespace_1CodeAction;
+import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.TargetNamespace_2CodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.cvc_attribute_3CodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.cvc_complex_type_2_1CodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.cvc_complex_type_2_3CodeAction;
@@ -74,6 +77,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 	cvc_maxInclusive_valid("cvc-maxInclusive-valid"), // https://wiki.xmldation.com/Support/validator/cvc-maxinclusive-valid
 	cvc_minExclusive_valid("cvc-minExclusive-valid"), // https://wiki.xmldation.com/Support/validator/cvc-minexclusive-valid
 	cvc_minInclusive_valid("cvc-minInclusive-valid"), // https://wiki.xmldation.com/Support/validator/cvc-mininclusive-valid
+	TargetNamespace_1("TargetNamespace.1"), //
 	TargetNamespace_2("TargetNamespace.2"), SchemaLocation("SchemaLocation"), schema_reference_4("schema_reference.4"), //
 	src_element_3("src-element.3");
 
@@ -138,7 +142,6 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 		case cvc_elt_1_a:
 		case cvc_complex_type_4:
 		case src_element_3:
-		case TargetNamespace_2:
 			return XMLPositionUtility.selectStartTagName(offset, document);
 		case cvc_complex_type_3_2_2: {
 			String attrName = getString(arguments[1]);
@@ -245,6 +248,10 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 		}
 		case cvc_type_3_1_2:
 			return XMLPositionUtility.selectStartTagName(offset, document);
+		case TargetNamespace_1:
+			return XMLPositionUtility.selectRootAttributeValue(DOMAttr.XMLNS_ATTR, document);
+		case TargetNamespace_2:
+			return XMLPositionUtility.selectRootStartTag(document);
 		default:
 		}
 		return null;
@@ -260,5 +267,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 		codeActions.put(cvc_complex_type_3_2_2.getCode(), new cvc_complex_type_3_2_2CodeAction());
 		codeActions.put(cvc_enumeration_valid.getCode(), new cvc_enumeration_validCodeAction());
 		codeActions.put(cvc_complex_type_2_1.getCode(), new cvc_complex_type_2_1CodeAction());
+		codeActions.put(TargetNamespace_1.getCode(), new TargetNamespace_1CodeAction());
+		codeActions.put(TargetNamespace_2.getCode(), new TargetNamespace_2CodeAction());
 	}
 }

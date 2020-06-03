@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://two-letter-name">
+    <xs:element name="two-letter-name">
+        <xs:simpleType>
+            <xs:restriction base="xs:token">
+                <xs:pattern value="[A-Z][a-z]"></xs:pattern>
+            </xs:restriction>
+        </xs:simpleType>
+    </xs:element>
+</xs:schema>

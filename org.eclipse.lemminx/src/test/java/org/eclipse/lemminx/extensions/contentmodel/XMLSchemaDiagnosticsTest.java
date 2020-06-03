@@ -20,6 +20,9 @@ import static org.eclipse.lemminx.XMLAssert.testCodeActionsFor;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSchemaErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
+import org.eclipse.lemminx.settings.EnforceQuoteStyle;
+import org.eclipse.lemminx.settings.QuoteStyle;
+import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.Diagnostic;
 import org.junit.jupiter.api.Test;
 
@@ -575,6 +578,69 @@ public class XMLSchemaDiagnosticsTest {
 		Diagnostic diagnostic_cvc_2_2 = d(1, 1, 1, 4, XMLSchemaErrorCode.cvc_complex_type_2_2,
 			"cvc-complex-type.2.2: Element 'int' must have no element [children], and the value must be valid.");
 		testDiagnosticsFor(xml, diagnosticBob, diagnostic_cvc_2_2);
+	}
+
+	@Test
+	public void testTargetNamespace_1Normal() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" + //
+				"<?xml-model href=\"src/test/resources/xsd/two-letter-name.xsd\"?>\n" + //
+				"<two-letter-name xmlns=\"BAD_NS\">Io</two-letter-name>";
+		Diagnostic targetNamespace = d(2, 23, 2, 31, XMLSchemaErrorCode.TargetNamespace_1, "TargetNamespace.1: Expecting namespace 'BAD_NS', but the target namespace of the schema document is 'http://two-letter-name'.");
+		testDiagnosticsFor(xml,
+				targetNamespace,
+				d(2, 1, 2, 16, XMLSchemaErrorCode.cvc_elt_1_a, "cvc-elt.1.a: Cannot find the declaration of element 'two-letter-name'.")
+		);
+		testCodeActionsFor(xml, targetNamespace, ca(targetNamespace, te(2, 23, 2, 31, "\"http://two-letter-name\"")));
+	}
+
+	@Test
+	public void testTargetNamespace_1ShortNS() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" + //
+				"<?xml-model href=\"src/test/resources/xsd/two-letter-name.xsd\"?>\n" + //
+				"<two-letter-name xmlns=\"_\">Io</two-letter-name>";
+		Diagnostic targetNamespace = d(2, 23, 2, 26, XMLSchemaErrorCode.TargetNamespace_1, "TargetNamespace.1: Expecting namespace '_', but the target namespace of the schema document is 'http://two-letter-name'.");
+		testDiagnosticsFor(xml,
+				targetNamespace,
+				d(2, 1, 2, 16, XMLSchemaErrorCode.cvc_elt_1_a, "cvc-elt.1.a: Cannot find the declaration of element 'two-letter-name'.")
+		);
+		testCodeActionsFor(xml, targetNamespace, ca(targetNamespace, te(2, 23, 2, 26, "\"http://two-letter-name\"")));
+	}
+	
+	@Test
+	public void testTargetNamespace_1SingleQuotes() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" + //
+				"<?xml-model href=\"src/test/resources/xsd/two-letter-name.xsd\"?>\n" + //
+				"<two-letter-name xmlns=\"_\">Io</two-letter-name>";
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
+		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
+		Diagnostic targetNamespace = d(2, 23, 2, 26, XMLSchemaErrorCode.TargetNamespace_1, "TargetNamespace.1: Expecting namespace '_', but the target namespace of the schema document is 'http://two-letter-name'.");
+		testCodeActionsFor(xml, targetNamespace, settings, ca(targetNamespace, te(2, 23, 2, 26, "'http://two-letter-name'")));
+	}
+
+	@Test
+	public void testTargetNamespace_2() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" + //
+				"<?xml-model href=\"src/test/resources/xsd/two-letter-name.xsd\"?>\n" + //
+				"<two-letter-name>Io</two-letter-name>";
+		Diagnostic targetNamespace = d(2, 1, 2, 16, XMLSchemaErrorCode.TargetNamespace_2, "TargetNamespace.2: Expecting no namespace, but the schema document has a target namespace of 'http://two-letter-name'.");
+		testDiagnosticsFor(xml,
+				targetNamespace,
+				d(2, 1, 2, 16, XMLSchemaErrorCode.cvc_elt_1_a, "cvc-elt.1.a: Cannot find the declaration of element 'two-letter-name'.")
+		);
+		testCodeActionsFor(xml, targetNamespace, ca(targetNamespace, te(2, 16, 2, 16, " xmlns=\"http://two-letter-name\"")));
+	}
+
+	@Test
+	public void testTargetNamespace_2SingleQuotes() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" + //
+				"<?xml-model href=\"src/test/resources/xsd/two-letter-name.xsd\"?>\n" + //
+				"<two-letter-name>Io</two-letter-name>";
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
+		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
+		Diagnostic targetNamespace = d(2, 1, 2, 16, XMLSchemaErrorCode.TargetNamespace_2, "TargetNamespace.2: Expecting no namespace, but the schema document has a target namespace of 'http://two-letter-name'.");
+		testCodeActionsFor(xml, targetNamespace, settings, ca(targetNamespace, te(2, 16, 2, 16, " xmlns='http://two-letter-name'")));
 	}
 
 	private static void testDiagnosticsFor(String xml, Diagnostic... expected) {
