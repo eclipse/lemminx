@@ -438,7 +438,7 @@ class XMLFormatter {
 					List<DOMAttr> attributes = element.getAttributeNodes();
 					if (hasSingleAttributeInFullDoc(element)) {
 						DOMAttr singleAttribute = attributes.get(0);
-						xmlBuilder.addSingleAttribute(singleAttribute.getName(), singleAttribute.getOriginalValue());
+						xmlBuilder.addSingleAttribute(singleAttribute.getName(), singleAttribute.getOriginalValue(), false, singleAttribute.hasDelimiter());
 					} else {
 						for (DOMAttr attr : attributes) {
 							xmlBuilder.addAttribute(attr, this.indentLevel);

@@ -1709,11 +1709,9 @@ public class XMLFormatterTest {
 
 	@Test
 	public void testAttValueOnlyStartQuote() throws BadLocationException {
-		SharedSettings settings = new SharedSettings();
-		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
 		String content = "<a name = \"> </a>";
 		String expected = "<a name=\"> </a>";
-		format(content, expected, settings);
+		format(content, expected);
 	}
 
 	@Test
@@ -2216,6 +2214,76 @@ public class XMLFormatterTest {
 				"   \r\n";
 		format(content, expected, settings);
 	}
+
+	@Test
+	public void testFormatLoneQuoteProlog() throws BadLocationException {
+		String content = "<?xml version=\"1.0\" e\'ncoding=\"UTF-8\"?>\n" + //
+				"<foo><bar></bar></foo>";
+		String expected = "<?xml version=\"1.0\" e\'ncoding=\"UTF-8\"?>\n" + //
+		"<foo><bar></bar></foo>?>";
+		format(content, expected);
+	}
+
+	@Test
+	public void testFormatLoneQuoteProlog2() throws BadLocationException {
+		String content = "<?xml version=\"1.0\" encoding=\"UTF-8\" \"?><foo><bar></bar></foo>";
+		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\" \"?><foo><bar></bar></foo>?>";
+		format(content, expected);
+	}
+
+	@Test
+	public void testFormatLoneQuoteStartTag() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTrimFinalNewlines(false);
+		String content = "<fo\"o><bar></bar></foo>";
+		String expected = "<fo \"o><bar></bar></foo>";
+		format(content, expected, settings);
+	}
+
+	@Test
+	public void testFormatLoneQuoteStartTagWithAttr() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTrimFinalNewlines(false);
+		String content = "<fo\"o attr=\"value\"><bar></bar></foo>";
+		String expected = "<fo \"o attr=\" value\"><bar></bar></foo>";
+		format(content, expected, settings);
+	}
+
+	@Test
+	public void testFormatLoneQuoteStartTagWithAttr2() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTrimFinalNewlines(false);
+		String content = "<foo attr=\"value\" \"><bar></bar></foo>";
+		String expected = content;
+		format(content, expected, settings);
+	}
+
+	@Test
+	public void testFormatLoneQuoteStartTagWithAttr3() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTrimFinalNewlines(false);
+		String content = "<foo at\"tr=\"value\"><bar></bar></foo>";
+		String expected = "<foo at\"tr=\" value\"><bar></bar></foo>";
+		format(content, expected, settings);
+	}
+
+	@Test
+	public void testFormatLoneQuoteStartTagWithAttr4() throws BadLocationException {
+		String content = "<foo>\n" + //
+				"  <foobar><foobar2></foobar2></foobar>\n" + //
+				"  <ba\'r></bar>\n" + //
+				"  <foobar><foobar2></foobar2></foobar>\n" + //
+				"</foo>";
+		String expected = "<foo>\n" + //
+				"  <foobar>\n" + //
+				"    <foobar2></foobar2>\n" + //
+				"  </foobar>\n" + //
+				"  <ba \'r></bar>\n" + //
+				"  <foobar><foobar2></foobar2></foobar>\n" + //
+				"</foo>";
+		format(content, expected);
+	}
+
 
 	// ------------ Tests with format empty elements settings
 

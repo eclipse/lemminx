@@ -174,7 +174,7 @@ public class XMLGenerator {
 			if (attributesSize != 1) {
 				xml.addAttribute(attributeDeclaration.getName(), value, level, true);
 			} else {
-				xml.addSingleAttribute(attributeDeclaration.getName(), value, true);
+				xml.addSingleAttribute(attributeDeclaration.getName(), value, true, true);
 			}
 		}
 		return snippetIndex;

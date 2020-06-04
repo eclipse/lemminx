@@ -233,9 +233,11 @@ public class DOMParser {
 
 			case AttributeValue: {
 				String value = scanner.getTokenText();
-				if (curr.hasAttributes() && attr != null) {
-					attr.setValue(value, scanner.getTokenOffset(), scanner.getTokenOffset() + value.length());
+				if (attr == null) {
+					attr = new DOMAttr(null, scanner.getTokenOffset(), scanner.getTokenOffset() + value.length(), curr);
+					curr.setAttributeNode(attr);
 				}
+				attr.setValue(value, scanner.getTokenOffset(), scanner.getTokenOffset() + value.length());
 				pendingAttribute = null;
 				attr = null;
 				curr.end = scanner.getTokenEnd();

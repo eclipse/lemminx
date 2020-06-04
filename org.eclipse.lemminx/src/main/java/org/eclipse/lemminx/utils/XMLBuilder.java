@@ -99,10 +99,6 @@ public class XMLBuilder {
 		return this;
 	}
 
-	public XMLBuilder addSingleAttribute(String name, String value) {
-		return addSingleAttribute(name, value, false);
-	}
-
 	/**
 	 * Used when only one attribute is being added to a node.
 	 * 
@@ -110,12 +106,13 @@ public class XMLBuilder {
 	 * 
 	 * @param name               attribute name
 	 * @param value              attribute value
-	 * @param surroundWithQuotes true if quotes should be added around originalValue
+	 * @param surroundWithQuotes true if quotes should be added around value
+	 * @param addDelimiter       true if delimiter should be added
 	 * @return this XML Builder
 	 */
-	public XMLBuilder addSingleAttribute(String name, String value, boolean surroundWithQuotes) {
+	public XMLBuilder addSingleAttribute(String name, String value, boolean surroundWithQuotes, boolean addDelimiter) {
 		appendSpace();
-		addAttributeContents(name, true, value, surroundWithQuotes);
+		addAttributeContents(name, addDelimiter, value, surroundWithQuotes);
 		return this;
 	}
 
