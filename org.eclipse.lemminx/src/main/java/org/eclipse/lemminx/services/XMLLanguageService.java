@@ -28,7 +28,6 @@ import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLCodeLensSettings;
 import org.eclipse.lemminx.settings.XMLFoldingSettings;
-import org.eclipse.lemminx.settings.XMLHoverSettings;
 import org.eclipse.lemminx.settings.XMLSymbolSettings;
 import org.eclipse.lemminx.uriresolver.CacheResourceDownloadingException;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
@@ -84,7 +83,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry {
 	private final XMLRename rename;
 
 	public XMLLanguageService() {
-		this.formatter = new XMLFormatter(this);
+		this.formatter = new XMLFormatter();
 		this.highlighting = new XMLHighlighting(this);
 		this.symbolsProvider = new XMLSymbolsProvider(this);
 		this.completions = new XMLCompletions(this);
