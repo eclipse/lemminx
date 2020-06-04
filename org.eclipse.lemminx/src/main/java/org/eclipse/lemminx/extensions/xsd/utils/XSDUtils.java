@@ -288,6 +288,9 @@ public class XSDUtils {
 	 * @return the referenced attributes list from the given referenced node.
 	 */
 	private static List<DOMAttr> getTargetAttrs(DOMNode referencedNode) {
+		if (referencedNode == null) {
+			return Collections.emptyList();
+		}
 		List<DOMAttr> referencedNodes = new ArrayList<>();
 		Document document = referencedNode.getOwnerDocument();
 		switch (referencedNode.getNodeType()) {
@@ -302,7 +305,11 @@ public class XSDUtils {
 			// The referenced node is the DOM document, collect all attributes
 			// xs:complexType/@name, xs:simpleType/@name, xs:element/@name, xs:group/@name
 			// which can be referenced
-			NodeList nodes = document.getDocumentElement().getChildNodes();
+			Element documentElement = document.getDocumentElement();
+			if (documentElement == null) {
+				break;
+			}
+			NodeList nodes = documentElement.getChildNodes();
 			for (int i = 0; i < nodes.getLength(); i++) {
 				Node n = nodes.item(i);
 				if (n.getNodeType() == Node.ELEMENT_NODE) {
