@@ -75,4 +75,16 @@ public class XSDCodeLensExtensionsTest {
 				cl(r(15, 16, 15, 35), "1 reference", SHOW_REFERENCES));
 	}
 
+	@Test
+	public void codeLensEmptyDocument() throws BadLocationException {
+		String xml = "";
+		XMLAssert.testCodeLensFor(xml);
+	}
+
+	@Test
+	public void codeLensSpace() throws BadLocationException {
+		String xml = " ";
+		XMLAssert.testCodeLensFor(xml);
+	}
+
 }
