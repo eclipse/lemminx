@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMNode;
+import org.eclipse.lemminx.dom.DOMRange;
 import org.eclipse.lemminx.dom.DTDDeclNode;
 import org.eclipse.lemminx.dom.DTDDeclParameter;
 import org.eclipse.lemminx.extensions.dtd.utils.DTDUtils;
@@ -54,7 +55,8 @@ public class DTDDefinitionParticipant extends AbstractDefinitionParticipant {
 		DTDDeclParameter originName = ((DTDDeclNode) node).getReferencedElementNameAt(offset);
 		if (originName != null) {
 			DTDUtils.searchDTDTargetElementDecl(originName, true, targetElementName -> {
-				LocationLink location = XMLPositionUtility.createLocationLink(originName, targetElementName);
+				LocationLink location = XMLPositionUtility.createLocationLink((DOMRange) originName,
+						(DOMRange) targetElementName);
 				locations.add(location);
 			});
 		}
