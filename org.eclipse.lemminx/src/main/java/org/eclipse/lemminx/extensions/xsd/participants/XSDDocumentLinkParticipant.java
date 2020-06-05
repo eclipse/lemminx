@@ -45,7 +45,7 @@ public class XSDDocumentLinkParticipant implements IDocumentLinkParticipant {
 	@Override
 	public void findDocumentLinks(DOMDocument document, List<DocumentLink> links) {
 		DOMElement root = document.getDocumentElement();
-		if (root == null || !XSDUtils.isXSSchema(root)) {
+		if (!XSDUtils.isXSSchema(root)) {
 			return;
 		}
 		String xmlSchemaPrefix = root.getPrefix();

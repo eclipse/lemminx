@@ -19,8 +19,6 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.function.BiConsumer;
 
-import com.google.common.base.Objects;
-
 import org.apache.xerces.impl.xs.SchemaGrammar;
 import org.apache.xerces.xs.StringList;
 import org.eclipse.lemminx.dom.DOMAttr;
@@ -38,6 +36,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import com.google.common.base.Objects;
 
 /**
  * XSD utilities.
@@ -384,28 +384,27 @@ public class XSDUtils {
 	}
 
 	public static boolean isXSComplexType(Element element) {
-		return "complexType".equals(element.getLocalName());
+		return element != null && "complexType".equals(element.getLocalName());
 	}
 
 	public static boolean isXSSimpleType(Element element) {
-		return "simpleType".equals(element.getLocalName());
+		return element != null && "simpleType".equals(element.getLocalName());
 	}
 
 	public static boolean isXSElement(Element element) {
-		return "element".equals(element.getLocalName());
+		return element != null && "element".equals(element.getLocalName());
 	}
 
 	public static boolean isXSGroup(Element element) {
-		return "group".equals(element.getLocalName());
+		return element != null && "group".equals(element.getLocalName());
 	}
 
 	public static boolean isXSInclude(Element element) {
-		return "include".equals(element.getLocalName());
+		return element != null && "include".equals(element.getLocalName());
 	}
 
-	
-	public static boolean isXSImport(Element child) {
-		return "import".equals(child.getLocalName());
+	public static boolean isXSImport(Element element) {
+		return element != null && "import".equals(element.getLocalName());
 	}
 
 	public static boolean isXSTargetElement(Element element) {
@@ -413,11 +412,11 @@ public class XSDUtils {
 	}
 
 	public static boolean isXSAttribute(DOMElement element) {
-		return "attribute".equals(element.getLocalName());
+		return element != null && "attribute".equals(element.getLocalName());
 	}
 
 	public static boolean isXSSchema(Element element) {
-		return "schema".equals(element.getLocalName());
+		return element != null && "schema".equals(element.getLocalName());
 	}
 
 	public static FilesChangedTracker createFilesChangedTracker(SchemaGrammar grammar) {

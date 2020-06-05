@@ -326,17 +326,16 @@ public class XMLPositionUtility {
 	}
 
 	/**
-	 * Finds the root element of the given document and returns the
-	 * attribute value <code>Range</code> for the attribute
-	 * <code>attrName</code>.
+	 * Finds the root element of the given document and returns the attribute value
+	 * <code>Range</code> for the attribute <code>attrName</code>.
 	 * 
 	 * If <code>attrName</code> is not declared then null is returned.
 	 * 
 	 * @param attrName The name of the attribute to find the range of the value for
 	 * @param document The document to use the root element of
 	 * @return The range in <code>document</code> where the declared value of
-	 *         attribute <code>attrName</code> resides (including quotations),
-	 *         or null if the attriubte is not declared.
+	 *         attribute <code>attrName</code> resides (including quotations), or
+	 *         null if the attriubte is not declared.
 	 */
 	public static Range selectRootAttributeValue(String attrName, DOMDocument document) {
 		DOMNode root = document.getDocumentElement();
@@ -574,8 +573,8 @@ public class XMLPositionUtility {
 	 * 
 	 * @param offset            the offset
 	 * @param document          the document
-	 * @param endsWithSemicolon true if the entity reference must end with ';'
-	 *                          and false otherwise.
+	 * @param endsWithSemicolon true if the entity reference must end with ';' and
+	 *                          false otherwise.
 	 * @return the range of the entity reference in a text node (ex : &amp;) and
 	 *         null otherwise.
 	 */
