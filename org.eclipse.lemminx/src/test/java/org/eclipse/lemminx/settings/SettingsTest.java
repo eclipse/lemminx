@@ -83,7 +83,8 @@ public class SettingsTest {
 	"				\"splitAttributes\": true,\r\n" + //
 	"				\"joinCDATALines\": true,\r\n" + //
 	"				\"formatComments\": true,\r\n" + //
-	"				\"joinCommentLines\": true\r\n" + //
+	"				\"joinCommentLines\": true,\r\n" + //
+	"				\"preserveAttributeLineBreaks\": true\r\n" + //
 	"			},\r\n" + 
 	"			\"server\": {\r\n" + //
 	"				\"workDir\": \"~/" + testFolder + "/Nested\"\r\n" + //
@@ -156,11 +157,6 @@ public class SettingsTest {
 
 	@Test
 	public void formatSettings() {
-		XMLFormattingOptions sharedXMLFormattingOptions = new XMLFormattingOptions(true);
-		sharedXMLFormattingOptions.setTabSize(10);
-		sharedXMLFormattingOptions.setInsertSpaces(true);
-		sharedXMLFormattingOptions.setJoinCommentLines(true);
-
 		// formatting options coming from request
 		FormattingOptions formattingOptions = new FormattingOptions();
 		formattingOptions.setTabSize(5);
@@ -168,12 +164,14 @@ public class SettingsTest {
 
 		XMLFormattingOptions xmlFormattingOptions = new XMLFormattingOptions(formattingOptions, false);
 
-
 		assertEquals(5, xmlFormattingOptions.getTabSize()); // value coming from the request formattingOptions
 		assertFalse(xmlFormattingOptions.isInsertSpaces()); // formattingOptions doesn't defines insert spaces
-		// flag
-
 		assertFalse(xmlFormattingOptions.isJoinCommentLines());// Since default for JoinCommentLines is False
+
+		XMLFormattingOptions sharedXMLFormattingOptions = new XMLFormattingOptions(true);
+		sharedXMLFormattingOptions.setTabSize(10);
+		sharedXMLFormattingOptions.setInsertSpaces(true);
+		sharedXMLFormattingOptions.setJoinCommentLines(true);
 
 		// merge with shared sharedXMLFormattingOptions (formatting settings created in
 		// the InitializeParams
@@ -181,6 +179,18 @@ public class SettingsTest {
 		assertEquals(10, xmlFormattingOptions.getTabSize());
 		assertTrue(xmlFormattingOptions.isInsertSpaces()); 
 		assertTrue(xmlFormattingOptions.isJoinCommentLines());
+	}
+
+	@Test
+	public void formatSettingsOverride() {
+		XMLFormattingOptions options = new XMLFormattingOptions();
+		options.setPreserveAttrLineBreaks(true);
+		options.setSplitAttributes(false);
+		assertTrue(options.isPreserveAttrLineBreaks());
+		options.setSplitAttributes(true);
+
+		// overridden
+		assertFalse(options.isPreserveAttrLineBreaks());
 	}
 
 	@Test
