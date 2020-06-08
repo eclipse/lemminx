@@ -327,16 +327,16 @@ public class XMLCompletions {
 			// There is one of character of the suffix
 			offset++;
 			if (suffixIndex == suffix.length()) {
-				// the suffix index is the last character of the suffix  
+				// the suffix index is the last character of the suffix
 				return offset;
 			}
 			// Try to eat the most characters of the suffix
-			for (; offset < text.length(); offset++) {								
+			for (; offset < text.length(); offset++) {
 				suffixIndex++;
 				if (suffixIndex == suffix.length()) {
-					// the suffix index is the last character of the suffix  
+					// the suffix index is the last character of the suffix
 					return offset;
-				}	
+				}
 				ch = text.charAt(offset);
 				if (suffix.charAt(suffixIndex) != ch) {
 					return offset;
@@ -460,24 +460,26 @@ public class XMLCompletions {
 		if (offset <= 0) {
 			return null;
 		}
-		char c = xmlDocument.getText().charAt(offset - 1);
-		char cBefore = xmlDocument.getText().charAt(offset - 2);
+		String text = xmlDocument.getText();
+		char c = text.charAt(offset - 1);
+		char cBefore = text.charAt(offset - 2);
 		String snippet = null;
+		DOMNode node = xmlDocument.findNodeBefore(offset);
+		if (node == null) {
+			return null;
+		}
 		if (c == '>') { // Case: <a>|
-			DOMNode node = xmlDocument.findNodeBefore(offset);
-			if (!(node instanceof DOMElement)) {
+			if (!(node.isElement())) {
 				return null;
 			}
 			DOMElement element = ((DOMElement) node);
-			if (node != null && node.isElement() && !element.isSelfClosed() && element.getTagName() != null
-					&& !isEmptyElement(((DOMElement) node).getTagName()) && node.getStart() < offset
+			if (element.isSelfClosed() && element.getTagName() != null && !isEmptyElement(element.getTagName())
+					&& node.getStart() < offset
 					&& (!element.hasEndTag() || (element.getTagName().equals(node.getParentNode().getNodeName())
 							&& !isBalanced(node)))) {
-				snippet = "$0</" + ((DOMElement) node).getTagName() + ">";
-
+				snippet = "$0</" + element.getTagName() + ">";
 			}
 		} else if (cBefore == '<' && c == '/') { // Case: <a> </|
-			DOMNode node = xmlDocument.findNodeBefore(offset);
 			while (node != null && node.isClosed()) {
 				node = node.getParentNode();
 			}
@@ -485,21 +487,18 @@ public class XMLCompletions {
 				snippet = ((DOMElement) node).getTagName() + ">$0";
 			}
 		} else {
-			DOMNode node = xmlDocument.findNodeBefore(offset);
 			if (node.isElement() && node.getNodeName() != null) {
-				DOMElement element1 = (DOMElement) node;
-
-				Integer slashOffset = element1.endsWith('/', offset);
+				DOMElement element = (DOMElement) node;
+				Integer slashOffset = element.endsWith('/', offset);
 				Position end = null;
-				if (!element1.isInEndTag(offset) && slashOffset != null) { // The typed characted was '/'
-					List<DOMAttr> attrList = element1.getAttributeNodes();
+				if (!element.isInEndTag(offset) && slashOffset != null) { // The typed characted was '/'
+					List<DOMAttr> attrList = element.getAttributeNodes();
 					if (attrList != null) {
 						DOMAttr lastAttr = attrList.get(attrList.size() - 1);
 						if (slashOffset < lastAttr.getEnd()) { // slash in attribute value
 							return null;
 						}
 					}
-					String text = xmlDocument.getText();
 					boolean closeBracketAfterSlash = offset < text.length() ? text.charAt(offset) == '>' : false; // After
 																													// the
 																													// slash
@@ -510,14 +509,14 @@ public class XMLCompletions {
 
 					// Case: <a/| ...
 					if (closeBracketAfterSlash == false) { // no '>' after slash
-						if (element1.isStartTagClosed()) { // tag has closing '>', but slash is in incorrect area (not
+						if (element.isStartTagClosed()) { // tag has closing '>', but slash is in incorrect area (not
 															// directly before the '>')
 							return null;
 						}
 						snippet = ">$0";
-						if (element1.hasEndTag()) { // Case: <a/| </a>
+						if (element.hasEndTag()) { // Case: <a/| </a>
 							try {
-								end = xmlDocument.positionAt(element1.getEnd());
+								end = xmlDocument.positionAt(element.getEnd());
 							} catch (BadLocationException e) {
 								return null;
 							}
