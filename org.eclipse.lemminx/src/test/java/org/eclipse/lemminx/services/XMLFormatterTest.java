@@ -2499,6 +2499,155 @@ public class XMLFormatterTest {
 	}
 
 	@Test
+	public void preserveAttributeLineBreaksFormatProlog() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveAttrLineBreaks(true);
+		String content = "<?xml \n" + //
+				"version=\"1.0\"\n" + //
+				"encoding=\"UTF-8\"?>\n" + //
+				"<a><b attr=\"value\" attr=\"value\"\n" + //
+				" attr\n" + //
+				" =\n" + //
+				" \"value\"></b>\n" + //
+				"</a>";
+		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + //
+				"<a>\n" + //
+				"  <b attr=\"value\" attr=\"value\"\n" + //
+				"    attr=\"value\"></b>\n" + //
+				"</a>";
+		format(content, expected, settings);
+	}
+
+	@Test
+	public void preserveAttributeLineBreaks() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveAttrLineBreaks(true);
+
+		String content = "<a>\n" +
+				"<b attr=\"value\" attr=\"value\"\n" +
+				"attr=\"value\" attr=\"value\"\n" +
+				"attr=\"value\" attr=\"value\">\n" +
+				"</b>\n" +
+				"</a>";
+		String expected = "<a>\n" +
+				"  <b attr=\"value\" attr=\"value\"\n" +
+				"    attr=\"value\" attr=\"value\"\n" +
+				"    attr=\"value\" attr=\"value\"></b>\n" +
+				"</a>";
+		format(content, expected, settings);
+	}
+
+	@Test
+	public void preserveAttributeLineBreaks2() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveAttrLineBreaks(true);
+		String content = "<a>\n" + //
+				"  <b attr=\"value\" attr=\"value\"\n" + //
+				"    attr=\"value\"\n" + //
+				"    attr=\"value\"\n" + //
+				"    attr=\"value\" attr=\"value\"></b>\n" + //
+				"</a\n" + //
+				"\n" + //
+				">";
+		String expected = "<a>\n" + //
+				"  <b attr=\"value\" attr=\"value\"\n" + //
+				"    attr=\"value\"\n" + //
+				"    attr=\"value\"\n" + //
+				"    attr=\"value\" attr=\"value\"></b>\n" + //
+				"</a>";
+		format(content, expected, settings);
+	}
+
+	@Test
+	public void preserveAttributeLineBreaks3() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveAttrLineBreaks(true);
+		String content = "<a\n" + //
+				"  attr=\"value\"\n" + //
+				"  attr=\"value\"\n" + //
+				"\n" + //
+				"></a>";
+		String expected = "<a\n" + //
+				"  attr=\"value\"\n" + //
+				"  attr=\"value\"\n" + //
+				"></a>";
+		format(content, expected, settings);
+	}
+
+	@Test
+	public void preserveAttributeLineBreaks4() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveAttrLineBreaks(true);
+		String content = "<a\n" + //
+				"attr\n" + //
+				"=\n" + //
+				"\"value\"\n" + //
+				"attr\n" + //
+				"=\n" + //
+				"\"value\"\n" + //
+				"/>";
+		String expected = "<a\n" + //
+				"  attr=\"value\"\n" + //
+				"  attr=\"value\"\n" + //
+				"/>";
+		format(content, expected, settings);
+	}
+
+	@Test
+	public void preserveAttributeLineBreaksCollapseEmptyElement() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveAttrLineBreaks(true);
+		settings.getFormattingSettings().setEmptyElement(EmptyElements.collapse);
+
+		String content = "<a>\n" + //
+				"<b attr=\"value\" attr=\"value\"\n" + //
+				"attr=\"value\" attr=\"value\"\n" + //
+				"attr=\"value\" attr=\"value\">\n" + //
+				"</b>\n" + 
+				"</a>";
+		String expected = "<a>\n" +
+				"  <b attr=\"value\" attr=\"value\"\n" + //
+				"    attr=\"value\" attr=\"value\"\n" + //
+				"    attr=\"value\" attr=\"value\" />\n" + //
+				"</a>";
+		format(content, expected, settings);
+	}
+
+	@Test
+	public void preserveAttributeLineBreaksCollapseEmptyElement2() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveAttrLineBreaks(true);
+		settings.getFormattingSettings().setEmptyElement(EmptyElements.collapse);
+
+		String content = "<a>\n" + //
+				"<b attr=\"value\" attr=\"value\"\n" + //
+				"attr=\"value\" attr=\"value\"\n" + //
+				"attr=\"value\" attr=\"value\"\n" + //
+				">\n" + //
+				"</b>\n" + //
+				"</a>";
+		String expected = "<a>\n" +
+				"  <b attr=\"value\" attr=\"value\"\n" + //
+				"    attr=\"value\" attr=\"value\"\n" + //
+				"    attr=\"value\" attr=\"value\"\n" + //
+				"  />\n" + //
+				"</a>";
+		format(content, expected, settings);
+	}
+
+	@Test
+	public void preserveAttributeLineBreaksCollapseEmptyElement3() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveAttrLineBreaks(true);
+		settings.getFormattingSettings().setEmptyElement(EmptyElements.collapse);
+
+		String content = "<a>\n" + //
+				"</a>";
+		String expected = "<a />";
+		format(content, expected, settings);
+	}
+
+	@Test
 	public void testTemplate() throws BadLocationException {
 		String content = "";
 		String expected = "";

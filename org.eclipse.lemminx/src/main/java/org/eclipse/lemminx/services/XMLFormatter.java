@@ -33,6 +33,7 @@ import org.eclipse.lemminx.dom.DTDAttlistDecl;
 import org.eclipse.lemminx.dom.DTDDeclNode;
 import org.eclipse.lemminx.dom.DTDDeclParameter;
 import org.eclipse.lemminx.settings.SharedSettings;
+import org.eclipse.lemminx.settings.XMLFormattingOptions;
 import org.eclipse.lemminx.settings.XMLFormattingOptions.EmptyElements;
 import org.eclipse.lemminx.utils.XMLBuilder;
 import org.eclipse.lsp4j.Position;
@@ -438,16 +439,7 @@ class XMLFormatter {
 				// generate start element
 				xmlBuilder.startElement(tag, false);
 				if (element.hasAttributes()) {
-					// generate attributes
-					List<DOMAttr> attributes = element.getAttributeNodes();
-					if (hasSingleAttributeInFullDoc(element)) {
-						DOMAttr singleAttribute = attributes.get(0);
-						xmlBuilder.addSingleAttribute(singleAttribute.getName(), singleAttribute.getOriginalValue());
-					} else {
-						for (DOMAttr attr : attributes) {
-							xmlBuilder.addAttribute(attr, this.indentLevel);
-						}
-					}
+					formatAttributes(element);
 				}
 
 				EmptyElements emptyElements = getEmptyElements(element);
@@ -461,11 +453,11 @@ class XMLFormatter {
 					break;
 				case collapse:
 					// collapse empty element: <example></example> -> <example />
-					this.xmlBuilder.selfCloseElement();
+					formatElementStartTagSelfCloseBracket(element);
 					break;
 				default:
 					if (element.isStartTagClosed()) {
-						xmlBuilder.closeStartElement();
+						formatElementStartTagCloseBracket(element);
 					}
 					boolean hasElements = false;
 					if (element.hasChildNodes()) {
@@ -491,13 +483,95 @@ class XMLFormatter {
 						if (element.hasEndTag() && element.getEndTagOpenOffset() <= this.endOffset) {
 							this.xmlBuilder.endElement(tag, element.isEndTagClosed());
 						} else {
-							this.xmlBuilder.selfCloseElement();
+							formatElementStartTagSelfCloseBracket(element);
 						}
 					} else if (element.isSelfClosed()) {
-						this.xmlBuilder.selfCloseElement();
+						formatElementStartTagSelfCloseBracket(element);
 					}
 				}
 			}
+		}
+
+		/**
+		 * Formats the start tag's closing bracket (>) according to
+		 * {@code XMLFormattingOptions#isPreserveAttrLineBreaks()}
+		 * 
+		 * {@code XMLFormattingOptions#isPreserveAttrLineBreaks()}:
+		 * If true, must add a newline + indent before the closing bracket if the last attribute of the element
+		 * and the closing bracket are in different lines.
+		 * 
+		 * @param element
+		 * @throws BadLocationException
+		 */
+		private void formatElementStartTagCloseBracket(DOMElement element) throws BadLocationException {
+			if (this.sharedSettings.getFormattingSettings().isPreserveAttrLineBreaks()
+					&& element.hasAttributes()
+					&& !isSameLine(getLastAttribute(element).getEnd(), element.getStartTagCloseOffset())) {
+				xmlBuilder.linefeed();
+			}
+			xmlBuilder.closeStartElement();
+		}
+
+		/**
+		 * Formats the self-closing tag (/>) according to
+		 * {@code XMLFormattingOptions#isPreserveAttrLineBreaks()}
+		 * 
+		 * {@code XMLFormattingOptions#isPreserveAttrLineBreaks()}:
+		 * If true, must add a newline + indent before the self-closing tag if the last attribute of the element
+		 * and the closing bracket are in different lines.
+		 * 
+		 * @param element
+		 * @throws BadLocationException
+		 */
+		private void formatElementStartTagSelfCloseBracket(DOMElement element) throws BadLocationException {
+			if (this.sharedSettings.getFormattingSettings().isPreserveAttrLineBreaks()
+					&& element.hasAttributes()) {
+				int elementEndOffset = element.getEnd();
+				if (element.isStartTagClosed()) {
+					elementEndOffset = element.getStartTagCloseOffset();
+				}
+				if (!isSameLine(getLastAttribute(element).getEnd(), elementEndOffset)) {
+					this.xmlBuilder.linefeed();
+					this.xmlBuilder.indent(this.indentLevel);
+				}
+			}
+			
+			this.xmlBuilder.selfCloseElement();
+		}
+
+		private void formatAttributes(DOMElement element) throws BadLocationException {
+			List<DOMAttr> attributes = element.getAttributeNodes();
+			boolean isSingleElement = hasSingleAttributeInFullDoc(element);
+			DOMNode prev = element;
+			for (DOMAttr attr : attributes) {
+				if (this.sharedSettings.getFormattingSettings().isPreserveAttrLineBreaks()
+						&& !isSameLine(prev.getStart(), attr.getNodeAttrName().getStart())) {
+					xmlBuilder.linefeed();
+					xmlBuilder.indent(this.indentLevel + 1);
+					xmlBuilder.addSingleAttribute(attr, false, false);
+				} else if (isSingleElement){
+					xmlBuilder.addSingleAttribute(attr);
+				} else {
+					xmlBuilder.addAttribute(attr, this.indentLevel);
+				}
+				prev = attr.getNodeAttrName();
+			}
+		}
+
+		private boolean isSameLine(int first, int second) throws BadLocationException {
+			return getLineNumber(first) == getLineNumber(second);
+		}
+
+		private int getLineNumber(int offset) throws BadLocationException {
+			return this.textDocument.positionAt(offset).getLine();
+		}
+
+		private DOMAttr getLastAttribute(DOMElement element) {
+			if (!element.hasAttributes()) {
+				return null;
+			}
+			List<DOMAttr> attributes = element.getAttributeNodes();
+			return attributes.get(attributes.size() - 1);
 		}
 
 		/**
@@ -619,6 +693,14 @@ class XMLFormatter {
 			return true;
 		}
 
+		/**
+		 * Returns true if the provided element has one attribute
+		 * in the fullDomDocument (not the rangeDomDocument)
+		 * 
+		 * @param element
+		 * @return true if the provided element has one attribute
+		 * in the fullDomDocument (not the rangeDomDocument)
+		 */
 		private boolean hasSingleAttributeInFullDoc(DOMElement element) {
 			DOMElement fullElement = getFullDocElemFromRangeElem(element);
 			return fullElement.getAttributeNodes().size() == 1;
