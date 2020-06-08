@@ -33,7 +33,6 @@ import org.eclipse.lemminx.dom.DTDAttlistDecl;
 import org.eclipse.lemminx.dom.DTDDeclNode;
 import org.eclipse.lemminx.dom.DTDDeclParameter;
 import org.eclipse.lemminx.settings.SharedSettings;
-import org.eclipse.lemminx.settings.XMLFormattingOptions;
 import org.eclipse.lemminx.settings.XMLFormattingOptions.EmptyElements;
 import org.eclipse.lemminx.utils.XMLBuilder;
 import org.eclipse.lsp4j.Position;
@@ -85,7 +84,7 @@ class XMLFormatter {
 			this.fullDomDocument = DOMParser.getInstance().parse(textDocument.getText(), textDocument.getUri(), null,
 					false);
 
-			if (range != null) {
+			if (isRangeFormatting()) {
 				setupRangeFormatting(range);
 			} else {
 				setupFullFormatting(range);
@@ -96,6 +95,10 @@ class XMLFormatter {
 
 			List<? extends TextEdit> textEdits = getFormatTextEdit();
 			return textEdits;
+		}
+
+		private boolean isRangeFormatting() {
+			return this.range != null;
 		}
 
 		private void setupRangeFormatting(Range range) throws BadLocationException {
@@ -223,9 +226,6 @@ class XMLFormatter {
 			return spaceOrTab;
 		}
 
-		private int getFullOffsetFromRangeOffset(int rangeOffset) {
-			return rangeOffset + this.startOffset;
-		}
 
 		private DOMElement getFullDocElemFromRangeElem(DOMElement elemFromRangeDoc) {
 			int fullOffset = -1;
@@ -235,8 +235,8 @@ class XMLFormatter {
 				// +1 because offset must be here: <|root
 				// for DOMNode.findNodeAt() to find the correct element
 			} else if (elemFromRangeDoc.hasEndTag()) {
-				fullOffset = getFullOffsetFromRangeOffset(elemFromRangeDoc.getEndTagCloseOffset()) - 1;
-				// -1 because offset must be here: root|>
+				fullOffset = getFullOffsetFromRangeOffset(elemFromRangeDoc.getEndTagOpenOffset()) + 1;
+				// +1 because offset must be here: <|/root
 				// for DOMNode.findNodeAt() to find the correct element
 			} else {
 				return null;
@@ -244,6 +244,10 @@ class XMLFormatter {
 
 			DOMElement elemFromFullDoc = (DOMElement) this.fullDomDocument.findNodeAt(fullOffset);
 			return elemFromFullDoc;
+		}
+
+		private int getFullOffsetFromRangeOffset(int rangeOffset) {
+			return rangeOffset + this.startOffset;
 		}
 
 		private boolean startTagExistsInRangeDocument(DOMNode node) {
@@ -508,6 +512,7 @@ class XMLFormatter {
 					&& element.hasAttributes()
 					&& !isSameLine(getLastAttribute(element).getEnd(), element.getStartTagCloseOffset())) {
 				xmlBuilder.linefeed();
+				this.xmlBuilder.indent(this.indentLevel);
 			}
 			xmlBuilder.closeStartElement();
 		}
@@ -558,7 +563,25 @@ class XMLFormatter {
 			}
 		}
 
+		/**
+		 * Returns true if first offset and second offset belong
+		 * in the same line of the document
+		 * 
+		 * If current formatting is range formatting, the provided offsets
+		 * must be ranged offsets (offsets relative to the formatting range)
+		 * 
+		 * @param first  the first offset
+		 * @param second the second offset
+		 * @return true if first offset and second offset belong
+		 * in the same line of the document
+		 * @throws BadLocationException
+		 */
 		private boolean isSameLine(int first, int second) throws BadLocationException {
+			if (isRangeFormatting()) {
+				// adjust range offsets so that they are relative to the full document
+				first = getFullOffsetFromRangeOffset(first);
+				second = getFullOffsetFromRangeOffset(second);
+			}
 			return getLineNumber(first) == getLineNumber(second);
 		}
 
@@ -572,6 +595,19 @@ class XMLFormatter {
 			}
 			List<DOMAttr> attributes = element.getAttributeNodes();
 			return attributes.get(attributes.size() - 1);
+		}
+
+		/**
+		 * Returns true if the provided element has one attribute
+		 * in the fullDomDocument (not the rangeDomDocument)
+		 * 
+		 * @param element
+		 * @return true if the provided element has one attribute
+		 * in the fullDomDocument (not the rangeDomDocument)
+		 */
+		private boolean hasSingleAttributeInFullDoc(DOMElement element) {
+			DOMElement fullElement = getFullDocElemFromRangeElem(element);
+			return fullElement.getAttributeNodes().size() == 1;
 		}
 
 		/**
@@ -691,19 +727,6 @@ class XMLFormatter {
 				previous = node;
 			}
 			return true;
-		}
-
-		/**
-		 * Returns true if the provided element has one attribute
-		 * in the fullDomDocument (not the rangeDomDocument)
-		 * 
-		 * @param element
-		 * @return true if the provided element has one attribute
-		 * in the fullDomDocument (not the rangeDomDocument)
-		 */
-		private boolean hasSingleAttributeInFullDoc(DOMElement element) {
-			DOMElement fullElement = getFullDocElemFromRangeElem(element);
-			return fullElement.getAttributeNodes().size() == 1;
 		}
 
 		private List<? extends TextEdit> getFormatTextEdit() throws BadLocationException {
