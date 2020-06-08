@@ -2648,6 +2648,71 @@ public class XMLFormatterTest {
 	}
 
 	@Test
+	public void preserveAttributeLineBreaksRangeFormatting() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveAttrLineBreaks(true);
+		settings.getFormattingSettings().setEmptyElement(EmptyElements.collapse);
+
+		String content = "<a a1=\"123456789\" a2=\"123456789\" a3=\"123456789\"\n" + //
+				"  |a4=\"123456789\" a5=\"123456789\" a6=\"123456789|\"\n" + //
+				"  a7=\"123456789\" a8=\"123456789\" a9=\"123456789\"\n" + //
+				"/>";
+		String expected = "<a a1=\"123456789\" a2=\"123456789\" a3=\"123456789\"\n" + //
+				"  a4=\"123456789\" a5=\"123456789\" a6=\"123456789\"\n" + //
+				"  a7=\"123456789\" a8=\"123456789\" a9=\"123456789\"\n" + //
+				"/>";
+		format(content, expected, settings);
+	}
+
+	@Test
+	public void preserveAttributeLineBreaksRangeFormattingWithEndTag() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveAttrLineBreaks(true);
+		settings.getFormattingSettings().setEmptyElement(EmptyElements.collapse);
+
+		String content = "<a a1=\"123456789\" a2=\"123456789\" a3=\"123456789\"\n" + //
+				"  |a4=\"123456789\" a5=\"123456789\" a6=\"123456789\"\n" + //
+				"  a7=\"123456789\" a8=\"123456789\" a9=\"123456789\"\n" + //
+				"/>|";
+		String expected = "<a a1=\"123456789\" a2=\"123456789\" a3=\"123456789\"\n" + //
+				"  a4=\"123456789\" a5=\"123456789\" a6=\"123456789\"\n" + //
+				"  a7=\"123456789\" a8=\"123456789\" a9=\"123456789\"\n" + //
+				"/>";
+		format(content, expected, settings);
+	}
+
+	@Test
+	public void preserveAttributeLineBreaksRangeFormattingWithEndTag2() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveAttrLineBreaks(true);
+		settings.getFormattingSettings().setEmptyElement(EmptyElements.collapse);
+
+		String content = "<a a1=\"123456789\" a2=\"123456789\" a3=\"123456789\"\n" + //
+				"  |a4=\"123456789\" a5=\"123456789\" a6=\"123456789\"\n" + //
+				"  a7=\"123456789\" a8=\"123456789\" a9=\"123456789\" />|";
+		String expected = "<a a1=\"123456789\" a2=\"123456789\" a3=\"123456789\"\n" + //
+				"  a4=\"123456789\" a5=\"123456789\" a6=\"123456789\"\n" + //
+				"  a7=\"123456789\" a8=\"123456789\" a9=\"123456789\" />";
+		format(content, expected, settings);
+	}
+
+	@Test
+	public void preserveAttributeLineBreaksRangeFormattingWithEndTag3() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveAttrLineBreaks(true);
+
+		String content = "<a a1=\"1234|56789\" a2=\"123456789\" a3=\"123456789\"\n" + //
+				"  a4=\"123456789\" a5=\"123456789\" a6=\"123456789\"\n" + //
+				"  a7=\"123456789\" a8=\"123456789\" a9=\"123456789\"\n" + //
+				">|</a>";
+		String expected = "<a a1=\"123456789\" a2=\"123456789\" a3=\"123456789\"\n" + //
+				"  a4=\"123456789\" a5=\"123456789\" a6=\"123456789\"\n" + //
+				"  a7=\"123456789\" a8=\"123456789\" a9=\"123456789\"\n" + //
+				"></a>";
+		format(content, expected, settings);
+	}
+
+	@Test
 	public void testTemplate() throws BadLocationException {
 		String content = "";
 		String expected = "";
