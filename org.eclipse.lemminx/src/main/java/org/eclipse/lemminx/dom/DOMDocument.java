@@ -335,7 +335,7 @@ public class DOMDocument extends DOMNode implements Document {
 		if (attr == null) {
 			return null;
 		}
-		return new SchemaLocation(root.getOwnerDocument().getDocumentURI(), attr);
+		return new SchemaLocation(attr);
 	}
 
 	private static NoNamespaceSchemaLocation createNoNamespaceSchemaLocation(DOMNode root,

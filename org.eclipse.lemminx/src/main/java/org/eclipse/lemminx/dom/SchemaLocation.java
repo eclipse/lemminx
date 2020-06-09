@@ -12,40 +12,73 @@
  */
 package org.eclipse.lemminx.dom;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
- * 
+ *
  * The declared "xsi:schemaLocation"
  */
 public class SchemaLocation {
 
-	private final Map<String, String> schemaLocationValuePairs;
+	private final Map<String, SchemaLocationHint> schemaLocationValuePairs;
 
 	private final DOMAttr attr;
 
-	public SchemaLocation(String base, DOMAttr attr) {
+	// The text to match is of the form:
+	// http://example.org/schema/root root.xsd http://example.org/schema/bison bison.xsd http://example.org/schema/potato potato.xsd
+	private static final Pattern SCHEMA_LOCATION_PAIR_PATTERN = Pattern.compile("\\s*([^\\s]+)\\s+([^\\s]+)\\s*");
+
+	public SchemaLocation(DOMAttr attr) {
 		this.attr = attr;
 		this.schemaLocationValuePairs = new HashMap<>();
 		String value = attr.getValue();
-		StringTokenizer st = new StringTokenizer(value);
-		do {
-			String namespaceURI = st.hasMoreTokens() ? st.nextToken() : null;
-			String locationHint = st.hasMoreTokens() ? st.nextToken() : null;
-			if (namespaceURI == null || locationHint == null)
+		Matcher locPairMatcher = SCHEMA_LOCATION_PAIR_PATTERN.matcher(value);
+		while (locPairMatcher.find()) {
+			String namespaceURI = locPairMatcher.group(1);
+			String locationHint = locPairMatcher.group(2);
+			if (namespaceURI == null || locationHint == null) {
 				break;
-			schemaLocationValuePairs.put(namespaceURI, locationHint);
-		} while (true);
+			}
+			DOMNode valNode = attr.getNodeAttrValue();
+			// matcher matches 1 char ahead, but valNode's start is at beginning of "
+			int start = valNode.getStart() + locPairMatcher.start(2);
+			// matcher matches end correctly, but range needs to be one past end
+			// to highlight the end, and one to make up for "
+			int end = valNode.getStart() + locPairMatcher.end(2) + 2;
+			schemaLocationValuePairs.put(namespaceURI,
+					new SchemaLocationHint(start, end, locationHint, this));
+		}
 	}
 
+	/**
+	 * Returns the location hint, as a string, that is associated with the given namespace URI.
+	 * 
+	 * If the given namespace URI was not referred to in this xsi:schemaLocation, then null is returned.
+	 * 
+	 * @param namespaceURI The namespace URI to find the location hint for
+	 * @return The associated location hint, as a string, or null
+	 *         if the namespace was not referred to in xsi:schemaLocation
+	 */
 	public String getLocationHint(String namespaceURI) {
-		return schemaLocationValuePairs.get(namespaceURI);
+		SchemaLocationHint locHint = schemaLocationValuePairs.get(namespaceURI);
+		return locHint == null ? null : locHint.getHint();
 	}
 
 	public DOMAttr getAttr() {
 		return attr;
+	}
+
+	/**
+	 * Returns all the location hints given in this xsi:schemaLocation attribute
+	 *
+	 * @return A Collection of all the location hints as <code>SchemaLocationHint</code>
+	 */
+	public Collection<SchemaLocationHint> getSchemaLocationHints() {
+		return schemaLocationValuePairs.values();
 	}
 
 }
