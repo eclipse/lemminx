@@ -13,7 +13,6 @@
  */
 package org.eclipse.lemminx;
 
-import static org.eclipse.lemminx.utils.VersionHelper.getVersion;
 import static org.eclipse.lsp4j.jsonrpc.CompletableFutures.computeAsync;
 
 import java.util.concurrent.CompletableFuture;
@@ -50,6 +49,7 @@ import org.eclipse.lemminx.settings.capabilities.InitializationOptionsExtendedCl
 import org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesInitializer;
 import org.eclipse.lemminx.settings.capabilities.XMLCapabilityManager;
 import org.eclipse.lemminx.utils.FilesUtils;
+import org.eclipse.lemminx.utils.ServerInfo;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
 import org.eclipse.lsp4j.InitializedParams;
@@ -87,7 +87,8 @@ public class XMLLanguageServer
 
 	@Override
 	public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
-		LOGGER.info("Initializing XML Language server " + getVersion() + " with " + System.getProperty("java.home"));
+		LOGGER.info("Initializing XML Language server" + System.lineSeparator() + new ServerInfo().details());
+
 		this.parentProcessId = params.getProcessId();
 
 		// Update XML language service extensions with InitializeParams

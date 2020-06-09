@@ -32,7 +32,6 @@ import org.eclipse.lemminx.dom.DOMText;
 import org.eclipse.lemminx.dom.DTDAttlistDecl;
 import org.eclipse.lemminx.dom.DTDDeclNode;
 import org.eclipse.lemminx.dom.DTDDeclParameter;
-import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLFormattingOptions.EmptyElements;
 import org.eclipse.lemminx.utils.XMLBuilder;
@@ -47,7 +46,6 @@ import org.eclipse.lsp4j.TextEdit;
 class XMLFormatter {
 
 	private static final Logger LOGGER = Logger.getLogger(XMLFormatter.class.getName());
-	private final XMLExtensionsRegistry extensionsRegistry;
 
 	private static class XMLFormatterDocument {
 		private final TextDocument textDocument;
@@ -62,6 +60,7 @@ class XMLFormatter {
 		private XMLBuilder xmlBuilder;
 		private int indentLevel;
 		private boolean linefeedOnNextWrite;
+		private boolean withinDTDContent;
 
 		/**
 		 * XML formatter document.
@@ -112,13 +111,17 @@ class XMLFormatter {
 			String fullText = this.textDocument.getText();
 			String rangeText = fullText.substring(this.startOffset, this.endOffset);
 
-			this.rangeDomDocument = DOMParser.getInstance().parse(rangeText, this.textDocument.getUri(), null, false);
+			withinDTDContent = this.fullDomDocument.isWithinInternalDTD(startOffset);
+			String uri = this.textDocument.getUri();
+			if (withinDTDContent) {
+				uri += ".dtd";
+			}
+			this.rangeDomDocument = DOMParser.getInstance().parse(rangeText, uri, null, false);
 
 			if (containsTextWithinStartTag()) {
 				adjustOffsetToStartTag();
 				rangeText = fullText.substring(this.startOffset, this.endOffset);
-				this.rangeDomDocument = DOMParser.getInstance().parse(rangeText, this.textDocument.getUri(), null,
-						false);
+				this.rangeDomDocument = DOMParser.getInstance().parse(rangeText, uri, null, false);
 			}
 
 			this.xmlBuilder = new XMLBuilder(this.sharedSettings, "",
@@ -186,8 +189,8 @@ class XMLFormatter {
 			this.rangeDomDocument = this.fullDomDocument;
 
 			Position startPosition = textDocument.positionAt(startOffset);
-			this.xmlBuilder = new XMLBuilder(this.sharedSettings,
-					"", textDocument.lineDelimiter(startPosition.getLine()));
+			this.xmlBuilder = new XMLBuilder(this.sharedSettings, "",
+					textDocument.lineDelimiter(startPosition.getLine()));
 		}
 
 		private void enlargePositionToGutters(Position start, Position end) throws BadLocationException {
@@ -201,9 +204,10 @@ class XMLFormatter {
 		}
 
 		private int getStartingIndentLevel() throws BadLocationException {
-
+			if (withinDTDContent) {
+				return 1;
+			}
 			DOMNode startNode = this.fullDomDocument.findNodeAt(this.startOffset);
-
 			if (startNode.isOwnerDocument()) {
 				return 0;
 			}
@@ -316,7 +320,7 @@ class XMLFormatter {
 					// 		this.xmlBuilder.addContent("+SIBL+");
 					// 	}
 					// }
-					doLineFeed =
+					doLineFeed = !node.getOwnerDocument().isDTD() &&
 						!(node.isComment() && ((DOMComment) node).isCommentSameLineEndTag())
 						&& (
 						    !node.isText() ||
@@ -453,7 +457,7 @@ class XMLFormatter {
 				linefeedOnNextWrite = true;
 
 			} else {
-				formatDTD(documentType, 0, this.endOffset, this.xmlBuilder);
+				formatDTD(documentType, this.indentLevel, this.endOffset, this.xmlBuilder);
 			}
 		}
 
@@ -712,7 +716,8 @@ class XMLFormatter {
 					this.xmlBuilder.trimFinalNewlines();
 				}
 
-				if (this.sharedSettings.getFormattingSettings().isInsertFinalNewline() && !this.xmlBuilder.isLastLineEmptyOrWhitespace()) {
+				if (this.sharedSettings.getFormattingSettings().isInsertFinalNewline()
+						&& !this.xmlBuilder.isLastLineEmptyOrWhitespace()) {
 					this.xmlBuilder.linefeed();
 				}
 			}
@@ -758,10 +763,6 @@ class XMLFormatter {
 		}
 	}
 
-	public XMLFormatter(XMLExtensionsRegistry extensionsRegistry) {
-		this.extensionsRegistry = extensionsRegistry;
-	}
-
 	/**
 	 * Returns a List containing a single TextEdit, containing the newly formatted
 	 * changes of the document.
@@ -771,11 +772,9 @@ class XMLFormatter {
 	 * @param sharedSettings settings containing formatting preferences
 	 * @return List containing a TextEdit with formatting changes
 	 */
-	public List<? extends TextEdit> format(TextDocument textDocument, Range range,
-			SharedSettings sharedSettings) {
+	public List<? extends TextEdit> format(TextDocument textDocument, Range range, SharedSettings sharedSettings) {
 		try {
-			XMLFormatterDocument formatterDocument = new XMLFormatterDocument(textDocument, range,
-					sharedSettings);
+			XMLFormatterDocument formatterDocument = new XMLFormatterDocument(textDocument, range, sharedSettings);
 			return formatterDocument.format();
 		} catch (BadLocationException e) {
 			LOGGER.log(Level.SEVERE, "Formatting failed due to BadLocation", e);

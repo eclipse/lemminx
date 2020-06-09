@@ -284,6 +284,33 @@ public class XMLFormatterTest {
 	}
 
 	@Test
+	public void rangeSelectEntityNoIndent() throws BadLocationException {
+		String content = "<?xml version='1.0' standalone='no'?>\r\n" +  //
+				"<!DOCTYPE root-element [\r\n" + //
+				"|<!ENTITY local \"LOCALLY DECLARED ENTITY\">|\r\n" +  //
+				"]>";		
+		String expected = "<?xml version='1.0' standalone='no'?>\r\n" +  //
+				"<!DOCTYPE root-element [\r\n" + //
+				"  <!ENTITY local \"LOCALLY DECLARED ENTITY\">\r\n" +  //
+				"]>";
+		format(content, expected);
+	}
+
+	@Test
+	public void rangeSelectEntityWithIndent() throws BadLocationException {
+		String content = "<?xml version='1.0' standalone='no'?>\r\n" +  //
+				"<!DOCTYPE root-element [\r\n" + //
+				"  |<!ENTITY local \"LOCALLY DECLARED ENTITY\">|\r\n" +  //
+				"]>";		
+		String expected = "<?xml version='1.0' standalone='no'?>\r\n" +  //
+				"<!DOCTYPE root-element [\r\n" + //
+				"  <!ENTITY local \"LOCALLY DECLARED ENTITY\">\r\n" +  //
+				"]>";
+		format(content, expected);
+	}
+
+	
+	@Test
 	public void testProlog() throws BadLocationException {
 		String content = "<?xml version=   \"1.0\"       encoding=\"UTF-8\"  ?>\r\n";
 		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
@@ -2470,7 +2497,6 @@ public class XMLFormatterTest {
 		String expected = "<a attr=\"\'\" attr2=\'\"\' />";
 		format(content, expected, settings);
 	}
-
 
 	@Test
 	public void testTemplate() throws BadLocationException {
