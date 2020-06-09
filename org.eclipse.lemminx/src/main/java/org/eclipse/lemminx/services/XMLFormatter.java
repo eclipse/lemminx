@@ -320,7 +320,7 @@ class XMLFormatter {
 					// 		this.xmlBuilder.addContent("+SIBL+");
 					// 	}
 					// }
-					doLineFeed = !node.getOwnerDocument().isDTD() &&
+					doLineFeed = //!node.getOwnerDocument().isDTD() &&
 						!(node.isComment() && ((DOMComment) node).isCommentSameLineEndTag())
 						&& (
 						    !node.isText() ||
