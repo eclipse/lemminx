@@ -14,6 +14,7 @@ package org.eclipse.lemminx.extensions.contentmodel.participants;
 
 import static org.eclipse.lemminx.utils.XMLPositionUtility.createDocumentLink;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.xerces.impl.XMLEntityManager;
@@ -23,18 +24,21 @@ import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMDocumentType;
 import org.eclipse.lemminx.dom.DOMRange;
 import org.eclipse.lemminx.dom.NoNamespaceSchemaLocation;
+import org.eclipse.lemminx.dom.SchemaLocation;
+import org.eclipse.lemminx.dom.SchemaLocationHint;
 import org.eclipse.lemminx.dom.XMLModel;
 import org.eclipse.lemminx.services.extensions.IDocumentLinkParticipant;
 import org.eclipse.lsp4j.DocumentLink;
 
 /**
  * Document link for :
- * 
+ *
  * <ul>
  * <li>XML Schema xsi:noNamespaceSchemaLocation</li>
  * <li>DTD SYSTEM (ex : <!DOCTYPE root-element SYSTEM "./extended.dtd" )</li>
+ * <li>XML Schema xsi:schemaLocation</li>
  * </ul>
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -88,11 +92,27 @@ public class ContentModelDocumentLinkParticipant implements IDocumentLinkPartici
 				}
 			}
 		}
+		// Doc link for xsi:schemaLocation
+		SchemaLocation schemaLocation = document.getSchemaLocation();
+		if (schemaLocation != null) {
+			try {
+				Collection<SchemaLocationHint> schemaLocationHints = schemaLocation.getSchemaLocationHints();
+				String location;
+				for (SchemaLocationHint schemaLocationHint : schemaLocationHints) {
+					location = getResolvedLocation(document.getDocumentURI(), schemaLocationHint.getHint());
+					if (location != null) {
+						links.add(createDocumentLink(schemaLocationHint, location));
+					}
+				}
+			} catch (BadLocationException e) {
+				// Do nothing
+			}
+		}
 	}
 
 	/**
 	 * Returns the expanded system location
-	 * 
+	 *
 	 * @return the expanded system location
 	 */
 	private static String getResolvedLocation(String documentURI, String location) {
