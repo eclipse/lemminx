@@ -1,5 +1,64 @@
 # Change Log
 
+## [0.12.0](https://github.com/eclipse/lemminx/milestone/15?closed=1) (June 10, 2020)
+
+### Enhancements
+
+ * Preserve attribute line breaks. See [#772](https://github.com/eclipse/lemminx/pull/772)
+ * Provide more server/build info on startup. See [#755](https://github.com/eclipse/lemminx/pull/755)
+ * Display no hover if there is no documentation. See [#743](https://github.com/eclipse/lemminx/pull/743)
+ * Add support for `textDocument/documentLink` for xs:import/schemaLocation. See [#733](https://github.com/eclipse/lemminx/issues/733)
+ * Add support for `textDocument/documentLink` for xml-model/href. See [#712](https://github.com/eclipse/lemminx/issues/712)
+ * Find definition for external declared entity. See [#706](https://github.com/eclipse/lemminx/issues/706)
+ * Snippet to generate xml-model. See [#699](https://github.com/eclipse/lemminx/issues/699)
+ * XML Completion based on DTD/XML Schema by using xml-model . See [#698](https://github.com/eclipse/lemminx/issues/698)
+ * Validate XML with DTD/XML Schema by using xml-model. See [#697](https://github.com/eclipse/lemminx/issues/697)
+ * Create hyperlink to DTD source on hover. See [#693](https://github.com/eclipse/lemminx/issues/693)
+ * Add support for `textDocument/documentLink` for xs:include/schemaLocation. See [#689](https://github.com/eclipse/lemminx/issues/689)
+ * Remove spacing when formatting processing instruction. See [#670](https://github.com/eclipse/lemminx/pull/670)
+ * Hover for referenced entities. See [#663](https://github.com/eclipse/lemminx/issues/663)
+ * Completion for external declared entity. See [#660](https://github.com/eclipse/lemminx/issues/660)
+ * Insert final newline depending on lsp4j formatting settings. See [#649](https://github.com/eclipse/lemminx/pull/649)
+ * Formatter expand/collapse/ignore empty XML tags. See [#644](https://github.com/eclipse/lemminx/pull/644)
+ * Hyperlink to open declared DTD files. See [#641](https://github.com/eclipse/lemminx/issues/641)
+ * Manage snippet registry to write snippet in JSON. See [#640](https://github.com/eclipse/lemminx/issues/640)
+ * Configure limit for `textDocument/documentSymbol` with `xml.symbols.maxItemsComputed`. See [#637](https://github.com/eclipse/lemminx/pull/637)
+ * Completion for `xsd:enumeration` inside of text node. See [#632](https://github.com/eclipse/lemminx/pull/632)
+ * Separate xsd:documentation and xsd:appinfo contents on hover and completion. See [#630](https://github.com/eclipse/lemminx/issues/630)
+ * Consume LSP4J 0.9.0. See [#628](https://github.com/eclipse/lemminx/issues/628)
+ * Find definition for locally declared entity. See [#625](https://github.com/eclipse/lemminx/issues/625)
+ * CodeActions for RootElementTypeMustMatchDoctypedecl. See [#561](https://github.com/eclipse/lemminx/issues/561)
+ * CodeAction for EntityNotDeclared. See [#532](https://github.com/eclipse/lemminx/issues/532)
+ * Completion for locally declared entity. See [#520](https://github.com/eclipse/lemminx/issues/520)
+
+### Bug Fixes
+
+ * Too many logs after completion, hover with XML that contains DTD subset. See [#750](https://github.com/eclipse/lemminx/issues/750)
+ * Fix collection of external entities depending on line ending. See [#744](https://github.com/eclipse/lemminx/pull/744)
+ * No entity completion for externally declared SYSTEM and PUBLIC entities. See [#742](https://github.com/eclipse/lemminx/issues/742)
+ * Entity documentation has no value for entities declared with SYSTEM OR PUBLIC. See [#741](https://github.com/eclipse/lemminx/issues/741)
+ * Error while loading DOCTYPE subset : java.lang.NullPointerException. See [#739](https://github.com/eclipse/lemminx/issues/739)
+ * NPE in ContentModelCompletionParticipant.addCompletionItem. See [#720](https://github.com/eclipse/lemminx/issues/720)
+ * NPE in XMLCompletions collectAttributeNameSuggestions(). See [#719](https://github.com/eclipse/lemminx/issues/719)
+ * Support advanced characters for entity name. See [#718](https://github.com/eclipse/lemminx/pull/718)
+ * Fix error range TargetNamespace.1. See [#704](https://github.com/eclipse/lemminx/issues/704)
+ * Fix error range TargetNamespace.2. See [#703](https://github.com/eclipse/lemminx/issues/703)
+ * Fix cache result of external grammar info. See [#696](https://github.com/eclipse/lemminx/pull/696)
+ * Read the cached XSD, DTD grammar file with lazy mode. See [#687](https://github.com/eclipse/lemminx/pull/687)
+ * NPE with Codelens in empty XSD file. See [#684](https://github.com/eclipse/lemminx/issues/684)
+ * Range formatting inserts `<null>` when formatting inside DOCTYPE element. See [#682](https://github.com/eclipse/lemminx/issues/682)
+ * NPE in ContentModelCodeActionParticipant.doCodeAction#L47. See [#671](https://github.com/eclipse/lemminx/issues/671)
+ * Fix error range for `SemicolonRequiredInReference`. See [#664](https://github.com/eclipse/lemminx/issues/664)
+ * Don't generate end element on apply completion if it exists. See [#651](https://github.com/eclipse/lemminx/issues/651)
+ * Quickfix to close open tag doesn't deal with attributes. See [#646](https://github.com/eclipse/lemminx/issues/646)
+ * MSG_ATTRIBUTE_NOT_DECLARED must highlight attribute name instead of attribute value. See [#634](https://github.com/eclipse/lemminx/pull/634)
+ * NPE with TypeDefinition. See [#629](https://github.com/eclipse/lemminx/issues/629)
+
+### Build
+
+ * Display test names in a more user-friendly way. See [#647](https://github.com/eclipse/lemminx/pull/647)
+ * Migrate Tests to JUnit 5 Jupiter. See [#627](https://github.com/eclipse/lemminx/pull/627)
+
 ## [0.11.1](https://github.com/eclipse/lemminx/milestone/14?closed=1) (March 25, 2020)
 
 ### Bug Fixes
