@@ -12,8 +12,6 @@
  */
 package org.eclipse.lemminx.utils;
 
-import static org.eclipse.lemminx.utils.OSUtils.SLASH;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -109,7 +107,7 @@ public class FilesUtils {
 		if (dir == null) {
 			dir = "";
 		}
-		return Paths.get(dir, ".lemminx");
+		return getPath(dir).resolve(".lemminx");
 	}
 
 	/**
@@ -172,84 +170,6 @@ public class FilesUtils {
 	}
 
 	/**
-	 * Will return a Path object representing an existing path.
-	 * 
-	 * If this method is able to find an existing file/folder then it will return
-	 * the path to that, else it will try to find the parent directory of the
-	 * givenPath.
-	 * 
-	 * **IMPORTANT** The slashes of the given paths have to match the supported OS
-	 * file path slash
-	 * 
-	 * @param parentDirectory The directory that the given path is relative to
-	 * @param givenPath       Path that could be absolute or relative
-	 * @return
-	 */
-	public static Path getNormalizedPath(String parentDirectory, String givenPath) {
-
-		if (givenPath == null) {
-			return null;
-		}
-
-		int lastIndexOfSlash = givenPath.lastIndexOf(SLASH);
-
-		// in case the given path is incomplete, trim the end
-		String givenPathCleaned;
-		if (lastIndexOfSlash == 0) { // Looks like `/someFileOrFolder`
-			return Paths.get(SLASH);
-		} else {
-			givenPathCleaned = lastIndexOfSlash > -1 ? givenPath.substring(0, lastIndexOfSlash) : null;
-		}
-
-		Path p;
-
-		// The following 2 are for when the given path is already valid
-		p = getPathIfExists(givenPath);
-		if (p != null) {
-			// givenPath is absolute
-			return p;
-		}
-
-		p = getPathIfExists(givenPathCleaned);
-		if (p != null) {
-			// givenPath is absolute
-			return p;
-		}
-
-		if (parentDirectory == null) {
-			return null;
-		}
-
-		if (parentDirectory.endsWith(SLASH)) {
-			parentDirectory = parentDirectory.substring(0, parentDirectory.length() - 1);
-		}
-
-		String combinedPath = parentDirectory + SLASH + givenPath;
-		p = getPathIfExists(combinedPath);
-		if (p != null) {
-			return p;
-		}
-
-		combinedPath = parentDirectory + SLASH + givenPathCleaned;
-		p = getPathIfExists(combinedPath);
-		if (p != null) {
-			return p;
-		}
-
-		return null;
-	}
-
-	private static Path getPathIfExists(String path) {
-		try {
-			Path p = Paths.get(path).normalize();
-			return p.toFile().exists() ? p : null;
-		} catch (Exception e) {
-			return null;
-		}
-
-	}
-
-	/**
 	 * Returns the slash ("/" or "\") that is used by the given string. If no slash
 	 * is given "/" is returned by default.
 	 * 
@@ -290,5 +210,29 @@ public class FilesUtils {
 
 	public static boolean isIncludedInDeployedPath(Path resourceCachePath) {
 		return resourceCachePath.normalize().startsWith(DEPLOYED_BASE_PATH.get());
+	}
+
+	public static String removeFileScheme(String fileURI) {
+		int index = fileURI.indexOf(FILE_SCHEME);
+		if (index != -1) {
+			index = index + FILE_SCHEME.length() - 1;
+			if (index + 1 < fileURI.length() && fileURI.charAt(index + 1) == '/') {
+				index++;
+			}
+			fileURI = fileURI.substring(index + 1, fileURI.length());
+		}
+		return fileURI;
+	}
+
+	public static Path getPath(String uri) {
+		// Remove file://
+		uri = removeFileScheme(uri);
+		// Replace %20 with ' '
+		uri = uri.replaceAll("%20", " ");
+		return Paths.get(uri);
+	}
+
+	public static String encodePath(String path) {
+		return path.replaceAll(" ", "%20");
 	}
 }
