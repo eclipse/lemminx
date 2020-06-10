@@ -82,10 +82,19 @@ public class FilesChangedTracker {
 	 */
 	public void addFileURI(String fileURI) {
 		try {
-			files.add(new FileChangedTracker(Paths.get(new URI(fileURI))));
+			addFileURI(new URI(fileURI));
 		} catch (URISyntaxException e) {
 			LOGGER.log(Level.SEVERE, "Add file URI to track failed", e);
 		}
+	}
+
+	/**
+	 * Add file URI to track
+	 * 
+	 * @param fileURI
+	 */
+	public void addFileURI(URI fileURI) {
+		files.add(new FileChangedTracker(Paths.get(fileURI)));
 	}
 
 	/**
@@ -101,4 +110,5 @@ public class FilesChangedTracker {
 		}
 		return false;
 	}
+
 }

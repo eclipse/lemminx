@@ -16,6 +16,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.eclipse.lemminx.XMLAssert;
+
 /**
  * ProjectUtils
  */
@@ -25,8 +27,9 @@ public class ProjectUtils {
 	 * @return the current lemminx project directory
 	 */
 	public static Path getProjectDirectory() {
-		String currPath = new File(ProjectUtils.class.getClassLoader().getResource("").getPath()).toString();
-		Path dir = Paths.get(currPath);
+		String xmlAssertClass =  XMLAssert.class.getName().replace('.', '/') + ".class"; // "org/eclipse/lemminx/XMLAssert.class"
+		String currPath = new File(ProjectUtils.class.getClassLoader().getResource(xmlAssertClass).getPath()).toString();
+		Path dir = FilesUtils.getPath(currPath);
 		while (!Files.exists(dir.resolve("pom.xml")) && dir.getParent() != null) {
 			dir = dir.getParent();
 		}

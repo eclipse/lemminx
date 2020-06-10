@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.net.URI;
 
 import org.eclipse.lemminx.extensions.contentmodel.BaseFileTempTest;
 import org.junit.jupiter.api.Test;
@@ -30,9 +31,9 @@ public class FilesChangedTrackerTest extends BaseFileTempTest {
 	@Test
 	public void trackFile() throws IOException {
 		FilesChangedTracker tracker = new FilesChangedTracker();
-		String fileURI = tempDirUri.getPath() + "/track.xml";
+		URI fileURI = tempDirUri.resolve("track.xml");
 		createFile(fileURI, "<root />");
-		tracker.addFileURI("file://" + fileURI);
+		tracker.addFileURI(fileURI);
 
 		assertFalse(tracker.isDirty(),"No dirty after file creation");
 
