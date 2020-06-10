@@ -12,16 +12,18 @@
 
 package org.eclipse.lemminx.extensions.general.completion;
 
-import static org.eclipse.lemminx.utils.FilesUtils.convertToWindowsPath;
 import static org.eclipse.lemminx.utils.FilesUtils.getFilePathSlash;
-import static org.eclipse.lemminx.utils.FilesUtils.getNormalizedPath;
 import static org.eclipse.lemminx.utils.OSUtils.isWindows;
 import static org.eclipse.lemminx.utils.StringUtils.isEmpty;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.net.URI;
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -31,6 +33,7 @@ import org.eclipse.lemminx.services.extensions.ICompletionResponse;
 import org.eclipse.lemminx.utils.CompletionSortTextHelper;
 import org.eclipse.lemminx.utils.FilesUtils;
 import org.eclipse.lemminx.utils.StringUtils;
+import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.Position;
@@ -38,136 +41,156 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
 /**
- * FilePathCompletionParticipant
+ * Extension to support completion for file, folder path in:
+ * 
+ * <ul>
+ * <li>attribute value:
+ * 
+ * <pre>
+ * &lt;item path="file:///C:/folder" /&gt;
+ * &lt;item path="file:///C:/folder file:///C:/file.txt" /&gt;
+ * &lt;item path="/folder" /&gt;
+ * </pre>
+ * 
+ * </li>
+ * <li>DTD DOCTYPE SYSTEM
+ * 
+ * <pre>
+ * &lt;!DOCTYPE parent SYSTEM "file.dtd"&gt;
+ * </pre>
+ * 
+ * </li>
+ * 
+ * </ul>
+ * 
+ * <p>
+ * 
+ * </p>
  */
 public class FilePathCompletionParticipant extends CompletionParticipantAdapter {
 
-	public static final String FILE_SCHEME = "file";
+	private static final Logger LOGGER = Logger.getLogger(FilePathCompletionParticipant.class.getName());
 
 	@Override
-	public void onAttributeValue(String valuePrefix,
-			ICompletionRequest request, ICompletionResponse response) throws Exception {
-		addCompletionItems(valuePrefix, request, response);
+	public void onAttributeValue(String value, ICompletionRequest request, ICompletionResponse response)
+			throws Exception {
+		// File path completion on attribute value
+		addCompletionItems(value, request, response);
 	}
 
 	@Override
-	public void onDTDSystemId(String valuePrefix,
-			ICompletionRequest request, ICompletionResponse response) throws Exception {
-		addCompletionItems(valuePrefix, request, response);
+	public void onDTDSystemId(String value, ICompletionRequest request, ICompletionResponse response) throws Exception {
+		// File path completion on DTD DOCTYPE SYSTEM
+		addCompletionItems(value, request, response);
 	}
 
-	private void addCompletionItems(String valuePrefix,
-			ICompletionRequest request, ICompletionResponse response) throws Exception {
+	private static void addCompletionItems(String value, ICompletionRequest request, ICompletionResponse response)
+			throws Exception {
+		String fullValue = value;
+		if (isEmpty(fullValue)) {
+			return;
+		}
 
 		DOMDocument xmlDocument = request.getXMLDocument();
 		String text = xmlDocument.getText();
-		Range fullRange = request.getReplaceRange();
 
-		// Get full attribute value range
-		int documentStartOffset = xmlDocument.offsetAt(fullRange.getStart());
+		// Get value and range for file path declared inside the attribute value
+		// ex value="file:///C:/fold|er"
+		int valuePathStartOffset = xmlDocument.offsetAt(request.getReplaceRange().getStart());
+		int endPathOffset = request.getOffset(); // offset after the typed character
+		int startPathOffset = StringUtils.getOffsetAfterWhitespace(fullValue, endPathOffset - valuePathStartOffset)
+				+ valuePathStartOffset; // first character of URI
+		Range filePathRange = XMLPositionUtility.createRange(startPathOffset, endPathOffset, xmlDocument);
+		String originalValuePath = text.substring(startPathOffset, endPathOffset);
+		// ex: valuePath="file:///C:/fold"
+		String valuePath = originalValuePath;
+		String slashInAttribute = getFilePathSlash(valuePath);
 
-		String fullAttributeValue = valuePrefix;
-		if (isEmpty(fullAttributeValue)) {
-			return;
-		}
-
-		// Get value and range from fullAttributeValue
-		int completionOffset = request.getOffset(); // offset after the typed character
-		int parsedAttributeStartOffset = StringUtils.getOffsetAfterWhitespace(fullAttributeValue, completionOffset - documentStartOffset) + documentStartOffset; // first character of URI
-		String attributePath = text.substring(parsedAttributeStartOffset, completionOffset);
-
-		Position startValue = xmlDocument.positionAt(parsedAttributeStartOffset);
-		Position endValue = xmlDocument.positionAt(completionOffset);
-		fullRange = new Range(startValue, endValue);
-
-		// Try to get the URI string from the attribute value in case it has a file scheme
-		// header (eg: "file://")
-		String osSpecificAttributePath = attributePath;
-		boolean hasFileScheme = false;
-
-		hasFileScheme = attributePath.startsWith(FilesUtils.FILE_SCHEME);
+		boolean hasFileScheme = valuePath.startsWith(FilesUtils.FILE_SCHEME);
 		if (hasFileScheme) {
-			osSpecificAttributePath = attributePath.substring(FilesUtils.FILE_SCHEME.length());
-		}
-
-		String slashInAttribute = getFilePathSlash(attributePath);
-
-		if (hasFileScheme) {
-			if (!osSpecificAttributePath.startsWith("/")) {
-				return; // use of 'file://' and the path was not absolute
-			}
-			if (isWindows && osSpecificAttributePath.length() == 1) { // only '/', so list Windows Drives
-				
-				Range replaceRange = adjustReplaceRange(xmlDocument, fullRange, attributePath, "/");
-
-				File[] drives = File.listRoots();
-				for (File drive : drives) {
-					createFilePathCompletionItem(drive, replaceRange, response, "/");
-				}
+			// remove file:// scheme
+			// ex: valuePath="/C:/fold"
+			valuePath = FilesUtils.removeFileScheme(valuePath);
+			if (valuePath.length() == 0 || valuePath.charAt(0) != '/') {
+				// use of 'file://' and the path was not absolute
 				return;
 			}
-		}
-
-		if(isWindows) {
-			osSpecificAttributePath = convertToWindowsPath(osSpecificAttributePath);
-		}
-		else if("\\".equals(slashInAttribute)) { // Backslash used in Unix
-			osSpecificAttributePath = osSpecificAttributePath.replace("\\", "/");
-		}
-
-		// Get the normalized URI string from the parent directory file if necessary
-		String workingDirectory = null; // The OS specific path for a working directory
-
-		if (!hasFileScheme) { //The path from the attribute value is not a uri, so we might need to reference the working directory path
-			String uriString = xmlDocument.getTextDocument().getUri();
-			URI uri = new URI(uriString);
-
-			if(!FILE_SCHEME.equals(uri.getScheme())) {
-				return;
-			}
-
-			String uriPathString = uri.getPath();
-			if(!uriPathString.startsWith("/")) {
-				return; //file uri is incorrect
-			}
-			int lastSlash = uriPathString.lastIndexOf("/");
-			if(lastSlash > -1) {
-				workingDirectory = uriPathString.substring(0, lastSlash);
-
-				if(isWindows) {
-					// Necessary, so that this path is readable in Windows
-					workingDirectory = convertToWindowsPath(workingDirectory);
+			if (isWindows) {
+				// For Windows OS, remove the last '/' from file:///
+				// ex: valuePath="C:/fold"
+				valuePath = valuePath.substring(1, valuePath.length());
+				if (valuePath.length() == 1) {
+					// only '/', so list Windows Drives
+					Range replaceRange = adjustReplaceRange(xmlDocument, filePathRange, originalValuePath, "/");
+					File[] drives = File.listRoots();
+					for (File drive : drives) {
+						createFilePathCompletionItem(drive, replaceRange, response, "/");
+					}
+					return;
 				}
 			}
 		}
+		// On Linux, Mac OS replace '\\' with '/'
+		if (!isWindows) {
+			if ("\\".equals(slashInAttribute)) { // Backslash used in Unix
+				valuePath = valuePath.replace("\\", "/");
+			}
+		}
 
-		//Try to get a correctly formatted path from the given values
-		Path validAttributeValuePath = getNormalizedPath(workingDirectory, osSpecificAttributePath); 
-
-		if(validAttributeValuePath == null) {
+		// Get IO path from the given value path
+		Path validAttributePath = getPath(valuePath, xmlDocument.getTextDocument().getUri());
+		if (validAttributePath == null) {
 			return;
 		}
 
-		//Get adjusted range for the completion item (insert at end, or overwrite some existing text in the path)
-		Range replaceRange = adjustReplaceRange(xmlDocument, fullRange, attributePath, slashInAttribute);
-
-		createNextValidCompletionPaths(validAttributeValuePath, slashInAttribute, replaceRange, response, null);
+		// Get adjusted range for the completion item (insert at end, or overwrite some
+		// existing text in the path)
+		Range replaceRange = adjustReplaceRange(xmlDocument, filePathRange, originalValuePath, slashInAttribute);
+		createNextValidCompletionPaths(validAttributePath, slashInAttribute, replaceRange, response, null);
 	}
 
 	/**
-	 * Returns a Range that covers trailing content after a slash, or 
-	 * if it already ends with a slash then a Range right after it.
+	 * Returns the IO Path from the given value path.
+	 * 
+	 * @param valuePath  the value path
+	 * @param xmlFileUri the XML file URI where completion has been triggered.
+	 * @return the IO Path from the given value path.
+	 */
+	private static Path getPath(String valuePath, String xmlFileUri) {
+		// the value path is the filepath URI without file://
+		try {
+			Path validAttributePath = FilesUtils.getPath(valuePath);
+			if (!validAttributePath.isAbsolute()) {
+				// Absolute path, use the XML file URI folder as base dirctory.
+				Path workingDirectoryPath = FilesUtils.getPath(xmlFileUri).getParent();
+				validAttributePath = workingDirectoryPath.resolve(validAttributePath).normalize();
+			}
+			if (!".".equals(valuePath) && !valuePath.endsWith("/") && !valuePath.endsWith("\\")) {
+				// ex : C:/folder|/ -> in this case the path is the folder parent (C:)
+				validAttributePath = validAttributePath.getParent();
+			}
+			return Files.exists(validAttributePath) ? validAttributePath : null;
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	/**
+	 * Returns a Range that covers trailing content after a slash, or if it already
+	 * ends with a slash then a Range right after it.
+	 * 
 	 * @param xmlDocument
 	 * @param fullRange
 	 * @param attributeValue
 	 * @param slash
 	 * @return
 	 */
-	private Range adjustReplaceRange(DOMDocument xmlDocument, Range fullRange, String attributeValue, String slash) {
-		//In the case the currently typed file/directory needs to be overwritten
+	private static Range adjustReplaceRange(DOMDocument xmlDocument, Range fullRange, String attributeValue,
+			String slash) {
+		// In the case the currently typed file/directory needs to be overwritten
 		Position replaceStart = null;
 		Position currentEnd = fullRange.getEnd();
-		
+
 		int startOffset;
 		try {
 			startOffset = xmlDocument.offsetAt(fullRange.getStart());
@@ -175,7 +198,7 @@ public class FilePathCompletionParticipant extends CompletionParticipantAdapter 
 			return null;
 		}
 		int lastSlashIndex = attributeValue.lastIndexOf(slash);
-		if(lastSlashIndex > -1) {
+		if (lastSlashIndex > -1) {
 			try {
 				replaceStart = xmlDocument.positionAt(startOffset + lastSlashIndex);
 			} catch (BadLocationException e) {
@@ -183,53 +206,40 @@ public class FilePathCompletionParticipant extends CompletionParticipantAdapter 
 			}
 		}
 		Range replaceRange = new Range();
-		if(replaceStart != null) {
+		if (replaceStart != null) {
 			replaceRange.setStart(replaceStart);
-		}
-		else {
+		} else {
 			replaceRange.setStart(currentEnd);
 		}
 		replaceRange.setEnd(currentEnd);
-
 		return replaceRange;
 	}
 
 	/**
 	 * Creates the completion items based off the given absolute path
+	 * 
 	 * @param pathToAttributeDirectory
 	 * @param attributePath
 	 * @param replaceRange
 	 * @param response
 	 * @param filter
 	 */
-	private void createNextValidCompletionPaths(Path pathToAttributeDirectory, String slash, Range replaceRange, ICompletionResponse response,
-			FilenameFilter filter) {
-
-		File[] proposedFiles = gatherFiles(pathToAttributeDirectory, filter);
-		if (proposedFiles != null) {
-			for (File child : proposedFiles) {
-				if (child != null) {
-					createFilePathCompletionItem(child, replaceRange, response, slash);
-				}
+	private static void createNextValidCompletionPaths(Path pathToAttributeDirectory, String slash, Range replaceRange,
+			ICompletionResponse response, FilenameFilter filter) {
+		try (DirectoryStream<Path> stream = Files.newDirectoryStream(pathToAttributeDirectory)) {
+			for (Path entry : stream) {
+				createFilePathCompletionItem(entry.toFile(), replaceRange, response, slash);
 			}
+		} catch (IOException e) {
+			LOGGER.log(Level.SEVERE, "Error while getting files/directories", e);
 		}
 	}
 
-	/**
-	 * Returns a list of File objects that are in the given directory
-	 * @param pathOfDirectory
-	 * @param filter
-	 * @return
-	 */
-	private File[] gatherFiles(Path pathOfDirectory, FilenameFilter filter) {
-		File f = new File(pathOfDirectory.toString());
-		return f.isDirectory() ? f.listFiles(filter) : null;
-	}
-
-	private void createFilePathCompletionItem(File f, Range replaceRange, ICompletionResponse response, String slash) {
+	private static void createFilePathCompletionItem(File f, Range replaceRange, ICompletionResponse response,
+			String slash) {
 		CompletionItem item = new CompletionItem();
-		String fName = f.getName();
-		if(isWindows && fName.isEmpty()) { // Edge case for Windows drive letter
+		String fName = FilesUtils.encodePath(f.getName());
+		if (isWindows && fName.isEmpty()) { // Edge case for Windows drive letter
 			fName = f.getPath();
 			fName = fName.substring(0, fName.length() - 1);
 		}
@@ -237,9 +247,9 @@ public class FilePathCompletionParticipant extends CompletionParticipantAdapter 
 		insertText = slash + fName;
 		item.setLabel(insertText);
 
-		CompletionItemKind kind = f.isDirectory()? CompletionItemKind.Folder : CompletionItemKind.File;
+		CompletionItemKind kind = f.isDirectory() ? CompletionItemKind.Folder : CompletionItemKind.File;
 		item.setKind(kind);
-		
+
 		item.setSortText(CompletionSortTextHelper.getSortText(kind));
 		item.setFilterText(insertText);
 		item.setTextEdit(new TextEdit(replaceRange, insertText));
