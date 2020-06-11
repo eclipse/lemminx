@@ -2594,6 +2594,31 @@ public class XMLFormatterTest {
 	}
 
 	@Test
+	public void preserveAttributeLineBreaks5() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveAttrLineBreaks(true);
+		String content = "<a attr=\"value\" attr=\"value\"\n" + //
+				"  attr=\n" + //
+				"  \"value\" attr=\"value\"></a>";
+		String expected = "<a attr=\"value\" attr=\"value\"\n" + //
+				"  attr=\"value\" attr=\"value\"></a>";
+		format(content, expected, settings);
+	}
+
+	@Test
+	public void preserveAttributeLineBreaksMissingValue() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveAttrLineBreaks(true);
+		String content = "<a attr= attr=\"value\"\n" + //
+				"  attr=\n" + //
+				"   attr=\"value\"></a>";
+		String expected = "<a attr= attr=\"value\"\n" + //
+				"  attr=\n" + //
+				"  attr=\"value\"></a>";
+		format(content, expected, settings);
+	}
+
+	@Test
 	public void preserveAttributeLineBreaksCollapseEmptyElement() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setPreserveAttrLineBreaks(true);
