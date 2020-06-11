@@ -547,10 +547,10 @@ class XMLFormatter {
 		private void formatAttributes(DOMElement element) throws BadLocationException {
 			List<DOMAttr> attributes = element.getAttributeNodes();
 			boolean isSingleElement = hasSingleAttributeInFullDoc(element);
-			DOMNode prev = element;
+			int prevOffset = element.getStart();
 			for (DOMAttr attr : attributes) {
 				if (this.sharedSettings.getFormattingSettings().isPreserveAttrLineBreaks()
-						&& !isSameLine(prev.getStart(), attr.getNodeAttrName().getStart())) {
+						&& !isSameLine(prevOffset, attr.getStart())) {
 					xmlBuilder.linefeed();
 					xmlBuilder.indent(this.indentLevel + 1);
 					xmlBuilder.addSingleAttribute(attr, false, false);
@@ -559,7 +559,7 @@ class XMLFormatter {
 				} else {
 					xmlBuilder.addAttribute(attr, this.indentLevel);
 				}
-				prev = attr.getNodeAttrName();
+				prevOffset = attr.getEnd();
 			}
 		}
 
