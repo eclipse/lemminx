@@ -265,6 +265,7 @@ public class SnippetRegistry {
 			}
 			item.setTextEdit(new TextEdit(range, insertText));
 			item.setInsertTextFormat(InsertTextFormat.Snippet);
+			item.setSortText(snippet.getSortText());
 			return item;
 
 		}).collect(Collectors.toList());
