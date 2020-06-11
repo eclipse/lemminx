@@ -35,6 +35,8 @@ public class Snippet {
 
 	private String scope;
 
+	private String sortText;
+
 	private ISnippetContext<?> context;
 
 	public String getLabel() {
@@ -83,6 +85,14 @@ public class Snippet {
 
 	public void setScope(String scope) {
 		this.scope = scope;
+	}
+
+	public String getSortText() {
+		return sortText;
+	}
+
+	public void setSortText(String sortText) {
+		this.sortText = sortText;
 	}
 
 	public ISnippetContext<?> getContext() {

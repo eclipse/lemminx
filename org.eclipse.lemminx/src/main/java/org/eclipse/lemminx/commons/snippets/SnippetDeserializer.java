@@ -35,12 +35,10 @@ class SnippetDeserializer implements JsonDeserializer<Snippet> {
 
 	private static final String PREFIX_ELT = "prefix";
 	private static final String SUFFIX_ELT = "suffix";
-
 	private static final String DESCRIPTION_ELT = "description";
-
 	private static final String LABEL_ELT = "label";
-
 	private static final String SCOPE_ELT = "scope";
+	private static final String SORTTEXT_ELT = "sortText";
 	private static final String BODY_ELT = "body";
 	private static final String CONTEXT_ELT = "context";
 
@@ -124,6 +122,13 @@ class SnippetDeserializer implements JsonDeserializer<Snippet> {
 		if (scopeElt != null) {
 			String scope = scopeElt.getAsString();
 			snippet.setScope(scope);
+		}
+
+		// sortText
+		JsonElement sortTextElt = snippetObj.get(SORTTEXT_ELT);
+		if (sortTextElt != null) {
+			String sortText = sortTextElt.getAsString();
+			snippet.setSortText(sortText);
 		}
 
 		// context
