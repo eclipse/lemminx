@@ -13,6 +13,7 @@ package org.eclipse.lemminx.services.snippets;
 
 import java.util.Map;
 
+import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.services.extensions.ICompletionRequest;
 
@@ -34,6 +35,12 @@ public class CommentSnippetContext extends DTDNodeSnippetContext {
 		DOMNode node = request.getNode();		
 		if (node.isDoctype()) {
 			// completion was triggered inside doctype declaration, ignore the snippets
+			return false;
+		}
+		
+		DOMDocument document = request.getXMLDocument();
+		if (document.isBeforeProlog(request.getOffset())){
+			// triggered before prolog
 			return false;
 		}
 		return SnippetContextUtils.canAcceptExpression(request);

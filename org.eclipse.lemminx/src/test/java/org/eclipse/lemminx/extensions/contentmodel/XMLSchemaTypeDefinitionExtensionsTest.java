@@ -145,4 +145,34 @@ public class XMLSchemaTypeDefinitionExtensionsTest {
 
 	}
 
+	@Test
+	public void localXSElementOutsideXSComplexType() throws BadLocationException {
+		String xmlFile = "src/test/resources/Format.xml";
+		String xsdFile = "xsd/Format.xsd";
+
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
+				"<Configuration\r\n" + //
+				"        xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"        xsi:noNamespaceSchemaLocation=\"" + xsdFile + "\">\r\n" + //
+				"	<ViewDefinitions>\r\n" + //
+				"		<View>\r\n" + //
+				"			<Name></Name>\r\n" + //
+				"			<OutOfBand>false</OutOfBand>\r\n" + //
+				"			<ViewSelectedBy></ViewSelectedBy>\r\n" + //
+				"			<Controls>\r\n" + //
+				"				<Control>\r\n" + //
+				"					<CustomControl>\r\n" + //
+				"						<CustomEntries>\r\n" + //
+				"							<CustomEntry>\r\n" + //
+				"								<CustomItem>\r\n" + //
+				"									<Frame>\r\n" + //
+				"										<CustomItem>\r\n" + //
+				"											<ExpressionBinding>\r\n" + //
+				"												<Proper|tyName>";
+		XMLLanguageService xmlLanguageService = new XMLLanguageService();
+		String targetSchemaURI = xmlLanguageService.getResolverExtensionManager().resolve(xmlFile, null, xsdFile);
+		testTypeDefinitionFor(xmlLanguageService, xml, xmlFile,
+				ll(targetSchemaURI, r(18, 13, 18, 25), r(268, 23, 268, 37)));
+	}
+
 }

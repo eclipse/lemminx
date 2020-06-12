@@ -537,4 +537,57 @@ public class XMLCompletionSnippetsTest {
 		testCompletionFor("<!DOCTYPE root-element |SYSTEM \"file.dtd\">", 0);
 		testCompletionFor("<!DOCTYPE root-element SYSTEM |\"file.dtd\">", 0);
 	}
+
+	// Tests triggering completion at the very beginning of the file.
+	// Should be possible if not in front of the xml declaration.
+	@Test
+	public void atBeginningOfFile() throws BadLocationException{
+		// No Completion when triggered in front of xml declaration.
+		// Only XML declaration
+		String xml = "|<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
+		testCompletionFor(xml, 0);
+		// Space before declaration; triggered before space
+		xml = "| <?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
+		testCompletionFor(xml, REGION_SNIPPETS); // FIXME: region snippets should not trigger here.
+		// Space before declaration; triggered after space
+		xml = " |<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
+		testCompletionFor(xml, REGION_SNIPPETS); // FIXME: region snippets should not trigger here.
+		// Declaration and a root element
+		xml = "|<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
+				"<root/>";
+		testCompletionFor(xml, 0);
+		// Space before declaration; triggered before space
+		xml = "| <?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
+				"<root/>";
+		testCompletionFor(xml, REGION_SNIPPETS); // FIXME: region snippets should not trigger here.
+		// Space before declaration; triggered after space
+		xml = " |<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
+				"<root/>";
+		testCompletionFor(xml, REGION_SNIPPETS); // FIXME: region snippets should not trigger here.
+
+		// Multiple Snippets can be triggered at start of file, if it doesn't have an xml declaration
+		xml = "|\r\n" + //
+				"<root/>";
+		testCompletionFor(xml, //
+				COMMENT_SNIPPETS /* Comment Snippets */ + //
+				XML_DECLARATION_SNIPPETS /* XML Declaration Snippets */ + //
+				PROCESSING_INSTRUCTION_SNIPPETS /* Processing Instruction Snippets */ + //
+				DOCTYPE_SNIPPETS /* Doctype Snippets */ + //
+				REGION_SNIPPETS /* Region Snippets */, //
+				c("Insert XML Declaration", //
+						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>", //
+						r(0, 0, 0, 0), "<?xml"),
+				c("Insert XML Schema association", //
+						"<?xml-model href=\"file.xsd\" type=\"application/xml\" schematypens=\"http://www.w3.org/2001/XMLSchema\"?>", //
+						r(0, 0, 0, 0), "<?xml-model"),
+				c("Insert DTD association", //
+						"<?xml-model href=\"file.dtd\" type=\"application/xml-dtd\"?>", //
+						r(0, 0, 0, 0), "<?xml-model"),
+				c("Insert SYSTEM DOCTYPE", //
+						"<!DOCTYPE root SYSTEM \"file.dtd\">", //
+						r(0, 0, 0, 0), "<!DOCTYPE"),
+				c("<!--", //
+						"<!-- -->", //
+						r(0, 0, 0, 0), "<!--"));
+	}
 }

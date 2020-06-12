@@ -37,8 +37,6 @@ public class CMXSDContentModelProvider implements ContentModelProvider {
 
 	private final URIResolverExtensionManager resolverExtensionManager;
 
-	private XSLoaderImpl loader;
-
 	public CMXSDContentModelProvider(URIResolverExtensionManager resolverExtensionManager) {
 		this.resolverExtensionManager = resolverExtensionManager;
 	}
@@ -82,10 +80,11 @@ public class CMXSDContentModelProvider implements ContentModelProvider {
 
 	@Override
 	public CMDocument createCMDocument(String key) {
-		XSModel model = getLoader().loadURI(key);
+		XSLoaderImpl loader = getLoader();
+		XSModel model = loader.loadURI(key);
 		if (model != null) {
 			// XML Schema can be loaded
-			return new CMXSDDocument(model);
+			return new CMXSDDocument(model, loader);
 		}
 		return null;
 	}
@@ -95,17 +94,7 @@ public class CMXSDContentModelProvider implements ContentModelProvider {
 		return null;
 	}
 
-	public XSLoaderImpl getLoader() {
-		if (loader == null) {
-			loader = getSynchLoader();
-		}
-		return loader;
-	}
-
-	private synchronized XSLoaderImpl getSynchLoader() {
-		if (loader != null) {
-			return loader;
-		}
+	public XSLoaderImpl getLoader() {		
 		XSLoaderImpl loader = new XSLoaderImpl();
 		loader.setParameter("http://apache.org/xml/properties/internal/entity-resolver", resolverExtensionManager);
 		loader.setParameter(Constants.DOM_ERROR_HANDLER, new DOMErrorHandler() {

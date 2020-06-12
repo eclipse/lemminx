@@ -25,9 +25,14 @@ import java.util.logging.Logger;
 
 import org.apache.xerces.impl.dv.XSSimpleType;
 import org.apache.xerces.impl.xs.SchemaGrammar;
+import org.apache.xerces.impl.xs.XMLSchemaLoader;
 import org.apache.xerces.impl.xs.XSComplexTypeDecl;
 import org.apache.xerces.impl.xs.XSElementDecl;
 import org.apache.xerces.impl.xs.XSElementDeclHelper;
+import org.apache.xerces.impl.xs.XSLoaderImpl;
+import org.apache.xerces.impl.xs.XSParticleDecl;
+import org.apache.xerces.impl.xs.opti.ElementImpl;
+import org.apache.xerces.impl.xs.traversers.XSDHandler;
 import org.apache.xerces.impl.xs.util.SimpleLocator;
 import org.apache.xerces.xni.QName;
 import org.apache.xerces.xni.XMLLocator;
@@ -77,8 +82,11 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 
 	private final FilesChangedTracker tracker;
 
-	public CMXSDDocument(XSModel model) {
+	private final XSLoaderImpl xsLoader;
+
+	public CMXSDDocument(XSModel model, XSLoaderImpl xsLoaderImpl) {
 		this.model = model;
+		this.xsLoader = xsLoaderImpl;
 		this.elementMappings = new HashMap<>();
 		this.tracker = createFilesChangedTracker(model);
 	}
@@ -235,7 +243,7 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 			originAttribute = (DOMAttr) originNode;
 			originElement = originAttribute.getOwnerElement();
 		}
-		if (originElement == null) {
+		if (originElement == null || originElement.getLocalName() == null) {
 			return null;
 		}
 		// Try to retrieve XSD element declaration from the given element.
@@ -244,12 +252,19 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 		if (elementDeclaration == null) {
 			return null;
 		}
+
+		// Try to find the Xerces xs:element (which stores the offset) bound with the
+		// XSElementDeclaration
+		// case when xs:element is declared inside xs:choice, xs:all, xs:sequence, etc
+		ElementImpl xercesElement = findLocalMappedXercesElement(elementDeclaration.getElementDeclaration(), xsLoader);
+		// case when xs:element is declared as global or inside xs:complexType
 		SchemaGrammar schemaGrammar = getOwnerSchemaGrammar(elementDeclaration.getElementDeclaration());
-		if (schemaGrammar == null) {
+		if (schemaGrammar == null && xercesElement == null) {
 			return null;
 		}
 
-		String documentURI = getSchemaURI(schemaGrammar);
+		String documentURI = xercesElement != null ? xercesElement.getOwnerDocument().getDocumentURI()
+				: getSchemaURI(schemaGrammar);
 		if (URIUtils.isFileResource(documentURI)) {
 			// Only XML Schema file is supported. In the case of XML file is bound with an
 			// HTTP url and cache is enable, documentURI is a file uri from the cache
@@ -274,7 +289,6 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 					if (attributeDecl.getScope() == XSConstants.SCOPE_LOCAL) {
 						return findLocalXSAttribute(originAttribute, targetSchema,
 								attributeDecl.getEnclosingCTDefinition(), schemaGrammar);
-
 					}
 				}
 			} else {
@@ -282,10 +296,20 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 				boolean globalElement = elementDeclaration.getElementDeclaration()
 						.getScope() == XSElementDecl.SCOPE_GLOBAL;
 				if (globalElement) {
+					// global xs:element
 					return findGlobalXSElement(originElement, targetSchema);
 				} else {
-					return findLocalXSElement(originElement, targetSchema,
-							elementDeclaration.getElementDeclaration().getEnclosingCTDefinition(), schemaGrammar);
+					// local xs:element
+					// 1) use the Xerces xs:element strategy
+					if (xercesElement != null) {
+						return findLocalXSElement(originElement, targetSchema, xercesElement.getCharacterOffset());
+					}
+					// 2) use the Xerces xs:complexType strategy
+					XSComplexTypeDefinition complexTypeDefinition = elementDeclaration.getElementDeclaration()
+							.getEnclosingCTDefinition();
+					if (complexTypeDefinition != null) {
+						return findLocalXSElement(originElement, targetSchema, complexTypeDefinition, schemaGrammar);
+					}
 				}
 			}
 		}
@@ -393,6 +417,94 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 	}
 
 	/**
+	 * Returns the Xerces DOM xs:element which have created the given instance
+	 * <code>elementDeclaration</code> and null otherwise.
+	 * 
+	 * @param elementDeclaration
+	 * @param xsLoader
+	 * @return the Xerces DOM xs:element which have created the given instance
+	 *         <code>elementDeclaration</code> and null otherwise
+	 */
+	private static ElementImpl findLocalMappedXercesElement(XSElementDeclaration elementDeclaration,
+			XSLoaderImpl xsLoader) {
+		try {
+			// When XML Schema is loaded by XSLoaderImpl, it uses XMLSchemaLoader which uses
+			// XSDHandler.
+			// Xerces stores the location in the XSDHandler instance in 2 arrays:
+			// - fParticle array of XSParticleDecl where fValue is an instance of
+			// XSElementDeclaration
+			// - fLocalElementDecl array of Xerces Element which stores the element offset.
+
+			// Get the XMLSchemaLoader instance from the XSLoader instance
+			Field f = XSLoaderImpl.class.getDeclaredField("fSchemaLoader");
+			f.setAccessible(true);
+			XMLSchemaLoader schemaLoader = (XMLSchemaLoader) f.get(xsLoader);
+
+			// Get the XSDHandler instance from the XMLSchemaLoader instance
+			Field f2 = XMLSchemaLoader.class.getDeclaredField("fSchemaHandler");
+			f2.setAccessible(true);
+			XSDHandler handler = (XSDHandler) f2.get(schemaLoader);
+
+			// Get the XSParticleDecl array from the XSDHandler instance
+			Field f3 = XSDHandler.class.getDeclaredField("fParticle");
+			f3.setAccessible(true);
+			XSParticleDecl[] fParticle = (XSParticleDecl[]) f3.get(handler);
+
+			// Get the index where elementDeclaration is associated with a XSParticleDecl
+			int i = getXSElementDeclIndex(elementDeclaration, fParticle);
+			if (i >= 0) {
+				// Get the Xerces Element array from the XSDHandler instance
+				Field f4 = XSDHandler.class.getDeclaredField("fLocalElementDecl");
+				f4.setAccessible(true);
+				Element[] fLocalElementDecl = (Element[]) f4.get(handler);
+				return (ElementImpl) fLocalElementDecl[i];
+			}
+		} catch (Exception e) {
+			LOGGER.log(Level.SEVERE,
+					"Error while retrieving mapped Xerces xs:element of '" + elementDeclaration.getName() + "'.", e);
+		}
+		return null;
+
+	}
+
+	/**
+	 * Returns the location link for the given origin element and target element at
+	 * the given offset.
+	 * 
+	 * @param originElement the origin element
+	 * @param targetSchema  the target DOM document
+	 * @param offset        the offset of the element range to return.
+	 * @return the location link for the given origin element and target element at
+	 *         the given offset.
+	 */
+	private static LocationLink findLocalXSElement(DOMElement originElement, DOMDocument targetSchema, int offset) {
+		DOMNode node = targetSchema.findNodeAt(offset);
+		if (node != null && node.isElement()) {
+			return findXSElement(originElement, (Element) node);
+		}
+		return null;
+	}
+
+	/**
+	 * Returns the index where the given element declaration is store in the
+	 * particles array and null otherwise.
+	 * 
+	 * @param elementDeclaration the XS element declaration.
+	 * @param particles          the XS particles declaration.
+	 * @return the index where the given element declaration is store in the
+	 *         particles array and null otherwise.
+	 */
+	private static int getXSElementDeclIndex(XSElementDeclaration elementDeclaration, XSParticleDecl[] particles) {
+		for (int i = 0; i < particles.length; i++) {
+			XSParticleDecl particle = particles[i];
+			if (particle != null && elementDeclaration.equals(particle.fValue)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	/**
 	 * Returns the location of the local xs:element declared in the given XML Schema
 	 * <code>targetSchema</code> which matches the given XML element
 	 * <code>originElement</code> and null otherwise.
@@ -409,7 +521,7 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 	private static LocationLink findLocalXSElement(DOMElement originElement, DOMDocument targetSchema,
 			XSComplexTypeDefinition enclosingType, SchemaGrammar schemaGrammar) {
 		// In local xs:element case, xs:element is declared inside a complex type
-		// (enclosing tye).
+		// (enclosing type).
 		// Xerces stores in the SchemaGrammar the locator (offset) for each complex type
 		// (XSComplexTypeDecl)
 		// Here we get the offset of the local enclosing complex type xs:complexType.
@@ -442,7 +554,7 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 	 */
 	private static int getComplexTypeOffset(XSComplexTypeDefinition complexType, SchemaGrammar grammar) {
 		try {
-			// Xerces stores location in 2 arrays:
+			// Xerces stores in SchemaGrammar instance, the location in 2 arrays:
 			// - fCTLocators array of locator
 			// - fComplexTypeDecls array of XSComplexTypeDecl
 
@@ -501,20 +613,28 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 			Node n = children.item(i);
 			if (n.getNodeType() == Node.ELEMENT_NODE) {
 				Element elt = (Element) n;
-				if (XSDUtils.isXSElement(elt)) {
-					if (originElement.getLocalName().equals(elt.getAttribute("name"))) {
-						DOMAttr targetAttr = (DOMAttr) elt.getAttributeNode("name");
-						LocationLink location = XMLPositionUtility.createLocationLink(originElement,
-								targetAttr.getNodeAttrValue());
-						return location;
-					}
+				LocationLink location = findXSElement(originElement, elt);
+				if (location != null) {
+					return location;
 				}
 				if (inAnyLevel && elt.hasChildNodes()) {
-					LocationLink location = findXSElement(originElement, elt.getChildNodes(), inAnyLevel);
+					location = findXSElement(originElement, elt.getChildNodes(), inAnyLevel);
 					if (location != null) {
 						return location;
 					}
 				}
+			}
+		}
+		return null;
+	}
+
+	private static LocationLink findXSElement(DOMElement originElement, Element elt) {
+		if (XSDUtils.isXSElement(elt)) {
+			if (originElement.getLocalName().equals(elt.getAttribute("name"))) {
+				DOMAttr targetAttr = (DOMAttr) elt.getAttributeNode("name");
+				LocationLink location = XMLPositionUtility.createLocationLink(originElement,
+						targetAttr.getNodeAttrValue());
+				return location;
 			}
 		}
 		return null;

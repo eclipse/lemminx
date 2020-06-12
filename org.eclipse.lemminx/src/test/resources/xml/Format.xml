@@ -1,0 +1,31 @@
+<Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../xsd/Format.xsd">
+	<ViewDefinitions>
+		<View>
+			<Name></Name>
+			<OutOfBand>false</OutOfBand>
+			<ViewSelectedBy></ViewSelectedBy>
+			<Controls>
+				<Control>
+					<CustomControl>
+						<CustomEntries>
+							<CustomEntry>
+								<CustomItem>
+									<Frame>
+										<CustomItem>
+											<ExpressionBinding>
+												<PropertyName>
+													<w />
+												</PropertyName>
+											</ExpressionBinding>
+										</CustomItem>
+									</Frame>
+								</CustomItem>
+							</CustomEntry>
+						</CustomEntries>
+					</CustomControl>
+					<Name></Name>
+				</Control>
+			</Controls>
+		</View>
+	</ViewDefinitions>
+</Configuration>

@@ -26,6 +26,7 @@ public class XMLFormattingOptions extends FormattingOptions {
 	public static final int DEFAULT_PRESERVER_NEW_LINES = 2;
 	public static final int DEFAULT_TAB_SIZE = 2;
 	public static final EnforceQuoteStyle DEFAULT_ENFORCE_QUOTE_STYLE = EnforceQuoteStyle.ignore;
+	public static final boolean DEFAULT_PRESERVE_ATTR_LINE_BREAKS = false;
 
 	// All possible keys
 	private static final String SPLIT_ATTRIBUTES = "splitAttributes";
@@ -38,6 +39,7 @@ public class XMLFormattingOptions extends FormattingOptions {
 	private static final String PRESERVED_NEWLINES = "preservedNewlines";
 	private static final String TRIM_FINAL_NEWLINES = "trimFinalNewlines";
 	private static final String ENFORCE_QUOTE_STYLE = "enforceQuoteStyle";
+	private static final String PRESERVE_ATTR_LINE_BREAKS = "preserveAttributeLineBreaks";
 
 	enum Quotations {
 		doubleQuotes, singleQuotes
@@ -309,6 +311,32 @@ public class XMLFormattingOptions extends FormattingOptions {
 		}
 		
 		return enforceStyle == null ? DEFAULT_ENFORCE_QUOTE_STYLE : enforceStyle;
+	}
+
+	/**
+	 * Sets the value of preserveAttrLineBreaks
+	 */
+	public void setPreserveAttrLineBreaks(final boolean preserveAttrLineBreaks) {
+		this.putBoolean(XMLFormattingOptions.PRESERVE_ATTR_LINE_BREAKS, Boolean.valueOf(preserveAttrLineBreaks));
+	}
+
+	/**
+	 * Returns the value of preserveAttrLineBreaks
+	 * 
+	 * @return the value of preserveAttrLineBreaks
+	 */
+	public boolean isPreserveAttrLineBreaks() {
+		if (this.isSplitAttributes()) {
+			// splitAttributes overrides preserveAttrLineBreaks
+			return false;
+		}
+
+		final Boolean value = this.getBoolean(XMLFormattingOptions.PRESERVE_ATTR_LINE_BREAKS);
+		if ((value != null)) {
+			return (value).booleanValue();
+		} else {
+			return XMLFormattingOptions.DEFAULT_PRESERVE_ATTR_LINE_BREAKS;
+		}
 	}
 
 	public XMLFormattingOptions merge(FormattingOptions formattingOptions) {

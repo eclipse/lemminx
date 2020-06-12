@@ -92,16 +92,27 @@ public class XMLBuilder {
 	}
 
 	public XMLBuilder selfCloseElement() {
-		if (sharedSettings.getFormattingSettings().isSpaceBeforeEmptyCloseTag()) {
+		if (sharedSettings.getFormattingSettings().isSpaceBeforeEmptyCloseTag()
+				&& !isLastLineEmptyOrWhitespace()) {
 			appendSpace();
 		}
 		xml.append("/>");
 		return this;
 	}
 
-	public XMLBuilder addSingleAttribute(String name, String value) {
-		return addSingleAttribute(name, value, false);
+	public XMLBuilder addSingleAttribute(DOMAttr attr) {
+		return addSingleAttribute(attr, false, true);
 	}
+
+
+	public XMLBuilder addSingleAttribute(DOMAttr attr, boolean surroundWithQuotes, boolean prependSpace) {
+		return addSingleAttribute(attr.getName(), attr.getOriginalValue(), surroundWithQuotes, prependSpace);
+	}
+
+	public XMLBuilder addSingleAttribute(String name, String value, boolean surroundWithQuotes) {
+		return addSingleAttribute(name, value, surroundWithQuotes, true);
+	}
+
 
 	/**
 	 * Used when only one attribute is being added to a node.
@@ -113,8 +124,10 @@ public class XMLBuilder {
 	 * @param surroundWithQuotes true if quotes should be added around originalValue
 	 * @return this XML Builder
 	 */
-	public XMLBuilder addSingleAttribute(String name, String value, boolean surroundWithQuotes) {
-		appendSpace();
+	public XMLBuilder addSingleAttribute(String name, String value, boolean surroundWithQuotes, boolean prependSpace) {
+		if (prependSpace) {
+			appendSpace();
+		}
 		addAttributeContents(name, true, value, surroundWithQuotes);
 		return this;
 	}
@@ -159,7 +172,7 @@ public class XMLBuilder {
 		return addAttribute(attr, level, false);
 	}
 
-	public XMLBuilder addAttribute(DOMAttr attr, int level, boolean surroundWithQuotes) {
+	private XMLBuilder addAttribute(DOMAttr attr, int level, boolean surroundWithQuotes) {
 		if (isSplitAttributes()) {
 			linefeed();
 			indent(level + splitAttributesIndent);
