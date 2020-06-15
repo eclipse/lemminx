@@ -259,7 +259,7 @@ public class XMLBuilder {
 	 * <code>delimiter</code>
 	 * 
 	 * @param text                the proposed text to add
-	 * @param isWhitespaceContent whether or not the text contains whitespace content
+	 * @param isWhitespaceContent whether or not the text contains only whitespace content
 	 * @param hasSiblings         whether or not the corresponding text node has siblings
 	 * @param delimiter           line delimiter
 	 * @return this XMLBuilder with <code>text</code> added depending on
@@ -273,6 +273,9 @@ public class XMLBuilder {
 				text = StringUtils.normalizeSpace(text);
 			} else if (hasSiblings) {
 				text = text.trim();
+			}
+			if (isTrimTrailingWhitespace()) {
+				text = trimTrailingSpacesEachLine(text);
 			}
 			xml.append(text);
 		} else if (!hasSiblings && isPreserveEmptyContent()) {
@@ -327,13 +330,39 @@ public class XMLBuilder {
 	}
 
 	/**
-	 * Trims the trailing newlines for the current xml StringBuilder
+	 * Trims the trailing newlines for the current XML StringBuilder
 	 */
 	public void trimFinalNewlines() {
 		int i = xml.length() - 1;
 		while (i >= 0 && Character.isWhitespace(xml.charAt(i))) {
 			xml.deleteCharAt(i--);
 		}
+	}
+
+	/**
+	 * Returns <code>str</code> with the trailing spaces from each line
+	 * removed
+	 *
+	 * @param str the String
+	 * @return <code>str</code> with the trailing spaces from each line
+	 * removed
+	 */
+	private static String trimTrailingSpacesEachLine(String str) {
+		StringBuilder sb = new StringBuilder(str);
+		int i = str.length() - 1;
+		boolean removeSpaces = true;
+		while (i >= 0) {
+			char curr = sb.charAt(i);
+			if (curr == '\n' || curr == '\r') {
+				removeSpaces = true;
+			} else if (removeSpaces && Character.isWhitespace(curr)) {
+				sb.deleteCharAt(i);
+			} else {
+				removeSpaces = false;
+			}
+			i--;
+		}
+		return sb.toString();
 	}
 
 	public XMLBuilder startCDATA() {
@@ -470,6 +499,10 @@ public class XMLBuilder {
 
 	private boolean isPreserveEmptyContent() {
 		return sharedSettings.getFormattingSettings().isPreserveEmptyContent();
+	}
+
+	private boolean isTrimTrailingWhitespace() {
+		return sharedSettings.getFormattingSettings().isTrimTrailingWhitespace();
 	}
 
 	private int getPreservedNewlines() {

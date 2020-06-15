@@ -288,7 +288,7 @@ public class XMLFormatterTest {
 		String content = "<?xml version='1.0' standalone='no'?>\r\n" +  //
 				"<!DOCTYPE root-element [\r\n" + //
 				"|<!ENTITY local \"LOCALLY DECLARED ENTITY\">|\r\n" +  //
-				"]>";		
+				"]>";
 		String expected = "<?xml version='1.0' standalone='no'?>\r\n" +  //
 				"<!DOCTYPE root-element [\r\n" + //
 				"  <!ENTITY local \"LOCALLY DECLARED ENTITY\">\r\n" +  //
@@ -301,7 +301,7 @@ public class XMLFormatterTest {
 		String content = "<?xml version='1.0' standalone='no'?>\r\n" +  //
 				"<!DOCTYPE root-element [\r\n" + //
 				"  |<!ENTITY local \"LOCALLY DECLARED ENTITY\">|\r\n" +  //
-				"]>";		
+				"]>";
 		String expected = "<?xml version='1.0' standalone='no'?>\r\n" +  //
 				"<!DOCTYPE root-element [\r\n" + //
 				"  <!ENTITY local \"LOCALLY DECLARED ENTITY\">\r\n" +  //
@@ -309,7 +309,7 @@ public class XMLFormatterTest {
 		format(content, expected);
 	}
 
-	
+
 	@Test
 	public void testProlog() throws BadLocationException {
 		String content = "<?xml version=   \"1.0\"       encoding=\"UTF-8\"  ?>\r\n";
@@ -2102,6 +2102,57 @@ public class XMLFormatterTest {
 	}
 
 	@Test
+	public void testTrimTrailingWhitespaceText() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTrimTrailingWhitespace(true);
+		String content = "<a>   \n" +
+				"text     \n" +
+				"    text text text    \n" +
+				"    text\n" +
+				"</a>   ";
+		String expected = "<a>\n" +
+				"text\n" +
+				"    text text text\n" +
+				"    text\n" +
+				"</a>";
+		format(content, expected, settings);
+	}
+
+	@Test
+	public void testTrimTrailingWhitespaceNewlines() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTrimTrailingWhitespace(true);
+		String content = "<a>   \n" +
+				"   \n" +
+				"</a>   ";
+		String expected = "<a></a>";
+		format(content, expected, settings);
+	}
+
+	@Test
+	public void testTrimTrailingWhitespaceTextAndNewlines() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTrimTrailingWhitespace(true);
+		String content = "<a>   \n" +
+				"    \n" +
+				"text     \n" +
+				"    text text text    \n" +
+				"   \n" +
+				"    text\n" +
+				"        \n" +
+				"</a>   ";
+		String expected = "<a>\n" +
+				"\n" +
+				"text\n" +
+				"    text text text\n" +
+				"\n" +
+				"    text\n" +
+				"\n" +
+				"</a>";
+		format(content, expected, settings);
+	}
+
+	@Test
 	public void testTrimFinalNewlinesDefault() throws BadLocationException {
 		String content = "<a  ></a>\r\n";
 		String expected = "<a></a>";
@@ -2628,7 +2679,7 @@ public class XMLFormatterTest {
 				"<b attr=\"value\" attr=\"value\"\n" + //
 				"attr=\"value\" attr=\"value\"\n" + //
 				"attr=\"value\" attr=\"value\">\n" + //
-				"</b>\n" + 
+				"</b>\n" +
 				"</a>";
 		String expected = "<a>\n" +
 				"  <b attr=\"value\" attr=\"value\"\n" + //
