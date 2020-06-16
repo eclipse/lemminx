@@ -29,6 +29,7 @@ public class SharedSettings {
 
 	private boolean actionableNotificationSupport;
 	private boolean openSettingsCommandSupport;
+	private boolean createFileResourceOperationSupport;
 
 	public SharedSettings() {
 		this.completionSettings = new XMLCompletionSettings();
@@ -127,5 +128,28 @@ public class SharedSettings {
 	public void setOpenSettingsCommandSupport(boolean openSettingsCommandSupport) {
 		this.openSettingsCommandSupport = openSettingsCommandSupport;
 	}
+
+	/**
+	 * Returns true if the client supports the CreateFile ResourceOperation,
+	 * and false otherwise.
+	 * 
+	 * @return true if the client supports the CreateFile ResourceOperation,
+	 * false otherwise.
+	 */
+	public boolean isCreateFileResourceOperationSupport() {
+		return createFileResourceOperationSupport;
+	}
+
+	/**
+	 * Sets createFileResourceOperationSupport
+	 * 
+	 * This boolean indicates if the client supports the CreateFile ResourceOepration
+	 * 
+	 * @param createFileResourceOperationSupport The new value of <code>createFileResourceOperationSupport</code>
+	 */
+	public void setCreateFileResourceOperationSupport(boolean createFileResourceOperationSupport) {
+		this.createFileResourceOperationSupport = createFileResourceOperationSupport;
+	}
+
 
 }

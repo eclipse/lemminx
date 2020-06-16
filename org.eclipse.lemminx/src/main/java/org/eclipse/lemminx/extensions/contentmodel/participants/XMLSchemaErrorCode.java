@@ -35,6 +35,7 @@ import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.cvc_
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.cvc_complex_type_4CodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.cvc_enumeration_validCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.cvc_type_3_1_1CodeAction;
+import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.schema_reference_4CodeAction;
 import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IXMLErrorCode;
 import org.eclipse.lemminx.utils.DOMUtils;
@@ -269,5 +270,8 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 		codeActions.put(cvc_complex_type_2_1.getCode(), new cvc_complex_type_2_1CodeAction());
 		codeActions.put(TargetNamespace_1.getCode(), new TargetNamespace_1CodeAction());
 		codeActions.put(TargetNamespace_2.getCode(), new TargetNamespace_2CodeAction());
+
+		// TODO: check if the client has the correct capabilities to execute this code action
+		codeActions.put(schema_reference_4.getCode(), new schema_reference_4CodeAction());
 	}
 }

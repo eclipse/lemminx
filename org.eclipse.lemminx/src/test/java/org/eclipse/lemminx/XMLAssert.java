@@ -54,6 +54,8 @@ import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
+import org.eclipse.lsp4j.CreateFile;
+import org.eclipse.lsp4j.CreateFileOptions;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DocumentHighlight;
 import org.eclipse.lsp4j.DocumentHighlightKind;
@@ -70,6 +72,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ReferenceContext;
+import org.eclipse.lsp4j.ResourceOperation;
 import org.eclipse.lsp4j.SymbolKind;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
@@ -563,11 +566,32 @@ public class XMLAssert {
 		return codeAction;
 	}
 
+	public static CodeAction ca(Diagnostic d, Either<TextDocumentEdit, ResourceOperation>... ops) {
+		CodeAction codeAction = new CodeAction();
+		codeAction.setDiagnostics(Collections.singletonList(d));
+		codeAction.setEdit(new WorkspaceEdit(Arrays.asList(ops)));
+		codeAction.setTitle("");
+		return codeAction;
+	}
+
 	public static TextEdit te(int startLine, int startCharacter, int endLine, int endCharacter, String newText) {
 		TextEdit textEdit = new TextEdit();
 		textEdit.setNewText(newText);
 		textEdit.setRange(r(startLine, startCharacter, endLine, endCharacter));
 		return textEdit;
+	}
+
+	public static Either<TextDocumentEdit, ResourceOperation> createFile(String uri, boolean overwrite) {
+		CreateFileOptions options = new CreateFileOptions();
+		options.setIgnoreIfExists(!overwrite);
+		options.setOverwrite(overwrite);
+		return Either.forRight(new CreateFile(uri, options));
+	}
+
+	public static Either<TextDocumentEdit, ResourceOperation> teOp(String uri, int startLine, int startChar,
+			int endLine, int endChar, String newText) {
+		return Either.forLeft(new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, 0),
+				Collections.singletonList(te(startLine, startChar, endLine, endChar, newText))));
 	}
 
 	// ------------------- Hover assert

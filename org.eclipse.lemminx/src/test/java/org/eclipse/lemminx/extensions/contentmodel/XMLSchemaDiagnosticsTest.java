@@ -15,6 +15,8 @@ package org.eclipse.lemminx.extensions.contentmodel;
 import static org.eclipse.lemminx.XMLAssert.ca;
 import static org.eclipse.lemminx.XMLAssert.d;
 import static org.eclipse.lemminx.XMLAssert.te;
+import static org.eclipse.lemminx.XMLAssert.teOp;
+import static org.eclipse.lemminx.XMLAssert.createFile;
 import static org.eclipse.lemminx.XMLAssert.testCodeActionsFor;
 
 import org.eclipse.lemminx.XMLAssert;
@@ -641,6 +643,48 @@ public class XMLSchemaDiagnosticsTest {
 		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
 		Diagnostic targetNamespace = d(2, 1, 2, 16, XMLSchemaErrorCode.TargetNamespace_2, "TargetNamespace.2: Expecting no namespace, but the schema document has a target namespace of 'http://two-letter-name'.");
 		testCodeActionsFor(xml, targetNamespace, settings, ca(targetNamespace, te(2, 16, 2, 16, " xmlns='http://two-letter-name'")));
+	}
+
+	@Test
+	public void localSchemaFileMissingCodeAction() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + //
+				"<invoice xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + //
+				"  xsi:noNamespaceSchemaLocation=\"/salad.xsd\">\n" + //
+				"</invoice>";
+		Diagnostic missingSchema = d(2, 32, 44, XMLSchemaErrorCode.schema_reference_4);
+		missingSchema.setMessage("schema_reference.4: Failed to read schema document "
+				+ "'file:///salad.xsd',"
+				+ " because 1) could not find the document; 2) the document could not be read;"
+				+ " 3) the root element of the document is not <xsd:schema>.");
+		Diagnostic eltDiagnostic = d(1, 1, 8, XMLSchemaErrorCode.cvc_elt_1_a);
+		eltDiagnostic.setMessage("cvc-elt.1.a: Cannot find the declaration of element 'invoice'.");
+		XMLAssert.testDiagnosticsFor(xml, missingSchema, eltDiagnostic);
+
+		SharedSettings settings = new SharedSettings();
+		settings.setCreateFileResourceOperationSupport(true);
+
+		XMLAssert.testCodeActionsFor(xml, missingSchema, settings,
+				ca(missingSchema,
+				createFile("/salad.xsd", false),
+				teOp("/salad.xsd", 0, 0, 0, 0, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n\n</xs:schema>")));
+	}
+
+	@Test
+	public void localSchemaFileMissingCodeActionNotSupported() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + //
+				"<invoice xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + //
+				"  xsi:noNamespaceSchemaLocation=\"/salad.xsd\">\n" + //
+				"</invoice>";
+		Diagnostic missingSchema = d(2, 32, 44, XMLSchemaErrorCode.schema_reference_4);
+		missingSchema.setMessage("schema_reference.4: Failed to read schema document "
+				+ "'file:///salad.xsd',"
+				+ " because 1) could not find the document; 2) the document could not be read;"
+				+ " 3) the root element of the document is not <xsd:schema>.");
+		Diagnostic eltDiagnostic = d(1, 1, 8, XMLSchemaErrorCode.cvc_elt_1_a);
+		eltDiagnostic.setMessage("cvc-elt.1.a: Cannot find the declaration of element 'invoice'.");
+		XMLAssert.testDiagnosticsFor(xml, missingSchema, eltDiagnostic);
+
+		XMLAssert.testCodeActionsFor(xml, missingSchema);
 	}
 
 	private static void testDiagnosticsFor(String xml, Diagnostic... expected) {

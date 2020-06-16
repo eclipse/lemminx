@@ -174,6 +174,11 @@ public class XMLTextDocumentService implements TextDocumentService {
 			typeDefinitionLinkSupport = textDocumentClientCapabilities.getTypeDefinition() != null
 					&& textDocumentClientCapabilities.getTypeDefinition().getLinkSupport() != null
 					&& textDocumentClientCapabilities.getTypeDefinition().getLinkSupport();
+			sharedSettings.setOpenSettingsCommandSupport(
+					capabilities.getWorkspace() != null
+					&& capabilities.getWorkspace().getWorkspaceEdit() != null
+					&& capabilities.getWorkspace().getWorkspaceEdit().getResourceOperations() != null
+					&& capabilities.getWorkspace().getWorkspaceEdit().getResourceOperations().contains("create"));
 		}
 		if (extendedClientCapabilities != null) {
 			// Extended client capabilities
