@@ -41,4 +41,10 @@ public class CompletionParticipantAdapter implements ICompletionParticipant {
 		// Do nothing
 	}
 
+	@Override
+	public void onDTDSystemId(String valuePrefix, ICompletionRequest request, ICompletionResponse response)
+			throws Exception {
+		// Do nothing
+	}
+
 }

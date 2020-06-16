@@ -31,6 +31,7 @@ import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
+import org.eclipse.lemminx.dom.DTDDeclParameter;
 import org.eclipse.lemminx.dom.parser.Scanner;
 import org.eclipse.lemminx.dom.parser.ScannerState;
 import org.eclipse.lemminx.dom.parser.TokenType;
@@ -122,6 +123,24 @@ public class XMLCompletions {
 				case DelimiterAssign:
 					if (scanner.getTokenEnd() == offset) {
 						collectAttributeValueSuggestions(offset, offset, completionRequest, completionResponse);
+						return completionResponse;
+					}
+					break;
+				case DTDStartDoctypeTag:
+
+					DTDDeclParameter systemId = xmlDocument.getDoctype().getSystemIdNode();
+					if (systemId == null) {
+						break;
+					}
+
+					if (DOMNode.isIncluded(systemId, offset)) {
+						/**
+						 * Completion invoked within systemId parameter
+						 * ie, completion offset is at | like so:
+						 * <!DOCTYPE foo SYSTEM "./|">
+						 */
+						collectDTDSystemIdSuggestions(systemId.getStart(), systemId.getEnd(),
+								completionRequest, completionResponse);
 						return completionResponse;
 					}
 					break;
@@ -830,7 +849,7 @@ public class XMLCompletions {
 			int valueContentStart = valueStart + 1;
 			int valueContentEnd = valueEnd;
 			// valueEnd points to the char after quote, which encloses the replace range
-			if (valueEnd > valueStart && text.charAt(valueEnd - 1) == text.charAt(valueStart)) {
+			if (text.charAt(valueEnd - 1) == text.charAt(valueStart)) {
 				valueContentEnd--;
 			}
 			valuePrefix = offset >= valueContentStart && offset <= valueContentEnd
@@ -858,6 +877,41 @@ public class XMLCompletions {
 						"While performing Completions, getReplaceRange() was given a bad Offset location", e);
 			} catch (Exception e) {
 				LOGGER.log(Level.SEVERE, "While performing ICompletionParticipant#onAttributeValue", e);
+			}
+		}
+	}
+
+	/**
+	 * Collect completion items for DTD systemId
+	 * 
+	 * @param valueStart         the start offset of the systemId value, including quote
+	 * @param valueEnd           the end offset of the systemId value, including quote
+	 * @param completionRequest  the completion request
+	 * @param completionResponse the completion response
+	 */
+	private void collectDTDSystemIdSuggestions(int valueStart, int valueEnd, CompletionRequest completionRequest,
+			CompletionResponse completionResponse) {
+		int offset = completionRequest.getOffset();
+		String text = completionRequest.getXMLDocument().getText();
+		int valueContentStart = valueStart + 1;
+		int valueContentEnd = valueEnd - 1;
+		String valuePrefix = offset >= valueContentStart && offset <= valueContentEnd
+				? text.substring(valueContentStart, offset)
+				: "";
+		Collection<ICompletionParticipant> completionParticipants = getCompletionParticipants();
+
+		if (completionParticipants.size() > 0) {
+			try {
+				Range replaceRange = getReplaceRange(valueContentStart, valueContentEnd, completionRequest);
+				completionRequest.setReplaceRange(replaceRange);
+				for (ICompletionParticipant participant : completionParticipants) {
+					participant.onDTDSystemId(valuePrefix, completionRequest, completionResponse);
+				}
+			} catch (BadLocationException e) {
+				LOGGER.log(Level.SEVERE,
+						"While performing Completions, getReplaceRange() was given a bad Offset location", e);
+			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE, "While performing ICompletionParticipant#onDTDSystemId", e);
 			}
 		}
 	}

@@ -227,6 +227,61 @@ public class FilePathCompletionTest {
 		testCompletionFor(xml, 0);
 	}
 
+	@Test
+	public void testFilePathCompletionDTD() throws BadLocationException {
+		String xml = "<!DOCTYPE foo SYSTEM \"./|\">";
+		CompletionItem[] items = getCompletionItemList("/", 0, 23, 24, "folderA", "folderB", "NestedA");
+		testCompletionFor(xml, items);
+	}
+
+	@Test
+	public void testFilePathCompletionDTDBackSlash() throws BadLocationException {
+	
+		String xml = "<!DOCTYPE foo SYSTEM \".\\|\">";
+		CompletionItem[] items = getCompletionItemList("\\", 0, 23, 24, "folderA", "folderB", "NestedA");
+		testCompletionFor(xml, items);
+	}
+
+	@Test
+	public void testFilePathCompletionDTDFolderA() throws BadLocationException {
+		String xml = "<!DOCTYPE foo SYSTEM \"./folderA/|\">";
+		CompletionItem[] items = getCompletionItemList("/", 0, 31, 32, "xsdA1.xsd", "xsdA2.xsd");
+		testCompletionFor(xml, items);
+	}
+
+	@Test
+	public void testFilePathCompletionDTDFolderABackSlash() throws BadLocationException {
+		String xml = "<!DOCTYPE foo SYSTEM \".\\folderA\\|\">";
+		CompletionItem[] items = getCompletionItemList("\\", 0, 31, 32, "xsdA1.xsd", "xsdA2.xsd");
+		testCompletionFor(xml, items);
+	}
+
+	@Test
+	public void testFilePathCompletionDTDFolderB() throws BadLocationException {
+		String xml = "<!DOCTYPE foo SYSTEM \"folderB/|\">";
+		CompletionItem[] items = getCompletionItemList("/", 0, 29, 30, "xsdB1.xsd", "xmlB1.xml");
+		testCompletionFor(xml, 2, items);
+	}
+
+	@Test
+	public void testFilePathCompletionDTDFolderBBackSlash() throws BadLocationException {
+		String xml = "<!DOCTYPE foo SYSTEM \"folderB\\|\">";
+		CompletionItem[] items = getCompletionItemList("\\", 0, 29, 30, "xsdB1.xsd", "xmlB1.xml");
+		testCompletionFor(xml, 2, items);
+	}
+
+	@Test
+	public void testFilePathNoCompletion() throws BadLocationException {
+		String xml = "<!DOCTYPE foo SYSTEM \"|\">";
+		testCompletionFor(xml, 0);
+	}
+
+	@Test
+	public void testFilePathNoCompletionMissingSystemId() throws BadLocationException {
+		String xml = "<!DOCTYPE foo \"./|\">";
+		testCompletionFor(xml, 0);
+	}
+
 	private void testCompletionFor(String xml, CompletionItem... expectedItems) throws BadLocationException {
 		testCompletionFor(xml, null, expectedItems);
 	}

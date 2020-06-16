@@ -167,6 +167,9 @@ public class XSISchemaModel {
 		
 		String actualPrefix = document.getSchemaInstancePrefix();
 		DOMAttr attrAtOffset = nodeAtOffset.findAttrAt(offset);
+		if (attrAtOffset == null) {
+			return;
+		}
 		String attrName = attrAtOffset.getName();
 		
 		if(attrName != null) {
