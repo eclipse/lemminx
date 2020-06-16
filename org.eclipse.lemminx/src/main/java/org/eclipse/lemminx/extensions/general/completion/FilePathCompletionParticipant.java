@@ -47,14 +47,25 @@ public class FilePathCompletionParticipant extends CompletionParticipantAdapter 
 	@Override
 	public void onAttributeValue(String valuePrefix,
 			ICompletionRequest request, ICompletionResponse response) throws Exception {
+		addCompletionItems(valuePrefix, request, response);
+	}
+
+	@Override
+	public void onDTDSystemId(String valuePrefix,
+			ICompletionRequest request, ICompletionResponse response) throws Exception {
+		addCompletionItems(valuePrefix, request, response);
+	}
+
+	private void addCompletionItems(String valuePrefix,
+			ICompletionRequest request, ICompletionResponse response) throws Exception {
 
 		DOMDocument xmlDocument = request.getXMLDocument();
 		String text = xmlDocument.getText();
 		Range fullRange = request.getReplaceRange();
-		
+
 		// Get full attribute value range
 		int documentStartOffset = xmlDocument.offsetAt(fullRange.getStart());
-		
+
 		String fullAttributeValue = valuePrefix;
 		if (isEmpty(fullAttributeValue)) {
 			return;
@@ -64,7 +75,7 @@ public class FilePathCompletionParticipant extends CompletionParticipantAdapter 
 		int completionOffset = request.getOffset(); // offset after the typed character
 		int parsedAttributeStartOffset = StringUtils.getOffsetAfterWhitespace(fullAttributeValue, completionOffset - documentStartOffset) + documentStartOffset; // first character of URI
 		String attributePath = text.substring(parsedAttributeStartOffset, completionOffset);
-	
+
 		Position startValue = xmlDocument.positionAt(parsedAttributeStartOffset);
 		Position endValue = xmlDocument.positionAt(completionOffset);
 		fullRange = new Range(startValue, endValue);
@@ -96,14 +107,14 @@ public class FilePathCompletionParticipant extends CompletionParticipantAdapter 
 				return;
 			}
 		}
-		
+
 		if(isWindows) {
 			osSpecificAttributePath = convertToWindowsPath(osSpecificAttributePath);
 		}
 		else if("\\".equals(slashInAttribute)) { // Backslash used in Unix
 			osSpecificAttributePath = osSpecificAttributePath.replace("\\", "/");
 		}
-		
+
 		// Get the normalized URI string from the parent directory file if necessary
 		String workingDirectory = null; // The OS specific path for a working directory
 
@@ -129,10 +140,10 @@ public class FilePathCompletionParticipant extends CompletionParticipantAdapter 
 				}
 			}
 		}
-		
+
 		//Try to get a correctly formatted path from the given values
 		Path validAttributeValuePath = getNormalizedPath(workingDirectory, osSpecificAttributePath); 
-		
+
 		if(validAttributeValuePath == null) {
 			return;
 		}
