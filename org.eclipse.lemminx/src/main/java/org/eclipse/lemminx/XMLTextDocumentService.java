@@ -178,9 +178,12 @@ public class XMLTextDocumentService implements TextDocumentService {
 		if (extendedClientCapabilities != null) {
 			// Extended client capabilities
 			sharedSettings.getCodeLensSettings().setCodeLens(extendedClientCapabilities.getCodeLens());
-			sharedSettings.setActionableNotificationSupport(extendedClientCapabilities.isActionableNotificationSupport());
+			sharedSettings
+					.setActionableNotificationSupport(extendedClientCapabilities.isActionableNotificationSupport());
 			sharedSettings.setOpenSettingsCommandSupport(extendedClientCapabilities.isOpenSettingsCommandSupport());
 		}
+		// Workspace settings
+		sharedSettings.getWorkspaceSettings().setCapabilities(capabilities.getWorkspace());
 	}
 
 	@Override
@@ -195,8 +198,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	@Override
 	public CompletableFuture<Hover> hover(HoverParams params) {
 		return computeDOMAsync(params.getTextDocument(), (cancelChecker, xmlDocument) -> {
-			return getXMLLanguageService().doHover(xmlDocument, params.getPosition(), sharedSettings,
-					cancelChecker);
+			return getXMLLanguageService().doHover(xmlDocument, params.getPosition(), sharedSettings, cancelChecker);
 		});
 	}
 
@@ -240,8 +242,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 						}) //
 						.collect(Collectors.toList());
 			}
-			SymbolInformationResult result =  getXMLLanguageService()
-					.findSymbolInformations(xmlDocument, symbolSettings, cancelChecker);
+			SymbolInformationResult result = getXMLLanguageService().findSymbolInformations(xmlDocument, symbolSettings,
+					cancelChecker);
 			resultLimitExceeded = result.isResultLimitExceeded();
 			symbols = result.stream() //
 					.map(s -> {
@@ -249,7 +251,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 						return e;
 					}) //
 					.collect(Collectors.toList());
-			
+
 			if (resultLimitExceeded) {
 				// send warning
 				getLimitExceededWarnings().onResultLimitExceeded(xmlDocument.getTextDocument().getUri(),
@@ -560,8 +562,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	public LimitExceededWarnings getLimitExceededWarnings() {
 		if (this.limitExceededWarnings == null) {
-			this.limitExceededWarnings =
-					new LimitExceededWarnings(this.xmlLanguageServer.getLanguageClient(), sharedSettings);
+			this.limitExceededWarnings = new LimitExceededWarnings(this.xmlLanguageServer.getLanguageClient(),
+					sharedSettings);
 		}
 		return this.limitExceededWarnings;
 	}

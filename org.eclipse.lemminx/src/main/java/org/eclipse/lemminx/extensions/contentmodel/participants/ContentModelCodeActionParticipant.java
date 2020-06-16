@@ -35,10 +35,6 @@ public class ContentModelCodeActionParticipant implements ICodeActionParticipant
 
 	public ContentModelCodeActionParticipant() {
 		codeActionParticipants = new HashMap<>();
-		XMLSyntaxErrorCode.registerCodeActionParticipants(codeActionParticipants);
-		DTDErrorCode.registerCodeActionParticipants(codeActionParticipants);
-		XMLSchemaErrorCode.registerCodeActionParticipants(codeActionParticipants);
-		XSDErrorCode.registerCodeActionParticipants(codeActionParticipants);
 	}
 
 	@Override
@@ -47,10 +43,29 @@ public class ContentModelCodeActionParticipant implements ICodeActionParticipant
 		if (diagnostic == null || diagnostic.getCode() == null || !diagnostic.getCode().isLeft()) {
 			return;
 		}
+		registerCodeActionsIfNeeded(sharedSettings);
 		ICodeActionParticipant participant = codeActionParticipants.get(diagnostic.getCode().getLeft());
 		if (participant != null) {
-			participant.doCodeAction(diagnostic, range, document, codeActions, sharedSettings,
-					componentProvider);
+			participant.doCodeAction(diagnostic, range, document, codeActions, sharedSettings, componentProvider);
+		}
+	}
+
+	/**
+	 * Register code action if needed.
+	 * 
+	 * @param sharedSettings the shared settings.
+	 */
+	private void registerCodeActionsIfNeeded(SharedSettings sharedSettings) {
+		if (codeActionParticipants.isEmpty()) {
+			synchronized (codeActionParticipants) {
+				if (!codeActionParticipants.isEmpty()) {
+					return;
+				}
+				XMLSyntaxErrorCode.registerCodeActionParticipants(codeActionParticipants);
+				DTDErrorCode.registerCodeActionParticipants(codeActionParticipants);
+				XMLSchemaErrorCode.registerCodeActionParticipants(codeActionParticipants, sharedSettings);
+				XSDErrorCode.registerCodeActionParticipants(codeActionParticipants);
+			}
 		}
 	}
 }
