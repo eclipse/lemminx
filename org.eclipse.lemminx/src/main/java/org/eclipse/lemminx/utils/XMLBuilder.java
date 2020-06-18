@@ -253,41 +253,56 @@ public class XMLBuilder {
 		return addContent(text, false, false, null);
 	}
 
+	/**
+	 * Returns this XMLBuilder with <code>text</code> added depending on
+	 * <code>isWhitespaceContent</code>, <code>hasSiblings</code> and
+	 * <code>delimiter</code>
+	 *
+	 * @param text                the proposed text to add
+	 * @param isWhitespaceContent whether or not the text contains only whitespace content
+	 * @param hasSiblings         whether or not the corresponding text node has siblings
+	 * @param delimiter           line delimiter
+	 * @return this XMLBuilder with <code>text</code> added depending on
+	 * <code>isWhitespaceContent</code>, <code>hasSiblings</code> and
+	 * <code>delimiter</code>
+	 */
 	public XMLBuilder addContent(String text, Boolean isWhitespaceContent, Boolean hasSiblings, String delimiter) {
-            if (isWhitespaceContent) {
-		    // whoah: terriable, but this one seems to preserve single space.
-		    if (text.length() == 1) {
-			    //xml.append("+");
-			    xml.append(text);
-		    }
-            }
+        if (isWhitespaceContent) {
+			// whoah: terrible, but this one seems to preserve single space.
+			if (text.length() == 1) {
+				// xml.append("+");
+				xml.append(text);
+			}
+		}
 	    // "compatible" if() follow, changes are based on basically no understanding what's really going on here.
 	    if (!isWhitespaceContent) {
 		    if(isJoinContentLines()) {
 			    // ATSEC
 			    //xml.append("A:");
 			    text = normalizeSpace2(text);
-		    } else if(hasSiblings) {
-			    //xml.append("B:");
-			    text = text.trim();
-			    //	} else {
-			    // 	xml.append("C:");
-		    }
+			} else if (hasSiblings) {
+				//xml.append("B:");
+				text = text.trim();
+				//	} else {
+				// 	xml.append("C:");
+			}
+			if (isTrimTrailingWhitespace()) {
+				text = trimTrailingSpacesEachLine(text);
+			}
 		    //xml.append("-["+text+"]-");
 		    xml.append(text);
-            } else if (!hasSiblings && isPreserveEmptyContent()) {
+        } else if (!hasSiblings && isPreserveEmptyContent()) {
 		    xml.append(text);
-            } else if(hasSiblings) {
+        } else if (hasSiblings) {
 		    int preservedNewLines = getPreservedNewlines();
-		    if(preservedNewLines > 0) {
+		    if (preservedNewLines > 0) {
 			    int newLineCount = StringUtils.getNumberOfNewLines(text, isWhitespaceContent, delimiter, preservedNewLines);
 			    for (int i = 0; i < newLineCount - 1; i++) { // - 1 because the node after will insert a delimiter
 				    //xml.append("+");
 				    xml.append(delimiter);
 			    }
 		    }
-
-            }
+        }
             return this;
 	}
 
@@ -329,13 +344,39 @@ public class XMLBuilder {
 	}
 
 	/**
-	 * Trims the trailing newlines for the current xml StringBuilder
+	 * Trims the trailing newlines for the current XML StringBuilder
 	 */
 	public void trimFinalNewlines() {
 		int i = xml.length() - 1;
 		while (i >= 0 && Character.isWhitespace(xml.charAt(i))) {
 			xml.deleteCharAt(i--);
 		}
+	}
+
+	/**
+	 * Returns <code>str</code> with the trailing spaces from each line
+	 * removed
+	 *
+	 * @param str the String
+	 * @return <code>str</code> with the trailing spaces from each line
+	 * removed
+	 */
+	private static String trimTrailingSpacesEachLine(String str) {
+		StringBuilder sb = new StringBuilder(str);
+		int i = str.length() - 1;
+		boolean removeSpaces = true;
+		while (i >= 0) {
+			char curr = sb.charAt(i);
+			if (curr == '\n' || curr == '\r') {
+				removeSpaces = true;
+			} else if (removeSpaces && Character.isWhitespace(curr)) {
+				sb.deleteCharAt(i);
+			} else {
+				removeSpaces = false;
+			}
+			i--;
+		}
+		return sb.toString();
 	}
 
 	public XMLBuilder startCDATA() {
@@ -472,6 +513,10 @@ public class XMLBuilder {
 
 	private boolean isPreserveEmptyContent() {
 		return sharedSettings.getFormattingSettings().isPreserveEmptyContent();
+	}
+
+	private boolean isTrimTrailingWhitespace() {
+		return sharedSettings.getFormattingSettings().isTrimTrailingWhitespace();
 	}
 
 	private int getPreservedNewlines() {

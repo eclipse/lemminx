@@ -27,6 +27,7 @@ public class XMLFormattingOptions extends FormattingOptions {
 	public static final int DEFAULT_TAB_SIZE = 2;
 	public static final EnforceQuoteStyle DEFAULT_ENFORCE_QUOTE_STYLE = EnforceQuoteStyle.ignore;
 	public static final boolean DEFAULT_PRESERVE_ATTR_LINE_BREAKS = false;
+	public static final boolean DEFAULT_TRIM_TRAILING_SPACES = false;
 
 	// All possible keys
 	private static final String SPLIT_ATTRIBUTES = "splitAttributes";
@@ -38,6 +39,7 @@ public class XMLFormattingOptions extends FormattingOptions {
 	private static final String JOIN_CONTENT_LINES = "joinContentLines";
 	private static final String PRESERVED_NEWLINES = "preservedNewlines";
 	private static final String TRIM_FINAL_NEWLINES = "trimFinalNewlines";
+	private static final String TRIM_TRAILING_WHITESPACE = "trimTrailingWhitespace";
 	private static final String ENFORCE_QUOTE_STYLE = "enforceQuoteStyle";
 	private static final String PRESERVE_ATTR_LINE_BREAKS = "preserveAttributeLineBreaks";
 
@@ -294,6 +296,15 @@ public class XMLFormattingOptions extends FormattingOptions {
 	public boolean isTrimFinalNewlines() {
 		final Boolean value = this.getBoolean(TRIM_FINAL_NEWLINES);
 		return (value == null) ? true: value;
+	}
+
+	public void setTrimTrailingWhitespace(boolean newValue) {
+		this.putBoolean(TRIM_TRAILING_WHITESPACE, newValue);
+	}
+
+	public boolean isTrimTrailingWhitespace() {
+		final Boolean value = this.getBoolean(TRIM_TRAILING_WHITESPACE);
+		return (value == null) ? DEFAULT_TRIM_TRAILING_SPACES: value;
 	}
 
 	public void setEnforceQuoteStyle(EnforceQuoteStyle enforce) {
