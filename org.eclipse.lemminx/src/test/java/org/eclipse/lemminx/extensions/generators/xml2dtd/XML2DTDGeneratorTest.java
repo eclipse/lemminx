@@ -42,9 +42,28 @@ public class XML2DTDGeneratorTest {
 
 	@Test
 	public void dtdWithAttr() throws IOException {
-		String xml = "<note version=\"1.2\" />";
+		String xml = "<note version=\"1.2\" >";
 		String dtd = "<!ELEMENT note EMPTY>" + lineSeparator() + //
-				"<!ATTLIST note version CDATA #IMPLIED>";
+				"<!ATTLIST note version NMTOKEN #REQUIRED>";
+		assertGrammarGenerator(xml, new DTDGeneratorSettings(), dtd);
+	}
+
+	@Test
+	public void dtdWithAttrs() throws IOException {
+		String xml = "<note version=\"1.2\" >\r\n" + //
+				"	<to attr1=\"abcd\" attr2=\"efgh\">Tove</to>\r\n" + //
+				"	<from>Jani</from>\r\n" + //
+				"	<heading>Reminder</heading>\r\n" + //
+				"	<body>Don't forget me this weekend!</body>\r\n" + //
+				"</note>";
+		String dtd = "<!ELEMENT note (to,from,heading,body)>" + lineSeparator() + //
+				"<!ATTLIST note version NMTOKEN #REQUIRED>" + lineSeparator() + //
+				"<!ELEMENT to (#PCDATA)>" + lineSeparator() + //
+				"<!ATTLIST to attr1 NMTOKEN #REQUIRED>" + lineSeparator() + //
+				"<!ATTLIST to attr2 NMTOKEN #REQUIRED>" + lineSeparator() + //
+				"<!ELEMENT from (#PCDATA)>" + lineSeparator() + //
+				"<!ELEMENT heading (#PCDATA)>" + lineSeparator() + //
+				"<!ELEMENT body (#PCDATA)>";
 		assertGrammarGenerator(xml, new DTDGeneratorSettings(), dtd);
 	}
 
@@ -239,6 +258,61 @@ public class XML2DTDGeneratorTest {
 				"<!ELEMENT a (b?,c?)>" + lineSeparator() + //
 				"<!ELEMENT b EMPTY>" + lineSeparator() + //
 				"<!ELEMENT c EMPTY>";
+		assertGrammarGenerator(xml, new DTDGeneratorSettings(), dtd);
+	}
+
+	@Test
+	public void optionalAttribute() {
+		String xml = "<root>\r\n" + //
+				"	<item attr1=\"A\" attr2=\"B\"/>\r\n" + //
+				"	<item attr1=\"A\" />\r\n" + //
+				"</root>";
+		String dtd = "<!ELEMENT root (item+)>" + lineSeparator() + //
+				"<!ELEMENT item EMPTY>" + lineSeparator() + //
+				"<!ATTLIST item attr1 NMTOKEN #REQUIRED>" + lineSeparator() + //
+				"<!ATTLIST item attr2 NMTOKEN #IMPLIED>";
+		assertGrammarGenerator(xml, new DTDGeneratorSettings(), dtd);
+	}
+
+	@Test
+	public void attrIDsAndFixed() {
+		String xml = "<root>\r\n" + //
+				"	<item attr1=\"id1\" attr2=\"A\" />\r\n" + //
+				"	<item attr1=\"id2\" attr2=\"A\" />\r\n" + //
+				"	<item attr1=\"id3\" attr2=\"A\" />\r\n" + //
+				"	<item attr1=\"id4\" attr2=\"A\" />\r\n" + //
+				"	<item attr1=\"id5\" attr2=\"A\" />\r\n" + //
+				"	<item attr1=\"id6\" attr2=\"A\" />\r\n" + //
+				"	<item attr1=\"id7\" attr2=\"A\" />\r\n" + //
+				"	<item attr1=\"id8\" attr2=\"A\" />\r\n" + //
+				"	<item attr1=\"id9\" attr2=\"A\" />\r\n" + //
+				"	<item attr1=\"id10\" attr2=\"A\" />\r\n" + //
+				"</root>";
+		String dtd = "<!ELEMENT root (item+)>" + lineSeparator() + //
+				"<!ELEMENT item EMPTY>" + lineSeparator() + //
+				"<!ATTLIST item attr1 ID #REQUIRED>" + lineSeparator() + //
+				"<!ATTLIST item attr2 NMTOKEN #FIXED \"A\">";
+		assertGrammarGenerator(xml, new DTDGeneratorSettings(), dtd);
+	}
+	
+	@Test
+	public void attrIDsAndEnums() {
+		String xml = "<root>\r\n" + //
+				"	<item attr1=\"id1\" attr2=\"A\" />\r\n" + //
+				"	<item attr1=\"id2\" attr2=\"A\" />\r\n" + //
+				"	<item attr1=\"id3\" attr2=\"A\" />\r\n" + //
+				"	<item attr1=\"id4\" attr2=\"A\" />\r\n" + //
+				"	<item attr1=\"id5\" attr2=\"A\" />\r\n" + //
+				"	<item attr1=\"id6\" attr2=\"B\" />\r\n" + //
+				"	<item attr1=\"id7\" attr2=\"B\" />\r\n" + //
+				"	<item attr1=\"id8\" attr2=\"B\" />\r\n" + //
+				"	<item attr1=\"id9\" attr2=\"B\" />\r\n" + //
+				"	<item attr1=\"id10\" attr2=\"B\" />\r\n" + //
+				"</root>";
+		String dtd = "<!ELEMENT root (item+)>" + lineSeparator() + //
+				"<!ELEMENT item EMPTY>" + lineSeparator() + //
+				"<!ATTLIST item attr1 ID #REQUIRED>" + lineSeparator() + //
+				"<!ATTLIST item attr2 (A|B) #REQUIRED>";
 		assertGrammarGenerator(xml, new DTDGeneratorSettings(), dtd);
 	}
 }

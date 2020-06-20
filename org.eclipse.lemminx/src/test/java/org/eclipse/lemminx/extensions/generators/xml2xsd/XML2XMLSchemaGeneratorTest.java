@@ -74,7 +74,56 @@ public class XML2XMLSchemaGeneratorTest {
 	}
 
 	@Test
-	public void schemaWithAttr() throws IOException {
+	public void schemaWithDecimalAttr() throws IOException {
+		String xml = "<note version=\"1.2\" />";
+		String xsd = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + lineSeparator() + //
+				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">" + lineSeparator() + //
+				"  <xs:element name=\"note\">" + lineSeparator() + //
+				"    <xs:complexType>" + lineSeparator() + //
+				"      <xs:attribute name=\"version\" type=\"xs:decimal\" use=\"required\" />" + lineSeparator() + //
+				"    </xs:complexType>" + lineSeparator() + //
+				"  </xs:element>" + lineSeparator() + //
+				"</xs:schema>";
+		assertGrammarGenerator(xml, new XMLSchemaGeneratorSettings(), xsd);
+	}
+
+	@Test
+	public void schemaWithDecimalAttrAndContent() throws IOException {
+		String xml = "<note version=\"1.2\" >ABCD</note>";
+		String xsd = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + lineSeparator() + //
+				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">" + lineSeparator() + //
+				"  <xs:element name=\"note\">" + lineSeparator() + //
+				"    <xs:complexType>" + lineSeparator() + //
+				"      <xs:simpleContent>" + lineSeparator() + //
+				"        <xs:extension base=\"xs:string\">" + lineSeparator() + //
+				"          <xs:attribute name=\"version\" type=\"xs:decimal\" use=\"required\" />" + lineSeparator() + //
+				"        </xs:extension>" + lineSeparator() + //
+				"      </xs:simpleContent>" + lineSeparator() + //
+				"    </xs:complexType>" + lineSeparator() + //
+				"  </xs:element>" + lineSeparator() + //
+				"</xs:schema>";
+		assertGrammarGenerator(xml, new XMLSchemaGeneratorSettings(), xsd);
+	}
+
+	@Test
+	public void schemaWithDecimalAttrAndMixedContent() throws IOException {
+		String xml = "<note version=\"1.2\" >AB<C/>D</note>";
+		String xsd = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + lineSeparator() + //
+				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">" + lineSeparator() + //
+				"  <xs:element name=\"note\">" + lineSeparator() + //
+				"    <xs:complexType mixed=\"true\">" + lineSeparator() + //
+				"      <xs:sequence>" + lineSeparator() + //
+				"        <xs:element name=\"C\" />" + lineSeparator() + //
+				"      </xs:sequence>" + lineSeparator() + //
+				"      <xs:attribute name=\"version\" type=\"xs:decimal\" use=\"required\" />" + lineSeparator() + //
+				"    </xs:complexType>" + lineSeparator() + //
+				"  </xs:element>" + lineSeparator() + //
+				"</xs:schema>";
+		assertGrammarGenerator(xml, new XMLSchemaGeneratorSettings(), xsd);
+	}
+
+	@Test
+	public void schemaWithAttrs() throws IOException {
 		String xml = "<note version=\"1.2\" >\r\n" + //
 				"	<to attr1=\"abcd\" attr2=\"efgh\">Tove</to>\r\n" + //
 				"	<from>Jani</from>\r\n" + //
@@ -90,8 +139,8 @@ public class XML2XMLSchemaGeneratorTest {
 				"          <xs:complexType>" + lineSeparator() + //
 				"            <xs:simpleContent>" + lineSeparator() + //
 				"              <xs:extension base=\"xs:string\">" + lineSeparator() + //
-				"                <xs:attribute name=\"attr2\" />" + lineSeparator() + //
-				"                <xs:attribute name=\"attr1\" />" + lineSeparator() + //
+				"                <xs:attribute name=\"attr1\" use=\"required\" />" + lineSeparator() + //
+				"                <xs:attribute name=\"attr2\" use=\"required\" />" + lineSeparator() + //
 				"              </xs:extension>" + lineSeparator() + //
 				"            </xs:simpleContent>" + lineSeparator() + //
 				"          </xs:complexType>" + lineSeparator() + //
@@ -100,7 +149,7 @@ public class XML2XMLSchemaGeneratorTest {
 				"        <xs:element name=\"heading\" type=\"xs:string\" />" + lineSeparator() + //
 				"        <xs:element name=\"body\" type=\"xs:string\" />" + lineSeparator() + //
 				"      </xs:sequence>" + lineSeparator() + //
-				"      <xs:attribute name=\"version\" />" + lineSeparator() + //
+				"      <xs:attribute name=\"version\" type=\"xs:decimal\" use=\"required\" />" + lineSeparator() + //
 				"    </xs:complexType>" + lineSeparator() + //
 				"  </xs:element>" + lineSeparator() + //
 				"</xs:schema>";
@@ -192,12 +241,8 @@ public class XML2XMLSchemaGeneratorTest {
 				"      <xs:sequence>" + lineSeparator() + //
 				"        <xs:element name=\"item\" maxOccurs=\"unbounded\">" + lineSeparator() + //
 				"          <xs:complexType>" + lineSeparator() + //
-				"            <xs:simpleContent>" + lineSeparator() + //
-				"              <xs:extension base=\"xs:string\">" + lineSeparator() + //
-				"                <xs:attribute name=\"price\" />" + lineSeparator() + //
-				"                <xs:attribute name=\"name\" />" + lineSeparator() + //
-				"              </xs:extension>" + lineSeparator() + //
-				"            </xs:simpleContent>" + lineSeparator() + //
+				"            <xs:attribute name=\"name\" use=\"required\" />" + lineSeparator() + //
+				"            <xs:attribute name=\"price\" type=\"xs:decimal\" use=\"required\" />" + lineSeparator() + //
 				"          </xs:complexType>" + lineSeparator() + //
 				"        </xs:element>" + lineSeparator() + //
 				"      </xs:sequence>" + lineSeparator() + //
@@ -206,14 +251,14 @@ public class XML2XMLSchemaGeneratorTest {
 				"</xs:schema>";
 		assertGrammarGenerator(xml, new XMLSchemaGeneratorSettings(), xsd);
 	}
-	
+
 	@Test
 	public void oneZeroOccurrences() {
 		String xml = "<root>\r\n" + //
 				"    <a>\r\n" + //
-				"        <b />\r\n" + // 
+				"        <b />\r\n" + //
 				"    </a>\r\n" + //
-				"    <a></a>\r\n" + // 
+				"    <a></a>\r\n" + //
 				"</root>";
 		String xsd = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + lineSeparator() + //
 				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">" + lineSeparator() + //
@@ -221,10 +266,10 @@ public class XML2XMLSchemaGeneratorTest {
 				"    <xs:complexType>" + lineSeparator() + //
 				"      <xs:sequence>" + lineSeparator() + //
 				"        <xs:element name=\"a\" maxOccurs=\"unbounded\">" + lineSeparator() + //
-				"          <xs:complexType>" + lineSeparator() + //				
+				"          <xs:complexType>" + lineSeparator() + //
 				"            <xs:sequence minOccurs=\"0\">" + lineSeparator() + //
 				"              <xs:element name=\"b\" minOccurs=\"0\" />" + lineSeparator() + //
-				"            </xs:sequence>" + lineSeparator() + //				
+				"            </xs:sequence>" + lineSeparator() + //
 				"          </xs:complexType>" + lineSeparator() + //
 				"        </xs:element>" + lineSeparator() + //
 				"      </xs:sequence>" + lineSeparator() + //
@@ -233,21 +278,21 @@ public class XML2XMLSchemaGeneratorTest {
 				"</xs:schema>";
 		assertGrammarGenerator(xml, new XMLSchemaGeneratorSettings(), xsd);
 	}
-	
+
 	@Test
 	public void oneZeroOccurrences2() {
 		String xml = "<root>\r\n" + //
 				"    <a>\r\n" + //
-				"        <b />\r\n" + // 
+				"        <b />\r\n" + //
 				"    </a>\r\n" + //
 				"    <a>\r\n" + //
-				"        <c />\r\n" + // 
+				"        <c />\r\n" + //
 				"    </a>\r\n" + //
 				"    <a>\r\n" + //
-				"        <b />\r\n" + // 				
-				"        <c />\r\n" + // 
-				"    </a>\r\n" + //				
-				"    <a></a>\r\n" + // 
+				"        <b />\r\n" + //
+				"        <c />\r\n" + //
+				"    </a>\r\n" + //
+				"    <a></a>\r\n" + //
 				"</root>";
 		String xsd = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + lineSeparator() + //
 				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">" + lineSeparator() + //
@@ -255,11 +300,207 @@ public class XML2XMLSchemaGeneratorTest {
 				"    <xs:complexType>" + lineSeparator() + //
 				"      <xs:sequence>" + lineSeparator() + //
 				"        <xs:element name=\"a\" maxOccurs=\"unbounded\">" + lineSeparator() + //
-				"          <xs:complexType>" + lineSeparator() + //				
+				"          <xs:complexType>" + lineSeparator() + //
 				"            <xs:sequence minOccurs=\"0\">" + lineSeparator() + //
 				"              <xs:element name=\"b\" minOccurs=\"0\" />" + lineSeparator() + //
-				"              <xs:element name=\"c\" minOccurs=\"0\" />" + lineSeparator() + //				
-				"            </xs:sequence>" + lineSeparator() + //				
+				"              <xs:element name=\"c\" minOccurs=\"0\" />" + lineSeparator() + //
+				"            </xs:sequence>" + lineSeparator() + //
+				"          </xs:complexType>" + lineSeparator() + //
+				"        </xs:element>" + lineSeparator() + //
+				"      </xs:sequence>" + lineSeparator() + //
+				"    </xs:complexType>" + lineSeparator() + //
+				"  </xs:element>" + lineSeparator() + //
+				"</xs:schema>";
+		assertGrammarGenerator(xml, new XMLSchemaGeneratorSettings(), xsd);
+	}
+
+	@Test
+	public void choice() {
+		String xml = "<root>\r\n" + //
+				"	<a>\r\n" + //
+				"		<c />\r\n" + //
+				"		<b />\r\n" + //
+				"	</a>\r\n" + //
+				"	<a>\r\n" + //
+				"		<b />\r\n" + //
+				"		<c />\r\n" + //
+				"	</a>\r\n" + //
+				"</root>";
+		String xsd = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + lineSeparator() + //
+				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">" + lineSeparator() + //
+				"  <xs:element name=\"root\">" + lineSeparator() + //
+				"    <xs:complexType>" + lineSeparator() + //
+				"      <xs:sequence>" + lineSeparator() + //
+				"        <xs:element name=\"a\" maxOccurs=\"unbounded\">" + lineSeparator() + //
+				"          <xs:complexType>" + lineSeparator() + //
+				"            <xs:sequence>" + lineSeparator() + //
+				"              <xs:choice>" + lineSeparator() + //
+				"                <xs:element name=\"c\" />" + lineSeparator() + //
+				"                <xs:element name=\"b\" />" + lineSeparator() + //
+				"                <xs:choice>" + lineSeparator() + //
+				"            </xs:sequence>" + lineSeparator() + //
+				"          </xs:complexType>" + lineSeparator() + //
+				"        </xs:element>" + lineSeparator() + //
+				"      </xs:sequence>" + lineSeparator() + //
+				"    </xs:complexType>" + lineSeparator() + //
+				"  </xs:element>" + lineSeparator() + //
+				"</xs:schema>";
+		assertGrammarGenerator(xml, new XMLSchemaGeneratorSettings(), xsd);
+	}
+
+	@Test
+	public void optionalAttribute() {
+		String xml = "<root>\r\n" + //
+				"	<item attr1=\"\" attr2=\"\"/>\r\n" + //
+				"	<item attr1=\"\" />\r\n" + //
+				"</root>";
+		String xsd = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + lineSeparator() + //
+				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">" + lineSeparator() + //
+				"  <xs:element name=\"root\">" + lineSeparator() + //
+				"    <xs:complexType>" + lineSeparator() + //
+				"      <xs:sequence>" + lineSeparator() + //
+				"        <xs:element name=\"item\" maxOccurs=\"unbounded\">" + lineSeparator() + //
+				"          <xs:complexType>" + lineSeparator() + //
+				"            <xs:attribute name=\"attr1\" use=\"required\" />" + lineSeparator() + //
+				"            <xs:attribute name=\"attr2\" />" + lineSeparator() + //
+				"          </xs:complexType>" + lineSeparator() + //
+				"        </xs:element>" + lineSeparator() + //
+				"      </xs:sequence>" + lineSeparator() + //
+				"    </xs:complexType>" + lineSeparator() + //
+				"  </xs:element>" + lineSeparator() + //
+				"</xs:schema>";
+		assertGrammarGenerator(xml, new XMLSchemaGeneratorSettings(), xsd);
+	}
+
+	@Test
+	public void attrIDsAndFixed() {
+		String xml = "<root>\r\n" + //
+				"	<item attr1=\"id1\" attr2=\"A\" />\r\n" + //
+				"	<item attr1=\"id2\" attr2=\"A\" />\r\n" + //
+				"	<item attr1=\"id3\" attr2=\"A\" />\r\n" + //
+				"	<item attr1=\"id4\" attr2=\"A\" />\r\n" + //
+				"	<item attr1=\"id5\" attr2=\"A\" />\r\n" + //
+				"	<item attr1=\"id6\" attr2=\"A\" />\r\n" + //
+				"	<item attr1=\"id7\" attr2=\"A\" />\r\n" + //
+				"	<item attr1=\"id8\" attr2=\"A\" />\r\n" + //
+				"	<item attr1=\"id9\" attr2=\"A\" />\r\n" + //
+				"	<item attr1=\"id10\" attr2=\"A\" />\r\n" + //
+				"</root>";
+		String xsd = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + lineSeparator() + //
+				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">" + lineSeparator() + //
+				"  <xs:element name=\"root\">" + lineSeparator() + //
+				"    <xs:complexType>" + lineSeparator() + //
+				"      <xs:sequence>" + lineSeparator() + //
+				"        <xs:element name=\"item\" maxOccurs=\"unbounded\">" + lineSeparator() + //
+				"          <xs:complexType>" + lineSeparator() + //
+				"            <xs:attribute name=\"attr1\" type=\"xs:ID\" use=\"required\" />" + lineSeparator() + //
+				"            <xs:attribute name=\"attr2\" use=\"required\" fixed=\"A\" />" + lineSeparator() + //
+				"          </xs:complexType>" + lineSeparator() + //
+				"        </xs:element>" + lineSeparator() + //
+				"      </xs:sequence>" + lineSeparator() + //
+				"    </xs:complexType>" + lineSeparator() + //
+				"  </xs:element>" + lineSeparator() + //
+				"</xs:schema>";
+		assertGrammarGenerator(xml, new XMLSchemaGeneratorSettings(), xsd);
+	}
+
+	@Test
+	public void attrIDsAndEnums() {
+		String xml = "<root>\r\n" + //
+				"	<item attr1=\"id1\" attr2=\"A\" />\r\n" + //
+				"	<item attr1=\"id2\" attr2=\"A\" />\r\n" + //
+				"	<item attr1=\"id3\" attr2=\"A\" />\r\n" + //
+				"	<item attr1=\"id4\" attr2=\"A\" />\r\n" + //
+				"	<item attr1=\"id5\" attr2=\"A\" />\r\n" + //
+				"	<item attr1=\"id6\" attr2=\"B\" />\r\n" + //
+				"	<item attr1=\"id7\" attr2=\"B\" />\r\n" + //
+				"	<item attr1=\"id8\" attr2=\"B\" />\r\n" + //
+				"	<item attr1=\"id9\" attr2=\"B\" />\r\n" + //
+				"	<item attr1=\"id10\" attr2=\"B\" />\r\n" + //
+				"</root>";
+		String xsd = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + lineSeparator() + //
+				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">" + lineSeparator() + //
+				"  <xs:element name=\"root\">" + lineSeparator() + //
+				"    <xs:complexType>" + lineSeparator() + //
+				"      <xs:sequence>" + lineSeparator() + //
+				"        <xs:element name=\"item\" maxOccurs=\"unbounded\">" + lineSeparator() + //
+				"          <xs:complexType>" + lineSeparator() + //
+				"            <xs:attribute name=\"attr1\" type=\"xs:ID\" use=\"required\" />" + lineSeparator() + //
+				"            <xs:attribute name=\"attr2\" use=\"required\">" + lineSeparator() + //
+				"              <xs:simpleType>" + lineSeparator() + //
+				"                <xs:restriction base=\"xs:string\">" + lineSeparator() + //
+				"                  <xs:enumeration value=\"A\" />" + lineSeparator() + //
+				"                  <xs:enumeration value=\"B\" />" + lineSeparator() + //
+				"                </xs:restriction>" + lineSeparator() + //
+				"              </xs:simpleType>" + lineSeparator() + //
+				"            </xs:attribute>" + lineSeparator() + //
+				"          </xs:complexType>" + lineSeparator() + //
+				"        </xs:element>" + lineSeparator() + //
+				"      </xs:sequence>" + lineSeparator() + //
+				"    </xs:complexType>" + lineSeparator() + //
+				"  </xs:element>" + lineSeparator() + //
+				"</xs:schema>";
+		assertGrammarGenerator(xml, new XMLSchemaGeneratorSettings(), xsd);
+	}
+
+	@Test
+	public void attrTypes() {
+		String xml = "<root>\r\n" + //
+				"	<item dateTime=\"2001-10-26T21:32:52+02:00\"\r\n" + //
+				"		  date=\"2001-10-26\"\r\n" + //
+				"         boolean=\"true\"\r\n" + //
+				"         integer=\"1\"\r\n" + //
+				"         decimal=\"1.2\"  />\r\n" + //
+				"</root>";
+		String xsd = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + lineSeparator() + //
+				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">" + lineSeparator() + //
+				"  <xs:element name=\"root\">" + lineSeparator() + //
+				"    <xs:complexType>" + lineSeparator() + //
+				"      <xs:sequence>" + lineSeparator() + //
+				"        <xs:element name=\"item\">" + lineSeparator() + //
+				"          <xs:complexType>" + lineSeparator() + //
+				"            <xs:attribute name=\"dateTime\" type=\"xs:dateTime\" use=\"required\" />" + lineSeparator()
+				+ //
+				"            <xs:attribute name=\"date\" type=\"xs:date\" use=\"required\" />" + lineSeparator() + //
+				"            <xs:attribute name=\"boolean\" type=\"xs:boolean\" use=\"required\" />" + lineSeparator() + //
+				"            <xs:attribute name=\"integer\" type=\"xs:integer\" use=\"required\" />" + lineSeparator() + //
+				"            <xs:attribute name=\"decimal\" type=\"xs:decimal\" use=\"required\" />" + lineSeparator() + //
+				"          </xs:complexType>" + lineSeparator() + //
+				"        </xs:element>" + lineSeparator() + //
+				"      </xs:sequence>" + lineSeparator() + //
+				"    </xs:complexType>" + lineSeparator() + //
+				"  </xs:element>" + lineSeparator() + //
+				"</xs:schema>";
+		assertGrammarGenerator(xml, new XMLSchemaGeneratorSettings(), xsd);
+	}
+
+	@Test
+	public void attrTypesWith2Occurs() {
+		String xml = "<root>\r\n" + //
+				"	<item dateTime=\"2001-10-26T21:32:52+02:00\"\r\n" + //
+				"		  date=\"2001-10-26\"\r\n" + //
+				"         boolean=\"true\"\r\n" + //
+				"         integer=\"1\"\r\n" + //
+				"         decimal=\"1.2\"  />\r\n" + //
+				"	<item dateTime=\"2001-10-26T21:32:52+02:00\"\r\n" + //
+				"		  date=\"2001-10-26\"\r\n" + //
+				"         boolean=\"true\"\r\n" + //
+				"         integer=\"1\"\r\n" + //
+				"         decimal=\"XXXXXXXXXXXXXXXXXXXXXX\"  />\r\n" + //
+				"</root>";
+		String xsd = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + lineSeparator() + //
+				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">" + lineSeparator() + //
+				"  <xs:element name=\"root\">" + lineSeparator() + //
+				"    <xs:complexType>" + lineSeparator() + //
+				"      <xs:sequence>" + lineSeparator() + //
+				"        <xs:element name=\"item\" maxOccurs=\"unbounded\">" + lineSeparator() + //
+				"          <xs:complexType>" + lineSeparator() + //
+				"            <xs:attribute name=\"dateTime\" type=\"xs:dateTime\" use=\"required\" />" + lineSeparator()
+				+ //
+				"            <xs:attribute name=\"date\" type=\"xs:date\" use=\"required\" />" + lineSeparator() + //
+				"            <xs:attribute name=\"boolean\" type=\"xs:boolean\" use=\"required\" />" + lineSeparator() + //
+				"            <xs:attribute name=\"integer\" type=\"xs:integer\" use=\"required\" />" + lineSeparator() + //
+				"            <xs:attribute name=\"decimal\" use=\"required\" />" + lineSeparator() + //
 				"          </xs:complexType>" + lineSeparator() + //
 				"        </xs:element>" + lineSeparator() + //
 				"      </xs:sequence>" + lineSeparator() + //

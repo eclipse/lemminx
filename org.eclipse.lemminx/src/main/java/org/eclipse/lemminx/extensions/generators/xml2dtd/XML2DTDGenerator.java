@@ -13,6 +13,7 @@ package org.eclipse.lemminx.extensions.generators.xml2dtd;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.SortedSet;
 
 import org.eclipse.lemminx.extensions.generators.AbstractXML2GrammarGenerator;
 import org.eclipse.lemminx.extensions.generators.AttributeDeclaration;
@@ -29,14 +30,14 @@ public class XML2DTDGenerator extends AbstractXML2GrammarGenerator<DTDGeneratorS
 
 	@Override
 	protected void generate(Grammar grammar, DTDGeneratorSettings settings, XMLBuilder dtd) {
-		for (ElementDeclaration element : grammar.getElements()) {
-			boolean hasCharacterContent = element.hasCharacterContent();
+		for (ElementDeclaration elementDecl : grammar.getElements()) {
+			boolean hasCharacterContent = elementDecl.hasCharacterContent();
 
 			// <!ELEMENT
 			dtd.startDTDElementDecl();
-			dtd.addParameter(element.getName());
+			dtd.addParameter(elementDecl.getName());
 
-			Collection<ElementDeclaration> children = element.getElements();
+			Collection<ElementDeclaration> children = elementDecl.getElements();
 			if (children.isEmpty()) {
 				if (hasCharacterContent) {
 					dtd.addContent(" (#PCDATA)");
@@ -47,12 +48,12 @@ public class XML2DTDGenerator extends AbstractXML2GrammarGenerator<DTDGeneratorS
 				// There are children
 				if (!hasCharacterContent) {
 
-					boolean sequenced = element.getChildrenProperties().isSequenced();
+					boolean sequenced = elementDecl.getChildrenProperties().isSequenced();
 					if (sequenced) {
 						// All elements have the same child elements in the same sequence
 						dtd.addContent(" (");
 						boolean first = true;
-						for (Map.Entry<String, Cardinality> elementInfo : element.getChildrenProperties()
+						for (Map.Entry<String, Cardinality> elementInfo : elementDecl.getChildrenProperties()
 								.getCardinalities().entrySet()) {
 							if (!first) {
 								dtd.addContent(",");
@@ -101,16 +102,55 @@ public class XML2DTDGenerator extends AbstractXML2GrammarGenerator<DTDGeneratorS
 			dtd.closeStartElement();
 
 			// <!ATTLIST
-			Collection<AttributeDeclaration> attributes = element.getAttributes();
+			Collection<AttributeDeclaration> attributes = elementDecl.getAttributes();
 			if (!attributes.isEmpty()) {
-				dtd.startDTDAttlistDecl();
-				dtd.addParameter(element.getName());
 				for (AttributeDeclaration attribute : attributes) {
+
+					// <!ATTLIST elementname
+					dtd.startDTDAttlistDecl();
+					dtd.addParameter(elementDecl.getName());
+
+					boolean required = attribute.isRequired();
+					boolean isID = attribute.isID(settings);
+					boolean fixed = attribute.isFixedValue(settings);
+					boolean enums = attribute.isEnums(settings);
+					String tokentype = (attribute.isAllNMTOKENs() ? "NMTOKEN" : "CDATA");
+
+					// <!ATTLIST elementname attname
 					dtd.addParameter(attribute.getName());
-					dtd.addParameter("CDATA");
-					dtd.addParameter("#IMPLIED");
+					if (isID) {
+						dtd.addParameter("ID");
+					} else if (fixed) {
+						String val = attribute.getValues().first();
+						dtd.addParameter(tokentype);
+						dtd.addParameter("#FIXED");
+						dtd.addParameter("\"" + val + "\"");
+					} else if (enums) {
+						dtd.addContent(" (");
+						SortedSet<String> values = attribute.getValues();
+						boolean first = true;
+						for (String value : values) {
+							if (!first) {
+								dtd.addContent("|");
+							}
+							dtd.addContent(value);
+							first = false;
+						}
+						dtd.addContent(")");
+					} else {
+						dtd.addParameter(tokentype);
+					}
+
+					if (!fixed) {
+						if (required) {
+							dtd.addParameter("#REQUIRED");
+						} else {
+							dtd.addParameter("#IMPLIED");
+						}
+					}
+
+					dtd.closeStartElement();
 				}
-				dtd.closeStartElement();
 			}
 		}
 	}
@@ -124,4 +164,5 @@ public class XML2DTDGenerator extends AbstractXML2GrammarGenerator<DTDGeneratorS
 	protected boolean isFlat() {
 		return true;
 	}
+
 }
