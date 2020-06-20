@@ -147,7 +147,7 @@ public abstract class AbstractXML2GrammarGenerator<T extends FileContentGenerato
 				if (!elementDecl.hasCharacterContent()) {
 					elementDecl.setHasCharacterContent(hasCharacterContent(element));
 				}
-				// Update occurrences
+				// Update element occurrences
 				elementDecl.incrementOccurrences();
 				// Collect attributes
 				NamedNodeMap attributes = element.getAttributes();
@@ -155,7 +155,12 @@ public abstract class AbstractXML2GrammarGenerator<T extends FileContentGenerato
 					for (int j = 0; j < attributes.getLength(); j++) {
 						Attr attr = (Attr) attributes.item(j);
 						if (!isIgnore(attr)) {
-							elementDecl.getAttribute(attr.getName());
+							// Attribute must be added in the grammar
+							AttributeDeclaration attributeDecl = elementDecl.getAttribute(attr.getName());
+							// Update attribute occurrences
+							attributeDecl.incrementOccurrences();
+							// Update attribute value
+							attributeDecl.addValue(attr.getValue());
 						}
 					}
 				}
@@ -164,15 +169,25 @@ public abstract class AbstractXML2GrammarGenerator<T extends FileContentGenerato
 		}
 	}
 
+	/**
+	 * Returns true if the given attribute must be ignore and false otherwise.
+	 * 
+	 * @param attr the DOM attribute.
+	 * 
+	 * @return true if the given attribute must be ignore and false otherwise.o
+	 */
 	private static boolean isIgnore(Attr attr) {
 		String name = attr.getName();
 		if (StringUtils.isEmpty(name)) {
+			// the attribute name is empty, ignore it
 			return true;
 		}
 		if (DOMAttr.isXmlns(name)) {
+			// the attribute is a XML namespace (xmlns="http://...."), ignore it
 			return true;
 		}
 		if (name.indexOf(':') != -1) {
+			// the attribute have prefix, ignore it (ex : xsi:schemaLocation).
 			return true;
 		}
 		return false;
@@ -215,4 +230,5 @@ public abstract class AbstractXML2GrammarGenerator<T extends FileContentGenerato
 		}
 		return false;
 	}
+
 }
