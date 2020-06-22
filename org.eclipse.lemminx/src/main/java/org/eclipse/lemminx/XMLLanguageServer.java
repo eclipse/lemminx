@@ -16,6 +16,7 @@ package org.eclipse.lemminx;
 import static org.eclipse.lemminx.utils.VersionHelper.getVersion;
 import static org.eclipse.lsp4j.jsonrpc.CompletableFutures.computeAsync;
 
+import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -26,6 +27,7 @@ import java.util.logging.Logger;
 import org.eclipse.lemminx.client.ExtendedClientCapabilities;
 import org.eclipse.lemminx.commons.ModelTextDocument;
 import org.eclipse.lemminx.commons.ParentProcessWatcher.ProcessLanguageServer;
+import org.eclipse.lemminx.customservice.ActionableNotification;
 import org.eclipse.lemminx.customservice.AutoCloseTagResponse;
 import org.eclipse.lemminx.customservice.XMLLanguageClientAPI;
 import org.eclipse.lemminx.customservice.XMLLanguageServerAPI;
@@ -35,6 +37,7 @@ import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSetting
 import org.eclipse.lemminx.logs.LogHelper;
 import org.eclipse.lemminx.services.IXMLDocumentProvider;
 import org.eclipse.lemminx.services.IXMLLanguageClientAPIProvider;
+import org.eclipse.lemminx.services.IXMLNotificationService;
 import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.settings.AllXMLSettings;
 import org.eclipse.lemminx.settings.InitializationOptionsSettings;
@@ -51,9 +54,12 @@ import org.eclipse.lemminx.settings.capabilities.InitializationOptionsExtendedCl
 import org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesInitializer;
 import org.eclipse.lemminx.settings.capabilities.XMLCapabilityManager;
 import org.eclipse.lemminx.utils.FilesUtils;
+import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
 import org.eclipse.lsp4j.InitializedParams;
+import org.eclipse.lsp4j.MessageParams;
+import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
@@ -66,7 +72,7 @@ import org.eclipse.lsp4j.services.WorkspaceService;
  *
  */
 public class XMLLanguageServer
-		implements ProcessLanguageServer, XMLLanguageServerAPI, IXMLDocumentProvider, IXMLLanguageClientAPIProvider {
+		implements ProcessLanguageServer, XMLLanguageServerAPI, IXMLDocumentProvider, IXMLLanguageClientAPIProvider, IXMLNotificationService {
 
 	private static final Logger LOGGER = Logger.getLogger(XMLLanguageServer.class.getName());
 
@@ -82,6 +88,7 @@ public class XMLLanguageServer
 		xmlLanguageService = new XMLLanguageService();
 		xmlLanguageService.setClientAPIProvider(this);
 		xmlLanguageService.setDocumentProvider(this);
+		xmlLanguageService.setNotificationService(this);
 		xmlTextDocumentService = new XMLTextDocumentService(this);
 		xmlWorkspaceService = new XMLWorkspaceService(this);
 		delayer = Executors.newScheduledThreadPool(1);
@@ -258,5 +265,24 @@ public class XMLLanguageServer
 	public DOMDocument getDocument(String uri) {
 		ModelTextDocument<DOMDocument> document = xmlTextDocumentService.getDocument(uri);
 		return document != null ? document.getModel().getNow(null) : null;
+	}
+
+	@Override
+	public void sendNotification(String message, Command... commands) {
+		SharedSettings sharedSettings = getSharedSettings();
+		if (sharedSettings.isActionableNotificationSupport() && sharedSettings.isOpenSettingsCommandSupport()) {
+			ActionableNotification notification = new ActionableNotification().withSeverity(MessageType.Info)
+					.withMessage(message).withCommands(Arrays.asList(commands));
+			languageClient.actionableNotification(notification);
+		} else {
+			// the open settings command is not supported by the client, display a simple
+			// message with LSP
+			languageClient.showMessage(new MessageParams(MessageType.Warning, message));
+		}		
+	}
+
+	@Override
+	public SharedSettings getSharedSettings() {
+		return xmlTextDocumentService.getSharedSettings();
 	}
 }

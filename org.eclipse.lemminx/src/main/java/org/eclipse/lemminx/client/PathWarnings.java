@@ -6,14 +6,15 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.lemminx.customservice.XMLLanguageClientAPI;
+import org.eclipse.lemminx.services.IXMLNotificationService;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.Command;
 
 public class PathWarnings extends AbstractXMLNotification {
 	private final Map<String /* setting name */, Set<String> /* file paths */> cache;
 
-	public PathWarnings(XMLLanguageClientAPI client, SharedSettings sharedSettings) {
-		super(client, sharedSettings);
+	public PathWarnings(IXMLNotificationService notificationService ) {
+		super(notificationService);
 		this.cache = new HashMap<String, Set<String>>();
 	}
 
@@ -37,6 +38,6 @@ public class PathWarnings extends AbstractXMLNotification {
 		Command command = new Command("Configure path", ClientCommands.OPEN_SETTINGS,
 					Collections.singletonList(settingId));
 
-		sendNotification(message, command);
+		super.sendNotification(message, command);
 	}
 }

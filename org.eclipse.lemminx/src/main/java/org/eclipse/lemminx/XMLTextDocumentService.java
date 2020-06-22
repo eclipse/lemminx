@@ -561,7 +561,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	public LimitExceededWarnings getLimitExceededWarnings() {
 		if (this.limitExceededWarnings == null) {
 			this.limitExceededWarnings =
-					new LimitExceededWarnings(this.xmlLanguageServer.getLanguageClient(), sharedSettings);
+					new LimitExceededWarnings(this.xmlLanguageServer);
 		}
 		return this.limitExceededWarnings;
 	}

@@ -20,6 +20,7 @@ import org.eclipse.lemminx.client.ExtendedClientCapabilities;
 import org.eclipse.lemminx.client.PathWarnings;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
 import org.eclipse.lemminx.extensions.contentmodel.uriresolver.XMLCatalogResolverExtension;
+import org.eclipse.lemminx.services.IXMLNotificationService;
 import org.eclipse.lemminx.services.extensions.IXMLExtension;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.services.extensions.save.ISaveContext;
@@ -51,10 +52,11 @@ public class XMLCatalogPlugin implements IXMLExtension {
 	@Override
 	public void start(InitializeParams params, XMLExtensionsRegistry registry) {
 		uiResolver = new XMLCatalogURIResolverExtension(registry);
-		registry.getResolverExtensionManager().registerResolver(uiResolver);
-		ExtendedClientCapabilities extendedClientCapabilities = InitializationOptionsExtendedClientCapabilities
-				.getExtendedClientCapabilities(params);
-		initializePathWarnings(extendedClientCapabilities, registry);
+		registry.getResolverExtensionManager().registerResolver(uiResolver);		
+		IXMLNotificationService notificationService = registry.getNotificationService();
+		if (notificationService != null) {
+			this.pathWarnings = new PathWarnings(notificationService);
+		}
 	}
 
 	@Override
@@ -62,16 +64,9 @@ public class XMLCatalogPlugin implements IXMLExtension {
 		registry.getResolverExtensionManager().unregisterResolver(uiResolver);
 	}
 
-	private void initializePathWarnings(ExtendedClientCapabilities extendedCapabilities, XMLExtensionsRegistry registry) {
-		SharedSettings sharedSettings = new SharedSettings();
-		sharedSettings.setActionableNotificationSupport(extendedCapabilities.isActionableNotificationSupport());
-		sharedSettings.setOpenSettingsCommandSupport(extendedCapabilities.isOpenSettingsCommandSupport());
-		this.pathWarnings = new PathWarnings(registry.getLanguageClientAPIProvider().getLanguageClient(), sharedSettings);
-	}
-
 	private void validateCatalogPaths(ContentModelSettings cmSettings) {
 		if (this.pathWarnings == null) {
-			return; // should never happen
+			return; // happen when notification service is not available
 		}
 		String[] catalogs = cmSettings.getCatalogs();
 		Set<String> invalidCatalogs = Arrays.stream(catalogs).filter(c -> !XMLCatalogResolverExtension.isXMLCatalogFileValid(c)).collect(Collectors.toSet());

@@ -1,26 +1,29 @@
 package org.eclipse.lemminx.client;
 
-import java.util.Arrays;
-import java.util.Collections;
-
-import org.eclipse.lemminx.customservice.ActionableNotification;
-import org.eclipse.lemminx.customservice.XMLLanguageClientAPI;
+import org.eclipse.lemminx.services.IXMLNotificationService;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.Command;
-import org.eclipse.lsp4j.MessageParams;
-import org.eclipse.lsp4j.MessageType;
 
 public abstract class AbstractXMLNotification {
 
-	private final XMLLanguageClientAPI client;
-	protected final SharedSettings sharedSettings;
+	private final IXMLNotificationService notificationService;
 
-	public AbstractXMLNotification(XMLLanguageClientAPI client, SharedSettings sharedSettings) {
-		this.client = client;
-		this.sharedSettings = sharedSettings;
+
+	public AbstractXMLNotification(IXMLNotificationService notificationService) {
+		this.notificationService = notificationService;
 	}
 
-	protected void sendNotification(String message, Command... commands) {
+
+	protected void sendNotification(String message,  Command... commands) {
+		notificationService.sendNotification(message, commands);
+	}
+
+	protected SharedSettings getSharedSettings() {
+		return notificationService.getSharedSettings();
+	}
+
+	
+	/*protected void sendNotification(String message, Command... commands) {
 		if (sharedSettings.isActionableNotificationSupport() && sharedSettings.isOpenSettingsCommandSupport()) {
 			ActionableNotification notification = new ActionableNotification().withSeverity(MessageType.Info)
 					.withMessage(message).withCommands(Arrays.asList(commands));
@@ -30,5 +33,5 @@ public abstract class AbstractXMLNotification {
 			// message with LSP
 			client.showMessage(new MessageParams(MessageType.Warning, message));
 		}
-	}
+	}*/
 }

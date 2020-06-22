@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.lemminx.customservice.XMLLanguageClientAPI;
+import org.eclipse.lemminx.services.IXMLNotificationService;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.Command;
 
@@ -30,8 +31,8 @@ public class LimitExceededWarnings extends AbstractXMLNotification {
 
 	private final Set<String /* file URI */> cache;
 
-	public LimitExceededWarnings(XMLLanguageClientAPI client, SharedSettings sharedSettings) {
-		super(client, sharedSettings);
+	public LimitExceededWarnings(IXMLNotificationService notificationService) {
+		super(notificationService);
 		this.cache = new HashSet<String>();
 	}
 
@@ -48,11 +49,11 @@ public class LimitExceededWarnings extends AbstractXMLNotification {
 		int resultLimit = 0;
 		switch(feature) {
 			case SYMBOLS:
-				resultLimit = sharedSettings.getSymbolSettings().getMaxItemsComputed();
+				resultLimit = getSharedSettings().getSymbolSettings().getMaxItemsComputed();
 		}
 		onResultLimitExceeded(uri, resultLimit, feature.getName());
 	}
-
+	
 	/**
 	 * Sends the limit exceeded warning to the client only if the provided
 	 * uri does not exist in the cache
@@ -105,6 +106,6 @@ public class LimitExceededWarnings extends AbstractXMLNotification {
 		Command command = new Command("Configure limit", ClientCommands.OPEN_SETTINGS,
 				Collections.singletonList("xml.symbols.maxItemsComputed"));
 		
-		sendNotification(message, command);
+		super.sendNotification(message, command);
 	}
 }

@@ -23,6 +23,7 @@ import java.util.logging.Logger;
 
 import org.eclipse.lemminx.services.IXMLDocumentProvider;
 import org.eclipse.lemminx.services.IXMLLanguageClientAPIProvider;
+import org.eclipse.lemminx.services.IXMLNotificationService;
 import org.eclipse.lemminx.services.extensions.codelens.ICodeLensParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lemminx.services.extensions.save.ISaveContext;
@@ -60,6 +61,8 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	private ISaveContext initialSaveContext;
 
 	private boolean initialized;
+	
+	private IXMLNotificationService notificationService;
 
 	private final Map<Class, Object> components;
 
@@ -340,6 +343,14 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 
 	public URIResolverExtensionManager getResolverExtensionManager() {
 		return resolverExtensionManager;
+	}
+	
+	public IXMLNotificationService getNotificationService() {
+		return notificationService;
+	}
+	
+	public void setNotificationService(IXMLNotificationService notificationService) {
+		this.notificationService = notificationService;
 	}
 
 }
