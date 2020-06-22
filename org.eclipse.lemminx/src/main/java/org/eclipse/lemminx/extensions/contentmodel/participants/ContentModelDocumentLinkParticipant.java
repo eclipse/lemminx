@@ -55,7 +55,7 @@ public class ContentModelDocumentLinkParticipant implements IDocumentLinkPartici
 				if (location != null) {
 					DOMRange attrValue = noNamespaceSchemaLocation.getAttr().getNodeAttrValue();
 					if (attrValue != null) {
-						links.add(createDocumentLink(attrValue, location));
+						links.add(createDocumentLink(attrValue, location, true));
 					}
 				}
 			} catch (BadLocationException e) {
@@ -70,7 +70,7 @@ public class ContentModelDocumentLinkParticipant implements IDocumentLinkPartici
 				try {
 					DOMRange systemIdRange = docType.getSystemIdNode();
 					if (systemIdRange != null) {
-						links.add(createDocumentLink(systemIdRange, location));
+						links.add(createDocumentLink(systemIdRange, location, true));
 					}
 				} catch (BadLocationException e) {
 					// Do nothing
@@ -85,7 +85,7 @@ public class ContentModelDocumentLinkParticipant implements IDocumentLinkPartici
 				try {
 					DOMRange hrefRange = xmlModel.getHrefNode();
 					if (hrefRange != null) {
-						links.add(createDocumentLink(hrefRange, location));
+						links.add(createDocumentLink(hrefRange, location, true));
 					}
 				} catch (BadLocationException e) {
 					// Do nothing
@@ -101,7 +101,7 @@ public class ContentModelDocumentLinkParticipant implements IDocumentLinkPartici
 				for (SchemaLocationHint schemaLocationHint : schemaLocationHints) {
 					location = getResolvedLocation(document.getDocumentURI(), schemaLocationHint.getHint());
 					if (location != null) {
-						links.add(createDocumentLink(schemaLocationHint, location));
+						links.add(createDocumentLink(schemaLocationHint, location, false));
 					}
 				}
 			} catch (BadLocationException e) {

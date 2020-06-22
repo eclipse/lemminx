@@ -488,10 +488,38 @@ public class XMLSchemaDiagnosticsTest {
 	@Test
 	public void schema_reference_4_withSchemaLocation() {
 		String xml = "<IODevice xmlns=\"http://www.io-link.com/IODD/2010/10\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \r\n"
-				+ "			  xsi:schemaLocation=\"http://www.io-link.com/IODD/2010/10 IODD1.1.xsd\">\r\n"
+				+ "  xsi:schemaLocation=\"http://www.io-link.com/IODD/2010/10 IODD1.1.xsd\">\r\n"
 				+ "	</IODevice>";
-		testDiagnosticsFor(xml, d(1, 24, 1, 73, XMLSchemaErrorCode.schema_reference_4), //
+		testDiagnosticsFor(xml, d(1, 58, 1, 69, XMLSchemaErrorCode.schema_reference_4), //
 				d(0, 1, 0, 9, XMLSchemaErrorCode.cvc_elt_1_a));
+	}
+
+	@Test
+	public void schema_reference_4_schemaLocationMultipleOneWrong() {
+		String xml = "<root:root\n" + //
+				"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + //
+				"xmlns:root=\"http://example.org/schema/root\"\n" + //
+				"xmlns:other=\"http://example.org/schema/other\"\n" + //
+				"xsi:schemaLocation=\"http://example.org/schema/root root.xsd http://example.org/schema/other other.xsd\">\n" + //
+				"<other:other />\n" + //
+				"</root:root>";
+		testDiagnosticsFor(xml, d(4, 92, 4, 101, XMLSchemaErrorCode.schema_reference_4), //
+				d(5, 1, 5, 12, XMLSchemaErrorCode.cvc_complex_type_2_4_c));
+	}
+
+	@Test
+	public void schema_reference_4_schemaLocationMultipleBothWrong() {
+		String xml = "<root:root\n" + //
+				"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + //
+				"xmlns:root=\"http://example.org/schema/robot\"\n" + //
+				"xmlns:other=\"http://example.org/schema/other\"\n" + //
+				"xsi:schemaLocation=\"http://example.org/schema/robot robot.xsd http://example.org/schema/other other.xsd\">\n" + //
+				"<other:other />\n" + //
+				"</root:root>";
+		testDiagnosticsFor(xml, //
+				d(4, 52, 4, 61, XMLSchemaErrorCode.schema_reference_4), //
+				d(0, 1, 0, 10, XMLSchemaErrorCode.cvc_elt_1_a), //
+				d(4, 94, 4, 103, XMLSchemaErrorCode.schema_reference_4));
 	}
 
 	@Test

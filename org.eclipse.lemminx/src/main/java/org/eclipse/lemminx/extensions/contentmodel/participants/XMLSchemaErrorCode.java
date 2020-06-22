@@ -17,6 +17,8 @@ import static org.eclipse.lemminx.utils.StringUtils.getString;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.xerces.impl.XMLEntityManager;
+import org.apache.xerces.util.URI.MalformedURIException;
 import org.apache.xerces.xni.XMLLocator;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -24,6 +26,7 @@ import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMRange;
 import org.eclipse.lemminx.dom.NoNamespaceSchemaLocation;
 import org.eclipse.lemminx.dom.SchemaLocation;
+import org.eclipse.lemminx.dom.SchemaLocationHint;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.TargetNamespace_1CodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.TargetNamespace_2CodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.cvc_attribute_3CodeAction;
@@ -79,7 +82,9 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 	cvc_minExclusive_valid("cvc-minExclusive-valid"), // https://wiki.xmldation.com/Support/validator/cvc-minexclusive-valid
 	cvc_minInclusive_valid("cvc-minInclusive-valid"), // https://wiki.xmldation.com/Support/validator/cvc-mininclusive-valid
 	TargetNamespace_1("TargetNamespace.1"), //
-	TargetNamespace_2("TargetNamespace.2"), SchemaLocation("SchemaLocation"), schema_reference_4("schema_reference.4"), //
+	TargetNamespace_2("TargetNamespace.2"), //
+	SchemaLocation("SchemaLocation"), //
+	schema_reference_4("schema_reference.4"), //
 	src_element_3("src-element.3");
 
 	private final String code;
@@ -187,6 +192,18 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 					} else {
 						SchemaLocation schemaLocation = document.getSchemaLocation();
 						if (schemaLocation != null) {
+							String invalidSchemaPath = arguments[0] instanceof String ? (String) arguments[0] : null;
+
+							if (invalidSchemaPath != null) {
+								for (SchemaLocationHint locHintRange : schemaLocation.getSchemaLocationHints()) {
+									String expandedHint = getResolvedLocation(document.getDocumentURI(),
+											locHintRange.getHint());
+									if (invalidSchemaPath.equals(expandedHint)) {
+										return XMLPositionUtility.createRange(locHintRange);
+									}
+								}
+							}
+							// Highlight entire attribute if finding the location hint fails
 							locationRange = schemaLocation.getAttr().getNodeAttrValue();
 						}
 					}
@@ -269,4 +286,19 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 		}
 	}
 
+	/**
+	 * Returns the expanded system location
+	 *
+	 * @return the expanded system location
+	 */
+	private static String getResolvedLocation(String documentURI, String location) {
+		if (location == null) {
+			return null;
+		}
+		try {
+			return XMLEntityManager.expandSystemId(location, documentURI, false);
+		} catch (MalformedURIException e) {
+			return location;
+		}
+	}
 }
