@@ -53,10 +53,6 @@ class MockXMLExtension implements IXMLExtension {
 		stopped = true;
 	}
 
-	@Override
-	public void doSave(ISaveContext context) {
-	}
-
 	public boolean isStopped() {
 		return stopped;
 	}

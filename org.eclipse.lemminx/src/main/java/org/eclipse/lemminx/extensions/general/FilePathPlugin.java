@@ -14,7 +14,6 @@ package org.eclipse.lemminx.extensions.general;
 import org.eclipse.lemminx.extensions.general.completion.FilePathCompletionParticipant;
 import org.eclipse.lemminx.services.extensions.IXMLExtension;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
-import org.eclipse.lemminx.services.extensions.save.ISaveContext;
 import org.eclipse.lsp4j.InitializeParams;
 
 /**
@@ -38,10 +37,4 @@ public class FilePathPlugin implements IXMLExtension {
 		registry.unregisterCompletionParticipant(completionParticipant);
 	}
 
-	@Override
-	public void doSave(ISaveContext context) {
-
-	}
-
-	
 }

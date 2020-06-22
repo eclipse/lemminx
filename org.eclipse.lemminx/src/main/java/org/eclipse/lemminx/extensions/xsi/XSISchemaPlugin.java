@@ -16,12 +16,10 @@ import org.eclipse.lemminx.services.extensions.ICompletionParticipant;
 import org.eclipse.lemminx.services.extensions.IHoverParticipant;
 import org.eclipse.lemminx.services.extensions.IXMLExtension;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
-import org.eclipse.lemminx.services.extensions.save.ISaveContext;
 import org.eclipse.lsp4j.InitializeParams;
 
 /**
- * Plugin to handle the xml prolog:
- *  {@code <?xml ... ?>}.  
+ * Plugin to handle the xml prolog: {@code <?xml ... ?>}.
  * 
  * 
  * Loaded by service loader in 'resources' folder.
@@ -41,10 +39,5 @@ public class XSISchemaPlugin implements IXMLExtension {
 	public void stop(XMLExtensionsRegistry registry) {
 		registry.unregisterCompletionParticipant(completionParticipant);
 		registry.unregisterHoverParticipant(hoverParticipant);
-	}
-
-	@Override
-	public void doSave(ISaveContext context) {
-
 	}
 }
