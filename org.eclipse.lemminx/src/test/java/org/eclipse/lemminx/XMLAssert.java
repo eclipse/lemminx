@@ -40,12 +40,13 @@ import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMParser;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
+import org.eclipse.lemminx.extensions.generators.FileContentGeneratorManager;
+import org.eclipse.lemminx.extensions.generators.FileContentGeneratorSettings;
 import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.services.extensions.diagnostics.IXMLErrorCode;
 import org.eclipse.lemminx.services.extensions.save.AbstractSaveContext;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLCodeLensSettings;
-import org.eclipse.lemminx.settings.XMLHoverSettings;
 import org.eclipse.lemminx.settings.XMLSymbolSettings;
 import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lsp4j.CodeAction;
@@ -54,6 +55,8 @@ import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
+import org.eclipse.lsp4j.CreateFile;
+import org.eclipse.lsp4j.CreateFileOptions;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DocumentHighlight;
 import org.eclipse.lsp4j.DocumentHighlightKind;
@@ -70,12 +73,14 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ReferenceContext;
+import org.eclipse.lsp4j.ResourceOperation;
 import org.eclipse.lsp4j.SymbolKind;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.junit.jupiter.api.Assertions;
 
 /**
  * XML
@@ -481,8 +486,8 @@ public class XMLAssert {
 		testCodeActionsFor(xml, diagnostic, (String) null, expected);
 	}
 
-	public static void testCodeActionsFor(String xml, Diagnostic diagnostic, SharedSettings settings, CodeAction... expected)
-			throws BadLocationException {
+	public static void testCodeActionsFor(String xml, Diagnostic diagnostic, SharedSettings settings,
+			CodeAction... expected) throws BadLocationException {
 		testCodeActionsFor(xml, diagnostic, null, settings, expected);
 	}
 
@@ -563,11 +568,32 @@ public class XMLAssert {
 		return codeAction;
 	}
 
+	public static CodeAction ca(Diagnostic d, Either<TextDocumentEdit, ResourceOperation>... ops) {
+		CodeAction codeAction = new CodeAction();
+		codeAction.setDiagnostics(Collections.singletonList(d));
+		codeAction.setEdit(new WorkspaceEdit(Arrays.asList(ops)));
+		codeAction.setTitle("");
+		return codeAction;
+	}
+
 	public static TextEdit te(int startLine, int startCharacter, int endLine, int endCharacter, String newText) {
 		TextEdit textEdit = new TextEdit();
 		textEdit.setNewText(newText);
 		textEdit.setRange(r(startLine, startCharacter, endLine, endCharacter));
 		return textEdit;
+	}
+
+	public static Either<TextDocumentEdit, ResourceOperation> createFile(String uri, boolean overwrite) {
+		CreateFileOptions options = new CreateFileOptions();
+		options.setIgnoreIfExists(!overwrite);
+		options.setOverwrite(overwrite);
+		return Either.forRight(new CreateFile(uri, options));
+	}
+
+	public static Either<TextDocumentEdit, ResourceOperation> teOp(String uri, int startLine, int startChar,
+			int endLine, int endChar, String newText) {
+		return Either.forLeft(new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, 0),
+				Collections.singletonList(te(startLine, startChar, endLine, endChar, newText))));
 	}
 
 	// ------------------- Hover assert
@@ -594,10 +620,12 @@ public class XMLAssert {
 	}
 
 	public static void assertHover(XMLLanguageService xmlLanguageService, String value, String catalogPath,
-			String fileURI, String expectedHoverLabel, Range expectedHoverRange, SharedSettings sharedSettings) throws BadLocationException {
+			String fileURI, String expectedHoverLabel, Range expectedHoverRange, SharedSettings sharedSettings)
+			throws BadLocationException {
 		ContentModelSettings settings = new ContentModelSettings();
 		settings.setUseCache(false);
-		assertHover(xmlLanguageService, value, catalogPath, fileURI, expectedHoverLabel, expectedHoverRange, settings, sharedSettings);
+		assertHover(xmlLanguageService, value, catalogPath, fileURI, expectedHoverLabel, expectedHoverRange, settings,
+				sharedSettings);
 	}
 
 	public static void assertHover(XMLLanguageService xmlLanguageService, String value, String catalogPath,
@@ -606,14 +634,13 @@ public class XMLAssert {
 		SharedSettings sharedSettings = new SharedSettings();
 		HoverCapabilities capabilities = new HoverCapabilities(Arrays.asList(MarkupKind.MARKDOWN), false);
 		sharedSettings.getHoverSettings().setCapabilities(capabilities);
-		assertHover(xmlLanguageService, value, catalogPath, fileURI,
-				expectedHoverLabel, expectedHoverRange, settings, sharedSettings);
+		assertHover(xmlLanguageService, value, catalogPath, fileURI, expectedHoverLabel, expectedHoverRange, settings,
+				sharedSettings);
 	}
 
 	public static void assertHover(XMLLanguageService xmlLanguageService, String value, String catalogPath,
 			String fileURI, String expectedHoverLabel, Range expectedHoverRange, ContentModelSettings settings,
-			SharedSettings sharedSettings)
-			throws BadLocationException {
+			SharedSettings sharedSettings) throws BadLocationException {
 		int offset = value.indexOf("|");
 		value = value.substring(0, offset) + value.substring(offset + 1);
 
@@ -985,5 +1012,17 @@ public class XMLAssert {
 		WorkspaceEdit workspaceEdit = languageService.doRename(document, position, newText);
 		List<TextEdit> actualEdits = workspaceEdit.getChanges().get("test://test/test.html");
 		assertArrayEquals(expectedEdits.toArray(), actualEdits.toArray());
+	}
+
+	// ------------------- Generator assert
+
+	public static void assertGrammarGenerator(String xml, FileContentGeneratorSettings grammarSettings,
+			String expected) {
+		DOMDocument document = DOMParser.getInstance().parse(xml, "test.xml", null);
+		SharedSettings sharedSettings = new SharedSettings();
+		XMLLanguageService languageService = new XMLLanguageService();
+		FileContentGeneratorManager manager = new FileContentGeneratorManager(languageService);
+		String actual = manager.generate(document, sharedSettings, grammarSettings);
+		Assertions.assertEquals(expected, actual);
 	}
 }

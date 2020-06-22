@@ -18,7 +18,6 @@ import org.eclipse.lemminx.services.extensions.ICompletionParticipant;
 import org.eclipse.lemminx.services.extensions.IDefinitionParticipant;
 import org.eclipse.lemminx.services.extensions.IXMLExtension;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
-import org.eclipse.lemminx.services.extensions.save.ISaveContext;
 import org.eclipse.lsp4j.InitializeParams;
 
 public class XMLReferencesPlugin implements IXMLExtension {
@@ -29,11 +28,6 @@ public class XMLReferencesPlugin implements IXMLExtension {
 	public XMLReferencesPlugin() {
 		completionParticipant = new XMLReferencesCompletionParticipant();
 		definitionParticipant = new XMLReferencesDefinitionParticipant();
-	}
-
-	@Override
-	public void doSave(ISaveContext context) {
-		
 	}
 
 	@Override

@@ -26,9 +26,10 @@ public class SharedSettings {
 	private final XMLCodeLensSettings codeLensSettings;
 	private final XMLHoverSettings hoverSettings;
 	private final XMLPreferences preferences;
-
+	private final XMLWorkspaceSettings workspaceSettings;
 	private boolean actionableNotificationSupport;
 	private boolean openSettingsCommandSupport;
+	private boolean createFileResourceOperationSupport;
 
 	public SharedSettings() {
 		this.completionSettings = new XMLCompletionSettings();
@@ -39,8 +40,10 @@ public class SharedSettings {
 		this.codeLensSettings = new XMLCodeLensSettings();
 		this.hoverSettings = new XMLHoverSettings();
 		this.preferences = new XMLPreferences();
+		this.workspaceSettings = new XMLWorkspaceSettings();
 		this.actionableNotificationSupport = false;
 		this.openSettingsCommandSupport = false;
+
 	}
 
 	public SharedSettings(SharedSettings newSettings) {
@@ -87,13 +90,19 @@ public class SharedSettings {
 		return preferences;
 	}
 
+	public XMLWorkspaceSettings getWorkspaceSettings() {
+		return workspaceSettings;
+	}
+
 	/**
-	 * Returns true if the client supports actionable notifications and false otherwise
+	 * Returns true if the client supports actionable notifications and false
+	 * otherwise
 	 * 
 	 * See {@link org.eclipse.lemminx.customservice.ActionableNotification} and
 	 * {@link org.eclipse.lemminx.customservice.XMLLanguageClientAPI}
 	 * 
-	 * @return true if the client supports actionable notifications and false otherwise
+	 * @return true if the client supports actionable notifications and false
+	 *         otherwise
 	 */
 	public boolean isActionableNotificationSupport() {
 		return actionableNotificationSupport;
@@ -109,11 +118,13 @@ public class SharedSettings {
 	}
 
 	/**
-	 * Returns true if the client supports the open settings command and false otherwise
+	 * Returns true if the client supports the open settings command and false
+	 * otherwise
 	 * 
 	 * See {@link org.eclipse.lemminx.client.ClientCommands#OPEN_SETTINGS}
 	 * 
-	 * @return true if the client supports the open settings command and false otherwise
+	 * @return true if the client supports the open settings command and false
+	 *         otherwise
 	 */
 	public boolean isOpenSettingsCommandSupport() {
 		return openSettingsCommandSupport;

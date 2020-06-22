@@ -20,9 +20,12 @@ import java.util.List;
 
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
+import org.eclipse.lsp4j.CreateFile;
+import org.eclipse.lsp4j.CreateFileOptions;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.ResourceOperation;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.TextEdit;
@@ -116,5 +119,33 @@ public class CodeActionFactory {
 
 		insertContentAction.setEdit(workspaceEdit);
 		return insertContentAction;
+	}
+
+	/**
+	 * Makes a CodeAction to create a file and add content to the file.
+	 * 
+	 * @param title The displayed name of the CodeAction
+	 * @param docURI The file to create
+	 * @param content The text to put into the newly created document.
+	 * @param diagnostic The diagnostic that this CodeAction will fix
+	 */
+	public static CodeAction createFile(String title, String docURI, String content, Diagnostic diagnostic) {
+
+		List<Either<TextDocumentEdit, ResourceOperation>> actionsToTake = new ArrayList<>(2);
+		
+		actionsToTake.add(Either.forRight(new CreateFile(docURI, new CreateFileOptions(false, true))));
+		
+		VersionedTextDocumentIdentifier identifier = new VersionedTextDocumentIdentifier(docURI, 0);
+		TextEdit te = new TextEdit(new Range(new Position(0, 0), new Position(0, 0)), content);
+		actionsToTake.add(Either.forLeft(new TextDocumentEdit(identifier, Collections.singletonList(te))));
+		
+		WorkspaceEdit createAndAddContentEdit = new WorkspaceEdit(actionsToTake);
+
+		CodeAction codeAction = new CodeAction(title);
+		codeAction.setEdit(createAndAddContentEdit);
+		codeAction.setDiagnostics(Collections.singletonList(diagnostic));
+		codeAction.setKind(CodeActionKind.QuickFix);
+
+		return codeAction;
 	}
 }

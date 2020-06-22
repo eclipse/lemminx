@@ -12,10 +12,15 @@
  */
 package org.eclipse.lemminx.extensions.contentmodel;
 
+import static java.lang.System.lineSeparator;
 import static org.eclipse.lemminx.XMLAssert.ca;
+import static org.eclipse.lemminx.XMLAssert.createFile;
 import static org.eclipse.lemminx.XMLAssert.d;
 import static org.eclipse.lemminx.XMLAssert.te;
+import static org.eclipse.lemminx.XMLAssert.teOp;
 import static org.eclipse.lemminx.XMLAssert.testCodeActionsFor;
+
+import java.util.Arrays;
 
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSchemaErrorCode;
@@ -24,6 +29,9 @@ import org.eclipse.lemminx.settings.EnforceQuoteStyle;
 import org.eclipse.lemminx.settings.QuoteStyle;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.ResourceOperationKind;
+import org.eclipse.lsp4j.WorkspaceClientCapabilities;
+import org.eclipse.lsp4j.WorkspaceEditCapabilities;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -643,6 +651,58 @@ public class XMLSchemaDiagnosticsTest {
 		testCodeActionsFor(xml, targetNamespace, settings, ca(targetNamespace, te(2, 16, 2, 16, " xmlns='http://two-letter-name'")));
 	}
 
+	@Test
+	public void localSchemaFileMissingCodeAction() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + //
+				"<invoice xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + //
+				"  xsi:noNamespaceSchemaLocation=\"/salad.xsd\">\n" + //
+				"</invoice>";
+		Diagnostic missingSchemaDiagnostic = d(2, 32, 44, XMLSchemaErrorCode.schema_reference_4);
+		missingSchemaDiagnostic.setMessage("schema_reference.4: Failed to read schema document "
+				+ "'file:///salad.xsd',"
+				+ " because 1) could not find the document; 2) the document could not be read;"
+				+ " 3) the root element of the document is not <xsd:schema>.");
+		Diagnostic eltDiagnostic = d(1, 1, 8, XMLSchemaErrorCode.cvc_elt_1_a);
+		eltDiagnostic.setMessage("cvc-elt.1.a: Cannot find the declaration of element 'invoice'.");
+		XMLAssert.testDiagnosticsFor(xml, missingSchemaDiagnostic, eltDiagnostic);
+
+		SharedSettings settings = new SharedSettings();
+		WorkspaceClientCapabilities workspace = new WorkspaceClientCapabilities();
+		WorkspaceEditCapabilities workspaceEdit = new WorkspaceEditCapabilities();
+		workspaceEdit.setResourceOperations(Arrays.asList(ResourceOperationKind.Create));
+		workspace.setWorkspaceEdit(workspaceEdit);
+		settings.getWorkspaceSettings().setCapabilities(workspace);
+
+		XMLAssert.testCodeActionsFor(xml, //
+				missingSchemaDiagnostic, //
+				settings, //
+				ca(missingSchemaDiagnostic, //
+						createFile("file:///salad.xsd", false), //
+						teOp("file:///salad.xsd", 0, 0, 0, 0, //
+								"<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + lineSeparator() + //
+										"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">" + lineSeparator() + //
+										"  <xs:element name=\"invoice\" type=\"xs:string\" />" + lineSeparator() + //
+										"</xs:schema>")));
+	}
+
+	@Test
+	public void localSchemaFileMissingCodeActionNotSupported() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + //
+				"<invoice xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + //
+				"  xsi:noNamespaceSchemaLocation=\"/salad.xsd\">\n" + //
+				"</invoice>";
+		Diagnostic missingSchema = d(2, 32, 44, XMLSchemaErrorCode.schema_reference_4);
+		missingSchema.setMessage("schema_reference.4: Failed to read schema document "
+				+ "'file:///salad.xsd',"
+				+ " because 1) could not find the document; 2) the document could not be read;"
+				+ " 3) the root element of the document is not <xsd:schema>.");
+		Diagnostic eltDiagnostic = d(1, 1, 8, XMLSchemaErrorCode.cvc_elt_1_a);
+		eltDiagnostic.setMessage("cvc-elt.1.a: Cannot find the declaration of element 'invoice'.");
+		XMLAssert.testDiagnosticsFor(xml, missingSchema, eltDiagnostic);
+
+		XMLAssert.testCodeActionsFor(xml, missingSchema);
+	}
+
 	private static void testDiagnosticsFor(String xml, Diagnostic... expected) {
 		XMLAssert.testDiagnosticsFor(xml, "src/test/resources/catalogs/catalog.xml", expected);
 	}
@@ -653,4 +713,3 @@ public class XMLSchemaDiagnosticsTest {
 	}
 
 }
-

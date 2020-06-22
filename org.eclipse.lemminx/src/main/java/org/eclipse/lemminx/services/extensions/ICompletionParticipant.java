@@ -25,7 +25,29 @@ public interface ICompletionParticipant {
 	void onAttributeName(boolean generateValue, ICompletionRequest request, ICompletionResponse response)
 			throws Exception;
 
+	/**
+	 * Collects and stores attribute value completion items within the provided completion
+	 * response <code>response</code>
+	 * 
+	 * @param valuePrefix the attribute value before the offset in which completion was invoked
+	 * @param request     the completion request
+	 * @param response    the completion response
+	 * @throws Exception
+	 */
 	void onAttributeValue(String valuePrefix, ICompletionRequest request, ICompletionResponse response)
+			throws Exception;
+	
+
+	/**
+	 * Collects and stores systemId completion items within the provided completion
+	 * response <code>response</code>
+	 * 
+	 * @param valuePrefix the systemId value before the offset in which completion was invoked
+	 * @param request     the completion request
+	 * @param response    the completion response
+	 * @throws Exception
+	 */
+	void onDTDSystemId(String valuePrefix, ICompletionRequest request, ICompletionResponse response)
 			throws Exception;
 
 }

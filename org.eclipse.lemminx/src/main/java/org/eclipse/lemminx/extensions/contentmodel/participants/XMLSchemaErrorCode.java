@@ -35,12 +35,15 @@ import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.cvc_
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.cvc_complex_type_4CodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.cvc_enumeration_validCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.cvc_type_3_1_1CodeAction;
+import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.schema_reference_4CodeAction;
 import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IXMLErrorCode;
+import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.utils.DOMUtils;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.ResourceOperationKind;
 
 /**
  * XML Schema error code.
@@ -164,7 +167,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 		case cvc_pattern_valid: {
 			String value = getString(arguments[0]);
 			Range result = XMLPositionUtility.selectAttributeValueByGivenValueAt(value, offset, document);
-			if(result != null) {
+			if (result != null) {
 				return result;
 			}
 			return XMLPositionUtility.selectTrimmedText(offset, document);
@@ -257,7 +260,8 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 		return null;
 	}
 
-	public static void registerCodeActionParticipants(Map<String, ICodeActionParticipant> codeActions) {
+	public static void registerCodeActionParticipants(Map<String, ICodeActionParticipant> codeActions,
+			SharedSettings sharedSettings) {
 		codeActions.put(cvc_complex_type_2_4_a.getCode(), new cvc_complex_type_2_4_aCodeAction());
 		codeActions.put(cvc_complex_type_2_4_c.getCode(), new cvc_complex_type_2_4_aCodeAction());
 		codeActions.put(cvc_complex_type_2_3.getCode(), new cvc_complex_type_2_3CodeAction());
@@ -268,6 +272,9 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 		codeActions.put(cvc_enumeration_valid.getCode(), new cvc_enumeration_validCodeAction());
 		codeActions.put(cvc_complex_type_2_1.getCode(), new cvc_complex_type_2_1CodeAction());
 		codeActions.put(TargetNamespace_1.getCode(), new TargetNamespace_1CodeAction());
-		codeActions.put(TargetNamespace_2.getCode(), new TargetNamespace_2CodeAction());
+		codeActions.put(TargetNamespace_2.getCode(), new TargetNamespace_2CodeAction());		
+		if (sharedSettings.getWorkspaceSettings().isResourceOperationSupported(ResourceOperationKind.Create)) {
+			codeActions.put(schema_reference_4.getCode(), new schema_reference_4CodeAction());
+		}
 	}
 }

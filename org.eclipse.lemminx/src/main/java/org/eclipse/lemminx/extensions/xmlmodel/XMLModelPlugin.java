@@ -17,8 +17,8 @@ import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelProvider;
 import org.eclipse.lemminx.extensions.xmlmodel.contentmodel.CMXMLModelContentModelProvider;
 import org.eclipse.lemminx.services.extensions.IXMLExtension;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
-import org.eclipse.lemminx.services.extensions.save.ISaveContext;
 import org.eclipse.lsp4j.InitializeParams;
+
 /**
  * Plugin for managing xml-model association
  */
@@ -36,8 +36,4 @@ public class XMLModelPlugin implements IXMLExtension {
 	public void stop(XMLExtensionsRegistry registry) {
 	}
 
-	@Override
-	public void doSave(ISaveContext context) {
-
-	}
 }

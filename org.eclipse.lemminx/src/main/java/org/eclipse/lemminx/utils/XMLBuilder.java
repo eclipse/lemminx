@@ -92,8 +92,7 @@ public class XMLBuilder {
 	}
 
 	public XMLBuilder selfCloseElement() {
-		if (sharedSettings.getFormattingSettings().isSpaceBeforeEmptyCloseTag()
-				&& !isLastLineEmptyOrWhitespace()) {
+		if (isSpaceBeforeEmptyCloseTag() && !isLastLineEmptyOrWhitespace()) {
 			appendSpace();
 		}
 		xml.append("/>");
@@ -104,7 +103,6 @@ public class XMLBuilder {
 		return addSingleAttribute(attr, false, true);
 	}
 
-
 	public XMLBuilder addSingleAttribute(DOMAttr attr, boolean surroundWithQuotes, boolean prependSpace) {
 		return addSingleAttribute(attr.getName(), attr.getOriginalValue(), surroundWithQuotes, prependSpace);
 	}
@@ -112,7 +110,6 @@ public class XMLBuilder {
 	public XMLBuilder addSingleAttribute(String name, String value, boolean surroundWithQuotes) {
 		return addSingleAttribute(name, value, surroundWithQuotes, true);
 	}
-
 
 	/**
 	 * Used when only one attribute is being added to a node.
@@ -137,7 +134,7 @@ public class XMLBuilder {
 	 *
 	 * It will not perform any linefeeds and only basic indentation.
 	 *
-	 * @param attr               attribute
+	 * @param attr attribute
 	 * @return this XML Builder
 	 */
 	public XMLBuilder addPrologAttribute(DOMAttr attr) {
@@ -193,8 +190,8 @@ public class XMLBuilder {
 	 * @param name               name of the attribute
 	 * @param equalsSign         true if equals sign exists, false otherwise
 	 * @param originalValue      value of the attribute
-	 * @param surroundWithQuotes true if quotes should be added around originalValue,
-	 *                           false otherwise
+	 * @param surroundWithQuotes true if quotes should be added around
+	 *                           originalValue, false otherwise
 	 */
 	private void addAttributeContents(String name, boolean equalsSign, String originalValue,
 			boolean surroundWithQuotes) {
@@ -205,11 +202,10 @@ public class XMLBuilder {
 			xml.append("=");
 		}
 		if (originalValue != null) {
-			char quote = sharedSettings.getPreferences().getQuotationAsChar();
+			char quote = getQuotationAsChar();
 
 			if (StringUtils.isQuoted(originalValue)) {
-				if (sharedSettings.getFormattingSettings().getEnforceQuoteStyle() == EnforceQuoteStyle.preferred &&
-						originalValue.charAt(0) != quote) {
+				if (getEnforceQuoteStyle() == EnforceQuoteStyle.preferred && originalValue.charAt(0) != quote) {
 
 					originalValue = StringUtils.convertToQuotelessValue(originalValue);
 					xml.append(quote);
@@ -259,12 +255,14 @@ public class XMLBuilder {
 	 * <code>delimiter</code>
 	 *
 	 * @param text                the proposed text to add
-	 * @param isWhitespaceContent whether or not the text contains only whitespace content
-	 * @param hasSiblings         whether or not the corresponding text node has siblings
+	 * @param isWhitespaceContent whether or not the text contains only whitespace
+	 *                            content
+	 * @param hasSiblings         whether or not the corresponding text node has
+	 *                            siblings
 	 * @param delimiter           line delimiter
 	 * @return this XMLBuilder with <code>text</code> added depending on
-	 * <code>isWhitespaceContent</code>, <code>hasSiblings</code> and
-	 * <code>delimiter</code>
+	 *         <code>isWhitespaceContent</code>, <code>hasSiblings</code> and
+	 *         <code>delimiter</code>
 	 */
 	public XMLBuilder addContent(String text, Boolean isWhitespaceContent, Boolean hasSiblings, String delimiter) {
         if (isWhitespaceContent) {
@@ -354,12 +352,10 @@ public class XMLBuilder {
 	}
 
 	/**
-	 * Returns <code>str</code> with the trailing spaces from each line
-	 * removed
+	 * Returns <code>str</code> with the trailing spaces from each line removed
 	 *
 	 * @param str the String
-	 * @return <code>str</code> with the trailing spaces from each line
-	 * removed
+	 * @return <code>str</code> with the trailing spaces from each line removed
 	 */
 	private static String trimTrailingSpacesEachLine(String str) {
 		StringBuilder sb = new StringBuilder(str);
@@ -431,6 +427,16 @@ public class XMLBuilder {
 		return this;
 	}
 
+	public XMLBuilder startDTDElementDecl() {
+		xml.append("<!ELEMENT");
+		return this;
+	}
+
+	public XMLBuilder startDTDAttlistDecl() {
+		xml.append("<!ATTLIST");
+		return this;
+	}
+
 	public XMLBuilder addParameter(String parameter) {
 		return addUnindentedParameter(" " + replaceQuotesIfNeeded(parameter));
 	}
@@ -477,14 +483,22 @@ public class XMLBuilder {
 	}
 
 	private String replaceQuotesIfNeeded(String str) {
-		if (this.sharedSettings.getFormattingSettings().getEnforceQuoteStyle() != EnforceQuoteStyle.preferred) {
+		if (getEnforceQuoteStyle() != EnforceQuoteStyle.preferred) {
 			return str;
 		}
 		if (StringUtils.isQuoted(str)) {
-			String quote = this.sharedSettings.getPreferences().getQuotationAsString();
+			String quote = getQuotationAsString();
 			return quote + StringUtils.convertToQuotelessValue(str) + quote;
 		}
 		return str;
+	}
+
+	private EnforceQuoteStyle getEnforceQuoteStyle() {
+		return this.sharedSettings.getFormattingSettings().getEnforceQuoteStyle();
+	}
+
+	private String getQuotationAsString() {
+		return this.sharedSettings.getPreferences().getQuotationAsString();
 	}
 
 	private boolean isJoinCommentLines() {
@@ -521,6 +535,14 @@ public class XMLBuilder {
 
 	private int getPreservedNewlines() {
 		return sharedSettings.getFormattingSettings().getPreservedNewlines();
+	}
+
+	private boolean isSpaceBeforeEmptyCloseTag() {
+		return sharedSettings.getFormattingSettings().isSpaceBeforeEmptyCloseTag();
+	}
+
+	private char getQuotationAsChar() {
+		return sharedSettings.getPreferences().getQuotationAsChar();
 	}
 
 }
