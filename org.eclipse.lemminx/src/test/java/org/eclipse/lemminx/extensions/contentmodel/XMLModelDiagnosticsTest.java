@@ -26,6 +26,14 @@ import org.junit.jupiter.api.Test;
 public class XMLModelDiagnosticsTest {
 
 	@Test
+	public void xmlModelWithBadDTD() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> \r\n" + //
+				"<?xml-model href=\"BAD.dtd\"?>\r\n" + //
+				"<root><item /></root>";
+		testDiagnosticsFor(xml, d(1, 17, 26, DTDErrorCode.dtd_not_found));
+	}
+
+	@Test
 	public void xmlModelWithDTD() throws Exception {
 		String xml = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> \r\n" + //
 				"<?xml-model href=\"http://java.sun.com/dtd/web-app_2_3.dtd\"?>\r\n" + //
@@ -34,6 +42,15 @@ public class XMLModelDiagnosticsTest {
 				"</web-app>";
 		testDiagnosticsFor(xml, d(3, 2, 5, DTDErrorCode.MSG_ELEMENT_NOT_DECLARED),
 				d(2, 1, 8, DTDErrorCode.MSG_CONTENT_INVALID));
+	}
+
+	@Test
+	public void xmlModelWithBadXSD() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> \r\n" + //
+				"<?xml-model href=\"BAD.xsd\"?>\r\n" + //
+				"<root><item /></root>";
+		testDiagnosticsFor(xml, d(1, 17, 26, XMLSchemaErrorCode.schema_reference_4), //
+				d(2, 1, 5, XMLSchemaErrorCode.cvc_elt_1_a));
 	}
 
 	@Test

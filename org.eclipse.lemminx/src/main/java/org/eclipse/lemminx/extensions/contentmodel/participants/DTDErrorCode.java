@@ -21,6 +21,7 @@ import org.apache.xerces.xni.XMLLocator;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
+import org.eclipse.lemminx.dom.DOMRange;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.ElementDeclUnterminatedCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.EntityNotDeclaredCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.dtd_not_foundCodeAction;
@@ -74,7 +75,7 @@ public enum DTDErrorCode implements IXMLErrorCode {
 	QuoteRequiredInPublicID, //
 	QuoteRequiredInSystemID, //
 	SpaceRequiredAfterSYSTEM, //
-	dtd_not_found("dtd-not-found");
+	dtd_not_found;
 
 	private final String code;
 
@@ -193,6 +194,15 @@ public enum DTDErrorCode implements IXMLErrorCode {
 		case MSG_ELEMENT_TYPE_REQUIRED_IN_ATTLISTDECL:
 		case MSG_ELEMENT_TYPE_REQUIRED_IN_ELEMENTDECL: {
 			return XMLPositionUtility.selectDTDDeclTagNameAt(offset, document);
+		}
+		case dtd_not_found: {
+			// Check if DTD location comes from a xml-model/@href
+			String hrefLocation = (String) arguments[1];
+			DOMRange locationRange = XMLModelUtils.getHrefNode(document, hrefLocation);
+			if (locationRange != null) {
+				return XMLPositionUtility.createRange(locationRange);
+			}
+			return null;
 		}
 		default:
 			try {
