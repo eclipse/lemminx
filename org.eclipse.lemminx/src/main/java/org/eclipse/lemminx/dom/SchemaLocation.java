@@ -44,11 +44,10 @@ public class SchemaLocation {
 				break;
 			}
 			DOMNode valNode = attr.getNodeAttrValue();
-			// matcher matches 1 char ahead, but valNode's start is at beginning of "
-			int start = valNode.getStart() + locPairMatcher.start(2);
-			// matcher matches end correctly, but range needs to be one past end
-			// to highlight the end, and one to make up for "
-			int end = valNode.getStart() + locPairMatcher.end(2) + 2;
+			// http://example.org/schema/root |root.xsd http://example.org/schema/bison bison.xsd
+			int start = valNode.getStart() + locPairMatcher.start(2) + 1;
+			// http://example.org/schema/root root.xsd| http://example.org/schema/bison bison.xsd
+			int end = valNode.getStart() + locPairMatcher.end(2) + 1;
 			schemaLocationValuePairs.put(namespaceURI,
 					new SchemaLocationHint(start, end, locationHint, this));
 		}
