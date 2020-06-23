@@ -26,7 +26,7 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Range;
 
 /**
- * Code Action which manages missing referenced grammar file (DTD, XSD°
+ * Code Action which manages missing referenced grammar file (DTD, XSD).
  */
 public abstract class AbstractFixMissingGrammarCodeAction implements ICodeActionParticipant {
 
@@ -45,7 +45,7 @@ public abstract class AbstractFixMissingGrammarCodeAction implements ICodeAction
 			return;
 		}
 
-		// Generate XSD from the DOM doucment
+		// Generate XSD from the DOM document
 		FileContentGeneratorManager generator = componentProvider.getComponent(FileContentGeneratorManager.class);
 		String schemaTemplate = generator.generate(document, sharedSettings, getFileContentGeneratorSettings());
 
