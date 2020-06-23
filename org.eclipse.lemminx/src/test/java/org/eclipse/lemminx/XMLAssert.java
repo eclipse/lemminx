@@ -108,6 +108,8 @@ public class XMLAssert {
 
 	public static final int REGION_SNIPPETS = 2;
 
+	public static final int CATALOG_SNIPPETS = 3;
+
 	private static final String FILE_URI = "test.xml";
 
 	public static class SettingsSaveContext extends AbstractSaveContext {

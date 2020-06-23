@@ -24,6 +24,8 @@ public class XMLSnippetRegistryLoader implements ISnippetRegistryLoader {
 	public void load(SnippetRegistry registry) throws Exception {
 		registry.registerSnippets(XMLSnippetRegistryLoader.class.getResourceAsStream("new-xml-snippets.json"),
 				NewFileSnippetContext.XML_CONTEXT);
+		registry.registerSnippets(XMLSnippetRegistryLoader.class.getResourceAsStream("catalog-snippets.json"),
+				NewFileSnippetContext.XML_CONTEXT);
 		registry.registerSnippets(XMLSnippetRegistryLoader.class.getResourceAsStream("new-xsd-snippets.json"),
 				NewFileSnippetContext.XSD_CONTEXT);
 		registry.registerSnippets(XMLSnippetRegistryLoader.class.getResourceAsStream("cdata-snippets.json"),
