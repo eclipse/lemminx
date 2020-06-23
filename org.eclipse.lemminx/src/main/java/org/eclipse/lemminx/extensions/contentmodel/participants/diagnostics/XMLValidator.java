@@ -26,6 +26,7 @@ import org.apache.xerces.xni.parser.XMLEntityResolver;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMDocumentType;
 import org.eclipse.lemminx.dom.DOMElement;
+import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.services.extensions.diagnostics.LSPContentHandler;
@@ -67,7 +68,7 @@ public class XMLValidator {
 			final LSPErrorReporterForXML reporter = new LSPErrorReporterForXML(document, diagnostics);
 
 			SAXParser parser = new LSPSAXParser(document, reporter, configuration, grammarPool);
-			
+
 			// Add LSP content handler to stop XML parsing if monitor is canceled.
 			parser.setContentHandler(new LSPContentHandler(monitor));
 
@@ -162,7 +163,7 @@ public class XMLValidator {
 				range = new Range(new Position(0, 0), new Position(0, 0));
 			}
 			diagnostics.add(new Diagnostic(range, "No grammar constraints (DTD or XML Schema).", severity,
-					document.getDocumentURI(), "XML"));
+					document.getDocumentURI(), XMLSyntaxErrorCode.NoGrammarConstraints.name()));
 		}
 	}
 

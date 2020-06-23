@@ -61,7 +61,7 @@ public class ContentModelCodeActionParticipant implements ICodeActionParticipant
 				if (!codeActionParticipants.isEmpty()) {
 					return;
 				}
-				XMLSyntaxErrorCode.registerCodeActionParticipants(codeActionParticipants);
+				XMLSyntaxErrorCode.registerCodeActionParticipants(codeActionParticipants, sharedSettings);
 				DTDErrorCode.registerCodeActionParticipants(codeActionParticipants, sharedSettings);
 				XMLSchemaErrorCode.registerCodeActionParticipants(codeActionParticipants, sharedSettings);
 				XSDErrorCode.registerCodeActionParticipants(codeActionParticipants);
