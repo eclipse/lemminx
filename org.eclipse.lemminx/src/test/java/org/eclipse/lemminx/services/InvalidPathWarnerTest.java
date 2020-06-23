@@ -12,10 +12,10 @@
 package org.eclipse.lemminx.services;
 
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 
-import org.eclipse.lemminx.client.PathFeature;
 import org.eclipse.lemminx.client.InvalidPathWarner;
+import org.eclipse.lemminx.client.PathFeature;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -178,6 +178,6 @@ public class InvalidPathWarnerTest extends AbstractNotifierTest {
 
 	private void sendNotification(String... invalidPaths) {
 		this.pathWarner
-				.onInvalidFilePath(new HashSet<String>(Arrays.asList(invalidPaths)), TEST_FEATURE);
+				.onInvalidFilePath(new LinkedHashSet<String>(Arrays.asList(invalidPaths)), TEST_FEATURE);
 	}
 }
