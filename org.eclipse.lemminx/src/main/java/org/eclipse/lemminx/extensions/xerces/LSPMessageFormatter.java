@@ -84,10 +84,10 @@ public class LSPMessageFormatter implements MessageFormatter {
 	
 		String msg =  null;
 		
-		try {
+		if (newResourceBundle.containsKey(key)) {
 			msg = newResourceBundle.getString(key);
 			usedNewResourceBundle = true;
-		} catch (NullPointerException | MissingResourceException e) {
+		} else {
 			msg = fResourceBundle.getString(key);
 		}
 		

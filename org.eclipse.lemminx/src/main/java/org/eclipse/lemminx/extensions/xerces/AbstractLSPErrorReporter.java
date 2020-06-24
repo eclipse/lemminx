@@ -24,6 +24,7 @@ import org.apache.xerces.xni.parser.XMLParseException;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lemminx.extensions.xerces.xmlmodel.msg.XMLModelMessageFormatter;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
@@ -52,6 +53,7 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 		super.putMessageFormatter(XMLMessageFormatter.XML_DOMAIN, xmft);
 		super.putMessageFormatter(XMLMessageFormatter.XMLNS_DOMAIN, xmft);
 		super.putMessageFormatter(XSMessageFormatter.SCHEMA_DOMAIN, new LSPMessageFormatter());
+		super.putMessageFormatter(XMLModelMessageFormatter.XML_MODEL_DOMAIN, new XMLModelMessageFormatter());
 	}
 
 	public String reportError(XMLLocator location, String domain, String key, Object[] arguments, short severity,

@@ -28,13 +28,16 @@ import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.ETag
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.ElementUnterminatedCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.EqRequiredInAttributeCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.MarkupEntityMismatchCodeAction;
+import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.NoGrammarConstraintsCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.OpenQuoteExpectedCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.RootElementTypeMustMatchDoctypedeclCodeAction;
 import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IXMLErrorCode;
+import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lemminx.utils.XMLPositionUtility.EntityReferenceRange;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.ResourceOperationKind;
 
 /**
  * XML error code.
@@ -79,7 +82,8 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 	CustomETag, //
 	PrematureEOF, //
 	DoctypeNotAllowed, //
-	NoMorePseudoAttributes;
+	NoMorePseudoAttributes, //
+	NoGrammarConstraints;
 
 	private final String code;
 
@@ -269,7 +273,8 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 
 	}
 
-	public static void registerCodeActionParticipants(Map<String, ICodeActionParticipant> codeActions) {
+	public static void registerCodeActionParticipants(Map<String, ICodeActionParticipant> codeActions,
+			SharedSettings sharedSettings) {
 		codeActions.put(ElementUnterminated.getCode(), new ElementUnterminatedCodeAction());
 		codeActions.put(EqRequiredInAttribute.getCode(), new EqRequiredInAttributeCodeAction());
 		codeActions.put(OpenQuoteExpected.getCode(), new OpenQuoteExpectedCodeAction());
@@ -277,5 +282,8 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 		codeActions.put(ETagRequired.getCode(), new ETagRequiredCodeAction());
 		codeActions.put(RootElementTypeMustMatchDoctypedecl.getCode(),
 				new RootElementTypeMustMatchDoctypedeclCodeAction());
+		if (sharedSettings.getWorkspaceSettings().isResourceOperationSupported(ResourceOperationKind.Create)) {
+			codeActions.put(NoGrammarConstraints.getCode(), new NoGrammarConstraintsCodeAction());
+		}
 	}
 }

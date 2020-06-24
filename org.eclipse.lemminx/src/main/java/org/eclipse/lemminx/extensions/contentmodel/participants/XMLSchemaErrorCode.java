@@ -17,14 +17,16 @@ import static org.eclipse.lemminx.utils.StringUtils.getString;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.xerces.impl.XMLEntityManager;
+import org.apache.xerces.util.URI.MalformedURIException;
 import org.apache.xerces.xni.XMLLocator;
-import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
-import org.eclipse.lemminx.dom.DOMNode;
+import org.eclipse.lemminx.dom.DOMRange;
 import org.eclipse.lemminx.dom.NoNamespaceSchemaLocation;
 import org.eclipse.lemminx.dom.SchemaLocation;
+import org.eclipse.lemminx.dom.SchemaLocationHint;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.TargetNamespace_1CodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.TargetNamespace_2CodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.cvc_attribute_3CodeAction;
@@ -41,7 +43,6 @@ import org.eclipse.lemminx.services.extensions.diagnostics.IXMLErrorCode;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.utils.DOMUtils;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
-import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ResourceOperationKind;
 
@@ -81,7 +82,9 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 	cvc_minExclusive_valid("cvc-minExclusive-valid"), // https://wiki.xmldation.com/Support/validator/cvc-minexclusive-valid
 	cvc_minInclusive_valid("cvc-minInclusive-valid"), // https://wiki.xmldation.com/Support/validator/cvc-mininclusive-valid
 	TargetNamespace_1("TargetNamespace.1"), //
-	TargetNamespace_2("TargetNamespace.2"), SchemaLocation("SchemaLocation"), schema_reference_4("schema_reference.4"), //
+	TargetNamespace_2("TargetNamespace.2"), //
+	SchemaLocation("SchemaLocation"), //
+	schema_reference_4("schema_reference.4"), //
 	src_element_3("src-element.3");
 
 	private final String code;
@@ -174,34 +177,39 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 		}
 		case SchemaLocation:
 		case schema_reference_4: {
-			DOMNode attrValueNode = null;
+			DOMRange locationRange = null;
 			if (code.equals(SchemaLocation)) {
 				SchemaLocation schemaLocation = document.getSchemaLocation();
-				attrValueNode = schemaLocation.getAttr().getNodeAttrValue();
+				locationRange = schemaLocation.getAttr().getNodeAttrValue();
 			} else {
-				NoNamespaceSchemaLocation noNamespaceSchemaLocation = document.getNoNamespaceSchemaLocation();
-				if (noNamespaceSchemaLocation != null) {
-					attrValueNode = noNamespaceSchemaLocation.getAttr().getNodeAttrValue();
-				} else {
-					SchemaLocation schemaLocation = document.getSchemaLocation();
-					if (schemaLocation != null) {
-						attrValueNode = schemaLocation.getAttr().getNodeAttrValue();
+				String hrefLocation = arguments.length == 1 ? (String) arguments[0] : null;
+				// Check if location comes from a xml-model/@href
+				locationRange = XMLModelUtils.getHrefNode(document, hrefLocation);
+				if (locationRange == null) {
+					NoNamespaceSchemaLocation noNamespaceSchemaLocation = document.getNoNamespaceSchemaLocation();
+					if (noNamespaceSchemaLocation != null) {
+						locationRange = noNamespaceSchemaLocation.getAttr().getNodeAttrValue();
+					} else {
+						SchemaLocation schemaLocation = document.getSchemaLocation();
+						if (schemaLocation != null) {
+							String invalidSchemaPath = arguments[0] instanceof String ? (String) arguments[0] : null;
+
+							if (invalidSchemaPath != null) {
+								for (SchemaLocationHint locHintRange : schemaLocation.getSchemaLocationHints()) {
+									String expandedHint = getResolvedLocation(document.getDocumentURI(),
+											locHintRange.getHint());
+									if (invalidSchemaPath.equals(expandedHint)) {
+										return XMLPositionUtility.createRange(locHintRange);
+									}
+								}
+							}
+							// Highlight entire attribute if finding the location hint fails
+							locationRange = schemaLocation.getAttr().getNodeAttrValue();
+						}
 					}
 				}
 			}
-
-			if (attrValueNode != null) {
-				int startOffset = attrValueNode.getStart();
-				int endOffset = attrValueNode.getEnd();
-				try {
-					Position startPosition = document.positionAt(startOffset);
-					Position endPosition = document.positionAt(endOffset);
-					return new Range(startPosition, endPosition);
-				} catch (BadLocationException e) {
-					return null;
-				}
-			}
-			return null;
+			return locationRange != null ? XMLPositionUtility.createRange(locationRange) : null;
 		}
 		case cvc_attribute_3:
 		case cvc_complex_type_3_1:
@@ -272,9 +280,25 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 		codeActions.put(cvc_enumeration_valid.getCode(), new cvc_enumeration_validCodeAction());
 		codeActions.put(cvc_complex_type_2_1.getCode(), new cvc_complex_type_2_1CodeAction());
 		codeActions.put(TargetNamespace_1.getCode(), new TargetNamespace_1CodeAction());
-		codeActions.put(TargetNamespace_2.getCode(), new TargetNamespace_2CodeAction());		
+		codeActions.put(TargetNamespace_2.getCode(), new TargetNamespace_2CodeAction());
 		if (sharedSettings.getWorkspaceSettings().isResourceOperationSupported(ResourceOperationKind.Create)) {
 			codeActions.put(schema_reference_4.getCode(), new schema_reference_4CodeAction());
+		}
+	}
+
+	/**
+	 * Returns the expanded system location
+	 *
+	 * @return the expanded system location
+	 */
+	private static String getResolvedLocation(String documentURI, String location) {
+		if (location == null) {
+			return null;
+		}
+		try {
+			return XMLEntityManager.expandSystemId(location, documentURI, false);
+		} catch (MalformedURIException e) {
+			return location;
 		}
 	}
 }

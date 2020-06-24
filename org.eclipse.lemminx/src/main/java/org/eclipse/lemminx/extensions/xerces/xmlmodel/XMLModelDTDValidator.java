@@ -11,11 +11,11 @@
 *******************************************************************************/
 package org.eclipse.lemminx.extensions.xerces.xmlmodel;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 
 import org.apache.xerces.impl.Constants;
 import org.apache.xerces.impl.XMLEntityManager;
+import org.apache.xerces.impl.XMLErrorReporter;
 import org.apache.xerces.impl.dtd.DTDGrammar;
 import org.apache.xerces.impl.dtd.XMLDTDDescription;
 import org.apache.xerces.impl.dtd.XMLDTDLoader;
@@ -28,6 +28,7 @@ import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.parser.XMLComponentManager;
 import org.apache.xerces.xni.parser.XMLConfigurationException;
 import org.apache.xerces.xni.parser.XMLInputSource;
+import org.eclipse.lemminx.extensions.xerces.xmlmodel.msg.XMLModelMessageFormatter;
 
 /**
  * XML model validator which process validation with DTD:
@@ -38,6 +39,8 @@ import org.apache.xerces.xni.parser.XMLInputSource;
  *
  */
 public class XMLModelDTDValidator extends XMLDTDValidator implements XMLModelValidator {
+
+	private static final String DTD_NOT_FOUND_KEY = "dtd_not_found";
 
 	private static final String ENTITY_MANAGER = Constants.XERCES_PROPERTY_PREFIX + Constants.ENTITY_MANAGER_PROPERTY;
 
@@ -102,8 +105,11 @@ public class XMLModelDTDValidator extends XMLDTDValidator implements XMLModelVal
 				loader.setEntityResolver(entityManager);
 				try {
 					fDTDGrammar = (DTDGrammar) loader.loadGrammar(new XMLInputSource(null, eid, null));
-				} catch (IOException e) {
-					// TODO : manage report error for DTD not found in xml-model/@ref
+				} catch (Exception e) {
+					// DTD declared in xml-model href="" doesn't exist, report the error and disable the DTD validation.
+					fErrorReporter.reportError(locator, XMLModelMessageFormatter.XML_MODEL_DOMAIN, DTD_NOT_FOUND_KEY,
+							new Object[] { element, eid }, XMLErrorReporter.SEVERITY_ERROR);
+					super.fValidation = false;
 				}
 			} else {
 				// we've found a cached one;so let's make sure not to read

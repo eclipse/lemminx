@@ -33,5 +33,8 @@
 		uri="../xsd/edmx.xsd" />
 	<uri name="http://docs.oasis-open.org/odata/ns/edm"
 		uri="../xsd/edm.xsd" />
+	
+	<uri name="http://example.org/schema/root"
+		uri="../xsd/root.xsd" />
 
 </catalog>

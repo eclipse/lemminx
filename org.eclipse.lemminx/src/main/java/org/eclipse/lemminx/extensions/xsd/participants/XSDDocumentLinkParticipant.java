@@ -59,7 +59,7 @@ public class XSDDocumentLinkParticipant implements IDocumentLinkParticipant {
 						String location = getResolvedLocation(document.getDocumentURI(), schemaLocationAttr.getValue());
 						DOMRange schemaLocationRange = schemaLocationAttr.getNodeAttrValue();
 						try {
-							links.add(createDocumentLink(schemaLocationRange, location));
+							links.add(createDocumentLink(schemaLocationRange, location, true));
 						} catch (BadLocationException e) {
 							LOGGER.log(Level.SEVERE, "Creation of document link failed", e);
 						}

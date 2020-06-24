@@ -983,17 +983,22 @@ public class XMLPositionUtility {
 	}
 
 	/**
-	 * Create document link.
+	 * Create a document link
 	 * 
-	 * @param target
-	 * @param location
-	 * @return
-	 * @throws BadLocationException
+	 * @param target   The range in the document that should be the link
+	 * @param location URI where the link should point
+	 * @param adjust   <code>true</code> means the first and last character of
+	 *                 <code>target</code> will not be a part of the link.
+	 * @return A DocumentLink over the range <code>target</code> that points to
+	 *         <code>location</code>.
+	 * @throws BadLocationException if <code>target</code> is out of the bounds of
+	 *                              the document
 	 */
-	public static DocumentLink createDocumentLink(DOMRange target, String location) throws BadLocationException {
+	public static DocumentLink createDocumentLink(DOMRange target, String location, boolean adjust)
+			throws BadLocationException {
 		DOMDocument document = target.getOwnerDocument();
-		Position start = document.positionAt(target.getStart() + 1);
-		Position end = document.positionAt(target.getEnd() - 1);
+		Position start = document.positionAt(target.getStart() + (adjust ? 1 : 0));
+		Position end = document.positionAt(target.getEnd() - (adjust ? 1 : 0));
 		return new DocumentLink(new Range(start, end), location);
 	}
 

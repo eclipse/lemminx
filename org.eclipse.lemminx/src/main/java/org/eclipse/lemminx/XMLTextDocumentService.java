@@ -29,7 +29,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.eclipse.lemminx.client.ExtendedClientCapabilities;
-import org.eclipse.lemminx.client.LimitExceededWarnings;
+import org.eclipse.lemminx.client.LimitExceededWarner;
 import org.eclipse.lemminx.client.LimitFeature;
 import org.eclipse.lemminx.commons.ModelTextDocument;
 import org.eclipse.lemminx.commons.ModelTextDocuments;
@@ -100,7 +100,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	private final XMLLanguageServer xmlLanguageServer;
 	private final TextDocuments<ModelTextDocument<DOMDocument>> documents;
 	private SharedSettings sharedSettings;
-	private LimitExceededWarnings limitExceededWarnings;
+	private LimitExceededWarner limitExceededWarner;
 
 	/**
 	 * Save context.
@@ -153,7 +153,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 			return parser.parse(document, getXMLLanguageService().getResolverExtensionManager(), true, cancelChecker);
 		});
 		this.sharedSettings = new SharedSettings();
-		this.limitExceededWarnings = null;
+		this.limitExceededWarner = null;
 	}
 
 	public void updateClientCapabilities(ClientCapabilities capabilities,
@@ -254,7 +254,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 			if (resultLimitExceeded) {
 				// send warning
-				getLimitExceededWarnings().onResultLimitExceeded(xmlDocument.getTextDocument().getUri(),
+				getLimitExceededWarner().onResultLimitExceeded(xmlDocument.getTextDocument().getUri(),
 						LimitFeature.SYMBOLS);
 			}
 			return symbols;
@@ -310,7 +310,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 		String uri = document.getUri();
 		xmlLanguageServer.getLanguageClient()
 				.publishDiagnostics(new PublishDiagnosticsParams(uri, Collections.emptyList()));
-		getLimitExceededWarnings().evict(uri);
+		getLimitExceededWarner().evictValue(uri);
 	}
 
 	@Override
@@ -560,11 +560,11 @@ public class XMLTextDocumentService implements TextDocumentService {
 		return result;
 	}
 
-	public LimitExceededWarnings getLimitExceededWarnings() {
-		if (this.limitExceededWarnings == null) {
-			this.limitExceededWarnings = new LimitExceededWarnings(this.xmlLanguageServer.getLanguageClient(),
-					sharedSettings);
+	public LimitExceededWarner getLimitExceededWarner() {
+		if (this.limitExceededWarner == null) {
+			this.limitExceededWarner =
+					new LimitExceededWarner(this.xmlLanguageServer);
 		}
-		return this.limitExceededWarnings;
+		return this.limitExceededWarner;
 	}
 }
