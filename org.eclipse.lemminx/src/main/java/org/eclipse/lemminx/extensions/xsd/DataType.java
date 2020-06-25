@@ -78,9 +78,9 @@ public class DataType {
 		doc.append("**");
 		if (!StringUtils.isEmpty(url)) {
 			doc.append(lineSeparator);
-			doc.append("See [documentation](");
+			doc.append("see [documentation](");
 			doc.append(getUrl());
-			doc.append(") for more informations.");
+			doc.append(") for more information.");
 		}
 		return doc.toString();
 	}
