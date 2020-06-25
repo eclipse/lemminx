@@ -131,8 +131,12 @@ public class NoGrammarConstraintsCodeAction implements ICodeActionParticipant {
 	 * 
 	 * @return the unique grammar URI file.
 	 */
-	private static String getGrammarURI(String documentURI, String fileExtension) {
+	static String getGrammarURI(String documentURI, String fileExtension) {
 		int index = documentURI.lastIndexOf('.');
+		if (index > 1 && documentURI.charAt(index - 1) == '/') {
+			// case with file which starts with '.' (ex .project, .classpath).
+			index = -1;
+		}
 		String grammarWithoutExtension = index != -1 ? documentURI.substring(0, index) : documentURI;
 		String grammarURI = grammarWithoutExtension + "." + fileExtension;
 		int i = 1;
@@ -146,7 +150,7 @@ public class NoGrammarConstraintsCodeAction implements ICodeActionParticipant {
 		return grammarURI;
 	}
 
-	private static String getFileName(String schemaURI) {
+	static String getFileName(String schemaURI) {
 		return new File(schemaURI).getName();
 	}
 
