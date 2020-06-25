@@ -1,5 +1,27 @@
 # Change Log
 
+## [0.13.0](https://github.com/eclipse/lemminx/milestone/16?closed=1) (July 6, 2020)
+
+### Enhancements
+
+ * Grammar generator: generate a grammar from an XML document. See [#778](https://github.com/eclipse/lemminx/issues/778).
+ * Bind XML document with no grammar constraints to generated XSD / DTD. See [#151](https://github.com/eclipse/lemminx/issues/151).
+ * Quick fix to create missing `xsi:noNamespaceSchemaLocation` and generate XSD that adheres to current XML document. See [#702](https://github.com/eclipse/lemminx/issues/702).
+ * Highlight the XSD file name in `xsi:schemaLocation` when reporting an invalid or missing XSD file. See [#782](https://github.com/eclipse/lemminx/issues/782).
+ * Add support for `textDocument/documentLink` for `xsi:schemaLocation`. See [#666](https://github.com/eclipse/lemminx/issues/666).
+ * Sort snippets. See [#692](https://github.com/eclipse/lemminx/issues/692).
+ * Formatting support for trim trailing whitespace. See [#784](https://github.com/eclipse/lemminx/pull/784)
+ * Warning message when one of the `xml.catalogs` paths cannot be found. See [#757](https://github.com/eclipse/lemminx/pull/757).
+ * New snippet to generate a catalog. See [#708](https://github.com/eclipse/lemminx/issues/708).
+ * New snippets for `xml-stylesheet`. See [#728](https://github.com/eclipse/lemminx/issues/728).
+
+###  Bug Fixes
+
+ * Missing `xml-model` reference generates multiple similar warnings. See [#795](https://github.com/eclipse/lemminx/issues/795).
+ * Fix line break being incorrectly added when `preserveAttrLineBreaks` is `true`. See [#780](https://github.com/eclipse/lemminx/pull/780).
+ * Fix cases where spaces in file paths weren't accounted for. See [#749](https://github.com/eclipse/lemminx/issues/749).
+ * Fix documentation "information" typo. See [#812](https://github.com/eclipse/lemminx/pull/812).
+
 ## [0.12.0](https://github.com/eclipse/lemminx/milestone/15?closed=1) (June 10, 2020)
 
 ### Enhancements
