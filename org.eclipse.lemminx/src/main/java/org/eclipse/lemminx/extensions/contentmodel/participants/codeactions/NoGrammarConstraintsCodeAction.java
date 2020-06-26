@@ -72,7 +72,7 @@ public class NoGrammarConstraintsCodeAction implements ICodeActionParticipant {
 					+ document.getTextDocument().lineDelimiter(0);
 			insertText += " xsi:noNamespaceSchemaLocation=\"" + schemaFileName + "\"";
 			CodeAction noNamespaceSchemaLocationAction = createGrammarFileAndBindIt(
-					"Bind to the generated XSD '" + schemaFileName + "' with xsi:noNamespaceSchemaLocation", schemaURI,
+					"Generate '" + schemaFileName + "' and bind with xsi:noNamespaceSchemaLocation", schemaURI,
 					schemaTemplate, insertText, afterTagOffset, document, diagnostic);
 			codeActions.add(noNamespaceSchemaLocationAction);
 
@@ -83,7 +83,7 @@ public class NoGrammarConstraintsCodeAction implements ICodeActionParticipant {
 			xsdWithXmlModel.endPrologOrPI();
 			xsdWithXmlModel.linefeed();
 			CodeAction xsdWithXmlModelAction = createGrammarFileAndBindIt(
-					"Bind to the generated XSD '" + schemaFileName + "' with xml-model", schemaURI, schemaTemplate,
+					"Generate '" + schemaFileName + "' and bind with xml-model", schemaURI, schemaTemplate,
 					xsdWithXmlModel.toString(), beforeTagOffset, document, diagnostic);
 			codeActions.add(xsdWithXmlModelAction);
 
@@ -103,7 +103,7 @@ public class NoGrammarConstraintsCodeAction implements ICodeActionParticipant {
 			docType.endDoctype();
 			docType.linefeed();
 			CodeAction docTypeAction = createGrammarFileAndBindIt(
-					"Bind to the generated DTD '" + dtdFileName + "' with DOCTYPE", dtdURI, dtdTemplate,
+					"Generate '" + dtdFileName + "' and bind with DOCTYPE", dtdURI, dtdTemplate,
 					docType.toString(), beforeTagOffset, document, diagnostic);
 			codeActions.add(docTypeAction);
 
@@ -114,7 +114,7 @@ public class NoGrammarConstraintsCodeAction implements ICodeActionParticipant {
 			dtdWithXmlModel.endPrologOrPI();
 			dtdWithXmlModel.linefeed();
 			CodeAction dtdWithXmlModelAction = createGrammarFileAndBindIt(
-					"Bind to the generated DTD '" + dtdFileName + "' with xml-model", dtdURI, dtdTemplate,
+					"Generate '" + dtdFileName + "' and bind with xml-model", dtdURI, dtdTemplate,
 					dtdWithXmlModel.toString(), beforeTagOffset, document, diagnostic);
 			codeActions.add(dtdWithXmlModelAction);
 

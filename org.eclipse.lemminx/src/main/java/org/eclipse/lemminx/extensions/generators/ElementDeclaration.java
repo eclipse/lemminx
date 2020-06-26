@@ -12,7 +12,7 @@
 package org.eclipse.lemminx.extensions.generators;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,9 +34,11 @@ public class ElementDeclaration extends ContainerDeclaration {
 
 	private int occurrences;
 
+	private boolean hasAttributeId;
+
 	public ElementDeclaration(String name) {
 		this.name = name;
-		this.attributes = new HashMap<>();
+		this.attributes = new LinkedHashMap<>();
 		this.childrenProperties = new ChildrenProperties();
 		setHasCharacterContent(false);
 		this.occurrences = 0;
@@ -64,7 +66,7 @@ public class ElementDeclaration extends ContainerDeclaration {
 		if (attribute != null) {
 			return attribute;
 		}
-		attribute = new AttributeDeclaration(name);
+		attribute = new AttributeDeclaration(name, this);
 		attributes.put(name, attribute);
 		return attribute;
 	}
@@ -122,5 +124,24 @@ public class ElementDeclaration extends ContainerDeclaration {
 	 */
 	public int getOccurrences() {
 		return occurrences;
+	}
+
+	/**
+	 * Returns true if the element have an attribute ID and false otherwise.
+	 * 
+	 * @return true if the element have an attribute ID and false otherwise.
+	 */
+	public boolean hasAttributeId() {
+		return hasAttributeId;
+	}
+
+	/**
+	 * Set true if the compute of the attribute ID has been done and false
+	 * otherwise.
+	 * 
+	 * @param doneID
+	 */
+	void setAttributeID(boolean doneID) {
+		this.hasAttributeId = doneID;
 	}
 }
