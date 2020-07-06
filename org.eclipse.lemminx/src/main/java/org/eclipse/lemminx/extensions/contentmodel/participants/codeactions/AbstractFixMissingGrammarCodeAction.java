@@ -67,7 +67,7 @@ public abstract class AbstractFixMissingGrammarCodeAction implements ICodeAction
 		String message = diagnostic.getMessage();
 		int startIndex = message.indexOf(FILE_SCHEME);
 		if (startIndex != -1) {
-			int endIndex = message.indexOf("'", startIndex + 1);
+			int endIndex = message.lastIndexOf("'");
 			return message.substring(startIndex + FILE_SCHEME.length(), endIndex);
 		}
 

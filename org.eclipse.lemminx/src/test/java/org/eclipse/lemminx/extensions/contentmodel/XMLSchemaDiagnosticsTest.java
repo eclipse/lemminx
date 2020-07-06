@@ -683,11 +683,11 @@ public class XMLSchemaDiagnosticsTest {
 	public void localSchemaFileMissingCodeAction() throws Exception {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + //
 				"<invoice xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + //
-				"  xsi:noNamespaceSchemaLocation=\"/salad.xsd\">\n" + //
+				"  xsi:noNamespaceSchemaLocation=\"/sala'd.xsd\">\n" + //
 				"</invoice>";
-		Diagnostic missingSchemaDiagnostic = d(2, 32, 44, XMLSchemaErrorCode.schema_reference_4);
+		Diagnostic missingSchemaDiagnostic = d(2, 32, 45, XMLSchemaErrorCode.schema_reference_4);
 		missingSchemaDiagnostic.setMessage("schema_reference.4: Failed to read schema document "
-				+ "'file:///salad.xsd',"
+				+ "'file:///sala'd.xsd',"
 				+ " because 1) could not find the document; 2) the document could not be read;"
 				+ " 3) the root element of the document is not <xsd:schema>.");
 		Diagnostic eltDiagnostic = d(1, 1, 8, XMLSchemaErrorCode.cvc_elt_1_a);
@@ -705,8 +705,8 @@ public class XMLSchemaDiagnosticsTest {
 				missingSchemaDiagnostic, //
 				settings, //
 				ca(missingSchemaDiagnostic, //
-						createFile("file:///salad.xsd", false), //
-						teOp("file:///salad.xsd", 0, 0, 0, 0, //
+						createFile("file:///sala'd.xsd", false), //
+						teOp("file:///sala'd.xsd", 0, 0, 0, 0, //
 								"<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + lineSeparator() + //
 										"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">" + lineSeparator() + //
 										"  <xs:element name=\"invoice\" type=\"xs:string\" />" + lineSeparator() + //
