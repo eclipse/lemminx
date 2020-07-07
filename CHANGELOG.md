@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.13.1](https://github.com/eclipse/lemminx/milestone/17?closed=1) (July 6, 2020)
+
+### Bug Fixes
+
+ * Fix generate schema code action when file name contains a single quote. See [#820](https://github.com/eclipse/lemminx/pull/820).
+
 ## [0.13.0](https://github.com/eclipse/lemminx/milestone/16?closed=1) (July 6, 2020)
 
 ### Enhancements
@@ -15,7 +21,7 @@
  * New snippet to generate a catalog. See [#708](https://github.com/eclipse/lemminx/issues/708).
  * New snippets for `xml-stylesheet`. See [#728](https://github.com/eclipse/lemminx/issues/728).
 
-###  Bug Fixes
+### Bug Fixes
 
  * Missing `xml-model` reference generates multiple similar warnings. See [#795](https://github.com/eclipse/lemminx/issues/795).
  * Fix line break being incorrectly added when `preserveAttrLineBreaks` is `true`. See [#780](https://github.com/eclipse/lemminx/pull/780).
