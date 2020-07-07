@@ -15,17 +15,16 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
-import com.google.common.io.MoreFiles;
-import com.google.common.io.RecursiveDeleteOption;
-
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+
+import com.google.common.io.MoreFiles;
+import com.google.common.io.RecursiveDeleteOption;
 
 public class BaseFileTempTest {
 
@@ -56,16 +55,21 @@ public class BaseFileTempTest {
 	}
 
 	protected static void createFile(String fileName, String contents) throws IOException {
-		try {
-			URI uri = new URI("file://" + fileName);
-			Path path = Paths.get(uri);
-			Files.write(path, contents.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-		}
+		URI fileURI = new File(fileName).toURI();
+		createFile(fileURI, contents);
+	}
+
+	protected static void createFile(URI fileURI, String contents) throws IOException {
+		Path path = Paths.get(fileURI);
+		Files.write(path, contents.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.WRITE,
+				StandardOpenOption.TRUNCATE_EXISTING);
 	}
 
 	protected static void updateFile(String fileName, String contents) throws IOException {
+		URI fileURI = new File(fileName).toURI();
+		updateFile(fileURI, contents);
+	}
+	protected static void updateFile(URI fileURI, String contents) throws IOException {
 		// For Mac OS, Linux OS, the call of Files.getLastModifiedTime is working for 1
 		// second.
 		// Here we wait for > 1s to be sure that call of Files.getLastModifiedTime will
@@ -75,6 +79,6 @@ public class BaseFileTempTest {
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 		}
-		createFile(fileName, contents);
+		createFile(fileURI, contents);
 	}
 }

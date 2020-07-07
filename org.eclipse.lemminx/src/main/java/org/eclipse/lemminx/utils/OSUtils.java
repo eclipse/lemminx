@@ -17,7 +17,5 @@ package org.eclipse.lemminx.utils;
 public class OSUtils {
 	
 	public static final boolean isWindows = System.getProperty("os.name").toLowerCase().indexOf("win") >= 0;
-	public static String SLASH = isWindows ? "\\" : "/";
-
 	
 }
