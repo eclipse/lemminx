@@ -285,7 +285,7 @@ public class XMLBuilder {
 				// 	xml.append("C:");
 			}
 			if (isTrimTrailingWhitespace()) {
-				// XXX: Investigate, the setting shoud be false... 
+				// XXX: Investigate, the setting shoulÌd be false...
 				// text = trimTrailingSpacesEachLine(text);
 			}
 		    //xml.append("-["+text+"]-");
