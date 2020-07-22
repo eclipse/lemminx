@@ -175,6 +175,7 @@ class XMLFormatter {
 				tag.equals("show-page")||
 				tag.equals("show-id")||
 				tag.equals("show-label")||
+				tag.equals("footnote")||
 				tag.equals("show-title"));
 		}
 
@@ -578,11 +579,11 @@ class XMLFormatter {
 		/**
 		 * Formats the start tag's closing bracket (>) according to
 		 * {@code XMLFormattingOptions#isPreserveAttrLineBreaks()}
-		 * 
+		 *
 		 * {@code XMLFormattingOptions#isPreserveAttrLineBreaks()}:
 		 * If true, must add a newline + indent before the closing bracket if the last attribute of the element
 		 * and the closing bracket are in different lines.
-		 * 
+		 *
 		 * @param element
 		 * @throws BadLocationException
 		 */
@@ -599,11 +600,11 @@ class XMLFormatter {
 		/**
 		 * Formats the self-closing tag (/>) according to
 		 * {@code XMLFormattingOptions#isPreserveAttrLineBreaks()}
-		 * 
+		 *
 		 * {@code XMLFormattingOptions#isPreserveAttrLineBreaks()}:
 		 * If true, must add a newline + indent before the self-closing tag if the last attribute of the element
 		 * and the closing bracket are in different lines.
-		 * 
+		 *
 		 * @param element
 		 * @throws BadLocationException
 		 */
@@ -619,7 +620,7 @@ class XMLFormatter {
 					this.xmlBuilder.indent(this.indentLevel);
 				}
 			}
-			
+
 			this.xmlBuilder.selfCloseElement();
 		}
 
@@ -645,10 +646,10 @@ class XMLFormatter {
 		/**
 		 * Returns true if first offset and second offset belong
 		 * in the same line of the document
-		 * 
+		 *
 		 * If current formatting is range formatting, the provided offsets
 		 * must be ranged offsets (offsets relative to the formatting range)
-		 * 
+		 *
 		 * @param first  the first offset
 		 * @param second the second offset
 		 * @return true if first offset and second offset belong
@@ -679,7 +680,7 @@ class XMLFormatter {
 		/**
 		 * Returns true if the provided element has one attribute
 		 * in the fullDomDocument (not the rangeDomDocument)
-		 * 
+		 *
 		 * @param element
 		 * @return true if the provided element has one attribute
 		 * in the fullDomDocument (not the rangeDomDocument)
