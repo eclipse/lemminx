@@ -203,6 +203,11 @@
 			<version>9.4.17.v20190418</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.thaiopensource</groupId>
+			<artifactId>jing</artifactId>
+			<version>20091111</version>
+		</dependency>
 	</dependencies>
 
 </project>

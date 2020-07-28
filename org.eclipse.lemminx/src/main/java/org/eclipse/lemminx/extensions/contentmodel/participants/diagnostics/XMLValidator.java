@@ -14,11 +14,19 @@ package org.eclipse.lemminx.extensions.contentmodel.participants.diagnostics;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.thaiopensource.util.PropertyMap;
+import com.thaiopensource.util.PropertyMapBuilder;
+import com.thaiopensource.validate.ValidateProperty;
+import com.thaiopensource.validate.ValidationDriver;
 
 import org.apache.xerces.parsers.SAXParser;
 import org.apache.xerces.xni.grammars.XMLGrammarPool;
@@ -26,22 +34,29 @@ import org.apache.xerces.xni.parser.XMLEntityResolver;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMDocumentType;
 import org.eclipse.lemminx.dom.DOMElement;
+import org.eclipse.lemminx.dom.XMLModel;
+import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSchemaErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.services.extensions.diagnostics.LSPContentHandler;
 import org.eclipse.lemminx.uriresolver.CacheResourceDownloadingException;
 import org.eclipse.lemminx.uriresolver.IExternalSchemaLocationProvider;
+import org.eclipse.lemminx.uriresolver.URIResolverExtension;
+import org.eclipse.lemminx.uriresolver.URIResolverExtensionManager;
+import org.eclipse.lemminx.utils.URIUtils;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
+import org.xml.sax.SAXParseException;
 
 /**
  * XML validator utilities class.
@@ -74,6 +89,25 @@ public class XMLValidator {
 
 			boolean hasGrammar = document.hasGrammar(true);
 
+			
+			//#region RNG
+
+			// TODO: proof of concept, not finished!
+
+			List<XMLModel> rngModels = new ArrayList<>();
+			for (XMLModel model : document.getXMLModels()) {
+				if (model.isRNG()) {
+					rngModels.add(model);
+				}
+			}
+			if (!rngModels.isEmpty()){
+				doRNGDiagnostics(document, rngModels, diagnostics);
+			}
+			// TODO: how should xsd and rng model coexist/covalidate?
+
+			//#endregion
+
+
 			// If diagnostics for Schema preference is enabled
 			if ((validationSettings == null) || validationSettings.isSchema()) {
 
@@ -98,6 +132,65 @@ public class XMLValidator {
 			throw e;
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, "Unexpected XMLValidator error", e);
+		}
+	}
+
+	private static void doRNGDiagnostics(DOMDocument document, List<XMLModel> rngModels, List<Diagnostic> diagnostics) {
+		for (XMLModel xmlModel : rngModels) {
+			doRNGDiagnostics(document, xmlModel.getHref(), diagnostics);
+		}
+	}
+
+	private static void doRNGDiagnostics(DOMDocument document, String href, List<Diagnostic> diagnostics) {
+		JingErrorHandler handler = new JingErrorHandler();
+		
+        PropertyMapBuilder mapBuilder = new PropertyMapBuilder();
+        mapBuilder.put(ValidateProperty.ERROR_HANDLER, handler);
+		PropertyMap propertyMap = mapBuilder.toPropertyMap();
+
+		// String uri = Paths.get(href).toAbsolutePath().toUri().toString();
+		// boolean exists = Files.exists(Paths.get(href));
+		// InputSource schemaSource = new InputSource(uri);
+
+		try {
+			String s1 = URIUtils.sanitizingUri(href);
+			boolean b1 = URIUtils.isFileResource(href);
+			boolean b2 = URIUtils.isRemoteResource(href);
+
+			StringBuilder schema = new StringBuilder();
+			Files.lines(Paths.get(href)).forEach(s -> schema.append(s).append("\n"));
+			InputSource schemaSource = new InputSource(XMLValidator.class.getResourceAsStream("/rng/tei_all.rng")); // FIXME: make dynamic
+			// LOGGER.info(XMLValidator.class.getResource("/rng/core.rng").toString());
+			// LOGGER.info(""+XMLValidator.class.getResourceAsStream("/rng/core.rng"));
+			// InputSource schemaSource = new InputSource(new StringReader(schema.toString()));
+			// InputSource schemaSource = new InputSource(Files.newInputStream(Paths.get(href)));
+			// TODO: find reasonable way to load resource
+			InputSource documentSource = new InputSource(new StringReader(document.getText()));
+
+			ValidationDriver driver = new ValidationDriver(propertyMap);
+			driver.loadSchema(schemaSource);
+			// FIXME: schema == null
+
+			boolean valid = driver.validate(documentSource);
+
+			for (SAXParseException error : handler.getErrors()) {
+				diagnostics.add(JingErrorHandler.parseDiagnostic(error, DiagnosticSeverity.Error));
+			}
+
+			for (SAXParseException warning : handler.getWarnings()) {
+				diagnostics.add(JingErrorHandler.parseDiagnostic(warning, DiagnosticSeverity.Warning));
+			}
+
+			if (valid) {
+				// TODO: warnings?
+				LOGGER.info("RNG Validator found no problems. Warnings: "+handler.getWarnings().size());
+			} else {
+				// TODO: do something with the errors
+				LOGGER.info("RNG Validator found problems: "+handler.getErrors().size());
+			}
+		} catch (Exception e) {
+			// TODO: handle exceptions
+			e.printStackTrace();
 		}
 	}
 
@@ -175,6 +268,75 @@ public class XMLValidator {
 				reader.setProperty(IExternalSchemaLocationProvider.NO_NAMESPACE_SCHEMA_LOCATION,
 						noNamespaceSchemaLocation);
 			}
+		}
+	}
+
+	private static class JingErrorHandler implements ErrorHandler {
+		public static final String UNKNOWN_ERROR_CODE = "unknownErrorCode";
+		private List<SAXParseException> warnings = new ArrayList<>();
+		private List<SAXParseException> errors = new ArrayList<>();
+	
+		public static Diagnostic parseDiagnostic(SAXParseException ex, DiagnosticSeverity severity) {
+			Diagnostic d = new Diagnostic();
+
+			// TODO: better way of calculating the length of the range
+			int length = 5;
+			Position start = new Position(ex.getLineNumber(), Math.max(0, ex.getColumnNumber()-length));
+			Position end = new Position(ex.getLineNumber(), ex.getColumnNumber());
+			d.setRange(new Range(start, end));
+
+			d.setMessage(ex.getMessage());
+			d.setCode(getErrorCode(ex.getMessage()));
+			d.setSeverity(severity);
+
+			// TODO: severity
+			return d;
+		}
+
+		public static String getErrorCode(String message) {
+			String pattern;
+
+			// unexpected element
+			// e.g. "element "am" not allowed here; expected element "titleStmt""
+			pattern = "^element \".*?\" not allowed here; expected element .*";
+			if (message.matches(pattern)){
+				return XMLSchemaErrorCode.cvc_complex_type_2_4_a.getCode();
+			}
+
+			// unexpected attribute
+			// e.g. "attribute "foo" not allowed here; expected attribute "ana", "cert", "change", "copyOf", "corresp", "exclude", "facs", "n", "next", "prev", "rend", "rendition", "resp", "sameAs", "select", "source", "style", "synch", "xml:base", "xml:id", "xml:lang" or "xml:space""
+			pattern = "^attribute \".*?\" not allowed here; expected attribute .*";
+			if (message.matches(pattern)){
+				return XMLSchemaErrorCode.cvc_complex_type_3_2_2.getCode();
+			}
+
+			// TODO: more cases
+
+			// unknown error
+			return UNKNOWN_ERROR_CODE;
+		}
+
+		@Override
+		public void warning(SAXParseException exception) throws SAXException {
+			warnings.add(exception);
+		}
+
+		@Override
+		public void error(SAXParseException exception) throws SAXException {
+			errors.add(exception);
+		}
+	
+		@Override
+		public void fatalError(SAXParseException exception) throws SAXException {
+			throw exception;
+		}
+	
+		public List<SAXParseException> getErrors() {
+			return errors;
+		}
+	
+		public List<SAXParseException> getWarnings() {
+			return warnings;
 		}
 	}
 }

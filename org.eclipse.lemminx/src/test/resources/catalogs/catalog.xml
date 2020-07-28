@@ -29,6 +29,8 @@
 
 	<system systemId="http://money.xsd" uri="../xsd/money.xsd" />
 
+	<!-- <system systemId="https://tei-c.org/Vault/P5/current/xml/tei/schema/relaxng/core.rng" uri="../rng/core.rng" /> -->
+
 	<uri name="http://docs.oasis-open.org/odata/ns/edmx"
 		uri="../xsd/edmx.xsd" />
 	<uri name="http://docs.oasis-open.org/odata/ns/edm"

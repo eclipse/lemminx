@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.eclipse.lemminx.extensions.xerces.xmlmodel.XMLModelDeclaration;
+import org.eclipse.lemminx.utils.DOMUtils;
 import org.w3c.dom.ProcessingInstruction;
 
 /**
@@ -80,6 +81,45 @@ public class XMLModel {
 	public String getHref() {
 		XMLModelDeclaration declaration = getModelDeclaration();
 		return declaration != null ? declaration.getHref() : null;
+	}
+
+	/**
+	 * Returns true, if the XML Model refers to a DTD Document
+	 * 
+	 * @return true, if the XML Model refers to a DTD Document; false otherwise
+	 */
+	public boolean isDTD() {
+		String href = getHref();
+		if (href == null || href.isEmpty()) {
+			return false;
+		}
+		return href.endsWith(".dtd"); // TODO: do this with DOMUtils method
+	}
+
+	/**
+	 * Returns true, if the XML Model refers to a XSD Document
+	 * 
+	 * @return true, if the XML Model refers to a XSD Document; false otherwise
+	 */
+	public boolean isXSD() {
+		String href = getHref();
+		if (href == null || href.isEmpty()) {
+			return false;
+		}
+		return href.endsWith(".xsd"); // TODO: do this with DOMUtils method
+	}
+
+	/**
+	 * Returns true, if the XML Model refers to a RelaxNG Document
+	 * 
+	 * @return true, if the XML Model refers to a RelaxNG Document; false otherwise
+	 */
+	public boolean isRNG() {
+		String href = getHref();
+		if (href == null || href.isEmpty()) {
+			return false;
+		}
+		return href.endsWith(".rng"); // TODO: do this with DOMUtils method
 	}
 
 	private XMLModelDeclaration getModelDeclaration() {
