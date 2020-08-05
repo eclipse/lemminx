@@ -14,10 +14,15 @@ package org.eclipse.lemminx.utils;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMParser;
+import static org.eclipse.lemminx.XMLAssert.r;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -27,130 +32,100 @@ import org.junit.jupiter.api.Test;
 public class XMLPositionUtilityTest {
 
 	@Test
-	public void testGetMatchingEndTagPositionMiddle() {
+	public void testGetMatchingRangesStartTagMiddle() {
 		String initialText = "<Apple>\n" + "  <Or|ange></Orange>\n" + "</Apple>";
-
-		String expectedText = "<Apple>\n" + "  <Orange></Or|ange>\n" + "</Apple>";
-
-		testMatchingTagPosition(initialText, expectedText);
+		testMatchingTagRanges(initialText, r(1, 3, 1, 9), r(1, 12, 1, 18));
 	}
 
 	@Test
-	public void testGetMatchingEndTagPositionBeginning() {
+	public void testGetMatchingRangesStartTagBeginning() {
 		String initialText = "<Apple>\n" + "  <|Orange></Orange>\n" + "</Apple>";
-
-		String expectedText = "<Apple>\n" + "  <Orange></|Orange>\n" + "</Apple>";
-
-		testMatchingTagPosition(initialText, expectedText);
+		testMatchingTagRanges(initialText, r(1, 3, 1, 9), r(1, 12, 1, 18));
 	}
 
 	@Test
-	public void testGetMatchingEndTagPositionEnd() {
+	public void testGetMatchingRangesStartTagEnd() {
 		String initialText = "<Apple>\n" + "  <Orange|></Orange>\n" + "</Apple>";
-
-		String expectedText = "<Apple>\n" + "  <Orange></Orange|>\n" + "</Apple>";
-
-		testMatchingTagPosition(initialText, expectedText);
+		testMatchingTagRanges(initialText, r(1, 3, 1, 9), r(1, 12, 1, 18));
 	}
 
 	@Test
-	public void testGetMatchingEndTagPositionAttributes() {
+	public void testGetMatchingRangesStartTagDifferentLine() {
+		String initialText = "<Apple>\n" + "  <Orange|>\n  </Orange>\n" + "</Apple>";
+		testMatchingTagRanges(initialText, r(1, 3, 1, 9), r(2, 4, 2, 10));
+	}
+
+	@Test
+	public void testGetMatchingRangesStartTagAttributes() {
 		String initialText = "<Apple>\n" + "  <Orange| amount=\"1\"></Orange>\n" + "</Apple>";
-
-		String expectedText = "<Apple>\n" + "  <Orange amount=\"1\"></Orange|>\n" + "</Apple>";
-
-		testMatchingTagPosition(initialText, expectedText);
+		testMatchingTagRanges(initialText, r(1, 3, 1, 9), r(1, 23, 1, 29));
 	}
 
 	@Test
 	public void testGetMatchingEndTagNoResult() {
 		String initialText = "<Apple>\n" + "  |<Orange></Orange>\n" + "</Apple>";
-
-		String expectedText = "<Apple>\n" + "  <Orange></Orange>\n" + "</Apple>";
-
-		testMatchingTagPosition(initialText, expectedText);
+		testMatchingTagRanges(initialText);
 	}
 
 	@Test
 	public void testGetMatchingEndTagNoResult2() {
 		String initialText = "<Apple>\n" + "  <Orange |></Orange>\n" + // Because there is a space
 				"</Apple>";
-
-		String expectedText = "<Apple>\n" + "  <Orange ></Orange>\n" + "</Apple>";
-
-		testMatchingTagPosition(initialText, expectedText);
+		testMatchingTagRanges(initialText);
 	}
 
 	@Test
 	public void testGetMatchingEndTagTextBetween() {
 		String initialText = "<Apple>\n" + "  <Orange|>Text Between</Orange>\n" + "</Apple>";
-
-		String expectedText = "<Apple>\n" + "  <Orange>Text Between</Orange|>\n" + "</Apple>";
-
-		testMatchingTagPosition(initialText, expectedText);
+		testMatchingTagRanges(initialText, r(1, 3, 1, 9), r(1, 24, 1, 30));
 	}
 
 	@Test
 	public void testGetMatchingEndTagElementBetween() {
 		String initialText = "<Apple>\n" + "  <Orange|><Lemon></Lemon></Orange>\n" + "</Apple>";
-
-		String expectedText = "<Apple>\n" + "  <Orange><Lemon></Lemon></Orange|>\n" + "</Apple>";
-
-		testMatchingTagPosition(initialText, expectedText);
+		testMatchingTagRanges(initialText, r(1, 3, 1, 9), r(1, 27, 1, 33));
 	}
 
 	@Test
-	public void testGetMatchingStartTagPositionMiddle() {
+	public void testGetMatchingRangesEndTagMiddle() {
 		String initialText = "<Apple>\n" + "  <Orange></Or|ange>\n" + "</Apple>";
-
-		String expectedText = "<Apple>\n" + "  <Or|ange></Orange>\n" + "</Apple>";
-
-		testMatchingTagPosition(initialText, expectedText);
+		testMatchingTagRanges(initialText, r(1, 3, 1, 9), r(1, 12, 1, 18));
 	}
 
 	@Test
-	public void testGetMatchingStartTagPositionBeginning() {
+	public void testGetMatchingRangesEndTagBeginning() {
 		String initialText = "<Apple>\n" + "  <Orange></|Orange>\n" + "</Apple>";
-
-		String expectedText = "<Apple>\n" + "  <|Orange></Orange>\n" + "</Apple>";
-
-		testMatchingTagPosition(initialText, expectedText);
+		testMatchingTagRanges(initialText, r(1, 3, 1, 9), r(1, 12, 1, 18));
 	}
 
 	@Test
-	public void testGetMatchingStartTagPositionEnd() {
+	public void testGetMatchingRangesEndTagEnd() {
 		String initialText = "<Apple>\n" + "  <Orange></Orange|>\n" + "</Apple>";
-
-		String expectedText = "<Apple>\n" + "  <Orange|></Orange>\n" + "</Apple>";
-
-		testMatchingTagPosition(initialText, expectedText);
+		testMatchingTagRanges(initialText, r(1, 3, 1, 9), r(1, 12, 1, 18));
 	}
 
 	@Test
-	public void testGetMatchingStartTagPositionAttributes() {
+	public void testGetMatchingRangesEndTagDifferentLine() {
+		String initialText = "<Apple>\n" + "  <Orange>\n  </Or|ange>\n" + "</Apple>";
+		testMatchingTagRanges(initialText, r(1, 3, 1, 9), r(2, 4, 2, 10));
+	}
+
+	@Test
+	public void testGetMatchingRangesEndTagAttributes() {
 		String initialText = "<Apple>\n" + "  <Orange amount=\"1\"></Orange|>\n" + "</Apple>";
-
-		String expectedText = "<Apple>\n" + "  <Orange| amount=\"1\"></Orange>\n" + "</Apple>";
-
-		testMatchingTagPosition(initialText, expectedText);
+		testMatchingTagRanges(initialText, r(1, 3, 1, 9), r(1, 23, 1, 29));
 	}
 
 	@Test
-	public void testGetMatchingEndTagPositionAttributesPrefixed() {
+	public void testGetMatchingRangesStartTagAttributesPrefixed() {
 		String initialText = "<Apple>\n" + "  <prefix:Orange| amount=\"1\"></prefix:Orange>\n" + "</Apple>";
-
-		String expectedText = "<Apple>\n" + "  <prefix:Orange amount=\"1\"></prefix:Orange|>\n" + "</Apple>";
-
-		testMatchingTagPosition(initialText, expectedText);
+		testMatchingTagRanges(initialText, r(1, 3, 1, 16), r(1, 30, 1, 43));
 	}
 
 	@Test
-	public void testGetMatchingEndTagPositionPrefixed() {
-		String initialText = "<Apple>\n" + "  <pref|ix:Orange></prefix:Orange>\n" + "</Apple>";
-
-		String expectedText = "<Apple>\n" + "  <prefix:Orange></pref|ix:Orange>\n" + "</Apple>";
-
-		testMatchingTagPosition(initialText, expectedText);
+	public void testGetMatchingRangesStartTagAttributesPrefixed2() {
+		String initialText = "<Apple>\n" + "  <pref|ix:Orange amount=\"1\"></prefix:Orange>\n" + "</Apple>";
+		testMatchingTagRanges(initialText, r(1, 3, 1, 16), r(1, 30, 1, 43));
 	}
 
 	@Test
@@ -172,33 +147,21 @@ public class XMLPositionUtilityTest {
 		Assertions.assertEquals(end, XMLPositionUtility.getEntityReferenceEndOffset(xml, offset), "Test for end offset ");
 	}
 
-	private static void testMatchingTagPosition(String initialCursorText, String expectedCursorText) {
+	private static void testMatchingTagRanges(String initialCursorText, Range ...expectedRanges) {
 
 		int offset = initialCursorText.indexOf('|');
 		initialCursorText = initialCursorText.substring(0, offset) + initialCursorText.substring(offset + 1);
 		DOMDocument xmlDocument = DOMParser.getInstance().parse(initialCursorText, "testURI", null);
 		Position initialCursorPosition;
-		Position newCursorPosition;
-		int newCursorOffset = -1;
+		List<Range> ranges;
 		try {
 			initialCursorPosition = xmlDocument.positionAt(offset);
-			newCursorPosition = XMLPositionUtility.getMatchingTagPosition(xmlDocument, initialCursorPosition);
-			if (newCursorPosition != null) { // a result for a matching position was found
-				newCursorOffset = xmlDocument.offsetAt(newCursorPosition);
-			}
+			ranges = XMLPositionUtility.getMatchingTagRanges(xmlDocument, initialCursorPosition);
 		} catch (BadLocationException e) {
 			fail(e.getMessage());
 			return;
 		}
 
-		StringBuffer sBuffer = new StringBuffer(initialCursorText);
-		String actualOutputString;
-		if (newCursorOffset > -1) {
-			actualOutputString = sBuffer.insert(newCursorOffset, "|").toString();
-		} else { // no matching position was found
-			actualOutputString = initialCursorText;
-		}
-
-		assertEquals(expectedCursorText, actualOutputString);
+		assertEquals(Arrays.asList(expectedRanges), ranges);
 	}
 }

@@ -279,8 +279,8 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 		}
 	}
 
-	public Position getMatchingTagPosition(DOMDocument xmlDocument, Position position, CancelChecker cancelChecker) {
-		return XMLPositionUtility.getMatchingTagPosition(xmlDocument, position);
+	public List<Range> getMatchingTagRanges(DOMDocument xmlDocument, Position position, CancelChecker cancelChecker) {
+		return XMLPositionUtility.getMatchingTagRanges(xmlDocument, position);
 	}
 
 }

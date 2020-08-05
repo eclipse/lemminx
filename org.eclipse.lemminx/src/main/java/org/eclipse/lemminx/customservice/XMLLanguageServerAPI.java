@@ -12,9 +12,10 @@
  */
 package org.eclipse.lemminx.customservice;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
@@ -30,7 +31,7 @@ public interface XMLLanguageServerAPI {
 	CompletableFuture<AutoCloseTagResponse> closeTag(TextDocumentPositionParams params);
 
 	@JsonRequest
-	CompletableFuture<Position> matchingTagPosition(TextDocumentPositionParams params);
+	CompletableFuture<List<Range>> matchingTagRanges(TextDocumentPositionParams params);
 }
 
 

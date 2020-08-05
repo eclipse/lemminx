@@ -16,6 +16,7 @@ package org.eclipse.lemminx;
 import static org.eclipse.lsp4j.jsonrpc.CompletableFutures.computeAsync;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -60,6 +61,7 @@ import org.eclipse.lsp4j.InitializedParams;
 import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.services.LanguageClient;
@@ -253,9 +255,9 @@ public class XMLLanguageServer
 	}
 
 	@Override
-	public CompletableFuture<Position> matchingTagPosition(TextDocumentPositionParams params) {
+	public CompletableFuture<List<Range>> matchingTagRanges(TextDocumentPositionParams params) {
 		return xmlTextDocumentService.computeDOMAsync(params.getTextDocument(), (cancelChecker, xmlDocument) -> {
-			return getXMLLanguageService().getMatchingTagPosition(xmlDocument, params.getPosition(), cancelChecker);
+			return getXMLLanguageService().getMatchingTagRanges(xmlDocument, params.getPosition(), cancelChecker);
 		});
 	}
 
@@ -276,7 +278,7 @@ public class XMLLanguageServer
 			// the open settings command is not supported by the client, display a simple
 			// message with LSP
 			languageClient.showMessage(new MessageParams(messageType, message));
-		}		
+		}
 	}
 
 	@Override

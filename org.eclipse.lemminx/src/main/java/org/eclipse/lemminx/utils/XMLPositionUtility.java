@@ -12,6 +12,8 @@
  */
 package org.eclipse.lemminx.utils;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.logging.Level;
@@ -1084,7 +1086,7 @@ public class XMLPositionUtility {
 		return new Location(locationLink.getTargetUri(), locationLink.getTargetRange());
 	}
 
-	public static Position getMatchingTagPosition(DOMDocument xmlDocument, Position position) {
+	public static List<Range> getMatchingTagRanges(DOMDocument xmlDocument, Position position) {
 		try {
 			int offset = xmlDocument.offsetAt(position);
 			DOMNode node = xmlDocument.findNodeAt(offset);
@@ -1093,28 +1095,30 @@ public class XMLPositionUtility {
 				DOMElement element = (DOMElement) node;
 
 				if (!element.hasEndTag() || element.isSelfClosed() || !element.hasStartTag()) {
-					return null;
+					return Collections.emptyList();
 				}
+
+				List<Range> ranges = new ArrayList<>();
 				int tagNameLength = element.getTagName().length();
 				int startTagNameStart = element.getStartTagOpenOffset() + 1;
 				int startTagNameEnd = startTagNameStart + tagNameLength;
 				int endTagNameStart = element.getEndTagOpenOffset() + 2;
 				int endTagNameEnd = endTagNameStart + tagNameLength;
 
-				if (offset <= startTagNameEnd && offset >= startTagNameStart) {
-					int mirroredCursorOffset = endTagNameStart + (offset - startTagNameStart);
-					return xmlDocument.positionAt(mirroredCursorOffset);
-				} else {
-					if (offset >= endTagNameStart && offset <= endTagNameEnd) {
-						int mirroredCursorOffset = startTagNameStart + (offset - endTagNameStart);
-						return xmlDocument.positionAt(mirroredCursorOffset);
-					}
+				if (!DOMNode.isIncluded(startTagNameStart, startTagNameEnd, offset)
+						&& !DOMNode.isIncluded(endTagNameStart, endTagNameEnd, offset)) {
+					return Collections.emptyList();
 				}
+
+				ranges.add(new Range(xmlDocument.positionAt(startTagNameStart), xmlDocument.positionAt(startTagNameEnd)));
+				ranges.add(new Range(xmlDocument.positionAt(endTagNameStart), xmlDocument.positionAt(endTagNameEnd)));
+
+				return ranges;
 			}
 		} catch (BadLocationException e) {
-			return null;
+			return Collections.emptyList();
 		}
-		return null;
+		return Collections.emptyList();
 	}
 
 }
