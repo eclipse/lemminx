@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 public class FilesUtilsTest {
 
 	@Test
-	public void testFilesCachePathPreference() throws Exception {	
+	public void testFilesCachePathPreference() throws Exception {
 		System.clearProperty(FilesUtils.LEMMINX_WORKDIR_KEY);
 		String newBasePathString = System.getProperty("user.home");
 		String newSubPathString = Paths.get("New", "Sub", "Path").toString();

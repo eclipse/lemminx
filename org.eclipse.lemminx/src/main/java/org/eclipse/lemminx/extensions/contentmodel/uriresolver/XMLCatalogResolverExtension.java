@@ -12,10 +12,8 @@
  */
 package org.eclipse.lemminx.extensions.contentmodel.uriresolver;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -28,6 +26,7 @@ import org.apache.xerces.xni.XMLResourceIdentifier;
 import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.parser.XMLInputSource;
 import org.eclipse.lemminx.uriresolver.URIResolverExtension;
+import org.eclipse.lemminx.utils.FilesUtils;
 
 /**
  * XML catalog URI resolver.
@@ -106,9 +105,8 @@ public class XMLCatalogResolverExtension implements URIResolverExtension {
 			for (String catalogPath : catalogs) {
 				// resolve catalog file path with root uri
 				String fullPath = expandSystemId(catalogPath);
-				// check if XML catalog path is valid
-				boolean valid = XMLCatalogResolverExtension.isXMLCatalogFileValid(fullPath);
-				if (valid) {
+				
+				if (Files.exists(FilesUtils.getPath(fullPath))) {
 					xmlCatalogFiles.add(fullPath);
 					LOGGER.info("Adding XML catalog '" + catalogPath + "' with expand system id '" + fullPath
 							+ "' and root URI '" + rootUri + "'.");
@@ -135,20 +133,6 @@ public class XMLCatalogResolverExtension implements URIResolverExtension {
 			return XMLEntityManager.expandSystemId(path, rootUri, false);
 		} catch (MalformedURIException e) {
 			return path;
-		}
-	}
-
-	/**
-	 * Returns true if the XML catalog file exists and false otherwise.
-	 * 
-	 * @param catalogFile catalog file to check.
-	 * @return true if the XML catalog file exists and false otherwise.
-	 */
-	private static boolean isXMLCatalogFileValid(String catalogFile) {
-		try {
-			return new File(new URI(catalogFile).getPath()).exists();
-		} catch (URISyntaxException e) {
-			return new File(catalogFile).exists();
 		}
 	}
 
