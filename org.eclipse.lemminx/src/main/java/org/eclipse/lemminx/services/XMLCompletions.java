@@ -31,6 +31,7 @@ import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
+import org.eclipse.lemminx.dom.DOMText;
 import org.eclipse.lemminx.dom.DTDDeclParameter;
 import org.eclipse.lemminx.dom.parser.Scanner;
 import org.eclipse.lemminx.dom.parser.ScannerState;
@@ -753,6 +754,18 @@ public class XMLCompletions {
 			collectCloseTagSuggestions(tagNameRange, true, true, false, request, response);
 		}
 		// Participant completion on XML content
+		if (request.getNode() instanceof DOMElement) {
+			List<DOMNode> children = ((DOMElement) request.getNode()).getChildren();
+			if (!children.isEmpty() && children.get(0) instanceof DOMText) {
+				Range textRange = XMLPositionUtility.selectText((DOMText) children.get(0));
+				request.setReplaceRange(textRange);
+			}
+		}
+		if (request.getNode() instanceof DOMText) {
+			Range textRange = XMLPositionUtility.selectText((DOMText) request.getNode());
+			request.setReplaceRange(textRange);
+		}
+		
 		for (ICompletionParticipant participant : getCompletionParticipants()) {
 			try {
 				participant.onXMLContent(request, response);

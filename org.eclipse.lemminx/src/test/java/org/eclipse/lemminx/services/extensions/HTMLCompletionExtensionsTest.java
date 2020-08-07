@@ -20,6 +20,7 @@ import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
@@ -118,6 +119,19 @@ public class HTMLCompletionExtensionsTest {
 	public void testHTMLAttributeValueCompletion() throws BadLocationException {
 		testCompletionFor("<input type=|", c("text", "\"text\""/* "<input type=\"text\"" */), //
 				c("checkbox", "\"checkbox\"" /* "<input type=\"checkbox\"" */));
+		
+		// TODO: Move below to testHTMLOnXMLContentCompletion()
+		CompletionItem completion = new CompletionItem("Test replace range");
+		Position start = new Position(0, 7);
+		Position end = new Position(0, 26);
+		TextEdit edit = new TextEdit(new Range(start, end), "replacement text");
+		completion.setTextEdit(edit);
+		testCompletionFor("<input>some extisti|ng text</input>", completion );
+	}
+	
+	@Test
+	private void testHTMLOnXMLContentCompletion() throws BadLocationException {
+		// TODO: This isin't getting called by Junit
 	}
 
 	public static void testCompletionFor(String value, CompletionItem... expectedItems) throws BadLocationException {
@@ -177,6 +191,16 @@ public class HTMLCompletionExtensionsTest {
 						}
 					}
 				}
+			}
+			
+			@Override
+			public void onXMLContent(ICompletionRequest request, ICompletionResponse response) {
+				CompletionItem completion = new CompletionItem("Test replace range");
+				TextEdit edit = new TextEdit();
+				edit.setNewText("replacement text");
+				edit.setRange(request.getReplaceRange());
+				completion.setTextEdit(edit);
+				response.addCompletionItem(completion);
 			}
 
 			@Override
