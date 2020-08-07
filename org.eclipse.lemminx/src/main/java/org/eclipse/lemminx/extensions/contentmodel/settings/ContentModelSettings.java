@@ -22,7 +22,7 @@ public class ContentModelSettings {
 
 	private Boolean useCache;
 
-	private String[] catalogs;
+	private String[] catalogs = null;
 
 	private XMLFileAssociation[] fileAssociations;
 
@@ -31,7 +31,7 @@ public class ContentModelSettings {
 	/**
 	 * Returns true if cache to download XML Schema, DTD must be activated and false
 	 * otherwise.
-	 * 
+	 *
 	 * @return true if cache to download XML Schema, DTD must be activated and false
 	 *         otherwise.
 	 */
@@ -42,7 +42,7 @@ public class ContentModelSettings {
 	/**
 	 * Set cache to true if cache to download XML Schema, DTD must be activated and
 	 * false otherwise.
-	 * 
+	 *
 	 * @param useCache the use cache.
 	 */
 	public void setUseCache(Boolean useCache) {
@@ -51,7 +51,7 @@ public class ContentModelSettings {
 
 	/**
 	 * Register the list of the XML catalogs file path.
-	 * 
+	 *
 	 * @param catalogs
 	 */
 	public void setCatalogs(String[] catalogs) {
@@ -60,11 +60,11 @@ public class ContentModelSettings {
 
 	/**
 	 * Returns the list of the XML catalogs file path.
-	 * 
+	 *
 	 * @return the list of the XML catalogs file path.
 	 */
 	public String[] getCatalogs() {
-		return catalogs;
+		return catalogs == null ? new String[0] : catalogs;
 	}
 
 	public void setFileAssociations(XMLFileAssociation[] fileAssociations) {
@@ -74,7 +74,7 @@ public class ContentModelSettings {
 	/**
 	 * Returns file associations list between a file name pattern (glob) and an XML
 	 * Schema file, DTD (system Id).
-	 * 
+	 *
 	 * @return file associations list between a file name pattern (glob) and an XML
 	 *         Schema file, DTD (system Id).
 	 */
