@@ -117,7 +117,7 @@ public class XMLAssert {
 
 	public static final int DTDNODE_SNIPPETS = 4;
 
-	public static final int NEW_XML_SNIPPETS = 7;
+	public static final int NEW_XML_SNIPPETS = 8;
 
 	public static final int NEW_XSD_SNIPPETS = 1;
 

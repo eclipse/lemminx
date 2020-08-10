@@ -10,3 +10,4 @@ org.eclipse.lemminx.extensions.general.FilePathPlugin
 org.eclipse.lemminx.extensions.entities.EntitiesPlugin
 org.eclipse.lemminx.extensions.xmlmodel.XMLModelPlugin
 org.eclipse.lemminx.extensions.generators.FileContentGeneratorPlugin
+org.eclipse.lemminx.extensions.relaxng.RelaxNGPlugin

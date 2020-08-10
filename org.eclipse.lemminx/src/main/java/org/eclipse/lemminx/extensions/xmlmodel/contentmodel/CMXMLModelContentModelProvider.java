@@ -58,9 +58,11 @@ public class CMXMLModelContentModelProvider implements ContentModelProvider {
 		}
 		Collection<Identifier> identifiers = new ArrayList<>();
 		for (XMLModel xmlModel : xmlModels) {
-			String href = xmlModel.getHref();
-			if (!StringUtils.isEmpty(href)) {
-				identifiers.add(new Identifier(null, href, xmlModel.getHrefNode(), XML_MODEL_BINDING_KIND));
+			if (xmlModel.isApplicable()) {
+				String href = xmlModel.getHref();
+				if (!StringUtils.isEmpty(href)) {
+					identifiers.add(new Identifier(null, href, xmlModel.getHrefNode(), XML_MODEL_BINDING_KIND));
+				}
 			}
 		}
 		return identifiers;

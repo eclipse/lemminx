@@ -24,6 +24,7 @@ import org.eclipse.lemminx.extensions.contentmodel.model.ReferencedGrammarInfo;
 import org.eclipse.lemminx.extensions.contentmodel.participants.DTDErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSchemaErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCode;
+import org.eclipse.lemminx.extensions.relaxng.xml.validator.RelaxNGErrorCode;
 import org.eclipse.lemminx.extensions.xerces.AbstractReferencedGrammarLSPErrorReporter;
 import org.eclipse.lemminx.extensions.xerces.ReferencedGrammarDiagnosticsInfo;
 import org.eclipse.lemminx.extensions.xsd.participants.XSDErrorCode;
@@ -63,7 +64,8 @@ public class LSPErrorReporterForXML extends AbstractReferencedGrammarLSPErrorRep
 				}
 			} else {
 				fillReferencedGrammarDiagnostic(location, key, arguments, message, diagnosticSeverity, fatalError,
-						document.getResolverExtensionManager(), syntaxCode, null, null, null, documentOrGrammarURI);
+						document.getResolverExtensionManager(), syntaxCode, null, null, null, null,
+						documentOrGrammarURI);
 				return NO_RANGE;
 			}
 		} else {
@@ -85,7 +87,7 @@ public class LSPErrorReporterForXML extends AbstractReferencedGrammarLSPErrorRep
 						}
 					} else {
 						fillReferencedGrammarDiagnostic(location, key, arguments, message, diagnosticSeverity,
-								fatalError, document.getResolverExtensionManager(), null, null, dtdCode, null,
+								fatalError, document.getResolverExtensionManager(), null, null, dtdCode, null, null,
 								documentOrGrammarURI);
 						return NO_RANGE;
 					}
@@ -98,9 +100,23 @@ public class LSPErrorReporterForXML extends AbstractReferencedGrammarLSPErrorRep
 						// Try to get the declared xsi:schemaLocation, xsi:noNamespaceLocation range
 						// which declares the XSD.
 						fillReferencedGrammarDiagnostic(location, key, arguments, message, diagnosticSeverity,
-								fatalError, document.getResolverExtensionManager(), null, null, null, xsdCode,
+								fatalError, document.getResolverExtensionManager(), null, null, null, xsdCode, null,
 								documentOrGrammarURI);
 						return NO_RANGE;
+					}
+					RelaxNGErrorCode rngCode = RelaxNGErrorCode.get(key);
+					if (rngCode != null) {
+						if (errorForDocument) {
+							Range range = RelaxNGErrorCode.toLSPRange(location, rngCode, arguments, document);
+							if (range != null) {
+								return range;
+							}
+						} else {
+							fillReferencedGrammarDiagnostic(location, key, arguments, message, diagnosticSeverity,
+									fatalError, document.getResolverExtensionManager(), null, null, null, null, rngCode,
+									documentOrGrammarURI);
+							return NO_RANGE;
+						}
 					}
 				}
 			}

@@ -46,7 +46,7 @@ public class ProcessingInstructionSnippetContext implements IXMLSnippetContext {
  		DOMDocument document = request.getXMLDocument();
 		DOMElement documentElement = document.getDocumentElement();
 
-		if (document.isDTD() || DOMUtils.isXSD(document)) {
+		if (document.isDTD() || DOMUtils.isXSD(document) || DOMUtils.isRelaxNG(document)) {
 			// triggered in a DTD or XSD file
 			return false;
 		}

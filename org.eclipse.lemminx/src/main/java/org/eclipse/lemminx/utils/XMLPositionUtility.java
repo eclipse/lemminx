@@ -954,13 +954,21 @@ public class XMLPositionUtility {
 	 *         <code>target</code> nodes.
 	 */
 	public static LocationLink createLocationLink(DOMRange origin, DOMRange target) {
-		Range originSelectionRange = null;
-		if (origin instanceof DOMElement) {
-			originSelectionRange = selectStartTagName((DOMElement) origin);
-		} else {
-			originSelectionRange = XMLPositionUtility.createRange(origin);
-		}
+		Range originSelectionRange = createSelectionRange(origin);
 		return createLocationLink(originSelectionRange, target);
+	}
+
+	/**
+	 * Returns the selection range for the given <code>origin</code> node.
+	 *
+	 * @param origin the origin node.
+	 * @return the selection range for the given <code>origin</code> node.
+	 */
+	public static Range createSelectionRange(DOMRange origin) {
+		if (origin instanceof DOMElement) {
+			return selectStartTagName((DOMElement) origin);
+		}
+		return XMLPositionUtility.createRange(origin);
 	}
 
 	/**

@@ -88,7 +88,7 @@ public class CMDTDElementDeclaration extends XMLElementDecl implements CMElement
 	}
 
 	@Override
-	public CMAttributeDeclaration findCMAttribute(String attributeName) {
+	public CMAttributeDeclaration findCMAttribute(String attributeName, String namespace) {
 		for (CMAttributeDeclaration cmAttribute : getAttributes()) {
 			if (cmAttribute.getName().equals(attributeName)) {
 				return cmAttribute;

@@ -20,6 +20,7 @@ import org.apache.xerces.util.URI.MalformedURIException;
 import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
+import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
@@ -381,6 +382,11 @@ public class XMLSchemaHoverExtensionsTest extends AbstractCacheBasedTest {
 
 			@Override
 			public String getCurrentAttributeName() {
+				return null;
+			}
+
+			@Override
+			public DOMAttr getCurrentAttribute() {
 				return null;
 			}
 

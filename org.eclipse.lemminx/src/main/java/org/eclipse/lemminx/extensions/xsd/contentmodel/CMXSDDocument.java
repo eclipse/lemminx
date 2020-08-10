@@ -185,7 +185,7 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 			if (i == 0) {
 				declaration = findElementDeclaration(elt.getLocalName(), namespace);
 			} else {
-				declaration = declaration.findCMElement(elt.getLocalName(), namespace);
+				declaration = declaration != null ? declaration.findCMElement(elt.getLocalName(), namespace) : null;
 			}
 			if (declaration == null) {
 				break;
@@ -354,9 +354,8 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 			}
 			if (originAttribute != null) {
 				// find location of xs:attribute declaration
-				String attributeName = originAttribute.getName();
 				CMXSDAttributeDeclaration attributeDeclaration = (CMXSDAttributeDeclaration) elementDeclaration
-						.findCMAttribute(attributeName);
+						.findCMAttribute(originAttribute);
 				if (attributeDeclaration != null) {
 					XSAttributeDeclaration attributeDecl = attributeDeclaration.getAttrDeclaration();
 					if (attributeDecl.getScope() == XSConstants.SCOPE_LOCAL) {

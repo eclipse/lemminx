@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.services.extensions.ISharedSettingsRequest;
 
@@ -94,10 +95,21 @@ public interface CMElementDeclaration {
 	/**
 	 * Returns the declared attribute which match the given name and null otherwise.
 	 * 
-	 * @param attributeName
+	 * @param attribute the DOM attribute
 	 * @return the declared attribute which match the given name and null otherwise.
 	 */
-	CMAttributeDeclaration findCMAttribute(String attributeName);
+	default CMAttributeDeclaration findCMAttribute(DOMAttr attr) {
+		return findCMAttribute(attr.getLocalName(), attr.getNamespaceURI());
+	}
+
+	/**
+	 * Returns the declared attribute which match the given name and null otherwise.
+	 * 
+	 * @param attributeName the attribute name.
+	 * @param namespace     the attribute namespace and null otherwise.
+	 * @return the declared attribute which match the given name and null otherwise.
+	 */
+	CMAttributeDeclaration findCMAttribute(String attributeName, String namespace);
 
 	/**
 	 * Returns formatted documentation of the declared element, according to

@@ -12,7 +12,12 @@
 package org.eclipse.lemminx.extensions.xerces.xmlmodel;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ServiceConfigurationError;
+import java.util.ServiceLoader;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.xerces.impl.Constants;
 import org.apache.xerces.xni.Augmentations;
@@ -30,6 +35,7 @@ import org.apache.xerces.xni.parser.XMLConfigurationException;
 import org.apache.xerces.xni.parser.XMLDocumentFilter;
 import org.apache.xerces.xni.parser.XMLDocumentSource;
 import org.eclipse.lemminx.utils.StringUtils;
+import org.xml.sax.XMLReader;
 
 /**
  * Xerces component which associates a XML with several grammar (XML Schema,
@@ -47,11 +53,28 @@ import org.eclipse.lemminx.utils.StringUtils;
  */
 public class XMLModelHandler implements XMLComponent, XMLDocumentFilter {
 
+	private static final Logger LOGGER = Logger.getLogger(XMLModelHandler.class.getName());
+
 	private static final String VALIDATION = Constants.SAX_FEATURE_PREFIX + Constants.VALIDATION_FEATURE;
 
 	private static final String PARSER_SETTINGS = Constants.XERCES_FEATURE_PREFIX + Constants.PARSER_SETTINGS;
 
+	private static final List<XMLModelValidatorFactory> MODEL_VALIDATOR_FACTORIES;
+
+	static {
+		MODEL_VALIDATOR_FACTORIES = new ArrayList<>();
+		Iterator<XMLModelValidatorFactory> factories = ServiceLoader.load(XMLModelValidatorFactory.class).iterator();
+		while (factories.hasNext()) {
+			try {
+				MODEL_VALIDATOR_FACTORIES.add(factories.next());
+			} catch (ServiceConfigurationError e) {
+				LOGGER.log(Level.SEVERE, "Error while instantiating xml model validator factory", e);
+			}
+		}
+	}
+
 	private List<XMLModelValidator> xmlModelValidators;
+
 	private XMLComponentManager configuration;
 
 	private XMLDocumentHandler documentHandler;
@@ -59,6 +82,8 @@ public class XMLModelHandler implements XMLComponent, XMLDocumentFilter {
 	private XMLDocumentSource documentSource;
 
 	private XMLLocator locator;
+
+	private XMLReader xmlReader;
 
 	public XMLModelHandler() {
 	}
@@ -102,7 +127,9 @@ public class XMLModelHandler implements XMLComponent, XMLDocumentFilter {
 			XMLModelValidator validator = createValidator(model);
 			if (validator != null) {
 				validator.reset(configuration);
-				validator.setHref(model.getHref());
+				if (xmlReader != null) {
+					validator.setXMLReader(xmlReader);
+				}
 				if (xmlModelValidators == null) {
 					xmlModelValidators = new ArrayList<>();
 				}
@@ -115,15 +142,16 @@ public class XMLModelHandler implements XMLComponent, XMLDocumentFilter {
 		}
 	}
 
-	private XMLModelValidator createValidator(XMLModelDeclaration model) {
-		String href = model.getHref();
+	private XMLModelValidator createValidator(XMLModelDeclaration modelDeclaration) {
+		String href = modelDeclaration.getHref();
 		if (StringUtils.isEmpty(href)) {
 			return null;
 		}
-		if (href.endsWith("xsd")) {
-			return new XMLModelSchemaValidator();
-		} else if (href.endsWith("dtd")) {
-			return new XMLModelDTDValidator();
+		for (XMLModelValidatorFactory factory : MODEL_VALIDATOR_FACTORIES) {
+			XMLModelValidator validator = factory.createValidator(modelDeclaration);
+			if (validator != null) {
+				return validator;
+			}
 		}
 		return null;
 	}
@@ -188,6 +216,9 @@ public class XMLModelHandler implements XMLComponent, XMLDocumentFilter {
 		if (xmlModelValidators != null) {
 			for (XMLModelValidator validator : xmlModelValidators) {
 				validator.setLocator(locator);
+				if (documentHandler instanceof XMLReader) {
+					validator.setXMLReader((XMLReader) documentHandler);
+				}
 				validator.startElement(element, attributes, augs);
 			}
 		}
@@ -341,6 +372,9 @@ public class XMLModelHandler implements XMLComponent, XMLDocumentFilter {
 	@Override
 	public void setDocumentHandler(XMLDocumentHandler handler) {
 		documentHandler = handler;
+		if (documentHandler instanceof XMLReader) {
+			this.xmlReader = (XMLReader) documentHandler;
+		}
 	}
 
 	@Override

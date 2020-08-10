@@ -221,6 +221,12 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 			}
 			parent = parent.getParentNode();
 		}
+		if (!StringUtils.isEmpty(namespaceURI)) {
+			switch (namespaceURI) {
+			case "http://www.w3.org/XML/1998/namespace":
+				return "xml";
+			}
+		}
 		return null;
 	}
 

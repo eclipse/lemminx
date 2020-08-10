@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.lemminx.commons.BadLocationException;
+import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
@@ -369,8 +370,11 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 
 	private void fillAttributeValuesWithCMAttributeDeclarations(CMElementDeclaration cmElement,
 			ICompletionRequest request, ICompletionResponse response) {
-		String attributeName = request.getCurrentAttributeName();
-		CMAttributeDeclaration cmAttribute = cmElement.findCMAttribute(attributeName);
+		DOMAttr attr = request.getCurrentAttribute();
+		if (attr == null) {
+			return;
+		}
+		CMAttributeDeclaration cmAttribute = cmElement.findCMAttribute(attr);
 		if (cmAttribute != null) {
 			Range fullRange = request.getReplaceRange();
 			cmAttribute.getEnumerationValues().forEach(value -> {

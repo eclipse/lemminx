@@ -289,7 +289,7 @@ public class CMDTDDocument extends LSPXML11DTDProcessor implements CMDocument {
 			if (i == 0) {
 				declaration = findElementDeclaration(elt.getLocalName(), namespace);
 			} else {
-				declaration = declaration.findCMElement(elt.getLocalName(), namespace);
+				declaration = declaration != null ? declaration.findCMElement(elt.getLocalName(), namespace) : null;
 			}
 			if (declaration == null) {
 				break;
@@ -456,7 +456,7 @@ public class CMDTDDocument extends LSPXML11DTDProcessor implements CMDocument {
 
 	@Override
 	public boolean isDirty() {
-		return tracker != null ? tracker.isDirty() : null;
+		return tracker != null ? tracker.isDirty() : false;
 	}
 
 	@Override

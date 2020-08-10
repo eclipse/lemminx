@@ -1,0 +1,11 @@
+<?xml-model href="addressBook.rnc" ?>
+<addressBook>
+  <card id=""> 
+    <name>John Smith</name>
+    <email>js@example.com</email>
+  </card id="">
+  <card> 
+    <name>Fred Bloggs</name>
+    <email>fb@example.net</email>
+  </card>
+</addressBook>

@@ -28,6 +28,8 @@ public class XMLSnippetRegistryLoader implements ISnippetRegistryLoader {
 				NewFileSnippetContext.XML_CONTEXT);
 		registry.registerSnippets(XMLSnippetRegistryLoader.class.getResourceAsStream("new-xsd-snippets.json"),
 				NewFileSnippetContext.XSD_CONTEXT);
+		registry.registerSnippets(XMLSnippetRegistryLoader.class.getResourceAsStream("new-rng-snippets.json"),
+				NewFileSnippetContext.RNG_CONTEXT);
 		registry.registerSnippets(XMLSnippetRegistryLoader.class.getResourceAsStream("cdata-snippets.json"),
 				CDATASnippetContext.DEFAULT_CONTEXT);
 		registry.registerSnippets(XMLSnippetRegistryLoader.class.getResourceAsStream("comment-snippets.json"),

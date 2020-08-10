@@ -147,8 +147,8 @@ public class ContentModelCodeLensParticipant implements ICodeLensParticipant {
 		if (!request.isSupportedByClient(CodeLensKind.Association)) {
 			return false;
 		}
-		String uri = request.getDocument().getDocumentURI();
-		return !DOMUtils.isXSD(uri) && !DOMUtils.isDTD(uri);
+		DOMDocument document = request.getDocument();
+		return !DOMUtils.isXSD(document) && !DOMUtils.isDTD(document.getDocumentURI()) && !DOMUtils.isRelaxNG(document);
 	}
 
 	private static CodeLens createAssociateLens(String documentURI, String title, Range range) {

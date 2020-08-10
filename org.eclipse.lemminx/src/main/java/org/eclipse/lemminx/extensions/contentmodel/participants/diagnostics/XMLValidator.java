@@ -33,6 +33,7 @@ import org.eclipse.lemminx.dom.DOMDocumentType;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.NoNamespaceSchemaLocation;
 import org.eclipse.lemminx.dom.SchemaLocationHint;
+import org.eclipse.lemminx.dom.XMLModel;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.settings.NamespacesEnabled;
@@ -45,6 +46,7 @@ import org.eclipse.lemminx.extensions.xerces.ReferencedGrammarDiagnosticsInfo;
 import org.eclipse.lemminx.services.extensions.diagnostics.LSPContentHandler;
 import org.eclipse.lemminx.uriresolver.CacheResourceException;
 import org.eclipse.lemminx.uriresolver.IExternalGrammarLocationProvider;
+import org.eclipse.lemminx.utils.DOMUtils;
 import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.Diagnostic;
@@ -113,14 +115,15 @@ public class XMLValidator {
 							&& isNoNamespaceSchemaValidationEnabled(document, validationSettings)));
 			parser.setFeature("http://apache.org/xml/features/validation/schema", schemaValidationEnabled); //$NON-NLS-1$
 
-			boolean hasGrammar = document.hasDTD() || hasSchemaGrammar || document.hasExternalGrammar();
+			boolean hasGrammar = document.hasDTD() || hasSchemaGrammar || (document.hasExternalGrammar()
+					&& !DOMUtils.isRelaxNG(document.getExternalGrammarFromNamespaceURI()));
 			if (hasSchemaGrammar && !schemaValidationEnabled) {
 				hasGrammar = false;
 			}
 			parser.setFeature("http://xml.org/sax/features/validation", hasGrammar); //$NON-NLS-1$
 
 			boolean namespacesValidationEnabled = isNamespacesValidationEnabled(document, validationSettings);
-			parser.setFeature("http://xml.org/sax/features/namespace-prefixes", namespacesValidationEnabled); //$NON-NLS-1$
+			parser.setFeature("http://xml.org/sax/features/namespace-prefixes", false); //$NON-NLS-1$
 			parser.setFeature("http://xml.org/sax/features/namespaces", namespacesValidationEnabled); //$NON-NLS-1$
 
 			// Parse XML
@@ -147,21 +150,34 @@ public class XMLValidator {
 		if (validationSettings == null) {
 			return true;
 		}
+		if (hasRelaxNGReference(document)) {
+			return true;
+		}
 		NamespacesEnabled enabled = NamespacesEnabled.always;
 		XMLNamespacesSettings namespacesSettings = validationSettings.getNamespaces();
 		if (namespacesSettings != null && namespacesSettings.getEnabled() != null) {
 			enabled = namespacesSettings.getEnabled();
 		}
 		switch (enabled) {
-		case always:
-			return true;
-		case never:
-			return false;
-		case onNamespaceEncountered:
-			return document.hasNamespaces();
-		default:
-			return true;
+			case always:
+				return true;
+			case never:
+				return false;
+			case onNamespaceEncountered:
+				return document.hasNamespaces();
+			default:
+				return true;
 		}
+	}
+
+	private static boolean hasRelaxNGReference(DOMDocument document) {
+		List<XMLModel> models = document.getXMLModels();
+		for (XMLModel xmlModel : models) {
+			if (DOMUtils.isRelaxNG(xmlModel.getHref())) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private static boolean isSchemaValidationEnabled(DOMDocument document, XMLValidationSettings validationSettings) {
@@ -174,14 +190,14 @@ public class XMLValidator {
 			enabled = schemaSettings.getEnabled();
 		}
 		switch (enabled) {
-		case always:
-			return true;
-		case never:
-			return false;
-		case onValidSchema:
-			return isValidSchemaLocation(document);
-		default:
-			return true;
+			case always:
+				return true;
+			case never:
+				return false;
+			case onValidSchema:
+				return isValidSchemaLocation(document);
+			default:
+				return true;
 		}
 	}
 
@@ -225,14 +241,14 @@ public class XMLValidator {
 			enabled = schemaSettings.getEnabled();
 		}
 		switch (enabled) {
-		case always:
-			return true;
-		case never:
-			return false;
-		case onValidSchema:
-			return isValidNoNamespaceSchemaLocation(document);
-		default:
-			return true;
+			case always:
+				return true;
+			case never:
+				return false;
+			case onValidSchema:
+				return isValidNoNamespaceSchemaLocation(document);
+			default:
+				return true;
 		}
 	}
 
@@ -284,7 +300,7 @@ public class XMLValidator {
 	}
 
 	private static boolean hasExternalSchemaGrammar(DOMDocument document) {
-		if (document.getExternalGrammarFromNamespaceURI() != null) {
+		if (DOMUtils.isXSD(document.getExternalGrammarFromNamespaceURI())) {
 			return true;
 		}
 		Map<String, String> externalGrammarLocation = document.getExternalGrammarLocation();
@@ -346,6 +362,9 @@ public class XMLValidator {
 		if (hasGrammar) {
 			return;
 		}
+		if (DOMUtils.isRelaxNG(document)) {
+			return;
+		}
 		// By default "hint" settings.
 		DiagnosticSeverity severity = XMLValidationSettings.getNoGrammarSeverity(validationSettings);
 		if (severity == null) {
@@ -362,13 +381,14 @@ public class XMLValidator {
 			if (range == null) {
 				range = new Range(new Position(0, 0), new Position(0, 0));
 			}
-			diagnostics.add(new Diagnostic(range, "No grammar constraints (DTD or XML Schema).", severity,
-					"xml", XMLSyntaxErrorCode.NoGrammarConstraints.name()));
+			diagnostics.add(new Diagnostic(range, "No grammar constraints (DTD or XML Schema).", severity, "xml",
+					XMLSyntaxErrorCode.NoGrammarConstraints.name()));
 		}
 	}
 
 	private static void updateExternalGrammarLocation(DOMDocument document, SAXParser reader)
 			throws SAXNotRecognizedException, SAXNotSupportedException {
+		String relaxng = null;
 		Map<String, String> externalGrammarLocation = document.getExternalGrammarLocation();
 		if (externalGrammarLocation != null) {
 			String xsd = externalGrammarLocation.get(IExternalGrammarLocationProvider.NO_NAMESPACE_SCHEMA_LOCATION);
@@ -396,8 +416,18 @@ public class XMLValidator {
 				String doctype = externalGrammarLocation.get(IExternalGrammarLocationProvider.DOCTYPE);
 				if (doctype != null) {
 					reader.setProperty(IExternalGrammarLocationProvider.DOCTYPE, doctype);
+				} else {
+					relaxng = externalGrammarLocation.get(IExternalGrammarLocationProvider.RELAXNG);
 				}
 			}
+		}
+		if (relaxng == null) {
+			relaxng = DOMUtils.isRelaxNG(document.getExternalGrammarFromNamespaceURI())
+					? document.getExternalGrammarFromNamespaceURI()
+					: null;
+		}
+		if (relaxng != null) {
+			reader.setProperty(IExternalGrammarLocationProvider.RELAXNG, relaxng);
 		}
 	}
 }

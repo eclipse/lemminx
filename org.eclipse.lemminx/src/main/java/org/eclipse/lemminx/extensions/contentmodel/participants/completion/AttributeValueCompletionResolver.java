@@ -39,7 +39,6 @@ public class AttributeValueCompletionResolver extends AbstractCMCompletionResolv
 		if (attr == null) {
 			return;
 		}
-		String attributeName = attr.getName();
 		String attributeValue = toResolve.getLabel();
 		try {
 			ContentModelManager contentModelManager = request.getComponent(ContentModelManager.class);
@@ -48,7 +47,7 @@ public class AttributeValueCompletionResolver extends AbstractCMCompletionResolv
 				CMElementDeclaration cmElement = cmDocument.findCMElement(parentElement,
 						parentElement.getNamespaceURI());
 				if (cmElement != null) {
-					MarkupContent documentation = getDocumentationForAttributeValue(cmElement, attributeName,
+					MarkupContent documentation = getDocumentationForAttributeValue(cmElement, attr,
 							attributeValue, request);
 					if (documentation != null) {
 						toResolve.setDocumentation(documentation);
@@ -60,9 +59,9 @@ public class AttributeValueCompletionResolver extends AbstractCMCompletionResolv
 		}
 	}
 
-	private static MarkupContent getDocumentationForAttributeValue(CMElementDeclaration cmElement, String attributeName,
+	private static MarkupContent getDocumentationForAttributeValue(CMElementDeclaration cmElement, DOMAttr attr,
 			String attributeValue, ICompletionItemResolverRequest request) {
-		CMAttributeDeclaration cmAttribute = cmElement.findCMAttribute(attributeName);
+		CMAttributeDeclaration cmAttribute = cmElement.findCMAttribute(attr);
 		if (cmAttribute != null) {
 			return XMLGenerator.createMarkupContent(cmAttribute, attributeValue, cmElement,
 					request);

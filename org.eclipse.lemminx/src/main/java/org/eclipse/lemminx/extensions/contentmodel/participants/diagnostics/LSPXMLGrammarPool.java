@@ -24,6 +24,8 @@ import org.apache.xerces.xni.grammars.XMLGrammarDescription;
 import org.apache.xerces.xni.grammars.XMLGrammarPool;
 import org.eclipse.lemminx.extensions.contentmodel.model.FilesChangedTracker;
 import org.eclipse.lemminx.extensions.dtd.utils.DTDUtils;
+import org.eclipse.lemminx.extensions.relaxng.jing.RelaxNGGrammar;
+import org.eclipse.lemminx.extensions.relaxng.utils.RelaxNGUtils;
 import org.eclipse.lemminx.extensions.xsd.utils.XSDUtils;
 
 import com.google.common.base.Objects;
@@ -237,6 +239,9 @@ public class LSPXMLGrammarPool implements XMLGrammarPool {
 			}
 			if (grammar instanceof DTDGrammar) {
 				return DTDUtils.createFilesChangedTracker((DTDGrammar) grammar);
+			}
+			if (grammar instanceof RelaxNGGrammar) {
+				return RelaxNGUtils.createFilesChangedTracker((RelaxNGGrammar) grammar);
 			}
 			return null;
 		}

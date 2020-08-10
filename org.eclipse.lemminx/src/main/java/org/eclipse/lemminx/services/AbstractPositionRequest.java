@@ -113,7 +113,7 @@ abstract class AbstractPositionRequest implements IPositionRequest {
 	 * 
 	 * @return the current attribute at the given offset and null otherwise.
 	 */
-	private DOMAttr getCurrentAttribute() {
+	public DOMAttr getCurrentAttribute() {
 		if (node == null) {
 			return null;
 		}

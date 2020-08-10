@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lsp4j.LocationLink;
@@ -67,9 +68,9 @@ public interface CMDocument {
 	 */
 	CMElementDeclaration findCMElement(DOMElement element, String namespace);
 
-	default CMAttributeDeclaration findCMAttribute(DOMElement element, String attributeName) {
-		CMElementDeclaration elementDeclaration = findCMElement(element);
-		return elementDeclaration != null ? elementDeclaration.findCMAttribute(attributeName) : null;
+	default CMAttributeDeclaration findCMAttribute(DOMAttr attr) {
+		CMElementDeclaration elementDeclaration = findCMElement(attr.getOwnerElement());
+		return elementDeclaration != null ? elementDeclaration.findCMAttribute(attr) : null;
 	}
 
 	/**

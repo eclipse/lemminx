@@ -25,6 +25,7 @@ import org.apache.xerces.impl.xs.XSMessageFormatter;
 import org.apache.xerces.impl.xs.opti.SchemaDOMParser;
 import org.apache.xerces.impl.xs.opti.SchemaParsingConfig;
 import org.apache.xerces.impl.xs.traversers.XSDHandler;
+import org.apache.xerces.impl.xs.util.SimpleLocator;
 import org.apache.xerces.util.MessageFormatter;
 import org.apache.xerces.xni.XMLLocator;
 import org.apache.xerces.xni.XNIException;
@@ -33,6 +34,7 @@ import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.participants.AggregateRelatedInfoFinder;
+import org.eclipse.lemminx.extensions.relaxng.RelaxNGConstants;
 import org.eclipse.lemminx.extensions.xerces.xmlmodel.msg.XMLModelMessageFormatter;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticRelatedInformation;
@@ -87,6 +89,7 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 		boolean fatalError = severity == SEVERITY_FATAL_ERROR;
 		DiagnosticSeverity diagnosticSeverity = getSeverity(domain, key, arguments, severity, exception);
 		Range adjustedRange = internalToLSPRange(location, key, arguments, message, diagnosticSeverity, fatalError,
+				exception,
 				xmlDocument);
 		List<DiagnosticRelatedInformation> relatedInformations = null;
 		if (adjustedRange == null || NO_RANGE.equals(adjustedRange)) {
@@ -118,6 +121,9 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 	}
 
 	protected String getMessage(String domain, String key, Object[] arguments, Exception exception) {
+		if (RelaxNGConstants.RELAX_NG_DOMAIN.equals(domain)) {
+			return exception.getMessage();
+		}
 		MessageFormatter messageFormatter = getMessageFormatter(domain);
 		String message;
 		if (messageFormatter != null) {
@@ -172,10 +178,10 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 	 */
 	private static DiagnosticSeverity toLSPSeverity(int severity) {
 		switch (severity) {
-		case SEVERITY_WARNING:
-			return DiagnosticSeverity.Warning;
-		default:
-			return DiagnosticSeverity.Error;
+			case SEVERITY_WARNING:
+				return DiagnosticSeverity.Warning;
+			default:
+				return DiagnosticSeverity.Error;
 		}
 	}
 
@@ -189,15 +195,22 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 	 * @param diagnosticSeverity the the Xerces severity.
 	 * @param fatalError         true if Xerces report the error as fatal and false
 	 *                           otherwise.
+	 * @param exception
 	 * @param document           the DOM document.
 	 * @return the LSP range from the SAX error.
 	 */
 	private Range internalToLSPRange(XMLLocator location, String key, Object[] arguments, String message,
-			DiagnosticSeverity diagnosticSeverity, boolean fatalError, DOMDocument document) {
+			DiagnosticSeverity diagnosticSeverity, boolean fatalError, Exception exception, DOMDocument document) {
 		if (location == null) {
-			Position start = toLSPPosition(0, location, document.getTextDocument());
-			Position end = toLSPPosition(0, location, document.getTextDocument());
-			return new Range(start, end);
+			if (exception instanceof XMLParseException) {
+				XMLParseException ex = (XMLParseException) exception;
+				location = new SimpleLocator(ex.getLiteralSystemId(), ex.getExpandedSystemId(), ex.getLineNumber(),
+						ex.getCharacterOffset());
+			} else {
+				Position start = toLSPPosition(0, location, document.getTextDocument());
+				Position end = toLSPPosition(0, location, document.getTextDocument());
+				return new Range(start, end);
+			}
 		}
 
 		Range range = toLSPRange(location, key, arguments, message, diagnosticSeverity, fatalError, document);
@@ -296,6 +309,6 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 
 	public void setCurrentError(Exception currentError) {
 		this.currentError = currentError;
-
 	}
+
 }

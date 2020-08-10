@@ -443,7 +443,7 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 	}
 
 	@Override
-	public CMAttributeDeclaration findCMAttribute(String attributeName) {
+	public CMAttributeDeclaration findCMAttribute(String attributeName, String namespace) {
 		for (CMAttributeDeclaration cmAttribute : getAttributes()) {
 			if (cmAttribute.getName().equals(attributeName)) {
 				return cmAttribute;

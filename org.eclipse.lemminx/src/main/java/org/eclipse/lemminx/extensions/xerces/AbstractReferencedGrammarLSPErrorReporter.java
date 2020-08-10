@@ -27,6 +27,7 @@ import org.eclipse.lemminx.extensions.contentmodel.participants.ExternalResource
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSchemaErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.diagnostics.LSPXMLGrammarPool;
+import org.eclipse.lemminx.extensions.relaxng.xml.validator.RelaxNGErrorCode;
 import org.eclipse.lemminx.extensions.xsd.participants.XSDErrorCode;
 import org.eclipse.lemminx.uriresolver.CacheResourceDownloadedException;
 import org.eclipse.lemminx.uriresolver.CacheResourceDownloadingException;
@@ -105,12 +106,14 @@ public abstract class AbstractReferencedGrammarLSPErrorReporter extends Abstract
 	 * @param syntaxCode               the Syntax error code and null otherwise.
 	 * @param dtdCode                  the DTD error code and null otherwise.
 	 * @param xsdCode                  the XSD error code and null otherwise.
+	 * @param rngCode                  the RelaxNG error code and null otherwise.
 	 * @param grammarURI               the referenced grammar URI.
 	 */
 	protected void fillReferencedGrammarDiagnostic(XMLLocator location, String key, Object[] arguments, String message,
 			DiagnosticSeverity diagnosticSeverity, boolean fatalError,
 			URIResolverExtensionManager resolverExtensionManager, XMLSyntaxErrorCode syntaxCode,
-			XMLSchemaErrorCode schemaErrorCode, DTDErrorCode dtdCode, XSDErrorCode xsdCode, String grammarURI) {
+			XMLSchemaErrorCode schemaErrorCode, DTDErrorCode dtdCode, XSDErrorCode xsdCode, RelaxNGErrorCode rngCode,
+			String grammarURI) {
 		// Create diagnostic where DDT, XSD which have errors is declared if needed
 		ReferencedGrammarDiagnosticsInfo info = getReferencedGrammarDiagnosticsInfo(grammarURI,
 				resolverExtensionManager);
@@ -130,6 +133,8 @@ public abstract class AbstractReferencedGrammarLSPErrorReporter extends Abstract
 				range = DTDErrorCode.toLSPRange(location, dtdCode, arguments, grammarDocument);
 			} else if (xsdCode != null) {
 				range = XSDErrorCode.toLSPRange(location, xsdCode, arguments, grammarDocument);
+			} else if (rngCode != null) {
+				range = RelaxNGErrorCode.toLSPRange(location, rngCode, arguments, grammarDocument);
 			} else {
 				range = XMLSyntaxErrorCode.toLSPRange(location, syntaxCode, arguments, grammarDocument);
 			}
@@ -233,17 +238,17 @@ public abstract class AbstractReferencedGrammarLSPErrorReporter extends Abstract
 			if (cause instanceof CacheResourceException) {
 				if (cause instanceof CacheResourceDownloadingException) {
 					switch (((CacheResourceDownloadingException) cause).getErrorCode()) {
-					case DOWNLOAD_DISABLED:
-						return ExternalResourceErrorCode.DownloadResourceDisabled.getCode();
-					case RESOURCE_LOADING:
-						return ExternalResourceErrorCode.DownloadingResource.getCode();
-					case RESOURCE_NOT_IN_DEPLOYED_PATH:
-						return ExternalResourceErrorCode.ResourceNotInDeployedPath.getCode();
+						case DOWNLOAD_DISABLED:
+							return ExternalResourceErrorCode.DownloadResourceDisabled.getCode();
+						case RESOURCE_LOADING:
+							return ExternalResourceErrorCode.DownloadingResource.getCode();
+						case RESOURCE_NOT_IN_DEPLOYED_PATH:
+							return ExternalResourceErrorCode.ResourceNotInDeployedPath.getCode();
 					}
 				} else if (cause instanceof CacheResourceDownloadedException) {
 					switch (((CacheResourceDownloadedException) cause).getErrorCode()) {
-					case ERROR_WHILE_DOWNLOADING:
-						return ExternalResourceErrorCode.DownloadProblem.getCode();
+						case ERROR_WHILE_DOWNLOADING:
+							return ExternalResourceErrorCode.DownloadProblem.getCode();
 					}
 				}
 			}
@@ -253,7 +258,8 @@ public abstract class AbstractReferencedGrammarLSPErrorReporter extends Abstract
 
 	private boolean isReferencedGrammarError(String key) {
 		return (DTDErrorCode.get(key) == DTDErrorCode.DTDNotFound
-				|| XMLSchemaErrorCode.get(key) == XMLSchemaErrorCode.schema_reference_4);
+				|| XMLSchemaErrorCode.get(key) == XMLSchemaErrorCode.schema_reference_4
+				|| RelaxNGErrorCode.get(key) == RelaxNGErrorCode.RelaxNGNotFound);
 	}
 
 	protected abstract Range toLSPRange(XMLLocator location, String key, Object[] arguments, String message,
