@@ -263,8 +263,8 @@ public class ContentModelManager {
 	 * @param catalogs list of XML catalog files.
 	 * @return true if catalogs changed and false otherwise
 	 */
-	public boolean setCatalogs(String[] catalogs) {
-		return catalogResolverExtension.setCatalogs(catalogs);
+	public boolean setCatalogs(String[] catalogs, boolean preferPublic, boolean useLiteralSystemId) {
+		return catalogResolverExtension.setCatalogs(catalogs, preferPublic, useLiteralSystemId);
 	}
 
 	/**

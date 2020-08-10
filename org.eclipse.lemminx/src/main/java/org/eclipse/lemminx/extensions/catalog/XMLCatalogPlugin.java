@@ -14,6 +14,7 @@ package org.eclipse.lemminx.extensions.catalog;
 
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -45,7 +46,8 @@ public class XMLCatalogPlugin implements IXMLExtension {
 	@Override
 	public void doSave(ISaveContext context) {
 		Object initializationOptionsSettings = context.getSettings();
-		ContentModelSettings cmSettings = ContentModelSettings.getContentModelXMLSettings(initializationOptionsSettings);
+		ContentModelSettings cmSettings = ContentModelSettings
+				.getContentModelXMLSettings(initializationOptionsSettings);
 		if (cmSettings == null) {
 			return;
 		}
@@ -73,10 +75,10 @@ public class XMLCatalogPlugin implements IXMLExtension {
 			return; // happen when notification service is not available
 		}
 		String[] catalogs = cmSettings.getCatalogs();
-		Set<String> invalidCatalogs = Arrays.stream(catalogs).filter(c -> {
+		Set<String> invalidCatalogs = catalogs != null ? Arrays.stream(catalogs).filter(c -> {
 			return Files.notExists(FilesUtils.getPath(c));
-		}).collect(Collectors.toSet());
-		
+		}).collect(Collectors.toSet()) : Collections.emptySet();
+
 		if (invalidCatalogs.size() > 0) {
 			this.pathWarner.onInvalidFilePath(invalidCatalogs, PathFeature.CATALOGS);
 		} else {

@@ -24,6 +24,8 @@ public class ContentModelSettings {
 
 	private String[] catalogs = null;
 
+	private XMLCatalogSettings catalog;
+
 	private XMLFileAssociation[] fileAssociations;
 
 	private XMLValidationSettings validation;
@@ -54,6 +56,7 @@ public class ContentModelSettings {
 	 *
 	 * @param catalogs
 	 */
+	@Deprecated
 	public void setCatalogs(String[] catalogs) {
 		this.catalogs = catalogs;
 	}
@@ -64,7 +67,13 @@ public class ContentModelSettings {
 	 * @return the list of the XML catalogs file path.
 	 */
 	public String[] getCatalogs() {
-		return catalogs == null ? new String[0] : catalogs;
+		XMLCatalogSettings catalog = getCatalog();
+		if (catalog != null) {
+			if (catalog.getFiles() != null) {
+				return catalog.getFiles();
+			}
+		}
+		return catalogs;
 	}
 
 	public void setFileAssociations(XMLFileAssociation[] fileAssociations) {
@@ -94,4 +103,11 @@ public class ContentModelSettings {
 		return validation;
 	}
 
+	public XMLCatalogSettings getCatalog() {
+		return catalog != null ? catalog : XMLCatalogSettings.DEFAULT_CATALOG;
+	}
+
+	public void setCatalog(XMLCatalogSettings catalog) {
+		this.catalog = catalog;
+	}
 }

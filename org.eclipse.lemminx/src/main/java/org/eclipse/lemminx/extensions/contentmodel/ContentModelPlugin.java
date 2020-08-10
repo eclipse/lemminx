@@ -104,7 +104,8 @@ public class ContentModelPlugin implements IXMLExtension {
 	private void updateSettings(ContentModelSettings settings, ISaveContext context) {
 		if (settings.getCatalogs() != null) {
 			// Update XML catalog settings
-			boolean catalogPathsChanged = contentModelManager.setCatalogs(settings.getCatalogs());
+			boolean catalogPathsChanged = contentModelManager.setCatalogs(settings.getCatalogs(),
+					settings.getCatalog().isPreferPublic(), settings.getCatalog().isUseLiteralSystemId());
 			if (catalogPathsChanged) {
 				// Validate all opened XML files
 				context.collectDocumentToValidate(d -> {
@@ -165,9 +166,9 @@ public class ContentModelPlugin implements IXMLExtension {
 	public ContentModelSettings getContentModelSettings() {
 		return cmSettings;
 	}
-	
+
 	public ContentModelManager getContentModelManager() {
 		return contentModelManager;
 	}
-	
+
 }

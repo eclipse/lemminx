@@ -25,6 +25,7 @@ import org.apache.xerces.util.XMLCatalogResolver;
 import org.apache.xerces.xni.XMLResourceIdentifier;
 import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.parser.XMLInputSource;
+import org.eclipse.lemminx.extensions.contentmodel.settings.XMLCatalogSettings;
 import org.eclipse.lemminx.uriresolver.URIResolverExtension;
 import org.eclipse.lemminx.utils.FilesUtils;
 
@@ -95,17 +96,23 @@ public class XMLCatalogResolverExtension implements URIResolverExtension {
 	/**
 	 * Initialize catalogs path.
 	 * 
-	 * @param catalogs the catalog path array.
+	 * @param catalogs           the catalog path array.
+	 * @param preferPublic
+	 * @param useLiteralSystemId
 	 * @return true if catalogs changed and false otherwise
 	 */
-	public boolean setCatalogs(String[] catalogs) {
+	public boolean setCatalogs(String[] catalogs, boolean preferPublic, boolean useLiteralSystemId) {
 		String[] oldCatalogs = catalogResolver != null ? catalogResolver.getCatalogList() : null;
+		boolean oldPreferPublic = catalogResolver != null ? catalogResolver.getPreferPublic()
+				: XMLCatalogSettings.DEFAULT_USE_PREFER_PUBLIC;
+		boolean oldUseLiteralSystemId = catalogResolver != null ? catalogResolver.getUseLiteralSystemId()
+				: XMLCatalogSettings.DEFAULT_USE_LITERAL_SYSTEM_ID;
 		if (catalogs != null) {
 			List<String> xmlCatalogFiles = new ArrayList<>();
 			for (String catalogPath : catalogs) {
 				// resolve catalog file path with root uri
 				String fullPath = expandSystemId(catalogPath);
-				
+
 				if (Files.exists(FilesUtils.getPath(fullPath))) {
 					xmlCatalogFiles.add(fullPath);
 					LOGGER.info("Adding XML catalog '" + catalogPath + "' with expand system id '" + fullPath
@@ -117,6 +124,8 @@ public class XMLCatalogResolverExtension implements URIResolverExtension {
 			}
 			if (xmlCatalogFiles.size() > 0) {
 				XMLCatalogResolver catalogResolver = new XMLCatalogResolver(xmlCatalogFiles.toArray(new String[0]));
+				catalogResolver.setPreferPublic(preferPublic);
+				catalogResolver.setUseLiteralSystemId(useLiteralSystemId);
 				setCatalogResolver(catalogResolver);
 			} else {
 				setCatalogResolver(null);
@@ -125,7 +134,8 @@ public class XMLCatalogResolverExtension implements URIResolverExtension {
 			setCatalogResolver(null);
 		}
 		String[] newCatalogs = catalogResolver != null ? catalogResolver.getCatalogList() : null;
-		return !Objects.equals(oldCatalogs, newCatalogs);
+		return !Objects.equals(oldCatalogs, newCatalogs) || catalogResolver.getPreferPublic() != oldPreferPublic
+				|| catalogResolver.getUseLiteralSystemId() != oldUseLiteralSystemId;
 	}
 
 	private String expandSystemId(String path) {
@@ -145,7 +155,8 @@ public class XMLCatalogResolverExtension implements URIResolverExtension {
 	 */
 	public void refreshCatalogs() {
 		if (catalogResolver != null) {
-			setCatalogs(catalogResolver.getCatalogList());
+			setCatalogs(catalogResolver.getCatalogList(), catalogResolver.getPreferPublic(),
+					catalogResolver.getUseLiteralSystemId());
 		}
 	}
 }
