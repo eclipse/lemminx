@@ -9,7 +9,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lemminx.extensions.xerces.xmlmodel;
+package org.eclipse.lemminx.extensions.xsd.xmlmodel;
 
 import static org.eclipse.lemminx.extensions.xerces.xmlmodel.XMLModelAwareParserConfiguration.ERROR_REPORTER_FOR_GRAMMAR;
 
@@ -23,7 +23,9 @@ import org.apache.xerces.xni.XMLLocator;
 import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.parser.XMLComponentManager;
 import org.apache.xerces.xni.parser.XMLConfigurationException;
+import org.eclipse.lemminx.extensions.xerces.xmlmodel.XMLModelValidator;
 import org.eclipse.lemminx.utils.StringUtils;
+import org.xml.sax.XMLReader;
 
 /**
  * XML model validator which process validation with XML Schema:
@@ -39,9 +41,10 @@ public class XMLModelSchemaValidator extends XMLSchemaValidator implements XMLMo
 
 	private XMLErrorReporter errorReporter;
 	private boolean rootElement;
-	private String href;
+	private final String href;
 
-	public XMLModelSchemaValidator() {
+	public XMLModelSchemaValidator(String href) {
+		this.href = href;
 		rootElement = true;
 	}
 
@@ -59,10 +62,6 @@ public class XMLModelSchemaValidator extends XMLSchemaValidator implements XMLMo
 		} catch (XMLConfigurationException e) {
 			errorReporter = null;
 		}
-	}
-
-	public void setHref(String href) {
-		this.href = href;
 	}
 
 	@Override
@@ -97,5 +96,10 @@ public class XMLModelSchemaValidator extends XMLSchemaValidator implements XMLMo
 			rootElement = false;
 		}
 		super.startElement(element, attributes, augs);
+	}
+
+	@Override
+	public void setXMLReader(XMLReader documentHandler) {
+
 	}
 }

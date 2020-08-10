@@ -21,6 +21,7 @@ public interface IExternalGrammarLocationProvider {
 	String SCHEMA_LOCATION = "http://apache.org/xml/properties/schema/external-schemaLocation"; //$NON-NLS-1$
 	String NO_NAMESPACE_SCHEMA_LOCATION = "http://apache.org/xml/properties/schema/external-noNamespaceSchemaLocation"; //$NON-NLS-1$
 	String DOCTYPE = "http://apache.org/xml/properties/dtd/external-doctype"; //$NON-NLS-1$
+	String RELAXNG = "http://apache.org/xml/properties/relaxng/external-relaxng"; //$NON-NLS-1$
 
 	/**
 	 * Provided the file path URI, this will return the external schema location.

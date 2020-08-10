@@ -51,12 +51,11 @@ public class cvc_attribute_3CodeAction implements ICodeActionParticipant {
 			DOMAttr attr = document.findAttrAt(offset);
 			if (attr != null) {
 				DOMElement element = attr.getOwnerElement();
-				String attributeName = attr.getName();
 				ContentModelManager contentModelManager = request.getComponent(ContentModelManager.class);
 				Collection<CMDocument> cmDocuments = contentModelManager.findCMDocument(element);
 				String attributeValue = attr.getValue();
 				for (CMDocument cmDocument : cmDocuments) {
-					CMAttributeDeclaration cmAttribute = cmDocument.findCMAttribute(element, attributeName);
+					CMAttributeDeclaration cmAttribute = cmDocument.findCMAttribute(attr);
 					if (cmAttribute != null) {
 						Range rangeValue = new Range(
 								new Position(diagnosticRange.getStart().getLine(),

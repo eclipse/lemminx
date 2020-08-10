@@ -64,7 +64,7 @@ public class LSPErrorReporterForXSD extends AbstractReferencedGrammarLSPErrorRep
 				}
 			} else {
 				fillReferencedGrammarDiagnostic(location, key, arguments, message, diagnosticSeverity, fatalError,
-						document.getResolverExtensionManager(), null, null, null, xsdCode, documentOrGrammarURI);
+						document.getResolverExtensionManager(), null, null, null, xsdCode, null, documentOrGrammarURI);
 				return NO_RANGE;
 			}
 		}
@@ -78,7 +78,8 @@ public class LSPErrorReporterForXSD extends AbstractReferencedGrammarLSPErrorRep
 				}
 			} else {
 				fillReferencedGrammarDiagnostic(location, key, arguments, message, diagnosticSeverity, fatalError,
-						document.getResolverExtensionManager(), syntaxCode, null, null, null, documentOrGrammarURI);
+						document.getResolverExtensionManager(), syntaxCode, null, null, null, null,
+						documentOrGrammarURI);
 				return NO_RANGE;
 			}
 		}
@@ -92,7 +93,7 @@ public class LSPErrorReporterForXSD extends AbstractReferencedGrammarLSPErrorRep
 				}
 			} else {
 				fillReferencedGrammarDiagnostic(location, key, arguments, message, diagnosticSeverity, fatalError,
-						document.getResolverExtensionManager(), null, schemaCode, null, null, documentOrGrammarURI);
+						document.getResolverExtensionManager(), null, schemaCode, null, null, null, documentOrGrammarURI);
 				return NO_RANGE;
 			}
 		}

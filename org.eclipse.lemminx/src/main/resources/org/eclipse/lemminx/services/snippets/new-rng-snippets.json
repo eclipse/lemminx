@@ -1,0 +1,23 @@
+{
+  "New RelaxNG": {
+    "prefix": [
+      "<grammar"
+    ],
+    "suffix": ">",
+    "body": [
+      "<grammar xmlns=\"http://relaxng.org/ns/structure/1.0\"",
+      "\tdatatypeLibrary=\"http://www.w3.org/2001/XMLSchema-datatypes\">",
+      "\t<start>",
+      "\t\t<ref name=\"${1:root-element}\"/>",
+      "\t</start>",
+      "\t<define name=\"${1:root-element}\">",
+      "\t\t\t<element name=\"${1:root-element}\">",
+	  "\t\t\t\t<text/>${0}",
+      "\t\t\t</element>",
+      "\t</define>",
+      "</grammar>"
+    ],
+    "label": "$description",
+    "description": "New RelaxNG grammar"
+  }
+ }

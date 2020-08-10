@@ -1,0 +1,3 @@
+org.eclipse.lemminx.extensions.dtd.xmlmodel.XMLModelDTDValidatorFactory
+org.eclipse.lemminx.extensions.xsd.xmlmodel.XMLModelSchemaValidatorFactory
+org.eclipse.lemminx.extensions.relaxng.xmlmodel.XMLModelRelaxNGValidatorFactory

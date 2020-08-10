@@ -9,9 +9,11 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lemminx.extensions.xerces.xmlmodel;
+package org.eclipse.lemminx.extensions.dtd.xmlmodel;
 
 import org.eclipse.lemminx.extensions.xerces.ExternalXMLDTDValidator;
+import org.eclipse.lemminx.extensions.xerces.xmlmodel.XMLModelValidator;
+import org.xml.sax.XMLReader;
 
 /**
  * XML model validator which process validation with DTD:
@@ -22,8 +24,18 @@ import org.eclipse.lemminx.extensions.xerces.ExternalXMLDTDValidator;
  *
  */
 public class XMLModelDTDValidator extends ExternalXMLDTDValidator implements XMLModelValidator {
-	@Override
-	public void setHref(String href) {
+
+	public XMLModelDTDValidator(String href) {
 		super.setExternalDoctype(href);
+	}
+	
+	@Override
+	public void setExternalDoctype(String externalDoctype) {
+
+	}
+
+	@Override
+	public void setXMLReader(XMLReader documentHandler) {
+
 	}
 }

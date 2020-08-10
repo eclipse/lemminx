@@ -21,6 +21,7 @@ import org.apache.xerces.xni.parser.XMLComponentManager;
 import org.apache.xerces.xni.parser.XMLConfigurationException;
 import org.apache.xerces.xni.parser.XMLDocumentSource;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
+import org.eclipse.lemminx.extensions.relaxng.xml.validator.ExternalRelaxNGValidator;
 import org.eclipse.lemminx.extensions.xerces.AbstractLSPErrorReporter;
 import org.eclipse.lemminx.extensions.xerces.ExternalXMLDTDValidator;
 import org.eclipse.lemminx.extensions.xerces.LSPSecurityManager;
@@ -47,6 +48,8 @@ class LSPXMLParserConfiguration extends XMLModelAwareParserConfiguration {
 
 	private final boolean disableDTDValidation;
 	private ExternalXMLDTDValidator externalDTDValidator;
+
+	private ExternalRelaxNGValidator externalRelaxNGValidator;
 
 	public LSPXMLParserConfiguration(XMLGrammarPool grammarPool, boolean disableDTDValidation,
 			LSPErrorReporterForXML reporterForXML, LSPErrorReporterForXML reporterForGrammar,
@@ -116,12 +119,14 @@ class LSPXMLParserConfiguration extends XMLModelAwareParserConfiguration {
 	protected void configurePipeline() {
 		super.configurePipeline();
 		configureExternalDTDPipeline();
+		configureExternalRelaxNGPipeline();
 	}
 
 	@Override
 	protected void configureXML11Pipeline() {
 		super.configureXML11Pipeline();
 		configureExternalDTDPipeline();
+		configureExternalRelaxNGPipeline();
 	}
 
 	private void configureExternalDTDPipeline() {
@@ -154,9 +159,47 @@ class LSPXMLParserConfiguration extends XMLModelAwareParserConfiguration {
 		if (fSchemaValidator != null) {
 			// Set the LSP reporter for Xerces SchemaDOMParser to collect XML Schema error
 			// in the case of schema have some error (ex : syntax error)
-			LSPXMLEntityManager entityManager = new LSPXMLEntityManager((AbstractLSPErrorReporter) fErrorReporter, null);
+			LSPXMLEntityManager entityManager = new LSPXMLEntityManager((AbstractLSPErrorReporter) fErrorReporter,
+					null);
 			AbstractLSPErrorReporter.initializeReporter(fSchemaValidator, getReporterForGrammar(), entityManager);
 		}
+	}
+
+	private void configureExternalRelaxNGPipeline() {
+		if (externalRelaxNGValidator == null) {
+			externalRelaxNGValidator = new ExternalRelaxNGValidator();
+			addCommonComponent(externalRelaxNGValidator);
+			externalRelaxNGValidator.reset(this);
+		}
+		// configure XML document pipeline: insert after DTDValidator and
+		// before XML Schema validator
+		XMLDocumentSource prev = null;
+		if (fFeatures.get(XMLSCHEMA_VALIDATION) == Boolean.TRUE) {
+			// we don't have to worry about fSchemaValidator being null, since
+			// super.configurePipeline() instantiated it if the feature was set
+			prev = fSchemaValidator.getDocumentSource();
+		}
+		// Otherwise, insert after the last component in the pipeline
+		else {
+			prev = fLastComponent;
+			fLastComponent = externalRelaxNGValidator;
+		}
+
+		XMLDocumentHandler next = prev.getDocumentHandler();
+		prev.setDocumentHandler(externalRelaxNGValidator);
+		externalRelaxNGValidator.setDocumentSource(prev);
+		if (next != null) {
+			externalRelaxNGValidator.setDocumentHandler(next);
+			next.setDocumentSource(externalRelaxNGValidator);
+		}
+	}
+
+	@Override
+	protected void checkProperty(String propertyId) throws XMLConfigurationException {
+		if (ExternalRelaxNGValidator.RELAXNG.equals(propertyId)) {
+			return;
+		}
+		super.checkProperty(propertyId);
 	}
 
 }

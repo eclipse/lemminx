@@ -58,7 +58,7 @@ public class AttributeNameCompletionResolver extends AbstractCMCompletionResolve
 
 	private static MarkupContent getDocumentationForAttributeValue(CMElementDeclaration cmElement, String attributeName,
 			ICompletionItemResolverRequest request) {
-		CMAttributeDeclaration cmAttribute = cmElement.findCMAttribute(attributeName);
+		CMAttributeDeclaration cmAttribute = cmElement.findCMAttribute(attributeName, null);
 		if (cmAttribute != null) {
 			return XMLGenerator.createMarkupContent(cmAttribute, cmElement,
 					request);

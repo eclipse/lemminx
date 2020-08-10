@@ -11,6 +11,10 @@
 *******************************************************************************/
 package org.eclipse.lemminx.dom;
 
+import static org.eclipse.lemminx.extensions.xerces.xmlmodel.XMLModelDeclaration.isApplicableForDTD;
+import static org.eclipse.lemminx.extensions.xerces.xmlmodel.XMLModelDeclaration.isApplicableForXSD;
+import static org.eclipse.lemminx.extensions.xerces.xmlmodel.XMLModelDeclaration.isApplicableForRelaxNG;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -137,6 +141,16 @@ public class XMLModel {
 			hrefNode = new SimpleDOMRange(start, end, processingInstruction.getOwnerDocument());
 		}
 		return hrefNode;
+	}
+
+	/**
+	 * Returns true if the xml-model is applicable and false otherwise.
+	 * 
+	 * @return true if the xml-model is applicable and false otherwise.
+	 */
+	public boolean isApplicable() {
+		return isApplicableForDTD(getModelDeclaration()) || isApplicableForXSD(getModelDeclaration())
+				|| isApplicableForRelaxNG(getModelDeclaration());
 	}
 
 }

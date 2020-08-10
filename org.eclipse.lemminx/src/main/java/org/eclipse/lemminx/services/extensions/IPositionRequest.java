@@ -13,6 +13,7 @@
 package org.eclipse.lemminx.services.extensions;
 
 import org.eclipse.lemminx.commons.BadLocationException;
+import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
@@ -59,6 +60,8 @@ public interface IPositionRequest {
 	DOMDocument getXMLDocument();
 
 	String getCurrentTag();
+
+	DOMAttr getCurrentAttribute();
 
 	String getCurrentAttributeName();
 

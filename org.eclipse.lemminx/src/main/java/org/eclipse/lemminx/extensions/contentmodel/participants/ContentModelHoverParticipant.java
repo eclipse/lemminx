@@ -79,13 +79,12 @@ public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 				// no bound grammar -> no documentation
 				return null;
 			}
-			String attributeName = attribute.getName();
 			// Compute attribute name declaration documentation from bound grammars
 			List<MarkupContent> contentValues = new ArrayList<>();
 			for (CMDocument cmDocument : cmDocuments) {
 				CMElementDeclaration cmElement = cmDocument.findCMElement(element);
 				if (cmElement != null) {
-					CMAttributeDeclaration cmAttribute = cmElement.findCMAttribute(attributeName);
+					CMAttributeDeclaration cmAttribute = cmElement.findCMAttribute(attribute);
 					if (cmAttribute != null) {
 						MarkupContent content = XMLGenerator.createMarkupContent(cmAttribute, cmElement, hoverRequest);
 						fillHoverContent(content, contentValues);
@@ -118,14 +117,13 @@ public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 				// no bound grammar -> no documentation
 				return null;
 			}
-			String attributeName = attribute.getName();
 			String attributeValue = attribute.getValue();
 			// Compute attribute value declaration documentation from bound grammars
 			List<MarkupContent> contentValues = new ArrayList<>();
 			for (CMDocument cmDocument : cmDocuments) {
 				CMElementDeclaration cmElement = cmDocument.findCMElement(element);
 				if (cmElement != null) {
-					CMAttributeDeclaration cmAttribute = cmElement.findCMAttribute(attributeName);
+					CMAttributeDeclaration cmAttribute = cmElement.findCMAttribute(attribute);
 					if (cmAttribute != null) {
 						MarkupContent content = XMLGenerator.createMarkupContent(cmAttribute, attributeValue, cmElement,
 								hoverRequest);

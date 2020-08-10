@@ -237,6 +237,10 @@
             "parameterTypes": []
         }]
     },
+    {
+        "name": "org.eclipse.lemminx.extensions.xerces.xmlmodel.XMLModelValidatorFactory",
+        "allDeclaredMethods": true
+    },
 	{
 		"name": "org.eclipse.lemminx.utils.platform.Memory",
 		"allDeclaredFields": true,

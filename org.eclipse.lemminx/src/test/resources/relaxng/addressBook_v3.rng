@@ -1,0 +1,14 @@
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" 
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <element name="addressBook">
+      <zeroOrMore>
+        <element name="card"><ref name="cardContent"/></element>
+      </zeroOrMore>
+    </element>
+  </start>
+  <define name="cardContent">
+    <element name="name"><data type="string"/></element>
+    <element name="email"><data type="anyURI"/></element>
+  </define>
+</grammar>

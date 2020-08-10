@@ -24,6 +24,9 @@
 		{
 			"pattern": "\\Qorg/jsoup/nodes/entities-full.properties\\E"
 		},
+        {
+            "pattern": "\\Qschemas/relaxng/relaxng.rng\\E"
+        },		
 		{
 			"pattern": "\\Qschemas/xsd/XMLSchema.dtd\\E"
 		},
@@ -50,6 +53,15 @@
 		{
 			"name": "org.apache.xerces.impl.msg.XMLMessages"
 		},
+        {
+            "name": "com.thaiopensource.datatype.xsd.resources.Messages"
+        },
+        {
+            "name": "com.thaiopensource.relaxng.pattern.resources.Messages"
+        },
+        {
+            "name": "com.thaiopensource.relaxng.parse.compact.resources.Messages"
+        },
 		{
 			"name": "org.eclipse.lemminx.extensions.xerces.xmlmodel.msg.XMLMessages"
 		},

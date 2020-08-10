@@ -100,5 +100,20 @@
     ],
     "label": "$description",
     "description": "New XML bound with xsi:noNamespaceSchemaLocation"
+  },
+  "New XML bound with RelaxNG": {
+    "prefix": [
+      "relaxng"
+    ],
+    "suffix": ">",
+    "body": [
+      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>",
+      "<?xml-model href=\"${1:file}.${2|rng,rnc|}\" schematypens=\"http://relaxng.org/ns/structure/1.0\"?>",
+      "<${3:root-element}>",
+      "\t${0}",
+      "</${3:root-element}>"
+    ],
+    "label": "$description",
+    "description": "New XML bound with RelaxNG"
   }
  }

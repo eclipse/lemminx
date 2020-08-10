@@ -189,6 +189,8 @@ public class XMLCapabilityManager {
 		List<FileSystemWatcher> watchers = new ArrayList<>(2);
 		watchers.add(new FileSystemWatcher(Either.forLeft("**/*.xsd")));
 		watchers.add(new FileSystemWatcher(Either.forLeft("**/*.dtd")));
+		watchers.add(new FileSystemWatcher(Either.forLeft("**/*.rng")));
+		watchers.add(new FileSystemWatcher(Either.forLeft("**/*.rnc")));
 		DidChangeWatchedFilesRegistrationOptions options = new DidChangeWatchedFilesRegistrationOptions(watchers);
 		registerCapability(WORKSPACE_WATCHED_FILES_ID, WORKSPACE_WATCHED_FILES, options);
 	}

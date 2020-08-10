@@ -26,6 +26,7 @@ import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.parser.XMLParserConfiguration;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMDocumentType;
+import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 
@@ -57,6 +58,7 @@ public class LSPSAXParser extends SAXParser {
 		super(config);
 		this.grammarPool = grammarPool;
 		this.document = document;
+		super.setContentHandler(new MultipleContentHandler());
 		init(reporter);
 	}
 
@@ -183,4 +185,10 @@ public class LSPSAXParser extends SAXParser {
 			index++;
 		}
 	}
+
+	@Override
+	public void setContentHandler(ContentHandler contentHandler) {
+		((MultipleContentHandler) getContentHandler()).addContentHandler(contentHandler);
+	}
+
 }
