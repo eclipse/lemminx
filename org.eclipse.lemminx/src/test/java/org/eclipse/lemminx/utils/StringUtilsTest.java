@@ -84,7 +84,7 @@ public class StringUtilsTest {
 
 	@Test
 	public void testGetString() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		String bufferText = "This is buffer text";
 		buffer.append(bufferText);
 		assertEquals(bufferText, StringUtils.getString(buffer));

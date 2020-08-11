@@ -191,7 +191,7 @@ public class XMLPositionUtilityTest {
 			return;
 		}
 
-		StringBuffer sBuffer = new StringBuffer(initialCursorText);
+		StringBuilder sBuffer = new StringBuilder(initialCursorText);
 		String actualOutputString;
 		if (newCursorOffset > -1) {
 			actualOutputString = sBuffer.insert(newCursorOffset, "|").toString();
