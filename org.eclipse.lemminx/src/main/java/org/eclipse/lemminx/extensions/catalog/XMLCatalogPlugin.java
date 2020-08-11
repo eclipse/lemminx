@@ -12,20 +12,20 @@
  */
 package org.eclipse.lemminx.extensions.catalog;
 
-import java.io.File;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.eclipse.lemminx.client.PathFeature;
 import org.eclipse.lemminx.client.InvalidPathWarner;
+import org.eclipse.lemminx.client.PathFeature;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
 import org.eclipse.lemminx.services.IXMLNotificationService;
+import org.eclipse.lemminx.services.extensions.IDocumentLinkParticipant;
 import org.eclipse.lemminx.services.extensions.IXMLExtension;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.services.extensions.save.ISaveContext;
+import org.eclipse.lemminx.utils.FilesUtils;
 import org.eclipse.lsp4j.InitializeParams;
 
 /**
@@ -34,8 +34,13 @@ import org.eclipse.lsp4j.InitializeParams;
 public class XMLCatalogPlugin implements IXMLExtension {
 
 	private XMLCatalogURIResolverExtension uiResolver;
+	private final IDocumentLinkParticipant documentLinkParticipant;
 
 	private InvalidPathWarner pathWarner;
+
+	public XMLCatalogPlugin() {
+		documentLinkParticipant = new XMLCatalogDocumentLinkParticipant();
+	}
 
 	@Override
 	public void doSave(ISaveContext context) {
@@ -50,11 +55,12 @@ public class XMLCatalogPlugin implements IXMLExtension {
 	@Override
 	public void start(InitializeParams params, XMLExtensionsRegistry registry) {
 		uiResolver = new XMLCatalogURIResolverExtension(registry);
-		registry.getResolverExtensionManager().registerResolver(uiResolver);		
+		registry.getResolverExtensionManager().registerResolver(uiResolver);
 		IXMLNotificationService notificationService = registry.getNotificationService();
 		if (notificationService != null) {
 			this.pathWarner = new InvalidPathWarner(notificationService);
 		}
+		registry.registerDocumentLinkParticipant(documentLinkParticipant);
 	}
 
 	@Override
@@ -67,20 +73,14 @@ public class XMLCatalogPlugin implements IXMLExtension {
 			return; // happen when notification service is not available
 		}
 		String[] catalogs = cmSettings.getCatalogs();
-		Set<String> invalidCatalogs = Arrays.stream(catalogs).filter(c -> !isXMLCatalogFileValid(c)).collect(Collectors.toSet());
+		Set<String> invalidCatalogs = Arrays.stream(catalogs).filter(c -> {
+			return Files.notExists(FilesUtils.getPath(c));
+		}).collect(Collectors.toSet());
 		
 		if (invalidCatalogs.size() > 0) {
 			this.pathWarner.onInvalidFilePath(invalidCatalogs, PathFeature.CATALOGS);
 		} else {
 			this.pathWarner.evictKey(PathFeature.CATALOGS);
-		}
-	}
-
-	private static boolean isXMLCatalogFileValid(String catalogFile) {
-		try {
-			return new File(new URI(catalogFile).toString()).exists();
-		} catch (URISyntaxException e) {
-			return new File(catalogFile).exists();
 		}
 	}
 }

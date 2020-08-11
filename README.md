@@ -137,3 +137,4 @@ Example of extensions include:
  * Built-in completion based on Emmet
  * [See all built-in extensions](https://github.com/eclipse/lemminx/tree/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/extensions)
  * Eclipse [LemMinX Maven extension](https://github.com/eclipse/lemminx-maven/) provides extra assistance for Maven pom files, adding some pom validation (as diagnostics), hover for documentation and properties evaluation, completion for configuration element (not part of XSD), constrained node, file path, GAVs..., go to definition for properties and GAVs...
+ * [LemMinX Liquibase extension](https://github.com/Treehopper/liquibase-lsp/) provides extra assistance for Liquibase XML migration scripts, adding database validation (as diagnostics) using an in-memory database.
