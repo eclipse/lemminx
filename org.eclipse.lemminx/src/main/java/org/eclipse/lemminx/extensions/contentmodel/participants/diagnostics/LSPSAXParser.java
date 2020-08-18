@@ -29,11 +29,13 @@ import org.apache.xerces.xni.NamespaceContext;
 import org.apache.xerces.xni.XMLLocator;
 import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.grammars.XMLGrammarPool;
+import org.apache.xerces.xni.parser.XMLInputSource;
 import org.apache.xerces.xni.parser.XMLParserConfiguration;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMDocumentType;
 import org.eclipse.lemminx.extensions.contentmodel.participants.DTDErrorCode;
+import org.eclipse.lemminx.uriresolver.URIResolverExtensionManager;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Range;
 import org.xml.sax.SAXNotRecognizedException;
@@ -105,12 +107,13 @@ public class LSPSAXParser extends SAXParser {
 		if (systemId != null) {
 			// There a declared DTD in the DOCTYPE
 			// <!DOCTYPE root-element SYSTEM "./extended.dtd" []>
-			String eid = null;
-			try {
-				eid = XMLEntityManager.expandSystemId(systemId, locator.getExpandedSystemId(), false);
-			} catch (java.io.IOException e) {
-			}
-			if (!isDTDExists(eid)) {
+
+			XMLEntityManager entityManager = (XMLEntityManager) fConfiguration.getProperty(ENTITY_MANAGER);
+			XMLDTDDescription grammarDesc = createGrammarDescription(rootElement, publicId, systemId);
+
+			// Expand the system ID of the DTD and resolve it.
+			String expandedSystemId = getExpandedSystemId(grammarDesc, entityManager);
+			if (!isDTDExists(expandedSystemId)) {
 				// The declared DTD doesn't exist
 				// <!DOCTYPE root-element SYSTEM "./dtd-doesnt-exist.dtd" []>
 				try {
@@ -118,8 +121,8 @@ public class LSPSAXParser extends SAXParser {
 					DOMDocumentType docType = document.getDoctype();
 					Range range = new Range(document.positionAt(docType.getSystemIdNode().getStart()),
 							document.positionAt(docType.getSystemIdNode().getEnd()));
-					reporter.addDiagnostic(range, MessageFormat.format(DTD_NOT_FOUND, eid), DiagnosticSeverity.Error,
-							DTDErrorCode.dtd_not_found.getCode());
+					reporter.addDiagnostic(range, MessageFormat.format(DTD_NOT_FOUND, expandedSystemId),
+							DiagnosticSeverity.Error, DTDErrorCode.dtd_not_found.getCode());
 				} catch (BadLocationException e) {
 					// Do nothing
 				}
@@ -140,9 +143,7 @@ public class LSPSAXParser extends SAXParser {
 				if (grammarPool != null) {
 					// FIX [BUG 2]
 					// DTD exists, get the DTD grammar from the cache
-					XMLEntityManager entityManager = (XMLEntityManager) fConfiguration.getProperty(ENTITY_MANAGER);
-					XMLDTDDescription grammarDesc = new XMLDTDDescription(publicId, systemId,
-							locator.getExpandedSystemId(), eid, rootElement);
+
 					DTDGrammar grammar = (DTDGrammar) grammarPool.retrieveGrammar(grammarDesc);
 					if (grammar != null) {
 						// The DTD grammar is in cache, we need to fill XML entity manager with the
@@ -153,6 +154,44 @@ public class LSPSAXParser extends SAXParser {
 			}
 		}
 		super.doctypeDecl(rootElement, publicId, systemId, augs);
+	}
+
+	/**
+	 * Create DTD grammar description by expanding the system id.
+	 * 
+	 * @param rootElement the root element
+	 * @param publicId    the public ID.
+	 * @param systemId    the system ID.
+	 * @return the DTD grammar description by expanding the system id.
+	 */
+	private XMLDTDDescription createGrammarDescription(String rootElement, String publicId, String systemId) {
+		String eid = null;
+		try {
+			eid = XMLEntityManager.expandSystemId(systemId, locator.getExpandedSystemId(), false);
+		} catch (java.io.IOException e) {
+		}
+
+		return new XMLDTDDescription(publicId, systemId, locator.getExpandedSystemId(), eid, rootElement);
+	}
+
+	/**
+	 * Resolve the expanded system ID by resolving the system ID of the given
+	 * grammar description with uri resolver (XML catalog, cache, etc with
+	 * {@link URIResolverExtensionManager}).
+	 * 
+	 * @param grammarDesc   the DTD grammar description.
+	 * @param entityManager the entity manager.
+	 * @return the expanded system ID by resolving the system ID of the given
+	 *         grammar description with uri resolver (XML catalog, cache, etc with
+	 *         {@link URIResolverExtensionManager}).
+	 */
+	private static String getExpandedSystemId(XMLDTDDescription grammarDesc, XMLEntityManager entityManager) {
+		try {
+			XMLInputSource input = entityManager.resolveEntity(grammarDesc);
+			return input.getSystemId();
+		} catch (Exception e) {
+		}
+		return grammarDesc.getExpandedSystemId();
 	}
 
 	private static boolean isDTDExists(String expandedSystemId) {
