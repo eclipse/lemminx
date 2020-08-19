@@ -23,6 +23,7 @@ import java.util.Map;
 import org.apache.xerces.xni.grammars.XMLGrammarPool;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
+import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelProvider.Identifier;
 import org.eclipse.lemminx.extensions.contentmodel.participants.diagnostics.LSPXMLGrammarPool;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLFileAssociation;
 import org.eclipse.lemminx.extensions.contentmodel.uriresolver.XMLCacheResolverExtension;
@@ -116,10 +117,12 @@ public class ContentModelManager {
 				// The content model provider can collect the system ids
 				// ex for <?xml-model , the model provider which takes care of xml-model returns
 				// the href of xml-model.
-				Collection<String> systemIds = modelProvider.getSystemIds(xmlDocument, namespaceURI);
-				for (String systemId : systemIds) {
+				Collection<Identifier> identifiers = modelProvider.getIdentifiers(xmlDocument, namespaceURI);
+				for (Identifier identifier : identifiers) {
+					String systemId = identifier.getSystemId();
+					String publicId = identifier.getPublicId() != null ? identifier.getPublicId() : namespaceURI;
 					// get the content model document from the current system id
-					CMDocument cmDocument = findCMDocument(xmlDocument.getDocumentURI(), namespaceURI, systemId,
+					CMDocument cmDocument = findCMDocument(xmlDocument.getDocumentURI(), publicId, systemId,
 							modelProvider);
 					if (cmDocument != null) {
 						documents.add(cmDocument);
@@ -151,9 +154,11 @@ public class ContentModelManager {
 		}
 		for (ContentModelProvider modelProvider : modelProviders) {
 			if (modelProvider.adaptFor(document, false)) {
-				Collection<String> systemIds = modelProvider.getSystemIds(document, document.getNamespaceURI());
-				for (String systemId : systemIds) {
-					String key = resolverManager.resolve(document.getDocumentURI(), null, systemId);
+				Collection<Identifier> identifiers = modelProvider.getIdentifiers(document, document.getNamespaceURI());
+				for (Identifier identifier : identifiers) {
+					String publicId = identifier.getPublicId();
+					String systemId = identifier.getSystemId();
+					String key = resolverManager.resolve(document.getDocumentURI(), publicId, systemId);
 					if (grammarURI.equals(key)) {
 						return true;
 					}
