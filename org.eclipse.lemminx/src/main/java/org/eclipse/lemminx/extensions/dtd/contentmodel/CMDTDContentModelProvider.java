@@ -72,14 +72,15 @@ public class CMDTDContentModelProvider implements ContentModelProvider {
 	}
 
 	@Override
-	public Collection<String> getSystemIds(DOMDocument xmlDocument, String namespaceURI) {
+	public Collection<Identifier> getIdentifiers(DOMDocument xmlDocument, String namespaceURI) {
 		/*
 		 * <!DOCTYPE catalog PUBLIC
 		 * "-//OASIS/DTD Entity Resolution XML Catalog V1.0//EN"
 		 * "http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd">
 		 */
 		DOMDocumentType documentType = xmlDocument.getDoctype();
-		return Collections.singleton(documentType.getSystemIdWithoutQuotes());
+		return Collections.singleton(
+				new Identifier(documentType.getPublicIdWithoutQuotes(), documentType.getSystemIdWithoutQuotes()));
 	}
 
 	@Override

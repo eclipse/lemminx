@@ -55,13 +55,13 @@ public class CMXSDContentModelProvider implements ContentModelProvider {
 	}
 
 	@Override
-	public Collection<String> getSystemIds(DOMDocument xmlDocument, String namespaceURI) {
-		Collection<String> systemIds = new ArrayList<>();
+	public Collection<Identifier> getIdentifiers(DOMDocument xmlDocument, String namespaceURI) {
+		Collection<Identifier> identifiers = new ArrayList<>();
 		SchemaLocation schemaLocation = xmlDocument.getSchemaLocation();
 		if (schemaLocation != null) {
 			String location = schemaLocation.getLocationHint(namespaceURI);
 			if (!StringUtils.isEmpty(location)) {
-				systemIds.add(location);
+				identifiers.add(new Identifier(null, location));
 			}
 		} else {
 			NoNamespaceSchemaLocation noNamespaceSchemaLocation = xmlDocument.getNoNamespaceSchemaLocation();
@@ -70,12 +70,12 @@ public class CMXSDContentModelProvider implements ContentModelProvider {
 					// xsi:noNamespaceSchemaLocation doesn't define namespaces
 					String location = noNamespaceSchemaLocation.getLocation();
 					if (!StringUtils.isEmpty(location)) {
-						systemIds.add(location);
+						identifiers.add(new Identifier(null, location));
 					}
 				}
 			}
 		}
-		return systemIds;
+		return identifiers;
 	}
 
 	@Override
@@ -94,7 +94,7 @@ public class CMXSDContentModelProvider implements ContentModelProvider {
 		return null;
 	}
 
-	public XSLoaderImpl getLoader() {		
+	public XSLoaderImpl getLoader() {
 		XSLoaderImpl loader = new XSLoaderImpl();
 		loader.setParameter("http://apache.org/xml/properties/internal/entity-resolver", resolverExtensionManager);
 		loader.setParameter(Constants.DOM_ERROR_HANDLER, new DOMErrorHandler() {
