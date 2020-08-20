@@ -53,7 +53,7 @@ public class ContentModelPlugin implements IXMLExtension {
 
 	private final ICodeActionParticipant codeActionParticipant;
 
-	private final IDocumentLinkParticipant documentLinkParticipant;
+	private IDocumentLinkParticipant documentLinkParticipant;
 
 	private final ITypeDefinitionParticipant typeDefinitionParticipant;
 
@@ -66,7 +66,6 @@ public class ContentModelPlugin implements IXMLExtension {
 		hoverParticipant = new ContentModelHoverParticipant();
 		diagnosticsParticipant = new ContentModelDiagnosticsParticipant(this);
 		codeActionParticipant = new ContentModelCodeActionParticipant();
-		documentLinkParticipant = new ContentModelDocumentLinkParticipant();
 		typeDefinitionParticipant = new ContentModelTypeDefinitionParticipant();
 	}
 
@@ -144,6 +143,7 @@ public class ContentModelPlugin implements IXMLExtension {
 		if (params != null) {
 			contentModelManager.setRootURI(params.getRootUri());
 		}
+		documentLinkParticipant = new ContentModelDocumentLinkParticipant(resolverManager);
 		registry.registerCompletionParticipant(completionParticipant);
 		registry.registerHoverParticipant(hoverParticipant);
 		registry.registerDiagnosticsParticipant(diagnosticsParticipant);

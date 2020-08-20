@@ -45,7 +45,7 @@ public class DTDDocumentLinkTest {
 		XMLAssert.testDocumentLinkFor(xml, "src/test/resources/xml/base.xml",
 				dl(r(1, 38, 1, 62), "src/test/resources/dtd/entities/base.dtd"));
 	}
-	
+
 	@Test
 	public void noLinks() throws BadLocationException {
 		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n" + //
@@ -54,5 +54,22 @@ public class DTDDocumentLinkTest {
 				"]>\r\n" + //
 				"<root-element />";
 		XMLAssert.testDocumentLinkFor(xml, "src/test/resources/xml/base.xml");
+	}
+
+	@Test
+	public void linkWithCatalogAndPublic() throws Exception {
+		// This test uses the local DTD with catalog-public.xml by using the PUBLIC ID
+		// -//Sun Microsystems, Inc.//DTD Web Application 2.3//EN
+		// <public publicId="-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+		// uri="../dtd/web-app_2_3.dtd" />
+		String xml = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> \r\n" + //
+				"<!DOCTYPE web-app\r\n" + //
+				"   PUBLIC \"-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN\"\r\n" + //
+				"   \"ABCD.dtd\">\r\n" + //
+				"\r\n" + //
+				"<web-app></web-app>";
+		XMLAssert.testDocumentLinkFor(xml, "src/test/resources/xml/base.xml",
+				"src/test/resources/catalogs/catalog-public.xml",
+				dl(r(3,4,3,12), "src/test/resources/dtd/web-app_2_3.dtd"));
 	}
 }
