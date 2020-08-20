@@ -680,12 +680,20 @@ public class XMLAssert {
 	// ------------------- Links assert
 
 	public static void testDocumentLinkFor(String xml, String fileURI, DocumentLink... expected) {
+		testDocumentLinkFor(xml, fileURI, null, expected);
+	}
+
+	public static void testDocumentLinkFor(String xml, String fileURI, String catalogPath, DocumentLink... expected) {
 		TextDocument document = new TextDocument(xml, fileURI != null ? fileURI : "test.xml");
 
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
 
 		ContentModelSettings settings = new ContentModelSettings();
 		settings.setUseCache(false);
+		// Configure XML catalog for XML schema
+		if (catalogPath != null) {
+			settings.setCatalogs(new String[] { catalogPath });
+		}
 		xmlLanguageService.doSave(new SettingsSaveContext(settings));
 
 		DOMDocument xmlDocument = DOMParser.getInstance().parse(document,
@@ -705,8 +713,8 @@ public class XMLAssert {
 		assertEquals(expected.length, actual.size());
 		for (int i = 0; i < expected.length; i++) {
 			assertEquals(expected[i].getRange(), actual.get(i).getRange(), " Range test '" + i + "' link");
-			assertEquals(Paths.get(expected[i].getTarget()).toUri().toString(), actual.get(i).getTarget(),
-					" Target test '" + i + "' link");
+			assertEquals(Paths.get(expected[i].getTarget()).toUri().toString().replace("file:///", "file:/"),
+					actual.get(i).getTarget().replace("file:///", "file:/"), " Target test '" + i + "' link");
 		}
 	}
 
