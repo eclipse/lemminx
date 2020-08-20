@@ -18,8 +18,6 @@ package org.eclipse.lemminx.extensions.generators;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang3.StringEscapeUtils;
-
 /**
  * This class is a copy/paste from some methods of Xerces
  * org.apache.xerces.util.XMLChar.
