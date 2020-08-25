@@ -68,9 +68,9 @@ public class ContentModelManager {
 	/**
 	 * Returns the owner document of the declared element which matches the given
 	 * XML element and null otherwise.
-	 * 
+	 *
 	 * @param element the XML element
-	 * 
+	 *
 	 * @return the owner document of the declared element which matches the given
 	 *         XML element and null otherwise.
 	 */
@@ -81,9 +81,9 @@ public class ContentModelManager {
 	/**
 	 * Returns the owner document of the declared element which matches the given
 	 * XML element and null otherwise.
-	 * 
+	 *
 	 * @param element the XML element
-	 * 
+	 *
 	 * @return the owner document of the declared element which matches the given
 	 *         XML element and null otherwise.
 	 */
@@ -97,12 +97,30 @@ public class ContentModelManager {
 
 	/**
 	 * Returns the declared documents which match the given DOM document.
-	 * 
+	 *
 	 * @param xmlDocument  the DOM document.
 	 * @param namespaceURI the namespace URI
 	 * @return the declared documents which match the given DOM document.
 	 */
 	public Collection<CMDocument> findCMDocument(DOMDocument xmlDocument, String namespaceURI, boolean withInternal) {
+		if (namespaceURI == null) {
+			// This case comes from when an element has no namespace and XML Schema defines
+			// elementFormDefault="unqualified"
+			// --> we use the namespace from the DOM document
+
+			// ex: XSD:
+			// <xs:schema targetNamespace="urn:reports/itops"
+			// elementFormDefault="unqualified"
+
+			// ex : XML
+			// <i:ITOpsReport xmlns:i="urn:reports/itops"
+			// xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			// xsi:schemaLocation="urn:reports/itops ../schema/reports/itops.xsd">
+			// <templates> --> here template has a null namespace and the DOM document has
+			// "urn:reports/itops" namespace
+			// --> we use urn:reports/itops as namespace to get the DOM Document
+			namespaceURI = xmlDocument.getNamespaceURI();
+		}
 		Collection<CMDocument> documents = new ArrayList<>();
 		for (ContentModelProvider modelProvider : modelProviders) {
 			// internal grammar
@@ -142,7 +160,7 @@ public class ContentModelManager {
 	/**
 	 * Returns true if the given document is linked to the given grammar URI (XML
 	 * Schema, DTD) and false otherwise.
-	 * 
+	 *
 	 * @param document   the DOM document
 	 * @param grammarURI the grammar URI
 	 * @return true if the given document is linked to the given grammar URI (XML
@@ -172,7 +190,7 @@ public class ContentModelManager {
 	/**
 	 * Returns the content model document loaded by the given uri and null
 	 * otherwise.
-	 * 
+	 *
 	 * @param publicId      the public identifier.
 	 * @param systemId      the expanded system identifier.
 	 * @param modelProvider
@@ -248,9 +266,9 @@ public class ContentModelManager {
 
 	/**
 	 * Returns the model provider by the given uri and null otherwise.
-	 * 
+	 *
 	 * @param uri the grammar URI
-	 * 
+	 *
 	 * @return the model provider by the given uri and null otherwise.
 	 */
 	public ContentModelProvider getModelProviderByURI(String uri) {
@@ -264,7 +282,7 @@ public class ContentModelManager {
 
 	/**
 	 * Set up XML catalogs.
-	 * 
+	 *
 	 * @param catalogs list of XML catalog files.
 	 * @return true if catalogs changed and false otherwise
 	 */
@@ -281,7 +299,7 @@ public class ContentModelManager {
 
 	/**
 	 * Set file associations.
-	 * 
+	 *
 	 * @param fileAssociations
 	 * @return true if file associations changed and false otherwise
 	 */

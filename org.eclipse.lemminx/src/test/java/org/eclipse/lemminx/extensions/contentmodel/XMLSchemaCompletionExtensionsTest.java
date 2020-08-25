@@ -1090,6 +1090,30 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 	}
 
 	@Test
+	public void completionWithUnqualifiedElementFormDefault() throws BadLocationException {
+		String xml = "<f:foo xmlns:f=\"http://foo\"\r\n" + //
+				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"	xsi:schemaLocation=\"\r\n" + //
+				"		http://foo xsd/foo-unqualified.xsd\">\r\n" + //
+				"	<bar>\r\n" + //
+				"		|";
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/foo-unqualified.xml", //
+				null, //
+				c("item", te(5, 2, 5, 2, "<item></item>"), "item", null, null));
+	}
+
+	@Test
+	public void completionWithUnqualifiedElementFormDefaultWithCatalog() throws BadLocationException {
+		String xml = "<f:foo xmlns:f=\"http://foo\">\r\n" + //
+				"	<bar>\r\n" + //
+				"		|";
+		XMLAssert.testCompletionFor(xml, "src/test/resources/catalogs/catalog.xml", //
+				"src/test/resources/foo-unqualified.xml", //
+				null, //
+				c("item", te(2, 2, 2, 2, "<item></item>"), "item", null, null));
+	}
+	
+	@Test
 	public void generateOnlyStartElementOnElement() throws BadLocationException {
 		// </employee> already exists, completion must generate only <employee>
 
