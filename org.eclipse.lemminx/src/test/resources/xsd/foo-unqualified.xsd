@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema elementFormDefault="unqualified"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://foo">
+	<xs:element name="foo">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="bar">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="item">
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

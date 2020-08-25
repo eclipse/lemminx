@@ -1,0 +1,8 @@
+<f:foo xmlns:f="http://foo"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+		http://foo ../xsd/foo-unqualified.xsd">
+	<bar>
+		<item></item>
+	</bar>
+</f:foo>
