@@ -17,8 +17,6 @@ import static org.eclipse.lemminx.utils.XMLPositionUtility.createDocumentLink;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.xerces.impl.XMLEntityManager;
-import org.apache.xerces.util.URI.MalformedURIException;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMDocumentType;
@@ -28,6 +26,7 @@ import org.eclipse.lemminx.dom.SchemaLocation;
 import org.eclipse.lemminx.dom.SchemaLocationHint;
 import org.eclipse.lemminx.dom.XMLModel;
 import org.eclipse.lemminx.services.extensions.IDocumentLinkParticipant;
+import org.eclipse.lemminx.uriresolver.URIResolverExtensionManager;
 import org.eclipse.lsp4j.DocumentLink;
 
 /**
@@ -44,13 +43,19 @@ import org.eclipse.lsp4j.DocumentLink;
  */
 public class ContentModelDocumentLinkParticipant implements IDocumentLinkParticipant {
 
+	private final URIResolverExtensionManager resolverManager;
+
+	public ContentModelDocumentLinkParticipant(URIResolverExtensionManager resolverManager) {
+		this.resolverManager = resolverManager;
+	}
+
 	@Override
 	public void findDocumentLinks(DOMDocument document, List<DocumentLink> links) {
 		// Document link for xsi:noNamespaceSchemaLocation
 		NoNamespaceSchemaLocation noNamespaceSchemaLocation = document.getNoNamespaceSchemaLocation();
 		if (noNamespaceSchemaLocation != null) {
 			try {
-				String location = getResolvedLocation(document.getDocumentURI(),
+				String location = resolverManager.resolve(document.getDocumentURI(), null,
 						noNamespaceSchemaLocation.getLocation());
 				if (location != null) {
 					DOMRange attrValue = noNamespaceSchemaLocation.getAttr().getNodeAttrValue();
@@ -65,7 +70,8 @@ public class ContentModelDocumentLinkParticipant implements IDocumentLinkPartici
 		// Document link for DTD
 		DOMDocumentType docType = document.getDoctype();
 		if (docType != null) {
-			String location = getResolvedLocation(document.getDocumentURI(), docType.getSystemIdWithoutQuotes());
+			String location = resolverManager.resolve(document.getDocumentURI(), docType.getPublicIdWithoutQuotes(),
+					docType.getSystemIdWithoutQuotes());
 			if (location != null) {
 				try {
 					DOMRange systemIdRange = docType.getSystemIdNode();
@@ -80,7 +86,7 @@ public class ContentModelDocumentLinkParticipant implements IDocumentLinkPartici
 		// Document link for xml-model/href
 		List<XMLModel> xmlModels = document.getXMLModels();
 		for (XMLModel xmlModel : xmlModels) {
-			String location = getResolvedLocation(document.getDocumentURI(), xmlModel.getHref());
+			String location = resolverManager.resolve(document.getDocumentURI(), null, xmlModel.getHref());
 			if (location != null) {
 				try {
 					DOMRange hrefRange = xmlModel.getHrefNode();
@@ -99,7 +105,7 @@ public class ContentModelDocumentLinkParticipant implements IDocumentLinkPartici
 				Collection<SchemaLocationHint> schemaLocationHints = schemaLocation.getSchemaLocationHints();
 				String location;
 				for (SchemaLocationHint schemaLocationHint : schemaLocationHints) {
-					location = getResolvedLocation(document.getDocumentURI(), schemaLocationHint.getHint());
+					location = resolverManager.resolve(document.getDocumentURI(), null, schemaLocationHint.getHint());
 					if (location != null) {
 						links.add(createDocumentLink(schemaLocationHint, location, false));
 					}
@@ -107,22 +113,6 @@ public class ContentModelDocumentLinkParticipant implements IDocumentLinkPartici
 			} catch (BadLocationException e) {
 				// Do nothing
 			}
-		}
-	}
-
-	/**
-	 * Returns the expanded system location
-	 *
-	 * @return the expanded system location
-	 */
-	private static String getResolvedLocation(String documentURI, String location) {
-		if (location == null) {
-			return null;
-		}
-		try {
-			return XMLEntityManager.expandSystemId(location, documentURI, false);
-		} catch (MalformedURIException e) {
-			return location;
 		}
 	}
 

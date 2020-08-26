@@ -22,13 +22,34 @@ import org.eclipse.lemminx.dom.DOMDocument;
  */
 public interface ContentModelProvider {
 
+	public class Identifier {
+
+		private final String publicId;
+
+		private final String systemId;
+
+		public Identifier(String publicId, String systemId) {
+			this.publicId = publicId;
+			this.systemId = systemId;
+		}
+
+		public String getPublicId() {
+			return publicId;
+		}
+
+		public String getSystemId() {
+			return systemId;
+		}
+
+	}
+
 	/**
 	 * Returns the content model provider by using standard association
 	 * (xsi:schemaLocation, xsi:noNamespaceSchemaLocation, doctype) an dnull
 	 * otherwise.
 	 * 
 	 * @param document
-	 * @param internal 
+	 * @param internal
 	 * @return the content model provider by using standard association
 	 *         (xsi:schemaLocation, xsi:noNamespaceSchemaLocation, doctype) an dnull
 	 *         otherwise.
@@ -37,7 +58,7 @@ public interface ContentModelProvider {
 
 	boolean adaptFor(String uri);
 
-	Collection<String> getSystemIds(DOMDocument xmlDocument, String namespaceURI);
+	Collection<Identifier> getIdentifiers(DOMDocument xmlDocument, String namespaceURI);
 
 	CMDocument createCMDocument(String key);
 

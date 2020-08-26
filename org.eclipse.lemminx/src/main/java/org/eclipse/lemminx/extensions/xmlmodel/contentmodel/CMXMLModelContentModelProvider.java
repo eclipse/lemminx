@@ -47,9 +47,12 @@ public class CMXMLModelContentModelProvider implements ContentModelProvider {
 	}
 
 	@Override
-	public Collection<String> getSystemIds(DOMDocument xmlDocument, String namespaceURI) {
-		return xmlDocument.getXMLModels().stream().map(node -> node.getHref())
-				.filter(href -> !StringUtils.isEmpty(href)).collect(Collectors.toList());
+	public Collection<Identifier> getIdentifiers(DOMDocument xmlDocument, String namespaceURI) {
+		return xmlDocument.getXMLModels().stream() //
+				.map(node -> node.getHref()) //
+				.filter(href -> !StringUtils.isEmpty(href)) //
+				.map(href -> new Identifier(null, href)) //
+				.collect(Collectors.toList());
 	}
 
 	@Override

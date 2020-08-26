@@ -11,9 +11,9 @@
 *******************************************************************************/
 package org.eclipse.lemminx.extensions.contentmodel;
 
+import static org.eclipse.lemminx.XMLAssert.CDATA_SNIPPETS;
 import static org.eclipse.lemminx.XMLAssert.COMMENT_SNIPPETS;
 import static org.eclipse.lemminx.XMLAssert.DTDNODE_SNIPPETS;
-import static org.eclipse.lemminx.XMLAssert.CDATA_SNIPPETS;
 import static org.eclipse.lemminx.XMLAssert.PROCESSING_INSTRUCTION_SNIPPETS;
 import static org.eclipse.lemminx.XMLAssert.c;
 import static org.eclipse.lemminx.XMLAssert.te;
@@ -241,11 +241,33 @@ public class DTDCompletionExtensionsTest {
 						"xmlns:xsi"));
 	}
 
+	@Test
+	public void completionWithCatalogAndPublic() throws Exception {
+		// This test uses the local DTD with catalog-public.xml by using the PUBLIC ID
+		// -//Sun Microsystems, Inc.//DTD Web Application 2.3//EN
+		// <public publicId="-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+		// uri="../dtd/web-app_2_3.dtd" />
+		String xml = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> \r\n" + //
+				"<!DOCTYPE web-app\r\n" + //
+				"   PUBLIC \"-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN\"\r\n" + //
+				"   \"ABCD.dtd\">\r\n" + //
+				"\r\n" + //
+				"<web-app>|</web-app>";
+		testCompletionFor(xml, true, null, "catalog-public.xml",
+				c("icon", te(5, 9, 5, 9, "<icon>$1</icon>$0"), "icon"), //
+				c("display-name", te(5, 9, 5, 9, "<display-name>$1</display-name>$0"), "display-name"));
+	}
+
 	private void testCompletionFor(String xml, CompletionItem... expectedItems) throws BadLocationException {
 		testCompletionFor(xml, true, null, expectedItems);
 	}
 
 	private void testCompletionFor(String xml, boolean isSnippetsSupported, Integer expectedCount,
+			CompletionItem... expectedItems) throws BadLocationException {
+		testCompletionFor(xml, isSnippetsSupported, expectedCount, "catalog.xml", expectedItems);
+	}
+
+	private void testCompletionFor(String xml, boolean isSnippetsSupported, Integer expectedCount, String catalog,
 			CompletionItem... expectedItems) throws BadLocationException {
 		CompletionCapabilities completionCapabilities = new CompletionCapabilities();
 		CompletionItemCapabilities completionItem = new CompletionItemCapabilities(isSnippetsSupported); // activate
@@ -254,7 +276,7 @@ public class DTDCompletionExtensionsTest {
 
 		SharedSettings sharedSettings = new SharedSettings();
 		sharedSettings.getCompletionSettings().setCapabilities(completionCapabilities);
-		XMLAssert.testCompletionFor(new XMLLanguageService(), xml, "src/test/resources/catalogs/catalog.xml", null,
-				null, expectedCount, sharedSettings, expectedItems);
+		XMLAssert.testCompletionFor(new XMLLanguageService(), xml, "src/test/resources/catalogs/" + catalog, null, null,
+				expectedCount, sharedSettings, expectedItems);
 	}
 }
