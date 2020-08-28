@@ -21,14 +21,14 @@ import java.util.logging.Logger;
 import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.util.URI.MalformedURIException;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLFileAssociation;
-import org.eclipse.lemminx.uriresolver.IExternalSchemaLocationProvider;
+import org.eclipse.lemminx.uriresolver.IExternalGrammarLocationProvider;
 import org.eclipse.lemminx.uriresolver.URIResolverExtension;
 
 /**
  * XML file association URI resolver.
  *
  */
-public class XMLFileAssociationResolverExtension implements URIResolverExtension, IExternalSchemaLocationProvider {
+public class XMLFileAssociationResolverExtension implements URIResolverExtension, IExternalGrammarLocationProvider {
 
 	private static Logger LOGGER = Logger.getLogger(XMLFileAssociationResolverExtension.class.getName());
 
@@ -68,7 +68,7 @@ public class XMLFileAssociationResolverExtension implements URIResolverExtension
 	}
 
 	@Override
-	public Map<String, String> getExternalSchemaLocation(URI fileURI) {
+	public Map<String, String> getExternalGrammarLocation(URI fileURI) {
 		if (fileAssociations != null) {
 			for (XMLFileAssociation fileAssociation : fileAssociations) {
 				if (fileAssociation.matches(fileURI)) {

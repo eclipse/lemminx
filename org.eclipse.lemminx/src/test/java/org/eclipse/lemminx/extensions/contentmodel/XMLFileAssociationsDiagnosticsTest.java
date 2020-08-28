@@ -18,13 +18,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.function.Consumer;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.XMLAssert.SettingsSaveContext;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
+import org.eclipse.lemminx.extensions.contentmodel.participants.DTDErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSchemaErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLFileAssociation;
@@ -36,18 +34,21 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.InitializeParams;
 import org.junit.jupiter.api.Test;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
 /**
  * XML file associations diagnostics tests.
  */
 public class XMLFileAssociationsDiagnosticsTest {
-	
+
 	@Test
 	public void validationOnRoot() throws BadLocationException {
 		Consumer<XMLLanguageService> configuration = ls -> {
 			ContentModelManager contentModelManager = ls.getComponent(ContentModelManager.class);
 			// Use root URI which ends with slash
 			contentModelManager.setRootURI("src/test/resources/xsd/");
-			contentModelManager.setFileAssociations(createAssociations(""));
+			contentModelManager.setFileAssociations(createXSDAssociations(""));
 		};
 
 		// Use Format.xsd which defines Configuration as root element
@@ -64,12 +65,10 @@ public class XMLFileAssociationsDiagnosticsTest {
 
 	@Test
 	public void testNoValidationOnFileAssociationNotChanged() throws BadLocationException {
-		String json1 = 
-				"{\r\n" + //
+		String json1 = "{\r\n" + //
 				"	\"settings\": {\r\n" + //
 				// Content model settings
-				"		\"xml\": {\r\n" +
-				"			\"fileAssociations\": [\r\n" + //
+				"		\"xml\": {\r\n" + "			\"fileAssociations\": [\r\n" + //
 				"				{\r\n" + //
 				"					\"systemId\": \"src\\\\test\\\\resources\\\\xsd\\\\spring-beans-3.0.xsd\",\r\n" + //
 				"					\"pattern\": \"**/test*.xml\"\r\n" + //
@@ -82,9 +81,7 @@ public class XMLFileAssociationsDiagnosticsTest {
 				"			\"catalogs\": [\r\n" + //
 				"				\"src\\\\test\\\\resources\\\\catalogs\\\\catalog.xml\"\r\n" + //
 				"			]\r\n" + //
-				"		}\r\n" + 
-				"	}\r\n" + 
-				"}";
+				"		}\r\n" + "	}\r\n" + "}";
 
 		// Emulate InitializeParams#getInitializationOptions() object created as
 		// JSONObject when XMLLanguageServer#initialize(InitializeParams params) is
@@ -92,34 +89,30 @@ public class XMLFileAssociationsDiagnosticsTest {
 		InitializeParams params = createInitializeParams(json1);
 		Object initializationOptionsSettings = InitializationOptionsSettings.getSettings(params);
 		Object settings = AllXMLSettings.getAllXMLSettings(initializationOptionsSettings);
-		
-		//Create content model settings, which include fileAssociations
+
+		// Create content model settings, which include fileAssociations
 		ContentModelSettings cmSettings = ContentModelSettings.getContentModelXMLSettings(settings);
-		
+
 		SettingsSaveContext context = new SettingsSaveContext(settings);
 		ContentModelPlugin cmPlugin = new ContentModelPlugin();
-		//Initializes values in cmPlugin
+		// Initializes values in cmPlugin
 		cmPlugin.start(null, new XMLExtensionsRegistry());
-		//Set initial fileAssociations
+		// Set initial fileAssociations
 		cmPlugin.contentModelManager.setFileAssociations(cmSettings.getFileAssociations());
-		//Simulate an update of settings
+		// Simulate an update of settings
 		cmPlugin.doSave(context);
-		//Try to set associations, should be false since they are the same
+		// Try to set associations, should be false since they are the same
 		boolean last = cmPlugin.contentModelManager.setFileAssociations(cmSettings.getFileAssociations());
 		assertFalse(last);
-
-		
 
 	}
 
 	@Test
 	public void testValidationOnFileAssociationUpdate() throws BadLocationException {
-		String json1 = 
-				"{\r\n" + //
+		String json1 = "{\r\n" + //
 				"	\"settings\": {\r\n" + //
 				// Content model settings
-				"		\"xml\": {\r\n" +
-				"			\"fileAssociations\": [\r\n" + //
+				"		\"xml\": {\r\n" + "			\"fileAssociations\": [\r\n" + //
 				"				{\r\n" + //
 				"					\"systemId\": \"src\\\\test\\\\resources\\\\xsd\\\\spring-beans-3.0.xsd\",\r\n" + //
 				"					\"pattern\": \"**/test*.xml\"\r\n" + //
@@ -132,57 +125,51 @@ public class XMLFileAssociationsDiagnosticsTest {
 				"			\"catalogs\": [\r\n" + //
 				"				\"src\\\\test\\\\resources\\\\catalogs\\\\catalog.xml\"\r\n" + //
 				"			]\r\n" + //
-				"		}\r\n" + 
-				"	}\r\n" + 
-				"}";
+				"		}\r\n" + "	}\r\n" + "}";
 
-		String json2 = 
-				"{\r\n" + //
+		String json2 = "{\r\n" + //
 				"	\"settings\": {\r\n" + //
 				// Content model settings
-				"		\"xml\": {\r\n" +
-				"			\"fileAssociations\": [\r\n" + //
+				"		\"xml\": {\r\n" + "			\"fileAssociations\": [\r\n" + //
 				"				{\r\n" + //
-				"					\"systemId\": \"src\\\\test\\\\resources\\\\xsd\\\\spring-beans-6000.0.xsd\",\r\n" + // <- Changed
+				"					\"systemId\": \"src\\\\test\\\\resources\\\\xsd\\\\spring-beans-6000.0.xsd\",\r\n" + // <-
+																															// Changed
 				"					\"pattern\": \"**/test*.xml\"\r\n" + //
 				"				}\r\n" + //
-				
+
 				"			],\r\n" + //
 				"			\"catalogs\": [\r\n" + //
 				"				\"src\\\\test\\\\resources\\\\catalogs\\\\catalog.xml\"\r\n" + //
 				"			]\r\n" + //
-				"		}\r\n" + 
-				"	}\r\n" + 
-				"}";
+				"		}\r\n" + "	}\r\n" + "}";
 		// Emulate InitializeParams#getInitializationOptions() object created as
 		// JSONObject when XMLLanguageServer#initialize(InitializeParams params) is
 		// called
 		InitializeParams params = createInitializeParams(json1);
 		Object initializationOptionsSettings = InitializationOptionsSettings.getSettings(params);
 		Object settings = AllXMLSettings.getAllXMLSettings(initializationOptionsSettings);
-		
-		//Create content model settings, which include fileAssociations
+
+		// Create content model settings, which include fileAssociations
 		ContentModelSettings cmSettings = ContentModelSettings.getContentModelXMLSettings(settings);
-		
+
 		SettingsSaveContext context = new SettingsSaveContext(settings);
 		ContentModelPlugin cmPlugin = new ContentModelPlugin();
-		//Initalize values in cmPlugin
+		// Initalize values in cmPlugin
 		cmPlugin.start(null, new XMLExtensionsRegistry());
-		//Set initial fileAssociations
+		// Set initial fileAssociations
 		cmPlugin.contentModelManager.setFileAssociations(cmSettings.getFileAssociations());
-		//Simulate an update of settings
+		// Simulate an update of settings
 		cmPlugin.doSave(context);
 
-		//Create cmSettings with new fileAssociations settings
+		// Create cmSettings with new fileAssociations settings
 		params = createInitializeParams(json2);
 		initializationOptionsSettings = InitializationOptionsSettings.getSettings(params);
 		settings = AllXMLSettings.getAllXMLSettings(initializationOptionsSettings);
 		cmSettings = ContentModelSettings.getContentModelXMLSettings(settings);
-		//Try to set associations, should be true since new fileAssociations were detected
+		// Try to set associations, should be true since new fileAssociations were
+		// detected
 		boolean last = cmPlugin.contentModelManager.setFileAssociations(cmSettings.getFileAssociations());
 		assertTrue(last);
-
-		
 
 	}
 
@@ -192,7 +179,7 @@ public class XMLFileAssociationsDiagnosticsTest {
 			ContentModelManager contentModelManager = ls.getComponent(ContentModelManager.class);
 			// Use root URI which ends with slash
 			contentModelManager.setRootURI("src/test/resources/xsd/");
-			contentModelManager.setFileAssociations(createAssociations(""));
+			contentModelManager.setFileAssociations(createXSDAssociations(""));
 		};
 
 		// Use resources.xsd which defines resources as root element and @variant as
@@ -219,7 +206,7 @@ public class XMLFileAssociationsDiagnosticsTest {
 			ContentModelManager contentModelManager = ls.getComponent(ContentModelManager.class);
 			// Use root URI which ends with slash
 			contentModelManager.setRootURI("src/test/resources/xsd/");
-			contentModelManager.setFileAssociations(createAssociations(""));
+			contentModelManager.setFileAssociations(createXSDAssociations(""));
 		};
 
 		// Use resources.xsd which defines resources as root element and @variant as
@@ -234,7 +221,7 @@ public class XMLFileAssociationsDiagnosticsTest {
 
 	}
 
-	private static XMLFileAssociation[] createAssociations(String baseSystemId) {
+	private static XMLFileAssociation[] createXSDAssociations(String baseSystemId) {
 		XMLFileAssociation format = new XMLFileAssociation();
 		format.setPattern("**/*.Format.ps1xml");
 		format.setSystemId(baseSystemId + "Format.xsd");
@@ -242,6 +229,29 @@ public class XMLFileAssociationsDiagnosticsTest {
 		resources.setPattern("**/*resources*.xml");
 		resources.setSystemId(baseSystemId + "resources.xsd");
 		return new XMLFileAssociation[] { format, resources };
+	}
+
+	@Test
+	public void validationWithExternalDTD() throws BadLocationException {
+		Consumer<XMLLanguageService> configuration = ls -> {
+			ContentModelManager contentModelManager = ls.getComponent(ContentModelManager.class);
+			contentModelManager.setFileAssociations(createDTDAssociations("src/test/resources/dtd/"));
+		};
+		String xml = "<root />";
+		testDiagnosticsFor(xml, "file:///test/web.xml", configuration,
+				d(0, 1, 0, 5, DTDErrorCode.MSG_ELEMENT_NOT_DECLARED));
+
+		xml = "<web-app><bad-element /></web-app>";
+		testDiagnosticsFor(xml, "file:///test/web.xml", configuration, //
+				d(0, 10, 0, 21, DTDErrorCode.MSG_ELEMENT_NOT_DECLARED), //
+				d(0, 1, 0, 8, DTDErrorCode.MSG_CONTENT_INVALID));
+	}
+
+	private static XMLFileAssociation[] createDTDAssociations(String baseSystemId) {
+		XMLFileAssociation webApp = new XMLFileAssociation();
+		webApp.setPattern("web.xml");
+		webApp.setSystemId(baseSystemId + "web-app_2_3.dtd");
+		return new XMLFileAssociation[] { webApp };
 	}
 
 	private static void testDiagnosticsFor(String xml, String fileURI, Consumer<XMLLanguageService> configuration,

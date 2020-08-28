@@ -16,10 +16,11 @@ package org.eclipse.lemminx.uriresolver;
 import java.net.URI;
 import java.util.Map;
 
-public interface IExternalSchemaLocationProvider {
+public interface IExternalGrammarLocationProvider {
 
 	String SCHEMA_LOCATION = "http://apache.org/xml/properties/schema/external-schemaLocation"; //$NON-NLS-1$
 	String NO_NAMESPACE_SCHEMA_LOCATION = "http://apache.org/xml/properties/schema/external-noNamespaceSchemaLocation"; //$NON-NLS-1$
+	String DOCTYPE = "http://apache.org/xml/properties/dtd/external-doctype"; //$NON-NLS-1$
 
 	/**
 	 * Provided the file path URI, this will return the external schema location.
@@ -43,5 +44,5 @@ public interface IExternalSchemaLocationProvider {
 	 * @return a {@link Map} associating the external-schemaLocation and/or
 	 *         external-noNamespaceSchemaLocation to the schema location
 	 */
-	Map<String, String> getExternalSchemaLocation(URI fileURI);
+	Map<String, String> getExternalGrammarLocation(URI fileURI);
 }

@@ -31,7 +31,7 @@ import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.services.extensions.diagnostics.LSPContentHandler;
 import org.eclipse.lemminx.uriresolver.CacheResourceDownloadingException;
-import org.eclipse.lemminx.uriresolver.IExternalSchemaLocationProvider;
+import org.eclipse.lemminx.uriresolver.IExternalGrammarLocationProvider;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
@@ -72,14 +72,14 @@ public class XMLValidator {
 			// Add LSP content handler to stop XML parsing if monitor is canceled.
 			parser.setContentHandler(new LSPContentHandler(monitor));
 
-			boolean hasGrammar = document.hasGrammar(true);
-
+			boolean hasSchemaGrammar = document.hasSchemaLocation() || document.hasNoNamespaceSchemaLocation()
+					|| hasExternalSchemaGrammar(document);
+			boolean hasGrammar = document.hasDTD() || hasSchemaGrammar || document.hasExternalGrammar();
 			// If diagnostics for Schema preference is enabled
 			if ((validationSettings == null) || validationSettings.isSchema()) {
 
-				checkExternalSchema(document.getExternalSchemaLocation(), parser);
-
-				parser.setFeature("http://apache.org/xml/features/validation/schema", hasGrammar); //$NON-NLS-1$
+				checkExternalSchema(document.getExternalGrammarLocation(), parser);
+				parser.setFeature("http://apache.org/xml/features/validation/schema", hasSchemaGrammar); //$NON-NLS-1$
 
 				// warn if XML document is not bound to a grammar according the settings
 				warnNoGrammar(document, diagnostics, contentModelSettings);
@@ -101,6 +101,18 @@ public class XMLValidator {
 		}
 	}
 
+	private static boolean hasExternalSchemaGrammar(DOMDocument document) {
+		if (document.getExternalGrammarFromNamespaceURI() != null) {
+			return true;
+		}
+		Map<String, String> externalGrammarLocation = document.getExternalGrammarLocation();
+		if (externalGrammarLocation == null) {
+			return false;
+		}
+		return externalGrammarLocation.containsKey(IExternalGrammarLocationProvider.NO_NAMESPACE_SCHEMA_LOCATION)
+				|| externalGrammarLocation.containsKey(IExternalGrammarLocationProvider.SCHEMA_LOCATION);
+	}
+
 	private static void parseXML(String content, String uri, SAXParser parser) throws SAXException, IOException {
 		InputSource inputSource = new InputSource();
 		inputSource.setCharacterStream(new StringReader(content));
@@ -115,6 +127,12 @@ public class XMLValidator {
 	 * @return true is DTD validation must be disabled and false otherwise.
 	 */
 	private static boolean isDisableOnlyDTDValidation(DOMDocument document) {
+		Map<String, String> externalGrammarLocation = document.getExternalGrammarLocation();
+		if (externalGrammarLocation != null
+				&& externalGrammarLocation.containsKey(IExternalGrammarLocationProvider.DOCTYPE)) {
+			return true;
+		}
+
 		// When XML declares a DOCTYPE only to define entities like
 		// <!DOCTYPE root [
 		// <!ENTITY foo "Bar">
@@ -170,10 +188,15 @@ public class XMLValidator {
 	private static void checkExternalSchema(Map<String, String> result, SAXParser reader)
 			throws SAXNotRecognizedException, SAXNotSupportedException {
 		if (result != null) {
-			String noNamespaceSchemaLocation = result.get(IExternalSchemaLocationProvider.NO_NAMESPACE_SCHEMA_LOCATION);
+			String noNamespaceSchemaLocation = result.get(IExternalGrammarLocationProvider.NO_NAMESPACE_SCHEMA_LOCATION);
 			if (noNamespaceSchemaLocation != null) {
-				reader.setProperty(IExternalSchemaLocationProvider.NO_NAMESPACE_SCHEMA_LOCATION,
+				reader.setProperty(IExternalGrammarLocationProvider.NO_NAMESPACE_SCHEMA_LOCATION,
 						noNamespaceSchemaLocation);
+			} else {
+				String doctype = result.get(IExternalGrammarLocationProvider.DOCTYPE);
+				if (doctype != null) {
+					reader.setProperty(IExternalGrammarLocationProvider.DOCTYPE, doctype);
+				}
 			}
 		}
 	}
