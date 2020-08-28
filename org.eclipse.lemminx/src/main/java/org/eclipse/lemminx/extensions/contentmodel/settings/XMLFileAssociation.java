@@ -16,7 +16,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.lemminx.settings.PathPatternMatcher;
-import org.eclipse.lemminx.uriresolver.IExternalSchemaLocationProvider;
+import org.eclipse.lemminx.uriresolver.IExternalGrammarLocationProvider;
+import org.eclipse.lemminx.utils.DOMUtils;
 
 /**
  * XML file association between a XML file pattern (glob) and an XML Schema file
@@ -39,7 +40,12 @@ public class XMLFileAssociation extends PathPatternMatcher {
 	public Map<String, String> getExternalSchemaLocation() {
 		if (externalSchemaLocation == null) {
 			this.externalSchemaLocation = new HashMap<String, String>();
-			this.externalSchemaLocation.put(IExternalSchemaLocationProvider.NO_NAMESPACE_SCHEMA_LOCATION, systemId);
+			if (DOMUtils.isXSD(systemId)) {
+				this.externalSchemaLocation.put(IExternalGrammarLocationProvider.NO_NAMESPACE_SCHEMA_LOCATION,
+						systemId);
+			} else {
+				this.externalSchemaLocation.put(IExternalGrammarLocationProvider.DOCTYPE, systemId);
+			}
 		}
 		return externalSchemaLocation;
 	}
