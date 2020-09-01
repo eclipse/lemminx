@@ -60,15 +60,34 @@ public class CacheResourcesManager {
 
 	}
 
+	/**
+	 * Classpath resource to deploy into the lemminx cache
+	 */
 	public static class ResourceToDeploy {
 
 		private final Path resourceCachePath;
 		private final String resourceFromClasspath;
 
+		/**
+		 * @param resourceURI           - used to compute the path to deploy the
+		 *                              resource to in the lemminx cache. Generally this
+		 *                              is the URL to the resource. Ex.
+		 *                              https://www.w3.org/2007/schema-for-xslt20.xsd
+		 * @param resourceFromClasspath - the classpath location of the resource to
+		 *                              deploy to the lemminx cache
+		 */
 		public ResourceToDeploy(String resourceURI, String resourceFromClasspath) {
 			this(URI.create(resourceURI), resourceFromClasspath);
 		}
 
+		/**
+		 * @param resourceURI           - used to compute the path to deploy the
+		 *                              resource to in the lemminx cache. Generally this
+		 *                              is the URL to the resource. Ex.
+		 *                              https://www.w3.org/2007/schema-for-xslt20.xsd
+		 * @param resourceFromClasspath - the classpath location of the resource to
+		 *                              deploy to the lemminx cache
+		 */
 		public ResourceToDeploy(URI resourceURI, String resourceFromClasspath) {
 			this.resourceCachePath = Paths.get(CACHE_PATH, resourceURI.getScheme(), resourceURI.getHost(),
 					resourceURI.getPath());
@@ -76,10 +95,16 @@ public class CacheResourcesManager {
 					: "/" + resourceFromClasspath;
 		}
 
+		/**
+		 * @return The computed path in the lemmix cache that the resource will be stored at
+		 */
 		public Path getDeployedPath() throws IOException {
 			return FilesUtils.getDeployedPath(resourceCachePath);
 		}
 
+		/**
+		 * @return The path to the resource on the classpath
+		 */
 		public String getResourceFromClasspath() {
 			return resourceFromClasspath;
 		}
