@@ -42,6 +42,13 @@ public interface IXMLExtension {
 	 */
 	void stop(XMLExtensionsRegistry registry);
 
+	/**
+	 * Called when the Settings or a Document have been saved. 
+	 * context.getType() can be used to determine what type was saved.
+	 * doSave is called on extension start up with a settings context to 
+	 * provide the xml settings to the extension.
+	 * @param context 
+	 */
 	default void doSave(ISaveContext context) {
 		
 	}
