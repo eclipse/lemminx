@@ -28,7 +28,7 @@ import org.apache.xerces.xni.parser.XMLInputSource;
  * URI resolver manager.
  *
  */
-public class URIResolverExtensionManager implements URIResolverExtension, IExternalSchemaLocationProvider {
+public class URIResolverExtensionManager implements URIResolverExtension, IExternalGrammarLocationProvider {
 
 	private final List<URIResolverExtension> resolvers;
 
@@ -111,10 +111,11 @@ public class URIResolverExtensionManager implements URIResolverExtension, IExter
 	}
 
 	@Override
-	public Map getExternalSchemaLocation(URI fileURI) {
+	public Map<String, String> getExternalGrammarLocation(URI fileURI) {
 		for (URIResolverExtension resolver : resolvers) {
-			if (resolver instanceof IExternalSchemaLocationProvider) {
-				Map result = ((IExternalSchemaLocationProvider) resolver).getExternalSchemaLocation(fileURI);
+			if (resolver instanceof IExternalGrammarLocationProvider) {
+				Map<String, String> result = ((IExternalGrammarLocationProvider) resolver)
+						.getExternalGrammarLocation(fileURI);
 				if (result != null) {
 					return result;
 				}

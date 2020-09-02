@@ -11,24 +11,7 @@
 *******************************************************************************/
 package org.eclipse.lemminx.extensions.xerces.xmlmodel;
 
-import java.lang.reflect.Field;
-
-import org.apache.xerces.impl.Constants;
-import org.apache.xerces.impl.XMLEntityManager;
-import org.apache.xerces.impl.XMLErrorReporter;
-import org.apache.xerces.impl.dtd.DTDGrammar;
-import org.apache.xerces.impl.dtd.XMLDTDDescription;
-import org.apache.xerces.impl.dtd.XMLDTDLoader;
-import org.apache.xerces.impl.dtd.XMLDTDValidator;
-import org.apache.xerces.xni.Augmentations;
-import org.apache.xerces.xni.QName;
-import org.apache.xerces.xni.XMLAttributes;
-import org.apache.xerces.xni.XMLLocator;
-import org.apache.xerces.xni.XNIException;
-import org.apache.xerces.xni.parser.XMLComponentManager;
-import org.apache.xerces.xni.parser.XMLConfigurationException;
-import org.apache.xerces.xni.parser.XMLInputSource;
-import org.eclipse.lemminx.extensions.xerces.xmlmodel.msg.XMLModelMessageFormatter;
+import org.eclipse.lemminx.extensions.xerces.ExternalXMLDTDValidator;
 
 /**
  * XML model validator which process validation with DTD:
@@ -38,105 +21,9 @@ import org.eclipse.lemminx.extensions.xerces.xmlmodel.msg.XMLModelMessageFormatt
  * </pre>
  *
  */
-public class XMLModelDTDValidator extends XMLDTDValidator implements XMLModelValidator {
-
-	private static final String DTD_NOT_FOUND_KEY = "dtd_not_found";
-
-	private static final String ENTITY_MANAGER = Constants.XERCES_PROPERTY_PREFIX + Constants.ENTITY_MANAGER_PROPERTY;
-
-	private String href;
-	private boolean rootElement;
-	private XMLLocator locator;
-	private XMLEntityManager entityManager;
-
-	public XMLModelDTDValidator() {
-		rootElement = true;
-		fDTDValidation = true;
-	}
-
+public class XMLModelDTDValidator extends ExternalXMLDTDValidator implements XMLModelValidator {
 	@Override
 	public void setHref(String href) {
-		this.href = href;
-	}
-
-	@Override
-	public void setLocator(XMLLocator locator) {
-		this.locator = locator;
-	}
-
-	@Override
-	public void startElement(QName element, XMLAttributes attributes, Augmentations augs) throws XNIException {
-		if (rootElement) {
-			QName fRootElement = getRootElement();
-			String rootElementName = element.localpart;
-
-			// save root element state
-			fSeenDoctypeDecl = true;
-			fRootElement.setValues(null, rootElementName, rootElementName, null);
-
-			String eid = null;
-			try {
-				eid = XMLEntityManager.expandSystemId(href, locator.getExpandedSystemId(), false);
-			} catch (java.io.IOException e) {
-			}
-			XMLDTDDescription grammarDesc = new XMLDTDDescription(null, href, locator.getExpandedSystemId(), eid,
-					rootElementName);
-			fDTDGrammar = fGrammarBucket.getGrammar(grammarDesc);
-			if (fDTDGrammar == null) {
-				// give grammar pool a chance...
-				//
-				// Do not bother checking the pool if no public or system identifier was
-				// provided.
-				// Since so many different DTDs have roots in common, using only a root name as
-				// the
-				// key may cause an unexpected grammar to be retrieved from the grammar pool.
-				// This scenario
-				// would occur when an ExternalSubsetResolver has been queried and the
-				// XMLInputSource returned contains an input stream but no external identifier.
-				// This can never happen when the instance document specified a DOCTYPE. --
-				// mrglavas
-				if (fGrammarPool != null && (href != null)) {
-					fDTDGrammar = (DTDGrammar) fGrammarPool.retrieveGrammar(grammarDesc);
-				}
-			}
-			if (fDTDGrammar == null) {
-
-				XMLDTDLoader loader = new XMLDTDLoader(fSymbolTable, fGrammarPool);
-				loader.setEntityResolver(entityManager);
-				try {
-					fDTDGrammar = (DTDGrammar) loader.loadGrammar(new XMLInputSource(null, eid, null));
-				} catch (Exception e) {
-					// DTD declared in xml-model href="" doesn't exist, report the error and disable the DTD validation.
-					fErrorReporter.reportError(locator, XMLModelMessageFormatter.XML_MODEL_DOMAIN, DTD_NOT_FOUND_KEY,
-							new Object[] { element, eid }, XMLErrorReporter.SEVERITY_ERROR);
-					super.fValidation = false;
-				}
-			} else {
-				// we've found a cached one;so let's make sure not to read
-				// any external subset!
-				fValidationManager.setCachedDTD(true);
-			}
-			rootElement = false;
-		}
-		super.startElement(element, attributes, augs);
-	}
-
-	private QName getRootElement() {
-		try {
-			// fRootElement is declared as private in the XMLDTDValidator, we must use ugly
-			// Java reflection to get the field.
-			Field f = XMLDTDValidator.class.getDeclaredField("fRootElement");
-			f.setAccessible(true);
-			QName fRootElement = (QName) f.get(this);
-			return fRootElement;
-		} catch (Exception e) {
-			return null;
-		}
-	}
-
-	@Override
-	public void reset(XMLComponentManager componentManager) throws XMLConfigurationException {
-		entityManager = (XMLEntityManager) componentManager.getProperty(ENTITY_MANAGER);
-		super.reset(componentManager);
+		super.setExternalDoctype(href);
 	}
 }

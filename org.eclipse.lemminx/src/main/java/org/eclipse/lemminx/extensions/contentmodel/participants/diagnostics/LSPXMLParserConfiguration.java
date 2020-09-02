@@ -12,11 +12,14 @@
 package org.eclipse.lemminx.extensions.contentmodel.participants.diagnostics;
 
 import org.apache.xerces.impl.dtd.XMLDTDValidator;
+import org.apache.xerces.xni.XMLDocumentHandler;
 import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.grammars.XMLGrammarPool;
 import org.apache.xerces.xni.parser.XMLComponentManager;
 import org.apache.xerces.xni.parser.XMLConfigurationException;
+import org.apache.xerces.xni.parser.XMLDocumentSource;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
+import org.eclipse.lemminx.extensions.xerces.ExternalXMLDTDValidator;
 import org.eclipse.lemminx.extensions.xerces.xmlmodel.XMLModelAwareParserConfiguration;
 
 /**
@@ -34,6 +37,7 @@ import org.eclipse.lemminx.extensions.xerces.xmlmodel.XMLModelAwareParserConfigu
 class LSPXMLParserConfiguration extends XMLModelAwareParserConfiguration {
 
 	private final boolean disableDTDValidation;
+	private ExternalXMLDTDValidator externalDTDValidator;
 
 	public LSPXMLParserConfiguration(XMLGrammarPool grammarPool, boolean disableDTDValidation,
 			XMLValidationSettings validationSettings) {
@@ -90,4 +94,52 @@ class LSPXMLParserConfiguration extends XMLModelAwareParserConfiguration {
 		}
 	}
 
+	@Override
+	protected void configurePipeline() {
+		super.configurePipeline();
+		configureExternalDTDPipeline();
+	}
+
+	@Override
+	protected void configureXML11Pipeline() {
+		super.configureXML11Pipeline();
+		configureExternalDTDPipeline();
+	}
+
+	private void configureExternalDTDPipeline() {
+		if (externalDTDValidator == null) {
+			externalDTDValidator = new ExternalXMLDTDValidator();
+			addCommonComponent(externalDTDValidator);
+			externalDTDValidator.reset(this);
+		}
+		// configure XML document pipeline: insert after DTDValidator and
+		// before XML Schema validator
+		XMLDocumentSource prev = null;
+		if (fFeatures.get(XMLSCHEMA_VALIDATION) == Boolean.TRUE) {
+			// we don't have to worry about fSchemaValidator being null, since
+			// super.configurePipeline() instantiated it if the feature was set
+			prev = fSchemaValidator.getDocumentSource();
+		}
+		// Otherwise, insert after the last component in the pipeline
+		else {
+			prev = fLastComponent;
+			fLastComponent = externalDTDValidator;
+		}
+
+		XMLDocumentHandler next = prev.getDocumentHandler();
+		prev.setDocumentHandler(externalDTDValidator);
+		externalDTDValidator.setDocumentSource(prev);
+		if (next != null) {
+			externalDTDValidator.setDocumentHandler(next);
+			next.setDocumentSource(externalDTDValidator);
+		}
+	}
+
+	@Override
+	protected void checkProperty(String propertyId) throws XMLConfigurationException {
+		if (ExternalXMLDTDValidator.DOCTYPE.equals(propertyId)) {
+			return;
+		}
+		super.checkProperty(propertyId);
+	}
 }

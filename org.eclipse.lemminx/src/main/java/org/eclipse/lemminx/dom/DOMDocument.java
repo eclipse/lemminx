@@ -60,11 +60,11 @@ public class DOMDocument extends DOMNode implements Document {
 
 	private final TextDocument textDocument;
 	private boolean hasNamespaces;
-	private Map<String, String> externalSchemaLocation;
+	private Map<String, String> externalGrammarLocation;
 	private String schemaInstancePrefix;
 	private String schemaPrefix;
-	private boolean hasExternalGrammar;
 	private CancelChecker cancelChecker;
+	private String externalGrammarFromNamespaceURI;
 
 	public DOMDocument(TextDocument textDocument, URIResolverExtensionManager resolverExtensionManager) {
 		super(0, textDocument.getText().length());
@@ -150,20 +150,8 @@ public class DOMDocument extends DOMNode implements Document {
 	 * @return true if the document is bound to a grammar and false otherwise.
 	 */
 	public boolean hasGrammar() {
-		return hasGrammar(false);
-	}
-
-	/**
-	 * Returns true if the document is bound to a grammar and false otherwise.
-	 * 
-	 * @param excludeXMLModel true if xml-model must be excluded and false
-	 *                        otherwise.
-	 * 
-	 * @return true if the document is bound to a grammar and false otherwise.
-	 */
-	public boolean hasGrammar(boolean excludeXMLModel) {
 		return hasDTD() || hasSchemaLocation() || hasNoNamespaceSchemaLocation() || hasExternalGrammar()
-				|| (!excludeXMLModel && hasXMLModel());
+				|| hasXMLModel();
 	}
 
 	// -------------------------- Grammar with XML Schema
@@ -321,12 +309,13 @@ public class DOMDocument extends DOMNode implements Document {
 	}
 
 	/**
-	 * Returns true, if the given offset is before XML declaration ({@code <?xml ...?>}), false otherwise.
+	 * Returns true, if the given offset is before XML declaration
+	 * ({@code <?xml ...?>}), false otherwise.
 	 * 
 	 * @param offset the offset position in question
 	 * @return true, if before xml declaration; false otherwise
 	 */
-	public boolean isBeforeProlog(int offset){
+	public boolean isBeforeProlog(int offset) {
 		return hasProlog() && offset <= getProlog().getStart();
 	}
 
@@ -392,26 +381,44 @@ public class DOMDocument extends DOMNode implements Document {
 	 * @return true if the document is bound to an external grammar (XML file
 	 *         associations, XLM catalog) and false otherwise.
 	 */
-	private boolean hasExternalGrammar() {
-		initializeReferencedExternalGrammarIfNeeded();
-		return hasExternalGrammar;
+	public boolean hasExternalGrammar() {
+		return getExternalGrammarLocation() != null || getExternalGrammarFromNamespaceURI() != null;
 	}
 
-	public Map<String, String> getExternalSchemaLocation() {
+	/**
+	 * Returns the external grammar location (XSD, DTD from xml file associations)
+	 * and null otherwise.
+	 * 
+	 * @return the external grammar location (XSD, DTD from xml file associations)
+	 *         and null otherwise.
+	 */
+	public Map<String, String> getExternalGrammarLocation() {
 		initializeReferencedExternalGrammarIfNeeded();
-		return externalSchemaLocation;
+		return externalGrammarLocation;
+	}
+
+	/**
+	 * Returns the grammar location found by the namespace URI from the document
+	 * root element (ex : found with XML catalog) and null otherwise.
+	 * 
+	 * @return the grammar location found by the namespace URI from the document
+	 *         root element (ex : found with XML catalog) and null otherwise.
+	 */
+	public String getExternalGrammarFromNamespaceURI() {
+		initializeReferencedExternalGrammarIfNeeded();
+		return externalGrammarFromNamespaceURI;
 	}
 
 	private void initializeReferencedExternalGrammarIfNeeded() {
 		if (referencedExternalGrammarInitialized) {
 			return;
 		}
-		hasExternalGrammar = intializeExternalGrammar();
+		intializeExternalGrammar();
 	}
 
-	private synchronized boolean intializeExternalGrammar() {
+	private synchronized void intializeExternalGrammar() {
 		if (referencedExternalGrammarInitialized) {
-			return hasExternalGrammar;
+			return;
 		}
 		try {
 			if (resolverExtensionManager != null) {
@@ -419,10 +426,10 @@ public class DOMDocument extends DOMNode implements Document {
 				// file associations bind this XML document to a grammar with external schema
 				// location.
 				try {
-					externalSchemaLocation = resolverExtensionManager
-							.getExternalSchemaLocation(new URI(getDocumentURI()));
-					if (externalSchemaLocation != null) {
-						return true;
+					externalGrammarLocation = resolverExtensionManager
+							.getExternalGrammarLocation(new URI(getDocumentURI()));
+					if (externalGrammarLocation != null) {
+						return;
 					}
 				} catch (URISyntaxException e) {
 					// Do nothing
@@ -434,13 +441,12 @@ public class DOMDocument extends DOMNode implements Document {
 				// Get root element
 				DOMElement documentElement = getDocumentElement();
 				if (documentElement == null) {
-					return false;
+					return;
 				}
 				String namespaceURI = documentElement.getNamespaceURI();
-				return resolverExtensionManager.resolve(getDocumentURI(), namespaceURI, null) != null;
-
+				externalGrammarFromNamespaceURI = resolverExtensionManager.resolve(getDocumentURI(), namespaceURI,
+						null);
 			}
-			return false;
 		} finally {
 			referencedExternalGrammarInitialized = true;
 		}
