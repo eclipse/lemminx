@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	elementFormDefault="qualified" attributeFormDefault="unqualified">
+
+	<xs:simpleType name="SizeType">
+		<xs:union memberTypes="DressSizeType">
+			<xs:simpleType>
+				<xs:restriction base="xs:token">
+					<xs:enumeration value="small" />
+					<xs:enumeration value="medium" />
+					<xs:enumeration value="large" />
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:union>
+	</xs:simpleType>
+	<xs:simpleType name="DressSizeType">
+		<xs:restriction base="xs:integer">
+			<xs:minInclusive value="2" />
+			<xs:maxInclusive value="18" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:element name="dresssize" type="SizeType" />
+
+</xs:schema>

@@ -65,6 +65,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 	cvc_complex_type_3_2_2("cvc-complex-type.3.2.2"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-3-2-2
 	cvc_complex_type_4("cvc-complex-type.4"), // https://wiki.xmldation.com/Support/Validator/cvc-complex-type-4
 	cvc_datatype_valid_1_2_1("cvc-datatype-valid.1.2.1"), // https://wiki.xmldation.com/Support/Validator/cvc-datatype-valid-1-2-1
+	cvc_datatype_valid_1_2_3("cvc-datatype-valid.1.2.3"), // https://wiki.xmldation.com/Support/Validator/cvc-datatype-valid-1-2-3
 	cvc_elt_1_a("cvc-elt.1.a"), // https://wiki.xmldation.com/Support/Validator/cvc-elt-1
 	cvc_elt_3_1("cvc-elt.3.1"), // https://wiki.xmldation.com/Support/Validator/cvc-elt-3-1
 	cvc_elt_3_2_1("cvc-elt.3.2.1"), // https://wiki.xmldation.com/Support/Validator/cvc-elt-3-2-1
@@ -223,22 +224,8 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 		case cvc_elt_3_2_1:
 			return XMLPositionUtility.selectContent(offset, document);
 		case cvc_type_3_1_3:
-		case cvc_datatype_valid_1_2_1: {
-			String attrValue = getString(arguments[0]);
-			Range range = XMLPositionUtility.selectAttributeValueFromGivenValue(attrValue, offset, document);
-
-			if (range != null) {
-				return range;
-			}
-
-			DOMElement element = (DOMElement) document.findNodeAt(offset);
-
-			if (DOMUtils.containsTextOnly(element)) {
-				return XMLPositionUtility.selectTrimmedText(offset, document);
-			} else {
-				return XMLPositionUtility.selectFirstChild(offset, document);
-			}
-		}
+		case cvc_datatype_valid_1_2_1:
+		case cvc_datatype_valid_1_2_3:
 		case cvc_enumeration_valid:
 		case cvc_maxlength_valid:
 		case cvc_minlength_valid:
@@ -254,7 +241,12 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 				return range;
 			} else {
 				// Try with text
-				return XMLPositionUtility.selectContent(offset, document);
+				DOMElement element = (DOMElement) document.findNodeAt(offset);
+				if (DOMUtils.containsTextOnly(element)) {
+					return XMLPositionUtility.selectTrimmedText(offset, document);
+				} else {
+					return XMLPositionUtility.selectFirstChild(offset, document);
+				}
 			}
 		}
 		case cvc_type_3_1_2:
