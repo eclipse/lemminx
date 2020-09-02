@@ -31,6 +31,7 @@ import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
+import org.eclipse.lemminx.dom.DOMText;
 import org.eclipse.lemminx.dom.DTDDeclParameter;
 import org.eclipse.lemminx.dom.parser.Scanner;
 import org.eclipse.lemminx.dom.parser.ScannerState;
@@ -53,6 +54,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+import org.w3c.dom.Node;
 
 /**
  * XML completions support.
@@ -135,12 +137,11 @@ public class XMLCompletions {
 
 					if (DOMNode.isIncluded(systemId, offset)) {
 						/**
-						 * Completion invoked within systemId parameter
-						 * ie, completion offset is at | like so:
-						 * <!DOCTYPE foo SYSTEM "./|">
+						 * Completion invoked within systemId parameter ie, completion offset is at |
+						 * like so: <!DOCTYPE foo SYSTEM "./|">
 						 */
-						collectDTDSystemIdSuggestions(systemId.getStart(), systemId.getEnd(),
-								completionRequest, completionResponse);
+						collectDTDSystemIdSuggestions(systemId.getStart(), systemId.getEnd(), completionRequest,
+								completionResponse);
 						return completionResponse;
 					}
 					break;
@@ -346,16 +347,16 @@ public class XMLCompletions {
 			// There is one of character of the suffix
 			offset++;
 			if (suffixIndex == suffix.length()) {
-				// the suffix index is the last character of the suffix  
+				// the suffix index is the last character of the suffix
 				return offset;
 			}
 			// Try to eat the most characters of the suffix
-			for (; offset < text.length(); offset++) {								
+			for (; offset < text.length(); offset++) {
 				suffixIndex++;
 				if (suffixIndex == suffix.length()) {
-					// the suffix index is the last character of the suffix  
+					// the suffix index is the last character of the suffix
 					return offset;
-				}	
+				}
 				ch = text.charAt(offset);
 				if (suffix.charAt(suffixIndex) != ch) {
 					return offset;
@@ -752,6 +753,11 @@ public class XMLCompletions {
 			collectOpenTagSuggestions(false, tagNameRange, request, response);
 			collectCloseTagSuggestions(tagNameRange, true, true, false, request, response);
 		}
+		// Adjust the range for covering the text node.
+		Range textRange = getTextRangeInsideContent(request.getNode());
+		if (textRange != null) {
+			request.setReplaceRange(textRange);
+		}
 		// Participant completion on XML content
 		for (ICompletionParticipant participant : getCompletionParticipants()) {
 			try {
@@ -761,6 +767,29 @@ public class XMLCompletions {
 			}
 		}
 		collectionRegionProposals(request, response);
+	}
+
+	private static Range getTextRangeInsideContent(DOMNode node) {
+		switch (node.getNodeType()) {
+		case Node.ELEMENT_NODE:
+			Node firstChild = node.getFirstChild();
+			if (firstChild == null) {
+				// ex : <root>|</root>
+				DOMElement element = (DOMElement) node;
+				return XMLPositionUtility.createRange(element.getStartTagCloseOffset() + 1,
+						element.getStartTagCloseOffset() + 1, element.getOwnerDocument());
+			}
+			if (firstChild.getNodeType() == Node.TEXT_NODE) {
+				// ex : <root>abcd|</root>
+				return XMLPositionUtility.selectText((DOMText) firstChild);
+			}
+			return null;
+		case Node.TEXT_NODE:
+			// ex : <root>  |  </root>
+			return XMLPositionUtility.selectText((DOMText) node);
+		}
+		// should never occur
+		return null;
 	}
 
 	private void collectionRegionProposals(ICompletionRequest request, ICompletionResponse response) {
@@ -884,8 +913,10 @@ public class XMLCompletions {
 	/**
 	 * Collect completion items for DTD systemId
 	 * 
-	 * @param valueStart         the start offset of the systemId value, including quote
-	 * @param valueEnd           the end offset of the systemId value, including quote
+	 * @param valueStart         the start offset of the systemId value, including
+	 *                           quote
+	 * @param valueEnd           the end offset of the systemId value, including
+	 *                           quote
 	 * @param completionRequest  the completion request
 	 * @param completionResponse the completion response
 	 */
