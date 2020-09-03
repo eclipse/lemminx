@@ -13,6 +13,7 @@
 package org.eclipse.lemminx.services.extensions;
 
 import static org.eclipse.lemminx.XMLAssert.c;
+import static org.eclipse.lemminx.XMLAssert.r;
 
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
@@ -20,6 +21,7 @@ import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
@@ -120,6 +122,20 @@ public class HTMLCompletionExtensionsTest {
 				c("checkbox", "\"checkbox\"" /* "<input type=\"checkbox\"" */));
 	}
 
+	@Test
+	public void testHTMLOnXMLContentCompletion() throws BadLocationException {		
+		testCompletionFor("<input>|</input>", //
+				c("Test replace range", "replacement text", r(0, 7, 0, 7), null));
+		testCompletionFor("<input> |</input>", //
+				c("Test replace range", "replacement text", r(0, 7, 0, 8), null));
+		testCompletionFor("<input>| </input>", //
+				c("Test replace range", "replacement text", r(0, 7, 0, 8), null));
+		testCompletionFor("<input>some extisti|ng text</input>", //
+				c("Test replace range", "replacement text", r(0, 7, 0, 26), null));
+		testCompletionFor("<input>some extisti|ng <br/>text</input>", //
+				c("Test replace range", "replacement text", r(0, 7, 0, 22), null));
+	}
+
 	public static void testCompletionFor(String value, CompletionItem... expectedItems) throws BadLocationException {
 		XMLAssert.testCompletionFor(new HTMLLanguageService(), value, (String) null, null, null, null, true,
 				expectedItems);
@@ -180,8 +196,8 @@ public class HTMLCompletionExtensionsTest {
 			}
 
 			@Override
-			public void onAttributeValue(String valuePrefix,
-					ICompletionRequest completionRequest, ICompletionResponse completionResponse) {
+			public void onAttributeValue(String valuePrefix, ICompletionRequest completionRequest,
+					ICompletionResponse completionResponse) {
 				String tag = completionRequest.getCurrentTag();
 				String attributeName = completionRequest.getCurrentAttributeName();
 				HTMLTag htmlTag = HTMLTag.getHTMLTag(tag);
@@ -201,7 +217,7 @@ public class HTMLCompletionExtensionsTest {
 								String[] values = HTMLTag.getAttributeValues(attrType);
 								for (String value : values) {
 									String insertText = completionRequest.getInsertAttrValue(value);
-									
+
 									CompletionItem item = new CompletionItem();
 									item.setLabel(value);
 									item.setFilterText(insertText);
@@ -215,6 +231,16 @@ public class HTMLCompletionExtensionsTest {
 						}
 					}
 				}
+			}
+
+			@Override
+			public void onXMLContent(ICompletionRequest request, ICompletionResponse response) {
+				CompletionItem completion = new CompletionItem("Test replace range");
+				TextEdit edit = new TextEdit();
+				edit.setNewText("replacement text");
+				edit.setRange(request.getReplaceRange());
+				completion.setTextEdit(edit);
+				response.addCompletionItem(completion);
 			}
 		}
 	}
