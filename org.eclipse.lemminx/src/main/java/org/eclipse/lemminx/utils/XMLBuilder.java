@@ -14,9 +14,12 @@ package org.eclipse.lemminx.utils;
 
 import static org.eclipse.lemminx.utils.StringUtils.normalizeSpace;
 
+import java.util.Collection;
+
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMComment;
 import org.eclipse.lemminx.dom.DTDDeclNode;
+import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
 import org.eclipse.lemminx.settings.EnforceQuoteStyle;
 import org.eclipse.lemminx.settings.SharedSettings;
 
@@ -32,25 +35,33 @@ public class XMLBuilder {
 	private final String whitespacesIndent;
 	private final int splitAttributesIndent = 2;
 
+	private final Collection<IFormatterParticipant> formatterParticipants;
+
 	public XMLBuilder(SharedSettings sharedSettings, String whitespacesIndent, String lineDelimiter) {
+		this(sharedSettings, whitespacesIndent, lineDelimiter, null);
+	}
+
+	public XMLBuilder(SharedSettings sharedSettings, String whitespacesIndent, String lineDelimiter,
+			Collection<IFormatterParticipant> formatterParticipants) {
 		this.whitespacesIndent = whitespacesIndent;
 		this.sharedSettings = sharedSettings;
 		this.lineDelimiter = lineDelimiter;
+		this.formatterParticipants = formatterParticipants;
 		this.xml = new StringBuilder();
 	}
 
 	public XMLBuilder appendSpace() {
-		xml.append(" ");
+		append(" ");
 		return this;
 	}
 
 	public XMLBuilder startElement(String prefix, String name, boolean close) {
-		xml.append("<");
+		append("<");
 		if (prefix != null && !prefix.isEmpty()) {
-			xml.append(prefix);
-			xml.append(":");
+			append(prefix);
+			append(":");
 		}
-		xml.append(name);
+		append(name);
 		if (close) {
 			closeStartElement();
 		}
@@ -74,20 +85,20 @@ public class XMLBuilder {
 	}
 
 	public XMLBuilder endElement(String prefix, String name, boolean isEndTagClosed) {
-		xml.append("</");
+		append("</");
 		if (prefix != null && !prefix.isEmpty()) {
-			xml.append(prefix);
-			xml.append(":");
+			append(prefix);
+			append(":");
 		}
-		xml.append(name);
+		append(name);
 		if (isEndTagClosed) {
-			xml.append(">");
+			append(">");
 		}
 		return this;
 	}
 
 	public XMLBuilder closeStartElement() {
-		xml.append(">");
+		append(">");
 		return this;
 	}
 
@@ -95,7 +106,7 @@ public class XMLBuilder {
 		if (isSpaceBeforeEmptyCloseTag() && !isLastLineEmptyOrWhitespace()) {
 			appendSpace();
 		}
-		xml.append("/>");
+		append("/>");
 		return this;
 	}
 
@@ -104,11 +115,11 @@ public class XMLBuilder {
 	}
 
 	public XMLBuilder addSingleAttribute(DOMAttr attr, boolean surroundWithQuotes, boolean prependSpace) {
-		return addSingleAttribute(attr.getName(), attr.getOriginalValue(), surroundWithQuotes, prependSpace);
+		return addSingleAttribute(attr.getName(), attr.getOriginalValue(), surroundWithQuotes, prependSpace, attr);
 	}
 
 	public XMLBuilder addSingleAttribute(String name, String value, boolean surroundWithQuotes) {
-		return addSingleAttribute(name, value, surroundWithQuotes, true);
+		return addSingleAttribute(name, value, surroundWithQuotes, true, null);
 	}
 
 	/**
@@ -121,11 +132,12 @@ public class XMLBuilder {
 	 * @param surroundWithQuotes true if quotes should be added around originalValue
 	 * @return this XML Builder
 	 */
-	public XMLBuilder addSingleAttribute(String name, String value, boolean surroundWithQuotes, boolean prependSpace) {
+	private XMLBuilder addSingleAttribute(String name, String value, boolean surroundWithQuotes, boolean prependSpace,
+			DOMAttr attr) {
 		if (prependSpace) {
 			appendSpace();
 		}
-		addAttributeContents(name, true, value, surroundWithQuotes);
+		addAttributeContents(name, true, value, surroundWithQuotes, attr);
 		return this;
 	}
 
@@ -139,7 +151,7 @@ public class XMLBuilder {
 	 */
 	public XMLBuilder addPrologAttribute(DOMAttr attr) {
 		appendSpace();
-		addAttributeContents(attr.getName(), attr.hasDelimiter(), attr.getOriginalValue(), false);
+		addAttributeContents(attr.getName(), attr.hasDelimiter(), attr.getOriginalValue(), false, attr);
 		return this;
 	}
 
@@ -161,7 +173,7 @@ public class XMLBuilder {
 			appendSpace();
 		}
 
-		addAttributeContents(name, true, value, surroundWithQuotes);
+		addAttributeContents(name, true, value, surroundWithQuotes, null);
 		return this;
 	}
 
@@ -177,7 +189,7 @@ public class XMLBuilder {
 			appendSpace();
 		}
 
-		addAttributeContents(attr.getName(), attr.hasDelimiter(), attr.getOriginalValue(), surroundWithQuotes);
+		addAttributeContents(attr.getName(), attr.hasDelimiter(), attr.getOriginalValue(), surroundWithQuotes, attr);
 		return this;
 	}
 
@@ -193,48 +205,62 @@ public class XMLBuilder {
 	 * @param surroundWithQuotes true if quotes should be added around
 	 *                           originalValue, false otherwise
 	 */
-	private void addAttributeContents(String name, boolean equalsSign, String originalValue,
-			boolean surroundWithQuotes) {
+	private void addAttributeContents(String name, boolean equalsSign, String originalValue, boolean surroundWithQuotes,
+			DOMAttr attr) {
 		if (name != null) {
-			xml.append(name);
+			append(name);
 		}
 		if (equalsSign) {
-			xml.append("=");
+			append("=");
 		}
 		if (originalValue != null) {
-			char quote = getQuotationAsChar();
-
+			char preferredQuote = getQuotationAsChar();
+			Character quote = null;
+			String valueWithoutQuote = originalValue;
 			if (StringUtils.isQuoted(originalValue)) {
-				if (getEnforceQuoteStyle() == EnforceQuoteStyle.preferred && originalValue.charAt(0) != quote) {
-
-					originalValue = StringUtils.convertToQuotelessValue(originalValue);
-					xml.append(quote);
-					if (originalValue != null) {
-						xml.append(originalValue);
-					}
-					xml.append(quote);
-					return;
+				if (getEnforceQuoteStyle() == EnforceQuoteStyle.preferred
+						&& originalValue.charAt(0) != preferredQuote) {
+					quote = preferredQuote;
 				} else {
-					xml.append(originalValue);
-					return;
+					quote = originalValue.charAt(0);
 				}
+				valueWithoutQuote = StringUtils.convertToQuotelessValue(originalValue);
 			} else if (surroundWithQuotes) {
-				xml.append(quote);
-				if (originalValue != null) {
-					xml.append(originalValue);
-				}
-				xml.append(quote);
-				return;
-			} else {
-				xml.append(originalValue);
+				quote = preferredQuote;
 			}
+			formatAttributeValue(name, valueWithoutQuote, quote, attr);
 		}
 	}
 
+	private void formatAttributeValue(String name, String valueWithoutQuote, Character quote, DOMAttr attr) {
+		if (formatterParticipants != null) {
+			for (IFormatterParticipant formatterParticipant : formatterParticipants) {
+				if (formatterParticipant.formatAttributeValue(name, valueWithoutQuote, quote, attr, this)) {
+					return;
+				}
+			}
+		}
+		if (quote != null) {
+			append(quote);
+		}
+		append(valueWithoutQuote);
+		if (quote != null) {
+			append(quote);
+		}
+	}
+
+	public void append(String str) {
+		xml.append(str);
+	}
+
+	public void append(char c) {
+		xml.append(c);
+	}
+
 	public XMLBuilder linefeed() {
-		xml.append(lineDelimiter);
+		append(lineDelimiter);
 		if (whitespacesIndent != null) {
-			xml.append(whitespacesIndent);
+			append(whitespacesIndent);
 		}
 		return this;
 	}
@@ -274,16 +300,16 @@ public class XMLBuilder {
 			if (isTrimTrailingWhitespace()) {
 				text = trimTrailingSpacesEachLine(text);
 			}
-			xml.append(text);
+			append(text);
 		} else if (!hasSiblings && isPreserveEmptyContent()) {
-			xml.append(text);
+			append(text);
 		} else if (hasSiblings) {
 			int preservedNewLines = getPreservedNewlines();
 			if (preservedNewLines > 0) {
 				int newLineCount = StringUtils.getNumberOfNewLines(text, isWhitespaceContent, delimiter,
 						preservedNewLines);
 				for (int i = 0; i < newLineCount - 1; i++) { // - 1 because the node after will insert a delimiter
-					xml.append(delimiter);
+					append(delimiter);
 				}
 			}
 		}
@@ -297,27 +323,27 @@ public class XMLBuilder {
 					appendSpace();
 				}
 			} else {
-				xml.append("\t");
+				append("\t");
 			}
 		}
 		return this;
 	}
 
 	public XMLBuilder startPrologOrPI(String tagName) {
-		xml.append("<?");
-		xml.append(tagName);
+		append("<?");
+		append(tagName);
 		return this;
 	}
 
 	public XMLBuilder addContentPI(String content) {
 		appendSpace();
-		xml.append(content);
+		append(content);
 		appendSpace();
 		return this;
 	}
 
 	public XMLBuilder endPrologOrPI() {
-		xml.append("?>");
+		append("?>");
 		return this;
 	}
 
@@ -361,7 +387,7 @@ public class XMLBuilder {
 	}
 
 	public XMLBuilder startCDATA() {
-		xml.append("<![CDATA[");
+		append("<![CDATA[");
 		return this;
 	}
 
@@ -369,12 +395,12 @@ public class XMLBuilder {
 		if (isJoinCDATALines()) {
 			content = normalizeSpace(content);
 		}
-		xml.append(content);
+		append(content);
 		return this;
 	}
 
 	public XMLBuilder endCDATA() {
-		xml.append("]]>");
+		append("]]>");
 		return this;
 	}
 
@@ -382,43 +408,43 @@ public class XMLBuilder {
 		if (comment.isCommentSameLineEndTag()) {
 			appendSpace();
 		}
-		xml.append("<!--");
+		append("<!--");
 		return this;
 	}
 
 	public XMLBuilder addContentComment(String content) {
 		if (isJoinCommentLines()) {
 			appendSpace();
-			xml.append(normalizeSpace(content));
+			append(normalizeSpace(content));
 			appendSpace();
 		} else {
-			xml.append(content);
+			append(content);
 		}
 		return this;
 	}
 
 	public XMLBuilder addDeclTagStart(DTDDeclNode tag) {
-		xml.append("<!" + tag.getDeclType());
+		append("<!" + tag.getDeclType());
 		return this;
 	}
 
 	public XMLBuilder addDeclTagStart(String declTagName) {
-		xml.append("<!" + declTagName);
+		append("<!" + declTagName);
 		return this;
 	}
 
 	public XMLBuilder startDoctype() {
-		xml.append("<!DOCTYPE");
+		append("<!DOCTYPE");
 		return this;
 	}
 
 	public XMLBuilder startDTDElementDecl() {
-		xml.append("<!ELEMENT");
+		append("<!ELEMENT");
 		return this;
 	}
 
 	public XMLBuilder startDTDAttlistDecl() {
-		xml.append("<!ATTLIST");
+		append("<!ATTLIST");
 		return this;
 	}
 
@@ -427,32 +453,32 @@ public class XMLBuilder {
 	}
 
 	public XMLBuilder addUnindentedParameter(String parameter) {
-		xml.append(replaceQuotesIfNeeded(parameter));
+		append(replaceQuotesIfNeeded(parameter));
 		return this;
 	}
 
 	public XMLBuilder startDoctypeInternalSubset() {
-		xml.append(" [");
+		append(" [");
 		return this;
 	}
 
 	public XMLBuilder startUnindentedDoctypeInternalSubset() {
-		xml.append("[");
+		append("[");
 		return this;
 	}
 
 	public XMLBuilder endDoctypeInternalSubset() {
-		xml.append("]");
+		append("]");
 		return this;
 	}
 
 	public XMLBuilder endComment() {
-		xml.append("-->");
+		append("-->");
 		return this;
 	}
 
 	public XMLBuilder endDoctype() {
-		xml.append(">");
+		append(">");
 		return this;
 	}
 
@@ -528,6 +554,18 @@ public class XMLBuilder {
 
 	private char getQuotationAsChar() {
 		return sharedSettings.getPreferences().getQuotationAsChar();
+	}
+
+	public int length() {
+		return xml.length();
+	}
+
+	public char charAt(int index) {
+		return xml.charAt(index);
+	}
+
+	public SharedSettings getSharedSettings() {
+		return sharedSettings;
 	}
 
 }
