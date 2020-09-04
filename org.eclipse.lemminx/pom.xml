@@ -48,28 +48,42 @@
 				<artifactId>git-commit-id-plugin</artifactId>
 				<version>4.0.0</version>
 				<executions>
-						<execution>
-								<id>get-the-git-infos</id>
-								<goals>
-										<goal>revision</goal>
-								</goals>
-						</execution>
+					<execution>
+						<id>get-the-git-infos</id>
+						<goals>
+							<goal>revision</goal>
+						</goals>
+					</execution>
 				</executions>
 				<configuration>
-						<dotGitDirectory>${project.basedir}/../.git</dotGitDirectory>
-						<generateGitPropertiesFile>true</generateGitPropertiesFile>
-						<includeOnlyProperties>
-							<includeOnlyProperty>^git.commit.id.abbrev$</includeOnlyProperty>
-							<includeOnlyProperty>^git.commit.message.short$</includeOnlyProperty>
-							<includeOnlyProperty>^git.branch$</includeOnlyProperty>
-							<includeOnlyProperty>^git.build.version$</includeOnlyProperty>
-						</includeOnlyProperties>
-						<gitDescribe><skip>true</skip></gitDescribe>
+					<dotGitDirectory>${project.basedir}/../.git</dotGitDirectory>
+					<generateGitPropertiesFile>true</generateGitPropertiesFile>
+					<includeOnlyProperties>
+						<includeOnlyProperty>^git.commit.id.abbrev$</includeOnlyProperty>
+						<includeOnlyProperty>^git.commit.message.short$</includeOnlyProperty>
+						<includeOnlyProperty>^git.branch$</includeOnlyProperty>
+						<includeOnlyProperty>^git.build.version$</includeOnlyProperty>
+					</includeOnlyProperties>
+					<gitDescribe>
+						<skip>true</skip>
+					</gitDescribe>
 				</configuration>
-		</plugin>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.2.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>test-jar</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.eclipse.cbi.maven.plugins</groupId>
