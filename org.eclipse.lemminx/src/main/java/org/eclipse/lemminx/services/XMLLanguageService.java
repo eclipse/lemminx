@@ -83,7 +83,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 	private final XMLRename rename;
 
 	public XMLLanguageService() {
-		this.formatter = new XMLFormatter();
+		this.formatter = new XMLFormatter(this);
 		this.highlighting = new XMLHighlighting(this);
 		this.symbolsProvider = new XMLSymbolsProvider(this);
 		this.completions = new XMLCompletions(this);

@@ -13,22 +13,13 @@
 package org.eclipse.lemminx.services;
 
 import static java.lang.System.lineSeparator;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import static org.eclipse.lemminx.XMLAssert.assertFormat;
 
 import org.eclipse.lemminx.commons.BadLocationException;
-import org.eclipse.lemminx.commons.TextDocument;
-import org.eclipse.lemminx.dom.DOMDocument;
-import org.eclipse.lemminx.dom.DOMParser;
 import org.eclipse.lemminx.settings.EnforceQuoteStyle;
 import org.eclipse.lemminx.settings.QuoteStyle;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLFormattingOptions.EmptyElements;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.TextEdit;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -43,7 +34,7 @@ public class XMLFormatterTest {
 		// Don't close tag with bad XML
 		String content = "<a";
 		String expected = "<a";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -51,28 +42,28 @@ public class XMLFormatterTest {
 		// Don't close tag with bad XML
 		String content = "<a>";
 		String expected = "<a>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
 	public void autoCloseTag() throws BadLocationException {
 		String content = "<a/>";
 		String expected = "<a />";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
 	public void selfClosingTag() throws BadLocationException {
 		String content = "<a></a>";
 		String expected = "<a></a>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
 	public void singleEndTag() throws BadLocationException {
 		String content = "</a>";
 		String expected = "</a>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -85,7 +76,7 @@ public class XMLFormatterTest {
 				"  <bar>\r\n" + //
 				"    <toto></toto>\r\n" + //
 				"</foo>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -96,7 +87,7 @@ public class XMLFormatterTest {
 		String expected = "<div class=\"foo\">\n" + //
 				"  <br />\n" + //
 				"</div>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -107,7 +98,7 @@ public class XMLFormatterTest {
 		String expected = "<div  class = \"foo\">\n" + //
 				"  <img src=\"foo\" />\n" + //
 				" </div>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -120,7 +111,7 @@ public class XMLFormatterTest {
 				"  <img src=\"foo\" />\n" + //
 				" \n" + //
 				" </div>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -141,7 +132,7 @@ public class XMLFormatterTest {
 				"  </license>\n" + //
 				"</licenses>";
 
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -162,7 +153,7 @@ public class XMLFormatterTest {
 				"  </license>\n" + //
 				"</licenses>";
 
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -183,7 +174,7 @@ public class XMLFormatterTest {
 				"  </license>\n" + //
 				"</licenses>";
 
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -204,7 +195,7 @@ public class XMLFormatterTest {
 				"  </license>\n" + //
 				"</licenses>";
 
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -225,7 +216,7 @@ public class XMLFormatterTest {
 				"  </license>\n" + //
 				"</licenses>";
 
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -246,7 +237,7 @@ public class XMLFormatterTest {
 				"  </license>\n" + //
 				"</licenses>";
 
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -267,7 +258,7 @@ public class XMLFormatterTest {
 				"  </license>\n" + //
 				"</licenses>";
 
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -280,41 +271,40 @@ public class XMLFormatterTest {
 				"  <name>License</name>\n" + //
 				"</licenses>";
 
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
 	public void rangeSelectEntityNoIndent() throws BadLocationException {
-		String content = "<?xml version='1.0' standalone='no'?>\r\n" +  //
+		String content = "<?xml version='1.0' standalone='no'?>\r\n" + //
 				"<!DOCTYPE root-element [\r\n" + //
-				"|<!ENTITY local \"LOCALLY DECLARED ENTITY\">|\r\n" +  //
+				"|<!ENTITY local \"LOCALLY DECLARED ENTITY\">|\r\n" + //
 				"]>";
-		String expected = "<?xml version='1.0' standalone='no'?>\r\n" +  //
+		String expected = "<?xml version='1.0' standalone='no'?>\r\n" + //
 				"<!DOCTYPE root-element [\r\n" + //
-				"  <!ENTITY local \"LOCALLY DECLARED ENTITY\">\r\n" +  //
+				"  <!ENTITY local \"LOCALLY DECLARED ENTITY\">\r\n" + //
 				"]>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
 	public void rangeSelectEntityWithIndent() throws BadLocationException {
-		String content = "<?xml version='1.0' standalone='no'?>\r\n" +  //
+		String content = "<?xml version='1.0' standalone='no'?>\r\n" + //
 				"<!DOCTYPE root-element [\r\n" + //
-				"  |<!ENTITY local \"LOCALLY DECLARED ENTITY\">|\r\n" +  //
+				"  |<!ENTITY local \"LOCALLY DECLARED ENTITY\">|\r\n" + //
 				"]>";
-		String expected = "<?xml version='1.0' standalone='no'?>\r\n" +  //
+		String expected = "<?xml version='1.0' standalone='no'?>\r\n" + //
 				"<!DOCTYPE root-element [\r\n" + //
-				"  <!ENTITY local \"LOCALLY DECLARED ENTITY\">\r\n" +  //
+				"  <!ENTITY local \"LOCALLY DECLARED ENTITY\">\r\n" + //
 				"]>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
-
 
 	@Test
 	public void testProlog() throws BadLocationException {
 		String content = "<?xml version=   \"1.0\"       encoding=\"UTF-8\"  ?>\r\n";
 		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -322,7 +312,7 @@ public class XMLFormatterTest {
 		String content = "<?xml version=   \"1.0\"       encoding=\"UTF-8\"  ?><a>bb</a>";
 		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + lineSeparator() + //
 				"<a>bb</a>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -332,7 +322,7 @@ public class XMLFormatterTest {
 				"<a>" + lineSeparator() + //
 				"  <b>c</b>" + lineSeparator() + //
 				"</a>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -342,7 +332,7 @@ public class XMLFormatterTest {
 				"<a>" + lineSeparator() + //
 				"  <b>c</b>" + lineSeparator() + //
 				"</a>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -351,7 +341,7 @@ public class XMLFormatterTest {
 		String expected = "<a>" + lineSeparator() + //
 				"  <?m2e asd as das das ?>" + lineSeparator() + //
 				"</a>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -360,7 +350,7 @@ public class XMLFormatterTest {
 		String expected = "<a>" + lineSeparator() + //
 				"  <?m2e ?>" + lineSeparator() + //
 				"</a>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Disabled
@@ -370,7 +360,7 @@ public class XMLFormatterTest {
 		String expected = "<a>" + lineSeparator() + //
 				"  <?xml-stylesheet href=\"my-style.css\" type=\"text/css\" ?>" + lineSeparator() + //
 				"</a>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Disabled
@@ -380,7 +370,7 @@ public class XMLFormatterTest {
 		String expected = "<a>" + lineSeparator() + //
 				"  <?xml-stylesheet href type= attName ?>" + lineSeparator() + //
 				"</a>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -389,7 +379,7 @@ public class XMLFormatterTest {
 		String expected = "<a>" + lineSeparator() + //
 				"  <?xml-styleZZ href=\"my-style.css\"     type=   \"text/css\" ?>" + lineSeparator() + //
 				"</a>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -398,7 +388,7 @@ public class XMLFormatterTest {
 		String expected = "<a k1=\"v1\"></a>";
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setSplitAttributes(true);
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -408,7 +398,7 @@ public class XMLFormatterTest {
 				"    k2=\"v2\"></a>";
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setSplitAttributes(true);
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -423,7 +413,7 @@ public class XMLFormatterTest {
 				"</a>";
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setSplitAttributes(true);
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -434,7 +424,7 @@ public class XMLFormatterTest {
 				"</a>";
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setSplitAttributes(false);
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -443,7 +433,7 @@ public class XMLFormatterTest {
 		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setSplitAttributes(true);
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -462,7 +452,7 @@ public class XMLFormatterTest {
 
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setSplitAttributes(true);
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	public void testSplitAttributesRangeMultipleLines() throws BadLocationException {
@@ -485,7 +475,7 @@ public class XMLFormatterTest {
 
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setSplitAttributes(true);
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -498,7 +488,7 @@ public class XMLFormatterTest {
 				"  <a> content </a" + lineSeparator() + //
 				"  <b></b>" + lineSeparator() + //
 				"</root>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -506,7 +496,7 @@ public class XMLFormatterTest {
 		String content = "<!-- CommentText --><a>Val</a>";
 		String expected = "<!-- CommentText -->" + lineSeparator() + //
 				"<a>Val</a>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -515,7 +505,7 @@ public class XMLFormatterTest {
 		String expected = "<!-- CommentText -->" + lineSeparator() + //
 				"<!-- Comment2 -->" + lineSeparator() + //
 				"<a>Val</a>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -524,7 +514,7 @@ public class XMLFormatterTest {
 		String expected = "<a>" + lineSeparator() + //
 				"  <!-- CommentText -->" + lineSeparator() + //
 				"</a>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -536,7 +526,7 @@ public class XMLFormatterTest {
 				"    <!-- Comment2 -->" + lineSeparator() + //
 				"  </b>" + lineSeparator() + //
 				"</a>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -549,7 +539,7 @@ public class XMLFormatterTest {
 				"2222" + lineSeparator() + //
 				"  3333 -->" + lineSeparator() + //
 				"</a>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -567,7 +557,7 @@ public class XMLFormatterTest {
 				"</a>";
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setJoinCDATALines(true);
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -581,7 +571,7 @@ public class XMLFormatterTest {
 		String expected = "<!-- line 1 line 2 -->";
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setJoinCommentLines(true);
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -596,7 +586,7 @@ public class XMLFormatterTest {
 				"</root>";
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setJoinCommentLines(true);
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -615,7 +605,7 @@ public class XMLFormatterTest {
 
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setJoinCommentLines(true);
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -629,7 +619,7 @@ public class XMLFormatterTest {
 
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setJoinCommentLines(true);
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -649,7 +639,7 @@ public class XMLFormatterTest {
 				"  Content5\r" + //
 				"</a>";
 
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -669,7 +659,7 @@ public class XMLFormatterTest {
 				" </b>\r" + //
 				"</a>";
 
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -687,7 +677,7 @@ public class XMLFormatterTest {
 				"    Content3 </b>\r" + //
 				"</a>";
 
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -695,7 +685,7 @@ public class XMLFormatterTest {
 		String content = "<a> content </a>";
 		String expected = "<a> content </a>";
 
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -708,7 +698,7 @@ public class XMLFormatterTest {
 				"\r" + //
 				" Content\r" + //
 				"</a>";
-		format(content, expected);
+		assertFormat(content, expected);
 
 		content = "<a>\r\n" + //
 				"\r\n" + //
@@ -718,7 +708,7 @@ public class XMLFormatterTest {
 				"\r\n" + //
 				" Content\r\n" + //
 				"</a>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -732,7 +722,7 @@ public class XMLFormatterTest {
 		String expected = "<a>\r" + //
 				"  <b />\r" + //
 				"</a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -746,7 +736,7 @@ public class XMLFormatterTest {
 		String expected = "<a>\r" + //
 				"  <b />\r" + //
 				"</a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -760,7 +750,7 @@ public class XMLFormatterTest {
 		String expected = "<a>\r" + //
 				"  <b/>\r" + //
 				"</a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -774,7 +764,7 @@ public class XMLFormatterTest {
 		String expected = "<a>\r" + //
 				"  <b/>\r" + //
 				"</a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -788,7 +778,7 @@ public class XMLFormatterTest {
 		String expected = "<a>\r" + //
 				"  <b\r" + //
 				"</a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -802,7 +792,7 @@ public class XMLFormatterTest {
 		String expected = "<a>\r" + //
 				"  <b> Value </b\r" + //
 				"</a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -816,7 +806,7 @@ public class XMLFormatterTest {
 		String expected = "<a>\r" + //
 				"     " + //
 				"</a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -828,7 +818,7 @@ public class XMLFormatterTest {
 				"     " + //
 				"</a>";
 		String expected = "<a></a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -842,7 +832,7 @@ public class XMLFormatterTest {
 		String expected = "<a>\r" + //
 				"   aaa  " + //
 				"</a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -856,7 +846,7 @@ public class XMLFormatterTest {
 		String expected = "<a>\r" + //
 				"   aaa  " + //
 				"</a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -872,7 +862,7 @@ public class XMLFormatterTest {
 		String expected = "<a>\r" + //
 				"  <b>  </b>\r" + //
 				"</a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -890,7 +880,7 @@ public class XMLFormatterTest {
 				"  <b>  </b>\r" + //
 				"  tt\r" + //
 				"</a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -908,7 +898,7 @@ public class XMLFormatterTest {
 				"  <b></b>\r" + //
 				"  tt\r" + //
 				"</a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -926,7 +916,7 @@ public class XMLFormatterTest {
 				"  <b>  </b>\r" + //
 				"  tt <!-- Comment -->\r" + //
 				"</a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -944,7 +934,7 @@ public class XMLFormatterTest {
 				"  <b></b>\r" + //
 				"  tt <!-- Comment -->\r" + //
 				"</a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -962,7 +952,7 @@ public class XMLFormatterTest {
 				"  zz zz\n" + //
 				"  <a>  </a>\n" + //
 				"</a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -976,7 +966,7 @@ public class XMLFormatterTest {
 				"   zz  " + //
 				"</a>";
 		String expected = "<a>zz zz</a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -987,7 +977,7 @@ public class XMLFormatterTest {
 
 		String content = "<a>zz zz zz</a>";
 		String expected = "<a>zz zz zz</a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -1004,7 +994,7 @@ public class XMLFormatterTest {
 				"   zz  \n" + //
 				"   zz  " + //
 				"</a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -1022,7 +1012,7 @@ public class XMLFormatterTest {
 				"  zz zz\n" + //
 				"  <a></a>\n" + //
 				"</a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -1041,7 +1031,7 @@ public class XMLFormatterTest {
 				"   zz\n" + //
 				"  <a></a>\n" + //
 				"</a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -1070,7 +1060,7 @@ public class XMLFormatterTest {
 				"    <servlet-name>sssi</servlet-name>\n" + //
 				"  </servlet\n" + //
 				"</web-app>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -1097,7 +1087,7 @@ public class XMLFormatterTest {
 				"\r\n" + //
 				"  <body>Don't forget me this weekend</body>\r\n" + //
 				"</note>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -1124,7 +1114,7 @@ public class XMLFormatterTest {
 				"  <heading>Reminder</heading>\r\n" + //
 				"  <body>Don't forget me this weekend</body>\r\n" + //
 				"</note>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -1164,7 +1154,7 @@ public class XMLFormatterTest {
 				"  <heading>Reminder</heading>\r\n" + //
 				"  <body>Don't forget me this weekend</body>\r\n" + //
 				"</note>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -1204,7 +1194,7 @@ public class XMLFormatterTest {
 				"  <heading>Reminder</heading>\r\n" + //
 				"  <body>Don't forget me this weekend</body>\r\n" + //
 				"</note>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -1235,7 +1225,7 @@ public class XMLFormatterTest {
 				"  <heading>Reminder</heading>\r\n" + //
 				"  <body>Don't forget me this weekend</body>\r\n" + //
 				"</note>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -1264,7 +1254,7 @@ public class XMLFormatterTest {
 				"\r\n" + //
 				"  <to>Fred</to>\r\n" + //
 				"</note>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -1287,7 +1277,7 @@ public class XMLFormatterTest {
 				"  <!ENTITY copyright SYSTEM \"https://www.w3schools.com/entities.dtd\">\r\n" + //
 				"  <!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\">\r\n" + //
 				"]>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -1315,7 +1305,7 @@ public class XMLFormatterTest {
 				"  <!ENTITY copyright SYSTEM \"https://www.w3schools.com/entities.dtd\">\r\n" + //
 				"  <!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\">\r\n" + //
 				"]>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -1345,7 +1335,7 @@ public class XMLFormatterTest {
 				"  gd\r\n" + //
 				"  <!ELEMENT note (to,from,heading,body)>\r\n" + //
 				"]>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -1358,7 +1348,7 @@ public class XMLFormatterTest {
 				"  description CDATA #IMPLIED\r\n" + //
 				"  disabled CDATA #IMPLIED\r\n" + //
 				">";
-		format(content, expected, settings, "test.dtd");
+		assertFormat(content, expected, settings, "test.dtd");
 	}
 
 	@Test
@@ -1376,7 +1366,7 @@ public class XMLFormatterTest {
 				"<!ATTLIST payment type CDATA \"check\">\r\n" + //
 				"<!ENTITY copyright SYSTEM \"https://www.w3schools.com/entities.dtd\">\r\n" + //
 				"<!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\">";
-		format(content, expected, settings, "test.dtd");
+		assertFormat(content, expected, settings, "test.dtd");
 	}
 
 	@Test
@@ -1393,7 +1383,7 @@ public class XMLFormatterTest {
 				"<!ATTLIST payment type CDATA \"check\"\r\n" + //
 				"<!ENTITY copyright SYSTEM \"https://www.w3schools.com/entities.dtd\"\r\n" + //
 				"<!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\"";
-		format(content, expected, settings, "test.dtd");
+		assertFormat(content, expected, settings, "test.dtd");
 	}
 
 	@Test
@@ -1418,7 +1408,7 @@ public class XMLFormatterTest {
 				"<!ATTLIST payment type CDATA \"check\">\r\n" + //
 				"<!ENTITY copyright SYSTEM \"https://www.w3schools.com/entities.dtd\">\r\n" + //
 				"<!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\">";
-		format(content, expected, settings, "test.dtd");
+		assertFormat(content, expected, settings, "test.dtd");
 	}
 
 	@Test
@@ -1466,7 +1456,7 @@ public class XMLFormatterTest {
 				"    <servlet-class>dd</servlet-class>\r\n" + //
 				"  </servlet>\r\n" + //
 				"</web-app>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -1475,7 +1465,7 @@ public class XMLFormatterTest {
 
 		String content = "<!ELEMENT data    (#PCDATA | data | d0)*   >";
 		String expected = "<!ELEMENT data (#PCDATA | data | d0)*>";
-		format(content, expected, settings, "test.dtd", false);
+		assertFormat(content, expected, settings, "test.dtd", false);
 	}
 
 	@Test
@@ -1486,7 +1476,7 @@ public class XMLFormatterTest {
 				"  <!-- MY COMMENT -->\r\n" + //
 				"  <!NOTATION postscript SYSTEM \"ghostview\">\r\n" + //
 				"]>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -1499,7 +1489,7 @@ public class XMLFormatterTest {
 				"  <!-- MY COMMENT -->\r\n" + //
 				"  <!NOTATION postscript SYSTEM \"ghostview\">\r\n" + //
 				"]>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -1514,7 +1504,7 @@ public class XMLFormatterTest {
 				"  <!NOTATION postscript SYSTEM \"ghostview\">\r\n" + //
 				"]\r\n" + //
 				"<a></a>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -1531,7 +1521,7 @@ public class XMLFormatterTest {
 				"]>\r\n" + //
 				"\r\n" + //
 				"<a></a>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -1548,7 +1538,7 @@ public class XMLFormatterTest {
 				"]>\r\n" + //
 				"\r\n" + //
 				"<a></a>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -1566,7 +1556,7 @@ public class XMLFormatterTest {
 				"]>\r\n" + //
 				"\r\n" + //
 				"<a></a>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -1612,7 +1602,7 @@ public class XMLFormatterTest {
 				"<!ENTITY % HTML.Frameset \"INCLUDE\">\r\n" + //
 				"<!ENTITY % HTML4.dtd PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">\r\n" + //
 				"%HTML4.dtd;";
-		format(content, expected, settings, "test.dtd");
+		assertFormat(content, expected, settings, "test.dtd");
 	}
 
 	@Test
@@ -1633,7 +1623,7 @@ public class XMLFormatterTest {
 				"<property name=\"propB\" value=\"...\" />\r\n" + //
 				"</resource>\r\n" + //
 				"</resources>";
-		format(content, expected, settings, "test.dtd");
+		assertFormat(content, expected, settings, "test.dtd");
 	}
 
 	@Test
@@ -1654,7 +1644,7 @@ public class XMLFormatterTest {
 				"<!ENTITY % reserved \"datasrc     %URI;          #IMPLIED  -- \">\r\n" + //
 				"]]>\r\n" + //
 				"<!--=================== Text Markup ======================================-->";
-		format(content, expected, settings, "test.dtd");
+		assertFormat(content, expected, settings, "test.dtd");
 	}
 
 	@Test
@@ -1670,7 +1660,7 @@ public class XMLFormatterTest {
 				"  %all;\r\n" + //
 				">\r\n" + //
 				"<!-- Hypertext anchors. -->";
-		format(content, expected, settings, "test.dtd");
+		assertFormat(content, expected, settings, "test.dtd");
 	}
 
 	@Test
@@ -1681,7 +1671,7 @@ public class XMLFormatterTest {
 
 		String content = "<a name=  \" value \"> </a>";
 		String expected = "<a name=\" value \"></a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -1691,7 +1681,7 @@ public class XMLFormatterTest {
 		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
 		String content = "<a name=  \' value \'> </a>";
 		String expected = "<a name=\' value \'></a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -1702,7 +1692,7 @@ public class XMLFormatterTest {
 
 		String content = "<a name=  \" value \"> </a>";
 		String expected = "<a name=\' value \'></a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -1711,7 +1701,7 @@ public class XMLFormatterTest {
 		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
 		String content = "<a name=  \' value \'> </a>";
 		String expected = "<a name=\" value \"></a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -1721,7 +1711,7 @@ public class XMLFormatterTest {
 		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
 		String content = "<a name = test> </a>";
 		String expected = "<a name= test></a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -1731,7 +1721,7 @@ public class XMLFormatterTest {
 		settings.getFormattingSettings().setSplitAttributes(true);
 		String content = "<a name = test> </a>";
 		String expected = "<a" + lineSeparator() + "    name=" + lineSeparator() + "    test></a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -1740,7 +1730,7 @@ public class XMLFormatterTest {
 		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
 		String content = "<a name = \"> </a>";
 		String expected = "<a name=\"> </a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -1749,7 +1739,7 @@ public class XMLFormatterTest {
 		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
 		String content = "<a name1=  \" value1 \"  name2= \" value2 \"   name3= \' value3 \' > </a>";
 		String expected = "<a name1=\" value1 \" name2=\" value2 \" name3=\" value3 \"></a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -1759,7 +1749,7 @@ public class XMLFormatterTest {
 		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
 		String content = "<a name1=  \" value1 \"  name2= \" value2 \"   name3= \' value3 \' > </a>";
 		String expected = "<a name1=\' value1 \' name2=\' value2 \' name3=\' value3 \'></a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -1769,9 +1759,9 @@ public class XMLFormatterTest {
 		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
 
 		String content = "<a name1=  \" value1 \"  name2= \" value2 \"   name3= \' value3 \' > </a>\n";
-		String expected = "<a\n" + "    name1=\" value1 \"\n" + "    name2=\" value2 \"\n"
-				+ "    name3=\" value3 \"></a>";
-		format(content, expected, settings);
+		String expected = "<a\n" + "    name1=\" value1 \"\n" + "    name2=\" value2 \"\n" + //
+				"    name3=\" value3 \"></a>";
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -1781,9 +1771,9 @@ public class XMLFormatterTest {
 		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
 		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
 		String content = "<a name1=  \" value1 \"  name2= \" value2 \"   name3= \' value3 \' > </a>\n";
-		String expected = "<a\n" + "    name1=\' value1 \'\n" + "    name2=\' value2 \'\n"
-				+ "    name3=\' value3 \'></a>";
-		format(content, expected, settings);
+		String expected = "<a\n" + "    name1=\' value1 \'\n" + "    name2=\' value2 \'\n" + //
+				"    name3=\' value3 \'></a>";
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -1793,7 +1783,7 @@ public class XMLFormatterTest {
 		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
 		String content = "<!DOCTYPE note SYSTEM \"note.dtd\">";
 		String expected = "<!DOCTYPE note SYSTEM \'note.dtd\'>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -1819,7 +1809,7 @@ public class XMLFormatterTest {
 				"]>\n" + //
 				"\n" + //
 				"<root attr=\'hello\'></root>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -1837,7 +1827,7 @@ public class XMLFormatterTest {
 				"<!ENTITY EMAIL \'jd@jd-tools.com\'>\n" + //
 				"<!ELEMENT E EMPTY>\n" + //
 				"<!ATTLIST E WIDTH CDATA \'0\'>";
-		format(content, expected, settings, "test.dtd");
+		assertFormat(content, expected, settings, "test.dtd");
 	}
 
 	@Test
@@ -1846,9 +1836,9 @@ public class XMLFormatterTest {
 		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
 		String content = "<a number=\'\"one\"\' /></a>";
 		String expected = content;
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 		settings.getPreferences().setQuoteStyle(QuoteStyle.doubleQuotes);
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -1867,7 +1857,7 @@ public class XMLFormatterTest {
 				"      tt='aa'\r\n" + //
 				"      aa></a>\r\n" + //
 				"</xml>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -1883,7 +1873,7 @@ public class XMLFormatterTest {
 				"    <b></b>\r\n" + //
 				"  </a>\r\n" + //
 				"</xml>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -1903,7 +1893,7 @@ public class XMLFormatterTest {
 				"    <b></b>\r\n" + //
 				"  </a>\r\n" + //
 				"</xml>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -1920,7 +1910,7 @@ public class XMLFormatterTest {
 				"    <b></b>\r\n" + //
 				"  </a>\r\n" + //
 				"</xml>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -1946,7 +1936,7 @@ public class XMLFormatterTest {
 				"  </a>\r\n" + //
 				"  <d></d>\r\n" + //
 				"</xml>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -1962,7 +1952,7 @@ public class XMLFormatterTest {
 				"\r\n" + //
 				"\r\n" + //
 				"</xml>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -1981,7 +1971,7 @@ public class XMLFormatterTest {
 				"\r\n" + //
 				"\r\n" + //
 				"</xml>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -1998,7 +1988,7 @@ public class XMLFormatterTest {
 				"\r\n" + //
 				"\r\n" + //
 				"</xml>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -2021,7 +2011,7 @@ public class XMLFormatterTest {
 				"\r\n" + //
 				"\r\n" + //
 				"</xml>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -2053,7 +2043,7 @@ public class XMLFormatterTest {
 				"\r\n" + //
 				"\r\n" + //
 				"</xml>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -2066,7 +2056,7 @@ public class XMLFormatterTest {
 				"  <a></a>\r\n" + //
 				"\r\n" + //
 				"</xml>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -2077,7 +2067,7 @@ public class XMLFormatterTest {
 		String expected = "<xml>\r\n" + //
 				"  <a></a>\r\n" + //
 				"</xml>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -2098,65 +2088,65 @@ public class XMLFormatterTest {
 				"\r\n" + //
 				"\r\n" + //
 				"</a>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
 	public void testTrimTrailingWhitespaceText() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setTrimTrailingWhitespace(true);
-		String content = "<a>   \n" +
-				"text     \n" +
-				"    text text text    \n" +
-				"    text\n" +
+		String content = "<a>   \n" + //
+				"text     \n" + //
+				"    text text text    \n" + //
+				"    text\n" + //
 				"</a>   ";
-		String expected = "<a>\n" +
-				"text\n" +
-				"    text text text\n" +
-				"    text\n" +
+		String expected = "<a>\n" + //
+				"text\n" + //
+				"    text text text\n" + //
+				"    text\n" + //
 				"</a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
 	public void testTrimTrailingWhitespaceNewlines() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setTrimTrailingWhitespace(true);
-		String content = "<a>   \n" +
-				"   \n" +
+		String content = "<a>   \n" + //
+				"   \n" + //
 				"</a>   ";
 		String expected = "<a></a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
 	public void testTrimTrailingWhitespaceTextAndNewlines() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setTrimTrailingWhitespace(true);
-		String content = "<a>   \n" +
-				"    \n" +
-				"text     \n" +
-				"    text text text    \n" +
-				"   \n" +
-				"    text\n" +
-				"        \n" +
+		String content = "<a>   \n" + //
+				"    \n" + //
+				"text     \n" + //
+				"    text text text    \n" + //
+				"   \n" + //
+				"    text\n" + //
+				"        \n" + //
 				"</a>   ";
-		String expected = "<a>\n" +
-				"\n" +
-				"text\n" +
-				"    text text text\n" +
-				"\n" +
-				"    text\n" +
-				"\n" +
+		String expected = "<a>\n" + //
+				"\n" + //
+				"text\n" + //
+				"    text text text\n" + //
+				"\n" + //
+				"    text\n" + //
+				"\n" + //
 				"</a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
 	public void testTrimFinalNewlinesDefault() throws BadLocationException {
 		String content = "<a  ></a>\r\n";
 		String expected = "<a></a>";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -2165,7 +2155,7 @@ public class XMLFormatterTest {
 		settings.getFormattingSettings().setTrimFinalNewlines(false);
 		settings.getFormattingSettings().setInsertFinalNewline(true);
 		String content = "";
-		format(content, content, settings);
+		assertFormat(content, content, settings);
 	}
 
 	@Test
@@ -2175,7 +2165,7 @@ public class XMLFormatterTest {
 		settings.getFormattingSettings().setInsertFinalNewline(true);
 		String content = "<a  ></a>\r\n";
 		String expected = "<a></a>\r\n";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -2185,7 +2175,7 @@ public class XMLFormatterTest {
 		settings.getFormattingSettings().setInsertFinalNewline(true);
 		String content = "<a  ></a>\r\n" + "   ";
 		String expected = "<a></a>\r\n" + "   ";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -2194,7 +2184,7 @@ public class XMLFormatterTest {
 		settings.getFormattingSettings().setInsertFinalNewline(true);
 		String content = "<a></a>";
 		String expected = "<a></a>" + lineSeparator();
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -2204,7 +2194,7 @@ public class XMLFormatterTest {
 		settings.getFormattingSettings().setInsertFinalNewline(true);
 		String content = "<a></a>\r\n\r\n";
 		String expected = "<a></a>\r\n";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -2214,7 +2204,7 @@ public class XMLFormatterTest {
 		settings.getFormattingSettings().setInsertFinalNewline(true);
 		String content = "<a></a>\n\n";
 		String expected = "<a></a>\n";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -2227,7 +2217,7 @@ public class XMLFormatterTest {
 		String expected = "<div  class = \"foo\">\r\n" + //
 				"  <img src=\"foo\" />\r\n" + //
 				" </div>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -2240,7 +2230,7 @@ public class XMLFormatterTest {
 		String expected = "<div  class = \"foo\">\r\n" + //
 				"  <img src=\"foo\" />\r\n" + //
 				"</div>\r\n";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -2249,7 +2239,7 @@ public class XMLFormatterTest {
 		settings.getFormattingSettings().setInsertFinalNewline(true);
 		String content = "<div  class = \"foo\">\r\n" + //
 				"  |<img  src = \"foo\"/>\r\n" + //
-				"\r\n"+ "|" + "\r\n" + //
+				"\r\n" + "|" + "\r\n" + //
 				"<h1></h1>\r\n" + //
 				" </div>";
 		String expected = "<div  class = \"foo\">\r\n" + //
@@ -2257,7 +2247,7 @@ public class XMLFormatterTest {
 				"\r\n" + //
 				"<h1></h1>" + "\r\n" + //
 				" </div>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -2266,7 +2256,7 @@ public class XMLFormatterTest {
 		settings.getFormattingSettings().setTrimFinalNewlines(false);
 		String content = "<a  ></a>\r\n\r\n\r\n";
 		String expected = "<a></a>\r\n\r\n\r\n";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -2277,7 +2267,7 @@ public class XMLFormatterTest {
 				"   \r\n\r\n";
 		String expected = "<a></a>\r\n" + //
 				"   \r\n\r\n";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -2292,7 +2282,7 @@ public class XMLFormatterTest {
 				"  text \r\n" + //
 				"  more text   \r\n" + //
 				"   \r\n";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	// ------------ Tests with format empty elements settings
@@ -2304,12 +2294,12 @@ public class XMLFormatterTest {
 
 		String content = "<example att=\"hello\" />";
 		String expected = "<example att=\"hello\"></example>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 
 		content = "<example \r\n" + //
 				"  att=\"hello\"\r\n" + //
 				"  />";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -2319,26 +2309,26 @@ public class XMLFormatterTest {
 
 		String content = "<example att=\"hello\"></example>";
 		String expected = "<example att=\"hello\" />";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 
 		content = "<example " + //
 				"  att=\"hello\"\r\n" + //
 				"  >\r\n" + //
 				"</example>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 
 		content = "<example att=\"hello\">   </example>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 
 		content = "<example att=\"hello\"> X </example>";
 		expected = "<example att=\"hello\"> X </example>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 
 		content = "<example att=\"hello\"> <X/> </example>";
 		expected = "<example att=\"hello\">" + lineSeparator() + //
 				"  <X />" + lineSeparator() + //
 				"</example>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -2347,10 +2337,10 @@ public class XMLFormatterTest {
 		settings.getFormattingSettings().setEmptyElement(EmptyElements.ignore);
 
 		String content = "<example att=\"hello\"></example>";
-		format(content, content, settings);
+		assertFormat(content, content, settings);
 
 		content = "<example att=\"hello\" />";
-		format(content, content, settings);
+		assertFormat(content, content, settings);
 	}
 
 	@Test
@@ -2379,7 +2369,7 @@ public class XMLFormatterTest {
 				"        \r\n" + //
 				"    </bar>\r\n" + //
 				"</foo>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 
 		content = "<foo>\r\n" + //
 				"    <bar></bar>\r\n" + //
@@ -2387,7 +2377,7 @@ public class XMLFormatterTest {
 		expected = "<foo>\r\n" + //
 				"  <bar></bar>\r\n" + //
 				"</foo>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -2416,7 +2406,7 @@ public class XMLFormatterTest {
 				"        \r\n" + //
 				"    </bar>\r\n" + //
 				"</foo>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 
 		content = "<foo>\r\n" + //
 				"    <bar></bar>\r\n" + //
@@ -2424,7 +2414,7 @@ public class XMLFormatterTest {
 		expected = "<foo>\r\n" + //
 				"  <bar />\r\n" + //
 				"</foo>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -2442,7 +2432,7 @@ public class XMLFormatterTest {
 				"  <b>\r\n" + //
 				"</b>\r\n" + //
 				"</a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 
 		// Range covers the b element, collapse is done
 		content = "<a>\r\n" + //
@@ -2453,7 +2443,7 @@ public class XMLFormatterTest {
 		expected = "<a>\r\n" + //
 				"  <b />\r\n" + //
 				"</a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -2464,8 +2454,8 @@ public class XMLFormatterTest {
 
 		String content = "<a  attr   =     \"value\" />";
 		String expected = "<a attr=\'value\' />";
-		format(content, expected, settings);
-		format(expected, expected, settings);
+		assertFormat(content, expected, settings);
+		assertFormat(expected, expected, settings);
 	}
 
 	@Test
@@ -2476,8 +2466,8 @@ public class XMLFormatterTest {
 
 		String content = "<a  attr   =     \'value\' />";
 		String expected = "<a attr=\"value\" />";
-		format(content, expected, settings);
-		format(expected, expected, settings);
+		assertFormat(content, expected, settings);
+		assertFormat(expected, expected, settings);
 	}
 
 	@Test
@@ -2488,8 +2478,8 @@ public class XMLFormatterTest {
 
 		String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 		String expected = "<?xml version=\'1.0\' encoding=\'UTF-8\'?>";
-		format(content, expected, settings);
-		format(expected, expected, settings);
+		assertFormat(content, expected, settings);
+		assertFormat(expected, expected, settings);
 	}
 
 	@Test
@@ -2500,8 +2490,8 @@ public class XMLFormatterTest {
 
 		String content = "<?xml version=\'1.0\' encoding=\'UTF-8\'?>";
 		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
-		format(content, expected, settings);
-		format(expected, expected, settings);
+		assertFormat(content, expected, settings);
+		assertFormat(expected, expected, settings);
 	}
 
 	@Test
@@ -2512,7 +2502,7 @@ public class XMLFormatterTest {
 
 		String content = "<a attr  =   \"\'\" attr2   =     \'\"\' />";
 		String expected = "<a attr=\"\'\" attr2=\'\"\' />";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -2523,7 +2513,7 @@ public class XMLFormatterTest {
 
 		String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 		String expected = content;
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -2534,9 +2524,8 @@ public class XMLFormatterTest {
 
 		String content = "<?xml version=\'1.0\' encoding=\'UTF-8\'?>";
 		String expected = content;
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
-
 
 	@Test
 	public void dontEnforceDoubleQuoteStyle() throws BadLocationException {
@@ -2546,7 +2535,7 @@ public class XMLFormatterTest {
 
 		String content = "<a attr  =   \"\'\" attr2   =     \'\"\' />";
 		String expected = "<a attr=\"\'\" attr2=\'\"\' />";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -2566,7 +2555,7 @@ public class XMLFormatterTest {
 				"  <b attr=\"value\" attr=\"value\"\n" + //
 				"    attr=\"value\"></b>\n" + //
 				"</a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -2574,18 +2563,18 @@ public class XMLFormatterTest {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setPreserveAttrLineBreaks(true);
 
-		String content = "<a>\n" +
-				"<b attr=\"value\" attr=\"value\"\n" +
-				"attr=\"value\" attr=\"value\"\n" +
-				"attr=\"value\" attr=\"value\">\n" +
-				"</b>\n" +
+		String content = "<a>\n" + //
+				"<b attr=\"value\" attr=\"value\"\n" + //
+				"attr=\"value\" attr=\"value\"\n" + //
+				"attr=\"value\" attr=\"value\">\n" + //
+				"</b>\n" + //
 				"</a>";
-		String expected = "<a>\n" +
-				"  <b attr=\"value\" attr=\"value\"\n" +
-				"    attr=\"value\" attr=\"value\"\n" +
-				"    attr=\"value\" attr=\"value\"></b>\n" +
+		String expected = "<a>\n" + //
+				"  <b attr=\"value\" attr=\"value\"\n" + //
+				"    attr=\"value\" attr=\"value\"\n" + //
+				"    attr=\"value\" attr=\"value\"></b>\n" + //
 				"</a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -2606,7 +2595,7 @@ public class XMLFormatterTest {
 				"    attr=\"value\"\n" + //
 				"    attr=\"value\" attr=\"value\"></b>\n" + //
 				"</a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -2622,7 +2611,7 @@ public class XMLFormatterTest {
 				"  attr=\"value\"\n" + //
 				"  attr=\"value\"\n" + //
 				"></a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -2641,7 +2630,7 @@ public class XMLFormatterTest {
 				"  attr=\"value\"\n" + //
 				"  attr=\"value\"\n" + //
 				"/>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -2653,7 +2642,7 @@ public class XMLFormatterTest {
 				"  \"value\" attr=\"value\"></a>";
 		String expected = "<a attr=\"value\" attr=\"value\"\n" + //
 				"  attr=\"value\" attr=\"value\"></a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -2666,7 +2655,7 @@ public class XMLFormatterTest {
 		String expected = "<a attr= attr=\"value\"\n" + //
 				"  attr=\n" + //
 				"  attr=\"value\"></a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -2679,14 +2668,12 @@ public class XMLFormatterTest {
 				"<b attr=\"value\" attr=\"value\"\n" + //
 				"attr=\"value\" attr=\"value\"\n" + //
 				"attr=\"value\" attr=\"value\">\n" + //
-				"</b>\n" +
-				"</a>";
-		String expected = "<a>\n" +
-				"  <b attr=\"value\" attr=\"value\"\n" + //
+				"</b>\n" + "</a>";
+		String expected = "<a>\n" + "  <b attr=\"value\" attr=\"value\"\n" + //
 				"    attr=\"value\" attr=\"value\"\n" + //
 				"    attr=\"value\" attr=\"value\" />\n" + //
 				"</a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -2702,13 +2689,13 @@ public class XMLFormatterTest {
 				">\n" + //
 				"</b>\n" + //
 				"</a>";
-		String expected = "<a>\n" +
+		String expected = "<a>\n" + //
 				"  <b attr=\"value\" attr=\"value\"\n" + //
 				"    attr=\"value\" attr=\"value\"\n" + //
 				"    attr=\"value\" attr=\"value\"\n" + //
 				"  />\n" + //
 				"</a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -2720,7 +2707,7 @@ public class XMLFormatterTest {
 		String content = "<a>\n" + //
 				"</a>";
 		String expected = "<a />";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -2737,7 +2724,7 @@ public class XMLFormatterTest {
 				"  a4=\"123456789\" a5=\"123456789\" a6=\"123456789\"\n" + //
 				"  a7=\"123456789\" a8=\"123456789\" a9=\"123456789\"\n" + //
 				"/>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -2754,7 +2741,7 @@ public class XMLFormatterTest {
 				"  a4=\"123456789\" a5=\"123456789\" a6=\"123456789\"\n" + //
 				"  a7=\"123456789\" a8=\"123456789\" a9=\"123456789\"\n" + //
 				"/>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -2769,7 +2756,7 @@ public class XMLFormatterTest {
 		String expected = "<a a1=\"123456789\" a2=\"123456789\" a3=\"123456789\"\n" + //
 				"  a4=\"123456789\" a5=\"123456789\" a6=\"123456789\"\n" + //
 				"  a7=\"123456789\" a8=\"123456789\" a9=\"123456789\" />";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -2785,63 +2772,14 @@ public class XMLFormatterTest {
 				"  a4=\"123456789\" a5=\"123456789\" a6=\"123456789\"\n" + //
 				"  a7=\"123456789\" a8=\"123456789\" a9=\"123456789\"\n" + //
 				"></a>";
-		format(content, expected, settings);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
 	public void testTemplate() throws BadLocationException {
 		String content = "";
 		String expected = "";
-		format(content, expected);
+		assertFormat(content, expected);
 	}
 
-	// -------------------------Tools-----------------------------------------
-
-	private static void format(String unformatted, String actual) throws BadLocationException {
-		format(unformatted, actual, new SharedSettings());
-	}
-
-	private static void format(String unformatted, String expected, SharedSettings sharedSettings)
-			throws BadLocationException {
-		format(unformatted, expected, sharedSettings, "test://test.html");
-	}
-
-	private static void format(String unformatted, String expected, SharedSettings sharedSettings, String uri)
-			throws BadLocationException {
-		format(unformatted, expected, sharedSettings, uri, true);
-	}
-
-	private static void format(String unformatted, String expected, SharedSettings sharedSettings, String uri,
-			Boolean considerRangeFormat) throws BadLocationException {
-
-		Range range = null;
-		int rangeStart = considerRangeFormat ? unformatted.indexOf('|') : -1;
-		int rangeEnd = considerRangeFormat ? unformatted.lastIndexOf('|') : -1;
-		if (rangeStart != -1 && rangeEnd != -1) {
-			// remove '|'
-			unformatted = unformatted.substring(0, rangeStart) + unformatted.substring(rangeStart + 1, rangeEnd)
-					+ unformatted.substring(rangeEnd + 1);
-			DOMDocument unformattedDoc = DOMParser.getInstance().parse(unformatted, uri, null);
-			Position startPos = unformattedDoc.positionAt(rangeStart);
-			Position endPos = unformattedDoc.positionAt(rangeEnd - 1);
-			range = new Range(startPos, endPos);
-		}
-
-		TextDocument document = new TextDocument(unformatted, uri);
-		XMLLanguageService languageService = new XMLLanguageService();
-		List<? extends TextEdit> edits = languageService.format(document, range, sharedSettings);
-
-		String formatted = edits.stream().map(edit -> edit.getNewText()).collect(Collectors.joining(""));
-
-		Range textEditRange = edits.get(0).getRange();
-		int textEditStartOffset = document.offsetAt(textEditRange.getStart());
-		int textEditEndOffset = document.offsetAt(textEditRange.getEnd()) + 1;
-
-		if (textEditStartOffset != -1 && textEditEndOffset != -1) {
-			formatted = unformatted.substring(0, textEditStartOffset) + formatted
-					+ unformatted.substring(textEditEndOffset - 1, unformatted.length());
-		}
-
-		assertEquals(expected, formatted);
-	}
 }

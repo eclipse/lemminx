@@ -10,8 +10,9 @@
  *  Contributors:
  *  Red Hat Inc. - initial API and implementation
  */
-package org.eclipse.lemminx.extensions.xsi;
+package org.eclipse.lemminx.extensions.xsi.participants;
 
+import org.eclipse.lemminx.extensions.xsi.XSISchemaModel;
 import org.eclipse.lemminx.services.extensions.CompletionParticipantAdapter;
 import org.eclipse.lemminx.services.extensions.ICompletionRequest;
 import org.eclipse.lemminx.services.extensions.ICompletionResponse;

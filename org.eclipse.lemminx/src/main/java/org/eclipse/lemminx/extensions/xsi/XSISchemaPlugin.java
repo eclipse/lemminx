@@ -12,10 +12,14 @@
  */
 package org.eclipse.lemminx.extensions.xsi;
 
+import org.eclipse.lemminx.extensions.xsi.participants.XSICompletionParticipant;
+import org.eclipse.lemminx.extensions.xsi.participants.XSIFormatterParticipant;
+import org.eclipse.lemminx.extensions.xsi.participants.XSIHoverParticipant;
 import org.eclipse.lemminx.services.extensions.ICompletionParticipant;
 import org.eclipse.lemminx.services.extensions.IHoverParticipant;
 import org.eclipse.lemminx.services.extensions.IXMLExtension;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
 import org.eclipse.lsp4j.InitializeParams;
 
 /**
@@ -26,18 +30,23 @@ import org.eclipse.lsp4j.InitializeParams;
  */
 public class XSISchemaPlugin implements IXMLExtension {
 
-	ICompletionParticipant completionParticipant = new XSICompletionParticipant();
-	IHoverParticipant hoverParticipant = new XSIHoverParticipant();
+	private final ICompletionParticipant completionParticipant = new XSICompletionParticipant();
+	private final IHoverParticipant hoverParticipant = new XSIHoverParticipant();
+
+	private final IFormatterParticipant formatterParticipant = new XSIFormatterParticipant();
 
 	@Override
 	public void start(InitializeParams params, XMLExtensionsRegistry registry) {
 		registry.registerCompletionParticipant(completionParticipant);
 		registry.registerHoverParticipant(hoverParticipant);
+		registry.registerFormatterParticipant(formatterParticipant);
 	}
 
 	@Override
 	public void stop(XMLExtensionsRegistry registry) {
 		registry.unregisterCompletionParticipant(completionParticipant);
 		registry.unregisterHoverParticipant(hoverParticipant);
+		registry.unregisterFormatterParticipant(formatterParticipant);
 	}
+
 }

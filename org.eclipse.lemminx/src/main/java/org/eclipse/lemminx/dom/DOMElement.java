@@ -123,6 +123,17 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 	public String getNamespaceURI() {
 		String prefix = getPrefix();
 		// Try to get xmlns attribute from the element
+		return getNamespaceURI(prefix);
+	}
+
+	/**
+	 * Returns the namespace URI for the given prefix and null otherwise.
+	 * 
+	 * @param prefix the prefix.
+	 * 
+	 * @return the namespace URI for the given prefix and null otherwise.
+	 */
+	public String getNamespaceURI(String prefix) {
 		String namespaceURI = getNamespaceURI(prefix, this);
 		if (namespaceURI != null) {
 			return namespaceURI;
@@ -151,7 +162,7 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 	 * @return the namespace URI from the given prefix declared in the given element
 	 *         and null otherwise.
 	 */
-	public static String getNamespaceURI(String prefix, DOMElement element) {
+	private static String getNamespaceURI(String prefix, DOMElement element) {
 		boolean hasPrefix = !StringUtils.isEmpty(prefix);
 		return hasPrefix ? element.getAttribute(XMLNS_NO_DEFAULT_ATTR + prefix) : element.getAttribute(XMLNS_ATTR);
 	}
@@ -170,10 +181,10 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 	}
 
 	/**
-	 * Returns the xmlns prefix from the given namespave URI and null otherwise.
+	 * Returns the xmlns prefix from the given namespace URI and null otherwise.
 	 * 
 	 * @param namespaceURI the namespace
-	 * @return the xmlns prefix from the given namespave URI and null otherwise.
+	 * @return the xmlns prefix from the given namespace URI and null otherwise.
 	 */
 	public String getPrefix(String namespaceURI) {
 		if (namespaceURI == null) {
@@ -297,7 +308,7 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 	}
 
 	public boolean isInInsideStartEndTag(int offset) {
-		return offset > startTagCloseOffset  && offset <= endTagOpenOffset;
+		return offset > startTagCloseOffset && offset <= endTagOpenOffset;
 	}
 
 	/**
