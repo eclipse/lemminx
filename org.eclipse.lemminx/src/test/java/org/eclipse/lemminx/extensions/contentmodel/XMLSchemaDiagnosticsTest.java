@@ -333,6 +333,17 @@ public class XMLSchemaDiagnosticsTest {
 	}
 
 	@Test
+	public void cvc_datatype_valid_1_2_3OnText() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<dresssize xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				" xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/dressSize.xsd\">\r\n" + //
+				"               XXX           \r\n" + // <-- error
+				"</dresssize>  ";
+		testDiagnosticsFor(xml, d(3, 15, 3, 18, XMLSchemaErrorCode.cvc_datatype_valid_1_2_3),
+				d(3, 15, 3, 18, XMLSchemaErrorCode.cvc_type_3_1_3));
+	}
+
+	@Test
 	public void cvc_maxLength_validOnAttribute() throws Exception {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<team\r\n" + //
