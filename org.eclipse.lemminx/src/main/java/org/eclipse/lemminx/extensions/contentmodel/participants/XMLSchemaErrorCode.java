@@ -48,7 +48,7 @@ import org.eclipse.lsp4j.ResourceOperationKind;
 
 /**
  * XML Schema error code.
- * 
+ *
  * @see https://wiki.xmldation.com/Support/Validator
  *
  */
@@ -126,7 +126,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 
 	/**
 	 * Create the LSP range from the SAX error.
-	 * 
+	 *
 	 * @param location
 	 * @param key
 	 * @param arguments
@@ -242,7 +242,9 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 			} else {
 				// Try with text
 				DOMElement element = (DOMElement) document.findNodeAt(offset);
-				if (DOMUtils.containsTextOnly(element)) {
+				if (element != null && element.isEmpty()) {
+					return XMLPositionUtility.selectStartTagName(element);
+				} else if (DOMUtils.containsTextOnly(element)) {
 					return XMLPositionUtility.selectTrimmedText(offset, document);
 				} else {
 					return XMLPositionUtility.selectFirstChild(offset, document);
