@@ -85,7 +85,7 @@ public class XMLSchemaDiagnosticsTest {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<invoice xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
 				" xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/invoice.xsd\">\r\n" + //
-				"  <date>2017-11-30</date>\r\n" + // 
+				"  <date>2017-11-30</date>\r\n" + //
 				"  <number>2</number>\r\n" + //
 				"  <products>\r\n" + //
 				"  	<product />\r\n" + // <- error
@@ -103,7 +103,7 @@ public class XMLSchemaDiagnosticsTest {
 
 	@Test
 	public void cvc_complex_type_2_4_a() throws Exception {
-		String xml = 
+		String xml =
 				"<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + //
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
 				"	xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n"+ //
@@ -142,7 +142,7 @@ public class XMLSchemaDiagnosticsTest {
 
 	@Test
 	public void cvc_complex_type_2_4_f() throws Exception {
-		String xml = 
+		String xml =
 			"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
 			"<root\r\n" + //
 			"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
@@ -344,6 +344,15 @@ public class XMLSchemaDiagnosticsTest {
 	}
 
 	@Test
+	public void cvc_datatype_valid_1_2_3Empty() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<dresssize xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				" xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/dressSize.xsd\"></dresssize>";
+		testDiagnosticsFor(xml, d(1, 1, 1, 10, XMLSchemaErrorCode.cvc_datatype_valid_1_2_3),
+				d(1, 1, 1, 10, XMLSchemaErrorCode.cvc_type_3_1_3));
+	}
+
+	@Test
 	public void cvc_maxLength_validOnAttribute() throws Exception {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<team\r\n" + //
@@ -386,12 +395,12 @@ public class XMLSchemaDiagnosticsTest {
 	@Test
 	public void cvc_complex_type_2_1_SelfClosing() throws Exception {
 		String xml = "<money xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/money.xsd\" currency=\"euros\"> </money>";
-		
+
 		Diagnostic d = d(0, 143, 0, 144, XMLSchemaErrorCode.cvc_complex_type_2_1);
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(0, 142, 0, 152, "/>")));
 	}
-	
+
 	@Test
 	public void cvc_complex_type_2_1WithLinefeed() throws Exception {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
@@ -472,7 +481,7 @@ public class XMLSchemaDiagnosticsTest {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<invoice xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
 				" xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/invoice.xsd\">\r\n" + //
-				"  <date>2017-11-30</date>\r\n" + // 
+				"  <date>2017-11-30</date>\r\n" + //
 				"  <number><a></a></number>\r\n" + //<- error
 				"  <products>\r\n" + //
 				"  	<product price=\"1\" description=\"\"/>\r\n" + //
@@ -481,7 +490,7 @@ public class XMLSchemaDiagnosticsTest {
 				"  	<payment amount=\"1\" method=\"credit\"/>\r\n" + //
 				"  </payments>\r\n" + //
 				"</invoice>";
-		testDiagnosticsFor(xml,	
+		testDiagnosticsFor(xml,
 					d(4, 3, 4, 9, XMLSchemaErrorCode.cvc_type_3_1_2),
 					d(4,10,4,17, XMLSchemaErrorCode.cvc_datatype_valid_1_2_1),
 					d(4,10,4,17, XMLSchemaErrorCode.cvc_type_3_1_3));
@@ -535,7 +544,7 @@ public class XMLSchemaDiagnosticsTest {
 
 	@Test
 	public void fuzzyElementNameCodeActionTest() throws Exception {
-		String xml = 
+		String xml =
 		"<project xmlns=\"http://maven.apache.org/POM/4.0.0\" \r\n" +
 		"         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" +
 		"         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n" +
@@ -552,7 +561,7 @@ public class XMLSchemaDiagnosticsTest {
 
 	@Test
 	public void fuzzyElementNamesWithOtherOptionsCodeActionTest() throws Exception {
-		String xml = 
+		String xml =
 		"<project xmlns=\"http://maven.apache.org/POM/4.0.0\" \r\n" +
 		"         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" +
 		"         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n" +
@@ -569,7 +578,7 @@ public class XMLSchemaDiagnosticsTest {
 
 	@Test
 	public void fuzzyElementNamesWithPrefix() throws Exception {
-		String xml = 
+		String xml =
 		"<beans xmlns=\"http://www.springframework.org/schema/beans\"\n" +
 		"        xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
 		"        xmlns:camel=\"http://camel.apache.org/schema/spring\"\n" +
@@ -588,7 +597,7 @@ public class XMLSchemaDiagnosticsTest {
 
 	@Test
 	public void fuzzyElementNamesWithPrefixAndNoMatch() throws Exception {
-		String xml = 
+		String xml =
 		"<schemaB:BRootElement \n" +
 		"      xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \n" +
 		"      xsi:schemaLocation=\"http://schemaA src/test/resources/xsd/fuzzyCodeAction/FuzzySchemaA.xsd http://schemaB src/test/resources/xsd/fuzzyCodeAction/FuzzySchemaB.xsd\" \n" +
@@ -598,7 +607,7 @@ public class XMLSchemaDiagnosticsTest {
 		"</schemaB:BRootElement>";
 		Diagnostic diagnostic = d(5, 4, 5, 17, XMLSchemaErrorCode.cvc_complex_type_2_4_c, "cvc-complex-type.2.4.c: The matching wildcard is strict, but no declaration can be found for element 'schemaA:XXXXX'.");
 		testDiagnosticsFor(xml, diagnostic);
-		testCodeActionsFor(xml, diagnostic, ca(diagnostic, te(5, 12, 5, 17, "AElement1"), te(5, 28, 5, 33, "AElement1")), 
+		testCodeActionsFor(xml, diagnostic, ca(diagnostic, te(5, 12, 5, 17, "AElement1"), te(5, 28, 5, 33, "AElement1")),
 											ca(diagnostic, te(5, 12, 5, 17, "AElement2"), te(5, 28, 5, 33, "AElement2")));
 	}
 
@@ -652,7 +661,7 @@ public class XMLSchemaDiagnosticsTest {
 		);
 		testCodeActionsFor(xml, targetNamespace, ca(targetNamespace, te(2, 23, 2, 26, "\"http://two-letter-name\"")));
 	}
-	
+
 	@Test
 	public void testTargetNamespace_1SingleQuotes() throws Exception {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" + //
