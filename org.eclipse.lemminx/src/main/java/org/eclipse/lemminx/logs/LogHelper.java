@@ -31,43 +31,44 @@ import org.eclipse.lsp4j.services.LanguageClient;
  */
 public class LogHelper {
 
+	private static final String ROOT_LOGGER = "";
+
 	// This will apply to all child loggers
 	public static void initializeRootLogger(LanguageClient newLanguageClient, LogsSettings settings) {
-		if (newLanguageClient == null || settings == null) {
+		if (newLanguageClient == null) {
 			return;
 		}
 
-		Logger logger = Logger.getLogger("");
+		Logger logger = Logger.getLogger(ROOT_LOGGER);
 		unregisterAllHandlers(logger.getHandlers());
 		logger.setLevel(getLogLevel());
 		logger.setUseParentHandlers(false);// Stops output to console
 		
 		// Configure logging LSP client handler
-		if (settings.getClient()) {
-			try {
-				logger.addHandler(LogHelper.getClientHandler(newLanguageClient));
-			} catch (Exception e) {
-				// TODO: handle exception
+		if (settings != null) {
+			if (settings.isClient()) {
+				try {
+					logger.addHandler(LogHelper.getClientHandler(newLanguageClient));
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+			}
+			// Configure logging for file
+			String path = settings.getFile();
+			if (path != null) {
+				createDirectoryPath(path);
+				try {
+					FileHandler fh = LogHelper.getFileHandler(path);
+					logger.addHandler(fh);
+				} catch (SecurityException | IOException e) {
+					logger.warning("Error at creation of FileHandler for logging");
+				}
+			} else {
+				logger.info("Log file could not be created, path not provided");
 			}
 		}
-
-		// Configure logging for file
-		String path = settings.getFile();
-		if (path != null) {
-			createDirectoryPath(path);
-			try {
-				FileHandler fh = LogHelper.getFileHandler(path);
-				logger.addHandler(fh);
-
-			} catch (SecurityException | IOException e) {
-				logger.warning("Error at creation of FileHandler for logging");
-			}
-		} else {
-			logger.info("Log file could not be created, path not provided");
-		}
-
 	}
-
+	
 	private static Level getLogLevel() {
 		String logLevel = System.getProperty("log.level", "info").toLowerCase();
 		switch (logLevel) {
@@ -132,7 +133,7 @@ public class LogHelper {
 			return;
 		}
 		handler.close();
-		Logger.getLogger("").removeHandler(handler);
+		Logger.getLogger(ROOT_LOGGER).removeHandler(handler);
 	}
 
 	public static void unregisterAllHandlers(Handler[] handlers) {
@@ -141,7 +142,6 @@ public class LogHelper {
 		}
 		for (Handler h : handlers) {
 			unregisterHandler(h);
-			;
 		}
 	}
 }

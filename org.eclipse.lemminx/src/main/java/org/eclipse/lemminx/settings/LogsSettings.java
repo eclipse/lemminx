@@ -42,7 +42,7 @@ public class LogsSettings {
 	 * @return <code>true</code> if LSP client is enabled and <code>false</code>
 	 *         otherwise.
 	 */
-	public boolean getClient() {
+	public boolean isClient() {
 		return client;
 	}
 

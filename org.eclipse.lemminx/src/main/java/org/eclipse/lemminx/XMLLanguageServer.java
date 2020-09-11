@@ -94,6 +94,12 @@ public class XMLLanguageServer
 
 	@Override
 	public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
+		Object initOptions = InitializationOptionsSettings.getSettings(params);
+		Object xmlSettings = AllXMLSettings.getAllXMLSettings(initOptions);
+		XMLGeneralClientSettings settings = XMLGeneralClientSettings.getGeneralXMLSettings(xmlSettings);
+
+		LogHelper.initializeRootLogger(languageClient, settings == null? null : settings.getLogs());
+
 		LOGGER.info("Initializing XML Language server" + System.lineSeparator() + new ServerInfo().details());
 
 		this.parentProcessId = params.getProcessId();
@@ -108,7 +114,7 @@ public class XMLLanguageServer
 		xmlTextDocumentService.updateClientCapabilities(capabilityManager.getClientCapabilities().capabilities,
 				capabilityManager.getClientCapabilities().getExtendedCapabilities());
 
-		updateSettings(InitializationOptionsSettings.getSettings(params));
+		updateSettings(initOptions, false /* already configured logging*/ );
 
 		ServerCapabilities nonDynamicServerCapabilities = ServerCapabilitiesInitializer.getNonDynamicServerCapabilities(
 				capabilityManager.getClientCapabilities(), xmlTextDocumentService.isIncrementalSupport());
@@ -133,22 +139,31 @@ public class XMLLanguageServer
 	/**
 	 * Update XML settings configured from the client.
 	 * 
-	 * @param initializationOptionsSettings the XML settings
+	 * @param initOptions the XML settings
 	 */
-	public synchronized void updateSettings(Object initializationOptionsSettings) {
-		if (initializationOptionsSettings == null) {
+	public synchronized void updateSettings(Object initOptions) {
+		updateSettings(initOptions, true);
+	}
+
+	/**
+	 * Update XML settings configured from the client.
+	 * 
+	 * @param initOptions Settings the XML settings
+	 * @param initLogs whether to initialize the log handlers
+	 */
+	private synchronized void updateSettings(Object initOptions, boolean initLogs) {
+		if (initOptions == null) {
 			return;
 		}
 		// Update client settings
-		initializationOptionsSettings = AllXMLSettings.getAllXMLSettings(initializationOptionsSettings);
-		XMLGeneralClientSettings xmlClientSettings = XMLGeneralClientSettings
-				.getGeneralXMLSettings(initializationOptionsSettings);
+		Object initSettings = AllXMLSettings.getAllXMLSettings(initOptions);
+		XMLGeneralClientSettings xmlClientSettings = XMLGeneralClientSettings.getGeneralXMLSettings(initSettings);
 		if (xmlClientSettings != null) {
-			// Update logs settings
-			LogsSettings logsSettings = xmlClientSettings.getLogs();
-			if (logsSettings != null) {
-				LogHelper.initializeRootLogger(languageClient, logsSettings);
+			if (initLogs) {
+				// Update logs settings	
+				LogHelper.initializeRootLogger(languageClient, xmlClientSettings.getLogs());
 			}
+			
 			// Update format settings
 			XMLFormattingOptions formatterSettings = xmlClientSettings.getFormat();
 			if (formatterSettings != null) {
@@ -181,15 +196,14 @@ public class XMLLanguageServer
 				FilesUtils.setCachePathSetting(workDir);
 			}
 		}
-		ContentModelSettings cmSettings = ContentModelSettings
-				.getContentModelXMLSettings(initializationOptionsSettings);
+		ContentModelSettings cmSettings = ContentModelSettings.getContentModelXMLSettings(initSettings);
 		if (cmSettings != null) {
 			XMLValidationSettings validationSettings = cmSettings.getValidation();
 			xmlTextDocumentService.getValidationSettings().merge(validationSettings);
 
 		}
 		// Update XML language service extensions
-		xmlTextDocumentService.updateSettings(initializationOptionsSettings);
+		xmlTextDocumentService.updateSettings(initSettings);
 	}
 
 	@Override
