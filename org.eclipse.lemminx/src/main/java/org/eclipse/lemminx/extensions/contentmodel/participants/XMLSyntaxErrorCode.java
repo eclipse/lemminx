@@ -194,7 +194,7 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 			String attrValue = getString(arguments[0]);
 			return XMLPositionUtility.selectAttributeValueByGivenValueAt(attrValue, offset, document);
 		}
-		case ETagUnterminated:
+		case ETagUnterminated: {
 			/**
 			 * Cases:
 			 * 
@@ -204,7 +204,14 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 			 * 
 			 * <a> <a> </a> </b
 			 */
-			return XMLPositionUtility.selectPreviousNodesEndTag(offset, document);
+			String text = document.getText();
+			char ch = text.charAt(offset);
+			while(Character.isWhitespace(ch)) {
+				offset--;
+				ch = text.charAt(offset);
+			}
+			return XMLPositionUtility.selectEndTagName(offset, document);
+		}
 		case CustomETag:
 			return XMLPositionUtility.selectEndTagName(offset, document);
 		case ETagRequired: {

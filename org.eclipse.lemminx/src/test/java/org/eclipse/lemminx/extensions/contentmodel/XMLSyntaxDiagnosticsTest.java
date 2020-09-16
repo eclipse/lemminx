@@ -330,6 +330,41 @@ public class XMLSyntaxDiagnosticsTest {
 		testDiagnosticsFor(xml, d(3, 4, 3, 5, XMLSyntaxErrorCode.ETagUnterminated));
 	}
 
+	/**
+	 * Test ETagUnterminated
+	 * 
+	 * @see https://wiki.xmldation.com/Support/Validator/ETagUnterminated
+	 * @throws Exception
+	 */
+	@Test
+	public void testETagUnterminated3() throws Exception {
+		String xml = "<foo>\r\n" + //
+				"  <ba><ABCD></ABCD></bar>\r\n" + // // <-- error
+				"</foo>";
+		testDiagnosticsFor(xml, d(1, 21, 1, 24, XMLSyntaxErrorCode.ETagUnterminated));
+	}
+
+	/**
+	 * Test ETagUnterminated
+	 * 
+	 * @see https://wiki.xmldation.com/Support/Validator/ETagUnterminated
+	 * @throws Exception
+	 */
+	@Test
+	public void testETagUnterminated4() throws Exception {
+		String xml = "<project>\r\n" + //
+				"  <dependencies>\r\n" + //
+				"    <dependency>\r\n" + //
+				"      <scope>test</scope>\r\n" + //
+				"    </dependency\r\n" + // <-- error
+				"    <dependency>\r\n" + //
+				"      <scope>test</scope>\r\n" + //
+				"    </dependency>\r\n" + //
+				"  </dependencies>\r\n" + //
+				"</project>";
+		testDiagnosticsFor(xml, d(4, 6, 4, 16, XMLSyntaxErrorCode.ETagUnterminated));
+	}
+
 	@Test
 	public void testETagRequiredWithText() throws Exception {
 		String xml = "<root>\r\n" + //
