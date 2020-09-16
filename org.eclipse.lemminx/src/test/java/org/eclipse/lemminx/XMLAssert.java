@@ -1003,6 +1003,55 @@ public class XMLAssert {
 		}
 	}
 
+	// ------------------- Format assert
+
+	public static void assertFormat(String unformatted, String actual) throws BadLocationException {
+		assertFormat(unformatted, actual, new SharedSettings());
+	}
+
+	public static void assertFormat(String unformatted, String expected, SharedSettings sharedSettings)
+			throws BadLocationException {
+		assertFormat(unformatted, expected, sharedSettings, "test://test.html");
+	}
+
+	public static void assertFormat(String unformatted, String expected, SharedSettings sharedSettings, String uri)
+			throws BadLocationException {
+		assertFormat(unformatted, expected, sharedSettings, uri, true);
+	}
+
+	public static void assertFormat(String unformatted, String expected, SharedSettings sharedSettings, String uri,
+			Boolean considerRangeFormat) throws BadLocationException {
+		Range range = null;
+		int rangeStart = considerRangeFormat ? unformatted.indexOf('|') : -1;
+		int rangeEnd = considerRangeFormat ? unformatted.lastIndexOf('|') : -1;
+		if (rangeStart != -1 && rangeEnd != -1) {
+			// remove '|'
+			unformatted = unformatted.substring(0, rangeStart) + unformatted.substring(rangeStart + 1, rangeEnd)
+					+ unformatted.substring(rangeEnd + 1);
+			DOMDocument unformattedDoc = DOMParser.getInstance().parse(unformatted, uri, null);
+			Position startPos = unformattedDoc.positionAt(rangeStart);
+			Position endPos = unformattedDoc.positionAt(rangeEnd - 1);
+			range = new Range(startPos, endPos);
+		}
+
+		TextDocument document = new TextDocument(unformatted, uri);
+		XMLLanguageService languageService = new XMLLanguageService();
+		List<? extends TextEdit> edits = languageService.format(document, range, sharedSettings);
+
+		String formatted = edits.stream().map(edit -> edit.getNewText()).collect(Collectors.joining(""));
+
+		Range textEditRange = edits.get(0).getRange();
+		int textEditStartOffset = document.offsetAt(textEditRange.getStart());
+		int textEditEndOffset = document.offsetAt(textEditRange.getEnd()) + 1;
+
+		if (textEditStartOffset != -1 && textEditEndOffset != -1) {
+			formatted = unformatted.substring(0, textEditStartOffset) + formatted
+					+ unformatted.substring(textEditEndOffset - 1, unformatted.length());
+		}
+
+		assertEquals(expected, formatted);
+	}
+
 	// ------------------- Rename assert
 
 	public static void assertRename(String value, String newText) throws BadLocationException {

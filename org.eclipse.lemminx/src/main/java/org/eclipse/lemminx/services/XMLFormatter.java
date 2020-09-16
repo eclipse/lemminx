@@ -13,6 +13,7 @@
 package org.eclipse.lemminx.services;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,6 +33,8 @@ import org.eclipse.lemminx.dom.DOMText;
 import org.eclipse.lemminx.dom.DTDAttlistDecl;
 import org.eclipse.lemminx.dom.DTDDeclNode;
 import org.eclipse.lemminx.dom.DTDDeclParameter;
+import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLFormattingOptions.EmptyElements;
 import org.eclipse.lemminx.utils.XMLBuilder;
@@ -44,13 +47,13 @@ import org.eclipse.lsp4j.TextEdit;
  *
  */
 class XMLFormatter {
-
 	private static final Logger LOGGER = Logger.getLogger(XMLFormatter.class.getName());
 
 	private static class XMLFormatterDocument {
 		private final TextDocument textDocument;
 		private final Range range;
 		private final SharedSettings sharedSettings;
+		private final Collection<IFormatterParticipant> formatterParticipants;
 		private final EmptyElements emptyElements;
 
 		private int startOffset;
@@ -65,10 +68,12 @@ class XMLFormatter {
 		/**
 		 * XML formatter document.
 		 */
-		public XMLFormatterDocument(TextDocument textDocument, Range range, SharedSettings sharedSettings) {
+		public XMLFormatterDocument(TextDocument textDocument, Range range, SharedSettings sharedSettings,
+				Collection<IFormatterParticipant> formatterParticipants) {
 			this.textDocument = textDocument;
 			this.range = range;
 			this.sharedSettings = sharedSettings;
+			this.formatterParticipants = formatterParticipants;
 			this.emptyElements = sharedSettings.getFormattingSettings().getEmptyElements();
 			this.linefeedOnNextWrite = false;
 		}
@@ -129,7 +134,7 @@ class XMLFormatter {
 			}
 
 			this.xmlBuilder = new XMLBuilder(this.sharedSettings, "",
-					textDocument.lineDelimiter(startPosition.getLine()));
+					textDocument.lineDelimiter(startPosition.getLine()), formatterParticipants);
 		}
 
 		private boolean containsTextWithinStartTag() {
@@ -195,7 +200,7 @@ class XMLFormatter {
 
 			Position startPosition = textDocument.positionAt(startOffset);
 			this.xmlBuilder = new XMLBuilder(this.sharedSettings, "",
-					textDocument.lineDelimiter(startPosition.getLine()));
+					textDocument.lineDelimiter(startPosition.getLine()), formatterParticipants);
 		}
 
 		private void enlargePositionToGutters(Position start, Position end) throws BadLocationException {
@@ -251,7 +256,6 @@ class XMLFormatter {
 			}
 			return spaceOrTab;
 		}
-
 
 		private DOMElement getFullDocElemFromRangeElem(DOMElement elemFromRangeDoc) {
 			int fullOffset = -1;
@@ -580,16 +584,15 @@ class XMLFormatter {
 		 * Formats the start tag's closing bracket (>) according to
 		 * {@code XMLFormattingOptions#isPreserveAttrLineBreaks()}
 		 *
-		 * {@code XMLFormattingOptions#isPreserveAttrLineBreaks()}:
-		 * If true, must add a newline + indent before the closing bracket if the last attribute of the element
-		 * and the closing bracket are in different lines.
+		 * {@code XMLFormattingOptions#isPreserveAttrLineBreaks()}: If true, must add a
+		 * newline + indent before the closing bracket if the last attribute of the
+		 * element and the closing bracket are in different lines.
 		 *
 		 * @param element
 		 * @throws BadLocationException
 		 */
 		private void formatElementStartTagCloseBracket(DOMElement element) throws BadLocationException {
-			if (this.sharedSettings.getFormattingSettings().isPreserveAttrLineBreaks()
-					&& element.hasAttributes()
+			if (this.sharedSettings.getFormattingSettings().isPreserveAttrLineBreaks() && element.hasAttributes()
 					&& !isSameLine(getLastAttribute(element).getEnd(), element.getStartTagCloseOffset())) {
 				xmlBuilder.linefeed();
 				this.xmlBuilder.indent(this.indentLevel);
@@ -601,16 +604,15 @@ class XMLFormatter {
 		 * Formats the self-closing tag (/>) according to
 		 * {@code XMLFormattingOptions#isPreserveAttrLineBreaks()}
 		 *
-		 * {@code XMLFormattingOptions#isPreserveAttrLineBreaks()}:
-		 * If true, must add a newline + indent before the self-closing tag if the last attribute of the element
-		 * and the closing bracket are in different lines.
+		 * {@code XMLFormattingOptions#isPreserveAttrLineBreaks()}: If true, must add a
+		 * newline + indent before the self-closing tag if the last attribute of the
+		 * element and the closing bracket are in different lines.
 		 *
 		 * @param element
 		 * @throws BadLocationException
 		 */
 		private void formatElementStartTagSelfCloseBracket(DOMElement element) throws BadLocationException {
-			if (this.sharedSettings.getFormattingSettings().isPreserveAttrLineBreaks()
-					&& element.hasAttributes()) {
+			if (this.sharedSettings.getFormattingSettings().isPreserveAttrLineBreaks() && element.hasAttributes()) {
 				int elementEndOffset = element.getEnd();
 				if (element.isStartTagClosed()) {
 					elementEndOffset = element.getStartTagCloseOffset();
@@ -629,31 +631,36 @@ class XMLFormatter {
 			boolean isSingleElement = hasSingleAttributeInFullDoc(element);
 			int prevOffset = element.getStart();
 			for (DOMAttr attr : attributes) {
-				if (this.sharedSettings.getFormattingSettings().isPreserveAttrLineBreaks()
-						&& !isSameLine(prevOffset, attr.getStart())) {
-					xmlBuilder.linefeed();
-					xmlBuilder.indent(this.indentLevel + 1);
-					xmlBuilder.addSingleAttribute(attr, false, false);
-				} else if (isSingleElement){
-					xmlBuilder.addSingleAttribute(attr);
-				} else {
-					xmlBuilder.addAttribute(attr, this.indentLevel);
-				}
+				formatAttribute(attr, isSingleElement, prevOffset);
 				prevOffset = attr.getEnd();
 			}
 		}
 
+		private void formatAttribute(DOMAttr attr, boolean isSingleElement, int prevOffset)
+				throws BadLocationException {
+			if (this.sharedSettings.getFormattingSettings().isPreserveAttrLineBreaks()
+					&& !isSameLine(prevOffset, attr.getStart())) {
+				xmlBuilder.linefeed();
+				xmlBuilder.indent(this.indentLevel + 1);
+				xmlBuilder.addSingleAttribute(attr, false, false);
+			} else if (isSingleElement) {
+				xmlBuilder.addSingleAttribute(attr);
+			} else {
+				xmlBuilder.addAttribute(attr, this.indentLevel);
+			}
+		}
+
 		/**
-		 * Returns true if first offset and second offset belong
-		 * in the same line of the document
+		 * Returns true if first offset and second offset belong in the same line of the
+		 * document
 		 *
-		 * If current formatting is range formatting, the provided offsets
-		 * must be ranged offsets (offsets relative to the formatting range)
+		 * If current formatting is range formatting, the provided offsets must be
+		 * ranged offsets (offsets relative to the formatting range)
 		 *
 		 * @param first  the first offset
 		 * @param second the second offset
-		 * @return true if first offset and second offset belong
-		 * in the same line of the document
+		 * @return true if first offset and second offset belong in the same line of the
+		 *         document
 		 * @throws BadLocationException
 		 */
 		private boolean isSameLine(int first, int second) throws BadLocationException {
@@ -678,12 +685,12 @@ class XMLFormatter {
 		}
 
 		/**
-		 * Returns true if the provided element has one attribute
-		 * in the fullDomDocument (not the rangeDomDocument)
+		 * Returns true if the provided element has one attribute in the fullDomDocument
+		 * (not the rangeDomDocument)
 		 *
 		 * @param element
-		 * @return true if the provided element has one attribute
-		 * in the fullDomDocument (not the rangeDomDocument)
+		 * @return true if the provided element has one attribute in the fullDomDocument
+		 *         (not the rangeDomDocument)
 		 */
 		private boolean hasSingleAttributeInFullDoc(DOMElement element) {
 			DOMElement fullElement = getFullDocElemFromRangeElem(element);
@@ -869,6 +876,12 @@ class XMLFormatter {
 		}
 	}
 
+	private final XMLExtensionsRegistry extensionsRegistry;
+
+	public XMLFormatter(XMLExtensionsRegistry extensionsRegistry) {
+		this.extensionsRegistry = extensionsRegistry;
+	}
+
 	/**
 	 * Returns a List containing a single TextEdit, containing the newly formatted
 	 * changes of the document.
@@ -880,12 +893,22 @@ class XMLFormatter {
 	 */
 	public List<? extends TextEdit> format(TextDocument textDocument, Range range, SharedSettings sharedSettings) {
 		try {
-			XMLFormatterDocument formatterDocument = new XMLFormatterDocument(textDocument, range, sharedSettings);
+			XMLFormatterDocument formatterDocument = new XMLFormatterDocument(textDocument, range, sharedSettings,
+					getFormatterParticipants());
 			return formatterDocument.format();
 		} catch (BadLocationException e) {
 			LOGGER.log(Level.SEVERE, "Formatting failed due to BadLocation", e);
 		}
 		return null;
+	}
+
+	/**
+	 * Returns list of {@link IFormatterParticipant}.
+	 *
+	 * @return list of {@link IFormatterParticipant}.
+	 */
+	private Collection<IFormatterParticipant> getFormatterParticipants() {
+		return extensionsRegistry.getFormatterParticipants();
 	}
 }
 

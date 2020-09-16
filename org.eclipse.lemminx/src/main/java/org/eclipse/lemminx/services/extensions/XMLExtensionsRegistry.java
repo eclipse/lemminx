@@ -25,6 +25,7 @@ import org.eclipse.lemminx.services.IXMLDocumentProvider;
 import org.eclipse.lemminx.services.IXMLNotificationService;
 import org.eclipse.lemminx.services.extensions.codelens.ICodeLensParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
+import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
 import org.eclipse.lemminx.services.extensions.save.ISaveContext;
 import org.eclipse.lemminx.uriresolver.URIResolverExtensionManager;
 import org.eclipse.lsp4j.InitializeParams;
@@ -50,7 +51,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	private final List<ICodeLensParticipant> codeLensParticipants;
 	private final List<IHighlightingParticipant> highlightingParticipants;
 	private final List<IRenameParticipant> renameParticipants;
-
+	private final List<IFormatterParticipant> formatterParticipants;
 	private IXMLDocumentProvider documentProvider;
 
 	private InitializeParams params;
@@ -58,7 +59,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	private ISaveContext initialSaveContext;
 
 	private boolean initialized;
-	
+
 	private IXMLNotificationService notificationService;
 
 	private final Map<Class, Object> components;
@@ -76,6 +77,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 		codeLensParticipants = new ArrayList<>();
 		highlightingParticipants = new ArrayList<>();
 		renameParticipants = new ArrayList<>();
+		formatterParticipants = new ArrayList<>();
 		resolverExtensionManager = new URIResolverExtensionManager();
 		components = new HashMap<>();
 		registerComponent(resolverExtensionManager);
@@ -171,6 +173,11 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	public Collection<IRenameParticipant> getRenameParticipants() {
 		initializeIfNeeded();
 		return renameParticipants;
+	}
+
+	public Collection<IFormatterParticipant> getFormatterParticipants() {
+		initializeIfNeeded();
+		return formatterParticipants;
 	}
 
 	public void initializeIfNeeded() {
@@ -312,6 +319,14 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 		renameParticipants.remove(renameParticipant);
 	}
 
+	public void registerFormatterParticipant(IFormatterParticipant formatterParticipant) {
+		formatterParticipants.add(formatterParticipant);
+	}
+
+	public void unregisterFormatterParticipant(IFormatterParticipant formatterParticipant) {
+		formatterParticipants.remove(formatterParticipant);
+	}
+
 	/**
 	 * Returns the XML Document provider and null otherwise.
 	 * 
@@ -333,7 +348,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	public URIResolverExtensionManager getResolverExtensionManager() {
 		return resolverExtensionManager;
 	}
-	
+
 	/**
 	 * Returns the notification service
 	 * 
