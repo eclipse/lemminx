@@ -88,7 +88,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 					if (defaultPrefix != null && prefix.equals(defaultPrefix)) {
 						continue;
 					}
-					String namespaceURI = DOMElement.getNamespaceURI(prefix, parentElement);
+					String namespaceURI = parentElement.getNamespaceURI(prefix);
 					if (!hasNamespace(namespaceURI, cmRootDocuments)) {
 						// The model document root doesn't define the namespace, try to load the
 						// external model document (XML Schema, DTD)
@@ -388,8 +388,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 							item.setKind(CompletionItemKind.Value);
 							item.setFilterText(tokenStart + insertText);
 							item.setTextEdit(new TextEdit(fullRange, insertText));
-							MarkupContent documentation = XMLGenerator.createMarkupContent(cmElement, value,
-									request);
+							MarkupContent documentation = XMLGenerator.createMarkupContent(cmElement, value, request);
 							item.setDocumentation(documentation);
 							response.addCompletionItem(item);
 						});

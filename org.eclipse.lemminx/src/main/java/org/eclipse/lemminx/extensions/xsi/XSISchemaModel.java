@@ -255,4 +255,19 @@ public class XSISchemaModel {
 		content.setValue(doc);
 		return new Hover(content);
 	}
+	
+	public static boolean isXSISchemaLocationAttr(String name, DOMAttr attr) {
+		if (attr != null) {
+			String localName = attr.getLocalName();
+			if (!"schemaLocation".equals(localName)) {
+				return false;
+			}
+			String prefix = attr.getPrefix();
+			if (prefix == null) {
+				return false;
+			}
+			return prefix.equals(attr.getOwnerDocument().getSchemaInstancePrefix());
+		}
+		return "xsi:schemaLocation".equals(name);
+	}
 }

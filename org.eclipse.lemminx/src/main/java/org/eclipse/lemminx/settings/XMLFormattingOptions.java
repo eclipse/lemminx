@@ -42,11 +42,6 @@ public class XMLFormattingOptions extends FormattingOptions {
 	private static final String TRIM_TRAILING_WHITESPACE = "trimTrailingWhitespace";
 	private static final String ENFORCE_QUOTE_STYLE = "enforceQuoteStyle";
 	private static final String PRESERVE_ATTR_LINE_BREAKS = "preserveAttributeLineBreaks";
-
-	enum Quotations {
-		doubleQuotes, singleQuotes
-	}
-
 	private static final String PRESERVE_EMPTY_CONTENT = "preserveEmptyContent";
 
 	/**

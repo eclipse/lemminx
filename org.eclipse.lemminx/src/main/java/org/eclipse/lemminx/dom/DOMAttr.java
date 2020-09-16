@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.eclipse.lemminx.utils.StringUtils;
 import org.w3c.dom.DOMException;
+import org.w3c.dom.Node;
 import org.w3c.dom.TypeInfo;
 
 /**
@@ -224,6 +225,40 @@ public class DOMAttr extends DOMNode implements org.w3c.dom.Attr {
 
 	public boolean valueContainsOffset(int offset) {
 		return nodeAttrValue != null && offset >= nodeAttrValue.getStart() && offset < nodeAttrValue.getEnd();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Node#getPrefix()
+	 */
+	@Override
+	public String getPrefix() {
+		String name = getName();
+		if (name == null) {
+			return null;
+		}
+		String prefix = null;
+		int index = name.indexOf(":"); //$NON-NLS-1$
+		if (index != -1) {
+			prefix = name.substring(0, index);
+		}
+		return prefix;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.w3c.dom.Node#getNamespaceURI()
+	 */
+	@Override
+	public String getNamespaceURI() {
+		if (ownerElement == null || ownerElement.getNodeType() != Node.ELEMENT_NODE) {
+			return null;
+		}
+		String prefix = getPrefix();
+		// Try to get xmlns attribute from the element
+		return ((DOMElement) ownerElement).getNamespaceURI(prefix);
 	}
 
 	/**
