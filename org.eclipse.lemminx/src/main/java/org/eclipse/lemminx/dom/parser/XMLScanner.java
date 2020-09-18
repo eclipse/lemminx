@@ -136,6 +136,10 @@ public class XMLScanner implements Scanner {
 		stream.advanceWhileChar(ELEMENT_NAME_PREDICATE);
 		return true;
 	}
+	
+	public static boolean isStartElementName(Integer ch) {
+		return START_ELEMENT_NAME_PREDICATE.test(ch);
+	}
 
 	/**
 	 * Returns true if the current token is an attribute name and false otherwise.

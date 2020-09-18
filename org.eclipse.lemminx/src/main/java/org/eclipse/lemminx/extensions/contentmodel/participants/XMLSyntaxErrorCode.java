@@ -141,19 +141,13 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 			return XMLPositionUtility.selectAttributeNameFromGivenNameAt(attrName, offset, document);
 		}
 		case MarkupEntityMismatch:
+			return XMLPositionUtility.selectRootStartTag(document);
 		case ElementUnterminated: {
 			String text = document.getText();
 			if (offset < text.length()) {
-				DOMNode element = document.findNodeAt(offset);
-				if (element.isElement() && !((DOMElement) element).isStartTagClosed()) {
-					// ex : <foo attr="" |
-					int endOffset = offset;
-					// remove spaces
-					while (Character.isWhitespace(text.charAt(endOffset))) {
-						endOffset--;
-					}
-					endOffset++;
-					return XMLPositionUtility.createRange(element.getStart() + 1, endOffset, document);
+				DOMNode node = document.findNodeAt(offset);
+				if (node.isElement()) {
+					return XMLPositionUtility.selectStartTag((DOMElement) node);
 				}
 			}
 			return XMLPositionUtility.selectRootStartTag(document);
@@ -206,7 +200,7 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 			 */
 			String text = document.getText();
 			char ch = text.charAt(offset);
-			while(Character.isWhitespace(ch)) {
+			while (Character.isWhitespace(ch)) {
 				offset--;
 				ch = text.charAt(offset);
 			}
@@ -216,7 +210,7 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 			return XMLPositionUtility.selectEndTagName(offset, document);
 		case ETagRequired: {
 			String tag = getString(arguments[0]);
-			return XMLPositionUtility.selectChildEndTag(tag, offset, document);
+			return XMLPositionUtility.selectStartTagNameOfUnclosedElement(tag, offset, document);
 		}
 		case SemicolonRequiredInReference: {
 			EntityReferenceRange range = XMLPositionUtility.selectEntityReference(offset + 1, document, false);

@@ -333,6 +333,44 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 		return startTagCloseOffset;
 	}
 
+	public int getBestStartTagCloseOffset() {
+		if (isStartTagClosed()) {
+			return getStartTagCloseOffset();
+		}
+		if (hasEndTag()) {
+			// ex : <foo           </foo>
+			if (hasAttributes()) {
+				// ex : <foo attr=""          </foo>
+				// returns end offset of last attributes
+				DOMAttr lastAttr = getAttributeNodes().get(getAttributeNodes().size()-1);
+				return lastAttr.getEnd();
+			}
+			// returns position of tag name --> <foo|           </foo>
+			return getStartTagOpenOffset() + getTagName().length() + 1;
+		}
+		String text = getOwnerDocument().getText();
+		int endOffset = text.length() - 1;
+		DOMNode nextNode = getFirstChild();
+		if (nextNode == null) {
+			nextNode = getNextSibling();
+		}
+		if (nextNode != null) {
+			endOffset = ((DOMElement) nextNode).getStartTagOpenOffset() - 1;
+		}
+		if (nextNode == null) {
+			DOMElement parent  = getParentElement();
+			if (parent != null && parent.hasEndTag()) {
+				endOffset = parent.getEndTagOpenOffset() - 1;
+			}
+		}
+		// remove spaces
+		while (Character.isWhitespace(text.charAt(endOffset))) {
+			endOffset--;
+		}
+		endOffset++;
+		return endOffset;
+	}
+
 	/**
 	 * Returns the end tag open offset and {@link DOMNode#NULL_VALUE} if it doesn't
 	 * exist.
@@ -397,12 +435,23 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 	 * Returns true if the given element is an orphan end tag (which has no start
 	 * tag, eg: </a>) and false otherwise.
 	 * 
-	 * @param tagName the end tag name.
 	 * @return true if the given element is an orphan end tag (which has no start
 	 *         tag, eg: </a>) and false otherwise.
 	 */
-	public boolean isOrphanEndTag(String tagName) {
-		return isSameTag(tagName) && hasEndTag() && !hasStartTag();
+	public boolean isOrphanEndTag() {
+		return hasEndTag() && !hasStartTag();
+	}
+
+	/**
+	 * Returns true if the given element is an orphan end tag (which has no start
+	 * tag, eg: </a>) of the given tag name and false otherwise.
+	 * 
+	 * @param tagName the end tag name.
+	 * @return true if the given element is an orphan end tag (which has no start
+	 *         tag, eg: </a>) of the given tag name and false otherwise.
+	 */
+	public boolean isOrphanEndTagOf(String tagName) {
+		return isSameTag(tagName) && isOrphanEndTag();
 	}
 
 	@Override
@@ -423,7 +472,7 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 		for (DOMNode child : children) {
 			if (child.isElement()) {
 				DOMElement childElement = (DOMElement) child;
-				if (childElement.isOrphanEndTag(tagName)) {
+				if (childElement.isOrphanEndTagOf(tagName)) {
 					return childElement;
 				}
 			}

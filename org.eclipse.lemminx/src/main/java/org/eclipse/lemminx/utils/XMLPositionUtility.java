@@ -266,44 +266,48 @@ public class XMLPositionUtility {
 
 	// ------------ Element selection
 
-	public static Range selectChildEndTag(String childTag, int offset, DOMDocument document) {
-		DOMNode parent = document.findNodeAt(offset);
-		if (parent == null || !parent.isElement() || ((DOMElement) parent).getTagName() == null) {
+	public static Range selectStartTagNameOfUnclosedElement(String tagName, int offset, DOMDocument document) {
+		DOMNode node = document.findNodeAt(offset);
+		if (node == null || !node.isElement()) {
 			return null;
 		}
-
-		DOMNode curr = parent;
-		DOMNode child;
-		while (curr != null) {
-			child = findUnclosedChildNode(childTag, curr.getChildren());
-			if (child == null) {
-				curr = findUnclosedChildNode(curr.getChildren());
-			} else {
-				return createRange(child.getStart() + 1, child.getStart() + 1 + childTag.length(), document);
-			}
+		DOMElement parent = (DOMElement) node;
+		if (!parent.hasStartTag()) {
+			parent = parent.getParentElement();
 		}
-
-		String parentName = ((DOMElement) parent).getTagName();
-		return createRange(parent.getStart() + 2, parent.getStart() + 2 + parentName.length(), document);
-	}
-
-	private static DOMNode findUnclosedChildNode(List<DOMNode> children) {
-		for (DOMNode child : children) {
-			if (!child.isClosed()) {
-				return child;
-			}
+		DOMElement element = findUnclosedElement(tagName, parent);
+		if (element == null && parent.isSameTag(tagName)) {
+			element = parent;
+		}
+		if (element != null) {
+			return selectStartTagName(element);
 		}
 		return null;
 	}
 
-	private static DOMNode findUnclosedChildNode(String childTag, List<DOMNode> children) {
-		for (DOMNode child : children) {
-			if (child.isElement() && childTag != null && childTag.equals(((DOMElement) child).getTagName())
-					&& !child.isClosed()) {
-				return child;
+	private static DOMElement findUnclosedElement(String tagName, DOMElement parent) {
+		List<DOMNode> children = parent.getChildren();
+		for (int i = children.size() - 1; i >= 0; i--) {
+			DOMNode child = parent.getChild(i);
+			if (child.isElement()) {
+				DOMElement element = (DOMElement) child;
+				DOMElement element2 = findUnclosedElement(tagName, element);
+				if (element2 != null) {
+					return element2;
+				}
+				if (isUnclosedStartTag(element, tagName)) {
+					return element;
+				}
 			}
 		}
+		if (isUnclosedStartTag(parent, tagName)) {
+			return parent;
+		}
 		return null;
+	}
+
+	private static boolean isUnclosedStartTag(DOMElement element, String tagName) {
+		return (!element.isClosed() && element.hasStartTag() && element.isSameTag(tagName));
 	}
 
 	/**
@@ -314,7 +318,7 @@ public class XMLPositionUtility {
 	 * @return the range of the root start tag (excludes the '<') of the given
 	 *         <code>document</code> and null otherwise.
 	 */
-	public static Range selectRootStartTag(DOMDocument document) {
+	public static Range selectRootStartTagName(DOMDocument document) {
 		DOMNode root = document.getDocumentElement();
 		if (root == null) {
 			root = document.getChild(0);
@@ -1062,4 +1066,35 @@ public class XMLPositionUtility {
 		return null;
 	}
 
+	/**
+	 * Returns the range of the root start tag (excludes the '<') of the given
+	 * <code>document</code> and null otherwise.
+	 * 
+	 * @param document the DOM document.
+	 * @return the range of the root start tag (excludes the '<') of the given
+	 *         <code>document</code> and null otherwise.
+	 */
+	public static Range selectRootStartTag(DOMDocument document) {
+		DOMNode root = document.getDocumentElement();
+		if (root == null) {
+			root = document.getChild(0);
+		}
+		if (root == null) {
+			return null;
+		}
+		if (!root.isElement()) {
+			return createRange(root); 
+		}
+		return selectStartTag((DOMElement) root);
+	}
+
+	public static Range selectStartTag(DOMElement element) {
+		if (element.isStartTagClosed()) {
+			return selectStartTagName(element);
+		}
+		DOMDocument document = element.getOwnerDocument();
+		int startOffset = element.getStartTagOpenOffset() + 1;
+		int endOffset = element.getBestStartTagCloseOffset();
+		return createRange(startOffset, endOffset, document);
+	}
 }

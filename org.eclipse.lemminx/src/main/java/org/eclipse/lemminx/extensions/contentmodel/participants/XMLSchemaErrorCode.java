@@ -256,7 +256,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 		case TargetNamespace_1:
 			return XMLPositionUtility.selectRootAttributeValue(DOMAttr.XMLNS_ATTR, document);
 		case TargetNamespace_2:
-			return XMLPositionUtility.selectRootStartTag(document);
+			return XMLPositionUtility.selectRootStartTagName(document);
 		default:
 		}
 		return null;

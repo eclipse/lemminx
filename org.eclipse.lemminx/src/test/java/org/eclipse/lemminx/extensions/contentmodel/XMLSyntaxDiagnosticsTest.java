@@ -19,6 +19,7 @@ import static org.eclipse.lemminx.XMLAssert.testCodeActionsFor;
 import static org.eclipse.lemminx.XMLAssert.testDiagnosticsFor;
 
 import org.eclipse.lemminx.XMLAssert;
+import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCode;
 import org.eclipse.lemminx.settings.EnforceQuoteStyle;
 import org.eclipse.lemminx.settings.QuoteStyle;
@@ -148,13 +149,28 @@ public class XMLSyntaxDiagnosticsTest {
 				"            <Othr>\r\n" + //
 				"              <Id> 222010012</Id>\r\n" + //
 				"            </Othr>\r\n" + //
-				"          </OrgId>\r\n" + //
+				"          </XXXXX>\r\n" + //
 				"        </Id>";
 		Diagnostic d = d(1, 11, 1, 16, XMLSyntaxErrorCode.ElementUnterminated);
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, //
 				ca(d, te(1, 16, 1, 16, "/>")), //
 				ca(d, te(1, 16, 1, 16, "></OrgId>")), //
+				ca(d, te(1, 16, 1, 16, ">")));
+	}
+
+	@Test
+	public void elementUnterminatedNotClosed() throws Exception {
+		String xml = "<Id>\r\n" + //
+				"          <OrgId\r\n" + //
+				"            <Othr>\r\n" + //
+				"              <Id> 222010012</Id>\r\n" + //
+				"            </Othr>\r\n" + //
+				"          </OrgId>\r\n" + //
+				"        </Id>";
+		Diagnostic d = d(1, 11, 1, 16, XMLSyntaxErrorCode.ElementUnterminated);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, //
 				ca(d, te(1, 16, 1, 16, ">")));
 	}
 
@@ -194,6 +210,15 @@ public class XMLSyntaxDiagnosticsTest {
 	}
 
 	@Test
+	public void closeRootTag() throws BadLocationException {
+		String xml = "<a>";
+		Diagnostic d = d(0, 1, 0, 2, XMLSyntaxErrorCode.MarkupEntityMismatch);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, //
+				ca(d, te(0, 3, 0, 3, "</a>")));
+	}
+
+	@Test
 	public void testElementUnterminatedEndsAndSpaces() throws Exception {
 		String xml = "<foo>\r\n" + //
 				"  <bar att=\"\"    \r\n" + //
@@ -211,10 +236,50 @@ public class XMLSyntaxDiagnosticsTest {
 		String xml = "<a>\r\n" + //
 				"	<b>\r\n" + //
 				"		</c>";
-		Diagnostic d = d(2, 4, 2, 5, XMLSyntaxErrorCode.ETagRequired);
+		Diagnostic d = d(1, 2, 1, 3, XMLSyntaxErrorCode.ETagRequired);
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, //
-				ca(d, te(2, 4, 2, 5, "b")));
+				ca(d, te(2, 4, 2, 5, "b")), // code action for replacing </c> with </b>
+				ca(d, te(2, 6, 2, 6, "\r\n	</b>")) // code action for closing </b>
+		);
+	}
+
+	@Test
+	public void testETagRequiredFollowingByEndElement() throws Exception {
+		String xml = "<foo>\r\n" + //
+				"  <bar></\r\n" + //
+				"</foo>";
+		Diagnostic d = d(1, 3, 1, 6, XMLSyntaxErrorCode.ETagRequired);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, //
+				ca(d, te(1, 7, 1, 9, "</bar>")) // code action for closing </bar>
+		);
+	}
+
+	@Test
+	public void testETagRequiredWithSpacesFollowingByEndElement() throws Exception {
+		String xml = "<foo>\r\n" + //
+				"  <bar> </\r\n" + //
+				"</foo>";
+		Diagnostic d = d(1, 3, 1, 6, XMLSyntaxErrorCode.ETagRequired);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, //
+				ca(d, te(1, 8, 1, 10, "</bar>")) // code action for closing </bar>
+		);
+	}
+
+	@Test
+	public void testETagRequiredNestedFollowingByEndElement() throws Exception {
+		String xml = "<foo>\r\n" + //
+				"  	<bar>\r\n" + //
+				"		<bar></\r\n" + //
+				"	</bar>\r\n" + //
+				"</foo>";
+		Diagnostic d = d(2, 3, 2, 6, XMLSyntaxErrorCode.ETagRequired);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, //
+				ca(d, te(2, 7, 2, 9, "</bar>")) // code action for closing </bar>
+		);
 	}
 
 	/**
@@ -286,7 +351,7 @@ public class XMLSyntaxDiagnosticsTest {
 		String xml = "<UltmtDbtr>\r\n" + //
 				"  		Nm>Name</Nm>\r\n" + //
 				"		</UltmtDbtr>";
-		testDiagnosticsFor(xml, d(1, 13, 1, 15, XMLSyntaxErrorCode.ETagRequired));
+		testDiagnosticsFor(xml, d(0, 1, 0, 10, XMLSyntaxErrorCode.ETagRequired));
 	}
 
 	@Test
@@ -416,7 +481,7 @@ public class XMLSyntaxDiagnosticsTest {
 	@Test
 	public void testMarkupEntityMismatch3() throws Exception {
 		String xml = "<?";
-		Diagnostic d = d(0, 1, 0, 1, XMLSyntaxErrorCode.MarkupEntityMismatch);
+		Diagnostic d = d(0, 0, 0, 2, XMLSyntaxErrorCode.MarkupEntityMismatch);
 		testDiagnosticsFor(xml, d);
 	}
 
@@ -474,6 +539,32 @@ public class XMLSyntaxDiagnosticsTest {
 	}
 
 	@Test
+	public void testElementUnterminatedMissingClose() throws Exception {
+		String xml = "<foo>\r\n" + //
+				"  <bar>\r\n" + //
+				"	<bar\r\n" + // <-- error
+				"	</bar>\r\n" + //
+				"   </bar>\r\n" + //
+				"</foo>";
+		Diagnostic d = d(2, 2, 2, 5, XMLSyntaxErrorCode.ElementUnterminated);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(2, 5, 2, 5, ">")));
+	}
+
+	@Test
+	public void testElementUnterminatedWithAttrMissingClose() throws Exception {
+		String xml = "<foo>\r\n" + //
+				"  <bar>\r\n" + //
+				"	<bar attr=\"\" \r\n" + // <-- error
+				"	</bar>\r\n" + //
+				"   </bar>\r\n" + //
+				"</foo>";
+		Diagnostic d = d(2, 2, 2, 13, XMLSyntaxErrorCode.ElementUnterminated);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(2, 13, 2, 13, ">")));
+	}
+
+	@Test
 	public void testMarkupEntityMismatchWithText() throws Exception {
 		String xml = "<ABC>def";
 		Diagnostic d = d(0, 1, 0, 4, XMLSyntaxErrorCode.MarkupEntityMismatch);
@@ -497,6 +588,30 @@ public class XMLSyntaxDiagnosticsTest {
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, //
 				te(1, 7, 1, 7, ">")));
+	}
+
+	@Test
+	public void testMarkupEntityMismatchFollowingByEndTagNotClosed() throws Exception {
+		String xml = "<ABC></";
+		Diagnostic d = d(0, 1, 0, 4, XMLSyntaxErrorCode.MarkupEntityMismatch);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(0, 5, 0, 7, "</ABC>")));
+
+		xml = "<ABC> </";
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(0, 6, 0, 8, "</ABC>")));
+	}
+
+	@Test
+	public void testMarkupEntityMismatchFollowingByEndTagClosed() throws Exception {
+		String xml = "<ABC><CDEF/>";
+		Diagnostic d = d(0, 1, 0, 4, XMLSyntaxErrorCode.MarkupEntityMismatch);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(0, 12, 0, 12, System.lineSeparator() + "</ABC>")));
+
+		xml = "<ABC> <CDEF/>";
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(0, 13, 0, 13, System.lineSeparator() + "</ABC>")));
 	}
 
 	@Test
