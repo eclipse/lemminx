@@ -159,6 +159,9 @@ class XMLFormatter {
 		}
 		// ATSEC
 		private boolean putTagInline(String tag) {
+			if (tag == null) {
+				return false;
+			}
 			return (tag.equals("b")||
 				tag.equals("bibref")||
 				tag.equals("color")||
