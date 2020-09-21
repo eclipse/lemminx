@@ -19,7 +19,7 @@ External extensions are not built into LemMinX but instead are contributed via a
 LemMinX is extended using the [Java Service Provider Interface (SPI)](https://www.baeldung.com/java-spi). You can extend LemMinX to provide custom completion, hover, diagnostics, renaming etc.
 You can find the complete [LemMinX extension API here](https://github.com/eclipse/lemminx/tree/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions).
 
-To start your lemminx extension create a new Java Project that includes LemMinX as a provided dependency. Also make sure to include the `lemminx-releases` repository.
+To start developing a LemMinX extension, create a new Java Project that includes LemMinX as a provided dependency. Also make sure to include the `lemminx-releases` repository.
 
 ```xml
     <dependency>
@@ -56,7 +56,7 @@ The [LemMinx Extensions API](https://github.com/eclipse/lemminx/tree/master/org.
 - Code actions with `ICodeActionParticipant`
 - Code Completion with `ICompletionParticipant`
 - Go to Definition with `IDefinitionParticipant`
-- Finding the location of document Links with `IDocumentLinkParticipant`
+- Adding document Links with `IDocumentLinkParticipant`
 - Highlighting with `IHighlightingParticipant`
 - Hover information with `IHoverParticipant`
 - Find references with `IReferenceParticipant`
@@ -74,7 +74,7 @@ If you are using lemminx version >= `0.14.0` to build your extension you can use
 XMLAssert provides many static helper methods for building lsp4j structures such as CompletionItem, TextEdit, Hover etc. 
 
 For example to build a CompletionItem that uses a TextEdit you can use the `c` and `te` methods.
-```
+```java
 CompletionItem testCompletionItem = c("xsl:template", te(2, 0, 2, 0, "<xsl:template></xsl:template>"), "xsl:template");
 ```
 
@@ -82,7 +82,7 @@ Along with building lsp4j structures, XMLAssert contains static methods that tes
 
 For example to test that completion options exist, we build an XML String that contains a `|` character. The `|` is used to represent where the completion has been triggered in the XML file.
 
-```
+```java
 String xml = "<?xml version=\"1.0\"?>\r\n" +
 		"<xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\">\r\n" +
 		"|";

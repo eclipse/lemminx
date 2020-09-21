@@ -17,7 +17,7 @@ import org.eclipse.lemminx.utils.JSONUtility;
 /**
  * Class to hold all settings from the client side.
  * 
- * See https://github.com/eclipse/lemming/wiki/Configuration for more
+ * See https://github.com/eclipse/lemminx/blob/master/docs/Configuration.md for more
  * information.
  * 
  * This class is created through the deseralization of a JSON object. Each
