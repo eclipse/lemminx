@@ -497,61 +497,6 @@ public class XMLPositionUtility {
 		return null;
 	}
 
-	/**
-	 * Finds the offset of the first tag it comes across behind the given offset.
-	 * 
-	 * <p>
-	 * This will include the tag it starts in if the offset is within a tag's
-	 * content:
-	 * </p>
-	 * <p>
-	 * {@code  <a> <b> | </b> </a> } , will give {@code </b>}
-	 * </p>
-	 * 
-	 * or within an unclosed end tag:
-	 * 
-	 * <p>
-	 * {@code  <a> <b>  </b> </a| <c>} , will give {@code </a>}
-	 * </p>
-	 * 
-	 * 
-	 * <p>
-	 * {@code  <a> <b|>  </b> </a>} , will give {@code </a>}
-	 * </p>
-	 * 
-	 */
-	public static Range selectPreviousNodesEndTag(int offset, DOMDocument document) {
-
-		DOMNode node = null;
-		DOMNode nodeAt = document.findNodeAt(offset);
-		if (nodeAt != null && nodeAt.isElement()) {
-			node = nodeAt;
-		} else {
-			DOMNode nodeBefore = document.findNodeBefore(offset);
-			if (nodeBefore != null && nodeBefore.isElement()) {
-				node = nodeBefore;
-			}
-		}
-		if (node != null) {
-			DOMElement element = (DOMElement) node;
-			if (element.isClosed() && !element.isEndTagClosed()) {
-				return selectEndTagName(element.getEnd(), document);
-			}
-		}
-
-		// boolean firstBracket = false;
-		int i = offset;
-		char c = document.getText().charAt(i);
-		while (i >= 0) {
-			if (c == '>') {
-				return selectEndTagName(i, document);
-			}
-			i--;
-			c = document.getText().charAt(i);
-		}
-		return null;
-	}
-
 	// ------------ Entities selection
 
 	/**

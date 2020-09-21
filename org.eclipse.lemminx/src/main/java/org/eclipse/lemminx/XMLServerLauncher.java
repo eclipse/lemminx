@@ -14,6 +14,7 @@ package org.eclipse.lemminx;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.util.concurrent.ExecutorService;
@@ -48,7 +49,12 @@ public class XMLServerLauncher {
 
 			});
 		}
-		launch(System.in, System.out);
+		InputStream in = System.in;
+		PrintStream out = System.out;
+		System.setIn(new NoOpInputStream());
+		System.setOut(new NoOpPrintStream());
+		System.setErr(new NoOpPrintStream());
+		launch(in, out);
 	}
 
 	/**
