@@ -15,6 +15,7 @@ package org.eclipse.lemminx.extensions.contentmodel;
 import static org.eclipse.lemminx.XMLAssert.pd;
 import static org.eclipse.lemminx.XMLAssert.r;
 
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import org.eclipse.lemminx.AbstractCacheBasedTest;
@@ -139,6 +140,8 @@ public class XMLSchemaPublishDiagnosticsTest extends AbstractCacheBasedTest {
 				" xsi:noNamespaceSchemaLocation=\"http://invoice.xsd\">\r\n" + //
 				"</invoice> \r\n" + //
 				"";
+
+		TimeUnit.SECONDS.sleep(2); // HACK: to make the timing work on slow machines
 
 		String expectedLocation = TEST_WORK_DIRECTORY.resolve("cache/http/invoice.xsd").toString();
 		XMLAssert.testPublishDiagnosticsFor(xml, fileURI, configuration,
