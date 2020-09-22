@@ -102,4 +102,208 @@ public class XMLCatalogDocumentLinkTest {
 				dl(r(1, 39, 1, 54), "src/test/resources/my schema.xsd"));
 	}
 
+	@Test
+	public void testDelegatePublicEntry() {
+		String xml = "<catalog xmlns=\"urn:oasis:names:tc:entity:xmlns:xml:catalog\">\n" + //
+				"  <delegatePublic catalog=\"catalogs/catalog-public.xml\" />\n" + //
+				"</catalog>";
+		testDocumentLinkFor(xml, CATALOG_PATH, //
+				dl(r(1, 27, 1, 54), "src/test/resources/catalogs/catalog-public.xml"));
+	}
+
+	@Test
+	public void testDelegateSystemEntry() {
+		String xml = "<catalog xmlns=\"urn:oasis:names:tc:entity:xmlns:xml:catalog\">\n" + //
+				"  <delegateSystem catalog=\"catalogs/catalog-public.xml\" />\n" + //
+				"</catalog>";
+		testDocumentLinkFor(xml, CATALOG_PATH, //
+				dl(r(1, 27, 1, 54), "src/test/resources/catalogs/catalog-public.xml"));
+	}
+
+	@Test
+	public void testDelegateUriEntry() {
+		String xml = "<catalog xmlns=\"urn:oasis:names:tc:entity:xmlns:xml:catalog\">\n" + //
+				"  <delegateUri catalog=\"catalogs/catalog-public.xml\" />\n" + //
+				"</catalog>";
+		testDocumentLinkFor(xml, CATALOG_PATH, //
+				dl(r(1, 24, 1, 51), "src/test/resources/catalogs/catalog-public.xml"));
+	}
+
+	@Test
+	public void testNextCatalogEntry() {
+		String xml = "<catalog xmlns=\"urn:oasis:names:tc:entity:xmlns:xml:catalog\">\n" + //
+				"  <nextCatalog catalog=\"catalogs/catalog-public.xml\" />\n" + //
+				"</catalog>";
+		testDocumentLinkFor(xml, CATALOG_PATH, //
+				dl(r(1, 24, 1, 51), "src/test/resources/catalogs/catalog-public.xml"));
+	}
+
+	@Test
+	public void testCatalogEntryWithoutCatalog() {
+		String xml = "<catalog xmlns=\"urn:oasis:names:tc:entity:xmlns:xml:catalog\">\n" + //
+				"  <public catalog=\"catalogs/catalog-public.xml\" />\n" + //
+				"</catalog>";
+		testDocumentLinkFor(xml, CATALOG_PATH);
+	}
+
+	@Test
+	public void testCatalogEntryWithoutURI() {
+		String xml = "<catalog xmlns=\"urn:oasis:names:tc:entity:xmlns:xml:catalog\">\n" + //
+				"  <nextCatalog uri=\"catalogs/catalog-public.xml\" />\n" + //
+				"</catalog>";
+		testDocumentLinkFor(xml, CATALOG_PATH);
+	}
+
+	@Test
+	public void testEmptyNextCatalogEntry() {
+		String xml = "<catalog xmlns=\"urn:oasis:names:tc:entity:xmlns:xml:catalog\">\n" + //
+				"  <nextCatalog catalog=\"\" />\n" + //
+				"</catalog>";
+		testDocumentLinkFor(xml, CATALOG_PATH);
+	}
+
+	@Test
+	public void testBlankNextCatalogEntry() {
+		String xml = "<catalog xmlns=\"urn:oasis:names:tc:entity:xmlns:xml:catalog\">\n" + //
+				"  <nextCatalog catalog=\"    	\" />\n" + //
+				"</catalog>";
+		testDocumentLinkFor(xml, CATALOG_PATH);
+	}
+
+	@Test
+	public void testEmptyPublicCatalogEntry() {
+		String xml = "<catalog xmlns=\"urn:oasis:names:tc:entity:xmlns:xml:catalog\">\n" + //
+				"  <public id=\"http://example.org\" uri=\"\" />\n" + //
+				"</catalog>";
+		testDocumentLinkFor(xml, CATALOG_PATH);
+	}
+
+	@Test
+	public void testBlankPublicCatalogEntry() {
+		String xml = "<catalog xmlns=\"urn:oasis:names:tc:entity:xmlns:xml:catalog\">\n" + //
+				"  <public id=\"http://example.org\" uri=\"    	\" />\n" + //
+				"</catalog>";
+		testDocumentLinkFor(xml, CATALOG_PATH);
+	}
+
+	@Test
+	public void testCatalogURIEntryWithXMLBase() {
+		String xml = "<catalog xmlns=\"urn:oasis:names:tc:entity:xmlns:xml:catalog\" xml:base=\"dtd\">\n" + //
+				"  <public id=\"http://example.org\" uri=\"svg.dtd\" />\n" + //
+				"</catalog>";
+		testDocumentLinkFor(xml, CATALOG_PATH, //
+				dl(r(1, 39, 1, 46), "src/test/resources/dtd/svg.dtd"));
+	}
+
+	@Test
+	public void testCatalogURIEntryWithXMLBaseRelativeReference() {
+		String xml = "<catalog xmlns=\"urn:oasis:names:tc:entity:xmlns:xml:catalog\" xml:base=\"./dtd\">\n" + //
+				"  <public id=\"http://example.org\" uri=\"svg.dtd\" />\n" + //
+				"</catalog>";
+		testDocumentLinkFor(xml, CATALOG_PATH, //
+				dl(r(1, 39, 1, 46), "src/test/resources/dtd/svg.dtd"));
+	}
+
+	@Test
+	public void testCatalogURIEntryWithXMLBaseTrailingBackslash() {
+		String xml = "<catalog xmlns=\"urn:oasis:names:tc:entity:xmlns:xml:catalog\" xml:base=\"dtd/\">\n" + //
+				"  <public id=\"http://example.org\" uri=\"svg.dtd\" />\n" + //
+				"</catalog>";
+		testDocumentLinkFor(xml, CATALOG_PATH, //
+				dl(r(1, 39, 1, 46), "src/test/resources/dtd/svg.dtd"));
+	}
+
+	@Test
+	public void testCatalogURIEntryGroupWithBase() {
+		String xml = "<catalog xmlns=\"urn:oasis:names:tc:entity:xmlns:xml:catalog\">\n" + //
+				"  <group xml:base=\"dtd\">\n" + //
+				"    <public id=\"http://example.org\" uri=\"svg.dtd\" />\n" + //
+				"  </group>\n" + //
+				"</catalog>";
+		testDocumentLinkFor(xml, CATALOG_PATH, //
+				dl(r(2, 41, 2, 48), "src/test/resources/dtd/svg.dtd"));
+	}
+
+	@Test
+	public void testCatalogURIEntryGroupWithoutBase() {
+		String xml = "<catalog xmlns=\"urn:oasis:names:tc:entity:xmlns:xml:catalog\">\n" + //
+				"  <group>\n" + //
+				"    <public id=\"http://example.org\" uri=\"dtd/svg.dtd\" />\n" + //
+				"  </group>\n" + //
+				"</catalog>";
+		testDocumentLinkFor(xml, CATALOG_PATH, //
+				dl(r(2, 41, 2, 52), "src/test/resources/dtd/svg.dtd"));
+	}
+
+	@Test
+	public void testCatalogURIWithCatalogAndGroupBase() {
+		String xml = "<catalog xmlns=\"urn:oasis:names:tc:entity:xmlns:xml:catalog\" xml:base=\"abc\">\n" + //
+				"  <group xml:base=\"def\">\n" + //
+				"    <public id=\"http://example.org\" uri=\"svg.dtd\" />\n" + //
+				"  </group>\n" + //
+				"</catalog>";
+		testDocumentLinkFor(xml, CATALOG_PATH, //
+				dl(r(2, 41, 2, 48), "src/test/resources/abc/def/svg.dtd"));
+	}
+
+	@Test
+	public void testCatalogCatalogEntryWithXMLBase() {
+		String xml = "<catalog xmlns=\"urn:oasis:names:tc:entity:xmlns:xml:catalog\" xml:base=\"catalog\">\n" + //
+				"  <nextCatalog catalog=\"catalog-liferay.xml\" />\n" + //
+				"</catalog>";
+		testDocumentLinkFor(xml, CATALOG_PATH, //
+				dl(r(1, 24, 1, 43), "src/test/resources/catalog/catalog-liferay.xml"));
+	}
+
+	@Test
+	public void testCatalogCatalogEntryWithXMLBaseRelativeReference() {
+		String xml = "<catalog xmlns=\"urn:oasis:names:tc:entity:xmlns:xml:catalog\" xml:base=\"./catalog\">\n" + //
+				"  <nextCatalog catalog=\"catalog-liferay.xml\" />\n" + //
+				"</catalog>";
+		testDocumentLinkFor(xml, CATALOG_PATH, //
+				dl(r(1, 24, 1, 43), "src/test/resources/catalog/catalog-liferay.xml"));
+	}
+
+	@Test
+	public void testCatalogCatalogEntryWithXMLBaseTrailingBackslash() {
+		String xml = "<catalog xmlns=\"urn:oasis:names:tc:entity:xmlns:xml:catalog\" xml:base=\"catalog/\">\n" + //
+				"  <nextCatalog catalog=\"catalog-liferay.xml\" />\n" + //
+				"</catalog>";
+		testDocumentLinkFor(xml, CATALOG_PATH, //
+				dl(r(1, 24, 1, 43), "src/test/resources/catalog/catalog-liferay.xml"));
+	}
+
+	@Test
+	public void testCatalogCatalogEntryGroupWithBase() {
+		String xml = "<catalog xmlns=\"urn:oasis:names:tc:entity:xmlns:xml:catalog\">\n" + //
+				"  <group xml:base=\"catalog\">\n" + //
+				"    <nextCatalog catalog=\"catalog-liferay.xml\" />\n" + //
+				"  </group>\n" + //
+				"</catalog>";
+		testDocumentLinkFor(xml, CATALOG_PATH, //
+				dl(r(2, 26, 2, 45), "src/test/resources/catalog/catalog-liferay.xml"));
+	}
+
+	@Test
+	public void testCatalogCatalogEntryGroupWithoutBase() {
+		String xml = "<catalog xmlns=\"urn:oasis:names:tc:entity:xmlns:xml:catalog\">\n" + //
+				"  <group>\n" + //
+				"    <nextCatalog catalog=\"catalog/catalog-liferay.xml\" />\n" + //
+				"  </group>\n" + //
+				"</catalog>";
+		testDocumentLinkFor(xml, CATALOG_PATH, //
+				dl(r(2, 26, 2, 53), "src/test/resources/catalog/catalog-liferay.xml"));
+	}
+
+	@Test
+	public void testCatalogCatalogWithCatalogAndGroupBase() {
+		String xml = "<catalog xmlns=\"urn:oasis:names:tc:entity:xmlns:xml:catalog\" xml:base=\"abc\">\n" + //
+				"  <group xml:base=\"def\">\n" + //
+				"    <nextCatalog catalog=\"catalog.xml\" />\n" + //
+				"  </group>\n" + //
+				"</catalog>";
+		testDocumentLinkFor(xml, CATALOG_PATH, //
+				dl(r(2, 26, 2, 37), "src/test/resources/abc/def/catalog.xml"));
+	}
+
 }
