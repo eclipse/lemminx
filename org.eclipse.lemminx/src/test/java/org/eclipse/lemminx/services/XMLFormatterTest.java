@@ -33,7 +33,7 @@ public class XMLFormatterTest {
 	public void closeStartTagMissing() throws BadLocationException {
 		// Don't close tag with bad XML
 		String content = "<a";
-		String expected = "<a";
+		String expected = content;
 		assertFormat(content, expected);
 	}
 
@@ -41,7 +41,7 @@ public class XMLFormatterTest {
 	public void closeTagMissing() throws BadLocationException {
 		// Don't close tag with bad XML
 		String content = "<a>";
-		String expected = "<a>";
+		String expected = content;
 		assertFormat(content, expected);
 	}
 
@@ -55,17 +55,44 @@ public class XMLFormatterTest {
 	@Test
 	public void selfClosingTag() throws BadLocationException {
 		String content = "<a></a>";
-		String expected = "<a></a>";
+		String expected =  content;
 		assertFormat(content, expected);
 	}
 
 	@Test
 	public void singleEndTag() throws BadLocationException {
 		String content = "</a>";
-		String expected = "</a>";
+		String expected = content;
 		assertFormat(content, expected);
 	}
 
+	@Test
+	public void invalidEndTag() throws BadLocationException {
+		String content = "</";
+		String expected = content;
+		assertFormat(content, expected);
+
+		content = "</a";
+		expected = content;
+		assertFormat(content, expected);
+
+		content = "<a></";
+		expected = "<a>" + lineSeparator() + //
+				"  </";
+		assertFormat(content, expected);
+	}
+
+	@Test
+	public void invalidEndTagInsideRoot() throws BadLocationException {
+		String content = "<a>\r\n" + //
+				"  <b>\r\n" + //
+				"    </\r\n" + //
+				"  </b>\r\n" + //
+				"</a>";
+		String expected = content;
+		assertFormat(content, expected);
+	}
+	
 	@Test
 	public void endTagMissing() throws BadLocationException {
 		String content = "<foo>\r\n" + //

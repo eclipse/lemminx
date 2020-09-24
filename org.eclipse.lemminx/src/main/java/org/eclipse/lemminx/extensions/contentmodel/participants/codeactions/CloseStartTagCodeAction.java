@@ -47,7 +47,7 @@ public class CloseStartTagCodeAction implements ICodeActionParticipant {
 				if (!element.hasStartTag()) {
 					// </foo>
 					DOMElement parent = element.getParentElement();
-					if (parent != null && parent.getTagName() != null) {
+					if (parent != null && parent.hasTagName()) {
 						// <a><b></c>
 						// Replace with 'b' closing tag
 						String tagName = parent.getTagName();

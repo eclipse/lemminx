@@ -77,6 +77,17 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 		return tag;
 	}
 
+	/**
+	 * Returns true if the DOM element have a tag name and false otherwise (ex : '<'
+	 * or '</').
+	 * 
+	 * @return true if the DOM element have a tag name and false otherwise (ex : '<'
+	 *         or '</').
+	 */
+	public boolean hasTagName() {
+		return tag != null;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -397,12 +408,23 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 	 * Returns true if the given element is an orphan end tag (which has no start
 	 * tag, eg: </a>) and false otherwise.
 	 * 
-	 * @param tagName the end tag name.
 	 * @return true if the given element is an orphan end tag (which has no start
 	 *         tag, eg: </a>) and false otherwise.
 	 */
-	public boolean isOrphanEndTag(String tagName) {
-		return isSameTag(tagName) && hasEndTag() && !hasStartTag();
+	public boolean isOrphanEndTag() {
+		return hasEndTag() && !hasStartTag();
+	}
+
+	/**
+	 * Returns true if the given element is an orphan end tag (which has no start
+	 * tag, eg: </a>) of the given tag name and false otherwise.
+	 * 
+	 * @param tagName the end tag name.
+	 * @return true if the given element is an orphan end tag (which has no start
+	 *         tag, eg: </a>) of the given tag name and false otherwise.
+	 */
+	public boolean isOrphanEndTagOf(String tagName) {
+		return isSameTag(tagName) && isOrphanEndTag();
 	}
 
 	@Override
@@ -423,7 +445,7 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 		for (DOMNode child : children) {
 			if (child.isElement()) {
 				DOMElement childElement = (DOMElement) child;
-				if (childElement.isOrphanEndTag(tagName)) {
+				if (childElement.isOrphanEndTagOf(tagName)) {
 					return childElement;
 				}
 			}
