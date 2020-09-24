@@ -268,7 +268,7 @@ public class XMLPositionUtility {
 
 	public static Range selectChildEndTag(String childTag, int offset, DOMDocument document) {
 		DOMNode parent = document.findNodeAt(offset);
-		if (parent == null || !parent.isElement() || ((DOMElement) parent).getTagName() == null) {
+		if (parent == null || !parent.isElement() || !((DOMElement) parent).hasTagName()) {
 			return null;
 		}
 
@@ -421,7 +421,7 @@ public class XMLPositionUtility {
 	private static int getStartTagLength(DOMNode node) {
 		if (node.isElement()) {
 			DOMElement element = (DOMElement) node;
-			return element.getTagName() != null ? element.getTagName().length() : 0;
+			return element.hasTagName() ? element.getTagName().length() : 0;
 		} else if (node.isProcessingInstruction() || node.isProlog()) {
 			DOMProcessingInstruction element = (DOMProcessingInstruction) node;
 			return element.getTarget() != null ? element.getTarget().length() : 0;

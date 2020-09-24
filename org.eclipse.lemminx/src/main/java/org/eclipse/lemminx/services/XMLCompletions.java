@@ -489,7 +489,7 @@ public class XMLCompletions {
 				return null;
 			}
 			DOMElement element = ((DOMElement) node);
-			if (node != null && node.isElement() && !element.isSelfClosed() && element.getTagName() != null
+			if (node != null && node.isElement() && !element.isSelfClosed() && element.hasTagName()
 					&& !isEmptyElement(((DOMElement) node).getTagName()) && node.getStart() < offset
 					&& (!element.hasEndTag() || (element.getTagName().equals(node.getParentNode().getNodeName())
 							&& !isBalanced(node)))) {
@@ -498,7 +498,7 @@ public class XMLCompletions {
 			}
 		} else if (cBefore == '<' && c == '/') { // Case: <a> </|
 			DOMNode node = xmlDocument.findNodeBefore(offset);
-			while (node != null && node.isClosed()) {
+			while ((node != null && node.isClosed()) || (node.isElement() && ((DOMElement) node).isOrphanEndTag())) {
 				node = node.getParentNode();
 			}
 			if (node != null && node.isElement() && ((DOMElement) node).getTagName() != null) {
@@ -785,7 +785,7 @@ public class XMLCompletions {
 			}
 			return null;
 		case Node.TEXT_NODE:
-			// ex : <root>  |  </root>
+			// ex : <root> | </root>
 			return XMLPositionUtility.selectText((DOMText) node);
 		}
 		// should never occur

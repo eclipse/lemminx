@@ -49,7 +49,7 @@ public class XMLDeclarationSnippetContext implements IXMLSnippetContext {
 		// No xml processing instruction, check if completion was triggered before the
 		// document element
 		DOMElement documentElement = document.getDocumentElement();
-		if (documentElement != null && documentElement.getTagName() != null) {
+		if (documentElement != null && documentElement.hasTagName()) {
 			return offset <= documentElement.getStart();
 		}
 		return true;
