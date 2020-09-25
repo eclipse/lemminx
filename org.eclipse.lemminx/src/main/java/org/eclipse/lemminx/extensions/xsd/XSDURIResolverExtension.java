@@ -21,8 +21,8 @@ import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.parser.XMLInputSource;
 import org.eclipse.lemminx.services.IXMLDocumentProvider;
 import org.eclipse.lemminx.uriresolver.CacheResourcesManager;
-import org.eclipse.lemminx.uriresolver.URIResolverExtension;
 import org.eclipse.lemminx.uriresolver.CacheResourcesManager.ResourceToDeploy;
+import org.eclipse.lemminx.uriresolver.URIResolverExtension;
 
 /**
  * Resolve the XSD XML Schema and DTD dependencies.
@@ -47,6 +47,10 @@ public class XSDURIResolverExtension implements URIResolverExtension {
 
 	private static final ResourceToDeploy NAMESPACE_URI_1998_RESOURCE = new ResourceToDeploy(
 			"https://www.w3.org/2001/xml.xsd", "schemas/xsd/xml.xsd");
+
+	public String getName() {
+		return "embedded xml.xsd";
+	}
 
 	public XSDURIResolverExtension(IXMLDocumentProvider documentProvider) {
 

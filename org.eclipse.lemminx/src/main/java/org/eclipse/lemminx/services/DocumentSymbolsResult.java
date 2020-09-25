@@ -12,43 +12,25 @@
  */
 package org.eclipse.lemminx.services;
 
-import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.eclipse.lsp4j.DocumentSymbol;
 
 /**
- * Result for document symbols computation for
- * the textDocument/documentSymbol request
+ * Result for document symbols computation for the textDocument/documentSymbol
+ * request
  * 
  */
-public class DocumentSymbolsResult extends ArrayList<DocumentSymbol> {
+public class DocumentSymbolsResult extends LimitList<DocumentSymbol> {
 
 	private static final long serialVersionUID = 1L;
+	public static final DocumentSymbolsResult EMPTY_LIMITLESS_LIST = new DocumentSymbolsResult(null);
 
-	/**
-	 * Keeps track of whether or not symbols limit has exceeded
-	 * while computing document symbols
-	 */
-	private transient boolean resultLimitExceeded;
-
-	/**
-	 * Returns true if the symbols limit has been exceeded while
-	 * computing document symbols, false otherwise
-	 * 
-	 * @return true if the symbols limit has been exceeded while
-	 * computing document symbols, false otherwise
-	 */
-	public boolean isResultLimitExceeded() {
-		return resultLimitExceeded;
+	public DocumentSymbolsResult(AtomicLong limit) {
+		super(limit);
 	}
 
-	/**
-	 * Sets the resultLimitExceeded boolean
-	 * 
-	 * @param resultLimitExceeded
-	 */
-	void setResultLimitExceeded(boolean resultLimitExceeded) {
-		this.resultLimitExceeded = resultLimitExceeded;
+	public DocumentSymbolsResult createList() {
+		return new DocumentSymbolsResult(getLimit());
 	}
-
 }

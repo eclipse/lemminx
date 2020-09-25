@@ -12,39 +12,21 @@
  */
 package org.eclipse.lemminx.services;
 
-import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.eclipse.lsp4j.SymbolInformation;
 
 /**
- * Result for symbols information computation for
- * the textDocument/documentSymbol request
+ * Result for symbols information computation for the
+ * textDocument/documentSymbol request
  * 
  */
-public class SymbolInformationResult extends ArrayList<SymbolInformation> {
+public class SymbolInformationResult extends LimitList<SymbolInformation> {
 
 	private static final long serialVersionUID = 1L;
 
-	private transient boolean resultLimitExceeded;
-
-	/**
-	 * Returns true if the symbols limit has been exceeded while
-	 * computing symbols information, false otherwise
-	 * 
-	 * @return true if the symbols limit has been exceeded while
-	 * computing symbols information, false otherwise
-	 */
-	public boolean isResultLimitExceeded() {
-		return resultLimitExceeded;
-	}
-
-	/**
-	 * Sets the resultLimitExceeded boolean
-	 * 
-	 * @param resultLimitExceeded
-	 */
-	void setResultLimitExceeded(boolean resultLimitExceeded) {
-		this.resultLimitExceeded = resultLimitExceeded;
+	public SymbolInformationResult(AtomicLong limit) {
+		super(limit);
 	}
 
 }

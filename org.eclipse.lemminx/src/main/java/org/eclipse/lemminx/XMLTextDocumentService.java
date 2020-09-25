@@ -241,17 +241,17 @@ public class XMLTextDocumentService implements TextDocumentService {
 							return e;
 						}) //
 						.collect(Collectors.toList());
+			} else {
+				SymbolInformationResult result = getXMLLanguageService().findSymbolInformations(xmlDocument,
+						symbolSettings, cancelChecker);
+				resultLimitExceeded = result.isResultLimitExceeded();
+				symbols = result.stream() //
+						.map(s -> {
+							Either<SymbolInformation, DocumentSymbol> e = Either.forLeft(s);
+							return e;
+						}) //
+						.collect(Collectors.toList());
 			}
-			SymbolInformationResult result = getXMLLanguageService().findSymbolInformations(xmlDocument, symbolSettings,
-					cancelChecker);
-			resultLimitExceeded = result.isResultLimitExceeded();
-			symbols = result.stream() //
-					.map(s -> {
-						Either<SymbolInformation, DocumentSymbol> e = Either.forLeft(s);
-						return e;
-					}) //
-					.collect(Collectors.toList());
-
 			if (resultLimitExceeded) {
 				// send warning
 				getLimitExceededWarner().onResultLimitExceeded(xmlDocument.getTextDocument().getUri(),
@@ -562,8 +562,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	public LimitExceededWarner getLimitExceededWarner() {
 		if (this.limitExceededWarner == null) {
-			this.limitExceededWarner =
-					new LimitExceededWarner(this.xmlLanguageServer);
+			this.limitExceededWarner = new LimitExceededWarner(this.xmlLanguageServer);
 		}
 		return this.limitExceededWarner;
 	}
