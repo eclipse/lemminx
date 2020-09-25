@@ -46,19 +46,19 @@ public class EntityNotDeclaredCodeAction implements ICodeActionParticipant {
 			SharedSettings sharedSettings, IComponentProvider componentProvider) {
 
 		try {
-			String entityName = getEntityName(diagnostic, range, document);
+			String entityName = getEntityName(diagnostic, document);
 
 			if (entityName == null) {
 				return;
 			}
-			
+
 			DOMDocumentType docType = document.getDoctype();
 			if (docType != null) {
 
 				// Case 1: <!DOCTYPE exists
 				// Add <!ENTITY nbsp "entity-value"> in the subset.
 				// If the subset does not exist, add subset too
-				
+
 				// ie:
 				// <!DOCTYPE article [
 				// <!ELEMENT article (#PCDATA)>
@@ -69,7 +69,7 @@ public class EntityNotDeclaredCodeAction implements ICodeActionParticipant {
 				// Case 2: <!DOCTYPE does not exist
 				// Generate:
 				// <!DOCTYPE article [
-				//     <!ENTITY nbsp "entity-value">
+				// <!ENTITY nbsp "entity-value">
 				// ]>
 				addDoctypeAndEntityCodeAction(entityName, diagnostic, document, sharedSettings, codeActions);
 			}
@@ -79,11 +79,10 @@ public class EntityNotDeclaredCodeAction implements ICodeActionParticipant {
 	}
 
 	/**
-	 * Add a code action that inserts entity declaration to the
-	 * current DOCTYPE's internal subset
+	 * Add a code action that inserts entity declaration to the current DOCTYPE's
+	 * internal subset
 	 * 
-	 * If the internal subset does not exist, the code action
-	 * inserts it as well
+	 * If the internal subset does not exist, the code action inserts it as well
 	 * 
 	 * @param entityName  the entity name for the entity declaration
 	 * @param diagnostic  the code action's diagnostic
@@ -113,7 +112,7 @@ public class EntityNotDeclaredCodeAction implements ICodeActionParticipant {
 			} else {
 				insertString.startUnindentedDoctypeInternalSubset();
 			}
-			
+
 			if (insertPosition.getLine() > 0) {
 				insertString.linefeed();
 			}
@@ -136,8 +135,8 @@ public class EntityNotDeclaredCodeAction implements ICodeActionParticipant {
 	}
 
 	/**
-	 * Add a code action that inserts the DOCTYPE declaration containing
-	 * an internal subset with an entity declaration
+	 * Add a code action that inserts the DOCTYPE declaration containing an internal
+	 * subset with an entity declaration
 	 * 
 	 * @param entityName  the entity name for the entity declaration
 	 * @param diagnostic  the code action's diagnostic
@@ -161,14 +160,12 @@ public class EntityNotDeclaredCodeAction implements ICodeActionParticipant {
 		if (insertPosition.getCharacter() > 0) {
 			insertString.linefeed();
 		}
-		insertString.startDoctype().addParameter(root.getTagName())
-				.startDoctypeInternalSubset().linefeed().indent(1);
+		insertString.startDoctype().addParameter(root.getTagName()).startDoctypeInternalSubset().linefeed().indent(1);
 
 		addEntityDeclaration(entityName, insertString);
 
-		insertString.linefeed()
-				.endDoctypeInternalSubset().closeStartElement();
-		
+		insertString.linefeed().endDoctypeInternalSubset().closeStartElement();
+
 		Position rootStartPosition = document.positionAt(root.getStart());
 		if (insertPosition.getLine() == rootStartPosition.getLine()) {
 			insertString.linefeed();
@@ -219,12 +216,12 @@ public class EntityNotDeclaredCodeAction implements ICodeActionParticipant {
 	 * https://github.com/microsoft/language-server-protocol/issues/887
 	 * 
 	 * @param diagnostic the diagnostic
-	 * @param range      the error range
 	 * @param doc        the DOM document
 	 * @return entity name from the error range and error message.
 	 * @throws BadLocationException
 	 */
-	private String getEntityName(Diagnostic diagnostic, Range range, DOMDocument doc) throws BadLocationException {
+	private static String getEntityName(Diagnostic diagnostic, DOMDocument doc) throws BadLocationException {
+		Range range = diagnostic.getRange();
 		String name = doc.getText().substring(doc.offsetAt(range.getStart()), doc.offsetAt(range.getEnd()));
 		String removedAmpAndSemiColon = name.substring(1, name.length() - 1);
 		if (diagnostic.getMessage().indexOf("\"" + removedAmpAndSemiColon + "\"") < 0) {
@@ -233,8 +230,10 @@ public class EntityNotDeclaredCodeAction implements ICodeActionParticipant {
 		return removedAmpAndSemiColon;
 	}
 
-	private void addEntityDeclaration(String entityName, XMLBuilder builder) {
-		builder.addDeclTagStart("ENTITY").addParameter(entityName)
-				.addParameter("\"entity-value\"").closeStartElement();
+	private static void addEntityDeclaration(String entityName, XMLBuilder builder) {
+		builder.addDeclTagStart("ENTITY") //
+				.addParameter(entityName) //
+				.addParameter("\"entity-value\"")//
+				.closeStartElement();
 	}
 }
