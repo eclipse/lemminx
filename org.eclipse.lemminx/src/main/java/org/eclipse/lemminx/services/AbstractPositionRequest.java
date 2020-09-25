@@ -96,7 +96,7 @@ abstract class AbstractPositionRequest implements IPositionRequest {
 
 	@Override
 	public String getCurrentTag() {
-		if (node != null && node.isElement() && ((DOMElement) node).getTagName() != null) {
+		if (node != null && node.isElement() && ((DOMElement) node).hasTagName()) {
 			return ((DOMElement) node).getTagName();
 		}
 		return null;

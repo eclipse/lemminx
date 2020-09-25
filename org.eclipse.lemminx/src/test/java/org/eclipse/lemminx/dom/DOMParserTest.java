@@ -460,6 +460,115 @@ public class DOMParserTest {
 	}
 
 	@Test
+	public void startTag() {
+		// '<'
+		DOMDocument document = DOMParser.getInstance().parse("<", "", null);
+		DOMElement a = document.getDocumentElement();
+		assertNotNull(a);
+		assertFalse(a.hasTagName());
+		assertTrue(a.hasStartTag());
+		assertFalse(a.hasEndTag());
+
+		// '<a'
+		document = DOMParser.getInstance().parse("<a", "", null);
+		a = document.getDocumentElement();
+		assertNotNull(a);
+		assertTrue(a.hasTagName());
+		assertEquals("a", a.getTagName());
+		assertTrue(a.hasStartTag());
+		assertFalse(a.isStartTagClosed());
+		assertFalse(a.hasEndTag());
+
+		// '<a>'
+		document = DOMParser.getInstance().parse("<a>", "", null);
+		a = document.getDocumentElement();
+		assertNotNull(a);
+		assertTrue(a.hasTagName());
+		assertEquals("a", a.getTagName());
+		assertTrue(a.hasStartTag());
+		assertTrue(a.isStartTagClosed());
+		assertFalse(a.hasEndTag());
+
+		// '<a></a'
+		document = DOMParser.getInstance().parse("<a></a", "", null);
+		a = document.getDocumentElement();
+		assertNotNull(a);
+		assertTrue(a.hasTagName());
+		assertEquals("a", a.getTagName());
+		assertTrue(a.hasStartTag());
+		assertTrue(a.isStartTagClosed());
+		assertTrue(a.hasEndTag());
+		assertFalse(a.isEndTagClosed());
+
+		// '<a></a>'
+		document = DOMParser.getInstance().parse("<a></a>", "", null);
+		a = document.getDocumentElement();
+		assertNotNull(a);
+		assertTrue(a.hasTagName());
+		assertEquals("a", a.getTagName());
+		assertTrue(a.hasStartTag());
+		assertTrue(a.isStartTagClosed());
+		assertTrue(a.hasEndTag());
+		assertTrue(a.isEndTagClosed());
+	}
+
+	@Test
+	public void endTag() {
+		// '</'
+		DOMDocument document = DOMParser.getInstance().parse("</", "", null);
+		DOMElement a = document.getDocumentElement();
+		assertNotNull(a);
+		assertFalse(a.hasTagName());
+		assertFalse(a.hasStartTag());
+		assertTrue(a.hasEndTag());
+		assertTrue(a.isOrphanEndTag());
+
+		// '</a'
+		document = DOMParser.getInstance().parse("</a", "", null);
+		a = document.getDocumentElement();
+		assertNotNull(a);
+		assertTrue(a.hasTagName());
+		assertFalse(a.hasStartTag());
+		assertTrue(a.hasEndTag());
+		assertTrue(a.isOrphanEndTag());
+
+		// '<a></'
+		document = DOMParser.getInstance().parse("<a></", "", null);
+		a = document.getDocumentElement();
+		assertNotNull(a);
+		assertTrue(a.hasChildNodes());
+
+		DOMNode child = a.getChild(0);
+		assertNotNull(child);
+		assertTrue(child.isElement());
+		DOMElement invalidEndTag = (DOMElement) child;
+		assertFalse(invalidEndTag.hasTagName());
+		assertFalse(invalidEndTag.hasStartTag());
+		assertTrue(invalidEndTag.hasEndTag());
+		assertTrue(invalidEndTag.isOrphanEndTag());
+
+		// '<root><a></</root>'
+		document = DOMParser.getInstance().parse("<root><a></</root>", "", null);
+		DOMElement root = document.getDocumentElement();
+		assertNotNull(root);
+		assertTrue(root.hasChildNodes());
+
+		a = (DOMElement) root.getChild(0);
+		assertNotNull(a);
+		assertTrue(a.hasChildNodes());
+
+		child = a.getChild(0);
+		assertNotNull(child);
+		assertTrue(child.isElement());
+		invalidEndTag = (DOMElement) child;
+		assertFalse(invalidEndTag.hasTagName());
+		assertFalse(invalidEndTag.hasStartTag());
+		assertTrue(invalidEndTag.hasEndTag());
+		assertTrue(invalidEndTag.isOrphanEndTag());
+
+	}
+
+	@Test
 	public void testDoctype1() {
 		String xml = "<!DOCTYPE note [\n" + "  <!ENTITY nbsp \"&#xA0;\"> \n"
 				+ "  <!ENTITY writer \"Writer: Donald Duck.\">\n" + "  <!ENTITY copyright \"Copyright: W3Schools.\">\n"

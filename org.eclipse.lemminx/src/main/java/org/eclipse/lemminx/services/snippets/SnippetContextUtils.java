@@ -45,7 +45,12 @@ public class SnippetContextUtils {
 		}
 		if (node.isElement()) {
 			DOMElement element = (DOMElement) node;
-			if (element.getTagName() == null) {
+			if (element.isOrphanEndTag()) {
+				// </ 
+				//</foo>
+				return false;
+			}
+			if (!element.hasTagName()) {
 				// <|
 				// <!|
 				return true;

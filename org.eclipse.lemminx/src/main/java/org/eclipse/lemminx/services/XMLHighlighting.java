@@ -70,7 +70,7 @@ class XMLHighlighting {
 
 	private static void fillWithDefaultHighlights(DOMNode node, Position position, int offset,
 			List<DocumentHighlight> highlights, CancelChecker cancelChecker) {
-		if (!node.isElement() || ((DOMElement) node).getTagName() == null) {
+		if (!node.isElement() || !((DOMElement) node).hasTagName()) {
 			return;
 		}
 
@@ -122,7 +122,7 @@ class XMLHighlighting {
 			List<DocumentHighlight> highlights, CancelChecker cancelChecker) {
 		// Consume highlighting participant
 		for (IHighlightingParticipant highlightingParticipant : extensionsRegistry.getHighlightingParticipants()) {
-			highlightingParticipant.findDocumentHighlights(node, position, offset,highlights, cancelChecker);
+			highlightingParticipant.findDocumentHighlights(node, position, offset, highlights, cancelChecker);
 		}
 	}
 }
