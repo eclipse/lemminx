@@ -45,23 +45,60 @@ To start developing a LemMinX extension, create a new Java Project that includes
   </repositories>
 ```
 
-Create the entry point for your LemMinX extension by creating a class that implements [IXMLExtension](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/IXMLExtension.java). This class should register language feature participants (Classes that implement `ICompletionParticipant`, `IHoverParticipant`, `IDiagnosticsParticipant`, etc). For example the [MavenDiagnosticParticipant](https://github.com/eclipse/lemminx-maven/blob/master/lemminx-maven/src/main/java/org/eclipse/lemminx/maven/MavenDiagnosticParticipant.java). These participants should be registered in the [start method](https://github.com/eclipse/lemminx-maven/blob/master/lemminx-maven/src/main/java/org/eclipse/lemminx/maven/MavenLemminxExtension.java#L98) of your XMLExtension.
+Create the entry point for your LemMinX extension by creating a class that implements [IXMLExtension](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/IXMLExtension.java). 
 
-To register your extension with LemMinX using Java SPI you need to create a [/META-INF/services/org.eclipse.lemminx.services.extensions.IXMLExtension](https://github.com/eclipse/lemminx-maven/blob/master/lemminx-maven/src/main/resources/META-INF/services/org.eclipse.lemminx.services.extensions.IXMLExtension) file that declares your implementation of IXMLExtension. When a JAR of your extension is contributed to the classpath of LemMinX, LemMinX is able to discover and use your implementation of IXMLExtension.
+```java
+package org.samples.lemminx.extensions.foo;
+
+import org.eclipse.lemminx.services.extensions.IXMLExtension;
+import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lemminx.services.extensions.save.ISaveContext;
+import org.eclipse.lsp4j.InitializeParams;
+
+public class FooPlugin implements IXMLExtension {
+
+	@Override
+	public void doSave(ISaveContext context) {
+		// Called when settings or XML document are saved.
+	}
+
+	@Override
+	public void start(InitializeParams params, XMLExtensionsRegistry registry) {
+		// Register here completion, hover, etc participants
+	}
+
+	@Override
+	public void stop(XMLExtensionsRegistry registry) {
+		// Unregister here completion, hover, etc participants
+	}
+}
+```
+
+This class should register language feature participants (Classes that implement `ICompletionParticipant`, `IHoverParticipant`, `IDiagnosticsParticipant`, etc). For example the [MavenDiagnosticParticipant](https://github.com/eclipse/lemminx-maven/blob/master/lemminx-maven/src/main/java/org/eclipse/lemminx/maven/MavenDiagnosticParticipant.java). These participants should be registered in the [start method](https://github.com/eclipse/lemminx-maven/blob/master/lemminx-maven/src/main/java/org/eclipse/lemminx/maven/MavenLemminxExtension.java#L98) of your XMLExtension.
+
+To register your extension with LemMinX using Java SPI you need to create a [/META-INF/services/org.eclipse.lemminx.services.extensions.IXMLExtension](https://github.com/eclipse/lemminx-maven/blob/master/lemminx-maven/src/main/resources/META-INF/services/org.eclipse.lemminx.services.extensions.IXMLExtension) file that declares your implementation of IXMLExtension. 
+
+```
+org.samples.lemminx.extensions.foo.FooPlugin
+```
+When a JAR of your extension is contributed to the classpath of LemMinX, LemMinX is able to discover and use your implementation of IXMLExtension.
 
 ## Adding language features
 
 The [LemMinx Extensions API](https://github.com/eclipse/lemminx/tree/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions) supports many of the language features defined in the [Language server Protocol](https://microsoft.github.io/language-server-protocol/). You can add these features to your extension by implementing the feature participant and registering the participant in your implementation of IXMLExtension. This includes:
 
-- Code actions with `ICodeActionParticipant`
-- Code Completion with `ICompletionParticipant`
-- Go to Definition with `IDefinitionParticipant`
-- Adding document Links with `IDocumentLinkParticipant`
-- Highlighting with `IHighlightingParticipant`
-- Hover information with `IHoverParticipant`
-- Find references with `IReferenceParticipant`
-- Rename symbols with `IRenameParticipant`
-- Type Definitions with `ITypeDefinitionParticipant`
+- Diagnostics with [IDiagnosticsParticipant](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/diagnostics/IDiagnosticsParticipant.java)
+- Code actions with [ICodeActionParticipant](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/ICodeActionParticipant.java)
+- Code Completion with [ICompletionParticipant](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/ICompletionParticipant.java)
+- Go to Definition with [IDefinitionParticipant](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/IDefinitionParticipant.java)
+- Adding document Links with [IDocumentLinkParticipant](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/IDocumentLinkParticipant.java)
+- Highlighting with [IHighlightingParticipant](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/IHighlightingParticipant.java)
+- Hover information with [IHoverParticipant](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/IHoverParticipant.java)
+- Find references with [IReferenceParticipant](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/IReferenceParticipant.java)
+- Rename symbols with [IRenameParticipant](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/IRenameParticipant.java)
+- Type Definitions with [ITypeDefinitionParticipant](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/ITypeDefinitionParticipant.java)
+- CodeLens with [ICodeLensParticipant](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/codelens/ICodeLensParticipant.java)
+- Formatter with [IFormatterParticipant](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/format/IFormatterParticipant.java)
 
 ## Adding custom settings for your extension
 
