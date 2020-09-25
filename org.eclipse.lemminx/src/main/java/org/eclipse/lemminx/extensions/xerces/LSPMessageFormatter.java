@@ -137,29 +137,28 @@ public class LSPMessageFormatter implements MessageFormatter {
 		}
 	}
 
-	private static String reformatElementNames(boolean hasNamespace, String names) {
-		StringBuilder sb = new StringBuilder();
+	private static String reformatElementNames(String names) {
+		StringBuilder result = new StringBuilder();
 
 		MultiLineStream stream = new MultiLineStream(names, 0);
 
 		while (!stream.eos()) { // }
 			stream.advance(1);// Consume ' ' or '{' if first item
-			if(hasNamespace) {
+			boolean hasNamespace = stream.peekChar() == _DQO;
+			if (hasNamespace) {
 				stream.advance(1); // Consume "
 				stream.advanceUntilAnyOfChars(_DQO, _SQO, _SIQ); // " | " | '
 				stream.advance(2); // Consume quotation and':'
 			}
-			sb.append(" - ");
+			result.append(" - ");
 			while (stream.peekChar() != _CCB && stream.peekChar() != _CMA) { // } | ,
-				sb.append(Character.toString((char) stream.peekChar()));
+				result.append(Character.toString((char) stream.peekChar()));
 				stream.advance(1);
 			}
-			sb.append("\n");
-			//if (stream.peekChar() == _CMA) {
-				stream.advance(1);
-			//}
+			result.append("\n");
+			stream.advance(1);
 		}
-		return sb.toString();
+		return result.toString();
 	}
 
 	/**
@@ -199,10 +198,6 @@ public class LSPMessageFormatter implements MessageFormatter {
 		return namespacePattern.matcher(name);
 	}
 
-	// private static boolean isNamespaceDefined(String name) {
-	// 	return getNamespaceMatcher(name).matches();
-	// }
-
 	/**
 	 * Parses the message for cvc.2.4.a and returns reformatted arguments
 	 * 
@@ -228,11 +223,11 @@ public class LSPMessageFormatter implements MessageFormatter {
 		if (m.matches()) {
 			name = m.group(2);
 			schema = "{" + m.group(1) + "}";
-			validNames = reformatElementNames(true, getString(arguments[1]));
+			validNames = reformatElementNames(getString(arguments[1]));
 		} else { // No namespace, so just element name
 			name = getString(arguments[0]);
 			schema = "{the schema}";
-			validNames = reformatElementNames(false, getString(arguments[1]));
+			validNames = reformatElementNames(getString(arguments[1]));
 		}
 		name = "- " + name;
 		return new Object[] { name, validNames, schema };
@@ -262,11 +257,11 @@ public class LSPMessageFormatter implements MessageFormatter {
 		String schema = null;
 	
 		if (m.matches()) {
-			missingChildElements = reformatElementNames(true, getString(arguments[1]));
+			missingChildElements = reformatElementNames(getString(arguments[1]));
 			schema = "{" + m.group(1) + "}";
 		} else { 
 			// No namespace, so just element name
-			missingChildElements = reformatElementNames(false, getString(arguments[1]));
+			missingChildElements = reformatElementNames(getString(arguments[1]));
 			schema = "{the schema}";
 		}
 		element = "- " + getString(arguments[0]);
