@@ -425,6 +425,28 @@ public class DTDDiagnosticsTest {
 	}
 
 	@Test
+	public void Issue862() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + //
+				"<!DOCTYPE article\n" + //
+				">\n" + //
+				"<article>\n" + //
+				"	&nbsp;\n" + //
+				"</article>";
+
+		Diagnostic d = d(4, 1, 4, 7, DTDErrorCode.EntityNotDeclared,
+				"The entity \"nbsp\" was referenced, but not declared.");
+		XMLAssert.testDiagnosticsFor(xml, d);
+
+		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + //
+				"<!DOCTYPE article\n" + //
+				">\n" + //
+				"<article>\n" + //
+				"	&|nbsp;\n" + // set the range
+				"</article>";
+		testCodeActionsFor(xml, d, ca(d, te(2, 0, 2, 0, "[\n\t<!ENTITY nbsp \"entity-value\">\n]")));
+	}
+	
+	@Test
 	public void EntityNotDeclaredDoctypeEmptySubset() throws Exception {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + //
 				"<!DOCTYPE article []>\n" + //
