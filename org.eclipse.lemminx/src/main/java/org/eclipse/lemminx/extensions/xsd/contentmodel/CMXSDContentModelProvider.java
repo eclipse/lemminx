@@ -21,6 +21,7 @@ import org.apache.xerces.xs.XSModel;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.NoNamespaceSchemaLocation;
 import org.eclipse.lemminx.dom.SchemaLocation;
+import org.eclipse.lemminx.dom.SchemaLocationHint;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelProvider;
 import org.eclipse.lemminx.uriresolver.CacheResourceDownloadingException;
@@ -59,10 +60,23 @@ public class CMXSDContentModelProvider implements ContentModelProvider {
 		Collection<Identifier> identifiers = new ArrayList<>();
 		SchemaLocation schemaLocation = xmlDocument.getSchemaLocation();
 		if (schemaLocation != null) {
-			String location = schemaLocation.getLocationHint(namespaceURI);
-			if (!StringUtils.isEmpty(location)) {
-				identifiers.add(new Identifier(null, location));
+			if (namespaceURI == null) {
+				for (SchemaLocationHint locationHint : schemaLocation.getSchemaLocationHints()) {
+					String location = locationHint.getHint();
+					if (!StringUtils.isEmpty(location)) {
+						identifiers.add(new Identifier(null, location, locationHint, "xsi:schemaLocation"));
+					}
+				}
+			} else {
+				SchemaLocationHint locationHint = schemaLocation.getLocationHint(namespaceURI);
+				if (locationHint != null) {
+					String location = locationHint.getHint();
+					if (!StringUtils.isEmpty(location)) {
+						identifiers.add(new Identifier(null, location, locationHint, "xsi:schemaLocation"));
+					}
+				}
 			}
+
 		} else {
 			NoNamespaceSchemaLocation noNamespaceSchemaLocation = xmlDocument.getNoNamespaceSchemaLocation();
 			if (noNamespaceSchemaLocation != null) {
@@ -70,7 +84,8 @@ public class CMXSDContentModelProvider implements ContentModelProvider {
 					// xsi:noNamespaceSchemaLocation doesn't define namespaces
 					String location = noNamespaceSchemaLocation.getLocation();
 					if (!StringUtils.isEmpty(location)) {
-						identifiers.add(new Identifier(null, location));
+						identifiers.add(new Identifier(null, location, noNamespaceSchemaLocation.getAttr(),
+								"xsi:noNamespaceSchemaLocation"));
 					}
 				}
 			}

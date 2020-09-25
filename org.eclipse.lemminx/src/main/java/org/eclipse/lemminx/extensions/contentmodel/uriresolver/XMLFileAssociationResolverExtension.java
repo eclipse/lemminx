@@ -36,6 +36,11 @@ public class XMLFileAssociationResolverExtension implements URIResolverExtension
 
 	private XMLFileAssociation[] fileAssociations;
 
+	@Override
+	public String getName() {
+		return "file association";
+	}
+	
 	/**
 	 * 
 	 * @param fileAssociations

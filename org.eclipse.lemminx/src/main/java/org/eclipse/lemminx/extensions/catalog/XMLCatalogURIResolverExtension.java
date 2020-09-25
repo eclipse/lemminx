@@ -37,6 +37,11 @@ public class XMLCatalogURIResolverExtension implements URIResolverExtension {
 
 	private final XMLExtensionsRegistry extensionsRegistry;
 
+	@Override
+	public String getName() {
+		return "embedded catalog.xsd";
+	}
+
 	public XMLCatalogURIResolverExtension(XMLExtensionsRegistry extensionsRegistry) {
 		this.extensionsRegistry = extensionsRegistry;
 	}

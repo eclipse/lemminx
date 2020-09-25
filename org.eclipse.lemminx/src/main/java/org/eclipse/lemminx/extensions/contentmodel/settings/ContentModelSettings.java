@@ -28,6 +28,8 @@ public class ContentModelSettings {
 
 	private XMLValidationSettings validation;
 
+	private XMLSymbolsSettings symbols;
+
 	/**
 	 * Returns true if cache to download XML Schema, DTD must be activated and false
 	 * otherwise.
@@ -94,4 +96,15 @@ public class ContentModelSettings {
 		return validation;
 	}
 
+	public void setSymbols(XMLSymbolsSettings symbols) {
+		this.symbols = symbols;
+	}
+
+	public XMLSymbolsSettings getSymbols() {
+		return symbols;
+	}
+
+	public boolean isShowReferencedGrammars() {
+		return symbols == null || symbols.isShowReferencedGrammars();
+	}
 }

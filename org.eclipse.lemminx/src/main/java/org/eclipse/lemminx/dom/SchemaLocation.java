@@ -62,9 +62,8 @@ public class SchemaLocation {
 	 * @return The associated location hint, as a string, or null
 	 *         if the namespace was not referred to in xsi:schemaLocation
 	 */
-	public String getLocationHint(String namespaceURI) {
-		SchemaLocationHint locHint = schemaLocationValuePairs.get(namespaceURI);
-		return locHint == null ? null : locHint.getHint();
+	public SchemaLocationHint getLocationHint(String namespaceURI) {
+		return schemaLocationValuePairs.get(namespaceURI);
 	}
 
 	public DOMAttr getAttr() {

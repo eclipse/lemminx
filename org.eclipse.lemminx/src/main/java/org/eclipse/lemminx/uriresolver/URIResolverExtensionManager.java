@@ -42,6 +42,11 @@ public class URIResolverExtensionManager implements URIResolverExtension, IExter
 	class DefaultURIResolverExtension implements URIResolverExtension {
 
 		@Override
+		public String getName() {
+			return "default";
+		}
+
+		@Override
 		public String resolve(String baseLocation, String publicId, String systemId) {
 			try {
 				return XMLEntityManager.expandSystemId(systemId, baseLocation, false);
@@ -96,6 +101,20 @@ public class URIResolverExtensionManager implements URIResolverExtension, IExter
 			}
 		}
 		return defaultURIResolverExtension.resolve(baseLocation, publicId, systemId);
+	}
+
+	public ResolvedURIInfo resolveInfo(String baseLocation, String publicId, String systemId) {
+		for (URIResolverExtension resolver : resolvers) {
+			String resolvedURI = resolver.resolve(baseLocation, publicId, systemId);
+			if (resolvedURI != null && !resolvedURI.isEmpty()) {
+				return new ResolvedURIInfo(resolvedURI, resolver);
+			}
+		}
+		String resolvedURI = defaultURIResolverExtension.resolve(baseLocation, publicId, systemId);
+		if (resolvedURI != null && !resolvedURI.isEmpty()) {
+			return new ResolvedURIInfo(resolvedURI, defaultURIResolverExtension);
+		}
+		return null;
 	}
 
 	@Override

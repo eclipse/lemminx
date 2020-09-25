@@ -99,6 +99,7 @@ The [LemMinx Extensions API](https://github.com/eclipse/lemminx/tree/master/org.
 - Type Definitions with [ITypeDefinitionParticipant](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/ITypeDefinitionParticipant.java)
 - CodeLens with [ICodeLensParticipant](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/codelens/ICodeLensParticipant.java)
 - Formatter with [IFormatterParticipant](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/format/IFormatterParticipant.java)
+- Symbols with [ISymbolsProviderParticipant](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/ISymbolsProviderParticipant.java)
 
 ## Adding custom settings for your extension
 

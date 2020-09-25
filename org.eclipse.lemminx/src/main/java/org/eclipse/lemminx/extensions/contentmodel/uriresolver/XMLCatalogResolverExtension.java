@@ -40,6 +40,11 @@ public class XMLCatalogResolverExtension implements URIResolverExtension {
 	private String rootUri;
 
 	@Override
+	public String getName() {
+		return "catalog";
+	}
+
+	@Override
 	public String resolve(String baseLocation, String publicId, String systemId) {
 		if (catalogResolver != null) {
 			try {
@@ -105,7 +110,6 @@ public class XMLCatalogResolverExtension implements URIResolverExtension {
 			for (String catalogPath : catalogs) {
 				// resolve catalog file path with root uri
 				String fullPath = expandSystemId(catalogPath);
-				
 				if (Files.exists(FilesUtils.getPath(fullPath))) {
 					xmlCatalogFiles.add(fullPath);
 					LOGGER.info("Adding XML catalog '" + catalogPath + "' with expand system id '" + fullPath
