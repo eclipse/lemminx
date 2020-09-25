@@ -30,7 +30,6 @@ import org.eclipse.lemminx.services.XMLCompletions;
 import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.IComponentProvider;
 import org.eclipse.lemminx.settings.SharedSettings;
-import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lemminx.utils.XMLBuilder;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
@@ -51,7 +50,7 @@ public class NoGrammarConstraintsCodeAction implements ICodeActionParticipant {
 			SharedSettings sharedSettings, IComponentProvider componentProvider) {
 		try {
 			DOMElement documentElement = document.getDocumentElement();
-			if (documentElement == null || StringUtils.isEmpty(documentElement.getTagName())) {
+			if (documentElement == null || !documentElement.hasTagName()) {
 				return;
 			}
 
@@ -103,8 +102,8 @@ public class NoGrammarConstraintsCodeAction implements ICodeActionParticipant {
 			docType.endDoctype();
 			docType.linefeed();
 			CodeAction docTypeAction = createGrammarFileAndBindIt(
-					"Generate '" + dtdFileName + "' and bind with DOCTYPE", dtdURI, dtdTemplate,
-					docType.toString(), beforeTagOffset, document, diagnostic);
+					"Generate '" + dtdFileName + "' and bind with DOCTYPE", dtdURI, dtdTemplate, docType.toString(),
+					beforeTagOffset, document, diagnostic);
 			codeActions.add(docTypeAction);
 
 			// xml-model

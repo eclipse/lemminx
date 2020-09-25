@@ -89,7 +89,9 @@ public class XMLBuilder {
 			append(prefix);
 			append(":");
 		}
-		append(name);
+		if (name != null) {
+			append(name);
+		}
 		if (isEndTagClosed) {
 			append(">");
 		}

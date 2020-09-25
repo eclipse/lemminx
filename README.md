@@ -27,7 +27,7 @@ Features
 * [textDocument/rangeFormatting](https://microsoft.github.io/language-server-protocol/specification#textDocument_rangeFormatting)
 * [textDocument/rename](https://microsoft.github.io/language-server-protocol/specification#textDocument_rename).
 
-See screenshots in the [wiki](https://github.com/eclipse/lemminx/wiki/Features).
+See screenshots in the [Features docs](./docs/Features.md).
 
 See the [changelog](CHANGELOG.md) for the latest release.
 
@@ -35,7 +35,7 @@ See the [changelog](CHANGELOG.md) for the latest release.
 Demo
 --------------
 
-![XML Language Server Demo](demos/XMLLanguageServerDemo.gif)
+![XML Language Server Demo](docs/images/XMLLanguageServerDemo.gif)
 
 Get started
 --------------
@@ -129,12 +129,4 @@ Here are some clients consuming this XML Language Server:
 Extensions
 ----------
 
-The XML Language Server is extensible with plugin kind (with SPI). Additionally to XSD-based validation and assistance, those extensiosn allow to enrich the validation and assistance, typically for specific files or contexts.
-
-Example of extensions include:
-
- * Built-in content model to provide completion, validation, hover based on XML Schema.
- * Built-in completion based on Emmet
- * [See all built-in extensions](https://github.com/eclipse/lemminx/tree/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/extensions)
- * Eclipse [LemMinX Maven extension](https://github.com/eclipse/lemminx-maven/) provides extra assistance for Maven pom files, adding some pom validation (as diagnostics), hover for documentation and properties evaluation, completion for configuration element (not part of XSD), constrained node, file path, GAVs..., go to definition for properties and GAVs...
- * [LemMinX Liquibase extension](https://github.com/Treehopper/liquibase-lsp/) provides extra assistance for Liquibase XML migration scripts, adding database validation (as diagnostics) using an in-memory database.
+The XML Language Server can be extended to provide additional validation and assistance. Read the [LemMinX-Extensions docs](./docs/LemMinX-Extensions.md) for more information

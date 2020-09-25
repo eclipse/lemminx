@@ -56,7 +56,7 @@ public class ProcessingInstructionSnippetContext implements IXMLSnippetContext {
 			return false;
 		}
 
-		if (documentElement != null && documentElement.getTagName() != null) {
+		if (documentElement != null && documentElement.hasTagName()) {
 			return offset <= documentElement.getStart();
 		}
 

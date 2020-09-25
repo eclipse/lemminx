@@ -211,6 +211,36 @@ public class XMLSymbolInformationsTest {
 	}
 
 	@Test
+	public void invalidEndTag() {
+		String xmlText = "</";
+		initializeTestObjects(xmlText, testURI);
+
+		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
+		currentLocation = createLocation(testURI, 0, 2, xmlDocument);
+		currentSymbolInfo = createSymbolInformation("?", SymbolKind.Field, currentLocation, "");
+		expectedSymbolInfos.add(currentSymbolInfo);
+
+		assertSymbols(expectedSymbolInfos, actualSymbolInfos);
+	}
+	
+	@Test
+	public void invalidEndTagAfterRoot() {
+		String xmlText = "<a></";
+		initializeTestObjects(xmlText, testURI);
+
+		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
+		currentLocation = createLocation(testURI, 0, 5, xmlDocument);
+		currentSymbolInfo = createSymbolInformation("a", SymbolKind.Field, currentLocation, "");
+		expectedSymbolInfos.add(currentSymbolInfo);
+
+		currentLocation = createLocation(testURI, 3, 5, xmlDocument);
+		currentSymbolInfo = createSymbolInformation("?", SymbolKind.Field, currentLocation, "a");
+		expectedSymbolInfos.add(currentSymbolInfo);
+
+		assertSymbols(expectedSymbolInfos, actualSymbolInfos);
+	}
+	
+	@Test
 	public void insideEndTag() throws BadLocationException {
 		// assertRename("<html|></meta></html>", "newText", edits("newText", r(0, 1, 5),
 		// r(0, 15, 19)));

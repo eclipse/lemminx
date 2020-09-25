@@ -80,14 +80,7 @@ public class XMLCompletionTest {
 
 	@Test
 	public void successfulEndTagCompletionWithIndent() throws BadLocationException {
-		testCompletionFor("  <a>\r\n" + //
-				"|", 3 + 2 /* CDATA and Comments */, //
-				c("End with '</a>'", "  </a>", r(1, 0, 1, 0), "</a>"), //
-				c("#region", "<!-- #region -->", r(1, 0, 1, 0), ""), //
-				c("#endregion", "<!-- #endregion-->", r(1, 0, 1, 0), ""));
-		testCompletionFor("  <a>\r\n" + //
-				"<|", 1 + 2 /* CDATA and Comments */, //
-				c("End with '</a>'", "  </a>", r(1, 0, 1, 1), "</a>"));
+		
 		testCompletionFor("<a></|", 1, c("End with '</a>'", "/a>", r(0, 4, 0, 5), "/a>"));
 
 		testCompletionFor("  <a>\r\n" + //

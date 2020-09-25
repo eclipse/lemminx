@@ -42,8 +42,8 @@ public class EqRequiredInAttributeCodeAction implements ICodeActionParticipant {
 			int offset = document.offsetAt(range.getStart());
 			DOMNode node = document.findNodeAt(offset);
 			if (node != null && node.isElement()) {
-				String tagName = ((DOMElement) node).getTagName();
-				if (tagName != null) {
+				DOMElement element = (DOMElement) node;
+				if (element.hasTagName()) {
 					String insertText = "=\"\"";
 					CodeAction insertEqualsAndQuotesAction = CodeActionFactory.insert("Insert '" + insertText + "'",
 							diagnosticRange.getEnd(), insertText, document.getTextDocument(), diagnostic);

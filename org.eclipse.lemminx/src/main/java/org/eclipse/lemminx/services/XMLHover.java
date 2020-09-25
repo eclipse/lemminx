@@ -66,7 +66,7 @@ class XMLHover {
 		if (node == null) {
 			return null;
 		}
-		if (node.isElement() && ((DOMElement) node).getTagName() != null) {
+		if (node.isElement() && ((DOMElement) node).hasTagName()) {
 			// Element is hovered
 			DOMElement element = (DOMElement) node;
 			if (element.hasEndTag() && offset >= element.getEndTagOpenOffset()) {
