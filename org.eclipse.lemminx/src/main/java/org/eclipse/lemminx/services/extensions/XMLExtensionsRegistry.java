@@ -27,6 +27,7 @@ import org.eclipse.lemminx.services.extensions.codelens.ICodeLensParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
 import org.eclipse.lemminx.services.extensions.save.ISaveContext;
+import org.eclipse.lemminx.services.extensions.save.ISaveContext.SaveContextType;
 import org.eclipse.lemminx.uriresolver.URIResolverExtensionManager;
 import org.eclipse.lsp4j.InitializeParams;
 
@@ -110,7 +111,10 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	public void doSave(ISaveContext saveContext) {
 		if (initialized) {
 			extensions.stream().forEach(extension -> extension.doSave(saveContext));
-		} else {
+		} else if (this.initialSaveContext == null || (saveContext != null && saveContext.getType() == SaveContextType.SETTINGS)) {
+			// capture initial configuration iff:
+			// 1. the saveContext is for configuration, not document save
+			// 2. we haven't captured settings before
 			this.initialSaveContext = saveContext;
 		}
 	}

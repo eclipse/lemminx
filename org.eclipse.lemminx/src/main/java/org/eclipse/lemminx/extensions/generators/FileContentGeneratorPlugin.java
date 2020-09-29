@@ -25,9 +25,11 @@ public class FileContentGeneratorPlugin implements IXMLExtension {
 
 	@Override
 	public void start(InitializeParams params, XMLExtensionsRegistry registry) {
-		IXMLFullFormatter formatter = (IXMLFullFormatter) registry;
-		FileContentGeneratorManager manager = new FileContentGeneratorManager(formatter);
-		registry.registerComponent(manager);
+		if (registry instanceof IXMLFullFormatter) {
+			IXMLFullFormatter formatter = (IXMLFullFormatter) registry;
+			FileContentGeneratorManager manager = new FileContentGeneratorManager(formatter);
+			registry.registerComponent(manager);
+		}
 	}
 
 	@Override
