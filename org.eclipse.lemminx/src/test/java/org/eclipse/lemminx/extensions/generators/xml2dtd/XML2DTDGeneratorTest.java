@@ -315,4 +315,26 @@ public class XML2DTDGeneratorTest {
 				"<!ATTLIST item attr2 (A|B) #REQUIRED>";
 		assertGrammarGenerator(xml, new DTDGeneratorSettings(), dtd);
 	}
+	
+	@Test
+	public void invalidStartTag() throws IOException {
+		String xml = "<a><</a>";
+		String dtd = "<!ELEMENT a EMPTY>";
+		assertGrammarGenerator(xml, new DTDGeneratorSettings(), dtd);
+		
+		xml = "<a>bcd   <   </a>";
+		dtd = "<!ELEMENT a (#PCDATA)>";
+		assertGrammarGenerator(xml, new DTDGeneratorSettings(), dtd);
+	}
+	
+	@Test
+	public void invalidEndTag() throws IOException {
+		String xml = "<a></</a>";
+		String dtd = "<!ELEMENT a EMPTY>";
+		assertGrammarGenerator(xml, new DTDGeneratorSettings(), dtd);
+		
+		xml = "<a>bcd   </   </a>";
+		dtd = "<!ELEMENT a (#PCDATA)>";
+		assertGrammarGenerator(xml, new DTDGeneratorSettings(), dtd);
+	}
 }

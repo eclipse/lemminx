@@ -577,7 +577,7 @@ public class DTDDiagnosticsTest {
 		XMLAssert.testDiagnosticsFor(xml, d(1, 29, 1, 46, DTDErrorCode.dtd_not_found), // [1]
 				d(2, 1, 12, DTDErrorCode.MSG_ELEMENT_NOT_DECLARED), // [2]
 				d(5, 4, 12, DTDErrorCode.MSG_ELEMENT_NOT_DECLARED), // [3]
-				d(5, 23, 5, 30, XMLSyntaxErrorCode.ETagRequired)); // [4]
+				d(5, 4, 5, 21, XMLSyntaxErrorCode.ETagRequired)); // [4]
 	}
 
 	@Test
@@ -594,7 +594,7 @@ public class DTDDiagnosticsTest {
 		XMLAssert.testDiagnosticsFor(xml, d(1, 33, 1, 50, DTDErrorCode.dtd_not_found), // [1]
 				d(2, 1, 12, DTDErrorCode.MSG_ELEMENT_NOT_DECLARED), // [2]
 				d(5, 4, 12, DTDErrorCode.MSG_ELEMENT_NOT_DECLARED), // [3]
-				d(5, 23, 5, 30, XMLSyntaxErrorCode.ETagRequired)); // [4]
+				d(5, 4, 5, 21, XMLSyntaxErrorCode.ETagRequired)); // [4]
 	}
 
 	private static void testDiagnosticsFor(String xml, Diagnostic... expected) {
