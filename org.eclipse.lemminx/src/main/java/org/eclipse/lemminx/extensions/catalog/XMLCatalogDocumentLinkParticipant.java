@@ -17,12 +17,10 @@ import java.util.logging.Logger;
 import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.util.URI.MalformedURIException;
 import org.eclipse.lemminx.commons.BadLocationException;
-import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
-import org.eclipse.lemminx.dom.DOMElement;
-import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.services.extensions.IDocumentLinkParticipant;
 import org.eclipse.lemminx.utils.FilesUtils;
+import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.DocumentLink;
 
@@ -35,17 +33,34 @@ public class XMLCatalogDocumentLinkParticipant implements IDocumentLinkParticipa
 
 	@Override
 	public void findDocumentLinks(DOMDocument document, List<DocumentLink> links) {
-		for (DOMElement entry : CatalogUtils.getCatalogEntries(document)) {
-			DOMAttr catalogReference = CatalogUtils.getCatalogEntryURI(entry);
-			DOMNode valueLocation = catalogReference.getNodeAttrValue();
-			try {
-				String path = getResolvedLocation(FilesUtils.removeFileScheme(document.getDocumentURI()),
-						catalogReference.getValue());
-				links.add(XMLPositionUtility.createDocumentLink(valueLocation, path, true));
-			} catch (BadLocationException e) {
-				LOGGER.log(Level.SEVERE, "Creation of document link failed", e);
+		for (CatalogEntry catalogEntry : CatalogUtils.getCatalogEntries(document)) {
+			DocumentLink docLink = createDocumentLinkFromCatalogEntry(document, catalogEntry);
+			if (docLink != null) {
+				links.add(docLink);
 			}
 		}
+	}
+
+	/**
+	 * Return a DocumentLink for the given CatalogEntry or null if this fails
+	 *
+	 * @param document     The document that the attribute belongs to
+	 * @param catalogEntry The CatalogEntry that should be turned into a
+	 *                     DocumentLink
+	 * @return a document link that links the CatalogEntry to the external document
+	 *         it references or null otherwise
+	 */
+	private static DocumentLink createDocumentLinkFromCatalogEntry(DOMDocument document, CatalogEntry catalogEntry) {
+		try {
+			String path = getResolvedLocation(FilesUtils.removeFileScheme(document.getDocumentURI()),
+					catalogEntry.getResolvedURI());
+			if (path != null && catalogEntry.getLinkRange() != null) {
+				return XMLPositionUtility.createDocumentLink(catalogEntry.getLinkRange(), path, true);
+			}
+		} catch (BadLocationException e) {
+			LOGGER.log(Level.SEVERE, "Creation of document link failed", e);
+		}
+		return null;
 	}
 
 	/**
@@ -54,7 +69,7 @@ public class XMLCatalogDocumentLinkParticipant implements IDocumentLinkParticipa
 	 * @return the expanded system location
 	 */
 	private static String getResolvedLocation(String documentURI, String location) {
-		if (location == null) {
+		if (StringUtils.isBlank(location)) {
 			return null;
 		}
 		try {
