@@ -746,7 +746,7 @@ public abstract class DOMNode implements Node, DOMRange {
 		}
 		// emp| </employe>
 		DOMElement nextElement = (DOMElement) next;
-		if (nextElement.isOrphanEndTag(tagName)) {
+		if (nextElement.isOrphanEndTagOf(tagName)) {
 			return nextElement;
 		}
 		return null;

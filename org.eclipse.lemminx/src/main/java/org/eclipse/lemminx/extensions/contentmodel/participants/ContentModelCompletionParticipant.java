@@ -211,15 +211,17 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			Node node = list.item(i);
 			if (Node.ELEMENT_NODE == node.getNodeType()) {
 				DOMElement elt = (DOMElement) node;
-				String tagName = elt.getTagName();
-				if (!StringUtils.isEmpty(tagName) && !tags.contains(tagName)) {
-					CompletionItem item = new CompletionItem(tagName);
-					item.setKind(CompletionItemKind.Property);
-					item.setFilterText(request.getFilterForStartTagName(tagName));
-					String xml = elt.getOwnerDocument().getText().substring(elt.getStart(), elt.getEnd());
-					item.setTextEdit(new TextEdit(request.getReplaceRange(), xml));
-					response.addCompletionItem(item);
-					tags.add(item.getLabel());
+				if (elt.hasTagName()) {
+					String tagName = elt.getTagName();
+					if (!tags.contains(tagName)) {
+						CompletionItem item = new CompletionItem(tagName);
+						item.setKind(CompletionItemKind.Property);
+						item.setFilterText(request.getFilterForStartTagName(tagName));
+						String xml = elt.getOwnerDocument().getText().substring(elt.getStart(), elt.getEnd());
+						item.setTextEdit(new TextEdit(request.getReplaceRange(), xml));
+						response.addCompletionItem(item);
+						tags.add(item.getLabel());
+					}
 				}
 				addTagName(elt.getChildNodes(), tags, request, response);
 			}
