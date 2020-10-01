@@ -735,13 +735,27 @@ public class XMLAssert {
 
 	public static void testDocumentSymbolsFor(String xml, String fileURI, XMLSymbolSettings symbolSettings,
 			DocumentSymbol... expected) {
-		TextDocument document = new TextDocument(xml, fileURI != null ? fileURI : "test.xml");
+		testDocumentSymbolsFor(xml, fileURI, symbolSettings, null, expected);
+	}
 
-		XMLLanguageService xmlLanguageService = new XMLLanguageService();
+	public static void testDocumentSymbolsFor(String xml, String fileURI, XMLSymbolSettings symbolSettings,
+			Consumer<XMLLanguageService> customConfiguration, DocumentSymbol... expected) {
+		testDocumentSymbolsFor(new XMLLanguageService(), xml, fileURI, symbolSettings, customConfiguration, expected);
+	}
+
+	public static void testDocumentSymbolsFor(XMLLanguageService xmlLanguageService, String xml, String fileURI,
+			XMLSymbolSettings symbolSettings, Consumer<XMLLanguageService> customConfiguration,
+			DocumentSymbol... expected) {
+		TextDocument document = new TextDocument(xml, fileURI != null ? fileURI : "test.xml");
 
 		ContentModelSettings settings = new ContentModelSettings();
 		settings.setUseCache(false);
 		xmlLanguageService.doSave(new SettingsSaveContext(settings));
+		xmlLanguageService.initializeIfNeeded();
+
+		if (customConfiguration != null) {
+			customConfiguration.accept(xmlLanguageService);
+		}
 
 		DOMDocument xmlDocument = DOMParser.getInstance().parse(document,
 				xmlLanguageService.getResolverExtensionManager());

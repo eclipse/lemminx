@@ -61,7 +61,8 @@ public class XMLSchemaDiagnosticsTest {
 				"		XXXXXXXXXXXXX\r\n" + // <-- error
 				"	</bean>\r\n" + //
 				"</beans>";
-		Diagnostic d = d(3, 2, 3, 15, XMLSchemaErrorCode.cvc_complex_type_2_3, "Element \'bean\' cannot contain text content.\nThe content type is defined as element-only.\n\nCode:");
+		Diagnostic d = d(3, 2, 3, 15, XMLSchemaErrorCode.cvc_complex_type_2_3,
+				"Element \'bean\' cannot contain text content.\nThe content type is defined as element-only.\n\nCode:");
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(3, 2, 3, 15, "")));
 	}
@@ -75,7 +76,8 @@ public class XMLSchemaDiagnosticsTest {
 				"		<property></property>\r\n" + //
 				"	</bean>\r\n" + //
 				"</beans>";
-		Diagnostic d = d(3, 3, 3, 11, XMLSchemaErrorCode.cvc_complex_type_4, "Attribute:\n - name\nis required in element:\n - property\n\nCode:");
+		Diagnostic d = d(3, 3, 3, 11, XMLSchemaErrorCode.cvc_complex_type_4,
+				"Attribute:\n - name\nis required in element:\n - property\n\nCode:");
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(3, 11, 3, 11, " name=\"\"")));
 	}
@@ -94,8 +96,10 @@ public class XMLSchemaDiagnosticsTest {
 				"  	<payment amount=\"1\" method=\"credit\"/>\r\n" + //
 				"  </payments>\r\n" + //
 				"</invoice>";
-		Diagnostic d2 = d(6, 4, 6, 11, XMLSchemaErrorCode.cvc_complex_type_4, "Attribute:\n - description\nis required in element:\n - product\n\nCode:");
-		Diagnostic d1 = d(6, 4, 6, 11, XMLSchemaErrorCode.cvc_complex_type_4, "Attribute:\n - price\nis required in element:\n - product\n\nCode:");
+		Diagnostic d2 = d(6, 4, 6, 11, XMLSchemaErrorCode.cvc_complex_type_4,
+				"Attribute:\n - description\nis required in element:\n - product\n\nCode:");
+		Diagnostic d1 = d(6, 4, 6, 11, XMLSchemaErrorCode.cvc_complex_type_4,
+				"Attribute:\n - price\nis required in element:\n - product\n\nCode:");
 		testDiagnosticsFor(xml, d1, d2);
 
 		testCodeActionsFor(xml, d1, ca(d1, te(6, 11, 6, 11, " price=\"\" description=\"\"")));
@@ -103,10 +107,10 @@ public class XMLSchemaDiagnosticsTest {
 
 	@Test
 	public void cvc_complex_type_2_4_a() throws Exception {
-		String xml =
-				"<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + //
+		String xml = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + //
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
-				"	xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n"+ //
+				"	xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n"
+				+ //
 				"	<XXX></XXX>\r\n" + // <- error
 				"</project>";
 
@@ -142,16 +146,15 @@ public class XMLSchemaDiagnosticsTest {
 
 	@Test
 	public void cvc_complex_type_2_4_f() throws Exception {
-		String xml =
-			"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
-			"<root\r\n" + //
-			"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
-			"    xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/tag.xsd\">\r\n" + //
-			"  <tag></tag>\r\n" + //
-			"  <optional></optional>\r\n" + //
-			"  <optional></optional>\r\n" + //
-			"  <optional></optional>\r\n" + //
-			"</root>";
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
+				"<root\r\n" + //
+				"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"    xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/tag.xsd\">\r\n" + //
+				"  <tag></tag>\r\n" + //
+				"  <optional></optional>\r\n" + //
+				"  <optional></optional>\r\n" + //
+				"  <optional></optional>\r\n" + //
+				"</root>";
 		testDiagnosticsFor(xml, d(7, 3, 7, 11, XMLSchemaErrorCode.cvc_complex_type_2_4_f));
 	}
 
@@ -293,41 +296,31 @@ public class XMLSchemaDiagnosticsTest {
 
 	@Test
 	public void cvc_datatype_valid_1_2_1_TextOnlyWithWhitespace() throws Exception {
-		String xml = "<a xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \r\n" +
-				"    xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/integerElement.xsd\">\r\n" +
-				"\r\n" +
-				"    TEXT\r\n" +
-				"\r\n" +
-				"</a>";
+		String xml = "<a xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \r\n"
+				+ "    xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/integerElement.xsd\">\r\n" + "\r\n"
+				+ "    TEXT\r\n" + "\r\n" + "</a>";
 		testDiagnosticsFor(xml, d(3, 4, 3, 8, XMLSchemaErrorCode.cvc_datatype_valid_1_2_1),
 				d(3, 4, 3, 8, XMLSchemaErrorCode.cvc_type_3_1_3));
 	}
 
 	@Test
 	public void cvc_datatype_valid_1_2_1_OneElement() throws Exception {
-		String xml = "<a xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \r\n" +
-				"    xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/integerElement.xsd\">\r\n" +
-				"\r\n" +
-				"    <b></b>\r\n" +
-				"\r\n" +
-				"</a>";
+		String xml = "<a xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \r\n"
+				+ "    xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/integerElement.xsd\">\r\n" + "\r\n"
+				+ "    <b></b>\r\n" + "\r\n" + "</a>";
 
-		testDiagnosticsFor(xml, d(0, 1, 0, 2 , XMLSchemaErrorCode.cvc_type_3_1_2),
+		testDiagnosticsFor(xml, d(0, 1, 0, 2, XMLSchemaErrorCode.cvc_type_3_1_2),
 				d(3, 4, 3, 11, XMLSchemaErrorCode.cvc_datatype_valid_1_2_1),
 				d(3, 4, 3, 11, XMLSchemaErrorCode.cvc_type_3_1_3));
 	}
 
 	@Test
 	public void cvc_datatype_valid_1_2_1_TwoElements() throws Exception {
-		String xml = "<a xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \r\n" +
-				"    xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/integerElement.xsd\">\r\n" +
-				"\r\n" +
-				"    <b></b>\r\n" +
-				"    <c></c>\r\n" +
-				"\r\n" +
-				"</a>";
+		String xml = "<a xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \r\n"
+				+ "    xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/integerElement.xsd\">\r\n" + "\r\n"
+				+ "    <b></b>\r\n" + "    <c></c>\r\n" + "\r\n" + "</a>";
 
-		testDiagnosticsFor(xml, d(0, 1, 0, 2 , XMLSchemaErrorCode.cvc_type_3_1_2),
+		testDiagnosticsFor(xml, d(0, 1, 0, 2, XMLSchemaErrorCode.cvc_type_3_1_2),
 				d(3, 4, 3, 11, XMLSchemaErrorCode.cvc_datatype_valid_1_2_1),
 				d(3, 4, 3, 11, XMLSchemaErrorCode.cvc_type_3_1_3));
 	}
@@ -418,10 +411,9 @@ public class XMLSchemaDiagnosticsTest {
 
 	@Test
 	public void cvc_pattern_valid() throws Exception {
-		String xml = "<Annotation\r\n" +
-				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" +
-				"	xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/pattern.xsd\"\r\n" +
-				"	Term=\"X\"></Annotation>";
+		String xml = "<Annotation\r\n" + "	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n"
+				+ "	xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/pattern.xsd\"\r\n"
+				+ "	Term=\"X\"></Annotation>";
 		Diagnostic patternValid = d(3, 6, 3, 9, XMLSchemaErrorCode.cvc_pattern_valid);
 		Diagnostic cvcAttribute3 = d(3, 6, 3, 9, XMLSchemaErrorCode.cvc_attribute_3);
 		testDiagnosticsFor(xml, patternValid, cvcAttribute3);
@@ -429,16 +421,12 @@ public class XMLSchemaDiagnosticsTest {
 
 	@Test
 	public void cvc_pattern_valid_With_Buffer() throws Exception {
-		String xml =
-			"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?>\r\n" +
-			"<cpr xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \r\n" +
-			"     xsi:noNamespaceSchemaLocation=\"https://www.dgai.de/cpr/schema/ev/cpr-ev-2.0.xsd\">\r\n" +
-			"    <cprev>\r\n" +
-			"        <VERSION>2.0</VERSION>\r\n" +
-			"        <DATUM>2019-08-09</DATUM>\r\n" +
-			"        <STOKENN>FIX_ERROR_RANGE_HERE</STOKENN>\r\n" + // <-- Error should follow pattern [0-9]{8}
-			"    </cprev>\r\n" +
-			"</cpr>";
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?>\r\n"
+				+ "<cpr xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \r\n"
+				+ "     xsi:noNamespaceSchemaLocation=\"https://www.dgai.de/cpr/schema/ev/cpr-ev-2.0.xsd\">\r\n"
+				+ "    <cprev>\r\n" + "        <VERSION>2.0</VERSION>\r\n" + "        <DATUM>2019-08-09</DATUM>\r\n"
+				+ "        <STOKENN>FIX_ERROR_RANGE_HERE</STOKENN>\r\n" + // <-- Error should follow pattern [0-9]{8}
+				"    </cprev>\r\n" + "</cpr>";
 		Diagnostic patternValid = d(6, 17, 6, 37, XMLSchemaErrorCode.cvc_pattern_valid);
 		Diagnostic cvcType313 = d(6, 17, 6, 37, XMLSchemaErrorCode.cvc_type_3_1_3);
 		Diagnostic cvcType24b = d(3, 5, 3, 10, XMLSchemaErrorCode.cvc_complex_type_2_4_b);
@@ -455,7 +443,8 @@ public class XMLSchemaDiagnosticsTest {
 				+ //
 				"  \r\n" + //
 				"</edmx:Edmx>";
-		Diagnostic d = d(1, 1, 1, 10, XMLSchemaErrorCode.cvc_complex_type_2_4_b, "Child elements are missing from element:\n - edmx:Edmx\n\nThe following elements are expected:\n - Reference\n - DataServices\n\nError indicated by\n {http://docs.oasis-open.org/odata/ns/edmx\":Reference, \"http://docs.oasis-open.org/odata/ns/edmx}\nwith code:");
+		Diagnostic d = d(1, 1, 1, 10, XMLSchemaErrorCode.cvc_complex_type_2_4_b,
+				"Child elements are missing from element:\n - edmx:Edmx\n\nThe following elements are expected:\n - Reference\n - DataServices\n\nError indicated by\n {http://docs.oasis-open.org/odata/ns/edmx\":Reference, \"http://docs.oasis-open.org/odata/ns/edmx}\nwith code:");
 		testDiagnosticsFor(xml, d);
 	}
 
@@ -473,7 +462,7 @@ public class XMLSchemaDiagnosticsTest {
 				"  	<payment amount=\"1\" method=\"credit\"/>\r\n" + //
 				"  </payments>\r\n" + //
 				"</invoice>";
-		testDiagnosticsFor(xml,	d(3, 23, 3, 33, XMLSchemaErrorCode.cvc_elt_3_2_1));
+		testDiagnosticsFor(xml, d(3, 23, 3, 33, XMLSchemaErrorCode.cvc_elt_3_2_1));
 	}
 
 	@Test
@@ -482,7 +471,7 @@ public class XMLSchemaDiagnosticsTest {
 				"<invoice xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
 				" xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/invoice.xsd\">\r\n" + //
 				"  <date>2017-11-30</date>\r\n" + //
-				"  <number><a></a></number>\r\n" + //<- error
+				"  <number><a></a></number>\r\n" + // <- error
 				"  <products>\r\n" + //
 				"  	<product price=\"1\" description=\"\"/>\r\n" + //
 				"  </products>\r\n" + //
@@ -490,26 +479,23 @@ public class XMLSchemaDiagnosticsTest {
 				"  	<payment amount=\"1\" method=\"credit\"/>\r\n" + //
 				"  </payments>\r\n" + //
 				"</invoice>";
-		testDiagnosticsFor(xml,
-					d(4, 3, 4, 9, XMLSchemaErrorCode.cvc_type_3_1_2),
-					d(4,10,4,17, XMLSchemaErrorCode.cvc_datatype_valid_1_2_1),
-					d(4,10,4,17, XMLSchemaErrorCode.cvc_type_3_1_3));
+		testDiagnosticsFor(xml, d(4, 3, 4, 9, XMLSchemaErrorCode.cvc_type_3_1_2),
+				d(4, 10, 4, 17, XMLSchemaErrorCode.cvc_datatype_valid_1_2_1),
+				d(4, 10, 4, 17, XMLSchemaErrorCode.cvc_type_3_1_3));
 	}
 
 	@Test
 	public void testSrcElement3() throws Exception {
 		String xml = "<a xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
-		"	xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/srcElement3.xsd\">\r\n" +
-		"	<b></b>\r\n" +
-		"</a>";
+				"	xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/srcElement3.xsd\">\r\n" + "	<b></b>\r\n"
+				+ "</a>";
 		testDiagnosticsFor(xml, d(0, 1, 0, 2, XMLSchemaErrorCode.src_element_3));
 	}
 
 	@Test
 	public void schema_reference_4_withSchemaLocation() {
 		String xml = "<IODevice xmlns=\"http://www.io-link.com/IODD/2010/10\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \r\n"
-				+ "  xsi:schemaLocation=\"http://www.io-link.com/IODD/2010/10 IODD1.1.xsd\">\r\n"
-				+ "	</IODevice>";
+				+ "  xsi:schemaLocation=\"http://www.io-link.com/IODD/2010/10 IODD1.1.xsd\">\r\n" + "	</IODevice>";
 		testDiagnosticsFor(xml, d(1, 58, 1, 69, XMLSchemaErrorCode.schema_reference_4), //
 				d(0, 1, 0, 9, XMLSchemaErrorCode.cvc_elt_1_a));
 	}
@@ -520,7 +506,8 @@ public class XMLSchemaDiagnosticsTest {
 				"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + //
 				"xmlns:root=\"http://example.org/schema/root\"\n" + //
 				"xmlns:other=\"http://example.org/schema/other\"\n" + //
-				"xsi:schemaLocation=\"http://example.org/schema/root root.xsd http://example.org/schema/other other.xsd\">\n" + //
+				"xsi:schemaLocation=\"http://example.org/schema/root root.xsd http://example.org/schema/other other.xsd\">\n"
+				+ //
 				"<other:other />\n" + //
 				"</root:root>";
 		testDiagnosticsFor(xml, d(4, 92, 4, 101, XMLSchemaErrorCode.schema_reference_4), //
@@ -533,7 +520,8 @@ public class XMLSchemaDiagnosticsTest {
 				"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + //
 				"xmlns:root=\"http://example.org/schema/robot\"\n" + //
 				"xmlns:other=\"http://example.org/schema/other\"\n" + //
-				"xsi:schemaLocation=\"http://example.org/schema/robot robot.xsd http://example.org/schema/other other.xsd\">\n" + //
+				"xsi:schemaLocation=\"http://example.org/schema/robot robot.xsd http://example.org/schema/other other.xsd\">\n"
+				+ //
 				"<other:other />\n" + //
 				"</root:root>";
 		testDiagnosticsFor(xml, //
@@ -544,16 +532,13 @@ public class XMLSchemaDiagnosticsTest {
 
 	@Test
 	public void fuzzyElementNameCodeActionTest() throws Exception {
-		String xml =
-		"<project xmlns=\"http://maven.apache.org/POM/4.0.0\" \r\n" +
-		"         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" +
-		"         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n" +
-		"    <modules>\r\n" +
-		"      <bodule></bodule>\r\n" + // should be 'module'
-		"    </modules>\r\n" +
-		"</project>";
+		String xml = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" \r\n"
+				+ "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n"
+				+ "         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n"
+				+ "    <modules>\r\n" + "      <bodule></bodule>\r\n" + // should be 'module'
+				"    </modules>\r\n" + "</project>";
 		Diagnostic diagnostic = d(4, 7, 4, 13, XMLSchemaErrorCode.cvc_complex_type_2_4_a,
-			"Invalid element name:\n - bodule\n\nOne of the following is expected:\n - module\n\nError indicated by:\n {http://maven.apache.org/POM/4.0.0}\nwith code:");
+				"Invalid element name:\n - bodule\n\nOne of the following is expected:\n - module\n\nError indicated by:\n {http://maven.apache.org/POM/4.0.0}\nwith code:");
 		testDiagnosticsFor(xml, diagnostic);
 
 		testCodeActionsFor(xml, diagnostic, ca(diagnostic, te(4, 7, 4, 13, "module"), te(4, 16, 4, 22, "module")));
@@ -561,78 +546,110 @@ public class XMLSchemaDiagnosticsTest {
 
 	@Test
 	public void fuzzyElementNamesWithOtherOptionsCodeActionTest() throws Exception {
-		String xml =
-		"<project xmlns=\"http://maven.apache.org/POM/4.0.0\" \r\n" +
-		"         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" +
-		"         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n" +
-		"    <ciManagement>\r\n" +
-		"      <XXXXXXXXX></XXXXXXXXX>\r\n" + // does not fuzzy match any, so provide code action for all possible
-		"    </ciManagement>\r\n" +
-		"</project>";
-		Diagnostic diagnostic = d(4, 7, 4, 16, XMLSchemaErrorCode.cvc_complex_type_2_4_a,
-		"Invalid element name:\n - XXXXXXXXX\n\nOne of the following is expected:\n - system\n - url\n - notifiers\n\nError indicated by:\n {http://maven.apache.org/POM/4.0.0}\nwith code:");
+		String xml = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" \r\n" + //
+				"         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n"
+				+ //
+				"    <ciManagement>\r\n" + //
+				"      <XXXXXXXXX></XXXXXXXXX>\r\n" + // does not fuzzy match any, so provide code action for all
+														// possible
+				"    </ciManagement>\r\n" + //
+				"</project>";
+		Diagnostic diagnostic = d(4, 7, 4, 16, XMLSchemaErrorCode.cvc_complex_type_2_4_a, //
+				"Invalid element name:\n" + //
+						" - XXXXXXXXX\n\n" + //
+						"One of the following is expected:\n" + //
+						" - system\n" + //
+						" - url\n" + //
+						" - notifiers\n\n" + "Error indicated by:\n" + //
+						" {http://maven.apache.org/POM/4.0.0}\n" + //
+						"with code:");
 		testDiagnosticsFor(xml, diagnostic);
+		testCodeActionsFor(xml, diagnostic, //
+				ca(diagnostic, te(4, 7, 4, 16, "notifiers"), te(4, 19, 4, 28, "notifiers")), //
+				ca(diagnostic, te(4, 7, 4, 16, "system"), te(4, 19, 4, 28, "system")), //
+				ca(diagnostic, te(4, 7, 4, 16, "url"), te(4, 19, 4, 28, "url")));
+	}
 
-		testCodeActionsFor(xml, diagnostic, ca(diagnostic, te(4, 7, 4, 16, "notifiers"), te(4, 19, 4, 28, "notifiers")), ca(diagnostic, te(4, 7, 4, 16, "system"), te(4, 19, 4, 28, "system")), ca(diagnostic, te(4, 7, 4, 16, "url"), te(4, 19, 4, 28, "url")));
+	/**
+	 * 
+	 * @throws Exception
+	 * @see https://github.com/eclipse/lemminx/issues/856
+	 */
+	@Test
+	public void elementFormDefaultUnqualified() throws Exception {
+		String xml = "<foo xmlns=\"http://foo\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://foo foo-unqualified.xsd\">\r\n"
+				+ //
+				"	<bar />\r\n" + //
+				"</foo>";
+		Diagnostic diagnostic = d(1, 2, 1, 5, XMLSchemaErrorCode.cvc_complex_type_2_4_a, //
+				"Invalid element name:\n" + //
+						" - bar\n\n" + //
+						"One of the following is expected:\n" + //
+						" - bar\n\n" + //
+						"Error indicated by:\n" + //
+						" {http://foo}\n" + //
+						"with code:");
+		testDiagnosticsFor(xml, diagnostic);
 	}
 
 	@Test
 	public void fuzzyElementNamesWithPrefix() throws Exception {
-		String xml =
-		"<beans xmlns=\"http://www.springframework.org/schema/beans\"\n" +
-		"        xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-		"        xmlns:camel=\"http://camel.apache.org/schema/spring\"\n" +
-		"        xsi:schemaLocation=\"\n" +
-		"           http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\n" +
-		"           http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd\"> \n" +
-		"    <camel:beani></camel:beani>\n" +
-		"</beans>";
+		String xml = "<beans xmlns=\"http://www.springframework.org/schema/beans\"\n" + //
+				"        xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + //
+				"        xmlns:camel=\"http://camel.apache.org/schema/spring\"\n" + //
+				"        xsi:schemaLocation=\"\n" + //
+				"           http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\n"
+				+ //
+				"           http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd\"> \n"
+				+ //
+				"    <camel:beani></camel:beani>\n" + //
+				"</beans>";
 		Diagnostic diagnostic = d(6, 5, 6, 16, XMLSchemaErrorCode.cvc_complex_type_2_4_c,
-		"cvc-complex-type.2.4.c: The matching wildcard is strict, but no declaration can be found for element 'camel:beani'.");
+				"cvc-complex-type.2.4.c: The matching wildcard is strict, but no declaration can be found for element 'camel:beani'.");
 		testDiagnosticsFor(xml, diagnostic);
 
-		testCodeActionsFor(xml, diagnostic, ca(diagnostic, te(6, 11, 6, 16, "bean"), te(6, 25, 6, 30, "bean")),
-											ca(diagnostic, te(6, 11, 6, 16, "beanio"), te(6, 25, 6, 30, "beanio")));
+		testCodeActionsFor(xml, diagnostic, //
+				ca(diagnostic, te(6, 11, 6, 16, "bean"), te(6, 25, 6, 30, "bean")), //
+				ca(diagnostic, te(6, 11, 6, 16, "beanio"), te(6, 25, 6, 30, "beanio")));
 	}
 
 	@Test
 	public void fuzzyElementNamesWithPrefixAndNoMatch() throws Exception {
-		String xml =
-		"<schemaB:BRootElement \n" +
-		"      xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \n" +
-		"      xsi:schemaLocation=\"http://schemaA src/test/resources/xsd/fuzzyCodeAction/FuzzySchemaA.xsd http://schemaB src/test/resources/xsd/fuzzyCodeAction/FuzzySchemaB.xsd\" \n" +
-		"      xmlns:schemaA=\"http://schemaA\" \n" +
-		"      xmlns:schemaB=\"http://schemaB\">\n" +
-		"   <schemaA:XXXXX></schemaA:XXXXX>\n" +
-		"</schemaB:BRootElement>";
-		Diagnostic diagnostic = d(5, 4, 5, 17, XMLSchemaErrorCode.cvc_complex_type_2_4_c, "cvc-complex-type.2.4.c: The matching wildcard is strict, but no declaration can be found for element 'schemaA:XXXXX'.");
+		String xml = "<schemaB:BRootElement \n" + "      xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \n"
+				+ "      xsi:schemaLocation=\"http://schemaA src/test/resources/xsd/fuzzyCodeAction/FuzzySchemaA.xsd http://schemaB src/test/resources/xsd/fuzzyCodeAction/FuzzySchemaB.xsd\" \n"
+				+ "      xmlns:schemaA=\"http://schemaA\" \n" + "      xmlns:schemaB=\"http://schemaB\">\n"
+				+ "   <schemaA:XXXXX></schemaA:XXXXX>\n" + "</schemaB:BRootElement>";
+		Diagnostic diagnostic = d(5, 4, 5, 17, XMLSchemaErrorCode.cvc_complex_type_2_4_c,
+				"cvc-complex-type.2.4.c: The matching wildcard is strict, but no declaration can be found for element 'schemaA:XXXXX'.");
 		testDiagnosticsFor(xml, diagnostic);
-		testCodeActionsFor(xml, diagnostic, ca(diagnostic, te(5, 12, 5, 17, "AElement1"), te(5, 28, 5, 33, "AElement1")),
-											ca(diagnostic, te(5, 12, 5, 17, "AElement2"), te(5, 28, 5, 33, "AElement2")));
+		testCodeActionsFor(xml, diagnostic,
+				ca(diagnostic, te(5, 12, 5, 17, "AElement1"), te(5, 28, 5, 33, "AElement1")),
+				ca(diagnostic, te(5, 12, 5, 17, "AElement2"), te(5, 28, 5, 33, "AElement2")));
 	}
 
 	@Test
 	public void cvc_complex_type_2_2_withElement() throws Exception {
-		String xml =
-		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + //
-		"<int xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://integer\" xsi:schemaLocation=\"http://integer src/test/resources/xsd/namedInteger.xsd\">\n" + //
-		"    <int>42</int>\n" + //
-		"</int>";
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + //
+				"<int xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://integer\" xsi:schemaLocation=\"http://integer src/test/resources/xsd/namedInteger.xsd\">\n"
+				+ //
+				"    <int>42</int>\n" + //
+				"</int>";
 		Diagnostic diagnostic = d(1, 1, 1, 4, XMLSchemaErrorCode.cvc_complex_type_2_2,
-			"cvc-complex-type.2.2: Element 'int' must have no element [children], and the value must be valid.");
+				"cvc-complex-type.2.2: Element 'int' must have no element [children], and the value must be valid.");
 		testDiagnosticsFor(xml, diagnostic);
 	}
 
 	@Test
 	public void cvc_complex_type_2_2_withText() throws Exception {
-		String xml =
-		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + //
-		"<int xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://integer\" xsi:schemaLocation=\"http://integer src/test/resources/xsd/namedInteger.xsd\">\n" + //
-		"    Bob</int>";
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + //
+				"<int xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://integer\" xsi:schemaLocation=\"http://integer src/test/resources/xsd/namedInteger.xsd\">\n"
+				+ //
+				"    Bob</int>";
 		Diagnostic diagnosticBob = d(2, 4, 2, 7, XMLSchemaErrorCode.cvc_datatype_valid_1_2_1,
-			"Content of type 'integer' is expected.\n\nThe following content is not a valid type:\n 'Bob'\n\nCode:");
+				"Content of type 'integer' is expected.\n\nThe following content is not a valid type:\n 'Bob'\n\nCode:");
 		Diagnostic diagnostic_cvc_2_2 = d(1, 1, 1, 4, XMLSchemaErrorCode.cvc_complex_type_2_2,
-			"cvc-complex-type.2.2: Element 'int' must have no element [children], and the value must be valid.");
+				"cvc-complex-type.2.2: Element 'int' must have no element [children], and the value must be valid.");
 		testDiagnosticsFor(xml, diagnosticBob, diagnostic_cvc_2_2);
 	}
 
@@ -641,11 +658,10 @@ public class XMLSchemaDiagnosticsTest {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" + //
 				"<?xml-model href=\"src/test/resources/xsd/two-letter-name.xsd\"?>\n" + //
 				"<two-letter-name xmlns=\"BAD_NS\">Io</two-letter-name>";
-		Diagnostic targetNamespace = d(2, 23, 2, 31, XMLSchemaErrorCode.TargetNamespace_1, "TargetNamespace.1: Expecting namespace 'BAD_NS', but the target namespace of the schema document is 'http://two-letter-name'.");
-		testDiagnosticsFor(xml,
-				targetNamespace,
-				d(2, 1, 2, 16, XMLSchemaErrorCode.cvc_elt_1_a, "cvc-elt.1.a: Cannot find the declaration of element 'two-letter-name'.")
-		);
+		Diagnostic targetNamespace = d(2, 23, 2, 31, XMLSchemaErrorCode.TargetNamespace_1,
+				"TargetNamespace.1: Expecting namespace 'BAD_NS', but the target namespace of the schema document is 'http://two-letter-name'.");
+		testDiagnosticsFor(xml, targetNamespace, d(2, 1, 2, 16, XMLSchemaErrorCode.cvc_elt_1_a,
+				"cvc-elt.1.a: Cannot find the declaration of element 'two-letter-name'."));
 		testCodeActionsFor(xml, targetNamespace, ca(targetNamespace, te(2, 23, 2, 31, "\"http://two-letter-name\"")));
 	}
 
@@ -654,11 +670,10 @@ public class XMLSchemaDiagnosticsTest {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" + //
 				"<?xml-model href=\"src/test/resources/xsd/two-letter-name.xsd\"?>\n" + //
 				"<two-letter-name xmlns=\"_\">Io</two-letter-name>";
-		Diagnostic targetNamespace = d(2, 23, 2, 26, XMLSchemaErrorCode.TargetNamespace_1, "TargetNamespace.1: Expecting namespace '_', but the target namespace of the schema document is 'http://two-letter-name'.");
-		testDiagnosticsFor(xml,
-				targetNamespace,
-				d(2, 1, 2, 16, XMLSchemaErrorCode.cvc_elt_1_a, "cvc-elt.1.a: Cannot find the declaration of element 'two-letter-name'.")
-		);
+		Diagnostic targetNamespace = d(2, 23, 2, 26, XMLSchemaErrorCode.TargetNamespace_1,
+				"TargetNamespace.1: Expecting namespace '_', but the target namespace of the schema document is 'http://two-letter-name'.");
+		testDiagnosticsFor(xml, targetNamespace, d(2, 1, 2, 16, XMLSchemaErrorCode.cvc_elt_1_a,
+				"cvc-elt.1.a: Cannot find the declaration of element 'two-letter-name'."));
 		testCodeActionsFor(xml, targetNamespace, ca(targetNamespace, te(2, 23, 2, 26, "\"http://two-letter-name\"")));
 	}
 
@@ -670,8 +685,10 @@ public class XMLSchemaDiagnosticsTest {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
 		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
-		Diagnostic targetNamespace = d(2, 23, 2, 26, XMLSchemaErrorCode.TargetNamespace_1, "TargetNamespace.1: Expecting namespace '_', but the target namespace of the schema document is 'http://two-letter-name'.");
-		testCodeActionsFor(xml, targetNamespace, settings, ca(targetNamespace, te(2, 23, 2, 26, "'http://two-letter-name'")));
+		Diagnostic targetNamespace = d(2, 23, 2, 26, XMLSchemaErrorCode.TargetNamespace_1,
+				"TargetNamespace.1: Expecting namespace '_', but the target namespace of the schema document is 'http://two-letter-name'.");
+		testCodeActionsFor(xml, targetNamespace, settings,
+				ca(targetNamespace, te(2, 23, 2, 26, "'http://two-letter-name'")));
 	}
 
 	@Test
@@ -679,12 +696,12 @@ public class XMLSchemaDiagnosticsTest {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" + //
 				"<?xml-model href=\"src/test/resources/xsd/two-letter-name.xsd\"?>\n" + //
 				"<two-letter-name>Io</two-letter-name>";
-		Diagnostic targetNamespace = d(2, 1, 2, 16, XMLSchemaErrorCode.TargetNamespace_2, "TargetNamespace.2: Expecting no namespace, but the schema document has a target namespace of 'http://two-letter-name'.");
-		testDiagnosticsFor(xml,
-				targetNamespace,
-				d(2, 1, 2, 16, XMLSchemaErrorCode.cvc_elt_1_a, "cvc-elt.1.a: Cannot find the declaration of element 'two-letter-name'.")
-		);
-		testCodeActionsFor(xml, targetNamespace, ca(targetNamespace, te(2, 16, 2, 16, " xmlns=\"http://two-letter-name\"")));
+		Diagnostic targetNamespace = d(2, 1, 2, 16, XMLSchemaErrorCode.TargetNamespace_2,
+				"TargetNamespace.2: Expecting no namespace, but the schema document has a target namespace of 'http://two-letter-name'.");
+		testDiagnosticsFor(xml, targetNamespace, d(2, 1, 2, 16, XMLSchemaErrorCode.cvc_elt_1_a,
+				"cvc-elt.1.a: Cannot find the declaration of element 'two-letter-name'."));
+		testCodeActionsFor(xml, targetNamespace,
+				ca(targetNamespace, te(2, 16, 2, 16, " xmlns=\"http://two-letter-name\"")));
 	}
 
 	@Test
@@ -695,8 +712,10 @@ public class XMLSchemaDiagnosticsTest {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
 		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
-		Diagnostic targetNamespace = d(2, 1, 2, 16, XMLSchemaErrorCode.TargetNamespace_2, "TargetNamespace.2: Expecting no namespace, but the schema document has a target namespace of 'http://two-letter-name'.");
-		testCodeActionsFor(xml, targetNamespace, settings, ca(targetNamespace, te(2, 16, 2, 16, " xmlns='http://two-letter-name'")));
+		Diagnostic targetNamespace = d(2, 1, 2, 16, XMLSchemaErrorCode.TargetNamespace_2,
+				"TargetNamespace.2: Expecting no namespace, but the schema document has a target namespace of 'http://two-letter-name'.");
+		testCodeActionsFor(xml, targetNamespace, settings,
+				ca(targetNamespace, te(2, 16, 2, 16, " xmlns='http://two-letter-name'")));
 	}
 
 	@Test
@@ -706,10 +725,10 @@ public class XMLSchemaDiagnosticsTest {
 				"  xsi:noNamespaceSchemaLocation=\"/sala'd.xsd\">\n" + //
 				"</invoice>";
 		Diagnostic missingSchemaDiagnostic = d(2, 32, 45, XMLSchemaErrorCode.schema_reference_4);
-		missingSchemaDiagnostic.setMessage("schema_reference.4: Failed to read schema document "
-				+ "'file:///sala'd.xsd',"
-				+ " because 1) could not find the document; 2) the document could not be read;"
-				+ " 3) the root element of the document is not <xsd:schema>.");
+		missingSchemaDiagnostic
+				.setMessage("schema_reference.4: Failed to read schema document " + "'file:///sala'd.xsd',"
+						+ " because 1) could not find the document; 2) the document could not be read;"
+						+ " 3) the root element of the document is not <xsd:schema>.");
 		Diagnostic eltDiagnostic = d(1, 1, 8, XMLSchemaErrorCode.cvc_elt_1_a);
 		eltDiagnostic.setMessage("cvc-elt.1.a: Cannot find the declaration of element 'invoice'.");
 		XMLAssert.testDiagnosticsFor(xml, missingSchemaDiagnostic, eltDiagnostic);
@@ -740,8 +759,7 @@ public class XMLSchemaDiagnosticsTest {
 				"  xsi:noNamespaceSchemaLocation=\"/salad.xsd\">\n" + //
 				"</invoice>";
 		Diagnostic missingSchema = d(2, 32, 44, XMLSchemaErrorCode.schema_reference_4);
-		missingSchema.setMessage("schema_reference.4: Failed to read schema document "
-				+ "'file:///salad.xsd',"
+		missingSchema.setMessage("schema_reference.4: Failed to read schema document " + "'file:///salad.xsd',"
 				+ " because 1) could not find the document; 2) the document could not be read;"
 				+ " 3) the root element of the document is not <xsd:schema>.");
 		Diagnostic eltDiagnostic = d(1, 1, 8, XMLSchemaErrorCode.cvc_elt_1_a);

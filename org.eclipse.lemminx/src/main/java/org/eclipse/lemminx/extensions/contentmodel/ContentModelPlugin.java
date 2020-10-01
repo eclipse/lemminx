@@ -18,6 +18,7 @@ import org.eclipse.lemminx.extensions.contentmodel.participants.ContentModelCode
 import org.eclipse.lemminx.extensions.contentmodel.participants.ContentModelCompletionParticipant;
 import org.eclipse.lemminx.extensions.contentmodel.participants.ContentModelDocumentLinkParticipant;
 import org.eclipse.lemminx.extensions.contentmodel.participants.ContentModelHoverParticipant;
+import org.eclipse.lemminx.extensions.contentmodel.participants.ContentModelSymbolsProviderParticipant;
 import org.eclipse.lemminx.extensions.contentmodel.participants.ContentModelTypeDefinitionParticipant;
 import org.eclipse.lemminx.extensions.contentmodel.participants.diagnostics.ContentModelDiagnosticsParticipant;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
@@ -56,6 +57,8 @@ public class ContentModelPlugin implements IXMLExtension {
 	private IDocumentLinkParticipant documentLinkParticipant;
 
 	private final ITypeDefinitionParticipant typeDefinitionParticipant;
+
+	private ContentModelSymbolsProviderParticipant symbolsProviderParticipant;
 
 	ContentModelManager contentModelManager;
 
@@ -133,6 +136,9 @@ public class ContentModelPlugin implements IXMLExtension {
 		if (useCache != null) {
 			contentModelManager.setUseCache(useCache);
 		}
+		// Update symbols
+		boolean showReferencedGrammars = settings.isShowReferencedGrammars();
+		symbolsProviderParticipant.setEnabled(showReferencedGrammars);
 	}
 
 	@Override
@@ -150,6 +156,8 @@ public class ContentModelPlugin implements IXMLExtension {
 		registry.registerCodeActionParticipant(codeActionParticipant);
 		registry.registerDocumentLinkParticipant(documentLinkParticipant);
 		registry.registerTypeDefinitionParticipant(typeDefinitionParticipant);
+		symbolsProviderParticipant = new ContentModelSymbolsProviderParticipant(contentModelManager);
+		registry.registerSymbolsProviderParticipant(symbolsProviderParticipant);
 	}
 
 	@Override
@@ -160,14 +168,15 @@ public class ContentModelPlugin implements IXMLExtension {
 		registry.unregisterCodeActionParticipant(codeActionParticipant);
 		registry.unregisterDocumentLinkParticipant(documentLinkParticipant);
 		registry.unregisterTypeDefinitionParticipant(typeDefinitionParticipant);
+		registry.unregisterSymbolsProviderParticipant(symbolsProviderParticipant);
 	}
 
 	public ContentModelSettings getContentModelSettings() {
 		return cmSettings;
 	}
-	
+
 	public ContentModelManager getContentModelManager() {
 		return contentModelManager;
 	}
-	
+
 }

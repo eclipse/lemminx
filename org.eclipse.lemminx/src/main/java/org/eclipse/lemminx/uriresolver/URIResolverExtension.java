@@ -24,6 +24,10 @@ import org.apache.xerces.xni.parser.XMLInputSource;
  */
 public interface URIResolverExtension extends XMLEntityResolver {
 
+	default String getName() {
+		return getClass().getSimpleName();
+	}
+
 	/**
 	 * @param baseLocation - the location of the resource that contains the uri
 	 * @param publicId     - an optional public identifier (i.e. namespace name), or

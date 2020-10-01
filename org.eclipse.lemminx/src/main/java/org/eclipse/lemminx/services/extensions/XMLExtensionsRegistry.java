@@ -52,6 +52,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	private final List<IHighlightingParticipant> highlightingParticipants;
 	private final List<IRenameParticipant> renameParticipants;
 	private final List<IFormatterParticipant> formatterParticipants;
+	private final List<ISymbolsProviderParticipant> symbolsProviderParticipants;
 	private IXMLDocumentProvider documentProvider;
 
 	private InitializeParams params;
@@ -78,6 +79,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 		highlightingParticipants = new ArrayList<>();
 		renameParticipants = new ArrayList<>();
 		formatterParticipants = new ArrayList<>();
+		symbolsProviderParticipants = new ArrayList<>();
 		resolverExtensionManager = new URIResolverExtensionManager();
 		components = new HashMap<>();
 		registerComponent(resolverExtensionManager);
@@ -178,6 +180,11 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	public Collection<IFormatterParticipant> getFormatterParticipants() {
 		initializeIfNeeded();
 		return formatterParticipants;
+	}
+
+	public Collection<ISymbolsProviderParticipant> getSymbolsProviderParticipants() {
+		initializeIfNeeded();
+		return symbolsProviderParticipants;
 	}
 
 	public void initializeIfNeeded() {
@@ -325,6 +332,14 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 
 	public void unregisterFormatterParticipant(IFormatterParticipant formatterParticipant) {
 		formatterParticipants.remove(formatterParticipant);
+	}
+
+	public void registerSymbolsProviderParticipant(ISymbolsProviderParticipant symbolsProviderParticipant) {
+		symbolsProviderParticipants.add(symbolsProviderParticipant);
+	}
+
+	public void unregisterSymbolsProviderParticipant(ISymbolsProviderParticipant symbolsProviderParticipant) {
+		symbolsProviderParticipants.remove(symbolsProviderParticipant);
 	}
 
 	/**

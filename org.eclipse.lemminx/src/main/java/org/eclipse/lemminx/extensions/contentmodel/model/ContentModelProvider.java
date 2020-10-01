@@ -15,6 +15,7 @@ package org.eclipse.lemminx.extensions.contentmodel.model;
 import java.util.Collection;
 
 import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lemminx.dom.DOMRange;
 
 /**
  * Content model provider API.
@@ -28,9 +29,15 @@ public interface ContentModelProvider {
 
 		private final String systemId;
 
-		public Identifier(String publicId, String systemId) {
+		private final DOMRange range;
+
+		private final String kind;
+
+		public Identifier(String publicId, String systemId, DOMRange range, String kind) {
 			this.publicId = publicId;
 			this.systemId = systemId;
+			this.range = range;
+			this.kind = kind;
 		}
 
 		public String getPublicId() {
@@ -39,6 +46,14 @@ public interface ContentModelProvider {
 
 		public String getSystemId() {
 			return systemId;
+		}
+
+		public DOMRange getRange() {
+			return range;
+		}
+
+		public String getKind() {
+			return kind;
 		}
 
 	}
