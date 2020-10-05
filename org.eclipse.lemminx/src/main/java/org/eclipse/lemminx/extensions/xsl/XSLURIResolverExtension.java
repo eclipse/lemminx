@@ -43,6 +43,10 @@ public class XSLURIResolverExtension implements URIResolverExtension {
 
 	private static final Map<String, ResourceToDeploy> XSL_RESOURCES;
 
+	public String getName() {
+		return "embedded xslt.xsd";
+	}
+
 	static {
 		XSL_RESOURCES = new HashMap<>();
 		XSL_RESOURCES.put("1.0", XML_SCHEMA_10);

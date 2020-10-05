@@ -12,13 +12,16 @@
  */
 package org.eclipse.lemminx.extensions.contentmodel.model;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.xerces.xni.grammars.XMLGrammarPool;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -30,6 +33,8 @@ import org.eclipse.lemminx.extensions.contentmodel.uriresolver.XMLCacheResolverE
 import org.eclipse.lemminx.extensions.contentmodel.uriresolver.XMLCatalogResolverExtension;
 import org.eclipse.lemminx.extensions.contentmodel.uriresolver.XMLFileAssociationResolverExtension;
 import org.eclipse.lemminx.uriresolver.CacheResourceDownloadingException;
+import org.eclipse.lemminx.uriresolver.CacheResourcesManager;
+import org.eclipse.lemminx.uriresolver.ResolvedURIInfo;
 import org.eclipse.lemminx.uriresolver.URIResolverExtensionManager;
 import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lemminx.utils.URIUtils;
@@ -185,6 +190,83 @@ public class ContentModelManager {
 		}
 		String key = resolverManager.resolve(document.getDocumentURI(), null, null);
 		return grammarURI.equals(key);
+	}
+
+	/**
+	 * Returns informations about all referenced grammar (XSD, DTD) from the given
+	 * DOM document.
+	 * 
+	 * <p>
+	 * In other words, it gives information about
+	 * 
+	 * <ul>
+	 * <li>which XSD, DTD files are bound to the DOM document.</li>
+	 * <li>which binding strategies are used (catalog, file association,
+	 * xsi:schemaLocation, xsi:noNamespaceSchemaLocation, DOCTYPE).</li>
+	 * <li>the cache file path (for remote grammar with http://)</li>
+	 * 
+	 * </p>
+	 * 
+	 * @param document the DOM document.
+	 * 
+	 * @return informations about all referenced grammar (XSD, DTD) from the given
+	 *         DOM document.
+	 */
+	public Set<ReferencedGrammarInfo> getReferencedGrammarInfos(DOMDocument document) {
+		Set<ReferencedGrammarInfo> referencedGrammarInfos = new HashSet<>();
+		for (ContentModelProvider modelProvider : modelProviders) {
+			if (modelProvider.adaptFor(document, false)) {
+				Collection<Identifier> identifiers = modelProvider.getIdentifiers(document, null);
+				for (Identifier identifier : identifiers) {
+					String publicId = identifier.getPublicId();
+					String systemId = identifier.getSystemId();
+					fillReferencedGrammarInfo(document, publicId, systemId, identifier, referencedGrammarInfos);
+				}
+			}
+		}
+		fillReferencedGrammarInfo(document, document.getNamespaceURI(), null, null, referencedGrammarInfos);
+		return referencedGrammarInfos;
+	}
+
+	private void fillReferencedGrammarInfo(DOMDocument document, String publicId, String systemId,
+			Identifier identifier, Set<ReferencedGrammarInfo> referencedGrammarInfos) {
+		ResolvedURIInfo resolvedURIInfo = resolverManager.resolveInfo(document.getDocumentURI(), publicId, systemId);
+		if (resolvedURIInfo != null) {
+			GrammarCacheInfo grammarCacheInfo = null;
+			String cachedResolvedUri = null;
+			boolean downloading = false;
+			Exception cacheError = null;
+			String resolvedUri = resolvedURIInfo.getResolvedURI();
+			boolean isFileResource = URIUtils.isFileResource(resolvedUri);
+			if (!isFileResource && cacheResolverExtension.isUseCache()) {
+				// The DTD/XML Schema comes from http://, ftp:// etc and cache manager is
+				// activated
+				// Try to load the DTD/XML Schema with the cache manager
+				try {
+					Path file = cacheResolverExtension.getCachedResource(resolvedUri);
+					if (file != null) {
+						cachedResolvedUri = file.toUri().toString();
+					}
+				} catch (CacheResourceDownloadingException e) {
+					// the DTD/XML Schema is downloading
+					downloading = true;
+				} catch (Exception e) {
+					// other error like network which is not available
+					cacheError = e;
+				} finally {
+					if (cachedResolvedUri == null) {
+						try {
+							cachedResolvedUri = CacheResourcesManager.getResourceCachePath(resolvedUri).toUri()
+									.toString();
+						} catch (IOException e) {
+							// should never occur
+						}
+					}
+				}
+				grammarCacheInfo = new GrammarCacheInfo(cachedResolvedUri, downloading, cacheError);
+			}
+			referencedGrammarInfos.add(new ReferencedGrammarInfo(resolvedURIInfo, grammarCacheInfo, identifier));
+		}
 	}
 
 	/**
