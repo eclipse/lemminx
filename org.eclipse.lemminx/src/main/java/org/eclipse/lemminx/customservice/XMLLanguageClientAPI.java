@@ -12,7 +12,11 @@
  */
 package org.eclipse.lemminx.customservice;
 
+import java.util.concurrent.CompletableFuture;
+
+import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
+import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 import org.eclipse.lsp4j.services.LanguageClient;
 
@@ -28,8 +32,21 @@ public interface XMLLanguageClientAPI extends LanguageClient {
 	 * 
 	 * @param command
 	 */
-	@JsonNotification
+	@JsonNotification("actionableNotification")
 	default void actionableNotification(ActionableNotification command) {
 		throw new UnsupportedOperationException();
 	}
+	
+	/**
+	 * Executes the command on the client which gives an opportunity to execute a
+	 * command registered by a different Language Server
+	 * 
+	 * @param params command execution parameters
+	 * @return the result of the command execution
+	 */
+	@JsonRequest("executeClientCommand")
+	default CompletableFuture<Object> executeClientCommand(ExecuteCommandParams params) {
+		throw new UnsupportedOperationException();
+	}
+	
 }

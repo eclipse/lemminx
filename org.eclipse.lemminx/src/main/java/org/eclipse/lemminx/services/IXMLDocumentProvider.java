@@ -12,6 +12,9 @@
  */
 package org.eclipse.lemminx.services;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import org.eclipse.lemminx.dom.DOMDocument;
 
 /**
@@ -31,4 +34,12 @@ public interface IXMLDocumentProvider {
 	 *         null otherwise.
 	 */
 	DOMDocument getDocument(String uri);
+	
+	/**
+	 * All known documents XML server is working with at the moment
+	 * @return XML documents
+	 */
+	default Collection<DOMDocument> getAllDocuments() {
+		return Collections.emptyList();
+	}
 }

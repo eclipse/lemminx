@@ -16,12 +16,15 @@ package org.eclipse.lemminx;
 import static org.eclipse.lsp4j.jsonrpc.CompletableFutures.computeAsync;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.eclipse.lemminx.client.ExtendedClientCapabilities;
 import org.eclipse.lemminx.commons.ModelTextDocument;
@@ -36,10 +39,10 @@ import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSetting
 import org.eclipse.lemminx.logs.LogHelper;
 import org.eclipse.lemminx.services.IXMLDocumentProvider;
 import org.eclipse.lemminx.services.IXMLNotificationService;
+import org.eclipse.lemminx.services.IXMLValidationService;
 import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.settings.AllXMLSettings;
 import org.eclipse.lemminx.settings.InitializationOptionsSettings;
-import org.eclipse.lemminx.settings.LogsSettings;
 import org.eclipse.lemminx.settings.ServerSettings;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLCodeLensSettings;
@@ -71,7 +74,8 @@ import org.eclipse.lsp4j.services.WorkspaceService;
  *
  */
 public class XMLLanguageServer
-		implements ProcessLanguageServer, XMLLanguageServerAPI, IXMLDocumentProvider, IXMLNotificationService {
+		implements ProcessLanguageServer, XMLLanguageServerAPI, IXMLDocumentProvider,
+		IXMLNotificationService, IXMLValidationService {
 
 	private static final Logger LOGGER = Logger.getLogger(XMLLanguageServer.class.getName());
 
@@ -81,14 +85,18 @@ public class XMLLanguageServer
 	private XMLLanguageClientAPI languageClient;
 	private final ScheduledExecutorService delayer;
 	private Integer parentProcessId;
-	public XMLCapabilityManager capabilityManager;
+	private XMLCapabilityManager capabilityManager;
 
 	public XMLLanguageServer() {
+		xmlTextDocumentService = new XMLTextDocumentService(this);
+		xmlWorkspaceService = new XMLWorkspaceService(this);
+		
 		xmlLanguageService = new XMLLanguageService();
 		xmlLanguageService.setDocumentProvider(this);
 		xmlLanguageService.setNotificationService(this);
-		xmlTextDocumentService = new XMLTextDocumentService(this);
-		xmlWorkspaceService = new XMLWorkspaceService(this);
+		xmlLanguageService.setCommandService(xmlWorkspaceService);
+		xmlLanguageService.setValidationService(this);
+		
 		delayer = Executors.newScheduledThreadPool(1);
 	}
 
@@ -297,4 +305,22 @@ public class XMLLanguageServer
 	public SharedSettings getSharedSettings() {
 		return xmlTextDocumentService.getSharedSettings();
 	}
+
+	@Override
+	public Collection<DOMDocument> getAllDocuments() {
+		return xmlTextDocumentService.allDocuments().stream()
+				.map(m -> m.getModel().getNow(null))
+				.filter(Objects::nonNull)
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	public void validate(DOMDocument document) {
+		xmlTextDocumentService.validate(document);
+	}
+
+	public XMLCapabilityManager getCapabilityManager() {
+		return capabilityManager;
+	}
+	
 }

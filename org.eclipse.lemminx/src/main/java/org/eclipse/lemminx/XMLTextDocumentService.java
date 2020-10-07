@@ -499,7 +499,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 		});
 	}
 
-	private void validate(DOMDocument xmlDocument) throws CancellationException {
+	void validate(DOMDocument xmlDocument) throws CancellationException {
 		CancelChecker cancelChecker = xmlDocument.getCancelChecker();
 		cancelChecker.checkCanceled();
 		getXMLLanguageService().publishDiagnostics(xmlDocument,
@@ -563,6 +563,10 @@ public class XMLTextDocumentService implements TextDocumentService {
 	 */
 	public ModelTextDocument<DOMDocument> getDocument(String uri) {
 		return documents.get(uri);
+	}
+	
+	public Collection<ModelTextDocument<DOMDocument>> allDocuments() {
+		return documents.all();
 	}
 
 	public boolean documentIsOpen(String uri) {
