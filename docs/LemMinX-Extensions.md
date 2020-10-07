@@ -101,6 +101,89 @@ The [LemMinx Extensions API](https://github.com/eclipse/lemminx/tree/master/org.
 - Formatter with [IFormatterParticipant](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/format/IFormatterParticipant.java)
 - Symbols with [ISymbolsProviderParticipant](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/ISymbolsProviderParticipant.java)
 
+## XML Language Server services available for extensions
+XML Language Server extension may need to use standard Language Server features such as commands, documents and ability to manipulate documents. These are available to extensions indirectly via specialized service API.
+
+#### Command Service
+The command service is a wrapper around Language Server client functionality allowing to register/unregister/execute commands via Language Server Protocol. The service can be accessed like the following:
+
+```java
+public class FooPlugin implements IXMLExtension {
+
+	@Override
+	public void start(InitializeParams params, XMLExtensionsRegistry registry) {
+		// Register here custom server command
+		IXMLCommandService commandService = registry.getCommandService();
+		commandService.registerCommand("my-cmd", (params, cancelChecker) -> "executed");		
+	}
+
+	@Override
+	public void stop(XMLExtensionsRegistry registry) {
+		// Unregister here custom server command
+		IXMLCommandService commandService = registry.getCommandService();
+		commandService.unregisterCommand("my-cmd");		
+	}
+}
+```
+
+There are two types of commands XML LS allows extender to work with via `IXMLCommandService`:
+ - Server command that can be executed from the client (via `workspace/executeCommand` request message from the LSP spec)
+ - Client command that can be executed from the server (via `xml/executeClientCommand` request message - XML extension of the LSP spec)
+ 
+A server command should implement the [IDelegateCommandHandler](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/IXMLCommandService.java).
+
+```java
+	public interface IDelegateCommandHandler {
+		
+		/**
+		 * Executes a command
+		 * @param params command execution parameters
+		 * @param cancelChecker check if cancel has been requested
+		 * @return the result of the command
+		 * @throws Exception the unhandled exception will be wrapped in
+		 *                   <code>org.eclipse.lsp4j.jsonrpc.ResponseErrorException</code>
+		 *                   and be wired back to the JSON-RPC protocol caller
+		 */
+	    Object executeCommand(ExecuteCommandParams params, CancelChecker cancelChecker) throws Exception;	    
+	}
+```
+
+A server command can be registered/unregistered like follows:
+
+```java
+	// Command registration
+	commandService.registerCommand("my-cmd", (params, cancelChecker) -> "executed");
+		
+	//Unregister command
+	commandService.unregisterCommand("my-cmd");
+```
+
+A client command can be executed like follows:
+
+```java
+	// Opens up terminal view in VSCode client
+	commandService.executeClientCommand(new ExecuteCommandParams("workbench.action.terminal.toggleTerminal", Collections.emptyList()))
+```
+
+Note that XML LS client (VSCode in particular) registers a client command `xml.workspace.executeCommand` to allow other extensions to execute XML LS commands. Thus XML LS extension can execute `"my-cmd"` command registered above with the following snippet:
+
+```java
+	// Execute command. The result should be "executed" string
+	Object result = commandService.executeClientCommand(new ExecuteCommandParams("xml.workspace.executeCommand", Arrays.asList("my-cmd"))).get();
+```
+
+See definition of [IXMLCommandService](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/commands/IXMLCommandService.java)
+
+#### Document Provider
+The document provider allows for finding the document from the document URI and listing all XML documents. Note that the document provider is only aware of the XML documents it  is working with (opened XML documents).
+
+See definition of [IXMLDocumentProvider](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/IXMLDocumentProvider.java)
+
+#### Validation Service
+The validation service allows for triggering validation of all opened XML documents on server side.
+
+See definition of [IXMLValidationService](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/IXMLValidationService.java)
+
 ## Adding custom settings for your extension
 
 Your extension can have its own custom settings to control its behavior. Your new setting must start with the prefix `xml`, so for example `xml.myextension.mycustomsetting`. Reading the settings can be done from the `doSave` method in your XMLExtension. The `doSave` method is called with a `Settings` context on extension startup and also whenever the settings are updated. For an example you can look at the [Content Model Settings](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/extensions/contentmodel/settings/ContentModelSettings.java) and how they are updated in the [doSave method](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/extensions/contentmodel/ContentModelPlugin.java#L73).
