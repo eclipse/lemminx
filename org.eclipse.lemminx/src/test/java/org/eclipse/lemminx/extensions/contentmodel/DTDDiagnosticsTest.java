@@ -445,7 +445,7 @@ public class DTDDiagnosticsTest {
 				"</article>";
 		testCodeActionsFor(xml, d, ca(d, te(2, 0, 2, 0, "[\n\t<!ENTITY nbsp \"entity-value\">\n]")));
 	}
-	
+
 	@Test
 	public void EntityNotDeclaredDoctypeEmptySubset() throws Exception {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + //
@@ -508,10 +508,55 @@ public class DTDDiagnosticsTest {
 
 	@Test
 	public void EntityNotDeclared() throws Exception {
-		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + "<!DOCTYPE article [\r\n"
-				+ "	<!ELEMENT article (#PCDATA)>\r\n" + "]>\r\n" + "<article>\r\n" + "	&nbsp;\r\n" + "</article>";
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<!DOCTYPE article [\r\n" + //
+				"	<!ELEMENT article (#PCDATA)>\r\n" + //
+				"]>\r\n" + //
+				"<article>\r\n" + //
+				"	&nbsp;\r\n" + //
+				"</article>";
 
 		XMLAssert.testDiagnosticsFor(xml, d(5, 1, 7, DTDErrorCode.EntityNotDeclared));
+	}
+
+	@Test
+	public void EntityNotDeclaredRespectsIndentSettings1() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<!DOCTYPE article [\r\n" + //
+				"	<!ELEMENT article (#PCDATA)>\r\n" + //
+				"]>\r\n" + //
+				"<article>\r\n" + //
+				"	&nbsp;\r\n" + //
+				"</article>";
+		SharedSettings settings = new SharedSettings();
+		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
+		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
+		settings.getFormattingSettings().setInsertSpaces(true);
+		settings.getFormattingSettings().setTabSize(6);
+		Diagnostic d = d(5, 1, 5, 7, DTDErrorCode.EntityNotDeclared,
+				"The entity \"nbsp\" was referenced, but not declared.");
+		XMLAssert.testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, settings, ca(d, te(2, 29, 2, 29, "\r\n      <!ENTITY nbsp \'entity-value\'>")));
+	}
+
+	@Test
+	public void EntityNotDeclaredRespectsIndentSettings2() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<!DOCTYPE article [\r\n" + //
+				"	<!ELEMENT article (#PCDATA)>\r\n" + //
+				"]>\r\n" + //
+				"<article>\r\n" + //
+				"	&nbsp;\r\n" + //
+				"</article>";
+		SharedSettings settings = new SharedSettings();
+		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
+		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
+		settings.getFormattingSettings().setInsertSpaces(true);
+		settings.getFormattingSettings().setTabSize(3);
+		Diagnostic d = d(5, 1, 5, 7, DTDErrorCode.EntityNotDeclared,
+				"The entity \"nbsp\" was referenced, but not declared.");
+		XMLAssert.testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, settings, ca(d, te(2, 29, 2, 29, "\r\n   <!ENTITY nbsp \'entity-value\'>")));
 	}
 
 	@Test
