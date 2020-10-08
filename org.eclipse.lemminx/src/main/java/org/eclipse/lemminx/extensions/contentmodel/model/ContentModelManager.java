@@ -310,6 +310,10 @@ public class ContentModelManager {
 				Path file = cacheResolverExtension.getCachedResource(resolvedUri);
 				if (file != null) {
 					cmDocument = modelProvider.createCMDocument(file.toUri().toString());
+				} else {
+					// It's not a file URL, and not a remote URL (ftp, http, https)? It's something else that might have a registered URL Handler.
+					// Therefore just try to load the model from the URL.
+					cmDocument = modelProvider.createCMDocument(resolvedUri);
 				}
 			} catch (CacheResourceDownloadingException e) {
 				// the DTD/XML Schema is downloading
