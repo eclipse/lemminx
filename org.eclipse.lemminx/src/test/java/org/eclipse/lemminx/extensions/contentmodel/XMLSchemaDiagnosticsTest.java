@@ -23,6 +23,7 @@ import static org.eclipse.lemminx.XMLAssert.testCodeActionsFor;
 import java.util.Arrays;
 
 import org.eclipse.lemminx.XMLAssert;
+import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSchemaErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
 import org.eclipse.lemminx.settings.EnforceQuoteStyle;
@@ -572,7 +573,7 @@ public class XMLSchemaDiagnosticsTest {
 	}
 
 	/**
-	 * 
+	 *
 	 * @throws Exception
 	 * @see https://github.com/eclipse/lemminx/issues/856
 	 */
@@ -767,6 +768,102 @@ public class XMLSchemaDiagnosticsTest {
 		XMLAssert.testDiagnosticsFor(xml, missingSchema, eltDiagnostic);
 
 		XMLAssert.testCodeActionsFor(xml, missingSchema);
+	}
+
+	@Test
+	public void cvc_complex_type_2_3_singleLine() throws BadLocationException {
+		String xml = "<foo\n" + //
+				"  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + //
+				"  xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/close-tag-type.xsd\">\n" + //
+				"  <bar>/bar></bar>\n" + //
+				"</foo>";
+		Diagnostic diagnostic = d(3, 7, 12, XMLSchemaErrorCode.cvc_complex_type_2_3);
+		XMLAssert.testDiagnosticsFor(xml, diagnostic);
+		XMLAssert.testCodeActionsFor(xml, diagnostic, ca(diagnostic, te(3, 7, 3, 12, "")));
+	}
+
+	@Test
+	public void cvc_complex_type_2_3_multiLine() throws BadLocationException {
+		String xml = "<foo\n" + //
+				"  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + //
+				"  xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/close-tag-type.xsd\">\n" + //
+				"  <bar>/bar>\n" + //
+				"barbarbar</bar>\n" + //
+				"</foo>";
+		Diagnostic diagnostic = d(3, 7, 12, XMLSchemaErrorCode.cvc_complex_type_2_3);
+		XMLAssert.testDiagnosticsFor(xml, diagnostic);
+		XMLAssert.testCodeActionsFor(xml, diagnostic, ca(diagnostic, te(3, 7, 3, 12, "")));
+	}
+
+	@Test
+	public void cvc_complex_type_2_3_singleLineSpaces() throws BadLocationException {
+		String xml = "<foo\n" + //
+				"  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + //
+				"  xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/close-tag-type.xsd\">\n" + //
+				"  <bar>    	/bar> 	 	</bar>\n" + //
+				"</foo>";
+		Diagnostic diagnostic = d(3, 12, 17, XMLSchemaErrorCode.cvc_complex_type_2_3);
+		XMLAssert.testDiagnosticsFor(xml, diagnostic);
+		XMLAssert.testCodeActionsFor(xml, diagnostic, ca(diagnostic, te(3, 12, 3, 17, "")));
+	}
+
+	@Test
+	public void cvc_complex_type_2_3_singleLineCData() throws BadLocationException {
+		String xml = "<foo\n" + //
+				"  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + //
+				"  xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/close-tag-type.xsd\">\n" + //
+				"  <bar> <![CDATA[ bar ]]> </bar>\n" + //
+				"</foo>";
+		Diagnostic diagnostic = d(3, 18, 21, XMLSchemaErrorCode.cvc_complex_type_2_3);
+		XMLAssert.testDiagnosticsFor(xml, diagnostic);
+		XMLAssert.testCodeActionsFor(xml, diagnostic, ca(diagnostic, te(3, 18, 3, 21, "")));
+	}
+
+	@Test
+	public void cvc_complex_type_2_3_multiLineCData() throws BadLocationException {
+		String xml = "<foo\n" + //
+				"  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + //
+				"  xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/close-tag-type.xsd\">\n" + //
+				"  <bar> <![CDATA[ bar\n" + //
+				"   hi ]]> </bar>\n" + //
+				"</foo>";
+		Diagnostic diagnostic = d(3, 18, 21, XMLSchemaErrorCode.cvc_complex_type_2_3);
+		XMLAssert.testDiagnosticsFor(xml, diagnostic);
+		XMLAssert.testCodeActionsFor(xml, diagnostic, ca(diagnostic, te(3, 18, 3, 21, "")));
+	}
+
+	@Test
+	public void cvc_complex_type_2_3_blankCData() throws BadLocationException {
+		String xml = "<foo\n" + //
+				"  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + //
+				"  xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/close-tag-type.xsd\">\n" + //
+				"  <bar> <![CDATA[  ]]> </bar>\n" + //
+				"</foo>";
+		XMLAssert.testDiagnosticsFor(xml);
+	}
+
+	@Test
+	public void cvc_complex_type_2_3_blankCDataWithTextAfter() throws BadLocationException {
+		String xml = "<foo\n" + //
+				"  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + //
+				"  xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/close-tag-type.xsd\">\n" + //
+				"  <bar> <![CDATA[  ]]> TextContent </bar>\n" + //
+				"</foo>";
+		Diagnostic diagnostic = d(3, 23, 34, XMLSchemaErrorCode.cvc_complex_type_2_3);
+		XMLAssert.testDiagnosticsFor(xml, diagnostic);
+		XMLAssert.testCodeActionsFor(xml, diagnostic, ca(diagnostic, te(3, 23, 3, 34, "")));
+	}
+
+	@Test
+	public void cvc_complex_type_2_3_elementBeforeText() throws BadLocationException {
+		String xml = "<foo\n" + //
+				"  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + //
+				"  xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/close-tag-type.xsd\">\n" + //
+				"  <bar /> TextContent <bar></bar>\n" + //
+				"</foo>";
+		Diagnostic diagnostic = d(3, 10, 21, XMLSchemaErrorCode.cvc_complex_type_2_3);
+		XMLAssert.testDiagnosticsFor(xml, diagnostic);
+		XMLAssert.testCodeActionsFor(xml, diagnostic, ca(diagnostic, te(3, 10, 3, 21, "")));
 	}
 
 	private static void testDiagnosticsFor(String xml, Diagnostic... expected) {
