@@ -17,17 +17,24 @@ import static org.eclipse.lemminx.XMLAssert.r;
 import static org.eclipse.lemminx.XMLAssert.te;
 
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLStreamHandler;
+import java.net.URLStreamHandlerFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.function.Consumer;
 
 import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.util.URI.MalformedURIException;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
+import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.settings.SharedSettings;
+import org.eclipse.lemminx.uriresolver.URIResolverExtension;
 import org.eclipse.lsp4j.CompletionCapabilities;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemCapabilities;
@@ -1225,5 +1232,55 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 		sharedSettings.getCompletionSettings().setCapabilities(completionCapabilities);
 		XMLAssert.testCompletionFor(new XMLLanguageService(), xml, null, null, fileURI, null, sharedSettings,
 				expectedItems);
+	}
+	
+	@Test
+	public void customProtocolNamespaceSchemaLocationCompletionWhenCachingOn() throws BadLocationException {
+		
+		URL.setURLStreamHandlerFactory(new URLStreamHandlerFactory() {
+			
+			@Override
+			public URLStreamHandler createURLStreamHandler(String protocol) {
+				if ("custom".equals(protocol)) {
+					return new URLStreamHandler() {
+						
+						@Override
+						protected URLConnection openConnection(URL u) throws IOException {
+							return XMLSchemaCompletionExtensionsTest.class.getResource(u.getPath()).openConnection();
+						}
+					};
+				}
+				return null;
+			}
+		});
+		
+		Consumer<XMLLanguageService> config = service -> {
+			ContentModelManager contentModelManager = service.getComponent(ContentModelManager.class);
+			
+			contentModelManager.setUseCache(true);
+			
+			service.getResolverExtensionManager().registerResolver(new URIResolverExtension() {
+				
+				@Override
+				public String resolve(String baseLocation, String publicId, String systemId) {
+					if ("test://schema/format".equals(publicId)) {
+						return "custom://test/xsd/Format.xsd";
+					}
+					return null;
+				}
+				
+			});
+		};
+		
+		
+		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
+				"<Configuration xmlns=\"test://schema/format\">\r\n"
+				+ //
+				"  <ViewDefinitions>\r\n" + //
+				"    <View><|";
+		// Completion only with Name
+		XMLAssert.testCompletionFor(new XMLLanguageService(), xml, (String) null, config, "src/test/resources/Format.xml", 4 + 2 /* CDATA and Comments */, true,
+				c("Name", "<Name></Name>"), c("End with '</Configuration>'", "/Configuration>"),
+				c("End with '</ViewDefinitions>'", "/ViewDefinitions>"), c("End with '</View>'", "/View>"));
 	}
 }

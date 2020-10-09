@@ -237,8 +237,7 @@ public class ContentModelManager {
 			boolean downloading = false;
 			Exception cacheError = null;
 			String resolvedUri = resolvedURIInfo.getResolvedURI();
-			boolean isFileResource = URIUtils.isFileResource(resolvedUri);
-			if (!isFileResource && cacheResolverExtension.isUseCache()) {
+			if (cacheResolverExtension.canUseCache(resolvedUri)) {
 				// The DTD/XML Schema comes from http://, ftp:// etc and cache manager is
 				// activated
 				// Try to load the DTD/XML Schema with the cache manager
@@ -301,8 +300,7 @@ public class ContentModelManager {
 		if (cmDocument != null) {
 			return cmDocument;
 		}
-		boolean isFileResource = URIUtils.isFileResource(resolvedUri);
-		if (!isFileResource && cacheResolverExtension.isUseCache()) {
+		if (cacheResolverExtension.canUseCache(resolvedUri)) {
 			// The DTD/XML Schema comes from http://, ftp:// etc and cache manager is
 			// activated
 			// Try to load the DTD/XML Schema with the cache manager
