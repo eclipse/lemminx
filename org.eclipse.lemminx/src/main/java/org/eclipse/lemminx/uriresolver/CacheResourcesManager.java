@@ -40,6 +40,8 @@ import org.eclipse.lemminx.utils.StringUtils;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.io.MoreFiles;
+import com.google.common.io.RecursiveDeleteOption;
 
 /**
  * Cache resources manager.
@@ -216,7 +218,9 @@ public class CacheResourcesManager {
 	}
 
 	public static Path getResourceCachePath(URI uri) throws IOException {
-		Path resourceCachePath = Paths.get(CACHE_PATH, uri.getScheme(), uri.getHost(), uri.getPath());
+		Path resourceCachePath = uri.getPort() > 0
+				? Paths.get(CACHE_PATH, uri.getScheme(), uri.getHost(), String.valueOf(uri.getPort()), uri.getPath())
+				: Paths.get(CACHE_PATH, uri.getScheme(), uri.getHost(), uri.getPath());
 		return FilesUtils.getDeployedPath(resourceCachePath);
 	}
 
@@ -273,6 +277,21 @@ public class CacheResourcesManager {
 	 */
 	public boolean isUseCache() {
 		return useCache;
+	}
+
+	/**
+	 * Remove the cache directory (.lemminx/cache) if it exists.
+	 * 
+	 * @throws IOException if the delete of directory (.lemminx/cache) cannot be
+	 *                     done.
+	 */
+	public void evictCache() throws IOException {
+		// Get the cache directory path
+		Path cachePath = FilesUtils.getDeployedPath(Paths.get(CACHE_PATH));
+		if (Files.exists(cachePath)) {
+			// Remove the cache directory
+			MoreFiles.deleteDirectoryContents(cachePath, RecursiveDeleteOption.ALLOW_INSECURE);
+		}
 	}
 
 	/**

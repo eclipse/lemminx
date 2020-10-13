@@ -59,6 +59,8 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
  */
 public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFullFormatter {
 
+	private static final String XML_DIAGNOSTIC_SOURCE = "xml";
+
 	private static final CancelChecker NULL_CHECKER = new CancelChecker() {
 
 		@Override
@@ -209,7 +211,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 		DOMElement documentElement = document.getDocumentElement();
 		Range range = XMLPositionUtility.selectStartTagName(documentElement);
 		List<Diagnostic> diagnostics = new ArrayList<>();
-		diagnostics.add(new Diagnostic(range, message, severity, "XML"));
+		diagnostics.add(new Diagnostic(range, message, severity, XML_DIAGNOSTIC_SOURCE));
 		publishDiagnostics.accept(new PublishDiagnosticsParams(uri, diagnostics));
 	}
 

@@ -12,6 +12,7 @@
 package org.eclipse.lemminx.uriresolver;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.logging.Logger;
 
@@ -39,25 +40,25 @@ public class FileServer {
 	 * @throws IOException
 	 */
 	public FileServer() throws IOException {
-		this("src/test/resources");
+		this(ProjectUtils.getProjectDirectory().resolve("src/test/resources"));
 	}
 
 	/**
 	 * Creates an http server on a random port, serving the <code>dir</code>
 	 * directory (relative to the current project).
 	 * 
-	 * @param dir
+	 * @param baseDir the base directory.
 	 * @throws IOException
 	 */
-	public FileServer(String dir) throws IOException {
+	public FileServer(Path baseDir) throws IOException {
+		Files.createDirectories(baseDir);
 		server = new Server(0);
 		ResourceHandler resourceHandler = new ResourceHandler();
-		Path base = ProjectUtils.getProjectDirectory().resolve(dir);
-		resourceHandler.setResourceBase(base.toUri().toString());
+		resourceHandler.setResourceBase(baseDir.toUri().toString());
 		resourceHandler.setDirectoriesListed(true);
-        HandlerList handlers = new HandlerList();
-        handlers.setHandlers(new Handler[] { resourceHandler, new DefaultHandler() });
-        server.setHandler(handlers);
+		HandlerList handlers = new HandlerList();
+		handlers.setHandlers(new Handler[] { resourceHandler, new DefaultHandler() });
+		server.setHandler(handlers);
 	}
 
 	/**
@@ -69,26 +70,25 @@ public class FileServer {
 			server.start();
 		}
 		int port = getPort();
-		LOG.info("http server started on port "+ port);
+		LOG.info("http server started on port " + port);
 		return port;
 	}
 
 	public int getPort() {
-		return ((ServerConnector)server.getConnectors()[0]).getLocalPort();
+		return ((ServerConnector) server.getConnectors()[0]).getLocalPort();
 	}
 
 	public void stop() throws Exception {
 		server.stop();
 	}
-	
+
 	public String getUri(String resourcePath) {
-		StringBuilder sb = new StringBuilder("http://localhost:")
-		.append(getPort());
+		StringBuilder sb = new StringBuilder("http://localhost:").append(getPort());
 		if (!resourcePath.startsWith("/")) {
 			sb.append("/");
 		}
 		sb.append(resourcePath);
-		LOG.info("remote uri : "+sb.toString());
+		LOG.info("remote uri : " + sb.toString());
 		return sb.toString();
 	}
 }
