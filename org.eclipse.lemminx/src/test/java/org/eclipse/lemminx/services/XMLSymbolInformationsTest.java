@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -222,7 +223,7 @@ public class XMLSymbolInformationsTest {
 
 		assertSymbols(expectedSymbolInfos, actualSymbolInfos);
 	}
-	
+
 	@Test
 	public void invalidEndTagAfterRoot() {
 		String xmlText = "<a></";
@@ -239,7 +240,7 @@ public class XMLSymbolInformationsTest {
 
 		assertSymbols(expectedSymbolInfos, actualSymbolInfos);
 	}
-	
+
 	@Test
 	public void insideEndTag() throws BadLocationException {
 		// assertRename("<html|></meta></html>", "newText", edits("newText", r(0, 1, 5),
@@ -337,6 +338,19 @@ public class XMLSymbolInformationsTest {
 		initializeTestObjects(xmlText, testURI, settings);
 		assertSymbols(expectedSymbolInfos.stream().limit(3).collect(Collectors.toList()), actualSymbolInfos);
 	}
+
+	@Test
+	public void zeroSymbolLimit() {
+		String xmlText = "<root>\n" + //
+				"  <content />\n" + //
+				"</root>";
+		String testURI = "test.xml";
+		XMLSymbolSettings settings = new XMLSymbolSettings();
+		settings.setMaxItemsComputed(0);
+		initializeTestObjects(xmlText, testURI, settings);
+		assertSymbols(Collections.emptyList(), actualSymbolInfos);
+	}
+
 	// -------------------Tools------------------------------
 
 	private void initializeTestObjects(String xmlText, String uri) {
