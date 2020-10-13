@@ -36,6 +36,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.eclipse.lemminx.utils.FilesUtils;
+import org.eclipse.lemminx.utils.StringUtils;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -315,6 +316,9 @@ public class CacheResourcesManager {
 	 * @return true if the cache must be used for the given url and false otherwise.
 	 */
 	private boolean isUseCacheFor(String url) {
+		if (StringUtils.isEmpty(url)) {
+			return false;
+		}
 		for (String protocol : protocolsForCahe) {
 			if (url.startsWith(protocol)) {
 				return true;
