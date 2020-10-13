@@ -29,7 +29,6 @@ public class SharedSettings {
 	private final XMLWorkspaceSettings workspaceSettings;
 	private boolean actionableNotificationSupport;
 	private boolean openSettingsCommandSupport;
-	private boolean createFileResourceOperationSupport;
 
 	public SharedSettings() {
 		this.completionSettings = new XMLCompletionSettings();

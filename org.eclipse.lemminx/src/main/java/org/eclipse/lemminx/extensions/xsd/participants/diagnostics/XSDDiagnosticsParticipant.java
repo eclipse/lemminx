@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.apache.xerces.xni.parser.XMLEntityResolver;
 import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lemminx.utils.DOMUtils;
 import org.eclipse.lsp4j.Diagnostic;
@@ -28,7 +29,8 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 public class XSDDiagnosticsParticipant implements IDiagnosticsParticipant {
 
 	@Override
-	public void doDiagnostics(DOMDocument xmlDocument, List<Diagnostic> diagnostics, CancelChecker monitor) {
+	public void doDiagnostics(DOMDocument xmlDocument, List<Diagnostic> diagnostics,
+			XMLValidationSettings validationSettings, CancelChecker cancelChecker) {
 		if (!DOMUtils.isXSD(xmlDocument)) {
 			// Don't use the XSD validator, if the XML document is not a XML Schema.
 			return;
@@ -37,7 +39,7 @@ public class XSDDiagnosticsParticipant implements IDiagnosticsParticipant {
 		// associations settings., ...)
 		XMLEntityResolver entityResolver = xmlDocument.getResolverExtensionManager();
 		// Process validation
-		XSDValidator.doDiagnostics(xmlDocument, entityResolver, diagnostics, monitor);
+		XSDValidator.doDiagnostics(xmlDocument, entityResolver, diagnostics, cancelChecker);
 	}
 
 }

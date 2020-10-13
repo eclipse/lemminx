@@ -76,7 +76,6 @@ public class CMXSDContentModelProvider implements ContentModelProvider {
 					}
 				}
 			}
-
 		} else {
 			NoNamespaceSchemaLocation noNamespaceSchemaLocation = xmlDocument.getNoNamespaceSchemaLocation();
 			if (noNamespaceSchemaLocation != null) {
@@ -84,8 +83,9 @@ public class CMXSDContentModelProvider implements ContentModelProvider {
 					// xsi:noNamespaceSchemaLocation doesn't define namespaces
 					String location = noNamespaceSchemaLocation.getLocation();
 					if (!StringUtils.isEmpty(location)) {
-						identifiers.add(new Identifier(null, location, noNamespaceSchemaLocation.getAttr(),
-								"xsi:noNamespaceSchemaLocation"));
+						identifiers.add(
+								new Identifier(null, location, noNamespaceSchemaLocation.getAttr().getNodeAttrValue(),
+										"xsi:noNamespaceSchemaLocation"));
 					}
 				}
 			}

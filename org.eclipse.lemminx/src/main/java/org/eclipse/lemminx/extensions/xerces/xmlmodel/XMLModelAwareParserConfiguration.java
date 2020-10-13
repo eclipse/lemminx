@@ -11,12 +11,15 @@
 *******************************************************************************/
 package org.eclipse.lemminx.extensions.xerces.xmlmodel;
 
+import org.apache.xerces.impl.XMLErrorReporter;
 import org.apache.xerces.parsers.XIncludeAwareParserConfiguration;
 import org.apache.xerces.util.SymbolTable;
 import org.apache.xerces.xni.XMLDocumentHandler;
 import org.apache.xerces.xni.grammars.XMLGrammarPool;
-import org.apache.xerces.xni.parser.XMLComponentManager;
+import org.apache.xerces.xni.parser.XMLConfigurationException;
 import org.apache.xerces.xni.parser.XMLDocumentSource;
+import org.eclipse.lemminx.extensions.contentmodel.participants.diagnostics.LSPErrorReporterForXML;
+import org.eclipse.lemminx.extensions.xerces.ExternalXMLDTDValidator;
 
 /**
  * This class is the configuration used to parse XML 1.0 and XML 1.1 documents
@@ -26,8 +29,12 @@ import org.apache.xerces.xni.parser.XMLDocumentSource;
  */
 public class XMLModelAwareParserConfiguration extends XIncludeAwareParserConfiguration {
 
+	public static final String ERROR_REPORTER_FOR_GRAMMAR = ERROR_REPORTER + "-grammar";
+
 	protected boolean xmlModelEnabled = true;
 	private XMLModelHandler xmlModelHandler;
+
+	private XMLErrorReporter reporterForGrammar;
 
 	/** Default constructor. */
 	public XMLModelAwareParserConfiguration() {
@@ -60,13 +67,14 @@ public class XMLModelAwareParserConfiguration extends XIncludeAwareParserConfigu
 	 * pool, and parent settings.
 	 * <p>
 	 *
-	 * @param symbolTable    The symbol table to use.
-	 * @param grammarPool    The grammar pool to use.
-	 * @param parentSettings The parent settings.
+	 * @param symbolTable        The symbol table to use.
+	 * @param grammarPool        The grammar pool to use.
+	 * @param reporterForGrammar The parent settings.
 	 */
 	public XMLModelAwareParserConfiguration(SymbolTable symbolTable, XMLGrammarPool grammarPool,
-			XMLComponentManager parentSettings) {
-		super(symbolTable, grammarPool, parentSettings);
+			LSPErrorReporterForXML reporterForGrammar) {
+		super(symbolTable, grammarPool);
+		this.reporterForGrammar = reporterForGrammar;
 	}
 
 	@Override
@@ -113,5 +121,28 @@ public class XMLModelAwareParserConfiguration extends XIncludeAwareParserConfigu
 				next.setDocumentSource(xmlModelHandler);
 			}
 		}
+	}
+
+	@Override
+	protected void checkProperty(String propertyId) throws XMLConfigurationException {
+		if (ExternalXMLDTDValidator.DOCTYPE.equals(propertyId)) {
+			return;
+		}
+		if (ERROR_REPORTER_FOR_GRAMMAR.equals(propertyId)) {
+			return;
+		}
+		super.checkProperty(propertyId);
+	}
+
+	@Override
+	public Object getProperty(String propertyId) throws XMLConfigurationException {
+		if (ERROR_REPORTER_FOR_GRAMMAR.equals(propertyId)) {
+			return reporterForGrammar;
+		}
+		return super.getProperty(propertyId);
+	}
+
+	public XMLErrorReporter getReporterForGrammar() {
+		return reporterForGrammar;
 	}
 }

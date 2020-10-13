@@ -26,8 +26,8 @@ import org.apache.xerces.xni.parser.XMLEntityResolver;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMDocumentType;
 import org.eclipse.lemminx.dom.DOMElement;
+import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCode;
-import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.services.extensions.diagnostics.LSPContentHandler;
 import org.eclipse.lemminx.uriresolver.CacheResourceDownloadingException;
@@ -52,22 +52,26 @@ public class XMLValidator {
 	private static final Logger LOGGER = Logger.getLogger(XMLValidator.class.getName());
 
 	public static void doDiagnostics(DOMDocument document, XMLEntityResolver entityResolver,
-			List<Diagnostic> diagnostics, ContentModelSettings contentModelSettings, XMLGrammarPool grammarPool,
-			CancelChecker monitor) {
+			List<Diagnostic> diagnostics, XMLValidationSettings validationSettings,
+			ContentModelManager contentModelManager, CancelChecker monitor) {
+		XMLGrammarPool grammarPool = contentModelManager.getGrammarPool();
+		final LSPErrorReporterForXML reporterForXML = new LSPErrorReporterForXML(document, diagnostics,
+				contentModelManager, validationSettings != null ? validationSettings.isRelatedInformation() : false);
+		// When referenced grammar (XSD, DTD) have an error (ex : syntax error), the
+		// error must be reported.
+		// We create a reporter for grammar since Xerces reporter stores the XMLLocator
+		// for XML and Grammar.
+		final LSPErrorReporterForXML reporterForGrammar = new LSPErrorReporterForXML(document, diagnostics,
+				contentModelManager, validationSettings != null ? validationSettings.isRelatedInformation() : false);
 		try {
-			XMLValidationSettings validationSettings = contentModelSettings != null
-					? contentModelSettings.getValidation()
-					: null;
 			LSPXMLParserConfiguration configuration = new LSPXMLParserConfiguration(grammarPool,
-					isDisableOnlyDTDValidation(document), validationSettings);
+					isDisableOnlyDTDValidation(document), reporterForXML, reporterForGrammar, validationSettings);
 
 			if (entityResolver != null) {
 				configuration.setProperty("http://apache.org/xml/properties/internal/entity-resolver", entityResolver); //$NON-NLS-1$
 			}
 
-			final LSPErrorReporterForXML reporter = new LSPErrorReporterForXML(document, diagnostics);
-
-			SAXParser parser = new LSPSAXParser(document, reporter, configuration, grammarPool);
+			SAXParser parser = new LSPSAXParser(document, reporterForXML, configuration, grammarPool);
 
 			// Add LSP content handler to stop XML parsing if monitor is canceled.
 			parser.setContentHandler(new LSPContentHandler(monitor));
@@ -82,7 +86,7 @@ public class XMLValidator {
 				parser.setFeature("http://apache.org/xml/features/validation/schema", hasSchemaGrammar); //$NON-NLS-1$
 
 				// warn if XML document is not bound to a grammar according the settings
-				warnNoGrammar(document, diagnostics, contentModelSettings);
+				warnNoGrammar(document, diagnostics, validationSettings);
 			} else {
 				hasGrammar = false; // validation for Schema was disabled
 			}
@@ -98,6 +102,9 @@ public class XMLValidator {
 			throw e;
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, "Unexpected XMLValidator error", e);
+		} finally {
+			reporterForXML.endReport();
+			reporterForGrammar.endReport();
 		}
 	}
 
@@ -154,18 +161,18 @@ public class XMLValidator {
 	/**
 	 * Warn if XML document is not bound to a grammar according the settings
 	 * 
-	 * @param document    the XML document
-	 * @param diagnostics the diagnostics list to populate
-	 * @param settings    the settings to use to know the severity of warn.
+	 * @param document           the XML document
+	 * @param diagnostics        the diagnostics list to populate
+	 * @param validationSettings the settings to use to know the severity of warn.
 	 */
 	private static void warnNoGrammar(DOMDocument document, List<Diagnostic> diagnostics,
-			ContentModelSettings settings) {
+			XMLValidationSettings validationSettings) {
 		boolean hasGrammar = document.hasGrammar();
 		if (hasGrammar) {
 			return;
 		}
 		// By default "hint" settings.
-		DiagnosticSeverity severity = XMLValidationSettings.getNoGrammarSeverity(settings);
+		DiagnosticSeverity severity = XMLValidationSettings.getNoGrammarSeverity(validationSettings);
 		if (severity == null) {
 			// "ignore" settings
 			return;
@@ -188,7 +195,8 @@ public class XMLValidator {
 	private static void checkExternalSchema(Map<String, String> result, SAXParser reader)
 			throws SAXNotRecognizedException, SAXNotSupportedException {
 		if (result != null) {
-			String noNamespaceSchemaLocation = result.get(IExternalGrammarLocationProvider.NO_NAMESPACE_SCHEMA_LOCATION);
+			String noNamespaceSchemaLocation = result
+					.get(IExternalGrammarLocationProvider.NO_NAMESPACE_SCHEMA_LOCATION);
 			if (noNamespaceSchemaLocation != null) {
 				reader.setProperty(IExternalGrammarLocationProvider.NO_NAMESPACE_SCHEMA_LOCATION,
 						noNamespaceSchemaLocation);

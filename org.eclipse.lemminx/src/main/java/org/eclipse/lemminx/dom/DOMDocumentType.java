@@ -169,6 +169,10 @@ public class DOMDocumentType extends DTDDeclNode implements org.w3c.dom.Document
 		return publicId != null ? publicId.getParameterWithoutFirstAndLastChar() : null;
 	}
 
+	public DTDDeclParameter getPublicIdNode() {
+		return publicId;
+	}
+	
 	/**
 	 * @param publicId the publicId to set
 	 */
