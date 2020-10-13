@@ -34,14 +34,13 @@ import org.eclipse.lsp4j.InitializeParams;
  */
 public class DTDPlugin implements IXMLExtension {
 
-	private final IDiagnosticsParticipant diagnosticsParticipant;
+	private IDiagnosticsParticipant diagnosticsParticipant;
 	private final IDefinitionParticipant definitionParticipant;
 	private final IHighlightingParticipant highlightingParticipant;
 	private final IReferenceParticipant referenceParticipant;
 	private final ICodeLensParticipant codeLensParticipant;
 
 	public DTDPlugin() {
-		diagnosticsParticipant = new DTDDiagnosticsParticipant();
 		definitionParticipant = new DTDDefinitionParticipant();
 		highlightingParticipant = new DTDHighlightingParticipant();
 		referenceParticipant = new DTDReferenceParticipant();
@@ -55,6 +54,7 @@ public class DTDPlugin implements IXMLExtension {
 		ContentModelManager modelManager = registry.getComponent(ContentModelManager.class);
 		modelManager.registerModelProvider(modelProvider);
 		// register diagnostic participant
+		diagnosticsParticipant = new DTDDiagnosticsParticipant(modelManager);
 		registry.registerDiagnosticsParticipant(diagnosticsParticipant);
 		// register definition participant
 		registry.registerDefinitionParticipant(definitionParticipant);

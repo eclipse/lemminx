@@ -16,6 +16,8 @@ import java.util.List;
 
 import org.apache.xerces.xni.parser.XMLEntityResolver;
 import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
+import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
@@ -26,8 +28,15 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
  */
 public class DTDDiagnosticsParticipant implements IDiagnosticsParticipant {
 
+	private final ContentModelManager contentModelManager;
+
+	public DTDDiagnosticsParticipant(ContentModelManager modelManager) {
+		this.contentModelManager = modelManager;
+	}
+
 	@Override
-	public void doDiagnostics(DOMDocument xmlDocument, List<Diagnostic> diagnostics, CancelChecker monitor) {
+	public void doDiagnostics(DOMDocument xmlDocument, List<Diagnostic> diagnostics,
+			XMLValidationSettings validationSettings, CancelChecker cancelChecker) {
 		if (!xmlDocument.isDTD()) {
 			// Don't use the DTD validator, if it's a DTD
 			return;
@@ -36,7 +45,7 @@ public class DTDDiagnosticsParticipant implements IDiagnosticsParticipant {
 		// associations settings., ...)
 		XMLEntityResolver entityResolver = xmlDocument.getResolverExtensionManager();
 		// Process validation
-		DTDValidator.doDiagnostics(xmlDocument, entityResolver, diagnostics, monitor);
+		DTDValidator.doDiagnostics(xmlDocument, entityResolver, diagnostics, contentModelManager, cancelChecker);
 	}
 
 }

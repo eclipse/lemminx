@@ -151,6 +151,17 @@ public class LSPXMLGrammarPool implements XMLGrammarPool {
 		}
 	}
 
+	public void removeGrammar(String grammarURI) {
+		for (Entry entry : fGrammars) {
+			if (entry != null) {
+				if (grammarURI.equals(entry.desc.getExpandedSystemId())) {
+					removeGrammar(entry.desc);
+					return;
+				}
+			}
+		}
+	}
+
 	@Override
 	public void lockPool() {
 		// Do nothing
@@ -243,4 +254,5 @@ public class LSPXMLGrammarPool implements XMLGrammarPool {
 			}
 		}
 	}
+
 }

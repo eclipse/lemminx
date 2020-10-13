@@ -47,8 +47,8 @@ public class ReferencedGrammarSymbolsTest {
 						Arrays.asList( //
 								ds(dtdFileURI, SymbolKind.File, r(0, 0, 0, 1), r(0, 0, 0, 1), null, //
 										Arrays.asList( //
-												ds("Binding: doctype", SymbolKind.Property, r(0, 0, 0, 54),
-														r(0, 0, 0, 54), null, null), //
+												ds("Binding: doctype", SymbolKind.Property, r(0, 30, 0, 53),
+														r(0, 30, 0, 53), null, null), //
 												ds("Cache: false", SymbolKind.Property, r(0, 0, 0, 1), r(0, 0, 0, 1),
 														null, null))))), //
 
@@ -72,7 +72,7 @@ public class ReferencedGrammarSymbolsTest {
 										r(0, 0, 0, 1), null, //
 										Arrays.asList( //
 												ds("Binding: xsi:noNamespaceSchemaLocation", SymbolKind.Property,
-														r(2, 4, 2, 50), r(2, 4, 2, 50), null, null), //
+														r(2, 34, 2, 50), r(2, 34, 2, 50), null, null), //
 												ds("Cache: false", SymbolKind.Property, r(0, 0, 0, 1), r(0, 0, 0, 1),
 														null, null))))), //
 

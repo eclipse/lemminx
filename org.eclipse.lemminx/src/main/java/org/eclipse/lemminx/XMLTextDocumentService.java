@@ -169,6 +169,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 				sharedSettings.getCompletionSettings().setCapabilities(textDocumentClientCapabilities.getCompletion());
 				sharedSettings.getFoldingSettings().setCapabilities(textDocumentClientCapabilities.getFoldingRange());
 				sharedSettings.getHoverSettings().setCapabilities(textDocumentClientCapabilities.getHover());
+				sharedSettings.getValidationSettings()
+						.setCapabilities(textDocumentClientCapabilities.getPublishDiagnostics());
 				codeActionLiteralSupport = textDocumentClientCapabilities.getCodeAction() != null
 						&& textDocumentClientCapabilities.getCodeAction().getCodeActionLiteralSupport() != null;
 				hierarchicalDocumentSymbolSupport = textDocumentClientCapabilities.getDocumentSymbol() != null

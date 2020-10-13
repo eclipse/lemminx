@@ -11,6 +11,8 @@
 *******************************************************************************/
 package org.eclipse.lemminx.extensions.xerces.xmlmodel;
 
+import static org.eclipse.lemminx.extensions.xerces.xmlmodel.XMLModelAwareParserConfiguration.ERROR_REPORTER_FOR_GRAMMAR;
+
 import org.apache.xerces.impl.XMLErrorReporter;
 import org.apache.xerces.impl.xs.XMLSchemaLoader;
 import org.apache.xerces.impl.xs.XMLSchemaValidator;
@@ -50,7 +52,7 @@ public class XMLModelSchemaValidator extends XMLSchemaValidator implements XMLMo
 		fDoValidation = true;
 		// Get error reporter.
 		try {
-			XMLErrorReporter value = (XMLErrorReporter) componentManager.getProperty(ERROR_REPORTER);
+			XMLErrorReporter value = (XMLErrorReporter) componentManager.getProperty(ERROR_REPORTER_FOR_GRAMMAR);
 			if (value != null) {
 				errorReporter = value;
 			}

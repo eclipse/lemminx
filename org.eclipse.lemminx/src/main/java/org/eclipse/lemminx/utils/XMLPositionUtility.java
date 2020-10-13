@@ -774,7 +774,7 @@ public class XMLPositionUtility {
 	 * 1 character after '(content)'
 	 */
 	public static Range getLastValidDTDDeclParameterOrUnrecognized(int offset, DOMDocument document) {
-		DOMNode node = document.findNodeAt(offset);
+		DOMNode node = document.findNodeBefore(offset);
 		if (node instanceof DTDDeclNode) {
 			DTDDeclNode decl = (DTDDeclNode) node;
 			if (decl instanceof DTDAttlistDecl) {

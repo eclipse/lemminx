@@ -13,10 +13,16 @@
 package org.eclipse.lemminx.extensions.xerces;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.xerces.impl.XMLErrorReporter;
 import org.apache.xerces.impl.msg.XMLMessageFormatter;
+import org.apache.xerces.impl.xs.XMLSchemaLoader;
+import org.apache.xerces.impl.xs.XMLSchemaValidator;
 import org.apache.xerces.impl.xs.XSMessageFormatter;
+import org.apache.xerces.impl.xs.opti.SchemaDOMParser;
+import org.apache.xerces.impl.xs.traversers.XSDHandler;
 import org.apache.xerces.util.MessageFormatter;
 import org.apache.xerces.xni.XMLLocator;
 import org.apache.xerces.xni.XNIException;
@@ -40,6 +46,9 @@ import org.xml.sax.ErrorHandler;
  */
 public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 
+	private static final Logger LOGGER = Logger.getLogger(AbstractLSPErrorReporter.class.getName());
+
+	protected final static Range NO_RANGE = new Range();
 	private final DOMDocument xmlDocument;
 	private final List<Diagnostic> diagnostics;
 
@@ -81,17 +90,17 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 			message = str.toString();
 		}
 
-		Range adjustedRange = internalToLSPRange(location, key, arguments, xmlDocument);
-
-		if (adjustedRange == null) {
+		boolean fatalError = severity == SEVERITY_FATAL_ERROR;
+		DiagnosticSeverity diagnosticSeverity = toLSPSeverity(severity);
+		Range adjustedRange = internalToLSPRange(location, key, arguments, message, diagnosticSeverity, fatalError,
+				xmlDocument);
+		if (adjustedRange == null || NO_RANGE.equals(adjustedRange)) {
 			return null;
 		}
-
-		if (!addDiagnostic(adjustedRange, message, toLSPSeverity(severity), key)) {
+		if (addDiagnostic(adjustedRange, message, diagnosticSeverity, key) == null) {
 			return null;
 		}
-
-		if (severity == SEVERITY_FATAL_ERROR && !fContinueAfterFatalError && !isIgnoreFatalError(key)) {
+		if (fatalError && !fContinueAfterFatalError) {
 			XMLParseException parseException = (exception != null) ? new XMLParseException(location, message, exception)
 					: new XMLParseException(location, message);
 			throw parseException;
@@ -103,14 +112,14 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 		return false;
 	}
 
-	public boolean addDiagnostic(Range adjustedRange, String message, DiagnosticSeverity severity, String key) {
+	public Diagnostic addDiagnostic(Range adjustedRange, String message, DiagnosticSeverity severity, String key) {
 		Diagnostic d = new Diagnostic(adjustedRange, message, severity, source, key);
 		if (diagnostics.contains(d)) {
-			return false;
+			return null;
 		}
 		// Fill diagnostic
 		diagnostics.add(d);
-		return true;
+		return d;
 	}
 
 	/**
@@ -131,23 +140,32 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 	/**
 	 * Create the LSP range from the SAX error.
 	 * 
-	 * @param location
-	 * @param key
-	 * @param arguments
-	 * @param document
+	 * @param location           the Xerces location.
+	 * @param key                the Xerces error key.
+	 * @param arguments          the Xerces error arguments.
+	 * @param message            the Xerces error message.
+	 * @param diagnosticSeverity the the Xerces severity.
+	 * @param fatalError         true if Xerces report the error as fatal and false
+	 *                           otherwise.
+	 * @param document           the DOM document.
 	 * @return the LSP range from the SAX error.
 	 */
-	private Range internalToLSPRange(XMLLocator location, String key, Object[] arguments, DOMDocument document) {
+	private Range internalToLSPRange(XMLLocator location, String key, Object[] arguments, String message,
+			DiagnosticSeverity diagnosticSeverity, boolean fatalError, DOMDocument document) {
 		if (location == null) {
 			Position start = toLSPPosition(0, location, document.getTextDocument());
 			Position end = toLSPPosition(0, location, document.getTextDocument());
 			return new Range(start, end);
 		}
 
-		Range range = toLSPRange(location, key, arguments, document);
+		Range range = toLSPRange(location, key, arguments, message, diagnosticSeverity, fatalError, document);
 		if (range != null) {
 			return range;
 		}
+		return createDefaultRange(location, document);
+	}
+
+	protected Range createDefaultRange(XMLLocator location, DOMDocument document) {
 		int startOffset = location.getCharacterOffset() - 1;
 		int endOffset = location.getCharacterOffset() - 1;
 
@@ -161,8 +179,22 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 		return new Range(start, end);
 	}
 
-	protected abstract Range toLSPRange(XMLLocator location, String key, Object[] arguments, DOMDocument document);
-	
+	/**
+	 * Returns the range of the given error information, or {{@link #NO_RANGE} if
+	 * diagnostic must not be created and null otherwise.
+	 * 
+	 * @param location           the Xerces location.
+	 * @param key                the Xerces error key.
+	 * @param arguments          the Xerces error arguments.
+	 * @param message            the Xerces error message.
+	 * @param diagnosticSeverity the the Xerces severity.
+	 * @param fatalError         true if Xerces report the error as fatal and false
+	 *                           otherwise.
+	 * @param document           the DOM document.
+	 * @return
+	 */
+	protected abstract Range toLSPRange(XMLLocator location, String key, Object[] arguments, String message,
+			DiagnosticSeverity diagnosticSeverity, boolean fatalError, DOMDocument document);
 
 	/**
 	 * Returns the LSP position from the SAX location.
@@ -181,5 +213,36 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 		} catch (BadLocationException e) {
 			return location != null ? new Position(location.getLineNumber() - 1, location.getColumnNumber() - 1) : null;
 		}
+	}
+
+	/**
+	 * Returns the DOM document which is validating.
+	 * 
+	 * @return the DOM document which is validating.
+	 */
+	protected DOMDocument getDOMDocument() {
+		return xmlDocument;
+	}
+
+	public static boolean initializeReporter(XMLSchemaValidator schemaValidator, XMLErrorReporter reporter) {
+		try {
+			XMLSchemaLoader schemaLoader = ReflectionUtils.getFieldValue(schemaValidator, "fSchemaLoader");
+			return initializeReporter(schemaLoader, reporter);
+		} catch (Exception e) {
+			LOGGER.log(Level.SEVERE, "Error while initializing XML error reporter", e);
+		}
+		return false;
+	}
+
+	public static boolean initializeReporter(XMLSchemaLoader schemaLoader, XMLErrorReporter reporter) {
+		try {
+			XSDHandler handler = ReflectionUtils.getFieldValue(schemaLoader, "fSchemaHandler");
+			SchemaDOMParser domParser = ReflectionUtils.getFieldValue(handler, "fSchemaParser");
+			domParser.setProperty("http://apache.org/xml/properties/internal/error-reporter", reporter);
+			return true;
+		} catch (Exception e) {
+			LOGGER.log(Level.SEVERE, "Error while initializing XML error reporter", e);
+		}
+		return false;
 	}
 }

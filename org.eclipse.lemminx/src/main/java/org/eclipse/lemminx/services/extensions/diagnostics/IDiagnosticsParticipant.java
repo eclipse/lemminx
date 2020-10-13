@@ -15,6 +15,7 @@ package org.eclipse.lemminx.services.extensions.diagnostics;
 import java.util.List;
 
 import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
@@ -27,10 +28,13 @@ public interface IDiagnosticsParticipant {
 	/**
 	 * Validate the given XML document.
 	 * 
-	 * @param xmlDocument XML document to validate.
-	 * @param diagnostics list to populate with errors, warnings, etc
-	 * @param monitor     used to stop the validation when XML document changed.
+	 * @param xmlDocument        XML document to validate.
+	 * @param diagnostics        list to populate with errors, warnings, etc
+	 * @param validationSettings the validation settings.
+	 * @param cancelChecker      used to stop the validation when XML document
+	 *                           changed.
 	 */
-	void doDiagnostics(DOMDocument xmlDocument, List<Diagnostic> diagnostics, CancelChecker monitor);
+	void doDiagnostics(DOMDocument xmlDocument, List<Diagnostic> diagnostics, XMLValidationSettings validationSettings,
+			CancelChecker cancelChecker);
 
 }

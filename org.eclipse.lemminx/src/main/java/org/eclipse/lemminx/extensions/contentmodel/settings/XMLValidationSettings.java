@@ -13,6 +13,7 @@
 package org.eclipse.lemminx.extensions.contentmodel.settings;
 
 import org.eclipse.lsp4j.DiagnosticSeverity;
+import org.eclipse.lsp4j.PublishDiagnosticsCapabilities;
 
 /**
  * XMLValidationSettings
@@ -34,6 +35,8 @@ public class XMLValidationSettings {
 	 * Values are {ignore, hint, info, warning, error}
 	 */
 	private String noGrammar;
+
+	private PublishDiagnosticsCapabilities publishDiagnostics;
 
 	public XMLValidationSettings() {
 		// set defaults
@@ -122,17 +125,16 @@ public class XMLValidationSettings {
 	 * Returns the <code>noGrammar</code> severity according the given settings and
 	 * {@link DiagnosticSeverity#Hint} otherwise.
 	 * 
-	 * @param settings the settings
+	 * @param validationSettings the validation settings
 	 * @return the <code>noGrammar</code> severity according the given settings and
 	 *         {@link DiagnosticSeverity#Hint} otherwise.
 	 */
-	public static DiagnosticSeverity getNoGrammarSeverity(ContentModelSettings settings) {
+	public static DiagnosticSeverity getNoGrammarSeverity(XMLValidationSettings validationSettings) {
 		DiagnosticSeverity defaultSeverity = DiagnosticSeverity.Hint;
-		if (settings == null || settings.getValidation() == null) {
+		if (validationSettings == null) {
 			return defaultSeverity;
 		}
-		XMLValidationSettings problems = settings.getValidation();
-		String noGrammar = problems.getNoGrammar();
+		String noGrammar = validationSettings.getNoGrammar();
 		if ("ignore".equalsIgnoreCase(noGrammar)) {
 			// Ignore "noGrammar", return null.
 			return null;
@@ -154,6 +156,15 @@ public class XMLValidationSettings {
 			this.resolveExternalEntities = settings.resolveExternalEntities;
 		}
 		return this;
+	}
+
+	public void setCapabilities(PublishDiagnosticsCapabilities publishDiagnostics) {
+		this.publishDiagnostics = publishDiagnostics;
+	}
+
+	public boolean isRelatedInformation() {
+		return publishDiagnostics != null && publishDiagnostics.getRelatedInformation() != null
+				&& publishDiagnostics.getRelatedInformation();
 	}
 
 }

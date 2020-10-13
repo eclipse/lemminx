@@ -22,6 +22,7 @@ import org.apache.xerces.xni.parser.XMLInputSource;
 import org.apache.xerces.xni.parser.XMLParseException;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMDocumentType;
+import org.eclipse.lemminx.dom.DOMRange;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelProvider;
 import org.eclipse.lemminx.uriresolver.URIResolverExtensionManager;
@@ -79,8 +80,14 @@ public class CMDTDContentModelProvider implements ContentModelProvider {
 		 * "http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd">
 		 */
 		DOMDocumentType documentType = xmlDocument.getDoctype();
+		DOMRange range = documentType;
+		if (documentType.getSystemIdNode() != null) {
+			range = documentType.getSystemIdNode();
+		} else if (documentType.getPublicIdNode() != null) {
+			range = documentType.getPublicIdNode();
+		}
 		return Collections.singleton(new Identifier(documentType.getPublicIdWithoutQuotes(),
-				documentType.getSystemIdWithoutQuotes(), documentType, "doctype"));
+				documentType.getSystemIdWithoutQuotes(), range, "doctype"));
 	}
 
 	@Override
