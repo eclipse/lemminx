@@ -80,7 +80,7 @@ class XMLSymbolsProvider {
 
 	public SymbolInformationResult findSymbolInformations(DOMDocument xmlDocument, XMLSymbolSettings symbolSettings,
 			CancelChecker cancelChecker) {
-		AtomicLong limit = symbolSettings.getMaxItemsComputed() > 0
+		AtomicLong limit = symbolSettings.getMaxItemsComputed() >= 0
 				? new AtomicLong(symbolSettings.getMaxItemsComputed())
 				: null;
 		SymbolInformationResult symbols = new SymbolInformationResult(limit);
@@ -137,7 +137,7 @@ class XMLSymbolsProvider {
 
 	public DocumentSymbolsResult findDocumentSymbols(DOMDocument xmlDocument, XMLSymbolSettings symbolSettings,
 			CancelChecker cancelChecker) {
-		AtomicLong limit = symbolSettings.getMaxItemsComputed() > 0
+		AtomicLong limit = symbolSettings.getMaxItemsComputed() >= 0
 				? new AtomicLong(symbolSettings.getMaxItemsComputed())
 				: null;
 		DocumentSymbolsResult symbols = new DocumentSymbolsResult(limit);
