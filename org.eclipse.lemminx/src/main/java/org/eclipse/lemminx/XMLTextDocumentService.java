@@ -28,8 +28,6 @@ import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import com.google.gson.JsonPrimitive;
-
 import org.eclipse.lemminx.client.ExtendedClientCapabilities;
 import org.eclipse.lemminx.client.LimitExceededWarner;
 import org.eclipse.lemminx.client.LimitFeature;
@@ -95,6 +93,8 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.validation.NonNull;
 import org.eclipse.lsp4j.services.TextDocumentService;
+
+import com.google.gson.JsonPrimitive;
 
 /**
  * XML text document service.
@@ -163,22 +163,27 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	public void updateClientCapabilities(ClientCapabilities capabilities,
 			ExtendedClientCapabilities extendedClientCapabilities) {
-		TextDocumentClientCapabilities textDocumentClientCapabilities = capabilities.getTextDocument();
-		if (textDocumentClientCapabilities != null) {
-			sharedSettings.getCompletionSettings().setCapabilities(textDocumentClientCapabilities.getCompletion());
-			sharedSettings.getFoldingSettings().setCapabilities(textDocumentClientCapabilities.getFoldingRange());
-			sharedSettings.getHoverSettings().setCapabilities(textDocumentClientCapabilities.getHover());
-			codeActionLiteralSupport = textDocumentClientCapabilities.getCodeAction() != null
-					&& textDocumentClientCapabilities.getCodeAction().getCodeActionLiteralSupport() != null;
-			hierarchicalDocumentSymbolSupport = textDocumentClientCapabilities.getDocumentSymbol() != null
-					&& textDocumentClientCapabilities.getDocumentSymbol().getHierarchicalDocumentSymbolSupport() != null
-					&& textDocumentClientCapabilities.getDocumentSymbol().getHierarchicalDocumentSymbolSupport();
-			definitionLinkSupport = textDocumentClientCapabilities.getDefinition() != null
-					&& textDocumentClientCapabilities.getDefinition().getLinkSupport() != null
-					&& textDocumentClientCapabilities.getDefinition().getLinkSupport();
-			typeDefinitionLinkSupport = textDocumentClientCapabilities.getTypeDefinition() != null
-					&& textDocumentClientCapabilities.getTypeDefinition().getLinkSupport() != null
-					&& textDocumentClientCapabilities.getTypeDefinition().getLinkSupport();
+		if (capabilities != null) {
+			TextDocumentClientCapabilities textDocumentClientCapabilities = capabilities.getTextDocument();
+			if (textDocumentClientCapabilities != null) {
+				sharedSettings.getCompletionSettings().setCapabilities(textDocumentClientCapabilities.getCompletion());
+				sharedSettings.getFoldingSettings().setCapabilities(textDocumentClientCapabilities.getFoldingRange());
+				sharedSettings.getHoverSettings().setCapabilities(textDocumentClientCapabilities.getHover());
+				codeActionLiteralSupport = textDocumentClientCapabilities.getCodeAction() != null
+						&& textDocumentClientCapabilities.getCodeAction().getCodeActionLiteralSupport() != null;
+				hierarchicalDocumentSymbolSupport = textDocumentClientCapabilities.getDocumentSymbol() != null
+						&& textDocumentClientCapabilities.getDocumentSymbol()
+								.getHierarchicalDocumentSymbolSupport() != null
+						&& textDocumentClientCapabilities.getDocumentSymbol().getHierarchicalDocumentSymbolSupport();
+				definitionLinkSupport = textDocumentClientCapabilities.getDefinition() != null
+						&& textDocumentClientCapabilities.getDefinition().getLinkSupport() != null
+						&& textDocumentClientCapabilities.getDefinition().getLinkSupport();
+				typeDefinitionLinkSupport = textDocumentClientCapabilities.getTypeDefinition() != null
+						&& textDocumentClientCapabilities.getTypeDefinition().getLinkSupport() != null
+						&& textDocumentClientCapabilities.getTypeDefinition().getLinkSupport();
+			}
+			// Workspace settings
+			sharedSettings.getWorkspaceSettings().setCapabilities(capabilities.getWorkspace());
 		}
 		if (extendedClientCapabilities != null) {
 			// Extended client capabilities
@@ -187,8 +192,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 					.setActionableNotificationSupport(extendedClientCapabilities.isActionableNotificationSupport());
 			sharedSettings.setOpenSettingsCommandSupport(extendedClientCapabilities.isOpenSettingsCommandSupport());
 		}
-		// Workspace settings
-		sharedSettings.getWorkspaceSettings().setCapabilities(capabilities.getWorkspace());
+
 	}
 
 	@Override
@@ -414,33 +418,34 @@ public class XMLTextDocumentService implements TextDocumentService {
 	@Override
 	public CompletableFuture<List<Either<Command, CodeAction>>> codeAction(CodeActionParams params) {
 		String uri = params.getTextDocument().getUri();
-		return getIndentationSettings(uri)
-		.handle((XMLFormattingOptions indentationSettings, Throwable err) -> {
-			if (indentationSettings != null) {
-				sharedSettings.getFormattingSettings().merge(indentationSettings);
-			}
-			return null;
-		})
-		.thenCombine(computeDOMAsync(params.getTextDocument(), (cancelChecker, xmlDocument) -> {
-			return xmlDocument;
-		}), (void_, xmlDocument) -> {
-			return (List<Either<Command, CodeAction>>) getXMLLanguageService()
-					.doCodeActions(params.getContext(), params.getRange(), xmlDocument, sharedSettings) //
-					.stream() //
-					.map(ca -> {
-						if (codeActionLiteralSupport) {
-							Either<Command, CodeAction> e = Either.forRight(ca);
-							return e;
-						} else {
-							List<Object> arguments = Arrays.asList(uri, xmlDocument.getTextDocument().getVersion(),
-									ca.getEdit().getDocumentChanges().get(0).getLeft().getEdits());
-							Command command = new Command(ca.getTitle(), "_xml.applyCodeAction", arguments);
-							Either<Command, CodeAction> e = Either.forLeft(command);
-							return e;
-						}
-					}) //
-					.collect(Collectors.toList());
-		});
+		return getIndentationSettings(uri) //
+				.handle((XMLFormattingOptions indentationSettings, Throwable err) -> {
+					if (indentationSettings != null) {
+						sharedSettings.getFormattingSettings().merge(indentationSettings);
+					}
+					return null;
+				}) //
+				.thenCombine(computeDOMAsync(params.getTextDocument(), (cancelChecker, xmlDocument) -> {
+					return xmlDocument;
+				}), (void_, xmlDocument) -> {
+					return (List<Either<Command, CodeAction>>) getXMLLanguageService()
+							.doCodeActions(params.getContext(), params.getRange(), xmlDocument, sharedSettings) //
+							.stream() //
+							.map(ca -> {
+								if (codeActionLiteralSupport) {
+									Either<Command, CodeAction> e = Either.forRight(ca);
+									return e;
+								} else {
+									List<Object> arguments = Arrays.asList(uri,
+											xmlDocument.getTextDocument().getVersion(),
+											ca.getEdit().getDocumentChanges().get(0).getLeft().getEdits());
+									Command command = new Command(ca.getTitle(), "_xml.applyCodeAction", arguments);
+									Either<Command, CodeAction> e = Either.forLeft(command);
+									return e;
+								}
+							}) //
+							.collect(Collectors.toList());
+				});
 	}
 
 	@Override
@@ -564,7 +569,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	public ModelTextDocument<DOMDocument> getDocument(String uri) {
 		return documents.get(uri);
 	}
-	
+
 	public Collection<ModelTextDocument<DOMDocument>> allDocuments() {
 		return documents.all();
 	}

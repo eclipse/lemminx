@@ -13,6 +13,7 @@
 package org.eclipse.lemminx.extensions.contentmodel.model;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,6 +37,7 @@ import org.eclipse.lemminx.uriresolver.CacheResourceDownloadingException;
 import org.eclipse.lemminx.uriresolver.CacheResourcesManager;
 import org.eclipse.lemminx.uriresolver.ResolvedURIInfo;
 import org.eclipse.lemminx.uriresolver.URIResolverExtensionManager;
+import org.eclipse.lemminx.utils.FilesUtils;
 import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lemminx.utils.URIUtils;
 
@@ -195,20 +197,20 @@ public class ContentModelManager {
 	/**
 	 * Returns informations about all referenced grammar (XSD, DTD) from the given
 	 * DOM document.
-	 * 
+	 *
 	 * <p>
 	 * In other words, it gives information about
-	 * 
+	 *
 	 * <ul>
 	 * <li>which XSD, DTD files are bound to the DOM document.</li>
 	 * <li>which binding strategies are used (catalog, file association,
 	 * xsi:schemaLocation, xsi:noNamespaceSchemaLocation, DOCTYPE).</li>
 	 * <li>the cache file path (for remote grammar with http://)</li>
-	 * 
+	 *
 	 * </p>
-	 * 
+	 *
 	 * @param document the DOM document.
-	 * 
+	 *
 	 * @return informations about all referenced grammar (XSD, DTD) from the given
 	 *         DOM document.
 	 */
@@ -398,6 +400,63 @@ public class ContentModelManager {
 		if (!useCache) {
 			grammarPool.clear();
 		}
+	}
+
+	/**
+	 * Remove the referenced grammar from the given document and clear the Xerces
+	 * grammar cache which stores the XSD, DTD grammar.
+	 *
+	 * @param document the DOM document
+	 *
+	 * @throws IOException if the delete of grammar file cannot be done.
+	 */
+	public void evictCacheFor(DOMDocument document) throws IOException {
+		// Get the referenced grammars
+		Set<ReferencedGrammarInfo> referencedGrammarInfos = getReferencedGrammarInfos(document);
+		if (referencedGrammarInfos.isEmpty()) {
+			return;
+		}
+		// Loop for each referenced grammars and deleted the XSD, DTD file if it is in
+		// the lemminx cache.
+		int nbDeletedFiles = 0;
+		try {
+			for (ReferencedGrammarInfo referencedGrammarInfo : referencedGrammarInfos) {
+				if (referencedGrammarInfo.isInCache()) {
+					// Delete XSD/DTD file
+					String resolvedURI = referencedGrammarInfo.getGrammarCacheInfo().getCachedResolvedUri();
+					Files.deleteIfExists(FilesUtils.getPath(resolvedURI));
+					// remove the XSD/DTD content model document from the cache.
+					cmDocumentCache.remove(resolvedURI);
+					nbDeletedFiles++;
+				}
+				// TODO : get XSD, DTD dependencies from the current referenced grammar to
+				// delete the file too.
+			}
+		} finally {
+			if (nbDeletedFiles > 0) {
+				// TODO : clear only the DTD, XSD which has been deleted from the cache.
+				grammarPool.clear();
+			}
+		}
+	}
+
+	/**
+	 * Remove the cache directory (.lemminx/cache) if it exists and clear the Xerces
+	 * grammar cache which stores the XSD, DTD grammars.
+	 *
+	 * @throws IOException if the delete of directory (.lemminx/cache) cannot be
+	 *                     done.
+	 */
+	public void evictCache() throws IOException {
+		try {
+			cacheResolverExtension.evictCache();
+		} finally {
+			// clear Xerces cache
+			grammarPool.clear();
+			// clear the XSD/DTD content model documents.
+			cmDocumentCache.clear();
+		}
+
 	}
 
 	public void registerModelProvider(ContentModelProvider modelProvider) {

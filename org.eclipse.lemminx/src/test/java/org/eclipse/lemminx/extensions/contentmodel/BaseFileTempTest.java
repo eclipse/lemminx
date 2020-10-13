@@ -81,4 +81,8 @@ public class BaseFileTempTest {
 		}
 		createFile(fileURI, contents);
 	}
+	
+	protected static Path getTempDirPath() {
+		return tempDirPath;
+	}
 }

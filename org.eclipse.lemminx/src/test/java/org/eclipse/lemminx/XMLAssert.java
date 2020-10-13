@@ -58,6 +58,7 @@ import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.CreateFile;
 import org.eclipse.lsp4j.CreateFileOptions;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.DocumentHighlight;
 import org.eclipse.lsp4j.DocumentHighlightKind;
 import org.eclipse.lsp4j.DocumentLink;
@@ -208,13 +209,12 @@ public class XMLAssert {
 		}
 		if (expectedItems != null) {
 			for (CompletionItem item : expectedItems) {
-				assertCompletion(list, item, document, offset, expectedCount);
+				assertCompletion(list, item, expectedCount);
 			}
 		}
 	}
 
-	private static void assertCompletion(CompletionList completions, CompletionItem expected, TextDocument document,
-			int offset, Integer expectedCount) {
+	public static void assertCompletion(CompletionList completions, CompletionItem expected, Integer expectedCount) {
 		List<CompletionItem> matches = completions.getItems().stream().filter(completion -> {
 			return expected.getLabel().equals(completion.getLabel());
 		}).collect(Collectors.toList());
@@ -412,8 +412,14 @@ public class XMLAssert {
 
 	public static Diagnostic d(int startLine, int startCharacter, int endLine, int endCharacter, IXMLErrorCode code,
 			String message) {
+		return d(startLine, startCharacter, endLine, endCharacter, code, message, null, null);
+	}
+
+	public static Diagnostic d(int startLine, int startCharacter, int endLine, int endCharacter, IXMLErrorCode code,
+			String message, String source, DiagnosticSeverity severity) {
 		// Diagnostic on 1 line
-		return new Diagnostic(r(startLine, startCharacter, endLine, endCharacter), message, null, null, code.getCode());
+		return new Diagnostic(r(startLine, startCharacter, endLine, endCharacter), message, severity, source,
+				code != null ? code.getCode() : null);
 	}
 
 	public static Range r(int startLine, int startCharacter, int endLine, int endCharacter) {
@@ -449,9 +455,14 @@ public class XMLAssert {
 
 		publishDiagnostics(xmlDocument, actual, xmlLanguageService);
 
+		assertPublishDiagnostics(actual, expected);
+	}
+
+	public static void assertPublishDiagnostics(List<PublishDiagnosticsParams> actual,
+			PublishDiagnosticsParams... expected) {
 		assertEquals(expected.length, actual.size());
 		for (int i = 0; i < expected.length; i++) {
-			assertEquals(fileURI, actual.get(i).getUri());
+			assertEquals(actual.get(i).getUri(), expected[i].getUri());
 			assertDiagnostics(actual.get(i).getDiagnostics(), expected[i].getDiagnostics(), false);
 		}
 	}
