@@ -21,7 +21,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.eclipse.lemminx.commons.BadLocationException;
+import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.dom.DTDAttlistDecl;
 import org.eclipse.lemminx.dom.DTDDeclParameter;
@@ -31,7 +33,9 @@ import org.eclipse.lemminx.services.LimitList.ResultLimitExceededException;
 import org.eclipse.lemminx.services.extensions.ISymbolsProviderParticipant;
 import org.eclipse.lemminx.services.extensions.ISymbolsProviderParticipant.SymbolStrategy;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lemminx.settings.XMLSymbolFilter;
 import org.eclipse.lemminx.settings.XMLSymbolSettings;
+import org.eclipse.lemminx.xpath.matcher.IXPathNodeMatcher.MatcherType;
 import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
@@ -40,7 +44,6 @@ import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.SymbolKind;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.w3c.dom.DocumentType;
-import org.w3c.dom.Element;
 import org.w3c.dom.ProcessingInstruction;
 
 /**
@@ -84,18 +87,21 @@ class XMLSymbolsProvider {
 				? new AtomicLong(symbolSettings.getMaxItemsComputed())
 				: null;
 		SymbolInformationResult symbols = new SymbolInformationResult(limit);
+		XMLSymbolFilter filter = symbolSettings.getFilterFor(xmlDocument.getDocumentURI());
 
 		// Process symbols participants
-		if (processSymbolsParticipants(xmlDocument, symbols, null, cancelChecker)) {
+		if (processSymbolsParticipants(xmlDocument, symbols, null, filter, cancelChecker)) {
 			return symbols;
 		}
 
 		// Process default symbol providers
 		boolean isDTD = xmlDocument.isDTD();
+		boolean hasFilterForAttr = filter.hasFilterFor(MatcherType.ATTRIBUTE);
 		try {
 			for (DOMNode node : xmlDocument.getRoots()) {
 				try {
-					findSymbolInformations(node, "", symbols, (node.isDoctype() && isDTD), cancelChecker);
+					findSymbolInformations(node, "", symbols, (node.isDoctype() && isDTD), filter, hasFilterForAttr,
+							cancelChecker);
 				} catch (BadLocationException e) {
 					LOGGER.log(Level.SEVERE,
 							"XMLSymbolsProvider#findSymbolInformations was given a BadLocation by a 'node' variable",
@@ -109,13 +115,14 @@ class XMLSymbolsProvider {
 	}
 
 	private void findSymbolInformations(DOMNode node, String container, List<SymbolInformation> symbols,
-			boolean ignoreNode, CancelChecker cancelChecker) throws BadLocationException {
-		if (!isNodeSymbol(node)) {
+			boolean ignoreNode, XMLSymbolFilter filter, boolean hasFilterForAttr, CancelChecker cancelChecker)
+			throws BadLocationException {
+		if (!isNodeSymbol(node, filter)) {
 			return;
 		}
 		String name = "";
 		if (!ignoreNode) {
-			name = nodeToName(node);
+			name = nodeToName(node, filter);
 			DOMDocument xmlDocument = node.getOwnerDocument();
 			Range range = getSymbolRange(node);
 			Location location = new Location(xmlDocument.getDocumentURI(), range);
@@ -123,9 +130,19 @@ class XMLSymbolsProvider {
 			symbols.add(symbol);
 		}
 		final String containerName = name;
+		if (node.isElement()) {
+			boolean collectAttributes = hasFilterForAttr && node.hasAttributes();
+			if (collectAttributes) {
+				// Collect attributes from the DOM element
+				for (DOMAttr attr : node.getAttributeNodes()) {
+					findSymbolInformations(attr, containerName, symbols, false, filter, hasFilterForAttr,
+							cancelChecker);
+				}
+			}
+		}
 		node.getChildren().forEach(child -> {
 			try {
-				findSymbolInformations(child, containerName, symbols, false, cancelChecker);
+				findSymbolInformations(child, containerName, symbols, false, filter, hasFilterForAttr, cancelChecker);
 			} catch (BadLocationException e) {
 				LOGGER.log(Level.SEVERE, "XMLSymbolsProvider was given a BadLocation by the provided 'node' variable",
 						e);
@@ -141,14 +158,16 @@ class XMLSymbolsProvider {
 				? new AtomicLong(symbolSettings.getMaxItemsComputed())
 				: null;
 		DocumentSymbolsResult symbols = new DocumentSymbolsResult(limit);
+		XMLSymbolFilter filter = symbolSettings.getFilterFor(xmlDocument.getDocumentURI());
 
 		// Process symbols participants
-		if (processSymbolsParticipants(xmlDocument, null, symbols, cancelChecker)) {
+		if (processSymbolsParticipants(xmlDocument, null, symbols, filter, cancelChecker)) {
 			return symbols;
 		}
 
 		// Process default symbol providers
 		boolean isDTD = xmlDocument.isDTD();
+		boolean hasFilterForAttr = filter.hasFilterFor(MatcherType.ATTRIBUTE);
 		List<DOMNode> nodesToIgnore = new ArrayList<>();
 		try {
 			xmlDocument.getRoots().forEach(node -> {
@@ -156,7 +175,7 @@ class XMLSymbolsProvider {
 					if ((node.isDoctype() && isDTD)) {
 						nodesToIgnore.add(node);
 					}
-					findDocumentSymbols(node, symbols, nodesToIgnore, cancelChecker);
+					findDocumentSymbols(node, symbols, nodesToIgnore, filter, hasFilterForAttr, cancelChecker);
 				} catch (BadLocationException e) {
 					LOGGER.log(Level.SEVERE,
 							"XMLSymbolsProvider#findDocumentSymbols was given a BadLocation by a 'node' variable", e);
@@ -169,8 +188,8 @@ class XMLSymbolsProvider {
 	}
 
 	private void findDocumentSymbols(DOMNode node, DocumentSymbolsResult symbols, List<DOMNode> nodesToIgnore,
-			CancelChecker cancelChecker) throws BadLocationException {
-		if (!isNodeSymbol(node)) {
+			XMLSymbolFilter filter, boolean hasFilterForAttr, CancelChecker cancelChecker) throws BadLocationException {
+		if (!isNodeSymbol(node, filter)) {
 			return;
 		}
 		cancelChecker.checkCanceled();
@@ -186,41 +205,52 @@ class XMLSymbolsProvider {
 				name = decl.getElementName();
 				selectionRange = getSymbolRange(node, true);
 			} else { // regular node
-				name = nodeToName(node);
+				name = nodeToName(node, filter);
 				selectionRange = getSymbolRange(node);
-
 			}
+			boolean collectAttributes = hasFilterForAttr && node.hasAttributes();
 			Range range = selectionRange;
-			childrenSymbols = hasChildNodes || node.isDTDElementDecl() || node.isDTDAttListDecl() ? symbols.createList()
+			childrenSymbols = hasChildNodes || node.isDTDElementDecl() || node.isDTDAttListDecl() || collectAttributes
+					? symbols.createList()
 					: DocumentSymbolsResult.EMPTY_LIMITLESS_LIST;
 			DocumentSymbol symbol = new DocumentSymbol(name, getSymbolKind(node), range, selectionRange, null,
 					childrenSymbols);
 			symbols.add(symbol);
 
-			if (node.isDTDElementDecl() || (nodesToIgnore != null && node.isDTDAttListDecl())) {
-				// In the case of DTD ELEMENT we try to add in the children the DTD ATTLIST
-				Collection<DOMNode> attlistDecls;
-				if (node.isDTDElementDecl()) {
-					DTDElementDecl elementDecl = (DTDElementDecl) node;
-					String elementName = elementDecl.getName();
-					attlistDecls = node.getOwnerDocument().findDTDAttrList(elementName);
-				} else {
-					attlistDecls = new ArrayList<DOMNode>();
-					attlistDecls.add(node);
+			if (node.isElement()) {
+				if (collectAttributes) {
+					// Collect attributes from the DOM element
+					for (DOMAttr attr : node.getAttributeNodes()) {
+						findDocumentSymbols(attr, childrenSymbols, null, filter, hasFilterForAttr, cancelChecker);
+					}
 				}
+			} else {
+				if (node.isDTDElementDecl() || (nodesToIgnore != null && node.isDTDAttListDecl())) {
+					// In the case of DTD ELEMENT we try to add in the children the DTD ATTLIST
+					Collection<DOMNode> attlistDecls;
+					if (node.isDTDElementDecl()) {
+						DTDElementDecl elementDecl = (DTDElementDecl) node;
+						String elementName = elementDecl.getName();
+						attlistDecls = node.getOwnerDocument().findDTDAttrList(elementName);
+					} else {
+						attlistDecls = new ArrayList<DOMNode>();
+						attlistDecls.add(node);
+					}
 
-				for (DOMNode attrDecl : attlistDecls) {
-					findDocumentSymbols(attrDecl, childrenSymbols, null, cancelChecker);
-					if (attrDecl instanceof DTDAttlistDecl) {
-						DTDAttlistDecl decl = (DTDAttlistDecl) attrDecl;
-						List<DTDAttlistDecl> otherAttributeDecls = decl.getInternalChildren();
-						if (otherAttributeDecls != null) {
-							for (DTDAttlistDecl internalDecl : otherAttributeDecls) {
-								findDocumentSymbols(internalDecl, childrenSymbols, null, cancelChecker);
+					for (DOMNode attrDecl : attlistDecls) {
+						findDocumentSymbols(attrDecl, childrenSymbols, null, filter, hasFilterForAttr, cancelChecker);
+						if (attrDecl instanceof DTDAttlistDecl) {
+							DTDAttlistDecl decl = (DTDAttlistDecl) attrDecl;
+							List<DTDAttlistDecl> otherAttributeDecls = decl.getInternalChildren();
+							if (otherAttributeDecls != null) {
+								for (DTDAttlistDecl internalDecl : otherAttributeDecls) {
+									findDocumentSymbols(internalDecl, childrenSymbols, null, filter, hasFilterForAttr,
+											cancelChecker);
+								}
 							}
 						}
+						nodesToIgnore.add(attrDecl);
 					}
-					nodesToIgnore.add(attrDecl);
 				}
 			}
 		}
@@ -230,12 +260,16 @@ class XMLSymbolsProvider {
 		final DocumentSymbolsResult childrenOfChild = childrenSymbols;
 		node.getChildren().forEach(child -> {
 			try {
-				findDocumentSymbols(child, childrenOfChild, nodesToIgnore, cancelChecker);
+				findDocumentSymbols(child, childrenOfChild, nodesToIgnore, filter, hasFilterForAttr, cancelChecker);
 			} catch (BadLocationException e) {
 				LOGGER.log(Level.SEVERE, "XMLSymbolsProvider was given a BadLocation by the provided 'node' variable",
 						e);
 			}
 		});
+	}
+
+	private boolean isNodeSymbol(DOMNode node, XMLSymbolFilter filter) {
+		return !node.isText() && filter.isNodeSymbol(node);
 	}
 
 	private static Range getSymbolRange(DOMNode node) throws BadLocationException {
@@ -275,41 +309,53 @@ class XMLSymbolsProvider {
 			return SymbolKind.Key;
 		} else if (node.isDTDNotationDecl()) {
 			return SymbolKind.Variable;
+		} else if (node.isAttribute()) {
+			return SymbolKind.Constant;
 		}
 		return SymbolKind.Field;
 	}
 
-	private static boolean isNodeSymbol(DOMNode node) {
-		return node.isElement() || node.isDoctype() || node.isProcessingInstruction() || node.isProlog()
-				|| node.isDTDElementDecl() || node.isDTDAttListDecl() || node.isDTDEntityDecl()
-				|| node.isDTDNotationDecl();
-	}
-
-	private static String nodeToName(DOMNode node) {
-		String name = null;
-		if (node.isElement()) {
-			name = ((Element) node).getTagName();
-		} else if (node.isProcessingInstruction() || node.isProlog()) {
-			name = ((ProcessingInstruction) node).getTarget();
-		} else if (node.isDoctype()) {
-			name = "DOCTYPE:" + ((DocumentType) node).getName();
-		} else if (node.isDTDElementDecl()) {
-			name = ((DTDElementDecl) node).getName();
-		} else if (node.isDTDAttListDecl()) {
-			DTDAttlistDecl attr = (DTDAttlistDecl) node;
-			name = attr.getAttributeName();
-		} else if (node.isDTDEntityDecl()) {
-			name = node.getNodeName();
-		} else if (node.isDTDNotationDecl()) {
-			DTDNotationDecl notation = (DTDNotationDecl) node;
-			name = notation.getName();
-		}
-
+	private static String nodeToName(DOMNode node, XMLSymbolFilter filter) {
+		String name = nodeToNameOrNull(node, filter);
 		return name != null ? name : "?";
 	}
 
+	private static String nodeToNameOrNull(DOMNode node, XMLSymbolFilter filter) {
+		if (node.isElement()) {
+			DOMElement element = (DOMElement) node;
+			if (element.hasTagName()) {
+				DOMNode firstChild = node.getFirstChild();
+				if (firstChild != null && firstChild.isText() && filter.isNodeSymbol(firstChild)) {
+					return element.getTagName() + ": " + firstChild.getNodeValue();
+				}
+				return element.getTagName();
+			}
+		} else if (node.isAttribute()) {
+			DOMAttr attr = (DOMAttr) node;
+			if (attr.getName() != null) {
+				return "@" + attr.getName() + ": " + attr.getValue();
+			}
+		} else if (node.isProcessingInstruction() || node.isProlog()) {
+			return ((ProcessingInstruction) node).getTarget();
+		} else if (node.isDoctype()) {
+			return "DOCTYPE:" + ((DocumentType) node).getName();
+		} else if (node.isDTDElementDecl()) {
+			return ((DTDElementDecl) node).getName();
+		} else if (node.isDTDAttListDecl()) {
+			DTDAttlistDecl attr = (DTDAttlistDecl) node;
+			return attr.getAttributeName();
+		} else if (node.isDTDEntityDecl()) {
+			return node.getNodeName();
+		} else if (node.isDTDNotationDecl()) {
+			DTDNotationDecl notation = (DTDNotationDecl) node;
+			return notation.getName();
+		}
+
+		return null;
+	}
+
 	private boolean processSymbolsParticipants(DOMDocument xmlDocument, SymbolInformationResult symbolInformations,
-			DocumentSymbolsResult documentSymbols, CancelChecker cancelChecker) {
+			DocumentSymbolsResult documentSymbols, XMLSymbolFilter filter, CancelChecker cancelChecker) {
 		// Get symbol providers participants
 		SymbolsProviderParticipantResult resultParticipant = getSymbolsProviderParticipant(xmlDocument);
 
@@ -321,10 +367,10 @@ class XMLSymbolsProvider {
 			}
 			for (ISymbolsProviderParticipant replaceParticipant : replaceParticipants) {
 				if (symbolInformations != null) {
-					replaceParticipant.findSymbolInformations(xmlDocument, symbolInformations, cancelChecker);
+					replaceParticipant.findSymbolInformations(xmlDocument, symbolInformations, filter, cancelChecker);
 				}
 				if (documentSymbols != null) {
-					replaceParticipant.findDocumentSymbols(xmlDocument, documentSymbols, cancelChecker);
+					replaceParticipant.findDocumentSymbols(xmlDocument, documentSymbols, filter, cancelChecker);
 				}
 			}
 			return true;
@@ -335,10 +381,10 @@ class XMLSymbolsProvider {
 		if (!insertParticipants.isEmpty()) {
 			for (ISymbolsProviderParticipant insertParticipant : insertParticipants) {
 				if (symbolInformations != null) {
-					insertParticipant.findSymbolInformations(xmlDocument, symbolInformations, cancelChecker);
+					insertParticipant.findSymbolInformations(xmlDocument, symbolInformations, filter, cancelChecker);
 				}
 				if (documentSymbols != null) {
-					insertParticipant.findDocumentSymbols(xmlDocument, documentSymbols, cancelChecker);
+					insertParticipant.findDocumentSymbols(xmlDocument, documentSymbols, filter, cancelChecker);
 				}
 			}
 		}

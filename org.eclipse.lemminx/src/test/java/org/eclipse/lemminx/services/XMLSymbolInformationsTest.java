@@ -12,24 +12,17 @@
  */
 package org.eclipse.lemminx.services;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
+import static org.eclipse.lemminx.XMLAssert.l;
+import static org.eclipse.lemminx.XMLAssert.r;
+import static org.eclipse.lemminx.XMLAssert.si;
+import static org.eclipse.lemminx.XMLAssert.testSymbolInformationsFor;
 
 import org.eclipse.lemminx.commons.BadLocationException;
-import org.eclipse.lemminx.dom.DOMDocument;
-import org.eclipse.lemminx.dom.DOMParser;
+import org.eclipse.lemminx.settings.XMLSymbolExpressionFilter;
+import org.eclipse.lemminx.settings.XMLSymbolFilter;
 import org.eclipse.lemminx.settings.XMLSymbolSettings;
-import org.eclipse.lsp4j.Location;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.SymbolKind;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -37,270 +30,130 @@ import org.junit.jupiter.api.Test;
  */
 public class XMLSymbolInformationsTest {
 	private static final String testURI = "test:URI";
-	private XMLLanguageService languageService;
-	private DOMDocument xmlDocument;
-	private List<SymbolInformation> actualSymbolInfos;
-	private Location currentLocation;
-	private SymbolInformation currentSymbolInfo;
-
-	@BeforeEach
-	public void initializeLanguageService() {
-		languageService = new XMLLanguageService();
-	}
 
 	@Test
 	public void testSingleSymbol() {
-		String xmlText = "<project></project>";
-		initializeTestObjects(xmlText, testURI);
-
-		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
-		currentLocation = createLocation(testURI, 0, 19, xmlDocument);
-		currentSymbolInfo = createSymbolInformation("project", SymbolKind.Field, currentLocation, "");
-		expectedSymbolInfos.add(currentSymbolInfo);
-
-		assertSymbols(expectedSymbolInfos, actualSymbolInfos);
+		String xml = "<project></project>";
+		testSymbolInformationsFor(xml, testURI, //
+				si("project", SymbolKind.Field, l(testURI, r(0, 0, 0, 19)), ""));
 	}
 
 	@Test
 	public void testNestedSymbol() {
-		String xmlText = "<project><inside></inside></project>";
-		initializeTestObjects(xmlText, testURI);
-
-		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
-		currentLocation = createLocation(testURI, 0, 36, xmlDocument);
-		currentSymbolInfo = createSymbolInformation("project", SymbolKind.Field, currentLocation, "");
-		expectedSymbolInfos.add(currentSymbolInfo);
-
-		currentLocation = createLocation(testURI, 9, 26, xmlDocument);
-		currentSymbolInfo = createSymbolInformation("inside", SymbolKind.Field, currentLocation, "project");
-		expectedSymbolInfos.add(currentSymbolInfo);
-
-		assertSymbols(expectedSymbolInfos, actualSymbolInfos);
+		String xml = "<project><inside></inside></project>";
+		testSymbolInformationsFor(xml, testURI, //
+				si("project", SymbolKind.Field, l(testURI, r(0, 0, 0, 36)), ""), //
+				si("inside", SymbolKind.Field, l(testURI, r(0, 9, 0, 26)), "project"));
 	}
 
 	@Test
 	public void testTwoNestedSymbols() {
-		String xmlText = "<a><b></b><c></c></a>";
-		initializeTestObjects(xmlText, testURI);
-
-		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
-		currentLocation = createLocation(testURI, 0, 21, xmlDocument);
-		currentSymbolInfo = createSymbolInformation("a", SymbolKind.Field, currentLocation, "");
-		expectedSymbolInfos.add(currentSymbolInfo);
-
-		currentLocation = createLocation(testURI, 3, 10, xmlDocument);
-		currentSymbolInfo = createSymbolInformation("b", SymbolKind.Field, currentLocation, "a");
-		expectedSymbolInfos.add(currentSymbolInfo);
-
-		currentLocation = createLocation(testURI, 10, 17, xmlDocument);
-		currentSymbolInfo = createSymbolInformation("c", SymbolKind.Field, currentLocation, "a");
-		expectedSymbolInfos.add(currentSymbolInfo);
-
-		assertSymbols(expectedSymbolInfos, actualSymbolInfos);
+		String xml = "<a><b></b><c></c></a>";
+		testSymbolInformationsFor(xml, testURI, //
+				si("a", SymbolKind.Field, l(testURI, r(0, 0, 0, 21)), ""), //
+				si("b", SymbolKind.Field, l(testURI, r(0, 3, 0, 10)), "a"), //
+				si("c", SymbolKind.Field, l(testURI, r(0, 10, 0, 17)), "a"));
 	}
 
 	@Test
 	public void testNestedTwice() {
-		String xmlText = "<a><b><c></c></b></a>";
-		initializeTestObjects(xmlText, testURI);
-
-		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
-		currentLocation = createLocation(testURI, 0, 21, xmlDocument);
-		currentSymbolInfo = createSymbolInformation("a", SymbolKind.Field, currentLocation, "");
-		expectedSymbolInfos.add(currentSymbolInfo);
-
-		currentLocation = createLocation(testURI, 3, 17, xmlDocument);
-		currentSymbolInfo = createSymbolInformation("b", SymbolKind.Field, currentLocation, "a");
-		expectedSymbolInfos.add(currentSymbolInfo);
-
-		currentLocation = createLocation(testURI, 6, 13, xmlDocument);
-		currentSymbolInfo = createSymbolInformation("c", SymbolKind.Field, currentLocation, "b");
-		expectedSymbolInfos.add(currentSymbolInfo);
-
-		assertSymbols(expectedSymbolInfos, actualSymbolInfos);
+		String xml = "<a><b><c></c></b></a>";
+		testSymbolInformationsFor(xml, testURI, //
+				si("a", SymbolKind.Field, l(testURI, r(0, 0, 0, 21)), ""), //
+				si("b", SymbolKind.Field, l(testURI, r(0, 3, 0, 17)), "a"), //
+				si("c", SymbolKind.Field, l(testURI, r(0, 6, 0, 13)), "b"));
 	}
 
 	@Test
 	public void testSelfClosingTag() {
-		String xmlText = "<a/>";
-		initializeTestObjects(xmlText, testURI);
-
-		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
-		currentLocation = createLocation(testURI, 0, 4, xmlDocument);
-		currentSymbolInfo = createSymbolInformation("a", SymbolKind.Field, currentLocation, "");
-		expectedSymbolInfos.add(currentSymbolInfo);
-
-		assertSymbols(expectedSymbolInfos, actualSymbolInfos);
+		String xml = "<a/>";
+		testSymbolInformationsFor(xml, testURI, //
+				si("a", SymbolKind.Field, l(testURI, r(0, 0, 0, 4)), ""));
 	}
 
 	@Test
 	public void testNestedSelfClosingTag() {
-		String xmlText = "<a><b/></a>";
-		initializeTestObjects(xmlText, testURI);
-
-		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
-		currentLocation = createLocation(testURI, 0, 11, xmlDocument);
-		currentSymbolInfo = createSymbolInformation("a", SymbolKind.Field, currentLocation, "");
-		expectedSymbolInfos.add(currentSymbolInfo);
-
-		currentLocation = createLocation(testURI, 3, 7, xmlDocument);
-		currentSymbolInfo = createSymbolInformation("b", SymbolKind.Field, currentLocation, "a");
-		expectedSymbolInfos.add(currentSymbolInfo);
-
-		assertSymbols(expectedSymbolInfos, actualSymbolInfos);
+		String xml = "<a><b/></a>";
+		testSymbolInformationsFor(xml, testURI, //
+				si("a", SymbolKind.Field, l(testURI, r(0, 0, 0, 11)), ""), //
+				si("b", SymbolKind.Field, l(testURI, r(0, 3, 0, 7)), "a"));
 	}
 
 	@Test
 	public void testUnclosedTag() {
-		String xmlText = "<a>";
-		initializeTestObjects(xmlText, testURI);
-
-		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
-		currentLocation = createLocation(testURI, 0, 3, xmlDocument);
-		currentSymbolInfo = createSymbolInformation("a", SymbolKind.Field, currentLocation, "");
-		expectedSymbolInfos.add(currentSymbolInfo);
-
-		assertSymbols(expectedSymbolInfos, actualSymbolInfos);
+		String xml = "<a>";
+		testSymbolInformationsFor(xml, testURI, //
+				si("a", SymbolKind.Field, l(testURI, r(0, 0, 0, 3)), ""));
 	}
 
 	@Test
 	public void testNestedUnclosedTag() {
-		String xmlText = "<a><b></a>";
-		initializeTestObjects(xmlText, testURI);
-
-		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
-		currentLocation = createLocation(testURI, 0, 10, xmlDocument);
-		currentSymbolInfo = createSymbolInformation("a", SymbolKind.Field, currentLocation, "");
-		expectedSymbolInfos.add(currentSymbolInfo);
-
-		currentLocation = createLocation(testURI, 3, 6, xmlDocument);
-		currentSymbolInfo = createSymbolInformation("b", SymbolKind.Field, currentLocation, "a");
-		expectedSymbolInfos.add(currentSymbolInfo);
-
-		assertSymbols(expectedSymbolInfos, actualSymbolInfos);
+		String xml = "<a><b></a>";
+		testSymbolInformationsFor(xml, testURI, //
+				si("a", SymbolKind.Field, l(testURI, r(0, 0, 0, 10)), ""), //
+				si("b", SymbolKind.Field, l(testURI, r(0, 3, 0, 6)), "a"));
 	}
 
 	@Test
 	public void testAllTagsUnclosed() {
-		String xmlText = "<a><b>";
-		initializeTestObjects(xmlText, testURI);
-
-		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
-		currentLocation = createLocation(testURI, 0, 6, xmlDocument);
-		currentSymbolInfo = createSymbolInformation("a", SymbolKind.Field, currentLocation, "");
-		expectedSymbolInfos.add(currentSymbolInfo);
-
-		currentLocation = createLocation(testURI, 3, 6, xmlDocument);
-		currentSymbolInfo = createSymbolInformation("b", SymbolKind.Field, currentLocation, "a");
-		expectedSymbolInfos.add(currentSymbolInfo);
-
-		assertSymbols(expectedSymbolInfos, actualSymbolInfos);
+		String xml = "<a><b>";
+		testSymbolInformationsFor(xml, testURI, //
+				si("a", SymbolKind.Field, l(testURI, r(0, 0, 0, 6)), ""), //
+				si("b", SymbolKind.Field, l(testURI, r(0, 3, 0, 6)), "a"));
 	}
 
 	@Test
 	public void singleEndTag() throws BadLocationException {
-		String xmlText = "</meta>";
-		initializeTestObjects(xmlText, testURI);
-
-		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
-		currentLocation = createLocation(testURI, 0, 7, xmlDocument);
-		currentSymbolInfo = createSymbolInformation("meta", SymbolKind.Field, currentLocation, "");
-		expectedSymbolInfos.add(currentSymbolInfo);
-
-		assertSymbols(expectedSymbolInfos, actualSymbolInfos);
-
+		String xml = "</meta>";
+		testSymbolInformationsFor(xml, testURI, //
+				si("meta", SymbolKind.Field, l(testURI, r(0, 0, 0, 7)), ""));
 	}
 
 	@Test
 	public void invalidEndTag() {
-		String xmlText = "</";
-		initializeTestObjects(xmlText, testURI);
-
-		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
-		currentLocation = createLocation(testURI, 0, 2, xmlDocument);
-		currentSymbolInfo = createSymbolInformation("?", SymbolKind.Field, currentLocation, "");
-		expectedSymbolInfos.add(currentSymbolInfo);
-
-		assertSymbols(expectedSymbolInfos, actualSymbolInfos);
+		String xml = "</";
+		testSymbolInformationsFor(xml, testURI, //
+				si("?", SymbolKind.Field, l(testURI, r(0, 0, 0, 2)), ""));
 	}
 
 	@Test
 	public void invalidEndTagAfterRoot() {
-		String xmlText = "<a></";
-		initializeTestObjects(xmlText, testURI);
-
-		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
-		currentLocation = createLocation(testURI, 0, 5, xmlDocument);
-		currentSymbolInfo = createSymbolInformation("a", SymbolKind.Field, currentLocation, "");
-		expectedSymbolInfos.add(currentSymbolInfo);
-
-		currentLocation = createLocation(testURI, 3, 5, xmlDocument);
-		currentSymbolInfo = createSymbolInformation("?", SymbolKind.Field, currentLocation, "a");
-		expectedSymbolInfos.add(currentSymbolInfo);
-
-		assertSymbols(expectedSymbolInfos, actualSymbolInfos);
-	}
-
-	@Test
-	public void insideEndTag() throws BadLocationException {
-		// assertRename("<html|></meta></html>", "newText", edits("newText", r(0, 1, 5),
-		// r(0, 15, 19)));
+		String xml = "<a></";
+		testSymbolInformationsFor(xml, testURI, //
+				si("a", SymbolKind.Field, l(testURI, r(0, 0, 0, 5)), ""), //
+				si("?", SymbolKind.Field, l(testURI, r(0, 3, 0, 5)), "a"));
 	}
 
 	@Test
 	public void externalDTD() {
-		String xmlText = "<!ELEMENT br EMPTY>\n" + //
+		String xml = "<!ELEMENT br EMPTY>\n" + //
 				"<!ATTLIST br\n" + //
 				"	%all;>";
 		String testURI = "test.dtd";
-		initializeTestObjects(xmlText, testURI);
-
-		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
-		currentLocation = createLocation(testURI, 0, 19, xmlDocument);
-		currentSymbolInfo = createSymbolInformation("br", SymbolKind.Property, currentLocation, "");
-		expectedSymbolInfos.add(currentSymbolInfo);
-
-		currentLocation = createLocation(testURI, 34, 39, xmlDocument);
-		currentSymbolInfo = createSymbolInformation("%all;", SymbolKind.Key, currentLocation, "");
-		expectedSymbolInfos.add(currentSymbolInfo);
-
-		assertSymbols(expectedSymbolInfos, actualSymbolInfos);
+		testSymbolInformationsFor(xml, testURI, //
+				si("br", SymbolKind.Property, l(testURI, r(0, 0, 0, 19)), ""), //
+				si("%all;", SymbolKind.Key, l(testURI, r(2, 1, 2, 6)), ""));
 	}
 
 	@Test
 	public void internalDTD() {
-		String xmlText = "<!DOCTYPE br [\n" + //
+		String xml = "<!DOCTYPE br [\n" + //
 				"  	<!ELEMENT br EMPTY>\n" + //
 				"	<!ATTLIST br\n" + //
 				"		%all;>\n" + //
 				"]>\n" + //
 				"<br />";
 		String testURI = "test.xml";
-		initializeTestObjects(xmlText, testURI);
-
-		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
-		currentLocation = createLocation(testURI, 0, 63, xmlDocument);
-		currentSymbolInfo = createSymbolInformation("DOCTYPE:br", SymbolKind.Struct, currentLocation, "");
-		expectedSymbolInfos.add(currentSymbolInfo);
-
-		currentLocation = createLocation(testURI, 18, 37, xmlDocument);
-		currentSymbolInfo = createSymbolInformation("br", SymbolKind.Property, currentLocation, "DOCTYPE:br");
-		expectedSymbolInfos.add(currentSymbolInfo);
-
-		currentLocation = createLocation(testURI, 54, 59, xmlDocument);
-		currentSymbolInfo = createSymbolInformation("%all;", SymbolKind.Key, currentLocation, "DOCTYPE:br");
-		expectedSymbolInfos.add(currentSymbolInfo);
-
-		currentLocation = createLocation(testURI, 64, 70, xmlDocument);
-		currentSymbolInfo = createSymbolInformation("br", SymbolKind.Field, currentLocation, "");
-		expectedSymbolInfos.add(currentSymbolInfo);
-
-		assertSymbols(expectedSymbolInfos, actualSymbolInfos);
+		testSymbolInformationsFor(xml, testURI, //
+				si("DOCTYPE:br", SymbolKind.Struct, l(testURI, r(0, 0, 4, 2)), ""), //
+				si("br", SymbolKind.Property, l(testURI, r(1, 3, 1, 22)), "DOCTYPE:br"), //
+				si("%all;", SymbolKind.Key, l(testURI, r(3, 2, 3, 7)), "DOCTYPE:br"), //
+				si("br", SymbolKind.Field, l(testURI, r(5, 0, 5, 6)), ""));
 	}
 
 	@Test
 	public void exceedSymbolLimit() {
-		String xmlText = "<!DOCTYPE br [\n" + //
+		String xml = "<!DOCTYPE br [\n" + //
 				"  	<!ELEMENT br EMPTY>\n" + //
 				"	<!ATTLIST br\n" + //
 				"		%all;>\n" + //
@@ -308,104 +161,205 @@ public class XMLSymbolInformationsTest {
 				"<br />";
 		String testURI = "test.xml";
 		XMLSymbolSettings settings = new XMLSymbolSettings();
+
 		settings.setMaxItemsComputed(4);
-		initializeTestObjects(xmlText, testURI, settings);
-
-		List<SymbolInformation> expectedSymbolInfos = new ArrayList<SymbolInformation>();
-		currentLocation = createLocation(testURI, 0, 63, xmlDocument);
-		currentSymbolInfo = createSymbolInformation("DOCTYPE:br", SymbolKind.Struct, currentLocation, "");
-		expectedSymbolInfos.add(currentSymbolInfo);
-
-		currentLocation = createLocation(testURI, 18, 37, xmlDocument);
-		currentSymbolInfo = createSymbolInformation("br", SymbolKind.Property, currentLocation, "DOCTYPE:br");
-		expectedSymbolInfos.add(currentSymbolInfo);
-
-		currentLocation = createLocation(testURI, 54, 59, xmlDocument);
-		currentSymbolInfo = createSymbolInformation("%all;", SymbolKind.Key, currentLocation, "DOCTYPE:br");
-		expectedSymbolInfos.add(currentSymbolInfo);
-
-		currentLocation = createLocation(testURI, 64, 70, xmlDocument);
-		currentSymbolInfo = createSymbolInformation("br", SymbolKind.Field, currentLocation, "");
-		expectedSymbolInfos.add(currentSymbolInfo);
-
-		assertSymbols(expectedSymbolInfos, actualSymbolInfos);
+		testSymbolInformationsFor(xml, testURI, settings, //
+				si("DOCTYPE:br", SymbolKind.Struct, l(testURI, r(0, 0, 4, 2)), ""), //
+				si("br", SymbolKind.Property, l(testURI, r(1, 3, 1, 22)), "DOCTYPE:br"), //
+				si("%all;", SymbolKind.Key, l(testURI, r(3, 2, 3, 7)), "DOCTYPE:br"), //
+				si("br", SymbolKind.Field, l(testURI, r(5, 0, 5, 6)), ""));
 
 		settings.setMaxItemsComputed(10);
-		initializeTestObjects(xmlText, testURI, settings);
-		assertSymbols(expectedSymbolInfos, actualSymbolInfos);
+		testSymbolInformationsFor(xml, testURI, settings, //
+				si("DOCTYPE:br", SymbolKind.Struct, l(testURI, r(0, 0, 4, 2)), ""), //
+				si("br", SymbolKind.Property, l(testURI, r(1, 3, 1, 22)), "DOCTYPE:br"), //
+				si("%all;", SymbolKind.Key, l(testURI, r(3, 2, 3, 7)), "DOCTYPE:br"), //
+				si("br", SymbolKind.Field, l(testURI, r(5, 0, 5, 6)), ""));
 
 		settings.setMaxItemsComputed(3);
-		initializeTestObjects(xmlText, testURI, settings);
-		assertSymbols(expectedSymbolInfos.stream().limit(3).collect(Collectors.toList()), actualSymbolInfos);
+		testSymbolInformationsFor(xml, testURI, settings, //
+				si("DOCTYPE:br", SymbolKind.Struct, l(testURI, r(0, 0, 4, 2)), ""), //
+				si("br", SymbolKind.Property, l(testURI, r(1, 3, 1, 22)), "DOCTYPE:br"), //
+				si("%all;", SymbolKind.Key, l(testURI, r(3, 2, 3, 7)), "DOCTYPE:br"));
 	}
 
 	@Test
 	public void zeroSymbolLimit() {
-		String xmlText = "<root>\n" + //
+		String xml = "<root>\n" + //
 				"  <content />\n" + //
 				"</root>";
 		String testURI = "test.xml";
 		XMLSymbolSettings settings = new XMLSymbolSettings();
 		settings.setMaxItemsComputed(0);
-		initializeTestObjects(xmlText, testURI, settings);
-		assertSymbols(Collections.emptyList(), actualSymbolInfos);
+
+		testSymbolInformationsFor(xml, testURI, settings);
 	}
 
-	// -------------------Tools------------------------------
+	// Tests for Symbols filter
 
-	private void initializeTestObjects(String xmlText, String uri) {
-		initializeTestObjects(xmlText, uri, new XMLSymbolSettings());
+	@Test
+	public void noSymbolsFilter() {
+		String xml = "<foo>\r\n" + //
+				"	<bar attr1=\"value1\" attr2=\"value2\">ABCD</bar>\r\n" + //
+				"</foo>";
+		String testURI = "file:///test/foo.xml";
+		// null symbols filter
+		XMLSymbolSettings symbolSettings = new XMLSymbolSettings();
+		testSymbolInformationsFor(xml, testURI, symbolSettings, //
+				si("foo", SymbolKind.Field, l(testURI, r(0, 0, 2, 6)), ""), //
+				si("bar", SymbolKind.Field, l(testURI, r(1, 1, 1, 46)), "foo"));
+
+		// empty array symbols filter
+		symbolSettings = new XMLSymbolSettings();
+		symbolSettings.setFilters(new XMLSymbolFilter[0]);
+		testSymbolInformationsFor(xml, testURI, symbolSettings, //
+				si("foo", SymbolKind.Field, l(testURI, r(0, 0, 2, 6)), ""), //
+				si("bar", SymbolKind.Field, l(testURI, r(1, 1, 1, 46)), "foo"));
 	}
 
-	private void initializeTestObjects(String xmlText, String uri, XMLSymbolSettings settings) {
-		xmlDocument = DOMParser.getInstance().parse(xmlText, uri, null);
-		actualSymbolInfos = languageService.findSymbolInformations(xmlDocument, settings);
+	@Test
+	public void symbolsFilterWithAllAttr() {
+		String xml = "<foo>\r\n" + //
+				"	<bar attr1=\"value1\" attr2=\"value2\">ABCD</bar>\r\n" + //
+				"	<baz attr1=\"baz-value1\" attr2=\"baz-value2\">EFGH</baz>\r\n" + //
+				"</foo>";
+		String testURI = "file:///test/foo.xml";
+		XMLSymbolSettings symbolSettings = new XMLSymbolSettings();
+		XMLSymbolFilter filter = new XMLSymbolFilter();
+		filter.setPattern("foo.xml");
+		XMLSymbolExpressionFilter expressionFilter = new XMLSymbolExpressionFilter();
+
+		filter.setExpressions(new XMLSymbolExpressionFilter[] { expressionFilter });
+		symbolSettings.setFilters(new XMLSymbolFilter[] { filter });
+
+		// Test with //@*
+		expressionFilter.setXpath("//@*");
+		testSymbolInformationsFor(xml, testURI, symbolSettings, //
+				si("foo", SymbolKind.Field, l(testURI, r(0, 0, 3, 6)), ""), //
+				si("bar", SymbolKind.Field, l(testURI, r(1, 1, 1, 46)), "foo"), //
+				si("@attr1: value1", SymbolKind.Constant, l(testURI, r(1, 6, 1, 20)), "bar"), //
+				si("@attr2: value2", SymbolKind.Constant, l(testURI, r(1, 21, 1, 35)), "bar"), //
+				si("baz", SymbolKind.Field, l(testURI, r(2, 1, 2, 54)), "foo"), //
+				si("@attr1: baz-value1", SymbolKind.Constant, l(testURI, r(2, 6, 2, 24)), "baz"), //
+				si("@attr2: baz-value2", SymbolKind.Constant, l(testURI, r(2, 25, 2, 43)), "baz"));
+
+		// Test with //bar/@*
+		expressionFilter.setXpath("//bar/@*");
+		testSymbolInformationsFor(xml, testURI, symbolSettings, //
+				si("foo", SymbolKind.Field, l(testURI, r(0, 0, 3, 6)), ""), //
+				si("bar", SymbolKind.Field, l(testURI, r(1, 1, 1, 46)), "foo"), //
+				si("@attr1: value1", SymbolKind.Constant, l(testURI, r(1, 6, 1, 20)), "bar"), //
+				si("@attr2: value2", SymbolKind.Constant, l(testURI, r(1, 21, 1, 35)), "bar"), //
+				si("baz", SymbolKind.Field, l(testURI, r(2, 1, 2, 54)), "foo"));
+
+		// Test with /foo/bar/@*
+		expressionFilter.setXpath("/foo/bar/@*");
+		testSymbolInformationsFor(xml, testURI, symbolSettings, //
+				si("foo", SymbolKind.Field, l(testURI, r(0, 0, 3, 6)), ""), //
+				si("bar", SymbolKind.Field, l(testURI, r(1, 1, 1, 46)), "foo"), //
+				si("@attr1: value1", SymbolKind.Constant, l(testURI, r(1, 6, 1, 20)), "bar"), //
+				si("@attr2: value2", SymbolKind.Constant, l(testURI, r(1, 21, 1, 35)), "bar"), //
+				si("baz", SymbolKind.Field, l(testURI, r(2, 1, 2, 54)), "foo"));
+
 	}
 
-	private void assertSymbols(List<SymbolInformation> expectedSymbolList, List<SymbolInformation> actualSymbolList) {
-		assertEquals(expectedSymbolList.size(), actualSymbolList.size());
+	@Test
+	public void symbolsFilterWithOneAttr() {
+		String xml = "<foo>\r\n" + //
+				"	<bar attr1=\"value1\" attr2=\"value2\">ABCD</bar>\r\n" + //
+				"	<baz attr1=\"baz-value1\" attr2=\"baz-value2\">EFGH</baz>\r\n" + //
+				"</foo>";
+		String testURI = "file:///test/foo.xml";
+		XMLSymbolSettings symbolSettings = new XMLSymbolSettings();
+		XMLSymbolFilter filter = new XMLSymbolFilter();
+		filter.setPattern("foo.xml");
+		XMLSymbolExpressionFilter expressionFilter = new XMLSymbolExpressionFilter();
+		filter.setExpressions(new XMLSymbolExpressionFilter[] { expressionFilter });
+		symbolSettings.setFilters(new XMLSymbolFilter[] { filter });
 
-		SymbolInformation currentExpectedSymbol;
-		SymbolInformation currentActualSymbol;
+		// Test with //@attr2
+		expressionFilter.setXpath("//@attr2");
+		testSymbolInformationsFor(xml, testURI, symbolSettings, //
+				si("foo", SymbolKind.Field, l(testURI, r(0, 0, 3, 6)), ""), //
+				si("bar", SymbolKind.Field, l(testURI, r(1, 1, 1, 46)), "foo"), //
+				si("@attr2: value2", SymbolKind.Constant, l(testURI, r(1, 21, 1, 35)), "bar"), //
+				si("baz", SymbolKind.Field, l(testURI, r(2, 1, 2, 54)), "foo"), //
+				si("@attr2: baz-value2", SymbolKind.Constant, l(testURI, r(2, 25, 2, 43)), "baz"));
 
-		for (int i = 0; i < expectedSymbolList.size(); i++) {
-			currentExpectedSymbol = expectedSymbolList.get(i);
-			currentActualSymbol = actualSymbolList.get(i);
-			assertEquals(currentExpectedSymbol.getName(), currentActualSymbol.getName(),"Symbol index " + i);
-			assertEquals(currentExpectedSymbol.getKind(), currentActualSymbol.getKind(),"Symbol index " + i);
-			assertEquals(currentExpectedSymbol.getContainerName(),
-					currentActualSymbol.getContainerName(),"Symbol index " + i);
-			assertEquals(currentExpectedSymbol.getLocation(), currentActualSymbol.getLocation(),"Symbol index " + i);
-			assertEquals(currentExpectedSymbol.getDeprecated(),
-					currentActualSymbol.getDeprecated(),"Symbol index " + i);
-		}
+		// Test with //bar/@attr2
+		expressionFilter.setXpath("//bar/@attr2");
+		testSymbolInformationsFor(xml, testURI, symbolSettings, //
+				si("foo", SymbolKind.Field, l(testURI, r(0, 0, 3, 6)), ""), //
+				si("bar", SymbolKind.Field, l(testURI, r(1, 1, 1, 46)), "foo"), //
+				si("@attr2: value2", SymbolKind.Constant, l(testURI, r(1, 21, 1, 35)), "bar"), //
+				si("baz", SymbolKind.Field, l(testURI, r(2, 1, 2, 54)), "foo"));
+
+		// Test with /foo/bar/@attr2
+		expressionFilter.setXpath("/foo/bar/@attr2");
+		testSymbolInformationsFor(xml, testURI, symbolSettings, //
+				si("foo", SymbolKind.Field, l(testURI, r(0, 0, 3, 6)), ""), //
+				si("bar", SymbolKind.Field, l(testURI, r(1, 1, 1, 46)), "foo"), //
+				si("@attr2: value2", SymbolKind.Constant, l(testURI, r(1, 21, 1, 35)), "bar"), //
+				si("baz", SymbolKind.Field, l(testURI, r(2, 1, 2, 54)), "foo"));
 	}
 
-	private SymbolInformation createSymbolInformation(String name, SymbolKind kind, Location location,
-			String containerName) {
-		SymbolInformation temp = new SymbolInformation(name, kind, location, containerName);
-		return temp;
+	@Test
+	public void symbolsFilterWithText() {
+		String xml = "<foo>\r\n" + //
+				"	<bar attr1=\"value1\" attr2=\"value2\">ABCD</bar>\r\n" + //
+				"	<baz attr1=\"baz-value1\" attr2=\"baz-value2\">EFGH</baz>\r\n" + //
+				"</foo>";
+		String testURI = "file:///test/foo.xml";
+		XMLSymbolSettings symbolSettings = new XMLSymbolSettings();
+		XMLSymbolFilter filter = new XMLSymbolFilter();
+		filter.setPattern("foo.xml");
+		XMLSymbolExpressionFilter expressionFilter = new XMLSymbolExpressionFilter();
+
+		filter.setExpressions(new XMLSymbolExpressionFilter[] { expressionFilter });
+		symbolSettings.setFilters(new XMLSymbolFilter[] { filter });
+
+		// Test with //text()
+		expressionFilter.setXpath("//text()");
+		testSymbolInformationsFor(xml, testURI, symbolSettings, //
+				si("foo", SymbolKind.Field, l(testURI, r(0, 0, 3, 6)), ""), //
+				si("bar: ABCD", SymbolKind.Field, l(testURI, r(1, 1, 1, 46)), "foo"), //
+				si("baz: EFGH", SymbolKind.Field, l(testURI, r(2, 1, 2, 54)), "foo"));
+
+		// Test with //bar/text()
+		expressionFilter.setXpath("//bar/text()");
+		testSymbolInformationsFor(xml, testURI, symbolSettings, //
+				si("foo", SymbolKind.Field, l(testURI, r(0, 0, 3, 6)), ""), //
+				si("bar: ABCD", SymbolKind.Field, l(testURI, r(1, 1, 1, 46)), "foo"), //
+				si("baz", SymbolKind.Field, l(testURI, r(2, 1, 2, 54)), "foo"));
+
+		// Test with /foo/bar/text()
+		expressionFilter.setXpath("/foo/bar/text()");
+		testSymbolInformationsFor(xml, testURI, symbolSettings, //
+				si("foo", SymbolKind.Field, l(testURI, r(0, 0, 3, 6)), ""), //
+				si("bar: ABCD", SymbolKind.Field, l(testURI, r(1, 1, 1, 46)), "foo"), //
+				si("baz", SymbolKind.Field, l(testURI, r(2, 1, 2, 54)), "foo"));
+
 	}
 
-	private Range createRange(int startOffset, int endOffset, DOMDocument xmlDocument) {
-		Position start = null;
-		try {
-			start = xmlDocument.positionAt(startOffset);
-		} catch (BadLocationException e) {
-			fail("Could not create position at startOffset");
-		}
-		Position end = null;
-		try {
-			start = xmlDocument.positionAt(startOffset);
-			end = xmlDocument.positionAt(endOffset);
-		} catch (BadLocationException e) {
-			fail("Could not create position at endOffset");
-		}
-		return new Range(start, end);
-	}
+	@Test
+	public void symbolsFilterExcludeElement() {
+		String xml = "<foo>\r\n" + //
+				"	<bar attr1=\"value1\" attr2=\"value2\">ABCD</bar>\r\n" + //
+				"	<baz attr1=\"baz-value1\" attr2=\"baz-value2\">EFGH</baz>\r\n" + //
+				"</foo>";
+		String testURI = "file:///test/foo.xml";
+		XMLSymbolSettings symbolSettings = new XMLSymbolSettings();
+		XMLSymbolFilter filter = new XMLSymbolFilter();
+		filter.setPattern("foo.xml");
+		XMLSymbolExpressionFilter expressionFilter = new XMLSymbolExpressionFilter();
+		filter.setExpressions(new XMLSymbolExpressionFilter[] { expressionFilter });
+		symbolSettings.setFilters(new XMLSymbolFilter[] { filter });
 
-	private Location createLocation(String uri, int startOffset, int endOffset, DOMDocument xmlDocument) {
-		Range range = createRange(startOffset, endOffset, xmlDocument);
-		return new Location(uri, range);
+		// Exclude baz
+		expressionFilter.setXpath("//baz");
+		expressionFilter.setExcluded(true);
+		testSymbolInformationsFor(xml, testURI, symbolSettings, //
+				si("foo", SymbolKind.Field, l(testURI, r(0, 0, 3, 6)), ""), //
+				si("bar", SymbolKind.Field, l(testURI, r(1, 1, 1, 46)), "foo"));
 	}
 }

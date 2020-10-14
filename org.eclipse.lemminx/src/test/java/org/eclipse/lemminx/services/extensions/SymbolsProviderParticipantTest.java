@@ -21,6 +21,7 @@ import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.services.DocumentSymbolsResult;
 import org.eclipse.lemminx.services.SymbolInformationResult;
 import org.eclipse.lemminx.services.XMLLanguageService;
+import org.eclipse.lemminx.settings.XMLSymbolFilter;
 import org.eclipse.lemminx.settings.XMLSymbolSettings;
 import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.SymbolKind;
@@ -40,13 +41,13 @@ public class SymbolsProviderParticipantTest {
 
 				@Override
 				public void findSymbolInformations(DOMDocument document, SymbolInformationResult symbols,
-						CancelChecker cancelChecker) {
+						XMLSymbolFilter filter, CancelChecker cancelChecker) {
 
 				}
 
 				@Override
 				public void findDocumentSymbols(DOMDocument document, DocumentSymbolsResult symbols,
-						CancelChecker cancelChecker) {
+						XMLSymbolFilter filter, CancelChecker cancelChecker) {
 					symbols.add(
 							new DocumentSymbol("Custom-Symbol", SymbolKind.Namespace, r(0, 0, 0, 1), r(0, 0, 0, 1)));
 				}

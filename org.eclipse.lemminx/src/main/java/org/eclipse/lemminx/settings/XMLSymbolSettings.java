@@ -22,6 +22,8 @@ public class XMLSymbolSettings {
 
 	private transient XMLExcludedSymbolFile[] excludedFiles;
 
+	private XMLSymbolFilter[] filters;
+
 	private boolean enabled = true;
 
 	private String[] excluded;
@@ -30,6 +32,14 @@ public class XMLSymbolSettings {
 
 	public XMLExcludedSymbolFile[] getExcludedFiles() {
 		return excludedFiles;
+	}
+
+	public void setFilters(XMLSymbolFilter[] filters) {
+		this.filters = filters;
+	}
+
+	public XMLSymbolFilter[] getFilters() {
+		return filters;
 	}
 
 	public boolean isEnabled() {
@@ -47,12 +57,13 @@ public class XMLSymbolSettings {
 	/**
 	 * Will use the excluded pattern strings to create a list of
 	 * {@link XMLExcludedSymbolFile} objects within this object.
+	 * 
 	 * @param excluded
 	 */
 	public void setExcluded(String[] excluded) {
 		XMLExcludedSymbolFile[] exclusions = new XMLExcludedSymbolFile[excluded.length];
 
-		for(int i = 0; i < excluded.length; i++) {
+		for (int i = 0; i < excluded.length; i++) {
 			exclusions[i] = new XMLExcludedSymbolFile(excluded[i]);
 		}
 
@@ -60,12 +71,14 @@ public class XMLSymbolSettings {
 	}
 
 	/**
-	 * Given a file URI, this will check if it matches any of the given
-	 * file patterns.
+	 * Given a file URI, this will check if it matches any of the given file
+	 * patterns.
 	 *
 	 * A uri is 'excluded' if it matches any of the given patterns.
 	 *
-	 * **Important:** Set the excluded file patterns before calling this using 'setExcluded()'.
+	 * **Important:** Set the excluded file patterns before calling this using
+	 * 'setExcluded()'.
+	 * 
 	 * @param uri
 	 * @return
 	 */
@@ -74,7 +87,7 @@ public class XMLSymbolSettings {
 			return false;
 		}
 		for (XMLExcludedSymbolFile excludedFile : excludedFiles) {
-			if(excludedFile.matches(uri)) {
+			if (excludedFile.matches(uri)) {
 				return true;
 			}
 		}
@@ -96,7 +109,22 @@ public class XMLSymbolSettings {
 			String[] newPatternsCopy = Arrays.copyOf(newPatterns, newPatterns.length);
 			this.setExcluded(newPatternsCopy);
 		}
+		XMLSymbolFilter[] newFilters = newSettings.getFilters();
+		if (newFilters != null) {
+			XMLSymbolFilter[] newFiltersCopy = Arrays.copyOf(newFilters, newFilters.length);
+			this.setFilters(newFiltersCopy);
+		}
 		this.setMaxItemsComputed(newSettings.getMaxItemsComputed());
 	}
 
+	public XMLSymbolFilter getFilterFor(String uri) {
+		if (filters != null) {
+			for (XMLSymbolFilter filter : filters) {
+				if (filter.matches(uri)) {
+					return filter;
+				}
+			}
+		}
+		return XMLSymbolFilter.DEFAULT;
+	}
 }
