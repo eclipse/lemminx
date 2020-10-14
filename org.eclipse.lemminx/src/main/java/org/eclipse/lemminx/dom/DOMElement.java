@@ -262,26 +262,6 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 		return null;
 	}
 
-	public Integer isNextChar(char c, int startOffset) {
-		String text = this.getOwnerDocument().getText();
-		if (startOffset > text.length() || startOffset < 0) {
-			return null;
-		}
-
-		while (startOffset < text.length()) {
-			char current = text.charAt(startOffset);
-			if (Character.isWhitespace(current)) {
-				startOffset++;
-				continue;
-			}
-			if (current != c) {
-				return null;
-			}
-			return startOffset;
-		}
-		return null;
-	}
-
 	/**
 	 * Returns true if the given tag is the same tag of this element and false
 	 * otherwise.

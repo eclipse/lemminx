@@ -89,7 +89,7 @@ public class XPathElementMatcher extends AbstractXPathNodeMatcher {
 			// any (//) is defined, element is matched.
 			return true;
 		}
-		// test if element name of teh element match the element name matcher.
+		// test if element name of the element match the element name matcher.
 		return this.localName.equals(localName);
 	}
 

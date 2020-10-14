@@ -26,7 +26,7 @@ public interface IXPathNodeMatcher {
 	public static final IXPathNodeMatcher[] EMPTY_NODE_MATCHER = new IXPathNodeMatcher[0];
 
 	public enum MatcherType {
-		ELEMENT, ATTRIBUTE
+		ELEMENT, ATTRIBUTE, TEXT;
 	}
 
 	/**

@@ -76,6 +76,7 @@ import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ReferenceContext;
 import org.eclipse.lsp4j.ResourceOperation;
+import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.SymbolKind;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
@@ -795,6 +796,64 @@ public class XMLAssert {
 	}
 
 	public static void assertDocumentSymbols(List<DocumentSymbol> actual, DocumentSymbol... expected) {
+		assertEquals(expected.length, actual.size());
+		assertArrayEquals(expected, actual.toArray());
+	}
+
+	// ------------------- SymbolInformation assert
+
+	public static void testSymbolInformationsFor(String xml, SymbolInformation... expected) {
+		testSymbolInformationsFor(xml, null, new XMLSymbolSettings(), expected);
+	}
+
+	public static void testSymbolInformationsFor(String xml, XMLSymbolSettings symbolSettings,
+			SymbolInformation... expected) {
+		testSymbolInformationsFor(xml, null, symbolSettings, expected);
+	}
+
+	public static void testSymbolInformationsFor(String xml, String fileURI, SymbolInformation... expected) {
+		testSymbolInformationsFor(xml, fileURI, new XMLSymbolSettings(), expected);
+	}
+
+	public static void testSymbolInformationsFor(String xml, String fileURI, XMLSymbolSettings symbolSettings,
+			SymbolInformation... expected) {
+		testSymbolInformationsFor(xml, fileURI, symbolSettings, null, expected);
+	}
+
+	public static void testSymbolInformationsFor(String xml, String fileURI, XMLSymbolSettings symbolSettings,
+			Consumer<XMLLanguageService> customConfiguration, SymbolInformation... expected) {
+		testSymbolInformationsFor(new XMLLanguageService(), xml, fileURI, symbolSettings, customConfiguration,
+				expected);
+	}
+
+	public static void testSymbolInformationsFor(XMLLanguageService xmlLanguageService, String xml, String fileURI,
+			XMLSymbolSettings symbolSettings, Consumer<XMLLanguageService> customConfiguration,
+			SymbolInformation... expected) {
+		TextDocument document = new TextDocument(xml, fileURI != null ? fileURI : "test.xml");
+
+		ContentModelSettings settings = new ContentModelSettings();
+		settings.setUseCache(false);
+		xmlLanguageService.doSave(new SettingsSaveContext(settings));
+		xmlLanguageService.initializeIfNeeded();
+
+		if (customConfiguration != null) {
+			customConfiguration.accept(xmlLanguageService);
+		}
+
+		DOMDocument xmlDocument = DOMParser.getInstance().parse(document,
+				xmlLanguageService.getResolverExtensionManager());
+		xmlLanguageService.setDocumentProvider((uri) -> xmlDocument);
+
+		List<SymbolInformation> actual = xmlLanguageService.findSymbolInformations(xmlDocument, symbolSettings);
+		assertSymbolInformations(actual, expected);
+
+	}
+
+	public static SymbolInformation si(String name, SymbolKind kind, Location location, String containerName) {
+		return new SymbolInformation(name, kind, location, containerName);
+	}
+
+	public static void assertSymbolInformations(List<SymbolInformation> actual, SymbolInformation... expected) {
 		assertEquals(expected.length, actual.size());
 		assertArrayEquals(expected, actual.toArray());
 	}
