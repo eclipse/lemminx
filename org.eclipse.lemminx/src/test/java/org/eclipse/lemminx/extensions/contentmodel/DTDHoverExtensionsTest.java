@@ -15,6 +15,7 @@ package org.eclipse.lemminx.extensions.contentmodel;
 
 import static org.eclipse.lemminx.XMLAssert.r;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -75,13 +76,14 @@ public class DTDHoverExtensionsTest {
 			Path cachedFilePath = CacheResourcesManager.getResourceCachePath(httpDTDUri);
 			Files.deleteIfExists(cachedFilePath);
 
-			// Download the DTD by waiting 1 sec
 			CacheResourcesManager cacheResourcesManager = new CacheResourcesManager();
 			try {
 				cacheResourcesManager.getResource(httpDTDUri);
-			} catch (CacheResourceDownloadingException ignored) {
+				fail("Expected file to be downloading");
+			} catch (CacheResourceDownloadingException containsFuture) {
+				// Wait for download to finish
+				containsFuture.getFuture().get(30, TimeUnit.SECONDS);
 			}
-			TimeUnit.MILLISECONDS.sleep(1000);
 			assertTrue(Files.exists(cachedFilePath),
 					"'" + cachedFilePath + "' file should be downloaded in the cache.");
 

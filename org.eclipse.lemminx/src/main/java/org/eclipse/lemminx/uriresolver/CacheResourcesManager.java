@@ -27,14 +27,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.eclipse.lemminx.utils.FilesUtils;
-import org.eclipse.lemminx.utils.URIUtils;
+import org.eclipse.lemminx.utils.StringUtils;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -51,6 +53,8 @@ public class CacheResourcesManager {
 
 	private final Map<String, CompletableFuture<Path>> resourcesLoading;
 	private boolean useCache;
+
+	private final Set<String> protocolsForCahe;
 
 	class ResourceInfo {
 
@@ -96,7 +100,8 @@ public class CacheResourcesManager {
 		}
 
 		/**
-		 * @return The computed path in the lemmix cache that the resource will be stored at
+		 * @return The computed path in the lemmix cache that the resource will be
+		 *         stored at
 		 */
 		public Path getDeployedPath() throws IOException {
 			return FilesUtils.getDeployedPath(resourceCachePath);
@@ -116,7 +121,9 @@ public class CacheResourcesManager {
 
 	public CacheResourcesManager(Cache<String, Boolean> cache) {
 		resourcesLoading = new HashMap<>();
+		protocolsForCahe = new HashSet<>();
 		unavailableURICache = cache;
+		addDefaultProtocolsForCache();
 	}
 
 	public Path getResource(final String resourceURI) throws IOException {
@@ -244,7 +251,7 @@ public class CacheResourcesManager {
 	 *         "ftp" and <code>false</code> otherwise.
 	 */
 	public boolean canUseCache(String url) {
-		return isUseCache() && URIUtils.isRemoteResource(url);
+		return isUseCache() && isUseCacheFor(url);
 	}
 
 	/**
@@ -267,4 +274,66 @@ public class CacheResourcesManager {
 	public boolean isUseCache() {
 		return useCache;
 	}
+
+	/**
+	 * Add protocol for using cache when url will start with the given protocol.
+	 * 
+	 * @param protocol the protocol to add.
+	 */
+	public void addProtocolForCahe(String protocol) {
+		protocolsForCahe.add(formatProtocol(protocol));
+	}
+
+	/**
+	 * Remove protocol to avoid using cache when url will start with the given
+	 * protocol.
+	 * 
+	 * @param protocol the protocol to remove.
+	 */
+	public void removeProtocolForCahe(String protocol) {
+		protocolsForCahe.remove(formatProtocol(protocol));
+	}
+
+	/**
+	 * Add ':' separator if the given protocol doesn't contain it.
+	 * 
+	 * @param protocol the protocol to format.
+	 * 
+	 * @return the protocol concat with ':'.
+	 */
+	private static String formatProtocol(String protocol) {
+		if (!protocol.endsWith(":")) {
+			return protocol + ":";
+		}
+		return protocol;
+	}
+
+	/**
+	 * Returns true if the cache must be used for the given url and false otherwise.
+	 * 
+	 * @param url the url.
+	 * 
+	 * @return true if the cache must be used for the given url and false otherwise.
+	 */
+	private boolean isUseCacheFor(String url) {
+		if (StringUtils.isEmpty(url)) {
+			return false;
+		}
+		for (String protocol : protocolsForCahe) {
+			if (url.startsWith(protocol)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Add http, https, ftp protocol to use cache.
+	 */
+	private void addDefaultProtocolsForCache() {
+		addProtocolForCahe("http");
+		addProtocolForCahe("https");
+		addProtocolForCahe("ftp");
+	}
+
 }

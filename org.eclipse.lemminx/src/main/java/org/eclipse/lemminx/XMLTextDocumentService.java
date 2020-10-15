@@ -28,6 +28,8 @@ import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import com.google.gson.JsonPrimitive;
+
 import org.eclipse.lemminx.client.ExtendedClientCapabilities;
 import org.eclipse.lemminx.client.LimitExceededWarner;
 import org.eclipse.lemminx.client.LimitFeature;
@@ -59,6 +61,8 @@ import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.CompletionParams;
+import org.eclipse.lsp4j.ConfigurationItem;
+import org.eclipse.lsp4j.ConfigurationParams;
 import org.eclipse.lsp4j.DefinitionParams;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
@@ -89,6 +93,7 @@ import org.eclipse.lsp4j.TypeDefinitionParams;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.eclipse.lsp4j.jsonrpc.validation.NonNull;
 import org.eclipse.lsp4j.services.TextDocumentService;
 
 /**
@@ -202,10 +207,35 @@ public class XMLTextDocumentService implements TextDocumentService {
 		});
 	}
 
-	private XMLFormattingOptions getFormattingSettings(String uri) {
-		// TODO: manage formattings per document URI (to support .editorconfig for
-		// instance).
-		return sharedSettings.getFormattingSettings();
+	/**
+	 * Returns the indentation settings (`xml.format.tabSize` and
+	 * `xml.format.insertSpaces`) for the document with the given URI.
+	 *
+	 * @param uri the uri of the document to get the indentation settings for
+	 * @return the indentation settings (`xml.format.tabSize` and
+	 *         `xml.format.insertSpaces`) for the document with the given URI
+	 */
+	private CompletableFuture<XMLFormattingOptions> getIndentationSettings(@NonNull String uri) {
+		ConfigurationItem insertSpaces = new ConfigurationItem();
+		insertSpaces.setScopeUri(uri);
+		insertSpaces.setSection("xml.format.insertSpaces");
+
+		ConfigurationItem tabSize = new ConfigurationItem();
+		tabSize.setScopeUri(uri);
+		tabSize.setSection("xml.format.tabSize");
+
+		return xmlLanguageServer.getLanguageClient().configuration(new ConfigurationParams(Arrays.asList( //
+				insertSpaces, tabSize //
+		))).thenApply(indentationSettings -> {
+			XMLFormattingOptions newOptions = new XMLFormattingOptions();
+			if (indentationSettings.get(0) != null) {
+				newOptions.setInsertSpaces(((JsonPrimitive) indentationSettings.get(0)).getAsBoolean());
+			}
+			if (indentationSettings.get(1) != null) {
+				newOptions.setTabSize(((JsonPrimitive) indentationSettings.get(1)).getAsInt());
+			}
+			return newOptions;
+		});
 	}
 
 	@Override
@@ -383,9 +413,18 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	@Override
 	public CompletableFuture<List<Either<Command, CodeAction>>> codeAction(CodeActionParams params) {
-		return computeDOMAsync(params.getTextDocument(), (cancelChecker, xmlDocument) -> {
-			String uri = params.getTextDocument().getUri();
-			return getXMLLanguageService()
+		String uri = params.getTextDocument().getUri();
+		return getIndentationSettings(uri)
+		.handle((XMLFormattingOptions indentationSettings, Throwable err) -> {
+			if (indentationSettings != null) {
+				sharedSettings.getFormattingSettings().merge(indentationSettings);
+			}
+			return null;
+		})
+		.thenCombine(computeDOMAsync(params.getTextDocument(), (cancelChecker, xmlDocument) -> {
+			return xmlDocument;
+		}), (void_, xmlDocument) -> {
+			return (List<Either<Command, CodeAction>>) getXMLLanguageService()
 					.doCodeActions(params.getContext(), params.getRange(), xmlDocument, sharedSettings) //
 					.stream() //
 					.map(ca -> {
@@ -416,7 +455,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	/**
 	 * Update settings of the language service.
-	 * 
+	 *
 	 * @param settings
 	 */
 	public void updateSettings(Object settings) {
@@ -431,7 +470,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	/**
 	 * Save settings or XML file.
-	 * 
+	 *
 	 * @param context
 	 */
 	void doSave(SaveContext context) {
@@ -460,7 +499,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 		});
 	}
 
-	private void validate(DOMDocument xmlDocument) throws CancellationException {
+	void validate(DOMDocument xmlDocument) throws CancellationException {
 		CancelChecker cancelChecker = xmlDocument.getCancelChecker();
 		cancelChecker.checkCanceled();
 		getXMLLanguageService().publishDiagnostics(xmlDocument,
@@ -518,12 +557,16 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	/**
 	 * Returns the text document from the given uri.
-	 * 
+	 *
 	 * @param uri the uri
 	 * @return the text document from the given uri.
 	 */
 	public ModelTextDocument<DOMDocument> getDocument(String uri) {
 		return documents.get(uri);
+	}
+	
+	public Collection<ModelTextDocument<DOMDocument>> allDocuments() {
+		return documents.all();
 	}
 
 	public boolean documentIsOpen(String uri) {
@@ -534,7 +577,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	/**
 	 * Compute the DOM Document for a given uri in a future and then apply the given
 	 * function.
-	 * 
+	 *
 	 * @param <R>
 	 * @param documentIdentifier the document indetifier.
 	 * @param code               a bi function that accepts a {@link CancelChecker}

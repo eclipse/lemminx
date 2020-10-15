@@ -16,6 +16,6 @@ package org.eclipse.lemminx.extensions.contentmodel.participants.codeactions;
  * tag of the root element is missing. This will provide a codeaction that
  * inserts that missing end tag.
  */
-public class MarkupEntityMismatchCodeAction extends CloseStartTagCodeAction {
+public class MarkupEntityMismatchCodeAction extends CloseTagCodeAction {
 
 }

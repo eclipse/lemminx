@@ -93,13 +93,25 @@ public class XMLCacheResolverExtension implements URIResolverExtension {
 	 */
 	public Path getCachedResource(String url) throws IOException, CacheResourceDownloadedException {
 		// Cache is used only for resource coming from "http(s)" or "ftp".
-		if (cacheResourcesManager.canUseCache(url)) {
+		if (canUseCache(url)) {
 			// Try to get the downloaded resource. In the case where the resource is
 			// downloading but takes too long, a CacheResourceDownloadingException is
 			// thrown.
 			return cacheResourcesManager.getResource(url);
 		}
 		return null;
+	}
+
+	/**
+	 * Returns <code>true</code> if cache is enabled and url comes from "http(s)" or
+	 * "ftp" and <code>false</code> otherwise.
+	 * 
+	 * @param url
+	 * @return <code>true</code> if cache is enabled and url comes from "http(s)" or
+	 *         "ftp" and <code>false</code> otherwise.
+	 */
+	public boolean canUseCache(String url) {
+		return cacheResourcesManager.canUseCache(url);
 	}
 
 	/**

@@ -153,8 +153,6 @@ public class XMLSyntaxDiagnosticsTest {
 		Diagnostic d = d(1, 11, 1, 16, XMLSyntaxErrorCode.ElementUnterminated);
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, //
-				ca(d, te(1, 16, 1, 16, "/>")), //
-				ca(d, te(1, 16, 1, 16, "></OrgId>")), //
 				ca(d, te(1, 16, 1, 16, ">")));
 	}
 
@@ -189,8 +187,17 @@ public class XMLSyntaxDiagnosticsTest {
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, //
 				ca(d, te(1, 13, 1, 13, "/>")), //
-				ca(d, te(1, 13, 1, 13, "></bar>")), //
-				ca(d, te(1, 13, 1, 13, ">")));
+				ca(d, te(1, 13, 1, 13, "></bar>")));
+	}
+
+	@Test
+	public void testElementUnterminatedEndsWithAttributesAndEndSlash() throws Exception {
+		String xml = "<foo>\r\n" + //
+				"  <bar att=\"\"          /\r\n" + //
+				"</foo>";
+		Diagnostic d = d(1, 3, 1, 24, XMLSyntaxErrorCode.ElementUnterminated);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(1, 24, 1, 24, ">")));
 	}
 
 	@Test
@@ -202,19 +209,7 @@ public class XMLSyntaxDiagnosticsTest {
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, //
 				ca(d, te(1, 13, 1, 13, "/>")), //
-				ca(d, te(1, 13, 1, 13, "></bar>")), //
-				ca(d, te(1, 13, 1, 13, ">")));
-	}
-
-	@Test
-	public void testETagRequiredWithReplace() throws Exception {
-		String xml = "<a>\r\n" + //
-				"	<b>\r\n" + //
-				"		</c>";
-		Diagnostic d = d(2, 4, 2, 5, XMLSyntaxErrorCode.ETagRequired);
-		testDiagnosticsFor(xml, d);
-		testCodeActionsFor(xml, d, //
-				ca(d, te(2, 4, 2, 5, "b")));
+				ca(d, te(1, 13, 1, 13, "></bar>")));
 	}
 
 	/**
@@ -276,7 +271,7 @@ public class XMLSyntaxDiagnosticsTest {
 				"  		<Nm>Name\r\n" + //
 				"		</UltmtDbtr> \r\n" + //
 				"			</Nm>  ";
-		Diagnostic d = d(1, 5, 1, 7, XMLSyntaxErrorCode.ETagRequired);
+		Diagnostic d = d(1, 5, 2, 2, XMLSyntaxErrorCode.ETagRequired);
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(1, 12, 1, 12, "</Nm>")));
 	}
@@ -286,7 +281,7 @@ public class XMLSyntaxDiagnosticsTest {
 		String xml = "<UltmtDbtr>\r\n" + //
 				"  		Nm>Name</Nm>\r\n" + //
 				"		</UltmtDbtr>";
-		testDiagnosticsFor(xml, d(1, 13, 1, 15, XMLSyntaxErrorCode.ETagRequired));
+		testDiagnosticsFor(xml, d(0, 1, 1, 11, XMLSyntaxErrorCode.ETagRequired));
 	}
 
 	@Test
@@ -296,9 +291,65 @@ public class XMLSyntaxDiagnosticsTest {
 				"    <Ad>\r\n" + //
 				"    <Ph>\r\n" + //
 				"</UltmtDbtr>";
-		Diagnostic d = d(3, 5, 3, 7, XMLSyntaxErrorCode.ETagRequired);
+		Diagnostic d = d(3, 5, 4, 0, XMLSyntaxErrorCode.ETagRequired);
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(3, 8, 3, 8, "</Ph>")));
+	}
+
+	@Test
+	public void testETagRequiredWithReplace() throws Exception {
+		String xml = "<a>\r\n" + //
+				"	<b>\r\n" + //
+				"		</c>";
+		Diagnostic d = d(1, 2, 2, 2, XMLSyntaxErrorCode.ETagRequired);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, //
+				ca(d, te(2, 4, 2, 5, "b")), ca(d, te(2, 6, 2, 6, "\r\n	</b>")));
+	}
+
+	@Test
+	public void testETagRequiredWithText() throws Exception {
+		String xml = "<root>\r\n" + //
+				"<ABC>def\r\n" + //
+				"</root>";
+		Diagnostic d = d(1, 1, 2, 0, XMLSyntaxErrorCode.ETagRequired);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(1, 8, 1, 8, "</ABC>")));
+	}
+
+	@Test
+	public void testETagRequiredWithOrpheanEndTag() throws Exception {
+		String xml = "<root>\r\n" + //
+				"	<foo>\r\n" + //
+				"		</\r\n" + //
+				"</root>";
+		Diagnostic d = d(1, 2, 2, 2, XMLSyntaxErrorCode.ETagRequired);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(2, 4, 2, 4, "foo>")));
+	}
+
+	@Test
+	public void testETagRequiredClosedWithOrpheanEndTag() throws Exception {
+		String xml = "<root>\r\n" + //
+				"	<foo>\r\n" + //
+				"		</\r\n" + //
+				"	</foo>\r\n" + //
+				"</root>";
+		Diagnostic d = d(1, 2, 2, 2, XMLSyntaxErrorCode.ETagRequired);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(2, 2, 2, 4, "")));
+	}
+
+	@Test
+	public void testETagRequiredClosedWithOrpheanEndTag2() throws Exception {
+		String xml = "<root>\r\n" + //
+				"	<foo>\r\n" + //
+				"		</bar>\r\n" + //
+				"	</foo>\r\n" + //
+				"</root>";
+		Diagnostic d = d(1, 2, 2, 2, XMLSyntaxErrorCode.ETagRequired);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(2, 2, 2, 8, "")));
 	}
 
 	/**
@@ -311,7 +362,9 @@ public class XMLSyntaxDiagnosticsTest {
 	public void testETagUnterminated() throws Exception {
 		String xml = "<MsgId>ABC/090928/CCT001</MsgId\r\n" + //
 				"  <CreDtTm>2009-09-28T14:07:00</CreDtTm>";
-		testDiagnosticsFor(xml, d(0, 26, 0, 31, XMLSyntaxErrorCode.ETagUnterminated));
+		Diagnostic d = d(0, 26, 0, 31, XMLSyntaxErrorCode.ETagUnterminated);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(0, 31, 0, 31, ">")));
 	}
 
 	/**
@@ -327,7 +380,9 @@ public class XMLSyntaxDiagnosticsTest {
 				"    <c></c>\r\n" + //
 				"  </b\r\n" + // <- error
 				"</a>";
-		testDiagnosticsFor(xml, d(3, 4, 3, 5, XMLSyntaxErrorCode.ETagUnterminated));
+		Diagnostic d = d(3, 4, 3, 5, XMLSyntaxErrorCode.ETagUnterminated);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(3, 5, 3, 5, ">")));
 	}
 
 	/**
@@ -366,16 +421,6 @@ public class XMLSyntaxDiagnosticsTest {
 	}
 
 	@Test
-	public void testETagRequiredWithText() throws Exception {
-		String xml = "<root>\r\n" + //
-				"<ABC>def\r\n" + //
-				"</root>";
-		Diagnostic d = d(1, 1, 1, 4, XMLSyntaxErrorCode.ETagRequired);
-		testDiagnosticsFor(xml, d);
-		testCodeActionsFor(xml, d, ca(d, te(1, 8, 1, 8, "</ABC>")));
-	}
-
-	@Test
 	public void testIllegalQName() throws Exception {
 		String xml = "<a Ccy:\"JPY\">100</a>";
 		testDiagnosticsFor(xml, d(0, 6, 0, 7, XMLSyntaxErrorCode.IllegalQName));
@@ -400,7 +445,7 @@ public class XMLSyntaxDiagnosticsTest {
 				+ //
 				"<CstmrCdtTrfInitn>\r\n" + //
 				"</CstmrCdtTrfInitn>";
-		Diagnostic d = d(1, 1, 1, 9, XMLSyntaxErrorCode.MarkupEntityMismatch);
+		Diagnostic d = d(1, 1, 3, 19, XMLSyntaxErrorCode.MarkupEntityMismatch);
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(3, 19, 3, 19, "\r\n</Document>")));
 	}
@@ -408,15 +453,22 @@ public class XMLSyntaxDiagnosticsTest {
 	@Test
 	public void testMarkupEntityMismatch2() throws Exception {
 		String xml = "<ABC>";
-		Diagnostic d = d(0, 1, 0, 4, XMLSyntaxErrorCode.MarkupEntityMismatch);
+		Diagnostic d = d(0, 1, 0, 5, XMLSyntaxErrorCode.MarkupEntityMismatch);
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(0, 5, 0, 5, "</ABC>")));
 	}
 
 	@Test
 	public void testMarkupEntityMismatch3() throws Exception {
+		String xml = "<";
+		Diagnostic d = d(0, 0, 0, 1, XMLSyntaxErrorCode.MarkupEntityMismatch);
+		testDiagnosticsFor(xml, d);
+	}
+
+	@Test
+	public void testMarkupEntityMismatch4() throws Exception {
 		String xml = "<?";
-		Diagnostic d = d(0, 1, 0, 1, XMLSyntaxErrorCode.MarkupEntityMismatch);
+		Diagnostic d = d(0, 0, 0, 2, XMLSyntaxErrorCode.MarkupEntityMismatch);
 		testDiagnosticsFor(xml, d);
 	}
 
@@ -427,8 +479,7 @@ public class XMLSyntaxDiagnosticsTest {
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, //
 				ca(d, te(0, 4, 0, 4, "/>")), //
-				ca(d, te(0, 4, 0, 4, "></ABC>")), //
-				ca(d, te(0, 4, 0, 4, ">")));
+				ca(d, te(0, 4, 0, 4, "></ABC>")));
 	}
 
 	@Test
@@ -438,8 +489,7 @@ public class XMLSyntaxDiagnosticsTest {
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, //
 				ca(d, te(0, 4, 0, 4, "/>")), //
-				ca(d, te(0, 4, 0, 4, "></ABC>")), //
-				ca(d, te(0, 4, 0, 4, ">")));
+				ca(d, te(0, 4, 0, 4, "></ABC>")));
 	}
 
 	@Test
@@ -449,8 +499,7 @@ public class XMLSyntaxDiagnosticsTest {
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, //
 				ca(d, te(0, 4, 0, 4, "/>")), //
-				ca(d, te(0, 4, 0, 4, "></ABC>")), //
-				ca(d, te(0, 4, 0, 4, ">")));
+				ca(d, te(0, 4, 0, 4, "></ABC>")));
 	}
 
 	@Test
@@ -460,8 +509,7 @@ public class XMLSyntaxDiagnosticsTest {
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, //
 				ca(d, te(0, 9, 0, 9, "/>")), //
-				ca(d, te(0, 9, 0, 9, "></ABC>")), //
-				ca(d, te(0, 9, 0, 9, ">")));
+				ca(d, te(0, 9, 0, 9, "></ABC>")));
 	}
 
 	@Test
@@ -476,7 +524,7 @@ public class XMLSyntaxDiagnosticsTest {
 	@Test
 	public void testMarkupEntityMismatchWithText() throws Exception {
 		String xml = "<ABC>def";
-		Diagnostic d = d(0, 1, 0, 4, XMLSyntaxErrorCode.MarkupEntityMismatch);
+		Diagnostic d = d(0, 1, 0, 8, XMLSyntaxErrorCode.MarkupEntityMismatch);
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(0, 8, 0, 8, "</ABC>")));
 	}
@@ -484,7 +532,7 @@ public class XMLSyntaxDiagnosticsTest {
 	@Test
 	public void testMarkupEntityMismatchWithTextAndNewLine() throws Exception {
 		String xml = "<ABC>def\r\n";
-		Diagnostic d = d(0, 1, 0, 4, XMLSyntaxErrorCode.MarkupEntityMismatch);
+		Diagnostic d = d(0, 1, 0, 8, XMLSyntaxErrorCode.MarkupEntityMismatch);
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(0, 8, 0, 8, "</ABC>")));
 	}
@@ -701,5 +749,34 @@ public class XMLSyntaxDiagnosticsTest {
 				"    &m \n" + //
 				"</root>";
 		testDiagnosticsFor(xml, d(5, 4, 5, 6, XMLSyntaxErrorCode.SemicolonRequiredInReference));
+	}
+
+	@Test
+	public void closeTag() throws Exception {
+		String xml = "<a";
+		Diagnostic d = d(0, 1, 0, 2, XMLSyntaxErrorCode.MarkupEntityMismatch);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(0, 2, 0, 2, "/>")), //
+				ca(d, te(0, 2, 0, 2, "></a>")));
+
+		xml = "<a>";
+		d = d(0, 1, 0, 3, XMLSyntaxErrorCode.MarkupEntityMismatch);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(0, 3, 0, 3, "</a>")));
+
+		xml = "<a /";
+		d = d(0, 1, 0, 4, XMLSyntaxErrorCode.MarkupEntityMismatch);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(0, 4, 0, 4, ">")));
+
+		xml = "<a / ";
+		d = d(0, 1, 0, 4, XMLSyntaxErrorCode.ElementUnterminated);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(0, 4, 0, 4, ">")));
+
+		xml = "<a></";
+		d = d(0, 1, 0, 3, XMLSyntaxErrorCode.MarkupEntityMismatch);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(0, 5, 0, 5, "a>")));
 	}
 }

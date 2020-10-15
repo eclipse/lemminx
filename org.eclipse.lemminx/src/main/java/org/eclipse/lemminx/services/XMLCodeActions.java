@@ -14,6 +14,8 @@ package org.eclipse.lemminx.services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
@@ -30,6 +32,8 @@ import org.eclipse.lsp4j.Range;
  */
 public class XMLCodeActions {
 
+	private static final Logger LOGGER = Logger.getLogger(XMLCompletions.class.getName());
+
 	private final XMLExtensionsRegistry extensionsRegistry;
 
 	public XMLCodeActions(XMLExtensionsRegistry extensionsRegistry) {
@@ -39,11 +43,17 @@ public class XMLCodeActions {
 	public List<CodeAction> doCodeActions(CodeActionContext context, Range range, DOMDocument document,
 			SharedSettings sharedSettings) {
 		List<CodeAction> codeActions = new ArrayList<>();
-		if (context.getDiagnostics() != null) {
+		List<Diagnostic> diagnostics = context.getDiagnostics();
+		if (diagnostics != null) {
 			for (Diagnostic diagnostic : context.getDiagnostics()) {
 				for (ICodeActionParticipant codeActionParticipant : extensionsRegistry.getCodeActionsParticipants()) {
-					codeActionParticipant.doCodeAction(diagnostic, range, document, codeActions,
-							sharedSettings, extensionsRegistry);
+					try {
+						codeActionParticipant.doCodeAction(diagnostic, range, document, codeActions, sharedSettings,
+								extensionsRegistry);
+					} catch (Exception e) {
+						LOGGER.log(Level.SEVERE, "Error while processing code action participant '"
+								+ codeActionParticipant.getClass().getName() + "'", e);
+					}
 				}
 			}
 		}

@@ -14,6 +14,6 @@ package org.eclipse.lemminx.extensions.contentmodel.participants.codeactions;
 /**
  * Code action to fix ETagRequired error.
  */
-public class ETagRequiredCodeAction extends CloseStartTagCodeAction {
+public class ETagRequiredCodeAction extends CloseTagCodeAction {
 
 }

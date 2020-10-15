@@ -16,5 +16,5 @@ package org.eclipse.lemminx.extensions.contentmodel.participants.codeactions;
  * Code action to fix ElementUnterminated error.
  *
  */
-public class ElementUnterminatedCodeAction extends CloseStartTagCodeAction {
+public class ElementUnterminatedCodeAction extends CloseTagCodeAction {
 }

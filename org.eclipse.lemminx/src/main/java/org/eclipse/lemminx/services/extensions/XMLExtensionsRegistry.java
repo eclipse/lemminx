@@ -23,10 +23,13 @@ import java.util.logging.Logger;
 
 import org.eclipse.lemminx.services.IXMLDocumentProvider;
 import org.eclipse.lemminx.services.IXMLNotificationService;
+import org.eclipse.lemminx.services.IXMLValidationService;
 import org.eclipse.lemminx.services.extensions.codelens.ICodeLensParticipant;
+import org.eclipse.lemminx.services.extensions.commands.IXMLCommandService;
 import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
 import org.eclipse.lemminx.services.extensions.save.ISaveContext;
+import org.eclipse.lemminx.services.extensions.save.ISaveContext.SaveContextType;
 import org.eclipse.lemminx.uriresolver.URIResolverExtensionManager;
 import org.eclipse.lsp4j.InitializeParams;
 
@@ -54,6 +57,8 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	private final List<IFormatterParticipant> formatterParticipants;
 	private final List<ISymbolsProviderParticipant> symbolsProviderParticipants;
 	private IXMLDocumentProvider documentProvider;
+	private IXMLValidationService validationService;
+	private IXMLCommandService commandService;
 
 	private InitializeParams params;
 
@@ -112,7 +117,10 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	public void doSave(ISaveContext saveContext) {
 		if (initialized) {
 			extensions.stream().forEach(extension -> extension.doSave(saveContext));
-		} else {
+		} else if (this.initialSaveContext == null || (saveContext != null && saveContext.getType() == SaveContextType.SETTINGS)) {
+			// capture initial configuration iff:
+			// 1. the saveContext is for configuration, not document save
+			// 2. we haven't captured settings before
 			this.initialSaveContext = saveContext;
 		}
 	}
@@ -380,6 +388,42 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	 */
 	public void setNotificationService(IXMLNotificationService notificationService) {
 		this.notificationService = notificationService;
+	}
+	
+	/**
+	 * Returns the XML document validation service
+	 *  
+	 * @return the validation service
+	 */
+	public IXMLValidationService getValidationService() {
+		return validationService;
+	}
+
+	/**
+	 * Sets the XML document validation service
+	 * 
+	 * @param validationService
+	 */
+	public void setValidationService(IXMLValidationService validationService) {
+		this.validationService = validationService;
+	}
+
+	/**
+	 * Returns the LS command service
+	 * 
+	 * @return the command service
+	 */
+	public IXMLCommandService getCommandService() {
+		return commandService;
+	}
+
+	/**
+	 * Sets the LS command service
+	 * 
+	 * @param commandService
+	 */
+	public void setCommandService(IXMLCommandService commandService) {
+		this.commandService = commandService;
 	}
 
 }

@@ -18,6 +18,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import com.google.common.cache.Cache;
@@ -69,15 +72,19 @@ public class CacheResourcesManagerTest extends AbstractCacheBasedTest {
 		try {
 			cacheResourcesManager.getResource(uri);
 			fail("cacheResourcesManager should be busy downloading the url");
-		} catch (CacheResourceDownloadingException ignored) {
+		} catch (CacheResourceDownloadingException containsFuture) {
+			try {
+				containsFuture.getFuture().get(30, TimeUnit.SECONDS);
+				fail("Download should have failed");
+			} catch (ExecutionException failedDownload) {
+				// Failed to download file, so exception is thrown
+				if (!(failedDownload.getCause() instanceof CacheResourceDownloadedException)) {
+					fail("Incorrect exception thrown during failed download");
+				}
+			}
+			assertNull(cacheResourcesManager.getResource(uri));
 		}
-		TimeUnit.MILLISECONDS.sleep(200);
-		// failed to download so returns null
-		assertNull(cacheResourcesManager.getResource(uri));
-
-		TimeUnit.SECONDS.sleep(1);// wait past the cache expiration date
-
-		// Manager should retry downloading
+		TimeUnit.SECONDS.sleep(2); // wait past the cache expiration date
 		try {
 			cacheResourcesManager.getResource(uri);
 			fail("cacheResourcesManager should be busy re-downloading the url");
@@ -90,17 +97,18 @@ public class CacheResourcesManagerTest extends AbstractCacheBasedTest {
 		FileServer server = new FileServer();
 		server.start();
 		String uri = server.getUri("/dtd/web-app_2_3.dtd");
+		Path path = null;
 		try {
 			cacheResourcesManager.getResource(uri);
 			fail("cacheResourcesManager should be busy downloading the url");
-		} catch (CacheResourceDownloadingException ignored) {
+		} catch (CacheResourceDownloadingException containsFuture) {
+			path = containsFuture.getFuture().get(30, TimeUnit.SECONDS);
 		}
-		TimeUnit.MILLISECONDS.sleep(200);
+		assertNotNull(path);
 		assertNotNull(cacheResourcesManager.getResource(uri));
-
 		server.stop();
-		TimeUnit.SECONDS.sleep(1);// wait past the cache expiration date
-
+		TimeUnit.SECONDS.sleep(2); // wait past the cache expiration date
+		cacheResourcesManager.getResource(uri);
 		// Manager should return cached content, even if server is offline
 		assertNotNull(cacheResourcesManager.getResource(uri));
 	}
