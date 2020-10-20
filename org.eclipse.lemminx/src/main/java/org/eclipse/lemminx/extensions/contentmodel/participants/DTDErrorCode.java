@@ -24,6 +24,7 @@ import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMRange;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.ElementDeclUnterminatedCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.EntityNotDeclaredCodeAction;
+import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.FixMissingSpaceCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.dtd_not_foundCodeAction;
 import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IXMLErrorCode;
@@ -36,7 +37,7 @@ import org.eclipse.lsp4j.ResourceOperationKind;
 
 /**
  * DTD error code.
- * 
+ *
  * @see https://wiki.xmldation.com/Support/Validator
  *
  */
@@ -67,6 +68,9 @@ public enum DTDErrorCode implements IXMLErrorCode {
 	MSG_NOTATION_NAME_REQUIRED_IN_NOTATIONDECL, //
 	MSG_OPEN_PAREN_OR_ELEMENT_TYPE_REQUIRED_IN_CHILDREN, //
 	MSG_REQUIRED_ATTRIBUTE_NOT_SPECIFIED, //
+	MSG_SPACE_REQUIRED_BEFORE_ELEMENT_TYPE_IN_ATTLISTDECL, //
+	MSG_SPACE_REQUIRED_BEFORE_ELEMENT_TYPE_IN_ELEMENTDECL, //
+	MSG_SPACE_REQUIRED_BEFORE_ENTITY_NAME_IN_ENTITYDECL, //
 	MSG_SPACE_REQUIRED_AFTER_NOTATION_NAME_IN_NOTATIONDECL, //
 	NotationDeclUnterminated, //
 	OpenQuoteExpected, //
@@ -110,7 +114,7 @@ public enum DTDErrorCode implements IXMLErrorCode {
 
 	/**
 	 * Create the LSP range from the SAX error.
-	 * 
+	 *
 	 * @param location
 	 * @param key
 	 * @param arguments
@@ -195,6 +199,13 @@ public enum DTDErrorCode implements IXMLErrorCode {
 		case MSG_ELEMENT_TYPE_REQUIRED_IN_ELEMENTDECL: {
 			return XMLPositionUtility.selectDTDDeclTagNameAt(offset, document);
 		}
+
+		case MSG_SPACE_REQUIRED_BEFORE_ELEMENT_TYPE_IN_ATTLISTDECL:
+		case MSG_SPACE_REQUIRED_BEFORE_ELEMENT_TYPE_IN_ELEMENTDECL:
+		case MSG_SPACE_REQUIRED_BEFORE_ENTITY_NAME_IN_ENTITYDECL: {
+			return XMLPositionUtility.selectDTDDeclTagNameAt(offset, document);
+		}
+
 		case dtd_not_found: {
 			// Check if DTD location comes from a xml-model/@href
 			String hrefLocation = (String) arguments[1];
@@ -220,5 +231,9 @@ public enum DTDErrorCode implements IXMLErrorCode {
 		if (sharedSettings.getWorkspaceSettings().isResourceOperationSupported(ResourceOperationKind.Create)) {
 			codeActions.put(dtd_not_found.getCode(), new dtd_not_foundCodeAction());
 		}
+		ICodeActionParticipant fixMissingSpace = new FixMissingSpaceCodeAction();
+		codeActions.put(MSG_SPACE_REQUIRED_BEFORE_ELEMENT_TYPE_IN_ATTLISTDECL.getCode(), fixMissingSpace);
+		codeActions.put(MSG_SPACE_REQUIRED_BEFORE_ELEMENT_TYPE_IN_ELEMENTDECL.getCode(), fixMissingSpace);
+		codeActions.put(MSG_SPACE_REQUIRED_BEFORE_ENTITY_NAME_IN_ENTITYDECL.getCode(), fixMissingSpace);
 	}
 }

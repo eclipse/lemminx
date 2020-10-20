@@ -642,11 +642,58 @@ public class DTDDiagnosticsTest {
 				d(5, 4, 5, 21, XMLSyntaxErrorCode.ETagRequired)); // [4]
 	}
 
+	@Test
+	public void MSG_SPACE_REQUIRED_BEFORE_ELEMENT_TYPE_IN_ELEMENTDECL() throws Exception {
+		String xml;
+
+		xml = "<!DOCTYPE asdf [\n" + //
+		"  <!ELEMENTasdf (#PCDATA)>\n" + //
+		"]>";
+		testDiagnosticsFor(xml, d(1, 4, 11, DTDErrorCode.MSG_SPACE_REQUIRED_BEFORE_ELEMENT_TYPE_IN_ELEMENTDECL));
+
+		xml = "<!ELEMENTasdf (#PCDATA)>";
+		testDiagnosticsFor(xml, "test.dtd", d(0, 2, 9, DTDErrorCode.MSG_SPACE_REQUIRED_BEFORE_ELEMENT_TYPE_IN_ELEMENTDECL));
+
+		xml = "<!ELEMENTasdf";
+		testDiagnosticsFor(xml, "test.dtd", d(0, 2, 9, DTDErrorCode.MSG_SPACE_REQUIRED_BEFORE_ELEMENT_TYPE_IN_ELEMENTDECL));
+
+		xml = "<!DOCTYPE asdf [\n" + //
+				"  <!ELEMENTasdf\n" + //
+				"]>";
+		Diagnostic diagnostic = d(1, 4, 11, DTDErrorCode.MSG_SPACE_REQUIRED_BEFORE_ELEMENT_TYPE_IN_ELEMENTDECL);
+		testDiagnosticsFor(xml, diagnostic);
+		testCodeActionsFor(xml, diagnostic, ca(diagnostic, te(1, 11, 1, 11, " ")));
+	}
+
+	@Test
+	public void MSG_SPACE_REQUIRED_BEFORE_ELEMENT_TYPE_IN_ATTLISTDECL() throws Exception {
+		String xml = "<!DOCTYPE asdf [\n" + //
+				"  <!ATTLISTasdf\n" + //
+				"]>";
+		Diagnostic diagnostic = d(1, 4, 11, DTDErrorCode.MSG_SPACE_REQUIRED_BEFORE_ELEMENT_TYPE_IN_ATTLISTDECL);
+		testDiagnosticsFor(xml, diagnostic);
+		testCodeActionsFor(xml, diagnostic, ca(diagnostic, te(1, 11, 1, 11, " ")));
+	}
+
+	@Test
+	public void MSG_SPACE_REQUIRED_BEFORE_ENTITY_NAME_IN_ENTITYDECL() throws Exception {
+		String xml = "<!DOCTYPE asdf [\n" + //
+				"  <!ENTITYasdf\n" + //
+				"]>";
+				Diagnostic diagnostic = d(1, 4, 10, DTDErrorCode.MSG_SPACE_REQUIRED_BEFORE_ENTITY_NAME_IN_ENTITYDECL);
+				testDiagnosticsFor(xml, diagnostic);
+		testCodeActionsFor(xml, diagnostic, ca(diagnostic, te(1, 10, 1, 10, " ")));
+	}
+
 	private static void testDiagnosticsFor(String xml, Diagnostic... expected) {
 		XMLAssert.testDiagnosticsFor(xml, "src/test/resources/catalogs/catalog.xml", expected);
 	}
 
 	private static void testPublicDiagnosticsFor(String xml, Diagnostic... expected) {
 		XMLAssert.testDiagnosticsFor(xml, "src/test/resources/catalogs/catalog-public.xml", expected);
+	}
+
+	private static void testDiagnosticsFor(String xml, String fileURI, Diagnostic... expected) {
+		XMLAssert.testDiagnosticsFor(xml, "src/test/resources/catalogs/catalog.xml", null, fileURI, expected);
 	}
 }
