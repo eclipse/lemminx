@@ -18,6 +18,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Logger;
+import java.net.URL;
+import java.io.File;
+import java.io.FileReader;
+import java.net.URISyntaxException;
 
 import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.util.URI.MalformedURIException;
@@ -83,7 +87,25 @@ public class XMLCatalogResolverExtension implements URIResolverExtension {
 	@Override
 	public XMLInputSource resolveEntity(XMLResourceIdentifier resourceIdentifier) throws XNIException, IOException {
 		if (catalogResolver != null) {
-			return catalogResolver.resolveEntity(resourceIdentifier);
+			XMLInputSource is;
+			if(resourceIdentifier.getExpandedSystemId() != null) {
+				try {
+					URL url = new URL(resourceIdentifier.getExpandedSystemId());
+					is = new XMLInputSource(
+						resourceIdentifier.getPublicId(),
+						resourceIdentifier.getLiteralSystemId(),
+						resourceIdentifier.getBaseSystemId(),
+						new FileReader(new File(url.toURI())),
+						"UTF-8"
+					);
+				}
+				catch (URISyntaxException e) {
+					is = null;
+				}
+			} else {
+				is = catalogResolver.resolveEntity(resourceIdentifier);
+			}
+			return is;
 		}
 		return null;
 	}
