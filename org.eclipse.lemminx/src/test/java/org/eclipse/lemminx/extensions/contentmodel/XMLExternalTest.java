@@ -18,19 +18,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
+import org.eclipse.lemminx.MockXMLLanguageServer;
 import org.eclipse.lemminx.XMLLanguageServer;
-import org.eclipse.lemminx.customservice.ActionableNotification;
-import org.eclipse.lemminx.customservice.XMLLanguageClientAPI;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.FileChangeType;
 import org.eclipse.lsp4j.FileEvent;
-import org.eclipse.lsp4j.MessageActionItem;
-import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
-import org.eclipse.lsp4j.ShowMessageRequestParams;
 import org.eclipse.lsp4j.TextDocumentItem;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,14 +42,11 @@ import org.junit.jupiter.api.Test;
 public class XMLExternalTest extends BaseFileTempTest  {
 
 	private int threadSleepMs = 600;
-	
-	private List<PublishDiagnosticsParams> actualDiagnostics;
-	private XMLLanguageServer languageServer;
+	private MockXMLLanguageServer languageServer;
 
 	@BeforeEach
 	public void before() {
-		actualDiagnostics = new ArrayList<>();
-		languageServer = createServer(actualDiagnostics);
+		languageServer = new MockXMLLanguageServer();
 	}
 
 	@Test
@@ -89,6 +81,7 @@ public class XMLExternalTest extends BaseFileTempTest  {
 	
 		Thread.sleep(threadSleepMs);
 
+		List<PublishDiagnosticsParams> actualDiagnostics = languageServer.getPublishDiagnostics();
 		assertEquals(1, actualDiagnostics.size());
 		assertEquals(0, actualDiagnostics.get(0).getDiagnostics().size());
 
@@ -143,6 +136,7 @@ public class XMLExternalTest extends BaseFileTempTest  {
 	
 		Thread.sleep(threadSleepMs);
 
+		List<PublishDiagnosticsParams> actualDiagnostics = languageServer.getPublishDiagnostics();
 		assertEquals(1, actualDiagnostics.size());
 		assertEquals(0, actualDiagnostics.get(0).getDiagnostics().size());
 
@@ -153,45 +147,6 @@ public class XMLExternalTest extends BaseFileTempTest  {
 
 		assertEquals(2, actualDiagnostics.size());
 		assertEquals("cvc-complex-type.2.4.f", actualDiagnostics.get(1).getDiagnostics().get(0).getCode().getLeft());
-	}
-
-	private static XMLLanguageServer createServer(List<PublishDiagnosticsParams> actualDiagnostics) {
-
-		XMLLanguageServer languageServer = new XMLLanguageServer();
-		XMLLanguageClientAPI client = new XMLLanguageClientAPI() {
-
-			@Override
-			public CompletableFuture<MessageActionItem> showMessageRequest(ShowMessageRequestParams requestParams) {
-				return null;
-			}
-
-			@Override
-			public void showMessage(MessageParams messageParams) {
-
-			}
-
-			@Override
-			public void publishDiagnostics(PublishDiagnosticsParams diagnostics) {
-				actualDiagnostics.add(diagnostics);
-			}
-
-			@Override
-			public void logMessage(MessageParams message) {
-
-			}
-
-			@Override
-			public void telemetryEvent(Object object) {
-
-			}
-
-			@Override
-			public void actionableNotification(ActionableNotification notification) {
-				throw new UnsupportedOperationException();
-			}
-		};
-		languageServer.setClient(client);
-		return languageServer;
 	}
 
 	private TextDocumentItem getXMLTextDocumentItem(String filename, String xmlContents) {

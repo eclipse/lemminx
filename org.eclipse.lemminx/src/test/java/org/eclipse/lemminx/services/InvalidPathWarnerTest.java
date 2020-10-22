@@ -49,9 +49,9 @@ public class InvalidPathWarnerTest extends AbstractNotifierTest {
 	public void testSendActionableNotificationWarningText() {
 		setSupportCapabilities(true, true);
 		sendNotification(catalog1);
-		assertMessage("Invalid path for setting 'xml.catalogs': '" + catalog1 + "'");
+		assertLastActionableNotificationMessage("Invalid path for setting 'xml.catalogs': '" + catalog1 + "'");
 		sendNotification(catalog1, catalog2);
-		assertMessage("Invalid paths for setting 'xml.catalogs': '" + catalog1 + "', '" + catalog2 + "'");
+		assertLastActionableNotificationMessage("Invalid paths for setting 'xml.catalogs': '" + catalog1 + "', '" + catalog2 + "'");
 	}
 
 	@Test
@@ -122,9 +122,9 @@ public class InvalidPathWarnerTest extends AbstractNotifierTest {
 	public void testSendMessageWarningText() {
 		setSupportCapabilities(false, false);
 		sendNotification(catalog1);
-		assertMessage("Invalid path for setting 'xml.catalogs': '" + catalog1 + "'");
+		assertLastShowMessage("Invalid path for setting 'xml.catalogs': '" + catalog1 + "'");
 		sendNotification(catalog1, catalog2);
-		assertMessage("Invalid paths for setting 'xml.catalogs': '" + catalog1 + "', '" + catalog2 + "'");
+		assertLastShowMessage("Invalid paths for setting 'xml.catalogs': '" + catalog1 + "', '" + catalog2 + "'");
 	}
 
 	@Test

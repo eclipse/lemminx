@@ -147,9 +147,9 @@ public class XMLSchemaPublishDiagnosticsTest extends AbstractCacheBasedTest {
 		XMLAssert.testPublishDiagnosticsFor(xml, fileURI, configuration,
 				pd(fileURI,
 						new Diagnostic(r(1, 1, 1, 8), "The resource 'http://invoice.xsd' is downloading.",
-								DiagnosticSeverity.Information, "XML")),
+								DiagnosticSeverity.Information, "xml")),
 				pd(fileURI, new Diagnostic(r(1, 1, 1, 8), "Error while downloading 'http://invoice.xsd' to "+expectedLocation+".",
-						DiagnosticSeverity.Error, "XML")));
+						DiagnosticSeverity.Error, "xml")));
 	}
 
 	@Test

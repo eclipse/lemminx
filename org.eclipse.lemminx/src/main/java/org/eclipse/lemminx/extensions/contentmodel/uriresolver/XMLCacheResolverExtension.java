@@ -135,4 +135,13 @@ public class XMLCacheResolverExtension implements URIResolverExtension {
 		return cacheResourcesManager.isUseCache();
 	}
 
+	/**
+	 * Remove the cache directory (.lemminx/cache) if it exists.
+	 * 
+	 * @throws IOException if the delete of directory (.lemminx/cache) cannot be
+	 *                     done.
+	 */
+	public void evictCache() throws IOException {
+		cacheResourcesManager.evictCache();
+	}
 }
