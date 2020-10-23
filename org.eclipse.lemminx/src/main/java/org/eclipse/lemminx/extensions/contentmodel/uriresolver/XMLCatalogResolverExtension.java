@@ -120,7 +120,7 @@ public class XMLCatalogResolverExtension implements URIResolverExtension {
 				}
 			}
 			if (xmlCatalogFiles.size() > 0) {
-				XMLCatalogResolver catalogResolver = new XMLCatalogResolver(xmlCatalogFiles.toArray(new String[0]));
+				XMLCatalogResolver catalogResolver = new LSPXMLCatalogResolver(xmlCatalogFiles.toArray(new String[0]));
 				setCatalogResolver(catalogResolver);
 			} else {
 				setCatalogResolver(null);
