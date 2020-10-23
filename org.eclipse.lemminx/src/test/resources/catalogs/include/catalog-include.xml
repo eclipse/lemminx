@@ -1,0 +1,5 @@
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+  <uri
+      name="http://foobar.com/test"
+      uri="./test.xsd" />
+</catalog>

@@ -1006,6 +1006,15 @@ public class XMLSchemaDiagnosticsTest {
 				diagnostic);
 	}
 
+	@Test
+	public void diagnosticsWithCatalogAndXSDInclude() throws BadLocationException {
+		String xml = "<document xmlns=\"http://foobar.com/test\">\r\n" + //
+				"	<page></page>\r\n" + //
+				"</document>";
+		Diagnostic diagnostic = d(1, 2, 1, 6, XMLSchemaErrorCode.cvc_complex_type_2_4_b);
+		XMLAssert.testDiagnosticsFor(xml, "src/test/resources/catalogs/include/catalog-include.xml", diagnostic);
+	}
+
 	private static void testDiagnosticsFor(String xml, Diagnostic... expected) {
 		XMLAssert.testDiagnosticsFor(xml, "src/test/resources/catalogs/catalog.xml", expected);
 	}
