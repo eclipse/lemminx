@@ -413,7 +413,10 @@ class XMLFormatter {
 		private void formatComment(DOMComment comment) {
 			this.xmlBuilder.startComment(comment);
 			this.xmlBuilder.addContentComment(comment.getData());
-			this.xmlBuilder.endComment();
+			if (comment.isClosed()) {
+				// Generate --> only if comment is closed.
+				this.xmlBuilder.endComment();
+			}
 			if (this.indentLevel == 0) {
 				linefeedOnNextWrite = true;
 			}
@@ -428,7 +431,10 @@ class XMLFormatter {
 		private void formatCDATA(DOMCDATASection cdata) {
 			this.xmlBuilder.startCDATA();
 			this.xmlBuilder.addContentCDATA(cdata.getData());
-			this.xmlBuilder.endCDATA();
+			if (cdata.isClosed()) {
+				// Generate ]> only if CDATA is closed.
+				this.xmlBuilder.endCDATA();
+			}
 		}
 
 		/**
