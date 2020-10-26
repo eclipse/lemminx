@@ -58,6 +58,7 @@ import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.CreateFile;
 import org.eclipse.lsp4j.CreateFileOptions;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.DiagnosticRelatedInformation;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.DocumentHighlight;
 import org.eclipse.lsp4j.DocumentHighlightKind;
@@ -367,8 +368,8 @@ public class XMLAssert {
 			configuration.accept(xmlLanguageService);
 		}
 
-		List<Diagnostic> actual = xmlLanguageService.doDiagnostics(xmlDocument, () -> {
-		}, settings.getValidation());
+		List<Diagnostic> actual = xmlLanguageService.doDiagnostics(xmlDocument, settings.getValidation(), () -> {
+		});
 		if (expected == null) {
 			assertTrue(actual.isEmpty());
 			return;
@@ -391,12 +392,23 @@ public class XMLAssert {
 		if (filter) {
 			received = actual.stream().map(d -> {
 				Diagnostic simpler = new Diagnostic(d.getRange(), "");
-				simpler.setCode(d.getCode());
+				if (d.getCode() != null && !StringUtils.isEmpty(d.getCode().getLeft())) {
+					simpler.setCode(d.getCode());
+				}
 				if (filterMessage) {
 					simpler.setMessage(d.getMessage());
 				}
 				return simpler;
 			}).collect(Collectors.toList());
+		}
+		// Don't compare message of diagnosticRelatedInformation
+		for (Diagnostic diagnostic : received) {
+			List<DiagnosticRelatedInformation> diagnosticRelatedInformations = diagnostic.getRelatedInformation();
+			if (diagnosticRelatedInformations != null) {
+				for (DiagnosticRelatedInformation diagnosticRelatedInformation : diagnosticRelatedInformations) {
+					diagnosticRelatedInformation.setMessage("");
+				}
+			}
 		}
 		assertIterableEquals(expected, received, "Unexpected diagnostics:\n" + actual);
 	}

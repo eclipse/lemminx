@@ -156,19 +156,19 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 		return hover.doHover(xmlDocument, position, sharedSettings, cancelChecker);
 	}
 
-	public List<Diagnostic> doDiagnostics(DOMDocument xmlDocument, CancelChecker monitor,
-			XMLValidationSettings validationSettings) {
-		return diagnostics.doDiagnostics(xmlDocument, monitor, validationSettings);
+	public List<Diagnostic> doDiagnostics(DOMDocument xmlDocument, 
+			XMLValidationSettings validationSettings, CancelChecker cancelChecker) {
+		return diagnostics.doDiagnostics(xmlDocument, validationSettings, cancelChecker);
 	}
 
 	public CompletableFuture<Path> publishDiagnostics(DOMDocument xmlDocument,
 			Consumer<PublishDiagnosticsParams> publishDiagnostics, Consumer<TextDocument> triggerValidation,
-			XMLValidationSettings validationSettings, CancelChecker monitor) {
+			XMLValidationSettings validationSettings, CancelChecker cancelChecker) {
 		String uri = xmlDocument.getDocumentURI();
 		TextDocument document = xmlDocument.getTextDocument();
 		try {
-			List<Diagnostic> diagnostics = this.doDiagnostics(xmlDocument, monitor, validationSettings);
-			monitor.checkCanceled();
+			List<Diagnostic> diagnostics = this.doDiagnostics(xmlDocument, validationSettings, cancelChecker);
+			cancelChecker.checkCanceled();
 			publishDiagnostics.accept(new PublishDiagnosticsParams(uri, diagnostics));
 			return null;
 		} catch (CacheResourceDownloadingException e) {

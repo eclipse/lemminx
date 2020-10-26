@@ -17,6 +17,7 @@ import java.util.List;
 import org.apache.xerces.xni.parser.XMLEntityResolver;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.ContentModelPlugin;
+import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lemminx.utils.DOMUtils;
 import org.eclipse.lsp4j.Diagnostic;
@@ -36,7 +37,8 @@ public class ContentModelDiagnosticsParticipant implements IDiagnosticsParticipa
 	}
 
 	@Override
-	public void doDiagnostics(DOMDocument xmlDocument, List<Diagnostic> diagnostics, CancelChecker monitor) {
+	public void doDiagnostics(DOMDocument xmlDocument, List<Diagnostic> diagnostics,
+			XMLValidationSettings validationSettings, CancelChecker monitor) {
 		if (xmlDocument.isDTD() || DOMUtils.isXSD(xmlDocument)) {
 			// Don't validate DTD / XML Schema with XML validator
 			return;
@@ -45,9 +47,8 @@ public class ContentModelDiagnosticsParticipant implements IDiagnosticsParticipa
 		// associations settings., ...)
 		XMLEntityResolver entityResolver = xmlDocument.getResolverExtensionManager();
 		// Process validation
-		XMLValidator.doDiagnostics(xmlDocument, entityResolver, diagnostics,
-				contentModelPlugin.getContentModelSettings(),
-				contentModelPlugin.getContentModelManager().getGrammarPool(), monitor);
+		XMLValidator.doDiagnostics(xmlDocument, entityResolver, diagnostics, validationSettings,
+				contentModelPlugin.getContentModelManager(), monitor);
 	}
 
 }

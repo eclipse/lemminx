@@ -19,6 +19,7 @@ import org.apache.xerces.xni.parser.XMLComponentManager;
 import org.apache.xerces.xni.parser.XMLConfigurationException;
 import org.apache.xerces.xni.parser.XMLDocumentSource;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
+import org.eclipse.lemminx.extensions.xerces.AbstractLSPErrorReporter;
 import org.eclipse.lemminx.extensions.xerces.ExternalXMLDTDValidator;
 import org.eclipse.lemminx.extensions.xerces.xmlmodel.XMLModelAwareParserConfiguration;
 
@@ -40,8 +41,9 @@ class LSPXMLParserConfiguration extends XMLModelAwareParserConfiguration {
 	private ExternalXMLDTDValidator externalDTDValidator;
 
 	public LSPXMLParserConfiguration(XMLGrammarPool grammarPool, boolean disableDTDValidation,
+			LSPErrorReporterForXML reporterForXML, LSPErrorReporterForXML reporterForGrammar,
 			XMLValidationSettings validationSettings) {
-		super(null, grammarPool);
+		super(null, grammarPool, reporterForGrammar);
 		this.disableDTDValidation = disableDTDValidation;
 		// Disable DOCTYPE declaration if settings is set to true.
 		boolean disallowDocTypeDecl = validationSettings != null ? validationSettings.isDisallowDocTypeDecl() : false;
@@ -51,6 +53,7 @@ class LSPXMLParserConfiguration extends XMLModelAwareParserConfiguration {
 				: false;
 		super.setFeature("http://xml.org/sax/features/external-general-entities", resolveExternalEntities);
 		super.setFeature("http://xml.org/sax/features/external-parameter-entities", resolveExternalEntities);
+		fErrorReporter = reporterForXML;
 	}
 
 	@Override
@@ -133,13 +136,12 @@ class LSPXMLParserConfiguration extends XMLModelAwareParserConfiguration {
 			externalDTDValidator.setDocumentHandler(next);
 			next.setDocumentSource(externalDTDValidator);
 		}
+		if (fSchemaValidator != null) {
+			// Set the LSP reporter for Xerces SchemaDOMParser to collect XML Schema error
+			// in the case of schema have some error (ex : syntax error)
+			AbstractLSPErrorReporter.initializeReporter(fSchemaValidator, getReporterForGrammar());
+		}
+
 	}
 
-	@Override
-	protected void checkProperty(String propertyId) throws XMLConfigurationException {
-		if (ExternalXMLDTDValidator.DOCTYPE.equals(propertyId)) {
-			return;
-		}
-		super.checkProperty(propertyId);
-	}
 }

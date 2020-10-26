@@ -11,7 +11,7 @@
 *******************************************************************************/
 package org.eclipse.lemminx.extensions.xerces;
 
-import java.lang.reflect.Field;
+import static org.eclipse.lemminx.extensions.xerces.xmlmodel.XMLModelAwareParserConfiguration.ERROR_REPORTER_FOR_GRAMMAR;
 
 import org.apache.xerces.impl.Constants;
 import org.apache.xerces.impl.XMLEntityManager;
@@ -53,6 +53,8 @@ public class ExternalXMLDTDValidator extends XMLDTDValidator {
 
 	private String externalDoctype;
 
+	private XMLErrorReporter reporterForGrammar;
+
 	public ExternalXMLDTDValidator() {
 		rootElement = true;
 	}
@@ -74,7 +76,7 @@ public class ExternalXMLDTDValidator extends XMLDTDValidator {
 
 	@Override
 	public void startElement(QName element, XMLAttributes attributes, Augmentations augs) throws XNIException {
-		tryToBindWithExternalDTD(element); 
+		tryToBindWithExternalDTD(element);
 		super.startElement(element, attributes, augs);
 	}
 
@@ -86,7 +88,7 @@ public class ExternalXMLDTDValidator extends XMLDTDValidator {
 				QName fRootElement = getRootElement();
 				String rootElementName = element.localpart;
 
-				// save root element state				
+				// save root element state
 				fRootElement.setValues(null, rootElementName, rootElementName, null);
 
 				String eid = null;
@@ -117,6 +119,7 @@ public class ExternalXMLDTDValidator extends XMLDTDValidator {
 				if (fDTDGrammar == null) {
 
 					XMLDTDLoader loader = new XMLDTDLoader(fSymbolTable, fGrammarPool);
+					loader.setProperty("http://apache.org/xml/properties/internal/error-reporter", reporterForGrammar);
 					loader.setEntityResolver(entityManager);
 					try {
 						fDTDGrammar = (DTDGrammar) loader.loadGrammar(new XMLInputSource(null, eid, null));
@@ -141,13 +144,12 @@ public class ExternalXMLDTDValidator extends XMLDTDValidator {
 		tryToBindWithExternalDTD(element);
 		super.emptyElement(element, attributes, augs);
 	}
+
 	private QName getRootElement() {
 		try {
 			// fRootElement is declared as private in the XMLDTDValidator, we must use ugly
 			// Java reflection to get the field.
-			Field f = XMLDTDValidator.class.getDeclaredField("fRootElement");
-			f.setAccessible(true);
-			return (QName) f.get(this);
+			return ReflectionUtils.getFieldValue(this, "fRootElement");
 		} catch (Exception e) {
 			return null;
 		}
@@ -163,6 +165,7 @@ public class ExternalXMLDTDValidator extends XMLDTDValidator {
 			setExternalDoctype(null);
 		}
 		super.reset(componentManager);
+		reporterForGrammar = (XMLErrorReporter) componentManager.getProperty(ERROR_REPORTER_FOR_GRAMMAR);
 		fValidation = false;
 		fDTDValidation = false;
 	}

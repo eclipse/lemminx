@@ -20,6 +20,7 @@ import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCo
 import org.eclipse.lemminx.extensions.xerces.AbstractLSPErrorReporter;
 import org.eclipse.lemminx.extensions.xsd.participants.XSDErrorCode;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Range;
 import org.xml.sax.ErrorHandler;
 
@@ -48,7 +49,8 @@ public class LSPErrorReporterForXSD extends AbstractLSPErrorReporter {
 	 * @return the LSP range from the SAX error.
 	 */
 	@Override
-	protected Range toLSPRange(XMLLocator location, String key, Object[] arguments, DOMDocument document) {
+	protected Range toLSPRange(XMLLocator location, String key, Object[] arguments, String message,
+			DiagnosticSeverity diagnosticSeverity, boolean fatalError, DOMDocument document) {
 		// try adjust positions for XSD error
 		XSDErrorCode xsdCode = XSDErrorCode.get(key);
 		if (xsdCode != null) {

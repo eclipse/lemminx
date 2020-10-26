@@ -12,18 +12,30 @@
  */
 package org.eclipse.lemminx.extensions.contentmodel;
 
+import static org.eclipse.lemminx.XMLAssert.l;
+import static org.eclipse.lemminx.XMLAssert.r;
 import static org.eclipse.lemminx.XMLAssert.ca;
 import static org.eclipse.lemminx.XMLAssert.d;
 import static org.eclipse.lemminx.XMLAssert.te;
 import static org.eclipse.lemminx.XMLAssert.testCodeActionsFor;
 
+import java.util.ArrayList;
+
+import org.apache.xerces.impl.XMLEntityManager;
+import org.apache.xerces.util.URI.MalformedURIException;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.extensions.contentmodel.participants.DTDErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCode;
+import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
+import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
+import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.settings.EnforceQuoteStyle;
 import org.eclipse.lemminx.settings.QuoteStyle;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.DiagnosticRelatedInformation;
+import org.eclipse.lsp4j.DiagnosticSeverity;
+import org.eclipse.lsp4j.PublishDiagnosticsCapabilities;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -642,11 +654,134 @@ public class DTDDiagnosticsTest {
 				d(5, 4, 5, 21, XMLSyntaxErrorCode.ETagRequired)); // [4]
 	}
 
+	@Test
+	public void MSG_SPACE_REQUIRED_BEFORE_ELEMENT_TYPE_IN_ELEMENTDECL() throws Exception {
+		String xml;
+
+		xml = "<!DOCTYPE asdf [\n" + //
+				"  <!ELEMENTasdf (#PCDATA)>\n" + //
+				"]>";
+		testDiagnosticsFor(xml, d(1, 4, 11, DTDErrorCode.MSG_SPACE_REQUIRED_BEFORE_ELEMENT_TYPE_IN_ELEMENTDECL));
+
+		xml = "<!ELEMENTasdf (#PCDATA)>";
+		testDiagnosticsFor(xml, "test.dtd",
+				d(0, 2, 9, DTDErrorCode.MSG_SPACE_REQUIRED_BEFORE_ELEMENT_TYPE_IN_ELEMENTDECL));
+
+		xml = "<!ELEMENTasdf";
+		testDiagnosticsFor(xml, "test.dtd",
+				d(0, 2, 9, DTDErrorCode.MSG_SPACE_REQUIRED_BEFORE_ELEMENT_TYPE_IN_ELEMENTDECL));
+
+		xml = "<!DOCTYPE asdf [\n" + //
+				"  <!ELEMENTasdf\n" + //
+				"]>";
+		Diagnostic diagnostic = d(1, 4, 11, DTDErrorCode.MSG_SPACE_REQUIRED_BEFORE_ELEMENT_TYPE_IN_ELEMENTDECL);
+		testDiagnosticsFor(xml, diagnostic);
+		testCodeActionsFor(xml, diagnostic, ca(diagnostic, te(1, 11, 1, 11, " ")));
+	}
+
+	@Test
+	public void MSG_SPACE_REQUIRED_BEFORE_ELEMENT_TYPE_IN_ATTLISTDECL() throws Exception {
+		String xml = "<!DOCTYPE asdf [\n" + //
+				"  <!ATTLISTasdf\n" + //
+				"]>";
+		Diagnostic diagnostic = d(1, 4, 11, DTDErrorCode.MSG_SPACE_REQUIRED_BEFORE_ELEMENT_TYPE_IN_ATTLISTDECL);
+		testDiagnosticsFor(xml, diagnostic);
+		testCodeActionsFor(xml, diagnostic, ca(diagnostic, te(1, 11, 1, 11, " ")));
+	}
+
+	@Test
+	public void MSG_SPACE_REQUIRED_BEFORE_ENTITY_NAME_IN_ENTITYDECL() throws Exception {
+		String xml = "<!DOCTYPE asdf [\n" + //
+				"  <!ENTITYasdf\n" + //
+				"]>";
+		Diagnostic diagnostic = d(1, 4, 10, DTDErrorCode.MSG_SPACE_REQUIRED_BEFORE_ENTITY_NAME_IN_ENTITYDECL);
+		testDiagnosticsFor(xml, diagnostic);
+		testCodeActionsFor(xml, diagnostic, ca(diagnostic, te(1, 10, 1, 10, " ")));
+	}
+
+	@Test
+	public void diagnosticRelatedInformationWithDOCTYPE() throws Exception {
+		ContentModelSettings settings = new ContentModelSettings();
+		settings.setUseCache(true);
+		XMLValidationSettings validationSettings = new XMLValidationSettings();
+		validationSettings.setCapabilities(new PublishDiagnosticsCapabilities(true)); // with related information
+		settings.setValidation(validationSettings);
+
+		String xml = "<!DOCTYPE foo SYSTEM \"dtd/foo-invalid.dtd\">\r\n" + //
+				"<foo>\r\n" + //
+				"   <bar></bar\r\n" + //
+				"</foo>";
+		Diagnostic diagnostic = new Diagnostic(r(0, 21, 0, 42), "There is '1' error in 'foo-invalid.dtd'.",
+				DiagnosticSeverity.Error, "xml");
+		diagnostic.setRelatedInformation(new ArrayList<>());
+		String dtdFileURI = getGrammarFileURI("foo-invalid.dtd");
+		diagnostic.getRelatedInformation().add(new DiagnosticRelatedInformation(l(dtdFileURI, r(0, 14, 0, 18)), ""));
+
+		Diagnostic diagnosticBasedOnDTD = new Diagnostic(r(2, 10, 2, 13),
+				"The end-tag for element type \"bar\" must end with a '>' delimiter.", DiagnosticSeverity.Error, "xml",
+				XMLSyntaxErrorCode.ETagUnterminated.getCode());
+
+		XMLLanguageService xmlLanguageService = new XMLLanguageService();
+		// First validation
+		XMLAssert.testDiagnosticsFor(xmlLanguageService, xml, null, null, "src/test/resources/test.xml", false,
+				settings, //
+				diagnostic, diagnosticBasedOnDTD);
+		// Restart the validation to check the validation is working since Xerces cache
+		// the invalid DTD grammar
+		XMLAssert.testDiagnosticsFor(xmlLanguageService, xml, null, null, "src/test/resources/test.xml", false,
+				settings, //
+				diagnostic, diagnosticBasedOnDTD);
+	}
+
+	@Test
+	public void diagnosticRelatedInformationWithXMLModel() throws Exception {
+		ContentModelSettings settings = new ContentModelSettings();
+		settings.setUseCache(true);
+		XMLValidationSettings validationSettings = new XMLValidationSettings();
+		validationSettings.setCapabilities(new PublishDiagnosticsCapabilities(true)); // with related information
+		settings.setValidation(validationSettings);
+
+		String xml = "<?xml-model href=\"dtd/foo-invalid.dtd\" type=\"application/xml-dtd\"?>\r\n" + //
+				"<foo>\r\n" + //
+				"   <bar></bar\r\n" + //
+				"</foo>";
+		Diagnostic diagnostic = new Diagnostic(r(0, 17, 0, 38), "There is '1' error in 'foo-invalid.dtd'.",
+				DiagnosticSeverity.Error, "xml");
+		diagnostic.setRelatedInformation(new ArrayList<>());
+		String dtdFileURI = getGrammarFileURI("foo-invalid.dtd");
+		diagnostic.getRelatedInformation().add(new DiagnosticRelatedInformation(l(dtdFileURI, r(0, 14, 0, 18)), ""));
+
+		Diagnostic diagnosticBasedOnDTD = new Diagnostic(r(2, 10, 2, 13),
+				"The end-tag for element type \"bar\" must end with a '>' delimiter.", DiagnosticSeverity.Error, "xml",
+				XMLSyntaxErrorCode.ETagUnterminated.getCode());
+
+		XMLLanguageService xmlLanguageService = new XMLLanguageService();
+		// First validation
+		XMLAssert.testDiagnosticsFor(xmlLanguageService, xml, null, null, "src/test/resources/test.xml", false,
+				settings, //
+				diagnostic, diagnosticBasedOnDTD);
+		// Restart the validation to check the validation is working since Xerces cache
+		// the invalid DTD grammar
+		XMLAssert.testDiagnosticsFor(xmlLanguageService, xml, null, null, "src/test/resources/test.xml", false,
+				settings, //
+				diagnostic, diagnosticBasedOnDTD);
+	}
+
 	private static void testDiagnosticsFor(String xml, Diagnostic... expected) {
 		XMLAssert.testDiagnosticsFor(xml, "src/test/resources/catalogs/catalog.xml", expected);
 	}
 
 	private static void testPublicDiagnosticsFor(String xml, Diagnostic... expected) {
 		XMLAssert.testDiagnosticsFor(xml, "src/test/resources/catalogs/catalog-public.xml", expected);
+	}
+
+	private static void testDiagnosticsFor(String xml, String fileURI, Diagnostic... expected) {
+		XMLAssert.testDiagnosticsFor(xml, "src/test/resources/catalogs/catalog.xml", null, fileURI, expected);
+	}
+
+	private static String getGrammarFileURI(String grammarURI) throws MalformedURIException {
+		int index = grammarURI.lastIndexOf('.');
+		String path = grammarURI.substring(index + 1, grammarURI.length());
+		return XMLEntityManager.expandSystemId(grammarURI, "src/test/resources/" + path + "/test.xml", true);
 	}
 }

@@ -14,10 +14,18 @@ package org.eclipse.lemminx.services;
 import static org.eclipse.lemminx.XMLAssert.ds;
 import static org.eclipse.lemminx.XMLAssert.r;
 import static org.eclipse.lemminx.XMLAssert.testDocumentSymbolsFor;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+import java.util.function.Consumer;
 
+import org.eclipse.lemminx.XMLAssert.SettingsSaveContext;
+import org.eclipse.lemminx.commons.TextDocument;
+import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lemminx.dom.DOMParser;
+import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
 import org.eclipse.lemminx.settings.XMLSymbolSettings;
 import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.SymbolKind;
@@ -143,4 +151,48 @@ public class XMLDocumentSymbolsTest {
 		settings.setMaxItemsComputed(9);
 		testDocumentSymbolsFor(xml, "test.xml", settings, symbol1, symbol2);
 	}
+
+	@Test
+	public void symbolLimitOfZero() {
+		String xml = "<a>\n" + //
+				"  <b>\n" + //
+				"    <c>\n" + //
+				"      <d />\n" + //
+				"    </c>\n" + //
+				"  </b>" + //
+				"</a>";
+
+		XMLSymbolSettings settings = new XMLSymbolSettings();
+		settings.setMaxItemsComputed(0);
+
+		testDocumentSymbolsNumber(xml, "test.xml", settings, 0);
+	}
+
+	private static void testDocumentSymbolsNumber(String xml, String fileURI, XMLSymbolSettings symbolSettings,
+			int expectedNumber) {
+		testDocumentSymbolsNumber(new XMLLanguageService(), xml, fileURI, symbolSettings, null,
+				expectedNumber);
+	}
+
+	private static void testDocumentSymbolsNumber(XMLLanguageService xmlLanguageService, String xml, String fileURI,
+			XMLSymbolSettings symbolSettings, Consumer<XMLLanguageService> customConfiguration, int expectedNumber) {
+		TextDocument document = new TextDocument(xml, fileURI != null ? fileURI : "test.xml");
+
+		ContentModelSettings settings = new ContentModelSettings();
+		settings.setUseCache(false);
+		xmlLanguageService.doSave(new SettingsSaveContext(settings));
+		xmlLanguageService.initializeIfNeeded();
+
+		if (customConfiguration != null) {
+			customConfiguration.accept(xmlLanguageService);
+		}
+
+		DOMDocument xmlDocument = DOMParser.getInstance().parse(document,
+				xmlLanguageService.getResolverExtensionManager());
+		xmlLanguageService.setDocumentProvider((uri) -> xmlDocument);
+
+		List<DocumentSymbol> actual = xmlLanguageService.findDocumentSymbols(xmlDocument, symbolSettings);
+		assertEquals(expectedNumber, actual.size());
+	}
+
 }

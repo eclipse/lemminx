@@ -18,13 +18,15 @@ import java.util.Arrays;
  */
 public class XMLSymbolSettings {
 
+	private static final int DEFAULT_MAX_ITEMS_COMPUTED = 5000;
+
 	private transient XMLExcludedSymbolFile[] excludedFiles;
 
 	private boolean enabled = true;
 
 	private String[] excluded;
 
-	private int maxItemsComputed;
+	private int maxItemsComputed = DEFAULT_MAX_ITEMS_COMPUTED;
 
 	public XMLExcludedSymbolFile[] getExcludedFiles() {
 		return excludedFiles;
@@ -60,9 +62,9 @@ public class XMLSymbolSettings {
 	/**
 	 * Given a file URI, this will check if it matches any of the given
 	 * file patterns.
-	 * 
+	 *
 	 * A uri is 'excluded' if it matches any of the given patterns.
-	 * 
+	 *
 	 * **Important:** Set the excluded file patterns before calling this using 'setExcluded()'.
 	 * @param uri
 	 * @return

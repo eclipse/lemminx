@@ -16,20 +16,30 @@ import static java.lang.System.lineSeparator;
 import static org.eclipse.lemminx.XMLAssert.ca;
 import static org.eclipse.lemminx.XMLAssert.createFile;
 import static org.eclipse.lemminx.XMLAssert.d;
+import static org.eclipse.lemminx.XMLAssert.l;
+import static org.eclipse.lemminx.XMLAssert.r;
 import static org.eclipse.lemminx.XMLAssert.te;
 import static org.eclipse.lemminx.XMLAssert.teOp;
 import static org.eclipse.lemminx.XMLAssert.testCodeActionsFor;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
+import org.apache.xerces.impl.XMLEntityManager;
+import org.apache.xerces.util.URI.MalformedURIException;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSchemaErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
+import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
+import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.settings.EnforceQuoteStyle;
 import org.eclipse.lemminx.settings.QuoteStyle;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.DiagnosticRelatedInformation;
+import org.eclipse.lsp4j.DiagnosticSeverity;
+import org.eclipse.lsp4j.PublishDiagnosticsCapabilities;
 import org.eclipse.lsp4j.ResourceOperationKind;
 import org.eclipse.lsp4j.WorkspaceClientCapabilities;
 import org.eclipse.lsp4j.WorkspaceEditCapabilities;
@@ -866,6 +876,136 @@ public class XMLSchemaDiagnosticsTest {
 		XMLAssert.testCodeActionsFor(xml, diagnostic, ca(diagnostic, te(3, 10, 3, 21, "")));
 	}
 
+	@Test
+	public void diagnosticRelatedInformationWithXMLModelSchemaProblem() throws Exception {
+		ContentModelSettings settings = new ContentModelSettings();
+		settings.setUseCache(true);
+		XMLValidationSettings validationSettings = new XMLValidationSettings();
+		validationSettings.setCapabilities(new PublishDiagnosticsCapabilities(true)); // with related information
+		settings.setValidation(validationSettings);
+
+		String xml = "<?xml-model href=\"xsd/foo-invalid-schema.xsd\" ?>\r\n" + //
+				"<foo>\r\n" + //
+				"	<barX></barX> \r\n" + //
+				"</foo>";
+		Diagnostic diagnostic = new Diagnostic(r(0, 17, 0, 45), "There is '1' error in 'foo-invalid-schema.xsd'.",
+				DiagnosticSeverity.Error, "xml");
+		diagnostic.setRelatedInformation(new ArrayList<>());
+		String xsdFileURI = getGrammarFileURI("foo-invalid-schema.xsd");
+		diagnostic.getRelatedInformation().add(new DiagnosticRelatedInformation(l(xsdFileURI, r(1, 71, 1, 73)), ""));
+
+		Diagnostic diagnosticBasedOnXSD = new Diagnostic(r(2, 2, 2, 6),
+				"Invalid element name:\n - barX\n\nOne of the following is expected:\n - bar\n\nError indicated by:\n {the schema}\nwith code:",
+				DiagnosticSeverity.Error, "xml", XMLSchemaErrorCode.cvc_complex_type_2_4_a.getCode());
+
+		XMLLanguageService xmlLanguageService = new XMLLanguageService();
+		// First validation
+		XMLAssert.testDiagnosticsFor(xmlLanguageService, xml, null, null, "src/test/resources/test.xml", false,
+				settings, //
+				diagnostic, diagnosticBasedOnXSD);
+		// Restart the validation to check the validation is working since Xerces cache
+		// the invalid XSD grammar
+		XMLAssert.testDiagnosticsFor(xmlLanguageService, xml, null, null, "src/test/resources/test.xml", false,
+				settings, //
+				diagnostic, diagnosticBasedOnXSD);
+	}
+
+	@Test
+	public void diagnosticRelatedInformationWithNoNamespaceSchemaLocationSchemaProblem() throws Exception {
+		ContentModelSettings settings = new ContentModelSettings();
+		settings.setUseCache(true);
+		XMLValidationSettings validationSettings = new XMLValidationSettings();
+		validationSettings.setCapabilities(new PublishDiagnosticsCapabilities(true)); // with related information
+		settings.setValidation(validationSettings);
+
+		String xml = "<foo xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \r\n" + //
+				"	 xsi:noNamespaceSchemaLocation=\"xsd/foo-invalid-schema.xsd\">\r\n" + //
+				"	<barX />\r\n" + //
+				"</foo>";
+		Diagnostic diagnostic = new Diagnostic(r(1, 32, 1, 60), "There is '1' error in 'foo-invalid-schema.xsd'.",
+				DiagnosticSeverity.Error, "xml");
+		diagnostic.setRelatedInformation(new ArrayList<>());
+		String xsdFileURI = getGrammarFileURI("foo-invalid-schema.xsd");
+		diagnostic.getRelatedInformation().add(new DiagnosticRelatedInformation(l(xsdFileURI, r(1, 71, 1, 73)), ""));
+
+		Diagnostic diagnosticBasedOnXSD = new Diagnostic(r(2, 2, 2, 6),
+				"Invalid element name:\n - barX\n\nOne of the following is expected:\n - bar\n\nError indicated by:\n {the schema}\nwith code:",
+				DiagnosticSeverity.Error, "xml", XMLSchemaErrorCode.cvc_complex_type_2_4_a.getCode());
+
+		XMLLanguageService xmlLanguageService = new XMLLanguageService();
+		// First validation
+		XMLAssert.testDiagnosticsFor(xmlLanguageService, xml, null, null, "src/test/resources/test.xml", false,
+				settings, //
+				diagnostic, diagnosticBasedOnXSD);
+		// Restart the validation to check the validation is working since Xerces cache
+		// the invalid XSD grammar
+		XMLAssert.testDiagnosticsFor(xmlLanguageService, xml, null, null, "src/test/resources/test.xml", false,
+				settings, //
+				diagnostic, diagnosticBasedOnXSD);
+	}
+
+	@Test
+	public void diagnosticRelatedInformationWithNoNamespaceSchemaLocationSyntaxProblem() throws Exception {
+		ContentModelSettings settings = new ContentModelSettings();
+		settings.setUseCache(true);
+		XMLValidationSettings validationSettings = new XMLValidationSettings();
+		validationSettings.setCapabilities(new PublishDiagnosticsCapabilities(true)); // with related information
+		settings.setValidation(validationSettings);
+
+		String xml = "<foo xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \r\n" + //
+				"	 xsi:noNamespaceSchemaLocation=\"xsd/foo-invalid-syntax.xsd\">\r\n" + //
+				"	<bar />\r\n" + //
+				"</foo>";
+		Diagnostic diagnostic = new Diagnostic(r(1, 32, 1, 60), "There is '1' error in 'foo-invalid-syntax.xsd'.",
+				DiagnosticSeverity.Error, "xml");
+		diagnostic.setRelatedInformation(new ArrayList<>());
+		String xsdFileURI = getGrammarFileURI("foo-invalid-syntax.xsd");
+		diagnostic.getRelatedInformation().add(new DiagnosticRelatedInformation(l(xsdFileURI, r(1, 1, 1, 54)), ""));
+
+		XMLLanguageService xmlLanguageService = new XMLLanguageService();
+		// First validation
+		XMLAssert.testDiagnosticsFor(xmlLanguageService, xml, null, null, "src/test/resources/test.xml", false,
+				settings, //
+				diagnostic);
+		// Restart the validation to check the validation is working since Xerces cache
+		// the invalid XSD grammar
+		XMLAssert.testDiagnosticsFor(xmlLanguageService, xml, null, null, "src/test/resources/test.xml", false,
+				settings, //
+				diagnostic);
+	}
+
+	@Test
+	public void diagnosticRelatedInformationWithSchemaLocationSyntaxProblem() throws Exception {
+		ContentModelSettings settings = new ContentModelSettings();
+		settings.setUseCache(true);
+		XMLValidationSettings validationSettings = new XMLValidationSettings();
+		validationSettings.setCapabilities(new PublishDiagnosticsCapabilities(true)); // with related information
+		settings.setValidation(validationSettings);
+
+		String xml = "<foo\r\n" + //
+				"		xmlns=\"http://foo\"\r\n" + //
+				"		xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"		xsi:schemaLocation=\"http://foo xsd/foo-ns-invalid-syntax.xsd\">\r\n" + //
+				"	<bar />\r\n" + //
+				"</foo>";
+		Diagnostic diagnostic = new Diagnostic(r(3, 33, 3, 62), "There is '1' error in 'foo-ns-invalid-syntax.xsd'.",
+				DiagnosticSeverity.Error, "xml");
+		diagnostic.setRelatedInformation(new ArrayList<>());
+		String xsdFileURI = getGrammarFileURI("foo-ns-invalid-syntax.xsd");
+		diagnostic.getRelatedInformation().add(new DiagnosticRelatedInformation(l(xsdFileURI, r(1, 1, 4, 29)), ""));
+
+		XMLLanguageService xmlLanguageService = new XMLLanguageService();
+		// First validation
+		XMLAssert.testDiagnosticsFor(xmlLanguageService, xml, null, null, "src/test/resources/test.xml", false,
+				settings, //
+				diagnostic);
+		// Restart the validation to check the validation is working since Xerces cache
+		// the invalid XSD grammar
+		XMLAssert.testDiagnosticsFor(xmlLanguageService, xml, null, null, "src/test/resources/test.xml", false,
+				settings, //
+				diagnostic);
+	}
+
 	private static void testDiagnosticsFor(String xml, Diagnostic... expected) {
 		XMLAssert.testDiagnosticsFor(xml, "src/test/resources/catalogs/catalog.xml", expected);
 	}
@@ -875,4 +1015,9 @@ public class XMLSchemaDiagnosticsTest {
 		XMLAssert.testDiagnosticsFor(xml, "src/test/resources/catalogs/catalog.xml", null, null, true, settings);
 	}
 
+	private static String getGrammarFileURI(String grammarURI) throws MalformedURIException {
+		int index = grammarURI.lastIndexOf('.');
+		String path = grammarURI.substring(index + 1, grammarURI.length());
+		return XMLEntityManager.expandSystemId(grammarURI, "src/test/resources/" + path + "/test.xml", true);
+	}
 }

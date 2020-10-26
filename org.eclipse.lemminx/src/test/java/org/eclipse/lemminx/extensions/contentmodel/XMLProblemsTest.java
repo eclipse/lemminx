@@ -22,7 +22,6 @@ import static org.eclipse.lemminx.XMLAssert.testDiagnosticsFor;
 
 import java.util.Arrays;
 
-import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
@@ -62,13 +61,12 @@ public class XMLProblemsTest {
 		Diagnostic d = new Diagnostic(r(0, 1, 0, 5), "No grammar constraints (DTD or XML Schema).",
 				DiagnosticSeverity.Hint, "test.xml", XMLSyntaxErrorCode.NoGrammarConstraints.name());
 		// Set noGrammar has 'hint'
-		testDiagnosticsFor(xml, null, ls -> {
-			ContentModelSettings settings = new ContentModelSettings();
-			XMLValidationSettings problems = new XMLValidationSettings();
-			problems.setNoGrammar("hint");
-			settings.setValidation(problems);
-			ls.doSave(new XMLAssert.SettingsSaveContext(settings));
-		}, null, false, d);
+		ContentModelSettings contentModelSettings = new ContentModelSettings();
+		XMLValidationSettings problems = new XMLValidationSettings();
+		problems.setNoGrammar("hint");
+		contentModelSettings.setValidation(problems);
+
+		testDiagnosticsFor(xml, null, null, null, false, contentModelSettings, d);
 
 		SharedSettings settings = new SharedSettings();
 		WorkspaceClientCapabilities workspace = new WorkspaceClientCapabilities();
@@ -76,14 +74,14 @@ public class XMLProblemsTest {
 		workspaceEdit.setResourceOperations(Arrays.asList(ResourceOperationKind.Create));
 		workspace.setWorkspaceEdit(workspaceEdit);
 		settings.getWorkspaceSettings().setCapabilities(workspace);
-		
+
 		// Code action to generate DTD, XSD
 		String schemaTemplate = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + lineSeparator() + //
 				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">" + lineSeparator() + //
 				"  <xs:element name=\"root\" />" + lineSeparator() + //
 				"</xs:schema>";
 		String dtdTemplate = "<!ELEMENT root EMPTY>";
-		testCodeActionsFor(xml, d,null, settings,
+		testCodeActionsFor(xml, d, null, settings,
 				// XSD with xsi:noNamespaceSchemaLocation
 				ca(d, //
 						createFile("test.xsd", false), //
