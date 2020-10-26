@@ -55,7 +55,7 @@ public class XMLFormatterTest {
 	@Test
 	public void selfClosingTag() throws BadLocationException {
 		String content = "<a></a>";
-		String expected =  content;
+		String expected = content;
 		assertFormat(content, expected);
 	}
 
@@ -92,7 +92,7 @@ public class XMLFormatterTest {
 		String expected = content;
 		assertFormat(content, expected);
 	}
-	
+
 	@Test
 	public void endTagMissing() throws BadLocationException {
 		String content = "<foo>\r\n" + //
@@ -566,6 +566,54 @@ public class XMLFormatterTest {
 				"2222" + lineSeparator() + //
 				"  3333 -->" + lineSeparator() + //
 				"</a>";
+		assertFormat(content, expected);
+	}
+
+	@Test
+	public void testCommentNotClosed() throws BadLocationException {
+		String content = "<foo>\r\n" + //
+				"  <!-- \r\n" + //
+				"</foo>";
+		String expected = content;
+		assertFormat(content, expected);
+	}
+
+	@Test
+	public void testCommentWithRange() throws BadLocationException {
+		String content = "<foo>\r\n" + //
+				"  <!-- |<bar>|\r\n" + //
+				"  </bar>\r\n" + //
+				"	-->\r\n" + //
+				"</foo>";
+		String expected = "<foo>\r\n" + //
+				"  <!-- <bar>\r\n" + //
+				"  </bar>\r\n" + //
+				"	-->\r\n" + //
+				"</foo>";
+		assertFormat(content, expected);
+	}
+
+	@Test
+	public void testCDATANotClosed() throws BadLocationException {
+		String content = "<foo>\r\n" + //
+				"  <![CDATA[ \r\n" + //
+				"</foo>";
+		String expected = content;
+		assertFormat(content, expected);
+	}
+
+	@Test
+	public void testCDATAWithRange() throws BadLocationException {
+		String content = "<foo>\r\n" + //
+				"  <![CDATA[ |<bar>|\r\n" + // 
+				"  </bar>\r\n" + //
+				"  ]]>\r\n" + //
+				"</foo>";
+		String expected = "<foo>\r\n" + //
+				"  <![CDATA[ <bar>\r\n" + // 
+				"  </bar>\r\n" + //
+				"  ]]>\r\n" + //
+				"</foo>";
 		assertFormat(content, expected);
 	}
 
