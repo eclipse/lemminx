@@ -24,6 +24,7 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 import org.eclipse.lemminx.settings.LogsSettings;
+import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lsp4j.services.LanguageClient;
 
 /**
@@ -43,7 +44,7 @@ public class LogHelper {
 		unregisterAllHandlers(logger.getHandlers());
 		logger.setLevel(getLogLevel());
 		logger.setUseParentHandlers(false);// Stops output to console
-		
+
 		// Configure logging LSP client handler
 		if (settings != null) {
 			if (settings.isClient()) {
@@ -55,7 +56,7 @@ public class LogHelper {
 			}
 			// Configure logging for file
 			String path = settings.getFile();
-			if (path != null) {
+			if (!StringUtils.isBlank(path)) {
 				createDirectoryPath(path);
 				try {
 					FileHandler fh = LogHelper.getFileHandler(path);
@@ -68,7 +69,7 @@ public class LogHelper {
 			}
 		}
 	}
-	
+
 	private static Level getLogLevel() {
 		String logLevel = System.getProperty("log.level", "info").toLowerCase();
 		switch (logLevel) {
