@@ -14,6 +14,7 @@ package org.eclipse.lemminx.utils;
 
 import static java.lang.System.lineSeparator;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -24,21 +25,17 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Locale;
 import java.util.TimeZone;
-import java.util.concurrent.CompletableFuture;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
+import org.eclipse.lemminx.MockXMLLanguageClient;
 import org.eclipse.lemminx.logs.LSPClientLogHandler;
 import org.eclipse.lemminx.logs.LogHelper;
 import org.eclipse.lemminx.settings.LogsSettings;
-import org.eclipse.lsp4j.MessageActionItem;
 import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.MessageType;
-import org.eclipse.lsp4j.PublishDiagnosticsParams;
-import org.eclipse.lsp4j.ShowMessageRequestParams;
-import org.eclipse.lsp4j.services.LanguageClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,7 +46,7 @@ import org.junit.jupiter.api.Test;
 public class LoggerTest {
 
 	private String path = "target/logs/testLogFile.log";
-	private MockLanguageClient mockLanguageClient;
+	private MockXMLLanguageClient mockLanguageClient;
 	private File logFile;
 	private Logger LOGGER = Logger.getLogger(LoggerTest.class.getName());
 	private TimeZone originalTimeZone = TimeZone.getDefault();
@@ -58,7 +55,7 @@ public class LoggerTest {
 	public void startup() {
 		TimeZone.setDefault(TimeZone.getTimeZone(("UTC")));
 		deleteLogFile();
-		mockLanguageClient = createLanguageClient(MessageType.Error, "Log Message");
+		mockLanguageClient = new MockXMLLanguageClient(); // (MessageType.Error, "Log Message");
 		LogsSettings settings = new LogsSettings();
 		// Enable log file
 		settings.setFile(path);
@@ -96,7 +93,10 @@ public class LoggerTest {
 	@Test
 	public void testClientReceivesLog() {
 		LOGGER.severe("@@Log Message@@");
-		assertTrue(mockLanguageClient.wasLogReceived());
+		assertFalse(mockLanguageClient.getLogMessages().isEmpty());
+		MessageParams message = mockLanguageClient.getLogMessages().get(0);
+		assertEquals(MessageType.Error, message.getType());
+		assertTrue(message.getMessage().endsWith("@@Log Message@@"));
 	}
 
 	@Test
@@ -142,50 +142,7 @@ public class LoggerTest {
 
 	// ---------------------Tools-------------------------------
 
-	private MockLanguageClient createLanguageClient(MessageType messageType, String message) {
-		MockLanguageClient newLanguageClient = new MockLanguageClient(messageType, message);
-		return newLanguageClient;
-	}
-
-	class MockLanguageClient implements LanguageClient {
-		MessageType expectedMessageType;
-		String message;
-		Boolean logWasReceived = false;
-
-		public MockLanguageClient(MessageType expectedMessageType, String message) {
-			this.expectedMessageType = expectedMessageType;
-			this.message = message;
-		}
-
-		public void telemetryEvent(Object object) {
-		}
-
-		@Override
-		public CompletableFuture<MessageActionItem> showMessageRequest(ShowMessageRequestParams requestParams) {
-			return null;
-		}
-
-		@Override
-		public void showMessage(MessageParams messageParams) {
-		}
-
-		@Override
-		public void publishDiagnostics(PublishDiagnosticsParams diagnostics) {
-		}
-
-		@Override
-		public void logMessage(MessageParams messageParams) {
-			assertEquals(expectedMessageType, messageParams.getType());
-			this.logWasReceived = true;
-		}
-
-		public Boolean wasLogReceived() {
-			return this.logWasReceived;
-		}
-
-	}
-
-	public void deleteLogFile() {
+	private void deleteLogFile() {
 		File f = new File(path);
 		if (f.exists()) {
 			f.delete();

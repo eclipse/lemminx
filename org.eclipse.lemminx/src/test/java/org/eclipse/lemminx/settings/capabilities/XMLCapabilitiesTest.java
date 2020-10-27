@@ -21,8 +21,8 @@ import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConsta
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 
+import org.eclipse.lemminx.MockXMLLanguageClient;
 import org.eclipse.lemminx.XMLTextDocumentService;
 import org.eclipse.lsp4j.ClientCapabilities;
 import org.eclipse.lsp4j.CodeActionCapabilities;
@@ -34,14 +34,9 @@ import org.eclipse.lsp4j.DocumentSymbolCapabilities;
 import org.eclipse.lsp4j.FoldingRangeCapabilities;
 import org.eclipse.lsp4j.FormattingCapabilities;
 import org.eclipse.lsp4j.HoverCapabilities;
-import org.eclipse.lsp4j.MessageActionItem;
-import org.eclipse.lsp4j.MessageParams;
-import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.RangeFormattingCapabilities;
-import org.eclipse.lsp4j.RegistrationParams;
 import org.eclipse.lsp4j.RenameCapabilities;
 import org.eclipse.lsp4j.ServerCapabilities;
-import org.eclipse.lsp4j.ShowMessageRequestParams;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
 import org.eclipse.lsp4j.WorkspaceClientCapabilities;
 import org.eclipse.lsp4j.services.LanguageClient;
@@ -53,7 +48,7 @@ import org.junit.jupiter.api.Test;
  */
 public class XMLCapabilitiesTest {
 
-	private LanguageClient languageClient = new LanguageClientMock();
+	private LanguageClient languageClient = new MockXMLLanguageClient();
 	private XMLCapabilityManager manager;
 	private ClientCapabilities clientCapabilities;
 	private TextDocumentClientCapabilities textDocument;
@@ -224,31 +219,4 @@ public class XMLCapabilitiesTest {
 		capabilityIDs = manager.getRegisteredCapabilities();
 	}
 
-	class LanguageClientMock implements LanguageClient {
-		@Override
-		public void telemetryEvent(Object object) {
-		}
-
-		@Override
-		public void publishDiagnostics(PublishDiagnosticsParams diagnostics) {
-		}
-
-		@Override
-		public void showMessage(MessageParams messageParams) {
-		}
-
-		@Override
-		public CompletableFuture<MessageActionItem> showMessageRequest(ShowMessageRequestParams requestParams) {
-			return null;
-		}
-
-		@Override
-		public void logMessage(MessageParams message) {
-		}
-
-		@Override
-		public CompletableFuture<Void> registerCapability(RegistrationParams params) {
-			return null;
-		}
-	}
 }
