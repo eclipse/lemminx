@@ -134,7 +134,7 @@ public class CMDTDElementDeclaration extends XMLElementDecl implements CMElement
 	}
 
 	@Override
-	public String getValueDocumentation(String textContent) {
+	public String getTextDocumentation(String value, ISharedSettingsRequest request) {
 		return null;
 	}
 

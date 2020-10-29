@@ -100,12 +100,12 @@ public interface CMElementDeclaration {
 	CMAttributeDeclaration findCMAttribute(String attributeName);
 
 	/**
-	 * Returns formatted documentation of the declared element,
-	 * according to settings defined in <code>request</code>.
+	 * Returns formatted documentation of the declared element, according to
+	 * settings defined in <code>request</code>.
 	 * 
 	 * @param request the request containing settings
-	 * @return formatted documentation of the declared element,
-	 * according to settings defined in <code>request</code>.
+	 * @return formatted documentation of the declared element, according to
+	 *         settings defined in <code>request</code>.
 	 */
 	String getDocumentation(ISharedSettingsRequest request);
 
@@ -128,10 +128,12 @@ public interface CMElementDeclaration {
 	/**
 	 * Returns the documentation for the given enumeration value and null otherwise.
 	 * 
-	 * @param value the enumeration value.
+	 * @param value   the enumeration value.
+	 * @param request the shared settings.
+	 * 
 	 * @return the documentation for the given enumeration value and null otherwise.
 	 */
-	String getValueDocumentation(String value);
+	String getTextDocumentation(String value, ISharedSettingsRequest request);
 
 	/**
 	 * Returns the owner document URI where the element is declared.

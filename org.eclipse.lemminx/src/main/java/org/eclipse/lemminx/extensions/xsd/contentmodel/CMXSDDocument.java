@@ -23,6 +23,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.xerces.impl.dv.XSSimpleType;
+import org.apache.xerces.impl.dv.xs.XSSimpleTypeDecl;
 import org.apache.xerces.impl.xs.SchemaGrammar;
 import org.apache.xerces.impl.xs.XMLSchemaLoader;
 import org.apache.xerces.impl.xs.XSComplexTypeDecl;
@@ -33,14 +34,17 @@ import org.apache.xerces.impl.xs.XSParticleDecl;
 import org.apache.xerces.impl.xs.opti.ElementImpl;
 import org.apache.xerces.impl.xs.traversers.XSDHandler;
 import org.apache.xerces.impl.xs.util.SimpleLocator;
+import org.apache.xerces.impl.xs.util.XSObjectListImpl;
 import org.apache.xerces.xni.QName;
 import org.apache.xerces.xni.XMLLocator;
 import org.apache.xerces.xs.StringList;
+import org.apache.xerces.xs.XSAnnotation;
 import org.apache.xerces.xs.XSAttributeDeclaration;
 import org.apache.xerces.xs.XSComplexTypeDefinition;
 import org.apache.xerces.xs.XSConstants;
 import org.apache.xerces.xs.XSElementDeclaration;
 import org.apache.xerces.xs.XSModel;
+import org.apache.xerces.xs.XSMultiValueFacet;
 import org.apache.xerces.xs.XSNamedMap;
 import org.apache.xerces.xs.XSNamespaceItem;
 import org.apache.xerces.xs.XSNamespaceItemList;
@@ -214,8 +218,19 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 				return StringUtils.TRUE_FALSE_ARRAY;
 			}
 			StringList enumerations = typeDefinition.getLexicalEnumeration();
-			if (enumerations != null) {
+			if (enumerations != null && !enumerations.isEmpty()) {
 				return enumerations;
+			}
+			XSObjectList memberTypes = typeDefinition.getMemberTypes();
+			if (memberTypes != null && !memberTypes.isEmpty()) {
+				// xs:union
+				Collection<String> enumerationValues = new ArrayList<>();
+				for (Object memberType : memberTypes) {
+					if (memberType instanceof XSSimpleTypeDefinition) {
+						enumerationValues.addAll(getEnumerationValues((XSSimpleTypeDefinition) memberType));
+					}
+				}
+				return enumerationValues;
 			}
 		}
 		return Collections.emptyList();
@@ -226,6 +241,64 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 			return ((XSSimpleType) typeDefinition).getPrimitiveKind() == XSSimpleType.PRIMITIVE_BOOLEAN;
 		}
 		return false;
+	}
+
+	static XSObjectList getEnumerationAnnotations(XSSimpleTypeDefinition simpleTypeDefinition, String value) {
+		if (simpleTypeDefinition instanceof XSSimpleTypeDecl) {
+			XSSimpleTypeDecl simpleTypeDecl = (XSSimpleTypeDecl) simpleTypeDefinition;
+			XSObjectList multiFacets = simpleTypeDecl.getMultiValueFacets();
+			if (!multiFacets.isEmpty()) {
+				XSMultiValueFacet facet = (XSMultiValueFacet) multiFacets.get(0);
+				multiFacets = facet.getAnnotations();
+				Object[] annotationArray = multiFacets.toArray();
+				if (!onlyContainsNull(annotationArray)) { // if multiValueFacets has annotations
+					return simpleTypeDecl.getMultiValueFacets();
+				}
+			} else {
+				XSObjectList memberTypes = simpleTypeDecl.getMemberTypes();
+				if (memberTypes != null) {
+					for (Object memberType : memberTypes) {
+						if (memberType instanceof XSSimpleTypeDecl) {
+							XSSimpleTypeDecl type = (XSSimpleTypeDecl) memberType;
+							XSObjectList enumerationAnnotations = type.enumerationAnnotations;
+							if (enumerationAnnotations != null) {
+								StringList values = type.getLexicalEnumeration();
+								if (values != null) {
+									int enumIndex = -1;
+									for (int i = 0; i < values.getLength(); i++) {
+										String enumValue = values.item(i);
+										if (value.equals(enumValue)) {
+											enumIndex = i;
+											break;
+										}
+									}
+									if (enumIndex != -1 && enumerationAnnotations.size() > enumIndex) {
+										XSAnnotation annotation = (XSAnnotation) enumerationAnnotations.get(enumIndex);
+										if (annotation == null) {
+											return null;
+										}
+										return new XSObjectListImpl(new XSAnnotation[] { annotation }, 1);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	private static boolean onlyContainsNull(Object[] arr) {
+		if (arr == null || arr.length == 0) {
+			return true;
+		}
+		for (Object o : arr) {
+			if (o != null) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	@Override

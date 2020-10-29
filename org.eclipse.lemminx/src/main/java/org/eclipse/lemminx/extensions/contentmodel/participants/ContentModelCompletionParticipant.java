@@ -385,7 +385,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 						values.forEach(value -> {
 							CompletionItem item = new CompletionItem();
 							item.setLabel(value);
-							String insertText = value; // request.getInsertAttrValue(value);
+							String insertText = value;
 							item.setLabel(value);
 							item.setKind(CompletionItemKind.Value);
 							item.setFilterText(tokenStart + insertText);

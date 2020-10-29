@@ -54,7 +54,7 @@ public class CMDTDAttributeDeclaration extends XMLAttributeDecl implements CMAtt
 	}
 
 	@Override
-	public String getDocumentation(ISharedSettingsRequest request) {
+	public String getAttributeNameDocumentation(ISharedSettingsRequest request) {
 		if (documentation != null) {
 			return documentation;
 		}
@@ -68,7 +68,7 @@ public class CMDTDAttributeDeclaration extends XMLAttributeDecl implements CMAtt
 	}
 
 	@Override
-	public String getValueDocumentation(String value, ISharedSettingsRequest settings) {
+	public String getAttributeValueDocumentation(String value, ISharedSettingsRequest request) {
 		return null;
 	}
 
