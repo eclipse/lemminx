@@ -15,8 +15,10 @@ package org.eclipse.lemminx.extensions.xsd.contentmodel;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import org.apache.xerces.impl.dv.xs.XSSimpleTypeDecl;
@@ -67,6 +69,8 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 	private Collection<CMElementDeclaration> elements;
 
 	private String documentation;
+
+	private Map<String, String> textsDocumentation;
 
 	private SchemaDocumentationType docStrategy;
 
@@ -333,18 +337,21 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 
 	@Override
 	public String getDocumentation(ISharedSettingsRequest request) {
-		SchemaDocumentationType currStrategy = request.getSharedSettings().getPreferences().getShowSchemaDocumentationType();
-		if (this.documentation != null && this.docStrategy == currStrategy) {
+		SchemaDocumentationType currStrategy = request.getSharedSettings().getPreferences()
+				.getShowSchemaDocumentationType();
+		if (this.docStrategy != currStrategy) {
+			clearDocumentation();
+		} else if (this.documentation != null) {
 			return this.documentation;
 		}
-
 		this.docStrategy = currStrategy;
-		XSObjectList annotations = getAnnotations();
+		XSObjectList annotations = getElementAnnotations();
 		boolean markdownSupported = request.canSupportMarkupKind(MarkupKind.MARKDOWN);
-		this.documentation = (new XSDDocumentation(annotations, docStrategy, !markdownSupported))
+		this.documentation = new XSDDocumentation(annotations, docStrategy, !markdownSupported)
 				.getFormattedDocumentation(markdownSupported);
 		return this.documentation;
 	}
+
 	/**
 	 * Returns list of xs:annotation from the element declaration or type
 	 * declaration.
@@ -352,7 +359,7 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 	 * @return list of xs:annotation from the element declaration or type
 	 *         declaration.
 	 */
-	private XSObjectList getAnnotations() {
+	private XSObjectList getElementAnnotations() {
 		// Try get xs:annotation from the element declaration
 		XSObjectList annotation = elementDeclaration.getAnnotations();
 		if (annotation != null && annotation.getLength() > 0) {
@@ -422,9 +429,56 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 	}
 
 	@Override
-	public String getValueDocumentation(String value) {
-		// FIXME: implement xsd:enumeration for Text node.
+	public String getTextDocumentation(String textContent, ISharedSettingsRequest request) {
+		SchemaDocumentationType currStrategy = request.getSharedSettings().getPreferences()
+				.getShowSchemaDocumentationType();
+		if (this.docStrategy != currStrategy) {
+			clearDocumentation();
+		}
+		this.docStrategy = currStrategy;
+		if (textsDocumentation == null) {
+			textsDocumentation = createTextsDocumentation(request);
+		}
+		return textsDocumentation.get(textContent);
+	}
+
+	private Map<String, String> createTextsDocumentation(ISharedSettingsRequest request) {
+		boolean markdownSupported = request.canSupportMarkupKind(MarkupKind.MARKDOWN);
+		Map<String, String> textsDocumentation = new HashMap<>();
+		// loop for each enumeration values and update the values documentation map with
+		// documentation
+		getEnumerationValues().forEach(value -> {
+			String documentation = null;
+			XSObjectList annotations = getTextAnnotations(value);
+			if (annotations != null) {
+				documentation = new XSDDocumentation(annotations, value, docStrategy, !markdownSupported)
+						.getFormattedDocumentation(markdownSupported);
+			}
+			if (StringUtils.isBlank(documentation)) {
+				documentation = getDocumentation(request);
+			}
+			textsDocumentation.put(value, documentation);
+		});
+		return textsDocumentation;
+	}
+
+	private XSObjectList getTextAnnotations(String textContent) {
+		XSTypeDefinition typeDefinition = elementDeclaration.getTypeDefinition();
+		if (typeDefinition != null) {
+			XSSimpleTypeDefinition simpleDefinition = null;
+			if (typeDefinition.getTypeCategory() == XSTypeDefinition.SIMPLE_TYPE) {
+				simpleDefinition = (XSSimpleTypeDefinition) typeDefinition;
+			} else if (typeDefinition.getTypeCategory() == XSTypeDefinition.COMPLEX_TYPE) {
+				simpleDefinition = ((XSComplexTypeDefinition) typeDefinition).getSimpleType();
+			}
+			return CMXSDDocument.getEnumerationAnnotations(simpleDefinition, textContent);
+		}
 		return null;
+	}
+
+	private void clearDocumentation() {
+		this.textsDocumentation = null;
+		this.documentation = null;
 	}
 
 	XSElementDeclaration getElementDeclaration() {

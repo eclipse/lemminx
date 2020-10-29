@@ -285,6 +285,84 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 	}
 
 	@Test
+	public void completionOnAttributeValueWithUnionAndEnumeration() throws BadLocationException {
+		String xml = "<dress\r\n" + //
+				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"	xsi:noNamespaceSchemaLocation=\"xsd/dressSize.xsd\"\r\n" + //
+				"	size=\"|\" />";
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/dress.xml", 4, //
+				c("small", te(3, 7, 3, 7, "small"), "small", //
+						"Small documentation" + //
+								System.lineSeparator() + //
+								System.lineSeparator() + //
+								"Source: dressSize.xsd", //
+						MarkupKind.PLAINTEXT), //
+				c("medium", te(3, 7, 3, 7, "medium"), "medium", //
+						"Medium documentation" + //
+								System.lineSeparator() + //
+								System.lineSeparator() + //
+								"Source: dressSize.xsd", //
+						MarkupKind.PLAINTEXT), //
+				c("large", te(3, 7, 3, 7, "large"), "large", //
+						"Size Type documentation" + //
+								System.lineSeparator() + //
+								System.lineSeparator() + //
+								"Source: dressSize.xsd", //
+						MarkupKind.PLAINTEXT), //
+				c("x-large", te(3, 7, 3, 7, "x-large"), "x-large", //
+						"Size Type documentation" + //
+								System.lineSeparator() + //
+								System.lineSeparator() + //
+								"Source: dressSize.xsd", //
+						MarkupKind.PLAINTEXT));
+	}
+
+	@Test
+	public void completionOnTextWithUnionAndEnumeration() throws BadLocationException {
+		String xml = "<dresssize\r\n" + //
+				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"	xsi:noNamespaceSchemaLocation=\"xsd/dressSize.xsd\" >\r\n" + //
+				"	| " + //
+				"</dresssize>";
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/dressSize.xml", 4 /*
+																						 * start/end region + CDATA and
+																						 * Comments
+																						 */ + 4, //
+				c("small", te(2, 52, 3, 2, "small"), //
+						"\r\n" + //
+								"	small", //
+						"Small documentation" + //
+								System.lineSeparator() + //
+								System.lineSeparator() + //
+								"Source: dressSize.xsd", //
+						MarkupKind.PLAINTEXT), //
+				c("medium", te(2, 52, 3, 2, "medium"), //
+						"\r\n" + //
+								"	medium", //
+						"Medium documentation" + //
+								System.lineSeparator() + //
+								System.lineSeparator() + //
+								"Source: dressSize.xsd", //
+						MarkupKind.PLAINTEXT), //
+				c("large", te(2, 52, 3, 2, "large"), //
+						"\r\n" + //
+								"	large", //
+						"Size Type documentation" + //
+								System.lineSeparator() + //
+								System.lineSeparator() + //
+								"Source: dressSize.xsd", //
+						MarkupKind.PLAINTEXT), //
+				c("x-large", te(2, 52, 3, 2, "x-large"), //
+						"\r\n" + //
+								"	x-large", //
+						"Size Type documentation" + //
+								System.lineSeparator() + //
+								System.lineSeparator() + //
+								"Source: dressSize.xsd", //
+						MarkupKind.PLAINTEXT));
+	}
+
+	@Test
 	public void completionOnTextWithEnumeration() throws BadLocationException {
 		String xml = "<team xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"team_namespace\" xsi:schemaLocation=\"team_namespace xsd/team.xsd\">\r\n"
 				+ //
@@ -480,8 +558,6 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 
 	@Test
 	public void issue214WithMarkdown() throws BadLocationException, MalformedURIException {
-		String edmxURI = getXMLSchemaFileURI("edmx.xsd");
-		String edmURI = getXMLSchemaFileURI("edm.xsd");
 		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
 				"<edmx:Edmx xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\" xmlns=\"http://docs.oasis-open.org/odata/ns/edm\" Version=\"4.0\">\r\n"
 				+ //

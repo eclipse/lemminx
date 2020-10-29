@@ -41,7 +41,7 @@ public interface CMAttributeDeclaration {
 	 * @return formatted documentation of the declared
 	 * attribute according to settings defined in <code>request</code>
 	 */
-	String getDocumentation(ISharedSettingsRequest request);
+	String getAttributeNameDocumentation(ISharedSettingsRequest request);
 
 	/**
 	 * Returns formatted documentation about <code>value</code>,
@@ -52,7 +52,7 @@ public interface CMAttributeDeclaration {
 	 * @return formatted documentation about <code>value</code>,
 	 * according to settings defined in <code>request</code>
 	 */
-	String getValueDocumentation(String value, ISharedSettingsRequest request);
+	String getAttributeValueDocumentation(String value, ISharedSettingsRequest request);
 
 	/**
 	 * Returns true if the attribute is required and false otherwise.

@@ -4,11 +4,27 @@
 
 	<xs:simpleType name="SizeType">
 		<xs:union memberTypes="DressSizeType">
+			<xs:annotation>
+				<xs:documentation>Size Type documentation</xs:documentation>
+			</xs:annotation>
 			<xs:simpleType>
 				<xs:restriction base="xs:token">
-					<xs:enumeration value="small" />
-					<xs:enumeration value="medium" />
+					<xs:enumeration value="small">
+						<xs:annotation>
+							<xs:documentation>Small documentation</xs:documentation>
+						</xs:annotation>
+					</xs:enumeration>
+					<xs:enumeration value="medium">
+						<xs:annotation>
+							<xs:documentation>Medium documentation</xs:documentation>
+						</xs:annotation>
+					</xs:enumeration>
 					<xs:enumeration value="large" />
+					<xs:enumeration value="x-large">
+						<xs:annotation>
+							<xs:documentation></xs:documentation>
+						</xs:annotation>
+					</xs:enumeration>
 				</xs:restriction>
 			</xs:simpleType>
 		</xs:union>
@@ -21,5 +37,11 @@
 	</xs:simpleType>
 
 	<xs:element name="dresssize" type="SizeType" />
+
+	<xs:element name="dress">
+		<xs:complexType>
+			<xs:attribute name="size" type="SizeType" />
+		</xs:complexType>
+	</xs:element>
 
 </xs:schema>
