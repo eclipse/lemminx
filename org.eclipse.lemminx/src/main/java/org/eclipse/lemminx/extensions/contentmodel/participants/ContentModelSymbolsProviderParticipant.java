@@ -23,6 +23,7 @@ import org.eclipse.lemminx.extensions.contentmodel.model.ReferencedGrammarInfo;
 import org.eclipse.lemminx.services.DocumentSymbolsResult;
 import org.eclipse.lemminx.services.SymbolInformationResult;
 import org.eclipse.lemminx.services.extensions.ISymbolsProviderParticipant;
+import org.eclipse.lemminx.settings.XMLSymbolFilter;
 import org.eclipse.lemminx.uriresolver.ResolvedURIInfo;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.DocumentSymbol;
@@ -57,13 +58,14 @@ public class ContentModelSymbolsProviderParticipant implements ISymbolsProviderP
 	}
 
 	@Override
-	public void findSymbolInformations(DOMDocument document, SymbolInformationResult symbols,
+	public void findSymbolInformations(DOMDocument document, SymbolInformationResult symbols, XMLSymbolFilter filter,
 			CancelChecker cancelChecker) {
 		// Do nothing
 	}
 
 	@Override
-	public void findDocumentSymbols(DOMDocument document, DocumentSymbolsResult symbols, CancelChecker cancelChecker) {
+	public void findDocumentSymbols(DOMDocument document, DocumentSymbolsResult symbols, XMLSymbolFilter filter,
+			CancelChecker cancelChecker) {
 		if (!isEnabled()) {
 			return;
 		}

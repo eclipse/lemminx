@@ -26,6 +26,8 @@ import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMParser;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
+import org.eclipse.lemminx.settings.XMLSymbolExpressionFilter;
+import org.eclipse.lemminx.settings.XMLSymbolFilter;
 import org.eclipse.lemminx.settings.XMLSymbolSettings;
 import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.SymbolKind;
@@ -170,8 +172,7 @@ public class XMLDocumentSymbolsTest {
 
 	private static void testDocumentSymbolsNumber(String xml, String fileURI, XMLSymbolSettings symbolSettings,
 			int expectedNumber) {
-		testDocumentSymbolsNumber(new XMLLanguageService(), xml, fileURI, symbolSettings, null,
-				expectedNumber);
+		testDocumentSymbolsNumber(new XMLLanguageService(), xml, fileURI, symbolSettings, null, expectedNumber);
 	}
 
 	private static void testDocumentSymbolsNumber(XMLLanguageService xmlLanguageService, String xml, String fileURI,
@@ -195,4 +196,202 @@ public class XMLDocumentSymbolsTest {
 		assertEquals(expectedNumber, actual.size());
 	}
 
+	// Tests for Symbols filter
+
+	@Test
+	public void noSymbolsFilter() {
+		String xml = "<foo>\r\n" + //
+				"	<bar attr1=\"value1\" attr2=\"value2\">ABCD</bar>\r\n" + //
+				"</foo>";
+		// null symbols filter
+		XMLSymbolSettings symbolSettings = new XMLSymbolSettings();
+		testDocumentSymbolsFor(xml, "file:///test/foo.xml", symbolSettings, //
+				ds("foo", SymbolKind.Field, r(0, 0, 2, 6), r(0, 0, 2, 6), null, //
+						Arrays.asList(
+								ds("bar", SymbolKind.Field, r(1, 1, 1, 46), r(1, 1, 1, 46), null, Arrays.asList()))));
+
+		// empty array symbols filter
+		symbolSettings = new XMLSymbolSettings();
+		symbolSettings.setFilters(new XMLSymbolFilter[0]);
+		testDocumentSymbolsFor(xml, "file:///test/foo.xml", symbolSettings, //
+				ds("foo", SymbolKind.Field, r(0, 0, 2, 6), r(0, 0, 2, 6), null, //
+						Arrays.asList(
+								ds("bar", SymbolKind.Field, r(1, 1, 1, 46), r(1, 1, 1, 46), null, Arrays.asList()))));
+
+	}
+
+	@Test
+	public void symbolsFilterWithAllAttr() {
+		String xml = "<foo>\r\n" + //
+				"	<bar attr1=\"value1\" attr2=\"value2\">ABCD</bar>\r\n" + //
+				"	<baz attr1=\"baz-value1\" attr2=\"baz-value2\">EFGH</baz>\r\n" + //
+				"</foo>";
+		XMLSymbolSettings symbolSettings = new XMLSymbolSettings();
+		XMLSymbolFilter filter = new XMLSymbolFilter();
+		filter.setPattern("foo.xml");
+		XMLSymbolExpressionFilter expressionFilter = new XMLSymbolExpressionFilter();
+
+		filter.setExpressions(new XMLSymbolExpressionFilter[] { expressionFilter });
+		symbolSettings.setFilters(new XMLSymbolFilter[] { filter });
+
+		DocumentSymbol symbolsWithAllAttr = ds("foo", SymbolKind.Field, r(0, 0, 3, 6), r(0, 0, 3, 6), null, //
+				Arrays.asList(//
+						ds("bar", SymbolKind.Field, r(1, 1, 1, 46), r(1, 1, 1, 46), null, //
+								Arrays.asList( //
+										ds("@attr1: value1", SymbolKind.Constant, r(1, 6, 1, 20), r(1, 6, 1, 20), null, //
+												Arrays.asList()), //
+										ds("@attr2: value2", SymbolKind.Constant, r(1, 21, 1, 35), r(1, 21, 1, 35),
+												null, //
+												Arrays.asList()))), //
+						ds("baz", SymbolKind.Field, r(2, 1, 2, 54), r(2, 1, 2, 54), null, //
+								Arrays.asList( //
+										ds("@attr1: baz-value1", SymbolKind.Constant, r(2, 6, 2, 24), r(2, 6, 2, 24),
+												null, //
+												Arrays.asList()), //
+										ds("@attr2: baz-value2", SymbolKind.Constant, r(2, 25, 2, 43), r(2, 25, 2, 43),
+												null, //
+												Arrays.asList())))
+
+				));
+
+		// Test with //@*
+		expressionFilter.setXpath("//@*");
+		testDocumentSymbolsFor(xml, "file:///test/foo.xml", symbolSettings, symbolsWithAllAttr);
+
+		DocumentSymbol symbolsWithBarAttr = ds("foo", SymbolKind.Field, r(0, 0, 3, 6), r(0, 0, 3, 6), null, //
+				Arrays.asList(//
+						ds("bar", SymbolKind.Field, r(1, 1, 1, 46), r(1, 1, 1, 46), null, //
+								Arrays.asList( //
+										ds("@attr1: value1", SymbolKind.Constant, r(1, 6, 1, 20), r(1, 6, 1, 20), null, //
+												Arrays.asList()), //
+										ds("@attr2: value2", SymbolKind.Constant, r(1, 21, 1, 35), r(1, 21, 1, 35),
+												null, //
+												Arrays.asList()))), //
+						ds("baz", SymbolKind.Field, r(2, 1, 2, 54), r(2, 1, 2, 54), null, //
+								Arrays.asList())
+
+				));
+		// Test with //bar/@*
+		expressionFilter.setXpath("//bar/@*");
+		testDocumentSymbolsFor(xml, "file:///test/foo.xml", symbolSettings, symbolsWithBarAttr);
+
+		// Test with /foo/bar/@*
+		expressionFilter.setXpath("/foo/bar/@*");
+		testDocumentSymbolsFor(xml, "file:///test/foo.xml", symbolSettings, symbolsWithBarAttr);
+
+	}
+
+	@Test
+	public void symbolsFilterWithOneAttr() {
+		String xml = "<foo>\r\n" + //
+				"	<bar attr1=\"value1\" attr2=\"value2\">ABCD</bar>\r\n" + //
+				"	<baz attr1=\"baz-value1\" attr2=\"baz-value2\">EFGH</baz>\r\n" + //
+				"</foo>";
+		XMLSymbolSettings symbolSettings = new XMLSymbolSettings();
+		XMLSymbolFilter filter = new XMLSymbolFilter();
+		filter.setPattern("foo.xml");
+		XMLSymbolExpressionFilter expressionFilter = new XMLSymbolExpressionFilter();
+		filter.setExpressions(new XMLSymbolExpressionFilter[] { expressionFilter });
+		symbolSettings.setFilters(new XMLSymbolFilter[] { filter });
+
+		DocumentSymbol symbolsWithAllAttr2 = ds("foo", SymbolKind.Field, r(0, 0, 3, 6), r(0, 0, 3, 6), null, //
+				Arrays.asList( //
+						ds("bar", SymbolKind.Field, r(1, 1, 1, 46), r(1, 1, 1, 46), null, //
+								Arrays.asList( //
+										ds("@attr2: value2", SymbolKind.Constant, r(1, 21, 1, 35), r(1, 21, 1, 35),
+												null, //
+												Arrays.asList()))), //
+						ds("baz", SymbolKind.Field, r(2, 1, 2, 54), r(2, 1, 2, 54), null, //
+								Arrays.asList( //
+										ds("@attr2: baz-value2", SymbolKind.Constant, r(2, 25, 2, 43), r(2, 25, 2, 43),
+												null, //
+												Arrays.asList())))));
+
+		// Test with //@attr2
+		expressionFilter.setXpath("//@attr2");
+		testDocumentSymbolsFor(xml, "file:///test/foo.xml", symbolSettings, //
+				symbolsWithAllAttr2);
+
+		DocumentSymbol symbolsWithBarAttr2 = ds("foo", SymbolKind.Field, r(0, 0, 3, 6), r(0, 0, 3, 6), null, //
+				Arrays.asList( //
+						ds("bar", SymbolKind.Field, r(1, 1, 1, 46), r(1, 1, 1, 46), null, //
+								Arrays.asList( //
+										ds("@attr2: value2", SymbolKind.Constant, r(1, 21, 1, 35), r(1, 21, 1, 35),
+												null, //
+												Arrays.asList()))), //
+						ds("baz", SymbolKind.Field, r(2, 1, 2, 54), r(2, 1, 2, 54), null, Arrays.asList())));
+
+		// Test with //bar/@attr2
+		expressionFilter.setXpath("//bar/@attr2");
+		testDocumentSymbolsFor(xml, "file:///test/foo.xml", symbolSettings, //
+				symbolsWithBarAttr2);
+
+		// Test with /foo/bar/@attr2
+		expressionFilter.setXpath("/foo/bar/@attr2");
+		testDocumentSymbolsFor(xml, "file:///test/foo.xml", symbolSettings, //
+				symbolsWithBarAttr2);
+	}
+
+	@Test
+	public void symbolsFilterWithText() {
+		String xml = "<foo>\r\n" + //
+				"	<bar attr1=\"value1\" attr2=\"value2\">ABCD</bar>\r\n" + //
+				"	<baz attr1=\"baz-value1\" attr2=\"baz-value2\">EFGH</baz>\r\n" + //
+				"</foo>";
+		XMLSymbolSettings symbolSettings = new XMLSymbolSettings();
+		XMLSymbolFilter filter = new XMLSymbolFilter();
+		filter.setPattern("foo.xml");
+		XMLSymbolExpressionFilter expressionFilter = new XMLSymbolExpressionFilter();
+
+		filter.setExpressions(new XMLSymbolExpressionFilter[] { expressionFilter });
+		symbolSettings.setFilters(new XMLSymbolFilter[] { filter });
+
+		DocumentSymbol symbolWithAllText = ds("foo", SymbolKind.Field, r(0, 0, 3, 6), r(0, 0, 3, 6), null, //
+				Arrays.asList(//
+						ds("bar: ABCD", SymbolKind.Field, r(1, 1, 1, 46), r(1, 1, 1, 46), null, Arrays.asList()),
+						ds("baz: EFGH", SymbolKind.Field, r(2, 1, 2, 54), r(2, 1, 2, 54), null, Arrays.asList())));
+
+		// Test with //text()
+		expressionFilter.setXpath("//text()");
+		testDocumentSymbolsFor(xml, "file:///test/foo.xml", symbolSettings, //
+				symbolWithAllText);
+
+		DocumentSymbol symbolWithBarText = ds("foo", SymbolKind.Field, r(0, 0, 3, 6), r(0, 0, 3, 6), null, //
+				Arrays.asList(//
+						ds("bar: ABCD", SymbolKind.Field, r(1, 1, 1, 46), r(1, 1, 1, 46), null, Arrays.asList()),
+						ds("baz", SymbolKind.Field, r(2, 1, 2, 54), r(2, 1, 2, 54), null, Arrays.asList())));
+
+		// Test with //bar/text()
+		expressionFilter.setXpath("//bar/text()");
+		testDocumentSymbolsFor(xml, "file:///test/foo.xml", symbolSettings, //
+				symbolWithBarText);
+
+		// Test with /foo/bar/text()
+		expressionFilter.setXpath("/foo/bar/text()");
+		testDocumentSymbolsFor(xml, "file:///test/foo.xml", symbolSettings, //
+				symbolWithBarText);
+
+	}
+
+	@Test
+	public void symbolsFilterExcludeElement() {
+		String xml = "<foo>\r\n" + //
+				"	<bar attr1=\"value1\" attr2=\"value2\">ABCD</bar>\r\n" + //
+				"	<baz attr1=\"baz-value1\" attr2=\"baz-value2\">EFGH</baz>\r\n" + //
+				"</foo>";
+		XMLSymbolSettings symbolSettings = new XMLSymbolSettings();
+		XMLSymbolFilter filter = new XMLSymbolFilter();
+		filter.setPattern("foo.xml");
+		XMLSymbolExpressionFilter expressionFilter = new XMLSymbolExpressionFilter();
+		filter.setExpressions(new XMLSymbolExpressionFilter[] { expressionFilter });
+		symbolSettings.setFilters(new XMLSymbolFilter[] { filter });
+
+		// Exclude baz
+		expressionFilter.setXpath("//baz");
+		expressionFilter.setExcluded(true);
+		testDocumentSymbolsFor(xml, "file:///test/foo.xml", symbolSettings, //
+				ds("foo", SymbolKind.Field, r(0, 0, 3, 6), r(0, 0, 3, 6), null, //
+						Arrays.asList(//
+								ds("bar", SymbolKind.Field, r(1, 1, 1, 46), r(1, 1, 1, 46), null, Arrays.asList()))));
+	}
 }

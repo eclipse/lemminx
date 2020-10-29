@@ -14,6 +14,7 @@ package org.eclipse.lemminx.services.extensions;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.services.DocumentSymbolsResult;
 import org.eclipse.lemminx.services.SymbolInformationResult;
+import org.eclipse.lemminx.settings.XMLSymbolFilter;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
@@ -49,17 +50,21 @@ public interface ISymbolsProviderParticipant {
 	 * 
 	 * @param document      the DOM document.
 	 * @param symbols       the symbols to update.
+	 * @param filter        the symbol filter.
 	 * @param cancelChecker the cancel checker.
 	 */
-	void findSymbolInformations(DOMDocument document, SymbolInformationResult symbols, CancelChecker cancelChecker);
+	void findSymbolInformations(DOMDocument document, SymbolInformationResult symbols, XMLSymbolFilter filter,
+			CancelChecker cancelChecker);
 
 	/**
 	 * Fill the given document symbol result with custom document symbol.
 	 * 
 	 * @param document      the DOM document.
 	 * @param symbols       the symbols to update.
+	 * @param filter        the symbol filter.
 	 * @param cancelChecker the cancel checker.
 	 */
-	void findDocumentSymbols(DOMDocument document, DocumentSymbolsResult symbols, CancelChecker cancelChecker);
+	void findDocumentSymbols(DOMDocument document, DocumentSymbolsResult symbols, XMLSymbolFilter filter,
+			CancelChecker cancelChecker);
 
 }

@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.lemminx.utils.StringUtils;
+import org.eclipse.lemminx.xpath.matcher.IXPathNodeMatcher.MatcherType;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
@@ -27,14 +28,17 @@ import org.w3c.dom.Text;
  * initialized with an XPath expression :
  * 
  * <ul>
- * <li>static expression like //element</li>
+ * <li>static expression like //element, //element/@attr, //element/text()</li>
  * <li>expression with wildcard like //element[@id='$0']</li>
  * </ul>
  * 
  */
-public class XPathMatcher extends ArrayList<XPathElementMatcher> {
+public class XPathMatcher extends ArrayList<IXPathNodeMatcher> {
 
-	private static final long serialVersionUID = 3057263917768550928L;
+	private static final long serialVersionUID = 1L;
+
+	private static final String ATTR_NODE_SELECTOR = "@";
+	private static final String TEXT_NODE_SELECTOR = "text()";
 
 	private int nbWildCard = -1;
 
@@ -45,7 +49,7 @@ public class XPathMatcher extends ArrayList<XPathElementMatcher> {
 	 */
 	public XPathMatcher(String xpathExpression) {
 		// initialize XPath Matcher with XPath expression.
-		parse(xpathExpression);
+		parse(xpathExpression != null ? xpathExpression.trim() : "");
 	}
 
 	/**
@@ -64,12 +68,12 @@ public class XPathMatcher extends ArrayList<XPathElementMatcher> {
 			endsWithAny = true;
 			xpathExpression = xpathExpression.substring(0, xpathExpression.length() - 2);
 		}
-		XPathElementMatcher elementmatcher = null;
+		IXPathNodeMatcher nodeMatcher = null;
 		String[] paths = xpathExpression.split("/");
 		for (int i = 0; i < paths.length; i++) {
 			localName = paths[i];
 			if (StringUtils.isEmpty(localName)) {
-				this.createElementMatcher();
+				this.createAnyElementMatcher();
 			} else {
 				int indexNS = localName.indexOf(':');
 				if (indexNS != -1) {
@@ -80,11 +84,11 @@ public class XPathMatcher extends ArrayList<XPathElementMatcher> {
 				if (indexSquareBracket == -1) {
 					// Element name condition
 					// ex : p=pipeline
-					this.createElementMatcher(prefix, localName);
+					this.createAndAddNodeMatcher(prefix, localName);
 				} else {
 					// ex : p=transformer[@type='pipeline'][@src='p1']
 					String elementName = localName.substring(0, indexSquareBracket);
-					elementmatcher = this.createElementMatcher(prefix, elementName);
+					nodeMatcher = this.createAndAddNodeMatcher(prefix, elementName);
 
 					String attributesCondition = localName.substring(indexSquareBracket, localName.length());
 					// ex : attributesCondition=[@type='pipeline'][@src='p1']
@@ -121,7 +125,8 @@ public class XPathMatcher extends ArrayList<XPathElementMatcher> {
 										// condition
 										if (attrCondition) {
 											XPathAttributeMatcher attributematcher = this.createAttributeMatcher(
-													elementmatcher, attrName.toString().substring(1, attrName.length()),
+													(XPathElementMatcher) nodeMatcher,
+													attrName.toString().substring(1, attrName.length()),
 													attrValue.toString());
 											if (attributematcher.hasWildcard()) {
 												int index = attributematcher.getIndexWildcard();
@@ -145,7 +150,7 @@ public class XPathMatcher extends ArrayList<XPathElementMatcher> {
 			}
 		}
 		if (endsWithAny) {
-			this.createElementMatcher();
+			this.createAnyElementMatcher();
 		}
 	}
 
@@ -174,13 +179,16 @@ public class XPathMatcher extends ArrayList<XPathElementMatcher> {
 			return false;
 		}
 		Node testNode = node;
-		XPathElementMatcher condition = null;
+		IXPathNodeMatcher condition = null;
 		for (int i = super.size() - 1; i >= 0; i--) {
+			if (testNode == null) {
+				return false;
+			}
 			condition = super.get(i);
 			if (condition.isAny()) {
 				if (i > 0) {
 					boolean previousConditionFounded = false;
-					XPathElementMatcher previousElementCondition = super.get(i - 1);
+					IXPathNodeMatcher previousElementCondition = super.get(i - 1);
 					if (previousElementCondition == null) {
 						return true;
 					}
@@ -206,7 +214,7 @@ public class XPathMatcher extends ArrayList<XPathElementMatcher> {
 					return false;
 				}
 			}
-			testNode = testNode.getParentNode();
+			testNode = getTestParentNode(testNode);
 		}
 		return true;
 	}
@@ -246,6 +254,16 @@ public class XPathMatcher extends ArrayList<XPathElementMatcher> {
 		return node;
 	}
 
+	private Node getTestParentNode(Node node) {
+		short nodeType = node.getNodeType();
+		switch (nodeType) {
+		case Node.ATTRIBUTE_NODE:
+			return ((Attr) node).getOwnerElement();
+		default:
+			return node.getParentNode();
+		}
+	}
+
 	/**
 	 * Returns the number of wilcard used in the XPath expression and -1 if there is
 	 * no wildcard.
@@ -259,35 +277,55 @@ public class XPathMatcher extends ArrayList<XPathElementMatcher> {
 	// ------------ XPath node matcher factory.
 
 	/***
-	 * Create XPath element matcher.
+	 * Create and add the XPath node matcher.
 	 * 
-	 * @param elementName
-	 * @return
+	 * @param prefix    the prefix.
+	 * @param localName the local name for matching element node , '@attr' for
+	 *                  attribute or 'text()' for text node.
+	 * @return the XPath node matcher
 	 */
-	protected XPathElementMatcher createElementMatcher(String prefix, String localName) {
-		XPathElementMatcher matcher = new XPathElementMatcher(prefix, localName, this);
+	private IXPathNodeMatcher createAndAddNodeMatcher(String prefix, String localName) {
+		IXPathNodeMatcher matcher = createNodeMatcher(prefix, localName);
 		super.add(matcher);
 		return matcher;
+	}
+
+	/***
+	 * Create the node matcher.
+	 * 
+	 * @param prefix    the prefix.
+	 * @param localName the local name for matching element node , '@attr' for
+	 *                  attribute or 'text()' for text node.
+	 * @return the XPath node matcher
+	 */
+	private IXPathNodeMatcher createNodeMatcher(String prefix, String localName) {
+		if (TEXT_NODE_SELECTOR.equals(localName)) {
+			return new XPathTextMatcher(this);
+		} else if (localName.startsWith(ATTR_NODE_SELECTOR)) {
+			return new XPathAttributeNameMatcher(prefix, localName.substring(1, localName.length()), this);
+		}
+		return new XPathElementMatcher(prefix, localName, this);
 	}
 
 	/**
 	 * Create XPath any element matcher.
 	 * 
-	 * @return
+	 * @return the XPath any element matcher.
 	 */
-	protected XPathElementMatcher createElementMatcher() {
+	protected XPathElementMatcher createAnyElementMatcher() {
 		XPathElementMatcher matcher = new XPathElementMatcher(null, XPathElementMatcher.ANY_ELEMENT_NAME, this);
 		super.add(matcher);
 		return matcher;
 	}
 
 	/**
-	 * Create XPath attribute matcher.
+	 * Create the XPath attribute matcher.
 	 * 
-	 * @param elementmatcher
-	 * @param attrName
-	 * @param attrValue
-	 * @return
+	 * @param elementmatcher the parent element matcher.
+	 * @param attrName       the attribute name to match.
+	 * @param attrValue      the attribute value to match.
+	 * 
+	 * @return the XPath attribute matcher.
 	 */
 	protected XPathAttributeMatcher createAttributeMatcher(XPathElementMatcher elementmatcher, String attrName,
 			String attrValue) {
@@ -296,4 +334,16 @@ public class XPathMatcher extends ArrayList<XPathElementMatcher> {
 		return matcher;
 	}
 
+	/**
+	 * Returns the type (element, attribute, text) of the node to select.
+	 * 
+	 * @return the type (element, attribute, text) of the node to select.o
+	 */
+	public MatcherType getNodeSelectorType() {
+		if (isEmpty()) {
+			return MatcherType.ELEMENT;
+		}
+		IXPathNodeMatcher matcher = get(size() - 1);
+		return matcher.getType();
+	}
 }
