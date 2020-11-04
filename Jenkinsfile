@@ -9,11 +9,11 @@ pipeline{
   }
   stages{
     stage("Maven Build"){
-        steps {
-          withMaven {
-            sh './mvnw clean verify -B -Pci,generate-p2 -Dcbi.jarsigner.skip=false'
-          }
+      steps {
+        withMaven {
+          sh './mvnw clean verify -B -Pci,generate-p2 -Dcbi.jarsigner.skip=false'
         }
+      }
     }
     stage('Deploy to downloads.eclipse.org') {
       when {
