@@ -111,7 +111,7 @@ public abstract class AbstractXML2GrammarGenerator<T extends FileContentGenerato
 		String defaultNamespace = null;
 		Element documentElement = sourceDocument.getDocumentElement();
 		if (documentElement != null) {
-			defaultNamespace = sourceDocument.getDocumentElement().getAttribute(DOMAttr.XMLNS_ATTR);
+			defaultNamespace = documentElement.getAttribute(DOMAttr.XMLNS_ATTR);
 		}
 		grammar.setDefaultNamespace(defaultNamespace);
 		// Update elements information

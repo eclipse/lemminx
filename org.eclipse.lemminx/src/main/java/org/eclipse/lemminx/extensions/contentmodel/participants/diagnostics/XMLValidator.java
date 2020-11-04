@@ -23,6 +23,7 @@ import java.util.logging.Logger;
 import org.apache.xerces.parsers.SAXParser;
 import org.apache.xerces.xni.grammars.XMLGrammarPool;
 import org.apache.xerces.xni.parser.XMLEntityResolver;
+import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMDocumentType;
 import org.eclipse.lemminx.dom.DOMElement;
@@ -32,6 +33,7 @@ import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSetting
 import org.eclipse.lemminx.services.extensions.diagnostics.LSPContentHandler;
 import org.eclipse.lemminx.uriresolver.CacheResourceDownloadingException;
 import org.eclipse.lemminx.uriresolver.IExternalGrammarLocationProvider;
+import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
@@ -82,7 +84,7 @@ public class XMLValidator {
 			// If diagnostics for Schema preference is enabled
 			if ((validationSettings == null) || validationSettings.isSchema()) {
 
-				checkExternalSchema(document.getExternalGrammarLocation(), parser);
+				updateExternalGrammarLocation(document, parser);
 				parser.setFeature("http://apache.org/xml/features/validation/schema", hasSchemaGrammar); //$NON-NLS-1$
 
 				// warn if XML document is not bound to a grammar according the settings
@@ -192,16 +194,33 @@ public class XMLValidator {
 		}
 	}
 
-	private static void checkExternalSchema(Map<String, String> result, SAXParser reader)
+	private static void updateExternalGrammarLocation(DOMDocument document, SAXParser reader)
 			throws SAXNotRecognizedException, SAXNotSupportedException {
-		if (result != null) {
-			String noNamespaceSchemaLocation = result
-					.get(IExternalGrammarLocationProvider.NO_NAMESPACE_SCHEMA_LOCATION);
-			if (noNamespaceSchemaLocation != null) {
-				reader.setProperty(IExternalGrammarLocationProvider.NO_NAMESPACE_SCHEMA_LOCATION,
-						noNamespaceSchemaLocation);
+		Map<String, String> externalGrammarLocation = document.getExternalGrammarLocation();
+		if (externalGrammarLocation != null) {
+			String xsd = externalGrammarLocation.get(IExternalGrammarLocationProvider.NO_NAMESPACE_SCHEMA_LOCATION);
+			if (xsd != null) {
+				// Try to get the xmlns attribute (default namespace) value from the DOM
+				// document
+				String defaultNamespace = null;
+				DOMElement documentElement = document.getDocumentElement();
+				if (documentElement != null) {
+					defaultNamespace = documentElement.getAttribute(DOMAttr.XMLNS_ATTR);
+				}
+				if (StringUtils.isEmpty(defaultNamespace)) {
+					// The DOM document has no namespace, we consider that it's the same thing than
+					// xsi:noNamespaceSchemaLocation
+					String noNamespaceSchemaLocation = xsd;
+					reader.setProperty(IExternalGrammarLocationProvider.NO_NAMESPACE_SCHEMA_LOCATION,
+							noNamespaceSchemaLocation);
+				} else {
+					// The DOM document has namespace, we consider that it's the same thing than
+					// xsi:schemaLocation
+					String schemaLocation = defaultNamespace + " " + xsd;
+					reader.setProperty(IExternalGrammarLocationProvider.SCHEMA_LOCATION, schemaLocation);
+				}
 			} else {
-				String doctype = result.get(IExternalGrammarLocationProvider.DOCTYPE);
+				String doctype = externalGrammarLocation.get(IExternalGrammarLocationProvider.DOCTYPE);
 				if (doctype != null) {
 					reader.setProperty(IExternalGrammarLocationProvider.DOCTYPE, doctype);
 				}
