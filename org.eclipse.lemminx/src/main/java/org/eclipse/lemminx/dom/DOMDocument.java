@@ -261,8 +261,8 @@ public class DOMDocument extends DOMNode implements Document {
 			for (DOMAttr attr : documentElement.getAttributeNodes()) {
 				String attributeName = attr.getName();
 				if (attributeName != null) {
-					if (attributeName.equals("xmlns") || attributeName.startsWith("xmlns:")) //$NON-NLS-1$ //$NON-NLS-2$
-					{
+					if (attributeName.equals(DOMAttr.XMLNS_ATTR)
+							|| attributeName.startsWith(DOMAttr.XMLNS_NO_DEFAULT_ATTR)) {
 						hasNamespaces = true;
 						String attributeValue = documentElement.getAttribute(attributeName);
 						if (attributeValue != null && attributeValue.startsWith("http://www.w3.org/")) {
