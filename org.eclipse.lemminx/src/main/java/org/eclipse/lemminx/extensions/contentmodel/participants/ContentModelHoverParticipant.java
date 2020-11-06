@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMElement;
+import org.eclipse.lemminx.dom.DOMText;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMElementDeclaration;
@@ -130,6 +131,36 @@ public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 								hoverRequest);
 						fillHoverContent(content, contentValues);
 					}
+				}
+			}
+			return createHover(contentValues);
+		} catch (CacheResourceDownloadingException e) {
+			return getCacheWarningHover(e, hoverRequest);
+		}
+	}
+
+	@Override
+	public Hover onText(IHoverRequest hoverRequest) throws Exception {
+		DOMText text = (DOMText) hoverRequest.getNode();
+		DOMElement element = text.getParentElement();
+		try {
+			ContentModelManager contentModelManager = hoverRequest.getComponent(ContentModelManager.class);
+			Collection<CMDocument> cmDocuments = contentModelManager.findCMDocument(element);
+			if (cmDocuments.isEmpty()) {
+				// no bound grammar -> no documentation
+				return null;
+			}
+			String textContent = text.getTextContent();
+			if (textContent != null) {
+				textContent = textContent.trim();
+			}
+			// Compute attribute name declaration documentation from bound grammars
+			List<MarkupContent> contentValues = new ArrayList<>();
+			for (CMDocument cmDocument : cmDocuments) {
+				CMElementDeclaration cmElement = cmDocument.findCMElement(element);
+				if (cmElement != null) {
+					MarkupContent content = XMLGenerator.createMarkupContent(cmElement, textContent, hoverRequest);
+					fillHoverContent(content, contentValues);
 				}
 			}
 			return createHover(contentValues);

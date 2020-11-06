@@ -17,18 +17,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.xerces.impl.dv.xs.XSSimpleTypeDecl;
-import org.apache.xerces.impl.xs.XSComplexTypeDecl;
 import org.apache.xerces.xs.XSAttributeDeclaration;
 import org.apache.xerces.xs.XSAttributeUse;
-import org.apache.xerces.xs.XSMultiValueFacet;
 import org.apache.xerces.xs.XSObjectList;
 import org.apache.xerces.xs.XSSimpleTypeDefinition;
-import org.apache.xerces.xs.XSTypeDefinition;
 import org.apache.xerces.xs.XSValue;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lemminx.services.extensions.ISharedSettingsRequest;
 import org.eclipse.lemminx.settings.SchemaDocumentationType;
+import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lsp4j.MarkupKind;
 
 /**
@@ -39,15 +36,14 @@ public class CMXSDAttributeDeclaration implements CMAttributeDeclaration {
 
 	private final XSAttributeUse attributeUse;
 
-	private final Map<String, String> valuesDocumentation;
+	private Map<String, String> valuesDocumentation;
 
 	private String attrDocumentation;
 
 	private SchemaDocumentationType docStrategy;
-	
+
 	public CMXSDAttributeDeclaration(XSAttributeUse attributeUse) {
 		this.attributeUse = attributeUse;
-		this.valuesDocumentation = new HashMap<>();
 	}
 
 	@Override
@@ -67,8 +63,9 @@ public class CMXSDAttributeDeclaration implements CMAttributeDeclaration {
 	}
 
 	@Override
-	public String getDocumentation(ISharedSettingsRequest request) {
-		SchemaDocumentationType currStrategy = request.getSharedSettings().getPreferences().getShowSchemaDocumentationType();
+	public String getAttributeNameDocumentation(ISharedSettingsRequest request) {
+		SchemaDocumentationType currStrategy = request.getSharedSettings().getPreferences()
+				.getShowSchemaDocumentationType();
 		if (this.docStrategy != currStrategy) {
 			clearDocumentation();
 		} else if (this.attrDocumentation != null) {
@@ -76,127 +73,99 @@ public class CMXSDAttributeDeclaration implements CMAttributeDeclaration {
 		}
 		this.docStrategy = currStrategy;
 		// Try get xs:annotation from the element declaration or type
-		XSObjectList annotations = getAnnotations();
+		XSObjectList annotations = getAttributeNameAnnotations();
 		boolean markdownSupported = request.canSupportMarkupKind(MarkupKind.MARKDOWN);
 		this.attrDocumentation = new XSDDocumentation(annotations, docStrategy, !markdownSupported)
 				.getFormattedDocumentation(markdownSupported);
 		return this.attrDocumentation;
 	}
 
+	/**
+	 * Returns list of xs:annotation from the attribute declaration or type
+	 * declaration.
+	 * 
+	 * @return list of xs:annotation from the attribute declaration or type
+	 *         declaration.
+	 */
+	private XSObjectList getAttributeNameAnnotations() {
+		// Try get xs:annotation from the attribute declaration
+		XSAttributeDeclaration attributeDeclaration = getAttrDeclaration();
+		XSObjectList annotation = attributeDeclaration.getAnnotations();
+		if (annotation != null && annotation.getLength() > 0) {
+			return annotation;
+		}
+		// Try get xs:annotation from the type of attribute declaration
+		XSSimpleTypeDefinition typeDefinition = attributeDeclaration.getTypeDefinition();
+		return typeDefinition != null ? typeDefinition.getAnnotations() : null;
+	}
+
 	@Override
-	public String getValueDocumentation(String value, ISharedSettingsRequest request) {
-		SchemaDocumentationType currStrategy = request.getSharedSettings().getPreferences().getShowSchemaDocumentationType();
+	public String getAttributeValueDocumentation(String value, ISharedSettingsRequest request) {
+		SchemaDocumentationType currStrategy = request.getSharedSettings().getPreferences()
+				.getShowSchemaDocumentationType();
 		if (this.docStrategy != currStrategy) {
 			clearDocumentation();
 		}
-		String documentation = valuesDocumentation.get(value);
-		if (documentation != null) {
-			return documentation;
-		}
+		valuesDocumentation = null;
 		this.docStrategy = currStrategy;
-		// Try get xs:annotation from the element declaration or type
-		XSObjectList annotations = getValueAnnotations();
+		if (valuesDocumentation == null) {
+			valuesDocumentation = createValuesDocumentation(request);
+		}
+		return valuesDocumentation.get(value);
+	}
+
+	private Map<String, String> createValuesDocumentation(ISharedSettingsRequest request) {
 		boolean markdownSupported = request.canSupportMarkupKind(MarkupKind.MARKDOWN);
-		documentation = new XSDDocumentation(annotations, value, docStrategy, !markdownSupported)
-				.getFormattedDocumentation(markdownSupported);
-		valuesDocumentation.put(value, documentation);
-		return documentation;
-	}
-
-	private void clearDocumentation() {
-		this.valuesDocumentation.clear();
-		this.attrDocumentation = null;
-	}
-
-	/**
-	 * Returns list of xs:annotation from the element declaration or type
-	 * declaration.
-	 * 
-	 * @return list of xs:annotation from the element declaration or type
-	 *         declaration.
-	 */
-	private XSObjectList getAnnotations() {
-		// Try get xs:annotation from the element declaration
-		XSAttributeDeclaration attributeDeclaration = getAttrDeclaration();
-		XSObjectList annotation = attributeDeclaration.getAnnotations();
-		
-		if (annotation != null && annotation.getLength() > 0) {
-			return annotation;
-		}
-		// Try get xs:annotation from the type of element declaration
-		XSTypeDefinition typeDefinition = attributeDeclaration.getTypeDefinition();
-		if (typeDefinition == null) {
-			return null;
-		}
-		if (typeDefinition.getTypeCategory() == XSTypeDefinition.COMPLEX_TYPE) {
-			return ((XSComplexTypeDecl) typeDefinition).getAnnotations();
-		} else if (typeDefinition.getTypeCategory() == XSTypeDefinition.SIMPLE_TYPE) {
-			return ((XSSimpleTypeDecl) typeDefinition).getAnnotations();
-		}
-		return null;
+		Map<String, String> valuesDocumentation = new HashMap<>();
+		// loop for each enumeration values and update the values documentation map with
+		// documentation
+		getEnumerationValues().forEach(value -> {
+			String documentation = null;
+			XSObjectList annotations = getAttributeValueAnnotations(value);
+			if (annotations != null) {
+				documentation = new XSDDocumentation(annotations, value, docStrategy, !markdownSupported)
+						.getFormattedDocumentation(markdownSupported);
+			}
+			if (StringUtils.isBlank(documentation)) {
+				// The documentation is blank or not defined, try to get the documentation from
+				// the attribute
+				// name
+				documentation = getAttributeNameDocumentation(request);
+			}
+			valuesDocumentation.put(value, documentation);
+		});
+		return valuesDocumentation;
 	}
 
 	/**
-	 * Returns list of xs:annotation from the element declaration or type
+	 * Returns list of xs:annotation from the attribute declaration or type
 	 * declaration.
 	 * 
 	 * Indicated by:
-	 * https://msdn.microsoft.com/en-us/library/ms256143(v=vs.110).aspx
-	 * xs:attribute tags have content of either an xs:annotation or xs:simpleType
+	 * https://msdn.microsoft.com/en-us/library/ms256143(v=vs.110).aspx xs:attribute
+	 * tags have content of either an xs:annotation or xs:simpleType
 	 * 
-	 * @return list of xs:annotation from the element declaration or type
+	 * @param value
+	 * 
+	 * @return list of xs:annotation from the attribute declaration or type
 	 *         declaration.
 	 */
-	private XSObjectList getValueAnnotations() {
-		// Try get xs:annotation from the element declaration
+	private XSObjectList getAttributeValueAnnotations(String value) {
+		// Try get xs:annotation from the xs:enumeration declaration
 		XSAttributeDeclaration attributeDeclaration = getAttrDeclaration();
 		XSSimpleTypeDefinition simpleTypeDefinition = attributeDeclaration.getTypeDefinition();
-		XSSimpleTypeDecl simpleTypeDecl;
-		
-	
-		XSObjectList annotation = null; // The XSD tag that holds the documentation tag
-
-		if(simpleTypeDefinition instanceof XSSimpleTypeDecl) {
-			simpleTypeDecl = (XSSimpleTypeDecl) simpleTypeDefinition;
-			XSObjectList multiFacets = simpleTypeDecl.getMultiValueFacets();
-			if(!multiFacets.isEmpty()) {
-				XSMultiValueFacet facet = (XSMultiValueFacet) multiFacets.get(0);
-				multiFacets = facet.getAnnotations();
-				Object[] annotationArray = multiFacets.toArray();
-				if(!onlyContainsNull(annotationArray)) { // if multiValueFacets has annotations
-					annotation = simpleTypeDecl.getMultiValueFacets();
-				}
-			}
-		}
-		if(annotation == null){ // There was no specific documentation for the value, so use the general attribute documentation
-			annotation = attributeDeclaration.getAnnotations();
-		}
+		XSObjectList annotation = CMXSDDocument.getEnumerationAnnotations(simpleTypeDefinition, value);
 		if (annotation != null && annotation.getLength() > 0) {
 			return annotation;
 		}
-		// Try get xs:annotation from the type of element declaration
-		XSTypeDefinition typeDefinition = attributeDeclaration.getTypeDefinition();
-		if (typeDefinition == null) {
-			return null;
-		}
-		if (typeDefinition.getTypeCategory() == XSTypeDefinition.COMPLEX_TYPE) {
-			return ((XSComplexTypeDecl) typeDefinition).getAnnotations();
-		} else if (typeDefinition.getTypeCategory() == XSTypeDefinition.SIMPLE_TYPE) {
-			return ((XSSimpleTypeDecl) typeDefinition).getAnnotations();
-		}
-		return null;
+		// There was no specific documentation for the value, so use the general
+		// attribute documentation
+		return getAttributeNameAnnotations();
 	}
 
-	private boolean onlyContainsNull(Object[] arr) {
-		if(arr == null || arr.length == 0) {
-			return true;
-		}
-		for (Object o : arr) {
-			if(o != null) {
-				return false;
-			}
-		}
-		return true;
+	private void clearDocumentation() {
+		this.valuesDocumentation = null;
+		this.attrDocumentation = null;
 	}
 
 	@Override

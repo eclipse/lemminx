@@ -13,6 +13,7 @@
 package org.eclipse.lemminx.extensions.contentmodel;
 
 import static org.eclipse.lemminx.XMLAssert.c;
+import static org.eclipse.lemminx.XMLAssert.te;
 
 import java.util.function.Consumer;
 
@@ -29,11 +30,14 @@ import org.junit.jupiter.api.Test;
  */
 public class XMLFileAssociationsCompletionTest {
 
+	// ------- XML file association with XSD xs:noNamespaceShemaLocation like
+
 	@Test
 	public void completionOnRootWithXSD() throws BadLocationException {
 		Consumer<XMLLanguageService> configuration = ls -> {
 			ContentModelManager contentModelManager = ls.getComponent(ContentModelManager.class);
-			contentModelManager.setFileAssociations(createXSDAssociations("src/test/resources/xsd/"));
+			contentModelManager
+					.setFileAssociations(createXSDAssociationsNoNamespaceSchemaLocationLike("src/test/resources/xsd/"));
 		};
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"  <|";
@@ -52,7 +56,8 @@ public class XMLFileAssociationsCompletionTest {
 		Consumer<XMLLanguageService> configuration = ls -> {
 			// Configure language service with file asociations
 			ContentModelManager contentModelManager = ls.getComponent(ContentModelManager.class);
-			contentModelManager.setFileAssociations(createXSDAssociations("src/test/resources/xsd/"));
+			contentModelManager
+					.setFileAssociations(createXSDAssociationsNoNamespaceSchemaLocationLike("src/test/resources/xsd/"));
 		};
 
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
@@ -78,7 +83,7 @@ public class XMLFileAssociationsCompletionTest {
 			ContentModelManager contentModelManager = ls.getComponent(ContentModelManager.class);
 			// Use root URI which ends with slash
 			contentModelManager.setRootURI("src/test/resources/xsd/");
-			contentModelManager.setFileAssociations(createXSDAssociations(""));
+			contentModelManager.setFileAssociations(createXSDAssociationsNoNamespaceSchemaLocationLike(""));
 		};
 
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
@@ -99,7 +104,7 @@ public class XMLFileAssociationsCompletionTest {
 			ContentModelManager contentModelManager = ls.getComponent(ContentModelManager.class);
 			// Use root URI which ends with no slash
 			contentModelManager.setRootURI("src/test/resources/xsd");
-			contentModelManager.setFileAssociations(createXSDAssociations(""));
+			contentModelManager.setFileAssociations(createXSDAssociationsNoNamespaceSchemaLocationLike(""));
 		};
 
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
@@ -114,7 +119,7 @@ public class XMLFileAssociationsCompletionTest {
 				c("Configuration", "<Configuration></Configuration>"));
 	}
 
-	private static XMLFileAssociation[] createXSDAssociations(String baseSystemId) {
+	private static XMLFileAssociation[] createXSDAssociationsNoNamespaceSchemaLocationLike(String baseSystemId) {
 		XMLFileAssociation format = new XMLFileAssociation();
 		format.setPattern("**/*.Format.ps1xml");
 		format.setSystemId(baseSystemId + "Format.xsd");
@@ -123,6 +128,32 @@ public class XMLFileAssociationsCompletionTest {
 		resources.setSystemId(baseSystemId + "resources.xsd");
 		return new XMLFileAssociation[] { format, resources };
 	}
+
+	// ------- XML file association with XSD xs:schemaLocation like
+
+	@Test
+	public void completionOnRootWithXSDAndNS() throws BadLocationException {
+		Consumer<XMLLanguageService> configuration = ls -> {
+			ContentModelManager contentModelManager = ls.getComponent(ContentModelManager.class);
+			contentModelManager.setFileAssociations(createXSDAssociationsSchemaLocationLike("src/test/resources/xsd/"));
+		};
+		// completion on <|
+		String xml = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n>\r\n" + //
+				"	<|" + //
+				"</project>";
+		testCompletionFor(xml, "file:///test/pom.xml", configuration, //
+				c("modelVersion", te(2, 1, 2, 2, "<modelVersion></modelVersion>"), "<modelVersion"), //
+				c("parent", "<parent></parent>", "<parent"));
+	}
+
+	private static XMLFileAssociation[] createXSDAssociationsSchemaLocationLike(String baseSystemId) {
+		XMLFileAssociation maven = new XMLFileAssociation();
+		maven.setPattern("**/pom.xml");
+		maven.setSystemId(baseSystemId + "maven-4.0.0.xsd");
+		return new XMLFileAssociation[] { maven };
+	}
+
+	// ------- XML file association with DTD
 
 	@Test
 	public void completionOnRootWithDTD() throws BadLocationException {

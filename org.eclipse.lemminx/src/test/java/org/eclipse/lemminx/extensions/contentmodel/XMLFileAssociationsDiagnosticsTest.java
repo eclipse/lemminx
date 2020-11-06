@@ -42,13 +42,15 @@ import com.google.gson.JsonObject;
  */
 public class XMLFileAssociationsDiagnosticsTest {
 
+	// ------- XML file association with XSD xs:noNamespaceShemaLocation like
+
 	@Test
 	public void validationOnRoot() throws BadLocationException {
 		Consumer<XMLLanguageService> configuration = ls -> {
 			ContentModelManager contentModelManager = ls.getComponent(ContentModelManager.class);
 			// Use root URI which ends with slash
 			contentModelManager.setRootURI("src/test/resources/xsd/");
-			contentModelManager.setFileAssociations(createXSDAssociations(""));
+			contentModelManager.setFileAssociations(createXSDAssociationsNoNamespaceSchemaLocationLike(""));
 		};
 
 		// Use Format.xsd which defines Configuration as root element
@@ -179,7 +181,7 @@ public class XMLFileAssociationsDiagnosticsTest {
 			ContentModelManager contentModelManager = ls.getComponent(ContentModelManager.class);
 			// Use root URI which ends with slash
 			contentModelManager.setRootURI("src/test/resources/xsd/");
-			contentModelManager.setFileAssociations(createXSDAssociations(""));
+			contentModelManager.setFileAssociations(createXSDAssociationsNoNamespaceSchemaLocationLike(""));
 		};
 
 		// Use resources.xsd which defines resources as root element and @variant as
@@ -206,7 +208,7 @@ public class XMLFileAssociationsDiagnosticsTest {
 			ContentModelManager contentModelManager = ls.getComponent(ContentModelManager.class);
 			// Use root URI which ends with slash
 			contentModelManager.setRootURI("src/test/resources/xsd/");
-			contentModelManager.setFileAssociations(createXSDAssociations(""));
+			contentModelManager.setFileAssociations(createXSDAssociationsNoNamespaceSchemaLocationLike(""));
 		};
 
 		// Use resources.xsd which defines resources as root element and @variant as
@@ -221,7 +223,7 @@ public class XMLFileAssociationsDiagnosticsTest {
 
 	}
 
-	private static XMLFileAssociation[] createXSDAssociations(String baseSystemId) {
+	private static XMLFileAssociation[] createXSDAssociationsNoNamespaceSchemaLocationLike(String baseSystemId) {
 		XMLFileAssociation format = new XMLFileAssociation();
 		format.setPattern("**/*.Format.ps1xml");
 		format.setSystemId(baseSystemId + "Format.xsd");
@@ -230,6 +232,31 @@ public class XMLFileAssociationsDiagnosticsTest {
 		resources.setSystemId(baseSystemId + "resources.xsd");
 		return new XMLFileAssociation[] { format, resources };
 	}
+
+	// ------- XML file association with XSD xs:schemaLocation like
+
+	@Test
+	public void validationWithExternalXSDAndNS() throws BadLocationException {
+		Consumer<XMLLanguageService> configuration = ls -> {
+			ContentModelManager contentModelManager = ls.getComponent(ContentModelManager.class);
+			contentModelManager.setFileAssociations(createXSDAssociationsSchemaLocationLike("src/test/resources/xsd/"));
+		};
+		String xml = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\">\r\n" + //
+				"	<XXX></XXX>\r\n" + // <- error
+				"</project>";
+
+		testDiagnosticsFor(xml, "file:///test/pom.xml", configuration,
+				d(1, 2, 1, 5, XMLSchemaErrorCode.cvc_complex_type_2_4_a));
+	}
+
+	private static XMLFileAssociation[] createXSDAssociationsSchemaLocationLike(String baseSystemId) {
+		XMLFileAssociation maven = new XMLFileAssociation();
+		maven.setPattern("**/pom.xml");
+		maven.setSystemId(baseSystemId + "maven-4.0.0.xsd");
+		return new XMLFileAssociation[] { maven };
+	}
+
+	// ------- XML file association with DTD
 
 	@Test
 	public void validationWithExternalDTD() throws BadLocationException {
