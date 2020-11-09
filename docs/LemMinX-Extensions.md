@@ -220,7 +220,7 @@ For more examples on how to use XMLAssert you can look at the [tests for the bui
 
 VSCode with [vscode-xml](https://github.com/redhat-developer/vscode-xml)
 
-- See documentation on [contributing your extension to vscode-xml](https://github.com/redhat-developer/vscode-xml/wiki/Extensions)
+- See documentation on [contributing your extension to vscode-xml](https://github.com/redhat-developer/vscode-xml/blob/master/docs/Extensions.md)
 
 Eclipse with [Wild Web Developer](https://github.com/eclipse/wildwebdeveloper)
 
