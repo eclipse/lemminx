@@ -962,16 +962,20 @@ public class XMLSchemaDiagnosticsTest {
 		String xsdFileURI = getGrammarFileURI("foo-invalid-syntax.xsd");
 		diagnostic.getRelatedInformation().add(new DiagnosticRelatedInformation(l(xsdFileURI, r(1, 1, 1, 54)), ""));
 
+		Diagnostic diagnosticBasedOnXSD = new Diagnostic(r(0, 1, 0, 4),
+				"cvc-elt.1.a: Cannot find the declaration of element 'foo'.", DiagnosticSeverity.Error, "xml",
+				XMLSchemaErrorCode.cvc_elt_1_a.getCode());
+
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
 		// First validation
 		XMLAssert.testDiagnosticsFor(xmlLanguageService, xml, null, null, "src/test/resources/test.xml", false,
 				settings, //
-				diagnostic);
+				diagnostic, diagnosticBasedOnXSD);
 		// Restart the validation to check the validation is working since Xerces cache
 		// the invalid XSD grammar
 		XMLAssert.testDiagnosticsFor(xmlLanguageService, xml, null, null, "src/test/resources/test.xml", false,
 				settings, //
-				diagnostic);
+				diagnostic, diagnosticBasedOnXSD);
 	}
 
 	@Test
@@ -994,16 +998,24 @@ public class XMLSchemaDiagnosticsTest {
 		String xsdFileURI = getGrammarFileURI("foo-ns-invalid-syntax.xsd");
 		diagnostic.getRelatedInformation().add(new DiagnosticRelatedInformation(l(xsdFileURI, r(1, 1, 4, 29)), ""));
 
+		Diagnostic diagnosticBasedOnXSD1 = new Diagnostic(r(1, 8, 1, 20),
+				"TargetNamespace.1: Expecting namespace 'http://foo', but the target namespace of the schema document is 'xs:element name=\"foo\">'.",
+				DiagnosticSeverity.Error, "xml", XMLSchemaErrorCode.TargetNamespace_1.getCode());
+
+		Diagnostic diagnosticBasedOnXSD2 = new Diagnostic(r(0, 1, 0, 4),
+				"cvc-elt.1.a: Cannot find the declaration of element 'foo'.", DiagnosticSeverity.Error, "xml",
+				XMLSchemaErrorCode.cvc_elt_1_a.getCode());
+
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
 		// First validation
 		XMLAssert.testDiagnosticsFor(xmlLanguageService, xml, null, null, "src/test/resources/test.xml", false,
 				settings, //
-				diagnostic);
+				diagnostic, diagnosticBasedOnXSD1, diagnosticBasedOnXSD2);
 		// Restart the validation to check the validation is working since Xerces cache
 		// the invalid XSD grammar
 		XMLAssert.testDiagnosticsFor(xmlLanguageService, xml, null, null, "src/test/resources/test.xml", false,
 				settings, //
-				diagnostic);
+				diagnostic, diagnosticBasedOnXSD1, diagnosticBasedOnXSD2);
 	}
 
 	@Test

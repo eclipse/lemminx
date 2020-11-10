@@ -49,15 +49,18 @@ public class LSPErrorReporterForXML extends AbstractLSPErrorReporter {
 
 	private Set<ReferencedGrammarInfo> referencedGrammars;
 
-	private Map<String, ReferencedGrammarDiagnosticsInfo> referencedGrammarDiagnosticsInfoCache;
+	private final Map<String, ReferencedGrammarDiagnosticsInfo> referencedGrammarDiagnosticsInfoCache;
 
 	private final boolean hasRelatedInformation;
 
 	public LSPErrorReporterForXML(DOMDocument xmlDocument, List<Diagnostic> diagnostics,
-			ContentModelManager contentModelManager, boolean hasRelatedInformation) {
+			ContentModelManager contentModelManager, boolean hasRelatedInformation,
+			Map<String, ReferencedGrammarDiagnosticsInfo> referencedGrammarDiagnosticsInfoCache) {
 		super(XML_DIAGNOSTIC_SOURCE, xmlDocument, diagnostics);
 		this.contentModelManager = contentModelManager;
 		this.hasRelatedInformation = hasRelatedInformation;
+		this.referencedGrammarDiagnosticsInfoCache = referencedGrammarDiagnosticsInfoCache == null ? new HashMap<>()
+				: referencedGrammarDiagnosticsInfoCache;
 	}
 
 	/**
@@ -72,8 +75,8 @@ public class LSPErrorReporterForXML extends AbstractLSPErrorReporter {
 	@Override
 	protected Range toLSPRange(XMLLocator location, String key, Object[] arguments, String message,
 			DiagnosticSeverity diagnosticSeverity, boolean fatalError, DOMDocument document) {
-		String documentURI = location.getExpandedSystemId();
-		boolean errorForDocument = documentURI.endsWith(document.getDocumentURI());
+		String documentOrGrammarURI = location.getExpandedSystemId();
+		boolean errorForDocument = documentOrGrammarURI != null ? documentOrGrammarURI.endsWith(document.getDocumentURI()) : true;
 		// try adjust positions for XML syntax error
 		XMLSyntaxErrorCode syntaxCode = XMLSyntaxErrorCode.get(key);
 		if (syntaxCode != null) {
@@ -84,7 +87,7 @@ public class LSPErrorReporterForXML extends AbstractLSPErrorReporter {
 				}
 			} else {
 				fillReferencedGrammarDiagnostic(location, key, arguments, message, diagnosticSeverity, fatalError,
-						document.getResolverExtensionManager(), syntaxCode, null, null, documentURI);
+						document.getResolverExtensionManager(), syntaxCode, null, null, documentOrGrammarURI);
 				return NO_RANGE;
 			}
 		} else {
@@ -106,20 +109,19 @@ public class LSPErrorReporterForXML extends AbstractLSPErrorReporter {
 						}
 					} else {
 						fillReferencedGrammarDiagnostic(location, key, arguments, message, diagnosticSeverity,
-								fatalError, document.getResolverExtensionManager(), null, dtdCode, null, documentURI);
+								fatalError, document.getResolverExtensionManager(), null, dtdCode, null, documentOrGrammarURI);
 						return NO_RANGE;
 					}
 				} else {
 					XSDErrorCode xsdCode = XSDErrorCode.get(key);
-					if (xsdCode != null) {
+					if (xsdCode != null && !errorForDocument) {
 						// The error comes from the referenced XSD (with xsi:schemaLocation, xml-model,
 						// etc)
 
 						// Try to get the declared xsi:schemaLocation, xsi:noNamespaceLocation range
 						// which declares the XSD.
-						String grammarURI = location.getExpandedSystemId();
 						fillReferencedGrammarDiagnostic(location, key, arguments, message, diagnosticSeverity,
-								fatalError, document.getResolverExtensionManager(), null, null, xsdCode, grammarURI);
+								fatalError, document.getResolverExtensionManager(), null, null, xsdCode, documentOrGrammarURI);
 						return NO_RANGE;
 					}
 				}
@@ -197,9 +199,6 @@ public class LSPErrorReporterForXML extends AbstractLSPErrorReporter {
 	 */
 	private ReferencedGrammarDiagnosticsInfo getReferencedGrammarDiagnosticsInfo(String grammarURI,
 			URIResolverExtensionManager resolverExtensionManager) {
-		if (referencedGrammarDiagnosticsInfoCache == null) {
-			referencedGrammarDiagnosticsInfoCache = new HashMap<>();
-		}
 		ReferencedGrammarDiagnosticsInfo info = referencedGrammarDiagnosticsInfoCache.get(grammarURI);
 		if (info == null) {
 			// Create diagnostic where DDT, XSD which have errors is declared
@@ -244,7 +243,7 @@ public class LSPErrorReporterForXML extends AbstractLSPErrorReporter {
 	}
 
 	public void endReport() {
-		if (referencedGrammarDiagnosticsInfoCache == null) {
+		if (referencedGrammarDiagnosticsInfoCache.isEmpty()) {
 			return;
 		}
 		// When a XML is validated by a DTD or XSD which have syntax error, the XSD, DTD
