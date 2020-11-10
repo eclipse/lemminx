@@ -1,5 +1,12 @@
 # Change Log
 
+## [0.14.1](https://github.com/eclipse/lemminx/milestone/19?closed=1) (November 10, 2020)
+
+### Bug Fixes
+
+ * NPE When there's a validation error. See [#927](https://github.com/eclipse/lemminx/issues/927).
+ * Symbols are not computed when ResultLimitExceededException is thrown. See [#928](https://github.com/eclipse/lemminx/issues/928).
+
 ## [0.14.0](https://github.com/eclipse/lemminx/milestone/18?closed=1) (November 6, 2020)
 
 ### Enhancements
