@@ -226,6 +226,26 @@ public class ReferencedGrammarSymbolsTest {
 
 	}
 
+	@Test
+	public void withSymbolLimit() throws BadLocationException, MalformedURIException {
+		XMLSymbolSettings settings = new XMLSymbolSettings();
+		settings.setMaxItemsComputed(3);
+
+		String dtdFileURI = getDTDFileURI("src/test/resources/dtd/entities/base.dtd");
+		String xml = "<!DOCTYPE root-element SYSTEM \"dtd/entities/base.dtd\">\r\n" + //
+				"<root-element>\r\n" + //
+				"</root-element>";
+		testDocumentSymbolsFor(xml, "src/test/resources/base.xml", settings, //
+				// Referenced grammar symbols
+				ds("Grammars", SymbolKind.Module, r(0, 0, 0, 1), r(0, 0, 0, 1), null, //
+						Arrays.asList( //
+								ds(dtdFileURI, SymbolKind.File, r(0, 0, 0, 1), r(0, 0, 0, 1), null, //
+										Arrays.asList( //
+												ds("Binding: doctype", SymbolKind.Property, r(0, 30, 0, 53),
+														r(0, 30, 0, 53), null, null))))) //
+		);
+	}
+
 	private static XMLFileAssociation[] createXSDAssociations(String baseSystemId) {
 		XMLFileAssociation format = new XMLFileAssociation();
 		format.setPattern("**/*.Format.ps1xml");
