@@ -14,6 +14,7 @@ package org.eclipse.lemminx.extensions.contentmodel.participants.diagnostics;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
@@ -57,14 +58,17 @@ public class XMLValidator {
 			List<Diagnostic> diagnostics, XMLValidationSettings validationSettings,
 			ContentModelManager contentModelManager, CancelChecker monitor) {
 		XMLGrammarPool grammarPool = contentModelManager.getGrammarPool();
+		Map<String, ReferencedGrammarDiagnosticsInfo> referencedGrammarDiagnosticsInfoCache = new HashMap<>();
 		final LSPErrorReporterForXML reporterForXML = new LSPErrorReporterForXML(document, diagnostics,
-				contentModelManager, validationSettings != null ? validationSettings.isRelatedInformation() : false);
+				contentModelManager, validationSettings != null ? validationSettings.isRelatedInformation() : false,
+				referencedGrammarDiagnosticsInfoCache);
 		// When referenced grammar (XSD, DTD) have an error (ex : syntax error), the
 		// error must be reported.
 		// We create a reporter for grammar since Xerces reporter stores the XMLLocator
 		// for XML and Grammar.
 		final LSPErrorReporterForXML reporterForGrammar = new LSPErrorReporterForXML(document, diagnostics,
-				contentModelManager, validationSettings != null ? validationSettings.isRelatedInformation() : false);
+				contentModelManager, validationSettings != null ? validationSettings.isRelatedInformation() : false,
+				referencedGrammarDiagnosticsInfoCache);
 		try {
 			LSPXMLParserConfiguration configuration = new LSPXMLParserConfiguration(grammarPool,
 					isDisableOnlyDTDValidation(document), reporterForXML, reporterForGrammar, validationSettings);
