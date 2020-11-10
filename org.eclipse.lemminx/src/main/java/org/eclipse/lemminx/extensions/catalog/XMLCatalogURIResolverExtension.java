@@ -33,7 +33,7 @@ public class XMLCatalogURIResolverExtension implements URIResolverExtension {
 	 */
 	private static final String CATALOG_NAMESPACE_URI = "urn:oasis:names:tc:entity:xmlns:xml:catalog"; //$NON-NLS-1$
 
-	private static final String CATALOG_SYSTEM = "http://www.oasis-open.org/committees/entity/release/1.1/catalog.xsd";
+	private static final String CATALOG_SYSTEM = "https://www.oasis-open.org/committees/entity/release/1.1/catalog.xsd";
 
 	private final XMLExtensionsRegistry extensionsRegistry;
 

@@ -15,6 +15,7 @@ package org.eclipse.lemminx.extensions.dtd.participants.diagnostics;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.xerces.impl.dtd.XMLDTDLoader;
@@ -37,7 +38,7 @@ public class DTDValidator {
 		try {
 			XMLDTDLoader loader = new XMLDTDLoader();
 			loader.setProperty("http://apache.org/xml/properties/internal/error-reporter",
-					new LSPErrorReporterForXML(document, diagnostics, contentModelManager, false));
+					new LSPErrorReporterForXML(document, diagnostics, contentModelManager, false, new HashMap<>()));
 
 			if (entityResolver != null) {
 				loader.setEntityResolver(entityResolver);
