@@ -89,15 +89,15 @@ class XMLSymbolsProvider {
 		SymbolInformationResult symbols = new SymbolInformationResult(limit);
 		XMLSymbolFilter filter = symbolSettings.getFilterFor(xmlDocument.getDocumentURI());
 
-		// Process symbols participants
-		if (processSymbolsParticipants(xmlDocument, symbols, null, filter, cancelChecker)) {
-			return symbols;
-		}
-
-		// Process default symbol providers
-		boolean isDTD = xmlDocument.isDTD();
-		boolean hasFilterForAttr = filter.hasFilterFor(MatcherType.ATTRIBUTE);
 		try {
+			// Process symbols participants
+			if (processSymbolsParticipants(xmlDocument, symbols, null, filter, cancelChecker)) {
+				return symbols;
+			}
+
+			// Process default symbol providers
+			boolean isDTD = xmlDocument.isDTD();
+			boolean hasFilterForAttr = filter.hasFilterFor(MatcherType.ATTRIBUTE);
 			for (DOMNode node : xmlDocument.getRoots()) {
 				try {
 					findSymbolInformations(node, "", symbols, (node.isDoctype() && isDTD), filter, hasFilterForAttr,
@@ -160,16 +160,16 @@ class XMLSymbolsProvider {
 		DocumentSymbolsResult symbols = new DocumentSymbolsResult(limit);
 		XMLSymbolFilter filter = symbolSettings.getFilterFor(xmlDocument.getDocumentURI());
 
-		// Process symbols participants
-		if (processSymbolsParticipants(xmlDocument, null, symbols, filter, cancelChecker)) {
-			return symbols;
-		}
-
-		// Process default symbol providers
-		boolean isDTD = xmlDocument.isDTD();
-		boolean hasFilterForAttr = filter.hasFilterFor(MatcherType.ATTRIBUTE);
-		List<DOMNode> nodesToIgnore = new ArrayList<>();
 		try {
+			// Process symbols participants
+			if (processSymbolsParticipants(xmlDocument, null, symbols, filter, cancelChecker)) {
+				return symbols;
+			}
+
+			// Process default symbol providers
+			boolean isDTD = xmlDocument.isDTD();
+			boolean hasFilterForAttr = filter.hasFilterFor(MatcherType.ATTRIBUTE);
+			List<DOMNode> nodesToIgnore = new ArrayList<>();
 			xmlDocument.getRoots().forEach(node -> {
 				try {
 					if ((node.isDoctype() && isDTD)) {
