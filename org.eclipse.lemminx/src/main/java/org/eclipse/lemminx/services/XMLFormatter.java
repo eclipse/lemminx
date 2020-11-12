@@ -184,6 +184,7 @@ class XMLFormatter {
 				tag.equals("show-id")||
 				tag.equals("show-label")||
 				tag.equals("footnote")||
+				tag.equals("code") ||
 				tag.equals("show-title"));
 		}
 
@@ -353,6 +354,10 @@ class XMLFormatter {
 							//this.xmlBuilder.appendSpace();
 						}
 					}
+				}
+
+				if (node.isCDATA()) {
+					doLineFeed = false;
 				}
 
 				if (this.indentLevel > 0 && doLineFeed) {
