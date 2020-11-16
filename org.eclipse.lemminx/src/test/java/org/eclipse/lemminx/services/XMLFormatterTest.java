@@ -366,7 +366,7 @@ public class XMLFormatterTest {
 	public void testPI() throws BadLocationException {
 		String content = "<a><?m2e asd as das das ?></a>";
 		String expected = "<a>" + lineSeparator() + //
-				"  <?m2e asd as das das ?>" + lineSeparator() + //
+				"  <?m2e asd as das das?>" + lineSeparator() + //
 				"</a>";
 		assertFormat(content, expected);
 	}
@@ -404,7 +404,7 @@ public class XMLFormatterTest {
 	public void testPIWithVariables() throws BadLocationException {
 		String content = "<a><?xml-styleZZ   href=\"my-style.css\"     type=   \"text/css\"?></a>";
 		String expected = "<a>" + lineSeparator() + //
-				"  <?xml-styleZZ href=\"my-style.css\"     type=   \"text/css\" ?>" + lineSeparator() + //
+				"  <?xml-styleZZ href=\"my-style.css\"     type=   \"text/css\"?>" + lineSeparator() + //
 				"</a>";
 		assertFormat(content, expected);
 	}
