@@ -340,7 +340,6 @@ public class XMLBuilder {
 	public XMLBuilder addContentPI(String content) {
 		appendSpace();
 		append(content);
-		appendSpace();
 		return this;
 	}
 
