@@ -61,7 +61,7 @@ public class ServerCapabilitiesConstants {
 	public static final String CODE_LENS_ID = UUID.randomUUID().toString();
 	public static final String SIGNATURE_HELP_ID = UUID.randomUUID().toString();
 	public static final String RENAME_ID = UUID.randomUUID().toString();
-	public static final String EXECUTE_COMMAND_ID = UUID.randomUUID().toString();
+	public static final String WORKSPACE_EXECUTE_COMMAND_ID = UUID.randomUUID().toString();
 	public static final String WORKSPACE_SYMBOL_ID = UUID.randomUUID().toString();
 	public static final String DOCUMENT_SYMBOL_ID = UUID.randomUUID().toString();
 	public static final String CODE_ACTION_ID = UUID.randomUUID().toString();

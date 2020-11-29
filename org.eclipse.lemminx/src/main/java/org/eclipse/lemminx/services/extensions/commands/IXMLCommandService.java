@@ -18,54 +18,64 @@ import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
- * Service available to XML LS extensions to add/remove/execute commands via the XML LS
+ * Service available to XML LS extensions to add/remove/execute commands via the
+ * XML LS
  * 
  * 
  * @author Alex Boyko
  *
  */
 public interface IXMLCommandService {
-	
+
 	/**
 	 * Command handler to register with the workspace service
 	 */
 	@FunctionalInterface
 	public interface IDelegateCommandHandler {
-		
+
 		/**
 		 * Executes a command
-		 * @param params command execution parameters
+		 * 
+		 * @param params        command execution parameters
 		 * @param cancelChecker check if cancel has been requested
 		 * @return the result of the command
 		 * @throws Exception the unhandled exception will be wrapped in
 		 *                   <code>org.eclipse.lsp4j.jsonrpc.ResponseErrorException</code>
 		 *                   and be wired back to the JSON-RPC protocol caller
 		 */
-	    Object executeCommand(ExecuteCommandParams params, CancelChecker cancelChecker) throws Exception;	    
+		Object executeCommand(ExecuteCommandParams params, CancelChecker cancelChecker) throws Exception;
 	}
-	
+
 	/**
 	 * Registers a command with the language server
 	 * 
 	 * @param commandId unique id of the command
-	 * @param handler command handler function
+	 * @param handler   command handler function
 	 */
 	void registerCommand(String commandId, IDelegateCommandHandler handler);
-	
+
 	/**
 	 * Unregisters the command from the language server
 	 * 
 	 * @param commandId unique id of the command to unregister
 	 */
 	void unregisterCommand(String commandId);
-	
+
 	/**
-	 * Executes a command via the client. The command can be registered by any language server 
+	 * Executes a command via the client. The command can be registered by any
+	 * language server
 	 * 
-	 * @param command the LSP command 
+	 * @param command the LSP command
 	 * @return the result of the command
 	 */
 	CompletableFuture<Object> executeClientCommand(ExecuteCommandParams command);
-	
+
+	default void beginCommandsRegistration() {
+
+	}
+
+	default void endCommandsRegistration() {
+
+	}
 
 }
