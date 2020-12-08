@@ -463,6 +463,7 @@ public class XMLSyntaxDiagnosticsTest {
 		String xml = "<";
 		Diagnostic d = d(0, 0, 0, 1, XMLSyntaxErrorCode.MarkupEntityMismatch);
 		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d); // no code actions
 	}
 
 	@Test

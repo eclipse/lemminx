@@ -112,13 +112,14 @@ public class CloseTagCodeAction implements ICodeActionParticipant {
 			} else {
 				// ex : <foo
 				// ex : <foo attr="
-				// Close with '/>'
-				CodeAction autoCloseAction = CodeActionFactory.insert("Close with '/>'", diagnosticRange.getEnd(), "/>",
-						document.getTextDocument(), diagnostic);
-				codeActions.add(autoCloseAction);
-				// Close with '></foo>' if element has tag name
+				// if element has tag name
 				String tagName = element.getTagName();
 				if (tagName != null) {
+					// Close with '/>'
+					CodeAction autoCloseAction = CodeActionFactory.insert("Close with '/>'", diagnosticRange.getEnd(),
+							"/>", document.getTextDocument(), diagnostic);
+					codeActions.add(autoCloseAction);
+					// Close with '></foo>'
 					String insertText = "></" + tagName + ">";
 					CodeAction closeEndTagAction = CodeActionFactory.insert("Close with '" + insertText + "'",
 							diagnosticRange.getEnd(), insertText, document.getTextDocument(), diagnostic);
