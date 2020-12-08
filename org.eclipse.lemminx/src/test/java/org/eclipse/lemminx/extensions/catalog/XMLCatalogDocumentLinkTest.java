@@ -10,11 +10,11 @@
 
 package org.eclipse.lemminx.extensions.catalog;
 
-import org.junit.jupiter.api.Test;
-
-import static org.eclipse.lemminx.XMLAssert.testDocumentLinkFor;
 import static org.eclipse.lemminx.XMLAssert.dl;
 import static org.eclipse.lemminx.XMLAssert.r;
+import static org.eclipse.lemminx.XMLAssert.testDocumentLinkFor;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests for the document links in XML catalog files
@@ -51,6 +51,21 @@ public class XMLCatalogDocumentLinkTest {
 				"</catalog>";
 		testDocumentLinkFor(xml, CATALOG_PATH, //
 				dl(r(3, 9, 3, 23), "src/test/resources/neatSchema.xsd"));
+	}
+
+	@Test
+	public void testCatalogWithCatalogDOCTYPE() {
+		String xml = "<!DOCTYPE catalog PUBLIC \"-//OASIS//DTD XML Catalogs V1.1//EN\" \"catalog.dtd\" >\n"
+				+ //
+				"<catalog xmlns=\"urn:oasis:names:tc:entity:xmlns:xml:catalog\">\n" + //
+				"  <uri\n" + //
+				"    id=\"http://example.org\"\n" + //
+				"    uri=\"neatSchema.xsd\" />\n" + //
+				"</catalog>";
+		testDocumentLinkFor(xml, CATALOG_PATH, //
+				dl(r(0, 64, 0, 75), "src/test/resources/catalog.dtd"), //
+				dl(r(4, 9, 4, 23), "src/test/resources/neatSchema.xsd"));
+
 	}
 
 	@Test
