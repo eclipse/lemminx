@@ -63,7 +63,7 @@ public class CatalogUtils {
 			return Collections.emptyList();
 		}
 		for (DOMNode n : document.getChildren()) {
-			if (CATALOG_ENTITY_NAME.equals(n.getNodeName())) {
+			if (n.isElement() && CATALOG_ENTITY_NAME.equals(n.getNodeName())) {
 				return collectCatalogEntries((DOMElement) n);
 			}
 		}
@@ -178,11 +178,13 @@ public class CatalogUtils {
 	}
 
 	/**
-	 * Returns a catalog entry for the given element and null if a catalog entry can't be made
+	 * Returns a catalog entry for the given element and null if a catalog entry
+	 * can't be made
 	 *
 	 * @param baseURI the base URI of the catalog entry
 	 * @param element the element to turn into a catalog entry
-	 * @return a catalog entry for the given element and null if a catalog entry can't be made
+	 * @return a catalog entry for the given element and null if a catalog entry
+	 *         can't be made
 	 */
 	private static CatalogEntry createCatalogEntry(@NonNull String baseURI, DOMElement element) {
 		if (isCatalogEntryWithURI(element)) {

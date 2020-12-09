@@ -88,7 +88,7 @@ public final class ParentProcessWatcher implements Runnable, Function<MessageCon
 		if (isWindows) {
 			command = "cmd /c \"tasklist /FI \"PID eq " + pid + "\" | findstr " + pid + "\"";
 		} else {
-			command = "ps -p " + pid;
+			command = "kill -0 " + pid;
 		}
 		Process process = null;
 		boolean finished = false;

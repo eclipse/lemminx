@@ -19,6 +19,8 @@ import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.parser.XMLInputSource;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lemminx.uriresolver.CacheResourcesManager;
+import org.eclipse.lemminx.uriresolver.CacheResourcesManager.ResourceToDeploy;
 import org.eclipse.lemminx.uriresolver.URIResolverExtension;
 
 /**
@@ -28,13 +30,15 @@ import org.eclipse.lemminx.uriresolver.URIResolverExtension;
 public class XMLCatalogURIResolverExtension implements URIResolverExtension {
 
 	/**
-	 * The XSL namespace URI (=
+	 * The XML Catalog namespace URI (=
 	 * http://www.oasis-open.org/committees/entity/release/1.1/catalog.xsd)
 	 */
 	private static final String CATALOG_NAMESPACE_URI = "urn:oasis:names:tc:entity:xmlns:xml:catalog"; //$NON-NLS-1$
 
-	private static final String CATALOG_SYSTEM = "https://www.oasis-open.org/committees/entity/release/1.1/catalog.xsd";
+	private static final String CATALOG_SYSTEM = "http://www.oasis-open.org/committees/entity/release/1.1/catalog.xsd";
 
+	private static final ResourceToDeploy CATALOG_RESOURCE = new ResourceToDeploy(CATALOG_SYSTEM,
+			"schemas/catalog/catalog-1.1.xsd");
 	private final XMLExtensionsRegistry extensionsRegistry;
 
 	@Override
@@ -54,6 +58,11 @@ public class XMLCatalogURIResolverExtension implements URIResolverExtension {
 		if (hasDTDorXMLSchema(baseLocation)) {
 			return null;
 		}
+		try {
+			return CacheResourcesManager.getResourceCachePath(CATALOG_RESOURCE).toFile().toURI().toString();
+		} catch (Exception e) {
+			// Do nothing?
+		}
 		return CATALOG_SYSTEM;
 	}
 
@@ -64,7 +73,11 @@ public class XMLCatalogURIResolverExtension implements URIResolverExtension {
 		}
 		String publicId = resourceIdentifier.getNamespace();
 		if (CATALOG_NAMESPACE_URI.equals(publicId)) {
-			return new XMLInputSource(publicId, CATALOG_SYSTEM, CATALOG_SYSTEM);
+			String baseLocation = resourceIdentifier.getBaseSystemId();
+			String catalogFilePath = resolve(baseLocation, publicId, null);
+			if (catalogFilePath != null) {
+				return new XMLInputSource(publicId, catalogFilePath, catalogFilePath);
+			}
 		}
 		return null;
 	}
