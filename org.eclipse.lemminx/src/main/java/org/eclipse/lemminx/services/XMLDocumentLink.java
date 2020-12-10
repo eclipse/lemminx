@@ -14,6 +14,9 @@ package org.eclipse.lemminx.services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CancellationException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.services.extensions.IDocumentLinkParticipant;
@@ -28,6 +31,8 @@ class XMLDocumentLink {
 
 	private final XMLExtensionsRegistry extensionsRegistry;
 
+	private static Logger LOGGER = Logger.getLogger(XMLDocumentLink.class.getName());
+
 	public XMLDocumentLink(XMLExtensionsRegistry extensionsRegistry) {
 		this.extensionsRegistry = extensionsRegistry;
 	}
@@ -35,30 +40,15 @@ class XMLDocumentLink {
 	public List<DocumentLink> findDocumentLinks(DOMDocument document) {
 		List<DocumentLink> newLinks = new ArrayList<>();
 		for (IDocumentLinkParticipant participant : extensionsRegistry.getDocumentLinkParticipants()) {
-			participant.findDocumentLinks(document, newLinks);
+			try {
+				participant.findDocumentLinks(document, newLinks);
+			} catch (CancellationException e) {
+				throw e;
+			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE,
+						"Error while processing document links for the participant '" + participant.getClass().getName() + "'.", e);
+			}
 		}
-		// TODO: call extension
-		/*
-		 * let rootAbsoluteUrl: Uri | null = null;
-		 * 
-		 * Scanner scanner = XMLScanner.createScanner(document.getText(), 0); TokenType
-		 * token = scanner.scan(); let afterHrefOrSrc = false; let afterBase = false;
-		 * let base: string | undefined = void 0; while (token != TokenType.EOS) {
-		 * switch (token) { case TokenType.StartTag: if (!base) { let tagName =
-		 * scanner.getTokenText().toLowerCase(); afterBase = tagName === 'base'; }
-		 * break; case TokenType.AttributeName: let attributeName =
-		 * scanner.getTokenText().toLowerCase(); afterHrefOrSrc = attributeName ===
-		 * 'src' || attributeName === 'href'; break; case TokenType.AttributeValue: if
-		 * (afterHrefOrSrc) { let attributeValue = scanner.getTokenText(); if
-		 * (!afterBase) { // don't highlight the base link itself let link =
-		 * createLink(document, documentContext, attributeValue,
-		 * scanner.getTokenOffset(), scanner.getTokenEnd(), base); if (link) {
-		 * newLinks.push(link); } } if (afterBase && typeof base === 'undefined') { base
-		 * = normalizeRef(attributeValue, document.languageId); if (base &&
-		 * documentContext) { base = documentContext.resolveReference(base,
-		 * document.uri); } } afterBase = false; afterHrefOrSrc = false; } break; }
-		 * token = scanner.scan(); }
-		 */
 		return newLinks;
 	}
 }

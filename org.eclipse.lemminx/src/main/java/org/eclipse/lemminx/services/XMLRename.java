@@ -41,7 +41,7 @@ import org.eclipse.lsp4j.WorkspaceEdit;
 
 /**
  * Handle all rename requests
- * 
+ *
  * Author: Nikolas Komonen - nkomonen@redhat.com
  */
 public class XMLRename {
@@ -76,7 +76,12 @@ public class XMLRename {
 		List<TextEdit> textEdits = new ArrayList<>();
 
 		for (IRenameParticipant participant : extensionsRegistry.getRenameParticipants()) {
-			participant.doRename(renameRequest, textEdits);
+			try {
+				participant.doRename(renameRequest, textEdits);
+			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE, "Error while processing rename for the participant '"
+						+ participant.getClass().getName() + "'.", e);
+			}
 		}
 
 		for (TextEdit textEdit : getRenameTextEdits(xmlDocument, node, position, newText)) {
@@ -111,7 +116,7 @@ public class XMLRename {
 
 	/**
 	 * Returns <code>DOMElement</code> associated with <code>node</code>
-	 * 
+	 *
 	 * @param node node representing an element or attribute
 	 * @return associated <code>DOMElement</code>
 	 */
@@ -252,7 +257,7 @@ public class XMLRename {
 
 	/**
 	 * Creates a list of start and end tag rename's.
-	 * 
+	 *
 	 * @param startTagRange
 	 * @param endTagRange
 	 * @param newText
@@ -272,7 +277,7 @@ public class XMLRename {
 	/**
 	 * Renames all occurences of the namespace in a document, that match the given
 	 * old namespace.
-	 * 
+	 *
 	 * @param document
 	 * @param oldNamespace
 	 * @param newNamespace
@@ -308,7 +313,7 @@ public class XMLRename {
 	/**
 	 * Will traverse through the given elements and their children, updating all
 	 * namespaces that match the given old namespace.
-	 * 
+	 *
 	 * @param document
 	 * @param edits
 	 * @param elements
@@ -359,7 +364,7 @@ public class XMLRename {
 	/**
 	 * Will rename the namespace of an element's attribute values with the matching
 	 * namespace.
-	 * 
+	 *
 	 * @param document
 	 * @param element
 	 * @param oldNamespace
@@ -396,7 +401,7 @@ public class XMLRename {
 
 	/**
 	 * Returns the ranges of the namespace of a start and end tag of an element.
-	 * 
+	 *
 	 * @param document
 	 * @param element
 	 * @param namespaceLength

@@ -14,6 +14,9 @@ package org.eclipse.lemminx.services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CancellationException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
@@ -31,6 +34,8 @@ class XMLCodeLens {
 
 	private final XMLExtensionsRegistry extensionsRegistry;
 
+	private static final Logger LOGGER = Logger.getLogger(XMLCodeLens.class.getName());
+
 	public XMLCodeLens(XMLExtensionsRegistry extensionsRegistry) {
 		this.extensionsRegistry = extensionsRegistry;
 	}
@@ -39,7 +44,14 @@ class XMLCodeLens {
 		ICodeLensRequest request = new CodeLensRequest(xmlDocument, settings);
 		List<CodeLens> lenses = new ArrayList<>();
 		for (ICodeLensParticipant participant : extensionsRegistry.getCodeLensParticipants()) {
-			participant.doCodeLens(request, lenses, cancelChecker);
+			try {
+				participant.doCodeLens(request, lenses, cancelChecker);
+			} catch (CancellationException e) {
+				throw e;
+			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE,
+						"Error while processing code lens for the participant '" + participant.getClass().getName() + "'.", e);
+			}
 		}
 		return lenses;
 	}
