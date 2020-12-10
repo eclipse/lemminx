@@ -14,6 +14,7 @@ package org.eclipse.lemminx.services;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -51,7 +52,14 @@ class XMLTypeDefinition {
 		}
 		List<LocationLink> locations = new ArrayList<>();
 		for (ITypeDefinitionParticipant participant : extensionsRegistry.getTypeDefinitionParticipants()) {
-			participant.findTypeDefinition(request, locations, cancelChecker);
+			try {
+				participant.findTypeDefinition(request, locations, cancelChecker);
+			} catch (CancellationException e) {
+				throw e;
+			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE,
+						"Error while processing type definitions for the participant '" + participant.getClass().getName() + "'.", e);
+			}
 		}
 		return locations;
 	}

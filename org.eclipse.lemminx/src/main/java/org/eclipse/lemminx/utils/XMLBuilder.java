@@ -15,6 +15,8 @@ package org.eclipse.lemminx.utils;
 import static org.eclipse.lemminx.utils.StringUtils.normalizeSpace;
 
 import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMComment;
@@ -36,6 +38,8 @@ public class XMLBuilder {
 	private final int splitAttributesIndent = 2;
 
 	private final Collection<IFormatterParticipant> formatterParticipants;
+
+	private static final Logger LOGGER = Logger.getLogger(XMLBuilder.class.getName());
 
 	public XMLBuilder(SharedSettings sharedSettings, String whitespacesIndent, String lineDelimiter) {
 		this(sharedSettings, whitespacesIndent, lineDelimiter, null);
@@ -126,9 +130,9 @@ public class XMLBuilder {
 
 	/**
 	 * Used when only one attribute is being added to a node.
-	 * 
+	 *
 	 * It will not perform any linefeeds and only basic indentation.
-	 * 
+	 *
 	 * @param name               attribute name
 	 * @param value              attribute value
 	 * @param surroundWithQuotes true if quotes should be added around originalValue
@@ -145,9 +149,9 @@ public class XMLBuilder {
 
 	/**
 	 * Add prolog attribute
-	 * 
+	 *
 	 * It will not perform any linefeeds and only basic indentation.
-	 * 
+	 *
 	 * @param attr attribute
 	 * @return this XML Builder
 	 */
@@ -159,9 +163,9 @@ public class XMLBuilder {
 
 	/**
 	 * Used when you are knowingly adding multiple attributes.
-	 * 
+	 *
 	 * Does linefeeds and indentation.
-	 * 
+	 *
 	 * @param name
 	 * @param value
 	 * @param level
@@ -197,10 +201,10 @@ public class XMLBuilder {
 
 	/**
 	 * Builds the attribute {name, '=', and value}.
-	 * 
+	 *
 	 * Never puts quotes around unquoted values unless indicated to by
 	 * 'surroundWithQuotes'
-	 * 
+	 *
 	 * @param name               name of the attribute
 	 * @param equalsSign         true if equals sign exists, false otherwise
 	 * @param originalValue      value of the attribute
@@ -237,8 +241,13 @@ public class XMLBuilder {
 	private void formatAttributeValue(String name, String valueWithoutQuote, Character quote, DOMAttr attr) {
 		if (formatterParticipants != null) {
 			for (IFormatterParticipant formatterParticipant : formatterParticipants) {
-				if (formatterParticipant.formatAttributeValue(name, valueWithoutQuote, quote, attr, this)) {
-					return;
+				try {
+					if (formatterParticipant.formatAttributeValue(name, valueWithoutQuote, quote, attr, this)) {
+						return;
+					}
+				} catch (Exception e) {
+					LOGGER.log(Level.SEVERE,
+						"Error while processing format attributes for the participant '" + formatterParticipant.getClass().getName() + "'.", e);
 				}
 			}
 		}
@@ -269,7 +278,7 @@ public class XMLBuilder {
 
 	/**
 	 * Returns this XMLBuilder with <code>text</code> added
-	 * 
+	 *
 	 * @param text the text to add
 	 * @return this XMLBuilder with <code>text</code> added
 	 */
@@ -281,7 +290,7 @@ public class XMLBuilder {
 	 * Returns this XMLBuilder with <code>text</code> added depending on
 	 * <code>isWhitespaceContent</code>, <code>hasSiblings</code> and
 	 * <code>delimiter</code>
-	 * 
+	 *
 	 * @param text                the proposed text to add
 	 * @param isWhitespaceContent whether or not the text contains only whitespace
 	 *                            content

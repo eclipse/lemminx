@@ -277,7 +277,7 @@ public class XMLCompletions {
 
 	/**
 	 * Collect snippets suggestions.
-	 * 
+	 *
 	 * @param completionRequest  completion request.
 	 * @param completionResponse completion response.
 	 */
@@ -370,7 +370,7 @@ public class XMLCompletions {
 	/**
 	 * Returns the limit start offset of the expression according to the current
 	 * node.
-	 * 
+	 *
 	 * @param currentNode the node.
 	 * @param offset      the offset.
 	 * @return the limit start offset of the expression according to the current
@@ -436,7 +436,7 @@ public class XMLCompletions {
 	/**
 	 * Returns true if completion was triggered inside DTD content (internal or
 	 * external DTD) and false otherwise.
-	 * 
+	 *
 	 * @param node
 	 * @param xmlDocument
 	 * @return true if completion was triggered inside DTD content (internal or
@@ -627,7 +627,7 @@ public class XMLCompletions {
 			try {
 				participant.onTagOpen(completionRequest, completionResponse);
 			} catch (Exception e) {
-				LOGGER.log(Level.SEVERE, "While performing ICompletionParticipant#onTagOpen", e);
+				LOGGER.log(Level.SEVERE, "While performing ICompletionParticipant#onTagOpen for participant '" + participant.getClass().getName() + "'.", e);
 			}
 		}
 		DOMElement parentNode = completionRequest.getParentElement();
@@ -763,7 +763,8 @@ public class XMLCompletions {
 			try {
 				participant.onXMLContent(request, response);
 			} catch (Exception e) {
-				LOGGER.log(Level.SEVERE, "While performing ICompletionParticipant#onXMLContent", e);
+				LOGGER.log(Level.SEVERE, "While performing ICompletionParticipant#onXMLContent for participant '"
+						+ participant.getClass().getName() + "'.", e);
 			}
 		}
 		collectionRegionProposals(request, response);
@@ -855,7 +856,14 @@ public class XMLCompletions {
 			boolean generateValue = !isFollowedBy(text, nameEnd, ScannerState.AfterAttributeName,
 					TokenType.DelimiterAssign);
 			for (ICompletionParticipant participant : getCompletionParticipants()) {
-				participant.onAttributeName(generateValue, completionRequest, completionResponse);
+				try {
+					participant.onAttributeName(generateValue, completionRequest, completionResponse);
+				} catch (Exception e) {
+					LOGGER.log(Level.SEVERE,
+							"While performing ICompletionParticipant#onAttributeName for participant '"
+									+ participant.getClass().getName() + "'.",
+							e);
+				}
 			}
 		} catch (BadLocationException e) {
 			LOGGER.log(Level.SEVERE, "While performing Completions, getReplaceRange() was given a bad Offset location",
@@ -899,7 +907,14 @@ public class XMLCompletions {
 				completionRequest.setReplaceRange(replaceRange);
 				completionRequest.setAddQuotes(addQuotes);
 				for (ICompletionParticipant participant : completionParticipants) {
-					participant.onAttributeValue(valuePrefix, completionRequest, completionResponse);
+					try {
+						participant.onAttributeValue(valuePrefix, completionRequest, completionResponse);
+					} catch (Exception e) {
+						LOGGER.log(Level.SEVERE,
+								"While performing ICompletionParticipant#onAttributeValue for participant '"
+										+ participant.getClass().getName() + "'.",
+								e);
+					}
 				}
 			} catch (BadLocationException e) {
 				LOGGER.log(Level.SEVERE,
@@ -912,7 +927,7 @@ public class XMLCompletions {
 
 	/**
 	 * Collect completion items for DTD systemId
-	 * 
+	 *
 	 * @param valueStart         the start offset of the systemId value, including
 	 *                           quote
 	 * @param valueEnd           the end offset of the systemId value, including
@@ -936,7 +951,14 @@ public class XMLCompletions {
 				Range replaceRange = getReplaceRange(valueContentStart, valueContentEnd, completionRequest);
 				completionRequest.setReplaceRange(replaceRange);
 				for (ICompletionParticipant participant : completionParticipants) {
-					participant.onDTDSystemId(valuePrefix, completionRequest, completionResponse);
+					try {
+						participant.onDTDSystemId(valuePrefix, completionRequest, completionResponse);
+					} catch (Exception e) {
+						LOGGER.log(Level.SEVERE,
+								"While performing ICompletionParticipant#onDTDSystemId for participant '"
+										+ participant.getClass().getName() + "'.",
+								e);
+					}
 				}
 			} catch (BadLocationException e) {
 				LOGGER.log(Level.SEVERE,
@@ -959,7 +981,7 @@ public class XMLCompletions {
 
 	/**
 	 * Returns list of {@link ICompletionParticipant}.
-	 * 
+	 *
 	 * @return list of {@link ICompletionParticipant}.
 	 */
 	private Collection<ICompletionParticipant> getCompletionParticipants() {
@@ -973,7 +995,7 @@ public class XMLCompletions {
 	/**
 	 * Returns starting offset of 'expectedToken' if it the next non whitespace
 	 * token after 'initialState'
-	 * 
+	 *
 	 * @param s
 	 * @param offset
 	 * @param intialState

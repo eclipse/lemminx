@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -362,29 +363,51 @@ class XMLSymbolsProvider {
 		// Process replace symbol providers participants
 		Collection<ISymbolsProviderParticipant> replaceParticipants = resultParticipant.getReplaceParticipants();
 		if (!replaceParticipants.isEmpty()) {
+			boolean successfulReplace = false;
 			if (replaceParticipants.size() > 1) {
 				LOGGER.log(Level.WARNING, "There are '" + replaceParticipants.size() + "' replace participants");
 			}
 			for (ISymbolsProviderParticipant replaceParticipant : replaceParticipants) {
-				if (symbolInformations != null) {
-					replaceParticipant.findSymbolInformations(xmlDocument, symbolInformations, filter, cancelChecker);
-				}
-				if (documentSymbols != null) {
-					replaceParticipant.findDocumentSymbols(xmlDocument, documentSymbols, filter, cancelChecker);
+				try {
+					if (symbolInformations != null) {
+						replaceParticipant.findSymbolInformations(xmlDocument, symbolInformations, filter, cancelChecker);
+					}
+					if (documentSymbols != null) {
+						replaceParticipant.findDocumentSymbols(xmlDocument, documentSymbols, filter, cancelChecker);
+					}
+					successfulReplace = true;
+				} catch (CancellationException e) {
+					throw e;
+				} catch (Exception e) {
+					LOGGER.log(Level.SEVERE,
+							"Error while processing symbols for '" + replaceParticipant.getClass().getName() + "'.", e);
 				}
 			}
-			return true;
+			// If at least 1 replace participant didn't crash, use the replace result;
+			// otherwise just use the default
+			if (successfulReplace) {
+				return true;
+			}
 		}
 
 		// Process insert symbol providers participants
 		Collection<ISymbolsProviderParticipant> insertParticipants = resultParticipant.getInsertParticipants();
 		if (!insertParticipants.isEmpty()) {
 			for (ISymbolsProviderParticipant insertParticipant : insertParticipants) {
-				if (symbolInformations != null) {
-					insertParticipant.findSymbolInformations(xmlDocument, symbolInformations, filter, cancelChecker);
-				}
-				if (documentSymbols != null) {
-					insertParticipant.findDocumentSymbols(xmlDocument, documentSymbols, filter, cancelChecker);
+				try {
+					if (symbolInformations != null) {
+						insertParticipant.findSymbolInformations(xmlDocument, symbolInformations, filter, cancelChecker);
+					}
+					if (documentSymbols != null) {
+						insertParticipant.findDocumentSymbols(xmlDocument, documentSymbols, filter, cancelChecker);
+					}
+				} catch (CancellationException e) {
+					throw e;
+				} catch (Exception e) {
+					LOGGER.log(Level.SEVERE,
+							"Error while processing symbols for the participant '"
+									+ insertParticipant.getClass().getName() + "'.",
+							e);
 				}
 			}
 		}
