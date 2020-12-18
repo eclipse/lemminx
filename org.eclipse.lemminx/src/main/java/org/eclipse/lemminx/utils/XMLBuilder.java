@@ -15,6 +15,9 @@ package org.eclipse.lemminx.utils;
 import static org.eclipse.lemminx.utils.StringUtils.normalizeSpace;
 import static org.eclipse.lemminx.utils.StringUtils.normalizeSpace2;
 import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMComment;
 import org.eclipse.lemminx.dom.DTDDeclNode;
@@ -35,6 +38,8 @@ public class XMLBuilder {
 	private final int splitAttributesIndent = 2;
 
 	private final Collection<IFormatterParticipant> formatterParticipants;
+
+	private static final Logger LOGGER = Logger.getLogger(XMLBuilder.class.getName());
 
 	public XMLBuilder(SharedSettings sharedSettings, String whitespacesIndent, String lineDelimiter) {
 		this(sharedSettings, whitespacesIndent, lineDelimiter, null);
@@ -236,8 +241,13 @@ public class XMLBuilder {
 	private void formatAttributeValue(String name, String valueWithoutQuote, Character quote, DOMAttr attr) {
 		if (formatterParticipants != null) {
 			for (IFormatterParticipant formatterParticipant : formatterParticipants) {
-				if (formatterParticipant.formatAttributeValue(name, valueWithoutQuote, quote, attr, this)) {
-					return;
+				try {
+					if (formatterParticipant.formatAttributeValue(name, valueWithoutQuote, quote, attr, this)) {
+						return;
+					}
+				} catch (Exception e) {
+					LOGGER.log(Level.SEVERE,
+						"Error while processing format attributes for the participant '" + formatterParticipant.getClass().getName() + "'.", e);
 				}
 			}
 		}

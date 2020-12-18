@@ -15,6 +15,7 @@ package org.eclipse.lemminx.services;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -57,7 +58,14 @@ class XMLDefinition {
 		// Custom definition
 		List<LocationLink> locations = new ArrayList<>();
 		for (IDefinitionParticipant participant : extensionsRegistry.getDefinitionParticipants()) {
-			participant.findDefinition(request, locations, cancelChecker);
+			try {
+				participant.findDefinition(request, locations, cancelChecker);
+			} catch (CancellationException e) {
+				throw e;
+			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE,
+						"Error while processing definitions for the participant '" + participant.getClass().getName() + "'.", e);
+			}
 		}
 		// Start end tag definition
 		findStartEndTagDefinition(request, locations);
@@ -66,7 +74,7 @@ class XMLDefinition {
 
 	/**
 	 * Find start end tag definition.
-	 * 
+	 *
 	 * @param request   the definition request
 	 * @param locations the locations
 	 */

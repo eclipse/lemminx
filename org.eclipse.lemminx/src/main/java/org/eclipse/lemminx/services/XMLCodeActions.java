@@ -51,8 +51,8 @@ public class XMLCodeActions {
 						codeActionParticipant.doCodeAction(diagnostic, range, document, codeActions, sharedSettings,
 								extensionsRegistry);
 					} catch (Exception e) {
-						LOGGER.log(Level.SEVERE, "Error while processing code action participant '"
-								+ codeActionParticipant.getClass().getName() + "'", e);
+						LOGGER.log(Level.SEVERE, "Error while processing code actions for the participant '"
+								+ codeActionParticipant.getClass().getName() + "'.", e);
 					}
 				}
 			}
