@@ -19,6 +19,7 @@ import static org.eclipse.lemminx.utils.XMLPositionUtility.getTagNameRange;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -122,7 +123,14 @@ class XMLHighlighting {
 			List<DocumentHighlight> highlights, CancelChecker cancelChecker) {
 		// Consume highlighting participant
 		for (IHighlightingParticipant highlightingParticipant : extensionsRegistry.getHighlightingParticipants()) {
-			highlightingParticipant.findDocumentHighlights(node, position, offset, highlights, cancelChecker);
+			try {
+				highlightingParticipant.findDocumentHighlights(node, position, offset, highlights, cancelChecker);
+			} catch (CancellationException e) {
+				throw e;
+			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE, "Error while processing highlights for the participant '"
+						+ highlightingParticipant.getClass().getName() + "'.", e);
+			}
 		}
 	}
 }

@@ -19,6 +19,8 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -527,7 +529,11 @@ public class XMLAssert {
 
 	public static void testCodeActionsFor(String xml, Diagnostic diagnostic, String catalogPath,
 			SharedSettings sharedSettings, CodeAction... expected) throws BadLocationException {
+		testCodeActionsFor(xml, diagnostic, catalogPath, sharedSettings, null, expected);
+	}
 
+	public static void testCodeActionsFor(String xml, Diagnostic diagnostic, String catalogPath,
+			SharedSettings sharedSettings, XMLLanguageService xmlLanguageService, CodeAction... expected) throws BadLocationException {
 		int offset = xml.indexOf('|');
 		Range range = null;
 
@@ -543,7 +549,9 @@ public class XMLAssert {
 			range = diagnostic.getRange();
 		}
 
-		XMLLanguageService xmlLanguageService = new XMLLanguageService();
+		if (xmlLanguageService == null) {
+			xmlLanguageService = new XMLLanguageService();
+		}
 
 		ContentModelSettings cmSettings = new ContentModelSettings();
 		cmSettings.setUseCache(false);
@@ -708,9 +716,15 @@ public class XMLAssert {
 	}
 
 	public static void testDocumentLinkFor(String xml, String fileURI, String catalogPath, DocumentLink... expected) {
+		testDocumentLinkFor(null, xml, fileURI, catalogPath, expected);
+	}
+
+	public static void testDocumentLinkFor(XMLLanguageService xmlLanguageService, String xml, String fileURI, String catalogPath, DocumentLink... expected) {
 		TextDocument document = new TextDocument(xml, fileURI != null ? fileURI : "test.xml");
 
-		XMLLanguageService xmlLanguageService = new XMLLanguageService();
+		if (xmlLanguageService == null) {
+			xmlLanguageService = new XMLLanguageService();
+		}
 
 		ContentModelSettings settings = new ContentModelSettings();
 		settings.setUseCache(false);
@@ -866,13 +880,20 @@ public class XMLAssert {
 
 	public static void testDefinitionFor(String value, String fileURI, LocationLink... expected)
 			throws BadLocationException {
+		testDefinitionFor(null, value, fileURI, expected);
+	}
+
+	public static void testDefinitionFor(XMLLanguageService xmlLanguageService, String value, String fileURI, LocationLink... expected)
+			throws BadLocationException {
 		int offset = value.indexOf('|');
 		value = value.substring(0, offset) + value.substring(offset + 1);
 
 		TextDocument document = new TextDocument(value, fileURI != null ? fileURI : "test://test/test.xml");
 		Position position = document.positionAt(offset);
 
-		XMLLanguageService xmlLanguageService = new XMLLanguageService();
+		if (xmlLanguageService == null) {
+			xmlLanguageService = new XMLLanguageService();
+		}
 
 		ContentModelSettings settings = new ContentModelSettings();
 		settings.setUseCache(false);
@@ -953,13 +974,20 @@ public class XMLAssert {
 
 	public static void testReferencesFor(String value, String fileURI, Location... expected)
 			throws BadLocationException {
+		testReferencesFor(null, value, fileURI, expected);
+	}
+
+	public static void testReferencesFor(XMLLanguageService xmlLanguageService, String value, String fileURI, Location... expected)
+			throws BadLocationException {
 		int offset = value.indexOf('|');
 		value = value.substring(0, offset) + value.substring(offset + 1);
 
 		TextDocument document = new TextDocument(value, fileURI != null ? fileURI : "test://test/test.xml");
 		Position position = document.positionAt(offset);
 
-		XMLLanguageService xmlLanguageService = new XMLLanguageService();
+		if (xmlLanguageService == null) {
+			xmlLanguageService = new XMLLanguageService();
+		}
 
 		ContentModelSettings settings = new ContentModelSettings();
 		settings.setUseCache(false);
@@ -992,10 +1020,15 @@ public class XMLAssert {
 	}
 
 	public static void testCodeLensFor(String value, String fileURI, CodeLens... expected) throws BadLocationException {
+		testCodeLensFor(value, fileURI, new XMLLanguageService(), expected);
+	}
 
+	public static void testCodeLensFor(String value, String fileURI, XMLLanguageService xmlLanguageService, CodeLens... expected) {
 		TextDocument document = new TextDocument(value, fileURI != null ? fileURI : "test://test/test.xml");
 
-		XMLLanguageService xmlLanguageService = new XMLLanguageService();
+		if (xmlLanguageService == null) {
+			xmlLanguageService = new XMLLanguageService();
+		}
 
 		ContentModelSettings settings = new ContentModelSettings();
 		settings.setUseCache(false);
@@ -1012,7 +1045,6 @@ public class XMLAssert {
 		List<? extends CodeLens> actual = xmlLanguageService.getCodeLens(xmlDocument, codeLensSettings, () -> {
 		});
 		assertCodeLens(actual, expected);
-
 	}
 
 	public static CodeLens cl(Range range, String title, String command) {
@@ -1077,7 +1109,12 @@ public class XMLAssert {
 		return new DocumentHighlight(range, kind);
 	}
 
-	public static void assertHighlights(String value, int[] expectedMatches, String elementName)
+	public static void assertHighlights(String value, int[] expectedMatches, String elementName) throws BadLocationException {
+		assertHighlights(null, value, expectedMatches, elementName);
+	}
+
+	public static void assertHighlights(XMLLanguageService languageService, String value, int[] expectedMatches,
+			String elementName)
 			throws BadLocationException {
 		int offset = value.indexOf("|");
 		value = value.substring(0, offset) + value.substring(offset + 1);
@@ -1086,7 +1123,9 @@ public class XMLAssert {
 
 		Position position = document.positionAt(offset);
 
-		XMLLanguageService languageService = new XMLLanguageService();
+		if (languageService == null) {
+			languageService = new XMLLanguageService();
+		}
 		List<DocumentHighlight> highlights = languageService.findDocumentHighlights(document, position);
 		assertEquals(expectedMatches.length, highlights.size());
 		for (int i = 0; i < highlights.size(); i++) {
@@ -1117,6 +1156,11 @@ public class XMLAssert {
 
 	public static void assertFormat(String unformatted, String expected, SharedSettings sharedSettings, String uri,
 			Boolean considerRangeFormat) throws BadLocationException {
+		assertFormat(null, unformatted, expected, sharedSettings, uri, considerRangeFormat);
+	}
+
+	public static void assertFormat(XMLLanguageService languageService, String unformatted, String expected, SharedSettings sharedSettings, String uri,
+				Boolean considerRangeFormat) throws BadLocationException {
 		Range range = null;
 		int rangeStart = considerRangeFormat ? unformatted.indexOf('|') : -1;
 		int rangeEnd = considerRangeFormat ? unformatted.lastIndexOf('|') : -1;
@@ -1131,7 +1175,9 @@ public class XMLAssert {
 		}
 
 		TextDocument document = new TextDocument(unformatted, uri);
-		XMLLanguageService languageService = new XMLLanguageService();
+		if (languageService == null) {
+			languageService = new XMLLanguageService();
+		}
 		List<? extends TextEdit> edits = languageService.format(document, range, sharedSettings);
 
 		String formatted = edits.stream().map(edit -> edit.getNewText()).collect(Collectors.joining(""));
@@ -1156,6 +1202,11 @@ public class XMLAssert {
 
 	public static void assertRename(String value, String newText, List<TextEdit> expectedEdits)
 			throws BadLocationException {
+		assertRename(null, value, newText, expectedEdits);
+	}
+
+	public static void assertRename(XMLLanguageService languageService, String value, String newText, List<TextEdit> expectedEdits)
+			throws BadLocationException {
 		int offset = value.indexOf("|");
 		value = value.substring(0, offset) + value.substring(offset + 1);
 
@@ -1163,7 +1214,9 @@ public class XMLAssert {
 
 		Position position = document.positionAt(offset);
 
-		XMLLanguageService languageService = new XMLLanguageService();
+		if (languageService == null) {
+			languageService = new XMLLanguageService();
+		}
 		WorkspaceEdit workspaceEdit = languageService.doRename(document, position, newText);
 		List<TextEdit> actualEdits = workspaceEdit.getChanges().get("test://test/test.html");
 		assertArrayEquals(expectedEdits.toArray(), actualEdits.toArray());

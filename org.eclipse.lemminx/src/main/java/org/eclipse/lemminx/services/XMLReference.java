@@ -14,6 +14,9 @@ package org.eclipse.lemminx.services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CancellationException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.services.extensions.IReferenceParticipant;
@@ -31,6 +34,8 @@ class XMLReference {
 
 	private final XMLExtensionsRegistry extensionsRegistry;
 
+	private static Logger LOGGER = Logger.getLogger(XMLReference.class.getName());
+
 	public XMLReference(XMLExtensionsRegistry extensionsRegistry) {
 		this.extensionsRegistry = extensionsRegistry;
 	}
@@ -39,7 +44,14 @@ class XMLReference {
 			CancelChecker cancelChecker) {
 		List<Location> locations = new ArrayList<>();
 		for (IReferenceParticipant participant : extensionsRegistry.getReferenceParticipants()) {
-			participant.findReference(document, position, context, locations, cancelChecker);
+			try {
+				participant.findReference(document, position, context, locations, cancelChecker);
+			} catch (CancellationException e) {
+				throw e;
+			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE,
+						"Error while processing references for the participant '" + participant.getClass().getName() + "'.", e);
+			}
 		}
 		return locations;
 	}

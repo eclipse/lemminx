@@ -14,11 +14,15 @@ package org.eclipse.lemminx.services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CancellationException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
+import org.eclipse.lemminx.uriresolver.CacheResourceDownloadingException;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
@@ -29,6 +33,7 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 class XMLDiagnostics {
 
 	private final XMLExtensionsRegistry extensionsRegistry;
+	private static final Logger LOGGER = Logger.getLogger(XMLDiagnostics.class.getName());
 
 	public XMLDiagnostics(XMLExtensionsRegistry extensionsRegistry) {
 		this.extensionsRegistry = extensionsRegistry;
@@ -45,7 +50,7 @@ class XMLDiagnostics {
 
 	/**
 	 * Do validation with extension (XML Schema, etc)
-	 * 
+	 *
 	 * @param xmlDocument
 	 * @param diagnostics
 	 * @param validationSettings
@@ -55,7 +60,14 @@ class XMLDiagnostics {
 			XMLValidationSettings validationSettings, CancelChecker monitor) {
 		for (IDiagnosticsParticipant diagnosticsParticipant : extensionsRegistry.getDiagnosticsParticipants()) {
 			monitor.checkCanceled();
-			diagnosticsParticipant.doDiagnostics(xmlDocument, diagnostics, validationSettings, monitor);
+			try {
+				diagnosticsParticipant.doDiagnostics(xmlDocument, diagnostics, validationSettings, monitor);
+			} catch (CancellationException | CacheResourceDownloadingException e) {
+				throw e;
+			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE,
+						"Error while processing diagnostics for the participant '" + diagnosticsParticipant.getClass().getName() + "'.", e);
+			}
 		}
 	}
 
