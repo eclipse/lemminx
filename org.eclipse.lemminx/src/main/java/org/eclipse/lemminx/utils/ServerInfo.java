@@ -21,6 +21,9 @@ public class ServerInfo {
 
   static final String MASTER = "master";
 
+  // https://github.com/oracle/graal/blob/master/substratevm/src/com.oracle.svm.core/src/com/oracle/svm/core/jdk/SystemPropertiesSupport.java#L97
+  private static final boolean IS_NATIVE_IMAGE = "Substrate VM".equals(System.getProperty("java.vm.name"));
+
   private ResourceBundle rb = ResourceBundle.getBundle("git");
 
   public ServerInfo() {
@@ -80,14 +83,19 @@ public class ServerInfo {
    *  - Java : (path to java.home])
    *  - Git : ([Branch] short commit id - commit message)
    * </pre>
-   * 
+   *
    * @return the formatted server details
    */
   public String details() {
     StringBuilder details = new StringBuilder();
     details.append("LemMinX Server info:");
     append(details, "Version", getVersion());
-    append(details, "Java", getJava());
+    if (IS_NATIVE_IMAGE) {
+      append(details, "Native Image", null);
+    } else {
+      append(details, "Java", getJava());
+    }
+    append(details, "VM Version", System.getProperty("java.vm.version"));
     append(details, "Git", null);
     String branch = getBranch();
     if (!MASTER.equals(branch)) {
