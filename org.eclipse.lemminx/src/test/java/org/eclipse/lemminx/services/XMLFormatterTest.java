@@ -605,12 +605,12 @@ public class XMLFormatterTest {
 	@Test
 	public void testCDATAWithRange() throws BadLocationException {
 		String content = "<foo>\r\n" + //
-				"  <![CDATA[ |<bar>|\r\n" + // 
+				"  <![CDATA[ |<bar>|\r\n" + //
 				"  </bar>\r\n" + //
 				"  ]]>\r\n" + //
 				"</foo>";
 		String expected = "<foo>\r\n" + //
-				"  <![CDATA[ <bar>\r\n" + // 
+				"  <![CDATA[ <bar>\r\n" + //
 				"  </bar>\r\n" + //
 				"  ]]>\r\n" + //
 				"</foo>";
@@ -2847,6 +2847,61 @@ public class XMLFormatterTest {
 				"  a4=\"123456789\" a5=\"123456789\" a6=\"123456789\"\n" + //
 				"  a7=\"123456789\" a8=\"123456789\" a9=\"123456789\"\n" + //
 				"></a>";
+		assertFormat(content, expected, settings);
+	}
+
+	@Test
+	public void splitAttributesIndentSize0() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributesIndentSize(0);
+
+		String content = "<root a='a' b='b' c='c'/>\n";
+		String expected = "<root\n" + //
+				"a='a'\n" + //
+				"b='b'\n" + //
+				"c='c' />";
+		assertFormat(content, expected, settings);
+	}
+
+	@Test
+	public void splitAttributesIndentSizeNegative() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributesIndentSize(-1);
+
+		String content = "<root a='a' b='b' c='c'/>\n";
+		String expected = "<root\n" + //
+				"a='a'\n" + //
+				"b='b'\n" + //
+				"c='c' />";
+		assertFormat(content, expected, settings);
+	}
+
+	@Test
+	public void splitAttributesIndentSize1() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributesIndentSize(1);
+
+		String content = "<root a='a' b='b' c='c'/>\n";
+		String expected = "<root\n" + //
+				"  a='a'\n" + //
+				"  b='b'\n" + //
+				"  c='c' />";
+		assertFormat(content, expected, settings);
+	}
+
+	@Test
+	public void splitAttributesIndentSizeDefault() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setSplitAttributes(true);
+
+		String content = "<root a='a' b='b' c='c'/>\n";
+		String expected = "<root\n" + //
+				"    a='a'\n" + //
+				"    b='b'\n" + //
+				"    c='c' />";
 		assertFormat(content, expected, settings);
 	}
 
