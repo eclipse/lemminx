@@ -35,7 +35,6 @@ public class XMLBuilder {
 	private final String lineDelimiter;
 	private final StringBuilder xml;
 	private final String whitespacesIndent;
-	private final int splitAttributesIndent = 2;
 
 	private final Collection<IFormatterParticipant> formatterParticipants;
 
@@ -174,7 +173,7 @@ public class XMLBuilder {
 	public XMLBuilder addAttribute(String name, String value, int level, boolean surroundWithQuotes) {
 		if (isSplitAttributes()) {
 			linefeed();
-			indent(level + splitAttributesIndent);
+			indent(level + sharedSettings.getFormattingSettings().getSplitAttributesIndentSize());
 		} else {
 			appendSpace();
 		}
@@ -190,7 +189,7 @@ public class XMLBuilder {
 	private XMLBuilder addAttribute(DOMAttr attr, int level, boolean surroundWithQuotes) {
 		if (isSplitAttributes()) {
 			linefeed();
-			indent(level + splitAttributesIndent);
+			indent(level + sharedSettings.getFormattingSettings().getSplitAttributesIndentSize());
 		} else {
 			appendSpace();
 		}
