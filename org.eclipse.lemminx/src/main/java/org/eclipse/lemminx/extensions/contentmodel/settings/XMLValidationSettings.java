@@ -20,7 +20,7 @@ import org.eclipse.lsp4j.PublishDiagnosticsCapabilities;
  */
 public class XMLValidationSettings {
 
-	private Boolean schema;
+	private XMLSchemaSettings schema;
 
 	private Boolean enabled;
 
@@ -31,7 +31,7 @@ public class XMLValidationSettings {
 	/**
 	 * This severity preference to mark the root element of XML document which is
 	 * not bound to a XML Schema/DTD.
-	 * 
+	 *
 	 * Values are {ignore, hint, info, warning, error}
 	 */
 	private String noGrammar;
@@ -40,7 +40,6 @@ public class XMLValidationSettings {
 
 	public XMLValidationSettings() {
 		// set defaults
-		setSchema(true);
 		setEnabled(true);
 		setDisallowDocTypeDecl(false);
 		setResolveExternalEntities(false);
@@ -61,16 +60,18 @@ public class XMLValidationSettings {
 	}
 
 	/**
-	 * @return the schema
+	 * Returns the XML Schema validation settings.
+	 *
+	 * @return the XML Schema validation settings.
 	 */
-	public boolean isSchema() {
+	public XMLSchemaSettings getSchema() {
 		return schema;
 	}
 
 	/**
 	 * @param schema the schema to set
 	 */
-	public void setSchema(boolean schema) {
+	public void setSchema(XMLSchemaSettings schema) {
 		this.schema = schema;
 	}
 
@@ -85,7 +86,7 @@ public class XMLValidationSettings {
 	/**
 	 * Returns true if a fatal error is thrown if the incoming document contains a
 	 * DOCTYPE declaration and false otherwise.
-	 * 
+	 *
 	 * @return true if a fatal error is thrown if the incoming document contains a
 	 *         DOCTYPE declaration and false otherwise.
 	 */
@@ -96,7 +97,7 @@ public class XMLValidationSettings {
 	/**
 	 * Set true if a fatal error is thrown if the incoming document contains a
 	 * DOCTYPE declaration and false otherwise.
-	 * 
+	 *
 	 * @param disallowDocTypeDecl disallow DOCTYPE declaration.
 	 */
 	public void setDisallowDocTypeDecl(boolean disallowDocTypeDecl) {
@@ -105,7 +106,7 @@ public class XMLValidationSettings {
 
 	/**
 	 * Returns true if external entities must be resolved and false otherwise.
-	 * 
+	 *
 	 * @return true if external entities must be resolved and false otherwise.
 	 */
 	public boolean isResolveExternalEntities() {
@@ -114,7 +115,7 @@ public class XMLValidationSettings {
 
 	/**
 	 * Set true if external entities must be resolved and false otherwise.
-	 * 
+	 *
 	 * @param resolveExternalEntities resolve extrenal entities
 	 */
 	public void setResolveExternalEntities(boolean resolveExternalEntities) {
@@ -124,7 +125,7 @@ public class XMLValidationSettings {
 	/**
 	 * Returns the <code>noGrammar</code> severity according the given settings and
 	 * {@link DiagnosticSeverity#Hint} otherwise.
-	 * 
+	 *
 	 * @param validationSettings the validation settings
 	 * @return the <code>noGrammar</code> severity according the given settings and
 	 *         {@link DiagnosticSeverity#Hint} otherwise.
@@ -165,6 +166,49 @@ public class XMLValidationSettings {
 	public boolean isRelatedInformation() {
 		return publishDiagnostics != null && publishDiagnostics.getRelatedInformation() != null
 				&& publishDiagnostics.getRelatedInformation();
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (disallowDocTypeDecl ? 1231 : 1237);
+		result = prime * result + ((enabled == null) ? 0 : enabled.hashCode());
+		result = prime * result + ((noGrammar == null) ? 0 : noGrammar.hashCode());
+		result = prime * result + (resolveExternalEntities ? 1231 : 1237);
+		result = prime * result + ((schema == null) ? 0 : schema.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		XMLValidationSettings other = (XMLValidationSettings) obj;
+		if (disallowDocTypeDecl != other.disallowDocTypeDecl)
+			return false;
+		if (enabled == null) {
+			if (other.enabled != null)
+				return false;
+		} else if (!enabled.equals(other.enabled))
+			return false;
+		if (noGrammar == null) {
+			if (other.noGrammar != null)
+				return false;
+		} else if (!noGrammar.equals(other.noGrammar))
+			return false;
+		if (resolveExternalEntities != other.resolveExternalEntities)
+			return false;
+		if (schema == null) {
+			if (other.schema != null)
+				return false;
+		} else if (!schema.equals(other.schema))
+			return false;
+		return true;
 	}
 
 }

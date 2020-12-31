@@ -29,6 +29,7 @@ import org.eclipse.lemminx.XMLLanguageServer;
 import org.eclipse.lemminx.client.CodeLensKind;
 import org.eclipse.lemminx.client.ExtendedClientCapabilities;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
+import org.eclipse.lemminx.extensions.contentmodel.settings.SchemaEnabled;
 import org.eclipse.lemminx.settings.capabilities.InitializationOptionsExtendedClientCapabilities;
 import org.eclipse.lemminx.utils.FilesUtils;
 import org.eclipse.lsp4j.FormattingOptions;
@@ -53,60 +54,48 @@ public class SettingsTest {
 			f.delete();
 		}
 	}
+
 	// @formatter:off
-	private final String json = 
-	"{\r\n" +
-	"	\"settings\": {\r\n" + //
+	private final String json = "{\r\n" + "	\"settings\": {\r\n" + //
 	// Content model settings
-	"		\"xml\": {\r\n" + 
-	"			\"fileAssociations\": [\r\n" + //
-	"				{\r\n" + //
-	"					\"systemId\": \"src\\\\test\\\\resources\\\\xsd\\\\spring-beans-3.0.xsd\",\r\n" + //
-	"					\"pattern\": \"**/test*.xml\"\r\n" + //
-	"				},\r\n" + //
-	"				{\r\n" + //
-	"					\"systemId\": \"src\\\\test\\\\resources\\\\xsd\\\\projectDescription.xsd\",\r\n" + //
-	"					\"pattern\": \"projectDescription.xml\"\r\n" + //
-	"				}\r\n" + //
-	"			],\r\n" + //
-	"			\"catalogs\": [\r\n" + //
-	"				\"src\\\\test\\\\resources\\\\catalogs\\\\catalog.xml\"\r\n" + //
-	"			],\r\n" + //
-	"			\"validation\": {\r\n" + //
-	"				\"enabled\": true,\r\n" + //
-	"				\"schema\": false\r\n" + //
-	"			},\r\n" + //
-	// Client (commons) settings
-	"			\"format\": {\r\n" + //
-	"				\"tabSize\": 10,\r\n" + //
-	"				\"insertSpaces\": false,\r\n" + //
-	"				\"splitAttributes\": true,\r\n" + //
-	"				\"joinCDATALines\": true,\r\n" + //
-	"				\"formatComments\": true,\r\n" + //
-	"				\"joinCommentLines\": true,\r\n" + //
-	"				\"preserveAttributeLineBreaks\": true\r\n" + //
-	"			},\r\n" + 
-	"			\"server\": {\r\n" + //
-	"				\"workDir\": \"~/" + testFolder + "/Nested\"\r\n" + //
-	"			},\r\n" + 
-	"			\"symbols\": {\r\n" + //
-	"				\"enabled\": true,\r\n" + //
-	"				\"excluded\": [\"**\\\\*.xsd\", \"**\\\\*.xml\"]\r\n" + //
-	"			}\r\n" + 
-	"		}\r\n" + 
-	"	},\r\n" +
-	"	\"extendedClientCapabilities\": {\r\n" + 
-	"		\"codeLens\": {\r\n" + 
-	"			\"codeLensKind\": {\r\n" + 
-	"				\"valueSet\": [\r\n" + 
-	"					\"references\"\r\n" + 
-	"				]\r\n" + 
-	"			}\r\n" + 
-	"		},\r\n" + 
-	"		actionableNotificationSupport: true,\r\n" + 
-	"		openSettingsCommandSupport: true\r\n" + 
-	"	}" + 
-	"}";
+			"		\"xml\": {\r\n" + "			\"fileAssociations\": [\r\n" + //
+			"				{\r\n" + //
+			"					\"systemId\": \"src\\\\test\\\\resources\\\\xsd\\\\spring-beans-3.0.xsd\",\r\n" + //
+			"					\"pattern\": \"**/test*.xml\"\r\n" + //
+			"				},\r\n" + //
+			"				{\r\n" + //
+			"					\"systemId\": \"src\\\\test\\\\resources\\\\xsd\\\\projectDescription.xsd\",\r\n" + //
+			"					\"pattern\": \"projectDescription.xml\"\r\n" + //
+			"				}\r\n" + //
+			"			],\r\n" + //
+			"			\"catalogs\": [\r\n" + //
+			"				\"src\\\\test\\\\resources\\\\catalogs\\\\catalog.xml\"\r\n" + //
+			"			],\r\n" + //
+			"			\"validation\": {\r\n" + //
+			"				\"enabled\": true,\r\n" + //
+			"			    \"schema\": {\r\n" + //
+			"				    \"enabled\": \"never\"\r\n" + //
+			"			     }\r\n" + //
+			"			},\r\n" + //
+			// Client (commons) settings
+			"			\"format\": {\r\n" + //
+			"				\"tabSize\": 10,\r\n" + //
+			"				\"insertSpaces\": false,\r\n" + //
+			"				\"splitAttributes\": true,\r\n" + //
+			"				\"joinCDATALines\": true,\r\n" + //
+			"				\"formatComments\": true,\r\n" + //
+			"				\"joinCommentLines\": true,\r\n" + //
+			"				\"preserveAttributeLineBreaks\": true\r\n" + //
+			"			},\r\n" + "			\"server\": {\r\n" + //
+			"				\"workDir\": \"~/" + testFolder + "/Nested\"\r\n" + //
+			"			},\r\n" + "			\"symbols\": {\r\n" + //
+			"				\"enabled\": true,\r\n" + //
+			"				\"excluded\": [\"**\\\\*.xsd\", \"**\\\\*.xml\"]\r\n" + //
+			"			}\r\n" + "		}\r\n" + "	},\r\n" + "	\"extendedClientCapabilities\": {\r\n"
+			+ "		\"codeLens\": {\r\n" + "			\"codeLensKind\": {\r\n" + "				\"valueSet\": [\r\n"
+			+ "					\"references\"\r\n" + "				]\r\n" + "			}\r\n" + "		},\r\n"
+			+ "		actionableNotificationSupport: true,\r\n" + "		openSettingsCommandSupport: true\r\n" + "	}"
+			+ "}";
 	// @formatter:on
 
 	@Test
@@ -120,13 +109,15 @@ public class SettingsTest {
 
 		// Test client commons settings
 		initializationOptionsSettings = AllXMLSettings.getAllXMLSettings(initializationOptionsSettings);
-		XMLGeneralClientSettings settings = XMLGeneralClientSettings.getGeneralXMLSettings(initializationOptionsSettings);
+		XMLGeneralClientSettings settings = XMLGeneralClientSettings
+				.getGeneralXMLSettings(initializationOptionsSettings);
 		assertNotNull(settings);
 		// Server
 		assertEquals("~/" + testFolder + "/Nested", settings.getServer().getWorkDir());
 
 		// Test content model extension settings
-		ContentModelSettings cmSettings = ContentModelSettings.getContentModelXMLSettings(initializationOptionsSettings);
+		ContentModelSettings cmSettings = ContentModelSettings
+				.getContentModelXMLSettings(initializationOptionsSettings);
 		assertNotNull(cmSettings);
 		// Catalog
 		assertNotNull(cmSettings.getCatalogs());
@@ -135,16 +126,19 @@ public class SettingsTest {
 		// File associations
 		assertNotNull(cmSettings.getFileAssociations());
 		assertEquals(2, cmSettings.getFileAssociations().length);
-		assertEquals("src\\test\\resources\\xsd\\spring-beans-3.0.xsd", cmSettings.getFileAssociations()[0].getSystemId());
+		assertEquals("src\\test\\resources\\xsd\\spring-beans-3.0.xsd",
+				cmSettings.getFileAssociations()[0].getSystemId());
 		assertEquals("**/test*.xml", cmSettings.getFileAssociations()[0].getPattern());
 		// Diagnostics
 		assertNotNull(cmSettings.getValidation());
 		assertEquals(true, cmSettings.getValidation().isEnabled());
-		assertEquals(false, cmSettings.getValidation().isSchema());
+		assertNotNull(cmSettings.getValidation().getSchema());
+		assertNotNull(cmSettings.getValidation().getSchema().getEnabled());
+		assertEquals(SchemaEnabled.never, cmSettings.getValidation().getSchema().getEnabled());
 		// Symbols
 		assertNotNull(settings.getSymbols());
 		assertEquals(true, settings.getSymbols().isEnabled());
-		assertArrayEquals(new String[]{"**\\*.xsd", "**\\*.xml"}, settings.getSymbols().getExcluded());
+		assertArrayEquals(new String[] { "**\\*.xsd", "**\\*.xml" }, settings.getSymbols().getExcluded());
 
 	}
 
@@ -177,7 +171,7 @@ public class SettingsTest {
 		// the InitializeParams
 		xmlFormattingOptions.merge(sharedXMLFormattingOptions);
 		assertEquals(10, xmlFormattingOptions.getTabSize());
-		assertTrue(xmlFormattingOptions.isInsertSpaces()); 
+		assertTrue(xmlFormattingOptions.isInsertSpaces());
 		assertTrue(xmlFormattingOptions.isJoinCommentLines());
 	}
 
@@ -216,7 +210,7 @@ public class SettingsTest {
 		} catch (Exception e) {
 			fail();
 		} finally {
-			//Reset static cache path
+			// Reset static cache path
 			FilesUtils.setCachePathSetting(null);
 			System.setProperty("user.home", originalUserHome);
 		}
@@ -224,7 +218,8 @@ public class SettingsTest {
 
 	@Test
 	public void symbolSettingsTest() {
-		//Tests that when the settings are updated the shared settings are also updated correctly
+		// Tests that when the settings are updated the shared settings are also updated
+		// correctly
 
 		InitializeParams params = createInitializeParams(json);
 		Object initializationOptionsSettings = InitializationOptionsSettings.getSettings(params);
@@ -233,9 +228,10 @@ public class SettingsTest {
 
 		XMLExcludedSymbolFile xsdFile = new XMLExcludedSymbolFile("**\\*.xsd");
 		XMLExcludedSymbolFile xmlFile = new XMLExcludedSymbolFile("**\\*.xml");
-		XMLExcludedSymbolFile[] expectedExcludedFiles = new XMLExcludedSymbolFile[] {xsdFile, xmlFile};
+		XMLExcludedSymbolFile[] expectedExcludedFiles = new XMLExcludedSymbolFile[] { xsdFile, xmlFile };
 
-		XMLExcludedSymbolFile[] actualExpectedFiles = languageServer.getSettings().getSymbolSettings().getExcludedFiles();
+		XMLExcludedSymbolFile[] actualExpectedFiles = languageServer.getSettings().getSymbolSettings()
+				.getExcludedFiles();
 		assertArrayEquals(expectedExcludedFiles, actualExpectedFiles);
 	}
 
@@ -249,8 +245,7 @@ public class SettingsTest {
 		assertNotNull(clientCapabilities.getCodeLens().getCodeLensKind());
 		assertNotNull(clientCapabilities.getCodeLens().getCodeLensKind().getValueSet());
 		assertEquals(1, clientCapabilities.getCodeLens().getCodeLensKind().getValueSet().size());
-		assertEquals(CodeLensKind.References,
-				clientCapabilities.getCodeLens().getCodeLensKind().getValueSet().get(0));
+		assertEquals(CodeLensKind.References, clientCapabilities.getCodeLens().getCodeLensKind().getValueSet().get(0));
 		assertTrue(clientCapabilities.isActionableNotificationSupport());
 		assertTrue(clientCapabilities.isOpenSettingsCommandSupport());
 	}
