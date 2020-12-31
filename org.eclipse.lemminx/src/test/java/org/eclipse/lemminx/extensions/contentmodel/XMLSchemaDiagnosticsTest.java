@@ -21,6 +21,7 @@ import static org.eclipse.lemminx.XMLAssert.r;
 import static org.eclipse.lemminx.XMLAssert.te;
 import static org.eclipse.lemminx.XMLAssert.teOp;
 import static org.eclipse.lemminx.XMLAssert.testCodeActionsFor;
+import static org.eclipse.lemminx.XMLAssert.testDiagnosticsFor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,6 +32,7 @@ import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSchemaErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
+import org.eclipse.lemminx.extensions.contentmodel.settings.SchemaEnabled;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.settings.EnforceQuoteStyle;
@@ -74,7 +76,7 @@ public class XMLSchemaDiagnosticsTest {
 				"</beans>";
 		Diagnostic d = d(3, 2, 3, 15, XMLSchemaErrorCode.cvc_complex_type_2_3,
 				"Element \'bean\' cannot contain text content.\nThe content type is defined as element-only.\n\nCode:");
-		testDiagnosticsFor(xml, d);
+		testDiagnosticsWithCatalogFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(3, 2, 3, 15, "")));
 	}
 
@@ -89,7 +91,7 @@ public class XMLSchemaDiagnosticsTest {
 				"</beans>";
 		Diagnostic d = d(3, 3, 3, 11, XMLSchemaErrorCode.cvc_complex_type_4,
 				"Attribute:\n - name\nis required in element:\n - property\n\nCode:");
-		testDiagnosticsFor(xml, d);
+		testDiagnosticsWithCatalogFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(3, 11, 3, 11, " name=\"\"")));
 	}
 
@@ -126,7 +128,7 @@ public class XMLSchemaDiagnosticsTest {
 				"</project>";
 
 		String message = "Invalid element name:\n - XXX\n\nOne of the following is expected:\n - modelVersion\n - parent\n - groupId\n - artifactId\n - version\n - packaging\n - name\n - description\n - url\n - inceptionYear\n - organization\n - licenses\n - developers\n - contributors\n - mailingLists\n - prerequisites\n - modules\n - scm\n - issueManagement\n - ciManagement\n - distributionManagement\n - properties\n - dependencyManagement\n - dependencies\n - repositories\n - pluginRepositories\n - build\n - reports\n - reporting\n - profiles\n\nError indicated by:\n {http://maven.apache.org/POM/4.0.0}\nwith code:";
-		testDiagnosticsFor(xml, d(3, 2, 3, 5, XMLSchemaErrorCode.cvc_complex_type_2_4_a, message));
+		testDiagnosticsWithCatalogFor(xml, d(3, 2, 3, 5, XMLSchemaErrorCode.cvc_complex_type_2_4_a, message));
 	}
 
 	@Test
@@ -152,7 +154,7 @@ public class XMLSchemaDiagnosticsTest {
 				"		</description>\r\n" + //
 				"	</bean>\r\n" + //
 				"</beans>";
-		testDiagnosticsFor(xml, d(4, 4, 4, 8, XMLSchemaErrorCode.cvc_complex_type_2_4_d));
+		testDiagnosticsWithCatalogFor(xml, d(4, 4, 4, 8, XMLSchemaErrorCode.cvc_complex_type_2_4_d));
 	}
 
 	@Test
@@ -177,7 +179,7 @@ public class XMLSchemaDiagnosticsTest {
 				+ //
 				"<modelVersion XXXX=\"\" ></modelVersion>" + "</project>";
 		Diagnostic d = d(3, 14, 3, 21, XMLSchemaErrorCode.cvc_type_3_1_1);
-		testDiagnosticsFor(xml, d);
+		testDiagnosticsWithCatalogFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(3, 14, 3, 21, "")));
 	}
 
@@ -190,7 +192,7 @@ public class XMLSchemaDiagnosticsTest {
 				"	</bean>              \r\n" + //
 				"</beans>";
 		Diagnostic d = d(2, 7, 2, 11, XMLSchemaErrorCode.cvc_complex_type_3_2_2);
-		testDiagnosticsFor(xml, d);
+		testDiagnosticsWithCatalogFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(2, 7, 2, 14, "")));
 	}
 
@@ -201,7 +203,7 @@ public class XMLSchemaDiagnosticsTest {
 				+ //
 				"	<bean autowire=\"ERROR\" />\r\n" + // <- error
 				"</beans>";
-		testDiagnosticsFor(xml, d(2, 16, 2, 23, XMLSchemaErrorCode.cvc_enumeration_valid),
+		testDiagnosticsWithCatalogFor(xml, d(2, 16, 2, 23, XMLSchemaErrorCode.cvc_enumeration_valid),
 				d(2, 16, 2, 23, XMLSchemaErrorCode.cvc_attribute_3));
 	}
 
@@ -352,7 +354,8 @@ public class XMLSchemaDiagnosticsTest {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<dresssize xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
 				" xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/dressSize.xsd\"></dresssize>";
-		testDiagnosticsFor(xml, d(1, 1, 1, 10, XMLSchemaErrorCode.cvc_datatype_valid_1_2_3),
+		testDiagnosticsFor(xml, //
+				d(1, 1, 1, 10, XMLSchemaErrorCode.cvc_datatype_valid_1_2_3),
 				d(1, 1, 1, 10, XMLSchemaErrorCode.cvc_type_3_1_3));
 	}
 
@@ -376,7 +379,8 @@ public class XMLSchemaDiagnosticsTest {
 				"		</focus>\r\n" + //
 				"	</member>\r\n" + //
 				"</team>";
-		testDiagnosticsFor(xml, d(2, 10, 2, 29, XMLSchemaErrorCode.cvc_maxlength_valid),
+		testDiagnosticsFor(xml, //
+				d(2, 10, 2, 29, XMLSchemaErrorCode.cvc_maxlength_valid),
 				d(2, 10, 2, 29, XMLSchemaErrorCode.cvc_attribute_3));
 
 	}
@@ -392,7 +396,7 @@ public class XMLSchemaDiagnosticsTest {
 				"	<alias name=\"\" alias=\"\" >XXXX</alias>\r\n" + // <- error
 				"</beans>";
 		Diagnostic d = d(5, 26, 5, 30, XMLSchemaErrorCode.cvc_complex_type_2_1);
-		testDiagnosticsFor(xml, d);
+		testDiagnosticsWithCatalogFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(5, 25, 5, 38, "/>")));
 	}
 
@@ -416,15 +420,16 @@ public class XMLSchemaDiagnosticsTest {
 				"	<alias name=\"\" alias=\"\" >\r\n   \r\n</alias>\r\n" + // <- error
 				"</beans>";
 		Diagnostic d = d(5, 26, 7, 0, XMLSchemaErrorCode.cvc_complex_type_2_1);
-		testDiagnosticsFor(xml, d);
+		testDiagnosticsWithCatalogFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(5, 25, 7, 8, "/>")));
 	}
 
 	@Test
 	public void cvc_pattern_valid() throws Exception {
-		String xml = "<Annotation\r\n" + "	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n"
-				+ "	xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/pattern.xsd\"\r\n"
-				+ "	Term=\"X\"></Annotation>";
+		String xml = "<Annotation\r\n" + //
+				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"	xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/pattern.xsd\"\r\n" + //
+				"	Term=\"X\"></Annotation>";
 		Diagnostic patternValid = d(3, 6, 3, 9, XMLSchemaErrorCode.cvc_pattern_valid);
 		Diagnostic cvcAttribute3 = d(3, 6, 3, 9, XMLSchemaErrorCode.cvc_attribute_3);
 		testDiagnosticsFor(xml, patternValid, cvcAttribute3);
@@ -441,7 +446,7 @@ public class XMLSchemaDiagnosticsTest {
 		Diagnostic patternValid = d(6, 17, 6, 37, XMLSchemaErrorCode.cvc_pattern_valid);
 		Diagnostic cvcType313 = d(6, 17, 6, 37, XMLSchemaErrorCode.cvc_type_3_1_3);
 		Diagnostic cvcType24b = d(3, 5, 3, 10, XMLSchemaErrorCode.cvc_complex_type_2_4_b);
-		testDiagnosticsFor(xml, patternValid, cvcType313, cvcType24b);
+		testDiagnosticsWithCatalogFor(xml, patternValid, cvcType313, cvcType24b);
 	}
 
 	/**
@@ -456,7 +461,7 @@ public class XMLSchemaDiagnosticsTest {
 				"</edmx:Edmx>";
 		Diagnostic d = d(1, 1, 1, 10, XMLSchemaErrorCode.cvc_complex_type_2_4_b,
 				"Child elements are missing from element:\n - edmx:Edmx\n\nThe following elements are expected:\n - Reference\n - DataServices\n\nError indicated by\n {http://docs.oasis-open.org/odata/ns/edmx\":Reference, \"http://docs.oasis-open.org/odata/ns/edmx}\nwith code:");
-		testDiagnosticsFor(xml, d);
+		testDiagnosticsWithCatalogFor(xml, d);
 	}
 
 	@Test
@@ -490,7 +495,8 @@ public class XMLSchemaDiagnosticsTest {
 				"  	<payment amount=\"1\" method=\"credit\"/>\r\n" + //
 				"  </payments>\r\n" + //
 				"</invoice>";
-		testDiagnosticsFor(xml, d(4, 3, 4, 9, XMLSchemaErrorCode.cvc_type_3_1_2),
+		testDiagnosticsFor(xml, //
+				d(4, 3, 4, 9, XMLSchemaErrorCode.cvc_type_3_1_2),
 				d(4, 10, 4, 17, XMLSchemaErrorCode.cvc_datatype_valid_1_2_1),
 				d(4, 10, 4, 17, XMLSchemaErrorCode.cvc_type_3_1_3));
 	}
@@ -506,8 +512,11 @@ public class XMLSchemaDiagnosticsTest {
 	@Test
 	public void schema_reference_4_withSchemaLocation() {
 		String xml = "<IODevice xmlns=\"http://www.io-link.com/IODD/2010/10\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \r\n"
-				+ "  xsi:schemaLocation=\"http://www.io-link.com/IODD/2010/10 IODD1.1.xsd\">\r\n" + "	</IODevice>";
-		testDiagnosticsFor(xml, d(1, 58, 1, 69, XMLSchemaErrorCode.schema_reference_4), //
+				+ //
+				"  xsi:schemaLocation=\"http://www.io-link.com/IODD/2010/10 IODD1.1.xsd\">\r\n" + //
+				"	</IODevice>";
+		testDiagnosticsWithCatalogFor(xml, //
+				d(1, 58, 1, 69, XMLSchemaErrorCode.schema_reference_4), //
 				d(0, 1, 0, 9, XMLSchemaErrorCode.cvc_elt_1_a));
 	}
 
@@ -521,7 +530,8 @@ public class XMLSchemaDiagnosticsTest {
 				+ //
 				"<other:other />\n" + //
 				"</root:root>";
-		testDiagnosticsFor(xml, d(4, 92, 4, 101, XMLSchemaErrorCode.schema_reference_4), //
+		testDiagnosticsWithCatalogFor(xml, //
+				d(4, 92, 4, 101, XMLSchemaErrorCode.schema_reference_4), //
 				d(5, 1, 5, 12, XMLSchemaErrorCode.cvc_complex_type_2_4_c));
 	}
 
@@ -550,7 +560,7 @@ public class XMLSchemaDiagnosticsTest {
 				"    </modules>\r\n" + "</project>";
 		Diagnostic diagnostic = d(4, 7, 4, 13, XMLSchemaErrorCode.cvc_complex_type_2_4_a,
 				"Invalid element name:\n - bodule\n\nOne of the following is expected:\n - module\n\nError indicated by:\n {http://maven.apache.org/POM/4.0.0}\nwith code:");
-		testDiagnosticsFor(xml, diagnostic);
+		testDiagnosticsWithCatalogFor(xml, diagnostic);
 
 		testCodeActionsFor(xml, diagnostic, ca(diagnostic, te(4, 7, 4, 13, "module"), te(4, 16, 4, 22, "module")));
 	}
@@ -575,7 +585,7 @@ public class XMLSchemaDiagnosticsTest {
 						" - notifiers\n\n" + "Error indicated by:\n" + //
 						" {http://maven.apache.org/POM/4.0.0}\n" + //
 						"with code:");
-		testDiagnosticsFor(xml, diagnostic);
+		testDiagnosticsWithCatalogFor(xml, diagnostic);
 		testCodeActionsFor(xml, diagnostic, //
 				ca(diagnostic, te(4, 7, 4, 16, "notifiers"), te(4, 19, 4, 28, "notifiers")), //
 				ca(diagnostic, te(4, 7, 4, 16, "system"), te(4, 19, 4, 28, "system")), //
@@ -601,7 +611,7 @@ public class XMLSchemaDiagnosticsTest {
 						"Error indicated by:\n" + //
 						" {http://foo}\n" + //
 						"with code:");
-		testDiagnosticsFor(xml, diagnostic);
+		testDiagnosticsWithCatalogFor(xml, diagnostic);
 	}
 
 	@Test
@@ -618,7 +628,7 @@ public class XMLSchemaDiagnosticsTest {
 				"</beans>";
 		Diagnostic diagnostic = d(6, 5, 6, 16, XMLSchemaErrorCode.cvc_complex_type_2_4_c,
 				"cvc-complex-type.2.4.c: The matching wildcard is strict, but no declaration can be found for element 'camel:beani'.");
-		testDiagnosticsFor(xml, diagnostic);
+		testDiagnosticsWithCatalogFor(xml, diagnostic);
 
 		testCodeActionsFor(xml, diagnostic, //
 				ca(diagnostic, te(6, 11, 6, 16, "bean"), te(6, 25, 6, 30, "bean")), //
@@ -648,7 +658,7 @@ public class XMLSchemaDiagnosticsTest {
 				"</int>";
 		Diagnostic diagnostic = d(1, 1, 1, 4, XMLSchemaErrorCode.cvc_complex_type_2_2,
 				"cvc-complex-type.2.2: Element 'int' must have no element [children], and the value must be valid.");
-		testDiagnosticsFor(xml, diagnostic);
+		testDiagnosticsWithCatalogFor(xml, diagnostic);
 	}
 
 	@Test
@@ -661,7 +671,7 @@ public class XMLSchemaDiagnosticsTest {
 				"Content of type 'integer' is expected.\n\nThe following content is not a valid type:\n 'Bob'\n\nCode:");
 		Diagnostic diagnostic_cvc_2_2 = d(1, 1, 1, 4, XMLSchemaErrorCode.cvc_complex_type_2_2,
 				"cvc-complex-type.2.2: Element 'int' must have no element [children], and the value must be valid.");
-		testDiagnosticsFor(xml, diagnosticBob, diagnostic_cvc_2_2);
+		testDiagnosticsWithCatalogFor(xml, diagnosticBob, diagnostic_cvc_2_2);
 	}
 
 	@Test
@@ -671,7 +681,7 @@ public class XMLSchemaDiagnosticsTest {
 				"<two-letter-name xmlns=\"BAD_NS\">Io</two-letter-name>";
 		Diagnostic targetNamespace = d(2, 23, 2, 31, XMLSchemaErrorCode.TargetNamespace_1,
 				"TargetNamespace.1: Expecting namespace 'BAD_NS', but the target namespace of the schema document is 'http://two-letter-name'.");
-		testDiagnosticsFor(xml, targetNamespace, d(2, 1, 2, 16, XMLSchemaErrorCode.cvc_elt_1_a,
+		testDiagnosticsWithCatalogFor(xml, targetNamespace, d(2, 1, 2, 16, XMLSchemaErrorCode.cvc_elt_1_a,
 				"cvc-elt.1.a: Cannot find the declaration of element 'two-letter-name'."));
 		testCodeActionsFor(xml, targetNamespace, ca(targetNamespace, te(2, 23, 2, 31, "\"http://two-letter-name\"")));
 	}
@@ -683,7 +693,7 @@ public class XMLSchemaDiagnosticsTest {
 				"<two-letter-name xmlns=\"_\">Io</two-letter-name>";
 		Diagnostic targetNamespace = d(2, 23, 2, 26, XMLSchemaErrorCode.TargetNamespace_1,
 				"TargetNamespace.1: Expecting namespace '_', but the target namespace of the schema document is 'http://two-letter-name'.");
-		testDiagnosticsFor(xml, targetNamespace, d(2, 1, 2, 16, XMLSchemaErrorCode.cvc_elt_1_a,
+		testDiagnosticsWithCatalogFor(xml, targetNamespace, d(2, 1, 2, 16, XMLSchemaErrorCode.cvc_elt_1_a,
 				"cvc-elt.1.a: Cannot find the declaration of element 'two-letter-name'."));
 		testCodeActionsFor(xml, targetNamespace, ca(targetNamespace, te(2, 23, 2, 26, "\"http://two-letter-name\"")));
 	}
@@ -709,7 +719,7 @@ public class XMLSchemaDiagnosticsTest {
 				"<two-letter-name>Io</two-letter-name>";
 		Diagnostic targetNamespace = d(2, 1, 2, 16, XMLSchemaErrorCode.TargetNamespace_2,
 				"TargetNamespace.2: Expecting no namespace, but the schema document has a target namespace of 'http://two-letter-name'.");
-		testDiagnosticsFor(xml, targetNamespace, d(2, 1, 2, 16, XMLSchemaErrorCode.cvc_elt_1_a,
+		testDiagnosticsWithCatalogFor(xml, targetNamespace, d(2, 1, 2, 16, XMLSchemaErrorCode.cvc_elt_1_a,
 				"cvc-elt.1.a: Cannot find the declaration of element 'two-letter-name'."));
 		testCodeActionsFor(xml, targetNamespace,
 				ca(targetNamespace, te(2, 16, 2, 16, " xmlns=\"http://two-letter-name\"")));
@@ -742,7 +752,7 @@ public class XMLSchemaDiagnosticsTest {
 						+ " 3) the root element of the document is not <xsd:schema>.");
 		Diagnostic eltDiagnostic = d(1, 1, 8, XMLSchemaErrorCode.cvc_elt_1_a);
 		eltDiagnostic.setMessage("cvc-elt.1.a: Cannot find the declaration of element 'invoice'.");
-		XMLAssert.testDiagnosticsFor(xml, missingSchemaDiagnostic, eltDiagnostic);
+		testDiagnosticsFor(xml, missingSchemaDiagnostic, eltDiagnostic);
 
 		SharedSettings settings = new SharedSettings();
 		WorkspaceClientCapabilities workspace = new WorkspaceClientCapabilities();
@@ -775,7 +785,7 @@ public class XMLSchemaDiagnosticsTest {
 				+ " 3) the root element of the document is not <xsd:schema>.");
 		Diagnostic eltDiagnostic = d(1, 1, 8, XMLSchemaErrorCode.cvc_elt_1_a);
 		eltDiagnostic.setMessage("cvc-elt.1.a: Cannot find the declaration of element 'invoice'.");
-		XMLAssert.testDiagnosticsFor(xml, missingSchema, eltDiagnostic);
+		testDiagnosticsFor(xml, missingSchema, eltDiagnostic);
 
 		XMLAssert.testCodeActionsFor(xml, missingSchema);
 	}
@@ -788,7 +798,7 @@ public class XMLSchemaDiagnosticsTest {
 				"  <bar>/bar></bar>\n" + //
 				"</foo>";
 		Diagnostic diagnostic = d(3, 7, 12, XMLSchemaErrorCode.cvc_complex_type_2_3);
-		XMLAssert.testDiagnosticsFor(xml, diagnostic);
+		testDiagnosticsFor(xml, diagnostic);
 		XMLAssert.testCodeActionsFor(xml, diagnostic, ca(diagnostic, te(3, 7, 3, 12, "")));
 	}
 
@@ -801,7 +811,7 @@ public class XMLSchemaDiagnosticsTest {
 				"barbarbar</bar>\n" + //
 				"</foo>";
 		Diagnostic diagnostic = d(3, 7, 12, XMLSchemaErrorCode.cvc_complex_type_2_3);
-		XMLAssert.testDiagnosticsFor(xml, diagnostic);
+		testDiagnosticsFor(xml, diagnostic);
 		XMLAssert.testCodeActionsFor(xml, diagnostic, ca(diagnostic, te(3, 7, 3, 12, "")));
 	}
 
@@ -813,7 +823,7 @@ public class XMLSchemaDiagnosticsTest {
 				"  <bar>    	/bar> 	 	</bar>\n" + //
 				"</foo>";
 		Diagnostic diagnostic = d(3, 12, 17, XMLSchemaErrorCode.cvc_complex_type_2_3);
-		XMLAssert.testDiagnosticsFor(xml, diagnostic);
+		testDiagnosticsFor(xml, diagnostic);
 		XMLAssert.testCodeActionsFor(xml, diagnostic, ca(diagnostic, te(3, 12, 3, 17, "")));
 	}
 
@@ -825,7 +835,7 @@ public class XMLSchemaDiagnosticsTest {
 				"  <bar> <![CDATA[ bar ]]> </bar>\n" + //
 				"</foo>";
 		Diagnostic diagnostic = d(3, 18, 21, XMLSchemaErrorCode.cvc_complex_type_2_3);
-		XMLAssert.testDiagnosticsFor(xml, diagnostic);
+		testDiagnosticsFor(xml, diagnostic);
 		XMLAssert.testCodeActionsFor(xml, diagnostic, ca(diagnostic, te(3, 18, 3, 21, "")));
 	}
 
@@ -838,7 +848,7 @@ public class XMLSchemaDiagnosticsTest {
 				"   hi ]]> </bar>\n" + //
 				"</foo>";
 		Diagnostic diagnostic = d(3, 18, 21, XMLSchemaErrorCode.cvc_complex_type_2_3);
-		XMLAssert.testDiagnosticsFor(xml, diagnostic);
+		testDiagnosticsFor(xml, diagnostic);
 		XMLAssert.testCodeActionsFor(xml, diagnostic, ca(diagnostic, te(3, 18, 3, 21, "")));
 	}
 
@@ -849,7 +859,7 @@ public class XMLSchemaDiagnosticsTest {
 				"  xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/close-tag-type.xsd\">\n" + //
 				"  <bar> <![CDATA[  ]]> </bar>\n" + //
 				"</foo>";
-		XMLAssert.testDiagnosticsFor(xml);
+		testDiagnosticsFor(xml);
 	}
 
 	@Test
@@ -860,7 +870,7 @@ public class XMLSchemaDiagnosticsTest {
 				"  <bar> <![CDATA[  ]]> TextContent </bar>\n" + //
 				"</foo>";
 		Diagnostic diagnostic = d(3, 23, 34, XMLSchemaErrorCode.cvc_complex_type_2_3);
-		XMLAssert.testDiagnosticsFor(xml, diagnostic);
+		testDiagnosticsFor(xml, diagnostic);
 		XMLAssert.testCodeActionsFor(xml, diagnostic, ca(diagnostic, te(3, 23, 3, 34, "")));
 	}
 
@@ -872,7 +882,7 @@ public class XMLSchemaDiagnosticsTest {
 				"  <bar /> TextContent <bar></bar>\n" + //
 				"</foo>";
 		Diagnostic diagnostic = d(3, 10, 21, XMLSchemaErrorCode.cvc_complex_type_2_3);
-		XMLAssert.testDiagnosticsFor(xml, diagnostic);
+		testDiagnosticsFor(xml, diagnostic);
 		XMLAssert.testCodeActionsFor(xml, diagnostic, ca(diagnostic, te(3, 10, 3, 21, "")));
 	}
 
@@ -900,13 +910,11 @@ public class XMLSchemaDiagnosticsTest {
 
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
 		// First validation
-		XMLAssert.testDiagnosticsFor(xmlLanguageService, xml, null, null, "src/test/resources/test.xml", false,
-				settings, //
+		testDiagnosticsFor(xmlLanguageService, xml, null, null, "src/test/resources/test.xml", false, settings, //
 				diagnostic, diagnosticBasedOnXSD);
 		// Restart the validation to check the validation is working since Xerces cache
 		// the invalid XSD grammar
-		XMLAssert.testDiagnosticsFor(xmlLanguageService, xml, null, null, "src/test/resources/test.xml", false,
-				settings, //
+		testDiagnosticsFor(xmlLanguageService, xml, null, null, "src/test/resources/test.xml", false, settings, //
 				diagnostic, diagnosticBasedOnXSD);
 	}
 
@@ -934,13 +942,11 @@ public class XMLSchemaDiagnosticsTest {
 
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
 		// First validation
-		XMLAssert.testDiagnosticsFor(xmlLanguageService, xml, null, null, "src/test/resources/test.xml", false,
-				settings, //
+		testDiagnosticsFor(xmlLanguageService, xml, null, null, "src/test/resources/test.xml", false, settings, //
 				diagnostic, diagnosticBasedOnXSD);
 		// Restart the validation to check the validation is working since Xerces cache
 		// the invalid XSD grammar
-		XMLAssert.testDiagnosticsFor(xmlLanguageService, xml, null, null, "src/test/resources/test.xml", false,
-				settings, //
+		testDiagnosticsFor(xmlLanguageService, xml, null, null, "src/test/resources/test.xml", false, settings, //
 				diagnostic, diagnosticBasedOnXSD);
 	}
 
@@ -968,13 +974,11 @@ public class XMLSchemaDiagnosticsTest {
 
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
 		// First validation
-		XMLAssert.testDiagnosticsFor(xmlLanguageService, xml, null, null, "src/test/resources/test.xml", false,
-				settings, //
+		testDiagnosticsFor(xmlLanguageService, xml, null, null, "src/test/resources/test.xml", false, settings, //
 				diagnostic, diagnosticBasedOnXSD);
 		// Restart the validation to check the validation is working since Xerces cache
 		// the invalid XSD grammar
-		XMLAssert.testDiagnosticsFor(xmlLanguageService, xml, null, null, "src/test/resources/test.xml", false,
-				settings, //
+		testDiagnosticsFor(xmlLanguageService, xml, null, null, "src/test/resources/test.xml", false, settings, //
 				diagnostic, diagnosticBasedOnXSD);
 	}
 
@@ -1008,13 +1012,11 @@ public class XMLSchemaDiagnosticsTest {
 
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
 		// First validation
-		XMLAssert.testDiagnosticsFor(xmlLanguageService, xml, null, null, "src/test/resources/test.xml", false,
-				settings, //
+		testDiagnosticsFor(xmlLanguageService, xml, null, null, "src/test/resources/test.xml", false, settings, //
 				diagnostic, diagnosticBasedOnXSD1, diagnosticBasedOnXSD2);
 		// Restart the validation to check the validation is working since Xerces cache
 		// the invalid XSD grammar
-		XMLAssert.testDiagnosticsFor(xmlLanguageService, xml, null, null, "src/test/resources/test.xml", false,
-				settings, //
+		testDiagnosticsFor(xmlLanguageService, xml, null, null, "src/test/resources/test.xml", false, settings, //
 				diagnostic, diagnosticBasedOnXSD1, diagnosticBasedOnXSD2);
 	}
 
@@ -1024,16 +1026,229 @@ public class XMLSchemaDiagnosticsTest {
 				"	<page></page>\r\n" + //
 				"</document>";
 		Diagnostic diagnostic = d(1, 2, 1, 6, XMLSchemaErrorCode.cvc_complex_type_2_4_b);
-		XMLAssert.testDiagnosticsFor(xml, "src/test/resources/catalogs/include/catalog-include.xml", diagnostic);
+		testDiagnosticsFor(xml, "src/test/resources/catalogs/include/catalog-include.xml", diagnostic);
 	}
 
-	private static void testDiagnosticsFor(String xml, Diagnostic... expected) {
-		XMLAssert.testDiagnosticsFor(xml, "src/test/resources/catalogs/catalog.xml", expected);
+	@Test
+	public void noHintSchemaLocationForRootElement() {
+		// Here the xsi:schemaLocation doens't declare the hint for
+		// http://www.eclipse.org/oomph/setup/1.0 (used in the root element)
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<setup:Configuration \r\n" + //
+				"    xmi:version=\"2.0\"\r\n" + //
+				"    xmlns:xmi=\"http://www.omg.org/XMI\"\r\n" + //
+				"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \r\n" + //
+				"    xmlns:setup=\"http://www.eclipse.org/oomph/setup/1.0\"\r\n" + //
+				"    xmlns:setup.p2=\"http://www.eclipse.org/oomph/setup/p2/1.0\"\r\n" + //
+				"    xmlns:workbench=\"http://www.eclipse.org/oomph/setup/workbench/1.0\"\r\n" + //
+				"    xsi:schemaLocation=\"http://www.eclipse.org/oomph/setup/workbench/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Workbench.ecore\"\r\n"
+				+ //
+				"    label=\"Gael Eclipse Installation\"> \r\n" + //
+				"  <installation name=\"com.github.glhez.eclipse.install\" label=\"Gael Eclipse Installation Installation\">\r\n"
+				+ //
+				"    <setupTask xsi:type=\"setup.p2:P2Task\" label=\"Oomph Setup Task\">\r\n" + //
+				"      <requirement name=\"org.eclipse.oomph.setup.feature.group\"/>\r\n" + //
+				"      <repository url=\"${oomph.update.url}\"/>\r\n" + //
+				"    </setupTask>  \r\n" + //
+				"   </installation>\r\n" + //
+				"</setup:Configuration>";
+
+		// always
+		testDiagnosticsFor(xml,
+				d(1, 1, 1, 20, XMLSchemaErrorCode.cvc_elt_1_a,
+						"cvc-elt.1.a: Cannot find the declaration of element 'setup:Configuration'."), //
+				d(11, 67, 11, 67, XMLSchemaErrorCode.cvc_elt_4_2,
+						"cvc-elt.4.2: Cannot resolve 'setup.p2:P2Task' to a type definition for element 'setupTask'."));
+
+		// on schema valid
+		ContentModelSettings settings = XMLAssert.getContentModelSettings(true, SchemaEnabled.onValidSchema);
+		testDiagnosticsFor(xml, null, null, null, true, settings);
+	}
+
+	@Test
+	public void noNamespaceSchemaLocationEnabledWithAlways() throws Exception {
+		ContentModelSettings settings = XMLAssert.getContentModelSettings(true, SchemaEnabled.always);
+
+		// good XSD location
+		String xml = "<Annotation\r\n" + //
+				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"	xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/pattern.xsd\"\r\n" + //
+				"	Term=\"X\"></Annotation>";
+		testDiagnosticsFor(xml, null, null, null, true, settings, //
+				d(3, 6, 3, 9, XMLSchemaErrorCode.cvc_pattern_valid), //
+				d(3, 6, 3, 9, XMLSchemaErrorCode.cvc_attribute_3));
+
+		// bad XSD location
+		xml = "<Annotation\r\n" + //
+				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"	xsi:noNamespaceSchemaLocation=\"BAD_LOCATION.xsd\"\r\n" + //
+				"	Term=\"X\"></Annotation>";
+		testDiagnosticsFor(xml, null, null, null, true, settings, //
+				d(2, 31, 2, 49, XMLSchemaErrorCode.schema_reference_4), //
+				d(0, 1, 0, 11, XMLSchemaErrorCode.cvc_elt_1_a));
+	}
+
+	@Test
+	public void noNamespaceSchemaLocationEnabledWithNever() throws Exception {
+		ContentModelSettings settings = XMLAssert.getContentModelSettings(true, SchemaEnabled.never);
+
+		// good XSD location
+		String xml = "<Annotation\r\n" + //
+				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"	xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/pattern.xsd\"\r\n" + //
+				"	Term=\"X\"></Annotation>";
+		testDiagnosticsFor(xml, null, null, null, true, settings);
+
+		// bad XSD location
+		xml = "<Annotation\r\n" + //
+				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"	xsi:noNamespaceSchemaLocation=\"BAD_LOCATION.xsd\"\r\n" + //
+				"	Term=\"X\"></Annotation>";
+		testDiagnosticsFor(xml, null, null, null, true, settings);
+	}
+
+	@Test
+	public void noNamespaceSchemaLocationEnabledWithOnValidSchema() throws Exception {
+		ContentModelSettings settings = XMLAssert.getContentModelSettings(true, SchemaEnabled.onValidSchema);
+
+		// good XSD location
+		String xml = "<Annotation\r\n" + //
+				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"	xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/pattern.xsd\"\r\n" + //
+				"	Term=\"X\"></Annotation>";
+		testDiagnosticsFor(xml, null, null, null, true, settings, //
+				d(3, 6, 3, 9, XMLSchemaErrorCode.cvc_pattern_valid), //
+				d(3, 6, 3, 9, XMLSchemaErrorCode.cvc_attribute_3));
+
+		// bad XSD location
+		xml = "<Annotation\r\n" + //
+				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"	xsi:noNamespaceSchemaLocation=\"BAD_LOCATION.xsd\"\r\n" + //
+				"	Term=\"X\"></Annotation>";
+		testDiagnosticsFor(xml, null, null, null, true, settings);
+	}
+
+	@Test
+	public void schemaLocationEnabledWithAlways() throws Exception {
+		ContentModelSettings settings = XMLAssert.getContentModelSettings(true, SchemaEnabled.always);
+
+		// good XSD location and namespace
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<team\r\n" + //
+				"     name=\"too long a string\"\r\n" + // <- error
+				"     xmlns=\"team_namespace\"\r\n" + //
+				"     xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"     xsi:schemaLocation=\"team_namespace src/test/resources/xsd/team.xsd \">\r\n" + //
+				"</team>";
+		testDiagnosticsFor(xml, null, null, null, true, settings, //
+				d(2, 10, 2, 29, XMLSchemaErrorCode.cvc_maxlength_valid), //
+				d(2, 10, 2, 29, XMLSchemaErrorCode.cvc_attribute_3),
+				d(1, 1, 1, 5, XMLSchemaErrorCode.cvc_complex_type_2_4_b));
+
+		// bad XSD namespace
+		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<team\r\n" + //
+				"     name=\"too long a string\"\r\n" + // <- error
+				"     xmlns=\"BAD_NAMESPACE\"\r\n" + //
+				"     xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"     xsi:schemaLocation=\"team_namespace src/test/resources/xsd/team.xsd \">\r\n" + //
+				"</team>";
+		testDiagnosticsFor(xml, null, null, null, true, settings, //
+				d(1, 1, 1, 5, XMLSchemaErrorCode.cvc_elt_1_a));
+
+		// bad XSD location
+		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<team\r\n" + //
+				"     name=\"too long a string\"\r\n" + // <- error
+				"     xmlns=\"team_namespace\"\r\n" + //
+				"     xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"     xsi:schemaLocation=\"team_namespace BAD_LOCATION.xsd \">\r\n" + //
+				"</team>";
+		testDiagnosticsFor(xml, null, null, null, true, settings, //
+				d(5, 40, 5, 56, XMLSchemaErrorCode.schema_reference_4), //
+				d(1, 1, 1, 5, XMLSchemaErrorCode.cvc_elt_1_a));
+	}
+
+	@Test
+	public void schemaLocationEnabledWithNever() throws Exception {
+		ContentModelSettings settings = XMLAssert.getContentModelSettings(true, SchemaEnabled.never);
+
+		// good XSD location and namespace
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<team\r\n" + //
+				"     name=\"too long a string\"\r\n" + // <- error
+				"     xmlns=\"team_namespace\"\r\n" + //
+				"     xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"     xsi:schemaLocation=\"team_namespace src/test/resources/xsd/team.xsd \">\r\n" + //
+				"</team>";
+		testDiagnosticsFor(xml, null, null, null, true, settings);
+
+		// bad XSD namespace
+		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<team\r\n" + //
+				"     name=\"too long a string\"\r\n" + // <- error
+				"     xmlns=\"BAD_NAMESPACE\"\r\n" + //
+				"     xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"     xsi:schemaLocation=\"team_namespace src/test/resources/xsd/team.xsd \">\r\n" + //
+				"</team>";
+		testDiagnosticsFor(xml, null, null, null, true, settings);
+
+		// bad XSD location
+		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<team\r\n" + //
+				"     name=\"too long a string\"\r\n" + // <- error
+				"     xmlns=\"team_namespace\"\r\n" + //
+				"     xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"     xsi:schemaLocation=\"team_namespace BAD_LOCATION.xsd \">\r\n" + //
+				"</team>";
+		testDiagnosticsFor(xml, null, null, null, true, settings);
+	}
+
+	@Test
+	public void schemaLocationEnabledWithOnValidSchema() throws Exception {
+		ContentModelSettings settings = XMLAssert.getContentModelSettings(true, SchemaEnabled.onValidSchema);
+
+		// good XSD location and namespace
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<team\r\n" + //
+				"     name=\"too long a string\"\r\n" + // <- error
+				"     xmlns=\"team_namespace\"\r\n" + //
+				"     xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"     xsi:schemaLocation=\"team_namespace src/test/resources/xsd/team.xsd \">\r\n" + //
+				"</team>";
+		testDiagnosticsFor(xml, null, null, null, true, settings, //
+				d(2, 10, 2, 29, XMLSchemaErrorCode.cvc_maxlength_valid), //
+				d(2, 10, 2, 29, XMLSchemaErrorCode.cvc_attribute_3),
+				d(1, 1, 1, 5, XMLSchemaErrorCode.cvc_complex_type_2_4_b));
+
+		// bad XSD namespace
+		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<team\r\n" + //
+				"     name=\"too long a string\"\r\n" + // <- error
+				"     xmlns=\"BAD_NAMESPACE\"\r\n" + //
+				"     xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"     xsi:schemaLocation=\"team_namespace src/test/resources/xsd/team.xsd \">\r\n" + //
+				"</team>";
+		testDiagnosticsFor(xml, null, null, null, true, settings);
+
+		// bad XSD location
+		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<team\r\n" + //
+				"     name=\"too long a string\"\r\n" + // <- error
+				"     xmlns=\"team_namespace\"\r\n" + //
+				"     xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"     xsi:schemaLocation=\"team_namespace BAD_LOCATION.xsd \">\r\n" + //
+				"</team>";
+		testDiagnosticsFor(xml, null, null, null, true, settings);
+	}
+
+	private static void testDiagnosticsWithCatalogFor(String xml, Diagnostic... expected) {
+		testDiagnosticsFor(xml, "src/test/resources/catalogs/catalog.xml", expected);
 	}
 
 	private static void testDiagnosticsDisabledValidation(String xml) {
-		ContentModelSettings settings = XMLAssert.getContentModelSettings(true, false);
-		XMLAssert.testDiagnosticsFor(xml, "src/test/resources/catalogs/catalog.xml", null, null, true, settings);
+		ContentModelSettings settings = XMLAssert.getContentModelSettings(true, SchemaEnabled.never);
+		testDiagnosticsFor(xml, "src/test/resources/catalogs/catalog.xml", null, null, true, settings);
 	}
 
 	private static String getGrammarFileURI(String grammarURI) throws MalformedURIException {

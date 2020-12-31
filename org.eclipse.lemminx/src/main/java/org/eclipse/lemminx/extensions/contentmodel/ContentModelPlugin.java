@@ -12,6 +12,8 @@
  */
 package org.eclipse.lemminx.extensions.contentmodel;
 
+import java.util.Objects;
+
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.commands.XMLValidationAllFilesCommand;
 import org.eclipse.lemminx.extensions.contentmodel.commands.XMLValidationFileCommand;
@@ -24,6 +26,7 @@ import org.eclipse.lemminx.extensions.contentmodel.participants.ContentModelSymb
 import org.eclipse.lemminx.extensions.contentmodel.participants.ContentModelTypeDefinitionParticipant;
 import org.eclipse.lemminx.extensions.contentmodel.participants.diagnostics.ContentModelDiagnosticsParticipant;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
+import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.services.IXMLDocumentProvider;
 import org.eclipse.lemminx.services.IXMLValidationService;
 import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
@@ -69,6 +72,8 @@ public class ContentModelPlugin implements IXMLExtension {
 
 	private ContentModelSettings cmSettings;
 
+	private XMLValidationSettings currentValidationSettings;
+
 	public ContentModelPlugin() {
 		completionParticipant = new ContentModelCompletionParticipant();
 		hoverParticipant = new ContentModelHoverParticipant();
@@ -105,6 +110,8 @@ public class ContentModelPlugin implements IXMLExtension {
 		cmSettings = ContentModelSettings.getContentModelXMLSettings(initializationOptionsSettings);
 		if (cmSettings != null) {
 			updateSettings(cmSettings, saveContext);
+		} else {
+			currentValidationSettings = null;
 		}
 	}
 
@@ -144,6 +151,12 @@ public class ContentModelPlugin implements IXMLExtension {
 		// Update symbols
 		boolean showReferencedGrammars = settings.isShowReferencedGrammars();
 		symbolsProviderParticipant.setEnabled(showReferencedGrammars);
+		// Track if validation settings has changed
+		XMLValidationSettings oldValidationSettings = currentValidationSettings;
+		currentValidationSettings = cmSettings.getValidation();
+		if (oldValidationSettings != null && !Objects.equals(oldValidationSettings, currentValidationSettings)) {
+			context.collectDocumentToValidate(d -> true);
+		}
 	}
 
 	@Override

@@ -20,6 +20,7 @@ import static org.eclipse.lemminx.XMLAssert.testDiagnosticsFor;
 
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCode;
+import org.eclipse.lemminx.extensions.contentmodel.settings.SchemaEnabled;
 import org.eclipse.lemminx.settings.EnforceQuoteStyle;
 import org.eclipse.lemminx.settings.QuoteStyle;
 import org.eclipse.lemminx.settings.SharedSettings;
@@ -630,7 +631,7 @@ public class XMLSyntaxDiagnosticsTest {
 	@Test
 	public void testOpenQuoteExpectedDisabledPreference() throws Exception {
 		String xml = " <InstdAmt Ccy==\"JPY\">10000000</InstdAmt>";
-		testDiagnosticsFor(xml, null, null, null, true, XMLAssert.getContentModelSettings(false, true)); // validation
+		testDiagnosticsFor(xml, null, null, null, true, XMLAssert.getContentModelSettings(false, SchemaEnabled.always)); // validation
 																											// is
 																											// disabled
 	}
