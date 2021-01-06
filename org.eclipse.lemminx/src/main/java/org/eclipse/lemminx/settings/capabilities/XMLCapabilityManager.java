@@ -40,6 +40,8 @@ import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConsta
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_RENAME;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_TYPEDEFINITION;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.TYPEDEFINITION_ID;
+import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.WORKSPACE_EXECUTE_COMMAND;
+import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.WORKSPACE_EXECUTE_COMMAND_ID;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.WORKSPACE_WATCHED_FILES;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.WORKSPACE_WATCHED_FILES_ID;
 
@@ -56,6 +58,7 @@ import org.eclipse.lemminx.settings.XMLFormattingOptions;
 import org.eclipse.lemminx.settings.XMLSymbolSettings;
 import org.eclipse.lsp4j.ClientCapabilities;
 import org.eclipse.lsp4j.DidChangeWatchedFilesRegistrationOptions;
+import org.eclipse.lsp4j.ExecuteCommandOptions;
 import org.eclipse.lsp4j.FileSystemWatcher;
 import org.eclipse.lsp4j.Registration;
 import org.eclipse.lsp4j.RegistrationParams;
@@ -179,6 +182,11 @@ public class XMLCapabilityManager {
 		watchers.add(new FileSystemWatcher("**/*.dtd"));
 		DidChangeWatchedFilesRegistrationOptions options = new DidChangeWatchedFilesRegistrationOptions(watchers);
 		registerCapability(WORKSPACE_WATCHED_FILES_ID, WORKSPACE_WATCHED_FILES, options);
+	}
+
+	public void registerExecuteCommand(List<String> commands) {
+		registerCapability(WORKSPACE_EXECUTE_COMMAND_ID, WORKSPACE_EXECUTE_COMMAND,
+				new ExecuteCommandOptions(commands));
 	}
 
 	/**

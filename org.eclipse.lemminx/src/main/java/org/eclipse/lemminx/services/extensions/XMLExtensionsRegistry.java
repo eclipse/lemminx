@@ -117,7 +117,8 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	public void doSave(ISaveContext saveContext) {
 		if (initialized) {
 			extensions.stream().forEach(extension -> extension.doSave(saveContext));
-		} else if (this.initialSaveContext == null || (saveContext != null && saveContext.getType() == SaveContextType.SETTINGS)) {
+		} else if (this.initialSaveContext == null
+				|| (saveContext != null && saveContext.getType() == SaveContextType.SETTINGS)) {
 			// capture initial configuration iff:
 			// 1. the saveContext is for configuration, not document save
 			// 2. we haven't captured settings before
@@ -208,11 +209,17 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 			return;
 		}
 
+		if (commandService != null) {
+			commandService.beginCommandsRegistration();
+		}
 		ServiceLoader<IXMLExtension> extensions = ServiceLoader.load(IXMLExtension.class);
 		extensions.forEach(extension -> {
 			registerExtension(extension);
 		});
 		initialized = true;
+		if (commandService != null) {
+			commandService.endCommandsRegistration();
+		}
 	}
 
 	void registerExtension(IXMLExtension extension) {
@@ -389,10 +396,10 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	public void setNotificationService(IXMLNotificationService notificationService) {
 		this.notificationService = notificationService;
 	}
-	
+
 	/**
 	 * Returns the XML document validation service
-	 *  
+	 * 
 	 * @return the validation service
 	 */
 	public IXMLValidationService getValidationService() {
