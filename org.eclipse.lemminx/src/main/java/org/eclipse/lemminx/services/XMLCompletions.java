@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CancellationException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -626,8 +627,11 @@ public class XMLCompletions {
 		for (ICompletionParticipant participant : getCompletionParticipants()) {
 			try {
 				participant.onTagOpen(completionRequest, completionResponse);
+			} catch (CancellationException e) {
+				throw e;
 			} catch (Exception e) {
-				LOGGER.log(Level.SEVERE, "While performing ICompletionParticipant#onTagOpen for participant '" + participant.getClass().getName() + "'.", e);
+				LOGGER.log(Level.SEVERE, "While performing ICompletionParticipant#onTagOpen for participant '"
+						+ participant.getClass().getName() + "'.", e);
 			}
 		}
 		DOMElement parentNode = completionRequest.getParentElement();
@@ -762,6 +766,8 @@ public class XMLCompletions {
 		for (ICompletionParticipant participant : getCompletionParticipants()) {
 			try {
 				participant.onXMLContent(request, response);
+			} catch (CancellationException e) {
+				throw e;
 			} catch (Exception e) {
 				LOGGER.log(Level.SEVERE, "While performing ICompletionParticipant#onXMLContent for participant '"
 						+ participant.getClass().getName() + "'.", e);
@@ -858,16 +864,18 @@ public class XMLCompletions {
 			for (ICompletionParticipant participant : getCompletionParticipants()) {
 				try {
 					participant.onAttributeName(generateValue, completionRequest, completionResponse);
+				} catch (CancellationException e) {
+					throw e;
 				} catch (Exception e) {
-					LOGGER.log(Level.SEVERE,
-							"While performing ICompletionParticipant#onAttributeName for participant '"
-									+ participant.getClass().getName() + "'.",
-							e);
+					LOGGER.log(Level.SEVERE, "While performing ICompletionParticipant#onAttributeName for participant '"
+							+ participant.getClass().getName() + "'.", e);
 				}
 			}
 		} catch (BadLocationException e) {
 			LOGGER.log(Level.SEVERE, "While performing Completions, getReplaceRange() was given a bad Offset location",
 					e);
+		} catch (CancellationException e) {
+			throw e;
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, "While performing ICompletionParticipant#onAttributeName", e);
 		}
@@ -909,6 +917,8 @@ public class XMLCompletions {
 				for (ICompletionParticipant participant : completionParticipants) {
 					try {
 						participant.onAttributeValue(valuePrefix, completionRequest, completionResponse);
+					} catch (CancellationException e) {
+						throw e;
 					} catch (Exception e) {
 						LOGGER.log(Level.SEVERE,
 								"While performing ICompletionParticipant#onAttributeValue for participant '"
@@ -919,6 +929,8 @@ public class XMLCompletions {
 			} catch (BadLocationException e) {
 				LOGGER.log(Level.SEVERE,
 						"While performing Completions, getReplaceRange() was given a bad Offset location", e);
+			} catch (CancellationException e) {
+				throw e;
 			} catch (Exception e) {
 				LOGGER.log(Level.SEVERE, "While performing ICompletionParticipant#onAttributeValue", e);
 			}
@@ -953,6 +965,8 @@ public class XMLCompletions {
 				for (ICompletionParticipant participant : completionParticipants) {
 					try {
 						participant.onDTDSystemId(valuePrefix, completionRequest, completionResponse);
+					} catch (CancellationException e) {
+						throw e;
 					} catch (Exception e) {
 						LOGGER.log(Level.SEVERE,
 								"While performing ICompletionParticipant#onDTDSystemId for participant '"
@@ -963,6 +977,8 @@ public class XMLCompletions {
 			} catch (BadLocationException e) {
 				LOGGER.log(Level.SEVERE,
 						"While performing Completions, getReplaceRange() was given a bad Offset location", e);
+			} catch (CancellationException e) {
+				throw e;
 			} catch (Exception e) {
 				LOGGER.log(Level.SEVERE, "While performing ICompletionParticipant#onDTDSystemId", e);
 			}
