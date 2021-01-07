@@ -56,6 +56,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	private final List<IRenameParticipant> renameParticipants;
 	private final List<IFormatterParticipant> formatterParticipants;
 	private final List<ISymbolsProviderParticipant> symbolsProviderParticipants;
+	private final List<IWorkspaceServiceParticipant> workspaceServiceParticipants;
 	private IXMLDocumentProvider documentProvider;
 	private IXMLValidationService validationService;
 	private IXMLCommandService commandService;
@@ -68,7 +69,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 
 	private IXMLNotificationService notificationService;
 
-	private final Map<Class, Object> components;
+	private final Map<Class<?>, Object> components;
 
 	public XMLExtensionsRegistry() {
 		extensions = new ArrayList<>();
@@ -85,6 +86,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 		renameParticipants = new ArrayList<>();
 		formatterParticipants = new ArrayList<>();
 		symbolsProviderParticipants = new ArrayList<>();
+		workspaceServiceParticipants = new ArrayList<>();
 		resolverExtensionManager = new URIResolverExtensionManager();
 		components = new HashMap<>();
 		registerComponent(resolverExtensionManager);
@@ -194,6 +196,15 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	public Collection<ISymbolsProviderParticipant> getSymbolsProviderParticipants() {
 		initializeIfNeeded();
 		return symbolsProviderParticipants;
+	}
+
+	/**
+	 * @return the registered workspace service participants.
+	 * @since 0.14.2
+	 */
+	public Collection<IWorkspaceServiceParticipant> getWorkspaceServiceParticipants() {
+		initializeIfNeeded();
+		return workspaceServiceParticipants;
 	}
 
 	public void initializeIfNeeded() {
@@ -355,6 +366,24 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 
 	public void unregisterSymbolsProviderParticipant(ISymbolsProviderParticipant symbolsProviderParticipant) {
 		symbolsProviderParticipants.remove(symbolsProviderParticipant);
+	}
+	
+	/**
+	 * Register a new workspace service participant
+	 * @param workspaceServiceParticipant the participant to register
+	 * @since 0.14.2
+	 */
+	public void registerWorkspaceServiceParticipant(IWorkspaceServiceParticipant workspaceServiceParticipant) {
+		workspaceServiceParticipants.add(workspaceServiceParticipant);
+	}
+
+	/**
+	 * Unregister a new workspace service participant.
+	 * @param workspaceServiceParticipant the participant to unregister
+	 * @since 0.14.2
+	 */
+	public void unregisterWorkspaceServiceParticipant(IWorkspaceServiceParticipant workspaceServiceParticipant) {
+		workspaceServiceParticipants.remove(workspaceServiceParticipant);
 	}
 
 	/**
