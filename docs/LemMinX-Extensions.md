@@ -174,6 +174,8 @@ Note that XML LS client (VSCode in particular) registers a client command `xml.w
 
 See definition of [IXMLCommandService](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/commands/IXMLCommandService.java)
 
+It's also possible to implement support for server side commands in your extension by registering a `WorkspaceService` and implementing the `executeCommand` method.
+
 #### Document Provider
 The document provider allows for finding the document from the document URI and listing all XML documents. Note that the document provider is only aware of the XML documents it  is working with (opened XML documents).
 
@@ -183,6 +185,10 @@ See definition of [IXMLDocumentProvider](https://github.com/eclipse/lemminx/blob
 The validation service allows for triggering validation of all opened XML documents on server side.
 
 See definition of [IXMLValidationService](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/IXMLValidationService.java)
+
+#### Workspace Service
+
+Extensions can also register a `org.eclipse.lsp4j.services.WorksapceService`, which allows to monitor client configuration changes (including watched files and folders), provide an implementation for a command execution.
 
 ## Adding custom settings for your extension
 

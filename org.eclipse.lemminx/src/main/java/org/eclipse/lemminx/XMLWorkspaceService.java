@@ -22,6 +22,7 @@ import java.util.concurrent.CompletableFuture;
 import org.eclipse.lemminx.services.extensions.commands.IXMLCommandService;
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
+import org.eclipse.lsp4j.DidChangeWorkspaceFoldersParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.FileEvent;
 import org.eclipse.lsp4j.SymbolInformation;
@@ -80,6 +81,11 @@ public class XMLWorkspaceService implements WorkspaceService, IXMLCommandService
 	public void didChangeConfiguration(DidChangeConfigurationParams params) {
 		xmlLanguageServer.updateSettings(params.getSettings());
 		xmlLanguageServer.getCapabilityManager().syncDynamicCapabilitiesWithPreferences();
+	}
+
+	@Override
+	public void didChangeWorkspaceFolders(DidChangeWorkspaceFoldersParams params) {
+		xmlLanguageServer.getXMLLanguageService().getWorkspaceServiceParticipants().forEach(participant -> participant.didChangeWorkspaceFolders(params));
 	}
 
 	@Override

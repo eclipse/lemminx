@@ -32,7 +32,13 @@ public interface ISaveContext extends IXMLDocumentProvider {
 	 * </ul>
 	 */
 	public enum SaveContextType {
-		DOCUMENT, SETTINGS;
+		DOCUMENT,
+		/**
+		 * @deprecated Extensions needing access to Settings and other configuration should achieve that by
+		 * registering a WorkspaceService participant.
+		 */
+		@Deprecated
+		SETTINGS;
 	}
 
 	/**
