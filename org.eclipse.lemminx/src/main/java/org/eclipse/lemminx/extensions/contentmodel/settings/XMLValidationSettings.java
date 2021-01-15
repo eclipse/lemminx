@@ -20,9 +20,11 @@ import org.eclipse.lsp4j.PublishDiagnosticsCapabilities;
  */
 public class XMLValidationSettings {
 
-	private XMLSchemaSettings schema;
-
 	private Boolean enabled;
+
+	private XMLNamespacesSettings namespaces;
+
+	private XMLSchemaSettings schema;
 
 	private boolean disallowDocTypeDecl;
 
@@ -46,17 +48,39 @@ public class XMLValidationSettings {
 	}
 
 	/**
-	 * @return the syntax
+	 * Returns true if the validation is enabled and false otherwise.
+	 * 
+	 * @return true if the validation is enabled and false otherwise.
 	 */
 	public boolean isEnabled() {
 		return enabled;
 	}
 
 	/**
-	 * @param syntax the syntax to set
+	 * Set true if the validation is enabled and false otherwise.
+	 * 
+	 * @param enabled true if the validation is enabled and false otherwise.
 	 */
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
+	}
+
+	/**
+	 * Returns the XML Namespaces validation settings.
+	 * 
+	 * @return the XML Namespaces validation settings.
+	 */
+	public XMLNamespacesSettings getNamespaces() {
+		return namespaces;
+	}
+
+	/**
+	 * Set the XML Namespaces validation settings.
+	 * 
+	 * @param namespaces the XML Namespaces validation settings.
+	 */
+	public void setNamespaces(XMLNamespacesSettings namespaces) {
+		this.namespaces = namespaces;
 	}
 
 	/**
@@ -69,7 +93,9 @@ public class XMLValidationSettings {
 	}
 
 	/**
-	 * @param schema the schema to set
+	 * Set the XML Schema validation settings.
+	 * 
+	 * @param schema the XML Schema validation settings.
 	 */
 	public void setSchema(XMLSchemaSettings schema) {
 		this.schema = schema;
@@ -151,6 +177,7 @@ public class XMLValidationSettings {
 
 	public XMLValidationSettings merge(XMLValidationSettings settings) {
 		if (settings != null) {
+			this.namespaces = settings.namespaces;
 			this.schema = settings.schema;
 			this.enabled = settings.enabled;
 			this.disallowDocTypeDecl = settings.disallowDocTypeDecl;
@@ -174,6 +201,7 @@ public class XMLValidationSettings {
 		int result = 1;
 		result = prime * result + (disallowDocTypeDecl ? 1231 : 1237);
 		result = prime * result + ((enabled == null) ? 0 : enabled.hashCode());
+		result = prime * result + ((namespaces == null) ? 0 : namespaces.hashCode());
 		result = prime * result + ((noGrammar == null) ? 0 : noGrammar.hashCode());
 		result = prime * result + (resolveExternalEntities ? 1231 : 1237);
 		result = prime * result + ((schema == null) ? 0 : schema.hashCode());
@@ -195,6 +223,11 @@ public class XMLValidationSettings {
 			if (other.enabled != null)
 				return false;
 		} else if (!enabled.equals(other.enabled))
+			return false;
+		if (namespaces == null) {
+			if (other.namespaces != null)
+				return false;
+		} else if (!namespaces.equals(other.namespaces))
 			return false;
 		if (noGrammar == null) {
 			if (other.noGrammar != null)
