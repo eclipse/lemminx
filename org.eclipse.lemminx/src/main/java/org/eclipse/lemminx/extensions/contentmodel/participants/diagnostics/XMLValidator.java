@@ -36,7 +36,9 @@ import org.eclipse.lemminx.dom.NoNamespaceSchemaLocation;
 import org.eclipse.lemminx.dom.SchemaLocationHint;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCode;
+import org.eclipse.lemminx.extensions.contentmodel.settings.NamespacesEnabled;
 import org.eclipse.lemminx.extensions.contentmodel.settings.SchemaEnabled;
+import org.eclipse.lemminx.extensions.contentmodel.settings.XMLNamespacesSettings;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLSchemaSettings;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.services.extensions.diagnostics.LSPContentHandler;
@@ -111,6 +113,10 @@ public class XMLValidator {
 			}
 			parser.setFeature("http://xml.org/sax/features/validation", hasGrammar); //$NON-NLS-1$
 
+			boolean namespacesValidationEnabled = isNamespacesValidationEnabled(document, validationSettings);
+			parser.setFeature("http://xml.org/sax/features/namespace-prefixes", namespacesValidationEnabled); //$NON-NLS-1$
+			parser.setFeature("http://xml.org/sax/features/namespaces", namespacesValidationEnabled); //$NON-NLS-1$
+
 			// Parse XML
 			String content = document.getText();
 			String uri = document.getDocumentURI();
@@ -124,6 +130,28 @@ public class XMLValidator {
 		} finally {
 			reporterForXML.endReport();
 			reporterForGrammar.endReport();
+		}
+	}
+
+	private static boolean isNamespacesValidationEnabled(DOMDocument document,
+			XMLValidationSettings validationSettings) {
+		if (validationSettings == null) {
+			return true;
+		}
+		NamespacesEnabled enabled = NamespacesEnabled.always;
+		XMLNamespacesSettings namespacesSettings = validationSettings.getNamespaces();
+		if (namespacesSettings != null && namespacesSettings.getEnabled() != null) {
+			enabled = namespacesSettings.getEnabled();
+		}
+		switch (enabled) {
+		case always:
+			return true;
+		case never:
+			return false;
+		case onNamespaceEncountered:
+			return document.hasNamespaces();
+		default:
+			return true;
 		}
 	}
 
