@@ -15,8 +15,10 @@ package org.eclipse.lemminx.services.extensions;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -223,10 +225,14 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 		if (commandService != null) {
 			commandService.beginCommandsRegistration();
 		}
-		ServiceLoader<IXMLExtension> extensions = ServiceLoader.load(IXMLExtension.class);
-		extensions.forEach(extension -> {
-			registerExtension(extension);
-		});
+		Iterator<IXMLExtension> extensions = ServiceLoader.load(IXMLExtension.class).iterator();
+		while (extensions.hasNext()) {
+			try {
+				registerExtension(extensions.next());
+			} catch (ServiceConfigurationError e) {
+				LOGGER.log(Level.SEVERE, "Error while instantiating extension", e);
+			}
+		}
 		initialized = true;
 		if (commandService != null) {
 			commandService.endCommandsRegistration();
