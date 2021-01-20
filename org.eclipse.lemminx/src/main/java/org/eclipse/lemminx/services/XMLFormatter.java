@@ -754,6 +754,10 @@ class XMLFormatter {
 			// check if format range reaches the end of the document
 			if (this.endOffset == this.textDocument.getText().length()) {
 
+				if (this.sharedSettings.getFormattingSettings().isTrimTrailingWhitespace()) {
+					this.xmlBuilder.trimFinalWhitespace();
+				}
+
 				if (this.sharedSettings.getFormattingSettings().isTrimFinalNewlines()) {
 					this.xmlBuilder.trimFinalNewlines();
 				}

@@ -93,8 +93,46 @@ public class StringUtilsTest {
 		assertEquals(regularText, StringUtils.getString(regularText));
 	}
 
+
+	@Test
+	public void testNormalizeWhitespace() {
+		assertNormalizeWhitespace(" ", "");
+		assertNormalizeWhitespace(" a ", "a");
+		assertNormalizeWhitespace("  ", "");
+		assertNormalizeWhitespace("a  a", "a a");
+		assertNormalizeWhitespace("a  a   a   a  a", "a a a a a");
+		assertNormalizeWhitespace("a\na\r\na\ra", "a a a a");
+		assertNormalizeWhitespace("\n\n\na\n\n\n", "a");
+	}
+
+	@Test
+	public void testTrimTrailingWhitespacesZeroCases() {
+		assertEquals("", StringUtils.trimTrailingWhitespaces("", true));
+		assertEquals("", StringUtils.trimTrailingWhitespaces("", false));
+		assertEquals("", StringUtils.trimTrailingWhitespaces(" ", true));
+		assertEquals(" ", StringUtils.trimTrailingWhitespaces(" ", false));
+	}
+
+	@Test
+	public void testTrimTrailingWhitespacesMultiLine() {
+		assertEquals("a\nb", StringUtils.trimTrailingWhitespaces("a  \nb  ", true));
+		assertEquals("a\nb  ", StringUtils.trimTrailingWhitespaces("a  \nb  ", false));
+		assertEquals("a\nb", StringUtils.trimTrailingWhitespaces("a	 \nb	 ", true));
+		assertEquals("a\nb	 ", StringUtils.trimTrailingWhitespaces("a	 \nb	 ", false));
+		assertEquals("a\r\nb", StringUtils.trimTrailingWhitespaces("a	 \r\nb	 ", true));
+		assertEquals("a\r\nb	 ", StringUtils.trimTrailingWhitespaces("a	 \r\nb	 ", false));
+		assertEquals("a\rb", StringUtils.trimTrailingWhitespaces("a	 \rb	 ", true));
+		assertEquals("a\rb	 ", StringUtils.trimTrailingWhitespaces("a	 \rb	 ", false));
+	}
+
 	private static void assertTrimNewLines(String valueToTrim, String expected) {
 		String actual = trimNewLines(valueToTrim);
 		assertEquals(expected, actual);
 	}
+
+	private static void assertNormalizeWhitespace(String valueToNormalize, String expected) {
+		String actual = StringUtils.normalizeSpace(valueToNormalize);
+		assertEquals(expected, actual);
+	}
+
 }

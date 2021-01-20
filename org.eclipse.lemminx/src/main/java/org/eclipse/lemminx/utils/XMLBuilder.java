@@ -308,7 +308,7 @@ public class XMLBuilder {
 				text = text.trim();
 			}
 			if (isTrimTrailingWhitespace()) {
-				text = trimTrailingSpacesEachLine(text);
+				text = StringUtils.trimTrailingWhitespaces(text, hasSiblings);
 			}
 			append(text);
 		} else if (!hasSiblings && isPreserveEmptyContent()) {
@@ -369,30 +369,6 @@ public class XMLBuilder {
 		while (i >= 0 && (xml.charAt(i) == '\r' || xml.charAt(i) == '\n')) {
 			xml.deleteCharAt(i--);
 		}
-	}
-
-	/**
-	 * Returns <code>str</code> with the trailing spaces from each line removed
-	 *
-	 * @param str the String
-	 * @return <code>str</code> with the trailing spaces from each line removed
-	 */
-	private static String trimTrailingSpacesEachLine(String str) {
-		StringBuilder sb = new StringBuilder(str);
-		int i = str.length() - 1;
-		boolean removeSpaces = true;
-		while (i >= 0) {
-			char curr = sb.charAt(i);
-			if (curr == '\n' || curr == '\r') {
-				removeSpaces = true;
-			} else if (removeSpaces && Character.isWhitespace(curr)) {
-				sb.deleteCharAt(i);
-			} else {
-				removeSpaces = false;
-			}
-			i--;
-		}
-		return sb.toString();
 	}
 
 	public XMLBuilder startCDATA() {
@@ -575,6 +551,17 @@ public class XMLBuilder {
 
 	public SharedSettings getSharedSettings() {
 		return sharedSettings;
+	}
+
+	/**
+	 * Trims all the whitespace at the end of the xml
+	 */
+	public void trimFinalWhitespace() {
+		int i = xml.length() - 1;
+		while (i >= 0 && Character.isWhitespace(xml.charAt(i))) {
+			xml.deleteCharAt(i);
+			i--;
+		}
 	}
 
 }

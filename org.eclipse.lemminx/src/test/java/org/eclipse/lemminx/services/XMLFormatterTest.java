@@ -2991,4 +2991,47 @@ public class XMLFormatterTest {
 		assertFormat(content, expected, settings);
 	}
 
+	@Test
+	public void testIndentingTextNode() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTrimTrailingWhitespace(true);
+		String content = "" + //
+				"<Project>\n" + //
+				"  <PropertyGroup>\n" + //
+				"    <TargetDependsOn>\n" + //
+				"      $(TargetDependsOn);\n" + //
+				"      TargetSetup;\n" + //
+				"    </TargetDependsOn>\n" + //
+				"  </PropertyGroup>\n" + //
+				"</Project>";
+		assertFormat(content, content);
+		assertFormat(content, content, settings);
+	}
+
+	@Test
+	public void testIndentingTextNodeWithTrailingSpaces() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTrimTrailingWhitespace(true);
+		String content =  "" + //
+				"<Project>\n" + //
+				"  <PropertyGroup>\n" + //
+				"    <TargetDependsOn>\n" + //
+				"      $(TargetDependsOn);  \n" + //
+				"      TargetSetup;  \n" + //
+				"    </TargetDependsOn>\n" + //
+				"  </PropertyGroup>\n" + //
+				"</Project>";
+		String expected =  "" + //
+				"<Project>\n" + //
+				"  <PropertyGroup>\n" + //
+				"    <TargetDependsOn>\n" + //
+				"      $(TargetDependsOn);\n" + //
+				"      TargetSetup;\n" + //
+				"    </TargetDependsOn>\n" + //
+				"  </PropertyGroup>\n" + //
+				"</Project>";
+		assertFormat(content, expected);
+		assertFormat(content, expected, settings);
+	}
+
 }
