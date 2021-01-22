@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.lemminx.utils;
 
+import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
+import org.eclipse.lemminx.extensions.contentmodel.settings.adapters.XMLValidationSettingsTypeAdapter;
 import org.eclipse.lsp4j.jsonrpc.json.adapters.EitherTypeAdapter;
 
 import com.google.gson.Gson;
@@ -47,6 +49,9 @@ public class JSONUtility {
 		return new GsonBuilder() //
 				// required to deserialize XMLFormattingOptions which extends FormattingOptions
 				// which uses Either
-				.registerTypeAdapterFactory(new EitherTypeAdapter.Factory());
+				.registerTypeAdapterFactory(new EitherTypeAdapter.Factory()) //
+				// required to prevent the old boolean setting 'xml.validation.schema' from crashing
+				.registerTypeAdapter(XMLValidationSettings.class, new XMLValidationSettingsTypeAdapter());
 	}
+
 }

@@ -19,7 +19,7 @@ import com.google.gson.annotations.JsonAdapter;
 
 /**
  * Represents all settings under the 'xml' key
- * 
+ *
  * { 'xml': {...} }
  */
 public class AllXMLSettings {
@@ -38,7 +38,6 @@ public class AllXMLSettings {
 	 * @param xml the xml to set
 	 */
 	public void setXml(Object xml) {
-
 		this.xml = xml;
 	}
 
