@@ -14,9 +14,12 @@ package org.eclipse.lemminx.utils;
 
 import static org.eclipse.lemminx.utils.StringUtils.normalizeSpace;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMComment;
@@ -324,6 +327,49 @@ public class XMLBuilder {
 			}
 		}
 		return this;
+	}
+
+	public XMLBuilder addTextContent(String text, boolean isMixedContent, int indentLevel) {
+		boolean isWhitespaceContent = text.trim().length() == 0;
+		boolean isMultiline = text.contains("\n") || text.contains("\r");
+		boolean isPreserveEmptyContent = isPreserveEmptyContent();
+		if (isPreserveEmptyContent) {
+			append(text); // AS IS
+		} else if (!isWhitespaceContent) {
+			text = text.trim();
+			if (isJoinContentLines()) {
+				text = StringUtils.normalizeSpace(text);
+				append(text); // expect to be all on one line
+			} else if (!isMultiline) {
+				append(text);
+			} else {
+				text = trimTrailingSpacesEachLine(text);
+				List<String> lines = splitStringIntoLines(text);
+				for (String line: lines) {
+					linefeed();
+					indent(indentLevel);
+					append(line);
+				}
+			}
+		}
+		return this;
+	}
+
+	private static List<String> splitStringIntoLines(String text) {
+		List<String> lines = new ArrayList<>();
+		StringBuilder strBuilder = new StringBuilder();
+		for (int i = 0; i < text.length(); i++) {
+			if (text.charAt(i) == '\n' || text.charAt(i) == '\r') {
+				lines.add(strBuilder.toString());
+				strBuilder = new StringBuilder();
+			} else {
+				strBuilder.append(text.charAt(i));
+			}
+		}
+		lines = lines.stream() //
+				.filter(str -> StringUtils.isBlank(str)) //
+				.collect(Collectors.toList());
+		return lines;
 	}
 
 	public XMLBuilder indent(int level) {

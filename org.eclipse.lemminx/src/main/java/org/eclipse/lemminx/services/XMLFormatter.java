@@ -81,7 +81,7 @@ class XMLFormatter {
 		/**
 		 * Returns a List containing a single TextEdit, containing the newly formatted
 		 * changes of this.textDocument
-		 * 
+		 *
 		 * @return List containing a single TextEdit
 		 * @throws BadLocationException
 		 */
@@ -278,7 +278,7 @@ class XMLFormatter {
 
 		private void format(DOMNode node) throws BadLocationException {
 
-			if (linefeedOnNextWrite && (!node.isText() || !((DOMText) node).isWhitespace())) {
+			if (linefeedOnNextWrite && !node.isText()) {
 				this.xmlBuilder.linefeed();
 				linefeedOnNextWrite = false;
 			}
@@ -286,7 +286,7 @@ class XMLFormatter {
 			if (node.getNodeType() != DOMNode.DOCUMENT_NODE) {
 				boolean doLineFeed = !node.getOwnerDocument().isDTD()
 						&& !(node.isComment() && ((DOMComment) node).isCommentSameLineEndTag())
-						&& (!node.isText() || (!((DOMText) node).isWhitespace() && ((DOMText) node).hasSiblings()));
+						&& (!node.isText());
 
 				if (this.indentLevel > 0 && doLineFeed) {
 					// add new line + indent
@@ -345,7 +345,7 @@ class XMLFormatter {
 
 		/**
 		 * Format the given DOM text node.
-		 * 
+		 *
 		 * @param textNode the DOM text node to format.
 		 */
 		private void formatText(DOMText textNode) {
@@ -353,14 +353,13 @@ class XMLFormatter {
 			if (textNode.equals(this.fullDomDocument.getLastChild())) {
 				xmlBuilder.addContent(content);
 			} else {
-				xmlBuilder.addContent(content, textNode.isWhitespace(), textNode.hasSiblings(),
-						textNode.getDelimiter());
+				xmlBuilder.addTextContent(content, textNode.hasSiblings(), this.indentLevel);
 			}
 		}
 
 		/**
 		 * Format the given DOM document type.
-		 * 
+		 *
 		 * @param documentType the DOM document type to format.
 		 */
 		private void formatDocumentType(DOMDocumentType documentType) {
@@ -393,7 +392,7 @@ class XMLFormatter {
 
 		/**
 		 * Format the given DOM ProcessingIntsruction.
-		 * 
+		 *
 		 * @param element the DOM ProcessingIntsruction to format.
 		 *
 		 */
@@ -406,7 +405,7 @@ class XMLFormatter {
 
 		/**
 		 * Format the given DOM Comment
-		 * 
+		 *
 		 * @param element the DOM Comment to format.
 		 *
 		 */
@@ -424,9 +423,9 @@ class XMLFormatter {
 
 		/**
 		 * Format the given DOM CDATA
-		 * 
+		 *
 		 * @param element the DOM CDATA to format.
-		 * 
+		 *
 		 */
 		private void formatCDATA(DOMCDATASection cdata) {
 			this.xmlBuilder.startCDATA();
@@ -439,9 +438,9 @@ class XMLFormatter {
 
 		/**
 		 * Format the given DOM element
-		 * 
+		 *
 		 * @param element the DOM element to format.
-		 * 
+		 *
 		 * @throws BadLocationException
 		 */
 		private void formatElement(DOMElement element) throws BadLocationException {
@@ -473,25 +472,17 @@ class XMLFormatter {
 					if (element.isStartTagClosed()) {
 						formatElementStartTagCloseBracket(element);
 					}
-					boolean hasElements = false;
 					if (element.hasChildNodes()) {
 						// element has body
-
 						this.indentLevel++;
 						for (DOMNode child : element.getChildren()) {
-							boolean textElement = !child.isText();
-
-							hasElements = hasElements | textElement;
-
 							format(child);
 						}
 						this.indentLevel--;
 					}
 					if (element.hasEndTag()) {
-						if (hasElements) {
-							this.xmlBuilder.linefeed();
-							this.xmlBuilder.indent(this.indentLevel);
-						}
+						this.xmlBuilder.linefeed();
+						this.xmlBuilder.indent(this.indentLevel);
 						// end tag element is done, only if the element is closed
 						// the format, doesn't fix the close tag
 						if (element.hasEndTag() && element.getEndTagOpenOffset() <= this.endOffset) {
@@ -509,11 +500,11 @@ class XMLFormatter {
 		/**
 		 * Formats the start tag's closing bracket (>) according to
 		 * {@code XMLFormattingOptions#isPreserveAttrLineBreaks()}
-		 * 
+		 *
 		 * {@code XMLFormattingOptions#isPreserveAttrLineBreaks()}: If true, must add a
 		 * newline + indent before the closing bracket if the last attribute of the
 		 * element and the closing bracket are in different lines.
-		 * 
+		 *
 		 * @param element
 		 * @throws BadLocationException
 		 */
@@ -529,11 +520,11 @@ class XMLFormatter {
 		/**
 		 * Formats the self-closing tag (/>) according to
 		 * {@code XMLFormattingOptions#isPreserveAttrLineBreaks()}
-		 * 
+		 *
 		 * {@code XMLFormattingOptions#isPreserveAttrLineBreaks()}: If true, must add a
 		 * newline + indent before the self-closing tag if the last attribute of the
 		 * element and the closing bracket are in different lines.
-		 * 
+		 *
 		 * @param element
 		 * @throws BadLocationException
 		 */
@@ -579,10 +570,10 @@ class XMLFormatter {
 		/**
 		 * Returns true if first offset and second offset belong in the same line of the
 		 * document
-		 * 
+		 *
 		 * If current formatting is range formatting, the provided offsets must be
 		 * ranged offsets (offsets relative to the formatting range)
-		 * 
+		 *
 		 * @param first  the first offset
 		 * @param second the second offset
 		 * @return true if first offset and second offset belong in the same line of the
@@ -613,7 +604,7 @@ class XMLFormatter {
 		/**
 		 * Returns true if the provided element has one attribute in the fullDomDocument
 		 * (not the rangeDomDocument)
-		 * 
+		 *
 		 * @param element
 		 * @return true if the provided element has one attribute in the fullDomDocument
 		 *         (not the rangeDomDocument)
@@ -625,7 +616,7 @@ class XMLFormatter {
 
 		/**
 		 * Return the option to use to generate empty elements.
-		 * 
+		 *
 		 * @param element the DOM element
 		 * @return the option to use to generate empty elements.
 		 */
@@ -811,7 +802,7 @@ class XMLFormatter {
 	/**
 	 * Returns a List containing a single TextEdit, containing the newly formatted
 	 * changes of the document.
-	 * 
+	 *
 	 * @param textDocument   document to perform formatting on
 	 * @param range          specified range in which formatting will be done
 	 * @param sharedSettings settings containing formatting preferences
@@ -830,7 +821,7 @@ class XMLFormatter {
 
 	/**
 	 * Returns list of {@link IFormatterParticipant}.
-	 * 
+	 *
 	 * @return list of {@link IFormatterParticipant}.
 	 */
 	private Collection<IFormatterParticipant> getFormatterParticipants() {
