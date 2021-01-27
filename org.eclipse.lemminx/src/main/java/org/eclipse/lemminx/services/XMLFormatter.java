@@ -65,7 +65,7 @@ class XMLFormatter {
 		private int indentLevel;
 		private boolean linefeedOnNextWrite;
 		private boolean withinDTDContent;
-		private boolean previousNodeWasTextNode;
+		private boolean previousNodeWasNonBlankTextNode;
 
 		/**
 		 * XML formatter document.
@@ -78,7 +78,7 @@ class XMLFormatter {
 			this.formatterParticipants = formatterParticipants;
 			this.emptyElements = sharedSettings.getFormattingSettings().getEmptyElements();
 			this.linefeedOnNextWrite = false;
-			this.previousNodeWasTextNode = false;
+			this.previousNodeWasNonBlankTextNode = false;
 		}
 
 		/**
@@ -282,7 +282,7 @@ class XMLFormatter {
 		private void format(DOMNode node) throws BadLocationException {
 
 			// Text nodes handle whitespace before and after themselves
-			if (linefeedOnNextWrite && !node.isText() && !previousNodeWasTextNode) {
+			if (linefeedOnNextWrite && !node.isText() && !previousNodeWasNonBlankTextNode) {
 				this.xmlBuilder.linefeed();
 				linefeedOnNextWrite = false;
 			}
@@ -292,7 +292,7 @@ class XMLFormatter {
 						&& !(node.isComment() && ((DOMComment) node).isCommentSameLineEndTag())
 						&& (!node.isText());
 
-				if (this.indentLevel > 0 && doLineFeed && !previousNodeWasTextNode) {
+				if (this.indentLevel > 0 && doLineFeed && !previousNodeWasNonBlankTextNode) {
 					// add new line + indent
 					if ((!node.isChildOfOwnerDocument() || node.getPreviousNonTextSibling() != null)) {
 						this.xmlBuilder.linefeed();
@@ -307,7 +307,7 @@ class XMLFormatter {
 						this.xmlBuilder.indent(this.indentLevel);
 					}
 				}
-				this.previousNodeWasTextNode = false;
+				this.previousNodeWasNonBlankTextNode = false;
 				if (node.isElement()) {
 					// Format Element
 					formatElement((DOMElement) node);
@@ -355,11 +355,13 @@ class XMLFormatter {
 		 */
 		private void formatText(DOMText textNode) {
 			String content = textNode.getData();
-			previousNodeWasTextNode = !StringUtil.isBlank(content);
+			previousNodeWasNonBlankTextNode = !StringUtil.isBlank(content);
 			if (textNode.equals(this.fullDomDocument.getLastChild())) {
 				xmlBuilder.addContent(content);
 			} else {
-				boolean isLastChild = textNode.hasSiblings() && textNode.getParentElement().getLastChild() == textNode;
+				boolean isLastChild = textNode.hasSiblings() //
+						&& textNode.getParentElement() != null //
+						&& textNode.getParentElement().getLastChild() == textNode;
 				xmlBuilder.addTextContent(content, this.indentLevel, textNode.hasSiblings(), isLastChild);
 			}
 		}
@@ -488,7 +490,7 @@ class XMLFormatter {
 						this.indentLevel--;
 					}
 					if (element.hasEndTag()) {
-						if (element.hasChildNodes() && !this.previousNodeWasTextNode) {
+						if (element.getChildNodes().getLength() > 1) {
 							this.xmlBuilder.linefeed();
 							this.xmlBuilder.indent(this.indentLevel);
 						}

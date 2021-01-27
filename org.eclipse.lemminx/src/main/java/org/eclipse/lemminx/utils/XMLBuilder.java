@@ -348,12 +348,18 @@ public class XMLBuilder {
 					int i = 0;
 					append(lines.get(i));
 					i++;
-					for (; i < lines.size(); i++) {
+					for (; i < lines.size() - 1; i++) {
 						linefeed();
 						if (lines.get(i).length() > 0) {
 							indent(indentLevel);
 							append(lines.get(i));
 						}
+					}
+					linefeed();
+					if (lines.size() > 1 && lines.get(i).length() > 0) {
+						indent(indentLevel);
+						append(lines.get(i));
+						linefeed();
 					}
 					indent(indentLevel + (isMixedContent && !isLastChild ? 0 : -1));
 				}
