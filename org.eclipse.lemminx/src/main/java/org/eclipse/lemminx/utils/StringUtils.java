@@ -65,7 +65,7 @@ public class StringUtils {
 
 	/**
 	 * Checks if a string is null or consists of only whitespace characters.
-	 * 
+	 *
 	 * @param value The string to check
 	 * @return <code>true</code> if any of the below hold, and false otherwise:
 	 * <ul>
@@ -81,7 +81,7 @@ public class StringUtils {
 	/**
 	 * Normalizes the whitespace characters of a given string and applies it to the
 	 * given string builder.
-	 * 
+	 *
 	 * @param str
 	 * @return the result of normalize space of the given string.
 	 */
@@ -104,7 +104,7 @@ public class StringUtils {
 
 	/**
 	 * Returns the result of normalize space of the given string.
-	 * 
+	 *
 	 * @param str
 	 * @return the result of normalize space of the given string.
 	 */
@@ -116,7 +116,7 @@ public class StringUtils {
 
 	/**
 	 * Returns the start whitespaces of the given line text.
-	 * 
+	 *
 	 * @param lineText
 	 * @return the start whitespaces of the given line text.
 	 */
@@ -126,7 +126,7 @@ public class StringUtils {
 
 	/**
 	 * Returns the whitespaces from the given range start/end of the given text.
-	 * 
+	 *
 	 * @param start the range start
 	 * @param end   the range end
 	 * @param text  the text
@@ -214,10 +214,10 @@ public class StringUtils {
 	/**
 	 * Given a string that is only whitespace, this will return the amount of
 	 * newline characters.
-	 * 
+	 *
 	 * If the newLineCounter becomes > newLineLimit, then the value of newLineLimit
 	 * is always returned.
-	 * 
+	 *
 	 * @param text
 	 * @param isWhitespace
 	 * @param delimiter
@@ -253,7 +253,7 @@ public class StringUtils {
 	/**
 	 * Given a string will give back a non null string that is either the given
 	 * string, or an empty string.
-	 * 
+	 *
 	 * @param text
 	 * @return
 	 */
@@ -266,12 +266,12 @@ public class StringUtils {
 
 	/**
 	 * Traverses backwards from the endOffset until it finds a whitespace character.
-	 * 
+	 *
 	 * The offset of the character after the whitespace is returned.
-	 * 
+	 *
 	 * (text = "abcd efg|h", endOffset = 8) -> 5
-	 * 
-	 * 
+	 *
+	 *
 	 * @param text
 	 * @param endOffset non-inclusive
 	 * @return Start offset directly after the first whitespace.
@@ -300,7 +300,7 @@ public class StringUtils {
 
 	/**
 	 * Returns the number of consecutive whitespace characters in front of text
-	 * 
+	 *
 	 * @param text String of interest
 	 * @return the number of consecutive whitespace characters in front of text
 	 */
@@ -320,7 +320,7 @@ public class StringUtils {
 
 	/**
 	 * Returns the number of consecutive whitespace characters from the end of text
-	 * 
+	 *
 	 * @param text String of interest
 	 * @return the number of consecutive whitespace characters from the end of text
 	 */
@@ -411,7 +411,7 @@ public class StringUtils {
 	/**
 	 * Returns the start word offset from the left of the given <code>offset</code>
 	 * and -1 if no word.
-	 * 
+	 *
 	 * @param text        the text
 	 * @param offset      the offset
 	 * @param isValidChar predicate to check if current character belong to the
@@ -434,7 +434,7 @@ public class StringUtils {
 	/**
 	 * Returns the end word offset from the right of the given <code>offset</code>
 	 * and -1 if no word.
-	 * 
+	 *
 	 * @param text        the text
 	 * @param offset      the offset
 	 * @param isValidChar predicate to check if current character belong to the
@@ -456,10 +456,10 @@ public class StringUtils {
 
 	/**
 	 * Returns <code>value</code> without surrounding quotes.
-	 * 
+	 *
 	 * If <code>value</code> does not have matching surrounding quotes,
 	 * returns <code>value</code>.
-	 * 
+	 *
 	 * @param value
 	 * @return <code>value</code> without surrounding quotes.
 	 */
@@ -474,7 +474,7 @@ public class StringUtils {
 	/**
 	 * Returns true if <code>value</code> has matching surrounding quotes
 	 * and false otherwise.
-	 * 
+	 *
 	 * @param value
 	 * @return true if <code>value</code> has matching surrounding quotes.
 	 */

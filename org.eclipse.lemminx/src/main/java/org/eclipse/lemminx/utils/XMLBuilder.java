@@ -329,26 +329,33 @@ public class XMLBuilder {
 		return this;
 	}
 
-	public XMLBuilder addTextContent(String text, boolean isMixedContent, int indentLevel) {
+	public XMLBuilder addTextContent(String text, int indentLevel, boolean isMixedContent, boolean isLastChild) {
 		boolean isWhitespaceContent = text.trim().length() == 0;
-		boolean isMultiline = text.contains("\n") || text.contains("\r");
 		boolean isPreserveEmptyContent = isPreserveEmptyContent();
 		if (isPreserveEmptyContent) {
 			append(text); // AS IS
 		} else if (!isWhitespaceContent) {
-			text = text.trim();
+			String trimmedText = text.trim();
+			boolean isMultiline = trimmedText.contains("\n") || trimmedText.contains("\r");
 			if (isJoinContentLines()) {
-				text = StringUtils.normalizeSpace(text);
-				append(text); // expect to be all on one line
-			} else if (!isMultiline) {
-				append(text);
+				trimmedText = StringUtils.normalizeSpace(trimmedText);
+				append(trimmedText); // expect to be all on one line
+			} else if (!isMultiline && !isMixedContent) {
+				append(trimmedText);
 			} else {
-				text = trimTrailingSpacesEachLine(text);
 				List<String> lines = splitStringIntoLines(text);
-				for (String line: lines) {
-					linefeed();
-					indent(indentLevel);
-					append(line);
+				if (lines.size() > 0) {
+					int i = 0;
+					append(lines.get(i));
+					i++;
+					for (; i < lines.size(); i++) {
+						linefeed();
+						if (lines.get(i).length() > 0) {
+							indent(indentLevel);
+							append(lines.get(i));
+						}
+					}
+					indent(indentLevel + (isMixedContent && !isLastChild ? 0 : -1));
 				}
 			}
 		}
@@ -359,15 +366,26 @@ public class XMLBuilder {
 		List<String> lines = new ArrayList<>();
 		StringBuilder strBuilder = new StringBuilder();
 		for (int i = 0; i < text.length(); i++) {
-			if (text.charAt(i) == '\n' || text.charAt(i) == '\r') {
+			if (text.charAt(i) == '\r') {
+				lines.add(strBuilder.toString());
+				strBuilder = new StringBuilder();
+				if (i + 1 < text.length()) {
+					break;
+				} else {
+					if (text.charAt(i + 1) == '\n') {
+						i++;
+					}
+				}
+			} else if (text.charAt(i) == '\n') {
 				lines.add(strBuilder.toString());
 				strBuilder = new StringBuilder();
 			} else {
 				strBuilder.append(text.charAt(i));
 			}
 		}
+		lines.add(strBuilder.toString());
 		lines = lines.stream() //
-				.filter(str -> StringUtils.isBlank(str)) //
+				.map(str -> str.trim()) //
 				.collect(Collectors.toList());
 		return lines;
 	}

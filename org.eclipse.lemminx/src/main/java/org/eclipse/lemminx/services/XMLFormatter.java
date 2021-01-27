@@ -41,6 +41,7 @@ import org.eclipse.lemminx.utils.XMLBuilder;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
+import org.jsoup.helper.StringUtil;
 
 /**
  * XML formatter support.
@@ -64,6 +65,7 @@ class XMLFormatter {
 		private int indentLevel;
 		private boolean linefeedOnNextWrite;
 		private boolean withinDTDContent;
+		private boolean previousNodeWasTextNode;
 
 		/**
 		 * XML formatter document.
@@ -76,6 +78,7 @@ class XMLFormatter {
 			this.formatterParticipants = formatterParticipants;
 			this.emptyElements = sharedSettings.getFormattingSettings().getEmptyElements();
 			this.linefeedOnNextWrite = false;
+			this.previousNodeWasTextNode = false;
 		}
 
 		/**
@@ -278,7 +281,8 @@ class XMLFormatter {
 
 		private void format(DOMNode node) throws BadLocationException {
 
-			if (linefeedOnNextWrite && !node.isText()) {
+			// Text nodes handle whitespace before and after themselves
+			if (linefeedOnNextWrite && !node.isText() && !previousNodeWasTextNode) {
 				this.xmlBuilder.linefeed();
 				linefeedOnNextWrite = false;
 			}
@@ -288,9 +292,9 @@ class XMLFormatter {
 						&& !(node.isComment() && ((DOMComment) node).isCommentSameLineEndTag())
 						&& (!node.isText());
 
-				if (this.indentLevel > 0 && doLineFeed) {
+				if (this.indentLevel > 0 && doLineFeed && !previousNodeWasTextNode) {
 					// add new line + indent
-					if (!node.isChildOfOwnerDocument() || node.getPreviousNonTextSibling() != null) {
+					if ((!node.isChildOfOwnerDocument() || node.getPreviousNonTextSibling() != null)) {
 						this.xmlBuilder.linefeed();
 					}
 
@@ -303,6 +307,7 @@ class XMLFormatter {
 						this.xmlBuilder.indent(this.indentLevel);
 					}
 				}
+				this.previousNodeWasTextNode = false;
 				if (node.isElement()) {
 					// Format Element
 					formatElement((DOMElement) node);
@@ -350,10 +355,12 @@ class XMLFormatter {
 		 */
 		private void formatText(DOMText textNode) {
 			String content = textNode.getData();
+			previousNodeWasTextNode = !StringUtil.isBlank(content);
 			if (textNode.equals(this.fullDomDocument.getLastChild())) {
 				xmlBuilder.addContent(content);
 			} else {
-				xmlBuilder.addTextContent(content, textNode.hasSiblings(), this.indentLevel);
+				boolean isLastChild = textNode.hasSiblings() && textNode.getParentElement().getLastChild() == textNode;
+				xmlBuilder.addTextContent(content, this.indentLevel, textNode.hasSiblings(), isLastChild);
 			}
 		}
 
@@ -481,8 +488,10 @@ class XMLFormatter {
 						this.indentLevel--;
 					}
 					if (element.hasEndTag()) {
-						this.xmlBuilder.linefeed();
-						this.xmlBuilder.indent(this.indentLevel);
+						if (!this.previousNodeWasTextNode) {
+							this.xmlBuilder.linefeed();
+							this.xmlBuilder.indent(this.indentLevel);
+						}
 						// end tag element is done, only if the element is closed
 						// the format, doesn't fix the close tag
 						if (element.hasEndTag() && element.getEndTagOpenOffset() <= this.endOffset) {
