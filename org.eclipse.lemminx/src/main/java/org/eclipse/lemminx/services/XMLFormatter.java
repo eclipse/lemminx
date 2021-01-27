@@ -488,7 +488,7 @@ class XMLFormatter {
 						this.indentLevel--;
 					}
 					if (element.hasEndTag()) {
-						if (!this.previousNodeWasTextNode) {
+						if (element.hasChildNodes() && !this.previousNodeWasTextNode) {
 							this.xmlBuilder.linefeed();
 							this.xmlBuilder.indent(this.indentLevel);
 						}
