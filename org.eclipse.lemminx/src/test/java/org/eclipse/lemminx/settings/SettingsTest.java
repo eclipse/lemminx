@@ -32,6 +32,7 @@ import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings
 import org.eclipse.lemminx.extensions.contentmodel.settings.SchemaEnabled;
 import org.eclipse.lemminx.settings.capabilities.InitializationOptionsExtendedClientCapabilities;
 import org.eclipse.lemminx.utils.FilesUtils;
+import org.eclipse.lemminx.utils.JSONUtility;
 import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.InitializeParams;
 import org.junit.jupiter.api.AfterEach;
@@ -248,5 +249,11 @@ public class SettingsTest {
 		assertEquals(CodeLensKind.References, clientCapabilities.getCodeLens().getCodeLensKind().getValueSet().get(0));
 		assertTrue(clientCapabilities.isActionableNotificationSupport());
 		assertTrue(clientCapabilities.isOpenSettingsCommandSupport());
+	}
+
+	@Test
+	public void oldBooleanDoesntCrashSettings() {
+		AllXMLSettings allSettings = new Gson().fromJson("{'xml': { \"validation\": { \"schema\": false}}}", AllXMLSettings.class);
+		JSONUtility.toModel(allSettings.getXml(), ContentModelSettings.class);
 	}
 }

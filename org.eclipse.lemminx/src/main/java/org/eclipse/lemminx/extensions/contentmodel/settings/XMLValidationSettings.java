@@ -45,11 +45,13 @@ public class XMLValidationSettings {
 		setEnabled(true);
 		setDisallowDocTypeDecl(false);
 		setResolveExternalEntities(false);
+		setNamespaces(new XMLNamespacesSettings());
+		setSchema(new XMLSchemaSettings());
 	}
 
 	/**
 	 * Returns true if the validation is enabled and false otherwise.
-	 * 
+	 *
 	 * @return true if the validation is enabled and false otherwise.
 	 */
 	public boolean isEnabled() {
@@ -58,7 +60,7 @@ public class XMLValidationSettings {
 
 	/**
 	 * Set true if the validation is enabled and false otherwise.
-	 * 
+	 *
 	 * @param enabled true if the validation is enabled and false otherwise.
 	 */
 	public void setEnabled(boolean enabled) {
@@ -67,7 +69,7 @@ public class XMLValidationSettings {
 
 	/**
 	 * Returns the XML Namespaces validation settings.
-	 * 
+	 *
 	 * @return the XML Namespaces validation settings.
 	 */
 	public XMLNamespacesSettings getNamespaces() {
@@ -76,7 +78,7 @@ public class XMLValidationSettings {
 
 	/**
 	 * Set the XML Namespaces validation settings.
-	 * 
+	 *
 	 * @param namespaces the XML Namespaces validation settings.
 	 */
 	public void setNamespaces(XMLNamespacesSettings namespaces) {
@@ -94,7 +96,7 @@ public class XMLValidationSettings {
 
 	/**
 	 * Set the XML Schema validation settings.
-	 * 
+	 *
 	 * @param schema the XML Schema validation settings.
 	 */
 	public void setSchema(XMLSchemaSettings schema) {
