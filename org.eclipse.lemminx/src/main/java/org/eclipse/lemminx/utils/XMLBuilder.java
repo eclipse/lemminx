@@ -333,35 +333,46 @@ public class XMLBuilder {
 		boolean isWhitespaceContent = text.trim().length() == 0;
 		boolean isPreserveEmptyContent = isPreserveEmptyContent();
 		if (isPreserveEmptyContent) {
-			append(text); // AS IS
-		} else if (!isWhitespaceContent) {
+			append(text); // AS IS TODO: borkened
+		} else {
 			String trimmedText = text.trim();
 			boolean isMultiline = trimmedText.contains("\n") || trimmedText.contains("\r");
-			if (isJoinContentLines()) {
+			if (!isWhitespaceContent && isJoinContentLines()) {
 				trimmedText = StringUtils.normalizeSpace(trimmedText);
 				append(trimmedText); // expect to be all on one line
-			} else if (!isMultiline && !isMixedContent) {
+			} else if (!isWhitespaceContent && !isMultiline && !isMixedContent) {
 				append(trimmedText);
-			} else {
+			} else if (!isWhitespaceContent) {
 				List<String> lines = splitStringIntoLines(text);
+				if (lines.size() > 0 && lines.get(0).trim().length() == 0) {
+					lines.remove(0);
+				}
+				if (lines.size() > 0 && lines.get(lines.size() - 1).length() == 0) {
+					lines.remove(lines.size() - 1);
+				}
 				if (lines.size() > 0) {
-					int i = 0;
-					append(lines.get(i));
-					i++;
-					for (; i < lines.size() - 1; i++) {
-						linefeed();
-						if (lines.get(i).length() > 0) {
-							indent(indentLevel);
-							append(lines.get(i));
-						}
-					}
-					linefeed();
-					if (lines.size() > 1 && lines.get(i).length() > 0) {
+					lines = removeConsecutiveBlankLines(lines, getPreservedNewlines() + 1);
+				}
+				linefeed();
+				lines.forEach(line -> {
+					if (line.length() > 0) {
 						indent(indentLevel);
-						append(lines.get(i));
+					}
+					append(line);
+					linefeed();
+				});
+				indent(indentLevel + (isMixedContent && !isLastChild ? 0 : -1));
+			} else {
+				int preservedNewLines = getPreservedNewlines();
+				if (preservedNewLines > 0) {
+					int newLineCount = StringUtils.getNumberOfNewLines(
+							text,
+							isWhitespaceContent,
+							lineDelimiter,
+							preservedNewLines);
+					for (int i = 0; i < newLineCount - 1; i++) { // - 1 because the node after will insert a delimiter
 						linefeed();
 					}
-					indent(indentLevel + (isMixedContent && !isLastChild ? 0 : -1));
 				}
 			}
 		}
@@ -394,6 +405,29 @@ public class XMLBuilder {
 				.map(str -> str.trim()) //
 				.collect(Collectors.toList());
 		return lines;
+	}
+
+	/**
+	 * TODO: document
+	 * @param lines
+	 * @param allowedConsecutiveBlankLines
+	 * @return
+	 */
+	private static List<String> removeConsecutiveBlankLines(List<String> lines, int allowedConsecutiveBlankLines) {
+		List<String> newLines = new ArrayList<>(lines.size());
+		int currentConsecutiveNewlines = 0;
+		for (int i = 0; i < lines.size(); i++) {
+			if (lines.get(i).length() == 0) {
+				currentConsecutiveNewlines++;
+				if (currentConsecutiveNewlines < allowedConsecutiveBlankLines) {
+					newLines.add(lines.get(i));
+				}
+			} else {
+				currentConsecutiveNewlines = 0;
+				newLines.add(lines.get(i));
+			}
+		}
+		return newLines;
 	}
 
 	public XMLBuilder indent(int level) {
