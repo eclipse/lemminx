@@ -20,6 +20,10 @@ import static org.eclipse.lemminx.XMLAssert.testDiagnosticsFor;
 
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCode;
+import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
+import org.eclipse.lemminx.extensions.contentmodel.settings.NamespacesEnabled;
+import org.eclipse.lemminx.extensions.contentmodel.settings.SchemaEnabled;
+import org.eclipse.lemminx.extensions.contentmodel.settings.XMLNamespacesSettings;
 import org.eclipse.lemminx.settings.EnforceQuoteStyle;
 import org.eclipse.lemminx.settings.QuoteStyle;
 import org.eclipse.lemminx.settings.SharedSettings;
@@ -630,9 +634,9 @@ public class XMLSyntaxDiagnosticsTest {
 	@Test
 	public void testOpenQuoteExpectedDisabledPreference() throws Exception {
 		String xml = " <InstdAmt Ccy==\"JPY\">10000000</InstdAmt>";
-		testDiagnosticsFor(xml, null, null, null, true, XMLAssert.getContentModelSettings(false, true)); // validation
-																											// is
-																											// disabled
+		testDiagnosticsFor(xml, null, null, null, true, XMLAssert.getContentModelSettings(false, SchemaEnabled.always)); // validation
+		// is
+		// disabled
 	}
 
 	@Test
@@ -779,5 +783,71 @@ public class XMLSyntaxDiagnosticsTest {
 		d = d(0, 1, 0, 3, XMLSyntaxErrorCode.MarkupEntityMismatch);
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(0, 5, 0, 5, "a>")));
+	}
+
+	@Test
+	public void namespacesSettingsWithoutXMLNS() throws Exception {
+		String xml = "<foo>\r\n" + //
+				"	<p:bar />\r\n" + //
+				"</foo>";
+		// always
+		ContentModelSettings settings = getSettingsForNamespaces(NamespacesEnabled.always);
+		testDiagnosticsFor(xml, null, null, null, true, settings, //
+				d(1, 2, 1, 7, XMLSyntaxErrorCode.ElementPrefixUnbound));
+
+		// never
+		settings = getSettingsForNamespaces(NamespacesEnabled.never);
+		testDiagnosticsFor(xml, null, null, null, true, settings);
+
+		// onNamespaceEncountered
+		settings = getSettingsForNamespaces(NamespacesEnabled.onNamespaceEncountered);
+		testDiagnosticsFor(xml, null, null, null, true, settings);
+	}
+
+	@Test
+	public void namespacesSettingsWithUnvalidXMLNS() throws Exception {
+		String xml = "<foo xmlns=\"http:foo\" >\r\n" + //
+				"	<p:bar />\r\n" + //
+				"</foo>";
+		// always
+		ContentModelSettings settings = getSettingsForNamespaces(NamespacesEnabled.always);
+		testDiagnosticsFor(xml, null, null, null, true, settings, //
+				d(1, 2, 1, 7, XMLSyntaxErrorCode.ElementPrefixUnbound));
+
+		// never
+		settings = getSettingsForNamespaces(NamespacesEnabled.never);
+		testDiagnosticsFor(xml, null, null, null, true, settings);
+
+		// onNamespaceEncountered
+		settings = getSettingsForNamespaces(NamespacesEnabled.onNamespaceEncountered);
+		testDiagnosticsFor(xml, null, null, null, true, settings, //
+				d(1, 2, 1, 7, XMLSyntaxErrorCode.ElementPrefixUnbound));
+	}
+
+	@Test
+	public void namespacesSettingsWithValidXMLNS() throws Exception {
+		String xml = "<foo xmlns:p=\"http:foo\" >\r\n" + //
+				"	<p:bar />\r\n" + //
+				"</foo>";
+		// always
+		ContentModelSettings settings = getSettingsForNamespaces(NamespacesEnabled.always);
+		testDiagnosticsFor(xml, null, null, null, true, settings);
+
+		// never
+		settings = getSettingsForNamespaces(NamespacesEnabled.never);
+		testDiagnosticsFor(xml, null, null, null, true, settings);
+
+		// onNamespaceEncountered
+		settings = getSettingsForNamespaces(NamespacesEnabled.onNamespaceEncountered);
+		testDiagnosticsFor(xml, null, null, null, true, settings);
+	}
+
+	private static ContentModelSettings getSettingsForNamespaces(NamespacesEnabled namespacesEnabled) {
+		ContentModelSettings settings = XMLAssert.getContentModelSettings(true, SchemaEnabled.never);
+		settings.getValidation().setNoGrammar("ignore");
+		XMLNamespacesSettings namespaces = new XMLNamespacesSettings();
+		namespaces.setEnabled(namespacesEnabled);
+		settings.getValidation().setNamespaces(namespaces);
+		return settings;
 	}
 }

@@ -13,7 +13,9 @@
 package org.eclipse.lemminx.extensions.contentmodel.participants.diagnostics;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,15 +23,23 @@ import java.util.concurrent.CancellationException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.parsers.SAXParser;
+import org.apache.xerces.util.URI.MalformedURIException;
 import org.apache.xerces.xni.grammars.XMLGrammarPool;
 import org.apache.xerces.xni.parser.XMLEntityResolver;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMDocumentType;
 import org.eclipse.lemminx.dom.DOMElement;
+import org.eclipse.lemminx.dom.NoNamespaceSchemaLocation;
+import org.eclipse.lemminx.dom.SchemaLocationHint;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCode;
+import org.eclipse.lemminx.extensions.contentmodel.settings.NamespacesEnabled;
+import org.eclipse.lemminx.extensions.contentmodel.settings.SchemaEnabled;
+import org.eclipse.lemminx.extensions.contentmodel.settings.XMLNamespacesSettings;
+import org.eclipse.lemminx.extensions.contentmodel.settings.XMLSchemaSettings;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.services.extensions.diagnostics.LSPContentHandler;
 import org.eclipse.lemminx.uriresolver.CacheResourceDownloadingException;
@@ -82,21 +92,30 @@ public class XMLValidator {
 			// Add LSP content handler to stop XML parsing if monitor is canceled.
 			parser.setContentHandler(new LSPContentHandler(monitor));
 
-			boolean hasSchemaGrammar = document.hasSchemaLocation() || document.hasNoNamespaceSchemaLocation()
+			// warn if XML document is not bound to a grammar according the settings
+			warnNoGrammar(document, diagnostics, validationSettings);
+			// Update external grammar location (file association)
+			updateExternalGrammarLocation(document, parser);
+
+			boolean hasSchemaLocation = document.hasSchemaLocation();
+			boolean hasNoNamespaceSchemaLocation = document.hasNoNamespaceSchemaLocation();
+			boolean hasSchemaGrammar = hasSchemaLocation || hasNoNamespaceSchemaLocation
 					|| hasExternalSchemaGrammar(document);
+			boolean schemaValidationEnabled = (hasSchemaGrammar
+					&& isSchemaValidationEnabled(document, validationSettings)
+					|| (hasNoNamespaceSchemaLocation
+							&& isNoNamespaceSchemaValidationEnabled(document, validationSettings)));
+			parser.setFeature("http://apache.org/xml/features/validation/schema", schemaValidationEnabled); //$NON-NLS-1$
+
 			boolean hasGrammar = document.hasDTD() || hasSchemaGrammar || document.hasExternalGrammar();
-			// If diagnostics for Schema preference is enabled
-			if ((validationSettings == null) || validationSettings.isSchema()) {
-
-				updateExternalGrammarLocation(document, parser);
-				parser.setFeature("http://apache.org/xml/features/validation/schema", hasSchemaGrammar); //$NON-NLS-1$
-
-				// warn if XML document is not bound to a grammar according the settings
-				warnNoGrammar(document, diagnostics, validationSettings);
-			} else {
-				hasGrammar = false; // validation for Schema was disabled
+			if (hasSchemaGrammar && !schemaValidationEnabled) {
+				hasGrammar = false;
 			}
 			parser.setFeature("http://xml.org/sax/features/validation", hasGrammar); //$NON-NLS-1$
+
+			boolean namespacesValidationEnabled = isNamespacesValidationEnabled(document, validationSettings);
+			parser.setFeature("http://xml.org/sax/features/namespace-prefixes", namespacesValidationEnabled); //$NON-NLS-1$
+			parser.setFeature("http://xml.org/sax/features/namespaces", namespacesValidationEnabled); //$NON-NLS-1$
 
 			// Parse XML
 			String content = document.getText();
@@ -111,6 +130,147 @@ public class XMLValidator {
 		} finally {
 			reporterForXML.endReport();
 			reporterForGrammar.endReport();
+		}
+	}
+
+	private static boolean isNamespacesValidationEnabled(DOMDocument document,
+			XMLValidationSettings validationSettings) {
+		if (validationSettings == null) {
+			return true;
+		}
+		NamespacesEnabled enabled = NamespacesEnabled.always;
+		XMLNamespacesSettings namespacesSettings = validationSettings.getNamespaces();
+		if (namespacesSettings != null && namespacesSettings.getEnabled() != null) {
+			enabled = namespacesSettings.getEnabled();
+		}
+		switch (enabled) {
+		case always:
+			return true;
+		case never:
+			return false;
+		case onNamespaceEncountered:
+			return document.hasNamespaces();
+		default:
+			return true;
+		}
+	}
+
+	private static boolean isSchemaValidationEnabled(DOMDocument document, XMLValidationSettings validationSettings) {
+		if (validationSettings == null) {
+			return true;
+		}
+		SchemaEnabled enabled = SchemaEnabled.always;
+		XMLSchemaSettings schemaSettings = validationSettings.getSchema();
+		if (schemaSettings != null && schemaSettings.getEnabled() != null) {
+			enabled = schemaSettings.getEnabled();
+		}
+		switch (enabled) {
+		case always:
+			return true;
+		case never:
+			return false;
+		case onValidSchema:
+			return isValidSchemaLocation(document);
+		default:
+			return true;
+		}
+	}
+
+	/**
+	 * Returns true if the given DOM document declares a xsi:schemaLocation hint for
+	 * the document root element is valid and false otherwise.
+	 * 
+	 * The xsi:schemaLocation is valid if:
+	 * 
+	 * <ul>
+	 * <li>xsi:schemaLocation defines an URI for the namespace of the document
+	 * element.</li>
+	 * <li>the URI can be opened</li>
+	 * </ul>
+	 * 
+	 * @param document the DOM document.
+	 * @return true if the given DOM document declares a xsi:schemaLocation hint for
+	 *         the document root element is valid and false otherwise.
+	 */
+	private static boolean isValidSchemaLocation(DOMDocument document) {
+		if (!document.hasSchemaLocation()) {
+			return false;
+		}
+		String namespaceURI = document.getNamespaceURI();
+		SchemaLocationHint hint = document.getSchemaLocation().getLocationHint(namespaceURI);
+		if (hint == null) {
+			return false;
+		}
+		String location = hint.getHint();
+		return isValidLocation(document.getDocumentURI(), location);
+	}
+
+	private static boolean isNoNamespaceSchemaValidationEnabled(DOMDocument document,
+			XMLValidationSettings validationSettings) {
+		if (validationSettings == null) {
+			return true;
+		}
+		SchemaEnabled enabled = SchemaEnabled.always;
+		XMLSchemaSettings schemaSettings = validationSettings.getSchema();
+		if (schemaSettings != null && schemaSettings.getEnabled() != null) {
+			enabled = schemaSettings.getEnabled();
+		}
+		switch (enabled) {
+		case always:
+			return true;
+		case never:
+			return false;
+		case onValidSchema:
+			return isValidNoNamespaceSchemaLocation(document);
+		default:
+			return true;
+		}
+	}
+
+	/**
+	 * Returns true if the given DOM document declares a
+	 * xsi:noNamespaceSchemaLocation which is valid and false otherwise.
+	 * 
+	 * The xsi:noNamespaceSchemaLocation is valid if:
+	 * 
+	 * <ul>
+	 * <li>xsi:noNamespaceSchemaLocation defines an URI.</li>
+	 * <li>the URI can be opened</li>
+	 * </ul>
+	 * 
+	 * @param document the DOM document.
+	 * @return true if the given DOM document declares a xsi:schemaLocation hint for
+	 *         the document root element is valid and false otherwise.
+	 */
+	private static boolean isValidNoNamespaceSchemaLocation(DOMDocument document) {
+		NoNamespaceSchemaLocation noNamespaceSchemaLocation = document.getNoNamespaceSchemaLocation();
+		if (noNamespaceSchemaLocation == null) {
+			return false;
+		}
+		String location = noNamespaceSchemaLocation.getLocation();
+		return isValidLocation(document.getDocumentURI(), location);
+	}
+
+	private static boolean isValidLocation(String documentURI, String location) {
+		String resolvedLocation = getResolvedLocation(documentURI, location);
+		if (resolvedLocation == null) {
+			return false;
+		}
+		try (InputStream is = new URL(resolvedLocation).openStream()) {
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	private static String getResolvedLocation(String documentURI, String location) {
+		if (StringUtils.isBlank(location)) {
+			return null;
+		}
+		try {
+			return XMLEntityManager.expandSystemId(location, documentURI, false);
+		} catch (MalformedURIException e) {
+			return location;
 		}
 	}
 

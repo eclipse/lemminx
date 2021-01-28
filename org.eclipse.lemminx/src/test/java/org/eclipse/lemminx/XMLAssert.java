@@ -41,6 +41,8 @@ import org.eclipse.lemminx.customservice.AutoCloseTagResponse;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMParser;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
+import org.eclipse.lemminx.extensions.contentmodel.settings.SchemaEnabled;
+import org.eclipse.lemminx.extensions.contentmodel.settings.XMLSchemaSettings;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.extensions.generators.FileContentGeneratorManager;
 import org.eclipse.lemminx.extensions.generators.FileContentGeneratorSettings;
@@ -441,7 +443,7 @@ public class XMLAssert {
 		return new Range(new Position(startLine, startCharacter), new Position(endLine, endCharacter));
 	}
 
-	public static ContentModelSettings getContentModelSettings(boolean isEnabled, boolean isSchema) {
+	public static ContentModelSettings getContentModelSettings(boolean isEnabled, SchemaEnabled schemaEnabled) {
 		ContentModelSettings settings = new ContentModelSettings();
 		settings.setUseCache(false);
 		XMLValidationSettings problems = new XMLValidationSettings();
@@ -449,7 +451,9 @@ public class XMLAssert {
 		settings.setValidation(problems);
 		XMLValidationSettings diagnostics = new XMLValidationSettings();
 		diagnostics.setEnabled(isEnabled);
-		diagnostics.setSchema(isSchema);
+		XMLSchemaSettings schemaSettings = new XMLSchemaSettings();
+		schemaSettings.setEnabled(schemaEnabled);
+		diagnostics.setSchema(schemaSettings);
 		settings.setValidation(diagnostics);
 		return settings;
 	}

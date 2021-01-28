@@ -20,9 +20,11 @@ import org.eclipse.lsp4j.PublishDiagnosticsCapabilities;
  */
 public class XMLValidationSettings {
 
-	private Boolean schema;
-
 	private Boolean enabled;
+
+	private XMLNamespacesSettings namespaces;
+
+	private XMLSchemaSettings schema;
 
 	private boolean disallowDocTypeDecl;
 
@@ -31,7 +33,7 @@ public class XMLValidationSettings {
 	/**
 	 * This severity preference to mark the root element of XML document which is
 	 * not bound to a XML Schema/DTD.
-	 * 
+	 *
 	 * Values are {ignore, hint, info, warning, error}
 	 */
 	private String noGrammar;
@@ -40,37 +42,64 @@ public class XMLValidationSettings {
 
 	public XMLValidationSettings() {
 		// set defaults
-		setSchema(true);
 		setEnabled(true);
 		setDisallowDocTypeDecl(false);
 		setResolveExternalEntities(false);
+		setNamespaces(new XMLNamespacesSettings());
+		setSchema(new XMLSchemaSettings());
 	}
 
 	/**
-	 * @return the syntax
+	 * Returns true if the validation is enabled and false otherwise.
+	 *
+	 * @return true if the validation is enabled and false otherwise.
 	 */
 	public boolean isEnabled() {
 		return enabled;
 	}
 
 	/**
-	 * @param syntax the syntax to set
+	 * Set true if the validation is enabled and false otherwise.
+	 *
+	 * @param enabled true if the validation is enabled and false otherwise.
 	 */
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 	}
 
 	/**
-	 * @return the schema
+	 * Returns the XML Namespaces validation settings.
+	 *
+	 * @return the XML Namespaces validation settings.
 	 */
-	public boolean isSchema() {
+	public XMLNamespacesSettings getNamespaces() {
+		return namespaces;
+	}
+
+	/**
+	 * Set the XML Namespaces validation settings.
+	 *
+	 * @param namespaces the XML Namespaces validation settings.
+	 */
+	public void setNamespaces(XMLNamespacesSettings namespaces) {
+		this.namespaces = namespaces;
+	}
+
+	/**
+	 * Returns the XML Schema validation settings.
+	 *
+	 * @return the XML Schema validation settings.
+	 */
+	public XMLSchemaSettings getSchema() {
 		return schema;
 	}
 
 	/**
-	 * @param schema the schema to set
+	 * Set the XML Schema validation settings.
+	 *
+	 * @param schema the XML Schema validation settings.
 	 */
-	public void setSchema(boolean schema) {
+	public void setSchema(XMLSchemaSettings schema) {
 		this.schema = schema;
 	}
 
@@ -85,7 +114,7 @@ public class XMLValidationSettings {
 	/**
 	 * Returns true if a fatal error is thrown if the incoming document contains a
 	 * DOCTYPE declaration and false otherwise.
-	 * 
+	 *
 	 * @return true if a fatal error is thrown if the incoming document contains a
 	 *         DOCTYPE declaration and false otherwise.
 	 */
@@ -96,7 +125,7 @@ public class XMLValidationSettings {
 	/**
 	 * Set true if a fatal error is thrown if the incoming document contains a
 	 * DOCTYPE declaration and false otherwise.
-	 * 
+	 *
 	 * @param disallowDocTypeDecl disallow DOCTYPE declaration.
 	 */
 	public void setDisallowDocTypeDecl(boolean disallowDocTypeDecl) {
@@ -105,7 +134,7 @@ public class XMLValidationSettings {
 
 	/**
 	 * Returns true if external entities must be resolved and false otherwise.
-	 * 
+	 *
 	 * @return true if external entities must be resolved and false otherwise.
 	 */
 	public boolean isResolveExternalEntities() {
@@ -114,7 +143,7 @@ public class XMLValidationSettings {
 
 	/**
 	 * Set true if external entities must be resolved and false otherwise.
-	 * 
+	 *
 	 * @param resolveExternalEntities resolve extrenal entities
 	 */
 	public void setResolveExternalEntities(boolean resolveExternalEntities) {
@@ -124,7 +153,7 @@ public class XMLValidationSettings {
 	/**
 	 * Returns the <code>noGrammar</code> severity according the given settings and
 	 * {@link DiagnosticSeverity#Hint} otherwise.
-	 * 
+	 *
 	 * @param validationSettings the validation settings
 	 * @return the <code>noGrammar</code> severity according the given settings and
 	 *         {@link DiagnosticSeverity#Hint} otherwise.
@@ -150,6 +179,7 @@ public class XMLValidationSettings {
 
 	public XMLValidationSettings merge(XMLValidationSettings settings) {
 		if (settings != null) {
+			this.namespaces = settings.namespaces;
 			this.schema = settings.schema;
 			this.enabled = settings.enabled;
 			this.disallowDocTypeDecl = settings.disallowDocTypeDecl;
@@ -165,6 +195,55 @@ public class XMLValidationSettings {
 	public boolean isRelatedInformation() {
 		return publishDiagnostics != null && publishDiagnostics.getRelatedInformation() != null
 				&& publishDiagnostics.getRelatedInformation();
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (disallowDocTypeDecl ? 1231 : 1237);
+		result = prime * result + ((enabled == null) ? 0 : enabled.hashCode());
+		result = prime * result + ((namespaces == null) ? 0 : namespaces.hashCode());
+		result = prime * result + ((noGrammar == null) ? 0 : noGrammar.hashCode());
+		result = prime * result + (resolveExternalEntities ? 1231 : 1237);
+		result = prime * result + ((schema == null) ? 0 : schema.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		XMLValidationSettings other = (XMLValidationSettings) obj;
+		if (disallowDocTypeDecl != other.disallowDocTypeDecl)
+			return false;
+		if (enabled == null) {
+			if (other.enabled != null)
+				return false;
+		} else if (!enabled.equals(other.enabled))
+			return false;
+		if (namespaces == null) {
+			if (other.namespaces != null)
+				return false;
+		} else if (!namespaces.equals(other.namespaces))
+			return false;
+		if (noGrammar == null) {
+			if (other.noGrammar != null)
+				return false;
+		} else if (!noGrammar.equals(other.noGrammar))
+			return false;
+		if (resolveExternalEntities != other.resolveExternalEntities)
+			return false;
+		if (schema == null) {
+			if (other.schema != null)
+				return false;
+		} else if (!schema.equals(other.schema))
+			return false;
+		return true;
 	}
 
 }

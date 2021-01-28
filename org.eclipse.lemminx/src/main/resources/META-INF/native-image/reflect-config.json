@@ -286,6 +286,30 @@
 		}]
 	},
 	{
+		"name": "org.eclipse.lemminx.extensions.contentmodel.settings.XMLNamespacesSettings",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
+		"name": "org.eclipse.lemminx.extensions.contentmodel.settings.NamespacesEnabled",
+		"allDeclaredFields": true
+	},
+	{
+		"name": "org.eclipse.lemminx.extensions.contentmodel.settings.XMLSchemaSettings",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
+		"name": "org.eclipse.lemminx.extensions.contentmodel.settings.SchemaEnabled",
+		"allDeclaredFields": true
+	},
+	{
 		"name": "org.eclipse.lemminx.settings.XMLSymbolExpressionFilter",
 		"allDeclaredFields": true,
 		"methods": [{
