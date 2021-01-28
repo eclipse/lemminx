@@ -332,14 +332,22 @@ public class XMLBuilder {
 	public XMLBuilder addTextContent(String text, int indentLevel, boolean isMixedContent, boolean isLastChild) {
 		boolean isWhitespaceContent = text.trim().length() == 0;
 		boolean isPreserveEmptyContent = isPreserveEmptyContent();
-		if (isPreserveEmptyContent) {
-			append(text); // AS IS TODO: borkened
+		if (isPreserveEmptyContent && !isMixedContent) {
+			append(text);
 		} else {
 			String trimmedText = text.trim();
 			boolean isMultiline = trimmedText.contains("\n") || trimmedText.contains("\r");
 			if (!isWhitespaceContent && isJoinContentLines()) {
 				trimmedText = StringUtils.normalizeSpace(trimmedText);
-				append(trimmedText); // expect to be all on one line
+				if (isMixedContent) {
+					linefeed();
+					indent(indentLevel);
+				}
+				append(trimmedText);
+				if (isMixedContent) {
+					linefeed();
+					indent(indentLevel + (isMixedContent && !isLastChild ? 0 : -1));
+				}
 			} else if (!isWhitespaceContent && !isMultiline && !isMixedContent) {
 				append(trimmedText);
 			} else if (!isWhitespaceContent) {
@@ -353,26 +361,32 @@ public class XMLBuilder {
 				if (lines.size() > 0) {
 					lines = removeConsecutiveBlankLines(lines, getPreservedNewlines() + 1);
 				}
-				linefeed();
-				lines.forEach(line -> {
-					if (line.length() > 0) {
-						indent(indentLevel);
-					}
-					append(line);
+				if (lines.size() > 0) {
 					linefeed();
-				});
-				indent(indentLevel + (isMixedContent && !isLastChild ? 0 : -1));
-			} else {
-				int preservedNewLines = getPreservedNewlines();
-				if (preservedNewLines > 0) {
-					int newLineCount = StringUtils.getNumberOfNewLines(
-							text,
-							isWhitespaceContent,
-							lineDelimiter,
-							preservedNewLines);
-					for (int i = 0; i < newLineCount - 1; i++) { // - 1 because the node after will insert a delimiter
+					lines.forEach(line -> {
+						if (line.length() > 0) {
+							indent(indentLevel);
+						}
+						append(line);
 						linefeed();
-					}
+					});
+					indent(indentLevel + (isMixedContent && !isLastChild ? 0 : -1));
+				}
+			} else if (isMixedContent) {
+				int preservedNewLines = getPreservedNewlines();
+				int newLineCount = StringUtils.getNumberOfNewLines(
+						text,
+						isWhitespaceContent,
+						lineDelimiter,
+						preservedNewLines);
+
+				newLineCount--; // magic
+				for (int i = 0; i < newLineCount; i++) {
+					linefeed();
+				}
+				if (isLastChild) {
+					linefeed();
+					indent(indentLevel - 1);
 				}
 			}
 		}
@@ -386,7 +400,7 @@ public class XMLBuilder {
 			if (text.charAt(i) == '\r') {
 				lines.add(strBuilder.toString());
 				strBuilder = new StringBuilder();
-				if (i + 1 < text.length()) {
+				if (i + 1 >= text.length()) {
 					break;
 				} else {
 					if (text.charAt(i + 1) == '\n') {

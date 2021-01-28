@@ -512,7 +512,7 @@ public class XMLFormatterTest {
 				"      <b></b>" + lineSeparator() + //
 				"</root>";
 		String expected = "<root>" + lineSeparator() + //
-				"  <a> content </a" + lineSeparator() + //
+				"  <a>content</a" + lineSeparator() + //
 				"  <b></b>" + lineSeparator() + //
 				"</root>";
 		assertFormat(content, expected);
@@ -656,7 +656,7 @@ public class XMLFormatterTest {
 				"        <!-- comment -->" + lineSeparator() + //
 				" </root>";
 		String expected = "<root>" + lineSeparator() + //
-				"  <a> content </a" + lineSeparator() + //
+				"  <a>content</a" + lineSeparator() + //
 				"  <!-- comment -->" + lineSeparator() + //
 				"</root>";
 		SharedSettings settings = new SharedSettings();
@@ -688,9 +688,7 @@ public class XMLFormatterTest {
 		String content = "<a>" + lineSeparator() + //
 				" Content" + lineSeparator() + //
 				"</a> <!-- My   Comment   -->";
-		String expected = "<a>" + lineSeparator() + //
-				" Content" + lineSeparator() + //
-				"</a> <!-- My Comment -->";
+		String expected = "<a>Content</a> <!-- My Comment -->";
 
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setJoinCommentLines(true);
@@ -707,10 +705,10 @@ public class XMLFormatterTest {
 				"  Content5\r" + //
 				"</a>";
 		String expected = "<a>\r" + //
-				" Content\r" + //
-				"     Content2\r" + //
-				"      Content3\r" + //
-				" Content4\r" + //
+				"  Content\r" + //
+				"  Content2\r" + //
+				"  Content3\r" + //
+				"  Content4\r" + //
 				"  Content5\r" + //
 				"</a>";
 
@@ -729,16 +727,16 @@ public class XMLFormatterTest {
 		String expected = "<a>\r" + //
 				"  Content\r" + //
 				"  <b>\r" + //
-				"   Content2\r" + //
+				"    Content2\r" + //
 				"    Content3\r" + //
-				" </b>\r" + //
+				"  </b>\r" + //
 				"</a>";
 
 		assertFormat(content, expected);
 	}
 
 	@Test
-	public void testContentFormattingDontMoveEndTag() throws BadLocationException {
+	public void testContentFormattingFixEndTag() throws BadLocationException {
 		String content = "<a>\r" + //
 				" Content\r" + //
 				" <b>\r" + //
@@ -748,8 +746,9 @@ public class XMLFormatterTest {
 		String expected = "<a>\r" + //
 				"  Content\r" + //
 				"  <b>\r" + //
-				"   Content2\r" + //
-				"    Content3 </b>\r" + //
+				"    Content2\r" + //
+				"    Content3\r" + //
+				"  </b>\r" + //
 				"</a>";
 
 		assertFormat(content, expected);
@@ -758,7 +757,7 @@ public class XMLFormatterTest {
 	@Test
 	public void testContentFormatting3() throws BadLocationException {
 		String content = "<a> content </a>";
-		String expected = "<a> content </a>";
+		String expected = "<a>content</a>";
 
 		assertFormat(content, expected);
 	}
@@ -769,20 +768,14 @@ public class XMLFormatterTest {
 				"\r" + //
 				" Content\r" + //
 				"</a>";
-		String expected = "<a>\r" + //
-				"\r" + //
-				" Content\r" + //
-				"</a>";
+		String expected = "<a>Content</a>";
 		assertFormat(content, expected);
 
 		content = "<a>\r\n" + //
 				"\r\n" + //
 				" Content\r\n" + //
 				"</a>";
-		expected = "<a>\r\n" + //
-				"\r\n" + //
-				" Content\r\n" + //
-				"</a>";
+		expected = "<a>Content</a>";
 		assertFormat(content, expected);
 	}
 
@@ -865,7 +858,7 @@ public class XMLFormatterTest {
 				" <b> Value </b\r" + //
 				"</a>";
 		String expected = "<a>\r" + //
-				"  <b> Value </b\r" + //
+				"  <b>Value</b\r" + //
 				"</a>";
 		assertFormat(content, expected, settings);
 	}
@@ -918,9 +911,7 @@ public class XMLFormatterTest {
 		String content = "<a>\r" + //
 				"   aaa  " + //
 				"</a>";
-		String expected = "<a>\r" + //
-				"   aaa  " + //
-				"</a>";
+		String expected = "<a>aaa</a>";
 		assertFormat(content, expected, settings);
 	}
 
@@ -1066,8 +1057,8 @@ public class XMLFormatterTest {
 				"   zz  " + //
 				"</a>";
 		String expected = "<a>\n" + //
-				"   zz  \n" + //
-				"   zz  " + //
+				"  zz\n" + //
+				"  zz\n" + //
 				"</a>";
 		assertFormat(content, expected, settings);
 	}
@@ -1102,8 +1093,8 @@ public class XMLFormatterTest {
 				"   <a>  </a>  \n" + //
 				"</a>";
 		String expected = "<a>\n" + //
-				"  zz  \n" + //
-				"   zz\n" + //
+				"  zz\n" + //
+				"  zz\n" + //
 				"  <a></a>\n" + //
 				"</a>";
 		assertFormat(content, expected, settings);
@@ -2176,9 +2167,9 @@ public class XMLFormatterTest {
 				"    text\n" + //
 				"</a>   ";
 		String expected = "<a>\n" + //
-				"text\n" + //
-				"    text text text\n" + //
-				"    text\n" + //
+				"  text\n" + //
+				"  text text text\n" + //
+				"  text\n" + //
 				"</a>";
 		assertFormat(content, expected, settings);
 	}
@@ -2208,10 +2199,10 @@ public class XMLFormatterTest {
 				"</a>   ";
 		String expected = "<a>\n" + //
 				"\n" + //
-				"text\n" + //
-				"    text text text\n" + //
+				"  text\n" + //
+				"  text text text\n" + //
 				"\n" + //
-				"    text\n" + //
+				"  text\n" + //
 				"\n" + //
 				"</a>";
 		assertFormat(content, expected, settings);
@@ -2396,7 +2387,7 @@ public class XMLFormatterTest {
 		assertFormat(content, expected, settings);
 
 		content = "<example att=\"hello\"> X </example>";
-		expected = "<example att=\"hello\"> X </example>";
+		expected = "<example att=\"hello\">X</example>";
 		assertFormat(content, expected, settings);
 
 		content = "<example att=\"hello\"> <X/> </example>";

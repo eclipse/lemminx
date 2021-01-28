@@ -66,6 +66,7 @@ class XMLFormatter {
 		private boolean linefeedOnNextWrite;
 		private boolean withinDTDContent;
 		private boolean previousNodeWasNonBlankTextNode;
+		private boolean previousNodeWasTextNode;
 
 		/**
 		 * XML formatter document.
@@ -79,6 +80,7 @@ class XMLFormatter {
 			this.emptyElements = sharedSettings.getFormattingSettings().getEmptyElements();
 			this.linefeedOnNextWrite = false;
 			this.previousNodeWasNonBlankTextNode = false;
+			this.previousNodeWasTextNode = false;
 		}
 
 		/**
@@ -307,39 +309,31 @@ class XMLFormatter {
 						this.xmlBuilder.indent(this.indentLevel);
 					}
 				}
+				this.previousNodeWasNonBlankTextNode = false;
+				this.previousNodeWasTextNode = false;
 				if (node.isElement()) {
 					// Format Element
-					this.previousNodeWasNonBlankTextNode = false;
 					formatElement((DOMElement) node);
 					this.previousNodeWasNonBlankTextNode = false;
+					this.previousNodeWasTextNode = false;
 				} else if (node.isCDATA()) {
 					// Format CDATA
-					this.previousNodeWasNonBlankTextNode = false;
 					formatCDATA((DOMCDATASection) node);
-					this.previousNodeWasNonBlankTextNode = false;
 				} else if (node.isComment()) {
 					// Format comment
-					this.previousNodeWasNonBlankTextNode = false;
 					formatComment((DOMComment) node);
-					this.previousNodeWasNonBlankTextNode = false;
 				} else if (node.isProcessingInstruction()) {
 					// Format processing instruction
-					this.previousNodeWasNonBlankTextNode = false;
 					formatProcessingInstruction(node);
-					this.previousNodeWasNonBlankTextNode = false;
 				} else if (node.isProlog()) {
 					// Format prolog
-					this.previousNodeWasNonBlankTextNode = false;
 					formatProlog(node);
-					this.previousNodeWasNonBlankTextNode = false;
 				} else if (node.isText()) {
 					// Format Text
 					formatText((DOMText) node);
 				} else if (node.isDoctype()) {
 					// Format document type
-					this.previousNodeWasNonBlankTextNode = false;
 					formatDocumentType((DOMDocumentType) node);
-					this.previousNodeWasNonBlankTextNode = false;
 				}
 			} else if (node.hasChildNodes()) {
 				// Other nodes kind like root
@@ -367,6 +361,7 @@ class XMLFormatter {
 		private void formatText(DOMText textNode) {
 			String content = textNode.getData();
 			previousNodeWasNonBlankTextNode = !StringUtil.isBlank(content);
+			previousNodeWasTextNode = true;
 			if (textNode.equals(this.fullDomDocument.getLastChild())) {
 				xmlBuilder.addContent(content);
 			} else {
@@ -501,7 +496,7 @@ class XMLFormatter {
 						this.indentLevel--;
 					}
 					if (element.hasEndTag()) {
-						if (element.getChildNodes().getLength() > 1 && !this.previousNodeWasNonBlankTextNode) {
+						if (!this.previousNodeWasTextNode && element.hasChildNodes()) {
 							this.xmlBuilder.linefeed();
 							this.xmlBuilder.indent(this.indentLevel);
 						}
