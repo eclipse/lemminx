@@ -37,11 +37,11 @@ import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLFormattingOptions.EmptyElements;
+import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lemminx.utils.XMLBuilder;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.jsoup.helper.StringUtil;
 
 /**
  * XML formatter support.
@@ -360,7 +360,7 @@ class XMLFormatter {
 		 */
 		private void formatText(DOMText textNode) {
 			String content = textNode.getData();
-			previousNodeWasNonBlankTextNode = !StringUtil.isBlank(content);
+			previousNodeWasNonBlankTextNode = !StringUtils.isBlank(content);
 			previousNodeWasTextNode = true;
 			if (textNode.equals(this.fullDomDocument.getLastChild())) {
 				xmlBuilder.addContent(content);
