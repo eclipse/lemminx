@@ -1,5 +1,26 @@
 # Change Log
 
+## [0.15.0](https://github.com/eclipse/lemminx/milestone/20?closed=1) (February 2, 2021)
+
+### Enhancements
+ * Generate a native binary using GraalVM. See [#860](https://github.com/eclipse/lemminx/pull/860).
+ * Indicate if the server is a binary in the startup message. See [#949](https://github.com/eclipse/lemminx/issues/949).
+ * Allow LemMinX extensions to contribute to `WorkspaceService`. See [#966](https://github.com/eclipse/lemminx/pull/966).
+ * Add new formatting setting `xml.format.splitAttributesIndentSize`. See [#952](https://github.com/eclipse/lemminx/pull/952).
+ * Disable XSD validation when `xsi:schemaLocation` doesn't declare the hint for the document element root. See [#953](https://github.com/eclipse/lemminx/pull/953).
+ * Manage namespaces / prefix validation with a setting. See [#960](https://github.com/eclipse/lemminx/issues/960).
+
+### Bug Fixes
+ * Avoid trailing space in processing instructions. See [redhat-developer/vscode-xml#372](https://github.com/redhat-developer/vscode-xml/issues/372).
+ * LemMinX no longer crashes if a LemMinX extension class cannot be created. See [#967](https://github.com/eclipse/lemminx/issues/967).
+ * Single `<` no longer has code action to close with `/>`. See [redhat-developer/vscode-xml#373](https://github.com/redhat-developer/vscode-xml/issues/373).
+ * Catch errors from any participants. See [#946](https://github.com/eclipse/lemminx/issues/946).
+ * Avoid sending duplicate `client/registerCapability` for `workspace/executeCommand`. See [#937](https://github.com/eclipse/lemminx/issues/937).
+ * Use `kill -0` instead of `ps -p` in `ParentProcessWatcher`. See [#936](https://github.com/eclipse/lemminx/issues/936).
+ * Prevent `ClassCastException` when generating document links for XML catalogs. See [#932](https://github.com/eclipse/lemminx/issues/932).
+ * Register `org.eclipse.lsp4j.FileEvent` for reflection. See [#979](https://github.com/eclipse/lemminx/issues/979).
+ * Prevent URLs in `uri` attributes in catalogs from raising exceptions. See [#977](https://github.com/eclipse/lemminx/issues/977).
+
 ## [0.14.1](https://github.com/eclipse/lemminx/milestone/19?closed=1) (November 10, 2020)
 
 ### Bug Fixes
