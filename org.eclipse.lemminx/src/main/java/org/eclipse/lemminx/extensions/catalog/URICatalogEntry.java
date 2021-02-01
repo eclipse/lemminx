@@ -9,6 +9,7 @@
 *******************************************************************************/
 package org.eclipse.lemminx.extensions.catalog;
 
+import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 
 import org.eclipse.lemminx.dom.DOMAttr;
@@ -45,7 +46,12 @@ public class URICatalogEntry extends CatalogEntry {
 		if (StringUtils.isBlank(lastSegment)) {
 			return null;
 		}
-		return Paths.get(getBaseURI(), lastSegment).toString();
+		try {
+			return Paths.get(getBaseURI(), lastSegment).toString();
+		} catch (InvalidPathException e) {
+			// See issue #977
+			return null;
+		}
 	}
 
 }
