@@ -13,20 +13,16 @@
 package org.eclipse.lemminx.services.extensions;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.function.Predicate;
 
+import com.google.gson.JsonObject;
+
 import org.eclipse.lemminx.XMLAssert.SettingsSaveContext;
 import org.eclipse.lemminx.dom.DOMDocument;
-import org.eclipse.lemminx.services.extensions.IXMLExtension;
-import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.services.extensions.save.ISaveContext;
 import org.eclipse.lsp4j.InitializeParams;
 import org.junit.jupiter.api.Test;
-
-import com.google.gson.JsonObject;
 
 /**
  * Ensures that {@code XMLExtensionsRegistry.doSave()} correctly captures the
