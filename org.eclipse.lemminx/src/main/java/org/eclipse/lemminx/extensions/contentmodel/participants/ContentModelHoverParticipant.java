@@ -143,6 +143,9 @@ public class ContentModelHoverParticipant extends HoverParticipantAdapter {
 	public Hover onText(IHoverRequest hoverRequest) throws Exception {
 		DOMText text = (DOMText) hoverRequest.getNode();
 		DOMElement element = text.getParentElement();
+		if (element == null) {
+			return null;
+		}
 		try {
 			ContentModelManager contentModelManager = hoverRequest.getComponent(ContentModelManager.class);
 			Collection<CMDocument> cmDocuments = contentModelManager.findCMDocument(element);

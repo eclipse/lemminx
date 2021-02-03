@@ -13,13 +13,23 @@
 package org.eclipse.lemminx.extensions.contentmodel;
 
 import static org.eclipse.lemminx.XMLAssert.r;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.util.URI.MalformedURIException;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
+import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lemminx.dom.DOMElement;
+import org.eclipse.lemminx.dom.DOMNode;
+import org.eclipse.lemminx.dom.DOMText;
+import org.eclipse.lemminx.dom.LineIndentInfo;
+import org.eclipse.lemminx.extensions.contentmodel.participants.ContentModelHoverParticipant;
 import org.eclipse.lemminx.extensions.xsi.XSISchemaModel;
 import org.eclipse.lemminx.services.XMLLanguageService;
+import org.eclipse.lemminx.services.extensions.IHoverRequest;
+import org.eclipse.lemminx.settings.SharedSettings;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.junit.jupiter.api.Test;
 
@@ -199,7 +209,7 @@ public class XMLSchemaHoverExtensionsTest {
 
 	/**
 	 * See https://github.com/redhat-developer/vscode-xml/issues/233
-	 * 
+	 *
 	 * @throws BadLocationException
 	 * @throws MalformedURIException
 	 */
@@ -303,6 +313,80 @@ public class XMLSchemaHoverExtensionsTest {
 						System.lineSeparator() + //
 						"Source: [dressSize.xsd](" + schemaURI + ")",
 				r(2, 52, 3, 9));
+	}
+
+	@Test
+	public void hoverWithNullParentNode() throws Exception {
+		ContentModelHoverParticipant hoverParticipant = new ContentModelHoverParticipant();
+		IHoverRequest hoverRequest = new IHoverRequest() {
+
+			@Override
+			public DOMNode getNode() {
+				return new DOMText(0, 0);
+			}
+
+			@Override
+			public int getOffset() {
+				return 0;
+			}
+
+			@Override
+			public Position getPosition() {
+				return null;
+			}
+
+			@Override
+			public DOMElement getParentElement() {
+				return null;
+			}
+
+			@Override
+			public DOMDocument getXMLDocument() {
+				return null;
+			}
+
+			@Override
+			public String getCurrentTag() {
+				return null;
+			}
+
+			@Override
+			public String getCurrentAttributeName() {
+				return null;
+			}
+
+			@Override
+			public LineIndentInfo getLineIndentInfo() throws BadLocationException {
+				return null;
+			}
+
+			@Override
+			public <T> T getComponent(Class clazz) {
+				return null;
+			}
+
+			@Override
+			public boolean canSupportMarkupKind(String kind) {
+				return false;
+			}
+
+			@Override
+			public SharedSettings getSharedSettings() {
+				return null;
+			}
+
+			@Override
+			public Range getHoverRange() {
+				return null;
+			}
+
+			@Override
+			public boolean isOpen() {
+				return false;
+			}
+
+		};
+		assertNull(hoverParticipant.onText(hoverRequest));
 	}
 
 	private static void assertHover(String value, String expectedHoverLabel, Range expectedHoverRange)
