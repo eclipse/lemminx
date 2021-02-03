@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>org.eclipse.lemminx</groupId>
 		<artifactId>lemminx-parent</artifactId>
-		<version>0.14.2-SNAPSHOT</version>
+		<version>0.15.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>org.eclipse.lemminx</artifactId>
 	<properties>
@@ -12,7 +12,7 @@
 		<dev.build.timestamp>${maven.build.timestamp}</dev.build.timestamp>
 		<cbi.jarsigner.skip>true</cbi.jarsigner.skip>
 		<graalvm.version>20.3.0</graalvm.version>
-		<graalvm.static></graalvm.static>
+		<graalvm.static />
 	</properties>
 	<build>
 		<resources>
@@ -168,7 +168,7 @@
 							<imageName>lemminx-${os.detected.classifier}-${project.version}</imageName>
 							<buildArgs>
 								--no-fallback
-								--enable-http 
+								--enable-http
 								--enable-https
 								${graalvm.static}
 							</buildArgs>
