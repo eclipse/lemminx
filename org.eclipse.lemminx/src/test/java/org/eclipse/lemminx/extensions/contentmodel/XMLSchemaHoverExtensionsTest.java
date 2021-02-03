@@ -304,6 +304,11 @@ public class XMLSchemaHoverExtensionsTest {
 						"Source: [dressSize.xsd](" + schemaURI + ")",
 				r(2, 52, 3, 9));
 	}
+	
+	@Test
+	public void hoverText() throws BadLocationException {
+		assertHover("ab|cd", null, null);
+	}
 
 	private static void assertHover(String value, String expectedHoverLabel, Range expectedHoverRange)
 			throws BadLocationException {
