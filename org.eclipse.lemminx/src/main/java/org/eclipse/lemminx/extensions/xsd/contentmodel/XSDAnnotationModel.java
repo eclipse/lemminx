@@ -54,7 +54,7 @@ class XSDAnnotationModel {
 
 	/**
 	 * Returns content from appinfo element(s)
-	 * 
+	 *
 	 * @return content from appinfo element(s)
 	 */
 	public List<String> getAppInfo() {
@@ -63,7 +63,7 @@ class XSDAnnotationModel {
 
 	/**
 	 * Returns content from documentation elements(s)
-	 * 
+	 *
 	 * @return content from documentation elements(s)
 	 */
 	public List<String> getDocumentation() {
@@ -72,7 +72,7 @@ class XSDAnnotationModel {
 
 	/**
 	 * Returns documentation content from the provided collection of annotations
-	 * 
+	 *
 	 * @param annotations the collection of annotations
 	 * @return documentation content from the provided collection of annotations
 	 */
@@ -82,7 +82,7 @@ class XSDAnnotationModel {
 
 	/**
 	 * Returns documentation content from the provided collection of annotations
-	 * 
+	 *
 	 * @param annotations the collection of attribute value annotations
 	 * @param value       the attribute value to find documentation content for
 	 * @return documentation content from the provided collection of annotations
@@ -115,7 +115,7 @@ class XSDAnnotationModel {
 
 	/**
 	 * Returns appinfo content from the provided collection of annotations
-	 * 
+	 *
 	 * @param annotations the collection of annotations
 	 * @return appinfo content from the provided collection of annotations
 	 */
@@ -125,7 +125,7 @@ class XSDAnnotationModel {
 
 	/**
 	 * Returns appinfo content from the provided collection of annotations
-	 * 
+	 *
 	 * @param annotations the collection of attribute value annotations
 	 * @param value       the attribute value to find appinfo content for
 	 * @return appinfo content from the provided collection of annotations
@@ -147,7 +147,7 @@ class XSDAnnotationModel {
 
 	/**
 	 * Returns the prefix (ie. xs) from the provided collection of annotations
-	 * 
+	 *
 	 * @param annotations the collection of annotations
 	 * @return the prefix (ie. xs) from the provided collection of annotations
 	 */
@@ -157,10 +157,10 @@ class XSDAnnotationModel {
 
 	/**
 	 * Returns the prefix (ie. xs) from the provided collection of annotations
-	 * 
+	 *
 	 * Prerequisite: <code>value</code> should be provided if <code>annotations</code>
 	 * is a collection of attribute value annotations
-	 * 
+	 *
 	 * @param annotations the collection of annotations
 	 * @param value       the attribute value
 	 * @return the prefix (ie. xs) from the provided collection of annotations
@@ -192,20 +192,20 @@ class XSDAnnotationModel {
 			return null;
 		}
 	}
-	
+
 	/**
-	 * Returns the <code>XSAnnotation</code> instance for the 
+	 * Returns the <code>XSAnnotation</code> instance for the
 	 * provided <code>annotation</code>
-	 * 
+	 *
 	 * If <code>value</code> is provided, the <code>XSAnnotation</code> for
 	 * an attribute value will be searched for
-	 * 
+	 *
 	 * If not provided, the <code>XSAnnotation</code> for
 	 * an attribute or element will be searched for
-	 * 
-	 * @param annotation the annotation object 
+	 *
+	 * @param annotation the annotation object
 	 * @param value      the attribute value
-	 * @return the <code>XSAnnotation</code> instance for the 
+	 * @return the <code>XSAnnotation</code> instance for the
 	 * provided <code>annotation</code>
 	 */
 	private static XSAnnotation getXSAnnotation(XSObject annotation, String value) {
@@ -258,9 +258,9 @@ class XSDAnnotationModel {
 			super.endElement(uri, localName, qName);
 			if (current != null) {
 				if (qName.endsWith(APPINFO_ELEMENT)) {
-					addIfNonEmptyString(model.appInfo, normalizeSpace(current.toString()));
+					addIfNonEmptyString(model.appInfo, current.toString().trim());
 				} else if (qName.endsWith(DOCUMENTATION_ELEMENT)) {
-					addIfNonEmptyString(model.documentation, normalizeSpace(current.toString()));
+					addIfNonEmptyString(model.documentation, current.toString().trim());
 				}
 				current = null;
 			}

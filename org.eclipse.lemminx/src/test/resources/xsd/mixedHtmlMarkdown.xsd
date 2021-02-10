@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="root">
+    <xs:annotation>
+      <xs:documentation>
+        # root
+
+        This is the root element of the document.
+
+        Use it like this:
+
+        ```
+        &amp;lt;root>
+          ...
+        &amp;lt;/root>
+        ```
+
+        *Since 0.1.0*
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="container" maxOccurs="unbounded">
+          <xs:annotation>
+            <xs:documentation>
+              ## container
+
+              Groups &lt;em>several&lt;/em> `content` together in a logical structure.
+
+              `&lt;em> This case is handled correctly &lt;/em>`
+
+              ![whale image](https://openclipart.org/image/400px/3243)
+            </xs:documentation>
+          </xs:annotation>
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="content" maxOccurs="unbounded" type="xs:string">
+                <xs:annotation>
+                  <xs:documentation>
+                    ## content
+                    &lt;p> This node represents *text* content. &lt;/p>
+                    &lt;p> This is the second [paragraph](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/p) in the documentation. &lt;/p>
+                  </xs:documentation>
+                </xs:annotation>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

@@ -46,7 +46,10 @@ public class XMLSchemaHoverExtensionsTest {
 				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
 				+ "	<bea|n>";
 		assertHover(xml,
-				"Defines a single (usually named) bean. A bean definition may contain nested tags for constructor arguments, property values, lookup methods, and replaced methods. Mixing constructor injection and setter injection on the same bean is explicitly supported."
+				"Defines a single (usually named) bean." + //
+				System.lineSeparator() + //
+				System.lineSeparator() + //
+				"A bean definition may contain nested tags for constructor arguments, property values, lookup methods, and replaced methods. Mixing constructor injection and setter injection on the same bean is explicitly supported."
 						+ //
 						System.lineSeparator() + //
 						System.lineSeparator() + "Source: [spring-beans-3.0.xsd](" + schemaURI + ")",
@@ -387,6 +390,66 @@ public class XMLSchemaHoverExtensionsTest {
 
 		};
 		assertNull(hoverParticipant.onText(hoverRequest));
+	}
+
+	public void hoverMixedHtmlMarkdown1() throws BadLocationException, MalformedURIException {
+		String schemaURI = getXMLSchemaFileURI("mixedHtmlMarkdown.xsd");
+		String sep = System.lineSeparator();
+		sep = sep + sep;
+		String xml = //
+				"<ro|ot\n" + //
+				"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + //
+				"    xsi:noNamespaceSchemaLocation=\"xsd/mixedHtmlMarkdown.xsd\" >\n" + //
+				"</root>";
+				XMLAssert.assertHover(new XMLLanguageService(), xml, null, "src/test/resources/mixed.xml", //
+				"# root" + sep + //
+				"This is the root element of the document." + sep + //
+				"Use it like this:" + sep + //
+				"`<root> ... </root>`" + sep + //
+				"*Since 0.1.0*" + sep + //
+				"Source: [mixedHtmlMarkdown.xsd](" + schemaURI + ")", //
+				r(0, 1, 0, 5));
+	}
+
+	@Test
+	public void hoverMixedHtmlMarkdown2() throws BadLocationException, MalformedURIException {
+		String schemaURI = getXMLSchemaFileURI("mixedHtmlMarkdown.xsd");
+		String sep = System.lineSeparator();
+		sep = sep + sep;
+		String xml = //
+				"<root\n" + //
+				"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + //
+				"    xsi:noNamespaceSchemaLocation=\"xsd/mixedHtmlMarkdown.xsd\" >\n" + //
+				"  <cont|ainer />\n" + //
+				"</root>";
+				XMLAssert.assertHover(new XMLLanguageService(), xml, null, "src/test/resources/mixed.xml", //
+				"## container" + sep + //
+				"Groups *several* `content` together in a logical structure." + sep + //
+				"`<em> This case is handled correctly </em>`" + sep + //
+				"![whale image](https://openclipart.org/image/400px/3243)" + sep + //
+				"Source: [mixedHtmlMarkdown.xsd](" + schemaURI + ")", //
+				r(3, 3, 3, 12));
+	}
+
+	@Test
+	public void hoverMixedHtmlMarkdown3() throws BadLocationException, MalformedURIException {
+		String schemaURI = getXMLSchemaFileURI("mixedHtmlMarkdown.xsd");
+		String sep = System.lineSeparator();
+		sep = sep + sep;
+		String xml = //
+				"<root\n" + //
+				"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + //
+				"    xsi:noNamespaceSchemaLocation=\"xsd/mixedHtmlMarkdown.xsd\" >\n" + //
+				"  <container>\n" + //
+				"    <con|tent />\n" + //
+				"  </container>\n" + //
+				"</root>";
+				XMLAssert.assertHover(new XMLLanguageService(), xml, null, "src/test/resources/mixed.xml", //
+				"## content" + sep + //
+				"This node represents *text* content." + sep + //
+				"This is the second [paragraph](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/p) in the documentation." + sep + //
+				"Source: [mixedHtmlMarkdown.xsd](" + schemaURI + ")", //
+				r(4, 5, 4, 12));
 	}
 
 	private static void assertHover(String value, String expectedHoverLabel, Range expectedHoverRange)

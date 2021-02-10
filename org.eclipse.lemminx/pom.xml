@@ -267,5 +267,10 @@
 			<version>9.4.38.v20210224</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.commonmark</groupId>
+			<artifactId>commonmark</artifactId>
+			<version>0.17.1</version>
+		</dependency>
 	</dependencies>
 </project>

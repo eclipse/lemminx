@@ -16,6 +16,8 @@ import static org.apache.commons.lang3.StringEscapeUtils.unescapeJava;
 import static org.apache.commons.lang3.StringEscapeUtils.unescapeXml;
 
 import java.lang.reflect.Field;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import com.overzealous.remark.Options;
@@ -23,6 +25,16 @@ import com.overzealous.remark.Options.FencedCodeBlocks;
 import com.overzealous.remark.Options.Tables;
 import com.overzealous.remark.Remark;
 
+import org.commonmark.node.Block;
+import org.commonmark.node.BlockQuote;
+import org.commonmark.node.FencedCodeBlock;
+import org.commonmark.node.Heading;
+import org.commonmark.node.HtmlBlock;
+import org.commonmark.node.ListBlock;
+import org.commonmark.node.Node;
+import org.commonmark.node.ThematicBreak;
+import org.commonmark.parser.Parser;
+import org.commonmark.renderer.html.HtmlRenderer;
 import org.jsoup.safety.Cleaner;
 import org.jsoup.safety.Whitelist;
 
@@ -37,20 +49,23 @@ public class MarkdownConverter {
 
 	private static Remark remark;
 
-	private MarkdownConverter(){
-		//no public instanciation
+	private static Parser commonMarkParser;
+
+	private static HtmlRenderer commonMarkRenderer;
+
+	private MarkdownConverter() {
+		// no public instantiation
 	}
 
 	static {
 		Options options = new Options();
 		options.tables = Tables.CONVERT_TO_CODE_BLOCK;
-		options.hardwraps = true;
 		options.inlineLinks = true;
 		options.autoLinks = true;
 		options.reverseHtmlSmartPunctuation = true;
 		options.fencedCodeBlocks = FencedCodeBlocks.ENABLED_BACKTICK;
 		remark = new Remark(options);
-		//Stop remark from stripping file protocol in an href
+		// Stop remark from stripping file protocol in an href
 		try {
 			Field cleanerField = Remark.class.getDeclaredField("cleaner");
 			cleanerField.setAccessible(true);
@@ -64,15 +79,32 @@ public class MarkdownConverter {
 
 			w.addProtocols("a", "href", "file");
 		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-			LOGGER.severe("Unable to modify jsoup to include file protocols "+ e.getMessage());
+			LOGGER.severe("Unable to modify jsoup to include file protocols " + e.getMessage());
 		}
+		// Setup CommonMark
+		Set<Class<? extends Block>> blockConfig = new HashSet<>();
+		blockConfig.add(Heading.class);
+		blockConfig.add(HtmlBlock.class);
+		blockConfig.add(ThematicBreak.class);
+		blockConfig.add(FencedCodeBlock.class);
+		blockConfig.add(BlockQuote.class);
+		blockConfig.add(ListBlock.class);
+		commonMarkParser = Parser.builder() //
+				.enabledBlockTypes(blockConfig) //
+				.build();
+		commonMarkRenderer = HtmlRenderer.builder() //
+				.build();
 	}
 
 	public static String convert(String html) {
-		if(!StringUtils.isTagOutsideOfBackticks(html)) {
-			return unescapeXml(html); // is not html so it can be returned as is (aside from unescaping)
-		}
+		// Cycle from mixed HTML and Markdown -> just HTML -> Markdown without HTML tags
+		html = renderMarkdown(unescapeXml(html));
 		return unescapeJava(remark.convert(html));
+	}
+
+	private static String renderMarkdown(String html) {
+		Node document = commonMarkParser.parse(html);
+		return commonMarkRenderer.render(document);
 	}
 
 }
