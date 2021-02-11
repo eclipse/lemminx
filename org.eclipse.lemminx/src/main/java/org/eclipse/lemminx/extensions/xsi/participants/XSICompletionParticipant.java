@@ -16,6 +16,7 @@ import org.eclipse.lemminx.extensions.xsi.XSISchemaModel;
 import org.eclipse.lemminx.services.extensions.CompletionParticipantAdapter;
 import org.eclipse.lemminx.services.extensions.ICompletionRequest;
 import org.eclipse.lemminx.services.extensions.ICompletionResponse;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
  * XSICompletionParticipant
@@ -23,14 +24,14 @@ import org.eclipse.lemminx.services.extensions.ICompletionResponse;
 public class XSICompletionParticipant extends CompletionParticipantAdapter {
 
 	@Override
-	public void onAttributeName(boolean generateValue, ICompletionRequest request, ICompletionResponse response)
+	public void onAttributeName(boolean generateValue, ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker)
 			throws Exception {
 		XSISchemaModel.computeCompletionResponses(request, response, request.getXMLDocument(), generateValue,
 				request.getSharedSettings());
 	}
 
 	@Override
-	public void onAttributeValue(String valuePrefix, ICompletionRequest request, ICompletionResponse response)
+	public void onAttributeValue(String valuePrefix, ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker)
 			throws Exception {
 		XSISchemaModel.computeValueCompletionResponses(request, response, request.getXMLDocument());
 	}

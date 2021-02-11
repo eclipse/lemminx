@@ -12,6 +12,8 @@
  */
 package org.eclipse.lemminx.services.extensions;
 
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+
 /**
  * Completion participant adapter.
  *
@@ -19,30 +21,30 @@ package org.eclipse.lemminx.services.extensions;
 public class CompletionParticipantAdapter implements ICompletionParticipant {
 
 	@Override
-	public void onTagOpen(ICompletionRequest completionRequest, ICompletionResponse completionResponse)
+	public void onTagOpen(ICompletionRequest completionRequest, ICompletionResponse completionResponse, CancelChecker cancelChecker)
 			throws Exception {
 		// Do nothing
 	}
 
 	@Override
-	public void onXMLContent(ICompletionRequest request, ICompletionResponse response) throws Exception {
+	public void onXMLContent(ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker) throws Exception {
 		// Do nothing
 	}
 
 	@Override
-	public void onAttributeName(boolean generateValue, ICompletionRequest request, ICompletionResponse response)
+	public void onAttributeName(boolean generateValue, ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker)
 			throws Exception {
 		// Do nothing
 	}
 
 	@Override
-	public void onAttributeValue(String valuePrefix, ICompletionRequest request, ICompletionResponse response)
+	public void onAttributeValue(String valuePrefix, ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker)
 			throws Exception {
 		// Do nothing
 	}
 
 	@Override
-	public void onDTDSystemId(String valuePrefix, ICompletionRequest request, ICompletionResponse response)
+	public void onDTDSystemId(String valuePrefix, ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker)
 			throws Exception {
 		// Do nothing
 	}

@@ -12,17 +12,19 @@
  */
 package org.eclipse.lemminx.services.extensions;
 
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+
 /**
  * Completion participant API.
  *
  */
 public interface ICompletionParticipant {
 
-	void onTagOpen(ICompletionRequest completionRequest, ICompletionResponse completionResponse) throws Exception;
+	void onTagOpen(ICompletionRequest completionRequest, ICompletionResponse completionResponse, CancelChecker cancelChecker) throws Exception;
 
-	void onXMLContent(ICompletionRequest request, ICompletionResponse response) throws Exception;
+	void onXMLContent(ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker) throws Exception;
 
-	void onAttributeName(boolean generateValue, ICompletionRequest request, ICompletionResponse response)
+	void onAttributeName(boolean generateValue, ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker)
 			throws Exception;
 
 	/**
@@ -34,7 +36,7 @@ public interface ICompletionParticipant {
 	 * @param response    the completion response
 	 * @throws Exception
 	 */
-	void onAttributeValue(String valuePrefix, ICompletionRequest request, ICompletionResponse response)
+	void onAttributeValue(String valuePrefix, ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker)
 			throws Exception;
 	
 
@@ -47,7 +49,7 @@ public interface ICompletionParticipant {
 	 * @param response    the completion response
 	 * @throws Exception
 	 */
-	void onDTDSystemId(String valuePrefix, ICompletionRequest request, ICompletionResponse response)
+	void onDTDSystemId(String valuePrefix, ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker)
 			throws Exception;
 
 }
