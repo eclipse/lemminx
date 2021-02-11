@@ -39,6 +39,7 @@ import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -50,7 +51,7 @@ import org.w3c.dom.NodeList;
 public class ContentModelCompletionParticipant extends CompletionParticipantAdapter {
 
 	@Override
-	public void onTagOpen(ICompletionRequest request, ICompletionResponse response) throws Exception {
+	public void onTagOpen(ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker) throws Exception {
 		try {
 			DOMDocument document = request.getXMLDocument();
 			ContentModelManager contentModelManager = request.getComponent(ContentModelManager.class);
@@ -262,7 +263,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	}
 
 	@Override
-	public void onAttributeName(boolean generateValue, ICompletionRequest request, ICompletionResponse response)
+	public void onAttributeName(boolean generateValue, ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker)
 			throws Exception {
 		// otherwise, manage completion based on XML Schema, DTD.
 		DOMElement parentElement = request.getNode().isElement() ? (DOMElement) request.getNode() : null;
@@ -311,7 +312,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	}
 
 	@Override
-	public void onAttributeValue(String valuePrefix, ICompletionRequest request, ICompletionResponse response)
+	public void onAttributeValue(String valuePrefix, ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker)
 			throws Exception {
 		DOMElement parentElement = request.getNode().isElement() ? (DOMElement) request.getNode() : null;
 		if (parentElement == null) {
@@ -357,7 +358,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	}
 
 	@Override
-	public void onXMLContent(ICompletionRequest request, ICompletionResponse response) throws Exception {
+	public void onXMLContent(ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker) throws Exception {
 		try {
 			ContentModelManager contentModelManager = request.getComponent(ContentModelManager.class);
 			DOMElement parentElement = request.getParentElement();

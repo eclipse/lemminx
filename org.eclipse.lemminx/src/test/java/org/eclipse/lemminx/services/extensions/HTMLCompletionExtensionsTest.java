@@ -23,6 +23,7 @@ import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.junit.jupiter.api.Test;
 
@@ -149,7 +150,7 @@ public class HTMLCompletionExtensionsTest {
 		class HTMLCompletionParticipant extends CompletionParticipantAdapter {
 
 			@Override
-			public void onTagOpen(ICompletionRequest completionRequest, ICompletionResponse completionResponse)
+			public void onTagOpen(ICompletionRequest completionRequest, ICompletionResponse completionResponse, CancelChecker cancelChecker)
 					throws Exception {
 				Range range = completionRequest.getReplaceRange();
 				HTMLTag.HTML_TAGS.forEach(t -> {
@@ -168,7 +169,7 @@ public class HTMLCompletionExtensionsTest {
 
 			@Override
 			public void onAttributeName(boolean generateValue, ICompletionRequest completionRequest,
-					ICompletionResponse completionResponse) {
+					ICompletionResponse completionResponse, CancelChecker cancelChecker) {
 				String tag = completionRequest.getCurrentTag();
 				HTMLTag htmlTag = HTMLTag.getHTMLTag(tag);
 				if (htmlTag != null) {
@@ -196,7 +197,7 @@ public class HTMLCompletionExtensionsTest {
 
 			@Override
 			public void onAttributeValue(String valuePrefix, ICompletionRequest completionRequest,
-					ICompletionResponse completionResponse) {
+					ICompletionResponse completionResponse, CancelChecker cancelChecker) {
 				String tag = completionRequest.getCurrentTag();
 				String attributeName = completionRequest.getCurrentAttributeName();
 				HTMLTag htmlTag = HTMLTag.getHTMLTag(tag);
@@ -233,7 +234,7 @@ public class HTMLCompletionExtensionsTest {
 			}
 
 			@Override
-			public void onXMLContent(ICompletionRequest request, ICompletionResponse response) {
+			public void onXMLContent(ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker) {
 				CompletionItem completion = new CompletionItem("Test replace range");
 				TextEdit edit = new TextEdit();
 				edit.setNewText("replacement text");
