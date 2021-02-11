@@ -31,6 +31,8 @@ import java.util.regex.Pattern;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 
+import org.eclipse.lemminx.utils.platform.Platform;
+
 /**
  * Files utilities.
  *
@@ -76,7 +78,7 @@ public class FilesUtils {
 	/**
 	 * Given a file path as a string, will normalize it and return the normalized
 	 * string if valid, or null if not.
-	 * 
+	 *
 	 * The '~' home symbol will be converted into the actual home path. Slashes will
 	 * be corrected depending on the OS.
 	 */
@@ -114,7 +116,7 @@ public class FilesUtils {
 
 	/**
 	 * Returns the deployed path from the given <code>path</code>.
-	 * 
+	 *
 	 * @param path the path
 	 * @return the deployed path from the given <code>path</code>.
 	 * @throws IOException
@@ -126,7 +128,7 @@ public class FilesUtils {
 	/**
 	 * Save the given input stream <code>in</code> in the give out file
 	 * <code>outFile</code>
-	 * 
+	 *
 	 * @param in      the input stream
 	 * @param outFile the output file
 	 * @throws IOException
@@ -138,7 +140,7 @@ public class FilesUtils {
 	/**
 	 * Save the given String <code>content</code> in the give out file
 	 * <code>outFile</code>
-	 * 
+	 *
 	 * @param content the string content
 	 * @param outFile the output file
 	 * @throws IOException
@@ -174,7 +176,7 @@ public class FilesUtils {
 	/**
 	 * Returns the slash ("/" or "\") that is used by the given string. If no slash
 	 * is given "/" is returned by default.
-	 * 
+	 *
 	 * @param text
 	 * @return
 	 */
@@ -187,7 +189,7 @@ public class FilesUtils {
 
 	/**
 	 * Ensures there is no slash before a drive letter, and forces use of '\'
-	 * 
+	 *
 	 * @param pathString
 	 * @return
 	 */
@@ -216,9 +218,9 @@ public class FilesUtils {
 
 	/**
 	 * Remove the file:// scheme from the given file URI.
-	 * 
+	 *
 	 * @param fileURI the file URI.
-	 * 
+	 *
 	 * @return the file URI without file scheme.
 	 */
 	public static String removeFileScheme(String fileURI) {
@@ -240,19 +242,19 @@ public class FilesUtils {
 	/**
 	 * Returns the IO Path from the given uri. This URI can use several syntaxes
 	 * like:
-	 * 
+	 *
 	 * <ul>
 	 * <li>file:///C:/folder (Windows OS), file://home (Linux OS)</li>
 	 * <li>a%20b/folder (folder with spaces)</li>
 	 * </ul>
-	 * 
+	 *
 	 * @param uri the URI
-	 * 
+	 *
 	 * @return the IO Path from the given uri.
 	 */
 	public static Path getPath(String uri) {
 		// Remove file://
-		uri = removeFileScheme(uri, OSUtils.isWindows);
+		uri = removeFileScheme(uri, Platform.isWindows);
 		try {
 			// replace "%20" with " ", "%3A" with ":", etc
 			uri = URLDecoder.decode(uri, StandardCharsets.UTF_8.name());
@@ -264,9 +266,9 @@ public class FilesUtils {
 
 	/**
 	 * Replace spaces with "%20".
-	 * 
+	 *
 	 * @param path the path.
-	 * 
+	 *
 	 * @return the path with replaced spaces.
 	 */
 	public static String encodePath(String path) {

@@ -16,19 +16,19 @@ import org.eclipse.lemminx.utils.JSONUtility;
 
 /**
  * Class to hold all settings from the client side.
- * 
+ *
  * See https://github.com/eclipse/lemminx/blob/master/docs/Configuration.md for more
  * information.
- * 
+ *
  * This class is created through the deseralization of a JSON object. Each
  * internal setting must be represented by a class and have:
- * 
+ *
  * 1) A constructor with no parameters
- * 
+ *
  * 2) The JSON key/parent for the settings must have the same name as a varible.
- * 
+ *
  * eg: {"format" : {...}, "completion" : {...}}
- * 
+ *
  * In this class must exist both a "format" and "completion" variable with the
  * appropriate Class to represent the value of each key
  *
@@ -49,6 +49,8 @@ public class XMLGeneralClientSettings {
 
 	private XMLPreferences preferences;
 
+	private XMLTelemetrySettings telemetry;
+
 	public void setLogs(LogsSettings logs) {
 		this.logs = logs;
 	}
@@ -67,7 +69,7 @@ public class XMLGeneralClientSettings {
 
 	/**
 	 * Returns the code lens settings.
-	 * 
+	 *
 	 * @return the code lens settings.
 	 */
 	public XMLCodeLensSettings getCodeLens() {
@@ -76,7 +78,7 @@ public class XMLGeneralClientSettings {
 
 	/**
 	 * Sets the code lens settings.
-	 * 
+	 *
 	 * @param codeLens
 	 */
 	public void setCodeLens(XMLCodeLensSettings codeLens) {
@@ -85,7 +87,7 @@ public class XMLGeneralClientSettings {
 
 	/**
 	 * Sets the formatting options
-	 * 
+	 *
 	 * @param format
 	 */
 	public void setFormat(XMLFormattingOptions format) {
@@ -94,7 +96,7 @@ public class XMLGeneralClientSettings {
 
 	/**
 	 * Returns the formatting options
-	 * 
+	 *
 	 * @return the formatting options
 	 */
 	public XMLFormattingOptions getFormat() {
@@ -103,7 +105,7 @@ public class XMLGeneralClientSettings {
 
 	/**
 	 * Sets the completion settings
-	 * 
+	 *
 	 * @param completion
 	 */
 	public void setCompletion(XMLCompletionSettings completion) {
@@ -112,7 +114,7 @@ public class XMLGeneralClientSettings {
 
 	/**
 	 * Returns the completion settings
-	 * 
+	 *
 	 * @return the completion settings
 	 */
 	public XMLCompletionSettings getCompletion() {
@@ -121,7 +123,7 @@ public class XMLGeneralClientSettings {
 
 	/**
 	 * Returns the XML preferences
-	 * 
+	 *
 	 * @return the XML preferences
 	 */
 	public XMLPreferences getPreferences() {
@@ -130,8 +132,8 @@ public class XMLGeneralClientSettings {
 
 	/**
 	 * Sets the XML preferences
-	 * 
-	 * @param preferences
+	 *
+	 * @param preferences the XML preferences
 	 */
 	public void setPreferences(XMLPreferences preferences) {
 		this.preferences = preferences;
@@ -139,7 +141,7 @@ public class XMLGeneralClientSettings {
 
 	/**
 	 * Returns the server
-	 * 
+	 *
 	 * @return the server
 	 */
 	public ServerSettings getServer() {
@@ -148,7 +150,7 @@ public class XMLGeneralClientSettings {
 
 	/**
 	 * Sets the server
-	 * 
+	 *
 	 * @param server
 	 */
 	public void setServer(ServerSettings server) {
@@ -156,9 +158,27 @@ public class XMLGeneralClientSettings {
 	}
 
 	/**
+	 * Returns the telemetry settings
+	 *
+	 * @return the telemetry settings
+	 */
+	public XMLTelemetrySettings getTelemetry() {
+		return telemetry;
+	}
+
+	/**
+	 * Sets the telemetry settings
+	 *
+	 * @param telemetry the telemetry settings
+	 */
+	public void setTelemetry(XMLTelemetrySettings telemetry) {
+		this.telemetry = telemetry;
+	}
+
+	/**
 	 * Returns a new instance of <code>XMLGeneralClientSettings</code>
 	 * with contents from <code>initializationOptionsSettings</code>
-	 * 
+	 *
 	 * @param initializationOptionsSettings
 	 * @return a new instance of <code>XMLGeneralClientSettings</code>
 	 * with contents from <code>initializationOptionsSettings</code>
