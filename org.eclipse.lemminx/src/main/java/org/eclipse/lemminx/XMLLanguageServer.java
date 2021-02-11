@@ -45,6 +45,7 @@ import org.eclipse.lemminx.settings.AllXMLSettings;
 import org.eclipse.lemminx.settings.InitializationOptionsSettings;
 import org.eclipse.lemminx.settings.ServerSettings;
 import org.eclipse.lemminx.settings.SharedSettings;
+import org.eclipse.lemminx.settings.XMLTelemetrySettings;
 import org.eclipse.lemminx.settings.XMLCodeLensSettings;
 import org.eclipse.lemminx.settings.XMLCompletionSettings;
 import org.eclipse.lemminx.settings.XMLFormattingOptions;
@@ -54,8 +55,9 @@ import org.eclipse.lemminx.settings.XMLSymbolSettings;
 import org.eclipse.lemminx.settings.capabilities.InitializationOptionsExtendedClientCapabilities;
 import org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesInitializer;
 import org.eclipse.lemminx.settings.capabilities.XMLCapabilityManager;
+import org.eclipse.lemminx.telemetry.TelemetryManager;
 import org.eclipse.lemminx.utils.FilesUtils;
-import org.eclipse.lemminx.utils.ServerInfo;
+import org.eclipse.lemminx.utils.platform.Platform;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
@@ -86,17 +88,18 @@ public class XMLLanguageServer
 	private final ScheduledExecutorService delayer;
 	private Integer parentProcessId;
 	private XMLCapabilityManager capabilityManager;
+	private TelemetryManager telemetryManager;
 
 	public XMLLanguageServer() {
 		xmlTextDocumentService = new XMLTextDocumentService(this);
 		xmlWorkspaceService = new XMLWorkspaceService(this);
-		
+
 		xmlLanguageService = new XMLLanguageService();
 		xmlLanguageService.setDocumentProvider(this);
 		xmlLanguageService.setNotificationService(this);
 		xmlLanguageService.setCommandService(xmlWorkspaceService);
 		xmlLanguageService.setValidationService(this);
-		
+
 		delayer = Executors.newScheduledThreadPool(1);
 	}
 
@@ -108,7 +111,7 @@ public class XMLLanguageServer
 
 		LogHelper.initializeRootLogger(languageClient, settings == null? null : settings.getLogs());
 
-		LOGGER.info("Initializing XML Language server" + System.lineSeparator() + new ServerInfo().details());
+		LOGGER.info("Initializing XML Language server" + System.lineSeparator() + Platform.details());
 
 		this.parentProcessId = params.getProcessId();
 
@@ -135,18 +138,19 @@ public class XMLLanguageServer
 	 * turn on/off
 	 *
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.eclipse.lsp4j.services.LanguageServer#initialized(org.eclipse.lsp4j.
 	 * InitializedParams)
 	 */
 	@Override
 	public void initialized(InitializedParams params) {
 		capabilityManager.initializeCapabilities();
+		getTelemetryManager().onInitialized(params);
 	}
 
 	/**
 	 * Update XML settings configured from the client.
-	 * 
+	 *
 	 * @param initOptions the XML settings
 	 */
 	public synchronized void updateSettings(Object initOptions) {
@@ -155,7 +159,7 @@ public class XMLLanguageServer
 
 	/**
 	 * Update XML settings configured from the client.
-	 * 
+	 *
 	 * @param initOptions Settings the XML settings
 	 * @param initLogs whether to initialize the log handlers
 	 */
@@ -168,10 +172,15 @@ public class XMLLanguageServer
 		XMLGeneralClientSettings xmlClientSettings = XMLGeneralClientSettings.getGeneralXMLSettings(initSettings);
 		if (xmlClientSettings != null) {
 			if (initLogs) {
-				// Update logs settings	
+				// Update logs settings
 				LogHelper.initializeRootLogger(languageClient, xmlClientSettings.getLogs());
 			}
-			
+
+			XMLTelemetrySettings newTelemetry = xmlClientSettings.getTelemetry();
+			if (newTelemetry != null) {
+				getTelemetryManager().setEnabled(newTelemetry.isEnabled());
+			}
+
 			// Update format settings
 			XMLFormattingOptions formatterSettings = xmlClientSettings.getFormat();
 			if (formatterSettings != null) {
@@ -244,6 +253,7 @@ public class XMLLanguageServer
 	public void setClient(LanguageClient languageClient) {
 		this.languageClient = (XMLLanguageClientAPI) languageClient;
 		capabilityManager = new XMLCapabilityManager(this.languageClient, xmlTextDocumentService);
+		telemetryManager = new TelemetryManager(languageClient);
 	}
 
 	public XMLLanguageClientAPI getLanguageClient() {
@@ -298,7 +308,7 @@ public class XMLLanguageServer
 			// the open settings command is not supported by the client, display a simple
 			// message with LSP
 			languageClient.showMessage(new MessageParams(messageType, message));
-		}		
+		}
 	}
 
 	@Override
@@ -322,5 +332,14 @@ public class XMLLanguageServer
 	public XMLCapabilityManager getCapabilityManager() {
 		return capabilityManager;
 	}
-	
+
+	/**
+	 * Returns the telemetry manager.
+	 *
+	 * @return the telemetry manager.
+	 */
+	public TelemetryManager getTelemetryManager() {
+		return telemetryManager;
+	}
+
 }

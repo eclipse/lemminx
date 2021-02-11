@@ -13,7 +13,7 @@ package org.eclipse.lemminx.extensions.general;
 
 import static org.eclipse.lemminx.XMLAssert.c;
 import static org.eclipse.lemminx.XMLAssert.te;
-import static org.eclipse.lemminx.utils.OSUtils.isWindows;
+import static org.eclipse.lemminx.utils.platform.Platform.isWindows;
 
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * FilePathCompletionTest
- * 
+ *
  * Test folders are in
  * org.eclipse.lemminx/src/test/resources/filePathCompletion/
  */

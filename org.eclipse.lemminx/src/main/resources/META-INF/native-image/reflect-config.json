@@ -207,6 +207,22 @@
 		}]
 	},
 	{
+		"name": "org.eclipse.lemminx.utils.platform.Memory",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
+		"name": "org.eclipse.lemminx.utils.platform.Version",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
 		"name": "org.eclipse.lemminx.services.CompletionResponse",
 		"allDeclaredFields": true,
 		"methods": [{
@@ -286,6 +302,14 @@
 		}]
 	},
 	{
+		"name": "org.eclipse.lemminx.telemetry.TelemetryEvent",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
 		"name": "org.eclipse.lemminx.extensions.contentmodel.settings.XMLNamespacesSettings",
 		"allDeclaredFields": true,
 		"methods": [{
@@ -351,6 +375,14 @@
 	},
 	{
 		"name": "org.eclipse.lemminx.settings.capabilities.InitializationOptionsExtendedClientCapabilities",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
+		"name": "org.eclipse.lemminx.settings.XMLTelemetrySettings",
 		"allDeclaredFields": true,
 		"methods": [{
 			"name": "<init>",

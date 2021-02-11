@@ -13,8 +13,8 @@
 package org.eclipse.lemminx.extensions.general.completion;
 
 import static org.eclipse.lemminx.utils.FilesUtils.getFilePathSlash;
-import static org.eclipse.lemminx.utils.OSUtils.isWindows;
 import static org.eclipse.lemminx.utils.StringUtils.isEmpty;
+import static org.eclipse.lemminx.utils.platform.Platform.isWindows;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -42,29 +42,29 @@ import org.eclipse.lsp4j.TextEdit;
 
 /**
  * Extension to support completion for file, folder path in:
- * 
+ *
  * <ul>
  * <li>attribute value:
- * 
+ *
  * <pre>
  * &lt;item path="file:///C:/folder" /&gt;
  * &lt;item path="file:///C:/folder file:///C:/file.txt" /&gt;
  * &lt;item path="/folder" /&gt;
  * </pre>
- * 
+ *
  * </li>
  * <li>DTD DOCTYPE SYSTEM
- * 
+ *
  * <pre>
  * &lt;!DOCTYPE parent SYSTEM "file.dtd"&gt;
  * </pre>
- * 
+ *
  * </li>
- * 
+ *
  * </ul>
- * 
+ *
  * <p>
- * 
+ *
  * </p>
  */
 public class FilePathCompletionParticipant extends CompletionParticipantAdapter {
@@ -151,7 +151,7 @@ public class FilePathCompletionParticipant extends CompletionParticipantAdapter 
 
 	/**
 	 * Returns the IO Path from the given value path.
-	 * 
+	 *
 	 * @param valuePath  the value path
 	 * @param xmlFileUri the XML file URI where completion has been triggered.
 	 * @return the IO Path from the given value path.
@@ -178,7 +178,7 @@ public class FilePathCompletionParticipant extends CompletionParticipantAdapter 
 	/**
 	 * Returns a Range that covers trailing content after a slash, or if it already
 	 * ends with a slash then a Range right after it.
-	 * 
+	 *
 	 * @param xmlDocument
 	 * @param fullRange
 	 * @param attributeValue
@@ -217,7 +217,7 @@ public class FilePathCompletionParticipant extends CompletionParticipantAdapter 
 
 	/**
 	 * Creates the completion items based off the given absolute path
-	 * 
+	 *
 	 * @param pathToAttributeDirectory
 	 * @param attributePath
 	 * @param replaceRange
