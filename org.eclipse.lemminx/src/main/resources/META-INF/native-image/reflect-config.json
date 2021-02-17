@@ -1178,6 +1178,14 @@
 		}]
 	},
 	{
+		"name": "org.eclipse.lsp4j.RenameParams",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
 		"name": "org.eclipse.lsp4j.RenameCapabilities",
 		"allDeclaredFields": true,
 		"methods": [{
