@@ -261,12 +261,12 @@ public class XMLCompletionTest {
 			assertEquals(currentTag, completionItem.getLabel());
 			assertEquals(startWithTagOpen ? "<" + currentTag : currentTag, completionItem.getFilterText());
 			try {
-				Range range = completionItem.getTextEdit().getRange();
+				Range range = completionItem.getTextEdit().getLeft().getRange();
 				assertEquals(expectedStartTagOffset, xmlDocument.offsetAt(range.getStart()));
 			} catch (Exception e) {
 				fail("Couldn't get offset at position");
 			}
-			assertEquals(currentTextEdit, completionItem.getTextEdit().getNewText());
+			assertEquals(currentTextEdit, completionItem.getTextEdit().getLeft().getNewText());
 		}
 	}
 

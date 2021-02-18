@@ -40,6 +40,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -219,7 +220,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 						item.setKind(CompletionItemKind.Property);
 						item.setFilterText(request.getFilterForStartTagName(tagName));
 						String xml = elt.getOwnerDocument().getText().substring(elt.getStart(), elt.getEnd());
-						item.setTextEdit(new TextEdit(request.getReplaceRange(), xml));
+						item.setTextEdit(Either.forLeft(new TextEdit(request.getReplaceRange(), xml)));
 						response.addCompletionItem(item);
 						tags.add(item.getLabel());
 					}
@@ -250,7 +251,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 		item.setDocumentation(documentation);
 		String xml = generator.generate(elementDeclaration, prefix,
 				isGenerateEndTag(request.getNode(), request.getOffset(), label));
-		item.setTextEdit(new TextEdit(request.getReplaceRange(), xml));
+		item.setTextEdit(Either.forLeft(new TextEdit(request.getReplaceRange(), xml)));
 		item.setInsertTextFormat(InsertTextFormat.Snippet);
 		response.addCompletionItem(item, true);
 	}
@@ -349,7 +350,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 				item.setLabel(value);
 				item.setKind(CompletionItemKind.Value);
 				item.setFilterText(insertText);
-				item.setTextEdit(new TextEdit(fullRange, insertText));
+				item.setTextEdit(Either.forLeft(new TextEdit(fullRange, insertText)));
 				MarkupContent documentation = XMLGenerator.createMarkupContent(cmAttribute, value, cmElement, request);
 				item.setDocumentation(documentation);
 				response.addCompletionItem(item);
@@ -390,7 +391,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 							item.setLabel(value);
 							item.setKind(CompletionItemKind.Value);
 							item.setFilterText(tokenStart + insertText);
-							item.setTextEdit(new TextEdit(fullRange, insertText));
+							item.setTextEdit(Either.forLeft(new TextEdit(fullRange, insertText)));
 							MarkupContent documentation = XMLGenerator.createMarkupContent(cmElement, value, request);
 							item.setDocumentation(documentation);
 							response.addCompletionItem(item);

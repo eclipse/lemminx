@@ -111,6 +111,10 @@ public class ClientCapabilitiesWrapper {
 	public boolean isDidChangeWatchedFilesRegistered() {
 		return v3Supported && isDynamicRegistrationSupported(capabilities.getWorkspace().getDidChangeWatchedFiles());
 	}
+	
+	public boolean isLinkedEditingRangeDynamicRegistered() {
+		return v3Supported && isDynamicRegistrationSupported(getTextDocument().getLinkedEditingRange());
+	}
 
 	private boolean isDynamicRegistrationSupported(DynamicRegistrationCapabilities capability) {
 		return capability != null && capability.getDynamicRegistration() != null

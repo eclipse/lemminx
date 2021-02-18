@@ -44,7 +44,7 @@ public class XMLReferencesCompletionParticipant extends CompletionParticipantAda
 				item.setKind(CompletionItemKind.Property);
 				item.setDocumentation(Either.forLeft(label));
 				item.setFilterText(insertText);
-				item.setTextEdit(new TextEdit(range, insertText));
+				item.setTextEdit(Either.forLeft(new TextEdit(range, insertText)));
 				item.setInsertTextFormat(InsertTextFormat.PlainText);
 				response.addCompletionItem(item);
 			});

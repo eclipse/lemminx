@@ -56,6 +56,7 @@ public class ServerCapabilitiesInitializer {
 		serverCapabilities.setDefinitionProvider(!clientCapabilities.isDefinitionDynamicRegistered());
 		serverCapabilities.setTypeDefinitionProvider(!clientCapabilities.isTypeDefinitionDynamicRegistered());
 		serverCapabilities.setReferencesProvider(!clientCapabilities.isReferencesDynamicRegistrationSupported());
+		serverCapabilities.setLinkedEditingRangeProvider(!clientCapabilities.isLinkedEditingRangeDynamicRegistered());
 
 		if (!clientCapabilities.isLinkDynamicRegistrationSupported()) {
 			serverCapabilities.setDocumentLinkProvider(DEFAULT_LINK_OPTIONS);

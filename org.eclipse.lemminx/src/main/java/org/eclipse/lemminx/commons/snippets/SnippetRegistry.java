@@ -263,7 +263,7 @@ public class SnippetRegistry {
 					range = new Range(replaceRange.getStart(), end);
 				}
 			}
-			item.setTextEdit(new TextEdit(range, insertText));
+			item.setTextEdit(Either.forLeft(new TextEdit(range, insertText)));
 			item.setInsertTextFormat(InsertTextFormat.Snippet);
 			item.setSortText(snippet.getSortText());
 			return item;

@@ -80,6 +80,8 @@ import org.eclipse.lsp4j.FoldingRange;
 import org.eclipse.lsp4j.FoldingRangeRequestParams;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.HoverParams;
+import org.eclipse.lsp4j.LinkedEditingRangeParams;
+import org.eclipse.lsp4j.LinkedEditingRanges;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
@@ -465,6 +467,12 @@ public class XMLTextDocumentService implements TextDocumentService {
 	public CompletableFuture<List<SelectionRange>> selectionRange(SelectionRangeParams params) {
 		return computeDOMAsync(params.getTextDocument(), (cancelChecker, xmlDocument) -> {
 			return getXMLLanguageService().getSelectionRanges(xmlDocument, params.getPositions(), cancelChecker);
+		});
+	}
+
+	public CompletableFuture<LinkedEditingRanges> linkedEditingRange(LinkedEditingRangeParams params) {
+		return computeDOMAsync(params.getTextDocument(), (cancelChecker, xmlDocument) -> {
+			return getXMLLanguageService().findLinkedEditingRanges(xmlDocument, params.getPosition(), cancelChecker);
 		});
 	}
 
