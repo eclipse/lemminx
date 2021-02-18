@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Path;
@@ -70,6 +71,7 @@ import org.eclipse.lsp4j.DocumentLink;
 import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.HoverCapabilities;
+import org.eclipse.lsp4j.LinkedEditingRanges;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.MarkedString;
@@ -243,12 +245,12 @@ public class XMLAssert {
 
 		CompletionItem match = getCompletionMatch(matches, expected);
 		if (expected.getTextEdit() != null && match.getTextEdit() != null) {
-			if (expected.getTextEdit().getNewText() != null) {
-				assertEquals(expected.getTextEdit().getNewText(), match.getTextEdit().getNewText());
+			if (expected.getTextEdit().getLeft().getNewText() != null) {
+				assertEquals(expected.getTextEdit().getLeft().getNewText(), match.getTextEdit().getLeft().getNewText());
 			}
-			Range r = expected.getTextEdit().getRange();
+			Range r = expected.getTextEdit().getLeft().getRange();
 			if (r != null && r.getStart() != null && r.getEnd() != null) {
-				assertEquals(expected.getTextEdit().getRange(), match.getTextEdit().getRange());
+				assertEquals(expected.getTextEdit().getLeft().getRange(), match.getTextEdit().getLeft().getRange());
 			}
 		}
 		if (expected.getFilterText() != null && match.getFilterText() != null) {
@@ -263,7 +265,7 @@ public class XMLAssert {
 
 	private static CompletionItem getCompletionMatch(List<CompletionItem> matches, CompletionItem expected) {
 		for (CompletionItem item : matches) {
-			if (expected.getTextEdit().getNewText().equals(item.getTextEdit().getNewText())) {
+			if (expected.getTextEdit().getLeft().getNewText().equals(item.getTextEdit().getLeft().getNewText())) {
 				return item;
 			}
 		}
@@ -279,7 +281,7 @@ public class XMLAssert {
 		CompletionItem item = new CompletionItem();
 		item.setLabel(label);
 		item.setFilterText(filterText);
-		item.setTextEdit(textEdit);
+		item.setTextEdit(Either.forLeft(textEdit));
 		if (kind == null) {
 			item.setDocumentation(documentation);
 		} else {
@@ -292,7 +294,7 @@ public class XMLAssert {
 		CompletionItem item = new CompletionItem();
 		item.setLabel(label);
 		item.setFilterText(filterText);
-		item.setTextEdit(textEdit);
+		item.setTextEdit(Either.forLeft(textEdit));
 		return item;
 	}
 
@@ -565,7 +567,8 @@ public class XMLAssert {
 	}
 
 	public static void testCodeActionsFor(String xml, Diagnostic diagnostic, String catalogPath,
-			SharedSettings sharedSettings, XMLLanguageService xmlLanguageService, CodeAction... expected) throws BadLocationException {
+			SharedSettings sharedSettings, XMLLanguageService xmlLanguageService, CodeAction... expected)
+			throws BadLocationException {
 		int offset = xml.indexOf('|');
 		Range range = null;
 
@@ -751,7 +754,8 @@ public class XMLAssert {
 		testDocumentLinkFor(null, xml, fileURI, catalogPath, expected);
 	}
 
-	public static void testDocumentLinkFor(XMLLanguageService xmlLanguageService, String xml, String fileURI, String catalogPath, DocumentLink... expected) {
+	public static void testDocumentLinkFor(XMLLanguageService xmlLanguageService, String xml, String fileURI,
+			String catalogPath, DocumentLink... expected) {
 		TextDocument document = new TextDocument(xml, fileURI != null ? fileURI : "test.xml");
 
 		if (xmlLanguageService == null) {
@@ -915,8 +919,8 @@ public class XMLAssert {
 		testDefinitionFor(null, value, fileURI, expected);
 	}
 
-	public static void testDefinitionFor(XMLLanguageService xmlLanguageService, String value, String fileURI, LocationLink... expected)
-			throws BadLocationException {
+	public static void testDefinitionFor(XMLLanguageService xmlLanguageService, String value, String fileURI,
+			LocationLink... expected) throws BadLocationException {
 		int offset = value.indexOf('|');
 		value = value.substring(0, offset) + value.substring(offset + 1);
 
@@ -1009,8 +1013,8 @@ public class XMLAssert {
 		testReferencesFor(null, value, fileURI, expected);
 	}
 
-	public static void testReferencesFor(XMLLanguageService xmlLanguageService, String value, String fileURI, Location... expected)
-			throws BadLocationException {
+	public static void testReferencesFor(XMLLanguageService xmlLanguageService, String value, String fileURI,
+			Location... expected) throws BadLocationException {
 		int offset = value.indexOf('|');
 		value = value.substring(0, offset) + value.substring(offset + 1);
 
@@ -1055,7 +1059,8 @@ public class XMLAssert {
 		testCodeLensFor(value, fileURI, new XMLLanguageService(), expected);
 	}
 
-	public static void testCodeLensFor(String value, String fileURI, XMLLanguageService xmlLanguageService, CodeLens... expected) {
+	public static void testCodeLensFor(String value, String fileURI, XMLLanguageService xmlLanguageService,
+			CodeLens... expected) {
 		TextDocument document = new TextDocument(value, fileURI != null ? fileURI : "test://test/test.xml");
 
 		if (xmlLanguageService == null) {
@@ -1141,13 +1146,13 @@ public class XMLAssert {
 		return new DocumentHighlight(range, kind);
 	}
 
-	public static void assertHighlights(String value, int[] expectedMatches, String elementName) throws BadLocationException {
+	public static void assertHighlights(String value, int[] expectedMatches, String elementName)
+			throws BadLocationException {
 		assertHighlights(null, value, expectedMatches, elementName);
 	}
 
 	public static void assertHighlights(XMLLanguageService languageService, String value, int[] expectedMatches,
-			String elementName)
-			throws BadLocationException {
+			String elementName) throws BadLocationException {
 		int offset = value.indexOf("|");
 		value = value.substring(0, offset) + value.substring(offset + 1);
 
@@ -1191,8 +1196,8 @@ public class XMLAssert {
 		assertFormat(null, unformatted, expected, sharedSettings, uri, considerRangeFormat);
 	}
 
-	public static void assertFormat(XMLLanguageService languageService, String unformatted, String expected, SharedSettings sharedSettings, String uri,
-				Boolean considerRangeFormat) throws BadLocationException {
+	public static void assertFormat(XMLLanguageService languageService, String unformatted, String expected,
+			SharedSettings sharedSettings, String uri, Boolean considerRangeFormat) throws BadLocationException {
 		Range range = null;
 		int rangeStart = considerRangeFormat ? unformatted.indexOf('|') : -1;
 		int rangeEnd = considerRangeFormat ? unformatted.lastIndexOf('|') : -1;
@@ -1237,8 +1242,8 @@ public class XMLAssert {
 		assertRename(null, value, newText, expectedEdits);
 	}
 
-	public static void assertRename(XMLLanguageService languageService, String value, String newText, List<TextEdit> expectedEdits)
-			throws BadLocationException {
+	public static void assertRename(XMLLanguageService languageService, String value, String newText,
+			List<TextEdit> expectedEdits) throws BadLocationException {
 		int offset = value.indexOf("|");
 		value = value.substring(0, offset) + value.substring(offset + 1);
 
@@ -1252,6 +1257,49 @@ public class XMLAssert {
 		WorkspaceEdit workspaceEdit = languageService.doRename(document, position, newText);
 		List<TextEdit> actualEdits = workspaceEdit.getChanges().get("test://test/test.html");
 		assertArrayEquals(expectedEdits.toArray(), actualEdits.toArray());
+	}
+
+	// ------------------- Linked Editing assert
+
+	public static void testLinkedEditingFor(String xml, LinkedEditingRanges expected) throws BadLocationException {
+		testLinkedEditingFor(xml, null, expected);
+	}
+
+	public static void testLinkedEditingFor(String value, String fileURI, LinkedEditingRanges expected)
+			throws BadLocationException {
+		int offset = value.indexOf('|');
+		value = value.substring(0, offset) + value.substring(offset + 1);
+
+		TextDocument document = new TextDocument(value, fileURI != null ? fileURI : "test://test/test.xml");
+		Position position = document.positionAt(offset);
+
+		XMLLanguageService xmlLanguageService = new XMLLanguageService();
+
+		ContentModelSettings settings = new ContentModelSettings();
+		settings.setUseCache(false);
+		xmlLanguageService.doSave(new SettingsSaveContext(settings));
+
+		DOMDocument xmlDocument = DOMParser.getInstance().parse(document,
+				xmlLanguageService.getResolverExtensionManager());
+		xmlLanguageService.setDocumentProvider((uri) -> xmlDocument);
+
+		LinkedEditingRanges actual = xmlLanguageService.findLinkedEditingRanges(xmlDocument, position, () -> {
+		});
+		assertLinkedEditing(actual, expected);
+	}
+
+	public static void assertLinkedEditing(LinkedEditingRanges actual, LinkedEditingRanges expected) {
+		if (expected == null) {
+			assertNull(actual);
+		} else {
+			assertNotNull(actual);
+			assertEquals(expected.getWordPattern(), actual.getWordPattern());
+			assertEquals(expected.getRanges(), actual.getRanges());
+		}
+	}
+
+	public static LinkedEditingRanges le(Range... ranges) {
+		return new LinkedEditingRanges(Arrays.asList(ranges));
 	}
 
 	// ------------------- Generator assert

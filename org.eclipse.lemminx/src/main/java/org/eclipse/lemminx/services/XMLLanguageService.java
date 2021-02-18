@@ -43,6 +43,7 @@ import org.eclipse.lsp4j.DocumentLink;
 import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.FoldingRange;
 import org.eclipse.lsp4j.Hover;
+import org.eclipse.lsp4j.LinkedEditingRanges;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.Position;
@@ -86,6 +87,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 	private final XMLCodeActions codeActions;
 	private final XMLRename rename;
 	private final XMLSelectionRanges selectionRanges;
+	private final XMLLinkedEditing linkedEditing;
 
 	public XMLLanguageService() {
 		this.formatter = new XMLFormatter(this);
@@ -103,6 +105,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 		this.codeActions = new XMLCodeActions(this);
 		this.rename = new XMLRename(this);
 		this.selectionRanges = new XMLSelectionRanges();
+		this.linkedEditing = new XMLLinkedEditing();
 	}
 
 	@Override
@@ -160,8 +163,8 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 		return hover.doHover(xmlDocument, position, sharedSettings, cancelChecker);
 	}
 
-	public List<Diagnostic> doDiagnostics(DOMDocument xmlDocument,
-			XMLValidationSettings validationSettings, CancelChecker cancelChecker) {
+	public List<Diagnostic> doDiagnostics(DOMDocument xmlDocument, XMLValidationSettings validationSettings,
+			CancelChecker cancelChecker) {
 		return diagnostics.doDiagnostics(xmlDocument, validationSettings, cancelChecker);
 	}
 
@@ -228,7 +231,8 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 		return foldings.getFoldingRanges(xmlDocument.getTextDocument(), context, cancelChecker);
 	}
 
-	public List<SelectionRange> getSelectionRanges(DOMDocument xmlDocument, List<Position> positions, CancelChecker cancelChecker) {
+	public List<SelectionRange> getSelectionRanges(DOMDocument xmlDocument, List<Position> positions,
+			CancelChecker cancelChecker) {
 		return selectionRanges.getSelectionRanges(xmlDocument, positions, cancelChecker);
 	}
 
@@ -265,15 +269,18 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 		return codeActions.doCodeActions(context, range, document, sharedSettings);
 	}
 
-	public AutoCloseTagResponse doTagComplete(DOMDocument xmlDocument, XMLCompletionSettings completionSettings, Position position) {
+	public AutoCloseTagResponse doTagComplete(DOMDocument xmlDocument, XMLCompletionSettings completionSettings,
+			Position position) {
 		return doTagComplete(xmlDocument, position, completionSettings, NULL_CHECKER);
 	}
 
-	public AutoCloseTagResponse doTagComplete(DOMDocument xmlDocument, Position position, XMLCompletionSettings completionSettings, CancelChecker cancelChecker) {
+	public AutoCloseTagResponse doTagComplete(DOMDocument xmlDocument, Position position,
+			XMLCompletionSettings completionSettings, CancelChecker cancelChecker) {
 		return completions.doTagComplete(xmlDocument, position, completionSettings, cancelChecker);
 	}
 
-	public AutoCloseTagResponse doAutoClose(DOMDocument xmlDocument, Position position, XMLCompletionSettings completionSettings, CancelChecker cancelChecker) {
+	public AutoCloseTagResponse doAutoClose(DOMDocument xmlDocument, Position position,
+			XMLCompletionSettings completionSettings, CancelChecker cancelChecker) {
 		try {
 			int offset = xmlDocument.offsetAt(position);
 			String text = xmlDocument.getText();
@@ -293,4 +300,18 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 		return XMLPositionUtility.getMatchingTagPosition(xmlDocument, position);
 	}
 
+	/**
+	 * Returns the linked editing ranges for the given <code>xmlDocument</code> at
+	 * the given <code>position</code> and null otherwise.
+	 * 
+	 * @param xmlDocument   the DOM document.
+	 * @param position      the position.
+	 * @param cancelChecker the cancel checker.
+	 * @return the linked editing ranges for the given <code>xmlDocument</code> at
+	 *         the given <code>position</code> and null otherwise.
+	 */
+	public LinkedEditingRanges findLinkedEditingRanges(DOMDocument xmlDocument, Position position,
+			CancelChecker cancelChecker) {
+		return linkedEditing.findLinkedEditingRanges(xmlDocument, position, cancelChecker);
+	}
 }

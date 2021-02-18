@@ -40,6 +40,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 /**
  * Extension to support completion for file, folder path in:
@@ -73,14 +74,15 @@ public class FilePathCompletionParticipant extends CompletionParticipantAdapter 
 	private static final Logger LOGGER = Logger.getLogger(FilePathCompletionParticipant.class.getName());
 
 	@Override
-	public void onAttributeValue(String value, ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker)
-			throws Exception {
+	public void onAttributeValue(String value, ICompletionRequest request, ICompletionResponse response,
+			CancelChecker cancelChecker) throws Exception {
 		// File path completion on attribute value
 		addCompletionItems(value, request, response);
 	}
 
 	@Override
-	public void onDTDSystemId(String value, ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker) throws Exception {
+	public void onDTDSystemId(String value, ICompletionRequest request, ICompletionResponse response,
+			CancelChecker cancelChecker) throws Exception {
 		// File path completion on DTD DOCTYPE SYSTEM
 		addCompletionItems(value, request, response);
 	}
@@ -253,7 +255,7 @@ public class FilePathCompletionParticipant extends CompletionParticipantAdapter 
 
 		item.setSortText(CompletionSortTextHelper.getSortText(kind));
 		item.setFilterText(insertText);
-		item.setTextEdit(new TextEdit(replaceRange, insertText));
+		item.setTextEdit(Either.forLeft(new TextEdit(replaceRange, insertText)));
 		response.addCompletionItem(item);
 	}
 

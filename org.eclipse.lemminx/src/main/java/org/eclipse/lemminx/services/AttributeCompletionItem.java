@@ -21,6 +21,7 @@ import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 public class AttributeCompletionItem extends CompletionItem {
 
@@ -49,7 +50,7 @@ public class AttributeCompletionItem extends CompletionItem {
 					canSupportSnippets, 1, true, sharedSettings);
 			attributeContent.append(attributeValue);
 		}
-		super.setTextEdit(new TextEdit(fullRange, attributeContent.toString()));
+		super.setTextEdit(Either.forLeft(new TextEdit(fullRange, attributeContent.toString())));
 		super.setInsertTextFormat(canSupportSnippets ? InsertTextFormat.Snippet : InsertTextFormat.PlainText);
 	}
 }
