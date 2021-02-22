@@ -35,6 +35,7 @@ import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.w3c.dom.Entity;
 import org.w3c.dom.NamedNodeMap;
 
@@ -45,7 +46,7 @@ import org.w3c.dom.NamedNodeMap;
 public class EntitiesCompletionParticipant extends CompletionParticipantAdapter {
 
 	@Override
-	public void onXMLContent(ICompletionRequest request, ICompletionResponse response) throws Exception {
+	public void onXMLContent(ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker) throws Exception {
 		EntityReferenceRange entityRange = XMLPositionUtility.selectEntityReference(request.getOffset(),
 				request.getXMLDocument(), false);
 		if (entityRange == null) {

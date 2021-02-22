@@ -15,6 +15,7 @@ package org.eclipse.lemminx.extensions.prolog;
 import org.eclipse.lemminx.services.extensions.CompletionParticipantAdapter;
 import org.eclipse.lemminx.services.extensions.ICompletionRequest;
 import org.eclipse.lemminx.services.extensions.ICompletionResponse;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
  * PrologCompletionParticipant
@@ -22,14 +23,14 @@ import org.eclipse.lemminx.services.extensions.ICompletionResponse;
 public class PrologCompletionParticipant extends CompletionParticipantAdapter {
 
 	@Override
-	public void onAttributeName(boolean generateValue, ICompletionRequest request, ICompletionResponse response)
+	public void onAttributeName(boolean generateValue, ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker)
 			throws Exception {
 		PrologModel.computeAttributeNameCompletionResponses(request, response, request.getReplaceRange(),
 				request.getXMLDocument(), request.getSharedSettings());
 	}
 
 	@Override
-	public void onAttributeValue(String valuePrefix, ICompletionRequest request, ICompletionResponse response)
+	public void onAttributeValue(String valuePrefix, ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker)
 			throws Exception {
 		PrologModel.computeValueCompletionResponses(request, response, request.getReplaceRange(),
 				request.getXMLDocument());

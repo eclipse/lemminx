@@ -28,6 +28,7 @@ import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
  * XSD completion for
@@ -41,7 +42,7 @@ import org.eclipse.lsp4j.TextEdit;
 public class XSDCompletionParticipant extends CompletionParticipantAdapter {
 
 	@Override
-	public void onAttributeValue(String valuePrefix, ICompletionRequest request, ICompletionResponse response)
+	public void onAttributeValue(String valuePrefix, ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker)
 			throws Exception {
 		DOMNode node = request.getNode();
 		DOMDocument document = node.getOwnerDocument();
