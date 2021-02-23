@@ -48,6 +48,10 @@ import com.google.common.io.RecursiveDeleteOption;
  *
  */
 public class CacheResourcesManager {
+
+	private static final String USER_AGENT_KEY = "User-Agent";
+	private static final String USER_AGENT_VALUE = "LemMinX";
+
 	protected final Cache<String, Boolean> unavailableURICache;
 
 	private static final String CACHE_PATH = "cache";
@@ -167,6 +171,7 @@ public class CacheResourcesManager {
 				String actualURI = resourceURI;
 				URL url = new URL(actualURI);
 				conn = url.openConnection();
+				conn.setRequestProperty(USER_AGENT_KEY, USER_AGENT_VALUE);
 				/* XXX: This should really be implemented using HttpClient or similar */
 				int allowedRedirects = 5;
 				while (conn.getHeaderField("Location") != null && allowedRedirects > 0) //$NON-NLS-1$
@@ -174,6 +179,7 @@ public class CacheResourcesManager {
 					allowedRedirects--;
 					url = new URL(actualURI = conn.getHeaderField("Location")); //$NON-NLS-1$
 					conn = url.openConnection();
+					conn.setRequestProperty(USER_AGENT_KEY, USER_AGENT_VALUE);
 				}
 
 				// Download resource in a temporary file
@@ -228,9 +234,9 @@ public class CacheResourcesManager {
 	 * Try to get the cached {@link ResourceToDeploy#resourceCachePath} in cache
 	 * file system and if it is not found, create the file with the given content of
 	 * {@link ResourceToDeploy#resourceFromClasspath} stored in classpath.
-	 * 
+	 *
 	 * @param resource the resource to deploy if needed.
-	 * 
+	 *
 	 * @return the cached {@link ResourceToDeploy#resourceCachePath} in cache file
 	 *         system.
 	 * @throws IOException
@@ -249,7 +255,7 @@ public class CacheResourcesManager {
 	/**
 	 * Returns <code>true</code> if cache is enabled and url comes from "http(s)" or
 	 * "ftp" and <code>false</code> otherwise.
-	 * 
+	 *
 	 * @param url
 	 * @return <code>true</code> if cache is enabled and url comes from "http(s)" or
 	 *         "ftp" and <code>false</code> otherwise.
@@ -260,7 +266,7 @@ public class CacheResourcesManager {
 
 	/**
 	 * Set <code>true</code> if cache must be used, <code>false</code> otherwise.
-	 * 
+	 *
 	 * @param useCache <code>true</code> if cache must be used, <code>false</code>
 	 *                 otherwise.
 	 */
@@ -271,7 +277,7 @@ public class CacheResourcesManager {
 	/**
 	 * Returns <code>true</code> if cache must be used, <code>false</code>
 	 * otherwise.
-	 * 
+	 *
 	 * @return <code>true</code> if cache must be used, <code>false</code>
 	 *         otherwise.
 	 */
@@ -281,7 +287,7 @@ public class CacheResourcesManager {
 
 	/**
 	 * Remove the cache directory (.lemminx/cache) if it exists.
-	 * 
+	 *
 	 * @throws IOException if the delete of directory (.lemminx/cache) cannot be
 	 *                     done.
 	 */
@@ -296,7 +302,7 @@ public class CacheResourcesManager {
 
 	/**
 	 * Add protocol for using cache when url will start with the given protocol.
-	 * 
+	 *
 	 * @param protocol the protocol to add.
 	 */
 	public void addProtocolForCahe(String protocol) {
@@ -306,7 +312,7 @@ public class CacheResourcesManager {
 	/**
 	 * Remove protocol to avoid using cache when url will start with the given
 	 * protocol.
-	 * 
+	 *
 	 * @param protocol the protocol to remove.
 	 */
 	public void removeProtocolForCahe(String protocol) {
@@ -315,9 +321,9 @@ public class CacheResourcesManager {
 
 	/**
 	 * Add ':' separator if the given protocol doesn't contain it.
-	 * 
+	 *
 	 * @param protocol the protocol to format.
-	 * 
+	 *
 	 * @return the protocol concat with ':'.
 	 */
 	private static String formatProtocol(String protocol) {
@@ -329,9 +335,9 @@ public class CacheResourcesManager {
 
 	/**
 	 * Returns true if the cache must be used for the given url and false otherwise.
-	 * 
+	 *
 	 * @param url the url.
-	 * 
+	 *
 	 * @return true if the cache must be used for the given url and false otherwise.
 	 */
 	private boolean isUseCacheFor(String url) {
