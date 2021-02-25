@@ -36,7 +36,7 @@ public class FileServer {
 	/**
 	 * Creates an http server on a random port, serving the
 	 * <code>src/test/resources</code> directory.
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	public FileServer() throws IOException {
@@ -46,14 +46,14 @@ public class FileServer {
 	/**
 	 * Creates an http server on a random port, serving the <code>dir</code>
 	 * directory (relative to the current project).
-	 * 
+	 *
 	 * @param baseDir the base directory.
 	 * @throws IOException
 	 */
 	public FileServer(Path baseDir) throws IOException {
 		Files.createDirectories(baseDir);
 		server = new Server(0);
-		ResourceHandler resourceHandler = new ResourceHandler();
+		ResourceHandler resourceHandler = new ModifiedResourceHandler();
 		resourceHandler.setResourceBase(baseDir.toUri().toString());
 		resourceHandler.setDirectoriesListed(true);
 		HandlerList handlers = new HandlerList();
