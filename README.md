@@ -142,6 +142,14 @@ And if you want to consume the SNAPSHOT builds instead:
 </repository>
 ```
 
+Verify 3rd Party Libraries
+----------------------------
+
+_Currently generating the IP Log report requires a Java Runtime Environment (JRE) >= 11._
+
+Run `./mvnw clean verify -Pverify-iplog` to generate a report for the 3rd party libraries used by this project. See the [Eclipse Project Handbook](https://www.eclipse.org/projects/handbook/#ip-license-tool) for further details.
+
+
 Clients
 -------
 
