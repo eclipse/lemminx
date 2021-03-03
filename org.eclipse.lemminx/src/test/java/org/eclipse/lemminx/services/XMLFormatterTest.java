@@ -2906,6 +2906,17 @@ public class XMLFormatterTest {
 	}
 
 	@Test
+	public void testFormatRemoveFinalNewlinesWithoutTrimTrailing() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTrimFinalNewlines(true);
+		settings.getFormattingSettings().setTrimTrailingWhitespace(false);
+		settings.getFormattingSettings().setSpaceBeforeEmptyCloseTag(false);
+		String content = "<aaa/>    \r\n\r\n\r\n";
+		String expected = "<aaa/>    ";
+		assertFormat(content, expected, settings);
+	}
+
+	@Test
 	public void testTemplate() throws BadLocationException {
 		String content = "";
 		String expected = "";
