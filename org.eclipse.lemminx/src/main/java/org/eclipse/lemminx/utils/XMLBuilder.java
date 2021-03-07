@@ -381,7 +381,7 @@ public class XMLBuilder {
 	 */
 	public void trimFinalNewlines() {
 		int i = xml.length() - 1;
-		while (i >= 0 && Character.isWhitespace(xml.charAt(i))) {
+		while (i >= 0 && (xml.charAt(i) == '\r' || xml.charAt(i) == '\n')) {
 			xml.deleteCharAt(i--);
 		}
 	}
