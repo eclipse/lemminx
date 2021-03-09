@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.lemminx.commons;
 
-import static org.eclipse.lemminx.utils.OSUtils.isWindows;
+import static org.eclipse.lemminx.utils.platform.Platform.isWindows;
 
 import java.io.IOException;
 import java.util.concurrent.Executors;
@@ -113,9 +113,9 @@ public final class ParentProcessWatcher implements Runnable, Function<MessageCon
 				if (!finished) {
 					process.destroyForcibly();
 				}
-				// Terminating or destroying the Process doesn't close the process handle on Windows. 
+				// Terminating or destroying the Process doesn't close the process handle on Windows.
 				// It is only closed when the Process object is garbage collected (in its finalize() method).
-				// On Windows, when the Java LS is idle, we need to explicitly request a GC, 
+				// On Windows, when the Java LS is idle, we need to explicitly request a GC,
 				// to prevent an accumulation of zombie processes, as finalize() will be called.
 				if (isWindows) {
 					// Java >= 9 doesn't close the handle when the process is garbage collected
