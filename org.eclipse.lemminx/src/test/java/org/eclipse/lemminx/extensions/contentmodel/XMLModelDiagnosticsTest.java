@@ -36,7 +36,7 @@ public class XMLModelDiagnosticsTest {
 	@Test
 	public void xmlModelWithDTD() throws Exception {
 		String xml = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> \r\n" + //
-				"<?xml-model href=\"http://java.sun.com/dtd/web-app_2_3.dtd\"?>\r\n" + //
+				"<?xml-model href=\"src/test/resources/dtd/web-app_2_3.dtd\"?>\r\n" + //
 				"<web-app>\r\n" + //
 				"	<XXX></XXX>\r\n" + //
 				"</web-app>";
