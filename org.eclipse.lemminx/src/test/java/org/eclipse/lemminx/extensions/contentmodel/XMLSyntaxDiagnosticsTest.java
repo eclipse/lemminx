@@ -38,7 +38,7 @@ public class XMLSyntaxDiagnosticsTest {
 
 	/**
 	 * AttributeNotUnique tests
-	 * 
+	 *
 	 * @see https://wiki.xmldation.com/Support/Validator/AttributeNotUnique
 	 * @throws Exception
 	 */
@@ -56,7 +56,7 @@ public class XMLSyntaxDiagnosticsTest {
 
 	/**
 	 * AttributeNSNotUnique tests
-	 * 
+	 *
 	 * @see https://wiki.xmldation.com/Support/Validator/AttributeNSNotUnique
 	 * @throws Exception
 	 */
@@ -85,7 +85,7 @@ public class XMLSyntaxDiagnosticsTest {
 
 	/**
 	 * ContentIllegalInProlog tests
-	 * 
+	 *
 	 * @see https://wiki.xmldation.com/Support/Validator/ContentIllegalInProlog
 	 * @throws Exception
 	 */
@@ -97,7 +97,7 @@ public class XMLSyntaxDiagnosticsTest {
 
 	/**
 	 * ContentIllegalInProlog tests
-	 * 
+	 *
 	 * @see https://wiki.xmldation.com/Support/Validator/ContentIllegalInProlog
 	 * @throws Exception
 	 */
@@ -109,7 +109,7 @@ public class XMLSyntaxDiagnosticsTest {
 
 	/**
 	 * ContentIllegalInProlog tests
-	 * 
+	 *
 	 * @see https://wiki.xmldation.com/Support/Validator/ContentIllegalInProlog
 	 * @throws Exception
 	 */
@@ -127,7 +127,7 @@ public class XMLSyntaxDiagnosticsTest {
 
 	/**
 	 * DashDashInComment tests
-	 * 
+	 *
 	 * @see https://wiki.xmldation.com/Support/Validator/DashDashInComment
 	 * @throws Exception
 	 */
@@ -141,7 +141,7 @@ public class XMLSyntaxDiagnosticsTest {
 
 	/**
 	 * ElementUnterminated tests
-	 * 
+	 *
 	 * @see https://wiki.xmldation.com/Support/Validator/ElementUnterminated
 	 * @throws Exception
 	 */
@@ -218,7 +218,7 @@ public class XMLSyntaxDiagnosticsTest {
 
 	/**
 	 * ElementPrefixUnbound tests
-	 * 
+	 *
 	 * @see https://wiki.xmldation.com/Support/Validator/ElementPrefixUnbound
 	 * @throws Exception
 	 */
@@ -233,7 +233,7 @@ public class XMLSyntaxDiagnosticsTest {
 
 	/**
 	 * EmptyPrefixedAttName tests
-	 * 
+	 *
 	 * @see https://wiki.xmldation.com/Support/Validator/EmptyPrefixedAttName
 	 * @throws Exception
 	 */
@@ -265,7 +265,7 @@ public class XMLSyntaxDiagnosticsTest {
 
 	/**
 	 * ETagRequired tests
-	 * 
+	 *
 	 * @see https://wiki.xmldation.com/Support/Validator/ETagRequired * @throws
 	 *      Exception
 	 */
@@ -275,7 +275,7 @@ public class XMLSyntaxDiagnosticsTest {
 				"  		<Nm>Name\r\n" + //
 				"		</UltmtDbtr> \r\n" + //
 				"			</Nm>  ";
-		Diagnostic d = d(1, 5, 2, 2, XMLSyntaxErrorCode.ETagRequired);
+		Diagnostic d = d(1, 5, 1, 7, XMLSyntaxErrorCode.ETagRequired);
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(1, 12, 1, 12, "</Nm>")));
 	}
@@ -285,7 +285,7 @@ public class XMLSyntaxDiagnosticsTest {
 		String xml = "<UltmtDbtr>\r\n" + //
 				"  		Nm>Name</Nm>\r\n" + //
 				"		</UltmtDbtr>";
-		testDiagnosticsFor(xml, d(0, 1, 1, 11, XMLSyntaxErrorCode.ETagRequired));
+		testDiagnosticsFor(xml, d(0, 1, 0, 10, XMLSyntaxErrorCode.ETagRequired));
 	}
 
 	@Test
@@ -295,7 +295,7 @@ public class XMLSyntaxDiagnosticsTest {
 				"    <Ad>\r\n" + //
 				"    <Ph>\r\n" + //
 				"</UltmtDbtr>";
-		Diagnostic d = d(3, 5, 4, 0, XMLSyntaxErrorCode.ETagRequired);
+		Diagnostic d = d(3, 5, 3, 7, XMLSyntaxErrorCode.ETagRequired);
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(3, 8, 3, 8, "</Ph>")));
 	}
@@ -305,7 +305,7 @@ public class XMLSyntaxDiagnosticsTest {
 		String xml = "<a>\r\n" + //
 				"	<b>\r\n" + //
 				"		</c>";
-		Diagnostic d = d(1, 2, 2, 2, XMLSyntaxErrorCode.ETagRequired);
+		Diagnostic d = d(1, 2, 1, 3, XMLSyntaxErrorCode.ETagRequired);
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, //
 				ca(d, te(2, 4, 2, 5, "b")), ca(d, te(2, 6, 2, 6, "\r\n	</b>")));
@@ -316,7 +316,7 @@ public class XMLSyntaxDiagnosticsTest {
 		String xml = "<root>\r\n" + //
 				"<ABC>def\r\n" + //
 				"</root>";
-		Diagnostic d = d(1, 1, 2, 0, XMLSyntaxErrorCode.ETagRequired);
+		Diagnostic d = d(1, 1, 1, 4, XMLSyntaxErrorCode.ETagRequired);
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(1, 8, 1, 8, "</ABC>")));
 	}
@@ -327,7 +327,7 @@ public class XMLSyntaxDiagnosticsTest {
 				"	<foo>\r\n" + //
 				"		</\r\n" + //
 				"</root>";
-		Diagnostic d = d(1, 2, 2, 2, XMLSyntaxErrorCode.ETagRequired);
+		Diagnostic d = d(1, 2, 1, 5, XMLSyntaxErrorCode.ETagRequired);
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(2, 4, 2, 4, "foo>")));
 	}
@@ -339,7 +339,7 @@ public class XMLSyntaxDiagnosticsTest {
 				"		</\r\n" + //
 				"	</foo>\r\n" + //
 				"</root>";
-		Diagnostic d = d(1, 2, 2, 2, XMLSyntaxErrorCode.ETagRequired);
+		Diagnostic d = d(1, 2, 1, 5, XMLSyntaxErrorCode.ETagRequired);
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(2, 2, 2, 4, "")));
 	}
@@ -351,14 +351,14 @@ public class XMLSyntaxDiagnosticsTest {
 				"		</bar>\r\n" + //
 				"	</foo>\r\n" + //
 				"</root>";
-		Diagnostic d = d(1, 2, 2, 2, XMLSyntaxErrorCode.ETagRequired);
+		Diagnostic d = d(1, 2, 1, 5, XMLSyntaxErrorCode.ETagRequired);
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(2, 2, 2, 8, "")));
 	}
 
 	/**
 	 * Test ETagUnterminated
-	 * 
+	 *
 	 * @see https://wiki.xmldation.com/Support/Validator/ETagUnterminated
 	 * @throws Exception
 	 */
@@ -373,7 +373,7 @@ public class XMLSyntaxDiagnosticsTest {
 
 	/**
 	 * Test ETagUnterminated
-	 * 
+	 *
 	 * @see https://wiki.xmldation.com/Support/Validator/ETagUnterminated
 	 * @throws Exception
 	 */
@@ -391,7 +391,7 @@ public class XMLSyntaxDiagnosticsTest {
 
 	/**
 	 * Test ETagUnterminated
-	 * 
+	 *
 	 * @see https://wiki.xmldation.com/Support/Validator/ETagUnterminated
 	 * @throws Exception
 	 */
@@ -405,7 +405,7 @@ public class XMLSyntaxDiagnosticsTest {
 
 	/**
 	 * Test ETagUnterminated
-	 * 
+	 *
 	 * @see https://wiki.xmldation.com/Support/Validator/ETagUnterminated
 	 * @throws Exception
 	 */
@@ -449,7 +449,7 @@ public class XMLSyntaxDiagnosticsTest {
 				+ //
 				"<CstmrCdtTrfInitn>\r\n" + //
 				"</CstmrCdtTrfInitn>";
-		Diagnostic d = d(1, 1, 3, 19, XMLSyntaxErrorCode.MarkupEntityMismatch);
+		Diagnostic d = d(1, 1, 1, 9, XMLSyntaxErrorCode.MarkupEntityMismatch);
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(3, 19, 3, 19, "\r\n</Document>")));
 	}
@@ -457,7 +457,7 @@ public class XMLSyntaxDiagnosticsTest {
 	@Test
 	public void testMarkupEntityMismatch2() throws Exception {
 		String xml = "<ABC>";
-		Diagnostic d = d(0, 1, 0, 5, XMLSyntaxErrorCode.MarkupEntityMismatch);
+		Diagnostic d = d(0, 1, 0, 4, XMLSyntaxErrorCode.MarkupEntityMismatch);
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(0, 5, 0, 5, "</ABC>")));
 	}
@@ -465,7 +465,7 @@ public class XMLSyntaxDiagnosticsTest {
 	@Test
 	public void testMarkupEntityMismatch3() throws Exception {
 		String xml = "<";
-		Diagnostic d = d(0, 0, 0, 1, XMLSyntaxErrorCode.MarkupEntityMismatch);
+		Diagnostic d = d(0, 1, 0, 1, XMLSyntaxErrorCode.MarkupEntityMismatch);
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d); // no code actions
 	}
@@ -473,7 +473,7 @@ public class XMLSyntaxDiagnosticsTest {
 	@Test
 	public void testMarkupEntityMismatch4() throws Exception {
 		String xml = "<?";
-		Diagnostic d = d(0, 0, 0, 2, XMLSyntaxErrorCode.MarkupEntityMismatch);
+		Diagnostic d = d(0, 1, 0, 1, XMLSyntaxErrorCode.MarkupEntityMismatch);
 		testDiagnosticsFor(xml, d);
 	}
 
@@ -510,7 +510,7 @@ public class XMLSyntaxDiagnosticsTest {
 	@Test
 	public void testMarkupEntityMismatchWithAttributes() throws Exception {
 		String xml = "<ABC a=''   ";
-		Diagnostic d = d(0, 1, 0, 9, XMLSyntaxErrorCode.MarkupEntityMismatch);
+		Diagnostic d = d(0, 1, 0, 4, XMLSyntaxErrorCode.MarkupEntityMismatch);
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, //
 				ca(d, te(0, 9, 0, 9, "/>")), //
@@ -529,7 +529,7 @@ public class XMLSyntaxDiagnosticsTest {
 	@Test
 	public void testMarkupEntityMismatchWithText() throws Exception {
 		String xml = "<ABC>def";
-		Diagnostic d = d(0, 1, 0, 8, XMLSyntaxErrorCode.MarkupEntityMismatch);
+		Diagnostic d = d(0, 1, 0, 4, XMLSyntaxErrorCode.MarkupEntityMismatch);
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(0, 8, 0, 8, "</ABC>")));
 	}
@@ -537,7 +537,7 @@ public class XMLSyntaxDiagnosticsTest {
 	@Test
 	public void testMarkupEntityMismatchWithTextAndNewLine() throws Exception {
 		String xml = "<ABC>def\r\n";
-		Diagnostic d = d(0, 1, 0, 8, XMLSyntaxErrorCode.MarkupEntityMismatch);
+		Diagnostic d = d(0, 1, 0, 4, XMLSyntaxErrorCode.MarkupEntityMismatch);
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(0, 8, 0, 8, "</ABC>")));
 	}
@@ -546,7 +546,7 @@ public class XMLSyntaxDiagnosticsTest {
 	public void testMarkupEntityMismatchMultiLine() throws Exception {
 		String xml = "<foo action=\"toot\"\r\n" + //
 				"		    /";
-		Diagnostic d = d(0, 1, 1, 7, XMLSyntaxErrorCode.MarkupEntityMismatch);
+		Diagnostic d = d(0, 1, 0, 4, XMLSyntaxErrorCode.MarkupEntityMismatch);
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, //
 				te(1, 7, 1, 7, ">")));
@@ -765,12 +765,12 @@ public class XMLSyntaxDiagnosticsTest {
 				ca(d, te(0, 2, 0, 2, "></a>")));
 
 		xml = "<a>";
-		d = d(0, 1, 0, 3, XMLSyntaxErrorCode.MarkupEntityMismatch);
+		d = d(0, 1, 0, 2, XMLSyntaxErrorCode.MarkupEntityMismatch);
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(0, 3, 0, 3, "</a>")));
 
 		xml = "<a /";
-		d = d(0, 1, 0, 4, XMLSyntaxErrorCode.MarkupEntityMismatch);
+		d = d(0, 1, 0, 2, XMLSyntaxErrorCode.MarkupEntityMismatch);
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(0, 4, 0, 4, ">")));
 
@@ -780,7 +780,7 @@ public class XMLSyntaxDiagnosticsTest {
 		testCodeActionsFor(xml, d, ca(d, te(0, 4, 0, 4, ">")));
 
 		xml = "<a></";
-		d = d(0, 1, 0, 3, XMLSyntaxErrorCode.MarkupEntityMismatch);
+		d = d(0, 1, 0, 2, XMLSyntaxErrorCode.MarkupEntityMismatch);
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(0, 5, 0, 5, "a>")));
 	}
