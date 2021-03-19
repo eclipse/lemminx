@@ -43,7 +43,7 @@ import org.eclipse.lsp4j.ResourceOperationKind;
 
 /**
  * XML error code.
- * 
+ *
  * @see https://wiki.xmldation.com/Support/Validator
  *
  */
@@ -120,7 +120,7 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 
 	/**
 	 * Create the LSP range from the SAX error.
-	 * 
+	 *
 	 * @param location
 	 * @param key
 	 * @param arguments
@@ -181,11 +181,11 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 		case ETagUnterminated: {
 			/**
 			 * Cases:
-			 * 
+			 *
 			 * <a> </b>
-			 * 
+			 *
 			 * <a> <b> </b> </c>
-			 * 
+			 *
 			 * <a> <a> </a> </b
 			 */
 			int endOffset = removeLeftSpaces(offset, document.getText());
@@ -218,11 +218,11 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 			// Cases
 			// - <foo
 			// - <foo /
-			DOMNode root = document.getDocumentElement();
-			if (root == null) {
-				root = document.getChild(0);
+			DOMElement documentElement = document.getDocumentElement();
+			if (documentElement != null && documentElement.hasEndTag()) {
+				return XMLPositionUtility.selectEndTagName(documentElement);
 			}
-			return getRangeFromStartNodeToOffset(root, offset, document);
+			return XMLPositionUtility.selectRootStartTag(document);
 		}
 		case ETagRequired: {
 			String tag = getString(arguments[0]);
@@ -241,7 +241,7 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 					startTagElement = findChildTag(tag, element);
 
 				}
-				return getRangeFromStartNodeToOffset(startTagElement, offset, document);
+				return XMLPositionUtility.selectStartTagName(startTagElement);
 			}
 			// Should never occurs
 			return null;
@@ -311,9 +311,9 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 	/**
 	 * Remove the offset of the first character from the left offset which is not a
 	 * whitespace.
-	 * 
+	 *
 	 * @param initialOffset the initial offset.
-	 * 
+	 *
 	 * @param text          the XML content.
 	 * @return the offset of the first character from the left offset which is not a
 	 *         whitespace.
@@ -351,11 +351,11 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 
 	/**
 	 * Returns the proper range from the given node to the given offset.
-	 * 
+	 *
 	 * @param fromNode the from node.
 	 * @param toOffset the to offset.
 	 * @param document the DOM document.
-	 * 
+	 *
 	 * @return the proper range from the given node to the given offset.
 	 */
 	private static Range getRangeFromStartNodeToOffset(DOMNode fromNode, int toOffset, DOMDocument document) {
@@ -376,7 +376,7 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 	/**
 	 * Returns the first child element of the given element which matches the given
 	 * tag name and null otherwise.
-	 * 
+	 *
 	 * @param tagName the tag name.
 	 * @param element the DOM element.
 	 * @return the first child element of the given element which matches the given

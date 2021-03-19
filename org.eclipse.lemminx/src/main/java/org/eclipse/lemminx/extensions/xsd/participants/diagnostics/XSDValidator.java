@@ -46,10 +46,10 @@ public class XSDValidator {
 	private static boolean canCustomizeReporter = true;
 
 	public static void doDiagnostics(DOMDocument document, XMLEntityResolver entityResolver,
-			List<Diagnostic> diagnostics, CancelChecker monitor) {
+			List<Diagnostic> diagnostics, boolean isRelatedInformation, CancelChecker monitor) {
 
 		try {
-			XMLErrorReporter reporter = new LSPErrorReporterForXSD(document, diagnostics);
+			XMLErrorReporter reporter = new LSPErrorReporterForXSD(document, diagnostics, isRelatedInformation);
 
 			XMLGrammarPreparser grammarPreparser = new LSPXMLGrammarPreparser();
 			XMLSchemaLoader schemaLoader = createSchemaLoader(reporter);
@@ -97,7 +97,7 @@ public class XSDValidator {
 
 	/**
 	 * Create the XML Schema loader to use to validate the XML Schema.
-	 * 
+	 *
 	 * @param reporter the lsp reporter.
 	 * @return the XML Schema loader to use to validate the XML Schema.
 	 * @throws NoSuchFieldException
