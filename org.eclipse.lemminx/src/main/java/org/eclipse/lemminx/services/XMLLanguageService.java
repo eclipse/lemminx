@@ -27,6 +27,7 @@ import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSetting
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLCodeLensSettings;
+import org.eclipse.lemminx.settings.XMLCompletionSettings;
 import org.eclipse.lemminx.settings.XMLFoldingSettings;
 import org.eclipse.lemminx.settings.XMLSymbolSettings;
 import org.eclipse.lemminx.uriresolver.CacheResourceDownloadingException;
@@ -156,7 +157,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 		return hover.doHover(xmlDocument, position, sharedSettings, cancelChecker);
 	}
 
-	public List<Diagnostic> doDiagnostics(DOMDocument xmlDocument, 
+	public List<Diagnostic> doDiagnostics(DOMDocument xmlDocument,
 			XMLValidationSettings validationSettings, CancelChecker cancelChecker) {
 		return diagnostics.doDiagnostics(xmlDocument, validationSettings, cancelChecker);
 	}
@@ -257,22 +258,22 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 		return codeActions.doCodeActions(context, range, document, sharedSettings);
 	}
 
-	public AutoCloseTagResponse doTagComplete(DOMDocument xmlDocument, Position position) {
-		return doTagComplete(xmlDocument, position, NULL_CHECKER);
+	public AutoCloseTagResponse doTagComplete(DOMDocument xmlDocument, XMLCompletionSettings completionSettings, Position position) {
+		return doTagComplete(xmlDocument, position, completionSettings, NULL_CHECKER);
 	}
 
-	public AutoCloseTagResponse doTagComplete(DOMDocument xmlDocument, Position position, CancelChecker cancelChecker) {
-		return completions.doTagComplete(xmlDocument, position, cancelChecker);
+	public AutoCloseTagResponse doTagComplete(DOMDocument xmlDocument, Position position, XMLCompletionSettings completionSettings, CancelChecker cancelChecker) {
+		return completions.doTagComplete(xmlDocument, position, completionSettings, cancelChecker);
 	}
 
-	public AutoCloseTagResponse doAutoClose(DOMDocument xmlDocument, Position position, CancelChecker cancelChecker) {
+	public AutoCloseTagResponse doAutoClose(DOMDocument xmlDocument, Position position, XMLCompletionSettings completionSettings, CancelChecker cancelChecker) {
 		try {
 			int offset = xmlDocument.offsetAt(position);
 			String text = xmlDocument.getText();
 			if (offset > 0) {
 				char c = text.charAt(offset - 1);
 				if (c == '>' || c == '/') {
-					return doTagComplete(xmlDocument, position, cancelChecker);
+					return doTagComplete(xmlDocument, position, completionSettings, cancelChecker);
 				}
 			}
 			return null;
