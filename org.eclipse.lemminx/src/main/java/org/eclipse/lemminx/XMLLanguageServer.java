@@ -280,7 +280,7 @@ public class XMLLanguageServer
 	@Override
 	public CompletableFuture<AutoCloseTagResponse> closeTag(TextDocumentPositionParams params) {
 		return xmlTextDocumentService.computeDOMAsync(params.getTextDocument(), (cancelChecker, xmlDocument) -> {
-			return getXMLLanguageService().doAutoClose(xmlDocument, params.getPosition(), cancelChecker);
+			return getXMLLanguageService().doAutoClose(xmlDocument, params.getPosition(), getSettings().getCompletionSettings(), cancelChecker);
 		});
 	}
 

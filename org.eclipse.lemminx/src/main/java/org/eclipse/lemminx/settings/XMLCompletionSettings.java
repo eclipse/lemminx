@@ -24,12 +24,15 @@ public class XMLCompletionSettings {
 
 	private boolean autoCloseTags;
 
-	public XMLCompletionSettings(boolean autoCloseTags) {
+	private boolean autoCloseRemovesContent;
+
+	public XMLCompletionSettings(boolean autoCloseTags, boolean autoCloseRemovesContent) {
 		this.autoCloseTags = autoCloseTags;
+		this.autoCloseRemovesContent = autoCloseRemovesContent;
 	}
 
 	public XMLCompletionSettings() {
-		this(true);
+		this(true, true);
 	}
 
 	public void setCapabilities(CompletionCapabilities completionCapabilities) {
@@ -42,7 +45,7 @@ public class XMLCompletionSettings {
 
 	/**
 	 * Tag should be autoclosed with an end tag.
-	 * 
+	 *
 	 * @param autoCloseTags
 	 */
 	public void setAutoCloseTags(boolean autoCloseTags) {
@@ -51,7 +54,7 @@ public class XMLCompletionSettings {
 
 	/**
 	 * If tag should be autoclosed with an end tag.
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean isAutoCloseTags() {
@@ -59,9 +62,27 @@ public class XMLCompletionSettings {
 	}
 
 	/**
+	 * If turning a start tag into a self closing tag should remove the content of the element
+	 *
+	 * @param autoCloseRemovesContent
+	 */
+	public void setAutoCloseRemovesContent(boolean autoCloseRemovesContent) {
+		this.autoCloseRemovesContent = autoCloseRemovesContent;
+	}
+
+	/**
+	 * Returns true if turning a start tag into a self closing tag should remove the content of the element and false otherwise
+	 *
+	 * @return true if turning a start tag into a self closing tag should remove the content of the element and false otherwise
+	 */
+	public boolean isAutoCloseRemovesContent() {
+		return autoCloseRemovesContent;
+	}
+
+	/**
 	 * Returns <code>true</code> if the client support snippet and
 	 * <code>false</code> otherwise.
-	 * 
+	 *
 	 * @return <code>true</code> if the client support snippet and
 	 *         <code>false</code> otherwise.
 	 */
@@ -74,10 +95,11 @@ public class XMLCompletionSettings {
 	/**
 	 * Merge only the given completion settings (and not the capability) in the
 	 * settings.
-	 * 
+	 *
 	 * @param newCompletion the new settings to merge.
 	 */
 	public void merge(XMLCompletionSettings newCompletion) {
 		this.setAutoCloseTags(newCompletion.isAutoCloseTags());
+		this.setAutoCloseRemovesContent(newCompletion.isAutoCloseRemovesContent());
 	}
 }

@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -303,6 +304,10 @@ public class XMLAssert {
 	}
 
 	public static void testTagCompletion(String value, String expected) throws BadLocationException {
+		testTagCompletion(value, expected, new SharedSettings());
+	}
+
+	public static void testTagCompletion(String value, String expected, SharedSettings settings) throws BadLocationException {
 		int offset = value.indexOf('|');
 		value = value.substring(0, offset) + value.substring(offset + 1);
 
@@ -312,13 +317,33 @@ public class XMLAssert {
 		Position position = document.positionAt(offset);
 		DOMDocument htmlDoc = DOMParser.getInstance().parse(document, ls.getResolverExtensionManager());
 
-		AutoCloseTagResponse response = ls.doTagComplete(htmlDoc, position);
+		AutoCloseTagResponse response = ls.doTagComplete(htmlDoc, settings.getCompletionSettings(), position);
 		if (expected == null) {
 			assertNull(response);
 			return;
 		}
 		String actual = response.snippet;
 		assertEquals(expected, actual);
+	}
+
+	public static void testTagCompletion(String value, AutoCloseTagResponse expected, SharedSettings settings) throws BadLocationException {
+		int offset = value.indexOf('|');
+		value = value.substring(0, offset) + value.substring(offset + 1);
+
+		XMLLanguageService ls = new XMLLanguageService();
+
+		TextDocument document = new TextDocument(value, "test://test/test.html");
+		Position position = document.positionAt(offset);
+		DOMDocument htmlDoc = DOMParser.getInstance().parse(document, ls.getResolverExtensionManager());
+
+		AutoCloseTagResponse actual = ls.doTagComplete(htmlDoc, settings.getCompletionSettings(), position);
+		if (expected == null) {
+			assertNull(actual);
+			return;
+		}
+		assertNotNull(actual);
+		assertEquals(expected.snippet, actual.snippet);
+		assertEquals(expected.range, actual.range);
 	}
 
 	// ------------------- Diagnostics assert
