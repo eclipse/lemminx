@@ -1,5 +1,22 @@
 # Change Log
 
+## [0.16.0](https://github.com/eclipse/lemminx/milestone/21?closed=1) (April 13, 2021)
+
+### Enhancements
+
+ * Add `telemetry/event` support. See [#430](https://github.com/eclipse/lemminx/issues/430).
+ * Add `CancelChecker` as parameter to `ICompletionParticipant` methods. See [#992](https://github.com/eclipse/lemminx/pull/992).
+ * Add ability to read proxy configuration from environment variables. See [#1012](https://github.com/eclipse/lemminx/pull/1012)
+
+### Bug Fixes
+
+ * Fix rename not completing when using the binary. See [#990](https://github.com/eclipse/lemminx/pull/990).
+ * Fix a test failure. See [#1003](https://github.com/eclipse/lemminx/issues/1003).
+ * Fix NPE when hovering on a malformed document. See [#984](https://github.com/eclipse/lemminx/issues/984).
+ * `trimTrailingWhitespace` option is not respected by `textDocument/formatting`. See [#827](https://github.com/eclipse/lemminx/issues/827).
+ * Add a `CONTRIBUTING.md`. See [#998](https://github.com/eclipse/lemminx/issues/998).
+ * Use `User-Agent: LemMinX` when downloading schemas to prevent HTTP 403 when using Java 8. See [#994](https://github.com/eclipse/lemminx/pull/994).
+
 ## [0.15.0](https://github.com/eclipse/lemminx/milestone/20?closed=1) (February 2, 2021)
 
 ### Enhancements
