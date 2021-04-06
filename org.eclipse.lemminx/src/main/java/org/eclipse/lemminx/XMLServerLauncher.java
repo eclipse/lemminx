@@ -37,8 +37,25 @@ public class XMLServerLauncher {
 	 * and output streams.
 	 */
 	public static void main(String[] args) {
+
+		final String HTTP_PROXY_HOST = System.getenv("HTTP_PROXY_HOST");
+		final String HTTP_PROXY_PORT = System.getenv("HTTP_PROXY_PORT");
+		final String HTTP_PROXY_USERNAME = System.getenv("HTTP_PROXY_USERNAME");
+		final String HTTP_PROXY_PASSWORD = System.getenv("HTTP_PROXY_PASSWORD");
+
+		if (HTTP_PROXY_HOST != null && HTTP_PROXY_PORT != null) {
+			System.setProperty("http.proxyHost", HTTP_PROXY_HOST);
+			System.setProperty("http.proxyPort", HTTP_PROXY_PORT);
+		}
+
+		if (HTTP_PROXY_USERNAME != null && HTTP_PROXY_PASSWORD != null) {
+			System.setProperty("http.proxyUser", HTTP_PROXY_USERNAME);
+			System.setProperty("http.proxyPassword", HTTP_PROXY_PASSWORD);
+		}
+
 		final String username = System.getProperty("http.proxyUser");
 		final String password = System.getProperty("http.proxyPassword");
+
 		if (username != null && password != null) {
 			Authenticator.setDefault(new Authenticator() {
 
@@ -60,7 +77,7 @@ public class XMLServerLauncher {
 	/**
 	 * Launches {@link XMLLanguageServer} and makes it accessible through the JSON
 	 * RPC protocol defined by the LSP.
-	 * 
+	 *
 	 * @param launcherFuture The future returned by
 	 *                       {@link org.eclipse.lsp4j.jsonrpc.Launcher#startListening()}.
 	 *                       (I'm not 100% sure how it meant to be used though, as
@@ -84,7 +101,7 @@ public class XMLServerLauncher {
 	 * Threads are started with the given executor service. The wrapper function is
 	 * applied to the incoming and outgoing message streams so additional message
 	 * handling such as validation and tracing can be included.
-	 * 
+	 *
 	 * @param server          - the server that receives method calls from the
 	 *                        remote client
 	 * @param in              - input stream to listen for incoming messages
