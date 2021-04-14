@@ -29,14 +29,14 @@ import org.eclipse.lemminx.utils.platform.Platform;
  */
 public class InitializationTelemetryInfo {
 
-	public static final String JVM_MEMORY_MAX = "jvm_memory_max";
-	public static final String JVM_MEMORY_TOTAL = "jvm_memory_total";
-	public static final String JVM_MEMORY_FREE = "jvm_memory_free";
-	public static final String JVM_IS_NATIVE_IMAGE = "server_is_native";
-	public static final String JVM_RUNTIME = "jvm_runtime";
-	public static final String JVM_VERSION = "jvm_version";
-	public static final String JVM_NAME = "jvm_name";
-	public static final String SERVER_VERSION_NUMBER = "server_version";
+	public static final String JVM_MEMORY_MAX = "jvm.memory.max";
+	public static final String JVM_MEMORY_TOTAL = "jvm.memory.total";
+	public static final String JVM_MEMORY_FREE = "jvm.memory.free";
+	public static final String JVM_IS_NATIVE_IMAGE = "server.is.native";
+	public static final String JVM_RUNTIME = "jvm.runtime";
+	public static final String JVM_VERSION = "jvm.version";
+	public static final String JVM_NAME = "jvm.name";
+	public static final String SERVER_VERSION_NUMBER = "server.version";
 
 	/**
 	 * Returns the init telemetry as a map
