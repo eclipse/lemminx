@@ -22,7 +22,7 @@ public class TelemetryManager {
 	/**
 	 * "startup" telemetry event name
 	 */
-	private static final String STARTUP_EVENT_NAME = "server_initialized";
+	private static final String STARTUP_EVENT_NAME = "server.initialized";
 
 	private final LanguageClient languageClient;
 
