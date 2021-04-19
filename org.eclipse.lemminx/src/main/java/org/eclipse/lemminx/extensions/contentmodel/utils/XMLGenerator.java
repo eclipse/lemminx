@@ -190,7 +190,7 @@ public class XMLGenerator {
 		StringBuilder value = new StringBuilder();
 		String quotation = sharedSettings.getPreferences().getQuotationAsString();
 		if (withQuote) {
-			value.append("=" + quotation);
+			value.append("=").append(quotation);
 		}
 		if (!canSupportSnippets) {
 			if (defaultValue != null) {
