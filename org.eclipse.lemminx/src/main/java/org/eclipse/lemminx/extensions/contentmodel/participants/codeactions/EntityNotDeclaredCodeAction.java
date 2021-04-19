@@ -224,7 +224,7 @@ public class EntityNotDeclaredCodeAction implements ICodeActionParticipant {
 		Range range = diagnostic.getRange();
 		String name = doc.getText().substring(doc.offsetAt(range.getStart()), doc.offsetAt(range.getEnd()));
 		String removedAmpAndSemiColon = name.substring(1, name.length() - 1);
-		if (diagnostic.getMessage().indexOf("\"" + removedAmpAndSemiColon + "\"") < 0) {
+		if (!diagnostic.getMessage().contains("\"" + removedAmpAndSemiColon + "\"")) {
 			return null;
 		}
 		return removedAmpAndSemiColon;
