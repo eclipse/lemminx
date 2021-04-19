@@ -84,9 +84,7 @@ public class XMLRename {
 			}
 		}
 
-		for (TextEdit textEdit : getRenameTextEdits(xmlDocument, node, position, newText)) {
-			textEdits.add(textEdit);
-		}
+		textEdits.addAll(getRenameTextEdits(xmlDocument, node, position, newText));
 
 		return createWorkspaceEdit(xmlDocument.getDocumentURI(), textEdits);
 	}
