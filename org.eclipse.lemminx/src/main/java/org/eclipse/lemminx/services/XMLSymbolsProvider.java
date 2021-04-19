@@ -234,7 +234,7 @@ class XMLSymbolsProvider {
 						String elementName = elementDecl.getName();
 						attlistDecls = node.getOwnerDocument().findDTDAttrList(elementName);
 					} else {
-						attlistDecls = new ArrayList<DOMNode>();
+						attlistDecls = new ArrayList<>();
 						attlistDecls.add(node);
 					}
 

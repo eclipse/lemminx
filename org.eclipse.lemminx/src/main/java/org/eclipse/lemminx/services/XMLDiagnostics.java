@@ -41,7 +41,7 @@ class XMLDiagnostics {
 
 	public List<Diagnostic> doDiagnostics(DOMDocument xmlDocument, XMLValidationSettings validationSettings,
 			CancelChecker cancelChecker) {
-		List<Diagnostic> diagnostics = new ArrayList<Diagnostic>();
+		List<Diagnostic> diagnostics = new ArrayList<>();
 		if (validationSettings == null || validationSettings.isEnabled()) {
 			doExtensionsDiagnostics(xmlDocument, diagnostics, validationSettings, cancelChecker);
 		}

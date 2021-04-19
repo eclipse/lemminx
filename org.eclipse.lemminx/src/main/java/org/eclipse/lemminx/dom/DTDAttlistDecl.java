@@ -107,7 +107,7 @@ public class DTDAttlistDecl extends DTDDeclNode {
 	 */
 	void addAdditionalAttDecl(DTDAttlistDecl child) {
 		if (internalChildren == null) {
-			internalChildren = new ArrayList<DTDAttlistDecl>();
+			internalChildren = new ArrayList<>();
 		}
 		internalChildren.add(child);
 	}

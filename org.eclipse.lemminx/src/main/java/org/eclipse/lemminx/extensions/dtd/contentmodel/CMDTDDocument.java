@@ -80,7 +80,7 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 		private final Map<String, DTDNodeInfo> attributes;
 
 		public DTDElementInfo() {
-			this.hierarchies = new LinkedHashSet<String>();
+			this.hierarchies = new LinkedHashSet<>();
 			this.attributes = new HashMap<>();
 		}
 

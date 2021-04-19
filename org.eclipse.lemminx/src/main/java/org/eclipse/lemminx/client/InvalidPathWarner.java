@@ -69,7 +69,7 @@ public class InvalidPathWarner extends AbstractXMLNotifier {
 		}
 		message.append(" for setting '").append(settingId).append("': ");
 
-		List<String> list = new ArrayList<String>(invalidPaths); 
+		List<String> list = new ArrayList<>(invalidPaths); 
 		for (int i = 0; i < list.size(); i++) {
 			if (i != 0) {
 				message.append(", ");
