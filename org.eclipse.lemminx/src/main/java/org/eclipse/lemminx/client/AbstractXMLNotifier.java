@@ -32,7 +32,7 @@ public abstract class AbstractXMLNotifier {
 
 	public AbstractXMLNotifier(IXMLNotificationService notificationService) {
 		this.notificationService = notificationService;
-		this.cache = new HashMap<IXMLSettingFeature, Set<String>>();
+		this.cache = new HashMap<>();
 	}
 
 	/**

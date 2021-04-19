@@ -99,7 +99,7 @@ public class DTDDeclNode extends DOMNode {
 
 	public DTDDeclParameter addNewParameter(int start, int end) {
 		if (parameters == null) {
-			parameters = new ArrayList<DTDDeclParameter>();
+			parameters = new ArrayList<>();
 		}
 		DTDDeclParameter parameter = new DTDDeclParameter(this, start, end);
 		parameters.add(parameter);
@@ -117,7 +117,7 @@ public class DTDDeclNode extends DOMNode {
 
 	public List<DTDDeclParameter> getParameters() {
 		if (parameters == null) {
-			parameters = new ArrayList<DTDDeclParameter>();
+			parameters = new ArrayList<>();
 		}
 		return parameters;
 	}

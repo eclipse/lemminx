@@ -39,7 +39,7 @@ public class XMLFileAssociation extends PathPatternMatcher {
 
 	public Map<String, String> getExternalSchemaLocation() {
 		if (externalSchemaLocation == null) {
-			this.externalSchemaLocation = new HashMap<String, String>();
+			this.externalSchemaLocation = new HashMap<>();
 			if (DOMUtils.isXSD(systemId)) {
 				this.externalSchemaLocation.put(IExternalGrammarLocationProvider.NO_NAMESPACE_SCHEMA_LOCATION,
 						systemId);

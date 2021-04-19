@@ -286,7 +286,7 @@ public class XMLRename {
 			String newNamespace, @Nullable DOMAttr rootAttr) {
 		DOMElement rootElement = document.getDocumentElement();
 
-		List<TextEdit> edits = new ArrayList<TextEdit>();
+		List<TextEdit> edits = new ArrayList<>();
 
 		// Renames the xmlns:NAME_SPACE attribute
 		if (rootAttr != null) {
@@ -346,7 +346,7 @@ public class XMLRename {
 	 */
 	private static List<TextEdit> renameElementNamespace(DOMDocument document, DOMElement element,
 			int oldNamespaceLength, String newNamespace) {
-		List<TextEdit> edits = new ArrayList<TextEdit>();
+		List<TextEdit> edits = new ArrayList<>();
 		Range[] ranges = createNamespaceRange(document, element, oldNamespaceLength);
 		if (ranges == null) {
 			return edits;
@@ -373,7 +373,7 @@ public class XMLRename {
 			String oldNamespace, String newNamespace) {
 
 		List<DOMAttr> attributes = element.getAttributeNodes();
-		List<TextEdit> edits = new ArrayList<TextEdit>();
+		List<TextEdit> edits = new ArrayList<>();
 		if (attributes != null) {
 			for (DOMAttr attr : attributes) {
 				DOMNode attrValue = attr.getNodeAttrValue();

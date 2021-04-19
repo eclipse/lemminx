@@ -39,7 +39,7 @@ public class TelemetryInitializationTest {
 	@Test
 	public void telemetryEnabled() {
 
-		List<TelemetryEvent> actualTelementryEvents = new ArrayList<TelemetryEvent>();
+		List<TelemetryEvent> actualTelementryEvents = new ArrayList<>();
 		XMLLanguageServer languageServer = createServer(actualTelementryEvents);
 		// By default telemetry is disabled, enable it
 		languageServer.getTelemetryManager().setEnabled(true);
@@ -58,7 +58,7 @@ public class TelemetryInitializationTest {
 	@Test
 	public void telemetryDisabled() {
 
-		List<TelemetryEvent> actualTelementryEvents = new ArrayList<TelemetryEvent>();
+		List<TelemetryEvent> actualTelementryEvents = new ArrayList<>();
 		XMLLanguageServer languageServer = createServer(actualTelementryEvents);
 		initializeServer(languageServer);
 

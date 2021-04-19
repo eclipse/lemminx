@@ -415,7 +415,7 @@ public abstract class DOMNode implements Node, DOMRange {
 
 	public void setAttributeNode(DOMAttr attr) {
 		if (attributeNodes == null) {
-			attributeNodes = new XMLNamedNodeMap<DOMAttr>();
+			attributeNodes = new XMLNamedNodeMap<>();
 		}
 		attributeNodes.add(attr);
 	}
@@ -465,7 +465,7 @@ public abstract class DOMNode implements Node, DOMRange {
 	public void addChild(DOMNode child) {
 		child.parent = this;
 		if (children == null) {
-			children = new XMLNodeList<DOMNode>();
+			children = new XMLNodeList<>();
 		}
 		getChildren().add(child);
 	}
