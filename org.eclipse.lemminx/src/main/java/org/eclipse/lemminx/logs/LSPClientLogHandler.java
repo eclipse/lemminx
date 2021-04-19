@@ -69,7 +69,7 @@ public class LSPClientLogHandler extends Handler {
 			pw.println();
 			record.getThrown().printStackTrace(pw);
 			pw.close();
-			sb.append(sw.toString());
+			sb.append(sw);
 		}
 
 		return sb.toString();

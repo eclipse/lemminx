@@ -322,7 +322,7 @@ public class SnippetRegistry {
 			if (newLine == null) {
 				return line;
 			}
-			newLine.append(line.substring(offset, line.length()));
+			newLine.append(line, offset, line.length());
 			return newLine.toString();
 		}
 		if (newLine == null) {
@@ -331,14 +331,14 @@ public class SnippetRegistry {
 		char next = line.charAt(dollarIndex + 1);
 		if (Character.isDigit(next)) {
 			if (replace) {
-				newLine.append(line.substring(offset, dollarIndex));
+				newLine.append(line, offset, dollarIndex);
 			}
 			int lastDigitOffset = dollarIndex + 1;
 			while (Character.isDigit(line.charAt(lastDigitOffset))) {
 				lastDigitOffset++;
 			}
 			if (!replace) {
-				newLine.append(line.substring(offset, lastDigitOffset));
+				newLine.append(line, offset, lastDigitOffset);
 			}
 			return replace(line, lastDigitOffset, model, replace, newLine);
 		} else if (next == '{') {
@@ -348,7 +348,7 @@ public class SnippetRegistry {
 				// Should never occur
 				return line;
 			}
-			newLine.append(line.substring(offset, startExpr));
+			newLine.append(line, offset, startExpr);
 			// Parameter
 			int startParam = startExpr + 2;
 			int endParam = endExpr;
