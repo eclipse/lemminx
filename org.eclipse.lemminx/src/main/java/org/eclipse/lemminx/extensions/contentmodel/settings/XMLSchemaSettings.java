@@ -38,15 +38,19 @@ public class XMLSchemaSettings {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		XMLSchemaSettings other = (XMLSchemaSettings) obj;
-		if (enabled != other.enabled)
+		if (enabled != other.enabled) {
 			return false;
+		}
 		return true;
 	}
 

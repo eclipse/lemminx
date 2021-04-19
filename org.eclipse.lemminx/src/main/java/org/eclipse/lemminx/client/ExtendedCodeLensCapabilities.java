@@ -77,20 +77,26 @@ public class ExtendedCodeLensCapabilities extends DynamicRegistrationCapabilitie
 	@Override
 	@Pure
 	public boolean equals(final Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
-		if (!super.equals(obj))
+		}
+		if (!super.equals(obj)) {
 			return false;
+		}
 		ExtendedCodeLensCapabilities other = (ExtendedCodeLensCapabilities) obj;
 		if (this.codeLensKind == null) {
-			if (other.codeLensKind != null)
+			if (other.codeLensKind != null) {
 				return false;
-		} else if (!this.codeLensKind.equals(other.codeLensKind))
+			}
+		} else if (!this.codeLensKind.equals(other.codeLensKind)) {
 			return false;
+		}
 		return true;
 	}
 

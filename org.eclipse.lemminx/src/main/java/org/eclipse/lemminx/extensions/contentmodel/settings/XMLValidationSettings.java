@@ -213,37 +213,50 @@ public class XMLValidationSettings {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		XMLValidationSettings other = (XMLValidationSettings) obj;
-		if (disallowDocTypeDecl != other.disallowDocTypeDecl)
+		if (disallowDocTypeDecl != other.disallowDocTypeDecl) {
 			return false;
+		}
 		if (enabled == null) {
-			if (other.enabled != null)
+			if (other.enabled != null) {
 				return false;
-		} else if (!enabled.equals(other.enabled))
+			}
+		} else if (!enabled.equals(other.enabled)) {
 			return false;
+		}
 		if (namespaces == null) {
-			if (other.namespaces != null)
+			if (other.namespaces != null) {
 				return false;
-		} else if (!namespaces.equals(other.namespaces))
+			}
+		} else if (!namespaces.equals(other.namespaces)) {
 			return false;
+		}
 		if (noGrammar == null) {
-			if (other.noGrammar != null)
+			if (other.noGrammar != null) {
 				return false;
-		} else if (!noGrammar.equals(other.noGrammar))
+			}
+		} else if (!noGrammar.equals(other.noGrammar)) {
 			return false;
-		if (resolveExternalEntities != other.resolveExternalEntities)
+		}
+		if (resolveExternalEntities != other.resolveExternalEntities) {
 			return false;
+		}
 		if (schema == null) {
-			if (other.schema != null)
+			if (other.schema != null) {
 				return false;
-		} else if (!schema.equals(other.schema))
+			}
+		} else if (!schema.equals(other.schema)) {
 			return false;
+		}
 		return true;
 	}
 

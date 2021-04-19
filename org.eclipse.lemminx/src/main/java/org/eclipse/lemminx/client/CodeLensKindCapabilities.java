@@ -76,18 +76,23 @@ public class CodeLensKindCapabilities {
 	@Override
 	@Pure
 	public boolean equals(final Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		CodeLensKindCapabilities other = (CodeLensKindCapabilities) obj;
 		if (this.valueSet == null) {
-			if (other.valueSet != null)
+			if (other.valueSet != null) {
 				return false;
-		} else if (!this.valueSet.equals(other.valueSet))
+			}
+		} else if (!this.valueSet.equals(other.valueSet)) {
 			return false;
+		}
 		return true;
 	}
 
