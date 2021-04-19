@@ -108,10 +108,10 @@ class SnippetDeserializer implements JsonDeserializer<Snippet> {
 			String label = labelElt.getAsString();
 			if (label.contains("$")) {
 				if (!StringUtils.isEmpty(snippet.getDescription())) {
-					label = label.replaceAll("\\$description", snippet.getDescription());
+					label = label.replace("$description", snippet.getDescription());
 				}
 				if (!snippet.getPrefixes().isEmpty()) {
-					label = label.replaceAll("\\$prefix", snippet.getPrefixes().get(0));
+					label = label.replace("$prefix", snippet.getPrefixes().get(0));
 				}
 			}
 			snippet.setLabel(label);
