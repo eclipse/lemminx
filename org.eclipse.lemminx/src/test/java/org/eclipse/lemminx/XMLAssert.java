@@ -943,8 +943,8 @@ public class XMLAssert {
 	public static void assertLocationLink(List<? extends LocationLink> actual, LocationLink... expected) {
 		assertEquals(expected.length, actual.size());
 		for (int i = 0; i < expected.length; i++) {
-			actual.get(i).setTargetUri(actual.get(i).getTargetUri().replaceAll("file:///", "file:/"));
-			expected[i].setTargetUri(expected[i].getTargetUri().replaceAll("file:///", "file:/"));
+			actual.get(i).setTargetUri(actual.get(i).getTargetUri().replace("file:///", "file:/"));
+			expected[i].setTargetUri(expected[i].getTargetUri().replace("file:///", "file:/"));
 		}
 		assertArrayEquals(expected, actual.toArray());
 	}

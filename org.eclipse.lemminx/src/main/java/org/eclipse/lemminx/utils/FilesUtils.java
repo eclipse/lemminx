@@ -272,6 +272,6 @@ public class FilesUtils {
 	 * @return the path with replaced spaces.
 	 */
 	public static String encodePath(String path) {
-		return path.replaceAll(" ", "%20");
+		return path.replace(" ", "%20");
 	}
 }
