@@ -61,25 +61,32 @@ public class XMLFileAssociation extends PathPatternMatcher {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		XMLFileAssociation other = (XMLFileAssociation) obj;
 		String thisPattern = getPattern();
 		String otherPattern = other.getPattern();
 		if (thisPattern == null) {
-			if (otherPattern != null)
+			if (otherPattern != null) {
 				return false;
-		} else if (!thisPattern.equals(otherPattern))
+			}
+		} else if (!thisPattern.equals(otherPattern)) {
 			return false;
+		}
 		if (systemId == null) {
-			if (other.systemId != null)
+			if (other.systemId != null) {
 				return false;
-		} else if (!systemId.equals(other.systemId))
+			}
+		} else if (!systemId.equals(other.systemId)) {
 			return false;
+		}
 		return true;
 	}
 }
