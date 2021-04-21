@@ -406,6 +406,14 @@
 		}]
 	},
 	{
+		"name": "org.eclipse.lsp4j.ClientInfo",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
 		"name": "org.eclipse.lsp4j.CodeAction",
 		"allDeclaredFields": true,
 		"methods": [{
