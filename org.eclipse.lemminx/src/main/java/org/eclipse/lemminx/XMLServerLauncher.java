@@ -42,6 +42,7 @@ public class XMLServerLauncher {
 		final String HTTP_PROXY_PORT = System.getenv("HTTP_PROXY_PORT");
 		final String HTTP_PROXY_USERNAME = System.getenv("HTTP_PROXY_USERNAME");
 		final String HTTP_PROXY_PASSWORD = System.getenv("HTTP_PROXY_PASSWORD");
+		final boolean LEMMINX_DEBUG = System.getenv("LEMMINX_DEBUG") != null;
 
 		if (HTTP_PROXY_HOST != null && HTTP_PROXY_PORT != null) {
 			System.setProperty("http.proxyHost", HTTP_PROXY_HOST);
@@ -70,7 +71,9 @@ public class XMLServerLauncher {
 		PrintStream out = System.out;
 		System.setIn(new NoOpInputStream());
 		System.setOut(new NoOpPrintStream());
-		System.setErr(new NoOpPrintStream());
+		if (!LEMMINX_DEBUG) {
+			System.setErr(new NoOpPrintStream());
+		}
 		launch(in, out);
 	}
 
