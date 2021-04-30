@@ -35,13 +35,13 @@ public class LSPErrorReporterForXSD extends AbstractLSPErrorReporter {
 
 	private static final String XSD_DIAGNOSTIC_SOURCE = "xsd";
 
-	public LSPErrorReporterForXSD(DOMDocument xmlDocument, List<Diagnostic> diagnostics) {
-		super(XSD_DIAGNOSTIC_SOURCE, xmlDocument, diagnostics);
+	public LSPErrorReporterForXSD(DOMDocument xmlDocument, List<Diagnostic> diagnostics, boolean hasRelatedInfo) {
+		super(XSD_DIAGNOSTIC_SOURCE, xmlDocument, diagnostics, hasRelatedInfo);
 	}
 
 	/**
 	 * Create the LSP range from the SAX error.
-	 * 
+	 *
 	 * @param location
 	 * @param key
 	 * @param arguments

@@ -43,7 +43,7 @@ import org.xml.sax.SAXNotSupportedException;
 
 /**
  * Extension of Xerces SAX Parser to fix some Xerces bugs:
- * 
+ *
  * <ul>
  * <li>[BUG 1]: when the DTD file path is wrong on DOCTYPE, Xerces breaks all
  * validation like syntax validation</li>
@@ -51,7 +51,7 @@ import org.xml.sax.SAXNotSupportedException;
  * ignore the existing of entities. See
  * https://github.com/redhat-developer/vscode-xml/issues/234</li>
  * </ul>
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -122,7 +122,7 @@ public class LSPSAXParser extends SAXParser {
 					Range range = new Range(document.positionAt(docType.getSystemIdNode().getStart()),
 							document.positionAt(docType.getSystemIdNode().getEnd()));
 					reporter.addDiagnostic(range, MessageFormat.format(DTD_NOT_FOUND, expandedSystemId),
-							DiagnosticSeverity.Error, DTDErrorCode.dtd_not_found.getCode());
+							DiagnosticSeverity.Error, DTDErrorCode.dtd_not_found.getCode(), null);
 				} catch (BadLocationException e) {
 					// Do nothing
 				}
@@ -158,7 +158,7 @@ public class LSPSAXParser extends SAXParser {
 
 	/**
 	 * Create DTD grammar description by expanding the system id.
-	 * 
+	 *
 	 * @param rootElement the root element
 	 * @param publicId    the public ID.
 	 * @param systemId    the system ID.
@@ -178,7 +178,7 @@ public class LSPSAXParser extends SAXParser {
 	 * Resolve the expanded system ID by resolving the system ID of the given
 	 * grammar description with uri resolver (XML catalog, cache, etc with
 	 * {@link URIResolverExtensionManager}).
-	 * 
+	 *
 	 * @param grammarDesc   the DTD grammar description.
 	 * @param entityManager the entity manager.
 	 * @return the expanded system ID by resolving the system ID of the given
@@ -213,7 +213,7 @@ public class LSPSAXParser extends SAXParser {
 
 	/**
 	 * Fill entities from the given DTD grammar to the given entity manager.
-	 * 
+	 *
 	 * @param grammar       the DTD grammar
 	 * @param entityManager the entitymanager to update with entities of the DTD
 	 *                      grammar.

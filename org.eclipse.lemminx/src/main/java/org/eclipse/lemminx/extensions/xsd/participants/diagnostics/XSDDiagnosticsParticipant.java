@@ -39,7 +39,7 @@ public class XSDDiagnosticsParticipant implements IDiagnosticsParticipant {
 		// associations settings., ...)
 		XMLEntityResolver entityResolver = xmlDocument.getResolverExtensionManager();
 		// Process validation
-		XSDValidator.doDiagnostics(xmlDocument, entityResolver, diagnostics, cancelChecker);
+		XSDValidator.doDiagnostics(xmlDocument, entityResolver, diagnostics, validationSettings.isRelatedInformation(), cancelChecker);
 	}
 
 }

@@ -49,7 +49,7 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Node#getNodeType()
 	 */
 	@Override
@@ -59,7 +59,7 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Node#getNodeName()
 	 */
 	@Override
@@ -69,7 +69,7 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Element#getTagName()
 	 */
 	@Override
@@ -80,7 +80,7 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 	/**
 	 * Returns true if the DOM element have a tag name and false otherwise (ex : '<'
 	 * or '</').
-	 * 
+	 *
 	 * @return true if the DOM element have a tag name and false otherwise (ex : '<'
 	 *         or '</').
 	 */
@@ -90,7 +90,7 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Node#getLocalName()
 	 */
 	@Override
@@ -108,7 +108,7 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Node#getPrefix()
 	 */
 	@Override
@@ -127,7 +127,7 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Node#getNamespaceURI()
 	 */
 	@Override
@@ -139,9 +139,9 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 
 	/**
 	 * Returns the namespace URI for the given prefix and null otherwise.
-	 * 
+	 *
 	 * @param prefix the prefix.
-	 * 
+	 *
 	 * @return the namespace URI for the given prefix and null otherwise.
 	 */
 	public String getNamespaceURI(String prefix) {
@@ -167,7 +167,7 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 	/**
 	 * Returns the namespace URI from the given prefix declared in the given element
 	 * and null otherwise.
-	 * 
+	 *
 	 * @param prefix  the prefix
 	 * @param element the DOM element
 	 * @return the namespace URI from the given prefix declared in the given element
@@ -193,7 +193,7 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 
 	/**
 	 * Returns the xmlns prefix from the given namespace URI and null otherwise.
-	 * 
+	 *
 	 * @param namespaceURI the namespace
 	 * @return the xmlns prefix from the given namespace URI and null otherwise.
 	 */
@@ -236,9 +236,9 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 	 * Will traverse backwards from the start offset returning an offset of the
 	 * given character if it's found before another character. Whitespace is
 	 * ignored.
-	 * 
+	 *
 	 * Returns null if the character is not found.
-	 * 
+	 *
 	 * The initial value for the start offset is not included. So have the offset 1
 	 * position after the character you want to start at.
 	 */
@@ -265,7 +265,7 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 	/**
 	 * Returns true if the given tag is the same tag of this element and false
 	 * otherwise.
-	 * 
+	 *
 	 * @param tag tag element
 	 * @return true if the given tag is the same tag of this element and false
 	 *         otherwise.
@@ -305,7 +305,7 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 	/**
 	 * Returns the start tag open offset and {@link DOMNode#NULL_VALUE} if it
 	 * doesn't exist.
-	 * 
+	 *
 	 * @return the start tag open offset and {@link DOMNode#NULL_VALUE} if it
 	 *         doesn't exist.
 	 */
@@ -316,7 +316,7 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 	/**
 	 * Returns the start tag close offset and {@link DOMNode#NULL_VALUE} if it
 	 * doesn't exist.
-	 * 
+	 *
 	 * @return the start tag close offset and {@link DOMNode#NULL_VALUE} if it
 	 *         doesn't exist.
 	 */
@@ -327,7 +327,7 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 	/**
 	 * Returns the end tag open offset and {@link DOMNode#NULL_VALUE} if it doesn't
 	 * exist.
-	 * 
+	 *
 	 * @return the end tag open offset and {@link DOMNode#NULL_VALUE} if it doesn't
 	 *         exist.
 	 */
@@ -338,7 +338,7 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 	/**
 	 * Returns the end tag close offset and {@link DOMNode#NULL_VALUE} if it doesn't
 	 * exist.
-	 * 
+	 *
 	 * @return the end tag close offset and {@link DOMNode#NULL_VALUE} if it doesn't
 	 *         exist.
 	 */
@@ -348,10 +348,10 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 
 	/**
 	 * Returns true if has a start tag.
-	 * 
+	 *
 	 * In our source-oriented DOM, a lone end tag will cause a node to be created in
 	 * the tree, unlike well-formed-only DOMs.
-	 * 
+	 *
 	 * @return true if has a start tag.
 	 */
 	public boolean hasStartTag() {
@@ -360,10 +360,10 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 
 	/**
 	 * Returns true if has an end tag.
-	 * 
+	 *
 	 * In our source-oriented DOM, sometimes Elements are "ended", even without an
 	 * explicit end tag in the source.
-	 * 
+	 *
 	 * @return true if has an end tag.
 	 */
 	public boolean hasEndTag() {
@@ -387,7 +387,7 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 	/**
 	 * Returns true if the given element is an orphan end tag (which has no start
 	 * tag, eg: </a>) and false otherwise.
-	 * 
+	 *
 	 * @return true if the given element is an orphan end tag (which has no start
 	 *         tag, eg: </a>) and false otherwise.
 	 */
@@ -398,13 +398,32 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 	/**
 	 * Returns true if the given element is an orphan end tag (which has no start
 	 * tag, eg: </a>) of the given tag name and false otherwise.
-	 * 
+	 *
 	 * @param tagName the end tag name.
 	 * @return true if the given element is an orphan end tag (which has no start
 	 *         tag, eg: </a>) of the given tag name and false otherwise.
 	 */
 	public boolean isOrphanEndTagOf(String tagName) {
 		return isSameTag(tagName) && isOrphanEndTag();
+	}
+
+	/**
+	 * Returns the offset at which the given unclosed start tag should be closed with an angle bracket
+	 *
+	 * @returns the offset at which the given unclosed start tag should be closed with an angle bracket
+	 */
+	public int getUnclosedStartTagCloseOffset() {
+		String documentText = getOwnerDocument().getText();
+		int i = getStart() + 1;
+		for (; i < documentText.length() && documentText.charAt(i) != '/' && documentText.charAt(i) != '<'; i++) {
+		}
+		if (i < documentText.length() && documentText.charAt(i) == '/') {
+			return i + 1;
+		}
+		i--;
+		for (; i > 0 && Character.isWhitespace(documentText.charAt(i)); i--) {
+		}
+		return i + 1;
 	}
 
 	@Override
@@ -436,7 +455,7 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 	/**
 	 * Returns true if element has a closing end tag (eg: <a> </a>) and false
 	 * otherwise (eg: <a> </b>).
-	 * 
+	 *
 	 * @return true if element has a closing end tag (eg: <a> </a>) and false
 	 *         otherwise (eg: <a> </b>).
 	 */
@@ -521,7 +540,7 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 
 	/**
 	 * Returns true if the element is empty and false otherwise.
-	 * 
+	 *
 	 * @return true if the element is empty and false otherwise.
 	 */
 	public boolean isEmpty() {

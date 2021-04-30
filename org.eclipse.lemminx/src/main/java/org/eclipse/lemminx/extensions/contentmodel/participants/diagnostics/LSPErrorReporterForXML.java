@@ -56,7 +56,7 @@ public class LSPErrorReporterForXML extends AbstractLSPErrorReporter {
 	public LSPErrorReporterForXML(DOMDocument xmlDocument, List<Diagnostic> diagnostics,
 			ContentModelManager contentModelManager, boolean hasRelatedInformation,
 			Map<String, ReferencedGrammarDiagnosticsInfo> referencedGrammarDiagnosticsInfoCache) {
-		super(XML_DIAGNOSTIC_SOURCE, xmlDocument, diagnostics);
+		super(XML_DIAGNOSTIC_SOURCE, xmlDocument, diagnostics, hasRelatedInformation);
 		this.contentModelManager = contentModelManager;
 		this.hasRelatedInformation = hasRelatedInformation;
 		this.referencedGrammarDiagnosticsInfoCache = referencedGrammarDiagnosticsInfoCache == null ? new HashMap<>()
@@ -65,7 +65,7 @@ public class LSPErrorReporterForXML extends AbstractLSPErrorReporter {
 
 	/**
 	 * Create the LSP range from the SAX error.
-	 * 
+	 *
 	 * @param location
 	 * @param key
 	 * @param arguments
@@ -137,7 +137,7 @@ public class LSPErrorReporterForXML extends AbstractLSPErrorReporter {
 	/**
 	 * Create a diagnostic root where XSD, DTD which have the error if needed and
 	 * attach the error as related information if LSP client support it.
-	 * 
+	 *
 	 * @param location                 the Xerces location.
 	 * @param key                      the Xerces error key
 	 * @param arguments                the Xerces error arguments
@@ -191,7 +191,7 @@ public class LSPErrorReporterForXML extends AbstractLSPErrorReporter {
 
 	/**
 	 * Returns the referenced grammar diagnostics info from the given grammar URI.
-	 * 
+	 *
 	 * @param grammarURI               the referenced grammar URI.
 	 * @param resolverExtensionManager the resolver used to load the DOM document of
 	 *                                 the referenced grammar.
@@ -204,7 +204,7 @@ public class LSPErrorReporterForXML extends AbstractLSPErrorReporter {
 			// Create diagnostic where DDT, XSD which have errors is declared
 			Range range = getReferencedGrammarRange(grammarURI);
 			String message = "";
-			Diagnostic diagnostic = super.addDiagnostic(range, message, DiagnosticSeverity.Error, null);
+			Diagnostic diagnostic = super.addDiagnostic(range, message, DiagnosticSeverity.Error, null, null);
 			// Register the diagnostic as root diagnostic for the XSD, DTD grammar uri
 			info = new ReferencedGrammarDiagnosticsInfo(grammarURI, resolverExtensionManager, diagnostic);
 			referencedGrammarDiagnosticsInfoCache.put(grammarURI, info);

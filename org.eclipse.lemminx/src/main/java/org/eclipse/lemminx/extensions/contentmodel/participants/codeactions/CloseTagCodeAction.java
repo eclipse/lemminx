@@ -34,6 +34,7 @@ import org.eclipse.lsp4j.Range;
  */
 public class CloseTagCodeAction implements ICodeActionParticipant {
 
+	@Override
 	public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
 			SharedSettings sharedSettings, IComponentProvider componentProvider) {
 		Range diagnosticRange = diagnostic.getRange();
@@ -63,12 +64,12 @@ public class CloseTagCodeAction implements ICodeActionParticipant {
 
 	/**
 	 * Add code actions to fix unclosed end-tag.
-	 * 
+	 *
 	 * @param element     the end tag element to fix.
 	 * @param document    the owner DOM document.
 	 * @param diagnostic  the diagnostic.
 	 * @param codeActions the code actions list to fill.
-	 * 
+	 *
 	 * @throws BadLocationException
 	 */
 	private void doCodeActionsForEndTagUnclosed(DOMElement element, DOMDocument document, Diagnostic diagnostic,
@@ -84,30 +85,31 @@ public class CloseTagCodeAction implements ICodeActionParticipant {
 
 	/**
 	 * Add code actions to fix unclosed start-tag.
-	 * 
+	 *
 	 * @param element         the start tag element to fix.
 	 * @param document        the owner DOM document.
 	 * @param diagnosticRange the diagnostic range.
 	 * @param diagnostic      the diagnostic.
 	 * @param codeActions     the code actions list to fill.
-	 * 
+	 *
 	 * @throws BadLocationException
 	 */
 	private void doCodeActionsForStartTagUnclosed(DOMElement element, DOMDocument document, Range diagnosticRange,
 			Diagnostic diagnostic, List<CodeAction> codeActions) throws BadLocationException {
 		// Here start tag element is not closed with '>'.
 		String text = document.getText();
+		int closeAngleBracketOffset = element.getUnclosedStartTagCloseOffset();
+		final Position closeAngleBracketPosition = document.positionAt(closeAngleBracketOffset);
 		if (!element.hasEndTag()) {
 			// The element has no an end tag
 			// ex : <foo
 			// ex : <foo attr="
 			// ex : <foo /
-			int diagnosticEndOffset = document.offsetAt(diagnosticRange.getEnd());
-			boolean hasSlash = isCharAt(text, diagnosticEndOffset - 1, '/');
+			boolean hasSlash = isCharAt(text, closeAngleBracketOffset - 1, '/');
 			if (hasSlash) {
 				// ex : <foo /
 				CodeAction autoCloseAction = insertGreaterThanCharacterCodeAction(document, diagnostic,
-						diagnosticRange);
+						closeAngleBracketPosition);
 				codeActions.add(autoCloseAction);
 			} else {
 				// ex : <foo
@@ -116,31 +118,31 @@ public class CloseTagCodeAction implements ICodeActionParticipant {
 				String tagName = element.getTagName();
 				if (tagName != null) {
 					// Close with '/>'
-					CodeAction autoCloseAction = CodeActionFactory.insert("Close with '/>'", diagnosticRange.getEnd(),
+					CodeAction autoCloseAction = CodeActionFactory.insert("Close with '/>'", closeAngleBracketPosition,
 							"/>", document.getTextDocument(), diagnostic);
 					codeActions.add(autoCloseAction);
 					// Close with '></foo>'
 					String insertText = "></" + tagName + ">";
 					CodeAction closeEndTagAction = CodeActionFactory.insert("Close with '" + insertText + "'",
-							diagnosticRange.getEnd(), insertText, document.getTextDocument(), diagnostic);
+							closeAngleBracketPosition, insertText, document.getTextDocument(), diagnostic);
 					codeActions.add(closeEndTagAction);
 				}
 			}
 		} else {
 			// ex : <foo </foo>
-			CodeAction autoCloseAction = insertGreaterThanCharacterCodeAction(document, diagnostic, diagnosticRange);
+			CodeAction autoCloseAction = insertGreaterThanCharacterCodeAction(document, diagnostic, closeAngleBracketPosition);
 			codeActions.add(autoCloseAction);
 		}
 	}
 
 	/**
 	 * Add code actions to fix closed start-tag.
-	 * 
+	 *
 	 * @param element     the start tag element to fix.
 	 * @param document    the owner DOM document.
 	 * @param diagnostic  the diagnostic.
 	 * @param codeActions the code actions list to fill.
-	 * 
+	 *
 	 * @throws BadLocationException
 	 */
 	private void doCodeActionsForStartTagClosed(DOMElement element, DOMDocument document, Range diagnosticRange,
@@ -233,22 +235,22 @@ public class CloseTagCodeAction implements ICodeActionParticipant {
 
 	/**
 	 * Create a code action which insert '>' at the end of the diagnostic error.
-	 * 
+	 *
 	 * @param diagnostic      the diagnostic.
-	 * @param document        the DOM docment.
-	 * @param diagnosticRange the diagnostic range
+	 * @param document        the DOM document.
+	 * @param position        the position where the '>' should be inserted
 	 * @return a code action which insert '>' at the end of the diagnostic error.
 	 */
 	private static CodeAction insertGreaterThanCharacterCodeAction(DOMDocument document, Diagnostic diagnostic,
-			Range diagnosticRange) {
-		CodeAction autoCloseAction = CodeActionFactory.insert("Close with '>'", diagnosticRange.getEnd(), ">",
+			Position position) {
+		CodeAction autoCloseAction = CodeActionFactory.insert("Close with '>'", position, ">",
 				document.getTextDocument(), diagnostic);
 		return autoCloseAction;
 	}
 
 	/**
 	 * Create a code action which remove the content of the given DOM element.
-	 * 
+	 *
 	 * @param element    the DOM element to remove.
 	 * @param document   the DOM document.
 	 * @param diagnostic the diagnostic.
@@ -269,7 +271,7 @@ public class CloseTagCodeAction implements ICodeActionParticipant {
 	/**
 	 * Create a code action which replaces the end tag name of the given element
 	 * with the given replace tag name.
-	 * 
+	 *
 	 * @param element        the DOM element to replace
 	 * @param replaceTagName the replace tag name
 	 * @param diagnostic     the diagnostic.
@@ -297,9 +299,9 @@ public class CloseTagCodeAction implements ICodeActionParticipant {
 	/**
 	 * Returns true if the given element has elements as children and false
 	 * otherwise.
-	 * 
+	 *
 	 * @param element the DOM element.
-	 * 
+	 *
 	 * @return true if the given element has elements as children and false
 	 *         otherwise.
 	 */
