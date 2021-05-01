@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.customservice.AutoCloseTagResponse;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -80,7 +81,7 @@ public class XMLCompletionTest {
 
 	@Test
 	public void successfulEndTagCompletionWithIndent() throws BadLocationException {
-		
+
 		testCompletionFor("<a></|", 1, c("End with '</a>'", "/a>", r(0, 4, 0, 5), "/a>"));
 
 		testCompletionFor("  <a>\r\n" + //
@@ -186,6 +187,51 @@ public class XMLCompletionTest {
 	}
 
 	@Test
+	public void testAutoCloseTagCompletionRemovesContent() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getCompletionSettings().setAutoCloseTags(true);
+		settings.getCompletionSettings().setAutoCloseRemovesContent(true);
+
+
+		String value = //
+				"<a/|\n" + //
+				"  <b />\n" + //
+				"</a>";
+		AutoCloseTagResponse closeTagResponse = new AutoCloseTagResponse(">$0", r(0, 3, 2, 4));
+
+		XMLAssert.testTagCompletion(value, closeTagResponse, settings);
+	}
+
+	@Test
+	public void testAutoCloseTagCompletionDoesntRemoveContent() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getCompletionSettings().setAutoCloseTags(true);
+		settings.getCompletionSettings().setAutoCloseRemovesContent(false);
+
+		String value = //
+				"<a/|\n" + //
+				"  <b />\n" + //
+				"</a>";
+		AutoCloseTagResponse closeTagResponse = new AutoCloseTagResponse(">$0");
+
+		XMLAssert.testTagCompletion(value, closeTagResponse, settings);
+	}
+
+	@Test
+	public void testAutoCloseTagCompletionWithLeadingTextContent() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getCompletionSettings().setAutoCloseTags(true);
+		settings.getCompletionSettings().setAutoCloseRemovesContent(true);
+
+		String value = //
+				"<a/|\n" + //
+				"  content\n" + //
+				"</a>";
+
+		XMLAssert.testTagCompletion(value, (AutoCloseTagResponse) null, settings);
+	}
+
+	@Test
 	public void testnoCDATANPE() {
 		try {
 			testCompletionFor("<a> <![CDATA[<b>foo</b>]]| </a>", 0);
@@ -229,6 +275,10 @@ public class XMLCompletionTest {
 	}
 
 	public void assertAutoCloseEndTagCompletionWithRange(String xmlText, String expectedTextEdit, Range range) {
+		assertAutoCloseEndTagCompletionWithRange(xmlText, expectedTextEdit, range, new SharedSettings());
+	}
+
+	public void assertAutoCloseEndTagCompletionWithRange(String xmlText, String expectedTextEdit, Range range, SharedSettings settings) {
 		int offset = getOffset(xmlText);
 		DOMDocument xmlDocument = initializeXMLDocument(xmlText, offset);
 		Position position = null;
@@ -237,7 +287,7 @@ public class XMLCompletionTest {
 		} catch (Exception e) {
 			fail("Couldn't get position at offset");
 		}
-		AutoCloseTagResponse response = languageService.doTagComplete(xmlDocument, position);
+		AutoCloseTagResponse response = languageService.doTagComplete(xmlDocument, settings.getCompletionSettings(), position);
 		if (response == null) {
 			assertNull(expectedTextEdit);
 			assertNull(range);

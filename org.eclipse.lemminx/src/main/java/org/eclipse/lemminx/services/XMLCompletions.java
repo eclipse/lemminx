@@ -44,6 +44,7 @@ import org.eclipse.lemminx.services.extensions.ICompletionResponse;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.services.snippets.IXMLSnippetContext;
 import org.eclipse.lemminx.settings.SharedSettings;
+import org.eclipse.lemminx.settings.XMLCompletionSettings;
 import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.CompletionItem;
@@ -467,7 +468,7 @@ public class XMLCompletions {
 		return true;
 	}
 
-	public AutoCloseTagResponse doTagComplete(DOMDocument xmlDocument, Position position, CancelChecker cancelChecker) {
+	public AutoCloseTagResponse doTagComplete(DOMDocument xmlDocument, Position position, XMLCompletionSettings completionSettings, CancelChecker cancelChecker) {
 		int offset;
 		try {
 			offset = xmlDocument.offsetAt(position);
@@ -521,13 +522,8 @@ public class XMLCompletions {
 						}
 					}
 					String text = xmlDocument.getText();
-					boolean closeBracketAfterSlash = offset < text.length() ? text.charAt(offset) == '>' : false; // After
-																													// the
-																													// slash
-																													// is
-																													// a
-																													// close
-																													// bracket
+					// After the slash is a close bracket
+					boolean closeBracketAfterSlash = offset < text.length() ? text.charAt(offset) == '>' : false;
 
 					// Case: <a/| ...
 					if (closeBracketAfterSlash == false) { // no '>' after slash
@@ -536,7 +532,7 @@ public class XMLCompletions {
 							return null;
 						}
 						snippet = ">$0";
-						if (element1.hasEndTag()) { // Case: <a/| </a>
+						if (element1.hasEndTag() && completionSettings.isAutoCloseRemovesContent()) { // Case: <a/| </a>
 							try {
 								end = xmlDocument.positionAt(element1.getEnd());
 							} catch (BadLocationException e) {
