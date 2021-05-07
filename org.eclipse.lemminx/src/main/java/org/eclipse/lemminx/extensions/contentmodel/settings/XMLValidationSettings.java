@@ -182,6 +182,7 @@ public class XMLValidationSettings {
 			this.namespaces = settings.namespaces;
 			this.schema = settings.schema;
 			this.enabled = settings.enabled;
+			this.noGrammar = settings.noGrammar;
 			this.disallowDocTypeDecl = settings.disallowDocTypeDecl;
 			this.resolveExternalEntities = settings.resolveExternalEntities;
 		}
