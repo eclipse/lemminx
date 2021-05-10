@@ -28,6 +28,8 @@ import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import com.google.gson.JsonPrimitive;
+
 import org.eclipse.lemminx.client.ExtendedClientCapabilities;
 import org.eclipse.lemminx.client.LimitExceededWarner;
 import org.eclipse.lemminx.client.LimitFeature;
@@ -93,8 +95,6 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.validation.NonNull;
 import org.eclipse.lsp4j.services.TextDocumentService;
-
-import com.google.gson.JsonPrimitive;
 
 /**
  * XML text document service.
@@ -256,6 +256,9 @@ public class XMLTextDocumentService implements TextDocumentService {
 			DocumentSymbolParams params) {
 
 		TextDocument document = getDocument(params.getTextDocument().getUri());
+		if (document == null) {
+			return CompletableFuture.completedFuture(null);
+		}
 		XMLSymbolSettings symbolSettings = sharedSettings.getSymbolSettings();
 
 		if (!symbolSettings.isEnabled() || symbolSettings.isExcluded(document.getUri())) {
@@ -302,6 +305,9 @@ public class XMLTextDocumentService implements TextDocumentService {
 		return computeAsync((cancelChecker) -> {
 			String uri = params.getTextDocument().getUri();
 			TextDocument document = getDocument(uri);
+			if (document == null) {
+				return null;
+			}
 			CompositeSettings settings = new CompositeSettings(getSharedSettings(), params.getOptions());
 			return getXMLLanguageService().format(document, null, settings);
 		});
@@ -312,6 +318,9 @@ public class XMLTextDocumentService implements TextDocumentService {
 		return computeAsync((cancelChecker) -> {
 			String uri = params.getTextDocument().getUri();
 			TextDocument document = getDocument(uri);
+			if (document == null) {
+				return null;
+			}
 			CompositeSettings settings = new CompositeSettings(getSharedSettings(), params.getOptions());
 			return getXMLLanguageService().format(document, params.getRange(), settings);
 		});
@@ -595,7 +604,11 @@ public class XMLTextDocumentService implements TextDocumentService {
 	 */
 	public <R> CompletableFuture<R> computeDOMAsync(TextDocumentIdentifier documentIdentifier,
 			BiFunction<CancelChecker, DOMDocument, R> code) {
-		return computeModelAsync(getDocument(documentIdentifier.getUri()).getModel(), code);
+		ModelTextDocument<DOMDocument> document = getDocument(documentIdentifier.getUri());
+		if (document != null) {
+			return computeModelAsync(document.getModel(), code);
+		}
+		return CompletableFuture.completedFuture(null);
 	}
 
 	private static <R, M> CompletableFuture<R> computeModelAsync(CompletableFuture<M> loadModel,
