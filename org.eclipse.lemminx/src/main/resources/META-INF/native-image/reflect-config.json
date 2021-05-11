@@ -30,6 +30,13 @@
 		}]
 	},
 	{
+		"name": "org.apache.xerces.impl.dv.dtd.XML11DTDDVFactoryImpl",
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
 		"name": "org.apache.xerces.impl.dv.xs.ExtendedSchemaDVFactoryImpl",
 		"methods": [{
 			"name": "<init>",
