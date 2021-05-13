@@ -52,6 +52,7 @@ import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLCodeLensSettings;
 import org.eclipse.lemminx.settings.XMLSymbolSettings;
 import org.eclipse.lemminx.utils.StringUtils;
+import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.CodeLens;
@@ -79,12 +80,14 @@ import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ReferenceContext;
 import org.eclipse.lsp4j.ResourceOperation;
+import org.eclipse.lsp4j.SelectionRange;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.SymbolKind;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.junit.jupiter.api.Assertions;
 
@@ -117,6 +120,8 @@ public class XMLAssert {
 	public static final int CATALOG_SNIPPETS = 3;
 
 	private static final String FILE_URI = "test.xml";
+
+	private static final CancelChecker NULL_CHECKER = () -> {};
 
 	public static class SettingsSaveContext extends AbstractSaveContext {
 
@@ -1260,4 +1265,52 @@ public class XMLAssert {
 		String actual = manager.generate(document, sharedSettings, grammarSettings);
 		Assertions.assertEquals(expected, actual);
 	}
+
+	// ------------------- Selection Range assert
+
+	public static void testSelectionRange(String xml, SelectionRange... selectionRanges) {
+		StringBuilder stringBuilder = new StringBuilder(xml);
+		List<Integer> cursorOffsets = new ArrayList<>();
+		int nextPipe = stringBuilder.indexOf("|");
+		while (nextPipe > 0) {
+			cursorOffsets.add(nextPipe);
+			stringBuilder.deleteCharAt(nextPipe);
+			nextPipe = stringBuilder.indexOf("|");
+		}
+		assertEquals(selectionRanges.length, cursorOffsets.size(), "Number of cursors and SelectionRanges should be equal");
+		testSelectionRange(stringBuilder.toString(), cursorOffsets, selectionRanges);
+	}
+
+	public static void testSelectionRange(String xml, List<Integer> cursorOffsets, SelectionRange... selectionRanges) {
+		DOMDocument document = DOMParser.getInstance().parse(xml, "test://test/test.html", null);
+		List<Position> positions = new ArrayList<>();
+		for (Integer offset : cursorOffsets) {
+			positions.add(XMLPositionUtility.createRange(offset, offset, document).getStart());
+		}
+		XMLLanguageService ls = new XMLLanguageService();
+		List<SelectionRange> actual = ls.getSelectionRanges(document, positions, NULL_CHECKER);
+		assertSelectionRangeEquals(Arrays.asList(selectionRanges), actual);
+	}
+
+	public static void assertSelectionRangeEquals(List<SelectionRange> expected, List<SelectionRange> actual) {
+		assertEquals(expected.size(), actual.size(), "Different number of expected and actual selection ranges");
+		for (int i = 0; i < expected.size(); i++) {
+			assertEquals(expected.get(i), actual.get(i));
+		}
+	}
+
+	public static SelectionRange sr(Range... ranges) {
+		return sr(Arrays.asList(ranges));
+	}
+
+	public static SelectionRange sr(List<Range> ranges) {
+		if (ranges.size() == 0) {
+			return null;
+		}
+		SelectionRange selectionRange = new SelectionRange();
+		selectionRange.setRange(ranges.get(0));
+		selectionRange.setParent(sr(ranges.subList(1, ranges.size())));
+		return selectionRange;
+	}
+
 }

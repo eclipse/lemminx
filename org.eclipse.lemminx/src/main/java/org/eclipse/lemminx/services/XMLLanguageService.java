@@ -49,6 +49,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ReferenceContext;
+import org.eclipse.lsp4j.SelectionRange;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
@@ -84,6 +85,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 	private final XMLCodeLens codelens;
 	private final XMLCodeActions codeActions;
 	private final XMLRename rename;
+	private final XMLSelectionRanges selectionRanges;
 
 	public XMLLanguageService() {
 		this.formatter = new XMLFormatter(this);
@@ -100,6 +102,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 		this.codelens = new XMLCodeLens(this);
 		this.codeActions = new XMLCodeActions(this);
 		this.rename = new XMLRename(this);
+		this.selectionRanges = new XMLSelectionRanges();
 	}
 
 	@Override
@@ -223,6 +226,10 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 	public List<FoldingRange> getFoldingRanges(DOMDocument xmlDocument, XMLFoldingSettings context,
 			CancelChecker cancelChecker) {
 		return foldings.getFoldingRanges(xmlDocument.getTextDocument(), context, cancelChecker);
+	}
+
+	public List<SelectionRange> getSelectionRanges(DOMDocument xmlDocument, List<Position> positions, CancelChecker cancelChecker) {
+		return selectionRanges.getSelectionRanges(xmlDocument, positions, cancelChecker);
 	}
 
 	public WorkspaceEdit doRename(DOMDocument xmlDocument, Position position, String newText) {

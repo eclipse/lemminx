@@ -54,7 +54,7 @@ public class DOMDocumentType extends DTDDeclNode implements org.w3c.dom.Document
 
 	/**
 	 * Returns the document type kind (PUBLIC or SYSTEM)
-	 * 
+	 *
 	 * @return the document type kind (PUBLIC or SYSTEM)
 	 */
 	public String getKind() {
@@ -63,7 +63,7 @@ public class DOMDocumentType extends DTDDeclNode implements org.w3c.dom.Document
 
 	/**
 	 * Returns the node where document type kind (PUBLIC or SYSTEM) is declared
-	 * 
+	 *
 	 * @return the node where document type kind (PUBLIC or SYSTEM) is declared
 	 */
 	public DTDDeclParameter getKindNode() {
@@ -79,7 +79,7 @@ public class DOMDocumentType extends DTDDeclNode implements org.w3c.dom.Document
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Node#getNodeName()
 	 */
 	@Override
@@ -89,7 +89,7 @@ public class DOMDocumentType extends DTDDeclNode implements org.w3c.dom.Document
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Node#getNodeType()
 	 */
 	@Override
@@ -99,7 +99,7 @@ public class DOMDocumentType extends DTDDeclNode implements org.w3c.dom.Document
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.DocumentType#getEntities()
 	 */
 	@Override
@@ -118,7 +118,7 @@ public class DOMDocumentType extends DTDDeclNode implements org.w3c.dom.Document
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.DocumentType#getInternalSubset()
 	 */
 	@Override
@@ -147,7 +147,7 @@ public class DOMDocumentType extends DTDDeclNode implements org.w3c.dom.Document
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.DocumentType#getNotations()
 	 */
 	@Override
@@ -157,7 +157,7 @@ public class DOMDocumentType extends DTDDeclNode implements org.w3c.dom.Document
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.DocumentType#getPublicId()
 	 */
 	@Override
@@ -172,7 +172,7 @@ public class DOMDocumentType extends DTDDeclNode implements org.w3c.dom.Document
 	public DTDDeclParameter getPublicIdNode() {
 		return publicId;
 	}
-	
+
 	/**
 	 * @param publicId the publicId to set
 	 */
@@ -182,7 +182,7 @@ public class DOMDocumentType extends DTDDeclNode implements org.w3c.dom.Document
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.DocumentType#getSystemId()
 	 */
 	@Override
@@ -208,7 +208,7 @@ public class DOMDocumentType extends DTDDeclNode implements org.w3c.dom.Document
 	/**
 	 * Returns a substring of the whole document.
 	 *
-	 * 
+	 *
 	 * Since offset values are relative to 'this.start' we need to subtract
 	 * getStart() to make them relative to 'content'
 	 */
@@ -218,6 +218,15 @@ public class DOMDocumentType extends DTDDeclNode implements org.w3c.dom.Document
 			return null;
 		}
 		return textContent.substring(start - getStart(), end - getStart());
+	}
+
+	/**
+	 * Returns the declaration parameter that represents the internal subset, or null if there is no internal subset
+	 *
+	 * @return the declaration parameter that represents the internal subset, or null if there is no internal subset
+	 */
+	public DTDDeclParameter getInternalSubsetNode() {
+		return this.internalSubset;
 	}
 
 }
