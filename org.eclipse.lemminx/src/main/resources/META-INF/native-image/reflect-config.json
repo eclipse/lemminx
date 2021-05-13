@@ -1301,7 +1301,23 @@
 		}]
 	},
 	{
+		"name": "org.eclipse.lsp4j.SelectionRange",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
 		"name": "org.eclipse.lsp4j.SelectionRangeCapabilities",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
+		"name": "org.eclipse.lsp4j.SelectionRangeParams",
 		"allDeclaredFields": true,
 		"methods": [{
 			"name": "<init>",

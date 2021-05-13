@@ -45,6 +45,7 @@ public class ServerCapabilitiesConstants {
 	public static final String TEXT_DOCUMENT_HOVER = "textDocument/hover";
 	public static final String TEXT_DOCUMENT_REFERENCES = "textDocument/references";
 	public static final String TEXT_DOCUMENT_HIGHLIGHT = "textDocument/documentHighlight";
+	public static final String TEXT_DOCUMENT_SELECTION_RANGE = "textDocument/selectionRange";
 
 	public static final String WORKSPACE_CHANGE_FOLDERS = "workspace/didChangeWorkspaceFolders";
 	public static final String WORKSPACE_EXECUTE_COMMAND = "workspace/executeCommand";
@@ -70,6 +71,7 @@ public class ServerCapabilitiesConstants {
 	public static final String HOVER_ID = UUID.randomUUID().toString();
 	public static final String REFERENCES_ID = UUID.randomUUID().toString();
 	public static final String DOCUMENT_HIGHLIGHT_ID = UUID.randomUUID().toString();
+	public static final String SELECTION_RANGE_ID = UUID.randomUUID().toString();
 	public static final String WORKSPACE_CHANGE_FOLDERS_ID = UUID.randomUUID().toString();
 	public static final String WORKSPACE_WATCHED_FILES_ID = UUID.randomUUID().toString();
 
