@@ -997,6 +997,14 @@
 		}]
 	},
 	{
+		"name": "org.eclipse.lsp4j.ExecuteCommandParams",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
 		"name": "org.eclipse.lsp4j.FileEvent",
 		"allDeclaredFields": true,
 		"methods": [{
