@@ -1,5 +1,24 @@
 # Change Log
 
+## [0.16.1](https://github.com/eclipse/lemminx/milestone/21?closed=1) (May 18, 2021)
+
+### Enhancements
+
+ * Improve the error range for unterminated elements, and use `relatedInformation` to show the expected close tag placement. See [#963](https://github.com/eclipse/lemminx/issues/963).
+ * Add setting `xml.completion.autoCloseRemovesContent` to prevent auto self-closing feature from deleting content. See [#1009](https://github.com/eclipse/lemminx/pull/1009).
+ * Change name of telemetry events to use `.`. See [#1017](https://github.com/eclipse/lemminx/pull/1017).
+ * Output the language server error stream during development. See [#1019](https://github.com/eclipse/lemminx/issues/1019).
+ * Update Guava to 30.1.1. See [#1025](https://github.com/eclipse/lemminx/issues/1025)
+ * Update Xerces to 2.12.1. See [#1013](https://github.com/eclipse/lemminx/issues/1013).
+
+### Bug Fixes
+
+ * Fix `xml.validation.noGrammar` setting. See [#1024](https://github.com/eclipse/lemminx/pull/1024).
+ * Fix XML 1.1 support in the binary server. See [#1027](https://github.com/eclipse/lemminx/issues/1027).
+ * Fix revalidation commands in the binary server. See [#1031](https://github.com/eclipse/lemminx/issues/1031).
+ * Return `null` when receiving a request on a document before it has been opened. See [#957](https://github.com/eclipse/lemminx/issues/957).
+ * Update the binary configuration so that the server works with an LSP 3.15 client. See [#1022](https://github.com/eclipse/lemminx/pull/1022).
+
 ## [0.16.0](https://github.com/eclipse/lemminx/milestone/21?closed=1) (April 13, 2021)
 
 ### Enhancements
