@@ -945,6 +945,14 @@
 		}]
 	},
 	{
+		"name": "org.eclipse.lsp4j.DocumentRangeFormattingParams",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
 		"name": "org.eclipse.lsp4j.DocumentSymbol",
 		"allDeclaredFields": true,
 		"methods": [{
