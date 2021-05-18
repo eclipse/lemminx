@@ -2991,4 +2991,17 @@ public class XMLFormatterTest {
 		assertFormat(content, expected, settings);
 	}
 
+	@Test
+	public void ejs() throws BadLocationException {
+		String content = "<foo>\r\n" + //
+				"	  <url><%= url %></url>\r\n" + //
+				"</foo>";
+		String expected = "<foo>\r\n" + //
+				"  <url>\r\n" + //
+				"    <%= url %>\r\n" + //
+				"  </url>\r\n" + //
+				"</foo>";
+		assertFormat(content, expected);
+	}
+	
 }
