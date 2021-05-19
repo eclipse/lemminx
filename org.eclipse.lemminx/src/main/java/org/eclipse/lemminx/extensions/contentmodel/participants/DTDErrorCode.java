@@ -20,6 +20,7 @@ import java.util.Map;
 import org.apache.xerces.xni.XMLLocator;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lemminx.dom.DOMDocumentType;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMRange;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.ElementDeclUnterminatedCodeAction;
@@ -48,6 +49,7 @@ public enum DTDErrorCode implements IXMLErrorCode {
 	ElementDeclUnterminated, //
 	EntityDeclUnterminated, //
 	EntityNotDeclared, //
+	EntityExpansionLimitExceeded, //
 	ExternalIDorPublicIDRequired, //
 	IDInvalidWithNamespaces, //
 	IDREFInvalidWithNamespaces, //
@@ -170,6 +172,7 @@ public enum DTDErrorCode implements IXMLErrorCode {
 		case PEReferenceWithinMarkup: {
 			return XMLPositionUtility.getLastValidDTDDeclParameter(offset, document, true);
 		}
+		case EntityExpansionLimitExceeded:
 		case EntityNotDeclared: {
 			EntityReferenceRange range = XMLPositionUtility.selectEntityReference(offset - 1, document);
 			return range != null ? range.getRange() : null;

@@ -20,6 +20,7 @@ import static org.eclipse.lemminx.XMLAssert.te;
 import static org.eclipse.lemminx.XMLAssert.testCodeActionsFor;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.util.URI.MalformedURIException;
@@ -765,6 +766,82 @@ public class DTDDiagnosticsTest {
 		XMLAssert.testDiagnosticsFor(xmlLanguageService, xml, null, null, "src/test/resources/test.xml", false,
 				settings, //
 				diagnostic, diagnosticBasedOnDTD);
+	}
+
+	@Test
+	public void defaultEntityExpansionLimit() {
+		ContentModelSettings settings = new ContentModelSettings();
+		settings.setUseCache(true);
+		XMLValidationSettings validationSettings = new XMLValidationSettings();
+		validationSettings.setResolveExternalEntities(true);
+		settings.setValidation(validationSettings);
+
+		Locale defaultLocale = Locale.getDefault();
+		try {
+			// Set local as English for formatting integer in error message with ','
+			// See 64,000 in "The parser has encountered more than \"64,000\" entity
+			// expansions in this document; this is the limit imposed by the application."
+			Locale.setDefault(Locale.ENGLISH);
+			String xml = "<?xml version=\"1.0\"?>\r\n" + //
+					"<!DOCTYPE lolz [\r\n" + //
+					"    <!ENTITY lol \"lol\">\r\n" + //
+					"    <!ELEMENT lolz (#PCDATA)>\r\n" + //
+					"    <!ENTITY lol1 \"&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;\">\r\n" + //
+					"    <!ENTITY lol2 \"&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;\">\r\n" + //
+					"    <!ENTITY lol3 \"&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;\">\r\n" + //
+					"    <!ENTITY lol4 \"&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;\">\r\n" + //
+					"    <!ENTITY lol5 \"&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;\">\r\n" + //
+					"    <!ENTITY lol6 \"&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;\">\r\n" + //
+					"    <!ENTITY lol7 \"&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;\">\r\n" + //
+					"    <!ENTITY lol8 \"&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;\">\r\n" + //
+					"    <!ENTITY lol9 \"&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;\">\r\n" + //
+					"]>\r\n" + //
+					"<lolz>&lol9;</lolz>";
+
+			Diagnostic diagnostic = d(14, 6, 14, 12, DTDErrorCode.EntityExpansionLimitExceeded, //
+					"The parser has encountered more than \"64,000\" entity expansions in this document; this is the limit imposed by the application.",
+					"xml", DiagnosticSeverity.Error);
+			XMLAssert.testDiagnosticsFor(new XMLLanguageService(), xml, null, null, null, false, settings, diagnostic);
+		} finally {
+			Locale.setDefault(defaultLocale);
+		}
+	}
+
+	@Test
+	public void customEntityExpansionLimit() {
+		ContentModelSettings settings = new ContentModelSettings();
+		settings.setUseCache(true);
+		XMLValidationSettings validationSettings = new XMLValidationSettings();
+		validationSettings.setResolveExternalEntities(true);
+		settings.setValidation(validationSettings);
+
+		try {
+			System.setProperty("jdk.xml.entityExpansionLimit", "10");
+
+			String xml = "<?xml version=\"1.0\"?>\r\n" + //
+					"<!DOCTYPE lolz [\r\n" + //
+					"    <!ENTITY lol \"lol\">\r\n" + //
+					"    <!ELEMENT lolz (#PCDATA)>\r\n" + //
+					"    <!ENTITY lol1 \"&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;\">\r\n" + //
+					"    <!ENTITY lol2 \"&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;\">\r\n" + //
+					"    <!ENTITY lol3 \"&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;\">\r\n" + //
+					"    <!ENTITY lol4 \"&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;\">\r\n" + //
+					"    <!ENTITY lol5 \"&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;\">\r\n" + //
+					"    <!ENTITY lol6 \"&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;\">\r\n" + //
+					"    <!ENTITY lol7 \"&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;\">\r\n" + //
+					"    <!ENTITY lol8 \"&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;\">\r\n" + //
+					"    <!ENTITY lol9 \"&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;\">\r\n" + //
+					"]>\r\n" + //
+					"<lolz>&lol9;</lolz>";
+
+			Diagnostic diagnostic = d(14, 6, 14, 12, DTDErrorCode.EntityExpansionLimitExceeded, //
+					"The parser has encountered more than \"10\" entity expansions in this document; this is the limit imposed by the application.",
+					"xml", DiagnosticSeverity.Error);
+			XMLAssert.testDiagnosticsFor(new XMLLanguageService(), xml, null, null, null, false, settings, diagnostic);
+
+		} finally {
+			System.setProperty("jdk.xml.entityExpansionLimit", "");
+		}
 	}
 
 	private static void testDiagnosticsFor(String xml, Diagnostic... expected) {

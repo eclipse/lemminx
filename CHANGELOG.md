@@ -1,6 +1,13 @@
 # Change Log
 
-## [0.16.1](https://github.com/eclipse/lemminx/milestone/21?closed=1) (May 18, 2021)
+## [0.16.2](https://github.com/eclipse/lemminx/milestone/24?closed=1) (May 18, 2021)
+
+### Bug Fixes
+
+ * Fix range formatting in the binary server. See [#1035](https://github.com/eclipse/lemminx/issues/1035)
+ * Mitigate Billion Laughs vulnerability. See [#1038](https://github.com/eclipse/lemminx/pull/1038)
+
+## [0.16.1](https://github.com/eclipse/lemminx/milestone/22?closed=1) (May 17, 2021)
 
 ### Enhancements
 
