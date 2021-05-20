@@ -22,9 +22,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-
 import org.eclipse.lemminx.XMLLanguageServer;
 import org.eclipse.lemminx.client.CodeLensKind;
 import org.eclipse.lemminx.client.ExtendedClientCapabilities;
@@ -37,6 +34,9 @@ import org.eclipse.lsp4j.FormattingOptions;
 import org.eclipse.lsp4j.InitializeParams;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 /**
  * Tests for settings.
@@ -86,7 +86,8 @@ public class SettingsTest {
 			"				\"joinCDATALines\": true,\r\n" + //
 			"				\"formatComments\": true,\r\n" + //
 			"				\"joinCommentLines\": true,\r\n" + //
-			"				\"preserveAttributeLineBreaks\": true\r\n" + //
+			"				\"preserveAttributeLineBreaks\": true,\r\n" + //
+			"				\"preserveSpace\": ['xsl:text']\r\n" + //
 			"			},\r\n" + "			\"server\": {\r\n" + //
 			"				\"workDir\": \"~/" + testFolder + "/Nested\"\r\n" + //
 			"			},\r\n" + "			\"symbols\": {\r\n" + //
@@ -152,6 +153,22 @@ public class SettingsTest {
 	}
 
 	@Test
+	public void formatSettingsFromJson() {
+		// Tests load of XML format.
+
+		InitializeParams params = createInitializeParams(json);
+		Object initializationOptionsSettings = InitializationOptionsSettings.getSettings(params);
+		XMLLanguageServer languageServer = new XMLLanguageServer();
+		languageServer.updateSettings(initializationOptionsSettings); // This should set/update the sharedSettings
+
+		XMLFormattingOptions xmlFormattingOptions = languageServer.getSharedSettings().getFormattingSettings();
+		assertEquals(10, xmlFormattingOptions.getTabSize());
+		assertNotNull(xmlFormattingOptions.getPreserveSpace());
+		assertEquals(1, xmlFormattingOptions.getPreserveSpace().size());
+		assertEquals("xsl:text", xmlFormattingOptions.getPreserveSpace().get(0));
+	}
+
+	@Test
 	public void formatSettings() {
 		// formatting options coming from request
 		FormattingOptions formattingOptions = new FormattingOptions();
@@ -180,13 +197,13 @@ public class SettingsTest {
 	@Test
 	public void formatSettingsOverride() {
 		XMLFormattingOptions options = new XMLFormattingOptions();
-		options.setPreserveAttrLineBreaks(true);
+		options.setPreserveAttributeLineBreaks(true);
 		options.setSplitAttributes(false);
-		assertTrue(options.isPreserveAttrLineBreaks());
+		assertTrue(options.isPreserveAttributeLineBreaks());
 		options.setSplitAttributes(true);
 
 		// overridden
-		assertFalse(options.isPreserveAttrLineBreaks());
+		assertFalse(options.isPreserveAttributeLineBreaks());
 	}
 
 	@Test
@@ -232,7 +249,7 @@ public class SettingsTest {
 		XMLExcludedSymbolFile xmlFile = new XMLExcludedSymbolFile("**\\*.xml");
 		XMLExcludedSymbolFile[] expectedExcludedFiles = new XMLExcludedSymbolFile[] { xsdFile, xmlFile };
 
-		XMLExcludedSymbolFile[] actualExpectedFiles = languageServer.getSettings().getSymbolSettings()
+		XMLExcludedSymbolFile[] actualExpectedFiles = languageServer.getSharedSettings().getSymbolSettings()
 				.getExcludedFiles();
 		assertArrayEquals(expectedExcludedFiles, actualExpectedFiles);
 	}
@@ -255,7 +272,8 @@ public class SettingsTest {
 
 	@Test
 	public void oldBooleanDoesntCrashSettings() {
-		AllXMLSettings allSettings = new Gson().fromJson("{'xml': { \"validation\": { \"schema\": false}}}", AllXMLSettings.class);
+		AllXMLSettings allSettings = new Gson().fromJson("{'xml': { \"validation\": { \"schema\": false}}}",
+				AllXMLSettings.class);
 		JSONUtility.toModel(allSettings.getXml(), ContentModelSettings.class);
 	}
 }

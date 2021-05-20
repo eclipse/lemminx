@@ -10,7 +10,7 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lemminx.services;
+package org.eclipse.lemminx.services.format;
 
 import static java.lang.System.lineSeparator;
 import static org.eclipse.lemminx.XMLAssert.assertFormat;
@@ -2616,7 +2616,7 @@ public class XMLFormatterTest {
 	@Test
 	public void preserveAttributeLineBreaksFormatProlog() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setPreserveAttrLineBreaks(true);
+		settings.getFormattingSettings().setPreserveAttributeLineBreaks(true);
 		String content = "<?xml \n" + //
 				"version=\"1.0\"\n" + //
 				"encoding=\"UTF-8\"?>\n" + //
@@ -2636,7 +2636,7 @@ public class XMLFormatterTest {
 	@Test
 	public void preserveAttributeLineBreaks() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setPreserveAttrLineBreaks(true);
+		settings.getFormattingSettings().setPreserveAttributeLineBreaks(true);
 
 		String content = "<a>\n" + //
 				"<b attr=\"value\" attr=\"value\"\n" + //
@@ -2655,7 +2655,7 @@ public class XMLFormatterTest {
 	@Test
 	public void preserveAttributeLineBreaks2() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setPreserveAttrLineBreaks(true);
+		settings.getFormattingSettings().setPreserveAttributeLineBreaks(true);
 		String content = "<a>\n" + //
 				"  <b attr=\"value\" attr=\"value\"\n" + //
 				"    attr=\"value\"\n" + //
@@ -2676,7 +2676,7 @@ public class XMLFormatterTest {
 	@Test
 	public void preserveAttributeLineBreaks3() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setPreserveAttrLineBreaks(true);
+		settings.getFormattingSettings().setPreserveAttributeLineBreaks(true);
 		String content = "<a\n" + //
 				"  attr=\"value\"\n" + //
 				"  attr=\"value\"\n" + //
@@ -2692,7 +2692,7 @@ public class XMLFormatterTest {
 	@Test
 	public void preserveAttributeLineBreaks4() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setPreserveAttrLineBreaks(true);
+		settings.getFormattingSettings().setPreserveAttributeLineBreaks(true);
 		String content = "<a\n" + //
 				"attr\n" + //
 				"=\n" + //
@@ -2711,7 +2711,7 @@ public class XMLFormatterTest {
 	@Test
 	public void preserveAttributeLineBreaks5() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setPreserveAttrLineBreaks(true);
+		settings.getFormattingSettings().setPreserveAttributeLineBreaks(true);
 		String content = "<a attr=\"value\" attr=\"value\"\n" + //
 				"  attr=\n" + //
 				"  \"value\" attr=\"value\"></a>";
@@ -2723,7 +2723,7 @@ public class XMLFormatterTest {
 	@Test
 	public void preserveAttributeLineBreaksMissingValue() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setPreserveAttrLineBreaks(true);
+		settings.getFormattingSettings().setPreserveAttributeLineBreaks(true);
 		String content = "<a attr= attr=\"value\"\n" + //
 				"  attr=\n" + //
 				"   attr=\"value\"></a>";
@@ -2736,7 +2736,7 @@ public class XMLFormatterTest {
 	@Test
 	public void preserveAttributeLineBreaksCollapseEmptyElement() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setPreserveAttrLineBreaks(true);
+		settings.getFormattingSettings().setPreserveAttributeLineBreaks(true);
 		settings.getFormattingSettings().setEmptyElement(EmptyElements.collapse);
 
 		String content = "<a>\n" + //
@@ -2754,7 +2754,7 @@ public class XMLFormatterTest {
 	@Test
 	public void preserveAttributeLineBreaksCollapseEmptyElement2() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setPreserveAttrLineBreaks(true);
+		settings.getFormattingSettings().setPreserveAttributeLineBreaks(true);
 		settings.getFormattingSettings().setEmptyElement(EmptyElements.collapse);
 
 		String content = "<a>\n" + //
@@ -2776,7 +2776,7 @@ public class XMLFormatterTest {
 	@Test
 	public void preserveAttributeLineBreaksCollapseEmptyElement3() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setPreserveAttrLineBreaks(true);
+		settings.getFormattingSettings().setPreserveAttributeLineBreaks(true);
 		settings.getFormattingSettings().setEmptyElement(EmptyElements.collapse);
 
 		String content = "<a>\n" + //
@@ -2788,7 +2788,7 @@ public class XMLFormatterTest {
 	@Test
 	public void preserveAttributeLineBreaksRangeFormatting() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setPreserveAttrLineBreaks(true);
+		settings.getFormattingSettings().setPreserveAttributeLineBreaks(true);
 		settings.getFormattingSettings().setEmptyElement(EmptyElements.collapse);
 
 		String content = "<a a1=\"123456789\" a2=\"123456789\" a3=\"123456789\"\n" + //
@@ -2805,7 +2805,7 @@ public class XMLFormatterTest {
 	@Test
 	public void preserveAttributeLineBreaksRangeFormattingWithEndTag() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setPreserveAttrLineBreaks(true);
+		settings.getFormattingSettings().setPreserveAttributeLineBreaks(true);
 		settings.getFormattingSettings().setEmptyElement(EmptyElements.collapse);
 
 		String content = "<a a1=\"123456789\" a2=\"123456789\" a3=\"123456789\"\n" + //
@@ -2822,7 +2822,7 @@ public class XMLFormatterTest {
 	@Test
 	public void preserveAttributeLineBreaksRangeFormattingWithEndTag2() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setPreserveAttrLineBreaks(true);
+		settings.getFormattingSettings().setPreserveAttributeLineBreaks(true);
 		settings.getFormattingSettings().setEmptyElement(EmptyElements.collapse);
 
 		String content = "<a a1=\"123456789\" a2=\"123456789\" a3=\"123456789\"\n" + //
@@ -2837,7 +2837,7 @@ public class XMLFormatterTest {
 	@Test
 	public void preserveAttributeLineBreaksRangeFormattingWithEndTag3() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setPreserveAttrLineBreaks(true);
+		settings.getFormattingSettings().setPreserveAttributeLineBreaks(true);
 
 		String content = "<a a1=\"1234|56789\" a2=\"123456789\" a3=\"123456789\"\n" + //
 				"  a4=\"123456789\" a5=\"123456789\" a6=\"123456789\"\n" + //
@@ -2942,7 +2942,7 @@ public class XMLFormatterTest {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setSplitAttributes(true);
 		settings.getFormattingSettings().setClosingBracketNewLine(true);
-		settings.getFormattingSettings().setPreserveAttrLineBreaks(true);
+		settings.getFormattingSettings().setPreserveAttributeLineBreaks(true);
 		String content = "<a b='b' c='c'/>";
 		String expected = "<a" + System.lineSeparator() + //
 		"    b='b'" + System.lineSeparator() + //

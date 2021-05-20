@@ -12,6 +12,11 @@
  */
 package org.eclipse.lemminx.settings;
 
+import java.util.Arrays;
+import java.util.List;
+
+import org.eclipse.lemminx.dom.DOMElement;
+import org.eclipse.lemminx.services.format.FormatElementCategory;
 import org.eclipse.lsp4j.FormattingOptions;
 
 /**
@@ -20,33 +25,51 @@ import org.eclipse.lsp4j.FormattingOptions;
  *
  * All defaults should be set here to eventually be overridden if needed.
  */
-public class XMLFormattingOptions extends FormattingOptions {
+public class XMLFormattingOptions extends org.eclipse.lemminx.settings.LSPFormattingOptions {
 
 	public static final String DEFAULT_QUOTATION = "\"";
+
 	public static final int DEFAULT_PRESERVER_NEW_LINES = 2;
+
 	public static final int DEFAULT_TAB_SIZE = 2;
+
 	public static final EnforceQuoteStyle DEFAULT_ENFORCE_QUOTE_STYLE = EnforceQuoteStyle.ignore;
+
 	public static final boolean DEFAULT_PRESERVE_ATTR_LINE_BREAKS = false;
+
 	public static final boolean DEFAULT_TRIM_TRAILING_SPACES = false;
+
 	public static final int DEFAULT_SPLIT_ATTRIBUTES_INDENT_SIZE = 2;
+
 	public static final boolean DEFAULT_CLOSING_BRACKET_NEW_LINE = false;
 
-	// All possible keys
-	private static final String SPLIT_ATTRIBUTES = "splitAttributes";
-	private static final String JOIN_CDATA_LINES = "joinCDATALines";
-	private static final String FORMAT_COMMENTS = "formatComments";
-	private static final String JOIN_COMMENT_LINES = "joinCommentLines";
-	private static final String ENABLED = "enabled";
-	private static final String SPACE_BEFORE_EMPTY_CLOSE_TAG = "spaceBeforeEmptyCloseTag";
-	private static final String JOIN_CONTENT_LINES = "joinContentLines";
-	private static final String PRESERVED_NEWLINES = "preservedNewlines";
-	private static final String TRIM_FINAL_NEWLINES = "trimFinalNewlines";
-	private static final String TRIM_TRAILING_WHITESPACE = "trimTrailingWhitespace";
-	private static final String ENFORCE_QUOTE_STYLE = "enforceQuoteStyle";
-	private static final String PRESERVE_ATTR_LINE_BREAKS = "preserveAttributeLineBreaks";
-	private static final String PRESERVE_EMPTY_CONTENT = "preserveEmptyContent";
-	private static final String SPLIT_ATTRIBUTES_INDENT_SIZE = "splitAttributesIndentSize";
-	private static final String CLOSING_BRACKET_NEW_LINE = "closingBracketNewLine";
+	public static final List<String> DEFAULT_PRESERVE_SPACE = Arrays.asList("xsl:text", //
+			"xsl:comment", //
+			"xsl:processing-instruction", //
+			"literallayout", //
+			"programlisting", //
+			"screen", //
+			"synopsis", //
+			"pre", //
+			"xd:pre");
+
+	private boolean experimental;
+	private int maxLineWidth;
+
+	private boolean splitAttributes;
+	private boolean joinCDATALines;
+	private boolean formatComments;
+	private boolean joinCommentLines;
+	private boolean enabled;
+	private boolean spaceBeforeEmptyCloseTag;
+	private boolean joinContentLines;
+	private int preservedNewlines;
+	private String enforceQuoteStyle;
+
+	private boolean preserveAttributeLineBreaks;
+	private boolean preserveEmptyContent;
+	private int splitAttributesIndentSize;
+	private boolean closingBracketNewLine;
 
 	/**
 	 * Options for formatting empty elements.
@@ -88,8 +111,7 @@ public class XMLFormattingOptions extends FormattingOptions {
 	 * </pre>
 	 *
 	 * </li>
-	 * <li>{@link #ignore} : keeps the original XML content for empty elements.
-	 * </li>
+	 * <li>{@link #ignore} : keeps the original XML content for empty elements.</li>
 	 * </ul>
 	 *
 	 */
@@ -97,7 +119,12 @@ public class XMLFormattingOptions extends FormattingOptions {
 		expand, collapse, ignore;
 	}
 
-	private static final String EMPTY_ELEMENTS = "emptyElements";
+	private String emptyElements;
+	private List<String> preserveSpace;
+
+	private boolean grammarAwareFormatting;
+
+	private String xsiSchemaLocationSplit;
 
 	public XMLFormattingOptions() {
 		this(false);
@@ -119,18 +146,24 @@ public class XMLFormattingOptions extends FormattingOptions {
 	private void initializeDefaultSettings() {
 		super.setTabSize(DEFAULT_TAB_SIZE);
 		super.setInsertSpaces(true);
+		super.setTrimFinalNewlines(true);
 		this.setSplitAttributes(false);
 		this.setJoinCDATALines(false);
 		this.setFormatComments(true);
 		this.setJoinCommentLines(false);
 		this.setJoinContentLines(false);
 		this.setEnabled(true);
+		this.setExperimental(false);
+		this.setMaxLineWidth(80);
 		this.setSpaceBeforeEmptyCloseTag(true);
 		this.setPreserveEmptyContent(false);
 		this.setPreservedNewlines(DEFAULT_PRESERVER_NEW_LINES);
 		this.setEmptyElement(EmptyElements.ignore);
 		this.setSplitAttributesIndentSize(DEFAULT_SPLIT_ATTRIBUTES_INDENT_SIZE);
 		this.setClosingBracketNewLine(DEFAULT_CLOSING_BRACKET_NEW_LINE);
+		this.setPreserveAttributeLineBreaks(DEFAULT_PRESERVE_ATTR_LINE_BREAKS);
+		this.setPreserveSpace(DEFAULT_PRESERVE_SPACE);
+		this.setGrammarAwareFormatting(true);
 	}
 
 	public XMLFormattingOptions(int tabSize, boolean insertSpaces, boolean initializeDefaultSettings) {
@@ -157,128 +190,120 @@ public class XMLFormattingOptions extends FormattingOptions {
 	}
 
 	public boolean isSplitAttributes() {
-		final Boolean value = this.getBoolean(XMLFormattingOptions.SPLIT_ATTRIBUTES);
-		if ((value != null)) {
-			return (value).booleanValue();
-		} else {
-			return false;
-		}
+		return splitAttributes;
 	}
 
 	public void setSplitAttributes(final boolean splitAttributes) {
-		this.putBoolean(XMLFormattingOptions.SPLIT_ATTRIBUTES, Boolean.valueOf(splitAttributes));
+		this.splitAttributes = splitAttributes;
 	}
 
 	public boolean isJoinCDATALines() {
-		final Boolean value = this.getBoolean(XMLFormattingOptions.JOIN_CDATA_LINES);
-		if ((value != null)) {
-			return (value).booleanValue();
-		} else {
-			return false;
-		}
+		return joinCDATALines;
 	}
 
 	public void setJoinCDATALines(final boolean joinCDATALines) {
-		this.putBoolean(XMLFormattingOptions.JOIN_CDATA_LINES, Boolean.valueOf(joinCDATALines));
+		this.joinCDATALines = joinCDATALines;
 	}
 
 	public boolean isFormatComments() {
-		final Boolean value = this.getBoolean(XMLFormattingOptions.FORMAT_COMMENTS);
-		if ((value != null)) {
-			return (value).booleanValue();
-		} else {
-			return false;
-		}
+		return formatComments;
 	}
 
 	public void setFormatComments(final boolean formatComments) {
-		this.putBoolean(XMLFormattingOptions.FORMAT_COMMENTS, Boolean.valueOf(formatComments));
+		this.formatComments = formatComments;
 	}
 
 	public boolean isJoinCommentLines() {
-		final Boolean value = this.getBoolean(XMLFormattingOptions.JOIN_COMMENT_LINES);
-		if ((value != null)) {
-			return (value).booleanValue();
-		} else {
-			return false;
-		}
+		return joinCommentLines;
 	}
 
 	public void setJoinCommentLines(final boolean joinCommentLines) {
-		this.putBoolean(XMLFormattingOptions.JOIN_COMMENT_LINES, Boolean.valueOf(joinCommentLines));
+		this.joinCommentLines = joinCommentLines;
 	}
 
 	public boolean isJoinContentLines() {
-		final Boolean value = this.getBoolean(XMLFormattingOptions.JOIN_CONTENT_LINES);
-		if ((value != null)) {
-			return (value).booleanValue();
-		} else {
-			return false;
-		}
+		return joinContentLines;
 	}
 
 	public void setJoinContentLines(final boolean joinContentLines) {
-		this.putBoolean(XMLFormattingOptions.JOIN_CONTENT_LINES, Boolean.valueOf(joinContentLines));
+		this.joinContentLines = joinContentLines;
+	}
+
+	/**
+	 * Returns true if the experimental formatter must be used and false otherwise.
+	 * 
+	 * @return true if the experimental formatter must be used and false otherwise.
+	 */
+	public boolean isExperimental() {
+		return experimental;
+	}
+
+	/**
+	 * Set true if the experimental formatter must be used and false otherwise.
+	 * 
+	 * @param experimental true if the experimental formatter must be used and false
+	 *                     otherwise.
+	 */
+	public void setExperimental(final boolean experimental) {
+		this.experimental = experimental;
+	}
+
+	/**
+	 * Sets the value of max line width.
+	 *
+	 * @param maxLineWidth the new value for max line width.
+	 */
+	public void setMaxLineWidth(int maxLineWidth) {
+		this.maxLineWidth = maxLineWidth;
+	}
+
+	/**
+	 * Returns the value of max line width or zero if it was set to a negative value
+	 *
+	 * @return the value of max line width or zero if it was set to a negative value
+	 */
+	public int getMaxLineWidth() {
+		return maxLineWidth < 0 ? 0 : maxLineWidth;
 	}
 
 	public boolean isEnabled() {
-		final Boolean value = this.getBoolean(XMLFormattingOptions.ENABLED);
-		if ((value != null)) {
-			return (value).booleanValue();
-		} else {
-			return false;
-		}
+		return enabled;
 	}
 
 	public void setEnabled(final boolean enabled) {
-		this.putBoolean(XMLFormattingOptions.ENABLED, Boolean.valueOf(enabled));
+		this.enabled = enabled;
 	}
 
 	public void setSpaceBeforeEmptyCloseTag(final boolean spaceBeforeEmptyCloseTag) {
-		this.putBoolean(XMLFormattingOptions.SPACE_BEFORE_EMPTY_CLOSE_TAG, Boolean.valueOf(spaceBeforeEmptyCloseTag));
+		this.spaceBeforeEmptyCloseTag = spaceBeforeEmptyCloseTag;
 	}
 
 	public boolean isSpaceBeforeEmptyCloseTag() {
-		final Boolean value = this.getBoolean(XMLFormattingOptions.SPACE_BEFORE_EMPTY_CLOSE_TAG);
-		if ((value != null)) {
-			return (value).booleanValue();
-		} else {
-			return true;
-		}
+		return spaceBeforeEmptyCloseTag;
 	}
 
 	public void setPreserveEmptyContent(final boolean preserveEmptyContent) {
-		this.putBoolean(XMLFormattingOptions.PRESERVE_EMPTY_CONTENT, Boolean.valueOf(preserveEmptyContent));
+		this.preserveEmptyContent = preserveEmptyContent;
 	}
 
 	public boolean isPreserveEmptyContent() {
-		final Boolean value = this.getBoolean(XMLFormattingOptions.PRESERVE_EMPTY_CONTENT);
-		if ((value != null)) {
-			return (value).booleanValue();
-		} else {
-			return true;
-		}
+		return preserveEmptyContent;
 	}
 
 	public void setPreservedNewlines(final int preservedNewlines) {
-		this.putNumber(XMLFormattingOptions.PRESERVED_NEWLINES, preservedNewlines);
+		this.preservedNewlines = preservedNewlines;
 	}
 
 	public int getPreservedNewlines() {
-		final Number value = this.getNumber(XMLFormattingOptions.PRESERVED_NEWLINES);
-		if ((value != null)) {
-			return value.intValue();
-		} else {
-			return 2;
-		}
+		return preservedNewlines;
 	}
 
 	public void setEmptyElement(EmptyElements emptyElement) {
-		this.putString(XMLFormattingOptions.EMPTY_ELEMENTS, emptyElement.name());
+		this.emptyElements = emptyElement.name();
 	}
 
 	public EmptyElements getEmptyElements() {
-		String value = this.getString(XMLFormattingOptions.EMPTY_ELEMENTS);
+		String value = emptyElements;
 		if ((value != null)) {
 			try {
 				return EmptyElements.valueOf(value);
@@ -288,32 +313,12 @@ public class XMLFormattingOptions extends FormattingOptions {
 		return EmptyElements.ignore;
 	}
 
-	/**
-	 * Returns the value of trimFinalNewlines.
-	 *
-	 * If the trimFinalNewlines does not exist, defaults to true.
-	 */
-	@Override
-	public boolean isTrimFinalNewlines() {
-		final Boolean value = this.getBoolean(TRIM_FINAL_NEWLINES);
-		return (value == null) ? true: value;
-	}
-
-	public void setTrimTrailingWhitespace(boolean newValue) {
-		this.putBoolean(TRIM_TRAILING_WHITESPACE, newValue);
-	}
-
-	public boolean isTrimTrailingWhitespace() {
-		final Boolean value = this.getBoolean(TRIM_TRAILING_WHITESPACE);
-		return (value == null) ? DEFAULT_TRIM_TRAILING_SPACES: value;
-	}
-
 	public void setEnforceQuoteStyle(EnforceQuoteStyle enforce) {
-		this.putString(XMLFormattingOptions.ENFORCE_QUOTE_STYLE, enforce.name());
+		this.enforceQuoteStyle = enforce.name();
 	}
 
 	public EnforceQuoteStyle getEnforceQuoteStyle() {
-		String value = this.getString(XMLFormattingOptions.ENFORCE_QUOTE_STYLE);
+		String value = this.enforceQuoteStyle;
 		EnforceQuoteStyle enforceStyle = null;
 
 		try {
@@ -328,8 +333,8 @@ public class XMLFormattingOptions extends FormattingOptions {
 	/**
 	 * Sets the value of preserveAttrLineBreaks
 	 */
-	public void setPreserveAttrLineBreaks(final boolean preserveAttrLineBreaks) {
-		this.putBoolean(XMLFormattingOptions.PRESERVE_ATTR_LINE_BREAKS, Boolean.valueOf(preserveAttrLineBreaks));
+	public void setPreserveAttributeLineBreaks(final boolean preserveAttributeLineBreaks) {
+		this.preserveAttributeLineBreaks = preserveAttributeLineBreaks;
 	}
 
 	/**
@@ -337,18 +342,12 @@ public class XMLFormattingOptions extends FormattingOptions {
 	 *
 	 * @return the value of preserveAttrLineBreaks
 	 */
-	public boolean isPreserveAttrLineBreaks() {
+	public boolean isPreserveAttributeLineBreaks() {
 		if (this.isSplitAttributes()) {
 			// splitAttributes overrides preserveAttrLineBreaks
 			return false;
 		}
-
-		final Boolean value = this.getBoolean(XMLFormattingOptions.PRESERVE_ATTR_LINE_BREAKS);
-		if ((value != null)) {
-			return (value).booleanValue();
-		} else {
-			return XMLFormattingOptions.DEFAULT_PRESERVE_ATTR_LINE_BREAKS;
-		}
+		return preserveAttributeLineBreaks;
 	}
 
 	/**
@@ -357,41 +356,31 @@ public class XMLFormattingOptions extends FormattingOptions {
 	 * @param splitAttributesIndentSize the new value for splitAttributesIndentSize
 	 */
 	public void setSplitAttributesIndentSize(int splitAttributesIndentSize) {
-		this.putNumber(SPLIT_ATTRIBUTES_INDENT_SIZE, Integer.valueOf(splitAttributesIndentSize));
+		this.splitAttributesIndentSize = splitAttributesIndentSize;
 	}
 
 	/**
-	 * Returns the value of splitAttributesIndentSize or zero if it was set to a negative value
+	 * Returns the value of splitAttributesIndentSize or zero if it was set to a
+	 * negative value
 	 *
-	 * @return the value of splitAttributesIndentSize or zero if it was set to a negative value
+	 * @return the value of splitAttributesIndentSize or zero if it was set to a
+	 *         negative value
 	 */
 	public int getSplitAttributesIndentSize() {
-		int splitAttributesIndentSize = getNumber(SPLIT_ATTRIBUTES_INDENT_SIZE).intValue();
+		int splitAttributesIndentSize = this.splitAttributesIndentSize;
 		return splitAttributesIndentSize < 0 ? 0 : splitAttributesIndentSize;
-	}
-
-	public XMLFormattingOptions merge(FormattingOptions formattingOptions) {
-		formattingOptions.entrySet().stream().forEach(entry -> {
-			this.put(entry.getKey(), entry.getValue());
-		});
-		return this;
-	}
-
-	public static XMLFormattingOptions create(FormattingOptions options, FormattingOptions sharedFormattingOptions) {
-		return new XMLFormattingOptions(options).merge(sharedFormattingOptions);
 	}
 
 	/**
 	 * Returns the value of closingBracketNewLine or false if it was set to null
 	 * 
-	 * A setting for enabling the XML formatter to move the closing bracket of a tag with at least 2 attributes
-	 * to a new line.
+	 * A setting for enabling the XML formatter to move the closing bracket of a tag
+	 * with at least 2 attributes to a new line.
 	 *
 	 * @return the value of closingBracketNewLine or false if it was set to null
 	 */
 	public boolean getClosingBracketNewLine() {
-		final Boolean value = this.getBoolean(CLOSING_BRACKET_NEW_LINE);
-		return (value == null) ? DEFAULT_CLOSING_BRACKET_NEW_LINE: value;
+		return closingBracketNewLine;
 	}
 
 	/**
@@ -400,7 +389,91 @@ public class XMLFormattingOptions extends FormattingOptions {
 	 * @param closingBracketNewLine the new value for closingBracketNewLine
 	 */
 	public void setClosingBracketNewLine(final boolean closingBracketNewLine) {
-		this.putBoolean(XMLFormattingOptions.CLOSING_BRACKET_NEW_LINE, Boolean.valueOf(closingBracketNewLine));
+		this.closingBracketNewLine = closingBracketNewLine;
 	}
 
+	/**
+	 * Sets the element name list which must preserve space.
+	 *
+	 * @param preserveSpace the element name list which must preserve space.
+	 */
+	public void setPreserveSpace(List<String> preserveSpace) {
+		this.preserveSpace = preserveSpace;
+	}
+
+	/**
+	 * Returns the element name list which must preserve space.
+	 *
+	 * @return the element name list which must preserve space.
+	 */
+	public List<String> getPreserveSpace() {
+		return preserveSpace;
+	}
+
+	public boolean isGrammarAwareFormatting() {
+		return grammarAwareFormatting;
+	}
+
+	public void setGrammarAwareFormatting(boolean grammarAwareFormatting) {
+		this.grammarAwareFormatting = grammarAwareFormatting;
+	}
+
+	public String getXsiSchemaLocationSplit() {
+		return xsiSchemaLocationSplit;
+	}
+
+	public void setXsiSchemaLocationSplit(String xsiSchemaLocationSplit) {
+		this.xsiSchemaLocationSplit = xsiSchemaLocationSplit;
+	}
+
+	public XMLFormattingOptions merge(XMLFormattingOptions formattingOptions) {
+		setTabSize(formattingOptions.getTabSize());
+		setInsertFinalNewline(formattingOptions.isInsertFinalNewline());
+		setInsertSpaces(formattingOptions.isInsertSpaces());
+		setTrimFinalNewlines(formattingOptions.isTrimFinalNewlines());
+		setTrimTrailingWhitespace(formattingOptions.isTrimTrailingWhitespace());
+		setExperimental(formattingOptions.isExperimental());
+		setMaxLineWidth(formattingOptions.getMaxLineWidth());
+		setSplitAttributes(formattingOptions.isSplitAttributes());
+		setJoinCDATALines(formattingOptions.isJoinCDATALines());
+		setFormatComments(formattingOptions.isFormatComments());
+		setJoinCommentLines(formattingOptions.isJoinCommentLines());
+		setEnabled(formattingOptions.isEnabled());
+		setSpaceBeforeEmptyCloseTag(formattingOptions.isSpaceBeforeEmptyCloseTag());
+		setJoinContentLines(formattingOptions.isJoinContentLines());
+		setPreservedNewlines(formattingOptions.getPreservedNewlines());
+		setEnforceQuoteStyle(formattingOptions.getEnforceQuoteStyle());
+		setPreserveAttributeLineBreaks(formattingOptions.isPreserveAttributeLineBreaks());
+		setPreserveEmptyContent(formattingOptions.isPreserveEmptyContent());
+		setSplitAttributesIndentSize(formattingOptions.getSplitAttributesIndentSize());
+		setClosingBracketNewLine(formattingOptions.getClosingBracketNewLine());
+		setEmptyElement(formattingOptions.getEmptyElements());
+		setXsiSchemaLocationSplit(formattingOptions.getXsiSchemaLocationSplit());
+		// Experimental settings
+		setExperimental(formattingOptions.isExperimental());
+		setPreserveSpace(formattingOptions.getPreserveSpace());
+		setGrammarAwareFormatting(formattingOptions.isGrammarAwareFormatting());
+		setMaxLineWidth(formattingOptions.getMaxLineWidth());
+		return this;
+	}
+
+	public XMLFormattingOptions merge(FormattingOptions formattingOptions) {
+		setTabSize(formattingOptions.getTabSize());
+		setInsertFinalNewline(formattingOptions.isInsertFinalNewline());
+		setInsertSpaces(formattingOptions.isInsertSpaces());
+		setTrimFinalNewlines(formattingOptions.isTrimFinalNewlines());
+		setTrimTrailingWhitespace(formattingOptions.isTrimTrailingWhitespace());
+		return this;
+	}
+
+	public FormatElementCategory getFormatElementCategory(DOMElement element) {
+		if (preserveSpace != null) {
+			for (String elementName : preserveSpace) {
+				if (elementName.equals(element.getTagName())) {
+					return FormatElementCategory.PreserveSpace;
+				}
+			}
+		}
+		return null;
+	}
 }

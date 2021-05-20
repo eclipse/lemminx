@@ -24,14 +24,12 @@ public enum XSISchemaLocationSplit {
 
 	onElement, onPair, none;
 
-	private static final String XSI_SCHEMA_LOCATION_SPLIT = "xsiSchemaLocationSplit";
-
 	public static XSISchemaLocationSplit getSplit(XMLFormattingOptions formattingSettings) {
-		return getSplit(formattingSettings.getString(XSI_SCHEMA_LOCATION_SPLIT));
+		return getSplit(formattingSettings.getXsiSchemaLocationSplit());
 	}
 
 	public static void setSplit(XSISchemaLocationSplit split, XMLFormattingOptions formattingSettings) {
-		formattingSettings.putString(XSI_SCHEMA_LOCATION_SPLIT, split.name());
+		formattingSettings.setXsiSchemaLocationSplit(split.name());
 	}
 
 	public static XSISchemaLocationSplit getSplit(String value) {

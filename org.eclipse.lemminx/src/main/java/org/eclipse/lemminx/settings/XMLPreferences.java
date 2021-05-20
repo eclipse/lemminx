@@ -11,19 +11,23 @@
 *******************************************************************************/
 package org.eclipse.lemminx.settings;
 
+import java.util.List;
+
 /**
  * XML Preferences
  *
  */
 public class XMLPreferences {
-	
+
 	public static final QuoteStyle DEFAULT_QUOTE_STYLE = QuoteStyle.doubleQuotes;
-	
+
 	public static final SchemaDocumentationType DEFAULT_SCHEMA_DOCUMENTATION_TYPE = SchemaDocumentationType.all;
 
 	private QuoteStyle quoteStyle;
 
 	private SchemaDocumentationType showSchemaDocumentationType;
+
+	private List<String> preserveSpace;
 
 	public XMLPreferences() {
 		this.quoteStyle = DEFAULT_QUOTE_STYLE;
@@ -97,4 +101,5 @@ public class XMLPreferences {
 		this.setQuoteStyle(newPreferences.getQuoteStyle());
 		this.setShowSchemaDocumentationType(newPreferences.getShowSchemaDocumentationType());
 	}
+
 }

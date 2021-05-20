@@ -124,7 +124,7 @@ public class DTDEntityDecl extends DTDDeclNode implements Entity {
 
 	@Override
 	public short getNodeType() {
-		return Node.ENTITY_NODE;
+		return DOMNode.ENTITY_NODE;
 	}
 
 	/*

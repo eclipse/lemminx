@@ -202,11 +202,11 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 	/**
 	 * Returns the possible elements declaration if the given declaration is an
 	 * xs:any and null otherwise.
-	 * 
+	 *
 	 * @param declaration the element, wildcard declaration.
 	 * @return the possible elements declaration if the given declaration is an
 	 *         xs:any and null otherwise.
-	 * 
+	 *
 	 */
 	private Collection<CMElementDeclaration> getXSAnyElements(Object declaration) {
 		short processContents = getXSAnyProcessContents(declaration);
@@ -230,7 +230,7 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 	/**
 	 * Returns the value of the xs:any/@processContents if the given element is a
 	 * xs:any and {@link #PC_UNKWOWN} otherwise.
-	 * 
+	 *
 	 * @param declaration the element, wildcard declaration.
 	 * @return the value of the xs:any/@processContents if the given element is a
 	 *         xs:any and {@link #PC_UNKWOWN} otherwise.
@@ -248,7 +248,7 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 	/**
 	 * Returns list of element (QName) of child elements of the given parent element
 	 * upon the given offset
-	 * 
+	 *
 	 * @param parentElement the parent element
 	 * @param offset        the offset where child element must be belong to
 	 * @return list of element (QName) of child elements of the given parent element
@@ -355,7 +355,7 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 	/**
 	 * Returns list of xs:annotation from the element declaration or type
 	 * declaration.
-	 * 
+	 *
 	 * @return list of xs:annotation from the element declaration or type
 	 *         declaration.
 	 */
@@ -489,5 +489,32 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 	public String getDocumentURI() {
 		SchemaGrammar schemaGrammar = document.getOwnerSchemaGrammar(elementDeclaration);
 		return CMXSDDocument.getSchemaURI(schemaGrammar);
+	}
+
+	@Override
+	public boolean isStringType() {
+		XSTypeDefinition typeDefinition = elementDeclaration.getTypeDefinition();
+		if (typeDefinition != null) {
+			XSSimpleTypeDefinition simpleDefinition = null;
+			if (typeDefinition.getTypeCategory() == XSTypeDefinition.SIMPLE_TYPE) {
+				simpleDefinition = (XSSimpleTypeDefinition) typeDefinition;
+			} else if (typeDefinition.getTypeCategory() == XSTypeDefinition.COMPLEX_TYPE) {
+				simpleDefinition = ((XSComplexTypeDefinition) typeDefinition).getSimpleType();
+			}
+			if (simpleDefinition != null) {
+				return "string".equals(simpleDefinition.getName());
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public boolean isMixedContent() {
+		XSTypeDefinition typeDefinition = elementDeclaration.getTypeDefinition();
+		if (typeDefinition != null && typeDefinition.getTypeCategory() == XSTypeDefinition.COMPLEX_TYPE) {
+			XSComplexTypeDefinition complexTypeDefinition = (XSComplexTypeDefinition) typeDefinition;
+			return complexTypeDefinition.getContentType() == XSComplexTypeDefinition.CONTENTTYPE_MIXED;
+		}
+		return false;
 	}
 }
