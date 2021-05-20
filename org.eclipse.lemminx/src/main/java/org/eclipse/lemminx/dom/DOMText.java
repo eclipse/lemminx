@@ -12,6 +12,7 @@
  */
 package org.eclipse.lemminx.dom;
 
+import org.eclipse.lemminx.utils.StringUtils;
 import org.w3c.dom.DOMException;
 
 /**
@@ -61,7 +62,8 @@ public class DOMText extends DOMCharacterData implements org.w3c.dom.Text {
 	 */
 	@Override
 	public boolean isElementContentWhitespace() {
-		throw new UnsupportedOperationException();
+		String text = getOwnerDocument().getOwnerDocument().getText();
+		return StringUtils.isWhitespace(text, getStart(), getEnd());
 	}
 
 	/*

@@ -311,6 +311,7 @@
 	},
 	{
 		"name": "org.eclipse.lemminx.settings.XMLFormattingOptions",
+		"allDeclaredFields": true,
 		"methods": [{
 			"name": "<init>",
 			"parameterTypes": []

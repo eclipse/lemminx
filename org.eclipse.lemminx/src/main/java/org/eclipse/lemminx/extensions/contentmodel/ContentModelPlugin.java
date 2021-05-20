@@ -25,6 +25,7 @@ import org.eclipse.lemminx.extensions.contentmodel.participants.ContentModelCode
 import org.eclipse.lemminx.extensions.contentmodel.participants.ContentModelCodeLensParticipant;
 import org.eclipse.lemminx.extensions.contentmodel.participants.ContentModelCompletionParticipant;
 import org.eclipse.lemminx.extensions.contentmodel.participants.ContentModelDocumentLinkParticipant;
+import org.eclipse.lemminx.extensions.contentmodel.participants.ContentModelFormatterParticipant;
 import org.eclipse.lemminx.extensions.contentmodel.participants.ContentModelHoverParticipant;
 import org.eclipse.lemminx.extensions.contentmodel.participants.ContentModelSymbolsProviderParticipant;
 import org.eclipse.lemminx.extensions.contentmodel.participants.ContentModelTypeDefinitionParticipant;
@@ -84,6 +85,8 @@ public class ContentModelPlugin implements IXMLExtension {
 	private XMLValidationSettings currentValidationSettings;
 
 	private DocumentTelemetryParticipant documentTelemetryParticipant;
+
+	private ContentModelFormatterParticipant formatterParticipant;
 
 	public ContentModelPlugin() {
 		completionParticipant = new ContentModelCompletionParticipant();
@@ -207,7 +210,9 @@ public class ContentModelPlugin implements IXMLExtension {
 		documentTelemetryParticipant = new DocumentTelemetryParticipant(registry.getTelemetryManager(),
 				contentModelManager);
 		registry.registerDocumentLifecycleParticipant(documentTelemetryParticipant);
-
+		formatterParticipant = new ContentModelFormatterParticipant(contentModelManager);
+		registry.registerFormatterParticipant(formatterParticipant);
+		
 		// Register custom commands to re-validate XML files
 		IXMLCommandService commandService = registry.getCommandService();
 		if (commandService != null) {
@@ -236,7 +241,8 @@ public class ContentModelPlugin implements IXMLExtension {
 		registry.unregisterSymbolsProviderParticipant(symbolsProviderParticipant);
 		registry.unregisterCodeLensParticipant(codeLensParticipant);
 		registry.unregisterDocumentLifecycleParticipant(documentTelemetryParticipant);
-
+		registry.unregisterFormatterParticipant(formatterParticipant);
+		
 		// Un-register custom commands to re-validate XML files
 		IXMLCommandService commandService = registry.getCommandService();
 		if (commandService != null) {

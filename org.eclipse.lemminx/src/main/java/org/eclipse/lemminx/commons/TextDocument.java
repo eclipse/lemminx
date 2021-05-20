@@ -78,6 +78,12 @@ public class TextDocument extends TextDocumentItem {
 		return text.substring(line.offset, line.offset + line.length);
 	}
 
+	public int lineOffsetAt(int position) throws BadLocationException {
+		ILineTracker lineTracker = getLineTracker();
+		Line line = lineTracker.getLineInformationOfOffset(position);
+		return line.offset;
+	}
+
 	public String lineDelimiter(int lineNumber) throws BadLocationException {
 		ILineTracker lineTracker = getLineTracker();
 		String lineDelimiter = lineTracker.getLineDelimiter(lineNumber);

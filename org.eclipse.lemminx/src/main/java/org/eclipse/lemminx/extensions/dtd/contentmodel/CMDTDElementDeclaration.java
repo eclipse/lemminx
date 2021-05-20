@@ -146,4 +146,14 @@ public class CMDTDElementDeclaration extends XMLElementDecl implements CMElement
 	public String getDocumentURI() {
 		return document.getURI();
 	}
+
+	@Override
+	public boolean isStringType() {
+		return false;
+	}
+
+	@Override
+	public boolean isMixedContent() {
+		return super.type == XMLElementDecl.TYPE_MIXED;
+	}
 }

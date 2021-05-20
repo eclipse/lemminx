@@ -22,6 +22,7 @@ import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.customservice.AutoCloseTagResponse;
 import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lemminx.dom.DOMParser;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.services.extensions.diagnostics.DiagnosticsResult;
@@ -106,12 +107,13 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 
 	@Override
 	public String formatFull(String text, String uri, SharedSettings sharedSettings, CancelChecker cancelChecker) {
-		List<? extends TextEdit> edits = this.format(new TextDocument(text, uri), null, sharedSettings);
+		DOMDocument xmlDocument = DOMParser.getInstance().parse(new TextDocument(text, uri), null);
+		List<? extends TextEdit> edits = this.format(xmlDocument, null, sharedSettings);
 		return edits.isEmpty() ? null : edits.get(0).getNewText();
 	}
 
-	public List<? extends TextEdit> format(TextDocument document, Range range, SharedSettings sharedSettings) {
-		return formatter.format(document, range, sharedSettings);
+	public List<? extends TextEdit> format(DOMDocument xmlDocument, Range range, SharedSettings sharedSettings) {
+		return formatter.format(xmlDocument, range, sharedSettings);
 	}
 
 	public List<DocumentHighlight> findDocumentHighlights(DOMDocument xmlDocument, Position position) {

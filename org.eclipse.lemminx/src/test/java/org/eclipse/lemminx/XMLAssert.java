@@ -12,6 +12,7 @@
  */
 package org.eclipse.lemminx;
 
+import static org.eclipse.lemminx.services.format.TextEditUtils.applyEdits;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
@@ -1395,6 +1396,13 @@ public class XMLAssert {
 
 	public static void assertFormat(XMLLanguageService languageService, String unformatted, String expected,
 			SharedSettings sharedSettings, String uri, Boolean considerRangeFormat) throws BadLocationException {
+		assertFormat(languageService, unformatted, expected, sharedSettings, uri, considerRangeFormat,
+				(TextEdit[]) null);
+	}
+
+	public static void assertFormat(XMLLanguageService languageService, String unformatted, String expected,
+			SharedSettings sharedSettings, String uri, Boolean considerRangeFormat, TextEdit... expectedEdits)
+			throws BadLocationException {
 		Range range = null;
 		int rangeStart = considerRangeFormat ? unformatted.indexOf('|') : -1;
 		int rangeEnd = considerRangeFormat ? unformatted.lastIndexOf('|') : -1;
@@ -1409,23 +1417,20 @@ public class XMLAssert {
 		}
 
 		TextDocument document = new TextDocument(unformatted, uri);
+		document.setIncremental(true);
+		DOMDocument xmlDocument = DOMParser.getInstance().parse(document, null);
+
 		if (languageService == null) {
 			languageService = new XMLLanguageService();
 		}
-		List<? extends TextEdit> edits = languageService.format(document, range, sharedSettings);
+		List<? extends TextEdit> edits = languageService.format(xmlDocument, range, sharedSettings);
 
-		String formatted = edits.stream().map(edit -> edit.getNewText()).collect(Collectors.joining(""));
-
-		Range textEditRange = edits.get(0).getRange();
-		int textEditStartOffset = document.offsetAt(textEditRange.getStart());
-		int textEditEndOffset = document.offsetAt(textEditRange.getEnd()) + 1;
-
-		if (textEditStartOffset != -1 && textEditEndOffset != -1) {
-			formatted = unformatted.substring(0, textEditStartOffset) + formatted
-					+ unformatted.substring(textEditEndOffset - 1, unformatted.length());
-		}
-
+		String formatted = applyEdits(document, edits);
 		assertEquals(expected, formatted);
+
+		if (expectedEdits != null) {
+			Assertions.assertArrayEquals(expectedEdits, edits.toArray(new TextEdit[0]));
+		}
 	}
 
 	// ------------------- Rename assert
