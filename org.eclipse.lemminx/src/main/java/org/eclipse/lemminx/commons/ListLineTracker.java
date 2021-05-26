@@ -94,7 +94,7 @@ class ListLineTracker implements ILineTracker {
 	@Override
 	public final Position getPositionAt(int offset) throws BadLocationException {
 		int lineNumber = getLineNumberOfOffset(offset);
-		int lines = fLines.	size();
+		int lines = fLines.size();
 		int character = 0;
 		if (lines > 0) {
 			if (lineNumber == lines) {
