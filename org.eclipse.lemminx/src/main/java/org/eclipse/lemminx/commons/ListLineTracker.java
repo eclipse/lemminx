@@ -78,7 +78,7 @@ class ListLineTracker implements ILineTracker {
 		}
 		int left = 0;
 		int right = fLines.size();
-		while (right - left > 1) {
+		while (left < right - 1) {
 			int mid = (right + left) >> 1;
 			Line line = fLines.get(mid);
 			if (line.offset <= offset) {
@@ -94,7 +94,7 @@ class ListLineTracker implements ILineTracker {
 	@Override
 	public final Position getPositionAt(int offset) throws BadLocationException {
 		int lineNumber = getLineNumberOfOffset(offset);
-		int lines = fLines.size();
+		int lines = fLines.	size();
 		int character = 0;
 		if (lines > 0) {
 			if (lineNumber == lines) {
