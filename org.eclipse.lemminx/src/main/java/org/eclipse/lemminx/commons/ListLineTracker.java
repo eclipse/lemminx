@@ -74,7 +74,6 @@ class ListLineTracker implements ILineTracker {
 
 		if (fLines.size() == 0) {
 			return -1;
-<<<<<<< HEAD
 		}
 		int left = 0;
 		int right = fLines.size();
@@ -88,7 +87,6 @@ class ListLineTracker implements ILineTracker {
 			}
 		}
 		return (fLines.get(left).offset > offset) ? left - 1 : left;
->>>>>>> Refactored findLine() Implementation
 	}
 
 	@Override
@@ -217,27 +215,17 @@ class ListLineTracker implements ILineTracker {
 
 	@Override
 	public final Line getLineInformationOfOffset(int position) throws BadLocationException {
-<<<<<<< HEAD
 		if (position > fTextLength) {
 			throw new BadLocationException("Offset > length: " + position + " > " + fTextLength); //$NON-NLS-1$//$NON-NLS-2$
 		}
 
 		if (position == fTextLength) {
-			int size= fLines.size();
+			int size = fLines.size();
 			if (size == 0) {
 				return new Line(0, 0);
 			}
-			Line l= fLines.get(size - 1);
-=======
-		if (position > fTextLength)
-			throw new BadLocationException("Offset > length: " + position + " > " + fTextLength); //$NON-NLS-1$//$NON-NLS-2$
-
-		if (position == fTextLength) {
-			int size = fLines.size();
-			if (size == 0)
-				return new Line(0, 0);
 			Line l = fLines.get(size - 1);
->>>>>>> Refactored findLine() Implementation
+
 			return (l.delimiter != null ? new Line(fTextLength, 0) : new Line(fTextLength - l.length, l.length));
 		}
 
