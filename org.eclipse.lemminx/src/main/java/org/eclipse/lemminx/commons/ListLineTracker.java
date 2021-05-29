@@ -72,38 +72,21 @@ class ListLineTracker implements ILineTracker {
 	 */
 	private int findLine(int offset) {
 
-		if (fLines.size() == 0)
+		if (fLines.size() == 0) {
 			return -1;
-
+		}
 		int left = 0;
-		int right = fLines.size() - 1;
-		int mid = 0;
-		Line line = null;
-
-		while (left < right) {
-
-			mid = (left + right) / 2;
-
-			line = fLines.get(mid);
-			if (offset < line.offset) {
-				if (left == mid)
-					right = left;
-				else
-					right = mid - 1;
-			} else if (offset > line.offset) {
-				if (right == mid)
-					left = right;
-				else
-					left = mid + 1;
-			} else if (offset == line.offset) {
-				left = right = mid;
+		int right = fLines.size();
+		while (left < right - 1) {
+			int mid = (right + left) >> 1;
+			Line line = fLines.get(mid);
+			if (line.offset <= offset) {
+				left = mid;
+			} else {
+				right = mid;
 			}
 		}
-
-		line = fLines.get(left);
-		if (line.offset > offset)
-			--left;
-		return left;
+		return (fLines.get(left).offset > offset) ? left - 1 : left;
 	}
 
 	@Override
@@ -123,48 +106,53 @@ class ListLineTracker implements ILineTracker {
 		return new Position(lineNumber, character);
 	}
 
-
 	/**
 	 * Returns the number of lines covered by the specified text range.
 	 *
 	 * @param startLine the line where the text range starts
-	 * @param offset the start offset of the text range
-	 * @param length the length of the text range
+	 * @param offset    the start offset of the text range
+	 * @param length    the length of the text range
 	 * @return the number of lines covered by this text range
 	 * @exception BadLocationException if range is undefined in this tracker
 	 */
 	private int getNumberOfLines(int startLine, int offset, int length) throws BadLocationException {
 
-		if (length == 0)
+		if (length == 0) {
 			return 1;
+		}
 
-		int target= offset + length;
+		int target = offset + length;
 
-		Line l= fLines.get(startLine);
+		Line l = fLines.get(startLine);
 
-		if (l.delimiter == null)
+		if (l.delimiter == null) {
 			return 1;
+		}
 
-		if (l.offset + l.length > target)
+		if (l.offset + l.length > target) {
 			return 1;
+		}
 
-		if (l.offset + l.length == target)
+		if (l.offset + l.length == target) {
 			return 2;
+		}
 
 		return getLineNumberOfOffset(target) - startLine + 1;
 	}
-	
+
 	@Override
 	public final int getLineLength(int line) throws BadLocationException {
-		int lines= fLines.size();
+		int lines = fLines.size();
 
-		if (line < 0 || line > lines)
+		if (line < 0 || line > lines) {
 			throw new BadLocationException();
+		}
 
-		if (lines == 0 || lines == line)
+		if (lines == 0 || lines == line) {
 			return 0;
+		}
 
-		Line l= fLines.get(line);
+		Line l = fLines.get(line);
 		return l.length;
 	}
 
@@ -179,8 +167,9 @@ class ListLineTracker implements ILineTracker {
 		if (position == fTextLength) {
 
 			int lastLine = fLines.size() - 1;
-			if (lastLine < 0)
+			if (lastLine < 0) {
 				return 0;
+			}
 
 			Line l = fLines.get(lastLine);
 			return (l.delimiter != null ? lastLine + 1 : lastLine);
@@ -194,8 +183,9 @@ class ListLineTracker implements ILineTracker {
 		int line = position.getLine();
 		int lines = fLines.size();
 
-		if (line < 0 || line > lines)
+		if (line < 0 || line > lines) {
 			throw new BadLocationException("The line value, {" + line + "}, is out of bounds.");
+		}
 
 		int lineOffset = -1;
 		int lineLength = -1;
@@ -216,37 +206,43 @@ class ListLineTracker implements ILineTracker {
 		int character = position.getCharacter();
 		int offset = lineOffset + character;
 		int endLineOffset = lineOffset + lineLength;
-		if (offset > endLineOffset)
+		if (offset > endLineOffset) {
 			throw new BadLocationException(
 					"The character value, {" + character + "} of the line" + line + "}, is out of bounds.");
+		}
 		return offset;
 	}
 
 	@Override
 	public final Line getLineInformationOfOffset(int position) throws BadLocationException {
-		if (position > fTextLength)
-			throw new BadLocationException("Offset > length: " + position + " > " + fTextLength);  //$NON-NLS-1$//$NON-NLS-2$
+		if (position > fTextLength) {
+			throw new BadLocationException("Offset > length: " + position + " > " + fTextLength); //$NON-NLS-1$//$NON-NLS-2$
+		}
 
 		if (position == fTextLength) {
-			int size= fLines.size();
-			if (size == 0)
+			int size = fLines.size();
+			if (size == 0) {
 				return new Line(0, 0);
-			Line l= fLines.get(size - 1);
+			}
+			Line l = fLines.get(size - 1);
+
 			return (l.delimiter != null ? new Line(fTextLength, 0) : new Line(fTextLength - l.length, l.length));
 		}
 
 		return getLineInformation(findLine(position));
 	}
-	
+
 	@Override
 	public final Line getLineInformation(int line) throws BadLocationException {
 		int lines = fLines.size();
 
-		if (line < 0 || line > lines)
+		if (line < 0 || line > lines) {
 			throw new BadLocationException("The line value, {" + line + "}, is out of bounds.");
+		}
 
-		if (lines == 0)
+		if (lines == 0) {
 			return new Line(0, 0);
+		}
 
 		if (line == lines) {
 			Line l = fLines.get(line - 1);
@@ -261,16 +257,19 @@ class ListLineTracker implements ILineTracker {
 	public final int getLineOffset(int line) throws BadLocationException {
 		int lines = fLines.size();
 
-		if (line < 0 || line > lines)
+		if (line < 0 || line > lines) {
 			throw new BadLocationException("The line value, {" + line + "}, is out of bounds.");
+		}
 
-		if (lines == 0)
+		if (lines == 0) {
 			return 0;
+		}
 
 		if (line == lines) {
 			Line l = fLines.get(line - 1);
-			if (l.delimiter != null)
+			if (l.delimiter != null) {
 				return l.offset + l.length;
+			}
 			throw new BadLocationException();
 		}
 
@@ -282,34 +281,37 @@ class ListLineTracker implements ILineTracker {
 	public final int getNumberOfLines() {
 		int lines = fLines.size();
 
-		if (lines == 0)
+		if (lines == 0) {
 			return 1;
+		}
 
 		Line l = fLines.get(lines - 1);
 		return (l.delimiter != null ? lines + 1 : lines);
 	}
-	
+
 	@Override
 	public final int getNumberOfLines(int position, int length) throws BadLocationException {
 
-		if (position < 0 || position + length > fTextLength)
+		if (position < 0 || position + length > fTextLength) {
 			throw new BadLocationException();
+		}
 
-		if (length == 0) // optimization
+		if (length == 0) {
 			return 1;
+		}
 
 		return getNumberOfLines(getLineNumberOfOffset(position), position, length);
 	}
-	
+
 	@Override
 	public final int computeNumberOfLines(String text) {
-		int count= 0;
-		int start= 0;
-		DelimiterInfo delimiterInfo= nextDelimiterInfo(text, start);
+		int count = 0;
+		int start = 0;
+		DelimiterInfo delimiterInfo = nextDelimiterInfo(text, start);
 		while (delimiterInfo != null && delimiterInfo.delimiterIndex > -1) {
 			++count;
-			start= delimiterInfo.delimiterIndex + delimiterInfo.delimiterLength;
-			delimiterInfo= nextDelimiterInfo(text, start);
+			start = delimiterInfo.delimiterIndex + delimiterInfo.delimiterLength;
+			delimiterInfo = nextDelimiterInfo(text, start);
 		}
 		return count;
 	}
@@ -317,14 +319,17 @@ class ListLineTracker implements ILineTracker {
 	public final String getLineDelimiter(int line) throws BadLocationException {
 		int lines = fLines.size();
 
-		if (line < 0 || line > lines)
+		if (line < 0 || line > lines) {
 			throw new BadLocationException("The line value, {" + line + "}, is out of bounds.");
+		}
 
-		if (lines == 0)
+		if (lines == 0) {
 			return null;
+		}
 
-		if (line == lines)
+		if (line == lines) {
 			return null;
+		}
 
 		Line l = fLines.get(line);
 		return l.delimiter;
@@ -394,10 +399,11 @@ class ListLineTracker implements ILineTracker {
 
 			int index = delimiterInfo.delimiterIndex + (delimiterInfo.delimiterLength - 1);
 
-			if (insertPosition + count >= fLines.size())
+			if (insertPosition + count >= fLines.size()) {
 				fLines.add(new Line(offset + start, offset + index, delimiterInfo.delimiter));
-			else
+			} else {
 				fLines.add(insertPosition + count, new Line(offset + start, offset + index, delimiterInfo.delimiter));
+			}
 
 			++count;
 			start = index + 1;
@@ -424,7 +430,7 @@ class ListLineTracker implements ILineTracker {
 	public final void replace(int position, int length, String text) throws BadLocationException {
 		throw new UnsupportedOperationException();
 	}
-	
+
 	@Override
 	public final void set(String text) {
 		fLines.clear();

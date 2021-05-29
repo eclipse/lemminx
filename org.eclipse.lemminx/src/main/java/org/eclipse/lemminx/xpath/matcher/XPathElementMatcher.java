@@ -153,7 +153,7 @@ public class XPathElementMatcher extends AbstractXPathNodeMatcher {
 	 */
 	public void add(XPathAttributeMatcher matcher) {
 		if (attributes == null) {
-			attributes = new ArrayList<XPathAttributeMatcher>();
+			attributes = new ArrayList<>();
 		}
 		attributes.add(matcher);
 

@@ -156,7 +156,7 @@ public class XMLGenerator {
 
 	private int generate(Collection<CMAttributeDeclaration> attributes, int level, int snippetIndex, XMLBuilder xml,
 			String tagName) {
-		List<CMAttributeDeclaration> requiredAttributes = new ArrayList<CMAttributeDeclaration>();
+		List<CMAttributeDeclaration> requiredAttributes = new ArrayList<>();
 		for (CMAttributeDeclaration att : attributes) {
 			if (att.isRequired()) {
 				requiredAttributes.add(att);
@@ -190,7 +190,7 @@ public class XMLGenerator {
 		StringBuilder value = new StringBuilder();
 		String quotation = sharedSettings.getPreferences().getQuotationAsString();
 		if (withQuote) {
-			value.append("=" + quotation);
+			value.append("=").append(quotation);
 		}
 		if (!canSupportSnippets) {
 			if (defaultValue != null) {

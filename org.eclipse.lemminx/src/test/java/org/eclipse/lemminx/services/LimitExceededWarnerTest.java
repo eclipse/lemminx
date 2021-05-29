@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 public class LimitExceededWarnerTest extends AbstractNotifierTest {
 
 	private final LimitFeature TEST_FEATURE = LimitFeature.SYMBOLS;
-	private final int TEST_LIMIT = 0;
+	private static final int TEST_LIMIT = 0;
 	private LimitExceededWarner limitExceededWarner;
 
 	@BeforeEach

@@ -120,7 +120,7 @@ public class CodeActionFactory {
 
 		VersionedTextDocumentIdentifier versionedTextDocumentIdentifier = new VersionedTextDocumentIdentifier(
 				document.getUri(), document.getVersion());
-		List<TextEdit> edits = new ArrayList<TextEdit>();
+		List<TextEdit> edits = new ArrayList<>();
 		for (Range range : ranges) {
 			TextEdit edit = new TextEdit(range, replaceText);
 			edits.add(edit);

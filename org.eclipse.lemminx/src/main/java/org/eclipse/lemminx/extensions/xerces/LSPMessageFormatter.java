@@ -152,7 +152,7 @@ public class LSPMessageFormatter implements MessageFormatter {
 			}
 			result.append(" - ");
 			while (stream.peekChar() != _CCB && stream.peekChar() != _CMA) { // } | ,
-				result.append(Character.toString((char) stream.peekChar()));
+				result.append((char) stream.peekChar());
 				stream.advance(1);
 			}
 			result.append("\n");
@@ -176,7 +176,7 @@ public class LSPMessageFormatter implements MessageFormatter {
 			stream.advance(1);// Consume ' ' or '[' if first item
 			sb.append(" - ");
 			while (stream.peekChar() != _CSB && stream.peekChar() != _CMA) { // ] | ,
-				sb.append(Character.toString((char) stream.peekChar()));
+				sb.append((char) stream.peekChar());
 				stream.advance(1);
 			}
 			sb.append("\n");

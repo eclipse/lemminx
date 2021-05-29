@@ -104,7 +104,7 @@ public class XSIFormatterParticipant implements IFormatterParticipant {
 	}
 
 	private static List<String> getLocations(String value) {
-		List<String> locations = new ArrayList<String>();
+		List<String> locations = new ArrayList<>();
 		int start = -1;
 		for (int i = 0; i < value.length(); i++) {
 			char c = value.charAt(i);

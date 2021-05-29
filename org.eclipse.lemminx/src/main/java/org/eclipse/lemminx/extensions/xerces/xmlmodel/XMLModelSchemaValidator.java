@@ -91,7 +91,7 @@ public class XMLModelSchemaValidator extends XMLSchemaValidator implements XMLMo
 				 * <?xml-model href="http://www.docbook.org/xml/5.0/xsd/docbook.xsd"?>
 				 * <book xmlns="http://docbook.org/ns/docbook">
 				 **/
-				String schemaLocation = new StringBuilder(defaultNamespace).append(' ').append(href).toString();
+				String schemaLocation = defaultNamespace + ' ' + href;
 				XMLSchemaLoader.processExternalHints(schemaLocation, null, fLocationPairs, errorReporter);
 			}
 			rootElement = false;

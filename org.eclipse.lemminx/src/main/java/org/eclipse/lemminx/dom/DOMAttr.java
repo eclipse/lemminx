@@ -377,23 +377,30 @@ public class DOMAttr extends DOMNode implements org.w3c.dom.Attr {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		DOMAttr other = (DOMAttr) obj;
 		if (name == null) {
-			if (other.name != null)
+			if (other.name != null) {
 				return false;
-		} else if (!name.equals(other.name))
+			}
+		} else if (!name.equals(other.name)) {
 			return false;
+		}
 		if (quotelessValue == null) {
-			if (other.quotelessValue != null)
+			if (other.quotelessValue != null) {
 				return false;
-		} else if (!quotelessValue.equals(other.quotelessValue))
+			}
+		} else if (!quotelessValue.equals(other.quotelessValue)) {
 			return false;
+		}
 		return true;
 	}
 

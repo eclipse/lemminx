@@ -85,7 +85,7 @@ public class ChildrenPropertiesTest {
 		for (Entry<String, Cardinality> entry : properties.getCardinalities().entrySet()) {
 			result.append(entry.getKey());
 			result.append(" ");
-			result.append(entry.getValue().toString());
+			result.append(entry.getValue());
 		}
 		return result.toString();
 	}

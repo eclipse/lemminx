@@ -63,13 +63,13 @@ public class InvalidPathWarner extends AbstractXMLNotifier {
 	}
 
 	private static String createWarningMessage(String settingId, Set<String> invalidPaths) {
-		StringBuilder message = new StringBuilder().append("Invalid path");
+		StringBuilder message = new StringBuilder("Invalid path");
 		if (invalidPaths.size() > 1) {
 			message.append('s');
 		}
 		message.append(" for setting '").append(settingId).append("': ");
 
-		List<String> list = new ArrayList<String>(invalidPaths); 
+		List<String> list = new ArrayList<>(invalidPaths); 
 		for (int i = 0; i < list.size(); i++) {
 			if (i != 0) {
 				message.append(", ");

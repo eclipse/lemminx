@@ -26,7 +26,7 @@ public class OS {
 		this.name = Platform.getSystemProperty("os.name");
 		this.version = Platform.getSystemProperty("os.version");
 		this.arch = Platform.getSystemProperty("os.arch");
-		isWindows = name != null && name.toLowerCase().indexOf("win") >= 0;
+		isWindows = name != null && name.toLowerCase().contains("win");
 	}
 
 	/**

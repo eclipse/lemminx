@@ -56,22 +56,29 @@ public class XMLFoldingsTest {
 
 		@Override
 		public boolean equals(Object obj) {
-			if (this == obj)
+			if (this == obj) {
 				return true;
-			if (obj == null)
+			}
+			if (obj == null) {
 				return false;
-			if (getClass() != obj.getClass())
+			}
+			if (getClass() != obj.getClass()) {
 				return false;
+			}
 			ExpectedIndentRange other = (ExpectedIndentRange) obj;
-			if (endLine != other.endLine)
+			if (endLine != other.endLine) {
 				return false;
+			}
 			if (kind == null) {
-				if (other.kind != null)
+				if (other.kind != null) {
 					return false;
-			} else if (!kind.equals(other.kind))
+				}
+			} else if (!kind.equals(other.kind)) {
 				return false;
-			if (startLine != other.startLine)
+			}
+			if (startLine != other.startLine) {
 				return false;
+			}
 			return true;
 		}
 	}

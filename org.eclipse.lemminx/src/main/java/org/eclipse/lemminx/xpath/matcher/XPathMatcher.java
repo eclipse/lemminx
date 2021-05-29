@@ -226,7 +226,7 @@ public class XPathMatcher extends ArrayList<IXPathNodeMatcher> {
 	 * @return
 	 */
 	public List<String> getWildcardValues(Node selectedNode) {
-		List<String> wildcardValues = new ArrayList<String>();
+		List<String> wildcardValues = new ArrayList<>();
 		if (nbWildCard == -1 || selectedNode == null) {
 			// No wildcard in the XPath expression of this matcher or DOM node
 			// is null

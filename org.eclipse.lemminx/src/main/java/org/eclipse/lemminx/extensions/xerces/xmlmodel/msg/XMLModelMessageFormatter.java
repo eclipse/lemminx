@@ -106,7 +106,7 @@ public class XMLModelMessageFormatter implements MessageFormatter {
 					if (i > 0) {
 						str.append('&');
 					}
-					str.append(String.valueOf(arguments[i]));
+					str.append(arguments[i]);
 				}
 			}
 		}

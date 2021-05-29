@@ -567,10 +567,7 @@ class XMLFormatter {
 
 						this.indentLevel++;
 						for (DOMNode child : element.getChildren()) {
-							boolean textElement = !child.isText();
-
-							hasElements = hasElements | textElement;
-
+							hasElements = hasElements || !child.isText();
 							format(child);
 						}
 						this.indentLevel--;

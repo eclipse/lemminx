@@ -43,9 +43,7 @@ public class XSDRenameParticipant implements IRenameParticipant {
 		if (!DOMUtils.isXSD(xmlDocument)) {
 			return;
 		}
-		for (TextEdit textEdit: getRenameTextEdits(request)) {
-			locations.add(textEdit);
-		}
+		locations.addAll(getRenameTextEdits(request));
 
 	}
 
