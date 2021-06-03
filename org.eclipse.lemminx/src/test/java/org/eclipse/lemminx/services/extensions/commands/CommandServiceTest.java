@@ -36,7 +36,7 @@ public class CommandServiceTest {
 	}
 
 	private void registerCommand(String command) {
-		languageServer.registerCommand(command, (params, cancelChecker) -> {
+		languageServer.registerCommand(command, (params, sharedSettings, cancelChecker) -> {
 			return params.getCommand() + (params.getArguments().isEmpty() ? ""
 					: ": " + params.getArguments().stream().map(a -> a.toString()).collect(Collectors.joining(" ")));
 		});

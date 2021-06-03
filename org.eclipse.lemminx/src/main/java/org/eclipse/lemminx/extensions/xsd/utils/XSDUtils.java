@@ -47,6 +47,9 @@ import com.google.common.base.Objects;
  */
 public class XSDUtils {
 
+	public static final String SCHEMA_LOCATION_ATTR = "schemaLocation";
+	public static final String TARGET_NAMESPACE_ATTR = "targetNamespace";
+
 	/**
 	 * Binding type of xs attribute.
 	 *
@@ -152,7 +155,7 @@ public class XSDUtils {
 		// <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
 		// xmlns:tns="http://camel.apache.org/schema/spring"
 		// targetNamespace="http://camel.apache.org/schema/spring" version="1.0">
-		String targetNamespace = documentElement.getAttribute("targetNamespace"); // ->
+		String targetNamespace = documentElement.getAttribute(TARGET_NAMESPACE_ATTR); // ->
 																					// http://camel.apache.org/schema/spring
 		String targetNamespacePrefix = documentElement.getPrefix(targetNamespace); // -> tns
 
@@ -190,7 +193,7 @@ public class XSDUtils {
 					}
 				} else if (isXSInclude(targetElement)) {
 					// collect xs:include XML Schema location
-					String schemaLocation = targetElement.getAttribute("schemaLocation");
+					String schemaLocation = targetElement.getAttribute(SCHEMA_LOCATION_ATTR);
 					if (schemaLocation != null) {
 						if (externalURIS == null) {
 							externalURIS = new HashSet<>();
@@ -271,7 +274,7 @@ public class XSDUtils {
 		// <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
 		// xmlns:tns="http://camel.apache.org/schema/spring"
 		// targetNamespace="http://camel.apache.org/schema/spring" version="1.0">
-		String targetNamespace = documentElement.getAttribute("targetNamespace"); // ->
+		String targetNamespace = documentElement.getAttribute(TARGET_NAMESPACE_ATTR); // ->
 																					// http://camel.apache.org/schema/spring
 		String targetNamespacePrefix = documentElement.getPrefix(targetNamespace); // -> tns
 
@@ -464,7 +467,7 @@ public class XSDUtils {
 		if (!(isXSInclude(element) || isXSImport(element))) {
 			return null;
 		}
-		return element.getAttributeNode("schemaLocation");
+		return element.getAttributeNode(SCHEMA_LOCATION_ATTR);
 	}
 
 }

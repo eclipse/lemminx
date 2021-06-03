@@ -16,11 +16,13 @@ import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.services.IXMLDocumentProvider;
 import org.eclipse.lemminx.services.IXMLValidationService;
 import org.eclipse.lemminx.services.extensions.commands.AbstractDOMDocumentCommandHandler;
+import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
- * XML Command to revalidate a give XML file which means:
+ * XML Command "xml.validation.current.file" to revalidate a give XML file which
+ * means:
  * 
  * <ul>
  * <li>remove the referenced grammar in the XML file from the Xerces grammar
@@ -48,8 +50,8 @@ public class XMLValidationFileCommand extends AbstractDOMDocumentCommandHandler 
 	}
 
 	@Override
-	protected Object executeCommand(DOMDocument document, ExecuteCommandParams params, CancelChecker cancelChecker)
-			throws Exception {
+	protected Object executeCommand(DOMDocument document, ExecuteCommandParams params, SharedSettings sharedSettings,
+			CancelChecker cancelChecker) throws Exception {
 		// 1. remove the referenced grammar in the XML file from the Xerces grammar pool
 		// (used by the Xerces validation) and the content model documents cache (used
 		// by the XML completion/hover based on the grammar)

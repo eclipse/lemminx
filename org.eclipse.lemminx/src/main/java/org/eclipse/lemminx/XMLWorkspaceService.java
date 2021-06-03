@@ -63,7 +63,7 @@ public class XMLWorkspaceService implements WorkspaceService, IXMLCommandService
 			}
 			return CompletableFutures.computeAsync(cancelChecker -> {
 				try {
-					return handler.executeCommand(params, cancelChecker);
+					return handler.executeCommand(params, xmlLanguageServer.getSharedSettings(), cancelChecker);
 				} catch (Exception e) {
 					if (e instanceof ResponseErrorException) {
 						throw (ResponseErrorException) e;

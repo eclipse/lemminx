@@ -32,11 +32,9 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.CompletionParams;
 import org.eclipse.lsp4j.DiagnosticSeverity;
-import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
-import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.junit.jupiter.api.Test;
 
@@ -83,7 +81,7 @@ public class XMLValidationCommandTest extends BaseFileTempTest {
 					"</root>";
 
 			// Open the XML document, the validation is triggered asynchronously
-			TextDocumentIdentifier xmlIdentifier = didOpen(languageServer, "test.xml", xml);
+			TextDocumentIdentifier xmlIdentifier = languageServer.didOpen("test.xml", xml);
 
 			// Wait for:
 			// - downloading of XSD from the HTTP server to lemminx cache
@@ -209,7 +207,7 @@ public class XMLValidationCommandTest extends BaseFileTempTest {
 					"</root>";
 
 			// Open the XML document, the validation is triggered asynchronously
-			TextDocumentIdentifier xml1Identifier = didOpen(languageServer, "test1.xml", xml1);
+			TextDocumentIdentifier xml1Identifier = languageServer.didOpen("test1.xml", xml1);
 
 			// Wait for to collect diagnostics in the proper order (XSD diagnostics followed
 			// by DTD diagnostics)
@@ -223,7 +221,7 @@ public class XMLValidationCommandTest extends BaseFileTempTest {
 					"</root>";
 
 			// Open the XML document, the validation is triggered asynchronously
-			TextDocumentIdentifier xml2Identifier = didOpen(languageServer, "test2.xml", xml2);
+			TextDocumentIdentifier xml2Identifier = languageServer.didOpen("test2.xml", xml2);
 
 			// Wait for:
 			// - downloading of XSD from the HTTP server to lemminx cache
@@ -329,14 +327,6 @@ public class XMLValidationCommandTest extends BaseFileTempTest {
 		} finally {
 			httpServer.stop();
 		}
-	}
-
-	private static TextDocumentIdentifier didOpen(MockXMLLanguageServer languageServer, String fileURI, String xml) {
-		TextDocumentIdentifier xmlIdentifier = new TextDocumentIdentifier(fileURI);
-		DidOpenTextDocumentParams params = new DidOpenTextDocumentParams(
-				new TextDocumentItem(xmlIdentifier.getUri(), "xml", 1, xml));
-		languageServer.getTextDocumentService().didOpen(params);
-		return xmlIdentifier;
 	}
 
 	private static CompletionList completion(MockXMLLanguageServer languageServer, TextDocumentIdentifier xmlIdentifier)

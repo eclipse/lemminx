@@ -15,10 +15,12 @@ package org.eclipse.lemminx.extensions.contentmodel;
 import java.util.Objects;
 
 import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lemminx.extensions.contentmodel.commands.AssociateGrammarCommand;
 import org.eclipse.lemminx.extensions.contentmodel.commands.XMLValidationAllFilesCommand;
 import org.eclipse.lemminx.extensions.contentmodel.commands.XMLValidationFileCommand;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.extensions.contentmodel.participants.ContentModelCodeActionParticipant;
+import org.eclipse.lemminx.extensions.contentmodel.participants.ContentModelCodeLensParticipant;
 import org.eclipse.lemminx.extensions.contentmodel.participants.ContentModelCompletionParticipant;
 import org.eclipse.lemminx.extensions.contentmodel.participants.ContentModelDocumentLinkParticipant;
 import org.eclipse.lemminx.extensions.contentmodel.participants.ContentModelHoverParticipant;
@@ -36,6 +38,7 @@ import org.eclipse.lemminx.services.extensions.IHoverParticipant;
 import org.eclipse.lemminx.services.extensions.ITypeDefinitionParticipant;
 import org.eclipse.lemminx.services.extensions.IXMLExtension;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lemminx.services.extensions.codelens.ICodeLensParticipant;
 import org.eclipse.lemminx.services.extensions.commands.IXMLCommandService;
 import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lemminx.services.extensions.save.ISaveContext;
@@ -68,6 +71,8 @@ public class ContentModelPlugin implements IXMLExtension {
 
 	private ContentModelSymbolsProviderParticipant symbolsProviderParticipant;
 
+	private final ICodeLensParticipant codeLensParticipant;
+
 	ContentModelManager contentModelManager;
 
 	private ContentModelSettings cmSettings;
@@ -80,6 +85,7 @@ public class ContentModelPlugin implements IXMLExtension {
 		diagnosticsParticipant = new ContentModelDiagnosticsParticipant(this);
 		codeActionParticipant = new ContentModelCodeActionParticipant();
 		typeDefinitionParticipant = new ContentModelTypeDefinitionParticipant();
+		codeLensParticipant = new ContentModelCodeLensParticipant();
 	}
 
 	@Override
@@ -176,6 +182,7 @@ public class ContentModelPlugin implements IXMLExtension {
 		registry.registerTypeDefinitionParticipant(typeDefinitionParticipant);
 		symbolsProviderParticipant = new ContentModelSymbolsProviderParticipant(contentModelManager);
 		registry.registerSymbolsProviderParticipant(symbolsProviderParticipant);
+		registry.registerCodeLensParticipant(codeLensParticipant);
 
 		// Register custom commands to re-validate XML files
 		IXMLCommandService commandService = registry.getCommandService();
@@ -186,6 +193,8 @@ public class ContentModelPlugin implements IXMLExtension {
 					new XMLValidationFileCommand(contentModelManager, documentProvider, validationService));
 			commandService.registerCommand(XMLValidationAllFilesCommand.COMMAND_ID,
 					new XMLValidationAllFilesCommand(contentModelManager, documentProvider, validationService));
+			commandService.registerCommand(AssociateGrammarCommand.COMMAND_ID,
+					new AssociateGrammarCommand(documentProvider));
 		}
 	}
 
@@ -198,12 +207,14 @@ public class ContentModelPlugin implements IXMLExtension {
 		registry.unregisterDocumentLinkParticipant(documentLinkParticipant);
 		registry.unregisterTypeDefinitionParticipant(typeDefinitionParticipant);
 		registry.unregisterSymbolsProviderParticipant(symbolsProviderParticipant);
+		registry.unregisterCodeLensParticipant(codeLensParticipant);
 
 		// Un-register custom commands to re-validate XML files
 		IXMLCommandService commandService = registry.getCommandService();
 		if (commandService != null) {
 			commandService.unregisterCommand(XMLValidationFileCommand.COMMAND_ID);
 			commandService.unregisterCommand(XMLValidationAllFilesCommand.COMMAND_ID);
+			commandService.unregisterCommand(AssociateGrammarCommand.COMMAND_ID);
 		}
 	}
 

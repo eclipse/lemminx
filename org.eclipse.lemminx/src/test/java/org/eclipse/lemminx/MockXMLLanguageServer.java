@@ -17,9 +17,12 @@ import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.lemminx.customservice.ActionableNotification;
 import org.eclipse.lemminx.services.extensions.commands.IXMLCommandService.IDelegateCommandHandler;
+import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
+import org.eclipse.lsp4j.TextDocumentIdentifier;
+import org.eclipse.lsp4j.TextDocumentItem;
 
 /**
  * Mock XML Language server which helps to track show messages, actionable
@@ -65,4 +68,11 @@ public class MockXMLLanguageServer extends XMLLanguageServer {
 		return getWorkspaceService().executeCommand(params);
 	}
 
+	public TextDocumentIdentifier didOpen(String fileURI, String xml) {
+		TextDocumentIdentifier xmlIdentifier = new TextDocumentIdentifier(fileURI);
+		DidOpenTextDocumentParams params = new DidOpenTextDocumentParams(
+				new TextDocumentItem(xmlIdentifier.getUri(), "xml", 1, xml));
+		getTextDocumentService().didOpen(params);
+		return xmlIdentifier;
+	}
 }
