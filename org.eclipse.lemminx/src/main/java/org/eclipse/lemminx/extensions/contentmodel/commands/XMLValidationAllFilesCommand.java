@@ -18,11 +18,13 @@ import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.services.IXMLDocumentProvider;
 import org.eclipse.lemminx.services.IXMLValidationService;
 import org.eclipse.lemminx.services.extensions.commands.IXMLCommandService.IDelegateCommandHandler;
+import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
- * XML Command to revalidate all opened XML files which means:
+ * XML Command "xml.validation.all.files" to revalidate all opened XML files
+ * which means:
  * 
  * <ul>
  * <li>clear the Xerces grammar pool (used by the Xerces validation) and the
@@ -52,7 +54,8 @@ public class XMLValidationAllFilesCommand implements IDelegateCommandHandler {
 	}
 
 	@Override
-	public Object executeCommand(ExecuteCommandParams params, CancelChecker cancelChecker) throws Exception {
+	public Object executeCommand(ExecuteCommandParams params, SharedSettings sharedSettings,
+			CancelChecker cancelChecker) throws Exception {
 		// 1. clear the Xerces grammar pool
 		// (used by the Xerces validation) and the content model documents cache (used
 		// by the XML completion/hover based on the grammar)

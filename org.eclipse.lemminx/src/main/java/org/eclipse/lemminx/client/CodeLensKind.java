@@ -26,4 +26,6 @@ public class CodeLensKind {
 	public static final String References = "references";
 
 	public static final String Implementations = "implementations";
+
+	public static final String Association = "association";
 }
