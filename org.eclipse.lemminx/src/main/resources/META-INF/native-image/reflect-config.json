@@ -485,6 +485,14 @@
 		}]
 	},
 	{
+		"name": "org.eclipse.lsp4j.CodeLens",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
 		"name": "org.eclipse.lsp4j.CodeLensCapabilities",
 		"allDeclaredFields": true,
 		"methods": [{
@@ -1316,6 +1324,14 @@
 	},
 	{
 		"name": "org.eclipse.lsp4j.ReferencesCapabilities",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
+		"name": "org.eclipse.lsp4j.ReferenceParams",
 		"allDeclaredFields": true,
 		"methods": [{
 			"name": "<init>",
