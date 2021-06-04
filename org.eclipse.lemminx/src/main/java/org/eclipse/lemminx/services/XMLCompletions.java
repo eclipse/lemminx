@@ -56,6 +56,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.w3c.dom.Node;
 
 /**
@@ -661,7 +662,7 @@ public class XMLCompletions {
 							xml.append("</").append(tag).append(">");
 						}
 					}
-					item.setTextEdit(new TextEdit(replaceRange, xml.toString()));
+					item.setTextEdit(Either.forLeft(new TextEdit(replaceRange, xml.toString())));
 					item.setInsertTextFormat(InsertTextFormat.Snippet);
 
 					completionResponse.addCompletionItem(item);
@@ -723,15 +724,15 @@ public class XMLCompletions {
 						String endIndent = getLineIndent(afterOpenBracket, text);
 						if (startIndent != null && endIndent != null && !startIndent.equals(endIndent)) {
 							String insertText = startIndent + "</" + tag + closeTag;
-							item.setTextEdit(new TextEdit(
+							item.setTextEdit(Either.forLeft(new TextEdit(
 									getReplaceRange(afterOpenBracket - endIndent.length(), offset, completionRequest),
-									insertText));
+									insertText)));
 							item.setFilterText(endIndent + "</" + tag + closeTag);
 						} else {
 							String openTag = openEndTag ? "<" : "";
 							String insertText = openTag + "/" + tag + closeTag;
 							item.setFilterText(insertText);
-							item.setTextEdit(new TextEdit(range, insertText));
+							item.setTextEdit(Either.forLeft(new TextEdit(range, insertText)));
 						}
 						completionResponse.addCompletionItem(item);
 					}
@@ -810,7 +811,7 @@ public class XMLCompletions {
 
 				String text = request.isCompletionSnippetsSupported() ? "<!-- #region $1-->" : "<!-- #region -->";
 				CompletionItem beginProposal = new CompletionItem("#region");
-				beginProposal.setTextEdit(new TextEdit(range, text));
+				beginProposal.setTextEdit(Either.forLeft(new TextEdit(range, text)));
 				beginProposal.setDocumentation("Insert Folding Region Start");
 				beginProposal.setFilterText(match.group());
 				beginProposal.setSortText("za");
@@ -819,7 +820,7 @@ public class XMLCompletions {
 				response.addCompletionAttribute(beginProposal);
 
 				CompletionItem endProposal = new CompletionItem("#endregion");
-				endProposal.setTextEdit(new TextEdit(range, "<!-- #endregion-->"));
+				endProposal.setTextEdit(Either.forLeft(new TextEdit(range, "<!-- #endregion-->")));
 				endProposal.setDocumentation("Insert Folding Region End");
 				endProposal.setFilterText(match.group());
 				endProposal.setSortText("zb");

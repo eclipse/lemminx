@@ -36,6 +36,7 @@ import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.w3c.dom.Entity;
 import org.w3c.dom.NamedNodeMap;
 
@@ -143,7 +144,7 @@ public class EntitiesCompletionParticipant extends CompletionParticipantAdapter 
 		item.setInsertTextFormat(InsertTextFormat.PlainText);
 		String insertText = entityName;
 		item.setFilterText(insertText);
-		item.setTextEdit(new TextEdit(entityRange, insertText));
+		item.setTextEdit(Either.forLeft(new TextEdit(entityRange, insertText)));
 		item.setDocumentation(documentation);
 		response.addCompletionItem(item);
 	}

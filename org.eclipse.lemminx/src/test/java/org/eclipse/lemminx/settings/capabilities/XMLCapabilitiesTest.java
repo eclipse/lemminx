@@ -39,6 +39,7 @@ import org.eclipse.lsp4j.RenameCapabilities;
 import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
 import org.eclipse.lsp4j.WorkspaceClientCapabilities;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,6 +48,10 @@ import org.junit.jupiter.api.Test;
  * XMLCapabilityManagerTest
  */
 public class XMLCapabilitiesTest {
+
+	private static final Either<Boolean, ?> TRUE = Either.forLeft(true);
+
+	private static final Either<Boolean, ?> FALSE = Either.forLeft(false);
 
 	private LanguageClient languageClient = new MockXMLLanguageClient();
 	private XMLCapabilityManager manager;
@@ -79,14 +84,14 @@ public class XMLCapabilitiesTest {
 
 		ServerCapabilities serverCapabilities = ServerCapabilitiesInitializer
 				.getNonDynamicServerCapabilities(manager.getClientCapabilities(), false);
-		assertEquals(false, serverCapabilities.getDocumentRangeFormattingProvider());
-		assertEquals(false, serverCapabilities.getDocumentFormattingProvider());
-		assertEquals(false, serverCapabilities.getDocumentSymbolProvider());
-		assertEquals(false, serverCapabilities.getHoverProvider());
-		assertEquals(false, serverCapabilities.getDocumentHighlightProvider());
-		assertEquals(false, serverCapabilities.getRenameProvider().getLeft());
-		assertEquals(false, serverCapabilities.getFoldingRangeProvider().getLeft());
-		assertEquals(false, serverCapabilities.getCodeActionProvider().getLeft());
+		assertEquals(FALSE, serverCapabilities.getDocumentRangeFormattingProvider());
+		assertEquals(FALSE, serverCapabilities.getDocumentFormattingProvider());
+		assertEquals(FALSE, serverCapabilities.getDocumentSymbolProvider());
+		assertEquals(FALSE, serverCapabilities.getHoverProvider());
+		assertEquals(FALSE, serverCapabilities.getDocumentHighlightProvider());
+		assertEquals(FALSE, serverCapabilities.getRenameProvider());
+		assertEquals(FALSE, serverCapabilities.getFoldingRangeProvider());
+		assertEquals(FALSE, serverCapabilities.getCodeActionProvider());
 		assertEquals(null, serverCapabilities.getCompletionProvider());
 		assertEquals(null, serverCapabilities.getDocumentLinkProvider());
 	}
@@ -100,14 +105,14 @@ public class XMLCapabilitiesTest {
 
 		ServerCapabilities serverCapabilities = ServerCapabilitiesInitializer
 				.getNonDynamicServerCapabilities(manager.getClientCapabilities(), false);
-		assertEquals(true, serverCapabilities.getDocumentRangeFormattingProvider());
-		assertEquals(true, serverCapabilities.getDocumentFormattingProvider());
-		assertEquals(true, serverCapabilities.getDocumentSymbolProvider());
-		assertEquals(true, serverCapabilities.getHoverProvider());
-		assertEquals(true, serverCapabilities.getDocumentHighlightProvider());
-		assertEquals(true, serverCapabilities.getRenameProvider().getLeft());
-		assertEquals(true, serverCapabilities.getFoldingRangeProvider().getLeft());
-		assertEquals(true, serverCapabilities.getCodeActionProvider().getLeft());
+		assertEquals(TRUE, serverCapabilities.getDocumentRangeFormattingProvider());
+		assertEquals(TRUE, serverCapabilities.getDocumentFormattingProvider());
+		assertEquals(TRUE, serverCapabilities.getDocumentSymbolProvider());
+		assertEquals(TRUE, serverCapabilities.getHoverProvider());
+		assertEquals(TRUE, serverCapabilities.getDocumentHighlightProvider());
+		assertEquals(TRUE, serverCapabilities.getRenameProvider());
+		assertEquals(TRUE, serverCapabilities.getFoldingRangeProvider());
+		assertEquals(TRUE, serverCapabilities.getCodeActionProvider());
 		assertEquals(DEFAULT_COMPLETION_OPTIONS, serverCapabilities.getCompletionProvider());
 		assertEquals(DEFAULT_LINK_OPTIONS, serverCapabilities.getDocumentLinkProvider());
 	}
@@ -143,14 +148,14 @@ public class XMLCapabilitiesTest {
 
 		ServerCapabilities serverCapabilities = ServerCapabilitiesInitializer
 				.getNonDynamicServerCapabilities(manager.getClientCapabilities(), false);
-		assertEquals(false, serverCapabilities.getDocumentRangeFormattingProvider());
-		assertEquals(false, serverCapabilities.getDocumentFormattingProvider());
-		assertEquals(false, serverCapabilities.getDocumentSymbolProvider());
-		assertEquals(true, serverCapabilities.getHoverProvider());
-		assertEquals(true, serverCapabilities.getDocumentHighlightProvider());
-		assertEquals(true, serverCapabilities.getRenameProvider().getLeft());
-		assertEquals(true, serverCapabilities.getFoldingRangeProvider().getLeft());
-		assertEquals(true, serverCapabilities.getCodeActionProvider().getLeft());
+		assertEquals(FALSE, serverCapabilities.getDocumentRangeFormattingProvider());
+		assertEquals(FALSE, serverCapabilities.getDocumentFormattingProvider());
+		assertEquals(FALSE, serverCapabilities.getDocumentSymbolProvider());
+		assertEquals(TRUE, serverCapabilities.getHoverProvider());
+		assertEquals(TRUE, serverCapabilities.getDocumentHighlightProvider());
+		assertEquals(TRUE, serverCapabilities.getRenameProvider());
+		assertEquals(TRUE, serverCapabilities.getFoldingRangeProvider());
+		assertEquals(TRUE, serverCapabilities.getCodeActionProvider());
 		assertEquals(null, serverCapabilities.getCompletionProvider());
 		assertEquals(DEFAULT_LINK_OPTIONS, serverCapabilities.getDocumentLinkProvider());
 	}
@@ -169,8 +174,8 @@ public class XMLCapabilitiesTest {
 
 		ServerCapabilities serverCapabilities = ServerCapabilitiesInitializer
 				.getNonDynamicServerCapabilities(manager.getClientCapabilities(), false);
-		assertEquals(false, serverCapabilities.getDocumentRangeFormattingProvider());
-		assertEquals(false, serverCapabilities.getDocumentFormattingProvider());
+		assertEquals(FALSE, serverCapabilities.getDocumentRangeFormattingProvider());
+		assertEquals(FALSE, serverCapabilities.getDocumentFormattingProvider());
 	}
 
 	@Test
@@ -189,8 +194,8 @@ public class XMLCapabilitiesTest {
 
 		ServerCapabilities serverCapabilities = ServerCapabilitiesInitializer
 				.getNonDynamicServerCapabilities(manager.getClientCapabilities(), false);
-		assertEquals(false, serverCapabilities.getDocumentRangeFormattingProvider());
-		assertEquals(false, serverCapabilities.getDocumentFormattingProvider());
+		assertEquals(FALSE, serverCapabilities.getDocumentRangeFormattingProvider());
+		assertEquals(FALSE, serverCapabilities.getDocumentFormattingProvider());
 	}
 
 	private void setAllCapabilities(boolean areAllDynamic) {

@@ -39,9 +39,9 @@ public class ClientCapabilitiesWrapper {
 
 	/**
 	 * IMPORTANT
-	 * 
+	 *
 	 * This should be up to date with all Server supported capabilities
-	 * 
+	 *
 	 */
 
 	public boolean isCompletionDynamicRegistrationSupported() {
@@ -104,8 +104,16 @@ public class ClientCapabilitiesWrapper {
 		return v3Supported && isDynamicRegistrationSupported(getTextDocument().getDocumentHighlight());
 	}
 
+	public boolean isSelectionRangeDynamicRegistered() {
+		return v3Supported && isDynamicRegistrationSupported(getTextDocument().getSelectionRange());
+	}
+
 	public boolean isDidChangeWatchedFilesRegistered() {
 		return v3Supported && isDynamicRegistrationSupported(capabilities.getWorkspace().getDidChangeWatchedFiles());
+	}
+	
+	public boolean isLinkedEditingRangeDynamicRegistered() {
+		return v3Supported && isDynamicRegistrationSupported(getTextDocument().getLinkedEditingRange());
 	}
 
 	private boolean isDynamicRegistrationSupported(DynamicRegistrationCapabilities capability) {

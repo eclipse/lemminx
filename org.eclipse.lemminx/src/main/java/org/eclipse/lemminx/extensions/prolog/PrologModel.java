@@ -14,6 +14,7 @@ package org.eclipse.lemminx.extensions.prolog;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -29,6 +30,7 @@ import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.w3c.dom.NamedNodeMap;
 
 import com.google.common.base.Charsets;
@@ -160,7 +162,7 @@ public class PrologModel {
 			item.setLabel(option);
 			item.setFilterText(insertText);
 			item.setKind(CompletionItemKind.Enum);
-			item.setTextEdit(new TextEdit(editRange, insertText));
+			item.setTextEdit(Either.forLeft(new TextEdit(editRange, insertText)));
 			item.setSortText(Integer.toString(sortText));
 			sortText++;
 			response.addCompletionItem(item);

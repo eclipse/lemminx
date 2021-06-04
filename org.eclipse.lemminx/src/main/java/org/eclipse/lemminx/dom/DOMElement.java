@@ -287,12 +287,16 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 	}
 
 	public boolean isInEndTag(int offset) {
+		return isInEndTag(offset, false);
+	}
+
+	public boolean isInEndTag(int offset, boolean afterBackSlash) {
 		if (endTagOpenOffset == NULL_VALUE) {
 			// case >|
 			return false;
 		}
-		if (offset > endTagOpenOffset && offset < getEnd()) {
-			// case <\bean | >
+		if (offset > endTagOpenOffset + (afterBackSlash ? 1 : 0) && offset < getEnd()) {
+			// case </bean | >
 			return true;
 		}
 		return false;
