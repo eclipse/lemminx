@@ -29,6 +29,7 @@ public class XMLFormattingOptions extends FormattingOptions {
 	public static final boolean DEFAULT_PRESERVE_ATTR_LINE_BREAKS = false;
 	public static final boolean DEFAULT_TRIM_TRAILING_SPACES = false;
 	public static final int DEFAULT_SPLIT_ATTRIBUTES_INDENT_SIZE = 2;
+	public static final boolean DEFAULT_CLOSING_BRACKET_NEW_LINE = false;
 
 	// All possible keys
 	private static final String SPLIT_ATTRIBUTES = "splitAttributes";
@@ -45,6 +46,7 @@ public class XMLFormattingOptions extends FormattingOptions {
 	private static final String PRESERVE_ATTR_LINE_BREAKS = "preserveAttributeLineBreaks";
 	private static final String PRESERVE_EMPTY_CONTENT = "preserveEmptyContent";
 	private static final String SPLIT_ATTRIBUTES_INDENT_SIZE = "splitAttributesIndentSize";
+	private static final String CLOSING_BRACKET_NEW_LINE = "closingBracketNewLine";
 
 	/**
 	 * Options for formatting empty elements.
@@ -128,6 +130,7 @@ public class XMLFormattingOptions extends FormattingOptions {
 		this.setPreservedNewlines(DEFAULT_PRESERVER_NEW_LINES);
 		this.setEmptyElement(EmptyElements.ignore);
 		this.setSplitAttributesIndentSize(DEFAULT_SPLIT_ATTRIBUTES_INDENT_SIZE);
+		this.setClosingBracketNewLine(DEFAULT_CLOSING_BRACKET_NEW_LINE);
 	}
 
 	public XMLFormattingOptions(int tabSize, boolean insertSpaces, boolean initializeDefaultSettings) {
@@ -376,6 +379,28 @@ public class XMLFormattingOptions extends FormattingOptions {
 
 	public static XMLFormattingOptions create(FormattingOptions options, FormattingOptions sharedFormattingOptions) {
 		return new XMLFormattingOptions(options).merge(sharedFormattingOptions);
+	}
+
+	/**
+	 * Returns the value of closingBracketNewLine or false if it was set to null
+	 * 
+	 * A setting for enabling the XML formatter to move the closing bracket of a tag with at least 2 attributes
+	 * to a new line.
+	 *
+	 * @return the value of closingBracketNewLine or false if it was set to null
+	 */
+	public boolean getClosingBracketNewLine() {
+		final Boolean value = this.getBoolean(CLOSING_BRACKET_NEW_LINE);
+		return (value == null) ? DEFAULT_CLOSING_BRACKET_NEW_LINE: value;
+	}
+
+	/**
+	 * Sets the value of closingBracketNewLine
+	 *
+	 * @param closingBracketNewLine the new value for closingBracketNewLine
+	 */
+	public void setClosingBracketNewLine(final boolean closingBracketNewLine) {
+		this.putBoolean(XMLFormattingOptions.CLOSING_BRACKET_NEW_LINE, Boolean.valueOf(closingBracketNewLine));
 	}
 
 }

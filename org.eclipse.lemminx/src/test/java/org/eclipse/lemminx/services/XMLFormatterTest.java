@@ -2923,4 +2923,58 @@ public class XMLFormatterTest {
 		assertFormat(content, expected);
 	}
 
+	@Test
+	public void testClosingBracketNewLine() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributesIndentSize(0);
+		settings.getFormattingSettings().setClosingBracketNewLine(true);
+		String content = "<a b='' c=''/>";
+		String expected = "<a" + lineSeparator() +
+		"b=''" + lineSeparator() +
+		"c=''"  + lineSeparator() +
+		"/>";
+		assertFormat(content, expected, settings);
+	}
+
+	@Test
+	public void testClosingBracketNewLineWithoutSplitAttributes() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setSplitAttributes(false);
+		settings.getFormattingSettings().setClosingBracketNewLine(true);
+		String content = "<a b='' c=''/>";
+		String expected = "<a b='' c='' />";
+		assertFormat(content, expected, settings);
+	}
+
+	@Test
+	public void testClosingBracketNewLineWithSingleAttribute() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributesIndentSize(0);
+		settings.getFormattingSettings().setClosingBracketNewLine(true);
+		String content = "<a b=''/>";
+		String expected = "<a b='' />";
+		assertFormat(content, expected, settings);
+	}
+
+	@Test
+	public void testClosingBracketNewLineWithPreserveEmptyContent() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributesIndentSize(0);
+		settings.getFormattingSettings().setPreserveEmptyContent(true);
+		settings.getFormattingSettings().setClosingBracketNewLine(true);
+		String content = "<a>" + lineSeparator() +
+		"<b c='' d=''></b>" + lineSeparator() +
+		"</a>";
+		String expected = "<a>" + lineSeparator() +
+		"  <b" + lineSeparator() +
+		"  c=''" + lineSeparator() +
+		"  d=''" + lineSeparator() +
+		"  ></b>" + lineSeparator() +
+		"</a>";
+		assertFormat(content, expected, settings);
+	}
+
 }
