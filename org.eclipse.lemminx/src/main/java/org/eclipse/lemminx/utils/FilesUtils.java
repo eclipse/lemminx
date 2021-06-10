@@ -153,14 +153,7 @@ public class FilesUtils {
 			writer.write(content);
 		}
 		// Make sure it's not executable
-		try {
-			Files.setPosixFilePermissions(outFile, PosixFilePermissions.fromString("rw-r-----"));
-		} catch (UnsupportedOperationException e) {
-			// The associated file system does not support the PosixFileAttributeView,
-			// ignore the error
-			LOGGER.log(Level.SEVERE,
-					"The associated file system '" + outFile + "' + does not support the PosixFileAttributeView", e);
-		}
+		outFile.toFile().setExecutable(false);
 	}
 
 	public static int getOffsetAfterScheme(String uri) {
