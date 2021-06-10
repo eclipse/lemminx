@@ -13,11 +13,16 @@ package org.eclipse.lemminx.utils;
 
 import static java.io.File.separator;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.eclipse.lemminx.utils.platform.Platform;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /**
  * FilesUtilsTest
@@ -58,5 +63,15 @@ public class FilesUtilsTest {
 		assertEquals("C:\\Users\\Home\\Documents\\", FilesUtils.convertToWindowsPath("\\C:\\Users\\Home\\Documents\\"));
 		assertEquals("C:\\Users\\Home\\Documents\\", FilesUtils.convertToWindowsPath("/C:/Users/Home/Documents/"));
 		assertEquals("C:\\Users\\Home\\Documents\\", FilesUtils.convertToWindowsPath("C:/Users/Home/Documents/"));
+	}
+
+	@Test
+	public void saveFileAndRemoveExecutableFlag(@TempDir Path temporaryDirectory) throws IOException {
+		Path tempFilePath = temporaryDirectory.resolve("file.xml");
+		FilesUtils.saveToFile("<content />", tempFilePath);
+		File tempFile = tempFilePath.toFile();
+		assertTrue(tempFile.exists());
+		assertTrue(tempFile.isFile());
+		assertTrue(!tempFile.canExecute() || Platform.isWindows);
 	}
 }
