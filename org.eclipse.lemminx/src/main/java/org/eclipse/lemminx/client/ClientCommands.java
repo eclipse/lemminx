@@ -34,8 +34,8 @@ public class ClientCommands {
 	public static final String OPEN_SETTINGS = "xml.open.settings";
 
 	/**
-	 * Select file command.
+	 * Open the binding wizard to bind the XML to a grammar/schema.
 	 */
-	public static final String SELECT_FILE = "xml.select.file";
+	public static final String OPEN_BINDING_WIZARD = "xml.open.binding.wizard";
 
 }

@@ -14,7 +14,7 @@ package org.eclipse.lemminx.extensions.contentmodel;
 import static org.eclipse.lemminx.XMLAssert.cl;
 import static org.eclipse.lemminx.XMLAssert.r;
 import static org.eclipse.lemminx.XMLAssert.testCodeLensFor;
-import static org.eclipse.lemminx.client.ClientCommands.SELECT_FILE;
+import static org.eclipse.lemminx.client.ClientCommands.OPEN_BINDING_WIZARD;
 
 import java.util.Collections;
 
@@ -34,9 +34,7 @@ public class AssociateGrammarCodeLensExtensionsTest {
 				"<foo />";
 		testCodeLensFor(xml, "test.xml", //
 				Collections.singletonList(CodeLensKind.Association), //
-				cl(r(1, 1, 1, 4), "Bind with XSD", SELECT_FILE), //
-				cl(r(1, 1, 1, 4), "Bind with DTD", SELECT_FILE), //
-				cl(r(1, 1, 1, 4), "Bind with xml-model", SELECT_FILE));
+				cl(r(1, 1, 1, 4), "Bind to grammar/schema...", OPEN_BINDING_WIZARD));
 	}
 
 	@Test
@@ -54,7 +52,7 @@ public class AssociateGrammarCodeLensExtensionsTest {
 		testCodeLensFor(xml, "test.dtd", //
 				Collections.singletonList(CodeLensKind.Association));
 	}
-	
+
 	@Test
 	public void noGrammarWithoutAssociationSupport() throws BadLocationException {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
@@ -69,5 +67,5 @@ public class AssociateGrammarCodeLensExtensionsTest {
 				"<foo />";
 		testCodeLensFor(xml, "test.xml");
 	}
-	
+
 }

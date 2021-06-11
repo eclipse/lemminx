@@ -12,7 +12,7 @@
 
 package org.eclipse.lemminx.extensions.contentmodel.participants;
 
-import static org.eclipse.lemminx.client.ClientCommands.SELECT_FILE;
+import static org.eclipse.lemminx.client.ClientCommands.OPEN_BINDING_WIZARD;
 
 import java.util.Arrays;
 import java.util.List;
@@ -21,7 +21,6 @@ import org.eclipse.lemminx.client.CodeLensKind;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.extensions.contentmodel.commands.AssociateGrammarCommand;
-import org.eclipse.lemminx.extensions.contentmodel.commands.AssociateGrammarCommand.GrammarBindingType;
 import org.eclipse.lemminx.services.extensions.codelens.ICodeLensParticipant;
 import org.eclipse.lemminx.services.extensions.codelens.ICodeLensRequest;
 import org.eclipse.lemminx.utils.DOMUtils;
@@ -29,27 +28,35 @@ import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
  * At first this participant is enabled only when LSP client can support the
- * client command "xml.file.select" to open a file dialog and select it.
+ * client command "xml.open.binding.wizard" to open the wizard to bind a XML to
+ * a grammar/schema.
  * 
- * In this case, when XML file is not associated to a grammar (XSD, DTD), this
- * class generates several CodeLenses on the root of the DOM Document:
+ * In this case, when XML file is not associated to a grammar/schema (DTD, XSD),
+ * this class generates [Bind to grammar/schema...] CodeLens on the root of the
+ * DOM Document:
+ * 
+ * On client side, click on this Codelens should open a wizard:
  * 
  * <ul>
- * <li>[Bind with XSD] : click on this Codelens open a file dialog to select the
- * XSD to bind.</li>
- * <li>[Bind with DTD] : click on this Codelens open a file dialog to select the
- * DTD to bind.</li>
- * <li>[Bind with xml-model] : click on this Codelens open a file dialog to
- * select the XSD, DTD to bind.</li>
+ * <li>page1 : display a combo to select the binding type ("standard",
+ * "xml-model").</li>
+ * <li>page2: open a file dialog to select the grammar/schema (XSD/DTD) to
+ * bind.</li>
+ * <li>the finish wizard should consume the "xml.associate.grammar.insert"
+ * command {@link AssociateGrammarCommand} to generate the proper syntax for
+ * binding with following parameters:
+ * <ul>
+ * <li>the document uri.</li>
+ * <li>the selected grammar/schema file uri.</li>
+ * <li>the binding type.</li>
  * </ul>
- * 
- * <p>
- * Once the LSP client select the DTD, XSD, it should call the
- * {@link AssociateGrammarCommand} to generate the proper syntax for binding.
+ * In other words the "xml.associate.grammar.insert" returns the
+ * {@link TextDocumentEdit} which must be applied on the LSP client side.
  * </p>
  *
  */
@@ -62,22 +69,10 @@ public class ContentModelCodeLensParticipant implements ICodeLensParticipant {
 		}
 
 		// The LSP client can support Association, when DOM document is not bound to a
-		// grammar, code lenses appears:
+		// grammar, [Bind to grammar/schema...] CodeLens appears:
 
-		// [Bind with XSD] [Bind with DTD] [Bind with xml-model]
+		// [Bind to grammar/schema...]
 		// <foo />
-
-		// A click on codelens consume the LSP client command
-		// "xml.file.select" which should open a file dialog to select
-		// a XSD, DTD
-		// Once the file is selected, the LSP client must consume the XML language
-		// server command "xml.associate.grammar.insert" by passing as parameters
-		// - the document uri
-		// - the selected file uri
-		// - the binding type coming from code lens arguments.
-
-		// The XML language server command return a TextDocumentEdit which must be
-		// applied on LSP client side.
 
 		DOMDocument document = request.getDocument();
 		DOMElement documentElement = document.getDocumentElement();
@@ -87,10 +82,7 @@ public class ContentModelCodeLensParticipant implements ICodeLensParticipant {
 		String documentURI = document.getDocumentURI();
 		Range range = XMLPositionUtility.selectRootStartTag(document);
 
-		lenses.add(createAssociateLens(documentURI, "Bind with XSD", GrammarBindingType.XSD.getName(), range));
-		lenses.add(createAssociateLens(documentURI, "Bind with DTD", GrammarBindingType.DTD.getName(), range));
-		lenses.add(
-				createAssociateLens(documentURI, "Bind with xml-model", GrammarBindingType.XML_MODEL.getName(), range));
+		lenses.add(createAssociateLens(documentURI, "Bind to grammar/schema...", range));
 	}
 
 	private static boolean canSupport(ICodeLensRequest request) {
@@ -101,8 +93,8 @@ public class ContentModelCodeLensParticipant implements ICodeLensParticipant {
 		return !DOMUtils.isXSD(uri) && !DOMUtils.isDTD(uri);
 	}
 
-	private static CodeLens createAssociateLens(String documentURI, String title, String bindingType, Range range) {
-		Command command = new Command(title, SELECT_FILE, Arrays.asList(documentURI, bindingType));
+	private static CodeLens createAssociateLens(String documentURI, String title, Range range) {
+		Command command = new Command(title, OPEN_BINDING_WIZARD, Arrays.asList(documentURI));
 		return new CodeLens(range, command, null);
 	}
 
