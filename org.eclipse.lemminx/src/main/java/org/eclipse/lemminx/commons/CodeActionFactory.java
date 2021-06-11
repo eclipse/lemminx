@@ -85,10 +85,18 @@ public class CodeActionFactory {
 	 * @return the text edit to insert a new content at the end of the given range.
 	 */
 	public static TextDocumentEdit insertEdit(String insertText, Position position, TextDocumentItem document) {
-		TextEdit edit = new TextEdit(new Range(position, position), insertText);
+		TextEdit edit = insertEdit(insertText, position);
+		return insertEdits(document, Collections.singletonList(edit));
+	}
+
+	public static TextEdit insertEdit(String insertText, Position position) {
+		return new TextEdit(new Range(position, position), insertText);
+	}
+
+	public static TextDocumentEdit insertEdits(TextDocumentItem document, List<TextEdit> edits) {
 		VersionedTextDocumentIdentifier versionedTextDocumentIdentifier = new VersionedTextDocumentIdentifier(
 				document.getUri(), document.getVersion());
-		return new TextDocumentEdit(versionedTextDocumentIdentifier, Collections.singletonList(edit));
+		return new TextDocumentEdit(versionedTextDocumentIdentifier, edits);
 	}
 
 	public static CodeAction replace(String title, Range range, String replaceText, TextDocumentItem document,

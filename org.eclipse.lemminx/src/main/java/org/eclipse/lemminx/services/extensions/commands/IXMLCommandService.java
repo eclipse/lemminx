@@ -14,6 +14,7 @@ package org.eclipse.lemminx.services.extensions.commands;
 
 import java.util.concurrent.CompletableFuture;
 
+import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
@@ -37,13 +38,14 @@ public interface IXMLCommandService {
 		 * Executes a command
 		 * 
 		 * @param params        command execution parameters
+		 * @param sharedSettings the shared settings.
 		 * @param cancelChecker check if cancel has been requested
 		 * @return the result of the command
 		 * @throws Exception the unhandled exception will be wrapped in
 		 *                   <code>org.eclipse.lsp4j.jsonrpc.ResponseErrorException</code>
 		 *                   and be wired back to the JSON-RPC protocol caller
 		 */
-		Object executeCommand(ExecuteCommandParams params, CancelChecker cancelChecker) throws Exception;
+		Object executeCommand(ExecuteCommandParams params, SharedSettings sharedSettings, CancelChecker cancelChecker) throws Exception;
 	}
 
 	/**

@@ -28,10 +28,14 @@ public class ClientCommands {
 	public static final String SHOW_REFERENCES = "xml.show.references";
 
 	/**
-	 * Open settings command.
-	 * This custom command is sent to the client in order to have the client
-	 * open its settings UI.
+	 * Open settings command. This custom command is sent to the client in order to
+	 * have the client open its settings UI.
 	 */
 	public static final String OPEN_SETTINGS = "xml.open.settings";
+
+	/**
+	 * Select file command.
+	 */
+	public static final String SELECT_FILE = "xml.select.file";
 
 }

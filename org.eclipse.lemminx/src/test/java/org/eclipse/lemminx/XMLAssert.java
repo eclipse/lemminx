@@ -18,7 +18,6 @@ import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Path;
@@ -94,7 +93,7 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.junit.jupiter.api.Assertions;
 
 /**
- * XML
+ * XML Assert
  *
  */
 public class XMLAssert {
@@ -123,7 +122,8 @@ public class XMLAssert {
 
 	private static final String FILE_URI = "test.xml";
 
-	private static final CancelChecker NULL_CHECKER = () -> {};
+	private static final CancelChecker NULL_CHECKER = () -> {
+	};
 
 	public static class SettingsSaveContext extends AbstractSaveContext {
 
@@ -314,7 +314,8 @@ public class XMLAssert {
 		testTagCompletion(value, expected, new SharedSettings());
 	}
 
-	public static void testTagCompletion(String value, String expected, SharedSettings settings) throws BadLocationException {
+	public static void testTagCompletion(String value, String expected, SharedSettings settings)
+			throws BadLocationException {
 		int offset = value.indexOf('|');
 		value = value.substring(0, offset) + value.substring(offset + 1);
 
@@ -333,7 +334,8 @@ public class XMLAssert {
 		assertEquals(expected, actual);
 	}
 
-	public static void testTagCompletion(String value, AutoCloseTagResponse expected, SharedSettings settings) throws BadLocationException {
+	public static void testTagCompletion(String value, AutoCloseTagResponse expected, SharedSettings settings)
+			throws BadLocationException {
 		int offset = value.indexOf('|');
 		value = value.substring(0, offset) + value.substring(offset + 1);
 
@@ -628,13 +630,16 @@ public class XMLAssert {
 		codeAction.setTitle("");
 		codeAction.setDiagnostics(Arrays.asList(d));
 
-		VersionedTextDocumentIdentifier versionedTextDocumentIdentifier = new VersionedTextDocumentIdentifier(FILE_URI,
-				0);
-
-		TextDocumentEdit textDocumentEdit = new TextDocumentEdit(versionedTextDocumentIdentifier, Arrays.asList(te));
+		TextDocumentEdit textDocumentEdit = tde(FILE_URI, 0, te);
 		WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)));
 		codeAction.setEdit(workspaceEdit);
 		return codeAction;
+	}
+
+	public static TextDocumentEdit tde(String uri, int version, TextEdit... te) {
+		VersionedTextDocumentIdentifier versionedTextDocumentIdentifier = new VersionedTextDocumentIdentifier(uri,
+				version);
+		return new TextDocumentEdit(versionedTextDocumentIdentifier, Arrays.asList(te));
 	}
 
 	public static CodeAction ca(Diagnostic d, Either<TextDocumentEdit, ResourceOperation>... ops) {
@@ -1061,6 +1066,16 @@ public class XMLAssert {
 
 	public static void testCodeLensFor(String value, String fileURI, XMLLanguageService xmlLanguageService,
 			CodeLens... expected) {
+		testCodeLensFor(value, fileURI, xmlLanguageService,
+				Arrays.asList(CodeLensKind.References, CodeLensKind.Association), expected);
+	}
+
+	public static void testCodeLensFor(String value, String fileURI, List<String> codelensKinds, CodeLens... expected) {
+		testCodeLensFor(value, fileURI, new XMLLanguageService(), codelensKinds, expected);
+	}
+
+	public static void testCodeLensFor(String value, String fileURI, XMLLanguageService xmlLanguageService,
+			List<String> codelensKinds, CodeLens... expected) {
 		TextDocument document = new TextDocument(value, fileURI != null ? fileURI : "test://test/test.xml");
 
 		if (xmlLanguageService == null) {
@@ -1077,7 +1092,7 @@ public class XMLAssert {
 
 		XMLCodeLensSettings codeLensSettings = new XMLCodeLensSettings();
 		ExtendedCodeLensCapabilities codeLensCapabilities = new ExtendedCodeLensCapabilities(
-				new CodeLensKindCapabilities(Arrays.asList(CodeLensKind.References)));
+				new CodeLensKindCapabilities(codelensKinds));
 		codeLensSettings.setCodeLens(codeLensCapabilities);
 		List<? extends CodeLens> actual = xmlLanguageService.getCodeLens(xmlDocument, codeLensSettings, () -> {
 		});
@@ -1325,7 +1340,8 @@ public class XMLAssert {
 			stringBuilder.deleteCharAt(nextPipe);
 			nextPipe = stringBuilder.indexOf("|");
 		}
-		assertEquals(selectionRanges.length, cursorOffsets.size(), "Number of cursors and SelectionRanges should be equal");
+		assertEquals(selectionRanges.length, cursorOffsets.size(),
+				"Number of cursors and SelectionRanges should be equal");
 		testSelectionRange(stringBuilder.toString(), cursorOffsets, selectionRanges);
 	}
 
