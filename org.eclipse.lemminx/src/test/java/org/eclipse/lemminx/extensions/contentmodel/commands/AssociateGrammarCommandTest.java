@@ -158,6 +158,25 @@ public class AssociateGrammarCommandTest {
 
 	}
 
+	@Test
+	public void unkwownFileUri() throws InterruptedException, ExecutionException {
+		MockXMLLanguageServer languageServer = new MockXMLLanguageServer();
+
+		String xmlPath = "tag.xml";
+		TextDocumentIdentifier xmlIdentifier = new TextDocumentIdentifier(xmlPath);
+		String xsdPath = "tag.xsd";
+		String bindingType = GrammarBindingType.XSD.getName();
+		try {
+			languageServer.executeCommand(AssociateGrammarCommand.COMMAND_ID, xmlIdentifier, xsdPath, bindingType)
+					.get();
+			fail("Unknown file URI should throw an exception.");
+		} catch (Exception e) {
+			assertEquals("Command 'xml.associate.grammar.insert' cannot find the DOM document with the URI 'tag.xml'.",
+					e.getCause().getMessage());
+		}
+
+	}
+
 	private static String getFileURI(String fileName) {
 		String uri = new File(fileName).toURI().toString();
 		if (Platform.isWindows && !uri.startsWith("file://")) {

@@ -24,6 +24,7 @@ import org.eclipse.lemminx.extensions.contentmodel.commands.AssociateGrammarComm
 import org.eclipse.lemminx.extensions.contentmodel.commands.AssociateGrammarCommand.GrammarBindingType;
 import org.eclipse.lemminx.services.extensions.codelens.ICodeLensParticipant;
 import org.eclipse.lemminx.services.extensions.codelens.ICodeLensRequest;
+import org.eclipse.lemminx.utils.DOMUtils;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.Command;
@@ -32,8 +33,7 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
  * At first this participant is enabled only when LSP client can support the
- * client command "xml.file.select" to open a file dialog and
- * select it.
+ * client command "xml.file.select" to open a file dialog and select it.
  * 
  * In this case, when XML file is not associated to a grammar (XSD, DTD), this
  * class generates several CodeLenses on the root of the DOM Document:
@@ -57,26 +57,28 @@ public class ContentModelCodeLensParticipant implements ICodeLensParticipant {
 
 	@Override
 	public void doCodeLens(ICodeLensRequest request, List<CodeLens> lenses, CancelChecker cancelChecker) {
-		if (!request.isSupportedByClient(CodeLensKind.Association)) {
-			// The LSP client can support Association, when DOM document is not bound to a
-			// grammar, code lenses appears:
-
-			// [Bind with XSD] [Bind with DTD] [Bind with xml-model]
-			// <foo />
-
-			// A click on codelens consume the LSP client command
-			// "xml.file.select" which should open a file dialog to select
-			// a XSD, DTD
-			// Once the file is selected, the LSP client must consume the XML language
-			// server command "xml.associate.grammar.insert" by passing as parameters
-			// - the document uri
-			// - the selected file uri
-			// - the binding type coming from code lens arguments.
-
-			// The XML language server command return a TextDocumentEdit which must be
-			// applied on LSP client side.
+		if (!canSupport(request)) {
 			return;
 		}
+
+		// The LSP client can support Association, when DOM document is not bound to a
+		// grammar, code lenses appears:
+
+		// [Bind with XSD] [Bind with DTD] [Bind with xml-model]
+		// <foo />
+
+		// A click on codelens consume the LSP client command
+		// "xml.file.select" which should open a file dialog to select
+		// a XSD, DTD
+		// Once the file is selected, the LSP client must consume the XML language
+		// server command "xml.associate.grammar.insert" by passing as parameters
+		// - the document uri
+		// - the selected file uri
+		// - the binding type coming from code lens arguments.
+
+		// The XML language server command return a TextDocumentEdit which must be
+		// applied on LSP client side.
+
 		DOMDocument document = request.getDocument();
 		DOMElement documentElement = document.getDocumentElement();
 		if (documentElement == null || document.hasGrammar()) {
@@ -89,6 +91,14 @@ public class ContentModelCodeLensParticipant implements ICodeLensParticipant {
 		lenses.add(createAssociateLens(documentURI, "Bind with DTD", GrammarBindingType.DTD.getName(), range));
 		lenses.add(
 				createAssociateLens(documentURI, "Bind with xml-model", GrammarBindingType.XML_MODEL.getName(), range));
+	}
+
+	private static boolean canSupport(ICodeLensRequest request) {
+		if (!request.isSupportedByClient(CodeLensKind.Association)) {
+			return false;
+		}
+		String uri = request.getDocument().getDocumentURI();
+		return !DOMUtils.isXSD(uri) && !DOMUtils.isDTD(uri);
 	}
 
 	private static CodeLens createAssociateLens(String documentURI, String title, String bindingType, Range range) {

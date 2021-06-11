@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Test;
 public class AssociateGrammarCodeLensExtensionsTest {
 
 	@Test
-	public void noGrammarWithAssociationSupport() throws BadLocationException {
+	public void noGrammarWithAssociationSupportInXML() throws BadLocationException {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
 				"<foo />";
 		testCodeLensFor(xml, "test.xml", //
@@ -39,6 +39,22 @@ public class AssociateGrammarCodeLensExtensionsTest {
 				cl(r(1, 1, 1, 4), "Bind with xml-model", SELECT_FILE));
 	}
 
+	@Test
+	public void noGrammarWithAssociationSupportInXSD() throws BadLocationException {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
+				"<schema />";
+		testCodeLensFor(xml, "test.xsd", //
+				Collections.singletonList(CodeLensKind.Association));
+	}
+
+	@Test
+	public void noGrammarWithAssociationSupportInDTD() throws BadLocationException {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
+				"<foo />";
+		testCodeLensFor(xml, "test.dtd", //
+				Collections.singletonList(CodeLensKind.Association));
+	}
+	
 	@Test
 	public void noGrammarWithoutAssociationSupport() throws BadLocationException {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
@@ -53,5 +69,5 @@ public class AssociateGrammarCodeLensExtensionsTest {
 				"<foo />";
 		testCodeLensFor(xml, "test.xml");
 	}
-
+	
 }
