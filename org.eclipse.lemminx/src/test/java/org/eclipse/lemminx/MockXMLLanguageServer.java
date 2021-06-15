@@ -72,7 +72,14 @@ public class MockXMLLanguageServer extends XMLLanguageServer {
 		TextDocumentIdentifier xmlIdentifier = new TextDocumentIdentifier(fileURI);
 		DidOpenTextDocumentParams params = new DidOpenTextDocumentParams(
 				new TextDocumentItem(xmlIdentifier.getUri(), "xml", 1, xml));
-		getTextDocumentService().didOpen(params);
+		XMLTextDocumentService textDocumentService = (XMLTextDocumentService) super.getTextDocumentService();
+		textDocumentService.didOpen(params);
+		try {
+			// Force the parse of DOM document
+			textDocumentService.getDocument(params.getTextDocument().getUri()).getModel().get();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		return xmlIdentifier;
 	}
 }
