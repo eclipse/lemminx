@@ -44,7 +44,7 @@ public class AssociateGrammarCommandTest {
 		String xmlPath = getFileURI("src/test/resources/tag.xml");
 		TextDocumentIdentifier xmlIdentifier = languageServer.didOpen(xmlPath, xml);
 		String xsdPath = getFileURI("src/test/resources/xsd/tag.xsd");
-		String bindingType = GrammarBindingType.XSD.getName();
+		String bindingType = GrammarBindingType.STANDARD.getName();
 
 		TextDocumentEdit actual = (TextDocumentEdit) languageServer
 				.executeCommand(AssociateGrammarCommand.COMMAND_ID, xmlIdentifier, xsdPath, bindingType).get();
@@ -65,7 +65,7 @@ public class AssociateGrammarCommandTest {
 		TextDocumentIdentifier xmlIdentifier = languageServer.didOpen(xmlPath, xml);
 
 		String xsdPath = getFileURI("src/test/resources/xsd/team.xsd");
-		String bindingType = GrammarBindingType.XSD.getName();
+		String bindingType = GrammarBindingType.STANDARD.getName();
 
 		TextDocumentEdit actual = (TextDocumentEdit) languageServer
 				.executeCommand(AssociateGrammarCommand.COMMAND_ID, xmlIdentifier, xsdPath, bindingType).get();
@@ -86,7 +86,7 @@ public class AssociateGrammarCommandTest {
 		String xmlPath = getFileURI("src/test/resources/tag.xml");
 		TextDocumentIdentifier xmlIdentifier = languageServer.didOpen(xmlPath, xml);
 		String dtdPath = getFileURI("src/test/resources/dtd/tag.dtd");
-		String bindingType = GrammarBindingType.DTD.getName();
+		String bindingType = GrammarBindingType.STANDARD.getName();
 
 		TextDocumentEdit actual = (TextDocumentEdit) languageServer
 				.executeCommand(AssociateGrammarCommand.COMMAND_ID, xmlIdentifier, dtdPath, bindingType).get();
@@ -152,7 +152,7 @@ public class AssociateGrammarCommandTest {
 					.get();
 			fail("Unknown binding type should throw an exception.");
 		} catch (Exception e) {
-			assertEquals("Unknown binding type 'BAD'. Allowed values are [xsd, dtd, xml-model]",
+			assertEquals("Unknown binding type 'BAD'. Allowed values are [standard, xml-model]",
 					e.getCause().getMessage());
 		}
 
@@ -165,7 +165,7 @@ public class AssociateGrammarCommandTest {
 		String xmlPath = "tag.xml";
 		TextDocumentIdentifier xmlIdentifier = new TextDocumentIdentifier(xmlPath);
 		String xsdPath = "tag.xsd";
-		String bindingType = GrammarBindingType.XSD.getName();
+		String bindingType = GrammarBindingType.STANDARD.getName();
 		try {
 			languageServer.executeCommand(AssociateGrammarCommand.COMMAND_ID, xmlIdentifier, xsdPath, bindingType)
 					.get();
