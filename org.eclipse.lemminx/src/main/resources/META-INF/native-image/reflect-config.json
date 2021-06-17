@@ -1331,6 +1331,14 @@
 		}]
 	},
 	{
+		"name": "org.eclipse.lsp4j.ReferenceContext",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
 		"name": "org.eclipse.lsp4j.ReferenceParams",
 		"allDeclaredFields": true,
 		"methods": [{
