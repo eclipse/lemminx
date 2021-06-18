@@ -639,22 +639,26 @@ class XMLFormatter {
 
 		private void formatAttributes(DOMElement element) throws BadLocationException {
 			List<DOMAttr> attributes = element.getAttributeNodes();
-			boolean isSingleElement = hasSingleAttributeInFullDoc(element);
+			boolean isSingleAttribute = hasSingleAttributeInFullDoc(element);
 			int prevOffset = element.getStart();
 			for (DOMAttr attr : attributes) {
-				formatAttribute(attr, isSingleElement, prevOffset);
+				formatAttribute(attr, isSingleAttribute, prevOffset);
 				prevOffset = attr.getEnd();
+			}
+			if ((this.sharedSettings.getFormattingSettings().getClosingBracketNewLine() && this.sharedSettings.getFormattingSettings().isSplitAttributes()) && !isSingleAttribute) {
+				xmlBuilder.linefeed();
+				xmlBuilder.indent(this.indentLevel);
 			}
 		}
 
-		private void formatAttribute(DOMAttr attr, boolean isSingleElement, int prevOffset)
+		private void formatAttribute(DOMAttr attr, boolean isSingleAttribute, int prevOffset)
 				throws BadLocationException {
 			if (this.sharedSettings.getFormattingSettings().isPreserveAttrLineBreaks()
 					&& !isSameLine(prevOffset, attr.getStart())) {
 				xmlBuilder.linefeed();
 				xmlBuilder.indent(this.indentLevel + 1);
 				xmlBuilder.addSingleAttribute(attr, false, false);
-			} else if (isSingleElement) {
+			} else if (isSingleAttribute) {
 				xmlBuilder.addSingleAttribute(attr);
 			} else {
 				xmlBuilder.addAttribute(attr, this.indentLevel);
