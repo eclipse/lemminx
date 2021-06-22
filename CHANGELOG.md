@@ -1,5 +1,20 @@
 # Change Log
 
+## [0.17.0](https://github.com/eclipse/lemminx/milestone/23?closed=1) (June 22, 2021)
+
+### Enhancements
+
+ * Generate CodeLens to associate a grammar/schema. See [#1049](https://github.com/eclipse/lemminx/pull/1049).
+ * Support for `textDocument/selectionRange`. See [#1021](https://github.com/eclipse/lemminx/issues/1021).
+ * Add support for linked editing. See [#987](https://github.com/eclipse/lemminx/issues/987).
+ * Added `closingBracketNewLine` formatting option. See [#1051](https://github.com/eclipse/lemminx/pull/1051).
+
+### Bug Fixes
+
+ * Fixed 'Go To References' in binary. See [#1059](https://github.com/eclipse/lemminx/pull/1059).
+ * CodeLens does not work in binary. See [#1046](https://github.com/eclipse/lemminx/issues/1046).
+ * Error while saving file to cache on Windows OS (PosixFileAttributeView not supported). See [#734](https://github.com/eclipse/lemminx/issues/734).
+
 ## [0.16.2](https://github.com/eclipse/lemminx/milestone/24?closed=1) (May 18, 2021)
 
 ### Bug Fixes
