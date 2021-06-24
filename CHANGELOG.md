@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.17.1](https://github.com/eclipse/lemminx/milestone/25?closed=1) (June 25, 2021)
+
+### Bug Fixes
+
+ * Add support for exiting immediately from a shutdown() request. See [#1070](https://github.com/eclipse/lemminx/pull/1070).
+
 ## [0.17.0](https://github.com/eclipse/lemminx/milestone/23?closed=1) (June 22, 2021)
 
 ### Enhancements
