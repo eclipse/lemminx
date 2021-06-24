@@ -26,6 +26,8 @@ public class ExtendedClientCapabilities {
 
 	private boolean openSettingsCommandSupport;
 
+	private boolean shouldLanguageServerExitOnShutdown;
+
 	public ExtendedCodeLensCapabilities getCodeLens() {
 		return codeLens;
 	}
@@ -73,6 +75,26 @@ public class ExtendedClientCapabilities {
 	 */
 	public void setOpenSettingsCommandSupport(boolean openSettingsCommandSupport) {
 		this.openSettingsCommandSupport = openSettingsCommandSupport;
+	}
+
+	/**
+	 * Sets the boolean permitting language server to exit on client
+	 * shutdown() request, without waiting for client to call exit()
+	 *
+	 * @param shouldLanguageServerExitOnShutdown
+	 */
+	public void setShouldLanguageServerExitOnShutdown(boolean shouldLanguageServerExitOnShutdown) {
+		this.shouldLanguageServerExitOnShutdown = shouldLanguageServerExitOnShutdown;
+	}
+
+	/**
+	 * Returns true if the client should exit on shutdown() request and
+	 * avoid waiting for an exit() request
+	 *
+	 * @return true if the language server should exit on shutdown() request
+	 */
+	public boolean shouldLanguageServerExitOnShutdown() {
+		return shouldLanguageServerExitOnShutdown;
 	}
 
 }
