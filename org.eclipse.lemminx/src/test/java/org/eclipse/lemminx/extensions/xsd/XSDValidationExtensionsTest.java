@@ -127,7 +127,7 @@ public class XSDValidationExtensionsTest {
 			"		</xs:all>\r\n" +
 			"	</xs:complexType>\r\n" +
 			"</xs:schema>";
-		
+
 		Diagnostic first = d(4, 30, 4, 43, XSDErrorCode.p_props_correct_2_1);
 		Diagnostic second = d(5, 27, 5, 40, XSDErrorCode.p_props_correct_2_1);
 		testDiagnosticsFor(xml, first, second);
@@ -346,6 +346,37 @@ public class XSDValidationExtensionsTest {
 
 		Diagnostic d = d(2, 2, 2, 11, XSDErrorCode.src_import_1_2);
 		testCodeActionsFor(xml, d, ca(d, te(2, 11, 2, 11, " namespace=\"\"")), ca(d, te(1, 54, 1, 54, " targetNamespace=\"\"")));
+	}
+
+	@Test
+	public void schema_reference_4_BadSchemaLocation() throws BadLocationException {
+		String xsd = "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'>\r\n" +
+		"<xs:import namespace='http://foo' schemaLocation='bad.xsd' />\r\n" +
+		"<xs:element name='foo'></xs:element>\r\n" +
+		"</xs:schema>";
+
+		Diagnostic d = d(1, 49, 1, 58, XSDErrorCode.schema_reference_4);
+		testDiagnosticsFor(xsd, d);
+	}
+
+	@Test
+	public void schema_reference_4_GoodSchemaLocation() throws BadLocationException {
+		String xsd = "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'>\r\n" +
+		"<xs:import namespace='team_namespace' schemaLocation='src/test/resources/xsd/team.xsd' />\r\n" +
+		"<xs:element name='foo'></xs:element>\r\n" +
+		"</xs:schema>";
+		testDiagnosticsFor(xsd);
+	}
+
+	@Test
+	public void schema_reference_4_IncludeErrorRange() throws BadLocationException {
+		String xsd = "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'>\r\n" +
+		"<xs:include schemaLocation='bad.xsd' />\r\n" +
+		"<xs:element name='foo'></xs:element>\r\n" +
+		"</xs:schema>";
+
+		Diagnostic d = d(1, 27, 1, 36, XSDErrorCode.schema_reference_4);
+		testDiagnosticsFor(xsd, d);
 	}
 
 	private static void testDiagnosticsFor(String xml, Diagnostic... expected) throws BadLocationException {
