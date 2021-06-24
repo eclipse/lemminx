@@ -176,37 +176,41 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 			}
 			return XMLPositionUtility.selectTrimmedText(offset, document);
 		}
-		case SchemaLocation:
+		case SchemaLocation: { //xml xsi:schemaLocation
+			SchemaLocation schemaLocation = document.getSchemaLocation();
+			DOMRange locationRange = schemaLocation.getAttr().getNodeAttrValue();
+			return locationRange != null ? XMLPositionUtility.createRange(locationRange) : null;
+		}
+		/**
+		 * This error code occurs when an XSD file path is invalid in the following attributes:
+		 * 1. xml-model href
+		 * 2. xsi:schemaLocation
+		 * 3. xsi:noNamespaceSchemaLocation
+		 */
 		case schema_reference_4: {
-			DOMRange locationRange = null;
-			if (code.equals(SchemaLocation)) {
-				SchemaLocation schemaLocation = document.getSchemaLocation();
-				locationRange = schemaLocation.getAttr().getNodeAttrValue();
-			} else {
-				String hrefLocation = arguments.length == 1 ? (String) arguments[0] : null;
-				// Check if location comes from a xml-model/@href
-				locationRange = XMLModelUtils.getHrefNode(document, hrefLocation);
-				if (locationRange == null) {
-					NoNamespaceSchemaLocation noNamespaceSchemaLocation = document.getNoNamespaceSchemaLocation();
-					if (noNamespaceSchemaLocation != null) {
-						locationRange = noNamespaceSchemaLocation.getAttr().getNodeAttrValue();
-					} else {
-						SchemaLocation schemaLocation = document.getSchemaLocation();
-						if (schemaLocation != null) {
-							String invalidSchemaPath = arguments[0] instanceof String ? (String) arguments[0] : null;
+			String hrefLocation = arguments.length == 1 ? (String) arguments[0] : null;
+			// Check if location comes from a xml-model/@href
+			DOMRange locationRange = XMLModelUtils.getHrefNode(document, hrefLocation);
+			if (locationRange == null) {
+				NoNamespaceSchemaLocation noNamespaceSchemaLocation = document.getNoNamespaceSchemaLocation();
+				if (noNamespaceSchemaLocation != null) {
+					locationRange = noNamespaceSchemaLocation.getAttr().getNodeAttrValue();
+				} else {
+					SchemaLocation schemaLocation = document.getSchemaLocation();
+					if (schemaLocation != null) {
+						String invalidSchemaPath = arguments[0] instanceof String ? (String) arguments[0] : null;
 
-							if (invalidSchemaPath != null) {
-								for (SchemaLocationHint locHintRange : schemaLocation.getSchemaLocationHints()) {
-									String expandedHint = getResolvedLocation(document.getDocumentURI(),
-											locHintRange.getHint());
-									if (invalidSchemaPath.equals(expandedHint)) {
-										return XMLPositionUtility.createRange(locHintRange);
-									}
+						if (invalidSchemaPath != null) {
+							for (SchemaLocationHint locHintRange : schemaLocation.getSchemaLocationHints()) {
+								String expandedHint = getResolvedLocation(document.getDocumentURI(),
+										locHintRange.getHint());
+								if (invalidSchemaPath.equals(expandedHint)) {
+									return XMLPositionUtility.createRange(locHintRange);
 								}
 							}
-							// Highlight entire attribute if finding the location hint fails
-							locationRange = schemaLocation.getAttr().getNodeAttrValue();
 						}
+						// Highlight entire attribute if finding the location hint fails
+						locationRange = schemaLocation.getAttr().getNodeAttrValue();
 					}
 				}
 			}
