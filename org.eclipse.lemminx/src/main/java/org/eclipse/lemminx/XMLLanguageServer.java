@@ -226,6 +226,9 @@ public class XMLLanguageServer
 	@Override
 	public CompletableFuture<Object> shutdown() {
 		xmlLanguageService.dispose();
+		if (capabilityManager.getClientCapabilities().getExtendedCapabilities().shouldLanguageServerExitOnShutdown()) {
+			delayer.schedule(() -> exit(0) , 1, TimeUnit.SECONDS);
+		}
 		return computeAsync(cc -> new Object());
 	}
 
