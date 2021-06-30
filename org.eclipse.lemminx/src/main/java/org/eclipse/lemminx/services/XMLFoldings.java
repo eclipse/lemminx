@@ -99,7 +99,11 @@ class XMLFoldings {
 					}
 					if (i >= 0) {
 						TagInfo stackElement = stack.get(i);
-						stack = stack.subList(0, i); // stack.length = i;
+						// remove obsolete entries ()
+						int j = stack.size() - 1;
+						while (j >= i) {
+							stack.remove(j--);
+						}
 						int line = document.positionAt(scanner.getTokenOffset()).getLine();
 						int startLine = stackElement.startLine;
 						int endLine = line - 1;
@@ -123,7 +127,11 @@ class XMLFoldings {
 							}
 							if (i >= 0) {
 								TagInfo stackElement = stack.get(i);
-								stack = stack.subList(0, i); // stack.length = i;
+								// remove obsolete entries ()
+								int j = stack.size() - 1;
+								while (j >= i) {
+									stack.remove(j--);
+								}
 								int endLine = startLine;
 								startLine = stackElement.startLine;
 								if (endLine > startLine && prevStart != startLine) {
