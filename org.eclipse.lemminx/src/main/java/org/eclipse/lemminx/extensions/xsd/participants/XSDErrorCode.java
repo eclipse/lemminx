@@ -23,6 +23,7 @@ import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.s4s_elt_invalid_content_3CodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.src_import_1_2CodeAction;
+import org.eclipse.lemminx.extensions.xsd.utils.XSDUtils;
 import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IXMLErrorCode;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
@@ -30,12 +31,12 @@ import org.eclipse.lsp4j.Range;
 
 /**
  * XSD error code.
- * 
+ *
  * @see https://wiki.xmldation.com/Support/Validator
  *
  */
 public enum XSDErrorCode implements IXMLErrorCode {
-	
+
 	cos_all_limited_2("cos-all-limited.2"),
 	ct_props_correct_3("ct-props-correct.3"),
 	p_props_correct_2_1("p-props-correct.2.1"),
@@ -49,6 +50,7 @@ public enum XSDErrorCode implements IXMLErrorCode {
 	s4s_elt_character("s4s-elt-character"), //
 	s4s_elt_invalid_content_3("s4s-elt-invalid-content.3"), //
 	sch_props_correct_2("sch-props-correct.2"),
+	schema_reference_4("schema_reference.4"), //
 	src_ct_1("src-ct.1"),
 	src_import_1_2("src-import.1.2"),
 	src_element_3("src-element.3"),
@@ -89,7 +91,7 @@ public enum XSDErrorCode implements IXMLErrorCode {
 
 	/**
 	 * Create the LSP range from the SAX error.
-	 * 
+	 *
 	 * @param characterOffset
 	 * @param key
 	 * @param arguments
@@ -156,8 +158,11 @@ public enum XSDErrorCode implements IXMLErrorCode {
 			String attrValue = getString(arguments[0]);
 			return XMLPositionUtility.selectAttributeValueByGivenValueAt(attrValue, offset, document);
 		}
-		case EmptyTargetNamespace:
-			return XMLPositionUtility.selectAttributeValueAt("targetNamespace", offset, document);
+		case schema_reference_4: {
+			return XMLPositionUtility.selectAttributeValueAt(XSDUtils.SCHEMA_LOCATION_ATTR, offset, document);
+		}
+		case EmptyTargetNamespace :
+			return XMLPositionUtility.selectAttributeValueAt(XSDUtils.TARGET_NAMESPACE_ATTR, offset, document);
 		}
 		return null;
 	}

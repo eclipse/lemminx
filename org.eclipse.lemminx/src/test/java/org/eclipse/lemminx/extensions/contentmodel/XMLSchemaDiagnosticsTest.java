@@ -1236,10 +1236,25 @@ public class XMLSchemaDiagnosticsTest {
 				"<team\r\n" + //
 				"     name=\"too long a string\"\r\n" + // <- error
 				"     xmlns=\"team_namespace\"\r\n" + //
-				"     xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"     xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //SchemaLocation
 				"     xsi:schemaLocation=\"team_namespace BAD_LOCATION.xsd \">\r\n" + //
 				"</team>";
 		testDiagnosticsFor(xml, null, null, null, true, settings);
+	}
+
+	@Test
+	public void schemaLocationWithOddUris() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
+		"<ns:root\r\n" +
+		"xmlns:ns='http://foo'\r\n" +
+		"xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'\r\n" +
+		"xsi:schemaLocation='http://foo foo.xsd http://bar'>\r\n" +
+		"</ns:root>";
+
+		Diagnostic d1 = d(4, 19, 4, 50, XMLSchemaErrorCode.SchemaLocation);
+		Diagnostic d2 = d(4, 31, 4, 38, XMLSchemaErrorCode.schema_reference_4);
+		Diagnostic d3 = d(1, 1, 1, 8, XMLSchemaErrorCode.cvc_elt_1_a);
+		testDiagnosticsFor(xml, d1, d2, d3);
 	}
 
 	private static void testDiagnosticsWithCatalogFor(String xml, Diagnostic... expected) {
