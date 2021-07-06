@@ -48,4 +48,9 @@ public interface Scanner {
 	String getTokenError();
 
 	ScannerState getScannerState();
+
+	/**
+	 * @return True if the token's Text is empty or all whitespace
+	 */
+	boolean isTokenTextBlank();
 }

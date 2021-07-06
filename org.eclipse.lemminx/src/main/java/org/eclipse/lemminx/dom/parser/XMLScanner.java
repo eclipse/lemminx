@@ -61,7 +61,8 @@ import static org.eclipse.lemminx.dom.parser.Constants._YVL;
 
 import java.util.function.Predicate;
 
-import org.eclipse.lemminx.dom.DOMDocumentType.DocumentTypeKind;;
+import org.eclipse.lemminx.dom.DOMDocumentType.DocumentTypeKind;
+import org.eclipse.lemminx.utils.StringUtils;;
 
 /**
  * XML scanner implementation.
@@ -1013,6 +1014,11 @@ public class XMLScanner implements Scanner {
 	@Override
 	public String getTokenText() {
 		return stream.getSource().substring(tokenOffset, stream.pos());
+	}
+
+	@Override
+	public boolean isTokenTextBlank() {
+		return StringUtils.isWhitespace(stream.getSource(), tokenOffset, stream.pos());
 	}
 
 	@Override
