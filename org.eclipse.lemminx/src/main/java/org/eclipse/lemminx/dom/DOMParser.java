@@ -354,8 +354,6 @@ public class DOMParser {
 			}
 
 			case Content: {
-				// FIXME: don't use getTokenText (substring) to know if the content is only
-				// spaces or line feed (scanner should know that).
 				boolean currIsDeclNode = curr instanceof DTDDeclNode;
 				if (currIsDeclNode) {
 					curr.end = scanner.getTokenOffset() - 1;
@@ -368,8 +366,7 @@ public class DOMParser {
 				DOMText textNode = xmlDocument.createText(start, end);
 				textNode.closed = true;
 
-				String content = scanner.getTokenText();
-				if (StringUtils.isWhitespace(content)) {
+				if (scanner.isTokenTextBlank()) {
 					if (ignoreWhitespaceContent) {
 						if (curr.hasChildNodes()) {
 							break;
