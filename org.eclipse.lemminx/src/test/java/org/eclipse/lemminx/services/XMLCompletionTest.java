@@ -240,6 +240,34 @@ public class XMLCompletionTest {
 		}
 	}
 
+	@Test
+	public void testNoEndStartTagInAttributeValue() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getCompletionSettings().setAutoCloseTags(true);
+		String xml = "<aaa attr=\"value>|";
+		XMLAssert.testTagCompletion(xml, (AutoCloseTagResponse) null, settings);
+		xml = "<aaa attr=\">|value";
+		XMLAssert.testTagCompletion(xml, (AutoCloseTagResponse) null, settings);
+		xml = "<aaa attr=>|\"";
+		XMLAssert.testTagCompletion(xml, new AutoCloseTagResponse("$0</aaa>"), settings);
+	}
+
+	@Test
+	public void testNoSelfCloseTagInAttributeValue() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getCompletionSettings().setAutoCloseTags(true);
+		String xml = "<aaa attr=\"value/|";
+		XMLAssert.testTagCompletion(xml, (AutoCloseTagResponse) null, settings);
+	}
+
+	@Test
+	public void testNoEndTagInAttributeValue() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getCompletionSettings().setAutoCloseTags(true);
+		String xml = "<aaa attr=\"value</|";
+		XMLAssert.testTagCompletion(xml, (AutoCloseTagResponse) null, settings);
+	}
+
 	// -------------------Tools----------------------------------------------------------
 
 	public void assertOpenStartTagCompletion(String xmlText, int expectedStartTagOffset, boolean startWithTagOpen,
