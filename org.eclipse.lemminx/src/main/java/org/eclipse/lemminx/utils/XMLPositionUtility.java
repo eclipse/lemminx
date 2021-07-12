@@ -1063,4 +1063,31 @@ public class XMLPositionUtility {
 		return null;
 	}
 
+	/**
+	 * Returns true if the given position is within an attribute value, and false
+	 * otherwise
+	 *
+	 * @param xmlDocument the model of the document
+	 * @param position    the position to check
+	 * @return true if the given position is within an attribute value, and false
+	 *         otherwise
+	 */
+	public static boolean isInAttributeValue(DOMDocument xmlDocument, Position position) {
+		try {
+			int offset = xmlDocument.offsetAt(position);
+			DOMNode node = DOMNode.findNodeOrAttrAt(xmlDocument, offset);
+			if (!(node instanceof DOMAttr)) {
+				return false;
+			}
+			DOMAttr attr = (DOMAttr) node;
+			Range valueRange = XMLPositionUtility.selectAttributeValue(attr);
+			int valueStart = xmlDocument.offsetAt(valueRange.getStart());
+			int valueEnd = xmlDocument.offsetAt(valueRange.getEnd());
+			return valueStart < offset && offset <= valueEnd;
+		} catch (BadLocationException e) {
+			LOGGER.log(Level.SEVERE, "Bad range when checking if a position is within an attribute value", e);
+			return false;
+		}
+	}
+
 }
