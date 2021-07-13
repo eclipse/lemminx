@@ -345,4 +345,11 @@ public class XMLLanguageServer
 		return telemetryManager;
 	}
 
+	@Override
+	public CompletableFuture<Boolean> canBindGrammar(TextDocumentPositionParams params) {
+		return xmlTextDocumentService.computeDOMAsync(params.getTextDocument(), (cancelChecker, xmlDocument) -> {
+			return getXMLLanguageService().doBindingCheck(xmlDocument, cancelChecker);
+		});
+	}
+
 }

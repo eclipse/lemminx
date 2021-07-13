@@ -296,6 +296,10 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 		}
 	}
 
+	public Boolean doBindingCheck(DOMDocument xmlDocument, CancelChecker cancelChecker) {
+		return !xmlDocument.hasGrammar();
+	}
+
 	public Position getMatchingTagPosition(DOMDocument xmlDocument, Position position, CancelChecker cancelChecker) {
 		return XMLPositionUtility.getMatchingTagPosition(xmlDocument, position);
 	}
@@ -303,7 +307,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 	/**
 	 * Returns the linked editing ranges for the given <code>xmlDocument</code> at
 	 * the given <code>position</code> and null otherwise.
-	 * 
+	 *
 	 * @param xmlDocument   the DOM document.
 	 * @param position      the position.
 	 * @param cancelChecker the cancel checker.
