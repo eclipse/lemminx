@@ -486,6 +486,9 @@ public class XMLCompletions {
 		char c = xmlDocument.getText().charAt(offset - 1);
 		char cBefore = xmlDocument.getText().charAt(offset - 2);
 		String snippet = null;
+		if (XMLPositionUtility.isInAttributeValue(xmlDocument, position)) {
+			return null;
+		}
 		if (c == '>') { // Case: <a>|
 			DOMNode node = xmlDocument.findNodeBefore(offset);
 			if (!(node instanceof DOMElement)) {
