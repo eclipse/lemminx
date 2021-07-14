@@ -30,9 +30,6 @@ public interface XMLLanguageServerAPI {
 	CompletableFuture<AutoCloseTagResponse> closeTag(TextDocumentPositionParams params);
 
 	@JsonRequest
-	CompletableFuture<Boolean> canBindGrammar(TextDocumentPositionParams params);
-
-	@JsonRequest
 	CompletableFuture<Position> matchingTagPosition(TextDocumentPositionParams params);
 }
 
