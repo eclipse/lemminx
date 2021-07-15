@@ -41,7 +41,7 @@ import com.google.common.base.Objects;
 
 /**
  * XSD utilities.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -49,6 +49,10 @@ public class XSDUtils {
 
 	public static final String SCHEMA_LOCATION_ATTR = "schemaLocation";
 	public static final String TARGET_NAMESPACE_ATTR = "targetNamespace";
+	public static final String NAMESPACE_ATTR = "namespace";
+
+	public static final String XS_IMPORT_TAG = "xs:import";
+	public static final String XS_SCHEMA_TAG = "xs:schema";
 
 	/**
 	 * Binding type of xs attribute.
@@ -70,7 +74,7 @@ public class XSDUtils {
 	/**
 	 * Returns the binding type of the origin attribute which bounds an another
 	 * target attribute.
-	 * 
+	 *
 	 * @param originAttr the origin attribute
 	 * @return the binding type of the origin attribute which bounds an another
 	 *         target attribute.
@@ -127,7 +131,7 @@ public class XSDUtils {
 	/**
 	 * Collect XSD target attributes declared in the XML Schema according the given
 	 * attribute and binding type.
-	 * 
+	 *
 	 * @param originAttr             the origin attribute.
 	 * @param matchAttr              true if the attribute value must match the
 	 *                               value of target attribute value and false
@@ -250,7 +254,7 @@ public class XSDUtils {
 
 	/**
 	 * Search origin attributes from the given target node..
-	 * 
+	 *
 	 * @param targetNode the referenced node
 	 * @param collector  the collector to collect reference between an origin and
 	 *                   target attribute.
@@ -286,7 +290,7 @@ public class XSDUtils {
 
 	/**
 	 * Returns the referenced attributes list from the given referenced node.
-	 * 
+	 *
 	 * @param referencedNode the referenced node.
 	 * @return the referenced attributes list from the given referenced node.
 	 */
@@ -328,7 +332,7 @@ public class XSDUtils {
 
 	/**
 	 * Add the given node as reference node if it is applicable.
-	 * 
+	 *
 	 * @param node        the node to add.
 	 * @param targetAttrs the list of referenced nodes.
 	 */

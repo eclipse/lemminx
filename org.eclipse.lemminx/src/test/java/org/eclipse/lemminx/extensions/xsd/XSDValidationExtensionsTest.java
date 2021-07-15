@@ -379,6 +379,18 @@ public class XSDValidationExtensionsTest {
 		testDiagnosticsFor(xsd, d);
 	}
 
+	@Test
+	public void src_import_3_1_BadNamespace() throws BadLocationException {
+		String xsd = "<xs:schema xmlns:xs=\'http://www.w3.org/2001/XMLSchema\'>\n" +
+		"<xs:import namespace=\'BAD_NAMESPACE\' schemaLocation=\'src/test/resources/xsd/team.xsd\'/>\n" +
+		"<xs:element name=\'foo\'></xs:element>\n" +
+		"</xs:schema>";
+
+		Diagnostic d = d(1, 121, 1, 121, XSDErrorCode.src_import_3_1);
+		testDiagnosticsFor(xsd, d);
+	}
+
+
 	private static void testDiagnosticsFor(String xml, Diagnostic... expected) throws BadLocationException {
 		XMLAssert.testDiagnosticsFor(xml, null, null, "test.xsd", expected);
 	}
