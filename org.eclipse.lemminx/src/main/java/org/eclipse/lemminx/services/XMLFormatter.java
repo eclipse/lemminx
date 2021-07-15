@@ -446,7 +446,10 @@ class XMLFormatter {
 		 */
 		private void formatElement(DOMElement element) throws BadLocationException {
 			String tag = element.getTagName();
-			if (element.hasEndTag() && !element.hasStartTag()) {
+			if (tag == null) {
+				String s = element.getOwnerDocument().getText().substring(element.getStart(), element.getEnd());
+				xmlBuilder.addContentComment(s);
+			} else if (element.hasEndTag() && !element.hasStartTag()) {
 				// bad element without start tag (ex: <\root>)
 				xmlBuilder.endElement(tag, element.isEndTagClosed());
 			} else {
