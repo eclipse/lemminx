@@ -30,7 +30,7 @@ public abstract class DOMCharacterData extends DOMNode implements org.w3c.dom.Ch
 
 	private String normalizedData;
 
-	private boolean isWhitespace;
+	private Boolean isWhitespace;
 
 	private String delimiter;
 
@@ -159,16 +159,10 @@ public abstract class DOMCharacterData extends DOMNode implements org.w3c.dom.Ch
 	 * @return the isWhitespace
 	 */
 	public boolean isWhitespace() {
+		if (isWhitespace == null) {
+			isWhitespace = Boolean.valueOf(StringUtils.isWhitespace(getData()));
+		}
 		return isWhitespace;
-	}
-
-	/**
-	 * Set true if this node's data is all whitespace
-	 * 
-	 * @param isWhitespace
-	 */
-	public void setWhitespace(boolean isWhitespace) {
-		this.isWhitespace = isWhitespace;
 	}
 
 	/*
