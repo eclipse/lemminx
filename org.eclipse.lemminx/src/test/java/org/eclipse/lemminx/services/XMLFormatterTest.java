@@ -2938,6 +2938,20 @@ public class XMLFormatterTest {
 	}
 
 	@Test
+	public void testClosingBracketNewLineWithDefaultIndentSize() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setClosingBracketNewLine(true);
+		settings.getFormattingSettings().setPreserveAttrLineBreaks(true);
+		String content = "<a b='b' c='c'/>";
+		String expected = "<a\n" +
+		"    b='b'\n" +
+		"    c='c'\n" +
+		"    />";
+		assertFormat(content, expected, settings);
+	}
+
+	@Test
 	public void testClosingBracketNewLineWithoutSplitAttributes() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setSplitAttributes(false);
