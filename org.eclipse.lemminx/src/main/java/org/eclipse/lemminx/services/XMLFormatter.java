@@ -647,7 +647,9 @@ class XMLFormatter {
 			}
 			if ((this.sharedSettings.getFormattingSettings().getClosingBracketNewLine() && this.sharedSettings.getFormattingSettings().isSplitAttributes()) && !isSingleAttribute) {
 				xmlBuilder.linefeed();
-				xmlBuilder.indent(this.indentLevel);
+				// Indent by tag + splitAttributesIndentSize to match with attribute indent level
+				int totalIndent = this.indentLevel + this.sharedSettings.getFormattingSettings().getSplitAttributesIndentSize();
+				xmlBuilder.indent(totalIndent);
 			}
 		}
 
