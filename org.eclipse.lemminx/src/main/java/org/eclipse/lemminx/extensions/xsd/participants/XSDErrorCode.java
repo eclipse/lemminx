@@ -60,7 +60,8 @@ public enum XSDErrorCode implements IXMLErrorCode {
 	src_resolve_4_2("src-resolve.4.2"), //
 	src_resolve("src-resolve"), src_element_2_1("src-element.2.1"),
 	EmptyTargetNamespace("EmptyTargetNamespace"),
-	src_import_3_1("src-import.3.1");
+	src_import_3_1("src-import.3.1"),
+	src_import_3_2("src-import.3.2");
 
 	private final String code;
 
@@ -177,6 +178,8 @@ public enum XSDErrorCode implements IXMLErrorCode {
 				return XMLPositionUtility.selectAttributeValueAt(XSDUtils.NAMESPACE_ATTR, offset, document);
 			}
 		}
+		case src_import_3_2:
+			return XMLPositionUtility.selectChildNodeAttributeValueFromGivenNameAt(XSDUtils.XS_IMPORT_TAG, XSDUtils.SCHEMA_LOCATION_ATTR, offset, document);
 		}
 
 		return null;
