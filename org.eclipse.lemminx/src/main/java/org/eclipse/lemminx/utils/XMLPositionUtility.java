@@ -209,6 +209,33 @@ public class XMLPositionUtility {
 		return null;
 	}
 
+	/**
+	 * Returns the range of the attribute value of a specific child node, if it exists
+	 *
+	 * @param childNodeName the tag name of the child node/tag
+	 * @param attrName the attribute name
+	 * @param offset text offset from beginning of document
+	 * @param document the DOM document.
+	 * @return the child node attribute value range and null otherwise.
+	 */
+	public static Range selectChildNodeAttributeValueFromGivenNameAt(String childNodeName, String attrName, int offset, DOMDocument document) {
+		List<DOMNode> childNodes = document.findNodeAt(offset).getChildren();
+		if (childNodes.size() == 0) {
+			return null;
+		}
+		for (DOMNode domNode : childNodes) {
+			if (domNode.getNodeName().equals(childNodeName) && domNode.hasAttributes()) {
+				List<DOMAttr> attributes = domNode.getAttributeNodes();
+				for (DOMAttr attr : attributes) {
+					if (attrName.equals(attr.getName())) {
+						return createAttrValueRange(attr, document);
+					}
+				}
+			}
+		}
+		return null;
+	}
+
 	public static Range selectAllAttributes(int offset, DOMDocument document) {
 		DOMNode element = document.findNodeAt(offset);
 		if (element != null && element.hasAttributes()) {

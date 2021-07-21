@@ -34,6 +34,9 @@ import org.eclipse.lsp4j.Range;
  *
  * @see https://wiki.xmldation.com/Support/Validator
  *
+ * All error code types and messages can be found in the Xerces library
+ * https://github.com/apache/xerces2-j/blob/trunk/src/org/apache/xerces/impl/msg/XMLSchemaMessages.properties
+ *
  */
 public enum XSDErrorCode implements IXMLErrorCode {
 
@@ -56,7 +59,9 @@ public enum XSDErrorCode implements IXMLErrorCode {
 	src_element_3("src-element.3"),
 	src_resolve_4_2("src-resolve.4.2"), //
 	src_resolve("src-resolve"), src_element_2_1("src-element.2.1"),
-	EmptyTargetNamespace("EmptyTargetNamespace");
+	EmptyTargetNamespace("EmptyTargetNamespace"),
+	src_import_3_1("src-import.3.1"),
+	src_import_3_2("src-import.3.2");
 
 	private final String code;
 
@@ -163,7 +168,20 @@ public enum XSDErrorCode implements IXMLErrorCode {
 		}
 		case EmptyTargetNamespace :
 			return XMLPositionUtility.selectAttributeValueAt(XSDUtils.TARGET_NAMESPACE_ATTR, offset, document);
+		case src_import_3_1: {
+			// If the imported file of `schemaLocation` contains at least a doctype and 'xs:schema' with at least one `xs:element`,
+			// then the `xs:import` line will be highlighted, otherwise the `xs:schema` line will be highlighted
+			DOMNode elementHighlighted = document.findNodeAt(offset);
+			if (elementHighlighted.getNodeName().equals(XSDUtils.XS_SCHEMA_TAG)) { // `xs:schema` line is highlighted
+				return XMLPositionUtility.selectChildNodeAttributeValueFromGivenNameAt(XSDUtils.XS_IMPORT_TAG, XSDUtils.NAMESPACE_ATTR, offset, document);
+			} else { // `xs:import` line is highlighted
+				return XMLPositionUtility.selectAttributeValueAt(XSDUtils.NAMESPACE_ATTR, offset, document);
+			}
 		}
+		case src_import_3_2:
+			return XMLPositionUtility.selectChildNodeAttributeValueFromGivenNameAt(XSDUtils.XS_IMPORT_TAG, XSDUtils.SCHEMA_LOCATION_ATTR, offset, document);
+		}
+
 		return null;
 	}
 
