@@ -29,6 +29,7 @@ public class SharedSettings {
 	private final XMLWorkspaceSettings workspaceSettings;
 	private boolean actionableNotificationSupport;
 	private boolean openSettingsCommandSupport;
+	private boolean bindingWizardSupport;
 
 	public SharedSettings() {
 		this.completionSettings = new XMLCompletionSettings();
@@ -55,6 +56,7 @@ public class SharedSettings {
 		this.preferences.merge(newSettings.getPreferences());
 		this.actionableNotificationSupport = newSettings.isActionableNotificationSupport();
 		this.openSettingsCommandSupport = newSettings.isOpenSettingsCommandSupport();
+		this.bindingWizardSupport = newSettings.isBindingWizardSupport();
 	}
 
 	public XMLCompletionSettings getCompletionSettings() {
@@ -96,10 +98,10 @@ public class SharedSettings {
 	/**
 	 * Returns true if the client supports actionable notifications and false
 	 * otherwise
-	 * 
+	 *
 	 * See {@link org.eclipse.lemminx.customservice.ActionableNotification} and
 	 * {@link org.eclipse.lemminx.customservice.XMLLanguageClientAPI}
-	 * 
+	 *
 	 * @return true if the client supports actionable notifications and false
 	 *         otherwise
 	 */
@@ -109,7 +111,7 @@ public class SharedSettings {
 
 	/**
 	 * Sets the actionableNotificationSupport boolean
-	 * 
+	 *
 	 * @param actionableNotificationSupport
 	 */
 	public void setActionableNotificationSupport(boolean actionableNotificationSupport) {
@@ -119,9 +121,9 @@ public class SharedSettings {
 	/**
 	 * Returns true if the client supports the open settings command and false
 	 * otherwise
-	 * 
+	 *
 	 * See {@link org.eclipse.lemminx.client.ClientCommands#OPEN_SETTINGS}
-	 * 
+	 *
 	 * @return true if the client supports the open settings command and false
 	 *         otherwise
 	 */
@@ -131,11 +133,29 @@ public class SharedSettings {
 
 	/**
 	 * Sets the openSettingsCommandSupport boolean
-	 * 
+	 *
 	 * @param openSettingsCommandSupport
 	 */
 	public void setOpenSettingsCommandSupport(boolean openSettingsCommandSupport) {
 		this.openSettingsCommandSupport = openSettingsCommandSupport;
+	}
+
+	/**
+	 * Returns true if the client supports the `xml.open.binding.wizard` command using dropdown and false otherwise
+	 *
+	 * @return bindingWizardSupport
+	 */
+	public boolean isBindingWizardSupport() {
+		return this.bindingWizardSupport;
+	}
+
+	/**
+	 * Sets the bindingWizardSupport boolean
+	 *
+	 * @param bindingWizardSupport
+	 */
+	public void setBindingWizardSupport(boolean bindingWizardSupport) {
+		this.bindingWizardSupport = bindingWizardSupport;
 	}
 
 }

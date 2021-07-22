@@ -11,6 +11,8 @@
 *******************************************************************************/
 package org.eclipse.lemminx.extensions.contentmodel.participants.codeactions;
 
+import static org.eclipse.lemminx.client.ClientCommands.OPEN_BINDING_WIZARD;
+
 import java.io.File;
 import java.net.URI;
 import java.nio.file.Files;
@@ -101,6 +103,15 @@ public class NoGrammarConstraintsCodeAction implements ICodeActionParticipant {
 					diagnostic);
 			codeActions.add(dtdWithXmlModelAction);
 
+			// ---------- Open Binding Wizard
+			if (sharedSettings.isBindingWizardSupport()) {
+				String documentURI = document.getDocumentURI();
+				String title = "Bind to existing grammar/schema";
+				List<Object> commandParams = Arrays.asList(documentURI);
+				CodeAction bindWithExistingGrammar = CodeActionFactory.createCommand(title, OPEN_BINDING_WIZARD, commandParams, diagnostic);
+				codeActions.add(bindWithExistingGrammar);
+			}
+
 		} catch (BadLocationException e) {
 			LOGGER.log(Level.SEVERE, "In NoGrammarConstraintsCodeAction position error", e);
 		}
@@ -108,10 +119,10 @@ public class NoGrammarConstraintsCodeAction implements ICodeActionParticipant {
 
 	/**
 	 * Returns the unique grammar URI file.
-	 * 
+	 *
 	 * @param documentURI   the XML document URI.
 	 * @param fileExtension the grammar file extension.
-	 * 
+	 *
 	 * @return the unique grammar URI file.
 	 */
 	static String getGrammarURI(String documentURI, String fileExtension) {

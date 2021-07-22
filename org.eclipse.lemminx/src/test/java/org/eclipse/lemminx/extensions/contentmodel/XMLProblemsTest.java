@@ -12,6 +12,8 @@
  */
 package org.eclipse.lemminx.extensions.contentmodel;
 
+import static org.eclipse.lemminx.client.ClientCommands.OPEN_BINDING_WIZARD;
+
 import static java.lang.System.lineSeparator;
 import static org.eclipse.lemminx.XMLAssert.ca;
 import static org.eclipse.lemminx.XMLAssert.createFile;
@@ -22,6 +24,7 @@ import static org.eclipse.lemminx.XMLAssert.testDiagnosticsFor;
 
 import java.util.Arrays;
 
+import org.eclipse.lsp4j.Command;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
@@ -74,6 +77,8 @@ public class XMLProblemsTest {
 		workspaceEdit.setResourceOperations(Arrays.asList(ResourceOperationKind.Create));
 		workspace.setWorkspaceEdit(workspaceEdit);
 		settings.getWorkspaceSettings().setCapabilities(workspace);
+		// Expose `xml.open.binding.wizard` command
+		settings.setBindingWizardSupport(true);
 
 		// Code action to generate DTD, XSD
 		String schemaTemplate = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + lineSeparator() + //
@@ -110,8 +115,10 @@ public class XMLProblemsTest {
 						teOp("test.dtd", 0, 0, 0, 0, //
 								dtdTemplate), //
 						teOp("test.xml", 0, 0, 0, 0, //
-								"<?xml-model href=\"test.dtd\"?>" + lineSeparator() //
-						)));
+								"<?xml-model href=\"test.dtd\"?>" + lineSeparator())),
+				// Open binding wizard command
+				ca(d, new Command("Bind to existing grammar/schema", OPEN_BINDING_WIZARD, Arrays.asList(new Object[]{"test.xml"})))
+				);
 
 	}
 }

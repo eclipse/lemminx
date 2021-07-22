@@ -13,9 +13,9 @@ package org.eclipse.lemminx.client;
 
 /**
  * Extended client capabilities not defined by the LSP.
- * 
+ *
  * @author Angelo ZERR
- * 
+ *
  * @see https://github.com/microsoft/language-server-protocol/issues/788
  */
 public class ExtendedClientCapabilities {
@@ -25,6 +25,8 @@ public class ExtendedClientCapabilities {
 	private boolean actionableNotificationSupport;
 
 	private boolean openSettingsCommandSupport;
+
+	private boolean bindingWizardSupport;
 
 	private boolean shouldLanguageServerExitOnShutdown;
 
@@ -38,10 +40,10 @@ public class ExtendedClientCapabilities {
 
 	/**
 	 * Returns true if the client supports actionable notifications and false otherwise
-	 * 
+	 *
 	 * See {@link org.eclipse.lemminx.customservice.ActionableNotification} and
 	 * {@link org.eclipse.lemminx.customservice.XMLLanguageClientAPI#actionableNotification}
-	 * 
+	 *
 	 * @return true if the client supports actionable notifications and false otherwise
 	 */
 	public boolean isActionableNotificationSupport() {
@@ -50,7 +52,7 @@ public class ExtendedClientCapabilities {
 
 	/**
 	 * Sets the actionableNotificationSupport boolean
-	 * 
+	 *
 	 * @param actionableNotificationSupport
 	 */
 	public void setActionableNotificationSupport(boolean actionableNotificationSupport) {
@@ -59,9 +61,9 @@ public class ExtendedClientCapabilities {
 
 	/**
 	 * Returns true if the client supports the open settings command and false otherwise
-	 * 
+	 *
 	 * See {@link org.eclipse.lemminx.client.ClientCommands#OPEN_SETTINGS}
-	 * 
+	 *
 	 * @return true if the client supports the open settings command and false otherwise
 	 */
 	public boolean isOpenSettingsCommandSupport() {
@@ -70,11 +72,29 @@ public class ExtendedClientCapabilities {
 
 	/**
 	 * Sets the openSettingsCommandSupport boolean
-	 * 
+	 *
 	 * @param openSettingsCommandSupport
 	 */
 	public void setOpenSettingsCommandSupport(boolean openSettingsCommandSupport) {
 		this.openSettingsCommandSupport = openSettingsCommandSupport;
+	}
+
+	/**
+	 * Returns true if the client supports the `xml.open.binding.wizard` command using dropdown and false otherwise
+	 *
+	 * @return bindingWizardSupport
+	 */
+	public boolean isBindingWizardSupport() {
+		return this.bindingWizardSupport;
+	}
+
+	/**
+	 * Sets the bindingWizardSupport boolean
+	 *
+	 * @param bindingWizardSupport
+	 */
+	public void setBindingWizardSupport(boolean bindingWizardSupport) {
+		this.bindingWizardSupport = bindingWizardSupport;
 	}
 
 	/**
