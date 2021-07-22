@@ -197,6 +197,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 			sharedSettings
 					.setActionableNotificationSupport(extendedClientCapabilities.isActionableNotificationSupport());
 			sharedSettings.setOpenSettingsCommandSupport(extendedClientCapabilities.isOpenSettingsCommandSupport());
+			sharedSettings.setBindingWizardSupport(extendedClientCapabilities.isBindingWizardSupport());
 		}
 
 	}

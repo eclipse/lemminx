@@ -95,7 +95,8 @@ public class SettingsTest {
 			"			}\r\n" + "		}\r\n" + "	},\r\n" + "	\"extendedClientCapabilities\": {\r\n"
 			+ "		\"codeLens\": {\r\n" + "			\"codeLensKind\": {\r\n" + "				\"valueSet\": [\r\n"
 			+ "					\"references\"\r\n" + "				]\r\n" + "			}\r\n" + "		},\r\n"
-			+ "		actionableNotificationSupport: true,\r\n" + "		openSettingsCommandSupport: true\r\n" + "	}"
+			+ "		actionableNotificationSupport: true,\r\n" + "		openSettingsCommandSupport: true,\r\n"
+			+ "		bindingWizardSupport: true\r\n" + "	}"
 			+ "}";
 	// @formatter:on
 
@@ -249,6 +250,7 @@ public class SettingsTest {
 		assertEquals(CodeLensKind.References, clientCapabilities.getCodeLens().getCodeLensKind().getValueSet().get(0));
 		assertTrue(clientCapabilities.isActionableNotificationSupport());
 		assertTrue(clientCapabilities.isOpenSettingsCommandSupport());
+		assertTrue(clientCapabilities.isBindingWizardSupport());
 	}
 
 	@Test

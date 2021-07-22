@@ -609,7 +609,6 @@ public class XMLAssert {
 	public static void assertCodeActions(List<CodeAction> actual, CodeAction... expected) {
 		actual.stream().forEach(ca -> {
 			// we don't want to compare title, etc
-			ca.setCommand(null);
 			ca.setKind(null);
 			ca.setTitle("");
 			if (ca.getDiagnostics() != null) {
@@ -633,6 +632,19 @@ public class XMLAssert {
 		TextDocumentEdit textDocumentEdit = tde(FILE_URI, 0, te);
 		WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)));
 		codeAction.setEdit(workspaceEdit);
+		return codeAction;
+	}
+
+	/**
+	 * Mock code action for creating a command code action
+	 */
+	public static CodeAction ca(Diagnostic d, Command c) {
+		CodeAction codeAction = new CodeAction();
+		codeAction.setTitle("");
+		codeAction.setDiagnostics(Arrays.asList(d));
+
+		codeAction.setCommand(c);
+
 		return codeAction;
 	}
 
