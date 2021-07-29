@@ -115,6 +115,7 @@ public class XMLLanguageServer
 
 		this.parentProcessId = params.getProcessId();
 
+		xmlLanguageService.setTelemetryManager(getTelemetryManager());
 		// Update XML language service extensions with InitializeParams
 		xmlLanguageService.initializeParams(params);
 
