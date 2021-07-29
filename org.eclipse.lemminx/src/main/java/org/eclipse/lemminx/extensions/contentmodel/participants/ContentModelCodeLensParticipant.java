@@ -13,14 +13,20 @@
 package org.eclipse.lemminx.extensions.contentmodel.participants;
 
 import static org.eclipse.lemminx.client.ClientCommands.OPEN_BINDING_WIZARD;
+import static org.eclipse.lemminx.client.ClientCommands.OPEN_URI;
+import static org.eclipse.lemminx.extensions.contentmodel.commands.CheckBoundGrammarCommand.canBindWithGrammar;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.lemminx.client.CodeLensKind;
 import org.eclipse.lemminx.dom.DOMDocument;
-import org.eclipse.lemminx.dom.DOMElement;
+import org.eclipse.lemminx.dom.DOMRange;
 import org.eclipse.lemminx.extensions.contentmodel.commands.AssociateGrammarCommand;
+import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
+import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelProvider.Identifier;
+import org.eclipse.lemminx.extensions.contentmodel.model.ReferencedGrammarInfo;
 import org.eclipse.lemminx.services.extensions.codelens.ICodeLensParticipant;
 import org.eclipse.lemminx.services.extensions.codelens.ICodeLensRequest;
 import org.eclipse.lemminx.utils.DOMUtils;
@@ -35,13 +41,13 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
  * At first this participant is enabled only when LSP client can support the
  * client command "xml.open.binding.wizard" to open the wizard to bind a XML to
  * a grammar/schema.
- * 
+ *
  * In this case, when XML file is not associated to a grammar/schema (DTD, XSD),
  * this class generates [Bind to grammar/schema...] CodeLens on the root of the
  * DOM Document:
- * 
+ *
  * On client side, click on this Codelens should open a wizard:
- * 
+ *
  * <ul>
  * <li>page1 : display a combo to select the binding type ("standard",
  * "xml-model").</li>
@@ -62,9 +68,69 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
  */
 public class ContentModelCodeLensParticipant implements ICodeLensParticipant {
 
+	private final ContentModelManager contentModelManager;
+
+	public ContentModelCodeLensParticipant(ContentModelManager contentModelManager) {
+		this.contentModelManager = contentModelManager;
+	}
+
 	@Override
 	public void doCodeLens(ICodeLensRequest request, List<CodeLens> lenses, CancelChecker cancelChecker) {
-		if (!canSupport(request)) {
+		// List of referenced schema/grammar
+		createReferencedGrammarLenses(request, lenses);
+		// "Bind to grammar/schema..."
+		createBindToGrammarSchemaLenses(request, lenses);
+	}
+
+	private void createReferencedGrammarLenses(ICodeLensRequest request, List<CodeLens> lenses) {
+		DOMDocument document = request.getDocument();
+		if (!document.hasGrammar()) {
+			return;
+		}
+
+		// The DOM document is bound with a schema/grammar, display the referenced
+		// grammars as Codelens.
+		boolean canSupportOpenUri = canSupportOpenUri(request);
+		Range range = XMLPositionUtility.createRange((DOMRange) document.getFirstChild());
+		range.setEnd(range.getStart());
+		Set<ReferencedGrammarInfo> referencedGrammarInfos = contentModelManager.getReferencedGrammarInfos(document);
+		for (ReferencedGrammarInfo info : referencedGrammarInfos) {
+			lenses.add(createReferencedGrammarLens(info, range, canSupportOpenUri));
+		}
+	}
+
+	private static boolean canSupportOpenUri(ICodeLensRequest request) {
+		return request.isSupportedByClient(CodeLensKind.OpenUri);
+	}
+
+	private CodeLens createReferencedGrammarLens(ReferencedGrammarInfo info, Range range, boolean canSupportOpenUri) {
+		Identifier identifier = info.getIdentifier();
+		String publicId = identifier.getPublicId();
+		String systemId = identifier.getSystemId();
+		String uri = publicId != null ? publicId : systemId;
+		StringBuilder title = new StringBuilder(uri);
+
+		if (identifier.getKind() != null) {
+			title.append(" (");
+			title.append(identifier.getKind());
+			title.append(")");
+		} else if (info.getResolvedURIInfo().getResolverName() != null) {
+			title.append(" (");
+			title.append(info.getResolvedURIInfo().getResolverName());
+			title.append(")");
+		}
+
+		String grammarURI = info.isInCache() ? info.getGrammarCacheInfo().getCachedResolvedUri() : null;
+		if (grammarURI == null) {
+			grammarURI = info.getResolvedURIInfo().getResolvedURI();
+		}
+		Command command = new Command(title.toString(), canSupportOpenUri ? OPEN_URI : "",
+				canSupportOpenUri ? Arrays.asList(grammarURI) : null);
+		return new CodeLens(range, command, null);
+	}
+
+	private static void createBindToGrammarSchemaLenses(ICodeLensRequest request, List<CodeLens> lenses) {
+		if (!canSupportAssociation(request)) {
 			return;
 		}
 
@@ -75,8 +141,7 @@ public class ContentModelCodeLensParticipant implements ICodeLensParticipant {
 		// <foo />
 
 		DOMDocument document = request.getDocument();
-		DOMElement documentElement = document.getDocumentElement();
-		if (documentElement == null || document.hasGrammar()) {
+		if (!canBindWithGrammar(document)) {
 			return;
 		}
 		String documentURI = document.getDocumentURI();
@@ -85,7 +150,7 @@ public class ContentModelCodeLensParticipant implements ICodeLensParticipant {
 		lenses.add(createAssociateLens(documentURI, "Bind to grammar/schema...", range));
 	}
 
-	private static boolean canSupport(ICodeLensRequest request) {
+	private static boolean canSupportAssociation(ICodeLensRequest request) {
 		if (!request.isSupportedByClient(CodeLensKind.Association)) {
 			return false;
 		}

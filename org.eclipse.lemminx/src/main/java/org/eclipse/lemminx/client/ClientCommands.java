@@ -38,4 +38,9 @@ public class ClientCommands {
 	 */
 	public static final String OPEN_BINDING_WIZARD = "xml.open.binding.wizard";
 
+	/**
+	 * Client command to open URI
+	 */
+	public static final String OPEN_URI = "xml.open.uri";
+
 }

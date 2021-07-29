@@ -1079,7 +1079,7 @@ public class XMLAssert {
 	public static void testCodeLensFor(String value, String fileURI, XMLLanguageService xmlLanguageService,
 			CodeLens... expected) {
 		testCodeLensFor(value, fileURI, xmlLanguageService,
-				Arrays.asList(CodeLensKind.References, CodeLensKind.Association), expected);
+				Arrays.asList(CodeLensKind.References, CodeLensKind.Association, CodeLensKind.OpenUri), expected);
 	}
 
 	public static void testCodeLensFor(String value, String fileURI, List<String> codelensKinds, CodeLens... expected) {
