@@ -72,7 +72,7 @@ public class ContentModelPlugin implements IXMLExtension {
 
 	private ContentModelSymbolsProviderParticipant symbolsProviderParticipant;
 
-	private final ICodeLensParticipant codeLensParticipant;
+	private ICodeLensParticipant codeLensParticipant;
 
 	ContentModelManager contentModelManager;
 
@@ -86,7 +86,6 @@ public class ContentModelPlugin implements IXMLExtension {
 		diagnosticsParticipant = new ContentModelDiagnosticsParticipant(this);
 		codeActionParticipant = new ContentModelCodeActionParticipant();
 		typeDefinitionParticipant = new ContentModelTypeDefinitionParticipant();
-		codeLensParticipant = new ContentModelCodeLensParticipant();
 	}
 
 	@Override
@@ -183,6 +182,7 @@ public class ContentModelPlugin implements IXMLExtension {
 		registry.registerTypeDefinitionParticipant(typeDefinitionParticipant);
 		symbolsProviderParticipant = new ContentModelSymbolsProviderParticipant(contentModelManager);
 		registry.registerSymbolsProviderParticipant(symbolsProviderParticipant);
+		codeLensParticipant = new ContentModelCodeLensParticipant(contentModelManager);
 		registry.registerCodeLensParticipant(codeLensParticipant);
 
 		// Register custom commands to re-validate XML files

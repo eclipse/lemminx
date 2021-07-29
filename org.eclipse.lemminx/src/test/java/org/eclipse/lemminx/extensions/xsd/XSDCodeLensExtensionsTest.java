@@ -13,6 +13,7 @@ package org.eclipse.lemminx.extensions.xsd;
 
 import static org.eclipse.lemminx.XMLAssert.cl;
 import static org.eclipse.lemminx.XMLAssert.r;
+import static org.eclipse.lemminx.client.ClientCommands.OPEN_URI;
 import static org.eclipse.lemminx.client.ClientCommands.SHOW_REFERENCES;
 
 import org.eclipse.lemminx.XMLAssert;
@@ -44,7 +45,9 @@ public class XSDCodeLensExtensionsTest {
 				"	</xs:group>\r\n" + //
 				"	\r\n" + //
 				"</xs:schema>";
-		XMLAssert.testCodeLensFor(xml, cl(r(2, 13, 2, 23), "2 references", SHOW_REFERENCES),
+		XMLAssert.testCodeLensFor(xml, //
+				cl(r(0, 0, 0, 0), "http://www.w3.org/2001/XMLSchema (embedded xml.xsd)", OPEN_URI), //
+				cl(r(2, 13, 2, 23), "2 references", SHOW_REFERENCES), //
 				cl(r(11, 11, 11, 21), "1 reference", SHOW_REFERENCES));
 	}
 
@@ -71,7 +74,9 @@ public class XSDCodeLensExtensionsTest {
 				"		</xs:restriction>\r\n" + //
 				"	</xs:simpleType>\r\n" + //
 				"</xs:schema>";
-		XMLAssert.testCodeLensFor(xml, cl(r(3, 17, 3, 36), "2 references", SHOW_REFERENCES),
+		XMLAssert.testCodeLensFor(xml, //
+				cl(r(0, 0, 0, 0), "http://www.w3.org/2001/XMLSchema (embedded xml.xsd)", OPEN_URI), //
+				cl(r(3, 17, 3, 36), "2 references", SHOW_REFERENCES), //
 				cl(r(15, 16, 15, 35), "1 reference", SHOW_REFERENCES));
 	}
 

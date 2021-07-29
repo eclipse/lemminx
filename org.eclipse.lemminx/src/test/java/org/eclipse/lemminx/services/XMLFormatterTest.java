@@ -2944,9 +2944,9 @@ public class XMLFormatterTest {
 		settings.getFormattingSettings().setClosingBracketNewLine(true);
 		settings.getFormattingSettings().setPreserveAttrLineBreaks(true);
 		String content = "<a b='b' c='c'/>";
-		String expected = "<a\n" +
-		"    b='b'\n" +
-		"    c='c'\n" +
+		String expected = "<a" + System.lineSeparator() + //
+		"    b='b'" + System.lineSeparator() + //
+		"    c='c'" + System.lineSeparator() + //
 		"    />";
 		assertFormat(content, expected, settings);
 	}

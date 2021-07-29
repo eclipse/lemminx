@@ -28,4 +28,6 @@ public class CodeLensKind {
 	public static final String Implementations = "implementations";
 
 	public static final String Association = "association";
+
+	public static final String OpenUri = "open.uri";
 }

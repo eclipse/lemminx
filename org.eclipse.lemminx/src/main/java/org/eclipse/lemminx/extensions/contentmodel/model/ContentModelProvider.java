@@ -60,13 +60,13 @@ public interface ContentModelProvider {
 
 	/**
 	 * Returns the content model provider by using standard association
-	 * (xsi:schemaLocation, xsi:noNamespaceSchemaLocation, doctype) an dnull
+	 * (xsi:schemaLocation, xsi:noNamespaceSchemaLocation, doctype) and null
 	 * otherwise.
 	 * 
 	 * @param document
 	 * @param internal
 	 * @return the content model provider by using standard association
-	 *         (xsi:schemaLocation, xsi:noNamespaceSchemaLocation, doctype) an dnull
+	 *         (xsi:schemaLocation, xsi:noNamespaceSchemaLocation, doctype) and null
 	 *         otherwise.
 	 */
 	boolean adaptFor(DOMDocument document, boolean internal);

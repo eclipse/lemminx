@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -215,7 +215,7 @@ public class ContentModelManager {
 	 *         DOM document.
 	 */
 	public Set<ReferencedGrammarInfo> getReferencedGrammarInfos(DOMDocument document) {
-		Set<ReferencedGrammarInfo> referencedGrammarInfos = new HashSet<>();
+		Set<ReferencedGrammarInfo> referencedGrammarInfos = new LinkedHashSet<>();
 		for (ContentModelProvider modelProvider : modelProviders) {
 			if (modelProvider.adaptFor(document, false)) {
 				Collection<Identifier> identifiers = modelProvider.getIdentifiers(document, null);
@@ -265,6 +265,9 @@ public class ContentModelManager {
 					}
 				}
 				grammarCacheInfo = new GrammarCacheInfo(cachedResolvedUri, downloading, cacheError);
+			}
+			if (identifier == null) {
+				identifier = new Identifier(publicId, systemId, null, null);
 			}
 			referencedGrammarInfos.add(new ReferencedGrammarInfo(resolvedURIInfo, grammarCacheInfo, identifier));
 		}
