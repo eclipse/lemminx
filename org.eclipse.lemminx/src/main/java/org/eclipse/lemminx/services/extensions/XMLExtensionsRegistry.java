@@ -32,6 +32,7 @@ import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipa
 import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
 import org.eclipse.lemminx.services.extensions.save.ISaveContext;
 import org.eclipse.lemminx.services.extensions.save.ISaveContext.SaveContextType;
+import org.eclipse.lemminx.telemetry.TelemetryManager;
 import org.eclipse.lemminx.uriresolver.URIResolverExtensionManager;
 import org.eclipse.lsp4j.InitializeParams;
 
@@ -74,6 +75,8 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 
 	private final Map<Class<?>, Object> components;
 
+	private TelemetryManager telemetryManager;
+
 	public XMLExtensionsRegistry() {
 		extensions = new ArrayList<>();
 		completionParticipants = new ArrayList<>();
@@ -93,6 +96,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 		documentLifecycleParticipants = new ArrayList<>();
 		resolverExtensionManager = new URIResolverExtensionManager();
 		components = new HashMap<>();
+		telemetryManager = new TelemetryManager(null);
 		registerComponent(resolverExtensionManager);
 	}
 
@@ -503,6 +507,14 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	 */
 	public void setCommandService(IXMLCommandService commandService) {
 		this.commandService = commandService;
+	}
+
+	public TelemetryManager getTelemetryManager() {
+		return telemetryManager;
+	}
+
+	public void setTelemetryManager(TelemetryManager telemetryManager) {
+		this.telemetryManager = telemetryManager;
 	}
 
 }
