@@ -101,6 +101,7 @@ The [LemMinx Extensions API](https://github.com/eclipse/lemminx/tree/master/org.
 - Formatter with [IFormatterParticipant](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/format/IFormatterParticipant.java)
 - Symbols with [ISymbolsProviderParticipant](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/ISymbolsProviderParticipant.java)
 - Monitoring workspace folders with [IWorkspaceServiceParticipant](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/IWorkspaceServiceParticipant.java)
+- Monitoring document lifecycle (didOpen, didChange, etc) with [IDocumentLifecycleParticipant](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/IDocumentLifecycleParticipant.java)
 
 ## XML Language Server services available for extensions
 XML Language Server extension may need to use standard Language Server features such as commands, documents and ability to manipulate documents. These are available to extensions indirectly via specialized service API.
