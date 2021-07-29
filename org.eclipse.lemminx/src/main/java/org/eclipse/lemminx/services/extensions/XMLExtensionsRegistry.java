@@ -59,6 +59,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	private final List<IFormatterParticipant> formatterParticipants;
 	private final List<ISymbolsProviderParticipant> symbolsProviderParticipants;
 	private final List<IWorkspaceServiceParticipant> workspaceServiceParticipants;
+	private final List<IDocumentLifecycleParticipant> documentLifecycleParticipants;
 	private IXMLDocumentProvider documentProvider;
 	private IXMLValidationService validationService;
 	private IXMLCommandService commandService;
@@ -89,6 +90,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 		formatterParticipants = new ArrayList<>();
 		symbolsProviderParticipants = new ArrayList<>();
 		workspaceServiceParticipants = new ArrayList<>();
+		documentLifecycleParticipants = new ArrayList<>();
 		resolverExtensionManager = new URIResolverExtensionManager();
 		components = new HashMap<>();
 		registerComponent(resolverExtensionManager);
@@ -201,12 +203,25 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	}
 
 	/**
+	 * Return the registered workspace service participants.
+	 * 
 	 * @return the registered workspace service participants.
 	 * @since 0.14.2
 	 */
 	public Collection<IWorkspaceServiceParticipant> getWorkspaceServiceParticipants() {
 		initializeIfNeeded();
 		return workspaceServiceParticipants;
+	}
+
+	/**
+	 * Return the registered document lifecycle participants.
+	 * 
+	 * @return the registered document lifecycle participants.
+	 * @since 0.18.0
+	 */
+	public List<IDocumentLifecycleParticipant> getDocumentLifecycleParticipants() {
+		initializeIfNeeded();
+		return documentLifecycleParticipants;
 	}
 
 	public void initializeIfNeeded() {
@@ -373,9 +388,10 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	public void unregisterSymbolsProviderParticipant(ISymbolsProviderParticipant symbolsProviderParticipant) {
 		symbolsProviderParticipants.remove(symbolsProviderParticipant);
 	}
-	
+
 	/**
 	 * Register a new workspace service participant
+	 * 
 	 * @param workspaceServiceParticipant the participant to register
 	 * @since 0.14.2
 	 */
@@ -385,11 +401,32 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 
 	/**
 	 * Unregister a new workspace service participant.
+	 * 
 	 * @param workspaceServiceParticipant the participant to unregister
 	 * @since 0.14.2
 	 */
 	public void unregisterWorkspaceServiceParticipant(IWorkspaceServiceParticipant workspaceServiceParticipant) {
 		workspaceServiceParticipants.remove(workspaceServiceParticipant);
+	}
+
+	/**
+	 * Register a new document lifecycle participant
+	 * 
+	 * @param documentLifecycleParticipant the participant to register
+	 * @since 0.18.0
+	 */
+	public void registerDocumentLifecycleParticipant(IDocumentLifecycleParticipant documentLifecycleParticipant) {
+		documentLifecycleParticipants.add(documentLifecycleParticipant);
+	}
+
+	/**
+	 * Unregister a new document lifecycle participant.
+	 * 
+	 * @param documentLifecycleParticipant the participant to unregister
+	 * @since 0.18.0
+	 */
+	public void unregisterDocumentLifecycleParticipant(IDocumentLifecycleParticipant documentLifecycleParticipant) {
+		documentLifecycleParticipants.remove(documentLifecycleParticipant);
 	}
 
 	/**
