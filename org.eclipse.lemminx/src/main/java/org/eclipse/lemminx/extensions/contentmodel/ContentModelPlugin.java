@@ -16,6 +16,7 @@ import java.util.Objects;
 
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.commands.AssociateGrammarCommand;
+import org.eclipse.lemminx.extensions.contentmodel.commands.CheckBoundGrammarCommand;
 import org.eclipse.lemminx.extensions.contentmodel.commands.XMLValidationAllFilesCommand;
 import org.eclipse.lemminx.extensions.contentmodel.commands.XMLValidationFileCommand;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
@@ -48,7 +49,7 @@ import org.eclipse.lsp4j.InitializeParams;
 
 /**
  * Content model plugin extension to provide:
- * 
+ *
  * <ul>
  * <li>completion based on XML Schema, DTD...</li>
  * <li>hover based on XML Schema</li>
@@ -71,7 +72,7 @@ public class ContentModelPlugin implements IXMLExtension {
 
 	private ContentModelSymbolsProviderParticipant symbolsProviderParticipant;
 
-	private final ICodeLensParticipant codeLensParticipant;
+	private ICodeLensParticipant codeLensParticipant;
 
 	ContentModelManager contentModelManager;
 
@@ -85,7 +86,6 @@ public class ContentModelPlugin implements IXMLExtension {
 		diagnosticsParticipant = new ContentModelDiagnosticsParticipant(this);
 		codeActionParticipant = new ContentModelCodeActionParticipant();
 		typeDefinitionParticipant = new ContentModelTypeDefinitionParticipant();
-		codeLensParticipant = new ContentModelCodeLensParticipant();
 	}
 
 	@Override
@@ -182,6 +182,7 @@ public class ContentModelPlugin implements IXMLExtension {
 		registry.registerTypeDefinitionParticipant(typeDefinitionParticipant);
 		symbolsProviderParticipant = new ContentModelSymbolsProviderParticipant(contentModelManager);
 		registry.registerSymbolsProviderParticipant(symbolsProviderParticipant);
+		codeLensParticipant = new ContentModelCodeLensParticipant(contentModelManager);
 		registry.registerCodeLensParticipant(codeLensParticipant);
 
 		// Register custom commands to re-validate XML files
@@ -195,6 +196,8 @@ public class ContentModelPlugin implements IXMLExtension {
 					new XMLValidationAllFilesCommand(contentModelManager, documentProvider, validationService));
 			commandService.registerCommand(AssociateGrammarCommand.COMMAND_ID,
 					new AssociateGrammarCommand(documentProvider));
+			commandService.registerCommand(CheckBoundGrammarCommand.COMMAND_ID,
+					new CheckBoundGrammarCommand(documentProvider));
 		}
 	}
 
@@ -215,6 +218,7 @@ public class ContentModelPlugin implements IXMLExtension {
 			commandService.unregisterCommand(XMLValidationFileCommand.COMMAND_ID);
 			commandService.unregisterCommand(XMLValidationAllFilesCommand.COMMAND_ID);
 			commandService.unregisterCommand(AssociateGrammarCommand.COMMAND_ID);
+			commandService.unregisterCommand(CheckBoundGrammarCommand.COMMAND_ID);
 		}
 	}
 

@@ -29,14 +29,14 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Test for associating a grammar to a given XML command.
- * 
+ *
  * @author Angelo ZERR
  *
  */
 public class AssociateGrammarCommandTest {
 
 	@Test
-	public void associateWithXSDNoNamespaceShemaLocation() throws InterruptedException, ExecutionException {
+	public void associateWithXSDNoNamespaceSchemaLocation() throws InterruptedException, ExecutionException {
 		MockXMLLanguageServer languageServer = new MockXMLLanguageServer();
 
 		String xml = "<?xml version=\"1.0\" ?>\r\n" + //
@@ -159,7 +159,7 @@ public class AssociateGrammarCommandTest {
 	}
 
 	@Test
-	public void unkwownFileUri() throws InterruptedException, ExecutionException {
+	public void unknownFileUri() throws InterruptedException, ExecutionException {
 		MockXMLLanguageServer languageServer = new MockXMLLanguageServer();
 
 		String xmlPath = "tag.xml";

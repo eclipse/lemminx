@@ -96,17 +96,18 @@ public class ContentModelSymbolsProviderParticipant implements ISymbolsProviderP
 			Identifier identifier = info.getIdentifier();
 			// --> binding name
 			StringBuilder bindingName = new StringBuilder("Binding: ");
-			if (identifier != null) {
+			boolean hasKind = identifier != null && identifier.getKind() != null; 
+			if (hasKind) {
 				bindingName.append(identifier.getKind());
 			}
 			String resolverName = resolvedInfo.getResolverName();
 			if (!"default".equals(resolverName)) {
-				if (identifier != null) {
+				if (hasKind) {
 					bindingName.append(" (");
 				}
 				bindingName.append("with ");
 				bindingName.append(resolverName);
-				if (identifier != null) {
+				if (hasKind) {
 					bindingName.append(")");
 				}
 			}

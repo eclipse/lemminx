@@ -26,9 +26,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
-
-import com.google.gson.JsonPrimitive;
 
 import org.eclipse.lemminx.client.ExtendedClientCapabilities;
 import org.eclipse.lemminx.client.LimitExceededWarner;
@@ -91,6 +91,7 @@ import org.eclipse.lsp4j.SelectionRange;
 import org.eclipse.lsp4j.SelectionRangeParams;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
+import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.TypeDefinitionParams;
@@ -100,16 +101,30 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.validation.NonNull;
 import org.eclipse.lsp4j.services.TextDocumentService;
 
+import com.google.gson.JsonPrimitive;
+
 /**
  * XML text document service.
  *
  */
 public class XMLTextDocumentService implements TextDocumentService {
 
+	private static final Logger LOGGER = Logger.getLogger(XMLTextDocumentService.class.getName());
+
 	private final XMLLanguageServer xmlLanguageServer;
 	private final TextDocuments<ModelTextDocument<DOMDocument>> documents;
 	private SharedSettings sharedSettings;
 	private LimitExceededWarner limitExceededWarner;
+
+	/**
+	 * Enumeration for Validation triggered by.
+	 *
+	 */
+	private static enum TriggeredBy {
+		didOpen, //
+		didChange, //
+		Other;
+	}
 
 	/**
 	 * Save context.
@@ -197,6 +212,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 			sharedSettings
 					.setActionableNotificationSupport(extendedClientCapabilities.isActionableNotificationSupport());
 			sharedSettings.setOpenSettingsCommandSupport(extendedClientCapabilities.isOpenSettingsCommandSupport());
+			sharedSettings.setBindingWizardSupport(extendedClientCapabilities.isBindingWizardSupport());
 		}
 
 	}
@@ -340,7 +356,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	@Override
 	public void didOpen(DidOpenTextDocumentParams params) {
 		TextDocument document = documents.onDidOpenTextDocument(params);
-		triggerValidationFor(document);
+		triggerValidationFor(document, TriggeredBy.didOpen);
 	}
 
 	/**
@@ -349,17 +365,39 @@ public class XMLTextDocumentService implements TextDocumentService {
 	@Override
 	public void didChange(DidChangeTextDocumentParams params) {
 		TextDocument document = documents.onDidChangeTextDocument(params);
-		triggerValidationFor(document);
+		triggerValidationFor(document, TriggeredBy.didChange, params.getContentChanges());
 	}
 
 	@Override
 	public void didClose(DidCloseTextDocumentParams params) {
+		TextDocumentIdentifier identifier = params.getTextDocument();
+		String uri = identifier.getUri();
+		DOMDocument xmlDocument = getNowDOMDocument(uri);
+		// Remove the document from the cache
 		documents.onDidCloseTextDocument(params);
-		TextDocumentIdentifier document = params.getTextDocument();
-		String uri = document.getUri();
+		// Publish empty errors from the document
 		xmlLanguageServer.getLanguageClient()
 				.publishDiagnostics(new PublishDiagnosticsParams(uri, Collections.emptyList()));
 		getLimitExceededWarner().evictValue(uri);
+		// Manage didClose document lifecycle participants
+		if (xmlDocument != null) {
+			getXMLLanguageService().getDocumentLifecycleParticipants().forEach(participant -> {
+				try {
+					participant.didClose(xmlDocument);
+				} catch (Exception e) {
+					LOGGER.log(Level.SEVERE, "Error while processing didClose for the participant '"
+							+ participant.getClass().getName() + "'.", e);
+				}
+			});
+		}
+	}
+
+	private DOMDocument getNowDOMDocument(String uri) {
+		TextDocument document = documents.get(uri);
+		if (document != null) {
+			return ((ModelTextDocument<DOMDocument>) document).getModel().getNow(null);
+		}
+		return null;
 	}
 
 	@Override
@@ -482,6 +520,19 @@ public class XMLTextDocumentService implements TextDocumentService {
 			// A document was saved, collect documents to revalidate
 			SaveContext context = new SaveContext(params.getTextDocument().getUri());
 			doSave(context);
+
+			// Manage didSave document lifecycle participants
+			final DOMDocument xmlDocument = getNowDOMDocument(params.getTextDocument().getUri());
+			if (xmlDocument != null) {
+				getXMLLanguageService().getDocumentLifecycleParticipants().forEach(participant -> {
+					try {
+						participant.didSave(xmlDocument);
+					} catch (Exception e) {
+						LOGGER.log(Level.SEVERE, "Error while processing didSave for the participant '"
+								+ participant.getClass().getName() + "'.", e);
+					}
+				});
+			}
 			return null;
 		});
 	}
@@ -525,11 +576,43 @@ public class XMLTextDocumentService implements TextDocumentService {
 		}
 	}
 
+	private void triggerValidationFor(TextDocument document, TriggeredBy triggeredBy) {
+		triggerValidationFor(document, triggeredBy, null);
+	}
+
 	@SuppressWarnings("unchecked")
-	private void triggerValidationFor(TextDocument document) {
-		((ModelTextDocument<DOMDocument>) document).getModel().thenAcceptAsync(xmlDocument -> {
-			validate(xmlDocument);
-		});
+	private void triggerValidationFor(TextDocument document, TriggeredBy triggeredBy,
+			List<TextDocumentContentChangeEvent> changeEvents) {
+		((ModelTextDocument<DOMDocument>) document).getModel()//
+				.thenAcceptAsync(xmlDocument -> {
+					// Validate the DOM document
+					validate(xmlDocument);
+					// Manage didOpen, didChange document lifecycle participants
+					switch (triggeredBy) {
+					case didOpen:
+						getXMLLanguageService().getDocumentLifecycleParticipants().forEach(participant -> {
+							try {
+								participant.didOpen(xmlDocument);
+							} catch (Exception e) {
+								LOGGER.log(Level.SEVERE, "Error while processing didOpen for the participant '"
+										+ participant.getClass().getName() + "'.", e);
+							}
+						});
+						break;
+					case didChange:
+						getXMLLanguageService().getDocumentLifecycleParticipants().forEach(participant -> {
+							try {
+								participant.didChange(xmlDocument);
+							} catch (Exception e) {
+								LOGGER.log(Level.SEVERE, "Error while processing didChange for the participant '"
+										+ participant.getClass().getName() + "'.", e);
+							}
+						});
+						break;
+					default:
+						// Do nothing
+					}
+				});
 	}
 
 	void validate(DOMDocument xmlDocument) throws CancellationException {
@@ -537,7 +620,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 		cancelChecker.checkCanceled();
 		getXMLLanguageService().publishDiagnostics(xmlDocument,
 				params -> xmlLanguageServer.getLanguageClient().publishDiagnostics(params),
-				(doc) -> triggerValidationFor(doc), sharedSettings.getValidationSettings(), cancelChecker);
+				(doc) -> triggerValidationFor(doc, TriggeredBy.Other), sharedSettings.getValidationSettings(),
+				cancelChecker);
 	}
 
 	private XMLLanguageService getXMLLanguageService() {

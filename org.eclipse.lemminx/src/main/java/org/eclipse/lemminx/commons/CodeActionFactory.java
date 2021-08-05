@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
+import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.CreateFile;
 import org.eclipse.lsp4j.CreateFileOptions;
 import org.eclipse.lsp4j.Diagnostic;
@@ -41,7 +42,7 @@ public class CodeActionFactory {
 
 	/**
 	 * Create a CodeAction to remove the content from the given range.
-	 * 
+	 *
 	 * @param title
 	 * @param range
 	 * @param document
@@ -54,13 +55,13 @@ public class CodeActionFactory {
 
 	/**
 	 * Create a CodeAction to insert a new content at the end of the given range.
-	 * 
+	 *
 	 * @param title
 	 * @param range
 	 * @param insertText
 	 * @param document
 	 * @param diagnostic
-	 * 
+	 *
 	 * @return the CodeAction to insert a new content at the end of the given range.
 	 */
 	public static CodeAction insert(String title, Position position, String insertText, TextDocumentItem document,
@@ -77,11 +78,11 @@ public class CodeActionFactory {
 
 	/**
 	 * Returns the text edit to insert a new content at the end of the given range.
-	 * 
+	 *
 	 * @param insertText text to insert.
 	 * @param position   the position.
 	 * @param document   the text document.
-	 * 
+	 *
 	 * @return the text edit to insert a new content at the end of the given range.
 	 */
 	public static TextDocumentEdit insertEdit(String insertText, Position position, TextDocumentItem document) {
@@ -142,7 +143,7 @@ public class CodeActionFactory {
 
 	/**
 	 * Makes a CodeAction to create a file and add content to the file.
-	 * 
+	 *
 	 * @param title      The displayed name of the CodeAction
 	 * @param docURI     The file to create
 	 * @param content    The text to put into the newly created document.
@@ -164,6 +165,24 @@ public class CodeActionFactory {
 
 		CodeAction codeAction = new CodeAction(title);
 		codeAction.setEdit(createAndAddContentEdit);
+		codeAction.setDiagnostics(Collections.singletonList(diagnostic));
+		codeAction.setKind(CodeActionKind.QuickFix);
+
+		return codeAction;
+	}
+
+	/**
+	 * Makes a CodeAction to call a command from the available server commands.
+	 *
+	 * @param title         The displayed name of the CodeAction
+	 * @param commandId     The id of the given command to add as CodeAction
+	 * @param commandParams The document URI of the document the command is called on
+	 * @param diagnostic    The diagnostic that this CodeAction will fix
+	 */
+	public static CodeAction createCommand(String title, String commandId, List<Object> commandParams, Diagnostic diagnostic) {
+		CodeAction codeAction = new CodeAction(title);
+		Command command = new Command(title, commandId, commandParams);
+		codeAction.setCommand(command);
 		codeAction.setDiagnostics(Collections.singletonList(diagnostic));
 		codeAction.setKind(CodeActionKind.QuickFix);
 
