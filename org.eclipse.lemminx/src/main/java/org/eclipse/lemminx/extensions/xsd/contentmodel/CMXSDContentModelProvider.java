@@ -36,6 +36,9 @@ import org.w3c.dom.DOMErrorHandler;
  */
 public class CMXSDContentModelProvider implements ContentModelProvider {
 
+	private static final String XSI_SCHEMA_LOCATION_BINDING_KIND = "xsi:schemaLocation";
+
+	private static final String XSI_NO_NAMESPACE_SCHEMA_LOCATION_BINDING_KIND = "xsi:noNamespaceSchemaLocation";
 	private final URIResolverExtensionManager resolverExtensionManager;
 
 	public CMXSDContentModelProvider(URIResolverExtensionManager resolverExtensionManager) {
@@ -64,7 +67,7 @@ public class CMXSDContentModelProvider implements ContentModelProvider {
 				for (SchemaLocationHint locationHint : schemaLocation.getSchemaLocationHints()) {
 					String location = locationHint.getHint();
 					if (!StringUtils.isEmpty(location)) {
-						identifiers.add(new Identifier(null, location, locationHint, "xsi:schemaLocation"));
+						identifiers.add(new Identifier(null, location, locationHint, XSI_SCHEMA_LOCATION_BINDING_KIND));
 					}
 				}
 			} else {
@@ -72,7 +75,7 @@ public class CMXSDContentModelProvider implements ContentModelProvider {
 				if (locationHint != null) {
 					String location = locationHint.getHint();
 					if (!StringUtils.isEmpty(location)) {
-						identifiers.add(new Identifier(null, location, locationHint, "xsi:schemaLocation"));
+						identifiers.add(new Identifier(null, location, locationHint, XSI_SCHEMA_LOCATION_BINDING_KIND));
 					}
 				}
 			}
@@ -85,7 +88,7 @@ public class CMXSDContentModelProvider implements ContentModelProvider {
 					if (!StringUtils.isEmpty(location)) {
 						identifiers.add(
 								new Identifier(null, location, noNamespaceSchemaLocation.getAttr().getNodeAttrValue(),
-										"xsi:noNamespaceSchemaLocation"));
+										XSI_NO_NAMESPACE_SCHEMA_LOCATION_BINDING_KIND));
 					}
 				}
 			}
