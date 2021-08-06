@@ -34,6 +34,8 @@ import org.eclipse.lemminx.utils.StringUtils;
  */
 public class CMDTDContentModelProvider implements ContentModelProvider {
 
+	private static final String DOCTYPE_BINDING_KIND = "doctype";
+
 	private static final XMLErrorHandler SILENT_ERROR_HANDLER = new XMLErrorHandler() {
 
 		@Override
@@ -87,7 +89,7 @@ public class CMDTDContentModelProvider implements ContentModelProvider {
 			range = documentType.getPublicIdNode();
 		}
 		return Collections.singleton(new Identifier(documentType.getPublicIdWithoutQuotes(),
-				documentType.getSystemIdWithoutQuotes(), range, "doctype"));
+				documentType.getSystemIdWithoutQuotes(), range, DOCTYPE_BINDING_KIND));
 	}
 
 	@Override

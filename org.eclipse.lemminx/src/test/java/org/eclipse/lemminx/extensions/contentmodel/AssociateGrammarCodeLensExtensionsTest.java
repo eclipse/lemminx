@@ -142,6 +142,6 @@ public class AssociateGrammarCodeLensExtensionsTest {
 				"</xs:schema>";
 		testCodeLensFor(xsd, "test.xsd", //
 				Collections.singletonList(CodeLensKind.OpenUri), //
-				cl(r(0, 0, 0, 0), "http://www.w3.org/2001/XMLSchema (embedded xml.xsd)", OPEN_URI));
+				cl(r(0, 0, 0, 0), "http://www.w3.org/2001/XMLSchema (with embedded xml.xsd)", OPEN_URI));
 	}
 }

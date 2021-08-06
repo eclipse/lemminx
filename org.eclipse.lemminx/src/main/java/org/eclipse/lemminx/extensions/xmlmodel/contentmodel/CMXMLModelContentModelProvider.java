@@ -30,6 +30,7 @@ import org.eclipse.lemminx.utils.StringUtils;
  */
 public class CMXMLModelContentModelProvider implements ContentModelProvider {
 
+	private static final String XML_MODEL_BINDING_KIND = "xml-model";
 	private final ContentModelManager modelManager;
 
 	public CMXMLModelContentModelProvider(ContentModelManager modelManager) {
@@ -59,7 +60,7 @@ public class CMXMLModelContentModelProvider implements ContentModelProvider {
 		for (XMLModel xmlModel : xmlModels) {
 			String href = xmlModel.getHref();
 			if (!StringUtils.isEmpty(href)) {
-				identifiers.add(new Identifier(null, href, xmlModel.getHrefNode(), "xml-model"));
+				identifiers.add(new Identifier(null, href, xmlModel.getHrefNode(), XML_MODEL_BINDING_KIND));
 			}
 		}
 		return identifiers;

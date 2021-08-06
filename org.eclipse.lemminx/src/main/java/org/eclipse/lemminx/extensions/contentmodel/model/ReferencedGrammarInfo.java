@@ -13,6 +13,7 @@ package org.eclipse.lemminx.extensions.contentmodel.model;
 
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelProvider.Identifier;
 import org.eclipse.lemminx.uriresolver.ResolvedURIInfo;
+import org.eclipse.lemminx.uriresolver.URIResolverExtension;
 
 /**
  * Class which holds a referenced grammar information.
@@ -83,4 +84,78 @@ public class ReferencedGrammarInfo {
 		return grammarCacheInfo != null;
 	}
 
+	/**
+	 * Returns the system or public identifier URI and null otherwise.
+	 * 
+	 * @return the system or public identifier URI and null otherwise.
+	 */
+	public String getIdentifierURI() {
+		if (identifier == null) {
+			return null;
+		}
+		String publicId = identifier.getPublicId();
+		String systemId = identifier.getSystemId();
+		return publicId != null ? publicId : systemId;
+	}
+
+	/**
+	 * Returns the binding kind and null otherwise. Binding kind can have values:
+	 * 
+	 * <ul>
+	 * <li>xsi:schemaLocation</li>
+	 * <li>xsi:noNamespaceSchemaLocation</li>
+	 * <li>doctype</li>
+	 * <li>xml-model</li>
+	 * </ul>
+	 * 
+	 * @return the binding kind and null otherwise.
+	 */
+	public String getBindingKind() {
+		return identifier != null ? identifier.getKind() : null;
+	}
+
+	/**
+	 * Returns the resolver which is used to resolve the identifier URI and null
+	 * otherwise. Resolved by can have values:
+	 * 
+	 * <ul>
+	 * <li>catalog</li>
+	 * <li>file association</li>
+	 * <li>embedded catalog.xsd</li>
+	 * <li>embedded xml.xsd</li>
+	 * <li>embedded xslt.xsd</li>
+	 * </ul>
+	 * 
+	 * @return the resolver which is used to resolve the identifier URI and null
+	 *         otherwise.
+	 */
+	public String getResolvedBy() {
+		String resolvedBy = resolvedURIInfo != null ? resolvedURIInfo.getResolverName() : null;
+		return URIResolverExtension.DEFAULT.equals(resolvedBy) ? null : resolvedBy;
+	}
+
+	/**
+	 * Returns the binding kind and resolved by label.
+	 * 
+	 * @param info the referenced grammar information.
+	 * 
+	 * @return the binding kind and resolved by label.
+	 */
+	public static String getBindingKindAndResolvedBy(ReferencedGrammarInfo info) {
+		StringBuilder bindingName = new StringBuilder();
+		String bindingKind = info.getBindingKind();
+		boolean hasKind = bindingKind != null;
+		if (hasKind) {
+			bindingName.append(bindingKind);
+		}
+		String resolverBy = info.getResolvedBy();
+		if (resolverBy != null) {
+			if (bindingName.length() > 0) {
+				bindingName.append(" ");
+			}
+			bindingName.append("with ");
+			bindingName.append(resolverBy);
+		}
+		return bindingName.toString();
+	}
 }

@@ -24,6 +24,8 @@ import org.apache.xerces.xni.parser.XMLInputSource;
  */
 public interface URIResolverExtension extends XMLEntityResolver {
 
+	public static final String DEFAULT = "default";
+	
 	default String getName() {
 		return getClass().getSimpleName();
 	}
