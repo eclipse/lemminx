@@ -9,6 +9,8 @@
 *******************************************************************************/
 package org.eclipse.lemminx.telemetry;
 
+import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lsp4j.InitializedParams;
 import org.eclipse.lsp4j.services.LanguageClient;
 
@@ -23,6 +25,8 @@ public class TelemetryManager {
 	 * "startup" telemetry event name
 	 */
 	private static final String STARTUP_EVENT_NAME = "server.initialized";
+
+	private static final String DOC_OPEN_EVENT_NAME = "server.document.open";
 
 	private final LanguageClient languageClient;
 
@@ -49,6 +53,10 @@ public class TelemetryManager {
 		if (isEnabled()) {
 			telemetryEvent(STARTUP_EVENT_NAME, InitializationTelemetryInfo.getInitializationTelemetryInfo());
 		}
+	}
+
+	public void onDidOpen(DOMDocument document, ContentModelManager manager) {
+		telemetryEvent(DOC_OPEN_EVENT_NAME, DocumentTelemetryInfo.getDocumentTelemetryInfo(document, manager));
 	}
 
 	/**

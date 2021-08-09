@@ -43,7 +43,7 @@ public class URIResolverExtensionManager implements URIResolverExtension, IExter
 
 		@Override
 		public String getName() {
-			return "default";
+			return URIResolverExtension.DEFAULT;
 		}
 
 		@Override

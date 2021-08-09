@@ -13,6 +13,11 @@ When telemetry events are enabled, the following information is emitted when the
     * The free, total, and max VM memory
  * Version information:
     * The server version number
+ * Text Document Information
+   * When a document is opened :
+      * The file extension (eg. `xml`, `xsd`, `dtd`)
+      * The associated grammar types (eg. `none`, `doctype`, `xml-model`, `xsi:schemaLocation`, `xsi:noNamespaceSchemaLocation`)
+      * The resolver used to resolve the grammar identifier (eg. `catalog`, `file association`, `embedded catalog.xsd`, `embedded xml.xsd`, `embedded xslt.xsd`)
  * Note: Does NOT include the `JAVA_HOME` environment variable for privacy reasons
 
 Currently, the startup event is the only telemetry event that is emitted.

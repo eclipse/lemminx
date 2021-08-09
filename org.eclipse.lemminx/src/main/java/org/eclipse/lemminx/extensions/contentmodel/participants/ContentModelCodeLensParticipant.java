@@ -25,11 +25,11 @@ import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMRange;
 import org.eclipse.lemminx.extensions.contentmodel.commands.AssociateGrammarCommand;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
-import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelProvider.Identifier;
 import org.eclipse.lemminx.extensions.contentmodel.model.ReferencedGrammarInfo;
 import org.eclipse.lemminx.services.extensions.codelens.ICodeLensParticipant;
 import org.eclipse.lemminx.services.extensions.codelens.ICodeLensRequest;
 import org.eclipse.lemminx.utils.DOMUtils;
+import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.Command;
@@ -104,19 +104,12 @@ public class ContentModelCodeLensParticipant implements ICodeLensParticipant {
 	}
 
 	private CodeLens createReferencedGrammarLens(ReferencedGrammarInfo info, Range range, boolean canSupportOpenUri) {
-		Identifier identifier = info.getIdentifier();
-		String publicId = identifier.getPublicId();
-		String systemId = identifier.getSystemId();
-		String uri = publicId != null ? publicId : systemId;
+		String uri = info.getIdentifierURI();
 		StringBuilder title = new StringBuilder(uri);
-
-		if (identifier.getKind() != null) {
+		String bindingKind = ReferencedGrammarInfo.getBindingKindAndResolvedBy(info);
+		if (!StringUtils.isEmpty(bindingKind)) {
 			title.append(" (");
-			title.append(identifier.getKind());
-			title.append(")");
-		} else if (info.getResolvedURIInfo().getResolverName() != null) {
-			title.append(" (");
-			title.append(info.getResolvedURIInfo().getResolverName());
+			title.append(bindingKind);
 			title.append(")");
 		}
 

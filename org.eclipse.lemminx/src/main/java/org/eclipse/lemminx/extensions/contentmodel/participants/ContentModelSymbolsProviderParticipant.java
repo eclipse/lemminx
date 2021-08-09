@@ -93,25 +93,12 @@ public class ContentModelSymbolsProviderParticipant implements ISymbolsProviderP
 
 			// Binding symbol information
 			// ex: Binding: xsi:schemaLocation
-			Identifier identifier = info.getIdentifier();
 			// --> binding name
 			StringBuilder bindingName = new StringBuilder("Binding: ");
-			boolean hasKind = identifier != null && identifier.getKind() != null; 
-			if (hasKind) {
-				bindingName.append(identifier.getKind());
-			}
-			String resolverName = resolvedInfo.getResolverName();
-			if (!"default".equals(resolverName)) {
-				if (hasKind) {
-					bindingName.append(" (");
-				}
-				bindingName.append("with ");
-				bindingName.append(resolverName);
-				if (hasKind) {
-					bindingName.append(")");
-				}
-			}
+			bindingName.append(ReferencedGrammarInfo.getBindingKindAndResolvedBy(info));
+
 			// --> binding range
+			Identifier identifier = info.getIdentifier();
 			DOMRange domRange = identifier != null ? identifier.getRange() : null;
 			Range range = domRange != null ? XMLPositionUtility.createRange(domRange) : DUMMY_RANGE;
 			DocumentSymbol bindingInfoSymbol = new DocumentSymbol(bindingName.toString(), SymbolKind.Property, range,

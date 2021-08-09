@@ -215,7 +215,7 @@ public class ReferencedGrammarSymbolsTest {
 								ds(getXMLSchemaFileURI("maven-4.0.0.xsd", true), SymbolKind.File, r(0, 0, 0, 1),
 										r(0, 0, 0, 1), null, //
 										Arrays.asList( //
-												ds("Binding: xsi:schemaLocation (with catalog)", SymbolKind.Property,
+												ds("Binding: xsi:schemaLocation with catalog", SymbolKind.Property,
 														r(2, 55, 2, 98), r(2, 55, 2, 98), null, null), //
 												ds("Cache: false", SymbolKind.Property, r(0, 0, 0, 1), r(0, 0, 0, 1),
 														null, null))))), //
