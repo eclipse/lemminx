@@ -18,9 +18,13 @@ import static org.eclipse.lemminx.client.ClientCommands.OPEN_BINDING_WIZARD;
 import static org.eclipse.lemminx.client.ClientCommands.OPEN_URI;
 
 import java.util.Collections;
+import java.util.function.Consumer;
 
 import org.eclipse.lemminx.client.CodeLensKind;
 import org.eclipse.lemminx.commons.BadLocationException;
+import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
+import org.eclipse.lemminx.extensions.contentmodel.settings.XMLFileAssociation;
+import org.eclipse.lemminx.services.XMLLanguageService;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -143,5 +147,30 @@ public class AssociateGrammarCodeLensExtensionsTest {
 		testCodeLensFor(xsd, "test.xsd", //
 				Collections.singletonList(CodeLensKind.OpenUri), //
 				cl(r(0, 0, 0, 0), "http://www.w3.org/2001/XMLSchema (with embedded xml.xsd)", OPEN_URI));
+	}
+
+	@Test
+	public void referencedGrammarUsingFileAssociation() throws BadLocationException {
+		Consumer<XMLLanguageService> configuration = ls -> {
+			ContentModelManager contentModelManager = ls.getComponent(ContentModelManager.class);
+			// Use root URI which ends with slash
+			contentModelManager.setRootURI("src/test/resources/xsd/");
+			contentModelManager.setFileAssociations(createXSDAssociationsNoNamespaceSchemaLocationLike(""));
+		};
+
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"  <Bad-Root></Bad-Root>";
+
+		testCodeLensFor(xml, "file:///test/resources.xml", new XMLLanguageService(), //
+				Collections.singletonList(CodeLensKind.OpenUri), //
+				configuration, //
+				cl(r(0, 0, 0, 0), " (with file association)", OPEN_URI));
+	}
+
+	private static XMLFileAssociation[] createXSDAssociationsNoNamespaceSchemaLocationLike(String baseSystemId) {
+		XMLFileAssociation resources = new XMLFileAssociation();
+		resources.setPattern("**/*resources*.xml");
+		resources.setSystemId(baseSystemId + "resources.xsd");
+		return new XMLFileAssociation[] { resources };
 	}
 }
