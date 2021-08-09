@@ -1088,6 +1088,11 @@ public class XMLAssert {
 
 	public static void testCodeLensFor(String value, String fileURI, XMLLanguageService xmlLanguageService,
 			List<String> codelensKinds, CodeLens... expected) {
+		testCodeLensFor(value, fileURI, xmlLanguageService, codelensKinds, null, expected);
+	}
+
+	public static void testCodeLensFor(String value, String fileURI, XMLLanguageService xmlLanguageService,
+			List<String> codelensKinds, Consumer<XMLLanguageService> customConfiguration, CodeLens... expected) {
 		TextDocument document = new TextDocument(value, fileURI != null ? fileURI : "test://test/test.xml");
 
 		if (xmlLanguageService == null) {
@@ -1101,6 +1106,11 @@ public class XMLAssert {
 		DOMDocument xmlDocument = DOMParser.getInstance().parse(document,
 				xmlLanguageService.getResolverExtensionManager());
 		xmlLanguageService.setDocumentProvider((uri) -> xmlDocument);
+
+		if (customConfiguration != null) {
+			xmlLanguageService.initializeIfNeeded();
+			customConfiguration.accept(xmlLanguageService);
+		}
 
 		XMLCodeLensSettings codeLensSettings = new XMLCodeLensSettings();
 		ExtendedCodeLensCapabilities codeLensCapabilities = new ExtendedCodeLensCapabilities(

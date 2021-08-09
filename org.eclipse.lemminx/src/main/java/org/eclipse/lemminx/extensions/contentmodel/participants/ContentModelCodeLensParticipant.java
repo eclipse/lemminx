@@ -105,7 +105,7 @@ public class ContentModelCodeLensParticipant implements ICodeLensParticipant {
 
 	private CodeLens createReferencedGrammarLens(ReferencedGrammarInfo info, Range range, boolean canSupportOpenUri) {
 		String uri = info.getIdentifierURI();
-		StringBuilder title = new StringBuilder(uri);
+		StringBuilder title = new StringBuilder(uri != null ? uri : "");
 		String bindingKind = ReferencedGrammarInfo.getBindingKindAndResolvedBy(info);
 		if (!StringUtils.isEmpty(bindingKind)) {
 			title.append(" (");
