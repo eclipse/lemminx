@@ -209,10 +209,10 @@ public class XMLTextDocumentService implements TextDocumentService {
 		if (extendedClientCapabilities != null) {
 			// Extended client capabilities
 			sharedSettings.getCodeLensSettings().setCodeLens(extendedClientCapabilities.getCodeLens());
-			sharedSettings
-					.setActionableNotificationSupport(extendedClientCapabilities.isActionableNotificationSupport());
-			sharedSettings.setOpenSettingsCommandSupport(extendedClientCapabilities.isOpenSettingsCommandSupport());
-			sharedSettings.setBindingWizardSupport(extendedClientCapabilities.isBindingWizardSupport());
+			sharedSettings.setActionableNotificationSupport(extendedClientCapabilities.isActionableNotificationSupport());
+			sharedSettings.getCommandCapabilities().setCapabilities(extendedClientCapabilities.getCommands());
+			// sharedSettings.setOpenSettingsCommandSupport(extendedClientCapabilities.isOpenSettingsCommandSupport());
+			// sharedSettings.setBindingWizardSupport(extendedClientCapabilities.isBindingWizardSupport());
 		}
 
 	}
