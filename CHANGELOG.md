@@ -1,5 +1,28 @@
 # Change Log
 
+## [0.18.0](https://github.com/eclipse/lemminx/milestone/26?closed=1) (August 9, 2021)
+
+### Enhancements
+
+ * Added CodeLens that displays referenced grammars at the top of an XML file. See [#1092](https://github.com/eclipse/lemminx/issues/1092).
+ * Added CodeAction to bind an XML document to an existing schema. See [#1088](https://github.com/eclipse/lemminx/pull/1088).
+ * Added request 'canBindGrammar' to help implement binding an XML document to an existing schema. See [#1084](https://github.com/eclipse/lemminx/pull/1084).
+ * Let scanner check for whitespace. See [#1077](https://github.com/eclipse/lemminx/pull/1077).
+ * Provide Document Lifecycle Participant for tracking `didOpen`, `did*`. See [#603](https://github.com/eclipse/lemminx/issues/603).
+ * Report telemetry events about text documents that are opened: file extension, grammar binding strategy, grammar resolving strategy. See [#1066](https://github.com/eclipse/lemminx/issues/1066).
+
+### Bug Fixes
+
+ * Fixed stackoverflow and resource leak when calculating folding ranges. See [#1074](https://github.com/eclipse/lemminx/pull/1074).
+ * Aligned tag closing bracket with attribute when `splitAttributes` and `closingBracketNewLine` are enabled. See [#1085](https://github.com/eclipse/lemminx/pull/1085).
+ * Fixed `src-import.3.1` error range. See [#1075](https://github.com/eclipse/lemminx/issues/1075).
+ * Fixed `src-import.3.2` error range. See [#1069](https://github.com/eclipse/lemminx/issues/1069).
+ * Adding closing bracket (`>`) in attribute quotation marks causes repeated auto-complete of the closing tag. See [#1083](https://github.com/redhat-developer/vscode-xml/issues/547).
+
+### Build
+
+ * Update jarsigner plugin to fix Jenkins builds. See [#1095](https://github.com/eclipse/lemminx/issues/1095).
+
 ## [0.17.1](https://github.com/eclipse/lemminx/milestone/25?closed=1) (June 25, 2021)
 
 ### Bug Fixes
