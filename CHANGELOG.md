@@ -1,6 +1,6 @@
 # Change Log
 
-## [0.18.0](https://github.com/eclipse/lemminx/milestone/26?closed=1) (August 9, 2021)
+## [0.18.0](https://github.com/eclipse/lemminx/milestone/26?closed=1) (August 10, 2021)
 
 ### Enhancements
 
