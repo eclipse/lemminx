@@ -148,7 +148,7 @@ public class AssociateGrammarCommand extends AbstractDOMDocumentCommandHandler {
 	private static String getTargetNamespace(String xsdURI) {
 		TargetNamespaceHandler handler = new TargetNamespaceHandler();
 		try {
-			SAXParserFactory factory = SAXParserFactory.newInstance();
+			SAXParserFactory factory = DOMUtils.newSAXParserFactory();
 			SAXParser saxParser = factory.newSAXParser();
 			saxParser.parse(new URL(xsdURI).openStream(), handler);
 		} catch (Exception e) {

@@ -21,6 +21,7 @@ import javax.xml.parsers.SAXParserFactory;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.extensions.xsd.utils.XSDUtils;
+import org.eclipse.lemminx.utils.DOMUtils;
 import org.eclipse.lemminx.utils.StringUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -103,7 +104,7 @@ public class DataType {
 
 	private static Map<String, DataType> loadDataTypes() {
 		try {
-			SAXParserFactory factory = SAXParserFactory.newInstance();
+			SAXParserFactory factory = DOMUtils.newSAXParserFactory();
 			SAXParser saxParser = factory.newSAXParser();
 			DataTypeHandler handler = new DataTypeHandler();
 			saxParser.parse(new InputSource(DataType.class.getResourceAsStream("/schemas/xsd/datatypes.xml")), handler);
