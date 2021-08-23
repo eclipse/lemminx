@@ -15,10 +15,15 @@ import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
+
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMParser;
 import org.eclipse.lemminx.uriresolver.URIResolverExtensionManager;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
 
 /**
  * DOM Utilities.
@@ -133,5 +138,23 @@ public class DOMUtils {
 			LOGGER.log(Level.SEVERE, "Error while loading XML Schema '" + documentURI + "'.", e);
 			return null;
 		}
+	}
+
+	/**
+	 * Returns an instance of SAX parser factory by disabling external entities
+	 * declarations.
+	 * 
+	 * @return an instance of SAX parser factory by disabling external entities
+	 *         declarations.
+	 * @throws SAXNotRecognizedException
+	 * @throws SAXNotSupportedException
+	 * @throws ParserConfigurationException
+	 */
+	public static SAXParserFactory newSAXParserFactory()
+			throws SAXNotRecognizedException, SAXNotSupportedException, ParserConfigurationException {
+		SAXParserFactory factory = SAXParserFactory.newInstance();
+		// to be more secure, completely disable DOCTYPE declaration:
+		factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+		return factory;
 	}
 }

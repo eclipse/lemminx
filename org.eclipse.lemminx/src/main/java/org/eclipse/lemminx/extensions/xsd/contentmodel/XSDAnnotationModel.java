@@ -31,6 +31,7 @@ import org.apache.xerces.xs.XSMultiValueFacet;
 import org.apache.xerces.xs.XSObject;
 import org.apache.xerces.xs.XSObjectList;
 import org.apache.xerces.xs.datatypes.ObjectList;
+import org.eclipse.lemminx.utils.DOMUtils;
 import org.eclipse.lemminx.utils.StringUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -183,7 +184,7 @@ class XSDAnnotationModel {
 
 	public static XSDAnnotationModel load(XSAnnotation annotation) {
 		try {
-			SAXParserFactory factory = SAXParserFactory.newInstance();
+			SAXParserFactory factory = DOMUtils.newSAXParserFactory();
 			SAXParser saxParser = factory.newSAXParser();
 			XSAnnotationHandler handler = new XSAnnotationHandler();
 			saxParser.parse(new InputSource(new StringReader(annotation.getAnnotationString())), handler);
