@@ -11,6 +11,8 @@
 *******************************************************************************/
 package org.eclipse.lemminx.telemetry;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,11 +22,14 @@ import java.util.Set;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.extensions.contentmodel.model.ReferencedGrammarInfo;
+import org.eclipse.lemminx.utils.DOMUtils;
+import org.eclipse.lemminx.utils.URIUtils;
 
 public class DocumentTelemetryInfo {
 
 	private static final String DOC_PROP_EXT = "file.extension";
 	private static final String DOC_PROP_RESOLVER = "file.resolver";
+	private static final String DOC_PROP_IDENTIFIER = "file.identifier";
 	private static final String DOC_PROP_GRAMMAR_NONE = "file.grammar.none";
 	private static final String DOC_PROP_GRAMMAR_DOCTYPE = "file.grammar.doctype";
 	private static final String DOC_PROP_GRAMMAR_XMLMODEL = "file.grammar.xmlmodel";
@@ -35,20 +40,23 @@ public class DocumentTelemetryInfo {
 		String uri = doc.getDocumentURI();
 		int index = uri.lastIndexOf('.');
 		String fileExtension = uri.substring(index + 1, uri.length()).toLowerCase();
+		boolean isXML = !DOMUtils.isXSD(doc) && !DOMUtils.isDTD(uri);
 		Set<ReferencedGrammarInfo> referencedGrammarInfos = manager.getReferencedGrammarInfos(doc);
 		HashMap<String, Object> props = new HashMap<>();
 		props.put(DOC_PROP_EXT, fileExtension);
 
 		if (referencedGrammarInfos.isEmpty()) {
-			if ("xml".equals(fileExtension)) {
+			if (isXML) {
 				props.put(DOC_PROP_GRAMMAR_NONE, true);
 			}
 		} else {
 			List<String> resolvers = new ArrayList<String>();
+			List<String> identifiers = new ArrayList<String>();
 			for (ReferencedGrammarInfo info : referencedGrammarInfos) {
 				String kind = info.getBindingKind() == null ? "none" : info.getBindingKind();
 				String resolver = info.getResolvedBy();
-				if ("xml".equals(fileExtension)) {
+				String identifier = info.getIdentifierURI();
+				if (isXML) {
 					switch (kind) {
 					case "none":
 						props.put(DOC_PROP_GRAMMAR_NONE, true);
@@ -67,10 +75,32 @@ public class DocumentTelemetryInfo {
 						break;
 					}
 				}
+				if (identifier != null) {
+					try {
+						// non-local identifiers only
+						if (new URI(identifier).getScheme() != null && !URIUtils.isFileResource(identifier)) {
+							int limit = Math.min(identifier.length(), 200); // 200 char limit
+							identifiers.add(identifier.substring(0, limit));
+						}
+					} catch (URISyntaxException e) {
+						// continue
+					}
+				}
 				resolvers.add(resolver == null ? "default" : resolver);
 			}
 
-			props.put(DOC_PROP_RESOLVER, resolvers);
+			if (resolvers.size() == 1) {
+				props.put(DOC_PROP_RESOLVER, resolvers.iterator().next());
+			} else {
+				props.put(DOC_PROP_RESOLVER, resolvers);
+			}
+			if (!identifiers.isEmpty()) {
+				if (identifiers.size() == 1) {
+					props.put(DOC_PROP_IDENTIFIER, identifiers.iterator().next());
+				} else {
+					props.put(DOC_PROP_IDENTIFIER, identifiers);
+				}
+			}
 		}
 		return props;
 	}
