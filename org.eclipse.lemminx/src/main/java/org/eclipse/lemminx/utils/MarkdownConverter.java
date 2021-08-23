@@ -24,7 +24,7 @@ import com.overzealous.remark.Options.Tables;
 import com.overzealous.remark.Remark;
 
 import org.jsoup.safety.Cleaner;
-import org.jsoup.safety.Whitelist;
+import org.jsoup.safety.Safelist;
 
 /**
  * Converts HTML content into Markdown equivalent.
@@ -57,12 +57,12 @@ public class MarkdownConverter {
 
 			Cleaner c = (Cleaner) cleanerField.get(remark);
 
-			Field whitelistField = Cleaner.class.getDeclaredField("whitelist");
-			whitelistField.setAccessible(true);
+			Field safelistField = Cleaner.class.getDeclaredField("safelist");
+			safelistField.setAccessible(true);
 
-			Whitelist w = (Whitelist) whitelistField.get(c);
+			Safelist s = (Safelist) safelistField.get(c);
 
-			w.addProtocols("a", "href", "file");
+			s.addProtocols("a", "href", "file");
 		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
 			LOGGER.severe("Unable to modify jsoup to include file protocols "+ e.getMessage());
 		}
