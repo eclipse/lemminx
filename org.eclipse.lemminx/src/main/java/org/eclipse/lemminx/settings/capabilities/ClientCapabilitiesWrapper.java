@@ -12,10 +12,15 @@
  */
 package org.eclipse.lemminx.settings.capabilities;
 
+import java.util.Optional;
+
 import org.eclipse.lemminx.client.ExtendedClientCapabilities;
 import org.eclipse.lsp4j.ClientCapabilities;
 import org.eclipse.lsp4j.DynamicRegistrationCapabilities;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
+import org.eclipse.lsp4j.WorkspaceClientCapabilities;
+import org.eclipse.lsp4j.WorkspaceFoldersOptions;
+import org.eclipse.lsp4j.WorkspaceServerCapabilities;
 
 /**
  * Determines if a client supports a specific capability dynamically
@@ -127,5 +132,12 @@ public class ClientCapabilitiesWrapper {
 
 	public ExtendedClientCapabilities getExtendedCapabilities() {
 		return extendedCapabilities;
+	}
+
+	public boolean isWorkspaceFoldersSupported() {
+		return Optional.ofNullable(this.capabilities)
+				.map(ClientCapabilities::getWorkspace)
+				.map(WorkspaceClientCapabilities::getWorkspaceFolders)
+				.filter(Boolean.TRUE::equals).isPresent();
 	}
 }
