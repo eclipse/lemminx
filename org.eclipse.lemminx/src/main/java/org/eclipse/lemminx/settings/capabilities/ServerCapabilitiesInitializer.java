@@ -18,6 +18,8 @@ import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConsta
 
 import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
+import org.eclipse.lsp4j.WorkspaceFoldersOptions;
+import org.eclipse.lsp4j.WorkspaceServerCapabilities;
 
 /**
  * All default capabilities of this server
@@ -58,6 +60,12 @@ public class ServerCapabilitiesInitializer {
 		serverCapabilities.setReferencesProvider(!clientCapabilities.isReferencesDynamicRegistrationSupported());
 		serverCapabilities.setLinkedEditingRangeProvider(!clientCapabilities.isLinkedEditingRangeDynamicRegistered());
 
+		if (clientCapabilities.isWorkspaceFoldersSupported()) {
+			WorkspaceFoldersOptions workspaceFolders = new WorkspaceFoldersOptions();
+			workspaceFolders.setSupported(true);
+			workspaceFolders.setChangeNotifications(true);
+			serverCapabilities.setWorkspace(new WorkspaceServerCapabilities(workspaceFolders));
+		}
 		if (!clientCapabilities.isLinkDynamicRegistrationSupported()) {
 			serverCapabilities.setDocumentLinkProvider(DEFAULT_LINK_OPTIONS);
 		}
