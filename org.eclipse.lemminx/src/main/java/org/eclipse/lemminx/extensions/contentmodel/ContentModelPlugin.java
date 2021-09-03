@@ -17,6 +17,7 @@ import java.util.Objects;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.commands.AssociateGrammarCommand;
 import org.eclipse.lemminx.extensions.contentmodel.commands.CheckBoundGrammarCommand;
+import org.eclipse.lemminx.extensions.contentmodel.commands.CheckFilePatternCommand;
 import org.eclipse.lemminx.extensions.contentmodel.commands.XMLValidationAllFilesCommand;
 import org.eclipse.lemminx.extensions.contentmodel.commands.XMLValidationFileCommand;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
@@ -203,6 +204,8 @@ public class ContentModelPlugin implements IXMLExtension {
 					new AssociateGrammarCommand(documentProvider));
 			commandService.registerCommand(CheckBoundGrammarCommand.COMMAND_ID,
 					new CheckBoundGrammarCommand(documentProvider));
+			commandService.registerCommand(CheckFilePatternCommand.COMMAND_ID,
+					new CheckFilePatternCommand());
 		}
 	}
 
@@ -225,6 +228,7 @@ public class ContentModelPlugin implements IXMLExtension {
 			commandService.unregisterCommand(XMLValidationAllFilesCommand.COMMAND_ID);
 			commandService.unregisterCommand(AssociateGrammarCommand.COMMAND_ID);
 			commandService.unregisterCommand(CheckBoundGrammarCommand.COMMAND_ID);
+			commandService.unregisterCommand(CheckFilePatternCommand.COMMAND_ID);
 		}
 	}
 
