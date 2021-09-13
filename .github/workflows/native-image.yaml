@@ -1,42 +1,83 @@
-name: native-image
-on: [push, pull_request]
-jobs:
-  build-binary-unix:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: true
-      matrix:
-        os: [macos-latest, ubuntu-latest]
-        include:
-          - os: macos-latest
-            label: 'darwin'
-          - os: ubuntu-latest
-            label: 'linux'
-    steps:
-    - uses: actions/checkout@v2
-    - uses: DeLaGuardo/setup-graalvm@8bbfe44ef9c6f5c07e5af036a1bffd561c037d18
-      with:
-        graalvm-version: '20.3.0.java8'
-    - run: ./mvnw package -Dnative -DskipTests $([ $(uname -s) = Linux ] && echo "-Dgraalvm.static=--static") -Dcbi.jarsigner.skip=true
-    - run: mv org.eclipse.lemminx/target/lemminx-* lemminx-$(git rev-parse --short "$GITHUB_SHA")-${{ matrix.label }}
-    - uses: actions/upload-artifact@v2
-      with:
-        name: lemminx-${{ matrix.label }}
-        path: lemminx-*-${{ matrix.label }}
-        if-no-files-found: error
-  build-binary-windows:
-    runs-on: windows-latest
-    steps:
-    - uses: actions/checkout@v2
-    - uses: ilammy/msvc-dev-cmd@v1.4.1
-    - uses: DeLaGuardo/setup-graalvm@8bbfe44ef9c6f5c07e5af036a1bffd561c037d18
-      with:
-        graalvm-version: '20.3.0.java11'
-    - run: Invoke-Expression -Command "$Env:JAVA_HOME/bin/gu install native-image"
-    - run: .\mvnw.cmd package -Dnative -DskipTests -D cbi.jarsigner.skip=true
-    - run: mv org.eclipse.lemminx\target\lemminx-*.exe lemminx-$(git rev-parse --short "$Env:GITHUB_SHA")-win32.exe
-    - uses: actions/upload-artifact@v2
-      with:
-        name: lemminx-win32
-        path: lemminx-*-win32.exe
-        if-no-files-found: error
+  name: native-image
+  on: [push, pull_request]
+  jobs:
+    build-binary-unix:
+      runs-on: ${{ matrix.os }}
+      env:
+        GRAALVM_VERSION: 20.3.0.java8
+      strategy:
+        fail-fast: true
+        matrix:
+          os: [macos-latest, ubuntu-latest]
+          include:
+            - os: macos-latest
+              label: 'darwin'
+            - os: ubuntu-latest
+              label: 'linux'
+      steps:
+      - uses: actions/checkout@v2
+      - name: Cache Maven dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.m2/repository
+            ~/.m2/wrapper
+            !~/.m2/repository/org/eclipse/lemminx
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Cache GraalVM
+        uses: actions/cache@v2
+        with:
+          path: |
+            /opt/hostedtoolcache/GraalVM
+            ~/hostedtoolcache/GraalVM
+          key: ${{ runner.os }}-graalvm-${{env.GRAALVM_VERSION}}
+          restore-keys: |
+            ${{ runner.os }}-graalvm-
+      - uses: DeLaGuardo/setup-graalvm@8bbfe44ef9c6f5c07e5af036a1bffd561c037d18
+        with:
+          graalvm-version: ${{env.GRAALVM_VERSION}}
+      - run: ./mvnw package -Dnative -DskipTests $([ $(uname -s) = Linux ] && echo "-Dgraalvm.static=--static") -Dcbi.jarsigner.skip=true
+      - run: mv org.eclipse.lemminx/target/lemminx-* lemminx-$(git rev-parse --short "$GITHUB_SHA")-${{ matrix.label }}
+      - uses: actions/upload-artifact@v2
+        with:
+          name: lemminx-${{ matrix.label }}
+          path: lemminx-*-${{ matrix.label }}
+          if-no-files-found: error
+    build-binary-windows:
+      runs-on: windows-latest
+      env:
+        GRAALVM_VERSION: 20.3.0.java11
+      steps:
+      - uses: actions/checkout@v2
+      - name: Cache Maven dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.m2/repository
+            ~/.m2/wrapper
+            !~/.m2/repository/org/eclipse/lemminx
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Cache GraalVM
+        uses: actions/cache@v2
+        with:
+          path: |
+            C:\hostedtoolcache\windows\GraalVM
+          key: ${{ runner.os }}-graalvm-${{env.GRAALVM_VERSION}}
+          restore-keys: |
+            ${{ runner.os }}-graalvm-
+      - uses: ilammy/msvc-dev-cmd@v1.4.1
+      - uses: DeLaGuardo/setup-graalvm@8bbfe44ef9c6f5c07e5af036a1bffd561c037d18
+        with:
+          graalvm-version: '${{env.GRAALVM_VERSION}}'
+      - run: Invoke-Expression -Command "$Env:JAVA_HOME/bin/gu install native-image"
+      - run: .\mvnw.cmd package -Dnative -DskipTests -D cbi.jarsigner.skip=true
+      - run: mv org.eclipse.lemminx\target\lemminx-*.exe lemminx-$(git rev-parse --short "$Env:GITHUB_SHA")-win32.exe
+      - uses: actions/upload-artifact@v2
+        with:
+          name: lemminx-win32
+          path: lemminx-*-win32.exe
+          if-no-files-found: error
