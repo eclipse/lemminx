@@ -1905,7 +1905,7 @@
 	{
 		"name": "org.jsoup.safety.Cleaner",
 		"fields": [{
-			"name": "whitelist"
+			"name": "safelist"
 		}]
 	},
 	{
