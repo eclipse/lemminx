@@ -17,6 +17,7 @@ import java.util.List;
 import org.apache.xerces.xni.parser.XMLEntityResolver;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
+import org.eclipse.lemminx.extensions.xsd.XSDPlugin;
 import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lemminx.utils.DOMUtils;
 import org.eclipse.lsp4j.Diagnostic;
@@ -28,6 +29,12 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
  */
 public class XSDDiagnosticsParticipant implements IDiagnosticsParticipant {
 
+	private final XSDPlugin xsdPlugin;
+
+	public XSDDiagnosticsParticipant(XSDPlugin xsdPlugin) {
+		this.xsdPlugin = xsdPlugin;
+	}
+	
 	@Override
 	public void doDiagnostics(DOMDocument xmlDocument, List<Diagnostic> diagnostics,
 			XMLValidationSettings validationSettings, CancelChecker cancelChecker) {
@@ -39,7 +46,8 @@ public class XSDDiagnosticsParticipant implements IDiagnosticsParticipant {
 		// associations settings., ...)
 		XMLEntityResolver entityResolver = xmlDocument.getResolverExtensionManager();
 		// Process validation
-		XSDValidator.doDiagnostics(xmlDocument, entityResolver, diagnostics, validationSettings.isRelatedInformation(), cancelChecker);
+		XSDValidator.doDiagnostics(xmlDocument, entityResolver, diagnostics, validationSettings,
+				xsdPlugin.getContentModelManager(), cancelChecker);
 	}
 
 }

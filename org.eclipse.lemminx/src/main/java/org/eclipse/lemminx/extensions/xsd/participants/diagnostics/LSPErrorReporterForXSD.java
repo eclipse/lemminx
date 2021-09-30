@@ -13,12 +13,19 @@
 package org.eclipse.lemminx.extensions.xsd.participants.diagnostics;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.xerces.xni.XMLLocator;
+import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
+import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSchemaErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCode;
-import org.eclipse.lemminx.extensions.xerces.AbstractLSPErrorReporter;
+import org.eclipse.lemminx.extensions.xerces.AbstractReferencedGrammarLSPErrorReporter;
+import org.eclipse.lemminx.extensions.xerces.ReferencedGrammarDiagnosticsInfo;
 import org.eclipse.lemminx.extensions.xsd.participants.XSDErrorCode;
+import org.eclipse.lemminx.extensions.xsd.utils.XSDUtils;
+import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Range;
@@ -31,41 +38,78 @@ import org.xml.sax.ErrorHandler;
  * LSP range.
  *
  */
-public class LSPErrorReporterForXSD extends AbstractLSPErrorReporter {
+public class LSPErrorReporterForXSD extends AbstractReferencedGrammarLSPErrorReporter {
 
 	private static final String XSD_DIAGNOSTIC_SOURCE = "xsd";
 
-	public LSPErrorReporterForXSD(DOMDocument xmlDocument, List<Diagnostic> diagnostics, boolean hasRelatedInfo) {
-		super(XSD_DIAGNOSTIC_SOURCE, xmlDocument, diagnostics, hasRelatedInfo);
+	public LSPErrorReporterForXSD(DOMDocument xmlDocument, List<Diagnostic> diagnostics,
+			ContentModelManager contentModelManager, boolean hasRelatedInformation,
+			Map<String, ReferencedGrammarDiagnosticsInfo> referencedGrammarDiagnosticsInfoCache) {
+		super(XSD_DIAGNOSTIC_SOURCE, xmlDocument, diagnostics, contentModelManager, hasRelatedInformation,
+				referencedGrammarDiagnosticsInfoCache);
 	}
 
-	/**
-	 * Create the LSP range from the SAX error.
-	 *
-	 * @param location
-	 * @param key
-	 * @param arguments
-	 * @param document
-	 * @return the LSP range from the SAX error.
-	 */
 	@Override
 	protected Range toLSPRange(XMLLocator location, String key, Object[] arguments, String message,
-			DiagnosticSeverity diagnosticSeverity, boolean fatalError, DOMDocument document) {
+			DiagnosticSeverity diagnosticSeverity, boolean fatalError, DOMDocument document,
+			String documentOrGrammarURI, boolean errorForDocument) {
 		// try adjust positions for XSD error
 		XSDErrorCode xsdCode = XSDErrorCode.get(key);
 		if (xsdCode != null) {
-			Range range = XSDErrorCode.toLSPRange(location, xsdCode, arguments, document);
-			if (range != null) {
-				return range;
+			if (errorForDocument || XSDErrorCode.src_import_1_2.equals(xsdCode)
+					|| XSDErrorCode.src_import_3_1.equals(xsdCode) || XSDErrorCode.src_import_3_2.equals(xsdCode)) {
+				Range range = XSDErrorCode.toLSPRange(location, xsdCode, arguments, document);
+				if (range != null) {
+					return range;
+				}
+			} else {
+				fillReferencedGrammarDiagnostic(location, key, arguments, message, diagnosticSeverity, fatalError,
+						document.getResolverExtensionManager(), null, null, null, xsdCode, documentOrGrammarURI);
+				return NO_RANGE;
 			}
 		}
+		// try adjust positions for XML syntax error
 		XMLSyntaxErrorCode syntaxCode = XMLSyntaxErrorCode.get(key);
 		if (syntaxCode != null) {
-			Range range = XMLSyntaxErrorCode.toLSPRange(location, syntaxCode, arguments, document);
-			if (range != null) {
-				return range;
+			if (errorForDocument) {
+				Range range = XMLSyntaxErrorCode.toLSPRange(location, syntaxCode, arguments, document);
+				if (range != null) {
+					return range;
+				}
+			} else {
+				fillReferencedGrammarDiagnostic(location, key, arguments, message, diagnosticSeverity, fatalError,
+						document.getResolverExtensionManager(), syntaxCode, null, null, null, documentOrGrammarURI);
+				return NO_RANGE;
 			}
 		}
+		// try adjust positions for XML schema error
+		XMLSchemaErrorCode schemaCode = XMLSchemaErrorCode.get(key);
+		if (schemaCode != null) {
+			if (errorForDocument) {
+				Range range = XMLSchemaErrorCode.toLSPRange(location, schemaCode, arguments, document);
+				if (range != null) {
+					return range;
+				}
+			} else {
+				fillReferencedGrammarDiagnostic(location, key, arguments, message, diagnosticSeverity, fatalError,
+						document.getResolverExtensionManager(), null, schemaCode, null, null, documentOrGrammarURI);
+				return NO_RANGE;
+			}
+		}
+
 		return null;
 	}
+
+	@Override
+	protected Range getReferencedGrammarRange(String grammarURI) {
+		// search grammar uri from xs:include/@schemaLocation or
+		// xs:import/@schemaLocation which reference the grammar URI
+		DOMAttr schemaLocationAttr = XSDUtils.findSchemaLocationAttrByURI(getDOMDocument(), grammarURI);
+		if (schemaLocationAttr != null) {
+			return XMLPositionUtility.selectAttributeValue(schemaLocationAttr);
+		}
+		// Set the error range in the root start tag
+		return XMLPositionUtility.selectRootStartTag(getDOMDocument());
+	}
+
 }

@@ -64,7 +64,9 @@ public class TelemetryManager {
 	 * client to log a telemetry event.
 	 */
 	private void telemetryEvent(String eventName, Object object) {
-		languageClient.telemetryEvent(new TelemetryEvent(eventName, object));
+		if (languageClient != null) {
+			languageClient.telemetryEvent(new TelemetryEvent(eventName, object));
+		}
 	}
 
 }

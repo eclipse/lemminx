@@ -38,6 +38,7 @@ import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.cvc_
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.cvc_enumeration_validCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.cvc_type_3_1_1CodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.schema_reference_4CodeAction;
+import org.eclipse.lemminx.extensions.xsd.utils.XSDUtils;
 import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IXMLErrorCode;
 import org.eclipse.lemminx.settings.SharedSettings;
@@ -176,45 +177,63 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 			}
 			return XMLPositionUtility.selectTrimmedText(offset, document);
 		}
-		case SchemaLocation: { //xml xsi:schemaLocation
+		case SchemaLocation: { // xml xsi:schemaLocation
 			SchemaLocation schemaLocation = document.getSchemaLocation();
 			DOMRange locationRange = schemaLocation.getAttr().getNodeAttrValue();
 			return locationRange != null ? XMLPositionUtility.createRange(locationRange) : null;
 		}
-		/**
-		 * This error code occurs when an XSD file path is invalid in the following attributes:
-		 * 1. xml-model href
-		 * 2. xsi:schemaLocation
-		 * 3. xsi:noNamespaceSchemaLocation
-		 */
-		case schema_reference_4: {
-			String hrefLocation = arguments.length == 1 ? (String) arguments[0] : null;
-			// Check if location comes from a xml-model/@href
-			DOMRange locationRange = XMLModelUtils.getHrefNode(document, hrefLocation);
-			if (locationRange == null) {
-				NoNamespaceSchemaLocation noNamespaceSchemaLocation = document.getNoNamespaceSchemaLocation();
-				if (noNamespaceSchemaLocation != null) {
-					locationRange = noNamespaceSchemaLocation.getAttr().getNodeAttrValue();
-				} else {
-					SchemaLocation schemaLocation = document.getSchemaLocation();
-					if (schemaLocation != null) {
-						String invalidSchemaPath = arguments[0] instanceof String ? (String) arguments[0] : null;
 
-						if (invalidSchemaPath != null) {
-							for (SchemaLocationHint locHintRange : schemaLocation.getSchemaLocationHints()) {
-								String expandedHint = getResolvedLocation(document.getDocumentURI(),
-										locHintRange.getHint());
-								if (invalidSchemaPath.equals(expandedHint)) {
-									return XMLPositionUtility.createRange(locHintRange);
+		case schema_reference_4: {
+			String grammarURI = arguments.length == 1 ? (String) arguments[0] : null;
+			if (DOMUtils.isXSD(document)) {
+				//
+				// This error code occurs in XSD document when an XSD file path is invalid in
+				// the following
+				// attributes:
+				// 1. xsd:import/@schemaLocation
+				// 2. xsd:include/@schemaLocation
+				//
+				// search grammar uri from xs:include/@schemaLocation or
+				// xs:import/@schemaLocation which reference the grammar URI
+				DOMAttr schemaLocationAttr = XSDUtils.findSchemaLocationAttrByURI(document, grammarURI);
+				if (schemaLocationAttr != null) {
+					return XMLPositionUtility.selectAttributeValue(schemaLocationAttr);
+				}
+			} else {
+				//
+				// This error code occurs when an XSD file path is invalid in the following
+				// attributes:
+				// 1. xml-model href
+				// 2. xsi:schemaLocation
+				// 3. xsi:noNamespaceSchemaLocation
+				//
+				// Check if location comes from a xml-model/@href
+				DOMRange locationRange = XMLModelUtils.getHrefNode(document, grammarURI);
+				if (locationRange == null) {
+					NoNamespaceSchemaLocation noNamespaceSchemaLocation = document.getNoNamespaceSchemaLocation();
+					if (noNamespaceSchemaLocation != null) {
+						locationRange = noNamespaceSchemaLocation.getAttr().getNodeAttrValue();
+					} else {
+						SchemaLocation schemaLocation = document.getSchemaLocation();
+						if (schemaLocation != null) {
+							String invalidSchemaPath = arguments[0] instanceof String ? (String) arguments[0] : null;
+
+							if (invalidSchemaPath != null) {
+								for (SchemaLocationHint locHintRange : schemaLocation.getSchemaLocationHints()) {
+									String expandedHint = getResolvedLocation(document.getDocumentURI(),
+											locHintRange.getHint());
+									if (invalidSchemaPath.equals(expandedHint)) {
+										return XMLPositionUtility.createRange(locHintRange);
+									}
 								}
 							}
+							// Highlight entire attribute if finding the location hint fails
+							locationRange = schemaLocation.getAttr().getNodeAttrValue();
 						}
-						// Highlight entire attribute if finding the location hint fails
-						locationRange = schemaLocation.getAttr().getNodeAttrValue();
 					}
 				}
+				return locationRange != null ? XMLPositionUtility.createRange(locationRange) : null;
 			}
-			return locationRange != null ? XMLPositionUtility.createRange(locationRange) : null;
 		}
 		case cvc_attribute_3:
 		case cvc_complex_type_3_1:
@@ -279,7 +298,8 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 		codeActions.put(cvc_complex_type_2_1.getCode(), new cvc_complex_type_2_1CodeAction());
 		codeActions.put(TargetNamespace_1.getCode(), new TargetNamespace_1CodeAction());
 		codeActions.put(TargetNamespace_2.getCode(), new TargetNamespace_2CodeAction());
-		if (sharedSettings.getWorkspaceSettings().isResourceOperationSupported(ResourceOperationKind.Create)) {
+		if (sharedSettings != null
+				&& sharedSettings.getWorkspaceSettings().isResourceOperationSupported(ResourceOperationKind.Create)) {
 			codeActions.put(schema_reference_4.getCode(), new schema_reference_4CodeAction());
 		}
 	}

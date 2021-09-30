@@ -16,7 +16,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,7 +33,10 @@ import org.apache.xerces.xni.parser.XMLEntityResolver;
 import org.apache.xerces.xni.parser.XMLInputSource;
 import org.apache.xerces.xni.parser.XMLParseException;
 import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
+import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.extensions.xerces.AbstractLSPErrorReporter;
+import org.eclipse.lemminx.extensions.xerces.ReferencedGrammarDiagnosticsInfo;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
@@ -46,13 +51,21 @@ public class XSDValidator {
 	private static boolean canCustomizeReporter = true;
 
 	public static void doDiagnostics(DOMDocument document, XMLEntityResolver entityResolver,
-			List<Diagnostic> diagnostics, boolean isRelatedInformation, CancelChecker monitor) {
+			List<Diagnostic> diagnostics, XMLValidationSettings validationSettings,
+			ContentModelManager contentModelManager, CancelChecker monitor) {
+
+		Map<String, ReferencedGrammarDiagnosticsInfo> referencedGrammarDiagnosticsInfoCache = new HashMap<>();
+		// When referenced grammar (XSD, DTD) have an error (ex : syntax error), the
+		// error must be reported.
+		// We create a reporter for grammar since Xerces reporter stores the XMLLocator
+		// for XML and Grammar.
+		LSPErrorReporterForXSD reporterForXSD = new LSPErrorReporterForXSD(document, diagnostics, contentModelManager,
+				validationSettings != null ? validationSettings.isRelatedInformation() : false,
+				referencedGrammarDiagnosticsInfoCache);
 
 		try {
-			XMLErrorReporter reporter = new LSPErrorReporterForXSD(document, diagnostics, isRelatedInformation);
-
 			XMLGrammarPreparser grammarPreparser = new LSPXMLGrammarPreparser();
-			XMLSchemaLoader schemaLoader = createSchemaLoader(reporter);
+			XMLSchemaLoader schemaLoader = createSchemaLoader(reporterForXSD);
 
 			grammarPreparser.registerPreparser(XMLGrammarDescription.XML_SCHEMA, schemaLoader);
 
@@ -76,7 +89,7 @@ public class XSDValidator {
 			// grammarPreparser.setContentHandler(new LSPContentHandler(monitor));
 
 			// Add LSP error reporter to fill LSP diagnostics from Xerces errors
-			grammarPreparser.setProperty("http://apache.org/xml/properties/internal/error-reporter", reporter);
+			grammarPreparser.setProperty("http://apache.org/xml/properties/internal/error-reporter", reporterForXSD);
 
 			if (entityResolver != null) {
 				grammarPreparser.setEntityResolver(entityResolver);
@@ -92,6 +105,8 @@ public class XSDValidator {
 			// ignore error
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, "Unexpected XSDValidator error", e);
+		} finally {
+			reporterForXSD.endReport();
 		}
 	}
 

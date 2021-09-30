@@ -9,7 +9,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lemminx.extensions.contentmodel.participants.diagnostics;
+package org.eclipse.lemminx.extensions.xerces;
 
 import java.util.ArrayList;
 
@@ -28,7 +28,7 @@ import org.eclipse.lsp4j.DiagnosticRelatedInformation;
  * @author Angelo ZERR
  *
  */
-class ReferencedGrammarDiagnosticsInfo {
+public class ReferencedGrammarDiagnosticsInfo {
 
 	private final String grammarURI;
 
@@ -54,6 +54,9 @@ class ReferencedGrammarDiagnosticsInfo {
 	}
 
 	private static String computeFileName(String grammarURI) {
+		if (grammarURI.startsWith("http")) {
+			return grammarURI;
+		}
 		String fileName = grammarURI;
 		int index = grammarURI.lastIndexOf('/');
 		if (index == -1) {
@@ -94,7 +97,7 @@ class ReferencedGrammarDiagnosticsInfo {
 	 * 
 	 * @return the referenced grammar file name .
 	 */
-	public String getGrammarFileName() {
+	private String getGrammarFileName() {
 		return grammarFileName;
 	}
 
