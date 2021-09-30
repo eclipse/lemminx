@@ -41,6 +41,7 @@ import org.eclipse.lemminx.extensions.contentmodel.settings.SchemaEnabled;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLNamespacesSettings;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLSchemaSettings;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
+import org.eclipse.lemminx.extensions.xerces.ReferencedGrammarDiagnosticsInfo;
 import org.eclipse.lemminx.services.extensions.diagnostics.LSPContentHandler;
 import org.eclipse.lemminx.uriresolver.CacheResourceDownloadingException;
 import org.eclipse.lemminx.uriresolver.IExternalGrammarLocationProvider;
