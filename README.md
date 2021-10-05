@@ -77,7 +77,7 @@ OS specific instructions:
     - For instance, on Fedora Linux, install `glibc-static`, `libstdc++-static`, and `zlib-static`
 - __Windows__:
   - When installing native-image, please note that `gu` is an existing alias in PowerShell.
-  Remove the alias with `Remote-Item alias:gu -Force`, refer to `gu` with the absolute path, or use `gu` under `cmd.exe`.
+  Remove the alias with `Remove-Item alias:gu -Force`, refer to `gu` with the absolute path, or use `gu` under `cmd.exe`.
   - Make sure to run the Maven wrapper in the "Native Tools Command Prompt".
   This command prompt can be obtained through installing the Windows SDK or Visual Studio, as
   mentioned in the [GraalVM installation instructions](https://www.graalvm.org/docs/getting-started-with-graalvm/windows/).
