@@ -19,7 +19,9 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.function.BiConsumer;
 
+import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.impl.xs.SchemaGrammar;
+import org.apache.xerces.util.URI.MalformedURIException;
 import org.apache.xerces.xs.StringList;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -160,7 +162,7 @@ public class XSDUtils {
 		// xmlns:tns="http://camel.apache.org/schema/spring"
 		// targetNamespace="http://camel.apache.org/schema/spring" version="1.0">
 		String targetNamespace = documentElement.getAttribute(TARGET_NAMESPACE_ATTR); // ->
-																					// http://camel.apache.org/schema/spring
+																						// http://camel.apache.org/schema/spring
 		String targetNamespacePrefix = documentElement.getPrefix(targetNamespace); // -> tns
 
 		String originName = null;
@@ -279,7 +281,7 @@ public class XSDUtils {
 		// xmlns:tns="http://camel.apache.org/schema/spring"
 		// targetNamespace="http://camel.apache.org/schema/spring" version="1.0">
 		String targetNamespace = documentElement.getAttribute(TARGET_NAMESPACE_ATTR); // ->
-																					// http://camel.apache.org/schema/spring
+																						// http://camel.apache.org/schema/spring
 		String targetNamespacePrefix = documentElement.getPrefix(targetNamespace); // -> tns
 
 		// Collect references for each references nodes
@@ -474,4 +476,52 @@ public class XSDUtils {
 		return element.getAttributeNode(SCHEMA_LOCATION_ATTR);
 	}
 
+	/**
+	 * Returns the xsd:import/@schemaLocation or xsd:include/@schemaLocation
+	 * declared in the given <code>document</code> by the given
+	 * <code>grammarURI</code> and null otherwise.
+	 * 
+	 * @param document   the XSD document
+	 * @param grammarURI the grammar URI to retreive.
+	 * @return the xsd:import/@schemaLocation or xsd:include/@schemaLocation
+	 *         declared in the given <code>document</code> by the given
+	 *         <code>grammarURI</code> and null otherwise
+	 */
+	public static DOMAttr findSchemaLocationAttrByURI(DOMDocument document, String grammarURI) {
+		DOMElement documentElement = document.getDocumentElement();
+		if (documentElement != null) {
+			List<DOMNode> children = documentElement.getChildren();
+			for (DOMNode child : children) {
+				if (child.isElement()) {
+					DOMElement xsdElement = (DOMElement) child;
+					if (XSDUtils.isXSInclude(xsdElement) || XSDUtils.isXSImport(xsdElement)) {
+						DOMAttr schemaLocationAttr = XSDUtils.getSchemaLocation(xsdElement);
+						if (schemaLocationAttr != null) {
+							String attrValue = schemaLocationAttr.getValue();
+							if (grammarURI.equals(attrValue) || ((grammarURI.endsWith(attrValue) && grammarURI.equals(getResolvedLocation(document.getDocumentURI(), attrValue))))) {
+								return schemaLocationAttr;
+							}
+						}
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns the expanded system location
+	 *
+	 * @return the expanded system location
+	 */
+	private static String getResolvedLocation(String documentURI, String location) {
+		if (StringUtils.isBlank(location)) {
+			return null;
+		}
+		try {
+			return XMLEntityManager.expandSystemId(location, documentURI, false);
+		} catch (MalformedURIException e) {
+			return location;
+		}
+	}
 }

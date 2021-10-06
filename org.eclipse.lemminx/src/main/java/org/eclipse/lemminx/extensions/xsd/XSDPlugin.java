@@ -56,12 +56,12 @@ public class XSDPlugin implements IXMLExtension {
 	private final IDocumentLinkParticipant documentLinkParticipant;
 	private XSDURIResolverExtension uiResolver;
 
-	private ContentModelManager modelManager;
+	private ContentModelManager contentModelManager;
 
 	public XSDPlugin() {
 		completionParticipant = new XSDCompletionParticipant();
 		definitionParticipant = new XSDDefinitionParticipant();
-		diagnosticsParticipant = new XSDDiagnosticsParticipant();
+		diagnosticsParticipant = new XSDDiagnosticsParticipant(this);
 		referenceParticipant = new XSDReferenceParticipant();
 		codeLensParticipant = new XSDCodeLensParticipant();
 		highlightingParticipant = new XSDHighlightingParticipant();
@@ -76,7 +76,7 @@ public class XSDPlugin implements IXMLExtension {
 		if (DOMUtils.isXSD(document)) {
 			context.collectDocumentToValidate(d -> {
 				DOMDocument xml = context.getDocument(d.getDocumentURI());
-				return modelManager.dependsOnGrammar(xml, context.getUri());
+				return contentModelManager.dependsOnGrammar(xml, context.getUri());
 			});
 		}
 	}
@@ -88,8 +88,8 @@ public class XSDPlugin implements IXMLExtension {
 		registry.getResolverExtensionManager().registerResolver(uiResolver);
 		// register XSD content model provider
 		ContentModelProvider modelProvider = new CMXSDContentModelProvider(registry.getResolverExtensionManager());
-		modelManager = registry.getComponent(ContentModelManager.class);
-		modelManager.registerModelProvider(modelProvider);
+		contentModelManager = registry.getComponent(ContentModelManager.class);
+		contentModelManager.registerModelProvider(modelProvider);
 		// register completion, diagnostic participant
 		registry.registerCompletionParticipant(completionParticipant);
 		registry.registerDefinitionParticipant(definitionParticipant);
@@ -112,5 +112,9 @@ public class XSDPlugin implements IXMLExtension {
 		registry.unregisterHighlightingParticipant(highlightingParticipant);
 		registry.unregisterRenameParticipant(renameParticipant);
 		registry.unregisterDocumentLinkParticipant(documentLinkParticipant);
+	}
+	
+	public ContentModelManager getContentModelManager() {
+		return contentModelManager;
 	}
 }

@@ -232,7 +232,8 @@ public enum DTDErrorCode implements IXMLErrorCode {
 			SharedSettings sharedSettings) {
 		codeActions.put(ElementDeclUnterminated.getCode(), new ElementDeclUnterminatedCodeAction());
 		codeActions.put(EntityNotDeclared.getCode(), new EntityNotDeclaredCodeAction());
-		if (sharedSettings.getWorkspaceSettings().isResourceOperationSupported(ResourceOperationKind.Create)) {
+		if (sharedSettings != null
+				&& sharedSettings.getWorkspaceSettings().isResourceOperationSupported(ResourceOperationKind.Create)) {
 			codeActions.put(dtd_not_found.getCode(), new dtd_not_foundCodeAction());
 		}
 		ICodeActionParticipant fixMissingSpace = new FixMissingSpaceCodeAction();

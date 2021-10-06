@@ -411,7 +411,8 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 		codeActions.put(ETagRequired.getCode(), new ETagRequiredCodeAction());
 		codeActions.put(RootElementTypeMustMatchDoctypedecl.getCode(),
 				new RootElementTypeMustMatchDoctypedeclCodeAction());
-		if (sharedSettings.getWorkspaceSettings().isResourceOperationSupported(ResourceOperationKind.Create)) {
+		if (sharedSettings != null
+				&& sharedSettings.getWorkspaceSettings().isResourceOperationSupported(ResourceOperationKind.Create)) {
 			codeActions.put(NoGrammarConstraints.getCode(), new NoGrammarConstraintsCodeAction());
 		}
 	}

@@ -38,7 +38,8 @@ public class XSDValidationExtensionsTest {
 				"	\r\n" + //
 				"	<xs:complexType name=\"testType\">\r\n" + //
 				"		<xs:all>\r\n" + //
-				"			<xs:element name=\"testEle1\" minOccurs=\"2\" maxOccurs=\"unbounded\" type=\"xs:string\"/>\r\n" + //
+				"			<xs:element name=\"testEle1\" minOccurs=\"2\" maxOccurs=\"unbounded\" type=\"xs:string\"/>\r\n"
+				+ //
 				"		</xs:all>\r\n" + //
 				"	</xs:complexType>\r\n" + //
 				"</xs:schema>";
@@ -53,9 +54,12 @@ public class XSDValidationExtensionsTest {
 				"	\r\n" + //
 				"	<xs:complexType name=\"testType\">\r\n" + //
 				"		<xs:all>\r\n" + //
-				"			<xs:element name=\"testEle1\" minOccurs=\"2\" maxOccurs=\"unbounded\" type=\"xs:string\"/>\r\n" + //
-				"			<xs:element name=\"testEle2\" minOccurs=\"2\" maxOccurs=\"unbounded\" type=\"xs:string\"/>\r\n" + //
-				"			<xs:element name=\"test3\" minOccurs=\"2\" maxOccurs=\"unbounded\" type=\"xs:string\"/>\r\n" + //
+				"			<xs:element name=\"testEle1\" minOccurs=\"2\" maxOccurs=\"unbounded\" type=\"xs:string\"/>\r\n"
+				+ //
+				"			<xs:element name=\"testEle2\" minOccurs=\"2\" maxOccurs=\"unbounded\" type=\"xs:string\"/>\r\n"
+				+ //
+				"			<xs:element name=\"test3\" minOccurs=\"2\" maxOccurs=\"unbounded\" type=\"xs:string\"/>\r\n"
+				+ //
 				"		</xs:all>\r\n" + //
 				"	</xs:complexType>\r\n" + //
 				"</xs:schema>";
@@ -68,71 +72,71 @@ public class XSDValidationExtensionsTest {
 
 	@Test
 	public void ct_props_correct_3_1() throws BadLocationException {
-		String xml = "<?xml version=\"1.1\" ?>\r\n" +
-			"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">\r\n" +
-			"	<xs:complexType name=\"fullpersoninfo\">\r\n" +
-			"		<xs:complexContent>\r\n" +
-			"			<xs:extension base=\"fullpersoninfo\">\r\n" +
-			"			</xs:extension>\r\n" +
-			"		</xs:complexContent>\r\n" +
-			"	</xs:complexType>\r\n" +
-			"</xs:schema>";
+		String xml = "<?xml version=\"1.1\" ?>\r\n" + //
+				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">\r\n"
+				+ //
+				"	<xs:complexType name=\"fullpersoninfo\">\r\n" + //
+				"		<xs:complexContent>\r\n" + //
+				"			<xs:extension base=\"fullpersoninfo\">\r\n" + //
+				"			</xs:extension>\r\n" + //
+				"		</xs:complexContent>\r\n" + //
+				"	</xs:complexType>\r\n" + "</xs:schema>";
 		testDiagnosticsFor(xml, d(4, 22, 4, 38, XSDErrorCode.ct_props_correct_3));
 	}
 
 	@Test
 	public void ct_props_correct_3_2() throws BadLocationException {
-		String xml = "<?xml version=\"1.1\" ?>\r\n" +
-			"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" targetNamespace=\"http://www.w3.org/2001/XMLSchema\">\r\n" +
-			"	<xs:complexType name=\"aComplexType\">\r\n" +
-			"		<xs:complexContent>\r\n" +
-			"			<xs:extension base=\"xs:aComplexType\"></xs:extension>\r\n" +
-			"		</xs:complexContent>\r\n" +
-			"	</xs:complexType>\r\n" +
-			"</xs:schema>";
+		String xml = "<?xml version=\"1.1\" ?>\r\n" + //
+				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" targetNamespace=\"http://www.w3.org/2001/XMLSchema\">\r\n"
+				+ //
+				"	<xs:complexType name=\"aComplexType\">\r\n" + //
+				"		<xs:complexContent>\r\n" + //
+				"			<xs:extension base=\"xs:aComplexType\"></xs:extension>\r\n" + //
+				"		</xs:complexContent>\r\n" + //
+				"	</xs:complexType>\r\n" + //
+				"</xs:schema>";
 		testDiagnosticsFor(xml, d(4, 22, 4, 39, XSDErrorCode.ct_props_correct_3));
 	}
 
 	@Test
 	public void emptyTargetNamespace() throws BadLocationException {
-		String xml = "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\r\n" +
-			"	elementFormDefault=\"qualified\" xml:lang=\"EN\"\r\n" +
-			"	targetNamespace=\"\"\r\n" +
-			"	version=\"1.0\">\r\n" +
-			"</xs:schema>";
+		String xml = "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\r\n" + //
+				"	elementFormDefault=\"qualified\" xml:lang=\"EN\"\r\n" + //
+				"	targetNamespace=\"\"\r\n" + //
+				"	version=\"1.0\">\r\n" + //
+				"</xs:schema>";
 		testDiagnosticsFor(xml, d(2, 17, 2, 19, XSDErrorCode.EmptyTargetNamespace));
 	}
 
 	@Test
 	public void p_props_correct_2_1() throws BadLocationException {
-		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" +
-				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\r\n" +
-				"	<xs:complexType name=\"testType\">\r\n" +
-				"		<xs:all>\r\n" +
-				"			<xs:element name=\"testEle\" minOccurs=\"1\" maxOccurs=\"0\" type=\"xs:string\"/>\r\n" +
-				"		</xs:all>\r\n" +
-				"	</xs:complexType>\r\n" +
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
+				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\r\n" + //
+				"	<xs:complexType name=\"testType\">\r\n" + //
+				"		<xs:all>\r\n" + //
+				"			<xs:element name=\"testEle\" minOccurs=\"1\" maxOccurs=\"0\" type=\"xs:string\"/>\r\n" + //
+				"		</xs:all>\r\n" + //
+				"	</xs:complexType>\r\n" + //
 				"</xs:schema>";
 		testDiagnosticsFor(xml, d(4, 30, 4, 43, XSDErrorCode.p_props_correct_2_1));
 	}
 
 	@Test
 	public void p_props_correct_2_1_multiple() throws BadLocationException {
-		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" +
-			"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\r\n" +
-			"	<xs:complexType name=\"testType\">\r\n" +
-			"		<xs:all>\r\n" +
-			"			<xs:element name=\"testEle\" minOccurs=\"1\" maxOccurs=\"0\" type=\"xs:string\"/>\r\n" +
-			"			<xs:element name=\"test\" minOccurs=\"5\" maxOccurs=\"0\" type=\"xs:string\"/>\r\n" +
-			"		</xs:all>\r\n" +
-			"	</xs:complexType>\r\n" +
-			"</xs:schema>";
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
+				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\r\n" + //
+				"	<xs:complexType name=\"testType\">\r\n" + //
+				"		<xs:all>\r\n" + //
+				"			<xs:element name=\"testEle\" minOccurs=\"1\" maxOccurs=\"0\" type=\"xs:string\"/>\r\n" + //
+				"			<xs:element name=\"test\" minOccurs=\"5\" maxOccurs=\"0\" type=\"xs:string\"/>\r\n" + //
+				"		</xs:all>\r\n" + //
+				"	</xs:complexType>\r\n" + //
+				"</xs:schema>";
 
 		Diagnostic first = d(4, 30, 4, 43, XSDErrorCode.p_props_correct_2_1);
 		Diagnostic second = d(5, 27, 5, 40, XSDErrorCode.p_props_correct_2_1);
 		testDiagnosticsFor(xml, first, second);
 	}
-
 
 	@Test
 	public void s4s_elt_invalid_content_1() throws BadLocationException {
@@ -156,9 +160,9 @@ public class XSDValidationExtensionsTest {
 
 	@Test
 	public void s4s_elt_must_match_2() throws BadLocationException {
-		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" +
-				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" version=\"1.0\">\r\n" +
-				"	<xs:simpleType name=\"X\"></xs:simpleType>\r\n" +
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
+				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" version=\"1.0\">\r\n" + //
+				"	<xs:simpleType name=\"X\"></xs:simpleType>\r\n" + //
 				"</xs:schema>";
 		testDiagnosticsFor(xml, d(2, 2, 2, 15, XSDErrorCode.s4s_elt_must_match_2));
 	}
@@ -197,9 +201,9 @@ public class XSDValidationExtensionsTest {
 
 	@Test
 	public void s4s_elt_invalid_content_3WithClosingTag() throws BadLocationException {
-		String xml = "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" elementFormDefault=\"qualified\">\r\n" +
-				"	<xs:element name=\"project\" type=\"xs:string\"></xs:element>\r\n" +
-				"	<xs:import></xs:import>\r\n" +
+		String xml = "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" elementFormDefault=\"qualified\">\r\n" + //
+				"	<xs:element name=\"project\" type=\"xs:string\"></xs:element>\r\n" + //
+				"	<xs:import></xs:import>\r\n" + //
 				"</xs:schema>";
 		Diagnostic d = d(2, 2, 2, 11, XSDErrorCode.s4s_elt_invalid_content_3);
 		testDiagnosticsFor(xml, d);
@@ -208,9 +212,9 @@ public class XSDValidationExtensionsTest {
 
 	@Test
 	public void s4s_elt_invalid_content_3WithSelfClosingTag() throws BadLocationException {
-		String xml = "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" elementFormDefault=\"qualified\">\r\n" +
-				"	<xs:element name=\"project\" type=\"xs:string\"></xs:element>\r\n" +
-				"	<xs:import/>\r\n" +
+		String xml = "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" elementFormDefault=\"qualified\">\r\n" + //
+				"	<xs:element name=\"project\" type=\"xs:string\"></xs:element>\r\n" + //
+				"	<xs:import/>\r\n" + //
 				"</xs:schema>";
 		Diagnostic d = d(2, 2, 2, 11, XSDErrorCode.s4s_elt_invalid_content_3);
 		testDiagnosticsFor(xml, d);
@@ -219,24 +223,25 @@ public class XSDValidationExtensionsTest {
 
 	@Test
 	public void sch_props_correct_2() throws BadLocationException {
-		String xml = "<?xml version=\"1.1\" ?>\r\n" +
-				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\r\n" +
-				"	<xs:element name=\"elt1\" />\r\n" +
-				"	<xs:element name=\"elt1\" />\r\n" +
+		String xml = "<?xml version=\"1.1\" ?>\r\n" + //
+				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\r\n" + //
+				"	<xs:element name=\"elt1\" />\r\n" + //
+				"	<xs:element name=\"elt1\" />\r\n" + //
 				"</xs:schema>";
 		testDiagnosticsFor(xml, d(3, 18, 3, 24, XSDErrorCode.sch_props_correct_2));
 	}
 
 	@Test
 	public void src_ct_1() throws BadLocationException {
-		String xml = "<?xml version=\"1.1\" ?>\r\n" +
-				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">\r\n" +
-				"	<xs:complexType name=\"fullpersoninfo\">\r\n" +
-				"		<xs:complexContent>\r\n" +
-				"			<xs:extension base=\"xs:string\">\r\n" +
-				"			</xs:extension>\r\n" +
-				"		</xs:complexContent>\r\n" +
-				"	</xs:complexType>\r\n" +
+		String xml = "<?xml version=\"1.1\" ?>\r\n" + //
+				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">\r\n"
+				+ //
+				"	<xs:complexType name=\"fullpersoninfo\">\r\n" + //
+				"		<xs:complexContent>\r\n" + //
+				"			<xs:extension base=\"xs:string\">\r\n" + //
+				"			</xs:extension>\r\n" + //
+				"		</xs:complexContent>\r\n" + //
+				"	</xs:complexType>\r\n" + //
 				"</xs:schema>";
 		testDiagnosticsFor(xml, d(4, 22, 4, 33, XSDErrorCode.src_ct_1));
 	}
@@ -301,59 +306,62 @@ public class XSDValidationExtensionsTest {
 
 	@Test
 	public void src_element_3() throws BadLocationException {
-		String xml = "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\r\n" +
-			"  <xs:element name=\"a\" type=\"xs:integer\">\r\n" +
-			"    <xs:complexType>\r\n" +
-			"      <xs:sequence>\r\n" +
-			"        <xs:element name=\"b\"></xs:element>\r\n" +
-			"      </xs:sequence>\r\n" +
-			"    </xs:complexType>\r\n" +
-			"  </xs:element>\r\n" +
-			"</xs:schema>";
+		String xml = "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\r\n" + //
+				"  <xs:element name=\"a\" type=\"xs:integer\">\r\n" + //
+				"    <xs:complexType>\r\n" + //
+				"      <xs:sequence>\r\n" + //
+				"        <xs:element name=\"b\"></xs:element>\r\n" + //
+				"      </xs:sequence>\r\n" + //
+				"    </xs:complexType>\r\n" + //
+				"  </xs:element>\r\n" + //
+				"</xs:schema>";
 		testDiagnosticsFor(xml, d(1, 3, 1, 13, XSDErrorCode.src_element_3));
 	}
 
 	@Test
 	public void src_import_1_2xs() throws BadLocationException {
-		String xml = "<?xml version=\'1.0\'?>\r\n" +
-			"<xs:schema xmlns:xs=\'http://www.w3.org/2001/XMLSchema\'>\r\n" +
-			"	<xs:import></xs:import>\r\n" +
-			"</xs:schema>";
+		String xml = "<?xml version=\'1.0\'?>\r\n" + //
+				"<xs:schema xmlns:xs=\'http://www.w3.org/2001/XMLSchema\'>\r\n" + //
+				"	<xs:import></xs:import>\r\n" + //
+				"</xs:schema>";
 
 		Diagnostic d = d(2, 2, 2, 11, XSDErrorCode.src_import_1_2);
 		testDiagnosticsFor(xml, d);
-		testCodeActionsFor(xml, d, ca(d, te(2, 11, 2, 11, " namespace=\"\"")), ca(d, te(1, 54, 1, 54, " targetNamespace=\"\"")));
+		testCodeActionsFor(xml, d, ca(d, te(2, 11, 2, 11, " namespace=\"\"")),
+				ca(d, te(1, 54, 1, 54, " targetNamespace=\"\"")));
 	}
 
 	@Test
 	public void src_import_1_2() throws BadLocationException {
-		String xml = "<?xml version=\'1.0\'?>\r\n" +
-			"<schema xmlns=\'http://www.w3.org/2001/XMLSchema\'>\r\n" +
-			"	<import></import>\r\n" +
-			"</schema>";
+		String xml = "<?xml version=\'1.0\'?>\r\n" + //
+				"<schema xmlns=\'http://www.w3.org/2001/XMLSchema\'>\r\n" + //
+				"	<import></import>\r\n" + //
+				"</schema>";
 
 		Diagnostic d = d(2, 2, 2, 8, XSDErrorCode.src_import_1_2);
 		testDiagnosticsFor(xml, d);
-		testCodeActionsFor(xml, d, ca(d, te(2, 8, 2, 8, " namespace=\"\"")), ca(d, te(1, 48, 1, 48, " targetNamespace=\"\"")));
+		testCodeActionsFor(xml, d, ca(d, te(2, 8, 2, 8, " namespace=\"\"")),
+				ca(d, te(1, 48, 1, 48, " targetNamespace=\"\"")));
 	}
 
 	@Test
 	public void src_import_1_2_different_range() throws BadLocationException {
-		String xml = "<?xml version=\'1.0\'?>\r\n" +
-		"<xs:schema xmlns:xs=\'http://www.w3.org/2001/XMLSchema\'>\r\n" +
-		"	<xs:imp|ort></xs:import>\r\n" +
-		"</xs:schema>";
+		String xml = "<?xml version=\'1.0\'?>\r\n" + //
+				"<xs:schema xmlns:xs=\'http://www.w3.org/2001/XMLSchema\'>\r\n" + //
+				"	<xs:imp|ort></xs:import>\r\n" + //
+				"</xs:schema>";
 
 		Diagnostic d = d(2, 2, 2, 11, XSDErrorCode.src_import_1_2);
-		testCodeActionsFor(xml, d, ca(d, te(2, 11, 2, 11, " namespace=\"\"")), ca(d, te(1, 54, 1, 54, " targetNamespace=\"\"")));
+		testCodeActionsFor(xml, d, ca(d, te(2, 11, 2, 11, " namespace=\"\"")),
+				ca(d, te(1, 54, 1, 54, " targetNamespace=\"\"")));
 	}
 
 	@Test
 	public void schema_reference_4_BadSchemaLocation() throws BadLocationException {
-		String xsd = "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'>\r\n" +
-		"<xs:import namespace='http://foo' schemaLocation='bad.xsd' />\r\n" +
-		"<xs:element name='foo'></xs:element>\r\n" +
-		"</xs:schema>";
+		String xsd = "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'>\r\n" + //
+				"<xs:import namespace='http://foo' schemaLocation='bad.xsd' />\r\n" + //
+				"<xs:element name='foo'></xs:element>\r\n" + //
+				"</xs:schema>";
 
 		Diagnostic d = d(1, 49, 1, 58, XSDErrorCode.schema_reference_4);
 		testDiagnosticsFor(xsd, d);
@@ -361,19 +369,19 @@ public class XSDValidationExtensionsTest {
 
 	@Test
 	public void schema_reference_4_GoodSchemaLocation() throws BadLocationException {
-		String xsd = "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'>\r\n" +
-		"<xs:import namespace='team_namespace' schemaLocation='src/test/resources/xsd/team.xsd' />\r\n" +
-		"<xs:element name='foo'></xs:element>\r\n" +
-		"</xs:schema>";
+		String xsd = "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'>\r\n" + //
+				"<xs:import namespace='team_namespace' schemaLocation='src/test/resources/xsd/team.xsd' />\r\n" + //
+				"<xs:element name='foo'></xs:element>\r\n" + //
+				"</xs:schema>";
 		testDiagnosticsFor(xsd);
 	}
 
 	@Test
 	public void schema_reference_4_IncludeErrorRange() throws BadLocationException {
-		String xsd = "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'>\r\n" +
-		"<xs:include schemaLocation='bad.xsd' />\r\n" +
-		"<xs:element name='foo'></xs:element>\r\n" +
-		"</xs:schema>";
+		String xsd = "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'>\r\n" + //
+				"<xs:include schemaLocation='bad.xsd' />\r\n" + //
+				"<xs:element name='foo'></xs:element>\r\n" + //
+				"</xs:schema>";
 
 		Diagnostic d = d(1, 27, 1, 36, XSDErrorCode.schema_reference_4);
 		testDiagnosticsFor(xsd, d);
@@ -381,10 +389,10 @@ public class XSDValidationExtensionsTest {
 
 	@Test
 	public void src_import_3_1_BadNamespaceWithEmptySchema() throws BadLocationException {
-		String xsd = "<xs:schema xmlns:xs=\'http://www.w3.org/2001/XMLSchema\'>\n" +
-		"<xs:import namespace=\'BAD_NAMESPACE\' schemaLocation=\'src/test/resources/xsd/empty.xsd\'/>\n" +
-		"<xs:element name=\'foo\'></xs:element>\n" +
-		"</xs:schema>";
+		String xsd = "<xs:schema xmlns:xs=\'http://www.w3.org/2001/XMLSchema\'>\n" + //
+				"<xs:import namespace=\'BAD_NAMESPACE\' schemaLocation=\'src/test/resources/xsd/empty.xsd\'/>\n" + //
+				"<xs:element name=\'foo\'></xs:element>\n" + //
+				"</xs:schema>";
 
 		Diagnostic d = d(1, 21, 1, 36, XSDErrorCode.src_import_3_1);
 		testDiagnosticsFor(xsd, d);
@@ -392,10 +400,10 @@ public class XSDValidationExtensionsTest {
 
 	@Test
 	public void src_import_3_1_BadNamespaceWithSchemaContent() throws BadLocationException {
-		String xsd = "<xs:schema xmlns:xs=\'http://www.w3.org/2001/XMLSchema\'>\n" +
-		"<xs:import namespace=\'BAD_NAMESPACE\' schemaLocation=\'src/test/resources/xsd/baseSchema.xsd\'/>\n" +
-		"<xs:element name=\'foo\'></xs:element>\n" +
-		"</xs:schema>";
+		String xsd = "<xs:schema xmlns:xs=\'http://www.w3.org/2001/XMLSchema\'>\n" + //
+				"<xs:import namespace=\'BAD_NAMESPACE\' schemaLocation=\'src/test/resources/xsd/baseSchema.xsd\'/>\n" + //
+				"<xs:element name=\'foo\'></xs:element>\n" + //
+				"</xs:schema>";
 
 		Diagnostic d = d(1, 21, 1, 36, XSDErrorCode.src_import_3_1);
 		testDiagnosticsFor(xsd, d);
@@ -403,17 +411,45 @@ public class XSDValidationExtensionsTest {
 
 	@Test
 	public void src_import_3_2_NoNamespaceFound() throws BadLocationException {
-		String xsd = "<xs:schema\n" +
-		"xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\n" +
-		"targetNamespace=\"http://example.org/my-example\"\n" +
-		"xmlns:NS=\"http://example.org/my-example\">\n" +
-	  	"<xs:import schemaLocation=\"src/test/resources/xsd/baseSchema.xsd\"/>\n" +
-		"</xs:schema>";
+		String xsd = "<xs:schema\n" + //
+				"xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\n" + //
+				"targetNamespace=\"http://example.org/my-example\"\n" + //
+				"xmlns:NS=\"http://example.org/my-example\">\n" + //
+				"<xs:import schemaLocation=\"src/test/resources/xsd/baseSchema.xsd\"/>\n" + //
+				"</xs:schema>";
 
 		Diagnostic d = d(4, 26, 4, 65, XSDErrorCode.src_import_3_2);
 		testDiagnosticsFor(xsd, d);
 	}
 
+	@Test
+	public void schema_reference_4() throws BadLocationException {
+		String xsd = "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\r\n" + //
+				"  <xs:import\r\n" + //
+				"      namespace=\"abcd\"\r\n" + //
+				"      schemaLocation=\"unkown1.xsd\" />\r\n" + // <-- error with unkown1.xsd
+				"  <xs:include schemaLocation=\"unkown2.xsd\" />\r\n" + // <-- error with unkown2.xsd
+				"</xs:schema>";
+
+		Diagnostic d1 = d(3, 21, 3, 34, XSDErrorCode.schema_reference_4);
+		Diagnostic d2 = d(4, 29, 4, 42, XSDErrorCode.schema_reference_4);
+		testDiagnosticsFor(xsd, d1, d2);
+	}
+
+	@Test
+	public void aggregateErrorFromReferencedSchema() throws BadLocationException {
+		String xsd = "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" targetNamespace=\"http://java.sun.com/xml/ns/j2ee\">\r\n"
+				+ //
+				"  <xs:import\r\n" + //
+				"      schemaLocation=\"src/test/resources/xsd/foo-invalid-schema.xsd\" />\r\n" + // <-- error base.xml
+																									// is not a XSD
+				"  <xs:include schemaLocation=\"src/test/resources/xsd/srcElement3.xsd\" />\r\n" + // error
+				"</xs:schema>";
+
+		Diagnostic d1 = d(2, 21, 2, 68, null);
+		Diagnostic d2 = d(3, 29, 3, 69, null);
+		testDiagnosticsFor(xsd, d1, d2);
+	}
 
 	private static void testDiagnosticsFor(String xml, Diagnostic... expected) throws BadLocationException {
 		XMLAssert.testDiagnosticsFor(xml, null, null, "test.xsd", expected);
