@@ -27,7 +27,6 @@ import org.eclipse.lemminx.dom.parser.TokenType;
 import org.eclipse.lemminx.dom.parser.XMLScanner;
 import org.eclipse.lemminx.uriresolver.URIResolverExtensionManager;
 import org.eclipse.lemminx.utils.DOMUtils;
-import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**

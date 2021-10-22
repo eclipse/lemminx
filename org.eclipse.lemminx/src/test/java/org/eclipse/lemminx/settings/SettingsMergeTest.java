@@ -10,9 +10,6 @@
 package org.eclipse.lemminx.settings;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-
-import java.lang.reflect.Field;
 
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lsp4j.PublishDiagnosticsCapabilities;
