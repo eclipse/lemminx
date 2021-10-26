@@ -15,10 +15,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.File;
-import java.util.concurrent.ExecutionException;
 
 import org.eclipse.lemminx.MockXMLLanguageServer;
-
 import org.eclipse.lemminx.utils.platform.Platform;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.junit.jupiter.api.Test;
