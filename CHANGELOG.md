@@ -1,5 +1,25 @@
 # Change Log
 
+## [0.18.1](https://github.com/eclipse/lemminx/milestone/27?closed=1) (October 29, 2021)
+
+### Bug Fixes
+
+ * Disable external entities when using SAX parser. See [#1104](https://github.com/eclipse/lemminx/pull/1104).
+ * Aggregate errors in xsd:import|include@schemaLocation for referenced grammar which have errors. See [#1117](https://github.com/eclipse/lemminx/pull/1117).
+ * LemMinX doesn't declare workspaceFolders capability. See [#1110](https://github.com/eclipse/lemminx/issues/1110).
+
+### Build
+
+ * Bump jsoup from 1.9.2 to 1.14.2 in org.eclipse.lemminx. See [#1115](https://github.com/eclipse/lemminx/pull/1115).
+ * Update maven wrapper to 3.8.3. See [#1118](https://github.com/eclipse/lemminx/pull/1118).
+ * Fix typo in readme. See [#1120](https://github.com/eclipse/lemminx/pull/1120).
+ * Cache ~/.m2/ to speed up GH actions. [#1109](https://github.com/eclipse/lemminx/pull/1109)
+
+### Others
+
+ * Register a command "xml.check.file.pattern". See [#1112](https://github.com/eclipse/lemminx/pull/1112).
+ * Report schema identifier of XML document through telemetry event. See [#1105](https://github.com/eclipse/lemminx/issues/1105).
+
 ## [0.18.0](https://github.com/eclipse/lemminx/milestone/26?closed=1) (August 10, 2021)
 
 ### Enhancements
