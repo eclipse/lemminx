@@ -1,6 +1,10 @@
 # Change Log
 
-## [0.18.1](https://github.com/eclipse/lemminx/milestone/27?closed=1) (October 29, 2021)
+## [0.18.1](https://github.com/eclipse/lemminx/milestone/27?closed=1) (November 2, 2021)
+
+### Enhancements
+ * Register a command "xml.check.file.pattern". See [#1112](https://github.com/eclipse/lemminx/pull/1112).
+ * Report schema identifier of XML document through telemetry event. See [#1105](https://github.com/eclipse/lemminx/issues/1105).
 
 ### Bug Fixes
 
@@ -14,11 +18,6 @@
  * Update maven wrapper to 3.8.3. See [#1118](https://github.com/eclipse/lemminx/pull/1118).
  * Fix typo in readme. See [#1120](https://github.com/eclipse/lemminx/pull/1120).
  * Cache ~/.m2/ to speed up GH actions. [#1109](https://github.com/eclipse/lemminx/pull/1109)
-
-### Others
-
- * Register a command "xml.check.file.pattern". See [#1112](https://github.com/eclipse/lemminx/pull/1112).
- * Report schema identifier of XML document through telemetry event. See [#1105](https://github.com/eclipse/lemminx/issues/1105).
 
 ## [0.18.0](https://github.com/eclipse/lemminx/milestone/26?closed=1) (August 10, 2021)
 
