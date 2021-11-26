@@ -26,7 +26,7 @@ public class Version {
 
 	private final String branch;
 
-	public static final String MAIN_BRANCH = "master";
+	public static final String MAIN_BRANCH = "main";
 
 	public Version() {
 		ResourceBundle rb = ResourceBundle.getBundle("git");
