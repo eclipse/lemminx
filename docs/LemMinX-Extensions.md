@@ -4,9 +4,9 @@ The LemMinX XML Language Server can be extended with custom plugins to provide a
 
 Many of the XML language features provided by LemMinX are implemented using built-in LemMinX extensions. For example you can look at the:
 
-- Built-in [content model plugin](https://github.com/eclipse/lemminx/tree/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/extensions/contentmodel) to provide completion, validation, hover based on XML Schema.
-- Built-in [XSL Plugin](https://github.com/eclipse/lemminx/tree/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/extensions/xsl) that registers an XSD schema for XSL.
-- See all the [built-in extensions](https://github.com/eclipse/lemminx/tree/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/extensions) for more examples.
+- Built-in [content model plugin](https://github.com/eclipse/lemminx/tree/main/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/extensions/contentmodel) to provide completion, validation, hover based on XML Schema.
+- Built-in [XSL Plugin](https://github.com/eclipse/lemminx/tree/main/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/extensions/xsl) that registers an XSD schema for XSL.
+- See all the [built-in extensions](https://github.com/eclipse/lemminx/tree/main/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/extensions) for more examples.
 
 External extensions are not built into LemMinX but instead are contributed via an external JAR. For example the:
 
@@ -17,7 +17,7 @@ External extensions are not built into LemMinX but instead are contributed via a
 ## Creating a LemMinX extension.
 
 LemMinX is extended using the [Java Service Provider Interface (SPI)](https://www.baeldung.com/java-spi). You can extend LemMinX to provide custom completion, hover, diagnostics, renaming etc.
-You can find the complete [LemMinX extension API here](https://github.com/eclipse/lemminx/tree/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions).
+You can find the complete [LemMinX extension API here](https://github.com/eclipse/lemminx/tree/main/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions).
 
 To start developing a LemMinX extension, create a new Java Project that includes LemMinX as a provided dependency. Also make sure to include the `lemminx-releases` repository.
 
@@ -45,7 +45,7 @@ To start developing a LemMinX extension, create a new Java Project that includes
   </repositories>
 ```
 
-Create the entry point for your LemMinX extension by creating a class that implements [IXMLExtension](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/IXMLExtension.java). 
+Create the entry point for your LemMinX extension by creating a class that implements [IXMLExtension](https://github.com/eclipse/lemminx/blob/main/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/IXMLExtension.java). 
 
 ```java
 package org.samples.lemminx.extensions.foo;
@@ -85,23 +85,23 @@ When a JAR of your extension is contributed to the classpath of LemMinX, LemMinX
 
 ## Adding language features
 
-The [LemMinx Extensions API](https://github.com/eclipse/lemminx/tree/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions) supports many of the language features defined in the [Language server Protocol](https://microsoft.github.io/language-server-protocol/). You can add these features to your extension by implementing the feature participant and registering the participant in your implementation of IXMLExtension. This includes:
+The [LemMinx Extensions API](https://github.com/eclipse/lemminx/tree/main/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions) supports many of the language features defined in the [Language server Protocol](https://microsoft.github.io/language-server-protocol/). You can add these features to your extension by implementing the feature participant and registering the participant in your implementation of IXMLExtension. This includes:
 
-- Diagnostics with [IDiagnosticsParticipant](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/diagnostics/IDiagnosticsParticipant.java)
-- Code actions with [ICodeActionParticipant](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/ICodeActionParticipant.java)
-- Code Completion with [ICompletionParticipant](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/ICompletionParticipant.java)
-- Go to Definition with [IDefinitionParticipant](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/IDefinitionParticipant.java)
-- Adding document Links with [IDocumentLinkParticipant](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/IDocumentLinkParticipant.java)
-- Highlighting with [IHighlightingParticipant](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/IHighlightingParticipant.java)
-- Hover information with [IHoverParticipant](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/IHoverParticipant.java)
-- Find references with [IReferenceParticipant](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/IReferenceParticipant.java)
-- Rename symbols with [IRenameParticipant](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/IRenameParticipant.java)
-- Type Definitions with [ITypeDefinitionParticipant](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/ITypeDefinitionParticipant.java)
-- CodeLens with [ICodeLensParticipant](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/codelens/ICodeLensParticipant.java)
-- Formatter with [IFormatterParticipant](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/format/IFormatterParticipant.java)
-- Symbols with [ISymbolsProviderParticipant](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/ISymbolsProviderParticipant.java)
-- Monitoring workspace folders with [IWorkspaceServiceParticipant](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/IWorkspaceServiceParticipant.java)
-- Monitoring document lifecycle (didOpen, didChange, etc) with [IDocumentLifecycleParticipant](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/IDocumentLifecycleParticipant.java)
+- Diagnostics with [IDiagnosticsParticipant](https://github.com/eclipse/lemminx/blob/main/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/diagnostics/IDiagnosticsParticipant.java)
+- Code actions with [ICodeActionParticipant](https://github.com/eclipse/lemminx/blob/main/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/ICodeActionParticipant.java)
+- Code Completion with [ICompletionParticipant](https://github.com/eclipse/lemminx/blob/main/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/ICompletionParticipant.java)
+- Go to Definition with [IDefinitionParticipant](https://github.com/eclipse/lemminx/blob/main/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/IDefinitionParticipant.java)
+- Adding document Links with [IDocumentLinkParticipant](https://github.com/eclipse/lemminx/blob/main/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/IDocumentLinkParticipant.java)
+- Highlighting with [IHighlightingParticipant](https://github.com/eclipse/lemminx/blob/main/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/IHighlightingParticipant.java)
+- Hover information with [IHoverParticipant](https://github.com/eclipse/lemminx/blob/main/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/IHoverParticipant.java)
+- Find references with [IReferenceParticipant](https://github.com/eclipse/lemminx/blob/main/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/IReferenceParticipant.java)
+- Rename symbols with [IRenameParticipant](https://github.com/eclipse/lemminx/blob/main/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/IRenameParticipant.java)
+- Type Definitions with [ITypeDefinitionParticipant](https://github.com/eclipse/lemminx/blob/main/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/ITypeDefinitionParticipant.java)
+- CodeLens with [ICodeLensParticipant](https://github.com/eclipse/lemminx/blob/main/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/codelens/ICodeLensParticipant.java)
+- Formatter with [IFormatterParticipant](https://github.com/eclipse/lemminx/blob/main/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/format/IFormatterParticipant.java)
+- Symbols with [ISymbolsProviderParticipant](https://github.com/eclipse/lemminx/blob/main/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/ISymbolsProviderParticipant.java)
+- Monitoring workspace folders with [IWorkspaceServiceParticipant](https://github.com/eclipse/lemminx/blob/main/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/IWorkspaceServiceParticipant.java)
+- Monitoring document lifecycle (didOpen, didChange, etc) with [IDocumentLifecycleParticipant](https://github.com/eclipse/lemminx/blob/main/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/IDocumentLifecycleParticipant.java)
 
 ## XML Language Server services available for extensions
 XML Language Server extension may need to use standard Language Server features such as commands, documents and ability to manipulate documents. These are available to extensions indirectly via specialized service API.
@@ -132,7 +132,7 @@ There are two types of commands XML LS allows extender to work with via `IXMLCom
  - Server command that can be executed from the client (via `workspace/executeCommand` request message from the LSP spec)
  - Client command that can be executed from the server (via `xml/executeClientCommand` request message - XML extension of the LSP spec)
  
-A server command should implement the [IDelegateCommandHandler](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/IXMLCommandService.java).
+A server command should implement the [IDelegateCommandHandler](https://github.com/eclipse/lemminx/blob/main/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/IXMLCommandService.java).
 
 ```java
 	public interface IDelegateCommandHandler {
@@ -174,25 +174,25 @@ Note that XML LS client (VSCode in particular) registers a client command `xml.w
 	Object result = commandService.executeClientCommand(new ExecuteCommandParams("xml.workspace.executeCommand", Arrays.asList("my-cmd"))).get();
 ```
 
-See definition of [IXMLCommandService](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/commands/IXMLCommandService.java)
+See definition of [IXMLCommandService](https://github.com/eclipse/lemminx/blob/main/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/extensions/commands/IXMLCommandService.java)
 
 #### Document Provider
 The document provider allows for finding the document from the document URI and listing all XML documents. Note that the document provider is only aware of the XML documents it  is working with (opened XML documents).
 
-See definition of [IXMLDocumentProvider](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/IXMLDocumentProvider.java)
+See definition of [IXMLDocumentProvider](https://github.com/eclipse/lemminx/blob/main/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/IXMLDocumentProvider.java)
 
 #### Validation Service
 The validation service allows for triggering validation of all opened XML documents on server side.
 
-See definition of [IXMLValidationService](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/IXMLValidationService.java)
+See definition of [IXMLValidationService](https://github.com/eclipse/lemminx/blob/main/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/services/IXMLValidationService.java)
 
 ## Adding custom settings for your extension
 
-Your extension can have its own custom settings to control its behavior. Your new setting must start with the prefix `xml`, so for example `xml.myextension.mycustomsetting`. Reading the settings can be done from the `doSave` method in your XMLExtension. The `doSave` method is called with a `Settings` context on extension startup and also whenever the settings are updated. For an example you can look at the [Content Model Settings](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/extensions/contentmodel/settings/ContentModelSettings.java) and how they are updated in the [doSave method](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/extensions/contentmodel/ContentModelPlugin.java#L73).
+Your extension can have its own custom settings to control its behavior. Your new setting must start with the prefix `xml`, so for example `xml.myextension.mycustomsetting`. Reading the settings can be done from the `doSave` method in your XMLExtension. The `doSave` method is called with a `Settings` context on extension startup and also whenever the settings are updated. For an example you can look at the [Content Model Settings](https://github.com/eclipse/lemminx/blob/main/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/extensions/contentmodel/settings/ContentModelSettings.java) and how they are updated in the [doSave method](https://github.com/eclipse/lemminx/blob/main/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/extensions/contentmodel/ContentModelPlugin.java#L73).
 
 ## Testing your custom LemMinX extension
 
-If you are using lemminx version >= `0.14.0` to build your extension you can use the lemminx [XMLAssert](https://github.com/eclipse/lemminx/blob/master/org.eclipse.lemminx/src/test/java/org/eclipse/lemminx/XMLAssert.java) class to test the functionality of your extension.
+If you are using lemminx version >= `0.14.0` to build your extension you can use the lemminx [XMLAssert](https://github.com/eclipse/lemminx/blob/main/org.eclipse.lemminx/src/test/java/org/eclipse/lemminx/XMLAssert.java) class to test the functionality of your extension.
 
 XMLAssert provides many static helper methods for building lsp4j structures such as CompletionItem, TextEdit, Hover etc. 
 
@@ -216,13 +216,13 @@ testCompletionFor(xml,
 );
 ```
 
-For more examples on how to use XMLAssert you can look at the [tests for the built-in lemminx extensions](https://github.com/eclipse/lemminx/tree/master/org.eclipse.lemminx/src/test/java/org/eclipse/lemminx/extensions).
+For more examples on how to use XMLAssert you can look at the [tests for the built-in lemminx extensions](https://github.com/eclipse/lemminx/tree/main/org.eclipse.lemminx/src/test/java/org/eclipse/lemminx/extensions).
 
 ## Integrating your extension with Editors/IDEs
 
 VSCode with [vscode-xml](https://github.com/redhat-developer/vscode-xml)
 
-- See documentation on [contributing your extension to vscode-xml](https://github.com/redhat-developer/vscode-xml/blob/master/docs/Extensions.md)
+- See documentation on [contributing your extension to vscode-xml](https://github.com/redhat-developer/vscode-xml/blob/main/docs/Extensions.md)
 
 Eclipse with [Wild Web Developer](https://github.com/eclipse/wildwebdeveloper)
 

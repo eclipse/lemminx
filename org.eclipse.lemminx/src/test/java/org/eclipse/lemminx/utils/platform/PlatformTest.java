@@ -49,7 +49,7 @@ public class PlatformTest {
 
 		String branch = Platform.getVersion().getBranch();
 		if (Version.MAIN_BRANCH.equals(branch)) {
-			assertFalse(details.contains(branch), "master branch should not be in the details");
+			assertFalse(details.contains(branch), "main branch should not be in the details");
 		} else {
 			assertTrue(details.contains(branch), branch + " branch is missing from the details");
 		}

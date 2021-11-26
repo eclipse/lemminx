@@ -17,7 +17,7 @@ pipeline{
     }
     stage('Deploy to downloads.eclipse.org') {
       when {
-        branch 'master'
+        branch 'main'
       }
       steps {
         sshagent ( ['projects-storage.eclipse.org-bot-ssh']) {
@@ -33,7 +33,7 @@ pipeline{
     }
     stage ('Deploy Maven artifacts') {
       when {
-          branch 'master'
+          branch 'main'
       }
       steps {
         withMaven {
