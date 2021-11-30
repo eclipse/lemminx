@@ -14,9 +14,7 @@ package org.eclipse.lemminx.telemetry;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -36,22 +34,19 @@ public class DocumentTelemetryInfo {
 	private static final String DOC_PROP_GRAMMAR_SCHEMALOC = "file.grammar.schemalocation";
 	private static final String DOC_PROP_GRAMMAR_NONSSCHEMALOC = "file.grammar.nonsschemalocation";
 
-	public static Map<String, Object> getDocumentTelemetryInfo (DOMDocument doc, ContentModelManager manager) {
+	public static void collectDocumentTelemetryInfo (DOMDocument doc, ContentModelManager manager, TelemetryCache cache) {
 		String uri = doc.getDocumentURI();
 		int index = uri.lastIndexOf('.');
 		String fileExtension = uri.substring(index + 1, uri.length()).toLowerCase();
 		boolean isXML = !DOMUtils.isXSD(doc) && !DOMUtils.isDTD(uri);
 		Set<ReferencedGrammarInfo> referencedGrammarInfos = manager.getReferencedGrammarInfos(doc);
-		HashMap<String, Object> props = new HashMap<>();
-		props.put(DOC_PROP_EXT, fileExtension);
+		cache.put(String.join(".", DOC_PROP_EXT, fileExtension));
 
 		if (referencedGrammarInfos.isEmpty()) {
 			if (isXML) {
-				props.put(DOC_PROP_GRAMMAR_NONE, true);
+				cache.put(DOC_PROP_GRAMMAR_NONE);
 			}
 		} else {
-			List<String> resolvers = new ArrayList<String>();
-			List<String> identifiers = new ArrayList<String>();
 			for (ReferencedGrammarInfo info : referencedGrammarInfos) {
 				String kind = info.getBindingKind() == null ? "none" : info.getBindingKind();
 				String resolver = info.getResolvedBy();
@@ -59,19 +54,19 @@ public class DocumentTelemetryInfo {
 				if (isXML) {
 					switch (kind) {
 					case "none":
-						props.put(DOC_PROP_GRAMMAR_NONE, true);
+						cache.put(DOC_PROP_GRAMMAR_NONE);
 						break;
 					case "doctype":
-						props.put(DOC_PROP_GRAMMAR_DOCTYPE, true);
+						cache.put(DOC_PROP_GRAMMAR_DOCTYPE);
 						break;
 					case "xml-model":
-						props.put(DOC_PROP_GRAMMAR_XMLMODEL, true);
+						cache.put(DOC_PROP_GRAMMAR_XMLMODEL);
 						break;
 					case "xsi:schemaLocation":
-						props.put(DOC_PROP_GRAMMAR_SCHEMALOC, true);
+						cache.put(DOC_PROP_GRAMMAR_SCHEMALOC);
 						break;
 					case "xsi:noNamespaceSchemaLocation":
-						props.put(DOC_PROP_GRAMMAR_NONSSCHEMALOC, true);
+						cache.put(DOC_PROP_GRAMMAR_NONSSCHEMALOC);
 						break;
 					}
 				}
@@ -80,28 +75,15 @@ public class DocumentTelemetryInfo {
 						// non-local identifiers only
 						if (new URI(identifier).getScheme() != null && !URIUtils.isFileResource(identifier)) {
 							int limit = Math.min(identifier.length(), 200); // 200 char limit
-							identifiers.add(identifier.substring(0, limit));
+							String shortId = identifier.substring(0, limit);
+							cache.put(String.join(".", DOC_PROP_IDENTIFIER, shortId));
 						}
 					} catch (URISyntaxException e) {
 						// continue
 					}
 				}
-				resolvers.add(resolver == null ? "default" : resolver);
-			}
-
-			if (resolvers.size() == 1) {
-				props.put(DOC_PROP_RESOLVER, resolvers.iterator().next());
-			} else {
-				props.put(DOC_PROP_RESOLVER, resolvers);
-			}
-			if (!identifiers.isEmpty()) {
-				if (identifiers.size() == 1) {
-					props.put(DOC_PROP_IDENTIFIER, identifiers.iterator().next());
-				} else {
-					props.put(DOC_PROP_IDENTIFIER, identifiers);
-				}
+				cache.put(String.join(".", DOC_PROP_RESOLVER, resolver == null ? "default" : resolver));
 			}
 		}
-		return props;
 	}
 }
