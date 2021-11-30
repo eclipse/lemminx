@@ -230,6 +230,7 @@ public class XMLLanguageServer
 		if (capabilityManager.getClientCapabilities().getExtendedCapabilities().shouldLanguageServerExitOnShutdown()) {
 			delayer.schedule(() -> exit(0) , 1, TimeUnit.SECONDS);
 		}
+		getTelemetryManager().shutdown();
 		return computeAsync(cc -> new Object());
 	}
 
