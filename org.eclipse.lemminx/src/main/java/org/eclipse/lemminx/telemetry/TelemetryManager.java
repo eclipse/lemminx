@@ -25,15 +25,20 @@ public class TelemetryManager {
 	 * "startup" telemetry event name
 	 */
 	private static final String STARTUP_EVENT_NAME = "server.initialized";
+	private static final String SHUTDOWN_EVENT_NAME = "server.shutdown";
 
+	@SuppressWarnings("unused")
 	private static final String DOC_OPEN_EVENT_NAME = "server.document.open";
 
 	private final LanguageClient languageClient;
+
+	private final TelemetryCache telemetryCache;
 
 	private boolean enabled;
 
 	public TelemetryManager(LanguageClient languageClient) {
 		this.languageClient = languageClient;
+		this.telemetryCache = new TelemetryCache();
 	}
 
 	public boolean isEnabled() {
@@ -56,7 +61,9 @@ public class TelemetryManager {
 	}
 
 	public void onDidOpen(DOMDocument document, ContentModelManager manager) {
-		telemetryEvent(DOC_OPEN_EVENT_NAME, DocumentTelemetryInfo.getDocumentTelemetryInfo(document, manager));
+		if (isEnabled()) {
+			DocumentTelemetryInfo.collectDocumentTelemetryInfo(document, manager, telemetryCache);
+		}
 	}
 
 	/**
@@ -66,6 +73,12 @@ public class TelemetryManager {
 	private void telemetryEvent(String eventName, Object object) {
 		if (languageClient != null) {
 			languageClient.telemetryEvent(new TelemetryEvent(eventName, object));
+		}
+	}
+
+	public void shutdown() {
+		if (isEnabled()) {
+			telemetryEvent(SHUTDOWN_EVENT_NAME, telemetryCache.getProperties());
 		}
 	}
 
