@@ -56,8 +56,10 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				+ //
 				"	<|" + //
 				"</project>";
-		testCompletionFor(xml, c("modelVersion", te(3, 1, 3, 2, "<modelVersion></modelVersion>"), "<modelVersion"), //
+		testCompletionWithCatalogFor(xml, //
+				c("modelVersion", te(3, 1, 3, 2, "<modelVersion></modelVersion>"), "<modelVersion"), //
 				c("parent", "<parent></parent>", "<parent"));
+
 		// completion on <| >
 		xml = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + //
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
@@ -65,8 +67,10 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				+ //
 				"	<|   >" + //
 				"</project>";
-		testCompletionFor(xml, c("modelVersion", te(3, 1, 3, 6, "<modelVersion></modelVersion>"), "<modelVersion"), //
+		testCompletionWithCatalogFor(xml, //
+				c("modelVersion", te(3, 1, 3, 6, "<modelVersion></modelVersion>"), "<modelVersion"), //
 				c("parent", "<parent></parent>", "<parent"));
+
 		// completion on |
 		xml = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + //
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
@@ -74,8 +78,10 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				+ //
 				"	|" + //
 				"</project>";
-		testCompletionFor(xml, c("modelVersion", te(3, 1, 3, 1, "<modelVersion></modelVersion>"), "modelVersion"), //
+		testCompletionWithCatalogFor(xml, //
+				c("modelVersion", te(3, 1, 3, 1, "<modelVersion></modelVersion>"), "modelVersion"), //
 				c("parent", "<parent></parent>", "parent"));
+
 		// completion on mod
 		xml = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + //
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
@@ -83,7 +89,8 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				+ //
 				"	mod|" + //
 				"</project>";
-		testCompletionFor(xml, c("modelVersion", te(3, 1, 3, 4, "<modelVersion></modelVersion>"), "modelVersion"), //
+		testCompletionWithCatalogFor(xml, //
+				c("modelVersion", te(3, 1, 3, 4, "<modelVersion></modelVersion>"), "modelVersion"), //
 				c("parent", "<parent></parent>", "parent"));
 	}
 
@@ -95,7 +102,8 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				+ //
 				"	<|  >" + // here last '<' is replaced with <modelVersion></modelVersion>
 				"</project>";
-		testCompletionFor(xml, c("modelVersion", te(3, 1, 3, 5, "<modelVersion></modelVersion>"), "<modelVersion"), //
+		testCompletionWithCatalogFor(xml,
+				c("modelVersion", te(3, 1, 3, 5, "<modelVersion></modelVersion>"), "<modelVersion"), //
 				c("parent", "<parent></parent>", "<parent"));
 	}
 
@@ -107,7 +115,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				+ //
 				"	<parent><|" + //
 				"</project>";
-		testCompletionFor(xml, c("groupId", "<groupId></groupId>", "<groupId"), //
+		testCompletionWithCatalogFor(xml, c("groupId", "<groupId></groupId>", "<groupId"), //
 				c("artifactId", "<artifactId></artifactId>", "<artifactId"), //
 				c("version", "<version></version>", "<version"));
 	}
@@ -120,7 +128,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				+ //
 				"	<parent>|" + //
 				"</project>";
-		testCompletionFor(xml, c("groupId", "<groupId></groupId>", "groupId"), //
+		testCompletionWithCatalogFor(xml, c("groupId", "<groupId></groupId>", "groupId"), //
 				c("artifactId", "<artifactId></artifactId>", "artifactId"), //
 				c("version", "<version></version>", "version"));
 	}
@@ -140,7 +148,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				"         http://camel.apache.org/schema/cxf http://camel.apache.org/schema/cxf/camel-cxf.xsd\">\r\n" + //
 				"\r\n" + //
 				"  <| ";
-		testCompletionFor(xml, c("bean", "<bean></bean>", "<bean"),
+		testCompletionWithCatalogFor(xml, c("bean", "<bean></bean>", "<bean"),
 				c("camel:camelContext", "<camel:camelContext></camel:camelContext>", "<camel:camelContext"));
 	}
 
@@ -159,7 +167,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				"         http://camel.apache.org/schema/cxf http://camel.apache.org/schema/cxf/camel-cxf.xsd\">\r\n" + //
 				"\r\n" + //
 				"  | ";
-		testCompletionFor(xml, c("bean", "<bean></bean>", "bean"),
+		testCompletionWithCatalogFor(xml, c("bean", "<bean></bean>", "bean"),
 				c("camel:camelContext", "<camel:camelContext></camel:camelContext>", "camel:camelContext"));
 	}
 
@@ -178,7 +186,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				"         http://camel.apache.org/schema/cxf http://camel.apache.org/schema/cxf/camel-cxf.xsd\">\r\n" + //
 				"\r\n" + //
 				"  <camel:| ";
-		testCompletionFor(xml, c("camel:camelContext", "<camel:camelContext></camel:camelContext>"));
+		testCompletionWithCatalogFor(xml, c("camel:camelContext", "<camel:camelContext></camel:camelContext>"));
 	}
 
 	@Test
@@ -196,7 +204,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				"         http://camel.apache.org/schema/cxf http://camel.apache.org/schema/cxf/camel-cxf.xsd\">\r\n" + //
 				"\r\n" + //
 				"  <camel:camelContext><| ";
-		testCompletionFor(xml, c("camel:route", "<camel:route></camel:route>"),
+		testCompletionWithCatalogFor(xml, c("camel:route", "<camel:route></camel:route>"),
 				c("camel:template", "<camel:template />"));
 	}
 
@@ -206,7 +214,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				"<root>\r\n" + //
 				"  <camelContext id=\"camel\" xmlns=\"http://camel.apache.org/schema/spring\">\r\n" + "\r\n" + //
 				"    <|";
-		testCompletionFor(xml, c("route", "<route></route>"), c("template", "<template />"));
+		testCompletionWithCatalogFor(xml, c("route", "<route></route>"), c("template", "<template />"));
 	}
 
 	@Test
@@ -259,7 +267,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
 				+ //
 				"	<bean |/>";
-		testCompletionFor(xml, c("abstract", "abstract=\"false\""), c("autowire", "autowire=\"default\""),
+		testCompletionWithCatalogFor(xml, c("abstract", "abstract=\"false\""), c("autowire", "autowire=\"default\""),
 				c("class", "class=\"\""));
 	}
 
@@ -269,7 +277,8 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
 				+ //
 				"	<bean autowire=\"|\"/>";
-		testCompletionFor(xml, c("byName", "byName"), c("byType", "byType"), c("constructor", "constructor"));
+		testCompletionWithCatalogFor(xml, c("byName", "byName"), c("byType", "byType"),
+				c("constructor", "constructor"));
 	}
 
 	@Test
@@ -419,49 +428,49 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
 				+ //
 				"	|";
-		testCompletionFor(xml, c("bean", "<bean></bean>"));
+		testCompletionWithCatalogFor(xml, c("bean", "<bean></bean>"));
 
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
 				+ //
 				"	|" + "</beans>";
-		testCompletionFor(xml, c("bean", "<bean></bean>"));
+		testCompletionWithCatalogFor(xml, c("bean", "<bean></bean>"));
 
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
 				+ //
 				"	<bean />|" + "</beans>";
-		testCompletionFor(xml, c("bean", "<bean></bean>"));
+		testCompletionWithCatalogFor(xml, c("bean", "<bean></bean>"));
 
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
 				+ //
 				"	<bean />|";
-		testCompletionFor(xml, c("bean", "<bean></bean>"));
+		testCompletionWithCatalogFor(xml, c("bean", "<bean></bean>"));
 
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
 				+ //
 				"	<bean ></bean>|" + "</beans>";
-		testCompletionFor(xml, c("bean", "<bean></bean>"));
+		testCompletionWithCatalogFor(xml, c("bean", "<bean></bean>"));
 
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
 				+ //
 				"	<bean ></bean>|";
-		testCompletionFor(xml, c("bean", "<bean></bean>"));
+		testCompletionWithCatalogFor(xml, c("bean", "<bean></bean>"));
 
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
 				+ //
 				"	<bean>|</bean>";
-		testCompletionFor(xml, c("constructor-arg", "<constructor-arg></constructor-arg>"));
+		testCompletionWithCatalogFor(xml, c("constructor-arg", "<constructor-arg></constructor-arg>"));
 
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
 				+ //
 				"	<bean>\r\n   |      \r\n</bean>";
-		testCompletionFor(xml, c("constructor-arg", "<constructor-arg></constructor-arg>"));
+		testCompletionWithCatalogFor(xml, c("constructor-arg", "<constructor-arg></constructor-arg>"));
 
 	}
 
@@ -541,7 +550,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				"      <Annotation Term=\"Core.DefaultNamespace\" />      \r\n" + //
 				"    </edmx:Include>\r\n" + //
 				" |";
-		testCompletionFor(xml, c("Annotation", "<Annotation Term=\"\"></Annotation>"), //
+		testCompletionWithCatalogFor(xml, c("Annotation", "<Annotation Term=\"\"></Annotation>"), //
 				c("edmx:Include", "<edmx:Include Namespace=\"\"></edmx:Include>"), //
 				c("edmx:IncludeAnnotations", "<edmx:IncludeAnnotations TermNamespace=\"\" />"));
 
@@ -550,7 +559,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				+ "  <edmx:DataServices>\r\n" + //
 				"    <Schema Namespace=\"ODataDemo\">\r\n" + //
 				" |";
-		testCompletionFor(xml, c("Action", "<Action Name=\"\"></Action>"), //
+		testCompletionWithCatalogFor(xml, c("Action", "<Action Name=\"\"></Action>"), //
 				c("Annotation", "<Annotation Term=\"\"></Annotation>"), //
 				c("Annotations", "<Annotations Target=\"\"></Annotations>"), //
 				c("ComplexType", "<ComplexType Name=\"\"></ComplexType>"));
@@ -618,50 +627,71 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 
 	@Test
 	public void xsiCompletionTestAllItems() throws BadLocationException {
-		String xml = "<project\r\n" + "    xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n"
-				+ "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + "    |>\r\n" + "</project>";
-		XMLAssert.testCompletionFor(xml, 4, c("xsi:nil", "xsi:nil=\"true\""), c("xsi:type", "xsi:type=\"\""),
-				c("xsi:noNamespaceSchemaLocation", "xsi:noNamespaceSchemaLocation=\"\""),
+		String xml = "<project\r\n" + //
+				"    xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + //
+				"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"    |>\r\n" + //
+				"</project>";
+
+		XMLAssert.testCompletionFor(xml, 4, //
+				c("xsi:nil", "xsi:nil=\"true\""), //
+				c("xsi:type", "xsi:type=\"\""), //
+				c("xsi:noNamespaceSchemaLocation", "xsi:noNamespaceSchemaLocation=\"\""), //
 				c("xsi:schemaLocation", "xsi:schemaLocation=\"\""));
 	}
 
 	@Test
 	public void xsiCompletionNonRootElement() throws BadLocationException {
-		String xml = "<project\r\n" + "    xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n"
-				+ "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n"
-				+ "    xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n"
-				+ "  <modelVersion xs|></modelVersion>\r\n" + "</project>";
+		String xml = "<project\r\n" + //
+				"    xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + //
+				"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"    xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n"
+				+ //
+				"  <modelVersion xs|></modelVersion>\r\n" + "</project>";
 
-		XMLAssert.testCompletionFor(xml, 2, c("xsi:nil", "xsi:nil=\"true\""), c("xsi:type", "xsi:type=\"\""));
+		XMLAssert.testCompletionFor(xml, 2, //
+				c("xsi:nil", "xsi:nil=\"true\""), //
+				c("xsi:type", "xsi:type=\"\""));
 	}
 
 	@Test
 	public void xsiCompletionNonRootElement2() throws BadLocationException {
-		String xml = "<project\r\n" + "    xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n"
-				+ "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n"
-				+ "    xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n"
-				+ "  <modelVersion xsi:nil=\"\" |></modelVersion>\r\n" + "</project>";
+		String xml = "<project\r\n" + "    xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + //
+				"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"    xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n"
+				+ //
+				"  <modelVersion xsi:nil=\"\" |></modelVersion>\r\n" + "</project>";
 
-		XMLAssert.testCompletionFor(xml, 1, c("xsi:type", "xsi:type=\"\""));
+		XMLAssert.testCompletionFor(xml, 1, //
+				c("xsi:type", "xsi:type=\"\""));
 	}
 
 	@Test
 	public void xsiCompletionNotUsingXSIName() throws BadLocationException {
-		String xml = "<project\r\n" + "    xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n"
-				+ "    xmlns:XXY=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n"
-				+ "    XXY:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\" |>\r\n"
-				+ "  <modelVersion></modelVersion>\r\n" + "</project>";
+		String xml = "<project\r\n" + //
+				"    xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + //
+				"    xmlns:XXY=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"    XXY:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\" |>\r\n"
+				+ //
+				"  <modelVersion></modelVersion>\r\n" + "</project>";
 
-		XMLAssert.testCompletionFor(xml, 4, c("XXY:nil", "XXY:nil=\"true\""), c("XXY:type", "XXY:type=\"\""),
+		testCompletionWithCatalogFor(xml, 4, //
+				c("child.project.url.inherit.append.path", "child.project.url.inherit.append.path=\"\""), //
+				c("XXY:nil", "XXY:nil=\"true\""), //
+				c("XXY:type", "XXY:type=\"\""),
 				c("XXY:noNamespaceSchemaLocation", "XXY:noNamespaceSchemaLocation=\"\""));
 	}
 
 	@Test
 	public void xmlnsXSICompletion() throws BadLocationException {
-		String xml = "<project\r\n" + "    xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + "    xsi:|>\r\n"
-				+ "  <modelVersion></modelVersion>\r\n" + "</project>";
+		String xml = "<project\r\n" + //
+				"    xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + //
+				"    xsi:|>\r\n" + //
+				"  <modelVersion></modelVersion>\r\n" + //
+				"</project>";
 
-		XMLAssert.testCompletionFor(xml, 1, c("xmlns:xsi", "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""));
+		XMLAssert.testCompletionFor(xml, 1, //
+				c("xmlns:xsi", "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""));
 	}
 
 	@Test
@@ -675,12 +705,16 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 
 	@Test
 	public void xsiCompletionSchemaLocationExists() throws BadLocationException {
-		String xml = "<project\r\n" + "    xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n"
-				+ "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n"
-				+ "    xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\" |>\r\n"
-				+ "  <modelVersion></modelVersion>\r\n" + "</project>";
+		String xml = "<project\r\n" + //
+				"    xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + //
+				"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"    xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd\" |>\r\n"
+				+ "  <modelVersion></modelVersion>\r\n" + //
+				"</project>";
 
-		XMLAssert.testCompletionFor(xml, 4, c("xsi:nil", "xsi:nil=\"true\""), c("xsi:type", "xsi:type=\"\""),
+		XMLAssert.testCompletionFor(xml, 4, //
+				c("xsi:nil", "xsi:nil=\"true\""), //
+				c("xsi:type", "xsi:type=\"\""), //
 				c("xsi:noNamespaceSchemaLocation", "xsi:noNamespaceSchemaLocation=\"\""));
 	}
 
@@ -1237,7 +1271,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				+ //
 				"	<|" + //
 				"</project>";
-		testCompletionFor(xml, c("groupId", te(3, 1, 3, 2, "<groupId></groupId>"), "<groupId", "3.0.0+" + //
+		testCompletionWithCatalogFor(xml, c("groupId", te(3, 1, 3, 2, "<groupId></groupId>"), "<groupId", "3.0.0+" + //
 				System.lineSeparator() + //
 				System.lineSeparator() + //
 				"A universally unique identifier for a project. It is normal to use " + //
@@ -1274,8 +1308,14 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				"/");
 	}
 
-	private void testCompletionFor(String xml, CompletionItem... expectedItems) throws BadLocationException {
-		XMLAssert.testCompletionFor(xml, "src/test/resources/catalogs/catalog.xml", expectedItems);
+	private static void testCompletionWithCatalogFor(String xml, CompletionItem... expectedItems)
+			throws BadLocationException {
+		testCompletionWithCatalogFor(xml, null, expectedItems);
+	}
+
+	private static void testCompletionWithCatalogFor(String xml, Integer expectedCount, CompletionItem... expectedItems)
+			throws BadLocationException {
+		XMLAssert.testCompletionFor(xml, "src/test/resources/catalogs/catalog.xml", null, expectedCount, expectedItems);
 	}
 
 	private void testCompletionMarkdownSupportFor(String xml, CompletionItem... expectedItems)

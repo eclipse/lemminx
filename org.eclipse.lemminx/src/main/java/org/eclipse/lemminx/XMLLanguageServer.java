@@ -75,8 +75,7 @@ import org.eclipse.lsp4j.services.WorkspaceService;
  * XML language server.
  *
  */
-public class XMLLanguageServer
-		implements ProcessLanguageServer, XMLLanguageServerAPI, IXMLDocumentProvider,
+public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServerAPI, IXMLDocumentProvider,
 		IXMLNotificationService, IXMLValidationService {
 
 	private static final Logger LOGGER = Logger.getLogger(XMLLanguageServer.class.getName());
@@ -109,7 +108,7 @@ public class XMLLanguageServer
 		Object xmlSettings = AllXMLSettings.getAllXMLSettings(initOptions);
 		XMLGeneralClientSettings settings = XMLGeneralClientSettings.getGeneralXMLSettings(xmlSettings);
 
-		LogHelper.initializeRootLogger(languageClient, settings == null? null : settings.getLogs());
+		LogHelper.initializeRootLogger(languageClient, settings == null ? null : settings.getLogs());
 
 		LOGGER.info("Initializing XML Language server" + System.lineSeparator() + Platform.details());
 
@@ -126,7 +125,7 @@ public class XMLLanguageServer
 		xmlTextDocumentService.updateClientCapabilities(capabilityManager.getClientCapabilities().capabilities,
 				capabilityManager.getClientCapabilities().getExtendedCapabilities());
 
-		updateSettings(initOptions, false /* already configured logging*/ );
+		updateSettings(initOptions, false /* already configured logging */ );
 
 		ServerCapabilities nonDynamicServerCapabilities = ServerCapabilitiesInitializer.getNonDynamicServerCapabilities(
 				capabilityManager.getClientCapabilities(), xmlTextDocumentService.isIncrementalSupport());
@@ -162,7 +161,7 @@ public class XMLLanguageServer
 	 * Update XML settings configured from the client.
 	 *
 	 * @param initOptions Settings the XML settings
-	 * @param initLogs whether to initialize the log handlers
+	 * @param initLogs    whether to initialize the log handlers
 	 */
 	private synchronized void updateSettings(Object initOptions, boolean initLogs) {
 		if (initOptions == null) {
@@ -227,8 +226,8 @@ public class XMLLanguageServer
 	@Override
 	public CompletableFuture<Object> shutdown() {
 		xmlLanguageService.dispose();
-		if (capabilityManager.getClientCapabilities().getExtendedCapabilities().shouldLanguageServerExitOnShutdown()) {
-			delayer.schedule(() -> exit(0) , 1, TimeUnit.SECONDS);
+		if (capabilityManager.getClientCapabilities().shouldLanguageServerExitOnShutdown()) {
+			delayer.schedule(() -> exit(0), 1, TimeUnit.SECONDS);
 		}
 		getTelemetryManager().shutdown();
 		return computeAsync(cc -> new Object());
@@ -285,7 +284,8 @@ public class XMLLanguageServer
 	@Override
 	public CompletableFuture<AutoCloseTagResponse> closeTag(TextDocumentPositionParams params) {
 		return xmlTextDocumentService.computeDOMAsync(params.getTextDocument(), (cancelChecker, xmlDocument) -> {
-			return getXMLLanguageService().doAutoClose(xmlDocument, params.getPosition(), getSettings().getCompletionSettings(), cancelChecker);
+			return getXMLLanguageService().doAutoClose(xmlDocument, params.getPosition(),
+					getSettings().getCompletionSettings(), cancelChecker);
 		});
 	}
 
@@ -323,9 +323,9 @@ public class XMLLanguageServer
 
 	@Override
 	public Collection<DOMDocument> getAllDocuments() {
-		return xmlTextDocumentService.allDocuments().stream()
-				.map(m -> m.getModel().getNow(null))
-				.filter(Objects::nonNull)
+		return xmlTextDocumentService.allDocuments().stream() //
+				.map(m -> m.getModel().getNow(null)) //
+				.filter(Objects::nonNull) //
 				.collect(Collectors.toList());
 	}
 

@@ -38,6 +38,7 @@ import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.settings.EnforceQuoteStyle;
 import org.eclipse.lemminx.settings.QuoteStyle;
 import org.eclipse.lemminx.settings.SharedSettings;
+import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticRelatedInformation;
 import org.eclipse.lsp4j.DiagnosticSeverity;
@@ -556,13 +557,21 @@ public class XMLSchemaDiagnosticsTest {
 		String xml = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" \r\n"
 				+ "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n"
 				+ "         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n"
-				+ "    <modules>\r\n" + "      <bodule></bodule>\r\n" + // should be 'module'
-				"    </modules>\r\n" + "</project>";
+				+ "    <modules>\r\n" + //
+				"      <bodule></bodule>\r\n" + // should be 'module'
+				"    </modules>\r\n" + //
+				"</project>";
 		Diagnostic diagnostic = d(4, 7, 4, 13, XMLSchemaErrorCode.cvc_complex_type_2_4_a,
 				"Invalid element name:\n - bodule\n\nOne of the following is expected:\n - module\n\nError indicated by:\n {http://maven.apache.org/POM/4.0.0}\nwith code:");
 		testDiagnosticsWithCatalogFor(xml, diagnostic);
 
-		testCodeActionsFor(xml, diagnostic, ca(diagnostic, te(4, 7, 4, 13, "module"), te(4, 16, 4, 22, "module")));
+		testCodeActionsWithCatalogFor(xml, diagnostic,
+				ca(diagnostic, te(4, 7, 4, 13, "module"), te(4, 16, 4, 22, "module")));
+	}
+
+	private void testCodeActionsWithCatalogFor(String xml, Diagnostic diagnostic, CodeAction... expected)
+			throws BadLocationException {
+		XMLAssert.testCodeActionsFor(xml, diagnostic, "src/test/resources/catalogs/catalog.xml", expected);
 	}
 
 	@Test
@@ -586,7 +595,7 @@ public class XMLSchemaDiagnosticsTest {
 						" {http://maven.apache.org/POM/4.0.0}\n" + //
 						"with code:");
 		testDiagnosticsWithCatalogFor(xml, diagnostic);
-		testCodeActionsFor(xml, diagnostic, //
+		testCodeActionsWithCatalogFor(xml, diagnostic, //
 				ca(diagnostic, te(4, 7, 4, 16, "notifiers"), te(4, 19, 4, 28, "notifiers")), //
 				ca(diagnostic, te(4, 7, 4, 16, "system"), te(4, 19, 4, 28, "system")), //
 				ca(diagnostic, te(4, 7, 4, 16, "url"), te(4, 19, 4, 28, "url")));
@@ -629,8 +638,8 @@ public class XMLSchemaDiagnosticsTest {
 		Diagnostic diagnostic = d(6, 5, 6, 16, XMLSchemaErrorCode.cvc_complex_type_2_4_c,
 				"cvc-complex-type.2.4.c: The matching wildcard is strict, but no declaration can be found for element 'camel:beani'.");
 		testDiagnosticsWithCatalogFor(xml, diagnostic);
-
-		testCodeActionsFor(xml, diagnostic, //
+		
+		testCodeActionsWithCatalogFor(xml, diagnostic, //
 				ca(diagnostic, te(6, 11, 6, 16, "bean"), te(6, 25, 6, 30, "bean")), //
 				ca(diagnostic, te(6, 11, 6, 16, "beanio"), te(6, 25, 6, 30, "beanio")));
 	}
@@ -1236,7 +1245,7 @@ public class XMLSchemaDiagnosticsTest {
 				"<team\r\n" + //
 				"     name=\"too long a string\"\r\n" + // <- error
 				"     xmlns=\"team_namespace\"\r\n" + //
-				"     xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //SchemaLocation
+				"     xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + // SchemaLocation
 				"     xsi:schemaLocation=\"team_namespace BAD_LOCATION.xsd \">\r\n" + //
 				"</team>";
 		testDiagnosticsFor(xml, null, null, null, true, settings);
@@ -1244,12 +1253,9 @@ public class XMLSchemaDiagnosticsTest {
 
 	@Test
 	public void schemaLocationWithOddUris() throws Exception {
-		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
-		"<ns:root\r\n" +
-		"xmlns:ns='http://foo'\r\n" +
-		"xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'\r\n" +
-		"xsi:schemaLocation='http://foo foo.xsd http://bar'>\r\n" +
-		"</ns:root>";
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + "<ns:root\r\n" + "xmlns:ns='http://foo'\r\n"
+				+ "xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'\r\n"
+				+ "xsi:schemaLocation='http://foo foo.xsd http://bar'>\r\n" + "</ns:root>";
 
 		Diagnostic d1 = d(4, 19, 4, 50, XMLSchemaErrorCode.SchemaLocation);
 		Diagnostic d2 = d(4, 31, 4, 38, XMLSchemaErrorCode.schema_reference_4);

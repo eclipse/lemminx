@@ -114,7 +114,7 @@ public class ClientCapabilitiesWrapper {
 	public boolean isDidChangeWatchedFilesRegistered() {
 		return v3Supported && isDynamicRegistrationSupported(capabilities.getWorkspace().getDidChangeWatchedFiles());
 	}
-	
+
 	public boolean isLinkedEditingRangeDynamicRegistered() {
 		return v3Supported && isDynamicRegistrationSupported(getTextDocument().getLinkedEditingRange());
 	}
@@ -133,9 +133,22 @@ public class ClientCapabilitiesWrapper {
 	}
 
 	public boolean isWorkspaceFoldersSupported() {
-		return Optional.ofNullable(this.capabilities)
-				.map(ClientCapabilities::getWorkspace)
-				.map(WorkspaceClientCapabilities::getWorkspaceFolders)
+		return Optional.ofNullable(this.capabilities) //
+				.map(ClientCapabilities::getWorkspace) //
+				.map(WorkspaceClientCapabilities::getWorkspaceFolders) //
 				.filter(Boolean.TRUE::equals).isPresent();
+	}
+
+	/**
+	 * Returns true if the client should exit on shutdown() request and avoid
+	 * waiting for an exit() request
+	 *
+	 * @return true if the language server should exit on shutdown() request
+	 */
+	public boolean shouldLanguageServerExitOnShutdown() {
+		if (extendedCapabilities == null) {
+			return false;
+		}
+		return extendedCapabilities.shouldLanguageServerExitOnShutdown();
 	}
 }
