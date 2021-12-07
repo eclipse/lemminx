@@ -67,7 +67,7 @@ public class XMLSchemaTypeDefinitionWithCacheExtensionsTest extends AbstractCach
 				"	xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n";
 
 		testTypeDefinitionFor(ls, null, configuration, xml, "pom.xml",
-				ll(targetSchemaURI, r(0, 1, 0, 8), r(6, 19, 6, 28)));
+				ll(targetSchemaURI, r(0, 1, 0, 8), r(24, 19, 24, 28)));
 
 		// /project/parent type definition
 		xml = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + // <- type definition for project
@@ -76,7 +76,7 @@ public class XMLSchemaTypeDefinitionWithCacheExtensionsTest extends AbstractCach
 				+ "<paren|t>";
 
 		testTypeDefinitionFor(ls, null, configuration, xml, "pom.xml",
-				ll(targetSchemaURI, r(3, 1, 3, 7), r(34, 37, 34, 45)));
+				ll(targetSchemaURI, r(3, 1, 3, 7), r(52, 37, 52, 45)));
 
 		// /project/parent/groupId type definition
 		xml = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + // <- type definition for project
@@ -85,7 +85,7 @@ public class XMLSchemaTypeDefinitionWithCacheExtensionsTest extends AbstractCach
 				+ "<parent>" + "<grou|pId>";
 
 		testTypeDefinitionFor(ls, null, configuration, xml, "pom.xml",
-				ll(targetSchemaURI, r(3, 9, 3, 16), r(358, 37, 358, 46)));
+				ll(targetSchemaURI, r(3, 9, 3, 16), r(842, 37, 842, 46)));
 
 		// /project/XXX type definition
 		xml = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + // <- type definition for project
