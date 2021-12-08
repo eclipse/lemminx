@@ -180,6 +180,9 @@ public class XMLRename {
 		String fullNodeName = element.getNodeName();
 		int indexOfColon = fullNodeName.indexOf(":");
 		if (indexOfColon > 0) {
+			// Take the prefix and local name of the namespace tag
+			String prefix = element.getPrefix();
+
 			Position startTagStartPosition = startTagRange.getStart();
 			Position startTagPrefixPosition = new Position(startTagStartPosition.getLine(),
 					startTagStartPosition.getCharacter() + indexOfColon);
@@ -191,23 +194,35 @@ public class XMLRename {
 			Range startTagPrefixRange = new Range(startTagStartPosition, startTagPrefixPosition);
 			Range endTagPrefixRange = new Range(endTagStartPosition, endTagPrefixPosition);
 
-			if (doesTagCoverPosition(startTagPrefixRange, endTagPrefixRange, position)) {// Element prefix rename
-				String prefix = element.getPrefix();
+			String suffixName = element.getLocalName();
+			int suffixLength = suffixName.length();
+			Position startTagEndPosition = startTagRange.getEnd();
+			Position suffixStartPositionStart = new Position(startTagEndPosition.getLine(),
+					startTagEndPosition.getCharacter() - suffixLength);
+
+			Position endTagEndPosition = endTagRange.getEnd();
+			Position suffixEndPositionStart = new Position(endTagEndPosition.getLine(),
+					endTagEndPosition.getCharacter() - suffixLength);
+
+			Range suffixRangeStart = new Range(suffixStartPositionStart, startTagEndPosition);
+			Range suffixRangeEnd = new Range(suffixEndPositionStart, endTagEndPosition);
+
+			if (newText.contains(":")) {
+				String[] tagParts = newText.split(":", 2);
+				List<TextEdit> tagTextEdits = new ArrayList<TextEdit>();
+				// Tag prefix rename
+				if (!prefix.equals(tagParts[0])) {
+					tagTextEdits.addAll(renameElementNamespace(xmlDocument, element, prefix.length(), tagParts[0]));
+				}
+				// Tag suffix/local name rename
+				if (!suffixName.equals(tagParts[1])) {
+					tagTextEdits.addAll(getRenameList(suffixRangeStart, suffixRangeEnd, tagParts[1]));
+				}
+				return tagTextEdits;
+
+			} else if (doesTagCoverPosition(startTagPrefixRange, endTagPrefixRange, position)) {
 				return renameElementNamespace(xmlDocument, element, prefix.length(), newText);
-			} else { // suffix rename without wiping namespace
-				String suffixName = element.getLocalName();
-				int suffixLength = suffixName.length();
-				Position startTagEndPosition = startTagRange.getEnd();
-				Position suffixStartPositionStart = new Position(startTagEndPosition.getLine(),
-						startTagEndPosition.getCharacter() - suffixLength);
-
-				Position endTagEndPosition = endTagRange.getEnd();
-				Position suffixEndPositionStart = new Position(endTagEndPosition.getLine(),
-						endTagEndPosition.getCharacter() - suffixLength);
-
-				Range suffixRangeStart = new Range(suffixStartPositionStart, startTagEndPosition);
-				Range suffixRangeEnd = new Range(suffixEndPositionStart, endTagEndPosition);
-
+			} else {
 				return getRenameList(suffixRangeStart, suffixRangeEnd, newText);
 			}
 		}
