@@ -14,6 +14,8 @@ package org.eclipse.lemminx.extensions.contentmodel.participants.codeactions;
 
 import java.util.Collection;
 import java.util.List;
+import java.text.Collator;
+import java.util.TreeSet;
 
 import org.eclipse.lemminx.commons.CodeActionFactory;
 import org.eclipse.lemminx.dom.DOMAttr;
@@ -29,6 +31,8 @@ import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+
+import static org.eclipse.lemminx.utils.StringUtils.isSimilar;
 
 /**
  * Code action to fix cvc-attribute-3 error.
@@ -48,6 +52,7 @@ public class cvc_attribute_3CodeAction implements ICodeActionParticipant {
 				String attributeName = attr.getName();
 				ContentModelManager contentModelManager = componentProvider.getComponent(ContentModelManager.class);
 				Collection<CMDocument> cmDocuments = contentModelManager.findCMDocument(element);
+				String attributeValue = attr.getValue();
 				for (CMDocument cmDocument : cmDocuments) {
 					CMAttributeDeclaration cmAttribute = cmDocument.findCMAttribute(element, attributeName);
 					if (cmAttribute != null) {
@@ -56,14 +61,33 @@ public class cvc_attribute_3CodeAction implements ICodeActionParticipant {
 										diagnosticRange.getStart().getCharacter() + 1),
 								new Position(diagnosticRange.getEnd().getLine(),
 										diagnosticRange.getEnd().getCharacter() - 1));
-						cmAttribute.getEnumerationValues().forEach(value -> {
-							// Replace attribute value
-							// value = "${1:" + value + "}";
-							CodeAction replaceAttrValueAction = CodeActionFactory.replace(
-									"Replace with '" + value + "'", rangeValue, value, document.getTextDocument(),
-									diagnostic);
-							codeActions.add(replaceAttrValueAction);
-						});
+						Collection<String> similarValues = new TreeSet<String>(Collator.getInstance());
+						Collection<String> otherValues = new TreeSet<String>(Collator.getInstance());
+
+						for (String enumValue : cmAttribute.getEnumerationValues()) {
+							if (isSimilar(enumValue, attributeValue)) {
+								similarValues.add(enumValue);
+							} else {
+								otherValues.add(enumValue);
+							}
+						}
+						if (!similarValues.isEmpty()) {
+							// Add code actions for each similar value
+							for (String similarValue : similarValues) {
+								CodeAction similarCodeAction = CodeActionFactory.replace(
+										"Did you mean '" + similarValue + "'?", rangeValue, similarValue, document.getTextDocument(),
+										diagnostic);
+								codeActions.add(similarCodeAction);
+							}
+						} else {
+							// Add code actions for each possible elements
+							for (String otherValue : otherValues) {
+								CodeAction otherCodeAction = CodeActionFactory.replace(
+										"Replace with '" + otherValue + "'", rangeValue, otherValue, document.getTextDocument(),
+										diagnostic);
+								codeActions.add(otherCodeAction);
+							}
+						}
 					}
 				}
 			}
