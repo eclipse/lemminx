@@ -638,7 +638,6 @@ public class XMLSchemaDiagnosticsTest {
 		Diagnostic diagnostic = d(6, 5, 6, 16, XMLSchemaErrorCode.cvc_complex_type_2_4_c,
 				"cvc-complex-type.2.4.c: The matching wildcard is strict, but no declaration can be found for element 'camel:beani'.");
 		testDiagnosticsWithCatalogFor(xml, diagnostic);
-		
 		testCodeActionsWithCatalogFor(xml, diagnostic, //
 				ca(diagnostic, te(6, 11, 6, 16, "bean"), te(6, 25, 6, 30, "bean")), //
 				ca(diagnostic, te(6, 11, 6, 16, "beanio"), te(6, 25, 6, 30, "beanio")));
@@ -657,6 +656,20 @@ public class XMLSchemaDiagnosticsTest {
 				ca(diagnostic, te(5, 12, 5, 17, "AElement1"), te(5, 28, 5, 33, "AElement1")),
 				ca(diagnostic, te(5, 12, 5, 17, "AElement2"), te(5, 28, 5, 33, "AElement2")));
 	}
+
+	@Test
+	public void fuzzyElementMemberValueCodeActionTest() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<dress \r\n" +
+				"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" +
+				"xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/dressSize.xsd\"\r\n" +
+				"size=\"larg\"/>";
+		Diagnostic diagnostic1 = d(4, 5, 4, 11, XMLSchemaErrorCode.cvc_attribute_3,
+				"cvc-attribute.3: The value 'larg' of attribute 'size' on element 'dress' is not valid with respect to its type, 'SizeType'.");
+		testCodeActionsFor(xml, diagnostic1,
+				ca(diagnostic1, te(4, 6, 4, 10, "large")), ca(diagnostic1, te(4, 6, 4, 10, "x-large")));
+	}
+
 
 	@Test
 	public void cvc_complex_type_2_2_withElement() throws Exception {
