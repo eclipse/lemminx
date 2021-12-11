@@ -1,8 +1,21 @@
 # Change Log
 
+## [0.18.2](https://github.com/eclipse/lemminx/milestone/28?closed=1) (December 14, 2021)
+
+### Enhancements
+
+* Improved accuracy of attribute value quick fix suggestions. See [#1136](https://github.com/eclipse/lemminx/pull/1136)
+
+### Bug Fixes
+
+* Shutdown raises exception. See [#1132](https://github.com/eclipse/lemminx/issues/1132).
+* Transmit document telemetry in aggregate instead of on document open. See [#1131](https://github.com/eclipse/lemminx/pull/1131)
+* Fixed tag rename for XML tags containing colons. See [#1135](https://github.com/eclipse/lemminx/pull/1135)
+
 ## [0.18.1](https://github.com/eclipse/lemminx/milestone/27?closed=1) (November 2, 2021)
 
 ### Enhancements
+
  * Register a command "xml.check.file.pattern". See [#1112](https://github.com/eclipse/lemminx/pull/1112).
  * Report schema identifier of XML document through telemetry event. See [#1105](https://github.com/eclipse/lemminx/issues/1105).
 
