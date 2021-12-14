@@ -28,6 +28,8 @@ public class StringUtils {
 	public static final String FALSE = "false";
 	public static final Collection<String> TRUE_FALSE_ARRAY = Arrays.asList(TRUE, FALSE);
 
+	private static final float MAX_DISTANCE_DIFF_RATIO = 0.4f;
+
 	private StringUtils() {
 	}
 
@@ -65,7 +67,7 @@ public class StringUtils {
 
 	/**
 	 * Checks if a string is null or consists of only whitespace characters.
-	 * 
+	 *
 	 * @param value The string to check
 	 * @return <code>true</code> if any of the below hold, and false otherwise:
 	 * <ul>
@@ -456,7 +458,7 @@ public class StringUtils {
 	/**
 	 * Returns the start word offset from the left of the given <code>offset</code>
 	 * and -1 if no word.
-	 * 
+	 *
 	 * @param text        the text
 	 * @param offset      the offset
 	 * @param isValidChar predicate to check if current character belong to the
@@ -479,7 +481,7 @@ public class StringUtils {
 	/**
 	 * Returns the end word offset from the right of the given <code>offset</code>
 	 * and -1 if no word.
-	 * 
+	 *
 	 * @param text        the text
 	 * @param offset      the offset
 	 * @param isValidChar predicate to check if current character belong to the
@@ -501,10 +503,10 @@ public class StringUtils {
 
 	/**
 	 * Returns <code>value</code> without surrounding quotes.
-	 * 
+	 *
 	 * If <code>value</code> does not have matching surrounding quotes,
 	 * returns <code>value</code>.
-	 * 
+	 *
 	 * @param value
 	 * @return <code>value</code> without surrounding quotes.
 	 */
@@ -519,7 +521,7 @@ public class StringUtils {
 	/**
 	 * Returns true if <code>value</code> has matching surrounding quotes
 	 * and false otherwise.
-	 * 
+	 *
 	 * @param value
 	 * @return true if <code>value</code> has matching surrounding quotes.
 	 */
@@ -534,6 +536,19 @@ public class StringUtils {
 		}
 		char quoteValueEnd = value.charAt(value.length() - 1);
 		return quoteValueEnd == quoteValueStart;
+	}
+
+	/**
+	 * Uses Levenshtein distance to determine similarity between strings
+	 *
+	 * @param reference the string being compared to
+	 * @param current   the string compared
+	 * @return          true if the two strings are similar, false otherwise
+	 */
+	public static boolean isSimilar(String reference, String current) {
+		int threshold = Math.round(MAX_DISTANCE_DIFF_RATIO * reference.length());
+		LevenshteinDistance levenshteinDistance = new LevenshteinDistance(threshold);
+		return levenshteinDistance.apply(reference, current) != -1;
 	}
 }
 

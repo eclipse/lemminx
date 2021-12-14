@@ -27,18 +27,17 @@ import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.IComponentProvider;
 import org.eclipse.lemminx.settings.SharedSettings;
-import org.eclipse.lemminx.utils.LevenshteinDistance;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Range;
 
+import static org.eclipse.lemminx.utils.StringUtils.isSimilar;
+
 /**
  * cvc_complex_type_2_4_a
  */
 public class cvc_complex_type_2_4_aCodeAction implements ICodeActionParticipant {
-
-	private static final float MAX_DISTANCE_DIFF_RATIO = 0.4f;
 
 	@Override
 	public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
@@ -86,7 +85,7 @@ public class cvc_complex_type_2_4_aCodeAction implements ICodeActionParticipant 
 					}
 
 					if (!similarElementNames.isEmpty()) {
-						// // Add code actions for each similar elements
+						// Add code actions for each similar elements
 						for (String elementName : similarElementNames) {
 							CodeAction similarCodeAction = CodeActionFactory.replaceAt(
 									"Did you mean '" + elementName + "'?", elementName, document.getTextDocument(),
@@ -112,7 +111,7 @@ public class cvc_complex_type_2_4_aCodeAction implements ICodeActionParticipant 
 
 	/**
 	 * Returns the possible elements for the given DOM element.
-	 * 
+	 *
 	 * @param element           the DOM element
 	 * @param componentProvider the component provider
 	 * @return the possible elements for the given DOM element.
@@ -149,9 +148,4 @@ public class cvc_complex_type_2_4_aCodeAction implements ICodeActionParticipant 
 		return possibleElements;
 	}
 
-	private static boolean isSimilar(String reference, String current) {
-		int threshold = Math.round(MAX_DISTANCE_DIFF_RATIO * reference.length());
-		LevenshteinDistance levenshteinDistance = new LevenshteinDistance(threshold);
-		return levenshteinDistance.apply(reference, current) != -1;
-	}
 }
