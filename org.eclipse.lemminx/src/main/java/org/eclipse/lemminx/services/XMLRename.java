@@ -182,31 +182,38 @@ public class XMLRename {
 		if (indexOfColon > 0) {
 			// Take the prefix and local name of the namespace tag
 			String prefix = element.getPrefix();
-
-			Position startTagStartPosition = startTagRange.getStart();
-			Position startTagPrefixPosition = new Position(startTagStartPosition.getLine(),
-					startTagStartPosition.getCharacter() + indexOfColon);
-
-			Position endTagStartPosition = endTagRange.getStart();
-			Position endTagPrefixPosition = new Position(endTagStartPosition.getLine(),
-					endTagStartPosition.getCharacter() + indexOfColon);
-
-			Range startTagPrefixRange = new Range(startTagStartPosition, startTagPrefixPosition);
-			Range endTagPrefixRange = new Range(endTagStartPosition, endTagPrefixPosition);
-
 			String suffixName = element.getLocalName();
 			int suffixLength = suffixName.length();
-			Position startTagEndPosition = startTagRange.getEnd();
-			Position suffixStartPositionStart = new Position(startTagEndPosition.getLine(),
-					startTagEndPosition.getCharacter() - suffixLength);
 
-			Position endTagEndPosition = endTagRange.getEnd();
-			Position suffixEndPositionStart = new Position(endTagEndPosition.getLine(),
-					endTagEndPosition.getCharacter() - suffixLength);
+			// Start tag
+			Range startTagPrefixRange = null;
+			Range suffixRangeStart = null;
+			if (startTagRange != null) {
+				Position startTagStartPosition = startTagRange.getStart();
+				Position startTagPrefixPosition = new Position(startTagStartPosition.getLine(),
+						startTagStartPosition.getCharacter() + indexOfColon);
+				Position startTagEndPosition = startTagRange.getEnd();
+				Position suffixStartPositionStart = new Position(startTagEndPosition.getLine(),
+				startTagEndPosition.getCharacter() - suffixLength);
+				startTagPrefixRange = new Range(startTagStartPosition, startTagPrefixPosition);
+				suffixRangeStart = new Range(suffixStartPositionStart, startTagEndPosition);
+			}
 
-			Range suffixRangeStart = new Range(suffixStartPositionStart, startTagEndPosition);
-			Range suffixRangeEnd = new Range(suffixEndPositionStart, endTagEndPosition);
+			// End tag
+			Range suffixRangeEnd = null;
+			Range endTagPrefixRange = null;
+			if (endTagRange != null) {
+				Position endTagStartPosition = endTagRange.getStart();
+				Position endTagPrefixPosition = new Position(endTagStartPosition.getLine(),
+						endTagStartPosition.getCharacter() + indexOfColon);
+				Position endTagEndPosition = endTagRange.getEnd();
+				Position suffixEndPositionStart = new Position(endTagEndPosition.getLine(),
+						endTagEndPosition.getCharacter() - suffixLength);
+				endTagPrefixRange = new Range(endTagStartPosition, endTagPrefixPosition);
+				suffixRangeEnd = new Range(suffixEndPositionStart, endTagEndPosition);
+			}
 
+			// Add text edits
 			if (newText.contains(":")) {
 				String[] tagParts = newText.split(":", 2);
 				List<TextEdit> tagTextEdits = new ArrayList<TextEdit>();

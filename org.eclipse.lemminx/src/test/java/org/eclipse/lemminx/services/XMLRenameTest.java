@@ -189,7 +189,26 @@ public class XMLRenameTest {
 			assertRename(xml, "BBBB");
 	}
 
+	@Test
+	public void testNamespaceRenameSingleTag() throws BadLocationException {
+		String xml ="<a|a:b/>";
 
+		List<TextEdit> expectedFullEdits = edits("ns", r(0, 1, 3));
+		expectedFullEdits.addAll(edits("tag", r(0, 4, 5)));
+		assertRename(xml, "ns:tag", expectedFullEdits);
+
+		List<TextEdit> expectedNsEdits = edits("ns", r(0, 1, 3));
+		assertRename(xml, "ns:b", expectedNsEdits);
+
+		xml ="<aa:|b/>";
+		List<TextEdit> expectedLocalNameEdits = edits("tag", r(0, 4, 5));
+		assertRename(xml, "aa:tag", expectedLocalNameEdits);
+
+		xml ="</a|a:b>";
+		List<TextEdit> expectedEndTagEdits = edits("ns", r(0, 2, 4));
+		assertRename(xml, "ns:b", expectedEndTagEdits);
+
+	}
 
 	private static Range r(int line, int startCharacter, int endCharacter) {
 		return new Range(new Position(line, startCharacter), new Position(line, endCharacter));
