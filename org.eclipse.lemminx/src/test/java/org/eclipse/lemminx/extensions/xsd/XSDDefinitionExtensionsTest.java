@@ -186,8 +186,27 @@ public class XSDDefinitionExtensionsTest {
 				"		</xs:sequence>\r\n" + //
 				"	</xs:complexType>";
 		String schemaCPath = Paths.get("src/test/resources/xsd/SchemaC.xsd").toUri().toString();
-		testDefinitionFor(xml, ll(schemaCPath, r(6,19,6,30), r(3, 18, 3, 29)));
+		testDefinitionFor(xml, ll(schemaCPath, r(6, 19, 6, 30), r(3, 18, 3, 29)));
 
+	}
+
+	@Test
+	public void definitionWithXSImport() throws BadLocationException {
+		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
+				"<xs:schema targetNamespace=\"SomeNamespace\"\r\n" + //
+				"           xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\r\n" + //
+				"           xmlns:ct=\"ChildTypes\"\r\n" + //
+				"           xmlns=\"SomeNamespace\"\r\n" + //
+				"           elementFormDefault=\"unqualified\">\r\n" + //
+				"  <xs:import schemaLocation=\"src/test/resources/xsd/Child.xsd\" namespace=\"ChildTypes\"/>\r\n"
+				+ " \r\n" + //
+				"  <xs:complexType name=\"SpecialType\">\r\n" + "    <xs:complexContent>\r\n" + //
+				"      <xs:extension base=\"ct:Som|eGenericType\">\r\n" + "        <xs:sequence>\r\n" + //
+				"          <xs:element name=\"AdditionalField\" type=\"xs:string\" />\r\n" + //
+				"        </xs:sequence>\r\n" + "      </xs:extension>\r\n" + "    </xs:complexContent>\r\n" + //
+				"  </xs:complexType>\r\n" + "</xs:schema>";
+		String childPath = Paths.get("src/test/resources/xsd/Child.xsd").toUri().toString();
+		testDefinitionFor(xml, ll(childPath, r(10, 25, 10, 45), r(5, 23, 5, 40)));
 	}
 
 	private static void testDefinitionFor(String xml, LocationLink... expectedItems) throws BadLocationException {
