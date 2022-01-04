@@ -157,13 +157,20 @@ public class XSDUtils {
 		if (matchAttr && StringUtils.isEmpty(originAttrValue)) {
 			return;
 		}
-
-		// <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-		// xmlns:tns="http://camel.apache.org/schema/spring"
-		// targetNamespace="http://camel.apache.org/schema/spring" version="1.0">
-		String targetNamespace = documentElement.getAttribute(TARGET_NAMESPACE_ATTR); // ->
-																						// http://camel.apache.org/schema/spring
-		String targetNamespacePrefix = documentElement.getPrefix(targetNamespace); // -> tns
+		String targetNamespacePrefix = null;
+		int index = originAttrValue.indexOf(':');
+		if (index != -1) {
+			// ex : jakartaee:applicationType
+			targetNamespacePrefix = originAttrValue.substring(0, index);
+		} else {
+			// <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+			// xmlns:tns="http://camel.apache.org/schema/spring"
+			// targetNamespace="http://camel.apache.org/schema/spring" version="1.0">
+			String targetNamespace = documentElement.getAttribute(TARGET_NAMESPACE_ATTR); // ->
+																							// http://camel.apache.org/schema/spring
+			targetNamespacePrefix = documentElement.getPrefix(targetNamespace); //
+			// -> tns
+		}
 
 		String originName = null;
 		if (matchAttr) {
@@ -197,7 +204,7 @@ public class XSDUtils {
 					if (targetAttr != null && (!matchAttr || Objects.equal(originName, targetAttr.getValue()))) {
 						collector.accept(targetNamespacePrefix, targetAttr);
 					}
-				} else if (isXSInclude(targetElement)) {
+				} else if (isXSInclude(targetElement) || isXSImport(targetElement)) {
 					// collect xs:include XML Schema location
 					String schemaLocation = targetElement.getAttribute(SCHEMA_LOCATION_ATTR);
 					if (schemaLocation != null) {
@@ -498,7 +505,8 @@ public class XSDUtils {
 						DOMAttr schemaLocationAttr = XSDUtils.getSchemaLocation(xsdElement);
 						if (schemaLocationAttr != null) {
 							String attrValue = schemaLocationAttr.getValue();
-							if (grammarURI.equals(attrValue) || ((grammarURI.endsWith(attrValue) && grammarURI.equals(getResolvedLocation(document.getDocumentURI(), attrValue))))) {
+							if (grammarURI.equals(attrValue) || ((grammarURI.endsWith(attrValue)
+									&& grammarURI.equals(getResolvedLocation(document.getDocumentURI(), attrValue))))) {
 								return schemaLocationAttr;
 							}
 						}
@@ -508,7 +516,7 @@ public class XSDUtils {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Returns the expanded system location
 	 *
