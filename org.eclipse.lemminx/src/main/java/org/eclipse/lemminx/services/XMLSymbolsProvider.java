@@ -34,6 +34,7 @@ import org.eclipse.lemminx.services.LimitList.ResultLimitExceededException;
 import org.eclipse.lemminx.services.extensions.ISymbolsProviderParticipant;
 import org.eclipse.lemminx.services.extensions.ISymbolsProviderParticipant.SymbolStrategy;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lemminx.settings.XMLSymbolExpressionFilter;
 import org.eclipse.lemminx.settings.XMLSymbolFilter;
 import org.eclipse.lemminx.settings.XMLSymbolSettings;
 import org.eclipse.lemminx.xpath.matcher.IXPathNodeMatcher.MatcherType;
@@ -123,7 +124,7 @@ class XMLSymbolsProvider {
 		}
 		String name = "";
 		if (!ignoreNode) {
-			name = nodeToName(node, filter);
+			name = nodeToName(node, filter, hasFilterForAttr);
 			DOMDocument xmlDocument = node.getOwnerDocument();
 			Range range = getSymbolRange(node);
 			Location location = new Location(xmlDocument.getDocumentURI(), range);
@@ -206,7 +207,7 @@ class XMLSymbolsProvider {
 				name = decl.getElementName();
 				selectionRange = getSymbolRange(node, true);
 			} else { // regular node
-				name = nodeToName(node, filter);
+				name = nodeToName(node, filter, hasFilterForAttr);
 				selectionRange = getSymbolRange(node);
 			}
 			boolean collectAttributes = hasFilterForAttr && node.hasAttributes();
@@ -221,8 +222,9 @@ class XMLSymbolsProvider {
 			if (node.isElement()) {
 				if (collectAttributes) {
 					// Collect attributes from the DOM element
+					List<DOMNode> attrToIgnore = getFilteredNodeAttributes(node, filter, hasFilterForAttr);
 					for (DOMAttr attr : node.getAttributeNodes()) {
-						findDocumentSymbols(attr, childrenSymbols, null, filter, hasFilterForAttr, cancelChecker);
+						findDocumentSymbols(attr, childrenSymbols, attrToIgnore, filter, hasFilterForAttr, cancelChecker);
 					}
 				}
 			} else {
@@ -267,6 +269,24 @@ class XMLSymbolsProvider {
 						e);
 			}
 		});
+	}
+
+	private List<DOMNode> getFilteredNodeAttributes(DOMNode node, XMLSymbolFilter filter, boolean hasFilterForAttr){
+		if(!hasFilterForAttr){
+			return null;
+		}
+
+		List<DOMNode> attrNodesToIgnore = new ArrayList<DOMNode>();
+		for(DOMAttr attrNode : node.getAttributeNodes()){
+			XMLSymbolExpressionFilter filterExpression = filter.getFilterForPrimaryAttr(attrNode);
+			if(filterExpression != null){
+				// prevent rendering the attribute as a child node if it's
+				// already shown as a primary attribute and on the parent line
+				attrNodesToIgnore.add(attrNode);
+				break;
+			}
+		}
+		return attrNodesToIgnore;
 	}
 
 	private boolean isNodeSymbol(DOMNode node, XMLSymbolFilter filter) {
@@ -316,18 +336,29 @@ class XMLSymbolsProvider {
 		return SymbolKind.Field;
 	}
 
-	private static String nodeToName(DOMNode node, XMLSymbolFilter filter) {
-		String name = nodeToNameOrNull(node, filter);
+	private static String nodeToName(DOMNode node, XMLSymbolFilter filter, boolean hasFilterForAttr) {
+		String name = nodeToNameOrNull(node, filter, hasFilterForAttr);
 		return name != null ? name : "?";
 	}
 
-	private static String nodeToNameOrNull(DOMNode node, XMLSymbolFilter filter) {
+	private static String nodeToNameOrNull(DOMNode node, XMLSymbolFilter filter, boolean hasFilterForAttr) {
 		if (node.isElement()) {
 			DOMElement element = (DOMElement) node;
 			if (element.hasTagName()) {
 				DOMNode firstChild = node.getFirstChild();
 				if (firstChild != null && firstChild.isText() && filter.isNodeSymbol(firstChild)) {
 					return element.getTagName() + ": " + firstChild.getNodeValue();
+				} else if(hasFilterForAttr && node.hasAttributes()){
+					for(DOMAttr attrNode : node.getAttributeNodes()){
+						XMLSymbolExpressionFilter primaryAttrfilter = filter.getFilterForPrimaryAttr(attrNode);
+						if(primaryAttrfilter != null){
+							if(primaryAttrfilter.isValueOnly()){
+								return element.getTagName() + ": " + attrNode.getValue();
+							} else if (attrNode.getName() != null) {
+								return element.getTagName() + ": @" + attrNode.getName() + ": " + attrNode.getValue();
+							}
+						}
+					}
 				}
 				return element.getTagName();
 			}

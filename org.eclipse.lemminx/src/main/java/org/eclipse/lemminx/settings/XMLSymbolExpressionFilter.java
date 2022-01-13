@@ -26,6 +26,10 @@ public class XMLSymbolExpressionFilter {
 
 	private boolean excluded;
 
+	private boolean primaryElementAttr;
+
+	private boolean valueOnly;
+
 	/**
 	 * Returns the XPath expression.
 	 * 
@@ -43,6 +47,52 @@ public class XMLSymbolExpressionFilter {
 	public void setXpath(String xpath) {
 		this.xpath = xpath;
 		this.matcher = null;
+	}
+
+	/**
+	 * Returns true if the filter which matches an element attribute node must consider it
+	 * a primary attribute and show it on the same line as the owning element and false otherwise.
+	 * 
+	 * @return true if the filter which matches an element attribute node must consider it
+	 *         a primary attribute and show it on the same line as the owning element and
+	 *         false otherwise.
+	 */
+	public boolean isPrimaryElementAttr() {
+		return primaryElementAttr;
+	}
+
+	/**
+	 * Set whether or not a matched filter for an element attribute must be considered
+	 * a primary attribute and shown on the same line as the owning element.
+	 * 
+	 * @param primaryElementAttr whether or not a matched filter for an element attribute must be
+	 *                           considered a primary attribute and shown on the same line as the
+	 *                           owning element.
+	 */
+	public void setPrimaryElementAttr(boolean primaryElementAttr) {
+		this.primaryElementAttr = primaryElementAttr;
+	}
+
+	/**
+	 * Returns true if the filter which matches an element attribute node must only show
+	 * the attribute value and not its name, and false otherwise.
+	 * 
+	 * @return true if the filter which matches an element attribute node must only show
+	 *              the attribute value and not its name, and false otherwise.
+	 */
+	public boolean isValueOnly() {
+		return valueOnly;
+	}
+
+	/**
+	 * Set whether or not a matched filter for an element attribute must only show
+	 * the attribute value and not its name.
+	 * 
+	 * @param valueOnly whether or not a matched filter for an element attribute must only
+	 *                  show the attribute value and not its name.
+	 */
+	public void setValueOnly(boolean valueOnly) {
+		this.valueOnly = valueOnly;
 	}
 
 	/**

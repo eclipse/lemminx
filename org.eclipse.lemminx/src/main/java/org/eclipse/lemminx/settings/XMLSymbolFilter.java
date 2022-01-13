@@ -11,6 +11,7 @@
 *******************************************************************************/
 package org.eclipse.lemminx.settings;
 
+import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.xpath.matcher.IXPathNodeMatcher.MatcherType;
 
@@ -37,8 +38,45 @@ import org.eclipse.lemminx.xpath.matcher.IXPathNodeMatcher.MatcherType;
             "xpath": "//@id"
          }
       ]
-   }
-]
+   },
+   // Declaration of symbols filter for ant/phing build.xml files to show all target names and property
+   // names/files in the Outline.
+   {
+      "pattern": "build*.xml",
+      "expressions" :[
+         {
+            // keep the value of the attribute "name" on the same line
+            // as the "target" element, and only show the attribute value
+            "xpath": "//target/@name",
+            "primaryElementAttr" : true,
+            "valueOnly": true
+         },
+         // show "unless" and "depends" as nested attributes for
+         // "target" elements
+         {
+            "xpath": "//target/@unless"
+         },
+         {
+            "xpath": "//target/@depends"
+         },
+         {
+            // keep the value of the attribute "name" on the same line
+            // as the "property" element, and only show the attribute value
+            "xpath": "//property/@name",
+            "primaryElementAttr" : true,
+            "valueOnly": true
+         },
+         {
+            // keep the value of the attribute "file" on the same line
+            // as the "property" element, and show the attribute name
+            // along with the value to distinguish it from the more common
+            // "name" attribute
+            "xpath": "//property/@file",
+            "primaryElementAttr" : true,
+            "valueOnly": false
+         }
+      }
+   ]
  * </pre>
  */
 public class XMLSymbolFilter extends PathPatternMatcher {
@@ -67,6 +105,28 @@ public class XMLSymbolFilter extends PathPatternMatcher {
 	 */
 	public XMLSymbolExpressionFilter[] getExpressions() {
 		return expressions;
+	}
+
+	/**
+	 * Gets the first matched attribute node that is set as a
+	 * primary attribute for an element.
+	 * 
+	 * @param attrNode the DOMElement attribute node to check for.
+	 * 
+	 * @return the first matched attribute node that is set as a
+	 *         primary attribute for an element, or null if there
+	 *         isn't one.
+	 */
+	public XMLSymbolExpressionFilter getFilterForPrimaryAttr(DOMAttr attrNode){
+		if (expressions != null && expressions.length > 0) {
+			for (XMLSymbolExpressionFilter expression : expressions) {
+				if (expression.match(attrNode) && expression.isPrimaryElementAttr()) {
+					return expression;
+				}
+			}
+		}
+
+		return null;
 	}
 
 	/**
