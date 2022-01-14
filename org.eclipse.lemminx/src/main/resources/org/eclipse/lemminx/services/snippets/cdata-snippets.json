@@ -7,6 +7,7 @@
     "body": [
       "<![CDATA[ $1]]>"
     ],
-    "description": "Insert CDATA"
+    "description": "Insert CDATA",
+    "sortText": "ZZb"
   }
  }
