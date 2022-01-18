@@ -136,8 +136,9 @@ class XMLSymbolsProvider {
 			boolean collectAttributes = hasFilterForAttr && node.hasAttributes();
 			if (collectAttributes) {
 				// Collect attributes from the DOM element
+				List<DOMNode> attrToIgnore = getFilteredNodeAttributes(node, filter, hasFilterForAttr);
 				for (DOMAttr attr : node.getAttributeNodes()) {
-					findSymbolInformations(attr, containerName, symbols, false, filter, hasFilterForAttr,
+					findSymbolInformations(attr, containerName, symbols, attrToIgnore.contains(attr), filter, hasFilterForAttr,
 							cancelChecker);
 				}
 			}
@@ -278,10 +279,10 @@ class XMLSymbolsProvider {
 
 		List<DOMNode> attrNodesToIgnore = new ArrayList<DOMNode>();
 		for(DOMAttr attrNode : node.getAttributeNodes()){
-			XMLSymbolExpressionFilter filterExpression = filter.getFilterForPrimaryAttr(attrNode);
+			XMLSymbolExpressionFilter filterExpression = filter.getFilterForInlineAttr(attrNode);
 			if(filterExpression != null){
 				// prevent rendering the attribute as a child node if it's
-				// already shown as a primary attribute and on the parent line
+				// already shown as an inline attribute and on the parent line
 				attrNodesToIgnore.add(attrNode);
 				break;
 			}
@@ -350,9 +351,9 @@ class XMLSymbolsProvider {
 					return element.getTagName() + ": " + firstChild.getNodeValue();
 				} else if(hasFilterForAttr && node.hasAttributes()){
 					for(DOMAttr attrNode : node.getAttributeNodes()){
-						XMLSymbolExpressionFilter primaryAttrfilter = filter.getFilterForPrimaryAttr(attrNode);
-						if(primaryAttrfilter != null){
-							if(primaryAttrfilter.isValueOnly()){
+						XMLSymbolExpressionFilter inlineAttrfilter = filter.getFilterForInlineAttr(attrNode);
+						if(inlineAttrfilter != null){
+							if(!inlineAttrfilter.shouldShowAttributeName()){
 								return element.getTagName() + ": " + attrNode.getValue();
 							} else if (attrNode.getName() != null) {
 								return element.getTagName() + ": @" + attrNode.getName() + ": " + attrNode.getValue();

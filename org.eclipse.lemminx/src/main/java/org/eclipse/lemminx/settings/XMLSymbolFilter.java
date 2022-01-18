@@ -48,8 +48,8 @@ import org.eclipse.lemminx.xpath.matcher.IXPathNodeMatcher.MatcherType;
             // keep the value of the attribute "name" on the same line
             // as the "target" element, and only show the attribute value
             "xpath": "//target/@name",
-            "primaryElementAttr" : true,
-            "valueOnly": true
+            "inlineAttribute" : true,
+            "showAttributeName": false
          },
          // show "unless" and "depends" as nested attributes for
          // "target" elements
@@ -63,8 +63,8 @@ import org.eclipse.lemminx.xpath.matcher.IXPathNodeMatcher.MatcherType;
             // keep the value of the attribute "name" on the same line
             // as the "property" element, and only show the attribute value
             "xpath": "//property/@name",
-            "primaryElementAttr" : true,
-            "valueOnly": true
+            "inlineAttribute" : true,
+            "showAttributeName": false
          },
          {
             // keep the value of the attribute "file" on the same line
@@ -72,8 +72,8 @@ import org.eclipse.lemminx.xpath.matcher.IXPathNodeMatcher.MatcherType;
             // along with the value to distinguish it from the more common
             // "name" attribute
             "xpath": "//property/@file",
-            "primaryElementAttr" : true,
-            "valueOnly": false
+            "inlineAttribute" : true,
+            "showAttributeName": true
          }
       }
    ]
@@ -108,19 +108,19 @@ public class XMLSymbolFilter extends PathPatternMatcher {
 	}
 
 	/**
-	 * Gets the first matched attribute node that is set as a
-	 * primary attribute for an element.
+	 * Gets the first matched attribute node that is set as an
+	 * inline attribute for an element.
 	 * 
 	 * @param attrNode the DOMElement attribute node to check for.
 	 * 
-	 * @return the first matched attribute node that is set as a
-	 *         primary attribute for an element, or null if there
+	 * @return the first matched attribute node that is set as an
+	 *         inline attribute for an element, or null if there
 	 *         isn't one.
 	 */
-	public XMLSymbolExpressionFilter getFilterForPrimaryAttr(DOMAttr attrNode){
+	public XMLSymbolExpressionFilter getFilterForInlineAttr(DOMAttr attrNode){
 		if (expressions != null && expressions.length > 0) {
 			for (XMLSymbolExpressionFilter expression : expressions) {
-				if (expression.match(attrNode) && expression.isPrimaryElementAttr()) {
+				if (expression.match(attrNode) && expression.isinlineAttribute()) {
 					return expression;
 				}
 			}

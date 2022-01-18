@@ -362,4 +362,301 @@ public class XMLSymbolInformationsTest {
 				si("foo", SymbolKind.Field, l(testURI, r(0, 0, 3, 6)), ""), //
 				si("bar", SymbolKind.Field, l(testURI, r(1, 1, 1, 46)), "foo"));
 	}
+
+	@Test
+	public void symbolsFilterWithNonInlineAttributeShowAttributeName(){
+		String xml = "<foo>\r\n" + //
+				"	<bar attr1=\"value1\" attr2=\"value2\">ABCD</bar>\r\n" + //
+				"	<baz attr1=\"baz-value1\" attr2=\"baz-value2\">EFGH</baz>\r\n" + //
+				"</foo>";
+		String testURI = "file:///test/foo.xml";
+		XMLSymbolSettings symbolSettings = new XMLSymbolSettings();
+		XMLSymbolFilter filter = new XMLSymbolFilter();
+		filter.setPattern("foo.xml");
+		XMLSymbolExpressionFilter expressionFilter = new XMLSymbolExpressionFilter();
+		filter.setExpressions(new XMLSymbolExpressionFilter[] { expressionFilter });
+		symbolSettings.setFilters(new XMLSymbolFilter[] { filter });
+
+		// Test with //@attr2
+		// and showAttributeName=false
+		// verify showAttributeName has no effect for non-inline (nested) attributes
+		expressionFilter.setXpath("//@attr2");
+		expressionFilter.setShowAttributeName(false);
+		testSymbolInformationsFor(xml, testURI, symbolSettings, //
+				si("foo", SymbolKind.Field, l(testURI, r(0, 0, 3, 6)), ""), //
+				si("bar", SymbolKind.Field, l(testURI, r(1, 1, 1, 46)), "foo"), //
+				si("@attr2: value2", SymbolKind.Constant, l(testURI, r(1, 21, 1, 35)), "bar"), //
+				si("baz", SymbolKind.Field, l(testURI, r(2, 1, 2, 54)), "foo"), //
+				si("@attr2: baz-value2", SymbolKind.Constant, l(testURI, r(2, 25, 2, 43)), "baz"));
+
+		// Test with //bar/@attr2
+		// and showAttributeName=false
+		// verify showAttributeName has no effect for non-inline (nested) attributes
+		// when specific elements are targeted
+		expressionFilter.setXpath("//bar/@attr2");
+		expressionFilter.setShowAttributeName(false);
+		testSymbolInformationsFor(xml, testURI, symbolSettings, //
+				si("foo", SymbolKind.Field, l(testURI, r(0, 0, 3, 6)), ""), //
+				si("bar", SymbolKind.Field, l(testURI, r(1, 1, 1, 46)), "foo"), //
+				si("@attr2: value2", SymbolKind.Constant, l(testURI, r(1, 21, 1, 35)), "bar"), //
+				si("baz", SymbolKind.Field, l(testURI, r(2, 1, 2, 54)), "foo"));
+
+		// Test with /foo/bar/@attr2
+		// and showAttributeName=false
+		// verify showAttributeName has no effect for non-inline (nested) attributes
+		// when specific elements are targeted
+		expressionFilter.setXpath("/foo/bar/@attr2");
+		expressionFilter.setShowAttributeName(false);
+		testSymbolInformationsFor(xml, testURI, symbolSettings, //
+				si("foo", SymbolKind.Field, l(testURI, r(0, 0, 3, 6)), ""), //
+				si("bar", SymbolKind.Field, l(testURI, r(1, 1, 1, 46)), "foo"), //
+				si("@attr2: value2", SymbolKind.Constant, l(testURI, r(1, 21, 1, 35)), "bar"), //
+				si("baz", SymbolKind.Field, l(testURI, r(2, 1, 2, 54)), "foo"));
+	}
+
+	@Test
+	public void symbolsFilterWithInlineAttributeNoNestedAttributes(){
+		String xml = "<foo>\r\n" + //
+				"	<bar attr1=\"value1\" attr2=\"value2\">ABCD</bar>\r\n" + //
+				"	<baz attr1=\"baz-value1\" attr2=\"baz-value2\">EFGH</baz>\r\n" + //
+				"</foo>";
+		String testURI = "file:///test/foo.xml";
+		XMLSymbolSettings symbolSettings = new XMLSymbolSettings();
+		XMLSymbolFilter filter = new XMLSymbolFilter();
+		filter.setPattern("foo.xml");
+		XMLSymbolExpressionFilter expressionFilter = new XMLSymbolExpressionFilter();
+		filter.setExpressions(new XMLSymbolExpressionFilter[] { expressionFilter });
+		symbolSettings.setFilters(new XMLSymbolFilter[] { filter });
+
+		// Test with //@attr2
+		// and showAttributeName=true, inlineAttribute=true
+		expressionFilter.setXpath("//@attr2");
+		expressionFilter.setInlineAttribute(true);
+		expressionFilter.setShowAttributeName(true);
+		testSymbolInformationsFor(xml, testURI, symbolSettings, //
+				si("foo", SymbolKind.Field, l(testURI, r(0, 0, 3, 6)), ""), //
+				si("bar: @attr2: value2", SymbolKind.Field, l(testURI, r(1, 1, 1, 46)), "foo"), //
+				si("baz: @attr2: baz-value2", SymbolKind.Field, l(testURI, r(2, 1, 2, 54)), "foo"));
+
+		// Test with //@attr2
+		// and showAttributeName=false, inlineAttribute=true
+		expressionFilter.setXpath("//@attr2");
+		expressionFilter.setInlineAttribute(true);
+		expressionFilter.setShowAttributeName(false);
+		testSymbolInformationsFor(xml, testURI, symbolSettings, //
+				si("foo", SymbolKind.Field, l(testURI, r(0, 0, 3, 6)), ""), //
+				si("bar: value2", SymbolKind.Field, l(testURI, r(1, 1, 1, 46)), "foo"), //
+				si("baz: baz-value2", SymbolKind.Field, l(testURI, r(2, 1, 2, 54)), "foo"));
+
+		// Test with //bar/@attr2
+		// and showAttributeName=true, inlineAttribute=true
+		// verify when specific elements are targeted
+		expressionFilter.setXpath("//bar/@attr2");
+		expressionFilter.setInlineAttribute(true);
+		expressionFilter.setShowAttributeName(true);
+		testSymbolInformationsFor(xml, testURI, symbolSettings, //
+				si("foo", SymbolKind.Field, l(testURI, r(0, 0, 3, 6)), ""), //
+				si("bar: @attr2: value2", SymbolKind.Field, l(testURI, r(1, 1, 1, 46)), "foo"), //
+				si("baz", SymbolKind.Field, l(testURI, r(2, 1, 2, 54)), "foo"));
+
+		// Test with /foo/bar/@attr2
+		// and showAttributeName=true, inlineAttribute=true
+		// verify when specific elements are targeted
+		expressionFilter.setXpath("/foo/bar/@attr2");
+		expressionFilter.setInlineAttribute(true);
+		expressionFilter.setShowAttributeName(true);
+		testSymbolInformationsFor(xml, testURI, symbolSettings, //
+				si("foo", SymbolKind.Field, l(testURI, r(0, 0, 3, 6)), ""), //
+				si("bar: @attr2: value2", SymbolKind.Field, l(testURI, r(1, 1, 1, 46)), "foo"), //
+				si("baz", SymbolKind.Field, l(testURI, r(2, 1, 2, 54)), "foo"));
+
+		// Test with //bar/@attr2
+		// and showAttributeName=false, inlineAttribute=true
+		// verify when specific elements are targeted
+		expressionFilter.setXpath("//bar/@attr2");
+		expressionFilter.setInlineAttribute(true);
+		expressionFilter.setShowAttributeName(false);
+		testSymbolInformationsFor(xml, testURI, symbolSettings, //
+				si("foo", SymbolKind.Field, l(testURI, r(0, 0, 3, 6)), ""), //
+				si("bar: value2", SymbolKind.Field, l(testURI, r(1, 1, 1, 46)), "foo"), //
+				si("baz", SymbolKind.Field, l(testURI, r(2, 1, 2, 54)), "foo"));
+
+		// Test with /foo/bar/@attr2
+		// and showAttributeName=false, inlineAttribute=true
+		// verify when specific elements are targeted
+		expressionFilter.setXpath("/foo/bar/@attr2");
+		expressionFilter.setInlineAttribute(true);
+		expressionFilter.setShowAttributeName(false);
+		testSymbolInformationsFor(xml, testURI, symbolSettings, //
+				si("foo", SymbolKind.Field, l(testURI, r(0, 0, 3, 6)), ""), //
+				si("bar: value2", SymbolKind.Field, l(testURI, r(1, 1, 1, 46)), "foo"), //
+				si("baz", SymbolKind.Field, l(testURI, r(2, 1, 2, 54)), "foo"));
+	}
+
+	@Test
+	public void symbolsFilterWithInlineAttributeWithNestedAttributes(){
+		String xml = "<foo>\r\n" + //
+				"	<bar attr1=\"value1\" attr2=\"value2\">ABCD</bar>\r\n" + //
+				"	<baz attr1=\"baz-value1\" attr2=\"baz-value2\">EFGH</baz>\r\n" + //
+				"</foo>";
+		String testURI = "file:///test/foo.xml";
+		XMLSymbolSettings symbolSettings = new XMLSymbolSettings();
+		XMLSymbolFilter filter = new XMLSymbolFilter();
+		filter.setPattern("foo.xml");
+		XMLSymbolExpressionFilter expressionFilter = new XMLSymbolExpressionFilter();
+		XMLSymbolExpressionFilter expressionFilter2 = new XMLSymbolExpressionFilter();
+		filter.setExpressions(new XMLSymbolExpressionFilter[] { expressionFilter, expressionFilter2 });
+		symbolSettings.setFilters(new XMLSymbolFilter[] { filter });
+
+		// Test with //@attr2
+		// and showAttributeName=true, inlineAttribute=true
+		// Test with nested //@attr1
+		expressionFilter.setXpath("//@attr2");
+		expressionFilter.setInlineAttribute(true);
+		expressionFilter.setShowAttributeName(true);
+		expressionFilter2.setXpath("//@attr1");
+		testSymbolInformationsFor(xml, testURI, symbolSettings, //
+				si("foo", SymbolKind.Field, l(testURI, r(0, 0, 3, 6)), ""), //
+				si("bar: @attr2: value2", SymbolKind.Field, l(testURI, r(1, 1, 1, 46)), "foo"), //
+				si("@attr1: value1", SymbolKind.Constant, l(testURI, r(1, 6, 1, 20)), "bar: @attr2: value2"), //
+				si("baz: @attr2: baz-value2", SymbolKind.Field, l(testURI, r(2, 1, 2, 54)), "foo"), //
+				si("@attr1: baz-value1", SymbolKind.Constant, l(testURI, r(2, 6, 2, 24)), "baz: @attr2: baz-value2"));
+
+		// Test with //@attr2
+		// and showAttributeName=false, inlineAttribute=true
+		// Test with nested //@attr1
+		expressionFilter.setXpath("//@attr2");
+		expressionFilter.setInlineAttribute(true);
+		expressionFilter.setShowAttributeName(false);
+		expressionFilter2.setXpath("//@attr1");
+		testSymbolInformationsFor(xml, testURI, symbolSettings, //
+				si("foo", SymbolKind.Field, l(testURI, r(0, 0, 3, 6)), ""), //
+				si("bar: value2", SymbolKind.Field, l(testURI, r(1, 1, 1, 46)), "foo"), //
+				si("@attr1: value1", SymbolKind.Constant, l(testURI, r(1, 6, 1, 20)), "bar: value2"), //
+				si("baz: baz-value2", SymbolKind.Field, l(testURI, r(2, 1, 2, 54)), "foo"), //
+				si("@attr1: baz-value1", SymbolKind.Constant, l(testURI, r(2, 6, 2, 24)), "baz: baz-value2"));
+
+		// Test with //bar/@attr2
+		// and showAttributeName=true, inlineAttribute=true
+		// Test with nested //bar/@attr1
+		// verify when specific elements are targeted
+		expressionFilter.setXpath("//bar/@attr2");
+		expressionFilter.setInlineAttribute(true);
+		expressionFilter.setShowAttributeName(true);
+		expressionFilter2.setXpath("//bar/@attr1");
+		testSymbolInformationsFor(xml, testURI, symbolSettings, //
+				si("foo", SymbolKind.Field, l(testURI, r(0, 0, 3, 6)), ""), //
+				si("bar: @attr2: value2", SymbolKind.Field, l(testURI, r(1, 1, 1, 46)), "foo"), //
+				si("@attr1: value1", SymbolKind.Constant, l(testURI, r(1, 6, 1, 20)), "bar: @attr2: value2"), //
+				si("baz", SymbolKind.Field, l(testURI, r(2, 1, 2, 54)), "foo"));
+
+		// Test with /foo/bar/@attr2
+		// and showAttributeName=true, inlineAttribute=true
+		// Test with nested /foo/bar/@attr1
+		// verify when specific elements are targeted
+		expressionFilter.setXpath("/foo/bar/@attr2");
+		expressionFilter.setInlineAttribute(true);
+		expressionFilter.setShowAttributeName(true);
+		expressionFilter2.setXpath("/foo/bar/@attr1");
+		testSymbolInformationsFor(xml, testURI, symbolSettings, //
+				si("foo", SymbolKind.Field, l(testURI, r(0, 0, 3, 6)), ""), //
+				si("bar: @attr2: value2", SymbolKind.Field, l(testURI, r(1, 1, 1, 46)), "foo"), //
+				si("@attr1: value1", SymbolKind.Constant, l(testURI, r(1, 6, 1, 20)), "bar: @attr2: value2"), //
+				si("baz", SymbolKind.Field, l(testURI, r(2, 1, 2, 54)), "foo"));
+
+		// Test with //bar/@attr2
+		// and showAttributeName=false, inlineAttribute=true
+		// Test with nested //bar/@attr1
+		// verify when specific elements are targeted
+		expressionFilter.setXpath("//bar/@attr2");
+		expressionFilter.setInlineAttribute(true);
+		expressionFilter.setShowAttributeName(false);
+		expressionFilter2.setXpath("/foo/bar/@attr1");
+		testSymbolInformationsFor(xml, testURI, symbolSettings, //
+				si("foo", SymbolKind.Field, l(testURI, r(0, 0, 3, 6)), ""), //
+				si("bar: value2", SymbolKind.Field, l(testURI, r(1, 1, 1, 46)), "foo"), //
+				si("@attr1: value1", SymbolKind.Constant, l(testURI, r(1, 6, 1, 20)), "bar: value2"), //
+				si("baz", SymbolKind.Field, l(testURI, r(2, 1, 2, 54)), "foo"));
+
+		// Test with /foo/bar/@attr2
+		// and showAttributeName=false, inlineAttribute=true
+		// Test with nested /foo/bar/@attr1
+		// verify when specific elements are targeted
+		expressionFilter.setXpath("/foo/bar/@attr2");
+		expressionFilter.setInlineAttribute(true);
+		expressionFilter.setShowAttributeName(false);
+		expressionFilter2.setXpath("/foo/bar/@attr1");
+		testSymbolInformationsFor(xml, testURI, symbolSettings, //
+				si("foo", SymbolKind.Field, l(testURI, r(0, 0, 3, 6)), ""), //
+				si("bar: value2", SymbolKind.Field, l(testURI, r(1, 1, 1, 46)), "foo"), //
+				si("@attr1: value1", SymbolKind.Constant, l(testURI, r(1, 6, 1, 20)), "bar: value2"), //
+				si("baz", SymbolKind.Field, l(testURI, r(2, 1, 2, 54)), "foo"));
+	}
+
+	@Test
+	public void symbolsFilterWithInlineAttributeMultipleInlineAttributes(){
+		String xml = "<foo>\r\n" + //
+				"	<bar attr1=\"value1\" attr2=\"value2\">ABCD</bar>\r\n" + //
+				"	<baz attr1=\"baz-value1\" attr2=\"baz-value2\">EFGH</baz>\r\n" + //
+				"	<bar attr3=\"value3\" attr2=\"value2\">IJKL</bar>\r\n" + //
+				"</foo>";
+		String testURI = "file:///test/foo.xml";
+		XMLSymbolSettings symbolSettings = new XMLSymbolSettings();
+		XMLSymbolFilter filter = new XMLSymbolFilter();
+		filter.setPattern("foo.xml");
+		XMLSymbolExpressionFilter expressionFilter = new XMLSymbolExpressionFilter();
+		XMLSymbolExpressionFilter expressionFilter2 = new XMLSymbolExpressionFilter();
+		filter.setExpressions(new XMLSymbolExpressionFilter[] { expressionFilter, expressionFilter2 });
+		symbolSettings.setFilters(new XMLSymbolFilter[] { filter });
+
+		// Test with //@attr1
+		// and showAttributeName=false, inlineAttribute=true
+		// Test with second inline filter //@attr3
+		// and showAttributeName=true, inlineAttribute=true
+		expressionFilter.setXpath("//@attr1");
+		expressionFilter.setInlineAttribute(true);
+		expressionFilter.setShowAttributeName(false);
+		expressionFilter2.setXpath("//@attr3");
+		expressionFilter2.setInlineAttribute(true);
+		expressionFilter2.setShowAttributeName(true);
+		testSymbolInformationsFor(xml, testURI, symbolSettings, //
+				si("foo", SymbolKind.Field, l(testURI, r(0, 0, 4, 6)), ""), //
+				si("bar: value1", SymbolKind.Field, l(testURI, r(1, 1, 1, 46)), "foo"), //
+				si("baz: baz-value1", SymbolKind.Field, l(testURI, r(2, 1, 2, 54)), "foo"), //
+				si("bar: @attr3: value3", SymbolKind.Field, l(testURI, r(3, 1, 3, 46)), "foo"));
+
+		// Test with //bar/@attr1
+		// and showAttributeName=false, inlineAttribute=true
+		// Test with second inline filter //bar/@attr3
+		// and showAttributeName=true, inlineAttribute=true
+		// verify when specific elements are targeted
+		expressionFilter.setXpath("//bar/@attr1");
+		expressionFilter.setInlineAttribute(true);
+		expressionFilter.setShowAttributeName(false);
+		expressionFilter2.setXpath("//bar/@attr3");
+		expressionFilter2.setInlineAttribute(true);
+		expressionFilter2.setShowAttributeName(true);
+		testSymbolInformationsFor(xml, testURI, symbolSettings, //
+				si("foo", SymbolKind.Field, l(testURI, r(0, 0, 4, 6)), ""), //
+				si("bar: value1", SymbolKind.Field, l(testURI, r(1, 1, 1, 46)), "foo"), //
+				si("baz", SymbolKind.Field, l(testURI, r(2, 1, 2, 54)), "foo"), //
+				si("bar: @attr3: value3", SymbolKind.Field, l(testURI, r(3, 1, 3, 46)), "foo"));
+
+		// Test with /foo/bar/@attr1
+		// and showAttributeName=false, inlineAttribute=true
+		// Test with second inline filter /foo/bar/@attr3
+		// and showAttributeName=true, inlineAttribute=true
+		// verify when specific elements are targeted
+		expressionFilter.setXpath("/foo/bar/@attr1");
+		expressionFilter.setInlineAttribute(true);
+		expressionFilter.setShowAttributeName(false);
+		expressionFilter2.setXpath("/foo/bar/@attr3");
+		expressionFilter2.setInlineAttribute(true);
+		expressionFilter2.setShowAttributeName(true);
+		testSymbolInformationsFor(xml, testURI, symbolSettings, //
+				si("foo", SymbolKind.Field, l(testURI, r(0, 0, 4, 6)), ""), //
+				si("bar: value1", SymbolKind.Field, l(testURI, r(1, 1, 1, 46)), "foo"), //
+				si("baz", SymbolKind.Field, l(testURI, r(2, 1, 2, 54)), "foo"), //
+				si("bar: @attr3: value3", SymbolKind.Field, l(testURI, r(3, 1, 3, 46)), "foo"));
+	}
 }

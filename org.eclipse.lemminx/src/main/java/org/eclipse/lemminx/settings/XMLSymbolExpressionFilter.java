@@ -26,9 +26,9 @@ public class XMLSymbolExpressionFilter {
 
 	private boolean excluded;
 
-	private boolean primaryElementAttr;
+	private boolean inlineAttribute;
 
-	private boolean valueOnly;
+	private boolean showAttributeName;
 
 	/**
 	 * Returns the XPath expression.
@@ -51,48 +51,51 @@ public class XMLSymbolExpressionFilter {
 
 	/**
 	 * Returns true if the filter which matches an element attribute node must consider it
-	 * a primary attribute and show it on the same line as the owning element and false otherwise.
+	 * an inline attribute and show it on the same line as the owning element and false otherwise.
 	 * 
 	 * @return true if the filter which matches an element attribute node must consider it
-	 *         a primary attribute and show it on the same line as the owning element and
+	 *         an inline attribute and show it on the same line as the owning element and
 	 *         false otherwise.
 	 */
-	public boolean isPrimaryElementAttr() {
-		return primaryElementAttr;
+	public boolean isinlineAttribute() {
+		return inlineAttribute;
 	}
 
 	/**
 	 * Set whether or not a matched filter for an element attribute must be considered
-	 * a primary attribute and shown on the same line as the owning element.
+	 * an inline attribute and shown on the same line as the owning element.
 	 * 
-	 * @param primaryElementAttr whether or not a matched filter for an element attribute must be
-	 *                           considered a primary attribute and shown on the same line as the
-	 *                           owning element.
+	 * @param inlineAttribute whether or not a matched filter for an element attribute must be
+	 *                        considered an inline attribute and shown on the same line as the
+	 *                        owning element.
 	 */
-	public void setPrimaryElementAttr(boolean primaryElementAttr) {
-		this.primaryElementAttr = primaryElementAttr;
+	public void setInlineAttribute(boolean inlineAttribute) {
+		this.inlineAttribute = inlineAttribute;
 	}
 
 	/**
-	 * Returns true if the filter which matches an element attribute node must only show
-	 * the attribute value and not its name, and false otherwise.
+	 * Returns true if the filter which matches an element attribute node should show
+	 * the attribute name or not, the attribute value will always be shown, and false
+	 * otherwise.
 	 * 
-	 * @return true if the filter which matches an element attribute node must only show
-	 *              the attribute value and not its name, and false otherwise.
+	 * @return true if the filter which matches an element attribute node should show
+	 *         the attribute name or not, the attribute value will always be shown, and false
+	 *         otherwise.
 	 */
-	public boolean isValueOnly() {
-		return valueOnly;
+	public boolean shouldShowAttributeName() {
+		return showAttributeName;
 	}
 
 	/**
-	 * Set whether or not a matched filter for an element attribute must only show
-	 * the attribute value and not its name.
+	 * Set whether or not a matched filter for an element attribute should show
+	 * the attribute name or not, the attribute value will always be shown.
 	 * 
-	 * @param valueOnly whether or not a matched filter for an element attribute must only
-	 *                  show the attribute value and not its name.
+	 * @param showAttributeName whether or not a matched filter for an element attribute
+	 *                          should show the attribute name or not, the attribute value
+	 *                          will always be shown.
 	 */
-	public void setValueOnly(boolean valueOnly) {
-		this.valueOnly = valueOnly;
+	public void setShowAttributeName(boolean showAttributeName) {
+		this.showAttributeName = showAttributeName;
 	}
 
 	/**
