@@ -353,7 +353,7 @@ class XMLSymbolsProvider {
 					for(DOMAttr attrNode : node.getAttributeNodes()){
 						XMLSymbolExpressionFilter inlineAttrfilter = filter.getFilterForInlineAttr(attrNode);
 						if(inlineAttrfilter != null){
-							if(!inlineAttrfilter.shouldShowAttributeName()){
+							if(!inlineAttrfilter.isShowAttributeName()){
 								return element.getTagName() + ": " + attrNode.getValue();
 							} else if (attrNode.getName() != null) {
 								return element.getTagName() + ": @" + attrNode.getName() + ": " + attrNode.getValue();

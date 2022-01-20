@@ -57,7 +57,7 @@ public class XMLSymbolExpressionFilter {
 	 *         an inline attribute and show it on the same line as the owning element and
 	 *         false otherwise.
 	 */
-	public boolean isinlineAttribute() {
+	public boolean isInlineAttribute() {
 		return inlineAttribute;
 	}
 
@@ -82,7 +82,7 @@ public class XMLSymbolExpressionFilter {
 	 *         the attribute name or not, the attribute value will always be shown, and false
 	 *         otherwise.
 	 */
-	public boolean shouldShowAttributeName() {
+	public boolean isShowAttributeName() {
 		return showAttributeName;
 	}
 

@@ -120,7 +120,7 @@ public class XMLSymbolFilter extends PathPatternMatcher {
 	public XMLSymbolExpressionFilter getFilterForInlineAttr(DOMAttr attrNode){
 		if (expressions != null && expressions.length > 0) {
 			for (XMLSymbolExpressionFilter expression : expressions) {
-				if (expression.match(attrNode) && expression.isinlineAttribute()) {
+				if (expression.match(attrNode) && expression.isInlineAttribute()) {
 					return expression;
 				}
 			}
