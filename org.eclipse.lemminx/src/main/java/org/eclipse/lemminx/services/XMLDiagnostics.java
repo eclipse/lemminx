@@ -12,7 +12,6 @@
  */
 package org.eclipse.lemminx.services;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.logging.Level;
@@ -21,6 +20,7 @@ import java.util.logging.Logger;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lemminx.services.extensions.diagnostics.DiagnosticsResult;
 import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lemminx.uriresolver.CacheResourceDownloadingException;
 import org.eclipse.lsp4j.Diagnostic;
@@ -39,12 +39,13 @@ class XMLDiagnostics {
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
-	public List<Diagnostic> doDiagnostics(DOMDocument xmlDocument, XMLValidationSettings validationSettings,
+	public DiagnosticsResult doDiagnostics(DOMDocument xmlDocument, XMLValidationSettings validationSettings,
 			CancelChecker cancelChecker) {
-		List<Diagnostic> diagnostics = new ArrayList<>();
-		if (validationSettings == null || validationSettings.isEnabled()) {
-			doExtensionsDiagnostics(xmlDocument, diagnostics, validationSettings, cancelChecker);
+		if (validationSettings != null && !validationSettings.isEnabled()) {
+			return DiagnosticsResult.EMPTY;
 		}
+		DiagnosticsResult diagnostics = new DiagnosticsResult();
+		doExtensionsDiagnostics(xmlDocument, diagnostics, validationSettings, cancelChecker);
 		return diagnostics;
 	}
 
@@ -65,8 +66,8 @@ class XMLDiagnostics {
 			} catch (CancellationException | CacheResourceDownloadingException e) {
 				throw e;
 			} catch (Exception e) {
-				LOGGER.log(Level.SEVERE,
-						"Error while processing diagnostics for the participant '" + diagnosticsParticipant.getClass().getName() + "'.", e);
+				LOGGER.log(Level.SEVERE, "Error while processing diagnostics for the participant '"
+						+ diagnosticsParticipant.getClass().getName() + "'.", e);
 			}
 		}
 	}

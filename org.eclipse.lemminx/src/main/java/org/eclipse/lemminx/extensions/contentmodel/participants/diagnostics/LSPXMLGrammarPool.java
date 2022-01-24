@@ -131,7 +131,7 @@ public class LSPXMLGrammarPool implements XMLGrammarPool {
 	 * @param desc The Grammar Description.
 	 * @return The removed grammar.
 	 */
-	private Grammar removeGrammar(XMLGrammarDescription desc) {
+	public Grammar removeGrammar(XMLGrammarDescription desc) {
 		synchronized (fGrammars) {
 			int hash = hashCode(desc);
 			int index = (hash & 0x7FFFFFFF) % fGrammars.length;

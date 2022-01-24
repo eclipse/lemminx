@@ -35,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.eclipse.lemminx.uriresolver.CacheResourceDownloadingException.CacheResourceDownloadingError;
 import org.eclipse.lemminx.utils.FilesUtils;
 import org.eclipse.lemminx.utils.StringUtils;
 
@@ -52,13 +53,15 @@ public class CacheResourcesManager {
 	private static final String USER_AGENT_KEY = "User-Agent";
 	private static final String USER_AGENT_VALUE = "LemMinX";
 
-	protected final Cache<String, Boolean> unavailableURICache;
+	protected final Cache<String, CacheResourceDownloadedException> unavailableURICache;
 
 	private static final String CACHE_PATH = "cache";
 	private static final Logger LOGGER = Logger.getLogger(CacheResourcesManager.class.getName());
 
 	private final Map<String, CompletableFuture<Path>> resourcesLoading;
 	private boolean useCache;
+
+	private boolean downloadExternalResources;
 
 	private final Set<String> protocolsForCahe;
 
@@ -125,11 +128,12 @@ public class CacheResourcesManager {
 		this(CacheBuilder.newBuilder().maximumSize(100).expireAfterWrite(30, TimeUnit.SECONDS).build());
 	}
 
-	public CacheResourcesManager(Cache<String, Boolean> cache) {
+	public CacheResourcesManager(Cache<String, CacheResourceDownloadedException> cache) {
 		resourcesLoading = new HashMap<>();
 		protocolsForCahe = new HashSet<>();
 		unavailableURICache = cache;
 		addDefaultProtocolsForCache();
+		setDownloadExternalResources(true);
 	}
 
 	public Path getResource(final String resourceURI) throws IOException {
@@ -137,26 +141,39 @@ public class CacheResourcesManager {
 		if (Files.exists(resourceCachePath)) {
 			return resourceCachePath;
 		}
-		if (!FilesUtils.isIncludedInDeployedPath(resourceCachePath)) {
-			throw new CacheResourceDownloadingException(resourceURI);
+
+		if (!isDownloadExternalResources()) {
+			throw new CacheResourceDownloadingException(resourceURI, resourceCachePath,
+					CacheResourceDownloadingError.DOWNLOAD_DISABLED, null, null);
 		}
-		if (unavailableURICache.getIfPresent(resourceURI) != null) {
-			LOGGER.info("Ignored unavailable schema URI: " + resourceURI + "\n");
-			return null;
+
+		if (!FilesUtils.isIncludedInDeployedPath(resourceCachePath)) {
+			throw new CacheResourceDownloadingException(resourceURI, resourceCachePath,
+					CacheResourceDownloadingError.RESOURCE_NOT_IN_DEPLOYED_PATH, null, null);
+		}
+
+		CacheResourceDownloadedException cacheException = unavailableURICache.getIfPresent(resourceURI);
+		if (cacheException != null) {
+			// There were an error while downloading DTD, XSD schema, to avoid trying to
+			// download it on each key stroke,
+			// throw again the last cached exception
+			throw cacheException;
 		}
 
 		CompletableFuture<Path> f = null;
 		synchronized (resourcesLoading) {
 			if (resourcesLoading.containsKey(resourceURI)) {
 				CompletableFuture<Path> future = resourcesLoading.get(resourceURI);
-				throw new CacheResourceDownloadingException(resourceURI, future);
+				throw new CacheResourceDownloadingException(resourceURI, resourceCachePath,
+						CacheResourceDownloadingError.RESOURCE_LOADING, future, null);
 			}
 			f = downloadResource(resourceURI, resourceCachePath);
 			resourcesLoading.put(resourceURI, f);
 		}
 
 		if (f.getNow(null) == null) {
-			throw new CacheResourceDownloadingException(resourceURI, f);
+			throw new CacheResourceDownloadingException(resourceURI, resourceCachePath,
+					CacheResourceDownloadingError.RESOURCE_LOADING, f, null);
 		}
 
 		return resourceCachePath;
@@ -199,13 +216,14 @@ public class CacheResourcesManager {
 				LOGGER.info("Downloaded " + resourceURI + " to " + resourceCachePath + " in " + elapsed + "ms");
 			} catch (Exception e) {
 				// Do nothing
-				unavailableURICache.put(resourceURI, true);
 				Throwable rootCause = getRootCause(e);
 				String error = "[" + rootCause.getClass().getTypeName() + "] " + rootCause.getMessage();
 				LOGGER.log(Level.SEVERE,
 						"Error while downloading " + resourceURI + " to " + resourceCachePath + " : " + error);
-				throw new CacheResourceDownloadedException(
-						"Error while downloading '" + resourceURI + "' to " + resourceCachePath + ".", e);
+				CacheResourceDownloadedException cacheException = new CacheResourceDownloadedException(resourceURI,
+						resourceCachePath, e);
+				unavailableURICache.put(resourceURI, cacheException);
+				throw cacheException;
 			} finally {
 				synchronized (resourcesLoading) {
 					resourcesLoading.remove(resourceURI);
@@ -283,6 +301,14 @@ public class CacheResourcesManager {
 	 */
 	public boolean isUseCache() {
 		return useCache;
+	}
+
+	public boolean isDownloadExternalResources() {
+		return downloadExternalResources;
+	}
+
+	public void setDownloadExternalResources(boolean downloadExternalResources) {
+		this.downloadExternalResources = downloadExternalResources;
 	}
 
 	/**

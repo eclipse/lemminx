@@ -18,6 +18,8 @@ import org.apache.xerces.xni.parser.XMLEntityResolver;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
+import org.eclipse.lemminx.extensions.xerces.LSPXMLEntityResolver;
+import org.eclipse.lemminx.services.extensions.diagnostics.DiagnosticsResult;
 import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
@@ -44,8 +46,11 @@ public class DTDDiagnosticsParticipant implements IDiagnosticsParticipant {
 		// Get entity resolver (XML catalog resolver, XML schema from the file
 		// associations settings., ...)
 		XMLEntityResolver entityResolver = xmlDocument.getResolverExtensionManager();
+		LSPXMLEntityResolver entityResolverWrapper = new LSPXMLEntityResolver(entityResolver,
+				(DiagnosticsResult) diagnostics);
+		
 		// Process validation
-		DTDValidator.doDiagnostics(xmlDocument, entityResolver, diagnostics, contentModelManager, cancelChecker);
+		DTDValidator.doDiagnostics(xmlDocument, entityResolverWrapper, diagnostics, contentModelManager, cancelChecker);
 	}
 
 }
