@@ -1,5 +1,18 @@
+/**
+ *  Copyright (c) 2021 Red Hat Inc. and others.
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v2.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v20.html
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ *  Contributors:
+ *  Red Hat Inc. - initial API and implementation
+ */
 package org.eclipse.lemminx.extensions.xerces;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,10 +23,15 @@ import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.extensions.contentmodel.participants.DTDErrorCode;
+import org.eclipse.lemminx.extensions.contentmodel.participants.ExternalResourceErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSchemaErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.diagnostics.LSPXMLGrammarPool;
 import org.eclipse.lemminx.extensions.xsd.participants.XSDErrorCode;
+import org.eclipse.lemminx.uriresolver.CacheResourceDownloadedException;
+import org.eclipse.lemminx.uriresolver.CacheResourceDownloadingException;
+import org.eclipse.lemminx.uriresolver.CacheResourceDownloadingException.CacheResourceDownloadingError;
+import org.eclipse.lemminx.uriresolver.CacheResourceException;
 import org.eclipse.lemminx.uriresolver.URIResolverExtensionManager;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticRelatedInformation;
@@ -22,6 +40,12 @@ import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 
+/**
+ * Abstract class reporter with referenced grammar.
+ * 
+ * @author Angelo ZERR
+ *
+ */
 public abstract class AbstractReferencedGrammarLSPErrorReporter extends AbstractLSPErrorReporter {
 
 	protected final ContentModelManager contentModelManager;
@@ -168,6 +192,68 @@ public abstract class AbstractReferencedGrammarLSPErrorReporter extends Abstract
 		for (String grammarURI : grammarURIs) {
 			grammarPool.removeGrammar(grammarURI);
 		}
+	}
+
+	@Override
+	protected String getMessage(String domain, String key, Object[] arguments, Exception exception) {
+		if (isReferencedGrammarError(key) && exception instanceof IOException) {
+			IOException e = (IOException) exception;
+			Throwable cause = e.getCause();
+			if (cause instanceof CacheResourceException) {
+				return cause.getMessage();
+			}
+		}
+		return super.getMessage(domain, key, arguments, exception);
+	}
+
+	@Override
+	protected DiagnosticSeverity getSeverity(String domain, String key, Object[] arguments, short severity,
+			Exception exception) {
+		if (isReferencedGrammarError(key) && exception instanceof IOException) {
+			IOException e = (IOException) exception;
+			Throwable cause = e.getCause();
+			if (cause instanceof CacheResourceException) {
+				if (cause instanceof CacheResourceDownloadingException) {
+					if (((CacheResourceDownloadingException) cause)
+							.getErrorCode() == CacheResourceDownloadingError.RESOURCE_LOADING) {
+						return DiagnosticSeverity.Information;
+					}
+				}
+				return DiagnosticSeverity.Error;
+			}
+		}
+		return super.getSeverity(domain, key, arguments, severity, exception);
+	}
+
+	@Override
+	protected String getCode(String domain, String key, Object[] arguments, Exception exception) {
+		if (isReferencedGrammarError(key) && exception instanceof IOException) {
+			IOException e = (IOException) exception;
+			Throwable cause = e.getCause();
+			if (cause instanceof CacheResourceException) {
+				if (cause instanceof CacheResourceDownloadingException) {
+					switch (((CacheResourceDownloadingException) cause).getErrorCode()) {
+					case DOWNLOAD_DISABLED:
+						return ExternalResourceErrorCode.DownloadResourceDisabled.getCode();
+					case RESOURCE_LOADING:
+						return ExternalResourceErrorCode.DownloadingResource.getCode();
+					case RESOURCE_NOT_IN_DEPLOYED_PATH:
+						return ExternalResourceErrorCode.ResourceNotInDeployedPath.getCode();
+					}
+				} else if (cause instanceof CacheResourceDownloadedException) {
+					switch (((CacheResourceDownloadedException) cause).getErrorCode()) {
+					case ERROR_WHILE_DOWNLOADING:
+						return ExternalResourceErrorCode.DownloadProblem.getCode();
+					}
+				}
+			}
+		}
+		return super.getCode(domain, key, arguments, exception);
+	}
+
+	private boolean isReferencedGrammarError(String key) {
+		return (DTDErrorCode.get(key) == DTDErrorCode.dtd_not_found
+				|| XMLSchemaErrorCode.get(key) == XMLSchemaErrorCode.schema_reference_4);
 	}
 
 	protected abstract Range toLSPRange(XMLLocator location, String key, Object[] arguments, String message,

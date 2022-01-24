@@ -14,7 +14,6 @@ package org.eclipse.lemminx.uriresolver;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
@@ -22,13 +21,13 @@ import java.nio.file.Path;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-
 import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 public class CacheResourcesManagerTest extends AbstractCacheBasedTest {
 
@@ -81,7 +80,11 @@ public class CacheResourcesManagerTest extends AbstractCacheBasedTest {
 					fail("Incorrect exception thrown during failed download");
 				}
 			}
-			assertNull(cacheResourcesManager.getResource(uri));
+			try {
+				cacheResourcesManager.getResource(uri);
+				fail("cacheResourcesManager should retrow CacheResourceDownloadedException");
+			} catch (CacheResourceDownloadedException e) {
+			}
 		}
 		TimeUnit.SECONDS.sleep(2); // wait past the cache expiration date
 		try {
@@ -114,19 +117,20 @@ public class CacheResourcesManagerTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void testGetBadResource() throws IOException {
+		String url = "http://localhost/../../../../../test.txt";
 		CacheResourceDownloadingException actual = null;
 		try {
-			cacheResourcesManager.getResource("http://localhost/../../../../../test.txt");
+			cacheResourcesManager.getResource(url);
 		} catch (CacheResourceDownloadingException e) {
 			actual = e;
 		}
 		assertNotNull(actual);
-		assertEquals(
-				"The resource 'http://localhost/../../../../../test.txt' cannot be downloaded in the cache path.",
+		String cachePath = CacheResourcesManager.getResourceCachePath(url).toString();
+		assertEquals("The resource '" + url + "' cannot be downloaded in the cache path '" + cachePath + "'.",
 				actual.getMessage());
 	}
 
-	private Cache<String, Boolean> testingCache() {
+	private Cache<String, CacheResourceDownloadedException> testingCache() {
 		return CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.SECONDS).maximumSize(1).build();
 	}
 }

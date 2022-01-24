@@ -31,6 +31,7 @@ import org.eclipse.lemminx.extensions.contentmodel.participants.ContentModelType
 import org.eclipse.lemminx.extensions.contentmodel.participants.DocumentTelemetryParticipant;
 import org.eclipse.lemminx.extensions.contentmodel.participants.diagnostics.ContentModelDiagnosticsParticipant;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
+import org.eclipse.lemminx.extensions.contentmodel.settings.XMLDownloadExternalResourcesSettings;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.services.IXMLDocumentProvider;
 import org.eclipse.lemminx.services.IXMLValidationService;
@@ -131,14 +132,7 @@ public class ContentModelPlugin implements IXMLExtension {
 			boolean catalogPathsChanged = contentModelManager.setCatalogs(settings.getCatalogs());
 			if (catalogPathsChanged) {
 				// Validate all opened XML files
-				context.collectDocumentToValidate(d -> {
-					DOMDocument xml = context.getDocument(d.getDocumentURI());
-					if (xml == null) {
-						return false;
-					}
-					xml.resetGrammar();
-					return true;
-				});
+				validateAllOpenedDocument(context);
 			}
 		}
 		if (settings.getFileAssociations() != null) {
@@ -146,11 +140,7 @@ public class ContentModelPlugin implements IXMLExtension {
 			boolean fileAssociationsChanged = contentModelManager.setFileAssociations(settings.getFileAssociations());
 			if (fileAssociationsChanged) {
 				// Validate all opened XML files
-				context.collectDocumentToValidate(d -> {
-					DOMDocument xml = context.getDocument(d.getDocumentURI());
-					xml.resetGrammar();
-					return true;
-				});
+				validateAllOpenedDocument(context);
 			}
 		}
 		// Update use cache, only if it is set in the settings.
@@ -158,6 +148,16 @@ public class ContentModelPlugin implements IXMLExtension {
 		if (useCache != null) {
 			contentModelManager.setUseCache(useCache);
 		}
+		// Download external resources
+		XMLDownloadExternalResourcesSettings downloadExternalResources = settings.getDownloadExternalResources();
+		boolean downloadExternalResourcesEnabled = downloadExternalResources == null
+				|| downloadExternalResources.isEnabled();
+		if (contentModelManager.isDownloadExternalResources() != downloadExternalResourcesEnabled) {
+			contentModelManager.setDownloadExternalResources(downloadExternalResourcesEnabled);
+			// Validate all opened XML files
+			validateAllOpenedDocument(context);
+		}
+
 		// Update symbols
 		boolean showReferencedGrammars = settings.isShowReferencedGrammars();
 		symbolsProviderParticipant.setEnabled(showReferencedGrammars);
@@ -167,6 +167,18 @@ public class ContentModelPlugin implements IXMLExtension {
 		if (oldValidationSettings != null && !Objects.equals(oldValidationSettings, currentValidationSettings)) {
 			context.collectDocumentToValidate(d -> true);
 		}
+	}
+
+	private void validateAllOpenedDocument(ISaveContext context) {
+		// Validate all opened XML files
+		context.collectDocumentToValidate(d -> {
+			DOMDocument xml = context.getDocument(d.getDocumentURI());
+			if (xml == null) {
+				return false;
+			}
+			xml.resetGrammar();
+			return true;
+		});
 	}
 
 	@Override
@@ -188,7 +200,8 @@ public class ContentModelPlugin implements IXMLExtension {
 		registry.registerSymbolsProviderParticipant(symbolsProviderParticipant);
 		codeLensParticipant = new ContentModelCodeLensParticipant(contentModelManager);
 		registry.registerCodeLensParticipant(codeLensParticipant);
-		documentTelemetryParticipant = new DocumentTelemetryParticipant(registry.getTelemetryManager(), contentModelManager);
+		documentTelemetryParticipant = new DocumentTelemetryParticipant(registry.getTelemetryManager(),
+				contentModelManager);
 		registry.registerDocumentLifecycleParticipant(documentTelemetryParticipant);
 
 		// Register custom commands to re-validate XML files
@@ -204,8 +217,7 @@ public class ContentModelPlugin implements IXMLExtension {
 					new AssociateGrammarCommand(documentProvider));
 			commandService.registerCommand(CheckBoundGrammarCommand.COMMAND_ID,
 					new CheckBoundGrammarCommand(documentProvider));
-			commandService.registerCommand(CheckFilePatternCommand.COMMAND_ID,
-					new CheckFilePatternCommand());
+			commandService.registerCommand(CheckFilePatternCommand.COMMAND_ID, new CheckFilePatternCommand());
 		}
 	}
 

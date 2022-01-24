@@ -116,18 +116,19 @@ public class ExternalXMLDTDValidator extends XMLDTDValidator {
 						fDTDGrammar = (DTDGrammar) fGrammarPool.retrieveGrammar(grammarDesc);
 					}
 				}
-				if (fDTDGrammar == null) {
+				if (fDTDGrammar == null || !isImmutable(fDTDGrammar)) {
 
 					XMLDTDLoader loader = new XMLDTDLoader(fSymbolTable, fGrammarPool);
 					loader.setProperty("http://apache.org/xml/properties/internal/error-reporter", reporterForGrammar);
 					loader.setEntityResolver(entityManager);
 					try {
-						fDTDGrammar = (DTDGrammar) loader.loadGrammar(new XMLInputSource(null, eid, null));
+						XMLInputSource input = entityManager.resolveEntity(grammarDesc);
+						fDTDGrammar = (DTDGrammar) loader.loadGrammar(input);
 					} catch (Exception e) {
 						// DTD declared in xml-model href="" doesn't exist, report the error and disable
 						// the DTD validation.
 						fErrorReporter.reportError(locator, XMLModelMessageFormatter.XML_MODEL_DOMAIN,
-								DTD_NOT_FOUND_KEY, new Object[] { element, eid }, XMLErrorReporter.SEVERITY_ERROR);
+								DTD_NOT_FOUND_KEY, new Object[] { element, eid }, XMLErrorReporter.SEVERITY_ERROR, e);
 						super.fValidation = false;
 					}
 				} else {
@@ -136,6 +137,16 @@ public class ExternalXMLDTDValidator extends XMLDTDValidator {
 					fValidationManager.setCachedDTD(true);
 				}
 			}
+		}
+	}
+
+	private boolean isImmutable(DTDGrammar fDTDGrammar) {
+		try {
+			// fIsImmutable is declared as private in the DTDGrammar, we must use ugly
+			// Java reflection to get the field.
+			return ReflectionUtils.getFieldValue(this, "fIsImmutable");
+		} catch (Exception e) {
+			return false;
 		}
 	}
 

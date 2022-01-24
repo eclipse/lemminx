@@ -20,46 +20,43 @@ import java.util.concurrent.CompletableFuture;
  * Exception thrown when a resource (XML Schema, DTD) is downloading.
  *
  */
-public class CacheResourceDownloadingException extends RuntimeException {
+public class CacheResourceDownloadingException extends CacheResourceException {
 
 	private static final long serialVersionUID = 1L;
 
-	private static final String RESOURCE_LOADING_MSG = "The resource ''{0}'' is downloading.";
+	public enum CacheResourceDownloadingError {
 
-	private static final String RESOURCE_NOT_IN_DEPLOYED_PATH_MSG = "The resource ''{0}'' cannot be downloaded in the cache path.";
-	
-	private final String resourceURI;
+		DOWNLOAD_DISABLED("Downloading external resources is disabled."), //
+		
+		RESOURCE_LOADING("The resource ''{0}'' is downloading in the cache path ''{1}''."), //
+
+		RESOURCE_NOT_IN_DEPLOYED_PATH("The resource ''{0}'' cannot be downloaded in the cache path ''{1}''.");
+
+		private final String rawMessage;
+
+		private CacheResourceDownloadingError(String rawMessage) {
+			this.rawMessage = rawMessage;
+		}
+
+		public String getMessage(Object... arguments) {
+			return MessageFormat.format(rawMessage, arguments);
+		}
+
+	}
 
 	private final CompletableFuture<Path> future;
 
-	public CacheResourceDownloadingException(String resourceURI) {
-		super(MessageFormat.format(RESOURCE_NOT_IN_DEPLOYED_PATH_MSG, resourceURI));
-		this.resourceURI = resourceURI;
-		this.future = null;
-	}
+	private final CacheResourceDownloadingError errorCode;
 
-	public CacheResourceDownloadingException(String resourceURI, CompletableFuture<Path> future) {
-		super(MessageFormat.format(RESOURCE_LOADING_MSG, resourceURI));
-		this.resourceURI = resourceURI;
+	public CacheResourceDownloadingException(String resourceURI, Path resourceCachePath,
+			CacheResourceDownloadingError errorCode, CompletableFuture<Path> future, Throwable e) {
+		super(resourceURI, errorCode.getMessage(resourceURI, resourceCachePath), e);
+		this.errorCode = errorCode;
 		this.future = future;
 	}
 
-	/**
-	 * Returns the resource URI which is downloading.
-	 * 
-	 * @return the resource URI which is downloading.
-	 */
-	public String getResourceURI() {
-		return resourceURI;
-	}
-
-	/**
-	 * Returns true if it's a DTD which id downloading and false otherwise.
-	 * 
-	 * @return true if it's a DTD which id downloading and false otherwise.
-	 */
-	public boolean isDTD() {
-		return resourceURI != null && resourceURI.endsWith(".dtd");
+	public CacheResourceDownloadingError getErrorCode() {
+		return errorCode;
 	}
 
 	public CompletableFuture<Path> getFuture() {

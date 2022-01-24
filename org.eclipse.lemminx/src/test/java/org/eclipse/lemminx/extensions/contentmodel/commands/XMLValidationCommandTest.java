@@ -26,7 +26,9 @@ import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.BaseFileTempTest;
 import org.eclipse.lemminx.extensions.contentmodel.participants.DTDErrorCode;
+import org.eclipse.lemminx.extensions.contentmodel.participants.ExternalResourceErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSchemaErrorCode;
+import org.eclipse.lemminx.uriresolver.CacheResourcesManager;
 import org.eclipse.lemminx.uriresolver.FileServer;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
@@ -56,6 +58,7 @@ public class XMLValidationCommandTest extends BaseFileTempTest {
 			// Create XSD file
 			String xsdPath = baseDir.resolve("tag.xsd").toString();
 			String xsdURL = httpServer.getUri("tag.xsd"); // ex : http://localhost:56946/tag.xsd
+			String cachePath = CacheResourcesManager.getResourceCachePath(xsdURL).toString();
 
 			// Create a XSD file in the temp directory of the HTTP server
 			String xsd = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n" + //
@@ -96,8 +99,13 @@ public class XMLValidationCommandTest extends BaseFileTempTest {
 			List<PublishDiagnosticsParams> actualDiagnostics = languageServer.getPublishDiagnostics();
 			XMLAssert.assertPublishDiagnostics(actualDiagnostics,
 					pd(xmlIdentifier.getUri(),
-							d(1, 1, 1, 5, null, "The resource '" + xsdURL + "' is downloading.", "xml",
-									DiagnosticSeverity.Information)), //
+							d(3, 34, 3, 66, ExternalResourceErrorCode.DownloadingResource,
+									"The resource '" + xsdURL + "' is downloading in the cache path '" + cachePath
+											+ "'.",
+									"xml", DiagnosticSeverity.Information),
+							d(1, 1, 1, 5, XMLSchemaErrorCode.cvc_elt_1_a,
+									"cvc-elt.1.a: Cannot find the declaration of element 'root'.", "xml",
+									DiagnosticSeverity.Error)), //
 					pd(xmlIdentifier.getUri(), d(4, 3, 4, 7, XMLSchemaErrorCode.cvc_complex_type_2_4_a,
 							"Invalid element name:\n - tags\n\nOne of the following is expected:\n - tag\n\nError indicated by:\n {the schema}\nwith code:",
 							"xml", DiagnosticSeverity.Error)
@@ -146,8 +154,13 @@ public class XMLValidationCommandTest extends BaseFileTempTest {
 			actualDiagnostics = languageServer.getPublishDiagnostics();
 			XMLAssert.assertPublishDiagnostics(actualDiagnostics, //
 					pd(xmlIdentifier.getUri(),
-							d(1, 1, 1, 5, null, "The resource '" + xsdURL + "' is downloading.", "xml",
-									DiagnosticSeverity.Information)), //
+							d(3, 34, 3, 66, ExternalResourceErrorCode.DownloadingResource,
+									"The resource '" + xsdURL + "' is downloading in the cache path '" + cachePath
+											+ "'.",
+									"xml", DiagnosticSeverity.Information),
+							d(1, 1, 1, 5, XMLSchemaErrorCode.cvc_elt_1_a,
+									"cvc-elt.1.a: Cannot find the declaration of element 'root'.", "xml",
+									DiagnosticSeverity.Error)), //
 					pd(xmlIdentifier.getUri()));
 			actualDiagnostics.clear();
 
@@ -173,6 +186,7 @@ public class XMLValidationCommandTest extends BaseFileTempTest {
 			// Create XSD file
 			String xsdPath = baseDir.resolve("tag.xsd").toString();
 			String xsdURL = httpServer.getUri("tag.xsd"); // ex : http://localhost:56946/tag.xsd
+			String xsdCachePath = CacheResourcesManager.getResourceCachePath(xsdURL).toString();
 
 			// Create a XSD file in the temp directory
 			String xsd = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n" + //
@@ -192,6 +206,7 @@ public class XMLValidationCommandTest extends BaseFileTempTest {
 			// Create DTD file
 			String dtdPath = baseDir.resolve("tag.dtd").toString();
 			String dtdURL = httpServer.getUri("tag.dtd"); // ex : http://localhost:56946/tag.dtd
+			String dtdCachePath = CacheResourcesManager.getResourceCachePath(dtdURL).toString();
 
 			// Create a DTD file in the temp directory
 			String dtd = "<!ELEMENT root (tag)>\r\n" + //
@@ -236,16 +251,28 @@ public class XMLValidationCommandTest extends BaseFileTempTest {
 			// - one for downloading DTD resource (Information)
 			// - One for validation of the second XML result (Error)
 			List<PublishDiagnosticsParams> actualDiagnostics = languageServer.getPublishDiagnostics();
+
 			XMLAssert.assertPublishDiagnostics(actualDiagnostics, //
 					pd(xml1Identifier.getUri(),
-							d(1, 1, 1, 5, null, "The resource '" + xsdURL + "' is downloading.", "xml",
-									DiagnosticSeverity.Information)), //
+							d(3, 34, 3, 66, ExternalResourceErrorCode.DownloadingResource,
+									"The resource '" + xsdURL + "' is downloading in the cache path '" + xsdCachePath
+											+ "'.",
+									"xml", DiagnosticSeverity.Information),
+							d(1, 1, 1, 5, XMLSchemaErrorCode.cvc_elt_1_a,
+									"cvc-elt.1.a: Cannot find the declaration of element 'root'.", "xml",
+									DiagnosticSeverity.Error)), //
 					pd(xml1Identifier.getUri(), d(4, 3, 4, 7, XMLSchemaErrorCode.cvc_complex_type_2_4_a,
 							"Invalid element name:\n - tags\n\nOne of the following is expected:\n - tag\n\nError indicated by:\n {the schema}\nwith code:",
 							"xml", DiagnosticSeverity.Error)), //
 					pd(xml2Identifier.getUri(),
-							d(2, 1, 2, 5, null, "The resource '" + dtdURL + "' is downloading.", "xml",
-									DiagnosticSeverity.Information)), //
+							d(1, 22, 1, 54, ExternalResourceErrorCode.DownloadingResource,
+									"The resource '" + dtdURL + "' is downloading in the cache path '" + dtdCachePath
+											+ "'.",
+									"xml", DiagnosticSeverity.Information), //
+							d(2, 1, 2, 5, DTDErrorCode.MSG_ELEMENT_NOT_DECLARED, //
+									"Element type \"root\" must be declared.", "xml", DiagnosticSeverity.Error), //
+							d(3, 3, 3, 7, DTDErrorCode.MSG_ELEMENT_NOT_DECLARED,
+									"Element type \"tags\" must be declared.", "xml", DiagnosticSeverity.Error)), //
 					pd(xml2Identifier.getUri(), //
 							d(3, 3, 3, 7, DTDErrorCode.MSG_ELEMENT_NOT_DECLARED,
 									"Element type \"tags\" must be declared.", "xml", DiagnosticSeverity.Error),
@@ -281,7 +308,7 @@ public class XMLValidationCommandTest extends BaseFileTempTest {
 			updateFile(dtdPath, dtd);
 
 			// 2.2 Completion test
-			// Here completion returns the old tag cmpletion, because evict cache is not
+			// Here completion returns the old tag completion, because evict cache is not
 			// done
 			list1 = completion(languageServer, xml1Identifier);
 			XMLAssert.assertCompletion(list1, c("tag", "<tag></tag>"), 5 /* region, endregion, cdata, comment, tag */);
@@ -289,6 +316,7 @@ public class XMLValidationCommandTest extends BaseFileTempTest {
 			XMLAssert.assertCompletion(list2, c("tag", "<tag />"), 5 /* region, endregion, cdata, comment, tag */);
 
 			// Execute command cache
+			Thread.sleep(1000);
 			languageServer.executeCommand(XMLValidationAllFilesCommand.COMMAND_ID).get();
 
 			// Wait for:
@@ -309,11 +337,23 @@ public class XMLValidationCommandTest extends BaseFileTempTest {
 			});
 			XMLAssert.assertPublishDiagnostics(actualDiagnostics, //
 					pd(xml1Identifier.getUri(), //
-							d(1, 1, 1, 5, null, "The resource '" + xsdURL + "' is downloading.", "xml",
-									DiagnosticSeverity.Information)),
-					pd(xml1Identifier.getUri()), pd(xml2Identifier.getUri(), //
-							d(2, 1, 2, 5, null, "The resource '" + dtdURL + "' is downloading.", "xml",
-									DiagnosticSeverity.Information)),
+							d(3, 34, 3, 66, ExternalResourceErrorCode.DownloadingResource,
+									"The resource '" + xsdURL + "' is downloading in the cache path '" + xsdCachePath
+											+ "'.",
+									"xml", DiagnosticSeverity.Information),
+							d(1, 1, 1, 5, XMLSchemaErrorCode.cvc_elt_1_a,
+									"cvc-elt.1.a: Cannot find the declaration of element 'root'.", "xml",
+									DiagnosticSeverity.Error)), //
+					pd(xml1Identifier.getUri()), //
+					pd(xml2Identifier.getUri(),
+							d(1, 22, 1, 54, ExternalResourceErrorCode.DownloadingResource,
+									"The resource '" + dtdURL + "' is downloading in the cache path '" + dtdCachePath
+											+ "'.",
+									"xml", DiagnosticSeverity.Information), //
+							d(2, 1, 2, 5, DTDErrorCode.MSG_ELEMENT_NOT_DECLARED,
+									"Element type \"root\" must be declared.", "xml", DiagnosticSeverity.Error), //
+							d(3, 3, 3, 7, DTDErrorCode.MSG_ELEMENT_NOT_DECLARED,
+									"Element type \"tags\" must be declared.", "xml", DiagnosticSeverity.Error)), //
 					pd(xml2Identifier.getUri()));
 			actualDiagnostics.clear();
 

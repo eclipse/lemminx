@@ -17,7 +17,9 @@ import java.util.List;
 import org.apache.xerces.xni.parser.XMLEntityResolver;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
+import org.eclipse.lemminx.extensions.xerces.LSPXMLEntityResolver;
 import org.eclipse.lemminx.extensions.xsd.XSDPlugin;
+import org.eclipse.lemminx.services.extensions.diagnostics.DiagnosticsResult;
 import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lemminx.utils.DOMUtils;
 import org.eclipse.lsp4j.Diagnostic;
@@ -34,7 +36,7 @@ public class XSDDiagnosticsParticipant implements IDiagnosticsParticipant {
 	public XSDDiagnosticsParticipant(XSDPlugin xsdPlugin) {
 		this.xsdPlugin = xsdPlugin;
 	}
-	
+
 	@Override
 	public void doDiagnostics(DOMDocument xmlDocument, List<Diagnostic> diagnostics,
 			XMLValidationSettings validationSettings, CancelChecker cancelChecker) {
@@ -45,8 +47,11 @@ public class XSDDiagnosticsParticipant implements IDiagnosticsParticipant {
 		// Get entity resolver (XML catalog resolver, XML schema from the file
 		// associations settings., ...)
 		XMLEntityResolver entityResolver = xmlDocument.getResolverExtensionManager();
+		LSPXMLEntityResolver entityResolverWrapper = new LSPXMLEntityResolver(entityResolver,
+				(DiagnosticsResult) diagnostics);
+
 		// Process validation
-		XSDValidator.doDiagnostics(xmlDocument, entityResolver, diagnostics, validationSettings,
+		XSDValidator.doDiagnostics(xmlDocument, entityResolverWrapper, diagnostics, validationSettings,
 				xsdPlugin.getContentModelManager(), cancelChecker);
 	}
 

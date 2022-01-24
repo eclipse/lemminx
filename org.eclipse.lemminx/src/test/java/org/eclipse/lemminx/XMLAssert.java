@@ -494,12 +494,18 @@ public class XMLAssert {
 
 	public static void testPublishDiagnosticsFor(String xml, String fileURI, Consumer<XMLLanguageService> configuration,
 			PublishDiagnosticsParams... expected) {
-		List<PublishDiagnosticsParams> actual = new ArrayList<>();
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
 		if (configuration != null) {
 			xmlLanguageService.initializeIfNeeded();
 			configuration.accept(xmlLanguageService);
 		}
+		testPublishDiagnosticsFor(xml, fileURI, xmlLanguageService, expected);
+	}
+
+	public static void testPublishDiagnosticsFor(String xml, String fileURI, XMLLanguageService xmlLanguageService,
+			PublishDiagnosticsParams... expected) {
+		List<PublishDiagnosticsParams> actual = new ArrayList<>();
+
 		DOMDocument xmlDocument = DOMParser.getInstance().parse(xml, fileURI,
 				xmlLanguageService.getResolverExtensionManager());
 		xmlLanguageService.setDocumentProvider((uri) -> xmlDocument);
@@ -513,7 +519,7 @@ public class XMLAssert {
 			PublishDiagnosticsParams... expected) {
 		assertEquals(expected.length, actual.size());
 		for (int i = 0; i < expected.length; i++) {
-			assertEquals(actual.get(i).getUri(), expected[i].getUri());
+			assertEquals(expected[i].getUri(), actual.get(i).getUri());
 			assertDiagnostics(actual.get(i).getDiagnostics(), expected[i].getDiagnostics(), false);
 		}
 	}

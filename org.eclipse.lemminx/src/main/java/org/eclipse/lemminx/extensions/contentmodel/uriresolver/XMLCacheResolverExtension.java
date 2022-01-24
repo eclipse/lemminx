@@ -135,6 +135,14 @@ public class XMLCacheResolverExtension implements URIResolverExtension {
 		return cacheResourcesManager.isUseCache();
 	}
 
+	public boolean isDownloadExternalResources() {
+		return cacheResourcesManager.isDownloadExternalResources();
+	}
+	
+	public void setDownloadExternalResources(boolean downloadExternalResources) {
+		cacheResourcesManager.setDownloadExternalResources(downloadExternalResources);
+	}
+	
 	/**
 	 * Remove the cache directory (.lemminx/cache) if it exists.
 	 * 

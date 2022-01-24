@@ -11,14 +11,13 @@
 *******************************************************************************/
 package org.eclipse.lemminx.extensions.contentmodel.participants.diagnostics;
 
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
-import java.text.MessageFormat;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.xerces.impl.Constants;
 import org.apache.xerces.impl.XMLEntityManager;
+import org.apache.xerces.impl.XMLErrorReporter;
 import org.apache.xerces.impl.dtd.DTDGrammar;
 import org.apache.xerces.impl.dtd.XMLDTDDescription;
 import org.apache.xerces.impl.dtd.XMLEntityDecl;
@@ -28,16 +27,11 @@ import org.apache.xerces.xni.Augmentations;
 import org.apache.xerces.xni.NamespaceContext;
 import org.apache.xerces.xni.XMLLocator;
 import org.apache.xerces.xni.XNIException;
-import org.apache.xerces.xni.grammars.XMLGrammarPool;
 import org.apache.xerces.xni.parser.XMLInputSource;
 import org.apache.xerces.xni.parser.XMLParserConfiguration;
-import org.eclipse.lemminx.commons.BadLocationException;
-import org.eclipse.lemminx.dom.DOMDocument;
-import org.eclipse.lemminx.dom.DOMDocumentType;
 import org.eclipse.lemminx.extensions.contentmodel.participants.DTDErrorCode;
-import org.eclipse.lemminx.uriresolver.URIResolverExtensionManager;
-import org.eclipse.lsp4j.DiagnosticSeverity;
-import org.eclipse.lsp4j.Range;
+import org.eclipse.lemminx.extensions.xerces.xmlmodel.msg.XMLModelMessageFormatter;
+import org.eclipse.lemminx.utils.FilesUtils;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 
@@ -57,23 +51,19 @@ import org.xml.sax.SAXNotSupportedException;
  */
 public class LSPSAXParser extends SAXParser {
 
-	private static final String DTD_NOT_FOUND = "Cannot find DTD ''{0}''.\nCreate the DTD file or configure an XML catalog for this DTD.";
-
 	protected static final String VALIDATION_MANAGER = Constants.XERCES_PROPERTY_PREFIX
 			+ Constants.VALIDATION_MANAGER_PROPERTY;
 
 	protected static final String ENTITY_MANAGER = Constants.XERCES_PROPERTY_PREFIX + Constants.ENTITY_MANAGER_PROPERTY;
 
-	private final DOMDocument document;
-
 	private final LSPErrorReporterForXML reporter;
 
-	private final XMLGrammarPool grammarPool;
+	private final LSPXMLGrammarPool grammarPool;
 
-	public LSPSAXParser(DOMDocument document, LSPErrorReporterForXML reporter, XMLParserConfiguration config,
-			XMLGrammarPool grammarPool) {
+	private List<XMLDTDDescription> grammarDescs;
+
+	public LSPSAXParser(LSPErrorReporterForXML reporter, XMLParserConfiguration config, LSPXMLGrammarPool grammarPool) {
 		super(config);
-		this.document = document;
 		this.reporter = reporter;
 		this.grammarPool = grammarPool;
 		init(reporter);
@@ -111,21 +101,35 @@ public class LSPSAXParser extends SAXParser {
 			XMLEntityManager entityManager = (XMLEntityManager) fConfiguration.getProperty(ENTITY_MANAGER);
 			XMLDTDDescription grammarDesc = createGrammarDescription(rootElement, publicId, systemId);
 
-			// Expand the system ID of the DTD and resolve it.
-			String expandedSystemId = getExpandedSystemId(grammarDesc, entityManager);
-			if (!isDTDExists(expandedSystemId)) {
-				// The declared DTD doesn't exist
-				// <!DOCTYPE root-element SYSTEM "./dtd-doesnt-exist.dtd" []>
-				try {
-					// Report the error
-					DOMDocumentType docType = document.getDoctype();
-					Range range = new Range(document.positionAt(docType.getSystemIdNode().getStart()),
-							document.positionAt(docType.getSystemIdNode().getEnd()));
-					reporter.addDiagnostic(range, MessageFormat.format(DTD_NOT_FOUND, expandedSystemId),
-							DiagnosticSeverity.Error, DTDErrorCode.dtd_not_found.getCode(), null);
-				} catch (BadLocationException e) {
-					// Do nothing
+			String eid = grammarDesc.getExpandedSystemId();
+
+			try {
+				XMLInputSource input = entityManager.resolveEntity(grammarDesc);
+				String resolvedSystemId = input.getSystemId();
+				if (resolvedSystemId != null && resolvedSystemId.startsWith(FilesUtils.FILE_SCHEME)) {
+					// The resolved DTD is a file, check if the file exists.
+					if (!FilesUtils.toFile(resolvedSystemId).exists()) {
+						// The declared DTD file doesn't exist
+						// <!DOCTYPE root-element SYSTEM "./dtd-doesnt-exist.dtd" []>
+						throw new FileNotFoundException(resolvedSystemId);
+					}
 				}
+
+				if (grammarPool != null) {
+					// FIX [BUG 2]
+					// DTD exists, get the DTD grammar from the cache
+
+					DTDGrammar grammar = (DTDGrammar) grammarPool.retrieveGrammar(grammarDesc);
+					if (grammar != null) {
+						// The DTD grammar is in cache, we need to fill XML entity manager with the
+						// entities declared in the cached DTD grammar
+						fillEntities(grammar, entityManager);
+					}
+				}
+			} catch (Exception e) {
+				reporter.reportError(locator, XMLModelMessageFormatter.XML_MODEL_DOMAIN,
+						DTDErrorCode.dtd_not_found.getCode(), new Object[] { null, eid },
+						XMLErrorReporter.SEVERITY_ERROR, e);
 
 				// FIX [BUG 1]
 				// To avoid breaking the validation (ex : syntax validation) we mark
@@ -139,21 +143,27 @@ public class LSPSAXParser extends SAXParser {
 				if (fValidationManager != null) {
 					fValidationManager.setCachedDTD(true);
 				}
-			} else {
+				
+				// As we don't throw an error when DTD content is downloaded, we need to remove
+				// the DTDGrammar from the cache (which is cached by Xerces).
 				if (grammarPool != null) {
-					// FIX [BUG 2]
-					// DTD exists, get the DTD grammar from the cache
-
-					DTDGrammar grammar = (DTDGrammar) grammarPool.retrieveGrammar(grammarDesc);
-					if (grammar != null) {
-						// The DTD grammar is in cache, we need to fill XML entity manager with the
-						// entities declared in the cached DTD grammar
-						fillEntities(grammar, entityManager);
+					if (grammarDescs == null) {
+						grammarDescs = new ArrayList<>();
 					}
+					grammarDescs.add(grammarDesc);
 				}
 			}
 		}
 		super.doctypeDecl(rootElement, publicId, systemId, augs);
+	}
+
+	@Override
+	public void endDTD(Augmentations augs) throws XNIException {
+		super.endDTD(augs);
+		// Remove invalid DTDGrammar from the cache.
+		if (grammarDescs != null) {
+			grammarDescs.forEach(desc -> grammarPool.removeGrammar(desc));
+		}
 	}
 
 	/**
@@ -172,43 +182,6 @@ public class LSPSAXParser extends SAXParser {
 		}
 
 		return new XMLDTDDescription(publicId, systemId, locator.getExpandedSystemId(), eid, rootElement);
-	}
-
-	/**
-	 * Resolve the expanded system ID by resolving the system ID of the given
-	 * grammar description with uri resolver (XML catalog, cache, etc with
-	 * {@link URIResolverExtensionManager}).
-	 *
-	 * @param grammarDesc   the DTD grammar description.
-	 * @param entityManager the entity manager.
-	 * @return the expanded system ID by resolving the system ID of the given
-	 *         grammar description with uri resolver (XML catalog, cache, etc with
-	 *         {@link URIResolverExtensionManager}).
-	 */
-	private static String getExpandedSystemId(XMLDTDDescription grammarDesc, XMLEntityManager entityManager) {
-		try {
-			XMLInputSource input = entityManager.resolveEntity(grammarDesc);
-			return input.getSystemId();
-		} catch (Exception e) {
-		}
-		return grammarDesc.getExpandedSystemId();
-	}
-
-	private static boolean isDTDExists(String expandedSystemId) {
-		if (expandedSystemId == null || expandedSystemId.isEmpty()) {
-			return true;
-		}
-		try {
-			URL location = new URL(expandedSystemId);
-			URLConnection connect = location.openConnection();
-			if (!(connect instanceof HttpURLConnection)) {
-				InputStream stream = connect.getInputStream();
-				stream.close();
-			}
-		} catch (Exception e) {
-			return false;
-		}
-		return true;
 	}
 
 	/**

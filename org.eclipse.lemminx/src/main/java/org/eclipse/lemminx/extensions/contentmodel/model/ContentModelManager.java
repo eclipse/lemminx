@@ -55,7 +55,7 @@ public class ContentModelManager {
 	private final XMLCacheResolverExtension cacheResolverExtension;
 	private final XMLCatalogResolverExtension catalogResolverExtension;
 	private final XMLFileAssociationResolverExtension fileAssociationResolver;
-	private final XMLGrammarPool grammarPool;
+	private final LSPXMLGrammarPool grammarPool;
 
 	public ContentModelManager(URIResolverExtensionManager resolverManager) {
 		this.resolverManager = resolverManager;
@@ -404,6 +404,14 @@ public class ContentModelManager {
 			grammarPool.clear();
 		}
 	}
+	
+	public boolean isDownloadExternalResources() {
+		return cacheResolverExtension.isDownloadExternalResources();
+	}
+
+	public void setDownloadExternalResources(boolean downloadExternalResources) {
+		cacheResolverExtension.setDownloadExternalResources(downloadExternalResources);
+	}
 
 	/**
 	 * Remove the referenced grammar from the given document and clear the Xerces
@@ -470,7 +478,7 @@ public class ContentModelManager {
 		modelProviders.remove(modelProvider);
 	}
 
-	public XMLGrammarPool getGrammarPool() {
+	public LSPXMLGrammarPool getGrammarPool() {
 		return cacheResolverExtension.isUseCache() ? grammarPool : null;
 	}
 

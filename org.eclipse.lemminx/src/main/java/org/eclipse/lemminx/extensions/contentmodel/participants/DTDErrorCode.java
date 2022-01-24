@@ -20,6 +20,7 @@ import java.util.Map;
 import org.apache.xerces.xni.XMLLocator;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lemminx.dom.DOMDocumentType;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMRange;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.ElementDeclUnterminatedCodeAction;
@@ -216,6 +217,12 @@ public enum DTDErrorCode implements IXMLErrorCode {
 			DOMRange locationRange = XMLModelUtils.getHrefNode(document, hrefLocation);
 			if (locationRange != null) {
 				return XMLPositionUtility.createRange(locationRange);
+			}
+			try {
+				DOMDocumentType docType = document.getDoctype();
+				return new Range(document.positionAt(docType.getSystemIdNode().getStart()),
+						document.positionAt(docType.getSystemIdNode().getEnd()));
+			} catch (BadLocationException e) {
 			}
 			return null;
 		}

@@ -21,8 +21,10 @@ import java.util.function.Consumer;
 import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
+import org.eclipse.lemminx.extensions.contentmodel.participants.ExternalResourceErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSchemaErrorCode;
 import org.eclipse.lemminx.services.XMLLanguageService;
+import org.eclipse.lemminx.uriresolver.CacheResourcesManager;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.junit.jupiter.api.Test;
@@ -114,7 +116,7 @@ public class XMLSchemaPublishDiagnosticsTest extends AbstractCacheBasedTest {
 				"";
 		XMLAssert.testPublishDiagnosticsFor(xml, fileURI, configuration, pd(fileURI, //
 				new Diagnostic(r(2, 20, 2, 40),
-				"SchemaLocation: schemaLocation value = 'http://invoice.xsd' must have even number of URI's.",
+						"SchemaLocation: schemaLocation value = 'http://invoice.xsd' must have even number of URI's.",
 						DiagnosticSeverity.Warning, "xml", "SchemaLocation"), //
 				new Diagnostic(r(1, 1, 1, 8), "cvc-elt.1.a: Cannot find the declaration of element 'invoice'.",
 						DiagnosticSeverity.Error, "xml", "cvc-elt.1.a")));
@@ -128,13 +130,14 @@ public class XMLSchemaPublishDiagnosticsTest extends AbstractCacheBasedTest {
 		// Result of test is to have 2 published diagnostics (resource downloading as
 		// info and error downloading).
 
-		Consumer<XMLLanguageService> configuration = ls -> {
-			ContentModelManager contentModelManager = ls.getComponent(ContentModelManager.class);
-			// Use cache on file system
-			contentModelManager.setUseCache(true);
-		};
-
+		XMLLanguageService ls = new XMLLanguageService();
+		ls.initializeIfNeeded();
+		ContentModelManager contentModelManager = ls.getComponent(ContentModelManager.class);
+		// Use cache on file system
+		contentModelManager.setUseCache(true);
+		
 		String fileURI = "test.xml";
+		String xsdCachePath = CacheResourcesManager.getResourceCachePath("http://invoice.xsd").toString();
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<invoice xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
 				" xsi:noNamespaceSchemaLocation=\"http://invoice.xsd\">\r\n" + //
@@ -143,13 +146,23 @@ public class XMLSchemaPublishDiagnosticsTest extends AbstractCacheBasedTest {
 
 		TimeUnit.SECONDS.sleep(2); // HACK: to make the timing work on slow machines
 
-		String expectedLocation = TEST_WORK_DIRECTORY.resolve("cache/http/invoice.xsd").toString();
-		XMLAssert.testPublishDiagnosticsFor(xml, fileURI, configuration,
-				pd(fileURI,
-						new Diagnostic(r(1, 1, 1, 8), "The resource 'http://invoice.xsd' is downloading.",
-								DiagnosticSeverity.Information, "xml")),
-				pd(fileURI, new Diagnostic(r(1, 1, 1, 8), "Error while downloading 'http://invoice.xsd' to "+expectedLocation+".",
-						DiagnosticSeverity.Error, "xml")));
+		// Downloading...
+		XMLAssert.testPublishDiagnosticsFor(xml, fileURI, ls, pd(fileURI,
+				new Diagnostic(r(2, 31, 2, 51),
+						"The resource 'http://invoice.xsd' is downloading in the cache path '" + xsdCachePath + "'.",
+						DiagnosticSeverity.Information, "xml", ExternalResourceErrorCode.DownloadingResource.getCode()),
+				new Diagnostic(r(1, 1, 1, 8), "cvc-elt.1.a: Cannot find the declaration of element 'invoice'.",
+						DiagnosticSeverity.Error, "xml", XMLSchemaErrorCode.cvc_elt_1_a.getCode())));
+		
+		TimeUnit.SECONDS.sleep(5); // HACK: to make the timing work on slow machines
+			  
+		// Downloaded error
+		XMLAssert.testPublishDiagnosticsFor(xml, fileURI, ls, pd(fileURI,
+				new Diagnostic(r(2, 31, 2, 51),
+						"Error while downloading 'http://invoice.xsd' to '" + xsdCachePath + "'.",
+						DiagnosticSeverity.Error, "xml", ExternalResourceErrorCode.DownloadProblem.getCode()),
+				new Diagnostic(r(1, 1, 1, 8), "cvc-elt.1.a: Cannot find the declaration of element 'invoice'.",
+						DiagnosticSeverity.Error, "xml", XMLSchemaErrorCode.cvc_elt_1_a.getCode())));
 	}
 
 	@Test
@@ -187,7 +200,7 @@ public class XMLSchemaPublishDiagnosticsTest extends AbstractCacheBasedTest {
 
 		XMLAssert.testPublishDiagnosticsFor(xml, fileURI, configuration, pd(fileURI, //
 				new Diagnostic(r(3, 8, 3, 26),
-				"Content of type 'date' is expected.\n\nThe following content is not a valid type:\n '2017-11-30_INVALID'\n\nCode:",
+						"Content of type 'date' is expected.\n\nThe following content is not a valid type:\n '2017-11-30_INVALID'\n\nCode:",
 						DiagnosticSeverity.Error, "xml", XMLSchemaErrorCode.cvc_datatype_valid_1_2_1.getCode()), //
 				new Diagnostic(r(3, 8, 3, 26),
 						"cvc-type.3.1.3: The value '2017-11-30_INVALID' of element 'date' is not valid.",

@@ -13,7 +13,6 @@
 package org.eclipse.lemminx.services;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -22,22 +21,20 @@ import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.customservice.AutoCloseTagResponse;
 import org.eclipse.lemminx.dom.DOMDocument;
-import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lemminx.services.extensions.diagnostics.DiagnosticsResult;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLCodeLensSettings;
 import org.eclipse.lemminx.settings.XMLCompletionSettings;
 import org.eclipse.lemminx.settings.XMLFoldingSettings;
 import org.eclipse.lemminx.settings.XMLSymbolSettings;
-import org.eclipse.lemminx.uriresolver.CacheResourceDownloadingException;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.Diagnostic;
-import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.DocumentHighlight;
 import org.eclipse.lsp4j.DocumentLink;
 import org.eclipse.lsp4j.DocumentSymbol;
@@ -173,53 +170,24 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 			XMLValidationSettings validationSettings, CancelChecker cancelChecker) {
 		String uri = xmlDocument.getDocumentURI();
 		TextDocument document = xmlDocument.getTextDocument();
-		try {
-			List<Diagnostic> diagnostics = this.doDiagnostics(xmlDocument, validationSettings, cancelChecker);
-			cancelChecker.checkCanceled();
-			publishDiagnostics.accept(new PublishDiagnosticsParams(uri, diagnostics));
-			return null;
-		} catch (CacheResourceDownloadingException e) {
-			CompletableFuture<Path> future = e.getFuture();
-			if (future == null) {
-				// This case comes from when URL uses ../../ and resources is not included in
-				// the cache path
-				// To prevent from "Path Traversal leading to Remote Command Execution (RCE)"
-				publishOneDiagnosticInRoot(xmlDocument, e.getMessage(), DiagnosticSeverity.Error, publishDiagnostics);
-			} else {
-				// An XML Schema or DTD is being downloaded by the cache manager, but it takes
-				// too long.
-				// In this case:
-				// - 1) we add an information message to the document element to explain that
-				// validation
-				// cannot be performed because the XML Schema/DTD is downloading.
-				publishOneDiagnosticInRoot(xmlDocument, e.getMessage(), DiagnosticSeverity.Information,
-						publishDiagnostics);
-				// - 2) we restart the validation only once the XML Schema/DTD is downloaded.
-				future //
-						.exceptionally(downloadException -> {
-							// Error while downloading the XML Schema/DTD
-							publishOneDiagnosticInRoot(xmlDocument, downloadException.getCause().getMessage(),
-									DiagnosticSeverity.Error, publishDiagnostics);
-							return null;
-						}) //
-						.thenAccept((path) -> {
-							if (path != null) {
-								triggerValidation.accept(document);
-							}
-						});
-			}
-			return future;
-		}
-	}
 
-	private static void publishOneDiagnosticInRoot(DOMDocument document, String message, DiagnosticSeverity severity,
-			Consumer<PublishDiagnosticsParams> publishDiagnostics) {
-		String uri = document.getDocumentURI();
-		DOMElement documentElement = document.getDocumentElement();
-		Range range = XMLPositionUtility.selectStartTagName(documentElement);
-		List<Diagnostic> diagnostics = new ArrayList<>();
-		diagnostics.add(new Diagnostic(range, message, severity, XML_DIAGNOSTIC_SOURCE));
+		DiagnosticsResult diagnostics = (DiagnosticsResult) this.doDiagnostics(xmlDocument, validationSettings,
+				cancelChecker);
+		cancelChecker.checkCanceled();
 		publishDiagnostics.accept(new PublishDiagnosticsParams(uri, diagnostics));
+
+		List<CompletableFuture<?>> futures = diagnostics.getFutures();
+		if (futures != null) {
+			CompletableFuture<Void> allFutures = CompletableFuture
+					.allOf(futures.toArray(new CompletableFuture[futures.size()]));
+			allFutures.thenAccept(Void -> {
+				triggerValidation.accept(document);
+			}).exceptionally(downloadException -> {
+				triggerValidation.accept(document);
+				return null;
+			});
+		}
+		return null;
 	}
 
 	public List<FoldingRange> getFoldingRanges(DOMDocument xmlDocument, XMLFoldingSettings context) {

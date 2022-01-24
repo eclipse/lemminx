@@ -17,27 +17,25 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.lemminx.utils.platform.Platform;
+
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
-
-import org.eclipse.lemminx.utils.platform.Platform;
 
 /**
  * Files utilities.
  *
  */
 public class FilesUtils {
-
-	private static final Logger LOGGER = Logger.getLogger(FilesUtils.class.getName());
 
 	public static final String FILE_SCHEME = "file://";
 	public static final String LEMMINX_WORKDIR_KEY = "lemminx.workdir";
@@ -228,6 +226,19 @@ public class FilesUtils {
 			fileURI = fileURI.substring(index + 1, fileURI.length());
 		}
 		return fileURI;
+	}
+
+	/**
+	 * Convert the given file Uri to a File.
+	 * 
+	 * @param fileUri the file Uri.
+	 * 
+	 * @return the given file Uri to a File.
+	 */
+	public static File toFile(String fileUri) {
+		String convertedUri = fileUri.replace("file:///", "file:/"); //$NON-NLS-1$//$NON-NLS-2$
+		convertedUri = convertedUri.replace("file://", "file:/"); //$NON-NLS-1$//$NON-NLS-2$
+		return new File(URI.create(convertedUri));
 	}
 
 	/**

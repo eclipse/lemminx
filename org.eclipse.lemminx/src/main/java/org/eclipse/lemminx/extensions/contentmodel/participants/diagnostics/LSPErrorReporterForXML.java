@@ -138,5 +138,4 @@ public class LSPErrorReporterForXML extends AbstractReferencedGrammarLSPErrorRep
 		}
 		return referencedGrammars = contentModelManager.getReferencedGrammarInfos(super.getDOMDocument());
 	}
-
 }

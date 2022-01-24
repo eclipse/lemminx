@@ -22,6 +22,8 @@ public class ContentModelSettings {
 
 	private Boolean useCache;
 
+	private XMLDownloadExternalResourcesSettings downloadExternalResources;
+
 	private String[] catalogs = null;
 
 	private XMLFileAssociation[] fileAssociations;
@@ -107,4 +109,13 @@ public class ContentModelSettings {
 	public boolean isShowReferencedGrammars() {
 		return symbols == null || symbols.isShowReferencedGrammars();
 	}
+
+	public XMLDownloadExternalResourcesSettings getDownloadExternalResources() {
+		return downloadExternalResources;
+	}
+
+	public void setDownloadExternalResources(XMLDownloadExternalResourcesSettings downloadExternalResources) {
+		this.downloadExternalResources = downloadExternalResources;
+	}
+
 }
