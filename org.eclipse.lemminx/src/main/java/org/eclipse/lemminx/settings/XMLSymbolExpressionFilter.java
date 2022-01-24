@@ -26,6 +26,10 @@ public class XMLSymbolExpressionFilter {
 
 	private boolean excluded;
 
+	private boolean inlineAttribute;
+
+	private boolean showAttributeName;
+
 	/**
 	 * Returns the XPath expression.
 	 * 
@@ -43,6 +47,55 @@ public class XMLSymbolExpressionFilter {
 	public void setXpath(String xpath) {
 		this.xpath = xpath;
 		this.matcher = null;
+	}
+
+	/**
+	 * Returns true if the filter which matches an element attribute node must consider it
+	 * an inline attribute and show it on the same line as the owning element and false otherwise.
+	 * 
+	 * @return true if the filter which matches an element attribute node must consider it
+	 *         an inline attribute and show it on the same line as the owning element and
+	 *         false otherwise.
+	 */
+	public boolean isInlineAttribute() {
+		return inlineAttribute;
+	}
+
+	/**
+	 * Set whether or not a matched filter for an element attribute must be considered
+	 * an inline attribute and shown on the same line as the owning element.
+	 * 
+	 * @param inlineAttribute whether or not a matched filter for an element attribute must be
+	 *                        considered an inline attribute and shown on the same line as the
+	 *                        owning element.
+	 */
+	public void setInlineAttribute(boolean inlineAttribute) {
+		this.inlineAttribute = inlineAttribute;
+	}
+
+	/**
+	 * Returns true if the filter which matches an element attribute node should show
+	 * the attribute name or not, the attribute value will always be shown, and false
+	 * otherwise.
+	 * 
+	 * @return true if the filter which matches an element attribute node should show
+	 *         the attribute name or not, the attribute value will always be shown, and false
+	 *         otherwise.
+	 */
+	public boolean isShowAttributeName() {
+		return showAttributeName;
+	}
+
+	/**
+	 * Set whether or not a matched filter for an element attribute should show
+	 * the attribute name or not, the attribute value will always be shown.
+	 * 
+	 * @param showAttributeName whether or not a matched filter for an element attribute
+	 *                          should show the attribute name or not, the attribute value
+	 *                          will always be shown.
+	 */
+	public void setShowAttributeName(boolean showAttributeName) {
+		this.showAttributeName = showAttributeName;
 	}
 
 	/**
