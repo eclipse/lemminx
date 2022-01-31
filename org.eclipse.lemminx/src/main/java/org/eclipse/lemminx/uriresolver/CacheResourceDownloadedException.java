@@ -12,16 +12,47 @@
  */
 package org.eclipse.lemminx.uriresolver;
 
+import java.nio.file.Path;
+import java.text.MessageFormat;
+
 /**
  * Exception thrown when a resource (XML Schema, DTD) has error while
  * downloading.
  *
  */
-public class CacheResourceDownloadedException extends RuntimeException {
+public class CacheResourceDownloadedException extends CacheResourceException {
 
 	private static final long serialVersionUID = 1L;
 
-	public CacheResourceDownloadedException(String message, Throwable cause) {
-		super(message, cause);
+	public enum CacheResourceDownloadedError {
+
+		ERROR_WHILE_DOWNLOADING("Error while downloading ''{0}'' to ''{1}''.");
+
+		private final String rawMessage;
+
+		private CacheResourceDownloadedError(String rawMessage) {
+			this.rawMessage = rawMessage;
+		}
+
+		public String getMessage(Object... arguments) {
+			return MessageFormat.format(rawMessage, arguments);
+		}
+
 	}
+
+	private CacheResourceDownloadedError errorCode;
+
+	public CacheResourceDownloadedException(String resourceURI, Path resourceCachePath, Throwable e) {
+		this(resourceURI, resourceCachePath, CacheResourceDownloadedError.ERROR_WHILE_DOWNLOADING, e);
+	}
+
+	public CacheResourceDownloadedException(String resourceURI, Path resourceCachePath,
+			CacheResourceDownloadedError errorCode, Throwable e) {
+		super(resourceURI, errorCode.getMessage(resourceURI, resourceCachePath), e);
+		this.errorCode = errorCode;
+	}
+
+	public CacheResourceDownloadedError getErrorCode() {
+		return errorCode;
+	};
 }

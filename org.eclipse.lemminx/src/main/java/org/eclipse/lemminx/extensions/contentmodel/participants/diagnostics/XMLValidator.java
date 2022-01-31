@@ -26,7 +26,6 @@ import java.util.logging.Logger;
 import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.parsers.SAXParser;
 import org.apache.xerces.util.URI.MalformedURIException;
-import org.apache.xerces.xni.grammars.XMLGrammarPool;
 import org.apache.xerces.xni.parser.XMLEntityResolver;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -68,7 +67,7 @@ public class XMLValidator {
 	public static void doDiagnostics(DOMDocument document, XMLEntityResolver entityResolver,
 			List<Diagnostic> diagnostics, XMLValidationSettings validationSettings,
 			ContentModelManager contentModelManager, CancelChecker monitor) {
-		XMLGrammarPool grammarPool = contentModelManager.getGrammarPool();
+		LSPXMLGrammarPool grammarPool = contentModelManager.getGrammarPool();
 		Map<String, ReferencedGrammarDiagnosticsInfo> referencedGrammarDiagnosticsInfoCache = new HashMap<>();
 		final LSPErrorReporterForXML reporterForXML = new LSPErrorReporterForXML(document, diagnostics,
 				contentModelManager, validationSettings != null ? validationSettings.isRelatedInformation() : false,
@@ -88,7 +87,7 @@ public class XMLValidator {
 				configuration.setProperty("http://apache.org/xml/properties/internal/entity-resolver", entityResolver); //$NON-NLS-1$
 			}
 
-			SAXParser parser = new LSPSAXParser(document, reporterForXML, configuration, grammarPool);
+			SAXParser parser = new LSPSAXParser(reporterForXML, configuration, grammarPool);
 
 			// Add LSP content handler to stop XML parsing if monitor is canceled.
 			parser.setContentHandler(new LSPContentHandler(monitor));

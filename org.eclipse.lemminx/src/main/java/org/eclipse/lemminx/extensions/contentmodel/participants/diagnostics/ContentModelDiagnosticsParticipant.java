@@ -18,6 +18,8 @@ import org.apache.xerces.xni.parser.XMLEntityResolver;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.ContentModelPlugin;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
+import org.eclipse.lemminx.extensions.xerces.LSPXMLEntityResolver;
+import org.eclipse.lemminx.services.extensions.diagnostics.DiagnosticsResult;
 import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lemminx.utils.DOMUtils;
 import org.eclipse.lsp4j.Diagnostic;
@@ -46,9 +48,13 @@ public class ContentModelDiagnosticsParticipant implements IDiagnosticsParticipa
 		// Get entity resolver (XML catalog resolver, XML schema from the file
 		// associations settings., ...)
 		XMLEntityResolver entityResolver = xmlDocument.getResolverExtensionManager();
+		LSPXMLEntityResolver entityResolverWrapper = new LSPXMLEntityResolver(entityResolver,
+				(DiagnosticsResult) diagnostics);
+		
 		// Process validation
-		XMLValidator.doDiagnostics(xmlDocument, entityResolver, diagnostics, validationSettings,
+		XMLValidator.doDiagnostics(xmlDocument, entityResolverWrapper, diagnostics, validationSettings,
 				contentModelPlugin.getContentModelManager(), monitor);
+
 	}
 
 }

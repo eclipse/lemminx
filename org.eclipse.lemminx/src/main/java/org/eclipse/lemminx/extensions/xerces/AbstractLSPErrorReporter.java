@@ -57,7 +57,8 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 	private final String source;
 	private boolean hasRelatedInfo;
 
-	public AbstractLSPErrorReporter(String source, DOMDocument xmlDocument, List<Diagnostic> diagnostics, boolean hasRelatedInfo) {
+	public AbstractLSPErrorReporter(String source, DOMDocument xmlDocument, List<Diagnostic> diagnostics,
+			boolean hasRelatedInfo) {
 		this.source = source;
 		this.xmlDocument = xmlDocument;
 		this.diagnostics = diagnostics;
@@ -69,9 +70,46 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 		super.putMessageFormatter(XMLModelMessageFormatter.XML_MODEL_DOMAIN, new XMLModelMessageFormatter());
 	}
 
+	@Override
 	public String reportError(XMLLocator location, String domain, String key, Object[] arguments, short severity,
 			Exception exception) throws XNIException {
 		// format message
+		String message = getMessage(domain, key, arguments, exception);
+
+		boolean fatalError = severity == SEVERITY_FATAL_ERROR;
+		DiagnosticSeverity diagnosticSeverity = getSeverity(domain, key, arguments, severity, exception);
+		Range adjustedRange = internalToLSPRange(location, key, arguments, message, diagnosticSeverity, fatalError,
+				xmlDocument);
+		List<DiagnosticRelatedInformation> relatedInformations = null;
+		if (adjustedRange == null || NO_RANGE.equals(adjustedRange)) {
+			return null;
+		}
+		if (hasRelatedInfo) {
+			try {
+				relatedInformations = AggregateRelatedInfoFinder.getInstance()
+						.findRelatedInformation(xmlDocument.offsetAt(adjustedRange.getStart()), key, xmlDocument);
+			} catch (BadLocationException e) {
+				LOGGER.severe("Passed bad Range: " + e);
+			}
+		}
+		String code = getCode(domain, key, arguments, exception);
+		if (addDiagnostic(adjustedRange, message, diagnosticSeverity, code, relatedInformations) == null) {
+			return null;
+		}
+		if (fatalError && !fContinueAfterFatalError) {
+			XMLParseException parseException = (exception != null) ? new XMLParseException(location, message, exception)
+					: new XMLParseException(location, message);
+			throw parseException;
+		}
+		return message;
+	}
+
+	protected DiagnosticSeverity getSeverity(String domain, String key, Object[] arguments, short severity,
+			Exception exception) {
+		return toLSPSeverity(severity);
+	}
+
+	protected String getMessage(String domain, String key, Object[] arguments, Exception exception) {
 		MessageFormatter messageFormatter = getMessageFormatter(domain);
 		String message;
 		if (messageFormatter != null) {
@@ -93,40 +131,21 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 			}
 			message = str.toString();
 		}
-
-		boolean fatalError = severity == SEVERITY_FATAL_ERROR;
-		DiagnosticSeverity diagnosticSeverity = toLSPSeverity(severity);
-		Range adjustedRange = internalToLSPRange(location, key, arguments, message, diagnosticSeverity, fatalError,
-				xmlDocument);
-		List<DiagnosticRelatedInformation> relatedInformations = null;
-		if (adjustedRange == null || NO_RANGE.equals(adjustedRange)) {
-			return null;
-		}
-		if (hasRelatedInfo) {
-			try {
-				relatedInformations = AggregateRelatedInfoFinder.getInstance().findRelatedInformation(xmlDocument.offsetAt(adjustedRange.getStart()), key, xmlDocument);
-			} catch (BadLocationException e) {
-				LOGGER.severe("Passed bad Range: " + e);
-			}
-		}
-		if (addDiagnostic(adjustedRange, message, diagnosticSeverity, key, relatedInformations) == null) {
-			return null;
-		}
-		if (fatalError && !fContinueAfterFatalError) {
-			XMLParseException parseException = (exception != null) ? new XMLParseException(location, message, exception)
-					: new XMLParseException(location, message);
-			throw parseException;
-		}
 		return message;
+	}
+
+	protected String getCode(String domain, String key, Object[] arguments, Exception exception) {
+		return key;
 	}
 
 	protected boolean isIgnoreFatalError(String key) {
 		return false;
 	}
 
-	public Diagnostic addDiagnostic(Range adjustedRange, String message, DiagnosticSeverity severity, String key, List<DiagnosticRelatedInformation> relatedInformation) {
-		Diagnostic d = new Diagnostic(adjustedRange, message, severity, source, key);
-		if (hasRelatedInfo && relatedInformation != null && relatedInformation.size() > 0){
+	public Diagnostic addDiagnostic(Range adjustedRange, String message, DiagnosticSeverity severity, String code,
+			List<DiagnosticRelatedInformation> relatedInformation) {
+		Diagnostic d = new Diagnostic(adjustedRange, message, severity, source, code);
+		if (hasRelatedInfo && relatedInformation != null && relatedInformation.size() > 0) {
 			d.setRelatedInformation(relatedInformation);
 		}
 		if (diagnostics.contains(d)) {
