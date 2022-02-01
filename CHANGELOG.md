@@ -1,5 +1,10 @@
 # Change Log
 
+## [0.18.4](https://github.com/eclipse/lemminx/milestone/30?closed=1) (February 01, 2022)
+
+### Bug Fixes
+ * Add XMLDownloadExternalResourcesSettings for native. See [#1163](https://github.com/eclipse/lemminx/pull/1163).
+
 ## [0.18.3](https://github.com/eclipse/lemminx/milestone/29?closed=1) (January 31, 2022)
 
 ### Enhancements
