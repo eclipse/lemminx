@@ -1,16 +1,30 @@
 # Change Log
 
+## [0.18.3](https://github.com/eclipse/lemminx/milestone/29?closed=1) (January 31, 2022)
+
+### Enhancements
+ * Support more customization for attribute elements in document symbols protocol. See [#1151](https://github.com/eclipse/lemminx/pull/1151).
+
+### Bug Fixes
+ * End Tag completion should be given priority above some other proposals. See [#1150](https://github.com/eclipse/lemminx/issues/1150).
+ * 'No definition found' when using 'Go to Definition' for types defined in imported XSD. See [#1146](https://github.com/eclipse/lemminx/pull/1146).
+ * Add option to control downloading of external schema resources. See [#1155](https://github.com/eclipse/lemminx/pull/1155).
+ * Invalid "schemaLocation" is not reported. See [#1143](https://github.com/eclipse/lemminx/issues/1143).
+ * NPE on renaming a namespaced tag with no corresponding ending tag. See [#1139](https://github.com/eclipse/lemminx/issues/1139).
+ * Updated Xerces to 2.12.2. See [#1156](https://github.com/eclipse/lemminx/pull/1156).
+ * Update Gson to 2.8.9. See [#1161](https://github.com/eclipse/lemminx/pull/1161).
+
 ## [0.18.2](https://github.com/eclipse/lemminx/milestone/28?closed=1) (December 14, 2021)
 
 ### Enhancements
 
-* Improved accuracy of attribute value quick fix suggestions. See [#1136](https://github.com/eclipse/lemminx/pull/1136)
+ * Improved accuracy of attribute value quick fix suggestions. See [#1136](https://github.com/eclipse/lemminx/pull/1136)
 
 ### Bug Fixes
 
-* Shutdown raises exception. See [#1132](https://github.com/eclipse/lemminx/issues/1132).
-* Transmit document telemetry in aggregate instead of on document open. See [#1131](https://github.com/eclipse/lemminx/pull/1131)
-* Fixed tag rename for XML tags containing colons. See [#1135](https://github.com/eclipse/lemminx/pull/1135)
+ * Shutdown raises exception. See [#1132](https://github.com/eclipse/lemminx/issues/1132).
+ * Transmit document telemetry in aggregate instead of on document open. See [#1131](https://github.com/eclipse/lemminx/pull/1131)
+ * Fixed tag rename for XML tags containing colons. See [#1135](https://github.com/eclipse/lemminx/pull/1135)
 
 ## [0.18.1](https://github.com/eclipse/lemminx/milestone/27?closed=1) (November 2, 2021)
 
