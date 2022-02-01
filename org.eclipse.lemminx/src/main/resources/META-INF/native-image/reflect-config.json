@@ -206,6 +206,14 @@
 		}]
 	},
 	{
+		"name": "org.eclipse.lemminx.extensions.contentmodel.settings.XMLDownloadExternalResourcesSettings",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
 		"name": "org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings",
 		"allDeclaredFields": true,
 		"methods": [{
