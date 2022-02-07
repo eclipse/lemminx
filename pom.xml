@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.eclipse.lemminx</groupId>
 	<artifactId>lemminx-parent</artifactId>
-	<version>0.18.4-SNAPSHOT</version>
+	<version>0.18.5-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>Eclipse LemMinX</name>
 	<description>LemMinX is a XML Language Server Protocol (LSP), and can be used with any editor that supports LSP, to offer an outstanding XML editing experience</description>
