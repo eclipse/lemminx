@@ -25,6 +25,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.eclipse.lemminx.utils.platform.Platform;
 
@@ -275,5 +276,17 @@ public class FilesUtils {
 	 */
 	public static String encodePath(String path) {
 		return path.replace(" ", "%20");
+	}
+	
+	/**
+	 * Very simple implementation of reading all content from a file into a string using the UTF-8 charset. Uses the System's line separator.
+	 * Not suited for reading large files. 
+	 *
+	 * @param path the path to a readable file. 
+	 * @return the contents of the file.
+	 * @throws IOException if an error occurred while reading the file.
+	 */
+	public static String readString(Path path) throws IOException {
+		return Files.readAllLines(path).stream().collect(Collectors.joining(System.lineSeparator()));
 	}
 }
