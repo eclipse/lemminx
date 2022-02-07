@@ -17,12 +17,15 @@ import static org.eclipse.lemminx.utils.StringUtils.getString;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.xerces.impl.XMLEntityManager;
+import org.apache.xerces.util.URI.MalformedURIException;
 import org.apache.xerces.xni.XMLLocator;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMDocumentType;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMRange;
+import org.eclipse.lemminx.dom.DTDEntityDecl;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.ElementDeclUnterminatedCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.EntityNotDeclaredCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.FixMissingSpaceCodeAction;
@@ -35,6 +38,7 @@ import org.eclipse.lemminx.utils.XMLPositionUtility.EntityReferenceRange;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ResourceOperationKind;
+import org.w3c.dom.NamedNodeMap;
 
 /**
  * DTD error code.
@@ -212,19 +216,47 @@ public enum DTDErrorCode implements IXMLErrorCode {
 		}
 
 		case dtd_not_found: {
-			// Check if DTD location comes from a xml-model/@href
+
+			// Check if DTD location is declared with xml-model/@href
+			// ex : <xml-model href="http://www.docbook.org/xml/4.4/docbookx.dtd" [
 			String hrefLocation = (String) arguments[1];
 			DOMRange locationRange = XMLModelUtils.getHrefNode(document, hrefLocation);
 			if (locationRange != null) {
 				return XMLPositionUtility.createRange(locationRange);
 			}
+
 			try {
 				DOMDocumentType docType = document.getDoctype();
-				return new Range(document.positionAt(docType.getSystemIdNode().getStart()),
-						document.positionAt(docType.getSystemIdNode().getEnd()));
+				if (docType != null) {
+
+					// Check if DTD location is declared with <!DOCTYPE SYSTEM
+					// ex : <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+					// "http://www.docbook.org/xml/4.4/docbookx.dtd" [
+					String documentURI = document.getDocumentURI();
+					String dtdLocation = getResolvedLocation(documentURI, docType.getSystemIdWithoutQuotes());
+					if (hrefLocation.equals(dtdLocation)) {
+						return new Range(document.positionAt(docType.getSystemIdNode().getStart()),
+								document.positionAt(docType.getSystemIdNode().getEnd()));
+					}
+
+					// Check if DTD location is declared with <!ENTITY SYSTEM
+					// ex : <!ENTITY % document SYSTEM "document.ent">
+					NamedNodeMap entities = docType.getEntities();
+					for (int i = 0; i < entities.getLength(); i++) {
+						DTDEntityDecl entity = (DTDEntityDecl) entities.item(i);
+						String entityLocation = getResolvedLocation(documentURI, entity.getSystemId());
+						if (hrefLocation.equals(entityLocation)) {
+							return XMLPositionUtility.createRange(entity.getSystemIdNode());
+						}
+					}
+				}
 			} catch (BadLocationException e) {
 			}
-			return null;
+
+			// DTD location cannot be found (ex : the DTD not found comes from an ENTITY
+			// which is declared in another included file.
+			// the error is displayed on the XML root element
+			return XMLPositionUtility.selectRootStartTag(document);
 		}
 		default:
 			try {
@@ -233,6 +265,22 @@ public enum DTDErrorCode implements IXMLErrorCode {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Returns the expanded system location
+	 *
+	 * @return the expanded system location
+	 */
+	private static String getResolvedLocation(String documentURI, String location) {
+		if (location == null) {
+			return null;
+		}
+		try {
+			return XMLEntityManager.expandSystemId(location, documentURI, false);
+		} catch (MalformedURIException e) {
+			return location;
+		}
 	}
 
 	public static void registerCodeActionParticipants(Map<String, ICodeActionParticipant> codeActions,

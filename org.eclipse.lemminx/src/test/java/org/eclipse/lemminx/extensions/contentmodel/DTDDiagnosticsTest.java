@@ -12,10 +12,10 @@
  */
 package org.eclipse.lemminx.extensions.contentmodel;
 
-import static org.eclipse.lemminx.XMLAssert.l;
-import static org.eclipse.lemminx.XMLAssert.r;
 import static org.eclipse.lemminx.XMLAssert.ca;
 import static org.eclipse.lemminx.XMLAssert.d;
+import static org.eclipse.lemminx.XMLAssert.l;
+import static org.eclipse.lemminx.XMLAssert.r;
 import static org.eclipse.lemminx.XMLAssert.te;
 import static org.eclipse.lemminx.XMLAssert.testCodeActionsFor;
 
@@ -622,7 +622,7 @@ public class DTDDiagnosticsTest {
 	}
 
 	@Test
-	public void testDTDNotFoundWithSYSTEM() throws Exception {
+	public void testDTDNotFoundWithDocTypeSYSTEM() throws Exception {
 		String xml = "<?xml version=\"1.0\" standalone=\"no\" ?>\r\n" + //
 				"<!DOCTYPE inEQUAL_PMT SYSTEM \"inEQUAL_PMT.dtd\">\r\n" + // <- [1] error DTD not found
 				"<inEQUAL_PMT>\r\n" + // [2]
@@ -632,10 +632,45 @@ public class DTDDiagnosticsTest {
 				"   <Term>36</Term>\r\n" + //
 				"   \r\n" + //
 				"</inEQUAL_PMT>";
-		XMLAssert.testDiagnosticsFor(xml, d(1, 29, 1, 46, DTDErrorCode.dtd_not_found), // [1]
+		XMLAssert.testDiagnosticsFor(xml, //
+				d(1, 29, 1, 46, DTDErrorCode.dtd_not_found), // [1]
 				d(2, 1, 12, DTDErrorCode.MSG_ELEMENT_NOT_DECLARED), // [2]
 				d(5, 4, 12, DTDErrorCode.MSG_ELEMENT_NOT_DECLARED), // [3]
 				d(5, 4, 12, XMLSyntaxErrorCode.ETagRequired)); // [4]
+	}
+
+	@Test
+	public void testDTDNotFoundWithEntitySYSTEM() throws Exception {
+		String xml = "<!DOCTYPE root-element [\r\n" + //
+				"	<!ENTITY % entity-name SYSTEM \"entity-value\">\r\n" + //
+				"	%entity-name;\r\n" + //
+				"]>\r\n" + //
+				"<root-element>\r\n" + //
+				"	<\r\n" + // [1]
+				"</root-element>";
+		XMLAssert.testDiagnosticsFor(xml, //
+				d(5, 1, 5, 2, XMLSyntaxErrorCode.MarkupNotRecognizedInContent) // [1]
+		);
+	}
+
+	@Test
+	public void testDTDNotFoundWithEntitySYSTEMAndResolve() throws Exception {
+		String xml = "<!DOCTYPE root-element [\r\n" + //
+				"	<!ENTITY % entity-name SYSTEM \"entity-value\">\r\n" + // <- [1] error DTD not found
+				"	%entity-name;\r\n" + //
+				"]>\r\n" + //
+				"<root-element>\r\n" + //
+				"	<\r\n" + // [2]
+				"</root-element>";
+		ContentModelSettings settings = new ContentModelSettings();
+		XMLValidationSettings validation = new XMLValidationSettings();
+		validation.setResolveExternalEntities(true);
+		settings.setValidation(validation);
+
+		XMLAssert.testDiagnosticsFor(xml, null, null, null, true, settings, //
+				d(1, 31, 1, 45, DTDErrorCode.dtd_not_found), // [1]
+				d(5, 1, 5, 2, XMLSyntaxErrorCode.MarkupNotRecognizedInContent) // [2]
+		);
 	}
 
 	@Test
