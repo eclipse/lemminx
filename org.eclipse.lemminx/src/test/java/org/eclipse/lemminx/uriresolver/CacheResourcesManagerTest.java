@@ -14,14 +14,19 @@ package org.eclipse.lemminx.uriresolver;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.lemminx.AbstractCacheBasedTest;
+import org.eclipse.lemminx.utils.FilesUtils;
+import org.eclipse.lemminx.utils.platform.Platform;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -72,7 +77,7 @@ public class CacheResourcesManagerTest extends AbstractCacheBasedTest {
 			fail("cacheResourcesManager should be busy downloading the url");
 		} catch (CacheResourceDownloadingException containsFuture) {
 			try {
-				containsFuture.getFuture().get(30, TimeUnit.SECONDS);
+				containsFuture.getFuture().get(2, TimeUnit.SECONDS);
 				fail("Download should have failed");
 			} catch (ExecutionException failedDownload) {
 				// Failed to download file, so exception is thrown
@@ -104,7 +109,7 @@ public class CacheResourcesManagerTest extends AbstractCacheBasedTest {
 			cacheResourcesManager.getResource(uri);
 			fail("cacheResourcesManager should be busy downloading the url");
 		} catch (CacheResourceDownloadingException containsFuture) {
-			path = containsFuture.getFuture().get(30, TimeUnit.SECONDS);
+			path = containsFuture.getFuture().get(2, TimeUnit.SECONDS);
 		}
 		assertNotNull(path);
 		assertNotNull(cacheResourcesManager.getResource(uri));
@@ -116,21 +121,48 @@ public class CacheResourcesManagerTest extends AbstractCacheBasedTest {
 	}
 
 	@Test
-	public void testGetBadResource() throws IOException {
-		String url = "http://localhost/../../../../../test.txt";
-		CacheResourceDownloadingException actual = null;
+	public void testGetBadResourceName() throws Exception {
+		String url = "http://localhost/foo/bar/`test.txt`";
 		try {
 			cacheResourcesManager.getResource(url);
-		} catch (CacheResourceDownloadingException e) {
-			actual = e;
+			fail("Invalid url should fail to download");
+		} catch (Exception e) {
+			assertEquals(InvalidURIException.class, e.getClass());
+			assertEquals(InvalidURIException.InvalidURIError.ILLEGAL_SYNTAX, ((InvalidURIException)e).getErrorCode());
 		}
-		assertNotNull(actual);
-		String cachePath = CacheResourcesManager.getResourceCachePath(url).toString();
-		assertEquals("The resource '" + url + "' cannot be downloaded in the cache path '" + cachePath + "'.",
-				actual.getMessage());
+	}
+
+	@Test
+	public void testDirectoryTraversal() throws Exception {
+		FileServer server = new FileServer();
+		server.start();
+		String uri = server.getUri("/dtd/web-app_2_3.dtd/../../xsd/choice.xsd");
+		Path path = null;
+		try {
+			cacheResourcesManager.getResource(uri);
+			fail("cacheResourcesManager should be busy downloading the url");
+		} catch (CacheResourceDownloadingException containsFuture) {
+			path = containsFuture.getFuture().get(2, TimeUnit.SECONDS);
+		}
+		assertEquals("choice.xsd",path.getFileName().toString());
+		String choice = FilesUtils.readString(path);
+		assertTrue(choice.contains("<xs:element name=\"person\">"), () -> {return "Unexpected file content:"+choice;});
+		
+		String invalidUri = server.getUri("/../../../xsd/choice.xsd");
+		try {
+			cacheResourcesManager.getResource(invalidUri);
+			fail("Invalid url should fail to download");
+		} catch (Exception e) {
+			assertEquals(InvalidURIException.class, e.getClass());
+			assertEquals(InvalidURIException.InvalidURIError.INVALID_PATH, ((InvalidURIException)e).getErrorCode());
+		}
+		
+
+		
 	}
 
 	private Cache<String, CacheResourceDownloadedException> testingCache() {
 		return CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.SECONDS).maximumSize(1).build();
 	}
+	
 }
