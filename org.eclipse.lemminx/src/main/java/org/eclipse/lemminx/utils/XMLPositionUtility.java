@@ -210,15 +210,17 @@ public class XMLPositionUtility {
 	}
 
 	/**
-	 * Returns the range of the attribute value of a specific child node, if it exists
+	 * Returns the range of the attribute value of a specific child node, if it
+	 * exists
 	 *
 	 * @param childNodeName the tag name of the child node/tag
-	 * @param attrName the attribute name
-	 * @param offset text offset from beginning of document
-	 * @param document the DOM document.
+	 * @param attrName      the attribute name
+	 * @param offset        text offset from beginning of document
+	 * @param document      the DOM document.
 	 * @return the child node attribute value range and null otherwise.
 	 */
-	public static Range selectChildNodeAttributeValueFromGivenNameAt(String childNodeName, String attrName, int offset, DOMDocument document) {
+	public static Range selectChildNodeAttributeValueFromGivenNameAt(String childNodeName, String attrName, int offset,
+			DOMDocument document) {
 		List<DOMNode> childNodes = document.findNodeAt(offset).getChildren();
 		if (childNodes.size() == 0) {
 			return null;
@@ -553,7 +555,7 @@ public class XMLPositionUtility {
 	public static EntityReferenceRange selectEntityReference(int offset, DOMDocument document,
 			boolean endsWithSemicolon) {
 		String text = document.getText();
-		// Search '&' character on the left of the offset
+		// Search '&' or '%' character on the left of the offset
 		int entityReferenceStart = getEntityReferenceStartOffset(text, offset);
 		if (entityReferenceStart == -1) {
 			return null;
@@ -587,8 +589,9 @@ public class XMLPositionUtility {
 			// case where offset is on the first character
 			return -1;
 		}
-		if (text.charAt(offset) == '&') {
-			// case with &|abcd
+		char c = text.charAt(offset);
+		if (c == '&' || c == '%') {
+			// case with &|abcd or with %|abcd
 			return offset;
 		}
 		if (offset == 0) {
@@ -599,8 +602,9 @@ public class XMLPositionUtility {
 		if (startEntityOffset <= 0) {
 			return -1;
 		}
-		// check if the left character is '&'
-		if (text.charAt(startEntityOffset - 1) != '&') {
+		// check if the left character is '&' or '%'
+		c = text.charAt(startEntityOffset - 1);
+		if (c != '&' && c != '%') {
 			return -1;
 		}
 		return startEntityOffset - 1;
