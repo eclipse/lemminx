@@ -15,6 +15,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.xerces.impl.Constants;
+import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.impl.dtd.XMLDTDValidator;
 import org.apache.xerces.util.SecurityManager;
 import org.apache.xerces.xni.XMLDocumentHandler;
@@ -57,7 +58,7 @@ class LSPXMLParserConfiguration extends XMLModelAwareParserConfiguration {
 
 	public LSPXMLParserConfiguration(XMLGrammarPool grammarPool, boolean disableDTDValidation,
 			LSPErrorReporterForXML reporterForXML, LSPErrorReporterForXML reporterForGrammar,
-			XMLValidationSettings validationSettings) {
+			XMLEntityManager entityManager, XMLValidationSettings validationSettings) {
 		super(null, grammarPool, reporterForGrammar);
 		this.disableDTDValidation = disableDTDValidation;
 		// Disable DOCTYPE declaration if settings is set to true.
@@ -76,6 +77,10 @@ class LSPXMLParserConfiguration extends XMLModelAwareParserConfiguration {
 				.setMaxOccurNodeLimit(getPropertyValue(MAX_OCCUR_LIMIT_PROPERTY_NAME, MAX_OCCUR_LIMIT_DEFAULT_VALUE));
 		super.setProperty(SECURITY_MANAGER, securityManager);
 		fErrorReporter = reporterForXML;
+
+		fEntityManager = entityManager;
+		fProperties.put(ENTITY_MANAGER, fEntityManager);
+		addCommonComponent(fEntityManager);
 	}
 
 	@Override
