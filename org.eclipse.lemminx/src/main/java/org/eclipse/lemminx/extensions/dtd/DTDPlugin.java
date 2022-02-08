@@ -17,6 +17,7 @@ import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelProvider;
 import org.eclipse.lemminx.extensions.dtd.contentmodel.CMDTDContentModelProvider;
 import org.eclipse.lemminx.extensions.dtd.participants.DTDCodeLensParticipant;
 import org.eclipse.lemminx.extensions.dtd.participants.DTDDefinitionParticipant;
+import org.eclipse.lemminx.extensions.dtd.participants.DTDDocumentLinkParticipant;
 import org.eclipse.lemminx.extensions.dtd.participants.DTDHighlightingParticipant;
 import org.eclipse.lemminx.extensions.dtd.participants.DTDReferenceParticipant;
 import org.eclipse.lemminx.extensions.dtd.participants.diagnostics.DTDDiagnosticsParticipant;
@@ -27,6 +28,7 @@ import org.eclipse.lemminx.services.extensions.IXMLExtension;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.services.extensions.codelens.ICodeLensParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
+import org.eclipse.lemminx.uriresolver.URIResolverExtensionManager;
 import org.eclipse.lsp4j.InitializeParams;
 
 /**
@@ -39,6 +41,7 @@ public class DTDPlugin implements IXMLExtension {
 	private final IHighlightingParticipant highlightingParticipant;
 	private final IReferenceParticipant referenceParticipant;
 	private final ICodeLensParticipant codeLensParticipant;
+	private DTDDocumentLinkParticipant documentLinkParticipant;
 
 	public DTDPlugin() {
 		definitionParticipant = new DTDDefinitionParticipant();
@@ -64,6 +67,9 @@ public class DTDPlugin implements IXMLExtension {
 		registry.registerReferenceParticipant(referenceParticipant);
 		// register codelens participant
 		registry.registerCodeLensParticipant(codeLensParticipant);
+		// register document link participant
+		URIResolverExtensionManager resolverManager = registry.getComponent(URIResolverExtensionManager.class);
+		documentLinkParticipant = new DTDDocumentLinkParticipant(resolverManager);
 	}
 
 	@Override
@@ -78,5 +84,7 @@ public class DTDPlugin implements IXMLExtension {
 		registry.unregisterReferenceParticipant(referenceParticipant);
 		// unregister codelens participant
 		registry.unregisterCodeLensParticipant(codeLensParticipant);
+		// unregister document link participant
+		registry.unregisterDocumentLinkParticipant(documentLinkParticipant);
 	}
 }

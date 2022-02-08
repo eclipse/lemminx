@@ -131,6 +131,15 @@ public class DTDEntityDecl extends DTDDeclNode implements Entity {
 		return systemId != null ? systemId.getParameterWithoutFirstAndLastChar() : null;
 	}
 
+	/**
+	 * Returns the system if node and null otherwise.
+	 * 
+	 * @return the system if node and null otherwise.
+	 */
+	public DTDDeclParameter getSystemIdNode() {
+		return systemId;
+	}
+
 	public void setSystemId(int start, int end) {
 		systemId = addNewParameter(start, end);
 	}

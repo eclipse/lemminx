@@ -222,6 +222,18 @@ public class EntitiesDefinitionExtensionsTest {
 
 	}
 
+	@Test
+	public void parameterEntity() throws BadLocationException {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<!DOCTYPE root [\r\n" + //
+				"  <!ENTITY % document SYSTEM \"document.ent\">\r\n" + //
+				"  %docu|ment;" + // <- here definition for mdash parameter entity
+				"]>\r\n" + //
+				"<root>\r\n" + //
+				"</root>";
+		testDefinitionFor(xml, "test.xml", ll("test.xml", r(3, 2, 3, 12), r(2, 13, 2, 21)));
+	}
+
 	private static String getDTDFileURI(String dtdURI) throws MalformedURIException {
 		return XMLEntityManager.expandSystemId(dtdURI, "test.xml", true).replace("///", "/");
 	}
