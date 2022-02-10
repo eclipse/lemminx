@@ -17,6 +17,7 @@
 package org.eclipse.lemminx.extensions.contentmodel.participants.diagnostics;
 
 import org.apache.xerces.impl.dtd.DTDGrammar;
+import org.apache.xerces.impl.dtd.XMLDTDDescription;
 import org.apache.xerces.impl.xs.SchemaGrammar;
 import org.apache.xerces.xni.grammars.Grammar;
 import org.apache.xerces.xni.grammars.XMLGrammarDescription;
@@ -220,6 +221,7 @@ public class LSPXMLGrammarPool implements XMLGrammarPool {
 		public Grammar grammar;
 		public Entry next;
 		private final FilesChangedTracker tracker;
+		public String internalSubset;
 
 		protected Entry(int hash, XMLGrammarDescription desc, Grammar grammar, Entry next) {
 			this.hash = hash;
@@ -253,6 +255,34 @@ public class LSPXMLGrammarPool implements XMLGrammarPool {
 				next = null;
 			}
 		}
+	}
+
+	/**
+	 * Update the DTD internal subset entry for the given XML DTD description and
+	 * return true if the cached DTD grammar internal subset is equal to the given
+	 * internal subset and false otherwise.
+	 * 
+	 * @param desc           the XML DTD description.
+	 * @param internalSubset the internal subset.
+	 * 
+	 * @return true if the cached DTD grammar internal subset is equal to the given
+	 *         internal subset and false otherwise.
+	 */
+	public boolean setInternalSubset(XMLDTDDescription desc, String internalSubset) {
+		synchronized (fGrammars) {
+			int hash = hashCode(desc);
+			int index = (hash & 0x7FFFFFFF) % fGrammars.length;
+			for (Entry entry = fGrammars[index]; entry != null; entry = entry.next) {
+				if ((entry.hash == hash) && equals(entry.desc, desc)) {
+					if (Objects.equal(entry.internalSubset, internalSubset)) {
+						return false;
+					}
+					entry.internalSubset = internalSubset;
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 }
