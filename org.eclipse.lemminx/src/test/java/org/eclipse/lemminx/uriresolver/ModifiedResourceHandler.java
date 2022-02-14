@@ -28,12 +28,13 @@ public class ModifiedResourceHandler extends ResourceHandler {
 	public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
 			throws IOException, ServletException {
 
-		// 403 if user agent starts with Java/1.
-		if (request.getHeader("User-Agent").indexOf("Java/1.") == 0) {
-			response.sendError(HttpServletResponse.SC_FORBIDDEN, "Java 8 is not allowed");
+		// 403 if user agent starts with Java/1. with https://lime.software/. 
+		// See https://github.com/redhat-developer/vscode-xml/issues/429#issuecomment-784875083
+		String userAgent = request.getHeader("User-Agent");
+		if (userAgent != null && userAgent.startsWith("Java/1.")) {
+			response.sendError(HttpServletResponse.SC_FORBIDDEN, userAgent + " is not allowed");
 			return;
 		}
-
 		super.handle(target, baseRequest, request, response);
 	}
 
