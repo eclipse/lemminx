@@ -1,6 +1,6 @@
 # Change Log
 
-## [0.18.5](https://github.com/eclipse/lemminx/milestone/31?closed=1) (February 14, 2022)
+## [0.19.0](https://github.com/eclipse/lemminx/milestone/31?closed=1) (February 14, 2022)
 
 ### Enhancements
 
@@ -11,6 +11,7 @@
 
  * Bad SYSTEM for DTD DocType and Entity breaks the XML validation. See [#1169](https://github.com/eclipse/lemminx/issues/1169).
  * Prevent suspicious directory traversal. See [#1171](https://github.com/eclipse/lemminx/pull/1171).
+ * Limit resource downloads to http, https and ftp and prevent insecure redirects. See [#1174](https://github.com/eclipse/lemminx/pull/1174).
 
 ## [0.18.4](https://github.com/eclipse/lemminx/milestone/30?closed=1) (February 01, 2022)
 
