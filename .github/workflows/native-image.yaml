@@ -74,7 +74,7 @@
         with:
           graalvm-version: '${{env.GRAALVM_VERSION}}'
       - run: Invoke-Expression -Command "$Env:JAVA_HOME/bin/gu install native-image"
-      - run: .\mvnw.cmd package -Dnative -DskipTests -D cbi.jarsigner.skip=true
+      - run: .\mvnw.cmd package -Dnative -DskipTests "-Dcbi.jarsigner.skip=true"
       - run: mv org.eclipse.lemminx\target\lemminx-*.exe lemminx-$(git rev-parse --short "$Env:GITHUB_SHA")-win32.exe
       - uses: actions/upload-artifact@v2
         with:
