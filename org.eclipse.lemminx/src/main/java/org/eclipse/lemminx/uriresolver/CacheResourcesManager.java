@@ -65,7 +65,7 @@ public class CacheResourcesManager {
 
 	private boolean downloadExternalResources;
 
-	private final Set<String> protocolsForCahe;
+	private final Set<String> protocolsForCache;
 
 	class ResourceInfo {
 
@@ -132,7 +132,7 @@ public class CacheResourcesManager {
 
 	public CacheResourcesManager(Cache<String, CacheResourceDownloadedException> cache) {
 		resourcesLoading = new HashMap<>();
-		protocolsForCahe = new HashSet<>();
+		protocolsForCache = new HashSet<>();
 		unavailableURICache = cache;
 		addDefaultProtocolsForCache();
 		setDownloadExternalResources(true);
@@ -183,12 +183,17 @@ public class CacheResourcesManager {
 
 	private CompletableFuture<Path> downloadResource(final String resourceURI, Path resourceCachePath) {
 		return CompletableFuture.supplyAsync(() -> {
-			LOGGER.info("Downloading " + resourceURI + " to " + resourceCachePath + "...");
 			long start = System.currentTimeMillis();
 			URLConnection conn = null;
 			try {
 				String actualURI = resourceURI;
 				URL url = new URL(actualURI);
+				String originalProtocol = url.getProtocol();
+				if (!protocolsForCache.contains(formatProtocol(originalProtocol))) {
+					throw new InvalidURIException(resourceURI, InvalidURIException.InvalidURIError.UNSUPPORTED_PROTOCOL, originalProtocol);
+				}
+				boolean isOriginalRequestSecure = isSecure(originalProtocol);
+				LOGGER.info("Downloading " + resourceURI + " to " + resourceCachePath + "...");
 				conn = url.openConnection();
 				conn.setRequestProperty(USER_AGENT_KEY, USER_AGENT_VALUE);
 				/* XXX: This should really be implemented using HttpClient or similar */
@@ -197,6 +202,13 @@ public class CacheResourcesManager {
 				{
 					allowedRedirects--;
 					url = new URL(actualURI = conn.getHeaderField("Location")); //$NON-NLS-1$
+					String protocol = url.getProtocol();
+					if (!protocolsForCache.contains(formatProtocol(protocol))) {
+						throw new InvalidURIException(url.toString(), InvalidURIException.InvalidURIError.UNSUPPORTED_PROTOCOL, protocol);
+					}
+					if (isOriginalRequestSecure && !isSecure(protocol)) {
+						throw new InvalidURIException(resourceURI, InvalidURIException.InvalidURIError.INSECURE_REDIRECTION, url.toString());
+					}
 					conn = url.openConnection();
 					conn.setRequestProperty(USER_AGENT_KEY, USER_AGENT_VALUE);
 				}
@@ -236,6 +248,11 @@ public class CacheResourcesManager {
 			}
 			return resourceCachePath;
 		});
+	}
+
+	private boolean isSecure(String protocol) {
+		//really dumb way to check for secure protocol
+		return "https".equals(protocol);
 	}
 
 	public static Path getResourceCachePath(String resourceURI) throws IOException {
@@ -345,8 +362,8 @@ public class CacheResourcesManager {
 	 *
 	 * @param protocol the protocol to add.
 	 */
-	public void addProtocolForCahe(String protocol) {
-		protocolsForCahe.add(formatProtocol(protocol));
+	public void addProtocolForCache(String protocol) {
+		protocolsForCache.add(formatProtocol(protocol));
 	}
 
 	/**
@@ -355,8 +372,8 @@ public class CacheResourcesManager {
 	 *
 	 * @param protocol the protocol to remove.
 	 */
-	public void removeProtocolForCahe(String protocol) {
-		protocolsForCahe.remove(formatProtocol(protocol));
+	public void removeProtocolForCache(String protocol) {
+		protocolsForCache.remove(formatProtocol(protocol));
 	}
 
 	/**
@@ -384,7 +401,7 @@ public class CacheResourcesManager {
 		if (StringUtils.isEmpty(url)) {
 			return false;
 		}
-		for (String protocol : protocolsForCahe) {
+		for (String protocol : protocolsForCache) {
 			if (url.startsWith(protocol)) {
 				return true;
 			}
@@ -396,9 +413,9 @@ public class CacheResourcesManager {
 	 * Add http, https, ftp protocol to use cache.
 	 */
 	private void addDefaultProtocolsForCache() {
-		addProtocolForCahe("http");
-		addProtocolForCahe("https");
-		addProtocolForCahe("ftp");
+		addProtocolForCache("http");
+		addProtocolForCache("https");
+		addProtocolForCache("ftp");
 	}
 
 }

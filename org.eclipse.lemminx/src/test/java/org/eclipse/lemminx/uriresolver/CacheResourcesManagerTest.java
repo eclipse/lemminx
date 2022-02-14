@@ -24,7 +24,16 @@ import java.nio.file.Path;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.server.handler.HandlerWrapper;
 import org.eclipse.lemminx.AbstractCacheBasedTest;
+import org.eclipse.lemminx.utils.ExceptionUtils;
 import org.eclipse.lemminx.utils.FilesUtils;
 import org.eclipse.lemminx.utils.platform.Platform;
 import org.junit.jupiter.api.AfterEach;
@@ -156,9 +165,36 @@ public class CacheResourcesManagerTest extends AbstractCacheBasedTest {
 			assertEquals(InvalidURIException.class, e.getClass());
 			assertEquals(InvalidURIException.InvalidURIError.INVALID_PATH, ((InvalidURIException)e).getErrorCode());
 		}
-		
-
-		
+	}
+	
+	@Test
+	public void testForbiddenRedirection() throws Exception {    
+		Handler redirectHandler = new AbstractHandler() {
+			@Override
+			public void handle(String target, Request baseRequest, HttpServletRequest request,
+					HttpServletResponse response) throws IOException, ServletException {
+				response.setHeader("Location", request.getParameter("redirect"));
+			}
+			
+		}; 
+		FileServer server = new FileServer(redirectHandler);
+		server.start();
+		String uri = server.getUri("/?redirect=file:///etc/password");
+		try {
+			cacheResourcesManager.getResource(uri);
+			fail("cacheResourcesManager should be busy downloading the url");
+		} catch (CacheResourceDownloadingException containsFuture) {
+			try {
+				containsFuture.getFuture().get(2, TimeUnit.SECONDS);
+				fail("Download should have failed");
+			} catch (ExecutionException failedDownload) {
+				Throwable cause = failedDownload.getCause();
+				assertEquals(CacheResourceDownloadedException.class, cause.getClass());
+				Throwable rootCause = ExceptionUtils.getRootCause(cause);
+				assertEquals(InvalidURIException.InvalidURIError.UNSUPPORTED_PROTOCOL, ((InvalidURIException)rootCause).getErrorCode());
+				assertEquals("Unsupported 'file' protocol in 'file:/etc/password'", rootCause.getMessage());
+			}
+		}
 	}
 
 	private Cache<String, CacheResourceDownloadedException> testingCache() {

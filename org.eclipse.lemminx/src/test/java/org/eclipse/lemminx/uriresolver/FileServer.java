@@ -52,15 +52,26 @@ public class FileServer {
 	 */
 	public FileServer(Path baseDir) throws IOException {
 		Files.createDirectories(baseDir);
-		server = new Server(0);
 		ResourceHandler resourceHandler = new ModifiedResourceHandler();
 		resourceHandler.setResourceBase(baseDir.toUri().toString());
 		resourceHandler.setDirectoriesListed(true);
-		HandlerList handlers = new HandlerList();
-		handlers.setHandlers(new Handler[] { resourceHandler, new DefaultHandler() });
-		server.setHandler(handlers);
+		serve(resourceHandler, new DefaultHandler());
+	}
+	
+	/**
+	 * Creates an http server on a random port, delegating to the given handlers
+	 * @param handlers the Handlers to delegate serving to.
+	 * @throws IOException
+	 */
+	public FileServer(Handler...handlers) throws IOException {
+		serve(handlers);
 	}
 
+	private void serve(Handler...handlers) {
+		server = new Server(0);
+		server.setHandler(new HandlerList(handlers));
+	}
+	
 	/**
 	 * @return the port the server was started on.
 	 * @throws Exception
