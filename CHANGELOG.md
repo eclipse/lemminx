@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.19.1](https://github.com/eclipse/lemminx/milestone/32?closed=1) (February 15, 2022)
+
+### Bug Fixes
+
+ * Fix endless diagnostic publishing when validation is disabled. See [#1175](https://github.com/eclipse/lemminx/issues/1175).
+
 ## [0.19.0](https://github.com/eclipse/lemminx/milestone/31?closed=1) (February 14, 2022)
 
 ### Enhancements
