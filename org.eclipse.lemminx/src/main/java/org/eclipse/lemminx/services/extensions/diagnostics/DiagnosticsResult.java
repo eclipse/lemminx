@@ -21,7 +21,7 @@ import org.eclipse.lsp4j.Diagnostic;
 
 /**
  * This class is the result of a diagnostic process. It contains:
- * 
+ *
  * <ul>
  * <li>list of diagnostics.</li>
  * <li>list of completable future which are not done(ex : download some external
@@ -29,7 +29,7 @@ import org.eclipse.lsp4j.Diagnostic;
  * again the diagnostics once all completable futures are finished (ex : all
  * download are finished).</li>
  * </ul>
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -55,12 +55,16 @@ public class DiagnosticsResult extends ArrayList<Diagnostic> {
 
 	/**
 	 * Returns the completable futures used in a diagnostics (ex : completeable
-	 * future to download external resources XSD, DTD) and null otherwise.
-	 * 
+	 * future to download external resources XSD, DTD) and an empty list otherwise.
+	 *
 	 * @return the completable futures used in a diagnostics (ex : completeable
-	 *         future to download external resources XSD, DTD) and null otherwise.
+	 *         future to download external resources XSD, DTD) and an empty list
+	 *         otherwise.
 	 */
 	public List<CompletableFuture<?>> getFutures() {
+		if (futures == null) {
+			return Collections.emptyList();
+		}
 		return futures;
 	}
 
