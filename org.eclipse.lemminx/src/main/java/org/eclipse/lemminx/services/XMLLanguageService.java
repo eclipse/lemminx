@@ -177,7 +177,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 		publishDiagnostics.accept(new PublishDiagnosticsParams(uri, diagnostics));
 
 		List<CompletableFuture<?>> futures = diagnostics.getFutures();
-		if (futures != null) {
+		if (!futures.isEmpty()) {
 			CompletableFuture<Void> allFutures = CompletableFuture
 					.allOf(futures.toArray(new CompletableFuture[futures.size()]));
 			allFutures.thenAccept(Void -> {
@@ -271,7 +271,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 	/**
 	 * Returns the linked editing ranges for the given <code>xmlDocument</code> at
 	 * the given <code>position</code> and null otherwise.
-	 * 
+	 *
 	 * @param xmlDocument   the DOM document.
 	 * @param position      the position.
 	 * @param cancelChecker the cancel checker.
