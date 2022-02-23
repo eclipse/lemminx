@@ -82,7 +82,7 @@ public class XMLFoldingsTest {
 			return true;
 		}
 	}
-	
+
 	@Test
 	public void testFoldOneLevel () {
 		String[] input = new String[] {
@@ -90,7 +90,7 @@ public class XMLFoldingsTest {
 			/*1*/"Hello",
 			/*2*/"</html>"
 		};
-		assertRanges(input,  new ExpectedIndentRange[] {r(0, 1)});
+		assertRanges(input,  new ExpectedIndentRange[] {r(0, 2)});
 	}
 
 
@@ -103,7 +103,7 @@ public class XMLFoldingsTest {
 			/*3*/"</head>",
 			/*4*/"</html>"
 		};
-		assertRanges(input,  new ExpectedIndentRange[] {r(0, 3), r(1, 2)});
+		assertRanges(input,  new ExpectedIndentRange[] {r(0, 4), r(1, 3)});
 	}
 
 	@Test
@@ -118,10 +118,10 @@ public class XMLFoldingsTest {
 			/*6*/"</body>",
 			/*7*/"</html>"
 		};
-		assertRanges(input,  new ExpectedIndentRange[] {r(0, 6), r(1, 2), r(4, 5)});
+		assertRanges(input,  new ExpectedIndentRange[] {r(0, 7), r(1, 3), r(4, 6)});
 	}
 
-	
+
 	@Test
 	public void	testFoldComment()  {
 		String[] input = new String[] {
@@ -154,7 +154,7 @@ public class XMLFoldingsTest {
 			/*3*/"</div>",
 			/*4*/"</body>",
 		};
-		assertRanges(input,  new ExpectedIndentRange[] {r(0, 3)});
+		assertRanges(input,  new ExpectedIndentRange[] {r(0, 4)});
 	}
 
 	@Test
@@ -164,7 +164,7 @@ public class XMLFoldingsTest {
 			/*1*/"<!-- #endregion -->",
 			/*2*/"</div>",
 		};
-		assertRanges(input,  new ExpectedIndentRange[] {r(0, 1)});
+		assertRanges(input,  new ExpectedIndentRange[] {r(0, 2)});
 	}
 
 	@Test
@@ -177,7 +177,7 @@ public class XMLFoldingsTest {
 			/*4*/"</body>",
 			/*5*/"<!-- #endregion -->",
 		};
-		assertRanges(input,  new ExpectedIndentRange[] {r(0, 3)});
+		assertRanges(input,  new ExpectedIndentRange[] {r(0, 4)});
 	}
 
 	@Test
@@ -218,17 +218,17 @@ public class XMLFoldingsTest {
 			/*19*/" </span>",
 			/*20*/"</div>",
 		};
-		assertRanges(input, new ExpectedIndentRange[] {r(0, 19), r(1, 18), r(2, 3), r(5, 11), r(6, 7), r(9, 10), r(13, 14), r(16, 17)}, "no limit", null);
-		assertRanges(input,  new ExpectedIndentRange[] {r(0, 19), r(1, 18), r(2, 3), r(5, 11), r(6, 7), r(9, 10), r(13, 14), r(16, 17)}, "limit 8", 8);
-		assertRanges(input,  new ExpectedIndentRange[] {r(0, 19), r(1, 18), r(2, 3), r(5, 11), r(6, 7), r(13, 14), r(16, 17)}, "limit 7", 7);
-		assertRanges(input,  new ExpectedIndentRange[] {r(0, 19), r(1, 18), r(2, 3), r(5, 11), r(13, 14), r(16, 17)}, "limit 6", 6);
-		assertRanges(input,  new ExpectedIndentRange[] {r(0, 19), r(1, 18), r(2, 3), r(5, 11), r(13, 14)}, "limit 5", 5);
-		assertRanges(input,  new ExpectedIndentRange[] {r(0, 19), r(1, 18), r(2, 3), r(5, 11)}, "limit 4", 4);
-		assertRanges(input,  new ExpectedIndentRange[] {r(0, 19), r(1, 18), r(2, 3)}, "limit 3", 3);
-		assertRanges(input,  new ExpectedIndentRange[] {r(0, 19), r(1, 18)}, "limit 2", 2);
-		assertRanges(input,  new ExpectedIndentRange[] {r(0, 19)}, "limit 1", 1);
+		assertRanges(input, new ExpectedIndentRange[] {r(0, 20), r(1, 19), r(2, 4), r(5, 12), r(6, 8), r(9, 11), r(13, 15), r(16, 18)}, "no limit", null);
+		assertRanges(input, new ExpectedIndentRange[] {r(0, 20), r(1, 19), r(2, 4), r(5, 12), r(6, 8), r(9, 11), r(13, 15), r(16, 18)}, "limit 8", 8);
+		assertRanges(input, new ExpectedIndentRange[] {r(0, 20), r(1, 19), r(2, 4), r(5, 12), r(6, 8), r(13, 15), r(16, 18)}, "limit 7", 7);
+		assertRanges(input, new ExpectedIndentRange[] {r(0, 20), r(1, 19), r(2, 4), r(5, 12), r(13, 15), r(16, 18)}, "limit 6", 6);
+		assertRanges(input, new ExpectedIndentRange[] {r(0, 20), r(1, 19), r(2, 4), r(5, 12), r(13, 15)}, "limit 5", 5);
+		assertRanges(input, new ExpectedIndentRange[] {r(0, 20), r(1, 19), r(2, 4), r(5, 12)}, "limit 4", 4);
+		assertRanges(input, new ExpectedIndentRange[] {r(0, 20), r(1, 19), r(2, 4)}, "limit 3", 3);
+		assertRanges(input, new ExpectedIndentRange[] {r(0, 20), r(1, 19)}, "limit 2", 2);
+		assertRanges(input, new ExpectedIndentRange[] {r(0, 20)}, "limit 1", 1);
 	}
-			
+
 	private static void assertRanges(String[] lines, ExpectedIndentRange[] expected) {
 		assertRanges(lines, expected, "", null);
 	}
