@@ -26,13 +26,16 @@ public class XMLCompletionSettings {
 
 	private boolean autoCloseRemovesContent;
 
-	public XMLCompletionSettings(boolean autoCloseTags, boolean autoCloseRemovesContent) {
+	private boolean fileCompletion;
+
+	public XMLCompletionSettings(boolean autoCloseTags, boolean autoCloseRemovesContent, boolean fileCompletion) {
 		this.autoCloseTags = autoCloseTags;
 		this.autoCloseRemovesContent = autoCloseRemovesContent;
+		this.fileCompletion = fileCompletion;
 	}
 
 	public XMLCompletionSettings() {
-		this(true, true);
+		this(true, true, true);
 	}
 
 	public void setCapabilities(CompletionCapabilities completionCapabilities) {
@@ -80,6 +83,24 @@ public class XMLCompletionSettings {
 	}
 
 	/**
+	 * Configure the file completion options in completion
+	 *
+	 * @param fileCompletionEnabled
+	 */
+	public void setFileCompletionEnabled(boolean fileCompletionEnabled) {
+		this.fileCompletion = fileCompletionEnabled;
+	}
+
+	/**
+	 * Returns true if turning files should be included in completion and false otherwise
+	 *
+	 * @return true if turning files should be included in completion and false otherwise
+	 */
+	public boolean isFileCompletionEnabled() {
+		return fileCompletion;
+	}
+
+	/**
 	 * Returns <code>true</code> if the client support snippet and
 	 * <code>false</code> otherwise.
 	 *
@@ -101,5 +122,6 @@ public class XMLCompletionSettings {
 	public void merge(XMLCompletionSettings newCompletion) {
 		this.setAutoCloseTags(newCompletion.isAutoCloseTags());
 		this.setAutoCloseRemovesContent(newCompletion.isAutoCloseRemovesContent());
+		this.setFileCompletionEnabled(newCompletion.isFileCompletionEnabled());
 	}
 }
