@@ -104,9 +104,8 @@ class XMLFoldings {
 						while (j >= i) {
 							stack.remove(j--);
 						}
-						int line = document.positionAt(scanner.getTokenOffset()).getLine();
 						int startLine = stackElement.startLine;
-						int endLine = line - 1;
+						int endLine = document.positionAt(scanner.getTokenOffset()).getLine();
 						if (endLine > startLine && prevStart != startLine) {
 							prevStart = addRange(new FoldingRange(startLine, endLine), ranges);
 						}
