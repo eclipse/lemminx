@@ -11,7 +11,7 @@
 		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
 		<dev.build.timestamp>${maven.build.timestamp}</dev.build.timestamp>
 		<cbi.jarsigner.skip>true</cbi.jarsigner.skip>
-		<graalvm.version>20.3.0</graalvm.version>
+		<native.maven.plugin.version>0.9.10</native.maven.plugin.version>
 		<graalvm.static />
 	</properties>
 	<build>
@@ -152,13 +152,13 @@
 						</executions>
 					</plugin>
 					<plugin>
-						<groupId>org.graalvm.nativeimage</groupId>
-						<artifactId>native-image-maven-plugin</artifactId>
-						<version>${graalvm.version}</version>
+						<groupId>org.graalvm.buildtools</groupId>
+						<artifactId>native-maven-plugin</artifactId>
+						<version>${native.maven.plugin.version}</version>
 						<executions>
 							<execution>
 								<goals>
-									<goal>native-image</goal>
+									<goal>build</goal>
 								</goals>
 								<phase>package</phase>
 							</execution>
