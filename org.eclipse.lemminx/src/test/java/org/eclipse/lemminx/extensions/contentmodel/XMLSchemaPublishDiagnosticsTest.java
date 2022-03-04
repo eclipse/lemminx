@@ -56,7 +56,7 @@ public class XMLSchemaPublishDiagnosticsTest extends AbstractCacheBasedTest {
 				"</invoice> \r\n" + //
 				"";
 		XMLAssert.testPublishDiagnosticsFor(xml, fileURI, configuration, pd(fileURI, //
-				new Diagnostic(r(2, 31, 2, 51),
+				new Diagnostic(r(2, 32, 2, 50),
 						"schema_reference.4: Failed to read schema document 'http://invoice.xsd', because 1) could not find the document; 2) the document could not be read; 3) the root element of the document is not <xsd:schema>.",
 						DiagnosticSeverity.Warning, "xml", "schema_reference.4"), //
 				new Diagnostic(r(1, 1, 1, 8), "cvc-elt.1.a: Cannot find the declaration of element 'invoice'.",
@@ -87,7 +87,7 @@ public class XMLSchemaPublishDiagnosticsTest extends AbstractCacheBasedTest {
 				"</invoice> \r\n" + //
 				"";
 		XMLAssert.testPublishDiagnosticsFor(xml, fileURI, configuration, pd(fileURI, //
-				new Diagnostic(r(2, 31, 2, 51),
+				new Diagnostic(r(2, 32, 2, 50),
 						"schema_reference.4: Failed to read schema document 'http://invoice.xsd', because 1) could not find the document; 2) the document could not be read; 3) the root element of the document is not <xsd:schema>.",
 						DiagnosticSeverity.Warning, "xml", "schema_reference.4"), //
 				new Diagnostic(r(1, 1, 1, 8), "cvc-elt.1.a: Cannot find the declaration of element 'invoice'.",
@@ -148,7 +148,7 @@ public class XMLSchemaPublishDiagnosticsTest extends AbstractCacheBasedTest {
 
 		// Downloading...
 		XMLAssert.testPublishDiagnosticsFor(xml, fileURI, ls, pd(fileURI,
-				new Diagnostic(r(2, 31, 2, 51),
+				new Diagnostic(r(2, 32, 2, 50),
 						"The resource 'http://invoice.xsd' is downloading in the cache path '" + xsdCachePath + "'.",
 						DiagnosticSeverity.Information, "xml", ExternalResourceErrorCode.DownloadingResource.getCode()),
 				new Diagnostic(r(1, 1, 1, 8), "cvc-elt.1.a: Cannot find the declaration of element 'invoice'.",
@@ -158,7 +158,7 @@ public class XMLSchemaPublishDiagnosticsTest extends AbstractCacheBasedTest {
 			  
 		// Downloaded error
 		XMLAssert.testPublishDiagnosticsFor(xml, fileURI, ls, pd(fileURI,
-				new Diagnostic(r(2, 31, 2, 51),
+				new Diagnostic(r(2, 32, 2, 50),
 						"Error while downloading 'http://invoice.xsd' to '" + xsdCachePath + "'.",
 						DiagnosticSeverity.Error, "xml", ExternalResourceErrorCode.DownloadProblem.getCode()),
 				new Diagnostic(r(1, 1, 1, 8), "cvc-elt.1.a: Cannot find the declaration of element 'invoice'.",

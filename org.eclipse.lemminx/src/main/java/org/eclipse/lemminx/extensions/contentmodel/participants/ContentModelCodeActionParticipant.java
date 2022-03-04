@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.DownloadDisabledResourceCodeAction;
 import org.eclipse.lemminx.extensions.xsd.participants.XSDErrorCode;
 import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.IComponentProvider;
@@ -65,6 +66,7 @@ public class ContentModelCodeActionParticipant implements ICodeActionParticipant
 				DTDErrorCode.registerCodeActionParticipants(codeActionParticipants, sharedSettings);
 				XMLSchemaErrorCode.registerCodeActionParticipants(codeActionParticipants, sharedSettings);
 				XSDErrorCode.registerCodeActionParticipants(codeActionParticipants);
+				ExternalResourceErrorCode.registerCodeActionParticipants(codeActionParticipants);
 			}
 		}
 	}

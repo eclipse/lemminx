@@ -55,4 +55,10 @@ public class ReflectionUtils {
 		}
 	}
 
+	public static <T> void setFieldValue(Object instance, String name, T value)
+			throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
+		Field f = getField(instance.getClass(), name);
+		f.setAccessible(true);
+		f.set(instance, value);
+	}
 }

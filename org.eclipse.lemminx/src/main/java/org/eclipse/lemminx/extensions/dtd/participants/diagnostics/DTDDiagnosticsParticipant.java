@@ -40,7 +40,7 @@ public class DTDDiagnosticsParticipant implements IDiagnosticsParticipant {
 	public void doDiagnostics(DOMDocument xmlDocument, List<Diagnostic> diagnostics,
 			XMLValidationSettings validationSettings, CancelChecker cancelChecker) {
 		if (!xmlDocument.isDTD()) {
-			// Don't use the DTD validator, if it's a DTD
+			// Don't use the DTD validator, if it's not a DTD
 			return;
 		}
 		// Get entity resolver (XML catalog resolver, XML schema from the file
@@ -48,9 +48,10 @@ public class DTDDiagnosticsParticipant implements IDiagnosticsParticipant {
 		XMLEntityResolver entityResolver = xmlDocument.getResolverExtensionManager();
 		LSPXMLEntityResolver entityResolverWrapper = new LSPXMLEntityResolver(entityResolver,
 				(DiagnosticsResult) diagnostics);
-		
+
 		// Process validation
-		DTDValidator.doDiagnostics(xmlDocument, entityResolverWrapper, diagnostics, contentModelManager, cancelChecker);
+		DTDValidator.doDiagnostics(xmlDocument, entityResolverWrapper, diagnostics, validationSettings,
+				contentModelManager, cancelChecker);
 	}
 
 }

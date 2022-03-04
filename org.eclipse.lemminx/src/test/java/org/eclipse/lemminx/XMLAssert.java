@@ -284,7 +284,7 @@ public class XMLAssert {
 				if (r != null && r.getStart() != null && r.getEnd() != null) {
 					assertEquals(expected.getRange(), match.getRange());
 				}
-				
+
 				// New Text and Range of this match are equals to the expected ones
 				return;
 			}
@@ -337,7 +337,8 @@ public class XMLAssert {
 	 * @param filterText
 	 * @return
 	 */
-	public static CompletionItem c(String label, TextEdit textEdit, List<TextEdit> additionalTextEdits, String filterText) {
+	public static CompletionItem c(String label, TextEdit textEdit, List<TextEdit> additionalTextEdits,
+			String filterText) {
 		CompletionItem item = new CompletionItem();
 		item.setLabel(label);
 		item.setFilterText(filterText);
@@ -453,8 +454,9 @@ public class XMLAssert {
 			configuration.accept(xmlLanguageService);
 		}
 
-		List<Diagnostic> actual = xmlLanguageService.doDiagnostics(xmlDocument, settings.getValidation(), () -> {
-		});
+		List<Diagnostic> actual = xmlLanguageService.doDiagnostics(xmlDocument, settings.getValidation(),
+				Collections.emptyMap(), () -> {
+				});
 		if (expected == null) {
 			assertTrue(actual.isEmpty());
 			return;
@@ -542,23 +544,38 @@ public class XMLAssert {
 
 	public static void testPublishDiagnosticsFor(String xml, String fileURI, Consumer<XMLLanguageService> configuration,
 			PublishDiagnosticsParams... expected) {
+		testPublishDiagnosticsFor(xml, fileURI, null, configuration, expected);
+	}
+
+	public static void testPublishDiagnosticsFor(String xml, String fileURI, XMLValidationSettings validationSettings,
+			PublishDiagnosticsParams... expected) {
+		testPublishDiagnosticsFor(xml, fileURI, validationSettings, (Consumer<XMLLanguageService>) null, expected);
+	}
+
+	public static void testPublishDiagnosticsFor(String xml, String fileURI, XMLValidationSettings validationSettings,
+			Consumer<XMLLanguageService> configuration, PublishDiagnosticsParams... expected) {
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
 		if (configuration != null) {
 			xmlLanguageService.initializeIfNeeded();
 			configuration.accept(xmlLanguageService);
 		}
-		testPublishDiagnosticsFor(xml, fileURI, xmlLanguageService, expected);
+		testPublishDiagnosticsFor(xml, fileURI, validationSettings, xmlLanguageService, expected);
 	}
 
 	public static void testPublishDiagnosticsFor(String xml, String fileURI, XMLLanguageService xmlLanguageService,
 			PublishDiagnosticsParams... expected) {
+		testPublishDiagnosticsFor(xml, fileURI, null, xmlLanguageService, expected);
+	}
+
+	public static void testPublishDiagnosticsFor(String xml, String fileURI, XMLValidationSettings validationSettings,
+			XMLLanguageService xmlLanguageService, PublishDiagnosticsParams... expected) {
 		List<PublishDiagnosticsParams> actual = new ArrayList<>();
 
 		DOMDocument xmlDocument = DOMParser.getInstance().parse(xml, fileURI,
 				xmlLanguageService.getResolverExtensionManager());
 		xmlLanguageService.setDocumentProvider((uri) -> xmlDocument);
 
-		publishDiagnostics(xmlDocument, actual, xmlLanguageService);
+		publishDiagnostics(xmlDocument, validationSettings, actual, xmlLanguageService);
 
 		assertPublishDiagnostics(actual, expected);
 	}
@@ -574,12 +591,17 @@ public class XMLAssert {
 
 	public static void publishDiagnostics(DOMDocument xmlDocument, List<PublishDiagnosticsParams> actual,
 			XMLLanguageService languageService) {
+		publishDiagnostics(xmlDocument, null, actual, languageService);
+	}
+
+	public static void publishDiagnostics(DOMDocument xmlDocument, XMLValidationSettings validationSettings,
+			List<PublishDiagnosticsParams> actual, XMLLanguageService languageService) {
 		CompletableFuture<Path> error = languageService.publishDiagnostics(xmlDocument, params -> {
 			actual.add(params);
 		}, (doc) -> {
 			// Retrigger validation
 			publishDiagnostics(xmlDocument, actual, languageService);
-		}, null, () -> {
+		}, validationSettings, Collections.emptyMap(), () -> {
 		});
 
 		if (error != null) {
@@ -604,6 +626,11 @@ public class XMLAssert {
 		testCodeActionsFor(xml, diagnostic, (String) null, expected);
 	}
 
+	public static void testCodeActionsFor(String xml, String fileURI, Diagnostic diagnostic, CodeAction... expected)
+			throws BadLocationException {
+		testCodeActionsFor(xml, fileURI, diagnostic, (String) null, expected);
+	}
+
 	public static void testCodeActionsFor(String xml, Diagnostic diagnostic, SharedSettings settings,
 			CodeAction... expected) throws BadLocationException {
 		testCodeActionsFor(xml, diagnostic, null, settings, expected);
@@ -611,10 +638,15 @@ public class XMLAssert {
 
 	public static void testCodeActionsFor(String xml, Diagnostic diagnostic, String catalogPath, CodeAction... expected)
 			throws BadLocationException {
+		testCodeActionsFor(xml, null, diagnostic, catalogPath, expected);
+	}
+
+	public static void testCodeActionsFor(String xml, String fileURI, Diagnostic diagnostic, String catalogPath,
+			CodeAction... expected) throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setTabSize(4);
 		settings.getFormattingSettings().setInsertSpaces(false);
-		testCodeActionsFor(xml, diagnostic, catalogPath, settings, expected);
+		testCodeActionsFor(xml, diagnostic, catalogPath, fileURI, settings, null, expected);
 	}
 
 	public static void testCodeActionsFor(String xml, Diagnostic diagnostic, String catalogPath,
@@ -625,13 +657,19 @@ public class XMLAssert {
 	public static void testCodeActionsFor(String xml, Diagnostic diagnostic, String catalogPath,
 			SharedSettings sharedSettings, XMLLanguageService xmlLanguageService, CodeAction... expected)
 			throws BadLocationException {
+		testCodeActionsFor(xml, diagnostic, catalogPath, null, sharedSettings, xmlLanguageService, expected);
+	}
+
+	public static void testCodeActionsFor(String xml, Diagnostic diagnostic, String catalogPath, String fileURI,
+			SharedSettings sharedSettings, XMLLanguageService xmlLanguageService, CodeAction... expected)
+			throws BadLocationException {
 		int offset = xml.indexOf('|');
 		Range range = null;
 
 		if (offset != -1) {
 			xml = xml.substring(0, offset) + xml.substring(offset + 1);
 		}
-		TextDocument document = new TextDocument(xml.toString(), FILE_URI);
+		TextDocument document = new TextDocument(xml.toString(), fileURI != null ? fileURI : FILE_URI);
 
 		if (offset != -1) {
 			Position position = document.positionAt(offset);

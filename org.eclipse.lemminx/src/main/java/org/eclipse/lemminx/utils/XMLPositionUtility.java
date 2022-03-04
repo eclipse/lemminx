@@ -105,6 +105,17 @@ public class XMLPositionUtility {
 	 * @return the attribute value range and null otherwise.
 	 */
 	public static Range selectAttributeValue(DOMAttr attr) {
+		return selectAttributeValue(attr, false);
+	}
+
+	/**
+	 * Returns the attribute value range and null otherwise.
+	 *
+	 * @param attr        the attribute.
+	 * @param withouQuote true if range must remove the quote and false otherwise.
+	 * @return the attribute value range and null otherwise.
+	 */
+	public static Range selectAttributeValue(DOMAttr attr, boolean withouQuote) {
 		if (attr != null) {
 			return createAttrValueRange(attr, attr.getOwnerDocument());
 		}
@@ -112,11 +123,15 @@ public class XMLPositionUtility {
 	}
 
 	public static Range selectAttributeValueAt(String attrName, int offset, DOMDocument document) {
+		return selectAttributeValueAt(attrName, offset, false, document);
+	}
+
+	public static Range selectAttributeValueAt(String attrName, int offset, boolean withouQuote, DOMDocument document) {
 		DOMNode element = document.findNodeAt(offset);
 		if (element != null) {
 			DOMAttr attr = element.getAttributeNode(attrName);
 			if (attr != null) {
-				return createAttrValueRange(attr, document);
+				return createAttrValueRange(attr, document, withouQuote);
 			}
 		}
 		return null;
@@ -136,13 +151,18 @@ public class XMLPositionUtility {
 	}
 
 	private static Range createAttrValueRange(DOMAttr attr, DOMDocument document) {
+		return createAttrValueRange(attr, document, false);
+	}
+
+	private static Range createAttrValueRange(DOMAttr attr, DOMDocument document, boolean withoutQuote) {
 		DOMNode attrValue = attr.getNodeAttrValue();
 		if (attrValue == null) {
 			return null;
 		}
-		int startOffset = attrValue.getStart();
-		int endOffset = attrValue.getEnd();
-		return createRange(startOffset, endOffset, document);
+		if (withoutQuote) {
+			return selectValueWithoutQuote(attrValue);
+		}
+		return createRange(attrValue.getStart(), attrValue.getEnd(), document);
 	}
 
 	public static Range selectAttributeValueByGivenValueAt(String attrValue, int offset, DOMDocument document) {
@@ -293,6 +313,60 @@ public class XMLPositionUtility {
 		return offset;
 	}
 
+	/**
+	 * Returns true if the given position is within an attribute value, and false
+	 * otherwise
+	 *
+	 * @param xmlDocument the model of the document
+	 * @param position    the position to check
+	 * @return true if the given position is within an attribute value, and false
+	 *         otherwise
+	 */
+	public static boolean isInAttributeValue(DOMDocument xmlDocument, Position position) {
+		try {
+			int offset = xmlDocument.offsetAt(position);
+			DOMNode node = DOMNode.findNodeOrAttrAt(xmlDocument, offset);
+			if (!(node instanceof DOMAttr)) {
+				return false;
+			}
+			DOMAttr attr = (DOMAttr) node;
+			Range valueRange = XMLPositionUtility.selectAttributeValue(attr);
+			int valueStart = xmlDocument.offsetAt(valueRange.getStart());
+			int valueEnd = xmlDocument.offsetAt(valueRange.getEnd());
+			return valueStart < offset && offset <= valueEnd;
+		} catch (BadLocationException e) {
+			LOGGER.log(Level.SEVERE, "Bad range when checking if a position is within an attribute value", e);
+			return false;
+		}
+	}
+
+	/**
+	 * Finds the root element of the given document and returns the attribute value
+	 * <code>Range</code> for the attribute <code>attrName</code>.
+	 *
+	 * If <code>attrName</code> is not declared then null is returned.
+	 *
+	 * @param attrName The name of the attribute to find the range of the value for
+	 * @param document The document to use the root element of
+	 * @return The range in <code>document</code> where the declared value of
+	 *         attribute <code>attrName</code> resides (including quotations), or
+	 *         null if the attriubte is not declared.
+	 */
+	public static Range selectRootAttributeValue(String attrName, DOMDocument document) {
+		DOMNode root = document.getDocumentElement();
+		if (root == null) {
+			root = document.getChild(0);
+		}
+		if (root == null) {
+			return null;
+		}
+		DOMAttr attr = root.getAttributeNode(attrName);
+		if (attr == null) {
+			return null;
+		}
+		return selectAttributeValue(attr);
+	}
+
 	// ------------ Element selection
 
 	public static Range selectChildEndTag(String childTag, int offset, DOMDocument document) {
@@ -352,33 +426,6 @@ public class XMLPositionUtility {
 			return null;
 		}
 		return selectStartTagName(root);
-	}
-
-	/**
-	 * Finds the root element of the given document and returns the attribute value
-	 * <code>Range</code> for the attribute <code>attrName</code>.
-	 *
-	 * If <code>attrName</code> is not declared then null is returned.
-	 *
-	 * @param attrName The name of the attribute to find the range of the value for
-	 * @param document The document to use the root element of
-	 * @return The range in <code>document</code> where the declared value of
-	 *         attribute <code>attrName</code> resides (including quotations), or
-	 *         null if the attriubte is not declared.
-	 */
-	public static Range selectRootAttributeValue(String attrName, DOMDocument document) {
-		DOMNode root = document.getDocumentElement();
-		if (root == null) {
-			root = document.getChild(0);
-		}
-		if (root == null) {
-			return null;
-		}
-		DOMAttr attr = root.getAttributeNode(attrName);
-		if (attr == null) {
-			return null;
-		}
-		return selectAttributeValue(attr);
 	}
 
 	public static Range selectStartTagName(int offset, DOMDocument document) {
@@ -1095,30 +1142,23 @@ public class XMLPositionUtility {
 	}
 
 	/**
-	 * Returns true if the given position is within an attribute value, and false
-	 * otherwise
-	 *
-	 * @param xmlDocument the model of the document
-	 * @param position    the position to check
-	 * @return true if the given position is within an attribute value, and false
-	 *         otherwise
+	 * Select the value from the start/end node without quote.
+	 * 
+	 * For the given attr value:
+	 * 
+	 * <p>
+	 * <element attr="value" />
+	 * </p>
+	 * 
+	 * it will return <element attr="|value|" /> range without ".
+	 * 
+	 * @param node the DOM node.
+	 * 
+	 * @return the value from the start/end node without quote.
 	 */
-	public static boolean isInAttributeValue(DOMDocument xmlDocument, Position position) {
-		try {
-			int offset = xmlDocument.offsetAt(position);
-			DOMNode node = DOMNode.findNodeOrAttrAt(xmlDocument, offset);
-			if (!(node instanceof DOMAttr)) {
-				return false;
-			}
-			DOMAttr attr = (DOMAttr) node;
-			Range valueRange = XMLPositionUtility.selectAttributeValue(attr);
-			int valueStart = xmlDocument.offsetAt(valueRange.getStart());
-			int valueEnd = xmlDocument.offsetAt(valueRange.getEnd());
-			return valueStart < offset && offset <= valueEnd;
-		} catch (BadLocationException e) {
-			LOGGER.log(Level.SEVERE, "Bad range when checking if a position is within an attribute value", e);
-			return false;
-		}
+	public static Range selectValueWithoutQuote(DOMRange node) {
+		DOMDocument document = node.getOwnerDocument();
+		return createRange(node.getStart() + 1, node.getEnd() - 1, document);
 	}
 
 }

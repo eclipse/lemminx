@@ -12,10 +12,9 @@
  */
 package org.eclipse.lemminx.extensions.xsd.participants.diagnostics;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +23,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.xerces.impl.Constants;
+import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.impl.XMLErrorReporter;
 import org.apache.xerces.impl.xs.XMLSchemaLoader;
 import org.apache.xerces.parsers.XMLGrammarPreparser;
@@ -36,6 +36,7 @@ import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.extensions.xerces.AbstractLSPErrorReporter;
+import org.eclipse.lemminx.extensions.xerces.LSPXMLEntityManager;
 import org.eclipse.lemminx.extensions.xerces.ReferencedGrammarDiagnosticsInfo;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
@@ -64,8 +65,9 @@ public class XSDValidator {
 				referencedGrammarDiagnosticsInfoCache);
 
 		try {
+			LSPXMLEntityManager entityManager = new LSPXMLEntityManager(reporterForXSD, null);
 			XMLGrammarPreparser grammarPreparser = new LSPXMLGrammarPreparser();
-			XMLSchemaLoader schemaLoader = createSchemaLoader(reporterForXSD);
+			XMLSchemaLoader schemaLoader = createSchemaLoader(reporterForXSD, entityManager);
 
 			grammarPreparser.registerPreparser(XMLGrammarDescription.XML_SCHEMA, schemaLoader);
 
@@ -78,10 +80,13 @@ public class XSDValidator {
 			grammarPreparser.setFeature(Constants.XERCES_FEATURE_PREFIX + Constants.VALIDATION_FEATURE, true);
 			grammarPreparser.setFeature(Constants.XERCES_FEATURE_PREFIX + Constants.SCHEMA_VALIDATION_FEATURE, true);
 
+			boolean resolveExternalEntities = validationSettings != null
+					? validationSettings.isResolveExternalEntities()
+					: false;
 			grammarPreparser.setFeature(Constants.XERCES_FEATURE_PREFIX + Constants.EXTERNAL_GENERAL_ENTITIES_FEATURE,
-					true);
+					resolveExternalEntities);
 			grammarPreparser.setFeature(Constants.XERCES_FEATURE_PREFIX + Constants.EXTERNAL_PARAMETER_ENTITIES_FEATURE,
-					true);
+					resolveExternalEntities);
 			grammarPreparser.setFeature(Constants.XERCES_FEATURE_PREFIX + Constants.WARN_ON_DUPLICATE_ATTDEF_FEATURE,
 					true);
 
@@ -90,17 +95,19 @@ public class XSDValidator {
 
 			// Add LSP error reporter to fill LSP diagnostics from Xerces errors
 			grammarPreparser.setProperty("http://apache.org/xml/properties/internal/error-reporter", reporterForXSD);
-
+			schemaLoader.setProperty(Constants.XERCES_PROPERTY_PREFIX + Constants.ENTITY_MANAGER_PROPERTY,
+					entityManager);
 			if (entityResolver != null) {
 				grammarPreparser.setEntityResolver(entityResolver);
 			}
 
 			String content = document.getText();
 			String uri = document.getDocumentURI();
-			InputStream inputStream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
-			XMLInputSource is = new XMLInputSource(null, uri, uri, inputStream, null);
+			Reader inputStream = new StringReader(content);
+			XMLInputSource source = new XMLInputSource(null, uri, uri, inputStream, null);
+
 			grammarPreparser.getLoader(XMLGrammarDescription.XML_SCHEMA);
-			grammarPreparser.preparseGrammar(XMLGrammarDescription.XML_SCHEMA, is);
+			grammarPreparser.preparseGrammar(XMLGrammarDescription.XML_SCHEMA, source);
 		} catch (IOException | CancellationException | XMLParseException exception) {
 			// ignore error
 		} catch (Exception e) {
@@ -118,7 +125,7 @@ public class XSDValidator {
 	 * @throws NoSuchFieldException
 	 * @throws IllegalAccessException
 	 */
-	private static XMLSchemaLoader createSchemaLoader(XMLErrorReporter reporter) {
+	private static XMLSchemaLoader createSchemaLoader(XMLErrorReporter reporter, XMLEntityManager entityManager) {
 		XMLSchemaLoader schemaLoader = new XMLSchemaLoader();
 
 		// To validate XML syntax for XML Schema, we need to use the Xerces Reporter
@@ -130,7 +137,7 @@ public class XSDValidator {
 		// XML syntax (only XMLErrorHandler is allowed).
 		// To fix this problem, we set the Xerces reporter with Java Reflection.
 		if (canCustomizeReporter) {
-			canCustomizeReporter = AbstractLSPErrorReporter.initializeReporter(schemaLoader, reporter);
+			canCustomizeReporter = AbstractLSPErrorReporter.initializeReporter(schemaLoader, reporter, entityManager);
 		}
 		return schemaLoader;
 	}

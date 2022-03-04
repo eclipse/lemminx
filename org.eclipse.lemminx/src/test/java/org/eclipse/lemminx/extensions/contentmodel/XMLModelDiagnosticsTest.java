@@ -30,7 +30,7 @@ public class XMLModelDiagnosticsTest {
 		String xml = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> \r\n" + //
 				"<?xml-model href=\"BAD.dtd\"?>\r\n" + //
 				"<root><item /></root>";
-		testDiagnosticsFor(xml, d(1, 17, 26, DTDErrorCode.dtd_not_found));
+		testDiagnosticsFor(xml, d(1, 17, 26, DTDErrorCode.DTDNotFound));
 	}
 
 	@Test
@@ -49,7 +49,7 @@ public class XMLModelDiagnosticsTest {
 		String xml = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> \r\n" + //
 				"<?xml-model href=\"BAD.xsd\"?>\r\n" + //
 				"<root><item /></root>";
-		testDiagnosticsFor(xml, d(1, 17, 26, XMLSchemaErrorCode.schema_reference_4), //
+		testDiagnosticsFor(xml, d(1, 18, 25, XMLSchemaErrorCode.schema_reference_4), //
 				d(2, 1, 5, XMLSchemaErrorCode.cvc_elt_1_a));
 	}
 

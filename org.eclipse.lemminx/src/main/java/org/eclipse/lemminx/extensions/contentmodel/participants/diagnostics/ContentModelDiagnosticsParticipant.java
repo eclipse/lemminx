@@ -13,10 +13,12 @@
 package org.eclipse.lemminx.extensions.contentmodel.participants.diagnostics;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.xerces.xni.parser.XMLEntityResolver;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.ContentModelPlugin;
+import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.DownloadDisabledResourceCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.extensions.xerces.LSPXMLEntityResolver;
 import org.eclipse.lemminx.services.extensions.diagnostics.DiagnosticsResult;
@@ -41,6 +43,7 @@ public class ContentModelDiagnosticsParticipant implements IDiagnosticsParticipa
 	@Override
 	public void doDiagnostics(DOMDocument xmlDocument, List<Diagnostic> diagnostics,
 			XMLValidationSettings validationSettings, CancelChecker monitor) {
+		downloadExternalResourcesIfNeeded(diagnostics);
 		if (xmlDocument.isDTD() || DOMUtils.isXSD(xmlDocument)) {
 			// Don't validate DTD / XML Schema with XML validator
 			return;
@@ -50,11 +53,19 @@ public class ContentModelDiagnosticsParticipant implements IDiagnosticsParticipa
 		XMLEntityResolver entityResolver = xmlDocument.getResolverExtensionManager();
 		LSPXMLEntityResolver entityResolverWrapper = new LSPXMLEntityResolver(entityResolver,
 				(DiagnosticsResult) diagnostics);
-		
+
 		// Process validation
 		XMLValidator.doDiagnostics(xmlDocument, entityResolverWrapper, diagnostics, validationSettings,
 				contentModelPlugin.getContentModelManager(), monitor);
 
+	}
+
+	private void downloadExternalResourcesIfNeeded(List<Diagnostic> diagnostics) {
+		Map<String, Object> validationArgs = ((DiagnosticsResult) diagnostics).getValidationArgs();
+		String url = DownloadDisabledResourceCodeAction.getUrlToForceToDownload(validationArgs);
+		if (url != null) {
+			contentModelPlugin.getContentModelManager().forceDownloadExternalResource(url);
+		}
 	}
 
 }

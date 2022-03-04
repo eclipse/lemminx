@@ -15,16 +15,16 @@ package org.eclipse.lemminx.extensions.dtd.contentmodel;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.apache.xerces.xni.XNIException;
+import org.apache.xerces.impl.XMLErrorReporter;
 import org.apache.xerces.xni.grammars.Grammar;
-import org.apache.xerces.xni.parser.XMLErrorHandler;
 import org.apache.xerces.xni.parser.XMLInputSource;
-import org.apache.xerces.xni.parser.XMLParseException;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMDocumentType;
 import org.eclipse.lemminx.dom.DOMRange;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelProvider;
+import org.eclipse.lemminx.extensions.xerces.LSPSecurityManager;
+import org.eclipse.lemminx.extensions.xerces.LSPXMLEntityManager;
 import org.eclipse.lemminx.uriresolver.URIResolverExtensionManager;
 import org.eclipse.lemminx.utils.DOMUtils;
 import org.eclipse.lemminx.utils.StringUtils;
@@ -35,24 +35,6 @@ import org.eclipse.lemminx.utils.StringUtils;
 public class CMDTDContentModelProvider implements ContentModelProvider {
 
 	private static final String DOCTYPE_BINDING_KIND = "doctype";
-
-	private static final XMLErrorHandler SILENT_ERROR_HANDLER = new XMLErrorHandler() {
-
-		@Override
-		public void warning(String domain, String key, XMLParseException exception) throws XNIException {
-			// Do nothing
-		}
-
-		@Override
-		public void fatalError(String domain, String key, XMLParseException exception) throws XNIException {
-			// Do nothing
-		}
-
-		@Override
-		public void error(String domain, String key, XMLParseException exception) throws XNIException {
-			// Do nothing
-		}
-	};
 
 	private final URIResolverExtensionManager resolverExtensionManager;
 
@@ -93,11 +75,9 @@ public class CMDTDContentModelProvider implements ContentModelProvider {
 	}
 
 	@Override
-	public CMDocument createCMDocument(String key) {
+	public CMDocument createCMDocument(String key, boolean resolveExternalEntities) {
 		try {
-			CMDTDDocument document = new CMDTDDocument(key);
-			document.setEntityResolver(resolverExtensionManager);
-			document.setErrorHandler(SILENT_ERROR_HANDLER);
+			CMDTDDocument document = newCMDocument(key, resolveExternalEntities);
 			Grammar grammar = document.loadGrammar(new XMLInputSource(null, key, null));
 			if (grammar != null) {
 				// DTD can be loaded
@@ -110,7 +90,7 @@ public class CMDTDContentModelProvider implements ContentModelProvider {
 	}
 
 	@Override
-	public CMDocument createInternalCMDocument(DOMDocument xmlDocument) {
+	public CMDocument createInternalCMDocument(DOMDocument xmlDocument, boolean resolveExternalEntities) {
 		// This method create a CMDocument for DOCTYPE subset to manage XML completion,
 		// hover based on DTD
 		try {
@@ -119,9 +99,7 @@ public class CMDTDContentModelProvider implements ContentModelProvider {
 			if (internalSubset == null) {
 				return null;
 			}
-			CMDTDDocument document = new CMDTDDocument();
-			document.setEntityResolver(resolverExtensionManager);
-			document.setErrorHandler(SILENT_ERROR_HANDLER);
+			CMDTDDocument document = newCMDocument(null, resolveExternalEntities);
 			String baseSystemId = null;
 			String systemId = null;
 			document.loadInternalDTD(internalSubset, baseSystemId, systemId);
@@ -132,4 +110,19 @@ public class CMDTDContentModelProvider implements ContentModelProvider {
 			return null;
 		}
 	}
+
+	private CMDTDDocument newCMDocument(String key, boolean resolveExternalEntities) {
+		// Create Xerces XML entity manager configured with:
+		// - the LemMinX Uri resolver.
+		// - resolveExternalEntities coming from the settings.
+		LSPXMLEntityManager entityManager = new LSPXMLEntityManager();
+		// Update the resolver external entities capability
+		entityManager.setResolveExternalEntities(resolveExternalEntities);
+		// Update the resolver
+		entityManager.setEntityResolver(resolverExtensionManager);
+		// Update the security manager
+		entityManager.setSecurityManager(LSPSecurityManager.getSecurityManager());
+		return new CMDTDDocument(key, entityManager, new XMLErrorReporter(), resolverExtensionManager);
+	}
+
 }

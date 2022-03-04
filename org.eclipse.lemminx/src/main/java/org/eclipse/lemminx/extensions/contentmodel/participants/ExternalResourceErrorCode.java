@@ -15,6 +15,8 @@ package org.eclipse.lemminx.extensions.contentmodel.participants;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.DownloadDisabledResourceCodeAction;
+import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IXMLErrorCode;
 
 /**
@@ -58,5 +60,9 @@ public enum ExternalResourceErrorCode implements IXMLErrorCode {
 
 	public static ExternalResourceErrorCode get(String name) {
 		return codes.get(name);
+	}
+
+	public static void registerCodeActionParticipants(Map<String, ICodeActionParticipant> codeActionParticipants) {
+		codeActionParticipants.put(DownloadResourceDisabled.getCode(), new DownloadDisabledResourceCodeAction());		
 	}
 }
