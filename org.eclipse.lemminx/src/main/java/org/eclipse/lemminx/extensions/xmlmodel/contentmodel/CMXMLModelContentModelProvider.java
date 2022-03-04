@@ -67,13 +67,13 @@ public class CMXMLModelContentModelProvider implements ContentModelProvider {
 	}
 
 	@Override
-	public CMDocument createCMDocument(String uri) {
+	public CMDocument createCMDocument(String uri, boolean resolveExternalEntities) {
 		ContentModelProvider modelProvider = modelManager.getModelProviderByURI(uri);
-		return modelProvider != null ? modelProvider.createCMDocument(uri) : null;
+		return modelProvider != null ? modelProvider.createCMDocument(uri, resolveExternalEntities) : null;
 	}
 
 	@Override
-	public CMDocument createInternalCMDocument(DOMDocument xmlDocument) {
+	public CMDocument createInternalCMDocument(DOMDocument xmlDocument, boolean resolveExternalEntities) {
 		return null;
 	}
 

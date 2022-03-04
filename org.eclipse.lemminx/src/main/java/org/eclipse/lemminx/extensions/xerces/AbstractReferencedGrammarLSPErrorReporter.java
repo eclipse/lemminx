@@ -252,7 +252,7 @@ public abstract class AbstractReferencedGrammarLSPErrorReporter extends Abstract
 	}
 
 	private boolean isReferencedGrammarError(String key) {
-		return (DTDErrorCode.get(key) == DTDErrorCode.dtd_not_found
+		return (DTDErrorCode.get(key) == DTDErrorCode.DTDNotFound
 				|| XMLSchemaErrorCode.get(key) == XMLSchemaErrorCode.schema_reference_4);
 	}
 

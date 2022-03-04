@@ -144,7 +144,7 @@ public class XMLValidationSettings {
 	/**
 	 * Set true if external entities must be resolved and false otherwise.
 	 *
-	 * @param resolveExternalEntities resolve extrenal entities
+	 * @param resolveExternalEntities resolve external entities
 	 */
 	public void setResolveExternalEntities(boolean resolveExternalEntities) {
 		this.resolveExternalEntities = resolveExternalEntities;

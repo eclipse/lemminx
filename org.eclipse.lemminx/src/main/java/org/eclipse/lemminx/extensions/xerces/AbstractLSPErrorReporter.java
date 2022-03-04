@@ -16,12 +16,14 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.impl.XMLErrorReporter;
 import org.apache.xerces.impl.msg.XMLMessageFormatter;
 import org.apache.xerces.impl.xs.XMLSchemaLoader;
 import org.apache.xerces.impl.xs.XMLSchemaValidator;
 import org.apache.xerces.impl.xs.XSMessageFormatter;
 import org.apache.xerces.impl.xs.opti.SchemaDOMParser;
+import org.apache.xerces.impl.xs.opti.SchemaParsingConfig;
 import org.apache.xerces.impl.xs.traversers.XSDHandler;
 import org.apache.xerces.util.MessageFormatter;
 import org.apache.xerces.xni.XMLLocator;
@@ -57,6 +59,8 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 	private final String source;
 	private boolean hasRelatedInfo;
 
+	private Exception currentError;
+
 	public AbstractLSPErrorReporter(String source, DOMDocument xmlDocument, List<Diagnostic> diagnostics,
 			boolean hasRelatedInfo) {
 		this.source = source;
@@ -73,6 +77,10 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 	@Override
 	public String reportError(XMLLocator location, String domain, String key, Object[] arguments, short severity,
 			Exception exception) throws XNIException {
+		if (currentError != null) {
+			exception = currentError;
+			currentError = null;
+		}
 		// format message
 		String message = getMessage(domain, key, arguments, exception);
 
@@ -258,25 +266,34 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 		return xmlDocument;
 	}
 
-	public static boolean initializeReporter(XMLSchemaValidator schemaValidator, XMLErrorReporter reporter) {
+	public static boolean initializeReporter(XMLSchemaValidator schemaValidator, XMLErrorReporter reporter,
+			XMLEntityManager entityManager) {
 		try {
 			XMLSchemaLoader schemaLoader = ReflectionUtils.getFieldValue(schemaValidator, "fSchemaLoader");
-			return initializeReporter(schemaLoader, reporter);
+			return initializeReporter(schemaLoader, reporter, entityManager);
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, "Error while initializing XML error reporter", e);
 		}
 		return false;
 	}
 
-	public static boolean initializeReporter(XMLSchemaLoader schemaLoader, XMLErrorReporter reporter) {
+	public static boolean initializeReporter(XMLSchemaLoader schemaLoader, XMLErrorReporter reporter,
+			XMLEntityManager entityManager) {
 		try {
 			XSDHandler handler = ReflectionUtils.getFieldValue(schemaLoader, "fSchemaHandler");
-			SchemaDOMParser domParser = ReflectionUtils.getFieldValue(handler, "fSchemaParser");
-			domParser.setProperty("http://apache.org/xml/properties/internal/error-reporter", reporter);
+			SchemaParsingConfig config = new LSPSchemaParsingConfig(entityManager);
+			SchemaDOMParser schemaParser = new SchemaDOMParser(config);
+			ReflectionUtils.setFieldValue(handler, "fSchemaParser", schemaParser);
+			schemaParser.setProperty("http://apache.org/xml/properties/internal/error-reporter", reporter);
 			return true;
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, "Error while initializing XML error reporter", e);
 		}
 		return false;
+	}
+
+	public void setCurrentError(Exception currentError) {
+		this.currentError = currentError;
+
 	}
 }

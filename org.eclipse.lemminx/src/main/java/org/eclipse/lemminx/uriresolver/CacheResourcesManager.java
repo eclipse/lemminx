@@ -53,9 +53,12 @@ import com.google.common.io.RecursiveDeleteOption;
 public class CacheResourcesManager {
 
 	private static final String USER_AGENT_KEY = "User-Agent";
-	private static final String USER_AGENT_VALUE = "LemMinX/"+Platform.getVersion().getVersionNumber() + " ("+Platform.getOS().getName() + " "+ Platform.getOS().getVersion()+")";
+	private static final String USER_AGENT_VALUE = "LemMinX/" + Platform.getVersion().getVersionNumber() + " ("
+			+ Platform.getOS().getName() + " " + Platform.getOS().getVersion() + ")";
 
-	protected final Cache<String, CacheResourceDownloadedException> unavailableURICache;
+	private final Cache<String, CacheResourceDownloadedException> unavailableURICache;
+
+	private final Cache<String, Boolean> forceDownloadExternalResources;
 
 	private static final String CACHE_PATH = "cache";
 	private static final Logger LOGGER = Logger.getLogger(CacheResourcesManager.class.getName());
@@ -134,6 +137,8 @@ public class CacheResourcesManager {
 		resourcesLoading = new HashMap<>();
 		protocolsForCache = new HashSet<>();
 		unavailableURICache = cache;
+		forceDownloadExternalResources = CacheBuilder.newBuilder().maximumSize(100)
+				.expireAfterWrite(30, TimeUnit.SECONDS).build();
 		addDefaultProtocolsForCache();
 		setDownloadExternalResources(true);
 	}
@@ -144,7 +149,7 @@ public class CacheResourcesManager {
 			return resourceCachePath;
 		}
 
-		if (!isDownloadExternalResources()) {
+		if (!isDownloadExternalResources() && !isForceDownloadExternalResource(resourceURI)) {
 			throw new CacheResourceDownloadingException(resourceURI, resourceCachePath,
 					CacheResourceDownloadingError.DOWNLOAD_DISABLED, null, null);
 		}
@@ -190,7 +195,8 @@ public class CacheResourcesManager {
 				URL url = new URL(actualURI);
 				String originalProtocol = url.getProtocol();
 				if (!protocolsForCache.contains(formatProtocol(originalProtocol))) {
-					throw new InvalidURIException(resourceURI, InvalidURIException.InvalidURIError.UNSUPPORTED_PROTOCOL, originalProtocol);
+					throw new InvalidURIException(resourceURI, InvalidURIException.InvalidURIError.UNSUPPORTED_PROTOCOL,
+							originalProtocol);
 				}
 				boolean isOriginalRequestSecure = isSecure(originalProtocol);
 				LOGGER.info("Downloading " + resourceURI + " to " + resourceCachePath + "...");
@@ -204,10 +210,12 @@ public class CacheResourcesManager {
 					url = new URL(actualURI = conn.getHeaderField("Location")); //$NON-NLS-1$
 					String protocol = url.getProtocol();
 					if (!protocolsForCache.contains(formatProtocol(protocol))) {
-						throw new InvalidURIException(url.toString(), InvalidURIException.InvalidURIError.UNSUPPORTED_PROTOCOL, protocol);
+						throw new InvalidURIException(url.toString(),
+								InvalidURIException.InvalidURIError.UNSUPPORTED_PROTOCOL, protocol);
 					}
 					if (isOriginalRequestSecure && !isSecure(protocol)) {
-						throw new InvalidURIException(resourceURI, InvalidURIException.InvalidURIError.INSECURE_REDIRECTION, url.toString());
+						throw new InvalidURIException(resourceURI,
+								InvalidURIException.InvalidURIError.INSECURE_REDIRECTION, url.toString());
 					}
 					conn = url.openConnection();
 					conn.setRequestProperty(USER_AGENT_KEY, USER_AGENT_VALUE);
@@ -251,7 +259,7 @@ public class CacheResourcesManager {
 	}
 
 	private boolean isSecure(String protocol) {
-		//really dumb way to check for secure protocol
+		// really dumb way to check for secure protocol
 		return "https".equals(protocol);
 	}
 
@@ -266,15 +274,16 @@ public class CacheResourcesManager {
 	}
 
 	public static Path getResourceCachePath(URI uri) throws IOException {
-		//Eliminate all path traversals
+		// Eliminate all path traversals
 		URI normalizedUri = uri.normalize();
 
-		//If there's any /../ left, we bail, as that looks like a malicious URI.
+		// If there's any /../ left, we bail, as that looks like a malicious URI.
 		if (normalizedUri.getPath().contains("/../")) {
 			throw new InvalidURIException(uri.toString(), InvalidURIError.INVALID_PATH);
 		}
 		Path resourceCachePath = normalizedUri.getPort() > 0
-				? Paths.get(CACHE_PATH, normalizedUri.getScheme(), normalizedUri.getHost(), String.valueOf(normalizedUri.getPort()), normalizedUri.getPath())
+				? Paths.get(CACHE_PATH, normalizedUri.getScheme(), normalizedUri.getHost(),
+						String.valueOf(normalizedUri.getPort()), normalizedUri.getPath())
 				: Paths.get(CACHE_PATH, normalizedUri.getScheme(), normalizedUri.getHost(), normalizedUri.getPath());
 		return FilesUtils.getDeployedPath(resourceCachePath);
 	}
@@ -334,10 +343,20 @@ public class CacheResourcesManager {
 		return useCache;
 	}
 
+	/**
+	 * Returns true if the external resources can be downloaded and false otherwise.
+	 * 
+	 * @return true if the external resources can be downloaded and false otherwise.
+	 */
 	public boolean isDownloadExternalResources() {
 		return downloadExternalResources;
 	}
 
+	/**
+	 * Set true if the external resources can be downloaded and false otherwise.
+	 * 
+	 * @param downloadExternalResources the external resources
+	 */
 	public void setDownloadExternalResources(boolean downloadExternalResources) {
 		this.downloadExternalResources = downloadExternalResources;
 	}
@@ -418,4 +437,24 @@ public class CacheResourcesManager {
 		addProtocolForCache("ftp");
 	}
 
+	/**
+	 * Force the given <code>url</code> to download.
+	 * 
+	 * @param url the url to download.
+	 */
+	public void forceDownloadExternalResource(String url) {
+		forceDownloadExternalResources.put(url, Boolean.TRUE);
+	}
+
+	/**
+	 * Returns true if the given <code>url</code> can be downloaded and false
+	 * otherwise.
+	 * 
+	 * @param url the url to download.
+	 * @return true if the given <code>url</code> can be downloaded and false
+	 *         otherwise.
+	 */
+	private boolean isForceDownloadExternalResource(String url) {
+		return forceDownloadExternalResources.getIfPresent(url) != null;
+	}
 }

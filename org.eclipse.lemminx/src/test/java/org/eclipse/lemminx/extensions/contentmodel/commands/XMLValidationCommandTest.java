@@ -99,7 +99,7 @@ public class XMLValidationCommandTest extends BaseFileTempTest {
 			List<PublishDiagnosticsParams> actualDiagnostics = languageServer.getPublishDiagnostics();
 			XMLAssert.assertPublishDiagnostics(actualDiagnostics,
 					pd(xmlIdentifier.getUri(),
-							d(3, 34, 3, 66, ExternalResourceErrorCode.DownloadingResource,
+							d(3, 35, 3, 65, ExternalResourceErrorCode.DownloadingResource,
 									"The resource '" + xsdURL + "' is downloading in the cache path '" + cachePath
 											+ "'.",
 									"xml", DiagnosticSeverity.Information),
@@ -154,7 +154,7 @@ public class XMLValidationCommandTest extends BaseFileTempTest {
 			actualDiagnostics = languageServer.getPublishDiagnostics();
 			XMLAssert.assertPublishDiagnostics(actualDiagnostics, //
 					pd(xmlIdentifier.getUri(),
-							d(3, 34, 3, 66, ExternalResourceErrorCode.DownloadingResource,
+							d(3, 35, 3, 65, ExternalResourceErrorCode.DownloadingResource,
 									"The resource '" + xsdURL + "' is downloading in the cache path '" + cachePath
 											+ "'.",
 									"xml", DiagnosticSeverity.Information),
@@ -254,7 +254,7 @@ public class XMLValidationCommandTest extends BaseFileTempTest {
 
 			XMLAssert.assertPublishDiagnostics(actualDiagnostics, //
 					pd(xml1Identifier.getUri(),
-							d(3, 34, 3, 66, ExternalResourceErrorCode.DownloadingResource,
+							d(3, 35, 3, 65, ExternalResourceErrorCode.DownloadingResource,
 									"The resource '" + xsdURL + "' is downloading in the cache path '" + xsdCachePath
 											+ "'.",
 									"xml", DiagnosticSeverity.Information),
@@ -265,7 +265,7 @@ public class XMLValidationCommandTest extends BaseFileTempTest {
 							"Invalid element name:\n - tags\n\nOne of the following is expected:\n - tag\n\nError indicated by:\n {the schema}\nwith code:",
 							"xml", DiagnosticSeverity.Error)), //
 					pd(xml2Identifier.getUri(),
-							d(1, 22, 1, 54, ExternalResourceErrorCode.DownloadingResource,
+							d(1, 23, 1, 53, ExternalResourceErrorCode.DownloadingResource,
 									"The resource '" + dtdURL + "' is downloading in the cache path '" + dtdCachePath
 											+ "'.",
 									"xml", DiagnosticSeverity.Information), //
@@ -337,7 +337,7 @@ public class XMLValidationCommandTest extends BaseFileTempTest {
 			});
 			XMLAssert.assertPublishDiagnostics(actualDiagnostics, //
 					pd(xml1Identifier.getUri(), //
-							d(3, 34, 3, 66, ExternalResourceErrorCode.DownloadingResource,
+							d(3, 35, 3, 65, ExternalResourceErrorCode.DownloadingResource,
 									"The resource '" + xsdURL + "' is downloading in the cache path '" + xsdCachePath
 											+ "'.",
 									"xml", DiagnosticSeverity.Information),
@@ -346,7 +346,7 @@ public class XMLValidationCommandTest extends BaseFileTempTest {
 									DiagnosticSeverity.Error)), //
 					pd(xml1Identifier.getUri()), //
 					pd(xml2Identifier.getUri(),
-							d(1, 22, 1, 54, ExternalResourceErrorCode.DownloadingResource,
+							d(1, 23, 1, 53, ExternalResourceErrorCode.DownloadingResource,
 									"The resource '" + dtdURL + "' is downloading in the cache path '" + dtdCachePath
 											+ "'.",
 									"xml", DiagnosticSeverity.Information), //

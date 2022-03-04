@@ -17,6 +17,7 @@ import static org.eclipse.lsp4j.jsonrpc.CompletableFutures.computeAsync;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
@@ -330,8 +331,8 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 	}
 
 	@Override
-	public void validate(DOMDocument document) {
-		xmlTextDocumentService.validate(document);
+	public void validate(DOMDocument document, Map<String, Object> validationArgs) {
+		xmlTextDocumentService.validate(document, validationArgs);
 	}
 
 	public XMLCapabilityManager getCapabilityManager() {

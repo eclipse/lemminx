@@ -86,7 +86,8 @@ public class XMLCacheResolverExtension implements URIResolverExtension {
 	/**
 	 * Returns the cached resource path from the given url and null otherwise.
 	 * 
-	 * @param url the url
+	 * @param url the url to download.
+	 * 
 	 * @return the cached resource path from the given url and null otherwise.
 	 * @throws IOException
 	 * @throws CacheResourceDownloadedException throws when resource is downloading.
@@ -135,14 +136,24 @@ public class XMLCacheResolverExtension implements URIResolverExtension {
 		return cacheResourcesManager.isUseCache();
 	}
 
+	/**
+	 * Returns true if the external resources can be downloaded and false otherwise.
+	 * 
+	 * @return true if the external resources can be downloaded and false otherwise.
+	 */
 	public boolean isDownloadExternalResources() {
 		return cacheResourcesManager.isDownloadExternalResources();
 	}
-	
+
+	/**
+	 * Set true if the external resources can be downloaded and false otherwise.
+	 * 
+	 * @param downloadExternalResources the external resources
+	 */
 	public void setDownloadExternalResources(boolean downloadExternalResources) {
 		cacheResourcesManager.setDownloadExternalResources(downloadExternalResources);
 	}
-	
+
 	/**
 	 * Remove the cache directory (.lemminx/cache) if it exists.
 	 * 
@@ -151,5 +162,14 @@ public class XMLCacheResolverExtension implements URIResolverExtension {
 	 */
 	public void evictCache() throws IOException {
 		cacheResourcesManager.evictCache();
+	}
+
+	/**
+	 * Force the given <code>url</code> to download.
+	 * 
+	 * @param url the url to download.
+	 */
+	public void forceDownloadExternalResource(String url) {
+		cacheResourcesManager.forceDownloadExternalResource(url);
 	}
 }

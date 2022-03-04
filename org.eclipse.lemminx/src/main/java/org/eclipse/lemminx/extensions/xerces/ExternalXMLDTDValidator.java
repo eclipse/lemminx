@@ -43,7 +43,7 @@ public class ExternalXMLDTDValidator extends XMLDTDValidator {
 
 	public final static String DOCTYPE = "http://apache.org/xml/properties/dtd/external-doctype"; //$NON-NLS-1$ ;
 
-	private static final String DTD_NOT_FOUND_KEY = "dtd_not_found";
+	private static final String DTD_NOT_FOUND_KEY = "DTDNotFound";
 
 	private static final String ENTITY_MANAGER = Constants.XERCES_PROPERTY_PREFIX + Constants.ENTITY_MANAGER_PROPERTY;
 

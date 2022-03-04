@@ -142,13 +142,14 @@ public class ErrorParticipantLanguageServiceTest {
 			this.registerCompletionParticipant(new ICompletionParticipant() {
 
 				@Override
-				public void onTagOpen(ICompletionRequest completionRequest, ICompletionResponse completionResponse, CancelChecker cancelChecker)
-						throws Exception {
+				public void onTagOpen(ICompletionRequest completionRequest, ICompletionResponse completionResponse,
+						CancelChecker cancelChecker) throws Exception {
 					throw new RuntimeException("This participant is broken");
 				}
 
 				@Override
-				public void onXMLContent(ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker) throws Exception {
+				public void onXMLContent(ICompletionRequest request, ICompletionResponse response,
+						CancelChecker cancelChecker) throws Exception {
 					throw new RuntimeException("This participant is broken");
 				}
 
@@ -165,8 +166,8 @@ public class ErrorParticipantLanguageServiceTest {
 				}
 
 				@Override
-				public void onDTDSystemId(String valuePrefix, ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker)
-						throws Exception {
+				public void onDTDSystemId(String valuePrefix, ICompletionRequest request, ICompletionResponse response,
+						CancelChecker cancelChecker) throws Exception {
 					throw new RuntimeException("This participant is broken");
 				}
 
@@ -174,13 +175,14 @@ public class ErrorParticipantLanguageServiceTest {
 			this.registerCompletionParticipant(new ICompletionParticipant() {
 
 				@Override
-				public void onTagOpen(ICompletionRequest completionRequest, ICompletionResponse completionResponse, CancelChecker cancelChecker)
-						throws Exception {
+				public void onTagOpen(ICompletionRequest completionRequest, ICompletionResponse completionResponse,
+						CancelChecker cancelChecker) throws Exception {
 					completionResponse.addCompletionAttribute(TEST_COMPLETION_ITEM);
 				}
 
 				@Override
-				public void onXMLContent(ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker) throws Exception {
+				public void onXMLContent(ICompletionRequest request, ICompletionResponse response,
+						CancelChecker cancelChecker) throws Exception {
 					response.addCompletionAttribute(TEST_COMPLETION_ITEM);
 				}
 
@@ -197,8 +199,8 @@ public class ErrorParticipantLanguageServiceTest {
 				}
 
 				@Override
-				public void onDTDSystemId(String valuePrefix, ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker)
-						throws Exception {
+				public void onDTDSystemId(String valuePrefix, ICompletionRequest request, ICompletionResponse response,
+						CancelChecker cancelChecker) throws Exception {
 					response.addCompletionAttribute(TEST_COMPLETION_ITEM);
 				}
 

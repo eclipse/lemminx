@@ -767,7 +767,7 @@ public class XMLSchemaDiagnosticsTest {
 				"<invoice xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + //
 				"  xsi:noNamespaceSchemaLocation=\"/sala'd.xsd\">\n" + //
 				"</invoice>";
-		Diagnostic missingSchemaDiagnostic = d(2, 32, 45, XMLSchemaErrorCode.schema_reference_4);
+		Diagnostic missingSchemaDiagnostic = d(2, 33, 44, XMLSchemaErrorCode.schema_reference_4);
 		missingSchemaDiagnostic
 				.setMessage("schema_reference.4: Failed to read schema document " + "'file:///sala'd.xsd',"
 						+ " because 1) could not find the document; 2) the document could not be read;"
@@ -801,7 +801,7 @@ public class XMLSchemaDiagnosticsTest {
 				"<invoice xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + //
 				"  xsi:noNamespaceSchemaLocation=\"/salad.xsd\">\n" + //
 				"</invoice>";
-		Diagnostic missingSchema = d(2, 32, 44, XMLSchemaErrorCode.schema_reference_4);
+		Diagnostic missingSchema = d(2, 33, 43, XMLSchemaErrorCode.schema_reference_4);
 		missingSchema.setMessage("schema_reference.4: Failed to read schema document " + "'file:///salad.xsd',"
 				+ " because 1) could not find the document; 2) the document could not be read;"
 				+ " 3) the root element of the document is not <xsd:schema>.");
@@ -1106,7 +1106,7 @@ public class XMLSchemaDiagnosticsTest {
 				"	xsi:noNamespaceSchemaLocation=\"BAD_LOCATION.xsd\"\r\n" + //
 				"	Term=\"X\"></Annotation>";
 		testDiagnosticsFor(xml, null, null, null, true, settings, //
-				d(2, 31, 2, 49, XMLSchemaErrorCode.schema_reference_4), //
+				d(2, 32, 2, 48, XMLSchemaErrorCode.schema_reference_4), //
 				d(0, 1, 0, 11, XMLSchemaErrorCode.cvc_elt_1_a));
 	}
 

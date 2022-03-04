@@ -15,7 +15,7 @@ import org.eclipse.lemminx.extensions.generators.xml2dtd.DTDGeneratorSettings;
 /**
  * Code Action that creates a DTD file referenced with System ID of DOCTYPE.
  */
-public class dtd_not_foundCodeAction extends AbstractFixMissingGrammarCodeAction {
+public class DTDNotFoundCodeAction extends AbstractFixMissingGrammarCodeAction {
 
 	@Override
 	protected FileContentGeneratorSettings getFileContentGeneratorSettings() {

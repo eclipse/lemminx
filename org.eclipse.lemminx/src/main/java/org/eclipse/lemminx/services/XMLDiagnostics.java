@@ -13,6 +13,7 @@
 package org.eclipse.lemminx.services;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -40,12 +41,12 @@ class XMLDiagnostics {
 	}
 
 	public DiagnosticsResult doDiagnostics(DOMDocument xmlDocument, XMLValidationSettings validationSettings,
-			CancelChecker cancelChecker) {
+			Map<String, Object> validationArgs, CancelChecker cancelChecker) {
 		if (validationSettings != null && !validationSettings.isEnabled()) {
 			return DiagnosticsResult.EMPTY;
 		}
-		DiagnosticsResult diagnostics = new DiagnosticsResult();
-		doExtensionsDiagnostics(xmlDocument, diagnostics, validationSettings, cancelChecker);
+		DiagnosticsResult diagnostics = new DiagnosticsResult(validationArgs);
+		doExtensionsDiagnostics(xmlDocument, diagnostics, validationSettings, validationArgs, cancelChecker);
 		return diagnostics;
 	}
 
@@ -55,10 +56,11 @@ class XMLDiagnostics {
 	 * @param xmlDocument
 	 * @param diagnostics
 	 * @param validationSettings
+	 * @param validationArgs
 	 * @param monitor
 	 */
 	private void doExtensionsDiagnostics(DOMDocument xmlDocument, List<Diagnostic> diagnostics,
-			XMLValidationSettings validationSettings, CancelChecker monitor) {
+			XMLValidationSettings validationSettings, Map<String, Object> validationArgs, CancelChecker monitor) {
 		for (IDiagnosticsParticipant diagnosticsParticipant : extensionsRegistry.getDiagnosticsParticipants()) {
 			monitor.checkCanceled();
 			try {
