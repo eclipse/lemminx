@@ -1,5 +1,5 @@
 /**
- *  Copyright (c) 2018 Angelo ZERR
+ *  Copyright (c) 2018, 2022 Angelo ZERR
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v2.0
  *  which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -252,6 +253,13 @@ public class XMLAssert {
 			if (r != null && r.getStart() != null && r.getEnd() != null) {
 				assertEquals(expected.getTextEdit().getLeft().getRange(), match.getTextEdit().getLeft().getRange());
 			}
+
+			if (expected.getAdditionalTextEdits() != null && match.getAdditionalTextEdits() != null) {
+				assertEquals(expected.getAdditionalTextEdits().size(), match.getAdditionalTextEdits().size());
+				for (TextEdit expectedATE : expected.getAdditionalTextEdits()) {
+					assertAdditionalTextEdit(match.getAdditionalTextEdits(), expectedATE);
+				}
+			}
 		}
 		if (expected.getFilterText() != null && match.getFilterText() != null) {
 			assertEquals(expected.getFilterText(), match.getFilterText());
@@ -261,6 +269,27 @@ public class XMLAssert {
 			assertEquals(expected.getDocumentation(), match.getDocumentation());
 		}
 
+		if (expected.getAdditionalTextEdits() != null && match.getAdditionalTextEdits() != null) {
+			assertEquals(expected.getAdditionalTextEdits().size(), match.getAdditionalTextEdits().size());
+			for (TextEdit expectedATE : expected.getAdditionalTextEdits()) {
+				assertAdditionalTextEdit(match.getAdditionalTextEdits(), expectedATE);
+			}
+		}
+	}
+
+	public static void assertAdditionalTextEdit(List<TextEdit> matches, TextEdit expected) {
+		for (TextEdit match : matches) {
+			if (expected.getNewText() != null && expected.getNewText().equals(match.getNewText())) {
+				org.eclipse.lsp4j.Range r = expected.getRange();
+				if (r != null && r.getStart() != null && r.getEnd() != null) {
+					assertEquals(expected.getRange(), match.getRange());
+				}
+				
+				// New Text and Range of this match are equals to the expected ones
+				return;
+			}
+		}
+		fail("No AdditionalTextEdit match found for " + expected.toString());
 	}
 
 	private static CompletionItem getCompletionMatch(List<CompletionItem> matches, CompletionItem expected) {
@@ -295,6 +324,25 @@ public class XMLAssert {
 		item.setLabel(label);
 		item.setFilterText(filterText);
 		item.setTextEdit(Either.forLeft(textEdit));
+		return item;
+	}
+
+	/**
+	 * Creates a completion item with a list of additional text edits
+	 * 
+	 * @since 0.19.2
+	 * @param label
+	 * @param textEdit
+	 * @param additionalTextEdits
+	 * @param filterText
+	 * @return
+	 */
+	public static CompletionItem c(String label, TextEdit textEdit, List<TextEdit> additionalTextEdits, String filterText) {
+		CompletionItem item = new CompletionItem();
+		item.setLabel(label);
+		item.setFilterText(filterText);
+		item.setTextEdit(Either.forLeft(textEdit));
+		item.setAdditionalTextEdits(additionalTextEdits);
 		return item;
 	}
 
