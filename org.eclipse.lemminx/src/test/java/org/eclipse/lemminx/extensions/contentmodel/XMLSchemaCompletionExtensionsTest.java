@@ -1402,6 +1402,16 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				"src/test/resources/test.xml", //
 				null, //
 				c("page", te(1, 1, 1, 1, "<page></page>"), "page", null, null));
+	}
 
+	@Test
+	public void completionWithPrefixAttributeName() throws BadLocationException {
+		String xml = "<sample xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"	xmlns:test=\"test-attrs\" xsi:noNamespaceSchemaLocation=\"xsd/attr-prefix/sample.xsd\"\r\n" + //
+				"	| />"; // <-- completion with test:label
+		XMLAssert.testCompletionFor(xml, "src/test/resources/catalogs/include/catalog-include.xml", //
+				"src/test/resources/test.xml", //
+				null, //
+				c("test:label", te(2, 1, 2, 1, "test:label=\"\""), "test:label", null, null));
 	}
 }

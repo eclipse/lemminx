@@ -28,29 +28,49 @@ public interface CMAttributeDeclaration {
 	 * @return the declared element name.
 	 */
 	String getName();
-	
+
+	/**
+	 * Returns the target namespace and null otherwise.
+	 * 
+	 * @return the target namespace and null otherwise.
+	 */
+	String getNamespace();
+
+	/**
+	 * Returns the declared attribute name with the given prefix.
+	 * 
+	 * @return the declared attribute name with the given prefix.
+	 */
+	default String getName(String prefix) {
+		String name = getName();
+		if (prefix == null || prefix.isEmpty()) {
+			return name;
+		}
+		return prefix + ":" + name;
+	}
+
 	String getDefaultValue();
 
-	Collection<String> getEnumerationValues(); 
-	
+	Collection<String> getEnumerationValues();
+
 	/**
-	 * Returns formatted documentation of the declared
-	 * attribute according to settings defined in <code>request</code>
+	 * Returns formatted documentation of the declared attribute according to
+	 * settings defined in <code>request</code>
 	 * 
 	 * @param request the request that contains settings
-	 * @return formatted documentation of the declared
-	 * attribute according to settings defined in <code>request</code>
+	 * @return formatted documentation of the declared attribute according to
+	 *         settings defined in <code>request</code>
 	 */
 	String getAttributeNameDocumentation(ISharedSettingsRequest request);
 
 	/**
-	 * Returns formatted documentation about <code>value</code>,
-	 * according to settings defined in <code>request</code>
+	 * Returns formatted documentation about <code>value</code>, according to
+	 * settings defined in <code>request</code>
 	 * 
-	 * @param value the attribute value to find documentation for
+	 * @param value   the attribute value to find documentation for
 	 * @param request the request containing settings
-	 * @return formatted documentation about <code>value</code>,
-	 * according to settings defined in <code>request</code>
+	 * @return formatted documentation about <code>value</code>, according to
+	 *         settings defined in <code>request</code>
 	 */
 	String getAttributeValueDocumentation(String value, ISharedSettingsRequest request);
 
