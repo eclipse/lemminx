@@ -40,6 +40,11 @@ public class CMDTDAttributeDeclaration extends XMLAttributeDecl implements CMAtt
 	}
 
 	@Override
+	public String getNamespace() {
+		return null;
+	}
+
+	@Override
 	public String getDefaultValue() {
 		return super.simpleType.defaultValue;
 	}

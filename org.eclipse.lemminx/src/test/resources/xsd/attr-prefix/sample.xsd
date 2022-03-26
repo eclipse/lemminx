@@ -1,0 +1,9 @@
+<!-- sample.xsd -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:test="test-attrs">
+	<xs:import schemaLocation="other.xsd" namespace="test-attrs"/>
+	<xs:element name="sample">
+		<xs:complexType>
+		<xs:attribute ref="test:label"/>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
