@@ -12,8 +12,11 @@
 package org.eclipse.lemminx.extensions.xsd;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -29,6 +32,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 public class DataType {
+
+	private static final Logger LOGGER = Logger.getLogger(DataType.class.getName());
 
 	private static String lineSeparator = System.lineSeparator();
 
@@ -103,14 +108,16 @@ public class DataType {
 	}
 
 	private static Map<String, DataType> loadDataTypes() {
+		String dataTypesFile = "/schemas/xsd/datatypes.xml";
 		try {
 			SAXParserFactory factory = DOMUtils.newSAXParserFactory();
 			SAXParser saxParser = factory.newSAXParser();
 			DataTypeHandler handler = new DataTypeHandler();
-			saxParser.parse(new InputSource(DataType.class.getResourceAsStream("/schemas/xsd/datatypes.xml")), handler);
+			saxParser.parse(new InputSource(DataType.class.getResourceAsStream(dataTypesFile)), handler);
 			return handler.getDataTypes();
 		} catch (Exception e) {
-			return null;
+			LOGGER.log(Level.SEVERE, "Error while loading data types with file '" + dataTypesFile + "'.", e);
+			return Collections.emptyMap();
 		}
 	}
 

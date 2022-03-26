@@ -34,6 +34,9 @@
 			"pattern": "\\Qschemas/xsd/datatypes.dtd\\E"
 		},
 		{
+			"pattern": "\\Qschemas/xsd/datatypes.xml\\E"
+		},
+		{
 			"pattern": "\\Qschemas/xsd/xml.xsd\\E"
 		},
 		{
