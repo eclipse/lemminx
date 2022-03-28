@@ -330,7 +330,7 @@ public class XMLAssert {
 	/**
 	 * Creates a completion item with a list of additional text edits
 	 * 
-	 * @since 0.19.2
+	 * @since 0.20.0
 	 * @param label
 	 * @param textEdit
 	 * @param additionalTextEdits
