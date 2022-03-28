@@ -1,5 +1,22 @@
 # Change Log
 
+## [0.20.0](https://github.com/eclipse/lemminx/milestone/33?closed=1) (March 29, 2022)
+
+### Enhancements
+
+ * Improve DTD/XSD security with regard to remote resources. See [#1183](https://github.com/eclipse/lemminx/pull/1183).
+ * Closing tags should be included in the code folding range. See [#1178](https://github.com/eclipse/lemminx/issues/1178).
+
+### Bug Fixes
+
+ * NPE on xsd datatype autocompletion in binary mode. See [#1189](https://github.com/eclipse/lemminx/issues/1189).
+ * Completion for prefix of attribute name. See [#1133](https://github.com/eclipse/lemminx/issues/1133).
+
+### Other
+
+ * Tests: Assertion is added for additional text edits of a completion item. See [#1186](https://github.com/eclipse/lemminx/pull/1186).
+ * Update GraalVM version used in binary verification builds to x.y.z. See [#1158](https://github.com/eclipse/lemminx/issues/1158).
+
 ## [0.19.1](https://github.com/eclipse/lemminx/milestone/32?closed=1) (February 15, 2022)
 
 ### Bug Fixes
