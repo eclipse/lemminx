@@ -24,14 +24,16 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.impl.XMLEntityManager.ScannedEntity;
+import org.apache.xerces.impl.XMLErrorReporter;
 import org.apache.xerces.impl.dtd.DTDGrammar;
-import org.apache.xerces.impl.dtd.XMLDTDLoader;
 import org.apache.xerces.xni.Augmentations;
 import org.apache.xerces.xni.XMLResourceIdentifier;
 import org.apache.xerces.xni.XMLString;
 import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.grammars.Grammar;
+import org.apache.xerces.xni.parser.XMLEntityResolver;
 import org.apache.xerces.xni.parser.XMLInputSource;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
@@ -41,6 +43,7 @@ import org.eclipse.lemminx.extensions.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lemminx.extensions.contentmodel.model.FilesChangedTracker;
+import org.eclipse.lemminx.extensions.dtd.participants.diagnostics.LSPXML11DTDProcessor;
 import org.eclipse.lemminx.extensions.dtd.utils.DTDUtils;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.Position;
@@ -53,7 +56,7 @@ import org.w3c.dom.Entity;
  * @author Angelo ZERR
  *
  */
-public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
+public class CMDTDDocument extends LSPXML11DTDProcessor implements CMDocument {
 
 	private static final Logger LOGGER = Logger.getLogger(CMDTDDocument.class.getName());
 
@@ -235,11 +238,9 @@ public class CMDTDDocument extends XMLDTDLoader implements CMDocument {
 
 	private final List<Entity> entities;
 
-	public CMDTDDocument() {
-		this(null);
-	}
-
-	public CMDTDDocument(String uri) {
+	public CMDTDDocument(String uri, XMLEntityManager entityManager, XMLErrorReporter errorReporter,
+			XMLEntityResolver entityResolver) {
+		super(entityManager, errorReporter, entityResolver);
 		this.uri = uri;
 		this.entities = new ArrayList<>();
 	}

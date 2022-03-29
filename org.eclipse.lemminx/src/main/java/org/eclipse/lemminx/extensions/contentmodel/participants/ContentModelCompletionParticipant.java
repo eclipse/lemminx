@@ -293,19 +293,20 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	}
 
 	private void fillAttributesWithCMAttributeDeclarations(DOMElement parentElement, Range fullRange,
-			CMElementDeclaration cmElement, boolean canSupportSnippet, boolean generateValue,
+			CMElementDeclaration elementDeclaration, boolean canSupportSnippet, boolean generateValue,
 			ICompletionRequest request, ICompletionResponse response) {
 
-		Collection<CMAttributeDeclaration> attributes = cmElement.getAttributes();
+		Collection<CMAttributeDeclaration> attributes = elementDeclaration.getAttributes();
 		if (attributes == null) {
 			return;
 		}
-		for (CMAttributeDeclaration cmAttribute : attributes) {
-			String attrName = cmAttribute.getName();
+		for (CMAttributeDeclaration attributeDeclaration : attributes) {
+			String prefix = (parentElement != null ? parentElement.getPrefix(attributeDeclaration.getNamespace()) : null);
+			String attrName = attributeDeclaration.getName(prefix);
 			if (!parentElement.hasAttribute(attrName)) {
 				CompletionItem item = new AttributeCompletionItem(attrName, canSupportSnippet, fullRange, generateValue,
-						cmAttribute.getDefaultValue(), cmAttribute.getEnumerationValues(), request.getSharedSettings());
-				MarkupContent documentation = XMLGenerator.createMarkupContent(cmAttribute, cmElement, request);
+						attributeDeclaration.getDefaultValue(), attributeDeclaration.getEnumerationValues(), request.getSharedSettings());
+				MarkupContent documentation = XMLGenerator.createMarkupContent(attributeDeclaration, elementDeclaration, request);
 				item.setDocumentation(documentation);
 				response.addCompletionAttribute(item);
 			}

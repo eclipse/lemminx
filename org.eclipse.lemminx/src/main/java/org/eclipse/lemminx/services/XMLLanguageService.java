@@ -14,6 +14,7 @@ package org.eclipse.lemminx.services;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
@@ -161,18 +162,18 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 	}
 
 	public List<Diagnostic> doDiagnostics(DOMDocument xmlDocument, XMLValidationSettings validationSettings,
-			CancelChecker cancelChecker) {
-		return diagnostics.doDiagnostics(xmlDocument, validationSettings, cancelChecker);
+			Map<String, Object> validationArgs, CancelChecker cancelChecker) {
+		return diagnostics.doDiagnostics(xmlDocument, validationSettings, validationArgs, cancelChecker);
 	}
 
 	public CompletableFuture<Path> publishDiagnostics(DOMDocument xmlDocument,
 			Consumer<PublishDiagnosticsParams> publishDiagnostics, Consumer<TextDocument> triggerValidation,
-			XMLValidationSettings validationSettings, CancelChecker cancelChecker) {
+			XMLValidationSettings validationSettings, Map<String, Object> validationArgs, CancelChecker cancelChecker) {
 		String uri = xmlDocument.getDocumentURI();
 		TextDocument document = xmlDocument.getTextDocument();
 
 		DiagnosticsResult diagnostics = (DiagnosticsResult) this.doDiagnostics(xmlDocument, validationSettings,
-				cancelChecker);
+				validationArgs, cancelChecker);
 		cancelChecker.checkCanceled();
 		publishDiagnostics.accept(new PublishDiagnosticsParams(uri, diagnostics));
 

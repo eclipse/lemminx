@@ -50,6 +50,11 @@ public class CMXSDAttributeDeclaration implements CMAttributeDeclaration {
 	public String getName() {
 		return getAttrDeclaration().getName();
 	}
+	
+	@Override
+	public String getNamespace() {
+		return  getAttrDeclaration().getNamespace();
+	}
 
 	@Override
 	public String getDefaultValue() {

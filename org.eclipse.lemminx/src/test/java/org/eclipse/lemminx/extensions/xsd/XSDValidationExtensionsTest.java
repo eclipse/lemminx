@@ -363,7 +363,7 @@ public class XSDValidationExtensionsTest {
 				"<xs:element name='foo'></xs:element>\r\n" + //
 				"</xs:schema>";
 
-		Diagnostic d = d(1, 49, 1, 58, XSDErrorCode.schema_reference_4);
+		Diagnostic d = d(1, 50, 1, 57, XSDErrorCode.schema_reference_4);
 		testDiagnosticsFor(xsd, d);
 	}
 
@@ -383,7 +383,7 @@ public class XSDValidationExtensionsTest {
 				"<xs:element name='foo'></xs:element>\r\n" + //
 				"</xs:schema>";
 
-		Diagnostic d = d(1, 27, 1, 36, XSDErrorCode.schema_reference_4);
+		Diagnostic d = d(1, 28, 1, 35, XSDErrorCode.schema_reference_4);
 		testDiagnosticsFor(xsd, d);
 	}
 
@@ -431,8 +431,8 @@ public class XSDValidationExtensionsTest {
 				"  <xs:include schemaLocation=\"unkown2.xsd\" />\r\n" + // <-- error with unkown2.xsd
 				"</xs:schema>";
 
-		Diagnostic d1 = d(3, 21, 3, 34, XSDErrorCode.schema_reference_4);
-		Diagnostic d2 = d(4, 29, 4, 42, XSDErrorCode.schema_reference_4);
+		Diagnostic d1 = d(3, 22, 3, 33, XSDErrorCode.schema_reference_4);
+		Diagnostic d2 = d(4, 30, 4, 41, XSDErrorCode.schema_reference_4);
 		testDiagnosticsFor(xsd, d1, d2);
 	}
 

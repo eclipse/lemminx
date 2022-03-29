@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.xerces.xni.grammars.XMLGrammarPool;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelProvider.Identifier;
@@ -56,6 +55,8 @@ public class ContentModelManager {
 	private final XMLCatalogResolverExtension catalogResolverExtension;
 	private final XMLFileAssociationResolverExtension fileAssociationResolver;
 	private final LSPXMLGrammarPool grammarPool;
+
+	private boolean resolveExternalEntities;
 
 	public ContentModelManager(URIResolverExtensionManager resolverManager) {
 		this.resolverManager = resolverManager;
@@ -132,7 +133,8 @@ public class ContentModelManager {
 		for (ContentModelProvider modelProvider : modelProviders) {
 			// internal grammar
 			if (withInternal) {
-				CMDocument internalCMDocument = modelProvider.createInternalCMDocument(xmlDocument);
+				CMDocument internalCMDocument = modelProvider.createInternalCMDocument(xmlDocument,
+						isResolveExternalEntities());
 				if (internalCMDocument != null) {
 					documents.add(internalCMDocument);
 				}
@@ -312,17 +314,17 @@ public class ContentModelManager {
 			try {
 				Path file = cacheResolverExtension.getCachedResource(resolvedUri);
 				if (file != null) {
-					cmDocument = modelProvider.createCMDocument(file.toUri().toString());
+					cmDocument = modelProvider.createCMDocument(file.toUri().toString(), isResolveExternalEntities());
 				}
 			} catch (CacheResourceDownloadingException e) {
 				// the DTD/XML Schema is downloading
 				return null;
 			} catch (Exception e) {
 				// other error like network which is not available
-				cmDocument = modelProvider.createCMDocument(resolvedUri);
+				cmDocument = modelProvider.createCMDocument(resolvedUri, isResolveExternalEntities());
 			}
 		} else {
-			cmDocument = modelProvider.createCMDocument(resolvedUri);
+			cmDocument = modelProvider.createCMDocument(resolvedUri, isResolveExternalEntities());
 		}
 		// Cache the document
 		if (cmDocument != null) {
@@ -404,11 +406,21 @@ public class ContentModelManager {
 			grammarPool.clear();
 		}
 	}
-	
+
+	/**
+	 * Returns true if the external resources can be downloaded and false otherwise.
+	 * 
+	 * @return true if the external resources can be downloaded and false otherwise.
+	 */
 	public boolean isDownloadExternalResources() {
 		return cacheResolverExtension.isDownloadExternalResources();
 	}
 
+	/**
+	 * Set true if the external resources can be downloaded and false otherwise.
+	 * 
+	 * @param downloadExternalResources the external resources
+	 */
 	public void setDownloadExternalResources(boolean downloadExternalResources) {
 		cacheResolverExtension.setDownloadExternalResources(downloadExternalResources);
 	}
@@ -480,6 +492,33 @@ public class ContentModelManager {
 
 	public LSPXMLGrammarPool getGrammarPool() {
 		return cacheResolverExtension.isUseCache() ? grammarPool : null;
+	}
+
+	/**
+	 * Returns true if external entities must be resolved and false otherwise.
+	 *
+	 * @return true if external entities must be resolved and false otherwise.
+	 */
+	public boolean isResolveExternalEntities() {
+		return resolveExternalEntities;
+	}
+
+	/**
+	 * Set true if external entities must be resolved and false otherwise.
+	 *
+	 * @param resolveExternalEntities resolve external entities
+	 */
+	public void setResolveExternalEntities(boolean resolveExternalEntities) {
+		this.resolveExternalEntities = resolveExternalEntities;
+	}
+
+	/**
+	 * Force the given <code>url</code> to download.
+	 * 
+	 * @param url the url to download.!
+	 */
+	public void forceDownloadExternalResource(String url) {
+		cacheResolverExtension.forceDownloadExternalResource(url);
 	}
 
 }

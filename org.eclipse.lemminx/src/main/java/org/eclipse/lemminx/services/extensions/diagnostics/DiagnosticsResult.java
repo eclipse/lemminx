@@ -15,6 +15,7 @@ package org.eclipse.lemminx.services.extensions.diagnostics;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.lsp4j.Diagnostic;
@@ -40,11 +41,26 @@ public class DiagnosticsResult extends ArrayList<Diagnostic> {
 	public static final DiagnosticsResult EMPTY;
 
 	static {
-		EMPTY = new DiagnosticsResult();
+		EMPTY = new DiagnosticsResult(Collections.emptyMap());
 		EMPTY.futures = Collections.emptyList();
 	}
 
+	private transient final Map<String, Object> validationArgs;
+
 	private transient List<CompletableFuture<?>> futures;
+
+	public DiagnosticsResult(Map<String, Object> validationArgs) {
+		this.validationArgs = validationArgs;
+	}
+
+	/**
+	 * Returns the validation arguments.
+	 * 
+	 * @return the validation arguments.
+	 */
+	public Map<String, Object> getValidationArgs() {
+		return validationArgs;
+	}
 
 	public void addFuture(CompletableFuture<?> future) {
 		if (futures == null) {

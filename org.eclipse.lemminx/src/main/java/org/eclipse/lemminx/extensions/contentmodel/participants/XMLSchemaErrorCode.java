@@ -197,7 +197,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 				// xs:import/@schemaLocation which reference the grammar URI
 				DOMAttr schemaLocationAttr = XSDUtils.findSchemaLocationAttrByURI(document, grammarURI);
 				if (schemaLocationAttr != null) {
-					return XMLPositionUtility.selectAttributeValue(schemaLocationAttr);
+					return XMLPositionUtility.selectAttributeValue(schemaLocationAttr, true);
 				}
 			} else {
 				//
@@ -232,7 +232,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 						}
 					}
 				}
-				return locationRange != null ? XMLPositionUtility.createRange(locationRange) : null;
+				return locationRange != null ? XMLPositionUtility.selectValueWithoutQuote(locationRange) : null;
 			}
 		}
 		case cvc_attribute_3:

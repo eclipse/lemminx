@@ -58,6 +58,15 @@ public class DTDEntityDecl extends DTDDeclNode implements Entity {
 		setDeclType(start + 2, start + 8);
 	}
 
+	/**
+	 * Returns the '%' and null otherwise.
+	 * 
+	 * <p>
+	 * <!ENTITY |% ...
+	 * </p>
+	 * 
+	 * @return the '%' and null otherwise.
+	 */
 	public String getPercent() {
 		return percent != null ? percent.getParameter() : null;
 	}
@@ -66,6 +75,28 @@ public class DTDEntityDecl extends DTDDeclNode implements Entity {
 		percent = addNewParameter(start, end);
 	}
 
+	/**
+	 * Returns the entity value node and null otherwise.
+	 * 
+	 * <p>
+	 * <!ENTITY % entity-name |"entity-value" ...
+	 * </p>
+	 * 
+	 * @return the entity value node and null otherwise.
+	 */
+	public DTDDeclParameter getValueNode() {
+		return value;
+	}
+
+	/**
+	 * Returns the entity value content and null otherwise.
+	 * 
+	 * <p>
+	 * <!ENTITY % entity-name |"entity-value" ...
+	 * </p>
+	 * 
+	 * @return the entity value content and null otherwise.
+	 */
 	public String getValue() {
 		return value != null ? value.getParameterWithoutFirstAndLastChar() : null;
 	}
@@ -74,6 +105,15 @@ public class DTDEntityDecl extends DTDDeclNode implements Entity {
 		value = addNewParameter(start, end);
 	}
 
+	/**
+	 * Returns the entity kind (PUBLIC, SYSTEM) and null otherwise.
+	 * 
+	 * <p>
+	 * <!ENTITY % entity-name |PUBLIC
+	 * </p>
+	 * 
+	 * @return the entity kind (PUBLIC, SYSTEM) and null otherwise.
+	 */
 	public String getKind() {
 		return kind != null ? kind.getParameter() : null;
 	}
@@ -132,9 +172,9 @@ public class DTDEntityDecl extends DTDDeclNode implements Entity {
 	}
 
 	/**
-	 * Returns the system if node and null otherwise.
+	 * Returns the system id node and null otherwise.
 	 * 
-	 * @return the system if node and null otherwise.
+	 * @return the system id node and null otherwise.
 	 */
 	public DTDDeclParameter getSystemIdNode() {
 		return systemId;

@@ -148,6 +148,7 @@ public class ContentModelPlugin implements IXMLExtension {
 		if (useCache != null) {
 			contentModelManager.setUseCache(useCache);
 		}
+		
 		// Download external resources
 		XMLDownloadExternalResourcesSettings downloadExternalResources = settings.getDownloadExternalResources();
 		boolean downloadExternalResourcesEnabled = downloadExternalResources == null
@@ -166,6 +167,9 @@ public class ContentModelPlugin implements IXMLExtension {
 		currentValidationSettings = cmSettings.getValidation();
 		if (oldValidationSettings != null && !Objects.equals(oldValidationSettings, currentValidationSettings)) {
 			context.collectDocumentToValidate(d -> true);
+		}
+		if (currentValidationSettings != null) {
+			contentModelManager.setResolveExternalEntities(currentValidationSettings.isResolveExternalEntities());
 		}
 	}
 

@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.lemminx.services;
 
+import java.util.Collections;
+import java.util.Map;
+
 import org.eclipse.lemminx.dom.DOMDocument;
 
 /**
@@ -21,11 +24,22 @@ import org.eclipse.lemminx.dom.DOMDocument;
  *
  */
 public interface IXMLValidationService {
-	
+
 	/**
 	 * Performs XML document validation
+	 * 
+	 * @param document       the XML document
+	 * @param validationArgs validation arguments.
+	 */
+	void validate(DOMDocument document, Map<String, Object> validationArgs);
+
+	/**
+	 * Performs XML document validation
+	 * 
 	 * @param document the XML document
 	 */
-	void validate(DOMDocument document);
+	default void validate(DOMDocument document) {
+		validate(document, Collections.emptyMap());
+	}
 
 }

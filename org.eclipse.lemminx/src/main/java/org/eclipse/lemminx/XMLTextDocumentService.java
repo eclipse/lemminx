@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
@@ -615,13 +616,34 @@ public class XMLTextDocumentService implements TextDocumentService {
 				});
 	}
 
+	/**
+	 * Validate and publish diagnostics for the given DOM document.
+	 * 
+	 * @param xmlDocument the DOM document.
+	 * 
+	 * @throws CancellationException when the DOM document content changed and
+	 *                               diagnostics must be stopped.
+	 */
 	void validate(DOMDocument xmlDocument) throws CancellationException {
+		validate(xmlDocument, Collections.emptyMap());
+	}
+
+	/**
+	 * Validate and publish diagnostics for the given DOM document.
+	 * 
+	 * @param xmlDocument    the DOM document.
+	 * @param validationArgs the validation arguments.
+	 * 
+	 * @throws CancellationException when the DOM document content changed and
+	 *                               diagnostics must be stopped.
+	 */
+	void validate(DOMDocument xmlDocument, Map<String, Object> validationArgs) throws CancellationException {
 		CancelChecker cancelChecker = xmlDocument.getCancelChecker();
 		cancelChecker.checkCanceled();
 		getXMLLanguageService().publishDiagnostics(xmlDocument,
 				params -> xmlLanguageServer.getLanguageClient().publishDiagnostics(params),
 				(doc) -> triggerValidationFor(doc, TriggeredBy.Other), sharedSettings.getValidationSettings(),
-				cancelChecker);
+				validationArgs, cancelChecker);
 	}
 
 	private XMLLanguageService getXMLLanguageService() {

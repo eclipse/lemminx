@@ -11,11 +11,7 @@
 *******************************************************************************/
 package org.eclipse.lemminx.extensions.contentmodel.participants.diagnostics;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import org.apache.xerces.impl.Constants;
-import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.impl.dtd.XMLDTDValidator;
 import org.apache.xerces.util.SecurityManager;
 import org.apache.xerces.xni.XMLDocumentHandler;
@@ -27,6 +23,8 @@ import org.apache.xerces.xni.parser.XMLDocumentSource;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.extensions.xerces.AbstractLSPErrorReporter;
 import org.eclipse.lemminx.extensions.xerces.ExternalXMLDTDValidator;
+import org.eclipse.lemminx.extensions.xerces.LSPSecurityManager;
+import org.eclipse.lemminx.extensions.xerces.LSPXMLEntityManager;
 import org.eclipse.lemminx.extensions.xerces.xmlmodel.XMLModelAwareParserConfiguration;
 
 /**
@@ -43,22 +41,16 @@ import org.eclipse.lemminx.extensions.xerces.xmlmodel.XMLModelAwareParserConfigu
  */
 class LSPXMLParserConfiguration extends XMLModelAwareParserConfiguration {
 
-	private static final Logger LOGGER = Logger.getLogger(LSPXMLParserConfiguration.class.getName());
-
 	/** property identifier: security manager. */
 	private static final String SECURITY_MANAGER = Constants.XERCES_PROPERTY_PREFIX
 			+ Constants.SECURITY_MANAGER_PROPERTY;
-	private static final String ENTITY_EXPANSION_LIMIT_PROPERTY_NAME = "jdk.xml.entityExpansionLimit";
-	private static final String MAX_OCCUR_LIMIT_PROPERTY_NAME = "jdk.xml.maxOccur";
-	private static final int ENTITY_EXPANSION_LIMIT_DEFAULT_VALUE = 64000;
-	private static final int MAX_OCCUR_LIMIT_DEFAULT_VALUE = 5000;
 
 	private final boolean disableDTDValidation;
 	private ExternalXMLDTDValidator externalDTDValidator;
 
 	public LSPXMLParserConfiguration(XMLGrammarPool grammarPool, boolean disableDTDValidation,
 			LSPErrorReporterForXML reporterForXML, LSPErrorReporterForXML reporterForGrammar,
-			XMLEntityManager entityManager, XMLValidationSettings validationSettings) {
+			LSPXMLEntityManager entityManager, XMLValidationSettings validationSettings) {
 		super(null, grammarPool, reporterForGrammar);
 		this.disableDTDValidation = disableDTDValidation;
 		// Disable DOCTYPE declaration if settings is set to true.
@@ -70,11 +62,7 @@ class LSPXMLParserConfiguration extends XMLModelAwareParserConfiguration {
 		super.setFeature("http://xml.org/sax/features/external-general-entities", resolveExternalEntities);
 		super.setFeature("http://xml.org/sax/features/external-parameter-entities", resolveExternalEntities);
 		// Security manager
-		SecurityManager securityManager = new SecurityManager();
-		securityManager.setEntityExpansionLimit(
-				getPropertyValue(ENTITY_EXPANSION_LIMIT_PROPERTY_NAME, ENTITY_EXPANSION_LIMIT_DEFAULT_VALUE));
-		securityManager
-				.setMaxOccurNodeLimit(getPropertyValue(MAX_OCCUR_LIMIT_PROPERTY_NAME, MAX_OCCUR_LIMIT_DEFAULT_VALUE));
+		SecurityManager securityManager = LSPSecurityManager.getSecurityManager();
 		super.setProperty(SECURITY_MANAGER, securityManager);
 		fErrorReporter = reporterForXML;
 
@@ -166,19 +154,9 @@ class LSPXMLParserConfiguration extends XMLModelAwareParserConfiguration {
 		if (fSchemaValidator != null) {
 			// Set the LSP reporter for Xerces SchemaDOMParser to collect XML Schema error
 			// in the case of schema have some error (ex : syntax error)
-			AbstractLSPErrorReporter.initializeReporter(fSchemaValidator, getReporterForGrammar());
+			LSPXMLEntityManager entityManager = new LSPXMLEntityManager((AbstractLSPErrorReporter) fErrorReporter, null);
+			AbstractLSPErrorReporter.initializeReporter(fSchemaValidator, getReporterForGrammar(), entityManager);
 		}
 	}
 
-	private static int getPropertyValue(String propertyName, int defaultValue) {
-		String value = System.getProperty(propertyName, "");
-		if (!value.isEmpty()) {
-			try {
-				return Integer.parseInt(value);
-			} catch (Exception e) {
-				LOGGER.log(Level.WARNING, "Error while getting system property '" + propertyName + "'.", e);
-			}
-		}
-		return defaultValue;
-	}
 }
