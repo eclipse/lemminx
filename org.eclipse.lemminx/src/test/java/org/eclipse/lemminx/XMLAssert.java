@@ -268,13 +268,6 @@ public class XMLAssert {
 		if (expected.getDocumentation() != null) {
 			assertEquals(expected.getDocumentation(), match.getDocumentation());
 		}
-
-		if (expected.getAdditionalTextEdits() != null && match.getAdditionalTextEdits() != null) {
-			assertEquals(expected.getAdditionalTextEdits().size(), match.getAdditionalTextEdits().size());
-			for (TextEdit expectedATE : expected.getAdditionalTextEdits()) {
-				assertAdditionalTextEdit(match.getAdditionalTextEdits(), expectedATE);
-			}
-		}
 	}
 
 	public static void assertAdditionalTextEdit(List<TextEdit> matches, TextEdit expected) {
@@ -1429,6 +1422,10 @@ public class XMLAssert {
 
 	public static LinkedEditingRanges le(Range... ranges) {
 		return new LinkedEditingRanges(Arrays.asList(ranges));
+	}
+
+	public static LinkedEditingRanges le(String wordPattern, Range... ranges) {
+		return new LinkedEditingRanges(Arrays.asList(ranges), wordPattern);
 	}
 
 	// ------------------- Generator assert
