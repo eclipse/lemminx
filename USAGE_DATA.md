@@ -15,10 +15,10 @@ When telemetry events are enabled, the following information is emitted when the
     * The server version number
  * Text Document Information
    * When a document is opened :
-      * The file extension (eg. `xml`, `xsd`, `dtd`)
+      * The file extension (eg. `xml`, `xsd`, `dtd`, `rng`)
       * The associated grammar types (eg. `none`, `doctype`, `xml-model`, `xsi:schemaLocation`, `xsi:noNamespaceSchemaLocation`)
       * The grammar identifiers for an XML document (eg. `http://maven.apache.org/xsd/maven-4.0.0.xsd`)
-      * The resolver used to resolve the grammar identifier (eg. `catalog`, `file association`, `embedded catalog.xsd`, `embedded xml.xsd`, `embedded xslt.xsd`)
+      * The resolver used to resolve the grammar identifier (eg. `catalog`, `file association`, `embedded catalog.xsd`, `embedded xml.xsd`, `embedded xslt.xsd`, `relaxng.rng`)
  * Note: Does NOT include the `JAVA_HOME` environment variable for privacy reasons
 
 Currently, the startup event is the only telemetry event that is emitted.

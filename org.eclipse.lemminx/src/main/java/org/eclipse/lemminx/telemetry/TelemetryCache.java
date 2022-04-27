@@ -29,4 +29,12 @@ public class TelemetryCache {
 		return cache;
 	}
 
+	public boolean isEmpty () {
+		return cache.isEmpty();
+	}
+
+	public void clear () {
+		cache.clear();
+	}
+
 }
