@@ -21,7 +21,6 @@ import java.util.logging.Logger;
 
 import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.util.URI.MalformedURIException;
-import org.apache.xerces.util.XMLCatalogResolver;
 import org.apache.xerces.xni.XMLResourceIdentifier;
 import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.parser.XMLInputSource;
@@ -36,7 +35,7 @@ public class XMLCatalogResolverExtension implements URIResolverExtension {
 
 	private static final Logger LOGGER = Logger.getLogger(XMLCatalogResolverExtension.class.getName());
 
-	private XMLCatalogResolver catalogResolver;
+	private LSPXMLCatalogResolver catalogResolver;
 	private String rootUri;
 
 	@Override
@@ -45,36 +44,13 @@ public class XMLCatalogResolverExtension implements URIResolverExtension {
 	}
 
 	@Override
-	public String resolve(String baseLocation, String publicId, String systemId) {
+	public String resolve(String baseURI, String publicId, String systemId) {
 		if (catalogResolver != null) {
-			try {
-
-				// The namespace is useful for resolving namespace aware
-				// grammars such as XML schema. Let it take precedence over
-				// the external identifier if one exists.
-				String namespace = publicId;
-				if (namespace != null) {
-					String resolvedId = catalogResolver.resolveURI(namespace);
-					if (resolvedId != null) {
-						return resolvedId;
-					}
-				}
-
-				// Resolve against an external identifier if one exists. This
-				// is useful for resolving DTD external subsets and other
-				// external entities. For XML schemas if there was no namespace
-				// mapping we might be able to resolve a system identifier
-				// specified as a location hint.
-				if (publicId != null && systemId != null) {
-					return catalogResolver.resolvePublic(publicId, systemId);
-				} else if (systemId != null) {
-					return catalogResolver.resolveSystem(systemId);
-				} else if (publicId != null) {
-					return catalogResolver.resolvePublic(publicId, null);
-				}
-			} catch (Exception e) {
-
-			}
+			// The namespace is useful for resolving namespace aware
+			// grammars such as XML schema. Let it take precedence over
+			// the external identifier if one exists.
+			String namespaceURI = publicId;
+			return catalogResolver.resolveIdentifier(namespaceURI, publicId, systemId, baseURI);
 		}
 		return null;
 
@@ -120,7 +96,8 @@ public class XMLCatalogResolverExtension implements URIResolverExtension {
 				}
 			}
 			if (xmlCatalogFiles.size() > 0) {
-				XMLCatalogResolver catalogResolver = new LSPXMLCatalogResolver(xmlCatalogFiles.toArray(new String[0]));
+				LSPXMLCatalogResolver catalogResolver = new LSPXMLCatalogResolver(
+						xmlCatalogFiles.toArray(new String[0]));
 				setCatalogResolver(catalogResolver);
 			} else {
 				setCatalogResolver(null);
@@ -140,7 +117,7 @@ public class XMLCatalogResolverExtension implements URIResolverExtension {
 		}
 	}
 
-	private void setCatalogResolver(XMLCatalogResolver catalogResolver) {
+	private void setCatalogResolver(LSPXMLCatalogResolver catalogResolver) {
 		this.catalogResolver = catalogResolver;
 	}
 

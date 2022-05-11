@@ -660,16 +660,13 @@ public class XMLSchemaDiagnosticsTest {
 	@Test
 	public void fuzzyElementMemberValueCodeActionTest() throws Exception {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
-				"<dress \r\n" +
-				"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" +
-				"xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/dressSize.xsd\"\r\n" +
-				"size=\"larg\"/>";
+				"<dress \r\n" + "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n"
+				+ "xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/dressSize.xsd\"\r\n" + "size=\"larg\"/>";
 		Diagnostic diagnostic1 = d(4, 5, 4, 11, XMLSchemaErrorCode.cvc_attribute_3,
 				"cvc-attribute.3: The value 'larg' of attribute 'size' on element 'dress' is not valid with respect to its type, 'SizeType'.");
-		testCodeActionsFor(xml, diagnostic1,
-				ca(diagnostic1, te(4, 6, 4, 10, "large")), ca(diagnostic1, te(4, 6, 4, 10, "x-large")));
+		testCodeActionsFor(xml, diagnostic1, ca(diagnostic1, te(4, 6, 4, 10, "large")),
+				ca(diagnostic1, te(4, 6, 4, 10, "x-large")));
 	}
-
 
 	@Test
 	public void cvc_complex_type_2_2_withElement() throws Exception {
@@ -1265,10 +1262,29 @@ public class XMLSchemaDiagnosticsTest {
 	}
 
 	@Test
+	public void diagnosticsWithWebApp() throws BadLocationException {
+		String xml = "<web-app xmlns=\"http://java.sun.com/xml/ns/j2ee\"\r\n" + //
+				"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"    xsi:schemaLocation=\"http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd\"\r\n"
+				+ //
+				"    version=\"2.4\">\r\n" + //
+				"    <servlet></servlet>\r\n" + // <-- error : "Child elements are missing from element:\n -
+												// servlet\n\nThe following elements are expected:\n - description\n -
+												// display-name\n - icon\n - servlet-name\n\nError indicated by\n
+												// {http://java.sun.com/xml/ns/j2ee":description,
+												// "http://java.sun.com/xml/ns/j2ee":display-name,
+												// "http://java.sun.com/xml/ns/j2ee":icon,
+												// "http://java.sun.com/xml/ns/j2ee}\nwith code:"
+				"</web-app>";
+		Diagnostic diagnostic = d(4, 5, 4, 12, XMLSchemaErrorCode.cvc_complex_type_2_4_b);
+		testDiagnosticsFor(xml, "src/test/resources/catalogs/catalog-web-app.xml", diagnostic);
+	}
+
+	@Test
 	public void schemaLocationWithOddUris() throws Exception {
-		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + "<ns:root\r\n" + "xmlns:ns='http://foo'\r\n"
-				+ "xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'\r\n"
-				+ "xsi:schemaLocation='http://foo foo.xsd http://bar'>\r\n" + "</ns:root>";
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + "<ns:root\r\n" + "xmlns:ns='http://foo'\r\n" + //
+				"xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'\r\n" + //
+				"xsi:schemaLocation='http://foo foo.xsd http://bar'>\r\n" + "</ns:root>";
 
 		Diagnostic d1 = d(4, 19, 4, 50, XMLSchemaErrorCode.SchemaLocation);
 		Diagnostic d2 = d(4, 31, 4, 38, XMLSchemaErrorCode.schema_reference_4);

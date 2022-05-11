@@ -284,7 +284,9 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 			SchemaParsingConfig config = new LSPSchemaParsingConfig(entityManager);
 			SchemaDOMParser schemaParser = new SchemaDOMParser(config);
 			ReflectionUtils.setFieldValue(handler, "fSchemaParser", schemaParser);
-			schemaParser.setProperty("http://apache.org/xml/properties/internal/error-reporter", reporter);
+			if (reporter != null) {
+				schemaParser.setProperty("http://apache.org/xml/properties/internal/error-reporter", reporter);
+			}
 			return true;
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, "Error while initializing XML error reporter", e);

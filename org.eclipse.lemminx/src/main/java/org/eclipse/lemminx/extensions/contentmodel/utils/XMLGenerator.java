@@ -43,8 +43,9 @@ public class XMLGenerator {
 	/**
 	 * XML generator constructor.
 	 * 
-	 * @param sharedSettings     the settings containing formatting options (uses spaces or tabs for
-	 *                           indentation, etc) and preferences
+	 * @param sharedSettings     the settings containing formatting options (uses
+	 *                           spaces or tabs for indentation, etc) and
+	 *                           preferences
 	 * @param whitespacesIndent  the whitespaces to use to indent XML children
 	 *                           elements.
 	 * @param lineDelimiter      the line delimiter to use when several XML elements
@@ -52,13 +53,12 @@ public class XMLGenerator {
 	 * @param canSupportSnippets true if snippets can be supported and false
 	 *                           otherwise.
 	 */
-	public XMLGenerator(SharedSettings sharedSettings,
-			String whitespacesIndent, String lineDelimiter, boolean canSupportSnippets, int maxLevel) {
+	public XMLGenerator(SharedSettings sharedSettings, String whitespacesIndent, String lineDelimiter,
+			boolean canSupportSnippets, int maxLevel) {
 		this(sharedSettings, true, whitespacesIndent, lineDelimiter, canSupportSnippets, maxLevel);
 	}
 
-	public XMLGenerator(SharedSettings sharedSettings,
-			boolean autoCloseTags, String whitespacesIndent,
+	public XMLGenerator(SharedSettings sharedSettings, boolean autoCloseTags, String whitespacesIndent,
 			String lineDelimiter, boolean canSupportSnippets, int maxLevel) {
 		this.sharedSettings = sharedSettings;
 		this.autoCloseTags = autoCloseTags;
@@ -83,8 +83,8 @@ public class XMLGenerator {
 		return xml.toString();
 	}
 
-	private int generate(CMElementDeclaration elementDeclaration, String prefix, boolean generateEndTag, int level, int snippetIndex,
-			XMLBuilder xml, List<CMElementDeclaration> generatedElements) {
+	private int generate(CMElementDeclaration elementDeclaration, String prefix, boolean generateEndTag, int level,
+			int snippetIndex, XMLBuilder xml, List<CMElementDeclaration> generatedElements) {
 		if (generatedElements.contains(elementDeclaration)) {
 			return snippetIndex;
 		}
@@ -230,9 +230,7 @@ public class XMLGenerator {
 		if (StringUtils.isBlank(documentation)) {
 			return null;
 		}
-
 		StringBuilder doc = new StringBuilder(documentation);
-
 		if (schemaURI != null) {
 			doc.append(System.lineSeparator());
 			doc.append(System.lineSeparator());
@@ -318,8 +316,9 @@ public class XMLGenerator {
 	 */
 	public static MarkupContent createMarkupContent(CMAttributeDeclaration cmAttribute, String attributeValue,
 			CMElementDeclaration ownerElement, ISharedSettingsRequest support) {
-		String documentation = XMLGenerator.generateDocumentation(cmAttribute.getAttributeValueDocumentation(attributeValue, support),
-				ownerElement.getDocumentURI(), support.canSupportMarkupKind(MarkupKind.MARKDOWN));
+		String documentation = XMLGenerator.generateDocumentation(
+				cmAttribute.getAttributeValueDocumentation(attributeValue, support), ownerElement.getDocumentURI(),
+				support.canSupportMarkupKind(MarkupKind.MARKDOWN));
 		if (documentation != null) {
 			return MarkupContentFactory.createMarkupContent(documentation, MarkupKind.MARKDOWN, support);
 		}
