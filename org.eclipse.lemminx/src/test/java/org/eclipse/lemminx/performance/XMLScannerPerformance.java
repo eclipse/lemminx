@@ -21,7 +21,7 @@ import org.eclipse.lemminx.dom.parser.XMLScanner;
 
 /**
  * This utility class is used to check the memory usage of {@link XMLScanner},
- * loading the large nasa.xml file
+ * loading the large content.xml file
  * 
  * @author Angelo ZERR
  *
@@ -29,9 +29,9 @@ import org.eclipse.lemminx.dom.parser.XMLScanner;
 public class XMLScannerPerformance {
 
 	public static void main(String[] args) {
-		InputStream in = XMLScannerPerformance.class.getResourceAsStream("/xml/nasa.xml");
+		InputStream in = XMLScannerPerformance.class.getResourceAsStream("/xml/content.xml");
 		String text = convertStreamToString(in);
-		// Continuously parses the large nasa.xml file with the XML scanner
+		// Continuously parses the large content.xml file with the XML scanner
 		while (true) {
 			long start = System.currentTimeMillis();
 			Scanner scanner = XMLScanner.createScanner(text);
@@ -39,7 +39,7 @@ public class XMLScannerPerformance {
 			while (token != TokenType.EOS) {
 				token = scanner.scan();
 			}
-			System.err.println("Parsed 'nasa.xml' with XMLScanner in " + (System.currentTimeMillis() - start) + " ms.");
+			System.err.println("Parsed 'content.xml' with XMLScanner in " + (System.currentTimeMillis() - start) + " ms.");
 		}
 	}
 }
