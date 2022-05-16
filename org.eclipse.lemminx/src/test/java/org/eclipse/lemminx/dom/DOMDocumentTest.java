@@ -61,7 +61,7 @@ public class DOMDocumentTest {
 
 	@Test
 	public void testBigLargeFileWithScanner() {
-		InputStream in = DOMDocumentTest.class.getResourceAsStream("/xml/nasa.xml");
+		InputStream in = DOMDocumentTest.class.getResourceAsStream("/xml/content.xml");
 		String text = convertStreamToString(in);
 		long start = System.currentTimeMillis();
 		Scanner scanner = XMLScanner.createScanner(text);
@@ -69,17 +69,17 @@ public class DOMDocumentTest {
 		while (token != TokenType.EOS) {
 			token = scanner.scan();
 		}
-		System.err.println("Parsed 'nasa.xml' with XMLScanner in " + (System.currentTimeMillis() - start) + " ms.");
+		System.err.println("Parsed 'content.xml' with XMLScanner in " + (System.currentTimeMillis() - start) + " ms.");
 	}
 
 	@Test
 	public void testBigLargeFileWithDocument() {
-		InputStream in = DOMDocumentTest.class.getResourceAsStream("/xml/nasa.xml");
+		InputStream in = DOMDocumentTest.class.getResourceAsStream("/xml/content.xml");
 		String text = convertStreamToString(in);
-		TextDocument document = new TextDocument(text, "nasa.xml");
+		TextDocument document = new TextDocument(text, "content.xml");
 		long start = System.currentTimeMillis();
 		DOMParser.getInstance().parse(document, null);
-		System.err.println("Parsed 'nasa.xml' with XMLParser in " + (System.currentTimeMillis() - start) + " ms.");
+		System.err.println("Parsed 'content.xml' with XMLParser in " + (System.currentTimeMillis() - start) + " ms.");
 	}
 
 	@Test
