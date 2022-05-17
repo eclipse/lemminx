@@ -24,7 +24,7 @@ import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
 
 /**
  * This utility class is used to check the performance of
- * {@link TextDocument#update(List)}, updating the large nasa.xml file
+ * {@link TextDocument#update(List)}, updating the large content.xml file
  * 
  * @author Angelo ZERR
  *
@@ -32,11 +32,11 @@ import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
 public class TextDocumentUpdatePerformance {
 
 	public static void main(String[] args) {
-		InputStream in = TextDocumentUpdatePerformance.class.getResourceAsStream("/xml/nasa.xml");
+		InputStream in = TextDocumentUpdatePerformance.class.getResourceAsStream("/xml/content.xml");
 		String text = convertStreamToString(in);
-		TextDocument document = new TextDocument(text, "nasa.xml");
+		TextDocument document = new TextDocument(text, "content.xml");
 		document.setIncremental(true);
-		// Continuously parses the large nasa.xml file with the DOM parser.
+		// Continuously parses the large content.xml file with the DOM parser.
 		while (true) {
 			long start = System.currentTimeMillis();
 			// Insert a space
@@ -45,7 +45,7 @@ public class TextDocumentUpdatePerformance {
 					new Range(new Position(14, 13), new Position(14, 13)), 0, " ");
 			changes.add(change);
 			document.update(changes);
-			System.err.println("Update 'nasa.xml' text document in " + (System.currentTimeMillis() - start) + " ms.");
+			System.err.println("Update 'content.xml' text document in " + (System.currentTimeMillis() - start) + " ms.");
 		}
 
 	}

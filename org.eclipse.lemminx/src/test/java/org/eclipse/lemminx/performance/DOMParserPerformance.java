@@ -21,7 +21,7 @@ import org.eclipse.lemminx.dom.DOMParser;
 
 /**
  * This utility class is used to check the memory usage of {@link DOMParser},
- * loading the large nasa.xml file.
+ * loading the large content.xml file.
  * 
  * @author Angelo ZERR
  *
@@ -29,14 +29,14 @@ import org.eclipse.lemminx.dom.DOMParser;
 public class DOMParserPerformance {
 
 	public static void main(String[] args) {
-		InputStream in = DOMParserPerformance.class.getResourceAsStream("/xml/nasa.xml");
+		InputStream in = DOMParserPerformance.class.getResourceAsStream("/xml/content.xml");
 		String text = convertStreamToString(in);
-		TextDocument document = new TextDocument(text, "nasa.xml");
-		// Continuously parses the large nasa.xml file with the DOM parser.
+		TextDocument document = new TextDocument(text, "content.xml");
+		// Continuously parses the large content.xml file with the DOM parser.
 		while (true) {
 			long start = System.currentTimeMillis();
 			DOMDocument xmlDocument = DOMParser.getInstance().parse(document, null);
-			System.err.println("Parsed 'nasa.xml' with DOMParser in " + (System.currentTimeMillis() - start) + " ms.");
+			System.err.println("Parsed 'content.xml' with DOMParser in " + (System.currentTimeMillis() - start) + " ms.");
 		}
 	}
 }

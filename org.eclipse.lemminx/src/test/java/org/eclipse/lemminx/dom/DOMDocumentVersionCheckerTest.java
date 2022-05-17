@@ -104,6 +104,6 @@ public class DOMDocumentVersionCheckerTest {
 	}
 
 	private static TextDocument createTextDocument() {
-		return new TextDocument("<root />", "nasa.xml");
+		return new TextDocument("<root />", "foo.xml");
 	}
 }
