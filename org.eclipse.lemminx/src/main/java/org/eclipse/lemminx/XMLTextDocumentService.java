@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
@@ -36,6 +34,7 @@ import org.eclipse.lemminx.client.LimitExceededWarner;
 import org.eclipse.lemminx.client.LimitFeature;
 import org.eclipse.lemminx.commons.ModelTextDocument;
 import org.eclipse.lemminx.commons.ModelTextDocuments;
+import org.eclipse.lemminx.commons.ModelValidatorDelayer;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.commons.TextDocuments;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -114,6 +113,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	private final XMLLanguageServer xmlLanguageServer;
 	private final TextDocuments<ModelTextDocument<DOMDocument>> documents;
+	private final ModelValidatorDelayer<DOMDocument> xmlValidatorDelayer;
+
 	private SharedSettings sharedSettings;
 	private LimitExceededWarner limitExceededWarner;
 
@@ -165,7 +166,6 @@ public class XMLTextDocumentService implements TextDocumentService {
 		}
 	}
 
-	final ScheduledExecutorService delayer = Executors.newScheduledThreadPool(2);
 	private boolean codeActionLiteralSupport;
 	private boolean hierarchicalDocumentSymbolSupport;
 	private boolean definitionLinkSupport;
@@ -179,6 +179,9 @@ public class XMLTextDocumentService implements TextDocumentService {
 		});
 		this.sharedSettings = new SharedSettings();
 		this.limitExceededWarner = null;
+		this.xmlValidatorDelayer = new ModelValidatorDelayer<DOMDocument>((document) -> {
+			validate(document, Collections.emptyMap());
+		});
 	}
 
 	public void updateClientCapabilities(ClientCapabilities capabilities,
@@ -376,6 +379,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 		DOMDocument xmlDocument = getNowDOMDocument(uri);
 		// Remove the document from the cache
 		documents.onDidCloseTextDocument(params);
+		// Remove the validation from the delayer
+		xmlValidatorDelayer.cleanPendingValidation(uri);
 		// Publish empty errors from the document
 		xmlLanguageServer.getLanguageClient()
 				.publishDiagnostics(new PublishDiagnosticsParams(uri, Collections.emptyList()));
@@ -568,7 +573,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 			xmlLanguageServer.schedule(() -> {
 				documents.forEach(document -> {
 					try {
-						validate(document.getModel().getNow(null));
+						validate(document.getModel().getNow(null), false);
 					} catch (CancellationException e) {
 						// Ignore the error and continue to validate other documents
 					}
@@ -587,7 +592,11 @@ public class XMLTextDocumentService implements TextDocumentService {
 		((ModelTextDocument<DOMDocument>) document).getModel()//
 				.thenAcceptAsync(xmlDocument -> {
 					// Validate the DOM document
-					validate(xmlDocument);
+					// When validation is triggered by a didChange, we process the validation with
+					// delay to avoid
+					// reporting to many 'textDocument/publishDiagnostics' notifications on client
+					// side.
+					validate(xmlDocument, triggeredBy == TriggeredBy.didChange);
 					// Manage didOpen, didChange document lifecycle participants
 					switch (triggeredBy) {
 					case didOpen:
@@ -624,8 +633,12 @@ public class XMLTextDocumentService implements TextDocumentService {
 	 * @throws CancellationException when the DOM document content changed and
 	 *                               diagnostics must be stopped.
 	 */
-	void validate(DOMDocument xmlDocument) throws CancellationException {
-		validate(xmlDocument, Collections.emptyMap());
+	void validate(DOMDocument xmlDocument, boolean withDelay) throws CancellationException {
+		if (withDelay) {
+			xmlValidatorDelayer.validateWithDelay(xmlDocument.getDocumentURI(), xmlDocument);
+		} else {
+			validate(xmlDocument, Collections.emptyMap());
+		}
 	}
 
 	/**
