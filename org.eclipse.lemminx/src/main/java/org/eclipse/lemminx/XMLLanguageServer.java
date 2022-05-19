@@ -67,6 +67,7 @@ import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.ServerCapabilities;
+import org.eclipse.lsp4j.SetTraceParams;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.TextDocumentService;
@@ -348,4 +349,9 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 		return telemetryManager;
 	}
 
+	@Override
+	public void setTrace(SetTraceParams params) {
+		// to avoid having error in vscode, the method is implemented
+		// FIXME : implement the behavior of this method.
+	}
 }
