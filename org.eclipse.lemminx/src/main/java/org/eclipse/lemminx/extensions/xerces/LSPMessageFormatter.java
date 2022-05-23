@@ -16,7 +16,12 @@
  */
 package org.eclipse.lemminx.extensions.xerces;
 
-import static org.eclipse.lemminx.dom.parser.Constants.*;
+import static org.eclipse.lemminx.dom.parser.Constants._CCB;
+import static org.eclipse.lemminx.dom.parser.Constants._CMA;
+import static org.eclipse.lemminx.dom.parser.Constants._CSB;
+import static org.eclipse.lemminx.dom.parser.Constants._DQO;
+import static org.eclipse.lemminx.dom.parser.Constants._SIQ;
+import static org.eclipse.lemminx.dom.parser.Constants._SQO;
 import static org.eclipse.lemminx.utils.StringUtils.getString;
 
 import java.util.Locale;
@@ -38,7 +43,7 @@ import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSchemaErrorCo
  * @author Elena Litani, IBM
  * @version $Id: XSMessageFormatter.java 813087 2009-09-09 19:35:27Z mrglavas $
  * 
- * Modified to use additional resource bundle
+ *          Modified to use additional resource bundle
  * 
  * @author Red Hat Inc. <nkomonen@redhat.com>
  */
@@ -47,6 +52,8 @@ public class LSPMessageFormatter implements MessageFormatter {
 	 * The domain of messages concerning the XML Schema: Structures specification.
 	 */
 	public static final String SCHEMA_DOMAIN = "http://www.w3.org/TR/xml-schema-1";
+
+	private static final int[] SEPARATORS = new int[] { _DQO, _SQO, _SIQ };
 
 	// private objects to cache the locale and resource bundle
 	private Locale fLocale = null;
@@ -75,29 +82,30 @@ public class LSPMessageFormatter implements MessageFormatter {
 		}
 		if (locale != fLocale) {
 			fResourceBundle = ResourceBundle.getBundle("org.apache.xerces.impl.msg.XMLSchemaMessages", locale);
-			newResourceBundle = ResourceBundle.getBundle("XMLSchemaMessagesReformatted", locale); // in src/main/resources
-			
+			newResourceBundle = ResourceBundle.getBundle("XMLSchemaMessagesReformatted", locale); // in
+																									// src/main/resources
+
 			fLocale = locale;
 		}
 
 		boolean usedNewResourceBundle = false;
-	
-		String msg =  null;
-		
+
+		String msg = null;
+
 		if (newResourceBundle.containsKey(key)) {
 			msg = newResourceBundle.getString(key);
 			usedNewResourceBundle = true;
 		} else {
 			msg = fResourceBundle.getString(key);
 		}
-		
+
 		if (arguments != null) {
 			try {
-				
-				if(usedNewResourceBundle) {
+
+				if (usedNewResourceBundle) {
 					arguments = reformatSchemaArguments(XMLSchemaErrorCode.get(key), arguments);
 				}
-				
+
 				msg = java.text.MessageFormat.format(msg, arguments);
 			} catch (Exception e) {
 				msg = fResourceBundle.getString("FormatFailed");
@@ -123,17 +131,17 @@ public class LSPMessageFormatter implements MessageFormatter {
 	public static Object[] reformatSchemaArguments(XMLSchemaErrorCode code, Object[] arguments) {
 
 		switch (code) {
-			case cvc_complex_type_2_4_a:
-				return cvc_2_4_a_solution(arguments);
-			case cvc_complex_type_2_4_b:
-				return cvc_2_4_b_solution(arguments);
-			case cvc_enumeration_valid:
-				return enumeration_valid_solution(arguments);
-			case cvc_complex_type_4:
-				arguments[1] = "- " + arguments[1];
-				arguments[0] = "- " + arguments[0];
-			default:
-				return arguments;
+		case cvc_complex_type_2_4_a:
+			return cvc_2_4_a_solution(arguments);
+		case cvc_complex_type_2_4_b:
+			return cvc_2_4_b_solution(arguments);
+		case cvc_enumeration_valid:
+			return enumeration_valid_solution(arguments);
+		case cvc_complex_type_4:
+			arguments[1] = "- " + arguments[1];
+			arguments[0] = "- " + arguments[0];
+		default:
+			return arguments;
 		}
 	}
 
@@ -147,7 +155,7 @@ public class LSPMessageFormatter implements MessageFormatter {
 			boolean hasNamespace = stream.peekChar() == _DQO;
 			if (hasNamespace) {
 				stream.advance(1); // Consume "
-				stream.advanceUntilAnyOfChars(_DQO, _SQO, _SIQ); // " | " | '
+				stream.advanceUntilAnyOfChars(SEPARATORS); // " | " | '
 				stream.advance(2); // Consume quotation and':'
 			}
 			result.append(" - ");
@@ -162,8 +170,8 @@ public class LSPMessageFormatter implements MessageFormatter {
 	}
 
 	/**
-	 * Reformats a string of format:
-	 * "[name1, name2, name3]"
+	 * Reformats a string of format: "[name1, name2, name3]"
+	 * 
 	 * @param names
 	 * @return
 	 */
@@ -181,15 +189,15 @@ public class LSPMessageFormatter implements MessageFormatter {
 			}
 			sb.append("\n");
 			stream.advance(1); // Consume , or ]
-			
+
 		}
 		return sb.toString();
 	}
 
 	/**
-	 * Returns a pattern matcher looking
-	 * for a string that matches the format of: 
-	 * 		"{"http://maven.apache.org/POM/4.0.0":propertiesa}"
+	 * Returns a pattern matcher looking for a string that matches the format of:
+	 * "{"http://maven.apache.org/POM/4.0.0":propertiesa}"
+	 * 
 	 * @param name
 	 * @return
 	 */
@@ -203,13 +211,13 @@ public class LSPMessageFormatter implements MessageFormatter {
 	 * 
 	 * With Namespace
 	 * 
-	 * arguments[0]: {"http://maven.apache.org/POM/4.0.0":propertiesa} 
-	 * arguments[1]: {"http://maven.apache.org/POM/4.0.0":groupId, "http://maven.apache.org/POM/4.0.0":version}
+	 * arguments[0]: {"http://maven.apache.org/POM/4.0.0":propertiesa} arguments[1]:
+	 * {"http://maven.apache.org/POM/4.0.0":groupId,
+	 * "http://maven.apache.org/POM/4.0.0":version}
 	 * 
 	 * Without Namespace
 	 * 
-	 * arguments[0]: propertiesa
-	 * arguments[1]: {groupId, version}
+	 * arguments[0]: propertiesa arguments[1]: {groupId, version}
 	 * 
 	 * @param arguments
 	 * @return
@@ -219,7 +227,7 @@ public class LSPMessageFormatter implements MessageFormatter {
 		String schema = null;
 		String name = null;
 		String validNames = null;
-	
+
 		if (m.matches()) {
 			name = m.group(2);
 			schema = "{" + m.group(1) + "}";
@@ -231,20 +239,20 @@ public class LSPMessageFormatter implements MessageFormatter {
 		}
 		name = "- " + name;
 		return new Object[] { name, validNames, schema };
-	}	
+	}
 
 	/**
 	 * Parses the message for cvc.2.4.b and returns reformatted arguments
 	 * 
 	 * With Namespace
 	 * 
-	 * arguments[0]: elementName
-	 * arguments[1]: {"http://maven.apache.org/POM/4.0.0":groupId, "http://maven.apache.org/POM/4.0.0":version}
+	 * arguments[0]: elementName arguments[1]:
+	 * {"http://maven.apache.org/POM/4.0.0":groupId,
+	 * "http://maven.apache.org/POM/4.0.0":version}
 	 * 
 	 * Without Namespace
 	 * 
-	 * arguments[0]: elementName
-	 * arguments[1]: {groupId, version}
+	 * arguments[0]: elementName arguments[1]: {groupId, version}
 	 * 
 	 * @param arguments
 	 * @return
@@ -255,20 +263,20 @@ public class LSPMessageFormatter implements MessageFormatter {
 		String element = null;
 		String missingChildElements = null;
 		String schema = null;
-	
+
 		if (m.matches()) {
 			missingChildElements = reformatElementNames(getString(arguments[1]));
 			schema = "{" + m.group(1) + "}";
-		} else { 
+		} else {
 			// No namespace, so just element name
 			missingChildElements = reformatElementNames(getString(arguments[1]));
 			schema = "{the schema}";
 		}
 		element = "- " + getString(arguments[0]);
-		return new Object[] { element, missingChildElements , schema };
+		return new Object[] { element, missingChildElements, schema };
 	}
 
 	public static Object[] enumeration_valid_solution(Object[] arguments) {
-		return new Object[] { getString(arguments[0]), reformatArrayElementNames(getString(arguments[1]))};
+		return new Object[] { getString(arguments[0]), reformatArrayElementNames(getString(arguments[1])) };
 	}
 }
