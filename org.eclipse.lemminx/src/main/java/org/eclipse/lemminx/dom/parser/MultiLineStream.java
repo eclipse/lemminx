@@ -126,7 +126,7 @@ public class MultiLineStream {
 		return false;
 	}
 
-	public boolean advanceIfChars(int... ch) {
+	public boolean advanceIfChars(int[] ch) {
 		int i;
 		if (this.position + ch.length > this.len) {
 			return false;
@@ -140,7 +140,7 @@ public class MultiLineStream {
 		return true;
 	}
 
-	public int advanceIfAnyOfChars(int... ch) {
+	public int advanceIfAnyOfChars(int[] ch) {
 		int i;
 		if (this.position + 1 > this.len) {
 			return -1;
@@ -198,7 +198,7 @@ public class MultiLineStream {
 	/**
 	 * Will advance until any of the provided chars are encountered
 	 */
-	public boolean advanceUntilAnyOfChars(int... ch) {
+	public boolean advanceUntilAnyOfChars(int[] ch) {
 		while (this.position < this.len) {
 			for (int i = 0; i < ch.length; i++) {
 				if (peekChar() == ch[i]) {
@@ -258,7 +258,7 @@ public class MultiLineStream {
 		return false;
 	}
 
-	public boolean advanceUntilChars(int... ch) {
+	public boolean advanceUntilChars(int[] ch) {
 		while (this.position + ch.length <= this.len) {
 			int i = 0;
 			for (; i < ch.length && peekChar(i) == ch[i]; i++) {
@@ -276,7 +276,7 @@ public class MultiLineStream {
 	 * Advances until it matches int[] ch OR it hits '<' If this returns true, peek
 	 * if next char is '<' to check which case was hit
 	 */
-	public boolean advanceUntilCharsOrNewTag(int... ch) {
+	public boolean advanceUntilCharsOrNewTag(int[] ch) {
 		while (this.position + ch.length <= this.len) {
 			int i = 0;
 			if (peekChar(0) == _LAN) { // <
