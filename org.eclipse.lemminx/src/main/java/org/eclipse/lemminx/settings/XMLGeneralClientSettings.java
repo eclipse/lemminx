@@ -39,6 +39,8 @@ public class XMLGeneralClientSettings {
 
 	private XMLFormattingOptions format;
 
+	private XMLFoldingSettings foldings;
+
 	private XMLCompletionSettings completion;
 
 	private ServerSettings server;
@@ -101,6 +103,24 @@ public class XMLGeneralClientSettings {
 	 */
 	public XMLFormattingOptions getFormat() {
 		return format;
+	}
+
+	/**
+	 * Sets the folding options
+	 *
+	 * @param foldings
+	 */
+	public void setFolding(XMLFoldingSettings foldings) {
+		this.foldings = foldings;
+	}
+
+	/**
+	 * Returns the folding options
+	 *
+	 * @return the folding options
+	 */
+	public XMLFoldingSettings getFolding() {
+		return foldings;
 	}
 
 	/**

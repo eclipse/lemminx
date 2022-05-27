@@ -49,6 +49,7 @@ public class SharedSettings {
 	public SharedSettings(SharedSettings newSettings) {
 		this();
 		this.completionSettings.merge(newSettings.getCompletionSettings());
+		this.foldingSettings.merge(newSettings.getFoldingSettings());
 		this.formattingSettings.merge(newSettings.getFormattingSettings());
 		this.validationSettings.merge(newSettings.getValidationSettings());
 		this.symbolSettings.merge(newSettings.getSymbolSettings());

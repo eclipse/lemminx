@@ -48,6 +48,7 @@ import org.eclipse.lemminx.settings.CompositeSettings;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLCodeLensSettings;
 import org.eclipse.lemminx.settings.XMLCompletionSettings;
+import org.eclipse.lemminx.settings.XMLFoldingSettings;
 import org.eclipse.lemminx.settings.XMLFormattingOptions;
 import org.eclipse.lemminx.settings.XMLPreferences;
 import org.eclipse.lemminx.settings.XMLSymbolSettings;
@@ -689,6 +690,10 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	public boolean isIncrementalSupport() {
 		return documents.isIncremental();
+	}
+
+	public XMLFoldingSettings getSharedFoldingSettings() {
+		return sharedSettings.getFoldingSettings();
 	}
 
 	public XMLFormattingOptions getSharedFormattingSettings() {

@@ -48,6 +48,7 @@ import org.eclipse.lemminx.settings.ServerSettings;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLCodeLensSettings;
 import org.eclipse.lemminx.settings.XMLCompletionSettings;
+import org.eclipse.lemminx.settings.XMLFoldingSettings;
 import org.eclipse.lemminx.settings.XMLFormattingOptions;
 import org.eclipse.lemminx.settings.XMLGeneralClientSettings;
 import org.eclipse.lemminx.settings.XMLPreferences;
@@ -182,7 +183,11 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 			if (newTelemetry != null) {
 				getTelemetryManager().setEnabled(newTelemetry.isEnabled());
 			}
-
+			
+			XMLFoldingSettings newFolding = xmlClientSettings.getFolding();
+			if (newFolding != null) {
+				xmlTextDocumentService.getSharedFoldingSettings().merge(newFolding);
+			}
 			// Update format settings
 			XMLFormattingOptions formatterSettings = xmlClientSettings.getFormat();
 			if (formatterSettings != null) {
