@@ -49,6 +49,10 @@ class XMLFoldings {
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
+	public boolean isIncludeClosingTagInFold(XMLFoldingSettings context) {
+		return context.isIncludeClosingTagInFold();
+	}
+	
 	class TagInfo {
 
 		public final int startLine;
@@ -106,6 +110,11 @@ class XMLFoldings {
 						}
 						int startLine = stackElement.startLine;
 						int endLine = document.positionAt(scanner.getTokenOffset()).getLine();
+
+						if (!isIncludeClosingTagInFold(context)){
+							endLine -= 1;
+						}
+
 						if (endLine > startLine && prevStart != startLine) {
 							prevStart = addRange(new FoldingRange(startLine, endLine), ranges);
 						}

@@ -32,4 +32,34 @@ public class XMLFoldingSettings {
 	public Integer getRangeLimit() {
 		return capabilities != null ? capabilities.getRangeLimit() : null;
 	}
+
+	public static final boolean DEFAULT_INCLUDE_CLOSING_TAG_IN_FOLD = true;
+
+	private boolean includeClosingTagInFold;
+
+	public XMLFoldingSettings() {
+		this.includeClosingTagInFold = DEFAULT_INCLUDE_CLOSING_TAG_IN_FOLD;
+	}
+
+	public XMLFoldingSettings(boolean includeClosingTagInFold) {
+		this.includeClosingTagInFold = includeClosingTagInFold;
+	}
+
+	/**
+	 * Sets the value of includeClosingTagInFold
+	*/
+	public void setIncludeClosingTagInFold(boolean includeClosingTagInFold) {
+		this.includeClosingTagInFold = includeClosingTagInFold;
+	}
+ 	
+	/**
+	 * Returns the value of includeClosingTagInFold
+	*/
+	public boolean isIncludeClosingTagInFold() {
+		return includeClosingTagInFold;
+	}
+
+	public void merge(XMLFoldingSettings newSettings) {
+		this.setIncludeClosingTagInFold(newSettings.isIncludeClosingTagInFold());
+	}
 }
