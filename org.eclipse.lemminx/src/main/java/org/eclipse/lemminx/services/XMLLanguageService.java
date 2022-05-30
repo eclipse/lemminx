@@ -60,8 +60,6 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
  */
 public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFullFormatter {
 
-	private static final String XML_DIAGNOSTIC_SOURCE = "xml";
-
 	private static final CancelChecker NULL_CHECKER = new CancelChecker() {
 
 		@Override

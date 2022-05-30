@@ -716,6 +716,14 @@
 		"name": "org.eclipse.lsp4j.CompletionList",
 		"allDeclaredFields": true
 	},
+    {
+        "name": "org.eclipse.lsp4j.CompletionListCapabilities",
+        "allDeclaredFields": true,
+        "methods": [{
+            "name": "<init>",
+            "parameterTypes": []
+        }]
+    },		
 	{
 		"name": "org.eclipse.lsp4j.CompletionOptions",
 		"allDeclaredFields": true,
@@ -802,6 +810,14 @@
 			"parameterTypes": []
 		}]
 	},
+    {
+        "name": "org.eclipse.lsp4j.DiagnosticCapabilities",
+        "allDeclaredFields": true,
+        "methods": [{
+            "name": "<init>",
+            "parameterTypes": []
+        }]
+    },	
 	{
 		"name": "org.eclipse.lsp4j.DiagnosticRelatedInformation",
 		"allDeclaredFields": true,
@@ -834,6 +850,14 @@
 			"parameterTypes": []
 		}]
 	},
+    {
+        "name": "org.eclipse.lsp4j.DiagnosticWorkspaceCapabilities",
+        "allDeclaredFields": true,
+        "methods": [{
+            "name": "<init>",
+            "parameterTypes": []
+        }]
+    },	
 	{
 		"name": "org.eclipse.lsp4j.DidChangeConfigurationCapabilities",
 		"allDeclaredFields": true,
@@ -1100,6 +1124,22 @@
 			"parameterTypes": []
 		}]
 	},
+    {
+        "name": "org.eclipse.lsp4j.FoldingRangeKindSupportCapabilities",
+        "allDeclaredFields": true,
+        "methods": [{
+            "name": "<init>",
+            "parameterTypes": []
+        }]
+    },
+    {
+        "name": "org.eclipse.lsp4j.FoldingRangeSupportCapabilities",
+        "allDeclaredFields": true,
+        "methods": [{
+            "name": "<init>",
+            "parameterTypes": []
+        }]
+    },
 	{
 		"name": "org.eclipse.lsp4j.FoldingRangeProviderOptions",
 		"allDeclaredFields": true,
@@ -1180,6 +1220,48 @@
 			"parameterTypes": []
 		}]
 	},
+    {
+        "name": "org.eclipse.lsp4j.InlayHintCapabilities",
+        "allDeclaredFields": true,
+        "methods": [{
+            "name": "<init>",
+            "parameterTypes": []
+        }]
+    },
+    {
+        "name": "org.eclipse.lsp4j.InlayHintResolveSupportCapabilities",
+        "allDeclaredFields": true,
+        "methods": [
+            {
+                "name": "<init>",
+                "parameterTypes": []
+            }
+        ]
+    },    
+    {
+        "name": "org.eclipse.lsp4j.InlayHintWorkspaceCapabilities",
+        "allDeclaredFields": true,
+        "methods": [{
+            "name": "<init>",
+            "parameterTypes": []
+        }]
+    },
+            {
+        "name": "org.eclipse.lsp4j.InlineValueCapabilities",
+        "allDeclaredFields": true,
+        "methods": [{
+            "name": "<init>",
+            "parameterTypes": []
+        }]
+    },
+    {
+        "name": "org.eclipse.lsp4j.InlineValueWorkspaceCapabilities",
+        "allDeclaredFields": true,
+        "methods": [{
+            "name": "<init>",
+            "parameterTypes": []
+        }]
+    },    
 	{
 		"name": "org.eclipse.lsp4j.InsertTextFormat",
 		"allDeclaredFields": true
@@ -1419,14 +1501,6 @@
 		}]
 	},
 	{
-		"name": "org.eclipse.lsp4j.ResourceChange",
-		"allDeclaredFields": true,
-		"methods": [{
-			"name": "<init>",
-			"parameterTypes": []
-		}]
-	},
-	{
 		"name": "org.eclipse.lsp4j.ResourceOperation",
 		"allDeclaredFields": true
 	},
@@ -1552,6 +1626,14 @@
 			"parameterTypes": []
 		}]
 	},
+    {
+        "name": "org.eclipse.lsp4j.StaleRequestCapabilities",
+        "allDeclaredFields": true,
+        "methods": [{
+            "name": "<init>",
+            "parameterTypes": []
+        }]
+    },	
 	{
 		"name": "org.eclipse.lsp4j.StaticRegistrationOptions",
 		"allDeclaredFields": true,
@@ -1772,8 +1854,16 @@
 			"parameterTypes": []
 		}]
 	},
+    {
+        "name": "org.eclipse.lsp4j.WorkspaceServerCapabilities",
+        "allDeclaredFields": true,
+        "methods": [{
+            "name": "<init>",
+            "parameterTypes": []
+        }]
+    },
 	{
-		"name": "org.eclipse.lsp4j.WorkspaceServerCapabilities",
+		"name": "org.eclipse.lsp4j.WorkspaceSymbolResolveSupportCapabilities",
 		"allDeclaredFields": true,
 		"methods": [{
 			"name": "<init>",
@@ -1787,6 +1877,13 @@
 			"parameterTypes": []
 		}]
 	},
+    {
+        "name": "org.eclipse.lsp4j.adapters.CompletionItemDefaultsEditRangeTypeAdapter",
+        "methods": [{
+            "name": "<init>",
+            "parameterTypes": []
+        }]
+    },
 	{
         "name": "org.eclipse.lsp4j.adapters.CompletionItemTextEditTypeAdapter",
         "methods": [{
@@ -1836,13 +1933,13 @@
 			"parameterTypes": []
 		}]
 	},
-	{
-		"name": "org.eclipse.lsp4j.adapters.ResourceChangeListAdapter",
-		"methods": [{
-			"name": "<init>",
-			"parameterTypes": []
-		}]
-	},
+    {
+        "name": "org.eclipse.lsp4j.adapters.ProgressNotificationAdapter",
+        "methods": [{
+            "name": "<init>",
+            "parameterTypes": []
+        }]
+    },	
 	{
 		"name": "org.eclipse.lsp4j.adapters.ResourceOperationTypeAdapter",
 		"methods": [{
@@ -1871,6 +1968,27 @@
 			"parameterTypes": []
 		}]
 	},
+    {
+        "name": "org.eclipse.lsp4j.adapters.WorkDoneProgressNotificationAdapter$Factory",
+        "methods": [{
+            "name": "<init>",
+            "parameterTypes": []
+        }]
+    },
+    {
+        "name": "org.eclipse.lsp4j.adapters.WorkspaceSymbolLocationTypeAdapter",
+        "methods": [{
+            "name": "<init>",
+            "parameterTypes": []
+        }]
+    },
+    {
+        "name": "org.eclipse.lsp4j.adapters.WorkspaceSymbolResponseAdapter",
+        "methods": [{
+            "name": "<init>",
+            "parameterTypes": []
+        }]
+    },
 	{
 		"name": "org.eclipse.lsp4j.jsonrpc.json.adapters.JsonElementTypeAdapter$Factory",
 		"methods": [{

@@ -14,8 +14,11 @@ package org.eclipse.lemminx.extensions.xsd.contentmodel;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.xerces.impl.Constants;
+import org.apache.xerces.impl.xs.XMLSchemaLoader;
 import org.apache.xerces.impl.xs.XSLoaderImpl;
 import org.apache.xerces.xs.XSModel;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -24,6 +27,9 @@ import org.eclipse.lemminx.dom.SchemaLocation;
 import org.eclipse.lemminx.dom.SchemaLocationHint;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelProvider;
+import org.eclipse.lemminx.extensions.xerces.AbstractLSPErrorReporter;
+import org.eclipse.lemminx.extensions.xerces.LSPXMLEntityManager;
+import org.eclipse.lemminx.extensions.xerces.ReflectionUtils;
 import org.eclipse.lemminx.uriresolver.CacheResourceDownloadingException;
 import org.eclipse.lemminx.uriresolver.URIResolverExtensionManager;
 import org.eclipse.lemminx.utils.DOMUtils;
@@ -35,6 +41,8 @@ import org.w3c.dom.DOMErrorHandler;
  * XSD content model provider.
  */
 public class CMXSDContentModelProvider implements ContentModelProvider {
+
+	private static final Logger LOGGER = Logger.getLogger(CMXSDContentModelProvider.class.getName());
 
 	private static final String XSI_SCHEMA_LOCATION_BINDING_KIND = "xsi:schemaLocation";
 
@@ -113,8 +121,12 @@ public class CMXSDContentModelProvider implements ContentModelProvider {
 	}
 
 	public XSLoaderImpl getLoader() {
+		LSPXMLEntityManager entityManager = new LSPXMLEntityManager(null, null);
+		entityManager.setEntityResolver(resolverExtensionManager);
+
 		XSLoaderImpl loader = new XSLoaderImpl();
 		loader.setParameter("http://apache.org/xml/properties/internal/entity-resolver", resolverExtensionManager);
+		loader.setParameter("http://apache.org/xml/properties/internal/entity-manager", entityManager);
 		loader.setParameter(Constants.DOM_ERROR_HANDLER, new DOMErrorHandler() {
 
 			@Override
@@ -125,6 +137,14 @@ public class CMXSDContentModelProvider implements ContentModelProvider {
 				return false;
 			}
 		});
+
+		try {
+			XMLSchemaLoader schemaLoader = ReflectionUtils.getFieldValue(loader, "fSchemaLoader");
+			AbstractLSPErrorReporter.initializeReporter(schemaLoader, null, entityManager);
+		} catch (Exception e) {
+			LOGGER.log(Level.SEVERE, "Error while initializing XML Schema loader for content model.", e);
+		}
+
 		return loader;
 	}
 

@@ -68,6 +68,7 @@ import org.eclipse.lsp4j.Registration;
 import org.eclipse.lsp4j.RegistrationParams;
 import org.eclipse.lsp4j.Unregistration;
 import org.eclipse.lsp4j.UnregistrationParams;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageClient;
 
 /**
@@ -185,8 +186,8 @@ public class XMLCapabilityManager {
 
 	private void registerWatchedFiles() {
 		List<FileSystemWatcher> watchers = new ArrayList<>(2);
-		watchers.add(new FileSystemWatcher("**/*.xsd"));
-		watchers.add(new FileSystemWatcher("**/*.dtd"));
+		watchers.add(new FileSystemWatcher(Either.forLeft("**/*.xsd")));
+		watchers.add(new FileSystemWatcher(Either.forLeft("**/*.dtd")));
 		DidChangeWatchedFilesRegistrationOptions options = new DidChangeWatchedFilesRegistrationOptions(watchers);
 		registerCapability(WORKSPACE_WATCHED_FILES_ID, WORKSPACE_WATCHED_FILES, options);
 	}

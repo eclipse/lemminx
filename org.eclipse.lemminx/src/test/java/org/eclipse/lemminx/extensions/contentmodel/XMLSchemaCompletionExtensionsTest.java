@@ -1414,4 +1414,19 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				null, //
 				c("test:label", te(2, 1, 2, 1, "test:label=\"\""), "test:label", null, null));
 	}
+
+	@Test
+	public void completionWithCatalogAndWebApp() throws BadLocationException {
+		String xml = "<web-app xmlns=\"http://java.sun.com/xml/ns/j2ee\"\r\n" + //
+				"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"    xsi:schemaLocation=\"http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd\"\r\n"
+				+ //
+				"    version=\"2.4\">\r\n" + //
+				"    |\r\n" + //
+				"</web-app>";
+		XMLAssert.testCompletionFor(xml, "src/test/resources/catalogs/catalog-web-app.xml", //
+				"web.xml", //
+				31, //
+				c("servlet", te(4, 4, 4, 4, "<servlet></servlet>"), "servlet", null, null));
+	}
 }

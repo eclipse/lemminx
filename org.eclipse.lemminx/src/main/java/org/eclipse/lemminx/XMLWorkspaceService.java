@@ -25,8 +25,6 @@ import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.DidChangeWorkspaceFoldersParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.FileEvent;
-import org.eclipse.lsp4j.SymbolInformation;
-import org.eclipse.lsp4j.WorkspaceSymbolParams;
 import org.eclipse.lsp4j.jsonrpc.CompletableFutures;
 import org.eclipse.lsp4j.jsonrpc.ResponseErrorException;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseError;
@@ -46,11 +44,6 @@ public class XMLWorkspaceService implements WorkspaceService, IXMLCommandService
 	public XMLWorkspaceService(XMLLanguageServer xmlLanguageServer) {
 		this.xmlLanguageServer = xmlLanguageServer;
 		this.commands = new HashMap<>();
-	}
-
-	@Override
-	public CompletableFuture<List<? extends SymbolInformation>> symbol(WorkspaceSymbolParams params) {
-		return null;
 	}
 
 	@Override
@@ -85,7 +78,8 @@ public class XMLWorkspaceService implements WorkspaceService, IXMLCommandService
 
 	@Override
 	public void didChangeWorkspaceFolders(DidChangeWorkspaceFoldersParams params) {
-		xmlLanguageServer.getXMLLanguageService().getWorkspaceServiceParticipants().forEach(participant -> participant.didChangeWorkspaceFolders(params));
+		xmlLanguageServer.getXMLLanguageService().getWorkspaceServiceParticipants()
+				.forEach(participant -> participant.didChangeWorkspaceFolders(params));
 	}
 
 	@Override
