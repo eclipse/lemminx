@@ -155,7 +155,7 @@ public class XMLPositionUtility {
 	}
 
 	private static Range createAttrValueRange(DOMAttr attr, DOMDocument document, boolean withoutQuote) {
-		DOMNode attrValue = attr.getNodeAttrValue();
+		DOMRange attrValue = attr.getNodeAttrValue();
 		if (attrValue == null) {
 			return null;
 		}

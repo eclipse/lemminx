@@ -43,7 +43,7 @@ public class SchemaLocation {
 			if (namespaceURI == null || locationHint == null) {
 				break;
 			}
-			DOMNode valNode = attr.getNodeAttrValue();
+			DOMRange valNode = attr.getNodeAttrValue();
 			// http://example.org/schema/root |root.xsd http://example.org/schema/bison bison.xsd
 			int start = valNode.getStart() + locPairMatcher.start(2) + 1;
 			// http://example.org/schema/root root.xsd| http://example.org/schema/bison bison.xsd

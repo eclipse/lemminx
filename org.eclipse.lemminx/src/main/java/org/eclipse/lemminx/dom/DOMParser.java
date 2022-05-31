@@ -85,7 +85,6 @@ public class DOMParser {
 		DOMNode lastClosed = curr;
 		DOMAttr attr = null;
 		int endTagOpenOffset = -1;
-		String pendingAttribute = null;
 		DOMNode tempWhitespaceContent = null;
 		boolean isInitialDeclaration = true; // A declaration can have multiple internal declarations
 		boolean previousTokenWasEndTagOpen = false;
@@ -226,9 +225,8 @@ public class DOMParser {
 				break;
 
 			case AttributeName: {
-				pendingAttribute = scanner.getTokenText();
-				attr = new DOMAttr(pendingAttribute, scanner.getTokenOffset(),
-						scanner.getTokenOffset() + pendingAttribute.length(), curr);
+				attr = new DOMAttr(null, scanner.getTokenOffset(),
+						scanner.getTokenEnd(), curr);
 				curr.setAttributeNode(attr);
 				curr.end = scanner.getTokenEnd();
 				break;
@@ -237,18 +235,15 @@ public class DOMParser {
 			case DelimiterAssign: {
 				if (attr != null) {
 					// Sets the value to the '=' position in case there is no AttributeValue
-					attr.setValue(null, scanner.getTokenOffset(), scanner.getTokenEnd());
-					attr.setDelimiter(true);
+					attr.setDelimiter(scanner.getTokenOffset());
 				}
 				break;
 			}
 
 			case AttributeValue: {
-				String value = scanner.getTokenText();
 				if (curr.hasAttributes() && attr != null) {
-					attr.setValue(value, scanner.getTokenOffset(), scanner.getTokenOffset() + value.length());
+					attr.setValue(null, scanner.getTokenOffset(), scanner.getTokenEnd());
 				}
-				pendingAttribute = null;
 				attr = null;
 				curr.end = scanner.getTokenEnd();
 				break;
