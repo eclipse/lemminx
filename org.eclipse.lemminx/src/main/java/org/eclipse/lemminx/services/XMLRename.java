@@ -31,6 +31,7 @@ import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
+import org.eclipse.lemminx.dom.DOMRange;
 import org.eclipse.lemminx.dom.parser.TokenType;
 import org.eclipse.lemminx.services.extensions.IRenameParticipant;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
@@ -79,8 +80,9 @@ public class XMLRename {
 			try {
 				participant.doRename(renameRequest, textEdits);
 			} catch (Exception e) {
-				LOGGER.log(Level.SEVERE, "Error while processing rename for the participant '"
-						+ participant.getClass().getName() + "'.", e);
+				LOGGER.log(Level.SEVERE,
+						"Error while processing rename for the participant '" + participant.getClass().getName() + "'.",
+						e);
 			}
 		}
 
@@ -194,7 +196,7 @@ public class XMLRename {
 						startTagStartPosition.getCharacter() + indexOfColon);
 				Position startTagEndPosition = startTagRange.getEnd();
 				Position suffixStartPositionStart = new Position(startTagEndPosition.getLine(),
-				startTagEndPosition.getCharacter() - suffixLength);
+						startTagEndPosition.getCharacter() - suffixLength);
 				startTagPrefixRange = new Range(startTagStartPosition, startTagPrefixPosition);
 				suffixRangeStart = new Range(suffixStartPositionStart, startTagEndPosition);
 			}
@@ -246,7 +248,7 @@ public class XMLRename {
 		}
 
 		for (DOMAttr attr : attributes) {
-			DOMNode nameNode = attr.getNodeAttrName();
+			DOMRange nameNode = attr.getNodeAttrName();
 
 			if (!attr.isXmlns()) {
 				continue;
@@ -398,7 +400,7 @@ public class XMLRename {
 		List<TextEdit> edits = new ArrayList<>();
 		if (attributes != null) {
 			for (DOMAttr attr : attributes) {
-				DOMNode attrValue = attr.getNodeAttrValue();
+				DOMRange attrValue = attr.getNodeAttrValue();
 				if (attrValue != null) {
 					String attrValueText = attr.getValue();
 					if (attrValueText != null && attrValueText.startsWith(oldNamespace + ":")) {

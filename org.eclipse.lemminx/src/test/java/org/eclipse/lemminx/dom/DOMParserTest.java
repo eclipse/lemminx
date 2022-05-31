@@ -570,22 +570,31 @@ public class DOMParserTest {
 
 	@Test
 	public void testDoctype1() {
-		String xml = "<!DOCTYPE note [\n" + "  <!ENTITY nbsp \"&#xA0;\"> \n"
-				+ "  <!ENTITY writer \"Writer: Donald Duck.\">\n" + "  <!ENTITY copyright \"Copyright: W3Schools.\">\n"
-				+ "]>";
-		String internal = "\n" + "  <!ENTITY nbsp \"&#xA0;\"> \n" + "  <!ENTITY writer \"Writer: Donald Duck.\">\n"
-				+ "  <!ENTITY copyright \"Copyright: W3Schools.\">\n";
+		String xml = "<!DOCTYPE note [\n" + //
+				"  <!ENTITY nbsp \"&#xA0;\"> \n" + //
+				"  <!ENTITY writer \"Writer: Donald Duck.\">\n" + //
+				"  <!ENTITY copyright \"Copyright: W3Schools.\">\n" + //
+				"]>";
+		String internal = "\n" + //
+				"  <!ENTITY nbsp \"&#xA0;\"> \n" + //
+				"  <!ENTITY writer \"Writer: Donald Duck.\">\n" + //
+				"  <!ENTITY copyright \"Copyright: W3Schools.\">\n";
 		DOMDocument document = DOMParser.getInstance().parse(xml, "note.xml", null);
 		assertDoctype((DOMDocumentType) (document.getChild(0)), 0, 134, "note", null, null, null, internal);
 	}
 
 	@Test
 	public void testDoctype2() {
-		String xml = "<!DOCTYPE html SYSTEM\n" + "  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"\n"
-				+ "  [\n" + "    <!ENTITY nbsp \"&#xA0;\"> \n" + "    <!ENTITY writer \"Writer: Donald Duck.\">\n"
-				+ "    <!ENTITY copyright \"Copyright: W3Schools.\">\n" + "  ]\n" + ">";
-		String internal = "\n" + "    <!ENTITY nbsp \"&#xA0;\"> \n" + "    <!ENTITY writer \"Writer: Donald Duck.\">\n"
-				+ "    <!ENTITY copyright \"Copyright: W3Schools.\">\n  ";
+		String xml = "<!DOCTYPE html SYSTEM\n" + //
+				"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"\n" + //
+				"  [\n" + "    <!ENTITY nbsp \"&#xA0;\"> \n" + //
+				"    <!ENTITY writer \"Writer: Donald Duck.\">\n" + //
+				"    <!ENTITY copyright \"Copyright: W3Schools.\">\n" + //
+				"  ]\n" + ">";
+		String internal = "\n" + //
+				"    <!ENTITY nbsp \"&#xA0;\"> \n" + //
+				"    <!ENTITY writer \"Writer: Donald Duck.\">\n" + //
+				"    <!ENTITY copyright \"Copyright: W3Schools.\">\n  ";
 		DOMDocument document = DOMParser.getInstance().parse(xml, "", null);
 		assertDoctype((DOMDocumentType) (document.getChild(0)), 0, 212, "html", DocumentTypeKind.SYSTEM.name(), null,
 				"\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"", internal);
@@ -593,8 +602,9 @@ public class DOMParserTest {
 
 	@Test
 	public void testDTDEntity() {
-		String xml = "<!DOCTYPE note [\n" + "  <!ENTITY writer SYSTEM \"https://www.w3schools.com/entities.dtd\">\n"
-				+ "]>";
+		String xml = "<!DOCTYPE note [\n" + //
+				"  <!ENTITY writer SYSTEM \"https://www.w3schools.com/entities.dtd\">\n" + //
+				"]>";
 
 		DOMNode doctype = createDoctypeNode(0, 86, 10, 14, null, null, null, null, null, null, 15, 85);
 		doctype.closed = true;
@@ -609,8 +619,10 @@ public class DOMParserTest {
 
 	@Test
 	public void testDTDAllTypes() {
-		String xml = "<!DOCTYPE note [\n" + "  <!ENTITY writer SYSTEM \"https://www.w3schools.com/entities.dtd\">\n"
-				+ "  <!ELEMENT from (#PCDATA)>\n" + "  <!ATTLIST payment type CDATA \"check\">\n" + "] >";
+		String xml = "<!DOCTYPE note [\n" + //
+				"  <!ENTITY writer SYSTEM \"https://www.w3schools.com/entities.dtd\">\n" + //
+				"  <!ELEMENT from (#PCDATA)>\n" + //
+				"  <!ATTLIST payment type CDATA \"check\">\n" + "] >";
 
 		DOMNode doctype = createDoctypeNode(0, 155, 10, 14, null, null, null, null, null, null, 15, 153);
 		doctype.closed = true;
@@ -632,8 +644,9 @@ public class DOMParserTest {
 
 	@Test
 	public void testDTDExternal() {
-		String dtd = "<!ENTITY writer SYSTEM \"https://www.w3schools.com/entities.dtd\">\n"
-				+ "<!ELEMENT from (#PCDATA)>\n" + "<!ATTLIST payment type CDATA \"check\">";
+		String dtd = "<!ENTITY writer SYSTEM \"https://www.w3schools.com/entities.dtd\">\n" + //
+				"<!ELEMENT from (#PCDATA)>\n" + //
+				"<!ATTLIST payment type CDATA \"check\">";
 
 		DOMNode doctype = createDoctypeNode(0, 128, null, null, null, null, null, null, null, null, null, null);
 		doctype.closed = true;
@@ -655,8 +668,8 @@ public class DOMParserTest {
 
 	@Test
 	public void testDTDExternal2() {
-		String dtd = "<!ATTLIST auth-constraint id ID #IMPLIED>\n"
-				+ "<!ELEMENT auth-constraint (description?, role-name*)>";
+		String dtd = "<!ATTLIST auth-constraint id ID #IMPLIED>\n" + //
+				"<!ELEMENT auth-constraint (description?, role-name*)>";
 
 		DOMNode doctype = createDoctypeNode(0, 95, null, null, null, null, null, null, null, null, null, null);
 		doctype.closed = true;
@@ -675,7 +688,9 @@ public class DOMParserTest {
 
 	@Test
 	public void testDTDExternalUnrecognizedParameters() {
-		String dtd = "<!ENTITY writer SYSTEM >\n" + "<!ELEMENT from (#PCDATA)\n" + "<!ATTLIST payment type \"check\">";
+		String dtd = "<!ENTITY writer SYSTEM >\n" + //
+				"<!ELEMENT from (#PCDATA)\n" + //
+				"<!ATTLIST payment type \"check\">";
 
 		DOMNode doctype = createDoctypeNode(0, 81, null, null, null, null, null, null, null, null, null, null);
 		doctype.closed = true;
@@ -697,7 +712,9 @@ public class DOMParserTest {
 
 	@Test
 	public void testDTDExternalUnrecognizedParameters2() {
-		String dtd = "<!ENTITY writer SYSTEM  \n" + "<!ELEMENT from (#PCDATA)\n" + "<!ATTLIST payment type \"check\">";
+		String dtd = "<!ENTITY writer SYSTEM  \n" + //
+				"<!ELEMENT from (#PCDATA)\n" + //
+				"<!ATTLIST payment type \"check\">";
 
 		DOMNode doctype = createDoctypeNode(0, 81, null, null, null, null, null, null, null, null, null, null);
 		doctype.closed = true;
@@ -719,7 +736,8 @@ public class DOMParserTest {
 
 	@Test
 	public void testDTDExternalUnrecognizedParameters3() {
-		String dtd = "<!ATTLIST name \n" + "<!ELEMENT name >";
+		String dtd = "<!ATTLIST name \n" + //
+				"<!ELEMENT name >";
 
 		DOMNode doctype = createDoctypeNode(0, 32, null, null, null, null, null, null, null, null, null, null);
 		doctype.closed = true;
@@ -755,7 +773,9 @@ public class DOMParserTest {
 
 	@Test
 	public void testATTLISTMultipleInternal() {
-		String dtd = "<!ATTLIST Institution\n" + "    to CDATA #REQUIRED\n" + "    from CDATA #REQUIRED>";
+		String dtd = "<!ATTLIST Institution\n" + //
+				"    to CDATA #REQUIRED\n" + //
+				"    from CDATA #REQUIRED>";
 
 		DOMNode doctype = createDoctypeNode(0, 70, null, null, null, null, null, null, null, null, null, null);
 		doctype.closed = true;
@@ -773,8 +793,9 @@ public class DOMParserTest {
 
 	@Test
 	public void testNotation() {
-		String dtd = "<!NOTATION jpg PUBLIC \"JPG 1.0\">\n" + "<!NOTATION png PUBLIC \"JPG 1.0\" \"image/gif\">\n"
-				+ "<!NOTATION gif SYSTEM \"image/gif\">";
+		String dtd = "<!NOTATION jpg PUBLIC \"JPG 1.0\">\n" + //
+				"<!NOTATION png PUBLIC \"JPG 1.0\" \"image/gif\">\n" + //
+				"<!NOTATION gif SYSTEM \"image/gif\">";
 
 		DOMNode doctype = createDoctypeNode(0, 112, null, null, null, null, null, null, null, null, null, null);
 		doctype.closed = true;
@@ -795,7 +816,8 @@ public class DOMParserTest {
 
 	@Test
 	public void testNotationMissingEndTag() {
-		String dtd = "<!NOTATION jpg PUBLIC \"JPG# 1.0\"\n" + "<!NOTATION png PUBLIC \"JPG 1.0\" \"image/gif\">";
+		String dtd = "<!NOTATION jpg PUBLIC \"JPG# 1.0\"\n" + //
+				"<!NOTATION png PUBLIC \"JPG 1.0\" \"image/gif\">";
 
 		DOMNode doctype = createDoctypeNode(0, 77, null, null, null, null, null, null, null, null, null, null);
 		doctype.closed = true;
@@ -813,7 +835,8 @@ public class DOMParserTest {
 
 	@Test
 	public void testNotationMissingEndTagMissingAndExtraValues() {
-		String dtd = "<!NOTATION jpg PUBLIC \"JPG# 1.0\"\n" + "<!NOTATION png PUBLIC \"JPG 1.0\" \"image/gif\" BAD>";
+		String dtd = "<!NOTATION jpg PUBLIC \"JPG# 1.0\"\n" + //
+				"<!NOTATION png PUBLIC \"JPG 1.0\" \"image/gif\" BAD>";
 
 		DOMNode doctype = createDoctypeNode(0, 81, null, null, null, null, null, null, null, null, null, null);
 		doctype.closed = true;

@@ -167,7 +167,7 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 		}
 		case QuoteRequiredInXMLDecl: {
 			String attrName = getString(arguments[0]);
-			return XMLPositionUtility.selectAttributeValueAt(attrName, offset, document);
+			return XMLPositionUtility.selectAttributeFromGivenNameAt(attrName, offset, document);
 		}
 		case EmptyPrefixedAttName: {
 			QName qName = (QName) arguments[0];
