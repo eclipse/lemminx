@@ -84,7 +84,7 @@ public class XMLFoldingsTest {
 	}
 
 	@Test
-	public void testFoldOneLevel () {
+	public void testFoldOneLevel() {
 		String[] input = new String[] {
 			/*0*/"<html>",
 			/*1*/"Hello",
@@ -95,7 +95,7 @@ public class XMLFoldingsTest {
 
 
 	@Test
-	public void	testFoldTwoLevel()  {
+	public void testFoldTwoLevel()  {
 		String[] input = new String[] {
 			/*0*/"<html>",
 			/*1*/"<head>",
@@ -107,7 +107,7 @@ public class XMLFoldingsTest {
 	}
 
 	@Test
-	public void	testFoldSiblings()  {
+	public void testFoldSiblings()  {
 		String[] input = new String[] {
 			/*0*/"<html>",
 			/*1*/"<head>",
@@ -123,7 +123,7 @@ public class XMLFoldingsTest {
 
 
 	@Test
-	public void	testFoldComment()  {
+	public void testFoldComment()  {
 		String[] input = new String[] {
 			/*0*/"<!--",
 			/*1*/" multi line",
@@ -135,7 +135,7 @@ public class XMLFoldingsTest {
 	}
 
 	@Test
-	public void	testFoldRegions()  {
+	public void testFoldRegions()  {
 		String[] input = new String[] {
 			/*0*/"<!-- #region -->",
 			/*1*/"<!-- #region -->",
@@ -146,7 +146,7 @@ public class XMLFoldingsTest {
 	}
 
 	@Test
-	public void	testFoldIncomplete()  {
+	public void testFoldIncomplete()  {
 		String[] input = new String[] {
 			/*0*/"<body>",
 			/*1*/"<div></div>",
@@ -158,7 +158,7 @@ public class XMLFoldingsTest {
 	}
 
 	@Test
-	public void	testFoldIcomplete2()  {
+	public void testFoldIcomplete2()  {
 		String[] input = new String[] {
 			/*0*/"<be><div>",
 			/*1*/"<!-- #endregion -->",
@@ -168,7 +168,7 @@ public class XMLFoldingsTest {
 	}
 
 	@Test
-	public void	testFoldIntersectingRegion()  {
+	public void testFoldIntersectingRegion()  {
 		String[] input = new String[] {
 			/*0*/"<body>",
 			/*1*/"<!-- #region -->",
@@ -181,7 +181,7 @@ public class XMLFoldingsTest {
 	}
 
 	@Test
-	public void	testFoldIntersectingRegion2()  {
+	public void testFoldIntersectingRegion2()  {
 		String[] input = new String[] {
 			/*0*/"<!-- #region -->",
 			/*1*/"<body>",
@@ -194,7 +194,7 @@ public class XMLFoldingsTest {
 	}
 
 	@Test
-	public void	testLimit()  {
+	public void testLimit()  {
 		String[] input = new String[] {
 			/* 0*/"<div>",
 			/* 1*/" <span>",
@@ -244,7 +244,7 @@ public class XMLFoldingsTest {
 	}
 
 	@Test
-	public void	testFoldTwoLevelWithincludeClosingTagInFoldAsTrue ()  {
+	public void testFoldTwoLevelWithincludeClosingTagInFoldAsTrue()  {
 		String[] input = new String[] {
 			/*0*/"<html>",
 			/*1*/"<head>",
@@ -258,7 +258,7 @@ public class XMLFoldingsTest {
 	}
 
 	@Test
-	public void	testFoldSiblingsWithincludeClosingTagInFoldAsTrue ()  {
+	public void testFoldSiblingsWithincludeClosingTagInFoldAsTrue()  {
 		String[] input = new String[] {
 			/*0*/"<html>",
 			/*1*/"<head>",
@@ -276,7 +276,7 @@ public class XMLFoldingsTest {
 
 
 	@Test
-	public void	testFoldCommentWithincludeClosingTagInFoldAsTrue ()  {
+	public void testFoldCommentWithincludeClosingTagInFoldAsTrue()  {
 		String[] input = new String[] {
 			/*0*/"<!--",
 			/*1*/" multi line",
@@ -290,7 +290,7 @@ public class XMLFoldingsTest {
 	}
 
 	@Test
-	public void	testFoldRegionsWithincludeClosingTagInFoldAsTrue ()  {
+	public void testFoldRegionsWithincludeClosingTagInFoldAsTrue()  {
 		String[] input = new String[] {
 			/*0*/"<!-- #region -->",
 			/*1*/"<!-- #region -->",
@@ -303,7 +303,7 @@ public class XMLFoldingsTest {
 	}
 
 	@Test
-	public void	testFoldIncompleteWithincludeClosingTagInFoldAsTrue ()  {
+	public void testFoldIncompleteWithincludeClosingTagInFoldAsTrue()  {
 		String[] input = new String[] {
 			/*0*/"<body>",
 			/*1*/"<div></div>",
@@ -317,7 +317,7 @@ public class XMLFoldingsTest {
 	}
 
 	@Test
-	public void	testFoldIcomplete2WithincludeClosingTagInFoldAsTrue ()  {
+	public void testFoldIcomplete2WithincludeClosingTagInFoldAsTrue()  {
 		String[] input = new String[] {
 			/*0*/"<be><div>",
 			/*1*/"<!-- #endregion -->",
@@ -329,7 +329,7 @@ public class XMLFoldingsTest {
 	}
 
 	@Test
-	public void	testFoldIntersectingRegionWithincludeClosingTagInFoldAsTrue ()  {
+	public void testFoldIntersectingRegionWithincludeClosingTagInFoldAsTrue()  {
 		String[] input = new String[] {
 			/*0*/"<body>",
 			/*1*/"<!-- #region -->",
@@ -344,7 +344,7 @@ public class XMLFoldingsTest {
 	}
 
 	@Test
-	public void	testFoldIntersectingRegion2WithincludeClosingTagInFoldAsTrue ()  {
+	public void testFoldIntersectingRegion2WithincludeClosingTagInFoldAsTrue()  {
 		String[] input = new String[] {
 			/*0*/"<!-- #region -->",
 			/*1*/"<body>",
@@ -359,7 +359,7 @@ public class XMLFoldingsTest {
 	}
 
 	@Test
-	public void	testLimitWithincludeClosingTagInFoldAsTrue ()  {
+	public void testLimitWithincludeClosingTagInFoldAsTrue()  {
 		String[] input = new String[] {
 			/* 0*/"<div>",
 			/* 1*/" <span>",
