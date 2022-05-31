@@ -48,10 +48,6 @@ class XMLFoldings {
 	public XMLFoldings(XMLExtensionsRegistry extensionsRegistry) {
 		this.extensionsRegistry = extensionsRegistry;
 	}
-
-	public boolean isIncludeClosingTagInFold(XMLFoldingSettings context) {
-		return context.isIncludeClosingTagInFold();
-	}
 	
 	class TagInfo {
 
@@ -188,6 +184,10 @@ class XMLFoldings {
 			LOGGER.log(Level.SEVERE, "Foldings received a StackOverflowError while scanning the document", e);
 		}
 		return ranges;
+	}
+
+	private static boolean isIncludeClosingTagInFold(XMLFoldingSettings settings) {
+		return settings.isIncludeClosingTagInFold();
 	}
 
 	private static int addRange(FoldingRange range, List<FoldingRange> ranges) {

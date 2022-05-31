@@ -33,7 +33,7 @@ public class XMLFoldingSettings {
 		return capabilities != null ? capabilities.getRangeLimit() : null;
 	}
 
-	public static final boolean DEFAULT_INCLUDE_CLOSING_TAG_IN_FOLD = false;
+	private static final boolean DEFAULT_INCLUDE_CLOSING_TAG_IN_FOLD = false;
 
 	private boolean includeClosingTagInFold;
 
