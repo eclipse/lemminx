@@ -48,7 +48,7 @@ class XMLFoldings {
 	public XMLFoldings(XMLExtensionsRegistry extensionsRegistry) {
 		this.extensionsRegistry = extensionsRegistry;
 	}
-
+	
 	class TagInfo {
 
 		public final int startLine;
@@ -106,6 +106,11 @@ class XMLFoldings {
 						}
 						int startLine = stackElement.startLine;
 						int endLine = document.positionAt(scanner.getTokenOffset()).getLine();
+
+						if (!isIncludeClosingTagInFold(context)){
+							endLine -= 1;
+						}
+
 						if (endLine > startLine && prevStart != startLine) {
 							prevStart = addRange(new FoldingRange(startLine, endLine), ranges);
 						}
@@ -132,6 +137,11 @@ class XMLFoldings {
 									stack.remove(j--);
 								}
 								int endLine = startLine;
+
+								if (!isIncludeClosingTagInFold(context)){
+									endLine -= 1;
+								}
+
 								startLine = stackElement.startLine;
 								if (endLine > startLine && prevStart != startLine) {
 									FoldingRange range = new FoldingRange(startLine, endLine);
@@ -143,6 +153,11 @@ class XMLFoldings {
 					} else {
 						int endLine = document.positionAt(scanner.getTokenOffset() + scanner.getTokenLength())
 								.getLine();
+
+						if (!isIncludeClosingTagInFold(context)){
+							endLine -= 1;
+						}
+						
 						if (startLine < endLine) {
 							FoldingRange range = new FoldingRange(startLine, endLine);
 							range.setKind(FoldingRangeKind.Comment);
@@ -169,6 +184,10 @@ class XMLFoldings {
 			LOGGER.log(Level.SEVERE, "Foldings received a StackOverflowError while scanning the document", e);
 		}
 		return ranges;
+	}
+
+	private static boolean isIncludeClosingTagInFold(XMLFoldingSettings settings) {
+		return settings.isIncludeClosingTagInFold();
 	}
 
 	private static int addRange(FoldingRange range, List<FoldingRange> ranges) {
