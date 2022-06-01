@@ -130,6 +130,7 @@ public class ContentModelManager {
 			namespaceURI = xmlDocument.getNamespaceURI();
 		}
 		Collection<CMDocument> documents = new ArrayList<>();
+		boolean findByStandardAssociation = false;
 		for (ContentModelProvider modelProvider : modelProviders) {
 			// internal grammar
 			if (withInternal) {
@@ -152,12 +153,17 @@ public class ContentModelManager {
 					CMDocument cmDocument = findCMDocument(xmlDocument.getDocumentURI(), publicId, systemId,
 							modelProvider);
 					if (cmDocument != null) {
+						findByStandardAssociation = true;
 						documents.add(cmDocument);
 					}
 				}
 			}
 		}
-		if (documents.isEmpty()) {
+		if (!findByStandardAssociation) {
+			// - find the XSD / DTD via file association from a XML file
+			// - find the XSD / DTD via XML catalog from a XML file
+			// - find the XMLSchema (xml.xsd) schema from a XSD file
+			// - find the XMLSchema (xml.xsd), xslt*.xsd schema from a XSL file
 			CMDocument cmDocument = findCMDocument(xmlDocument.getDocumentURI(), namespaceURI, null, null);
 			if (cmDocument != null) {
 				documents.add(cmDocument);
