@@ -146,6 +146,24 @@ public class XMLFileAssociationsCompletionTest {
 				c("parent", "<parent></parent>", "<parent"));
 	}
 
+	@Test
+	public void completionWithXSDAndDocType() throws BadLocationException {
+		Consumer<XMLLanguageService> configuration = ls -> {
+			ContentModelManager contentModelManager = ls.getComponent(ContentModelManager.class);
+			contentModelManager.setFileAssociations(createXSDAssociationsSchemaLocationLike("src/test/resources/xsd/"));
+		};
+		// completion on <|
+		String xml = "<!DOCTYPE opt [\r\n" + //
+				"  <!ENTITY size \"short\">\r\n" + //
+				"]>\r\n" + //
+				"<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n>\r\n" + //
+				"	<|" + //
+				"</project>";
+		testCompletionFor(xml, "file:///test/pom.xml", configuration, //
+				c("modelVersion", te(5, 1, 5, 2, "<modelVersion></modelVersion>"), "<modelVersion"), //
+				c("parent", "<parent></parent>", "<parent"));
+	}
+
 	private static XMLFileAssociation[] createXSDAssociationsSchemaLocationLike(String baseSystemId) {
 		XMLFileAssociation maven = new XMLFileAssociation();
 		maven.setPattern("**/pom.xml");
