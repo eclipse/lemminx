@@ -410,7 +410,7 @@ public abstract class DOMNode implements Node, DOMRange {
 			attr = new DOMAttr(name, this);
 			setAttributeNode(attr);
 		}
-		attr.setValue(value, -1, -1);
+		attr.setValue(value);
 	}
 
 	public void setAttributeNode(DOMAttr attr) {

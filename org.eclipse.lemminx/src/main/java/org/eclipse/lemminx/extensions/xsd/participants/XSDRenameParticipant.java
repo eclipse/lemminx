@@ -20,6 +20,7 @@ import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
+import org.eclipse.lemminx.dom.DOMRange;
 import org.eclipse.lemminx.extensions.xsd.utils.XSDUtils;
 import org.eclipse.lemminx.services.extensions.IRenameParticipant;
 import org.eclipse.lemminx.services.extensions.IRenameRequest;
@@ -87,7 +88,7 @@ public class XSDRenameParticipant implements IRenameParticipant {
 	}
 
 	private List<TextEdit> renameAttributeValueTextEdits(DOMDocument document, DOMAttr attribute, String newText, List<Location> locations) {
-		DOMNode attrValue = attribute.getNodeAttrValue();
+		DOMRange attrValue = attribute.getNodeAttrValue();
 		List<TextEdit> textEdits = new ArrayList<>();
 
 		int valueStart = attrValue.getStart();
