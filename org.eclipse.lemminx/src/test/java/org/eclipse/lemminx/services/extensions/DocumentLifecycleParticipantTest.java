@@ -124,7 +124,7 @@ public class DocumentLifecycleParticipantTest {
 
 	private static void waitFor() {
 		try {
-			Thread.sleep(500);
+			Thread.sleep(600);
 		} catch (Exception e) {
 		}
 	}

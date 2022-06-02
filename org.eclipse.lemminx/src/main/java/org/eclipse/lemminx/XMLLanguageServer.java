@@ -290,7 +290,7 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 
 	@Override
 	public CompletableFuture<AutoCloseTagResponse> closeTag(TextDocumentPositionParams params) {
-		return xmlTextDocumentService.computeDOMAsync(params.getTextDocument(), (cancelChecker, xmlDocument) -> {
+		return xmlTextDocumentService.computeDOMAsync(params.getTextDocument(), (xmlDocument, cancelChecker) -> {
 			return getXMLLanguageService().doAutoClose(xmlDocument, params.getPosition(),
 					getSettings().getCompletionSettings(), cancelChecker);
 		});
@@ -298,7 +298,7 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 
 	@Override
 	public CompletableFuture<Position> matchingTagPosition(TextDocumentPositionParams params) {
-		return xmlTextDocumentService.computeDOMAsync(params.getTextDocument(), (cancelChecker, xmlDocument) -> {
+		return xmlTextDocumentService.computeDOMAsync(params.getTextDocument(), (xmlDocument, cancelChecker) -> {
 			return getXMLLanguageService().getMatchingTagPosition(xmlDocument, params.getPosition(), cancelChecker);
 		});
 	}
@@ -306,7 +306,7 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 	@Override
 	public DOMDocument getDocument(String uri) {
 		ModelTextDocument<DOMDocument> document = xmlTextDocumentService.getDocument(uri);
-		return document != null ? document.getModel().getNow(null) : null;
+		return document != null ? document.getModel() : null;
 	}
 
 	@Override
@@ -331,7 +331,7 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 	@Override
 	public Collection<DOMDocument> getAllDocuments() {
 		return xmlTextDocumentService.allDocuments().stream() //
-				.map(m -> m.getModel().getNow(null)) //
+				.map(m -> m.getModel()) //
 				.filter(Objects::nonNull) //
 				.collect(Collectors.toList());
 	}

@@ -14,6 +14,7 @@ package org.eclipse.lemminx.services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,6 +26,7 @@ import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
  * Code action support.
@@ -41,15 +43,20 @@ public class XMLCodeActions {
 	}
 
 	public List<CodeAction> doCodeActions(CodeActionContext context, Range range, DOMDocument document,
-			SharedSettings sharedSettings) {
+			SharedSettings sharedSettings, CancelChecker cancelChecker) {
+		cancelChecker.checkCanceled();
+
 		List<CodeAction> codeActions = new ArrayList<>();
 		List<Diagnostic> diagnostics = context.getDiagnostics();
 		if (diagnostics != null) {
 			for (Diagnostic diagnostic : context.getDiagnostics()) {
 				for (ICodeActionParticipant codeActionParticipant : extensionsRegistry.getCodeActionsParticipants()) {
 					try {
+						cancelChecker.checkCanceled();
 						codeActionParticipant.doCodeAction(diagnostic, range, document, codeActions, sharedSettings,
 								extensionsRegistry);
+					} catch (CancellationException e) {
+						throw e;
 					} catch (Exception e) {
 						LOGGER.log(Level.SEVERE, "Error while processing code actions for the participant '"
 								+ codeActionParticipant.getClass().getName() + "'.", e);
@@ -57,6 +64,8 @@ public class XMLCodeActions {
 				}
 			}
 		}
+
+		cancelChecker.checkCanceled();
 		return codeActions;
 	}
 }

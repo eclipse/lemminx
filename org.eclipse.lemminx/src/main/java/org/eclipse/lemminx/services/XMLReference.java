@@ -42,6 +42,7 @@ class XMLReference {
 
 	public List<? extends Location> findReferences(DOMDocument document, Position position, ReferenceContext context,
 			CancelChecker cancelChecker) {
+		cancelChecker.checkCanceled();
 		List<Location> locations = new ArrayList<>();
 		for (IReferenceParticipant participant : extensionsRegistry.getReferenceParticipants()) {
 			try {
@@ -53,6 +54,7 @@ class XMLReference {
 						"Error while processing references for the participant '" + participant.getClass().getName() + "'.", e);
 			}
 		}
+		cancelChecker.checkCanceled();
 		return locations;
 	}
 

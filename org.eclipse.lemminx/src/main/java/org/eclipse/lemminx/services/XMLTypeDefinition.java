@@ -43,6 +43,8 @@ class XMLTypeDefinition {
 
 	public List<? extends LocationLink> findTypeDefinition(DOMDocument document, Position position,
 			CancelChecker cancelChecker) {
+		cancelChecker.checkCanceled();
+
 		ITypeDefinitionRequest request = null;
 		try {
 			request = new TypeDefinitionRequest(document, position, extensionsRegistry);
@@ -57,10 +59,12 @@ class XMLTypeDefinition {
 			} catch (CancellationException e) {
 				throw e;
 			} catch (Exception e) {
-				LOGGER.log(Level.SEVERE,
-						"Error while processing type definitions for the participant '" + participant.getClass().getName() + "'.", e);
+				LOGGER.log(Level.SEVERE, "Error while processing type definitions for the participant '"
+						+ participant.getClass().getName() + "'.", e);
 			}
 		}
+
+		cancelChecker.checkCanceled();
 		return locations;
 	}
 
