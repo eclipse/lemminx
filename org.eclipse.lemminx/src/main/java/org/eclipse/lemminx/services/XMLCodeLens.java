@@ -40,7 +40,10 @@ class XMLCodeLens {
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
-	public List<? extends CodeLens> getCodelens(DOMDocument xmlDocument, XMLCodeLensSettings settings, CancelChecker cancelChecker) {
+	public List<? extends CodeLens> getCodelens(DOMDocument xmlDocument, XMLCodeLensSettings settings,
+			CancelChecker cancelChecker) {
+		cancelChecker.checkCanceled();
+
 		ICodeLensRequest request = new CodeLensRequest(xmlDocument, settings);
 		List<CodeLens> lenses = new ArrayList<>();
 		for (ICodeLensParticipant participant : extensionsRegistry.getCodeLensParticipants()) {
@@ -49,10 +52,12 @@ class XMLCodeLens {
 			} catch (CancellationException e) {
 				throw e;
 			} catch (Exception e) {
-				LOGGER.log(Level.SEVERE,
-						"Error while processing code lens for the participant '" + participant.getClass().getName() + "'.", e);
+				LOGGER.log(Level.SEVERE, "Error while processing code lens for the participant '"
+						+ participant.getClass().getName() + "'.", e);
 			}
 		}
+
+		cancelChecker.checkCanceled();
 		return lenses;
 	}
 

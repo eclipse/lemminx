@@ -29,7 +29,7 @@ public class TextDocuments<T extends TextDocument> {
 
 	private final Map<String, T> documents;
 
-	private boolean incremental = true; //default on
+	private boolean incremental = true; // default on
 
 	public TextDocuments() {
 		documents = new HashMap<>();
@@ -56,6 +56,10 @@ public class TextDocuments<T extends TextDocument> {
 	 */
 	public boolean isIncremental() {
 		return incremental;
+	}
+
+	public T get(TextDocumentIdentifier documentIdentifier) {
+		return get(documentIdentifier.getUri());
 	}
 
 	/**

@@ -81,7 +81,7 @@ public class MockXMLLanguageServer extends XMLLanguageServer {
 		textDocumentService.didOpen(params);
 		try {
 			// Force the parse of DOM document
-			textDocumentService.getDocument(params.getTextDocument().getUri()).getModel().get();
+			textDocumentService.getDocument(params.getTextDocument().getUri()).getModel();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -96,7 +96,7 @@ public class MockXMLLanguageServer extends XMLLanguageServer {
 		textDocumentService.didChange(params);
 		try {
 			// Force the parse of DOM document
-			textDocumentService.getDocument(params.getTextDocument().getUri()).getModel().get();
+			textDocumentService.getDocument(params.getTextDocument().getUri()).getModel();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -110,7 +110,7 @@ public class MockXMLLanguageServer extends XMLLanguageServer {
 		textDocumentService.didClose(params);
 		return xmlIdentifier;
 	}
-	
+
 	public TextDocumentIdentifier didSave(String fileURI) {
 		TextDocumentIdentifier xmlIdentifier = new TextDocumentIdentifier(fileURI);
 		DidSaveTextDocumentParams params = new DidSaveTextDocumentParams(xmlIdentifier);
@@ -118,7 +118,7 @@ public class MockXMLLanguageServer extends XMLLanguageServer {
 		textDocumentService.didSave(params);
 		try {
 			// Force the parse of DOM document
-			textDocumentService.getDocument(params.getTextDocument().getUri()).getModel().get();
+			textDocumentService.getDocument(params.getTextDocument().getUri()).getModel();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
