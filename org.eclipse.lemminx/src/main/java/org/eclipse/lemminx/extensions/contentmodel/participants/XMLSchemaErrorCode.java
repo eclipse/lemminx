@@ -83,6 +83,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 	cvc_maxInclusive_valid("cvc-maxInclusive-valid"), // https://wiki.xmldation.com/Support/validator/cvc-maxinclusive-valid
 	cvc_minExclusive_valid("cvc-minExclusive-valid"), // https://wiki.xmldation.com/Support/validator/cvc-minexclusive-valid
 	cvc_minInclusive_valid("cvc-minInclusive-valid"), // https://wiki.xmldation.com/Support/validator/cvc-mininclusive-valid
+	DuplicateUnique("DuplicateUnique"), //error code is for error cvc_identity_constraint_4_1
 	TargetNamespace_1("TargetNamespace.1"), //
 	TargetNamespace_2("TargetNamespace.2"), //
 	SchemaLocation("SchemaLocation"), //
@@ -276,6 +277,15 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 		}
 		case cvc_type_3_1_2:
 			return XMLPositionUtility.selectStartTagName(offset, document);
+		case DuplicateUnique:
+			String attrValue = getString(arguments[0]);
+			Range range = XMLPositionUtility.selectAttributeValueFromGivenValue(attrValue, offset, document);
+			if (range != null) {
+				return range;
+			} else {
+				return XMLPositionUtility.selectContent(offset, document);
+			}
+			
 		case TargetNamespace_1:
 			return XMLPositionUtility.selectRootAttributeValue(DOMAttr.XMLNS_ATTR, document);
 		case TargetNamespace_2:
