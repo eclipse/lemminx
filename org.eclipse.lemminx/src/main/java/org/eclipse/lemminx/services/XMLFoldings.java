@@ -75,6 +75,7 @@ class XMLFoldings {
 			while (token != TokenType.EOS) {
 				cancelChecker.checkCanceled();
 				switch (token) {
+				case DTDStartDoctypeTag:
 				case StartTag: {
 					String tagName = scanner.getTokenText();
 					int startLine = document.positionAt(scanner.getTokenOffset()).getLine();
@@ -92,6 +93,7 @@ class XMLFoldings {
 					}
 					// fallthrough
 				case EndTagClose:
+				case DTDEndDoctypeTag:
 				case StartTagSelfClose: {
 					int i = stack.size() - 1;
 					while (i >= 0 && !stack.get(i).tagName.equals(lastTagName)) {
