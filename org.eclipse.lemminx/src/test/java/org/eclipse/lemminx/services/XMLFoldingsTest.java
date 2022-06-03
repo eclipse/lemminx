@@ -232,6 +232,17 @@ public class XMLFoldingsTest {
 	}
 
 	@Test
+	public void testFoldDoctype()  {
+		String[] input = new String[] {
+			/*0*/"<!DOCTYPE opt [",
+			/*1*/"  <!ENTITY size \"short\">",
+			/*2*/"  <!ENTITY ResolutionX \"1920\"> 	",
+			/*3*/"]>",
+		};
+		assertRanges(input,  new ExpectedIndentRange[] {r(0, 2)});
+	}
+
+	@Test
 	public void testFoldOneLevelWithincludeClosingTagInFoldAsTrue () {
 		String[] input = new String[] {
 			/*0*/"<html>",
@@ -394,6 +405,19 @@ public class XMLFoldingsTest {
 		assertRanges(input, new ExpectedIndentRange[] {r(0, 20), r(1, 19), r(2, 4)}, "limit 3", 3, settings);
 		assertRanges(input, new ExpectedIndentRange[] {r(0, 20), r(1, 19)}, "limit 2", 2, settings);
 		assertRanges(input, new ExpectedIndentRange[] {r(0, 20)}, "limit 1", 1, settings);
+	}
+
+	@Test
+	public void testFoldDoctypeWithincludeClosingTagInFoldAsTrue()  {
+		String[] input = new String[] {
+			/*0*/"<!DOCTYPE opt [",
+			/*1*/"  <!ENTITY size \"short\">",
+			/*2*/"  <!ENTITY ResolutionX \"1920\"> 	",
+			/*3*/"]>",
+		};
+		XMLFoldingSettings settings = new XMLFoldingSettings ();
+        settings.setIncludeClosingTagInFold(true);
+		assertRanges(input,  new ExpectedIndentRange[] {r(0, 3)}, settings);
 	}
 
 	private static void assertRanges(String[] lines, ExpectedIndentRange[] expected) {
