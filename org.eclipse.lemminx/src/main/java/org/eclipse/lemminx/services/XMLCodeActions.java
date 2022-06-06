@@ -54,7 +54,7 @@ public class XMLCodeActions {
 					try {
 						cancelChecker.checkCanceled();
 						codeActionParticipant.doCodeAction(diagnostic, range, document, codeActions, sharedSettings,
-								extensionsRegistry);
+								extensionsRegistry, cancelChecker);
 					} catch (CancellationException e) {
 						throw e;
 					} catch (Exception e) {

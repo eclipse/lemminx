@@ -41,6 +41,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 /**
@@ -52,7 +53,7 @@ public class NoGrammarConstraintsCodeAction implements ICodeActionParticipant {
 
 	@Override
 	public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
-			SharedSettings sharedSettings, IComponentProvider componentProvider) {
+			SharedSettings sharedSettings, IComponentProvider componentProvider, CancelChecker cancelChecker) {
 		try {
 			DOMElement documentElement = document.getDocumentElement();
 			if (documentElement == null || !documentElement.hasTagName()) {
@@ -65,7 +66,8 @@ public class NoGrammarConstraintsCodeAction implements ICodeActionParticipant {
 
 			String schemaURI = getGrammarURI(document.getDocumentURI(), "xsd");
 			String schemaFileName = getFileName(schemaURI);
-			String schemaTemplate = generator.generate(document, sharedSettings, new XMLSchemaGeneratorSettings());
+			String schemaTemplate = generator.generate(document, sharedSettings, new XMLSchemaGeneratorSettings(),
+					cancelChecker);
 
 			// xsi:noNamespaceSchemaLocation
 			// Create code action to create the XSD file with the generated XSD content
@@ -87,7 +89,8 @@ public class NoGrammarConstraintsCodeAction implements ICodeActionParticipant {
 
 			String dtdURI = getGrammarURI(document.getDocumentURI(), "dtd");
 			String dtdFileName = getFileName(dtdURI);
-			String dtdTemplate = generator.generate(document, sharedSettings, new DTDGeneratorSettings());
+			String dtdTemplate = generator.generate(document, sharedSettings, new DTDGeneratorSettings(),
+					cancelChecker);
 
 			// <!DOCTYPE ${1:root-element} SYSTEM \"${2:file}.dtd\">
 			TextDocumentEdit dtdWithDocType = createDocTypeEdit(dtdFileName, document, sharedSettings);
@@ -108,7 +111,8 @@ public class NoGrammarConstraintsCodeAction implements ICodeActionParticipant {
 				String documentURI = document.getDocumentURI();
 				String title = "Bind to existing grammar/schema";
 				List<Object> commandParams = Arrays.asList(documentURI);
-				CodeAction bindWithExistingGrammar = CodeActionFactory.createCommand(title, OPEN_BINDING_WIZARD, commandParams, diagnostic);
+				CodeAction bindWithExistingGrammar = CodeActionFactory.createCommand(title, OPEN_BINDING_WIZARD,
+						commandParams, diagnostic);
 				codeActions.add(bindWithExistingGrammar);
 			}
 

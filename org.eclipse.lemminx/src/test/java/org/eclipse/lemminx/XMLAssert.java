@@ -1437,7 +1437,8 @@ public class XMLAssert {
 		SharedSettings sharedSettings = new SharedSettings();
 		XMLLanguageService languageService = new XMLLanguageService();
 		FileContentGeneratorManager manager = new FileContentGeneratorManager(languageService);
-		String actual = manager.generate(document, sharedSettings, grammarSettings);
+		String actual = manager.generate(document, sharedSettings, grammarSettings, () -> {
+		});
 		Assertions.assertEquals(expected, actual);
 	}
 

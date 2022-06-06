@@ -12,6 +12,7 @@
 package org.eclipse.lemminx.services;
 
 import org.eclipse.lemminx.settings.SharedSettings;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
  * XML formatter API.
@@ -25,8 +26,9 @@ public interface IXMLFullFormatter {
 	 * @param text           the text.
 	 * @param uri            the uri.
 	 * @param sharedSettings the shared settings.
+	 * @param cancelChecker 
 	 * 
 	 * @return the formatted text document by using the shared settings.
 	 */
-	String formatFull(String text, String uri, SharedSettings sharedSettings);
+	String formatFull(String text, String uri, SharedSettings sharedSettings, CancelChecker cancelChecker);
 }

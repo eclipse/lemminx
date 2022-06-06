@@ -27,6 +27,7 @@ import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
  * Code action to fix close start tag element.
@@ -36,7 +37,7 @@ public class CloseTagCodeAction implements ICodeActionParticipant {
 
 	@Override
 	public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
-			SharedSettings sharedSettings, IComponentProvider componentProvider) {
+			SharedSettings sharedSettings, IComponentProvider componentProvider, CancelChecker cancelChecker) {
 		Range diagnosticRange = diagnostic.getRange();
 		try {
 			int startOffset = document.offsetAt(diagnosticRange.getStart()) + 1;
@@ -130,7 +131,8 @@ public class CloseTagCodeAction implements ICodeActionParticipant {
 			}
 		} else {
 			// ex : <foo </foo>
-			CodeAction autoCloseAction = insertGreaterThanCharacterCodeAction(document, diagnostic, closeAngleBracketPosition);
+			CodeAction autoCloseAction = insertGreaterThanCharacterCodeAction(document, diagnostic,
+					closeAngleBracketPosition);
 			codeActions.add(autoCloseAction);
 		}
 	}
@@ -236,9 +238,9 @@ public class CloseTagCodeAction implements ICodeActionParticipant {
 	/**
 	 * Create a code action which insert '>' at the end of the diagnostic error.
 	 *
-	 * @param diagnostic      the diagnostic.
-	 * @param document        the DOM document.
-	 * @param position        the position where the '>' should be inserted
+	 * @param diagnostic the diagnostic.
+	 * @param document   the DOM document.
+	 * @param position   the position where the '>' should be inserted
 	 * @return a code action which insert '>' at the end of the diagnostic error.
 	 */
 	private static CodeAction insertGreaterThanCharacterCodeAction(DOMDocument document, Diagnostic diagnostic,

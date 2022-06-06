@@ -19,6 +19,7 @@ import org.eclipse.lemminx.services.IXMLFullFormatter;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lemminx.utils.XMLBuilder;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -42,14 +43,14 @@ public abstract class AbstractXML2GrammarGenerator<T extends FileContentGenerato
 
 	@Override
 	public String generate(Document prototypeDocument, SharedSettings sharedSettings, T generatorSettings,
-			IXMLFullFormatter formatter) {
+			IXMLFullFormatter formatter, CancelChecker cancelChecker) {
 		// Generate the grammar from the XML source document
-		String newText = doGenerate(prototypeDocument, sharedSettings, generatorSettings);
+		String newText = doGenerate(prototypeDocument, sharedSettings, generatorSettings, cancelChecker);
 		if (formatter == null) {
 			return newText;
 		}
 		// Format the generated grammar.
-		return formatter.formatFull(newText, "grammar." + getFileExtension(), sharedSettings);
+		return formatter.formatFull(newText, "grammar." + getFileExtension(), sharedSettings, cancelChecker);
 	}
 
 	/**
@@ -59,12 +60,13 @@ public abstract class AbstractXML2GrammarGenerator<T extends FileContentGenerato
 	 */
 	protected abstract String getFileExtension();
 
-	private String doGenerate(Document sourceDocument, SharedSettings sharedSettings, T generatorSettings) {
+	private String doGenerate(Document sourceDocument, SharedSettings sharedSettings, T generatorSettings,
+			CancelChecker cancelChecker) {
 		// Create the generic grammar information from the XML source document.
-		Grammar grammar = createGrammar(sourceDocument, isFlat());
+		Grammar grammar = createGrammar(sourceDocument, isFlat(), cancelChecker);
 		XMLBuilder builder = new XMLBuilder(sharedSettings, "", "");
 		// Generate the grammar content from the grammar information.
-		generate(grammar, generatorSettings, builder);
+		generate(grammar, generatorSettings, builder, cancelChecker);
 		return builder.toString();
 	}
 
@@ -94,8 +96,9 @@ public abstract class AbstractXML2GrammarGenerator<T extends FileContentGenerato
 	 * @param grammar         the grammar information.
 	 * @param grammarSettings the grammar settings
 	 * @param out             the XML builder to update.
+	 * @param cancelChecker
 	 */
-	protected abstract void generate(Grammar grammar, T grammarSettings, XMLBuilder out);
+	protected abstract void generate(Grammar grammar, T grammarSettings, XMLBuilder out, CancelChecker cancelChecker);
 
 	/**
 	 * Create the grammar from the given XML document.
@@ -105,7 +108,7 @@ public abstract class AbstractXML2GrammarGenerator<T extends FileContentGenerato
 	 * 
 	 * @return the grammar from the given XML document.
 	 */
-	private static Grammar createGrammar(Document sourceDocument, boolean flat) {
+	private static Grammar createGrammar(Document sourceDocument, boolean flat, CancelChecker cancelChecker) {
 		Grammar grammar = new Grammar();
 		// Update default namespace
 		String defaultNamespace = null;
@@ -115,17 +118,21 @@ public abstract class AbstractXML2GrammarGenerator<T extends FileContentGenerato
 		}
 		grammar.setDefaultNamespace(defaultNamespace);
 		// Update elements information
-		fillElements(sourceDocument, grammar, grammar, flat);
+		fillElements(sourceDocument, grammar, grammar, flat, cancelChecker);
 		return grammar;
 	}
 
-	private static void fillElements(Node node, Grammar grammar, ContainerDeclaration parent, boolean flat) {
+	private static void fillElements(Node node, Grammar grammar, ContainerDeclaration parent, boolean flat,
+			CancelChecker cancelChecker) {
 		NodeList children = node.getChildNodes();
 		// Parent
 		if (parent instanceof ElementDeclaration) {
 			List<String> tags = new ArrayList<>();
 			ElementDeclaration parentDecl = (ElementDeclaration) parent;
 			for (int i = 0; i < children.getLength(); i++) {
+
+				cancelChecker.checkCanceled();
+
 				Node child = children.item(i);
 				if (child.getNodeType() == Node.ELEMENT_NODE) {
 					Element element = (Element) child;
@@ -139,6 +146,9 @@ public abstract class AbstractXML2GrammarGenerator<T extends FileContentGenerato
 		}
 
 		for (int i = 0; i < children.getLength(); i++) {
+
+			cancelChecker.checkCanceled();
+
 			Node child = children.item(i);
 			if (child.getNodeType() == Node.ELEMENT_NODE) {
 				Element element = (Element) child;
@@ -155,6 +165,9 @@ public abstract class AbstractXML2GrammarGenerator<T extends FileContentGenerato
 					NamedNodeMap attributes = element.getAttributes();
 					if (attributes != null) {
 						for (int j = 0; j < attributes.getLength(); j++) {
+
+							cancelChecker.checkCanceled();
+
 							Attr attr = (Attr) attributes.item(j);
 							if (!isIgnore(attr)) {
 								// Attribute must be added in the grammar
@@ -166,7 +179,7 @@ public abstract class AbstractXML2GrammarGenerator<T extends FileContentGenerato
 							}
 						}
 					}
-					fillElements(element, grammar, elementDecl, flat);
+					fillElements(element, grammar, elementDecl, flat, cancelChecker);
 				}
 			}
 		}
