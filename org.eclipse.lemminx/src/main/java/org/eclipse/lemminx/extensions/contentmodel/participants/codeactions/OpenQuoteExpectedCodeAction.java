@@ -25,6 +25,7 @@ import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
  * OpenQuoteExpectedCodeAction
@@ -33,7 +34,7 @@ public class OpenQuoteExpectedCodeAction implements ICodeActionParticipant {
 
 	@Override
 	public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
-			SharedSettings sharedSettings, IComponentProvider componentProvider) {
+			SharedSettings sharedSettings, IComponentProvider componentProvider, CancelChecker cancelChecker) {
 		Range diagnosticRange = diagnostic.getRange();
 		int offset;
 		try {

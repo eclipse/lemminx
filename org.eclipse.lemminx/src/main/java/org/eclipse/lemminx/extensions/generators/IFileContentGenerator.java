@@ -13,6 +13,7 @@ package org.eclipse.lemminx.extensions.generators;
 
 import org.eclipse.lemminx.services.IXMLFullFormatter;
 import org.eclipse.lemminx.settings.SharedSettings;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
  * File content generator API.
@@ -31,11 +32,12 @@ public interface IFileContentGenerator<Source, Settings extends FileContentGener
 	 * @param sharedSettings    the shared settings.
 	 * @param generatorSettings the generator settings.
 	 * @param formatter         the formatter.
+	 * @param cancelChecker 
 	 * @return the result of the generation of the file content (ex : XSD, DTD) from
 	 *         the given document source <code>document</code> (ex: XML) by using
 	 *         the given settings <code>generatorSettings</code>.
 	 */
 	String generate(Source document, SharedSettings sharedSettings, Settings generatorSettings,
-			IXMLFullFormatter formatter);
+			IXMLFullFormatter formatter, CancelChecker cancelChecker);
 
 }

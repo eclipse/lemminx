@@ -20,6 +20,7 @@ import org.eclipse.lemminx.extensions.generators.xml2xsd.XML2XMLSchemaGenerator;
 import org.eclipse.lemminx.extensions.generators.xml2xsd.XMLSchemaGeneratorSettings;
 import org.eclipse.lemminx.services.IXMLFullFormatter;
 import org.eclipse.lemminx.settings.SharedSettings;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
  * Generic file generator.
@@ -79,12 +80,12 @@ public class FileContentGeneratorManager {
 	 *         the given settings <code>generatorSettings</code>.
 	 */
 	public <Source, Settings extends FileContentGeneratorSettings> String generate(Source document,
-			SharedSettings sharedSettings, Settings generatorSettings) {
+			SharedSettings sharedSettings, Settings generatorSettings, CancelChecker cancelChecker) {
 		// Get the generator by the generator settings class key
 		@SuppressWarnings("unchecked")
 		IFileContentGenerator<Source, Settings> generator = (IFileContentGenerator<Source, Settings>) generators
 				.get(generatorSettings.getClass());
 		// process the generator
-		return generator.generate(document, sharedSettings, generatorSettings, this.formatter);
+		return generator.generate(document, sharedSettings, generatorSettings, this.formatter, cancelChecker);
 	}
 }

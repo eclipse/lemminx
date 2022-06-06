@@ -31,6 +31,7 @@ import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 import static org.eclipse.lemminx.utils.StringUtils.isSimilar;
 
@@ -41,7 +42,7 @@ public class cvc_complex_type_2_4_aCodeAction implements ICodeActionParticipant 
 
 	@Override
 	public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
-			SharedSettings sharedSettings, IComponentProvider componentProvider) {
+			SharedSettings sharedSettings, IComponentProvider componentProvider, CancelChecker cancelChecker) {
 		try {
 			int offset = document.offsetAt(diagnostic.getRange().getStart());
 			DOMNode node = document.findNodeAt(offset);

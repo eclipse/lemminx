@@ -30,6 +30,7 @@ import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
  * Code action to fix cvc-complex-type.4 error.
@@ -39,7 +40,7 @@ public class cvc_complex_type_4CodeAction implements ICodeActionParticipant {
 
 	@Override
 	public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
-			SharedSettings sharedSettings, IComponentProvider componentProvider) {
+			SharedSettings sharedSettings, IComponentProvider componentProvider, CancelChecker cancelChecker) {
 
 		if (diagnostic == null) {
 			return;

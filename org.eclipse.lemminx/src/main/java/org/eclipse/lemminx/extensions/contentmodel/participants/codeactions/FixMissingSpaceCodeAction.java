@@ -20,6 +20,7 @@ import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
  * Adds a space at the end of the diagnostic range
@@ -29,7 +30,7 @@ public class FixMissingSpaceCodeAction implements ICodeActionParticipant {
 
 	@Override
 	public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
-			SharedSettings sharedSettings, IComponentProvider componentProvider) {
+			SharedSettings sharedSettings, IComponentProvider componentProvider, CancelChecker cancelChecker) {
 		Range diagnosticRange = diagnostic.getRange();
 		try {
 			int startOffset = document.offsetAt(diagnosticRange.getStart());

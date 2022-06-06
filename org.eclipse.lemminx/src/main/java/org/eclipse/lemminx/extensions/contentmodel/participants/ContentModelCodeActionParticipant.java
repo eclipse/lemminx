@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.lemminx.dom.DOMDocument;
-import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.DownloadDisabledResourceCodeAction;
 import org.eclipse.lemminx.extensions.xsd.participants.XSDErrorCode;
 import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.IComponentProvider;
@@ -25,6 +24,7 @@ import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
  * Extension to support XML code actions based on content model (XML Schema
@@ -40,14 +40,15 @@ public class ContentModelCodeActionParticipant implements ICodeActionParticipant
 
 	@Override
 	public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
-			SharedSettings sharedSettings, IComponentProvider componentProvider) {
+			SharedSettings sharedSettings, IComponentProvider componentProvider, CancelChecker cancelChecker) {
 		if (diagnostic == null || diagnostic.getCode() == null || !diagnostic.getCode().isLeft()) {
 			return;
 		}
 		registerCodeActionsIfNeeded(sharedSettings);
 		ICodeActionParticipant participant = codeActionParticipants.get(diagnostic.getCode().getLeft());
 		if (participant != null) {
-			participant.doCodeAction(diagnostic, range, document, codeActions, sharedSettings, componentProvider);
+			participant.doCodeAction(diagnostic, range, document, codeActions, sharedSettings, componentProvider,
+					cancelChecker);
 		}
 	}
 

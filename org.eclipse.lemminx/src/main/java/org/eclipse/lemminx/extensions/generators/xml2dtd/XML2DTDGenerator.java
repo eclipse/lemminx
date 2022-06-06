@@ -21,6 +21,7 @@ import org.eclipse.lemminx.extensions.generators.Cardinality;
 import org.eclipse.lemminx.extensions.generators.ElementDeclaration;
 import org.eclipse.lemminx.extensions.generators.Grammar;
 import org.eclipse.lemminx.utils.XMLBuilder;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
  * File Generator implementation to generate DTD from a given XML source.
@@ -29,8 +30,12 @@ import org.eclipse.lemminx.utils.XMLBuilder;
 public class XML2DTDGenerator extends AbstractXML2GrammarGenerator<DTDGeneratorSettings> {
 
 	@Override
-	protected void generate(Grammar grammar, DTDGeneratorSettings settings, XMLBuilder dtd) {
+	protected void generate(Grammar grammar, DTDGeneratorSettings settings, XMLBuilder dtd,
+			CancelChecker cancelChecker) {
 		for (ElementDeclaration elementDecl : grammar.getElements()) {
+
+			cancelChecker.checkCanceled();
+
 			boolean hasCharacterContent = elementDecl.hasCharacterContent();
 
 			// <!ELEMENT
@@ -55,6 +60,9 @@ public class XML2DTDGenerator extends AbstractXML2GrammarGenerator<DTDGeneratorS
 						boolean first = true;
 						for (Map.Entry<String, Cardinality> elementInfo : elementDecl.getChildrenProperties()
 								.getCardinalities().entrySet()) {
+
+							cancelChecker.checkCanceled();
+
 							if (!first) {
 								dtd.addContent(",");
 							}
@@ -79,6 +87,9 @@ public class XML2DTDGenerator extends AbstractXML2GrammarGenerator<DTDGeneratorS
 						dtd.addContent(" (");
 						boolean first = true;
 						for (ElementDeclaration elementInfo : children) {
+
+							cancelChecker.checkCanceled();
+
 							if (!first) {
 								dtd.addContent("|");
 							}
@@ -92,6 +103,9 @@ public class XML2DTDGenerator extends AbstractXML2GrammarGenerator<DTDGeneratorS
 					dtd.addContent("(#PCDATA");
 					if (hasCharacterContent) {
 						for (ElementDeclaration elementInfo : children) {
+
+							cancelChecker.checkCanceled();
+
 							dtd.addContent("|");
 							dtd.addContent(elementInfo.getName());
 						}
@@ -105,6 +119,8 @@ public class XML2DTDGenerator extends AbstractXML2GrammarGenerator<DTDGeneratorS
 			Collection<AttributeDeclaration> attributes = elementDecl.getAttributes();
 			if (!attributes.isEmpty()) {
 				for (AttributeDeclaration attribute : attributes) {
+
+					cancelChecker.checkCanceled();
 
 					// <!ATTLIST elementname
 					dtd.startDTDAttlistDecl();
