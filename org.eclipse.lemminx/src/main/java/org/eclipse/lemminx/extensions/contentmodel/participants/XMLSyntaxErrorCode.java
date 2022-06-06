@@ -33,6 +33,7 @@ import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.Mark
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.NoGrammarConstraintsCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.OpenQuoteExpectedCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.RootElementTypeMustMatchDoctypedeclCodeAction;
+import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.SemicolonRequiredInReferenceCodeAction;
 import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IXMLErrorCode;
 import org.eclipse.lemminx.settings.SharedSettings;
@@ -411,6 +412,7 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 		codeActions.put(ETagRequired.getCode(), new ETagRequiredCodeAction());
 		codeActions.put(RootElementTypeMustMatchDoctypedecl.getCode(),
 				new RootElementTypeMustMatchDoctypedeclCodeAction());
+		codeActions.put(SemicolonRequiredInReference.getCode(), new SemicolonRequiredInReferenceCodeAction());
 		if (sharedSettings != null
 				&& sharedSettings.getWorkspaceSettings().isResourceOperationSupported(ResourceOperationKind.Create)) {
 			codeActions.put(NoGrammarConstraints.getCode(), new NoGrammarConstraintsCodeAction());
