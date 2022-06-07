@@ -1,5 +1,5 @@
 /**
- *  Copyright (c) 2018 Angelo ZERR.
+ *  Copyright (c) 2022 Red Hat Inc. and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v2.0
  *  which accompanies this distribution, and is available at
@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  *  Contributors:
- *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
+ *  Red Hat Inc. - initial API and implementation
  */
 package org.eclipse.lemminx.extensions.contentmodel.participants.codeactions;
 
@@ -26,6 +26,15 @@ import org.eclipse.lsp4j.Range;
 /**
  * Code action to fix SemicolonRequiredInReference error.
  *
+ *	 Given this XML:
+ *	    <root>
+ *	      &mdash	 -> Error: The reference to entity "mdash" must end with the ';' delimiter
+ *	    </root>
+ *
+ *	 To fix the error, the code action will suggest adding ';'
+ *	    <root>
+ *	      &mdash;
+ *	    </root>
  */
 public class SemicolonRequiredInReferenceCodeAction implements ICodeActionParticipant {
 
