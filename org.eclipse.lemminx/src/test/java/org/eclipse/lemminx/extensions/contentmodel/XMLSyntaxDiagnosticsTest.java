@@ -730,8 +730,12 @@ public class XMLSyntaxDiagnosticsTest {
 				"<root>\n" + //
 				"    &mdash \n" + //
 				"</root>";
-		testDiagnosticsFor(xml, d(5, 4, 5, 10, XMLSyntaxErrorCode.SemicolonRequiredInReference));
+		Diagnostic d = d(5, 4, 5, 10, XMLSyntaxErrorCode.SemicolonRequiredInReference);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(5, 10, 5, 10, ";")));
 	}
+
+
 
 	@Test
 	public void testEntitySemicolonRequiredInReferenceOddSpacing() throws Exception {
@@ -741,7 +745,9 @@ public class XMLSyntaxDiagnosticsTest {
 				"]>\n" + //
 				"<root>\n" + //
 				"    &mdash</root>";
-		testDiagnosticsFor(xml, d(5, 4, 5, 10, XMLSyntaxErrorCode.SemicolonRequiredInReference));
+		Diagnostic d = d(5, 4, 5, 10, XMLSyntaxErrorCode.SemicolonRequiredInReference);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(5, 10, 5, 10, ";")));
 	}
 
 	@Test
@@ -753,7 +759,9 @@ public class XMLSyntaxDiagnosticsTest {
 				"<root>\n" + //
 				"    &m \n" + //
 				"</root>";
-		testDiagnosticsFor(xml, d(5, 4, 5, 6, XMLSyntaxErrorCode.SemicolonRequiredInReference));
+		Diagnostic d = d(5, 4, 5, 6, XMLSyntaxErrorCode.SemicolonRequiredInReference);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(5, 6, 5, 6, ";")));
 	}
 
 	@Test
