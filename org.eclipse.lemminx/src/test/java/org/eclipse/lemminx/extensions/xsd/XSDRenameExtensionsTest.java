@@ -86,7 +86,9 @@ public class XSDRenameExtensionsTest {
 	}
 
 	private static List<TextEdit> edits(String newText, Range... ranges) {
-		return Stream.of(ranges).map(r -> new TextEdit(r, newText)).collect(Collectors.toList());
+		return Stream.of(ranges) //
+				.map(r -> new TextEdit(r, newText)) //
+				.collect(Collectors.toList());
 	}
 
 }

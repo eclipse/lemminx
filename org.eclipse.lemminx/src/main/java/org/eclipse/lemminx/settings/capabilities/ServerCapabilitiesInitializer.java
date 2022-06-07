@@ -12,6 +12,7 @@
  */
 package org.eclipse.lemminx.settings.capabilities;
 
+import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_CODEACTION_OPTIONS;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_CODELENS_OPTIONS;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_COMPLETION_OPTIONS;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_LINK_OPTIONS;
@@ -47,7 +48,6 @@ public class ServerCapabilitiesInitializer {
 		serverCapabilities
 				.setDocumentSymbolProvider(!clientCapabilities.isDocumentSymbolDynamicRegistrationSupported());
 		serverCapabilities.setDocumentHighlightProvider(!clientCapabilities.isDocumentHighlightDynamicRegistered());
-		serverCapabilities.setCodeActionProvider(!clientCapabilities.isCodeActionDynamicRegistered());
 		serverCapabilities
 				.setDocumentFormattingProvider(!clientCapabilities.isFormattingDynamicRegistrationSupported());
 		serverCapabilities.setDocumentRangeFormattingProvider(
@@ -74,6 +74,9 @@ public class ServerCapabilitiesInitializer {
 		}
 		if (!clientCapabilities.isCodeLensDynamicRegistrationSupported()) {
 			serverCapabilities.setCodeLensProvider(DEFAULT_CODELENS_OPTIONS);
+		}
+		if (!clientCapabilities.isCodeActionDynamicRegistered()) {
+			serverCapabilities.setCodeActionProvider(DEFAULT_CODEACTION_OPTIONS);
 		}
 		return serverCapabilities;
 	}

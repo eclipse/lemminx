@@ -30,11 +30,11 @@ import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.ETag
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.ElementUnterminatedCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.EqRequiredInAttributeCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.MarkupEntityMismatchCodeAction;
-import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.NoGrammarConstraintsCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.OpenQuoteExpectedCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.RootElementTypeMustMatchDoctypedeclCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.SemicolonRequiredInReferenceCodeAction;
-import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
+import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.nogrammarconstraints.NoGrammarConstraintsCodeAction;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IXMLErrorCode;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.utils.XMLPositionUtility;

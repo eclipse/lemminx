@@ -35,13 +35,13 @@ import org.eclipse.lemminx.extensions.contentmodel.settings.XMLDownloadExternalR
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.services.IXMLDocumentProvider;
 import org.eclipse.lemminx.services.IXMLValidationService;
-import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.ICompletionParticipant;
 import org.eclipse.lemminx.services.extensions.IDocumentLinkParticipant;
 import org.eclipse.lemminx.services.extensions.IHoverParticipant;
 import org.eclipse.lemminx.services.extensions.ITypeDefinitionParticipant;
 import org.eclipse.lemminx.services.extensions.IXMLExtension;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.codelens.ICodeLensParticipant;
 import org.eclipse.lemminx.services.extensions.commands.IXMLCommandService;
 import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;

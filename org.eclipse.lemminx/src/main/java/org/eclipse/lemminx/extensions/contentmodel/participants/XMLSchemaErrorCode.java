@@ -38,9 +38,9 @@ import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.cvc_
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.cvc_elt_1_aCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.cvc_enumeration_validCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.cvc_type_3_1_1CodeAction;
-import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.schema_reference_4CodeAction;
+import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.missinggrammar.schema_reference_4CodeAction;
 import org.eclipse.lemminx.extensions.xsd.utils.XSDUtils;
-import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IXMLErrorCode;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.utils.DOMUtils;

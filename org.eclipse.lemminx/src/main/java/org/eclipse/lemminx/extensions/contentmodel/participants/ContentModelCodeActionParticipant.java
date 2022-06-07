@@ -16,14 +16,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.extensions.xsd.participants.XSDErrorCode;
-import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
-import org.eclipse.lemminx.services.extensions.IComponentProvider;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionRequest;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionResolvesParticipant;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
-import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
@@ -35,21 +34,36 @@ public class ContentModelCodeActionParticipant implements ICodeActionParticipant
 	private final Map<String, ICodeActionParticipant> codeActionParticipants;
 
 	public ContentModelCodeActionParticipant() {
+		super();
 		codeActionParticipants = new HashMap<>();
 	}
 
 	@Override
-	public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
-			SharedSettings sharedSettings, IComponentProvider componentProvider, CancelChecker cancelChecker) {
+	public void doCodeAction(ICodeActionRequest request, List<CodeAction> codeActions, CancelChecker cancelChecker) {
+		Diagnostic diagnostic = request.getDiagnostic();
 		if (diagnostic == null || diagnostic.getCode() == null || !diagnostic.getCode().isLeft()) {
 			return;
 		}
+		SharedSettings sharedSettings = request.getSharedSettings();
 		registerCodeActionsIfNeeded(sharedSettings);
 		ICodeActionParticipant participant = codeActionParticipants.get(diagnostic.getCode().getLeft());
 		if (participant != null) {
-			participant.doCodeAction(diagnostic, range, document, codeActions, sharedSettings, componentProvider,
-					cancelChecker);
+			participant.doCodeAction(request, codeActions, cancelChecker);
 		}
+	}
+
+	@Override
+	public ICodeActionResolvesParticipant getResolveCodeActionParticipant(String participantId) {
+		// Loop for each code action participant to retrieve the proper resolver with
+		// the given participant ID.
+		for (ICodeActionParticipant participant : codeActionParticipants.values()) {
+			ICodeActionResolvesParticipant resolveParticipant = participant
+					.getResolveCodeActionParticipant(participantId);
+			if (resolveParticipant != null) {
+				return resolveParticipant;
+			}
+		}
+		return null;
 	}
 
 	/**

@@ -7,19 +7,23 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lemminx.extensions.contentmodel.participants.codeactions;
+package org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.missinggrammar;
 
 import org.eclipse.lemminx.extensions.generators.FileContentGeneratorSettings;
-import org.eclipse.lemminx.extensions.generators.xml2xsd.XMLSchemaGeneratorSettings;
+import org.eclipse.lemminx.extensions.generators.xml2dtd.DTDGeneratorSettings;
 
 /**
- * Code Action that creates a schema file referenced by
- * xsi:noNamespaceSchemaLocation if it is missing
+ * Code Action that creates a DTD file referenced with System ID of DOCTYPE.
  */
-public class schema_reference_4CodeAction extends AbstractFixMissingGrammarCodeAction {
+public class DTDNotFoundCodeAction extends AbstractFixMissingGrammarCodeAction {
 
 	@Override
 	protected FileContentGeneratorSettings getFileContentGeneratorSettings() {
-		return new XMLSchemaGeneratorSettings();
+		return new DTDGeneratorSettings();
+	}
+
+	@Override
+	protected String getParticipantId() {
+		return GenerateDTDCodeActionResolver.PARTICIPANT_ID;
 	}
 }

@@ -42,6 +42,7 @@ import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSetting
 import org.eclipse.lemminx.services.DocumentSymbolsResult;
 import org.eclipse.lemminx.services.SymbolInformationResult;
 import org.eclipse.lemminx.services.XMLLanguageService;
+import org.eclipse.lemminx.services.data.DataEntryField;
 import org.eclipse.lemminx.services.extensions.save.AbstractSaveContext;
 import org.eclipse.lemminx.settings.CompositeSettings;
 import org.eclipse.lemminx.settings.SharedSettings;
@@ -202,6 +203,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 			TextDocumentClientCapabilities textDocumentClientCapabilities = capabilities.getTextDocument();
 			if (textDocumentClientCapabilities != null) {
 				sharedSettings.getCompletionSettings().setCapabilities(textDocumentClientCapabilities.getCompletion());
+				sharedSettings.getCodeActionSettings().setCapabilities(textDocumentClientCapabilities.getCodeAction());
 				sharedSettings.getFoldingSettings().setCapabilities(textDocumentClientCapabilities.getFoldingRange());
 				sharedSettings.getHoverSettings().setCapabilities(textDocumentClientCapabilities.getHover());
 				sharedSettings.getValidationSettings()
@@ -478,6 +480,13 @@ public class XMLTextDocumentService implements TextDocumentService {
 		});
 	}
 
+	@Override
+	public CompletableFuture<CodeAction> resolveCodeAction(CodeAction unresolved) {
+		return computeDOMAsync(unresolved.getData(), (xmlDocument, cancelChecker) -> {
+			return getXMLLanguageService().resolveCodeAction(unresolved, xmlDocument, sharedSettings, cancelChecker);
+		});
+	}
+
 	/**
 	 * Returns the indentation settings (`xml.format.tabSize` and
 	 * `xml.format.insertSpaces`) for the document with the given URI.
@@ -728,6 +737,15 @@ public class XMLTextDocumentService implements TextDocumentService {
 	public boolean documentIsOpen(String uri) {
 		ModelTextDocument<DOMDocument> document = getDocument(uri);
 		return document != null;
+	}
+
+	private <R> CompletableFuture<R> computeDOMAsync(Object data, BiFunction<DOMDocument, CancelChecker, R> code) {
+		String uri = DataEntryField.getUri(data);
+		if (uri == null) {
+			return CompletableFuture.completedFuture(null);
+		}
+		TextDocumentIdentifier identifier = new TextDocumentIdentifier(uri);
+		return computeDOMAsync(identifier, code);
 	}
 
 	/**

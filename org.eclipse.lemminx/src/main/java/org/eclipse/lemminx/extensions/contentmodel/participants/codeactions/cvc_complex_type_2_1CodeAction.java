@@ -19,9 +19,8 @@ import org.eclipse.lemminx.commons.CodeActionFactory;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
-import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
-import org.eclipse.lemminx.services.extensions.IComponentProvider;
-import org.eclipse.lemminx.settings.SharedSettings;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionRequest;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
@@ -35,18 +34,19 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 public class cvc_complex_type_2_1CodeAction implements ICodeActionParticipant {
 
 	@Override
-	public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
-			SharedSettings sharedSettings, IComponentProvider componentProvider, CancelChecker cancelChecker) {
+	public void doCodeAction(ICodeActionRequest request, List<CodeAction> codeActions, CancelChecker cancelChecker) {
+		Diagnostic diagnostic = request.getDiagnostic();
+		DOMDocument document = request.getDocument();
+		Range range = request.getRange();
 		try {
 			int offset = document.offsetAt(range.getStart());
 			DOMNode node = document.findNodeAt(offset);
 			if (node != null && node.isElement()) {
 				DOMElement element = (DOMElement) node;
 				int startOffset;
-				if(element.isSelfClosed()) {
+				if (element.isSelfClosed()) {
 					startOffset = element.getEnd();
-				}
-				else {
+				} else {
 					startOffset = element.getStartTagCloseOffset();
 				}
 				int endOffset = element.getEnd();

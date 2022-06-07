@@ -15,6 +15,7 @@ package org.eclipse.lemminx.settings.capabilities;
 import java.util.Arrays;
 import java.util.UUID;
 
+import org.eclipse.lsp4j.CodeActionOptions;
 import org.eclipse.lsp4j.CodeLensOptions;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.DocumentLinkOptions;
@@ -76,10 +77,17 @@ public class ServerCapabilitiesConstants {
 	public static final String WORKSPACE_CHANGE_FOLDERS_ID = UUID.randomUUID().toString();
 	public static final String WORKSPACE_WATCHED_FILES_ID = UUID.randomUUID().toString();
 	public static final String LINKED_EDITING_RANGE_ID = UUID.randomUUID().toString();
-	
+
 	public static final CompletionOptions DEFAULT_COMPLETION_OPTIONS = new CompletionOptions(false,
 			Arrays.asList(".", ":", "<", "\"", "=", "/", "\\", "?", "\'", "&"));
 	public static final TextDocumentSyncKind DEFAULT_SYNC_OPTION = TextDocumentSyncKind.Full;
 	public static final DocumentLinkOptions DEFAULT_LINK_OPTIONS = new DocumentLinkOptions(true);
 	public static final CodeLensOptions DEFAULT_CODELENS_OPTIONS = new CodeLensOptions();
+	public static final CodeActionOptions DEFAULT_CODEACTION_OPTIONS = createDefaultCodeActionOptions();
+
+	private static CodeActionOptions createDefaultCodeActionOptions() {
+		CodeActionOptions options = new CodeActionOptions();
+		options.setResolveProvider(Boolean.TRUE);
+		return options;
+	}
 }
