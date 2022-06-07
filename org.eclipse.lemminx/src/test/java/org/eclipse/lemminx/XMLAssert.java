@@ -687,7 +687,8 @@ public class XMLAssert {
 		context.setDiagnostics(Arrays.asList(diagnostic));
 		DOMDocument xmlDoc = DOMParser.getInstance().parse(document, xmlLanguageService.getResolverExtensionManager());
 
-		List<CodeAction> actual = xmlLanguageService.doCodeActions(context, range, xmlDoc, sharedSettings);
+		List<CodeAction> actual = xmlLanguageService.doCodeActions(context, range, xmlDoc, sharedSettings, () -> {
+		});
 		assertCodeActions(actual, expected);
 	}
 

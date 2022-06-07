@@ -57,6 +57,8 @@ class XMLLinkedEditing {
 	public LinkedEditingRanges findLinkedEditingRanges(DOMDocument document, Position position,
 			CancelChecker cancelChecker) {
 		try {
+			cancelChecker.checkCanceled();
+			
 			int offset = document.offsetAt(position);
 			DOMNode node = document.findNodeAt(offset);
 			if (node == null || !node.isElement()) {
@@ -70,6 +72,9 @@ class XMLLinkedEditing {
 			if (element.isInStartTag(offset) || element.isInEndTag(offset, true)) {
 				List<Range> ranges = Arrays.asList(XMLPositionUtility.selectStartTagName(element),
 						XMLPositionUtility.selectEndTagName(element));
+				
+				cancelChecker.checkCanceled();
+				
 				return new LinkedEditingRanges(ranges, XML_ELEMENT_WORD_PATTERN);
 			}
 		} catch (BadLocationException e) {

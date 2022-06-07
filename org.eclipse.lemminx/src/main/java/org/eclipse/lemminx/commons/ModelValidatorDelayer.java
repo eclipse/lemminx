@@ -32,17 +32,17 @@ public class ModelValidatorDelayer<T> {
 
 	private final ScheduledExecutorService executorService;
 
-	private final Consumer<T> validator;
+	private final Consumer<ModelTextDocument<T>> validator;
 
 	private final Map<String, Future<?>> pendingValidationRequests;
 
 	private final long validationDelayMs;
 
-	public ModelValidatorDelayer(Consumer<T> validator) {
+	public ModelValidatorDelayer(Consumer<ModelTextDocument<T>> validator) {
 		this(Executors.newScheduledThreadPool(2), validator, DEFAULT_VALIDATION_DELAY_MS);
 	}
 
-	public ModelValidatorDelayer(ScheduledExecutorService executorService, Consumer<T> validator,
+	public ModelValidatorDelayer(ScheduledExecutorService executorService, Consumer<ModelTextDocument<T>> validator,
 			long validationDelayMs) {
 		this.executorService = executorService;
 		this.validator = validator;
@@ -57,13 +57,17 @@ public class ModelValidatorDelayer<T> {
 	 * @param uri      the document URI.
 	 * @param document the document model to validate.
 	 */
-	public void validateWithDelay(String uri, T document) {
+	public void validateWithDelay(ModelTextDocument<T> document) {
+		String uri = document.getUri();
 		cleanPendingValidation(uri);
+		int version = document.getVersion();
 		Future<?> request = executorService.schedule(() -> {
 			synchronized (pendingValidationRequests) {
 				pendingValidationRequests.remove(uri);
 			}
-			validator.accept(document);
+			if (version == document.getVersion()) {
+				validator.accept(document);
+			}
 		}, validationDelayMs, TimeUnit.MILLISECONDS);
 		synchronized (pendingValidationRequests) {
 			pendingValidationRequests.put(uri, request);

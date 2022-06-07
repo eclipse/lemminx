@@ -170,11 +170,14 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 		String uri = xmlDocument.getDocumentURI();
 		TextDocument document = xmlDocument.getTextDocument();
 
+		// Process validation
 		DiagnosticsResult diagnostics = (DiagnosticsResult) this.doDiagnostics(xmlDocument, validationSettings,
 				validationArgs, cancelChecker);
 		cancelChecker.checkCanceled();
 		publishDiagnostics.accept(new PublishDiagnosticsParams(uri, diagnostics));
 
+		// If there are some XSD, DTD which are downloading, wait for all download and
+		// re-trigger the validation.
 		List<CompletableFuture<?>> futures = diagnostics.getFutures();
 		if (!futures.isEmpty()) {
 			CompletableFuture<Void> allFutures = CompletableFuture
@@ -232,8 +235,8 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 	}
 
 	public List<CodeAction> doCodeActions(CodeActionContext context, Range range, DOMDocument document,
-			SharedSettings sharedSettings) {
-		return codeActions.doCodeActions(context, range, document, sharedSettings);
+			SharedSettings sharedSettings, CancelChecker cancelChecker) {
+		return codeActions.doCodeActions(context, range, document, sharedSettings, cancelChecker);
 	}
 
 	public AutoCloseTagResponse doTagComplete(DOMDocument xmlDocument, XMLCompletionSettings completionSettings,

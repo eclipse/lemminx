@@ -77,6 +77,8 @@ public class XMLCompletions {
 
 	public CompletionList doComplete(DOMDocument xmlDocument, Position position, SharedSettings settings,
 			CancelChecker cancelChecker) {
+		cancelChecker.checkCanceled();
+
 		CompletionResponse completionResponse = new CompletionResponse();
 		CompletionRequest completionRequest = null;
 		try {
@@ -127,7 +129,8 @@ public class XMLCompletions {
 					break;
 				case DelimiterAssign:
 					if (scanner.getTokenEnd() == offset) {
-						collectAttributeValueSuggestions(offset, offset, completionRequest, completionResponse, cancelChecker);
+						collectAttributeValueSuggestions(offset, offset, completionRequest, completionResponse,
+								cancelChecker);
 						return completionResponse;
 					}
 					break;
@@ -161,7 +164,8 @@ public class XMLCompletions {
 						case AfterOpeningStartTag:
 							int startPos = scanner.getTokenOffset();
 							int endTagPos = scanNextForEndPos(offset, scanner, TokenType.StartTag);
-							collectTagSuggestions(startPos, endTagPos, completionRequest, completionResponse, cancelChecker);
+							collectTagSuggestions(startPos, endTagPos, completionRequest, completionResponse,
+									cancelChecker);
 							return completionResponse;
 						case WithinTag:
 						case AfterAttributeName:
@@ -469,7 +473,8 @@ public class XMLCompletions {
 		return true;
 	}
 
-	public AutoCloseTagResponse doTagComplete(DOMDocument xmlDocument, Position position, XMLCompletionSettings completionSettings, CancelChecker cancelChecker) {
+	public AutoCloseTagResponse doTagComplete(DOMDocument xmlDocument, Position position,
+			XMLCompletionSettings completionSettings, CancelChecker cancelChecker) {
 		int offset;
 		try {
 			offset = xmlDocument.offsetAt(position);
@@ -751,7 +756,8 @@ public class XMLCompletions {
 		}
 	}
 
-	private void collectInsideContent(CompletionRequest request, CompletionResponse response, CancelChecker cancelChecker) {
+	private void collectInsideContent(CompletionRequest request, CompletionResponse response,
+			CancelChecker cancelChecker) {
 		Range tagNameRange = request.getXMLDocument().getElementNameRangeAt(request.getOffset());
 		if (tagNameRange != null) {
 			collectOpenTagSuggestions(false, tagNameRange, request, response, cancelChecker);
@@ -838,8 +844,8 @@ public class XMLCompletions {
 
 	private void collectAttributeNameSuggestions(int nameStart, CompletionRequest completionRequest,
 			CompletionResponse completionResponse, CancelChecker cancelChecker) {
-		collectAttributeNameSuggestions(nameStart, completionRequest.getOffset(), completionRequest,
-				completionResponse, cancelChecker);
+		collectAttributeNameSuggestions(nameStart, completionRequest.getOffset(), completionRequest, completionResponse,
+				cancelChecker);
 	}
 
 	private void collectAttributeNameSuggestions(int nameStart, int nameEnd, CompletionRequest completionRequest,
