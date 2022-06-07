@@ -93,6 +93,9 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.junit.jupiter.api.Assertions;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
 /**
  * XML Assert
  *
@@ -614,48 +617,48 @@ public class XMLAssert {
 
 	// ------------------- CodeAction assert
 
-	public static void testCodeActionsFor(String xml, Diagnostic diagnostic, CodeAction... expected)
+	public static List<CodeAction> testCodeActionsFor(String xml, Diagnostic diagnostic, CodeAction... expected)
 			throws BadLocationException {
-		testCodeActionsFor(xml, diagnostic, (String) null, expected);
+		return testCodeActionsFor(xml, diagnostic, (String) null, expected);
 	}
 
-	public static void testCodeActionsFor(String xml, String fileURI, Diagnostic diagnostic, CodeAction... expected)
-			throws BadLocationException {
-		testCodeActionsFor(xml, fileURI, diagnostic, (String) null, expected);
-	}
-
-	public static void testCodeActionsFor(String xml, Diagnostic diagnostic, SharedSettings settings,
+	public static List<CodeAction> testCodeActionsFor(String xml, String fileURI, Diagnostic diagnostic,
 			CodeAction... expected) throws BadLocationException {
-		testCodeActionsFor(xml, diagnostic, null, settings, expected);
+		return testCodeActionsFor(xml, fileURI, diagnostic, (String) null, expected);
 	}
 
-	public static void testCodeActionsFor(String xml, Diagnostic diagnostic, String catalogPath, CodeAction... expected)
-			throws BadLocationException {
-		testCodeActionsFor(xml, null, diagnostic, catalogPath, expected);
-	}
-
-	public static void testCodeActionsFor(String xml, String fileURI, Diagnostic diagnostic, String catalogPath,
+	public static List<CodeAction> testCodeActionsFor(String xml, Diagnostic diagnostic, SharedSettings settings,
 			CodeAction... expected) throws BadLocationException {
+		return testCodeActionsFor(xml, diagnostic, null, settings, expected);
+	}
+
+	public static List<CodeAction> testCodeActionsFor(String xml, Diagnostic diagnostic, String catalogPath,
+			CodeAction... expected) throws BadLocationException {
+		return testCodeActionsFor(xml, null, diagnostic, catalogPath, expected);
+	}
+
+	public static List<CodeAction> testCodeActionsFor(String xml, String fileURI, Diagnostic diagnostic,
+			String catalogPath, CodeAction... expected) throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setTabSize(4);
 		settings.getFormattingSettings().setInsertSpaces(false);
-		testCodeActionsFor(xml, diagnostic, catalogPath, fileURI, settings, null, expected);
+		return testCodeActionsFor(xml, diagnostic, catalogPath, fileURI, settings, null, expected);
 	}
 
-	public static void testCodeActionsFor(String xml, Diagnostic diagnostic, String catalogPath,
+	public static List<CodeAction> testCodeActionsFor(String xml, Diagnostic diagnostic, String catalogPath,
 			SharedSettings sharedSettings, CodeAction... expected) throws BadLocationException {
-		testCodeActionsFor(xml, diagnostic, catalogPath, sharedSettings, null, expected);
+		return testCodeActionsFor(xml, diagnostic, catalogPath, sharedSettings, null, expected);
 	}
 
-	public static void testCodeActionsFor(String xml, Diagnostic diagnostic, String catalogPath,
+	public static List<CodeAction> testCodeActionsFor(String xml, Diagnostic diagnostic, String catalogPath,
 			SharedSettings sharedSettings, XMLLanguageService xmlLanguageService, CodeAction... expected)
 			throws BadLocationException {
-		testCodeActionsFor(xml, diagnostic, catalogPath, null, sharedSettings, xmlLanguageService, expected);
+		return testCodeActionsFor(xml, diagnostic, catalogPath, null, sharedSettings, xmlLanguageService, expected);
 	}
 
-	public static void testCodeActionsFor(String xml, Diagnostic diagnostic, String catalogPath, String fileURI,
-			SharedSettings sharedSettings, XMLLanguageService xmlLanguageService, CodeAction... expected)
-			throws BadLocationException {
+	public static List<CodeAction> testCodeActionsFor(String xml, Diagnostic diagnostic, String catalogPath,
+			String fileURI, SharedSettings sharedSettings, XMLLanguageService xmlLanguageService,
+			CodeAction... expected) throws BadLocationException {
 		int offset = xml.indexOf('|');
 		Range range = null;
 
@@ -689,7 +692,19 @@ public class XMLAssert {
 
 		List<CodeAction> actual = xmlLanguageService.doCodeActions(context, range, xmlDoc, sharedSettings, () -> {
 		});
+
+		// Clone
+		// Creating a gson object
+		Gson gson = new Gson();
+		// Converting the list into a json string
+		String jsonstring = gson.toJson(actual);
+
+		// Converting the json string
+		// back into a list
+		CodeAction[] cloned_list = gson.fromJson(jsonstring, CodeAction[].class);
+
 		assertCodeActions(actual, expected);
+		return Arrays.asList(cloned_list);
 	}
 
 	public static void assertCodeActions(List<CodeAction> actual, CodeAction... expected) {
@@ -734,18 +749,77 @@ public class XMLAssert {
 		return codeAction;
 	}
 
+	public static CodeAction ca(Diagnostic d, JsonObject data) {
+		return internalCa(d, data);
+	}
+
+	@SafeVarargs
+	public static CodeAction ca(Diagnostic d, Either<TextDocumentEdit, ResourceOperation>... ops) {
+		return internalCa(d, null, ops);
+	}
+
+	@SafeVarargs
+	public static CodeAction ca(Diagnostic d, JsonObject data, Either<TextDocumentEdit, ResourceOperation>... ops) {
+		return internalCa(d, data, ops);
+	}
+
+	@SafeVarargs
+	private static CodeAction internalCa(Diagnostic d, JsonObject data,
+			Either<TextDocumentEdit, ResourceOperation>... ops) {
+		CodeAction codeAction = new CodeAction();
+		codeAction.setDiagnostics(Collections.singletonList(d));
+		if (ops != null && ops.length > 0) {
+			codeAction.setEdit(new WorkspaceEdit(Arrays.asList(ops)));
+		}
+		codeAction.setTitle("");
+		codeAction.setData(data);
+		return codeAction;
+	}
+
+	// ------------------- Resolve CodeAction assert
+
+	public static void testResolveCodeActionsFor(String xml, CodeAction unresolved, SharedSettings sharedSettings,
+			CodeAction expected) throws BadLocationException {
+		testResolveCodeActionsFor(xml, unresolved, null, null, sharedSettings, null, expected);
+	}
+
+	public static void testResolveCodeActionsFor(String xml, CodeAction unresolved, SharedSettings sharedSettings,
+			XMLLanguageService xmlLanguageService, CodeAction expected) throws BadLocationException {
+		testResolveCodeActionsFor(xml, unresolved, null, null, sharedSettings, xmlLanguageService, expected);
+	}
+
+	public static void testResolveCodeActionsFor(String xml, CodeAction unresolved, String catalogPath, String fileURI,
+			SharedSettings sharedSettings, XMLLanguageService xmlLanguageService, CodeAction expected)
+			throws BadLocationException {
+		TextDocument document = new TextDocument(xml.toString(), fileURI != null ? fileURI : FILE_URI);
+
+		if (xmlLanguageService == null) {
+			xmlLanguageService = new XMLLanguageService();
+		}
+
+		ContentModelSettings cmSettings = new ContentModelSettings();
+		cmSettings.setUseCache(false);
+		if (catalogPath != null) {
+			// Configure XML catalog for XML schema
+			cmSettings.setCatalogs(new String[] { catalogPath });
+		}
+		xmlLanguageService.doSave(new SettingsSaveContext(cmSettings));
+
+		DOMDocument xmlDoc = DOMParser.getInstance().parse(document, xmlLanguageService.getResolverExtensionManager());
+
+		CodeAction actual = xmlLanguageService.resolveCodeAction(unresolved, xmlDoc, sharedSettings, () -> {
+		});
+		if (expected == null) {
+			assertNull(actual);
+		} else {
+			assertCodeActions(Arrays.asList(actual), expected);
+		}
+	}
+
 	public static TextDocumentEdit tde(String uri, int version, TextEdit... te) {
 		VersionedTextDocumentIdentifier versionedTextDocumentIdentifier = new VersionedTextDocumentIdentifier(uri,
 				version);
 		return new TextDocumentEdit(versionedTextDocumentIdentifier, Arrays.asList(te));
-	}
-
-	public static CodeAction ca(Diagnostic d, Either<TextDocumentEdit, ResourceOperation>... ops) {
-		CodeAction codeAction = new CodeAction();
-		codeAction.setDiagnostics(Collections.singletonList(d));
-		codeAction.setEdit(new WorkspaceEdit(Arrays.asList(ops)));
-		codeAction.setTitle("");
-		return codeAction;
 	}
 
 	public static TextEdit te(int startLine, int startCharacter, int endLine, int endCharacter, String newText) {

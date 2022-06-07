@@ -13,6 +13,7 @@
 package org.eclipse.lemminx.settings.capabilities;
 
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.COMPLETION_ID;
+import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_CODEACTION_OPTIONS;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_COMPLETION_OPTIONS;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_LINK_OPTIONS;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.DOCUMENT_SYMBOL_ID;
@@ -91,7 +92,7 @@ public class XMLCapabilitiesTest {
 		assertEquals(FALSE, serverCapabilities.getDocumentHighlightProvider());
 		assertEquals(FALSE, serverCapabilities.getRenameProvider());
 		assertEquals(FALSE, serverCapabilities.getFoldingRangeProvider());
-		assertEquals(FALSE, serverCapabilities.getCodeActionProvider());
+		assertEquals(null, serverCapabilities.getCodeActionProvider());
 		assertEquals(null, serverCapabilities.getCompletionProvider());
 		assertEquals(null, serverCapabilities.getDocumentLinkProvider());
 	}
@@ -112,7 +113,7 @@ public class XMLCapabilitiesTest {
 		assertEquals(TRUE, serverCapabilities.getDocumentHighlightProvider());
 		assertEquals(TRUE, serverCapabilities.getRenameProvider());
 		assertEquals(TRUE, serverCapabilities.getFoldingRangeProvider());
-		assertEquals(TRUE, serverCapabilities.getCodeActionProvider());
+		assertEquals(Either.forRight(DEFAULT_CODEACTION_OPTIONS), serverCapabilities.getCodeActionProvider());
 		assertEquals(DEFAULT_COMPLETION_OPTIONS, serverCapabilities.getCompletionProvider());
 		assertEquals(DEFAULT_LINK_OPTIONS, serverCapabilities.getDocumentLinkProvider());
 	}
@@ -155,7 +156,7 @@ public class XMLCapabilitiesTest {
 		assertEquals(TRUE, serverCapabilities.getDocumentHighlightProvider());
 		assertEquals(TRUE, serverCapabilities.getRenameProvider());
 		assertEquals(TRUE, serverCapabilities.getFoldingRangeProvider());
-		assertEquals(TRUE, serverCapabilities.getCodeActionProvider());
+		assertEquals(Either.forRight(DEFAULT_CODEACTION_OPTIONS), serverCapabilities.getCodeActionProvider());
 		assertEquals(null, serverCapabilities.getCompletionProvider());
 		assertEquals(DEFAULT_LINK_OPTIONS, serverCapabilities.getDocumentLinkProvider());
 	}

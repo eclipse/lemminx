@@ -50,6 +50,8 @@ import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSetting
 import org.eclipse.lemminx.services.DocumentSymbolsResult;
 import org.eclipse.lemminx.services.SymbolInformationResult;
 import org.eclipse.lemminx.services.XMLLanguageService;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionRequest;
 import org.eclipse.lemminx.services.extensions.codelens.ICodeLensParticipant;
 import org.eclipse.lemminx.services.extensions.codelens.ICodeLensRequest;
 import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
@@ -71,7 +73,6 @@ import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ReferenceContext;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.SymbolKind;
@@ -111,17 +112,16 @@ public class ErrorParticipantLanguageServiceTest {
 
 			this.registerCodeActionParticipant(new ICodeActionParticipant() {
 				@Override
-				public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document,
-						List<CodeAction> codeActions, SharedSettings sharedSettings,
-						IComponentProvider componentProvider, CancelChecker cancelChecker) {
+				public void doCodeAction(ICodeActionRequest request, List<CodeAction> codeActions,
+						CancelChecker cancelChecker) {
 					throw new RuntimeException("This participant is broken");
 				}
 			});
 			this.registerCodeActionParticipant(new ICodeActionParticipant() {
 				@Override
-				public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document,
-						List<CodeAction> codeActions, SharedSettings sharedSettings,
-						IComponentProvider componentProvider, CancelChecker cancelChecker) {
+				public void doCodeAction(ICodeActionRequest request, List<CodeAction> codeActions,
+						CancelChecker cancelChecker) {
+					Diagnostic diagnostic = request.getDiagnostic();
 					codeActions.add(ca(diagnostic, te(0, 0, 0, 0, "a")));
 				}
 			});

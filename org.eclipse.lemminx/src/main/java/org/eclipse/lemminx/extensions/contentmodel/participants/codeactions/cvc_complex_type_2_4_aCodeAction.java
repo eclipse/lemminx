@@ -11,6 +11,8 @@
 *******************************************************************************/
 package org.eclipse.lemminx.extensions.contentmodel.participants.codeactions;
 
+import static org.eclipse.lemminx.utils.StringUtils.isSimilar;
+
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,16 +26,14 @@ import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
-import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.IComponentProvider;
-import org.eclipse.lemminx.settings.SharedSettings;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionRequest;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
-
-import static org.eclipse.lemminx.utils.StringUtils.isSimilar;
 
 /**
  * cvc_complex_type_2_4_a
@@ -41,8 +41,9 @@ import static org.eclipse.lemminx.utils.StringUtils.isSimilar;
 public class cvc_complex_type_2_4_aCodeAction implements ICodeActionParticipant {
 
 	@Override
-	public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
-			SharedSettings sharedSettings, IComponentProvider componentProvider, CancelChecker cancelChecker) {
+	public void doCodeAction(ICodeActionRequest request, List<CodeAction> codeActions, CancelChecker cancelChecker) {
+		Diagnostic diagnostic = request.getDiagnostic();
+		DOMDocument document = request.getDocument();
 		try {
 			int offset = document.offsetAt(diagnostic.getRange().getStart());
 			DOMNode node = document.findNodeAt(offset);
@@ -51,7 +52,7 @@ public class cvc_complex_type_2_4_aCodeAction implements ICodeActionParticipant 
 				DOMElement element = (DOMElement) node;
 				String localName = element.getLocalName();
 
-				Collection<CMElementDeclaration> possibleElements = getPossibleElements(element, componentProvider);
+				Collection<CMElementDeclaration> possibleElements = getPossibleElements(element, request);
 				if (possibleElements != null) {
 
 					// When added to these collections, the names will be ordered alphabetically

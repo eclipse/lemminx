@@ -285,6 +285,14 @@
 			"parameterTypes": []
 		}]
 	},
+    {
+        "name": "org.eclipse.lemminx.settings.XMLCodeActionSettings",
+        "allDeclaredFields": true,
+        "methods": [{
+            "name": "<init>",
+            "parameterTypes": []
+        }]
+    },
 	{
 		"name": "org.eclipse.lemminx.settings.XMLCodeLensSettings",
 		"allDeclaredFields": true,

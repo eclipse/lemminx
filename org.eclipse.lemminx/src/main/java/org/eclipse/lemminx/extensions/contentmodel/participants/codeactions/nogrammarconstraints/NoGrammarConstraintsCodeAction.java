@@ -9,16 +9,20 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lemminx.extensions.contentmodel.participants.codeactions;
+package org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.nogrammarconstraints;
 
 import static org.eclipse.lemminx.client.ClientCommands.OPEN_BINDING_WIZARD;
+import static org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.nogrammarconstraints.NoGrammarConstraintsDataConstants.DATA_FILE_FIELD;
 
 import java.io.File;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,84 +33,100 @@ import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.extensions.generators.FileContentGeneratorManager;
 import org.eclipse.lemminx.extensions.generators.xml2dtd.DTDGeneratorSettings;
 import org.eclipse.lemminx.extensions.generators.xml2xsd.XMLSchemaGeneratorSettings;
-import org.eclipse.lemminx.services.XMLCompletions;
-import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
-import org.eclipse.lemminx.services.extensions.IComponentProvider;
+import org.eclipse.lemminx.services.data.DataEntryField;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionRequest;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionResolvesParticipant;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lemminx.utils.XMLBuilder;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+
+import com.google.gson.JsonObject;
 
 /**
  * Code Action to bind a XML to a grammar (DTD, XSD) by generating the grammar.
  */
 public class NoGrammarConstraintsCodeAction implements ICodeActionParticipant {
 
-	private static final Logger LOGGER = Logger.getLogger(XMLCompletions.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(NoGrammarConstraintsCodeAction.class.getName());
+	private final Map<String, ICodeActionResolvesParticipant> resolveCodeActionParticipants;
+
+	public NoGrammarConstraintsCodeAction() {
+		// Register available resolvers.
+		resolveCodeActionParticipants = new HashMap<>();
+		resolveCodeActionParticipants.put(GenerateXSINoNamespaceSchemaCodeActionResolver.PARTICIPANT_ID,
+				new GenerateXSINoNamespaceSchemaCodeActionResolver());
+		resolveCodeActionParticipants.put(GenerateXMLModelWithXSDCodeActionResolver.PARTICIPANT_ID,
+				new GenerateXMLModelWithXSDCodeActionResolver());
+		resolveCodeActionParticipants.put(GenerateDocTypeCodeActionResolver.PARTICIPANT_ID,
+				new GenerateDocTypeCodeActionResolver());
+		resolveCodeActionParticipants.put(GenerateXMLModelWithDTDCodeActionResolver.PARTICIPANT_ID,
+				new GenerateXMLModelWithDTDCodeActionResolver());
+	}
 
 	@Override
-	public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
-			SharedSettings sharedSettings, IComponentProvider componentProvider, CancelChecker cancelChecker) {
+	public void doCodeAction(ICodeActionRequest request, List<CodeAction> codeActions, CancelChecker cancelChecker) {
+		Diagnostic diagnostic = request.getDiagnostic();
+		DOMDocument document = request.getDocument();
 		try {
 			DOMElement documentElement = document.getDocumentElement();
 			if (documentElement == null || !documentElement.hasTagName()) {
 				return;
 			}
-
-			FileContentGeneratorManager generator = componentProvider.getComponent(FileContentGeneratorManager.class);
-
 			// ---------- XSD
 
 			String schemaURI = getGrammarURI(document.getDocumentURI(), "xsd");
 			String schemaFileName = getFileName(schemaURI);
-			String schemaTemplate = generator.generate(document, sharedSettings, new XMLSchemaGeneratorSettings(),
-					cancelChecker);
+			String schemaTemplate = null;
+			if (!request.canSupportResolve()) {
+				SharedSettings sharedSettings = request.getSharedSettings();
+				FileContentGeneratorManager generator = request.getComponent(FileContentGeneratorManager.class);
+				schemaTemplate = generator.generate(document, sharedSettings, new XMLSchemaGeneratorSettings(),
+						cancelChecker);
+			}
 
 			// xsi:noNamespaceSchemaLocation
 			// Create code action to create the XSD file with the generated XSD content
-			TextDocumentEdit noNamespaceSchemaLocationEdit = createXSINoNamespaceSchemaLocationEdit(schemaFileName,
-					document);
-			CodeAction noNamespaceSchemaLocationAction = createGrammarFileAndBindIt(
-					"Generate '" + schemaFileName + "' and bind with xsi:noNamespaceSchemaLocation", schemaURI,
-					schemaTemplate, noNamespaceSchemaLocationEdit, diagnostic);
+			CodeAction noNamespaceSchemaLocationAction = createNoNamespaceSchemaLocationCodeAction(schemaURI,
+					schemaFileName, schemaTemplate, request, cancelChecker);
 			codeActions.add(noNamespaceSchemaLocationAction);
 
 			// xml-model
-			TextDocumentEdit xsdWithXMLModelEdit = createXmlModelEdit(schemaFileName, null, document, sharedSettings);
-			CodeAction xsdWithXmlModelAction = createGrammarFileAndBindIt(
-					"Generate '" + schemaFileName + "' and bind with xml-model", schemaURI, schemaTemplate,
-					xsdWithXMLModelEdit, diagnostic);
+			CodeAction xsdWithXmlModelAction = createXmlModelCodeAction(schemaURI, schemaFileName, schemaTemplate,
+					GenerateXMLModelWithXSDCodeActionResolver.PARTICIPANT_ID, request);
 			codeActions.add(xsdWithXmlModelAction);
 
 			// ---------- DTD
 
 			String dtdURI = getGrammarURI(document.getDocumentURI(), "dtd");
 			String dtdFileName = getFileName(dtdURI);
-			String dtdTemplate = generator.generate(document, sharedSettings, new DTDGeneratorSettings(),
-					cancelChecker);
+			String dtdTemplate = null;
+			if (!request.canSupportResolve()) {
+				SharedSettings sharedSettings = request.getSharedSettings();
+				FileContentGeneratorManager generator = request.getComponent(FileContentGeneratorManager.class);
+				dtdTemplate = generator.generate(document, sharedSettings, new DTDGeneratorSettings(), cancelChecker);
+			}
 
 			// <!DOCTYPE ${1:root-element} SYSTEM \"${2:file}.dtd\">
-			TextDocumentEdit dtdWithDocType = createDocTypeEdit(dtdFileName, document, sharedSettings);
-			CodeAction docTypeAction = createGrammarFileAndBindIt(
-					"Generate '" + dtdFileName + "' and bind with DOCTYPE", dtdURI, dtdTemplate, dtdWithDocType,
-					diagnostic);
+			CodeAction docTypeAction = createDocTypeCodeAction(dtdURI, dtdFileName, dtdTemplate, request,
+					cancelChecker);
 			codeActions.add(docTypeAction);
 
 			// xml-model
-			TextDocumentEdit dtdWithXMLModelEdit = createXmlModelEdit(dtdFileName, null, document, sharedSettings);
-			CodeAction dtdWithXmlModelAction = createGrammarFileAndBindIt(
-					"Generate '" + dtdFileName + "' and bind with xml-model", dtdURI, dtdTemplate, dtdWithXMLModelEdit,
-					diagnostic);
+			CodeAction dtdWithXmlModelAction = createXmlModelCodeAction(dtdURI, dtdFileName, dtdTemplate,
+					GenerateXMLModelWithDTDCodeActionResolver.PARTICIPANT_ID, request);
 			codeActions.add(dtdWithXmlModelAction);
 
 			// ---------- Open Binding Wizard
+			SharedSettings sharedSettings = request.getSharedSettings();
 			if (sharedSettings.isBindingWizardSupport()) {
 				String documentURI = document.getDocumentURI();
 				String title = "Bind to existing grammar/schema";
@@ -119,6 +139,69 @@ public class NoGrammarConstraintsCodeAction implements ICodeActionParticipant {
 		} catch (BadLocationException e) {
 			LOGGER.log(Level.SEVERE, "In NoGrammarConstraintsCodeAction position error", e);
 		}
+	}
+
+	@Override
+	public ICodeActionResolvesParticipant getResolveCodeActionParticipant(String participantId) {
+		return resolveCodeActionParticipants.get(participantId);
+	}
+
+	private static CodeAction createNoNamespaceSchemaLocationCodeAction(String schemaURI, String schemaFileName,
+			String schemaTemplate, ICodeActionRequest request, CancelChecker cancelChecker)
+			throws BadLocationException {
+		Diagnostic diagnostic = request.getDiagnostic();
+		DOMDocument document = request.getDocument();
+		String title = "Generate '" + schemaFileName + "' and bind with xsi:noNamespaceSchemaLocation";
+		if (request.canSupportResolve()) {
+			return createGenerateFileUnresolvedCodeAction(schemaURI, title, diagnostic, document,
+					GenerateXSINoNamespaceSchemaCodeActionResolver.PARTICIPANT_ID);
+		} else {
+			TextDocumentEdit noNamespaceSchemaLocationEdit = createXSINoNamespaceSchemaLocationEdit(schemaFileName,
+					document);
+			return createGrammarFileAndBindIt(title, schemaURI, schemaTemplate, noNamespaceSchemaLocationEdit,
+					diagnostic);
+		}
+	}
+
+	private static CodeAction createXmlModelCodeAction(String fileURI, String fileName, String fileTemplate,
+			String participantId, ICodeActionRequest request) throws BadLocationException {
+		Diagnostic diagnostic = request.getDiagnostic();
+		DOMDocument document = request.getDocument();
+		String title = "Generate '" + fileName + "' and bind with xml-model";
+		if (request.canSupportResolve()) {
+			return createGenerateFileUnresolvedCodeAction(fileURI, title, diagnostic, document, participantId);
+		}
+		SharedSettings sharedSettings = request.getSharedSettings();
+		TextDocumentEdit xsdWithXMLModelEdit = createXmlModelEdit(fileName, null, document, sharedSettings);
+		CodeAction xsdWithXmlModelAction = createGrammarFileAndBindIt(title, fileURI, fileTemplate, xsdWithXMLModelEdit,
+				diagnostic);
+		return xsdWithXmlModelAction;
+	}
+
+	private CodeAction createDocTypeCodeAction(String dtdURI, String dtdFileName, String dtdTemplate,
+			ICodeActionRequest request, CancelChecker cancelChecker) throws BadLocationException {
+		Diagnostic diagnostic = request.getDiagnostic();
+		DOMDocument document = request.getDocument();
+		String title = "Generate '" + dtdFileName + "' and bind with DOCTYPE";
+		if (request.canSupportResolve()) {
+			return createGenerateFileUnresolvedCodeAction(dtdURI, title, diagnostic, document,
+					GenerateDocTypeCodeActionResolver.PARTICIPANT_ID);
+		}
+		SharedSettings sharedSettings = request.getSharedSettings();
+		TextDocumentEdit dtdWithDocType = createDocTypeEdit(dtdFileName, document, sharedSettings);
+		return createGrammarFileAndBindIt(title, dtdURI, dtdTemplate, dtdWithDocType, diagnostic);
+	}
+
+	private static CodeAction createGenerateFileUnresolvedCodeAction(String generateFileURI, String title,
+			Diagnostic diagnostic, DOMDocument document, String participantId) {
+		CodeAction codeAction = new CodeAction(title);
+		codeAction.setDiagnostics(Collections.singletonList(diagnostic));
+		codeAction.setKind(CodeActionKind.QuickFix);
+
+		JsonObject data = DataEntryField.createData(document.getDocumentURI(), participantId);
+		data.addProperty(DATA_FILE_FIELD, generateFileURI);
+		codeAction.setData(data);
+		return codeAction;
 	}
 
 	/**

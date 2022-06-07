@@ -9,10 +9,11 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lemminx.extensions.contentmodel.participants.codeactions;
+package org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.nogrammarconstraints;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.nogrammarconstraints.NoGrammarConstraintsCodeAction;
 import org.junit.jupiter.api.Test;
 
 /**

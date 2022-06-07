@@ -239,6 +239,11 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 		return codeActions.doCodeActions(context, range, document, sharedSettings, cancelChecker);
 	}
 
+	public CodeAction resolveCodeAction(CodeAction unresolved, DOMDocument document, SharedSettings sharedSettings,
+			CancelChecker cancelChecker) {
+		return codeActions.resolveCodeAction(unresolved, document, sharedSettings, cancelChecker);
+	}
+
 	public AutoCloseTagResponse doTagComplete(DOMDocument xmlDocument, XMLCompletionSettings completionSettings,
 			Position position) {
 		return doTagComplete(xmlDocument, position, completionSettings, NULL_CHECKER);

@@ -24,7 +24,7 @@ import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.s4s_elt_invalid_content_3CodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.src_import_1_2CodeAction;
 import org.eclipse.lemminx.extensions.xsd.utils.XSDUtils;
-import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IXMLErrorCode;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.Range;

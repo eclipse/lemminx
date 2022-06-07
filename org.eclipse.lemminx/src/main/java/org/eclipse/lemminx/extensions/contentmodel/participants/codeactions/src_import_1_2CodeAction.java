@@ -18,9 +18,8 @@ import org.eclipse.lemminx.commons.CodeActionFactory;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
-import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
-import org.eclipse.lemminx.services.extensions.IComponentProvider;
-import org.eclipse.lemminx.settings.SharedSettings;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionRequest;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Range;
@@ -33,9 +32,10 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 public class src_import_1_2CodeAction implements ICodeActionParticipant {
 
 	@Override
-	public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
-			SharedSettings sharedSettings, IComponentProvider componentProvider, CancelChecker cancelChecker) {
-
+	public void doCodeAction(ICodeActionRequest request, List<CodeAction> codeActions, CancelChecker cancelChecker) {
+		Diagnostic diagnostic = request.getDiagnostic();
+		DOMDocument document = request.getDocument();
+		Range range = request.getRange();
 		try {
 			String prefix = document.getDocumentElement().getPrefix();
 			CodeAction namespace = createNamespaceCodeAction(diagnostic, range, document, prefix);
@@ -54,14 +54,15 @@ public class src_import_1_2CodeAction implements ICodeActionParticipant {
 		}
 	}
 
-	private CodeAction createNamespaceCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, String prefix) throws BadLocationException {
+	private CodeAction createNamespaceCodeAction(Diagnostic diagnostic, Range range, DOMDocument document,
+			String prefix) throws BadLocationException {
 		int offset = document.offsetAt(range.getStart());
 		DOMNode node = document.findNodeAt(offset);
 
 		if (node == null || !node.isElement()) {
 			return null;
 		}
-		
+
 		String message;
 		if (prefix != null) {
 			message = "Insert 'namespace' attribute in '" + prefix + ":import' element";
@@ -69,10 +70,12 @@ public class src_import_1_2CodeAction implements ICodeActionParticipant {
 			message = "Insert 'namespace' attribute in 'import' element";
 		}
 
-		return CodeActionFactory.insert(message, diagnostic.getRange().getEnd(), " namespace=\"\"", document.getTextDocument(), diagnostic);
+		return CodeActionFactory.insert(message, diagnostic.getRange().getEnd(), " namespace=\"\"",
+				document.getTextDocument(), diagnostic);
 	}
 
-	private CodeAction createTargetNamespaceCodeAction(Diagnostic diagnostic, DOMDocument document, String prefix) throws BadLocationException {
+	private CodeAction createTargetNamespaceCodeAction(Diagnostic diagnostic, DOMDocument document, String prefix)
+			throws BadLocationException {
 		DOMElement root = document.getDocumentElement();
 
 		if (!root.getTagName().contains("schema")) {
@@ -84,7 +87,8 @@ public class src_import_1_2CodeAction implements ICodeActionParticipant {
 		} else {
 			message = "Insert 'targetNamespace' attribute in 'schema' element";
 		}
-		return CodeActionFactory.insert(message, document.positionAt(root.getStartTagCloseOffset()), " targetNamespace=\"\"", document.getTextDocument(), diagnostic);
+		return CodeActionFactory.insert(message, document.positionAt(root.getStartTagCloseOffset()),
+				" targetNamespace=\"\"", document.getTextDocument(), diagnostic);
 	}
 
 }

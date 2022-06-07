@@ -23,6 +23,8 @@ public class SharedSettings {
 	private final XMLFormattingOptions formattingSettings;
 	private final XMLValidationSettings validationSettings;
 	private final XMLSymbolSettings symbolSettings;
+
+	private final XMLCodeActionSettings codeActionSettings;
 	private final XMLCodeLensSettings codeLensSettings;
 	private final XMLHoverSettings hoverSettings;
 	private final XMLPreferences preferences;
@@ -37,6 +39,7 @@ public class SharedSettings {
 		this.formattingSettings = new XMLFormattingOptions(true);
 		this.validationSettings = new XMLValidationSettings();
 		this.symbolSettings = new XMLSymbolSettings();
+		this.codeActionSettings = new XMLCodeActionSettings();
 		this.codeLensSettings = new XMLCodeLensSettings();
 		this.hoverSettings = new XMLHoverSettings();
 		this.preferences = new XMLPreferences();
@@ -78,6 +81,10 @@ public class SharedSettings {
 
 	public XMLSymbolSettings getSymbolSettings() {
 		return symbolSettings;
+	}
+
+	public XMLCodeActionSettings getCodeActionSettings() {
+		return codeActionSettings;
 	}
 
 	public XMLCodeLensSettings getCodeLensSettings() {
@@ -142,7 +149,8 @@ public class SharedSettings {
 	}
 
 	/**
-	 * Returns true if the client supports the `xml.open.binding.wizard` command using dropdown and false otherwise
+	 * Returns true if the client supports the `xml.open.binding.wizard` command
+	 * using dropdown and false otherwise
 	 *
 	 * @return bindingWizardSupport
 	 */

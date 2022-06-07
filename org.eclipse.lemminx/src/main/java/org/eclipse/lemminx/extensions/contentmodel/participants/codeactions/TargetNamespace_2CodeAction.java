@@ -19,15 +19,14 @@ import java.util.regex.Pattern;
 import org.eclipse.lemminx.commons.CodeActionFactory;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMNode;
-import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
-import org.eclipse.lemminx.services.extensions.IComponentProvider;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionRequest;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
@@ -42,9 +41,9 @@ public class TargetNamespace_2CodeAction implements ICodeActionParticipant {
 	private static final Pattern NAMESPACE_EXTRACTOR = Pattern.compile("'([^']+)'\\.");
 
 	@Override
-	public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
-			SharedSettings sharedSettings, IComponentProvider componentProvider, CancelChecker cancelChecker) {
-
+	public void doCodeAction(ICodeActionRequest request, List<CodeAction> codeActions, CancelChecker cancelChecker) {
+		Diagnostic diagnostic = request.getDiagnostic();
+		DOMDocument document = request.getDocument();
 		String namespace = extractNamespace(diagnostic.getMessage());
 		if (StringUtils.isEmpty(namespace)) {
 			return;
@@ -53,6 +52,7 @@ public class TargetNamespace_2CodeAction implements ICodeActionParticipant {
 		if (root == null) {
 			return;
 		}
+		SharedSettings sharedSettings = request.getSharedSettings();
 		Position tagEnd = XMLPositionUtility.selectStartTagName(root).getEnd();
 		String quote = sharedSettings.getPreferences().getQuotationAsString();
 		// @formatter:off
