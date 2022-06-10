@@ -29,6 +29,7 @@ import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 import com.google.gson.JsonObject;
 
@@ -47,7 +48,7 @@ public class DownloadDisabledResourceCodeAction implements ICodeActionParticipan
 
 	@Override
 	public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
-			SharedSettings sharedSettings, IComponentProvider componentProvider) {
+			SharedSettings sharedSettings, IComponentProvider componentProvider, CancelChecker cancelChecker) {
 
 		try {
 			Range diagnosticRange = diagnostic.getRange();

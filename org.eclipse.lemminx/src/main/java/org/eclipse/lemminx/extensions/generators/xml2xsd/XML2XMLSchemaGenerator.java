@@ -23,6 +23,7 @@ import org.eclipse.lemminx.extensions.generators.ElementDeclaration;
 import org.eclipse.lemminx.extensions.generators.Grammar;
 import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lemminx.utils.XMLBuilder;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
  * File Generator implementation to generate XML Schema (XSD) from a given XML
@@ -85,7 +86,8 @@ public class XML2XMLSchemaGenerator extends AbstractXML2GrammarGenerator<XMLSche
 	private static final String CHOICE_ELT = "choice";
 
 	@Override
-	protected void generate(Grammar grammar, XMLSchemaGeneratorSettings settings, XMLBuilder schema) {
+	protected void generate(Grammar grammar, XMLSchemaGeneratorSettings settings, XMLBuilder schema,
+			CancelChecker cancelChecker) {
 		String prefix = "xs";
 		schema.startPrologOrPI("xml");
 		schema.addContent(" version=\"1.0\" encoding=\"UTF-8\"");
@@ -100,13 +102,14 @@ public class XML2XMLSchemaGenerator extends AbstractXML2GrammarGenerator<XMLSche
 		schema.closeStartElement();
 		// List of xs:element
 		for (ElementDeclaration element : grammar.getElements()) {
-			generateXSElement(schema, prefix, element, settings);
+			cancelChecker.checkCanceled();
+			generateXSElement(schema, prefix, element, settings, cancelChecker);
 		}
 		schema.endElement(prefix, SCHEMA_ELT);
 	}
 
 	private void generateXSElement(XMLBuilder schema, String prefix, ElementDeclaration elementDecl,
-			XMLSchemaGeneratorSettings settings) {
+			XMLSchemaGeneratorSettings settings, CancelChecker cancelChecker) {
 		Collection<ElementDeclaration> children = elementDecl.getElements();
 		Collection<AttributeDeclaration> attributes = elementDecl.getAttributes();
 		boolean hasChildren = !children.isEmpty();
@@ -158,7 +161,7 @@ public class XML2XMLSchemaGenerator extends AbstractXML2GrammarGenerator<XMLSche
 					schema.startElement(prefix, CHOICE_ELT, true);
 				}
 				for (ElementDeclaration child : children) {
-					generateXSElement(schema, prefix, child, settings);
+					generateXSElement(schema, prefix, child, settings, cancelChecker);
 				}
 				if (!sequenced) {
 					// </xs:choice>
@@ -182,6 +185,8 @@ public class XML2XMLSchemaGenerator extends AbstractXML2GrammarGenerator<XMLSche
 				}
 				// Generate list of xs:attribute
 				for (AttributeDeclaration attribute : attributes) {
+
+					cancelChecker.checkCanceled();
 
 					boolean required = attribute.isRequired();
 					boolean isID = attribute.isID(settings);
@@ -220,6 +225,9 @@ public class XML2XMLSchemaGenerator extends AbstractXML2GrammarGenerator<XMLSche
 
 						Set<String> values = attribute.getValues();
 						for (String value : values) {
+
+							cancelChecker.checkCanceled();
+
 							schema.startElement(prefix, ENUMERATION_ELT, false);
 							schema.addSingleAttribute(ENUMERATION_VALUE_ATTR, value, true);
 							schema.selfCloseElement();

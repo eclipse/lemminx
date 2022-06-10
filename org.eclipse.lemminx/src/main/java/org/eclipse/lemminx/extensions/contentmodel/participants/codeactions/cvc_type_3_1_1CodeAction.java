@@ -22,6 +22,7 @@ import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
  * Code action to fix cvc-type.3.1.1 error.
@@ -31,7 +32,7 @@ public class cvc_type_3_1_1CodeAction implements ICodeActionParticipant {
 
 	@Override
 	public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
-			SharedSettings sharedSettings, IComponentProvider componentProvider) {
+			SharedSettings sharedSettings, IComponentProvider componentProvider, CancelChecker cancelChecker) {
 		Range diagnosticRange = diagnostic.getRange();
 		// Remove all attributes
 		CodeAction removeAllAttributesAction = CodeActionFactory.remove("Remove all attributes", diagnosticRange,

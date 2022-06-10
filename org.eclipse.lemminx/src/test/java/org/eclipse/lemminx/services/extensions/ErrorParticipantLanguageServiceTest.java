@@ -113,7 +113,7 @@ public class ErrorParticipantLanguageServiceTest {
 				@Override
 				public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document,
 						List<CodeAction> codeActions, SharedSettings sharedSettings,
-						IComponentProvider componentProvider) {
+						IComponentProvider componentProvider, CancelChecker cancelChecker) {
 					throw new RuntimeException("This participant is broken");
 				}
 			});
@@ -121,7 +121,7 @@ public class ErrorParticipantLanguageServiceTest {
 				@Override
 				public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document,
 						List<CodeAction> codeActions, SharedSettings sharedSettings,
-						IComponentProvider componentProvider) {
+						IComponentProvider componentProvider, CancelChecker cancelChecker) {
 					codeActions.add(ca(diagnostic, te(0, 0, 0, 0, "a")));
 				}
 			});

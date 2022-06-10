@@ -17,14 +17,16 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.junit.jupiter.api.Test;
 
 public class ContentModelCodeActionTest {
-	
+
 	private ContentModelCodeActionParticipant cmCodeActionParticipant;
 
 	@Test
 	public void codeActionParticipantRobustAgainstNull() {
 		cmCodeActionParticipant = new ContentModelCodeActionParticipant();
-		cmCodeActionParticipant.doCodeAction(null, null, null, null, null, null);
-		cmCodeActionParticipant.doCodeAction(new Diagnostic(), null, null, null, null, null);
+		cmCodeActionParticipant.doCodeAction(null, null, null, null, null, null, () -> {
+		});
+		cmCodeActionParticipant.doCodeAction(new Diagnostic(), null, null, null, null, null, () -> {
+		});
 	}
 
 }

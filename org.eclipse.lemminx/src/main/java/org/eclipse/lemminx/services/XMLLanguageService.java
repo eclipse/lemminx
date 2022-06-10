@@ -105,7 +105,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 	}
 
 	@Override
-	public String formatFull(String text, String uri, SharedSettings sharedSettings) {
+	public String formatFull(String text, String uri, SharedSettings sharedSettings, CancelChecker cancelChecker) {
 		List<? extends TextEdit> edits = this.format(new TextDocument(text, uri), null, sharedSettings);
 		return edits.isEmpty() ? null : edits.get(0).getNewText();
 	}

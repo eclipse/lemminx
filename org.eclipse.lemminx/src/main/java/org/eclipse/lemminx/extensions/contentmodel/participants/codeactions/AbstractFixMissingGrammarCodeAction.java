@@ -24,6 +24,7 @@ import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
  * Code Action which manages missing referenced grammar file (DTD, XSD).
@@ -34,7 +35,7 @@ public abstract class AbstractFixMissingGrammarCodeAction implements ICodeAction
 
 	@Override
 	public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
-			SharedSettings sharedSettings, IComponentProvider componentProvider) {
+			SharedSettings sharedSettings, IComponentProvider componentProvider, CancelChecker cancelChecker) {
 
 		String missingFilePath = getPathFromDiagnostic(diagnostic);
 		if (StringUtils.isEmpty(missingFilePath)) {
@@ -47,7 +48,7 @@ public abstract class AbstractFixMissingGrammarCodeAction implements ICodeAction
 
 		// Generate XSD from the DOM document
 		FileContentGeneratorManager generator = componentProvider.getComponent(FileContentGeneratorManager.class);
-		String schemaTemplate = generator.generate(document, sharedSettings, getFileContentGeneratorSettings());
+		String schemaTemplate = generator.generate(document, sharedSettings, getFileContentGeneratorSettings(), cancelChecker);
 
 		// Create code action to create the XSD file with the generated XSD content
 		CodeAction makeSchemaFile = CodeActionFactory.createFile("Generate missing file '" + p.toFile().getName() + "'",
