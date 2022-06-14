@@ -91,7 +91,7 @@ public class cvc_elt_1_aCodeAction implements ICodeActionParticipant {
 
 			for (String expectedElementText : expectedElements) {
 				CodeAction addReplaceRootElement = CodeActionFactory.replaceAt(
-						"Replace '" + unexpectedElementText + "' with '" + expectedElementText, expectedElementText,
+						"Replace '" + unexpectedElementText + "' with '" + expectedElementText + "'", expectedElementText,
 						document.getTextDocument(), diagnostic, ranges);
 
 				codeActions.add(addReplaceRootElement);
