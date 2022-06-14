@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.eclipse.lemminx.client.ClientCommands;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.commons.CodeActionFactory;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -107,7 +108,7 @@ public class NoGrammarConstraintsCodeAction implements ICodeActionParticipant {
 			codeActions.add(dtdWithXmlModelAction);
 
 			// ---------- Open Binding Wizard
-			if (sharedSettings.isBindingWizardSupport()) {
+			if (sharedSettings.getCommandCapabilities().isCommandSupported(ClientCommands.OPEN_BINDING_WIZARD)) {
 				String documentURI = document.getDocumentURI();
 				String title = "Bind to existing grammar/schema";
 				List<Object> commandParams = Arrays.asList(documentURI);

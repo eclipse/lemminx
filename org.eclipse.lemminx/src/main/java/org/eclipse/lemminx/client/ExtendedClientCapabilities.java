@@ -20,15 +20,21 @@ package org.eclipse.lemminx.client;
  */
 public class ExtendedClientCapabilities {
 
-	private ExtendedCodeLensCapabilities codeLens;
-
 	private boolean actionableNotificationSupport;
 
-	private boolean openSettingsCommandSupport;
-
-	private boolean bindingWizardSupport;
-
 	private boolean shouldLanguageServerExitOnShutdown;
+
+	private CommandCapabilities commands;
+
+	private ExtendedCodeLensCapabilities codeLens;
+
+	public CommandCapabilities getCommands() {
+		return commands;
+	}
+
+	public void setCommands(CommandCapabilities commands) {
+		this.commands = commands;
+	}
 
 	public ExtendedCodeLensCapabilities getCodeLens() {
 		return codeLens;
@@ -59,45 +65,7 @@ public class ExtendedClientCapabilities {
 		this.actionableNotificationSupport = actionableNotificationSupport;
 	}
 
-	/**
-	 * Returns true if the client supports the open settings command and false otherwise
-	 *
-	 * See {@link org.eclipse.lemminx.client.ClientCommands#OPEN_SETTINGS}
-	 *
-	 * @return true if the client supports the open settings command and false otherwise
-	 */
-	public boolean isOpenSettingsCommandSupport() {
-		return openSettingsCommandSupport;
-	}
-
-	/**
-	 * Sets the openSettingsCommandSupport boolean
-	 *
-	 * @param openSettingsCommandSupport
-	 */
-	public void setOpenSettingsCommandSupport(boolean openSettingsCommandSupport) {
-		this.openSettingsCommandSupport = openSettingsCommandSupport;
-	}
-
-	/**
-	 * Returns true if the client supports the `xml.open.binding.wizard` command using dropdown and false otherwise
-	 *
-	 * @return bindingWizardSupport
-	 */
-	public boolean isBindingWizardSupport() {
-		return this.bindingWizardSupport;
-	}
-
-	/**
-	 * Sets the bindingWizardSupport boolean
-	 *
-	 * @param bindingWizardSupport
-	 */
-	public void setBindingWizardSupport(boolean bindingWizardSupport) {
-		this.bindingWizardSupport = bindingWizardSupport;
-	}
-
-	/**
+		/**
 	 * Sets the boolean permitting language server to exit on client
 	 * shutdown() request, without waiting for client to call exit()
 	 *

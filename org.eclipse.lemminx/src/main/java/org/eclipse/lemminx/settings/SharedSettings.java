@@ -27,9 +27,9 @@ public class SharedSettings {
 	private final XMLHoverSettings hoverSettings;
 	private final XMLPreferences preferences;
 	private final XMLWorkspaceSettings workspaceSettings;
+	private final XMLCommandCapabilities commandCapabilities;
+
 	private boolean actionableNotificationSupport;
-	private boolean openSettingsCommandSupport;
-	private boolean bindingWizardSupport;
 
 	public SharedSettings() {
 		this.completionSettings = new XMLCompletionSettings();
@@ -41,9 +41,8 @@ public class SharedSettings {
 		this.hoverSettings = new XMLHoverSettings();
 		this.preferences = new XMLPreferences();
 		this.workspaceSettings = new XMLWorkspaceSettings();
+		this.commandCapabilities = new XMLCommandCapabilities();
 		this.actionableNotificationSupport = false;
-		this.openSettingsCommandSupport = false;
-
 	}
 
 	public SharedSettings(SharedSettings newSettings) {
@@ -56,30 +55,58 @@ public class SharedSettings {
 		this.codeLensSettings.merge(newSettings.getCodeLensSettings());
 		this.preferences.merge(newSettings.getPreferences());
 		this.actionableNotificationSupport = newSettings.isActionableNotificationSupport();
-		this.openSettingsCommandSupport = newSettings.isOpenSettingsCommandSupport();
-		this.bindingWizardSupport = newSettings.isBindingWizardSupport();
 	}
 
+	/**
+	 * Returns the completion settings.
+	 *
+	 * @return the completion settings.
+	 */
 	public XMLCompletionSettings getCompletionSettings() {
 		return completionSettings;
 	}
 
+	/**
+	 * Returns the folding settings.
+	 *
+	 * @return the folding settings.
+	 */
 	public XMLFoldingSettings getFoldingSettings() {
 		return foldingSettings;
 	}
 
+	/**
+	 * Returns the formatting settings.
+	 *
+	 * @return the formatting settings.
+	 */
 	public XMLFormattingOptions getFormattingSettings() {
 		return formattingSettings;
 	}
 
+	/**
+	 * Returns the validation settings.
+	 *
+	 * @return the validation settings.
+	 */
 	public XMLValidationSettings getValidationSettings() {
 		return validationSettings;
 	}
 
+	/**
+	 * Returns the symbol settings.
+	 *
+	 * @return the symbol settings.
+	 */
 	public XMLSymbolSettings getSymbolSettings() {
 		return symbolSettings;
 	}
 
+	/**
+	 * Returns the CodeLens settings.
+	 *
+	 * @return the CodeLens settings.
+	 */
 	public XMLCodeLensSettings getCodeLensSettings() {
 		return codeLensSettings;
 	}
@@ -88,23 +115,44 @@ public class SharedSettings {
 		return hoverSettings;
 	}
 
+	/**
+	 * Returns the preferences.
+	 *
+	 * @return the preferences.
+	 */
 	public XMLPreferences getPreferences() {
 		return preferences;
 	}
 
+	/**
+	 * Returns the workspace settings.
+	 *
+	 * @return the workspace settings.
+	 */
 	public XMLWorkspaceSettings getWorkspaceSettings() {
 		return workspaceSettings;
 	}
 
 	/**
+	 * Returns the command capabilities.
+	 *
+	 * @return the command capabilities.
+	 */
+	public XMLCommandCapabilities getCommandCapabilities() {
+		return commandCapabilities;
+	}
+
+	/**
 	 * Returns true if the client supports actionable notifications and false
 	 * otherwise
+	 * Returns the symbol settings.
 	 *
 	 * See {@link org.eclipse.lemminx.customservice.ActionableNotification} and
 	 * {@link org.eclipse.lemminx.customservice.XMLLanguageClientAPI}
 	 *
 	 * @return true if the client supports actionable notifications and false
 	 *         otherwise
+	 * @return the symbol settings.
 	 */
 	public boolean isActionableNotificationSupport() {
 		return actionableNotificationSupport;
@@ -112,51 +160,13 @@ public class SharedSettings {
 
 	/**
 	 * Sets the actionableNotificationSupport boolean
+	 * Returns the CodeLens settings.
 	 *
 	 * @param actionableNotificationSupport
+	 * @return the CodeLens settings.
 	 */
 	public void setActionableNotificationSupport(boolean actionableNotificationSupport) {
 		this.actionableNotificationSupport = actionableNotificationSupport;
-	}
-
-	/**
-	 * Returns true if the client supports the open settings command and false
-	 * otherwise
-	 *
-	 * See {@link org.eclipse.lemminx.client.ClientCommands#OPEN_SETTINGS}
-	 *
-	 * @return true if the client supports the open settings command and false
-	 *         otherwise
-	 */
-	public boolean isOpenSettingsCommandSupport() {
-		return openSettingsCommandSupport;
-	}
-
-	/**
-	 * Sets the openSettingsCommandSupport boolean
-	 *
-	 * @param openSettingsCommandSupport
-	 */
-	public void setOpenSettingsCommandSupport(boolean openSettingsCommandSupport) {
-		this.openSettingsCommandSupport = openSettingsCommandSupport;
-	}
-
-	/**
-	 * Returns true if the client supports the `xml.open.binding.wizard` command using dropdown and false otherwise
-	 *
-	 * @return bindingWizardSupport
-	 */
-	public boolean isBindingWizardSupport() {
-		return this.bindingWizardSupport;
-	}
-
-	/**
-	 * Sets the bindingWizardSupport boolean
-	 *
-	 * @param bindingWizardSupport
-	 */
-	public void setBindingWizardSupport(boolean bindingWizardSupport) {
-		this.bindingWizardSupport = bindingWizardSupport;
 	}
 
 }

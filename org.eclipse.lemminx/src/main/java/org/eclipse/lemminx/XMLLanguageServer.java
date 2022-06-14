@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import org.eclipse.lemminx.client.ClientCommands;
 import org.eclipse.lemminx.client.ExtendedClientCapabilities;
 import org.eclipse.lemminx.commons.ModelTextDocument;
 import org.eclipse.lemminx.commons.ParentProcessWatcher.ProcessLanguageServer;
@@ -312,7 +313,7 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 	@Override
 	public void sendNotification(String message, MessageType messageType, Command... commands) {
 		SharedSettings sharedSettings = getSharedSettings();
-		if (sharedSettings.isActionableNotificationSupport() && sharedSettings.isOpenSettingsCommandSupport()) {
+		if (sharedSettings.isActionableNotificationSupport() && sharedSettings.getCommandCapabilities().isCommandSupported(ClientCommands.OPEN_SETTINGS)) {
 			ActionableNotification notification = new ActionableNotification().withSeverity(messageType)
 					.withMessage(message).withCommands(Arrays.asList(commands));
 			languageClient.actionableNotification(notification);
