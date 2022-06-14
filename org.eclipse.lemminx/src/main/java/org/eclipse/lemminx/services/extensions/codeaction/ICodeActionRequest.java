@@ -13,6 +13,8 @@ package org.eclipse.lemminx.services.extensions.codeaction;
 
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lemminx.extensions.contentmodel.utils.XMLGenerator;
+import org.eclipse.lemminx.commons.BadLocationException;
 
 /**
  * Code action request API.
@@ -35,6 +37,8 @@ public interface ICodeActionRequest extends IBaseCodeActionRequest {
 	 * @return the code action range.
 	 */
 	Range getRange();
+
+	XMLGenerator getXMLGenerator() throws BadLocationException;
 
 	/**
 	 * Returns true if the client can supportcodeAction/resolve and false otherwise.

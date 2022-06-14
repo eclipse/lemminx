@@ -15,6 +15,7 @@ package org.eclipse.lemminx.extensions.contentmodel;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.participants.ContentModelCodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionRequest;
+import org.eclipse.lemminx.extensions.contentmodel.utils.XMLGenerator;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Range;
@@ -57,6 +58,11 @@ public class ContentModelCodeActionTest {
 			return null;
 		}
 
+		@Override
+		public XMLGenerator getXMLGenerator() {
+			return null;
+		}
+		
 	}
 
 	@Test

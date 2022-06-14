@@ -33,6 +33,7 @@ import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.cvc_
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.cvc_complex_type_2_1CodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.cvc_complex_type_2_3CodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.cvc_complex_type_2_4_aCodeAction;
+import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.cvc_complex_type_2_4_bCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.cvc_complex_type_3_2_2CodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.cvc_complex_type_4CodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.cvc_elt_1_aCodeAction;
@@ -299,6 +300,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 	public static void registerCodeActionParticipants(Map<String, ICodeActionParticipant> codeActions,
 			SharedSettings sharedSettings) {
 		codeActions.put(cvc_complex_type_2_4_a.getCode(), new cvc_complex_type_2_4_aCodeAction());
+		codeActions.put(cvc_complex_type_2_4_b.getCode(), new cvc_complex_type_2_4_bCodeAction());
 		codeActions.put(cvc_complex_type_2_4_c.getCode(), new cvc_complex_type_2_4_aCodeAction());
 		codeActions.put(cvc_complex_type_2_3.getCode(), new cvc_complex_type_2_3CodeAction());
 		codeActions.put(cvc_complex_type_4.getCode(), new cvc_complex_type_4CodeAction());

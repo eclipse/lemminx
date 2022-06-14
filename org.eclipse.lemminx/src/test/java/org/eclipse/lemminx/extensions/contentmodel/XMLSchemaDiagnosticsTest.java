@@ -198,6 +198,62 @@ public class XMLSchemaDiagnosticsTest {
 	}
 
 	@Test
+	public void cvc_complex_type_2_4_bCodeAction_rootNewLine() throws Exception {
+		String xml = "<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"    xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/unique_multiElement.xsd\">\r\n" + //
+				"</root>";
+		Diagnostic d = d(0, 1, 0, 5, XMLSchemaErrorCode.cvc_complex_type_2_4_b);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(1, 83, 1, 83, //
+				"\r\n" + //
+						"\t<authors>\r\n" + //
+						"\t\t<author></author>\r\n" + //
+						"\t</authors>\r\n" + //
+						"\t<assistant></assistant>")));
+	}
+
+	@Test
+	public void cvc_complex_type_2_4_bCodeAction_rootSameLine() throws Exception {
+		String xml = "<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/unique_multiElement.xsd\"></root>";
+		Diagnostic d = d(0, 1, 0, 5, XMLSchemaErrorCode.cvc_complex_type_2_4_b);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(1, 79, 1, 79, //
+				"\r\n" + //
+						"\t<authors>\r\n" + //
+						"\t\t<author></author>\r\n" + //
+						"\t</authors>\r\n" + //
+						"\t<assistant></assistant>\n")));
+	}
+
+	@Test
+	public void cvc_complex_type_2_4_bCodeAction_nonRootElement() throws Exception {
+		String xml = "<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/unique_multiElement.xsd\">\r\n" + //
+				"\t<authors></authors>\r\n" + //
+				"\t<assistant></assistant>\r\n" + //
+				"</root>";
+		Diagnostic d = d(2, 2, 2, 9, XMLSchemaErrorCode.cvc_complex_type_2_4_b);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(2, 10, 2, 10, //
+				"\r\n" + //
+						"\t\t<author></author>\r\n\t")));
+	}
+
+	@Test
+	public void cvc_complex_type_2_4_bCodeAction_withExistingChild() throws Exception {
+		String xml = "<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"    xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/unique_multiElement.xsd\">\r\n" + //
+				"    <authors><author></author></authors>\r\n" + //
+				"</root>";
+		Diagnostic d = d(0, 1, 0, 5, XMLSchemaErrorCode.cvc_complex_type_2_4_b);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(1, 83, 1, 83, //
+				"\r\n" + //
+						"\t<assistant></assistant>")));
+	}
+
+	@Test
 	public void cvc_attribute_3() throws Exception {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
@@ -696,34 +752,34 @@ public class XMLSchemaDiagnosticsTest {
 	@Test
 	public void DuplicateUnique_InText() throws Exception {
 		String xml = "<web-app xmlns=\"http://java.sun.com/xml/ns/j2ee\"\r\n" + //
-		"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
-		"    xsi:schemaLocation=\"http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd\"\r\n" + //
-		"    version=\"2.4\">\r\n" + //
-		"    <servlet>\r\n" + //
-		"    <servlet-name>dispatcher</servlet-name>\r\n" + //
-		"    <servlet-class></servlet-class>\r\n" + //
-		"    </servlet>\r\n" + //
-		"    <servlet>\r\n" + //
-		"    <servlet-name>dispatcher</servlet-name>\r\n" + //
-		"    <servlet-class></servlet-class>\r\n" + //
-		"    </servlet>\r\n" + //
-		"</web-app>";
+				"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"    xsi:schemaLocation=\"http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd\"\r\n"
+				+ //
+				"    version=\"2.4\">\r\n" + //
+				"    <servlet>\r\n" + //
+				"    <servlet-name>dispatcher</servlet-name>\r\n" + //
+				"    <servlet-class></servlet-class>\r\n" + //
+				"    </servlet>\r\n" + //
+				"    <servlet>\r\n" + //
+				"    <servlet-name>dispatcher</servlet-name>\r\n" + //
+				"    <servlet-class></servlet-class>\r\n" + //
+				"    </servlet>\r\n" + //
+				"</web-app>";
 		Diagnostic diagnostic = d(9, 18, 9, 28, XMLSchemaErrorCode.DuplicateUnique);
 		testDiagnosticsFor(xml, "src/test/resources/catalogs/catalog-web-app.xml", diagnostic);
 	}
 
-	
 	@Test
 	public void DuplicateUnique_InAttribute() throws Exception {
 		String xml = "<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
-		"    xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/unique.xsd\">\r\n" + //
-		"    <authors status = \"new\">\r\n" + //
-		"    <author>smith</author>\r\n" + //
-		"    </authors>\r\n" + //
-		"    <authors status = \"new\">\r\n" + //
-		"    <author>smith</author>\r\n" + //
-		"    </authors>\r\n" + //
-		"</root>";
+				"    xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/unique.xsd\">\r\n" + //
+				"    <authors status = \"new\">\r\n" + //
+				"    <author>smith</author>\r\n" + //
+				"    </authors>\r\n" + //
+				"    <authors status = \"new\">\r\n" + //
+				"    <author>smith</author>\r\n" + //
+				"    </authors>\r\n" + //
+				"</root>";
 		Diagnostic diagnostic = d(5, 22, 5, 27, XMLSchemaErrorCode.DuplicateUnique);
 		testDiagnosticsFor(xml, diagnostic);
 	}
@@ -731,14 +787,14 @@ public class XMLSchemaDiagnosticsTest {
 	@Test
 	public void DuplicateUnique_MultiAttribute() throws Exception {
 		String xml = "<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
-		"    xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/unique.xsd\">\r\n" + //
-		"    <authors status = \"new\" age = \"20\">\r\n" + //
-		"    <author>smith</author>\r\n" + //
-		"    </authors>\r\n" + //
-		"    <authors status = \"new\" age = \"20\">\r\n" + //
-		"    <author>smith</author>\r\n" + //
-		"    </authors>\r\n" + //
-		"</root>";
+				"    xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/unique.xsd\">\r\n" + //
+				"    <authors status = \"new\" age = \"20\">\r\n" + //
+				"    <author>smith</author>\r\n" + //
+				"    </authors>\r\n" + //
+				"    <authors status = \"new\" age = \"20\">\r\n" + //
+				"    <author>smith</author>\r\n" + //
+				"    </authors>\r\n" + //
+				"</root>";
 		Diagnostic diagnostic1 = d(5, 22, 5, 27, XMLSchemaErrorCode.DuplicateUnique);
 		Diagnostic diagnostic2 = d(5, 34, 5, 38, XMLSchemaErrorCode.DuplicateUnique);
 
@@ -748,15 +804,15 @@ public class XMLSchemaDiagnosticsTest {
 	@Test
 	public void DuplicateUnique_InBoth() throws Exception {
 		String xml = "<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
-		"    xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/unique.xsd\">\r\n" + //
-		"    <authors status = \"new\">\r\n" + //
-		"    <author>smith</author>\r\n" + //
-		"    <author>smith</author>\r\n" + //
-		"    </authors>\r\n" + //
-		"    <authors status = \"new\">\r\n" + //
-		"    <author>smith</author>\r\n" + //
-		"    </authors>\r\n" + //
-		"</root>";
+				"    xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/unique.xsd\">\r\n" + //
+				"    <authors status = \"new\">\r\n" + //
+				"    <author>smith</author>\r\n" + //
+				"    <author>smith</author>\r\n" + //
+				"    </authors>\r\n" + //
+				"    <authors status = \"new\">\r\n" + //
+				"    <author>smith</author>\r\n" + //
+				"    </authors>\r\n" + //
+				"</root>";
 		Diagnostic diagnosticText = d(4, 12, 4, 17, XMLSchemaErrorCode.DuplicateUnique);
 		Diagnostic diagnosticAttr = d(6, 22, 6, 27, XMLSchemaErrorCode.DuplicateUnique);
 		testDiagnosticsFor(xml, diagnosticText, diagnosticAttr);
@@ -765,15 +821,15 @@ public class XMLSchemaDiagnosticsTest {
 	@Test
 	public void DuplicateUnique_FalseNeg() throws Exception {
 		String xml = "<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
-		"    xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/unique.xsd\">\r\n" + //
-		"    <authors status = \"new\">\r\n" + //
-		"    <author>smith</author>\r\n" + //
-		"    <author>john</author>\r\n" + //
-		"    </authors>\r\n" + //
-		"    <authors status = \"old\">\r\n" + //
-		"    <author>smith</author>\r\n" + //
-		"    </authors>\r\n" + //
-		"</root>";
+				"    xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/unique.xsd\">\r\n" + //
+				"    <authors status = \"new\">\r\n" + //
+				"    <author>smith</author>\r\n" + //
+				"    <author>john</author>\r\n" + //
+				"    </authors>\r\n" + //
+				"    <authors status = \"old\">\r\n" + //
+				"    <author>smith</author>\r\n" + //
+				"    </authors>\r\n" + //
+				"</root>";
 		testDiagnosticsFor(xml);
 	}
 

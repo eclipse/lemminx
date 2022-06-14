@@ -65,6 +65,7 @@ public class XMLGenerator {
 		this.whitespacesIndent = whitespacesIndent;
 		this.lineDelimiter = lineDelimiter;
 		this.canSupportSnippets = canSupportSnippets;
+		this.maxLevel = maxLevel;
 	}
 
 	/**
@@ -76,16 +77,53 @@ public class XMLGenerator {
 	 */
 	public String generate(CMElementDeclaration elementDeclaration, String prefix, boolean generateEndTag) {
 		XMLBuilder xml = new XMLBuilder(sharedSettings, whitespacesIndent, lineDelimiter);
-		generate(elementDeclaration, prefix, generateEndTag, 0, 0, xml, new ArrayList<CMElementDeclaration>());
+		generate(elementDeclaration, prefix, generateEndTag, false, 0, 0, xml, new ArrayList<CMElementDeclaration>(),
+				new ArrayList<String>());
 		if (canSupportSnippets) {
 			xml.addContent(SnippetsBuilder.tabstops(0)); // "$0"
 		}
 		return xml.toString();
 	}
 
-	private int generate(CMElementDeclaration elementDeclaration, String prefix, boolean generateEndTag, int level,
-			int snippetIndex, XMLBuilder xml, List<CMElementDeclaration> generatedElements) {
-		if (generatedElements.contains(elementDeclaration)) {
+	/**
+	 * Returns the XML generated from the given element declaration given option to
+	 * generate only children.
+	 * 
+	 * @param elementDeclaration
+	 * @param prefix
+	 * @param generateEndTag
+	 * @param generateOnlyChildren true if only is children of the given element is
+	 *                             to be generated
+	 * @param existingElementNames a collection of strings of element names that
+	 *                             already exist in the XML
+	 * @return the XML generated from the given element declaration given option to
+	 *         generate only children.
+	 */
+	public String generate(CMElementDeclaration elementDeclaration, String prefix, boolean generateEndTag,
+			boolean generateOnlyChildren, Collection<String> existingElementNames) {
+		XMLBuilder xml = new XMLBuilder(sharedSettings, whitespacesIndent, lineDelimiter);
+		generate(elementDeclaration, prefix, generateEndTag, generateOnlyChildren, 0, 0, xml,
+				new ArrayList<CMElementDeclaration>(), existingElementNames);
+		if (canSupportSnippets) {
+			xml.addContent(SnippetsBuilder.tabstops(0)); // "$0"
+		}
+		return xml.toString();
+	}
+
+	private int generate(CMElementDeclaration elementDeclaration, String prefix, boolean generateEndTag,
+			boolean generateOnlyChildren, int level,
+			int snippetIndex, XMLBuilder xml, List<CMElementDeclaration> generatedElements,
+			Collection<String> existingElementNames) {
+		if (generateOnlyChildren) {
+			Collection<CMElementDeclaration> childLElements = elementDeclaration.getElements();
+			for (CMElementDeclaration child : childLElements) {
+				snippetIndex = generate(child, prefix, true, false, level + 1, snippetIndex, xml,
+						generatedElements, existingElementNames);
+			}
+			return snippetIndex;
+		}
+		if (generatedElements.contains(elementDeclaration)
+				|| existingElementNames.contains(elementDeclaration.getName())) {
 			return snippetIndex;
 		}
 		boolean autoCloseTags = this.autoCloseTags && generateEndTag;
@@ -102,10 +140,11 @@ public class XMLGenerator {
 		Collection<CMElementDeclaration> children = elementDeclaration.getElements();
 		if (children.size() > 0) {
 			xml.closeStartElement();
-			if ((level > maxLevel)) {
+			if ((level < maxLevel)) {
 				level++;
 				for (CMElementDeclaration child : children) {
-					snippetIndex = generate(child, prefix, true, level, snippetIndex, xml, generatedElements);
+					snippetIndex = generate(child, prefix, true, false, level, snippetIndex, xml,
+							generatedElements, existingElementNames);
 				}
 				level--;
 				xml.linefeed();
