@@ -11,11 +11,16 @@
 *******************************************************************************/
 package org.eclipse.lemminx.extensions.contentmodel;
 
+import static org.eclipse.lemminx.XMLAssert.ca;
 import static org.eclipse.lemminx.XMLAssert.d;
+import static org.eclipse.lemminx.XMLAssert.te;
+import static org.eclipse.lemminx.XMLAssert.testCodeActionsFor;
 
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.extensions.contentmodel.participants.DTDErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSchemaErrorCode;
+import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCode;
+
 import org.eclipse.lsp4j.Diagnostic;
 import org.junit.jupiter.api.Test;
 
@@ -80,7 +85,51 @@ public class XMLModelDiagnosticsTest {
 		testDiagnosticsFor(xml, d);
 	}
 
+	@Test
+	public void cvc_elt_1_a_basic() throws Exception {
+		String xml = "<test xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"    xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/unique.xsd\">\r\n" + //
+				"    <authors status = \"new\">\r\n" + //
+				"    <author>smith</author>\r\n" + //
+				"    </authors>\r\n" + //
+				"</test>";
+		Diagnostic d = d(0, 1, 0, 5, XMLSchemaErrorCode.cvc_elt_1_a);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(0, 1, 0, 5, "root"),
+				te(5, 2, 5, 6, "root")));
+	}
+
+	@Test
+	public void cvc_elt_1_a_multiple_roots_defined() throws Exception {
+		String xml = "<test xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"    xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/unique_multiroot.xsd\">\r\n" + //
+				"    <authors status = \"new\">\r\n" + //
+				"    <author>smith</author>\r\n" + //
+				"    </authors>\r\n" + //
+				"</test>";
+		Diagnostic d = d(0, 1, 0, 5, XMLSchemaErrorCode.cvc_elt_1_a);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(0, 1, 0, 5, "root"),
+				te(5, 2, 5, 6, "root")),
+				ca(d, te(0, 1, 0, 5, "root2"),
+						te(5, 2, 5, 6, "root2")));
+	}
+
+	@Test
+	public void cvc_elt_1_a_no_end_tag() throws Exception {
+		String xml = "<test xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"    xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/unique.xsd\">\r\n" + //
+				"    <authors status = \"new\">\r\n" + //
+				"    <author>smith</author>\r\n" + //
+				"    </authors>\r\n";
+		Diagnostic d1 = d(0, 1, 0, 5, XMLSchemaErrorCode.cvc_elt_1_a);
+		Diagnostic d2 = d(0, 1, 0, 5,XMLSyntaxErrorCode.MarkupEntityMismatch);
+		testDiagnosticsFor(xml, d1, d2);
+		testCodeActionsFor(xml, d1, ca(d1, te(0, 1, 0, 5, "root")));
+	}
+
 	private static void testDiagnosticsFor(String xml, Diagnostic... expected) {
 		XMLAssert.testDiagnosticsFor(xml, "src/test/resources/catalogs/catalog.xml", expected);
 	}
+
 }

@@ -35,11 +35,12 @@ import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.cvc_
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.cvc_complex_type_2_4_aCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.cvc_complex_type_3_2_2CodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.cvc_complex_type_4CodeAction;
+import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.cvc_elt_1_aCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.cvc_enumeration_validCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.cvc_type_3_1_1CodeAction;
-import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.schema_reference_4CodeAction;
+import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.missinggrammar.schema_reference_4CodeAction;
 import org.eclipse.lemminx.extensions.xsd.utils.XSDUtils;
-import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IXMLErrorCode;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.utils.DOMUtils;
@@ -301,6 +302,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 		codeActions.put(cvc_complex_type_2_4_c.getCode(), new cvc_complex_type_2_4_aCodeAction());
 		codeActions.put(cvc_complex_type_2_3.getCode(), new cvc_complex_type_2_3CodeAction());
 		codeActions.put(cvc_complex_type_4.getCode(), new cvc_complex_type_4CodeAction());
+		codeActions.put(cvc_elt_1_a.getCode(), new cvc_elt_1_aCodeAction());
 		codeActions.put(cvc_type_3_1_1.getCode(), new cvc_type_3_1_1CodeAction());
 		codeActions.put(cvc_attribute_3.getCode(), new cvc_attribute_3CodeAction());
 		codeActions.put(cvc_complex_type_3_2_2.getCode(), new cvc_complex_type_3_2_2CodeAction());

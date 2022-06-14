@@ -71,7 +71,6 @@ public class CodeActionFactory {
 		insertContentAction.setDiagnostics(Arrays.asList(diagnostic));
 		TextDocumentEdit textDocumentEdit = insertEdit(insertText, position, document);
 		WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)));
-
 		insertContentAction.setEdit(workspaceEdit);
 		return insertContentAction;
 	}
@@ -145,30 +144,41 @@ public class CodeActionFactory {
 	 * Makes a CodeAction to create a file and add content to the file.
 	 *
 	 * @param title      The displayed name of the CodeAction
-	 * @param docURI     The file to create
-	 * @param content    The text to put into the newly created document.
+	 * @param fileURI     The file to create
+	 * @param fileContent    The text to put into the newly created document.
 	 * @param diagnostic The diagnostic that this CodeAction will fix
 	 */
-	public static CodeAction createFile(String title, String docURI, String content, Diagnostic diagnostic) {
-
-		List<Either<TextDocumentEdit, ResourceOperation>> actionsToTake = new ArrayList<>(2);
-
-		// 1. create an empty file
-		actionsToTake.add(Either.forRight(new CreateFile(docURI, new CreateFileOptions(false, true))));
-
-		// 2. update the created file with the given content
-		VersionedTextDocumentIdentifier identifier = new VersionedTextDocumentIdentifier(docURI, 0);
-		TextEdit te = new TextEdit(new Range(new Position(0, 0), new Position(0, 0)), content);
-		actionsToTake.add(Either.forLeft(new TextDocumentEdit(identifier, Collections.singletonList(te))));
-
-		WorkspaceEdit createAndAddContentEdit = new WorkspaceEdit(actionsToTake);
-
+	public static CodeAction createFile(String title, String fileURI, String fileContent, Diagnostic diagnostic) {
+		WorkspaceEdit createAndAddContentEdit = createFileEdit(fileURI, fileContent);
 		CodeAction codeAction = new CodeAction(title);
 		codeAction.setEdit(createAndAddContentEdit);
 		codeAction.setDiagnostics(Collections.singletonList(diagnostic));
 		codeAction.setKind(CodeActionKind.QuickFix);
-
 		return codeAction;
+	}
+
+	/**
+	 * Returns the file edit to create the file with the given <code>fileURI</code>
+	 * and the given <code>fileContent</code>.
+	 * 
+	 * @param fileURI     the file URI to create.
+	 * @param fileContent the file content.
+	 * @return the file edit to create the file with the given <code>fileURI</code>
+	 *         and the given <code>fileContent</code>.
+	 */
+	public static WorkspaceEdit createFileEdit(String fileURI, String fileContent) {
+		List<Either<TextDocumentEdit, ResourceOperation>> actionsToTake = new ArrayList<>(2);
+
+		// 1. create an empty file
+		actionsToTake.add(Either.forRight(new CreateFile(fileURI, new CreateFileOptions(false, true))));
+
+		// 2. update the created file with the given content
+		VersionedTextDocumentIdentifier identifier = new VersionedTextDocumentIdentifier(fileURI, 0);
+		TextEdit te = new TextEdit(new Range(new Position(0, 0), new Position(0, 0)), fileContent);
+		actionsToTake.add(Either.forLeft(new TextDocumentEdit(identifier, Collections.singletonList(te))));
+
+		WorkspaceEdit createAndAddContentEdit = new WorkspaceEdit(actionsToTake);
+		return createAndAddContentEdit;
 	}
 
 	/**
@@ -176,16 +186,17 @@ public class CodeActionFactory {
 	 *
 	 * @param title         The displayed name of the CodeAction
 	 * @param commandId     The id of the given command to add as CodeAction
-	 * @param commandParams The document URI of the document the command is called on
+	 * @param commandParams The document URI of the document the command is called
+	 *                      on
 	 * @param diagnostic    The diagnostic that this CodeAction will fix
 	 */
-	public static CodeAction createCommand(String title, String commandId, List<Object> commandParams, Diagnostic diagnostic) {
+	public static CodeAction createCommand(String title, String commandId, List<Object> commandParams,
+			Diagnostic diagnostic) {
 		CodeAction codeAction = new CodeAction(title);
 		Command command = new Command(title, commandId, commandParams);
 		codeAction.setCommand(command);
 		codeAction.setDiagnostics(Collections.singletonList(diagnostic));
 		codeAction.setKind(CodeActionKind.QuickFix);
-
 		return codeAction;
 	}
 }

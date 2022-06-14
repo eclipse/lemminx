@@ -20,8 +20,8 @@ import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMDocumentType;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
-import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
-import org.eclipse.lemminx.services.extensions.IComponentProvider;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionRequest;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.utils.XMLBuilder;
 import org.eclipse.lsp4j.CodeAction;
@@ -43,9 +43,9 @@ public class EntityNotDeclaredCodeAction implements ICodeActionParticipant {
 	private static final Logger LOGGER = Logger.getLogger(EntityNotDeclaredCodeAction.class.getName());
 
 	@Override
-	public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
-			SharedSettings sharedSettings, IComponentProvider componentProvider, CancelChecker cancelChecker) {
-
+	public void doCodeAction(ICodeActionRequest request, List<CodeAction> codeActions, CancelChecker cancelChecker) {
+		Diagnostic diagnostic = request.getDiagnostic();
+		DOMDocument document = request.getDocument();
 		try {
 			String entityName = getEntityName(diagnostic, document);
 
@@ -53,6 +53,7 @@ public class EntityNotDeclaredCodeAction implements ICodeActionParticipant {
 				return;
 			}
 
+			SharedSettings sharedSettings = request.getSharedSettings();
 			DOMDocumentType docType = document.getDoctype();
 			if (docType != null) {
 

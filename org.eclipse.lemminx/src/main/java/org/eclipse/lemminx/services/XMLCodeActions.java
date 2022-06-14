@@ -19,9 +19,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.eclipse.lemminx.dom.DOMDocument;
-import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionResolvesParticipant;
 import org.eclipse.lemminx.settings.SharedSettings;
+import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.Diagnostic;
@@ -53,8 +55,9 @@ public class XMLCodeActions {
 				for (ICodeActionParticipant codeActionParticipant : extensionsRegistry.getCodeActionsParticipants()) {
 					try {
 						cancelChecker.checkCanceled();
-						codeActionParticipant.doCodeAction(diagnostic, range, document, codeActions, sharedSettings,
-								extensionsRegistry, cancelChecker);
+						CodeActionRequest request = new CodeActionRequest(diagnostic, range, document,
+								extensionsRegistry, sharedSettings);
+						codeActionParticipant.doCodeAction(request, codeActions, cancelChecker);
 					} catch (CancellationException e) {
 						throw e;
 					} catch (Exception e) {
@@ -67,5 +70,31 @@ public class XMLCodeActions {
 
 		cancelChecker.checkCanceled();
 		return codeActions;
+	}
+
+	public CodeAction resolveCodeAction(CodeAction unresolved, DOMDocument document, SharedSettings sharedSettings,
+			CancelChecker cancelChecker) {
+		ResolveCodeActionRequest request = new ResolveCodeActionRequest(unresolved, document, extensionsRegistry,
+				sharedSettings);
+		String participantId = request.getParticipantId();
+		if (StringUtils.isEmpty(participantId)) {
+			return null;
+		}
+		for (ICodeActionParticipant codeActionParticipant : extensionsRegistry.getCodeActionsParticipants()) {
+			try {
+				cancelChecker.checkCanceled();
+				ICodeActionResolvesParticipant resolveCodeActionParticipant = codeActionParticipant
+						.getResolveCodeActionParticipant(participantId);
+				if (resolveCodeActionParticipant != null) {
+					return resolveCodeActionParticipant.resolveCodeAction(request, cancelChecker);
+				}
+			} catch (CancellationException e) {
+				throw e;
+			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE, "Error while processing resolve code action for the participant '"
+						+ codeActionParticipant.getClass().getName() + "'.", e);
+			}
+		}
+		return null;
 	}
 }

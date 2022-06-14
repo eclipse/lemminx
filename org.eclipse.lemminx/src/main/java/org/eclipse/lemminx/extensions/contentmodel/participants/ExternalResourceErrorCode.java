@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.DownloadDisabledResourceCodeAction;
-import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IXMLErrorCode;
 
 /**

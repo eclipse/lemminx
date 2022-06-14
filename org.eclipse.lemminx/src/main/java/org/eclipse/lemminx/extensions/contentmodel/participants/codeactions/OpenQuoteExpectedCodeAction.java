@@ -18,8 +18,8 @@ import org.eclipse.lemminx.commons.CodeActionFactory;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMNode;
-import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
-import org.eclipse.lemminx.services.extensions.IComponentProvider;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionRequest;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
@@ -33,8 +33,9 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 public class OpenQuoteExpectedCodeAction implements ICodeActionParticipant {
 
 	@Override
-	public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
-			SharedSettings sharedSettings, IComponentProvider componentProvider, CancelChecker cancelChecker) {
+	public void doCodeAction(ICodeActionRequest request, List<CodeAction> codeActions, CancelChecker cancelChecker) {
+		Diagnostic diagnostic = request.getDiagnostic();
+		DOMDocument document = request.getDocument();
 		Range diagnosticRange = diagnostic.getRange();
 		int offset;
 		try {
@@ -43,9 +44,10 @@ public class OpenQuoteExpectedCodeAction implements ICodeActionParticipant {
 			return;
 		}
 		DOMAttr attr = document.findAttrAt(offset);
-		if(attr == null || !attr.isAttribute()) {
+		if (attr == null || !attr.isAttribute()) {
 			return;
 		}
+		SharedSettings sharedSettings = request.getSharedSettings();
 		String q = sharedSettings.getPreferences().getQuotationAsString();
 		Position codeactionPosition;
 		Position possibleEndPosition = null;
@@ -53,25 +55,26 @@ public class OpenQuoteExpectedCodeAction implements ICodeActionParticipant {
 		try {
 			codeactionPosition = document.positionAt(attr.getEnd());
 			DOMNode next = attr.getNextSibling();
-			if(next instanceof DOMAttr) {
+			if (next instanceof DOMAttr) {
 				DOMAttr nextAttr = (DOMAttr) next;
-				if(!nextAttr.hasDelimiter()) {
+				if (!nextAttr.hasDelimiter()) {
 					possibleEndPosition = document.positionAt(nextAttr.getEnd());
 					possibleValue = nextAttr.getName();
 				}
 			}
 		} catch (BadLocationException e) {
-		  return;
+			return;
 		}
 		CodeAction removeContentAction;
-		if(possibleEndPosition != null && possibleValue != null) {
-			removeContentAction = CodeActionFactory.replace("Insert quotations", new Range(codeactionPosition, possibleEndPosition), q + possibleValue + q, document.getTextDocument(), diagnostic);	
-		}
-		else {
-			removeContentAction = CodeActionFactory.insert("Insert quotations", codeactionPosition, q + q, document.getTextDocument(), diagnostic);
+		if (possibleEndPosition != null && possibleValue != null) {
+			removeContentAction = CodeActionFactory.replace("Insert quotations",
+					new Range(codeactionPosition, possibleEndPosition), q + possibleValue + q,
+					document.getTextDocument(), diagnostic);
+		} else {
+			removeContentAction = CodeActionFactory.insert("Insert quotations", codeactionPosition, q + q,
+					document.getTextDocument(), diagnostic);
 		}
 		codeActions.add(removeContentAction);
 	}
 
-	
 }

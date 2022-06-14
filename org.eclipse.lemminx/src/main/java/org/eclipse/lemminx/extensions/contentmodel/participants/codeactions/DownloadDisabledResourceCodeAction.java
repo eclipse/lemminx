@@ -20,9 +20,8 @@ import java.util.logging.Logger;
 
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.commands.XMLValidationFileCommand;
-import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
-import org.eclipse.lemminx.services.extensions.IComponentProvider;
-import org.eclipse.lemminx.settings.SharedSettings;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionRequest;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Command;
@@ -47,9 +46,9 @@ public class DownloadDisabledResourceCodeAction implements ICodeActionParticipan
 	private static final String FORCE_DOWNLOAD_TITLE = "Force download of ''{0}''.";
 
 	@Override
-	public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
-			SharedSettings sharedSettings, IComponentProvider componentProvider, CancelChecker cancelChecker) {
-
+	public void doCodeAction(ICodeActionRequest request, List<CodeAction> codeActions, CancelChecker cancelChecker) {
+		Diagnostic diagnostic = request.getDiagnostic();
+		DOMDocument document = request.getDocument();
 		try {
 			Range diagnosticRange = diagnostic.getRange();
 			int start = document.offsetAt(diagnosticRange.getStart());

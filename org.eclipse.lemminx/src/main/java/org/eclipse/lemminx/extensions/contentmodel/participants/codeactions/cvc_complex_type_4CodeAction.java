@@ -24,8 +24,8 @@ import org.eclipse.lemminx.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.extensions.contentmodel.utils.XMLGenerator;
-import org.eclipse.lemminx.services.extensions.ICodeActionParticipant;
-import org.eclipse.lemminx.services.extensions.IComponentProvider;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionRequest;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
@@ -39,9 +39,10 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 public class cvc_complex_type_4CodeAction implements ICodeActionParticipant {
 
 	@Override
-	public void doCodeAction(Diagnostic diagnostic, Range range, DOMDocument document, List<CodeAction> codeActions,
-			SharedSettings sharedSettings, IComponentProvider componentProvider, CancelChecker cancelChecker) {
-
+	public void doCodeAction(ICodeActionRequest request, List<CodeAction> codeActions, CancelChecker cancelChecker) {
+		Diagnostic diagnostic = request.getDiagnostic();
+		DOMDocument document = request.getDocument();
+		Range range = request.getRange();
 		if (diagnostic == null) {
 			return;
 		}
@@ -57,8 +58,9 @@ public class cvc_complex_type_4CodeAction implements ICodeActionParticipant {
 			if (!node.isElement()) {
 				return;
 			}
+			SharedSettings sharedSettings = request.getSharedSettings();
 			DOMElement element = (DOMElement) node;
-			ContentModelManager contentModelManager = componentProvider.getComponent(ContentModelManager.class);
+			ContentModelManager contentModelManager = request.getComponent(ContentModelManager.class);
 			for (CMDocument cmDocument : contentModelManager.findCMDocument(element)) {
 				CMElementDeclaration elementDeclaration = cmDocument.findCMElement(element);
 				if (elementDeclaration != null) {

@@ -26,6 +26,7 @@ import java.util.logging.Logger;
 import org.eclipse.lemminx.services.IXMLDocumentProvider;
 import org.eclipse.lemminx.services.IXMLNotificationService;
 import org.eclipse.lemminx.services.IXMLValidationService;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.codelens.ICodeLensParticipant;
 import org.eclipse.lemminx.services.extensions.commands.IXMLCommandService;
 import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
