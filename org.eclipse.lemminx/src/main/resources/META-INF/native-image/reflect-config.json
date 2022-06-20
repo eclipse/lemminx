@@ -731,7 +731,7 @@
             "name": "<init>",
             "parameterTypes": []
         }]
-    },		
+    },
 	{
 		"name": "org.eclipse.lsp4j.CompletionOptions",
 		"allDeclaredFields": true,
@@ -753,6 +753,26 @@
 		"fields": [{
 			"name": "value"
 		}]
+	},
+	{
+		"name": "org.eclipse.lsp4j.ConfigurationItem",
+		"allDeclaredFields": true,
+		"methods": [
+			{
+				"name": "<init>",
+				"parameterTypes": []
+			}
+		]
+	},
+	{
+		"name": "org.eclipse.lsp4j.ConfigurationParams",
+		"allDeclaredFields": true,
+		"methods": [
+			{
+				"name": "<init>",
+				"parameterTypes": []
+			}
+		]
 	},
 	{
 		"name": "org.eclipse.lsp4j.CreateFile",
@@ -825,7 +845,7 @@
             "name": "<init>",
             "parameterTypes": []
         }]
-    },	
+    },
 	{
 		"name": "org.eclipse.lsp4j.DiagnosticRelatedInformation",
 		"allDeclaredFields": true,
@@ -865,7 +885,7 @@
             "name": "<init>",
             "parameterTypes": []
         }]
-    },	
+    },
 	{
 		"name": "org.eclipse.lsp4j.DidChangeConfigurationCapabilities",
 		"allDeclaredFields": true,
@@ -1245,7 +1265,7 @@
                 "parameterTypes": []
             }
         ]
-    },    
+    },
     {
         "name": "org.eclipse.lsp4j.InlayHintWorkspaceCapabilities",
         "allDeclaredFields": true,
@@ -1269,7 +1289,7 @@
             "name": "<init>",
             "parameterTypes": []
         }]
-    },    
+    },
 	{
 		"name": "org.eclipse.lsp4j.InsertTextFormat",
 		"allDeclaredFields": true
@@ -1641,7 +1661,7 @@
             "name": "<init>",
             "parameterTypes": []
         }]
-    },	
+    },
 	{
 		"name": "org.eclipse.lsp4j.StaticRegistrationOptions",
 		"allDeclaredFields": true,
@@ -1947,7 +1967,7 @@
             "name": "<init>",
             "parameterTypes": []
         }]
-    },	
+    },
 	{
 		"name": "org.eclipse.lsp4j.adapters.ResourceOperationTypeAdapter",
 		"methods": [{
