@@ -14,9 +14,9 @@ package org.eclipse.lemminx.commons;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.eclipse.lsp4j.Position;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -158,14 +158,12 @@ public class TextDocumentTest {
 
 	@Test
 	public void testGetLineInformation() throws BadLocationException {
-		Assertions.assertThrows(BadLocationException.class,
-				() -> {
-					TextDocument document = new TextDocument("", "");
-					document.setIncremental(true);
-					Position position = document.positionAt(0);
-					position = new Position(-1, 0);
-					int offset = document.offsetAt(position);
-				});
+		assertThrows(BadLocationException.class, () -> {
+			TextDocument document = new TextDocument("", "");
+			document.setIncremental(true);
+			Position position = new Position(-1, 0);
+			document.offsetAt(position);
+		});
 	}
 
 	@Test
