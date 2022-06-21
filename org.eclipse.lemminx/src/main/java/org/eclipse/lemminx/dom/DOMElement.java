@@ -412,9 +412,11 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 	}
 
 	/**
-	 * Returns the offset at which the given unclosed start tag should be closed with an angle bracket
+	 * Returns the offset at which the given unclosed start tag should be closed
+	 * with an angle bracket
 	 *
-	 * @returns the offset at which the given unclosed start tag should be closed with an angle bracket
+	 * @returns the offset at which the given unclosed start tag should be closed
+	 *          with an angle bracket
 	 */
 	public int getUnclosedStartTagCloseOffset() {
 		String documentText = getOwnerDocument().getText();
@@ -554,7 +556,7 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 		for (DOMNode child : getChildren()) {
 			if (child.isText()) {
 				DOMText text = (DOMText) child;
-				if (!text.isWhitespace()) {
+				if (!text.isElementContentWhitespace()) {
 					return false;
 				}
 			} else {
@@ -562,6 +564,13 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 			}
 		}
 		return true;
+	}
+
+	public int getOffsetAfterStartTag() {
+		if (hasTagName()) {
+			return getStartTagOpenOffset() + 1;
+		}
+		return getStartTagOpenOffset() + getTagName().length() + 1;
 	}
 
 }

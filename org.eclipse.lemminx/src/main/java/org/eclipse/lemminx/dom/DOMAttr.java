@@ -403,11 +403,14 @@ public class DOMAttr extends DOMNode implements org.w3c.dom.Attr {
 	@Override
 	public int getEnd() {
 		if (nodeAttrValue != null) {
+			// <foo attr="value"| >
 			return nodeAttrValue.getEnd();
 		}
 		if (hasDelimiter()) {
+			// <foo attr=| >
 			return delimiter + 1;
 		}
+		// <foo attr| >
 		return nodeAttrName.getEnd();
 	}
 
@@ -450,6 +453,10 @@ public class DOMAttr extends DOMNode implements org.w3c.dom.Attr {
 			return false;
 		}
 		return true;
+	}
+
+	public int getDelimiterOffset() {
+		return delimiter;
 	}
 
 }

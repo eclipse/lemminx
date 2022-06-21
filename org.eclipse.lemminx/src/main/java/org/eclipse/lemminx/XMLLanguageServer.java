@@ -275,10 +275,6 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 		return xmlLanguageService;
 	}
 
-	public SharedSettings getSettings() {
-		return xmlTextDocumentService.getSharedSettings();
-	}
-
 	public ScheduledFuture<?> schedule(Runnable command, int delay, TimeUnit unit) {
 		return delayer.schedule(command, delay, unit);
 	}
@@ -292,7 +288,7 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 	public CompletableFuture<AutoCloseTagResponse> closeTag(TextDocumentPositionParams params) {
 		return xmlTextDocumentService.computeDOMAsync(params.getTextDocument(), (xmlDocument, cancelChecker) -> {
 			return getXMLLanguageService().doAutoClose(xmlDocument, params.getPosition(),
-					getSettings().getCompletionSettings(), cancelChecker);
+					getSharedSettings().getCompletionSettings(), cancelChecker);
 		});
 	}
 

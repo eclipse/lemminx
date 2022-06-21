@@ -142,4 +142,22 @@ public interface CMElementDeclaration {
 	 */
 	String getDocumentURI();
 
+	/**
+	 * Returns true if the element is a string type (ex : xs:string) and false
+	 * otherwise.
+	 * 
+	 * @return true if the element is a string type (ex : xs:string) and false
+	 *         otherwise.
+	 */
+	boolean isStringType();
+
+	/**
+	 * Returns true if the element can contains text and element both and false
+	 * otherwise.
+	 * 
+	 * @return true if the element can contains text and element both and false
+	 *         otherwise.
+	 */
+	boolean isMixedContent();
+
 }

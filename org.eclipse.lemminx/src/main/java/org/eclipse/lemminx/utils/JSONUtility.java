@@ -13,19 +13,20 @@
  *******************************************************************************/
 package org.eclipse.lemminx.utils;
 
+import org.eclipse.lemminx.settings.FaultTolerantTypeAdapterFactory;
+import org.eclipse.lsp4j.jsonrpc.json.adapters.EitherTypeAdapter;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-
-import org.eclipse.lemminx.settings.FaultTolerantTypeAdapterFactory;
-import org.eclipse.lsp4j.jsonrpc.json.adapters.EitherTypeAdapter;
 
 /**
  * JSONUtility
  */
 public class JSONUtility {
 
-	private JSONUtility(){}
+	private JSONUtility() {
+	}
 
 	public static <T> T toModel(Object object, Class<T> clazz) {
 		if (object == null) {

@@ -312,25 +312,17 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	@Override
 	public CompletableFuture<List<? extends TextEdit>> formatting(DocumentFormattingParams params) {
-		return computeAsync((cancelChecker) -> {
-			TextDocument document = getDocument(params.getTextDocument());
-			if (document == null) {
-				return null;
-			}
+		return computeDOMAsync(params.getTextDocument(), (xmlDocument, cancelChecker) -> {
 			CompositeSettings settings = new CompositeSettings(getSharedSettings(), params.getOptions());
-			return getXMLLanguageService().format(document, null, settings);
+			return getXMLLanguageService().format(xmlDocument, null, settings);
 		});
 	}
 
 	@Override
 	public CompletableFuture<List<? extends TextEdit>> rangeFormatting(DocumentRangeFormattingParams params) {
-		return computeAsync((cancelChecker) -> {
-			TextDocument document = getDocument(params.getTextDocument());
-			if (document == null) {
-				return null;
-			}
+		return computeDOMAsync(params.getTextDocument(), (xmlDocument, cancelChecker) -> {
 			CompositeSettings settings = new CompositeSettings(getSharedSettings(), params.getOptions());
-			return getXMLLanguageService().format(document, params.getRange(), settings);
+			return getXMLLanguageService().format(xmlDocument, params.getRange(), settings);
 		});
 	}
 
@@ -516,6 +508,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 					))).join();
 
 			newOptions = new XMLFormattingOptions();
+			newOptions.merge(sharedSettings.getFormattingSettings());
 			if (indentationSettings.get(0) != null && (indentationSettings.get(0) instanceof JsonPrimitive)) {
 				newOptions.setInsertSpaces(((JsonPrimitive) indentationSettings.get(0)).getAsBoolean());
 			}
@@ -714,10 +707,6 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	public SharedSettings getSharedSettings() {
 		return this.sharedSettings;
-	}
-
-	private TextDocument getDocument(TextDocumentIdentifier documentIdentifier) {
-		return getDocument(documentIdentifier.getUri());
 	}
 
 	/**
