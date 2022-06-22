@@ -10,10 +10,12 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lemminx.services.extensions;
+package org.eclipse.lemminx.services.extensions.completion;
 
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.extensions.contentmodel.utils.XMLGenerator;
+import org.eclipse.lemminx.services.extensions.IPositionRequest;
+import org.eclipse.lemminx.services.extensions.ISharedSettingsRequest;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Range;
 
@@ -34,7 +36,7 @@ public interface ICompletionRequest extends IPositionRequest, ISharedSettingsReq
 	/**
 	 * Returns <code>true</code> if the client support snippet and
 	 * <code>false</code> otherwise.
-	 * 
+	 *
 	 * @return <code>true</code> if the client support snippet and
 	 *         <code>false</code> otherwise.
 	 */
@@ -42,14 +44,23 @@ public interface ICompletionRequest extends IPositionRequest, ISharedSettingsReq
 
 	/**
 	 * Returns true if tag should be autoclosed with an end tag and false otherwise.
-	 * 
+	 *
 	 * @return true if tag should be autoclosed with an end tag and false otherwise.
 	 */
 	public boolean isAutoCloseTags();
 
 	/**
+	 * Returns true if the editor supports delayed resolution of documentation and
+	 * false otherwise.
+	 *
+	 * @returns true if the editor supports delayed resolution of documentation and
+	 *          false otherwise
+	 */
+	public boolean isResolveDocumentationSupported();
+
+	/**
 	 * Returns the proper insert text format according the support of snippet.
-	 * 
+	 *
 	 * @return the proper insert text format according the support of snippet.
 	 */
 	InsertTextFormat getInsertTextFormat();

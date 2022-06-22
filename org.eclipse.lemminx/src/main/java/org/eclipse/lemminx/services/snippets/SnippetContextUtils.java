@@ -5,7 +5,7 @@
 * http://www.eclipse.org/legal/epl-v20.html
 *
 * SPDX-License-Identifier: EPL-2.0
-* 
+*
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
@@ -15,12 +15,12 @@ import org.eclipse.lemminx.dom.DOMCDATASection;
 import org.eclipse.lemminx.dom.DOMComment;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
-import org.eclipse.lemminx.services.extensions.ICompletionRequest;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionRequest;
 import org.w3c.dom.Node;
 
 /**
  * Snippet context utilities.
- * 
+ *
  */
 public class SnippetContextUtils {
 
@@ -31,7 +31,7 @@ public class SnippetContextUtils {
 	/**
 	 * Returns true if the expression (with or without bracket) can be proceed
 	 * according the completion trigger and false otherwise.
-	 * 
+	 *
 	 * @param request the completion request.
 	 * @return true if the expression (with or without bracket) can be proceed
 	 *         according the completion trigger and false otherwise.
@@ -46,7 +46,7 @@ public class SnippetContextUtils {
 		if (node.isElement()) {
 			DOMElement element = (DOMElement) node;
 			if (element.isOrphanEndTag()) {
-				// </ 
+				// </
 				//</foo>
 				return false;
 			}

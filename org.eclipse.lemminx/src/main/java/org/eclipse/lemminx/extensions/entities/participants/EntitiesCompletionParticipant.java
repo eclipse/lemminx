@@ -23,9 +23,9 @@ import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.extensions.entities.EntitiesDocumentationUtils;
 import org.eclipse.lemminx.extensions.entities.EntitiesDocumentationUtils.EntityOriginType;
 import org.eclipse.lemminx.extensions.entities.EntitiesDocumentationUtils.PredefinedEntity;
-import org.eclipse.lemminx.services.extensions.CompletionParticipantAdapter;
-import org.eclipse.lemminx.services.extensions.ICompletionRequest;
-import org.eclipse.lemminx.services.extensions.ICompletionResponse;
+import org.eclipse.lemminx.services.extensions.completion.CompletionParticipantAdapter;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionRequest;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionResponse;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lemminx.utils.XMLPositionUtility.EntityReferenceRange;
 import org.eclipse.lsp4j.CompletionItem;
@@ -64,7 +64,7 @@ public class EntitiesCompletionParticipant extends CompletionParticipantAdapter 
 
 	/**
 	 * Collect local entities declared in the DOCTYPE.
-	 * 
+	 *
 	 * @param document    the DOM document.
 	 * @param entityRange the entity range.
 	 * @param markdown    true if the documentation can be formatted as markdown and
@@ -91,7 +91,7 @@ public class EntitiesCompletionParticipant extends CompletionParticipantAdapter 
 
 	/**
 	 * Collect external entities.
-	 * 
+	 *
 	 * @param document    the DOM document.
 	 * @param entityRange the entity range.
 	 * @param markdown    true if the documentation can be formatted as markdown and
@@ -118,12 +118,12 @@ public class EntitiesCompletionParticipant extends CompletionParticipantAdapter 
 
 	/**
 	 * Collect predefined entities.
-	 * 
+	 *
 	 * @param entityRange the entity range.
 	 * @param markdown    true if the documentation can be formatted as markdown and
 	 *                    false otherwise.
 	 * @param response    the completion response.
-	 * 
+	 *
 	 * @see https://www.w3.org/TR/xml/#sec-predefined-ent
 	 */
 	private void collectPredefinedEntityProposals(Range entityRange, boolean markdown, ICompletionResponse response) {

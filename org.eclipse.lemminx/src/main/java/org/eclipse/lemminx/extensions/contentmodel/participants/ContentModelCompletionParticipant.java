@@ -14,7 +14,9 @@ package org.eclipse.lemminx.extensions.contentmodel.participants;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.lemminx.commons.BadLocationException;
@@ -25,11 +27,16 @@ import org.eclipse.lemminx.extensions.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
+import org.eclipse.lemminx.extensions.contentmodel.participants.completion.AbstractCMCompletionResolver;
+import org.eclipse.lemminx.extensions.contentmodel.participants.completion.AttributeNameCompletionResolver;
+import org.eclipse.lemminx.extensions.contentmodel.participants.completion.AttributeValueCompletionResolver;
 import org.eclipse.lemminx.extensions.contentmodel.utils.XMLGenerator;
 import org.eclipse.lemminx.services.AttributeCompletionItem;
-import org.eclipse.lemminx.services.extensions.CompletionParticipantAdapter;
-import org.eclipse.lemminx.services.extensions.ICompletionRequest;
-import org.eclipse.lemminx.services.extensions.ICompletionResponse;
+import org.eclipse.lemminx.services.data.DataEntryField;
+import org.eclipse.lemminx.services.extensions.completion.CompletionParticipantAdapter;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionItemResolveParticipant;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionRequest;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionResponse;
 import org.eclipse.lemminx.uriresolver.CacheResourceDownloadingException;
 import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lsp4j.CompletionItem;
@@ -45,14 +52,26 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.google.gson.JsonObject;
+
 /**
  * Extension to support XML completion based on content model (XML Schema
  * completion, etc)
  */
 public class ContentModelCompletionParticipant extends CompletionParticipantAdapter {
 
+	private final Map<String, ICompletionItemResolveParticipant> completionResolvers;
+
+	public ContentModelCompletionParticipant() {
+		completionResolvers = new HashMap<>();
+		completionResolvers.put(AttributeValueCompletionResolver.PARTICIPANT_ID,
+				new AttributeValueCompletionResolver());
+		completionResolvers.put(AttributeNameCompletionResolver.PARTICIPANT_ID, new AttributeNameCompletionResolver());
+	}
+
 	@Override
-	public void onTagOpen(ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker) throws Exception {
+	public void onTagOpen(ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker)
+			throws Exception {
 		try {
 			DOMDocument document = request.getXMLDocument();
 			ContentModelManager contentModelManager = request.getComponent(ContentModelManager.class);
@@ -122,7 +141,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 
 	/**
 	 * Fill with possible element declarations.
-	 * 
+	 *
 	 * @param parentElement       the parent DOM element
 	 * @param cmElement           the content model element declaration
 	 * @param defaultPrefix
@@ -150,7 +169,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 
 	/**
 	 * Fill with children element declarations
-	 * 
+	 *
 	 * @param element
 	 * @param cmDocument
 	 * @param cmElements
@@ -201,7 +220,7 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 
 	/**
 	 * Add completion item with all tag names of the node list.
-	 * 
+	 *
 	 * @param list
 	 * @param tags
 	 * @param request
@@ -264,7 +283,8 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	}
 
 	@Override
-	public void onAttributeName(boolean generateValue, ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker)
+	public void onAttributeName(boolean generateValue, ICompletionRequest request, ICompletionResponse response,
+			CancelChecker cancelChecker)
 			throws Exception {
 		// otherwise, manage completion based on XML Schema, DTD.
 		DOMElement parentElement = request.getNode().isElement() ? (DOMElement) request.getNode() : null;
@@ -301,20 +321,29 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			return;
 		}
 		for (CMAttributeDeclaration attributeDeclaration : attributes) {
-			String prefix = (parentElement != null ? parentElement.getPrefix(attributeDeclaration.getNamespace()) : null);
+			String prefix = (parentElement != null ? parentElement.getPrefix(attributeDeclaration.getNamespace())
+					: null);
 			String attrName = attributeDeclaration.getName(prefix);
 			if (!parentElement.hasAttribute(attrName)) {
 				CompletionItem item = new AttributeCompletionItem(attrName, canSupportSnippet, fullRange, generateValue,
-						attributeDeclaration.getDefaultValue(), attributeDeclaration.getEnumerationValues(), request.getSharedSettings());
-				MarkupContent documentation = XMLGenerator.createMarkupContent(attributeDeclaration, elementDeclaration, request);
-				item.setDocumentation(documentation);
+						attributeDeclaration.getDefaultValue(), attributeDeclaration.getEnumerationValues(),
+						request.getSharedSettings());
+				if (request.isResolveDocumentationSupported()) {
+					addResolveData(request, item, AttributeNameCompletionResolver.PARTICIPANT_ID);
+				} else {
+					MarkupContent documentation = XMLGenerator.createMarkupContent(attributeDeclaration,
+							elementDeclaration,
+							request);
+					item.setDocumentation(documentation);
+				}
 				response.addCompletionAttribute(item);
 			}
 		}
 	}
 
 	@Override
-	public void onAttributeValue(String valuePrefix, ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker)
+	public void onAttributeValue(String valuePrefix, ICompletionRequest request, ICompletionResponse response,
+			CancelChecker cancelChecker)
 			throws Exception {
 		DOMElement parentElement = request.getNode().isElement() ? (DOMElement) request.getNode() : null;
 		if (parentElement == null) {
@@ -346,21 +375,26 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			Range fullRange = request.getReplaceRange();
 			cmAttribute.getEnumerationValues().forEach(value -> {
 				CompletionItem item = new CompletionItem();
-				item.setLabel(value);
 				String insertText = request.getInsertAttrValue(value);
 				item.setLabel(value);
 				item.setKind(CompletionItemKind.Value);
 				item.setFilterText(insertText);
 				item.setTextEdit(Either.forLeft(new TextEdit(fullRange, insertText)));
-				MarkupContent documentation = XMLGenerator.createMarkupContent(cmAttribute, value, cmElement, request);
-				item.setDocumentation(documentation);
+
+				if (request.isResolveDocumentationSupported()) {
+					addResolveData(request, item, AttributeValueCompletionResolver.PARTICIPANT_ID);
+				} else {
+					item.setDocumentation(XMLGenerator.createMarkupContent(cmAttribute, value, cmElement,
+							request));
+				}
 				response.addCompletionItem(item);
 			});
 		}
 	}
 
 	@Override
-	public void onXMLContent(ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker) throws Exception {
+	public void onXMLContent(ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker)
+			throws Exception {
 		try {
 			ContentModelManager contentModelManager = request.getComponent(ContentModelManager.class);
 			DOMElement parentElement = request.getParentElement();
@@ -403,5 +437,19 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 		} catch (CacheResourceDownloadingException e) {
 			// XML Schema, DTD is loading, ignore this error
 		}
+	}
+
+	@Override
+	public ICompletionItemResolveParticipant getResolveCompletionItemParticipant(String participantId) {
+		return completionResolvers.get(participantId);
+	}
+
+	private void addResolveData(ICompletionRequest request, CompletionItem item, String participantId) {
+		DOMDocument document = request.getNode().getOwnerDocument();
+		JsonObject data = DataEntryField.createData(document.getDocumentURI(),
+				participantId);
+		data.addProperty(AbstractCMCompletionResolver.OFFSET_KEY,
+				request.getOffset());
+		item.setData(data);
 	}
 }

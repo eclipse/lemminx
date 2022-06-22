@@ -16,8 +16,8 @@ import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.extensions.contentmodel.utils.XMLGenerator;
-import org.eclipse.lemminx.services.extensions.ICompletionRequest;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionRequest;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLCompletionSettings;
 import org.eclipse.lsp4j.InsertTextFormat;
@@ -126,6 +126,12 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 	@Override
 	public InsertTextFormat getInsertTextFormat() {
 		return isCompletionSnippetsSupported() ? InsertTextFormat.Snippet : InsertTextFormat.PlainText;
+	}
+
+	@Override
+	public boolean isResolveDocumentationSupported() {
+		XMLCompletionSettings completionSettings = sharedSettings.getCompletionSettings();
+		return completionSettings.isResolveDocumentationSupported();
 	}
 
 }

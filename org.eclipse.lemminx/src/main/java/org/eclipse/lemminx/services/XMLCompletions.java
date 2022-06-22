@@ -38,10 +38,11 @@ import org.eclipse.lemminx.dom.parser.Scanner;
 import org.eclipse.lemminx.dom.parser.ScannerState;
 import org.eclipse.lemminx.dom.parser.TokenType;
 import org.eclipse.lemminx.dom.parser.XMLScanner;
-import org.eclipse.lemminx.services.extensions.ICompletionParticipant;
-import org.eclipse.lemminx.services.extensions.ICompletionRequest;
-import org.eclipse.lemminx.services.extensions.ICompletionResponse;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionItemResolveParticipant;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionParticipant;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionRequest;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionResponse;
 import org.eclipse.lemminx.services.snippets.IXMLSnippetContext;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLCompletionSettings;
@@ -105,174 +106,177 @@ public class XMLCompletions {
 			while (token != TokenType.EOS && scanner.getTokenOffset() <= offset) {
 				cancelChecker.checkCanceled();
 				switch (token) {
-				case StartTagOpen:
-					if (scanner.getTokenEnd() == offset) {
-						int endPos = scanNextForEndPos(offset, scanner, TokenType.StartTag);
-						collectTagSuggestions(offset, endPos, completionRequest, completionResponse, cancelChecker);
-						return completionResponse;
-					}
-					break;
-				case StartTag:
-					if (scanner.getTokenOffset() <= offset && offset <= scanner.getTokenEnd()) {
-						collectOpenTagSuggestions(scanner.getTokenOffset(), scanner.getTokenEnd(), completionRequest,
-								completionResponse, cancelChecker);
-						return completionResponse;
-					}
-					currentTag = scanner.getTokenText();
-					break;
-				case AttributeName:
-					if (scanner.getTokenOffset() <= offset && offset <= scanner.getTokenEnd()) {
-						collectAttributeNameSuggestions(scanner.getTokenOffset(), scanner.getTokenEnd(),
-								completionRequest, completionResponse, cancelChecker);
-						return completionResponse;
-					}
-					break;
-				case DelimiterAssign:
-					if (scanner.getTokenEnd() == offset) {
-						collectAttributeValueSuggestions(offset, offset, completionRequest, completionResponse,
-								cancelChecker);
-						return completionResponse;
-					}
-					break;
-				case DTDStartDoctypeTag:
-
-					DTDDeclParameter systemId = xmlDocument.getDoctype().getSystemIdNode();
-					if (systemId == null) {
+					case StartTagOpen:
+						if (scanner.getTokenEnd() == offset) {
+							int endPos = scanNextForEndPos(offset, scanner, TokenType.StartTag);
+							collectTagSuggestions(offset, endPos, completionRequest, completionResponse, cancelChecker);
+							return completionResponse;
+						}
 						break;
-					}
-
-					if (DOMNode.isIncluded(systemId, offset)) {
-						/**
-						 * Completion invoked within systemId parameter ie, completion offset is at |
-						 * like so: <!DOCTYPE foo SYSTEM "./|">
-						 */
-						collectDTDSystemIdSuggestions(systemId.getStart(), systemId.getEnd(), completionRequest,
-								completionResponse, cancelChecker);
-						return completionResponse;
-					}
-					break;
-				case AttributeValue:
-					if (scanner.getTokenOffset() <= offset && offset <= scanner.getTokenEnd()) {
-						collectAttributeValueSuggestions(scanner.getTokenOffset(), scanner.getTokenEnd(),
-								completionRequest, completionResponse, cancelChecker);
-						return completionResponse;
-					}
-					break;
-				case Whitespace:
-					if (offset <= scanner.getTokenEnd()) {
-						switch (scanner.getScannerState()) {
-						case AfterOpeningStartTag:
-							int startPos = scanner.getTokenOffset();
-							int endTagPos = scanNextForEndPos(offset, scanner, TokenType.StartTag);
-							collectTagSuggestions(startPos, endTagPos, completionRequest, completionResponse,
+					case StartTag:
+						if (scanner.getTokenOffset() <= offset && offset <= scanner.getTokenEnd()) {
+							collectOpenTagSuggestions(scanner.getTokenOffset(), scanner.getTokenEnd(),
+									completionRequest,
+									completionResponse, cancelChecker);
+							return completionResponse;
+						}
+						currentTag = scanner.getTokenText();
+						break;
+					case AttributeName:
+						if (scanner.getTokenOffset() <= offset && offset <= scanner.getTokenEnd()) {
+							collectAttributeNameSuggestions(scanner.getTokenOffset(), scanner.getTokenEnd(),
+									completionRequest, completionResponse, cancelChecker);
+							return completionResponse;
+						}
+						break;
+					case DelimiterAssign:
+						if (scanner.getTokenEnd() == offset) {
+							collectAttributeValueSuggestions(offset, offset, completionRequest, completionResponse,
 									cancelChecker);
 							return completionResponse;
-						case WithinTag:
-						case AfterAttributeName:
-							collectAttributeNameSuggestions(scanner.getTokenEnd(), completionRequest,
-									completionResponse, cancelChecker);
-							return completionResponse;
-						case BeforeAttributeValue:
-							collectAttributeValueSuggestions(scanner.getTokenEnd(), offset, completionRequest,
-									completionResponse, cancelChecker);
-							return completionResponse;
-						case AfterOpeningEndTag:
-							collectCloseTagSuggestions(scanner.getTokenOffset() - 1, false, offset, completionRequest,
-									completionResponse, cancelChecker);
-							return completionResponse;
-						case WithinContent:
-							collectInsideContent(completionRequest, completionResponse, cancelChecker);
-							return completionResponse;
-						default:
 						}
-					}
-					break;
-				case EndTagOpen:
-					if (offset <= scanner.getTokenEnd()) {
-						int afterOpenBracket = scanner.getTokenOffset() + 1;
-						int endOffset = scanNextForEndPos(offset, scanner, TokenType.EndTag);
-						collectCloseTagSuggestions(afterOpenBracket, false, endOffset, completionRequest,
-								completionResponse, cancelChecker);
-						return completionResponse;
-					}
-					break;
-				case EndTag:
-					if (offset <= scanner.getTokenEnd()) {
-						int start = scanner.getTokenOffset() - 1;
-						while (start >= 0) {
-							char ch = text.charAt(start);
-							if (ch == '/') {
-								collectCloseTagSuggestions(start, false, scanner.getTokenEnd(), completionRequest,
-										completionResponse, cancelChecker);
-								return completionResponse;
-							} else if (!isWhitespace(ch)) {
-								break;
+						break;
+					case DTDStartDoctypeTag:
+
+						DTDDeclParameter systemId = xmlDocument.getDoctype().getSystemIdNode();
+						if (systemId == null) {
+							break;
+						}
+
+						if (DOMNode.isIncluded(systemId, offset)) {
+							/**
+							 * Completion invoked within systemId parameter ie, completion offset is at |
+							 * like so: <!DOCTYPE foo SYSTEM "./|">
+							 */
+							collectDTDSystemIdSuggestions(systemId.getStart(), systemId.getEnd(), completionRequest,
+									completionResponse, cancelChecker);
+							return completionResponse;
+						}
+						break;
+					case AttributeValue:
+						if (scanner.getTokenOffset() <= offset && offset <= scanner.getTokenEnd()) {
+							collectAttributeValueSuggestions(scanner.getTokenOffset(), scanner.getTokenEnd(),
+									completionRequest, completionResponse, cancelChecker);
+							return completionResponse;
+						}
+						break;
+					case Whitespace:
+						if (offset <= scanner.getTokenEnd()) {
+							switch (scanner.getScannerState()) {
+								case AfterOpeningStartTag:
+									int startPos = scanner.getTokenOffset();
+									int endTagPos = scanNextForEndPos(offset, scanner, TokenType.StartTag);
+									collectTagSuggestions(startPos, endTagPos, completionRequest, completionResponse,
+											cancelChecker);
+									return completionResponse;
+								case WithinTag:
+								case AfterAttributeName:
+									collectAttributeNameSuggestions(scanner.getTokenEnd(), completionRequest,
+											completionResponse, cancelChecker);
+									return completionResponse;
+								case BeforeAttributeValue:
+									collectAttributeValueSuggestions(scanner.getTokenEnd(), offset, completionRequest,
+											completionResponse, cancelChecker);
+									return completionResponse;
+								case AfterOpeningEndTag:
+									collectCloseTagSuggestions(scanner.getTokenOffset() - 1, false, offset,
+											completionRequest,
+											completionResponse, cancelChecker);
+									return completionResponse;
+								case WithinContent:
+									collectInsideContent(completionRequest, completionResponse, cancelChecker);
+									return completionResponse;
+								default:
 							}
-							start--;
 						}
-					}
-					break;
-				case StartTagClose:
-					if (offset <= scanner.getTokenEnd()) {
-						if (currentTag != null && currentTag.length() > 0) {
+						break;
+					case EndTagOpen:
+						if (offset <= scanner.getTokenEnd()) {
+							int afterOpenBracket = scanner.getTokenOffset() + 1;
+							int endOffset = scanNextForEndPos(offset, scanner, TokenType.EndTag);
+							collectCloseTagSuggestions(afterOpenBracket, false, endOffset, completionRequest,
+									completionResponse, cancelChecker);
+							return completionResponse;
+						}
+						break;
+					case EndTag:
+						if (offset <= scanner.getTokenEnd()) {
+							int start = scanner.getTokenOffset() - 1;
+							while (start >= 0) {
+								char ch = text.charAt(start);
+								if (ch == '/') {
+									collectCloseTagSuggestions(start, false, scanner.getTokenEnd(), completionRequest,
+											completionResponse, cancelChecker);
+									return completionResponse;
+								} else if (!isWhitespace(ch)) {
+									break;
+								}
+								start--;
+							}
+						}
+						break;
+					case StartTagClose:
+						if (offset <= scanner.getTokenEnd()) {
+							if (currentTag != null && currentTag.length() > 0) {
+								collectInsideContent(completionRequest, completionResponse, cancelChecker);
+								return completionResponse;
+							}
+						}
+						break;
+					case StartTagSelfClose:
+						if (offset <= scanner.getTokenEnd()) {
+							if (currentTag != null && currentTag.length() > 0
+									&& xmlDocument.getText().charAt(offset - 1) == '>') { // if the actual character
+																							// typed
+																							// was
+																							// '>'
+								collectInsideContent(completionRequest, completionResponse, cancelChecker);
+								return completionResponse;
+							}
+						}
+						break;
+					case EndTagClose:
+						if (offset <= scanner.getTokenEnd()) {
+							if (currentTag != null && currentTag.length() > 0) {
+								collectInsideContent(completionRequest, completionResponse, cancelChecker);
+								return completionResponse;
+							}
+						}
+						break;
+					case Content:
+						if (completionRequest.getXMLDocument().isDTD()
+								|| completionRequest.getXMLDocument().isWithinInternalDTD(offset)) {
+							if (scanner.getTokenOffset() <= offset) {
+								return completionResponse;
+							}
+							break;
+						}
+						if (offset <= scanner.getTokenEnd()) {
 							collectInsideContent(completionRequest, completionResponse, cancelChecker);
 							return completionResponse;
 						}
-					}
-					break;
-				case StartTagSelfClose:
-					if (offset <= scanner.getTokenEnd()) {
-						if (currentTag != null && currentTag.length() > 0
-								&& xmlDocument.getText().charAt(offset - 1) == '>') { // if the actual character typed
-																						// was
-																						// '>'
-							collectInsideContent(completionRequest, completionResponse, cancelChecker);
-							return completionResponse;
-						}
-					}
-					break;
-				case EndTagClose:
-					if (offset <= scanner.getTokenEnd()) {
-						if (currentTag != null && currentTag.length() > 0) {
-							collectInsideContent(completionRequest, completionResponse, cancelChecker);
-							return completionResponse;
-						}
-					}
-					break;
-				case Content:
-					if (completionRequest.getXMLDocument().isDTD()
-							|| completionRequest.getXMLDocument().isWithinInternalDTD(offset)) {
+						break;
+					// DTD
+					case DTDAttlistAttributeName:
+					case DTDAttlistAttributeType:
+					case DTDAttlistAttributeValue:
+					case DTDStartAttlist:
+					case DTDStartElement:
+					case DTDStartEntity:
+					case DTDEndTag:
+					case DTDStartInternalSubset:
+					case DTDEndInternalSubset: {
 						if (scanner.getTokenOffset() <= offset) {
 							return completionResponse;
 						}
 						break;
 					}
-					if (offset <= scanner.getTokenEnd()) {
-						collectInsideContent(completionRequest, completionResponse, cancelChecker);
-						return completionResponse;
-					}
-					break;
-				// DTD
-				case DTDAttlistAttributeName:
-				case DTDAttlistAttributeType:
-				case DTDAttlistAttributeValue:
-				case DTDStartAttlist:
-				case DTDStartElement:
-				case DTDStartEntity:
-				case DTDEndTag:
-				case DTDStartInternalSubset:
-				case DTDEndInternalSubset: {
-					if (scanner.getTokenOffset() <= offset) {
-						return completionResponse;
-					}
-					break;
-				}
 
-				default:
-					if (offset <= scanner.getTokenEnd()) {
-						return completionResponse;
-					}
-					break;
+					default:
+						if (offset <= scanner.getTokenEnd()) {
+							return completionResponse;
+						}
+						break;
 				}
 				token = scanner.scan();
 			}
@@ -280,6 +284,43 @@ public class XMLCompletions {
 		} finally {
 			collectSnippetSuggestions(completionRequest, completionResponse);
 		}
+	}
+
+	/**
+	 * Returns the completion item with the empty fields resolved.
+	 *
+	 * @param unresolved     the unresolved completion item
+	 * @param xmlDocument    the model of the document where completion was
+	 *                       triggered
+	 * @param sharedSettings the settings
+	 * @param cancelChecker  the cancel checker
+	 * @return the completion item with the empty fields resolved
+	 */
+	public CompletionItem resolveCompletionItem(CompletionItem unresolved, DOMDocument xmlDocument,
+			SharedSettings sharedSettings, CancelChecker cancelChecker) {
+		ResolveCompletionItemRequest request = new ResolveCompletionItemRequest(unresolved, xmlDocument,
+				extensionsRegistry,
+				sharedSettings);
+		String participantId = request.getParticipantId();
+		if (StringUtils.isEmpty(participantId)) {
+			return unresolved;
+		}
+		for (ICompletionParticipant completionParticipant : extensionsRegistry.getCompletionParticipants()) {
+			try {
+				cancelChecker.checkCanceled();
+				ICompletionItemResolveParticipant resolveCompletionItemParticipant = completionParticipant
+						.getResolveCompletionItemParticipant(participantId);
+				if (resolveCompletionItemParticipant != null) {
+					return resolveCompletionItemParticipant.resolveCompletionItem(request, cancelChecker);
+				}
+			} catch (CancellationException e) {
+				throw e;
+			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE, "Error while processing resolve completion item for the participant '"
+						+ completionParticipant.getClass().getName() + "'.", e);
+			}
+		}
+		return unresolved;
 	}
 
 	/**
@@ -784,22 +825,22 @@ public class XMLCompletions {
 
 	private static Range getTextRangeInsideContent(DOMNode node) {
 		switch (node.getNodeType()) {
-		case Node.ELEMENT_NODE:
-			Node firstChild = node.getFirstChild();
-			if (firstChild == null) {
-				// ex : <root>|</root>
-				DOMElement element = (DOMElement) node;
-				return XMLPositionUtility.createRange(element.getStartTagCloseOffset() + 1,
-						element.getStartTagCloseOffset() + 1, element.getOwnerDocument());
-			}
-			if (firstChild.getNodeType() == Node.TEXT_NODE) {
-				// ex : <root>abcd|</root>
-				return XMLPositionUtility.selectText((DOMText) firstChild);
-			}
-			return null;
-		case Node.TEXT_NODE:
-			// ex : <root> | </root>
-			return XMLPositionUtility.selectText((DOMText) node);
+			case Node.ELEMENT_NODE:
+				Node firstChild = node.getFirstChild();
+				if (firstChild == null) {
+					// ex : <root>|</root>
+					DOMElement element = (DOMElement) node;
+					return XMLPositionUtility.createRange(element.getStartTagCloseOffset() + 1,
+							element.getStartTagCloseOffset() + 1, element.getOwnerDocument());
+				}
+				if (firstChild.getNodeType() == Node.TEXT_NODE) {
+					// ex : <root>abcd|</root>
+					return XMLPositionUtility.selectText((DOMText) firstChild);
+				}
+				return null;
+			case Node.TEXT_NODE:
+				// ex : <root> | </root>
+				return XMLPositionUtility.selectText((DOMText) node);
 		}
 		// should never occur
 		return null;
@@ -1068,4 +1109,5 @@ public class XMLCompletions {
 		}
 		return snippetRegistry;
 	}
+
 }

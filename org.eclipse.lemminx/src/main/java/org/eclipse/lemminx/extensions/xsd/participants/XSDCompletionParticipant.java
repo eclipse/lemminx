@@ -18,9 +18,9 @@ import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.extensions.xsd.DataType;
 import org.eclipse.lemminx.extensions.xsd.utils.XSDUtils;
 import org.eclipse.lemminx.extensions.xsd.utils.XSDUtils.BindingType;
-import org.eclipse.lemminx.services.extensions.CompletionParticipantAdapter;
-import org.eclipse.lemminx.services.extensions.ICompletionRequest;
-import org.eclipse.lemminx.services.extensions.ICompletionResponse;
+import org.eclipse.lemminx.services.extensions.completion.CompletionParticipantAdapter;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionRequest;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionResponse;
 import org.eclipse.lemminx.utils.DOMUtils;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -33,7 +33,7 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 /**
  * XSD completion for
- * 
+ *
  * <ul>
  * <li>xs:/@type -> xs:complexType/@name</li>
  * <li>xs:/@base -> xs:complexType/@name</li>

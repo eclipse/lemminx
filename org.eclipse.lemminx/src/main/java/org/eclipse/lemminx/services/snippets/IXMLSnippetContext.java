@@ -12,7 +12,7 @@
 package org.eclipse.lemminx.services.snippets;
 
 import org.eclipse.lemminx.commons.snippets.ISnippetContext;
-import org.eclipse.lemminx.services.extensions.ICompletionRequest;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionRequest;
 
 /**
  * XML snippet context API.

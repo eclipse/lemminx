@@ -14,10 +14,10 @@ package org.eclipse.lemminx.extensions.references;
 
 import org.eclipse.lemminx.extensions.references.participants.XMLReferencesCompletionParticipant;
 import org.eclipse.lemminx.extensions.references.participants.XMLReferencesDefinitionParticipant;
-import org.eclipse.lemminx.services.extensions.ICompletionParticipant;
 import org.eclipse.lemminx.services.extensions.IDefinitionParticipant;
 import org.eclipse.lemminx.services.extensions.IXMLExtension;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionParticipant;
 import org.eclipse.lsp4j.InitializeParams;
 
 public class XMLReferencesPlugin implements IXMLExtension {

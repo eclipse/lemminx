@@ -18,6 +18,10 @@ import static org.eclipse.lemminx.XMLAssert.r;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.services.XMLLanguageService;
+import org.eclipse.lemminx.services.extensions.completion.CompletionParticipantAdapter;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionParticipant;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionRequest;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionResponse;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
@@ -95,20 +99,20 @@ public class HTMLCompletionExtensionsTest {
 		/*
 		 * testCompletionFor("<input t|ype=\"text\"", r("type", "type=\"text\""), //
 		 * r("style", "style=\"text\""));
-		 * 
+		 *
 		 * testCompletionFor("<input type=\"text\" |", r("style",
 		 * "<input type=\"text\" style=\"$1\""), // r("type",
 		 * "<input type=\"text\" style=\"$1\""), // r("size",
 		 * "<input type=\"text\" size=\"$1\""));
-		 * 
+		 *
 		 * testCompletionFor("<input type=\"text\" s|", r("type",
 		 * "<input type=\"text\""), // r("src", "<input type=\"text\" src=\"$1\""), //
 		 * r("size", "<input type=\"text\" size=\"$1\""));
-		 * 
+		 *
 		 * testCompletionFor("<input di| type=\"text\"", r("disabled",
 		 * "<input disabled=\"$1\" type=\"text\""), // r("dir",
 		 * "<input dir=\"$1\" type=\"text\""));
-		 * 
+		 *
 		 * testCompletionFor("<input disabled | type=\"text\"", r("dir",
 		 * "<input disabled dir=\"$1\" type=\"text\""), // r("style",
 		 * "<input disabled style=\"$1\" type=\"text\""));
@@ -123,7 +127,7 @@ public class HTMLCompletionExtensionsTest {
 	}
 
 	@Test
-	public void testHTMLOnXMLContentCompletion() throws BadLocationException {		
+	public void testHTMLOnXMLContentCompletion() throws BadLocationException {
 		testCompletionFor("<input>|</input>", //
 				c("Test replace range", "replacement text", r(0, 7, 0, 7), null));
 		testCompletionFor("<input> |</input>", //

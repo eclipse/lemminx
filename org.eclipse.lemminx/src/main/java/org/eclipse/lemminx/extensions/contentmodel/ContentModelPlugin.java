@@ -36,7 +36,6 @@ import org.eclipse.lemminx.extensions.contentmodel.settings.XMLDownloadExternalR
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.services.IXMLDocumentProvider;
 import org.eclipse.lemminx.services.IXMLValidationService;
-import org.eclipse.lemminx.services.extensions.ICompletionParticipant;
 import org.eclipse.lemminx.services.extensions.IDocumentLinkParticipant;
 import org.eclipse.lemminx.services.extensions.IHoverParticipant;
 import org.eclipse.lemminx.services.extensions.ITypeDefinitionParticipant;
@@ -45,6 +44,7 @@ import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.codelens.ICodeLensParticipant;
 import org.eclipse.lemminx.services.extensions.commands.IXMLCommandService;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lemminx.services.extensions.save.ISaveContext;
 import org.eclipse.lemminx.uriresolver.URIResolverExtensionManager;
@@ -151,7 +151,7 @@ public class ContentModelPlugin implements IXMLExtension {
 		if (useCache != null) {
 			contentModelManager.setUseCache(useCache);
 		}
-		
+
 		// Download external resources
 		XMLDownloadExternalResourcesSettings downloadExternalResources = settings.getDownloadExternalResources();
 		boolean downloadExternalResourcesEnabled = downloadExternalResources == null
@@ -212,7 +212,7 @@ public class ContentModelPlugin implements IXMLExtension {
 		registry.registerDocumentLifecycleParticipant(documentTelemetryParticipant);
 		formatterParticipant = new ContentModelFormatterParticipant(contentModelManager);
 		registry.registerFormatterParticipant(formatterParticipant);
-		
+
 		// Register custom commands to re-validate XML files
 		IXMLCommandService commandService = registry.getCommandService();
 		if (commandService != null) {
@@ -242,7 +242,7 @@ public class ContentModelPlugin implements IXMLExtension {
 		registry.unregisterCodeLensParticipant(codeLensParticipant);
 		registry.unregisterDocumentLifecycleParticipant(documentTelemetryParticipant);
 		registry.unregisterFormatterParticipant(formatterParticipant);
-		
+
 		// Un-register custom commands to re-validate XML files
 		IXMLCommandService commandService = registry.getCommandService();
 		if (commandService != null) {

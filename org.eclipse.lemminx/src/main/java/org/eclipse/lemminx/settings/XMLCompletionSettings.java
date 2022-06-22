@@ -62,7 +62,8 @@ public class XMLCompletionSettings {
 	}
 
 	/**
-	 * If turning a start tag into a self closing tag should remove the content of the element
+	 * If turning a start tag into a self closing tag should remove the content of
+	 * the element
 	 *
 	 * @param autoCloseRemovesContent
 	 */
@@ -71,9 +72,11 @@ public class XMLCompletionSettings {
 	}
 
 	/**
-	 * Returns true if turning a start tag into a self closing tag should remove the content of the element and false otherwise
+	 * Returns true if turning a start tag into a self closing tag should remove the
+	 * content of the element and false otherwise
 	 *
-	 * @return true if turning a start tag into a self closing tag should remove the content of the element and false otherwise
+	 * @return true if turning a start tag into a self closing tag should remove the
+	 *         content of the element and false otherwise
 	 */
 	public boolean isAutoCloseRemovesContent() {
 		return autoCloseRemovesContent;
@@ -90,6 +93,21 @@ public class XMLCompletionSettings {
 		return completionCapabilities != null && completionCapabilities.getCompletionItem() != null
 				&& completionCapabilities.getCompletionItem().getSnippetSupport() != null
 				&& completionCapabilities.getCompletionItem().getSnippetSupport();
+	}
+
+	/**
+	 * Returns true if the client supports resolving the documentation in
+	 * completionItem/resolve and false otherwise.
+	 *
+	 * @return true if the client supports resolving the documentation in
+	 *         completionItem/resolve and false otherwise
+	 */
+	public boolean isResolveDocumentationSupported() {
+		return completionCapabilities != null && completionCapabilities.getCompletionItem() != null
+				&& completionCapabilities.getCompletionItem().getResolveSupport() != null
+				&& completionCapabilities.getCompletionItem().getResolveSupport().getProperties() != null
+				&& completionCapabilities.getCompletionItem().getResolveSupport().getProperties()
+						.contains("documentation");
 	}
 
 	/**

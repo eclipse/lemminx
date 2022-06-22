@@ -20,8 +20,8 @@ import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.services.AttributeCompletionItem;
-import org.eclipse.lemminx.services.extensions.ICompletionRequest;
-import org.eclipse.lemminx.services.extensions.ICompletionResponse;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionRequest;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionResponse;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lsp4j.CompletionItem;
@@ -172,14 +172,14 @@ public class PrologModel {
 	/**
 	 * Returns the position the offset is in in relation to the attributes and their
 	 * order
-	 * 
+	 *
 	 * example:
-	 * 
+	 *
 	 * <element a="1" b="2" | c="3">
-	 * 
+	 *
 	 * This will return 2 since if you insert a new attribute there you can access
 	 * it from the list of attributes with this index.
-	 * 
+	 *
 	 * @param completionOffset
 	 * @param element
 	 * @return
@@ -213,7 +213,7 @@ public class PrologModel {
 	/**
 	 * Returns true if the current attribute in the given position of the element's
 	 * list of attributes equals the provided attributeName
-	 * 
+	 *
 	 * @param attributeName
 	 * @param element
 	 * @param position

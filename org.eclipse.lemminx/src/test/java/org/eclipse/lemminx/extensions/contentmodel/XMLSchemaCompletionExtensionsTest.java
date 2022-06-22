@@ -272,6 +272,31 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 	}
 
 	@Test
+	public void completionOnAttributeNameResolve() throws BadLocationException {
+		String xml = "<dress\r\n" + //
+				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"	xsi:noNamespaceSchemaLocation=\"xsd/dressSize.xsd\"\r\n" + //
+				"	s| />";
+		XMLAssert.testCompletionItemResolveFor(xml, null, "src/test/resources/dress.xml", 5, //
+				c("size", te(3, 1, 3, 2, "size=\"\""), "size", //
+						"Size Type documentation" + //
+								System.lineSeparator() + //
+								System.lineSeparator() + //
+								"Source: dressSize.xsd", //
+						MarkupKind.PLAINTEXT), //
+				c("xmlns", te(3, 1, 3, 2, "xmlns=\"\""), "xmlns"), //
+				c("xsi:nil", te(3, 1, 3, 2, "xsi:nil=\"true\""), "xsi:nil"), //
+				c("xsi:type", te(3, 1, 3, 2, "xsi:type=\"\""), "xsi:type"), //
+				c("xsi:schemaLocation", te(3, 1, 3, 2, "xsi:schemaLocation=\"\""), "xsi:schemaLocation"));
+		XMLAssert.testCompletionItemUnresolvedFor(xml, null, "src/test/resources/dress.xml", 5, //
+				c("size", te(3, 1, 3, 2, "size=\"\""), "size"), //
+				c("xmlns", te(3, 1, 3, 2, "xmlns=\"\""), "xmlns"), //
+				c("xsi:nil", te(3, 1, 3, 2, "xsi:nil=\"true\""), "xsi:nil"), //
+				c("xsi:type", te(3, 1, 3, 2, "xsi:type=\"\""), "xsi:type"), //
+				c("xsi:schemaLocation", te(3, 1, 3, 2, "xsi:schemaLocation=\"\""), "xsi:schemaLocation"));
+	}
+
+	@Test
 	public void completionOnAttributeValue() throws BadLocationException {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<beans xmlns=\"http://www.springframework.org/schema/beans\" xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
@@ -324,6 +349,44 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 								System.lineSeparator() + //
 								"Source: dressSize.xsd", //
 						MarkupKind.PLAINTEXT));
+	}
+
+	@Test
+	public void completionOnAttributeValueWithUnionAndEnumerationResolve() throws BadLocationException {
+		String xml = "<dress\r\n" + //
+				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"	xsi:noNamespaceSchemaLocation=\"xsd/dressSize.xsd\"\r\n" + //
+				"	size=\"|\" />";
+		XMLAssert.testCompletionItemResolveFor(xml, null, "src/test/resources/dress.xml", 4, //
+				c("small", te(3, 7, 3, 7, "small"), "small", //
+						"Small documentation" + //
+								System.lineSeparator() + //
+								System.lineSeparator() + //
+								"Source: dressSize.xsd", //
+						MarkupKind.PLAINTEXT), //
+				c("medium", te(3, 7, 3, 7, "medium"), "medium", //
+						"Medium documentation" + //
+								System.lineSeparator() + //
+								System.lineSeparator() + //
+								"Source: dressSize.xsd", //
+						MarkupKind.PLAINTEXT), //
+				c("large", te(3, 7, 3, 7, "large"), "large", //
+						"Size Type documentation" + //
+								System.lineSeparator() + //
+								System.lineSeparator() + //
+								"Source: dressSize.xsd", //
+						MarkupKind.PLAINTEXT), //
+				c("x-large", te(3, 7, 3, 7, "x-large"), "x-large", //
+						"Size Type documentation" + //
+								System.lineSeparator() + //
+								System.lineSeparator() + //
+								"Source: dressSize.xsd", //
+						MarkupKind.PLAINTEXT));
+		XMLAssert.testCompletionItemUnresolvedFor(xml, null, "src/test/resources/dress.xml", 4, //
+				c("small", te(3, 7, 3, 7, "small"), "small"), //
+				c("medium", te(3, 7, 3, 7, "medium"), "medium"), //
+				c("large", te(3, 7, 3, 7, "large"), "large"), //
+				c("x-large", te(3, 7, 3, 7, "x-large"), "x-large"));
 	}
 
 	@Test
@@ -535,7 +598,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 
 	/**
 	 * @see https://github.com/eclipse/lemminx/issues/214
-	 * 
+	 *
 	 * @throws BadLocationException
 	 * @throws MalformedURIException
 	 */
@@ -595,7 +658,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 
 	/**
 	 * @see https://github.com/eclipse/lemminx/issues/311
-	 * 
+	 *
 	 * @throws BadLocationException
 	 */
 	@Test
