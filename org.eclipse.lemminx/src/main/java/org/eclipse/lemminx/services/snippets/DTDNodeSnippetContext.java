@@ -16,7 +16,7 @@ import java.util.Map;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMDocumentType;
 import org.eclipse.lemminx.dom.DOMNode;
-import org.eclipse.lemminx.services.extensions.ICompletionRequest;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionRequest;
 
 /**
  * DTD nodes snippet context used to filter the <!ELEMENT, <!ATTLIST, <!ENTITY

@@ -12,15 +12,15 @@
  */
 package org.eclipse.lemminx.extensions.prolog;
 
-import org.eclipse.lemminx.services.extensions.ICompletionParticipant;
 import org.eclipse.lemminx.services.extensions.IXMLExtension;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionParticipant;
 import org.eclipse.lsp4j.InitializeParams;
 
 /**
  * Plugin to handle `xsi` attributes or a namespace with the value of:
  * "http://www.w3.org/2001/XMLSchema-instance"
- * 
+ *
  * Loaded by service loader in 'resources' folder.
  */
 public class PrologPlugin implements IXMLExtension {

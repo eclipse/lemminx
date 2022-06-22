@@ -18,9 +18,9 @@ import com.google.gson.JsonObject;
 
 /**
  * Data entry field support used to resolve :
- * 
+ *
  * <ul>
- * 
+ *
  * <li>resolve completion :
  * https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#completionItem
  * </li>
@@ -28,9 +28,9 @@ import com.google.gson.JsonObject;
  * https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#codeAction
  * </li>
  * </ul>
- * 
+ *
  * Here a data sample for codeAction used by the resolve code action:
- * 
+ *
  * <code>
  * {
         "title": "Generate 'content.dtd' and bind with xml-model",
@@ -43,11 +43,11 @@ import com.google.gson.JsonObject;
             "file": "file:///.../content.dtd"
         }
     }
- * 
+ *
  * <p>
- * 
+ *
  * The two required data field for any resolve (codeAction, completion, etc) are:
- * 
+ *
  * <ul>
  * 	<li>"uri" : the URI of the document XML where completion, codeAction, etc must be resolved (when user clicks on this quickfix).</li>
  * 	<li>"participantId" : the participant ID which must be used to process the resolve of the completion, codeAction, etc.</li>
@@ -55,7 +55,7 @@ import com.google.gson.JsonObject;
  * </ul>
  * </p>
  * </code>
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -67,13 +67,13 @@ public class DataEntryField {
 
 	/**
 	 * Create a JSON data entry field with the two required information:
-	 * 
+	 *
 	 * @param uri           the URI of the document XML where completion,
 	 *                      codeAction, etc must be resolved (when user clicks on
 	 *                      this quickfix).
 	 * @param participantId the participant ID which must be used to process the
 	 *                      resolve of the completion, codeAction, etc.
-	 * 
+	 *
 	 * @return the JSON data entry field.
 	 */
 	public static JsonObject createData(String uri, String participantId) {
@@ -86,10 +86,10 @@ public class DataEntryField {
 	/**
 	 * Returns the URI of the document XML where completion, codeAction, etc must be
 	 * resolved (when user clicks on this quickfix) and null otherwise.
-	 * 
+	 *
 	 * @param data the data entry field comings from the CompletionItem, CodeAction,
 	 *             etc.
-	 * 
+	 *
 	 * @return the URI of the document XML where completion, codeAction, etc must be
 	 *         resolved (when user clicks on this quickfix) and null otherwise.
 	 */
@@ -100,10 +100,10 @@ public class DataEntryField {
 	/**
 	 * Returns the participant ID which must be used to process the resolve of the
 	 * completion, codeAction, etc and null otherwise.
-	 * 
+	 *
 	 * @param data the data entry field comings from the CompletionItem, CodeAction,
 	 *             etc.
-	 * 
+	 *
 	 * @return the participant ID which must be used to process the resolve of the
 	 *         completion, codeAction, etc and null otherwise.
 	 */
@@ -114,12 +114,12 @@ public class DataEntryField {
 	/**
 	 * Returns the property value of the given <code>fieldName</code> if the given
 	 * <code>data</code> and null otherwise.
-	 * 
+	 *
 	 * @param data      the data entry field comings from the CompletionItem,
 	 *                  CodeAction, etc.
-	 * 
+	 *
 	 * @param fieldName the entry field name (ex : "uri", "participantId").
-	 * 
+	 *
 	 * @return the property value of the given <code>fieldName</code> if the given
 	 *         <code>data</code> and null otherwise.
 	 */
@@ -130,6 +130,24 @@ public class DataEntryField {
 		}
 		JsonElement element = json.get(fieldName);
 		return element != null ? element.getAsString() : null;
+	}
+
+	/**
+	 * Returns the value of the field as an integer or null if the field is empty.
+	 *
+	 * @param data      the object to read the field of
+	 * @param fieldName the field to read
+	 * @throws ClassCastException if the field is not an integer
+	 * @return  the value of the field as an integer or null if the field is empty
+	 */
+	public static Integer getPropertyAsInt(Object data, String fieldName) {
+		// FIXME: catch exception return null
+		JsonObject json = JSONUtility.toModel(data, JsonObject.class);
+		if (json == null) {
+			return null;
+		}
+		JsonElement element = json.get(fieldName);
+		return element != null ? element.getAsInt() : null;
 	}
 
 }

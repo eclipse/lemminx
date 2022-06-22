@@ -5,7 +5,7 @@
 * http://www.eclipse.org/legal/epl-v20.html
 *
 * SPDX-License-Identifier: EPL-2.0
-* 
+*
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
@@ -15,7 +15,7 @@ import java.util.Map;
 
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMNode;
-import org.eclipse.lemminx.services.extensions.ICompletionRequest;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionRequest;
 
 /**
  * Comment snippet context used to filter the comment snippets.
@@ -28,16 +28,16 @@ public class CommentSnippetContext extends DTDNodeSnippetContext {
 	@Override
 	public boolean isMatch(ICompletionRequest request, Map<String, String> model) {
 		if (super.isMatch(request, model)) {
-			// completion was triggered inside a DTD or a DOCTYPE subset 
+			// completion was triggered inside a DTD or a DOCTYPE subset
 			// --> comments are allowed
 			return true;
-		}		
-		DOMNode node = request.getNode();		
+		}
+		DOMNode node = request.getNode();
 		if (node.isDoctype()) {
 			// completion was triggered inside doctype declaration, ignore the snippets
 			return false;
 		}
-		
+
 		DOMDocument document = request.getXMLDocument();
 		if (document.isBeforeProlog(request.getOffset())){
 			// triggered before prolog

@@ -13,9 +13,9 @@
 package org.eclipse.lemminx.extensions.xsi.participants;
 
 import org.eclipse.lemminx.extensions.xsi.XSISchemaModel;
-import org.eclipse.lemminx.services.extensions.CompletionParticipantAdapter;
-import org.eclipse.lemminx.services.extensions.ICompletionRequest;
-import org.eclipse.lemminx.services.extensions.ICompletionResponse;
+import org.eclipse.lemminx.services.extensions.completion.CompletionParticipantAdapter;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionRequest;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionResponse;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**

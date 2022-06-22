@@ -10,7 +10,7 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lemminx.services.extensions;
+package org.eclipse.lemminx.services.extensions.completion;
 
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 

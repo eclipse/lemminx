@@ -29,6 +29,7 @@ import org.eclipse.lemminx.services.IXMLValidationService;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.codelens.ICodeLensParticipant;
 import org.eclipse.lemminx.services.extensions.commands.IXMLCommandService;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
 import org.eclipse.lemminx.services.extensions.save.ISaveContext;
@@ -209,7 +210,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 
 	/**
 	 * Return the registered workspace service participants.
-	 * 
+	 *
 	 * @return the registered workspace service participants.
 	 * @since 0.14.2
 	 */
@@ -220,7 +221,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 
 	/**
 	 * Return the registered document lifecycle participants.
-	 * 
+	 *
 	 * @return the registered document lifecycle participants.
 	 * @since 0.18.0
 	 */
@@ -396,7 +397,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 
 	/**
 	 * Register a new workspace service participant
-	 * 
+	 *
 	 * @param workspaceServiceParticipant the participant to register
 	 * @since 0.14.2
 	 */
@@ -406,7 +407,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 
 	/**
 	 * Unregister a new workspace service participant.
-	 * 
+	 *
 	 * @param workspaceServiceParticipant the participant to unregister
 	 * @since 0.14.2
 	 */
@@ -416,7 +417,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 
 	/**
 	 * Register a new document lifecycle participant
-	 * 
+	 *
 	 * @param documentLifecycleParticipant the participant to register
 	 * @since 0.18.0
 	 */
@@ -426,7 +427,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 
 	/**
 	 * Unregister a new document lifecycle participant.
-	 * 
+	 *
 	 * @param documentLifecycleParticipant the participant to unregister
 	 * @since 0.18.0
 	 */
@@ -436,7 +437,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 
 	/**
 	 * Returns the XML Document provider and null otherwise.
-	 * 
+	 *
 	 * @return the XML Document provider and null otherwise.
 	 */
 	public IXMLDocumentProvider getDocumentProvider() {
@@ -445,7 +446,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 
 	/**
 	 * Set the XML Document provider
-	 * 
+	 *
 	 * @param documentProvider XML Document provider
 	 */
 	public void setDocumentProvider(IXMLDocumentProvider documentProvider) {
@@ -458,7 +459,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 
 	/**
 	 * Returns the notification service
-	 * 
+	 *
 	 * @return the notification service
 	 */
 	public IXMLNotificationService getNotificationService() {
@@ -467,7 +468,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 
 	/**
 	 * Sets the notification service
-	 * 
+	 *
 	 * @param notificationService the new notification service
 	 */
 	public void setNotificationService(IXMLNotificationService notificationService) {
@@ -476,7 +477,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 
 	/**
 	 * Returns the XML document validation service
-	 * 
+	 *
 	 * @return the validation service
 	 */
 	public IXMLValidationService getValidationService() {
@@ -485,7 +486,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 
 	/**
 	 * Sets the XML document validation service
-	 * 
+	 *
 	 * @param validationService
 	 */
 	public void setValidationService(IXMLValidationService validationService) {
@@ -494,7 +495,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 
 	/**
 	 * Returns the LS command service
-	 * 
+	 *
 	 * @return the command service
 	 */
 	public IXMLCommandService getCommandService() {
@@ -503,7 +504,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 
 	/**
 	 * Sets the LS command service
-	 * 
+	 *
 	 * @param commandService
 	 */
 	public void setCommandService(IXMLCommandService commandService) {

@@ -17,7 +17,7 @@ import org.eclipse.lemminx.settings.SharedSettings;
 
 /**
  * Base API for textDocument/codeAction and codeAction/request.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -25,15 +25,15 @@ public interface IBaseCodeActionRequest extends IComponentProvider {
 
 	/**
 	 * Returns the DOM document.
-	 * 
+	 *
 	 * @return the DOM document
 	 */
 	DOMDocument getDocument();
 
 	/**
 	 * Returns the shared settings.
-	 * 
-	 * @return the shared settings.o
+	 *
+	 * @return the shared settings.
 	 */
 	SharedSettings getSharedSettings();
 }

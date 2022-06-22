@@ -5,7 +5,7 @@
 * http://www.eclipse.org/legal/epl-v20.html
 *
 * SPDX-License-Identifier: EPL-2.0
-* 
+*
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
@@ -16,7 +16,7 @@ import java.util.Map;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
-import org.eclipse.lemminx.services.extensions.ICompletionRequest;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionRequest;
 
 /**
  * DOCTYPE snippet context used to filter the DOCTYPE snippets.

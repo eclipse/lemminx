@@ -15,9 +15,9 @@ package org.eclipse.lemminx.extensions.references.participants;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.extensions.references.XMLReferencesManager;
-import org.eclipse.lemminx.services.extensions.CompletionParticipantAdapter;
-import org.eclipse.lemminx.services.extensions.ICompletionRequest;
-import org.eclipse.lemminx.services.extensions.ICompletionResponse;
+import org.eclipse.lemminx.services.extensions.completion.CompletionParticipantAdapter;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionRequest;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionResponse;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -32,8 +32,8 @@ public class XMLReferencesCompletionParticipant extends CompletionParticipantAda
 	@Override
 	public void onXMLContent(ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker) throws Exception {
 		int offset = request.getOffset();
-		final DOMNode node = getNodeAt(request.getNode(), offset);	
-		if (node != null) {			
+		final DOMNode node = getNodeAt(request.getNode(), offset);
+		if (node != null) {
 			XMLReferencesManager.getInstance().collect(node, n -> {
 				DOMDocument doc = n.getOwnerDocument();
 				Range range = XMLPositionUtility.createRange(node.getStart(), node.getEnd(), doc);

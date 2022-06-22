@@ -59,7 +59,10 @@ import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.Command;
+import org.eclipse.lsp4j.CompletionCapabilities;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.CompletionItemCapabilities;
+import org.eclipse.lsp4j.CompletionItemResolveSupportCapabilities;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.CreateFile;
 import org.eclipse.lsp4j.CreateFileOptions;
@@ -326,7 +329,7 @@ public class XMLAssert {
 
 	/**
 	 * Creates a completion item with a list of additional text edits
-	 * 
+	 *
 	 * @since 0.20.0
 	 * @param label
 	 * @param textEdit
@@ -399,6 +402,194 @@ public class XMLAssert {
 		assertNotNull(actual);
 		assertEquals(expected.snippet, actual.snippet);
 		assertEquals(expected.range, actual.range);
+	}
+
+	// ------------------- Completion Item resolve assert
+
+	public static void testCompletionItemUnresolvedFor(String value, String catalogPath, String fileURI,
+			Integer expectedCount, CompletionItem... expectedItems) throws BadLocationException {
+		CompletionItemResolveSupportCapabilities completionItemResolveSupportCapabilities = new CompletionItemResolveSupportCapabilities();
+		completionItemResolveSupportCapabilities
+				.setProperties(Arrays.asList("documentation"));
+		CompletionItemCapabilities completionItemCapabilities = new CompletionItemCapabilities();
+		completionItemCapabilities.setResolveSupport(completionItemResolveSupportCapabilities);
+		CompletionCapabilities completionCapabilities = new CompletionCapabilities();
+		completionCapabilities.setCompletionItem(completionItemCapabilities);
+		SharedSettings sharedSettings = new SharedSettings();
+		sharedSettings.getCompletionSettings().setCapabilities(completionCapabilities);
+
+		testCompletionItemUnresolvedFor(new XMLLanguageService(), value, catalogPath, (_a) -> {
+		}, fileURI, expectedCount, sharedSettings, expectedItems);
+	}
+
+	public static void testCompletionItemUnresolvedFor(XMLLanguageService xmlLanguageService, String value,
+			String catalogPath,
+			Consumer<XMLLanguageService> customConfiguration, String fileURI, Integer expectedCount,
+			SharedSettings sharedSettings, CompletionItem... expectedItems) throws BadLocationException {
+		int offset = value.indexOf('|');
+		value = value.substring(0, offset) + value.substring(offset + 1);
+
+		TextDocument document = new TextDocument(value, fileURI != null ? fileURI : "test://test/test.xml");
+		Position position = document.positionAt(offset);
+		DOMDocument htmlDoc = DOMParser.getInstance().parse(document, xmlLanguageService.getResolverExtensionManager());
+		xmlLanguageService.setDocumentProvider((uri) -> htmlDoc);
+
+		ContentModelSettings cmSettings = new ContentModelSettings();
+		cmSettings.setUseCache(false);
+		// Configure XML catalog for XML schema
+		if (catalogPath != null) {
+			cmSettings.setCatalogs(new String[] { catalogPath });
+		}
+		xmlLanguageService.doSave(new SettingsSaveContext(cmSettings));
+		xmlLanguageService.initializeIfNeeded();
+
+		if (customConfiguration != null) {
+			customConfiguration.accept(xmlLanguageService);
+		}
+
+		CompletionList list = xmlLanguageService.doComplete(htmlDoc, position, sharedSettings);
+
+		// no duplicate labels
+		List<String> labels = list.getItems().stream().map(i -> i.getLabel()).sorted().collect(Collectors.toList());
+		String previous = null;
+		for (String label : labels) {
+			if (expectedCount != null) {
+				continue;
+			}
+			assertNotEquals(previous, label, () -> {
+				return "Duplicate label " + label + " in " + labels.stream().collect(Collectors.joining(",")) + "}";
+			});
+			previous = label;
+		}
+		if (expectedCount != null) {
+			assertEquals(expectedCount.intValue(), list.getItems().size());
+		}
+
+		if (expectedItems != null) {
+			for (CompletionItem item : expectedItems) {
+				assertUnresolvedCompletion(list, item, expectedCount);
+			}
+		}
+	}
+
+	public static void testCompletionItemResolveFor(String value, String catalogPath, String fileURI,
+			Integer expectedCount, CompletionItem... expectedItems) throws BadLocationException {
+		CompletionItemResolveSupportCapabilities completionItemResolveSupportCapabilities = new CompletionItemResolveSupportCapabilities();
+		completionItemResolveSupportCapabilities
+				.setProperties(Arrays.asList("documentation"));
+		CompletionItemCapabilities completionItemCapabilities = new CompletionItemCapabilities();
+		completionItemCapabilities.setResolveSupport(completionItemResolveSupportCapabilities);
+		CompletionCapabilities completionCapabilities = new CompletionCapabilities();
+		completionCapabilities.setCompletionItem(completionItemCapabilities);
+		SharedSettings sharedSettings = new SharedSettings();
+		sharedSettings.getCompletionSettings().setCapabilities(completionCapabilities);
+
+		testCompletionItemResolveFor(new XMLLanguageService(), value, catalogPath, (_a) -> {
+		}, fileURI, expectedCount, sharedSettings, expectedItems);
+	}
+
+	public static void testCompletionItemResolveFor(XMLLanguageService xmlLanguageService, String value,
+			String catalogPath,
+			Consumer<XMLLanguageService> customConfiguration, String fileURI, Integer expectedCount,
+			SharedSettings sharedSettings, CompletionItem... expectedItems) throws BadLocationException {
+		int offset = value.indexOf('|');
+		value = value.substring(0, offset) + value.substring(offset + 1);
+
+		TextDocument document = new TextDocument(value, fileURI != null ? fileURI : "test://test/test.xml");
+		Position position = document.positionAt(offset);
+		DOMDocument htmlDoc = DOMParser.getInstance().parse(document, xmlLanguageService.getResolverExtensionManager());
+		xmlLanguageService.setDocumentProvider((uri) -> htmlDoc);
+
+		ContentModelSettings cmSettings = new ContentModelSettings();
+		cmSettings.setUseCache(false);
+		// Configure XML catalog for XML schema
+		if (catalogPath != null) {
+			cmSettings.setCatalogs(new String[] { catalogPath });
+		}
+		xmlLanguageService.doSave(new SettingsSaveContext(cmSettings));
+		xmlLanguageService.initializeIfNeeded();
+
+		if (customConfiguration != null) {
+			customConfiguration.accept(xmlLanguageService);
+		}
+
+		CompletionList list = xmlLanguageService.doComplete(htmlDoc, position, sharedSettings);
+
+		// no duplicate labels
+		List<String> labels = list.getItems().stream().map(i -> i.getLabel()).sorted().collect(Collectors.toList());
+		String previous = null;
+		for (String label : labels) {
+			if (expectedCount != null) {
+				continue;
+			}
+			assertNotEquals(previous, label, () -> {
+				return "Duplicate label " + label + " in " + labels.stream().collect(Collectors.joining(",")) + "}";
+			});
+			previous = label;
+		}
+		if (expectedCount != null) {
+			assertEquals(expectedCount.intValue(), list.getItems().size());
+		}
+
+		CompletionList resolved = new CompletionList(
+				list.getItems().stream() //
+						.map((item) -> {
+							return (CompletionItem) xmlLanguageService.resolveCompletionItem(item, htmlDoc,
+									sharedSettings,
+									() -> {
+									});
+						}) //
+						.collect(Collectors.toList()));
+
+		if (expectedItems != null) {
+			for (CompletionItem item : expectedItems) {
+				assertCompletion(resolved, item, expectedCount);
+			}
+		}
+	}
+
+	public static void assertUnresolvedCompletion(CompletionList completions, CompletionItem expected,
+			Integer expectedCount) {
+		List<CompletionItem> matches = completions.getItems().stream().filter(completion -> {
+			return expected.getLabel().equals(completion.getLabel());
+		}).collect(Collectors.toList());
+
+		if (expectedCount != null) {
+			assertTrue(matches.size() >= 1, () -> {
+				return expected.getLabel() + " should only exist once: Actual: "
+						+ completions.getItems().stream().map(c -> c.getLabel()).collect(Collectors.joining(","));
+			});
+		} else {
+			assertEquals(1, matches.size(), () -> {
+				return expected.getLabel() + " should only exist once: Actual: "
+						+ completions.getItems().stream().map(c -> c.getLabel()).collect(Collectors.joining(","));
+			});
+		}
+
+		CompletionItem match = getCompletionMatch(matches, expected);
+		if (expected.getTextEdit() != null && match.getTextEdit() != null) {
+			if (expected.getTextEdit().getLeft().getNewText() != null) {
+				assertEquals(expected.getTextEdit().getLeft().getNewText(), match.getTextEdit().getLeft().getNewText());
+			}
+			Range r = expected.getTextEdit().getLeft().getRange();
+			if (r != null && r.getStart() != null && r.getEnd() != null) {
+				assertEquals(expected.getTextEdit().getLeft().getRange(), match.getTextEdit().getLeft().getRange());
+			}
+
+			if (expected.getAdditionalTextEdits() != null && match.getAdditionalTextEdits() != null) {
+				assertEquals(expected.getAdditionalTextEdits().size(), match.getAdditionalTextEdits().size());
+				for (TextEdit expectedATE : expected.getAdditionalTextEdits()) {
+					assertAdditionalTextEdit(match.getAdditionalTextEdits(), expectedATE);
+				}
+			}
+		}
+		if (expected.getFilterText() != null && match.getFilterText() != null) {
+			assertEquals(expected.getFilterText(), match.getFilterText());
+		}
+
+		if (expected.getDocumentation() != null) {
+			assertNull(match.getDocumentation());
+		}
 	}
 
 	// ------------------- Diagnostics assert

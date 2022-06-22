@@ -15,17 +15,17 @@ package org.eclipse.lemminx.extensions.xsi;
 import org.eclipse.lemminx.extensions.xsi.participants.XSICompletionParticipant;
 import org.eclipse.lemminx.extensions.xsi.participants.XSIFormatterParticipant;
 import org.eclipse.lemminx.extensions.xsi.participants.XSIHoverParticipant;
-import org.eclipse.lemminx.services.extensions.ICompletionParticipant;
 import org.eclipse.lemminx.services.extensions.IHoverParticipant;
 import org.eclipse.lemminx.services.extensions.IXMLExtension;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionParticipant;
 import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
 import org.eclipse.lsp4j.InitializeParams;
 
 /**
  * Plugin to handle the xml prolog: {@code <?xml ... ?>}.
- * 
- * 
+ *
+ *
  * Loaded by service loader in 'resources' folder.
  */
 public class XSISchemaPlugin implements IXMLExtension {

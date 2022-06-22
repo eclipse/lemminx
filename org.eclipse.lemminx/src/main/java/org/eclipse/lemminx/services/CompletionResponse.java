@@ -15,7 +15,7 @@ package org.eclipse.lemminx.services;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.lemminx.services.extensions.ICompletionResponse;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionResponse;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
 

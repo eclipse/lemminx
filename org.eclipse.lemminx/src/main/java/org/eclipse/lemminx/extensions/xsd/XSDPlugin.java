@@ -24,7 +24,6 @@ import org.eclipse.lemminx.extensions.xsd.participants.XSDHighlightingParticipan
 import org.eclipse.lemminx.extensions.xsd.participants.XSDReferenceParticipant;
 import org.eclipse.lemminx.extensions.xsd.participants.XSDRenameParticipant;
 import org.eclipse.lemminx.extensions.xsd.participants.diagnostics.XSDDiagnosticsParticipant;
-import org.eclipse.lemminx.services.extensions.ICompletionParticipant;
 import org.eclipse.lemminx.services.extensions.IDefinitionParticipant;
 import org.eclipse.lemminx.services.extensions.IDocumentLinkParticipant;
 import org.eclipse.lemminx.services.extensions.IHighlightingParticipant;
@@ -33,6 +32,7 @@ import org.eclipse.lemminx.services.extensions.IRenameParticipant;
 import org.eclipse.lemminx.services.extensions.IXMLExtension;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.services.extensions.codelens.ICodeLensParticipant;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lemminx.services.extensions.save.ISaveContext;
 import org.eclipse.lemminx.utils.DOMUtils;
@@ -113,7 +113,7 @@ public class XSDPlugin implements IXMLExtension {
 		registry.unregisterRenameParticipant(renameParticipant);
 		registry.unregisterDocumentLinkParticipant(documentLinkParticipant);
 	}
-	
+
 	public ContentModelManager getContentModelManager() {
 		return contentModelManager;
 	}

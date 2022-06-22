@@ -10,7 +10,7 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lemminx.services.extensions;
+package org.eclipse.lemminx.services.extensions.completion;
 
 import org.eclipse.lsp4j.CompletionItem;
 
@@ -22,7 +22,7 @@ public interface ICompletionResponse {
 
 	/**
 	 * Add completion item and mark as coming from grammar.
-	 * 
+	 *
 	 * @param completionItem
 	 * @param comingFromGrammar
 	 */
@@ -30,7 +30,7 @@ public interface ICompletionResponse {
 
 	/**
 	 * Add completion item.
-	 * 
+	 *
 	 * @param completionItem
 	 */
 	void addCompletionItem(CompletionItem completionItem);
@@ -39,7 +39,7 @@ public interface ICompletionResponse {
 
 	/**
 	 * Add completion attribute.
-	 * 
+	 *
 	 * @param item
 	 */
 	void addCompletionAttribute(CompletionItem item);
@@ -47,7 +47,7 @@ public interface ICompletionResponse {
 	/**
 	 * Returns <code>true</code> if there are completion items coming from grammar
 	 * and false otherwise.
-	 * 
+	 *
 	 * @return <code>true</code> if there are completion items coming from grammar
 	 *         and false otherwise.
 	 */

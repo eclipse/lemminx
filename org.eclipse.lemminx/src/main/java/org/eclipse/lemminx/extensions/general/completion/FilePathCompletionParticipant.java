@@ -27,9 +27,9 @@ import java.util.logging.Logger;
 
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMDocument;
-import org.eclipse.lemminx.services.extensions.CompletionParticipantAdapter;
-import org.eclipse.lemminx.services.extensions.ICompletionRequest;
-import org.eclipse.lemminx.services.extensions.ICompletionResponse;
+import org.eclipse.lemminx.services.extensions.completion.CompletionParticipantAdapter;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionRequest;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionResponse;
 import org.eclipse.lemminx.utils.CompletionSortTextHelper;
 import org.eclipse.lemminx.utils.FilesUtils;
 import org.eclipse.lemminx.utils.StringUtils;

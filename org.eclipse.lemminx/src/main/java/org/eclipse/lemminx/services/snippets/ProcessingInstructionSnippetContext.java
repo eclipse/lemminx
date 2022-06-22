@@ -18,7 +18,7 @@ import java.util.Map;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
-import org.eclipse.lemminx.services.extensions.ICompletionRequest;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionRequest;
 import org.eclipse.lemminx.utils.DOMUtils;
 
 /**
@@ -62,5 +62,5 @@ public class ProcessingInstructionSnippetContext implements IXMLSnippetContext {
 
 		return true;
 	}
-	
+
 }

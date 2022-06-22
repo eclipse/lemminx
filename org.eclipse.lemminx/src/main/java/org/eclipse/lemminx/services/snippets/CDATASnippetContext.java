@@ -14,7 +14,7 @@ package org.eclipse.lemminx.services.snippets;
 import java.util.Map;
 
 import org.eclipse.lemminx.dom.DOMElement;
-import org.eclipse.lemminx.services.extensions.ICompletionRequest;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionRequest;
 
 /**
  * CDATA snippet context used to filter the CDATA snippets.
