@@ -98,6 +98,11 @@ public class XMLGenerator {
 		// Attributes
 		Collection<CMAttributeDeclaration> attributes = elementDeclaration.getAttributes();
 		snippetIndex = generate(attributes, level, snippetIndex, xml, elementDeclaration.getName());
+		boolean setCursorBeforeClose = canSupportSnippets && hasOneOptionalAndNoneRequiredAttributes(attributes);
+		if (setCursorBeforeClose) {
+			snippetIndex++;
+			xml.addContent(SnippetsBuilder.tabstops(snippetIndex));
+		}
 		// Elements children
 		Collection<CMElementDeclaration> children = elementDeclaration.getElements();
 		if (children.size() > 0) {
@@ -146,6 +151,18 @@ public class XMLGenerator {
 			}
 		}
 		return snippetIndex;
+	}
+
+	private static boolean hasOneOptionalAndNoneRequiredAttributes(Collection<CMAttributeDeclaration> attributes) {
+		if (attributes.isEmpty()) {
+			return false;
+		}
+		for (CMAttributeDeclaration attribute : attributes) {
+			if (attribute.isRequired()) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public String generate(Collection<CMAttributeDeclaration> attributes, String tagName) {
