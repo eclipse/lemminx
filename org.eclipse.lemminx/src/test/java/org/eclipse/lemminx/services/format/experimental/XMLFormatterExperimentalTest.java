@@ -165,6 +165,79 @@ public class XMLFormatterExperimentalTest {
 		assertFormat(expected, expected);
 	}
 
+	@Test
+	public void invalidAttribute() throws BadLocationException {
+		String content = "<a bb=\"asd\" \"aaa\"> </a>";
+		String expected = content;
+		assertFormat(content, expected);
+	}
+
+	@Test
+	public void invalidQuoteInTag() throws BadLocationException {
+		String content = "<a'> </a>";
+		String expected = content;
+		assertFormat(content, expected);
+	}
+
+	@Test
+	public void invalidEqualsInTag() throws BadLocationException {
+		String content = "<a=";
+		String expected = content;
+		assertFormat(content, expected);
+	}
+
+	@Test
+	public void invalidProcessingInstruction() throws BadLocationException {
+		String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?\r\n" + //
+				"			<a />";
+		String expected = content;
+		assertFormat(content, expected);
+	}
+
+	@Test
+	public void invalidTagName() throws BadLocationException {
+		String content = "<message>\r\n" + //
+				"	  <table>\r\n" + //
+				"	    <tbody>\r\n" + //
+				"	      <%= for el <- @elements do %>\r\n" + //
+				"	        <tr>\r\n" + //
+				"	            <td><%= el.id %></td>\r\n" + //
+				"	        </tr>\r\n" + //
+				"	      <% end %>\r\n" + //
+				"	    </tbody>\r\n" + //
+				"	  </table>\r\n" + //
+				"	</message>";
+		String expected = "<message>\r\n" + //
+				"  <table>\r\n" + //
+				"    <tbody>\r\n" + //
+				"      <%= for el\r\n" + //
+				"      <- @elements do %>\r\n" + //
+				"      <tr>\r\n" + //
+				"        <td>\r\n" + //
+				"          <%= el.id %>\r\n" + //
+				"        </td>\r\n" + //
+				"      </tr>\r\n" + //
+				"      <% end %>\r\n" + //
+				"    </tbody>\r\n" + //
+				"  </table>\r\n" + //
+				"</message>";
+		assertFormat(content, expected, //
+				te(0, 9, 1, 3, "\r\n  "), //
+				te(1, 10, 2, 5, "\r\n    "), //
+				te(2, 12, 3, 7, "\r\n      "), //
+				te(3, 17, 3, 18, "\r\n      "), //
+				te(3, 36, 4, 9, "\r\n      "), //
+				te(4, 13, 5, 13, "\r\n        "), //
+				te(5, 17, 5, 17, "\r\n          "), //
+				te(5, 29, 5, 29, "\r\n        "), //
+				te(5, 34, 6, 9, "\r\n      "), //
+				te(6, 14, 7, 7, "\r\n      "), //
+				te(7, 16, 8, 5, "\r\n    "), //
+				te(8, 13, 9, 3, "\r\n  "), //
+				te(9, 11, 10, 1, "\r\n"));
+		assertFormat(expected, expected);
+	}
+
 	// ---------- Tests for attributes formatting
 
 	@Test
