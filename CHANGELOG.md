@@ -1,5 +1,46 @@
 # Change Log
 
+## [0.21.0](https://github.com/eclipse/lemminx/milestone/34?closed=1) (June 29, 2022)
+
+### Enhancements
+
+ * CodeAction for cvc-complex-type.2.4.b. See [#1218](https://github.com/eclipse/lemminx/issues/1218).
+ * Support folding for <!DOCTYPE. See [#1213](https://github.com/eclipse/lemminx/issues/1213).
+ * Added folding setting to keep displaying the closing tag after folding. See [#1209](https://github.com/eclipse/lemminx/pull/1209).
+ * Provide basic experimental formatter which supports invalid XML. See [#1195](https://github.com/eclipse/lemminx/issues/1195).
+ * Format with xml:space. See [#826](https://github.com/eclipse/lemminx/issues/826).
+ * Code action for `SemicolonRequiredInReference`. See [#665](https://github.com/eclipse/lemminx/issues/665).
+ * Improve XML formatter (option to have Tags in the same line). See [#594](https://github.com/eclipse/lemminx/issues/594).
+
+### Performance
+
+ * Cancel process of code action. See [#1220](https://github.com/eclipse/lemminx/issues/1220).
+ * Parse of DOM document should be not done in a Thread. See [#1216](https://github.com/eclipse/lemminx/pull/1216).
+ * Improve DOM parser memory. See [#1211](https://github.com/eclipse/lemminx/pull/1211).
+ * Improve XML scanner memory. See [#1206](https://github.com/eclipse/lemminx/pull/1206).
+ * Wait a bit after change before sending diagnostics. See [#1162](https://github.com/eclipse/lemminx/issues/1162).
+ * Improve CodeAction performance with CodeAction#data & resolveCodeAction. See [#941](https://github.com/eclipse/lemminx/issues/941).
+ * Support for `completionItem/resolve`. See [#616](https://github.com/eclipse/lemminx/issues/616).
+
+### Bug Fixes
+
+ * DOCTYPE entities interfering with hover annotation display of tags / attributes. See [#1212](https://github.com/eclipse/lemminx/pull/1212).
+ * Incorrect error range for `cvc-identity-constraint.4.1`. See [#1210](https://github.com/eclipse/lemminx/issues/1210).
+ * Resolve uri as system with XML catalog. See [#1199](https://github.com/eclipse/lemminx/issues/1199).
+ * Preserve invalid content while formatting. See [#1041](https://github.com/eclipse/lemminx/issues/1041).
+ * Bad element formatting is replaced with <null>. See [#1034](https://github.com/eclipse/lemminx/issues/1034).
+ * Lone quote inside tag leads to catastrophic formatting. See [#679](https://github.com/eclipse/lemminx/issues/679).
+ * XML format for bad processing instruction removes following element. See [#675](https://github.com/eclipse/lemminx/issues/675).
+ * Attribute value without a key is removed while formatting. See [#305](https://github.com/eclipse/lemminx/issues/305).
+
+### Other
+
+ * Update lsp4j to 0.14.0. See [#1231](https://github.com/eclipse/lemminx/pull/1231).
+ * Add test for TreeLineTracker.getLineInformation. See [#1228](https://github.com/eclipse/lemminx/pull/1228).
+ * A test file contains "private non-commercial use" clause. See [#1197](https://github.com/eclipse/lemminx/issues/1197).
+ * Adopt linkedEditingRanges wordPattern property. See [#1187](https://github.com/eclipse/lemminx/issues/1187).
+ * Remove native-image GitHub action from repository. See [#1184](https://github.com/eclipse/lemminx/pull/1184).
+
 ## [0.20.0](https://github.com/eclipse/lemminx/milestone/33?closed=1) (March 29, 2022)
 
 ### Enhancements
