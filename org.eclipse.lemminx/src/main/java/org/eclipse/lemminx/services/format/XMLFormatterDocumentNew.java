@@ -329,6 +329,10 @@ public class XMLFormatterDocumentNew {
 		createTextEditIfNeeded(from, to, replacement, edits);
 	}
 
+	void replaceQuoteWithPreferred(int from, int to, String replacement, List<TextEdit> edits){
+		createTextEditIfNeeded(from, to, replacement, edits);
+	}
+
 	private int getLeftWhitespacesOffset(int leftLimit, int to) {
 		String text = textDocument.getText();
 		int from = leftLimit != -1 ? leftLimit : to - 1;

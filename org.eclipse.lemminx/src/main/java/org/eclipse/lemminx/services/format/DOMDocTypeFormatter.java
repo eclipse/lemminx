@@ -20,6 +20,8 @@ import org.eclipse.lemminx.dom.DTDDeclNode;
 import org.eclipse.lemminx.dom.DTDDeclParameter;
 import org.eclipse.lsp4j.TextEdit;
 import org.w3c.dom.Node;
+import org.eclipse.lemminx.settings.EnforceQuoteStyle;
+import org.eclipse.lemminx.utils.StringUtils;
 
 /**
  * DOM docType formatter.
@@ -52,20 +54,37 @@ public class DOMDocTypeFormatter {
 						constraints.setIndentLevel(constraints.getIndentLevel() + 1);
 						formatDTD(docType, constraints, start, end, edits);
 					}
+				}
+				if (getEnforceQuoteStyle() == EnforceQuoteStyle.preferred) {
+					int quoteStart = getDocTypeIdStart(docType);
+					int quoteEnd = getDocTypeIdEnd(docType);
 
+					if (quoteStart != -1 && quoteEnd != -1) {
+						// replace current quote with preferred quote in the case:
+						// <!DOCTYPE note SYSTEM "note.dtd">
+						formatterDocument.replaceQuoteWithPreferred(quoteStart,
+								quoteStart + 1, getQuotationAsString(), edits);
+						formatterDocument.replaceQuoteWithPreferred(quoteEnd - 1,
+								quoteEnd, getQuotationAsString(), edits);
+					}
 				}
 			}
-			DTDDeclParameter internalSubset = docType.getInternalSubsetNode();
-			if (internalSubset == null) {
-				if (docType.isClosed()) {
-					int endDocType = docType.getEnd() - 1;
-					removeLeftSpaces(endDocType, edits);
-				}
-			} else {
-				int endDocType = internalSubset.getEnd() - 1;
-				String lineDelimiter = formatterDocument.getLineDelimiter();
-				replaceLeftSpacesWith(endDocType, lineDelimiter, edits);
+		}
+		DTDDeclParameter internalSubset = docType.getInternalSubsetNode();
+		if (internalSubset == null) {
+			if (docType.isClosed()) {
+				// Remove space between content and end bracket in case of no internal subset
+				// Example: <!DOCTYPE note SYSTEM "note.dtd"|>
+				int endDocType = docType.getEnd() - 1;
+				removeLeftSpaces(endDocType, edits);
 			}
+		} else {
+			// Add new line at end of internal subset
+			// <!DOCTYPE person [...
+			// <!ENTITY AUTHOR \"John Doe\">|]>
+			int endDocType = internalSubset.getEnd() - 1;
+			String lineDelimiter = formatterDocument.getLineDelimiter();
+			replaceLeftSpacesWith(endDocType, lineDelimiter, edits);
 		}
 	}
 
@@ -75,20 +94,22 @@ public class DOMDocTypeFormatter {
 		for (DOMNode child : docType.getChildren()) {
 			switch (child.getNodeType()) {
 
-			case DOMNode.DTD_ELEMENT_DECL_NODE:
-			case DOMNode.DTD_ATT_LIST_NODE:
-			case Node.ENTITY_NODE:
-			case DOMNode.DTD_NOTATION_DECL:
-				DTDDeclNode nodeDecl = (DTDDeclNode) child;
-				formatDTDNodeDecl(nodeDecl, parentConstraints, addLineSeparator, edits);
-				addLineSeparator = true;
-				break;
+				case DOMNode.DTD_ELEMENT_DECL_NODE:
+				case DOMNode.DTD_ATT_LIST_NODE:
+				case Node.ENTITY_NODE:
+				case DOMNode.DTD_NOTATION_DECL:
+					// Format DTD node declaration, for example:
+					// <!ENTITY AUTHOR "John Doe">
+					DTDDeclNode nodeDecl = (DTDDeclNode) child;
+					formatDTDNodeDecl(nodeDecl, parentConstraints, addLineSeparator, edits);
+					addLineSeparator = true;
+					break;
 
-			default:
-				// unknown, so just leave alone for now but make sure to update
-				// available line width
-				int width = updateLineWidthWithLastLine(child, parentConstraints.getAvailableLineWidth());
-				parentConstraints.setAvailableLineWidth(width);
+				default:
+					// unknown, so just leave alone for now but make sure to update
+					// available line width
+					int width = updateLineWidthWithLastLine(child, parentConstraints.getAvailableLineWidth());
+					parentConstraints.setAvailableLineWidth(width);
 			}
 		}
 	}
@@ -114,7 +135,13 @@ public class DOMDocTypeFormatter {
 			List<DTDAttlistDecl> internalDecls = attlist.getInternalChildren();
 			if (internalDecls == null) {
 				for (DTDDeclParameter parameter : attlist.getParameters()) {
+					// Normalize space at the start of parameter to a single space for ATTLIST, for
+					// example:
+					// <!ATTLIST |E |WIDTH |CDATA |"0">
 					replaceLeftSpacesWithOneSpace(parameter.getStart(), edits);
+					// replace current quote with preferred quote in the case:
+					// <!ATTLIST E WIDTH CDATA "0">
+					replaceQuoteWithPreferred(nodeDecl, parameter, edits);
 				}
 			} else {
 				boolean multipleInternalAttlistDecls = false;
@@ -152,7 +179,13 @@ public class DOMDocTypeFormatter {
 			List<DTDDeclParameter> parameters = nodeDecl.getParameters();
 			if (!parameters.isEmpty()) {
 				for (DTDDeclParameter parameter : parameters) {
+					// Normalize space at the start of parameter to a single space for non-ATTLIST,
+					// for example:
+					// <!ENTITY |AUTHOR |"John Doe">
 					replaceLeftSpacesWithOneSpace(parameter.getStart(), edits);
+					// replace current quote with preferred quote in the case:
+					// <!ENTITY AUTHOR "John Doe">
+					replaceQuoteWithPreferred(nodeDecl, parameter, edits);
 				}
 			}
 		}
@@ -175,4 +208,44 @@ public class DOMDocTypeFormatter {
 		formatterDocument.removeLeftSpaces(to, edits);
 	}
 
+	private String getQuotationAsString() {
+		return formatterDocument.getSharedSettings().getPreferences().getQuotationAsString();
+	}
+
+	private EnforceQuoteStyle getEnforceQuoteStyle() {
+		return formatterDocument.getSharedSettings().getFormattingSettings().getEnforceQuoteStyle();
+	}
+
+	private static int getDocTypeIdStart(DOMDocumentType docType) {
+		if (docType.getPublicIdNode() != null) {
+			return docType.getPublicIdNode().getStart();
+		} else if (docType.getSystemIdNode() != null) {
+			return docType.getSystemIdNode().getStart();
+		} else
+			return -1;
+	}
+
+	private static int getDocTypeIdEnd(DOMDocumentType docType) {
+		if (docType.getPublicIdNode() != null) {
+			return docType.getPublicIdNode().getEnd();
+		} else if (docType.getSystemIdNode() != null) {
+			return docType.getSystemIdNode().getEnd();
+		} else
+			return -1;
+	}
+
+	private void replaceQuoteWithPreferred(DTDDeclNode nodeDecl, DTDDeclParameter parameter, List<TextEdit> edits) {
+		int paramStart = parameter.getStart();
+		int paramEnd = parameter.getEnd();
+		if (StringUtils.isQuote(nodeDecl.getOwnerDocument().getText().charAt(paramStart)) &&
+				StringUtils.isQuote(nodeDecl.getOwnerDocument().getText().charAt(paramEnd - 1))) {
+			if (getEnforceQuoteStyle() == EnforceQuoteStyle.preferred) {
+				formatterDocument.replaceQuoteWithPreferred(paramStart,
+						paramStart + 1, getQuotationAsString(), edits);
+				formatterDocument.replaceQuoteWithPreferred(paramEnd - 1,
+						paramEnd, getQuotationAsString(), edits);
+
+			}
+		}
+	}
 }

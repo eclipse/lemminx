@@ -15,6 +15,8 @@ import java.util.List;
 
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lemminx.settings.EnforceQuoteStyle;
+import org.eclipse.lemminx.utils.StringUtils;
 
 /**
  * DOM attribute formatter.
@@ -77,6 +79,24 @@ public class DOMAttributeFormatter {
 				removeLeftSpaces(delimiterOffset, attrValueStart, edits);
 			}
 		}
+
+		// replace current quote with preferred quote in case of attribute value
+		// ex: if preferred quote is single quote (')
+		// <a name="value"> </a>
+		// --> <a name='value'> </a>
+		String originalValue = attr.getOriginalValue();
+		if (getEnforceQuoteStyle() == EnforceQuoteStyle.preferred && originalValue != null) {
+			if (originalValue.charAt(0) != getQuotationAsChar()
+					&& StringUtils.isQuote(originalValue.charAt(0))) {
+				formatterDocument.replaceQuoteWithPreferred(attr.getNodeAttrValue().getStart(),
+						attr.getNodeAttrValue().getStart() + 1, getQuotationAsString(), edits);
+			}
+			if (originalValue.charAt(originalValue.length() - 1) != getQuotationAsChar()
+					&& StringUtils.isQuote(originalValue.charAt(originalValue.length() - 1))) {
+				formatterDocument.replaceQuoteWithPreferred(attr.getNodeAttrValue().getEnd() - 1,
+						attr.getNodeAttrValue().getEnd(), getQuotationAsString(), edits);
+			}
+		}
 	}
 
 	private void replaceLeftSpacesWithOneSpace(int from, int to, List<TextEdit> edits) {
@@ -108,4 +128,15 @@ public class DOMAttributeFormatter {
 		return formatterDocument.hasLineBreak(prevOffset, start);
 	}
 
+	private char getQuotationAsChar() {
+		return formatterDocument.getSharedSettings().getPreferences().getQuotationAsChar();
+	}
+
+	private String getQuotationAsString() {
+		return formatterDocument.getSharedSettings().getPreferences().getQuotationAsString();
+	}
+
+	private EnforceQuoteStyle getEnforceQuoteStyle() {
+		return formatterDocument.getSharedSettings().getFormattingSettings().getEnforceQuoteStyle();
+	}
 }
