@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.commons.TextDocument;
+import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -90,6 +91,12 @@ public class TextEditUtils {
 		from++;
 		if (matchExpectedContent) {
 			matchExpectedContent = to - from == expectedContent.length();
+		}
+
+		// Set parameters to handle case when replacing single quote with double quote and vice versa
+		if (from == to && !expectedContent.isEmpty() && StringUtils.isQuote(expectedContent.toCharArray()[0])) {
+			from--;
+			matchExpectedContent = false;
 		}
 
 		if (!matchExpectedContent) {

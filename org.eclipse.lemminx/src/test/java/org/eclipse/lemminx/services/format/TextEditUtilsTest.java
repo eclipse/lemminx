@@ -50,4 +50,13 @@ public class TextEditUtilsTest {
 		assertNotNull(edit);
 		assertEquals(te(0, 2, 0, 4, " "), edit);
 	}
+
+	@Test
+	public void textEditQuote() {
+		TextDocument document = new TextDocument("<a name=\'value \'> </a>", "test.xml");
+		TextEdit edit = TextEditUtils.createTextEditIfNeeded(8, 9, "\"", document);
+		assertNotNull(edit);
+		assertEquals(te(0, 8, 0, 9, "\""), edit);
+	}
+
 }
