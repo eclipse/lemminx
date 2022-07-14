@@ -47,6 +47,8 @@ public class XMLServerLauncher {
 		if (HTTP_PROXY_HOST != null && HTTP_PROXY_PORT != null) {
 			System.setProperty("http.proxyHost", HTTP_PROXY_HOST);
 			System.setProperty("http.proxyPort", HTTP_PROXY_PORT);
+			System.setProperty("https.proxyHost", HTTP_PROXY_HOST);
+			System.setProperty("https.proxyPort", HTTP_PROXY_PORT);
 		}
 
 		if (HTTP_PROXY_USERNAME != null && HTTP_PROXY_PASSWORD != null) {
