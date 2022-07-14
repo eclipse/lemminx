@@ -17,6 +17,7 @@ import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lemminx.settings.EnforceQuoteStyle;
 import org.eclipse.lemminx.utils.StringUtils;
+import org.eclipse.lemminx.settings.XMLFormattingOptions;
 
 /**
  * DOM attribute formatter.
@@ -78,6 +79,7 @@ public class DOMAttributeFormatter {
 				int attrValueStart = attr.getNodeAttrValue().getStart(); // <foo attr = |""
 				removeLeftSpaces(delimiterOffset, attrValueStart, edits);
 			}
+			formatterDocument.formatAttributeValue(attr, formatterDocument, parentConstraints.getIndentLevel(), getFormattingSettings(), edits);
 		}
 
 		// replace current quote with preferred quote in case of attribute value
@@ -118,6 +120,10 @@ public class DOMAttributeFormatter {
 
 	private int getSplitAttributesIndentSize() {
 		return formatterDocument.getSharedSettings().getFormattingSettings().getSplitAttributesIndentSize();
+	}
+
+	private XMLFormattingOptions getFormattingSettings() {
+		return formatterDocument.getSharedSettings().getFormattingSettings();
 	}
 
 	boolean isPreserveAttributeLineBreaks() {
