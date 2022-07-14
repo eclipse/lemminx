@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.commons.TextDocument;
+import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMDocumentType;
 import org.eclipse.lemminx.dom.DOMElement;
@@ -28,6 +29,8 @@ import org.eclipse.lemminx.dom.DOMText;
 import org.eclipse.lemminx.dom.DOMComment;
 import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
 import org.eclipse.lemminx.settings.SharedSettings;
+import org.eclipse.lemminx.settings.XMLFormattingOptions;
+import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -315,11 +318,29 @@ public class XMLFormatterDocumentNew {
 		}
 	}
 
+	public void formatAttributeValue(DOMAttr attr, XMLFormatterDocumentNew formatterDocument, int indentLevel,
+			XMLFormattingOptions formattingOptions, List<TextEdit> edits) {
+		if (formatterParticipants != null) {
+			for (IFormatterParticipant formatterParticipant : formatterParticipants) {
+				try {
+					if (formatterParticipant.formatAttributeValue(attr, formatterDocument, indentLevel,
+							formattingOptions, edits)) {
+						return;
+					}
+				} catch (Exception e) {
+					LOGGER.log(Level.SEVERE,
+							"Error while processing format attributes for the participant '"
+									+ formatterParticipant.getClass().getName() + "'.", e);
+				}
+			}
+		}
+	}
+
 	void removeLeftSpaces(int to, List<TextEdit> edits) {
 		replaceLeftSpacesWith(to, "", edits);
 	}
 
-	void removeLeftSpaces(int from, int to, List<TextEdit> edits) {
+	public void removeLeftSpaces(int from, int to, List<TextEdit> edits) {
 		replaceLeftSpacesWith(from, to, "", edits);
 	}
 
@@ -327,7 +348,7 @@ public class XMLFormatterDocumentNew {
 		replaceLeftSpacesWith(to, " ", edits);
 	}
 
-	void replaceLeftSpacesWithOneSpace(int from, int to, List<TextEdit> edits) {
+	public void replaceLeftSpacesWithOneSpace(int from, int to, List<TextEdit> edits) {
 		replaceLeftSpacesWith(from, to, " ", edits);
 	}
 
@@ -344,7 +365,7 @@ public class XMLFormatterDocumentNew {
 		createTextEditIfNeeded(from, to, replacement, edits);
 	}
 
-	private int getLeftWhitespacesOffset(int leftLimit, int to) {
+	public int getLeftWhitespacesOffset(int leftLimit, int to) {
 		String text = textDocument.getText();
 		int from = leftLimit != -1 ? leftLimit : to - 1;
 		int limit = leftLimit != -1 ? leftLimit : 0;
@@ -358,10 +379,22 @@ public class XMLFormatterDocumentNew {
 		return from;
 	}
 
-	int replaceLeftSpacesWithIndentation(int indentLevel, int offset, boolean addLineSeparator, List<TextEdit> edits) {
+	public int replaceLeftSpacesWithIndentation(int indentLevel, int offset, boolean addLineSeparator,
+			List<TextEdit> edits) {
 		int start = offset - 1;
 		if (start > 0) {
 			String expectedSpaces = getIndentSpaces(indentLevel, addLineSeparator);
+			createTextEditIfNeeded(start, offset, expectedSpaces, edits);
+			return expectedSpaces.length();
+		}
+		return 0;
+	}
+
+	public int replaceLeftSpacesWithIndentationWithOffsetSpaces(int indentSpace, int offset, boolean addLineSeparator,
+			List<TextEdit> edits) {
+		int start = offset - 1;
+		if (start > 0) {
+			String expectedSpaces = getIndentSpacesWithOffsetSpaces(indentSpace, addLineSeparator);
 			createTextEditIfNeeded(start, offset, expectedSpaces, edits);
 			return expectedSpaces.length();
 		}
@@ -377,6 +410,52 @@ public class XMLFormatterDocumentNew {
 			}
 		}
 		return false;
+	}
+
+	public int getNormalizedLength(int from, int to) {
+		String text = textDocument.getText();
+		int contentOffset = 0;
+		for (int i = from; i < to; i++) {
+			if (Character.isWhitespace(text.charAt(i)) && !Character.isWhitespace(text.charAt(i + 1))) {
+				to -= contentOffset;
+				contentOffset = 0;
+			} else if (Character.isWhitespace(text.charAt(i))) {
+				contentOffset++;
+			}
+		}
+		return to;
+	}
+
+	public int getOffsetWithPreserveLineBreaks(int from, int to, int tabSize, boolean isInsertSpaces) {
+		int initialTo = to;
+		String text = textDocument.getText();
+		for (int i = to; i > from; i--) {
+			if (text.charAt(i) == '\t') {
+				to -= tabSize;
+			} else if (isLineSeparator(text.charAt(i))) {
+				int prevIndent = 0;
+				for (int j = i + 1; j < initialTo; j++) {
+					if (text.charAt(j) == '\t' && !isInsertSpaces) {
+						prevIndent += tabSize;
+					} else if (Character.isWhitespace(text.charAt(j))) {
+						prevIndent++;
+					} else {
+						to += (prevIndent - tabSize);
+						return to;
+					}
+				}
+			} else if (text.charAt(i) == ' ' && StringUtils.isQuote(text.charAt(i - 1))) {
+				int j = 1;
+				while (text.charAt(i + j)== ' ') {
+					to++;
+					j++;
+				}
+				to--;
+			} else {
+				to--;
+			}
+		}
+		return to;
 	}
 
 	// DTD formatting
@@ -513,6 +592,30 @@ public class XMLFormatterDocumentNew {
 		return spaces.toString();
 	}
 
+	private String getIndentSpacesWithOffsetSpaces(int spaceCount, boolean addLineSeparator) {
+		StringBuilder spaces = new StringBuilder();
+		if (addLineSeparator) {
+			spaces.append(lineDelimiter);
+		}
+		int spaceOffset = spaceCount % getTabSize();
+
+		for (int i = 0; i < spaceCount / getTabSize(); i++) {
+			if (isInsertSpaces()) {
+				for (int j = 0; j < getTabSize(); j++) {
+					spaces.append(" ");
+				}
+			} else {
+				spaces.append("\t");
+			}
+		}
+
+		for (int i = 0; i < spaceOffset; i++) {
+			spaces.append(" ");
+		}
+
+		return spaces.toString();
+	}
+
 	private void trimFinalNewlines(boolean insertFinalNewline, List<TextEdit> edits) {
 		String xml = textDocument.getText();
 		int end = xml.length() - 1;
@@ -571,5 +674,13 @@ public class XMLFormatterDocumentNew {
 
 	String getText() {
 		return textDocument.getText();
+	}
+
+	public int getLineAtOffset(int offset) {
+		try {
+			return textDocument.lineOffsetAt(offset);
+		} catch (BadLocationException e) {
+			return -1;
+		}
 	}
 }

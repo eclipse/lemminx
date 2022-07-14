@@ -321,7 +321,8 @@ public class DOMDocument extends DOMNode implements Document {
 
 	private static SchemaLocation createSchemaLocation(DOMNode root, String schemaInstancePrefix) {
 		DOMAttr attr = root.getAttributeNode(getPrefixedName(schemaInstancePrefix, "schemaLocation"));
-		if (attr == null) {
+		// Check that the attribute and the attribute value of xsi:schemaLocation is not null
+		if (attr == null || attr.getNodeAttrValue() == null) {
 			return null;
 		}
 		return new SchemaLocation(attr);

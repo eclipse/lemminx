@@ -12,12 +12,17 @@
 *******************************************************************************/
 package org.eclipse.lemminx.services.extensions.format;
 
+import java.util.List;
+
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.services.format.FormatElementCategory;
+import org.eclipse.lemminx.services.format.XMLFormatterDocumentNew;
 import org.eclipse.lemminx.services.format.XMLFormattingConstraints;
 import org.eclipse.lemminx.settings.SharedSettings;
+import org.eclipse.lemminx.settings.XMLFormattingOptions;
 import org.eclipse.lemminx.utils.XMLBuilder;
+import org.eclipse.lsp4j.TextEdit;
 
 /**
  * XML formatter participant.
@@ -45,6 +50,21 @@ public interface IFormatterParticipant {
 	 */
 	default boolean formatAttributeValue(String name, String valueWithoutQuote, Character quote, DOMAttr attr,
 			XMLBuilder xml) {
+		return false;
+	}
+
+	/**
+	 * Format the given attribute value.
+	 * 
+	 * @param formatterDocument the formatter document
+	 * @param indentLevel       the current indent level of the attribute
+	 * @param formattingOptions the formatting options that contain the settings
+	 * @param attr              the attribute node
+	 * @param edits             the text edit list
+	 * @return true if the given attribute can be formatted and false otherwise.
+	 */
+	default boolean formatAttributeValue(DOMAttr attr, XMLFormatterDocumentNew formatterDocument,
+			int indentLevel, XMLFormattingOptions formattingOptions, List<TextEdit> edits) {
 		return false;
 	}
 

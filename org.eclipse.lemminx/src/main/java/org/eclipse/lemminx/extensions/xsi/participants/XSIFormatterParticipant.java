@@ -19,8 +19,11 @@ import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.extensions.xsi.XSISchemaModel;
 import org.eclipse.lemminx.extensions.xsi.settings.XSISchemaLocationSplit;
 import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
+import org.eclipse.lemminx.services.format.XMLFormatterDocumentNew;
 import org.eclipse.lemminx.settings.XMLFormattingOptions;
+import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lemminx.utils.XMLBuilder;
+import org.eclipse.lsp4j.TextEdit;
 
 /**
  * Formatter participant implementation to format xsi:schemaLocation attribute
@@ -155,4 +158,78 @@ public class XSIFormatterParticipant implements IFormatterParticipant {
 		return indent.toString();
 	}
 
+	@Override
+	public boolean formatAttributeValue(DOMAttr attr, XMLFormatterDocumentNew formatterDocument,
+			int indentLevel, XMLFormattingOptions formattingOptions, List<TextEdit> edits) {
+
+		XSISchemaLocationSplit split = XSISchemaLocationSplit.getSplit(formattingOptions);
+
+		if (split == XSISchemaLocationSplit.none || !XSISchemaModel.isXSISchemaLocationAttr(attr.getName(), attr)
+				|| getFirstContentOffset(attr.getOriginalValue()) == -1) {
+			return false;
+		}
+
+		int attrValueStart = attr.getNodeAttrValue().getStart();
+		// Remove extra spaces between start of xsi:schemaLocation attribute value quote
+		// and actual value
+		formatterDocument.removeLeftSpaces(attrValueStart + 1, // <... xsi:schemaLocation="| value"
+				// <... xsi:schemaLocation=" |value"
+				attrValueStart + getFirstContentOffset(attr.getOriginalValue()), edits);
+
+		int tabSize = formattingOptions.getTabSize();
+		int indentSpaceOffset;
+		int startOfLineOffset = formatterDocument.getLineAtOffset(attr.getOwnerElement().getStart());
+
+		if (formattingOptions.isSplitAttributes()) {
+			indentSpaceOffset = (attrValueStart + 1) - attr.getNodeAttrName().getStart()
+					+ formattingOptions.getSplitAttributesIndentSize() * tabSize;
+		} else if (formattingOptions.isPreserveAttributeLineBreaks()) {
+			indentSpaceOffset = attrValueStart
+					- formatterDocument.getOffsetWithPreserveLineBreaks(startOfLineOffset, attrValueStart, tabSize, formattingOptions.isInsertSpaces());
+		} else {
+			indentSpaceOffset = formatterDocument.getNormalizedLength(startOfLineOffset, attrValueStart + 1)
+					- startOfLineOffset;
+		}
+
+		int lineFeed = split == XSISchemaLocationSplit.onElement ? 1 : 2;
+		int locationNum = 1;
+		String attrValue = attr.getOriginalValue();
+
+		for (int i = 0; i < attrValue.length(); i++) {
+			int from = formatterDocument.getLeftWhitespacesOffset(attrValueStart, attrValueStart + i + 1);
+			if (Character.isWhitespace(attrValue.charAt(i)) && !Character.isWhitespace(attrValue.charAt(i + 1))
+					&& !StringUtils.isQuote(attrValue.charAt(from - attrValueStart))) {
+				// Insert newline and indent where required based on setting
+				if (locationNum % lineFeed == 0) {
+					formatterDocument.replaceLeftSpacesWithIndentationWithOffsetSpaces(indentSpaceOffset,
+							attrValueStart + i + 1,
+							true, edits);
+				} else {
+					formatterDocument.replaceLeftSpacesWithOneSpace(indentSpaceOffset, attrValueStart + i + 1, edits);
+				}
+				locationNum++;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Returns the offset from opening quote to first non-whitespace character of an
+	 * attribute value
+	 *
+	 * @param originalValue
+	 * @return offset from opening quote to first non-whitespace character of an
+	 *         attribute value
+	 */
+	private static int getFirstContentOffset(String originalValue) {
+		if (originalValue == null) {
+			return -1;
+		}
+		for (int i = 1; i < originalValue.length(); i++) {
+			if (!Character.isWhitespace(originalValue.charAt(i)) && !StringUtils.isQuote(originalValue.charAt(i))) {
+				return i;
+			}
+		}
+		return -1;
+	}
 }
