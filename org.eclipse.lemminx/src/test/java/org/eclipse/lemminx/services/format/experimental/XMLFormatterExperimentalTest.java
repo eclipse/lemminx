@@ -568,7 +568,6 @@ public class XMLFormatterExperimentalTest {
 		assertFormat(content, expected);
 	}
 
-	@Disabled
 	@Test
 	public void testCommentWithRange() throws BadLocationException {
 		String content = "<foo>\r\n" + //
@@ -582,72 +581,6 @@ public class XMLFormatterExperimentalTest {
 				"	-->\r\n" + //
 				"</foo>";
 		assertFormat(content, expected);
-	}
-
-	@Disabled
-	@Test
-	public void testJoinCommentLines() throws BadLocationException {
-		String content = "<!--" + lineSeparator() + //
-				" line 1" + lineSeparator() + //
-				" " + lineSeparator() + //
-				" " + lineSeparator() + //
-				"   line 2" + lineSeparator() + //
-				" -->";
-		String expected = "<!-- line 1 line 2 -->";
-		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setJoinCommentLines(true);
-		assertFormat(content, expected, settings);
-	}
-
-	@Disabled
-	@Test
-	public void testUnclosedEndTagTrailingComment() throws BadLocationException {
-		String content = "<root>" + lineSeparator() + //
-				"    <a> content </a" + lineSeparator() + //
-				"        <!-- comment -->" + lineSeparator() + //
-				" </root>";
-		String expected = "<root>" + lineSeparator() + //
-				"  <a> content </a" + lineSeparator() + //
-				"  <!-- comment -->" + lineSeparator() + //
-				"</root>";
-		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setJoinCommentLines(true);
-		assertFormat(content, expected, settings);
-	}
-
-	@Disabled
-	@Test
-	public void testJoinCommentLinesNested() throws BadLocationException {
-		String content = "<a>" + lineSeparator() + //
-				"  <!--" + lineSeparator() + //
-				"   line 1" + lineSeparator() + //
-				"   " + lineSeparator() + //
-				"   " + lineSeparator() + //
-				"     line 2" + lineSeparator() + //
-				"   -->" + lineSeparator() + //
-				"</a>";
-		String expected = "<a>" + lineSeparator() + //
-				"  <!-- line 1 line 2 -->" + lineSeparator() + //
-				"</a>";
-
-		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setJoinCommentLines(true);
-		assertFormat(content, expected, settings);
-	}
-
-	@Disabled
-	@Test
-	public void testCommentFormatSameLine() throws BadLocationException {
-		String content = "<a>" + lineSeparator() + //
-				" Content" + lineSeparator() + //
-				"</a> <!-- My   Comment   -->";
-		String expected = "<a>" + lineSeparator() + //
-				" Content" + lineSeparator() + //
-				"</a> <!-- My Comment -->";
-
-		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setJoinCommentLines(true);
-		assertFormat(content, expected, settings);
 	}
 
 	// ---------- Tests for CDATA formatting
@@ -934,6 +867,11 @@ public class XMLFormatterExperimentalTest {
 	private static void assertFormat(String unformatted, String actual, TextEdit... expectedEdits)
 			throws BadLocationException {
 		assertFormat(unformatted, actual, new SharedSettings(), expectedEdits);
+	}
+
+	private static void assertFormat(String unformatted, String expected, SharedSettings sharedSettings)
+			throws BadLocationException {
+		assertFormat(unformatted, expected, sharedSettings, "test://test.html", (TextEdit[]) null);
 	}
 
 	private static void assertFormat(String unformatted, String expected, SharedSettings sharedSettings,
