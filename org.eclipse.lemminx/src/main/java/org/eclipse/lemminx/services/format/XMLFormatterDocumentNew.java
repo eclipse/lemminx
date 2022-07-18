@@ -25,6 +25,7 @@ import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.dom.DOMProcessingInstruction;
 import org.eclipse.lemminx.dom.DOMText;
+import org.eclipse.lemminx.dom.DOMComment;
 import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.Position;
@@ -66,6 +67,8 @@ public class XMLFormatterDocumentNew {
 
 	private final DOMTextFormatter textFormatter;
 
+	private final DOMCommentFormatter commentFormatter;
+
 	private final Collection<IFormatterParticipant> formatterParticipants;
 
 	private int startOffset = -1;
@@ -96,6 +99,8 @@ public class XMLFormatterDocumentNew {
 		this.elementFormatter = new DOMElementFormatter(this, attributeFormatter);
 		this.processingInstructionFormatter = new DOMProcessingInstructionFormatter(this, attributeFormatter);
 		this.textFormatter = new DOMTextFormatter(this);
+		this.commentFormatter = new DOMCommentFormatter(this);
+
 
 	}
 
@@ -264,36 +269,42 @@ public class XMLFormatterDocumentNew {
 
 		switch (child.getNodeType()) {
 
-		case Node.DOCUMENT_TYPE_NODE:
-			DOMDocumentType docType = (DOMDocumentType) child;
-			docTypeFormatter.formatDocType(docType, parentConstraints, start, end, edits);
-			break;
+			case Node.DOCUMENT_TYPE_NODE:
+				DOMDocumentType docType = (DOMDocumentType) child;
+				docTypeFormatter.formatDocType(docType, parentConstraints, start, end, edits);
+				break;
 
-		case Node.DOCUMENT_NODE:
-			DOMDocument document = (DOMDocument) child;
-			formatChildren(document, parentConstraints, start, end, edits);
-			break;
+			case Node.DOCUMENT_NODE:
+				DOMDocument document = (DOMDocument) child;
+				formatChildren(document, parentConstraints, start, end, edits);
+				break;
 
-		case DOMNode.PROCESSING_INSTRUCTION_NODE:
-			DOMProcessingInstruction processingInstruction = (DOMProcessingInstruction) child;
-			processingInstructionFormatter.formatProcessingInstruction(processingInstruction, parentConstraints, edits);
-			break;
+			case DOMNode.PROCESSING_INSTRUCTION_NODE:
+				DOMProcessingInstruction processingInstruction = (DOMProcessingInstruction) child;
+				processingInstructionFormatter.formatProcessingInstruction(processingInstruction, parentConstraints,
+						edits);
+				break;
 
-		case Node.ELEMENT_NODE:
-			DOMElement element = (DOMElement) child;
-			elementFormatter.formatElement(element, parentConstraints, start, end, edits);
-			break;
+			case Node.ELEMENT_NODE:
+				DOMElement element = (DOMElement) child;
+				elementFormatter.formatElement(element, parentConstraints, start, end, edits);
+				break;
 
-		case Node.TEXT_NODE:
-			DOMText textNode = (DOMText) child;
-			textFormatter.formatText(textNode, parentConstraints, edits);
-			break;
+			case Node.TEXT_NODE:
+				DOMText textNode = (DOMText) child;
+				textFormatter.formatText(textNode, parentConstraints, edits);
+				break;
 
-		default:
-			// unknown, so just leave alone for now but make sure to update
-			// available line width
-			int width = updateLineWidthWithLastLine(child, parentConstraints.getAvailableLineWidth());
-			parentConstraints.setAvailableLineWidth(width);
+			case Node.COMMENT_NODE:
+				DOMComment commentNode = (DOMComment) child;
+				commentFormatter.formatComment(commentNode, parentConstraints, edits);
+				break;
+
+			default:
+				// unknown, so just leave alone for now but make sure to update
+				// available line width
+				int width = updateLineWidthWithLastLine(child, parentConstraints.getAvailableLineWidth());
+				parentConstraints.setAvailableLineWidth(width);
 		}
 	}
 
@@ -329,7 +340,7 @@ public class XMLFormatterDocumentNew {
 		createTextEditIfNeeded(from, to, replacement, edits);
 	}
 
-	void replaceQuoteWithPreferred(int from, int to, String replacement, List<TextEdit> edits){
+	void replaceQuoteWithPreferred(int from, int to, String replacement, List<TextEdit> edits) {
 		createTextEditIfNeeded(from, to, replacement, edits);
 	}
 
