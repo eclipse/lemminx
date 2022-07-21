@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="root">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="a" minOccurs="1" maxOccurs="1" type="xs:string" />
+				<xs:element name="b" minOccurs="0" maxOccurs="1" type="xs:string" />
+				<xs:element name="c" minOccurs="0" maxOccurs="1" type="xs:string" />
+				<xs:element name="d" minOccurs="1" maxOccurs="1">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="d1" minOccurs="0" maxOccurs="unbounded" type="xs:string" />
+						</xs:sequence>
+						<xs:attribute name="status" type="xs:string" />
+						<xs:attribute name="age" use="required" type="xs:int" />
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="e" minOccurs="1" maxOccurs="1" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

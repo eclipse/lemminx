@@ -160,4 +160,11 @@ public interface CMElementDeclaration {
 	 */
 	boolean isMixedContent();
 
+	/**
+	 * Returns true if the child element name is optional and false otherwise.
+	 * 
+	 * @return true if the child element name is optional and false otherwise.
+	 */
+	boolean isOptional(String childElementName);
+
 }

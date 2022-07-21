@@ -74,6 +74,8 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 
 	private SchemaDocumentationType docStrategy;
 
+	private Map<String, Boolean> elementOptionality;
+
 	public CMXSDElementDeclaration(CMXSDDocument document, XSElementDeclaration elementDeclaration) {
 		this.document = document;
 		this.elementDeclaration = elementDeclaration;
@@ -307,6 +309,32 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 		if (particle != null) {
 			collectElementsDeclaration(particle.getTerm(), elements);
 		}
+	}
+
+	public boolean isOptional(String childElementName) {
+		if (elementOptionality == null){
+			this.elementOptionality = new HashMap<String, Boolean>();
+			XSTypeDefinition typeDefinition = elementDeclaration.getTypeDefinition();
+			switch (typeDefinition.getTypeCategory()) {
+				case XSTypeDefinition.SIMPLE_TYPE:
+					break;
+				case XSTypeDefinition.COMPLEX_TYPE:
+					XSParticle particle = ((XSComplexTypeDefinition) typeDefinition).getParticle();
+					if (particle != null) {
+						XSObjectList objectList = ((XSModelGroup) particle.getTerm()).getParticles();
+						for (int i = 0; i < objectList.getLength(); i++) {
+							XSParticle xp = (XSParticle) objectList.item(i);
+							XSTerm t = xp.getTerm();
+							if (t instanceof XSElementDeclaration) {
+								if (xp != null) {
+									elementOptionality.put(t.getName(), xp.getMinOccurs() == 0);
+								}
+							}
+						}
+					}
+			}
+		}
+		return elementOptionality.get(childElementName);
 	}
 
 	@SuppressWarnings("unchecked")
