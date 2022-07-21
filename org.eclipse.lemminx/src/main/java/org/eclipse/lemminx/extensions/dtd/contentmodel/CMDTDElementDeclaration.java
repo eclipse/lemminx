@@ -156,4 +156,10 @@ public class CMDTDElementDeclaration extends XMLElementDecl implements CMElement
 	public boolean isMixedContent() {
 		return super.type == XMLElementDecl.TYPE_MIXED;
 	}
+
+	@Override
+	public boolean isOptional(String childElementName){
+		//implement later, return false
+		return false;
+	}
 }

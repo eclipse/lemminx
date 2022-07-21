@@ -78,7 +78,7 @@ public class XMLGenerator {
 	public String generate(CMElementDeclaration elementDeclaration, String prefix, boolean generateEndTag) {
 		XMLBuilder xml = new XMLBuilder(sharedSettings, whitespacesIndent, lineDelimiter);
 		generate(elementDeclaration, prefix, generateEndTag, false, 0, 0, xml, new ArrayList<CMElementDeclaration>(),
-				new ArrayList<String>());
+				new ArrayList<String>(), false);
 		if (canSupportSnippets) {
 			xml.addContent(SnippetsBuilder.tabstops(0)); // "$0"
 		}
@@ -87,7 +87,7 @@ public class XMLGenerator {
 
 	/**
 	 * Returns the XML generated from the given element declaration given option to
-	 * generate only children.
+	 * generate only children and only required elements.
 	 * 
 	 * @param elementDeclaration
 	 * @param prefix
@@ -96,14 +96,16 @@ public class XMLGenerator {
 	 *                             to be generated
 	 * @param existingElementNames a collection of strings of element names that
 	 *                             already exist in the XML
+	 * @param generateOnlyRequired true if only the required elements is to be
+	 *                             generated
 	 * @return the XML generated from the given element declaration given option to
 	 *         generate only children.
 	 */
 	public String generate(CMElementDeclaration elementDeclaration, String prefix, boolean generateEndTag,
-			boolean generateOnlyChildren, Collection<String> existingElementNames) {
+			boolean generateOnlyChildren, Collection<String> existingElementNames, boolean generateOnlyRequired) {
 		XMLBuilder xml = new XMLBuilder(sharedSettings, whitespacesIndent, lineDelimiter);
 		generate(elementDeclaration, prefix, generateEndTag, generateOnlyChildren, 0, 0, xml,
-				new ArrayList<CMElementDeclaration>(), existingElementNames);
+				new ArrayList<CMElementDeclaration>(), existingElementNames, generateOnlyRequired);
 		if (canSupportSnippets) {
 			xml.addContent(SnippetsBuilder.tabstops(0)); // "$0"
 		}
@@ -113,12 +115,15 @@ public class XMLGenerator {
 	private int generate(CMElementDeclaration elementDeclaration, String prefix, boolean generateEndTag,
 			boolean generateOnlyChildren, int level,
 			int snippetIndex, XMLBuilder xml, List<CMElementDeclaration> generatedElements,
-			Collection<String> existingElementNames) {
+			Collection<String> existingElementNames, boolean generateOnlyRequired) {
+
 		if (generateOnlyChildren) {
-			Collection<CMElementDeclaration> childLElements = elementDeclaration.getElements();
-			for (CMElementDeclaration child : childLElements) {
-				snippetIndex = generate(child, prefix, true, false, level + 1, snippetIndex, xml,
-						generatedElements, existingElementNames);
+			Collection<CMElementDeclaration> childElements = elementDeclaration.getElements();
+			for (CMElementDeclaration child : childElements) {
+				if (isGenerateChild(elementDeclaration, generateOnlyRequired, child.getName())) {
+					snippetIndex = generate(child, prefix, true, false, level + 1, snippetIndex, xml,
+							generatedElements, existingElementNames, generateOnlyRequired);
+				}
 			}
 			return snippetIndex;
 		}
@@ -141,14 +146,16 @@ public class XMLGenerator {
 		if (children.size() > 0) {
 			xml.closeStartElement();
 			if ((level < maxLevel)) {
-				level++;
 				for (CMElementDeclaration child : children) {
-					snippetIndex = generate(child, prefix, true, false, level, snippetIndex, xml,
-							generatedElements, existingElementNames);
+					if (isGenerateChild(elementDeclaration, generateOnlyRequired, child.getName())) {
+						level++;
+						snippetIndex = generate(child, prefix, true, false, level, snippetIndex, xml,
+								generatedElements, existingElementNames, generateOnlyRequired);
+						level--;
+						xml.linefeed();
+						xml.indent(level);
+					}
 				}
-				level--;
-				xml.linefeed();
-				xml.indent(level);
 			} else {
 				if (canSupportSnippets) {
 					snippetIndex++;
@@ -381,5 +388,23 @@ public class XMLGenerator {
 			return MarkupContentFactory.createMarkupContent(documentation, MarkupKind.MARKDOWN, support);
 		}
 		return null;
+	}
+
+	/**
+	 * Returns true if the element child element is to be generated.
+	 * 
+	 * @param elementDeclaration   element declaration.
+	 * @param generateOnlyRequired
+	 * @param childName            name of child element.
+	 * 
+	 * @return true if the element child element is to be generated.
+	 */
+	private boolean isGenerateChild(CMElementDeclaration elementDeclaration, boolean generateOnlyRequired,
+			String childName) {
+		if (!generateOnlyRequired
+				|| (!elementDeclaration.isOptional(childName) && generateOnlyRequired)) {
+			return true;
+		}
+		return false;
 	}
 }

@@ -46,6 +46,7 @@ import org.eclipse.lsp4j.PublishDiagnosticsCapabilities;
 import org.eclipse.lsp4j.ResourceOperationKind;
 import org.eclipse.lsp4j.WorkspaceClientCapabilities;
 import org.eclipse.lsp4j.WorkspaceEditCapabilities;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -209,7 +210,12 @@ public class XMLSchemaDiagnosticsTest {
 						"\t<authors>\r\n" + //
 						"\t\t<author></author>\r\n" + //
 						"\t</authors>\r\n" + //
-						"\t<assistant></assistant>")));
+						"\t<assistant></assistant>")),
+				ca(d, te(1, 83, 1, 83, //
+						"\r\n" + //
+								"\t<authors>\r\n" + //
+								"\t\t<author></author>\r\n" + //
+								"\t</authors>")));
 	}
 
 	@Test
@@ -223,7 +229,12 @@ public class XMLSchemaDiagnosticsTest {
 						"\t<authors>\r\n" + //
 						"\t\t<author></author>\r\n" + //
 						"\t</authors>\r\n" + //
-						"\t<assistant></assistant>\n")));
+						"\t<assistant></assistant>\n")),
+				ca(d, te(1, 79, 1, 79, //
+						"\r\n" + //
+								"\t<authors>\r\n" + //
+								"\t\t<author></author>\r\n" + //
+								"\t</authors>\n")));
 	}
 
 	@Test
@@ -237,20 +248,73 @@ public class XMLSchemaDiagnosticsTest {
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(2, 10, 2, 10, //
 				"\r\n" + //
-						"\t\t<author></author>\r\n\t")));
+						"\t\t<author></author>\r\n\t")),
+				ca(d, te(2, 10, 2, 10, //
+						"\r\n" + //
+								"\t\t<author></author>\r\n\t")));
 	}
 
 	@Test
-	public void cvc_complex_type_2_4_bCodeAction_withExistingChild() throws Exception {
+	public void cvc_complex_type_2_4_bCodeAction_Only_Required() throws Exception {
 		String xml = "<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
-				"    xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/unique_multiElement.xsd\">\r\n" + //
-				"    <authors><author></author></authors>\r\n" + //
+				"xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/unique_multiElement.xsd\"></root>";
+		Diagnostic d = d(0, 1, 0, 5, XMLSchemaErrorCode.cvc_complex_type_2_4_b);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(1, 79, 1, 79, //
+				"\r\n" + //
+						"\t<authors>\r\n" + //
+						"\t\t<author></author>\r\n" + //
+						"\t</authors>\r\n" + //
+						"\t<assistant></assistant>\n")),
+				ca(d, te(1, 79, 1, 79, //
+						"\r\n" + //
+								"\t<authors>\r\n" + //
+								"\t\t<author></author>\r\n" + //
+								"\t</authors>\n")));
+	}
+
+	@Test
+	public void cvc_complex_type_2_4_bCodeAction_Only_Required_Sequence() throws Exception {
+		String xml = "<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/order.xsd\"></root>";
+		Diagnostic d = d(0, 1, 0, 5, XMLSchemaErrorCode.cvc_complex_type_2_4_b);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, ca(d, te(1, 65, 1, 65, //
+				"\r\n" + //
+						"\t<a></a>\r\n" + //
+						"\t<b></b>\r\n" + //
+						"\t<c></c>\r\n" + //
+						"\t<d age=\"\">\r\n" + //
+						"\t\t<d1></d1>\r\n" + //
+						"\t</d>\r\n" + //
+						"\t<e></e>\n")),
+				ca(d, te(1, 65, 1, 65, //
+						"\r\n" + //
+								"\t<a></a>\r\n" + //
+								"\t<d age=\"\"></d>\r\n" + //
+								"\t<e></e>\n")));
+	}
+
+	@Test
+	public void cvc_complex_type_2_4_bCodeAction_Only_Required_Ordered() throws Exception {
+		String xml = "<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/order.xsd\">\r\n" + //
+				"\t<a></a>\r\n" + //
+				"\t<c></c>\r\n" + //
 				"</root>";
 		Diagnostic d = d(0, 1, 0, 5, XMLSchemaErrorCode.cvc_complex_type_2_4_b);
 		testDiagnosticsFor(xml, d);
-		testCodeActionsFor(xml, d, ca(d, te(1, 83, 1, 83, //
+		testCodeActionsFor(xml, d, ca(d, te(1, 65, 1, 65, //
 				"\r\n" + //
-						"\t<assistant></assistant>")));
+						"\t<b></b>\r\n" + //
+						"\t<d age=\"\">\r\n" + //
+						"\t\t<d1></d1>\r\n" + //
+						"\t</d>\r\n" + //
+						"\t<e></e>")),
+				ca(d, te(1, 65, 1, 65, //
+						"\r\n" + //
+								"\t<d age=\"\"></d>\r\n" + //
+								"\t<e></e>")));
 	}
 
 	@Test
