@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="root">
+        <xs:annotation>
+            <xs:documentation>Documentation for root element</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:attribute name="attribute">
+                <xs:annotation>
+                    <xs:documentation>Documentation for attribute</xs:documentation>
+                </xs:annotation>
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="value1">
+                            <xs:annotation>
+                                <xs:documentation>Documentation for attribute value1</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="value2" /> <!-- value2 has no documentation. -->
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:attribute>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

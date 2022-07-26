@@ -1492,4 +1492,24 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				31, //
 				c("servlet", te(4, 4, 4, 4, "<servlet></servlet>"), "servlet", null, null));
 	}
+
+	@Test
+	public void completionWithAttrEnum() throws BadLocationException {
+		String xml = "<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \r\n" + //
+				"      xsi:noNamespaceSchemaLocation=\"xsd/attr-enum.xsd\"\r\n" + //
+				"      attribute=\"|\" />";
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/attr-enum.xml", 2, //
+				c("value1", te(2, 17, 2, 17, "value1"), "value1", //
+						"Documentation for attribute value1" + //
+								System.lineSeparator() + //
+								System.lineSeparator() + //
+								"Source: attr-enum.xsd",
+						MarkupKind.PLAINTEXT), //
+				c("value2", te(2, 17, 2, 17, "value2"), "value2", //
+						"Documentation for attribute" + //
+								System.lineSeparator() + //
+								System.lineSeparator() + //
+								"Source: attr-enum.xsd",
+						MarkupKind.PLAINTEXT));
+	}
 }
