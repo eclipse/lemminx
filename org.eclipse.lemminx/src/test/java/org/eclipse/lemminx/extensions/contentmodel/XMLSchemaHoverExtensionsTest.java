@@ -316,6 +316,34 @@ public class XMLSchemaHoverExtensionsTest {
 	}
 
 	@Test
+	public void attrValueEnumWithDoc() throws BadLocationException, MalformedURIException {
+		String schemaURI = getXMLSchemaFileURI("attr-enum.xsd");
+		String xml = "<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \r\n" + //
+				"      xsi:noNamespaceSchemaLocation=\"xsd/attr-enum.xsd\"\r\n" + //
+				"      attribute=\"va|lue1\" />";
+		XMLAssert.assertHover(new XMLLanguageService(), xml, null, "src/test/resources/attr-enum.xml", //
+				"Documentation for attribute value1" + //
+						System.lineSeparator() + //
+						System.lineSeparator() + //
+						"Source: [attr-enum.xsd](" + schemaURI + ")",
+				r(2, 16, 2, 24));
+	}
+
+	@Test
+	public void attrValueEnumWithNoDoc() throws BadLocationException, MalformedURIException {
+		String schemaURI = getXMLSchemaFileURI("attr-enum.xsd");
+		String xml = "<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \r\n" + //
+				"      xsi:noNamespaceSchemaLocation=\"xsd/attr-enum.xsd\"\r\n" + //
+				"      attribute=\"va|lue2\" />";
+		XMLAssert.assertHover(new XMLLanguageService(), xml, null, "src/test/resources/attr-enum.xml", //
+				"Documentation for attribute" + //
+						System.lineSeparator() + //
+						System.lineSeparator() + //
+						"Source: [attr-enum.xsd](" + schemaURI + ")",
+				r(2, 16, 2, 24));
+	}
+	
+	@Test
 	public void hoverWithNullParentNode() throws Exception {
 		ContentModelHoverParticipant hoverParticipant = new ContentModelHoverParticipant();
 		IHoverRequest hoverRequest = new IHoverRequest() {

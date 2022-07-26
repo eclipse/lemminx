@@ -95,17 +95,19 @@ class XSDAnnotationModel {
 		List<String> result = new ArrayList<>();
 		for (Object object : annotations) {
 			XSAnnotation annotation = getXSAnnotation((XSObject) object, value);
-			XSDAnnotationModel annotationModel = XSDAnnotationModel.load(annotation);
-			if (annotationModel != null) {
-				List<String> documentation = annotationModel.getDocumentation();
-				if (documentation.size() > 0) {
-					result.addAll(documentation);
-				} else {
-					String annotationString = annotation.getAnnotationString();
-					if (!isEmpty(annotationString)) {
-						String docFromPattern = getDocumentation(annotationString);
-						if (!isEmpty(docFromPattern)) {
-							result.add(docFromPattern);
+			if (annotation != null) {
+				XSDAnnotationModel annotationModel = XSDAnnotationModel.load(annotation);
+				if (annotationModel != null) {
+					List<String> documentation = annotationModel.getDocumentation();
+					if (documentation.size() > 0) {
+						result.addAll(documentation);
+					} else {
+						String annotationString = annotation.getAnnotationString();
+						if (!isEmpty(annotationString)) {
+							String docFromPattern = getDocumentation(annotationString);
+							if (!isEmpty(docFromPattern)) {
+								result.add(docFromPattern);
+							}
 						}
 					}
 				}
@@ -138,9 +140,11 @@ class XSDAnnotationModel {
 		List<String> appinfo = new ArrayList<>();
 		for (Object object : annotations) {
 			XSAnnotation annotation = getXSAnnotation((XSObject) object, value);
-			XSDAnnotationModel annotationModel = XSDAnnotationModel.load(annotation);
-			if (annotationModel != null) {
-				appinfo.addAll(annotationModel.getAppInfo());
+			if (annotation != null) {
+				XSDAnnotationModel annotationModel = XSDAnnotationModel.load(annotation);
+				if (annotationModel != null) {
+					appinfo.addAll(annotationModel.getAppInfo());
+				}
 			}
 		}
 		return appinfo;
@@ -159,8 +163,8 @@ class XSDAnnotationModel {
 	/**
 	 * Returns the prefix (ie. xs) from the provided collection of annotations
 	 * 
-	 * Prerequisite: <code>value</code> should be provided if <code>annotations</code>
-	 * is a collection of attribute value annotations
+	 * Prerequisite: <code>value</code> should be provided if
+	 * <code>annotations</code> is a collection of attribute value annotations
 	 * 
 	 * @param annotations the collection of annotations
 	 * @param value       the attribute value
@@ -172,15 +176,16 @@ class XSDAnnotationModel {
 		}
 		for (Object object : annotations) {
 			XSAnnotation annotation = getXSAnnotation((XSObject) object, value);
-			String content = annotation.getAnnotationString();
-			int index = content.indexOf(":");
-			if (index != -1) {
-				return content.substring(1, index);
+			if (annotation != null) {
+				String content = annotation.getAnnotationString();
+				int index = content.indexOf(":");
+				if (index != -1) {
+					return content.substring(1, index);
+				}
 			}
 		}
 		return "";
 	}
-
 
 	public static XSDAnnotationModel load(XSAnnotation annotation) {
 		try {
@@ -193,39 +198,39 @@ class XSDAnnotationModel {
 			return null;
 		}
 	}
-	
+
 	/**
-	 * Returns the <code>XSAnnotation</code> instance for the 
-	 * provided <code>annotation</code>
+	 * Returns the <code>XSAnnotation</code> instance for the provided
+	 * <code>annotation</code>
 	 * 
-	 * If <code>value</code> is provided, the <code>XSAnnotation</code> for
-	 * an attribute value will be searched for
+	 * If <code>value</code> is provided, the <code>XSAnnotation</code> for an
+	 * attribute value will be searched for
 	 * 
-	 * If not provided, the <code>XSAnnotation</code> for
-	 * an attribute or element will be searched for
+	 * If not provided, the <code>XSAnnotation</code> for an attribute or element
+	 * will be searched for
 	 * 
-	 * @param annotation the annotation object 
+	 * @param annotation the annotation object
 	 * @param value      the attribute value
-	 * @return the <code>XSAnnotation</code> instance for the 
-	 * provided <code>annotation</code>
+	 * @return the <code>XSAnnotation</code> instance for the provided
+	 *         <code>annotation</code>
 	 */
 	private static XSAnnotation getXSAnnotation(XSObject annotation, String value) {
 		if (annotation instanceof XSMultiValueFacet && value != null) {
 			XSMultiValueFacet multiValueFacet = (XSMultiValueFacet) annotation;
-				ObjectList enumerationValues = multiValueFacet.getEnumerationValues();
-				XSObjectList annotationValues = multiValueFacet.getAnnotations();
-				for (int i = 0; i < enumerationValues.getLength(); i++) {
-					Object enumValue = enumerationValues.get(i);
+			ObjectList enumerationValues = multiValueFacet.getEnumerationValues();
+			XSObjectList annotationValues = multiValueFacet.getAnnotations();
+			for (int i = 0; i < enumerationValues.getLength(); i++) {
+				Object enumValue = enumerationValues.get(i);
 
-					// Assuming always ValidatedInfo
-					String enumString = ((ValidatedInfo) enumValue).stringValue();
+				// Assuming always ValidatedInfo
+				String enumString = ((ValidatedInfo) enumValue).stringValue();
 
-					if (value.equals(enumString)) {
-						return (XSAnnotation) annotationValues.get(i);
-					}
+				if (value.equals(enumString)) {
+					return (XSAnnotation) annotationValues.get(i);
 				}
+			}
 		} else if (annotation instanceof XSAnnotation) {
-			return  (XSAnnotation) annotation;
+			return (XSAnnotation) annotation;
 		}
 		return null;
 	}
@@ -247,7 +252,8 @@ class XSDAnnotationModel {
 		}
 
 		@Override
-		public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+		public void startElement(String uri, String localName, String qName, Attributes attributes)
+				throws SAXException {
 			super.startElement(uri, localName, qName, attributes);
 			if (qName.endsWith(DOCUMENTATION_ELEMENT) || qName.endsWith(APPINFO_ELEMENT)) {
 				current = new StringBuilder();
@@ -285,7 +291,7 @@ class XSDAnnotationModel {
 
 	public static String getDocumentation(String xml) {
 		Matcher m = DOCUMENTATION_CONTENT.matcher(xml);
-		if(m.find()) {
+		if (m.find()) {
 			return m.group(1);
 		}
 		return null;
