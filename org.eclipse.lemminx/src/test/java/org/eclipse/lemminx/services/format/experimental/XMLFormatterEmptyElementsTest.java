@@ -43,8 +43,10 @@ public class XMLFormatterEmptyElementsTest {
 		content = "<example " + lineSeparator() + //
 				"  att=\"hello\"" + lineSeparator() + //
 				"  />";
+		expected = "<example" + lineSeparator() + //
+		"  att=\"hello\"></example>";
 		assertFormat(content, expected, settings, //
-				te(0, 8, 1, 2, " "), //
+				te(0, 8, 1, 2, lineSeparator() + "  "), //
 				te(1, 13, 2, 4, "></example>"));
 
 		assertFormat(expected, expected, settings);
