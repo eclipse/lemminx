@@ -36,7 +36,7 @@ public class XMLFormattingOptions extends org.eclipse.lemminx.settings.LSPFormat
 
 	public static final EnforceQuoteStyle DEFAULT_ENFORCE_QUOTE_STYLE = EnforceQuoteStyle.ignore;
 
-	public static final boolean DEFAULT_PRESERVE_ATTR_LINE_BREAKS = false;
+	public static final boolean DEFAULT_PRESERVE_ATTR_LINE_BREAKS = true;
 
 	public static final boolean DEFAULT_TRIM_TRAILING_SPACES = false;
 

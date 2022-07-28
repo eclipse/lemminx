@@ -130,7 +130,7 @@ public class DOMElementFormatter {
 						removeLeftSpaces(offset, edits);
 					}
 				} else if (element.isStartTagClosed()) {
-					formatElementStartTagCloseBracket(element, edits);
+					formatElementStartTagCloseBracket(element, parentConstraints, edits);
 				}
 			}
 		}
@@ -161,12 +161,21 @@ public class DOMElementFormatter {
 	 * @param element
 	 * @throws BadLocationException
 	 */
-	private void formatElementStartTagCloseBracket(DOMElement element, List<TextEdit> edits) {
+	private void formatElementStartTagCloseBracket(DOMElement element, XMLFormattingConstraints parentConstraints,
+			List<TextEdit> edits) {
 		int offset = element.getStartTagCloseOffset();
 		String replace = "";
 		if (isPreserveAttributeLineBreaks() && element.hasAttributes()
 				&& hasLineBreak(getLastAttribute(element).getEnd(), element.getStartTagCloseOffset())) {
-			replace = formatterDocument.getLineDelimiter();
+			int indentLevel = parentConstraints.getIndentLevel();
+			if (indentLevel == 0) {
+				//Add newline when there is no indent
+				replace = formatterDocument.getLineDelimiter();
+			} else {
+				//Add newline with indent according to indent level
+				replaceLeftSpacesWithIndentation(indentLevel, offset, true, edits);
+				return;
+			}
 		}
 		replaceLeftSpacesWith(offset, replace, edits);
 	}

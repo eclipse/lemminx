@@ -1944,11 +1944,30 @@ public class XMLFormatterTest {
 				"  </a>\r\n" + //
 				"</xml>";
 		String expected = "<xml>\r\n" + //
-				"  <a a=\"aa\">\r\n" + //
+				"  <a\r\n" + //
+				"    a=\"aa\">\r\n" + //
 				"    <b></b>\r\n" + //
 				"  </a>\r\n" + //
 				"</xml>";
 		assertFormat(content, expected);
+	}
+
+	@Test
+	public void testAttributeNameValueTwoLinesWithoutPreserveAttrLineBreak() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveAttributeLineBreaks(false);
+		String content = "<xml>\r\n" + //
+				"  <a \r\n" + //
+				"   |a             =         \"aa\"|>\r\n" + //
+				"    <b></b>\r\n" + //
+				"  </a>\r\n" + //
+				"</xml>";
+		String expected = "<xml>\r\n" + //
+				"  <a a=\"aa\">\r\n" + //
+				"    <b></b>\r\n" + //
+				"  </a>\r\n" + //
+				"</xml>";
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -1964,11 +1983,35 @@ public class XMLFormatterTest {
 				"  </a>\r\n" + //
 				"</xml>";
 		String expected = "<xml>\r\n" + //
-				"  <a a=\"aa\">\r\n" + //
+				"  <a\r\n" + //
+				"    a=\"aa\"\r\n" + //
+				"  >\r\n" + //
 				"    <b></b>\r\n" + //
 				"  </a>\r\n" + //
 				"</xml>";
 		assertFormat(content, expected);
+	}
+
+	@Test
+	public void testAttributeNameValueMultipleLinesWithoutPreserveAttrLineBreak() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveAttributeLineBreaks(false);
+		String content = "<xml>\r\n" + //
+				"  <a \r\n" + //
+				"  |a\r\n" + //
+				"  =\r\n" + //
+				"  \"aa\"\r\n" + //
+				"  \r\n" + //
+				"  >|\r\n" + //
+				"    <b></b>\r\n" + //
+				"  </a>\r\n" + //
+				"</xml>";
+		String expected = "<xml>\r\n" + //
+				"  <a a=\"aa\">\r\n" + //
+				"    <b></b>\r\n" + //
+				"  </a>\r\n" + //
+				"</xml>";
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -1981,7 +2024,8 @@ public class XMLFormatterTest {
 				"  </a>\r\n" + //
 				"</xml>";
 		String expected = "<xml>\r\n" + //
-				"  <a a=\"aa\">\r\n" + //
+				"  <a\r\n" + //
+				"    a=\"aa\">\r\n" + //
 				"    <b></b>\r\n" + //
 				"  </a>\r\n" + //
 				"</xml>";
@@ -1989,7 +2033,56 @@ public class XMLFormatterTest {
 	}
 
 	@Test
+	public void testAttributeNameValueMultipleLinesWithChildWithoutPreserveAttrLineBreak() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveAttributeLineBreaks(false);
+		String content = "<xml>\r\n" + //
+				"  <a \r\n" + //
+				"   |a          =        \r\n" + //
+				"   \r\n" + //
+				"   \"aa\">|<b></b>\r\n" + //
+				"  </a>\r\n" + //
+				"</xml>";
+		String expected = "<xml>\r\n" + //
+				"  <a a=\"aa\">\r\n" + //
+				"    <b></b>\r\n" + //
+				"  </a>\r\n" + //
+				"</xml>";
+		assertFormat(content, expected, settings);
+	}
+
+	@Test
 	public void testAttributeNameValueMultipleLinesWithChildrenSiblings() throws BadLocationException {
+		String content = "<xml>\r\n" + //
+				"  <a \r\n" + //
+				"  |a\r\n" + //
+				"  =\r\n" + //
+				"  \"aa\"\r\n" + //
+				"  \r\n" + //
+				"  >\r\n" + //
+				"        <b>\r\n" + //
+				"          <c></c>\r\n" + //
+				"    </b>\r\n" + //
+				"  </a>\r\n" + //
+				"        <d></d>|\r\n" + //
+				"</xml>";
+		String expected = "<xml>\r\n" + //
+				"  <a\r\n" + //
+				"    a=\"aa\"\r\n" + //
+				"  >\r\n" + //
+				"    <b>\r\n" + //
+				"      <c></c>\r\n" + //
+				"    </b>\r\n" + //
+				"  </a>\r\n" + //
+				"  <d></d>\r\n" + //
+				"</xml>";
+		assertFormat(content, expected);
+	}
+
+	@Test
+	public void testAttributeNameValueMultipleLinesWithChildrenSiblingsWithoutPreserveAttrLineBreak() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveAttributeLineBreaks(false);
 		String content = "<xml>\r\n" + //
 				"  <a \r\n" + //
 				"  |a\r\n" + //
@@ -2011,7 +2104,7 @@ public class XMLFormatterTest {
 				"  </a>\r\n" + //
 				"  <d></d>\r\n" + //
 				"</xml>";
-		assertFormat(content, expected);
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -2374,6 +2467,25 @@ public class XMLFormatterTest {
 		content = "<example \r\n" + //
 				"  att=\"hello\"\r\n" + //
 				"  />";
+		expected = "<example\r\n" + //
+				"  att=\"hello\"></example>";
+		assertFormat(content, expected, settings);
+	}
+
+	@Test
+	public void expandEmptyElementsWithoutPreserveAttrLineBreaks() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setEmptyElement(EmptyElements.expand);
+		settings.getFormattingSettings().setPreserveAttributeLineBreaks(false);
+		
+		String content = "<example att=\"hello\" />";
+		String expected = "<example att=\"hello\"></example>";
+		assertFormat(content, expected, settings);
+
+		content = "<example \r\n" + //
+				"  att=\"hello\"\r\n" + //
+				"  />";
+		assertFormat(content, expected, settings);
 		assertFormat(content, expected, settings);
 	}
 
@@ -2390,9 +2502,11 @@ public class XMLFormatterTest {
 				"  att=\"hello\"\r\n" + //
 				"  >\r\n" + //
 				"</example>";
+		expected = "<example att=\"hello\"\r\n/>";
 		assertFormat(content, expected, settings);
 
 		content = "<example att=\"hello\">   </example>";
+		expected = "<example att=\"hello\" />";
 		assertFormat(content, expected, settings);
 
 		content = "<example att=\"hello\"> X </example>";
@@ -2403,6 +2517,17 @@ public class XMLFormatterTest {
 		expected = "<example att=\"hello\">" + lineSeparator() + //
 				"  <X />" + lineSeparator() + //
 				"</example>";
+		assertFormat(content, expected, settings);
+	}
+
+	@Test
+	public void collapseEmptyElementsWithoutPreserveAttrLineBreaks() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setEmptyElement(EmptyElements.collapse);
+		settings.getFormattingSettings().setPreserveAttributeLineBreaks(false);
+
+		String content = "<example att=\"hello\"></example>";
+		String expected = "<example att=\"hello\" />";
 		assertFormat(content, expected, settings);
 	}
 
@@ -2928,12 +3053,27 @@ public class XMLFormatterTest {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setSplitAttributes(true);
 		settings.getFormattingSettings().setSplitAttributesIndentSize(0);
+		settings.getFormattingSettings().setPreserveAttributeLineBreaks(false);
 		settings.getFormattingSettings().setClosingBracketNewLine(true);
 		String content = "<a b='' c=''/>";
 		String expected = "<a" + lineSeparator() +
 				"b=''" + lineSeparator() +
 				"c=''" + lineSeparator() +
 				"/>";
+		assertFormat(content, expected, settings);
+	}
+
+	@Test
+	public void testClosingBracketNewLineWithoutPreserveAttrLineBreaks() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributesIndentSize(0);
+		settings.getFormattingSettings().setClosingBracketNewLine(true);
+		String content = "<a b='' c=''/>";
+		String expected = "<a" + lineSeparator() +
+		"b=''" + lineSeparator() +
+		"c=''" + lineSeparator() +
+		"/>";
 		assertFormat(content, expected, settings);
 	}
 
