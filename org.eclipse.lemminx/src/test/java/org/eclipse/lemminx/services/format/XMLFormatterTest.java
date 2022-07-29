@@ -1128,8 +1128,8 @@ public class XMLFormatterTest {
 		String expected = "<web-app\n" + //
 				"    xmlns=\"http://xmlns.jcp.org/xml/ns/javaee\"\n" + //
 				"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + //
-				"    xsi:schemaLocation=\"http://xmlns.jcp.org/xml/ns/javaee \n" + //
-				"                http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd\"\n" + //
+				"    xsi:schemaLocation=\"http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd\"\n"
+				+ //
 				"    version=\"3.1\">\n" + //
 				"  <servlet>\n" + //
 				"    <servlet-name>sssi</servlet-name>\n" + //
@@ -2931,9 +2931,9 @@ public class XMLFormatterTest {
 		settings.getFormattingSettings().setClosingBracketNewLine(true);
 		String content = "<a b='' c=''/>";
 		String expected = "<a" + lineSeparator() +
-		"b=''" + lineSeparator() +
-		"c=''"  + lineSeparator() +
-		"/>";
+				"b=''" + lineSeparator() +
+				"c=''" + lineSeparator() +
+				"/>";
 		assertFormat(content, expected, settings);
 	}
 
@@ -2945,9 +2945,9 @@ public class XMLFormatterTest {
 		settings.getFormattingSettings().setPreserveAttributeLineBreaks(true);
 		String content = "<a b='b' c='c'/>";
 		String expected = "<a" + System.lineSeparator() + //
-		"    b='b'" + System.lineSeparator() + //
-		"    c='c'" + System.lineSeparator() + //
-		"    />";
+				"    b='b'" + System.lineSeparator() + //
+				"    c='c'" + System.lineSeparator() + //
+				"    />";
 		assertFormat(content, expected, settings);
 	}
 
@@ -2980,14 +2980,14 @@ public class XMLFormatterTest {
 		settings.getFormattingSettings().setPreserveEmptyContent(true);
 		settings.getFormattingSettings().setClosingBracketNewLine(true);
 		String content = "<a>" + lineSeparator() +
-		"<b c='' d=''></b>" + lineSeparator() +
-		"</a>";
+				"<b c='' d=''></b>" + lineSeparator() +
+				"</a>";
 		String expected = "<a>" + lineSeparator() +
-		"  <b" + lineSeparator() +
-		"  c=''" + lineSeparator() +
-		"  d=''" + lineSeparator() +
-		"  ></b>" + lineSeparator() +
-		"</a>";
+				"  <b" + lineSeparator() +
+				"  c=''" + lineSeparator() +
+				"  d=''" + lineSeparator() +
+				"  ></b>" + lineSeparator() +
+				"</a>";
 		assertFormat(content, expected, settings);
 	}
 

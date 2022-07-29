@@ -31,6 +31,7 @@ public class XSIFormatterExperimentalTest {
 	public void xsiSchemaLocationSplitNone() throws BadLocationException {
 		// Default
 		SharedSettings settings = createSettings();
+		XSISchemaLocationSplit.setSplit(XSISchemaLocationSplit.none, settings.getFormattingSettings());
 		String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<beans xmlns=\"http://www.springframework.org/schema/beans\" " + //
 				"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " + //
