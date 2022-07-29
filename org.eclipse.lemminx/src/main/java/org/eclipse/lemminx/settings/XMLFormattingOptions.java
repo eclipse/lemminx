@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.lemminx.dom.DOMElement;
+import org.eclipse.lemminx.extensions.xsi.settings.XSISchemaLocationSplit;
 import org.eclipse.lemminx.services.format.FormatElementCategory;
 import org.eclipse.lsp4j.FormattingOptions;
 
@@ -40,6 +41,8 @@ public class XMLFormattingOptions extends org.eclipse.lemminx.settings.LSPFormat
 	public static final boolean DEFAULT_TRIM_TRAILING_SPACES = false;
 
 	public static final int DEFAULT_SPLIT_ATTRIBUTES_INDENT_SIZE = 2;
+
+	public static final String DEFAULT_XSI_SCHEMA_LOCATION_SPLIT = XSISchemaLocationSplit.onPair.name();
 
 	public static final boolean DEFAULT_CLOSING_BRACKET_NEW_LINE = false;
 
@@ -160,6 +163,7 @@ public class XMLFormattingOptions extends org.eclipse.lemminx.settings.LSPFormat
 		this.setPreservedNewlines(DEFAULT_PRESERVER_NEW_LINES);
 		this.setEmptyElement(EmptyElements.ignore);
 		this.setSplitAttributesIndentSize(DEFAULT_SPLIT_ATTRIBUTES_INDENT_SIZE);
+		this.setXsiSchemaLocationSplit(DEFAULT_XSI_SCHEMA_LOCATION_SPLIT);
 		this.setClosingBracketNewLine(DEFAULT_CLOSING_BRACKET_NEW_LINE);
 		this.setPreserveAttributeLineBreaks(DEFAULT_PRESERVE_ATTR_LINE_BREAKS);
 		this.setPreserveSpace(DEFAULT_PRESERVE_SPACE);

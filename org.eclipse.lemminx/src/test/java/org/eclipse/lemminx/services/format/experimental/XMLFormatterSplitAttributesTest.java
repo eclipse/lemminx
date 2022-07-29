@@ -200,8 +200,8 @@ public class XMLFormatterSplitAttributesTest {
 		String expected = "<web-app\n" + //
 				"    xmlns=\"http://xmlns.jcp.org/xml/ns/javaee\"\n" + //
 				"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + //
-				"    xsi:schemaLocation=\"http://xmlns.jcp.org/xml/ns/javaee \n" + //
-				"                http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd\"\n" + //
+				"    xsi:schemaLocation=\"http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd\"\n"
+				+ //
 				"    version=\"3.1\">\n" + //
 				"  <servlet>\n" + //
 				"    <servlet-name>sssi</servlet-name>\n" + //
@@ -211,6 +211,7 @@ public class XMLFormatterSplitAttributesTest {
 				te(0, 8, 1, 9, "\n    "), //
 				te(1, 51, 2, 9, "\n    "), //
 				te(2, 62, 3, 9, "\n    "), //
+				te(3, 63, 4, 16, " "), //
 				te(4, 67, 5, 9, "\n    "), //
 				te(5, 23, 6, 9, "\n  "), //
 				te(6, 18, 7, 13, "\n    "), //

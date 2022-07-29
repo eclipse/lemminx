@@ -40,6 +40,6 @@ public enum XSISchemaLocationSplit {
 				// Do nothing
 			}
 		}
-		return XSISchemaLocationSplit.none;
+		return XSISchemaLocationSplit.onPair;
 	}
 }
