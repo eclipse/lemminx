@@ -289,4 +289,18 @@ public class FilesUtils {
 	public static String readString(Path path) throws IOException {
 		return Files.readAllLines(path).stream().collect(Collectors.joining(System.lineSeparator()));
 	}
+
+	/**
+	 * Returns true if the file at the given path exists.
+	 *
+	 * @param path the path.
+	 *
+	 * @return  true if the file at the given path exists.
+	 */
+	public static boolean isValidPath(Path path){
+		if (Files.exists(path)) {
+			return true;
+		}
+		return false;
+	}
 }

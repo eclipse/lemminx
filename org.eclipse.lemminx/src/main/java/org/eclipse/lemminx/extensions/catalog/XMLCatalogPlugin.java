@@ -24,6 +24,7 @@ import org.eclipse.lemminx.services.IXMLNotificationService;
 import org.eclipse.lemminx.services.extensions.IDocumentLinkParticipant;
 import org.eclipse.lemminx.services.extensions.IXMLExtension;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lemminx.services.extensions.save.ISaveContext;
 import org.eclipse.lemminx.utils.FilesUtils;
 import org.eclipse.lsp4j.InitializeParams;
@@ -35,11 +36,13 @@ public class XMLCatalogPlugin implements IXMLExtension {
 
 	private XMLCatalogURIResolverExtension uiResolver;
 	private final IDocumentLinkParticipant documentLinkParticipant;
+	private final IDiagnosticsParticipant diagnosticsParticipant;
 
 	private InvalidPathWarner pathWarner;
 
 	public XMLCatalogPlugin() {
 		documentLinkParticipant = new XMLCatalogDocumentLinkParticipant();
+		diagnosticsParticipant = new XMLCatalogDiagnosticsParticipant();
 	}
 
 	@Override
@@ -61,11 +64,13 @@ public class XMLCatalogPlugin implements IXMLExtension {
 			this.pathWarner = new InvalidPathWarner(notificationService);
 		}
 		registry.registerDocumentLinkParticipant(documentLinkParticipant);
+		registry.registerDiagnosticsParticipant(diagnosticsParticipant);
 	}
 
 	@Override
 	public void stop(XMLExtensionsRegistry registry) {
 		registry.getResolverExtensionManager().unregisterResolver(uiResolver);
+		registry.unregisterDiagnosticsParticipant(diagnosticsParticipant);
 	}
 
 	private void validateCatalogPaths(ContentModelSettings cmSettings) {

@@ -17,11 +17,15 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.xerces.impl.XMLEntityManager;
+import org.apache.xerces.util.URI.MalformedURIException;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.utils.DOMUtils;
+import org.eclipse.lemminx.utils.FilesUtils;
+import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lsp4j.jsonrpc.validation.NonNull;
 
 /**
@@ -195,4 +199,24 @@ public class CatalogUtils {
 		return null;
 	}
 
+	/**
+	 * Returns the expanded system location
+	 *
+	 * @param document     the xml document
+	 * @param catalogEntry the catalog entry
+	 * @return the expanded system location
+	 */
+	public static String getResolvedLocation(DOMDocument document, CatalogEntry catalogEntry) {
+		String location = catalogEntry.getResolvedURI();
+
+		if (StringUtils.isBlank(location)) {
+			return null;
+		}
+		try {
+			return XMLEntityManager.expandSystemId(location, FilesUtils.removeFileScheme(document.getDocumentURI()),
+					false);
+		} catch (MalformedURIException e) {
+			return location;
+		}
+	}
 }
