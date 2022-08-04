@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<xs:schema elementFormDefault='qualified' xmlns:xs='http://www.w3.org/2001/XMLSchema'>
+    <xs:complexType name='baseType'>
+        <xs:annotation>
+            <xs:documentation>base type documentation value</xs:documentation>
+            <xs:appinfo>base type appinfo value</xs:appinfo>
+        </xs:annotation>
+    </xs:complexType>
+    <xs:complexType name="extendingType">
+        <xs:complexContent>
+            <xs:extension base="baseType">
+                <xs:annotation>
+                    <xs:documentation>extending type documentation value</xs:documentation>
+                    <xs:appinfo>extending type appinfo value</xs:appinfo>
+                </xs:annotation>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+	<xs:element name='testType' type='baseType'/>
+	<xs:element name='extendedTestType' type='extendingType'/>
+</xs:schema>

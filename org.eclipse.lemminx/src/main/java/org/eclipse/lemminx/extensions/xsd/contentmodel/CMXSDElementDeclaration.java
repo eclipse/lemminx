@@ -28,6 +28,7 @@ import org.apache.xerces.impl.xs.XSComplexTypeDecl;
 import org.apache.xerces.impl.xs.models.CMBuilder;
 import org.apache.xerces.impl.xs.models.CMNodeFactory;
 import org.apache.xerces.impl.xs.models.XSCMValidator;
+import org.apache.xerces.impl.xs.util.XSObjectListImpl;
 import org.apache.xerces.xni.QName;
 import org.apache.xerces.xs.XSAttributeUse;
 import org.apache.xerces.xs.XSComplexTypeDefinition;
@@ -370,8 +371,32 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 		if (typeDefinition == null) {
 			return null;
 		}
+		return getElementAnnotations(typeDefinition);
+	}
+
+	private XSObjectList getElementAnnotations(XSTypeDefinition typeDefinition) {
 		if (typeDefinition.getTypeCategory() == XSTypeDefinition.COMPLEX_TYPE) {
-			return ((XSComplexTypeDecl) typeDefinition).getAnnotations();
+			XSObjectList annotation = ((XSComplexTypeDecl) typeDefinition).getAnnotations();
+			// Get annotations for types derived with extension:base
+			if (((XSComplexTypeDecl) typeDefinition).getDerivationMethod() == XSConstants.DERIVATION_EXTENSION) {
+				XSObjectListImpl allAnnotations = new XSObjectListImpl();
+				XSTypeDefinition baseType = ((XSComplexTypeDecl) typeDefinition).getBaseType();
+				//Get annotations for current type
+				for (Object xsObject : annotation.toArray()) {
+					if (((XSObject) xsObject) != null) {
+						allAnnotations.addXSObject((XSObject) xsObject);
+					}
+				}
+				//Get annotations for base type
+				for (Object xsObject : getElementAnnotations(baseType).toArray()) {
+					if (((XSObject) xsObject) != null) {
+						allAnnotations.addXSObject((XSObject) xsObject);
+					}
+				}
+				return allAnnotations;
+			} else {
+				return annotation;
+			}
 		} else if (typeDefinition.getTypeCategory() == XSTypeDefinition.SIMPLE_TYPE) {
 			return ((XSSimpleTypeDecl) typeDefinition).getAnnotations();
 		}
