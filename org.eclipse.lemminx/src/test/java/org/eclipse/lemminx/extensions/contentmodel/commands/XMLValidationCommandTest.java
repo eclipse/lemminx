@@ -107,7 +107,7 @@ public class XMLValidationCommandTest extends BaseFileTempTest {
 									"cvc-elt.1.a: Cannot find the declaration of element 'root'.", "xml",
 									DiagnosticSeverity.Error)), //
 					pd(xmlIdentifier.getUri(), d(4, 3, 4, 7, XMLSchemaErrorCode.cvc_complex_type_2_4_a,
-							"Invalid element name:\n - tags\n\nOne of the following is expected:\n - tag\n\nError indicated by:\n {the schema}\nwith code:",
+							"Element name 'tags' is invalid.\n\nOne of the following is expected:\n - tag\n\nError indicated by:\n {the schema}\nwith code:",
 							"xml", DiagnosticSeverity.Error)
 
 					));
@@ -262,7 +262,7 @@ public class XMLValidationCommandTest extends BaseFileTempTest {
 									"cvc-elt.1.a: Cannot find the declaration of element 'root'.", "xml",
 									DiagnosticSeverity.Error)), //
 					pd(xml1Identifier.getUri(), d(4, 3, 4, 7, XMLSchemaErrorCode.cvc_complex_type_2_4_a,
-							"Invalid element name:\n - tags\n\nOne of the following is expected:\n - tag\n\nError indicated by:\n {the schema}\nwith code:",
+							"Element name 'tags' is invalid.\n\nOne of the following is expected:\n - tag\n\nError indicated by:\n {the schema}\nwith code:",
 							"xml", DiagnosticSeverity.Error)), //
 					pd(xml2Identifier.getUri(),
 							d(1, 23, 1, 53, ExternalResourceErrorCode.DownloadingResource,
