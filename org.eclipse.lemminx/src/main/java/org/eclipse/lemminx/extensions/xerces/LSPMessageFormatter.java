@@ -137,9 +137,6 @@ public class LSPMessageFormatter implements MessageFormatter {
 			return cvc_2_4_b_solution(arguments);
 		case cvc_enumeration_valid:
 			return enumeration_valid_solution(arguments);
-		case cvc_complex_type_4:
-			arguments[1] = "- " + arguments[1];
-			arguments[0] = "- " + arguments[0];
 		default:
 			return arguments;
 		}
@@ -237,7 +234,6 @@ public class LSPMessageFormatter implements MessageFormatter {
 			schema = "{the schema}";
 			validNames = reformatElementNames(getString(arguments[1]));
 		}
-		name = "- " + name;
 		return new Object[] { name, validNames, schema };
 	}
 
@@ -272,7 +268,7 @@ public class LSPMessageFormatter implements MessageFormatter {
 			missingChildElements = reformatElementNames(getString(arguments[1]));
 			schema = "{the schema}";
 		}
-		element = "- " + getString(arguments[0]);
+		element = getString(arguments[0]);
 		return new Object[] { element, missingChildElements, schema };
 	}
 

@@ -92,7 +92,7 @@ public class XMLSchemaDiagnosticsTest {
 				"	</bean>\r\n" + //
 				"</beans>";
 		Diagnostic d = d(3, 3, 3, 11, XMLSchemaErrorCode.cvc_complex_type_4,
-				"Attribute:\n - name\nis required in element:\n - property\n\nCode:");
+				"Attribute 'name' is missing from element 'property'.\n\nCode:");
 		testDiagnosticsWithCatalogFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(3, 11, 3, 11, " name=\"\"")));
 	}
@@ -112,9 +112,9 @@ public class XMLSchemaDiagnosticsTest {
 				"  </payments>\r\n" + //
 				"</invoice>";
 		Diagnostic d2 = d(6, 4, 6, 11, XMLSchemaErrorCode.cvc_complex_type_4,
-				"Attribute:\n - description\nis required in element:\n - product\n\nCode:");
+				"Attribute 'description' is missing from element 'product'.\n\nCode:");
 		Diagnostic d1 = d(6, 4, 6, 11, XMLSchemaErrorCode.cvc_complex_type_4,
-				"Attribute:\n - price\nis required in element:\n - product\n\nCode:");
+				"Attribute 'price' is missing from element 'product'.\n\nCode:");
 		testDiagnosticsFor(xml, d1, d2);
 
 		testCodeActionsFor(xml, d1, ca(d1, te(6, 11, 6, 11, " price=\"\" description=\"\"")));
@@ -129,7 +129,7 @@ public class XMLSchemaDiagnosticsTest {
 				"	<XXX></XXX>\r\n" + // <- error
 				"</project>";
 
-		String message = "Invalid element name:\n - XXX\n\nOne of the following is expected:\n - modelVersion\n - parent\n - groupId\n - artifactId\n - version\n - packaging\n - name\n - description\n - url\n - inceptionYear\n - organization\n - licenses\n - developers\n - contributors\n - mailingLists\n - prerequisites\n - modules\n - scm\n - issueManagement\n - ciManagement\n - distributionManagement\n - properties\n - dependencyManagement\n - dependencies\n - repositories\n - pluginRepositories\n - build\n - reports\n - reporting\n - profiles\n\nError indicated by:\n {http://maven.apache.org/POM/4.0.0}\nwith code:";
+		String message = "Element name 'XXX' is invalid.\n\nOne of the following is expected:\n - modelVersion\n - parent\n - groupId\n - artifactId\n - version\n - packaging\n - name\n - description\n - url\n - inceptionYear\n - organization\n - licenses\n - developers\n - contributors\n - mailingLists\n - prerequisites\n - modules\n - scm\n - issueManagement\n - ciManagement\n - distributionManagement\n - properties\n - dependencyManagement\n - dependencies\n - repositories\n - pluginRepositories\n - build\n - reports\n - reporting\n - profiles\n\nError indicated by:\n {http://maven.apache.org/POM/4.0.0}\nwith code:";
 		testDiagnosticsWithCatalogFor(xml, d(3, 2, 3, 5, XMLSchemaErrorCode.cvc_complex_type_2_4_a, message));
 	}
 
@@ -581,7 +581,7 @@ public class XMLSchemaDiagnosticsTest {
 				"  \r\n" + //
 				"</edmx:Edmx>";
 		Diagnostic d = d(1, 1, 1, 10, XMLSchemaErrorCode.cvc_complex_type_2_4_b,
-				"Child elements are missing from element:\n - edmx:Edmx\n\nThe following elements are expected:\n - Reference\n - DataServices\n\nError indicated by\n {http://docs.oasis-open.org/odata/ns/edmx\":Reference, \"http://docs.oasis-open.org/odata/ns/edmx}\nwith code:");
+				"Child elements are missing from element 'edmx:Edmx'.\n\nThe following elements are expected:\n - Reference\n - DataServices\n\nError indicated by:\n {http://docs.oasis-open.org/odata/ns/edmx\":Reference, \"http://docs.oasis-open.org/odata/ns/edmx}\nwith code:");
 		testDiagnosticsWithCatalogFor(xml, d);
 	}
 
@@ -682,7 +682,7 @@ public class XMLSchemaDiagnosticsTest {
 				"    </modules>\r\n" + //
 				"</project>";
 		Diagnostic diagnostic = d(4, 7, 4, 13, XMLSchemaErrorCode.cvc_complex_type_2_4_a,
-				"Invalid element name:\n - bodule\n\nOne of the following is expected:\n - module\n\nError indicated by:\n {http://maven.apache.org/POM/4.0.0}\nwith code:");
+				"Element name 'bodule' is invalid.\n\nOne of the following is expected:\n - module\n\nError indicated by:\n {http://maven.apache.org/POM/4.0.0}\nwith code:");
 		testDiagnosticsWithCatalogFor(xml, diagnostic);
 
 		testCodeActionsWithCatalogFor(xml, diagnostic,
@@ -706,8 +706,7 @@ public class XMLSchemaDiagnosticsTest {
 				"    </ciManagement>\r\n" + //
 				"</project>";
 		Diagnostic diagnostic = d(4, 7, 4, 16, XMLSchemaErrorCode.cvc_complex_type_2_4_a, //
-				"Invalid element name:\n" + //
-						" - XXXXXXXXX\n\n" + //
+				"Element name 'XXXXXXXXX' is invalid.\n\n" + //
 						"One of the following is expected:\n" + //
 						" - system\n" + //
 						" - url\n" + //
@@ -733,8 +732,7 @@ public class XMLSchemaDiagnosticsTest {
 				"	<bar />\r\n" + //
 				"</foo>";
 		Diagnostic diagnostic = d(1, 2, 1, 5, XMLSchemaErrorCode.cvc_complex_type_2_4_a, //
-				"Invalid element name:\n" + //
-						" - bar\n\n" + //
+				"Element name 'bar' is invalid.\n\n" + //
 						"One of the following is expected:\n" + //
 						" - bar\n\n" + //
 						"Error indicated by:\n" + //
@@ -1128,7 +1126,7 @@ public class XMLSchemaDiagnosticsTest {
 		diagnostic.getRelatedInformation().add(new DiagnosticRelatedInformation(l(xsdFileURI, r(1, 71, 1, 73)), ""));
 
 		Diagnostic diagnosticBasedOnXSD = new Diagnostic(r(2, 2, 2, 6),
-				"Invalid element name:\n - barX\n\nOne of the following is expected:\n - bar\n\nError indicated by:\n {the schema}\nwith code:",
+				"Element name 'barX' is invalid.\n\nOne of the following is expected:\n - bar\n\nError indicated by:\n {the schema}\nwith code:",
 				DiagnosticSeverity.Error, "xml", XMLSchemaErrorCode.cvc_complex_type_2_4_a.getCode());
 
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
@@ -1160,7 +1158,7 @@ public class XMLSchemaDiagnosticsTest {
 		diagnostic.getRelatedInformation().add(new DiagnosticRelatedInformation(l(xsdFileURI, r(1, 71, 1, 73)), ""));
 
 		Diagnostic diagnosticBasedOnXSD = new Diagnostic(r(2, 2, 2, 6),
-				"Invalid element name:\n - barX\n\nOne of the following is expected:\n - bar\n\nError indicated by:\n {the schema}\nwith code:",
+				"Element name 'barX' is invalid.\n\nOne of the following is expected:\n - bar\n\nError indicated by:\n {the schema}\nwith code:",
 				DiagnosticSeverity.Error, "xml", XMLSchemaErrorCode.cvc_complex_type_2_4_a.getCode());
 
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
