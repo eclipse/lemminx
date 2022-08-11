@@ -664,6 +664,10 @@ public class XMLFormatterDocumentNew {
 		return sharedSettings.getFormattingSettings().isInsertFinalNewline();
 	}
 
+	public boolean isPreserveEmptyContent () {
+		return sharedSettings.getFormattingSettings().isPreserveEmptyContent();
+	}
+
 	SharedSettings getSharedSettings() {
 		return sharedSettings;
 	}

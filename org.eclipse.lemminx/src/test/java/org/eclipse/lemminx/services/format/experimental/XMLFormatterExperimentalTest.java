@@ -979,6 +979,23 @@ public class XMLFormatterExperimentalTest {
 		assertFormat(content, expected, settings);
 	}
 
+	@Test
+	public void testPreserveWhitespaceInEmptyContent() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveEmptyContent(true);
+		String content = "<a> </a>\r\n" + //
+				"<b>  </b>\r\n" + //
+				"\r\n" + //
+				"<c>   </c>\r\n" + //
+				"\r\n" + //
+				"\r\n" + //
+				"<d>    </d>\r\n" + //
+				"\r\n" + //
+				"<e>     </e>";
+		assertFormat(content, content, settings);
+		return;
+	}
+
 	private static void assertFormat(String unformatted, String actual, TextEdit... expectedEdits)
 			throws BadLocationException {
 		assertFormat(unformatted, actual, new SharedSettings(), expectedEdits);

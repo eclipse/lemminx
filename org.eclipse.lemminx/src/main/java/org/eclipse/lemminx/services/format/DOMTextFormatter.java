@@ -74,7 +74,8 @@ public class DOMTextFormatter {
 			}
 		}
 		if (formatElementCategory != FormatElementCategory.PreserveSpace
-				&& formatElementCategory != FormatElementCategory.IgnoreSpace) {
+				&& formatElementCategory != FormatElementCategory.IgnoreSpace
+				&& !isPreserveEmptyContent()) {
 			replaceSpacesWithOneSpace(spaceStart, spaceEnd, edits);
 		}
 	}
@@ -89,5 +90,9 @@ public class DOMTextFormatter {
 
 	private void replaceSpacesWithOneSpace(int spaceStart, int spaceEnd, List<TextEdit> edits) {
 		formatterDocument.replaceSpacesWithOneSpace(spaceStart, spaceEnd, edits);
+	}
+
+	private boolean isPreserveEmptyContent() {
+		return formatterDocument.getSharedSettings().getFormattingSettings().isPreserveEmptyContent();
 	}
 }

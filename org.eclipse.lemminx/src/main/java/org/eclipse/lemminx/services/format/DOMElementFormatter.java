@@ -77,10 +77,12 @@ public class DOMElementFormatter {
 			break;
 		case IgnoreSpace:
 			// remove spaces and indent
-			boolean addLineSperator = element.getParentElement() == null && element.getPreviousSibling() == null;
-			int startTagOffset = element.getStartTagOpenOffset();
-			int nbSpaces = replaceLeftSpacesWithIndentation(indentLevel, startTagOffset, !addLineSperator, edits);
-			width = nbSpaces + element.getStartTagCloseOffset() - startTagOffset;
+			if (!isPreserveEmptyContent()) {
+				boolean addLineSperator = element.getParentElement() == null && element.getPreviousSibling() == null;
+				int startTagOffset = element.getStartTagOpenOffset();
+				int nbSpaces = replaceLeftSpacesWithIndentation(indentLevel, startTagOffset, !addLineSperator, edits);
+				width = nbSpaces + element.getStartTagCloseOffset() - startTagOffset;
+			}
 		case NormalizeSpace:
 			break;
 		}
