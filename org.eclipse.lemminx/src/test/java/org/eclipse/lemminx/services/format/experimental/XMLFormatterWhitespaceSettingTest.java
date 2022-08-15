@@ -181,7 +181,6 @@ public class XMLFormatterWhitespaceSettingTest {
 		assertFormat(expected, expected, settings);
 	}
 
-	@Disabled
 	@Test
 	public void testClosingBracketNewLine() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
@@ -190,10 +189,13 @@ public class XMLFormatterWhitespaceSettingTest {
 		settings.getFormattingSettings().setClosingBracketNewLine(true);
 		String content = "<a b='' c=''/>";
 		String expected = "<a" + lineSeparator() + "b=''" + lineSeparator() + "c=''" + lineSeparator() + "/>";
-		assertFormat(content, expected, settings);
+		assertFormat(content, expected, settings, //
+				te(0, 2, 0, 3, lineSeparator()), //
+				te(0, 7, 0, 8, lineSeparator()), //
+				te(0, 12, 0, 12, lineSeparator()));
+		assertFormat(expected, expected, settings);
 	}
 
-	@Disabled
 	@Test
 	public void testClosingBracketNewLineWithDefaultIndentSize() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
@@ -205,10 +207,13 @@ public class XMLFormatterWhitespaceSettingTest {
 				"    b='b'" + System.lineSeparator() + //
 				"    c='c'" + System.lineSeparator() + //
 				"    />";
-		assertFormat(content, expected, settings);
+		assertFormat(content, expected, settings, //
+				te(0, 2, 0, 3, lineSeparator() + "    "), //
+				te(0, 8, 0, 9, lineSeparator() + "    "), //
+				te(0, 14, 0, 14, lineSeparator() + "    "));
+		assertFormat(expected, expected, settings);
 	}
 
-	@Disabled
 	@Test
 	public void testClosingBracketNewLineWithoutSplitAttributes() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
@@ -216,10 +221,11 @@ public class XMLFormatterWhitespaceSettingTest {
 		settings.getFormattingSettings().setClosingBracketNewLine(true);
 		String content = "<a b='' c=''/>";
 		String expected = "<a b='' c='' />";
-		assertFormat(content, expected, settings);
+		assertFormat(content, expected, settings, //
+				te(0, 12, 0, 12, " "));
+		assertFormat(expected, expected, settings);
 	}
 
-	@Disabled
 	@Test
 	public void testClosingBracketNewLineWithSingleAttribute() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
@@ -228,10 +234,27 @@ public class XMLFormatterWhitespaceSettingTest {
 		settings.getFormattingSettings().setClosingBracketNewLine(true);
 		String content = "<a b=''/>";
 		String expected = "<a b='' />";
-		assertFormat(content, expected, settings);
+		assertFormat(content, expected, settings,
+				te(0, 7, 0, 7, " "));
+		assertFormat(expected, expected, settings);
 	}
 
-	@Disabled
+	@Test
+	public void testClosingBracketNewLineWithChildElementIndent() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributesIndentSize(0);
+		settings.getFormattingSettings().setClosingBracketNewLine(true);
+		String content = "<a>" + lineSeparator() + "  <b c='' d=''/>" + lineSeparator() + "</a>";
+		String expected = "<a>" + lineSeparator() + "  <b" + lineSeparator() + "  c=''" + lineSeparator() + "  d=''"
+				+ lineSeparator() + "  />" + lineSeparator() + "</a>";
+		assertFormat(content, expected, settings, //
+		te(1, 4, 1, 5, lineSeparator() + "  "), //
+		te(1, 9, 1, 10, lineSeparator() + "  "), //
+		te(1, 14, 1, 14, lineSeparator() + "  "));
+		assertFormat(expected, expected, settings);
+	}
+
 	@Test
 	public void testClosingBracketNewLineWithPreserveEmptyContent() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
@@ -242,7 +265,26 @@ public class XMLFormatterWhitespaceSettingTest {
 		String content = "<a>" + lineSeparator() + "<b c='' d=''></b>" + lineSeparator() + "</a>";
 		String expected = "<a>" + lineSeparator() + "  <b" + lineSeparator() + "  c=''" + lineSeparator() + "  d=''"
 				+ lineSeparator() + "  ></b>" + lineSeparator() + "</a>";
-		assertFormat(content, expected, settings);
+		assertFormat(content, expected, settings, //
+				te(0, 3, 1, 0, lineSeparator() + "  "), //
+				te(1, 2, 1, 3, lineSeparator() + "  "), //
+				te(1, 7, 1, 8, lineSeparator() + "  "), //
+				te(1, 12, 1, 12, lineSeparator() + "  "));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void testClosingBracketNewLineWithPreserveEmptyContentSingleAttribute() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributesIndentSize(0);
+		settings.getFormattingSettings().setPreserveEmptyContent(true);
+		settings.getFormattingSettings().setClosingBracketNewLine(true);
+		String content = "<a>" + lineSeparator() + "<b></b>" + lineSeparator() + "</a>";
+		String expected = "<a>" + lineSeparator() + "  <b></b>" + lineSeparator() + "</a>";
+		assertFormat(content, expected, settings, //
+				te(0, 3, 1, 0, lineSeparator() + "  "));
+		assertFormat(expected, expected, settings);
 	}
 
 	private static void assertFormat(String unformatted, String actual, TextEdit... expectedEdits)

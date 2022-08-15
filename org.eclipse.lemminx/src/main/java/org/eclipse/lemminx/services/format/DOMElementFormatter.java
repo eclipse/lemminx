@@ -124,7 +124,14 @@ public class DOMElementFormatter {
 				if (element.isSelfClosed()) {
 					// <foo/> --> <foo />
 					int offset = element.getEnd() - 2;
-					if (isSpaceBeforeEmptyCloseTag()) {
+					if (shouldFormatClosingBracketNewLine(element)) {
+						// Add newline with indent before closing bracket. Ex:
+						// <a
+						// b=""
+						// c=""|/> --> add newline here at '|'
+						replaceLeftSpacesWithIndentation(indentLevel + getSplitAttributesIndentSize(), offset, true,
+								edits);
+					} else if (isSpaceBeforeEmptyCloseTag()) {
 						replaceLeftSpacesWithOneSpace(offset, edits);
 					} else {
 						removeLeftSpaces(offset, edits);
@@ -169,13 +176,17 @@ public class DOMElementFormatter {
 				&& hasLineBreak(getLastAttribute(element).getEnd(), element.getStartTagCloseOffset())) {
 			int indentLevel = parentConstraints.getIndentLevel();
 			if (indentLevel == 0) {
-				//Add newline when there is no indent
+				// Add newline when there is no indent
 				replace = formatterDocument.getLineDelimiter();
 			} else {
-				//Add newline with indent according to indent level
+				// Add newline with indent according to indent level
 				replaceLeftSpacesWithIndentation(indentLevel, offset, true, edits);
 				return;
 			}
+		} else if (shouldFormatClosingBracketNewLine(element)) {
+			int indentLevel = parentConstraints.getIndentLevel();
+			replaceLeftSpacesWithIndentation(indentLevel + getSplitAttributesIndentSize(), offset, true, edits);
+			return;
 		}
 		replaceLeftSpacesWith(offset, replace, edits);
 	}
@@ -242,6 +253,24 @@ public class DOMElementFormatter {
 		return EmptyElements.ignore;
 	}
 
+	/**
+	 * Return true if conditions are met to format according to the
+	 * closingBracketNewLine setting.
+	 * 
+	 * 1. splitAttribute must be set to true
+	 * 2. there must be at least 2 attributes in the element
+	 *
+	 * @param element the DOM element
+	 * @return true if should format according to closingBracketNewLine setting.
+	 */
+	private boolean shouldFormatClosingBracketNewLine(DOMElement element) {
+		boolean isSingleAttribute = element.getAttributeNodes() != null
+				? element.getAttributeNodes().size() == 1
+				: true;
+		return (formatterDocument.getSharedSettings().getFormattingSettings().getClosingBracketNewLine()
+				&& isSplitAttributes() && !isSingleAttribute);
+	}
+
 	private void replaceLeftSpacesWith(int offset, String replace, List<TextEdit> edits) {
 		formatterDocument.replaceLeftSpacesWith(offset, replace, edits);
 	}
@@ -277,6 +306,14 @@ public class DOMElementFormatter {
 
 	private boolean isPreserveAttributeLineBreaks() {
 		return formatterDocument.getSharedSettings().getFormattingSettings().isPreserveAttributeLineBreaks();
+	}
+
+	private boolean isSplitAttributes() {
+		return formatterDocument.getSharedSettings().getFormattingSettings().isSplitAttributes();
+	}
+
+	private int getSplitAttributesIndentSize() {
+		return formatterDocument.getSharedSettings().getFormattingSettings().getSplitAttributesIndentSize();
 	}
 
 	private boolean isSpaceBeforeEmptyCloseTag() {
