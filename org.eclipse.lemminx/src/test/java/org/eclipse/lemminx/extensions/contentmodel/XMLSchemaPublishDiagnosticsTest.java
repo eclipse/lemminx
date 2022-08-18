@@ -14,6 +14,7 @@ package org.eclipse.lemminx.extensions.contentmodel;
 
 import static org.eclipse.lemminx.XMLAssert.pd;
 import static org.eclipse.lemminx.XMLAssert.r;
+import static org.eclipse.lemminx.XMLAssert.d;
 
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -25,6 +26,7 @@ import org.eclipse.lemminx.extensions.contentmodel.participants.ExternalResource
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSchemaErrorCode;
 import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.uriresolver.CacheResourcesManager;
+import org.eclipse.lemminx.uriresolver.FileServer;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.junit.jupiter.api.Test;
@@ -135,7 +137,7 @@ public class XMLSchemaPublishDiagnosticsTest extends AbstractCacheBasedTest {
 		ContentModelManager contentModelManager = ls.getComponent(ContentModelManager.class);
 		// Use cache on file system
 		contentModelManager.setUseCache(true);
-		
+
 		String fileURI = "test.xml";
 		String xsdCachePath = CacheResourcesManager.getResourceCachePath("http://invoice.xsd").toString();
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
@@ -153,13 +155,14 @@ public class XMLSchemaPublishDiagnosticsTest extends AbstractCacheBasedTest {
 						DiagnosticSeverity.Information, "xml", ExternalResourceErrorCode.DownloadingResource.getCode()),
 				new Diagnostic(r(1, 1, 1, 8), "cvc-elt.1.a: Cannot find the declaration of element 'invoice'.",
 						DiagnosticSeverity.Error, "xml", XMLSchemaErrorCode.cvc_elt_1_a.getCode())));
-		
+
 		TimeUnit.SECONDS.sleep(5); // HACK: to make the timing work on slow machines
-			  
+
 		// Downloaded error
 		XMLAssert.testPublishDiagnosticsFor(xml, fileURI, ls, pd(fileURI,
 				new Diagnostic(r(2, 32, 2, 50),
-						"Error while downloading 'http://invoice.xsd' to '" + xsdCachePath + "'.",
+						"Error while downloading 'http://invoice.xsd' to '" + xsdCachePath
+								+ "' : '[java.net.UnknownHostException] invoice.xsd'.",
 						DiagnosticSeverity.Error, "xml", ExternalResourceErrorCode.DownloadProblem.getCode()),
 				new Diagnostic(r(1, 1, 1, 8), "cvc-elt.1.a: Cannot find the declaration of element 'invoice'.",
 						DiagnosticSeverity.Error, "xml", XMLSchemaErrorCode.cvc_elt_1_a.getCode())));

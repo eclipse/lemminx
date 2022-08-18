@@ -103,7 +103,7 @@ public class XMLValidationExternalResourcesBasedOnXSDTest {
 		// Downloaded error
 		XMLAssert.testPublishDiagnosticsFor(xml, fileURI, validation, ls, pd(fileURI,
 				new Diagnostic(r(2, 32, 2, 64),
-						"Error while downloading 'http://localhost:8080/sample.xsd' to '" + xsdCachePath + "'.",
+						"Error while downloading 'http://localhost:8080/sample.xsd' to '" + xsdCachePath + "' : '[java.net.ConnectException] Connection refused'.",
 						DiagnosticSeverity.Error, "xml", ExternalResourceErrorCode.DownloadProblem.getCode()),
 				new Diagnostic(r(0, 1, 0, 13), "cvc-elt.1.a: Cannot find the declaration of element 'root-element'.",
 						DiagnosticSeverity.Error, "xml", XMLSchemaErrorCode.cvc_elt_1_a.getCode())));
@@ -176,7 +176,7 @@ public class XMLValidationExternalResourcesBasedOnXSDTest {
 		// Downloaded error
 		XMLAssert.testPublishDiagnosticsFor(xml, fileURI, validation, ls, pd(fileURI,
 				new Diagnostic(r(3, 37, 3, 69),
-						"Error while downloading 'http://localhost:8080/sample.xsd' to '" + xsdCachePath + "'.",
+						"Error while downloading 'http://localhost:8080/sample.xsd' to '" + xsdCachePath + "' : '[java.net.ConnectException] Connection refused'.",
 						DiagnosticSeverity.Error, "xml", ExternalResourceErrorCode.DownloadProblem.getCode()),
 				new Diagnostic(r(0, 1, 0, 13), "cvc-elt.1.a: Cannot find the declaration of element 'root-element'.",
 						DiagnosticSeverity.Error, "xml", XMLSchemaErrorCode.cvc_elt_1_a.getCode())));

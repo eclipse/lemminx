@@ -102,7 +102,7 @@ public class XMLValidationExternalResourcesBasedOnDTDTest {
 		XMLAssert.testPublishDiagnosticsFor(xml, fileURI, validation, ls,
 				pd(fileURI,
 						new Diagnostic(r(0, 43, 0, 75),
-								"Error while downloading 'http://localhost:8080/sample.dtd' to '" + dtdCachePath + "'.",
+								"Error while downloading 'http://localhost:8080/sample.dtd' to '" + dtdCachePath + "' : '[java.net.ConnectException] Connection refused'.",
 								DiagnosticSeverity.Error, "xml", ExternalResourceErrorCode.DownloadProblem.getCode()),
 						new Diagnostic(r(1, 1, 1, 13), "Element type \"root-element\" must be declared.",
 								DiagnosticSeverity.Error, "xml", DTDErrorCode.MSG_ELEMENT_NOT_DECLARED.getCode())));
@@ -182,7 +182,7 @@ public class XMLValidationExternalResourcesBasedOnDTDTest {
 		XMLAssert.testPublishDiagnosticsFor(xml, fileURI, validation, ls,
 				pd(fileURI,
 						new Diagnostic(r(2, 32, 2, 64),
-								"Error while downloading 'http://localhost:8080/sample.dtd' to '" + dtdCachePath + "'.",
+								"Error while downloading 'http://localhost:8080/sample.dtd' to '" + dtdCachePath + "' : '[java.net.ConnectException] Connection refused'.",
 								DiagnosticSeverity.Error, "xml", ExternalResourceErrorCode.DownloadProblem.getCode()),
 						new Diagnostic(r(6, 1, 6, 7), "The entity \"abcd\" was referenced, but not declared.",
 								DiagnosticSeverity.Error, "xml", DTDErrorCode.EntityNotDeclared.getCode())));

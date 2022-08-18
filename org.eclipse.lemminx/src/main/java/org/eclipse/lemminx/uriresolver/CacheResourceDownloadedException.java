@@ -26,7 +26,7 @@ public class CacheResourceDownloadedException extends CacheResourceException {
 
 	public enum CacheResourceDownloadedError {
 
-		ERROR_WHILE_DOWNLOADING("Error while downloading ''{0}'' to ''{1}''.");
+		ERROR_WHILE_DOWNLOADING("Error while downloading ''{0}'' to ''{1}'' : ''{2}''.");
 
 		private final String rawMessage;
 
@@ -42,13 +42,13 @@ public class CacheResourceDownloadedException extends CacheResourceException {
 
 	private CacheResourceDownloadedError errorCode;
 
-	public CacheResourceDownloadedException(String resourceURI, Path resourceCachePath, Throwable e) {
-		this(resourceURI, resourceCachePath, CacheResourceDownloadedError.ERROR_WHILE_DOWNLOADING, e);
+	public CacheResourceDownloadedException(String resourceURI, Path resourceCachePath,  String cause, Throwable e) {
+		this(resourceURI, resourceCachePath, cause, CacheResourceDownloadedError.ERROR_WHILE_DOWNLOADING, e);
 	}
 
-	public CacheResourceDownloadedException(String resourceURI, Path resourceCachePath,
+	public CacheResourceDownloadedException(String resourceURI, Path resourceCachePath, String cause, 
 			CacheResourceDownloadedError errorCode, Throwable e) {
-		super(resourceURI, errorCode.getMessage(resourceURI, resourceCachePath), e);
+		super(resourceURI, errorCode.getMessage(resourceURI, resourceCachePath, cause), e);
 		this.errorCode = errorCode;
 	}
 
