@@ -335,7 +335,8 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 					}
 			}
 		}
-		return elementOptionality.get(childElementName);
+		Boolean isOptional =  elementOptionality.get(childElementName);
+		return (isOptional != null) ? isOptional : false;
 	}
 
 	@SuppressWarnings("unchecked")
