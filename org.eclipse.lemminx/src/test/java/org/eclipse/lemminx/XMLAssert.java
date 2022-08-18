@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -773,9 +774,23 @@ public class XMLAssert {
 		assertEquals(expected.length, actual.size());
 		for (int i = 0; i < expected.length; i++) {
 			assertEquals(expected[i].getUri(), actual.get(i).getUri());
+			actual.get(i).getDiagnostics().forEach(d -> {
+				d.setMessage(cleanExceptionMessage.apply(d.getMessage()));
+			});
+			expected[i].getDiagnostics().forEach(d -> {
+				d.setMessage(cleanExceptionMessage.apply(d.getMessage()));
+			});
 			assertDiagnostics(actual.get(i).getDiagnostics(), expected[i].getDiagnostics(), false);
 		}
 	}
+
+	private static final Function<String, String> cleanExceptionMessage = (message) -> {
+		if (message.contains("[")) {
+			String exceptionClassName = message.substring(message.indexOf("[") + 1, message.indexOf("]"));
+			message = message.split("\\s:\\s")[0] + " : " + exceptionClassName;
+		}
+		return message;
+	};
 
 	public static void publishDiagnostics(DOMDocument xmlDocument, List<PublishDiagnosticsParams> actual,
 			XMLLanguageService languageService) {

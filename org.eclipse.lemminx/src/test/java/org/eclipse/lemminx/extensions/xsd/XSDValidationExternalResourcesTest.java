@@ -101,7 +101,7 @@ public class XSDValidationExternalResourcesTest {
 		XMLAssert.testPublishDiagnosticsFor(xsd, fileURI, validation, ls,
 				pd(fileURI,
 						new Diagnostic(r(3, 32, 3, 63),
-								"Error while downloading 'http://server:8080/sequence.xsd' to '" + xsdCachePath + "'.",
+								"Error while downloading 'http://server:8080/sequence.xsd' to '" + xsdCachePath + "' : '[java.net.UnknownHostException] server'.",
 								DiagnosticSeverity.Error, "xsd", ExternalResourceErrorCode.DownloadProblem.getCode())));
 
 	}

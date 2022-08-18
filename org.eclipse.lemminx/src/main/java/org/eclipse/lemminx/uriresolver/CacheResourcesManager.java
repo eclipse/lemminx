@@ -242,8 +242,12 @@ public class CacheResourcesManager {
 				String error = "[" + rootCause.getClass().getTypeName() + "] " + rootCause.getMessage();
 				LOGGER.log(Level.SEVERE,
 						"Error while downloading " + resourceURI + " to " + resourceCachePath + " : " + error);
+				String httpResponseCode = getHttpResponseCode(conn);
+				if (httpResponseCode != null) {
+					error = error + " with code: " + httpResponseCode;
+				}
 				CacheResourceDownloadedException cacheException = new CacheResourceDownloadedException(resourceURI,
-						resourceCachePath, e);
+						resourceCachePath, error, e);
 				unavailableURICache.put(resourceURI, cacheException);
 				throw cacheException;
 			} finally {
@@ -256,6 +260,26 @@ public class CacheResourcesManager {
 			}
 			return resourceCachePath;
 		});
+	}
+
+	/**
+	 * Returns the http response code from a url connection, null if code could not
+	 * be retrived
+	 *
+	 * @param conn the URL connection
+	 * @return the http response code from a url connection, null if code could not
+	 *         be retrived
+	 */
+	private static String getHttpResponseCode(URLConnection conn) {
+		if (conn != null && conn instanceof HttpURLConnection) {
+			try {
+				HttpURLConnection httpConn = (HttpURLConnection) conn;
+				return (String.valueOf(httpConn.getResponseCode()))+ " " + httpConn.getResponseMessage();
+			} catch (IOException e) {
+				// connection refused and no code could be retrived, do nothing
+			}
+		}
+		return null;
 	}
 
 	private boolean isSecure(String protocol) {

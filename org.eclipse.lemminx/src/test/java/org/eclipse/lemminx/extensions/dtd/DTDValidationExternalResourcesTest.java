@@ -136,7 +136,7 @@ public class DTDValidationExternalResourcesTest {
 						new Diagnostic(r(0, 24, 0, 46), "Cannot find DTD 'file:///tmp/secret.txt'.",
 								DiagnosticSeverity.Error, "xml", DTDErrorCode.DTDNotFound.getCode()),
 						new Diagnostic(r(1, 53, 1, 80),
-								"Error while downloading 'http://server:8080/dtd.xml?' to '" + dtdCachePath + "'.",
+								"Error while downloading 'http://server:8080/dtd.xml?' to '" + dtdCachePath + "' : '[java.net.UnknownHostException] server'.",
 								DiagnosticSeverity.Error, "xml", ExternalResourceErrorCode.DownloadProblem.getCode())));
 
 	}
