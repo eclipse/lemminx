@@ -47,13 +47,13 @@ public class XMLFormatterJoinCommentLinesTest {
 
 	@Test
 	public void testUnclosedEndTagTrailingComment() throws BadLocationException {
-		String content = "<root>" + lineSeparator() + //
-				"    <a> content </a" + lineSeparator() + //
-				"        <!-- comment -->" + lineSeparator() + //
+		String content = "<root>\n" + //
+				"    <a> content </a\n" + //
+				"        <!-- comment -->\n" + //
 				" </root>";
-		String expected = "<root>" + lineSeparator() + //
-				"  <a> content </a" + lineSeparator() + //
-				"  <!-- comment -->" + lineSeparator() + //
+		String expected = "<root>\n" + //
+				"  <a> content </a\n" + //
+				"  <!-- comment -->\n" + //
 				"</root>";
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setJoinCommentLines(true);
@@ -107,14 +107,12 @@ public class XMLFormatterJoinCommentLinesTest {
 
 	@Test
 	public void testJoinCommentLinesLongWrap() throws BadLocationException {
-		String content = "<a>" + lineSeparator() + //
+		String content = "<a>\n" + //
 				"  Content <!-- comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment -->"
 				+ //
 				"</a>";
-		String expected = "<a> Content <!-- comment comment comment comment comment comment comment comment comment"
-				+ lineSeparator() + //
-				"  comment comment comment comment comment comment comment comment comment"
-				+ lineSeparator() + //
+		String expected = "<a> Content <!-- comment comment comment comment comment comment comment comment comment\n" + //
+				"  comment comment comment comment comment comment comment comment comment\n" + //
 				"  comment comment comment comment comment comment comment -->" + //
 				"</a>";
 		SharedSettings settings = new SharedSettings();
@@ -128,14 +126,14 @@ public class XMLFormatterJoinCommentLinesTest {
 
 	@Test
 	public void testJoinCommentLinesLongWrapSingleWord() throws BadLocationException {
-		String content = "<a>" + lineSeparator() + //
+		String content = "<a>\n" + //
 				"<!-- commentcommentcommentcomment commentcommentcommentcomment commentcommentcommentcomment commentcommmentcommentcommentcomment commentcommentcommentscommentcomment commentcommentcommentscommentcomment commentcommentcomments -->"
 				+ //
 				"</a>";
-		String expected = "<a>" + lineSeparator() + //
-				"  <!-- commentcommentcommentcomment commentcommentcommentcomment" + lineSeparator() + //
-				"  commentcommentcommentcomment commentcommmentcommentcommentcomment" + lineSeparator() + //
-				"  commentcommentcommentscommentcomment commentcommentcommentscommentcomment" + lineSeparator() + //
+		String expected = "<a>\n" + //
+				"  <!-- commentcommentcommentcomment commentcommentcommentcomment\n" + //
+				"  commentcommentcommentcomment commentcommmentcommentcommentcomment\n" + //
+				"  commentcommentcommentscommentcomment commentcommentcommentscommentcomment\n" + //
 				"  commentcommentcomments --></a>";
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setJoinCommentLines(true);
@@ -148,8 +146,7 @@ public class XMLFormatterJoinCommentLinesTest {
 	}
 
 	private static void assertFormat(String unformatted, String expected, SharedSettings sharedSettings,
-			TextEdit... expectedEdits)
-			throws BadLocationException {
+			TextEdit... expectedEdits) throws BadLocationException {
 		assertFormat(unformatted, expected, sharedSettings, "test://test.html", expectedEdits);
 	}
 
