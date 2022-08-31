@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.io.File;
 import java.util.concurrent.ExecutionException;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.MockXMLLanguageServer;
 import org.eclipse.lemminx.extensions.contentmodel.commands.AssociateGrammarCommand.GrammarBindingType;
 import org.eclipse.lemminx.utils.platform.Platform;
@@ -33,7 +34,7 @@ import org.junit.jupiter.api.Test;
  * @author Angelo ZERR
  *
  */
-public class AssociateGrammarCommandTest {
+public class AssociateGrammarCommandTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void associateWithXSDNoNamespaceSchemaLocation() throws InterruptedException, ExecutionException {

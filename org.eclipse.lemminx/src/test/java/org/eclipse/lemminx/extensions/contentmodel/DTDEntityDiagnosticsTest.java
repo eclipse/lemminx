@@ -19,6 +19,7 @@ import static org.eclipse.lemminx.XMLAssert.testCodeActionsFor;
 
 import java.util.Locale;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.extensions.contentmodel.participants.DTDErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
@@ -35,7 +36,7 @@ import org.junit.jupiter.api.Test;
  * DTD diagnostics services tests with DTD Entity.
  *
  */
-public class DTDEntityDiagnosticsTest {
+public class DTDEntityDiagnosticsTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void EntityDeclUnterminated() throws Exception {

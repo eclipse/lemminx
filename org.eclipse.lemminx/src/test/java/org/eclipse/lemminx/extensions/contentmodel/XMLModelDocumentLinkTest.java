@@ -14,6 +14,7 @@ package org.eclipse.lemminx.extensions.contentmodel;
 import static org.eclipse.lemminx.XMLAssert.dl;
 import static org.eclipse.lemminx.XMLAssert.r;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.junit.jupiter.api.Test;
@@ -22,7 +23,7 @@ import org.junit.jupiter.api.Test;
  * XML Model document links tests
  *
  */
-public class XMLModelDocumentLinkTest {
+public class XMLModelDocumentLinkTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void xmlModelHref() throws BadLocationException {

@@ -33,13 +33,13 @@ import org.junit.jupiter.api.Test;
 /**
  * This class tests the functionality where an XML file undergoes
  * validation against its schema when the XSD schema file (or DTD file)
- * has been modified and saved externally through means, not within 
+ * has been modified and saved externally through means, not within
  * the LS client.
- * 
+ *
  * @author David Kwon
  *
  */
-public class XMLExternalTest extends BaseFileTempTest  {
+public class XMLExternalTest extends BaseFileTempTest {
 
 	private int threadSleepMs = 600;
 	private MockXMLLanguageServer languageServer;
@@ -51,7 +51,7 @@ public class XMLExternalTest extends BaseFileTempTest  {
 
 	@Test
 	public void externalDTDTest() throws InterruptedException, IOException {
-		String dtdPath = tempDirUri.getPath() + "/note.dtd";
+		String dtdPath = getTempDirPath().toString() + "/note.dtd";
 
 		//@formatter:off
 		String dtdContents =
@@ -60,8 +60,8 @@ public class XMLExternalTest extends BaseFileTempTest  {
 		"<!ELEMENT from (#PCDATA)>\n" +
 		"<!ELEMENT heading (#PCDATA)>\n" +
 		"<!ELEMENT body (#PCDATA)>";
-	
-		String xmlContents = 
+
+		String xmlContents =
 		"<?xml version=\"1.0\"?>\n" +
 		"<!DOCTYPE note SYSTEM \"note.dtd\">\n" +
 		"<note>\n" +
@@ -72,13 +72,13 @@ public class XMLExternalTest extends BaseFileTempTest  {
 		"</note>";
 		//@formatter:on
 
-		
+
 		TextDocumentItem xmlTextDocument = getXMLTextDocumentItem("test.xml", xmlContents);
 		createFile(dtdPath, dtdContents);
 		File testDtd = new File(dtdPath);
 
 		clientOpenFile(languageServer, xmlTextDocument);
-	
+
 		Thread.sleep(threadSleepMs);
 
 		List<PublishDiagnosticsParams> actualDiagnostics = languageServer.getPublishDiagnostics();
@@ -97,7 +97,7 @@ public class XMLExternalTest extends BaseFileTempTest  {
 
 	@Test
 	public void externalXSDTest() throws InterruptedException, IOException {
-		String xsdPath = tempDirUri.getPath() + "/sequence.xsd";
+		String xsdPath = getTempDirPath().toString() + "/sequence.xsd";
 
 		//@formatter:off
 		String xsdContents =
@@ -117,8 +117,8 @@ public class XMLExternalTest extends BaseFileTempTest  {
 		"    </xs:complexType>\n" +
 		"  </xs:element>\n" +
 		"</xs:schema>";
-	
-		String xmlContents = 
+
+		String xmlContents =
 		"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" +
 		"<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"sequence.xsd\">\n" +
 		"  <tag></tag>\n" +
@@ -133,7 +133,7 @@ public class XMLExternalTest extends BaseFileTempTest  {
 		File testXsd = new File(xsdPath);
 
 		clientOpenFile(languageServer, xmlTextDocument);
-	
+
 		Thread.sleep(threadSleepMs);
 
 		List<PublishDiagnosticsParams> actualDiagnostics = languageServer.getPublishDiagnostics();
@@ -152,7 +152,7 @@ public class XMLExternalTest extends BaseFileTempTest  {
 	private TextDocumentItem getXMLTextDocumentItem(String filename, String xmlContents) {
 		String languageId = "xml";
 		int version = 1;
-		return new TextDocumentItem(tempDirUri.toString() + "/" + filename, languageId, version, xmlContents);
+		return new TextDocumentItem(getTempDirPath().toString() + "/" + filename, languageId, version, xmlContents);
 	}
 
 	private void clientOpenFile(XMLLanguageServer languageServer, TextDocumentItem textDocumentItem) {

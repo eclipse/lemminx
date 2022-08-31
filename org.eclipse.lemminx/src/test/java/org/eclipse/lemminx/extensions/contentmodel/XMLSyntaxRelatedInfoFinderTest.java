@@ -15,6 +15,7 @@ import static org.eclipse.lemminx.XMLAssert.r;
 
 import java.util.Arrays;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
@@ -26,7 +27,7 @@ import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.PublishDiagnosticsCapabilities;
 import org.junit.jupiter.api.Test;
 
-public class XMLSyntaxRelatedInfoFinderTest {
+public class XMLSyntaxRelatedInfoFinderTest extends AbstractCacheBasedTest {
 
 	final String XML_FILE_PATH = "src/test/resources/test.xml";
 

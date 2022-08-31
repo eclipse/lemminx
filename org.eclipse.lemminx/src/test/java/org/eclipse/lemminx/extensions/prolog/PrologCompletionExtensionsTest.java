@@ -16,6 +16,7 @@ import static org.eclipse.lemminx.XMLAssert.c;
 import static org.eclipse.lemminx.XMLAssert.r;
 import static org.eclipse.lemminx.XMLAssert.te;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.extensions.xsl.XSLURIResolverExtension;
@@ -32,7 +33,7 @@ import org.junit.jupiter.api.Test;
  * XSL completion tests which test the {@link XSLURIResolverExtension}.
  *
  */
-public class PrologCompletionExtensionsTest {
+public class PrologCompletionExtensionsTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void completionVersionWithV() throws BadLocationException {

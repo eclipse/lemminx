@@ -18,6 +18,7 @@ import static org.eclipse.lemminx.XMLAssert.testDefinitionFor;
 
 import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.util.URI.MalformedURIException;
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +26,7 @@ import org.junit.jupiter.api.Test;
  * Test for entities definition used in a text node.
  *
  */
-public class EntitiesDefinitionExtensionsTest {
+public class EntitiesDefinitionExtensionsTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void local() throws BadLocationException {

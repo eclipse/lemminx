@@ -16,17 +16,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lsp4j.TextEdit;
 import org.junit.jupiter.api.Test;
 
 /**
  * Test for {@link TextEditUtils}.
- * 
+ *
  * @author Angelo ZERR
  *
  */
-public class TextEditUtilsTest {
+public class TextEditUtilsTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void textEdit() {

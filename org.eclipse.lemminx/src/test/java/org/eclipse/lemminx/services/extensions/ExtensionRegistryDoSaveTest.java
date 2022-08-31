@@ -16,25 +16,26 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.function.Predicate;
 
-import com.google.gson.JsonObject;
-
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert.SettingsSaveContext;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.services.extensions.save.ISaveContext;
 import org.eclipse.lsp4j.InitializeParams;
 import org.junit.jupiter.api.Test;
 
+import com.google.gson.JsonObject;
+
 /**
  * Ensures that {@code XMLExtensionsRegistry.doSave()} correctly captures the
  * initial LS configuration, and the configuration is correctly forwarded to
  * {@code IXMLExtension.doSave()} for registered extensions.
  */
-public class ExtensionRegistryDoSaveTest {
-	
+public class ExtensionRegistryDoSaveTest extends AbstractCacheBasedTest {
+
 	class RegistryTestExtension implements IXMLExtension {
-		
+
 		private ISaveContext context = null;
-		
+
 		@Override
 		public void start(InitializeParams params, XMLExtensionsRegistry registry) {
 		}
@@ -42,7 +43,7 @@ public class ExtensionRegistryDoSaveTest {
 		@Override
 		public void stop(XMLExtensionsRegistry registry) {
 		}
-		
+
 		@Override
 		public void doSave(ISaveContext context) {
 			this.context = context;
@@ -52,7 +53,7 @@ public class ExtensionRegistryDoSaveTest {
 			return context;
 		}
 	}
-	
+
 	private static class SaveFileContext implements ISaveContext {
 		@Override
 		public DOMDocument getDocument(String uri) {

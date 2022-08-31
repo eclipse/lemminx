@@ -17,6 +17,7 @@ import java.util.Arrays;
 
 import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.util.URI.MalformedURIException;
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.services.XMLLanguageService;
@@ -27,7 +28,7 @@ import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.Range;
 import org.junit.jupiter.api.Test;
 
-public class XMLSchemaHoverExtendedComplexTypeTest {
+public class XMLSchemaHoverExtendedComplexTypeTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void testHoverComplexTypeDocumentation() throws BadLocationException, MalformedURIException {
@@ -83,7 +84,7 @@ public class XMLSchemaHoverExtendedComplexTypeTest {
 		return XMLEntityManager.expandSystemId("xsd/" + schemaURI, "src/test/resources/test.xml", true).replace("///",
 				"/");
 	}
-	
+
 	private void assertHover(String xml, String expected, Range range) throws BadLocationException, MalformedURIException {
 		XMLAssert.assertHover(new XMLLanguageService(), xml, null, "src/test/resources/extendedComplexType.xml", expected, range, //
 				createSharedSettings(SchemaDocumentationType.documentation, true));

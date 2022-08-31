@@ -14,13 +14,14 @@ package org.eclipse.lemminx.extensions.contentmodel.commands;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.MockXMLLanguageServer;
 import org.junit.jupiter.api.Test;
 
 /**
  * Test for checking if a file URI matches a given file pattern using an XML command.
  */
-public class CheckFilePatternCommandTest {
+public class CheckFilePatternCommandTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void checkPatternMatchSucceeds() throws Exception {

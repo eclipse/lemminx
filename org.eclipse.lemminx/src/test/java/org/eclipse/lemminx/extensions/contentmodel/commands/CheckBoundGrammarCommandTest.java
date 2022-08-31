@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.File;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.MockXMLLanguageServer;
 import org.eclipse.lemminx.utils.platform.Platform;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
@@ -26,7 +27,7 @@ import org.junit.jupiter.api.Test;
  *
  * @author Alexander Chen
  */
-public class CheckBoundGrammarCommandTest {
+public class CheckBoundGrammarCommandTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void checkDocumentWithoutBoundGrammar() throws Exception {

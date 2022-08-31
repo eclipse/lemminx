@@ -21,6 +21,7 @@ import java.util.function.Consumer;
 
 import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.util.URI.MalformedURIException;
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLFileAssociation;
@@ -33,7 +34,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Referenced grammar symbols test.
  */
-public class ReferencedGrammarSymbolsTest {
+public class ReferencedGrammarSymbolsTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void withDoctype() throws BadLocationException, MalformedURIException {

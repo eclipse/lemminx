@@ -16,6 +16,7 @@ import static org.eclipse.lemminx.XMLAssert.r;
 import static org.eclipse.lemminx.client.ClientCommands.OPEN_URI;
 import static org.eclipse.lemminx.client.ClientCommands.SHOW_REFERENCES;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.junit.jupiter.api.Test;
@@ -24,7 +25,7 @@ import org.junit.jupiter.api.Test;
  * XSD codelens tests
  *
  */
-public class XSDCodeLensExtensionsTest {
+public class XSDCodeLensExtensionsTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void codeLensOnGroupAndElement() throws BadLocationException {

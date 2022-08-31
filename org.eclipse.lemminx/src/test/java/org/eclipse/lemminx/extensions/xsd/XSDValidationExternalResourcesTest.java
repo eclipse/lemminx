@@ -19,6 +19,7 @@ import static org.eclipse.lemminx.XMLAssert.testCodeActionsFor;
 
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.extensions.contentmodel.participants.ExternalResourceErrorCode;
@@ -35,7 +36,7 @@ import org.junit.jupiter.api.Test;
  * XSD file diagnostics.
  *
  */
-public class XSDValidationExternalResourcesTest {
+public class XSDValidationExternalResourcesTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void includeSchemaLocationDownloadDisabled() throws Exception {

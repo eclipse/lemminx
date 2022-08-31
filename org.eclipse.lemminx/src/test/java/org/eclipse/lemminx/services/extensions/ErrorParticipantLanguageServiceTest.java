@@ -40,6 +40,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -89,7 +90,7 @@ import org.junit.jupiter.api.Test;
  *
  * @author datho7561
  */
-public class ErrorParticipantLanguageServiceTest {
+public class ErrorParticipantLanguageServiceTest extends AbstractCacheBasedTest {
 
 	/**
 	 * Adds participants that throw runtime exceptions, as well as simple

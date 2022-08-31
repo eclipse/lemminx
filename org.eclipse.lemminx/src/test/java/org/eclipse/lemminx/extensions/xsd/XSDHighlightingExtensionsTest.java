@@ -17,6 +17,7 @@ import static org.eclipse.lemminx.XMLAssert.testHighlightsFor;
 import static org.eclipse.lsp4j.DocumentHighlightKind.Read;
 import static org.eclipse.lsp4j.DocumentHighlightKind.Write;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +26,7 @@ import org.junit.jupiter.api.Test;
  *
  * @author Angelo ZERR
  */
-public class XSDHighlightingExtensionsTest {
+public class XSDHighlightingExtensionsTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void highlightingOnElementType() throws BadLocationException {

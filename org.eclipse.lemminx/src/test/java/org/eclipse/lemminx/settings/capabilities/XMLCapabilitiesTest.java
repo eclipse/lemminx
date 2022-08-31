@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Set;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.MockXMLLanguageClient;
 import org.eclipse.lemminx.XMLTextDocumentService;
 import org.eclipse.lsp4j.ClientCapabilities;
@@ -48,7 +49,7 @@ import org.junit.jupiter.api.Test;
 /**
  * XMLCapabilityManagerTest
  */
-public class XMLCapabilitiesTest {
+public class XMLCapabilitiesTest extends AbstractCacheBasedTest {
 
 	private static final Either<Boolean, ?> TRUE = Either.forLeft(true);
 

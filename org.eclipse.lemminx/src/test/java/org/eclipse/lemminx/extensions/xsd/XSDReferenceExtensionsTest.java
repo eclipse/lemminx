@@ -14,6 +14,7 @@ package org.eclipse.lemminx.extensions.xsd;
 import static org.eclipse.lemminx.XMLAssert.l;
 import static org.eclipse.lemminx.XMLAssert.r;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lsp4j.Location;
@@ -23,7 +24,7 @@ import org.junit.jupiter.api.Test;
  * XSD references tests
  *
  */
-public class XSDReferenceExtensionsTest {
+public class XSDReferenceExtensionsTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void referenceOnElementName() throws BadLocationException {

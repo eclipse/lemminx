@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Test with XML Schema type definition and cache.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -45,7 +45,7 @@ public class XMLSchemaTypeDefinitionWithCacheExtensionsTest extends AbstractCach
 		};
 
 		// Copy the svg.dtd in the cache folder
-		Path expectedLocation = TEST_WORK_DIRECTORY.resolve("cache/http/maven.apache.org/xsd/maven-4.0.0.xsd");
+		Path expectedLocation = testWorkDirectory.resolve("cache/http/maven.apache.org/xsd/maven-4.0.0.xsd");
 		// Download resource in a temporary file
 		Files.createDirectories(expectedLocation.getParent());
 		Path path = Files.createFile(expectedLocation);

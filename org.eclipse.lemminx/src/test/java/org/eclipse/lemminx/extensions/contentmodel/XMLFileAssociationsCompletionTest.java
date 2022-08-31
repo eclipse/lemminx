@@ -17,6 +17,7 @@ import static org.eclipse.lemminx.XMLAssert.te;
 
 import java.util.function.Consumer;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
@@ -28,7 +29,7 @@ import org.junit.jupiter.api.Test;
 /**
  * XML file associations completion tests.
  */
-public class XMLFileAssociationsCompletionTest {
+public class XMLFileAssociationsCompletionTest extends AbstractCacheBasedTest {
 
 	// ------- XML file association with XSD xs:noNamespaceShemaLocation like
 

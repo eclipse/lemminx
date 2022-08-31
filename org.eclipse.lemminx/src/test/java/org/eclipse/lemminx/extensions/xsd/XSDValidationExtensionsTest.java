@@ -17,6 +17,7 @@ import static org.eclipse.lemminx.XMLAssert.d;
 import static org.eclipse.lemminx.XMLAssert.te;
 import static org.eclipse.lemminx.XMLAssert.testCodeActionsFor;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.extensions.xsd.participants.XSDErrorCode;
@@ -28,7 +29,7 @@ import org.junit.jupiter.api.Test;
  * XSD diagnostics tests which test the {@link XSDValidator}.
  *
  */
-public class XSDValidationExtensionsTest {
+public class XSDValidationExtensionsTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void cos_all_limited_2() throws BadLocationException {

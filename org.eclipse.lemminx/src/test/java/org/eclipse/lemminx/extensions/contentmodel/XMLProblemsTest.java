@@ -25,6 +25,7 @@ import static org.eclipse.lemminx.client.ClientCommands.OPEN_BINDING_WIZARD;
 import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.nogrammarconstraints.GenerateDocTypeCodeActionResolver;
@@ -53,7 +54,7 @@ import com.google.gson.JsonObject;
  * XML problems like noGrammar.
  *
  */
-public class XMLProblemsTest {
+public class XMLProblemsTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void noGrammarIgnore() throws BadLocationException {

@@ -14,6 +14,7 @@ package org.eclipse.lemminx.extensions.dtd;
 import static org.eclipse.lemminx.XMLAssert.l;
 import static org.eclipse.lemminx.XMLAssert.r;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lsp4j.Location;
@@ -23,7 +24,7 @@ import org.junit.jupiter.api.Test;
  * DTD references tests
  *
  */
-public class DTDReferenceExtensionsTest {
+public class DTDReferenceExtensionsTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void referencesOnDTDElementName() throws BadLocationException {

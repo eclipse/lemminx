@@ -2,10 +2,11 @@ package org.eclipse.lemminx.extensions.catalog;
 
 import static org.eclipse.lemminx.XMLAssert.d;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.junit.jupiter.api.Test;
 
-public class XMLCatalogDiagnosticsTest {
+public class XMLCatalogDiagnosticsTest extends AbstractCacheBasedTest {
 	@Test
 	public void testCatalogWithValidFile() {
 		String xml = "<?xml version=\"1.0\"?>\n" + //

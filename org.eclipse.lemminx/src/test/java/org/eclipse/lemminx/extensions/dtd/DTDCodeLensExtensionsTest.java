@@ -15,6 +15,7 @@ import static org.eclipse.lemminx.XMLAssert.cl;
 import static org.eclipse.lemminx.XMLAssert.r;
 import static org.eclipse.lemminx.client.ClientCommands.SHOW_REFERENCES;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.junit.jupiter.api.Test;
@@ -23,7 +24,7 @@ import org.junit.jupiter.api.Test;
  * DTD codelens tests
  *
  */
-public class DTDCodeLensExtensionsTest {
+public class DTDCodeLensExtensionsTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void codeLensOnDTDElementInDOCTYPE() throws BadLocationException {

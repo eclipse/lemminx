@@ -15,6 +15,7 @@ package org.eclipse.lemminx.extensions.contentmodel;
 import static org.eclipse.lemminx.XMLAssert.dl;
 import static org.eclipse.lemminx.XMLAssert.r;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.junit.jupiter.api.Test;
@@ -23,7 +24,7 @@ import org.junit.jupiter.api.Test;
  * XML Schema document links tests
  *
  */
-public class XMLSchemaDocumentLinkTest {
+public class XMLSchemaDocumentLinkTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void noNamespaceSchemaLocation() throws BadLocationException {

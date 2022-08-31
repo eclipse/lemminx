@@ -18,6 +18,7 @@ import static org.eclipse.lemminx.XMLAssert.PROCESSING_INSTRUCTION_SNIPPETS;
 import static org.eclipse.lemminx.XMLAssert.c;
 import static org.eclipse.lemminx.XMLAssert.te;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.services.XMLLanguageService;
@@ -28,7 +29,7 @@ import org.eclipse.lsp4j.CompletionItemCapabilities;
 import org.eclipse.lsp4j.MarkupKind;
 import org.junit.jupiter.api.Test;
 
-public class DTDCompletionExtensionsTest {
+public class DTDCompletionExtensionsTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void completionInRoot() throws BadLocationException {

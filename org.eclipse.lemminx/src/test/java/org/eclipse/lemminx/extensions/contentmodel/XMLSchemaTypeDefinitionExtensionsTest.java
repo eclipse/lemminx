@@ -17,6 +17,7 @@ import static org.eclipse.lemminx.XMLAssert.testTypeDefinitionFor;
 
 import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.util.URI.MalformedURIException;
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.services.XMLLanguageService;
 import org.junit.jupiter.api.Test;
@@ -25,7 +26,7 @@ import org.junit.jupiter.api.Test;
  * XSD type definition tests.
  *
  */
-public class XMLSchemaTypeDefinitionExtensionsTest {
+public class XMLSchemaTypeDefinitionExtensionsTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void globalXSElementWithXSChoice() throws BadLocationException {

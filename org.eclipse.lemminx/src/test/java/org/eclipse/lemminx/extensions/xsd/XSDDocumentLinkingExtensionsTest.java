@@ -12,6 +12,7 @@ package org.eclipse.lemminx.extensions.xsd;
 import static org.eclipse.lemminx.XMLAssert.dl;
 import static org.eclipse.lemminx.XMLAssert.r;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.junit.jupiter.api.Test;
@@ -19,10 +20,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for the document links in .xsd provided by
  * <code>XSDDocumentLinkParticipant</code>
- * 
+ *
  * @see org.eclipse.lemminx.extensions.xsd.participants.XSDDocumentLinkParticipant
  */
-public class XSDDocumentLinkingExtensionsTest {
+public class XSDDocumentLinkingExtensionsTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void xsIncludeUsualNamespace() throws BadLocationException {

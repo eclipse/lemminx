@@ -14,6 +14,7 @@ package org.eclipse.lemminx.services.format.experimental;
 import static java.lang.System.lineSeparator;
 import static org.eclipse.lemminx.XMLAssert.te;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.settings.SharedSettings;
@@ -25,7 +26,7 @@ import org.junit.jupiter.api.Test;
  * XML experimental formatter services tests with insert final new lines.
  *
  */
-public class XMLFormatterInsertFinalNewLineTest {
+public class XMLFormatterInsertFinalNewLineTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void testTrimFinalNewlinesDefault() throws BadLocationException {

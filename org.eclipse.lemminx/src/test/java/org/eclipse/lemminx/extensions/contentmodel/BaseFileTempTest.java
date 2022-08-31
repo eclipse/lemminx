@@ -12,7 +12,6 @@
 package org.eclipse.lemminx.extensions.contentmodel;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
@@ -20,39 +19,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 
-import com.google.common.io.MoreFiles;
-import com.google.common.io.RecursiveDeleteOption;
-
-public class BaseFileTempTest {
-
-	private static final Path tempDirPath = Paths.get("target/temp/");
-	protected static final URI tempDirUri = tempDirPath.toAbsolutePath().toUri();
-
-	@BeforeAll
-	public static void setup() throws FileNotFoundException, IOException {
-		deleteTempDirIfExists();
-		createTempDir();
-	}
-
-	@AfterAll
-	public static void tearDown() throws IOException {
-		deleteTempDirIfExists();
-	}
-
-	private static void deleteTempDirIfExists() throws IOException {
-		File tempDir = new File(tempDirUri);
-		if (tempDir.exists()) {
-			MoreFiles.deleteRecursively(tempDir.toPath(), RecursiveDeleteOption.ALLOW_INSECURE);
-		}
-	}
-
-	private static void createTempDir() {
-		File tempDir = new File(tempDirUri);
-		tempDir.mkdir();
-	}
+public abstract class BaseFileTempTest extends AbstractCacheBasedTest {
 
 	protected static void createFile(String fileName, String contents) throws IOException {
 		URI fileURI = new File(fileName).toURI();
@@ -81,8 +50,8 @@ public class BaseFileTempTest {
 		}
 		createFile(fileURI, contents);
 	}
-	
-	protected static Path getTempDirPath() {
-		return tempDirPath;
+
+	protected Path getTempDirPath() {
+		return testWorkDirectory;
 	}
 }

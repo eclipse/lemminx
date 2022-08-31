@@ -18,6 +18,7 @@ import static org.eclipse.lemminx.utils.MarkupContentFactory.MARKDOWN_SEPARATOR;
 
 import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.util.URI.MalformedURIException;
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.services.XMLLanguageService;
@@ -31,7 +32,7 @@ import org.junit.jupiter.api.Test;
  * XML aggregated hover values tests
  *
  */
-public class AggregetedHoverValuesTest {
+public class AggregetedHoverValuesTest extends AbstractCacheBasedTest {
 	private static final String TEST_FOR_TAG_HOVER = "test for tag hover";
 	private static final String TEST_FOR_ATTRIBUTENAME_HOVER = "test for attribute name hover";
 

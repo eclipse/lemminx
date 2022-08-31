@@ -16,6 +16,7 @@ import static org.eclipse.lemminx.XMLAssert.COMMENT_SNIPPETS;
 import static org.eclipse.lemminx.XMLAssert.c;
 import static org.eclipse.lemminx.XMLAssert.te;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.services.XMLLanguageService;
@@ -29,7 +30,7 @@ import org.junit.jupiter.api.Test;
  * XML completion tests based on xml-model processing instruction.
  *
  */
-public class XMLModelCompletionExtensionsTest {
+public class XMLModelCompletionExtensionsTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void completionBasedOnDTDWithXMLModel() throws BadLocationException {

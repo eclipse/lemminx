@@ -15,6 +15,7 @@ package org.eclipse.lemminx.extensions.catalog;
 import static org.eclipse.lemminx.XMLAssert.c;
 import static org.eclipse.lemminx.XMLAssert.d;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSchemaErrorCode;
@@ -25,7 +26,7 @@ import org.junit.jupiter.api.Test;
  * Schema.
  *
  */
-public class XMLCatalogExtensionTest {
+public class XMLCatalogExtensionTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void completion() throws BadLocationException {

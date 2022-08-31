@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.utils.platform.Platform;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -27,7 +28,7 @@ import org.junit.jupiter.api.io.TempDir;
 /**
  * FilesUtilsTest
  */
-public class FilesUtilsTest {
+public class FilesUtilsTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void testFilesCachePathPreference() throws Exception {

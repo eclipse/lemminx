@@ -20,6 +20,7 @@ import static org.eclipse.lemminx.client.ClientCommands.OPEN_URI;
 import java.util.Collections;
 import java.util.function.Consumer;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.client.CodeLensKind;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
@@ -31,7 +32,7 @@ import org.junit.jupiter.api.Test;
  * Associate grammar codelens tests
  *
  */
-public class AssociateGrammarCodeLensExtensionsTest {
+public class AssociateGrammarCodeLensExtensionsTest extends AbstractCacheBasedTest {
 
 	// Codelens for Binding
 

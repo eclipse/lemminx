@@ -16,11 +16,11 @@ import static org.eclipse.lemminx.XMLAssert.d;
 import static org.eclipse.lemminx.XMLAssert.te;
 import static org.eclipse.lemminx.XMLAssert.testCodeActionsFor;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.extensions.contentmodel.participants.DTDErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSchemaErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCode;
-
 import org.eclipse.lsp4j.Diagnostic;
 import org.junit.jupiter.api.Test;
 
@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
  * XML Validation test with xml-model processing instruction association.
  *
  */
-public class XMLModelDiagnosticsTest {
+public class XMLModelDiagnosticsTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void xmlModelWithBadDTD() throws Exception {

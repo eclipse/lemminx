@@ -28,6 +28,7 @@ import java.util.Arrays;
 
 import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.util.URI.MalformedURIException;
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSchemaErrorCode;
@@ -46,14 +47,13 @@ import org.eclipse.lsp4j.PublishDiagnosticsCapabilities;
 import org.eclipse.lsp4j.ResourceOperationKind;
 import org.eclipse.lsp4j.WorkspaceClientCapabilities;
 import org.eclipse.lsp4j.WorkspaceEditCapabilities;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
  * XML diagnostics services tests
  *
  */
-public class XMLSchemaDiagnosticsTest {
+public class XMLSchemaDiagnosticsTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void prematureEOFNoErrorReported() throws Exception {

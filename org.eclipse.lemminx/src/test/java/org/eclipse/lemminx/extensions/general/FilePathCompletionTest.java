@@ -15,6 +15,7 @@ import static org.eclipse.lemminx.XMLAssert.c;
 import static org.eclipse.lemminx.XMLAssert.te;
 import static org.eclipse.lemminx.utils.platform.Platform.isWindows;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.utils.FilesUtils;
@@ -27,7 +28,7 @@ import org.junit.jupiter.api.Test;
  * Test folders are in
  * org.eclipse.lemminx/src/test/resources/filePathCompletion/
  */
-public class FilePathCompletionTest {
+public class FilePathCompletionTest extends AbstractCacheBasedTest {
 
 	private static final String userDir = FilesUtils.encodePath(System.getProperty("user.dir")); // C:..\..\folderName
 																									// || /bin/.../java

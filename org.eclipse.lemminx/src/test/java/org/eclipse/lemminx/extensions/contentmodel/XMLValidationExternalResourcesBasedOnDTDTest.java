@@ -19,6 +19,7 @@ import static org.eclipse.lemminx.XMLAssert.testCodeActionsFor;
 
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.extensions.contentmodel.participants.DTDErrorCode;
@@ -36,7 +37,7 @@ import org.junit.jupiter.api.Test;
  * XML validation based on DTD with external download.
  *
  */
-public class XMLValidationExternalResourcesBasedOnDTDTest {
+public class XMLValidationExternalResourcesBasedOnDTDTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void docTypeDownloadDisabled() throws Exception {

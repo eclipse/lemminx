@@ -17,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.util.URI.MalformedURIException;
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -37,7 +38,7 @@ import org.junit.jupiter.api.Test;
  * XML hover tests with XML Schema.
  *
  */
-public class XMLSchemaHoverExtensionsTest {
+public class XMLSchemaHoverExtensionsTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void testTagHover() throws BadLocationException, MalformedURIException {
@@ -342,7 +343,7 @@ public class XMLSchemaHoverExtensionsTest {
 						"Source: [attr-enum.xsd](" + schemaURI + ")",
 				r(2, 16, 2, 24));
 	}
-	
+
 	@Test
 	public void hoverWithNullParentNode() throws Exception {
 		ContentModelHoverParticipant hoverParticipant = new ContentModelHoverParticipant();
