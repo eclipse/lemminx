@@ -14,6 +14,7 @@ package org.eclipse.lemminx.services.extensions;
 
 import static org.eclipse.lemminx.XMLAssert.r;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.services.XMLLanguageService;
@@ -28,7 +29,7 @@ import org.junit.jupiter.api.Test;
  * language.
  *
  */
-public class HTMLHoverExtensionsTest {
+public class HTMLHoverExtensionsTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void testSingle() throws BadLocationException {

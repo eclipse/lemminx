@@ -16,6 +16,7 @@ import static org.eclipse.lemminx.XMLAssert.r;
 
 import java.nio.file.Paths;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lsp4j.LocationLink;
@@ -26,7 +27,7 @@ import org.junit.jupiter.api.Test;
  *
  * @author Angelo ZERR
  */
-public class XSDDefinitionExtensionsTest {
+public class XSDDefinitionExtensionsTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void noXSDefinition() throws BadLocationException {

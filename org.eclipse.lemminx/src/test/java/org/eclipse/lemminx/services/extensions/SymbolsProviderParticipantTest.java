@@ -16,6 +16,7 @@ import static org.eclipse.lemminx.XMLAssert.r;
 
 import java.util.Arrays;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.services.DocumentSymbolsResult;
@@ -30,9 +31,9 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Test for {@link ISymbolsProviderParticipant} API.
- * 
+ *
  */
-public class SymbolsProviderParticipantTest {
+public class SymbolsProviderParticipantTest extends AbstractCacheBasedTest {
 
 	private static class ExtendedSymbolLanguageService extends XMLLanguageService {
 

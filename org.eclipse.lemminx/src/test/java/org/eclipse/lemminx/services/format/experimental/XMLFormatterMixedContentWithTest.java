@@ -11,6 +11,7 @@
 *******************************************************************************/
 package org.eclipse.lemminx.services.format.experimental;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.settings.SharedSettings;
@@ -20,7 +21,7 @@ import org.junit.jupiter.api.Test;
  * XML experimental formatter services tests with mixed content.
  *
  */
-public class XMLFormatterMixedContentWithTest {
+public class XMLFormatterMixedContentWithTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void mixedContent() throws BadLocationException {

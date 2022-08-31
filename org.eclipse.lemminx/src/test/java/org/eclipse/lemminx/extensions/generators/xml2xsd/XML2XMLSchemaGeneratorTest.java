@@ -16,13 +16,14 @@ import static org.eclipse.lemminx.XMLAssert.assertGrammarGenerator;
 
 import java.io.IOException;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.junit.jupiter.api.Test;
 
 /**
  * Tests for generating XSD (XML Schema) from XML source.
- * 
+ *
  */
-public class XML2XMLSchemaGeneratorTest {
+public class XML2XMLSchemaGeneratorTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void schema() throws IOException {

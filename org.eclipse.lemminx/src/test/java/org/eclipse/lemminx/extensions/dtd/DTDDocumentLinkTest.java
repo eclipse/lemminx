@@ -14,6 +14,7 @@ package org.eclipse.lemminx.extensions.dtd;
 import static org.eclipse.lemminx.XMLAssert.dl;
 import static org.eclipse.lemminx.XMLAssert.r;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.junit.jupiter.api.Test;
@@ -22,7 +23,7 @@ import org.junit.jupiter.api.Test;
  * DTD entities document links tests inside a DTD.
  *
  */
-public class DTDDocumentLinkTest {
+public class DTDDocumentLinkTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void entity() throws BadLocationException {

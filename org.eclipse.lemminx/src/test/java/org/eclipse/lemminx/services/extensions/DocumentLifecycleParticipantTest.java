@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Collections;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.MockXMLLanguageServer;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,7 +24,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link IDocumentLifecycleParticipant}
  */
-public class DocumentLifecycleParticipantTest {
+public class DocumentLifecycleParticipantTest extends AbstractCacheBasedTest {
 
 	private static class CaptureDocumentLifecycleCalls implements IDocumentLifecycleParticipant {
 

@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.function.Consumer;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.XMLAssert.SettingsSaveContext;
 import org.eclipse.lemminx.commons.BadLocationException;
@@ -40,7 +41,7 @@ import com.google.gson.JsonObject;
 /**
  * XML file associations diagnostics tests.
  */
-public class XMLFileAssociationsDiagnosticsTest {
+public class XMLFileAssociationsDiagnosticsTest extends AbstractCacheBasedTest {
 
 	// ------- XML file association with XSD xs:noNamespaceShemaLocation like
 

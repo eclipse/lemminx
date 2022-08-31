@@ -14,6 +14,7 @@ package org.eclipse.lemminx.extensions.contentmodel;
 
 import static org.eclipse.lemminx.XMLAssert.d;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.extensions.contentmodel.participants.DTDErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCode;
@@ -26,7 +27,7 @@ import org.junit.jupiter.api.Test;
  * DTD doctype diagnostics services tests
  *
  */
-public class DTDDoctypeDiagnosticsTest {
+public class DTDDoctypeDiagnosticsTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void MSG_ELEMENT_TYPE_REQUIRED_IN_ELEMENTDECL() throws Exception {

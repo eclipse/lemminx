@@ -34,10 +34,10 @@ public class CamelCaseDisplayNameGeneratorTest {
     }
 
     @ParameterizedTest(name = "{index} => text={0}")
-    @CsvSource({ "ABCD, ABCD", 
-                 "AbCd, Ab Cd", 
-                 "abCd, ab Cd", 
-                 "aBCd, a BCd", 
+    @CsvSource({ "ABCD, ABCD",
+                 "AbCd, Ab Cd",
+                 "abCd, ab Cd",
+                 "aBCd, a BCd",
                  "a BC d, a BC d" })
     public void splitCamelCase(String text, String expectedResult) {
         assertEquals(expectedResult, nameGenerator.splitCamelCase(text));

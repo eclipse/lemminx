@@ -15,6 +15,7 @@ import static org.eclipse.lemminx.XMLAssert.r;
 
 import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.util.URI.MalformedURIException;
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.services.XMLLanguageService;
@@ -25,7 +26,7 @@ import org.junit.jupiter.api.Test;
  * XML hover tests with xml-model.
  *
  */
-public class XMLModelHoverExtensionsTest {
+public class XMLModelHoverExtensionsTest extends AbstractCacheBasedTest {
 
 	private static final String HOVER_SEPARATOR = "___";
 

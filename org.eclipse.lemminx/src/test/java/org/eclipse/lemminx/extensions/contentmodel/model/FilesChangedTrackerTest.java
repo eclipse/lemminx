@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Test for {@link FilesChangedTracker}
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -31,7 +31,7 @@ public class FilesChangedTrackerTest extends BaseFileTempTest {
 	@Test
 	public void trackFile() throws IOException {
 		FilesChangedTracker tracker = new FilesChangedTracker();
-		URI fileURI = tempDirUri.resolve("track.xml");
+		URI fileURI = getTempDirPath().toUri().resolve("track.xml");
 		createFile(fileURI, "<root />");
 		tracker.addFileURI(fileURI);
 

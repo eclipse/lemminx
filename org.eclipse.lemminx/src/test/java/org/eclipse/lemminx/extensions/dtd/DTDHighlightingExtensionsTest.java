@@ -17,6 +17,7 @@ import static org.eclipse.lemminx.XMLAssert.testHighlightsFor;
 import static org.eclipse.lsp4j.DocumentHighlightKind.Read;
 import static org.eclipse.lsp4j.DocumentHighlightKind.Write;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +26,7 @@ import org.junit.jupiter.api.Test;
  *
  * @author Angelo ZERR
  */
-public class DTDHighlightingExtensionsTest {
+public class DTDHighlightingExtensionsTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void noHighlighting() throws BadLocationException {
@@ -36,17 +37,17 @@ public class DTDHighlightingExtensionsTest {
 				"]>";
 		testHighlightsFor(xml);
 	}
-	
+
 	@Test
 	public void noHighlighting2() throws BadLocationException {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
 				"<!DOCTYPE note [\r\n" + //
-				"	<!ELEMENT note (to,from,heading,body, note?)>\r\n" + 
+				"	<!ELEMENT note (to,from,heading,body, note?)>\r\n" +
 				"	<!ATTLIST note version CD|ATA #REQUIRED>\r\n" + // // <-- in CDATA, no highlight
 				"]>";
 		testHighlightsFor(xml);
 	}
-	
+
 	@Test
 	public void highlightingOnDTDElementName() throws BadLocationException {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //

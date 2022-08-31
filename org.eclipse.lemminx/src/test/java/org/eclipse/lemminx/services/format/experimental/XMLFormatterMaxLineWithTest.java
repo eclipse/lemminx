@@ -13,6 +13,7 @@ package org.eclipse.lemminx.services.format.experimental;
 
 import static org.eclipse.lemminx.XMLAssert.te;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.settings.SharedSettings;
@@ -23,7 +24,7 @@ import org.junit.jupiter.api.Test;
  * XML experimental formatter services tests with max line width.
  *
  */
-public class XMLFormatterMaxLineWithTest {
+public class XMLFormatterMaxLineWithTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void splitText() throws BadLocationException {
@@ -46,7 +47,7 @@ public class XMLFormatterMaxLineWithTest {
 				te(0, 8, 0, 9, System.lineSeparator()));
 		assertFormat(expected, expected, 5);
 	}
-	
+
 	@Test
 	public void noSplit() throws BadLocationException {
 		String content = "<a>abcde fghi</a>";

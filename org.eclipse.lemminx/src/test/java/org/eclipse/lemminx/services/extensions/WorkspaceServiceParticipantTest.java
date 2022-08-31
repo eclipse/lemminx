@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 import java.util.Collections;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.MockXMLLanguageServer;
 import org.eclipse.lemminx.XMLLanguageServer;
 import org.eclipse.lsp4j.DidChangeWorkspaceFoldersParams;
@@ -26,7 +27,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link IWorkspaceServiceParticipant}
  */
-public class WorkspaceServiceParticipantTest {
+public class WorkspaceServiceParticipantTest extends AbstractCacheBasedTest {
 
 	private static class CaptureWokspaceServiceCalls implements IWorkspaceServiceParticipant {
 
@@ -37,7 +38,7 @@ public class WorkspaceServiceParticipantTest {
 			this.didChangeWorkspaceFolders = params;
 		}
 	}
-	
+
 	private CaptureWokspaceServiceCalls workspaceServiceParticipant;
 	private XMLLanguageServer server;
 

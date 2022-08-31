@@ -18,6 +18,7 @@ import static org.eclipse.lemminx.XMLAssert.te;
 import static org.eclipse.lemminx.XMLAssert.testCodeActionsFor;
 import static org.eclipse.lemminx.XMLAssert.testDiagnosticsFor;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
@@ -34,7 +35,7 @@ import org.junit.jupiter.api.Test;
  * XML diagnostics services tests
  *
  */
-public class XMLSyntaxDiagnosticsTest {
+public class XMLSyntaxDiagnosticsTest extends AbstractCacheBasedTest {
 
 	/**
 	 * AttributeNotUnique tests

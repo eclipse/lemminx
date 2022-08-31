@@ -13,14 +13,14 @@ package org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.nog
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.nogrammarconstraints.NoGrammarConstraintsCodeAction;
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.junit.jupiter.api.Test;
 
 /**
  * Generate grammar URI tests.
  *
  */
-public class NoGrammarConstraintsCodeActionTest {
+public class NoGrammarConstraintsCodeActionTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void generateGrammarURI() {

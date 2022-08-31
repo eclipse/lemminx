@@ -63,6 +63,17 @@ public class CacheResourcesManager {
 	private static final String CACHE_PATH = "cache";
 	private static final Logger LOGGER = Logger.getLogger(CacheResourcesManager.class.getName());
 
+	private static final Path TEMP_DOWNLOAD_DIR;
+
+	static {
+		Path tempDownloadDir = null;
+		try {
+			tempDownloadDir = Files.createTempDirectory("lemminx-temp");
+		} catch (Exception e) {
+		}
+		TEMP_DOWNLOAD_DIR = tempDownloadDir;
+	}
+
 	private final Map<String, CompletableFuture<Path>> resourcesLoading;
 	private boolean useCache;
 
@@ -222,7 +233,7 @@ public class CacheResourcesManager {
 				}
 
 				// Download resource in a temporary file
-				Path path = Files.createTempFile(resourceCachePath.getFileName().toString(), ".lemminx");
+				Path path = Files.createTempFile(TEMP_DOWNLOAD_DIR, resourceCachePath.getFileName().toString(), ".lemminx");
 				try (ReadableByteChannel rbc = Channels.newChannel(conn.getInputStream());
 						FileOutputStream fos = new FileOutputStream(path.toFile())) {
 					fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
@@ -369,7 +380,7 @@ public class CacheResourcesManager {
 
 	/**
 	 * Returns true if the external resources can be downloaded and false otherwise.
-	 * 
+	 *
 	 * @return true if the external resources can be downloaded and false otherwise.
 	 */
 	public boolean isDownloadExternalResources() {
@@ -378,7 +389,7 @@ public class CacheResourcesManager {
 
 	/**
 	 * Set true if the external resources can be downloaded and false otherwise.
-	 * 
+	 *
 	 * @param downloadExternalResources the external resources
 	 */
 	public void setDownloadExternalResources(boolean downloadExternalResources) {
@@ -463,7 +474,7 @@ public class CacheResourcesManager {
 
 	/**
 	 * Force the given <code>url</code> to download.
-	 * 
+	 *
 	 * @param url the url to download.
 	 */
 	public void forceDownloadExternalResource(String url) {
@@ -473,7 +484,7 @@ public class CacheResourcesManager {
 	/**
 	 * Returns true if the given <code>url</code> can be downloaded and false
 	 * otherwise.
-	 * 
+	 *
 	 * @param url the url to download.
 	 * @return true if the given <code>url</code> can be downloaded and false
 	 *         otherwise.

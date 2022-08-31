@@ -23,6 +23,7 @@ import java.util.ArrayList;
 
 import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.util.URI.MalformedURIException;
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.extensions.contentmodel.participants.DTDErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCode;
@@ -39,7 +40,7 @@ import org.junit.jupiter.api.Test;
  * DTD diagnostics services tests
  *
  */
-public class DTDDiagnosticsTest {
+public class DTDDiagnosticsTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void MSG_ELEMENT_NOT_DECLARED() throws Exception {

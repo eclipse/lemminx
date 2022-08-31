@@ -15,6 +15,7 @@ package org.eclipse.lemminx.extensions.xsd;
 import static org.eclipse.lemminx.XMLAssert.c;
 import static org.eclipse.lemminx.XMLAssert.te;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lsp4j.CompletionItem;
@@ -25,7 +26,7 @@ import org.junit.jupiter.api.Test;
  * XSD completion tests which test the {@link XDLURIResolverExtension}.
  *
  */
-public class XSDCompletionExtensionsTest {
+public class XSDCompletionExtensionsTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void completion() throws BadLocationException {

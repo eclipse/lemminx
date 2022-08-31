@@ -14,6 +14,7 @@ package org.eclipse.lemminx.extensions.xsi;
 
 import static org.eclipse.lemminx.XMLAssert.assertFormat;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.extensions.xsi.settings.XSISchemaLocationSplit;
 import org.eclipse.lemminx.settings.SharedSettings;
@@ -23,7 +24,7 @@ import org.junit.jupiter.api.Test;
  * XSI xsi:schemaLocation formatter tests
  *
  */
-public class XSIFormatterTest {
+public class XSIFormatterTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void xsiSchemaLocationSplitNone() throws BadLocationException {
@@ -132,7 +133,7 @@ public class XSIFormatterTest {
 				"    xsi:schemaLocation=\"" + //
 				"</beans>";
 		assertFormat(content, content, settings);
-		
+
 		content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<beans\r\n" + //
 				"    xmlns=\"http://www.springframework.org/schema/beans\"\r\n" + //
@@ -174,7 +175,7 @@ public class XSIFormatterTest {
 				"</beans>";
 		assertFormat(content, expected, settings);
 	}
-	
+
 	private static SharedSettings createSettings() {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setInsertSpaces(true);

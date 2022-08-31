@@ -15,6 +15,7 @@ package org.eclipse.lemminx.services.format;
 import static java.lang.System.lineSeparator;
 import static org.eclipse.lemminx.XMLAssert.assertFormat;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.settings.EnforceQuoteStyle;
 import org.eclipse.lemminx.settings.QuoteStyle;
@@ -27,7 +28,7 @@ import org.junit.jupiter.api.Test;
  * XML formatter services tests
  *
  */
-public class XMLFormatterTest {
+public class XMLFormatterTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void closeStartTagMissing() throws BadLocationException {
@@ -2477,7 +2478,7 @@ public class XMLFormatterTest {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setEmptyElement(EmptyElements.expand);
 		settings.getFormattingSettings().setPreserveAttributeLineBreaks(false);
-		
+
 		String content = "<example att=\"hello\" />";
 		String expected = "<example att=\"hello\"></example>";
 		assertFormat(content, expected, settings);

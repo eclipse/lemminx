@@ -16,6 +16,7 @@ import static org.eclipse.lemminx.XMLAssert.c;
 import static org.eclipse.lemminx.XMLAssert.r;
 import static org.eclipse.lemminx.XMLAssert.testCompletionFor;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.extensions.entities.EntitiesDocumentationUtils.PredefinedEntity;
 import org.junit.jupiter.api.Test;
@@ -24,7 +25,7 @@ import org.junit.jupiter.api.Test;
  * Test for entities completion used in a text node.
  *
  */
-public class EntitiesCompletionExtensionsTest {
+public class EntitiesCompletionExtensionsTest extends AbstractCacheBasedTest {
 
 	// Test for local entities
 

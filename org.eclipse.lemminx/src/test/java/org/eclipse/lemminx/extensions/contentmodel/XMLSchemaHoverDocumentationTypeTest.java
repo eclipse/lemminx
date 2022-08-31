@@ -15,11 +15,12 @@ import java.util.Arrays;
 
 import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.util.URI.MalformedURIException;
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.services.XMLLanguageService;
-import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.SchemaDocumentationType;
+import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.HoverCapabilities;
 import org.eclipse.lsp4j.MarkupKind;
 import org.junit.jupiter.api.BeforeAll;
@@ -29,7 +30,7 @@ import org.junit.jupiter.api.Test;
  * XML hover tests with XML Schema.
  *
  */
-public class XMLSchemaHoverDocumentationTypeTest {
+public class XMLSchemaHoverDocumentationTypeTest extends AbstractCacheBasedTest {
 
 	private static final String schemaName = "docAppinfo.xsd";
 	private static final String schemaPath = "src/test/resources/" + schemaName;
@@ -145,12 +146,12 @@ public class XMLSchemaHoverDocumentationTypeTest {
 				"first element documentation" + System.lineSeparator() + System.lineSeparator() +
 				"second element documentation" + System.lineSeparator() + System.lineSeparator() +
 				"third element documentation";
-		
+
 		String appinfo =
 				"first element appinfo" + System.lineSeparator() + System.lineSeparator() +
 				"second element appinfo" + System.lineSeparator() + System.lineSeparator() +
 				"third element appinfo";
-		
+
 		assertElementMultipleBothHover(documentation, SchemaDocumentationType.documentation, true);
 		assertElementMultipleBothHover(appinfo, SchemaDocumentationType.appinfo, true);
 		assertElementMultipleBothHover(
@@ -166,12 +167,12 @@ public class XMLSchemaHoverDocumentationTypeTest {
 				"first element documentation" + System.lineSeparator() +System.lineSeparator() +
 				"second element documentation" + System.lineSeparator() +System.lineSeparator() +
 				"third element documentation";
-		
+
 		String appinfo =
 				"first element appinfo" + System.lineSeparator() +System.lineSeparator() +
 				"second element appinfo" + System.lineSeparator() +System.lineSeparator() +
 				"third element appinfo";
-		
+
 		assertElementMultipleBothHover(documentation, SchemaDocumentationType.documentation, false);
 		assertElementMultipleBothHover(appinfo, SchemaDocumentationType.appinfo, false);
 		assertElementMultipleBothHover(
@@ -207,9 +208,9 @@ public class XMLSchemaHoverDocumentationTypeTest {
 
 	private void assertAttributeNameDocHover(String expected, SchemaDocumentationType docSource,
 			boolean markdownSupported) throws BadLocationException {
-		String xml = 
+		String xml =
 				"<root\n" +
-				"	xmlns=\"http://docAppinfo\"\n" + 
+				"	xmlns=\"http://docAppinfo\"\n" +
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
 				"	xsi:schemaLocation=\"http://docAppinfo xsd/" + schemaName + "\"\n" +
 				"	attribu|teNameOnlyDocumentation=\"onlyDocumentation\">\n" +
@@ -219,9 +220,9 @@ public class XMLSchemaHoverDocumentationTypeTest {
 
 	private void assertAttributeValueDocHover(String expected, SchemaDocumentationType docSource,
 			boolean markdownSupported) throws BadLocationException {
-		String xml = 
+		String xml =
 				"<root\n" +
-				"	xmlns=\"http://docAppinfo\"\n" + 
+				"	xmlns=\"http://docAppinfo\"\n" +
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
 				"	xsi:schemaLocation=\"http://docAppinfo xsd/" + schemaName + "\"\n" +
 				"	attributeNameOnlyDocumentation=\"o|nlyDocumentation\">\n" +
@@ -231,9 +232,9 @@ public class XMLSchemaHoverDocumentationTypeTest {
 
 	private void assertAttributeNameAppinfoHover(String expected, SchemaDocumentationType docSource,
 			boolean markdownSupported) throws BadLocationException {
-		String xml = 
+		String xml =
 				"<root\n" +
-				"	xmlns=\"http://docAppinfo\"\n" + 
+				"	xmlns=\"http://docAppinfo\"\n" +
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
 				"	xsi:schemaLocation=\"http://docAppinfo xsd/" + schemaName + "\"\n" +
 				"	a|ttributeNameOnlyAppinfo=\"onlyAppinfo\">\n" +
@@ -243,9 +244,9 @@ public class XMLSchemaHoverDocumentationTypeTest {
 
 	private void assertAttributeValueAppinfoHover(String expected, SchemaDocumentationType docSource,
 			boolean markdownSupported) throws BadLocationException {
-		String xml = 
+		String xml =
 				"<root\n" +
-				"	xmlns=\"http://docAppinfo\"\n" + 
+				"	xmlns=\"http://docAppinfo\"\n" +
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
 				"	xsi:schemaLocation=\"http://docAppinfo xsd/" + schemaName + "\"\n" +
 				"	attributeNameOnlyAppinfo=\"o|nlyAppinfo\">\n" +
@@ -255,9 +256,9 @@ public class XMLSchemaHoverDocumentationTypeTest {
 
 	private void assertAttributeNameBothHover(String expected, SchemaDocumentationType docSource,
 			boolean markdownSupported) throws BadLocationException {
-		String xml = 
+		String xml =
 				"<root\n" +
-				"	xmlns=\"http://docAppinfo\"\n" + 
+				"	xmlns=\"http://docAppinfo\"\n" +
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
 				"	xsi:schemaLocation=\"http://docAppinfo xsd/" + schemaName + "\"\n" +
 				"	a|ttributeNameBoth=\"bothDocumentationAndAppinfo\">\n" +
@@ -267,9 +268,9 @@ public class XMLSchemaHoverDocumentationTypeTest {
 
 	private void assertAttributeValueBothHover(String expected, SchemaDocumentationType docSource,
 			boolean markdownSupported) throws BadLocationException {
-		String xml = 
+		String xml =
 				"<root\n" +
-				"	xmlns=\"http://docAppinfo\"\n" + 
+				"	xmlns=\"http://docAppinfo\"\n" +
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
 				"	xsi:schemaLocation=\"http://docAppinfo xsd/" + schemaName + "\"\n" +
 				"	attributeNameBoth=\"b|othDocumentationAndAppinfo\">\n" +
@@ -279,9 +280,9 @@ public class XMLSchemaHoverDocumentationTypeTest {
 
 	private void assertElementDocHover(String expected, SchemaDocumentationType docSource,
 			boolean markdownSupported) throws BadLocationException {
-		String xml = 
+		String xml =
 				"<root\n" +
-				"	xmlns=\"http://docAppinfo\"\n" + 
+				"	xmlns=\"http://docAppinfo\"\n" +
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
 				"	xsi:schemaLocation=\"http://docAppinfo xsd/" + schemaName + "\"\n" +
 				"	<e|lementOnlyDocumentation></elementOnlyDocumentation>\n" +
@@ -291,9 +292,9 @@ public class XMLSchemaHoverDocumentationTypeTest {
 
 	private void assertElementAppinfoHover(String expected, SchemaDocumentationType docSource,
 			boolean markdownSupported) throws BadLocationException {
-		String xml = 
+		String xml =
 				"<root\n" +
-				"	xmlns=\"http://docAppinfo\"\n" + 
+				"	xmlns=\"http://docAppinfo\"\n" +
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
 				"	xsi:schemaLocation=\"http://docAppinfo xsd/" + schemaName + "\"\n" +
 				"	<e|lementOnlyAppinfo></elementOnlyAppinfo>\n" +
@@ -305,7 +306,7 @@ public class XMLSchemaHoverDocumentationTypeTest {
 			boolean markdownSupported) throws BadLocationException {
 		String xml =
 				"<root\n" +
-				"	xmlns=\"http://docAppinfo\"\n" + 
+				"	xmlns=\"http://docAppinfo\"\n" +
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
 				"	xsi:schemaLocation=\"http://docAppinfo xsd/" + schemaName + "\"\n" +
 				"	<e|lementBoth></elementBoth>\n" +
@@ -317,7 +318,7 @@ public class XMLSchemaHoverDocumentationTypeTest {
 			boolean markdownSupported) throws BadLocationException {
 		String xml =
 				"<root\n" +
-				"	xmlns=\"http://docAppinfo\"\n" + 
+				"	xmlns=\"http://docAppinfo\"\n" +
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
 				"	xsi:schemaLocation=\"http://docAppinfo xsd/" + schemaName + "\"\n" +
 				"	<e|lementMultipleBoth></elementMultipleBoth>\n" +
@@ -348,7 +349,7 @@ public class XMLSchemaHoverDocumentationTypeTest {
 	}
 
 	private void assertHover(String xml, String expected, SchemaDocumentationType docSource, boolean markdownSupported) throws BadLocationException {
-		
+
 		if (expected != null) {
 			String currSource = markdownSupported ? source : plainTextSource;
 			StringBuilder content = new StringBuilder(expected);
@@ -378,5 +379,5 @@ public class XMLSchemaHoverDocumentationTypeTest {
 				"/");
 	}
 
-	
+
 }

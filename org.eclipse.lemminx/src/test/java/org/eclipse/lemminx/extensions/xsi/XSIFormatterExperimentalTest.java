@@ -14,6 +14,7 @@ package org.eclipse.lemminx.extensions.xsi;
 
 import static org.eclipse.lemminx.XMLAssert.te;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.extensions.xsi.settings.XSISchemaLocationSplit;
@@ -25,7 +26,7 @@ import org.junit.jupiter.api.Test;
  * XSI xsi:schemaLocation formatter tests
  *
  */
-public class XSIFormatterExperimentalTest {
+public class XSIFormatterExperimentalTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void xsiSchemaLocationSplitNone() throws BadLocationException {

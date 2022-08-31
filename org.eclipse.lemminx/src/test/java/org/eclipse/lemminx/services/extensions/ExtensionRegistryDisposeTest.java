@@ -13,6 +13,7 @@ package org.eclipse.lemminx.services.extensions;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lsp4j.InitializeParams;
 import org.junit.jupiter.api.Test;
 
@@ -20,11 +21,11 @@ import org.junit.jupiter.api.Test;
  * Ensures XML LS extensions are correctly unregistered when
  * {@code XMLExtensionRegistry.dispose()} is called. During extension
  * unregistration, the {@code IXMLExtension.stop()} function is called.
- * 
+ *
  * @author aobuchow
  *
  */
-public class ExtensionRegistryDisposeTest {
+public class ExtensionRegistryDisposeTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void testExtensionRegistryDipose() {

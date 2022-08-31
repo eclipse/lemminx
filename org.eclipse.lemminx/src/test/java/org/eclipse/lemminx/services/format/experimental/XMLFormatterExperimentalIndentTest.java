@@ -14,6 +14,7 @@ package org.eclipse.lemminx.services.format.experimental;
 import static java.lang.System.lineSeparator;
 import static org.eclipse.lemminx.XMLAssert.te;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.settings.SharedSettings;
@@ -24,7 +25,7 @@ import org.junit.jupiter.api.Test;
  * XML experimental formatter services tests with indentation.
  *
  */
-public class XMLFormatterExperimentalIndentTest {
+public class XMLFormatterExperimentalIndentTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void startWithSpaces() throws BadLocationException {
@@ -35,7 +36,7 @@ public class XMLFormatterExperimentalIndentTest {
 				te(0, 0, 1, 7, ""));
 		assertFormat(expected, expected);
 	}
-	
+
 	@Test
 	public void oneElementsInSameLine() throws BadLocationException {
 		String content = "<a></a>";
@@ -138,7 +139,7 @@ public class XMLFormatterExperimentalIndentTest {
 		String expected = content;
 		assertFormat(content, expected);
 	}
-	
+
 	private static void assertFormat(String unformatted, String actual, TextEdit... expectedEdits)
 			throws BadLocationException {
 		assertFormat(unformatted, actual, new SharedSettings(), expectedEdits);

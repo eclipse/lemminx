@@ -25,7 +25,7 @@ import com.google.common.io.RecursiveDeleteOption;
 
 /**
  * Content model manager cache test
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -33,8 +33,8 @@ public class ContentModelManagerCacheTest extends BaseFileTempTest {
 
 	@Test
 	public void testXSDCache() throws IOException, BadLocationException {
-		String xsdPath = tempDirUri.getPath() + "/tag.xsd";
-		String xmlPath = tempDirUri.toString() + "/tag.xml";
+		String xsdPath = getTempDirPath().toString() + "/tag.xsd";
+		String xmlPath = getTempDirPath().toString() + "/tag.xml";
 
 		// Create a XSD file in the temp directory
 		String xsd = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n" + //
@@ -87,13 +87,13 @@ public class ContentModelManagerCacheTest extends BaseFileTempTest {
 		MoreFiles.deleteRecursively(new File(xsdPath).toPath(), RecursiveDeleteOption.ALLOW_INSECURE);
 		// Completion must be empty
 		XMLAssert.testCompletionFor(xml, null, xmlPath, 4 /* region, endregion, cdata, comment */);
-		
+
 		// recreate the XSD file
 		createFile(xsdPath, xsd);
 		XMLAssert.testCompletionFor(xml, null, xmlPath, 5 /* region, endregion, cdata, comment, label */,
 				c("label", "<label></label>"));
 		XMLAssert.testCompletionFor(xml, null, xmlPath, 5 /* region, endregion, cdata, comment, label */,
 				c("label", "<label></label>"));
-		
+
 	}
 }

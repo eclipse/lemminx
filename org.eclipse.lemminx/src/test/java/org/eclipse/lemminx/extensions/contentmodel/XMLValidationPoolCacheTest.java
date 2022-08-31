@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Test to check the LSP XML Grammar Pool.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -60,7 +60,7 @@ public class XMLValidationPoolCacheTest extends BaseFileTempTest {
 	public void includedSchemaLocation() throws IOException {
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
 
-		String schemaAPath = tempDirUri.getPath() + "/SchemaA.xsd";
+		String schemaAPath = getTempDirPath().toString() + "/SchemaA.xsd";
 		String schemaA = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n" + //
 				"<xs:schema id=\"tns\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">\r\n"
 				+ //
@@ -83,7 +83,7 @@ public class XMLValidationPoolCacheTest extends BaseFileTempTest {
 				"</xs:schema>";
 		createFile(schemaAPath, schemaA);
 
-		String schemaBPath = tempDirUri.getPath() + "/SchemaB.xsd";
+		String schemaBPath = getTempDirPath().toString() + "/SchemaB.xsd";
 		String schemaB = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n" + //
 				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\r\n" + //
 				"\r\n" + //
@@ -208,7 +208,7 @@ public class XMLValidationPoolCacheTest extends BaseFileTempTest {
 	public void dtdELEMENT() throws IOException {
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
 
-		String dtdPath = tempDirUri.getPath() + "/note.dtd";
+		String dtdPath = getTempDirPath().toString() + "/note.dtd";
 		String dtd = "<!ELEMENT note (to)>\r\n" + //
 				"<!ELEMENT to (#PCDATA)>\r\n" + //
 				"";
@@ -248,7 +248,7 @@ public class XMLValidationPoolCacheTest extends BaseFileTempTest {
 
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
 
-		String dtdPath = tempDirUri.getPath() + "/base.dtd";
+		String dtdPath = getTempDirPath().toString() + "/base.dtd";
 		String dtd = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
 				"<!ELEMENT root-element (#PCDATA)>\r\n" + //
 				"<!ENTITY external \"EXTERNALLY DECLARED ENTITY\">"; //

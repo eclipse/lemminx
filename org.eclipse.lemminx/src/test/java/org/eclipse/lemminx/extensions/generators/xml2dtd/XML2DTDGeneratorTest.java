@@ -16,13 +16,14 @@ import static org.eclipse.lemminx.XMLAssert.assertGrammarGenerator;
 
 import java.io.IOException;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.junit.jupiter.api.Test;
 
 /**
  * Tests for generating DTD from XML source.
  *
  */
-public class XML2DTDGeneratorTest {
+public class XML2DTDGeneratorTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void dtd() throws IOException {
@@ -294,7 +295,7 @@ public class XML2DTDGeneratorTest {
 				"<!ATTLIST item attr2 NMTOKEN #FIXED \"A\">";
 		assertGrammarGenerator(xml, new DTDGeneratorSettings(), dtd);
 	}
-	
+
 	@Test
 	public void attrIDsAndEnums() {
 		String xml = "<root>\r\n" + //
@@ -315,24 +316,24 @@ public class XML2DTDGeneratorTest {
 				"<!ATTLIST item attr2 (A|B) #REQUIRED>";
 		assertGrammarGenerator(xml, new DTDGeneratorSettings(), dtd);
 	}
-	
+
 	@Test
 	public void invalidStartTag() throws IOException {
 		String xml = "<a><</a>";
 		String dtd = "<!ELEMENT a EMPTY>";
 		assertGrammarGenerator(xml, new DTDGeneratorSettings(), dtd);
-		
+
 		xml = "<a>bcd   <   </a>";
 		dtd = "<!ELEMENT a (#PCDATA)>";
 		assertGrammarGenerator(xml, new DTDGeneratorSettings(), dtd);
 	}
-	
+
 	@Test
 	public void invalidEndTag() throws IOException {
 		String xml = "<a></</a>";
 		String dtd = "<!ELEMENT a EMPTY>";
 		assertGrammarGenerator(xml, new DTDGeneratorSettings(), dtd);
-		
+
 		xml = "<a>bcd   </   </a>";
 		dtd = "<!ELEMENT a (#PCDATA)>";
 		assertGrammarGenerator(xml, new DTDGeneratorSettings(), dtd);

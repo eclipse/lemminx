@@ -17,6 +17,7 @@ import static org.eclipse.lemminx.XMLAssert.r;
 
 import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.util.URI.MalformedURIException;
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.junit.jupiter.api.Test;
 
@@ -24,7 +25,7 @@ import org.junit.jupiter.api.Test;
  * Test for entities hover used in a text node.
  *
  */
-public class EntitiesHoverExtensionsTest {
+public class EntitiesHoverExtensionsTest extends AbstractCacheBasedTest {
 
 	// Test for local entities
 

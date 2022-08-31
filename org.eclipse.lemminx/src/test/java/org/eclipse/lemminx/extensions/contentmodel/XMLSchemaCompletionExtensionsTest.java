@@ -540,7 +540,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 	@Test
 	public void completionWithXMLSchemaContentChanged() throws Exception {
 		// This https://github.com/eclipse/lemminx/issues/194 for the test scenario
-		String xsdPath = tempDirUri.getPath() + "/resources.xsd";
+		String xsdPath = getTempDirPath().toString() + "/resources.xsd";
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
 
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"

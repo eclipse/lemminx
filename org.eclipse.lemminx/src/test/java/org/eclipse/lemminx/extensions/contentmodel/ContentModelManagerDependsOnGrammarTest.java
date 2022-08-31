@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMParser;
@@ -28,11 +29,11 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Test with {@link ContentModelManager#dependsOnGrammar(DOMDocument, String)}
- * 
+ *
  * @author Angelo ZERR
  *
  */
-public class ContentModelManagerDependsOnGrammarTest {
+public class ContentModelManagerDependsOnGrammarTest extends AbstractCacheBasedTest {
 
 	private ContentModelManager modelManager;
 

@@ -17,17 +17,18 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.stream.Collectors;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.MockXMLLanguageServer;
 import org.eclipse.lsp4j.jsonrpc.ResponseErrorException;
 import org.junit.jupiter.api.Test;
 
 /**
  * Test the XML Command service
- * 
+ *
  * @author Alex Boyko
  *
  */
-public class CommandServiceTest {
+public class CommandServiceTest extends AbstractCacheBasedTest {
 
 	private final MockXMLLanguageServer languageServer;
 

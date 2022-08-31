@@ -15,6 +15,7 @@ package org.eclipse.lemminx.extensions.xsi;
 import static org.eclipse.lemminx.XMLAssert.c;
 import static org.eclipse.lemminx.XMLAssert.te;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.extensions.xsl.XSLURIResolverExtension;
@@ -29,7 +30,7 @@ import org.junit.jupiter.api.Test;
  * XSL completion tests which test the {@link XSLURIResolverExtension}.
  *
  */
-public class XSICompletionExtensionsTest {
+public class XSICompletionExtensionsTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void completion() throws BadLocationException {
@@ -37,8 +38,8 @@ public class XSICompletionExtensionsTest {
 		String xml = "<?xml version=\"1.0\"?>\r\n" + //
 				"<project xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=|>";
 		testCompletionFor(xml,
-				c("true", te(1, 71, 1, 71, "\"true\""), "\"true\""), 
-				c("false", te(1, 71, 1, 71, "\"false\""), "\"false\"")); 
+				c("true", te(1, 71, 1, 71, "\"true\""), "\"true\""),
+				c("false", te(1, 71, 1, 71, "\"false\""), "\"false\""));
 	}
 
 	@Test
@@ -47,8 +48,8 @@ public class XSICompletionExtensionsTest {
 		String xml = "<?xml version=\"1.0\"?>\r\n" + //
 				"<project xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"|\">";
 		testCompletionFor(xml,
-				c("true", te(1, 72, 1, 72, "true"), "true"), 
-				c("false", te(1, 72, 1, 72, "false"), "false")); 
+				c("true", te(1, 72, 1, 72, "true"), "true"),
+				c("false", te(1, 72, 1, 72, "false"), "false"));
 	}
 
 	@Test
@@ -58,8 +59,8 @@ public class XSICompletionExtensionsTest {
 				"<project xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" >\r\n" +
 				"  <a xsi:nil=|> </a> ";
 		testCompletionFor(xml,
-				c("true", te(2, 13, 2, 13, "\"true\""), "\"true\""), 
-				c("false", te(2, 13, 2, 13, "\"false\""), "\"false\"")); 
+				c("true", te(2, 13, 2, 13, "\"true\""), "\"true\""),
+				c("false", te(2, 13, 2, 13, "\"false\""), "\"false\""));
 	}
 
 	@Test
@@ -68,7 +69,7 @@ public class XSICompletionExtensionsTest {
 		String xml = "<?xml version=\"1.0\"?>\r\n" + //
 				"<project >\r\n" +
 				"  <a xsi:nil=|> </a> ";
-		testCompletionFor(xml); 
+		testCompletionFor(xml);
 	}
 
 	@Test
@@ -77,10 +78,10 @@ public class XSICompletionExtensionsTest {
 		String xml = "<?xml version=\"1.0\"?>\r\n" + //
 				"<project xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" >\r\n" +
 				"  <a xsi:nil=|> </a> ";
-				
+
 		testCompletionFor(xml, singleQuotesSharedSettings(),
-				c("true", te(2, 13, 2, 13, "\'true\'"), "\'true\'"), 
-				c("false", te(2, 13, 2, 13, "\'false\'"), "\'false\'")); 
+				c("true", te(2, 13, 2, 13, "\'true\'"), "\'true\'"),
+				c("false", te(2, 13, 2, 13, "\'false\'"), "\'false\'"));
 	}
 
 	@Test

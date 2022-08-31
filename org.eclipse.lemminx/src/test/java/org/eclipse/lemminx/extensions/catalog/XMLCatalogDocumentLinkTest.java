@@ -14,12 +14,13 @@ import static org.eclipse.lemminx.XMLAssert.dl;
 import static org.eclipse.lemminx.XMLAssert.r;
 import static org.eclipse.lemminx.XMLAssert.testDocumentLinkFor;
 
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.junit.jupiter.api.Test;
 
 /**
  * Tests for the document links in XML catalog files
  */
-public class XMLCatalogDocumentLinkTest {
+public class XMLCatalogDocumentLinkTest extends AbstractCacheBasedTest {
 
 	private static String CATALOG_PATH = "src/test/resources/catalog.xml";
 

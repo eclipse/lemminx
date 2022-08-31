@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Test with DTD completion and cache.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -45,7 +45,7 @@ public class DTDCompletionWithCacheExtensionsTest extends AbstractCacheBasedTest
 		};
 
 		// Copy the svg.dtd in the cache folder
-		Path expectedLocation = TEST_WORK_DIRECTORY
+		Path expectedLocation = testWorkDirectory
 				.resolve("cache/http/www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd");
 		// Download resource in a temporary file
 		Files.createDirectories(expectedLocation.getParent());

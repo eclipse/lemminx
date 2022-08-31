@@ -14,32 +14,51 @@ package org.eclipse.lemminx;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.UUID;
+
+import org.eclipse.lemminx.utils.FilesUtils;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 
 import com.google.common.io.MoreFiles;
 import com.google.common.io.RecursiveDeleteOption;
-
-import org.eclipse.lemminx.utils.FilesUtils;
-import org.eclipse.lemminx.utils.ProjectUtils;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 
 /**
  * AbstractCacheBasedTest
  */
 public abstract class AbstractCacheBasedTest {
 
-	protected static Path TEST_WORK_DIRECTORY = ProjectUtils.getProjectDirectory().resolve("target/test-cache");
+	protected Path testWorkDirectory = null;
+
+	private final String uuid = UUID.randomUUID().toString();
+
+	private static Path parentDir;
+
+	static {
+		try {
+			parentDir = Files.createTempDirectory("lemminx");
+		} catch (IOException e) {
+			parentDir = null;
+		}
+	}
 
 	@BeforeEach
 	public final void setupCache() throws Exception {
+		System.out.println(this.getClass().getName() + ": " + uuid);
 		clearCache();
-		System.setProperty(FilesUtils.LEMMINX_WORKDIR_KEY, TEST_WORK_DIRECTORY.toAbsolutePath().toString());
+		FilesUtils.resetDeployPath();
+		Assertions.assertNotNull(parentDir);
+		Path childDir = parentDir.resolve(uuid);
+		testWorkDirectory = Files.createDirectory(childDir);
+		System.setProperty(FilesUtils.LEMMINX_WORKDIR_KEY, testWorkDirectory.toAbsolutePath().toString());
 	}
 
 	@AfterEach
 	public final void clearCache() throws IOException {
-		if (Files.exists(TEST_WORK_DIRECTORY)) {
-			MoreFiles.deleteDirectoryContents(TEST_WORK_DIRECTORY,RecursiveDeleteOption.ALLOW_INSECURE);
+		if (testWorkDirectory != null && Files.exists(testWorkDirectory)) {
+			MoreFiles.deleteDirectoryContents(testWorkDirectory,RecursiveDeleteOption.ALLOW_INSECURE);
+			Files.delete(testWorkDirectory);
 		}
 		System.clearProperty(FilesUtils.LEMMINX_WORKDIR_KEY);
 		FilesUtils.resetDeployPath();
