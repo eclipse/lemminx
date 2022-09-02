@@ -19,7 +19,7 @@ import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.extensions.contentmodel.participants.DTDErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
-import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
+import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationRootSettings;
 import org.eclipse.lsp4j.Diagnostic;
 import org.junit.jupiter.api.Test;
 
@@ -111,7 +111,7 @@ public class DTDDoctypeDiagnosticsTest extends AbstractCacheBasedTest {
 	private static void testDiagnosticsDisallowDocTypeDecl(String xml, Diagnostic diagnostic) {
 		ContentModelSettings settings = new ContentModelSettings();
 		settings.setUseCache(false);
-		XMLValidationSettings validationSettings = new XMLValidationSettings();
+		XMLValidationRootSettings validationSettings = new XMLValidationRootSettings();
 		validationSettings.setDisallowDocTypeDecl(true);
 		settings.setValidation(validationSettings);
 

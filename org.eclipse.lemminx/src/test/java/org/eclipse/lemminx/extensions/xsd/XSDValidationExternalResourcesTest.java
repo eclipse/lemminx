@@ -25,7 +25,7 @@ import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.extensions.contentmodel.participants.ExternalResourceErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.DownloadDisabledResourceCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
-import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
+import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationRootSettings;
 import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.uriresolver.CacheResourcesManager;
 import org.eclipse.lsp4j.Diagnostic;
@@ -41,7 +41,7 @@ public class XSDValidationExternalResourcesTest extends AbstractCacheBasedTest {
 	@Test
 	public void includeSchemaLocationDownloadDisabled() throws Exception {
 
-		XMLValidationSettings validation = new XMLValidationSettings();
+		XMLValidationRootSettings validation = new XMLValidationRootSettings();
 		validation.setResolveExternalEntities(true);
 
 		XMLLanguageService ls = new XMLLanguageService();
@@ -74,7 +74,7 @@ public class XSDValidationExternalResourcesTest extends AbstractCacheBasedTest {
 	@Test
 	public void includeSchemaLocationDownloadProblem() throws Exception {
 
-		XMLValidationSettings validation = new XMLValidationSettings();
+		XMLValidationRootSettings validation = new XMLValidationRootSettings();
 		validation.setResolveExternalEntities(true);
 
 		XMLLanguageService ls = new XMLLanguageService();

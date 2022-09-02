@@ -38,7 +38,7 @@ import org.eclipse.lemminx.commons.ModelValidatorDelayer;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMParser;
-import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
+import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationRootSettings;
 import org.eclipse.lemminx.services.DocumentSymbolsResult;
 import org.eclipse.lemminx.services.SymbolInformationResult;
 import org.eclipse.lemminx.services.XMLLanguageService;
@@ -250,7 +250,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 	@Override
 	public CompletableFuture<CompletionItem> resolveCompletionItem(CompletionItem unresolved) {
 		return computeDOMAsync(unresolved.getData(), (xmlDocument, cancelChecker) -> {
-			return getXMLLanguageService().resolveCompletionItem(unresolved, xmlDocument, sharedSettings, cancelChecker);
+			return getXMLLanguageService().resolveCompletionItem(unresolved, xmlDocument, sharedSettings,
+					cancelChecker);
 		});
 	}
 
@@ -660,7 +661,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 		cancelChecker.checkCanceled();
 		getXMLLanguageService().publishDiagnostics(xmlDocument,
 				params -> xmlLanguageServer.getLanguageClient().publishDiagnostics(params),
-				(doc) -> triggerValidationFor(doc, TriggeredBy.Other), sharedSettings.getValidationSettings(),
+				(doc) -> triggerValidationFor(doc, TriggeredBy.Other),
+				sharedSettings.getValidationSettings(),
 				validationArgs, cancelChecker);
 	}
 
@@ -704,7 +706,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 		return sharedSettings.getFormattingSettings();
 	}
 
-	public XMLValidationSettings getValidationSettings() {
+	public XMLValidationRootSettings getValidationSettings() {
 		return sharedSettings.getValidationSettings();
 	}
 

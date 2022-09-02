@@ -28,7 +28,7 @@ public class ContentModelSettings {
 
 	private XMLFileAssociation[] fileAssociations;
 
-	private XMLValidationSettings validation;
+	private XMLValidationRootSettings validation;
 
 	private XMLSymbolsSettings symbols;
 
@@ -90,11 +90,11 @@ public class ContentModelSettings {
 		return JSONUtility.toModel(initializationOptionsSettings, ContentModelSettings.class);
 	}
 
-	public void setValidation(XMLValidationSettings validation) {
+	public void setValidation(XMLValidationRootSettings validation) {
 		this.validation = validation;
 	}
 
-	public XMLValidationSettings getValidation() {
+	public XMLValidationRootSettings getValidation() {
 		return validation;
 	}
 

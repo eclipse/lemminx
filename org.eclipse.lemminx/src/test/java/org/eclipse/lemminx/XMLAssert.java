@@ -45,7 +45,7 @@ import org.eclipse.lemminx.dom.DOMParser;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
 import org.eclipse.lemminx.extensions.contentmodel.settings.SchemaEnabled;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLSchemaSettings;
-import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
+import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationRootSettings;
 import org.eclipse.lemminx.extensions.generators.FileContentGeneratorManager;
 import org.eclipse.lemminx.extensions.generators.FileContentGeneratorSettings;
 import org.eclipse.lemminx.services.XMLLanguageService;
@@ -612,7 +612,7 @@ public class XMLAssert {
 			String fileURI, boolean filter, Diagnostic... expected) {
 		ContentModelSettings settings = new ContentModelSettings();
 		settings.setUseCache(false);
-		XMLValidationSettings problems = new XMLValidationSettings();
+		XMLValidationRootSettings problems = new XMLValidationRootSettings();
 		problems.setNoGrammar("ignore");
 		settings.setValidation(problems);
 		if (catalogPath != null) {
@@ -717,10 +717,10 @@ public class XMLAssert {
 	public static ContentModelSettings getContentModelSettings(boolean isEnabled, SchemaEnabled schemaEnabled) {
 		ContentModelSettings settings = new ContentModelSettings();
 		settings.setUseCache(false);
-		XMLValidationSettings problems = new XMLValidationSettings();
+		XMLValidationRootSettings problems = new XMLValidationRootSettings();
 		problems.setNoGrammar("ignore");
 		settings.setValidation(problems);
-		XMLValidationSettings diagnostics = new XMLValidationSettings();
+		XMLValidationRootSettings diagnostics = new XMLValidationRootSettings();
 		diagnostics.setEnabled(isEnabled);
 		XMLSchemaSettings schemaSettings = new XMLSchemaSettings();
 		schemaSettings.setEnabled(schemaEnabled);
@@ -736,12 +736,12 @@ public class XMLAssert {
 		testPublishDiagnosticsFor(xml, fileURI, null, configuration, expected);
 	}
 
-	public static void testPublishDiagnosticsFor(String xml, String fileURI, XMLValidationSettings validationSettings,
+	public static void testPublishDiagnosticsFor(String xml, String fileURI, XMLValidationRootSettings validationSettings,
 			PublishDiagnosticsParams... expected) {
 		testPublishDiagnosticsFor(xml, fileURI, validationSettings, (Consumer<XMLLanguageService>) null, expected);
 	}
 
-	public static void testPublishDiagnosticsFor(String xml, String fileURI, XMLValidationSettings validationSettings,
+	public static void testPublishDiagnosticsFor(String xml, String fileURI, XMLValidationRootSettings validationSettings,
 			Consumer<XMLLanguageService> configuration, PublishDiagnosticsParams... expected) {
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
 		if (configuration != null) {
@@ -756,7 +756,7 @@ public class XMLAssert {
 		testPublishDiagnosticsFor(xml, fileURI, null, xmlLanguageService, expected);
 	}
 
-	public static void testPublishDiagnosticsFor(String xml, String fileURI, XMLValidationSettings validationSettings,
+	public static void testPublishDiagnosticsFor(String xml, String fileURI, XMLValidationRootSettings validationSettings,
 			XMLLanguageService xmlLanguageService, PublishDiagnosticsParams... expected) {
 		List<PublishDiagnosticsParams> actual = new ArrayList<>();
 
@@ -797,7 +797,7 @@ public class XMLAssert {
 		publishDiagnostics(xmlDocument, null, actual, languageService);
 	}
 
-	public static void publishDiagnostics(DOMDocument xmlDocument, XMLValidationSettings validationSettings,
+	public static void publishDiagnostics(DOMDocument xmlDocument, XMLValidationRootSettings validationSettings,
 			List<PublishDiagnosticsParams> actual, XMLLanguageService languageService) {
 		CompletableFuture<Path> error = languageService.publishDiagnostics(xmlDocument, params -> {
 			actual.add(params);

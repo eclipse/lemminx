@@ -473,7 +473,7 @@ public class ErrorParticipantLanguageServiceTest extends AbstractCacheBasedTest 
 		}, null, false, new ContentModelSettings(), //
 				ErrorParticipantLanguageService.TEST_DIAGNOSTIC, //
 				d(0, 1, 0, 2, XMLSyntaxErrorCode.NoGrammarConstraints, "No grammar constraints (DTD or XML Schema).",
-						"test.xml", DiagnosticSeverity.Hint), //
+						"xml", DiagnosticSeverity.Hint), //
 				d(0, 1, 0, 2, XMLSyntaxErrorCode.MarkupEntityMismatch,
 						"XML document structures must start and end within the same entity.", "xml",
 						DiagnosticSeverity.Error));

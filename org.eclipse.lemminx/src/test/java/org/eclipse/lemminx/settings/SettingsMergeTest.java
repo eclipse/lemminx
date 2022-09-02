@@ -11,7 +11,7 @@ package org.eclipse.lemminx.settings;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
+import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationRootSettings;
 import org.eclipse.lsp4j.PublishDiagnosticsCapabilities;
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +19,7 @@ public class SettingsMergeTest {
 
 	@Test
 	public void testValidationSettingsMerge() throws IllegalArgumentException, IllegalAccessException {
-		XMLValidationSettings settings = new XMLValidationSettings();
+		XMLValidationRootSettings settings = new XMLValidationRootSettings();
 		settings.setEnabled(false);
 		settings.setDisallowDocTypeDecl(true);
 		settings.setNoGrammar("ignore");
@@ -27,7 +27,7 @@ public class SettingsMergeTest {
 		settings.setCapabilities(new PublishDiagnosticsCapabilities());
 		settings.setNamespaces(null);
 		settings.setSchema(null);
-		XMLValidationSettings mergeTargetSettings = new XMLValidationSettings();
+		XMLValidationRootSettings mergeTargetSettings = new XMLValidationRootSettings();
 		mergeTargetSettings.merge(settings);
 		assertEquals(settings, mergeTargetSettings);
 	}

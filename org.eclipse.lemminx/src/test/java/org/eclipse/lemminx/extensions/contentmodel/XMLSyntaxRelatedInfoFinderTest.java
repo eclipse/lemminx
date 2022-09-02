@@ -19,6 +19,7 @@ import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
+import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationRootSettings;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lsp4j.Diagnostic;
@@ -44,7 +45,7 @@ public class XMLSyntaxRelatedInfoFinderTest extends AbstractCacheBasedTest {
 		diagnostic.setSeverity(DiagnosticSeverity.Error);
 		diagnostic.setSource("xml");
 
-		XMLValidationSettings validationSettings = new XMLValidationSettings();
+		XMLValidationRootSettings validationSettings = new XMLValidationRootSettings();
 		validationSettings.setNoGrammar("ignore");
 		ContentModelSettings settings = new ContentModelSettings();
 		settings.setValidation(validationSettings);
@@ -180,7 +181,7 @@ public class XMLSyntaxRelatedInfoFinderTest extends AbstractCacheBasedTest {
 	}
 
 	private void assertDiagnosticsWithRelatedInfo(String xml, Diagnostic diagnostic) {
-		XMLValidationSettings validationSettings = new XMLValidationSettings();
+		XMLValidationRootSettings validationSettings = new XMLValidationRootSettings();
 		validationSettings.setNoGrammar("ignore");
 		validationSettings.setCapabilities(new PublishDiagnosticsCapabilities(true));
 		ContentModelSettings settings = new ContentModelSettings();

@@ -28,7 +28,7 @@ import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.extensions.contentmodel.participants.DTDErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
-import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
+import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationRootSettings;
 import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticRelatedInformation;
@@ -395,7 +395,7 @@ public class DTDDiagnosticsTest extends AbstractCacheBasedTest {
 				"	<\r\n" + // [2]
 				"</root-element>";
 		ContentModelSettings settings = new ContentModelSettings();
-		XMLValidationSettings validation = new XMLValidationSettings();
+		XMLValidationRootSettings validation = new XMLValidationRootSettings();
 		validation.setResolveExternalEntities(true);
 		settings.setValidation(validation);
 
@@ -471,7 +471,7 @@ public class DTDDiagnosticsTest extends AbstractCacheBasedTest {
 	public void diagnosticRelatedInformationWithDOCTYPE() throws Exception {
 		ContentModelSettings settings = new ContentModelSettings();
 		settings.setUseCache(true);
-		XMLValidationSettings validationSettings = new XMLValidationSettings();
+		XMLValidationRootSettings validationSettings = new XMLValidationRootSettings();
 		validationSettings.setCapabilities(new PublishDiagnosticsCapabilities(true)); // with related information
 		settings.setValidation(validationSettings);
 
@@ -505,7 +505,7 @@ public class DTDDiagnosticsTest extends AbstractCacheBasedTest {
 	public void diagnosticRelatedInformationWithXMLModel() throws Exception {
 		ContentModelSettings settings = new ContentModelSettings();
 		settings.setUseCache(true);
-		XMLValidationSettings validationSettings = new XMLValidationSettings();
+		XMLValidationRootSettings validationSettings = new XMLValidationRootSettings();
 		validationSettings.setCapabilities(new PublishDiagnosticsCapabilities(true)); // with related information
 		settings.setValidation(validationSettings);
 
