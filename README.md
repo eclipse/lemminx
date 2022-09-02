@@ -40,7 +40,7 @@ Get started
 --------------
 * Clone this repository
 * Open the folder in your terminal / command line
-* Run `./mvnw clean verify` (OSX, Linux) or `mvnw.cmd clean verify` (Windows)
+* Run `./mvn clean verify` (OSX, Linux) or `mvnw.cmd clean verify` (Windows)
 * After successful compilation you can find the resulting `org.eclipse.lemminx-uber.jar` in the folder `org.eclipse.lemminx/target`
 
 Developer
@@ -70,8 +70,8 @@ Generating a native binary:
 To generate a native binary:
 - [Install GraalVM 20.2.0](https://www.graalvm.org/docs/getting-started/#install-graalvm)
 - In a terminal, run `gu install native-image`
-- Execute a Maven build that sets the flag `native`: `./mvnw clean package -Dnative -DskipTests`
-  - On Linux, compile with `./mvnw clean package -Dnative -DskipTests -Dgraalvm.static=--static`
+- Execute a Maven build that sets the flag `native`: `./mvn clean package -Dnative -DskipTests`
+  - On Linux, compile with `./mvn clean package -Dnative -DskipTests -Dgraalvm.static=--static`
     in order to support distributions that don't use `glibc`, such as Alpine Linux
 - It will generate a native binary in `org.eclipse.lemminx/target/lemminx-{os.name}-{architecture}-{version}`
 
@@ -146,7 +146,7 @@ Verify 3rd Party Libraries
 
 _Currently generating the IP Log report requires a Java Runtime Environment (JRE) >= 11._
 
-Run `./mvnw clean verify -Pverify-iplog` to generate a report for the 3rd party libraries used by this project. See the [Eclipse Project Handbook](https://www.eclipse.org/projects/handbook/#ip-license-tool) for further details.
+Run `./mvn clean verify -Pverify-iplog` to generate a report for the 3rd party libraries used by this project. See the [Eclipse Project Handbook](https://www.eclipse.org/projects/handbook/#ip-license-tool) for further details.
 
 
 Clients
