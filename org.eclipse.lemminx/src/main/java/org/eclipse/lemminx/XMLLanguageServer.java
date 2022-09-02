@@ -36,7 +36,7 @@ import org.eclipse.lemminx.customservice.XMLLanguageClientAPI;
 import org.eclipse.lemminx.customservice.XMLLanguageServerAPI;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
-import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
+import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationRootSettings;
 import org.eclipse.lemminx.logs.LogHelper;
 import org.eclipse.lemminx.services.IXMLDocumentProvider;
 import org.eclipse.lemminx.services.IXMLNotificationService;
@@ -222,7 +222,7 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 		}
 		ContentModelSettings cmSettings = ContentModelSettings.getContentModelXMLSettings(initSettings);
 		if (cmSettings != null) {
-			XMLValidationSettings validationSettings = cmSettings.getValidation();
+			XMLValidationRootSettings validationSettings = cmSettings.getValidation();
 			xmlTextDocumentService.getValidationSettings().merge(validationSettings);
 
 		}

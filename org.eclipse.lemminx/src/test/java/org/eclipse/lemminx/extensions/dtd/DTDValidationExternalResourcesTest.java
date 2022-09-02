@@ -27,7 +27,7 @@ import org.eclipse.lemminx.extensions.contentmodel.participants.DTDErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.ExternalResourceErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.DownloadDisabledResourceCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
-import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
+import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationRootSettings;
 import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.uriresolver.CacheResourcesManager;
 import org.eclipse.lsp4j.Diagnostic;
@@ -50,7 +50,7 @@ public class DTDValidationExternalResourcesTest extends AbstractCacheBasedTest {
 	@Test
 	public void entityRefInvalidUri() throws Exception {
 
-		XMLValidationSettings validation = new XMLValidationSettings();
+		XMLValidationRootSettings validation = new XMLValidationRootSettings();
 		validation.setResolveExternalEntities(true);
 
 		XMLLanguageService ls = new XMLLanguageService();
@@ -73,7 +73,7 @@ public class DTDValidationExternalResourcesTest extends AbstractCacheBasedTest {
 	@Test
 	public void entityRefDownloadDisabled() throws Exception {
 
-		XMLValidationSettings validation = new XMLValidationSettings();
+		XMLValidationRootSettings validation = new XMLValidationRootSettings();
 		validation.setResolveExternalEntities(true);
 
 		XMLLanguageService ls = new XMLLanguageService();
@@ -106,7 +106,7 @@ public class DTDValidationExternalResourcesTest extends AbstractCacheBasedTest {
 	@Test
 	public void entityRefDownloadProblem() throws Exception {
 
-		XMLValidationSettings validation = new XMLValidationSettings();
+		XMLValidationRootSettings validation = new XMLValidationRootSettings();
 		validation.setResolveExternalEntities(true);
 
 		XMLLanguageService ls = new XMLLanguageService();

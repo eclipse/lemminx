@@ -16,7 +16,8 @@ import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.PublishDiagnosticsCapabilities;
 
 /**
- * XMLValidationSettings
+ * XML validation settings for a given file.
+ * 
  */
 public class XMLValidationSettings {
 

@@ -23,7 +23,7 @@ import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.extensions.contentmodel.participants.DTDErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
-import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
+import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationRootSettings;
 import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.settings.EnforceQuoteStyle;
 import org.eclipse.lemminx.settings.QuoteStyle;
@@ -307,7 +307,7 @@ public class DTDEntityDiagnosticsTest extends AbstractCacheBasedTest {
 	public void defaultEntityExpansionLimit() {
 		ContentModelSettings settings = new ContentModelSettings();
 		settings.setUseCache(true);
-		XMLValidationSettings validationSettings = new XMLValidationSettings();
+		XMLValidationRootSettings validationSettings = new XMLValidationRootSettings();
 		validationSettings.setResolveExternalEntities(true);
 		settings.setValidation(validationSettings);
 
@@ -346,7 +346,7 @@ public class DTDEntityDiagnosticsTest extends AbstractCacheBasedTest {
 	public void customEntityExpansionLimit() {
 		ContentModelSettings settings = new ContentModelSettings();
 		settings.setUseCache(true);
-		XMLValidationSettings validationSettings = new XMLValidationSettings();
+		XMLValidationRootSettings validationSettings = new XMLValidationRootSettings();
 		validationSettings.setResolveExternalEntities(true);
 		settings.setValidation(validationSettings);
 

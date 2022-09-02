@@ -23,6 +23,7 @@ import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.customservice.AutoCloseTagResponse;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMParser;
+import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationRootSettings;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.services.extensions.diagnostics.DiagnosticsResult;
@@ -174,12 +175,16 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 
 	public CompletableFuture<Path> publishDiagnostics(DOMDocument xmlDocument,
 			Consumer<PublishDiagnosticsParams> publishDiagnostics, Consumer<TextDocument> triggerValidation,
-			XMLValidationSettings validationSettings, Map<String, Object> validationArgs, CancelChecker cancelChecker) {
+			XMLValidationRootSettings validationSettings, Map<String, Object> validationArgs,
+			CancelChecker cancelChecker) {
 		String uri = xmlDocument.getDocumentURI();
 		TextDocument document = xmlDocument.getTextDocument();
+		XMLValidationSettings validationSettingsForUri = validationSettings != null
+				? validationSettings.getValidationSettings(xmlDocument.getDocumentURI())
+				: null;
 
 		// Process validation
-		DiagnosticsResult diagnostics = (DiagnosticsResult) this.doDiagnostics(xmlDocument, validationSettings,
+		DiagnosticsResult diagnostics = (DiagnosticsResult) this.doDiagnostics(xmlDocument, validationSettingsForUri,
 				validationArgs, cancelChecker);
 		cancelChecker.checkCanceled();
 		publishDiagnostics.accept(new PublishDiagnosticsParams(uri, diagnostics));

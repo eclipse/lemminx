@@ -213,6 +213,14 @@
 			"parameterTypes": []
 		}]
 	},
+    {
+        "name": "org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationRootSettings",
+        "allDeclaredFields": true,
+        "methods": [{
+            "name": "<init>",
+            "parameterTypes": []
+        }]
+    },
 	{
 		"name": "org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings",
 		"allDeclaredFields": true,
@@ -221,6 +229,14 @@
 			"parameterTypes": []
 		}]
 	},
+    {
+        "name": "org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationFilter",
+        "allDeclaredFields": true,
+        "methods": [{
+            "name": "<init>",
+            "parameterTypes": []
+        }]
+    },
 	{
 		"name": "org.eclipse.lemminx.utils.platform.Memory",
 		"allDeclaredFields": true,

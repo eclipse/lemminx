@@ -11,6 +11,7 @@
 *******************************************************************************/
 package org.eclipse.lemminx.settings;
 
+import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationRootSettings;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 
 /**
@@ -21,7 +22,7 @@ public class SharedSettings {
 	private final XMLCompletionSettings completionSettings;
 	private final XMLFoldingSettings foldingSettings;
 	private final XMLFormattingOptions formattingSettings;
-	private final XMLValidationSettings validationSettings;
+	private final XMLValidationRootSettings validationSettings;
 	private final XMLSymbolSettings symbolSettings;
 
 	private final XMLCodeActionSettings codeActionSettings;
@@ -37,7 +38,7 @@ public class SharedSettings {
 		this.completionSettings = new XMLCompletionSettings();
 		this.foldingSettings = new XMLFoldingSettings();
 		this.formattingSettings = new XMLFormattingOptions(true);
-		this.validationSettings = new XMLValidationSettings();
+		this.validationSettings = new XMLValidationRootSettings();
 		this.symbolSettings = new XMLSymbolSettings();
 		this.codeActionSettings = new XMLCodeActionSettings();
 		this.codeLensSettings = new XMLCodeLensSettings();
@@ -75,7 +76,7 @@ public class SharedSettings {
 		return formattingSettings;
 	}
 
-	public XMLValidationSettings getValidationSettings() {
+	public XMLValidationRootSettings getValidationSettings() {
 		return validationSettings;
 	}
 

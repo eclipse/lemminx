@@ -34,7 +34,7 @@ import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSchemaErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
 import org.eclipse.lemminx.extensions.contentmodel.settings.SchemaEnabled;
-import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
+import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationRootSettings;
 import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.settings.EnforceQuoteStyle;
 import org.eclipse.lemminx.settings.QuoteStyle;
@@ -1141,7 +1141,7 @@ public class XMLSchemaDiagnosticsTest extends AbstractCacheBasedTest {
 	public void diagnosticRelatedInformationWithXMLModelSchemaProblem() throws Exception {
 		ContentModelSettings settings = new ContentModelSettings();
 		settings.setUseCache(true);
-		XMLValidationSettings validationSettings = new XMLValidationSettings();
+		XMLValidationRootSettings validationSettings = new XMLValidationRootSettings();
 		validationSettings.setCapabilities(new PublishDiagnosticsCapabilities(true)); // with related information
 		settings.setValidation(validationSettings);
 
@@ -1173,7 +1173,7 @@ public class XMLSchemaDiagnosticsTest extends AbstractCacheBasedTest {
 	public void diagnosticRelatedInformationWithNoNamespaceSchemaLocationSchemaProblem() throws Exception {
 		ContentModelSettings settings = new ContentModelSettings();
 		settings.setUseCache(true);
-		XMLValidationSettings validationSettings = new XMLValidationSettings();
+		XMLValidationRootSettings validationSettings = new XMLValidationRootSettings();
 		validationSettings.setCapabilities(new PublishDiagnosticsCapabilities(true)); // with related information
 		settings.setValidation(validationSettings);
 
@@ -1205,7 +1205,7 @@ public class XMLSchemaDiagnosticsTest extends AbstractCacheBasedTest {
 	public void diagnosticRelatedInformationWithNoNamespaceSchemaLocationSyntaxProblem() throws Exception {
 		ContentModelSettings settings = new ContentModelSettings();
 		settings.setUseCache(true);
-		XMLValidationSettings validationSettings = new XMLValidationSettings();
+		XMLValidationRootSettings validationSettings = new XMLValidationRootSettings();
 		validationSettings.setCapabilities(new PublishDiagnosticsCapabilities(true)); // with related information
 		settings.setValidation(validationSettings);
 
@@ -1237,7 +1237,7 @@ public class XMLSchemaDiagnosticsTest extends AbstractCacheBasedTest {
 	public void diagnosticRelatedInformationWithSchemaLocationSyntaxProblem() throws Exception {
 		ContentModelSettings settings = new ContentModelSettings();
 		settings.setUseCache(true);
-		XMLValidationSettings validationSettings = new XMLValidationSettings();
+		XMLValidationRootSettings validationSettings = new XMLValidationRootSettings();
 		validationSettings.setCapabilities(new PublishDiagnosticsCapabilities(true)); // with related information
 		settings.setValidation(validationSettings);
 

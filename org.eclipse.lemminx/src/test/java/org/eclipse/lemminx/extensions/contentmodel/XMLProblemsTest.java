@@ -33,7 +33,7 @@ import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.nogr
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.nogrammarconstraints.GenerateXMLModelWithXSDCodeActionResolver;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.nogrammarconstraints.GenerateXSINoNamespaceSchemaCodeActionResolver;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
-import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
+import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationRootSettings;
 import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.services.data.DataEntryField;
 import org.eclipse.lemminx.settings.SharedSettings;
@@ -75,10 +75,10 @@ public class XMLProblemsTest extends AbstractCacheBasedTest {
 	private static void noGrammarHint(boolean selfClose) throws BadLocationException {
 		String xml = selfClose ? "<root/>" : "<root></root>";
 		Diagnostic d = new Diagnostic(r(0, 1, 0, 5), "No grammar constraints (DTD or XML Schema).",
-				DiagnosticSeverity.Hint, "test.xml", XMLSyntaxErrorCode.NoGrammarConstraints.name());
+				DiagnosticSeverity.Hint, "xml", XMLSyntaxErrorCode.NoGrammarConstraints.name());
 		// Set noGrammar has 'hint'
 		ContentModelSettings contentModelSettings = new ContentModelSettings();
-		XMLValidationSettings problems = new XMLValidationSettings();
+		XMLValidationRootSettings problems = new XMLValidationRootSettings();
 		problems.setNoGrammar("hint");
 		contentModelSettings.setValidation(problems);
 
@@ -132,7 +132,7 @@ public class XMLProblemsTest extends AbstractCacheBasedTest {
 	public void noCodeActionResolverSupport() throws BadLocationException {
 		String xml = "<root></root>";
 		Diagnostic d = new Diagnostic(r(0, 1, 0, 5), "No grammar constraints (DTD or XML Schema).",
-				DiagnosticSeverity.Hint, "test.xml", XMLSyntaxErrorCode.NoGrammarConstraints.name());
+				DiagnosticSeverity.Hint, "xml", XMLSyntaxErrorCode.NoGrammarConstraints.name());
 
 		SharedSettings settings = createSharedSettings();
 
@@ -182,7 +182,7 @@ public class XMLProblemsTest extends AbstractCacheBasedTest {
 	public void withCodeActionResolverSupport() throws BadLocationException {
 		String xml = "<root></root>";
 		Diagnostic d = new Diagnostic(r(0, 1, 0, 5), "No grammar constraints (DTD or XML Schema).",
-				DiagnosticSeverity.Hint, "test.xml", XMLSyntaxErrorCode.NoGrammarConstraints.name());
+				DiagnosticSeverity.Hint, "xml", XMLSyntaxErrorCode.NoGrammarConstraints.name());
 
 		SharedSettings settings = createSharedSettings(true);
 

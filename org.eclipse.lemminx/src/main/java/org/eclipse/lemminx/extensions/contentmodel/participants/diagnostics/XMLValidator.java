@@ -363,7 +363,7 @@ public class XMLValidator {
 				range = new Range(new Position(0, 0), new Position(0, 0));
 			}
 			diagnostics.add(new Diagnostic(range, "No grammar constraints (DTD or XML Schema).", severity,
-					document.getDocumentURI(), XMLSyntaxErrorCode.NoGrammarConstraints.name()));
+					"xml", XMLSyntaxErrorCode.NoGrammarConstraints.name()));
 		}
 	}
 
