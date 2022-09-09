@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.DOMAttr;
+import org.eclipse.lemminx.dom.DOMCDATASection;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMDocumentType;
 import org.eclipse.lemminx.dom.DOMElement;
@@ -72,6 +73,8 @@ public class XMLFormatterDocumentNew {
 
 	private final DOMCommentFormatter commentFormatter;
 
+	private final DOMCDATAFormatter cDATAFormatter;
+
 	private final Collection<IFormatterParticipant> formatterParticipants;
 
 	private int startOffset = -1;
@@ -103,8 +106,7 @@ public class XMLFormatterDocumentNew {
 		this.processingInstructionFormatter = new DOMProcessingInstructionFormatter(this, attributeFormatter);
 		this.textFormatter = new DOMTextFormatter(this);
 		this.commentFormatter = new DOMCommentFormatter(this);
-
-
+		this.cDATAFormatter = new DOMCDATAFormatter(this);
 	}
 
 	private static String computeLineDelimiter(TextDocument textDocument) {
@@ -303,6 +305,11 @@ public class XMLFormatterDocumentNew {
 				commentFormatter.formatComment(commentNode, parentConstraints, edits);
 				break;
 
+			case Node.CDATA_SECTION_NODE:
+				DOMCDATASection cDATANode = (DOMCDATASection) child;
+				cDATAFormatter.formatCDATASection(cDATANode, parentConstraints, edits);
+				break;
+
 			default:
 				// unknown, so just leave alone for now but make sure to update
 				// available line width
@@ -446,7 +453,7 @@ public class XMLFormatterDocumentNew {
 				}
 			} else if (text.charAt(i) == ' ' && StringUtils.isQuote(text.charAt(i - 1))) {
 				int j = 1;
-				while (text.charAt(i + j)== ' ') {
+				while (text.charAt(i + j) == ' ') {
 					to++;
 					j++;
 				}
