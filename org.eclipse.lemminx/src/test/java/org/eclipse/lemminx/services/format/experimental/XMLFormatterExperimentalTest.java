@@ -699,51 +699,6 @@ public class XMLFormatterExperimentalTest extends AbstractCacheBasedTest {
 		assertFormat(content, expected);
 	}
 
-	// ---------- Tests for CDATA formatting
-
-	@Test
-	public void testCDATANotClosed() throws BadLocationException {
-		String content = "<foo>\r\n" + //
-				"  <![CDATA[ \r\n" + //
-				"</foo>";
-		String expected = content;
-		assertFormat(content, expected);
-	}
-
-	@Disabled
-	@Test
-	public void testCDATAWithRange() throws BadLocationException {
-		String content = "<foo>\r\n" + //
-				"  <![CDATA[ |<bar>|\r\n" + //
-				"  </bar>\r\n" + //
-				"  ]]>\r\n" + //
-				"</foo>";
-		String expected = "<foo>\r\n" + //
-				"  <![CDATA[ <bar>\r\n" + //
-				"  </bar>\r\n" + //
-				"  ]]>\r\n" + //
-				"</foo>";
-		assertFormat(content, expected);
-	}
-
-	@Disabled
-	@Test
-	public void testJoinCDATALines() throws BadLocationException {
-		String content = "<a>" + lineSeparator() + //
-				"<![CDATA[" + lineSeparator() + //
-				"line 1" + lineSeparator() + //
-				"" + lineSeparator() + //
-				"" + lineSeparator() + //
-				"line 2" + lineSeparator() + //
-				"line 3" + lineSeparator() + //
-				"]]> </a>";
-		String expected = "<a>" + lineSeparator() + //
-				"  <![CDATA[line 1 line 2 line 3]]>" + lineSeparator() + //
-				"</a>";
-		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setJoinCDATALines(true);
-		assertFormat(content, expected, settings);
-	}
 
 	// ---------- Tests for Text formatting
 
