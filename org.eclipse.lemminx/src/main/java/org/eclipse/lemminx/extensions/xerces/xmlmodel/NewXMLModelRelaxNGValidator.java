@@ -1,15 +1,8 @@
 package org.eclipse.lemminx.extensions.xerces.xmlmodel;
 
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParserFactory;
-
-import org.apache.xerces.impl.Constants;
 import org.apache.xerces.impl.XMLEntityManager;
-import org.apache.xerces.impl.XMLErrorReporter;
 import org.apache.xerces.xni.Augmentations;
 import org.apache.xerces.xni.NamespaceContext;
 import org.apache.xerces.xni.QName;
@@ -22,65 +15,49 @@ import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.parser.XMLComponentManager;
 import org.apache.xerces.xni.parser.XMLConfigurationException;
 import org.apache.xerces.xni.parser.XMLDocumentSource;
-import org.apache.xerces.xni.parser.XMLEntityResolver;
 import org.iso_relax.verifier.Verifier;
 import org.iso_relax.verifier.VerifierConfigurationException;
 import org.iso_relax.verifier.VerifierFactory;
-import org.xml.sax.InputSource;
+import org.iso_relax.verifier.VerifierHandler;
+import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
 
-public class XMLModelRelaxNGValidator implements XMLModelValidator {
+public class NewXMLModelRelaxNGValidator implements XMLModelValidator {
 
-	private static final Logger LOGGER = Logger.getLogger(XMLModelRelaxNGValidator.class.getName());
+	private static final VerifierFactory VERIFIER_FACTORY = new com.sun.msv.verifier.jarv.TheFactoryImpl();
 
-	private XMLErrorReporter errorReporter;
-	private XMLEntityResolver entityResolver;
 	private String href;
-	private XMLLocator locator;
-	private boolean processed = false;
-	private VerifierFactory verifierFactory;
+	private VerifierHandler verifierHandler;
 
-	public XMLModelRelaxNGValidator() {
-		verifierFactory = new com.sun.msv.verifier.jarv.TheFactoryImpl();
+	public NewXMLModelRelaxNGValidator(String href) {
+		this.href = href;
 	}
 
-	public static final String ERROR_REPORTER = Constants.XERCES_PROPERTY_PREFIX + Constants.ERROR_REPORTER_PROPERTY;
-
-	protected static final String ENTITY_RESOLVER = Constants.XERCES_PROPERTY_PREFIX
-			+ Constants.ENTITY_RESOLVER_PROPERTY;
+	private void createVerifier(XMLLocator locator) throws SAXException {
+		try {
+			String expandedLoc = XMLEntityManager.expandSystemId(href, locator.getExpandedSystemId(), false);
+			Verifier verifier = VERIFIER_FACTORY.newVerifier(expandedLoc);
+			verifierHandler = verifier.getVerifierHandler();
+		} catch (VerifierConfigurationException | IOException e) {
+			// TODO: log severe
+		}
+	}
 
 	@Override
 	public void reset(XMLComponentManager componentManager) throws XMLConfigurationException {
-		// Get error reporter.
-		try {
-			errorReporter = (XMLErrorReporter) componentManager.getProperty(ERROR_REPORTER);
-		} catch (XMLConfigurationException e) {
-			errorReporter = null;
-		}
-		// Get error reporter.
-		try {
-			entityResolver = (XMLEntityResolver) componentManager.getProperty(ENTITY_RESOLVER);
-		} catch (XMLConfigurationException e) {
-			entityResolver = null;
-		}
 	}
 
 	@Override
 	public String[] getRecognizedFeatures() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void setFeature(String featureId, boolean state) throws XMLConfigurationException {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public String[] getRecognizedProperties() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -105,146 +82,208 @@ public class XMLModelRelaxNGValidator implements XMLModelValidator {
 	@Override
 	public void startDocument(XMLLocator locator, String encoding, NamespaceContext namespaceContext,
 			Augmentations augs) throws XNIException {
-
+		try {
+			if (verifierHandler == null) {
+				createVerifier(locator);
+			}
+			verifierHandler.startDocument();
+		} catch (SAXException e) {
+			throw new XNIException(e);
+		}
 	}
 
 	@Override
 	public void xmlDecl(String version, String encoding, String standalone, Augmentations augs) throws XNIException {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void doctypeDecl(String rootElement, String publicId, String systemId, Augmentations augs)
 			throws XNIException {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void comment(XMLString text, Augmentations augs) throws XNIException {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void processingInstruction(String target, XMLString data, Augmentations augs) throws XNIException {
-		// TODO Auto-generated method stub
-
+		try {
+			verifierHandler.processingInstruction(target, data.toString());
+		} catch (SAXException e) {
+			throw new XNIException(e);
+		}
 	}
 
 	@Override
 	public void startElement(QName element, XMLAttributes attributes, Augmentations augs) throws XNIException {
-		if (!processed) {
-			try {
-				String expandedLoc = XMLEntityManager.expandSystemId(href, locator.getExpandedSystemId(), false);
-				Verifier verifier = verifierFactory.newVerifier(new InputSource(expandedLoc));
-				verifier.setErrorHandler(errorReporter.getSAXErrorHandler());
-				SAXParserFactory parserFactory = SAXParserFactory.newInstance();
-				parserFactory.setNamespaceAware(true);
-				XMLReader xmlReader = parserFactory.newSAXParser().getXMLReader();
-				xmlReader.setContentHandler(verifier.getVerifierHandler());
-				xmlReader.parse(locator.getLiteralSystemId());
-				processed = true;
-			} catch (VerifierConfigurationException | SAXException | IOException | ParserConfigurationException e) {
-				LOGGER.log(Level.SEVERE, "Something went wrong when validating useing relaxng:", e);
+		try {
+			if (verifierHandler == null) {
+				createVerifier();// TODO:
 			}
+			verifierHandler.startElement(element.uri, element.localpart, element.rawname,
+					new AttributesWrapper(attributes));
+		} catch (SAXException e) {
+			throw new XNIException(e);
 		}
 	}
 
 	@Override
 	public void emptyElement(QName element, XMLAttributes attributes, Augmentations augs) throws XNIException {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void startGeneralEntity(String name, XMLResourceIdentifier identifier, String encoding, Augmentations augs)
 			throws XNIException {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void textDecl(String version, String encoding, Augmentations augs) throws XNIException {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void endGeneralEntity(String name, Augmentations augs) throws XNIException {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void characters(XMLString text, Augmentations augs) throws XNIException {
-		// TODO Auto-generated method stub
-
+		try {
+			verifierHandler.characters(text.ch, text.offset, text.length);
+		} catch (SAXException e) {
+			throw new XNIException(e);
+		}
 	}
 
 	@Override
 	public void ignorableWhitespace(XMLString text, Augmentations augs) throws XNIException {
-		// TODO Auto-generated method stub
-
+		try {
+			verifierHandler.ignorableWhitespace(text.ch, text.offset, text.length);
+		} catch (SAXException e) {
+			throw new XNIException(e);
+		}
 	}
 
 	@Override
 	public void endElement(QName element, Augmentations augs) throws XNIException {
-		// TODO Auto-generated method stub
-
+		try {
+			verifierHandler.endElement(element.uri, element.localpart, element.rawname);
+		} catch (SAXException e) {
+			throw new XNIException(e);
+		}
 	}
 
 	@Override
 	public void startCDATA(Augmentations augs) throws XNIException {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void endCDATA(Augmentations augs) throws XNIException {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void endDocument(Augmentations augs) throws XNIException {
-		// TODO Auto-generated method stub
-
+		try {
+			verifierHandler.endDocument();
+		} catch (SAXException e) {
+			throw new XNIException(e);
+		}
 	}
 
 	@Override
 	public void setDocumentSource(XMLDocumentSource source) {
-		// TODO Auto-generated method stub
-
+		// do nothing
 	}
 
 	@Override
 	public XMLDocumentSource getDocumentSource() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void setDocumentHandler(XMLDocumentHandler handler) {
-		// TODO Auto-generated method stub
-
+		// do nothing
 	}
 
 	@Override
 	public XMLDocumentHandler getDocumentHandler() {
-		// TODO Auto-generated method stub
-		return null;
+		return this; // TODO: ??
 	}
 
 	@Override
 	public void setLocator(XMLLocator locator) {
-		this.locator = locator;
+		// do nothing, instead just make sure the locator is passed to the methods that need it
 	}
 
 	@Override
 	public void setHref(String href) {
-		this.href = href;
+		// do nothing
+	}
+
+	private final class AttributesWrapper implements Attributes {
+		private final XMLAttributes attributes;
+
+		private AttributesWrapper(XMLAttributes attributes) {
+			this.attributes = attributes;
+		}
+
+		@Override
+		public int getLength() {
+			return attributes.getLength();
+		}
+
+		@Override
+		public String getURI(int index) {
+			return attributes.getURI(index);
+		}
+
+		@Override
+		public String getLocalName(int index) {
+			return attributes.getLocalName(index);
+		}
+
+		@Override
+		public String getQName(int index) {
+			return attributes.getQName(index);
+		}
+
+		@Override
+		public String getType(int index) {
+			return attributes.getType(index);
+		}
+
+		@Override
+		public String getValue(int index) {
+			return attributes.getValue(index);
+		}
+
+		@Override
+		public int getIndex(String uri, String localName) {
+			return attributes.getIndex(uri, localName);
+		}
+
+		@Override
+		public int getIndex(String qName) {
+			return attributes.getIndex(qName);
+		}
+
+		@Override
+		public String getType(String uri, String localName) {
+			return attributes.getType(uri, localName);
+		}
+
+		@Override
+		public String getType(String qName) {
+			return attributes.getType(qName);
+		}
+
+		@Override
+		public String getValue(String uri, String localName) {
+			return attributes.getValue(uri, localName);
+		}
+
+		@Override
+		public String getValue(String qName) {
+			return attributes.getValue(qName);
+		}
 	}
 
 }

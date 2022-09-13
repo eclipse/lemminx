@@ -95,8 +95,11 @@ public class XMLValidator {
 
 			SAXParser parser = new LSPSAXParser(reporterForXML, configuration, grammarPool, document);
 
+			MultipleContentHandler multiContentHandler = new MultipleContentHandler();
 			// Add LSP content handler to stop XML parsing if monitor is canceled.
-			parser.setContentHandler(new LSPContentHandler(monitor));
+			multiContentHandler.addContentHandler(new LSPContentHandler(monitor));
+
+			parser.setContentHandler(multiContentHandler);
 
 			// warn if XML document is not bound to a grammar according the settings
 			warnNoGrammar(document, diagnostics, validationSettings);
@@ -188,15 +191,15 @@ public class XMLValidator {
 	/**
 	 * Returns true if the given DOM document declares a xsi:schemaLocation hint for
 	 * the document root element is valid and false otherwise.
-	 * 
+	 *
 	 * The xsi:schemaLocation is valid if:
-	 * 
+	 *
 	 * <ul>
 	 * <li>xsi:schemaLocation defines an URI for the namespace of the document
 	 * element.</li>
 	 * <li>the URI can be opened</li>
 	 * </ul>
-	 * 
+	 *
 	 * @param document the DOM document.
 	 * @return true if the given DOM document declares a xsi:schemaLocation hint for
 	 *         the document root element is valid and false otherwise.
@@ -239,14 +242,14 @@ public class XMLValidator {
 	/**
 	 * Returns true if the given DOM document declares a
 	 * xsi:noNamespaceSchemaLocation which is valid and false otherwise.
-	 * 
+	 *
 	 * The xsi:noNamespaceSchemaLocation is valid if:
-	 * 
+	 *
 	 * <ul>
 	 * <li>xsi:noNamespaceSchemaLocation defines an URI.</li>
 	 * <li>the URI can be opened</li>
 	 * </ul>
-	 * 
+	 *
 	 * @param document the DOM document.
 	 * @return true if the given DOM document declares a xsi:schemaLocation hint for
 	 *         the document root element is valid and false otherwise.
@@ -304,7 +307,7 @@ public class XMLValidator {
 
 	/**
 	 * Returns true is DTD validation must be disabled and false otherwise.
-	 * 
+	 *
 	 * @param document the DOM document
 	 * @return true is DTD validation must be disabled and false otherwise.
 	 */
@@ -335,7 +338,7 @@ public class XMLValidator {
 
 	/**
 	 * Warn if XML document is not bound to a grammar according the settings
-	 * 
+	 *
 	 * @param document           the XML document
 	 * @param diagnostics        the diagnostics list to populate
 	 * @param validationSettings the settings to use to know the severity of warn.

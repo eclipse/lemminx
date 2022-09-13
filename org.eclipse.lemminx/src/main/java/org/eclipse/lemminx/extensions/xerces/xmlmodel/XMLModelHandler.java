@@ -30,7 +30,6 @@ import org.apache.xerces.xni.parser.XMLConfigurationException;
 import org.apache.xerces.xni.parser.XMLDocumentFilter;
 import org.apache.xerces.xni.parser.XMLDocumentSource;
 import org.eclipse.lemminx.utils.StringUtils;
-import org.xml.sax.XMLReader;
 
 /**
  * Xerces component which associates a XML with several grammar (XML Schema,
@@ -126,7 +125,7 @@ public class XMLModelHandler implements XMLComponent, XMLDocumentFilter {
 		} else if (href.endsWith("dtd")) {
 			return new XMLModelDTDValidator();
 		} else if (href.endsWith("rng")) {
-			return new XMLModelRelaxNGValidator();
+			return new NewXMLModelRelaxNGValidator(href);
 		}
 		return null;
 	}
