@@ -30,18 +30,19 @@ import org.apache.xerces.xni.parser.XMLConfigurationException;
 import org.apache.xerces.xni.parser.XMLDocumentFilter;
 import org.apache.xerces.xni.parser.XMLDocumentSource;
 import org.eclipse.lemminx.utils.StringUtils;
+import org.xml.sax.XMLReader;
 
 /**
  * Xerces component which associates a XML with several grammar (XML Schema,
  * DTD, ..) by using &lt;?xml-model ?&gt; processing instruction.
- * 
+ *
  * <pre>
  * 	&lt;?xml-model href="http://www.docbook.org/xml/5.0/xsd/docbook.xsd"?&gt;
  *	&lt;book xmlns="http://docbook.org/ns/docbook"&gt;
  *		&lt;title /&gt;
  *	&lt;/book&gt;
  * </pre>
- * 
+ *
  * @see https://www.w3.org/TR/xml-model/
  *
  */
@@ -124,6 +125,8 @@ public class XMLModelHandler implements XMLComponent, XMLDocumentFilter {
 			return new XMLModelSchemaValidator();
 		} else if (href.endsWith("dtd")) {
 			return new XMLModelDTDValidator();
+		} else if (href.endsWith("rng")) {
+			return new XMLModelRelaxNGValidator();
 		}
 		return null;
 	}

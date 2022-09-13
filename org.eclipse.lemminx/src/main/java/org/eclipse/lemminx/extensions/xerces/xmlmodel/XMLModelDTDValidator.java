@@ -12,10 +12,11 @@
 package org.eclipse.lemminx.extensions.xerces.xmlmodel;
 
 import org.eclipse.lemminx.extensions.xerces.ExternalXMLDTDValidator;
+import org.xml.sax.XMLReader;
 
 /**
  * XML model validator which process validation with DTD:
- * 
+ *
  * <pre>
  * 	&lt;?xml-model href="http://java.sun.com/dtd/web-app_2_3.dtd"?&gt;
  * </pre>

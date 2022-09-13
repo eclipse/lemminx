@@ -22,7 +22,7 @@ import org.apache.xerces.xni.parser.XMLDocumentFilter;
 public interface XMLModelValidator extends XMLComponent, XMLDocumentFilter{
 
 	void setLocator(XMLLocator locator);
-	
+
 	void setHref(String href);
 
 }

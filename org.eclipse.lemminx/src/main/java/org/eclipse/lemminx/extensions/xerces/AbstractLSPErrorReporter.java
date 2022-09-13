@@ -28,12 +28,14 @@ import org.apache.xerces.impl.xs.traversers.XSDHandler;
 import org.apache.xerces.util.MessageFormatter;
 import org.apache.xerces.xni.XMLLocator;
 import org.apache.xerces.xni.XNIException;
+import org.apache.xerces.xni.parser.XMLErrorHandler;
 import org.apache.xerces.xni.parser.XMLParseException;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.participants.AggregateRelatedInfoFinder;
 import org.eclipse.lemminx.extensions.xerces.xmlmodel.msg.XMLModelMessageFormatter;
+import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticRelatedInformation;
 import org.eclipse.lsp4j.DiagnosticSeverity;
@@ -87,7 +89,7 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 		boolean fatalError = severity == SEVERITY_FATAL_ERROR;
 		DiagnosticSeverity diagnosticSeverity = getSeverity(domain, key, arguments, severity, exception);
 		Range adjustedRange = internalToLSPRange(location, key, arguments, message, diagnosticSeverity, fatalError,
-				xmlDocument);
+				xmlDocument, exception);
 		List<DiagnosticRelatedInformation> relatedInformations = null;
 		if (adjustedRange == null || NO_RANGE.equals(adjustedRange)) {
 			return null;
@@ -119,25 +121,30 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 
 	protected String getMessage(String domain, String key, Object[] arguments, Exception exception) {
 		MessageFormatter messageFormatter = getMessageFormatter(domain);
-		String message;
+		String message = null;
 		if (messageFormatter != null) {
 			message = messageFormatter.formatMessage(fLocale, key, arguments);
 		} else {
-			StringBuilder str = new StringBuilder();
-			str.append(domain);
-			str.append('#');
-			str.append(key);
-			int argCount = arguments != null ? arguments.length : 0;
-			if (argCount > 0) {
-				str.append('?');
-				for (int i = 0; i < argCount; i++) {
-					str.append(arguments[i]);
-					if (i < argCount - 1) {
-						str.append('&');
+			if (exception != null) {
+				message = exception.getMessage();
+			}
+			if (message == null) {
+				StringBuilder str = new StringBuilder();
+				str.append(domain);
+				str.append('#');
+				str.append(key);
+				int argCount = arguments != null ? arguments.length : 0;
+				if (argCount > 0) {
+					str.append('?');
+					for (int i = 0; i < argCount; i++) {
+						str.append(arguments[i]);
+						if (i < argCount - 1) {
+							str.append('&');
+						}
 					}
 				}
+				message = str.toString();
 			}
-			message = str.toString();
 		}
 		return message;
 	}
@@ -193,7 +200,19 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 	 * @return the LSP range from the SAX error.
 	 */
 	private Range internalToLSPRange(XMLLocator location, String key, Object[] arguments, String message,
-			DiagnosticSeverity diagnosticSeverity, boolean fatalError, DOMDocument document) {
+			DiagnosticSeverity diagnosticSeverity, boolean fatalError, DOMDocument document, Exception exception) {
+
+		if (exception instanceof XMLParseException) {
+			XMLParseException parseException = (XMLParseException)exception;
+			Position p = new Position(parseException.getLineNumber() - 1, parseException.getColumnNumber() - 1);
+			try {
+				int offset = document.offsetAt(p);
+				return XMLPositionUtility.selectStartTagName(offset, document);
+			} catch (Exception e) {
+				return new Range(p, new Position(p.getLine(), p.getCharacter() + 1));
+			}
+		}
+
 		if (location == null) {
 			Position start = toLSPPosition(0, location, document.getTextDocument());
 			Position end = toLSPPosition(0, location, document.getTextDocument());
@@ -296,6 +315,29 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 
 	public void setCurrentError(Exception currentError) {
 		this.currentError = currentError;
+	}
 
+	@Override
+	public ErrorHandler getSAXErrorHandler() {
+		if (fErrorHandler == null) {
+			fErrorHandler = new XMLErrorHandler() {
+
+				@Override
+				public void warning(String domain, String key, XMLParseException exception) throws XNIException {
+					reportError(domain, key, null, SEVERITY_WARNING, exception);
+				}
+
+				@Override
+				public void fatalError(String domain, String key, XMLParseException exception) throws XNIException {
+					reportError(domain, key, null, SEVERITY_FATAL_ERROR, exception);
+				}
+
+				@Override
+				public void error(String domain, String key, XMLParseException exception) throws XNIException {
+					reportError(domain, key, null, SEVERITY_ERROR, exception);
+				}
+			};
+		}
+		return super.getSAXErrorHandler();
 	}
 }
