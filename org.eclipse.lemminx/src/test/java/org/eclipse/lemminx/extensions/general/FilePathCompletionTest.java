@@ -19,6 +19,7 @@ import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.utils.FilesUtils;
+import org.eclipse.lemminx.utils.platform.Platform;
 import org.eclipse.lsp4j.CompletionItem;
 import org.junit.jupiter.api.Test;
 
@@ -66,15 +67,13 @@ public class FilePathCompletionTest extends AbstractCacheBasedTest {
 	@Test
 	public void testFilePathCompletionFolderB() throws BadLocationException {
 		String xml = "<a path=\"folderB/|\">";
-		CompletionItem[] items = getCompletionItemList("/", 0, 16, 17, "xsdB1.xsd", "xmlB1.xml");
-		testCompletionFor(xml, 2, items);
+		testCompletionFor(xml, 0);
 	}
 
 	@Test
 	public void testFilePathCompletionFolderBBackSlash() throws BadLocationException {
 		String xml = "<a path=\"folderB\\|\">";
-		CompletionItem[] items = getCompletionItemList("\\", 0, 16, 17, "xsdB1.xsd", "xmlB1.xml");
-		testCompletionFor(xml, 2, items);
+		testCompletionFor(xml, 0);
 	}
 
 	@Test
@@ -113,44 +112,42 @@ public class FilePathCompletionTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void testFilePathCompletionNestedA() throws BadLocationException {
-		String xml = "<a path=\"NestedA/|\">";
-		CompletionItem[] items = getCompletionItemList("/", 0, 16, 17, "NestedB");
+		String xml = "<a path=\"./NestedA/|\">";
+		CompletionItem[] items = getCompletionItemList("/", 0, 18, 19, "NestedB");
 		testCompletionFor(xml, 1, items);
 	}
 
 	@Test
 	public void testFilePathCompletionNestedABackSlash() throws BadLocationException {
-		String xml = "<a path=\"NestedA\\|\">";
-		CompletionItem[] items = getCompletionItemList("\\", 0, 16, 17, "NestedB");
+		String xml = "<a path=\"./NestedA\\|\">";
+		CompletionItem[] items = getCompletionItemList("\\", 0, 18, 19, "NestedB");
 		testCompletionFor(xml, 1, items);
 	}
 
 	@Test
 	public void testFilePathCompletionNestedBIncomplete() throws BadLocationException {
-		String xml = "<a path=\"NestedA/NestedB/ZZZ|\">";
-		CompletionItem[] items = getCompletionItemList("/", 0, 24, 28, "nestedXSD.xsd");
+		String xml = "<a path=\"./NestedA/NestedB/ZZZ|\">";
+		CompletionItem[] items = getCompletionItemList("/", 0, 26, 30, "nestedXSD.xsd");
 		testCompletionFor(xml, 1, items);
 	}
 
 	@Test
 	public void testFilePathCompletionNestedBIncompleteBackSlash() throws BadLocationException {
-		String xml = "<a path=\"NestedA\\NestedB\\ZZZ|\">";
-		CompletionItem[] items = getCompletionItemList("\\", 0, 24, 28, "nestedXSD.xsd");
+		String xml = "<a path=\".\\NestedA\\NestedB\\ZZZ|\">";
+		CompletionItem[] items = getCompletionItemList("\\", 0, 26, 30, "nestedXSD.xsd");
 		testCompletionFor(xml, 1, items);
 	}
 
 	@Test
 	public void testFilePathCompletionExtraTextInValue() throws BadLocationException {
 		String xml = "<a path=\"NAMESPACE_IGNORE_ME NestedA/NestedB/|\">";
-		CompletionItem[] items = getCompletionItemList("/", 0, 44, 45, "nestedXSD.xsd");
-		testCompletionFor(xml, 1, items);
+		testCompletionFor(xml, 0);
 	}
 
 	@Test
 	public void testFilePathCompletionExtraTextInValueBackSlash() throws BadLocationException {
 		String xml = "<a path=\"NAMESPACE_IGNORE_ME NestedA\\NestedB\\|\">";
-		CompletionItem[] items = getCompletionItemList("\\", 0, 44, 45, "nestedXSD.xsd");
-		testCompletionFor(xml, 1, items);
+		testCompletionFor(xml, 0);
 	}
 
 	@Test
@@ -166,11 +163,8 @@ public class FilePathCompletionTest extends AbstractCacheBasedTest {
 	@Test
 	public void testFilePathCompletionExtraTextInValueAbsoluteBackSlash() throws BadLocationException {
 		String filePath = userDirBackSlash + "\\src\\test\\resources\\filePathCompletion\\NestedA\\NestedB\\";
-		int filePathLength = filePath.length();
 		String xml = "<a path=\"NAMESPACE_IGNORE_ME " + filePath + "|\">";
-		CompletionItem[] items = getCompletionItemList("\\", 0, 29 + filePathLength - 1, 29 + filePathLength,
-				"nestedXSD.xsd");
-		testCompletionFor(xml, 1, items);
+		testCompletionFor(xml, Platform.isWindows ? 1 : 0);
 	}
 
 	@Test
@@ -262,22 +256,22 @@ public class FilePathCompletionTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void testFilePathCompletionDTDFolderB() throws BadLocationException {
-		String xml = "<!DOCTYPE foo SYSTEM \"folderB/|\">";
-		CompletionItem[] items = getCompletionItemList("/", 0, 29, 30, "xsdB1.xsd", "xmlB1.xml");
+		String xml = "<!DOCTYPE foo SYSTEM \"./folderB/|\">";
+		CompletionItem[] items = getCompletionItemList("/", 0, 31, 32, "xsdB1.xsd", "xmlB1.xml");
 		testCompletionFor(xml, 2, items);
 	}
 
 	@Test
 	public void testFilePathCompletionDTDFolderBBackSlash() throws BadLocationException {
-		String xml = "<!DOCTYPE foo SYSTEM \"folderB\\|\">";
-		CompletionItem[] items = getCompletionItemList("\\", 0, 29, 30, "xsdB1.xsd", "xmlB1.xml");
+		String xml = "<!DOCTYPE foo SYSTEM \"./folderB\\|\">";
+		CompletionItem[] items = getCompletionItemList("\\", 0, 31, 32, "xsdB1.xsd", "xmlB1.xml");
 		testCompletionFor(xml, 2, items);
 	}
 
 	@Test
-	public void testFilePathNoCompletion() throws BadLocationException {
+	public void testFilePathCompletionForEmptyDoctype() throws BadLocationException {
 		String xml = "<!DOCTYPE foo SYSTEM \"|\">";
-		testCompletionFor(xml, 0);
+		testCompletionFor(xml, 8);
 	}
 
 	@Test
@@ -288,8 +282,8 @@ public class FilePathCompletionTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void testFilePathCompletionWithSpacesFolder() throws BadLocationException {
-		String xml = "<a path=\"folderC/|\">";
-		CompletionItem[] items = getCompletionItemList("/", 0, 16, 17, "a@b", "with%20spaces");
+		String xml = "<a path=\"./folderC/|\">";
+		CompletionItem[] items = getCompletionItemList("/", 0, 18, 19, "a@b", "with%20spaces");
 		testCompletionFor(xml, 2, items);
 	}
 
@@ -299,6 +293,18 @@ public class FilePathCompletionTest extends AbstractCacheBasedTest {
 		CompletionItem[] items = getCompletionItemList("/", 0, 11, 12, "a@b", "with%20spaces");
 		String fileURI = "file://" + userDirForwardSlash + "/src/test/resources/filePathCompletion/folderC/a@b/foo.xml";
 		XMLAssert.testCompletionFor(xml, null, fileURI, 2, items);
+	}
+
+	@Test
+	public void testFilePathCompletionWithBrokenAbsoluteWindowsPath() throws BadLocationException {
+		String xml = "<a path=\"C|\">";
+		testCompletionFor(xml, 0);
+		xml = "<a path=\"C:|\">";
+		testCompletionFor(xml, 0);
+		xml = "<a path=\"C\\\\|\">";
+		testCompletionFor(xml, 0);
+		xml = "<a path=\"C::|\">";
+		testCompletionFor(xml, 0);
 	}
 
 	private static void testCompletionFor(String xml, CompletionItem... expectedItems) throws BadLocationException {
