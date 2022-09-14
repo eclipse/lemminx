@@ -125,7 +125,7 @@ public class XMLModelHandler implements XMLComponent, XMLDocumentFilter {
 		} else if (href.endsWith("dtd")) {
 			return new XMLModelDTDValidator();
 		} else if (href.endsWith("rng")) {
-			return new NewXMLModelRelaxNGValidator();
+			return new XMLModelRelaxNGValidator();
 		}
 		return null;
 	}
