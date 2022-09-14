@@ -45,7 +45,6 @@ public abstract class AbstractCacheBasedTest {
 
 	@BeforeEach
 	public final void setupCache() throws Exception {
-		System.out.println(this.getClass().getName() + ": " + uuid);
 		clearCache();
 		FilesUtils.resetDeployPath();
 		Assertions.assertNotNull(parentDir);

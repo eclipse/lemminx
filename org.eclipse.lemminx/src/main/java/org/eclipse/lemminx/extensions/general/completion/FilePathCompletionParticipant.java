@@ -77,20 +77,20 @@ public class FilePathCompletionParticipant extends CompletionParticipantAdapter 
 	public void onAttributeValue(String value, ICompletionRequest request, ICompletionResponse response,
 			CancelChecker cancelChecker) throws Exception {
 		// File path completion on attribute value
-		addCompletionItems(value, request, response);
+		addCompletionItems(value, request, response, false);
 	}
 
 	@Override
 	public void onDTDSystemId(String value, ICompletionRequest request, ICompletionResponse response,
 			CancelChecker cancelChecker) throws Exception {
 		// File path completion on DTD DOCTYPE SYSTEM
-		addCompletionItems(value, request, response);
+		addCompletionItems(value, request, response, true);
 	}
 
-	private static void addCompletionItems(String value, ICompletionRequest request, ICompletionResponse response)
+	private static void addCompletionItems(String value, ICompletionRequest request, ICompletionResponse response, boolean isInDoctype)
 			throws Exception {
 		String fullValue = value;
-		if (isEmpty(fullValue)) {
+		if (isEmpty(fullValue) && !isInDoctype) {
 			return;
 		}
 
@@ -101,7 +101,7 @@ public class FilePathCompletionParticipant extends CompletionParticipantAdapter 
 		// ex value="file:///C:/fold|er"
 		int valuePathStartOffset = xmlDocument.offsetAt(request.getReplaceRange().getStart());
 		int endPathOffset = request.getOffset(); // offset after the typed character
-		int startPathOffset = StringUtils.getOffsetAfterWhitespace(fullValue, endPathOffset - valuePathStartOffset)
+		int startPathOffset = (fullValue.length() == 0 ? 0 : StringUtils.getOffsetAfterWhitespace(fullValue, endPathOffset - valuePathStartOffset))
 				+ valuePathStartOffset; // first character of URI
 		Range filePathRange = XMLPositionUtility.createRange(startPathOffset, endPathOffset, xmlDocument);
 		String originalValuePath = text.substring(startPathOffset, endPathOffset);
@@ -132,6 +132,9 @@ public class FilePathCompletionParticipant extends CompletionParticipantAdapter 
 					return;
 				}
 			}
+		} else if (!hasPathBeginning(valuePath) && !isInDoctype) {
+			// the user probably didn't intend to complete a path
+			return;
 		}
 		// On Linux, Mac OS replace '\\' with '/'
 		if (!isWindows) {
@@ -257,6 +260,27 @@ public class FilePathCompletionParticipant extends CompletionParticipantAdapter 
 		item.setFilterText(insertText);
 		item.setTextEdit(Either.forLeft(new TextEdit(replaceRange, insertText)));
 		response.addCompletionItem(item);
+	}
+
+	private static boolean hasPathBeginning(String currentText) {
+		if (currentText.startsWith("/")
+				|| currentText.startsWith("./")
+				|| currentText.startsWith("../")
+				|| currentText.startsWith("..\\")
+				|| currentText.startsWith(".\\")) {
+			return true;
+		}
+		return isAbsoluteWindowsPath(currentText);
+	}
+
+	private static boolean isAbsoluteWindowsPath(String currentText) {
+		if (currentText.length() < 3) {
+			return false;
+		}
+		if (!Character.isLetter(currentText.charAt(0))) {
+			return false;
+		}
+		return currentText.charAt(1) == ':' && (currentText.charAt(2) == '\\' || currentText.charAt(2) == '/');
 	}
 
 }
