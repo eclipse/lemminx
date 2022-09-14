@@ -2,7 +2,9 @@ package org.eclipse.lemminx.extensions.xerces.xmlmodel;
 
 import java.io.IOException;
 
+import org.apache.xerces.impl.Constants;
 import org.apache.xerces.impl.XMLEntityManager;
+import org.apache.xerces.impl.XMLErrorReporter;
 import org.apache.xerces.xni.Augmentations;
 import org.apache.xerces.xni.NamespaceContext;
 import org.apache.xerces.xni.QName;
@@ -15,6 +17,7 @@ import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.parser.XMLComponentManager;
 import org.apache.xerces.xni.parser.XMLConfigurationException;
 import org.apache.xerces.xni.parser.XMLDocumentSource;
+import org.apache.xerces.xni.parser.XMLErrorHandler;
 import org.iso_relax.verifier.Verifier;
 import org.iso_relax.verifier.VerifierConfigurationException;
 import org.iso_relax.verifier.VerifierFactory;
@@ -25,19 +28,20 @@ import org.xml.sax.SAXException;
 public class NewXMLModelRelaxNGValidator implements XMLModelValidator {
 
 	private static final VerifierFactory VERIFIER_FACTORY = new com.sun.msv.verifier.jarv.TheFactoryImpl();
+	public static final String ERROR_REPORTER = Constants.XERCES_PROPERTY_PREFIX + Constants.ERROR_REPORTER_PROPERTY;
 
 	private String href;
 	private VerifierHandler verifierHandler;
+	private XMLLocator locator;
+	private XMLErrorReporter errorReporter;
 
-	public NewXMLModelRelaxNGValidator(String href) {
-		this.href = href;
-	}
-
-	private void createVerifier(XMLLocator locator) throws SAXException {
+	private void createVerifier() throws SAXException {
 		try {
-			String expandedLoc = XMLEntityManager.expandSystemId(href, locator.getExpandedSystemId(), false);
+			String expandedLoc = XMLEntityManager.expandSystemId(href, locator.getBaseSystemId(), false);
 			Verifier verifier = VERIFIER_FACTORY.newVerifier(expandedLoc);
+			verifier.setErrorHandler(errorReporter.getSAXErrorHandler());
 			verifierHandler = verifier.getVerifierHandler();
+			verifierHandler.startDocument();
 		} catch (VerifierConfigurationException | IOException e) {
 			// TODO: log severe
 		}
@@ -45,6 +49,11 @@ public class NewXMLModelRelaxNGValidator implements XMLModelValidator {
 
 	@Override
 	public void reset(XMLComponentManager componentManager) throws XMLConfigurationException {
+		try {
+			errorReporter = (XMLErrorReporter) componentManager.getProperty(ERROR_REPORTER);
+		} catch (XMLConfigurationException e) {
+			errorReporter = null;
+		}
 	}
 
 	@Override
@@ -84,7 +93,7 @@ public class NewXMLModelRelaxNGValidator implements XMLModelValidator {
 			Augmentations augs) throws XNIException {
 		try {
 			if (verifierHandler == null) {
-				createVerifier(locator);
+				createVerifier();
 			}
 			verifierHandler.startDocument();
 		} catch (SAXException e) {
@@ -118,7 +127,7 @@ public class NewXMLModelRelaxNGValidator implements XMLModelValidator {
 	public void startElement(QName element, XMLAttributes attributes, Augmentations augs) throws XNIException {
 		try {
 			if (verifierHandler == null) {
-				createVerifier();// TODO:
+				createVerifier();
 			}
 			verifierHandler.startElement(element.uri, element.localpart, element.rawname,
 					new AttributesWrapper(attributes));
@@ -210,12 +219,12 @@ public class NewXMLModelRelaxNGValidator implements XMLModelValidator {
 
 	@Override
 	public void setLocator(XMLLocator locator) {
-		// do nothing, instead just make sure the locator is passed to the methods that need it
+		this.locator = locator;
 	}
 
 	@Override
 	public void setHref(String href) {
-		// do nothing
+		this.href = href;
 	}
 
 	private final class AttributesWrapper implements Attributes {

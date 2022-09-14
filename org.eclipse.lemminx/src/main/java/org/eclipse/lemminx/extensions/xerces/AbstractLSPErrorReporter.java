@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.sun.msv.verifier.ValidityViolation;
 import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.impl.XMLErrorReporter;
 import org.apache.xerces.impl.msg.XMLMessageFormatter;
@@ -35,7 +36,7 @@ import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.participants.AggregateRelatedInfoFinder;
 import org.eclipse.lemminx.extensions.xerces.xmlmodel.msg.XMLModelMessageFormatter;
-import org.eclipse.lemminx.utils.XMLPositionUtility;
+import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticRelatedInformation;
 import org.eclipse.lsp4j.DiagnosticSeverity;
@@ -150,7 +151,17 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 	}
 
 	protected String getCode(String domain, String key, Object[] arguments, Exception exception) {
-		return key;
+		if (!StringUtils.isBlank(key)) {
+			return key;
+		}
+		if (exception instanceof XMLParseException) {
+			XMLParseException xmlParseException = ((XMLParseException)exception);
+			if (xmlParseException.getCause() instanceof ValidityViolation) {
+				ValidityViolation validityViolation = ((ValidityViolation)xmlParseException.getCause());
+				return validityViolation.getErrorInfo().getClass().getSimpleName();
+			}
+		}
+		return "";
 	}
 
 	protected boolean isIgnoreFatalError(String key) {
@@ -201,17 +212,6 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 	 */
 	private Range internalToLSPRange(XMLLocator location, String key, Object[] arguments, String message,
 			DiagnosticSeverity diagnosticSeverity, boolean fatalError, DOMDocument document, Exception exception) {
-
-		if (exception instanceof XMLParseException) {
-			XMLParseException parseException = (XMLParseException)exception;
-			Position p = new Position(parseException.getLineNumber() - 1, parseException.getColumnNumber() - 1);
-			try {
-				int offset = document.offsetAt(p);
-				return XMLPositionUtility.selectStartTagName(offset, document);
-			} catch (Exception e) {
-				return new Range(p, new Position(p.getLine(), p.getCharacter() + 1));
-			}
-		}
 
 		if (location == null) {
 			Position start = toLSPPosition(0, location, document.getTextDocument());
