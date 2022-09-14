@@ -101,6 +101,15 @@ public class LSPErrorReporterForXML extends AbstractReferencedGrammarLSPErrorRep
 								fatalError, document.getResolverExtensionManager(), null, null, null, xsdCode,
 								documentOrGrammarURI);
 						return NO_RANGE;
+					} else {
+						RNGErrorCode rngCode = RNGErrorCode.get(key);
+						if (rngCode != null) {
+							if (errorForDocument) {
+								// TODO:
+							} else {
+								// TODO:
+							}
+						}
 					}
 				}
 			}

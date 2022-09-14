@@ -85,7 +85,8 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 			currentError = null;
 		}
 		// format message
-		String message = getMessage(domain, key, arguments, exception);
+		String code = getCode(domain, key, arguments, exception);
+		String message = getMessage(domain, code, arguments, exception);
 
 		boolean fatalError = severity == SEVERITY_FATAL_ERROR;
 		DiagnosticSeverity diagnosticSeverity = getSeverity(domain, key, arguments, severity, exception);
@@ -103,7 +104,6 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 				LOGGER.severe("Passed bad Range: " + e);
 			}
 		}
-		String code = getCode(domain, key, arguments, exception);
 		if (addDiagnostic(adjustedRange, message, diagnosticSeverity, code, relatedInformations) == null) {
 			return null;
 		}
