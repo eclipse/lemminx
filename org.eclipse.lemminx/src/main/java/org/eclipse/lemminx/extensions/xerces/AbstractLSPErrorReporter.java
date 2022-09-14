@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.sun.msv.verifier.ValidityViolation;
 import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.impl.XMLErrorReporter;
 import org.apache.xerces.impl.msg.XMLMessageFormatter;
@@ -43,6 +42,8 @@ import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.xml.sax.ErrorHandler;
+
+import com.sun.msv.verifier.ValidityViolation;
 
 /**
  * The SAX {@link ErrorHandler} gives just information of the offset where there
@@ -90,7 +91,7 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 
 		boolean fatalError = severity == SEVERITY_FATAL_ERROR;
 		DiagnosticSeverity diagnosticSeverity = getSeverity(domain, key, arguments, severity, exception);
-		Range adjustedRange = internalToLSPRange(location, key, arguments, message, diagnosticSeverity, fatalError,
+		Range adjustedRange = internalToLSPRange(location, code, arguments, message, diagnosticSeverity, fatalError,
 				xmlDocument, exception);
 		List<DiagnosticRelatedInformation> relatedInformations = null;
 		if (adjustedRange == null || NO_RANGE.equals(adjustedRange)) {
@@ -329,6 +330,7 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 
 				@Override
 				public void fatalError(String domain, String key, XMLParseException exception) throws XNIException {
+					// Allow parser to continue under fatal error
 					reportError(domain, key, null, SEVERITY_FATAL_ERROR, exception);
 				}
 

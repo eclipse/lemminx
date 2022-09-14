@@ -19,12 +19,19 @@ import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.parser.XMLComponentManager;
 import org.apache.xerces.xni.parser.XMLConfigurationException;
 import org.apache.xerces.xni.parser.XMLDocumentSource;
+import org.eclipse.lemminx.extensions.contentmodel.participants.diagnostics.RNGErrorCode;
 import org.iso_relax.verifier.Verifier;
 import org.iso_relax.verifier.VerifierConfigurationException;
 import org.iso_relax.verifier.VerifierFactory;
 import org.iso_relax.verifier.VerifierHandler;
 import org.xml.sax.Attributes;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
+import org.xml.sax.helpers.XMLFilterImpl;
+
+import com.sun.msv.verifier.ValidityViolation;
 
 public class XMLModelRelaxNGValidator implements XMLModelValidator {
 
@@ -33,7 +40,7 @@ public class XMLModelRelaxNGValidator implements XMLModelValidator {
 	public static final String ERROR_REPORTER = Constants.XERCES_PROPERTY_PREFIX + Constants.ERROR_REPORTER_PROPERTY;
 
 	private String href;
-	private VerifierHandler verifierHandler;
+	private Interceptor interceptor;
 	private XMLLocator locator;
 	private XMLErrorReporter errorReporter;
 
@@ -41,10 +48,16 @@ public class XMLModelRelaxNGValidator implements XMLModelValidator {
 		try {
 			String expandedLoc = XMLEntityManager.expandSystemId(href, locator.getBaseSystemId(), false);
 			Verifier verifier = VERIFIER_FACTORY.newVerifier(expandedLoc);
-			verifier.setErrorHandler(errorReporter.getSAXErrorHandler());
-			verifierHandler = verifier.getVerifierHandler();
-			verifierHandler.startDocument();
-		} catch (VerifierConfigurationException | IOException e) {
+			verifier.setErrorHandler(com.sun.msv.verifier.util.ErrorHandlerImpl.theInstance);
+			VerifierHandler verifierHandler = verifier.getVerifierHandler();
+			interceptor = new Interceptor();
+			interceptor.setErrorHandler(errorReporter.getSAXErrorHandler());
+			interceptor.setContentHandler(verifierHandler);
+			interceptor.startDocument();
+		} catch (VerifierConfigurationException vce) {
+			errorReporter.reportError("https://relaxng.org", RNGErrorCode.InvalidRelaxNG.getCode(), new Object[] {},
+					XMLErrorReporter.SEVERITY_FATAL_ERROR);
+		} catch (IOException e) {
 			LOGGER.log(Level.SEVERE, "Failed to create RelaxNG validator: ", e);
 		}
 	}
@@ -74,19 +87,15 @@ public class XMLModelRelaxNGValidator implements XMLModelValidator {
 
 	@Override
 	public void setProperty(String propertyId, Object value) throws XMLConfigurationException {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public Boolean getFeatureDefault(String featureId) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Object getPropertyDefault(String propertyId) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -94,10 +103,10 @@ public class XMLModelRelaxNGValidator implements XMLModelValidator {
 	public void startDocument(XMLLocator locator, String encoding, NamespaceContext namespaceContext,
 			Augmentations augs) throws XNIException {
 		try {
-			if (verifierHandler == null) {
+			if (interceptor == null) {
 				createVerifier();
 			}
-			verifierHandler.startDocument();
+			interceptor.startDocument();
 		} catch (SAXException e) {
 			throw new XNIException(e);
 		}
@@ -119,7 +128,7 @@ public class XMLModelRelaxNGValidator implements XMLModelValidator {
 	@Override
 	public void processingInstruction(String target, XMLString data, Augmentations augs) throws XNIException {
 		try {
-			verifierHandler.processingInstruction(target, data.toString());
+			interceptor.processingInstruction(target, data.toString());
 		} catch (SAXException e) {
 			throw new XNIException(e);
 		}
@@ -128,10 +137,10 @@ public class XMLModelRelaxNGValidator implements XMLModelValidator {
 	@Override
 	public void startElement(QName element, XMLAttributes attributes, Augmentations augs) throws XNIException {
 		try {
-			if (verifierHandler == null) {
+			if (interceptor == null) {
 				createVerifier();
 			}
-			verifierHandler.startElement(element.uri, element.localpart, element.rawname,
+			interceptor.startElement(element.uri, element.localpart, element.rawname,
 					new AttributesWrapper(attributes));
 		} catch (SAXException e) {
 			throw new XNIException(e);
@@ -140,6 +149,12 @@ public class XMLModelRelaxNGValidator implements XMLModelValidator {
 
 	@Override
 	public void emptyElement(QName element, XMLAttributes attributes, Augmentations augs) throws XNIException {
+		try {
+			interceptor.startElement(element.uri, element.localpart, element.rawname, new AttributesWrapper(attributes));
+			interceptor.endElement(element.uri, element.localpart, element.rawname);
+		} catch (SAXException e) {
+			throw new XNIException(e);
+		}
 	}
 
 	@Override
@@ -158,7 +173,7 @@ public class XMLModelRelaxNGValidator implements XMLModelValidator {
 	@Override
 	public void characters(XMLString text, Augmentations augs) throws XNIException {
 		try {
-			verifierHandler.characters(text.ch, text.offset, text.length);
+			interceptor.characters(text.ch, text.offset, text.length);
 		} catch (SAXException e) {
 			throw new XNIException(e);
 		}
@@ -167,7 +182,7 @@ public class XMLModelRelaxNGValidator implements XMLModelValidator {
 	@Override
 	public void ignorableWhitespace(XMLString text, Augmentations augs) throws XNIException {
 		try {
-			verifierHandler.ignorableWhitespace(text.ch, text.offset, text.length);
+			interceptor.ignorableWhitespace(text.ch, text.offset, text.length);
 		} catch (SAXException e) {
 			throw new XNIException(e);
 		}
@@ -176,7 +191,7 @@ public class XMLModelRelaxNGValidator implements XMLModelValidator {
 	@Override
 	public void endElement(QName element, Augmentations augs) throws XNIException {
 		try {
-			verifierHandler.endElement(element.uri, element.localpart, element.rawname);
+			interceptor.endElement(element.uri, element.localpart, element.rawname);
 		} catch (SAXException e) {
 			throw new XNIException(e);
 		}
@@ -193,7 +208,7 @@ public class XMLModelRelaxNGValidator implements XMLModelValidator {
 	@Override
 	public void endDocument(Augmentations augs) throws XNIException {
 		try {
-			verifierHandler.endDocument();
+			interceptor.endDocument();
 		} catch (SAXException e) {
 			throw new XNIException(e);
 		}
@@ -294,6 +309,84 @@ public class XMLModelRelaxNGValidator implements XMLModelValidator {
 		@Override
 		public String getValue(String qName) {
 			return attributes.getValue(qName);
+		}
+	}
+
+	private final class LocatorWrapper implements Locator {
+
+		private final XMLLocator xmlLocator;
+
+		public LocatorWrapper(XMLLocator xmlLocator) {
+			this.xmlLocator = xmlLocator;
+		}
+
+		@Override
+		public String getPublicId() {
+			return xmlLocator.getPublicId();
+		}
+
+		@Override
+		public String getSystemId() {
+			return xmlLocator.getLiteralSystemId();
+		}
+
+		@Override
+		public int getLineNumber() {
+			return xmlLocator.getLineNumber();
+		}
+
+		@Override
+		public int getColumnNumber() {
+			return xmlLocator.getColumnNumber();
+		}
+	}
+
+	/**
+	 * Please refer to the MSV demo:
+	 *
+	 * https://github.com/xmlark/msv/blob/main/msv/examples/errorinfo/ErrorReporter.java
+	 */
+	private static class Interceptor extends XMLFilterImpl {
+
+		private static final ErrorHandler IGNORE_ERROR_HANDLER = new ErrorHandler() {
+
+			@Override
+			public void warning(SAXParseException exception) throws SAXException {
+			}
+
+			@Override
+			public void error(SAXParseException exception) throws SAXException {
+			}
+
+			@Override
+			public void fatalError(SAXParseException exception) throws SAXException {
+			}
+
+		};
+
+		public Interceptor() {
+			super();
+			setErrorHandler(IGNORE_ERROR_HANDLER);
+		}
+
+		@Override
+		public void startElement(
+				String ns, String local, String qname, Attributes atts)
+				throws SAXException {
+			try {
+				super.startElement(ns, local, qname, atts);
+			} catch (ValidityViolation vv) {
+				this.getErrorHandler().error(vv);
+			}
+		}
+
+		@Override
+		public void endElement(String ns, String local, String qname) throws SAXException {
+			try {
+				super.endElement(ns, local, qname);
+			} catch (ValidityViolation vv) {
+				this.getErrorHandler().error(vv);
+			}
 		}
 	}
 

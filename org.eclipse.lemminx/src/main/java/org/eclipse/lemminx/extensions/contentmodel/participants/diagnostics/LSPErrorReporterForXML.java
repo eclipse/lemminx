@@ -105,9 +105,12 @@ public class LSPErrorReporterForXML extends AbstractReferencedGrammarLSPErrorRep
 						RNGErrorCode rngCode = RNGErrorCode.get(key);
 						if (rngCode != null) {
 							if (errorForDocument) {
-								// TODO:
+								Range range = RNGErrorCode.toLSPRange(location, rngCode, message, arguments, document);
+								if (range != null) {
+									return range;
+								}
 							} else {
-								// TODO:
+								// TODO: setup reporting errors on referenced RNG files
 							}
 						}
 					}
