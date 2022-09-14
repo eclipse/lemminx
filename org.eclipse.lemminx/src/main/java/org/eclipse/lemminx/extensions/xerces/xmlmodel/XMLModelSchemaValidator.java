@@ -24,7 +24,6 @@ import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.parser.XMLComponentManager;
 import org.apache.xerces.xni.parser.XMLConfigurationException;
 import org.eclipse.lemminx.utils.StringUtils;
-import org.xml.sax.XMLReader;
 
 /**
  * XML model validator which process validation with XML Schema:

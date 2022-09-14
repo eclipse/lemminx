@@ -12,7 +12,6 @@
 package org.eclipse.lemminx.extensions.xerces.xmlmodel;
 
 import org.eclipse.lemminx.extensions.xerces.ExternalXMLDTDValidator;
-import org.xml.sax.XMLReader;
 
 /**
  * XML model validator which process validation with DTD:

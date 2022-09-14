@@ -1,3 +1,14 @@
+/*******************************************************************************
+* Copyright (c) 2022 Red Hat Inc. and others.
+* All rights reserved. This program and the accompanying materials
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v20.html
+*
+* SPDX-License-Identifier: EPL-2.0
+*
+* Contributors:
+*     Red Hat Inc. - initial API and implementation
+*******************************************************************************/
 package org.eclipse.lemminx.extensions.xerces.xmlmodel;
 
 import java.io.IOException;
@@ -33,6 +44,11 @@ import org.xml.sax.helpers.XMLFilterImpl;
 
 import com.sun.msv.verifier.ValidityViolation;
 
+/**
+ * Validates a document against a RelaxNG schema using MSV.
+ *
+ * @auhtor datho7561
+ */
 public class XMLModelRelaxNGValidator implements XMLModelValidator {
 
 	private static final Logger LOGGER = Logger.getLogger(XMLModelRelaxNGValidator.class.getName());
@@ -150,7 +166,8 @@ public class XMLModelRelaxNGValidator implements XMLModelValidator {
 	@Override
 	public void emptyElement(QName element, XMLAttributes attributes, Augmentations augs) throws XNIException {
 		try {
-			interceptor.startElement(element.uri, element.localpart, element.rawname, new AttributesWrapper(attributes));
+			interceptor.startElement(element.uri, element.localpart, element.rawname,
+					new AttributesWrapper(attributes));
 			interceptor.endElement(element.uri, element.localpart, element.rawname);
 		} catch (SAXException e) {
 			throw new XNIException(e);
@@ -244,6 +261,10 @@ public class XMLModelRelaxNGValidator implements XMLModelValidator {
 		this.href = href;
 	}
 
+	/**
+	 * Wraps {@link org.apache.xerces.xni.XMLAttributes} to
+	 * {@link org.xml.sax.Attributes}.
+	 */
 	private final class AttributesWrapper implements Attributes {
 		private final XMLAttributes attributes;
 
@@ -312,38 +333,9 @@ public class XMLModelRelaxNGValidator implements XMLModelValidator {
 		}
 	}
 
-	private final class LocatorWrapper implements Locator {
-
-		private final XMLLocator xmlLocator;
-
-		public LocatorWrapper(XMLLocator xmlLocator) {
-			this.xmlLocator = xmlLocator;
-		}
-
-		@Override
-		public String getPublicId() {
-			return xmlLocator.getPublicId();
-		}
-
-		@Override
-		public String getSystemId() {
-			return xmlLocator.getLiteralSystemId();
-		}
-
-		@Override
-		public int getLineNumber() {
-			return xmlLocator.getLineNumber();
-		}
-
-		@Override
-		public int getColumnNumber() {
-			return xmlLocator.getColumnNumber();
-		}
-	}
-
 	/**
-	 * Please refer to the MSV demo:
-	 *
+	 * Used to prevent a the schema validator from stopping on the first error it
+	 * encounters. Please refer to the MSV demo:
 	 * https://github.com/xmlark/msv/blob/main/msv/examples/errorinfo/ErrorReporter.java
 	 */
 	private static class Interceptor extends XMLFilterImpl {

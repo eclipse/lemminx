@@ -95,11 +95,8 @@ public class XMLValidator {
 
 			SAXParser parser = new LSPSAXParser(reporterForXML, configuration, grammarPool, document);
 
-			MultipleContentHandler multiContentHandler = new MultipleContentHandler();
 			// Add LSP content handler to stop XML parsing if monitor is canceled.
-			multiContentHandler.addContentHandler(new LSPContentHandler(monitor));
-
-			parser.setContentHandler(multiContentHandler);
+			parser.setContentHandler(new LSPContentHandler(monitor));
 
 			// warn if XML document is not bound to a grammar according the settings
 			warnNoGrammar(document, diagnostics, validationSettings);

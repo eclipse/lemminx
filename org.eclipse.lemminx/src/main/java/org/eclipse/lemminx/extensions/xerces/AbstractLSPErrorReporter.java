@@ -92,7 +92,7 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 		boolean fatalError = severity == SEVERITY_FATAL_ERROR;
 		DiagnosticSeverity diagnosticSeverity = getSeverity(domain, key, arguments, severity, exception);
 		Range adjustedRange = internalToLSPRange(location, code, arguments, message, diagnosticSeverity, fatalError,
-				xmlDocument, exception);
+				xmlDocument);
 		List<DiagnosticRelatedInformation> relatedInformations = null;
 		if (adjustedRange == null || NO_RANGE.equals(adjustedRange)) {
 			return null;
@@ -156,9 +156,9 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 			return key;
 		}
 		if (exception instanceof XMLParseException) {
-			XMLParseException xmlParseException = ((XMLParseException)exception);
+			XMLParseException xmlParseException = ((XMLParseException) exception);
 			if (xmlParseException.getCause() instanceof ValidityViolation) {
-				ValidityViolation validityViolation = ((ValidityViolation)xmlParseException.getCause());
+				ValidityViolation validityViolation = ((ValidityViolation) xmlParseException.getCause());
 				return validityViolation.getErrorInfo().getClass().getSimpleName();
 			}
 		}
@@ -191,10 +191,10 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 	 */
 	private static DiagnosticSeverity toLSPSeverity(int severity) {
 		switch (severity) {
-		case SEVERITY_WARNING:
-			return DiagnosticSeverity.Warning;
-		default:
-			return DiagnosticSeverity.Error;
+			case SEVERITY_WARNING:
+				return DiagnosticSeverity.Warning;
+			default:
+				return DiagnosticSeverity.Error;
 		}
 	}
 
@@ -212,8 +212,7 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 	 * @return the LSP range from the SAX error.
 	 */
 	private Range internalToLSPRange(XMLLocator location, String key, Object[] arguments, String message,
-			DiagnosticSeverity diagnosticSeverity, boolean fatalError, DOMDocument document, Exception exception) {
-
+			DiagnosticSeverity diagnosticSeverity, boolean fatalError, DOMDocument document) {
 		if (location == null) {
 			Position start = toLSPPosition(0, location, document.getTextDocument());
 			Position end = toLSPPosition(0, location, document.getTextDocument());
