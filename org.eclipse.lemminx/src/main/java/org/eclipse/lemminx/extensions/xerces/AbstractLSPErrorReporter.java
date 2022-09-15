@@ -87,11 +87,11 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 		}
 		// format message
 		String code = getCode(domain, key, arguments, exception);
-		String message = getMessage(domain, code, arguments, exception);
+		String message = getMessage(domain, key, arguments, exception);
 
 		boolean fatalError = severity == SEVERITY_FATAL_ERROR;
 		DiagnosticSeverity diagnosticSeverity = getSeverity(domain, key, arguments, severity, exception);
-		Range adjustedRange = internalToLSPRange(location, code, arguments, message, diagnosticSeverity, fatalError,
+		Range adjustedRange = internalToLSPRange(location, key, arguments, message, diagnosticSeverity, fatalError,
 				xmlDocument);
 		List<DiagnosticRelatedInformation> relatedInformations = null;
 		if (adjustedRange == null || NO_RANGE.equals(adjustedRange)) {
@@ -154,13 +154,6 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 	protected String getCode(String domain, String key, Object[] arguments, Exception exception) {
 		if (!StringUtils.isBlank(key)) {
 			return key;
-		}
-		if (exception instanceof XMLParseException) {
-			XMLParseException xmlParseException = ((XMLParseException) exception);
-			if (xmlParseException.getCause() instanceof ValidityViolation) {
-				ValidityViolation validityViolation = ((ValidityViolation) xmlParseException.getCause());
-				return validityViolation.getErrorInfo().getClass().getSimpleName();
-			}
 		}
 		return "";
 	}
@@ -324,17 +317,37 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 
 				@Override
 				public void warning(String domain, String key, XMLParseException exception) throws XNIException {
+					if (StringUtils.isBlank(key) && exception instanceof XMLParseException) {
+						XMLParseException xmlParseException = ((XMLParseException) exception);
+						if (xmlParseException.getCause() instanceof ValidityViolation) {
+							ValidityViolation validityViolation = ((ValidityViolation) xmlParseException.getCause());
+							key = validityViolation.getErrorInfo().getClass().getSimpleName();
+						}
+					}
 					reportError(domain, key, null, SEVERITY_WARNING, exception);
 				}
 
 				@Override
 				public void fatalError(String domain, String key, XMLParseException exception) throws XNIException {
-					// Allow parser to continue under fatal error
+					if (StringUtils.isBlank(key) && exception instanceof XMLParseException) {
+						XMLParseException xmlParseException = ((XMLParseException) exception);
+						if (xmlParseException.getCause() instanceof ValidityViolation) {
+							ValidityViolation validityViolation = ((ValidityViolation) xmlParseException.getCause());
+							key = validityViolation.getErrorInfo().getClass().getSimpleName();
+						}
+					}
 					reportError(domain, key, null, SEVERITY_FATAL_ERROR, exception);
 				}
 
 				@Override
 				public void error(String domain, String key, XMLParseException exception) throws XNIException {
+					if (StringUtils.isBlank(key) && exception instanceof XMLParseException) {
+						XMLParseException xmlParseException = ((XMLParseException) exception);
+						if (xmlParseException.getCause() instanceof ValidityViolation) {
+							ValidityViolation validityViolation = ((ValidityViolation) xmlParseException.getCause());
+							key = validityViolation.getErrorInfo().getClass().getSimpleName();
+						}
+					}
 					reportError(domain, key, null, SEVERITY_ERROR, exception);
 				}
 			};
