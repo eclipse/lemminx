@@ -2,6 +2,7 @@ org.eclipse.lemminx.extensions.contentmodel.ContentModelPlugin
 org.eclipse.lemminx.extensions.references.XMLReferencesPlugin
 org.eclipse.lemminx.extensions.xsd.XSDPlugin
 org.eclipse.lemminx.extensions.dtd.DTDPlugin
+org.eclipse.lemminx.extensions.rng.RNGPlugin
 org.eclipse.lemminx.extensions.xsl.XSLPlugin
 org.eclipse.lemminx.extensions.catalog.XMLCatalogPlugin
 org.eclipse.lemminx.extensions.xsi.XSISchemaPlugin

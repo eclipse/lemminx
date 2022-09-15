@@ -52,7 +52,7 @@ public class DOMUtils {
 
 	/**
 	 * Returns true if the XML document is a XML Schema and false otherwise.
-	 * 
+	 *
 	 * @return true if the XML document is a XML Schema and false otherwise.
 	 */
 	public static boolean isXSD(DOMDocument document) {
@@ -70,7 +70,7 @@ public class DOMUtils {
 
 	/**
 	 * Returns true if the given URI is a XML Schema and false otherwise.
-	 * 
+	 *
 	 * @param uri the URI to check
 	 * @return true if the given URI is a XML Schema and false otherwise.
 	 */
@@ -80,7 +80,7 @@ public class DOMUtils {
 
 	/**
 	 * Returns true if the XML document is a XML Catalog and false otherwise.
-	 * 
+	 *
 	 * @return true if the XML document is a XML Catalog and false otherwise.
 	 */
 	public static boolean isCatalog(DOMDocument document) {
@@ -92,7 +92,7 @@ public class DOMUtils {
 	/**
 	 * Returns true if the document element root is bound to the given namespace and
 	 * false otherwise.
-	 * 
+	 *
 	 * @param document
 	 * @param namespace
 	 * @return true if the document element root is bound to the given namespace and
@@ -105,7 +105,7 @@ public class DOMUtils {
 
 	/**
 	 * Returns true if the given URI is a DTD and false otherwise.
-	 * 
+	 *
 	 * @param uri the URI to check
 	 * @return true if the given URI is a DTD and false otherwise.
 	 */
@@ -116,7 +116,7 @@ public class DOMUtils {
 
 	/**
 	 * Returns true if element contains only DOMText and false otherwise.
-	 * 
+	 *
 	 * @return true if element contains only DOMText and false otherwise.
 	 */
 	public static boolean containsTextOnly(DOMElement element) {
@@ -125,7 +125,7 @@ public class DOMUtils {
 
 	/**
 	 * Returns the DOM document from the given XML Schema uri.
-	 * 
+	 *
 	 * @param documentURI              the schema URI
 	 * @param resolverExtensionManager
 	 * @return the DOM document from the given XML Schema uri.
@@ -143,7 +143,7 @@ public class DOMUtils {
 	/**
 	 * Returns an instance of SAX parser factory by disabling external entities
 	 * declarations.
-	 * 
+	 *
 	 * @return an instance of SAX parser factory by disabling external entities
 	 *         declarations.
 	 * @throws SAXNotRecognizedException
@@ -156,5 +156,15 @@ public class DOMUtils {
 		// to be more secure, completely disable DOCTYPE declaration:
 		factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
 		return factory;
+	}
+
+	/**
+	 * Returns true if the given uri points to a .rng file (XML syntax only).
+	 *
+	 * @param uri the uri to check
+	 * @return true if the given uri points to a .rng file (XML syntax only)
+	 */
+	public static boolean isRNG(String uri) {
+		return uri.endsWith(".rng");
 	}
 }

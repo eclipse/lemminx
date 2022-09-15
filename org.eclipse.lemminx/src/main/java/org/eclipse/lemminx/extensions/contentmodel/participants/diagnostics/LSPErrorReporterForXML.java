@@ -22,6 +22,7 @@ import org.eclipse.lemminx.dom.DOMRange;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.extensions.contentmodel.model.ReferencedGrammarInfo;
 import org.eclipse.lemminx.extensions.contentmodel.participants.DTDErrorCode;
+import org.eclipse.lemminx.extensions.contentmodel.participants.RNGErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSchemaErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCode;
 import org.eclipse.lemminx.extensions.xerces.AbstractReferencedGrammarLSPErrorReporter;

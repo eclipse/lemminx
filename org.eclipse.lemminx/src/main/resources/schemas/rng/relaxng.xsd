@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  A schema for RELAX NG syntax staying within the
+  expressive power of W3C XML Schema.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://relaxng.org/ns/structure/1.0" xmlns:rng="http://relaxng.org/ns/structure/1.0">
+  <xs:element name="patternNotChoice" abstract="true"/>
+  <xs:element name="element" substitutionGroup="rng:patternNotChoice">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="rng:foreignElement"/>
+        <xs:group ref="rng:nameClassOrPattern"/>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="rng:foreignElement"/>
+        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+          <xs:group ref="rng:patternAfterNameClass"/>
+          <xs:group minOccurs="0" maxOccurs="unbounded" ref="rng:foreignElement"/>
+        </xs:sequence>
+      </xs:sequence>
+      <xs:attribute name="name" type="xs:QName"/>
+      <xs:attributeGroup ref="rng:commonAttributes"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="attribute" substitutionGroup="rng:patternNotChoice">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="rng:foreignElement"/>
+        <xs:sequence minOccurs="0">
+          <xs:group ref="rng:nameClassOrPattern"/>
+          <xs:group minOccurs="0" maxOccurs="unbounded" ref="rng:foreignElement"/>
+          <xs:sequence minOccurs="0">
+            <xs:group ref="rng:patternAfterNameClass"/>
+            <xs:group minOccurs="0" maxOccurs="unbounded" ref="rng:foreignElement"/>
+          </xs:sequence>
+        </xs:sequence>
+      </xs:sequence>
+      <xs:attribute name="name" type="xs:QName"/>
+      <xs:attributeGroup ref="rng:commonAttributes"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="group" substitutionGroup="rng:patternNotChoice" type="rng:oneOrMorePatternsType"/>
+  <xs:element name="interleave" substitutionGroup="rng:patternNotChoice" type="rng:oneOrMorePatternsType"/>
+  <xs:element name="optional" substitutionGroup="rng:patternNotChoice" type="rng:oneOrMorePatternsType"/>
+  <xs:element name="zeroOrMore" substitutionGroup="rng:patternNotChoice" type="rng:oneOrMorePatternsType"/>
+  <xs:element name="oneOrMore" substitutionGroup="rng:patternNotChoice" type="rng:oneOrMorePatternsType"/>
+  <xs:element name="list" substitutionGroup="rng:patternNotChoice" type="rng:oneOrMorePatternsType"/>
+  <xs:element name="mixed" substitutionGroup="rng:patternNotChoice" type="rng:oneOrMorePatternsType"/>
+  <xs:element name="ref" substitutionGroup="rng:patternNotChoice">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="rng:common">
+          <xs:attributeGroup ref="rng:nameNCName"/>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="parentRef" substitutionGroup="rng:patternNotChoice">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="rng:common">
+          <xs:attributeGroup ref="rng:nameNCName"/>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="empty" substitutionGroup="rng:patternNotChoice" type="rng:common"/>
+  <xs:element name="notAllowed" substitutionGroup="rng:patternNotChoice" type="rng:common"/>
+  <xs:element name="text" substitutionGroup="rng:patternNotChoice" type="rng:common"/>
+  <xs:element name="data" substitutionGroup="rng:patternNotChoice">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="rng:foreignElement"/>
+        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="rng:param"/>
+          <xs:group minOccurs="0" maxOccurs="unbounded" ref="rng:foreignElement"/>
+        </xs:sequence>
+        <xs:sequence minOccurs="0">
+          <xs:group ref="rng:exceptPattern"/>
+          <xs:group minOccurs="0" maxOccurs="unbounded" ref="rng:foreignElement"/>
+        </xs:sequence>
+      </xs:sequence>
+      <xs:attributeGroup ref="rng:type"/>
+      <xs:attributeGroup ref="rng:commonAttributes"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="value" substitutionGroup="rng:patternNotChoice">
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:string">
+          <xs:attributeGroup ref="rng:commonAttributes"/>
+          <xs:attribute name="type" type="xs:NCName"/>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="externalRef" substitutionGroup="rng:patternNotChoice">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="rng:common">
+          <xs:attributeGroup ref="rng:href"/>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="grammar" substitutionGroup="rng:patternNotChoice" type="rng:grammarType"/>
+  <xs:complexType name="oneOrMorePatternsType">
+    <xs:sequence>
+      <xs:group minOccurs="0" maxOccurs="unbounded" ref="rng:foreignElement"/>
+      <xs:sequence maxOccurs="unbounded">
+        <xs:group ref="rng:pattern"/>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="rng:foreignElement"/>
+      </xs:sequence>
+    </xs:sequence>
+    <xs:attributeGroup ref="rng:commonAttributes"/>
+  </xs:complexType>
+  <xs:complexType name="grammarType">
+    <xs:sequence>
+      <xs:group minOccurs="0" maxOccurs="unbounded" ref="rng:foreignElement"/>
+      <xs:sequence minOccurs="0" maxOccurs="unbounded">
+        <xs:group ref="rng:grammarContent"/>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="rng:foreignElement"/>
+      </xs:sequence>
+    </xs:sequence>
+    <xs:attributeGroup ref="rng:commonAttributes"/>
+  </xs:complexType>
+  <xs:group name="pattern">
+    <xs:choice>
+      <xs:element ref="rng:patternNotChoice"/>
+      <xs:element name="choice" type="rng:oneOrMorePatternsType"/>
+    </xs:choice>
+  </xs:group>
+  <xs:group name="patternAfterNameClass">
+    <xs:choice>
+      <xs:element ref="rng:patternNotChoice"/>
+      <xs:group ref="rng:choice"/>
+    </xs:choice>
+  </xs:group>
+  <xs:group name="nameClassOrPattern">
+    <xs:choice>
+      <xs:element ref="rng:nameClassNotChoice"/>
+      <xs:element ref="rng:patternNotChoice"/>
+      <xs:group ref="rng:choice"/>
+    </xs:choice>
+  </xs:group>
+  <xs:group name="choice">
+    <xs:sequence>
+      <xs:element name="choice">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:group minOccurs="0" maxOccurs="unbounded" ref="rng:foreignElement"/>
+            <xs:sequence maxOccurs="unbounded">
+              <xs:group ref="rng:nameClassOrPattern"/>
+              <xs:group minOccurs="0" maxOccurs="unbounded" ref="rng:foreignElement"/>
+            </xs:sequence>
+          </xs:sequence>
+          <xs:attributeGroup ref="rng:commonAttributes"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:element name="param">
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:string">
+          <xs:attributeGroup ref="rng:commonAttributes"/>
+          <xs:attributeGroup ref="rng:nameNCName"/>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:group name="exceptPattern">
+    <xs:sequence>
+      <xs:element name="except" type="rng:oneOrMorePatternsType"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="grammarContent">
+    <xs:choice>
+      <xs:element ref="rng:definition"/>
+      <xs:element name="div" type="rng:grammarType"/>
+      <xs:element ref="rng:include"/>
+    </xs:choice>
+  </xs:group>
+  <xs:element name="include">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="rng:includeType">
+          <xs:attributeGroup ref="rng:href"/>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:group name="includeContent">
+    <xs:choice>
+      <xs:element ref="rng:definition"/>
+      <xs:element name="div" type="rng:includeType"/>
+    </xs:choice>
+  </xs:group>
+  <xs:complexType name="includeType">
+    <xs:sequence>
+      <xs:group minOccurs="0" maxOccurs="unbounded" ref="rng:foreignElement"/>
+      <xs:sequence minOccurs="0" maxOccurs="unbounded">
+        <xs:group ref="rng:includeContent"/>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="rng:foreignElement"/>
+      </xs:sequence>
+    </xs:sequence>
+    <xs:attributeGroup ref="rng:commonAttributes"/>
+  </xs:complexType>
+  <xs:element name="definition" abstract="true"/>
+  <xs:element name="start" substitutionGroup="rng:definition">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="rng:oneOrMorePatternsType">
+          <xs:attribute name="combine">
+            <xs:simpleType>
+              <xs:restriction base="xs:token">
+                <xs:enumeration value="choice"/>
+                <xs:enumeration value="interleave"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:attribute>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="define" substitutionGroup="rng:definition">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="rng:oneOrMorePatternsType">
+          <xs:attributeGroup ref="rng:nameNCName"/>
+          <xs:attribute name="combine">
+            <xs:simpleType>
+              <xs:restriction base="xs:token">
+                <xs:enumeration value="choice"/>
+                <xs:enumeration value="interleave"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:attribute>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="combine">
+    <xs:attribute name="combine" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="choice"/>
+          <xs:enumeration value="interleave"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="nameClassNotChoice" abstract="true"/>
+  <xs:element name="name" substitutionGroup="rng:nameClassNotChoice">
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:QName">
+          <xs:attributeGroup ref="rng:commonAttributes"/>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="anyName" substitutionGroup="rng:nameClassNotChoice">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="rng:foreignElement"/>
+        <xs:sequence minOccurs="0">
+          <xs:group ref="rng:exceptNameClass"/>
+          <xs:group minOccurs="0" maxOccurs="unbounded" ref="rng:foreignElement"/>
+        </xs:sequence>
+      </xs:sequence>
+      <xs:attributeGroup ref="rng:commonAttributes"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="nsName" substitutionGroup="rng:nameClassNotChoice">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="rng:foreignElement"/>
+        <xs:sequence minOccurs="0">
+          <xs:group ref="rng:exceptNameClass"/>
+          <xs:group minOccurs="0" maxOccurs="unbounded" ref="rng:foreignElement"/>
+        </xs:sequence>
+      </xs:sequence>
+      <xs:attributeGroup ref="rng:commonAttributes"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:group name="nameClass">
+    <xs:choice>
+      <xs:element ref="rng:nameClassNotChoice"/>
+      <xs:element name="choice" type="rng:oneOrMoreNameClassType"/>
+    </xs:choice>
+  </xs:group>
+  <xs:group name="exceptNameClass">
+    <xs:sequence>
+      <xs:element name="except" type="rng:oneOrMoreNameClassType"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="oneOrMoreNameClassType">
+    <xs:sequence>
+      <xs:group minOccurs="0" maxOccurs="unbounded" ref="rng:foreignElement"/>
+      <xs:sequence maxOccurs="unbounded">
+        <xs:group ref="rng:nameClass"/>
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="rng:foreignElement"/>
+      </xs:sequence>
+    </xs:sequence>
+    <xs:attributeGroup ref="rng:commonAttributes"/>
+  </xs:complexType>
+  <xs:attributeGroup name="nameQName">
+    <xs:attribute name="name" use="required" type="xs:QName"/>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="nameNCName">
+    <xs:attribute name="name" use="required" type="xs:NCName"/>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="href">
+    <xs:attribute name="href" use="required" type="xs:anyURI"/>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="type">
+    <xs:attribute name="type" use="required" type="xs:NCName"/>
+  </xs:attributeGroup>
+  <xs:complexType name="common">
+    <xs:group minOccurs="0" maxOccurs="unbounded" ref="rng:foreignElement"/>
+    <xs:attributeGroup ref="rng:commonAttributes"/>
+  </xs:complexType>
+  <xs:attributeGroup name="commonAttributes">
+    <xs:attribute name="ns" type="xs:string"/>
+    <xs:attribute name="datatypeLibrary" type="xs:anyURI"/>
+    <xs:attributeGroup ref="rng:foreignAttributes"/>
+  </xs:attributeGroup>
+  <xs:group name="foreignElement">
+    <xs:choice>
+      <xs:any namespace="##other" processContents="skip"/>
+      <xs:any namespace="##local" processContents="skip"/>
+    </xs:choice>
+  </xs:group>
+  <xs:attributeGroup name="foreignAttributes">
+    <xs:anyAttribute namespace="##other" processContents="skip"/>
+  </xs:attributeGroup>
+  <xs:group name="anyElement">
+    <xs:sequence>
+      <xs:any processContents="skip"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:attributeGroup name="anyAttributes">
+    <xs:anyAttribute processContents="skip"/>
+  </xs:attributeGroup>
+</xs:schema>

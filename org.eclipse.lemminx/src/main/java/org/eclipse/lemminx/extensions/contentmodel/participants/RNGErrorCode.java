@@ -9,7 +9,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lemminx.extensions.contentmodel.participants.diagnostics;
+package org.eclipse.lemminx.extensions.contentmodel.participants;
 
 import java.util.HashMap;
 import java.util.Map;
