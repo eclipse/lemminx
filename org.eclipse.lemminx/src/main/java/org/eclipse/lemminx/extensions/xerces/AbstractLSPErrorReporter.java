@@ -76,6 +76,7 @@ public abstract class AbstractLSPErrorReporter extends XMLErrorReporter {
 		super.putMessageFormatter(XMLMessageFormatter.XMLNS_DOMAIN, xmft);
 		super.putMessageFormatter(XSMessageFormatter.SCHEMA_DOMAIN, new LSPMessageFormatter());
 		super.putMessageFormatter(XMLModelMessageFormatter.XML_MODEL_DOMAIN, new XMLModelMessageFormatter());
+		super.putMessageFormatter(RNGMessageFormatter.RNG_DOMAIN, new RNGMessageFormatter());
 	}
 
 	@Override

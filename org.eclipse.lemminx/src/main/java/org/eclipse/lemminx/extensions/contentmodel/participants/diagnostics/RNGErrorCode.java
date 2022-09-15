@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 
 import org.apache.xerces.xni.XMLLocator;
 import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lemminx.dom.XMLModel;
 import org.eclipse.lemminx.services.extensions.diagnostics.IXMLErrorCode;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.Range;
@@ -84,6 +85,11 @@ public enum RNGErrorCode implements IXMLErrorCode {
 				return XMLPositionUtility.selectAttributeNameFromGivenNameAt(attrName, offset, document);
 			}
 			case InvalidRelaxNG: {
+				for (XMLModel xmlModel : document.getXMLModels()) {
+					if (message.contains(xmlModel.getHref())) {
+						return XMLPositionUtility.createRange(xmlModel.getHrefNode());
+					}
+				}
 				return XMLPositionUtility.selectRootStartTag(document);
 			}
 			default:

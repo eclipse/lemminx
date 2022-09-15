@@ -71,7 +71,7 @@ public class XMLModelRelaxNGValidator implements XMLModelValidator {
 			interceptor.setContentHandler(verifierHandler);
 			interceptor.startDocument();
 		} catch (VerifierConfigurationException vce) {
-			errorReporter.reportError("https://relaxng.org", RNGErrorCode.InvalidRelaxNG.getCode(), new Object[] {},
+			errorReporter.reportError("https://relaxng.org", RNGErrorCode.InvalidRelaxNG.getCode(), new Object[] { href },
 					XMLErrorReporter.SEVERITY_FATAL_ERROR);
 		} catch (IOException e) {
 			LOGGER.log(Level.SEVERE, "Failed to create RelaxNG validator: ", e);
@@ -344,14 +344,17 @@ public class XMLModelRelaxNGValidator implements XMLModelValidator {
 
 			@Override
 			public void warning(SAXParseException exception) throws SAXException {
+				LOGGER.log(Level.WARNING, "RelaxNG: warning", exception);
 			}
 
 			@Override
 			public void error(SAXParseException exception) throws SAXException {
+				LOGGER.log(Level.WARNING, "RelaxNG: error", exception);
 			}
 
 			@Override
 			public void fatalError(SAXParseException exception) throws SAXException {
+				LOGGER.log(Level.WARNING, "RelaxNG: fatal error", exception);
 			}
 
 		};
