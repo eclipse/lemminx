@@ -500,9 +500,10 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 		String expected = "<!DOCTYPE name \"url\"[ <!-- MY COMMENT -->\r\n" + //
 				"  <!NOTATION postscript SYSTEM \"ghostview\">\r\n" + //
 				"]\r\n" + //
+				"\r\n" + //
+				"\r\n" + //
 				"<a></a>";
-		assertFormat(content, expected, //
-				te(2, 1, 5, 0, "\r\n"));
+		assertFormat(content, expected);
 		assertFormat(expected, expected);
 	}
 
