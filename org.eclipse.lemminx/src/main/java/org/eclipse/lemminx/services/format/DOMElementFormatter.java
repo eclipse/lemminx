@@ -76,11 +76,22 @@ public class DOMElementFormatter {
 		case MixedContent:
 			break;
 		case IgnoreSpace:
-			// remove spaces and indent
-			boolean addLineSperator = element.getParentElement() == null && element.getPreviousSibling() == null;
 			int startTagOffset = element.getStartTagOpenOffset();
-			int nbSpaces = replaceLeftSpacesWithIndentation(indentLevel, startTagOffset, !addLineSperator, edits);
-			width = nbSpaces + element.getStartTagCloseOffset() - startTagOffset;
+			// If preserve new lines
+			int preservedNewLines = getPreservedNewlines();
+			int currentNewLineCount = getExistingNewLineCount(formatterDocument.getText(), startTagOffset,
+					formatterDocument.getLineDelimiter());
+			if (currentNewLineCount > preservedNewLines) {
+				replaceLeftSpacesWithIndentationWithMultiNewLines(indentLevel, startTagOffset,
+						preservedNewLines + 1, edits);
+			} else {
+				// remove spaces and indent
+				boolean addLineSperator = element.getParentElement() == null
+						&& element.getPreviousSibling() == null;
+				int nbSpaces = replaceLeftSpacesWithIndentation(indentLevel, startTagOffset, !addLineSperator,
+						edits);
+				width = nbSpaces + element.getStartTagCloseOffset() - startTagOffset;
+			}
 		case NormalizeSpace:
 			break;
 		}
@@ -205,10 +216,19 @@ public class DOMElementFormatter {
 		case MixedContent:
 			break;
 		case IgnoreSpace:
-			// remove spaces and indent
 			int endTagOffset = element.getEndTagOpenOffset();
-			replaceLeftSpacesWithIndentation(indentLevel, endTagOffset, true, edits);
-			break;
+			// If preserve new lines
+			int preservedNewLines = getPreservedNewlines();
+			int currentNewLineCount = getExistingNewLineCount(formatterDocument.getText(), endTagOffset,
+					formatterDocument.getLineDelimiter());
+			if (currentNewLineCount > preservedNewLines) {
+				replaceLeftSpacesWithIndentationWithMultiNewLines(indentLevel, endTagOffset, preservedNewLines + 1,
+						edits);
+			} else {
+				// remove spaces and indent
+				replaceLeftSpacesWithIndentation(indentLevel, endTagOffset, true, edits);
+				break;
+			}
 		case NormalizeSpace:
 			break;
 		}
@@ -220,6 +240,47 @@ public class DOMElementFormatter {
 			removeLeftSpaces(endTagOffset, edits);
 		}
 		return 0;
+	}
+
+	/**
+	 * Return the number of new lines in the whitespaces to the left of the given
+	 * offset.
+	 *
+	 * @param text      the xml text.
+	 * @param offset    the offset to begin the count from.
+	 * @param delimiter the delimiter.
+	 *
+	 * @return the number of new lines in the whitespaces to the left of the given
+	 *         offset.
+	 */
+	private int getExistingNewLineCount(String text, int offset, String delimiter) {
+		boolean delimiterHasTwoCharacters = delimiter.length() == 2;
+		int newLineCounter = 0;
+		for (int i = offset; i > 0; i--) {
+			String c;
+			if (!Character.isWhitespace(text.charAt(i - 1))) {
+				if (!delimiterHasTwoCharacters) {
+					c = String.valueOf(text.charAt(i));
+					if (delimiter.equals(c)) {
+						newLineCounter++;
+					}
+				}
+				return newLineCounter;
+			}
+			if (delimiterHasTwoCharacters) {
+				c = text.substring(i - 2, i);
+				if (delimiter.equals(c)) {
+					newLineCounter++;
+					i--; // skip the second char of the delimiter
+				}
+			} else {
+				c = String.valueOf(text.charAt(i));
+				if (delimiter.equals(c)) {
+					newLineCounter++;
+				}
+			}
+		}
+		return newLineCounter;
 	}
 
 	/**
@@ -284,6 +345,12 @@ public class DOMElementFormatter {
 		return formatterDocument.replaceLeftSpacesWithIndentation(indentLevel, offset, addLineSeparator, edits);
 	}
 
+	private int replaceLeftSpacesWithIndentationWithMultiNewLines(int indentLevel, int offset, int newLineCount,
+			List<TextEdit> edits) {
+		return formatterDocument.replaceLeftSpacesWithIndentationWithMultiNewLines(indentLevel, offset, newLineCount,
+				edits);
+	}
+
 	private void removeLeftSpaces(int to, List<TextEdit> edits) {
 		formatterDocument.removeLeftSpaces(to, edits);
 	}
@@ -302,6 +369,10 @@ public class DOMElementFormatter {
 		}
 		List<DOMAttr> attributes = element.getAttributeNodes();
 		return attributes.get(attributes.size() - 1);
+	}
+
+	private int getPreservedNewlines() {
+		return formatterDocument.getSharedSettings().getFormattingSettings().getPreservedNewlines();
 	}
 
 	private boolean isPreserveAttributeLineBreaks() {

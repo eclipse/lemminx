@@ -397,6 +397,17 @@ public class XMLFormatterDocumentNew {
 		return 0;
 	}
 
+	public int replaceLeftSpacesWithIndentationWithMultiNewLines(int indentLevel, int offset,
+			int newLineCount, List<TextEdit> edits) {
+		int start = getLeftWhitespacesOffset(-1, offset);
+		if (start > 0) {
+			String expectedSpaces = getIndentSpacesWithMultiNewLines(indentLevel, newLineCount);
+			createTextEditIfNeeded(start, offset, expectedSpaces, edits);
+			return expectedSpaces.length();
+		}
+		return 0;
+	}
+
 	public int replaceLeftSpacesWithIndentationWithOffsetSpaces(int indentSpace, int offset, boolean addLineSeparator,
 			List<TextEdit> edits) {
 		int start = offset - 1;
@@ -585,6 +596,35 @@ public class XMLFormatterDocumentNew {
 		StringBuilder spaces = new StringBuilder();
 		if (addLineSeparator) {
 			spaces.append(lineDelimiter);
+		}
+
+		for (int i = 0; i < level; i++) {
+			if (isInsertSpaces()) {
+				for (int j = 0; j < getTabSize(); j++) {
+					spaces.append(" ");
+				}
+			} else {
+				spaces.append("\t");
+			}
+		}
+		return spaces.toString();
+	}
+
+	/**
+	 * Return the expected indent spaces and new lines with the specified number of
+	 * new lines.
+	 *
+	 * @param level        the indent level.
+	 * @param newLineCount the number of new lines to be added.
+	 *
+	 * @return the expected indent spaces and new lines with the specified number of
+	 *         new lines.
+	 */
+	private String getIndentSpacesWithMultiNewLines(int level, int newLineCount) {
+		StringBuilder spaces = new StringBuilder();
+		while (newLineCount != 0) {
+			spaces.append(lineDelimiter);
+			newLineCount--;
 		}
 
 		for (int i = 0; i < level; i++) {
