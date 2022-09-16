@@ -352,19 +352,17 @@ public class XMLValidator {
 			// "ignore" settings
 			return;
 		}
-		if (!hasGrammar) {
-			// No grammar, add a warn diagnostic with the severity coming from the settings.
-			Range range = null;
-			DOMElement documentElement = document.getDocumentElement();
-			if (documentElement != null) {
-				range = XMLPositionUtility.selectStartTagName(documentElement);
-			}
-			if (range == null) {
-				range = new Range(new Position(0, 0), new Position(0, 0));
-			}
-			diagnostics.add(new Diagnostic(range, "No grammar constraints (DTD or XML Schema).", severity,
-					"xml", XMLSyntaxErrorCode.NoGrammarConstraints.name()));
+		// No grammar, add a warn diagnostic with the severity coming from the settings.
+		Range range = null;
+		DOMElement documentElement = document.getDocumentElement();
+		if (documentElement != null) {
+			range = XMLPositionUtility.selectStartTagName(documentElement);
 		}
+		if (range == null) {
+			range = new Range(new Position(0, 0), new Position(0, 0));
+		}
+		diagnostics.add(new Diagnostic(range, "No grammar constraints (DTD or XML Schema).", severity,
+				"xml", XMLSyntaxErrorCode.NoGrammarConstraints.name()));
 	}
 
 	private static void updateExternalGrammarLocation(DOMDocument document, SAXParser reader)

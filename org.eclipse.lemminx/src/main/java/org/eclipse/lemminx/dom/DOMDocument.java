@@ -115,7 +115,7 @@ public class DOMDocument extends DOMNode implements Document {
 	/**
 	 * Returns the element name on the left of the given position and null
 	 * otherwise.
-	 * 
+	 *
 	 * @param textOffset
 	 * @return the element name on the left of the given position and null
 	 *         otherwise.
@@ -133,7 +133,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/**
 	 * Returns the text content of the XML document.
-	 * 
+	 *
 	 * @return the text content of the XML document.
 	 */
 	public String getText() {
@@ -146,7 +146,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/**
 	 * Returns true if the document is bound to a grammar and false otherwise.
-	 * 
+	 *
 	 * @return true if the document is bound to a grammar and false otherwise.
 	 */
 	public boolean hasGrammar() {
@@ -158,7 +158,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/**
 	 * Returns the declared "xsi:schemaLocation" and null otherwise.
-	 * 
+	 *
 	 * @return the declared "xsi:schemaLocation" and null otherwise.
 	 */
 	public SchemaLocation getSchemaLocation() {
@@ -169,7 +169,7 @@ public class DOMDocument extends DOMNode implements Document {
 	/**
 	 * Returns true if XML root element declares a "xsi:schemaLocation" and false
 	 * otherwise.
-	 * 
+	 *
 	 * @return true if XML root element declares a "xsi:schemaLocation" and false
 	 *         otherwise.
 	 */
@@ -179,7 +179,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/**
 	 * Returns the declared "xsi:noNamespaceSchemaLocation" and null otherwise.
-	 * 
+	 *
 	 * @return the declared "xsi:noNamespaceSchemaLocation" and null otherwise.
 	 */
 	public NoNamespaceSchemaLocation getNoNamespaceSchemaLocation() {
@@ -190,7 +190,7 @@ public class DOMDocument extends DOMNode implements Document {
 	/**
 	 * Returns true if XML root element declares a "xsi:noNamespaceSchemaLocation"
 	 * and false otherwise.
-	 * 
+	 *
 	 * @return true if XML root element declares a "xsi:noNamespaceSchemaLocation"
 	 *         and false otherwise.
 	 */
@@ -200,7 +200,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/**
 	 * Returns true if document defines namespaces (with xmlns) and false otherwise.
-	 * 
+	 *
 	 * @return true if document defines namespaces (with xmlns) and false otherwise.
 	 */
 	public boolean hasNamespaces() {
@@ -210,7 +210,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/**
 	 * Returns the (xsi) schema instance prefix and null otherwise.
-	 * 
+	 *
 	 * @return the (xsi) schema instance prefix and null otherwise.
 	 */
 	public String getSchemaInstancePrefix() {
@@ -220,7 +220,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/**
 	 * Returns true if (xsi) schema instance prefix exists.
-	 * 
+	 *
 	 * @return true if (xsi) schema instance prefix exists.
 	 */
 	public boolean hasSchemaInstancePrefix() {
@@ -287,7 +287,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/**
 	 * If document has {@code <?xml ... ?>}
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean hasProlog() {
@@ -297,7 +297,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/**
 	 * If document has {@code <?xml ... ?>}, return this prolog, null otherwise
-	 * 
+	 *
 	 * @return prolog DOMNode, if the document has one, null otherwise
 	 */
 	public DOMNode getProlog() {
@@ -311,7 +311,7 @@ public class DOMDocument extends DOMNode implements Document {
 	/**
 	 * Returns true, if the given offset is before XML declaration
 	 * ({@code <?xml ...?>}), false otherwise.
-	 * 
+	 *
 	 * @param offset the offset position in question
 	 * @return true, if before xml declaration; false otherwise
 	 */
@@ -341,7 +341,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/**
 	 * Returns true if XML document has a DTD declaration and false otherwise.
-	 * 
+	 *
 	 * @return true if XML document has a DTD declaration and false otherwise.
 	 */
 	public boolean hasDTD() {
@@ -353,7 +353,7 @@ public class DOMDocument extends DOMNode implements Document {
 	/**
 	 * Returns true if XML document has a xml-model processing declaration and false
 	 * otherwise.
-	 * 
+	 *
 	 * @return true if XML document has a xml-model processing declaration and false
 	 *         otherwise.
 	 */
@@ -364,7 +364,7 @@ public class DOMDocument extends DOMNode implements Document {
 	/**
 	 * Returns the list of xml-model processing instruction declared in the
 	 * document.
-	 * 
+	 *
 	 * @return the list of xml-model processing instruction declared in the
 	 *         document.
 	 */
@@ -378,7 +378,7 @@ public class DOMDocument extends DOMNode implements Document {
 	/**
 	 * Returns true if the document is bound to an external grammar (XML file
 	 * associations, XLM catalog) and false otherwise.
-	 * 
+	 *
 	 * @return true if the document is bound to an external grammar (XML file
 	 *         associations, XLM catalog) and false otherwise.
 	 */
@@ -389,7 +389,7 @@ public class DOMDocument extends DOMNode implements Document {
 	/**
 	 * Returns the external grammar location (XSD, DTD from xml file associations)
 	 * and null otherwise.
-	 * 
+	 *
 	 * @return the external grammar location (XSD, DTD from xml file associations)
 	 *         and null otherwise.
 	 */
@@ -401,7 +401,7 @@ public class DOMDocument extends DOMNode implements Document {
 	/**
 	 * Returns the grammar location found by the namespace URI from the document
 	 * root element (ex : found with XML catalog) and null otherwise.
-	 * 
+	 *
 	 * @return the grammar location found by the namespace URI from the document
 	 *         root element (ex : found with XML catalog) and null otherwise.
 	 */
@@ -491,7 +491,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Node#getNodeType()
 	 */
 	@Override
@@ -501,7 +501,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Node#getNodeName()
 	 */
 	@Override
@@ -511,7 +511,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Document#getDocumentElement()
 	 */
 	@Override
@@ -529,7 +529,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Document#getDoctype()
 	 */
 	@Override
@@ -552,7 +552,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Document#getDocumentURI()
 	 */
 	@Override
@@ -562,7 +562,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Document#setDocumentURI(java.lang.String)
 	 */
 	@Override
@@ -572,7 +572,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Document#adoptNode(org.w3c.dom.Node)
 	 */
 	@Override
@@ -582,7 +582,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Document#createAttribute(java.lang.String)
 	 */
 	@Override
@@ -592,7 +592,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Document#createAttributeNS(java.lang.String,
 	 * java.lang.String)
 	 */
@@ -603,7 +603,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Document#createCDATASection(java.lang.String)
 	 */
 	@Override
@@ -613,7 +613,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Document#createComment(java.lang.String)
 	 */
 	@Override
@@ -623,7 +623,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Document#createDocumentFragment()
 	 */
 	@Override
@@ -633,7 +633,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Document#createElement(java.lang.String)
 	 */
 	@Override
@@ -643,7 +643,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Document#createElementNS(java.lang.String, java.lang.String)
 	 */
 	@Override
@@ -653,7 +653,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Document#createEntityReference(java.lang.String)
 	 */
 	@Override
@@ -663,7 +663,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Document#createProcessingInstruction(java.lang.String,
 	 * java.lang.String)
 	 */
@@ -674,7 +674,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Document#createTextNode(java.lang.String)
 	 */
 	@Override
@@ -684,7 +684,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Document#getDomConfig()
 	 */
 	@Override
@@ -694,7 +694,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Document#getElementById(java.lang.String)
 	 */
 	@Override
@@ -704,7 +704,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Document#getElementsByTagName(java.lang.String)
 	 */
 	@Override
@@ -714,7 +714,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Document#getElementsByTagNameNS(java.lang.String,
 	 * java.lang.String)
 	 */
@@ -725,7 +725,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Document#getImplementation()
 	 */
 	@Override
@@ -735,7 +735,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Document#getInputEncoding()
 	 */
 	@Override
@@ -745,7 +745,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Document#getStrictErrorChecking()
 	 */
 	@Override
@@ -755,7 +755,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Document#getXmlEncoding()
 	 */
 	@Override
@@ -765,7 +765,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Document#getXmlStandalone()
 	 */
 	@Override
@@ -775,7 +775,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Document#getXmlVersion()
 	 */
 	@Override
@@ -785,7 +785,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Document#importNode(org.w3c.dom.Node, boolean)
 	 */
 	@Override
@@ -795,7 +795,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Document#normalizeDocument()
 	 */
 	@Override
@@ -805,7 +805,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Document#renameNode(org.w3c.dom.Node, java.lang.String,
 	 * java.lang.String)
 	 */
@@ -816,7 +816,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Document#setStrictErrorChecking(boolean)
 	 */
 	@Override
@@ -826,7 +826,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Document#setXmlStandalone(boolean)
 	 */
 	@Override
@@ -836,7 +836,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Document#setXmlVersion(java.lang.String)
 	 */
 	@Override
@@ -858,7 +858,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/**
 	 * Returns true if the XML document is a DTD and false otherwise.
-	 * 
+	 *
 	 * @return true if the XML document is a DTD and false otherwise.
 	 */
 	public boolean isDTD() {
@@ -871,7 +871,7 @@ public class DOMDocument extends DOMNode implements Document {
 
 	/**
 	 * Returns true if 'offset' is within an internal DOCTYPE dtd. Else false.
-	 * 
+	 *
 	 * @param offset
 	 * @return
 	 */
@@ -914,7 +914,7 @@ public class DOMDocument extends DOMNode implements Document {
 	/**
 	 * Returns the DTD Attribute list for the given element name and empty
 	 * otherwise.
-	 * 
+	 *
 	 * @param elementName
 	 * @return the DTD Attribute list for the given element name and empty
 	 *         otherwise.
@@ -931,7 +931,7 @@ public class DOMDocument extends DOMNode implements Document {
 	/**
 	 * Returns the XML Schema prefix (ex : 'xs' for
 	 * xmlns:xs="http://www.w3.org/2001/XMLSchema")
-	 * 
+	 *
 	 * @return the XML Schema prefix (ex : 'xs' for
 	 *         xmlns:xs="http://www.w3.org/2001/XMLSchema")
 	 */
