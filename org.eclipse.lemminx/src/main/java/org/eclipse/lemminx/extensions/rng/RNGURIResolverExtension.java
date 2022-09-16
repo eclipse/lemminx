@@ -43,23 +43,28 @@ public class RNGURIResolverExtension implements URIResolverExtension, IExternalG
 
 	@Override
 	public Map<String, String> getExternalGrammarLocation(URI fileURI) {
-		return resolve(fileURI.toString());
+		String schemaUri = resolve(fileURI.toString());
+		if (schemaUri == null) {
+			return null;
+		}
+
+		Map<String, String> schemaMap = new HashMap<>();
+		schemaMap.put(IExternalGrammarLocationProvider.NO_NAMESPACE_SCHEMA_LOCATION,
+				schemaUri);
+		return schemaMap;
 	}
 
 	@Override
 	public String resolve(String baseLocation, String publicId, String systemId) {
-		return resolve(baseLocation).get(IExternalGrammarLocationProvider.NO_NAMESPACE_SCHEMA_LOCATION);
+		return resolve(baseLocation);
 	}
 
-	public Map<String, String> resolve(String uri) {
+	private String resolve(String uri) {
 		if (DOMUtils.isRNG(uri)) {
 			try {
 				// XXX: I think this triggers the download, but confirm if this is needed
 				CacheResourcesManager.getResourceCachePath(RNG_RNG);
-				Map<String, String> schema  = new HashMap<>();
-				schema.put(IExternalGrammarLocationProvider.NO_NAMESPACE_SCHEMA_LOCATION,
-					RNG_RNG.getDeployedPath().toFile().toURI().toString());
-				return schema;
+				return RNG_RNG.getDeployedPath().toFile().toURI().toString();
 			} catch (IOException e) {
 				// do nothing
 			}

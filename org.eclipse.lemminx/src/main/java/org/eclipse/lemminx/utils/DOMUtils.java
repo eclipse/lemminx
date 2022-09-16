@@ -165,6 +165,6 @@ public class DOMUtils {
 	 * @return true if the given uri points to a .rng file (XML syntax only)
 	 */
 	public static boolean isRNG(String uri) {
-		return uri.endsWith(".rng");
+		return uri != null && uri.endsWith(".rng");
 	}
 }
