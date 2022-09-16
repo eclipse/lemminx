@@ -247,7 +247,7 @@ public class XMLModelRelaxNGValidator implements XMLModelValidator {
 
 	@Override
 	public XMLDocumentHandler getDocumentHandler() {
-		return this; // TODO: ??
+		return this;
 	}
 
 	@Override

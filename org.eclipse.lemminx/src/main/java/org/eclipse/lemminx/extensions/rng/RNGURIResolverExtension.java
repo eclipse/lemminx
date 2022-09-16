@@ -30,8 +30,10 @@ import org.eclipse.lemminx.utils.DOMUtils;
  */
 public class RNGURIResolverExtension implements URIResolverExtension, IExternalGrammarLocationProvider {
 
-	private static final ResourceToDeploy RNG_RNG = new ResourceToDeploy("http://relaxng.org/relaxng.xsd",
+	private static final ResourceToDeploy RNG_XSD = new ResourceToDeploy("http://relaxng.org/relaxng.xsd",
 			"schemas/rng/relaxng.xsd");
+
+	// private static final String RELAXNG_NAMESPACE = "http://relaxng.org/ns/structure/1.0";
 
 	public RNGURIResolverExtension(IXMLDocumentProvider documentProvider) {
 
@@ -62,9 +64,8 @@ public class RNGURIResolverExtension implements URIResolverExtension, IExternalG
 	private String resolve(String uri) {
 		if (DOMUtils.isRNG(uri)) {
 			try {
-				// XXX: I think this triggers the download, but confirm if this is needed
-				CacheResourcesManager.getResourceCachePath(RNG_RNG);
-				return RNG_RNG.getDeployedPath().toFile().toURI().toString();
+				CacheResourcesManager.getResourceCachePath(RNG_XSD);
+				return RNG_XSD.getDeployedPath().toFile().toURI().toString();
 			} catch (IOException e) {
 				// do nothing
 			}

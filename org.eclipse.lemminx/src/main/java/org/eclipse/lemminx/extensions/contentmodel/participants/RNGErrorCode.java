@@ -34,6 +34,7 @@ public enum RNGErrorCode implements IXMLErrorCode {
 	IncompleteContentModel,
 	BadTagName,
 	BadAttribute,
+	BadText,
 	MissingAttribute,
 	InvalidRelaxNG;
 
@@ -83,6 +84,9 @@ public enum RNGErrorCode implements IXMLErrorCode {
 				m.find();
 				String attrName = m.group(1);
 				return XMLPositionUtility.selectAttributeNameFromGivenNameAt(attrName, offset, document);
+			}
+			case BadText: {
+				return XMLPositionUtility.selectContent(offset, document);
 			}
 			case InvalidRelaxNG: {
 				for (XMLModel xmlModel : document.getXMLModels()) {

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns="http://relaxng.org/ns/structure/1.0">
+	<!-- approximation of
+	dresssize.xsd, the main difference being when you specify the size as an
+	integer, there are no bounds on the integer -->
+	<define name="dressSize">
+		<choice>
+			<value>small</value>
+			<value>medium</value>
+			<value>large</value>
+			<value>x-large</value>
+			<data type="integer" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes" />
+		</choice>
+	</define>
+	<start>
+		<element name="dress">
+			<choice>
+				<element name="size">
+					<ref name="dressSize"></ref>
+				</element>
+				<attribute name="size">
+					<ref name="dressSize"></ref>
+				</attribute>
+			</choice>
+		</element>
+	</start>
+</grammar>
