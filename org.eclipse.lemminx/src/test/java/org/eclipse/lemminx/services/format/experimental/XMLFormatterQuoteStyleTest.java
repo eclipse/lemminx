@@ -245,7 +245,6 @@ public class XMLFormatterQuoteStyleTest {
 				"  <!ELEMENT E EMPTY>\n" + //
 				"  <!ATTLIST E WIDTH CDATA \'0\'>\n" + //
 				"]>\n" + //
-				"\n" + //
 				"<root attr=\'hello\'></root>";
 		assertFormat(content, expected, settings);
 		assertFormat(expected, expected, settings);
@@ -272,7 +271,6 @@ public class XMLFormatterQuoteStyleTest {
 				"  <!ELEMENT E EMPTY>\n" + //
 				"  <!ATTLIST E WIDTH CDATA 0\">\n" + //
 				"]>\n" + //
-				"\n" + //
 				"<root attr=\'hello\'></root>";
 		assertFormat(content, expected, settings);
 		assertFormat(expected, expected, settings);

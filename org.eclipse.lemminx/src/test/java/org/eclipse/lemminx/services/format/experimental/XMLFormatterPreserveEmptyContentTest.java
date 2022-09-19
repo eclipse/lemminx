@@ -11,6 +11,8 @@
 *******************************************************************************/
 package org.eclipse.lemminx.services.format.experimental;
 
+import static org.eclipse.lemminx.XMLAssert.te;
+
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.settings.SharedSettings;
@@ -25,136 +27,143 @@ import org.junit.jupiter.api.Test;
  */
 public class XMLFormatterPreserveEmptyContentTest {
 
-	@Disabled
 	@Test
 	public void testPreserveEmptyContentTag() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setPreserveEmptyContent(true);
 
-		String content = "<a>\r" + //
+		String content = "<a>\n" + //
 				"     " + //
 				"</a>";
-		String expected = "<a>\r" + //
+		String expected = "<a>\n" + //
 				"     " + //
 				"</a>";
 		assertFormat(content, expected, settings);
 	}
 
-	@Disabled
 	@Test
 	public void testDontPreserveEmptyContentTag() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setPreserveEmptyContent(false);
 
-		String content = "<a>\r" + //
+		String content = "<a>\n" + //
 				"     " + //
 				"</a>";
-		String expected = "<a></a>";
-		assertFormat(content, expected, settings);
+		String expected = "<a> </a>";
+		assertFormat(content, expected, settings, //
+				te(0, 3, 1, 5, " "));
+		assertFormat(expected, expected, settings);
 	}
 
-	@Disabled
 	@Test
 	public void testPreserveTextContent() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setPreserveEmptyContent(true);
 
-		String content = "<a>\r" + //
+		String content = "<a>\n" + //
 				"   aaa  " + //
 				"</a>";
-		String expected = "<a>\r" + //
+		String expected = "<a>\n" + //
 				"   aaa  " + //
 				"</a>";
 		assertFormat(content, expected, settings);
 	}
 
-	@Disabled
 	@Test
 	public void testPreserveTextContent2() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setPreserveEmptyContent(false);
 
-		String content = "<a>\r" + //
+		String content = "<a>\n" + //
 				"   aaa  " + //
 				"</a>";
-		String expected = "<a>\r" + //
-				"   aaa  " + //
-				"</a>";
-		assertFormat(content, expected, settings);
+		String expected = "<a> aaa </a>";
+		assertFormat(content, expected, settings, //
+				te(0, 3, 1, 3, " "), //
+				te(1, 6, 1, 8, " "));
+		assertFormat(expected, expected, settings);
 	}
 
-	@Disabled
 	@Test
 	public void testPreserveEmptyContentTagWithSiblings() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setPreserveEmptyContent(true);
 
-		String content = "<a>\r" + //
+		String content = "<a>\n" + //
 				"     " + //
 				"  <b>  </b>" + //
 				"     " + //
 				"</a>";
-		String expected = "<a>\r" + //
-				"  <b>  </b>\r" + //
+		String expected = "<a>\n" + //
+				"  <b>  </b>\n" + //
 				"</a>";
-		assertFormat(content, expected, settings);
+		assertFormat(content, expected, settings, //
+				te(0, 3, 1, 7, "\n  "), //
+				te(1, 16, 1, 21, "\n"));
+		assertFormat(expected, expected, settings);
 	}
 
-	@Disabled
 	@Test
 	public void testPreserveEmptyContentTagWithSiblingContent() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setPreserveEmptyContent(true);
 
-		String content = "<a>\r" + //
-				"   zz  " + //
-				"  <b>  </b>tt" + //
-				"     " + //
-				"</a>";
-		String expected = "<a>\r" + //
-				"  zz\r" + //
-				"  <b>  </b>\r" + //
-				"  tt\r" + //
-				"</a>";
+		String content = "<a>\n" + //
+				"   zz     <b>  </b>tt     </a>";
+		String expected = "<a>\n" + //
+				"   zz     <b>  </b>tt     </a>";
 		assertFormat(content, expected, settings);
 	}
 
-	@Disabled
 	@Test
 	public void testDontPreserveEmptyContentTagWithSiblingContent() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setPreserveEmptyContent(false);
 
-		String content = "<a>\r" + //
-				"   zz  " + //
-				"  <b>  </b>tt" + //
-				"     " + //
-				"</a>";
-		String expected = "<a>\r" + //
-				"  zz\r" + //
-				"  <b></b>\r" + //
-				"  tt\r" + //
-				"</a>";
-		assertFormat(content, expected, settings);
+		String content = "<a>\n" + //
+				"   zz     <b>  </b>tt     </a>";
+		String expected = "<a> zz <b> </b>tt </a>";
+		assertFormat(content, expected, settings, //
+				te(0, 3, 1, 3, " "), //
+				te(1, 5, 1, 10, " "), //
+				te(1, 13, 1, 15, " "), //
+				te(1, 21, 1, 26, " "));
+		assertFormat(expected, expected, settings);
 	}
 
-	@Disabled
 	@Test
 	public void testPreserveEmptyContentTagWithSiblingWithComment() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setPreserveEmptyContent(true);
 
-		String content = "<a>\r" + //
-				"   zz  " + //
-				"  <b>  </b>tt <!-- Comment -->" + //
-				"     " + //
-				"</a>";
-		String expected = "<a>\r" + //
-				"  zz\r" + //
-				"  <b>  </b>\r" + //
-				"  tt <!-- Comment -->\r" + //
-				"</a>";
+		String content = "<a>\n" + //
+				"   zz    <b>  </b>tt <!-- Comment -->     </a>";
+		String expected = "<a>\n" + //
+				"   zz    <b>  </b>tt <!-- Comment -->     </a>";
 		assertFormat(content, expected, settings);
+	}
+
+	@Test
+	public void testPreserveEmptyContentTagWithSiblingWithNewLines() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveEmptyContent(true);
+
+		String content = "<a>\n" + //
+				"   zz    \n" + //
+				"<b>\n" + //
+				"  </b>\n" + //
+				"tt <!-- Comment -->     </a>\n" + //
+				"\n" + //
+				"<c></c>";
+		String expected = "<a>\n" + //
+				"   zz    \n" + //
+				"<b>\n" + //
+				"  </b>\n" + //
+				"tt <!-- Comment -->     </a>\n" + //
+				"<c></c>";
+		assertFormat(content, expected, settings,
+				te(4, 28, 6, 0, "\n"));
+		assertFormat(expected, expected, settings);
 	}
 
 	@Disabled
@@ -163,118 +172,9 @@ public class XMLFormatterPreserveEmptyContentTest {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setPreserveEmptyContent(false);
 
-		String content = "<a>\r" + //
-				"   zz  " + //
-				"  <b>  </b>tt <!-- Comment -->" + //
-				"     " + //
-				"</a>";
-		String expected = "<a>\r" + //
-				"  zz\r" + //
-				"  <b></b>\r" + //
-				"  tt <!-- Comment -->\r" + //
-				"</a>";
-		assertFormat(content, expected, settings);
-	}
-
-	@Disabled
-	@Test
-	public void testPreserveEmptyContentWithJoinContentLines() throws BadLocationException {
-		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setPreserveEmptyContent(true);
-		settings.getFormattingSettings().setJoinContentLines(true);
-
 		String content = "<a>\n" + //
-				"   zz  \n" + //
-				"   zz  \n" + //
-				"   <a>  </a>  \n" + //
-				"</a>";
-		String expected = "<a>\n" + //
-				"  zz zz\n" + //
-				"  <a>  </a>\n" + //
-				"</a>";
-		assertFormat(content, expected, settings);
-	}
-
-	@Disabled
-	@Test
-	public void testJoinContentLinesTrue() throws BadLocationException {
-		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setPreserveEmptyContent(false);
-		settings.getFormattingSettings().setJoinContentLines(true);
-
-		String content = "<a>\n" + //
-				"   zz  \n" + //
-				"   zz  " + //
-				"</a>";
-		String expected = "<a>zz zz</a>";
-		assertFormat(content, expected, settings);
-	}
-
-	@Test
-	public void testJoinContentLinesTrue2() throws BadLocationException {
-		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setPreserveEmptyContent(false);
-		settings.getFormattingSettings().setJoinContentLines(true);
-
-		String content = "<a>zz zz zz</a>";
-		String expected = "<a>zz zz zz</a>";
-		assertFormat(content, expected, settings);
-	}
-
-	@Disabled
-	@Test
-	public void testJoinContentLinesFalse() throws BadLocationException {
-		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setPreserveEmptyContent(false);
-		settings.getFormattingSettings().setJoinContentLines(false);
-
-		String content = "<a>\n" + //
-				"   zz  \n" + //
-				"   zz  " + //
-				"</a>";
-		String expected = "<a>\n" + //
-				"   zz  \n" + //
-				"   zz  " + //
-				"</a>";
-		assertFormat(content, expected, settings);
-	}
-
-	@Disabled
-	@Test
-	public void testJoinContentLinesWithSiblingElementTrue() throws BadLocationException {
-		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setPreserveEmptyContent(false);
-		settings.getFormattingSettings().setJoinContentLines(true);
-
-		String content = "<a>\n" + //
-				"   zz  \n" + //
-				"   zz  \n" + //
-				"   <a>  </a>  \n" + //
-				"</a>";
-		String expected = "<a>\n" + //
-				"  zz zz\n" + //
-				"  <a></a>\n" + //
-				"</a>";
-		assertFormat(content, expected, settings);
-	}
-
-	@Disabled
-	@Test
-	public void testJoinContentLinesWithSiblingElementFalse() throws BadLocationException {
-		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setPreserveEmptyContent(false);
-		settings.getFormattingSettings().setJoinContentLines(false);
-
-		String content = "<a>\n" + //
-				"   zz  \n" + //
-				"   zz  \n" + //
-				"   <a>  </a>  \n" + //
-				"</a>";
-		String expected = "<a>\n" + //
-				"  zz  \n" + //
-				"   zz\n" + //
-				"  <a></a>\n" + //
-				"</a>";
+				"   zz    <b>  </b>tt <!-- Comment -->     </a>";
+		String expected = "<a> zz <b> </b>tt <!-- Comment --> </a>";
 		assertFormat(content, expected, settings);
 	}
 
