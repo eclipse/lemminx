@@ -31,6 +31,10 @@ public class DOMTextFormatter {
 	}
 
 	public void formatText(DOMText textNode, XMLFormattingConstraints parentConstraints, List<TextEdit> edits) {
+		// Don't format the spacing in text for case of preserve empty content setting
+		if (isPreserveEmptyContent()) {
+			return;
+		}
 		FormatElementCategory formatElementCategory = parentConstraints.getFormatElementCategory();
 		String text = formatterDocument.getText();
 		int availableLineWidth = parentConstraints.getAvailableLineWidth();
@@ -85,6 +89,10 @@ public class DOMTextFormatter {
 
 	private void insertLineBreak(int start, int end, List<TextEdit> edits) {
 		formatterDocument.insertLineBreak(start, end, edits);
+	}
+
+	private boolean isPreserveEmptyContent() {
+		return formatterDocument.getSharedSettings().getFormattingSettings().isPreserveEmptyContent();
 	}
 
 	private void replaceSpacesWithOneSpace(int spaceStart, int spaceEnd, List<TextEdit> edits) {

@@ -51,8 +51,11 @@ public class TextEditUtils {
 		String text = textDocument.getText();
 
 		// Check if content from the range [from, to] is the same than expected content
-		if (isMatchExpectedContent(from, to, expectedContent, text)) {
-			// The expected content exists, no need to create a TextEdit
+		if (isMatchExpectedContent(from, to, expectedContent, text)
+				// The expected content exists, no need to create a TextEdit
+				&& (!expectedContent.equals(System.lineSeparator()))) {
+			// Line separator may be replacing more white space than specified by from/to,
+			// therefore may not match expected content.
 			return null;
 		}
 
@@ -93,7 +96,8 @@ public class TextEditUtils {
 			matchExpectedContent = to - from == expectedContent.length();
 		}
 
-		// Set parameters to handle case when replacing single quote with double quote and vice versa
+		// Set parameters to handle case when replacing single quote with double quote
+		// and vice versa
 		if (from == to && !expectedContent.isEmpty() && StringUtils.isQuote(expectedContent.toCharArray()[0])) {
 			from--;
 			matchExpectedContent = false;
