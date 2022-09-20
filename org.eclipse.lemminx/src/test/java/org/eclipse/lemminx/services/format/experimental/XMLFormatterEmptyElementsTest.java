@@ -20,7 +20,6 @@ import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLFormattingOptions.EmptyElements;
 import org.eclipse.lsp4j.TextEdit;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -45,7 +44,7 @@ public class XMLFormatterEmptyElementsTest extends AbstractCacheBasedTest {
 				"  att=\"hello\"" + lineSeparator() + //
 				"  />";
 		expected = "<example" + lineSeparator() + //
-		"  att=\"hello\"></example>";
+				"  att=\"hello\"></example>";
 		assertFormat(content, expected, settings, //
 				te(0, 8, 1, 2, lineSeparator() + "  "), //
 				te(1, 13, 2, 4, "></example>"));
@@ -108,7 +107,6 @@ public class XMLFormatterEmptyElementsTest extends AbstractCacheBasedTest {
 		assertFormat(expected, expected, settings);
 	}
 
-	@Disabled
 	@Test
 	public void expandEmptyElementsAndPreserveEmptyContent() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
@@ -135,7 +133,9 @@ public class XMLFormatterEmptyElementsTest extends AbstractCacheBasedTest {
 				"        \r\n" + //
 				"    </bar>\r\n" + //
 				"</foo>";
-		assertFormat(content, expected, settings);
+		assertFormat(content, expected, settings, //
+				te(0, 5, 1, 4, "\r\n  "));
+		assertFormat(expected, expected, settings);
 
 		content = "<foo>\r\n" + //
 				"    <bar></bar>\r\n" + //
@@ -143,10 +143,11 @@ public class XMLFormatterEmptyElementsTest extends AbstractCacheBasedTest {
 		expected = "<foo>\r\n" + //
 				"  <bar></bar>\r\n" + //
 				"</foo>";
-		assertFormat(content, expected, settings);
+		assertFormat(content, expected, settings, //
+				te(0, 5, 1, 4, "\r\n  "));
+		assertFormat(expected, expected, settings);
 	}
 
-	@Disabled
 	@Test
 	public void collapseEmptyElementsAndPreserveEmptyContent() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
@@ -173,7 +174,9 @@ public class XMLFormatterEmptyElementsTest extends AbstractCacheBasedTest {
 				"        \r\n" + //
 				"    </bar>\r\n" + //
 				"</foo>";
-		assertFormat(content, expected, settings);
+		assertFormat(content, expected, settings, //
+				te(0, 5, 1, 4, "\r\n  "));
+		assertFormat(expected, expected, settings);
 
 		content = "<foo>\r\n" + //
 				"    <bar></bar>\r\n" + //
@@ -181,10 +184,13 @@ public class XMLFormatterEmptyElementsTest extends AbstractCacheBasedTest {
 		expected = "<foo>\r\n" + //
 				"  <bar />\r\n" + //
 				"</foo>";
-		assertFormat(content, expected, settings);
+		assertFormat(content, expected, settings, //
+				te(0, 5, 1, 4, "\r\n  "),
+				te(1, 8, 1, 15, " />"));
+		assertFormat(expected, expected, settings);
+
 	}
 
-	@Disabled
 	@Test
 	public void collapseEmptyElementsInRange() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
@@ -197,11 +203,11 @@ public class XMLFormatterEmptyElementsTest extends AbstractCacheBasedTest {
 				"</b>\r\n" + //
 				"</a>";
 		String expected = "<a>\r\n" + //
-				"  <b>\r\n" + //
+				"<b>\r\n" + //
+				"    \r\n" + //
 				"</b>\r\n" + //
 				"</a>";
 		assertFormat(content, expected, settings);
-
 		// Range covers the b element, collapse is done
 		content = "<a>\r\n" + //
 				"<|b>\r\n" + //
@@ -209,9 +215,10 @@ public class XMLFormatterEmptyElementsTest extends AbstractCacheBasedTest {
 				"</|b>\r\n" + //
 				"</a>";
 		expected = "<a>\r\n" + //
-				"  <b />\r\n" + //
+				"<b />\r\n" + //
 				"</a>";
-		assertFormat(content, expected, settings);
+		assertFormat(content, expected, settings, //
+				te(1, 2, 3, 4, " />"));
 	}
 
 	private static void assertFormat(String unformatted, String expected, SharedSettings sharedSettings,

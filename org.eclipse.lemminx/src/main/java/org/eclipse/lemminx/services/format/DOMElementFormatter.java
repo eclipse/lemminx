@@ -42,7 +42,7 @@ public class DOMElementFormatter {
 
 		// Format start tag element with proper indentation
 		int indentLevel = parentConstraints.getIndentLevel();
-		int nb = formatStartTagElement(element, parentConstraints, emptyElements, edits);
+		int nb = formatStartTagElement(element, parentConstraints, emptyElements, end, edits);
 
 		if (emptyElements == EmptyElements.ignore) {
 			// Format children of the element
@@ -64,7 +64,7 @@ public class DOMElementFormatter {
 	}
 
 	private int formatStartTagElement(DOMElement element, XMLFormattingConstraints parentConstraints,
-			EmptyElements emptyElements, List<TextEdit> edits) {
+			EmptyElements emptyElements, int end, List<TextEdit> edits) {
 		int width = 0;
 		int indentLevel = parentConstraints.getIndentLevel();
 		FormatElementCategory formatElementCategory = parentConstraints.getFormatElementCategory();
@@ -116,7 +116,8 @@ public class DOMElementFormatter {
 			}
 			case collapse: {
 				// collapse empty element: <example></example> -> <example />
-				if (!element.isSelfClosed()) {
+				if (!element.isSelfClosed() && (end == -1 || element.getEndTagOpenOffset() + 1 < end)) {
+					// Do not collapse if range is does not cover the element
 					StringBuilder tag = new StringBuilder();
 					if (isSpaceBeforeEmptyCloseTag()) {
 						tag.append(" ");

@@ -18,7 +18,6 @@ import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLFormattingOptions.EmptyElements;
 import org.eclipse.lsp4j.TextEdit;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -176,7 +175,6 @@ public class XMLFormatterPreserveAttributeLineBreaksTest {
 		assertFormat(expected, expected, settings);
 	}
 
-	@Disabled
 	@Test
 	public void preserveAttributeLineBreaksCollapseEmptyElement() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
@@ -192,10 +190,14 @@ public class XMLFormatterPreserveAttributeLineBreaksTest {
 				"    attr=\"value\" attr=\"value\"\n" + //
 				"    attr=\"value\" attr=\"value\" />\n" + //
 				"</a>";
-		assertFormat(content, expected, settings);
+		assertFormat(content, expected, settings, //
+		te(0, 3, 1, 0, "\n  "),
+		te(1, 28, 2, 0, "\n    "),
+		te(2, 25, 3, 0, "\n    "),
+		te(3, 25, 4, 4, " />"));
+		assertFormat(expected, expected, settings);
 	}
 
-	@Disabled
 	@Test
 	public void preserveAttributeLineBreaksCollapseEmptyElement2() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
@@ -212,13 +214,16 @@ public class XMLFormatterPreserveAttributeLineBreaksTest {
 		String expected = "<a>\n" + //
 				"  <b attr=\"value\" attr=\"value\"\n" + //
 				"    attr=\"value\" attr=\"value\"\n" + //
-				"    attr=\"value\" attr=\"value\"\n" + //
-				"  />\n" + //
+				"    attr=\"value\" attr=\"value\" />\n" + //
 				"</a>";
-		assertFormat(content, expected, settings);
+		assertFormat(content, expected, settings, //
+		te(0, 3, 1, 0, "\n  "),
+		te(1, 28, 2, 0, "\n    "),
+		te(2, 25, 3, 0, "\n    "),
+		te(3, 25, 5, 4, " />"));
+		assertFormat(expected, expected, settings);
 	}
 
-	@Disabled
 	@Test
 	public void preserveAttributeLineBreaksCollapseEmptyElement3() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
@@ -228,7 +233,9 @@ public class XMLFormatterPreserveAttributeLineBreaksTest {
 		String content = "<a>\n" + //
 				"</a>";
 		String expected = "<a />";
-		assertFormat(content, expected, settings);
+		assertFormat(content, expected, settings, //
+				te(0, 2, 1, 4, " />"));
+				assertFormat(expected, expected, settings);
 	}
 
 	@Test
