@@ -41,11 +41,15 @@ public class DOMTextFormatter {
 
 		int spaceStart = -1;
 		int spaceEnd = -1;
+		boolean containsNewLine = false;
 
 		for (int i = textNode.getStart(); i < textNode.getEnd(); i++) {
 			char c = text.charAt(i);
 			if (Character.isWhitespace(c)) {
 				// Whitespaces...
+				if (isLineSeparator(c)) {
+					containsNewLine = true;
+				}
 				if (spaceStart == -1) {
 					spaceStart = i;
 				} else {
@@ -68,8 +72,12 @@ public class DOMTextFormatter {
 							insertLineBreak(spaceStart, contentStart, edits);
 							availableLineWidth = getMaxLineWidth();
 						}
-					} else {
+					} else if (isJoinContentLines() || (spaceStart == textNode.getStart() || !containsNewLine)) {
+						// Case of isJoinContent == true: join all text content with single space
+						// Case of isJoinContent == false: normalize space only between element start
+						// tag and start of text content or doesn't contain a new line
 						replaceSpacesWithOneSpace(spaceStart, spaceEnd, edits);
+						containsNewLine = false;
 					}
 				}
 
@@ -81,6 +89,10 @@ public class DOMTextFormatter {
 				&& formatElementCategory != FormatElementCategory.IgnoreSpace) {
 			replaceSpacesWithOneSpace(spaceStart, spaceEnd, edits);
 		}
+	}
+
+	private static boolean isLineSeparator(char c) {
+		return c == '\r' || c == '\n';
 	}
 
 	private int getMaxLineWidth() {
@@ -97,5 +109,9 @@ public class DOMTextFormatter {
 
 	private void replaceSpacesWithOneSpace(int spaceStart, int spaceEnd, List<TextEdit> edits) {
 		formatterDocument.replaceSpacesWithOneSpace(spaceStart, spaceEnd, edits);
+	}
+
+	private boolean isJoinContentLines() {
+		return formatterDocument.getSharedSettings().getFormattingSettings().isJoinContentLines();
 	}
 }

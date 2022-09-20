@@ -129,6 +129,7 @@ public class XMLFormatterMaxLineWithTest extends AbstractCacheBasedTest {
 			throws BadLocationException {
 		SharedSettings sharedSettings = new SharedSettings();
 		sharedSettings.getFormattingSettings().setMaxLineWidth(maxLineWidth);
+		sharedSettings.getFormattingSettings().setJoinContentLines(true);
 		// Force to "experimental" formatter
 		sharedSettings.getFormattingSettings().setExperimental(true);
 		XMLAssert.assertFormat(null, unformatted, expected, sharedSettings, "test.xml", Boolean.FALSE, expectedEdits);
