@@ -17,6 +17,7 @@ import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.settings.XMLFormattingOptions.EmptyElements;
+import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lsp4j.TextEdit;
 
 /**
@@ -68,15 +69,28 @@ public class DOMElementFormatter {
 		int width = 0;
 		int indentLevel = parentConstraints.getIndentLevel();
 		FormatElementCategory formatElementCategory = parentConstraints.getFormatElementCategory();
+		int startTagOffset = element.getStartTagOpenOffset();
+		boolean addLineSeparator = element.getParentElement() == null
+						&& element.getPreviousSibling() == null;
 
 		switch (formatElementCategory) {
 		case PreserveSpace:
 			// Preserve existing spaces
 			break;
 		case MixedContent:
+			// Remove spaces and indent if the content between start tag and parent start
+			// tag is some white spaces
+			// before formatting: <a>    <b> </b> example text </a>
+			// after formatting: <a>\n  <b> </b> example text </a>
+			int parentStartCloseOffset = element.getParentElement().getStartTagCloseOffset() + 1;
+			if (parentStartCloseOffset != startTagOffset && StringUtils.isWhitespace(formatterDocument.getText(),
+					parentStartCloseOffset, startTagOffset)) {
+				int nbSpaces = replaceLeftSpacesWithIndentation(indentLevel, startTagOffset, !addLineSeparator,
+						edits);
+				width = nbSpaces + element.getStartTagCloseOffset() - startTagOffset;
+			}
 			break;
 		case IgnoreSpace:
-			int startTagOffset = element.getStartTagOpenOffset();
 			// If preserve new lines
 			int preservedNewLines = getPreservedNewlines();
 			int currentNewLineCount = getExistingNewLineCount(formatterDocument.getText(), startTagOffset,
@@ -86,9 +100,7 @@ public class DOMElementFormatter {
 						preservedNewLines + 1, edits);
 			} else {
 				// remove spaces and indent
-				boolean addLineSperator = element.getParentElement() == null
-						&& element.getPreviousSibling() == null;
-				int nbSpaces = replaceLeftSpacesWithIndentation(indentLevel, startTagOffset, !addLineSperator,
+				int nbSpaces = replaceLeftSpacesWithIndentation(indentLevel, startTagOffset, !addLineSeparator,
 						edits);
 				width = nbSpaces + element.getStartTagCloseOffset() - startTagOffset;
 			}
@@ -210,14 +222,22 @@ public class DOMElementFormatter {
 		// after formatting : </a>
 		int indentLevel = parentConstraints.getIndentLevel();
 		FormatElementCategory formatElementCategory = constraints.getFormatElementCategory();
+		int endTagOffset = element.getEndTagOpenOffset();
+
 		switch (formatElementCategory) {
 		case PreserveSpace:
 			// Preserve existing spaces
 			break;
 		case MixedContent:
+			// Remove spaces and indent if the last child is an element, not text
+			// before formatting: <a> example text <b> </b>    </a>
+			// after formatting: <a> example text <b> </b>\n</a>
+			if (element.getLastChild().isElement()
+					&& Character.isWhitespace(formatterDocument.getText().charAt(endTagOffset - 1))) {
+				replaceLeftSpacesWithIndentation(indentLevel, endTagOffset, true, edits);
+			}
 			break;
 		case IgnoreSpace:
-			int endTagOffset = element.getEndTagOpenOffset();
 			// If preserve new lines
 			int preservedNewLines = getPreservedNewlines();
 			int currentNewLineCount = getExistingNewLineCount(formatterDocument.getText(), endTagOffset,
@@ -237,8 +257,8 @@ public class DOMElementFormatter {
 		// before formatting : <a></a[space][space]>
 		// after formatting : <a></a>
 		if (element.isEndTagClosed()) {
-			int endTagOffset = element.getEndTagCloseOffset();
-			removeLeftSpaces(endTagOffset, edits);
+			int endTagCloseOffset = element.getEndTagCloseOffset();
+			removeLeftSpaces(endTagCloseOffset, edits);
 		}
 		return 0;
 	}
