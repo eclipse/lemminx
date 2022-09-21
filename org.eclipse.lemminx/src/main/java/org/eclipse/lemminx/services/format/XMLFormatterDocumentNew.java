@@ -301,7 +301,7 @@ public class XMLFormatterDocumentNew {
 
 		case Node.COMMENT_NODE:
 			DOMComment commentNode = (DOMComment) child;
-			commentFormatter.formatComment(commentNode, parentConstraints, edits);
+			commentFormatter.formatComment(commentNode, parentConstraints, start, end, edits);
 			break;
 
 		case Node.CDATA_SECTION_NODE:
@@ -555,7 +555,7 @@ public class XMLFormatterDocumentNew {
 		boolean hasText = false;
 		boolean onlySpaces = true;
 		for (DOMNode child : element.getChildren()) {
-			if (child.isElement()) {
+			if (child.isElement() || child.isComment()) {
 				hasElement = true;
 			} else if (child.isText()) {
 				onlySpaces = ((Text) child).isElementContentWhitespace();
@@ -677,6 +677,47 @@ public class XMLFormatterDocumentNew {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Return the number of new lines in the whitespaces to the left of the given
+	 * offset.
+	 *
+	 * @param text      the xml text.
+	 * @param offset    the offset to begin the count from.
+	 * @param delimiter the delimiter.
+	 *
+	 * @return the number of new lines in the whitespaces to the left of the given
+	 *         offset.
+	 */
+	public static int getExistingNewLineCount(String text, int offset, String delimiter) {
+		boolean delimiterHasTwoCharacters = delimiter.length() == 2;
+		int newLineCounter = 0;
+		for (int i = offset; i > 0; i--) {
+			String c;
+			if (!Character.isWhitespace(text.charAt(i - 1))) {
+				if (!delimiterHasTwoCharacters) {
+					c = String.valueOf(text.charAt(i));
+					if (delimiter.equals(c)) {
+						newLineCounter++;
+					}
+				}
+				return newLineCounter;
+			}
+			if (delimiterHasTwoCharacters) {
+				c = text.substring(i - 2, i);
+				if (delimiter.equals(c)) {
+					newLineCounter++;
+					i--; // skip the second char of the delimiter
+				}
+			} else {
+				c = String.valueOf(text.charAt(i));
+				if (delimiter.equals(c)) {
+					newLineCounter++;
+				}
+			}
+		}
+		return newLineCounter;
 	}
 
 	int getMaxLineWidth() {

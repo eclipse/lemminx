@@ -36,14 +36,8 @@ public class XMLFormatterJoinContentLinesTest {
 				"   yy  \n" + //
 				"   <b>  </b>  \n" + //
 				"</a>";
-		String expected = "<a>\n" + //
-				"   xx  \n" + //
-				"   yy  \n" + //
-				"   <b>  </b>\n" + //
-				"</a>";
-		assertFormat(content, expected, settings, //
-				te(3, 12, 4, 0, "\n"));
-		assertFormat(expected, expected, settings);
+		String expected = content;
+		assertFormat(content, expected, settings);
 	}
 
 	@Test

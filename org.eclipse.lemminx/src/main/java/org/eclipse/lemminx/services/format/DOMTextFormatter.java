@@ -57,30 +57,33 @@ public class DOMTextFormatter {
 				}
 			} else {
 				// Text content...
+				spaceEnd = i;
 				int contentStart = i;
 				while (i < textNode.getEnd() + 1 && !Character.isWhitespace(text.charAt(i + 1))) {
 					i++;
 				}
-
 				int contentEnd = i;
-				availableLineWidth -= (contentEnd - contentStart);
+				availableLineWidth -= (contentEnd + 1 - contentStart);
 
 				if (formatElementCategory != FormatElementCategory.PreserveSpace
 						&& formatElementCategory != FormatElementCategory.IgnoreSpace) {
-					if (availableLineWidth <= 0) {
+					if (availableLineWidth < 0) {
 						if (spaceStart != -1) {
 							insertLineBreak(spaceStart, contentStart, edits);
-							availableLineWidth = getMaxLineWidth();
+							availableLineWidth = getMaxLineWidth() - (contentEnd - contentStart + 1);
 						}
 					} else if (isJoinContentLines() || (spaceStart == textNode.getStart() || !containsNewLine)) {
 						// Case of isJoinContent == true: join all text content with single space
 						// Case of isJoinContent == false: normalize space only between element start
 						// tag and start of text content or doesn't contain a new line
-						replaceSpacesWithOneSpace(spaceStart, spaceEnd, edits);
+						replaceSpacesWithOneSpace(spaceStart, spaceEnd-1, edits);
 						containsNewLine = false;
+						availableLineWidth --;
+					} else {
+						availableLineWidth -= spaceEnd - spaceStart;
 					}
 				}
-
+				parentConstraints.setAvailableLineWidth(availableLineWidth);
 				spaceStart = -1;
 				spaceEnd = -1;
 			}
