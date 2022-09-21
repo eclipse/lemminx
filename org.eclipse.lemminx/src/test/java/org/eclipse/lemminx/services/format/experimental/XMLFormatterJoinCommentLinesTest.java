@@ -112,16 +112,15 @@ public class XMLFormatterJoinCommentLinesTest extends AbstractCacheBasedTest {
 				"  Content <!-- comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment -->"
 				+ //
 				"</a>";
-		String expected = "<a> Content <!-- comment comment comment comment comment comment comment comment comment\n" + //
+		String expected = "<a> Content <!-- comment comment comment comment comment comment comment comment\n" + //
 				"  comment comment comment comment comment comment comment comment comment\n" + //
-				"  comment comment comment comment comment comment comment -->" + //
-				"</a>";
+				"  comment comment comment comment comment comment comment comment --></a>";
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setJoinCommentLines(true);
 		assertFormat(content, expected, settings, //
 				te(0, 3, 1, 2, " "), //
-				te(1, 86, 1, 87, "\n  "), //
-				te(1, 158, 1, 159, "\n  "));
+				te(1, 78, 1, 79, "\n  "), //
+				te(1, 150, 1, 151, "\n  "));
 		assertFormat(expected, expected, settings);
 	}
 
@@ -135,15 +134,78 @@ public class XMLFormatterJoinCommentLinesTest extends AbstractCacheBasedTest {
 				"  <!-- commentcommentcommentcomment commentcommentcommentcomment\n" + //
 				"  commentcommentcommentcomment commentcommmentcommentcommentcomment\n" + //
 				"  commentcommentcommentscommentcomment commentcommentcommentscommentcomment\n" + //
-				"  commentcommentcomments --></a>";
+				"  commentcommentcomments -->\n" + //
+				"</a>";
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setJoinCommentLines(true);
 		assertFormat(content, expected, settings, //
 				te(0, 3, 1, 0, "\n  "), //
 				te(1, 62, 1, 63, "\n  "), //
 				te(1, 128, 1, 129, "\n  "), //
-				te(1, 202, 1, 203, "\n  "));
+				te(1, 202, 1, 203, "\n  "),
+				te(1, 229, 1, 229, "\n"));
 		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void testCommentWithRange() throws BadLocationException {
+		String content = "<foo>\r\n" + //
+				"  <!-- |<bar>|\r\n" + //
+				"  </bar>\r\n" + //
+				"  -->\r\n" + //
+				"</foo>";
+		String expected = "<foo>\r\n" + //
+				"  <!-- <bar>\r\n" + //
+				"  </bar>\r\n" + //
+				"  -->\r\n" + //
+				"</foo>";
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setJoinCommentLines(true);
+		assertFormat(content, expected, settings);
+	}
+
+	@Test
+	public void testCommentWithRange2() throws BadLocationException {
+		String content = "<foo>\r\n" + //
+				"  |<!-- <bar>\r\n" + //
+				"  </bar>\r\n" + //
+				"  -->|\r\n" + //
+				"<test></test>\r\n" + //
+				"</foo>";
+		String expected = "<foo>\r\n" + //
+				"  <!-- <bar> </bar> -->\r\n" + //
+				"<test></test>\r\n" + //
+				"</foo>";
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setJoinCommentLines(true);
+		assertFormat(content, expected, settings, //
+				te(1, 12, 2, 2, " "), //
+				te(2, 8, 3, 2, " "));
+	}
+
+	@Test
+	public void testCommentWithRange3() throws BadLocationException {
+		String content = "<foo>\r\n" + //
+				"\r\n" + //
+				"\r\n" + //
+				"\r\n" + //
+				"  |<!-- <bar>\r\n" + //
+				"  </bar>|\r\n" + //
+				"  -->\r\n" + //
+				"<test></test>\r\n" + //
+				"</foo>";
+		String expected = "<foo>\r\n" + //
+				"\r\n" + //
+				"\r\n" + //
+				"\r\n" + //
+				"  <!-- <bar> </bar> -->\r\n" + //
+				"<test></test>\r\n" + //
+				"</foo>";
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setJoinCommentLines(true);
+		assertFormat(content, expected, settings, //
+				te(4, 12, 5, 2, " "), //
+				te(5, 8, 6, 2, " "));
 	}
 
 	private static void assertFormat(String unformatted, String expected, SharedSettings sharedSettings,

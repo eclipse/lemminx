@@ -628,51 +628,91 @@ public class XMLFormatterExperimentalTest extends AbstractCacheBasedTest {
 		assertFormat(expected, expected);
 	}
 
-	@Disabled
 	@Test
 	public void testComment2() throws BadLocationException {
 		String content = "<!-- CommentText --><!-- Comment2 --><a>Val</a>";
-		String expected = "<!-- CommentText -->" + lineSeparator() + //
-				"<!-- Comment2 -->" + lineSeparator() + //
+		String expected = "<!-- CommentText --><!-- Comment2 -->" + lineSeparator() + //
 				"<a>Val</a>";
-		assertFormat(content, expected);
+		assertFormat(content, expected, //
+				te(0, 37, 0, 37, lineSeparator()));
+		assertFormat(expected, expected);
 	}
 
-	@Disabled
 	@Test
 	public void testCommentNested() throws BadLocationException {
 		String content = "<a><!-- CommentText --></a>";
-		String expected = "<a>" + lineSeparator() + //
-				"  <!-- CommentText -->" + lineSeparator() + //
+		String expected = "<a><!-- CommentText -->" + lineSeparator() + //
 				"</a>";
-		assertFormat(content, expected);
+		assertFormat(content, expected, //
+				te(0, 23, 0, 23, lineSeparator()));
+		assertFormat(expected, expected);
 	}
 
-	@Disabled
 	@Test
 	public void testCommentNested2() throws BadLocationException {
 		String content = "<a><!-- CommentText --><b><!-- Comment2 --></b></a>";
-		String expected = "<a>" + lineSeparator() + //
-				"  <!-- CommentText -->" + lineSeparator() + //
-				"  <b>" + lineSeparator() + //
-				"    <!-- Comment2 -->" + lineSeparator() + //
+		String expected = "<a><!-- CommentText -->" + lineSeparator() + //
+				"  <b><!-- Comment2 -->" + lineSeparator() + //
 				"  </b>" + lineSeparator() + //
 				"</a>";
-		assertFormat(content, expected);
+		assertFormat(content, expected, //
+				te(0, 23, 0, 23, lineSeparator() + "  "), //
+				te(0, 43, 0, 43, lineSeparator() + "  "), //
+				te(0, 47, 0, 47, lineSeparator()));
+		assertFormat(expected, expected);
 	}
 
-	@Disabled
 	@Test
 	public void testCommentMultiLineContent() throws BadLocationException {
 		String content = "<a><!-- CommentText" + lineSeparator() + //
 				"2222" + lineSeparator() + //
 				"  3333 --></a>";
-		String expected = "<a>" + lineSeparator() + //
-				"  <!-- CommentText" + lineSeparator() + //
+		String expected = "<a><!-- CommentText" + lineSeparator() + //
 				"2222" + lineSeparator() + //
 				"  3333 -->" + lineSeparator() + //
 				"</a>";
-		assertFormat(content, expected);
+		assertFormat(content, expected, //
+				te(2, 10, 2, 10, lineSeparator()));
+		assertFormat(expected, expected);
+	}
+
+	@Test
+	public void testCommentLongWrap() throws BadLocationException {
+		String content = "<a>\n" + //
+				"  Content <!-- comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment -->"
+				+ //
+				"</a>";
+		String expected = "<a> Content <!-- comment comment comment comment comment comment comment comment\n" + //
+				"  comment comment comment comment comment comment comment comment comment\n" + //
+				"  comment comment comment comment comment comment comment comment --></a>";
+		SharedSettings settings = new SharedSettings();
+		assertFormat(content, expected, settings, //
+				te(0, 3, 1, 2, " "), //
+				te(1, 78, 1, 79, "\n  "), //
+				te(1, 150, 1, 151, "\n  "));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void testCommentLongTextContentWrap() throws BadLocationException {
+		String content = "<a>\n" + //
+				"  content content content content content content content content content content content content content content content content content content <!-- comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment -->\n"
+				+ //
+				"</a>";
+		String expected = "<a> content content content content content content content content content\n" + //
+				"content content content content content content content content content <!--\n" + //
+				"  comment comment comment comment comment comment comment comment comment\n" + //
+				"  comment comment comment comment comment comment comment comment comment\n" + //
+				"  comment comment comment comment comment comment comment -->\n" + //
+				"</a>";
+		SharedSettings settings = new SharedSettings();
+		assertFormat(content, expected, settings, //
+				te(0, 3, 1, 2, " "), //
+				te(1, 73, 1, 74, "\n"), //
+				te(1, 150, 1, 151, "\n  "),
+				te(1, 222, 1, 223, "\n  "), //
+				te(1, 294, 1, 295, "\n  "));
+		assertFormat(expected, expected, settings);
 	}
 
 	@Test

@@ -166,7 +166,6 @@ public class XMLFormatterPreserveEmptyContentTest {
 		assertFormat(expected, expected, settings);
 	}
 
-	@Disabled
 	@Test
 	public void testDontPreserveEmptyContentTagWithSiblingWithComment() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
@@ -174,8 +173,14 @@ public class XMLFormatterPreserveEmptyContentTest {
 
 		String content = "<a>\n" + //
 				"   zz    <b>  </b>tt <!-- Comment -->     </a>";
-		String expected = "<a> zz <b> </b>tt <!-- Comment --> </a>";
-		assertFormat(content, expected, settings);
+		String expected = "<a> zz <b> </b>tt <!-- Comment -->\n" + //
+				"</a>";
+		assertFormat(content, expected, settings, //
+				te(0, 3, 1, 3, " "), //
+				te(1, 5, 1, 9, " "), //
+				te(1, 12, 1, 14, " "), //
+				te(1, 37, 1, 42, "\n"));
+		assertFormat(expected, expected, settings);
 	}
 
 	private static void assertFormat(String unformatted, String expected, SharedSettings sharedSettings,

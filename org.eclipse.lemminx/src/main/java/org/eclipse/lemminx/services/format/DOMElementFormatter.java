@@ -75,7 +75,9 @@ public class DOMElementFormatter {
 		FormatElementCategory formatElementCategory = parentConstraints.getFormatElementCategory();
 		int startTagOffset = element.getStartTagOpenOffset();
 		boolean addLineSeparator = element.getParentElement() == null && element.getPreviousSibling() == null;
-
+		if (end != -1 && startTagOffset > end) {
+			return 0;
+		}
 		switch (formatElementCategory) {
 		case PreserveSpace:
 			// Preserve existing spaces
@@ -87,16 +89,21 @@ public class DOMElementFormatter {
 			// after formatting: <a>\n <b> </b> example text </a>
 			int parentStartCloseOffset = element.getParentElement().getStartTagCloseOffset() + 1;
 			if (parentStartCloseOffset != startTagOffset
-					&& StringUtils.isWhitespace(formatterDocument.getText(), parentStartCloseOffset, startTagOffset)) {
+					&& StringUtils.isWhitespace(formatterDocument.getText(), parentStartCloseOffset,
+							startTagOffset)) {
 				int nbSpaces = replaceLeftSpacesWithIndentation(indentLevel, parentStartCloseOffset, startTagOffset,
 						!addLineSeparator, edits);
-				width = nbSpaces + element.getStartTagCloseOffset() - startTagOffset;
+				width = element.getTagName() != null ? nbSpaces + element.getTagName().length() + 1 : nbSpaces;
+				if (!addLineSeparator) {
+					width -= formatterDocument.getLineDelimiter().length();
+				}
 			}
 			break;
 		case IgnoreSpace:
 			// If preserve new lines
 			int preservedNewLines = getPreservedNewlines();
-			int currentNewLineCount = getExistingNewLineCount(formatterDocument.getText(), startTagOffset,
+			int currentNewLineCount = XMLFormatterDocumentNew.getExistingNewLineCount(formatterDocument.getText(),
+					startTagOffset,
 					formatterDocument.getLineDelimiter());
 			if (currentNewLineCount > preservedNewLines) {
 				replaceLeftSpacesWithIndentationWithMultiNewLines(indentLevel, 0, startTagOffset,
@@ -105,12 +112,16 @@ public class DOMElementFormatter {
 				// remove spaces and indent
 				int nbSpaces = replaceLeftSpacesWithIndentation(indentLevel, 0, startTagOffset, !addLineSeparator,
 						edits);
-				width = nbSpaces + element.getStartTagCloseOffset() - startTagOffset;
+				width = element.getTagName() != null ? nbSpaces + element.getTagName().length() + 1 : nbSpaces;
+				if (!addLineSeparator) {
+					width -= formatterDocument.getLineDelimiter().length();
+				}
 			}
 		case NormalizeSpace:
+			width++;
 			break;
 		}
-
+		parentConstraints.setAvailableLineWidth(parentConstraints.getAvailableLineWidth() - width);
 		if (formatElementCategory != FormatElementCategory.PreserveSpace) {
 			formatAttributes(element, parentConstraints, edits);
 
@@ -274,11 +285,13 @@ public class DOMElementFormatter {
 			// Preserve existing spaces
 			break;
 		case MixedContent:
-			// Remove spaces and indent if the last child is an element, not text
-			// before formatting: <a> example text <b> </b> </a>
+			// Remove spaces and indent if the last child is an element or comment block,
+			// not text
+			// before formatting: <a> example text <b> </b> [space][space] </a>
 			// after formatting: <a> example text <b> </b>\n</a>
-			if (element.getLastChild().isElement()
-					&& Character.isWhitespace(formatterDocument.getText().charAt(endTagOffset - 1))) {
+			if ((element.getLastChild().isElement() || element.getLastChild().isComment())
+					&& Character.isWhitespace(formatterDocument.getText().charAt(endTagOffset - 1))
+					&& !isPreserveEmptyContent()) {
 				replaceLeftSpacesWithIndentation(indentLevel, element.getStartTagCloseOffset(), endTagOffset, true,
 						edits);
 			}
@@ -286,7 +299,8 @@ public class DOMElementFormatter {
 		case IgnoreSpace:
 			// If preserve new lines
 			int preservedNewLines = getPreservedNewlines();
-			int currentNewLineCount = getExistingNewLineCount(formatterDocument.getText(), endTagOffset,
+			int currentNewLineCount = XMLFormatterDocumentNew.getExistingNewLineCount(formatterDocument.getText(),
+					endTagOffset,
 					formatterDocument.getLineDelimiter());
 			if (currentNewLineCount > preservedNewLines) {
 				replaceLeftSpacesWithIndentationWithMultiNewLines(indentLevel, element.getStartTagCloseOffset(),
@@ -308,47 +322,6 @@ public class DOMElementFormatter {
 			removeLeftSpaces(element.getEndTagOpenOffset(), endTagCloseOffset, edits);
 		}
 		return 0;
-	}
-
-	/**
-	 * Return the number of new lines in the whitespaces to the left of the given
-	 * offset.
-	 *
-	 * @param text      the xml text.
-	 * @param offset    the offset to begin the count from.
-	 * @param delimiter the delimiter.
-	 *
-	 * @return the number of new lines in the whitespaces to the left of the given
-	 *         offset.
-	 */
-	private int getExistingNewLineCount(String text, int offset, String delimiter) {
-		boolean delimiterHasTwoCharacters = delimiter.length() == 2;
-		int newLineCounter = 0;
-		for (int i = offset; i > 0; i--) {
-			String c;
-			if (!Character.isWhitespace(text.charAt(i - 1))) {
-				if (!delimiterHasTwoCharacters) {
-					c = String.valueOf(text.charAt(i));
-					if (delimiter.equals(c)) {
-						newLineCounter++;
-					}
-				}
-				return newLineCounter;
-			}
-			if (delimiterHasTwoCharacters) {
-				c = text.substring(i - 2, i);
-				if (delimiter.equals(c)) {
-					newLineCounter++;
-					i--; // skip the second char of the delimiter
-				}
-			} else {
-				c = String.valueOf(text.charAt(i));
-				if (delimiter.equals(c)) {
-					newLineCounter++;
-				}
-			}
-		}
-		return newLineCounter;
 	}
 
 	/**
