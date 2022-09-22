@@ -133,6 +133,45 @@ public class XMLFormatterExperimentalIndentTest extends AbstractCacheBasedTest {
 		assertFormat(expected, expected, settings);
 	}
 
+	// From issue: https://github.com/redhat-developer/vscode-xml/issues/634
+	@Test
+	public void multipleRootNestedIssue634() throws BadLocationException {
+		String content = "<parent>\r\n" + //
+				"  <child>\r\n" + //
+				"    test\r\n" + //
+				"  </child>\r\n" + //
+				"</parent>" + //
+				"<parent>\r\n" + //
+				"  <child>\r\n" + //
+				"    test\r\n" + //
+				"  </child>\r\n" + //
+				"</parent>";
+		String expected = "<parent>\r\n" + //
+				"  <child> test </child>\r\n" + //
+				"</parent>\r\n" + //
+				"<parent>\r\n" + //
+				"  <child> test </child>\r\n" + //
+				"</parent>";
+		assertFormat(content, expected, //
+				te(1, 9, 2, 4, " "),
+				te(2, 8, 3, 2, " "),
+				te(4, 9, 4, 9, "\r\n"),
+				te(5, 9, 6, 4, " "),
+				te(6, 8, 7, 2, " "));
+		assertFormat(expected, expected);
+	}
+
+	// From issue: https://github.com/redhat-developer/vscode-xml/issues/634
+	@Test
+	public void multipleRootEmptyIssue634() throws BadLocationException {
+		String content = "<foo />\r\n" + //
+				"<bar />\r\n" + //
+				"<fizz />\r\n" + //
+				"<buzz />";
+		String expected = content;
+		assertFormat(content, expected);
+	}
+
 	@Test
 	public void mixedContent2() throws BadLocationException {
 		String content = "<a>A<b>B</b></a>";
