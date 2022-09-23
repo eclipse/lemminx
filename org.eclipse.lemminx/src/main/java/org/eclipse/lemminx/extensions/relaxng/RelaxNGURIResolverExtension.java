@@ -9,7 +9,9 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lemminx.extensions.rng;
+package org.eclipse.lemminx.extensions.relaxng;
+
+import static org.eclipse.lemminx.extensions.relaxng.RelaxNGConstants.RELAXNG_XSD_URI;
 
 import java.io.IOException;
 import java.net.URI;
@@ -28,14 +30,12 @@ import org.eclipse.lemminx.utils.DOMUtils;
  *
  * @author datho7561
  */
-public class RNGURIResolverExtension implements URIResolverExtension, IExternalGrammarLocationProvider {
+public class RelaxNGURIResolverExtension implements URIResolverExtension, IExternalGrammarLocationProvider {
 
-	private static final ResourceToDeploy RNG_XSD = new ResourceToDeploy("http://relaxng.org/relaxng.xsd",
-			"schemas/rng/relaxng.xsd");
+	private static final ResourceToDeploy RELAXNG_XSD = new ResourceToDeploy(RELAXNG_XSD_URI,
+			"schemas/relaxng/relaxng.xsd");
 
-	// private static final String RELAXNG_NAMESPACE = "http://relaxng.org/ns/structure/1.0";
-
-	public RNGURIResolverExtension(IXMLDocumentProvider documentProvider) {
+	public RelaxNGURIResolverExtension(IXMLDocumentProvider documentProvider) {
 
 	}
 
@@ -62,10 +62,10 @@ public class RNGURIResolverExtension implements URIResolverExtension, IExternalG
 	}
 
 	private String resolve(String uri) {
-		if (DOMUtils.isRNG(uri)) {
+		if (DOMUtils.isRelaxNG(uri)) {
 			try {
-				CacheResourcesManager.getResourceCachePath(RNG_XSD);
-				return RNG_XSD.getDeployedPath().toFile().toURI().toString();
+				CacheResourcesManager.getResourceCachePath(RELAXNG_XSD);
+				return RELAXNG_XSD.getDeployedPath().toFile().toURI().toString();
 			} catch (IOException e) {
 				// do nothing
 			}

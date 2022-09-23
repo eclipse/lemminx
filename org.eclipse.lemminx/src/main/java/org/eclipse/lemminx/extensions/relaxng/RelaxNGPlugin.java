@@ -9,10 +9,11 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lemminx.extensions.rng;
+package org.eclipse.lemminx.extensions.relaxng;
 
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
+import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelProvider;
 import org.eclipse.lemminx.services.extensions.IXMLExtension;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.services.extensions.save.ISaveContext;
@@ -24,19 +25,19 @@ import org.eclipse.lsp4j.InitializeParams;
  *
  * @author datho7561
  */
-public class RNGPlugin implements IXMLExtension {
+public class RelaxNGPlugin implements IXMLExtension {
 
-	private RNGURIResolverExtension uriResolver;
+	private RelaxNGURIResolverExtension uriResolver;
 	private ContentModelManager contentModelManager;
 
-	public RNGPlugin() {
+	public RelaxNGPlugin() {
 
 	}
 
 	@Override
 	public void doSave(ISaveContext context) {
 		String documentURI = context.getUri();
-		if (DOMUtils.isRNG(documentURI)) {
+		if (DOMUtils.isRelaxNG(documentURI)) {
 			context.collectDocumentToValidate(d -> {
 				DOMDocument xml = context.getDocument(d.getDocumentURI());
 				return contentModelManager.dependsOnGrammar(xml, context.getUri());
@@ -46,9 +47,11 @@ public class RNGPlugin implements IXMLExtension {
 
 	@Override
 	public void start(InitializeParams params, XMLExtensionsRegistry registry) {
-		uriResolver = new RNGURIResolverExtension(registry.getDocumentProvider());
+		uriResolver = new RelaxNGURIResolverExtension(registry.getDocumentProvider());
 		registry.getResolverExtensionManager().registerResolver(uriResolver);
+		ContentModelProvider modelProvider = new CMRelaxNGContentModelProvider();
 		contentModelManager = registry.getComponent(ContentModelManager.class);
+		contentModelManager.registerModelProvider(modelProvider);
 	}
 
 	@Override

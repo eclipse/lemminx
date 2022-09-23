@@ -29,7 +29,7 @@ import org.eclipse.lsp4j.Range;
  *
  * @author datho7561
  */
-public enum RNGErrorCode implements IXMLErrorCode {
+public enum RelaxNGErrorCode implements IXMLErrorCode {
 
 	IncompleteContentModel,
 	BadTagName,
@@ -39,24 +39,24 @@ public enum RNGErrorCode implements IXMLErrorCode {
 	InvalidRelaxNG;
 
 	private final String code;
-	private final static Map<String, RNGErrorCode> codes;
+	private final static Map<String, RelaxNGErrorCode> codes;
 
 	static {
 		codes = new HashMap<>();
-		for (RNGErrorCode errorCode : values()) {
+		for (RelaxNGErrorCode errorCode : values()) {
 			codes.put(errorCode.getCode(), errorCode);
 		}
 	}
 
-	private RNGErrorCode() {
+	private RelaxNGErrorCode() {
 		this(null);
 	}
 
-	private RNGErrorCode(String code) {
+	private RelaxNGErrorCode(String code) {
 		this.code = code;
 	}
 
-	public static RNGErrorCode get(String name) {
+	public static RelaxNGErrorCode get(String name) {
 		return codes.get(name);
 	}
 
@@ -72,7 +72,7 @@ public enum RNGErrorCode implements IXMLErrorCode {
 
 	private static final Pattern BAD_ATTRIBUTE_ATTRIBUTE_EXTRACTOR = Pattern.compile("[^\"]+\"([^\"]*)\"");
 
-	public static Range toLSPRange(XMLLocator location, RNGErrorCode code, String message, Object[] arguments,
+	public static Range toLSPRange(XMLLocator location, RelaxNGErrorCode code, String message, Object[] arguments,
 			DOMDocument document) {
 		int offset = location.getCharacterOffset() - 1;
 		switch (code) {

@@ -7,7 +7,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lemminx.extensions.rng;
+package org.eclipse.lemminx.extensions.relaxng;
 
 import static org.eclipse.lemminx.XMLAssert.pd;
 import static org.eclipse.lemminx.XMLAssert.r;
@@ -27,10 +27,10 @@ import org.junit.jupiter.api.Test;
  *
  * @author datho7561
  */
-public class RNGUriResolverTest extends AbstractCacheBasedTest {
+public class RelaxNGUriResolverTest extends AbstractCacheBasedTest {
 
 	@Test
-	public void testValidatesRNGWithBadElement() throws Exception {
+	public void testValidatesRelaxNGSchemaWithBadElement() throws Exception {
 
 		XMLValidationRootSettings validation = new XMLValidationRootSettings();
 		validation.setResolveExternalEntities(true);
@@ -51,7 +51,7 @@ public class RNGUriResolverTest extends AbstractCacheBasedTest {
 	}
 
 	@Test
-	public void testValidatesRNGWithMissingNamespace() throws Exception {
+	public void testValidatesRelaxNGSchemaWithMissingNamespace() throws Exception {
 
 		XMLValidationRootSettings validation = new XMLValidationRootSettings();
 		validation.setResolveExternalEntities(true);
@@ -76,7 +76,7 @@ public class RNGUriResolverTest extends AbstractCacheBasedTest {
 	}
 
 	@Test
-	public void testValidatesRNGThatsValid() throws Exception {
+	public void testValidatesRelaxNGSchemaThatsValid() throws Exception {
 
 		XMLValidationRootSettings validation = new XMLValidationRootSettings();
 		validation.setResolveExternalEntities(true);
@@ -95,7 +95,7 @@ public class RNGUriResolverTest extends AbstractCacheBasedTest {
 	}
 
 	@Test
-	public void testValidatesRNGThatsValidWithNamespaceInPrefix() throws Exception {
+	public void testValidatesRelaxNGSchemaThatsValidWithNamespaceInPrefix() throws Exception {
 
 		XMLValidationRootSettings validation = new XMLValidationRootSettings();
 		validation.setResolveExternalEntities(true);

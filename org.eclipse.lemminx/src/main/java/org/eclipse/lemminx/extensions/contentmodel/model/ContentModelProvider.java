@@ -59,26 +59,21 @@ public interface ContentModelProvider {
 	}
 
 	/**
-	 * Returns the content model provider by using standard association
-	 * (xsi:schemaLocation, xsi:noNamespaceSchemaLocation, doctype) and null
-	 * otherwise.
-	 * 
+	 * Returns true if the given document can be adapted for this content model
+	 * and false otherwise.
+	 *
 	 * @param document the DOM document.
 	 * @param internal true if it is an internal content model (ex : DOCCTYPE
 	 *                 subset) and false otherwise.
-	 * 
-	 * @return the content model provider by using standard association
-	 *         (xsi:schemaLocation, xsi:noNamespaceSchemaLocation, doctype) and null
-	 *         otherwise.
 	 */
 	boolean adaptFor(DOMDocument document, boolean internal);
 
 	/**
 	 * Returns true if the given resource uri can be adapted for this content model
 	 * and false otherwise.
-	 * 
+	 *
 	 * o@param uri the resource Uri.
-	 * 
+	 *
 	 * @return true if the given resource uri can be adapted for this content model
 	 *         and false otherwise.
 	 */
@@ -86,10 +81,10 @@ public interface ContentModelProvider {
 
 	/**
 	 * Returns the identifiers list from the given document and namespace.
-	 * 
+	 *
 	 * @param xmlDocument  the DOM document.
 	 * @param namespaceURI the namespace.
-	 * 
+	 *
 	 * @return the identifiers list from the given document and namespace.
 	 */
 	Collection<Identifier> getIdentifiers(DOMDocument xmlDocument, String namespaceURI);
@@ -97,7 +92,7 @@ public interface ContentModelProvider {
 	/**
 	 * Create content model document (XSD, DTD, etc) from the given resource key and
 	 * null otherwise.
-	 * 
+	 *
 	 * @param key                     the resource key.
 	 * @param resolveExternalEntities true if external entities can be resolved and
 	 *                                false otherwise.
@@ -109,7 +104,7 @@ public interface ContentModelProvider {
 	/**
 	 * Create the internal content model (for DOCTYPE subset) from the given DOM
 	 * document.
-	 * 
+	 *
 	 * @param xmlDocument             the DOM document.
 	 * @param resolveExternalEntities true if external entities can be resolved and
 	 *                                false otherwise.

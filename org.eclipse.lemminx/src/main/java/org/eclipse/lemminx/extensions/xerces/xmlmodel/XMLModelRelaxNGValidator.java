@@ -30,7 +30,7 @@ import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.parser.XMLComponentManager;
 import org.apache.xerces.xni.parser.XMLConfigurationException;
 import org.apache.xerces.xni.parser.XMLDocumentSource;
-import org.eclipse.lemminx.extensions.contentmodel.participants.RNGErrorCode;
+import org.eclipse.lemminx.extensions.contentmodel.participants.RelaxNGErrorCode;
 import org.iso_relax.verifier.Verifier;
 import org.iso_relax.verifier.VerifierConfigurationException;
 import org.iso_relax.verifier.VerifierFactory;
@@ -70,7 +70,7 @@ public class XMLModelRelaxNGValidator implements XMLModelValidator {
 			interceptor.setContentHandler(verifierHandler);
 			interceptor.startDocument();
 		} catch (VerifierConfigurationException vce) {
-			errorReporter.reportError("https://relaxng.org", RNGErrorCode.InvalidRelaxNG.getCode(), new Object[] { href, vce },
+			errorReporter.reportError("https://relaxng.org", RelaxNGErrorCode.InvalidRelaxNG.getCode(), new Object[] { href, vce },
 					XMLErrorReporter.SEVERITY_FATAL_ERROR);
 		} catch (IOException e) {
 			LOGGER.log(Level.SEVERE, "Failed to create RelaxNG validator: ", e);

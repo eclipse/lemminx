@@ -22,7 +22,7 @@ import org.eclipse.lemminx.dom.DOMRange;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.extensions.contentmodel.model.ReferencedGrammarInfo;
 import org.eclipse.lemminx.extensions.contentmodel.participants.DTDErrorCode;
-import org.eclipse.lemminx.extensions.contentmodel.participants.RNGErrorCode;
+import org.eclipse.lemminx.extensions.contentmodel.participants.RelaxNGErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSchemaErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCode;
 import org.eclipse.lemminx.extensions.xerces.AbstractReferencedGrammarLSPErrorReporter;
@@ -103,15 +103,15 @@ public class LSPErrorReporterForXML extends AbstractReferencedGrammarLSPErrorRep
 								documentOrGrammarURI);
 						return NO_RANGE;
 					} else {
-						RNGErrorCode rngCode = RNGErrorCode.get(key);
-						if (rngCode != null) {
+						RelaxNGErrorCode relaxNGCode = RelaxNGErrorCode.get(key);
+						if (relaxNGCode != null) {
 							if (errorForDocument) {
-								Range range = RNGErrorCode.toLSPRange(location, rngCode, message, arguments, document);
+								Range range = RelaxNGErrorCode.toLSPRange(location, relaxNGCode, message, arguments, document);
 								if (range != null) {
 									return range;
 								}
 							} else {
-								// TODO: setup reporting errors on referenced RNG files
+								// TODO: setup reporting errors on referenced .rng files
 							}
 						}
 					}

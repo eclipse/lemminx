@@ -164,7 +164,7 @@ public class DOMUtils {
 	 * @param uri the uri to check
 	 * @return true if the given uri points to a .rng file (XML syntax only)
 	 */
-	public static boolean isRNG(String uri) {
+	public static boolean isRelaxNG(String uri) {
 		return uri != null && uri.endsWith(".rng");
 	}
 }
