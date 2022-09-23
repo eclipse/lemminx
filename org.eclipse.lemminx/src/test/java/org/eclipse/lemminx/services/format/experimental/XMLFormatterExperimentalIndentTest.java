@@ -140,6 +140,64 @@ public class XMLFormatterExperimentalIndentTest extends AbstractCacheBasedTest {
 		assertFormat(content, expected);
 	}
 
+	// From issue: https://github.com/redhat-developer/vscode-xml/issues/600
+	@Test
+	public void multipleLineContentIssue600JoinContentLinesTrue() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setJoinContentLines(true);
+
+		String content = "<a>\r\n" + //
+				"  <b>\r\n" + //
+				"    foo\r\n" + //
+				"    bar\r\n" + //
+				"  </b>\r\n" + //
+				"</a>";
+		String expected = "<a>\r\n" + //
+				"  <b> foo bar </b>\r\n" + //
+				"</a>";
+		assertFormat(content, expected, settings, //
+				te(1, 5, 2, 4, " "),
+				te(2, 7, 3, 4, " "),
+				te(3, 7, 4, 2, " "));
+		assertFormat(expected, expected, settings);
+	}
+
+	// From issue: https://github.com/redhat-developer/vscode-xml/issues/600
+	@Test
+	public void multipleLineContentIssue600JoinContentLinesFalse() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setJoinContentLines(false);
+		String content = "<a>\r\n" + //
+				"  <b>\r\n" + //
+				"    foo\r\n" + //
+				"    bar\r\n" + //
+				"  </b>\r\n" + //
+				"</a>";
+		String expected = "<a>\r\n" + //
+				"  <b> foo\r\n" + //
+				"    bar </b>\r\n" + //
+				"</a>";
+		assertFormat(content, expected, settings, //
+				te(1, 5, 2, 4, " "),
+				te(3, 7, 4, 2, " "));
+		assertFormat(expected, expected, settings);
+	}
+
+	// From issue: https://github.com/redhat-developer/vscode-xml/issues/600
+	@Test
+	public void multipleLineContentIssue600PreserveSpaces() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveEmptyContent(true);
+		String content = "<a>\r\n" + //
+				"  <b>\r\n" + //
+				"    foo\r\n" + //
+				"    bar\r\n" + //
+				"  </b>\r\n" + //
+				"</a>";
+		String expected = content;
+		assertFormat(content, expected, settings);
+	}
+
 	private static void assertFormat(String unformatted, String actual, TextEdit... expectedEdits)
 			throws BadLocationException {
 		assertFormat(unformatted, actual, new SharedSettings(), expectedEdits);
