@@ -70,7 +70,7 @@ public class XMLModelRelaxNGValidator implements XMLModelValidator {
 			interceptor.setContentHandler(verifierHandler);
 			interceptor.startDocument();
 		} catch (VerifierConfigurationException vce) {
-			errorReporter.reportError("https://relaxng.org", RNGErrorCode.InvalidRelaxNG.getCode(), new Object[] { href },
+			errorReporter.reportError("https://relaxng.org", RNGErrorCode.InvalidRelaxNG.getCode(), new Object[] { href, vce },
 					XMLErrorReporter.SEVERITY_FATAL_ERROR);
 		} catch (IOException e) {
 			LOGGER.log(Level.SEVERE, "Failed to create RelaxNG validator: ", e);

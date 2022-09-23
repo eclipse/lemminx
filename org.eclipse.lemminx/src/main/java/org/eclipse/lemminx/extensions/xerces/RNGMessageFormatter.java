@@ -27,7 +27,7 @@ public class RNGMessageFormatter implements MessageFormatter {
 
 	public static final String RNG_DOMAIN = "https://relaxng.org";
 
-	private static final String INVALID_RELAXNG_MESSAGE_TEMPLATE = "The RelaxNG schema {0} is invalid";
+	private static final String INVALID_RELAXNG_MESSAGE_TEMPLATE = "The RelaxNG schema {0} is invalid: {1}";
 
 	@Override
 	public String formatMessage(Locale locale, String key, Object[] arguments) throws MissingResourceException {
