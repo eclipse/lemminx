@@ -237,6 +237,100 @@ public class XMLFormatterExperimentalIndentTest extends AbstractCacheBasedTest {
 		assertFormat(content, expected, settings);
 	}
 
+	// From issue: https://github.com/redhat-developer/vscode-xml/issues/662
+	@Test
+	public void xsDocumentationTextContentIssue662JoinContentTrue() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setJoinContentLines(true);
+		String content = "<xs:schema attributeFormDefault=\"unqualified\" elementFormDefault=\"unqualified\">\r\n" + //
+				"  <xs:complexType name=\"myType\">\r\n" + //
+				"    <xs:annotation>\r\n" + //
+				"           <xs:documentation>\r\n" + //
+				"    Content that spans\r\n" + //
+				"    multiple lines.\r\n" + //
+				"</xs:documentation>\r\n" + //
+				"           </xs:annotation>\r\n" + //
+				"           </xs:complexType>\r\n" + //
+				"</xs:schema>";
+		String expected = "<xs:schema attributeFormDefault=\"unqualified\" elementFormDefault=\"unqualified\">\r\n" + //
+				"  <xs:complexType name=\"myType\">\r\n" + //
+				"    <xs:annotation>\r\n" + //
+				"      <xs:documentation> Content that spans multiple lines. </xs:documentation>\r\n" + //
+				"    </xs:annotation>\r\n" + //
+				"  </xs:complexType>\r\n" + //
+				"</xs:schema>";
+		assertFormat(content, expected, settings, //
+				te(2, 19, 3, 11, "\r\n      "), //
+				te(3, 29, 4, 4, " "), //
+				te(4, 22, 5, 4, " "), //
+				te(5, 19, 6, 0, " "), //
+				te(6, 19, 7, 11, "\r\n    "), //
+				te(7, 27, 8, 11, "\r\n  "));
+		assertFormat(expected, expected, settings);
+	}
+
+	// From issue: https://github.com/redhat-developer/vscode-xml/issues/662
+	@Test
+	public void xsDocumentationTextContentIssue662JoinContentFalse() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		String content = "<xs:schema attributeFormDefault=\"unqualified\" elementFormDefault=\"unqualified\">\r\n" + //
+				"  <xs:complexType name=\"myType\">\r\n" + //
+				"    <xs:annotation>\r\n" + //
+				"           <xs:documentation>\r\n" + //
+				"    Content that spans\r\n" + //
+				"    multiple lines.\r\n" + //
+				"</xs:documentation>\r\n" + //
+				"           </xs:annotation>\r\n" + //
+				"           </xs:complexType>\r\n" + //
+				"</xs:schema>";
+		String expected = "<xs:schema attributeFormDefault=\"unqualified\" elementFormDefault=\"unqualified\">\r\n" + //
+				"  <xs:complexType name=\"myType\">\r\n" + //
+				"    <xs:annotation>\r\n" + //
+				"      <xs:documentation> Content that spans\r\n" + //
+				"    multiple lines. </xs:documentation>\r\n" + //
+				"    </xs:annotation>\r\n" + //
+				"  </xs:complexType>\r\n" + //
+				"</xs:schema>";
+		assertFormat(content, expected, settings, //
+				te(2, 19, 3, 11, "\r\n      "), //
+				te(3, 29, 4, 4, " "), //
+				te(5, 19, 6, 0, " "), //
+				te(6, 19, 7, 11, "\r\n    "), //
+				te(7, 27, 8, 11, "\r\n  "));
+		assertFormat(expected, expected, settings);
+	}
+
+	// From issue: https://github.com/redhat-developer/vscode-xml/issues/662
+	@Test
+	public void xsDocumentationTextContentIssue662Preserve() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		String content = "<xs:schema attributeFormDefault=\"unqualified\" elementFormDefault=\"unqualified\">\r\n" + //
+				"  <xs:complexType name=\"myType\">\r\n" + //
+				"    <xs:annotation>\r\n" + //
+				"           <xs:documentation xml:space=\"preserve\">\r\n" + //
+				"    Content that spans\r\n" + //
+				"    multiple lines.\r\n" + //
+				"</xs:documentation>\r\n" + //
+				"           </xs:annotation>\r\n" + //
+				"           </xs:complexType>\r\n" + //
+				"</xs:schema>";
+		String expected = "<xs:schema attributeFormDefault=\"unqualified\" elementFormDefault=\"unqualified\">\r\n" + //
+				"  <xs:complexType name=\"myType\">\r\n" + //
+				"    <xs:annotation>\r\n" + //
+				"      <xs:documentation xml:space=\"preserve\">\r\n" + //
+				"    Content that spans\r\n" + //
+				"    multiple lines.\r\n" + //
+				"</xs:documentation>\r\n" + //
+				"    </xs:annotation>\r\n" + //
+				"  </xs:complexType>\r\n" + //
+				"</xs:schema>";
+		assertFormat(content, expected, settings, //
+				te(2, 19, 3, 11, "\r\n      "), //
+				te(6, 19, 7, 11, "\r\n    "), //
+				te(7, 27, 8, 11, "\r\n  "));
+		assertFormat(expected, expected, settings);
+	}
+
 	private static void assertFormat(String unformatted, String actual, TextEdit... expectedEdits)
 			throws BadLocationException {
 		assertFormat(unformatted, actual, new SharedSettings(), expectedEdits);
