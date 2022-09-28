@@ -313,29 +313,29 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 	}
 
 	public boolean isOptional(String childElementName) {
-		if (elementOptionality == null){
+		if (elementOptionality == null) {
 			this.elementOptionality = new HashMap<String, Boolean>();
 			XSTypeDefinition typeDefinition = elementDeclaration.getTypeDefinition();
 			switch (typeDefinition.getTypeCategory()) {
-				case XSTypeDefinition.SIMPLE_TYPE:
-					break;
-				case XSTypeDefinition.COMPLEX_TYPE:
-					XSParticle particle = ((XSComplexTypeDefinition) typeDefinition).getParticle();
-					if (particle != null) {
-						XSObjectList objectList = ((XSModelGroup) particle.getTerm()).getParticles();
-						for (int i = 0; i < objectList.getLength(); i++) {
-							XSParticle xp = (XSParticle) objectList.item(i);
-							XSTerm t = xp.getTerm();
-							if (t instanceof XSElementDeclaration) {
-								if (xp != null) {
-									elementOptionality.put(t.getName(), xp.getMinOccurs() == 0);
-								}
+			case XSTypeDefinition.SIMPLE_TYPE:
+				break;
+			case XSTypeDefinition.COMPLEX_TYPE:
+				XSParticle particle = ((XSComplexTypeDefinition) typeDefinition).getParticle();
+				if (particle != null) {
+					XSObjectList objectList = ((XSModelGroup) particle.getTerm()).getParticles();
+					for (int i = 0; i < objectList.getLength(); i++) {
+						XSParticle xp = (XSParticle) objectList.item(i);
+						XSTerm t = xp.getTerm();
+						if (t instanceof XSElementDeclaration) {
+							if (xp != null) {
+								elementOptionality.put(t.getName(), xp.getMinOccurs() == 0);
 							}
 						}
 					}
+				}
 			}
 		}
-		Boolean isOptional =  elementOptionality.get(childElementName);
+		Boolean isOptional = elementOptionality.get(childElementName);
 		return (isOptional != null) ? isOptional : false;
 	}
 
@@ -410,13 +410,13 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 			if (((XSComplexTypeDecl) typeDefinition).getDerivationMethod() == XSConstants.DERIVATION_EXTENSION) {
 				XSObjectListImpl allAnnotations = new XSObjectListImpl();
 				XSTypeDefinition baseType = ((XSComplexTypeDecl) typeDefinition).getBaseType();
-				//Get annotations for current type
+				// Get annotations for current type
 				for (Object xsObject : annotation.toArray()) {
 					if (((XSObject) xsObject) != null) {
 						allAnnotations.addXSObject((XSObject) xsObject);
 					}
 				}
-				//Get annotations for base type
+				// Get annotations for base type
 				for (Object xsObject : getElementAnnotations(baseType).toArray()) {
 					if (((XSObject) xsObject) != null) {
 						allAnnotations.addXSObject((XSObject) xsObject);
@@ -465,6 +465,11 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 			return complexTypeDefinition.getContentType() == XSComplexTypeDefinition.CONTENTTYPE_EMPTY;
 		}
 		return false;
+	}
+
+	@Override
+	public boolean isNillable() {
+		return elementDeclaration == null ? false : elementDeclaration.getNillable();
 	}
 
 	@Override

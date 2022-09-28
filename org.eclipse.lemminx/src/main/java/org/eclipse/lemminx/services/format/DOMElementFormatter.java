@@ -16,6 +16,7 @@ import java.util.List;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMElement;
+import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLFormattingOptions.EmptyElements;
 import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lsp4j.TextEdit;
@@ -85,7 +86,7 @@ public class DOMElementFormatter {
 		case MixedContent:
 			// Remove spaces and indent if the content between start tag and parent start
 			// tag is some white spaces
-			// before formatting: <a> <b> </b> example text </a>
+			// before formatting: <a> [space][space] <b> </b> example text </a>
 			// after formatting: <a>\n <b> </b> example text </a>
 			int parentStartCloseOffset = element.getParentElement().getStartTagCloseOffset() + 1;
 			if (parentStartCloseOffset != startTagOffset
@@ -153,8 +154,10 @@ public class DOMElementFormatter {
 			}
 			case collapse: {
 				// collapse empty element: <example></example> -> <example />
-				if (!element.isSelfClosed() && (end == -1 || element.getEndTagOpenOffset() + 1 < end)) {
-					// Do not collapse if range is does not cover the element
+				if (!element.isSelfClosed() && (end == -1 || element.getEndTagOpenOffset() + 1 < end)
+						&& (shouldCollapseEmptyElement(element, formatterDocument.getSharedSettings()))) {
+					// Do not collapse if range is does not cover the element or is prohibited by
+					// grammar constraint
 					StringBuilder tag = new StringBuilder();
 					if (isSpaceBeforeEmptyCloseTag()) {
 						tag.append(" ");
@@ -217,11 +220,11 @@ public class DOMElementFormatter {
 	/**
 	 * Formats the start tag's closing bracket (>) according to
 	 * {@code XMLFormattingOptions#isPreserveAttrLineBreaks()}
-	 *
+	 * 
 	 * {@code XMLFormattingOptions#isPreserveAttrLineBreaks()}: If true, must add a
 	 * newline + indent before the closing bracket if the last attribute of the
 	 * element and the closing bracket are in different lines.
-	 *
+	 * 
 	 * @param element
 	 * @throws BadLocationException
 	 */
@@ -285,9 +288,8 @@ public class DOMElementFormatter {
 			// Preserve existing spaces
 			break;
 		case MixedContent:
-			// Remove spaces and indent if the last child is an element or comment block,
-			// not text
-			// before formatting: <a> example text <b> </b> [space][space] </a>
+			// Remove spaces and indent if the last child is an element, not text
+			// before formatting: <a> example text <b> </b> [space][space]</a>
 			// after formatting: <a> example text <b> </b>\n</a>
 			if ((element.getLastChild().isElement() || element.getLastChild().isComment())
 					&& Character.isWhitespace(formatterDocument.getText().charAt(endTagOffset - 1))
@@ -326,7 +328,7 @@ public class DOMElementFormatter {
 
 	/**
 	 * Return the option to use to generate empty elements.
-	 *
+	 * 
 	 * @param element the DOM element
 	 * @return the option to use to generate empty elements.
 	 */
@@ -361,7 +363,7 @@ public class DOMElementFormatter {
 	 * 
 	 * 1. splitAttribute must be set to true 2. there must be at least 2 attributes
 	 * in the element
-	 *
+	 * 
 	 * @param element the DOM element
 	 * @return true if should format according to closingBracketNewLine setting.
 	 */
@@ -460,6 +462,10 @@ public class DOMElementFormatter {
 	private FormatElementCategory getFormatElementCategory(DOMElement element,
 			XMLFormattingConstraints parentConstraints) {
 		return formatterDocument.getFormatElementCategory(element, parentConstraints);
+	}
+
+	private boolean shouldCollapseEmptyElement(DOMElement element, SharedSettings settings) {
+		return formatterDocument.shouldCollapseEmptyElement(element, settings);
 	}
 
 	private int getMaxLineWidth() {

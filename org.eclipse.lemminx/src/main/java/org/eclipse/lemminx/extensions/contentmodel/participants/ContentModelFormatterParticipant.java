@@ -34,7 +34,7 @@ import org.eclipse.lemminx.settings.SharedSettings;
  * </p>
  * 
  * @author Angelo ZERR
- *
+ * 
  */
 public class ContentModelFormatterParticipant implements IFormatterParticipant {
 
@@ -67,4 +67,29 @@ public class ContentModelFormatterParticipant implements IFormatterParticipant {
 		return null;
 	}
 
+	@Override
+	public boolean shouldCollapseEmptyElement(DOMElement element, SharedSettings sharedSettings) {
+		boolean enabled = sharedSettings.getFormattingSettings().isGrammarAwareFormatting();
+		if (!enabled) {
+			return true;
+		}
+		if (!("true".equals(element.getAttribute("xsi:nil")))) {
+			// Only check the schema for value of nillable when xsi:nil="true" in element
+			return true;
+		}
+		Collection<CMDocument> cmDocuments = contentModelManager.findCMDocument(element);
+		if (cmDocuments.isEmpty()) {
+			// The DOM document is not linked to a grammar, the collapse can be done.
+			return true;
+		}
+		for (CMDocument cmDocument : cmDocuments) {
+			CMElementDeclaration cmElement = cmDocument.findCMElement(element);
+			if (cmElement != null && !cmElement.isNillable()) {
+				// Collapse is not allowed in the case where nillable="false" in xsd and
+				// xsi:nil="true" for the element in xml
+				return false;
+			}
+		}
+		return true;
+	}
 }

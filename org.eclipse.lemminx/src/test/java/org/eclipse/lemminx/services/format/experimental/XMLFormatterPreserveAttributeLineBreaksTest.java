@@ -198,6 +198,7 @@ public class XMLFormatterPreserveAttributeLineBreaksTest {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setPreserveAttributeLineBreaks(true);
 		settings.getFormattingSettings().setEmptyElement(EmptyElements.collapse);
+		settings.getFormattingSettings().setGrammarAwareFormatting(false);
 
 		String content = "<a>\n" + //
 				"<b attr=\"value\" attr=\"value\"\n" + //
@@ -221,6 +222,7 @@ public class XMLFormatterPreserveAttributeLineBreaksTest {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setPreserveAttributeLineBreaks(true);
 		settings.getFormattingSettings().setEmptyElement(EmptyElements.collapse);
+		settings.getFormattingSettings().setGrammarAwareFormatting(false);
 
 		String content = "<a>\n" + //
 				"<b attr=\"value\" attr=\"value\"\n" + //
@@ -247,6 +249,7 @@ public class XMLFormatterPreserveAttributeLineBreaksTest {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setPreserveAttributeLineBreaks(true);
 		settings.getFormattingSettings().setEmptyElement(EmptyElements.collapse);
+		settings.getFormattingSettings().setGrammarAwareFormatting(false);
 
 		String content = "<a>\n" + //
 				"</a>";

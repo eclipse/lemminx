@@ -119,6 +119,13 @@ public interface CMElementDeclaration {
 	boolean isEmpty();
 
 	/**
+	 * Returns true if the element can have an explicit null value assigned to it.
+	 * 
+	 * @return true if the element can have an explicit null value assigned to it.
+	 */
+	boolean isNillable();
+
+	/**
 	 * Return the enumeration values.
 	 * 
 	 * @return the enumeration values.
