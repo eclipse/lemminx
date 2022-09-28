@@ -44,7 +44,7 @@ import org.w3c.dom.Text;
  * update spaces / indent.
  * 
  * @author Angelo ZERR
- *
+ * 
  */
 public class XMLFormatterDocumentNew {
 
@@ -511,10 +511,10 @@ public class XMLFormatterDocumentNew {
 
 	/**
 	 * Returns the format element category of the given DOM element.
-	 * 
+	 *
 	 * @param element           the DOM element.
 	 * @param parentConstraints the parent constraints.
-	 * 
+	 *
 	 * @return the format element category of the given DOM element.
 	 */
 	public FormatElementCategory getFormatElementCategory(DOMElement element,
@@ -580,7 +580,16 @@ public class XMLFormatterDocumentNew {
 		}
 	}
 
-	public String getIndentSpaces(int level, boolean addLineSeparator) {
+	public boolean shouldCollapseEmptyElement(DOMElement element, SharedSettings sharedSettings) {
+		for (IFormatterParticipant participant : formatterParticipants) {
+			if (!participant.shouldCollapseEmptyElement(element, sharedSettings)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private String getIndentSpaces(int level, boolean addLineSeparator) {
 		StringBuilder spaces = new StringBuilder();
 		if (addLineSeparator) {
 			spaces.append(lineDelimiter);
@@ -601,10 +610,10 @@ public class XMLFormatterDocumentNew {
 	/**
 	 * Return the expected indent spaces and new lines with the specified number of
 	 * new lines.
-	 *
+	 * 
 	 * @param level        the indent level.
 	 * @param newLineCount the number of new lines to be added.
-	 *
+	 * 
 	 * @return the expected indent spaces and new lines with the specified number of
 	 *         new lines.
 	 */

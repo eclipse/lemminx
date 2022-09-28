@@ -83,4 +83,18 @@ public interface IFormatterParticipant {
 			XMLFormattingConstraints parentConstraints, SharedSettings sharedSettings) {
 		return null;
 	}
+
+	/**
+	 * Returns true if the given element can be collapsed according to grammar
+	 * constraints.
+	 * 
+	 * @param element        the DOM element.
+	 * @param sharedSettings the shared settings.
+	 * 
+	 * @return true if the given element can be collapsed according to grammar
+	 *         constraints.
+	 */
+	default boolean shouldCollapseEmptyElement(DOMElement element, SharedSettings sharedSettings) {
+		return true;
+	}
 }

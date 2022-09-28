@@ -129,6 +129,12 @@ public class CMDTDElementDeclaration extends XMLElementDecl implements CMElement
 	}
 
 	@Override
+	public boolean isNillable() {
+		// implement later, return false
+		return false;
+	}
+
+	@Override
 	public Collection<String> getEnumerationValues() {
 		return Collections.emptyList();
 	}
@@ -158,8 +164,8 @@ public class CMDTDElementDeclaration extends XMLElementDecl implements CMElement
 	}
 
 	@Override
-	public boolean isOptional(String childElementName){
-		//implement later, return false
+	public boolean isOptional(String childElementName) {
+		// implement later, return false
 		return false;
 	}
 }

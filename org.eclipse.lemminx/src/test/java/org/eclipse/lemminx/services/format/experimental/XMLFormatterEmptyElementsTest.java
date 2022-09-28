@@ -56,6 +56,7 @@ public class XMLFormatterEmptyElementsTest extends AbstractCacheBasedTest {
 	public void collapseEmptyElements() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setEmptyElement(EmptyElements.collapse);
+		settings.getFormattingSettings().setGrammarAwareFormatting(false);
 
 		String content = "<example att=\"hello\"></example>";
 		String expected = "<example att=\"hello\" />";
@@ -153,6 +154,7 @@ public class XMLFormatterEmptyElementsTest extends AbstractCacheBasedTest {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setEmptyElement(EmptyElements.collapse);
 		settings.getFormattingSettings().setPreserveEmptyContent(true);
+		settings.getFormattingSettings().setGrammarAwareFormatting(false);
 
 		String content = "<foo>\r\n" + //
 				"    <bar>\r\n" + //
@@ -185,7 +187,8 @@ public class XMLFormatterEmptyElementsTest extends AbstractCacheBasedTest {
 				"  <bar />\r\n" + //
 				"</foo>";
 		assertFormat(content, expected, settings, //
-				te(0, 5, 1, 4, "\r\n  "), te(1, 8, 1, 15, " />"));
+				te(0, 5, 1, 4, "\r\n  "), //
+				te(1, 8, 1, 15, " />"));
 		assertFormat(expected, expected, settings);
 
 	}
@@ -194,6 +197,7 @@ public class XMLFormatterEmptyElementsTest extends AbstractCacheBasedTest {
 	public void collapseEmptyElementsInRange() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setEmptyElement(EmptyElements.collapse);
+		settings.getFormattingSettings().setGrammarAwareFormatting(false);
 
 		// Range doesn't cover the b element, collapse cannot be done
 		String content = "<a>\r\n" + //
@@ -221,9 +225,97 @@ public class XMLFormatterEmptyElementsTest extends AbstractCacheBasedTest {
 				te(1, 2, 3, 4, " />"));
 	}
 
+	@Test
+	public void collapseEmptyElementsNotBoundWithGrammar() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setEmptyElement(EmptyElements.collapse);
+		settings.getFormattingSettings().setGrammarAwareFormatting(true);
+
+		String content = "<foo>\r\n" + //
+				"    <bar></bar>\r\n" + //
+				"</foo>";
+		String expected = "<foo>\r\n" + //
+				"  <bar />\r\n" + //
+				"</foo>";
+		assertFormat(content, expected, settings, //
+				te(0, 5, 1, 4, "\r\n  "), //
+				te(1, 8, 1, 15, " />"));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void collapseEmptyElementsWithGrammarCanBeEmpty() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setEmptyElement(EmptyElements.collapse);
+
+		String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"  xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/isEmpty.xsd\">\r\n" + //
+				"  <empty></empty>\r\n" + //
+				"</root>";
+		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"  xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/isEmpty.xsd\">\r\n" + //
+				"  <empty />\r\n" + //
+				"</root>";
+		assertFormat(content, expected, settings, //
+				te(3, 8, 3, 17, " />"));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void collapseEmptyElementsWithGrammarCanBeEmptyNotDefinedInXSD() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setEmptyElement(EmptyElements.collapse);
+
+		String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"  xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/isEmpty.xsd\">\r\n" + //
+				"  <empty xsi:nil=\"true\"></empty>\r\n" + //
+				"</root>";
+		String expected = content;
+		assertFormat(content, expected, settings);
+	}
+
+	@Test
+	public void collapseEmptyElementsWithGrammarCanBeEmptyNil() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setEmptyElement(EmptyElements.collapse);
+
+		String content = "<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"  xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/nil.xsd\">\r\n" + //
+				"  <nillable xsi:nil=\"true\"></nillable>\r\n" + //
+				"</root>";
+		String expected = "<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"  xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/nil.xsd\">\r\n" + //
+				"  <nillable xsi:nil=\"true\" />\r\n" + //
+				"</root>";
+		assertFormat(content, expected, settings, //
+				te(2, 26, 2, 38, " />"));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void collapseEmptyElementsWithGrammarCanBeEmptyNilDontCollapse() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setEmptyElement(EmptyElements.collapse);
+
+		String content = "<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"  xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/nil.xsd\">\r\n" + //
+				"  <nillable></nillable>\r\n" + //
+				"</root>";
+		String expected = "<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"  xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/nil.xsd\">\r\n" + //
+				"  <nillable />\r\n" + //
+				"</root>";
+		assertFormat(content, expected, settings, //
+				te(2, 11, 2, 23, " />"));
+		assertFormat(expected, expected, settings);
+	}
+
 	private static void assertFormat(String unformatted, String expected, SharedSettings sharedSettings,
 			TextEdit... expectedEdits) throws BadLocationException {
-		assertFormat(unformatted, expected, sharedSettings, "test://test.html", expectedEdits);
+		assertFormat(unformatted, expected, sharedSettings, "test.xml", expectedEdits);
 	}
 
 	private static void assertFormat(String unformatted, String expected, SharedSettings sharedSettings, String uri,
