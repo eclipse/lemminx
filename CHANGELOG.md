@@ -1,5 +1,54 @@
 # Change Log
 
+## [0.22.0](https://github.com/eclipse/lemminx/milestone/35?closed=1) (October 19, 2022)
+
+### Enhancements
+
+ * Initialize RelaxNG support with validation/completion/hover. See [#828](https://github.com/eclipse/lemminx/issues/828).
+ * Support `xml.format.closingBracketNewLine` setting with experimental formatter. See [#1247](https://github.com/eclipse/lemminx/issues/1247).
+ * Support `xml.format.xsiSchemaLocationSplit` setting with experimental formatter. See [#1246](https://github.com/eclipse/lemminx/issues/1246).
+ * Support `xml.format.spaceBeforeEmptyCloseTag` setting with experimental formatter. See [#1245](https://github.com/eclipse/lemminx/issues/1245).
+ * Support `xml.format.joinContentLines` setting with experimental formatter. See [#1244](https://github.com/eclipse/lemminx/issues/1244).
+ * Support `xml.format.joinCommentLines` setting with experimental formatter. See [#1243](https://github.com/eclipse/lemminx/issues/1243).
+ * Support `xml.format.preserveEmptyContent` setting with experimental formatter. See [#1242](https://github.com/eclipse/lemminx/issues/1242).
+ * Support `xml.format.joinCDATALines` setting with experimental formatter. See [#1241](https://github.com/eclipse/lemminx/issues/1241).
+ * Support `xml.format.preservedNewlines` setting with experimental formatter. See [#1240](https://github.com/eclipse/lemminx/issues/1240).
+ * Support `xml.format.enforceQuoteStyle` setting with experimental formatter. See [#1239](https://github.com/eclipse/lemminx/issues/1239).
+ * Support `xml.format.emptyElements` setting with experimental formatter. See [#1238](https://github.com/eclipse/lemminx/issues/1238).
+ * Provide comment formatting for experimental formatter. See [#1259](https://github.com/eclipse/lemminx/issues/1259). 
+ * CodeAction for `cvc-complex-type.2.4.b`: "insert all expected" vs. "insert all possible". See [#1255](https://github.com/eclipse/lemminx/issues/1255).  
+ * Suppress validation kinds based on file pattern. See [#1275](https://github.com/eclipse/lemminx/issues/1275).
+ * Report only XML syntax error for *.exsd files. See [#1308](https://github.com/eclipse/lemminx/pull/1308).  
+ * Place relevant information on the first line of error messages. See [#1145](https://github.com/eclipse/lemminx/issues/1145).
+ * Validate uri of XML catalog. See [#823](https://github.com/eclipse/lemminx/issues/823).
+ * Do not complete paths in attr unless beginning of value looks like a path. See [#1293](https://github.com/eclipse/lemminx/pull/1293). 
+ * Use the HTTP proxy configuration for HTTPS as well. See [#1253](https://github.com/eclipse/lemminx/pull/1253).
+
+### Bug Fixes
+
+ * Fix tests on Windows OS. See [#1306](https://github.com/eclipse/lemminx/pull/1306).
+ * Annotations found in base complex type not shown on hover. See [#1268](https://github.com/eclipse/lemminx/pull/1268).
+ * Autocompletion of attribute values won't display documentation. See [#1260](https://github.com/eclipse/lemminx/pull/1260).
+ * Format CDATA sections without adding new lines. See [#1193](https://github.com/eclipse/lemminx/issues/1193).
+ * Formatting with `xml.format.emptyElements`: `expand` chokes on malformed XML. See [#650](https://github.com/eclipse/lemminx/issues/650).
+ * Null pointer exception when processing code action `cvc_complex_type_2_4_b`. See [#1280](https://github.com/eclipse/lemminx/issues/1280).
+
+### Build
+
+ * Fix CI badge, add some more badges. See [#1262](https://github.com/eclipse/lemminx/pull/1262).
+ * Enable dependabot. See [#1309](https://github.com/eclipse/lemminx/pull/1309).
+ * Unit tests should not store data in the .lemminx folder under the user's home directory. See [#1265](https://github.com/eclipse/lemminx/issues/1265).
+ * Update Jenkins and GH Actions build scripts to reflect branch renaming. See [#1261](https://github.com/eclipse/lemminx/pull/1261).
+ * Bump build-helper-maven-plugin from 3.0.0 to 3.3.0. See [#1322](https://github.com/eclipse/lemminx/pull/1322).
+ * Bump maven-assembly-plugin from 3.1.1 to 3.4.2. See [#1321](https://github.com/eclipse/lemminx/pull/1321).
+ * Bump maven-bundle-plugin from 5.1.1 to 5.1.8. See [#1315](https://github.com/eclipse/lemminx/pull/1315).
+ * Bump maven-source-plugin from 3.0.1 to 3.2.1. See [#1314](https://github.com/eclipse/lemminx/pull/1314).
+
+### Other
+
+ * Add test for formatting with xs:documentation multiline content. See [#1303](https://github.com/eclipse/lemminx/pull/1303).
+ * Enable tests for experimental formatter. See [#1327](https://github.com/eclipse/lemminx/issues/1327).
+
 ## [0.21.0](https://github.com/eclipse/lemminx/milestone/34?closed=1) (June 29, 2022)
 
 ### Enhancements
