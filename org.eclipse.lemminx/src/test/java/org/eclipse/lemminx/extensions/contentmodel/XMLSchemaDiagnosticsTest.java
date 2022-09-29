@@ -229,12 +229,12 @@ public class XMLSchemaDiagnosticsTest extends AbstractCacheBasedTest {
 						"\t<authors>\r\n" + //
 						"\t\t<author></author>\r\n" + //
 						"\t</authors>\r\n" + //
-						"\t<assistant></assistant>\n")),
+						"\t<assistant></assistant>\r\n")),
 				ca(d, te(1, 79, 1, 79, //
 						"\r\n" + //
 								"\t<authors>\r\n" + //
 								"\t\t<author></author>\r\n" + //
-								"\t</authors>\n")));
+								"\t</authors>\r\n")));
 	}
 
 	@Test
@@ -265,12 +265,12 @@ public class XMLSchemaDiagnosticsTest extends AbstractCacheBasedTest {
 						"\t<authors>\r\n" + //
 						"\t\t<author></author>\r\n" + //
 						"\t</authors>\r\n" + //
-						"\t<assistant></assistant>\n")),
+						"\t<assistant></assistant>\r\n")),
 				ca(d, te(1, 79, 1, 79, //
 						"\r\n" + //
 								"\t<authors>\r\n" + //
 								"\t\t<author></author>\r\n" + //
-								"\t</authors>\n")));
+								"\t</authors>\r\n")));
 	}
 
 	@Test
@@ -287,12 +287,12 @@ public class XMLSchemaDiagnosticsTest extends AbstractCacheBasedTest {
 						"\t<d age=\"\">\r\n" + //
 						"\t\t<d1></d1>\r\n" + //
 						"\t</d>\r\n" + //
-						"\t<e></e>\n")),
+						"\t<e></e>\r\n")),
 				ca(d, te(1, 65, 1, 65, //
 						"\r\n" + //
 								"\t<a></a>\r\n" + //
 								"\t<d age=\"\"></d>\r\n" + //
-								"\t<e></e>\n")));
+								"\t<e></e>\r\n")));
 	}
 
 	@Test
@@ -336,7 +336,7 @@ public class XMLSchemaDiagnosticsTest extends AbstractCacheBasedTest {
 						"\t\t\t</d>\r\n\t\t\r\n" + //
 						"\t\t\t<e></e>\r\n" + //
 						"\t\t</root>\r\n" + //
-						"\t</a>\n")),
+						"\t</a>\r\n")),
 				ca(d, te(1, 82, 1, 82, //
 						"\r\n" + //
 								"\t<a>\r\n" + //
@@ -344,7 +344,7 @@ public class XMLSchemaDiagnosticsTest extends AbstractCacheBasedTest {
 								"\t\t\t<d age=\"\"></d>\r\n\t\t\r\n" + //
 								"\t\t\t<e></e>\r\n" + //
 								"\t\t</root>\r\n" + //
-								"\t</a>\n")));
+								"\t</a>\r\n")));
 	}
 
 	@Test

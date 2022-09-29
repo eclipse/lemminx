@@ -699,7 +699,6 @@ public class XMLFormatterExperimentalTest extends AbstractCacheBasedTest {
 		assertFormat(content, expected);
 	}
 
-
 	// ---------- Tests for Text formatting
 
 	@Disabled
@@ -938,11 +937,6 @@ public class XMLFormatterExperimentalTest extends AbstractCacheBasedTest {
 	private static void assertFormat(String unformatted, String actual, TextEdit... expectedEdits)
 			throws BadLocationException {
 		assertFormat(unformatted, actual, new SharedSettings(), expectedEdits);
-	}
-
-	private static void assertFormat(String unformatted, String expected, SharedSettings sharedSettings)
-			throws BadLocationException {
-		assertFormat(unformatted, expected, sharedSettings, "test://test.html", (TextEdit[]) null);
 	}
 
 	private static void assertFormat(String unformatted, String expected, SharedSettings sharedSettings,

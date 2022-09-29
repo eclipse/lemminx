@@ -139,7 +139,6 @@ public class XMLFormatterWhitespaceSettingTest {
 		assertFormat(expected, expected, settings);
 	}
 
-	@Disabled
 	@Test
 	public void testDontTrimFinalNewLines2() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
@@ -148,10 +147,11 @@ public class XMLFormatterWhitespaceSettingTest {
 				"   \r\n\r\n";
 		String expected = "<a></a>\r\n" + //
 				"   \r\n\r\n";
-		assertFormat(content, expected, settings);
+		assertFormat(content, expected, settings, //
+				te(0, 2, 0, 4, ""));
+		assertFormat(expected, expected, settings);
 	}
 
-	@Disabled
 	@Test
 	public void testDontTrimFinalNewLines3() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
@@ -164,7 +164,9 @@ public class XMLFormatterWhitespaceSettingTest {
 				"  text \r\n" + //
 				"  more text   \r\n" + //
 				"   \r\n";
-		assertFormat(content, expected, settings);
+		assertFormat(content, expected, settings, //
+				te(0, 2, 0, 4, ""));
+		assertFormat(expected, expected, settings);
 	}
 
 	@Test
@@ -234,8 +236,7 @@ public class XMLFormatterWhitespaceSettingTest {
 		settings.getFormattingSettings().setClosingBracketNewLine(true);
 		String content = "<a b=''/>";
 		String expected = "<a b='' />";
-		assertFormat(content, expected, settings,
-				te(0, 7, 0, 7, " "));
+		assertFormat(content, expected, settings, te(0, 7, 0, 7, " "));
 		assertFormat(expected, expected, settings);
 	}
 
@@ -249,9 +250,9 @@ public class XMLFormatterWhitespaceSettingTest {
 		String expected = "<a>" + lineSeparator() + "  <b" + lineSeparator() + "  c=''" + lineSeparator() + "  d=''"
 				+ lineSeparator() + "  />" + lineSeparator() + "</a>";
 		assertFormat(content, expected, settings, //
-		te(1, 4, 1, 5, lineSeparator() + "  "), //
-		te(1, 9, 1, 10, lineSeparator() + "  "), //
-		te(1, 14, 1, 14, lineSeparator() + "  "));
+				te(1, 4, 1, 5, lineSeparator() + "  "), //
+				te(1, 9, 1, 10, lineSeparator() + "  "), //
+				te(1, 14, 1, 14, lineSeparator() + "  "));
 		assertFormat(expected, expected, settings);
 	}
 
@@ -285,11 +286,6 @@ public class XMLFormatterWhitespaceSettingTest {
 		assertFormat(content, expected, settings, //
 				te(0, 3, 1, 0, lineSeparator() + "  "));
 		assertFormat(expected, expected, settings);
-	}
-
-	private static void assertFormat(String unformatted, String actual, TextEdit... expectedEdits)
-			throws BadLocationException {
-		assertFormat(unformatted, actual, new SharedSettings(), expectedEdits);
 	}
 
 	private static void assertFormat(String unformatted, String expected, SharedSettings sharedSettings,

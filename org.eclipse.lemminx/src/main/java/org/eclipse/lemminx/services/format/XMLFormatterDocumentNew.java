@@ -21,13 +21,13 @@ import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMCDATASection;
+import org.eclipse.lemminx.dom.DOMComment;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMDocumentType;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.dom.DOMProcessingInstruction;
 import org.eclipse.lemminx.dom.DOMText;
-import org.eclipse.lemminx.dom.DOMComment;
 import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLFormattingOptions;
@@ -274,47 +274,46 @@ public class XMLFormatterDocumentNew {
 
 		switch (child.getNodeType()) {
 
-			case Node.DOCUMENT_TYPE_NODE:
-				DOMDocumentType docType = (DOMDocumentType) child;
-				docTypeFormatter.formatDocType(docType, parentConstraints, start, end, edits);
-				break;
+		case Node.DOCUMENT_TYPE_NODE:
+			DOMDocumentType docType = (DOMDocumentType) child;
+			docTypeFormatter.formatDocType(docType, parentConstraints, start, end, edits);
+			break;
 
-			case Node.DOCUMENT_NODE:
-				DOMDocument document = (DOMDocument) child;
-				formatChildren(document, parentConstraints, start, end, edits);
-				break;
+		case Node.DOCUMENT_NODE:
+			DOMDocument document = (DOMDocument) child;
+			formatChildren(document, parentConstraints, start, end, edits);
+			break;
 
-			case DOMNode.PROCESSING_INSTRUCTION_NODE:
-				DOMProcessingInstruction processingInstruction = (DOMProcessingInstruction) child;
-				processingInstructionFormatter.formatProcessingInstruction(processingInstruction, parentConstraints,
-						edits);
-				break;
+		case DOMNode.PROCESSING_INSTRUCTION_NODE:
+			DOMProcessingInstruction processingInstruction = (DOMProcessingInstruction) child;
+			processingInstructionFormatter.formatProcessingInstruction(processingInstruction, parentConstraints, edits);
+			break;
 
-			case Node.ELEMENT_NODE:
-				DOMElement element = (DOMElement) child;
-				elementFormatter.formatElement(element, parentConstraints, start, end, edits);
-				break;
+		case Node.ELEMENT_NODE:
+			DOMElement element = (DOMElement) child;
+			elementFormatter.formatElement(element, parentConstraints, start, end, edits);
+			break;
 
-			case Node.TEXT_NODE:
-				DOMText textNode = (DOMText) child;
-				textFormatter.formatText(textNode, parentConstraints, edits);
-				break;
+		case Node.TEXT_NODE:
+			DOMText textNode = (DOMText) child;
+			textFormatter.formatText(textNode, parentConstraints, edits);
+			break;
 
-			case Node.COMMENT_NODE:
-				DOMComment commentNode = (DOMComment) child;
-				commentFormatter.formatComment(commentNode, parentConstraints, edits);
-				break;
+		case Node.COMMENT_NODE:
+			DOMComment commentNode = (DOMComment) child;
+			commentFormatter.formatComment(commentNode, parentConstraints, edits);
+			break;
 
-			case Node.CDATA_SECTION_NODE:
-				DOMCDATASection cDATANode = (DOMCDATASection) child;
-				cDATAFormatter.formatCDATASection(cDATANode, parentConstraints, edits);
-				break;
+		case Node.CDATA_SECTION_NODE:
+			DOMCDATASection cDATANode = (DOMCDATASection) child;
+			cDATAFormatter.formatCDATASection(cDATANode, parentConstraints, edits);
+			break;
 
-			default:
-				// unknown, so just leave alone for now but make sure to update
-				// available line width
-				int width = updateLineWidthWithLastLine(child, parentConstraints.getAvailableLineWidth());
-				parentConstraints.setAvailableLineWidth(width);
+		default:
+			// unknown, so just leave alone for now but make sure to update
+			// available line width
+			int width = updateLineWidthWithLastLine(child, parentConstraints.getAvailableLineWidth());
+			parentConstraints.setAvailableLineWidth(width);
 		}
 	}
 
@@ -325,103 +324,81 @@ public class XMLFormatterDocumentNew {
 		}
 	}
 
-	public void formatAttributeValue(DOMAttr attr, XMLFormatterDocumentNew formatterDocument, int indentLevel,
-			XMLFormattingOptions formattingOptions, List<TextEdit> edits) {
+	public void formatAttributeValue(DOMAttr attr, int indentLevel, List<TextEdit> edits) {
 		if (formatterParticipants != null) {
 			for (IFormatterParticipant formatterParticipant : formatterParticipants) {
 				try {
-					if (formatterParticipant.formatAttributeValue(attr, formatterDocument, indentLevel,
-							formattingOptions, edits)) {
+					if (formatterParticipant.formatAttributeValue(attr, this, indentLevel, getFormattingSettings(),
+							edits)) {
 						return;
 					}
 				} catch (Exception e) {
-					LOGGER.log(Level.SEVERE,
-							"Error while processing format attributes for the participant '"
-									+ formatterParticipant.getClass().getName() + "'.", e);
+					LOGGER.log(Level.SEVERE, "Error while processing format attributes for the participant '"
+							+ formatterParticipant.getClass().getName() + "'.", e);
 				}
 			}
 		}
 	}
 
-	void removeLeftSpaces(int to, List<TextEdit> edits) {
-		replaceLeftSpacesWith(to, "", edits);
+	public void removeLeftSpaces(int leftLimit, int to, List<TextEdit> edits) {
+		replaceLeftSpacesWith(leftLimit, to, "", edits);
 	}
 
-	public void removeLeftSpaces(int from, int to, List<TextEdit> edits) {
-		replaceLeftSpacesWith(from, to, "", edits);
-	}
-
-	void replaceLeftSpacesWithOneSpace(int to, List<TextEdit> edits) {
-		replaceLeftSpacesWith(to, " ", edits);
-	}
-
-	public void replaceLeftSpacesWithOneSpace(int from, int to, List<TextEdit> edits) {
-		replaceLeftSpacesWith(from, to, " ", edits);
-	}
-
-	void replaceLeftSpacesWith(int to, String replacement, List<TextEdit> edits) {
-		replaceLeftSpacesWith(-1, to, replacement, edits);
+	public void replaceLeftSpacesWithOneSpace(int leftLimit, int to, List<TextEdit> edits) {
+		replaceLeftSpacesWith(leftLimit, to, " ", edits);
 	}
 
 	void replaceLeftSpacesWith(int leftLimit, int to, String replacement, List<TextEdit> edits) {
-		int from = getLeftWhitespacesOffset(leftLimit, to);
-		createTextEditIfNeeded(from, to, replacement, edits);
-	}
-
-	void replaceQuoteWithPreferred(int from, int to, String replacement, List<TextEdit> edits) {
-		createTextEditIfNeeded(from, to, replacement, edits);
-	}
-
-	public int getLeftWhitespacesOffset(int leftLimit, int to) {
-		String text = textDocument.getText();
-		int from = leftLimit != -1 ? leftLimit : to - 1;
-		int limit = leftLimit != -1 ? leftLimit : 0;
-		for (int i = to - 1; i >= limit; i--) {
-			char c = text.charAt(i);
-			if (!Character.isWhitespace(c)) {
-				from = i;
-				break;
-			}
+		int from = adjustOffsetWithLeftWhitespaces(leftLimit, to);
+		if (from >= 0) {
+			createTextEditIfNeeded(from, to, replacement, edits);
 		}
-		return from;
 	}
 
-	public int replaceLeftSpacesWithIndentation(int indentLevel, int offset, boolean addLineSeparator,
+	void replaceQuoteWithPreferred(int from, int to, List<TextEdit> edits) {
+		createTextEditIfNeeded(from, to, getQuotationAsString(), edits);
+	}
+
+	public int adjustOffsetWithLeftWhitespaces(int leftLimit, int to) {
+		return TextEditUtils.adjustOffsetWithLeftWhitespaces(leftLimit, to, textDocument.getText());
+	}
+
+	public int replaceLeftSpacesWithIndentation(int indentLevel, int leftLimit, int to, boolean addLineSeparator,
 			List<TextEdit> edits) {
-		int start = offset - 1;
-		if (start > 0) {
+		int from = adjustOffsetWithLeftWhitespaces(leftLimit, to);
+		if (from >= 0) {
 			String expectedSpaces = getIndentSpaces(indentLevel, addLineSeparator);
-			createTextEditIfNeeded(start, offset, expectedSpaces, edits);
+			createTextEditIfNeeded(from, to, expectedSpaces, edits);
 			return expectedSpaces.length();
 		}
 		return 0;
 	}
 
-	public int replaceLeftSpacesWithIndentationWithMultiNewLines(int indentLevel, int offset,
+	public int replaceLeftSpacesWithIndentationWithMultiNewLines(int indentLevel, int leftLimit, int offset,
 			int newLineCount, List<TextEdit> edits) {
-		int start = getLeftWhitespacesOffset(-1, offset);
-		if (start > 0) {
+		int from = adjustOffsetWithLeftWhitespaces(leftLimit, offset);
+		if (from >= 0) {
 			String expectedSpaces = getIndentSpacesWithMultiNewLines(indentLevel, newLineCount);
-			createTextEditIfNeeded(start, offset, expectedSpaces, edits);
+			createTextEditIfNeeded(from, offset, expectedSpaces, edits);
 			return expectedSpaces.length();
 		}
 		return 0;
 	}
 
-	public int replaceLeftSpacesWithIndentationWithOffsetSpaces(int indentSpace, int offset, boolean addLineSeparator,
-			List<TextEdit> edits) {
-		int start = offset - 1;
-		if (start > 0) {
+	public int replaceLeftSpacesWithIndentationWithOffsetSpaces(int indentSpace, int leftLimit, int to,
+			boolean addLineSeparator, List<TextEdit> edits) {
+		int from = adjustOffsetWithLeftWhitespaces(leftLimit, to);
+		if (from >= 0) {
 			String expectedSpaces = getIndentSpacesWithOffsetSpaces(indentSpace, addLineSeparator);
-			createTextEditIfNeeded(start, offset, expectedSpaces, edits);
+			createTextEditIfNeeded(from, to, expectedSpaces, edits);
 			return expectedSpaces.length();
 		}
 		return 0;
 	}
 
-	boolean hasLineBreak(int startAttr, int start) {
+	boolean hasLineBreak(int from, int to) {
 		String text = textDocument.getText();
-		for (int i = startAttr; i < start; i++) {
+		for (int i = from; i < to; i++) {
 			char c = text.charAt(i);
 			if (isLineSeparator(c)) {
 				return true;
@@ -507,6 +484,17 @@ public class XMLFormatterDocumentNew {
 		return c == '\r' || c == '\n';
 	}
 
+	public int getLineBreakOffset(int startAttr, int start) {
+		String text = textDocument.getText();
+		for (int i = startAttr; i < start; i++) {
+			char c = text.charAt(i);
+			if (isLineSeparator(c)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
 	void insertLineBreak(int start, int end, List<TextEdit> edits) {
 		createTextEditIfNeeded(start, end, lineDelimiter, edits);
 	}
@@ -536,7 +524,7 @@ public class XMLFormatterDocumentNew {
 		}
 
 		// Get the category from the settings
-		FormatElementCategory fromSettings = sharedSettings.getFormattingSettings().getFormatElementCategory(element);
+		FormatElementCategory fromSettings = getFormattingSettings().getFormatElementCategory(element);
 		if (fromSettings != null) {
 			return fromSettings;
 		}
@@ -592,7 +580,7 @@ public class XMLFormatterDocumentNew {
 		}
 	}
 
-	private String getIndentSpaces(int level, boolean addLineSeparator) {
+	public String getIndentSpaces(int level, boolean addLineSeparator) {
 		StringBuilder spaces = new StringBuilder();
 		if (addLineSeparator) {
 			spaces.append(lineDelimiter);
@@ -692,23 +680,31 @@ public class XMLFormatterDocumentNew {
 	}
 
 	int getMaxLineWidth() {
-		return sharedSettings.getFormattingSettings().getMaxLineWidth();
+		return getFormattingSettings().getMaxLineWidth();
 	}
 
 	private int getTabSize() {
-		return sharedSettings.getFormattingSettings().getTabSize();
+		return getFormattingSettings().getTabSize();
 	}
 
 	private boolean isInsertSpaces() {
-		return sharedSettings.getFormattingSettings().isInsertSpaces();
+		return getFormattingSettings().isInsertSpaces();
 	}
 
 	private boolean isTrimFinalNewlines() {
-		return sharedSettings.getFormattingSettings().isTrimFinalNewlines();
+		return getFormattingSettings().isTrimFinalNewlines();
 	}
 
 	private boolean isInsertFinalNewline() {
-		return sharedSettings.getFormattingSettings().isInsertFinalNewline();
+		return getFormattingSettings().isInsertFinalNewline();
+	}
+
+	private String getQuotationAsString() {
+		return sharedSettings.getPreferences().getQuotationAsString();
+	}
+
+	private XMLFormattingOptions getFormattingSettings() {
+		return getSharedSettings().getFormattingSettings();
 	}
 
 	SharedSettings getSharedSettings() {

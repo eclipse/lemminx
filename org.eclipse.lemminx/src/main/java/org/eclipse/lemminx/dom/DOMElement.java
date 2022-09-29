@@ -389,6 +389,39 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 	}
 
 	/**
+	 * Returns the offset after the start tag name.
+	 * 
+	 * <code>
+	 * 	<foo| ></foo> 
+	 * </code>
+	 * 
+	 * @return the offset after the start tag name.
+	 */
+	public int getOffsetAfterStartTag() {
+		if (hasTagName()) {
+			return getStartTagOpenOffset() + getTagName().length() + 1;
+		}
+		return getStartTagOpenOffset() + 1;
+	}
+
+	/**
+	 * Returns the offset before the close of start tag name.
+	 * 
+	 * <code>
+	 * 	<foo |></foo> 
+	 *  <foo |/>
+	 * </code>
+	 * 
+	 * @return the offset before the close of start tag name.
+	 */
+	public int getOffsetBeforeCloseOfStartTag() {
+		if (isSelfClosed()) {
+			return getEnd() - 2;
+		}
+		return getStartTagCloseOffset();
+	}
+
+	/**
 	 * Returns true if the given element is an orphan end tag (which has no start
 	 * tag, eg: </a>) and false otherwise.
 	 *
@@ -564,13 +597,6 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 			}
 		}
 		return true;
-	}
-
-	public int getOffsetAfterStartTag() {
-		if (hasTagName()) {
-			return getStartTagOpenOffset() + 1;
-		}
-		return getStartTagOpenOffset() + getTagName().length() + 1;
 	}
 
 }

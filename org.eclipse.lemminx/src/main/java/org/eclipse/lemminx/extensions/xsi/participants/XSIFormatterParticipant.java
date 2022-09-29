@@ -159,22 +159,25 @@ public class XSIFormatterParticipant implements IFormatterParticipant {
 	}
 
 	@Override
-	public boolean formatAttributeValue(DOMAttr attr, XMLFormatterDocumentNew formatterDocument,
-			int indentLevel, XMLFormattingOptions formattingOptions, List<TextEdit> edits) {
+	public boolean formatAttributeValue(DOMAttr attr, XMLFormatterDocumentNew formatterDocument, int indentLevel,
+			XMLFormattingOptions formattingOptions, List<TextEdit> edits) {
 
 		XSISchemaLocationSplit split = XSISchemaLocationSplit.getSplit(formattingOptions);
 
-		if (split == XSISchemaLocationSplit.none || !XSISchemaModel.isXSISchemaLocationAttr(attr.getName(), attr)
-				|| getFirstContentOffset(attr.getOriginalValue()) == -1) {
+		if (split == XSISchemaLocationSplit.none || !XSISchemaModel.isXSISchemaLocationAttr(attr.getName(), attr)) {
 			return false;
 		}
 
+		int firstContentOffset = getFirstContentOffset(attr.getOriginalValue());
+		if (firstContentOffset == -1) {
+			return false;
+		}
 		int attrValueStart = attr.getNodeAttrValue().getStart();
 		// Remove extra spaces between start of xsi:schemaLocation attribute value quote
 		// and actual value
 		formatterDocument.removeLeftSpaces(attrValueStart + 1, // <... xsi:schemaLocation="| value"
 				// <... xsi:schemaLocation=" |value"
-				attrValueStart + getFirstContentOffset(attr.getOriginalValue()), edits);
+				attrValueStart + firstContentOffset, edits);
 
 		int tabSize = formattingOptions.getTabSize();
 		int indentSpaceOffset;
@@ -184,8 +187,8 @@ public class XSIFormatterParticipant implements IFormatterParticipant {
 			indentSpaceOffset = (attrValueStart + 1) - attr.getNodeAttrName().getStart()
 					+ formattingOptions.getSplitAttributesIndentSize() * tabSize;
 		} else if (formattingOptions.isPreserveAttributeLineBreaks()) {
-			indentSpaceOffset = attrValueStart
-					- formatterDocument.getOffsetWithPreserveLineBreaks(startOfLineOffset, attrValueStart, tabSize, formattingOptions.isInsertSpaces());
+			indentSpaceOffset = attrValueStart - formatterDocument.getOffsetWithPreserveLineBreaks(startOfLineOffset,
+					attrValueStart, tabSize, formattingOptions.isInsertSpaces());
 		} else {
 			indentSpaceOffset = formatterDocument.getNormalizedLength(startOfLineOffset, attrValueStart + 1)
 					- startOfLineOffset;
@@ -195,15 +198,14 @@ public class XSIFormatterParticipant implements IFormatterParticipant {
 		int locationNum = 1;
 		String attrValue = attr.getOriginalValue();
 
-		for (int i = 0; i < attrValue.length(); i++) {
-			int from = formatterDocument.getLeftWhitespacesOffset(attrValueStart, attrValueStart + i + 1);
+		for (int i = firstContentOffset; i < attrValue.length(); i++) {
+			int from = formatterDocument.adjustOffsetWithLeftWhitespaces(attrValueStart, attrValueStart + i + 1);
 			if (Character.isWhitespace(attrValue.charAt(i)) && !Character.isWhitespace(attrValue.charAt(i + 1))
 					&& !StringUtils.isQuote(attrValue.charAt(from - attrValueStart))) {
 				// Insert newline and indent where required based on setting
 				if (locationNum % lineFeed == 0) {
 					formatterDocument.replaceLeftSpacesWithIndentationWithOffsetSpaces(indentSpaceOffset,
-							attrValueStart + i + 1,
-							true, edits);
+							attrValueStart, attrValueStart + i + 1, true, edits);
 				} else {
 					formatterDocument.replaceLeftSpacesWithOneSpace(indentSpaceOffset, attrValueStart + i + 1, edits);
 				}

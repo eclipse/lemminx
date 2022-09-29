@@ -185,8 +185,7 @@ public class XMLFormatterEmptyElementsTest extends AbstractCacheBasedTest {
 				"  <bar />\r\n" + //
 				"</foo>";
 		assertFormat(content, expected, settings, //
-				te(0, 5, 1, 4, "\r\n  "),
-				te(1, 8, 1, 15, " />"));
+				te(0, 5, 1, 4, "\r\n  "), te(1, 8, 1, 15, " />"));
 		assertFormat(expected, expected, settings);
 
 	}
@@ -208,6 +207,7 @@ public class XMLFormatterEmptyElementsTest extends AbstractCacheBasedTest {
 				"</b>\r\n" + //
 				"</a>";
 		assertFormat(content, expected, settings);
+
 		// Range covers the b element, collapse is done
 		content = "<a>\r\n" + //
 				"<|b>\r\n" + //

@@ -162,11 +162,6 @@ public class XMLFormatterSetSpaceBeforeEmptyCloseTagTest {
 		assertFormat(expected, expected, settings);
 	}
 
-	private static void assertFormat(String unformatted, String actual, TextEdit... expectedEdits)
-			throws BadLocationException {
-		assertFormat(unformatted, actual, new SharedSettings(), expectedEdits);
-	}
-
 	private static void assertFormat(String unformatted, String expected, SharedSettings sharedSettings,
 			TextEdit... expectedEdits) throws BadLocationException {
 		assertFormat(unformatted, expected, sharedSettings, "test://test.html", expectedEdits);
