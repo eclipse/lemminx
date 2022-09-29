@@ -63,14 +63,19 @@ public class DOMCDATAFormatter {
 					if (availableLineWidth <= 0) {
 						if (spaceStart != -1) {
 							// Add new line when the comment extends over the maximum line width
-							replaceLeftSpacesWithIndentation(parentConstraints.getIndentLevel(), contentStart,
-									true, edits);
+							replaceLeftSpacesWithIndentation(parentConstraints.getIndentLevel(), spaceStart,
+									contentStart, true, edits);
 							int indentSpaces = (getTabSize() * parentConstraints.getIndentLevel());
 							availableLineWidth = getMaxLineWidth() - indentSpaces - (contentEnd + 1 - contentStart);
 						}
-					} else if (spaceStart == cDATAStartContent || contentEnd == cDATAEndContent) {
-						// Remove spaces before and after the start and ending bracket of content
-						removeLeftSpaces(spaceStart + 1, contentStart, edits);
+					} else if (spaceStart == cDATAStartContent) {
+						// Remove spaces before the start bracket of content
+						removeLeftSpaces(spaceStart, contentStart, edits);
+						spaceStart = -1;
+						spaceEnd = -1;
+					} else if (contentEnd == cDATAEndContent) {
+						// Remove spaces after the ending bracket of content
+						removeLeftSpaces(spaceStart, contentEnd, edits);
 						spaceStart = -1;
 						spaceEnd = -1;
 					} else {
@@ -105,8 +110,8 @@ public class DOMCDATAFormatter {
 		formatterDocument.replaceSpacesWithOneSpace(spaceStart, spaceEnd, edits);
 	}
 
-	private int replaceLeftSpacesWithIndentation(int indentLevel, int offset, boolean addLineSeparator,
+	private int replaceLeftSpacesWithIndentation(int indentLevel, int from, int to, boolean addLineSeparator,
 			List<TextEdit> edits) {
-		return formatterDocument.replaceLeftSpacesWithIndentation(indentLevel, offset, addLineSeparator, edits);
+		return formatterDocument.replaceLeftSpacesWithIndentation(indentLevel, from, to, addLineSeparator, edits);
 	}
 }

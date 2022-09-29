@@ -152,7 +152,7 @@ public class XMLExternalTest extends BaseFileTempTest {
 	private TextDocumentItem getXMLTextDocumentItem(String filename, String xmlContents) {
 		String languageId = "xml";
 		int version = 1;
-		return new TextDocumentItem(getTempDirPath().toString() + "/" + filename, languageId, version, xmlContents);
+		return new TextDocumentItem(getTempDirPath().toString().replace('\\', '/') + "/" + filename, languageId, version, xmlContents);
 	}
 
 	private void clientOpenFile(XMLLanguageServer languageServer, TextDocumentItem textDocumentItem) {

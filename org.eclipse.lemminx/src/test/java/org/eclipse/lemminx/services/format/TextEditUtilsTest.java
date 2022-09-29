@@ -34,13 +34,13 @@ public class TextEditUtilsTest extends AbstractCacheBasedTest {
 		TextDocument document = new TextDocument("<a/>", "test.xml");
 		TextEdit edit = TextEditUtils.createTextEditIfNeeded(1, 2, " ", document);
 		assertNotNull(edit);
-		assertEquals(te(0, 2, 0, 2, " "), edit);
+		assertEquals(te(0, 1, 0, 2, " "), edit);
 	}
 
 	@Test
 	public void noTextEdit() {
 		TextDocument document = new TextDocument("<a />", "test.xml");
-		TextEdit edit = TextEditUtils.createTextEditIfNeeded(1, 3, " ", document);
+		TextEdit edit = TextEditUtils.createTextEditIfNeeded(2, 3, " ", document);
 		assertNull(edit);
 	}
 
@@ -49,7 +49,7 @@ public class TextEditUtilsTest extends AbstractCacheBasedTest {
 		TextDocument document = new TextDocument("<a  />", "test.xml");
 		TextEdit edit = TextEditUtils.createTextEditIfNeeded(1, 4, " ", document);
 		assertNotNull(edit);
-		assertEquals(te(0, 2, 0, 4, " "), edit);
+		assertEquals(te(0, 1, 0, 4, " "), edit);
 	}
 
 	@Test

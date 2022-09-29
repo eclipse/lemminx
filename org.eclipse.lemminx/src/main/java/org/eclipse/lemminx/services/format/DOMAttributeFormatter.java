@@ -14,10 +14,9 @@ package org.eclipse.lemminx.services.format;
 import java.util.List;
 
 import org.eclipse.lemminx.dom.DOMAttr;
-import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lemminx.settings.EnforceQuoteStyle;
 import org.eclipse.lemminx.utils.StringUtils;
-import org.eclipse.lemminx.settings.XMLFormattingOptions;
+import org.eclipse.lsp4j.TextEdit;
 
 /**
  * DOM attribute formatter.
@@ -42,12 +41,12 @@ public class DOMAttributeFormatter {
 		if (useSettings) {
 			int indentLevel = parentConstraints.getIndentLevel();
 			if (isPreserveAttributeLineBreaks() && hasLineBreak(prevOffset, attr.getStart())) {
-				replaceLeftSpacesWithIndentation(indentLevel + 1, attr.getStart(), true, edits);
+				replaceLeftSpacesWithIndentation(indentLevel + 1, prevOffset, attr.getStart(), true, edits);
 				alreadyIndented = true;
 			} else if (isSplitAttributes() && !singleAttribute) {
 				// move the attribute to a new line and indent it.
-				replaceLeftSpacesWithIndentation(indentLevel + getSplitAttributesIndentSize(), attr.getStart(), true,
-						edits);
+				replaceLeftSpacesWithIndentation(indentLevel + getSplitAttributesIndentSize(), prevOffset,
+						attr.getStart(), true, edits);
 				alreadyIndented = true;
 			}
 		}
@@ -79,7 +78,7 @@ public class DOMAttributeFormatter {
 				int attrValueStart = attr.getNodeAttrValue().getStart(); // <foo attr = |""
 				removeLeftSpaces(delimiterOffset, attrValueStart, edits);
 			}
-			formatterDocument.formatAttributeValue(attr, formatterDocument, parentConstraints.getIndentLevel(), getFormattingSettings(), edits);
+			formatAttributeValue(attr, parentConstraints.getIndentLevel(), edits);
 		}
 
 		// replace current quote with preferred quote in case of attribute value
@@ -88,26 +87,33 @@ public class DOMAttributeFormatter {
 		// --> <a name='value'> </a>
 		String originalValue = attr.getOriginalValue();
 		if (getEnforceQuoteStyle() == EnforceQuoteStyle.preferred && originalValue != null) {
-			if (originalValue.charAt(0) != getQuotationAsChar()
-					&& StringUtils.isQuote(originalValue.charAt(0))) {
-				formatterDocument.replaceQuoteWithPreferred(attr.getNodeAttrValue().getStart(),
-						attr.getNodeAttrValue().getStart() + 1, getQuotationAsString(), edits);
+			if (originalValue.charAt(0) != getQuotationAsChar() && StringUtils.isQuote(originalValue.charAt(0))) {
+				replaceQuoteWithPreferred(attr.getNodeAttrValue().getStart(), attr.getNodeAttrValue().getStart() + 1,
+						edits);
 			}
 			if (originalValue.charAt(originalValue.length() - 1) != getQuotationAsChar()
 					&& StringUtils.isQuote(originalValue.charAt(originalValue.length() - 1))) {
-				formatterDocument.replaceQuoteWithPreferred(attr.getNodeAttrValue().getEnd() - 1,
-						attr.getNodeAttrValue().getEnd(), getQuotationAsString(), edits);
+				replaceQuoteWithPreferred(attr.getNodeAttrValue().getEnd() - 1, attr.getNodeAttrValue().getEnd(),
+						edits);
 			}
 		}
+	}
+
+	private void formatAttributeValue(DOMAttr attr, int indentLevel, List<TextEdit> edits) {
+		formatterDocument.formatAttributeValue(attr, indentLevel, edits);
+	}
+
+	private void replaceQuoteWithPreferred(int from, int to, List<TextEdit> edits) {
+		formatterDocument.replaceQuoteWithPreferred(from, to, edits);
 	}
 
 	private void replaceLeftSpacesWithOneSpace(int from, int to, List<TextEdit> edits) {
 		formatterDocument.replaceLeftSpacesWithOneSpace(from, to, edits);
 	}
 
-	private void replaceLeftSpacesWithIndentation(int indentLevel, int offset, boolean addLineSeparator,
+	private void replaceLeftSpacesWithIndentation(int indentLevel, int leftLimit, int to, boolean addLineSeparator,
 			List<TextEdit> edits) {
-		formatterDocument.replaceLeftSpacesWithIndentation(indentLevel, offset, addLineSeparator, edits);
+		formatterDocument.replaceLeftSpacesWithIndentation(indentLevel, leftLimit, to, addLineSeparator, edits);
 	}
 
 	private void removeLeftSpaces(int from, int to, List<TextEdit> edits) {
@@ -122,10 +128,6 @@ public class DOMAttributeFormatter {
 		return formatterDocument.getSharedSettings().getFormattingSettings().getSplitAttributesIndentSize();
 	}
 
-	private XMLFormattingOptions getFormattingSettings() {
-		return formatterDocument.getSharedSettings().getFormattingSettings();
-	}
-
 	boolean isPreserveAttributeLineBreaks() {
 		return formatterDocument.getSharedSettings().getFormattingSettings().isPreserveAttributeLineBreaks();
 	}
@@ -136,10 +138,6 @@ public class DOMAttributeFormatter {
 
 	private char getQuotationAsChar() {
 		return formatterDocument.getSharedSettings().getPreferences().getQuotationAsChar();
-	}
-
-	private String getQuotationAsString() {
-		return formatterDocument.getSharedSettings().getPreferences().getQuotationAsString();
 	}
 
 	private EnforceQuoteStyle getEnforceQuoteStyle() {

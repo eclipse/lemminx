@@ -39,7 +39,7 @@ public class XMLFormatterWithRangeTest {
 				te(1, 11, 1, 12, ""), //
 				te(1, 13, 1, 14, ""), //
 				te(1, 19, 1, 19, " "));
-		
+
 		content = "<div  class = \"foo\">\n" + //
 				"  |<img src=\"foo\" />|\n" + //
 				" </div>";
@@ -61,7 +61,7 @@ public class XMLFormatterWithRangeTest {
 				te(1, 11, 1, 12, ""), //
 				te(1, 13, 1, 14, ""), //
 				te(1, 19, 1, 19, " "));
-		
+
 		content = "<div  class = \"foo\">\n" + //
 				"  |<img src=\"foo\" />|\n" + //
 				" \n" + //
@@ -287,8 +287,7 @@ public class XMLFormatterWithRangeTest {
 				"]>";
 		assertFormat(content, expected);
 	}
-	
-	@Disabled
+
 	@Test
 	public void testSplitAttributesRangeOneLine() throws BadLocationException {
 		String content = "<note>\r\n" + //
@@ -305,10 +304,11 @@ public class XMLFormatterWithRangeTest {
 
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setSplitAttributes(true);
-		assertFormat(content, expected, settings);
+		assertFormat(content, expected, settings, //
+				te(2, 9, 2, 14, ""), //
+				te(2, 15, 2, 26, ""));
 	}
 
-	@Disabled
 	@Test
 	public void testSplitAttributesRangeMultipleLines() throws BadLocationException {
 		String content = "<note>\r\n" + //
@@ -326,13 +326,20 @@ public class XMLFormatterWithRangeTest {
 				"      abc=\"def\"\r\n" + //
 				"      ghi=\"jkl\">sss</from>\r\n" + //
 				"</note>";
-		;
 
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setSplitAttributes(true);
-		assertFormat(content, expected, settings);
+		assertFormat(content, expected, settings, //
+				te(1, 7, 2, 8, "\r\n      "), //
+				te(2, 11, 2, 18, ""), //
+				te(2, 19, 2, 26, ""), //
+				te(2, 31, 3, 0, "\r\n      "), //
+				te(3, 3, 3, 5, ""), //
+				te(3, 6, 3, 10, ""), //
+				te(3, 15, 3, 18, "\r\n      "), //
+				te(3, 21, 3, 23, ""), //
+				te(3, 24, 4, 4, ""));
 	}
-
 
 	private static void assertFormat(String unformatted, String actual, TextEdit... expectedEdits)
 			throws BadLocationException {

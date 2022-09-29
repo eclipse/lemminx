@@ -161,6 +161,24 @@ public class XMLFormatterPreserveAttributeLineBreaksTest {
 	}
 
 	@Test
+	public void preserveAttributeLineBreaks6() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveAttributeLineBreaks(true);
+		String content = "<a attr=\"value\"\n" + //
+				"</a>";
+		assertFormat(content, content, settings);
+	}
+
+	@Test
+	public void preserveAttributeLineBreaks7() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveAttributeLineBreaks(true);
+		String content = "<a attr=\"value\"\n" + //
+				"/>";
+		assertFormat(content, content, settings);
+	}
+
+	@Test
 	public void preserveAttributeLineBreaksMissingValue() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setPreserveAttributeLineBreaks(true);
@@ -191,10 +209,10 @@ public class XMLFormatterPreserveAttributeLineBreaksTest {
 				"    attr=\"value\" attr=\"value\" />\n" + //
 				"</a>";
 		assertFormat(content, expected, settings, //
-		te(0, 3, 1, 0, "\n  "),
-		te(1, 28, 2, 0, "\n    "),
-		te(2, 25, 3, 0, "\n    "),
-		te(3, 25, 4, 4, " />"));
+				te(0, 3, 1, 0, "\n  "), //
+				te(1, 28, 2, 0, "\n    "), //
+				te(2, 25, 3, 0, "\n    "), //
+				te(3, 25, 4, 4, " />"));
 		assertFormat(expected, expected, settings);
 	}
 
@@ -217,10 +235,10 @@ public class XMLFormatterPreserveAttributeLineBreaksTest {
 				"    attr=\"value\" attr=\"value\" />\n" + //
 				"</a>";
 		assertFormat(content, expected, settings, //
-		te(0, 3, 1, 0, "\n  "),
-		te(1, 28, 2, 0, "\n    "),
-		te(2, 25, 3, 0, "\n    "),
-		te(3, 25, 5, 4, " />"));
+				te(0, 3, 1, 0, "\n  "), //
+				te(1, 28, 2, 0, "\n    "), //
+				te(2, 25, 3, 0, "\n    "), //
+				te(3, 25, 5, 4, " />"));
 		assertFormat(expected, expected, settings);
 	}
 
@@ -235,7 +253,7 @@ public class XMLFormatterPreserveAttributeLineBreaksTest {
 		String expected = "<a />";
 		assertFormat(content, expected, settings, //
 				te(0, 2, 1, 4, " />"));
-				assertFormat(expected, expected, settings);
+		assertFormat(expected, expected, settings);
 	}
 
 	@Test
@@ -301,6 +319,76 @@ public class XMLFormatterPreserveAttributeLineBreaksTest {
 				"  a7=\"123456789\" a8=\"123456789\" a9=\"123456789\"\n" + //
 				"></a>";
 		assertFormat(content, expected, settings);
+	}
+
+	@Test
+	public void preserveAttributeLineBreaksIndentCloseTag() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveAttributeLineBreaks(true);
+		settings.getFormattingSettings().setSpaceBeforeEmptyCloseTag(false);
+		String content = "<a>\r\n" + //
+				"  <b attr=\"\"                \r\n" + //
+				"/>\r\n" + //
+				"</a>";
+		String expected = "<a>\r\n" + //
+				"  <b attr=\"\"\r\n" + //
+				"  />\r\n" + //
+				"</a>";
+		assertFormat(content, expected, settings, //
+				te(1, 12, 2, 0, "\r\n  "));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void preserveAttributeLineBreaksIndentCloseTagAndSpaceBeforeEmptyCloseTag() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveAttributeLineBreaks(true);
+		settings.getFormattingSettings().setSpaceBeforeEmptyCloseTag(true);
+		String content = "<a>\r\n" + //
+				"  <b attr=\"\"                \r\n" + //
+				"/>\r\n" + //
+				"</a>";
+		String expected = "<a>\r\n" + //
+				"  <b attr=\"\"\r\n" + //
+				"  />\r\n" + //
+				"</a>";
+		assertFormat(content, expected, settings, //
+				te(1, 12, 2, 0, "\r\n  "));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void noPreserveAttributeLineBreaksIndentCloseTag() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveAttributeLineBreaks(false);
+		settings.getFormattingSettings().setSpaceBeforeEmptyCloseTag(false);
+		String content = "<a>\r\n" + //
+				"  <b attr=\"\"                \r\n" + //
+				"/>\r\n" + //
+				"</a>";
+		String expected = "<a>\r\n" + //
+				"  <b attr=\"\"/>\r\n" + //
+				"</a>";
+		assertFormat(content, expected, settings, //
+				te(1, 12, 2, 0, ""));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void noPreserveAttributeLineBreaksIndentCloseTagAndSpaceBeforeEmptyCloseTag() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveAttributeLineBreaks(false);
+		settings.getFormattingSettings().setSpaceBeforeEmptyCloseTag(true);
+		String content = "<a>\r\n" + //
+				"  <b attr=\"\"                \r\n" + //
+				"/>\r\n" + //
+				"</a>";
+		String expected = "<a>\r\n" + //
+				"  <b attr=\"\" />\r\n" + //
+				"</a>";
+		assertFormat(content, expected, settings, //
+				te(1, 12, 2, 0, " "));
+		assertFormat(expected, expected, settings);
 	}
 
 	private static void assertFormat(String unformatted, String expected, SharedSettings sharedSettings,

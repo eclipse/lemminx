@@ -69,6 +69,24 @@ public class XMLGenerator {
 	}
 
 	/**
+	 * Returns the line delimiter.
+	 * 
+	 * @return the line delimiter.
+	 */
+	public String getLineDelimiter() {
+		return lineDelimiter;
+	}
+
+	/**
+	 * Returns the whitespaces indentation.
+	 * 
+	 * @return the whitespaces indentation.
+	 */
+	public String getWhitespacesIndent() {
+		return whitespacesIndent;
+	}
+	
+	/**
 	 * Returns the XML generated from the given element declaration.
 	 * 
 	 * @param elementDeclaration
@@ -113,16 +131,16 @@ public class XMLGenerator {
 	}
 
 	private int generate(CMElementDeclaration elementDeclaration, String prefix, boolean generateEndTag,
-			boolean generateOnlyChildren, int level,
-			int snippetIndex, XMLBuilder xml, List<CMElementDeclaration> generatedElements,
-			Collection<String> existingElementNames, boolean generateOnlyRequired) {
+			boolean generateOnlyChildren, int level, int snippetIndex, XMLBuilder xml,
+			List<CMElementDeclaration> generatedElements, Collection<String> existingElementNames,
+			boolean generateOnlyRequired) {
 
 		if (generateOnlyChildren) {
 			Collection<CMElementDeclaration> childElements = elementDeclaration.getElements();
 			for (CMElementDeclaration child : childElements) {
 				if (isGenerateChild(elementDeclaration, generateOnlyRequired, child.getName())) {
-					snippetIndex = generate(child, prefix, true, false, level + 1, snippetIndex, xml,
-							generatedElements, existingElementNames, generateOnlyRequired);
+					snippetIndex = generate(child, prefix, true, false, level + 1, snippetIndex, xml, generatedElements,
+							existingElementNames, generateOnlyRequired);
 				}
 			}
 			return snippetIndex;
@@ -149,8 +167,8 @@ public class XMLGenerator {
 				for (CMElementDeclaration child : children) {
 					if (isGenerateChild(elementDeclaration, generateOnlyRequired, child.getName())) {
 						level++;
-						snippetIndex = generate(child, prefix, true, false, level, snippetIndex, xml,
-								generatedElements, existingElementNames, generateOnlyRequired);
+						snippetIndex = generate(child, prefix, true, false, level, snippetIndex, xml, generatedElements,
+								existingElementNames, generateOnlyRequired);
 						level--;
 						xml.linefeed();
 						xml.indent(level);
@@ -401,8 +419,7 @@ public class XMLGenerator {
 	 */
 	private boolean isGenerateChild(CMElementDeclaration elementDeclaration, boolean generateOnlyRequired,
 			String childName) {
-		if (!generateOnlyRequired
-				|| (!elementDeclaration.isOptional(childName) && generateOnlyRequired)) {
+		if (!generateOnlyRequired || (!elementDeclaration.isOptional(childName) && generateOnlyRequired)) {
 			return true;
 		}
 		return false;

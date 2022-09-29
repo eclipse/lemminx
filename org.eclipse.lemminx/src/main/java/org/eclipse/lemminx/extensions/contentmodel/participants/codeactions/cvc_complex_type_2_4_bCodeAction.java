@@ -27,7 +27,6 @@ import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.extensions.contentmodel.utils.XMLGenerator;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionRequest;
-import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
@@ -40,16 +39,10 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
  * Given this XML where the expected child elements are not present as defined
  * in the XSD:
  * 
- * <servlet></servlet>
- * Error:
- * Child elements are missing from element:
- * - servlet
+ * <servlet></servlet> Error: Child elements are missing from element: - servlet
  *
- * The following elements are expected:
- * - description
- * - display-name
- * - icon
- * - servlet-name
+ * The following elements are expected: - description - display-name - icon -
+ * servlet-name
  * 
  * To fix the error, the code action will suggest inserting the expected
  * elements inside the parent tag
@@ -104,25 +97,22 @@ public class cvc_complex_type_2_4_bCodeAction implements ICodeActionParticipant 
 			// indent if needed
 			if (document.positionAt(element.getStartTagCloseOffset()).getLine() == document
 					.positionAt(element.getEndTagOpenOffset()).getLine()) {
-				int lineNum = document.positionAt(element.getStartTagCloseOffset()).getLine();
-				insertTextAll.append(document.getLineIndentInfo(lineNum).getLineDelimiter());
-				insertTextAll.append(StringUtils.getStartWhitespaces(document.lineText(lineNum)));
-				insertTextRequired.append(document.getLineIndentInfo(lineNum).getLineDelimiter());
-				insertTextRequired.append(StringUtils.getStartWhitespaces(document.lineText(lineNum)));
+				insertTextAll.append(generator.getLineDelimiter());
+				insertTextAll.append(generator.getWhitespacesIndent());
+				insertTextRequired.append(generator.getLineDelimiter());
+				insertTextRequired.append(generator.getWhitespacesIndent());
 			}
 
 			String insertStrAll = insertTextAll.toString();
 			String insertStrRequired = insertTextRequired.toString();
 
-			CodeAction insertAllExpectedElement = CodeActionFactory.insert(
-					"Insert all expected elements", childElementPosition, insertStrAll,
-					document.getTextDocument(), diagnostic);
+			CodeAction insertAllExpectedElement = CodeActionFactory.insert("Insert all expected elements",
+					childElementPosition, insertStrAll, document.getTextDocument(), diagnostic);
 
 			codeActions.add(insertAllExpectedElement);
 
-			CodeAction insertRequriedExpectedElement = CodeActionFactory.insert(
-					"Insert only required elements", childElementPosition, insertStrRequired,
-					document.getTextDocument(), diagnostic);
+			CodeAction insertRequriedExpectedElement = CodeActionFactory.insert("Insert only required elements",
+					childElementPosition, insertStrRequired, document.getTextDocument(), diagnostic);
 
 			codeActions.add(insertRequriedExpectedElement);
 

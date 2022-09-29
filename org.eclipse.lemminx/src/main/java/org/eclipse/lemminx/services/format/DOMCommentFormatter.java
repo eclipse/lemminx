@@ -47,8 +47,7 @@ public class DOMCommentFormatter {
 		boolean addLineSeparator = formatterDocument.hasLineBreak(leftWhitespaceOffset, start);
 		if (addLineSeparator) {
 			// Indent in case of comment being at the start of line
-			replaceLeftSpacesWithIndentation(parentConstraints.getIndentLevel(), start,
-					addLineSeparator, edits);
+			replaceLeftSpacesWithIndentation(parentConstraints.getIndentLevel(), leftWhitespaceOffset, start, addLineSeparator, edits);
 		}
 		int spaceStart = -1;
 		int spaceEnd = -1;
@@ -73,8 +72,8 @@ public class DOMCommentFormatter {
 					if (availableLineWidth <= 0) {
 						if (spaceStart != -1) {
 							// Add new line when the comment extends over the maximum line width
-							replaceLeftSpacesWithIndentation(parentConstraints.getIndentLevel(), contentStart,
-									true, edits);
+							replaceLeftSpacesWithIndentation(parentConstraints.getIndentLevel(), spaceStart, contentStart, true,
+									edits);
 							int indentSpaces = (getTabSize() * parentConstraints.getIndentLevel());
 							availableLineWidth = getMaxLineWidth() - indentSpaces - (contentEnd + 1 - contentStart);
 						}
@@ -106,8 +105,8 @@ public class DOMCommentFormatter {
 		formatterDocument.replaceSpacesWithOneSpace(spaceStart, spaceEnd, edits);
 	}
 
-	private int replaceLeftSpacesWithIndentation(int indentLevel, int offset, boolean addLineSeparator,
+	private int replaceLeftSpacesWithIndentation(int indentLevel, int from, int to, boolean addLineSeparator,
 			List<TextEdit> edits) {
-		return formatterDocument.replaceLeftSpacesWithIndentation(indentLevel, offset, addLineSeparator, edits);
+		return formatterDocument.replaceLeftSpacesWithIndentation(indentLevel, from, to, addLineSeparator, edits);
 	}
 }

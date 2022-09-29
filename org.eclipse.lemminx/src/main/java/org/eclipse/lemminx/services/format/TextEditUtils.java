@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.commons.TextDocument;
-import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -51,67 +50,19 @@ public class TextEditUtils {
 		String text = textDocument.getText();
 
 		// Check if content from the range [from, to] is the same than expected content
-		if (isMatchExpectedContent(from, to, expectedContent, text)
-				// The expected content exists, no need to create a TextEdit
-				&& (!expectedContent.equals(System.lineSeparator()))) {
-			// Line separator may be replacing more white space than specified by from/to,
-			// therefore may not match expected content.
+		if (isMatchExpectedContent(from, to, expectedContent, text)) {
+			// The expected content exists, no need to create a TextEdit
 			return null;
 		}
 
-		if (from == to) {
-			// Insert the expected content.
-			try {
-				Position endPos = textDocument.positionAt(to);
-				Position startPos = endPos;
-				Range range = new Range(startPos, endPos);
-				return new TextEdit(range, expectedContent);
-			} catch (BadLocationException e) {
-				LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			}
-		}
-
-		int i = expectedContent.length() - 1;
-		boolean matchExpectedContent = true;
-		while (from >= 0) {
-			char c = text.charAt(from);
-			if (Character.isWhitespace(c)) {
-				if (matchExpectedContent) {
-					if (i < 0) {
-						matchExpectedContent = false;
-					} else {
-						if (expectedContent.charAt(i) != c) {
-							matchExpectedContent = false;
-						}
-						i--;
-					}
-				}
-			} else {
-				break;
-			}
-			from--;
-		}
-		from++;
-		if (matchExpectedContent) {
-			matchExpectedContent = to - from == expectedContent.length();
-		}
-
-		// Set parameters to handle case when replacing single quote with double quote
-		// and vice versa
-		if (from == to && !expectedContent.isEmpty() && StringUtils.isQuote(expectedContent.toCharArray()[0])) {
-			from--;
-			matchExpectedContent = false;
-		}
-
-		if (!matchExpectedContent) {
-			try {
-				Position endPos = textDocument.positionAt(to);
-				Position startPos = to == from ? endPos : textDocument.positionAt(from);
-				Range range = new Range(startPos, endPos);
-				return new TextEdit(range, expectedContent);
-			} catch (BadLocationException e) {
-				LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			}
+		// Insert the expected content.
+		try {
+			Position endPos = textDocument.positionAt(to);
+			Position startPos = to == from ? endPos : textDocument.positionAt(from);
+			Range range = new Range(startPos, endPos);
+			return new TextEdit(range, expectedContent);
+		} catch (BadLocationException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}
 		return null;
 	}
@@ -204,6 +155,30 @@ public class TextEditUtils {
 			data.set(i++, right.get(rightIdx++));
 		}
 		return data;
+	}
+
+	/**
+	 * Returns the offset of the first whitespace that's found in the given range
+	 * [leftLimit,to] from the left of the to, and leftLimit otherwise.
+	 * 
+	 * @param leftLimit the left limit range.
+	 * @param to        the to range.
+	 * 
+	 * @return the offset of the first whitespace that's found in the given range
+	 *         [leftLimit,to] from the left of the to, and leftLimit otherwise.
+	 */
+	public static int adjustOffsetWithLeftWhitespaces(int leftLimit, int to, String text) {
+		if (to == 0) {
+			return -1;
+		}
+		for (int i = to - 1; i >= leftLimit; i--) {
+			char c = text.charAt(i);
+			if (!Character.isWhitespace(c)) {
+				// The current character is not a whitespace, return the offset of the character
+				return i + 1;
+			}
+		}
+		return leftLimit;
 	}
 
 }
