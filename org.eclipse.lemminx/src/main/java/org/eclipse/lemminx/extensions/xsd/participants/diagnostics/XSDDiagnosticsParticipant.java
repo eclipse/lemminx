@@ -16,6 +16,10 @@ import java.util.List;
 
 import org.apache.xerces.xni.parser.XMLEntityResolver;
 import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
+import org.eclipse.lemminx.extensions.contentmodel.participants.diagnostics.XMLValidator;
+import org.eclipse.lemminx.extensions.contentmodel.settings.SchemaEnabled;
+import org.eclipse.lemminx.extensions.contentmodel.settings.XMLSchemaSettings;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.extensions.xerces.LSPXMLEntityResolver;
 import org.eclipse.lemminx.extensions.xsd.XSDPlugin;
@@ -39,20 +43,40 @@ public class XSDDiagnosticsParticipant implements IDiagnosticsParticipant {
 
 	@Override
 	public void doDiagnostics(DOMDocument xmlDocument, List<Diagnostic> diagnostics,
-			XMLValidationSettings validationSettings, CancelChecker cancelChecker) {
+			XMLValidationSettings validationSettings, CancelChecker monitor) {
 		if (!DOMUtils.isXSD(xmlDocument)) {
 			// Don't use the XSD validator, if the XML document is not a XML Schema.
 			return;
 		}
+
 		// Get entity resolver (XML catalog resolver, XML schema from the file
 		// associations settings., ...)
 		XMLEntityResolver entityResolver = xmlDocument.getResolverExtensionManager();
 		LSPXMLEntityResolver entityResolverWrapper = new LSPXMLEntityResolver(entityResolver,
 				(DiagnosticsResult) diagnostics);
+		ContentModelManager contentModelManager = xsdPlugin.getContentModelManager();
+		if (!isSchemaEnabled(validationSettings)) {
+			// Validate only XML syntax for XSD
+			// Process validation
+			XMLValidator.doDiagnostics(xmlDocument, entityResolverWrapper, diagnostics, validationSettings,
+					contentModelManager, monitor);
+			return;
+		}
 
-		// Process validation
+		// Process XSD validation
 		XSDValidator.doDiagnostics(xmlDocument, entityResolverWrapper, diagnostics, validationSettings,
-				xsdPlugin.getContentModelManager(), cancelChecker);
+				xsdPlugin.getContentModelManager(), monitor);
+	}
+
+	private static boolean isSchemaEnabled(XMLValidationSettings validationSettings) {
+		if (validationSettings == null) {
+			return true;
+		}
+		XMLSchemaSettings schemaSettings = validationSettings.getSchema();
+		if (schemaSettings == null) {
+			return true;
+		}
+		return !SchemaEnabled.never.equals(schemaSettings.getEnabled());
 	}
 
 }
