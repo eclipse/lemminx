@@ -59,7 +59,7 @@ public class DOMTextFormatter {
 				// Text content...
 				spaceEnd = i;
 				int contentStart = i;
-				while (i < textNode.getEnd() + 1 && !Character.isWhitespace(text.charAt(i + 1))) {
+				while (i + 1 < textNode.getEnd() && !Character.isWhitespace(text.charAt(i + 1))) {
 					i++;
 				}
 				int contentEnd = i;

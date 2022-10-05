@@ -566,24 +566,29 @@ public class XMLFormatterExperimentalTest extends AbstractCacheBasedTest {
 		assertFormat(expected, expected);
 	}
 
-	@Disabled
 	@Test
 	public void testPI() throws BadLocationException {
 		String content = "<a><?m2e asd as das das ?></a>";
 		String expected = "<a>" + lineSeparator() + //
 				"  <?m2e asd as das das?>" + lineSeparator() + //
 				"</a>";
-		assertFormat(content, expected);
+		assertFormat(content, expected, //
+				te(0, 3, 0, 3, lineSeparator() + "  "), //
+				te(0, 23, 0, 24, ""), //
+				te(0, 26, 0, 26, lineSeparator()));
+		assertFormat(expected, expected);
 	}
 
-	@Disabled
 	@Test
 	public void testPINoContent() throws BadLocationException {
 		String content = "<a><?m2e?></a>";
 		String expected = "<a>" + lineSeparator() + //
-				"  <?m2e ?>" + lineSeparator() + //
+				"  <?m2e?>" + lineSeparator() + //
 				"</a>";
-		assertFormat(content, expected);
+		assertFormat(content, expected, //
+				te(0, 3, 0, 3, lineSeparator() + "  "), //
+				te(0, 10, 0, 10, lineSeparator()));
+		assertFormat(expected, expected);
 	}
 
 	@Disabled
@@ -591,9 +596,15 @@ public class XMLFormatterExperimentalTest extends AbstractCacheBasedTest {
 	public void testDefinedPIWithVariables() throws BadLocationException {
 		String content = "<a><?xml-stylesheet   href=\"my-style.css\"     type=   \"text/css\"?></a>";
 		String expected = "<a>" + lineSeparator() + //
-				"  <?xml-stylesheet href=\"my-style.css\" type=\"text/css\" ?>" + lineSeparator() + //
+				"  <?xml-stylesheet href=\"my-style.css\" type=\"text/css\"?>" + lineSeparator() + //
 				"</a>";
-		assertFormat(content, expected);
+		assertFormat(content, expected, //
+				te(0, 3, 0, 3, lineSeparator() + "  "), //
+				te(0, 19, 0, 22, " "), //
+				te(0, 41, 0, 46, " "), //
+				te(0, 51, 0, 54, ""), //
+				te(0, 66, 0, 66, lineSeparator()));
+		assertFormat(expected, expected);
 	}
 
 	@Disabled
@@ -601,9 +612,16 @@ public class XMLFormatterExperimentalTest extends AbstractCacheBasedTest {
 	public void testDefinedPIWithJustAttributeNames() throws BadLocationException {
 		String content = "<a><?xml-stylesheet    href     type  =       attName?></a>";
 		String expected = "<a>" + lineSeparator() + //
-				"  <?xml-stylesheet href type= attName ?>" + lineSeparator() + //
+				"  <?xml-stylesheet href type= attName?>" + lineSeparator() + //
 				"</a>";
-		assertFormat(content, expected);
+		assertFormat(content, expected, //
+				te(0, 3, 0, 3, lineSeparator() + "  "), //
+				te(0, 19, 0, 23, " "), //
+				te(0, 27, 0, 32, " "), //
+				te(0, 36, 0, 38, ""), //
+				te(0, 39, 0, 46, " "), //
+				te(0, 55, 0, 55, lineSeparator()));
+		assertFormat(expected, expected);
 	}
 
 	@Disabled
@@ -611,7 +629,7 @@ public class XMLFormatterExperimentalTest extends AbstractCacheBasedTest {
 	public void testPIWithVariables() throws BadLocationException {
 		String content = "<a><?xml-styleZZ   href=\"my-style.css\"     type=   \"text/css\"?></a>";
 		String expected = "<a>" + lineSeparator() + //
-				"  <?xml-styleZZ href=\"my-style.css\"     type=   \"text/css\"?>" + lineSeparator() + //
+				"  <?xml-styleZZ href=\"my-style.css\" type=\"text/css\"?>" + lineSeparator() + //
 				"</a>";
 		assertFormat(content, expected);
 	}
@@ -741,7 +759,6 @@ public class XMLFormatterExperimentalTest extends AbstractCacheBasedTest {
 
 	// ---------- Tests for Text formatting
 
-	@Disabled
 	@Test
 	public void testElementContentNotNormalized() throws BadLocationException {
 		String content = "<a>\r" + //
@@ -751,15 +768,16 @@ public class XMLFormatterExperimentalTest extends AbstractCacheBasedTest {
 				" Content4\r" + //
 				"  Content5\r" + //
 				"</a>";
-		String expected = "<a>\r" + //
-				" Content\r" + //
+		String expected = "<a> Content\r" + //
 				"     Content2\r" + //
 				"      Content3\r" + //
 				" Content4\r" + //
-				"  Content5\r" + //
-				"</a>";
+				"  Content5 </a>";
 
-		assertFormat(content, expected);
+		assertFormat(content, expected, //
+				te(0, 3, 1, 1, " "), //
+				te(5, 10, 6, 0, " "));
+		assertFormat(expected, expected);
 	}
 
 	@Disabled
@@ -832,146 +850,6 @@ public class XMLFormatterExperimentalTest extends AbstractCacheBasedTest {
 				" Content\r\n" + //
 				"</a>";
 		assertFormat(content, expected);
-	}
-
-	@Disabled
-	@Test
-	public void testTrimTrailingWhitespaceText() throws BadLocationException {
-		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setTrimTrailingWhitespace(true);
-		String content = "<a>   \n" + //
-				"text     \n" + //
-				"    text text text    \n" + //
-				"    text\n" + //
-				"</a>   ";
-		String expected = "<a>\n" + //
-				"text\n" + //
-				"    text text text\n" + //
-				"    text\n" + //
-				"</a>";
-		assertFormat(content, expected, settings);
-	}
-
-	@Disabled
-	@Test
-	public void testTrimTrailingWhitespaceNewlines() throws BadLocationException {
-		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setTrimTrailingWhitespace(true);
-		String content = "<a>   \n" + //
-				"   \n" + //
-				"</a>   ";
-		String expected = "<a></a>";
-		assertFormat(content, expected, settings);
-	}
-
-	@Disabled
-	@Test
-	public void testTrimTrailingWhitespaceTextAndNewlines() throws BadLocationException {
-		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setTrimTrailingWhitespace(true);
-		String content = "<a>   \n" + //
-				"    \n" + //
-				"text     \n" + //
-				"    text text text    \n" + //
-				"   \n" + //
-				"    text\n" + //
-				"        \n" + //
-				"</a>   ";
-		String expected = "<a>\n" + //
-				"\n" + //
-				"text\n" + //
-				"    text text text\n" + //
-				"\n" + //
-				"    text\n" + //
-				"\n" + //
-				"</a>";
-		assertFormat(content, expected, settings);
-	}
-
-	@Disabled
-	@Test
-	public void testDontInsertFinalNewLineWithRange() throws BadLocationException {
-		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setInsertFinalNewline(true);
-		String content = "<div  class = \"foo\">\r\n" + //
-				"  |<img  src = \"foo\"|/>\r\n" + //
-				" </div>";
-		String expected = "<div  class = \"foo\">\r\n" + //
-				"  <img src=\"foo\" />\r\n" + //
-				" </div>";
-		assertFormat(content, expected, settings);
-	}
-
-	@Disabled
-	@Test
-	public void testInsertFinalNewLineWithRange2() throws BadLocationException {
-		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setInsertFinalNewline(true);
-		String content = "<div  class = \"foo\">\r\n" + //
-				"  |<img  src = \"foo\"/>\r\n" + //
-				" </div>|";
-		String expected = "<div  class = \"foo\">\r\n" + //
-				"  <img src=\"foo\" />\r\n" + //
-				"</div>\r\n";
-		assertFormat(content, expected, settings);
-	}
-
-	@Disabled
-	@Test
-	public void testInsertFinalNewLineWithRange3() throws BadLocationException {
-		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setInsertFinalNewline(true);
-		String content = "<div  class = \"foo\">\r\n" + //
-				"  |<img  src = \"foo\"/>\r\n" + //
-				"\r\n" + "|" + "\r\n" + //
-				"<h1></h1>\r\n" + //
-				" </div>";
-		String expected = "<div  class = \"foo\">\r\n" + //
-				"  <img src=\"foo\" />\r\n" + //
-				"\r\n" + //
-				"<h1></h1>" + "\r\n" + //
-				" </div>";
-		assertFormat(content, expected, settings);
-	}
-
-	@Test
-	public void testDontTrimFinalNewLines() throws BadLocationException {
-		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setTrimFinalNewlines(false);
-		String content = "<a  ></a>\r\n\r\n\r\n";
-		String expected = "<a></a>\r\n\r\n\r\n";
-
-		assertFormat(content, expected, settings, //
-				te(0, 2, 0, 4, ""));
-		assertFormat(expected, expected, settings);
-	}
-
-	@Disabled
-	@Test
-	public void testDontTrimFinalNewLines2() throws BadLocationException {
-		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setTrimFinalNewlines(false);
-		String content = "<a  ></a>\r\n" + //
-				"   \r\n\r\n";
-		String expected = "<a></a>\r\n" + //
-				"   \r\n\r\n";
-		assertFormat(content, expected, settings);
-	}
-
-	@Disabled
-	@Test
-	public void testDontTrimFinalNewLines3() throws BadLocationException {
-		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setTrimFinalNewlines(false);
-		String content = "<a  ></a>\r\n" + //
-				"  text \r\n" + //
-				"  more text   \r\n" + //
-				"   \r\n";
-		String expected = "<a></a>\r\n" + //
-				"  text \r\n" + //
-				"  more text   \r\n" + //
-				"   \r\n";
-		assertFormat(content, expected, settings);
 	}
 
 	private static void assertFormat(String unformatted, String actual, TextEdit... expectedEdits)

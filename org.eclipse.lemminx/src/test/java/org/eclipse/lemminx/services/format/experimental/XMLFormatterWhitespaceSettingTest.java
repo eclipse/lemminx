@@ -53,7 +53,7 @@ public class XMLFormatterWhitespaceSettingTest {
 		String content = "<a>   \n" + //
 				"   \n" + //
 				"</a>   ";
-		String expected = "<a></a>";
+		String expected = "<a> </a>";
 		assertFormat(content, expected, settings);
 	}
 
@@ -81,7 +81,6 @@ public class XMLFormatterWhitespaceSettingTest {
 		assertFormat(content, expected, settings);
 	}
 
-	@Disabled
 	@Test
 	public void testDontInsertFinalNewLineWithRange() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
@@ -92,10 +91,13 @@ public class XMLFormatterWhitespaceSettingTest {
 		String expected = "<div  class = \"foo\">\r\n" + //
 				"  <img src=\"foo\" />\r\n" + //
 				" </div>";
-		assertFormat(content, expected, settings);
+		assertFormat(content, expected, settings, //
+				te(1, 6, 1, 8, " "), //
+				te(1, 11, 1, 12, ""), //
+				te(1, 13, 1, 14, ""), //
+				te(1, 19, 1, 19, " "));
 	}
 
-	@Disabled
 	@Test
 	public void testInsertFinalNewLineWithRange2() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
@@ -106,10 +108,15 @@ public class XMLFormatterWhitespaceSettingTest {
 		String expected = "<div  class = \"foo\">\r\n" + //
 				"  <img src=\"foo\" />\r\n" + //
 				"</div>\r\n";
-		assertFormat(content, expected, settings);
+		assertFormat(content, expected, settings, //
+				te(1, 6, 1, 8, " "), //
+				te(1, 11, 1, 12, ""), //
+				te(1, 13, 1, 14, ""), //
+				te(1, 19, 1, 19, " "), //
+				te(1, 21, 2, 1, "\r\n"), //
+				te(2, 7, 2, 7, "\r\n"));
 	}
 
-	@Disabled
 	@Test
 	public void testInsertFinalNewLineWithRange3() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
@@ -122,9 +129,14 @@ public class XMLFormatterWhitespaceSettingTest {
 		String expected = "<div  class = \"foo\">\r\n" + //
 				"  <img src=\"foo\" />\r\n" + //
 				"\r\n" + //
+				"\r\n" + //
 				"<h1></h1>" + "\r\n" + //
 				" </div>";
-		assertFormat(content, expected, settings);
+		assertFormat(content, expected, settings, //
+				te(1, 6, 1, 8, " "), //
+				te(1, 11, 1, 12, ""), //
+				te(1, 13, 1, 14, ""), //
+				te(1, 19, 1, 19, " "));
 	}
 
 	@Test

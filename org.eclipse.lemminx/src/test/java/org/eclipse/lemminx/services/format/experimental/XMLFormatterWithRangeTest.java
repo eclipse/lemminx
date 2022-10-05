@@ -17,7 +17,6 @@ import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.TextEdit;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -105,17 +104,15 @@ public class XMLFormatterWithRangeTest {
 
 		String expected = "<licenses>\n" + //
 				"  <license>\n" + //
-				"    <name>License Name</name>\n" + //
+				"  <name>License Name</name>\n" + //
 				"    <url>abcdefghijklmnop</url>\n" + //
 				"    <distribution>repo</distribution>\n" + //
 				"  </license>\n" + //
 				"</licenses>";
 
 		assertFormat(content, expected, //
-				te(1, 11, 2, 2, "\n    "), //
 				te(2, 27, 3, 14, "\n    "), //
 				te(3, 41, 4, 14, "\n    "));
-		assertFormat(expected, expected);
 	}
 
 	@Test
@@ -261,7 +258,6 @@ public class XMLFormatterWithRangeTest {
 		assertFormat(content, expected);
 	}
 
-	@Disabled
 	@Test
 	public void rangeSelectEntityNoIndent() throws BadLocationException {
 		String content = "<?xml version='1.0' standalone='no'?>\r\n" + //
@@ -270,7 +266,7 @@ public class XMLFormatterWithRangeTest {
 				"]>";
 		String expected = "<?xml version='1.0' standalone='no'?>\r\n" + //
 				"<!DOCTYPE root-element [\r\n" + //
-				"  <!ENTITY local \"LOCALLY DECLARED ENTITY\">\r\n" + //
+				"<!ENTITY local \"LOCALLY DECLARED ENTITY\">\r\n" + //
 				"]>";
 		assertFormat(content, expected);
 	}

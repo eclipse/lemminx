@@ -12,6 +12,9 @@
 package org.eclipse.lemminx.services.format.experimental;
 
 import static org.eclipse.lemminx.XMLAssert.te;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.lang.annotation.Documented;
 
 import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
@@ -27,9 +30,10 @@ import org.junit.jupiter.api.Test;
  */
 public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 
-	@Disabled
 	@Test
 	public void testDoctypeNoInternalSubset() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreservedNewlines(1);
 		String content = "<!DOCTYPE    note\r\n" + //
 				"\r\n" + //
 				">\r\n" + //
@@ -52,7 +56,11 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 				"\r\n" + //
 				"  <body>Don't forget me this weekend</body>\r\n" + //
 				"</note>";
-		assertFormat(content, expected);
+		assertFormat(content, expected, settings, //
+				te(0, 9, 0, 13, " "), //
+				te(0, 17, 2, 0, ""), //
+				te(8, 29, 10, 2, "\r\n\r\n  "));
+		assertFormat(expected, expected, settings);
 	}
 
 	@Test
@@ -88,7 +96,6 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 		assertFormat(expected, expected);
 	}
 
-	@Disabled
 	@Test
 	public void testDoctypeInternalSubset() throws BadLocationException {
 		String content = "<!DOCTYPE note\r\n" + //
@@ -122,14 +129,18 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 				"\r\n" + //
 				"\r\n" + //
 				"  <from>Jani</from>\r\n" + //
-				"\r\n" + //
 				"  <heading>Reminder</heading>\r\n" + //
 				"  <body>Don't forget me this weekend</body>\r\n" + //
 				"</note>";
-		assertFormat(content, expected);
+		assertFormat(content, expected, //
+				te(0, 14, 3, 0, " "), //
+				te(3, 1, 3, 9, "\r\n  "), //
+				te(4, 25, 4, 25, "\r\n  "), //
+				te(4, 50, 7, 2, "\r\n  "), //
+				te(14, 19, 16, 2, "\r\n  "));
+		assertFormat(expected, expected);
 	}
 
-	@Disabled
 	@Test
 	public void testDoctypeInternalSubsetNoNewlines() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
@@ -167,7 +178,14 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 				"  <heading>Reminder</heading>\r\n" + //
 				"  <body>Don't forget me this weekend</body>\r\n" + //
 				"</note>";
-		assertFormat(content, expected, settings);
+		assertFormat(content, expected, settings, //
+				te(0, 14, 3, 0, " "), //
+				te(3, 1, 3, 9, "\r\n  "), //
+				te(4, 25, 4, 25, "\r\n  "), //
+				te(4, 50, 7, 2, "\r\n  "), //
+				te(11, 15, 14, 2, "\r\n  "), //
+				te(14, 19, 16, 2, "\r\n  "));
+		assertFormat(expected, expected, settings);
 	}
 
 	@Test
@@ -206,7 +224,6 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 		assertFormat(expected, expected);
 	}
 
-	@Disabled
 	@Test
 	public void testDoctypeInternalWithAttlist() throws BadLocationException {
 		String content = "<!DOCTYPE note \r\n" + //
@@ -228,12 +245,17 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 				"  <!ELEMENT to (#PCDATA)>\r\n" + //
 				"  <!ATTLIST payment type CDATA \"check\">\r\n" + //
 				"]>\r\n" + //
-				"\r\n" + //
 				"<note>\r\n" + //
-				"\r\n" + //
 				"  <to>Fred</to>\r\n" + //
 				"</note>";
-		assertFormat(content, expected);
+		assertFormat(content, expected, //
+				te(0, 14, 1, 0, " "), //
+				te(2, 40, 4, 2, "\r\n  "), //
+				te(4, 25, 6, 2, "\r\n  "), //
+				te(6, 39, 8, 0, "\r\n"), //
+				te(8, 2, 10, 0, "\r\n"), //
+				te(10, 6, 12, 2, "\r\n  "));
+		assertFormat(expected, expected);
 	}
 
 	@Test
@@ -266,7 +288,6 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 		assertFormat(expected, expected);
 	}
 
-	@Disabled
 	@Test
 	public void testDoctypeInternalWithComments() throws BadLocationException {
 		String content = "<!DOCTYPE note\r\n" + //
@@ -292,12 +313,21 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 				"  <!ENTITY copyright SYSTEM \"https://www.w3schools.com/entities.dtd\">\r\n" + //
 				"  <!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\">\r\n" + //
 				"]>";
-		assertFormat(content, expected);
+		assertFormat(content, expected, //
+				te(0, 14, 1, 0, " "), //
+				te(1, 1, 2, 2, "\r\n  "), //
+				te(2, 18, 4, 2, "\r\n  "), //
+				te(4, 40, 7, 2, "\r\n  "), //
+				te(7, 39, 9, 2, "\r\n  "), //
+				te(9, 18, 11, 2, "\r\n  "), //
+				te(13, 2, 14, 0, ""));
+		assertFormat(expected, expected);
 	}
 
-	@Disabled
 	@Test
 	public void testDoctypeInternalWithText() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreservedNewlines(0);
 		String content = "<!DOCTYPE note\r\n" + //
 				"[\r\n" + //
 				"  <!ELEMENT note (to,from,heading,body)>\r\n" + //
@@ -316,6 +346,8 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 				"]>";
 		String expected = "<!DOCTYPE note [\r\n" + //
 				"  <!ELEMENT note (to,from,heading,body)>\r\n" + //
+				"\r\n" + //
+				"\r\n" + //
 				"  garbageazg df\r\n" + //
 				"                gdf\r\n" + //
 				"garbageazgdfg\r\n" + //
@@ -323,7 +355,11 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 				"  gd\r\n" + //
 				"  <!ELEMENT note (to,from,heading,body)>\r\n" + //
 				"]>";
-		assertFormat(content, expected);
+		assertFormat(content, expected, settings, //
+				te(0, 14, 1, 0, " "), //
+				te(9, 4, 13, 2, "\r\n  "), //
+				te(13, 40, 15, 0, "\r\n"));
+		assertFormat(expected, expected, settings);
 	}
 
 	@Test
@@ -340,10 +376,9 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 				te(1, 15, 1, 16, "\r\n  "), //
 				te(1, 35, 1, 36, "\r\n  "), //
 				te(1, 62, 1, 63, "\r\n  "));
-		assertDTDFormat(expected, expected);
+		assertDTDFormat(expected, expected, settings);
 	}
 
-	@Disabled
 	@Test
 	public void testDTDIndentation() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
@@ -359,10 +394,14 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 				"<!ATTLIST payment type CDATA \"check\">\r\n" + //
 				"<!ENTITY copyright SYSTEM \"https://www.w3schools.com/entities.dtd\">\r\n" + //
 				"<!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\">";
-		assertFormat(content, expected, settings);
+		assertFormat(content, expected, settings, //
+				te(0, 0, 0, 2, ""), //
+				te(0, 40, 2, 3, "\r\n"), //
+				te(2, 40, 4, 6, "\r\n"), //
+				te(4, 73, 6, 6, "\r\n"));
+		assertDTDFormat(expected, expected, settings);
 	}
 
-	@Disabled
 	@Test
 	public void testDTDNotEndBrackets() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
@@ -370,23 +409,25 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 		String content = "<!ELEMENT note (to,from,heading,body)\r\n" + //
 				"\r\n" + //
 				"<!ATTLIST payment type CDATA \"check\"\r\n" + //
-				"\r\n" + //
+				"\r\n" + // assertFormat(content, expected, settings);
+
 				"<!ENTITY copyright SYSTEM \"https://www.w3schools.com/entities.dtd\"\r\n" + //
 				"<!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\"";
 		String expected = "<!ELEMENT note (to,from,heading,body)\r\n" + //
 				"<!ATTLIST payment type CDATA \"check\"\r\n" + //
 				"<!ENTITY copyright SYSTEM \"https://www.w3schools.com/entities.dtd\"\r\n" + //
 				"<!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\"";
-		assertFormat(content, expected, settings);
+		assertFormat(content, expected, settings, //
+				te(0, 37, 2, 0, "\r\n"), //
+				te(2, 36, 4, 0, "\r\n"));
+		assertDTDFormat(expected, expected, settings);
 	}
 
-	@Disabled
 	@Test
 	public void testDTDUnknownDeclNameAndText() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 
 		String content = "<!ELEMENT note (to,from,heading,body)>\r\n" + //
-				"\r\n" + //
 				"\r\n" + //
 				"  <!hellament afsfas >\r\n" + //
 				"\r\n" + //
@@ -397,16 +438,20 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 				"<!ENTITY copyright SYSTEM \"https://www.w3schools.com/entities.dtd\">\r\n" + //
 				"<!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\">";
 		String expected = "<!ELEMENT note (to,from,heading,body)>\r\n" + //
-				"<!hellament afsfas >\r\n" + //
-				"asdasd\r\n" + //
+				"<!hellament afsfas>\r\n" + //
+				"\r\n" + //
+				"  asdasd\r\n" + //
 				"  asd\r\n" + //
 				"<!ATTLIST payment type CDATA \"check\">\r\n" + //
 				"<!ENTITY copyright SYSTEM \"https://www.w3schools.com/entities.dtd\">\r\n" + //
 				"<!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\">";
-		assertFormat(content, expected, settings);
+		assertFormat(content, expected, settings, //
+				te(0, 38, 2, 2, "\r\n"), //
+				te(2, 20, 2, 21, ""), //
+				te(5, 5, 7, 0, "\r\n"));
+		assertFormat(expected, expected, settings);
 	}
 
-	@Disabled
 	@Test
 	public void testAllDoctypeParameters() throws BadLocationException {
 		String content = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\r\n" + //
@@ -421,7 +466,6 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 				"  <!ELEMENT h3 %horiz.model;>\r\n" + //
 				"  <!ATTLIST h3 %all;>\r\n" + //
 				"]\r\n" + //
-				"\r\n" + //
 				"\r\n" + //
 				">\r\n" + //
 				"<web-app>\r\n" + //
@@ -445,14 +489,19 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 				"]>\r\n" + //
 				"<web-app>\r\n" + //
 				"  <display-name>sdsd</display-name>\r\n" + //
-				"\r\n" + //
 				"  <servlet>\r\n" + //
-				"\r\n" + //
 				"    <servlet-name>er</servlet-name>\r\n" + //
 				"    <servlet-class>dd</servlet-class>\r\n" + //
 				"  </servlet>\r\n" + //
 				"</web-app>";
-		assertFormat(content, expected);
+		assertFormat(content, expected, //
+				te(1, 125, 2, 8, "\r\n  "), //
+				te(4, 29, 7, 10, "\r\n  "), //
+				te(10, 1, 12, 0, ""), //
+				te(14, 35, 16, 2, "\r\n  "), //
+				te(16, 11, 18, 4, "\r\n    "));
+		assertFormat(expected, expected);
+
 	}
 
 	@Disabled
@@ -461,19 +510,21 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 		SharedSettings settings = new SharedSettings();
 		String content = "<!ELEMENT data    (#PCDATA | data | d0)*   >";
 		String expected = "<!ELEMENT data (#PCDATA | data | d0)*>";
-		assertFormat(content, expected, settings);
+		assertFormat(content, expected, settings, false);
 	}
 
-	@Disabled
 	@Test
 	public void testDoctypeSingleLineFormat() throws BadLocationException {
 		String content = "<!DOCTYPE name [<!-- MY COMMENT --><!NOTATION postscript SYSTEM \"ghostview\">]>\r\n" + //
 				"";
-		String expected = "<!DOCTYPE name [\r\n" + //
-				"  <!-- MY COMMENT -->\r\n" + //
+		String expected = "<!DOCTYPE name [<!-- MY COMMENT -->\r\n" + //
 				"  <!NOTATION postscript SYSTEM \"ghostview\">\r\n" + //
 				"]>";
-		assertFormat(content, expected);
+		assertFormat(content, expected, //
+				te(0, 35, 0, 35, "\r\n  "), //
+				te(0, 76, 0, 76, "\r\n"), //
+				te(0, 78, 1, 0, ""));
+		assertFormat(expected, expected);
 	}
 
 	@Test
@@ -507,7 +558,6 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 		assertFormat(expected, expected);
 	}
 
-	@Disabled
 	@Test
 	public void testUnclosedSystemId() throws BadLocationException {
 		String content = "<!DOCTYPE name PUBLIC \"lass\" \"bass [ <!-- MY COMMENT -->\r\n" + //
@@ -520,12 +570,12 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 				"\r\n" + //
 				"  <!NOTATION postscript SYSTEM \"ghostview\">\r\n" + //
 				"]>\r\n" + //
-				"\r\n" + //
 				"<a></a>";
-		assertFormat(content, expected);
+		assertFormat(content, expected, //
+				te(3, 2, 5, 0, "\r\n"));
+		assertFormat(expected, expected);
 	}
 
-	@Disabled
 	@Test
 	public void testUnclosedPublicId() throws BadLocationException {
 		String content = "<!DOCTYPE name PUBLIC \"lass  [ <!-- MY COMMENT -->\r\n" + //
@@ -538,12 +588,12 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 				"\r\n" + //
 				"  <!NOTATION postscript SYSTEM \"ghostview\">\r\n" + //
 				"]>\r\n" + //
-				"\r\n" + //
 				"<a></a>";
-		assertFormat(content, expected);
+		assertFormat(content, expected, //
+				te(3, 2, 5, 0, "\r\n"));
+		assertFormat(expected, expected);
 	}
 
-	@Disabled
 	@Test
 	public void testCommentAfterMissingClosingBracket() throws BadLocationException {
 		String content = "<!DOCTYPE name [\r\n" + //
@@ -557,12 +607,13 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 				"  <!ENTITY % astroTerms SYSTEM \"http://xml.gsfc.nasa.gov/DTD/entities/astroTerms.ent\"\r\n" + //
 				"  <!-- MY COMMENT -->\r\n" + //
 				"]>\r\n" + //
-				"\r\n" + //
 				"<a></a>";
-		assertFormat(content, expected);
+		assertFormat(content, expected, //
+				te(1, 85, 3, 2, "\r\n  "), //
+				te(4, 2, 6, 0, "\r\n"));
+		assertFormat(expected, expected);
 	}
 
-	@Disabled
 	@Test
 	public void testHTMLDTD() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
@@ -591,25 +642,32 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 		String expected = "<!--\r\n" + //
 				"  Further information about HTML 4.01 is available at:\r\n" + //
 				"-->\r\n" + //
-				"<!ENTITY % HTML.Version \"-//W3C//DTD HTML 4.01 Frameset//EN\" -- Typical usage:\r\n" + //
-				"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Frameset//EN\"\r\n" + //
-				"            \"http://www.w3.org/TR/html4/frameset.dtd\">\r\n" + //
+				"<!ENTITY % HTML.Version \"-//W3C//DTD HTML 4.01 Frameset//EN\"\r\n" + //
+				"  -- Typical usage:\r\n" + //
+				"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Frameset//EN\" \"http://www.w3.org/TR/html4/frameset.dtd\">\r\n"
+				+ //
 				"<html>\r\n" + //
-				"<head>\r\n" + //
-				"...\r\n" + //
-				"</head>\r\n" + //
-				"<frameset>\r\n" + //
-				"...\r\n" + //
-				"</frameset>\r\n" + //
+				"  <head> ... </head>\r\n" + //
+				"  <frameset> ... </frameset>\r\n" + //
 				"</html>\r\n" + //
 				"-->\r\n" + //
 				"<!ENTITY % HTML.Frameset \"INCLUDE\">\r\n" + //
 				"<!ENTITY % HTML4.dtd PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">\r\n" + //
 				"%HTML4.dtd;";
-		assertFormat(content, expected, settings);
+		assertFormat(content, expected, settings, //
+				te(4, 19, 6, 4, "\r\n"), //
+				te(6, 62, 7, 12, " "), //
+				te(7, 54, 8, 4, "\r\n"), //
+				te(8, 10, 9, 4, "\r\n  "), //
+				te(9, 10, 10, 4, " "), //
+				te(10, 7, 11, 4, " "), //
+				te(11, 11, 12, 4, "\r\n  "), //
+				te(12, 14, 13, 4, " "), //
+				te(13, 7, 14, 4, " "), //
+				te(14, 15, 15, 4, "\r\n"), //
+				te(16, 3, 18, 0, "\r\n"));
 	}
 
-	@Disabled
 	@Test
 	public void testXMLInDTDFile() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
@@ -623,12 +681,18 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 				"</resources>";
 		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<resources variant=\"\">\r\n" + //
-				"<resource name=\"res00\" >\r\n" + //
-				"<property name=\"propA\" value=\"...\" />\r\n" + //
-				"<property name=\"propB\" value=\"...\" />\r\n" + //
-				"</resource>\r\n" + //
+				"  <resource name=\"res00\">\r\n" + //
+				"    <property name=\"propA\" value=\"...\" />\r\n" + //
+				"    <property name=\"propB\" value=\"...\" />\r\n" + //
+				"  </resource>\r\n" + //
 				"</resources>";
-		assertFormat(content, expected, settings);
+		assertFormat(content, expected, settings, //
+				te(1, 22, 2, 4, "\r\n  "), //
+				te(2, 26, 2, 27, ""), //
+				te(2, 28, 3, 8, "\r\n    "), //
+				te(3, 45, 4, 8, "\r\n    "), //
+				te(4, 45, 5, 4, "\r\n  "));
+		assertFormat(expected, expected, settings);
 	}
 
 	@Disabled
@@ -637,7 +701,6 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 		SharedSettings settings = new SharedSettings();
 
 		String content = "<![ %HTML.Reserved; [\r\n" + //
-				"\r\n" + //
 				"\r\n" + //
 				"<!ENTITY % reserved\r\n" + //
 				" \"datasrc     %URI;          #IMPLIED  -- \"\r\n" + //
@@ -653,7 +716,6 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 		assertFormat(content, expected, settings);
 	}
 
-	@Disabled
 	@Test
 	public void testIncompleteAttlistInternalDecl() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
@@ -667,12 +729,11 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 				"  %all;\r\n" + //
 				">\r\n" + //
 				"<!-- Hypertext anchors. -->";
-		assertDTDFormat(content, expected, settings);
-	}
-
-	private static void assertDTDFormat(String unformatted, String actual, TextEdit... expectedEdits)
-			throws BadLocationException {
-		assertDTDFormat(unformatted, actual, new SharedSettings(), expectedEdits);
+		assertDTDFormat(content, expected, settings, //
+				te(0, 13, 0, 14, "\r\n  "), //
+				te(0, 33, 0, 34, "\r\n  "), //
+				te(1, 1, 3, 0, "\r\n"));
+		assertDTDFormat(expected, expected, settings);
 	}
 
 	private static void assertDTDFormat(String unformatted, String expected, SharedSettings sharedSettings,
@@ -688,6 +749,11 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 	private static void assertFormat(String unformatted, String expected, SharedSettings sharedSettings,
 			TextEdit... expectedEdits) throws BadLocationException {
 		assertFormat(unformatted, expected, sharedSettings, "test.xml", expectedEdits);
+	}
+
+	private static void assertFormat(String unformatted, String expected, SharedSettings sharedSettings,
+			Boolean considerRangeFormat, TextEdit... expectedEdits) throws BadLocationException {
+		assertFormat(unformatted, expected, sharedSettings, "test.xml", considerRangeFormat, expectedEdits);
 	}
 
 	private static void assertFormat(String unformatted, String expected, SharedSettings sharedSettings, String uri,

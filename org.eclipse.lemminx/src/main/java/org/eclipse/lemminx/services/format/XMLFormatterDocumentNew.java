@@ -171,7 +171,7 @@ public class XMLFormatterDocumentNew {
 			int endDocument = xml.length() - 1;
 			if (endDocument >= 0) {
 				char c = xml.charAt(endDocument);
-				if (c != '\n') {
+				if (c != '\n' && (end == -1 || endDocument < end)) {
 					try {
 						Position pos = textDocument.positionAt(endDocument);
 						pos.setCharacter(pos.getCharacter() + 1);
@@ -269,7 +269,7 @@ public class XMLFormatterDocumentNew {
 		}
 	}
 
-	private void format(DOMNode child, XMLFormattingConstraints parentConstraints, int start, int end,
+	public void format(DOMNode child, XMLFormattingConstraints parentConstraints, int start, int end,
 			List<TextEdit> edits) {
 
 		switch (child.getNodeType()) {
@@ -555,7 +555,7 @@ public class XMLFormatterDocumentNew {
 		boolean hasText = false;
 		boolean onlySpaces = true;
 		for (DOMNode child : element.getChildren()) {
-			if (child.isElement() || child.isComment()) {
+			if (child.isElement() || child.isComment() || child.isProcessingInstruction()) {
 				hasElement = true;
 			} else if (child.isText()) {
 				onlySpaces = ((Text) child).isElementContentWhitespace();
@@ -702,7 +702,7 @@ public class XMLFormatterDocumentNew {
 	public static int getExistingNewLineCount(String text, int offset, String delimiter) {
 		boolean delimiterHasTwoCharacters = delimiter.length() == 2;
 		int newLineCounter = 0;
-		for (int i = offset; i > 0; i--) {
+		for (int i = offset; i > 1; i--) {
 			String c;
 			if (!Character.isWhitespace(text.charAt(i - 1))) {
 				if (!delimiterHasTwoCharacters) {
