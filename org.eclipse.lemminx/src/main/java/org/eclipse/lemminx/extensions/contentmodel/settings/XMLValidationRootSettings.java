@@ -118,7 +118,10 @@ public class XMLValidationRootSettings extends XMLValidationSettings {
 		List<XMLValidationFilter> filters = new ArrayList<>();
 		// Ignore validation for Eclipse '*.exsd' files
 		XMLValidationFilter filter = new XMLValidationFilter();
-		filter.setEnabled(false);
+		filter.setNoGrammar("ignore");
+		XMLSchemaSettings schema = new XMLSchemaSettings();
+		schema.setEnabled(SchemaEnabled.never);
+		filter.setSchema(schema);
 		filter.setPattern("**.exsd");
 		filters.add(filter);
 		// Don't warn that XML file have no grammar for Eclipse '.project',

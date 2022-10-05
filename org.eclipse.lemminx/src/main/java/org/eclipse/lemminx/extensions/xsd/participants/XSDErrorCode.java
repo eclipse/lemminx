@@ -34,34 +34,36 @@ import org.eclipse.lsp4j.Range;
  *
  * @see https://wiki.xmldation.com/Support/Validator
  *
- * All error code types and messages can be found in the Xerces library
- * https://github.com/apache/xerces2-j/blob/trunk/src/org/apache/xerces/impl/msg/XMLSchemaMessages.properties
+ *      All error code types and messages can be found in the Xerces library
+ *      https://github.com/apache/xerces2-j/blob/trunk/src/org/apache/xerces/impl/msg/XMLSchemaMessages.properties
  *
  */
 public enum XSDErrorCode implements IXMLErrorCode {
 
-	cos_all_limited_2("cos-all-limited.2"),
-	ct_props_correct_3("ct-props-correct.3"),
-	p_props_correct_2_1("p-props-correct.2.1"),
+	cos_all_limited_2("cos-all-limited.2"), //
+	ct_props_correct_3("ct-props-correct.3"), //
+	p_props_correct_2_1("p-props-correct.2.1"), //
 	s4s_elt_invalid_content_1("s4s-elt-invalid-content.1"), //
 	s4s_elt_must_match_1("s4s-elt-must-match.1"), //
-	s4s_elt_must_match_2("s4s-elt-must-match.2"),
+	s4s_elt_must_match_2("s4s-elt-must-match.2"), //
 	s4s_att_must_appear("s4s-att-must-appear"), //
 	s4s_elt_invalid_content_2("s4s-elt-invalid-content.2"), //
 	s4s_att_not_allowed("s4s-att-not-allowed"), //
 	s4s_att_invalid_value("s4s-att-invalid-value"), //
 	s4s_elt_character("s4s-elt-character"), //
 	s4s_elt_invalid_content_3("s4s-elt-invalid-content.3"), //
-	sch_props_correct_2("sch-props-correct.2"),
+	sch_props_correct_2("sch-props-correct.2"), //
 	schema_reference_4("schema_reference.4"), //
-	src_ct_1("src-ct.1"),
-	src_import_1_2("src-import.1.2"),
-	src_element_3("src-element.3"),
+	src_ct_1("src-ct.1"), //
+	src_import_1_2("src-import.1.2"), //
+	src_element_3("src-element.3"), //
 	src_resolve_4_2("src-resolve.4.2"), //
-	src_resolve("src-resolve"), src_element_2_1("src-element.2.1"),
-	EmptyTargetNamespace("EmptyTargetNamespace"),
-	src_import_3_1("src-import.3.1"),
-	src_import_3_2("src-import.3.2");
+	src_resolve("src-resolve"), //
+	src_element_2_1("src-element.2.1"), //
+	EmptyTargetNamespace("EmptyTargetNamespace"), //
+	src_import_3_1("src-import.3.1"), //
+	src_import_3_2("src-import.3.2"), //
+	src_annotation("src-annotation");
 
 	private final String code;
 
@@ -166,20 +168,24 @@ public enum XSDErrorCode implements IXMLErrorCode {
 		case schema_reference_4: {
 			return XMLPositionUtility.selectAttributeValueAt(XSDUtils.SCHEMA_LOCATION_ATTR, offset, true, document);
 		}
-		case EmptyTargetNamespace :
+		case EmptyTargetNamespace:
 			return XMLPositionUtility.selectAttributeValueAt(XSDUtils.TARGET_NAMESPACE_ATTR, offset, document);
 		case src_import_3_1: {
-			// If the imported file of `schemaLocation` contains at least a doctype and 'xs:schema' with at least one `xs:element`,
-			// then the `xs:import` line will be highlighted, otherwise the `xs:schema` line will be highlighted
+			// If the imported file of `schemaLocation` contains at least a doctype and
+			// 'xs:schema' with at least one `xs:element`,
+			// then the `xs:import` line will be highlighted, otherwise the `xs:schema` line
+			// will be highlighted
 			DOMNode elementHighlighted = document.findNodeAt(offset);
 			if (elementHighlighted.getNodeName().equals(XSDUtils.XS_SCHEMA_TAG)) { // `xs:schema` line is highlighted
-				return XMLPositionUtility.selectChildNodeAttributeValueFromGivenNameAt(XSDUtils.XS_IMPORT_TAG, XSDUtils.NAMESPACE_ATTR, offset, document);
+				return XMLPositionUtility.selectChildNodeAttributeValueFromGivenNameAt(XSDUtils.XS_IMPORT_TAG,
+						XSDUtils.NAMESPACE_ATTR, offset, document);
 			} else { // `xs:import` line is highlighted
 				return XMLPositionUtility.selectAttributeValueAt(XSDUtils.NAMESPACE_ATTR, offset, document);
 			}
 		}
 		case src_import_3_2:
-			return XMLPositionUtility.selectChildNodeAttributeValueFromGivenNameAt(XSDUtils.XS_IMPORT_TAG, XSDUtils.SCHEMA_LOCATION_ATTR, offset, document);
+			return XMLPositionUtility.selectChildNodeAttributeValueFromGivenNameAt(XSDUtils.XS_IMPORT_TAG,
+					XSDUtils.SCHEMA_LOCATION_ATTR, offset, document);
 		}
 
 		return null;
