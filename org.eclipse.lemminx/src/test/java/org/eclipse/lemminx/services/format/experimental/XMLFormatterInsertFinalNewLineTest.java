@@ -19,7 +19,6 @@ import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.TextEdit;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -55,19 +54,21 @@ public class XMLFormatterInsertFinalNewLineTest extends AbstractCacheBasedTest {
 		settings.getFormattingSettings().setInsertFinalNewline(true);
 		String content = "<a  ></a>\r\n";
 		String expected = "<a></a>\r\n";
-		assertFormat(content, expected, settings, te(0, 2, 0, 4, ""));
+		assertFormat(content, expected, settings, //
+				te(0, 2, 0, 4, ""));
 		assertFormat(expected, expected, settings);
 	}
 
-	@Disabled
 	@Test
 	public void testDontInsertFinalNewLine3() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setTrimFinalNewlines(false);
-		settings.getFormattingSettings().setInsertFinalNewline(true);
+		settings.getFormattingSettings().setInsertFinalNewline(false);
 		String content = "<a  ></a>\r\n" + "   ";
 		String expected = "<a></a>\r\n" + "   ";
-		assertFormat(content, expected, settings);
+		assertFormat(content, expected, settings, //
+				te(0, 2, 0, 4, ""));
+		assertFormat(expected, expected, settings);
 	}
 
 	@Test

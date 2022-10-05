@@ -43,6 +43,7 @@ public class DOMDocTypeFormatter {
 		if (isDTD) {
 			formatDTD(docType, parentConstraints, start, end, edits);
 		} else {
+			replaceLeftSpacesWithIndentation(parentConstraints.getIndentLevel(), docType.getParentNode().getStart(),  docType.getStart(), true, edits);
 			List<DTDDeclParameter> parameters = docType.getParameters();
 			if (!parameters.isEmpty()) {
 				for (DTDDeclParameter parameter : parameters) {
@@ -85,6 +86,10 @@ public class DOMDocTypeFormatter {
 			int endDocType = internalSubset.getEnd() - 1;
 			String lineDelimiter = formatterDocument.getLineDelimiter();
 			replaceLeftSpacesWith(startDocType, endDocType, lineDelimiter, edits);
+			// Remove space between end brackets
+			// Exmaple Before: <!DOCTYPE person [...
+			// <!ENTITY AUTHOR \"John Doe\">]|>
+			removeLeftSpaces(internalSubset.getEnd(), docType.getEnd()-1, edits);
 		}
 	}
 
@@ -108,6 +113,7 @@ public class DOMDocTypeFormatter {
 			default:
 				// unknown, so just leave alone for now but make sure to update
 				// available line width
+				formatterDocument.format(child, parentConstraints, start, end, edits);
 				int width = updateLineWidthWithLastLine(child, parentConstraints.getAvailableLineWidth());
 				parentConstraints.setAvailableLineWidth(width);
 			}

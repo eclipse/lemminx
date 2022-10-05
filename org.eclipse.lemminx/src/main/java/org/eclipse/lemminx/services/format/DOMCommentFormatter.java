@@ -60,10 +60,9 @@ public class DOMCommentFormatter {
 					preservedNewLines + 1, edits);
 			availableLineWidth = getMaxLineWidth() - getTabSize();
 		} else if (addLineSeparator && startRange < start) {
-			// remove spaces and indent
-			replaceLeftSpacesWithIndentation(parentConstraints.getIndentLevel(), leftWhitespaceOffset, start,
+			replaceLeftSpacesWithIndentation(indentLevel, leftWhitespaceOffset, start,
 					addLineSeparator, edits);
-			availableLineWidth = getMaxLineWidth() - getTabSize();
+			availableLineWidth = getMaxLineWidth() - getTabSize() * indentLevel;
 		}
 		int spaceStart = -1;
 		int spaceEnd = -1;
@@ -85,21 +84,21 @@ public class DOMCommentFormatter {
 					return;
 				}
 				int contentStart = i;
-				while (i < commentNode.getEnd() + 1 && !Character.isWhitespace(text.charAt(i + 1))) {
+				while (i + 1 < commentNode.getEnd() && !Character.isWhitespace(text.charAt(i + 1))) {
 					i++;
 				}
 				int contentEnd = i;
 				availableLineWidth -= (contentEnd + 1 - contentStart);
 				if (availableLineWidth <= 0 && spaceStart != -1) {
 					// Add new line when the comment extends over the maximum line width
-					replaceLeftSpacesWithIndentation(parentConstraints.getIndentLevel(), spaceStart, contentStart,
+					replaceLeftSpacesWithIndentation(indentLevel, spaceStart, contentStart,
 							true, edits);
-					int indentSpaces = (getTabSize() * parentConstraints.getIndentLevel());
+					int indentSpaces = (getTabSize() * indentLevel);
 					availableLineWidth = getMaxLineWidth() - indentSpaces - (contentEnd + 1 - contentStart);
 				} else if (isJoinCommentLines()) {
 					replaceSpacesWithOneSpace(spaceStart, spaceEnd - 1, edits);
 					availableLineWidth--;
-				} else {
+				} else if (spaceStart != -1) {
 					availableLineWidth -= spaceEnd - spaceStart;
 				}
 				spaceStart = -1;

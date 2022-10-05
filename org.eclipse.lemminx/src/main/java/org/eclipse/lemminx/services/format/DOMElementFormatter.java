@@ -44,7 +44,7 @@ public class DOMElementFormatter {
 
 		// Format start tag element with proper indentation
 		int indentLevel = parentConstraints.getIndentLevel();
-		int nb = formatStartTagElement(element, parentConstraints, emptyElements, end, edits);
+		int nb = formatStartTagElement(element, parentConstraints, emptyElements, start, end, edits);
 
 		if (emptyElements == EmptyElements.ignore) {
 			// Format children of the element
@@ -66,7 +66,7 @@ public class DOMElementFormatter {
 	}
 
 	private int formatStartTagElement(DOMElement element, XMLFormattingConstraints parentConstraints,
-			EmptyElements emptyElements, int end, List<TextEdit> edits) {
+			EmptyElements emptyElements, int start, int end, List<TextEdit> edits) {
 		if (!element.hasStartTag()) {
 			// ex : </
 			return element.getEnd() - element.getStart();
@@ -74,9 +74,10 @@ public class DOMElementFormatter {
 		int width = 0;
 		int indentLevel = parentConstraints.getIndentLevel();
 		FormatElementCategory formatElementCategory = parentConstraints.getFormatElementCategory();
-		int startTagOffset = element.getStartTagOpenOffset();
+		int startTagOpenOffset = element.getStartTagOpenOffset();
+		int startTagCloseOffset = element.getStartTagCloseOffset();
 		boolean addLineSeparator = element.getParentElement() == null && element.getPreviousSibling() == null;
-		if (end != -1 && startTagOffset > end) {
+		if (end != -1 && startTagOpenOffset > end || start != -1 && startTagCloseOffset != -1 && startTagCloseOffset < start) {
 			return 0;
 		}
 		switch (formatElementCategory) {
@@ -89,10 +90,10 @@ public class DOMElementFormatter {
 			// before formatting: <a> [space][space] <b> </b> example text </a>
 			// after formatting: <a>\n <b> </b> example text </a>
 			int parentStartCloseOffset = element.getParentElement().getStartTagCloseOffset() + 1;
-			if (parentStartCloseOffset != startTagOffset
+			if (parentStartCloseOffset != startTagOpenOffset
 					&& StringUtils.isWhitespace(formatterDocument.getText(), parentStartCloseOffset,
-							startTagOffset)) {
-				int nbSpaces = replaceLeftSpacesWithIndentation(indentLevel, parentStartCloseOffset, startTagOffset,
+					startTagOpenOffset)) {
+				int nbSpaces = replaceLeftSpacesWithIndentation(indentLevel, parentStartCloseOffset, startTagOpenOffset,
 						!addLineSeparator, edits);
 				width = element.getTagName() != null ? nbSpaces + element.getTagName().length() + 1 : nbSpaces;
 				if (!addLineSeparator) {
@@ -104,14 +105,14 @@ public class DOMElementFormatter {
 			// If preserve new lines
 			int preservedNewLines = getPreservedNewlines();
 			int currentNewLineCount = XMLFormatterDocumentNew.getExistingNewLineCount(formatterDocument.getText(),
-					startTagOffset,
+			startTagOpenOffset,
 					formatterDocument.getLineDelimiter());
 			if (currentNewLineCount > preservedNewLines) {
-				replaceLeftSpacesWithIndentationWithMultiNewLines(indentLevel, 0, startTagOffset,
+				replaceLeftSpacesWithIndentationWithMultiNewLines(indentLevel, 0, startTagOpenOffset,
 						preservedNewLines + 1, edits);
 			} else {
 				// remove spaces and indent
-				int nbSpaces = replaceLeftSpacesWithIndentation(indentLevel, 0, startTagOffset, !addLineSeparator,
+				int nbSpaces = replaceLeftSpacesWithIndentation(indentLevel, 0, startTagOpenOffset, !addLineSeparator,
 						edits);
 				width = element.getTagName() != null ? nbSpaces + element.getTagName().length() + 1 : nbSpaces;
 				if (!addLineSeparator) {
@@ -282,6 +283,7 @@ public class DOMElementFormatter {
 		int indentLevel = parentConstraints.getIndentLevel();
 		FormatElementCategory formatElementCategory = constraints.getFormatElementCategory();
 		int endTagOffset = element.getEndTagOpenOffset();
+		int startTagCloseOffset = element.getStartTagCloseOffset();
 
 		switch (formatElementCategory) {
 		case PreserveSpace:
@@ -294,7 +296,7 @@ public class DOMElementFormatter {
 			if ((element.getLastChild().isElement() || element.getLastChild().isComment())
 					&& Character.isWhitespace(formatterDocument.getText().charAt(endTagOffset - 1))
 					&& !isPreserveEmptyContent()) {
-				replaceLeftSpacesWithIndentation(indentLevel, element.getStartTagCloseOffset(), endTagOffset, true,
+				replaceLeftSpacesWithIndentation(indentLevel, startTagCloseOffset, endTagOffset, true,
 						edits);
 			}
 			break;
@@ -305,11 +307,11 @@ public class DOMElementFormatter {
 					endTagOffset,
 					formatterDocument.getLineDelimiter());
 			if (currentNewLineCount > preservedNewLines) {
-				replaceLeftSpacesWithIndentationWithMultiNewLines(indentLevel, element.getStartTagCloseOffset(),
+				replaceLeftSpacesWithIndentationWithMultiNewLines(indentLevel, startTagCloseOffset,
 						endTagOffset, preservedNewLines + 1, edits);
 			} else {
 				// remove spaces and indent
-				replaceLeftSpacesWithIndentation(indentLevel, element.getStartTagCloseOffset(), endTagOffset, true,
+				replaceLeftSpacesWithIndentation(indentLevel, startTagCloseOffset, endTagOffset, true,
 						edits);
 				break;
 			}
