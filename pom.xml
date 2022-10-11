@@ -253,7 +253,7 @@
 						<plugin>
 							<groupId>org.eclipse.tycho.extras</groupId>
 							<artifactId>tycho-eclipserun-plugin</artifactId>
-							<version>1.3.0</version>
+							<version>3.0.0</version>
 							<executions>
 								<execution>
 									<id>generate-p2-site</id>
