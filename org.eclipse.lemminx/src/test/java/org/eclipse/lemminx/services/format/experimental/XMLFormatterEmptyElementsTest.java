@@ -52,6 +52,30 @@ public class XMLFormatterEmptyElementsTest extends AbstractCacheBasedTest {
 		assertFormat(expected, expected, settings);
 	}
 
+	// From: https://github.com/eclipse/lemminx/issues/650
+	@Test
+	public void expandEmptyElementsMalformedIssue650() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setEmptyElement(EmptyElements.expand);
+		String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<c>\r\n" + //
+				"  <b>\r\n" + //
+				"    <a/></a>\r\n" + //
+				"  </b>\r\n" + //
+				"</c>";
+		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<c>\r\n" + //
+				"  <b>\r\n" + //
+				"    <a></a>\r\n" + //
+				"    </a>\r\n" + //
+				"  </b>\r\n" + //
+				"</c>";
+		assertFormat(content, expected, settings, //
+				te(3, 6, 3, 8, "></a>"), //
+				te(3, 8, 3, 8, "\r\n    "));
+		assertFormat(expected, expected, settings);
+	}
+
 	@Test
 	public void collapseEmptyElements() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
