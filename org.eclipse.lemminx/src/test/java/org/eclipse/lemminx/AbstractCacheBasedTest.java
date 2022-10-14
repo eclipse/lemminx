@@ -14,9 +14,11 @@ package org.eclipse.lemminx;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.UUID;
 
 import org.eclipse.lemminx.utils.FilesUtils;
+import org.eclipse.lemminx.utils.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,7 +39,13 @@ public abstract class AbstractCacheBasedTest {
 
 	static {
 		try {
-			parentDir = Files.createTempDirectory("lemminx");
+			String cacheInRepoDir = System.getProperty("lemminx.cacheInRepoDir");
+			if (StringUtils.isEmpty(cacheInRepoDir)) {
+				parentDir = Files.createTempDirectory("lemminx");
+			} else {
+				parentDir = Paths.get(System.getProperty("user.home"), "lemminx_test");
+				Files.createDirectories(parentDir);
+			}
 		} catch (IOException e) {
 			parentDir = null;
 		}
@@ -56,7 +64,7 @@ public abstract class AbstractCacheBasedTest {
 	@AfterEach
 	public final void clearCache() throws IOException {
 		if (testWorkDirectory != null && Files.exists(testWorkDirectory)) {
-			MoreFiles.deleteDirectoryContents(testWorkDirectory,RecursiveDeleteOption.ALLOW_INSECURE);
+			MoreFiles.deleteDirectoryContents(testWorkDirectory, RecursiveDeleteOption.ALLOW_INSECURE);
 			Files.delete(testWorkDirectory);
 		}
 		System.clearProperty(FilesUtils.LEMMINX_WORKDIR_KEY);
