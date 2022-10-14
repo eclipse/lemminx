@@ -9,6 +9,9 @@ pipeline{
   }
   stages{
     stage("Maven Build"){
+      when {
+        branch 'main'
+      }
       steps {
         withMaven {
           sh './mvnw clean verify -B -Pci,generate-p2 -Dcbi.jarsigner.skip=false'

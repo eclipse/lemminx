@@ -285,7 +285,7 @@ public class CacheResourcesManager {
 		if (conn != null && conn instanceof HttpURLConnection) {
 			try {
 				HttpURLConnection httpConn = (HttpURLConnection) conn;
-				return (String.valueOf(httpConn.getResponseCode()))+ " " + httpConn.getResponseMessage();
+				return (String.valueOf(httpConn.getResponseCode())) + " " + httpConn.getResponseMessage();
 			} catch (IOException e) {
 				// connection refused and no code could be retrived, do nothing
 			}

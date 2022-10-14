@@ -886,10 +886,10 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 	}
 
 	@Test
-	public void xsAny() throws IOException, BadLocationException {
-		Path dir = Paths.get("target/xsd/");
+	public void xsAnyStrict() throws IOException, BadLocationException {
+		Path dir = getTempDirPath().resolve("target/xsd/");
 		if (!Files.isDirectory(dir)) {
-			Files.createDirectory(dir);
+			Files.createDirectories(dir);
 		}
 		Files.deleteIfExists(Paths.get(dir.toString(), "any.xsd"));
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
@@ -907,14 +907,15 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				"		</xs:complexType>\r\n" + //
 				"	</xs:element>\r\n" + //
 				"</xs:schema>";
-		Files.write(Paths.get("target/xsd/any.xsd"), schema.getBytes());
+		Files.write(getTempDirPath().resolve("target/xsd/any.xsd"), schema.getBytes());
 
 		String xml = "<ui:page xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:ui=\"http://ui\" xsi:schemaLocation=\"http://ui xsd/any.xsd\" >\r\n"
 				+ //
 				"	|	\r\n" + //
 				"	<a/>" + //
 				"</ui:page>";
-		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null, "target/any.xml", 4 + 1, true,
+		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null,
+				getTempDirPath().resolve("target/any.xml").toUri().toString(), 4 + 1, true,
 				c("title", "<title></title>"));
 
 		// xs:any completion with strict -> only XML Schema global element declaration
@@ -925,7 +926,8 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				"	|	\r\n" + //
 				"	<a/>" + //
 				"</ui:page>";
-		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null, "target/any.xml", 4 + 2, true,
+		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null,
+				getTempDirPath().resolve("target/any.xml").toUri().toString(), 4 + 2, true,
 				c("ui:page", "<ui:page></ui:page>"), c("ui:textbox", "<ui:textbox></ui:textbox>"));
 
 		// no completion
@@ -936,10 +938,21 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				"	|	\r\n" + //
 				"	<a/>" + //
 				"</ui:page>";
-		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null, "target/any.xml", 4, true);
+		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null,
+				getTempDirPath().resolve("target/any.xml").toUri().toString(), 4, true);
+	}
+
+	@Test
+	public void xsAnyLax() throws IOException, BadLocationException {
+		Path dir = getTempDirPath().resolve("target/xsd/");
+		if (!Files.isDirectory(dir)) {
+			Files.createDirectories(dir);
+		}
+		Files.deleteIfExists(Paths.get(dir.toString(), "any.xsd"));
+		XMLLanguageService xmlLanguageService = new XMLLanguageService();
 
 		// Test completion with xs:any processContents="lax" (or processContents="skip")
-		schema = "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\r\n" + //
+		String schema = "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\r\n" + //
 				"	targetNamespace=\"http://ui\">\r\n" + //
 				"	<xs:element name=\"textbox\"></xs:element>\r\n" + //
 				"	<xs:element name=\"page\">\r\n" + //
@@ -952,14 +965,15 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				"	</xs:element>\r\n" + //
 				"</xs:schema>";
 
-		Files.write(Paths.get("target/xsd/any.xsd"), schema.getBytes());
+		Files.write(getTempDirPath().resolve("target/xsd/any.xsd"), schema.getBytes());
 
-		xml = "<ui:page xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:ui=\"http://ui\" xsi:schemaLocation=\"http://ui xsd/any.xsd\" >\r\n"
+		String xml = "<ui:page xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:ui=\"http://ui\" xsi:schemaLocation=\"http://ui xsd/any.xsd\" >\r\n"
 				+ //
 				"	|	\r\n" + //
 				"	<a/>" + //
 				"</ui:page>";
-		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null, "target/any.xml", 4 + 1, true,
+		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null,
+				getTempDirPath().resolve("target/any.xml").toUri().toString(), 4 + 1, true,
 				c("title", "<title></title>"));
 
 		// xs:any completion with strict -> all XML Schema element declaration
@@ -970,7 +984,8 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				"	|	\r\n" + //
 				"	<a/>" + //
 				"</ui:page>";
-		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null, "target/any.xml", 4 + 4, true,
+		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null,
+				getTempDirPath().resolve("target/any.xml").toUri().toString(), 4 + 4, true,
 				c("title", "<title></title>"), c("a", "<a/>"), c("ui:page", "<ui:page></ui:page>"),
 				c("ui:textbox", "<ui:textbox></ui:textbox>"));
 
@@ -982,7 +997,8 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				"	|	\r\n" + //
 				"	<a/>" + //
 				"</ui:page>";
-		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null, "target/any.xml", 4, true);
+		XMLAssert.testCompletionFor(xmlLanguageService, xml, null, null,
+				getTempDirPath().resolve("target/any.xml").toUri().toString(), 4, true);
 	}
 
 	@Test
