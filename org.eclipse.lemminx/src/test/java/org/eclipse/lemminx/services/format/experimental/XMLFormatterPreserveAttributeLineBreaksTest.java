@@ -68,14 +68,14 @@ public class XMLFormatterPreserveAttributeLineBreaksTest {
 		String expected = "<a>\n" + //
 				"  <b attr=\"value\" attr=\"value\"\n" + //
 				"    attr=\"value\" attr=\"value\"\n" + //
-				"    attr=\"value\" attr=\"value\"> </b>\n" + //
+				"    attr=\"value\" attr=\"value\">\n" + //
+				"</b>\n" + //
 				"</a>";
 
 		assertFormat(content, expected, settings, //
 				te(0, 3, 1, 0, "\n  "), //
 				te(1, 28, 2, 0, "\n    "), //
-				te(2, 25, 3, 0, "\n    "), //
-				te(3, 26, 4, 0, " "));
+				te(2, 25, 3, 0, "\n    "));
 		assertFormat(expected, expected, settings);
 	}
 

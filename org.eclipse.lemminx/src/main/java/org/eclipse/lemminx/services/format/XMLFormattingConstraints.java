@@ -23,6 +23,7 @@ public class XMLFormattingConstraints {
 
 	private int availableLineWidth = 0;
 	private int indentLevel = 0;
+	private int mixedContentIndentLevel = 0;
 
 	/**
 	 * Initializes the values in this formatting constraint with values from
@@ -34,6 +35,7 @@ public class XMLFormattingConstraints {
 		setFormatElementCategory(constraints.getFormatElementCategory());
 		setAvailableLineWidth(constraints.getAvailableLineWidth());
 		setIndentLevel(constraints.getIndentLevel());
+		setMixedContentIndentLevel(constraints.getMixedContentIndentLevel());
 	}
 
 	public FormatElementCategory getFormatElementCategory() {
@@ -58,6 +60,14 @@ public class XMLFormattingConstraints {
 
 	public void setIndentLevel(int indentLevel) {
 		this.indentLevel = indentLevel;
+	}
+
+	public int getMixedContentIndentLevel() {
+		return mixedContentIndentLevel;
+	}
+
+	public void setMixedContentIndentLevel(int mixedContentIndentLevel) {
+		this.mixedContentIndentLevel = mixedContentIndentLevel;
 	}
 
 }

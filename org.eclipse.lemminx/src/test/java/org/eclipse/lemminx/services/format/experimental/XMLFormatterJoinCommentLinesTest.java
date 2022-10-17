@@ -90,20 +90,36 @@ public class XMLFormatterJoinCommentLinesTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void testCommentFormatSameLine() throws BadLocationException {
-		String content = "<a>" + lineSeparator() + //
-				" Content" + lineSeparator() + //
+		String content = "<a>\n" + //
+				" Content\n" + //
 				"</a> <!-- My   Comment   -->";
-		String expected = "<a> Content </a> <!-- My Comment -->";
-
+		String expected = "<a>\n" + //
+				"  Content\n" + //
+				"</a> <!-- My Comment -->";
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setJoinCommentLines(true);
+		assertFormat(content, expected, settings, //
+				te(0, 3, 1, 1, "\n  "), //
+				te(2, 12, 2, 15, " "), //
+				te(2, 22, 2, 25, " "));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void testCommentFormatSameLineJoinContentLines() throws BadLocationException {
+		String content = "<a>\n" + //
+				" Content\n" + //
+				"</a> <!-- My   Comment   -->";
+		String expected = "<a> Content </a> <!-- My Comment -->";
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setJoinCommentLines(true);
+		settings.getFormattingSettings().setJoinContentLines(true);
 		assertFormat(content, expected, settings, //
 				te(0, 3, 1, 1, " "), //
 				te(1, 8, 2, 0, " "), //
 				te(2, 12, 2, 15, " "), //
 				te(2, 22, 2, 25, " "));
 		assertFormat(expected, expected, settings);
-
 	}
 
 	@Test
@@ -112,13 +128,13 @@ public class XMLFormatterJoinCommentLinesTest extends AbstractCacheBasedTest {
 				"  Content <!-- comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment -->"
 				+ //
 				"</a>";
-		String expected = "<a> Content <!-- comment comment comment comment comment comment comment comment\n" + //
+		String expected = "<a>\n" + //
+				"  Content <!-- comment comment comment comment comment comment comment comment\n" + //
 				"  comment comment comment comment comment comment comment comment comment\n" + //
 				"  comment comment comment comment comment comment comment comment --></a>";
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setJoinCommentLines(true);
 		assertFormat(content, expected, settings, //
-				te(0, 3, 1, 2, " "), //
 				te(1, 78, 1, 79, "\n  "), //
 				te(1, 150, 1, 151, "\n  "));
 		assertFormat(expected, expected, settings);

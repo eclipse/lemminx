@@ -53,19 +53,18 @@ public class XMLFormatterExperimentalIndentTest extends AbstractCacheBasedTest {
 	public void oneElementsInDifferentLine() throws BadLocationException {
 		String content = "<a>\r\n" + //
 				"</a>";
-		String expected = "<a> </a>";
-		assertFormat(content, expected, //
-				te(0, 3, 1, 0, " "));
-		assertFormat(expected, expected);
+		String expected = content;
+		assertFormat(content, expected);
 	}
 
 	@Test
 	public void oneElementsInDifferentLineWithSpace() throws BadLocationException {
 		String content = "<a>\r\n" + //
 				"  </a>";
-		String expected = "<a> </a>";
+		String expected = "<a>\r\n" + //
+				"</a>";
 		assertFormat(content, expected, //
-				te(0, 3, 1, 2, " "));
+				te(0, 3, 1, 2, "\r\n"));
 		assertFormat(expected, expected);
 	}
 
@@ -147,17 +146,17 @@ public class XMLFormatterExperimentalIndentTest extends AbstractCacheBasedTest {
 				"  </child>\r\n" + //
 				"</parent>";
 		String expected = "<parent>\r\n" + //
-				"  <child> test </child>\r\n" + //
+				"  <child>\r\n" + //
+				"    test\r\n" + //
+				"  </child>\r\n" + //
 				"</parent>\r\n" + //
 				"<parent>\r\n" + //
-				"  <child> test </child>\r\n" + //
+				"  <child>\r\n" + //
+				"    test\r\n" + //
+				"  </child>\r\n" + //
 				"</parent>";
 		assertFormat(content, expected, //
-				te(1, 9, 2, 4, " "),
-				te(2, 8, 3, 2, " "),
-				te(4, 9, 4, 9, "\r\n"),
-				te(5, 9, 6, 4, " "),
-				te(6, 8, 7, 2, " "));
+				te(4, 9, 4, 9, "\r\n"));
 		assertFormat(expected, expected);
 	}
 
@@ -212,14 +211,8 @@ public class XMLFormatterExperimentalIndentTest extends AbstractCacheBasedTest {
 				"    bar\r\n" + //
 				"  </b>\r\n" + //
 				"</a>";
-		String expected = "<a>\r\n" + //
-				"  <b> foo\r\n" + //
-				"    bar </b>\r\n" + //
-				"</a>";
-		assertFormat(content, expected, settings, //
-				te(1, 5, 2, 4, " "),
-				te(3, 7, 4, 2, " "));
-		assertFormat(expected, expected, settings);
+		String expected = content;
+		assertFormat(content, expected, settings);
 	}
 
 	// From issue: https://github.com/redhat-developer/vscode-xml/issues/600
@@ -286,15 +279,18 @@ public class XMLFormatterExperimentalIndentTest extends AbstractCacheBasedTest {
 		String expected = "<xs:schema attributeFormDefault=\"unqualified\" elementFormDefault=\"unqualified\">\r\n" + //
 				"  <xs:complexType name=\"myType\">\r\n" + //
 				"    <xs:annotation>\r\n" + //
-				"      <xs:documentation> Content that spans\r\n" + //
-				"    multiple lines. </xs:documentation>\r\n" + //
+				"      <xs:documentation>\r\n" + //
+				"        Content that spans\r\n" + //
+				"        multiple lines.\r\n" + //
+				"      </xs:documentation>\r\n" + //
 				"    </xs:annotation>\r\n" + //
 				"  </xs:complexType>\r\n" + //
 				"</xs:schema>";
 		assertFormat(content, expected, settings, //
 				te(2, 19, 3, 11, "\r\n      "), //
-				te(3, 29, 4, 4, " "), //
-				te(5, 19, 6, 0, " "), //
+				te(3, 29, 4, 4, "\r\n        "), //
+				te(4, 22, 5, 4, "\r\n        "), //
+				te(5, 19, 6, 0, "\r\n      "), //
 				te(6, 19, 7, 11, "\r\n    "), //
 				te(7, 27, 8, 11, "\r\n  "));
 		assertFormat(expected, expected, settings);
