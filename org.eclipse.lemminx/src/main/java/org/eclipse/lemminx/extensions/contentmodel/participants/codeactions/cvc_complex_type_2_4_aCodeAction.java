@@ -61,7 +61,7 @@ public class cvc_complex_type_2_4_aCodeAction implements ICodeActionParticipant 
 
 					// Try to collect similar names coming from tag name
 					for (CMElementDeclaration possibleElement : possibleElements) {
-						String possibleElementName = possibleElement.getName();
+						String possibleElementName = possibleElement.getLocalName();
 						if (isSimilar(possibleElementName, localName)) {
 							similarElementNames.add(possibleElementName);
 						} else {

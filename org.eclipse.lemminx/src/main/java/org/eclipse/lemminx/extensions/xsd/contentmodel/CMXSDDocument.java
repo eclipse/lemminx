@@ -196,7 +196,7 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 
 	private CMElementDeclaration findElementDeclaration(String tag, String namespace) {
 		for (CMElementDeclaration cmElement : getElements()) {
-			if (cmElement.getName().equals(tag)) {
+			if (cmElement.getLocalName().equals(tag)) {
 				return cmElement;
 			}
 		}

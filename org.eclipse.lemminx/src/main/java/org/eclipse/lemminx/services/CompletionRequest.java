@@ -69,7 +69,7 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 		if (generator == null) {
 			generator = new XMLGenerator(getSharedSettings(), isAutoCloseTags(),
 					getLineIndentInfo().getWhitespacesIndent(), getLineIndentInfo().getLineDelimiter(),
-					isCompletionSnippetsSupported(), 0);
+					isCompletionSnippetsSupported(), 0, getNode());
 		}
 		return generator;
 	}

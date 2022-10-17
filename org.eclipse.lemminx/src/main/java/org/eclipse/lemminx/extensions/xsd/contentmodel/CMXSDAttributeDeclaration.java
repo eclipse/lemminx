@@ -23,6 +23,7 @@ import org.apache.xerces.xs.XSObjectList;
 import org.apache.xerces.xs.XSSimpleTypeDefinition;
 import org.apache.xerces.xs.XSValue;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMAttributeDeclaration;
+import org.eclipse.lemminx.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lemminx.services.extensions.ISharedSettingsRequest;
 import org.eclipse.lemminx.settings.SchemaDocumentationType;
 import org.eclipse.lemminx.utils.StringUtils;
@@ -34,6 +35,7 @@ import org.eclipse.lsp4j.MarkupKind;
  */
 public class CMXSDAttributeDeclaration implements CMAttributeDeclaration {
 
+	private final CMXSDElementDeclaration cmElement;
 	private final XSAttributeUse attributeUse;
 
 	private Map<String, String> valuesDocumentation;
@@ -42,18 +44,24 @@ public class CMXSDAttributeDeclaration implements CMAttributeDeclaration {
 
 	private SchemaDocumentationType docStrategy;
 
-	public CMXSDAttributeDeclaration(XSAttributeUse attributeUse) {
+	public CMXSDAttributeDeclaration(CMXSDElementDeclaration cmElement, XSAttributeUse attributeUse) {
+		this.cmElement = cmElement;
 		this.attributeUse = attributeUse;
 	}
 
 	@Override
-	public String getName() {
+	public String getLocalName() {
 		return getAttrDeclaration().getName();
 	}
-	
+
 	@Override
 	public String getNamespace() {
-		return  getAttrDeclaration().getNamespace();
+		return getAttrDeclaration().getNamespace();
+	}
+
+	@Override
+	public CMElementDeclaration getOwnerElementDeclaration() {
+		return cmElement;
 	}
 
 	@Override

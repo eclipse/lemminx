@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.lemminx.extensions.contentmodel.model.CMAttributeDeclaration;
+import org.eclipse.lemminx.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lemminx.services.extensions.ISharedSettingsRequest;
 
 import com.thaiopensource.xml.util.Name;
@@ -46,7 +47,7 @@ public class CMRelaxNGAttributeDeclaration implements CMAttributeDeclaration {
 	}
 
 	@Override
-	public String getName() {
+	public String getLocalName() {
 		return getJingName().getLocalName();
 	}
 
@@ -55,7 +56,12 @@ public class CMRelaxNGAttributeDeclaration implements CMAttributeDeclaration {
 		return getJingName().getNamespaceUri();
 	}
 
-	public Name getJingName() {
+	@Override
+	public CMElementDeclaration getOwnerElementDeclaration() {
+		return cmElement;
+	}
+	
+	Name getJingName() {
 		NameClass nameClass = pattern.getNameClass();
 		if (nameClass instanceof SimpleNameClass) {
 			return ((SimpleNameClass) nameClass).getName();

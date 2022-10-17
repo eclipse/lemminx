@@ -75,7 +75,7 @@ public class cvc_elt_1_aCodeAction implements ICodeActionParticipant {
 			for (CMDocument cmDocument : contentModelManager.findCMDocument(element)) {
 				Collection<CMElementDeclaration> elementDeclaration = cmDocument.getElements();
 				for (CMElementDeclaration expectedElement : elementDeclaration) {
-					expectedElements.add(expectedElement.getName());
+					expectedElements.add(expectedElement.getLocalName());
 				}
 			}
 

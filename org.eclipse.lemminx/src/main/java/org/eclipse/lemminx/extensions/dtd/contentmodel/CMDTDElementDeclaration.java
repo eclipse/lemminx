@@ -44,12 +44,17 @@ public class CMDTDElementDeclaration extends XMLElementDecl implements CMElement
 	}
 
 	@Override
-	public String getName() {
+	public String getLocalName() {
 		return super.name.localpart;
 	}
 
 	@Override
 	public String getNamespace() {
+		return null;
+	}
+
+	@Override
+	public String getPrefix(String namespaceURI) {
 		return null;
 	}
 
@@ -66,7 +71,7 @@ public class CMDTDElementDeclaration extends XMLElementDecl implements CMElement
 	public Collection<CMElementDeclaration> getElements() {
 		if (elements == null) {
 			elements = new ArrayList<>();
-			document.collectElementsDeclaration(getName(), elements);
+			document.collectElementsDeclaration(getLocalName(), elements);
 		}
 		return elements;
 	}
@@ -80,7 +85,7 @@ public class CMDTDElementDeclaration extends XMLElementDecl implements CMElement
 	@Override
 	public CMElementDeclaration findCMElement(String tag, String namespace) {
 		for (CMElementDeclaration cmElement : getElements()) {
-			if (cmElement.getName().equals(tag)) {
+			if (cmElement.getLocalName().equals(tag)) {
 				return cmElement;
 			}
 		}
@@ -90,7 +95,7 @@ public class CMDTDElementDeclaration extends XMLElementDecl implements CMElement
 	@Override
 	public CMAttributeDeclaration findCMAttribute(String attributeName, String namespace) {
 		for (CMAttributeDeclaration cmAttribute : getAttributes()) {
-			if (cmAttribute.getName().equals(attributeName)) {
+			if (cmAttribute.getLocalName().equals(attributeName)) {
 				return cmAttribute;
 			}
 		}
@@ -104,7 +109,7 @@ public class CMDTDElementDeclaration extends XMLElementDecl implements CMElement
 		}
 		Map<String, DTDElementInfo> hierarchiesMap = document.getHierarchiesMap();
 		if (hierarchiesMap != null) {
-			DTDElementInfo dtdElementInfo = hierarchiesMap.get(getName());
+			DTDElementInfo dtdElementInfo = hierarchiesMap.get(getLocalName());
 			documentation = dtdElementInfo.getComment();
 		}
 		return documentation;
@@ -113,7 +118,7 @@ public class CMDTDElementDeclaration extends XMLElementDecl implements CMElement
 	public String getDocumentation(String attrName) {
 		Map<String, DTDElementInfo> hierarchiesMap = document.getHierarchiesMap();
 		if (hierarchiesMap != null) {
-			DTDElementInfo dtdElementInfo = hierarchiesMap.get(getName());
+			DTDElementInfo dtdElementInfo = hierarchiesMap.get(getLocalName());
 			Map<String, DTDNodeInfo> attributesMap = dtdElementInfo.getAttributes();
 			DTDNodeInfo nodeInfo = attributesMap.get(attrName);
 			if (nodeInfo != null) {

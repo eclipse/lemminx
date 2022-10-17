@@ -83,13 +83,19 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 	}
 
 	@Override
-	public String getName() {
+	public String getLocalName() {
 		return elementDeclaration.getName();
 	}
 
 	@Override
 	public String getNamespace() {
 		return elementDeclaration.getNamespace();
+	}
+	
+	@Override
+	public String getPrefix(String namespaceURI) {
+		// TODO : implement this method
+		return null;
 	}
 
 	@Override
@@ -122,7 +128,7 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 				XSObject object = list.item(i);
 				if (object.getType() == XSConstants.ATTRIBUTE_USE) {
 					XSAttributeUse attributeUse = (XSAttributeUse) object;
-					attributes.add(new CMXSDAttributeDeclaration(attributeUse));
+					attributes.add(new CMXSDAttributeDeclaration(this, attributeUse));
 				}
 			}
 		}
@@ -435,7 +441,7 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 	@Override
 	public CMElementDeclaration findCMElement(String tag, String namespace) {
 		for (CMElementDeclaration cmElement : getElements()) {
-			if (cmElement.getName().equals(tag)) {
+			if (cmElement.getLocalName().equals(tag)) {
 				return cmElement;
 			}
 		}
@@ -445,7 +451,7 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 	@Override
 	public CMAttributeDeclaration findCMAttribute(String attributeName, String namespace) {
 		for (CMAttributeDeclaration cmAttribute : getAttributes()) {
-			if (cmAttribute.getName().equals(attributeName)) {
+			if (cmAttribute.getLocalName().equals(attributeName)) {
 				return cmAttribute;
 			}
 		}
@@ -454,7 +460,7 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 
 	@Override
 	public String toString() {
-		return getName();
+		return getLocalName();
 	}
 
 	@Override

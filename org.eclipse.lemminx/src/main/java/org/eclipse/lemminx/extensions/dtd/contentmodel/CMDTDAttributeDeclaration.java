@@ -19,6 +19,7 @@ import java.util.Collections;
 import org.apache.xerces.impl.dtd.XMLAttributeDecl;
 import org.apache.xerces.impl.dtd.XMLSimpleType;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMAttributeDeclaration;
+import org.eclipse.lemminx.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lemminx.services.extensions.ISharedSettingsRequest;
 
 /**
@@ -35,13 +36,18 @@ public class CMDTDAttributeDeclaration extends XMLAttributeDecl implements CMAtt
 	}
 
 	@Override
-	public String getName() {
+	public String getLocalName() {
 		return super.name.localpart;
 	}
 
 	@Override
 	public String getNamespace() {
 		return null;
+	}
+
+	@Override
+	public CMElementDeclaration getOwnerElementDeclaration() {
+		return elementDecl;
 	}
 
 	@Override
@@ -63,7 +69,7 @@ public class CMDTDAttributeDeclaration extends XMLAttributeDecl implements CMAtt
 		if (documentation != null) {
 			return documentation;
 		}
-		documentation = elementDecl.getDocumentation(getName());
+		documentation = elementDecl.getDocumentation(getLocalName());
 		return documentation;
 	}
 

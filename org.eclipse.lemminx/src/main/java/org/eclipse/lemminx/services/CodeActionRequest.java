@@ -11,20 +11,15 @@
 *******************************************************************************/
 package org.eclipse.lemminx.services;
 
+import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lemminx.dom.LineIndentInfo;
+import org.eclipse.lemminx.extensions.contentmodel.utils.XMLGenerator;
 import org.eclipse.lemminx.services.extensions.IComponentProvider;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionRequest;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lemminx.commons.BadLocationException;
-import org.eclipse.lemminx.extensions.contentmodel.utils.XMLGenerator;
-import org.eclipse.lemminx.dom.LineIndentInfo;
-import org.eclipse.lsp4j.Position;
-
-
-
-
 
 /**
  * Code action request implementation.
@@ -59,12 +54,12 @@ public class CodeActionRequest extends BaseCodeActionRequest implements ICodeAct
 		return range;
 	}
 
-
 	public XMLGenerator getXMLGenerator() throws BadLocationException {
 		if (generator == null) {
-			generator = new XMLGenerator(getSharedSettings(), getSharedSettings().getCompletionSettings().isAutoCloseTags(),
+			generator = new XMLGenerator(getSharedSettings(),
+					getSharedSettings().getCompletionSettings().isAutoCloseTags(),
 					getLineIndentInfo().getWhitespacesIndent(), getLineIndentInfo().getLineDelimiter(),
-					false, Integer.MAX_VALUE);
+					false, Integer.MAX_VALUE, null);
 		}
 		return generator;
 	}
@@ -76,6 +71,5 @@ public class CodeActionRequest extends BaseCodeActionRequest implements ICodeAct
 		}
 		return indentInfo;
 	}
-
 
 }

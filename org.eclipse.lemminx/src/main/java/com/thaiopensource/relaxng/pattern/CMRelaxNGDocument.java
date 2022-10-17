@@ -130,7 +130,7 @@ public class CMRelaxNGDocument implements CMDocument {
 
 	private CMElementDeclaration findElementDeclaration(String tag, String namespace) {
 		for (CMElementDeclaration cmElement : getElements()) {
-			if (cmElement.getName().equals(tag)) {
+			if (cmElement.getLocalName().equals(tag)) {
 				return cmElement;
 			}
 		}
@@ -289,7 +289,10 @@ public class CMRelaxNGDocument implements CMDocument {
 		return null;
 	}
 
-	private DOMNode findNode(Locator locator) {
+	DOMNode findNode(Locator locator) {
+		if (locator == null) {
+			return null;
+		}
 		String systemId = locator.getSystemId();
 		if (!URIUtils.isFileResource(systemId)) {
 			return null;

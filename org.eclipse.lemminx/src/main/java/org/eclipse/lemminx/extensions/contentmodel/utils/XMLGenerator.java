@@ -14,9 +14,14 @@ package org.eclipse.lemminx.extensions.contentmodel.utils;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.lemminx.commons.SnippetsBuilder;
+import org.eclipse.lemminx.dom.DOMAttr;
+import org.eclipse.lemminx.dom.DOMElement;
+import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lemminx.services.extensions.ISharedSettingsRequest;
@@ -39,6 +44,7 @@ public class XMLGenerator {
 	private final boolean canSupportSnippets;
 	private final boolean autoCloseTags;
 	private int maxLevel;
+	private final DOMNode node;
 
 	/**
 	 * XML generator constructor.
@@ -55,17 +61,18 @@ public class XMLGenerator {
 	 */
 	public XMLGenerator(SharedSettings sharedSettings, String whitespacesIndent, String lineDelimiter,
 			boolean canSupportSnippets, int maxLevel) {
-		this(sharedSettings, true, whitespacesIndent, lineDelimiter, canSupportSnippets, maxLevel);
+		this(sharedSettings, true, whitespacesIndent, lineDelimiter, canSupportSnippets, maxLevel, null);
 	}
 
 	public XMLGenerator(SharedSettings sharedSettings, boolean autoCloseTags, String whitespacesIndent,
-			String lineDelimiter, boolean canSupportSnippets, int maxLevel) {
+			String lineDelimiter, boolean canSupportSnippets, int maxLevel, DOMNode node) {
 		this.sharedSettings = sharedSettings;
 		this.autoCloseTags = autoCloseTags;
 		this.whitespacesIndent = whitespacesIndent;
 		this.lineDelimiter = lineDelimiter;
 		this.canSupportSnippets = canSupportSnippets;
 		this.maxLevel = maxLevel;
+		this.node = node;
 	}
 
 	/**
@@ -85,7 +92,7 @@ public class XMLGenerator {
 	public String getWhitespacesIndent() {
 		return whitespacesIndent;
 	}
-	
+
 	/**
 	 * Returns the XML generated from the given element declaration.
 	 * 
@@ -94,13 +101,7 @@ public class XMLGenerator {
 	 * @return the XML generated from the given element declaration.
 	 */
 	public String generate(CMElementDeclaration elementDeclaration, String prefix, boolean generateEndTag) {
-		XMLBuilder xml = new XMLBuilder(sharedSettings, whitespacesIndent, lineDelimiter);
-		generate(elementDeclaration, prefix, generateEndTag, false, 0, 0, xml, new ArrayList<CMElementDeclaration>(),
-				new ArrayList<String>(), false);
-		if (canSupportSnippets) {
-			xml.addContent(SnippetsBuilder.tabstops(0)); // "$0"
-		}
-		return xml.toString();
+		return generate(elementDeclaration, prefix, generateEndTag, false, new ArrayList<String>(), false);
 	}
 
 	/**
@@ -138,7 +139,7 @@ public class XMLGenerator {
 		if (generateOnlyChildren) {
 			Collection<CMElementDeclaration> childElements = elementDeclaration.getElements();
 			for (CMElementDeclaration child : childElements) {
-				if (isGenerateChild(elementDeclaration, generateOnlyRequired, child.getName())) {
+				if (isGenerateChild(elementDeclaration, generateOnlyRequired, child.getLocalName())) {
 					snippetIndex = generate(child, prefix, true, false, level + 1, snippetIndex, xml, generatedElements,
 							existingElementNames, generateOnlyRequired);
 				}
@@ -146,7 +147,7 @@ public class XMLGenerator {
 			return snippetIndex;
 		}
 		if (generatedElements.contains(elementDeclaration)
-				|| existingElementNames.contains(elementDeclaration.getName())) {
+				|| existingElementNames.contains(elementDeclaration.getLocalName())) {
 			return snippetIndex;
 		}
 		boolean autoCloseTags = this.autoCloseTags && generateEndTag;
@@ -155,17 +156,17 @@ public class XMLGenerator {
 			xml.linefeed();
 			xml.indent(level);
 		}
-		xml.startElement(prefix, elementDeclaration.getName(), false);
+		xml.startElement(prefix, elementDeclaration.getLocalName(), false);
 		// Attributes
 		Collection<CMAttributeDeclaration> attributes = elementDeclaration.getAttributes();
-		snippetIndex = generate(attributes, level, snippetIndex, xml, elementDeclaration.getName());
+		snippetIndex = generate(attributes, level, snippetIndex, xml, elementDeclaration.getLocalName());
 		// Elements children
 		Collection<CMElementDeclaration> children = elementDeclaration.getElements();
 		if (children.size() > 0) {
 			xml.closeStartElement();
 			if ((level < maxLevel)) {
 				for (CMElementDeclaration child : children) {
-					if (isGenerateChild(elementDeclaration, generateOnlyRequired, child.getName())) {
+					if (isGenerateChild(elementDeclaration, generateOnlyRequired, child.getLocalName())) {
 						level++;
 						snippetIndex = generate(child, prefix, true, false, level, snippetIndex, xml, generatedElements,
 								existingElementNames, generateOnlyRequired);
@@ -181,7 +182,7 @@ public class XMLGenerator {
 				}
 			}
 			if (autoCloseTags) {
-				xml.endElement(prefix, elementDeclaration.getName());
+				xml.endElement(prefix, elementDeclaration.getLocalName());
 			}
 		} else if (elementDeclaration.isEmpty() && autoCloseTags) {
 			xml.selfCloseElement();
@@ -206,7 +207,7 @@ public class XMLGenerator {
 				xml.addContent(SnippetsBuilder.tabstops(snippetIndex));
 			}
 			if (autoCloseTags) {
-				xml.endElement(prefix, elementDeclaration.getName());
+				xml.endElement(prefix, elementDeclaration.getLocalName());
 			}
 		}
 		return snippetIndex;
@@ -220,10 +221,44 @@ public class XMLGenerator {
 
 	private int generate(Collection<CMAttributeDeclaration> attributes, int level, int snippetIndex, XMLBuilder xml,
 			String tagName) {
+		Map<String /* namespaceURI */, String /* prefix */> prefixes = null;
 		List<CMAttributeDeclaration> requiredAttributes = new ArrayList<>();
+		// Loop for attributes to collect :
+		// - required attributes
+		// - mapping between namespace / prefix for required attributes
+		boolean generateXmlnsAttr = false;
 		for (CMAttributeDeclaration att : attributes) {
+			// required attributes
 			if (att.isRequired()) {
 				requiredAttributes.add(att);
+				// mapping between namespace / prefix for attributes
+				String namespace = att.getNamespace();
+				if (!StringUtils.isEmpty(namespace)) {
+					// Attribute has a namespace, get the prefix from the XML DOM document or from
+					// the grammar.
+					String prefix = prefixes != null ? prefixes.get(namespace) : null;
+					if (prefix == null) {
+						// Find the prefix from the DOM node
+						prefix = findPrefixFromDOMNode(namespace);
+						if (prefix == null) {
+							// Find the prefix from the grammar
+							prefix = att.getOwnerElementDeclaration().getPrefix(namespace);
+							if (prefix != null) {
+								if (!"xml".equals(prefix)) {
+									// Generate an xmlns:prefix attribute to declare the namespace.
+									xml.addAttribute("xmlns:" + prefix, namespace, level, true);
+									generateXmlnsAttr = true;
+								}
+							}
+						}
+					}
+					if (prefix != null) {
+						if (prefixes == null) {
+							prefixes = new HashMap<>();
+						}
+						prefixes.put(namespace, prefix);
+					}
+				}
 			}
 		}
 		int attributesSize = requiredAttributes.size();
@@ -235,13 +270,32 @@ public class XMLGenerator {
 			Collection<String> enumerationValues = attributeDeclaration.getEnumerationValues();
 			String value = generateAttributeValue(defaultValue, enumerationValues, canSupportSnippets, snippetIndex,
 					false, sharedSettings);
-			if (attributesSize != 1) {
-				xml.addAttribute(attributeDeclaration.getName(), value, level, true);
+			String attrName = attributeDeclaration.getName(prefixes);
+			if (attributesSize != 1 || generateXmlnsAttr) {
+				xml.addAttribute(attrName, value, level, true);
 			} else {
-				xml.addSingleAttribute(attributeDeclaration.getName(), value, true);
+				xml.addSingleAttribute(attrName, value, true);
 			}
 		}
 		return snippetIndex;
+	}
+
+	private String findPrefixFromDOMNode(String namespace) {
+		if (node == null) {
+			return null;
+		}
+		DOMElement element = null;
+		if (node.isAttribute()) {
+			element = ((DOMAttr) node).getOwnerElement();
+		} else if (node.isElement()) {
+			element = (DOMElement) node;
+		} else if (node.isText()) {
+			element = node.getParentElement();
+		}
+		if (element != null) {
+			return element.getPrefix(namespace);
+		}
+		return null;
 	}
 
 	/**

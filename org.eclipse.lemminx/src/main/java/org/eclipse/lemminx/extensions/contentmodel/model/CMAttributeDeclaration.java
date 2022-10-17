@@ -13,21 +13,23 @@
 package org.eclipse.lemminx.extensions.contentmodel.model;
 
 import java.util.Collection;
+import java.util.Map;
 
 import org.eclipse.lemminx.services.extensions.ISharedSettingsRequest;
+import org.eclipse.lemminx.utils.StringUtils;
 
 /**
  * Content model element which abstracts attribute declaration from a given
- * grammar (XML Schema, DTD).
+ * grammar (XML Schema, DTD, RelaxNG).
  */
 public interface CMAttributeDeclaration {
 
 	/**
-	 * Returns the declared element name.
+	 * Returns the declared attribute local name.
 	 * 
-	 * @return the declared element name.
+	 * @return the declared attribute local name.
 	 */
-	String getName();
+	String getLocalName();
 
 	/**
 	 * Returns the target namespace and null otherwise.
@@ -37,20 +39,54 @@ public interface CMAttributeDeclaration {
 	String getNamespace();
 
 	/**
+	 * Returns the owner element declaration.
+	 * 
+	 * @return the owner element declaration.
+	 */
+	CMElementDeclaration getOwnerElementDeclaration();
+
+	/**
 	 * Returns the declared attribute name with the given prefix.
 	 * 
 	 * @return the declared attribute name with the given prefix.
 	 */
 	default String getName(String prefix) {
-		String name = getName();
+		String name = getLocalName();
 		if (prefix == null || prefix.isEmpty()) {
 			return name;
 		}
 		return prefix + ":" + name;
 	}
 
+	/**
+	 * Returns the declared attribute name with the proper prefix mapped with the
+	 * attribute namespace and the local name otherwise.
+	 * 
+	 * @param prefixes map which contains namespace as key and prefix as value.
+	 * 
+	 * @return the declared attribute name with the proper prefix mapped with the
+	 *         attribute namespace and the local name otherwise.
+	 */
+	default String getName(Map<String /* namespaceURI */, String /* prefix */> prefixes) {
+		String namespace = getNamespace();
+		String prefix = StringUtils.isEmpty(namespace) ? null : (prefixes != null ? prefixes.get(namespace) : null);
+		return getName(prefix);
+	}
+
+	/**
+	 * Returns the default value of the declared attribute and null otherwise.
+	 * 
+	 * @return the default value of the declared attribute and null otherwise.
+	 */
 	String getDefaultValue();
 
+	/**
+	 * Returns enumeration values of the declared attribute and empty collection
+	 * otherwise.
+	 * 
+	 * @return enumeration values of the declared attribute and empty collection
+	 *         otherwise.
+	 */
 	Collection<String> getEnumerationValues();
 
 	/**

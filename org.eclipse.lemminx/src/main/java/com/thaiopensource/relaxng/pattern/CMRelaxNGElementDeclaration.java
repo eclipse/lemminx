@@ -19,6 +19,7 @@ import java.util.Set;
 
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMElement;
+import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lemminx.services.extensions.ISharedSettingsRequest;
@@ -65,13 +66,22 @@ public class CMRelaxNGElementDeclaration implements CMElementDeclaration {
 	}
 
 	@Override
-	public String getName() {
+	public String getLocalName() {
 		return getJingName().getLocalName();
 	}
 
 	@Override
 	public String getNamespace() {
 		return getJingName().getNamespaceUri();
+	}
+
+	@Override
+	public String getPrefix(String namespaceURI) {
+		DOMNode node = cmDocument.findNode(pattern.getLocator());
+		if (node != null && node.isElement()) {
+			return ((DOMElement) node).getPrefix(namespaceURI);
+		}
+		return null;
 	}
 
 	private Name getJingName() {
@@ -168,7 +178,7 @@ public class CMRelaxNGElementDeclaration implements CMElementDeclaration {
 	@Override
 	public CMElementDeclaration findCMElement(String tag, String namespace) {
 		for (CMElementDeclaration cmElement : getElements()) {
-			if (cmElement.getName().equals(tag)) {
+			if (cmElement.getLocalName().equals(tag)) {
 				return cmElement;
 			}
 		}
@@ -178,7 +188,7 @@ public class CMRelaxNGElementDeclaration implements CMElementDeclaration {
 	@Override
 	public CMAttributeDeclaration findCMAttribute(String attributeName, String namespace) {
 		for (CMAttributeDeclaration cmAttribute : getAttributes()) {
-			if (cmAttribute.getName().equals(attributeName)) {
+			if (cmAttribute.getLocalName().equals(attributeName)) {
 				return cmAttribute;
 			}
 		}
