@@ -322,22 +322,24 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			return;
 		}
 		for (CMAttributeDeclaration attributeDeclaration : attributes) {
-			String prefix = (parentElement != null ? parentElement.getPrefix(attributeDeclaration.getNamespace())
-					: null);
-			String attrName = attributeDeclaration.getName(prefix);
-			if (!parentElement.hasAttribute(attrName)) {
-				CompletionItem item = new AttributeCompletionItem(attrName, canSupportSnippet, fullRange, generateValue,
-						attributeDeclaration.getDefaultValue(), attributeDeclaration.getEnumerationValues(),
-						request.getSharedSettings());
-				if (request.isResolveDocumentationSupported()) {
-					addResolveData(request, item, AttributeNameCompletionResolver.PARTICIPANT_ID);
-				} else {
-					MarkupContent documentation = XMLGenerator.createMarkupContent(attributeDeclaration,
-							elementDeclaration,
-							request);
-					item.setDocumentation(documentation);
+			if (parentElement != null) {
+				String prefix = parentElement.getPrefix(attributeDeclaration.getNamespace());
+				String attrName = attributeDeclaration.getName(prefix);
+				if (!parentElement.hasAttribute(attrName)) {
+					CompletionItem item = new AttributeCompletionItem(attrName, canSupportSnippet, fullRange,
+							generateValue,
+							attributeDeclaration.getDefaultValue(), attributeDeclaration.getEnumerationValues(),
+							request.getSharedSettings());
+					if (request.isResolveDocumentationSupported()) {
+						addResolveData(request, item, AttributeNameCompletionResolver.PARTICIPANT_ID);
+					} else {
+						MarkupContent documentation = XMLGenerator.createMarkupContent(attributeDeclaration,
+								elementDeclaration,
+								request);
+						item.setDocumentation(documentation);
+					}
+					response.addCompletionAttribute(item);
 				}
-				response.addCompletionAttribute(item);
 			}
 		}
 	}

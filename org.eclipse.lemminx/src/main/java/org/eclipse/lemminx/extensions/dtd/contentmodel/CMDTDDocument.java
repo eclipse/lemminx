@@ -303,7 +303,7 @@ public class CMDTDDocument extends LSPXML11DTDProcessor implements CMDocument {
 			return null;
 		}
 		for (CMElementDeclaration cmElement : getElements()) {
-			if (tag.equals(cmElement.getName())) {
+			if (tag.equals(cmElement.getLocalName())) {
 				return cmElement;
 			}
 		}

@@ -1,0 +1,34 @@
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+  datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes"
+  xmlns:lmx="https://github.com/eclipse/lemminx"
+  xmlns:vx="https://github.com/redhat-developer/vscode-xml">
+  <start>
+    <ref name="rootelt" />
+  </start>
+  <define name="rootelt">
+    <element name="rootelt">
+      <attribute name="xml:lang">
+        <choice>
+          <value>en</value>
+          <value>de</value>
+        </choice>
+      </attribute>
+      <attribute name="lmx:type">
+        <choice>
+          <value>dtd</value>
+          <value>xsd</value>
+          <value>rnc</value>
+          <value>rng</value>
+        </choice>
+      </attribute>
+      <element name="child">
+        <attribute name="vx:type">
+          <choice>
+            <value>java</value>
+            <value>binary</value>
+          </choice>
+        </attribute>
+       </element>
+    </element>
+  </define>
+</grammar>

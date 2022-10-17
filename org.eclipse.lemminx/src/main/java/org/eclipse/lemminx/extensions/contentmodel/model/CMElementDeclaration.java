@@ -30,11 +30,11 @@ public interface CMElementDeclaration {
 			.unmodifiableCollection(Arrays.asList());
 
 	/**
-	 * Returns the declared element name.
+	 * Returns the declared element local name.
 	 * 
-	 * @return the declared element name.
+	 * @return the declared element local name.
 	 */
-	String getName();
+	String getLocalName();
 
 	/**
 	 * Returns the target namespace and null otherwise.
@@ -42,6 +42,14 @@ public interface CMElementDeclaration {
 	 * @return the target namespace and null otherwise.
 	 */
 	String getNamespace();
+	
+	/**
+	 * Returns the xmlns prefix from the given namespace URI and null otherwise.
+	 *
+	 * @param namespaceURI the namespace
+	 * @return the xmlns prefix from the given namespace URI and null otherwise.
+	 */
+	String getPrefix(String namespaceURI);
 
 	/**
 	 * Returns the declared element name with the given prefix.
@@ -49,7 +57,7 @@ public interface CMElementDeclaration {
 	 * @return the declared element name with the given prefix.
 	 */
 	default String getName(String prefix) {
-		String name = getName();
+		String name = getLocalName();
 		if (prefix == null || prefix.isEmpty()) {
 			return name;
 		}

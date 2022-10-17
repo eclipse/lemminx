@@ -66,7 +66,7 @@ public class cvc_complex_type_4CodeAction implements ICodeActionParticipant {
 				if (elementDeclaration != null) {
 					List<CMAttributeDeclaration> requiredAttributes = elementDeclaration.getAttributes().stream()
 							.filter(CMAttributeDeclaration::isRequired) //
-							.filter(cmAttr -> !element.hasAttribute(cmAttr.getName())) //
+							.filter(cmAttr -> !element.hasAttribute(cmAttr.getLocalName())) //
 							.collect(Collectors.toList());
 
 					// CodeAction doesn't support snippet ->
