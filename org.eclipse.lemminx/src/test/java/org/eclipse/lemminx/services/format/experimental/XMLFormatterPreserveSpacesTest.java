@@ -54,17 +54,17 @@ public class XMLFormatterPreserveSpacesTest {
 				"  </b>\r\n" + //
 				"</a>";
 		String expected = "<a>\r\n" + //
-				"  <b> c <d></d> e </b>\r\n" + //
+				"  <b>\r\n" + //
+				"    c <d></d> e\r\n" + //
+				"  </b>\r\n" + //
 				"  <b xml:space=\"preserve\">\r\n" + //
 				"    c  <d></d>  e\r\n" + //
 				"  </b>\r\n" + //
 				"</a>";
 
 		assertFormat(content, expected, //
-				te(1, 5, 2, 4, " "), //
 				te(2, 5, 2, 7, " "), //
-				te(2, 14, 2, 16, " "), //
-				te(2, 17, 3, 2, " "));
+				te(2, 14, 2, 16, " "));
 		assertFormat(expected, expected);
 	}
 

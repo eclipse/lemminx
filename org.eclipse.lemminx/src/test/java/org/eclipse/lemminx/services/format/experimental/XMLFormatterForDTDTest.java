@@ -355,17 +355,18 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 				"]>";
 		String expected = "<!DOCTYPE note [\r\n" + //
 				"  <!ELEMENT note (to,from,heading,body)>\r\n" + //
-				"\r\n" + //
-				"\r\n" + //
 				"  garbageazg df\r\n" + //
-				"                gdf\r\n" + //
-				"garbageazgdfg\r\n" + //
+				"  gdf\r\n" + //
+				"  garbageazgdfg\r\n" + //
 				"  df\r\n" + //
 				"  gd\r\n" + //
 				"  <!ELEMENT note (to,from,heading,body)>\r\n" + //
 				"]>";
 		assertFormat(content, expected, settings, //
 				te(0, 14, 1, 0, " "), //
+				te(2, 40, 5, 2, "\r\n  "), //
+				te(5, 15, 6, 16, "\r\n  "), //
+				te(6, 19, 7, 0, "\r\n  "), //
 				te(9, 4, 13, 2, "\r\n  "), //
 				te(13, 40, 15, 0, "\r\n"));
 		assertFormat(expected, expected, settings);
@@ -445,15 +446,17 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 				"\r\n" + //
 				"<!hellament afsfas>\r\n" + //
 				"\r\n" + //
-				"  asdasd\r\n" + //
-				"  asd\r\n" + //
+				"asdasd\r\n" + //
+				"asd\r\n" + //
 				"\r\n" + //
 				"<!ATTLIST payment type CDATA \"check\">\r\n" + //
 				"<!ENTITY copyright SYSTEM \"https://www.w3schools.com/entities.dtd\">\r\n" + //
 				"<!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\">";
 		assertFormat(content, expected, settings, //
 				te(0, 38, 2, 2, "\r\n\r\n"), //
-				te(2, 20, 2, 21, ""));
+				te(2, 20, 2, 21, ""),
+				te(2, 22, 4, 2, "\r\n\r\n"), //
+				te(4, 8, 5, 2, "\r\n"));
 		assertFormat(expected, expected, settings);
 	}
 
@@ -641,8 +644,12 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 				"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Frameset//EN\" \"http://www.w3.org/TR/html4/frameset.dtd\">\r\n"
 				+ //
 				"<html>\r\n" + //
-				"  <head> ... </head>\r\n" + //
-				"  <frameset> ... </frameset>\r\n" + //
+				"  <head>\r\n" + //
+				"    ...\r\n" + //
+				"  </head>\r\n" + //
+				"  <frameset>\r\n" + //
+				"    ...\r\n" + //
+				"  </frameset>\r\n" + //
 				"</html>\r\n" + //
 				"-->\r\n" + //
 				"\r\n" + //
@@ -654,11 +661,9 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 				te(6, 62, 7, 12, " "), //
 				te(7, 54, 8, 4, "\r\n"), //
 				te(8, 10, 9, 4, "\r\n  "), //
-				te(9, 10, 10, 4, " "), //
-				te(10, 7, 11, 4, " "), //
+				te(10, 7, 11, 4, "\r\n  "), //
 				te(11, 11, 12, 4, "\r\n  "), //
-				te(12, 14, 13, 4, " "), //
-				te(13, 7, 14, 4, " "), //
+				te(13, 7, 14, 4, "\r\n  "), //
 				te(14, 15, 15, 4, "\r\n"));
 	}
 

@@ -173,11 +173,13 @@ public class XMLFormatterWhitespaceSettingTest {
 				"  more text   \r\n" + //
 				"   \r\n";
 		String expected = "<a></a>\r\n" + //
-				"  text \r\n" + //
-				"  more text   \r\n" + //
+				"text\r\n" + //
+				"more text   \r\n" + //
 				"   \r\n";
 		assertFormat(content, expected, settings, //
-				te(0, 2, 0, 4, ""));
+				te(0, 2, 0, 4, ""), //
+				te(0, 9, 1, 2, "\r\n"), //
+				te(1, 6, 2, 2, "\r\n"));
 		assertFormat(expected, expected, settings);
 	}
 

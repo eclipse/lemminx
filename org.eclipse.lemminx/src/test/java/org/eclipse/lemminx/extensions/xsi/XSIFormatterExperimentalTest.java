@@ -206,11 +206,13 @@ public class XSIFormatterExperimentalTest extends AbstractCacheBasedTest {
 				"    xmlns:util=\"http://www.springframework.org/schema/util\"\r\n" + //
 				"    xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\r\n"
 				+ //
-				"                        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd\"> </beans>";
+				"                        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd\">\r\n"
+				+ //
+				"</beans>";
 		assertFormat(content, expected, settings,
 				te(5, 24, 6, 8, ""), //
 				te(6, 112, 7, 8, "\r\n                        "), //
-				te(7, 111, 9, 0, " "));
+				te(7, 111, 9, 0, "\r\n"));
 		assertFormat(expected, expected, settings);
 	}
 
@@ -348,7 +350,9 @@ public class XSIFormatterExperimentalTest extends AbstractCacheBasedTest {
 				+ //
 				"																				 http://www.springframework.org/schema/util\r\n"
 				+ //
-				"																				 http://www.springframework.org/schema/util/spring-util.xsd\"> </beans>";
+				"																				 http://www.springframework.org/schema/util/spring-util.xsd\">\r\n"
+				+ //
+				"</beans>";
 		assertFormat(content, expected, settings,
 				te(1, 6, 2, 4, " "), //
 				te(2, 57, 3, 4, " "), //
@@ -356,7 +360,7 @@ public class XSIFormatterExperimentalTest extends AbstractCacheBasedTest {
 				te(4, 51, 4, 52, "\r\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t "), //
 				te(4, 112, 5, 8, "\r\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t "), //
 				te(5, 50, 5, 51, "\r\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t "), //
-				te(5, 111, 7, 0, " "));
+				te(5, 111, 7, 0, "\r\n"));
 		assertFormat(expected, expected, settings);
 	}
 
@@ -387,7 +391,8 @@ public class XSIFormatterExperimentalTest extends AbstractCacheBasedTest {
 				"		xsi:schemaLocation=\"http://www.springframework.org/schema/beans\r\n" + //
 				"							http://www.springframework.org/schema/beans/spring-beans.xsd\r\n" + //
 				"							http://www.springframework.org/schema/util\r\n" + //
-				"							http://www.springframework.org/schema/util/spring-util.xsd\"> </beans>";
+				"							http://www.springframework.org/schema/util/spring-util.xsd\">\r\n" + //
+				"</beans>";
 		assertFormat(content, expected, settings,
 				te(1, 6, 2, 4, "\r\n\t\t"), //
 				te(2, 55, 3, 4, "\r\n\t\t"), //
@@ -397,7 +402,7 @@ public class XSIFormatterExperimentalTest extends AbstractCacheBasedTest {
 				te(6, 51, 6, 52, "\r\n\t\t\t\t\t\t\t"), //
 				te(6, 112, 7, 8, "\r\n\t\t\t\t\t\t\t"), //
 				te(7, 50, 7, 51, "\r\n\t\t\t\t\t\t\t"), //
-				te(7, 111, 9, 0, " "));
+				te(7, 111, 9, 0, "\r\n"));
 		assertFormat(expected, expected, settings);
 	}
 
@@ -429,7 +434,9 @@ public class XSIFormatterExperimentalTest extends AbstractCacheBasedTest {
 				+ //
 				"																				http://www.springframework.org/schema/util\r\n"
 				+ //
-				"																				http://www.springframework.org/schema/util/spring-util.xsd\"> </beans>";
+				"																				http://www.springframework.org/schema/util/spring-util.xsd\">\r\n"
+				+ //
+				"</beans>";
 		assertFormat(content, expected, settings,
 				te(1, 6, 2, 4, "\r\n\t"), //
 				te(2, 109, 3, 4, "\r\n\t"), //
@@ -437,7 +444,7 @@ public class XSIFormatterExperimentalTest extends AbstractCacheBasedTest {
 				te(4, 51, 4, 52, "\r\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"), //
 				te(4, 112, 5, 8, "\r\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"), //
 				te(5, 50, 5, 51, "\r\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"), //
-				te(5, 111, 7, 0, " "));
+				te(5, 111, 7, 0, "\r\n"));
 		assertFormat(expected, expected, settings);
 	}
 
@@ -470,7 +477,9 @@ public class XSIFormatterExperimentalTest extends AbstractCacheBasedTest {
 				+ //
 				"																				http://www.springframework.org/schema/util\r\n"
 				+ //
-				"																				http://www.springframework.org/schema/util/spring-util.xsd\"> </beans>";
+				"																				http://www.springframework.org/schema/util/spring-util.xsd\">\r\n"
+				+ //
+				"</beans>";
 		assertFormat(content, expected, settings,
 				te(1, 6, 2, 6, "\r\n\t"), //
 				te(2, 111, 3, 6, "\r\n\t"), //
@@ -478,7 +487,7 @@ public class XSIFormatterExperimentalTest extends AbstractCacheBasedTest {
 				te(4, 51, 4, 52, "\r\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"), //
 				te(4, 112, 5, 8, "\r\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"), //
 				te(5, 50, 5, 51, "\r\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"), //
-				te(5, 111, 7, 0, " "));
+				te(5, 111, 7, 0, "\r\n"));
 		assertFormat(expected, expected, settings);
 	}
 
@@ -511,7 +520,9 @@ public class XSIFormatterExperimentalTest extends AbstractCacheBasedTest {
 				+ //
 				"																				http://www.springframework.org/schema/util\r\n"
 				+ //
-				"																				http://www.springframework.org/schema/util/spring-util.xsd\"> </beans>";
+				"																				http://www.springframework.org/schema/util/spring-util.xsd\">\r\n"
+				+ //
+				"</beans>";
 		assertFormat(content, expected, settings,
 				te(1, 6, 2, 8, "\r\n\t"), //
 				te(2, 113, 3, 8, "\r\n\t"), //
@@ -519,7 +530,7 @@ public class XSIFormatterExperimentalTest extends AbstractCacheBasedTest {
 				te(4, 51, 4, 52, "\r\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"), //
 				te(4, 112, 5, 8, "\r\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"), //
 				te(5, 50, 5, 51, "\r\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"), //
-				te(5, 111, 7, 0, " "));
+				te(5, 111, 7, 0, "\r\n"));
 		assertFormat(expected, expected, settings);
 	}
 
@@ -550,7 +561,8 @@ public class XSIFormatterExperimentalTest extends AbstractCacheBasedTest {
 				"	xsi:schemaLocation=\"http://www.springframework.org/schema/beans\r\n" + //
 				"						http://www.springframework.org/schema/beans/spring-beans.xsd\r\n" + //
 				"						http://www.springframework.org/schema/util\r\n" + //
-				"						http://www.springframework.org/schema/util/spring-util.xsd\"> </beans>";
+				"						http://www.springframework.org/schema/util/spring-util.xsd\">\r\n" + //
+				"</beans>";
 		assertFormat(content, expected, settings,
 				te(1, 6, 2, 4, "\r\n\t"), //
 				te(2, 55, 3, 4, "\r\n\t"), //
@@ -560,7 +572,7 @@ public class XSIFormatterExperimentalTest extends AbstractCacheBasedTest {
 				te(6, 51, 6, 52, "\r\n\t\t\t\t\t\t"), //
 				te(6, 112, 7, 8, "\r\n\t\t\t\t\t\t"), //
 				te(7, 50, 7, 51, "\r\n\t\t\t\t\t\t"), //
-				te(7, 111, 9, 0, " "));
+				te(7, 111, 9, 0, "\r\n"));
 		assertFormat(expected, expected, settings);
 	}
 

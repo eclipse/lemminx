@@ -17,7 +17,6 @@ import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.TextEdit;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -49,9 +48,10 @@ public class XMLFormatterPreserveEmptyContentTest {
 		String content = "<a>\n" + //
 				"     " + //
 				"</a>";
-		String expected = "<a> </a>";
+		String expected = "<a>\n" + //
+		"</a>";
 		assertFormat(content, expected, settings, //
-				te(0, 3, 1, 5, " "));
+				te(0, 3, 1, 5, "\n"));
 		assertFormat(expected, expected, settings);
 	}
 
@@ -75,12 +75,12 @@ public class XMLFormatterPreserveEmptyContentTest {
 		settings.getFormattingSettings().setPreserveEmptyContent(false);
 
 		String content = "<a>\n" + //
-				"   aaa  " + //
-				"</a>";
-		String expected = "<a> aaa </a>";
+				"   aaa   </a>";
+		String expected = "<a>\n" + //
+				"  aaa </a>";
 		assertFormat(content, expected, settings, //
-				te(0, 3, 1, 3, " "), //
-				te(1, 6, 1, 8, " "));
+				te(0, 3, 1, 3, "\n  "), //
+				te(1, 6, 1, 9, " "));
 		assertFormat(expected, expected, settings);
 	}
 
@@ -122,9 +122,10 @@ public class XMLFormatterPreserveEmptyContentTest {
 
 		String content = "<a>\n" + //
 				"   zz     <b>  </b>tt     </a>";
-		String expected = "<a> zz <b> </b>tt </a>";
+		String expected = "<a>\n" + //
+				"  zz <b> </b>tt </a>";
 		assertFormat(content, expected, settings, //
-				te(0, 3, 1, 3, " "), //
+				te(0, 3, 1, 3, "\n  "), //
 				te(1, 5, 1, 10, " "), //
 				te(1, 13, 1, 15, " "), //
 				te(1, 21, 1, 26, " "));
@@ -166,10 +167,11 @@ public class XMLFormatterPreserveEmptyContentTest {
 
 		String content = "<a>\n" + //
 				"   zz    <b>  </b>tt <!-- Comment -->     </a>";
-		String expected = "<a> zz <b> </b>tt <!-- Comment -->\n" + //
+		String expected = "<a>\n" + //
+				"  zz <b> </b>tt <!-- Comment -->\n" + //
 				"</a>";
 		assertFormat(content, expected, settings, //
-				te(0, 3, 1, 3, " "), //
+				te(0, 3, 1, 3, "\n  "), //
 				te(1, 5, 1, 9, " "), //
 				te(1, 12, 1, 14, " "), //
 				te(1, 37, 1, 42, "\n"));

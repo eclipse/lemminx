@@ -89,6 +89,7 @@ public class XMLFormatterExperimentalTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void invalidEndTag() throws BadLocationException {
+
 		String content = "</";
 		String expected = content;
 		assertFormat(content, expected);
@@ -700,10 +701,28 @@ public class XMLFormatterExperimentalTest extends AbstractCacheBasedTest {
 				"  Content <!-- comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment -->"
 				+ //
 				"</a>";
+		String expected = "<a>\n" + //
+				"  Content <!-- comment comment comment comment comment comment comment comment\n" + //
+				"  comment comment comment comment comment comment comment comment comment\n" + //
+				"  comment comment comment comment comment comment comment comment --></a>";
+		SharedSettings settings = new SharedSettings();
+		assertFormat(content, expected, settings, //
+				te(1, 78, 1, 79, "\n  "), //
+				te(1, 150, 1, 151, "\n  "));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void testCommentLongWrapJoinContentLines() throws BadLocationException {
+		String content = "<a>\n" + //
+				"  Content <!-- comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment -->"
+				+ //
+				"</a>";
 		String expected = "<a> Content <!-- comment comment comment comment comment comment comment comment\n" + //
 				"  comment comment comment comment comment comment comment comment comment\n" + //
 				"  comment comment comment comment comment comment comment comment --></a>";
 		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setJoinContentLines(true);
 		assertFormat(content, expected, settings, //
 				te(0, 3, 1, 2, " "), //
 				te(1, 78, 1, 79, "\n  "), //
@@ -713,20 +732,40 @@ public class XMLFormatterExperimentalTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void testCommentLongTextContentWrap() throws BadLocationException {
-		String content = "<a>\n" + //
-				"  content content content content content content content content content content content content content content content content content content <!-- comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment -->\n"
+		String content = "<a> content content content content content content content content content content content content content content content content content content <!-- comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment -->\n"
 				+ //
 				"</a>";
 		String expected = "<a> content content content content content content content content content\n" + //
-				"content content content content content content content content content <!--\n" + //
+				"  content content content content content content content content content <!--\n" + //
 				"  comment comment comment comment comment comment comment comment comment\n" + //
 				"  comment comment comment comment comment comment comment comment comment\n" + //
 				"  comment comment comment comment comment comment comment -->\n" + //
 				"</a>";
 		SharedSettings settings = new SharedSettings();
 		assertFormat(content, expected, settings, //
-				te(0, 3, 1, 2, " "), //
-				te(1, 73, 1, 74, "\n"), //
+				te(0, 75, 0, 76, "\n  "), //
+				te(0, 152, 0, 153, "\n  "),
+				te(0, 224, 0, 225, "\n  "), //
+				te(0, 296, 0, 297, "\n  "));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void testCommentLongTextContentWrapNewLine() throws BadLocationException {
+		String content = "<a>\n" + //
+				"  content content content content content content content content content content content content content content content content content content <!-- comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment -->\n"
+				+ //
+				"</a>";
+		String expected = "<a>\n" + //
+				"  content content content content content content content content content\n" + //
+				"  content content content content content content content content content <!--\n" + //
+				"  comment comment comment comment comment comment comment comment comment\n" + //
+				"  comment comment comment comment comment comment comment comment comment\n" + //
+				"  comment comment comment comment comment comment comment -->\n" + //
+				"</a>";
+		SharedSettings settings = new SharedSettings();
+		assertFormat(content, expected, settings, //
+				te(1, 73, 1, 74, "\n  "), //
 				te(1, 150, 1, 151, "\n  "),
 				te(1, 222, 1, 223, "\n  "), //
 				te(1, 294, 1, 295, "\n  "));
@@ -768,19 +807,22 @@ public class XMLFormatterExperimentalTest extends AbstractCacheBasedTest {
 				" Content4\r" + //
 				"  Content5\r" + //
 				"</a>";
-		String expected = "<a> Content\r" + //
-				"     Content2\r" + //
-				"      Content3\r" + //
-				" Content4\r" + //
-				"  Content5 </a>";
+		String expected = "<a>\r" + //
+				"  Content\r" + //
+				"  Content2\r" + //
+				"  Content3\r" + //
+				"  Content4\r" + //
+				"  Content5\r" + //
+				"</a>";
 
 		assertFormat(content, expected, //
-				te(0, 3, 1, 1, " "), //
-				te(5, 10, 6, 0, " "));
+				te(0, 3, 1, 1, "\r  "), //
+				te(1, 8, 2, 5, "\r  "), //
+				te(2, 13, 3, 6, "\r  "),
+				te(3, 14, 4, 1, "\r  "));
 		assertFormat(expected, expected);
 	}
 
-	@Disabled
 	@Test
 	public void testContentFormatting2() throws BadLocationException {
 		String content = "<a>\r" + //
@@ -793,31 +835,40 @@ public class XMLFormatterExperimentalTest extends AbstractCacheBasedTest {
 		String expected = "<a>\r" + //
 				"  Content\r" + //
 				"  <b>\r" + //
-				"   Content2\r" + //
+				"    Content2\r" + //
 				"    Content3\r" + //
-				" </b>\r" + //
+				"  </b>\r" + //
 				"</a>";
 
-		assertFormat(content, expected);
+		assertFormat(content, expected, //
+				te(0, 3, 1, 1, "\r  "), //
+				te(1, 8, 2, 1, "\r  "), //
+				te(2, 4, 3, 3, "\r    "),
+				te(4, 12, 5, 1, "\r  "));
+		assertFormat(expected, expected);
 	}
 
-	@Disabled
 	@Test
 	public void testContentFormattingDontMoveEndTag() throws BadLocationException {
 		String content = "<a>\r" + //
 				" Content\r" + //
 				" <b>\r" + //
 				"   Content2\r" + //
-				"    Content3 </b>\r" + //
+				"    Content3     </b>\r" + //
 				"</a>";
 		String expected = "<a>\r" + //
 				"  Content\r" + //
 				"  <b>\r" + //
-				"   Content2\r" + //
+				"    Content2\r" + //
 				"    Content3 </b>\r" + //
 				"</a>";
 
-		assertFormat(content, expected);
+		assertFormat(content, expected, //
+				te(0, 3, 1, 1, "\r  "), //
+				te(1, 8, 2, 1, "\r  "), //
+				te(2, 4, 3, 3, "\r    "),
+				te(4, 12, 4, 17, " "));
+		assertFormat(expected, expected);
 	}
 
 	@Test
@@ -828,7 +879,6 @@ public class XMLFormatterExperimentalTest extends AbstractCacheBasedTest {
 		assertFormat(content, expected);
 	}
 
-	@Disabled
 	@Test
 	public void testContentFormatting6() throws BadLocationException {
 		String content = "<a>\r" + //
@@ -837,9 +887,11 @@ public class XMLFormatterExperimentalTest extends AbstractCacheBasedTest {
 				"</a>";
 		String expected = "<a>\r" + //
 				"\r" + //
-				" Content\r" + //
+				"  Content\r" + //
 				"</a>";
-		assertFormat(content, expected);
+		assertFormat(content, expected, //
+				te(0, 3, 2, 1, "\r\r  "));
+		assertFormat(expected, expected);
 
 		content = "<a>\r\n" + //
 				"\r\n" + //
@@ -847,9 +899,11 @@ public class XMLFormatterExperimentalTest extends AbstractCacheBasedTest {
 				"</a>";
 		expected = "<a>\r\n" + //
 				"\r\n" + //
-				" Content\r\n" + //
+				"  Content\r\n" + //
 				"</a>";
-		assertFormat(content, expected);
+		assertFormat(content, expected, //
+				te(0, 3, 2, 1, "\r\n\r\n  "));
+		assertFormat(expected, expected);
 	}
 
 	private static void assertFormat(String unformatted, String actual, TextEdit... expectedEdits)
