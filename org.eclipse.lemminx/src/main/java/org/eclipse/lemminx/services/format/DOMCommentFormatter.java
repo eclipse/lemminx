@@ -58,10 +58,11 @@ public class DOMCommentFormatter {
 		if (currentNewLineCount > preservedNewLines && startRange < start) {
 			replaceLeftSpacesWithIndentationWithMultiNewLines(indentLevel, 0, start,
 					preservedNewLines + 1, edits);
-			availableLineWidth = getMaxLineWidth() - getTabSize();
+			availableLineWidth = getMaxLineWidth() - getTabSize() * indentLevel;
 		} else if (addLineSeparator && startRange < start) {
-			replaceLeftSpacesWithIndentation(indentLevel, leftWhitespaceOffset, start,
-					addLineSeparator, edits);
+			int newLineCount = currentNewLineCount == 0 && !addLineSeparator ? 1 : currentNewLineCount;
+			replaceLeftSpacesWithIndentationWithMultiNewLines(indentLevel, 0, start,
+					newLineCount, edits);
 			availableLineWidth = getMaxLineWidth() - getTabSize() * indentLevel;
 		}
 		int spaceStart = -1;

@@ -83,16 +83,17 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 		String expected = "<!DOCTYPE note>\r\n" + //
 				"<note>\r\n" + //
 				"  <to>Fred</to>\r\n" + //
+				"\r\n" + //
 				"  <from>Jani</from>\r\n" + //
+				"\r\n" + //
 				"  <heading>Reminder</heading>\r\n" + //
+				"\r\n" + //
 				"  <body>Don't forget me this weekend</body>\r\n" + //
 				"</note>";
 		assertFormat(content, expected, //
 				te(0, 9, 0, 13, " "), //
 				te(0, 17, 2, 0, ""), //
-				te(4, 15, 6, 2, "\r\n  "), //
-				te(6, 19, 8, 2, "\r\n  "), //
-				te(8, 29, 10, 2, "\r\n  "));
+				te(8, 29, 10, 2, "\r\n\r\n  "));
 		assertFormat(expected, expected);
 	}
 
@@ -121,6 +122,8 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 				"  <!ELEMENT note (to,from,heading,body)>\r\n" + //
 				"  <!ELEMENT to (#PCDATA)>\r\n" + //
 				"  <!ELEMENT from (#PCDATA)>\r\n" + //
+				"\r\n" + //
+				"\r\n" + //
 				"  <!ELEMENT heading (#PCDATA)>\r\n" + //
 				"  <!ELEMENT body (#PCDATA)>\r\n" + //
 				"]>\r\n" + //
@@ -129,6 +132,7 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 				"\r\n" + //
 				"\r\n" + //
 				"  <from>Jani</from>\r\n" + //
+				"\r\n" + //
 				"  <heading>Reminder</heading>\r\n" + //
 				"  <body>Don't forget me this weekend</body>\r\n" + //
 				"</note>";
@@ -136,8 +140,8 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 				te(0, 14, 3, 0, " "), //
 				te(3, 1, 3, 9, "\r\n  "), //
 				te(4, 25, 4, 25, "\r\n  "), //
-				te(4, 50, 7, 2, "\r\n  "), //
-				te(14, 19, 16, 2, "\r\n  "));
+				te(4, 50, 7, 2, "\r\n\r\n\r\n  "), //
+				te(14, 19, 16, 2, "\r\n\r\n  "));
 		assertFormat(expected, expected);
 	}
 
@@ -242,19 +246,20 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 				"</note>";
 		String expected = "<!DOCTYPE note [\r\n" + //
 				"  <!ELEMENT note (to,from,heading,body)>\r\n" + //
+				"\r\n" + //
 				"  <!ELEMENT to (#PCDATA)>\r\n" + //
+				"\r\n" + //
 				"  <!ATTLIST payment type CDATA \"check\">\r\n" + //
 				"]>\r\n" + //
+				"\r\n" + //
 				"<note>\r\n" + //
+				"\r\n" + //
 				"  <to>Fred</to>\r\n" + //
 				"</note>";
 		assertFormat(content, expected, //
 				te(0, 14, 1, 0, " "), //
-				te(2, 40, 4, 2, "\r\n  "), //
-				te(4, 25, 6, 2, "\r\n  "), //
 				te(6, 39, 8, 0, "\r\n"), //
-				te(8, 2, 10, 0, "\r\n"), //
-				te(10, 6, 12, 2, "\r\n  "));
+				te(10, 6, 12, 2, "\r\n\r\n  "));
 		assertFormat(expected, expected);
 	}
 
@@ -273,17 +278,17 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 				"]>\r\n" + //
 				"";
 		String expected = "<!DOCTYPE note [\r\n" + //
+				"\r\n" + //
 				"  <!ELEMENT note (to,from,heading,body)>\r\n" + //
+				"\r\n" + //
 				"  <!ATTLIST payment type CDATA \"check\">\r\n" + //
+				"\r\n" + //
 				"  <!ENTITY copyright SYSTEM \"https://www.w3schools.com/entities.dtd\">\r\n" + //
+				"\r\n" + //
 				"  <!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\">\r\n" + //
 				"]>";
 		assertFormat(content, expected, //
 				te(0, 14, 1, 0, " "), //
-				te(1, 1, 3, 2, "\r\n  "), //
-				te(3, 40, 5, 2, "\r\n  "), //
-				te(5, 39, 7, 2, "\r\n  "), //
-				te(7, 69, 9, 2, "\r\n  "), //
 				te(10, 2, 11, 0, ""));
 		assertFormat(expected, expected);
 	}
@@ -307,19 +312,23 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 				"";
 		String expected = "<!DOCTYPE note [\r\n" + //
 				"  <!-- comment -->\r\n" + //
+				"\r\n" + //
 				"  <!ELEMENT note (to,from,heading,body)>\r\n" + //
+				"\r\n" + //
+				"\r\n" + //
 				"  <!ATTLIST payment type CDATA \"check\">\r\n" + //
+				"\r\n" + //
 				"  <!-- comment -->\r\n" + //
+				"\r\n" + //
 				"  <!ENTITY copyright SYSTEM \"https://www.w3schools.com/entities.dtd\">\r\n" + //
 				"  <!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\">\r\n" + //
 				"]>";
 		assertFormat(content, expected, //
 				te(0, 14, 1, 0, " "), //
 				te(1, 1, 2, 2, "\r\n  "), //
-				te(2, 18, 4, 2, "\r\n  "), //
-				te(4, 40, 7, 2, "\r\n  "), //
-				te(7, 39, 9, 2, "\r\n  "), //
-				te(9, 18, 11, 2, "\r\n  "), //
+				te(4, 40, 7, 2, "\r\n\r\n\r\n  "), //
+				te(7, 39, 9, 2, "\r\n\r\n  "), //
+				te(9, 18, 11, 2, "\r\n\r\n  "), //
 				te(13, 2, 14, 0, ""));
 		assertFormat(expected, expected);
 	}
@@ -367,12 +376,11 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 		SharedSettings settings = new SharedSettings();
 
 		String content = "\r\n<!ATTLIST array name CDATA #IMPLIED description CDATA #IMPLIED disabled CDATA #IMPLIED>";
-		String expected = "<!ATTLIST array\r\n" + //
+		String expected = "\r\n<!ATTLIST array\r\n" + //
 				"  name CDATA #IMPLIED\r\n" + //
 				"  description CDATA #IMPLIED\r\n" + //
 				"  disabled CDATA #IMPLIED>";
 		assertDTDFormat(content, expected, settings, //
-				te(0, 0, 1, 0, ""), //
 				te(1, 15, 1, 16, "\r\n  "), //
 				te(1, 35, 1, 36, "\r\n  "), //
 				te(1, 62, 1, 63, "\r\n  "));
@@ -391,15 +399,18 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 				"				\r\n" + //
 				"				  <!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\">";
 		String expected = "<!ELEMENT note (to,from,heading,body)>\r\n" + //
+				"\r\n" + //
 				"<!ATTLIST payment type CDATA \"check\">\r\n" + //
+				"\r\n" + //
 				"<!ENTITY copyright SYSTEM \"https://www.w3schools.com/entities.dtd\">\r\n" + //
+				"\r\n" + //
 				"<!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\">";
 		assertFormat(content, expected, settings, //
 				te(0, 0, 0, 2, ""), //
-				te(0, 40, 2, 3, "\r\n"), //
-				te(2, 40, 4, 6, "\r\n"), //
-				te(4, 73, 6, 6, "\r\n"));
-		assertDTDFormat(expected, expected, settings);
+				te(0, 40, 2, 3, "\r\n\r\n"), //
+				te(2, 40, 4, 6, "\r\n\r\n"), //
+				te(4, 73, 6, 6, "\r\n\r\n"));
+		assertFormat(expected, expected, settings);
 	}
 
 	@Test
@@ -409,18 +420,11 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 		String content = "<!ELEMENT note (to,from,heading,body)\r\n" + //
 				"\r\n" + //
 				"<!ATTLIST payment type CDATA \"check\"\r\n" + //
-				"\r\n" + // assertFormat(content, expected, settings);
-
+				"\r\n" + //
 				"<!ENTITY copyright SYSTEM \"https://www.w3schools.com/entities.dtd\"\r\n" + //
 				"<!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\"";
-		String expected = "<!ELEMENT note (to,from,heading,body)\r\n" + //
-				"<!ATTLIST payment type CDATA \"check\"\r\n" + //
-				"<!ENTITY copyright SYSTEM \"https://www.w3schools.com/entities.dtd\"\r\n" + //
-				"<!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\"";
-		assertFormat(content, expected, settings, //
-				te(0, 37, 2, 0, "\r\n"), //
-				te(2, 36, 4, 0, "\r\n"));
-		assertDTDFormat(expected, expected, settings);
+		String expected = content;
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -438,17 +442,18 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 				"<!ENTITY copyright SYSTEM \"https://www.w3schools.com/entities.dtd\">\r\n" + //
 				"<!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\">";
 		String expected = "<!ELEMENT note (to,from,heading,body)>\r\n" + //
+				"\r\n" + //
 				"<!hellament afsfas>\r\n" + //
 				"\r\n" + //
 				"  asdasd\r\n" + //
 				"  asd\r\n" + //
+				"\r\n" + //
 				"<!ATTLIST payment type CDATA \"check\">\r\n" + //
 				"<!ENTITY copyright SYSTEM \"https://www.w3schools.com/entities.dtd\">\r\n" + //
 				"<!NOTATION png PUBLIC \"PNG 1.0\" \"image/png\">";
 		assertFormat(content, expected, settings, //
-				te(0, 38, 2, 2, "\r\n"), //
-				te(2, 20, 2, 21, ""), //
-				te(5, 5, 7, 0, "\r\n"));
+				te(0, 38, 2, 2, "\r\n\r\n"), //
+				te(2, 20, 2, 21, ""));
 		assertFormat(expected, expected, settings);
 	}
 
@@ -483,23 +488,26 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 				"  <!ELEMENT h1 %horiz.model;>\r\n" + //
 				"  <!ATTLIST h1 %all;>\r\n" + //
 				"  <!ELEMENT h2 %horiz.model;>\r\n" + //
+				"\r\n" + //
+				"\r\n" + //
 				"  <!ATTLIST h2 %all;>\r\n" + //
 				"  <!ELEMENT h3 %horiz.model;>\r\n" + //
 				"  <!ATTLIST h3 %all;>\r\n" + //
 				"]>\r\n" + //
 				"<web-app>\r\n" + //
 				"  <display-name>sdsd</display-name>\r\n" + //
+				"\r\n" + //
 				"  <servlet>\r\n" + //
+				"\r\n" + //
 				"    <servlet-name>er</servlet-name>\r\n" + //
 				"    <servlet-class>dd</servlet-class>\r\n" + //
 				"  </servlet>\r\n" + //
 				"</web-app>";
 		assertFormat(content, expected, //
 				te(1, 125, 2, 8, "\r\n  "), //
-				te(4, 29, 7, 10, "\r\n  "), //
+				te(4, 29, 7, 10, "\r\n\r\n\r\n  "), //
 				te(10, 1, 12, 0, ""), //
-				te(14, 35, 16, 2, "\r\n  "), //
-				te(16, 11, 18, 4, "\r\n    "));
+				te(16, 11, 18, 4, "\r\n\r\n    "));
 		assertFormat(expected, expected);
 
 	}
@@ -566,14 +574,8 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 				"]>\r\n" + //
 				"\r\n" + //
 				"<a></a>";
-		String expected = "<!DOCTYPE name PUBLIC \"lass\" \"bass [ <!-- MY COMMENT -->\r\n" + //
-				"\r\n" + //
-				"  <!NOTATION postscript SYSTEM \"ghostview\">\r\n" + //
-				"]>\r\n" + //
-				"<a></a>";
-		assertFormat(content, expected, //
-				te(3, 2, 5, 0, "\r\n"));
-		assertFormat(expected, expected);
+		String expected = content;
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -588,10 +590,9 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 				"\r\n" + //
 				"  <!NOTATION postscript SYSTEM \"ghostview\">\r\n" + //
 				"]>\r\n" + //
+				"\r\n" + //
 				"<a></a>";
-		assertFormat(content, expected, //
-				te(3, 2, 5, 0, "\r\n"));
-		assertFormat(expected, expected);
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -603,15 +604,8 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 				"]>\r\n" + //
 				"\r\n" + //
 				"<a></a>";
-		String expected = "<!DOCTYPE name [\r\n" + //
-				"  <!ENTITY % astroTerms SYSTEM \"http://xml.gsfc.nasa.gov/DTD/entities/astroTerms.ent\"\r\n" + //
-				"  <!-- MY COMMENT -->\r\n" + //
-				"]>\r\n" + //
-				"<a></a>";
-		assertFormat(content, expected, //
-				te(1, 85, 3, 2, "\r\n  "), //
-				te(4, 2, 6, 0, "\r\n"));
-		assertFormat(expected, expected);
+		String expected = content;
+		assertFormat(content, expected);
 	}
 
 	@Test
@@ -651,6 +645,7 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 				"  <frameset> ... </frameset>\r\n" + //
 				"</html>\r\n" + //
 				"-->\r\n" + //
+				"\r\n" + //
 				"<!ENTITY % HTML.Frameset \"INCLUDE\">\r\n" + //
 				"<!ENTITY % HTML4.dtd PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">\r\n" + //
 				"%HTML4.dtd;";
@@ -664,8 +659,7 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 				te(11, 11, 12, 4, "\r\n  "), //
 				te(12, 14, 13, 4, " "), //
 				te(13, 7, 14, 4, " "), //
-				te(14, 15, 15, 4, "\r\n"), //
-				te(16, 3, 18, 0, "\r\n"));
+				te(14, 15, 15, 4, "\r\n"));
 	}
 
 	@Test
@@ -728,11 +722,11 @@ public class XMLFormatterForDTDTest extends AbstractCacheBasedTest {
 				"  src CDATA #REQUIRED\r\n" + //
 				"  %all;\r\n" + //
 				">\r\n" + //
+				"\r\n" + //
 				"<!-- Hypertext anchors. -->";
 		assertDTDFormat(content, expected, settings, //
 				te(0, 13, 0, 14, "\r\n  "), //
-				te(0, 33, 0, 34, "\r\n  "), //
-				te(1, 1, 3, 0, "\r\n"));
+				te(0, 33, 0, 34, "\r\n  "));
 		assertDTDFormat(expected, expected, settings);
 	}
 
