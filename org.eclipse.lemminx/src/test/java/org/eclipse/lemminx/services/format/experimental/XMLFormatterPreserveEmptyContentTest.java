@@ -155,15 +155,8 @@ public class XMLFormatterPreserveEmptyContentTest {
 				"tt <!-- Comment -->     </a>\n" + //
 				"\n" + //
 				"<c></c>";
-		String expected = "<a>\n" + //
-				"   zz    \n" + //
-				"<b>\n" + //
-				"  </b>\n" + //
-				"tt <!-- Comment -->     </a>\n" + //
-				"<c></c>";
-		assertFormat(content, expected, settings,
-				te(4, 28, 6, 0, "\n"));
-		assertFormat(expected, expected, settings);
+		String expected = content;
+		assertFormat(content, expected, settings);
 	}
 
 	@Test

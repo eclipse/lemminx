@@ -309,6 +309,7 @@ public class XMLFormatterQuoteStyleTest {
 				"  <!ELEMENT E EMPTY>\n" + //
 				"  <!ATTLIST E WIDTH CDATA \'0\'>\n" + //
 				"]>\n" + //
+				"\n" + //
 				"<root attr=\'hello\'></root>";
 		assertFormat(content, expected, settings, //
 				te(1, 18, 1, 19, "'"), //
@@ -319,7 +320,6 @@ public class XMLFormatterQuoteStyleTest {
 				te(3, 33, 3, 34, "'"), //
 				te(5, 26, 5, 27, "'"), //
 				te(5, 28, 5, 29, "'"), //
-				te(6, 2, 8, 0, "\n"), //
 				te(8, 11, 8, 12, "'"), //
 				te(8, 17, 8, 18, "'"));
 		assertFormat(expected, expected, settings);
@@ -346,17 +346,18 @@ public class XMLFormatterQuoteStyleTest {
 				"  <!ELEMENT E EMPTY>\n" + //
 				"  <!ATTLIST E WIDTH CDATA 0\">\n" + //
 				"]>\n" + //
+				"\n" + //
 				"<root attr=\'hello\'></root>";
 		assertFormat(content, expected, settings, //
 				te(3, 17, 3, 18, "'"), //
 				te(3, 33, 3, 34, "'"), //
-				te(6, 2, 8, 0, "\n"), //
 				te(8, 11, 8, 12, "'"), //
 				te(8, 17, 8, 18, "'"));
 		assertFormat(expected, expected, settings);
 	}
 
 	@Test
+
 	public void testUseSingleQuotesDTDFile() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);

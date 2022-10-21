@@ -248,9 +248,10 @@ public class XMLFormatterPreserveNewLinesTest {
 				"</xml>";
 		String expected = "<xml>\r\n" + //
 				"  <a></a>\r\n" + //
+				"\r\n" + //
 				"</xml>";
 		assertFormat(content, expected, settings, //
-				te(1, 9, 3, 0, "\r\n"));
+				te(1, 9, 3, 0, "\r\n\r\n"));
 		assertFormat(expected, expected, settings);
 	}
 
@@ -288,6 +289,40 @@ public class XMLFormatterPreserveNewLinesTest {
 				"</a>";
 		assertFormat(content, expected, settings, //
 				te(1, 9, 10, 0, "\r\n\r\n\r\n"));
+		assertFormat(expected, expected, settings);
+	}
+
+	// https://github.com/redhat-developer/vscode-xml/issues/797
+	@Test
+	public void testPreserveNewlinesIssue797() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		String content = "<foo>\r\n" + //
+				"  <bar>1</bar>\r\n" + //
+				"\r\n" + //
+				"  <bar>2</bar>\r\n" + //
+				"\r\n" + //
+				"\r\n" + //
+				"  <bar>3</bar>\r\n" + //
+				"\r\n" + //
+				"\r\n" + //
+				"\r\n" + //
+				"  <bar>4</bar>\r\n" + //
+				"\r\n" + //
+				"</foo>";
+		String expected = "<foo>\r\n" + //
+				"  <bar>1</bar>\r\n" + //
+				"\r\n" + //
+				"  <bar>2</bar>\r\n" + //
+				"\r\n" + //
+				"\r\n" + //
+				"  <bar>3</bar>\r\n" + //
+				"\r\n" + //
+				"\r\n" + //
+				"  <bar>4</bar>\r\n" + //
+				"\r\n" + //
+				"</foo>";
+		assertFormat(content, expected, settings, //
+				te(6, 14, 10, 2, "\r\n\r\n\r\n  "));
 		assertFormat(expected, expected, settings);
 	}
 
