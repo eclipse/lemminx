@@ -12,7 +12,7 @@
 package org.eclipse.lemminx.services.format;
 
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -97,7 +97,7 @@ public class TextEditUtils {
 
 	public static String applyEdits(TextDocument document, List<? extends TextEdit> edits) throws BadLocationException {
 		String text = document.getText();
-		List<? extends TextEdit> sortedEdits = mergeSort(edits /* .map(getWellformedEdit) */, (a, b) -> {
+		Collections.sort(edits /* .map(getWellformedEdit) */, (a, b) -> {
 			int diff = a.getRange().getStart().getLine() - b.getRange().getStart().getLine();
 			if (diff == 0) {
 				return a.getRange().getStart().getCharacter() - b.getRange().getStart().getCharacter();
@@ -106,7 +106,7 @@ public class TextEditUtils {
 		});
 		int lastModifiedOffset = 0;
 		List<String> spans = new ArrayList<>();
-		for (TextEdit e : sortedEdits) {
+		for (TextEdit e : edits) {
 			int startOffset = document.offsetAt(e.getRange().getStart());
 			if (startOffset < lastModifiedOffset) {
 				throw new Error("Overlapping edit");
@@ -121,40 +121,6 @@ public class TextEditUtils {
 		spans.add(text.substring(lastModifiedOffset));
 		return spans.stream() //
 				.collect(Collectors.joining());
-	}
-
-	private static <T> List<T> mergeSort(List<T> data, Comparator<T> comparator) {
-		if (data.size() <= 1) {
-			// sorted
-			return data;
-		}
-		int p = (data.size() / 2) | 0;
-		List<T> left = data.subList(0, p);
-		List<T> right = data.subList(p, data.size());
-
-		mergeSort(left, comparator);
-		mergeSort(right, comparator);
-
-		int leftIdx = 0;
-		int rightIdx = 0;
-		int i = 0;
-		while (leftIdx < left.size() && rightIdx < right.size()) {
-			int ret = comparator.compare(left.get(leftIdx), right.get(rightIdx));
-			if (ret <= 0) {
-				// smaller_equal -> take left to preserve order
-				data.set(i++, left.get(leftIdx++));
-			} else {
-				// greater -> take right
-				data.set(i++, right.get(rightIdx++));
-			}
-		}
-		while (leftIdx < left.size()) {
-			data.set(i++, left.get(leftIdx++));
-		}
-		while (rightIdx < right.size()) {
-			data.set(i++, right.get(rightIdx++));
-		}
-		return data;
 	}
 
 	/**

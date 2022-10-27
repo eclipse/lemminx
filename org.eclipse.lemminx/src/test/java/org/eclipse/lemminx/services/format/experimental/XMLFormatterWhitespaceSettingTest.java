@@ -18,7 +18,6 @@ import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.TextEdit;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -27,11 +26,56 @@ import org.junit.jupiter.api.Test;
  */
 public class XMLFormatterWhitespaceSettingTest {
 
-	@Disabled
 	@Test
 	public void testTrimTrailingWhitespaceText() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setTrimTrailingWhitespace(true);
+
+		String content = "<a>   \n" + //
+				"text     \n" + //
+				"    text text text    \n" + //
+				"    text\n" + //
+				"</a>   ";
+		String expected = "<a>\n" + //
+				"  text\n" + //
+				"  text text text\n" + //
+				"  text\n" + //
+				"</a>";
+		assertFormat(content, expected, settings, //
+				te(0, 3, 1, 0, "\n  "), //
+				te(1, 4, 2, 4, "\n  "), //
+				te(2, 18, 3, 4, "\n  "), //
+				te(4, 4, 4, 7, ""));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void testTrimTrailingWhitespaceTextJoinContentLines() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTrimTrailingWhitespace(true);
+		settings.getFormattingSettings().setJoinContentLines(true);
+
+		String content = "<a>   \n" + //
+				"text     \n" + //
+				"    text text text    \n" + //
+				"    text\n" + //
+				"</a>   ";
+		String expected = "<a> text text text text text </a>";
+		assertFormat(content, expected, settings, //
+				te(0, 3, 1, 0, " "), //
+				te(1, 4, 2, 4, " "), //
+				te(2, 18, 3, 4, " "), //
+				te(3, 8, 4, 0, " "), //
+				te(4, 4, 4, 7, ""));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void testTrimTrailingWhitespaceTextPreserveEmptyContent() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTrimTrailingWhitespace(true);
+		settings.getFormattingSettings().setPreserveEmptyContent(true);
+
 		String content = "<a>   \n" + //
 				"text     \n" + //
 				"    text text text    \n" + //
@@ -42,10 +86,14 @@ public class XMLFormatterWhitespaceSettingTest {
 				"    text text text\n" + //
 				"    text\n" + //
 				"</a>";
-		assertFormat(content, expected, settings);
+		assertFormat(content, expected, settings, //
+				te(0, 3, 0, 6, ""), //
+				te(1, 4, 1, 9, ""), //
+				te(2, 18, 2, 22, ""), //
+				te(4, 4, 4, 7, ""));
+		assertFormat(expected, expected, settings);
 	}
 
-	@Disabled
 	@Test
 	public void testTrimTrailingWhitespaceNewlines() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
@@ -53,15 +101,103 @@ public class XMLFormatterWhitespaceSettingTest {
 		String content = "<a>   \n" + //
 				"   \n" + //
 				"</a>   ";
-		String expected = "<a> </a>";
-		assertFormat(content, expected, settings);
+		String expected = "<a>\n" + //
+				"\n" + //
+				"</a>";
+		assertFormat(content, expected, settings, //
+				te(0, 3, 2, 0, "\n\n"), //
+				te(2, 4, 2, 7, ""));
+		assertFormat(expected, expected, settings);
 	}
 
-	@Disabled
+	@Test
+	public void testTrimTrailingWhitespaceAtEnd() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTrimTrailingWhitespace(true);
+		String content = "<a>   \n" + //
+				"</a>   " + //
+				"   \n" + //
+				"   \n       ";
+		String expected = "<a>\n" + //
+				"</a>";
+		assertFormat(content, expected, settings, //
+				te(0, 3, 1, 0, "\n"), //
+				te(1, 4, 3, 7, ""));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void testTrimTrailingWhitespaceAtEndTwoCharLineSeparator() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTrimTrailingWhitespace(true);
+		settings.getFormattingSettings().setTrimFinalNewlines(false);
+		String content = "<a>   \r\n" + //
+				"</a>\r\n   " + //
+				"   \r\n" + //
+				"   \r\n ";
+		String expected = "<a>\r\n" + //
+				"</a>\r\n" + //
+				"\r\n" + //
+				"\r\n";
+		assertFormat(content, expected, settings, //
+				te(0, 3, 1, 0, "\r\n"), //
+				te(2, 0, 2, 6, ""), //
+				te(3, 0, 3, 3, ""), //
+				te(4, 0, 4, 1, ""));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void testTrimTrailingWhitespaceAtEndTwoCharLineSeparatorTrimFinalNewlines() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTrimTrailingWhitespace(true);
+		settings.getFormattingSettings().setTrimFinalNewlines(true);
+		String content = "<a>   \r\n" + //
+				"</a>\r\n   " + //
+				"   \r\n" + //
+				"   \r\n  ";
+		String expected = "<a>\r\n" + //
+				"</a>";
+		assertFormat(content, expected, settings, //
+				te(0, 3, 1, 0, "\r\n"), //
+				te(1, 4, 4, 2, ""));
+		assertFormat(expected, expected, settings);
+	}
+
 	@Test
 	public void testTrimTrailingWhitespaceTextAndNewlines() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setTrimTrailingWhitespace(true);
+		String content = "<a>   \n" + //
+				"    \n" + //
+				"text     \n" + //
+				"    text text text    \n" + //
+				"   \n" + //
+				"    text\n" + //
+				"        \n" + //
+				"</a>   ";
+		String expected = "<a>\n" + //
+				"\n" + //
+				"  text\n" + //
+				"  text text text\n" + //
+				"\n" + //
+				"  text\n" + //
+				"\n" + //
+				"</a>";
+		assertFormat(content, expected, settings, //
+				te(0, 3, 2, 0, "\n\n  "), //
+				te(2, 4, 3, 4, "\n  "), //
+				te(3, 18, 5, 4, "\n\n  "), //
+				te(5, 8, 7, 0, "\n\n"), //
+				te(7, 4, 7, 7, ""));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void testTrimTrailingWhitespaceTextAndNewlinesPreserveEmptyContent() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTrimTrailingWhitespace(true);
+		settings.getFormattingSettings().setPreserveEmptyContent(true);
 		String content = "<a>   \n" + //
 				"    \n" + //
 				"text     \n" + //
@@ -78,7 +214,134 @@ public class XMLFormatterWhitespaceSettingTest {
 				"    text\n" + //
 				"\n" + //
 				"</a>";
-		assertFormat(content, expected, settings);
+		assertFormat(content, expected, settings, //
+				te(0, 3, 0, 6, ""), //
+				te(1, 0, 1, 4, ""), //
+				te(2, 4, 2, 9, ""), //
+				te(3, 18, 3, 22, ""), //
+				te(4, 0, 4, 3, ""), //
+				te(6, 0, 6, 8, ""), //
+				te(7, 4, 7, 7, ""));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void testTrimTrailingWhitespaceTextAndNewlinesTwoCharLineSeparator() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTrimTrailingWhitespace(true);
+		String content = "<a>   \r\n" + //
+				"    \r\n" + //
+				"text     \r\n" + //
+				"    text text text    \r\n" + //
+				"   \r\n" + //
+				"    text\r\n" + //
+				"        \r\n" + //
+				"</a>   ";
+		String expected = "<a>\r\n" + //
+				"\r\n" + //
+				"  text\r\n" + //
+				"  text text text\r\n" + //
+				"\r\n" + //
+				"  text\r\n" + //
+				"\r\n" + //
+				"</a>";
+		assertFormat(content, expected, settings, //
+				te(0, 3, 2, 0, "\r\n\r\n  "), //
+				te(2, 4, 3, 4, "\r\n  "), //
+				te(3, 18, 5, 4, "\r\n\r\n  "), //
+				te(5, 8, 7, 0, "\r\n\r\n"), //
+				te(7, 4, 7, 7, ""));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void testTrimTrailingWhitespaceWithRange() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTrimTrailingWhitespace(true);
+		String content = "<aaa>\r\n" + //
+				"  <bbb>\r\n" + //
+				"    |asdf               \r\n" + //
+				"    asd a;s jlkaj k lk ;alkdsj alskdj a;lskdj a\r\n" + //
+				"    a jssa j\r\n" + //
+				"    sd asd\r\n" + //
+				"    fsdf\r\n" + //
+				"    fsd a\r\n" + //
+				"    sd f\r\n" + //
+				"    asd     \r\n" + //
+				"    f as  as\r\n" + //
+				"    hjkl    |\r\n" + //
+				"  </bbb>\r\n" + //
+				"  <ccc>\r\n" + //
+				"  </ccc>\r\n" + //
+				"</aaa>\r\n";
+		String expected = "<aaa>\r\n" + //
+				"  <bbb>\r\n" + //
+				"    asdf\r\n" + //
+				"    asd a;s jlkaj k lk ;alkdsj alskdj a;lskdj a\r\n" + //
+				"    a jssa j\r\n" + //
+				"    sd asd\r\n" + //
+				"    fsdf\r\n" + //
+				"    fsd a\r\n" + //
+				"    sd f\r\n" + //
+				"    asd\r\n" + //
+				"    f as as\r\n" + //
+				"    hjkl\r\n" + //
+				"  </bbb>\r\n" + //
+				"  <ccc>\r\n" + //
+				"  </ccc>\r\n" + //
+				"</aaa>";
+		assertFormat(content, expected, settings, //
+				te(2, 8, 3, 4, "\r\n    "), //
+				te(9, 7, 10, 4, "\r\n    "), //
+				te(10, 8, 10, 10, " "), //
+				te(11, 8, 11, 12, ""), //
+				te(15, 6, 16, 0, ""));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void testTrimTrailingWhitespaceWithRangeSingleCharLineSeparator() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTrimTrailingWhitespace(true);
+		String content = "<aaa>\n" + //
+				"  <bbb>\n" + //
+				"    |asdf               \n" + //
+				"    asd a;s jlkaj k lk ;alkdsj alskdj a;lskdj a\n" + //
+				"    a jssa j\n" + //
+				"    sd asd\n" + //
+				"    fsdf\n" + //
+				"    fsd a\n" + //
+				"    sd f\n" + //
+				"    asd     \n" + //
+				"    f as  as\n" + //
+				"    hjkl    |\n" + //
+				"  </bbb>\n" + //
+				"  <ccc>\n" + //
+				"  </ccc>\n" + //
+				"</aaa>\n";
+		String expected = "<aaa>\n" + //
+				"  <bbb>\n" + //
+				"    asdf\n" + //
+				"    asd a;s jlkaj k lk ;alkdsj alskdj a;lskdj a\n" + //
+				"    a jssa j\n" + //
+				"    sd asd\n" + //
+				"    fsdf\n" + //
+				"    fsd a\n" + //
+				"    sd f\n" + //
+				"    asd\n" + //
+				"    f as as\n" + //
+				"    hjkl\n" + //
+				"  </bbb>\n" + //
+				"  <ccc>\n" + //
+				"  </ccc>\n" + //
+				"</aaa>";
+		assertFormat(content, expected, settings, //
+				te(2, 8, 3, 4, "\n    "), //
+				te(9, 7, 10, 4, "\n    "), //
+				te(10, 8, 10, 10, " "), //
+				te(11, 8, 11, 12, ""), //
+				te(15, 6, 16, 0, ""));
+		assertFormat(expected, expected, settings);
 	}
 
 	@Test

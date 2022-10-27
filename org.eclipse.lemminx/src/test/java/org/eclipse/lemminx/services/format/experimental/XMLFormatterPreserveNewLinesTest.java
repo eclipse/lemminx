@@ -114,6 +114,40 @@ public class XMLFormatterPreserveNewLinesTest {
 	}
 
 	@Test
+	public void testPreserveNewlinesMixedContent() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		String content = "<xml>\r\n" + //
+				"  \r\n" + //
+				"  \r\n" + //
+				"  \r\n" + //
+				"  \r\n" + //
+				"  <a></a>\r\n" + //
+				"  \r\n" + //
+				"  \r\n" + //
+				"test\r\n" + //
+				"  \r\n" + //
+				"  \r\n" + //
+				"  \r\n" + //
+				"  \r\n" + //
+				"</xml>";
+		String expected = "<xml>\r\n" + //
+				"\r\n" + //
+				"\r\n" + //
+				"  <a></a>\r\n" + //
+				"\r\n" + //
+				"\r\n" + //
+				"  test\r\n" + //
+				"\r\n" + //
+				"\r\n" + //
+				"</xml>";
+		assertFormat(content, expected, settings, //
+				te(0, 5, 5, 2, "\r\n\r\n\r\n  "), //
+				te(5, 9, 8, 0, "\r\n\r\n\r\n  "), //
+				te(8, 4, 13, 0, "\r\n\r\n\r\n"));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
 	public void testPreserveNewlinesBothSidesSetToZero() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setPreservedNewlines(0);
