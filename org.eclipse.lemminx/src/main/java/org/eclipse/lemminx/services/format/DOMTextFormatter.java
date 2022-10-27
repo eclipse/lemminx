@@ -44,6 +44,7 @@ public class DOMTextFormatter {
 
 		int spaceStart = -1;
 		int spaceEnd = -1;
+		int lineSeparatorOffset = -1;
 		boolean containsNewLine = false;
 
 		for (int i = textNode.getStart(); i < textNode.getEnd(); i++) {
@@ -51,6 +52,9 @@ public class DOMTextFormatter {
 			if (Character.isWhitespace(c)) {
 				// Whitespaces...
 				if (isLineSeparator(c)) {
+					if (!containsNewLine) {
+						lineSeparatorOffset = i;
+					}
 					containsNewLine = true;
 				}
 				if (spaceStart == -1) {
@@ -91,7 +95,7 @@ public class DOMTextFormatter {
 						replaceSpacesWithOneSpace(spaceStart, spaceEnd - 1, edits);
 						containsNewLine = false;
 					} else if (containsNewLine) {
-						replaceLeftSpacesWithIndentationPreservedNewLines(contentStart, spaceStart, spaceEnd,
+						replaceLeftSpacesWithIndentationPreservedNewLines(spaceStart, spaceEnd,
 								indentLevel, edits);
 						containsNewLine = false;
 						availableLineWidth = maxLineWidth - (contentEnd - contentStart)
@@ -124,24 +128,11 @@ public class DOMTextFormatter {
 					// Decrement indent level if is mixed content and text content is the last child
 					indentLevel--;
 				}
-				replaceLeftSpacesWithIndentationPreservedNewLines(spaceEnd, spaceStart, spaceEnd + 1, indentLevel,
+				replaceLeftSpacesWithIndentationPreservedNewLines(spaceStart, spaceEnd + 1, indentLevel,
 						edits);
 			}
-		}
-	}
-
-	private void replaceLeftSpacesWithIndentationPreservedNewLines(int contentStart, int spaceStart, int spaceEnd,
-			int indentLevel, List<TextEdit> edits) {
-		int preservedNewLines = getPreservedNewlines();
-		int currentNewLineCount = XMLFormatterDocumentNew.getExistingNewLineCount(
-				formatterDocument.getText(), contentStart, formatterDocument.getLineDelimiter());
-		if (currentNewLineCount > preservedNewLines) {
-			replaceLeftSpacesWithIndentationWithMultiNewLines(indentLevel, spaceStart,
-					spaceEnd, preservedNewLines + 1, edits);
-		} else {
-			int newLineCount = currentNewLineCount == 0 ? 1 : currentNewLineCount;
-			replaceLeftSpacesWithIndentationWithMultiNewLines(indentLevel, spaceStart, spaceEnd,
-					newLineCount, edits);
+		} else if (isTrimTrailingWhitespace()) {
+			removeLeftSpaces(spaceStart, lineSeparatorOffset, edits);
 		}
 	}
 
@@ -170,17 +161,21 @@ public class DOMTextFormatter {
 		return formatterDocument.replaceLeftSpacesWithIndentation(indentLevel, from, to, addLineSeparator, edits);
 	}
 
-	private int replaceLeftSpacesWithIndentationWithMultiNewLines(int indentLevel, int from, int to, int newLineCount,
-			List<TextEdit> edits) {
-		return formatterDocument.replaceLeftSpacesWithIndentationWithMultiNewLines(indentLevel, from, to, newLineCount,
+	private void replaceLeftSpacesWithIndentationPreservedNewLines(int spaceStart, int spaceEnd,
+			int indentLevel, List<TextEdit> edits) {
+		formatterDocument.replaceLeftSpacesWithIndentationPreservedNewLines(spaceStart, spaceEnd, indentLevel,
 				edits);
+	}
+
+	private void removeLeftSpaces(int leftLimit, int to, List<TextEdit> edits) {
+		formatterDocument.replaceLeftSpacesWith(leftLimit, to, "", edits);
 	}
 
 	private boolean isJoinContentLines() {
 		return formatterDocument.getSharedSettings().getFormattingSettings().isJoinContentLines();
 	}
 
-	private int getPreservedNewlines() {
-		return formatterDocument.getSharedSettings().getFormattingSettings().getPreservedNewlines();
+	private boolean isTrimTrailingWhitespace() {
+		return formatterDocument.getSharedSettings().getFormattingSettings().isTrimTrailingWhitespace();
 	}
 }

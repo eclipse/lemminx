@@ -183,6 +183,47 @@ public class XMLFormatterDocumentNew {
 				}
 			}
 		}
+		if (isTrimTrailingWhitespace()) {
+			String xml = textDocument.getText();
+			int i = xml.length() - 1;
+			int lineDelimiterOffset = i + 1;
+			char curr = xml.charAt(i);
+			boolean removeSpaces = true;
+
+			// removes spaces and new lines at the end of xml
+			if (isTrimFinalNewlines() &&  !isLineSeparator(curr)) {
+				while (Character.isWhitespace(curr) && i > 0) {
+					i--;
+					curr = xml.charAt(i);
+				}
+				removeLeftSpaces(i, lineDelimiterOffset, edits);
+				removeSpaces = false;
+			}
+			if (isPreserveEmptyContent() || !isTrimFinalNewlines()) {
+				while (i >= 0) {
+					curr = xml.charAt(i);
+					if (isLineSeparator(curr)) {
+						// remove spaces in an empty line
+						// ex:
+						// [space][space] --> remove
+						if (removeSpaces) {
+							removeLeftSpaces(i + 1, lineDelimiterOffset, edits);
+						}
+						removeSpaces = true;
+						lineDelimiterOffset = i;
+					} else if (removeSpaces && (!Character.isWhitespace(curr) || isLineSeparator(curr))) {
+						// remove spaces after some content at the end of the line
+						// ex: <a> </a> [space][space] --> remove
+						removeLeftSpaces(i, lineDelimiterOffset, edits);
+						removeSpaces = false;
+						if (!isPreserveEmptyContent()) {
+							return edits;
+						}
+					}
+					i--;
+				}
+			}
+		}
 		return edits;
 	}
 
@@ -274,46 +315,47 @@ public class XMLFormatterDocumentNew {
 
 		switch (child.getNodeType()) {
 
-		case Node.DOCUMENT_TYPE_NODE:
-			DOMDocumentType docType = (DOMDocumentType) child;
-			docTypeFormatter.formatDocType(docType, parentConstraints, start, end, edits);
-			break;
+			case Node.DOCUMENT_TYPE_NODE:
+				DOMDocumentType docType = (DOMDocumentType) child;
+				docTypeFormatter.formatDocType(docType, parentConstraints, start, end, edits);
+				break;
 
-		case Node.DOCUMENT_NODE:
-			DOMDocument document = (DOMDocument) child;
-			formatChildren(document, parentConstraints, start, end, edits);
-			break;
+			case Node.DOCUMENT_NODE:
+				DOMDocument document = (DOMDocument) child;
+				formatChildren(document, parentConstraints, start, end, edits);
+				break;
 
-		case DOMNode.PROCESSING_INSTRUCTION_NODE:
-			DOMProcessingInstruction processingInstruction = (DOMProcessingInstruction) child;
-			processingInstructionFormatter.formatProcessingInstruction(processingInstruction, parentConstraints, edits);
-			break;
+			case DOMNode.PROCESSING_INSTRUCTION_NODE:
+				DOMProcessingInstruction processingInstruction = (DOMProcessingInstruction) child;
+				processingInstructionFormatter.formatProcessingInstruction(processingInstruction, parentConstraints,
+						edits);
+				break;
 
-		case Node.ELEMENT_NODE:
-			DOMElement element = (DOMElement) child;
-			elementFormatter.formatElement(element, parentConstraints, start, end, edits);
-			break;
+			case Node.ELEMENT_NODE:
+				DOMElement element = (DOMElement) child;
+				elementFormatter.formatElement(element, parentConstraints, start, end, edits);
+				break;
 
-		case Node.TEXT_NODE:
-			DOMText textNode = (DOMText) child;
-			textFormatter.formatText(textNode, parentConstraints, edits);
-			break;
+			case Node.TEXT_NODE:
+				DOMText textNode = (DOMText) child;
+				textFormatter.formatText(textNode, parentConstraints, edits);
+				break;
 
-		case Node.COMMENT_NODE:
-			DOMComment commentNode = (DOMComment) child;
-			commentFormatter.formatComment(commentNode, parentConstraints, start, end, edits);
-			break;
+			case Node.COMMENT_NODE:
+				DOMComment commentNode = (DOMComment) child;
+				commentFormatter.formatComment(commentNode, parentConstraints, start, end, edits);
+				break;
 
-		case Node.CDATA_SECTION_NODE:
-			DOMCDATASection cDATANode = (DOMCDATASection) child;
-			cDATAFormatter.formatCDATASection(cDATANode, parentConstraints, edits);
-			break;
+			case Node.CDATA_SECTION_NODE:
+				DOMCDATASection cDATANode = (DOMCDATASection) child;
+				cDATAFormatter.formatCDATASection(cDATANode, parentConstraints, edits);
+				break;
 
-		default:
-			// unknown, so just leave alone for now but make sure to update
-			// available line width
-			int width = updateLineWidthWithLastLine(child, parentConstraints.getAvailableLineWidth());
-			parentConstraints.setAvailableLineWidth(width);
+			default:
+				// unknown, so just leave alone for now but make sure to update
+				// available line width
+				int width = updateLineWidthWithLastLine(child, parentConstraints.getAvailableLineWidth());
+				parentConstraints.setAvailableLineWidth(width);
 		}
 	}
 
@@ -394,6 +436,21 @@ public class XMLFormatterDocumentNew {
 			return expectedSpaces.length();
 		}
 		return 0;
+	}
+
+	public void replaceLeftSpacesWithIndentationPreservedNewLines(int spaceStart, int spaceEnd,
+			int indentLevel, List<TextEdit> edits) {
+		int preservedNewLines = getFormattingSettings().getPreservedNewlines();
+		int currentNewLineCount = XMLFormatterDocumentNew.getExistingNewLineCount(
+				textDocument.getText(), spaceEnd, lineDelimiter);
+		if (currentNewLineCount > preservedNewLines) {
+			replaceLeftSpacesWithIndentationWithMultiNewLines(indentLevel, spaceStart,
+					spaceEnd, preservedNewLines + 1, edits);
+		} else {
+			int newLineCount = currentNewLineCount == 0 ? 1 : currentNewLineCount;
+			replaceLeftSpacesWithIndentationWithMultiNewLines(indentLevel, spaceStart, spaceEnd,
+					newLineCount, edits);
+		}
 	}
 
 	boolean hasLineBreak(int from, int to) {
@@ -747,6 +804,14 @@ public class XMLFormatterDocumentNew {
 
 	private boolean isInsertFinalNewline() {
 		return getFormattingSettings().isInsertFinalNewline();
+	}
+
+	private boolean isTrimTrailingWhitespace() {
+		return getFormattingSettings().isTrimTrailingWhitespace();
+	}
+
+	private boolean isPreserveEmptyContent() {
+		return getFormattingSettings().isPreserveEmptyContent();
 	}
 
 	private String getQuotationAsString() {
