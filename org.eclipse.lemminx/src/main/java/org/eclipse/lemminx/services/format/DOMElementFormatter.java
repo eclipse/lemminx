@@ -45,7 +45,8 @@ public class DOMElementFormatter {
 
 		// Format start tag element with proper indentation
 		int indentLevel = parentConstraints.getIndentLevel();
-		int nb = formatStartTagElement(element, parentConstraints, emptyElements, start, end, edits);
+		int width = formatStartTagElement(element, parentConstraints, emptyElements, start, end, edits);
+		parentConstraints.setAvailableLineWidth(parentConstraints.getAvailableLineWidth() - width);
 
 		// Set indent level for text in mixed content
 		int mixedIndentLevel = parentConstraints.getMixedContentIndentLevel();
@@ -67,9 +68,9 @@ public class DOMElementFormatter {
 
 			// Format end tag element with proper indentation
 			if (element.hasEndTag()) {
-				nb = formatEndTagElement(element, parentConstraints, constraints, edits);
+				width = formatEndTagElement(element, parentConstraints, constraints, edits);
+				parentConstraints.setAvailableLineWidth(constraints.getAvailableLineWidth() - width);
 			}
-			parentConstraints.setAvailableLineWidth(constraints.getAvailableLineWidth() - nb);
 		}
 	}
 
@@ -99,11 +100,14 @@ public class DOMElementFormatter {
 			// before formatting: <a> [space][space] <b> </b> example text </a>
 			// after formatting: <a>\n <b> </b> example text </a>
 			int parentStartCloseOffset = element.getParentElement().getStartTagCloseOffset() + 1;
-			if (parentStartCloseOffset != startTagOpenOffset
+			if ((parentStartCloseOffset != startTagOpenOffset
 					&& StringUtils.isWhitespace(formatterDocument.getText(), parentStartCloseOffset,
-							startTagOpenOffset)) {
+							startTagOpenOffset))
+					|| (parentConstraints.getAvailableLineWidth() - width) < 0) {
 				replaceLeftSpacesWithIndentationPreservedNewLines(parentStartCloseOffset, startTagOpenOffset,
 						indentLevel, edits);
+				parentConstraints.setAvailableLineWidth(getMaxLineWidth());
+				width += indentLevel * getTabSize();
 			}
 			break;
 		case IgnoreSpace:
@@ -147,6 +151,8 @@ public class DOMElementFormatter {
 					// - <foo attr1="" attr2=""></foo>
 					createTextEditIfNeeded(from, to, tag.toString(), edits);
 					formatted = true;
+					// add 4 to width for the additional tag name and '></...>'
+					width += element.getTagName() != null ? element.getTagName().length() + 4 : 0;
 				}
 				break;
 			}
@@ -174,20 +180,21 @@ public class DOMElementFormatter {
 					// - <foo attr1="" attr2="" />
 					createTextEditIfNeeded(from, to, tag.toString(), edits);
 					formatted = true;
+					width++;
 				}
 				break;
 			}
 			default:
+				// count width of closing bracket '>'
 				width++;
 			}
 
 			if (!formatted) {
 				if (element.isStartTagClosed() || element.isSelfClosed()) {
-					formatElementStartTagOrSelfClosed(element, parentConstraints, edits);
+					width = formatElementStartTagOrSelfClosed(element, parentConstraints, edits);
 				}
 			}
 		}
-		parentConstraints.setAvailableLineWidth(parentConstraints.getAvailableLineWidth() - width);
 		return width;
 	}
 
@@ -228,7 +235,7 @@ public class DOMElementFormatter {
 	 * @param element
 	 * @throws BadLocationException
 	 */
-	private void formatElementStartTagOrSelfClosed(DOMElement element, XMLFormattingConstraints parentConstraints,
+	private int formatElementStartTagOrSelfClosed(DOMElement element, XMLFormattingConstraints parentConstraints,
 			List<TextEdit> edits) {
 		// <foo| >
 		// <foo| />
@@ -238,6 +245,7 @@ public class DOMElementFormatter {
 		int startTagOpen = element.getOffsetAfterStartTag();
 		String replace = "";
 		boolean spaceBeforeEmptyCloseTag = isSpaceBeforeEmptyCloseTag();
+		int width = 0;
 		if (isPreserveAttributeLineBreaks() && element.hasAttributes()
 				&& hasLineBreak(getLastAttribute(element).getEnd(), startTagClose)) {
 			spaceBeforeEmptyCloseTag = false;
@@ -254,24 +262,28 @@ public class DOMElementFormatter {
 				// attr1="" >
 				// Add newline with indent according to indent level
 				replaceLeftSpacesWithIndentation(indentLevel, startTagOpen, startTagClose, true, edits);
-				return;
+				return width;
 			}
 		} else if (shouldFormatClosingBracketNewLine(element)) {
 			int indentLevel = parentConstraints.getIndentLevel();
 			replaceLeftSpacesWithIndentation(indentLevel + getSplitAttributesIndentSize(), startTagOpen, startTagClose,
 					true, edits);
-			return;
+			return (indentLevel + getSplitAttributesIndentSize()) * getTabSize();
 		}
 		if (element.isSelfClosed()) {
 			if (spaceBeforeEmptyCloseTag) {
 				// <foo attr1=""/> --> <foo attr1=""[space] />
 				replace = replace + " ";
+				width++; // add width for [space]
 			}
+			width++; // add width for '/'
 		}
 		// remove spaces from the offset of start tag and start tag close
 		// <foo|[space][space]|> --> <foo>
 		// <foo attr1="" attr2="" |[space][space]|> --> <foo>
 		replaceLeftSpacesWith(startTagOpen, startTagClose, replace, edits);
+		width++; // add width for '>'
+		return width;
 	}
 
 	private int formatEndTagElement(DOMElement element, XMLFormattingConstraints parentConstraints,
@@ -281,7 +293,7 @@ public class DOMElementFormatter {
 		// after formatting : </a>
 		int indentLevel = parentConstraints.getIndentLevel();
 		FormatElementCategory formatElementCategory = constraints.getFormatElementCategory();
-		int endTagOffset = element.getEndTagOpenOffset();
+		int endTagOpenOffset = element.getEndTagOpenOffset();
 		int startTagCloseOffset = element.getStartTagCloseOffset();
 
 		int width = element.getTagName() != null ? element.getTagName().length() + 2 : 0;
@@ -297,15 +309,15 @@ public class DOMElementFormatter {
 			DOMNode lastChild = element.getLastChild();
 			if (lastChild != null 
 					&& (lastChild.isElement() || lastChild.isComment())
-					&& Character.isWhitespace(formatterDocument.getText().charAt(endTagOffset - 1))
+					&& Character.isWhitespace(formatterDocument.getText().charAt(endTagOpenOffset - 1))
 					&& !isPreserveEmptyContent()) {
-				replaceLeftSpacesWithIndentationPreservedNewLines(startTagCloseOffset, endTagOffset,
+				replaceLeftSpacesWithIndentationPreservedNewLines(startTagCloseOffset, endTagOpenOffset,
 						indentLevel, edits);
+				width += indentLevel * getTabSize();
 			}
-			width += indentLevel * getTabSize();
 			break;
 		case IgnoreSpace:
-			replaceLeftSpacesWithIndentationPreservedNewLines(startTagCloseOffset, endTagOffset,
+			replaceLeftSpacesWithIndentationPreservedNewLines(startTagCloseOffset, endTagOpenOffset,
 					indentLevel, edits);
 			width += indentLevel * getTabSize();
 			break;

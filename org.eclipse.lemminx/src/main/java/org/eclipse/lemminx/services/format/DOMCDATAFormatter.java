@@ -28,22 +28,22 @@ public class DOMCDATAFormatter {
 
 	public void formatCDATASection(DOMCDATASection cDATANode, XMLFormattingConstraints parentConstraints,
 			List<TextEdit> edits) {
-
 		String text = formatterDocument.getText();
-		int availableLineWidth = parentConstraints.getAvailableLineWidth();
 		int start = cDATANode.getStart();
 		int leftWhitespaceOffset = start > 0 ? start - 1 : 0;
-		int spaceStart = -1;
-		int spaceEnd = -1;
 
 		while (leftWhitespaceOffset > 0 && Character.isWhitespace(text.charAt(leftWhitespaceOffset))) {
 			leftWhitespaceOffset--;
 		}
 
 		if (isJoinCDATALines()) {
+			int availableLineWidth = parentConstraints.getAvailableLineWidth();
+			int spaceStart = -1;
+			int spaceEnd = -1;
 			int contentEnd = -1;
 			int cDATAStartContent = cDATANode.getStartContent();
 			int cDATAEndContent = cDATANode.getEndContent();
+
 			for (int i = cDATAStartContent; i <= cDATAEndContent; i++) {
 				char c = text.charAt(i);
 				if (Character.isWhitespace(c)) {
@@ -59,16 +59,20 @@ public class DOMCDATAFormatter {
 						i++;
 					}
 					contentEnd = i;
-					availableLineWidth -= (contentEnd + 1 - contentStart);
-					if (availableLineWidth <= 0) {
-						if (spaceStart != -1) {
-							// Add new line when the comment extends over the maximum line width
+					if (isMaxLineWidthSupported()) {
+						availableLineWidth -= (contentEnd + 1 - contentStart);
+						if (availableLineWidth <= 0 && spaceStart != -1) {
 							replaceLeftSpacesWithIndentation(parentConstraints.getIndentLevel(), spaceStart,
 									contentStart, true, edits);
 							int indentSpaces = (getTabSize() * parentConstraints.getIndentLevel());
 							availableLineWidth = getMaxLineWidth() - indentSpaces - (contentEnd + 1 - contentStart);
+							continue;
+						} else if (spaceStart != cDATAStartContent && contentEnd != cDATAEndContent) {
+							// Add width for single normalized space
+							availableLineWidth--;
 						}
-					} else if (spaceStart == cDATAStartContent) {
+					}
+					if (spaceStart == cDATAStartContent) {
 						// Remove spaces before the start bracket of content
 						removeLeftSpaces(spaceStart, contentStart, edits);
 						spaceStart = -1;
@@ -81,7 +85,6 @@ public class DOMCDATAFormatter {
 					} else {
 						// Normalize space between content
 						replaceSpacesWithOneSpace(spaceStart, spaceEnd, edits);
-						availableLineWidth--;
 						spaceStart = -1;
 						spaceEnd = -1;
 					}
@@ -113,5 +116,9 @@ public class DOMCDATAFormatter {
 	private int replaceLeftSpacesWithIndentation(int indentLevel, int from, int to, boolean addLineSeparator,
 			List<TextEdit> edits) {
 		return formatterDocument.replaceLeftSpacesWithIndentation(indentLevel, from, to, addLineSeparator, edits);
+	}
+
+	private boolean isMaxLineWidthSupported() {
+		return formatterDocument.isMaxLineWidthSupported();
 	}
 }

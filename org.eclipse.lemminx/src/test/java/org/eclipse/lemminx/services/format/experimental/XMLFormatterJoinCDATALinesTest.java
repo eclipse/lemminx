@@ -136,6 +136,7 @@ public class XMLFormatterJoinCDATALinesTest {
 				"  test test test test test test test test test]]>   </a>";
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setJoinCDATALines(true);
+		settings.getFormattingSettings().setMaxLineWidth(80);
 		assertFormat(content, expected, settings, //
 				te(1, 9, 2, 0, ""), //
 				te(2, 6, 5, 0, " "), //

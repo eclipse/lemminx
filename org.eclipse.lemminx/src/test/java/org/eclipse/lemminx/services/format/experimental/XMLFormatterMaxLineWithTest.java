@@ -28,49 +28,201 @@ public class XMLFormatterMaxLineWithTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void splitText() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setMaxLineWidth(6);
+		settings.getFormattingSettings().setJoinContentLines(true);
 		String content = "<a>abcde fghi</a>";
 		String expected = "<a>abcde" + //
 				System.lineSeparator() + //
 				"  fghi</a>";
-		assertFormat(content, expected, 6, //
+		assertFormat(content, expected, settings, //
 				te(0, 8, 0, 9, System.lineSeparator() + "  "));
-		assertFormat(expected, expected, 6);
+		assertFormat(expected, expected, settings);
 	}
 
 	@Test
 	public void splitTextWithSpace() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setMaxLineWidth(6);
+		settings.getFormattingSettings().setJoinContentLines(true);
 		String content = "<a> abcde fghi</a>";
 		String expected = "<a>" + //
 				System.lineSeparator() + //
 				"  abcde" + //
 				System.lineSeparator() + //
 				"  fghi</a>";
-		assertFormat(content, expected, 6, //
+		assertFormat(content, expected, settings, //
 				te(0, 3, 0, 4, System.lineSeparator() + "  "),
 				te(0, 9, 0, 10, System.lineSeparator() + "  "));
-		assertFormat(expected, expected, 6);
+		assertFormat(expected, expected, settings);
 	}
 
 	@Test
 	public void splitMixedText() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setMaxLineWidth(5);
+		settings.getFormattingSettings().setJoinContentLines(true);
 		String content = "<a><b /> efgh</a>";
 		String expected = "<a><b />" + //
 				System.lineSeparator() + //
 				"  efgh</a>";
-		assertFormat(content, expected, 5, //
+		assertFormat(content, expected, settings, //
 				te(0, 8, 0, 9, System.lineSeparator() + "  "));
-		assertFormat(expected, expected, 5);
+		assertFormat(expected, expected, settings);
 	}
 
 	@Test
 	public void noSplit() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setMaxLineWidth(20);
+		settings.getFormattingSettings().setJoinContentLines(true);
 		String content = "<a>abcde fghi</a>";
 		String expected = content;
-		assertFormat(content, expected, 20);
+		assertFormat(content, expected, settings);
+	}
+
+	@Test
+	public void splitWithAttribute() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTabSize(4);
+		settings.getFormattingSettings().setMaxLineWidth(20);
+		settings.getFormattingSettings().setJoinContentLines(true);
+		String content = "<aaaaaaaaa bb=\"tes t\" c=\"a\" d=\"a\" e=\"a\"> </aaaaaaaaa>";
+		String expected = "<aaaaaaaaa" + System.lineSeparator() + //
+				"    bb=\"tes t\" c=\"a\"" + System.lineSeparator() + //
+				"    d=\"a\" e=\"a\"> </aaaaaaaaa>";
+		assertFormat(content, expected, settings, //
+				te(0, 10, 0, 11, System.lineSeparator() + "    "), //
+				te(0, 27, 0, 28, System.lineSeparator() + "    "));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void splitWithAttributeMultiLine() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTabSize(4);
+		settings.getFormattingSettings().setMaxLineWidth(10);
+		settings.getFormattingSettings().setJoinContentLines(true);
+		String content = "<a bb=\"a\" c=\"a\" d=\"a\" e=\"a\"> </a>";
+		String expected = "<a bb=\"a\"" + System.lineSeparator() + //
+				"    c=\"a\"" + System.lineSeparator() + //
+				"    d=\"a\"" + System.lineSeparator() + //
+				"    e=\"a\"> </a>";
+		assertFormat(content, expected, settings, //
+				te(0, 9, 0, 10, System.lineSeparator() + "    "), //
+				te(0, 15, 0, 16, System.lineSeparator() + "    "), //
+				te(0, 21, 0, 22, System.lineSeparator() + "    "));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void splitWithAttributeWithChild() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTabSize(4);
+		settings.getFormattingSettings().setMaxLineWidth(10);
+		settings.getFormattingSettings().setJoinContentLines(true);
+		String content = "<a bb=\"a\" c=\"a\" d=\"a\" e=\"a\"> <b bb=\"a\" c=\"a\" d=\"a\" e=\"a\"> </b> </a>";
+		String expected = "<a bb=\"a\"" + System.lineSeparator() + //
+				"    c=\"a\"" + System.lineSeparator() + //
+				"    d=\"a\"" + System.lineSeparator() + //
+				"    e=\"a\">" + System.lineSeparator() + //
+				"    <b" + System.lineSeparator() + //
+				"        bb=\"a\"" + System.lineSeparator() + //
+				"        c=\"a\"" + System.lineSeparator() + //
+				"        d=\"a\"" + System.lineSeparator() + //
+				"        e=\"a\"> </b>" + System.lineSeparator() + //
+				"</a>";
+		assertFormat(content, expected, settings, //
+				te(0, 9, 0, 10, System.lineSeparator() + "    "), //
+				te(0, 15, 0, 16, System.lineSeparator() + "    "), //
+				te(0, 21, 0, 22, System.lineSeparator() + "    "),
+				te(0, 28, 0, 29, System.lineSeparator() + "    "), //
+				te(0, 31, 0, 32, System.lineSeparator() + "        "), //
+				te(0, 38, 0, 39, System.lineSeparator() + "        "),
+				te(0, 44, 0, 45, System.lineSeparator() + "        "), //
+				te(0, 50, 0, 51, System.lineSeparator() + "        "), //
+				te(0, 62, 0, 63, System.lineSeparator()));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void splitWithAttributeMixedDontSplit() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTabSize(4);
+		settings.getFormattingSettings().setSpaceBeforeEmptyCloseTag(false);
+		settings.getFormattingSettings().setMaxLineWidth(10);
+		settings.getFormattingSettings().setJoinContentLines(true);
+		String content = "<a bb=\"test\"> <b/> h </a>";
+		String expected = "<a" + System.lineSeparator() + //
+				"    bb=\"test\">" + System.lineSeparator() + //
+				"    <b/> h </a>";
+		assertFormat(content, expected, settings, //
+				te(0, 2, 0, 3, System.lineSeparator() + "    "), //
+				te(0, 13, 0, 14, System.lineSeparator() + "    "));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void splitWithAttributeMixedSplit() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTabSize(4);
+		settings.getFormattingSettings().setSpaceBeforeEmptyCloseTag(false);
+		settings.getFormattingSettings().setMaxLineWidth(10);
+		settings.getFormattingSettings().setJoinContentLines(true);
+		String content = "<a bb=\"test\"> <b/> gh </a>";
+		String expected = "<a" + System.lineSeparator() + //
+				"    bb=\"test\">" + System.lineSeparator() + //
+				"    <b/>" + System.lineSeparator() + //
+				"    gh </a>";
+		assertFormat(content, expected, settings, //
+				te(0, 2, 0, 3, System.lineSeparator() + "    "), //
+				te(0, 13, 0, 14, System.lineSeparator() + "    "), //
+				te(0, 18, 0, 19, System.lineSeparator() + "    "));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void splitWithAttributeNested() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTabSize(4);
+		settings.getFormattingSettings().setMaxLineWidth(10);
+		settings.getFormattingSettings().setJoinContentLines(true);
+		String content = "<a bb=\"test\"> <b c=\"test\"> </b>  </a>";
+		String expected = "<a" + System.lineSeparator() + //
+				"    bb=\"test\">" + System.lineSeparator() + //
+				"    <b" + System.lineSeparator() + //
+				"        c=\"test\"> </b>" + System.lineSeparator() + //
+				"</a>";
+		assertFormat(content, expected, settings, //
+
+				te(0, 2, 0, 3, System.lineSeparator() + "    "), //
+				te(0, 13, 0, 14, System.lineSeparator() + "    "), //
+				te(0, 16, 0, 17, System.lineSeparator() + "        "), //
+				te(0, 31, 0, 33, System.lineSeparator()));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void splitWithAttributeKeepSameLine() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTabSize(4);
+		settings.getFormattingSettings().setMaxLineWidth(20);
+		settings.getFormattingSettings().setJoinContentLines(true);
+		String content = "<aaaaaaaaa bb=\"t tt\" c=\"a\" d=\"a\" e=\"a\"> </aaaaaaaaa>";
+		String expected = "<aaaaaaaaa bb=\"t tt\"" + System.lineSeparator() + //
+				"    c=\"a\" d=\"a\"" + System.lineSeparator() + //
+				"    e=\"a\"> </aaaaaaaaa>";
+		assertFormat(content, expected, settings, //
+				te(0, 20, 0, 21, System.lineSeparator() + "    "), //
+				te(0, 32, 0, 33, System.lineSeparator() + "    "));
+		assertFormat(expected, expected, settings);
 	}
 
 	@Test
 	public void longText() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setMaxLineWidth(20);
+		settings.getFormattingSettings().setJoinContentLines(true);
 		String content = "<foo>\r\n" + //
 				"	<para>    \r\n" + //
 				"		vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv\r\n"
@@ -79,18 +231,22 @@ public class XMLFormatterMaxLineWithTest extends AbstractCacheBasedTest {
 				"</foo>";
 		String expected = "<foo>\r\n" + //
 				"  <para>\r\n" + //
-				"    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv </para>\r\n"
+				"    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv\r\n"
 				+ //
+				"  </para>\r\n" + //
 				"</foo>";
-		assertFormat(content, expected, 20, //
+		assertFormat(content, expected, settings, //
 				te(0, 5, 1, 1, "\r\n  "), //
 				te(1, 7, 2, 2, "\r\n    "), //
-				te(2, 102, 3, 1, " "));
-		assertFormat(expected, expected, 20);
+				te(2, 102, 3, 1, "\r\n  "));
+		assertFormat(expected, expected, settings);
 	}
 
 	@Test
 	public void complex() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setMaxLineWidth(80);
+		settings.getFormattingSettings().setJoinContentLines(true);
 		String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<ip_log  version=\"1.0\">\r\n" + //
 				"  <project id=\"org.apache.ant\" version=\"1.10.12\" status=\"done\">\r\n" + //
@@ -129,19 +285,22 @@ public class XMLFormatterMaxLineWithTest extends AbstractCacheBasedTest {
 				"  </project>\r\n" + //
 				"</ip_log>";
 
-		assertFormat(content, expected, 80, //
+		assertFormat(content, expected, settings, //
 				te(1, 7, 1, 9, " "), //
 				te(4, 18, 4, 30, " "), //
 				te(4, 65, 4, 73, " "), //
 				te(4, 98, 4, 102, "\r\n        "), //
 				te(9, 18, 10, 8, " "), //
 				te(11, 20, 14, 8, " "));
-		assertFormat(expected, expected, 80);
+		assertFormat(expected, expected, settings);
 	}
 
 	// https://github.com/eclipse/lemminx/issues/594
 	@Test
 	public void mixedText() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setMaxLineWidth(130);
+		settings.getFormattingSettings().setJoinContentLines(true);
 		String content = "<para>All DocBook V5.0 elements are in the namespace <uri>http://docbook.org/ns/docbook</uri>. <acronym>XML <alt>Extensible Markup\r\n"
 				+ //
 				"  Language</alt></acronym> namespaces are used to distinguish between different element sets. In the last few years, almost all new\r\n"
@@ -165,17 +324,20 @@ public class XMLFormatterMaxLineWithTest extends AbstractCacheBasedTest {
 				"  vocabularies. DocBook V5.0 is <emphasis>following</emphasis> this <emphasis>design</emphasis>/<emphasis>rule</emphasis>. Using\r\n"
 				+ //
 				"  namespaces in your documents is very easy. Consider this simple article marked up in DocBook V4.5:</para>";
-		assertFormat(content, expected, 130, //
+		assertFormat(content, expected, settings, //
 				te(1, 127, 1, 128, "\r\n  "), //
 				te(1, 131, 2, 2, " "), //
 				te(3, 31, 6, 2, " "), //
 				te(6, 37, 7, 2, " "), //
 				te(7, 56, 9, 2, " "));
-		assertFormat(expected, expected, 130);
+		assertFormat(expected, expected, settings);
 	}
 
 	@Test
 	public void mixedTextDefaultLineWidth() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setMaxLineWidth(80);
+		settings.getFormattingSettings().setJoinContentLines(true);
 		String content = "<para>All DocBook V5.0 elements are in the namespace <uri>http://docbook.org/ns/docbook</uri>. <acronym>XML <alt>Extensible Markup\r\n"
 				+ //
 				"  Language</alt></acronym> namespaces are used to distinguish between different element sets. In the last few years, almost all new\r\n"
@@ -190,36 +352,37 @@ public class XMLFormatterMaxLineWithTest extends AbstractCacheBasedTest {
 				"\r\n" + //
 				"  Using\r\n" + //
 				"  namespaces in your documents is very easy. Consider this simple article marked up in DocBook V4.5:</para>";
-		String expected = "<para>All DocBook V5.0 elements are in the namespace <uri>http://docbook.org/ns/docbook</uri>. <acronym>XML <alt>Extensible\r\n"
+		String expected = "<para>All DocBook V5.0 elements are in the namespace <uri>http://docbook.org/ns/docbook</uri>.\r\n"
 				+ //
-				"  Markup Language</alt></acronym> namespaces are used to distinguish between\r\n" + //
-				"  different element sets. In the last few years, almost all new XML grammars\r\n" + //
-				"  have used their own namespace. It is easy to create compound documents that\r\n" + //
-				"  contain elements from different XML vocabularies. DocBook V5.0 is <emphasis>following</emphasis>\r\n" + //
-				"  this <emphasis>design</emphasis>/<emphasis>rule</emphasis>. Using namespaces\r\n" + //
-				"  in your documents is very easy. Consider this simple article marked up in\r\n" + //
-				"  DocBook V4.5:</para>";
-		assertFormat(content, expected, 80, //
-				te(0, 123, 0, 124, "\r\n  "), //
+				"  <acronym>XML <alt>Extensible Markup Language</alt></acronym> namespaces are\r\n" + //
+				"  used to distinguish between different element sets. In the last few years,\r\n" + //
+				"  almost all new XML grammars have used their own namespace. It is easy to\r\n" + //
+				"  create compound documents that contain elements from different XML\r\n" + //
+				"  vocabularies. DocBook V5.0 is <emphasis>following</emphasis> this <emphasis>design</emphasis>/\r\n" + //
+				"  <emphasis>rule</emphasis>. Using namespaces in your documents is very easy.\r\n" + //
+				"  Consider this simple article marked up in DocBook V4.5:</para>";
+		assertFormat(content, expected, settings, //
+				te(0, 94, 0, 95, "\r\n  "), //
 				te(0, 130, 1, 2, " "), //
-				te(1, 69, 1, 70, "\r\n  "), //
-				te(1, 131, 2, 2, " "), //
-				te(2, 14, 2, 15, "\r\n  "),
-				te(2, 90, 2, 91, "\r\n  "), //
-				te(2, 126, 3, 2, " "), //
+				te(1, 41, 1, 42, "\r\n  "), //
+				te(1, 116, 1, 117, "\r\n  "), //
+				te(1, 131, 2, 2, " "),
+				te(2, 59, 2, 60, "\r\n  "), //
 				te(3, 31, 6, 2, " "), //
-				te(6, 32, 6, 33, "\r\n  "), //
 				te(6, 37, 7, 2, " "),
+				te(7, 30, 7, 30, "\r\n  "), //
 				te(7, 56, 9, 2, " "), //
 				te(9, 7, 10, 2, " "), //
-				te(10, 12, 10, 13, "\r\n  "), //
-				te(10, 86, 10, 87, "\r\n  "));
-		assertFormat(expected, expected, 80);
+				te(10, 44, 10, 45, "\r\n  "));
+		assertFormat(expected, expected, settings);
 	}
 
 	// https://github.com/eclipse/lemminx/issues/594
 	@Test
 	public void mixedTextIsChild() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setMaxLineWidth(130);
+		settings.getFormattingSettings().setJoinContentLines(true);
 		String content = "<parent>\r\n" + //
 				"<para>All DocBook V5.0 elements are in the namespace <uri>http://docbook.org/ns/docbook</uri>. <acronym>XML <alt>Extensible Markup\r\n"
 				+ //
@@ -266,7 +429,7 @@ public class XMLFormatterMaxLineWithTest extends AbstractCacheBasedTest {
 				"  vocabularies. DocBook V5.0 is <emphasis>following</emphasis> this <emphasis>design</emphasis>/<emphasis>rule</emphasis>. Using\r\n"
 				+ //
 				"  namespaces in your documents is very easy. Consider this simple article marked up in DocBook V4.5:</para>";
-		assertFormat(content, expected, 130, //
+		assertFormat(content, expected, settings, //
 				te(0, 8, 1, 0, "\r\n  "), //
 				te(1, 123, 1, 124, "\r\n    "), //
 				te(1, 130, 2, 2, " "), //
@@ -280,12 +443,15 @@ public class XMLFormatterMaxLineWithTest extends AbstractCacheBasedTest {
 				te(10, 7, 11, 2, " "), //
 				te(11, 107, 11, 107, "\r\n"), //
 				te(11, 116, 11, 117, "\r\n"));
-		assertFormat(expected, expected, 130);
+		assertFormat(expected, expected, settings);
 	}
 
 	// https://github.com/eclipse/lemminx/issues/594
 	@Test
 	public void mixedTextNoJoinContentLines() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setMaxLineWidth(130);
+		settings.getFormattingSettings().setJoinContentLines(false);
 		String content = "<para>All DocBook V5.0 elements are in the namespace <uri>http://docbook.org/ns/docbook</uri>. <acronym>XML <alt>Extensible Markup\r\n"
 				+ //
 				"  Language</alt></acronym> namespaces are used to distinguish between different element sets. In the last few years, almost all new\r\n"
@@ -315,27 +481,15 @@ public class XMLFormatterMaxLineWithTest extends AbstractCacheBasedTest {
 				"\r\n" + //
 				"  Using\r\n" + //
 				"  namespaces in your documents is very easy. Consider this simple article marked up in DocBook V4.5:</para>";
-		SharedSettings settings = new SharedSettings();
 
-		assertFormat(content, expected, 130, settings, //
+		assertFormat(content, expected, settings, //
 				te(1, 127, 1, 128, "\r\n  "));
-		assertFormat(expected, expected, 130, settings);
+		assertFormat(expected, expected, settings);
 	}
 
-	private static void assertFormat(String unformatted, String expected, int maxLineWidth,
-			SharedSettings sharedSettings, TextEdit... expectedEdits)
+	private static void assertFormat(String unformatted, String expected, SharedSettings sharedSettings,
+			TextEdit... expectedEdits)
 			throws BadLocationException {
-		sharedSettings.getFormattingSettings().setMaxLineWidth(maxLineWidth);
-		// Force to "experimental" formatter
-		sharedSettings.getFormattingSettings().setExperimental(true);
-		XMLAssert.assertFormat(null, unformatted, expected, sharedSettings, "test.xml", Boolean.FALSE, expectedEdits);
-	}
-
-	private static void assertFormat(String unformatted, String expected, int maxLineWidth, TextEdit... expectedEdits)
-			throws BadLocationException {
-		SharedSettings sharedSettings = new SharedSettings();
-		sharedSettings.getFormattingSettings().setMaxLineWidth(maxLineWidth);
-		sharedSettings.getFormattingSettings().setJoinContentLines(true);
 		// Force to "experimental" formatter
 		sharedSettings.getFormattingSettings().setExperimental(true);
 		XMLAssert.assertFormat(null, unformatted, expected, sharedSettings, "test.xml", Boolean.FALSE, expectedEdits);

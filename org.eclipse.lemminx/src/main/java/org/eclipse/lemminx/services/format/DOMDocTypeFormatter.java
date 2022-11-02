@@ -115,8 +115,10 @@ public class DOMDocTypeFormatter {
 				// unknown, so just leave alone for now but make sure to update
 				// available line width
 				formatterDocument.format(child, parentConstraints, start, end, edits);
-				int width = updateLineWidthWithLastLine(child, parentConstraints.getAvailableLineWidth());
-				parentConstraints.setAvailableLineWidth(width);
+				if (isMaxLineWidthSupported()){
+					int width = updateLineWidthWithLastLine(child, parentConstraints.getAvailableLineWidth());
+					parentConstraints.setAvailableLineWidth(width);
+				}
 			}
 		}
 	}
@@ -258,6 +260,10 @@ public class DOMDocTypeFormatter {
 
 	private int getPreservedNewlines() {
 		return formatterDocument.getSharedSettings().getFormattingSettings().getPreservedNewlines();
+	}
+
+	private boolean isMaxLineWidthSupported() {
+		return formatterDocument.isMaxLineWidthSupported();
 	}
 
 	private static int getDocTypeIdStart(DOMDocumentType docType) {

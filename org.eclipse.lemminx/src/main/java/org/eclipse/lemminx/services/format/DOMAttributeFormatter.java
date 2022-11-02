@@ -34,38 +34,27 @@ public class DOMAttributeFormatter {
 
 	public void formatAttribute(DOMAttr attr, int prevOffset, boolean singleAttribute, boolean useSettings,
 			XMLFormattingConstraints parentConstraints, List<TextEdit> edits) {
+		int indentLevel = parentConstraints.getIndentLevel();
 		// 1) format before attribute name : indent left of the attribute name
 		// ex : <foo[space][space]attr=""
 		// --> <foo[space]attr=""
 		boolean alreadyIndented = false;
 		if (useSettings) {
-			int indentLevel = parentConstraints.getIndentLevel();
+			// move the attribute to a new line and indent it
 			if (isPreserveAttributeLineBreaks() && hasLineBreak(prevOffset, attr.getStart())) {
 				replaceLeftSpacesWithIndentation(indentLevel + 1, prevOffset, attr.getStart(), true, edits);
 				alreadyIndented = true;
 			} else if (isSplitAttributes() && !singleAttribute) {
-				// move the attribute to a new line and indent it.
 				replaceLeftSpacesWithIndentation(indentLevel + getSplitAttributesIndentSize(), prevOffset,
 						attr.getStart(), true, edits);
 				alreadyIndented = true;
 			}
 		}
-		if (!alreadyIndented) {
-			// // remove extra whitespaces between previous attribute
-			// attr0='name'[space][space][space]attr1='name' -->
-			// attr0='name'[space]attr1='name'
-
-			// Adjust the startAttr to avoid ignoring invalid content
-			// ex : <asdf |""`=asdf />
-			// must be adjusted with <asdf ""|`=asdf /> to keep the invalid content ""
-			int from = prevOffset;
-			int to = attr.getStart();
-			replaceLeftSpacesWithOneSpace(from, to, edits);
-		}
 
 		// 2) format delimiter : remove whitespaces between '='
 		// ex : <foo attr = ""
 		// --> <foo attr=""
+		int attributeNamelength = 0;
 		if (attr.hasDelimiter()) {
 			int delimiterOffset = attr.getDelimiterOffset(); // <foo attr =| ""
 
@@ -78,7 +67,47 @@ public class DOMAttributeFormatter {
 				int attrValueStart = attr.getNodeAttrValue().getStart(); // <foo attr = |""
 				removeLeftSpaces(delimiterOffset, attrValueStart, edits);
 			}
-			formatAttributeValue(attr, parentConstraints.getIndentLevel(), edits);
+
+			// Compute max line width for attribute name and indents if maxLineWidth is
+			// enabled
+			if (isMaxLineWidthSupported()) {
+				int availableLineWidth = parentConstraints.getAvailableLineWidth();
+				if (isPreserveAttributeLineBreaks() && hasLineBreak(prevOffset, attr.getStart())) {
+					availableLineWidth = getMaxLineWidth() - getTabSize() * (indentLevel + 1);
+				} else if (isSplitAttributes() && !singleAttribute) {
+					availableLineWidth = getMaxLineWidth()
+							- getTabSize() * (indentLevel + getSplitAttributesIndentSize());
+				} else {
+					// counts the space between the start tag name and attribute value
+					availableLineWidth--;
+				}
+				// Add width for length of attribute name and 3 for '=""'
+				// between start tag name and tag
+				attributeNamelength = attrNameEnd - attr.getNodeAttrName().getStart() + 3;
+				parentConstraints.setAvailableLineWidth(availableLineWidth - attributeNamelength);
+			}
+			formatAttributeValue(attr, parentConstraints, edits);
+		}
+
+		if (!alreadyIndented) {
+			int from = prevOffset;
+			int to = attr.getStart();
+			if (isMaxLineWidthSupported() && parentConstraints.getAvailableLineWidth() < 0
+					&& !isSplitAttributes()) {
+				replaceLeftSpacesWithIndentation(indentLevel + 1, from, to, true, edits);
+				parentConstraints.setAvailableLineWidth(
+						getMaxLineWidth() - getTabSize() * (indentLevel + 1) - attributeNamelength
+								- attr.getValue().length());
+			} else {
+				// remove extra whitespaces between previous attribute
+				// attr0='name'[space][space][space]attr1='name' -->
+				// attr0='name'[space]attr1='name'
+
+				// Adjust the startAttr to avoid ignoring invalid content
+				// ex : <asdf |""`=asdf />
+				// must be adjusted with <asdf ""|`=asdf /> to keep the invalid content ""
+				replaceLeftSpacesWithOneSpace(from, to, edits);
+			}
 		}
 
 		// replace current quote with preferred quote in case of attribute value
@@ -99,8 +128,8 @@ public class DOMAttributeFormatter {
 		}
 	}
 
-	private void formatAttributeValue(DOMAttr attr, int indentLevel, List<TextEdit> edits) {
-		formatterDocument.formatAttributeValue(attr, indentLevel, edits);
+	private void formatAttributeValue(DOMAttr attr, XMLFormattingConstraints parentConstraints, List<TextEdit> edits) {
+		formatterDocument.formatAttributeValue(attr, parentConstraints, edits);
 	}
 
 	private void replaceQuoteWithPreferred(int from, int to, List<TextEdit> edits) {
@@ -142,5 +171,17 @@ public class DOMAttributeFormatter {
 
 	private EnforceQuoteStyle getEnforceQuoteStyle() {
 		return formatterDocument.getSharedSettings().getFormattingSettings().getEnforceQuoteStyle();
+	}
+
+	private int getTabSize() {
+		return formatterDocument.getSharedSettings().getFormattingSettings().getTabSize();
+	}
+
+	private int getMaxLineWidth() {
+		return formatterDocument.getMaxLineWidth();
+	}
+
+	private boolean isMaxLineWidthSupported() {
+		return formatterDocument.isMaxLineWidthSupported();
 	}
 }

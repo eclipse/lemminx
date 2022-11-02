@@ -49,25 +49,14 @@ public class DOMCommentFormatter {
 			leftWhitespaceOffset--;
 		}
 
-		int preservedNewLines = getPreservedNewlines();
-		boolean addLineSeparator = formatterDocument.hasLineBreak(leftWhitespaceOffset, start);
 		int indentLevel = parentConstraints.getIndentLevel();
-		int currentNewLineCount = XMLFormatterDocumentNew.getExistingNewLineCount(formatterDocument.getText(),
-				start,
-				formatterDocument.getLineDelimiter());
-		if (currentNewLineCount > preservedNewLines && startRange < start) {
-			replaceLeftSpacesWithIndentationWithMultiNewLines(indentLevel, 0, start,
-					preservedNewLines + 1, edits);
-			availableLineWidth = getMaxLineWidth() - getTabSize() * indentLevel;
-		} else if (addLineSeparator && startRange < start) {
-			int newLineCount = currentNewLineCount == 0 && !addLineSeparator ? 1 : currentNewLineCount;
-			replaceLeftSpacesWithIndentationWithMultiNewLines(indentLevel, 0, start,
-					newLineCount, edits);
+		if (formatterDocument.hasLineBreak(leftWhitespaceOffset, start) && startRange < start) {
+			replaceLeftSpacesWithIndentationPreservedNewLines(0, start, indentLevel, edits);
 			availableLineWidth = getMaxLineWidth() - getTabSize() * indentLevel;
 		}
 		int spaceStart = -1;
 		int spaceEnd = -1;
-		availableLineWidth -= 4;
+		availableLineWidth -= 4; // count for '<-!--'
 
 		for (int i = commentNode.getStartContent(); i < commentNode.getEndContent(); i++) {
 			char c = text.charAt(i);
@@ -89,18 +78,25 @@ public class DOMCommentFormatter {
 					i++;
 				}
 				int contentEnd = i;
-				availableLineWidth -= (contentEnd + 1 - contentStart);
-				if (availableLineWidth <= 0 && spaceStart != -1) {
-					// Add new line when the comment extends over the maximum line width
-					replaceLeftSpacesWithIndentation(indentLevel, spaceStart, contentStart,
-							true, edits);
-					int indentSpaces = (getTabSize() * indentLevel);
-					availableLineWidth = getMaxLineWidth() - indentSpaces - (contentEnd + 1 - contentStart);
-				} else if (isJoinCommentLines()) {
+				if (isMaxLineWidthSupported()) {
+					availableLineWidth -= (contentEnd + 1 - contentStart);
+					if (availableLineWidth <= 0 && spaceStart != -1) {
+						// Add new line when the comment extends over the maximum line width
+						replaceLeftSpacesWithIndentation(indentLevel, spaceStart, contentStart,
+								true, edits);
+						int indentSpaces = getTabSize() * indentLevel;
+						availableLineWidth = getMaxLineWidth() - indentSpaces - (contentEnd + 1 - contentStart);
+						spaceStart = -1;
+						spaceEnd = -1;
+						continue;
+					} else if (isJoinCommentLines()) {
+						availableLineWidth--;
+					} else if (spaceStart != -1) {
+						availableLineWidth -= spaceEnd - spaceStart;
+					}
+				}
+				if (isJoinCommentLines()) {
 					replaceSpacesWithOneSpace(spaceStart, spaceEnd - 1, edits);
-					availableLineWidth--;
-				} else if (spaceStart != -1) {
-					availableLineWidth -= spaceEnd - spaceStart;
 				}
 				spaceStart = -1;
 				spaceEnd = -1;
@@ -108,7 +104,10 @@ public class DOMCommentFormatter {
 		}
 		if (isJoinCommentLines()) {
 			replaceSpacesWithOneSpace(spaceStart, spaceEnd, edits);
-			availableLineWidth--;
+			if (isMaxLineWidthSupported()) {
+				availableLineWidth--;
+				parentConstraints.setAvailableLineWidth(availableLineWidth);
+			}
 		}
 	}
 
@@ -128,8 +127,8 @@ public class DOMCommentFormatter {
 		return formatterDocument.getMaxLineWidth();
 	}
 
-	private int getPreservedNewlines() {
-		return formatterDocument.getSharedSettings().getFormattingSettings().getPreservedNewlines();
+	private boolean isMaxLineWidthSupported() {
+		return formatterDocument.isMaxLineWidthSupported();
 	}
 
 	private void replaceSpacesWithOneSpace(int spaceStart, int spaceEnd, List<TextEdit> edits) {
@@ -141,11 +140,9 @@ public class DOMCommentFormatter {
 		return formatterDocument.replaceLeftSpacesWithIndentation(indentLevel, from, to, addLineSeparator, edits);
 	}
 
-	private int replaceLeftSpacesWithIndentationWithMultiNewLines(int indentLevel, int leftLimit, int offset,
-			int newLineCount,
-			List<TextEdit> edits) {
-		return formatterDocument.replaceLeftSpacesWithIndentationWithMultiNewLines(indentLevel, leftLimit, offset,
-				newLineCount,
+	private void replaceLeftSpacesWithIndentationPreservedNewLines(int spaceStart, int spaceEnd,
+			int indentLevel, List<TextEdit> edits) {
+		formatterDocument.replaceLeftSpacesWithIndentationPreservedNewLines(spaceStart, spaceEnd, indentLevel,
 				edits);
 	}
 }
