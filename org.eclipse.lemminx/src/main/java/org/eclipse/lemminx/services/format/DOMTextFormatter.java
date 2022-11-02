@@ -33,10 +33,10 @@ public class DOMTextFormatter {
 
 	public void formatText(DOMText textNode, XMLFormattingConstraints parentConstraints, List<TextEdit> edits) {
 		// Don't format the spacing in text for case of preserve empty content setting
-		if (isPreserveEmptyContent()) {
+		FormatElementCategory formatElementCategory = parentConstraints.getFormatElementCategory();
+		if (isPreserveEmptyContent() || formatElementCategory == FormatElementCategory.PreserveSpace) {
 			return;
 		}
-		FormatElementCategory formatElementCategory = parentConstraints.getFormatElementCategory();
 		String text = formatterDocument.getText();
 		int availableLineWidth = parentConstraints.getAvailableLineWidth();
 		int indentLevel = parentConstraints.getIndentLevel();
@@ -70,57 +70,55 @@ public class DOMTextFormatter {
 					i++;
 				}
 				int contentEnd = i + 1;
-				availableLineWidth -= contentEnd - contentStart;
-				if (formatElementCategory != FormatElementCategory.PreserveSpace) {
+				if (isMaxLineWidthSupported()) {
+					availableLineWidth -= contentEnd - contentStart;
 					if (textNode.getStart() != contentStart && availableLineWidth >= 0
 							&& (isJoinContentLines() || !containsNewLine)) {
 						// Decrement width for normalized space between text content (not done at
 						// beginning)
 						availableLineWidth--;
 					}
-					if (availableLineWidth < 0) {
+					if (availableLineWidth < 0 && spaceStart != -1) {
 						int mixedContentIndentLevel = parentConstraints.getMixedContentIndentLevel() == 0 ? indentLevel
 								: parentConstraints.getMixedContentIndentLevel();
-						if (spaceStart != -1) {
-							replaceLeftSpacesWithIndentation(mixedContentIndentLevel, spaceStart, contentStart,
-									true, edits);
-							availableLineWidth = maxLineWidth - (contentEnd - contentStart)
-									- mixedContentIndentLevel * getTabSize();
-							containsNewLine = false;
-						}
-					} else if (isJoinContentLines() || !containsNewLine) {
-						// Case of isJoinContent == true: join all text content with single space
-						// Case of isJoinContent == false: normalize space only between element start
-						// tag and start of text content or doesn't contain a new line
-						replaceSpacesWithOneSpace(spaceStart, spaceEnd - 1, edits);
+						replaceLeftSpacesWithIndentation(mixedContentIndentLevel, spaceStart, contentStart,
+								true, edits);
+						availableLineWidth = maxLineWidth - (contentEnd - contentStart)
+								- mixedContentIndentLevel * getTabSize();
 						containsNewLine = false;
-					} else if (containsNewLine) {
-						replaceLeftSpacesWithIndentationPreservedNewLines(spaceStart, spaceEnd,
-								indentLevel, edits);
-						containsNewLine = false;
+						spaceStart = -1;
+						spaceEnd = -1;
+						continue;
+					} else if (containsNewLine && !isJoinContentLines()) {
 						availableLineWidth = maxLineWidth - (contentEnd - contentStart)
 								- indentLevel * getTabSize();
-					} else {
-						availableLineWidth -= spaceEnd - spaceStart;
 					}
 				}
-				parentConstraints.setAvailableLineWidth(availableLineWidth);
+				if (isJoinContentLines() || !containsNewLine) {
+					// Case of isJoinContent == true: join all text content with single space
+					// Case of isJoinContent == false: normalize space only between element start
+					// tag and start of text content or doesn't contain a new line
+					replaceSpacesWithOneSpace(spaceStart, spaceEnd - 1, edits);
+					containsNewLine = false;
+				} else if (containsNewLine) {
+					replaceLeftSpacesWithIndentationPreservedNewLines(spaceStart, spaceEnd,
+							indentLevel, edits);
+					containsNewLine = false;
+				}
 				spaceStart = -1;
 				spaceEnd = -1;
 			}
 		}
-		if (formatElementCategory != FormatElementCategory.PreserveSpace
-				&& formatElementCategory != FormatElementCategory.IgnoreSpace && spaceEnd + 1 != text.length()) {
+		if (formatElementCategory != FormatElementCategory.IgnoreSpace && spaceEnd + 1 != text.length()) {
 			DOMElement parentElement = textNode.getParentElement();
 			// Don't format final spaces if text is at the end of the file
-			if (!containsNewLine || isJoinContentLines()) {
+			if ((!containsNewLine || isJoinContentLines()) && availableLineWidth > 0) {
 				// Replace spaces with single space in the case of:
 				// 1. there is no new line
 				// 2. isJoinContentLines
 				replaceSpacesWithOneSpace(spaceStart, spaceEnd, edits);
-				if (spaceStart != -1) {
+				if (isMaxLineWidthSupported() && spaceStart != -1) {
 					availableLineWidth--;
-					parentConstraints.setAvailableLineWidth(availableLineWidth);
 				}
 			} else {
 				if (formatElementCategory == FormatElementCategory.NormalizeSpace
@@ -133,6 +131,9 @@ public class DOMTextFormatter {
 			}
 		} else if (isTrimTrailingWhitespace()) {
 			removeLeftSpaces(spaceStart, lineSeparatorOffset, edits);
+		}
+		if (isMaxLineWidthSupported()) {
+			parentConstraints.setAvailableLineWidth(availableLineWidth);
 		}
 	}
 
@@ -178,4 +179,9 @@ public class DOMTextFormatter {
 	private boolean isTrimTrailingWhitespace() {
 		return formatterDocument.getSharedSettings().getFormattingSettings().isTrimTrailingWhitespace();
 	}
+
+	private boolean isMaxLineWidthSupported() {
+		return formatterDocument.isMaxLineWidthSupported();
+	}
+
 }

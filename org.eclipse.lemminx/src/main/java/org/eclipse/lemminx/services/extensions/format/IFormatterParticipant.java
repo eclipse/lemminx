@@ -64,7 +64,7 @@ public interface IFormatterParticipant {
 	 * @return true if the given attribute can be formatted and false otherwise.
 	 */
 	default boolean formatAttributeValue(DOMAttr attr, XMLFormatterDocumentNew formatterDocument,
-			int indentLevel, XMLFormattingOptions formattingOptions, List<TextEdit> edits) {
+			XMLFormattingConstraints parentConstraints, XMLFormattingOptions formattingOptions, List<TextEdit> edits) {
 		return false;
 	}
 

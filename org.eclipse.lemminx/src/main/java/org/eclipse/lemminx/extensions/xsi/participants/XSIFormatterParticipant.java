@@ -20,6 +20,7 @@ import org.eclipse.lemminx.extensions.xsi.XSISchemaModel;
 import org.eclipse.lemminx.extensions.xsi.settings.XSISchemaLocationSplit;
 import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
 import org.eclipse.lemminx.services.format.XMLFormatterDocumentNew;
+import org.eclipse.lemminx.services.format.XMLFormattingConstraints;
 import org.eclipse.lemminx.settings.XMLFormattingOptions;
 import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lemminx.utils.XMLBuilder;
@@ -159,12 +160,16 @@ public class XSIFormatterParticipant implements IFormatterParticipant {
 	}
 
 	@Override
-	public boolean formatAttributeValue(DOMAttr attr, XMLFormatterDocumentNew formatterDocument, int indentLevel,
-			XMLFormattingOptions formattingOptions, List<TextEdit> edits) {
+	public boolean formatAttributeValue(DOMAttr attr, XMLFormatterDocumentNew formatterDocument,
+			XMLFormattingConstraints parentConstraints, XMLFormattingOptions formattingOptions, List<TextEdit> edits) {
 
 		XSISchemaLocationSplit split = XSISchemaLocationSplit.getSplit(formattingOptions);
 
 		if (split == XSISchemaLocationSplit.none || !XSISchemaModel.isXSISchemaLocationAttr(attr.getName(), attr)) {
+			if (formatterDocument.isMaxLineWidthSupported()) {
+				parentConstraints
+						.setAvailableLineWidth(parentConstraints.getAvailableLineWidth() - attr.getValue().length());
+			}
 			return false;
 		}
 
@@ -197,11 +202,20 @@ public class XSIFormatterParticipant implements IFormatterParticipant {
 		int lineFeed = split == XSISchemaLocationSplit.onElement ? 1 : 2;
 		int locationNum = 1;
 		String attrValue = attr.getOriginalValue();
+		int lastAttrValueTermIndex = 0;
+		int availableLineWidth = parentConstraints.getAvailableLineWidth();
 
 		for (int i = firstContentOffset; i < attrValue.length(); i++) {
 			int from = formatterDocument.adjustOffsetWithLeftWhitespaces(attrValueStart, attrValueStart + i + 1);
 			if (Character.isWhitespace(attrValue.charAt(i)) && !Character.isWhitespace(attrValue.charAt(i + 1))
 					&& !StringUtils.isQuote(attrValue.charAt(from - attrValueStart))) {
+				availableLineWidth -= i - lastAttrValueTermIndex;
+				lastAttrValueTermIndex = i;
+				if (availableLineWidth < 0 && formatterDocument.isMaxLineWidthSupported()
+						&& !formattingOptions.isSplitAttributes()) {
+					indentSpaceOffset = (attrValueStart + 1) - attr.getNodeAttrName().getStart()
+							+ (parentConstraints.getIndentLevel() + 1) * tabSize;
+				}
 				// Insert newline and indent where required based on setting
 				if (locationNum % lineFeed == 0) {
 					formatterDocument.replaceLeftSpacesWithIndentationWithOffsetSpaces(indentSpaceOffset,
@@ -211,6 +225,11 @@ public class XSIFormatterParticipant implements IFormatterParticipant {
 				}
 				locationNum++;
 			}
+		}
+		if (formatterDocument.isMaxLineWidthSupported()) {
+			parentConstraints
+					.setAvailableLineWidth(formatterDocument.getMaxLineWidth() - (attrValueStart - indentSpaceOffset)
+							- attr.getValue().length());
 		}
 		return true;
 	}

@@ -706,6 +706,7 @@ public class XMLFormatterExperimentalTest extends AbstractCacheBasedTest {
 				"  comment comment comment comment comment comment comment comment comment\n" + //
 				"  comment comment comment comment comment comment comment comment --></a>";
 		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setMaxLineWidth(80);
 		assertFormat(content, expected, settings, //
 				te(1, 78, 1, 79, "\n  "), //
 				te(1, 150, 1, 151, "\n  "));

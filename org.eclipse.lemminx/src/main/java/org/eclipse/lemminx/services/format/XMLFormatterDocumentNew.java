@@ -140,17 +140,18 @@ public class XMLFormatterDocumentNew {
 			int startOffset = currentDOMNode.getStart();
 
 			XMLFormattingConstraints parentConstraints = getNodeConstraints(currentDOMNode);
+			if (isMaxLineWidthSupported()) {
+				// initialize available line width
+				int lineWidth = getMaxLineWidth();
 
-			// initialize available line width
-			int lineWidth = getMaxLineWidth();
-
-			try {
-				int lineOffset = textDocument.lineOffsetAt(startOffset);
-				lineWidth = lineWidth - (startOffset - lineOffset);
-			} catch (BadLocationException e) {
-				LOGGER.log(Level.SEVERE, e.getMessage(), e);
+				try {
+					int lineOffset = textDocument.lineOffsetAt(startOffset);
+					lineWidth = lineWidth - (startOffset - lineOffset);
+				} catch (BadLocationException e) {
+					LOGGER.log(Level.SEVERE, e.getMessage(), e);
+				}
+				parentConstraints.setAvailableLineWidth(lineWidth);
 			}
-			parentConstraints.setAvailableLineWidth(lineWidth);
 
 			// format all siblings (and their children) as long they
 			// overlap with start/end offset
@@ -191,7 +192,7 @@ public class XMLFormatterDocumentNew {
 			boolean removeSpaces = true;
 
 			// removes spaces and new lines at the end of xml
-			if (isTrimFinalNewlines() &&  !isLineSeparator(curr)) {
+			if (isTrimFinalNewlines() && !isLineSeparator(curr)) {
 				while (Character.isWhitespace(curr) && i > 0) {
 					i--;
 					curr = xml.charAt(i);
@@ -354,8 +355,10 @@ public class XMLFormatterDocumentNew {
 			default:
 				// unknown, so just leave alone for now but make sure to update
 				// available line width
-				int width = updateLineWidthWithLastLine(child, parentConstraints.getAvailableLineWidth());
-				parentConstraints.setAvailableLineWidth(width);
+				if (isMaxLineWidthSupported()) {
+					int width = updateLineWidthWithLastLine(child, parentConstraints.getAvailableLineWidth());
+					parentConstraints.setAvailableLineWidth(width);
+				}
 		}
 	}
 
@@ -366,11 +369,11 @@ public class XMLFormatterDocumentNew {
 		}
 	}
 
-	public void formatAttributeValue(DOMAttr attr, int indentLevel, List<TextEdit> edits) {
+	public void formatAttributeValue(DOMAttr attr, XMLFormattingConstraints parentConstraints, List<TextEdit> edits) {
 		if (formatterParticipants != null) {
 			for (IFormatterParticipant formatterParticipant : formatterParticipants) {
 				try {
-					if (formatterParticipant.formatAttributeValue(attr, this, indentLevel, getFormattingSettings(),
+					if (formatterParticipant.formatAttributeValue(attr, this, parentConstraints, getFormattingSettings(),
 							edits)) {
 						return;
 					}
@@ -786,7 +789,11 @@ public class XMLFormatterDocumentNew {
 		return newLineCounter;
 	}
 
-	int getMaxLineWidth() {
+	public boolean isMaxLineWidthSupported() {
+		return getMaxLineWidth() != 0;
+	}
+
+	public int getMaxLineWidth() {
 		return getFormattingSettings().getMaxLineWidth();
 	}
 

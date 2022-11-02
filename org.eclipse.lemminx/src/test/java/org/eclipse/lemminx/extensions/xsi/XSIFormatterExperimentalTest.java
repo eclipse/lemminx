@@ -29,10 +29,11 @@ import org.junit.jupiter.api.Test;
 public class XSIFormatterExperimentalTest extends AbstractCacheBasedTest {
 
 	@Test
-	public void xsiSchemaLocationSplitNone() throws BadLocationException {
+	public void xsiSchemaLocationSplitNoneNoMaxLineWidth() throws BadLocationException {
 		// Default
 		SharedSettings settings = createSettings();
 		XSISchemaLocationSplit.setSplit(XSISchemaLocationSplit.none, settings.getFormattingSettings());
+		settings.getFormattingSettings().setMaxLineWidth(0);
 		String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<beans xmlns=\"http://www.springframework.org/schema/beans\" " + //
 				"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " + //
@@ -46,7 +47,42 @@ public class XSIFormatterExperimentalTest extends AbstractCacheBasedTest {
 		// None
 		settings = createSettings();
 		XSISchemaLocationSplit.setSplit(XSISchemaLocationSplit.none, settings.getFormattingSettings());
+		settings.getFormattingSettings().setMaxLineWidth(0);
 		assertFormat(content, expected, settings);
+	}
+
+	@Test
+	public void xsiSchemaLocationSplitNoneWithDefaultMaxLineWidth() throws BadLocationException {
+		// Default
+		SharedSettings settings = createSettings();
+		settings.getFormattingSettings().setMaxLineWidth(80);
+		XSISchemaLocationSplit.setSplit(XSISchemaLocationSplit.none, settings.getFormattingSettings());
+		String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<beans xmlns=\"http://www.springframework.org/schema/beans\" " + //
+				"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " + //
+				"xmlns:util=\"http://www.springframework.org/schema/util\" " + //
+				"xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\r\n"
+				+ //
+				"        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd\"> </beans>";
+		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<beans xmlns=\"http://www.springframework.org/schema/beans\"\r\n" + //
+				"  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"  xmlns:util=\"http://www.springframework.org/schema/util\"\r\n" + //
+				"  xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\r\n"
+				+ //
+				"        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd\"> </beans>";
+		assertFormat(content, expected, settings,
+				te(1, 58, 1, 59, "\r\n  "), //
+				te(1, 112, 1, 113, "\r\n  "), //
+				te(1, 168, 1, 169, "\r\n  "));
+
+		// None
+		settings = createSettings();
+		XSISchemaLocationSplit.setSplit(XSISchemaLocationSplit.none, settings.getFormattingSettings());
+		assertFormat(content, expected, settings,
+				te(1, 58, 1, 59, "\r\n  "), //
+				te(1, 112, 1, 113, "\r\n  "), //
+				te(1, 168, 1, 169, "\r\n  "));
 	}
 
 	@Test
@@ -54,6 +90,7 @@ public class XSIFormatterExperimentalTest extends AbstractCacheBasedTest {
 		SharedSettings settings = createSettings();
 		settings.getFormattingSettings().setSplitAttributes(false);
 		settings.getFormattingSettings().setPreserveAttributeLineBreaks(false);
+		settings.getFormattingSettings().setMaxLineWidth(0);
 		XSISchemaLocationSplit.setSplit(XSISchemaLocationSplit.onElement, settings.getFormattingSettings());
 		String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<beans\r\n" + //
@@ -159,10 +196,11 @@ public class XSIFormatterExperimentalTest extends AbstractCacheBasedTest {
 	}
 
 	@Test
-	public void xsiSchemaLocationSplitOnPair() throws BadLocationException {
+	public void xsiSchemaLocationSplitOnPairWithNoMaxLineWidth() throws BadLocationException {
 		SharedSettings settings = createSettings();
 		settings.getFormattingSettings().setSplitAttributes(false);
 		settings.getFormattingSettings().setPreserveAttributeLineBreaks(false);
+		settings.getFormattingSettings().setMaxLineWidth(0);
 		XSISchemaLocationSplit.setSplit(XSISchemaLocationSplit.onPair, settings.getFormattingSettings());
 		String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<beans\r\n" + //
@@ -179,6 +217,33 @@ public class XSIFormatterExperimentalTest extends AbstractCacheBasedTest {
 				te(2, 78, 3, 8, ""), //
 				te(3, 112, 4, 8,
 						"\r\n                                                                                 "));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void xsiSchemaLocationSplitOnPairWithDefaultMaxLineWidth() throws BadLocationException {
+		SharedSettings settings = createSettings();
+		settings.getFormattingSettings().setSplitAttributes(false);
+		settings.getFormattingSettings().setPreserveAttributeLineBreaks(false);
+		settings.getFormattingSettings().setMaxLineWidth(80);
+		XSISchemaLocationSplit.setSplit(XSISchemaLocationSplit.onPair, settings.getFormattingSettings());
+		String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<beans\r\n" + //
+				"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"\r\n" + //
+				"        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\r\n"
+				+ //
+				"        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd\"> </beans>";
+		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<beans xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"  xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\r\n"
+				+ //
+				"                      http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd\"> </beans>";
+		assertFormat(content, expected, settings,
+				te(1, 6, 2, 4, " "), //
+				te(2, 57, 2, 58, "\r\n  "), //
+				te(2, 78, 3, 8, ""), //
+				te(3, 112, 4, 8,
+						"\r\n                      "));
 		assertFormat(expected, expected, settings);
 	}
 
@@ -217,10 +282,11 @@ public class XSIFormatterExperimentalTest extends AbstractCacheBasedTest {
 	}
 
 	@Test
-	public void xsiSchemaLocationSplitOnPairWithPreserveLineBreaks() throws BadLocationException {
+	public void xsiSchemaLocationSplitOnPairWithPreserveLineBreaksWithNoMaxLineWidth() throws BadLocationException {
 		SharedSettings settings = createSettings();
 		settings.getFormattingSettings().setInsertSpaces(true);
 		settings.getFormattingSettings().setPreserveAttributeLineBreaks(true);
+		settings.getFormattingSettings().setMaxLineWidth(0);
 		XSISchemaLocationSplit.setSplit(XSISchemaLocationSplit.onPair, settings.getFormattingSettings());
 		String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<beans\r\n" + //
@@ -239,6 +305,35 @@ public class XSIFormatterExperimentalTest extends AbstractCacheBasedTest {
 				te(2, 80, 3, 8, ""), //
 				te(3, 112, 4, 8,
 						"\r\n                                                                            "));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void xsiSchemaLocationSplitOnPairWithPreserveLineBreaksWithDefaultMaxLineWidth()
+			throws BadLocationException {
+		SharedSettings settings = createSettings();
+		settings.getFormattingSettings().setInsertSpaces(true);
+		settings.getFormattingSettings().setPreserveAttributeLineBreaks(true);
+		settings.getFormattingSettings().setMaxLineWidth(80);
+		XSISchemaLocationSplit.setSplit(XSISchemaLocationSplit.onPair, settings.getFormattingSettings());
+		String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<beans\r\n" + //
+				"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"   xsi:schemaLocation=\"\r\n" + //
+				"        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\r\n"
+				+ //
+				"        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd\"> </beans>";
+		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<beans\r\n" + //
+				"  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"  xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\r\n"
+				+ //
+				"                      http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd\"> </beans>";
+		assertFormat(content, expected, settings,
+				te(1, 6, 2, 4, "\r\n  "), //
+				te(2, 57, 2, 60, "\r\n  "), //
+				te(2, 80, 3, 8, ""), //
+				te(3, 112, 4, 8,
+						"\r\n                      "));
 		assertFormat(expected, expected, settings);
 	}
 
@@ -273,6 +368,7 @@ public class XSIFormatterExperimentalTest extends AbstractCacheBasedTest {
 	@Test
 	public void xsiSchemaLocationEmpty() throws BadLocationException {
 		SharedSettings settings = createSettings();
+		settings.getFormattingSettings().setMaxLineWidth(0);
 		XSISchemaLocationSplit.setSplit(XSISchemaLocationSplit.onElement, settings.getFormattingSettings());
 		String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<beans " + //
@@ -327,11 +423,12 @@ public class XSIFormatterExperimentalTest extends AbstractCacheBasedTest {
 	}
 
 	@Test
-	public void xsiSchemaLocationSplitOnElementWithTabs() throws BadLocationException {
+	public void xsiSchemaLocationSplitOnElementWithTabsNoMaxLineWidth() throws BadLocationException {
 		SharedSettings settings = createSettings();
 		settings.getFormattingSettings().setTabSize(4);
 		settings.getFormattingSettings().setInsertSpaces(false);
 		settings.getFormattingSettings().setPreserveAttributeLineBreaks(false);
+		settings.getFormattingSettings().setMaxLineWidth(0);
 		XSISchemaLocationSplit.setSplit(XSISchemaLocationSplit.onElement, settings.getFormattingSettings());
 		String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<beans\r\n" + //
@@ -361,6 +458,42 @@ public class XSIFormatterExperimentalTest extends AbstractCacheBasedTest {
 				te(4, 51, 4, 52, "\r\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t "), //
 				te(4, 112, 5, 8, "\r\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t "), //
 				te(5, 50, 5, 51, "\r\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t "));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void xsiSchemaLocationSplitOnElementWithTabsDefaultMaxLineWidth() throws BadLocationException {
+		SharedSettings settings = createSettings();
+		settings.getFormattingSettings().setTabSize(4);
+		settings.getFormattingSettings().setInsertSpaces(false);
+		settings.getFormattingSettings().setPreserveAttributeLineBreaks(false);
+		settings.getFormattingSettings().setMaxLineWidth(80);
+		XSISchemaLocationSplit.setSplit(XSISchemaLocationSplit.onElement, settings.getFormattingSettings());
+		String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<beans\r\n" + //
+				"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"    xsi:schemaLocation=\"\r\n" + //
+				"        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\r\n"
+				+ //
+				"        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd\">\r\n"
+				+ //
+				"\r\n" + //
+				"</beans>";
+		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<beans xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"	xsi:schemaLocation=\"http://www.springframework.org/schema/beans\r\n" + //
+				"						http://www.springframework.org/schema/beans/spring-beans.xsd\r\n" + //
+				"						http://www.springframework.org/schema/util\r\n" + //
+				"						http://www.springframework.org/schema/util/spring-util.xsd\">\r\n" + //
+				"\r\n" + //
+				"</beans>";
+		assertFormat(content, expected, settings,
+				te(1, 6, 2, 4, " "), //
+				te(2, 57, 3, 4, "\r\n\t"), //
+				te(3, 24, 4, 8, ""), //
+				te(4, 51, 4, 52, "\r\n\t\t\t\t\t\t"), //
+				te(4, 112, 5, 8, "\r\n\t\t\t\t\t\t"), //
+				te(5, 50, 5, 51, "\r\n\t\t\t\t\t\t"));
 		assertFormat(expected, expected, settings);
 	}
 
@@ -407,11 +540,13 @@ public class XSIFormatterExperimentalTest extends AbstractCacheBasedTest {
 	}
 
 	@Test
-	public void xsiSchemaLocationSplitOnElementWithTabsWithPreserveLineBreaksOnSome() throws BadLocationException {
+	public void xsiSchemaLocationSplitOnElementWithTabsWithPreserveLineBreaksOnSomeWithNoMaxLineWidth()
+			throws BadLocationException {
 		SharedSettings settings = createSettings();
 		settings.getFormattingSettings().setTabSize(4);
 		settings.getFormattingSettings().setInsertSpaces(false);
 		settings.getFormattingSettings().setPreserveAttributeLineBreaks(true);
+		settings.getFormattingSettings().setMaxLineWidth(0);
 		XSISchemaLocationSplit.setSplit(XSISchemaLocationSplit.onElement, settings.getFormattingSettings());
 		String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<beans\r\n" + //
@@ -449,12 +584,56 @@ public class XSIFormatterExperimentalTest extends AbstractCacheBasedTest {
 	}
 
 	@Test
-	public void xsiSchemaLocationSplitOnElementWithTabsWithPreserveLineBreaksWithDiffIndent()
+	public void xsiSchemaLocationSplitOnElementWithTabsWithPreserveLineBreaksOnSomeDefaultMaxLineWidth()
 			throws BadLocationException {
 		SharedSettings settings = createSettings();
 		settings.getFormattingSettings().setTabSize(4);
 		settings.getFormattingSettings().setInsertSpaces(false);
 		settings.getFormattingSettings().setPreserveAttributeLineBreaks(true);
+		settings.getFormattingSettings().setMaxLineWidth(80);
+		XSISchemaLocationSplit.setSplit(XSISchemaLocationSplit.onElement, settings.getFormattingSettings());
+		String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<beans\r\n" + //
+				"    xmlns=\"http://www.springframework.org/schema/beans\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n"
+				+ //
+				"    xmlns:util=\"http://www.springframework.org/schema/util\" xsi:schemaLocation=\"\r\n" + //
+				"        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\r\n"
+				+ //
+				"        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd\">\r\n"
+				+ //
+				"\r\n" + //
+				"</beans>";
+		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<beans\r\n" + //
+				"	xmlns=\"http://www.springframework.org/schema/beans\"\r\n" + //
+				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"	xmlns:util=\"http://www.springframework.org/schema/util\"\r\n" + //
+				"	xsi:schemaLocation=\"http://www.springframework.org/schema/beans\r\n" + //
+				"						http://www.springframework.org/schema/beans/spring-beans.xsd\r\n" + //
+				"						http://www.springframework.org/schema/util\r\n" + //
+				"						http://www.springframework.org/schema/util/spring-util.xsd\">\r\n" + //
+				"\r\n" + //
+				"</beans>";
+		assertFormat(content, expected, settings,
+				te(1, 6, 2, 4, "\r\n\t"), //
+				te(2, 55, 2, 56, "\r\n\t"), //
+				te(2, 109, 3, 4, "\r\n\t"), //
+				te(3, 59, 3, 60, "\r\n\t"), //
+				te(3, 80, 4, 8, ""), //
+				te(4, 51, 4, 52, "\r\n\t\t\t\t\t\t"), //
+				te(4, 112, 5, 8, "\r\n\t\t\t\t\t\t"), //
+				te(5, 50, 5, 51, "\r\n\t\t\t\t\t\t"));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void xsiSchemaLocationSplitOnElementWithTabsWithPreserveLineBreaksWithDiffIndentWithNoMaxLineWidth()
+			throws BadLocationException {
+		SharedSettings settings = createSettings();
+		settings.getFormattingSettings().setTabSize(4);
+		settings.getFormattingSettings().setInsertSpaces(false);
+		settings.getFormattingSettings().setPreserveAttributeLineBreaks(true);
+		settings.getFormattingSettings().setMaxLineWidth(0);
 		XSISchemaLocationSplit.setSplit(XSISchemaLocationSplit.onElement, settings.getFormattingSettings());
 		String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<beans\r\n" + //
@@ -492,12 +671,57 @@ public class XSIFormatterExperimentalTest extends AbstractCacheBasedTest {
 	}
 
 	@Test
+	public void xsiSchemaLocationSplitOnElementWithTabsWithPreserveLineBreaksWithDiffIndentWithDedaultMaxLineWidth()
+			throws BadLocationException {
+		SharedSettings settings = createSettings();
+		settings.getFormattingSettings().setTabSize(4);
+		settings.getFormattingSettings().setInsertSpaces(false);
+		settings.getFormattingSettings().setPreserveAttributeLineBreaks(true);
+		settings.getFormattingSettings().setMaxLineWidth(80);
+		XSISchemaLocationSplit.setSplit(XSISchemaLocationSplit.onElement, settings.getFormattingSettings());
+		String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<beans\r\n" + //
+				"      xmlns=\"http://www.springframework.org/schema/beans\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n"
+				+ //
+				"      xmlns:util=\"http://www.springframework.org/schema/util\" xsi:schemaLocation=\"\r\n" + //
+				"        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd\r\n"
+				+ //
+				"        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd\">\r\n"
+				+ //
+				"\r\n" + //
+				"</beans>";
+		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<beans\r\n" + //
+				"	xmlns=\"http://www.springframework.org/schema/beans\"\r\n" + //
+				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n"
+				+ //
+				"	xmlns:util=\"http://www.springframework.org/schema/util\"\r\n" + //
+				"	xsi:schemaLocation=\"http://www.springframework.org/schema/beans\r\n" + //
+				"						http://www.springframework.org/schema/beans/spring-beans.xsd\r\n" + //
+				"						http://www.springframework.org/schema/util\r\n" + //
+				"						http://www.springframework.org/schema/util/spring-util.xsd\">\r\n" + //
+				"\r\n" + //
+				"</beans>";
+		assertFormat(content, expected, settings,
+				te(1, 6, 2, 6, "\r\n\t"), //
+				te(2, 57, 2, 58, "\r\n\t"), //
+				te(2, 111, 3, 6, "\r\n\t"), //
+				te(3, 61, 3, 62, "\r\n\t"), //
+				te(3, 82, 4, 8, ""), //
+				te(4, 51, 4, 52, "\r\n\t\t\t\t\t\t"), //
+				te(4, 112, 5, 8, "\r\n\t\t\t\t\t\t"), //
+				te(5, 50, 5, 51, "\r\n\t\t\t\t\t\t"));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
 	public void xsiSchemaLocationSplitOnElementWithTabsWithPreserveLineBreaksWithMultiTabIndent()
 			throws BadLocationException {
 		SharedSettings settings = createSettings();
 		settings.getFormattingSettings().setTabSize(4);
 		settings.getFormattingSettings().setInsertSpaces(false);
 		settings.getFormattingSettings().setPreserveAttributeLineBreaks(true);
+		settings.getFormattingSettings().setMaxLineWidth(0);
 		XSISchemaLocationSplit.setSplit(XSISchemaLocationSplit.onElement, settings.getFormattingSettings());
 		String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<beans\r\n" + //
