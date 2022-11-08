@@ -16,6 +16,7 @@ import java.util.List;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMElement;
+import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLFormattingOptions.EmptyElements;
 import org.eclipse.lemminx.utils.StringUtils;
@@ -293,7 +294,9 @@ public class DOMElementFormatter {
 			// Remove spaces and indent if the last child is an element, not text
 			// before formatting: <a> example text <b> </b> [space][space]</a>
 			// after formatting: <a> example text <b> </b>\n</a>
-			if ((element.getLastChild().isElement() || element.getLastChild().isComment())
+			DOMNode lastChild = element.getLastChild();
+			if (lastChild != null 
+					&& (lastChild.isElement() || lastChild.isComment())
 					&& Character.isWhitespace(formatterDocument.getText().charAt(endTagOffset - 1))
 					&& !isPreserveEmptyContent()) {
 				replaceLeftSpacesWithIndentationPreservedNewLines(startTagCloseOffset, endTagOffset,
