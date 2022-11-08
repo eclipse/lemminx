@@ -369,9 +369,7 @@ public class DOMParser {
 						tempWhitespaceContent = textNode;
 						break;
 
-					} else if (!currIsDeclNode) {
-						textNode.setWhitespace(true);
-					} else {
+					} else if (currIsDeclNode) {
 						break;
 					}
 
