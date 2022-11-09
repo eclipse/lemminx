@@ -543,20 +543,18 @@ public class XMLFormatterMaxLineWithTest extends AbstractCacheBasedTest {
 				+ //
 				"  Language</alt></acronym> namespaces are used to distinguish between different element sets. In the last few years, almost all\r\n"
 				+ //
-				"  new\r\n" + //
-				"  XML grammars have used their own namespace. It is easy to create compound documents that contain elements from different XML\r\n"
+				"  new XML grammars have used their own namespace. It is easy to create compound documents that contain elements from different XML\r\n"
 				+ //
-				"  vocabularies. DocBook V5.0 is\r\n" + //
-				"\r\n" + //
-				"\r\n" + //
-				"  <emphasis>following</emphasis> this\r\n" + //
-				"  <emphasis>design</emphasis>/<emphasis>rule</emphasis>.\r\n" + //
-				"\r\n" + //
-				"  Using\r\n" + //
+				"  vocabularies. DocBook V5.0 is <emphasis>following</emphasis> this <emphasis>design</emphasis>/<emphasis>rule</emphasis>. Using\r\n"
+				+ //
 				"  namespaces in your documents is very easy. Consider this simple article marked up in DocBook V4.5:</para>";
 
 		assertFormat(content, expected, settings, //
-				te(1, 127, 1, 128, "\r\n  "));
+				te(1, 127, 1, 128, "\r\n  "), //
+				te(1, 131, 2, 2, " "), //
+				te(3, 31, 6, 2, " "), //
+				te(6, 37, 7, 2, " "), //
+				te(7, 56, 9, 2, " "));
 		assertFormat(expected, expected, settings);
 	}
 

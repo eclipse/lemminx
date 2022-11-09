@@ -54,17 +54,17 @@ public class XMLFormatterPreserveSpacesTest {
 				"  </b>\r\n" + //
 				"</a>";
 		String expected = "<a>\r\n" + //
-				"  <b>\r\n" + //
-				"    c <d></d> e\r\n" + //
-				"  </b>\r\n" + //
+				"  <b> c <d></d> e </b>\r\n" + //
 				"  <b xml:space=\"preserve\">\r\n" + //
 				"    c  <d></d>  e\r\n" + //
 				"  </b>\r\n" + //
 				"</a>";
 
 		assertFormat(content, expected, //
+				te(1, 5, 2, 4, " "), //
 				te(2, 5, 2, 7, " "), //
-				te(2, 14, 2, 16, " "));
+				te(2, 14, 2, 16, " "), //
+				te(2, 17, 3, 2, " "));
 		assertFormat(expected, expected);
 	}
 
@@ -84,60 +84,6 @@ public class XMLFormatterPreserveSpacesTest {
 				" c</xsl:text>";
 		String expected = content;
 		assertFormat(content, expected);
-	}
-
-	@Test
-	public void preserveSpacesWithXsdStringWithNoMaxLineWidth() throws Exception {
-		String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
-				"<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 src/test/resources/xsd/maven-4.0.0.xsd\">\r\n"
-				+ //
-				"  <description>a    b     c</description>\r\n" + //
-				"  <description2>a    b     c</description2>\r\n" + //
-				"</project>";
-
-		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
-				"<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 src/test/resources/xsd/maven-4.0.0.xsd\">\r\n"
-				+ //
-				"  <description>a    b     c</description>\r\n" + // <-- preserve space because description is xs:string
-				"  <description2>a b c</description2>\r\n" + // <-- no preserve space because description2 is not a
-																// xs:string
-				"</project>";
-
-		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setMaxLineWidth(0);
-		settings.getFormattingSettings().setGrammarAwareFormatting(true);
-		assertFormat(content, expected, settings, //
-				te(3, 17, 3, 21, " "), //
-				te(3, 22, 3, 27, " "));
-	}
-
-	@Test
-	public void preserveSpacesWithXsdStringWithMaxLineWidth() throws Exception {
-		String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
-				"<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 src/test/resources/xsd/maven-4.0.0.xsd\">\r\n"
-				+ //
-				"  <description>a    b     c</description>\r\n" + //
-				"  <description2>a    b     c</description2>\r\n" + //
-				"</project>";
-
-		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
-				"<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + //
-				"  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
-				"  xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 src/test/resources/xsd/maven-4.0.0.xsd\">\r\n"
-				+ //
-				"  <description>a    b     c</description>\r\n" + // <-- preserve space because description is xs:string
-				"  <description2>a b c</description2>\r\n" + // <-- no preserve space because description2 is not a
-																// xs:string
-				"</project>";
-
-		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setGrammarAwareFormatting(true);
-		settings.getFormattingSettings().setMaxLineWidth(80);
-		assertFormat(content, expected, settings, //
-				te(1, 50, 1, 51, "\r\n  "), //
-				te(1, 104, 1, 105, "\r\n  "), //
-				te(3, 17, 3, 21, " "), //
-				te(3, 22, 3, 27, " "));
 	}
 
 	private static void assertFormat(String unformatted, String actual, TextEdit... expectedEdits)

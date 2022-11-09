@@ -20,36 +20,58 @@ import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.TextEdit;
 import org.junit.jupiter.api.Test;
 
-
-public class XMLFormatterWithGrammarAwareFormattingTest {
+/**
+ * XML experimental formatter services tests with grammar aware formatting with
+ * xml bound to DTD.
+ *
+ */
+public class XMLFormatterWithDTDGrammarAwareFormattingTest {
 	@Test
-	public void testContentFormattingNPEInEndTag() throws BadLocationException {
-		String content = "<?xml-model href=\"dtd/foo.dtd\" ?>\r\n"
-				+ "<foo></foo>";
-		String expected = "<?xml-model href=\"dtd/foo.dtd\"?>\r\n"
-				+ "<foo></foo>";
+	public void testDTDForMixedElement() throws BadLocationException {
+		String content = "<?xml-model href=\"dtd/mixed-element.dtd\"?>\r\n" + //
+				"<mixedElement> text \r\n" + // <-- mixedElement is defined in DTD as mixed type, should join content
+				"   content   </mixedElement>\r\n" + //
+				"<notMixed> text\r\n" + // <-- notMixed is NOT defined in DTD as mixed type, should NOT join content
+				"  content </notMixed>\r\n";
+		String expected = "<?xml-model href=\"dtd/mixed-element.dtd\"?>\r\n" + //
+				"<mixedElement> text content </mixedElement>\r\n" + //
+				"<notMixed> text\r\n" + //
+				"  content </notMixed>";
+		assertFormat(content, expected, //
+				te(1, 19, 2, 3, " "), //
+				te(2, 10, 2, 13, " "), //
+				te(4, 21, 5, 0, ""));
+		assertFormat(expected, expected);
+	}
+
+	@Test
+	public void testDTDForEmptyMixedElement() throws BadLocationException {
+		String content = "<?xml-model href=\"dtd/mixed-element.dtd\"?>\r\n"
+				+ "<mixedElement></mixedElement>";
+		String expected = content;
 		// This should not generate any NullPointerException inside formatter
 		try {
-			assertFormat(content, expected, //
-					te(0, 30, 0, 31, ""));
 			assertFormat(expected, expected);
 		} catch (Exception ex) {
 			fail("Formatter failed to process text", ex);
 		}
 	}
-	
+
 	private static void assertFormat(String unformatted, String actual, TextEdit... expectedEdits)
 			throws BadLocationException {
 		assertFormat(unformatted, actual, new SharedSettings(), expectedEdits);
 	}
+
 	private static void assertFormat(String unformatted, String expected, SharedSettings sharedSettings,
 			TextEdit... expectedEdits) throws BadLocationException {
-		assertFormat(unformatted, expected, sharedSettings, "src/test/resources/foo.xml", expectedEdits);
+		assertFormat(unformatted, expected, sharedSettings, "src/test/resources/test.xml", expectedEdits);
 	}
+
 	private static void assertFormat(String unformatted, String expected, SharedSettings sharedSettings, String uri,
 			TextEdit... expectedEdits) throws BadLocationException {
 		assertFormat(unformatted, expected, sharedSettings, uri, true, expectedEdits);
 	}
+
 	private static void assertFormat(String unformatted, String expected, SharedSettings sharedSettings, String uri,
 			Boolean considerRangeFormat, TextEdit... expectedEdits) throws BadLocationException {
 		// Force to "experimental" formatter
