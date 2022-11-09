@@ -194,7 +194,6 @@ public class XMLFormatterMaxLineWithTest extends AbstractCacheBasedTest {
 				"        c=\"test\"> </b>" + System.lineSeparator() + //
 				"</a>";
 		assertFormat(content, expected, settings, //
-
 				te(0, 2, 0, 3, System.lineSeparator() + "    "), //
 				te(0, 13, 0, 14, System.lineSeparator() + "    "), //
 				te(0, 16, 0, 17, System.lineSeparator() + "        "), //
@@ -215,6 +214,80 @@ public class XMLFormatterMaxLineWithTest extends AbstractCacheBasedTest {
 		assertFormat(content, expected, settings, //
 				te(0, 20, 0, 21, System.lineSeparator() + "    "), //
 				te(0, 32, 0, 33, System.lineSeparator() + "    "));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void splitWithAttributeInvalid() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTabSize(4);
+		settings.getFormattingSettings().setMaxLineWidth(10);
+		settings.getFormattingSettings().setJoinContentLines(true);
+		String content = "<a bb=>    </a>";
+		String expected = "<a bb=> </a>";
+		assertFormat(content, expected, settings, //
+				te(0, 7, 0, 11, " "));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void splitWithAttributeInvalidSingleQuote() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTabSize(4);
+		settings.getFormattingSettings().setMaxLineWidth(10);
+		settings.getFormattingSettings().setJoinContentLines(true);
+		String content = "<a bb=\">    </a>";
+		String expected = "<a" + System.lineSeparator() + //
+				"    bb=\">    </a>";
+		assertFormat(content, expected, settings, //
+				te(0, 2, 0, 3, System.lineSeparator() + "    "));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void splitWithAttributeInvalidSpace() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTabSize(4);
+		settings.getFormattingSettings().setMaxLineWidth(10);
+		settings.getFormattingSettings().setJoinContentLines(true);
+		String content = "<a bb = >    </a>";
+		String expected = "<a bb=> </a>";
+		assertFormat(content, expected, settings, //
+				te(0, 5, 0, 6, ""), //
+				te(0, 7, 0, 8, ""), //
+				te(0, 9, 0, 13, " "));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void splitWithAttributeInvalidSpaceSingleQuote() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTabSize(4);
+		settings.getFormattingSettings().setMaxLineWidth(10);
+		settings.getFormattingSettings().setJoinContentLines(true);
+		String content = "<a bb = \" >    </a>";
+		String expected = "<a" + System.lineSeparator() + //
+				"    bb=\" >    </a>";
+		assertFormat(content, expected, settings, //
+				te(0, 2, 0, 3, System.lineSeparator() + "    "), //
+				te(0, 5, 0, 6, ""), //
+				te(0, 7, 0, 8, ""));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void splitWithAttributeInvalidSpaceQuoted() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTabSize(4);
+		settings.getFormattingSettings().setMaxLineWidth(10);
+		settings.getFormattingSettings().setJoinContentLines(true);
+		String content = "<a bb = \" \" >    </a>";
+		String expected = "<a bb=\" \"> </a>";
+		assertFormat(content, expected, settings, //
+				te(0, 5, 0, 6, ""), //
+				te(0, 7, 0, 8, ""), //
+				te(0, 11, 0, 12, ""), //
+				te(0, 13, 0, 17, " "));
 		assertFormat(expected, expected, settings);
 	}
 

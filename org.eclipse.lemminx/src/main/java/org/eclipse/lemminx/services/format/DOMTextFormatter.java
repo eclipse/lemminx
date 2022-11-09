@@ -40,7 +40,6 @@ public class DOMTextFormatter {
 		String text = formatterDocument.getText();
 		int availableLineWidth = parentConstraints.getAvailableLineWidth();
 		int indentLevel = parentConstraints.getIndentLevel();
-		int maxLineWidth = getMaxLineWidth();
 
 		int spaceStart = -1;
 		int spaceEnd = -1;
@@ -71,6 +70,7 @@ public class DOMTextFormatter {
 				}
 				int contentEnd = i + 1;
 				if (isMaxLineWidthSupported()) {
+					int maxLineWidth = getMaxLineWidth();
 					availableLineWidth -= contentEnd - contentStart;
 					if (textNode.getStart() != contentStart && availableLineWidth >= 0
 							&& (isJoinContentLines() || !containsNewLine)) {
@@ -112,7 +112,7 @@ public class DOMTextFormatter {
 		if (formatElementCategory != FormatElementCategory.IgnoreSpace && spaceEnd + 1 != text.length()) {
 			DOMElement parentElement = textNode.getParentElement();
 			// Don't format final spaces if text is at the end of the file
-			if ((!containsNewLine || isJoinContentLines()) && availableLineWidth > 0) {
+			if ((!containsNewLine || isJoinContentLines()) && (!isMaxLineWidthSupported() || availableLineWidth >= 0)) {
 				// Replace spaces with single space in the case of:
 				// 1. there is no new line
 				// 2. isJoinContentLines

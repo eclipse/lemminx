@@ -166,7 +166,7 @@ public class XSIFormatterParticipant implements IFormatterParticipant {
 		XSISchemaLocationSplit split = XSISchemaLocationSplit.getSplit(formattingOptions);
 
 		if (split == XSISchemaLocationSplit.none || !XSISchemaModel.isXSISchemaLocationAttr(attr.getName(), attr)) {
-			if (formatterDocument.isMaxLineWidthSupported()) {
+			if (formatterDocument.isMaxLineWidthSupported() && attr.getValue() != null) {
 				parentConstraints
 						.setAvailableLineWidth(parentConstraints.getAvailableLineWidth() - attr.getValue().length());
 			}
@@ -226,7 +226,7 @@ public class XSIFormatterParticipant implements IFormatterParticipant {
 				locationNum++;
 			}
 		}
-		if (formatterDocument.isMaxLineWidthSupported()) {
+		if (formatterDocument.isMaxLineWidthSupported() && attr.getValue() != null) {
 			parentConstraints
 					.setAvailableLineWidth(formatterDocument.getMaxLineWidth() - (attrValueStart - indentSpaceOffset)
 							- attr.getValue().length());

@@ -79,6 +79,7 @@ public class XSIFormatterExperimentalTest extends AbstractCacheBasedTest {
 		// None
 		settings = createSettings();
 		XSISchemaLocationSplit.setSplit(XSISchemaLocationSplit.none, settings.getFormattingSettings());
+		settings.getFormattingSettings().setMaxLineWidth(80);
 		assertFormat(content, expected, settings,
 				te(1, 58, 1, 59, "\r\n  "), //
 				te(1, 112, 1, 113, "\r\n  "), //
