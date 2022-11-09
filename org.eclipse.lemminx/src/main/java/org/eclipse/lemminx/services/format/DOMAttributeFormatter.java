@@ -95,9 +95,10 @@ public class DOMAttributeFormatter {
 			if (isMaxLineWidthSupported() && parentConstraints.getAvailableLineWidth() < 0
 					&& !isSplitAttributes()) {
 				replaceLeftSpacesWithIndentation(indentLevel + 1, from, to, true, edits);
+				int attrValuelength = attr.getValue() != null ? attr.getValue().length() : 0;
 				parentConstraints.setAvailableLineWidth(
 						getMaxLineWidth() - getTabSize() * (indentLevel + 1) - attributeNamelength
-								- attr.getValue().length());
+								- attrValuelength);
 			} else {
 				// remove extra whitespaces between previous attribute
 				// attr0='name'[space][space][space]attr1='name' -->

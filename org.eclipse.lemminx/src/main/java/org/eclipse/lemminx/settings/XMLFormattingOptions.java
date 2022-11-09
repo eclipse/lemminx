@@ -157,7 +157,7 @@ public class XMLFormattingOptions extends org.eclipse.lemminx.settings.LSPFormat
 		this.setJoinContentLines(false);
 		this.setEnabled(true);
 		this.setExperimental(false);
-		this.setMaxLineWidth(80);
+		this.setMaxLineWidth(0);
 		this.setSpaceBeforeEmptyCloseTag(true);
 		this.setPreserveEmptyContent(false);
 		this.setPreservedNewlines(DEFAULT_PRESERVER_NEW_LINES);

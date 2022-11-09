@@ -103,7 +103,7 @@ public class DOMElementFormatter {
 			if ((parentStartCloseOffset != startTagOpenOffset
 					&& StringUtils.isWhitespace(formatterDocument.getText(), parentStartCloseOffset,
 							startTagOpenOffset))
-					|| (parentConstraints.getAvailableLineWidth() - width) < 0) {
+					|| ((parentConstraints.getAvailableLineWidth() - width) < 0 && isMaxLineWidthSupported())) {
 				replaceLeftSpacesWithIndentationPreservedNewLines(parentStartCloseOffset, startTagOpenOffset,
 						indentLevel, edits);
 				parentConstraints.setAvailableLineWidth(getMaxLineWidth());
@@ -307,7 +307,7 @@ public class DOMElementFormatter {
 			// before formatting: <a> example text <b> </b> [space][space]</a>
 			// after formatting: <a> example text <b> </b>\n</a>
 			DOMNode lastChild = element.getLastChild();
-			if (lastChild != null 
+			if (lastChild != null
 					&& (lastChild.isElement() || lastChild.isComment())
 					&& Character.isWhitespace(formatterDocument.getText().charAt(endTagOpenOffset - 1))
 					&& !isPreserveEmptyContent()) {
@@ -479,5 +479,9 @@ public class DOMElementFormatter {
 
 	private int getTabSize() {
 		return formatterDocument.getSharedSettings().getFormattingSettings().getTabSize();
+	}
+
+	private boolean isMaxLineWidthSupported() {
+		return formatterDocument.isMaxLineWidthSupported();
 	}
 }

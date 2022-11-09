@@ -132,6 +132,7 @@ public class XMLFormatterPreserveSpacesTest {
 
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setGrammarAwareFormatting(true);
+		settings.getFormattingSettings().setMaxLineWidth(80);
 		assertFormat(content, expected, settings, //
 				te(1, 50, 1, 51, "\r\n  "), //
 				te(1, 104, 1, 105, "\r\n  "), //
