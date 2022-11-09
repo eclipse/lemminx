@@ -133,17 +133,11 @@ public class XMLFormatterPreserveNewLinesTest {
 		String expected = "<xml>\r\n" + //
 				"\r\n" + //
 				"\r\n" + //
-				"  <a></a>\r\n" + //
-				"\r\n" + //
-				"\r\n" + //
-				"  test\r\n" + //
-				"\r\n" + //
-				"\r\n" + //
-				"</xml>";
+				"  <a></a> test </xml>";
 		assertFormat(content, expected, settings, //
 				te(0, 5, 5, 2, "\r\n\r\n\r\n  "), //
-				te(5, 9, 8, 0, "\r\n\r\n\r\n  "), //
-				te(8, 4, 13, 0, "\r\n\r\n\r\n"));
+				te(5, 9, 8, 0, " "), //
+				te(8, 4, 13, 0, " "));
 		assertFormat(expected, expected, settings);
 	}
 

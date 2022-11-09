@@ -128,14 +128,14 @@ public class XMLFormatterJoinCommentLinesTest extends AbstractCacheBasedTest {
 				"  Content <!-- comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment -->"
 				+ //
 				"</a>";
-		String expected = "<a>\n" + //
-				"  Content <!-- comment comment comment comment comment comment comment comment\n" + //
+		String expected = "<a> Content <!-- comment comment comment comment comment comment comment comment\n" + //
 				"  comment comment comment comment comment comment comment comment comment\n" + //
 				"  comment comment comment comment comment comment comment comment --></a>";
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setJoinCommentLines(true);
 		settings.getFormattingSettings().setMaxLineWidth(80);
 		assertFormat(content, expected, settings, //
+				te(0, 3, 1, 2, " "), //
 				te(1, 78, 1, 79, "\n  "), //
 				te(1, 150, 1, 151, "\n  "));
 		assertFormat(expected, expected, settings);

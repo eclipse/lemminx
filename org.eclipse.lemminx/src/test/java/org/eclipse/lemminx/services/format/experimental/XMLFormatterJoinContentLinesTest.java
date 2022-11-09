@@ -139,15 +139,12 @@ public class XMLFormatterJoinContentLinesTest {
 				"   zz  \n" + //
 				"   <a>  </a>  \n" + //
 				"</a>";
-		String expected = "<a>\n" + //
-				"  zz\n" + //
-				"  zz\n" + //
-				"  <a> </a>\n" + //
+		String expected = "<a> zz zz <a> </a>\n" + //
 				"</a>";
 		assertFormat(content, expected, settings, //
-				te(0, 3, 1, 3, "\n  "),
-				te(1, 5, 2, 3, "\n  "),
-				te(2, 5, 3, 3, "\n  "),
+				te(0, 3, 1, 3, " "),
+				te(1, 5, 2, 3, " "),
+				te(2, 5, 3, 3, " "),
 				te(3, 6, 3, 8, " "),
 				te(3, 12, 4, 0, "\n"));
 		assertFormat(expected, expected, settings);

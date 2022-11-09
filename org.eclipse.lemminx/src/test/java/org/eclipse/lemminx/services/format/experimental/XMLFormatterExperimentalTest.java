@@ -701,13 +701,13 @@ public class XMLFormatterExperimentalTest extends AbstractCacheBasedTest {
 				"  Content <!-- comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment -->"
 				+ //
 				"</a>";
-		String expected = "<a>\n" + //
-				"  Content <!-- comment comment comment comment comment comment comment comment\n" + //
+		String expected = "<a> Content <!-- comment comment comment comment comment comment comment comment\n" + //
 				"  comment comment comment comment comment comment comment comment comment\n" + //
 				"  comment comment comment comment comment comment comment comment --></a>";
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setMaxLineWidth(80);
 		assertFormat(content, expected, settings, //
+				te(0, 3, 1, 2, " "), //
 				te(1, 78, 1, 79, "\n  "), //
 				te(1, 150, 1, 151, "\n  "));
 		assertFormat(expected, expected, settings);
@@ -759,8 +759,7 @@ public class XMLFormatterExperimentalTest extends AbstractCacheBasedTest {
 				"  content content content content content content content content content content content content content content content content content content <!-- comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment comment -->\n"
 				+ //
 				"</a>";
-		String expected = "<a>\n" + //
-				"  content content content content content content content content content\n" + //
+		String expected = "<a> content content content content content content content content content\n" + //
 				"  content content content content content content content content content <!--\n" + //
 				"  comment comment comment comment comment comment comment comment comment\n" + //
 				"  comment comment comment comment comment comment comment comment comment\n" + //
@@ -769,6 +768,7 @@ public class XMLFormatterExperimentalTest extends AbstractCacheBasedTest {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setMaxLineWidth(80);
 		assertFormat(content, expected, settings, //
+				te(0, 3, 1, 2, " "), //
 				te(1, 73, 1, 74, "\n  "), //
 				te(1, 150, 1, 151, "\n  "),
 				te(1, 222, 1, 223, "\n  "), //
@@ -836,17 +836,15 @@ public class XMLFormatterExperimentalTest extends AbstractCacheBasedTest {
 				"    Content3\r" + //
 				" </b>\r" + //
 				"</a>";
-		String expected = "<a>\r" + //
-				"  Content\r" + //
-				"  <b>\r" + //
+		String expected = "<a> Content <b>\r" + //
 				"    Content2\r" + //
 				"    Content3\r" + //
 				"  </b>\r" + //
 				"</a>";
 
 		assertFormat(content, expected, //
-				te(0, 3, 1, 1, "\r  "), //
-				te(1, 8, 2, 1, "\r  "), //
+				te(0, 3, 1, 1, " "), //
+				te(1, 8, 2, 1, " "), //
 				te(2, 4, 3, 3, "\r    "),
 				te(4, 12, 5, 1, "\r  "));
 		assertFormat(expected, expected);
@@ -860,16 +858,14 @@ public class XMLFormatterExperimentalTest extends AbstractCacheBasedTest {
 				"   Content2\r" + //
 				"    Content3     </b>\r" + //
 				"</a>";
-		String expected = "<a>\r" + //
-				"  Content\r" + //
-				"  <b>\r" + //
+		String expected = "<a> Content <b>\r" + //
 				"    Content2\r" + //
 				"    Content3 </b>\r" + //
 				"</a>";
 
 		assertFormat(content, expected, //
-				te(0, 3, 1, 1, "\r  "), //
-				te(1, 8, 2, 1, "\r  "), //
+				te(0, 3, 1, 1, " "), //
+				te(1, 8, 2, 1, " "), //
 				te(2, 4, 3, 3, "\r    "),
 				te(4, 12, 4, 17, " "));
 		assertFormat(expected, expected);
