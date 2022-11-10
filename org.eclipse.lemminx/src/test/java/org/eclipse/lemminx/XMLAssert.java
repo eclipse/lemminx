@@ -736,12 +736,14 @@ public class XMLAssert {
 		testPublishDiagnosticsFor(xml, fileURI, null, configuration, expected);
 	}
 
-	public static void testPublishDiagnosticsFor(String xml, String fileURI, XMLValidationRootSettings validationSettings,
+	public static void testPublishDiagnosticsFor(String xml, String fileURI,
+			XMLValidationRootSettings validationSettings,
 			PublishDiagnosticsParams... expected) {
 		testPublishDiagnosticsFor(xml, fileURI, validationSettings, (Consumer<XMLLanguageService>) null, expected);
 	}
 
-	public static void testPublishDiagnosticsFor(String xml, String fileURI, XMLValidationRootSettings validationSettings,
+	public static void testPublishDiagnosticsFor(String xml, String fileURI,
+			XMLValidationRootSettings validationSettings,
 			Consumer<XMLLanguageService> configuration, PublishDiagnosticsParams... expected) {
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
 		if (configuration != null) {
@@ -756,7 +758,8 @@ public class XMLAssert {
 		testPublishDiagnosticsFor(xml, fileURI, null, xmlLanguageService, expected);
 	}
 
-	public static void testPublishDiagnosticsFor(String xml, String fileURI, XMLValidationRootSettings validationSettings,
+	public static void testPublishDiagnosticsFor(String xml, String fileURI,
+			XMLValidationRootSettings validationSettings,
 			XMLLanguageService xmlLanguageService, PublishDiagnosticsParams... expected) {
 		List<PublishDiagnosticsParams> actual = new ArrayList<>();
 
@@ -1718,8 +1721,12 @@ public class XMLAssert {
 
 	public static void assertGrammarGenerator(String xml, FileContentGeneratorSettings grammarSettings,
 			String expected) {
+		assertGrammarGenerator(xml, grammarSettings, new SharedSettings(), expected);
+	}
+
+	public static void assertGrammarGenerator(String xml, FileContentGeneratorSettings grammarSettings,
+			SharedSettings sharedSettings, String expected) {
 		DOMDocument document = DOMParser.getInstance().parse(xml, "test.xml", null);
-		SharedSettings sharedSettings = new SharedSettings();
 		XMLLanguageService languageService = new XMLLanguageService();
 		FileContentGeneratorManager manager = new FileContentGeneratorManager(languageService);
 		String actual = manager.generate(document, sharedSettings, grammarSettings, () -> {

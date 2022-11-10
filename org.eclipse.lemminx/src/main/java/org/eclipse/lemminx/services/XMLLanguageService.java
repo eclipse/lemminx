@@ -27,6 +27,7 @@ import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationRootSet
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.services.extensions.diagnostics.DiagnosticsResult;
+import org.eclipse.lemminx.services.format.TextEditUtils;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLCodeLensSettings;
 import org.eclipse.lemminx.settings.XMLCompletionSettings;
@@ -111,7 +112,14 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 	public String formatFull(String text, String uri, SharedSettings sharedSettings, CancelChecker cancelChecker) {
 		DOMDocument xmlDocument = DOMParser.getInstance().parse(new TextDocument(text, uri), null);
 		List<? extends TextEdit> edits = this.format(xmlDocument, null, sharedSettings);
-		return edits.isEmpty() ? null : edits.get(0).getNewText();
+		try {
+			return TextEditUtils.applyEdits(xmlDocument.getTextDocument(), edits);
+		} catch (Exception e) {
+			if (edits.size() == 1) {
+				return edits.get(0).getNewText();
+			}
+			return text;
+		}
 	}
 
 	public List<? extends TextEdit> format(DOMDocument xmlDocument, Range range, SharedSettings sharedSettings) {
