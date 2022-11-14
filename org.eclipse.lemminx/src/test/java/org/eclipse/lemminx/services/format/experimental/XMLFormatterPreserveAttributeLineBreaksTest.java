@@ -166,7 +166,8 @@ public class XMLFormatterPreserveAttributeLineBreaksTest {
 		settings.getFormattingSettings().setPreserveAttributeLineBreaks(true);
 		String content = "<a attr=\"value\"\n" + //
 				"</a>";
-		assertFormat(content, content, settings);
+		String expected = content;
+		assertFormat(content, expected, settings);
 	}
 
 	@Test
@@ -175,7 +176,8 @@ public class XMLFormatterPreserveAttributeLineBreaksTest {
 		settings.getFormattingSettings().setPreserveAttributeLineBreaks(true);
 		String content = "<a attr=\"value\"\n" + //
 				"/>";
-		assertFormat(content, content, settings);
+		String expected = content;
+		assertFormat(content, expected, settings);
 	}
 
 	@Test

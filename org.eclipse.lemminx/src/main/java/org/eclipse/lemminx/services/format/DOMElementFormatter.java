@@ -102,8 +102,7 @@ public class DOMElementFormatter {
 			int parentStartCloseOffset = element.getParentElement().getStartTagCloseOffset() + 1;
 			if ((parentStartCloseOffset != startTagOpenOffset
 					&& StringUtils.isWhitespace(formatterDocument.getText(), parentStartCloseOffset,
-							startTagOpenOffset))
-					|| ((parentConstraints.getAvailableLineWidth() - width) < 0 && isMaxLineWidthSupported())) {
+							startTagOpenOffset))) {
 				replaceLeftSpacesWithIndentationPreservedNewLines(parentStartCloseOffset, startTagOpenOffset,
 						indentLevel, edits);
 				parentConstraints.setAvailableLineWidth(getMaxLineWidth());

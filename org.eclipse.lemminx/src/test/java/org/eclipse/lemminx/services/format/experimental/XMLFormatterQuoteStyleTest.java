@@ -272,9 +272,8 @@ public class XMLFormatterQuoteStyleTest {
 		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
 		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
 		String content = "<!DOCTYPE note SYSTEM note.dtd\">";
-		String expected = "<!DOCTYPE note SYSTEM note.dtd\">";
+		String expected = content;
 		assertFormat(content, expected, settings);
-		assertFormat(expected, expected, settings);
 	}
 
 	@Test
@@ -283,9 +282,8 @@ public class XMLFormatterQuoteStyleTest {
 		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
 		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
 		String content = "<!DOCTYPE note SYSTEM \"note.dtd>";
-		String expected = "<!DOCTYPE note SYSTEM \"note.dtd>";
+		String expected = content;
 		assertFormat(content, expected, settings);
-		assertFormat(expected, expected, settings);
 	}
 
 	@Test
@@ -530,7 +528,6 @@ public class XMLFormatterQuoteStyleTest {
 		String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 		String expected = content;
 		assertFormat(content, expected, settings);
-		assertFormat(expected, expected, settings);
 	}
 
 	@Test
@@ -542,7 +539,6 @@ public class XMLFormatterQuoteStyleTest {
 		String content = "<?xml version=\'1.0\' encoding=\'UTF-8\'?>";
 		String expected = content;
 		assertFormat(content, expected, settings);
-		assertFormat(expected, expected, settings);
 	}
 
 	@Test

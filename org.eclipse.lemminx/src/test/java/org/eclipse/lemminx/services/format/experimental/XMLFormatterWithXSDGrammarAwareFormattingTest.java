@@ -57,7 +57,6 @@ public class XMLFormatterWithXSDGrammarAwareFormattingTest {
 		settings.getFormattingSettings().setGrammarAwareFormatting(true);
 		try {
 			assertFormat(content, expected, settings);
-			assertFormat(expected, expected, settings);
 		} catch (Exception ex) {
 			fail("Formatter failed to process text", ex);
 		}

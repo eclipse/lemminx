@@ -47,7 +47,10 @@ public class DOMTextFormatter {
 		int lineSeparatorOffset = -1;
 		boolean containsNewLine = false;
 
-		for (int i = textNode.getStart(); i < textNode.getEnd(); i++) {
+		int textStart = textNode.getStart();
+		int textEnd = textNode.getEnd();
+
+		for (int i = textStart; i < textEnd; i++) {
 			char c = text.charAt(i);
 			if (Character.isWhitespace(c)) {
 				// Whitespaces...
@@ -66,14 +69,14 @@ public class DOMTextFormatter {
 				// Text content...
 				spaceEnd = i;
 				int contentStart = i;
-				while (i + 1 < textNode.getEnd() && !Character.isWhitespace(text.charAt(i + 1))) {
+				while (i + 1 < textEnd && !Character.isWhitespace(text.charAt(i + 1))) {
 					i++;
 				}
 				int contentEnd = i + 1;
 				if (isMaxLineWidthSupported()) {
 					int maxLineWidth = getMaxLineWidth();
 					availableLineWidth -= contentEnd - contentStart;
-					if (textNode.getStart() != contentStart && availableLineWidth >= 0
+					if (textStart != contentStart && availableLineWidth >= 0
 							&& (isJoinContentLines() || !containsNewLine || isMixedContent)) {
 						// Decrement width for normalized space between text content (not done at
 						// beginning)
@@ -110,7 +113,8 @@ public class DOMTextFormatter {
 		if (formatElementCategory != FormatElementCategory.IgnoreSpace && spaceEnd + 1 != text.length()) {
 			DOMElement parentElement = textNode.getParentElement();
 			// Don't format final spaces if text is at the end of the file
-			if ((!containsNewLine || isJoinContentLines() || isMixedContent) && (!isMaxLineWidthSupported() || availableLineWidth >= 0)) {
+			if ((!containsNewLine || isJoinContentLines() || isMixedContent)
+					&& (!isMaxLineWidthSupported() || availableLineWidth >= 0)) {
 				// Replace spaces with single space in the case of:
 				// 1. there is no new line
 				// 2. isJoinContentLines
@@ -118,6 +122,16 @@ public class DOMTextFormatter {
 				if (isMaxLineWidthSupported() && spaceStart != -1) {
 					availableLineWidth--;
 				}
+			} else if (isMaxLineWidthSupported() && availableLineWidth < 0
+					&& !Character.isWhitespace(text.charAt(textStart))) {
+				// if there is no space between element tag and text but text exceeds max line
+				// width, move text to new line. (when text is only one term)
+				// ex: ...<example>|text </example>
+				int mixedContentIndentLevel = parentConstraints.getMixedContentIndentLevel() == 0 ? indentLevel
+						: parentConstraints.getMixedContentIndentLevel();
+				replaceLeftSpacesWithIndentationPreservedNewLines(textStart, textStart, mixedContentIndentLevel,
+						edits);
+				availableLineWidth = getMaxLineWidth() - (textEnd - textStart) - mixedContentIndentLevel * getTabSize();
 			} else {
 				if (formatElementCategory == FormatElementCategory.NormalizeSpace
 						|| parentElement.getLastChild() == textNode) {
@@ -126,6 +140,9 @@ public class DOMTextFormatter {
 				}
 				replaceLeftSpacesWithIndentationPreservedNewLines(spaceStart, spaceEnd + 1, indentLevel,
 						edits);
+				if (isMaxLineWidthSupported()) {
+					availableLineWidth = getMaxLineWidth() - (textEnd - textStart) - indentLevel * getTabSize();
+				}
 			}
 		} else if (isTrimTrailingWhitespace()) {
 			removeLeftSpaces(spaceStart, lineSeparatorOffset, edits);

@@ -34,9 +34,7 @@ public class XMLFormatterPreserveEmptyContentTest {
 		String content = "<a>\n" + //
 				"     " + //
 				"</a>";
-		String expected = "<a>\n" + //
-				"     " + //
-				"</a>";
+		String expected = content;
 		assertFormat(content, expected, settings);
 	}
 
@@ -63,9 +61,7 @@ public class XMLFormatterPreserveEmptyContentTest {
 		String content = "<a>\n" + //
 				"   aaa  " + //
 				"</a>";
-		String expected = "<a>\n" + //
-				"   aaa  " + //
-				"</a>";
+		String expected = content;
 		assertFormat(content, expected, settings);
 	}
 
@@ -110,8 +106,7 @@ public class XMLFormatterPreserveEmptyContentTest {
 
 		String content = "<a>\n" + //
 				"   zz     <b>  </b>tt     </a>";
-		String expected = "<a>\n" + //
-				"   zz     <b>  </b>tt     </a>";
+		String expected = content;
 		assertFormat(content, expected, settings);
 	}
 
@@ -138,8 +133,7 @@ public class XMLFormatterPreserveEmptyContentTest {
 
 		String content = "<a>\n" + //
 				"   zz    <b>  </b>tt <!-- Comment -->     </a>";
-		String expected = "<a>\n" + //
-				"   zz    <b>  </b>tt <!-- Comment -->     </a>";
+		String expected = content;
 		assertFormat(content, expected, settings);
 	}
 
