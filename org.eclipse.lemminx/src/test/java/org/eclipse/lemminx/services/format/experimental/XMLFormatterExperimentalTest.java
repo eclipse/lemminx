@@ -59,7 +59,6 @@ public class XMLFormatterExperimentalTest extends AbstractCacheBasedTest {
 		String content = "<a>";
 		String expected = content;
 		assertFormat(content, expected);
-		assertFormat(expected, expected);
 	}
 
 	@Test
@@ -76,7 +75,6 @@ public class XMLFormatterExperimentalTest extends AbstractCacheBasedTest {
 		String content = "<a></a>";
 		String expected = content;
 		assertFormat(content, expected);
-		assertFormat(expected, expected);
 	}
 
 	@Test
@@ -84,7 +82,6 @@ public class XMLFormatterExperimentalTest extends AbstractCacheBasedTest {
 		String content = "</a>";
 		String expected = content;
 		assertFormat(content, expected);
-		assertFormat(expected, expected);
 	}
 
 	@Test

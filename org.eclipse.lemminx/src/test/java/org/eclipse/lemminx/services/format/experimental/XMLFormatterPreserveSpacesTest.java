@@ -72,7 +72,6 @@ public class XMLFormatterPreserveSpacesTest {
 	public void preserveSpacesWithSettings() throws BadLocationException {
 		String content = "<a>b  c</a>";
 		String expected = content;
-
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setPreserveSpace(Arrays.asList("a"));
 		assertFormat(content, expected, settings);

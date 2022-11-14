@@ -425,28 +425,29 @@ public class XMLFormatterMaxLineWithTest extends AbstractCacheBasedTest {
 				"\r\n" + //
 				"  Using\r\n" + //
 				"  namespaces in your documents is very easy. Consider this simple article marked up in DocBook V4.5:</para>";
-		String expected = "<para>All DocBook V5.0 elements are in the namespace <uri>http://docbook.org/ns/docbook</uri>.\r\n"
-				+ //
-				"  <acronym>XML <alt>Extensible Markup Language</alt></acronym> namespaces are\r\n" + //
-				"  used to distinguish between different element sets. In the last few years,\r\n" + //
-				"  almost all new XML grammars have used their own namespace. It is easy to\r\n" + //
-				"  create compound documents that contain elements from different XML\r\n" + //
-				"  vocabularies. DocBook V5.0 is <emphasis>following</emphasis> this <emphasis>design</emphasis>/\r\n" + //
-				"  <emphasis>rule</emphasis>. Using namespaces in your documents is very easy.\r\n" + //
-				"  Consider this simple article marked up in DocBook V4.5:</para>";
+		String expected = "<para>All DocBook V5.0 elements are in the namespace <uri>\r\n" + //
+				"  http://docbook.org/ns/docbook</uri>. <acronym>XML <alt>Extensible Markup\r\n" + //
+				"  Language</alt></acronym> namespaces are used to distinguish between different\r\n" + //
+				"  element sets. In the last few years, almost all new XML grammars have used\r\n" + //
+				"  their own namespace. It is easy to create compound documents that contain\r\n" + //
+				"  elements from different XML vocabularies. DocBook V5.0 is <emphasis>following</emphasis>\r\n" + //
+				"  this <emphasis>design</emphasis>/<emphasis>rule</emphasis>. Using namespaces\r\n" + //
+				"  in your documents is very easy. Consider this simple article marked up in\r\n" + //
+				"  DocBook V4.5:</para>";
 		assertFormat(content, expected, settings, //
-				te(0, 94, 0, 95, "\r\n  "), //
-				te(0, 130, 1, 2, " "), //
-				te(1, 41, 1, 42, "\r\n  "), //
-				te(1, 116, 1, 117, "\r\n  "), //
+				te(0, 58, 0, 58, "\r\n  "), //
+				te(1, 79, 1, 80, "\r\n  "), //
 				te(1, 131, 2, 2, " "),
-				te(2, 59, 2, 60, "\r\n  "), //
+				te(2, 24, 2, 25, "\r\n  "), //
+				te(2, 98, 2, 99, "\r\n  "), //
+				te(2, 126, 3, 2, " "), //
 				te(3, 31, 6, 2, " "), //
+				te(6, 32, 6, 33, "\r\n  "), //
 				te(6, 37, 7, 2, " "),
-				te(7, 30, 7, 30, "\r\n  "), //
 				te(7, 56, 9, 2, " "), //
 				te(9, 7, 10, 2, " "), //
-				te(10, 44, 10, 45, "\r\n  "));
+				te(10, 12, 10, 13, "\r\n  "), //
+				te(10, 86, 10, 87, "\r\n  "));
 		assertFormat(expected, expected, settings);
 	}
 

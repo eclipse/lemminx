@@ -153,7 +153,7 @@ public class XMLFormatterSplitAttributesTest extends AbstractCacheBasedTest {
 	@Test
 	public void testSplitAttributesProlog() throws BadLocationException {
 		String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
-		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+		String expected = content;
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setSplitAttributes(true);
 		assertFormat(content, expected, settings);
@@ -162,7 +162,7 @@ public class XMLFormatterSplitAttributesTest extends AbstractCacheBasedTest {
 	@Test
 	public void testSplitAttributesSingle() throws BadLocationException {
 		String content = "<a k1=\"v1\"></a>";
-		String expected = "<a k1=\"v1\"></a>";
+		String expected = content;
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setSplitAttributes(true);
 		assertFormat(content, expected, settings);

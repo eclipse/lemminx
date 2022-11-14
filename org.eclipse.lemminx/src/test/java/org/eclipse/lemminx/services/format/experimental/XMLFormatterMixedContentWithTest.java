@@ -28,9 +28,14 @@ public class XMLFormatterMixedContentWithTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void mixedContent() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setMaxLineWidth(20);
+		settings.getFormattingSettings().setJoinContentLines(true);
 		String content = "<a>abcd    \r\n   efgh</a>";
 		String expected = "<a>abcd efgh</a>";
-		assertFormat(content, expected, 20);
+		assertFormat(content, expected, settings, //
+				te(0, 7, 1, 3, " "));
+		assertFormat(expected, expected, settings);
 	}
 
 	@Test
@@ -41,7 +46,12 @@ public class XMLFormatterMixedContentWithTest extends AbstractCacheBasedTest {
 				"    <c></c>" + System.lineSeparator() + //
 				"  </b>" + System.lineSeparator() + //
 				"</a>";
-		assertFormat(content, expected, null);
+		assertFormat(content, expected, //
+				te(0, 3, 0, 3, System.lineSeparator() + "  "), //
+				te(0, 6, 0, 6, System.lineSeparator() + "    "), //
+				te(0, 13, 0, 13, System.lineSeparator() + "  "), //
+				te(0, 17, 0, 17, System.lineSeparator()));
+		assertFormat(expected, expected);
 	}
 
 	@Test
@@ -50,7 +60,10 @@ public class XMLFormatterMixedContentWithTest extends AbstractCacheBasedTest {
 		String expected = "<a>" + System.lineSeparator() + //
 				"  <b>A<c></c></b>" + System.lineSeparator() + //
 				"</a>";
-		assertFormat(content, expected, null);
+		assertFormat(content, expected, //
+				te(0, 3, 0, 3, System.lineSeparator() + "  "), //
+				te(0, 18, 0, 18, System.lineSeparator()));
+		assertFormat(expected, expected);
 	}
 
 	@Test
@@ -69,7 +82,7 @@ public class XMLFormatterMixedContentWithTest extends AbstractCacheBasedTest {
 	public void withMixedContentNoWhiteSpaceLeft() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 		String content = "<a><b> content </b> test </a>";
-		String expected = "<a><b> content </b> test </a>";
+		String expected = content;
 		assertFormat(content, expected, settings);
 	}
 
@@ -88,9 +101,19 @@ public class XMLFormatterMixedContentWithTest extends AbstractCacheBasedTest {
 	@Test
 	public void withMixedContentNoWhiteSpaceRight() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		String content = "<a> test <b> content </b></a>";
-		String expected = "<a> test <b> content </b></a>";
-		assertFormat(content, expected, settings);
+		settings.getFormattingSettings().setMaxLineWidth(20);
+		settings.getFormattingSettings().setJoinContentLines(true);
+		String content = "<a>abcd    \r\n   efgh</a>";
+		String expected = "<a>abcd efgh</a>";
+		assertFormat(content, expected, settings, //
+				te(0, 7, 1, 3, " "));
+		assertFormat(expected, expected, settings);
+	}
+
+	private static void assertFormat(String unformatted, String expected, TextEdit... expectedEdits)
+			throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		assertFormat(unformatted, expected, settings, "test://test.html", true, expectedEdits);
 	}
 
 	private static void assertFormat(String unformatted, String expected, SharedSettings sharedSettings,
@@ -103,17 +126,5 @@ public class XMLFormatterMixedContentWithTest extends AbstractCacheBasedTest {
 		// Force to "experimental" formatter
 		sharedSettings.getFormattingSettings().setExperimental(true);
 		XMLAssert.assertFormat(null, unformatted, expected, sharedSettings, uri, considerRangeFormat, expectedEdits);
-	}
-
-	private static void assertFormat(String unformatted, String actual, Integer maxLineWidth)
-			throws BadLocationException {
-		SharedSettings sharedSettings = new SharedSettings();
-		if (maxLineWidth != null) {
-			sharedSettings.getFormattingSettings().setMaxLineWidth(maxLineWidth);
-		}
-		// Force to "experimental" formatter
-		sharedSettings.getFormattingSettings().setExperimental(true);
-		sharedSettings.getFormattingSettings().setJoinContentLines(true);
-		XMLAssert.assertFormat(unformatted, actual, sharedSettings, "test.xml", Boolean.FALSE);
 	}
 }
