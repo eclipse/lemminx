@@ -36,4 +36,16 @@ public class RelaxNGDiagnosticsWithCatalogTest extends AbstractCacheBasedTest {
 				d(0, 1, 4, RelaxNGErrorCode.incomplete_element_required_element_missing));
 	}
 
+	@Test
+	public void unknown_element() throws Exception {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<?xml-model href=\"http://canonical-uri/schema.rng\" type=\"application/xml\" schematypens=\"http://relaxng.org/ns/structure/1.0\"?>\r\n"
+				+ //
+				"<test> \r\n" + //
+				"    <valid>I am valid element</valid>\r\n" + //
+				"    <invalid>I am invalid b element</invalid>\r\n" + // <-- element "invalid" not allowed anywhere; expected the element end-tag or element "valid"
+				"</test>";
+		testDiagnosticsFor(xml, "src/test/resources/relaxng/catalog-relaxng.xml", //
+				d(4, 5, 12, RelaxNGErrorCode.unknown_element));
+	}
 }

@@ -2,5 +2,7 @@
 <catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
 
 	<uri name="http://www.tei-c.org/ns/1.0" uri="tei_all.rng" />
+    
+    <rewriteURI uriStartString="http://canonical-uri/" rewritePrefix="./"/>
 
 </catalog>

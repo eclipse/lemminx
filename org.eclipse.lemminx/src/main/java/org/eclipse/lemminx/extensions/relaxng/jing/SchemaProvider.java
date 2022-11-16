@@ -88,7 +88,7 @@ public class SchemaProvider {
 			throws MalformedURIException, IOException {
 		XMLInputSource source = entityResolver.resolveEntity(description);
 		return source.getByteStream() != null ? new InputSource(source.getByteStream())
-				: new InputSource(description.getExpandedSystemId());
+				: new InputSource(source.getSystemId());
 	}
 
 	private static SchemaReader getSchemaReader(String systemId) {
