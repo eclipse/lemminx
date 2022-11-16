@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" 
+         xmlns:sch="http://purl.oclc.org/dsdl/schematron"
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes" 
+         ns="">
+    <start>
+        <element name="test">
+            <zeroOrMore>
+                <element name="valid">
+                    <text/>
+                </element>
+            </zeroOrMore>
+        </element>
+    </start>
+</grammar>
