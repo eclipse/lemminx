@@ -12,6 +12,7 @@
 package org.eclipse.lemminx.extensions.contentmodel.participants;
 
 import java.util.Collection;
+import java.util.Map;
 
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMDocument;
@@ -46,13 +47,24 @@ public class ContentModelFormatterParticipant implements IFormatterParticipant {
 
 	@Override
 	public FormatElementCategory getFormatElementCategory(DOMElement element,
-			XMLFormattingConstraints parentConstraints, SharedSettings sharedSettings) {
+			XMLFormattingConstraints parentConstraints, Map<String, Collection<CMDocument>> formattingContext,
+			SharedSettings sharedSettings) {
 		boolean enabled = sharedSettings.getFormattingSettings().isGrammarAwareFormatting();
 		if (!enabled) {
 			return null;
 		}
 
-		Collection<CMDocument> cmDocuments = contentModelManager.findCMDocument(element);
+		String namespaceURI = element.getNamespaceURI() != null ? element.getNamespaceURI()
+				: element.getOwnerDocument().getNamespaceURI();
+		if (namespaceURI == null) {
+			namespaceURI = "noNameSpace";
+		}
+		Collection<CMDocument> cmDocuments = formattingContext.get(namespaceURI);
+		if (cmDocuments == null) {
+			cmDocuments = contentModelManager.findCMDocument(element);
+			formattingContext.put(namespaceURI, cmDocuments);
+		}
+
 		for (CMDocument cmDocument : cmDocuments) {
 			CMElementDeclaration cmElement = cmDocument.findCMElement(element);
 			if (cmElement != null) {
