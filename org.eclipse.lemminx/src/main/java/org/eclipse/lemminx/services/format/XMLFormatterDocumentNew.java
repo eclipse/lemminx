@@ -13,7 +13,9 @@ package org.eclipse.lemminx.services.format;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,6 +30,7 @@ import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.dom.DOMProcessingInstruction;
 import org.eclipse.lemminx.dom.DOMText;
+import org.eclipse.lemminx.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLFormattingOptions;
@@ -77,6 +80,8 @@ public class XMLFormatterDocumentNew {
 
 	private final Collection<IFormatterParticipant> formatterParticipants;
 
+	private final Map<String, Collection<CMDocument>> formattingContext;
+
 	private int startOffset = -1;
 	private int endOffset = -1;
 
@@ -107,6 +112,7 @@ public class XMLFormatterDocumentNew {
 		this.textFormatter = new DOMTextFormatter(this);
 		this.commentFormatter = new DOMCommentFormatter(this);
 		this.cDATAFormatter = new DOMCDATAFormatter(this);
+		this.formattingContext = new HashMap<>();
 	}
 
 	private static String computeLineDelimiter(TextDocument textDocument) {
@@ -373,8 +379,8 @@ public class XMLFormatterDocumentNew {
 		if (formatterParticipants != null) {
 			for (IFormatterParticipant formatterParticipant : formatterParticipants) {
 				try {
-					if (formatterParticipant.formatAttributeValue(attr, this, parentConstraints, getFormattingSettings(),
-							edits)) {
+					if (formatterParticipant.formatAttributeValue(attr, this, parentConstraints,
+							getFormattingSettings(), edits)) {
 						return;
 					}
 				} catch (Exception e) {
@@ -593,7 +599,7 @@ public class XMLFormatterDocumentNew {
 		// information)
 		for (IFormatterParticipant participant : formatterParticipants) {
 			FormatElementCategory fromParticipant = participant.getFormatElementCategory(element, parentConstraints,
-					sharedSettings);
+					formattingContext, sharedSettings);
 			if (fromParticipant != null) {
 				return fromParticipant;
 			}

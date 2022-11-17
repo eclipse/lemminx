@@ -12,10 +12,13 @@
 *******************************************************************************/
 package org.eclipse.lemminx.services.extensions.format;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMElement;
+import org.eclipse.lemminx.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lemminx.services.format.FormatElementCategory;
 import org.eclipse.lemminx.services.format.XMLFormatterDocumentNew;
 import org.eclipse.lemminx.services.format.XMLFormattingConstraints;
@@ -80,7 +83,8 @@ public interface IFormatterParticipant {
 	 *         otherwise.
 	 */
 	default FormatElementCategory getFormatElementCategory(DOMElement element,
-			XMLFormattingConstraints parentConstraints, SharedSettings sharedSettings) {
+			XMLFormattingConstraints parentConstraints, Map<String, Collection<CMDocument>> formattingContext,
+			SharedSettings sharedSettings) {
 		return null;
 	}
 
