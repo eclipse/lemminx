@@ -12,7 +12,6 @@
 package org.eclipse.lemminx.settings;
 
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationRootSettings;
-import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 
 /**
  * SharedSettings
@@ -20,6 +19,7 @@ import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSetting
 public class SharedSettings {
 
 	private final XMLCompletionSettings completionSettings;
+	private boolean linkedEditingEnabled;
 	private final XMLFoldingSettings foldingSettings;
 	private final XMLFormattingOptions formattingSettings;
 	private final XMLValidationRootSettings validationSettings;
@@ -47,6 +47,7 @@ public class SharedSettings {
 		this.workspaceSettings = new XMLWorkspaceSettings();
 		this.actionableNotificationSupport = false;
 		this.openSettingsCommandSupport = false;
+		this.linkedEditingEnabled = false;
 
 	}
 
@@ -62,6 +63,7 @@ public class SharedSettings {
 		this.actionableNotificationSupport = newSettings.isActionableNotificationSupport();
 		this.openSettingsCommandSupport = newSettings.isOpenSettingsCommandSupport();
 		this.bindingWizardSupport = newSettings.isBindingWizardSupport();
+		this.linkedEditingEnabled = newSettings.isLinkedEditingEnabled();
 	}
 
 	public XMLCompletionSettings getCompletionSettings() {
@@ -168,4 +170,11 @@ public class SharedSettings {
 		this.bindingWizardSupport = bindingWizardSupport;
 	}
 
+	public void setLinkedEditingEnabled(boolean linkedEditingEnabled) {
+		this.linkedEditingEnabled = linkedEditingEnabled;
+	}
+
+	public boolean isLinkedEditingEnabled() {
+		return linkedEditingEnabled;
+	}
 }

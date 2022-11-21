@@ -17,6 +17,7 @@ import org.eclipse.lemminx.services.extensions.IComponentProvider;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionItemResolverRequest;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLCompletionSettings;
+import org.eclipse.lemminx.settings.capabilities.CompletionResolveSupportProperty;
 import org.eclipse.lsp4j.CompletionItem;
 
 /**
@@ -70,6 +71,11 @@ public class ResolveCompletionItemRequest implements ICompletionItemResolverRequ
 	}
 
 	@Override
+	public Boolean getDataPropertyAsBoolean(String fieldName) {
+		return DataEntryField.getPropertyAsBoolean(unresolved.getData(), fieldName);
+	}
+	
+	@Override
 	public <T> T getComponent(Class clazz) {
 		return componentProvider.getComponent(clazz);
 	}
@@ -82,6 +88,23 @@ public class ResolveCompletionItemRequest implements ICompletionItemResolverRequ
 	@Override
 	public SharedSettings getSharedSettings() {
 		return sharedSettings;
+	}
+
+	@Override
+	public boolean isResolveDocumentationSupported() {
+		return getSharedSettings().getCompletionSettings()
+				.isCompletionResolveSupported(CompletionResolveSupportProperty.documentation);
+	}
+
+	@Override
+	public boolean isResolveAdditionalTextEditsSupported() {
+		return getSharedSettings().getCompletionSettings()
+				.isCompletionResolveSupported(CompletionResolveSupportProperty.additionalTextEdits);
+	}
+
+	@Override
+	public Integer getCompletionOffset() {
+		return getDataPropertyAsInt(DataEntryField.OFFSET_FIELD);
 	}
 
 }

@@ -25,7 +25,19 @@ import org.eclipse.lsp4j.Range;
  */
 public interface ICompletionRequest extends IPositionRequest, ISharedSettingsRequest {
 
+	/**
+	 * Returns the replace range.
+	 * 
+	 * @return the replace range.
+	 */
 	Range getReplaceRange();
+
+	/**
+	 * Returns the range for replacing a tag name for an existing DOM element.
+	 * 
+	 * @return the range for replacing a tag name for an existing DOM element.
+	 */
+	Range getReplaceRangeForTagName();
 
 	XMLGenerator getXMLGenerator() throws BadLocationException;
 
@@ -59,9 +71,21 @@ public interface ICompletionRequest extends IPositionRequest, ISharedSettingsReq
 	public boolean isResolveDocumentationSupported();
 
 	/**
+	 * Returns true if the editor supports delayed resolution of additionalTextEdits
+	 * and
+	 * false otherwise.
+	 *
+	 * @returns true if the editor supports delayed resolution of
+	 *          additionalTextEdits and
+	 *          false otherwise
+	 */
+	public boolean isResolveAdditionalTextEditsSupported();
+
+	/**
 	 * Returns the proper insert text format according the support of snippet.
 	 *
 	 * @return the proper insert text format according the support of snippet.
 	 */
 	InsertTextFormat getInsertTextFormat();
+
 }

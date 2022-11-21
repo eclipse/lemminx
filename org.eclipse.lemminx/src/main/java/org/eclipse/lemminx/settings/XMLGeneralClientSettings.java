@@ -53,6 +53,8 @@ public class XMLGeneralClientSettings {
 
 	private XMLTelemetrySettings telemetry;
 
+	private boolean linkedEditingEnabled;
+	
 	public void setLogs(LogsSettings logs) {
 		this.logs = logs;
 	}
@@ -141,6 +143,14 @@ public class XMLGeneralClientSettings {
 		return completion;
 	}
 
+	public void setLinkedEditingEnabled(boolean linkedEditingEnabled) {
+		this.linkedEditingEnabled = linkedEditingEnabled;
+	}
+	
+	public boolean isLinkedEditingEnabled() {
+		return linkedEditingEnabled;
+	}
+	
 	/**
 	 * Returns the XML preferences
 	 *

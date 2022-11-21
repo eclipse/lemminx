@@ -176,7 +176,7 @@ public class XMLGenerator {
 					}
 				}
 			} else {
-				if (canSupportSnippets) {
+				if (generateEndTag && canSupportSnippets) {
 					snippetIndex++;
 					xml.addContent(SnippetsBuilder.tabstops(snippetIndex));
 				}

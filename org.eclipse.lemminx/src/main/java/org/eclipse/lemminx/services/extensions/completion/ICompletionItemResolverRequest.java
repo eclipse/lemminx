@@ -14,7 +14,6 @@ package org.eclipse.lemminx.services.extensions.completion;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.services.extensions.IComponentProvider;
 import org.eclipse.lemminx.services.extensions.ISharedSettingsRequest;
-import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.CompletionItem;
 
 /**
@@ -58,6 +57,16 @@ public interface ICompletionItemResolverRequest extends ISharedSettingsRequest, 
 	Integer getDataPropertyAsInt(String fieldName);
 
 	/**
+	 * Returns the value of a field from the supplementary data attached to the
+	 * request as an boolean, or null if the field is not an boolean.
+	 *
+	 * @param fieldName the name of the field to retrieve the data from
+	 * @return the value of a field from the supplementary data attached to the
+	 *         request as an boolean, or null if the field is not an boolean
+	 */
+	Boolean getDataPropertyAsBoolean(String participantId);
+
+	/**
 	 * Returns the DOM document.
 	 *
 	 * @return the DOM document
@@ -65,10 +74,32 @@ public interface ICompletionItemResolverRequest extends ISharedSettingsRequest, 
 	DOMDocument getDocument();
 
 	/**
-	 * Returns the shared settings.
+	 * Returns true if the editor supports delayed resolution of documentation and
+	 * false otherwise.
 	 *
-	 * @return the shared settings.
+	 * @returns true if the editor supports delayed resolution of documentation and
+	 *          false otherwise
 	 */
-	SharedSettings getSharedSettings();
+	public boolean isResolveDocumentationSupported();
+
+	/**
+	 * Returns true if the editor supports delayed resolution of additionalTextEdits
+	 * and
+	 * false otherwise.
+	 *
+	 * @returns true if the editor supports delayed resolution of
+	 *          additionalTextEdits and
+	 *          false otherwise
+	 */
+	public boolean isResolveAdditionalTextEditsSupported();
+
+	/**
+	 * Returns the completion offset coming from the completion item data and null
+	 * otherwise.
+	 * 
+	 * @return the completion offset coming from the completion item data and null
+	 *         otherwise.
+	 */
+	Integer getCompletionOffset();
 
 }

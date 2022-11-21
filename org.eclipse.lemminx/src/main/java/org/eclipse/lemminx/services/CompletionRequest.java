@@ -20,6 +20,8 @@ import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionRequest;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLCompletionSettings;
+import org.eclipse.lemminx.settings.capabilities.CompletionResolveSupportProperty;
+import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -33,6 +35,8 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 	private final SharedSettings sharedSettings;
 
 	private Range replaceRange;
+
+	private Range replaceRangeForTagName;
 
 	private XMLGenerator generator;
 
@@ -63,6 +67,14 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 	@Override
 	public Range getReplaceRange() {
 		return replaceRange;
+	}
+
+	@Override
+	public Range getReplaceRangeForTagName() {
+		if (replaceRangeForTagName == null) {
+			replaceRangeForTagName = XMLPositionUtility.selectStartTagName(getNode());
+		}
+		return replaceRangeForTagName;
 	}
 
 	public XMLGenerator getXMLGenerator() throws BadLocationException {
@@ -131,7 +143,13 @@ class CompletionRequest extends AbstractPositionRequest implements ICompletionRe
 	@Override
 	public boolean isResolveDocumentationSupported() {
 		XMLCompletionSettings completionSettings = sharedSettings.getCompletionSettings();
-		return completionSettings.isResolveDocumentationSupported();
+		return completionSettings.isCompletionResolveSupported(CompletionResolveSupportProperty.documentation);
+	}
+
+	@Override
+	public boolean isResolveAdditionalTextEditsSupported() {
+		XMLCompletionSettings completionSettings = sharedSettings.getCompletionSettings();
+		return completionSettings.isCompletionResolveSupported(CompletionResolveSupportProperty.additionalTextEdits);
 	}
 
 }

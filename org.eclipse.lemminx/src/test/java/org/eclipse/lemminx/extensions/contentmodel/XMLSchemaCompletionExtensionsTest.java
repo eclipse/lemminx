@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.function.Consumer;
 
 import org.apache.xerces.impl.XMLEntityManager;
@@ -1077,7 +1078,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				"</BookStore>";
 		XMLAssert.testCompletionFor(xml, null, "src/test/resources/bookstore.xml", null,
 				c("Title", "<Title></Title>"));
-		
+
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<BookStore\r\n" + //
 				"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
@@ -1096,7 +1097,7 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 		XMLAssert.testCompletionFor(xml, null, "src/test/resources/bookstore.xml", null,
 				c("Author", "<Author></Author>"), //
 				c("Date", "<Date></Date>"));
-		
+
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<BookStore\r\n" + //
 				"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
@@ -1267,9 +1268,14 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				+ //
 				"|</employee>";
 		testCompletionSnippetSupportFor(xml, "src/test/resources/choice.xml", 2, //
-				c("member", te(2, 0, 2, 0, "<member>$1</member>$0"), "member"), //
-				c("employee", te(2, 0, 2, 0, "<employee>$1$0"), "employee")); // <-- here only start employee is
-																				// generated
+				c("member", te(2, 0, 2, 0, "<member$0>"), Arrays.asList(te(2, 2, 2, 10, "member")), "member"), //
+				c("employee", te(2, 0, 2, 0, "<employee$0>"), Collections.emptyList(), "employee")); // <--
+																										// here
+																										// only
+																										// start
+																										// employee
+																										// is
+		// generated
 
 		// completion on text
 		xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
@@ -1277,9 +1283,13 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				+ //
 				"em|</employee>";
 		testCompletionSnippetSupportFor(xml, "src/test/resources/choice.xml", 2, //
-				c("member", te(2, 0, 2, 2, "<member>$1</member>$0"), "member"), //
-				c("employee", te(2, 0, 2, 2, "<employee>$1$0"), "employee")); // <-- here only start employee is
-																				// generated
+				c("member", te(2, 0, 2, 2, "<member$0>"), Arrays.asList(te(2, 4, 2, 12, "member")), "member"), //
+				c("employee", te(2, 0, 2, 2, "<employee$0>"), Collections.emptyList(), "employee")); // <--
+																										// here
+																										// only
+		// start
+		// employee is
+		// generated
 
 		// completion on text inside element
 		xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
@@ -1287,9 +1297,9 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				+ //
 				"<employee>|</employee>";
 		testCompletionSnippetSupportFor(xml, "src/test/resources/choice.xml", 3, //
-				c("person", te(2, 10, 2, 10, "<person>$1</person>$0"), "person"),
-				c("member", te(2, 10, 2, 10, "<member>$1</member>$0"), "member"), //
-				c("employee", te(2, 10, 2, 10, "<employee>$1</employee>$0"), "employee"));
+				c("person", te(2, 10, 2, 10, "<person>$1</person>$0"), Collections.emptyList(), "person"),
+				c("member", te(2, 10, 2, 10, "<member>$1</member>$0"), Collections.emptyList(), "member"), //
+				c("employee", te(2, 10, 2, 10, "<employee>$1</employee>$0"), Collections.emptyList(), "employee"));
 
 		// completion on text inside element with text content
 		xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
@@ -1297,9 +1307,9 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				+ //
 				"<employee> |</employee>";
 		testCompletionSnippetSupportFor(xml, "src/test/resources/choice.xml", 3, //
-				c("person", te(2, 11, 2, 11, "<person>$1</person>$0"), "person"),
-				c("member", te(2, 11, 2, 11, "<member>$1</member>$0"), "member"), //
-				c("employee", te(2, 11, 2, 11, "<employee>$1</employee>$0"), "employee"));
+				c("person", te(2, 11, 2, 11, "<person>$1</person>$0"), Collections.emptyList(), "person"),
+				c("member", te(2, 11, 2, 11, "<member>$1</member>$0"), Collections.emptyList(), "member"), //
+				c("employee", te(2, 11, 2, 11, "<employee>$1</employee>$0"), Collections.emptyList(), "employee"));
 
 		// completion on text inside element with text content
 		xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
@@ -1307,9 +1317,9 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				+ //
 				"<employee>| </employee>";
 		testCompletionSnippetSupportFor(xml, "src/test/resources/choice.xml", 3, //
-				c("person", te(2, 10, 2, 10, "<person>$1</person>$0"), "person"),
-				c("member", te(2, 10, 2, 10, "<member>$1</member>$0"), "member"), //
-				c("employee", te(2, 10, 2, 10, "<employee>$1</employee>$0"), "employee"));
+				c("person", te(2, 10, 2, 10, "<person>$1</person>$0"), Collections.emptyList(), "person"),
+				c("member", te(2, 10, 2, 10, "<member>$1</member>$0"), Collections.emptyList(), "member"), //
+				c("employee", te(2, 10, 2, 10, "<employee>$1</employee>$0"), Collections.emptyList(), "employee"));
 
 		// completion on text inside element with text content
 		xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
@@ -1317,9 +1327,9 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				+ //
 				"<employee> | </employee>";
 		testCompletionSnippetSupportFor(xml, "src/test/resources/choice.xml", 3, //
-				c("person", te(2, 11, 2, 11, "<person>$1</person>$0"), "person"),
-				c("member", te(2, 11, 2, 11, "<member>$1</member>$0"), "member"), //
-				c("employee", te(2, 11, 2, 11, "<employee>$1</employee>$0"), "employee"));
+				c("person", te(2, 11, 2, 11, "<person>$1</person>$0"), Collections.emptyList(), "person"),
+				c("member", te(2, 11, 2, 11, "<member>$1</member>$0"), Collections.emptyList(), "member"), //
+				c("employee", te(2, 11, 2, 11, "<employee>$1</employee>$0"), Collections.emptyList(), "employee"));
 
 		// completion on text inside element with text content
 		xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
@@ -1327,9 +1337,9 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				+ //
 				"<employee> | </employee></employee>";
 		testCompletionSnippetSupportFor(xml, "src/test/resources/choice.xml", 3, //
-				c("person", te(2, 11, 2, 11, "<person>$1</person>$0"), "person"),
-				c("member", te(2, 11, 2, 11, "<member>$1</member>$0"), "member"), //
-				c("employee", te(2, 11, 2, 11, "<employee>$1</employee>$0"), "employee"));
+				c("person", te(2, 11, 2, 11, "<person>$1</person>$0"), Collections.emptyList(), "person"),
+				c("member", te(2, 11, 2, 11, "<member>$1</member>$0"), Collections.emptyList(), "member"), //
+				c("employee", te(2, 11, 2, 11, "<employee>$1</employee>$0"), Collections.emptyList(), "employee"));
 
 		// completion on text inside element with text content
 		xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
@@ -1338,8 +1348,8 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				"<employee></employee>\r\n" + //
 				"|</employee>";
 		testCompletionSnippetSupportFor(xml, "src/test/resources/choice.xml", null, //
-				c("member", te(3, 0, 3, 0, "<member>$1</member>$0"), "member"), //
-				c("employee", te(3, 0, 3, 0, "<employee>$1$0"), "employee"));
+				c("member", te(3, 0, 3, 0, "<member$0>"), Arrays.asList(te(3, 2, 3, 10, "member")), "member"), //
+				c("employee", te(3, 0, 3, 0, "<employee$0>"), Collections.emptyList(), "employee"));
 	}
 
 	@Test
@@ -1376,9 +1386,11 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				+ //
 				"<|</employee>";
 		testCompletionSnippetSupportFor(xml, "src/test/resources/choice.xml", 2, //
-				c("member", te(2, 0, 2, 1, "<member>$1</member>$0"), "<member"), //
-				c("employee", te(2, 0, 2, 1, "<employee>$1$0"), "<employee")); // <-- here only start employee is
-																				// generated
+				c("member", te(2, 1, 2, 1, "member$0>"), Arrays.asList(te(2, 3, 2, 11, "member")), "<member"), //
+				c("employee", te(2, 1, 2, 1, "employee$0>"), Collections.emptyList(), "<employee")); // <-- here only
+																										// start
+																										// employee is
+		// generated
 
 		// completion on start tag element
 		xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
@@ -1386,9 +1398,11 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				+ //
 				"<em|</employee>";
 		testCompletionSnippetSupportFor(xml, "src/test/resources/choice.xml", 2, //
-				c("member", te(2, 0, 2, 3, "<member>$1</member>$0"), "<member"), //
-				c("employee", te(2, 0, 2, 3, "<employee>$1$0"), "<employee")); // <-- here only start employee is
-																				// generated
+				c("member", te(2, 1, 2, 3, "member$0>"), Arrays.asList(te(2, 5, 2, 13, "member")), "<member"), //
+				c("employee", te(2, 1, 2, 3, "employee$0>"), Collections.emptyList(), "<employee")); // <-- here only
+																										// start
+																										// employee is
+		// generated
 
 		// completion inside tag element
 		xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
@@ -1396,9 +1410,10 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 				+ //
 				"<employee|></employee>";
 		testCompletionSnippetSupportFor(xml, "src/test/resources/choice.xml", 2, //
-				c("member", te(2, 0, 2, 10, "<member>$1</member>$0"), "<member"), //
-				c("employee", te(2, 0, 2, 10, "<employee>$1$0"), "<employee")); // <-- here only start employee is
-																				// generated
+				c("member", te(2, 1, 2, 9, "member$0"), Arrays.asList(te(2, 12, 2, 20, "member")), "<member"), //
+				c("employee", te(2, 1, 2, 9, "employee$0"), Collections.emptyList(), "<employee")); // <-- here only
+																									// start employee is
+		// generated
 	}
 
 	@Test

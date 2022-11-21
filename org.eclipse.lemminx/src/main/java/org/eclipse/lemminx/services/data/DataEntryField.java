@@ -11,6 +11,8 @@
 *******************************************************************************/
 package org.eclipse.lemminx.services.data;
 
+import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionRequest;
 import org.eclipse.lemminx.utils.JSONUtility;
 
 import com.google.gson.JsonElement;
@@ -64,6 +66,8 @@ public class DataEntryField {
 	private static final String DATA_URI_FIELD = "uri";
 
 	private static final String DATA_PARTICIPANT_ID_FIELD = "participantId";
+
+	public static final String OFFSET_FIELD = "offset";
 
 	/**
 	 * Create a JSON data entry field with the two required information:
@@ -138,16 +142,53 @@ public class DataEntryField {
 	 * @param data      the object to read the field of
 	 * @param fieldName the field to read
 	 * @throws ClassCastException if the field is not an integer
-	 * @return  the value of the field as an integer or null if the field is empty
+	 * @return the value of the field as an integer or null if the field is empty
 	 */
 	public static Integer getPropertyAsInt(Object data, String fieldName) {
+		try {
+			JsonObject json = JSONUtility.toModel(data, JsonObject.class);
+			if (json == null) {
+				return null;
+			}
+			JsonElement element = json.get(fieldName);
+			return element != null ? element.getAsInt() : null;
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	/**
+	 * Returns the value of the field as an boolean or null if the field is empty.
+	 *
+	 * @param data      the object to read the field of
+	 * @param fieldName the field to read
+	 * @throws ClassCastException if the field is not an boolean
+	 * @return the value of the field as an boolean or null if the field is empty
+	 */
+	public static Boolean getPropertyAsBoolean(Object data, String fieldName) {
 		// FIXME: catch exception return null
 		JsonObject json = JSONUtility.toModel(data, JsonObject.class);
 		if (json == null) {
 			return null;
 		}
 		JsonElement element = json.get(fieldName);
-		return element != null ? element.getAsInt() : null;
+		return element != null ? element.getAsBoolean() : null;
+	}
+
+	/**
+	 * Returns the minimal data to resolve a completion item.
+	 * 
+	 * @param request       the completion request.
+	 * @param participantId the participant id to retrieve the resolver.
+	 * @return the minimal data to resolve a completion item.
+	 */
+	public static JsonObject createCompletionData(ICompletionRequest request, String participantId) {
+		DOMDocument document = request.getNode().getOwnerDocument();
+		JsonObject data = createData(document.getDocumentURI(),
+				participantId);
+		data.addProperty(OFFSET_FIELD,
+				request.getOffset());
+		return data;
 	}
 
 }

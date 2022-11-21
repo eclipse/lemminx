@@ -23,17 +23,16 @@ import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
-import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
-import org.eclipse.lemminx.extensions.contentmodel.participants.completion.AbstractCMCompletionResolver;
 import org.eclipse.lemminx.extensions.contentmodel.participants.completion.AttributeNameCompletionResolver;
 import org.eclipse.lemminx.extensions.contentmodel.participants.completion.AttributeValueCompletionResolver;
+import org.eclipse.lemminx.extensions.contentmodel.participants.completion.ContentModelElementCompletionItem;
 import org.eclipse.lemminx.extensions.contentmodel.utils.XMLGenerator;
-import org.eclipse.lemminx.services.AttributeCompletionItem;
 import org.eclipse.lemminx.services.data.DataEntryField;
+import org.eclipse.lemminx.services.extensions.completion.AttributeCompletionItem;
 import org.eclipse.lemminx.services.extensions.completion.CompletionParticipantAdapter;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionItemResolveParticipant;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionRequest;
@@ -42,7 +41,6 @@ import org.eclipse.lemminx.uriresolver.CacheResourceDownloadingException;
 import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
-import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -201,7 +199,8 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 			addTagName(list, tags, request, response);
 		} else {
 			for (CMElementDeclaration child : cmElements) {
-				addCompletionItem(child, element, defaultPrefix, forceUseOfPrefix, request, response, generator, null);
+				addTagCompletionItem(child, element, defaultPrefix, forceUseOfPrefix, request, response, generator,
+						null);
 			}
 		}
 	}
@@ -212,7 +211,8 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 		for (CMElementDeclaration child : elements) {
 			if (!processedElements.contains(child)) {
 				processedElements.add(child);
-				addCompletionItem(child, element, defaultPrefix, forceUseOfPrefix, request, response, generator, tags);
+				addTagCompletionItem(child, element, defaultPrefix, forceUseOfPrefix, request, response, generator,
+						tags);
 				fillCompletionItem(child.getElements(), element, defaultPrefix, forceUseOfPrefix, request, response,
 						generator, tags, processedElements);
 			}
@@ -250,37 +250,23 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 		}
 	}
 
-	private static void addCompletionItem(CMElementDeclaration elementDeclaration, DOMElement parentElement,
+	private static void addTagCompletionItem(CMElementDeclaration elementDeclaration, DOMElement parentElement,
 			String defaultPrefix, boolean forceUseOfPrefix, ICompletionRequest request, ICompletionResponse response,
 			XMLGenerator generator, Set<String> tags) {
 		String prefix = forceUseOfPrefix ? defaultPrefix
 				: (parentElement != null ? parentElement.getPrefix(elementDeclaration.getNamespace()) : null);
-		String label = elementDeclaration.getName(prefix);
+		String tagName = elementDeclaration.getName(prefix);
 		if (tags != null) {
-			if (tags.contains(label)) {
+			if (tags.contains(tagName)) {
 				return;
 			} else {
-				tags.add(label);
+				tags.add(tagName);
 			}
 		}
 
-		CompletionItem item = new CompletionItem(label);
-		item.setFilterText(request.getFilterForStartTagName(label));
-		item.setKind(CompletionItemKind.Property);
-		MarkupContent documentation = XMLGenerator.createMarkupContent(elementDeclaration, request);
-		item.setDocumentation(documentation);
-		String xml = generator.generate(elementDeclaration, prefix,
-				isGenerateEndTag(request.getNode(), request.getOffset(), label));
-		item.setTextEdit(Either.forLeft(new TextEdit(request.getReplaceRange(), xml)));
-		item.setInsertTextFormat(InsertTextFormat.Snippet);
+		ContentModelElementCompletionItem item = new ContentModelElementCompletionItem(tagName,
+				elementDeclaration, generator, request);
 		response.addCompletionItem(item, true);
-	}
-
-	private static boolean isGenerateEndTag(DOMNode node, int offset, String tagName) {
-		if (node == null) {
-			return true;
-		}
-		return node.getOrphanEndElement(offset, tagName) == null;
 	}
 
 	@Override
@@ -450,12 +436,8 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 		return completionResolvers.get(participantId);
 	}
 
-	private void addResolveData(ICompletionRequest request, CompletionItem item, String participantId) {
-		DOMDocument document = request.getNode().getOwnerDocument();
-		JsonObject data = DataEntryField.createData(document.getDocumentURI(),
-				participantId);
-		data.addProperty(AbstractCMCompletionResolver.OFFSET_KEY,
-				request.getOffset());
+	private static void addResolveData(ICompletionRequest request, CompletionItem item, String participantId) {
+		JsonObject data = DataEntryField.createCompletionData(request, participantId);
 		item.setData(data);
 	}
 }
