@@ -39,6 +39,8 @@ import org.eclipse.lemminx.dom.parser.ScannerState;
 import org.eclipse.lemminx.dom.parser.TokenType;
 import org.eclipse.lemminx.dom.parser.XMLScanner;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lemminx.services.extensions.completion.DOMElementCompletionItem;
+import org.eclipse.lemminx.services.extensions.completion.ElementEndTagCompletionResolver;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionItemResolveParticipant;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionParticipant;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionRequest;
@@ -72,8 +74,11 @@ public class XMLCompletions {
 	private final XMLExtensionsRegistry extensionsRegistry;
 	private SnippetRegistry snippetRegistry;
 
+	private final ElementEndTagCompletionResolver endTagCompletionResolver;
+
 	public XMLCompletions(XMLExtensionsRegistry extensionsRegistry) {
 		this.extensionsRegistry = extensionsRegistry;
+		this.endTagCompletionResolver = new ElementEndTagCompletionResolver();
 	}
 
 	public CompletionList doComplete(DOMDocument xmlDocument, Position position, SharedSettings settings,
@@ -304,6 +309,16 @@ public class XMLCompletions {
 		String participantId = request.getParticipantId();
 		if (StringUtils.isEmpty(participantId)) {
 			return unresolved;
+		}
+		if (ElementEndTagCompletionResolver.PARTICIPANT_ID.equals(participantId)) {
+			try {
+				return endTagCompletionResolver.resolveCompletionItem(request, cancelChecker);
+			} catch (CancellationException e) {
+				throw e;
+			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE, "Error while processing resolve completion item for the participant '"
+						+ ElementEndTagCompletionResolver.class.getName() + "'.", e);
+			}
 		}
 		for (ICompletionParticipant completionParticipant : extensionsRegistry.getCompletionParticipants()) {
 			try {
@@ -693,43 +708,11 @@ public class XMLCompletions {
 					}
 					String tag = element.getTagName();
 					seenElements.add(tag);
-					CompletionItem item = new CompletionItem();
-					item.setLabel(tag);
-					item.setKind(CompletionItemKind.Property);
-					item.setFilterText(completionRequest.getFilterForStartTagName(tag));
-					StringBuilder xml = new StringBuilder();
-					xml.append("<");
-					xml.append(tag);
-					if (element.isSelfClosed()) {
-						xml.append(" />");
-					} else {
-						xml.append(">");
-						if (completionRequest.isCompletionSnippetsSupported()) {
-							xml.append("$0");
-						}
-						if (isGenerateEndTag(completionRequest, tag)) {
-							xml.append("</").append(tag).append(">");
-						}
-					}
-					item.setTextEdit(Either.forLeft(new TextEdit(replaceRange, xml.toString())));
-					item.setInsertTextFormat(InsertTextFormat.Snippet);
-
+					DOMElementCompletionItem item = new DOMElementCompletionItem(element, completionRequest);
 					completionResponse.addCompletionItem(item);
 				});
 			}
 		}
-	}
-
-	private static boolean isGenerateEndTag(CompletionRequest completionRequest, String tagName) {
-		if (!completionRequest.isAutoCloseTags()) {
-			return false;
-		}
-		DOMNode node = completionRequest.getNode();
-		if (node == null) {
-			return true;
-		}
-		int offset = completionRequest.getOffset();
-		return node.getOrphanEndElement(offset, tagName) == null;
 	}
 
 	private void collectCloseTagSuggestions(int afterOpenBracket, boolean inOpenTag, int tagNameEnd,

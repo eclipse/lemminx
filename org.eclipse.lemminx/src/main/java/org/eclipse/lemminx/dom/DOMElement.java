@@ -223,8 +223,8 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 		}
 		if (!StringUtils.isEmpty(namespaceURI)) {
 			switch (namespaceURI) {
-			case "http://www.w3.org/XML/1998/namespace":
-				return "xml";
+				case "http://www.w3.org/XML/1998/namespace":
+					return "xml";
 			}
 		}
 		return null;
@@ -472,29 +472,38 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 	}
 
 	@Override
-	public DOMElement getOrphanEndElement(int offset, String tagName) {
+	public DOMElement getOrphanEndElement(int offset, String tagName, boolean anyOrphan) {
 		if (getEnd() <= offset) {
 			// <employee />|
 			// <employee /> |
 			// <employee></employee> |
 			// check if next sibling node is an element like <\tagName>
-			return super.getOrphanEndElement(offset, tagName);
+			return super.getOrphanEndElement(offset, tagName, anyOrphan);
 		}
 		if (isSameTag(tagName) && isInStartTag(offset)) {
 			// <employe|e></employee>
-			return hasEndTag() ? this : null;
+			if (anyOrphan) {
+				if (hasEndTag()) {
+					return this;
+				}
+			} else {
+				return hasEndTag() ? this : null;
+			}
 		}
 		// search if it exists an end tag
+		DOMElement orphanEndElement = null;
 		List<DOMNode> children = getChildren();
 		for (DOMNode child : children) {
 			if (child.isElement()) {
 				DOMElement childElement = (DOMElement) child;
 				if (childElement.isOrphanEndTagOf(tagName)) {
 					return childElement;
+				} else if (orphanEndElement == null && childElement.isOrphanEndTag()) {
+					orphanEndElement = childElement;
 				}
 			}
 		}
-		return null;
+		return anyOrphan ? orphanEndElement : null;
 	}
 
 	/**

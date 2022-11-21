@@ -12,6 +12,7 @@
  */
 package org.eclipse.lemminx.settings;
 
+import org.eclipse.lemminx.settings.capabilities.CompletionResolveSupportProperty;
 import org.eclipse.lsp4j.CompletionCapabilities;
 
 /**
@@ -96,18 +97,20 @@ public class XMLCompletionSettings {
 	}
 
 	/**
-	 * Returns true if the client supports resolving the documentation in
+	 * Returns true if the client supports resolving the given
+	 * {@link CompletionResolveSupportProperty} property in
 	 * completionItem/resolve and false otherwise.
 	 *
-	 * @return true if the client supports resolving the documentation in
+	 * @return true if the client supports resolving the given
+	 *         {@link CompletionResolveSupportProperty} property in
 	 *         completionItem/resolve and false otherwise
 	 */
-	public boolean isResolveDocumentationSupported() {
+	public boolean isCompletionResolveSupported(CompletionResolveSupportProperty property) {
 		return completionCapabilities != null && completionCapabilities.getCompletionItem() != null
 				&& completionCapabilities.getCompletionItem().getResolveSupport() != null
 				&& completionCapabilities.getCompletionItem().getResolveSupport().getProperties() != null
 				&& completionCapabilities.getCompletionItem().getResolveSupport().getProperties()
-						.contains("documentation");
+						.contains(property.name());
 	}
 
 	/**

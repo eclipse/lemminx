@@ -51,9 +51,11 @@ import org.eclipse.lemminx.extensions.generators.FileContentGeneratorSettings;
 import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.services.extensions.diagnostics.IXMLErrorCode;
 import org.eclipse.lemminx.services.extensions.save.AbstractSaveContext;
+import org.eclipse.lemminx.services.format.TextEditUtils;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLCodeLensSettings;
 import org.eclipse.lemminx.settings.XMLSymbolSettings;
+import org.eclipse.lemminx.settings.capabilities.CompletionResolveSupportProperty;
 import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.CodeAction;
@@ -152,42 +154,47 @@ public class XMLAssert {
 
 	}
 
-	public static void testCompletionFor(String value, CompletionItem... expectedItems) throws BadLocationException {
-		testCompletionFor(value, null, expectedItems);
-	}
-
-	public static void testCompletionFor(String value, String catalogPath, CompletionItem... expectedItems)
+	public static CompletionList testCompletionFor(String value, CompletionItem... expectedItems)
 			throws BadLocationException {
-		testCompletionFor(value, catalogPath, null, null, expectedItems);
+		return testCompletionFor(value, null, expectedItems);
 	}
 
-	public static void testCompletionFor(String value, int expectedCount, CompletionItem... expectedItems)
+	public static CompletionList testCompletionFor(String value, String catalogPath, CompletionItem... expectedItems)
 			throws BadLocationException {
-		testCompletionFor(value, null, null, expectedCount, expectedItems);
+		return testCompletionFor(value, catalogPath, null, null, expectedItems);
 	}
 
-	public static void testCompletionFor(String value, String catalogPath, String fileURI, Integer expectedCount,
+	public static CompletionList testCompletionFor(String value, int expectedCount, CompletionItem... expectedItems)
+			throws BadLocationException {
+		return testCompletionFor(value, null, null, expectedCount, expectedItems);
+	}
+
+	public static CompletionList testCompletionFor(String value, String catalogPath, String fileURI,
+			Integer expectedCount,
 			CompletionItem... expectedItems) throws BadLocationException {
-		testCompletionFor(new XMLLanguageService(), value, catalogPath, null, fileURI, expectedCount, true,
+		return testCompletionFor(new XMLLanguageService(), value, catalogPath, null, fileURI, expectedCount, true,
 				expectedItems);
 	}
 
-	public static void testCompletionFor(String value, boolean autoCloseTags, CompletionItem... expectedItems)
+	public static CompletionList testCompletionFor(String value, boolean autoCloseTags, CompletionItem... expectedItems)
 			throws BadLocationException {
-		testCompletionFor(new XMLLanguageService(), value, null, null, null, null, autoCloseTags, expectedItems);
+		return testCompletionFor(new XMLLanguageService(), value, null, null, null, null, autoCloseTags, expectedItems);
 	}
 
-	public static void testCompletionFor(XMLLanguageService xmlLanguageService, String value, String catalogPath,
+	public static CompletionList testCompletionFor(XMLLanguageService xmlLanguageService, String value,
+			String catalogPath,
 			Consumer<XMLLanguageService> customConfiguration, String fileURI, Integer expectedCount,
 			boolean autoCloseTags, CompletionItem... expectedItems) throws BadLocationException {
 
 		SharedSettings settings = new SharedSettings();
 		settings.getCompletionSettings().setAutoCloseTags(autoCloseTags);
-		testCompletionFor(xmlLanguageService, value, catalogPath, customConfiguration, fileURI, expectedCount, settings,
+		return testCompletionFor(xmlLanguageService, value, catalogPath, customConfiguration, fileURI, expectedCount,
+				settings,
 				expectedItems);
 	}
 
-	public static void testCompletionFor(XMLLanguageService xmlLanguageService, String value, String catalogPath,
+	public static CompletionList testCompletionFor(XMLLanguageService xmlLanguageService, String value,
+			String catalogPath,
 			Consumer<XMLLanguageService> customConfiguration, String fileURI, Integer expectedCount,
 			SharedSettings sharedSettings, CompletionItem... expectedItems) throws BadLocationException {
 		int offset = value.indexOf('|');
@@ -233,6 +240,7 @@ public class XMLAssert {
 				assertCompletion(list, item, expectedCount);
 			}
 		}
+		return list;
 	}
 
 	public static void assertCompletion(CompletionList completions, CompletionItem expected, Integer expectedCount) {
@@ -262,11 +270,14 @@ public class XMLAssert {
 				assertEquals(expected.getTextEdit().getLeft().getRange(), match.getTextEdit().getLeft().getRange());
 			}
 
-			if (expected.getAdditionalTextEdits() != null && match.getAdditionalTextEdits() != null) {
-				assertEquals(expected.getAdditionalTextEdits().size(), match.getAdditionalTextEdits().size());
-				for (TextEdit expectedATE : expected.getAdditionalTextEdits()) {
-					assertAdditionalTextEdit(match.getAdditionalTextEdits(), expectedATE);
-				}
+			if (expected.getAdditionalTextEdits() != null) {
+				List<TextEdit> matchedAdditionalTextEdits = match.getAdditionalTextEdits() != null
+						? match.getAdditionalTextEdits()
+						: Collections.emptyList();
+				assertEquals(expected.getAdditionalTextEdits().size(),
+						matchedAdditionalTextEdits.size());
+				assertArrayEquals(expected.getAdditionalTextEdits().toArray(),
+						matchedAdditionalTextEdits.toArray());
 			}
 		}
 		if (expected.getFilterText() != null && match.getFilterText() != null) {
@@ -276,6 +287,20 @@ public class XMLAssert {
 		if (expected.getDocumentation() != null) {
 			assertEquals(expected.getDocumentation(), match.getDocumentation());
 		}
+	}
+
+	public static void testCompletionApply(String value, CompletionItem completionItem, String expected)
+			throws BadLocationException {
+		int offset = value.indexOf('|');
+		value = value.substring(0, offset) + value.substring(offset + 1);
+		TextDocument document = new TextDocument(value, "test.xml");
+		List<TextEdit> edits = new ArrayList<>();
+		edits.add(completionItem.getTextEdit().getLeft());
+		if (completionItem.getAdditionalTextEdits() != null) {
+			edits.addAll(completionItem.getAdditionalTextEdits());
+		}
+		String actual = TextEditUtils.applyEdits(document, edits);
+		assertEquals(expected, actual);
 	}
 
 	public static void assertAdditionalTextEdit(List<TextEdit> matches, TextEdit expected) {
@@ -411,7 +436,8 @@ public class XMLAssert {
 			Integer expectedCount, CompletionItem... expectedItems) throws BadLocationException {
 		CompletionItemResolveSupportCapabilities completionItemResolveSupportCapabilities = new CompletionItemResolveSupportCapabilities();
 		completionItemResolveSupportCapabilities
-				.setProperties(Arrays.asList("documentation"));
+				.setProperties(Arrays.asList(CompletionResolveSupportProperty.documentation.name(),
+						CompletionResolveSupportProperty.additionalTextEdits.name()));
 		CompletionItemCapabilities completionItemCapabilities = new CompletionItemCapabilities();
 		completionItemCapabilities.setResolveSupport(completionItemResolveSupportCapabilities);
 		CompletionCapabilities completionCapabilities = new CompletionCapabilities();
@@ -579,9 +605,8 @@ public class XMLAssert {
 
 			if (expected.getAdditionalTextEdits() != null && match.getAdditionalTextEdits() != null) {
 				assertEquals(expected.getAdditionalTextEdits().size(), match.getAdditionalTextEdits().size());
-				for (TextEdit expectedATE : expected.getAdditionalTextEdits()) {
-					assertAdditionalTextEdit(match.getAdditionalTextEdits(), expectedATE);
-				}
+				assertArrayEquals(expected.getAdditionalTextEdits().toArray(),
+						match.getAdditionalTextEdits().toArray());
 			}
 		}
 		if (expected.getFilterText() != null && match.getFilterText() != null) {
