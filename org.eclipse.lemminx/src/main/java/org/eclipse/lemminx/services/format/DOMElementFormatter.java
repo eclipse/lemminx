@@ -41,7 +41,8 @@ public class DOMElementFormatter {
 
 	public void formatElement(DOMElement element, XMLFormattingConstraints parentConstraints, int start, int end,
 			List<TextEdit> edits) {
-		EmptyElements emptyElements = getEmptyElements(element);
+		EmptyElements emptyElements = getEmptyElements(element,
+				formatterDocument.getFormatElementCategory(element, parentConstraints));
 
 		// Format start tag element with proper indentation
 		int indentLevel = parentConstraints.getIndentLevel();
@@ -308,8 +309,7 @@ public class DOMElementFormatter {
 			DOMNode lastChild = element.getLastChild();
 			if (lastChild != null
 					&& (lastChild.isElement() || lastChild.isComment())
-					&& Character.isWhitespace(formatterDocument.getText().charAt(endTagOpenOffset - 1))
-					&& !isPreserveEmptyContent()) {
+					&& Character.isWhitespace(formatterDocument.getText().charAt(endTagOpenOffset - 1))) {
 				replaceLeftSpacesWithIndentationPreservedNewLines(startTagCloseOffset, endTagOpenOffset,
 						indentLevel, edits);
 				width += indentLevel * getTabSize();
@@ -340,7 +340,7 @@ public class DOMElementFormatter {
 	 * @param element the DOM element
 	 * @return the option to use to generate empty elements.
 	 */
-	private EmptyElements getEmptyElements(DOMElement element) {
+	private EmptyElements getEmptyElements(DOMElement element, FormatElementCategory formatElementCategory) {
 		EmptyElements emptyElements = getEmptyElements();
 		if (emptyElements != EmptyElements.ignore) {
 			if (element.isClosed() && element.isEmpty()) {
@@ -348,7 +348,7 @@ public class DOMElementFormatter {
 				switch (emptyElements) {
 				case expand:
 				case collapse: {
-					if (isPreserveEmptyContent()) {
+					if (formatElementCategory == FormatElementCategory.PreserveSpace) {
 						// preserve content
 						if (element.hasChildNodes()) {
 							// The element is empty and contains somes spaces which must be preserved
@@ -454,10 +454,6 @@ public class DOMElementFormatter {
 		return formatterDocument.getSharedSettings().getFormattingSettings().getEmptyElements();
 	}
 
-	private boolean isPreserveEmptyContent() {
-		return formatterDocument.getSharedSettings().getFormattingSettings().isPreserveEmptyContent();
-	}
-
 	private void formatChildren(DOMElement element, XMLFormattingConstraints constraints, int start, int end,
 			List<TextEdit> edits) {
 		formatterDocument.formatChildren(element, constraints, start, end, edits);
@@ -478,9 +474,5 @@ public class DOMElementFormatter {
 
 	private int getTabSize() {
 		return formatterDocument.getSharedSettings().getFormattingSettings().getTabSize();
-	}
-
-	private boolean isMaxLineWidthSupported() {
-		return formatterDocument.isMaxLineWidthSupported();
 	}
 }

@@ -34,7 +34,35 @@ public class DOMTextFormatter {
 	public void formatText(DOMText textNode, XMLFormattingConstraints parentConstraints, List<TextEdit> edits) {
 		// Don't format the spacing in text for case of preserve empty content setting
 		FormatElementCategory formatElementCategory = parentConstraints.getFormatElementCategory();
-		if (isPreserveEmptyContent() || formatElementCategory == FormatElementCategory.PreserveSpace) {
+		if (formatElementCategory == FormatElementCategory.PreserveSpace && isTrimTrailingWhitespace()) {
+			String text = formatterDocument.getText();
+			int i = text.length() - 1;
+			char curr = text.charAt(i);
+			boolean removeSpaces = true;
+			int lineSeparatorOffset = i + 1;
+
+			while (i >= 0) {
+				curr = text.charAt(i);
+				if (isLineSeparator(curr)) {
+					// remove spaces in an empty line
+					// ex:
+					// [space][space] --> remove
+					if (removeSpaces && textNode.getEnd() > lineSeparatorOffset) {
+						removeLeftSpaces(i + 1, lineSeparatorOffset, edits);
+					}
+					removeSpaces = true;
+					lineSeparatorOffset = i;
+				} else if (removeSpaces && (!Character.isWhitespace(curr) || isLineSeparator(curr))
+						&& textNode.getEnd() > lineSeparatorOffset) {
+					// remove spaces after some content at the end of the line
+					// ex: <a> </a> [space][space] --> remove
+					removeLeftSpaces(i, lineSeparatorOffset, edits);
+					removeSpaces = false;
+				}
+				i--;
+			}
+			return;
+		} else if (formatElementCategory == FormatElementCategory.PreserveSpace) {
 			return;
 		}
 		String text = formatterDocument.getText();
@@ -162,10 +190,6 @@ public class DOMTextFormatter {
 
 	private int getTabSize() {
 		return formatterDocument.getSharedSettings().getFormattingSettings().getTabSize();
-	}
-
-	private boolean isPreserveEmptyContent() {
-		return formatterDocument.getSharedSettings().getFormattingSettings().isPreserveEmptyContent();
 	}
 
 	private void replaceSpacesWithOneSpace(int spaceStart, int spaceEnd, List<TextEdit> edits) {

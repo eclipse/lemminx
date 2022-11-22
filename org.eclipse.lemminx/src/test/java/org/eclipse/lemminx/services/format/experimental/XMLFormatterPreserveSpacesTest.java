@@ -85,6 +85,139 @@ public class XMLFormatterPreserveSpacesTest {
 		assertFormat(content, expected);
 	}
 
+	// Tests from depreciated preserveEmptyContent setting
+	@Test
+	public void testPreserveEmptyContentTag() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveSpace(Arrays.asList("a"));
+
+		String content = "<a>\n" + //
+				"     " + //
+				"</a>";
+		String expected = content;
+		assertFormat(content, expected, settings);
+	}
+
+	@Test
+	public void testDontPreserveEmptyContentTag() throws BadLocationException {
+		String content = "<a>\n" + //
+				"     " + //
+				"</a>";
+		String expected = "<a>\n" + //
+				"</a>";
+		assertFormat(content, expected, //
+				te(0, 3, 1, 5, "\n"));
+		assertFormat(expected, expected);
+	}
+
+	@Test
+	public void testPreserveTextContent() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveSpace(Arrays.asList("a"));
+
+		String content = "<a>\n" + //
+				"   aaa  " + //
+				"</a>";
+		String expected = content;
+		assertFormat(content, expected, settings);
+	}
+
+	@Test
+	public void testPreserveTextContent2() throws BadLocationException {
+		String content = "<a>\n" + //
+				"   aaa   </a>";
+		String expected = "<a>\n" + //
+				"  aaa </a>";
+		assertFormat(content, expected, //
+				te(0, 3, 1, 3, "\n  "), //
+				te(1, 6, 1, 9, " "));
+		assertFormat(expected, expected);
+	}
+
+	@Test
+	public void testPreserveEmptyContentTagWithSiblings() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveSpace(Arrays.asList("b"));
+
+		String content = "<a>\n" + //
+				"     " + //
+				"  <b>  </b>" + //
+				"     " + //
+				"</a>";
+		String expected = "<a>\n" + //
+				"  <b>  </b>\n" + //
+				"</a>";
+		assertFormat(content, expected, settings, //
+				te(0, 3, 1, 7, "\n  "), //
+				te(1, 16, 1, 21, "\n"));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void testPreserveEmptyContentTagWithSiblingContent() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveSpace(Arrays.asList("a", "b"));
+
+		String content = "<a>\n" + //
+				"   zz     <b>  </b>tt     </a>";
+		String expected = content;
+		assertFormat(content, expected, settings);
+	}
+
+	@Test
+	public void testDontPreserveEmptyContentTagWithSiblingContent() throws BadLocationException {
+		String content = "<a>\n" + //
+				"   zz     <b>  </b>tt     </a>";
+		String expected = "<a> zz <b> </b>tt </a>";
+		assertFormat(content, expected, //
+				te(0, 3, 1, 3, " "), //
+				te(1, 5, 1, 10, " "), //
+				te(1, 13, 1, 15, " "), //
+				te(1, 21, 1, 26, " "));
+		assertFormat(expected, expected);
+	}
+
+	@Test
+	public void testPreserveEmptyContentTagWithSiblingWithComment() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveSpace(Arrays.asList("a", "b"));
+
+		String content = "<a>\n" + //
+				"   zz    <b>  </b>tt <!-- Comment -->     </a>";
+		String expected = content;
+		assertFormat(content, expected, settings);
+	}
+
+	@Test
+	public void testPreserveEmptyContentTagWithSiblingWithNewLines() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setPreserveSpace(Arrays.asList("a", "b"));
+
+		String content = "<a>\n" + //
+				"   zz    \n" + //
+				"<b>\n" + //
+				"  </b>\n" + //
+				"tt <!-- Comment -->     </a>\n" + //
+				"\n" + //
+				"<c></c>";
+		String expected = content;
+		assertFormat(content, expected, settings);
+	}
+
+	@Test
+	public void testDontPreserveEmptyContentTagWithSiblingWithComment() throws BadLocationException {
+		String content = "<a>\n" + //
+				"   zz    <b>  </b>tt <!-- Comment -->     </a>";
+		String expected = "<a> zz <b> </b>tt <!-- Comment -->\n" + //
+				"</a>";
+		assertFormat(content, expected, //
+				te(0, 3, 1, 3, " "), //
+				te(1, 5, 1, 9, " "), //
+				te(1, 12, 1, 14, " "), //
+				te(1, 37, 1, 42, "\n"));
+		assertFormat(expected, expected);
+	}
+
 	private static void assertFormat(String unformatted, String actual, TextEdit... expectedEdits)
 			throws BadLocationException {
 		assertFormat(unformatted, actual, new SharedSettings(), expectedEdits);

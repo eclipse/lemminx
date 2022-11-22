@@ -14,6 +14,8 @@ package org.eclipse.lemminx.services.format.experimental;
 import static java.lang.System.lineSeparator;
 import static org.eclipse.lemminx.XMLAssert.te;
 
+import java.util.Arrays;
+
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.settings.SharedSettings;
@@ -74,7 +76,7 @@ public class XMLFormatterWhitespaceSettingTest {
 	public void testTrimTrailingWhitespaceTextPreserveEmptyContent() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setTrimTrailingWhitespace(true);
-		settings.getFormattingSettings().setPreserveEmptyContent(true);
+		settings.getFormattingSettings().setPreserveSpace(Arrays.asList("a"));
 
 		String content = "<a>   \n" + //
 				"text     \n" + //
@@ -197,7 +199,7 @@ public class XMLFormatterWhitespaceSettingTest {
 	public void testTrimTrailingWhitespaceTextAndNewlinesPreserveEmptyContent() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setTrimTrailingWhitespace(true);
-		settings.getFormattingSettings().setPreserveEmptyContent(true);
+		settings.getFormattingSettings().setPreserveSpace(Arrays.asList("a"));
 		String content = "<a>   \n" + //
 				"    \n" + //
 				"text     \n" + //

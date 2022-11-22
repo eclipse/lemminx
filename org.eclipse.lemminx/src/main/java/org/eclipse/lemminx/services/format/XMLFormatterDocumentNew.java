@@ -200,7 +200,7 @@ public class XMLFormatterDocumentNew {
 				removeLeftSpaces(i, lineDelimiterOffset, edits);
 				removeSpaces = false;
 			}
-			if (isPreserveEmptyContent() || !isTrimFinalNewlines()) {
+			if (!isTrimFinalNewlines()) {
 				while (i >= 0) {
 					curr = xml.charAt(i);
 					if (isLineSeparator(curr)) {
@@ -217,9 +217,7 @@ public class XMLFormatterDocumentNew {
 						// ex: <a> </a> [space][space] --> remove
 						removeLeftSpaces(i, lineDelimiterOffset, edits);
 						removeSpaces = false;
-						if (!isPreserveEmptyContent()) {
-							return edits;
-						}
+						return edits;
 					}
 					i--;
 				}
@@ -815,10 +813,6 @@ public class XMLFormatterDocumentNew {
 
 	private boolean isTrimTrailingWhitespace() {
 		return getFormattingSettings().isTrimTrailingWhitespace();
-	}
-
-	private boolean isPreserveEmptyContent() {
-		return getFormattingSettings().isPreserveEmptyContent();
 	}
 
 	private String getQuotationAsString() {

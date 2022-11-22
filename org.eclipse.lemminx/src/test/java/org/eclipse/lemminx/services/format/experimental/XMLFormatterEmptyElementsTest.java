@@ -14,6 +14,8 @@ package org.eclipse.lemminx.services.format.experimental;
 import static java.lang.System.lineSeparator;
 import static org.eclipse.lemminx.XMLAssert.te;
 
+import java.util.Arrays;
+
 import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
@@ -136,7 +138,7 @@ public class XMLFormatterEmptyElementsTest extends AbstractCacheBasedTest {
 	public void expandEmptyElementsAndPreserveEmptyContent() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setEmptyElement(EmptyElements.expand);
-		settings.getFormattingSettings().setPreserveEmptyContent(true);
+		settings.getFormattingSettings().setPreserveSpace(Arrays.asList("bar"));
 
 		String content = "<foo>\r\n" + //
 				"    <bar>\r\n" + //
@@ -177,7 +179,7 @@ public class XMLFormatterEmptyElementsTest extends AbstractCacheBasedTest {
 	public void collapseEmptyElementsAndPreserveEmptyContent() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setEmptyElement(EmptyElements.collapse);
-		settings.getFormattingSettings().setPreserveEmptyContent(true);
+		settings.getFormattingSettings().setPreserveSpace(Arrays.asList("bar"));
 		settings.getFormattingSettings().setGrammarAwareFormatting(false);
 
 		String content = "<foo>\r\n" + //
