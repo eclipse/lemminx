@@ -30,11 +30,6 @@ public class DOMCommentFormatter {
 	public void formatComment(DOMComment commentNode, XMLFormattingConstraints parentConstraints, int startRange,
 			int endRange, List<TextEdit> edits) {
 
-		// Don't format the spacing in text for case of preserve empty content setting
-		if (isPreserveEmptyContent()) {
-			return;
-		}
-
 		// Check the comment is closed properly
 		if (commentNode.getEnd() == commentNode.getEndContent()) {
 			return;
@@ -113,10 +108,6 @@ public class DOMCommentFormatter {
 
 	private boolean isJoinCommentLines() {
 		return formatterDocument.getSharedSettings().getFormattingSettings().isJoinCommentLines();
-	}
-
-	private boolean isPreserveEmptyContent() {
-		return formatterDocument.getSharedSettings().getFormattingSettings().isPreserveEmptyContent();
 	}
 
 	private int getTabSize() {

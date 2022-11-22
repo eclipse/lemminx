@@ -13,6 +13,8 @@ package org.eclipse.lemminx.services.format.experimental;
 
 import static org.eclipse.lemminx.XMLAssert.te;
 
+import java.util.Arrays;
+
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.settings.SharedSettings;
@@ -28,7 +30,7 @@ public class XMLFormatterJoinContentLinesTest {
 	@Test
 	public void testPreserveEmptyContentWithJoinContentLines() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setPreserveEmptyContent(true);
+		settings.getFormattingSettings().setPreserveSpace(Arrays.asList("a"));
 		settings.getFormattingSettings().setJoinContentLines(true);
 
 		String content = "<a>\n" + //
