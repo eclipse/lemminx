@@ -366,7 +366,7 @@ public class XML2XMLSchemaGeneratorTest extends AbstractCacheBasedTest {
 				"              <xs:choice>" + lineSeparator() + //
 				"                <xs:element name=\"c\" />" + lineSeparator() + //
 				"                <xs:element name=\"b\" />" + lineSeparator() + //
-				"                <xs:choice>" + lineSeparator() + //
+				"              </xs:choice>" + lineSeparator() + //
 				"            </xs:sequence>" + lineSeparator() + //
 				"          </xs:complexType>" + lineSeparator() + //
 				"        </xs:element>" + lineSeparator() + //

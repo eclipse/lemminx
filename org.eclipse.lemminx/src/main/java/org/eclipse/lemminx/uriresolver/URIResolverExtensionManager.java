@@ -76,7 +76,7 @@ public class URIResolverExtensionManager implements URIResolverExtension, IExter
 
 	/**
 	 * Register an URI resolver.
-	 * 
+	 *
 	 * @param resolver the URI resolver to register.
 	 */
 	public void registerResolver(URIResolverExtension resolver) {
@@ -85,7 +85,7 @@ public class URIResolverExtensionManager implements URIResolverExtension, IExter
 
 	/**
 	 * Unregister an URI resolver.
-	 * 
+	 *
 	 * @param resolver the URI resolver to unregister.
 	 */
 	public void unregisterResolver(URIResolverExtension resolver) {

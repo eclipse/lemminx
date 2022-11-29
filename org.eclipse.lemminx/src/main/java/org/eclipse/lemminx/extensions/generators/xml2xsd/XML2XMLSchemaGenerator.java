@@ -28,7 +28,7 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 /**
  * File Generator implementation to generate XML Schema (XSD) from a given XML
  * source.
- * 
+ *
  */
 public class XML2XMLSchemaGenerator extends AbstractXML2GrammarGenerator<XMLSchemaGeneratorSettings> {
 
@@ -165,7 +165,7 @@ public class XML2XMLSchemaGenerator extends AbstractXML2GrammarGenerator<XMLSche
 				}
 				if (!sequenced) {
 					// </xs:choice>
-					schema.startElement(prefix, CHOICE_ELT, true);
+					schema.endElement(prefix, CHOICE_ELT, true);
 				}
 				// </xs:sequence>
 				schema.endElement(prefix, SEQUENCE_ELT);
