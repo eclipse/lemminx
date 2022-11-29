@@ -13,6 +13,9 @@ package org.eclipse.lemminx.extensions.contentmodel.participants;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMDocument;
@@ -22,20 +25,21 @@ import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
 import org.eclipse.lemminx.services.format.FormatElementCategory;
 import org.eclipse.lemminx.services.format.XMLFormattingConstraints;
 import org.eclipse.lemminx.settings.SharedSettings;
+import org.eclipse.lemminx.uriresolver.CacheResourceDownloadingException;
 
 /**
  * Formatter participant which uses XSD/DTD grammar information to know the
  * {@link FormatElementCategory} of a given element.
- * 
+ *
  * <p>
- * 
+ *
  * This participant is enabled when 'xml.format.grammarAwareFormatting' setting
  * is set to true.
- * 
+ *
  * </p>
- * 
+ *
  * @author Angelo ZERR
- * 
+ *
  */
 public class ContentModelFormatterParticipant implements IFormatterParticipant {
 
@@ -61,7 +65,21 @@ public class ContentModelFormatterParticipant implements IFormatterParticipant {
 		}
 		Collection<CMDocument> cmDocuments = formattingContext.get(namespaceURI);
 		if (cmDocuments == null) {
-			cmDocuments = contentModelManager.findCMDocument(element);
+			try {
+				cmDocuments = contentModelManager.findCMDocument(element);
+			} catch (CacheResourceDownloadingException e) {
+				// block; we need the content model to format correctly.
+				// if we don't block and instead return null here,
+				// then some parts of the document will be
+				// grammar-aware formatted and others won't be.
+				try {
+					e.getFuture().get(2000, TimeUnit.MILLISECONDS);
+					cmDocuments = contentModelManager.findCMDocument(element);
+				} catch (InterruptedException | ExecutionException | TimeoutException e1) {
+					// If it takes longer than 2 seconds to download the schema, we should give up and proceed with formatting
+					return null;
+				}
+			}
 			formattingContext.put(namespaceURI, cmDocuments);
 		}
 

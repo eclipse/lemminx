@@ -48,6 +48,7 @@ public class XSDURIResolverExtension implements URIResolverExtension {
 	private static final ResourceToDeploy NAMESPACE_URI_1998_RESOURCE = new ResourceToDeploy(
 			"https://www.w3.org/2001/xml.xsd", "schemas/xsd/xml.xsd");
 
+	@Override
 	public String getName() {
 		return "embedded xml.xsd";
 	}
