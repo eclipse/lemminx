@@ -1060,6 +1060,65 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 	}
 
 	@Test
+	public void substitutionGroup2() throws BadLocationException {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<BookStore\r\n" + //
+				"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"    xsi:noNamespaceSchemaLocation=\"xsd/bookstore.xsd\">\r\n" + //
+				"    <Name>ABC Store</Name>\r\n" + //
+				"\r\n" + //
+				"    <Publication>\r\n" + //
+				"    </Publication>\r\n" + //
+				"\r\n" + //
+				"    <Book>\r\n" + //
+				"      |\r\n" + // <-- completion here
+				"    </Book>\r\n" + //
+				"    \r\n" + //
+				"</BookStore>";
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/bookstore.xml", null,
+				c("Title", "<Title></Title>"));
+		
+		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<BookStore\r\n" + //
+				"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"    xsi:noNamespaceSchemaLocation=\"xsd/bookstore.xsd\">\r\n" + //
+				"    <Name>ABC Store</Name>\r\n" + //
+				"\r\n" + //
+				"    <Publication>\r\n" + //
+				"    </Publication>\r\n" + //
+				"\r\n" + //
+				"    <Book>\r\n" + //
+				"      <Title></Title>\r\n" + //
+				"      |\r\n" + // <-- completion here
+				"    </Book>\r\n" + //
+				"    \r\n" + //
+				"</BookStore>";
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/bookstore.xml", null,
+				c("Author", "<Author></Author>"), //
+				c("Date", "<Date></Date>"));
+		
+		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<BookStore\r\n" + //
+				"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"    xsi:noNamespaceSchemaLocation=\"xsd/bookstore.xsd\">\r\n" + //
+				"    <Name>ABC Store</Name>\r\n" + //
+				"\r\n" + //
+				"    <Publication>\r\n" + //
+				"    </Publication>\r\n" + //
+				"\r\n" + //
+				"    <Book>\r\n" + //
+				"      <Title></Title>\r\n" + //
+				"      <Author></Author>\r\n" + //
+				"      <Date></Date>\r\n" + //
+				"      |\r\n" + // <-- completion here
+				"    </Book>\r\n" + //
+				"    \r\n" + //
+				"</BookStore>";
+		XMLAssert.testCompletionFor(xml, null, "src/test/resources/bookstore.xml", null,
+				c("ISBN", "<ISBN></ISBN>"));
+	}
+
+	@Test
 	public void tag() throws BadLocationException {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" + //
 				"<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //

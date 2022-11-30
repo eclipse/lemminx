@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+    <!-- ELEMENT DECLARATIONS -->
+
+    <xsd:element name="Name" type="xsd:string" />
+    <xsd:element name="StoreName" substitutionGroup="Name" type="MyString" />
+
+    <xsd:element name="Publication" type="PublicationType" />
+    <xsd:element name="Book" substitutionGroup="Publication" type="BookType" />
+    <xsd:element name="Magazine" substitutionGroup="Publication" type="MagazineType" />
+
+    <xsd:element name="BookStore">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="Name" />
+                <xsd:element ref="Publication" maxOccurs="unbounded" />
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="LiteratureStore" substitutionGroup="BookStore" />
+
+
+    <!--  TYPE DEFINITIONS -->
+
+    <xsd:simpleType name="MyString">
+        <xsd:restriction base="xsd:string">
+            <xsd:minLength value="3"></xsd:minLength>
+            <xsd:maxLength value="10"></xsd:maxLength>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:complexType name="PublicationType">
+        <xsd:sequence>
+            <xsd:element name="Title" type="xsd:string" />
+            <xsd:element name="Author" type="xsd:string" minOccurs="0" maxOccurs="unbounded" />
+            <xsd:element name="Date" type="xsd:gYear" />
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="BookType">
+        <xsd:complexContent>
+            <xsd:extension base="PublicationType">
+                <xsd:sequence>
+                    <xsd:element name="ISBN" type="xsd:string" />
+                    <xsd:element name="Publisher" type="xsd:string" />
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="MagazineType">
+        <xsd:complexContent>
+            <xsd:restriction base="PublicationType">
+                <xsd:sequence>
+                    <xsd:element name="Title" type="xsd:string" />
+                    <xsd:element name="Date" type="xsd:gYear" />
+                </xsd:sequence>
+            </xsd:restriction>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+</xsd:schema>
