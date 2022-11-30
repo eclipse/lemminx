@@ -142,24 +142,21 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 	 * @param elements
 	 */
 	void collectElement(XSElementDeclaration elementDeclaration, Collection<CMElementDeclaration> elements) {
-		if (elementDeclaration.getAbstract()) {
-			// element declaration is marked as abstract
-			// ex with xsl: <xs:element name="declaration" type="xsl:generic-element-type"
-			// abstract="true"/>
-			XSObjectList list = getSubstitutionGroup(elementDeclaration);
-			if (list != null) {
-				// it exists elements list bind with this abstract declaration with
-				// substitutionGroup
-				// ex xsl : <xs:element name="template" substitutionGroup="xsl:declaration">
-				for (int i = 0; i < list.getLength(); i++) {
-					XSObject object = list.item(i);
-					if (object.getType() == XSConstants.ELEMENT_DECLARATION) {
-						XSElementDeclaration subElementDeclaration = (XSElementDeclaration) object;
-						collectElement(subElementDeclaration, elements);
-					}
+		XSObjectList list = getSubstitutionGroup(elementDeclaration);
+		if (list != null) {
+			// ex xsl : <xs:element name="template" substitutionGroup="xsl:declaration">
+			for (int i = 0; i < list.getLength(); i++) {
+				XSObject object = list.item(i);
+				if (object.getType() == XSConstants.ELEMENT_DECLARATION) {
+					XSElementDeclaration subElementDeclaration = (XSElementDeclaration) object;
+					collectElement(subElementDeclaration, elements);
 				}
 			}
-		} else {
+		}
+		if (!elementDeclaration.getAbstract()) {
+			// element declaration is NOT marked as abstract
+			// ex with xsl: <xs:element name="declaration" type="xsl:generic-element-type"
+			// abstract="true"/>
 			CMElementDeclaration cmElement = getXSDElement(elementDeclaration);
 			// check element declaration is not already added (ex: xs:annotation)
 			if (!elements.contains(cmElement)) {
