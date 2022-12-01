@@ -27,6 +27,7 @@ import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCo
 import org.eclipse.lemminx.extensions.relaxng.xml.validator.RelaxNGErrorCode;
 import org.eclipse.lemminx.extensions.xerces.AbstractReferencedGrammarLSPErrorReporter;
 import org.eclipse.lemminx.extensions.xerces.ReferencedGrammarDiagnosticsInfo;
+import org.eclipse.lemminx.extensions.xinclude.XIncludeErrorCode;
 import org.eclipse.lemminx.extensions.xsd.participants.XSDErrorCode;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.Diagnostic;
@@ -64,7 +65,7 @@ public class LSPErrorReporterForXML extends AbstractReferencedGrammarLSPErrorRep
 				}
 			} else {
 				fillReferencedGrammarDiagnostic(location, key, arguments, message, diagnosticSeverity, fatalError,
-						document.getResolverExtensionManager(), syntaxCode, null, null, null, null,
+						document.getResolverExtensionManager(), syntaxCode, null, null, null, null, null,
 						documentOrGrammarURI);
 				return NO_RANGE;
 			}
@@ -88,7 +89,7 @@ public class LSPErrorReporterForXML extends AbstractReferencedGrammarLSPErrorRep
 					} else {
 						fillReferencedGrammarDiagnostic(location, key, arguments, message, diagnosticSeverity,
 								fatalError, document.getResolverExtensionManager(), null, null, dtdCode, null, null,
-								documentOrGrammarURI);
+								null, documentOrGrammarURI);
 						return NO_RANGE;
 					}
 				} else {
@@ -101,7 +102,7 @@ public class LSPErrorReporterForXML extends AbstractReferencedGrammarLSPErrorRep
 						// which declares the XSD.
 						fillReferencedGrammarDiagnostic(location, key, arguments, message, diagnosticSeverity,
 								fatalError, document.getResolverExtensionManager(), null, null, null, xsdCode, null,
-								documentOrGrammarURI);
+								null, documentOrGrammarURI);
 						return NO_RANGE;
 					}
 					RelaxNGErrorCode rngCode = RelaxNGErrorCode.get(key);
@@ -114,6 +115,21 @@ public class LSPErrorReporterForXML extends AbstractReferencedGrammarLSPErrorRep
 						} else {
 							fillReferencedGrammarDiagnostic(location, key, arguments, message, diagnosticSeverity,
 									fatalError, document.getResolverExtensionManager(), null, null, null, null, rngCode,
+									null, documentOrGrammarURI);
+							return NO_RANGE;
+						}
+					}
+					XIncludeErrorCode xIncludeCode = XIncludeErrorCode.get(key);
+					if (xIncludeCode != null) {
+						if (errorForDocument) {
+							Range range = XIncludeErrorCode.toLSPRange(location, xIncludeCode, arguments, document);
+							if (range != null) {
+								return range;
+							}
+						} else {
+							fillReferencedGrammarDiagnostic(location, key, arguments, message, diagnosticSeverity,
+									fatalError, document.getResolverExtensionManager(), null, null, null, null, null,
+									xIncludeCode,
 									documentOrGrammarURI);
 							return NO_RANGE;
 						}
