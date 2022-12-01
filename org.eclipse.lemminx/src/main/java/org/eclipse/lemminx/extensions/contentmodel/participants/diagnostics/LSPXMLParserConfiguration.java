@@ -64,6 +64,9 @@ class LSPXMLParserConfiguration extends XMLModelAwareParserConfiguration {
 				: false;
 		super.setFeature("http://xml.org/sax/features/external-general-entities", resolveExternalEntities);
 		super.setFeature("http://xml.org/sax/features/external-parameter-entities", resolveExternalEntities);
+		// Enable xi:include validation if settings is set to true.
+		boolean isXIncludeEnabled = validationSettings != null ? validationSettings.getXInclude().isEnabled() : false;
+		super.setFeature(XINCLUDE_FEATURE, isXIncludeEnabled);
 		// Security manager
 		SecurityManager securityManager = LSPSecurityManager.getSecurityManager();
 		super.setProperty(SECURITY_MANAGER, securityManager);

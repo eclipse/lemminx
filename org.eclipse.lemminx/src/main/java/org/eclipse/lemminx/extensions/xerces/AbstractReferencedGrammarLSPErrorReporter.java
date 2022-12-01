@@ -28,6 +28,7 @@ import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSchemaErrorCo
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.diagnostics.LSPXMLGrammarPool;
 import org.eclipse.lemminx.extensions.relaxng.xml.validator.RelaxNGErrorCode;
+import org.eclipse.lemminx.extensions.xinclude.XIncludeErrorCode;
 import org.eclipse.lemminx.extensions.xsd.participants.XSDErrorCode;
 import org.eclipse.lemminx.uriresolver.CacheResourceDownloadedException;
 import org.eclipse.lemminx.uriresolver.CacheResourceDownloadingException;
@@ -113,7 +114,7 @@ public abstract class AbstractReferencedGrammarLSPErrorReporter extends Abstract
 			DiagnosticSeverity diagnosticSeverity, boolean fatalError,
 			URIResolverExtensionManager resolverExtensionManager, XMLSyntaxErrorCode syntaxCode,
 			XMLSchemaErrorCode schemaErrorCode, DTDErrorCode dtdCode, XSDErrorCode xsdCode, RelaxNGErrorCode rngCode,
-			String grammarURI) {
+			XIncludeErrorCode xIncludeCode, String grammarURI) {
 		// Create diagnostic where DDT, XSD which have errors is declared if needed
 		ReferencedGrammarDiagnosticsInfo info = getReferencedGrammarDiagnosticsInfo(grammarURI,
 				resolverExtensionManager);
@@ -135,6 +136,8 @@ public abstract class AbstractReferencedGrammarLSPErrorReporter extends Abstract
 				range = XSDErrorCode.toLSPRange(location, xsdCode, arguments, grammarDocument);
 			} else if (rngCode != null) {
 				range = RelaxNGErrorCode.toLSPRange(location, rngCode, arguments, grammarDocument);
+			} else if (xIncludeCode != null) {
+				range = XIncludeErrorCode.toLSPRange(location, xIncludeCode, arguments, grammarDocument);
 			} else {
 				range = XMLSyntaxErrorCode.toLSPRange(location, syntaxCode, arguments, grammarDocument);
 			}

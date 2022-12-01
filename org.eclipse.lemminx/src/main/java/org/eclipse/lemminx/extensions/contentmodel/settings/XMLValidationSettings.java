@@ -31,6 +31,8 @@ public class XMLValidationSettings {
 
 	private boolean resolveExternalEntities;
 
+	private XMLXIncludeSettings xInclude;
+
 	/**
 	 * This severity preference to mark the root element of XML document which is
 	 * not bound to a XML Schema/DTD.
@@ -48,6 +50,7 @@ public class XMLValidationSettings {
 		setResolveExternalEntities(false);
 		setNamespaces(new XMLNamespacesSettings());
 		setSchema(new XMLSchemaSettings());
+		setXInclude(new XMLXIncludeSettings());
 	}
 
 	/**
@@ -152,6 +155,24 @@ public class XMLValidationSettings {
 	}
 
 	/**
+	 * Returns true if xi:include is to be validated and false otherwise.
+	 *
+	 * @return true if xi:include is to be validated and false otherwise.
+	 */
+	public XMLXIncludeSettings getXInclude() {
+		return xInclude;
+	}
+
+	/**
+	 * Set true if xi:include is to be validated and false otherwise.
+	 *
+	 * @param xInclude xi:include
+	 */
+	public void setXInclude(XMLXIncludeSettings xInclude) {
+		this.xInclude = xInclude;
+	}
+
+	/**
 	 * Returns the <code>noGrammar</code> severity according the given settings and
 	 * {@link DiagnosticSeverity#Hint} otherwise.
 	 *
@@ -186,6 +207,7 @@ public class XMLValidationSettings {
 			this.noGrammar = settings.noGrammar;
 			this.disallowDocTypeDecl = settings.disallowDocTypeDecl;
 			this.resolveExternalEntities = settings.resolveExternalEntities;
+			this.xInclude = settings.xInclude;
 		}
 		return this;
 	}
@@ -209,6 +231,7 @@ public class XMLValidationSettings {
 		result = prime * result + ((noGrammar == null) ? 0 : noGrammar.hashCode());
 		result = prime * result + (resolveExternalEntities ? 1231 : 1237);
 		result = prime * result + ((schema == null) ? 0 : schema.hashCode());
+		result = prime * result + ((xInclude == null) ? 0 : xInclude.hashCode());
 		return result;
 	}
 
@@ -249,6 +272,13 @@ public class XMLValidationSettings {
 			return false;
 		}
 		if (resolveExternalEntities != other.resolveExternalEntities) {
+			return false;
+		}
+		if (xInclude == null) {
+			if (other.xInclude != null) {
+				return false;
+			}
+		} else if (!xInclude.equals(other.xInclude)) {
 			return false;
 		}
 		if (schema == null) {

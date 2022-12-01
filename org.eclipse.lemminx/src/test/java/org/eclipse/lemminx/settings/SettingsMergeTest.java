@@ -27,6 +27,7 @@ public class SettingsMergeTest {
 		settings.setCapabilities(new PublishDiagnosticsCapabilities());
 		settings.setNamespaces(null);
 		settings.setSchema(null);
+		settings.setXInclude(null);
 		XMLValidationRootSettings mergeTargetSettings = new XMLValidationRootSettings();
 		mergeTargetSettings.merge(settings);
 		assertEquals(settings, mergeTargetSettings);
