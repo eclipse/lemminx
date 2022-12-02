@@ -26,9 +26,9 @@ import org.eclipse.lsp4j.TextEdit;
  */
 public class DOMAttributeFormatter {
 
-	private final XMLFormatterDocumentNew formatterDocument;
+	private final XMLFormatterDocument formatterDocument;
 
-	public DOMAttributeFormatter(XMLFormatterDocumentNew formatterDocument) {
+	public DOMAttributeFormatter(XMLFormatterDocument formatterDocument) {
 		this.formatterDocument = formatterDocument;
 	}
 

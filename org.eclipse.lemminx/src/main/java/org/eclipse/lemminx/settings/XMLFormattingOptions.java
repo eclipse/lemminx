@@ -56,7 +56,7 @@ public class XMLFormattingOptions extends org.eclipse.lemminx.settings.LSPFormat
 			"pre", //
 			"xd:pre");
 
-	private boolean experimental;
+	private boolean legacy;
 	private int maxLineWidth;
 
 	private boolean splitAttributes;
@@ -156,8 +156,8 @@ public class XMLFormattingOptions extends org.eclipse.lemminx.settings.LSPFormat
 		this.setJoinCommentLines(false);
 		this.setJoinContentLines(false);
 		this.setEnabled(true);
-		this.setExperimental(false);
-		this.setMaxLineWidth(0);
+		this.setLegacy(false);
+		this.setMaxLineWidth(100);
 		this.setSpaceBeforeEmptyCloseTag(true);
 		this.setPreserveEmptyContent(false);
 		this.setPreservedNewlines(DEFAULT_PRESERVER_NEW_LINES);
@@ -234,22 +234,22 @@ public class XMLFormattingOptions extends org.eclipse.lemminx.settings.LSPFormat
 	}
 
 	/**
-	 * Returns true if the experimental formatter must be used and false otherwise.
+	 * Returns true if the legacy formatter must be used and false otherwise.
 	 * 
-	 * @return true if the experimental formatter must be used and false otherwise.
+	 * @return true if the legacy formatter must be used and false otherwise.
 	 */
-	public boolean isExperimental() {
-		return experimental;
+	public boolean isLegacy() {
+		return legacy;
 	}
 
 	/**
-	 * Set true if the experimental formatter must be used and false otherwise.
+	 * Set true if the legacy formatter must be used and false otherwise.
 	 * 
-	 * @param experimental true if the experimental formatter must be used and false
+	 * @param legacy true if the legacy formatter must be used and false
 	 *                     otherwise.
 	 */
-	public void setExperimental(final boolean experimental) {
-		this.experimental = experimental;
+	public void setLegacy(final boolean legacy) {
+		this.legacy = legacy;
 	}
 
 	/**
@@ -436,7 +436,7 @@ public class XMLFormattingOptions extends org.eclipse.lemminx.settings.LSPFormat
 		setInsertSpaces(formattingOptions.isInsertSpaces());
 		setTrimFinalNewlines(formattingOptions.isTrimFinalNewlines());
 		setTrimTrailingWhitespace(formattingOptions.isTrimTrailingWhitespace());
-		setExperimental(formattingOptions.isExperimental());
+		setLegacy(formattingOptions.isLegacy());
 		setMaxLineWidth(formattingOptions.getMaxLineWidth());
 		setSplitAttributes(formattingOptions.isSplitAttributes());
 		setJoinCDATALines(formattingOptions.isJoinCDATALines());
@@ -453,8 +453,7 @@ public class XMLFormattingOptions extends org.eclipse.lemminx.settings.LSPFormat
 		setClosingBracketNewLine(formattingOptions.getClosingBracketNewLine());
 		setEmptyElement(formattingOptions.getEmptyElements());
 		setXsiSchemaLocationSplit(formattingOptions.getXsiSchemaLocationSplit());
-		// Experimental settings
-		setExperimental(formattingOptions.isExperimental());
+		// New formatter settings
 		setPreserveSpace(formattingOptions.getPreserveSpace());
 		setGrammarAwareFormatting(formattingOptions.isGrammarAwareFormatting());
 		setMaxLineWidth(formattingOptions.getMaxLineWidth());

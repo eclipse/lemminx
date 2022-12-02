@@ -21,8 +21,8 @@ import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
+import org.eclipse.lemminx.services.format.XMLFormatterDocumentOld;
 import org.eclipse.lemminx.services.format.XMLFormatterDocument;
-import org.eclipse.lemminx.services.format.XMLFormatterDocumentNew;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -41,8 +41,8 @@ class XMLFormatter {
 	}
 
 	/**
-	 * Returns a List containing a single TextEdit, containing the newly formatted
-	 * changes of the document.
+	 * Returns a List containing multiple TextEdits to remove, add,
+	 * update spaces / indent.
 	 *
 	 * @param textDocument   document to perform formatting on
 	 * @param range          specified range in which formatting will be done
@@ -51,12 +51,12 @@ class XMLFormatter {
 	 */
 	public List<? extends TextEdit> format(DOMDocument xmlDocument, Range range, SharedSettings sharedSettings) {
 		try {
-			if (sharedSettings.getFormattingSettings().isExperimental()) {
-				XMLFormatterDocumentNew formatterDocument = new XMLFormatterDocumentNew(xmlDocument, range,
-						sharedSettings, getFormatterParticipants());
+			if (sharedSettings.getFormattingSettings().isLegacy()) {
+				XMLFormatterDocumentOld formatterDocument = new XMLFormatterDocumentOld(xmlDocument.getTextDocument(),
+						range, sharedSettings, getFormatterParticipants());
 				return formatterDocument.format();
 			}
-			XMLFormatterDocument formatterDocument = new XMLFormatterDocument(xmlDocument.getTextDocument(), range,
+			XMLFormatterDocument formatterDocument = new XMLFormatterDocument(xmlDocument, range,
 					sharedSettings, getFormatterParticipants());
 			return formatterDocument.format();
 		} catch (BadLocationException e) {

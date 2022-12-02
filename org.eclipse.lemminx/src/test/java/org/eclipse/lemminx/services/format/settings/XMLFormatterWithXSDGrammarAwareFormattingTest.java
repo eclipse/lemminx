@@ -9,7 +9,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lemminx.services.format.experimental;
+package org.eclipse.lemminx.services.format.settings;
 
 import static org.eclipse.lemminx.XMLAssert.te;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -21,7 +21,7 @@ import org.eclipse.lsp4j.TextEdit;
 import org.junit.jupiter.api.Test;
 
 /**
- * XML experimental formatter services tests with grammar aware formatting with
+ * XML formatter services tests with grammar aware formatting with
  * xml bound to XSD.
  *
  */
@@ -125,8 +125,6 @@ public class XMLFormatterWithXSDGrammarAwareFormattingTest {
 
 	private static void assertFormat(String unformatted, String expected, SharedSettings sharedSettings, String uri,
 			Boolean considerRangeFormat, TextEdit... expectedEdits) throws BadLocationException {
-		// Force to "experimental" formatter
-		sharedSettings.getFormattingSettings().setExperimental(true);
 		XMLAssert.assertFormat(null, unformatted, expected, sharedSettings, uri, true, expectedEdits);
 	}
 }

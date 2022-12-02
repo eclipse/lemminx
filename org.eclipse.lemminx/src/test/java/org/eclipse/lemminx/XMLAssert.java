@@ -1751,7 +1751,6 @@ public class XMLAssert {
 
 	public static void assertGrammarGenerator(String xml, FileContentGeneratorSettings grammarSettings,
 			SharedSettings sharedSettings, String expected) {
-		sharedSettings.getFormattingSettings().setExperimental(true);
 		DOMDocument document = DOMParser.getInstance().parse(xml, "test.xml", null);
 		XMLLanguageService languageService = new XMLLanguageService();
 		FileContentGeneratorManager manager = new FileContentGeneratorManager(languageService);

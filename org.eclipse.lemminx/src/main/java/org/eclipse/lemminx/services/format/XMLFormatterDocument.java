@@ -1,20 +1,23 @@
-/**
- *  Copyright (c) 2022 Red Hat, Inc. and others.
- *  All rights reserved. This program and the accompanying materials
- *  are made available under the terms of the Eclipse Public License v2.0
- *  which accompanies this distribution, and is available at
- *  http://www.eclipse.org/legal/epl-v20.html
- *
- * SPDX-License-Identifier: EPL-2.0
- *
- *  Contributors:
- *  Red Hat Inc. - initial API and implementation
- */
+/*******************************************************************************
+* Copyright (c) 2022 Red Hat Inc. and others.
+* All rights reserved. This program and the accompanying materials
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v20.html
+*
+* SPDX-License-Identifier: EPL-2.0
+*
+* Contributors:
+*     Red Hat Inc. - initial API and implementation
+*******************************************************************************/
 package org.eclipse.lemminx.services.format;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.commons.TextDocument;
@@ -25,780 +28,824 @@ import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMDocumentType;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
-import org.eclipse.lemminx.dom.DOMParser;
 import org.eclipse.lemminx.dom.DOMProcessingInstruction;
 import org.eclipse.lemminx.dom.DOMText;
-import org.eclipse.lemminx.dom.DTDAttlistDecl;
-import org.eclipse.lemminx.dom.DTDDeclNode;
-import org.eclipse.lemminx.dom.DTDDeclParameter;
+import org.eclipse.lemminx.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
 import org.eclipse.lemminx.settings.SharedSettings;
-import org.eclipse.lemminx.settings.XMLFormattingOptions.EmptyElements;
-import org.eclipse.lemminx.utils.XMLBuilder;
+import org.eclipse.lemminx.settings.XMLFormattingOptions;
+import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+import org.w3c.dom.Node;
+import org.w3c.dom.Text;
 
 /**
- * Default XML formatter which generates one text edit by rewriting the DOM node
- * which must be formatted.
+ * XML formatter which generates several text edit to remove, add,
+ * update spaces / indent.
  * 
  * @author Angelo ZERR
- *
+ * 
  */
 public class XMLFormatterDocument {
-	private final TextDocument textDocument;
-	private final Range range;
-	private final SharedSettings sharedSettings;
-	private final Collection<IFormatterParticipant> formatterParticipants;
-	private final EmptyElements emptyElements;
 
-	private int startOffset;
-	private int endOffset;
-	private DOMDocument fullDomDocument;
-	private DOMDocument rangeDomDocument;
-	private XMLBuilder xmlBuilder;
-	private int indentLevel;
-	private boolean linefeedOnNextWrite;
-	private boolean withinDTDContent;
+	private static final Logger LOGGER = Logger.getLogger(XMLFormatterDocument.class.getName());
+
+	private static final String XML_SPACE_ATTR = "xml:space";
+
+	private static final String XML_SPACE_ATTR_DEFAULT = "default";
+
+	private static final String XML_SPACE_ATTR_PRESERVE = "preserve";
+
+	private final DOMDocument xmlDocument;
+	private final TextDocument textDocument;
+	private final String lineDelimiter;
+	private final SharedSettings sharedSettings;
+
+	private final DOMProcessingInstructionFormatter processingInstructionFormatter;
+
+	private final DOMDocTypeFormatter docTypeFormatter;
+
+	private final DOMElementFormatter elementFormatter;
+
+	private final DOMAttributeFormatter attributeFormatter;
+
+	private final DOMTextFormatter textFormatter;
+
+	private final DOMCommentFormatter commentFormatter;
+
+	private final DOMCDATAFormatter cDATAFormatter;
+
+	private final Collection<IFormatterParticipant> formatterParticipants;
+
+	private final Map<String, Collection<CMDocument>> formattingContext;
+
+	private int startOffset = -1;
+	private int endOffset = -1;
+
+	private CancelChecker cancelChecker;
 
 	/**
 	 * XML formatter document.
 	 */
-	public XMLFormatterDocument(TextDocument textDocument, Range range, SharedSettings sharedSettings,
+	public XMLFormatterDocument(DOMDocument xmlDocument, Range range, SharedSettings sharedSettings,
 			Collection<IFormatterParticipant> formatterParticipants) {
-		this.textDocument = textDocument;
-		this.range = range;
+		this.xmlDocument = xmlDocument;
+		this.textDocument = xmlDocument.getTextDocument();
+		this.lineDelimiter = computeLineDelimiter(textDocument);
+		if (range != null) {
+			try {
+				startOffset = textDocument.offsetAt(range.getStart());
+				endOffset = textDocument.offsetAt(range.getEnd());
+			} catch (BadLocationException e) {
+				LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			}
+		}
 		this.sharedSettings = sharedSettings;
 		this.formatterParticipants = formatterParticipants;
-		this.emptyElements = sharedSettings.getFormattingSettings().getEmptyElements();
-		this.linefeedOnNextWrite = false;
+		this.docTypeFormatter = new DOMDocTypeFormatter(this);
+		this.attributeFormatter = new DOMAttributeFormatter(this);
+		this.elementFormatter = new DOMElementFormatter(this, attributeFormatter);
+		this.processingInstructionFormatter = new DOMProcessingInstructionFormatter(this, attributeFormatter);
+		this.textFormatter = new DOMTextFormatter(this);
+		this.commentFormatter = new DOMCommentFormatter(this);
+		this.cDATAFormatter = new DOMCDATAFormatter(this);
+		this.formattingContext = new HashMap<>();
+	}
+
+	private static String computeLineDelimiter(TextDocument textDocument) {
+		try {
+			return textDocument.lineDelimiter(0);
+		} catch (BadLocationException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+		}
+		return System.lineSeparator();
 	}
 
 	/**
-	 * Returns a List containing a single TextEdit, containing the newly formatted
-	 * changes of this.textDocument
-	 *
-	 * @return List containing a single TextEdit
+	 * Returns a List containing multiple TextEdit, containing the newly formatted
+	 * changes of an XML document.
+	 * 
+	 * @return List containing multiple TextEdit of an XML document.
+	 * 
 	 * @throws BadLocationException
 	 */
 	public List<? extends TextEdit> format() throws BadLocationException {
-		this.fullDomDocument = DOMParser.getInstance().parse(textDocument.getText(), textDocument.getUri(), null,
-				false);
-
-		if (isRangeFormatting()) {
-			setupRangeFormatting(range);
-		} else {
-			setupFullFormatting(range);
-		}
-
-		this.indentLevel = getStartingIndentLevel();
-		format(this.rangeDomDocument);
-
-		List<? extends TextEdit> textEdits = getFormatTextEdit();
-		return textEdits;
+		return format(xmlDocument, startOffset, endOffset);
 	}
 
-	private boolean isRangeFormatting() {
-		return this.range != null;
-	}
+	public List<? extends TextEdit> format(DOMDocument document, int start, int end) {
+		List<TextEdit> edits = new ArrayList<>();
 
-	private void setupRangeFormatting(Range range) throws BadLocationException {
-		int startOffset = this.textDocument.offsetAt(range.getStart());
-		int endOffset = this.textDocument.offsetAt(range.getEnd());
+		// get initial document region
+		DOMNode currentDOMNode = getDOMNodeToFormat(document, start, end);
 
-		Position startPosition = this.textDocument.positionAt(startOffset);
-		Position endPosition = this.textDocument.positionAt(endOffset);
-		enlargePositionToGutters(startPosition, endPosition);
+		if (currentDOMNode != null) {
+			int startOffset = currentDOMNode.getStart();
 
-		this.startOffset = this.textDocument.offsetAt(startPosition);
-		this.endOffset = this.textDocument.offsetAt(endPosition);
+			XMLFormattingConstraints parentConstraints = getNodeConstraints(currentDOMNode);
+			if (isMaxLineWidthSupported()) {
+				// initialize available line width
+				int lineWidth = getMaxLineWidth();
 
-		String fullText = this.textDocument.getText();
-		String rangeText = fullText.substring(this.startOffset, this.endOffset);
-
-		withinDTDContent = this.fullDomDocument.isWithinInternalDTD(startOffset);
-		String uri = this.textDocument.getUri();
-		if (withinDTDContent) {
-			uri += ".dtd";
-		}
-		this.rangeDomDocument = DOMParser.getInstance().parse(rangeText, uri, null, false);
-
-		if (containsTextWithinStartTag()) {
-			adjustOffsetToStartTag();
-			rangeText = fullText.substring(this.startOffset, this.endOffset);
-			this.rangeDomDocument = DOMParser.getInstance().parse(rangeText, uri, null, false);
-		}
-
-		this.xmlBuilder = new XMLBuilder(this.sharedSettings, "", textDocument.lineDelimiter(startPosition.getLine()),
-				formatterParticipants);
-	}
-
-	private boolean containsTextWithinStartTag() {
-
-		if (this.rangeDomDocument.getChildren().size() < 1) {
-			return false;
-		}
-
-		DOMNode firstChild = this.rangeDomDocument.getChild(0);
-		if (!firstChild.isText()) {
-			return false;
-		}
-
-		int tagContentOffset = firstChild.getStart();
-		int fullDocOffset = getFullOffsetFromRangeOffset(tagContentOffset);
-		DOMNode fullNode = this.fullDomDocument.findNodeAt(fullDocOffset);
-
-		if (!fullNode.isElement()) {
-			return false;
-		}
-		return ((DOMElement) fullNode).isInStartTag(fullDocOffset);
-	}
-
-	private void adjustOffsetToStartTag() throws BadLocationException {
-		int tagContentOffset = this.rangeDomDocument.getChild(0).getStart();
-		int fullDocOffset = getFullOffsetFromRangeOffset(tagContentOffset);
-		DOMNode fullNode = this.fullDomDocument.findNodeAt(fullDocOffset);
-		Position nodePosition = this.textDocument.positionAt(fullNode.getStart());
-		nodePosition.setCharacter(0);
-		this.startOffset = this.textDocument.offsetAt(nodePosition);
-	}
-
-	private void setupFullFormatting(Range range) throws BadLocationException {
-		this.startOffset = 0;
-		this.endOffset = textDocument.getText().length();
-		this.rangeDomDocument = this.fullDomDocument;
-
-		Position startPosition = textDocument.positionAt(startOffset);
-		this.xmlBuilder = new XMLBuilder(this.sharedSettings, "", textDocument.lineDelimiter(startPosition.getLine()),
-				formatterParticipants);
-	}
-
-	private void enlargePositionToGutters(Position start, Position end) throws BadLocationException {
-		start.setCharacter(0);
-
-		if (end.getCharacter() == 0 && end.getLine() > 0) {
-			end.setLine(end.getLine() - 1);
-		}
-
-		end.setCharacter(this.textDocument.lineText(end.getLine()).length());
-	}
-
-	private int getStartingIndentLevel() throws BadLocationException {
-		if (withinDTDContent) {
-			return 1;
-		}
-		DOMNode startNode = this.fullDomDocument.findNodeAt(this.startOffset);
-		if (startNode.isOwnerDocument()) {
-			return 0;
-		}
-
-		DOMNode startNodeParent = startNode.getParentNode();
-
-		if (startNodeParent.isOwnerDocument()) {
-			return 0;
-		}
-
-		// the starting indent level is the parent's indent level + 1
-		int startNodeIndentLevel = getNodeIndentLevel(startNodeParent) + 1;
-		return startNodeIndentLevel;
-	}
-
-	private int getNodeIndentLevel(DOMNode node) throws BadLocationException {
-
-		Position nodePosition = this.textDocument.positionAt(node.getStart());
-		String textBeforeNode = this.textDocument.lineText(nodePosition.getLine()).substring(0,
-				nodePosition.getCharacter() + 1);
-
-		int spaceOrTab = getSpaceOrTabStartOfString(textBeforeNode);
-
-		if (this.sharedSettings.getFormattingSettings().isInsertSpaces()) {
-			return (spaceOrTab / this.sharedSettings.getFormattingSettings().getTabSize());
-		}
-		return spaceOrTab;
-	}
-
-	private int getSpaceOrTabStartOfString(String string) {
-		int i = 0;
-		int spaceOrTab = 0;
-		while (i < string.length() && (string.charAt(i) == ' ' || string.charAt(i) == '\t')) {
-			spaceOrTab++;
-			i++;
-		}
-		return spaceOrTab;
-	}
-
-	private DOMElement getFullDocElemFromRangeElem(DOMElement elemFromRangeDoc) {
-		int fullOffset = -1;
-
-		if (elemFromRangeDoc.hasStartTag()) {
-			fullOffset = getFullOffsetFromRangeOffset(elemFromRangeDoc.getStartTagOpenOffset()) + 1;
-			// +1 because offset must be here: <|root
-			// for DOMNode.findNodeAt() to find the correct element
-		} else if (elemFromRangeDoc.hasEndTag()) {
-			fullOffset = getFullOffsetFromRangeOffset(elemFromRangeDoc.getEndTagOpenOffset()) + 1;
-			// +1 because offset must be here: <|/root
-			// for DOMNode.findNodeAt() to find the correct element
-		} else {
-			return null;
-		}
-
-		DOMElement elemFromFullDoc = (DOMElement) this.fullDomDocument.findNodeAt(fullOffset);
-		return elemFromFullDoc;
-	}
-
-	private int getFullOffsetFromRangeOffset(int rangeOffset) {
-		return rangeOffset + this.startOffset;
-	}
-
-	private boolean startTagExistsInRangeDocument(DOMNode node) {
-		if (!node.isElement()) {
-			return false;
-		}
-
-		return ((DOMElement) node).hasStartTag();
-	}
-
-	private boolean startTagExistsInFullDocument(DOMNode node) {
-		if (!node.isElement()) {
-			return false;
-		}
-
-		DOMElement elemFromFullDoc = getFullDocElemFromRangeElem((DOMElement) node);
-
-		if (elemFromFullDoc == null) {
-			return false;
-		}
-
-		return elemFromFullDoc.hasStartTag();
-	}
-
-	private void format(DOMNode node) throws BadLocationException {
-
-		if (linefeedOnNextWrite && (!node.isText() || !((DOMText) node).isWhitespace())) {
-			this.xmlBuilder.linefeed();
-			linefeedOnNextWrite = false;
-		}
-
-		if (node.getNodeType() != DOMNode.DOCUMENT_NODE) {
-			boolean doLineFeed = !node.getOwnerDocument().isDTD()
-					&& !(node.isComment() && ((DOMComment) node).isCommentSameLineEndTag())
-					&& (!node.isText() || (!((DOMText) node).isWhitespace() && ((DOMText) node).hasSiblings()));
-
-			if (this.indentLevel > 0 && doLineFeed) {
-				// add new line + indent
-				if (!node.isChildOfOwnerDocument() || node.getPreviousNonTextSibling() != null) {
-					this.xmlBuilder.linefeed();
+				try {
+					int lineOffset = textDocument.lineOffsetAt(startOffset);
+					lineWidth = lineWidth - (startOffset - lineOffset);
+				} catch (BadLocationException e) {
+					LOGGER.log(Level.SEVERE, e.getMessage(), e);
 				}
-
-				if (!startTagExistsInRangeDocument(node) && startTagExistsInFullDocument(node)) {
-					DOMNode startNode = getFullDocElemFromRangeElem((DOMElement) node);
-					int currentIndentLevel = getNodeIndentLevel(startNode);
-					this.xmlBuilder.indent(currentIndentLevel);
-					this.indentLevel = currentIndentLevel;
-				} else {
-					this.xmlBuilder.indent(this.indentLevel);
-				}
-			}
-			if (node.isElement()) {
-				// Format Element
-				formatElement((DOMElement) node);
-			} else if (node.isCDATA()) {
-				// Format CDATA
-				formatCDATA((DOMCDATASection) node);
-			} else if (node.isComment()) {
-				// Format comment
-				formatComment((DOMComment) node);
-			} else if (node.isProcessingInstruction()) {
-				// Format processing instruction
-				formatProcessingInstruction(node);
-			} else if (node.isProlog()) {
-				// Format prolog
-				formatProlog(node);
-			} else if (node.isText()) {
-				// Format Text
-				formatText((DOMText) node);
-			} else if (node.isDoctype()) {
-				// Format document type
-				formatDocumentType((DOMDocumentType) node);
-			}
-		} else if (node.hasChildNodes()) {
-			// Other nodes kind like root
-			for (DOMNode child : node.getChildren()) {
-				format(child);
-			}
-		}
-	}
-
-	/**
-	 * Format the given DOM prolog
-	 *
-	 * @param node the DOM prolog to format.
-	 */
-	private void formatProlog(DOMNode node) {
-		addPrologToXMLBuilder(node, this.xmlBuilder);
-		linefeedOnNextWrite = true;
-	}
-
-	/**
-	 * Format the given DOM text node.
-	 *
-	 * @param textNode the DOM text node to format.
-	 */
-	private void formatText(DOMText textNode) {
-		String content = textNode.getData();
-		if (textNode.equals(this.fullDomDocument.getLastChild())) {
-			xmlBuilder.addContent(content);
-		} else {
-			xmlBuilder.addContent(content, textNode.isWhitespace(), textNode.hasSiblings(), textNode.getDelimiter());
-		}
-	}
-
-	/**
-	 * Format the given DOM document type.
-	 *
-	 * @param documentType the DOM document type to format.
-	 */
-	private void formatDocumentType(DOMDocumentType documentType) {
-		boolean isDTD = documentType.getOwnerDocument().isDTD();
-		if (!isDTD) {
-			this.xmlBuilder.startDoctype();
-			List<DTDDeclParameter> params = documentType.getParameters();
-
-			for (DTDDeclParameter param : params) {
-				if (!documentType.isInternalSubset(param)) {
-					xmlBuilder.addParameter(param.getParameter());
-				} else {
-					xmlBuilder.startDoctypeInternalSubset();
-					xmlBuilder.linefeed();
-					// level + 1 since the 'level' value is the doctype tag's level
-					formatDTD(documentType, this.indentLevel + 1, this.endOffset, this.xmlBuilder);
-					xmlBuilder.linefeed();
-					xmlBuilder.endDoctypeInternalSubset();
-				}
-			}
-			if (documentType.isClosed()) {
-				xmlBuilder.endDoctype();
-			}
-			linefeedOnNextWrite = true;
-
-		} else {
-			formatDTD(documentType, this.indentLevel, this.endOffset, this.xmlBuilder);
-		}
-	}
-
-	/**
-	 * Format the given DOM ProcessingIntsruction.
-	 *
-	 * @param element the DOM ProcessingIntsruction to format.
-	 *
-	 */
-	private void formatProcessingInstruction(DOMNode node) {
-		addPIToXMLBuilder(node, this.xmlBuilder);
-		if (this.indentLevel == 0) {
-			this.xmlBuilder.linefeed();
-		}
-	}
-
-	/**
-	 * Format the given DOM Comment
-	 *
-	 * @param element the DOM Comment to format.
-	 *
-	 */
-	private void formatComment(DOMComment comment) {
-		this.xmlBuilder.startComment(comment);
-		this.xmlBuilder.addContentComment(comment.getData());
-		if (comment.isClosed()) {
-			// Generate --> only if comment is closed.
-			this.xmlBuilder.endComment();
-		}
-		if (this.indentLevel == 0) {
-			linefeedOnNextWrite = true;
-		}
-	}
-
-	/**
-	 * Format the given DOM CDATA
-	 *
-	 * @param element the DOM CDATA to format.
-	 *
-	 */
-	private void formatCDATA(DOMCDATASection cdata) {
-		this.xmlBuilder.startCDATA();
-		this.xmlBuilder.addContentCDATA(cdata.getData());
-		if (cdata.isClosed()) {
-			// Generate ]> only if CDATA is closed.
-			this.xmlBuilder.endCDATA();
-		}
-	}
-
-	/**
-	 * Format the given DOM element
-	 *
-	 * @param element the DOM element to format.
-	 *
-	 * @throws BadLocationException
-	 */
-	private void formatElement(DOMElement element) throws BadLocationException {
-		String tag = element.getTagName();
-		if (element.hasEndTag() && !element.hasStartTag()) {
-			// bad element without start tag (ex: <\root>)
-			xmlBuilder.endElement(tag, element.isEndTagClosed());
-		} else {
-			// generate start element
-			xmlBuilder.startElement(tag, false);
-			if (element.hasAttributes()) {
-				formatAttributes(element);
+				parentConstraints.setAvailableLineWidth(lineWidth);
 			}
 
-			EmptyElements emptyElements = getEmptyElements(element);
-			switch (emptyElements) {
-			case expand:
-				// expand empty element: <example /> -> <example></example>
-				xmlBuilder.closeStartElement();
-				// end tag element is done, only if the element is closed
-				// the format, doesn't fix the close tag
-				this.xmlBuilder.endElement(tag, true);
-				break;
-			case collapse:
-				// collapse empty element: <example></example> -> <example />
-				formatElementStartTagSelfCloseBracket(element);
-				break;
-			default:
-				if (element.isStartTagClosed()) {
-					formatElementStartTagCloseBracket(element);
-				}
-				boolean hasElements = false;
-				if (element.hasChildNodes()) {
-					// element has body
-
-					this.indentLevel++;
-					for (DOMNode child : element.getChildren()) {
-						hasElements = hasElements || !child.isText();
-						format(child);
-					}
-					this.indentLevel--;
-				}
-				if (element.hasEndTag()) {
-					if (hasElements) {
-						this.xmlBuilder.linefeed();
-						this.xmlBuilder.indent(this.indentLevel);
-					}
-					// end tag element is done, only if the element is closed
-					// the format, doesn't fix the close tag
-					if (element.hasEndTag() && element.getEndTagOpenOffset() <= this.endOffset) {
-						this.xmlBuilder.endElement(tag, element.isEndTagClosed());
-					} else {
-						formatElementStartTagSelfCloseBracket(element);
-					}
-				} else if (element.isSelfClosed()) {
-					formatElementStartTagSelfCloseBracket(element);
-				}
-			}
-		}
-	}
-
-	/**
-	 * Formats the start tag's closing bracket (>) according to
-	 * {@code XMLFormattingOptions#isPreserveAttrLineBreaks()}
-	 *
-	 * {@code XMLFormattingOptions#isPreserveAttrLineBreaks()}: If true, must add a
-	 * newline + indent before the closing bracket if the last attribute of the
-	 * element and the closing bracket are in different lines.
-	 *
-	 * @param element
-	 * @throws BadLocationException
-	 */
-	private void formatElementStartTagCloseBracket(DOMElement element) throws BadLocationException {
-		if (this.sharedSettings.getFormattingSettings().isPreserveAttributeLineBreaks() && element.hasAttributes()
-				&& !isSameLine(getLastAttribute(element).getEnd(), element.getStartTagCloseOffset())) {
-			xmlBuilder.linefeed();
-			this.xmlBuilder.indent(this.indentLevel);
-		}
-		xmlBuilder.closeStartElement();
-	}
-
-	/**
-	 * Formats the self-closing tag (/>) according to
-	 * {@code XMLFormattingOptions#isPreserveAttrLineBreaks()}
-	 *
-	 * {@code XMLFormattingOptions#isPreserveAttrLineBreaks()}: If true, must add a
-	 * newline + indent before the self-closing tag if the last attribute of the
-	 * element and the closing bracket are in different lines.
-	 *
-	 * @param element
-	 * @throws BadLocationException
-	 */
-	private void formatElementStartTagSelfCloseBracket(DOMElement element) throws BadLocationException {
-		if (this.sharedSettings.getFormattingSettings().isPreserveAttributeLineBreaks() && element.hasAttributes()) {
-			int elementEndOffset = element.getEnd();
-			if (element.isStartTagClosed()) {
-				elementEndOffset = element.getStartTagCloseOffset();
-			}
-			if (!isSameLine(getLastAttribute(element).getEnd(), elementEndOffset)) {
-				this.xmlBuilder.linefeed();
-				this.xmlBuilder.indent(this.indentLevel);
-			}
-		}
-
-		this.xmlBuilder.selfCloseElement();
-	}
-
-	private void formatAttributes(DOMElement element) throws BadLocationException {
-		List<DOMAttr> attributes = element.getAttributeNodes();
-		boolean isSingleAttribute = hasSingleAttributeInFullDoc(element);
-		int prevOffset = element.getStart();
-		for (DOMAttr attr : attributes) {
-			formatAttribute(attr, isSingleAttribute, prevOffset);
-			prevOffset = attr.getEnd();
-		}
-		if ((this.sharedSettings.getFormattingSettings().getClosingBracketNewLine()
-				&& this.sharedSettings.getFormattingSettings().isSplitAttributes()) && !isSingleAttribute) {
-			xmlBuilder.linefeed();
-			// Indent by tag + splitAttributesIndentSize to match with attribute indent
-			// level
-			int totalIndent = this.indentLevel
-					+ this.sharedSettings.getFormattingSettings().getSplitAttributesIndentSize();
-			xmlBuilder.indent(totalIndent);
-		}
-	}
-
-	private void formatAttribute(DOMAttr attr, boolean isSingleAttribute, int prevOffset) throws BadLocationException {
-		if (this.sharedSettings.getFormattingSettings().isPreserveAttributeLineBreaks()
-				&& !isSameLine(prevOffset, attr.getStart())) {
-			xmlBuilder.linefeed();
-			xmlBuilder.indent(this.indentLevel + 1);
-			xmlBuilder.addSingleAttribute(attr, false, false);
-		} else if (isSingleAttribute) {
-			xmlBuilder.addSingleAttribute(attr);
-		} else {
-			xmlBuilder.addAttribute(attr, this.indentLevel);
-		}
-	}
-
-	/**
-	 * Returns true if first offset and second offset belong in the same line of the
-	 * document
-	 *
-	 * If current formatting is range formatting, the provided offsets must be
-	 * ranged offsets (offsets relative to the formatting range)
-	 *
-	 * @param first  the first offset
-	 * @param second the second offset
-	 * @return true if first offset and second offset belong in the same line of the
-	 *         document
-	 * @throws BadLocationException
-	 */
-	private boolean isSameLine(int first, int second) throws BadLocationException {
-		if (isRangeFormatting()) {
-			// adjust range offsets so that they are relative to the full document
-			first = getFullOffsetFromRangeOffset(first);
-			second = getFullOffsetFromRangeOffset(second);
-		}
-		return getLineNumber(first) == getLineNumber(second);
-	}
-
-	private int getLineNumber(int offset) throws BadLocationException {
-		return this.textDocument.positionAt(offset).getLine();
-	}
-
-	private DOMAttr getLastAttribute(DOMElement element) {
-		if (!element.hasAttributes()) {
-			return null;
-		}
-		List<DOMAttr> attributes = element.getAttributeNodes();
-		return attributes.get(attributes.size() - 1);
-	}
-
-	/**
-	 * Returns true if the provided element has one attribute in the fullDomDocument
-	 * (not the rangeDomDocument)
-	 *
-	 * @param element
-	 * @return true if the provided element has one attribute in the fullDomDocument
-	 *         (not the rangeDomDocument)
-	 */
-	private boolean hasSingleAttributeInFullDoc(DOMElement element) {
-		DOMElement fullElement = getFullDocElemFromRangeElem(element);
-		return fullElement.getAttributeNodes().size() == 1;
-	}
-
-	/**
-	 * Return the option to use to generate empty elements.
-	 *
-	 * @param element the DOM element
-	 * @return the option to use to generate empty elements.
-	 */
-	private EmptyElements getEmptyElements(DOMElement element) {
-		if (this.emptyElements != EmptyElements.ignore) {
-			if (element.isClosed() && element.isEmpty()) {
-				// Element is empty and closed
-				switch (this.emptyElements) {
-				case expand:
-				case collapse: {
-					if (this.sharedSettings.getFormattingSettings().isPreserveEmptyContent()) {
-						// preserve content
-						if (element.hasChildNodes()) {
-							// The element is empty and contains somes spaces which must be preserved
-							return EmptyElements.ignore;
-						}
-					}
-					return this.emptyElements;
-				}
-				default:
-					return this.emptyElements;
-				}
-			}
-		}
-		return EmptyElements.ignore;
-	}
-
-	private static boolean formatDTD(DOMDocumentType doctype, int level, int end, XMLBuilder xmlBuilder) {
-		DOMNode previous = null;
-		for (DOMNode node : doctype.getChildren()) {
-			if (previous != null) {
-				xmlBuilder.linefeed();
-			}
-
-			xmlBuilder.indent(level);
-
-			if (node.isText()) {
-				xmlBuilder.addContent(((DOMText) node).getData().trim());
-			} else if (node.isComment()) {
-				DOMComment comment = (DOMComment) node;
-				xmlBuilder.startComment(comment);
-				xmlBuilder.addContentComment(comment.getData());
-				xmlBuilder.endComment();
-			} else if (node.isProcessingInstruction()) {
-				addPIToXMLBuilder(node, xmlBuilder);
-			} else if (node.isProlog()) {
-				addPrologToXMLBuilder(node, xmlBuilder);
+			// format all siblings (and their children) as long they
+			// overlap with start/end offset
+			if (currentDOMNode.isElement()) {
+				parentConstraints.setFormatElementCategory(getFormatElementCategory((DOMElement) currentDOMNode, null));
 			} else {
-				boolean setEndBracketOnNewLine = false;
-				DTDDeclNode decl = (DTDDeclNode) node;
-				xmlBuilder.addDeclTagStart(decl);
+				parentConstraints.setFormatElementCategory(FormatElementCategory.IgnoreSpace);
+			}
+			formatSiblings(edits, currentDOMNode, parentConstraints, start, end);
+		}
 
-				if (decl.isDTDAttListDecl()) {
-					DTDAttlistDecl attlist = (DTDAttlistDecl) decl;
-					List<DTDAttlistDecl> internalDecls = attlist.getInternalChildren();
-
-					if (internalDecls == null) {
-						for (DTDDeclParameter param : decl.getParameters()) {
-							xmlBuilder.addParameter(param.getParameter());
-						}
-					} else {
-						boolean multipleInternalAttlistDecls = false;
-						List<DTDDeclParameter> params = attlist.getParameters();
-						DTDDeclParameter param;
-						for (int i = 0; i < params.size(); i++) {
-							param = params.get(i);
-							if (attlist.getNameParameter().equals(param)) {
-								xmlBuilder.addParameter(param.getParameter());
-								if (attlist.getParameters().size() > 1) { // has parameters after elementName
-									xmlBuilder.linefeed();
-									xmlBuilder.indent(level + 1);
-									setEndBracketOnNewLine = true;
-									multipleInternalAttlistDecls = true;
-								}
-							} else {
-								if (multipleInternalAttlistDecls && i == 1) {
-									xmlBuilder.addUnindentedParameter(param.getParameter());
-								} else {
-									xmlBuilder.addParameter(param.getParameter());
-								}
-							}
-						}
-
-						for (DTDAttlistDecl attlistDecl : internalDecls) {
-							xmlBuilder.linefeed();
-							xmlBuilder.indent(level + 1);
-							params = attlistDecl.getParameters();
-							for (int i = 0; i < params.size(); i++) {
-								param = params.get(i);
-
-								if (i == 0) {
-									xmlBuilder.addUnindentedParameter(param.getParameter());
-								} else {
-									xmlBuilder.addParameter(param.getParameter());
-								}
-							}
-						}
+		boolean insertFinalNewline = isInsertFinalNewline();
+		if (isTrimFinalNewlines()) {
+			trimFinalNewlines(insertFinalNewline, edits);
+		}
+		if (insertFinalNewline) {
+			String xml = textDocument.getText();
+			int endDocument = xml.length() - 1;
+			if (endDocument >= 0) {
+				char c = xml.charAt(endDocument);
+				if (c != '\n' && (end == -1 || endDocument < end)) {
+					try {
+						Position pos = textDocument.positionAt(endDocument);
+						pos.setCharacter(pos.getCharacter() + 1);
+						Range range = new Range(pos, pos);
+						edits.add(new TextEdit(range, lineDelimiter));
+					} catch (BadLocationException e) {
+						LOGGER.log(Level.SEVERE, e.getMessage(), e);
 					}
-				} else {
-					for (DTDDeclParameter param : decl.getParameters()) {
-						xmlBuilder.addParameter(param.getParameter());
-					}
-				}
-				if (setEndBracketOnNewLine) {
-					xmlBuilder.linefeed();
-					xmlBuilder.indent(level);
-				}
-				if (decl.isClosed()) {
-					xmlBuilder.closeStartElement();
 				}
 			}
-			previous = node;
+		}
+		if (isTrimTrailingWhitespace()) {
+			String xml = textDocument.getText();
+			int i = xml.length() - 1;
+			int lineDelimiterOffset = i + 1;
+			char curr = xml.charAt(i);
+			boolean removeSpaces = true;
+
+			// removes spaces and new lines at the end of xml
+			if (isTrimFinalNewlines() && !isLineSeparator(curr)) {
+				while (Character.isWhitespace(curr) && i > 0) {
+					i--;
+					curr = xml.charAt(i);
+				}
+				removeLeftSpaces(i, lineDelimiterOffset, edits);
+				removeSpaces = false;
+			}
+			if (!isTrimFinalNewlines()) {
+				while (i >= 0) {
+					curr = xml.charAt(i);
+					if (isLineSeparator(curr)) {
+						// remove spaces in an empty line
+						// ex:
+						// [space][space] --> remove
+						if (removeSpaces) {
+							removeLeftSpaces(i + 1, lineDelimiterOffset, edits);
+						}
+						removeSpaces = true;
+						lineDelimiterOffset = i;
+					} else if (removeSpaces && (!Character.isWhitespace(curr) || isLineSeparator(curr))) {
+						// remove spaces after some content at the end of the line
+						// ex: <a> </a> [space][space] --> remove
+						removeLeftSpaces(i, lineDelimiterOffset, edits);
+						removeSpaces = false;
+						return edits;
+					}
+					i--;
+				}
+			}
+		}
+		return edits;
+	}
+
+	/**
+	 * Returns the DOM node to format according to the given range and the DOM
+	 * document otherwise.
+	 * 
+	 * @param document the DOM document.
+	 * @param start    the start range offset and -1 otherwise.
+	 * @param end      the end range offset and -1 otherwise.
+	 * 
+	 * @return the DOM node to format according to the given range and the DOM
+	 *         document otherwise.
+	 */
+	private static DOMNode getDOMNodeToFormat(DOMDocument document, int start, int end) {
+		if (start != -1 && end != -1) {
+			DOMNode startNode = document.findNodeAt(start);
+			DOMNode endNode = document.findNodeBefore(end);
+
+			if (endNode.getStart() == start) {
+				// ex :
+				// <div>
+				// |<img />|
+				// </div>
+				return endNode;
+			}
+
+			if (isCoverNode(startNode, endNode)) {
+				return startNode;
+			} else if (isCoverNode(endNode, startNode)) {
+				return endNode;
+			} else {
+				DOMNode startParent = startNode.getParentNode();
+				DOMNode endParent = endNode.getParentNode();
+				while (startParent != null && endParent != null) {
+					if (isCoverNode(startParent, endParent)) {
+						return startParent;
+					} else if (isCoverNode(endParent, startParent)) {
+						return endParent;
+					}
+					startParent = startParent.getParentNode();
+					endParent = endParent.getParentNode();
+				}
+			}
+		}
+		return document;
+	}
+
+	private static boolean isCoverNode(DOMNode startNode, DOMNode endNode) {
+		return (startNode.getStart() < endNode.getStart() && startNode.getEnd() > endNode.getEnd())
+				|| startNode == endNode;
+	}
+
+	/**
+	 * Returns the DOM node constraints of the given DOM node.
+	 * 
+	 * @param node the DOM node.
+	 * 
+	 * @return the DOM node constraints of the given DOM node.
+	 */
+	private XMLFormattingConstraints getNodeConstraints(DOMNode node) {
+		XMLFormattingConstraints result = new XMLFormattingConstraints();
+		// Compute the indent level according to the parent node.
+		int indentLevel = 0;
+		while (node != null) {
+			node = node.getParentElement();
+			if (node != null) {
+				indentLevel++;
+			}
+		}
+		result.setIndentLevel(indentLevel);
+		return result;
+	}
+
+	private void formatSiblings(List<TextEdit> edits, DOMNode domNode, XMLFormattingConstraints parentConstraints,
+			int start, int end) {
+		DOMNode currentDOMNode = domNode;
+		while (currentDOMNode != null) {
+			if (cancelChecker != null) {
+				cancelChecker.checkCanceled();
+			}
+			format(currentDOMNode, parentConstraints, start, end, edits);
+			currentDOMNode = currentDOMNode.getNextSibling();
+		}
+	}
+
+	public void format(DOMNode child, XMLFormattingConstraints parentConstraints, int start, int end,
+			List<TextEdit> edits) {
+
+		switch (child.getNodeType()) {
+
+			case Node.DOCUMENT_TYPE_NODE:
+				DOMDocumentType docType = (DOMDocumentType) child;
+				docTypeFormatter.formatDocType(docType, parentConstraints, start, end, edits);
+				break;
+
+			case Node.DOCUMENT_NODE:
+				DOMDocument document = (DOMDocument) child;
+				formatChildren(document, parentConstraints, start, end, edits);
+				break;
+
+			case DOMNode.PROCESSING_INSTRUCTION_NODE:
+				DOMProcessingInstruction processingInstruction = (DOMProcessingInstruction) child;
+				processingInstructionFormatter.formatProcessingInstruction(processingInstruction, parentConstraints,
+						edits);
+				break;
+
+			case Node.ELEMENT_NODE:
+				DOMElement element = (DOMElement) child;
+				elementFormatter.formatElement(element, parentConstraints, start, end, edits);
+				break;
+
+			case Node.TEXT_NODE:
+				DOMText textNode = (DOMText) child;
+				textFormatter.formatText(textNode, parentConstraints, edits);
+				break;
+
+			case Node.COMMENT_NODE:
+				DOMComment commentNode = (DOMComment) child;
+				commentFormatter.formatComment(commentNode, parentConstraints, start, end, edits);
+				break;
+
+			case Node.CDATA_SECTION_NODE:
+				DOMCDATASection cDATANode = (DOMCDATASection) child;
+				cDATAFormatter.formatCDATASection(cDATANode, parentConstraints, edits);
+				break;
+
+			default:
+				// unknown, so just leave alone for now but make sure to update
+				// available line width
+				if (isMaxLineWidthSupported()) {
+					int width = updateLineWidthWithLastLine(child, parentConstraints.getAvailableLineWidth());
+					parentConstraints.setAvailableLineWidth(width);
+				}
+		}
+	}
+
+	public void formatChildren(DOMNode currentDOMNode, XMLFormattingConstraints parentConstraints, int start, int end,
+			List<TextEdit> edits) {
+		for (DOMNode child : currentDOMNode.getChildren()) {
+			format(child, parentConstraints, start, end, edits);
+		}
+	}
+
+	public void formatAttributeValue(DOMAttr attr, XMLFormattingConstraints parentConstraints, List<TextEdit> edits) {
+		if (formatterParticipants != null) {
+			for (IFormatterParticipant formatterParticipant : formatterParticipants) {
+				try {
+					if (formatterParticipant.formatAttributeValue(attr, this, parentConstraints,
+							getFormattingSettings(), edits)) {
+						return;
+					}
+				} catch (Exception e) {
+					LOGGER.log(Level.SEVERE, "Error while processing format attributes for the participant '"
+							+ formatterParticipant.getClass().getName() + "'.", e);
+				}
+			}
+		}
+	}
+
+	public void removeLeftSpaces(int leftLimit, int to, List<TextEdit> edits) {
+		replaceLeftSpacesWith(leftLimit, to, "", edits);
+	}
+
+	public void replaceLeftSpacesWithOneSpace(int leftLimit, int to, List<TextEdit> edits) {
+		replaceLeftSpacesWith(leftLimit, to, " ", edits);
+	}
+
+	void replaceLeftSpacesWith(int leftLimit, int to, String replacement, List<TextEdit> edits) {
+		int from = adjustOffsetWithLeftWhitespaces(leftLimit, to);
+		if (from >= 0) {
+			createTextEditIfNeeded(from, to, replacement, edits);
+		}
+	}
+
+	void replaceQuoteWithPreferred(int from, int to, List<TextEdit> edits) {
+		createTextEditIfNeeded(from, to, getQuotationAsString(), edits);
+	}
+
+	public int adjustOffsetWithLeftWhitespaces(int leftLimit, int to) {
+		return TextEditUtils.adjustOffsetWithLeftWhitespaces(leftLimit, to, textDocument.getText());
+	}
+
+	public int replaceLeftSpacesWithIndentation(int indentLevel, int leftLimit, int to, boolean addLineSeparator,
+			List<TextEdit> edits) {
+		int from = adjustOffsetWithLeftWhitespaces(leftLimit, to);
+		if (from >= 0) {
+			String expectedSpaces = getIndentSpaces(indentLevel, addLineSeparator);
+			createTextEditIfNeeded(from, to, expectedSpaces, edits);
+			return expectedSpaces.length();
+		}
+		return 0;
+	}
+
+	public int replaceLeftSpacesWithIndentationWithMultiNewLines(int indentLevel, int leftLimit, int offset,
+			int newLineCount, List<TextEdit> edits) {
+		int from = adjustOffsetWithLeftWhitespaces(leftLimit, offset);
+		if (from >= 0) {
+			String expectedSpaces = getIndentSpacesWithMultiNewLines(indentLevel, newLineCount);
+			createTextEditIfNeeded(from, offset, expectedSpaces, edits);
+			return expectedSpaces.length();
+		}
+		return 0;
+	}
+
+	public int replaceLeftSpacesWithIndentationWithOffsetSpaces(int indentSpace, int leftLimit, int to,
+			boolean addLineSeparator, List<TextEdit> edits) {
+		int from = adjustOffsetWithLeftWhitespaces(leftLimit, to);
+		if (from >= 0) {
+			String expectedSpaces = getIndentSpacesWithOffsetSpaces(indentSpace, addLineSeparator);
+			createTextEditIfNeeded(from, to, expectedSpaces, edits);
+			return expectedSpaces.length();
+		}
+		return 0;
+	}
+
+	public void replaceLeftSpacesWithIndentationPreservedNewLines(int spaceStart, int spaceEnd,
+			int indentLevel, List<TextEdit> edits) {
+		int preservedNewLines = getFormattingSettings().getPreservedNewlines();
+		int currentNewLineCount = XMLFormatterDocument.getExistingNewLineCount(
+				textDocument.getText(), spaceEnd, lineDelimiter);
+		if (currentNewLineCount > preservedNewLines) {
+			replaceLeftSpacesWithIndentationWithMultiNewLines(indentLevel, spaceStart,
+					spaceEnd, preservedNewLines + 1, edits);
+		} else {
+			int newLineCount = currentNewLineCount == 0 ? 1 : currentNewLineCount;
+			replaceLeftSpacesWithIndentationWithMultiNewLines(indentLevel, spaceStart, spaceEnd,
+					newLineCount, edits);
+		}
+	}
+
+	boolean hasLineBreak(int from, int to) {
+		String text = textDocument.getText();
+		for (int i = from; i < to; i++) {
+			char c = text.charAt(i);
+			if (isLineSeparator(c)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public int getNormalizedLength(int from, int to) {
+		String text = textDocument.getText();
+		int contentOffset = 0;
+		for (int i = from; i < to; i++) {
+			if (Character.isWhitespace(text.charAt(i)) && !Character.isWhitespace(text.charAt(i + 1))) {
+				to -= contentOffset;
+				contentOffset = 0;
+			} else if (Character.isWhitespace(text.charAt(i))) {
+				contentOffset++;
+			}
+		}
+		return to;
+	}
+
+	public int getOffsetWithPreserveLineBreaks(int from, int to, int tabSize, boolean isInsertSpaces) {
+		int initialTo = to;
+		String text = textDocument.getText();
+		for (int i = to; i > from; i--) {
+			if (text.charAt(i) == '\t') {
+				to -= tabSize;
+			} else if (isLineSeparator(text.charAt(i))) {
+				int prevIndent = 0;
+				for (int j = i + 1; j < initialTo; j++) {
+					if (text.charAt(j) == '\t' && !isInsertSpaces) {
+						prevIndent += tabSize;
+					} else if (Character.isWhitespace(text.charAt(j))) {
+						prevIndent++;
+					} else {
+						to += (prevIndent - tabSize);
+						return to;
+					}
+				}
+			} else if (text.charAt(i) == ' ' && StringUtils.isQuote(text.charAt(i - 1))) {
+				int j = 1;
+				while (text.charAt(i + j) == ' ') {
+					to++;
+					j++;
+				}
+				to--;
+			} else {
+				to--;
+			}
+		}
+		return to;
+	}
+
+	// DTD formatting
+
+	// ------- Utilities method
+
+	int updateLineWidthWithLastLine(DOMNode child, int availableLineWidth) {
+		String text = textDocument.getText();
+		int lineWidth = availableLineWidth;
+		int end = child.getEnd();
+		// Check if next char after the end of the DOM node is a new line feed.
+		if (end < text.length()) {
+			char c = text.charAt(end);
+			if (isLineSeparator(c)) {
+				// ex: <?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n
+				return getMaxLineWidth();
+			}
+		}
+		for (int i = end - 1; i > child.getStart(); i--) {
+			char c = text.charAt(i);
+			if (isLineSeparator(c)) {
+				return lineWidth;
+			} else {
+				lineWidth--;
+			}
+		}
+		return lineWidth;
+	}
+
+	private static boolean isLineSeparator(char c) {
+		return c == '\r' || c == '\n';
+	}
+
+	public int getLineBreakOffset(int startAttr, int start) {
+		String text = textDocument.getText();
+		for (int i = startAttr; i < start; i++) {
+			char c = text.charAt(i);
+			if (isLineSeparator(c)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	void insertLineBreak(int start, int end, List<TextEdit> edits) {
+		createTextEditIfNeeded(start, end, lineDelimiter, edits);
+	}
+
+	void replaceSpacesWithOneSpace(int spaceStart, int spaceEnd, List<TextEdit> edits) {
+		if (spaceStart >= 0) {
+			spaceEnd = spaceEnd == -1 ? spaceStart + 1 : spaceEnd + 1;
+			// Replace several spaces with one space
+			// <foo>a[space][space][space]b</foo>
+			// --> <foo>a[space]b</foo>
+			replaceLeftSpacesWithOneSpace(spaceStart, spaceEnd, edits);
+		}
+	}
+
+	/**
+	 * Returns the format element category of the given DOM element.
+	 *
+	 * @param element           the DOM element.
+	 * @param parentConstraints the parent constraints.
+	 *
+	 * @return the format element category of the given DOM element.
+	 */
+	public FormatElementCategory getFormatElementCategory(DOMElement element,
+			XMLFormattingConstraints parentConstraints) {
+		if (!element.isClosed()) {
+			return parentConstraints.getFormatElementCategory();
+		}
+
+		// Get the category from the settings
+		FormatElementCategory fromSettings = getFormattingSettings().getFormatElementCategory(element);
+		if (fromSettings != null) {
+			return fromSettings;
+		}
+
+		// Get the category from the participants (ex : from the XSD/DTD grammar
+		// information)
+		for (IFormatterParticipant participant : formatterParticipants) {
+			FormatElementCategory fromParticipant = participant.getFormatElementCategory(element, parentConstraints,
+					formattingContext, sharedSettings);
+			if (fromParticipant != null) {
+				return fromParticipant;
+			}
+		}
+
+		if (XML_SPACE_ATTR_PRESERVE.equals(element.getAttribute(XML_SPACE_ATTR))) {
+			return FormatElementCategory.PreserveSpace;
+		}
+
+		if (parentConstraints != null) {
+			if (parentConstraints.getFormatElementCategory() == FormatElementCategory.PreserveSpace) {
+				if (!XML_SPACE_ATTR_DEFAULT.equals(element.getAttribute(XML_SPACE_ATTR))) {
+					return FormatElementCategory.PreserveSpace;
+				}
+			}
+		}
+
+		boolean hasElement = false;
+		boolean hasText = false;
+		boolean onlySpaces = true;
+		for (DOMNode child : element.getChildren()) {
+			if (child.isElement() || child.isComment() || child.isProcessingInstruction()) {
+				hasElement = true;
+			} else if (child.isText()) {
+				onlySpaces = ((Text) child).isElementContentWhitespace();
+				if (!onlySpaces) {
+					hasText = true;
+				}
+			}
+			if (hasElement && hasText) {
+				return FormatElementCategory.MixedContent;
+			}
+		}
+		if (hasElement && onlySpaces) {
+			return FormatElementCategory.IgnoreSpace;
+		}
+		return FormatElementCategory.NormalizeSpace;
+	}
+
+	void createTextEditIfNeeded(int from, int to, String expectedContent, List<TextEdit> edits) {
+		TextEdit edit = TextEditUtils.createTextEditIfNeeded(from, to, expectedContent, textDocument);
+		if (edit != null) {
+			edits.add(edit);
+		}
+	}
+
+	public boolean shouldCollapseEmptyElement(DOMElement element, SharedSettings sharedSettings) {
+		for (IFormatterParticipant participant : formatterParticipants) {
+			if (!participant.shouldCollapseEmptyElement(element, sharedSettings)) {
+				return false;
+			}
 		}
 		return true;
 	}
 
-	private List<? extends TextEdit> getFormatTextEdit() throws BadLocationException {
-		Position startPosition = this.textDocument.positionAt(this.startOffset);
-		Position endPosition = this.textDocument.positionAt(this.endOffset);
-		Range r = new Range(startPosition, endPosition);
-		List<TextEdit> edits = new ArrayList<>();
+	private String getIndentSpaces(int level, boolean addLineSeparator) {
+		StringBuilder spaces = new StringBuilder();
+		if (addLineSeparator) {
+			spaces.append(lineDelimiter);
+		}
 
-		// check if format range reaches the end of the document
-		if (this.endOffset == this.textDocument.getText().length()) {
-
-			if (this.sharedSettings.getFormattingSettings().isTrimFinalNewlines()) {
-				this.xmlBuilder.trimFinalNewlines();
-			}
-
-			if (this.sharedSettings.getFormattingSettings().isInsertFinalNewline()
-					&& !this.xmlBuilder.isLastLineEmptyOrWhitespace()) {
-				this.xmlBuilder.linefeed();
+		for (int i = 0; i < level; i++) {
+			if (isInsertSpaces()) {
+				for (int j = 0; j < getTabSize(); j++) {
+					spaces.append(" ");
+				}
+			} else {
+				spaces.append("\t");
 			}
 		}
-
-		edits.add(new TextEdit(r, this.xmlBuilder.toString()));
-		return edits;
-	}
-
-	private static void addPIToXMLBuilder(DOMNode node, XMLBuilder xml) {
-		DOMProcessingInstruction processingInstruction = (DOMProcessingInstruction) node;
-		xml.startPrologOrPI(processingInstruction.getTarget());
-
-		String content = processingInstruction.getData();
-		if (content.length() > 0) {
-			xml.addContentPI(content);
-		} else {
-			xml.addContent(" ");
-		}
-
-		xml.endPrologOrPI();
-	}
-
-	private static void addPrologToXMLBuilder(DOMNode node, XMLBuilder xml) {
-		DOMProcessingInstruction processingInstruction = (DOMProcessingInstruction) node;
-		xml.startPrologOrPI(processingInstruction.getTarget());
-		if (node.hasAttributes()) {
-			addPrologAttributes(node, xml);
-		}
-		xml.endPrologOrPI();
+		return spaces.toString();
 	}
 
 	/**
-	 * Will add all attributes, to the given builder, on a single line
+	 * Return the expected indent spaces and new lines with the specified number of
+	 * new lines.
+	 * 
+	 * @param level        the indent level.
+	 * @param newLineCount the number of new lines to be added.
+	 * 
+	 * @return the expected indent spaces and new lines with the specified number of
+	 *         new lines.
 	 */
-	private static void addPrologAttributes(DOMNode node, XMLBuilder xmlBuilder) {
-		List<DOMAttr> attrs = node.getAttributeNodes();
-		if (attrs == null) {
-			return;
+	private String getIndentSpacesWithMultiNewLines(int level, int newLineCount) {
+		StringBuilder spaces = new StringBuilder();
+		while (newLineCount != 0) {
+			spaces.append(lineDelimiter);
+			newLineCount--;
 		}
-		for (DOMAttr attr : attrs) {
-			xmlBuilder.addPrologAttribute(attr);
+
+		for (int i = 0; i < level; i++) {
+			if (isInsertSpaces()) {
+				for (int j = 0; j < getTabSize(); j++) {
+					spaces.append(" ");
+				}
+			} else {
+				spaces.append("\t");
+			}
+		}
+		return spaces.toString();
+	}
+
+	private String getIndentSpacesWithOffsetSpaces(int spaceCount, boolean addLineSeparator) {
+		StringBuilder spaces = new StringBuilder();
+		if (addLineSeparator) {
+			spaces.append(lineDelimiter);
+		}
+		int spaceOffset = spaceCount % getTabSize();
+
+		for (int i = 0; i < spaceCount / getTabSize(); i++) {
+			if (isInsertSpaces()) {
+				for (int j = 0; j < getTabSize(); j++) {
+					spaces.append(" ");
+				}
+			} else {
+				spaces.append("\t");
+			}
+		}
+
+		for (int i = 0; i < spaceOffset; i++) {
+			spaces.append(" ");
+		}
+
+		return spaces.toString();
+	}
+
+	private void trimFinalNewlines(boolean insertFinalNewline, List<TextEdit> edits) {
+		String xml = textDocument.getText();
+		int end = xml.length() - 1;
+		int i = end;
+		while (i >= 0 && isLineSeparator(xml.charAt(i))) {
+			i--;
+		}
+		if (end > i) {
+			if (insertFinalNewline) {
+				// re-adjust offset to keep insert final new line
+				i++;
+				if (xml.charAt(end - 1) == '\r') {
+					i++;
+				}
+			}
+			if (end > i) {
+				try {
+					Position endPos = textDocument.positionAt(end + 1);
+					Position startPos = textDocument.positionAt(i + 1);
+					Range range = new Range(startPos, endPos);
+					edits.add(new TextEdit(range, ""));
+				} catch (BadLocationException e) {
+					LOGGER.log(Level.SEVERE, e.getMessage(), e);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Return the number of new lines in the whitespaces to the left of the given
+	 * offset.
+	 *
+	 * @param text      the xml text.
+	 * @param offset    the offset to begin the count from.
+	 * @param delimiter the delimiter.
+	 *
+	 * @return the number of new lines in the whitespaces to the left of the given
+	 *         offset.
+	 */
+	public static int getExistingNewLineCount(String text, int offset, String delimiter) {
+		boolean delimiterHasTwoCharacters = delimiter.length() == 2;
+		int newLineCounter = 0;
+		for (int i = offset; i > 1; i--) {
+			String c;
+			if (!Character.isWhitespace(text.charAt(i - 1))) {
+				if (!delimiterHasTwoCharacters) {
+					c = String.valueOf(text.charAt(i));
+					if (delimiter.equals(c)) {
+						newLineCounter++;
+					}
+				}
+				return newLineCounter;
+			}
+			if (delimiterHasTwoCharacters) {
+				c = text.substring(i - 2, i);
+				if (delimiter.equals(c)) {
+					newLineCounter++;
+					i--; // skip the second char of the delimiter
+				}
+			} else {
+				c = String.valueOf(text.charAt(i));
+				if (delimiter.equals(c)) {
+					newLineCounter++;
+				}
+			}
+		}
+		return newLineCounter;
+	}
+
+	public boolean isMaxLineWidthSupported() {
+		return getMaxLineWidth() != 0;
+	}
+
+	public int getMaxLineWidth() {
+		return getFormattingSettings().getMaxLineWidth();
+	}
+
+	private int getTabSize() {
+		return getFormattingSettings().getTabSize();
+	}
+
+	private boolean isInsertSpaces() {
+		return getFormattingSettings().isInsertSpaces();
+	}
+
+	private boolean isTrimFinalNewlines() {
+		return getFormattingSettings().isTrimFinalNewlines();
+	}
+
+	private boolean isInsertFinalNewline() {
+		return getFormattingSettings().isInsertFinalNewline();
+	}
+
+	private boolean isTrimTrailingWhitespace() {
+		return getFormattingSettings().isTrimTrailingWhitespace();
+	}
+
+	private String getQuotationAsString() {
+		return sharedSettings.getPreferences().getQuotationAsString();
+	}
+
+	private XMLFormattingOptions getFormattingSettings() {
+		return getSharedSettings().getFormattingSettings();
+	}
+
+	SharedSettings getSharedSettings() {
+		return sharedSettings;
+	}
+
+	String getLineDelimiter() {
+		return lineDelimiter;
+	}
+
+	String getText() {
+		return textDocument.getText();
+	}
+
+	public int getLineAtOffset(int offset) {
+		try {
+			return textDocument.lineOffsetAt(offset);
+		} catch (BadLocationException e) {
+			return -1;
 		}
 	}
 }

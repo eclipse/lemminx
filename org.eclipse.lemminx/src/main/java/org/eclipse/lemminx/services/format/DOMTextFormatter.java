@@ -25,9 +25,9 @@ import org.eclipse.lsp4j.TextEdit;
  */
 public class DOMTextFormatter {
 
-	private final XMLFormatterDocumentNew formatterDocument;
+	private final XMLFormatterDocument formatterDocument;
 
-	public DOMTextFormatter(XMLFormatterDocumentNew formatterDocument) {
+	public DOMTextFormatter(XMLFormatterDocument formatterDocument) {
 		this.formatterDocument = formatterDocument;
 	}
 
@@ -139,7 +139,6 @@ public class DOMTextFormatter {
 			}
 		}
 		if (formatElementCategory != FormatElementCategory.IgnoreSpace && spaceEnd + 1 != text.length()) {
-			DOMElement parentElement = textNode.getParentElement();
 			// Don't format final spaces if text is at the end of the file
 			if ((!containsNewLine || isJoinContentLines() || isMixedContent)
 					&& (!isMaxLineWidthSupported() || availableLineWidth >= 0)) {
@@ -161,8 +160,7 @@ public class DOMTextFormatter {
 						edits);
 				availableLineWidth = getMaxLineWidth() - (textEnd - textStart) - mixedContentIndentLevel * getTabSize();
 			} else {
-				if (formatElementCategory == FormatElementCategory.NormalizeSpace
-						|| parentElement.getLastChild() == textNode) {
+				if (formatElementCategory == FormatElementCategory.NormalizeSpace) {
 					// Decrement indent level if is mixed content and text content is the last child
 					indentLevel--;
 				}

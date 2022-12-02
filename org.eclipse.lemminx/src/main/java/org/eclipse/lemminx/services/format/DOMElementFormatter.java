@@ -30,19 +30,19 @@ import org.eclipse.lsp4j.TextEdit;
  */
 public class DOMElementFormatter {
 
-	private final XMLFormatterDocumentNew formatterDocument;
+	private final XMLFormatterDocument formatterDocument;
 
 	private final DOMAttributeFormatter attributeFormatter;
 
-	public DOMElementFormatter(XMLFormatterDocumentNew formatterDocument, DOMAttributeFormatter attributeFormatter) {
+	public DOMElementFormatter(XMLFormatterDocument formatterDocument, DOMAttributeFormatter attributeFormatter) {
 		this.formatterDocument = formatterDocument;
 		this.attributeFormatter = attributeFormatter;
 	}
 
 	public void formatElement(DOMElement element, XMLFormattingConstraints parentConstraints, int start, int end,
 			List<TextEdit> edits) {
-		EmptyElements emptyElements = getEmptyElements(element,
-				formatterDocument.getFormatElementCategory(element, parentConstraints));
+		FormatElementCategory formatElementCategory = getFormatElementCategory(element, parentConstraints);
+		EmptyElements emptyElements = getEmptyElements(element, formatElementCategory);
 
 		// Format start tag element with proper indentation
 		int indentLevel = parentConstraints.getIndentLevel();
@@ -63,7 +63,7 @@ public class DOMElementFormatter {
 			if ((element.isClosed())) {
 				constraints.setIndentLevel(indentLevel + 1);
 			}
-			constraints.setFormatElementCategory(getFormatElementCategory(element, parentConstraints));
+			constraints.setFormatElementCategory(formatElementCategory);
 
 			formatChildren(element, constraints, start, end, edits);
 

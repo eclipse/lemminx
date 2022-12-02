@@ -21,9 +21,9 @@ import org.eclipse.lsp4j.TextEdit;
  */
 public class DOMCommentFormatter {
 
-	private final XMLFormatterDocumentNew formatterDocument;
+	private final XMLFormatterDocument formatterDocument;
 
-	public DOMCommentFormatter(XMLFormatterDocumentNew formatterDocument) {
+	public DOMCommentFormatter(XMLFormatterDocument formatterDocument) {
 		this.formatterDocument = formatterDocument;
 	}
 
@@ -45,9 +45,12 @@ public class DOMCommentFormatter {
 		}
 
 		int indentLevel = parentConstraints.getIndentLevel();
+		int tabSize = getTabSize();
+		int maxLineWidth = getMaxLineWidth();
+
 		if (formatterDocument.hasLineBreak(leftWhitespaceOffset, start) && startRange < start) {
 			replaceLeftSpacesWithIndentationPreservedNewLines(0, start, indentLevel, edits);
-			availableLineWidth = getMaxLineWidth() - getTabSize() * indentLevel;
+			availableLineWidth = maxLineWidth - tabSize * indentLevel;
 		}
 		int spaceStart = -1;
 		int spaceEnd = -1;
@@ -79,8 +82,8 @@ public class DOMCommentFormatter {
 						// Add new line when the comment extends over the maximum line width
 						replaceLeftSpacesWithIndentation(indentLevel, spaceStart, contentStart,
 								true, edits);
-						int indentSpaces = getTabSize() * indentLevel;
-						availableLineWidth = getMaxLineWidth() - indentSpaces - (contentEnd + 1 - contentStart);
+						int indentSpaces = tabSize * indentLevel;
+						availableLineWidth = maxLineWidth - indentSpaces - (contentEnd + 1 - contentStart);
 						spaceStart = -1;
 						spaceEnd = -1;
 						continue;
