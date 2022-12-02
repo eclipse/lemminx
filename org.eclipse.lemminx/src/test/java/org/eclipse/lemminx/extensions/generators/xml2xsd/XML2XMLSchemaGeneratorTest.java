@@ -27,31 +27,7 @@ import org.junit.jupiter.api.Test;
 public class XML2XMLSchemaGeneratorTest extends AbstractCacheBasedTest {
 
 	@Test
-	public void schema() throws IOException {
-		String xml = "<note>\r\n" + //
-				"	<to>Tove</to>\r\n" + //
-				"	<from>Jani</from>\r\n" + //
-				"	<heading>Reminder</heading>\r\n" + //
-				"	<body>Don't forget me this weekend!</body>\r\n" + //
-				"</note>";
-		String xsd = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + lineSeparator() + //
-				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">" + lineSeparator() + //
-				"  <xs:element name=\"note\">" + lineSeparator() + //
-				"    <xs:complexType>" + lineSeparator() + //
-				"      <xs:sequence>" + lineSeparator() + //
-				"        <xs:element name=\"to\" type=\"xs:string\" />" + lineSeparator() + //
-				"        <xs:element name=\"from\" type=\"xs:string\" />" + lineSeparator() + //
-				"        <xs:element name=\"heading\" type=\"xs:string\" />" + lineSeparator() + //
-				"        <xs:element name=\"body\" type=\"xs:string\" />" + lineSeparator() + //
-				"      </xs:sequence>" + lineSeparator() + //
-				"    </xs:complexType>" + lineSeparator() + //
-				"  </xs:element>" + lineSeparator() + //
-				"</xs:schema>";
-		assertGrammarGenerator(xml, new XMLSchemaGeneratorSettings(), xsd);
-	}
-
-	@Test
-	public void schemaWithExperimentalFormatter() throws IOException {
+	public void schemaWithLegacyFormatter() throws IOException {
 		String xml = "<note>\r\n" + //
 				"	<to>Tove</to>\r\n" + //
 				"	<from>Jani</from>\r\n" + //
@@ -72,7 +48,32 @@ public class XML2XMLSchemaGeneratorTest extends AbstractCacheBasedTest {
 				"  </xs:element>" + lineSeparator() + //
 				"</xs:schema>";
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setExperimental(true);
+		settings.getFormattingSettings().setLegacy(true);;
+		assertGrammarGenerator(xml, new XMLSchemaGeneratorSettings(), settings, xsd);
+	}
+
+	@Test
+	public void schemaWithNewFormatter() throws IOException {
+		String xml = "<note>\r\n" + //
+				"	<to>Tove</to>\r\n" + //
+				"	<from>Jani</from>\r\n" + //
+				"	<heading>Reminder</heading>\r\n" + //
+				"	<body>Don't forget me this weekend!</body>\r\n" + //
+				"</note>";
+		String xsd = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + lineSeparator() + //
+				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">" + lineSeparator() + //
+				"  <xs:element name=\"note\">" + lineSeparator() + //
+				"    <xs:complexType>" + lineSeparator() + //
+				"      <xs:sequence>" + lineSeparator() + //
+				"        <xs:element name=\"to\" type=\"xs:string\" />" + lineSeparator() + //
+				"        <xs:element name=\"from\" type=\"xs:string\" />" + lineSeparator() + //
+				"        <xs:element name=\"heading\" type=\"xs:string\" />" + lineSeparator() + //
+				"        <xs:element name=\"body\" type=\"xs:string\" />" + lineSeparator() + //
+				"      </xs:sequence>" + lineSeparator() + //
+				"    </xs:complexType>" + lineSeparator() + //
+				"  </xs:element>" + lineSeparator() + //
+				"</xs:schema>";
+		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setGrammarAwareFormatting(false);
 		assertGrammarGenerator(xml, new XMLSchemaGeneratorSettings(), settings, xsd);
 	}

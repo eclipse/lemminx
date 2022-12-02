@@ -20,9 +20,9 @@ import org.eclipse.lsp4j.TextEdit;
  * DOM CDATA section formatter.
  */
 public class DOMCDATAFormatter {
-	private final XMLFormatterDocumentNew formatterDocument;
+	private final XMLFormatterDocument formatterDocument;
 
-	public DOMCDATAFormatter(XMLFormatterDocumentNew formatterDocument) {
+	public DOMCDATAFormatter(XMLFormatterDocument formatterDocument) {
 		this.formatterDocument = formatterDocument;
 	}
 

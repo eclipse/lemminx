@@ -9,7 +9,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lemminx.services.format.experimental;
+package org.eclipse.lemminx.services.format.settings;
 
 import static java.lang.System.lineSeparator;
 import static org.eclipse.lemminx.XMLAssert.te;
@@ -22,7 +22,7 @@ import org.eclipse.lsp4j.TextEdit;
 import org.junit.jupiter.api.Test;
 
 /**
- * XML experimental formatter services tests with insert final new lines.
+ * XML formatter services tests with insert final new lines.
  *
  */
 public class XMLFormatterInsertFinalNewLineTest extends AbstractCacheBasedTest {
@@ -121,8 +121,6 @@ public class XMLFormatterInsertFinalNewLineTest extends AbstractCacheBasedTest {
 
 	private static void assertFormat(String unformatted, String expected, SharedSettings sharedSettings, String uri,
 			Boolean considerRangeFormat, TextEdit... expectedEdits) throws BadLocationException {
-		// Force to "experimental" formatter
-		sharedSettings.getFormattingSettings().setExperimental(true);
 		XMLAssert.assertFormat(null, unformatted, expected, sharedSettings, uri, considerRangeFormat, expectedEdits);
 	}
 }

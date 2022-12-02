@@ -31,9 +31,9 @@ import org.w3c.dom.Node;
  */
 public class DOMDocTypeFormatter {
 
-	private final XMLFormatterDocumentNew formatterDocument;
+	private final XMLFormatterDocument formatterDocument;
 
-	public DOMDocTypeFormatter(XMLFormatterDocumentNew formatterDocument) {
+	public DOMDocTypeFormatter(XMLFormatterDocument formatterDocument) {
 		this.formatterDocument = formatterDocument;
 	}
 
@@ -136,7 +136,7 @@ public class DOMDocTypeFormatter {
 		int nodeDeclStart = nodeDecl.getStart();
 		int indentLevel = parentConstraints.getIndentLevel();
 		int preservedNewLines = getPreservedNewlines();
-		int currentNewLineCount = XMLFormatterDocumentNew.getExistingNewLineCount(formatterDocument.getText(),
+		int currentNewLineCount = XMLFormatterDocument.getExistingNewLineCount(formatterDocument.getText(),
 				nodeDeclStart, formatterDocument.getLineDelimiter());
 		if (currentNewLineCount > preservedNewLines) {
 			// Reduce to number of new lines to the new line number specified by

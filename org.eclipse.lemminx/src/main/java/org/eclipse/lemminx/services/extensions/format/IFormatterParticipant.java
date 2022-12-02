@@ -20,7 +20,7 @@ import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lemminx.services.format.FormatElementCategory;
-import org.eclipse.lemminx.services.format.XMLFormatterDocumentNew;
+import org.eclipse.lemminx.services.format.XMLFormatterDocument;
 import org.eclipse.lemminx.services.format.XMLFormattingConstraints;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLFormattingOptions;
@@ -66,7 +66,7 @@ public interface IFormatterParticipant {
 	 * @param edits             the text edit list
 	 * @return true if the given attribute can be formatted and false otherwise.
 	 */
-	default boolean formatAttributeValue(DOMAttr attr, XMLFormatterDocumentNew formatterDocument,
+	default boolean formatAttributeValue(DOMAttr attr, XMLFormatterDocument formatterDocument,
 			XMLFormattingConstraints parentConstraints, XMLFormattingOptions formattingOptions, List<TextEdit> edits) {
 		return false;
 	}

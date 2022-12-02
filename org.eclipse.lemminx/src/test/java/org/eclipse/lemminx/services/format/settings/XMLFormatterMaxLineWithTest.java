@@ -9,7 +9,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lemminx.services.format.experimental;
+package org.eclipse.lemminx.services.format.settings;
 
 import static org.eclipse.lemminx.XMLAssert.te;
 
@@ -21,7 +21,7 @@ import org.eclipse.lsp4j.TextEdit;
 import org.junit.jupiter.api.Test;
 
 /**
- * XML experimental formatter services tests with max line width.
+ * XML formatter services tests with max line width.
  *
  */
 public class XMLFormatterMaxLineWithTest extends AbstractCacheBasedTest {
@@ -409,7 +409,7 @@ public class XMLFormatterMaxLineWithTest extends AbstractCacheBasedTest {
 	@Test
 	public void mixedTextDefaultLineWidth() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setMaxLineWidth(80);
+		settings.getFormattingSettings().setMaxLineWidth(100);
 		settings.getFormattingSettings().setJoinContentLines(true);
 		String content = "<para>All DocBook V5.0 elements are in the namespace <uri>http://docbook.org/ns/docbook</uri>. <acronym>XML <alt>Extensible Markup\r\n"
 				+ //
@@ -425,29 +425,27 @@ public class XMLFormatterMaxLineWithTest extends AbstractCacheBasedTest {
 				"\r\n" + //
 				"  Using\r\n" + //
 				"  namespaces in your documents is very easy. Consider this simple article marked up in DocBook V4.5:</para>";
-		String expected = "<para>All DocBook V5.0 elements are in the namespace <uri>\r\n" + //
-				"  http://docbook.org/ns/docbook</uri>. <acronym>XML <alt>Extensible Markup\r\n" + //
-				"  Language</alt></acronym> namespaces are used to distinguish between different\r\n" + //
-				"  element sets. In the last few years, almost all new XML grammars have used\r\n" + //
-				"  their own namespace. It is easy to create compound documents that contain\r\n" + //
-				"  elements from different XML vocabularies. DocBook V5.0 is <emphasis>following</emphasis>\r\n" + //
-				"  this <emphasis>design</emphasis>/<emphasis>rule</emphasis>. Using namespaces\r\n" + //
-				"  in your documents is very easy. Consider this simple article marked up in\r\n" + //
-				"  DocBook V4.5:</para>";
+		String expected = "<para>All DocBook V5.0 elements are in the namespace <uri>http://docbook.org/ns/docbook</uri>. <acronym>\r\n"
+				+ //
+				"  XML <alt>Extensible Markup Language</alt></acronym> namespaces are used to distinguish between\r\n" + //
+				"  different element sets. In the last few years, almost all new XML grammars have used their own\r\n" + //
+				"  namespace. It is easy to create compound documents that contain elements from different XML\r\n" + //
+				"  vocabularies. DocBook V5.0 is <emphasis>following</emphasis> this <emphasis>design</emphasis>/<emphasis>\r\n"
+				+ //
+				"  rule</emphasis>. Using namespaces in your documents is very easy. Consider this simple article\r\n" + //
+				"  marked up in DocBook V4.5:</para>";
 		assertFormat(content, expected, settings, //
-				te(0, 58, 0, 58, "\r\n  "), //
-				te(1, 79, 1, 80, "\r\n  "), //
-				te(1, 131, 2, 2, " "),
-				te(2, 24, 2, 25, "\r\n  "), //
-				te(2, 98, 2, 99, "\r\n  "), //
-				te(2, 126, 3, 2, " "), //
+				te(0, 104, 0, 104, "\r\n  "), //
+				te(0, 130, 1, 2, " "), //
+				te(1, 69, 1, 70, "\r\n  "),
+				te(1, 131, 2, 2, " "), //
+				te(2, 34, 2, 35, "\r\n  "), //
 				te(3, 31, 6, 2, " "), //
-				te(6, 32, 6, 33, "\r\n  "), //
-				te(6, 37, 7, 2, " "),
+				te(6, 37, 7, 2, " "), //
+				te(7, 40, 7, 40, "\r\n  "), //
 				te(7, 56, 9, 2, " "), //
-				te(9, 7, 10, 2, " "), //
-				te(10, 12, 10, 13, "\r\n  "), //
-				te(10, 86, 10, 87, "\r\n  "));
+				te(9, 7, 10, 2, " "),
+				te(10, 73, 10, 74, "\r\n  "));
 		assertFormat(expected, expected, settings);
 	}
 
@@ -562,8 +560,6 @@ public class XMLFormatterMaxLineWithTest extends AbstractCacheBasedTest {
 	private static void assertFormat(String unformatted, String expected, SharedSettings sharedSettings,
 			TextEdit... expectedEdits)
 			throws BadLocationException {
-		// Force to "experimental" formatter
-		sharedSettings.getFormattingSettings().setExperimental(true);
 		XMLAssert.assertFormat(null, unformatted, expected, sharedSettings, "test.xml", Boolean.FALSE, expectedEdits);
 	}
 }

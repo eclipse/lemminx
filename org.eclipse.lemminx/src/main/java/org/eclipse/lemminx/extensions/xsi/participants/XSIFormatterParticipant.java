@@ -19,7 +19,7 @@ import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.extensions.xsi.XSISchemaModel;
 import org.eclipse.lemminx.extensions.xsi.settings.XSISchemaLocationSplit;
 import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
-import org.eclipse.lemminx.services.format.XMLFormatterDocumentNew;
+import org.eclipse.lemminx.services.format.XMLFormatterDocument;
 import org.eclipse.lemminx.services.format.XMLFormattingConstraints;
 import org.eclipse.lemminx.settings.XMLFormattingOptions;
 import org.eclipse.lemminx.utils.StringUtils;
@@ -86,10 +86,12 @@ public class XSIFormatterParticipant implements IFormatterParticipant {
 			}
 			List<String> locations = getLocations(valueWithoutQuote);
 			String indent = "";
+			boolean insertSpaces = formattingOptions.isInsertSpaces();
+			int tabSize = formattingOptions.getTabSize();
 			for (int i = 0; i < locations.size(); i++) {
 				if (i % lineFeed == 0) {
 					if (i == 0) {
-						indent = getCurrentLineIndent(xml, formattingOptions);
+						indent = getCurrentLineIndent(xml, insertSpaces, tabSize);
 					} else {
 						xml.linefeed();
 						xml.append(indent);
@@ -127,9 +129,7 @@ public class XSIFormatterParticipant implements IFormatterParticipant {
 		return locations;
 	}
 
-	public String getCurrentLineIndent(XMLBuilder xml, XMLFormattingOptions formattingOptions) {
-		boolean insertSpaces = formattingOptions.isInsertSpaces();
-		int tabSize = formattingOptions.getTabSize();
+	public String getCurrentLineIndent(XMLBuilder xml, boolean insertSpaces, int tabSize) {
 		int nbChars = 0;
 		for (int i = xml.length() - 1; i >= 0; i--) {
 			if (xml.charAt(i) == '\r' || xml.charAt(i) == '\n') {
@@ -160,7 +160,7 @@ public class XSIFormatterParticipant implements IFormatterParticipant {
 	}
 
 	@Override
-	public boolean formatAttributeValue(DOMAttr attr, XMLFormatterDocumentNew formatterDocument,
+	public boolean formatAttributeValue(DOMAttr attr, XMLFormatterDocument formatterDocument,
 			XMLFormattingConstraints parentConstraints, XMLFormattingOptions formattingOptions, List<TextEdit> edits) {
 
 		XSISchemaLocationSplit split = XSISchemaLocationSplit.getSplit(formattingOptions);
