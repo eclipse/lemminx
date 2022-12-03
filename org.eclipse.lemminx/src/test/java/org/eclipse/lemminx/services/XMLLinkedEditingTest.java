@@ -27,6 +27,12 @@ import org.junit.jupiter.api.Test;
 public class XMLLinkedEditingTest {
 
 	@Test
+	public void linkedEditingWithEmptyTag() throws BadLocationException {
+		testLinkedEditingFor("<|></>", le(r(0, 1, 0, 1), r(0, 4, 0, 4)));
+		testLinkedEditingFor("<|>abcd</>", le(r(0, 1, 0, 1), r(0, 8, 0, 8)));
+	}
+
+	@Test
 	public void linkedEditingWithOrpheanEndTag() throws BadLocationException {
 		testLinkedEditingFor("<div></|", null);
 		testLinkedEditingFor("<di|v></", null);
