@@ -43,4 +43,8 @@ public class ClientCommands {
 	 */
 	public static final String OPEN_URI = "xml.open.uri";
 
+	/**
+	 * Update configuration
+	 */
+	public static final String UPDATE_CONFIGURATION = "xml.update.configuration";
 }

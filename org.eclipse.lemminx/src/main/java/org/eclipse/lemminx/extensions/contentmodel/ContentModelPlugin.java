@@ -14,6 +14,7 @@ package org.eclipse.lemminx.extensions.contentmodel;
 
 import java.util.Objects;
 
+import org.eclipse.lemminx.XMLTextDocumentService.SaveContext;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.commands.AssociateGrammarCommand;
 import org.eclipse.lemminx.extensions.contentmodel.commands.CheckBoundGrammarCommand;
@@ -137,6 +138,9 @@ public class ContentModelPlugin implements IXMLExtension {
 			if (catalogPathsChanged) {
 				// Validate all opened XML files
 				validateAllOpenedDocument(context);
+				if (context instanceof SaveContext) {
+					((SaveContext) context).setRefreshCodeLenses(true);
+				}
 			}
 		}
 		if (settings.getFileAssociations() != null) {

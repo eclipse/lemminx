@@ -374,6 +374,25 @@ public class ContentModelManager {
 	}
 
 	/**
+	 * Expand system Id
+	 *
+	 * @param path path to be expanded
+	 * @return the expanded system Id
+	 */
+	public String expandSystemId(String path) {
+		return catalogResolverExtension.expandSystemId(path);
+	}
+
+	/**
+	 * Get XML catalogs.
+	 *
+	 * @return list of catalogs
+	 */
+	public String[] getCatalogs() {
+		return catalogResolverExtension.getCatalogs();
+	}
+
+	/**
 	 * Set up XML catalogs.
 	 *
 	 * @param catalogs list of XML catalog files.

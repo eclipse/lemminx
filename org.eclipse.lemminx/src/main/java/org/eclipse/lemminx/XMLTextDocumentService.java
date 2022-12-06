@@ -132,9 +132,20 @@ public class XMLTextDocumentService implements TextDocumentService {
 	/**
 	 * Save context.
 	 */
-	class SaveContext extends AbstractSaveContext {
+	public class SaveContext extends AbstractSaveContext {
 
 		private final Collection<ModelTextDocument<DOMDocument>> documentsToValidate;
+
+		private boolean isRefreshCodeLenses;
+
+		public boolean isRefreshCodeLenses() {
+			return isRefreshCodeLenses;
+		}
+
+		public void setRefreshCodeLenses(boolean isRefreshCodeLenses) {
+			this.isRefreshCodeLenses = isRefreshCodeLenses;
+			return;
+		}
 
 		public SaveContext(Object settings) {
 			super(settings);
@@ -588,6 +599,9 @@ public class XMLTextDocumentService implements TextDocumentService {
 	void doSave(SaveContext context) {
 		getXMLLanguageService().doSave(context);
 		context.triggerValidationIfNeeded();
+		if (context.isRefreshCodeLenses()) {
+			xmlLanguageServer.getLanguageClient().refreshCodeLenses();
+		}
 	}
 
 	private void triggerValidationFor(Collection<ModelTextDocument<DOMDocument>> documents) {
