@@ -16,7 +16,9 @@ import static org.eclipse.lemminx.XMLAssert.r;
 import static org.eclipse.lemminx.XMLAssert.testCodeLensFor;
 import static org.eclipse.lemminx.client.ClientCommands.OPEN_BINDING_WIZARD;
 import static org.eclipse.lemminx.client.ClientCommands.OPEN_URI;
+import static org.eclipse.lemminx.client.ClientCommands.UPDATE_CONFIGURATION;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.function.Consumer;
 
@@ -26,6 +28,7 @@ import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLFileAssociation;
 import org.eclipse.lemminx.services.XMLLanguageService;
+import org.eclipse.lemminx.utils.FilesUtils;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -190,6 +193,66 @@ public class AssociateGrammarCodeLensExtensionsTest extends AbstractCacheBasedTe
 				Collections.singletonList(CodeLensKind.OpenUri), //
 				configuration, //
 				cl(r(0, 0, 0, 0), " (with file association)", OPEN_URI));
+	}
+
+	public void unregisterCatalog() throws BadLocationException, IOException {
+		Consumer<XMLLanguageService> configuration = ls -> {
+			ContentModelManager contentModelManager = ls.getComponent(ContentModelManager.class);
+			contentModelManager.setCatalogs(new String[] { "src/test/resources/catalogs/catalog.xml" });
+		};
+
+		String xml = FilesUtils.readString(FilesUtils.getPath("src/test/resources/catalogs/catalog.xml"));
+
+		testCodeLensFor(xml, "src/test/resources/catalogs/catalog.xml", new XMLLanguageService(), //
+				Collections.singletonList(CodeLensKind.OpenUri), //
+				configuration, //
+				cl(r(0, 0, 0, 0), "urn:oasis:names:tc:entity:xmlns:xml:catalog (with embedded catalog.xsd)", OPEN_URI),
+				cl(r(1, 1, 1, 8), "Unregister Catalog", UPDATE_CONFIGURATION));
+	}
+
+	@Test
+	public void registerCatalogEmptyCatalog() throws BadLocationException, IOException {
+
+		String xml = FilesUtils.readString(FilesUtils.getPath("src/test/resources/catalogs/catalog.xml"));
+
+		testCodeLensFor(xml, "src/test/resources/catalogs/catalog.xml", new XMLLanguageService(), //
+				Collections.singletonList(CodeLensKind.OpenUri), //
+				cl(r(0, 0, 0, 0), "urn:oasis:names:tc:entity:xmlns:xml:catalog (with embedded catalog.xsd)", OPEN_URI),
+				cl(r(1, 1, 1, 8), "Register Catalog", UPDATE_CONFIGURATION));
+	}
+
+	@Test
+	public void registerCatalogWithOtherExistingCatalog() throws BadLocationException, IOException {
+		Consumer<XMLLanguageService> configuration = ls -> {
+			ContentModelManager contentModelManager = ls.getComponent(ContentModelManager.class);
+			contentModelManager.setCatalogs(new String[] { "src/test/resources/catalogs/catalog-public.xml" });
+		};
+
+		String xml = FilesUtils.readString(FilesUtils.getPath("src/test/resources/catalogs/catalog.xml"));
+
+		testCodeLensFor(xml, "src/test/resources/catalogs/catalog.xml", new XMLLanguageService(), //
+				Collections.singletonList(CodeLensKind.OpenUri), //
+				configuration, //
+				cl(r(0, 0, 0, 0), "urn:oasis:names:tc:entity:xmlns:xml:catalog (with embedded catalog.xsd)", OPEN_URI),
+				cl(r(1, 1, 1, 8), "Register Catalog", UPDATE_CONFIGURATION));
+	}
+
+	@Test
+	public void unregisterCatalogWithExistingCatalog() throws BadLocationException, IOException {
+		Consumer<XMLLanguageService> configuration = ls -> {
+			ContentModelManager contentModelManager = ls.getComponent(ContentModelManager.class);
+			contentModelManager.setCatalogs(new String[] { //
+					"src/test/resources/catalogs/catalog-public.xml", //
+					"src/test/resources/catalogs/catalog.xml" });
+		};
+
+		String xml = FilesUtils.readString(FilesUtils.getPath("src/test/resources/catalogs/catalog.xml"));
+
+		testCodeLensFor(xml, "src/test/resources/catalogs/catalog.xml", new XMLLanguageService(), //
+				Collections.singletonList(CodeLensKind.OpenUri), //
+				configuration, //
+				cl(r(0, 0, 0, 0), "urn:oasis:names:tc:entity:xmlns:xml:catalog (with embedded catalog.xsd)", OPEN_URI),
+				cl(r(1, 1, 1, 8), "Unregister Catalog", UPDATE_CONFIGURATION));
 	}
 
 	private static XMLFileAssociation[] createXSDAssociationsNoNamespaceSchemaLocationLike(String baseSystemId) {

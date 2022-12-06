@@ -14,6 +14,8 @@ package org.eclipse.lemminx.extensions.contentmodel.participants;
 
 import static org.eclipse.lemminx.client.ClientCommands.OPEN_BINDING_WIZARD;
 import static org.eclipse.lemminx.client.ClientCommands.OPEN_URI;
+import static org.eclipse.lemminx.client.ClientCommands.UPDATE_CONFIGURATION;
+
 import static org.eclipse.lemminx.extensions.contentmodel.commands.CheckBoundGrammarCommand.canBindWithGrammar;
 
 import java.util.Arrays;
@@ -21,6 +23,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.lemminx.client.CodeLensKind;
+import org.eclipse.lemminx.commons.config.ConfigurationItemEdit;
+import org.eclipse.lemminx.commons.config.ConfigurationItemEditType;
+import org.eclipse.lemminx.commons.config.ConfigurationItemValueKind;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMRange;
 import org.eclipse.lemminx.extensions.contentmodel.commands.AssociateGrammarCommand;
@@ -81,6 +86,8 @@ public class ContentModelCodeLensParticipant implements ICodeLensParticipant {
 		createReferencedGrammarLenses(request, lenses);
 		// "Bind to grammar/schema..."
 		createBindToGrammarSchemaLenses(request, lenses);
+		// Register/unregister catalog
+		createRegisterCatalogLenses(request, lenses);
 	}
 
 	private void createReferencedGrammarLenses(ICodeLensRequest request, List<CodeLens> lenses) {
@@ -104,6 +111,40 @@ public class ContentModelCodeLensParticipant implements ICodeLensParticipant {
 		Set<ReferencedGrammarInfo> referencedGrammarInfos = contentModelManager.getReferencedGrammarInfos(document);
 		for (ReferencedGrammarInfo info : referencedGrammarInfos) {
 			lenses.add(createReferencedGrammarLens(info, range, canSupportOpenUri));
+		}
+	}
+
+	private void createRegisterCatalogLenses(ICodeLensRequest request, List<CodeLens> lenses) {
+		DOMDocument document = request.getDocument();
+		if (!DOMUtils.isCatalog(document)) {
+			return;
+		}
+		String documentURI = contentModelManager.expandSystemId(document.getDocumentURI());
+		Range range = XMLPositionUtility.selectRootStartTag(document);
+		String[] catalogs = contentModelManager.getCatalogs();
+		if (catalogs == null || !Arrays.asList(catalogs).contains(documentURI)) {
+			// When a catalog is not registered in settings.json, [Register Catalog]
+			// CodeLens appears:
+
+			// [Register Catalog]
+			// <catalog ...>
+			ConfigurationItemEdit configurationItemEdit = new ConfigurationItemEdit("xml.catalogs",
+					documentURI, ConfigurationItemEditType.Add, ConfigurationItemValueKind.File);
+
+			Command command = new Command("Register Catalog", UPDATE_CONFIGURATION,
+					Arrays.asList(configurationItemEdit));
+			lenses.add(new CodeLens(range, command, null));
+		} else {
+			// When a catalog is already registered in settings.json, [Unregister Catalog]
+			// CodeLens appears:
+
+			// [Unregister Catalog]
+			// <catalog ...>
+			ConfigurationItemEdit configurationItemEdit = new ConfigurationItemEdit("xml.catalogs",
+					documentURI, ConfigurationItemEditType.Delete, ConfigurationItemValueKind.File);
+			Command command = new Command("Unregister Catalog", UPDATE_CONFIGURATION,
+					Arrays.asList(configurationItemEdit));
+			lenses.add(new CodeLens(range, command, null));
 		}
 	}
 

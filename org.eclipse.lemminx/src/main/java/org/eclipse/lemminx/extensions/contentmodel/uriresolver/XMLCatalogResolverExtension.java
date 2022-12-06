@@ -109,7 +109,7 @@ public class XMLCatalogResolverExtension implements URIResolverExtension {
 		return !Objects.equals(oldCatalogs, newCatalogs);
 	}
 
-	private String expandSystemId(String path) {
+	public String expandSystemId(String path) {
 		try {
 			return XMLEntityManager.expandSystemId(path, rootUri, false);
 		} catch (MalformedURIException e) {
@@ -128,5 +128,15 @@ public class XMLCatalogResolverExtension implements URIResolverExtension {
 		if (catalogResolver != null) {
 			setCatalogs(catalogResolver.getCatalogList());
 		}
+	}
+
+	/**
+	 * Get the XML catalogs.
+	 */
+	public String[] getCatalogs() {
+		if (catalogResolver != null) {
+			return catalogResolver.getCatalogList();
+		}
+		return null;
 	}
 }
