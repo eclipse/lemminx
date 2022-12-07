@@ -11,33 +11,22 @@
 *******************************************************************************/
 package org.eclipse.lemminx.extensions.contentmodel.commands;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.eclipse.lemminx.XMLAssert.assertSurroundWith;
 
-import java.util.Arrays;
-import java.util.concurrent.ExecutionException;
-
-import org.eclipse.lemminx.MockXMLLanguageServer;
-import org.eclipse.lemminx.commons.BadLocationException;
-import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.extensions.contentmodel.BaseFileTempTest;
 import org.eclipse.lemminx.extensions.contentmodel.commands.SurroundWithCommand.SurroundWithKind;
-import org.eclipse.lemminx.extensions.contentmodel.commands.SurroundWithCommand.SurroundWithResponse;
-import org.eclipse.lemminx.services.format.TextEditUtils;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.junit.jupiter.api.Test;
 
 /**
- * Tests with {@link SurroundWithCommand} command
+ * Tests with {@link SurroundWithCommand} command with Tags
  *
  */
-public class SurroundWithCommandTest extends BaseFileTempTest {
+public class SurroundWithTagsCommandTest extends BaseFileTempTest {
 
 	// --------------- Surround with Tags
 
 	@Test
-	public void surroundTextWithTags() throws Exception {
+	public void surroundInText() throws Exception {
 		String xml = "<foo>\r\n" + //
 				"	s|ome te|xt\r\n" + //
 				"</foo>";
@@ -48,18 +37,18 @@ public class SurroundWithCommandTest extends BaseFileTempTest {
 	}
 
 	@Test
-	public void surroundTextWithTagsAndEmptySelection() throws Exception {
-		String xml = "<foo>\r\n" + //
-				"	s||ome text\r\n" + //
+	public void surroundInStartTag() throws Exception {
+		String xml = "<fo|o>\r\n" + //
+				"	som|e text\r\n" + //
 				"</foo>";
-		String expected = "<foo>\r\n" + //
-				"	s<${1:}>$2</${1:}>$0ome text\r\n" + //
+		String expected = "<fo<${1:}>o>\r\n" + //
+				"	som</${1:}>$0e text\r\n" + //
 				"</foo>";
 		assertSurroundWith(xml, SurroundWithKind.tags, true, expected);
 	}
 
 	@Test
-	public void surroundElementWithTags() throws Exception {
+	public void surroundElement() throws Exception {
 		String xml = "<foo>\r\n" + //
 				"	|<bar></bar>|\r\n" + //
 				"</foo>";
@@ -94,55 +83,66 @@ public class SurroundWithCommandTest extends BaseFileTempTest {
 		assertSurroundWith(xml, SurroundWithKind.tags, true, expected);
 	}
 
-	// --------------- Surround with Comments
-
 	@Test
-	public void surroundTextWithComments() throws Exception {
+	public void surroundEmptySelectionInText() throws Exception {
 		String xml = "<foo>\r\n" + //
-				"	s|ome te|xt\r\n" + //
+				"	s|ome text\r\n" + //
 				"</foo>";
 		String expected = "<foo>\r\n" + //
-				"	s<!--ome te-->$0xt\r\n" + //
+				"	s<${1:}>$2</${1:}>$0ome text\r\n" + //
 				"</foo>";
-		assertSurroundWith(xml, SurroundWithKind.comments, true, expected);
+		assertSurroundWith(xml, SurroundWithKind.tags, true, expected);
 	}
-
-	// --------------- Surround with CDATA
 
 	@Test
-	public void surroundTextWithCDATA() throws Exception {
+	public void surroundEmptySelectionInStartTag() throws Exception {
+		String xml = "<f|oo>\r\n" + //
+				"	some text\r\n" + //
+				"</foo>";
+		String expected = "<${1:}><foo>\r\n" + //
+				"	some text\r\n" + //
+				"</foo></${1:}>$0";
+		assertSurroundWith(xml, SurroundWithKind.tags, true, expected);
+	}
+
+	@Test
+	public void surroundEmptySelectionInStartTag2() throws Exception {
 		String xml = "<foo>\r\n" + //
-				"	s|ome te|xt\r\n" + //
+				"	<b|ar></bar>\r\n" + //
 				"</foo>";
 		String expected = "<foo>\r\n" + //
-				"	s<![CDATA[ome te]]>$0xt\r\n" + //
+				"	<${1:}><bar></bar></${1:}>$0\r\n" + //
 				"</foo>";
-		assertSurroundWith(xml, SurroundWithKind.cdata, true, expected);
+		assertSurroundWith(xml, SurroundWithKind.tags, true, expected);
 	}
 
-	private static void assertSurroundWith(String xml, SurroundWithKind kind, boolean snippetsSupported,
-			String expected) throws BadLocationException, InterruptedException, ExecutionException {
-		MockXMLLanguageServer languageServer = new MockXMLLanguageServer();
-
-		int rangeStart = xml.indexOf('|');
-		int rangeEnd = xml.lastIndexOf('|');
-		// remove '|'
-		xml = xml.substring(0, rangeStart) + xml.substring(rangeStart + 1, rangeEnd)
-				+ xml.substring(rangeEnd + 1);
-		TextDocument document = new TextDocument(xml, "");
-		Position startPos = document.positionAt(rangeStart);
-		Position endPos = document.positionAt(rangeEnd - 1);
-		Range selection = new Range(startPos, endPos);
-
-		TextDocumentIdentifier xmlIdentifier = languageServer.didOpen("src/test/resources/test.xml", xml);
-
-		// Execute surround with tags command
-		SurroundWithResponse response = (SurroundWithResponse) languageServer
-				.executeCommand(SurroundWithCommand.COMMAND_ID, xmlIdentifier, selection, kind.name(),
-						snippetsSupported)
-				.get();
-
-		String actual = TextEditUtils.applyEdits(document, Arrays.asList(response.getStart(), response.getEnd()));
-		assertEquals(expected, actual);
+	@Test
+	public void surroundEmptySelectionInEndTag() throws Exception {
+		String xml = "<foo>\r\n" + //
+				"	some text\r\n" + //
+				"</fo|o>";
+		String expected = "<${1:}><foo>\r\n" + //
+				"	some text\r\n" + //
+				"</foo></${1:}>$0";
+		assertSurroundWith(xml, SurroundWithKind.tags, true, expected);
 	}
+
+	@Test
+	public void surroundEmptySelectionInEndTag2() throws Exception {
+		String xml = "<foo>\r\n" + //
+				"	<bar></b|ar>\r\n" + //
+				"</foo>";
+		String expected = "<foo>\r\n" + //
+				"	<${1:}><bar></bar></${1:}>$0\r\n" + //
+				"</foo>";
+		assertSurroundWith(xml, SurroundWithKind.tags, true, expected);
+	}
+
+	@Test
+	public void surroundEmptySelectionInEmptyText() throws Exception {
+		String xml = "|";
+		String expected = "<${1:}>$2</${1:}>$0";
+		assertSurroundWith(xml, SurroundWithKind.tags, true, expected);
+	}
+
 }

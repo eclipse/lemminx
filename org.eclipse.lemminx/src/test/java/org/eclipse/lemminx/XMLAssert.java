@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -42,6 +43,9 @@ import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.customservice.AutoCloseTagResponse;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMParser;
+import org.eclipse.lemminx.extensions.contentmodel.commands.SurroundWithCommand;
+import org.eclipse.lemminx.extensions.contentmodel.commands.SurroundWithCommand.SurroundWithKind;
+import org.eclipse.lemminx.extensions.contentmodel.commands.SurroundWithCommand.SurroundWithResponse;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
 import org.eclipse.lemminx.extensions.contentmodel.settings.SchemaEnabled;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLSchemaSettings;
@@ -93,6 +97,7 @@ import org.eclipse.lsp4j.SelectionRange;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.SymbolKind;
 import org.eclipse.lsp4j.TextDocumentEdit;
+import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
@@ -1805,6 +1810,36 @@ public class XMLAssert {
 		selectionRange.setRange(ranges.get(0));
 		selectionRange.setParent(sr(ranges.subList(1, ranges.size())));
 		return selectionRange;
+	}
+	
+	public static void assertSurroundWith(String xml, SurroundWithKind kind, boolean snippetsSupported,
+			String expected) throws BadLocationException, InterruptedException, ExecutionException {
+		MockXMLLanguageServer languageServer = new MockXMLLanguageServer();
+
+		int rangeStart = xml.indexOf('|');
+		int rangeEnd = xml.lastIndexOf('|');
+		// remove '|'
+		StringBuilder x = new StringBuilder(xml.substring(0, rangeStart));
+		if (rangeEnd > rangeStart) {
+			x.append(xml.substring(rangeStart + 1, rangeEnd));
+		}
+		x.append(xml.substring(Math.min(rangeEnd + 1, xml.length())));
+
+		TextDocument document = new TextDocument(x.toString(), "");
+		Position startPos = document.positionAt(rangeStart);
+		Position endPos = rangeStart == rangeEnd ? startPos : document.positionAt(rangeEnd - 1);
+		Range selection = new Range(startPos, endPos);
+
+		TextDocumentIdentifier xmlIdentifier = languageServer.didOpen("src/test/resources/test.xml", x.toString());
+
+		// Execute surround with tags command
+		SurroundWithResponse response = (SurroundWithResponse) languageServer
+				.executeCommand(SurroundWithCommand.COMMAND_ID, xmlIdentifier, selection, kind.name(),
+						snippetsSupported)
+				.get();
+
+		String actual = TextEditUtils.applyEdits(document, Arrays.asList(response.getStart(), response.getEnd()));
+		assertEquals(expected, actual);
 	}
 
 }
