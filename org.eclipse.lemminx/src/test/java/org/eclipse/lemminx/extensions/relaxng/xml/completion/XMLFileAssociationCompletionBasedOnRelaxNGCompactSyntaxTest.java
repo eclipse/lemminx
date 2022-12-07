@@ -14,52 +14,66 @@ package org.eclipse.lemminx.extensions.relaxng.xml.completion;
 import static org.eclipse.lemminx.XMLAssert.c;
 import static org.eclipse.lemminx.XMLAssert.te;
 
+import java.util.function.Consumer;
+
+import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
-import org.eclipse.lemminx.extensions.contentmodel.BaseFileTempTest;
+import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
+import org.eclipse.lemminx.extensions.contentmodel.settings.XMLFileAssociation;
 import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lsp4j.CompletionItem;
 import org.junit.jupiter.api.Test;
 
 /**
- * XML completion tests based on RelaxNG.
- *
+ * XML file associations completion tests with RelaxNG compact syntax.
  */
-public class XMLCompletionBasedOnRelaxNGCompactSyntaxTest extends BaseFileTempTest {
+public class XMLFileAssociationCompletionBasedOnRelaxNGCompactSyntaxTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void completionInRoot() throws BadLocationException {
 		// completion on <|
-		String xml = "<?xml-model href=\"addressBook.rnc\" ?>\r\n" + //
-				"<|";
+		String xml = "<|";
 		testCompletionFor(xml, //
-				c("addressBook", te(1, 0, 1, 1, "<addressBook></addressBook>"), "<addressBook"));
+				c("addressBook", te(0, 0, 0, 1, "<addressBook></addressBook>"), "<addressBook"));
 	}
 
 	@Test
 	public void completionForElements() throws BadLocationException {
 		// completion on <|
-		String xml = "<?xml-model href=\"addressBook.rnc\" ?>\r\n" + //
-				"<addressBook>\r\n" + //
+		String xml = "<addressBook>\r\n" + //
 				"<|\r\n" + //
 				"</addressBook>";
 		testCompletionFor(xml, //
-				c("card", te(2, 0, 2, 1, "<card></card>"), "<card"));
+				c("card", te(1, 0, 1, 1, "<card></card>"), "<card"));
 	}
 
 	@Test
 	public void completionForAttributeNames() throws BadLocationException {
 		// completion on <|
-		String xml = "<?xml-model href=\"addressBook.rnc\" ?>\r\n" + //
-				"<addressBook>\r\n" + //
+		String xml = "<addressBook>\r\n" + //
 				"<card |></card>\r\n" + //
 				"</addressBook>";
 		testCompletionFor(xml, //
-				c("id", te(2, 6, 2, 6, "id=\"\""), "id"));
+				c("id", te(1, 6, 1, 6, "id=\"\""), "id"));
 	}
 
 	private static void testCompletionFor(String value, CompletionItem... expectedItems) throws BadLocationException {
-		XMLAssert.testCompletionFor(new XMLLanguageService(), value, null, null, "src/test/resources/relaxng/test.xml",
+		Consumer<XMLLanguageService> configuration = ls -> {
+			ContentModelManager contentModelManager = ls.getComponent(ContentModelManager.class);
+			contentModelManager
+					.setFileAssociations(createXMLFileAssociation("src/test/resources/relaxng/"));
+		};
+		XMLAssert.testCompletionFor(new XMLLanguageService(), value, null, configuration,
+				"file:///test/addressBook.xml",
 				null, true, expectedItems);
 	}
+
+	private static XMLFileAssociation[] createXMLFileAssociation(String baseSystemId) {
+		XMLFileAssociation addressBook = new XMLFileAssociation();
+		addressBook.setPattern("**/addressBook.xml");
+		addressBook.setSystemId(baseSystemId + "addressBook.rnc");
+		return new XMLFileAssociation[] { addressBook };
+	}
+
 }

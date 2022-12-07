@@ -122,7 +122,7 @@ public class XMLValidator {
 			}
 			parser.setFeature("http://xml.org/sax/features/validation", hasGrammar); //$NON-NLS-1$
 
-			boolean namespacesValidationEnabled = isNamespacesValidationEnabled(document, validationSettings);
+			boolean namespacesValidationEnabled = isNamespacesValidationEnabled(document, validationSettings, parser);
 			parser.setFeature("http://xml.org/sax/features/namespace-prefixes", false); //$NON-NLS-1$
 			parser.setFeature("http://xml.org/sax/features/namespaces", namespacesValidationEnabled); //$NON-NLS-1$
 
@@ -146,7 +146,14 @@ public class XMLValidator {
 	}
 
 	private static boolean isNamespacesValidationEnabled(DOMDocument document,
-			XMLValidationSettings validationSettings) {
+			XMLValidationSettings validationSettings, SAXParser reader) {
+		try {
+			if (reader.getProperty(IExternalGrammarLocationProvider.RELAXNG) != null) {
+				return true;
+			}
+		} catch (Exception e) {
+			// Do nothing		
+			}
 		if (validationSettings == null) {
 			return true;
 		}
@@ -204,15 +211,15 @@ public class XMLValidator {
 	/**
 	 * Returns true if the given DOM document declares a xsi:schemaLocation hint for
 	 * the document root element is valid and false otherwise.
-	 * 
+	 *
 	 * The xsi:schemaLocation is valid if:
-	 * 
+	 *
 	 * <ul>
 	 * <li>xsi:schemaLocation defines an URI for the namespace of the document
 	 * element.</li>
 	 * <li>the URI can be opened</li>
 	 * </ul>
-	 * 
+	 *
 	 * @param document the DOM document.
 	 * @return true if the given DOM document declares a xsi:schemaLocation hint for
 	 *         the document root element is valid and false otherwise.
@@ -255,14 +262,14 @@ public class XMLValidator {
 	/**
 	 * Returns true if the given DOM document declares a
 	 * xsi:noNamespaceSchemaLocation which is valid and false otherwise.
-	 * 
+	 *
 	 * The xsi:noNamespaceSchemaLocation is valid if:
-	 * 
+	 *
 	 * <ul>
 	 * <li>xsi:noNamespaceSchemaLocation defines an URI.</li>
 	 * <li>the URI can be opened</li>
 	 * </ul>
-	 * 
+	 *
 	 * @param document the DOM document.
 	 * @return true if the given DOM document declares a xsi:schemaLocation hint for
 	 *         the document root element is valid and false otherwise.
@@ -320,7 +327,7 @@ public class XMLValidator {
 
 	/**
 	 * Returns true is DTD validation must be disabled and false otherwise.
-	 * 
+	 *
 	 * @param document the DOM document
 	 * @return true is DTD validation must be disabled and false otherwise.
 	 */
@@ -339,7 +346,7 @@ public class XMLValidator {
 		// because they are not declared in the DOCTYPE.
 		// In this case, DTD validation must be disabled.
 		if (!document.hasDTD()) {
-			return false;
+			return true;
 		}
 		DOMDocumentType docType = document.getDoctype();
 		if (docType.getKindNode() != null) {
@@ -351,7 +358,7 @@ public class XMLValidator {
 
 	/**
 	 * Warn if XML document is not bound to a grammar according the settings
-	 * 
+	 *
 	 * @param document           the XML document
 	 * @param diagnostics        the diagnostics list to populate
 	 * @param validationSettings the settings to use to know the severity of warn.
