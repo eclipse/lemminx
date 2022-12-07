@@ -28,12 +28,13 @@ import org.eclipse.lemminx.services.extensions.commands.AbstractDOMDocumentComma
 import org.eclipse.lemminx.services.extensions.commands.ArgumentsUtils;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.ExecuteCommandParams;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
- * XML Command "xml.refactor.surround.with"  to support surround:
+ * XML Command "xml.refactor.surround.with" to support surround:
  * 
  * <ul>
  * <li>Surround with Tags (Wrap)</li>
@@ -93,12 +94,30 @@ public class SurroundWithCommand extends AbstractDOMDocumentCommandHandler {
 		Range selection = ArgumentsUtils.getArgAt(params, 1, Range.class);
 		SurroundWithKind kind = SurroundWithKind.get(ArgumentsUtils.getArgAt(params, 2, String.class));
 		boolean snippetsSupported = ArgumentsUtils.getArgAt(params, 3, Boolean.class);
-		
+
 		// Surround process
 		boolean emptySelection = selection.getStart().equals(selection.getEnd());
 		StringBuilder startText = null;
 		StringBuilder endText = null;
+		Position startPos = selection.getStart();
+		Position endPos = selection.getEnd();
 		String prefix = null;
+
+		int offset = document.offsetAt(selection.getStart());
+		DOMNode node = document.findNodeAt(offset);
+
+		// Adjust selection if need
+		boolean adjusted = false;
+		if (emptySelection && node.isElement()) {
+			DOMElement element = (DOMElement) node;
+			if (element.isInStartTag(offset) || element.isInEndTag(offset)) {
+				startPos = document.positionAt(element.getStart());
+				endPos = document
+						.positionAt(element.isEndTagClosed() ? element.getEndTagCloseOffset() + 1 : element.getEnd());
+				adjusted = true;
+			}
+		}
+
 		switch (kind) {
 			case cdata:
 				startText = new StringBuilder("<![CDATA[");
@@ -121,8 +140,6 @@ public class SurroundWithCommand extends AbstractDOMDocumentCommandHandler {
 				}
 				break;
 			default:
-				int offset = document.offsetAt(selection.getStart());
-				DOMNode node = document.findNodeAt(offset);
 				List<String> tags = getTags(node, prefix, offset);
 				String tag = tags.isEmpty() ? "" : tags.get(0);
 
@@ -138,7 +155,7 @@ public class SurroundWithCommand extends AbstractDOMDocumentCommandHandler {
 					startText.append(tag);
 				}
 				startText.append(">");
-				if (emptySelection && snippetsSupported) {
+				if (!adjusted && emptySelection && snippetsSupported) {
 					SnippetsBuilder.tabstops(2, startText);
 				}
 
@@ -154,8 +171,8 @@ public class SurroundWithCommand extends AbstractDOMDocumentCommandHandler {
 					SnippetsBuilder.tabstops(0, endText);
 				}
 		}
-		TextEdit start = new TextEdit(new Range(selection.getStart(), selection.getStart()), startText.toString());
-		TextEdit end = new TextEdit(new Range(selection.getEnd(), selection.getEnd()), endText.toString());
+		TextEdit start = new TextEdit(new Range(startPos, startPos), startText.toString());
+		TextEdit end = new TextEdit(new Range(endPos, endPos), endText.toString());
 		return new SurroundWithResponse(start, end);
 	}
 
