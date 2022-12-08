@@ -33,6 +33,7 @@ import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.Command;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
@@ -91,7 +92,14 @@ public class ContentModelCodeLensParticipant implements ICodeLensParticipant {
 		// The DOM document is bound with a schema/grammar, display the referenced
 		// grammars as Codelens.
 		boolean canSupportOpenUri = canSupportOpenUri(request);
-		Range range = XMLPositionUtility.createRange((DOMRange) document.getFirstChild());
+		Range range;
+		// If the grammar is bound using a file association, then the file could be empty
+		if (document.getFirstChild() == null) {
+			range = new Range();
+			range.setStart(new Position(0, 0));
+		} else {
+			range = XMLPositionUtility.createRange((DOMRange) document.getFirstChild());
+		}
 		range.setEnd(range.getStart());
 		Set<ReferencedGrammarInfo> referencedGrammarInfos = contentModelManager.getReferencedGrammarInfos(document);
 		for (ReferencedGrammarInfo info : referencedGrammarInfos) {
