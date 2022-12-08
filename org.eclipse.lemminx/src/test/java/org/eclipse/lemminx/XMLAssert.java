@@ -1811,10 +1811,17 @@ public class XMLAssert {
 		selectionRange.setParent(sr(ranges.subList(1, ranges.size())));
 		return selectionRange;
 	}
-	
+
 	public static void assertSurroundWith(String xml, SurroundWithKind kind, boolean snippetsSupported,
+	String expected) throws BadLocationException, InterruptedException, ExecutionException  {
+		assertSurroundWith(xml, kind, snippetsSupported, (service) -> {}, "src/test/resources/test.xml", expected);
+	}
+
+	public static void assertSurroundWith(String xml, SurroundWithKind kind, boolean snippetsSupported, Consumer<XMLLanguageService> configuration, String uri,
 			String expected) throws BadLocationException, InterruptedException, ExecutionException {
 		MockXMLLanguageServer languageServer = new MockXMLLanguageServer();
+
+		configuration.accept(languageServer.getXMLLanguageService());
 
 		int rangeStart = xml.indexOf('|');
 		int rangeEnd = xml.lastIndexOf('|');
@@ -1830,7 +1837,7 @@ public class XMLAssert {
 		Position endPos = rangeStart == rangeEnd ? startPos : document.positionAt(rangeEnd - 1);
 		Range selection = new Range(startPos, endPos);
 
-		TextDocumentIdentifier xmlIdentifier = languageServer.didOpen("src/test/resources/test.xml", x.toString());
+		TextDocumentIdentifier xmlIdentifier = languageServer.didOpen(uri, x.toString());
 
 		// Execute surround with tags command
 		SurroundWithResponse response = (SurroundWithResponse) languageServer

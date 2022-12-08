@@ -13,8 +13,13 @@ package org.eclipse.lemminx.extensions.contentmodel.commands;
 
 import static org.eclipse.lemminx.XMLAssert.assertSurroundWith;
 
+import java.util.function.Consumer;
+
 import org.eclipse.lemminx.extensions.contentmodel.BaseFileTempTest;
 import org.eclipse.lemminx.extensions.contentmodel.commands.SurroundWithCommand.SurroundWithKind;
+import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
+import org.eclipse.lemminx.extensions.contentmodel.settings.XMLFileAssociation;
+import org.eclipse.lemminx.services.XMLLanguageService;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -145,4 +150,35 @@ public class SurroundWithTagsCommandTest extends BaseFileTempTest {
 		assertSurroundWith(xml, SurroundWithKind.tags, true, expected);
 	}
 
+	@Test
+	public void surroundEmptySelectionInEmptyDocumentWithFileAssociation() throws Exception {
+		Consumer<XMLLanguageService> configuration = (service) -> {
+			service.initializeIfNeeded();
+			ContentModelManager cmManager = (ContentModelManager) service.getComponent(ContentModelManager.class);
+			cmManager.setRootURI("src/test/resources/xsd/");
+			cmManager.setFileAssociations(createXSDAssociationsNoNamespaceSchemaLocationLike(""));
+		};
+
+		String xml = "|";
+		String expected = "<${1|resources|}>$2</${1:resources}>$0";
+		assertSurroundWith(xml, SurroundWithKind.tags, true, configuration, "file:///test/resources.xml", expected);
+	}
+
+	@Test
+	public void surroundEmptySelectionInEmptyDocumentWithTwoSchema() throws Exception {
+		String xml = "<?xml-model href=\"relaxng/tei_all.rng\" ?>\r\n" + //
+				"<?xml-model href=\"relaxng/simple.rng\" ?>\r\n" + //
+				"|";
+		String expected = "<?xml-model href=\"relaxng/tei_all.rng\" ?>\r\n" + //
+				"<?xml-model href=\"relaxng/simple.rng\" ?>\r\n" + //
+				"<${1|TEI,rootelt,teiCorpus|}>$2</${1:TEI}>$0";
+		assertSurroundWith(xml, SurroundWithKind.tags, true, expected);
+	}
+
+	private static XMLFileAssociation[] createXSDAssociationsNoNamespaceSchemaLocationLike(String baseSystemId) {
+		XMLFileAssociation resources = new XMLFileAssociation();
+		resources.setPattern("**/*resources*.xml");
+		resources.setSystemId(baseSystemId + "resources.xsd");
+		return new XMLFileAssociation[] { resources };
+	}
 }
