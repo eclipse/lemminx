@@ -168,6 +168,30 @@ public class AssociateGrammarCodeLensExtensionsTest extends AbstractCacheBasedTe
 				cl(r(0, 0, 0, 0), " (with file association)", OPEN_URI));
 	}
 
+	@Test
+	public void referencedGrammarUsingFileAssociationEmptyDocument() throws BadLocationException {
+		Consumer<XMLLanguageService> configuration = ls -> {
+			ContentModelManager contentModelManager = ls.getComponent(ContentModelManager.class);
+			// Use root URI which ends with slash
+			contentModelManager.setRootURI("src/test/resources/xsd/");
+			contentModelManager.setFileAssociations(createXSDAssociationsNoNamespaceSchemaLocationLike(""));
+		};
+
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+
+		testCodeLensFor(xml, "file:///test/resources.xml", new XMLLanguageService(), //
+				Collections.singletonList(CodeLensKind.OpenUri), //
+				configuration, //
+				cl(r(0, 0, 0, 0), " (with file association)", OPEN_URI));
+
+		xml = "";
+
+		testCodeLensFor(xml, "file:///test/resources.xml", new XMLLanguageService(), //
+				Collections.singletonList(CodeLensKind.OpenUri), //
+				configuration, //
+				cl(r(0, 0, 0, 0), " (with file association)", OPEN_URI));
+	}
+
 	private static XMLFileAssociation[] createXSDAssociationsNoNamespaceSchemaLocationLike(String baseSystemId) {
 		XMLFileAssociation resources = new XMLFileAssociation();
 		resources.setPattern("**/*resources*.xml");
