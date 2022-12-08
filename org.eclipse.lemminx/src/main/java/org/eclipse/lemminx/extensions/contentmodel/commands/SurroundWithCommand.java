@@ -35,7 +35,7 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
  * XML Command "xml.refactor.surround.with" to support surround:
- * 
+ *
  * <ul>
  * <li>Surround with Tags (Wrap)</li>
  * <li>Surround with Comments</li>
@@ -180,6 +180,14 @@ public class SurroundWithCommand extends AbstractDOMDocumentCommandHandler {
 		DOMElement parentElement = node.isElement() ? (DOMElement) node : node.getParentElement();
 		Collection<CMDocument> cmDocuments = parentElement != null ? contentModelManager.findCMDocument(parentElement)
 				: contentModelManager.findCMDocument(node.getOwnerDocument(), null);
+		if (parentElement == null) {
+			return cmDocuments.stream() //
+					.flatMap(cmDocument -> cmDocument.getElements().stream()) //
+					.map(decl -> decl.getName(prefix)) //
+					.distinct() //
+					.sorted() //
+					.collect(Collectors.toList());
+		}
 		for (CMDocument cmDocument : cmDocuments) {
 			CMElementDeclaration elementDeclaration = cmDocument.findCMElement(parentElement);
 			if (elementDeclaration != null) {
