@@ -116,7 +116,7 @@ public class XMLValidator {
 			parser.setFeature("http://apache.org/xml/features/validation/schema", schemaValidationEnabled); //$NON-NLS-1$
 
 			boolean hasGrammar = document.hasDTD() || hasSchemaGrammar || (document.hasExternalGrammar()
-					&& !DOMUtils.isRelaxNG(document.getExternalGrammarFromNamespaceURI()));
+					&& !DOMUtils.isRelaxNGUri(document.getExternalGrammarFromNamespaceURI()));
 			if (hasSchemaGrammar && !schemaValidationEnabled) {
 				hasGrammar = false;
 			}
@@ -180,7 +180,7 @@ public class XMLValidator {
 	private static boolean hasRelaxNGReference(DOMDocument document) {
 		List<XMLModel> models = document.getXMLModels();
 		for (XMLModel xmlModel : models) {
-			if (DOMUtils.isRelaxNG(xmlModel.getHref())) {
+			if (DOMUtils.isRelaxNGUri(xmlModel.getHref())) {
 				return true;
 			}
 		}
@@ -429,7 +429,7 @@ public class XMLValidator {
 			}
 		}
 		if (relaxng == null) {
-			relaxng = DOMUtils.isRelaxNG(document.getExternalGrammarFromNamespaceURI())
+			relaxng = DOMUtils.isRelaxNGUri(document.getExternalGrammarFromNamespaceURI())
 					? document.getExternalGrammarFromNamespaceURI()
 					: null;
 		}

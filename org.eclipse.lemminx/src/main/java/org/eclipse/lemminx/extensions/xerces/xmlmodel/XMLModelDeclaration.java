@@ -252,7 +252,7 @@ public class XMLModelDeclaration {
 	public static boolean isApplicableForRelaxNG(XMLModelDeclaration modelDeclaration) {
 		String href = modelDeclaration.getHref();
 		String schematypens = modelDeclaration.getSchematypens();
-		if (DOMUtils.isRelaxNG(href)) {
+		if (DOMUtils.isRelaxNGUri(href)) {
 			return schematypens == null || RELAXNG_SCHEMATYPENS.equals(schematypens);
 		}
 		return RELAXNG_SCHEMATYPENS.equals(schematypens);

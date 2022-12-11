@@ -14,10 +14,24 @@ package org.eclipse.lemminx.extensions.relaxng;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelProvider;
-import org.eclipse.lemminx.extensions.relaxng.grammar.RelaxNGURIResolverExtension;
+import org.eclipse.lemminx.extensions.relaxng.grammar.rng.RNGCodeLensParticipant;
+import org.eclipse.lemminx.extensions.relaxng.grammar.rng.RNGCompletionParticipant;
+import org.eclipse.lemminx.extensions.relaxng.grammar.rng.RNGDefinitionParticipant;
+import org.eclipse.lemminx.extensions.relaxng.grammar.rng.RNGDocumentLinkParticipant;
+import org.eclipse.lemminx.extensions.relaxng.grammar.rng.RNGHighlightingParticipant;
+import org.eclipse.lemminx.extensions.relaxng.grammar.rng.RNGReferenceParticipant;
+import org.eclipse.lemminx.extensions.relaxng.grammar.rng.RNGRenameParticipant;
+import org.eclipse.lemminx.extensions.relaxng.grammar.rng.RelaxNGURIResolverExtension;
 import org.eclipse.lemminx.extensions.relaxng.xml.contentmodel.CMRelaxNGContentModelProvider;
+import org.eclipse.lemminx.services.extensions.IDefinitionParticipant;
+import org.eclipse.lemminx.services.extensions.IDocumentLinkParticipant;
+import org.eclipse.lemminx.services.extensions.IHighlightingParticipant;
+import org.eclipse.lemminx.services.extensions.IReferenceParticipant;
+import org.eclipse.lemminx.services.extensions.IRenameParticipant;
 import org.eclipse.lemminx.services.extensions.IXMLExtension;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lemminx.services.extensions.codelens.ICodeLensParticipant;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionParticipant;
 import org.eclipse.lemminx.services.extensions.save.ISaveContext;
 import org.eclipse.lemminx.uriresolver.URIResolverExtension;
 import org.eclipse.lemminx.utils.DOMUtils;
@@ -31,7 +45,24 @@ public class RelaxNGPlugin implements IXMLExtension {
 	private ContentModelManager contentModelManager;
 	private URIResolverExtension uiResolver;
 
+	private final ICompletionParticipant completionParticipant;
+
+	private final IDefinitionParticipant definitionParticipant;
+
+	private final IReferenceParticipant referenceParticipant;
+	private final ICodeLensParticipant codeLensParticipant;
+	private final IHighlightingParticipant highlightingParticipant;
+	private final IRenameParticipant renameParticipant;
+	private final IDocumentLinkParticipant documentLinkParticipant;
+
 	public RelaxNGPlugin() {
+		completionParticipant = new RNGCompletionParticipant();
+		definitionParticipant = new RNGDefinitionParticipant();
+		referenceParticipant = new RNGReferenceParticipant();
+		codeLensParticipant = new RNGCodeLensParticipant();
+		highlightingParticipant = new RNGHighlightingParticipant();
+		renameParticipant = new RNGRenameParticipant();
+		documentLinkParticipant = new RNGDocumentLinkParticipant();
 	}
 
 	@Override
@@ -54,11 +85,27 @@ public class RelaxNGPlugin implements IXMLExtension {
 		ContentModelProvider modelProvider = new CMRelaxNGContentModelProvider(registry.getResolverExtensionManager());
 		this.contentModelManager = registry.getComponent(ContentModelManager.class);
 		this.contentModelManager.registerModelProvider(modelProvider);
+		// rng participant
+		registry.registerCompletionParticipant(completionParticipant);
+		registry.registerDefinitionParticipant(definitionParticipant);
+		registry.registerReferenceParticipant(referenceParticipant);
+		registry.registerCodeLensParticipant(codeLensParticipant);
+		registry.registerHighlightingParticipant(highlightingParticipant);
+		registry.registerRenameParticipant(renameParticipant);
+		registry.registerDocumentLinkParticipant(documentLinkParticipant);
 	}
 
 	@Override
 	public void stop(XMLExtensionsRegistry registry) {
 		registry.getResolverExtensionManager().unregisterResolver(uiResolver);
+		// rng participant
+		registry.unregisterCompletionParticipant(completionParticipant);
+		registry.unregisterDefinitionParticipant(definitionParticipant);
+		registry.unregisterReferenceParticipant(referenceParticipant);
+		registry.unregisterCodeLensParticipant(codeLensParticipant);
+		registry.unregisterHighlightingParticipant(highlightingParticipant);
+		registry.unregisterRenameParticipant(renameParticipant);
+		registry.unregisterDocumentLinkParticipant(documentLinkParticipant);
 	}
 
 	public ContentModelManager getContentModelManager() {
