@@ -43,7 +43,7 @@ public class XMLFileAssociation extends PathPatternMatcher {
 			if (DOMUtils.isXSD(systemId)) {
 				this.externalSchemaLocation.put(IExternalGrammarLocationProvider.NO_NAMESPACE_SCHEMA_LOCATION,
 						systemId);
-			} else if (DOMUtils.isRelaxNG(systemId)) {
+			} else if (DOMUtils.isRelaxNGUri(systemId)) {
 				this.externalSchemaLocation.put(IExternalGrammarLocationProvider.RELAXNG, systemId);
 			} else {
 				this.externalSchemaLocation.put(IExternalGrammarLocationProvider.DOCTYPE, systemId);

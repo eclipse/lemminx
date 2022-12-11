@@ -92,7 +92,7 @@ public class SchemaProvider {
 	}
 
 	private static SchemaReader getSchemaReader(String systemId) {
-		return DOMUtils.isRelaxNGCompactSyntax(systemId) ? MyCompactSchemaReader.getInstance()
+		return DOMUtils.isRelaxNGUriCompactSyntax(systemId) ? MyCompactSchemaReader.getInstance()
 				: MySAXSchemaReader.getInstance();
 	}
 

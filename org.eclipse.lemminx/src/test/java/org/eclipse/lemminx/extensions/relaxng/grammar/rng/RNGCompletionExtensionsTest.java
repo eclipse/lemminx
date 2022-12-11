@@ -9,7 +9,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lemminx.extensions.relaxng.grammar;
+package org.eclipse.lemminx.extensions.relaxng.grammar.rng;
 
 import static org.eclipse.lemminx.XMLAssert.CDATA_SNIPPETS;
 import static org.eclipse.lemminx.XMLAssert.COMMENT_SNIPPETS;
@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
  * XML completion tests for RelaxNG grammar.
  *
  */
-public class XMLCompletionBasedForRelaxNGGrammarTest extends BaseFileTempTest {
+public class RNGCompletionExtensionsTest extends BaseFileTempTest {
 
 	@Test
 	public void completionOnRoot() throws BadLocationException {
@@ -100,6 +100,59 @@ public class XMLCompletionBasedForRelaxNGGrammarTest extends BaseFileTempTest {
 				c("empty", te(7, 4, 7, 5, "<empty></empty>"), "<empty"), //
 				c("optional", te(7, 4, 7, 5, "<optional></optional>"), "<optional"), //
 				c("mixed", te(7, 4, 7, 5, "<mixed></mixed>"), "<mixed"));
+	}
+
+	@Test
+	public void completionOnRefNameAttribute() throws BadLocationException {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<grammar xmlns=\"http://relaxng.org/ns/structure/1.0\">\r\n" + //
+				"    <start>\r\n" + //
+				"        <element name=\"addressBook\">\r\n" + //
+				"            <zeroOrMore>\r\n" + //
+				"                <element name=\"card\">\r\n" + //
+				"                    <ref name=\"|\"/>\r\n" + // completion here should show cardContent (define/@name)
+				"                </element>\r\n" + //
+				"            </zeroOrMore>\r\n" + //
+				"        </element>\r\n" + //
+				"    </start>\r\n" + //
+				"    <define name=\"cardContent\">\r\n" + //
+				"        <element name=\"name\">\r\n" + //
+				"            <text/>\r\n" + //
+				"        </element>\r\n" + //
+				"        <element name=\"email\">\r\n" + //
+				"            <text/>\r\n" + //
+				"        </element>\r\n" + //
+				"    </define>\r\n" + //
+				"</grammar>";
+		testCompletionFor(xml, //
+				1, //
+				c("cardContent", te(6, 31, 6, 31, "cardContent"), "cardContent"));
+	}
+
+	@Test
+	public void completionOnRefNameAttributeWithNestedDefine() throws BadLocationException {
+		String xml = "<grammar xmlns=\"http://relaxng.org/ns/structure/1.0\"\r\n"
+				+ "  datatypeLibrary=\"http://www.w3.org/2001/XMLSchema-datatypes\">\r\n"
+				+ "  <start>\r\n"
+				+ "    <ref name=\"root-element\"/>\r\n"
+				+ "  </start>\r\n"
+				+ "  <define name=\"root-element\">\r\n"
+				+ "      <element name=\"root-element\">\r\n"
+				+ "        <ref name=\"|\"></ref>\r\n" // completion here should show root-element, asdf (define/@name)
+				+ "      </element>\r\n"
+				+ "  </define>\r\n"
+				+ "  <div>\r\n"
+				+ "    <div>\r\n"
+				+ "      <define name=\"asdf\">\r\n"
+				+ "        <attribute name=\"child\"></attribute>\r\n"
+				+ "      </define>\r\n"
+				+ "    </div>\r\n"
+				+ "  </div>\r\n"
+				+ "</grammar>";
+		testCompletionFor(xml, //
+				2, //
+				c("root-element", te(7, 19, 7, 19, "root-element"), "root-element"), //
+				c("asdf", te(7, 19, 7, 19, "asdf"), "asdf"));
 	}
 
 	private static void testCompletionFor(String value, Integer expectedCount, CompletionItem... expectedItems)

@@ -47,6 +47,8 @@ public class DOMUtils {
 
 	private static final String URN_OASIS_NAMES_TC_ENTITY_XMLNS_XML_CATALOG_NS = "urn:oasis:names:tc:entity:xmlns:xml:catalog";
 
+	private static final String RELAXNG_GRAMMAR_NS = "http://relaxng.org/ns/structure/1.0";
+
 	private static final String RNG_EXTENSION = ".rng";
 
 	private static final String RNC_EXTENSION = ".rnc";
@@ -89,11 +91,46 @@ public class DOMUtils {
 	 * @return true if the XML document is a RelaxNG grammar and false otherwise.
 	 */
 	public static boolean isRelaxNG(DOMDocument document) {
+		if (isRelaxNGXMLSyntax(document)) {
+			return true;
+		}
 		if (document == null) {
 			return false;
 		}
 		String uri = document.getDocumentURI();
-		return isRelaxNG(uri);
+		return isRelaxNGUri(uri);
+	}
+
+	/**
+	 * Returns true if the XML document is a RelaxNG grammar XML syntax and false
+	 * otherwise.
+	 * 
+	 * @return true if the XML document is a RelaxNG grammar XML syntax and false
+	 *         otherwise.
+	 */
+	public static boolean isRelaxNGXMLSyntax(DOMDocument document) {
+		if (document == null) {
+			return false;
+		}
+		String uri = document.getDocumentURI();
+		if (isRelaxNGUriXMLSyntax(uri)) {
+			return true;
+		}
+		// check root element is bound with RNG namespace
+		// (http://relaxng.org/ns/structure/1.0)
+		return checkRootNamespace(document, RELAXNG_GRAMMAR_NS);
+	}
+
+	/**
+	 * Returns true if the given URI is a RelaxNG grammar XML syntax and false
+	 * otherwise.
+	 * 
+	 * @param uri the URI to check
+	 * @return true if the given URI is a RelaxNG grammar XML syntax and false
+	 *         otherwise.
+	 */
+	public static boolean isRelaxNGUriXMLSyntax(String uri) {
+		return uri != null && uri.endsWith(RNG_EXTENSION);
 	}
 
 	/**
@@ -102,8 +139,8 @@ public class DOMUtils {
 	 * @param uri the URI to check
 	 * @return true if the given URI is a RelaxNG grammar and false otherwise.
 	 */
-	public static boolean isRelaxNG(String uri) {
-		return uri != null && uri.endsWith(RNG_EXTENSION) || isRelaxNGCompactSyntax(uri);
+	public static boolean isRelaxNGUri(String uri) {
+		return isRelaxNGUriXMLSyntax(uri) || isRelaxNGUriCompactSyntax(uri);
 	}
 
 	/**
@@ -114,7 +151,7 @@ public class DOMUtils {
 	 * @return true if the given URI is a RelaxNG grammar compact syntax and false
 	 *         otherwise.
 	 */
-	public static boolean isRelaxNGCompactSyntax(String uri) {
+	public static boolean isRelaxNGUriCompactSyntax(String uri) {
 		return uri != null && uri.endsWith(RNC_EXTENSION);
 	}
 

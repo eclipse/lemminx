@@ -46,7 +46,7 @@ public class CMRelaxNGContentModelProvider implements ContentModelProvider {
 
 	@Override
 	public boolean adaptFor(String uri) {
-		return DOMUtils.isRelaxNG(uri);
+		return DOMUtils.isRelaxNGUri(uri);
 	}
 
 	@Override

@@ -176,7 +176,7 @@ public class CMRelaxNGDocument implements CMDocument {
 			return null;
 		}
 
-		DOMRange range = DOMUtils.isRelaxNGCompactSyntax(systemId) ? null
+		DOMRange range = DOMUtils.isRelaxNGUriCompactSyntax(systemId) ? null
 				: getDeclaredTypeRange(originNode, locator);
 		if (range != null) {
 			return XMLPositionUtility.createLocationLink(originNode,
