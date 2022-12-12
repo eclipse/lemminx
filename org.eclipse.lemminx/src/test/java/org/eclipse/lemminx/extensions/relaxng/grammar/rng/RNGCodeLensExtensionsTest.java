@@ -13,6 +13,7 @@ package org.eclipse.lemminx.extensions.relaxng.grammar.rng;
 
 import static org.eclipse.lemminx.XMLAssert.cl;
 import static org.eclipse.lemminx.XMLAssert.r;
+import static org.eclipse.lemminx.client.ClientCommands.OPEN_BINDING_WIZARD;
 import static org.eclipse.lemminx.client.ClientCommands.OPEN_URI;
 import static org.eclipse.lemminx.client.ClientCommands.SHOW_REFERENCES;
 
@@ -84,13 +85,13 @@ public class RNGCodeLensExtensionsTest extends AbstractCacheBasedTest {
 	@Test
 	public void codeLensEmptyDocument() throws BadLocationException {
 		String xml = "";
-		XMLAssert.testCodeLensFor(xml);
+		XMLAssert.testCodeLensFor(xml, cl(r(0, 0, 0, 0), "Bind to grammar/schema...", OPEN_BINDING_WIZARD));
 	}
 
 	@Test
 	public void codeLensSpace() throws BadLocationException {
 		String xml = " ";
-		XMLAssert.testCodeLensFor(xml);
+		XMLAssert.testCodeLensFor(xml, cl(r(0, 0, 0, 0), "Bind to grammar/schema...", OPEN_BINDING_WIZARD));
 	}
 
 }

@@ -146,7 +146,12 @@ public class ContentModelCodeLensParticipant implements ICodeLensParticipant {
 			return;
 		}
 		String documentURI = document.getDocumentURI();
-		Range range = XMLPositionUtility.selectRootStartTag(document);
+		Range range;
+		if (document.getDocumentElement() != null) {
+			range = XMLPositionUtility.selectRootStartTag(document);
+		} else {
+			range = XMLPositionUtility.createRange(0, 0, document);
+		}
 
 		lenses.add(createAssociateLens(documentURI, "Bind to grammar/schema...", range));
 	}

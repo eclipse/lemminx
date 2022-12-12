@@ -40,10 +40,10 @@ import org.xml.sax.helpers.DefaultHandler;
 /**
  * XML Command "xml.associate.grammar.insert" to associate a grammar to a given
  * DOM document.
- * 
+ *
  * The command parameters {@link ExecuteCommandParams} must be filled with 3
  * parameters:
- * 
+ *
  * <ul>
  * <li>document URI (String) : the DOM document file URI to bind with a grammar.
  * </li>
@@ -52,7 +52,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * <li>binding type (String) : which can takes values "standard", "xml-model" to
  * know which binding type must be inserted in the DOM document.</li>
  * </ul>
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -112,14 +112,14 @@ public class AssociateGrammarCommand extends AbstractDOMDocumentCommandHandler {
 					// Insert inside <foo /> ->
 					// xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance"
 					// xsi:noNamespaceSchemaLocation=\"xsd/tag.xsd\"
-					return NoGrammarConstraintsCodeAction.createXSINoNamespaceSchemaLocationEdit(grammarURI, document);
+					return NoGrammarConstraintsCodeAction.createXSINoNamespaceSchemaLocationEdit(grammarURI, document, sharedSettings);
 				}
 				// Insert inside <foo /> ->
 				// xmlns="team_namespace"
 				// xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 				// xsi:schemaLocation="team_namespace xsd/team.xsd"
 				return NoGrammarConstraintsCodeAction.createXSISchemaLocationEdit(grammarURI, targetNamespace,
-						document);
+						document, sharedSettings);
 			} else {
 				// DTD file
 				// Insert before <foo /> -> <!DOCTYPE foo SYSTEM "dtd/tag.dtd">

@@ -38,33 +38,25 @@ import static org.eclipse.lemminx.XMLAssert.testTypeDefinitionFor;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 import org.eclipse.lemminx.AbstractCacheBasedTest;
+import org.eclipse.lemminx.client.ClientCommands;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
-import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
-import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.services.DocumentSymbolsResult;
 import org.eclipse.lemminx.services.SymbolInformationResult;
 import org.eclipse.lemminx.services.XMLLanguageService;
-import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
-import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionRequest;
-import org.eclipse.lemminx.services.extensions.codelens.ICodeLensParticipant;
-import org.eclipse.lemminx.services.extensions.codelens.ICodeLensRequest;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionParticipant;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionRequest;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionResponse;
-import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLSymbolFilter;
 import org.eclipse.lemminx.settings.XMLSymbolSettings;
 import org.eclipse.lemminx.utils.XMLBuilder;
-import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.Diagnostic;
@@ -76,11 +68,8 @@ import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.MarkupContent;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.ReferenceContext;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.SymbolKind;
-import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.junit.jupiter.api.Test;
 
@@ -114,34 +103,18 @@ public class ErrorParticipantLanguageServiceTest extends AbstractCacheBasedTest 
 		public ErrorParticipantLanguageService() {
 			super();
 
-			this.registerCodeActionParticipant(new ICodeActionParticipant() {
-				@Override
-				public void doCodeAction(ICodeActionRequest request, List<CodeAction> codeActions,
-						CancelChecker cancelChecker) {
-					throw new RuntimeException("This participant is broken");
-				}
+			this.registerCodeActionParticipant((request, codeActions, cancelChecker) -> {
+				throw new RuntimeException("This participant is broken");
 			});
-			this.registerCodeActionParticipant(new ICodeActionParticipant() {
-				@Override
-				public void doCodeAction(ICodeActionRequest request, List<CodeAction> codeActions,
-						CancelChecker cancelChecker) {
-					Diagnostic diagnostic = request.getDiagnostic();
-					codeActions.add(ca(diagnostic, te(0, 0, 0, 0, "a")));
-				}
+			this.registerCodeActionParticipant((request, codeActions, cancelChecker) -> {
+				Diagnostic diagnostic = request.getDiagnostic();
+				codeActions.add(ca(diagnostic, te(0, 0, 0, 0, "a")));
 			});
 
-			this.registerCodeLensParticipant(new ICodeLensParticipant() {
-				@Override
-				public void doCodeLens(ICodeLensRequest request, List<CodeLens> lenses, CancelChecker cancelChecker) {
-					throw new RuntimeException("This participant is broken");
-				}
+			this.registerCodeLensParticipant((request, lenses, cancelChecker) -> {
+				throw new RuntimeException("This participant is broken");
 			});
-			this.registerCodeLensParticipant(new ICodeLensParticipant() {
-				@Override
-				public void doCodeLens(ICodeLensRequest request, List<CodeLens> lenses, CancelChecker cancelChecker) {
-					lenses.add(TEST_CODE_LENS);
-				}
-			});
+			this.registerCodeLensParticipant((request, lenses, cancelChecker) -> lenses.add(TEST_CODE_LENS));
 
 			this.registerCompletionParticipant(new ICompletionParticipant() {
 
@@ -210,50 +183,24 @@ public class ErrorParticipantLanguageServiceTest extends AbstractCacheBasedTest 
 
 			});
 
-			this.registerDefinitionParticipant(new IDefinitionParticipant() {
-				@Override
-				public void findDefinition(IDefinitionRequest request, List<LocationLink> locations,
-						CancelChecker cancelChecker) {
-					throw new RuntimeException("This participant is broken");
-				}
+			this.registerDefinitionParticipant((request, locations, cancelChecker) -> {
+				throw new RuntimeException("This participant is broken");
 			});
-			this.registerDefinitionParticipant(new IDefinitionParticipant() {
-				@Override
-				public void findDefinition(IDefinitionRequest request, List<LocationLink> locations,
-						CancelChecker cancelChecker) {
-					locations.add(TEST_LOCATION_LINK);
-				}
-			});
+			this.registerDefinitionParticipant(
+					(request, locations, cancelChecker) -> locations.add(TEST_LOCATION_LINK));
 
-			this.registerDiagnosticsParticipant(new IDiagnosticsParticipant() {
-				@Override
-				public void doDiagnostics(DOMDocument xmlDocument, List<Diagnostic> diagnostics,
-						XMLValidationSettings validationSettings, CancelChecker cancelChecker) {
-					throw new RuntimeException("This participant is broken");
-				}
+			this.registerDiagnosticsParticipant((xmlDocument, diagnostics, validationSettings, cancelChecker) -> {
+				throw new RuntimeException("This participant is broken");
 			});
-			this.registerDiagnosticsParticipant(new IDiagnosticsParticipant() {
-				@Override
-				public void doDiagnostics(DOMDocument xmlDocument, List<Diagnostic> diagnostics,
-						XMLValidationSettings validationSettings, CancelChecker cancelChecker) {
-					diagnostics.add(TEST_DIAGNOSTIC);
-				}
-			});
+			this.registerDiagnosticsParticipant(
+					(xmlDocument, diagnostics, validationSettings, cancelChecker) -> diagnostics.add(TEST_DIAGNOSTIC));
 
-			this.registerDocumentLinkParticipant(new IDocumentLinkParticipant() {
-				@Override
-				public void findDocumentLinks(DOMDocument document, List<DocumentLink> links) {
-					throw new RuntimeException("This participant is broken");
-				}
+			this.registerDocumentLinkParticipant((document, links) -> {
+				throw new RuntimeException("This participant is broken");
 			});
-			this.registerDocumentLinkParticipant(new IDocumentLinkParticipant() {
-				@Override
-				public void findDocumentLinks(DOMDocument document, List<DocumentLink> links) {
-					links.add(new DocumentLink(TEST_DOCLINK.getRange(),
-							Paths.get(TEST_DOCLINK.getTarget()).toUri().toString()));
-
-				}
-			});
+			this.registerDocumentLinkParticipant(
+					(document, links) -> links.add(new DocumentLink(TEST_DOCLINK.getRange(),
+							Paths.get(TEST_DOCLINK.getTarget()).toUri().toString())));
 
 			this.registerFormatterParticipant(new IFormatterParticipant() {
 				@Override
@@ -263,20 +210,11 @@ public class ErrorParticipantLanguageServiceTest extends AbstractCacheBasedTest 
 				}
 			});
 
-			this.registerHighlightingParticipant(new IHighlightingParticipant() {
-				@Override
-				public void findDocumentHighlights(DOMNode node, Position position, int offset,
-						List<DocumentHighlight> highlights, CancelChecker cancelChecker) {
-					throw new RuntimeException("This participant is broken");
-				}
+			this.registerHighlightingParticipant((node, position, offset, highlights, cancelChecker) -> {
+				throw new RuntimeException("This participant is broken");
 			});
-			this.registerHighlightingParticipant(new IHighlightingParticipant() {
-				@Override
-				public void findDocumentHighlights(DOMNode node, Position position, int offset,
-						List<DocumentHighlight> highlights, CancelChecker cancelChecker) {
-					highlights.add(TEST_HIGHLIGHT);
-				}
-			});
+			this.registerHighlightingParticipant(
+					(node, position, offset, highlights, cancelChecker) -> highlights.add(TEST_HIGHLIGHT));
 
 			this.registerHoverParticipant(new IHoverParticipant() {
 
@@ -325,26 +263,14 @@ public class ErrorParticipantLanguageServiceTest extends AbstractCacheBasedTest 
 
 			});
 
-			this.registerReferenceParticipant(new IReferenceParticipant() {
-				@Override
-				public void findReference(DOMDocument document, Position position, ReferenceContext context,
-						List<Location> locations, CancelChecker cancelChecker) {
-					throw new RuntimeException("This participant is broken");
-				}
+			this.registerReferenceParticipant((document, position, context, locations, cancelChecker) -> {
+				throw new RuntimeException("This participant is broken");
 			});
-			this.registerReferenceParticipant(new IReferenceParticipant() {
-				@Override
-				public void findReference(DOMDocument document, Position position, ReferenceContext context,
-						List<Location> locations, CancelChecker cancelChecker) {
-					locations.add(TEST_LOCATION);
-				}
-			});
+			this.registerReferenceParticipant(
+					(document, position, context, locations, cancelChecker) -> locations.add(TEST_LOCATION));
 
-			this.registerRenameParticipant(new IRenameParticipant() {
-				@Override
-				public void doRename(IRenameRequest request, List<TextEdit> locations) {
-					throw new RuntimeException("This participant is broken");
-				}
+			this.registerRenameParticipant((request, locations) -> {
+				throw new RuntimeException("This participant is broken");
 			});
 
 			this.registerSymbolsProviderParticipant(new ISymbolsProviderParticipant() {
@@ -408,20 +334,11 @@ public class ErrorParticipantLanguageServiceTest extends AbstractCacheBasedTest 
 
 			});
 
-			this.registerTypeDefinitionParticipant(new ITypeDefinitionParticipant() {
-				@Override
-				public void findTypeDefinition(ITypeDefinitionRequest request, List<LocationLink> locations,
-						CancelChecker cancelChecker) {
-					throw new RuntimeException("This participant is broken");
-				}
+			this.registerTypeDefinitionParticipant((request, locations, cancelChecker) -> {
+				throw new RuntimeException("This participant is broken");
 			});
-			this.registerTypeDefinitionParticipant(new ITypeDefinitionParticipant() {
-				@Override
-				public void findTypeDefinition(ITypeDefinitionRequest request, List<LocationLink> locations,
-						CancelChecker cancelChecker) {
-					locations.add(TEST_LOCATION_LINK);
-				}
-			});
+			this.registerTypeDefinitionParticipant(
+					(request, locations, cancelChecker) -> locations.add(TEST_LOCATION_LINK));
 
 		}
 
@@ -439,7 +356,8 @@ public class ErrorParticipantLanguageServiceTest extends AbstractCacheBasedTest 
 	@Test
 	public void testCodeLens() throws BadLocationException {
 		testCodeLensFor("", null, new ErrorParticipantLanguageService(),
-				ErrorParticipantLanguageService.TEST_CODE_LENS);
+				ErrorParticipantLanguageService.TEST_CODE_LENS,
+				cl(r(0, 0, 0, 0), "Bind to grammar/schema...", ClientCommands.OPEN_BINDING_WIZARD));
 	}
 
 	@Test

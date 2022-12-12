@@ -46,7 +46,6 @@ import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentEdit;
-import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
@@ -58,6 +57,8 @@ import com.google.gson.JsonObject;
 public class NoGrammarConstraintsCodeAction implements ICodeActionParticipant {
 
 	private static final Logger LOGGER = Logger.getLogger(NoGrammarConstraintsCodeAction.class.getName());
+	// FIXME: the element name should be derived from the content model if possible
+	private static final String PLACEHOLDER_ELEMENT_NAME = "root-element";
 	private final Map<String, ICodeActionResolvesParticipant> resolveCodeActionParticipants;
 
 	public NoGrammarConstraintsCodeAction() {
@@ -176,7 +177,7 @@ public class NoGrammarConstraintsCodeAction implements ICodeActionParticipant {
 					GenerateXSINoNamespaceSchemaCodeActionResolver.PARTICIPANT_ID);
 		} else {
 			TextDocumentEdit noNamespaceSchemaLocationEdit = createXSINoNamespaceSchemaLocationEdit(schemaFileName,
-					document);
+					document, request.getSharedSettings());
 			return createGrammarFileAndBindIt(title, schemaURI, schemaTemplate, noNamespaceSchemaLocationEdit,
 					diagnostic);
 		}
@@ -275,14 +276,21 @@ public class NoGrammarConstraintsCodeAction implements ICodeActionParticipant {
 		return codeAction;
 	}
 
-	public static TextDocumentEdit createXSINoNamespaceSchemaLocationEdit(String schemaFileName, DOMDocument document)
+	public static TextDocumentEdit createXSINoNamespaceSchemaLocationEdit(String schemaFileName, DOMDocument document,
+			SharedSettings sharedSettings)
 			throws BadLocationException {
 		String delimiter = document.getTextDocument().lineDelimiter(0);
 		DOMElement documentElement = document.getDocumentElement();
-		int beforeTagOffset = documentElement.getStartTagOpenOffset();
-		int afterTagOffset = beforeTagOffset + 1 + documentElement.getTagName().length();
+		int beforeTagOffset = documentElement != null ? documentElement.getStartTagOpenOffset()
+				: document.getLastChild() != null ? document.getLastChild().getEnd() : 0;
+		int afterTagOffset = documentElement != null ? beforeTagOffset + 1 + documentElement.getTagName().length()
+				: beforeTagOffset;
 
-		StringBuilder insertText = new StringBuilder();
+		XMLBuilder insertText = new XMLBuilder(sharedSettings, null, delimiter);
+
+		if (documentElement == null) {
+			generateStartTag(insertText, document);
+		}
 
 		insertText.append(" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");
 		insertText.append(delimiter);
@@ -291,18 +299,29 @@ public class NoGrammarConstraintsCodeAction implements ICodeActionParticipant {
 		insertText.append(schemaFileName);
 		insertText.append("\"");
 
+		if (documentElement == null) {
+			generateEndTag(insertText);
+		}
+
 		Position position = document.positionAt(afterTagOffset);
 		return CodeActionFactory.insertEdit(insertText.toString(), position, document.getTextDocument());
 	}
 
 	public static TextDocumentEdit createXSISchemaLocationEdit(String schemaFileName, String targetNamespace,
-			DOMDocument document) throws BadLocationException {
+			DOMDocument document, SharedSettings sharedSettings) throws BadLocationException {
 		String delimiter = document.getTextDocument().lineDelimiter(0);
 		DOMElement documentElement = document.getDocumentElement();
-		int beforeTagOffset = documentElement.getStartTagOpenOffset();
-		int afterTagOffset = beforeTagOffset + 1 + documentElement.getTagName().length();
+		int beforeTagOffset = documentElement != null ? documentElement.getStartTagOpenOffset()
+				: document.getLastChild() != null ? document.getLastChild().getEnd() : 0;
+		int afterTagOffset = documentElement != null ? beforeTagOffset + 1 + documentElement.getTagName().length()
+				: beforeTagOffset;
 
-		StringBuilder insertText = new StringBuilder();
+		XMLBuilder insertText = new XMLBuilder(sharedSettings, null, delimiter);
+
+		if (documentElement == null) {
+			generateStartTag(insertText, document);
+		}
+
 		insertText.append(" xmlns=\"");
 		insertText.append(targetNamespace);
 		insertText.append("\"");
@@ -317,6 +336,10 @@ public class NoGrammarConstraintsCodeAction implements ICodeActionParticipant {
 		insertText.append(schemaFileName);
 		insertText.append("\"");
 
+		if (documentElement == null) {
+			generateEndTag(insertText);
+		}
+
 		Position position = document.positionAt(afterTagOffset);
 		return CodeActionFactory.insertEdit(insertText.toString(), position, document.getTextDocument());
 	}
@@ -325,7 +348,8 @@ public class NoGrammarConstraintsCodeAction implements ICodeActionParticipant {
 			DOMDocument document, SharedSettings sharedSettings) throws BadLocationException {
 		String delimiter = document.getTextDocument().lineDelimiter(0);
 		DOMElement documentElement = document.getDocumentElement();
-		int beforeTagOffset = documentElement.getStartTagOpenOffset();
+		int beforeTagOffset = documentElement != null ? documentElement.getStartTagOpenOffset()
+				: document.getLastChild() != null ? document.getLastChild().getEnd() : 0;
 
 		// Insert Text edit for xml-model
 		XMLBuilder xsdWithXmlModel = new XMLBuilder(sharedSettings, null, delimiter);
@@ -334,47 +358,85 @@ public class NoGrammarConstraintsCodeAction implements ICodeActionParticipant {
 		xsdWithXmlModel.endPrologOrPI();
 		xsdWithXmlModel.linefeed();
 
-		String xmlModelInsertText = xsdWithXmlModel.toString();
+		String xmlModelInsertText = (documentElement == null && document.getLastChild() != null ? delimiter : "")
+				+ xsdWithXmlModel.toString();
 		Position xmlModelPosition = document.positionAt(beforeTagOffset);
 
-		if (StringUtils.isEmpty(targetNamespace)) {
+		if (documentElement != null && StringUtils.isEmpty(targetNamespace)) {
 			return CodeActionFactory.insertEdit(xmlModelInsertText, xmlModelPosition, document.getTextDocument());
 		}
 
-		StringBuilder xmlNamespaceInsertText = new StringBuilder();
-		xmlNamespaceInsertText.append(" xmlns=\"");
-		xmlNamespaceInsertText.append(targetNamespace);
-		xmlNamespaceInsertText.append("\" ");
+		// Generate root element (if needed) and insert namespace in root element (if
+		// needed)
+		XMLBuilder xmlNamespaceInsertText = new XMLBuilder(sharedSettings, null, delimiter);
 
-		int afterTagOffset = beforeTagOffset + 1 + documentElement.getTagName().length();
+		if (documentElement == null) {
+			generateStartTag(xmlNamespaceInsertText, document);
+		}
+
+		if (!StringUtils.isEmpty(targetNamespace)) {
+			xmlNamespaceInsertText.append(" xmlns=\"");
+			xmlNamespaceInsertText.append(targetNamespace);
+			xmlNamespaceInsertText.append("\"");
+		}
+
+		if (documentElement == null) {
+			generateEndTag(xmlNamespaceInsertText);
+		}
+
+		int afterTagOffset = beforeTagOffset
+				+ (documentElement != null ? 1 + documentElement.getTagName().length() : 0);
 		Position xmlNamespacePosition = document.positionAt(afterTagOffset);
 
-		List<TextEdit> edits = Arrays.asList( //
-				// insert xml-model before root tag element
-				CodeActionFactory.insertEdit(xmlModelInsertText, xmlModelPosition),
-				// insert xml namespace inside root tag element
-				CodeActionFactory.insertEdit(xmlNamespaceInsertText.toString(), xmlNamespacePosition));
-		return CodeActionFactory.insertEdits(document.getTextDocument(), edits);
+		return CodeActionFactory.insertEdits(document.getTextDocument(), //
+				Arrays.asList(CodeActionFactory.insertEdit(xmlModelInsertText, xmlModelPosition), //
+						CodeActionFactory.insertEdit(xmlNamespaceInsertText.toString(), xmlNamespacePosition)));
 	}
 
 	public static TextDocumentEdit createDocTypeEdit(String dtdFileName, DOMDocument document,
 			SharedSettings sharedSettings) throws BadLocationException {
 		String delimiter = document.getTextDocument().lineDelimiter(0);
 		DOMElement documentElement = document.getDocumentElement();
-		int beforeTagOffset = documentElement.getStartTagOpenOffset();
+		int beforeTagOffset = documentElement != null ? documentElement.getStartTagOpenOffset()
+				: document.getLastChild() != null ? document.getLastChild().getEnd() : 0;
 
-		XMLBuilder docType = new XMLBuilder(sharedSettings, null, delimiter);
-		docType.startDoctype();
-		docType.addParameter(documentElement.getLocalName());
-		docType.addContent(" SYSTEM \"");
-		docType.addContent(dtdFileName);
-		docType.addContent("\"");
-		docType.endDoctype();
-		docType.linefeed();
+		XMLBuilder builder = new XMLBuilder(sharedSettings, null, delimiter);
+		builder.startDoctype();
+		if (documentElement != null) {
+			builder.addParameter(documentElement.getLocalName());
+		} else {
+			builder.addParameter(PLACEHOLDER_ELEMENT_NAME);
+		}
+		builder.addContent(" SYSTEM \"");
+		builder.addContent(dtdFileName);
+		builder.addContent("\"");
+		builder.endDoctype();
+		builder.linefeed();
 
-		String insertText = docType.toString();
+		if (documentElement == null) {
+			builder.addContent("<");
+			builder.addContent(PLACEHOLDER_ELEMENT_NAME);
+			generateEndTag(builder);
+		}
+
+		String insertText = (documentElement == null && document.getLastChild() != null ? delimiter : "")
+				+ builder.toString();
 		Position position = document.positionAt(beforeTagOffset);
 		return CodeActionFactory.insertEdit(insertText, position, document.getTextDocument());
+	}
+
+	private static void generateStartTag(XMLBuilder builder, DOMDocument document) {
+		if (document.getLastChild() != null) {
+			builder.linefeed();
+		}
+		builder.addContent("<");
+		builder.addContent(PLACEHOLDER_ELEMENT_NAME);
+	}
+
+	private static void generateEndTag(XMLBuilder builder) {
+		builder.addContent("></");
+		builder.addContent(PLACEHOLDER_ELEMENT_NAME);
+		builder.addContent(">");
 	}
 
 }

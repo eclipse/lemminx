@@ -12,7 +12,6 @@
 package org.eclipse.lemminx.extensions.contentmodel.commands;
 
 import org.eclipse.lemminx.dom.DOMDocument;
-import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.services.IXMLDocumentProvider;
 import org.eclipse.lemminx.services.extensions.commands.AbstractDOMDocumentCommandHandler;
 import org.eclipse.lemminx.settings.SharedSettings;
@@ -42,17 +41,13 @@ public class CheckBoundGrammarCommand extends AbstractDOMDocumentCommandHandler 
 	/**
 	 * Returns true if the given DOM document can be bound with a given grammar and
 	 * false otherwise.
-	 * 
+	 *
 	 * @param document the DOM document.
-	 * 
+	 *
 	 * @return true if the given DOM document can be bound with a given grammar and
 	 *         false otherwise.
 	 */
 	public static boolean canBindWithGrammar(DOMDocument document) {
-		DOMElement documentElement = document.getDocumentElement();
-		if (documentElement == null) {
-			return false;
-		}
 		return !document.hasGrammar();
 	}
 }
