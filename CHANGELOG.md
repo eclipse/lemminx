@@ -1,5 +1,41 @@
 # Change Log
 
+## [0.23.0](https://github.com/eclipse/lemminx/milestone/36?closed=1) (December 14, 2022)
+
+### Enhancements
+
+ * Codelens, completion, definition, documentLink, highlighting, references, rename support in RelaxNG file. See [#1400](https://github.com/eclipse/lemminx/pull/1400).
+ * Surround selection with XML element. See [#1389](https://github.com/eclipse/lemminx/pull/1389).
+ * Enable the experimental formatter by default and add `xml.format.legacy` setting to retain previous formatter. See [#1377](https://github.com/eclipse/lemminx/issues/1377).
+ * Add validation support for XInclude. See [#1387](https://github.com/eclipse/lemminx/pull/1387).
+ * Full support for `xml.format.maxLineWidth` with experimental formatter. See [#1248](https://github.com/eclipse/lemminx/issues/1248), [#1359](https://github.com/eclipse/lemminx/pull/1359), and [#1363](https://github.com/eclipse/lemminx/pull/1363).
+ * Add codelens and command to register/unregister catalog. See [#1390](https://github.com/eclipse/lemminx/pull/1390).
+ * Support `files.trimTrailingWhitespace` setting with experimental formatter. See [#1310](https://github.com/eclipse/lemminx/issues/1310).
+ * Remove `xml.format.preserveEmptyContent` setting for experimental formatter. See [#1346](https://github.com/eclipse/lemminx/issues/1346).
+ * Improve text content formatting for experimental formatter. See [#1331](https://github.com/eclipse/lemminx/issues/1331).
+
+### Performance
+
+ * Improve formatting performance with `xml.format.grammarAwareFormatting` setting. See [#1368](https://github.com/eclipse/lemminx/issues/1368).
+
+### Bug Fixes
+
+ * NPE in CodeLens with empty XML file. See [#1396](https://github.com/eclipse/lemminx/issues/1396).
+ * RelaxNG schema validation not working when DOCTYPE declaration is missing. See [#1393](https://github.com/eclipse/lemminx/pull/1393).
+ * XSD based Autocompletion for substitutionGroup. See [#1386](https://github.com/eclipse/lemminx/pull/1386).
+ * Generate grammar fails on first attempt with experimental formatter. See [#1382](https://github.com/eclipse/lemminx/issues/1382).
+ * Applying XML completion generates invalid XML content. See [#1373](https://github.com/eclipse/lemminx/issues/1373).
+ * Generate and bind schema doesn't work with experimental formatter. See [#1365](https://github.com/eclipse/lemminx/pull/1365).
+ * Add tests for `xml.format.grammarAwareFormatting` setting and restore mixed content behaviour. See [#1364](https://github.com/eclipse/lemminx/pull/1364).
+ * Prevent exception in `DomElementFormatter.formatEndTagElement()`. See [#1361](https://github.com/eclipse/lemminx/issues/1361).
+ * Fix unexpected behavior of `xml.format.preservedNewlines` with experimental formatter. See [#1341](https://github.com/eclipse/lemminx/pull/1341).
+ * Autoclose tag generates an unexpected `>`. See [#1221](https://github.com/eclipse/lemminx/issues/1221).
+
+### Build
+
+ * Add Windows PR verification job and move all PR verification jobs to github actions. See [#1311](https://github.com/eclipse/lemminx/issues/1311).
+ * Bump Maven build plugins and dependencies. See [#1319](https://github.com/eclipse/lemminx/pull/1319), [#1325](https://github.com/eclipse/lemminx/pull/1325), [#1326](https://github.com/eclipse/lemminx/pull/1326), [#1339](https://github.com/eclipse/lemminx/pull/1339), [#1344](https://github.com/eclipse/lemminx/pull/1344), [#1349](https://github.com/eclipse/lemminx/pull/1349), [#1350](https://github.com/eclipse/lemminx/pull/1350), [#1351](https://github.com/eclipse/lemminx/pull/1351), [#1353](https://github.com/eclipse/lemminx/pull/1353), [#1355](https://github.com/eclipse/lemminx/pull/1355), and [#1356](https://github.com/eclipse/lemminx/pull/1356).
+
 ## [0.22.0](https://github.com/eclipse/lemminx/milestone/35?closed=1) (October 19, 2022)
 
 ### Enhancements
