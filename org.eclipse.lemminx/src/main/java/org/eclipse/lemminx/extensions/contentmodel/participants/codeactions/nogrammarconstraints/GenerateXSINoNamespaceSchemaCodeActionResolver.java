@@ -22,14 +22,14 @@ import org.eclipse.lsp4j.TextDocumentEdit;
 
 /**
  * Code action resolver participant used to:
- * 
+ *
  * <ul>
  * <li>generate the XSD file for the given DOM document</li>
  * <li>generate the association xsi:noNamespaceSchemaLocation in the XML to bind
  * it with the generated XSD</li>
- * 
+ *
  * </ul>
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -42,7 +42,7 @@ public class GenerateXSINoNamespaceSchemaCodeActionResolver
 	@Override
 	protected TextDocumentEdit createFileEdit(String grammarFileName, DOMDocument document,
 			SharedSettings sharedSettings) throws BadLocationException {
-		return createXSINoNamespaceSchemaLocationEdit(grammarFileName, document);
+		return createXSINoNamespaceSchemaLocationEdit(grammarFileName, document, sharedSettings);
 	}
 
 	@Override

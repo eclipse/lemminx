@@ -133,7 +133,7 @@ public class AssociateGrammarCommandTest extends AbstractCacheBasedTest {
 
 		assertEquals(actual, tde(xmlPath, 1, //
 				te(1, 0, 1, 0, "<?xml-model href=\"xsd/team.xsd\"?>\r\n"), //
-				te(1, 4, 1, 4, " xmlns=\"team_namespace\" ")));
+				te(1, 4, 1, 4, " xmlns=\"team_namespace\"")));
 	}
 
 	@Test
