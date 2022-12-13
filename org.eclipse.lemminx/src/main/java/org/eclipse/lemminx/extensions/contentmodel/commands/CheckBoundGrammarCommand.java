@@ -42,17 +42,14 @@ public class CheckBoundGrammarCommand extends AbstractDOMDocumentCommandHandler 
 	/**
 	 * Returns true if the given DOM document can be bound with a given grammar and
 	 * false otherwise.
-	 * 
+	 *
 	 * @param document the DOM document.
-	 * 
+	 *
 	 * @return true if the given DOM document can be bound with a given grammar and
 	 *         false otherwise.
 	 */
 	public static boolean canBindWithGrammar(DOMDocument document) {
 		DOMElement documentElement = document.getDocumentElement();
-		if (documentElement == null) {
-			return false;
-		}
-		return !document.hasGrammar();
+		return documentElement != null;
 	}
 }

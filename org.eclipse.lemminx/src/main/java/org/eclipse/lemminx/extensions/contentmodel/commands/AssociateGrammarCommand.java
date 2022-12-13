@@ -40,10 +40,10 @@ import org.xml.sax.helpers.DefaultHandler;
 /**
  * XML Command "xml.associate.grammar.insert" to associate a grammar to a given
  * DOM document.
- * 
+ *
  * The command parameters {@link ExecuteCommandParams} must be filled with 3
  * parameters:
- * 
+ *
  * <ul>
  * <li>document URI (String) : the DOM document file URI to bind with a grammar.
  * </li>
@@ -52,7 +52,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * <li>binding type (String) : which can takes values "standard", "xml-model" to
  * know which binding type must be inserted in the DOM document.</li>
  * </ul>
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -106,8 +106,13 @@ public class AssociateGrammarCommand extends AbstractDOMDocumentCommandHandler {
 		if (GrammarBindingType.STANDARD.getName().equals(bindingType)) {
 			if (isXSD) {
 				// XSD file
-				// Check if XSD to bind declares a target namespace
 				String targetNamespace = getTargetNamespace(fullPathGrammarURI);
+				// Check if schemaLocation or noNamespaceSchemaLocation exist, if so instead use xml-model (for now)
+				if (document.getSchemaLocation() != null || document.getNoNamespaceSchemaLocation() != null) {
+					return NoGrammarConstraintsCodeAction.createXmlModelEdit(grammarURI, targetNamespace, document, sharedSettings);
+				}
+				// Check if XSD to bind declares a target namespace,
+				// if not prefer noNamespaceSchemaLocation
 				if (StringUtils.isEmpty(targetNamespace)) {
 					// Insert inside <foo /> ->
 					// xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance"
@@ -122,6 +127,12 @@ public class AssociateGrammarCommand extends AbstractDOMDocumentCommandHandler {
 						document);
 			} else {
 				// DTD file
+
+				// If it aleady has a doctype declaration, fall back to xml-model
+				if (document.getDoctype() != null) {
+					return NoGrammarConstraintsCodeAction.createXmlModelEdit(grammarURI, null, document, sharedSettings);
+				}
+
 				// Insert before <foo /> -> <!DOCTYPE foo SYSTEM "dtd/tag.dtd">
 				return NoGrammarConstraintsCodeAction.createDocTypeEdit(grammarURI, document, sharedSettings);
 			}
