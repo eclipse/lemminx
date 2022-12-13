@@ -140,7 +140,7 @@ public class SurroundWithCommand extends AbstractDOMDocumentCommandHandler {
 				}
 				break;
 			default:
-				List<String> tags = getTags(node, prefix, offset);
+				List<String> tags = getTags(node, prefix, offset, adjusted);
 				String tag = tags.isEmpty() ? "" : tags.get(0);
 
 				// Start tag
@@ -176,8 +176,8 @@ public class SurroundWithCommand extends AbstractDOMDocumentCommandHandler {
 		return new SurroundWithResponse(start, end);
 	}
 
-	private List<String> getTags(DOMNode node, String prefix, int offset) {
-		DOMElement parentElement = node.isElement() ? (DOMElement) node : node.getParentElement();
+	private List<String> getTags(DOMNode node, String prefix, int offset, boolean adjusted) {
+		DOMElement parentElement = node.isElement() && !adjusted ? (DOMElement) node : node.getParentElement();
 		Collection<CMDocument> cmDocuments = parentElement != null ? contentModelManager.findCMDocument(parentElement)
 				: contentModelManager.findCMDocument(node.getOwnerDocument(), null);
 		if (parentElement == null) {

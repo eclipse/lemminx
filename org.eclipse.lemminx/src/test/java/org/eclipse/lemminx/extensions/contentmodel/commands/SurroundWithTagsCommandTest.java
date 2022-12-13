@@ -111,7 +111,7 @@ public class SurroundWithTagsCommandTest extends BaseFileTempTest {
 	}
 
 	@Test
-	public void surroundEmptySelectionInStartTag2() throws Exception {
+	public void surroundEmptySelectionInNestedStartTag() throws Exception {
 		String xml = "<foo>\r\n" + //
 				"	<b|ar></bar>\r\n" + //
 				"</foo>";
@@ -133,7 +133,7 @@ public class SurroundWithTagsCommandTest extends BaseFileTempTest {
 	}
 
 	@Test
-	public void surroundEmptySelectionInEndTag2() throws Exception {
+	public void surroundEmptySelectionInNestedEndTag() throws Exception {
 		String xml = "<foo>\r\n" + //
 				"	<bar></b|ar>\r\n" + //
 				"</foo>";
@@ -175,6 +175,51 @@ public class SurroundWithTagsCommandTest extends BaseFileTempTest {
 		assertSurroundWith(xml, SurroundWithKind.tags, true, expected);
 	}
 
+	@Test
+	public void surroundSelectionWithRNG() throws Exception {
+		String xml = "<grammar xmlns=\"http://relaxng.org/ns/structure/1.0\"\r\n"
+				+ "  datatypeLibrary=\"http://www.w3.org/2001/XMLSchema-datatypes\">\r\n"
+				+ "  \r\n"
+				+ "  <start>\r\n"
+				+ "      |<ref name=\"foo\" />\r\n"
+				+ "      <ref name=\"bar\" />|\r\n"
+				+ "  </start>\r\n"
+				+ "\r\n"
+				+ "</grammar>";
+		String expected = "<grammar xmlns=\"http://relaxng.org/ns/structure/1.0\"\r\n"
+				+ "  datatypeLibrary=\"http://www.w3.org/2001/XMLSchema-datatypes\">\r\n"
+				+ "  \r\n"
+				+ "  <start>\r\n"
+				+ "      <${1|attribute,choice,data,element,empty,externalRef,grammar,group,interleave,list,mixed,notAllowed,oneOrMore,optional,parentRef,ref,text,value,zeroOrMore|}><ref name=\"foo\" />\r\n"
+				+ "      <ref name=\"bar\" /></${1:attribute}>$0\r\n"
+				+ "  </start>\r\n"
+				+ "\r\n"
+				+ "</grammar>";
+		assertSurroundWith(xml, SurroundWithKind.tags, true, expected);
+	}
+	
+	@Test
+	public void surroundEmptySelectionInStartTagWithRNG() throws Exception {
+		String xml = "<grammar xmlns=\"http://relaxng.org/ns/structure/1.0\"\r\n"
+				+ "  datatypeLibrary=\"http://www.w3.org/2001/XMLSchema-datatypes\">\r\n"
+				+ "  \r\n"
+				+ "  <start>\r\n"
+				+ "      <re|f name=\"foo\" />\r\n"
+				+ "      <ref name=\"bar\" />\r\n"
+				+ "  </start>\r\n"
+				+ "\r\n"
+				+ "</grammar>";
+		String expected = "<grammar xmlns=\"http://relaxng.org/ns/structure/1.0\"\r\n"
+				+ "  datatypeLibrary=\"http://www.w3.org/2001/XMLSchema-datatypes\">\r\n"
+				+ "  \r\n"
+				+ "  <start>\r\n"
+				+ "      <${1|attribute,choice,data,element,empty,externalRef,grammar,group,interleave,list,mixed,notAllowed,oneOrMore,optional,parentRef,ref,text,value,zeroOrMore|}><ref name=\"foo\" /></${1:attribute}>$0\r\n"
+				+ "      <ref name=\"bar\" />\r\n"
+				+ "  </start>\r\n"
+				+ "\r\n"
+				+ "</grammar>";
+		assertSurroundWith(xml, SurroundWithKind.tags, true, expected);
+	}
 	private static XMLFileAssociation[] createXSDAssociationsNoNamespaceSchemaLocationLike(String baseSystemId) {
 		XMLFileAssociation resources = new XMLFileAssociation();
 		resources.setPattern("**/*resources*.xml");
