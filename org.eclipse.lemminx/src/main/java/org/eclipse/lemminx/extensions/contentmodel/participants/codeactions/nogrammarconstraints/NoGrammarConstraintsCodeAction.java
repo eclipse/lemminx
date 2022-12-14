@@ -32,6 +32,7 @@ import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.extensions.generators.FileContentGeneratorManager;
 import org.eclipse.lemminx.extensions.generators.xml2dtd.DTDGeneratorSettings;
+import org.eclipse.lemminx.extensions.generators.xml2relaxng.RelaxNGGeneratorSettings;
 import org.eclipse.lemminx.extensions.generators.xml2xsd.XMLSchemaGeneratorSettings;
 import org.eclipse.lemminx.services.data.DataEntryField;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
@@ -70,6 +71,8 @@ public class NoGrammarConstraintsCodeAction implements ICodeActionParticipant {
 				new GenerateDocTypeCodeActionResolver());
 		resolveCodeActionParticipants.put(GenerateXMLModelWithDTDCodeActionResolver.PARTICIPANT_ID,
 				new GenerateXMLModelWithDTDCodeActionResolver());
+		resolveCodeActionParticipants.put(GenerateRelaxNGSchemaCodeActionResolver.PARTICIPANT_ID,
+				new GenerateRelaxNGSchemaCodeActionResolver());
 	}
 
 	@Override
@@ -125,6 +128,22 @@ public class NoGrammarConstraintsCodeAction implements ICodeActionParticipant {
 					GenerateXMLModelWithDTDCodeActionResolver.PARTICIPANT_ID, request);
 			codeActions.add(dtdWithXmlModelAction);
 
+			// ---------- Relax NG
+
+			String rngURI = getGrammarURI(document.getDocumentURI(), "rng");
+			String rngFileName = getFileName(rngURI);
+			String rngTemplate = null;
+			if (!request.canSupportResolve()) {
+				SharedSettings sharedSettings = request.getSharedSettings();
+				FileContentGeneratorManager generator = request.getComponent(FileContentGeneratorManager.class);
+				rngTemplate = generator.generate(document, sharedSettings, new RelaxNGGeneratorSettings(), cancelChecker);
+			}
+
+			// xml-model
+			CodeAction relaxNGWithXmlModelAction = createRelaxNGCodeAction(rngURI, rngFileName, rngTemplate, request,
+					cancelChecker);
+			codeActions.add(relaxNGWithXmlModelAction);
+			
 			// ---------- Open Binding Wizard
 			SharedSettings sharedSettings = request.getSharedSettings();
 			if (sharedSettings.isBindingWizardSupport()) {
@@ -190,6 +209,20 @@ public class NoGrammarConstraintsCodeAction implements ICodeActionParticipant {
 		SharedSettings sharedSettings = request.getSharedSettings();
 		TextDocumentEdit dtdWithDocType = createDocTypeEdit(dtdFileName, document, sharedSettings);
 		return createGrammarFileAndBindIt(title, dtdURI, dtdTemplate, dtdWithDocType, diagnostic);
+	}
+
+	private CodeAction createRelaxNGCodeAction(String rngURI, String rngFileName, String rngTemplate,
+			ICodeActionRequest request, CancelChecker cancelChecker) throws BadLocationException {
+ 		Diagnostic diagnostic = request.getDiagnostic();
+		DOMDocument document = request.getDocument();
+		String title = "Generate '" + rngFileName + "' and bind with RelaxNG";
+		if (request.canSupportResolve()) {
+			return createGenerateFileUnresolvedCodeAction(rngURI, title, diagnostic, document,
+					GenerateRelaxNGSchemaCodeActionResolver.PARTICIPANT_ID);
+		}
+		SharedSettings sharedSettings = request.getSharedSettings();
+		TextDocumentEdit relaxNGWithXMLModelEdit = createXmlModelEdit(rngFileName, null, document, sharedSettings);
+		return createGrammarFileAndBindIt(title, rngURI, rngTemplate, relaxNGWithXMLModelEdit, diagnostic);
 	}
 
 	private static CodeAction createGenerateFileUnresolvedCodeAction(String generateFileURI, String title,
