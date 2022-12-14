@@ -29,6 +29,7 @@ import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLSyntaxErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.nogrammarconstraints.GenerateDocTypeCodeActionResolver;
+import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.nogrammarconstraints.GenerateRelaxNGSchemaCodeActionResolver;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.nogrammarconstraints.GenerateXMLModelWithDTDCodeActionResolver;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.nogrammarconstraints.GenerateXMLModelWithXSDCodeActionResolver;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.nogrammarconstraints.GenerateXSINoNamespaceSchemaCodeActionResolver;
@@ -92,6 +93,17 @@ public class XMLProblemsTest extends AbstractCacheBasedTest {
 				"  <xs:element name=\"root\" />" + lineSeparator() + //
 				"</xs:schema>";
 		String dtdTemplate = "<!ELEMENT root EMPTY>";
+		String rngTemplate = "<grammar xmlns=\"http://relaxng.org/ns/structure/1.0\"" + lineSeparator() + //
+				"  datatypeLibrary=\"http://www.w3.org/2001/XMLSchema-datatypes\">" + lineSeparator() + //
+				"  <start>" + lineSeparator() + //
+				"    <ref name=\"rootContent\" />" + lineSeparator() + //
+				"  </start>" + lineSeparator() + //
+				"  <define name=\"rootContent\">" + lineSeparator() + //
+				"    <element name=\"root\">" + lineSeparator() + //
+				"      <empty />" + lineSeparator() + //
+				"    </element>" + lineSeparator() + //
+				"  </define>" + lineSeparator() + //
+				"</grammar>";
 		testCodeActionsFor(xml, d, null, settings,
 				// XSD with xsi:noNamespaceSchemaLocation
 				ca(d, //
@@ -122,6 +134,13 @@ public class XMLProblemsTest extends AbstractCacheBasedTest {
 								dtdTemplate), //
 						teOp("test.xml", 0, 0, 0, 0, //
 								"<?xml-model href=\"test.dtd\"?>" + lineSeparator())),
+				// RelaxNG with xml-model
+				ca(d, //
+						createFile("test.rng", false), //
+						teOp("test.rng", 0, 0, 0, 0, //
+								rngTemplate), //
+						teOp("test.xml", 0, 0, 0, 0, //
+								"<?xml-model href=\"test.rng\"?>" + lineSeparator())),
 				// Open binding wizard command
 				ca(d, new Command("Bind to existing grammar/schema", OPEN_BINDING_WIZARD,
 						Arrays.asList(new Object[] { "test.xml" }))));
@@ -142,6 +161,17 @@ public class XMLProblemsTest extends AbstractCacheBasedTest {
 				"  <xs:element name=\"root\" />" + lineSeparator() + //
 				"</xs:schema>";
 		String dtdTemplate = "<!ELEMENT root EMPTY>";
+		String rngTemplate = "<grammar xmlns=\"http://relaxng.org/ns/structure/1.0\"" + lineSeparator() + //
+				"  datatypeLibrary=\"http://www.w3.org/2001/XMLSchema-datatypes\">" + lineSeparator() + //
+				"  <start>" + lineSeparator() + //
+				"    <ref name=\"rootContent\" />" + lineSeparator() + //
+				"  </start>" + lineSeparator() + //
+				"  <define name=\"rootContent\">" + lineSeparator() + //
+				"    <element name=\"root\">" + lineSeparator() + //
+				"      <empty />" + lineSeparator() + //
+				"    </element>" + lineSeparator() + //
+				"  </define>" + lineSeparator() + //
+				"</grammar>";
 		testCodeActionsFor(xml, d, null, settings,
 				// XSD with xsi:noNamespaceSchemaLocation
 				ca(d, //
@@ -172,6 +202,13 @@ public class XMLProblemsTest extends AbstractCacheBasedTest {
 								dtdTemplate), //
 						teOp("test.xml", 0, 0, 0, 0, //
 								"<?xml-model href=\"test.dtd\"?>" + lineSeparator())),
+				// RelaxNG with xml-model
+				ca(d, //
+						createFile("test.rng", false), //
+						teOp("test.rng", 0, 0, 0, 0, //
+								rngTemplate), //
+						teOp("test.xml", 0, 0, 0, 0, //
+								"<?xml-model href=\"test.rng\"?>" + lineSeparator())),
 				// Open binding wizard command
 				ca(d, new Command("Bind to existing grammar/schema", OPEN_BINDING_WIZARD,
 						Arrays.asList(new Object[] { "test.xml" }))));
@@ -198,6 +235,8 @@ public class XMLProblemsTest extends AbstractCacheBasedTest {
 				ca(d, createData("test.xml", GenerateDocTypeCodeActionResolver.PARTICIPANT_ID, "test.dtd")),
 				// DTD with xml-model
 				ca(d, createData("test.xml", GenerateXMLModelWithDTDCodeActionResolver.PARTICIPANT_ID, "test.dtd")),
+				// RelaxNG with xml-model
+				ca(d, createData("test.xml", GenerateRelaxNGSchemaCodeActionResolver.PARTICIPANT_ID, "test.rng")),
 				// Open binding wizard command
 				ca(d, new Command("Bind to existing grammar/schema", OPEN_BINDING_WIZARD,
 						Arrays.asList(new Object[] { "test.xml" }))));
