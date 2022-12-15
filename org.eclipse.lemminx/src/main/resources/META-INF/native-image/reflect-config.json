@@ -182,6 +182,14 @@
 		"allDeclaredMethods": true
 	},
 	{
+		"name": "org.eclipse.lemminx.extensions.contentmodel.commands.SurroundWithCommand$SurroundWithResponse",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
 		"name": "org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings",
 		"allDeclaredFields": true,
 		"methods": [{

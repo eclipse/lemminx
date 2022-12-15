@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.23.1](https://github.com/eclipse/lemminx/milestone/38?closed=1) (December 15, 2022)
+
+### Bug Fixes
+
+ * Fix "Surround with ..." when using the binary server. See [#1410](https://github.com/eclipse/lemminx/pull/1410).
+
 ## [0.23.0](https://github.com/eclipse/lemminx/milestone/36?closed=1) (December 14, 2022)
 
 ### Enhancements
