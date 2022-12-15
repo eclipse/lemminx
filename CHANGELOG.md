@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.23.2](https://github.com/eclipse/lemminx/milestone/39?closed=1) (December 15, 2022)
+
+### Bug Fixes
+
+ * Add explicit no-arg constructor for `ConfigurationItemEdit`. See [#1412](https://github.com/eclipse/lemminx/pull/1412).
+
 ## [0.23.1](https://github.com/eclipse/lemminx/milestone/38?closed=1) (December 15, 2022)
 
 ### Bug Fixes
