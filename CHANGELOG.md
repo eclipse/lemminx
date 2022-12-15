@@ -5,6 +5,7 @@
 ### Bug Fixes
 
  * Fix "Surround with ..." when using the binary server. See [#1410](https://github.com/eclipse/lemminx/pull/1410).
+ * Fix "Register catalog" code lens when using the binary server. See [#1411](https://github.com/eclipse/lemminx/pull/1411).
 
 ## [0.23.0](https://github.com/eclipse/lemminx/milestone/36?closed=1) (December 14, 2022)
 
