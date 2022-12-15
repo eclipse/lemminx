@@ -143,6 +143,69 @@ public class RelaxNGErrorHandler implements XMLErrorHandler {
 			return new RelaxNGReportInfo(RelaxNGErrorCode.invalid_attribute_value, attrName);
 		}
 
+		// RNG / RNC errors
+
+		if (message.startsWith("multiple definitions of start")) {
+			// duplicate_start=multiple definitions of start without \"combine\" attribute
+			return new RelaxNGReportInfo(RelaxNGErrorCode.duplicate_start);
+		}
+		if (message.startsWith("multiple definitions of")) {
+			// duplicate_define=multiple definitions of \"{0}\" without \"combine\"
+			// attribute
+			String defineName = extractArg("multiple definitions of ", message);
+			return new RelaxNGReportInfo(RelaxNGErrorCode.duplicate_define, defineName);
+		}
+		if (message.contains("from library") && message.endsWith("not recognized")) {
+			// unrecognized_datatype=datatype \"{1}\" from library \"{0}\" not recognized
+			return new RelaxNGReportInfo(RelaxNGErrorCode.unrecognized_datatype);
+		}
+
+		// RNG errors
+		if (message.equals("missing \"start\" element")) {
+			// missing_start_element=missing \"start\" element
+			return new RelaxNGReportInfo(RelaxNGErrorCode.missing_start_element);
+		}
+		if (message.startsWith("reference to undefined pattern")) {
+			// reference_to_undefined=reference to undefined pattern \"{0}\"
+			String patternName = extractArg("reference to undefined pattern ", message);
+			return new RelaxNGReportInfo(RelaxNGErrorCode.reference_to_undefined, patternName);
+		}
+
+		if (message.startsWith("found ") && message.endsWith("element but expected a pattern")) {
+			// expected_pattern=found \"{0}\" element but expected a pattern
+			String tagName = extractArg("found ", message);
+			return new RelaxNGReportInfo(RelaxNGErrorCode.expected_pattern, tagName);
+		}
+		if (message.startsWith("illegal attribute ")) {
+			// illegal_attribute_ignored=illegal attribute \"{0}\" ignored
+			String attrName = extractArg("illegal attribute ", message);
+			return new RelaxNGReportInfo(RelaxNGErrorCode.illegal_attribute_ignored, attrName);
+		}
+		if (message.equals("illegal \"name\" attribute")) {
+			// illegal_name_attribute=illegal \"name\" attribute
+			return new RelaxNGReportInfo(RelaxNGErrorCode.illegal_name_attribute);
+		}
+		if (message.endsWith("is not a valid local name")) {
+			// invalid_ncname=\"{0}\" is not a valid local name
+			return new RelaxNGReportInfo(RelaxNGErrorCode.invalid_ncname);
+		}
+		if (message.endsWith("missing children")) {
+			// missing_children=missing children
+			return new RelaxNGReportInfo(RelaxNGErrorCode.missing_children);
+		}
+		if (message.equals("missing \"name\" attribute")) {
+			// missing_name_attribute=missing \"name\" attribute
+			return new RelaxNGReportInfo(RelaxNGErrorCode.missing_name_attribute);
+		}
+		if (message.endsWith("expected child element specifying name class")) {
+			// missing_name_class=expected child element specifying name class
+			return new RelaxNGReportInfo(RelaxNGErrorCode.missing_name_class);
+		}
+		if (message.equals("missing \"type\" attribute")) {
+			// missing_type_attribute=missing \"type\" attribute
+			return new RelaxNGReportInfo(RelaxNGErrorCode.missing_type_attribute);
+		}
+
 		return new RelaxNGReportInfo(RelaxNGErrorCode.to_implement);
 	}
 

@@ -17,6 +17,7 @@ import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelProvider;
 import org.eclipse.lemminx.extensions.relaxng.grammar.rng.RNGCodeLensParticipant;
 import org.eclipse.lemminx.extensions.relaxng.grammar.rng.RNGCompletionParticipant;
 import org.eclipse.lemminx.extensions.relaxng.grammar.rng.RNGDefinitionParticipant;
+import org.eclipse.lemminx.extensions.relaxng.grammar.rng.RNGDiagnosticsParticipant;
 import org.eclipse.lemminx.extensions.relaxng.grammar.rng.RNGDocumentLinkParticipant;
 import org.eclipse.lemminx.extensions.relaxng.grammar.rng.RNGHighlightingParticipant;
 import org.eclipse.lemminx.extensions.relaxng.grammar.rng.RNGReferenceParticipant;
@@ -32,6 +33,7 @@ import org.eclipse.lemminx.services.extensions.IXMLExtension;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.services.extensions.codelens.ICodeLensParticipant;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionParticipant;
+import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lemminx.services.extensions.save.ISaveContext;
 import org.eclipse.lemminx.uriresolver.URIResolverExtension;
 import org.eclipse.lemminx.utils.DOMUtils;
@@ -55,6 +57,8 @@ public class RelaxNGPlugin implements IXMLExtension {
 	private final IRenameParticipant renameParticipant;
 	private final IDocumentLinkParticipant documentLinkParticipant;
 
+	private final IDiagnosticsParticipant diagnosticsParticipant;
+
 	public RelaxNGPlugin() {
 		completionParticipant = new RNGCompletionParticipant();
 		definitionParticipant = new RNGDefinitionParticipant();
@@ -63,6 +67,7 @@ public class RelaxNGPlugin implements IXMLExtension {
 		highlightingParticipant = new RNGHighlightingParticipant();
 		renameParticipant = new RNGRenameParticipant();
 		documentLinkParticipant = new RNGDocumentLinkParticipant();
+		this.diagnosticsParticipant = new RNGDiagnosticsParticipant(this);
 	}
 
 	@Override
@@ -93,6 +98,7 @@ public class RelaxNGPlugin implements IXMLExtension {
 		registry.registerHighlightingParticipant(highlightingParticipant);
 		registry.registerRenameParticipant(renameParticipant);
 		registry.registerDocumentLinkParticipant(documentLinkParticipant);
+		registry.registerDiagnosticsParticipant(diagnosticsParticipant);
 	}
 
 	@Override
@@ -106,6 +112,7 @@ public class RelaxNGPlugin implements IXMLExtension {
 		registry.unregisterHighlightingParticipant(highlightingParticipant);
 		registry.unregisterRenameParticipant(renameParticipant);
 		registry.unregisterDocumentLinkParticipant(documentLinkParticipant);
+		registry.unregisterDiagnosticsParticipant(diagnosticsParticipant);
 	}
 
 	public ContentModelManager getContentModelManager() {

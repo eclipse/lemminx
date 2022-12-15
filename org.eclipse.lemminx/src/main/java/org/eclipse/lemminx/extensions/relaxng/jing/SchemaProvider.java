@@ -45,6 +45,7 @@ import com.thaiopensource.validate.Schema;
 import com.thaiopensource.validate.SchemaReader;
 import com.thaiopensource.validate.ValidateProperty;
 import com.thaiopensource.validate.Validator;
+import com.thaiopensource.xml.sax.XMLReaderCreator;
 
 /**
  * RelaxNG schema provider.
@@ -79,8 +80,16 @@ public class SchemaProvider {
 			XMLErrorReporter errorReporter, SchemaPatternBuilder schemaPatternBuilder)
 			throws MalformedURIException, IOException, SAXException, IncorrectSchemaException {
 		InputSource input = createInputSource(description, entityResolver);
-		SchemaReader schemaReader = getSchemaReader(description.getLiteralSystemId());
-		PropertyMap schemaProperties = createPropertyMap(entityResolver, errorReporter, schemaPatternBuilder);
+		return loadSchema(input, entityResolver, errorReporter, schemaPatternBuilder, null);
+	}
+
+	public static Schema loadSchema(InputSource input, XMLEntityResolver entityResolver,
+			XMLErrorReporter errorReporter, SchemaPatternBuilder schemaPatternBuilder,
+			XMLReaderCreator xmlReaderCreator)
+			throws IOException, SAXException, IncorrectSchemaException {
+		SchemaReader schemaReader = getSchemaReader(input.getSystemId());
+		PropertyMap schemaProperties = createPropertyMap(entityResolver, errorReporter, schemaPatternBuilder,
+				xmlReaderCreator);
 		return schemaReader.createSchema(new SAXSource(input), schemaProperties);
 	}
 
@@ -97,7 +106,7 @@ public class SchemaProvider {
 	}
 
 	private static PropertyMap createPropertyMap(XMLEntityResolver entityResolver, XMLErrorReporter errorReporter,
-			SchemaPatternBuilder schemaPatternBuilder) {
+			SchemaPatternBuilder schemaPatternBuilder, XMLReaderCreator xmlReaderCreator) {
 		PropertyMapBuilder mapBuilder = new PropertyMapBuilder();
 		if (errorReporter != null) {
 			mapBuilder.put(ValidateProperty.ERROR_HANDLER, createErrorHandler(errorReporter));
@@ -117,6 +126,9 @@ public class SchemaProvider {
 		if (schemaPatternBuilder != null) {
 			mapBuilder.put(MySchemaReaderImpl.SCHEMA_PATTERN_BUILDER, schemaPatternBuilder);
 		}
+		if (xmlReaderCreator != null) {
+			mapBuilder.put(ValidateProperty.XML_READER_CREATOR, xmlReaderCreator);
+		}
 		return mapBuilder.toPropertyMap();
 	}
 
@@ -130,7 +142,7 @@ public class SchemaProvider {
 	}
 
 	public static void validate(Schema schema, XMLReader xr, XMLErrorReporter errorReporter) {
-		PropertyMap instanceProperties = createPropertyMap(null, errorReporter, null);
+		PropertyMap instanceProperties = createPropertyMap(null, errorReporter, null, null);
 		Validator validator = schema.createValidator(instanceProperties);
 		xr.setContentHandler(validator.getContentHandler());
 	}
