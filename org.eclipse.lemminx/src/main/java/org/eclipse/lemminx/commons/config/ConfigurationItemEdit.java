@@ -23,6 +23,10 @@ public class ConfigurationItemEdit extends ConfigurationItem {
 	private ConfigurationItemEditType editType;
 	private ConfigurationItemValueKind valueKind;
 
+	public ConfigurationItemEdit () {
+		// Need explicit no-arg constructor for deserialization
+	}
+
 	/**
 	 *
 	 * @param section   config section to change
