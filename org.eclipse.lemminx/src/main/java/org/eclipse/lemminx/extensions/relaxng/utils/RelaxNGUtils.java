@@ -45,12 +45,13 @@ import com.google.common.base.Objects;
  */
 public class RelaxNGUtils {
 
+	public static final String GRAMMAR_TAG = "grammar";
 	private static final String REF_TAG = "ref";
 	private static final String INCLUDE_TAG = "include";
 	private static final String EXTERNAL_REF_TAG = "externalRef";
 
 	private static final String DEFINE_TAG = "define";
-	private static final String NAME_ATTR = "name";
+	public static final String NAME_ATTR = "name";
 	private static final String HREF_ATTR = "href";
 
 	public static FilesChangedTracker createFilesChangedTracker(RelaxNGGrammar grammar) {
@@ -92,7 +93,7 @@ public class RelaxNGUtils {
 		if (originAttr != null) {
 			String name = originAttr.getName();
 			if (NAME_ATTR.equals(name)) {
-				if (REF_TAG.equals(originAttr.getOwnerElement().getLocalName())) {
+				if (isRef(originAttr.getOwnerElement())) {
 					// - <ref name=" --> <define name="
 					return BindingType.DEFINE;
 				}
@@ -383,6 +384,10 @@ public class RelaxNGUtils {
 		return element != null && DEFINE_TAG.equals(element.getLocalName());
 	}
 
+	public static boolean isRef(Element element) {
+		return element != null && REF_TAG.equals(element.getLocalName());
+	}
+	
 	/**
 	 * Returns true if the given element is an RNG target element (define element)
 	 * and false

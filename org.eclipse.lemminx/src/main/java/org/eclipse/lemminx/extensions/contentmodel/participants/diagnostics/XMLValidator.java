@@ -129,9 +129,8 @@ public class XMLValidator {
 			parser.setFeature("http://xml.org/sax/features/namespaces", namespacesValidationEnabled); //$NON-NLS-1$
 
 			// Parse XML
-			String content = document.getText();
-			String uri = document.getDocumentURI();
-			parseXML(content, uri, parser);
+			InputSource input = DOMUtils.createInputSource(document);
+			parser.parse(input);
 		} catch (IOException | SAXException | CancellationException exception) {
 			// ignore error
 		} catch (CacheResourceException e) {
@@ -318,13 +317,6 @@ public class XMLValidator {
 		}
 		return externalGrammarLocation.containsKey(IExternalGrammarLocationProvider.NO_NAMESPACE_SCHEMA_LOCATION)
 				|| externalGrammarLocation.containsKey(IExternalGrammarLocationProvider.SCHEMA_LOCATION);
-	}
-
-	private static void parseXML(String content, String uri, SAXParser parser) throws SAXException, IOException {
-		InputSource inputSource = new InputSource();
-		inputSource.setCharacterStream(new StringReader(content));
-		inputSource.setSystemId(uri);
-		parser.parse(inputSource);
 	}
 
 	/**

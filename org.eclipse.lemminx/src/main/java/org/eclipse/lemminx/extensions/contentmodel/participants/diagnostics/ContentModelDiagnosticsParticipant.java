@@ -44,7 +44,7 @@ public class ContentModelDiagnosticsParticipant implements IDiagnosticsParticipa
 	public void doDiagnostics(DOMDocument xmlDocument, List<Diagnostic> diagnostics,
 			XMLValidationSettings validationSettings, CancelChecker monitor) {
 		downloadExternalResourcesIfNeeded(diagnostics);
-		if (xmlDocument.isDTD() || DOMUtils.isXSD(xmlDocument)) {
+		if (xmlDocument.isDTD() || DOMUtils.isXSD(xmlDocument) || DOMUtils.isRelaxNG(xmlDocument)) {
 			// Don't validate DTD / XML Schema with XML validator
 			return;
 		}
