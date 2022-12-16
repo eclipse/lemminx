@@ -24,7 +24,7 @@ import org.eclipse.lsp4j.TextEdit;
 
 /**
  * DOM element formatter.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -100,7 +100,7 @@ public class DOMElementFormatter {
 			// tag is some white spaces
 			// before formatting: <a> [space][space] <b> </b> example text </a>
 			// after formatting: <a>\n <b> </b> example text </a>
-			int parentStartCloseOffset = element.getParentElement().getStartTagCloseOffset() + 1;
+			int parentStartCloseOffset = element.getParentElement() != null ? element.getParentElement().getStartTagCloseOffset() + 1 : 0;
 			if ((parentStartCloseOffset != startTagOpenOffset
 					&& StringUtils.isWhitespace(formatterDocument.getText(), parentStartCloseOffset,
 							startTagOpenOffset))) {
@@ -227,11 +227,11 @@ public class DOMElementFormatter {
 	/**
 	 * Formats the start tag's closing bracket (>) according to
 	 * {@code XMLFormattingOptions#isPreserveAttrLineBreaks()}
-	 * 
+	 *
 	 * {@code XMLFormattingOptions#isPreserveAttrLineBreaks()}: If true, must add a
 	 * newline + indent before the closing bracket if the last attribute of the
 	 * element and the closing bracket are in different lines.
-	 * 
+	 *
 	 * @param element
 	 * @throws BadLocationException
 	 */
@@ -336,7 +336,7 @@ public class DOMElementFormatter {
 
 	/**
 	 * Return the option to use to generate empty elements.
-	 * 
+	 *
 	 * @param element the DOM element
 	 * @return the option to use to generate empty elements.
 	 */
@@ -368,10 +368,10 @@ public class DOMElementFormatter {
 	/**
 	 * Return true if conditions are met to format according to the
 	 * closingBracketNewLine setting.
-	 * 
+	 *
 	 * 1. splitAttribute must be set to true 2. there must be at least 2 attributes
 	 * in the element
-	 * 
+	 *
 	 * @param element the DOM element
 	 * @return true if should format according to closingBracketNewLine setting.
 	 */
@@ -408,10 +408,10 @@ public class DOMElementFormatter {
 	/**
 	 * Returns true if the DOM document have some line break in the given range
 	 * [from, to] and false otherwise.
-	 * 
+	 *
 	 * @param from the from offset range.
 	 * @param to   the to offset range.
-	 * 
+	 *
 	 * @return true if the DOM document have some line break in the given range
 	 *         [from, to] and false otherwise.
 	 */
@@ -421,9 +421,9 @@ public class DOMElementFormatter {
 
 	/**
 	 * Returns the last attribute of the given DOMelement and null otherwise.
-	 * 
+	 *
 	 * @param element the DOM element.
-	 * 
+	 *
 	 * @return the last attribute of the given DOMelement and null otherwise.
 	 */
 	private static DOMAttr getLastAttribute(DOMElement element) {
