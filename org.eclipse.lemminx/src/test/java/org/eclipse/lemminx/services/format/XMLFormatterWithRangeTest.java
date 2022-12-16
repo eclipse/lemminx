@@ -337,6 +337,21 @@ public class XMLFormatterWithRangeTest {
 				te(3, 24, 4, 4, ""));
 	}
 
+	@Test
+	public void testMixedContentInRoot() throws BadLocationException {
+		String content = "|<a>\n" + //
+				"zz    <b>  </b>tt     </a>\n|";
+
+		String expected = "<a> zz <b> </b>tt </a>";
+
+		assertFormat(content, expected, //
+				te(0, 3, 1, 0, " "), //
+				te(1, 2, 1, 6, " "), //
+				te(1, 9, 1, 11, " "), //
+				te(1, 17, 1, 22, " "), //
+				te(1, 26, 2, 0, ""));
+	}
+
 	private static void assertFormat(String unformatted, String actual, TextEdit... expectedEdits)
 			throws BadLocationException {
 		assertFormat(unformatted, actual, new SharedSettings(), expectedEdits);
