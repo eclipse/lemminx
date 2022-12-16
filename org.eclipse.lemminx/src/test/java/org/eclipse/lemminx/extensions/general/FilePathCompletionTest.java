@@ -271,7 +271,7 @@ public class FilePathCompletionTest extends AbstractCacheBasedTest {
 	@Test
 	public void testFilePathCompletionForEmptyDoctype() throws BadLocationException {
 		String xml = "<!DOCTYPE foo SYSTEM \"|\">";
-		testCompletionFor(xml, 9);
+		testCompletionFor(xml, 10);
 	}
 
 	@Test

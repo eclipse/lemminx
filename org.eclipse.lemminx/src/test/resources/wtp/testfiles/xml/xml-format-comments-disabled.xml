@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+
+	<!-- 
+		This is my node header.
+	-->
+	<node>
+		Text
+	</node>
+
+<!-- This is my node footer. The text should be a little too long for the line, but that's ok. Just make sure it's not formatted. -->
+</root>

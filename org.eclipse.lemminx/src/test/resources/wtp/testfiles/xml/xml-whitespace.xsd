@@ -1,0 +1,28 @@
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<xsd:element name="song" type="xsdSong" />
+	<!-- Define a simple type to test that the hierarchy overriding whitespace rule is observed -->
+	<xsd:simpleType name="CollapsedString">
+		<xsd:restriction base="xsd:string">
+			<xsd:whiteSpace value="collapse" />
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!-- Define a simple type to test that the whitespace rule is inherited from the ancestor -->
+	<xsd:simpleType name="Normalized">
+  		<xsd:restriction base="xsd:normalizedString"></xsd:restriction>
+  	</xsd:simpleType>
+	<xsd:complexType name="xsdSong">
+		<xsd:sequence>
+			<!-- Whitespace should be replaced -->
+			<xsd:element name="artist" type="xsd:normalizedString" />
+			<xsd:element name="year" type="xsd:nonNegativeInteger" />
+			<!-- Whitespace should collapse -->
+			<xsd:element name="title" type="xsd:token" />
+			<!-- Whitespace should be preserved -->
+			<xsd:element name="lyrics" type="xsd:string" />
+			<!-- Whitespace should collapse -->
+			<xsd:element name="length" type="xsd:duration" />
+			<xsd:element name="album" type="CollapsedString" />
+			<xsd:element name="location" type="Normalized" />
+		</xsd:sequence>
+	</xsd:complexType>
+</xsd:schema>

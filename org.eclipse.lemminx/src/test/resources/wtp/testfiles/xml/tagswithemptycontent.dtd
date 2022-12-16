@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!ELEMENT topmost (empty,emptywithattribute)>
+<!ELEMENT empty EMPTY>
+<!ELEMENT emptywithattribute EMPTY>
+<!ATTLIST emptywithattribute
+	myattribute1 CDATA #IMPLIED
+	myattribute2 CDATA #IMPLIED>
