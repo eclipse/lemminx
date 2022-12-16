@@ -19,11 +19,13 @@ import java.util.stream.Collectors;
 
 import org.eclipse.lemminx.client.InvalidPathWarner;
 import org.eclipse.lemminx.client.PathFeature;
+import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
 import org.eclipse.lemminx.services.IXMLNotificationService;
 import org.eclipse.lemminx.services.extensions.IDocumentLinkParticipant;
 import org.eclipse.lemminx.services.extensions.IXMLExtension;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lemminx.services.extensions.codelens.ICodeLensParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lemminx.services.extensions.save.ISaveContext;
 import org.eclipse.lemminx.utils.FilesUtils;
@@ -37,6 +39,7 @@ public class XMLCatalogPlugin implements IXMLExtension {
 	private XMLCatalogURIResolverExtension uiResolver;
 	private final IDocumentLinkParticipant documentLinkParticipant;
 	private final IDiagnosticsParticipant diagnosticsParticipant;
+	private ICodeLensParticipant codeLensParticipant;
 
 	private InvalidPathWarner pathWarner;
 
@@ -57,6 +60,8 @@ public class XMLCatalogPlugin implements IXMLExtension {
 
 	@Override
 	public void start(InitializeParams params, XMLExtensionsRegistry registry) {
+		ContentModelManager contentModelManager = registry.getComponent(ContentModelManager.class);
+		codeLensParticipant = new XMLCatalogCodeLensParticipant(contentModelManager);
 		uiResolver = new XMLCatalogURIResolverExtension(registry);
 		registry.getResolverExtensionManager().registerResolver(uiResolver);
 		IXMLNotificationService notificationService = registry.getNotificationService();
@@ -65,12 +70,14 @@ public class XMLCatalogPlugin implements IXMLExtension {
 		}
 		registry.registerDocumentLinkParticipant(documentLinkParticipant);
 		registry.registerDiagnosticsParticipant(diagnosticsParticipant);
+		registry.registerCodeLensParticipant(codeLensParticipant);
 	}
 
 	@Override
 	public void stop(XMLExtensionsRegistry registry) {
 		registry.getResolverExtensionManager().unregisterResolver(uiResolver);
 		registry.unregisterDiagnosticsParticipant(diagnosticsParticipant);
+		registry.unregisterCodeLensParticipant(codeLensParticipant);
 	}
 
 	private void validateCatalogPaths(ContentModelSettings cmSettings) {
@@ -81,7 +88,7 @@ public class XMLCatalogPlugin implements IXMLExtension {
 		Set<String> invalidCatalogs = Arrays.stream(catalogs).filter(c -> {
 			return Files.notExists(FilesUtils.getPath(c));
 		}).collect(Collectors.toSet());
-		
+
 		if (invalidCatalogs.size() > 0) {
 			this.pathWarner.onInvalidFilePath(invalidCatalogs, PathFeature.CATALOGS);
 		} else {
