@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pcdatalicious SYSTEM "xml-preservepcdata.dtd" >
+<pcdatalicious>
+	<ihavepcdata>i have pcdata</ihavepcdata>
+	<ihavepcdata>
+		i have
+
+
+
+		spaces
+	</ihavepcdata>
+	<idont />
+	<neitherdoi>do i have pcdata? i'm not sure. boo hoo.</neitherdoi>
+</pcdatalicious>

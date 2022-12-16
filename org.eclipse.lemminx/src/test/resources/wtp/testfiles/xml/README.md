@@ -1,0 +1,1 @@
+Those XML test files comes from WTP XML https://github.com/kingargyle/wtp-sourceediting/tree/master/tests/org.eclipse.wst.xml.core.tests/src/org/eclipse/wst/xml/core/tests/format/testfiles/xml

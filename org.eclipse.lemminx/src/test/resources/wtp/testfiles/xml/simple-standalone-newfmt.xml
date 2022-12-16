@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<main>
+	This is just a simple test of the formatter which should be easy to
+	pass.
+	<data-stuff attr1="short-value" a0="" a1=' ' a2="  "
+		a3='   ' a4="    " a5='     ' a6="       " attr2="short-value"
+		attr-which-is-really-really-oh-so-horribly-long-yes-sir-1="also quite fantastically long value which mustn't be  broken"
+		attr3="short-value">
+		<cdata>
+ <![CDATA[
+   Daa, daa, da, da - da, da - da, da
+	
+		Can't touch this!
+  (spaces here)
+	(tab here)
+		]]>
+		</cdata>
+		<a>
+			<b>b</b>
+			<b>b </b>
+			<b> b</b>  <!-- Comment here don't twiddle with spaces in them -->
+			<b> b </b>
+			<b> b 
+			</b>
+			<b>b</b>
+		</a><?target  why  am  I  here 
+  ?>
+	</data-stuff>
+</main>

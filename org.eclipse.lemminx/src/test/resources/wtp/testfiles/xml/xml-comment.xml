@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<node>
+	<inner>
+		<another>
+			<else> <!-- Don't wrap -->
+			</else><!--				Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Maecenas				elit est, convallis id, congue in, posuere et, nunc. Sed ut lectus.				Nulla eu diam ac nulla placerat tincidunt. In vitae tellus.				Suspendisse rutrum. Nunc mollis urna at mauris suscipit lacinia. Praesent in ante. Maecenas tincidunt mauris s-->
+			Sometext stuff in the document
+	<something>
+				<else xml:space="preserve"><!--	Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Maecenas		elit est, convallis id, congue in, posuere et, nunc. Sed ut lectus.			Nulla eu diam ac nulla placerat tincidunt. In vitae tellus.				Suspendisse rutrum. Nunc mollis urna at mauris suscipit lacinia. Praesent in ante. Maecenas tincidunt mauris s--></else>
+	</something>
+		</another>
+	</inner>
+</node>

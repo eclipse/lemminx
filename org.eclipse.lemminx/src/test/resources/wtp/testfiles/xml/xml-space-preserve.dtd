@@ -1,0 +1,15 @@
+<?xml encoding="US-ASCII"?>
+
+<!ELEMENT main (#PCDATA | nothing | preserve | preserve2)* >
+
+<!ELEMENT preserve (#PCDATA | nothing | space-default)* >
+<!ATTLIST preserve xml:space (default|preserve) 'preserve'>
+
+<!ELEMENT preserve2 (#PCDATA | nothing | space-default)* >
+<!ATTLIST preserve2 xml:space NMTOKEN #FIXED "preserve">
+
+<!ELEMENT space-default (#PCDATA| nothing | preserve)*>
+<!ATTLIST space-default xml:space (default|preserve) 'default'>
+
+<!ELEMENT nothing (#PCDATA) >
+

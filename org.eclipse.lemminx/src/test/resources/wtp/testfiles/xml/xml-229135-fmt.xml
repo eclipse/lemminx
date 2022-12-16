@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<book>
+	<title>This &amp; That</title>
+	<author>Some person</author>
+	<reviews>
+		<review id="0"> &quot;A wonderful and gripping epic story.&quot; </review>
+		<review id="1">&quot;I liked it.&quot;</review>
+	</reviews>
+	<preview> Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</preview>
+	<releaseDate>
+		<pattern>%yyyy-%mm-%dd</pattern>
+		<date>2009-04-13</date>
+	</releaseDate>
+</book>

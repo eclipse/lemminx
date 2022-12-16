@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+
+	<!-- Comment node -->
+
+	<nocontent></nocontent>
+
+	<mixedcontent>
+		Textnode with some trailing whitespace - should be
+
+		collapsed and some of the text should be wrapped
+
+		<mixed>All text</mixed>
+
+	</mixedcontent>
+
+
+
+
+	<nocontent>
+	</nocontent>
+
+	<somemorenocontent>
+		<indentmore>
+			<evenmore>
+
+			</evenmore>
+		</indentmore>
+	</somemorenocontent>
+</root>

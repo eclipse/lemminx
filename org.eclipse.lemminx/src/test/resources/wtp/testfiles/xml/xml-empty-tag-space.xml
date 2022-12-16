@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<main>
+	<a tag="with"> Some content </a>
+	<nocontentwithspace />
+	<nocontentwithoutspace/>
+	<nocontent withattr="stuff"/>
+	<nocontent    		/>
+	<manylinedcontent 
+	
+		with="attributes"
+			/>
+</main>

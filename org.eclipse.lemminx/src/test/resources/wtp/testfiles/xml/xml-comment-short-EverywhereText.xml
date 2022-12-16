@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	
+test
+			
+test<!-- comment 16 -->
+
+				test
+
+	test	<!-- comment 17 -->
+	
+	test
+				
+			test <!-- comment 18 -->
+
+test
+
+</root>

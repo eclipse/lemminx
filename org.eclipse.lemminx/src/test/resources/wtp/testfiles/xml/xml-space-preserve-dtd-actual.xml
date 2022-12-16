@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<!DOCTYPE main SYSTEM "xml-space-preserve.dtd">
+<main>
+	<nothing>
+		this  is not a  target, strip spaces as
+		you  please </nothing>
+<preserve>
+  This is just
+     
+ a simple test
+ .
+  .
+  .
+  </preserve>
+   of the formatter.
+   <preserve xml:space="default">
+		This particular text can
+
+		and should be reformatted.
+   </preserve>
+   
+<preserve>
+  This is just
+     
+ a simple test
+    <nothing>
+		this space   is not for sale	OR FORMATTING
+		, please </nothing> <!-- NOTE THE SPACES -->  <space-default>
+ No man
+ 
+ is an
+ 
+ island, .
+  .
+  .
+ but this section is, really, so clean it up please - waste of           space
+ 	</space-default>
+  .
+  . This should be space   preserved
+  </preserve>
+   <preserve2>
+This particular
+  text may 
+
+not  reformatted.</preserve2>  <nothing>
+		this  is not a  target, strip spaces as
+		you  please </nothing>
+</main>
