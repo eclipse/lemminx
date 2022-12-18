@@ -40,5 +40,22 @@ public class RelaxNGDescription extends XMLResourceIdentifierImpl implements XML
 	public String getGrammarType() {
 		return RelaxNGConstants.RELAX_NG;
 	}
+	
+	/**
+     * Returns the hash code of this grammar
+     * Because our .equals method is so complex, we just return a very
+     * simple hash that might avoid calls to the equals method a bit...
+     * @return The hash code
+     */
+    public int hashCode() {
+        if (fExpandedSystemId != null) {
+            return fExpandedSystemId.hashCode();
+        }
+        if (fPublicId != null) {
+            return fPublicId.hashCode();
+        }
+        // give up; hope .equals can handle it:
+        return 0;
+    }
 
 }

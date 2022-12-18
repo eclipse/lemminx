@@ -75,7 +75,7 @@ public class CMDTDContentModelProvider implements ContentModelProvider {
 	}
 
 	@Override
-	public CMDocument createCMDocument(String key, boolean resolveExternalEntities) {
+	public CMDocument createCMDocument(String key, boolean resolveExternalEntities, boolean xIncludeEnabled) {
 		try {
 			CMDTDDocument document = newCMDocument(key, resolveExternalEntities);
 			Grammar grammar = document.loadGrammar(new XMLInputSource(null, key, null));

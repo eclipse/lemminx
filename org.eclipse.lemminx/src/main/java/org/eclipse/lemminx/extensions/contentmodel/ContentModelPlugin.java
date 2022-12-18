@@ -176,9 +176,7 @@ public class ContentModelPlugin implements IXMLExtension {
 		if (oldValidationSettings != null && !Objects.equals(oldValidationSettings, currentValidationSettings)) {
 			context.collectDocumentToValidate(d -> true);
 		}
-		if (currentValidationSettings != null) {
-			contentModelManager.setResolveExternalEntities(currentValidationSettings.isResolveExternalEntities());
-		}
+		contentModelManager.setValidationSettings(currentValidationSettings);		
 	}
 
 	private void validateAllOpenedDocument(ISaveContext context) {

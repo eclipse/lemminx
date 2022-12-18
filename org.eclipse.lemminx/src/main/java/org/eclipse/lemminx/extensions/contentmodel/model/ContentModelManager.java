@@ -29,6 +29,7 @@ import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelProvider.Identifier;
 import org.eclipse.lemminx.extensions.contentmodel.participants.diagnostics.LSPXMLGrammarPool;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLFileAssociation;
+import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.extensions.contentmodel.uriresolver.XMLCacheResolverExtension;
 import org.eclipse.lemminx.extensions.contentmodel.uriresolver.XMLCatalogResolverExtension;
 import org.eclipse.lemminx.extensions.contentmodel.uriresolver.XMLFileAssociationResolverExtension;
@@ -55,8 +56,7 @@ public class ContentModelManager {
 	private final XMLCatalogResolverExtension catalogResolverExtension;
 	private final XMLFileAssociationResolverExtension fileAssociationResolver;
 	private final LSPXMLGrammarPool grammarPool;
-
-	private boolean resolveExternalEntities;
+	private XMLValidationSettings validationSettings;
 
 	public ContentModelManager(URIResolverExtensionManager resolverManager) {
 		this.resolverManager = resolverManager;
@@ -320,17 +320,19 @@ public class ContentModelManager {
 			try {
 				Path file = cacheResolverExtension.getCachedResource(resolvedUri);
 				if (file != null) {
-					cmDocument = modelProvider.createCMDocument(file.toUri().toString(), isResolveExternalEntities());
+					cmDocument = modelProvider.createCMDocument(file.toUri().toString(), isResolveExternalEntities(),
+							isXIncludeEnabled());
 				}
 			} catch (CacheResourceDownloadingException e) {
 				// the DTD/XML Schema is downloading
 				return null;
 			} catch (Exception e) {
 				// other error like network which is not available
-				cmDocument = modelProvider.createCMDocument(resolvedUri, isResolveExternalEntities());
+				cmDocument = modelProvider.createCMDocument(resolvedUri, isResolveExternalEntities(),
+						isXIncludeEnabled());
 			}
 		} else {
-			cmDocument = modelProvider.createCMDocument(resolvedUri, isResolveExternalEntities());
+			cmDocument = modelProvider.createCMDocument(resolvedUri, isResolveExternalEntities(), isXIncludeEnabled());
 		}
 		// Cache the document
 		if (cmDocument != null) {
@@ -525,16 +527,11 @@ public class ContentModelManager {
 	 * @return true if external entities must be resolved and false otherwise.
 	 */
 	public boolean isResolveExternalEntities() {
-		return resolveExternalEntities;
+		return validationSettings != null ? validationSettings.isResolveExternalEntities() : false;
 	}
 
-	/**
-	 * Set true if external entities must be resolved and false otherwise.
-	 *
-	 * @param resolveExternalEntities resolve external entities
-	 */
-	public void setResolveExternalEntities(boolean resolveExternalEntities) {
-		this.resolveExternalEntities = resolveExternalEntities;
+	private boolean isXIncludeEnabled() {
+		return validationSettings != null ? validationSettings.getXInclude().isEnabled() : false;
 	}
 
 	/**
@@ -544,6 +541,10 @@ public class ContentModelManager {
 	 */
 	public void forceDownloadExternalResource(String url) {
 		cacheResolverExtension.forceDownloadExternalResource(url);
+	}
+
+	public void setValidationSettings(XMLValidationSettings validationSettings) {
+		this.validationSettings = validationSettings;
 	}
 
 }

@@ -104,7 +104,7 @@ public interface ContentModelProvider {
 	 * @return the content model document (XSD, DTD, etc) from the given resource
 	 *         key and null otherwise.
 	 */
-	CMDocument createCMDocument(String key, boolean resolveExternalEntities);
+	CMDocument createCMDocument(String key, boolean resolveExternalEntities, boolean xIncludeEnabled);
 
 	/**
 	 * Create the internal content model (for DOCTYPE subset) from the given DOM

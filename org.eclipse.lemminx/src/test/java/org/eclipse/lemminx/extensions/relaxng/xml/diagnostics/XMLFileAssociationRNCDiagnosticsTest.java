@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Test;
  * association.
  *
  */
-public class XMLFileAssociationRelaxNGCompactSyntaxDiagnosticsTest extends AbstractCacheBasedTest {
+public class XMLFileAssociationRNCDiagnosticsTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void valid() throws Exception {

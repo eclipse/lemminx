@@ -68,6 +68,8 @@ public class ExternalRelaxNGValidator implements XMLComponent, XMLDocumentFilter
 
 	private XMLDocumentSource documentSource;
 
+	private boolean xIncludeEnabled;
+
 	public static final String ERROR_REPORTER = Constants.XERCES_PROPERTY_PREFIX + Constants.ERROR_REPORTER_PROPERTY;
 
 	protected static final String ENTITY_RESOLVER = Constants.XERCES_PROPERTY_PREFIX
@@ -76,6 +78,8 @@ public class ExternalRelaxNGValidator implements XMLComponent, XMLDocumentFilter
 	/** Property identifier: grammar pool. */
 	protected static final String XMLGRAMMAR_POOL = Constants.XERCES_PROPERTY_PREFIX
 			+ Constants.XMLGRAMMAR_POOL_PROPERTY;
+
+	protected static final String XINCLUDE_FEATURE = Constants.XERCES_FEATURE_PREFIX + Constants.XINCLUDE_FEATURE;
 
 	public void startDocument(XMLLocator locator, String encoding, NamespaceContext namespaceContext,
 			Augmentations augs) throws XNIException {
@@ -123,7 +127,7 @@ public class ExternalRelaxNGValidator implements XMLComponent, XMLDocumentFilter
 					try {
 						location = XMLEntityManager.expandSystemId(externalRelaxNG, locator.getBaseSystemId(), false);
 						Schema schema = SchemaProvider.getSchema(externalRelaxNG, locator.getBaseSystemId(),
-								entityResolver, errorReporterForGrammar, grammarPool);
+								entityResolver, errorReporterForGrammar, grammarPool, xIncludeEnabled);
 						SchemaProvider.validate(schema, xmlReader, errorReporterForXML);
 					} catch (IncorrectSchemaException e) {
 						// ignore the error.
@@ -188,6 +192,12 @@ public class ExternalRelaxNGValidator implements XMLComponent, XMLDocumentFilter
 			grammarPool = null;
 		}
 
+		// Get grammar pool.
+		try {
+			xIncludeEnabled = componentManager.getFeature(XINCLUDE_FEATURE);
+		} catch (XMLConfigurationException e) {
+			xIncludeEnabled = false;
+		}
 	}
 
 	@Override
