@@ -12,11 +12,16 @@
  */
 package org.eclipse.lemminx.extensions.xinclude;
 
+import org.eclipse.lemminx.dom.DOMAttr;
+import org.eclipse.lemminx.dom.DOMElement;
+
 /**
  * XInclude utilities.
  *
  */
 public class XIncludeUtils {
+
+	public static final String XINCLUDE_ELT = "xi:include";
 
 	public static final String HREF_ATTR = "href";
 
@@ -28,4 +33,11 @@ public class XIncludeUtils {
 
 	public static final String XPOINTER_ATTR = "xpointer";
 
+	public static boolean isInclude(DOMElement element) {
+		return element != null && XINCLUDE_ELT.equals(element.getTagName());
+	}
+
+	public static DOMAttr getHref(DOMElement element) {
+		return element.getAttributeNode(HREF_ATTR);
+	}
 }

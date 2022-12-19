@@ -10,7 +10,7 @@
  *  Contributors:
  *  Red Hat Inc. - initial API and implementation
  */
-package org.eclipse.lemminx.extensions.xi;
+package org.eclipse.lemminx.extensions.xinclude;
 
 import static org.eclipse.lemminx.XMLAssert.d;
 
@@ -21,7 +21,6 @@ import org.eclipse.lemminx.extensions.contentmodel.participants.DTDErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.ExternalResourceErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationRootSettings;
-import org.eclipse.lemminx.extensions.xinclude.XIncludeErrorCode;
 import org.eclipse.lsp4j.Diagnostic;
 import org.junit.jupiter.api.Test;
 
