@@ -1,0 +1,14 @@
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+	datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes"
+	xmlns:xi="http://www.w3.org/2001/XInclude">
+	<start>
+		<ref name="foo" />
+	</start>
+	<define name="foo">
+		<element name="foo">
+			<element name="bar">
+				<attribute name="xml:base" />
+			</element>
+		</element>
+	</define>
+</grammar>
