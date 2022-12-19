@@ -105,7 +105,7 @@ public class CMXSDContentModelProvider implements ContentModelProvider {
 	}
 
 	@Override
-	public CMDocument createCMDocument(String key, boolean resolveExternalEntities) {
+	public CMDocument createCMDocument(String key, boolean resolveExternalEntities, boolean xIncludeEnabled) {
 		XSLoaderImpl loader = getLoader();
 		XSModel model = loader.loadURI(key);
 		if (model != null) {

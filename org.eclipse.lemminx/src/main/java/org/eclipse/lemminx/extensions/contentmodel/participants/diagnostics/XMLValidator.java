@@ -115,14 +115,16 @@ public class XMLValidator {
 							&& isNoNamespaceSchemaValidationEnabled(document, validationSettings)));
 			parser.setFeature("http://apache.org/xml/features/validation/schema", schemaValidationEnabled); //$NON-NLS-1$
 
-			boolean hasGrammar = document.hasDTD() || hasSchemaGrammar || (document.hasExternalGrammar()
-					&& !DOMUtils.isRelaxNGUri(document.getExternalGrammarFromNamespaceURI()));
+			boolean hasRelaxNG = hasRelaxNGReference(document, parser);
+			boolean hasGrammar = document.hasDTD() || hasSchemaGrammar
+					|| (!hasRelaxNG && document.hasExternalGrammar());
 			if (hasSchemaGrammar && !schemaValidationEnabled) {
 				hasGrammar = false;
 			}
 			parser.setFeature("http://xml.org/sax/features/validation", hasGrammar); //$NON-NLS-1$
 
-			boolean namespacesValidationEnabled = isNamespacesValidationEnabled(document, validationSettings, parser);
+			boolean namespacesValidationEnabled = isNamespacesValidationEnabled(document, validationSettings,
+					hasRelaxNG);
 			parser.setFeature("http://xml.org/sax/features/namespace-prefixes", false); //$NON-NLS-1$
 			parser.setFeature("http://xml.org/sax/features/namespaces", namespacesValidationEnabled); //$NON-NLS-1$
 
@@ -146,18 +148,11 @@ public class XMLValidator {
 	}
 
 	private static boolean isNamespacesValidationEnabled(DOMDocument document,
-			XMLValidationSettings validationSettings, SAXParser reader) {
-		try {
-			if (reader.getProperty(IExternalGrammarLocationProvider.RELAXNG) != null) {
-				return true;
-			}
-		} catch (Exception e) {
-			// Do nothing		
-			}
-		if (validationSettings == null) {
+			XMLValidationSettings validationSettings, boolean hasRelaxNG) {
+		if (hasRelaxNG) {
 			return true;
 		}
-		if (hasRelaxNGReference(document)) {
+		if (validationSettings == null) {
 			return true;
 		}
 		NamespacesEnabled enabled = NamespacesEnabled.always;
@@ -177,7 +172,14 @@ public class XMLValidator {
 		}
 	}
 
-	private static boolean hasRelaxNGReference(DOMDocument document) {
+	private static boolean hasRelaxNGReference(DOMDocument document, SAXParser parser) {
+		try {
+			if (parser.getProperty(IExternalGrammarLocationProvider.RELAXNG) != null) {
+				return true;
+			}
+		} catch (Exception e) {
+			// Do nothing
+		}
 		List<XMLModel> models = document.getXMLModels();
 		for (XMLModel xmlModel : models) {
 			if (DOMUtils.isRelaxNGUri(xmlModel.getHref())) {

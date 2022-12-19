@@ -56,11 +56,11 @@ public class CMRelaxNGContentModelProvider implements ContentModelProvider {
 	}
 
 	@Override
-	public CMDocument createCMDocument(String key, boolean resolveExternalEntities) {
+	public CMDocument createCMDocument(String key, boolean resolveExternalEntities, boolean xIncludeEnabled) {
 		try {
 			RelaxNGDescription description = new RelaxNGDescription(key, null);
 			Schema schema = SchemaProvider.loadSchema(description, resolverExtensionManager, null,
-					new MySchemaPatternBuilder());
+					new MySchemaPatternBuilder(), xIncludeEnabled);
 			if (schema instanceof MyPatternSchema) {
 				Pattern start = ((MyPatternSchema) schema).getStart();
 				return new CMRelaxNGDocument(key, start, resolverExtensionManager);
