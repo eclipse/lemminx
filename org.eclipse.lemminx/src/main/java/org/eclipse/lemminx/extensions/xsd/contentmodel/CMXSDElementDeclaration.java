@@ -17,8 +17,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import org.apache.xerces.impl.dv.xs.XSSimpleTypeDecl;
@@ -91,7 +93,7 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 	public String getNamespace() {
 		return elementDeclaration.getNamespace();
 	}
-	
+
 	@Override
 	public String getPrefix(String namespaceURI) {
 		// TODO : implement this method
@@ -581,5 +583,16 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 			return complexTypeDefinition.getContentType() == XSComplexTypeDefinition.CONTENTTYPE_MIXED;
 		}
 		return false;
+	}
+
+	@Override
+	public Set<CMElementDeclaration> getRequiredElements() {
+		Set<CMElementDeclaration> requiredElements = new LinkedHashSet<>();
+		for (CMElementDeclaration element : elements) {
+			if (!isOptional(element.getLocalName())) {
+				requiredElements.add(element);
+			}
+		}
+		return requiredElements;
 	}
 }

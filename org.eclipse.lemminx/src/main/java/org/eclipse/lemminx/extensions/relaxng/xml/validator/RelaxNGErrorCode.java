@@ -22,8 +22,11 @@ import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.dom.DOMRange;
 import org.eclipse.lemminx.dom.DOMText;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLModelUtils;
+import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.required_element_missingCodeAction;
 import org.eclipse.lemminx.extensions.relaxng.utils.RelaxNGUtils;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IXMLErrorCode;
+import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.utils.DOMUtils;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.Range;
@@ -226,6 +229,12 @@ public enum RelaxNGErrorCode implements IXMLErrorCode {
 
 		}
 		return null;
+	}
+
+	
+	public static void registerCodeActionParticipants(Map<String, ICodeActionParticipant> codeActions,
+			SharedSettings sharedSettings) {
+		codeActions.put(incomplete_element_required_element_missing.getCode(), new required_element_missingCodeAction());
 	}
 
 	private static DOMAttr findRefByName(DOMNode parent, String refName) {

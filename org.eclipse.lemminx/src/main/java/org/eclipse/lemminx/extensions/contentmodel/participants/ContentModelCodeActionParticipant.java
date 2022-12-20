@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.lemminx.extensions.relaxng.xml.validator.RelaxNGErrorCode;
 import org.eclipse.lemminx.extensions.xsd.participants.XSDErrorCode;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionRequest;
@@ -82,6 +83,7 @@ public class ContentModelCodeActionParticipant implements ICodeActionParticipant
 				XMLSchemaErrorCode.registerCodeActionParticipants(codeActionParticipants, sharedSettings);
 				XSDErrorCode.registerCodeActionParticipants(codeActionParticipants);
 				ExternalResourceErrorCode.registerCodeActionParticipants(codeActionParticipants);
+				RelaxNGErrorCode.registerCodeActionParticipants(codeActionParticipants, sharedSettings);
 			}
 		}
 	}

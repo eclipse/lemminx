@@ -867,6 +867,15 @@ public class XMLAssert {
 		return testCodeActionsFor(xml, diagnostic, (String) null, expected);
 	}
 
+	public static List<CodeAction> testCodeActionsFor(String xml, Diagnostic diagnostic, int index,
+			CodeAction... expected)
+			throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTabSize(4);
+		settings.getFormattingSettings().setInsertSpaces(false);
+		return testCodeActionsFor(xml, diagnostic, null, null, settings, null, index, expected);
+	}
+
 	public static List<CodeAction> testCodeActionsFor(String xml, String fileURI, Diagnostic diagnostic,
 			CodeAction... expected) throws BadLocationException {
 		return testCodeActionsFor(xml, fileURI, diagnostic, (String) null, expected);
@@ -887,7 +896,7 @@ public class XMLAssert {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setTabSize(4);
 		settings.getFormattingSettings().setInsertSpaces(false);
-		return testCodeActionsFor(xml, diagnostic, catalogPath, fileURI, settings, null, expected);
+		return testCodeActionsFor(xml, diagnostic, catalogPath, fileURI, settings, null, -1, expected);
 	}
 
 	public static List<CodeAction> testCodeActionsFor(String xml, Diagnostic diagnostic, String catalogPath,
@@ -898,11 +907,11 @@ public class XMLAssert {
 	public static List<CodeAction> testCodeActionsFor(String xml, Diagnostic diagnostic, String catalogPath,
 			SharedSettings sharedSettings, XMLLanguageService xmlLanguageService, CodeAction... expected)
 			throws BadLocationException {
-		return testCodeActionsFor(xml, diagnostic, catalogPath, null, sharedSettings, xmlLanguageService, expected);
+		return testCodeActionsFor(xml, diagnostic, catalogPath, null, sharedSettings, xmlLanguageService, -1, expected);
 	}
 
 	public static List<CodeAction> testCodeActionsFor(String xml, Diagnostic diagnostic, String catalogPath,
-			String fileURI, SharedSettings sharedSettings, XMLLanguageService xmlLanguageService,
+			String fileURI, SharedSettings sharedSettings, XMLLanguageService xmlLanguageService, int index,
 			CodeAction... expected) throws BadLocationException {
 		int offset = xml.indexOf('|');
 		Range range = null;
@@ -934,6 +943,7 @@ public class XMLAssert {
 		CodeActionContext context = new CodeActionContext();
 		context.setDiagnostics(Arrays.asList(diagnostic));
 		DOMDocument xmlDoc = DOMParser.getInstance().parse(document, xmlLanguageService.getResolverExtensionManager());
+		xmlLanguageService.setDocumentProvider((uri) -> xmlDoc);
 
 		List<CodeAction> actual = xmlLanguageService.doCodeActions(context, range, xmlDoc, sharedSettings, () -> {
 		});
@@ -948,6 +958,11 @@ public class XMLAssert {
 		// back into a list
 		CodeAction[] cloned_list = gson.fromJson(jsonstring, CodeAction[].class);
 
+		// Only test the code action at index if a proper index is given
+		if (index >= 0) {
+			assertCodeActions(Arrays.asList(actual.get(index)), Arrays.asList(expected).get(index));
+			return Arrays.asList(cloned_list);
+		}
 		assertCodeActions(actual, expected);
 		return Arrays.asList(cloned_list);
 	}

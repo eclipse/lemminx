@@ -17,14 +17,19 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.eclipse.lemminx.commons.SnippetsBuilder;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMAttributeDeclaration;
+import org.eclipse.lemminx.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMElementDeclaration;
+import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.services.extensions.ISharedSettingsRequest;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionRequest;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.utils.MarkupContentFactory;
 import org.eclipse.lemminx.utils.StringUtils;
@@ -73,6 +78,32 @@ public class XMLGenerator {
 		this.canSupportSnippets = canSupportSnippets;
 		this.maxLevel = maxLevel;
 		this.node = node;
+	}
+
+	public String generateMissingElements(ICodeActionRequest request, DOMElement element,
+			boolean generateOnlyRequired) {
+		ContentModelManager contentModelManager = request.getComponent(ContentModelManager.class);
+
+		// get list of all existing elements
+		Set<String> existingElements = new TreeSet<String>();
+		List<DOMNode> children = element.getChildren();
+		for (DOMNode child : children) {
+			if (child.isElement()) {
+				existingElements.add(child.getNodeName());
+			}
+		}
+
+		StringBuilder generatedXml = new StringBuilder();
+
+		for (CMDocument cmDocument : contentModelManager.findCMDocument(element)) {
+			CMElementDeclaration matchesCMElement = cmDocument.findCMElement(element);
+			if (matchesCMElement != null) {
+				generatedXml
+						.append(generate(matchesCMElement, null, true, true, existingElements, generateOnlyRequired));
+			}
+		}
+
+		return generatedXml.toString();
 	}
 
 	/**
@@ -137,17 +168,17 @@ public class XMLGenerator {
 			boolean generateOnlyRequired) {
 
 		if (generateOnlyChildren) {
-			Collection<CMElementDeclaration> childElements = elementDeclaration.getElements();
-			for (CMElementDeclaration child : childElements) {
-				if (isGenerateChild(elementDeclaration, generateOnlyRequired, child.getLocalName())) {
-					snippetIndex = generate(child, prefix, true, false, level + 1, snippetIndex, xml, generatedElements,
-							existingElementNames, generateOnlyRequired);
-				}
+			Collection<CMElementDeclaration> children = generateOnlyRequired ? elementDeclaration.getRequiredElements()
+					: elementDeclaration.getElements();
+			for (CMElementDeclaration child : children) {
+				snippetIndex = generate(child, prefix, true, false, level + 1, snippetIndex, xml, generatedElements,
+						existingElementNames, generateOnlyRequired);
 			}
+			xml.linefeed();
+			xml.indent(level);
 			return snippetIndex;
 		}
-		if (generatedElements.contains(elementDeclaration)
-				|| existingElementNames.contains(elementDeclaration.getLocalName())) {
+		if (generatedElements.contains(elementDeclaration)) {
 			return snippetIndex;
 		}
 		boolean autoCloseTags = this.autoCloseTags && generateEndTag;
@@ -161,20 +192,19 @@ public class XMLGenerator {
 		Collection<CMAttributeDeclaration> attributes = elementDeclaration.getAttributes();
 		snippetIndex = generate(attributes, level, snippetIndex, xml, elementDeclaration.getLocalName());
 		// Elements children
-		Collection<CMElementDeclaration> children = elementDeclaration.getElements();
+		Collection<CMElementDeclaration> children = generateOnlyRequired ? elementDeclaration.getRequiredElements()
+				: elementDeclaration.getElements();
 		if (children.size() > 0) {
 			xml.closeStartElement();
 			if ((level < maxLevel)) {
 				for (CMElementDeclaration child : children) {
-					if (isGenerateChild(elementDeclaration, generateOnlyRequired, child.getLocalName())) {
-						level++;
-						snippetIndex = generate(child, prefix, true, false, level, snippetIndex, xml, generatedElements,
-								existingElementNames, generateOnlyRequired);
-						level--;
-						xml.linefeed();
-						xml.indent(level);
-					}
+					level++;
+					snippetIndex = generate(child, prefix, true, false, level, snippetIndex, xml, generatedElements,
+							existingElementNames, generateOnlyRequired);
+					level--;
 				}
+				xml.linefeed();
+				xml.indent(level);
 			} else {
 				if (generateEndTag && canSupportSnippets) {
 					snippetIndex++;
@@ -460,22 +490,5 @@ public class XMLGenerator {
 			return MarkupContentFactory.createMarkupContent(documentation, MarkupKind.MARKDOWN, support);
 		}
 		return null;
-	}
-
-	/**
-	 * Returns true if the element child element is to be generated.
-	 * 
-	 * @param elementDeclaration   element declaration.
-	 * @param generateOnlyRequired
-	 * @param childName            name of child element.
-	 * 
-	 * @return true if the element child element is to be generated.
-	 */
-	private boolean isGenerateChild(CMElementDeclaration elementDeclaration, boolean generateOnlyRequired,
-			String childName) {
-		if (!generateOnlyRequired || (!elementDeclaration.isOptional(childName) && generateOnlyRequired)) {
-			return true;
-		}
-		return false;
 	}
 }

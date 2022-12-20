@@ -42,7 +42,7 @@ public interface CMElementDeclaration {
 	 * @return the target namespace and null otherwise.
 	 */
 	String getNamespace();
-	
+
 	/**
 	 * Returns the xmlns prefix from the given namespace URI and null otherwise.
 	 *
@@ -194,4 +194,12 @@ public interface CMElementDeclaration {
 	 */
 	boolean isOptional(String childElementName);
 
+	/**
+	 * Returns a list of required/non-optional child elements of the current
+	 * element.
+	 * 
+	 * @return a list of required/non-optional child elements of the current
+	 *         element.
+	 */
+	Collection<CMElementDeclaration> getRequiredElements();
 }
