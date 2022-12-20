@@ -418,6 +418,30 @@
 		}]
 	},
 	{
+		"name": "org.eclipse.lemminx.extensions.references.settings.XMLReferenceExpression",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
+		"name": "org.eclipse.lemminx.extensions.references.settings.XMLReferences",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
+		"name": "org.eclipse.lemminx.extensions.references.settings.XMLReferencesSettings",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
 		"name": "org.eclipse.lemminx.settings.QuoteStyle",
 		"allDeclaredFields": true
 	},

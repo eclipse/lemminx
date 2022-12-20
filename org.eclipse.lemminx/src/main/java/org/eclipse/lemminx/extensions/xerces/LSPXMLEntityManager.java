@@ -152,7 +152,9 @@ public class LSPXMLEntityManager extends XMLEntityManager {
 		if (hasProblemsWithReferencedDTD) {
 			// one of DTD which where cached has an error
 			// remove all DTDs cached during the validation from the grammar ppol.
-			grammarPool.clear();
+			if (grammarPool != null) {
+				grammarPool.clear();
+			}
 		}
 	}
 
