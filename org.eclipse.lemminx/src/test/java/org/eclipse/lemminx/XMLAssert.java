@@ -1348,10 +1348,6 @@ public class XMLAssert {
 			xmlLanguageService = new XMLLanguageService();
 		}
 
-		ContentModelSettings settings = new ContentModelSettings();
-		settings.setUseCache(false);
-		xmlLanguageService.doSave(new SettingsSaveContext(settings));
-
 		DOMDocument xmlDocument = DOMParser.getInstance().parse(document,
 				xmlLanguageService.getResolverExtensionManager());
 		xmlLanguageService.setDocumentProvider((uri) -> xmlDocument);
@@ -1545,7 +1541,14 @@ public class XMLAssert {
 		testHighlightsFor(xml, null, expected);
 	}
 
-	public static void testHighlightsFor(String value, String fileURI, DocumentHighlight... expected)
+	public static void testHighlightsFor(String value, String fileURI,
+			DocumentHighlight... expected)
+			throws BadLocationException {
+		testHighlightsFor(new XMLLanguageService(), value, fileURI, expected);
+	}
+
+	public static void testHighlightsFor(XMLLanguageService xmlLanguageService, String value, String fileURI,
+			DocumentHighlight... expected)
 			throws BadLocationException {
 		int offset = value.indexOf('|');
 		value = value.substring(0, offset) + value.substring(offset + 1);
@@ -1553,11 +1556,9 @@ public class XMLAssert {
 		TextDocument document = new TextDocument(value, fileURI != null ? fileURI : "test://test/test.xml");
 		Position position = document.positionAt(offset);
 
-		XMLLanguageService xmlLanguageService = new XMLLanguageService();
-
-		ContentModelSettings settings = new ContentModelSettings();
-		settings.setUseCache(false);
-		xmlLanguageService.doSave(new SettingsSaveContext(settings));
+		if (xmlLanguageService == null) {
+			xmlLanguageService = new XMLLanguageService();
+		}
 
 		DOMDocument xmlDocument = DOMParser.getInstance().parse(document,
 				xmlLanguageService.getResolverExtensionManager());
@@ -1813,11 +1814,13 @@ public class XMLAssert {
 	}
 
 	public static void assertSurroundWith(String xml, SurroundWithKind kind, boolean snippetsSupported,
-	String expected) throws BadLocationException, InterruptedException, ExecutionException  {
-		assertSurroundWith(xml, kind, snippetsSupported, (service) -> {}, "src/test/resources/test.xml", expected);
+			String expected) throws BadLocationException, InterruptedException, ExecutionException {
+		assertSurroundWith(xml, kind, snippetsSupported, (service) -> {
+		}, "src/test/resources/test.xml", expected);
 	}
 
-	public static void assertSurroundWith(String xml, SurroundWithKind kind, boolean snippetsSupported, Consumer<XMLLanguageService> configuration, String uri,
+	public static void assertSurroundWith(String xml, SurroundWithKind kind, boolean snippetsSupported,
+			Consumer<XMLLanguageService> configuration, String uri,
 			String expected) throws BadLocationException, InterruptedException, ExecutionException {
 		MockXMLLanguageServer languageServer = new MockXMLLanguageServer();
 
