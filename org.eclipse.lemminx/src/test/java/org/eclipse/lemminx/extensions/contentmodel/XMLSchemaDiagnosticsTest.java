@@ -205,17 +205,17 @@ public class XMLSchemaDiagnosticsTest extends AbstractCacheBasedTest {
 				"</root>";
 		Diagnostic d = d(0, 1, 0, 5, XMLSchemaErrorCode.cvc_complex_type_2_4_b);
 		testDiagnosticsFor(xml, d);
-		testCodeActionsFor(xml, d, ca(d, te(1, 83, 1, 83, //
+		testCodeActionsFor(xml, d, ca(d, te(1, 83, 2, 0, //
 				"\r\n" + //
 						"\t<authors>\r\n" + //
 						"\t\t<author></author>\r\n" + //
 						"\t</authors>\r\n" + //
-						"\t<assistant></assistant>")),
-				ca(d, te(1, 83, 1, 83, //
+						"\t<assistant></assistant>\r\n")),
+				ca(d, te(1, 83, 2, 0, //
 						"\r\n" + //
 								"\t<authors>\r\n" + //
 								"\t\t<author></author>\r\n" + //
-								"\t</authors>")));
+								"\t</authors>\r\n")));
 	}
 
 	@Test
@@ -304,17 +304,20 @@ public class XMLSchemaDiagnosticsTest extends AbstractCacheBasedTest {
 				"</root>";
 		Diagnostic d = d(0, 1, 0, 5, XMLSchemaErrorCode.cvc_complex_type_2_4_b);
 		testDiagnosticsFor(xml, d);
-		testCodeActionsFor(xml, d, ca(d, te(1, 65, 1, 65, //
+		testCodeActionsFor(xml, d, ca(d, te(1, 65, 4, 0, //
 				"\r\n" + //
+						"\t<a></a>\r\n" + //
 						"\t<b></b>\r\n" + //
+						"\t<c></c>\r\n" + //
 						"\t<d age=\"\">\r\n" + //
 						"\t\t<d1></d1>\r\n" + //
 						"\t</d>\r\n" + //
-						"\t<e></e>")),
-				ca(d, te(1, 65, 1, 65, //
+						"\t<e></e>\r\n")),
+				ca(d, te(1, 65, 4, 0, //
 						"\r\n" + //
+								"\t<a></a>\r\n" + //
 								"\t<d age=\"\"></d>\r\n" + //
-								"\t<e></e>")));
+								"\t<e></e>\r\n")));
 	}
 
 	@Test
@@ -326,22 +329,22 @@ public class XMLSchemaDiagnosticsTest extends AbstractCacheBasedTest {
 		testCodeActionsFor(xml, d, ca(d, te(1, 82, 1, 82, //
 				"\r\n" + //
 						"\t<a>\r\n" + //
-						"\t\t<root>\r\n\t\t\r\n" + //
+						"\t\t<root>\r\n" + //
 						"\t\t\t<b>\r\n" + //
-						"\t\t\t</b>\r\n\t\t\r\n" + //
+						"\t\t\t</b>\r\n" + //
 						"\t\t\t<c>\r\n" + //
-						"\t\t\t</c>\r\n\t\t\r\n" + //
+						"\t\t\t</c>\r\n" + //
 						"\t\t\t<d age=\"\">\r\n" + //
 						"\t\t\t\t<d1></d1>\r\n" + //
-						"\t\t\t</d>\r\n\t\t\r\n" + //
+						"\t\t\t</d>\r\n" + //
 						"\t\t\t<e></e>\r\n" + //
 						"\t\t</root>\r\n" + //
 						"\t</a>\r\n")),
 				ca(d, te(1, 82, 1, 82, //
 						"\r\n" + //
 								"\t<a>\r\n" + //
-								"\t\t<root>\r\n\t\t\r\n" + //
-								"\t\t\t<d age=\"\"></d>\r\n\t\t\r\n" + //
+								"\t\t<root>\r\n" + //
+								"\t\t\t<d age=\"\"></d>\r\n" + //
 								"\t\t\t<e></e>\r\n" + //
 								"\t\t</root>\r\n" + //
 								"\t</a>\r\n")));

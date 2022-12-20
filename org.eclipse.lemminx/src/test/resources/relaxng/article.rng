@@ -1,0 +1,26 @@
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+<start>
+  <ref name="articleContent" />
+</start>
+<define name="articleContent">
+  <element name="article">
+	<choice>
+	  <ref name="titleContent" />
+	  <ref name="titleLineContent" />
+	</choice>
+  </element>
+</define>
+<define name="titleContent">
+  <element name="title">
+	<empty />
+  </element>
+</define>
+<define name="titleLineContent">
+  <element name="title">
+	<element name="line">
+	  <empty />
+	</element>
+  </element>
+</define>
+</grammar>

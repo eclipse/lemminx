@@ -15,8 +15,10 @@ package org.eclipse.lemminx.extensions.dtd.contentmodel;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.xerces.impl.dtd.XMLElementDecl;
 import org.eclipse.lemminx.dom.DOMElement;
@@ -172,5 +174,17 @@ public class CMDTDElementDeclaration extends XMLElementDecl implements CMElement
 	public boolean isOptional(String childElementName) {
 		// implement later, return false
 		return false;
+	}
+
+	@Override
+	public Set<CMElementDeclaration> getRequiredElements() {
+		Set<CMElementDeclaration> requiredElements = new LinkedHashSet<>();
+		for (CMElementDeclaration element : elements) {
+			// cannot be used, isOptional is not implemented
+			if (!isOptional(element.getLocalName())) {
+				requiredElements.add(element);
+			}
+		}
+		return requiredElements;
 	}
 }

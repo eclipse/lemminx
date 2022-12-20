@@ -32,19 +32,17 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
  * CodeAction to insert expected child elements within an element
  * 
  * Given this XML where the expected child elements are not present as defined
- * in the XSD:
+ * in the relaxNG schema:
  * 
  * <servlet></servlet> Error: Child elements are missing from element: - servlet
- *
- * The following elements are expected: - description - display-name - icon -
- * servlet-name
+ * 
  * 
  * To fix the error, the code action will suggest inserting the expected
  * elements inside the parent tag
  * 
  */
 
-public class cvc_complex_type_2_4_bCodeAction implements ICodeActionParticipant {
+public class required_element_missingCodeAction implements ICodeActionParticipant {
 
 	@Override
 	public void doCodeAction(ICodeActionRequest request, List<CodeAction> codeActions, CancelChecker cancelChecker) {
@@ -66,20 +64,22 @@ public class cvc_complex_type_2_4_bCodeAction implements ICodeActionParticipant 
 			Range targetRange = new Range(childElementPositionStartTag, childElementPositionEndTag);
 			XMLGenerator generator = request.getXMLGenerator();
 
-			String insertStrAll = generator.generateMissingElements(request, element, false);
 			String insertStrRequired = generator.generateMissingElements(request, element, true);
-
-			CodeAction insertAllExpectedElement = CodeActionFactory.replace("Insert all expected elements",
-					targetRange, insertStrAll, document.getTextDocument(), diagnostic);
-
-			codeActions.add(insertAllExpectedElement);
+			String insertStrAll = generator.generateMissingElements(request, element, false);
 
 			CodeAction insertRequriedExpectedElement = CodeActionFactory.replace("Insert only required elements",
 					targetRange, insertStrRequired, document.getTextDocument(), diagnostic);
 
 			codeActions.add(insertRequriedExpectedElement);
 
-		} catch (BadLocationException e) {
+			CodeAction insertAllExpectedElement = CodeActionFactory.replace("Insert all expected elements",
+					targetRange, insertStrAll, document.getTextDocument(), diagnostic);
+
+			codeActions.add(insertAllExpectedElement);
+
+		} catch (
+
+		BadLocationException e) {
 			// do nothing
 		}
 	}

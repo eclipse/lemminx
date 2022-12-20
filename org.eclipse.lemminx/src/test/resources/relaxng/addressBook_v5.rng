@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- see https://stph.scenari-community.org/doc/sch.prs/co/exeUC01adresse.html?mode=html -->
+<element name="addressBook" xmlns="http://relaxng.org/ns/structure/1.0">
+	<oneOrMore>
+		<element name="card">
+			<element name="name">
+				<text />
+			</element>
+			<element name="email">
+				<element name="emailContent">
+					<text />
+				</element>
+				<zeroOrMore>
+					<element name="emailOptional">
+						<text />
+					</element>
+				</zeroOrMore>
+			</element>
+		</element>
+	</oneOrMore>
+</element>

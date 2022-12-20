@@ -14,6 +14,7 @@ package com.thaiopensource.relaxng.pattern;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -54,7 +55,7 @@ public class CMRelaxNGElementDeclaration implements CMElementDeclaration {
 
 	private Collection<CMAttributeDeclaration> attributes;
 
-	private Set<Name> requiredElementNames;
+	private Set<String> requiredElementNames;
 
 	CMRelaxNGElementDeclaration(CMRelaxNGDocument document, ElementPattern pattern) {
 		this.cmDocument = document;
@@ -232,16 +233,7 @@ public class CMRelaxNGElementDeclaration implements CMElementDeclaration {
 
 	@Override
 	public boolean isOptional(String childElementName) {
-		if (requiredElementNames == null) {
-			RequiredElementsFunction elementsFunction = new RequiredElementsFunction();
-			requiredElementNames = pattern.apply(elementsFunction);
-			for (Name name : requiredElementNames) {
-				if (childElementName.equals(name.getLocalName())) {
-					return false;
-				}
-			}
-		}
-		return true;
+		return !getRequiredElementNames().contains(childElementName);
 	}
 
 	@Override
@@ -272,5 +264,23 @@ public class CMRelaxNGElementDeclaration implements CMElementDeclaration {
 		result.append("\"");
 		result.append(" />");
 		return result.toString();
+	}
+
+	@Override
+	public Set<CMElementDeclaration> getRequiredElements() {
+		Set<CMElementDeclaration> requiredElements = new LinkedHashSet<>();
+		for (String elementName : getRequiredElementNames()) {
+			requiredElements.add(findCMElement(elementName, null));
+		}
+		return requiredElements;
+	}
+
+	private Set<String> getRequiredElementNames() {
+		if (requiredElementNames == null) {
+			requiredElementNames = new LinkedHashSet<>();
+			MyRequiredElementsFunction elementsFunction = new MyRequiredElementsFunction(requiredElementNames);
+			getPattern().getContent().apply(elementsFunction);
+		}
+		return requiredElementNames;
 	}
 }
