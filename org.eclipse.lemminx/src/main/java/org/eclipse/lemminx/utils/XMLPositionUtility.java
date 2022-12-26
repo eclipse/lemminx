@@ -112,12 +112,12 @@ public class XMLPositionUtility {
 	 * Returns the attribute value range and null otherwise.
 	 *
 	 * @param attr        the attribute.
-	 * @param withouQuote true if range must remove the quote and false otherwise.
+	 * @param withoutQuote true if range must remove the quote and false otherwise.
 	 * @return the attribute value range and null otherwise.
 	 */
-	public static Range selectAttributeValue(DOMAttr attr, boolean withouQuote) {
+	public static Range selectAttributeValue(DOMAttr attr, boolean withoutQuote) {
 		if (attr != null) {
-			return createAttrValueRange(attr, attr.getOwnerDocument());
+			return createAttrValueRange(attr, attr.getOwnerDocument(), withoutQuote);
 		}
 		return null;
 	}

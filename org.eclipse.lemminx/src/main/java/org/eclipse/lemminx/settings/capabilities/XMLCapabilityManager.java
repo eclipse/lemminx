@@ -14,8 +14,10 @@ package org.eclipse.lemminx.settings.capabilities;
 
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.CODE_ACTION_ID;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.CODE_LENS_ID;
+import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.COLOR_ID;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.COMPLETION_ID;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_CODEACTION_OPTIONS;
+import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_COLOR_OPTIONS;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_COMPLETION_OPTIONS;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_LINK_OPTIONS;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.DEFINITION_ID;
@@ -32,6 +34,7 @@ import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConsta
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.SELECTION_RANGE_ID;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_CODE_ACTION;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_CODE_LENS;
+import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_COLOR;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_COMPLETION;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_DEFINITION;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_DOCUMENT_SYMBOL;
@@ -162,6 +165,9 @@ public class XMLCapabilityManager {
 		}
 		if (this.getClientCapabilities().isLinkDynamicRegistrationSupported()) {
 			registerCapability(LINK_ID, TEXT_DOCUMENT_LINK, DEFAULT_LINK_OPTIONS);
+		}
+		if (this.getClientCapabilities().isColorDynamicRegistrationSupported()) {
+			registerCapability(COLOR_ID, TEXT_DOCUMENT_COLOR, DEFAULT_COLOR_OPTIONS);
 		}
 		if (this.getClientCapabilities().isRenameDynamicRegistrationSupported()) {
 			registerCapability(RENAME_ID, TEXT_DOCUMENT_RENAME);

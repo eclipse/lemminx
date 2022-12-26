@@ -55,6 +55,10 @@ public class ClientCapabilitiesWrapper {
 		return v3Supported && isDynamicRegistrationSupported(getTextDocument().getDocumentLink());
 	}
 
+	public boolean isColorDynamicRegistrationSupported() {
+		return v3Supported && isDynamicRegistrationSupported(getTextDocument().getColorProvider());
+	}
+	
 	public boolean isRangeFoldingDynamicRegistrationSupported() {
 		return v3Supported && isDynamicRegistrationSupported(getTextDocument().getFoldingRange());
 	}

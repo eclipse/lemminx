@@ -442,6 +442,30 @@
 		}]
 	},
 	{
+		"name": "org.eclipse.lemminx.extensions.colors.settings.XMLColorExpression",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
+		"name": "org.eclipse.lemminx.extensions.colors.settings.XMLColors",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
+		"name": "org.eclipse.lemminx.extensions.colors.settings.XMLColorsSettings",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
 		"name": "org.eclipse.lemminx.settings.QuoteStyle",
 		"allDeclaredFields": true
 	},
@@ -1091,6 +1115,38 @@
 	},
 	{
 		"name": "org.eclipse.lsp4j.DocumentLinkParams",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
+		"name": "org.eclipse.lsp4j.ColorInformation",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
+		"name": "org.eclipse.lsp4j.ColorProviderCapabilities",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
+		"name": "org.eclipse.lsp4j.ColorProviderOptions",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
+		"name": "org.eclipse.lsp4j.DocumentColorParams",
 		"allDeclaredFields": true,
 		"methods": [{
 			"name": "<init>",

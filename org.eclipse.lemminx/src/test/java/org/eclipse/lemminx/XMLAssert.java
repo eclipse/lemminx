@@ -43,6 +43,7 @@ import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.customservice.AutoCloseTagResponse;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMParser;
+import org.eclipse.lemminx.extensions.colors.settings.XMLColorsSettings;
 import org.eclipse.lemminx.extensions.contentmodel.commands.SurroundWithCommand;
 import org.eclipse.lemminx.extensions.contentmodel.commands.SurroundWithCommand.SurroundWithKind;
 import org.eclipse.lemminx.extensions.contentmodel.commands.SurroundWithCommand.SurroundWithResponse;
@@ -65,6 +66,10 @@ import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.CodeLens;
+import org.eclipse.lsp4j.Color;
+import org.eclipse.lsp4j.ColorInformation;
+import org.eclipse.lsp4j.ColorPresentation;
+import org.eclipse.lsp4j.ColorPresentationParams;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.CompletionCapabilities;
 import org.eclipse.lsp4j.CompletionItem;
@@ -1852,4 +1857,67 @@ public class XMLAssert {
 		assertEquals(expected, actual);
 	}
 
+	// ------------------- ColorInformation assert
+
+	public static void testColorInformationFor(String value, String fileURI, XMLColorsSettings colorSettings,
+			ColorInformation... expected) {
+		TextDocument document = new TextDocument(value, fileURI != null ? fileURI : "test://test/test.xml");
+
+		XMLLanguageService xmlLanguageService = new XMLLanguageService();
+		xmlLanguageService.doSave(new SettingsSaveContext(colorSettings));
+
+		DOMDocument xmlDocument = DOMParser.getInstance().parse(document,
+				xmlLanguageService.getResolverExtensionManager());
+		xmlLanguageService.setDocumentProvider((uri) -> xmlDocument);
+
+		List<ColorInformation> actual = xmlLanguageService.findDocumentColors(xmlDocument, () -> {
+		});
+		assertColorInformation(actual, expected);
+	}
+
+	public static ColorInformation colorInfo(double red, double green, double blue, double alpha, Range range) {
+		return new ColorInformation(range, new Color(red, green, blue, alpha));
+	}
+
+	public static void assertColorInformation(List<? extends ColorInformation> actual, ColorInformation... expected) {
+		assertEquals(expected.length, actual.size());
+		for (int i = 0; i < expected.length; i++) {
+			assertEquals(expected[i].getRange(), actual.get(i).getRange());
+			assertEquals(expected[i].getColor(), actual.get(i).getColor());
+		}
+	}
+
+	// ------------------- ColorInformation assert
+
+	public static void testColorPresentationFor(String value, String fileURI, Color color, Range range,
+			XMLColorsSettings colorSettings,
+			ColorPresentation... expected) {
+		TextDocument document = new TextDocument(value, fileURI != null ? fileURI : "test://test/test.xml");
+
+		XMLLanguageService xmlLanguageService = new XMLLanguageService();
+		xmlLanguageService.doSave(new SettingsSaveContext(colorSettings));
+
+		DOMDocument xmlDocument = DOMParser.getInstance().parse(document,
+				xmlLanguageService.getResolverExtensionManager());
+		xmlLanguageService.setDocumentProvider((uri) -> xmlDocument);
+
+		ColorPresentationParams params = new ColorPresentationParams(new TextDocumentIdentifier(document.getUri()),
+				color, range);
+		List<ColorPresentation> actual = xmlLanguageService.getColorPresentations(xmlDocument, params, () -> {
+		});
+		assertColorPresentation(actual, expected);
+	}
+
+	public static void assertColorPresentation(List<? extends ColorPresentation> actual,
+			ColorPresentation... expected) {
+		assertEquals(expected.length, actual.size());
+		for (int i = 0; i < expected.length; i++) {
+			assertEquals(expected[i].getLabel(), actual.get(i).getLabel());
+			assertEquals(expected[i].getTextEdit(), actual.get(i).getTextEdit());
+		}
+	}
+
+	public static ColorPresentation colorPres(String label, TextEdit textEdit) {
+		return new ColorPresentation(label, textEdit);
+	}
 }
