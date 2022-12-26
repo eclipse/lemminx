@@ -53,6 +53,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	private final List<IDiagnosticsParticipant> diagnosticsParticipants;
 	private final List<ICodeActionParticipant> codeActionsParticipants;
 	private final List<IDocumentLinkParticipant> documentLinkParticipants;
+	private final List<IDocumentColorParticipant> documentColorParticipants;
 	private final List<IDefinitionParticipant> definitionParticipants;
 	private final List<ITypeDefinitionParticipant> typeDefinitionParticipants;
 	private final List<IReferenceParticipant> referenceParticipants;
@@ -86,6 +87,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 		diagnosticsParticipants = new ArrayList<>();
 		codeActionsParticipants = new ArrayList<>();
 		documentLinkParticipants = new ArrayList<>();
+		documentColorParticipants = new ArrayList<>();
 		definitionParticipants = new ArrayList<>();
 		typeDefinitionParticipants = new ArrayList<>();
 		referenceParticipants = new ArrayList<>();
@@ -166,6 +168,11 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	public Collection<IDocumentLinkParticipant> getDocumentLinkParticipants() {
 		initializeIfNeeded();
 		return documentLinkParticipants;
+	}
+
+	public Collection<IDocumentColorParticipant> getDocumentColorParticipants() {
+		initializeIfNeeded();
+		return documentColorParticipants;
 	}
 
 	public Collection<IDefinitionParticipant> getDefinitionParticipants() {
@@ -329,6 +336,14 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 
 	public void unregisterDocumentLinkParticipant(IDocumentLinkParticipant documentLinkParticipant) {
 		documentLinkParticipants.remove(documentLinkParticipant);
+	}
+
+	public void registerDocumentColorParticipant(IDocumentColorParticipant documentColorParticipant) {
+		documentColorParticipants.add(documentColorParticipant);
+	}
+
+	public void unregisterDocumentColorParticipant(IDocumentColorParticipant documentColorParticipant) {
+		documentColorParticipants.remove(documentColorParticipant);
 	}
 
 	public void registerDefinitionParticipant(IDefinitionParticipant definitionParticipant) {

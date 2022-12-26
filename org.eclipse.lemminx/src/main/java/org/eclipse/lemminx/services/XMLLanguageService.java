@@ -37,6 +37,9 @@ import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.CodeLens;
+import org.eclipse.lsp4j.ColorInformation;
+import org.eclipse.lsp4j.ColorPresentation;
+import org.eclipse.lsp4j.ColorPresentationParams;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.Diagnostic;
@@ -88,6 +91,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 	private final XMLRename rename;
 	private final XMLSelectionRanges selectionRanges;
 	private final XMLLinkedEditing linkedEditing;
+	private final XMLDocumentColor documentColor;
 
 	public XMLLanguageService() {
 		this.formatter = new XMLFormatter(this);
@@ -98,6 +102,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 		this.diagnostics = new XMLDiagnostics(this);
 		this.foldings = new XMLFoldings(this);
 		this.documentLink = new XMLDocumentLink(this);
+		this.documentColor = new XMLDocumentColor(this);
 		this.definition = new XMLDefinition(this);
 		this.typeDefinition = new XMLTypeDefinition(this);
 		this.reference = new XMLReference(this);
@@ -233,6 +238,15 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 
 	public List<DocumentLink> findDocumentLinks(DOMDocument document) {
 		return documentLink.findDocumentLinks(document);
+	}
+
+	public List<ColorInformation> findDocumentColors(DOMDocument xmlDocument, CancelChecker cancelChecker) {
+		return documentColor.findDocumentColors(xmlDocument, cancelChecker);
+	}
+
+	public List<ColorPresentation> getColorPresentations(DOMDocument xmlDocument, ColorPresentationParams params,
+			CancelChecker cancelChecker) {
+		return documentColor.getColorPresentations(xmlDocument, params, cancelChecker);
 	}
 
 	public List<? extends LocationLink> findDefinition(DOMDocument xmlDocument, Position position,
