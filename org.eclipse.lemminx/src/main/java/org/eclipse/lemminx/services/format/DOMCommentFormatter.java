@@ -54,12 +54,18 @@ public class DOMCommentFormatter {
 		}
 		int spaceStart = -1;
 		int spaceEnd = -1;
-		availableLineWidth -= 4; // count for '<-!--'
+		availableLineWidth -= 4; // count for '<!--'
+		int whiteSpaceOffset = -1;
 
 		for (int i = commentNode.getStartContent(); i < commentNode.getEndContent(); i++) {
 			char c = text.charAt(i);
 			if (Character.isWhitespace(c)) {
-				// Whitespaces
+				if (isLineSeparator(c) && !isJoinCommentLines()) {
+					// Reset avaliable line width when there is new line
+					availableLineWidth = maxLineWidth;
+				}
+				whiteSpaceOffset = i;
+
 				if (spaceStart == -1) {
 					spaceStart = i;
 				} else {
@@ -75,22 +81,25 @@ public class DOMCommentFormatter {
 				while (i + 1 < commentNode.getEnd() && !Character.isWhitespace(text.charAt(i + 1))) {
 					i++;
 				}
-				int contentEnd = i;
+				int contentEnd = i + 1;
 				if (isMaxLineWidthSupported()) {
-					availableLineWidth -= (contentEnd + 1 - contentStart);
-					if (availableLineWidth <= 0 && spaceStart != -1) {
+					// Adjust availableLineWidth for whitespaces before comment content
+					if (commentNode.getStartContent() != contentStart && isJoinCommentLines()
+							&& availableLineWidth >= 0) {
+						availableLineWidth--;
+					} else {
+						availableLineWidth -= spaceEnd - whiteSpaceOffset;
+					}
+					availableLineWidth -= (contentEnd - contentStart);
+					if (availableLineWidth < 0 && spaceStart != -1) {
 						// Add new line when the comment extends over the maximum line width
 						replaceLeftSpacesWithIndentation(indentLevel, spaceStart, contentStart,
 								true, edits);
 						int indentSpaces = tabSize * indentLevel;
-						availableLineWidth = maxLineWidth - indentSpaces - (contentEnd + 1 - contentStart);
+						availableLineWidth = maxLineWidth - indentSpaces - (contentEnd - contentStart);
 						spaceStart = -1;
 						spaceEnd = -1;
 						continue;
-					} else if (isJoinCommentLines()) {
-						availableLineWidth--;
-					} else if (spaceStart != -1) {
-						availableLineWidth -= spaceEnd - spaceStart;
 					}
 				}
 				if (isJoinCommentLines()) {
@@ -139,4 +148,9 @@ public class DOMCommentFormatter {
 		formatterDocument.replaceLeftSpacesWithIndentationPreservedNewLines(spaceStart, spaceEnd, indentLevel,
 				edits);
 	}
+
+	private static boolean isLineSeparator(char c) {
+		return c == '\r' || c == '\n';
+	}
+
 }

@@ -557,6 +557,59 @@ public class XMLFormatterMaxLineWithTest extends AbstractCacheBasedTest {
 		assertFormat(expected, expected, settings);
 	}
 
+	// https://github.com/redhat-developer/vscode-xml/issues/851
+	@Test
+	public void commentFormattingLineBreakingEarly() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setMaxLineWidth(100); // set to default
+		String content = "<!--\r\n" + //
+				"/*******************************************************************************\r\n" + //
+				" * Lorem ipsum dolor sit amet, consectetur\r\n" + //
+				" * © Copyright adipiscing elit. In eget magna ornare,\r\n" + //
+				" *\r\n" + //
+				" * pharetra sapienvitae, iaculis purus. Sed et dignissim lacus.\r\n" + //
+				" * Morbi condimentum nisi eget sem laoreet placerat.\r\n" + //
+				" * Pellentesque diam elit, vehicula et auctor a, euismod a enim.\r\n" + //
+				" *******************************************************************************/\r\n" + //
+				"-->\r\n" + //
+				"</foo>";
+		String expected = content;
+		assertFormat(content, expected, settings);
+	}
+
+	@Test
+	public void commentFormattingLineBreakingEarlyAtMaxLineWidth() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setMaxLineWidth(100); // set to default
+		String content = "<!--\r\n" + //
+				"/*******************************************************************************\r\n" + //
+				" * Lorem ipsum dolor sit amet, consectetur © Copyright adipiscing elit. In eget magna ornare, tester\r\n"
+				+ // line width = 100
+				" *\r\n" + //
+				" * pharetra sapienvitae, iaculis purus. Sed et dignissim lacus. Morbi condimentum nisi eget sem laoreet placerat.\r\n"
+				+ //
+				" * Pellentesque diam elit, vehicula et auctor a, euismod a enim.\r\n" + //
+				" *******************************************************************************/\r\n" + //
+				"-->\r\n" + //
+				"</foo>";
+		String expected = "<!--\r\n" + //
+				"/*******************************************************************************\r\n" + //
+				" * Lorem ipsum dolor sit amet, consectetur © Copyright adipiscing elit. In eget magna ornare, tester\r\n"
+				+ //
+				" *\r\n" + //
+				" * pharetra sapienvitae, iaculis purus. Sed et dignissim lacus. Morbi condimentum nisi eget sem\r\n" + //
+				"laoreet placerat.\r\n"
+				+ //
+				" * Pellentesque diam elit, vehicula et auctor a, euismod a enim.\r\n" + //
+				" *******************************************************************************/\r\n" + //
+				"-->\r\n" + //
+				"</foo>";
+		assertFormat(content, expected, settings, //
+				te(4, 95, 4,96, "\r\n"));
+		assertFormat(expected, expected, settings);
+
+	}
+
 	private static void assertFormat(String unformatted, String expected, SharedSettings sharedSettings,
 			TextEdit... expectedEdits)
 			throws BadLocationException {
