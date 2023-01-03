@@ -11,7 +11,7 @@
 *******************************************************************************/
 package org.eclipse.lemminx.extensions.references.utils;
 
-import org.eclipse.lemminx.dom.DOMAttr;
+import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.extensions.references.settings.XMLReferenceExpression;
 
 /**
@@ -28,9 +28,9 @@ public interface IXMLReferenceTosCollector {
 	 * Collect the given to attribute which matches the given expression.
 	 * 
 	 * @param namespacePrefix namespace prefix.
-	 * @param toAttr          the to attribute to collect.
+	 * @param toNode          the to attribute, text node to collect.
 	 * @param expression      the reference expression which matches the to
-	 *                        attribute.
+	 *                        node.
 	 */
-	void collect(String namespacePrefix, DOMAttr toAttr, XMLReferenceExpression expression);
+	void collect(String namespacePrefix, DOMNode toNode, XMLReferenceExpression expression);
 }

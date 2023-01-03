@@ -11,21 +11,17 @@
 *******************************************************************************/
 package org.eclipse.lemminx.extensions.references.participants;
 
-import java.util.List;
-
-import org.eclipse.lemminx.dom.DOMAttr;
+import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.extensions.references.XMLReferencesPlugin;
 import org.eclipse.lemminx.extensions.references.settings.XMLReferenceExpression;
+import org.eclipse.lemminx.extensions.references.utils.XMLReferencesSearchContext;
 import org.eclipse.lemminx.extensions.references.utils.XMLReferencesUtils;
-import org.eclipse.lemminx.extensions.xsd.DataType;
 import org.eclipse.lemminx.services.extensions.completion.CompletionParticipantAdapter;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionRequest;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionResponse;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
-import org.eclipse.lsp4j.MarkupContent;
-import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
@@ -46,42 +42,54 @@ public class XMLReferencesCompletionParticipant extends CompletionParticipantAda
 	}
 
 	@Override
+	public void onXMLContent(ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker)
+			throws Exception {
+		DOMNode fromNode = request.getNode();
+		if (fromNode.isElement()) {
+			fromNode = ((DOMElement) fromNode).findTextAt(request.getOffset());
+		}
+		searchToNodes(fromNode, request, response);
+	}
+
+	@Override
 	public void onAttributeValue(String valuePrefix, ICompletionRequest request, ICompletionResponse response,
 			CancelChecker cancelChecker) throws Exception {
 		DOMNode node = request.getNode();
-		Range fullRange = request.getReplaceRange();
-		DOMAttr originAttr = node.findAttrAt(request.getOffset());
+		DOMNode fromNode = node.findAttrAt(request.getOffset());
+		searchToNodes(fromNode, request, response);
+	}
 
-		List<XMLReferenceExpression> references = XMLReferencesUtils.findExpressionsWhichMatcheFrom(originAttr,
+	private void searchToNodes(DOMNode fromNode, ICompletionRequest request, ICompletionResponse response) {
+		XMLReferencesSearchContext searchContext = XMLReferencesUtils.findExpressionsWhichMatchFrom(fromNode,
 				plugin.getReferencesSettings());
-		if (references != null && !references.isEmpty()) {
-			XMLReferencesUtils.searchToAttributes(originAttr, references, false, true,
-					(targetNamespacePrefix, targetAttr, expression) -> {
+		if (searchContext != null) {
+			XMLReferencesUtils.searchToNodes(fromNode, searchContext, false, true,
+					(toNamespacePrefix, toNode, expression) -> {
 						CompletionItem item = new CompletionItem();
-						item.setDocumentation(
-								new MarkupContent(MarkupKind.MARKDOWN, DataType.getDocumentation(targetAttr)));
-						String value = createReferenceValue(targetAttr, targetNamespacePrefix, expression);
+						String value = createReferenceValue(toNode, toNamespacePrefix, expression);
 						String insertText = request.getInsertAttrValue(value);
 						item.setLabel(value);
 						item.setKind(CompletionItemKind.Value);
 						item.setFilterText(insertText);
+						Range fullRange = request.getReplaceRange();
 						item.setTextEdit(Either.forLeft(new TextEdit(fullRange, insertText)));
 						response.addCompletionItem(item);
 					});
 		}
 	}
 
-	private static String createReferenceValue(DOMAttr targetAttr, String targetNamespacePrefix,
+	private static String createReferenceValue(DOMNode toNode, String toNamespacePrefix,
 			XMLReferenceExpression expression) {
 		StringBuilder value = new StringBuilder();
 		if (expression.getPrefix() != null) {
 			value.append(expression.getPrefix());
 		}
-		if (targetNamespacePrefix != null) {
-			value.append(targetNamespacePrefix);
+		if (toNamespacePrefix != null) {
+			value.append(toNamespacePrefix);
 			value.append(":");
 		}
-		value.append(targetAttr.getValue());
+		value.append(XMLReferencesUtils.getNodeValue(toNode));
 		return value.toString();
 	}
+
 }

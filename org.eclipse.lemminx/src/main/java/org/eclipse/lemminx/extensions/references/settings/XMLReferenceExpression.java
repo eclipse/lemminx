@@ -11,6 +11,7 @@
 *******************************************************************************/
 package org.eclipse.lemminx.extensions.references.settings;
 
+import org.eclipse.lemminx.xpath.matcher.IXPathNodeMatcher.MatcherType;
 import org.eclipse.lemminx.xpath.matcher.XPathMatcher;
 import org.w3c.dom.Node;
 
@@ -64,17 +65,59 @@ public class XMLReferenceExpression {
 		this.prefix = prefix;
 	}
 
+	/**
+	 * Returns true if the given DOM Node match the XPath expression of the 'from'
+	 * XPath matcher and false otherwise.
+	 * 
+	 * @param node the DOM Node to match.
+	 * 
+	 * @return true if the given DOM Node match the XPath expression of the 'from'
+	 *         XPath matcher and false otherwise.
+	 */
 	public boolean matchFrom(final Node node) {
+		return getFromMatcher().match(node);
+	}
+
+	private XPathMatcher getFromMatcher() {
 		if (fromMatcher == null) {
 			fromMatcher = new XPathMatcher(from);
 		}
-		return fromMatcher.match(node);
+		return fromMatcher;
 	}
 
+	/**
+	 * Returns true if the given DOM Node match the XPath expression of the 'to'
+	 * XPath matcher and false otherwise.
+	 * 
+	 * @param node the DOM Node to match.
+	 * 
+	 * @return true if the given DOM Node match the XPath expression of the 'to'
+	 *         XPath matcher and false otherwise.
+	 */
 	public boolean matchTo(final Node node) {
+		return getToMatcher().match(node);
+	}
+
+	private XPathMatcher getToMatcher() {
 		if (toMatcher == null) {
 			toMatcher = new XPathMatcher(to);
 		}
-		return toMatcher.match(node);
+		return toMatcher;
+	}
+
+	public boolean isFromSearchInAttribute() {
+		return getFromMatcher().getNodeSelectorType() == MatcherType.ATTRIBUTE;
+	}
+
+	public boolean isFromSearchInText() {
+		return getFromMatcher().getNodeSelectorType() == MatcherType.TEXT;
+	}
+
+	public boolean isToSearchInAttribute() {
+		return getToMatcher().getNodeSelectorType() == MatcherType.ATTRIBUTE;
+	}
+
+	public boolean isToSearchInText() {
+		return getToMatcher().getNodeSelectorType() == MatcherType.TEXT;
 	}
 }

@@ -12,7 +12,6 @@
 package org.eclipse.lemminx.extensions.references.utils;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -20,6 +19,9 @@ import java.util.Set;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
+import org.eclipse.lemminx.dom.DOMNode;
+import org.eclipse.lemminx.dom.DOMRange;
+import org.eclipse.lemminx.dom.DOMText;
 import org.eclipse.lemminx.extensions.references.settings.XMLReferenceExpression;
 import org.eclipse.lemminx.extensions.references.settings.XMLReferences;
 import org.eclipse.lemminx.extensions.references.settings.XMLReferencesSettings;
@@ -48,53 +50,53 @@ public class XMLReferencesUtils {
 
 	/**
 	 * Collect 'to' attributes which matches 'to' declared in
+	 * {@link XMLReferencesSearchContext} which contains a list of
 	 * {@link XMLReferenceExpression}.
 	 *
-	 * @param fromAttr               the from attribute.
-	 * @param matchAttr              true if the attribute value must match the
-	 *                               value of to attribute value and false
-	 *                               otherwise.
-	 * @param searchInExternalSchema true if search must be done in included XML
-	 *                               Schema (include) and false otherwise.
-	 * @param collector              collector to collect to attributes.
+	 * @param fromNode             the from attribute, text node.
+	 * @param searchContext        the references search context.
+	 * @param matchNode            true if the value of the from and to nodes must
+	 *                             be checked, and false otherwise.
+	 * @param searchInIncludedFile true if search must be done in included XML
+	 *                             file (ex : xi:include) and false otherwise.
+	 * @param collector            collector to collect to attribute, text nodes.
 	 */
-	public static void searchToAttributes(DOMAttr fromAttr, List<XMLReferenceExpression> referenceExpressions,
-			boolean matchAttr,
-			boolean searchInExternalSchema, IXMLReferenceTosCollector collector) {
+	public static void searchToNodes(DOMNode fromNode, XMLReferencesSearchContext searchContext,
+			boolean matchNode, boolean searchInIncludedFile, IXMLReferenceTosCollector collector) {
 
-		DOMDocument document = fromAttr.getOwnerDocument();
+		DOMDocument document = fromNode.getOwnerDocument();
 		DOMElement documentElement = document != null ? document.getDocumentElement() : null;
 		if (documentElement == null) {
 			return;
 		}
-		String fromAttrValue = fromAttr.getValue();
-		if (matchAttr && StringUtils.isEmpty(fromAttrValue)) {
+		String fromValue = getNodeValue(fromNode);
+		if (matchNode && StringUtils.isEmpty(fromValue)) {
 			return;
 		}
 		String namespacePrefix = null;
-		int index = fromAttrValue.indexOf(':');
+		int index = fromValue.indexOf(':');
 		if (index != -1) {
 			// ex : jakartaee:applicationType
-			namespacePrefix = fromAttrValue.substring(0, index);
+			namespacePrefix = fromValue.substring(0, index);
 		}
 
 		String fromName = null;
-		if (matchAttr) {
-			fromName = getFromName(fromAttrValue, namespacePrefix);
+		if (matchNode) {
+			fromName = getFromName(fromValue, namespacePrefix);
 		}
 
-		// Collect attributes to for document element
-		collectToAttribute(fromAttr, referenceExpressions, matchAttr, collector, documentElement,
+		// Collect attribute, text nodes to for document element
+		collectToNode(fromNode, searchContext, matchNode, collector, documentElement,
 				namespacePrefix);
 
-		// Collect attributes to for children of document element
-		searchToAttributes(fromAttr, referenceExpressions, matchAttr, collector, documentElement,
+		// Collect attribute, text nodes to for children of document element
+		searchToNodes(fromNode, searchContext, matchNode, collector, documentElement,
 				namespacePrefix,
-				fromName, new HashSet<>(), searchInExternalSchema);
+				fromName, new HashSet<>(), searchInIncludedFile);
 	}
 
-	private static void searchToAttributes(DOMAttr fromAttr, List<XMLReferenceExpression> referenceExpressions,
-			boolean matchAttr,
+	private static void searchToNodes(DOMNode fromNode, XMLReferencesSearchContext referenceSearcher,
+			boolean matchNode,
 			IXMLReferenceTosCollector collector, DOMElement documentElement, String toNamespacePrefix,
 			String fromName, Set<String> visitedURIs, boolean searchInExternalDocument) {
 		if (visitedURIs != null) {
@@ -112,7 +114,7 @@ public class XMLReferencesUtils {
 			Node node = children.item(i);
 			if (node.getNodeType() == Node.ELEMENT_NODE) {
 				DOMElement toElement = (DOMElement) node;
-				collectToAttribute(fromAttr, referenceExpressions, matchAttr, collector, toElement,
+				collectToNode(fromNode, referenceSearcher, matchNode, collector, toElement,
 						toNamespacePrefix);
 
 				if (isInclude(toElement)) {
@@ -125,7 +127,7 @@ public class XMLReferencesUtils {
 						externalURIS.add(schemaLocation);
 					}
 				} else {
-					searchToAttributes(fromAttr, referenceExpressions, matchAttr, collector, toElement,
+					searchToNodes(fromNode, referenceSearcher, matchNode, collector, toElement,
 							toNamespacePrefix, fromName, null, false);
 				}
 			}
@@ -141,7 +143,7 @@ public class XMLReferencesUtils {
 					DOMDocument externalDocument = DOMUtils.loadDocument(resourceURI,
 							document.getResolverExtensionManager());
 					if (externalDocument != null) {
-						searchToAttributes(fromAttr, referenceExpressions, matchAttr, collector,
+						searchToNodes(fromNode, referenceSearcher, matchNode, collector,
 								externalDocument.getDocumentElement(), toNamespacePrefix, fromName, visitedURIs,
 								searchInExternalDocument);
 					}
@@ -150,102 +152,168 @@ public class XMLReferencesUtils {
 		}
 	}
 
-	private static void collectToAttribute(DOMAttr fromAttr, List<XMLReferenceExpression> referenceExpressions,
-			boolean matchAttr, IXMLReferenceTosCollector collector, DOMElement toElement,
+	private static void collectToNode(DOMNode fromNode, XMLReferencesSearchContext searchContext,
+			boolean matchNode, IXMLReferenceTosCollector collector, DOMElement toElement,
 			String toNamespacePrefix) {
-		if (toElement.hasAttributes()) {
-			NamedNodeMap toAttributes = toElement.getAttributes();
-			if (toAttributes != null) {
-				for (int j = 0; j < toAttributes.getLength(); j++) {
-					DOMAttr toAttr = (DOMAttr) toAttributes.item(j);
-					XMLReferenceExpression expression = findExpressionWhichMatchesTo(fromAttr, toAttr,
-							referenceExpressions,
-							matchAttr);
-					if (expression != null) {
-						collector.collect(toNamespacePrefix, toAttr, expression);
+		if (searchContext.isSearchInAttribute()) {
+			// Search to reference in attribute nodes
+			if (toElement.hasAttributes()) {
+				NamedNodeMap toAttributes = toElement.getAttributes();
+				if (toAttributes != null) {
+					for (int j = 0; j < toAttributes.getLength(); j++) {
+						DOMAttr toAttr = (DOMAttr) toAttributes.item(j);
+						XMLReferenceExpression expression = findExpressionWhichMatchesTo(fromNode, toAttr,
+								searchContext,
+								matchNode);
+						if (expression != null) {
+							collector.collect(toNamespacePrefix, toAttr, expression);
+						}
 					}
+				}
+			}
+		}
+		if (searchContext.isSearchInText()) {
+			// Search to reference in text node.
+			DOMNode firstChild = toElement.getFirstChild();
+			if (firstChild != null && firstChild.isText()) {
+				XMLReferenceExpression expression = findExpressionWhichMatchesTo(fromNode, firstChild,
+						searchContext,
+						matchNode);
+				if (expression != null) {
+					collector.collect(toNamespacePrefix, firstChild, expression);
 				}
 			}
 		}
 	}
 
 	/**
-	 * Returns the reference expression where the given attributes fromAttr and
-	 * toAttr matches an expression from the given referenceExpressions.
+	 * Returns the reference expression where the given attributes
+	 * <code>fromNode</code> and
+	 * <code>toNode</code> matches an expression from the given
+	 * referenceSearcher.
 	 * 
-	 * @param fromAttr             the from attribute.
-	 * @param toAttr               the to attribute.
-	 * @param referenceExpressions reference expressions which matches the from
-	 *                             attribute.
-	 * @param matchAttr            true if the test of the value of from and to
-	 *                             attribute must be checked and false otherwise.
-	 * @return the reference expression where the given attributes fromAttr and
-	 *         toAttr matches an expression from the given referenceExpressions.
+	 * @param fromNode      the from attribute, text node.
+	 * @param toNode        the to attribute, text node.
+	 * @param searchContext reference searcher which matches the from
+	 *                      node.
+	 * @param matchNode     true if the test of the value of from and to
+	 *                      attribute, text must be checked and false
+	 *                      otherwise.
+	 * @return the reference expression where the given attributes
+	 *         <code>fromNode</code> and
+	 *         <code>toNode</code> matches an expression from the given
+	 *         referenceSearcher.
 	 */
-	private static XMLReferenceExpression findExpressionWhichMatchesTo(DOMAttr fromAttr, DOMAttr toAttr,
-			List<XMLReferenceExpression> referenceExpressions, boolean matchAttr) {
-		for (XMLReferenceExpression expression : referenceExpressions) {
-			if (toAttr.getValue() != null && expression.matchTo(toAttr)) {
+	private static XMLReferenceExpression findExpressionWhichMatchesTo(DOMNode fromNode, DOMNode toNode,
+			XMLReferencesSearchContext searchContext, boolean matchNode) {
+		for (XMLReferenceExpression expression : searchContext.getExpressions()) {
+			if (expression.matchTo(toNode)) {
 				// The current expression can be applied for the to attribute.
-				if (!matchAttr) {
+				if (!matchNode) {
 					// No need to match the attribute value
 					return expression;
 				}
-				// The expression is returned only if the from attribute value is equals to to
-				// attribute value.
-				String fromValue = fromAttr.getValue();
-				String prefix = expression.getPrefix();
-				if (prefix != null) {
-					if (!fromValue.startsWith(prefix)) {
-						continue;
+				// The expression is returned only if the from attribute value, text content is
+				// equals to to
+				// attribute value, text content.
+				String fromValue = getNodeValue(fromNode);
+				if (fromValue != null) {
+					String prefix = expression.getPrefix();
+					if (prefix != null) {
+						if (!fromValue.startsWith(prefix)) {
+							continue;
+						}
+						fromValue = fromValue.substring(prefix.length(), fromValue.length());
 					}
-					fromValue = fromValue.substring(prefix.length(), fromValue.length());
-				}
-				if (fromValue.equals(toAttr.getValue())) {
-					return expression;
+					if (fromValue.equals(getNodeValue(toNode))) {
+						return expression;
+					}
 				}
 			}
 		}
 		return null;
 	}
 
-	public static boolean isInclude(Element element) {
-		return element != null && INCLUDE_TAG.equals(element.getLocalName());
-	}
-
-	private static String getFromName(String fromAttrValue, String toNamespacePrefix) {
-		int index = fromAttrValue.indexOf(":");
-		if (index != -1) {
-			String prefix = fromAttrValue.substring(0, index);
-			if (!Objects.equal(prefix, toNamespacePrefix)) {
-				return null;
-			}
-			return fromAttrValue.substring(index + 1, fromAttrValue.length());
+	/**
+	 * Returns the value of the given DOM node and null otherwise.
+	 * 
+	 * @param node the DOM node.
+	 * 
+	 * @return the value of the given DOM node and null otherwise.
+	 */
+	public static String getNodeValue(DOMNode node) {
+		if (node.isAttribute()) {
+			return ((DOMAttr) node).getValue();
 		}
-		return fromAttrValue;
+		if (node.isText()) {
+			return ((DOMText) node).getData();
+		}
+		return null;
 	}
 
 	/**
-	 * Returns all XML reference expressions where the given attribute matches the
-	 * from
-	 * expression and an empty list otherwise.
+	 * Returns the range of the given DOM node.
 	 * 
-	 * @param attr                  the DOM attribute.
+	 * @param node the DOM node.
+	 * 
+	 * @return the range of the given DOM node.
+	 */
+	public static DOMRange getNodeRange(DOMNode node) {
+		if (node.isAttribute()) {
+			return ((DOMAttr) node).getNodeAttrValue();
+		}
+		return node;
+	}
+
+	/**
+	 * Returns true if the given element is an include element (ex : xi:include) and
+	 * false otherwise.
+	 * 
+	 * @param element the DOM element.
+	 * 
+	 * @return true if the given element is an include element (ex : xi:include) and
+	 *         false otherwise.
+	 */
+	private static boolean isInclude(Element element) {
+		return element != null && INCLUDE_TAG.equals(element.getLocalName());
+	}
+
+	private static String getFromName(String fromValue, String toNamespacePrefix) {
+		int index = fromValue.indexOf(":");
+		if (index != -1) {
+			String prefix = fromValue.substring(0, index);
+			if (!Objects.equal(prefix, toNamespacePrefix)) {
+				return null;
+			}
+			return fromValue.substring(index + 1, fromValue.length());
+		}
+		return fromValue;
+	}
+
+	/**
+	 * Returns all XML reference expressions where the given DOM <code>node</code>
+	 * matches the
+	 * from expression and null otherwise.
+	 * 
+	 * @param node                  the DOM attribute.
 	 * 
 	 * @param xmlReferencesSettings the XML references settings.
 	 * @return all XML reference expressions where the given attribute matches the
 	 *         from
 	 *         expression and an empty list otherwise.
 	 */
-	public static List<XMLReferenceExpression> findExpressionsWhichMatcheFrom(DOMAttr attr,
+	public static XMLReferencesSearchContext findExpressionsWhichMatchFrom(DOMNode node,
 			XMLReferencesSettings xmlReferencesSettings) {
 		List<XMLReferences> allReferences = xmlReferencesSettings != null ? xmlReferencesSettings.getReferences()
 				: null;
 		if (allReferences == null) {
-			return Collections.emptyList();
+			return null;
 		}
-		String uri = attr.getOwnerDocument().getDocumentURI();
-		List<XMLReferenceExpression> matchedExpressions = new ArrayList<>();
+		if (node == null || (!node.isAttribute() && !node.isText())) {
+			return null;
+		}
+		String uri = node.getOwnerDocument().getDocumentURI();
+		List<XMLReferenceExpression> matchedExpressions = null;
 		for (XMLReferences references : allReferences) {
 			// Given this XML references sample
 
@@ -285,14 +353,20 @@ public class XMLReferencesUtils {
 						 * </code>
 						 *
 						 */
-						if (expression.matchFrom(attr)) {
+						if (expression.matchFrom(node)) {
 							// here the attribute matches xref/@linkend
+							if (matchedExpressions == null) {
+								matchedExpressions = new ArrayList<>();
+							}
 							matchedExpressions.add(expression);
 						}
 					}
 				}
 			}
 		}
-		return matchedExpressions;
+		if (matchedExpressions == null) {
+			return null;
+		}
+		return new XMLReferencesSearchContext(matchedExpressions, true);
 	}
 }

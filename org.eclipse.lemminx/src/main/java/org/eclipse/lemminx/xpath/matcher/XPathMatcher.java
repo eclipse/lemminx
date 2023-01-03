@@ -159,7 +159,9 @@ public class XPathMatcher extends ArrayList<IXPathNodeMatcher> {
 	 * matcher and false otherwise.
 	 * 
 	 * @param node the DOM Node to match.
-	 * @return
+	 * 
+	 * @return true if the given DOM Node match the XPath expression of this XPath
+	 * matcher and false otherwise.
 	 */
 	public boolean match(final Node node) {
 		return match(node, null);
@@ -301,8 +303,12 @@ public class XPathMatcher extends ArrayList<IXPathNodeMatcher> {
 	private IXPathNodeMatcher createNodeMatcher(String prefix, String localName) {
 		if (TEXT_NODE_SELECTOR.equals(localName)) {
 			return new XPathTextMatcher(this);
-		} else if (localName.startsWith(ATTR_NODE_SELECTOR)) {
+		} else if (prefix == null && localName.startsWith(ATTR_NODE_SELECTOR)) {
+			// ex : @id
 			return new XPathAttributeNameMatcher(prefix, localName.substring(1, localName.length()), this);
+		} else if (prefix != null && prefix.startsWith(ATTR_NODE_SELECTOR)) {
+			// ex : @xml:id
+			return new XPathAttributeNameMatcher(prefix.substring(1, prefix.length()), localName, this);
 		}
 		return new XPathElementMatcher(prefix, localName, this);
 	}
