@@ -89,6 +89,28 @@ public class XMLReferencesDefinitionExtensionsTest extends AbstractCacheBasedTes
 	}
 
 	@Test
+	public void web() throws BadLocationException {
+		String xml = "<web-app xmlns=\"http://xmlns.jcp.org/xml/ns/javaee\"\r\n"
+				+ "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n"
+				// + " xsi:schemaLocation=\"http://xmlns.jcp.org/xml/ns/javaee
+				// http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd\"\r\n"
+				+ "  version=\"3.1\">\r\n"
+				+ "  <servlet>\r\n"
+				+ "    <servlet-name>comingsoon</servlet-name>\r\n"
+				+ "    <servlet-class>mysite.server.ComingSoonServlet</servlet-class>\r\n"
+				+ "  </servlet>\r\n"
+				+ "  <servlet-mapping>\r\n"
+				+ "    <servlet-name>co|mingsoon</servlet-name>\r\n" // <-- definition on servlet-mapping/servlet-name
+																		// text
+				+ "    <url-pattern>/*</url-pattern>\r\n"
+				+ "  </servlet-mapping>\r\n"
+				+ "</web-app>\r\n"
+				+ "";
+		testDefinitionFor(xml, "file:///test/web.xml",
+				ll("file:///test/web.xml", r(8, 18, 8, 28), r(4, 18, 4, 28)));
+	}
+
+	@Test
 	public void noDefinitionWithTEI() throws BadLocationException {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
 				// + "<?xml-model
@@ -192,6 +214,20 @@ public class XMLReferencesDefinitionExtensionsTest extends AbstractCacheBasedTes
 		linkend.setTo("@id");
 		docbook.setExpressions(Arrays.asList(linkend));
 		references.add(docbook);
+
+		/*
+		 * {
+		 * "from": "servlet-mapping/servlet-name/text()",
+		 * "to": "servlet/servlet-name/text()"
+		 * }
+		 */
+		XMLReferences web = new XMLReferences();
+		web.setPattern("**/web.xml");
+		XMLReferenceExpression servletName = new XMLReferenceExpression();
+		servletName.setFrom("servlet-mapping/servlet-name/text()");
+		servletName.setTo("servlet/servlet-name/text()");
+		web.setExpressions(Arrays.asList(servletName));
+		references.add(web);
 
 		return references;
 	}

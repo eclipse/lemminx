@@ -13,10 +13,9 @@ package org.eclipse.lemminx.extensions.references.participants;
 
 import java.util.List;
 
-import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.extensions.references.XMLReferencesPlugin;
-import org.eclipse.lemminx.extensions.references.settings.XMLReferenceExpression;
+import org.eclipse.lemminx.extensions.references.utils.XMLReferencesSearchContext;
 import org.eclipse.lemminx.extensions.references.utils.XMLReferencesUtils;
 import org.eclipse.lemminx.services.extensions.IHighlightingParticipant;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
@@ -42,24 +41,21 @@ public class XMLReferencesHighlightingParticipant implements IHighlightingPartic
 	@Override
 	public void findDocumentHighlights(DOMNode node, Position position, int offset, List<DocumentHighlight> highlights,
 			CancelChecker cancelChecker) {
-		// Highlight works only when attribute is selected (origin or target attribute)
-		DOMAttr fromAttr = node.findAttrAt(offset);
-		if (fromAttr == null || fromAttr.getNodeAttrValue() == null) {
-			return;
+		DOMNode fromNode = node;
+		if (fromNode.isElement()) {
+			fromNode = fromNode.findAttrAt(offset);
 		}
-
-		List<XMLReferenceExpression> references = XMLReferencesUtils.findExpressionsWhichMatcheFrom(fromAttr,
+		XMLReferencesSearchContext searchContext = XMLReferencesUtils.findExpressionsWhichMatchFrom(fromNode,
 				plugin.getReferencesSettings());
-		if (references != null && !references.isEmpty()) {
+		if (searchContext != null) {
 			highlights
-					.add(new DocumentHighlight(XMLPositionUtility.createRange(fromAttr.getNodeAttrValue().getStart(),
-							fromAttr.getNodeAttrValue().getEnd(), fromAttr.getOwnerDocument()),
+					.add(new DocumentHighlight(
+							XMLPositionUtility.createRange(XMLReferencesUtils.getNodeRange(fromNode)),
 							DocumentHighlightKind.Read));
-			XMLReferencesUtils.searchToAttributes(fromAttr, references, true, false,
-					(targetNamespacePrefix, toAttr, expression) -> {
+			XMLReferencesUtils.searchToNodes(fromNode, searchContext, true, false,
+					(toNamespacePrefix, toNode, expression) -> {
 						highlights.add(new DocumentHighlight(
-								XMLPositionUtility.createRange(toAttr.getNodeAttrValue().getStart(),
-										toAttr.getNodeAttrValue().getEnd(), toAttr.getOwnerDocument()),
+								XMLPositionUtility.createRange(XMLReferencesUtils.getNodeRange(toNode)),
 								DocumentHighlightKind.Write));
 					});
 		}

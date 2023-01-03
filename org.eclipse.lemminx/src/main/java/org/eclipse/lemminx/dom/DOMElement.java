@@ -614,4 +614,32 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 		return true;
 	}
 
+	/**
+	 * Returns the DOM text node from the given <code>offset</code> and null
+	 * otherwise.
+	 * 
+	 * @param offset the offset.
+	 * 
+	 * @return the DOM text node from the given <code>offset</code> and null
+	 *         otherwise.
+	 */
+	public DOMText findTextAt(int offset) {
+		if (offset > startTagCloseOffset && startTagCloseOffset == endTagOpenOffset - 1) {
+			// <foo>|</foo>
+			// In this case, DOM text doesn't exists, create an empty DOM text
+			DOMText text = new DOMText(offset, offset);
+			text.parent = this;
+			return text;
+		}
+		DOMNode node = super.findNodeAt(offset);
+		if (node != null) {
+			if (node.isText()) {
+				return (DOMText) node;
+			}
+			if (node.isElement() && node != this) {
+				return ((DOMElement) node).findTextAt(offset);
+			}
+		}
+		return null;
+	}
 }

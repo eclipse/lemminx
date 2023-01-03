@@ -13,11 +13,10 @@ package org.eclipse.lemminx.extensions.references.participants;
 
 import java.util.List;
 
-import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.extensions.references.XMLReferencesPlugin;
-import org.eclipse.lemminx.extensions.references.settings.XMLReferenceExpression;
+import org.eclipse.lemminx.extensions.references.utils.XMLReferencesSearchContext;
 import org.eclipse.lemminx.extensions.references.utils.XMLReferencesUtils;
 import org.eclipse.lemminx.services.extensions.AbstractDefinitionParticipant;
 import org.eclipse.lemminx.services.extensions.IDefinitionRequest;
@@ -47,18 +46,15 @@ public class XMLReferencesDefinitionParticipant extends AbstractDefinitionPartic
 	@Override
 	protected void doFindDefinition(IDefinitionRequest request, List<LocationLink> locations,
 			CancelChecker cancelChecker) {
-		DOMNode node = request.getNode();
-		if (!node.isAttribute()) {
-			return;
-		}
-		DOMAttr attr = (DOMAttr) node;
-		List<XMLReferenceExpression> references = XMLReferencesUtils.findExpressionsWhichMatcheFrom(attr,
+		DOMNode fromNode = request.getNode();
+		XMLReferencesSearchContext searchContext = XMLReferencesUtils.findExpressionsWhichMatchFrom(fromNode,
 				plugin.getReferencesSettings());
-		if (references != null && !references.isEmpty()) {
-			XMLReferencesUtils.searchToAttributes(attr, references, true, true,
-					(targetNamespacePrefix, targetAttr, expression) -> {
-						LocationLink location = XMLPositionUtility.createLocationLink(attr.getNodeAttrValue(),
-								targetAttr.getNodeAttrValue());
+		if (searchContext != null) {
+			XMLReferencesUtils.searchToNodes(fromNode, searchContext, true, true,
+					(toNamespacePrefix, toNode, expression) -> {
+						LocationLink location = XMLPositionUtility.createLocationLink(
+								XMLReferencesUtils.getNodeRange(fromNode),
+								XMLReferencesUtils.getNodeRange(toNode));
 						locations.add(location);
 					});
 		}

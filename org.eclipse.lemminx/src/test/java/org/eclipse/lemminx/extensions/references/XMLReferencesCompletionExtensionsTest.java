@@ -93,6 +93,49 @@ public class XMLReferencesCompletionExtensionsTest extends BaseFileTempTest {
 				c("chapter-2", te(4, 23, 4, 23, "chapter-2"), "chapter-2"));
 	}
 
+	@Test
+	public void web() throws BadLocationException {
+		// completion on <|
+		String xml = "<web-app xmlns=\"http://xmlns.jcp.org/xml/ns/javaee\"\r\n"
+				+ "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n"
+				// + "  xsi:schemaLocation=\"http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd\"\r\n"
+				+ "  version=\"3.1\">\r\n"
+				+ "  <servlet>\r\n"
+				+ "    <servlet-name>comingsoon</servlet-name>\r\n"
+				+ "    <servlet-class>mysite.server.ComingSoonServlet</servlet-class>\r\n"
+				+ "  </servlet>\r\n"
+				+ "  <servlet-mapping>\r\n"
+				+ "    <servlet-name>co|m</servlet-name>\r\n" // <-- completion on servlet-mapping/servlet-name text
+				+ "    <url-pattern>/*</url-pattern>\r\n"
+				+ "  </servlet-mapping>\r\n"
+				+ "</web-app>\r\n"
+				+ "";
+		testCompletionFor(xml, "file:///test/web.xml", //
+				1 + XMLAssert.CDATA_SNIPPETS + XMLAssert.COMMENT_SNIPPETS, //
+				c("comingsoon", te(8, 18, 8, 21, "comingsoon"), "comingsoon"));
+	}
+
+	@Test
+	public void webInEmptyText() throws BadLocationException {
+		// completion on <|
+		String xml = "<web-app xmlns=\"http://xmlns.jcp.org/xml/ns/javaee\"\r\n"
+				+ "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n"
+				// + "  xsi:schemaLocation=\"http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd\"\r\n"
+				+ "  version=\"3.1\">\r\n"
+				+ "  <servlet>\r\n"
+				+ "    <servlet-name>comingsoon</servlet-name>\r\n"
+				+ "    <servlet-class>mysite.server.ComingSoonServlet</servlet-class>\r\n"
+				+ "  </servlet>\r\n"
+				+ "  <servlet-mapping>\r\n"
+				+ "    <servlet-name>|</servlet-name>\r\n" // <-- completion on servlet-mapping/servlet-name text
+				+ "    <url-pattern>/*</url-pattern>\r\n"
+				+ "  </servlet-mapping>\r\n"
+				+ "</web-app>\r\n"
+				+ "";
+		testCompletionFor(xml, "file:///test/web.xml", //
+				1 + XMLAssert.CDATA_SNIPPETS + XMLAssert.COMMENT_SNIPPETS, //
+				c("comingsoon", te(8, 18, 8, 18, "comingsoon"), "comingsoon"));
+	}
 	private static void testCompletionFor(String value, String fileURI, Integer expectedCount,
 			CompletionItem... expectedItems)
 			throws BadLocationException {
@@ -131,12 +174,26 @@ public class XMLReferencesCompletionExtensionsTest extends BaseFileTempTest {
 		 */
 		XMLReferences docbook = new XMLReferences();
 		docbook.setPattern("**/*docbook.xml");
-		XMLReferenceExpression linkend = new XMLReferenceExpression();		
+		XMLReferenceExpression linkend = new XMLReferenceExpression();
 		linkend.setFrom("xref/@linkend");
 		linkend.setTo("@id");
 		docbook.setExpressions(Arrays.asList(linkend));
 		references.add(docbook);
-		
+
+		/*
+		 * {
+		 * "from": "servlet-mapping/servlet-name/text()",
+		 * "to": "servlet/servlet-name/text()"
+		 * }
+		 */
+		XMLReferences web = new XMLReferences();
+		web.setPattern("**/web.xml");
+		XMLReferenceExpression servletName = new XMLReferenceExpression();
+		servletName.setFrom("servlet-mapping/servlet-name/text()");
+		servletName.setTo("servlet/servlet-name/text()");
+		web.setExpressions(Arrays.asList(servletName));
+		references.add(web);
+
 		return references;
 	}
 }
