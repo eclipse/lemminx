@@ -13,7 +13,6 @@ package org.eclipse.lemminx.services.format;
 
 import java.util.List;
 
-import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMText;
 import org.eclipse.lsp4j.TextEdit;
 
