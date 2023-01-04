@@ -89,7 +89,10 @@ import org.eclipse.lsp4j.LinkedEditingRangeParams;
 import org.eclipse.lsp4j.LinkedEditingRanges;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
+import org.eclipse.lsp4j.PrepareRenameParams;
+import org.eclipse.lsp4j.PrepareRenameResult;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.SelectionRange;
@@ -350,9 +353,17 @@ public class XMLTextDocumentService implements TextDocumentService {
 	}
 
 	@Override
+	public CompletableFuture<Either<Range, PrepareRenameResult>> prepareRename(PrepareRenameParams params) {
+		return computeDOMAsync(params.getTextDocument(), (xmlDocument, cancelChecker) -> {
+			return getXMLLanguageService().prepareRename(xmlDocument, params.getPosition(), cancelChecker);
+		});
+	}
+
+	@Override
 	public CompletableFuture<WorkspaceEdit> rename(RenameParams params) {
 		return computeDOMAsync(params.getTextDocument(), (xmlDocument, cancelChecker) -> {
-			return getXMLLanguageService().doRename(xmlDocument, params.getPosition(), params.getNewName());
+			return getXMLLanguageService().doRename(xmlDocument, params.getPosition(), params.getNewName(),
+					cancelChecker);
 		});
 	}
 
@@ -563,14 +574,14 @@ public class XMLTextDocumentService implements TextDocumentService {
 			return getXMLLanguageService().findDocumentColors(xmlDocument, cancelChecker);
 		});
 	}
-	
+
 	@Override
 	public CompletableFuture<List<ColorPresentation>> colorPresentation(ColorPresentationParams params) {
 		return computeDOMAsync(params.getTextDocument(), (xmlDocument, cancelChecker) -> {
 			return getXMLLanguageService().getColorPresentations(xmlDocument, params, cancelChecker);
 		});
 	}
-	
+
 	@Override
 	public void didSave(DidSaveTextDocumentParams params) {
 		computeAsync((monitor) -> {

@@ -289,6 +289,17 @@ public abstract class DOMNode implements Node, DOMRange {
 		return null;
 	}
 
+	public static DOMText findTextAt(DOMNode node, int offset) {
+		if (node != null && node.hasChildNodes()) {
+			for (DOMNode child : node.getChildren()) {
+				if (child.isText() && isIncluded(child, offset)) {
+					return (DOMText) child;
+				}
+			}
+		}
+		return null;
+	}
+	
 	public static DOMNode findNodeOrAttrAt(DOMDocument document, int offset) {
 		DOMNode node = document.findNodeAt(offset);
 		if (node != null) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2019 Red Hat Inc. and others.
+* Copyright (c) 2023 Red Hat Inc. and others.
 * All rights reserved. This program and the accompanying materials
 * which accompanies this distribution, and is available at
 * http://www.eclipse.org/legal/epl-v20.html
@@ -12,9 +12,8 @@
 package org.eclipse.lemminx.services.extensions;
 
 /**
- * Rename request API.
+ * Linked editing ranges request API.
  *
  */
-public interface IRenameRequest extends IPositionRequest {
-	String getNewText();
+public interface ILinkedEditingRangesRequest extends IPositionRequest {
 }

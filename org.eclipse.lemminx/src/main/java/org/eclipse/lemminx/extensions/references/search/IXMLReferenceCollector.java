@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2022 Red Hat Inc. and others.
+* Copyright (c) 2023 Red Hat Inc. and others.
 * All rights reserved. This program and the accompanying materials
 * which accompanies this distribution, and is available at
 * http://www.eclipse.org/legal/epl-v20.html
@@ -9,28 +9,27 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lemminx.extensions.references.utils;
+package org.eclipse.lemminx.extensions.references.search;
 
-import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.extensions.references.settings.XMLReferenceExpression;
 
 /**
- * API to collect to attribute which matches
+ * API to collect from/to attribute, text nodes which matches
  * {@link XMLReferenceExpression#matchTo(org.w3c.dom.Node)}
  * 
  * @author Angelo ZERR
  *
  */
 @FunctionalInterface
-public interface IXMLReferenceTosCollector {
+public interface IXMLReferenceCollector {
 
 	/**
-	 * Collect the given to attribute which matches the given expression.
+	 * Collect the from / to search node which matches the given expression.
 	 * 
-	 * @param namespacePrefix namespace prefix.
-	 * @param toNode          the to attribute, text node to collect.
-	 * @param expression      the reference expression which matches the to
-	 *                        node.
+	 * @param fromSearchNode the from attribute, text node to collect.
+	 * @param toSearchNode   the to attribute, text node to collect.
+	 * @param expression     the reference expression which matches the from / to
+	 *                       node.
 	 */
-	void collect(String namespacePrefix, DOMNode toNode, XMLReferenceExpression expression);
+	void collect(SearchNode fromSearchNode, SearchNode toSearchNode, XMLReferenceExpression expression);
 }

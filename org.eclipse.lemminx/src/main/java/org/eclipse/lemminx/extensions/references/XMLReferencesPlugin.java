@@ -11,15 +11,25 @@
 *******************************************************************************/
 package org.eclipse.lemminx.extensions.references;
 
+import org.eclipse.lemminx.extensions.references.participants.XMLReferencesCodeLensParticipant;
 import org.eclipse.lemminx.extensions.references.participants.XMLReferencesCompletionParticipant;
 import org.eclipse.lemminx.extensions.references.participants.XMLReferencesDefinitionParticipant;
+import org.eclipse.lemminx.extensions.references.participants.XMLReferencesDiagnosticParticipant;
 import org.eclipse.lemminx.extensions.references.participants.XMLReferencesHighlightingParticipant;
+import org.eclipse.lemminx.extensions.references.participants.XMLReferencesLinkedEditingRangesParticipant;
+import org.eclipse.lemminx.extensions.references.participants.XMLReferencesReferenceParticipant;
+import org.eclipse.lemminx.extensions.references.participants.XMLReferencesRenameParticipant;
 import org.eclipse.lemminx.extensions.references.settings.XMLReferencesSettings;
 import org.eclipse.lemminx.services.extensions.IDefinitionParticipant;
 import org.eclipse.lemminx.services.extensions.IHighlightingParticipant;
+import org.eclipse.lemminx.services.extensions.ILinkedEditingRangesParticipant;
+import org.eclipse.lemminx.services.extensions.IReferenceParticipant;
+import org.eclipse.lemminx.services.extensions.IRenameParticipant;
 import org.eclipse.lemminx.services.extensions.IXMLExtension;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lemminx.services.extensions.codelens.ICodeLensParticipant;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionParticipant;
+import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lemminx.services.extensions.save.ISaveContext;
 import org.eclipse.lsp4j.InitializeParams;
 
@@ -66,14 +76,24 @@ public class XMLReferencesPlugin implements IXMLExtension {
 
 	private final ICompletionParticipant completionParticipant;
 	private final IDefinitionParticipant definitionParticipant;
+	private final IReferenceParticipant referenceParticipant;
+	private final ICodeLensParticipant codeLensParticipant;
 	private final IHighlightingParticipant highlightingParticipant;
+	private final IRenameParticipant renameParticipant;
+	private final ILinkedEditingRangesParticipant linkedEditingRangesParticipant;
+	private final IDiagnosticsParticipant diagnosticsParticipant;
 
 	private XMLReferencesSettings referencesSettings;
 
 	public XMLReferencesPlugin() {
 		completionParticipant = new XMLReferencesCompletionParticipant(this);
 		definitionParticipant = new XMLReferencesDefinitionParticipant(this);
+		referenceParticipant = new XMLReferencesReferenceParticipant(this);
+		codeLensParticipant = new XMLReferencesCodeLensParticipant(this);
 		highlightingParticipant = new XMLReferencesHighlightingParticipant(this);
+		renameParticipant = new XMLReferencesRenameParticipant(this);
+		linkedEditingRangesParticipant = new XMLReferencesLinkedEditingRangesParticipant(this);
+		diagnosticsParticipant = new XMLReferencesDiagnosticParticipant(this);
 	}
 
 	@Override
@@ -99,14 +119,24 @@ public class XMLReferencesPlugin implements IXMLExtension {
 	public void start(InitializeParams params, XMLExtensionsRegistry registry) {
 		registry.registerCompletionParticipant(completionParticipant);
 		registry.registerDefinitionParticipant(definitionParticipant);
+		registry.registerReferenceParticipant(referenceParticipant);
+		registry.registerCodeLensParticipant(codeLensParticipant);
 		registry.registerHighlightingParticipant(highlightingParticipant);
+		registry.registerRenameParticipant(renameParticipant);
+		registry.registerLinkedEditingRangesParticipants(linkedEditingRangesParticipant);
+		registry.registerDiagnosticsParticipant(diagnosticsParticipant);
 	}
 
 	@Override
 	public void stop(XMLExtensionsRegistry registry) {
 		registry.unregisterCompletionParticipant(completionParticipant);
 		registry.unregisterDefinitionParticipant(definitionParticipant);
+		registry.unregisterReferenceParticipant(referenceParticipant);
+		registry.unregisterCodeLensParticipant(codeLensParticipant);
 		registry.unregisterHighlightingParticipant(highlightingParticipant);
+		registry.unregisterRenameParticipant(renameParticipant);
+		registry.unregisterLinkedEditingRangesParticipants(linkedEditingRangesParticipant);
+		registry.unregisterDiagnosticsParticipant(diagnosticsParticipant);
 	}
 
 	public XMLReferencesSettings getReferencesSettings() {

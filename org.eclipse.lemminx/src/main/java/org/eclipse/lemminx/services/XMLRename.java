@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CancellationException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -39,6 +40,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
  * Handle all rename requests
@@ -55,8 +57,11 @@ public class XMLRename {
 		this.extensionsRegistry = extensionsRegistry;
 	}
 
-	public WorkspaceEdit doRename(DOMDocument xmlDocument, Position position, String newText) {
+	public WorkspaceEdit doRename(DOMDocument xmlDocument, Position position, String newText,
+			CancelChecker cancelChecker) {
 
+		cancelChecker.checkCanceled();
+		
 		RenameRequest renameRequest = null;
 
 		try {
@@ -68,7 +73,7 @@ public class XMLRename {
 
 		DOMNode node = renameRequest.getNode();
 
-		if (node == null || (!node.isAttribute() && !node.isElement())
+		if (node == null || (!node.isAttribute() && !node.isElement() && !node.isText())
 				|| (node.isElement() && !((DOMElement) node).hasTagName())) {
 
 			return createWorkspaceEdit(xmlDocument.getDocumentURI(), Collections.emptyList());
@@ -78,7 +83,9 @@ public class XMLRename {
 
 		for (IRenameParticipant participant : extensionsRegistry.getRenameParticipants()) {
 			try {
-				participant.doRename(renameRequest, textEdits);
+				participant.doRename(renameRequest, textEdits, cancelChecker);
+			} catch (CancellationException e) {
+				throw e;
 			} catch (Exception e) {
 				LOGGER.log(Level.SEVERE,
 						"Error while processing rename for the participant '" + participant.getClass().getName() + "'.",
@@ -88,16 +95,17 @@ public class XMLRename {
 
 		textEdits.addAll(getRenameTextEdits(xmlDocument, node, position, newText));
 
+		cancelChecker.checkCanceled();
+		
 		return createWorkspaceEdit(xmlDocument.getDocumentURI(), textEdits);
 	}
 
 	private List<TextEdit> getRenameTextEdits(DOMDocument xmlDocument, DOMNode node, Position position,
 			String newText) {
-
-		DOMElement element = getAssociatedElement(node);
-		if (node == null) {
+		if (node == null || node.isText()) {
 			return Collections.emptyList();
 		}
+		DOMElement element = getAssociatedElement(node);
 
 		if (node.isCDATA()) {
 			return getCDATARenameTextEdits(xmlDocument, element, position, newText);
@@ -121,7 +129,7 @@ public class XMLRename {
 	 * @return associated <code>DOMElement</code>
 	 */
 	private DOMElement getAssociatedElement(DOMNode node) {
-		if (node == null || (!node.isElement() && !node.isAttribute())) {
+		if (!node.isElement() && !node.isAttribute()) {
 			return null;
 		}
 
