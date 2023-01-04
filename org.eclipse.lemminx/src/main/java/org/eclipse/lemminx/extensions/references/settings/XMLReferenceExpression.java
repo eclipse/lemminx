@@ -41,6 +41,8 @@ public class XMLReferenceExpression {
 
 	private String to;
 
+	private Boolean multiple;
+
 	public String getFrom() {
 		return from;
 	}
@@ -63,6 +65,17 @@ public class XMLReferenceExpression {
 
 	public void setPrefix(String prefix) {
 		this.prefix = prefix;
+	}
+
+	public void setMultiple(Boolean multiple) {
+		this.multiple = multiple;
+	}
+
+	public boolean isMultiple() {
+		return multiple != null && multiple.booleanValue();
+	}
+	public Boolean getMultiple() {
+		return multiple;
 	}
 
 	/**

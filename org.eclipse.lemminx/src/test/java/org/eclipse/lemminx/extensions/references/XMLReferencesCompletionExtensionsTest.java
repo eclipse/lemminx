@@ -14,17 +14,10 @@ package org.eclipse.lemminx.extensions.references;
 import static org.eclipse.lemminx.XMLAssert.c;
 import static org.eclipse.lemminx.XMLAssert.te;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.XMLAssert.SettingsSaveContext;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.extensions.contentmodel.BaseFileTempTest;
-import org.eclipse.lemminx.extensions.references.settings.XMLReferenceExpression;
-import org.eclipse.lemminx.extensions.references.settings.XMLReferences;
-import org.eclipse.lemminx.extensions.references.settings.XMLReferencesSettings;
 import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lsp4j.CompletionItem;
 import org.junit.jupiter.api.Test;
@@ -36,7 +29,7 @@ import org.junit.jupiter.api.Test;
 public class XMLReferencesCompletionExtensionsTest extends BaseFileTempTest {
 
 	@Test
-	public void tei() throws BadLocationException {
+	public void teiCorresp() throws BadLocationException {
 		// completion on <|
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
 				// + "<?xml-model
@@ -71,6 +64,222 @@ public class XMLReferencesCompletionExtensionsTest extends BaseFileTempTest {
 	}
 
 	@Test
+	public void teiTarget() throws BadLocationException {
+		// completion on <|
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
+				// + "<?xml-model
+				// href=\"http://www.tei-c.org/release/xml/tei/custom/schema/relaxng/tei_all.rng\"
+				// type=\"application/xml\"
+				// schematypens=\"http://relaxng.org/ns/structure/1.0\"?>\r\n"
+				+ "<TEI xmlns=\"http://www.tei-c.org/ns/1.0\">\r\n"
+				+ "	<teiHeader></teiHeader>\r\n"
+				+ "	<text>\r\n"
+				+ "		<body>\r\n"
+				+ "			<p xml:id=\"A\" />\r\n"
+				+ "			<p xml:id=\"B\" />\r\n"
+				+ "		</body>\r\n"
+				+ "		<link target=\"|\" />\r\n"
+				+ "	</text>\r\n"
+				+ "</TEI>";
+		testCompletionFor(xml, "file:///test/tei.xml", //
+				2, //
+				c("#A", te(8, 16, 8, 16, "#A"), "#A"), //
+				c("#B", te(8, 16, 8, 16, "#B"), "#B"));
+	}
+
+	@Test
+	public void teiTargetMulti1() throws BadLocationException {
+		// completion on <|
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
+				// + "<?xml-model
+				// href=\"http://www.tei-c.org/release/xml/tei/custom/schema/relaxng/tei_all.rng\"
+				// type=\"application/xml\"
+				// schematypens=\"http://relaxng.org/ns/structure/1.0\"?>\r\n"
+				+ "<TEI xmlns=\"http://www.tei-c.org/ns/1.0\">\r\n"
+				+ "	<teiHeader></teiHeader>\r\n"
+				+ "	<text>\r\n"
+				+ "		<body>\r\n"
+				+ "			<p xml:id=\"A\" />\r\n"
+				+ "			<p xml:id=\"B\" />\r\n"
+				+ "		</body>\r\n"
+				+ "		<link target=\"|#A\" />\r\n"
+				+ "	</text>\r\n"
+				+ "</TEI>";
+		testCompletionFor(xml, "file:///test/tei.xml", //
+				2, //
+				c("#A", te(8, 16, 8, 18, "#A"), "#A"), //
+				c("#B", te(8, 16, 8, 18, "#B"), "#B"));
+	}
+
+	@Test
+	public void teiTargetMulti2() throws BadLocationException {
+		// completion on <|
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
+				// + "<?xml-model
+				// href=\"http://www.tei-c.org/release/xml/tei/custom/schema/relaxng/tei_all.rng\"
+				// type=\"application/xml\"
+				// schematypens=\"http://relaxng.org/ns/structure/1.0\"?>\r\n"
+				+ "<TEI xmlns=\"http://www.tei-c.org/ns/1.0\">\r\n"
+				+ "	<teiHeader></teiHeader>\r\n"
+				+ "	<text>\r\n"
+				+ "		<body>\r\n"
+				+ "			<p xml:id=\"A\" />\r\n"
+				+ "			<p xml:id=\"B\" />\r\n"
+				+ "		</body>\r\n"
+				+ "		<link target=\"#|A\" />\r\n"
+				+ "	</text>\r\n"
+				+ "</TEI>";
+		testCompletionFor(xml, "file:///test/tei.xml", //
+				2, //
+				c("#A", te(8, 16, 8, 18, "#A"), "#A"), //
+				c("#B", te(8, 16, 8, 18, "#B"), "#B"));
+	}
+
+	@Test
+	public void teiTargetMulti3() throws BadLocationException {
+		// completion on <|
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
+				// + "<?xml-model
+				// href=\"http://www.tei-c.org/release/xml/tei/custom/schema/relaxng/tei_all.rng\"
+				// type=\"application/xml\"
+				// schematypens=\"http://relaxng.org/ns/structure/1.0\"?>\r\n"
+				+ "<TEI xmlns=\"http://www.tei-c.org/ns/1.0\">\r\n"
+				+ "	<teiHeader></teiHeader>\r\n"
+				+ "	<text>\r\n"
+				+ "		<body>\r\n"
+				+ "			<p xml:id=\"A\" />\r\n"
+				+ "			<p xml:id=\"B\" />\r\n"
+				+ "		</body>\r\n"
+				+ "		<link target=\"#A|\" />\r\n"
+				+ "	</text>\r\n"
+				+ "</TEI>";
+		testCompletionFor(xml, "file:///test/tei.xml", //
+				2, //
+				c("#A", te(8, 16, 8, 18, "#A"), "#A"), //
+				c("#B", te(8, 16, 8, 18, "#B"), "#B"));
+	}
+
+	@Test
+	public void teiTargetMulti4() throws BadLocationException {
+		// completion on <|
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
+				// + "<?xml-model
+				// href=\"http://www.tei-c.org/release/xml/tei/custom/schema/relaxng/tei_all.rng\"
+				// type=\"application/xml\"
+				// schematypens=\"http://relaxng.org/ns/structure/1.0\"?>\r\n"
+				+ "<TEI xmlns=\"http://www.tei-c.org/ns/1.0\">\r\n"
+				+ "	<teiHeader></teiHeader>\r\n"
+				+ "	<text>\r\n"
+				+ "		<body>\r\n"
+				+ "			<p xml:id=\"A\" />\r\n"
+				+ "			<p xml:id=\"B\" />\r\n"
+				+ "		</body>\r\n"
+				+ "		<link target=\"#A| \" />\r\n"
+				+ "	</text>\r\n"
+				+ "</TEI>";
+		testCompletionFor(xml, "file:///test/tei.xml", //
+				2, //
+				c("#A", te(8, 16, 8, 19, "#A"), "#A"), //
+				c("#B", te(8, 16, 8, 19, "#B"), "#B"));
+	}
+
+	@Test
+	public void teiTargetMulti5() throws BadLocationException {
+		// completion on <|
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
+				// + "<?xml-model
+				// href=\"http://www.tei-c.org/release/xml/tei/custom/schema/relaxng/tei_all.rng\"
+				// type=\"application/xml\"
+				// schematypens=\"http://relaxng.org/ns/structure/1.0\"?>\r\n"
+				+ "<TEI xmlns=\"http://www.tei-c.org/ns/1.0\">\r\n"
+				+ "	<teiHeader></teiHeader>\r\n"
+				+ "	<text>\r\n"
+				+ "		<body>\r\n"
+				+ "			<p xml:id=\"A\" />\r\n"
+				+ "			<p xml:id=\"B\" />\r\n"
+				+ "		</body>\r\n"
+				+ "		<link target=\"#A| #B\" />\r\n"
+				+ "	</text>\r\n"
+				+ "</TEI>";
+		testCompletionFor(xml, "file:///test/tei.xml", //
+				2, //
+				c("#A", te(8, 16, 8, 18, "#A"), "#A"), //
+				c("#B", te(8, 16, 8, 18, "#B"), "#B"));
+	}
+
+	@Test
+	public void teiTargetMulti6() throws BadLocationException {
+		// completion on <|
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
+				// + "<?xml-model
+				// href=\"http://www.tei-c.org/release/xml/tei/custom/schema/relaxng/tei_all.rng\"
+				// type=\"application/xml\"
+				// schematypens=\"http://relaxng.org/ns/structure/1.0\"?>\r\n"
+				+ "<TEI xmlns=\"http://www.tei-c.org/ns/1.0\">\r\n"
+				+ "	<teiHeader></teiHeader>\r\n"
+				+ "	<text>\r\n"
+				+ "		<body>\r\n"
+				+ "			<p xml:id=\"A\" />\r\n"
+				+ "			<p xml:id=\"B\" />\r\n"
+				+ "		</body>\r\n"
+				+ "		<link target=\"#A |#B\" />\r\n"
+				+ "	</text>\r\n"
+				+ "</TEI>";
+		testCompletionFor(xml, "file:///test/tei.xml", //
+				2, //
+				c("#A", te(8, 19, 8, 21, "#A"), "#A"), //
+				c("#B", te(8, 19, 8, 21, "#B"), "#B"));
+	}
+
+	@Test
+	public void teiTargetMulti7() throws BadLocationException {
+		// completion on <|
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
+				// + "<?xml-model
+				// href=\"http://www.tei-c.org/release/xml/tei/custom/schema/relaxng/tei_all.rng\"
+				// type=\"application/xml\"
+				// schematypens=\"http://relaxng.org/ns/structure/1.0\"?>\r\n"
+				+ "<TEI xmlns=\"http://www.tei-c.org/ns/1.0\">\r\n"
+				+ "	<teiHeader></teiHeader>\r\n"
+				+ "	<text>\r\n"
+				+ "		<body>\r\n"
+				+ "			<p xml:id=\"A\" />\r\n"
+				+ "			<p xml:id=\"B\" />\r\n"
+				+ "		</body>\r\n"
+				+ "		<link target=\"#A #|B\" />\r\n"
+				+ "	</text>\r\n"
+				+ "</TEI>";
+		testCompletionFor(xml, "file:///test/tei.xml", //
+				2, //
+				c("#A", te(8, 19, 8, 21, "#A"), "#A"), //
+				c("#B", te(8, 19, 8, 21, "#B"), "#B"));
+	}
+
+	@Test
+	public void teiTargetMulti8() throws BadLocationException {
+		// completion on <|
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
+				// + "<?xml-model
+				// href=\"http://www.tei-c.org/release/xml/tei/custom/schema/relaxng/tei_all.rng\"
+				// type=\"application/xml\"
+				// schematypens=\"http://relaxng.org/ns/structure/1.0\"?>\r\n"
+				+ "<TEI xmlns=\"http://www.tei-c.org/ns/1.0\">\r\n"
+				+ "	<teiHeader></teiHeader>\r\n"
+				+ "	<text>\r\n"
+				+ "		<body>\r\n"
+				+ "			<p xml:id=\"A\" />\r\n"
+				+ "			<p xml:id=\"B\" />\r\n"
+				+ "		</body>\r\n"
+				+ "		<link target=\"#A | #B\" />\r\n"
+				+ "	</text>\r\n"
+				+ "</TEI>";
+		testCompletionFor(xml, "file:///test/tei.xml", //
+				2, //
+				c("#A", te(8, 19, 8, 19, "#A"), "#A"), //
+				c("#B", te(8, 19, 8, 19, "#B"), "#B"));
+	}
+
+	@Test
 	public void docbook() throws BadLocationException {
 		// completion on <|
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
@@ -98,7 +307,8 @@ public class XMLReferencesCompletionExtensionsTest extends BaseFileTempTest {
 		// completion on <|
 		String xml = "<web-app xmlns=\"http://xmlns.jcp.org/xml/ns/javaee\"\r\n"
 				+ "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n"
-				// + "  xsi:schemaLocation=\"http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd\"\r\n"
+				// + " xsi:schemaLocation=\"http://xmlns.jcp.org/xml/ns/javaee
+				// http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd\"\r\n"
 				+ "  version=\"3.1\">\r\n"
 				+ "  <servlet>\r\n"
 				+ "    <servlet-name>comingsoon</servlet-name>\r\n"
@@ -120,7 +330,8 @@ public class XMLReferencesCompletionExtensionsTest extends BaseFileTempTest {
 		// completion on <|
 		String xml = "<web-app xmlns=\"http://xmlns.jcp.org/xml/ns/javaee\"\r\n"
 				+ "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n"
-				// + "  xsi:schemaLocation=\"http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd\"\r\n"
+				// + " xsi:schemaLocation=\"http://xmlns.jcp.org/xml/ns/javaee
+				// http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd\"\r\n"
 				+ "  version=\"3.1\">\r\n"
 				+ "  <servlet>\r\n"
 				+ "    <servlet-name>comingsoon</servlet-name>\r\n"
@@ -136,64 +347,14 @@ public class XMLReferencesCompletionExtensionsTest extends BaseFileTempTest {
 				1 + XMLAssert.CDATA_SNIPPETS + XMLAssert.COMMENT_SNIPPETS, //
 				c("comingsoon", te(8, 18, 8, 18, "comingsoon"), "comingsoon"));
 	}
+
 	private static void testCompletionFor(String value, String fileURI, Integer expectedCount,
 			CompletionItem... expectedItems)
 			throws BadLocationException {
 		XMLAssert.testCompletionFor(new XMLLanguageService(), value, null, ls -> {
-
-			XMLReferencesSettings referencesSettings = new XMLReferencesSettings();
-			referencesSettings.setReferences(createReferences());
-			ls.doSave(new SettingsSaveContext(referencesSettings));
+			ls.doSave(new SettingsSaveContext(XMLReferencesSettingsForTest.createXMLReferencesSettings()));
 
 		}, fileURI,
 				expectedCount, true, expectedItems);
-	}
-
-	private static List<XMLReferences> createReferences() {
-		List<XMLReferences> references = new ArrayList<>();
-		/*
-		 * {
-		 * "prefix": "#",
-		 * "from": "@corresp",
-		 * "to": "@xml:id"
-		 * }
-		 */
-		XMLReferences tei = new XMLReferences();
-		tei.setPattern("**/*tei.xml");
-		XMLReferenceExpression corresp = new XMLReferenceExpression();
-		corresp.setPrefix("#");
-		corresp.setFrom("@corresp");
-		corresp.setTo("@xml:id");
-		tei.setExpressions(Arrays.asList(corresp));
-		references.add(tei);
-		/*
-		 * {
-		 * "from": "xref/@linkend",
-		 * "to": "@id"
-		 * }
-		 */
-		XMLReferences docbook = new XMLReferences();
-		docbook.setPattern("**/*docbook.xml");
-		XMLReferenceExpression linkend = new XMLReferenceExpression();
-		linkend.setFrom("xref/@linkend");
-		linkend.setTo("@id");
-		docbook.setExpressions(Arrays.asList(linkend));
-		references.add(docbook);
-
-		/*
-		 * {
-		 * "from": "servlet-mapping/servlet-name/text()",
-		 * "to": "servlet/servlet-name/text()"
-		 * }
-		 */
-		XMLReferences web = new XMLReferences();
-		web.setPattern("**/web.xml");
-		XMLReferenceExpression servletName = new XMLReferenceExpression();
-		servletName.setFrom("servlet-mapping/servlet-name/text()");
-		servletName.setTo("servlet/servlet-name/text()");
-		web.setExpressions(Arrays.asList(servletName));
-		references.add(web);
-
-		return references;
 	}
 }

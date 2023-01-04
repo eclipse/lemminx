@@ -20,6 +20,7 @@ import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConsta
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_COLOR_OPTIONS;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_COMPLETION_OPTIONS;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_LINK_OPTIONS;
+import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_RENAME_OPTIONS;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.DEFINITION_ID;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.DOCUMENT_HIGHLIGHT_ID;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.DOCUMENT_SYMBOL_ID;
@@ -170,7 +171,7 @@ public class XMLCapabilityManager {
 			registerCapability(COLOR_ID, TEXT_DOCUMENT_COLOR, DEFAULT_COLOR_OPTIONS);
 		}
 		if (this.getClientCapabilities().isRenameDynamicRegistrationSupported()) {
-			registerCapability(RENAME_ID, TEXT_DOCUMENT_RENAME);
+			registerCapability(RENAME_ID, TEXT_DOCUMENT_RENAME, DEFAULT_RENAME_OPTIONS);
 		}
 		if (this.getClientCapabilities().isDefinitionDynamicRegistered()) {
 			registerCapability(DEFINITION_ID, TEXT_DOCUMENT_DEFINITION);

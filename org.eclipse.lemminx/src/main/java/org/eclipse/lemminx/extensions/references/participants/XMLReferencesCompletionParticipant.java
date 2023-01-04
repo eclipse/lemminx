@@ -11,15 +11,16 @@
 *******************************************************************************/
 package org.eclipse.lemminx.extensions.references.participants;
 
-import org.eclipse.lemminx.dom.DOMElement;
-import org.eclipse.lemminx.dom.DOMNode;
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.eclipse.lemminx.extensions.references.XMLReferencesPlugin;
-import org.eclipse.lemminx.extensions.references.settings.XMLReferenceExpression;
-import org.eclipse.lemminx.extensions.references.utils.XMLReferencesSearchContext;
-import org.eclipse.lemminx.extensions.references.utils.XMLReferencesUtils;
+import org.eclipse.lemminx.extensions.references.search.SearchEngine;
+import org.eclipse.lemminx.extensions.references.search.SearchQuery;
+import org.eclipse.lemminx.extensions.references.search.SearchQueryFactory;
 import org.eclipse.lemminx.services.extensions.completion.CompletionParticipantAdapter;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionRequest;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionResponse;
+import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.Range;
@@ -44,52 +45,47 @@ public class XMLReferencesCompletionParticipant extends CompletionParticipantAda
 	@Override
 	public void onXMLContent(ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker)
 			throws Exception {
-		DOMNode fromNode = request.getNode();
-		if (fromNode.isElement()) {
-			fromNode = ((DOMElement) fromNode).findTextAt(request.getOffset());
-		}
-		searchToNodes(fromNode, request, response);
+		searchToNodes(request, response, cancelChecker);
 	}
 
 	@Override
 	public void onAttributeValue(String valuePrefix, ICompletionRequest request, ICompletionResponse response,
 			CancelChecker cancelChecker) throws Exception {
-		DOMNode node = request.getNode();
-		DOMNode fromNode = node.findAttrAt(request.getOffset());
-		searchToNodes(fromNode, request, response);
+		searchToNodes(request, response, cancelChecker);
 	}
 
-	private void searchToNodes(DOMNode fromNode, ICompletionRequest request, ICompletionResponse response) {
-		XMLReferencesSearchContext searchContext = XMLReferencesUtils.findExpressionsWhichMatchFrom(fromNode,
+	private void searchToNodes(ICompletionRequest request, ICompletionResponse response,
+			CancelChecker cancelChecker) {
+		// Create the from query for the node which needs to perform the search.
+		SearchQuery query = SearchQueryFactory.createFromQuery(request.getNode(), request.getOffset(),
 				plugin.getReferencesSettings());
-		if (searchContext != null) {
-			XMLReferencesUtils.searchToNodes(fromNode, searchContext, false, true,
-					(toNamespacePrefix, toNode, expression) -> {
-						CompletionItem item = new CompletionItem();
-						String value = createReferenceValue(toNode, toNamespacePrefix, expression);
-						String insertText = request.getInsertAttrValue(value);
-						item.setLabel(value);
-						item.setKind(CompletionItemKind.Value);
-						item.setFilterText(insertText);
-						Range fullRange = request.getReplaceRange();
-						item.setTextEdit(Either.forLeft(new TextEdit(fullRange, insertText)));
-						response.addCompletionItem(item);
-					});
+		if (query == null) {
+			// The query cannot be created because:
+			// - the node is neither a text nor an attribute
+			// - it doesn't exists some expressions for the DOM document of the node.
+			// - there are none expressions which matches the node.
+			return;
 		}
-	}
+		query.setMatchNode(false);
+		query.setSearchInIncludedFiles(true);
 
-	private static String createReferenceValue(DOMNode toNode, String toNamespacePrefix,
-			XMLReferenceExpression expression) {
-		StringBuilder value = new StringBuilder();
-		if (expression.getPrefix() != null) {
-			value.append(expression.getPrefix());
-		}
-		if (toNamespacePrefix != null) {
-			value.append(toNamespacePrefix);
-			value.append(":");
-		}
-		value.append(XMLReferencesUtils.getNodeValue(toNode));
-		return value.toString();
+		AtomicReference<Range> replaceRange = new AtomicReference<>(null);
+		SearchEngine.getInstance().search(query,
+				(fromSearchNode, toSearchNode, expression) -> {
+					CompletionItem item = new CompletionItem();
+					String value = toSearchNode.getValue(fromSearchNode.getPrefix());
+					String insertText = request.getInsertAttrValue(value);
+					item.setLabel(value);
+					item.setKind(CompletionItemKind.Value);
+					item.setFilterText(insertText);
+					Range fullRange = replaceRange.get();
+					if (fullRange == null) {
+						replaceRange.set(XMLPositionUtility.createRange(fromSearchNode));
+						fullRange = replaceRange.get();
+					}
+					item.setTextEdit(Either.forLeft(new TextEdit(fullRange, insertText)));
+					response.addCompletionItem(item);
+				}, cancelChecker);
 	}
 
 }

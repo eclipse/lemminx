@@ -14,17 +14,10 @@ package org.eclipse.lemminx.extensions.references;
 import static org.eclipse.lemminx.XMLAssert.ll;
 import static org.eclipse.lemminx.XMLAssert.r;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.XMLAssert.SettingsSaveContext;
 import org.eclipse.lemminx.commons.BadLocationException;
-import org.eclipse.lemminx.extensions.references.settings.XMLReferenceExpression;
-import org.eclipse.lemminx.extensions.references.settings.XMLReferences;
-import org.eclipse.lemminx.extensions.references.settings.XMLReferencesSettings;
 import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lsp4j.LocationLink;
 import org.junit.jupiter.api.Test;
@@ -65,7 +58,49 @@ public class XMLReferencesDefinitionExtensionsTest extends AbstractCacheBasedTes
 				+ "  </text>\r\n"
 				+ "</TEI>";
 		testDefinitionFor(xml, "file:///test/tei.xml",
-				ll("file:///test/tei.xml", r(18, 22, 18, 32), r(16, 17, 16, 26)));
+				ll("file:///test/tei.xml", r(18, 23, 18, 31), r(16, 18, 16, 25)));
+	}
+
+	@Test
+	public void teiTargetMulti1() throws BadLocationException {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
+				// + "<?xml-model
+				// href=\"http://www.tei-c.org/release/xml/tei/custom/schema/relaxng/tei_all.rng\"
+				// type=\"application/xml\"
+				// schematypens=\"http://relaxng.org/ns/structure/1.0\"?>\r\n"
+				+ "<TEI xmlns=\"http://www.tei-c.org/ns/1.0\">\r\n"
+				+ "	<teiHeader></teiHeader>\r\n"
+				+ "	<text>\r\n"
+				+ "		<body>\r\n"
+				+ "			<p xml:id=\"A\" />\r\n"
+				+ "			<p xml:id=\"B\" />\r\n"
+				+ "		</body>\r\n"
+				+ "		<link target=\"#|A #B\" />\r\n"
+				+ "	</text>\r\n"
+				+ "</TEI>";
+		testDefinitionFor(xml, "file:///test/tei.xml",
+				ll("file:///test/tei.xml", r(8, 16, 8, 18), r(5, 14, 5, 15)));
+	}
+
+	@Test
+	public void teiTargetMulti2() throws BadLocationException {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
+				// + "<?xml-model
+				// href=\"http://www.tei-c.org/release/xml/tei/custom/schema/relaxng/tei_all.rng\"
+				// type=\"application/xml\"
+				// schematypens=\"http://relaxng.org/ns/structure/1.0\"?>\r\n"
+				+ "<TEI xmlns=\"http://www.tei-c.org/ns/1.0\">\r\n"
+				+ "	<teiHeader></teiHeader>\r\n"
+				+ "	<text>\r\n"
+				+ "		<body>\r\n"
+				+ "			<p xml:id=\"A\" />\r\n"
+				+ "			<p xml:id=\"B\" />\r\n"
+				+ "		</body>\r\n"
+				+ "		<link target=\"#A #|B\" />\r\n"
+				+ "	</text>\r\n"
+				+ "</TEI>";
+		testDefinitionFor(xml, "file:///test/tei.xml",
+				ll("file:///test/tei.xml", r(8, 19, 8, 21), r(6, 14, 6, 15)));
 	}
 
 	@Test
@@ -85,7 +120,7 @@ public class XMLReferencesDefinitionExtensionsTest extends AbstractCacheBasedTes
 				+ "    </chapter>\r\n"
 				+ "</book>";
 		testDefinitionFor(xml, "file:///test/docbook.xml",
-				ll("file:///test/docbook.xml", r(4, 22, 4, 33), r(2, 16, 2, 27)));
+				ll("file:///test/docbook.xml", r(4, 23, 4, 32), r(2, 17, 2, 26)));
 	}
 
 	@Test
@@ -173,62 +208,24 @@ public class XMLReferencesDefinitionExtensionsTest extends AbstractCacheBasedTes
 		testDefinitionFor(xml, "file:///test/tei.xml");
 	}
 
+	@Test
+	public void attrToText() throws BadLocationException {
+		String xml = "<aaa ref=\"chi|ld1 child2 child3\">\r\n"
+				+ "  <bbb>child1</bbb>\r\n"
+				+ "  <bbb>child2</bbb>\r\n"
+				+ "  <bbb>child3</bbb>\r\n"
+				+ "</aaa>";
+		testDefinitionFor(xml, "file:///test/attr-to-text.xml",
+				ll("file:///test/attr-to-text.xml", r(0, 10, 0, 16), r(1, 7, 1, 13)));
+	}
+
 	private static void testDefinitionFor(String xml, String fileURI, LocationLink... expectedItems)
 			throws BadLocationException {
-		XMLReferencesSettings referencesSettings = new XMLReferencesSettings();
-		referencesSettings.setReferences(createReferences());
 		XMLLanguageService xmlLanguageService = new XMLLanguageService();
 		xmlLanguageService.getExtensions();
-		xmlLanguageService.doSave(new SettingsSaveContext(referencesSettings));
+		xmlLanguageService.doSave(new SettingsSaveContext(XMLReferencesSettingsForTest.createXMLReferencesSettings()));
 
 		XMLAssert.testDefinitionFor(xmlLanguageService, xml, fileURI, expectedItems);
 	}
 
-	private static List<XMLReferences> createReferences() {
-		List<XMLReferences> references = new ArrayList<>();
-		/*
-		 * {
-		 * "prefix": "#",
-		 * "from": "@corresp",
-		 * "to": "@xml:id"
-		 * }
-		 */
-		XMLReferences tei = new XMLReferences();
-		tei.setPattern("**/*tei.xml");
-		XMLReferenceExpression corresp = new XMLReferenceExpression();
-		corresp.setPrefix("#");
-		corresp.setFrom("@corresp");
-		corresp.setTo("@xml:id");
-		tei.setExpressions(Arrays.asList(corresp));
-		references.add(tei);
-		/*
-		 * {
-		 * "from": "xref/@linkend",
-		 * "to": "@id"
-		 * }
-		 */
-		XMLReferences docbook = new XMLReferences();
-		docbook.setPattern("**/*docbook.xml");
-		XMLReferenceExpression linkend = new XMLReferenceExpression();
-		linkend.setFrom("xref/@linkend");
-		linkend.setTo("@id");
-		docbook.setExpressions(Arrays.asList(linkend));
-		references.add(docbook);
-
-		/*
-		 * {
-		 * "from": "servlet-mapping/servlet-name/text()",
-		 * "to": "servlet/servlet-name/text()"
-		 * }
-		 */
-		XMLReferences web = new XMLReferences();
-		web.setPattern("**/web.xml");
-		XMLReferenceExpression servletName = new XMLReferenceExpression();
-		servletName.setFrom("servlet-mapping/servlet-name/text()");
-		servletName.setTo("servlet/servlet-name/text()");
-		web.setExpressions(Arrays.asList(servletName));
-		references.add(web);
-
-		return references;
-	}
 }

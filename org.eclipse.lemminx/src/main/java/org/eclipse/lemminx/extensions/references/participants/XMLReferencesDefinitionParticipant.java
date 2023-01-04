@@ -14,10 +14,10 @@ package org.eclipse.lemminx.extensions.references.participants;
 import java.util.List;
 
 import org.eclipse.lemminx.dom.DOMDocument;
-import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.extensions.references.XMLReferencesPlugin;
-import org.eclipse.lemminx.extensions.references.utils.XMLReferencesSearchContext;
-import org.eclipse.lemminx.extensions.references.utils.XMLReferencesUtils;
+import org.eclipse.lemminx.extensions.references.search.SearchEngine;
+import org.eclipse.lemminx.extensions.references.search.SearchQuery;
+import org.eclipse.lemminx.extensions.references.search.SearchQueryFactory;
 import org.eclipse.lemminx.services.extensions.AbstractDefinitionParticipant;
 import org.eclipse.lemminx.services.extensions.IDefinitionRequest;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
@@ -46,18 +46,26 @@ public class XMLReferencesDefinitionParticipant extends AbstractDefinitionPartic
 	@Override
 	protected void doFindDefinition(IDefinitionRequest request, List<LocationLink> locations,
 			CancelChecker cancelChecker) {
-		DOMNode fromNode = request.getNode();
-		XMLReferencesSearchContext searchContext = XMLReferencesUtils.findExpressionsWhichMatchFrom(fromNode,
+		// Create the from query for the node which needs to perform the search.
+		SearchQuery query = SearchQueryFactory.createFromQuery(request.getNode(), request.getOffset(),
 				plugin.getReferencesSettings());
-		if (searchContext != null) {
-			XMLReferencesUtils.searchToNodes(fromNode, searchContext, true, true,
-					(toNamespacePrefix, toNode, expression) -> {
-						LocationLink location = XMLPositionUtility.createLocationLink(
-								XMLReferencesUtils.getNodeRange(fromNode),
-								XMLReferencesUtils.getNodeRange(toNode));
-						locations.add(location);
-					});
+		if (query == null) {
+			// The query cannot be created because:
+			// - the node is neither a text nor an attribute
+			// - it doesn't exists some expressions for the DOM document of the node.
+			// - there are none expressions which matches the node.
+			return;
 		}
+		query.setMatchNode(true);
+		query.setSearchInIncludedFiles(true);
+
+		SearchEngine.getInstance().search(query,
+				(fromSearchNode, toSearchNode, expression) -> {
+					LocationLink location = XMLPositionUtility.createLocationLink(
+							XMLPositionUtility.createRange(fromSearchNode),
+							toSearchNode);
+					locations.add(location);
+				}, cancelChecker);
 	}
 
 }

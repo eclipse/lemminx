@@ -70,11 +70,11 @@ public class StringUtils {
 	 *
 	 * @param value The string to check
 	 * @return <code>true</code> if any of the below hold, and false otherwise:
-	 * <ul>
-	 * <li>The String is <code>null</code></li>
-	 * <li>The String is of length 0</li>
-	 * <li>The String contains only whitespace characters</li>
-	 * </ul>
+	 *         <ul>
+	 *         <li>The String is <code>null</code></li>
+	 *         <li>The String is of length 0</li>
+	 *         <li>The String contains only whitespace characters</li>
+	 *         </ul>
 	 */
 	public static boolean isBlank(String value) {
 		return isEmpty(value) || isWhitespace(value);
@@ -422,15 +422,31 @@ public class StringUtils {
 	 *         and -1 if no word.
 	 */
 	public static int findStartWord(String text, int offset, Predicate<Character> isValidChar) {
+		return findStartWord(text, offset, 0, isValidChar);
+	}
+
+	/**
+	 * Returns the start word offset from the left of the given <code>offset</code>
+	 * to the given <code>min</code> and -1 if no word.
+	 *
+	 * @param text        the text
+	 * @param offset      the offset
+	 * @param min         the minimum left offset.
+	 * @param isValidChar predicate to check if current character belong to the
+	 *                    word.
+	 * @return the start word offset from the left of the given <code>offset</code>
+	 *         to the given <code>min</code> and -1 if no word.
+	 */
+	public static int findStartWord(String text, int offset, int min, Predicate<Character> isValidChar) {
 		if (offset < 0 || offset >= text.length() || !isValidChar.test(text.charAt(offset))) {
 			return -1;
 		}
-		for (int i = offset - 1; i >= 0; i--) {
+		for (int i = offset - 1; i >= min; i--) {
 			if (!isValidChar.test(text.charAt(i))) {
 				return i + 1;
 			}
 		}
-		return 0;
+		return min;
 	}
 
 	/**
@@ -445,15 +461,30 @@ public class StringUtils {
 	 *         and -1 if no word.
 	 */
 	public static int findEndWord(String text, int offset, Predicate<Character> isValidChar) {
+		return findEndWord(text, offset, text.length(), isValidChar);
+	}
+
+	/**
+	 * Returns the end word offset from the right of the given <code>offset</code>
+	 * to the given <code>max</code> and -1 if no word.
+	 *
+	 * @param text        the text
+	 * @param offset      the offset
+	 * @param isValidChar predicate to check if current character belong to the
+	 *                    word.
+	 * @return the start word offset from the right of the given <code>offset</code>
+	 *         and -1 if no word.
+	 */
+	public static int findEndWord(String text, int offset, int max, Predicate<Character> isValidChar) {
 		if (offset < 0 || offset >= text.length() || !isValidChar.test(text.charAt(offset))) {
 			return -1;
 		}
-		for (int i = offset + 1; i < text.length(); i++) {
+		for (int i = offset + 1; i < max; i++) {
 			if (!isValidChar.test(text.charAt(i))) {
 				return i;
 			}
 		}
-		return -1;
+		return max;
 	}
 
 	/**
@@ -498,7 +529,7 @@ public class StringUtils {
 	 *
 	 * @param reference the string being compared to
 	 * @param current   the string compared
-	 * @return          true if the two strings are similar, false otherwise
+	 * @return true if the two strings are similar, false otherwise
 	 */
 	public static boolean isSimilar(String reference, String current) {
 		int threshold = Math.round(MAX_DISTANCE_DIFF_RATIO * reference.length());

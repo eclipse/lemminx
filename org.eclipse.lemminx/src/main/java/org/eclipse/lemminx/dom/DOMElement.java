@@ -631,15 +631,6 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 			text.parent = this;
 			return text;
 		}
-		DOMNode node = super.findNodeAt(offset);
-		if (node != null) {
-			if (node.isText()) {
-				return (DOMText) node;
-			}
-			if (node.isElement() && node != this) {
-				return ((DOMElement) node).findTextAt(offset);
-			}
-		}
-		return null;
+		return findTextAt(this, offset);
 	}
 }

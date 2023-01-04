@@ -52,6 +52,7 @@ import org.eclipse.lsp4j.LinkedEditingRanges;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.PrepareRenameResult;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ReferenceContext;
@@ -60,6 +61,7 @@ import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 /**
  * XML Language service.
@@ -88,6 +90,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 	private final XMLReference reference;
 	private final XMLCodeLens codelens;
 	private final XMLCodeActions codeActions;
+	private final XMLPrepareRename prepareRename;
 	private final XMLRename rename;
 	private final XMLSelectionRanges selectionRanges;
 	private final XMLLinkedEditing linkedEditing;
@@ -108,9 +111,10 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 		this.reference = new XMLReference(this);
 		this.codelens = new XMLCodeLens(this);
 		this.codeActions = new XMLCodeActions(this);
+		this.prepareRename = new XMLPrepareRename(this);
 		this.rename = new XMLRename(this);
 		this.selectionRanges = new XMLSelectionRanges();
-		this.linkedEditing = new XMLLinkedEditing();
+		this.linkedEditing = new XMLLinkedEditing(this);
 	}
 
 	@Override
@@ -232,8 +236,14 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 		return selectionRanges.getSelectionRanges(xmlDocument, positions, cancelChecker);
 	}
 
-	public WorkspaceEdit doRename(DOMDocument xmlDocument, Position position, String newText) {
-		return rename.doRename(xmlDocument, position, newText);
+	public Either<Range, PrepareRenameResult> prepareRename(DOMDocument xmlDocument, Position position,
+			CancelChecker cancelChecker) {
+		return prepareRename.prepareRename(xmlDocument, position, cancelChecker);
+	}
+
+	public WorkspaceEdit doRename(DOMDocument xmlDocument, Position position, String newText,
+			CancelChecker cancelChecker) {
+		return rename.doRename(xmlDocument, position, newText, cancelChecker);
 	}
 
 	public List<DocumentLink> findDocumentLinks(DOMDocument document) {

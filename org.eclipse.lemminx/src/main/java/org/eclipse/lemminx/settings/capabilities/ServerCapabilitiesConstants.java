@@ -20,6 +20,7 @@ import org.eclipse.lsp4j.CodeLensOptions;
 import org.eclipse.lsp4j.ColorProviderOptions;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.DocumentLinkOptions;
+import org.eclipse.lsp4j.RenameOptions;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
 
 /**
@@ -82,9 +83,10 @@ public class ServerCapabilitiesConstants {
 	public static final String LINKED_EDITING_RANGE_ID = UUID.randomUUID().toString();
 
 	public static final CompletionOptions DEFAULT_COMPLETION_OPTIONS = new CompletionOptions(true,
-			Arrays.asList(".", ":", "<", "\"", "=", "/", "\\", "?", "\'", "&"));
+			Arrays.asList(".", ":", "<", "\"", "=", "/", "\\", "?", "\'", "&", "#"));
 	public static final TextDocumentSyncKind DEFAULT_SYNC_OPTION = TextDocumentSyncKind.Full;
 	public static final DocumentLinkOptions DEFAULT_LINK_OPTIONS = new DocumentLinkOptions(true);
+	public static final RenameOptions DEFAULT_RENAME_OPTIONS = new RenameOptions(true);
 	public static final ColorProviderOptions DEFAULT_COLOR_OPTIONS = new ColorProviderOptions();
 	public static final CodeLensOptions DEFAULT_CODELENS_OPTIONS = new CodeLensOptions();
 	public static final CodeActionOptions DEFAULT_CODEACTION_OPTIONS = createDefaultCodeActionOptions();

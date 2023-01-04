@@ -60,6 +60,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	private final List<ICodeLensParticipant> codeLensParticipants;
 	private final List<IHighlightingParticipant> highlightingParticipants;
 	private final List<IRenameParticipant> renameParticipants;
+	private final List<ILinkedEditingRangesParticipant> linkedEditingRangesParticipants;
 	private final List<IFormatterParticipant> formatterParticipants;
 	private final List<ISymbolsProviderParticipant> symbolsProviderParticipants;
 	private final List<IWorkspaceServiceParticipant> workspaceServiceParticipants;
@@ -94,6 +95,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 		codeLensParticipants = new ArrayList<>();
 		highlightingParticipants = new ArrayList<>();
 		renameParticipants = new ArrayList<>();
+		linkedEditingRangesParticipants = new ArrayList<>();
 		formatterParticipants = new ArrayList<>();
 		symbolsProviderParticipants = new ArrayList<>();
 		workspaceServiceParticipants = new ArrayList<>();
@@ -203,6 +205,11 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	public Collection<IRenameParticipant> getRenameParticipants() {
 		initializeIfNeeded();
 		return renameParticipants;
+	}
+
+	public List<ILinkedEditingRangesParticipant> getLinkedEditingRangesParticipants() {
+		initializeIfNeeded();
+		return linkedEditingRangesParticipants;
 	}
 
 	public Collection<IFormatterParticipant> getFormatterParticipants() {
@@ -392,6 +399,16 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 
 	public void unregisterRenameParticipant(IRenameParticipant renameParticipant) {
 		renameParticipants.remove(renameParticipant);
+	}
+
+	public void registerLinkedEditingRangesParticipants(
+			ILinkedEditingRangesParticipant linkedEditingRangesParticipant) {
+		linkedEditingRangesParticipants.add(linkedEditingRangesParticipant);
+	}
+
+	public void unregisterLinkedEditingRangesParticipants(
+			ILinkedEditingRangesParticipant linkedEditingRangesParticipant) {
+		linkedEditingRangesParticipants.remove(linkedEditingRangesParticipant);
 	}
 
 	public void registerFormatterParticipant(IFormatterParticipant formatterParticipant) {

@@ -21,13 +21,18 @@ import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.dom.DOMRange;
 import org.eclipse.lemminx.extensions.relaxng.utils.RelaxNGUtils;
+import org.eclipse.lemminx.services.extensions.IPositionRequest;
+import org.eclipse.lemminx.services.extensions.IPrepareRenameRequest;
 import org.eclipse.lemminx.services.extensions.IRenameParticipant;
 import org.eclipse.lemminx.services.extensions.IRenameRequest;
 import org.eclipse.lemminx.utils.DOMUtils;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.Location;
+import org.eclipse.lsp4j.PrepareRenameResult;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 /**
  * RNG rename
@@ -35,53 +40,50 @@ import org.eclipse.lsp4j.TextEdit;
  */
 public class RNGRenameParticipant implements IRenameParticipant {
 
+	// --------------- Prepare rename
+
 	@Override
-	public void doRename(IRenameRequest request, List<TextEdit> locations) {
-		DOMDocument xmlDocument = request.getXMLDocument();
-
-		if (!DOMUtils.isRelaxNGXMLSyntax(xmlDocument)) {
-			return;
+	public Either<Range, PrepareRenameResult> prepareRename(IPrepareRenameRequest request,
+			CancelChecker cancelChecker) {
+		// RNG rename can be applied for:
+		// - define/@name
+		DOMAttr attr = findAttrToRename(request);
+		if (attr != null) {
+			Range range = XMLPositionUtility.selectAttributeValue(attr, true);
+			String placeholder = attr.getValue();
+			return Either.forRight(new PrepareRenameResult(range, placeholder));
 		}
-		locations.addAll(getRenameTextEdits(request));
-
+		return null;
 	}
 
-	private List<TextEdit> getRenameTextEdits(IRenameRequest request) {
-		DOMDocument document = request.getXMLDocument();
-		DOMNode node = request.getNode();
+	// --------------- Rename
 
-		if (!node.isAttribute()) {
+	@Override
+	public void doRename(IRenameRequest request, List<TextEdit> edits, CancelChecker cancelChecker) {
+		edits.addAll(getRenameTextEdits(request, cancelChecker));
+	}
+
+	private List<TextEdit> getRenameTextEdits(IRenameRequest request, CancelChecker cancelChecker) {
+		// RNG rename can be applied for:
+		// - define/@name
+		DOMAttr attr = findAttrToRename(request);
+		if (attr == null) {
 			return Collections.emptyList();
 		}
-
-		DOMAttr attr = (DOMAttr) node;
 		DOMElement ownerElement = attr.getOwnerElement();
-
-		if (ownerElement == null) {
-			return Collections.emptyList();
-		}
-
+		DOMDocument document = request.getXMLDocument();
 		String newText = request.getNewText();
-
-		if (RelaxNGUtils.isDefine(ownerElement)) {
-			// <define
-			if (attr.getName().equals("name")) {
-				// <define name=""
-				List<Location> locations = getReferenceLocations(ownerElement);
-				return renameAttributeValueTextEdits(document, attr, newText, locations);
-			}
-		}
-
-		return Collections.emptyList();
+		List<Location> locations = getReferenceLocations(ownerElement, cancelChecker);
+		return renameAttributeValueTextEdits(document, attr, newText, locations);
 	}
 
-	private List<Location> getReferenceLocations(DOMNode node) {
+	private List<Location> getReferenceLocations(DOMNode node, CancelChecker cancelChecker) {
 
 		List<Location> locations = new ArrayList<>();
 
 		RelaxNGUtils.searchRNGOriginAttributes(node,
 				(origin, target) -> locations.add(XMLPositionUtility.createLocation(origin.getNodeAttrValue())),
-				null);
+				cancelChecker);
 
 		return locations;
 	}
@@ -126,4 +128,35 @@ public class RNGRenameParticipant implements IRenameParticipant {
 		range.getEnd().setCharacter(endCharacter - decrease);
 	}
 
+	/**
+	 * Returns the xsd:complexType/@name or xs:simpleType/@name to rename or null
+	 * otherwise.
+	 * 
+	 * @param request the position request.
+	 * 
+	 * @return the xsd:complexType/@name or xs:simpleType/@name to rename or null
+	 *         otherwise.
+	 */
+	private static DOMAttr findAttrToRename(IPositionRequest request) {
+		DOMDocument xmlDocument = request.getXMLDocument();
+		if (!DOMUtils.isRelaxNGXMLSyntax(xmlDocument)) {
+			return null;
+		}
+		DOMNode node = request.getNode();
+		if (node == null || !node.isAttribute()) {
+			return null;
+		}
+
+		DOMAttr attr = (DOMAttr) node;
+		DOMElement ownerElement = attr.getOwnerElement();
+		if (ownerElement == null) {
+			return null;
+		}
+		if (RelaxNGUtils.isDefine(ownerElement)) {
+			if (attr.getName().equals("name")) {
+				return attr;
+			}
+		}
+		return null;
+	}
 }

@@ -24,6 +24,12 @@ import org.eclipse.lemminx.settings.PathPatternMatcher;
  */
 public class XMLReferences extends PathPatternMatcher {
 
+	private transient boolean updated;
+
+	private String prefix;
+
+	private Boolean multiple;
+
 	private List<XMLReferenceExpression> expressions;
 
 	/**
@@ -32,6 +38,20 @@ public class XMLReferences extends PathPatternMatcher {
 	 * @return list of XML reference expressions.
 	 */
 	public List<XMLReferenceExpression> getExpressions() {
+		if (!updated) {
+			if (prefix != null || multiple != null) {
+				// Update expressions with global settings
+				for (XMLReferenceExpression expression : expressions) {
+					if (expression.getPrefix() == null) {
+						expression.setPrefix(prefix);
+					}
+					if (expression.getMultiple() == null) {
+						expression.setMultiple(multiple);
+					}
+				}
+			}
+			updated = true;
+		}
 		return expressions;
 	}
 
@@ -43,4 +63,21 @@ public class XMLReferences extends PathPatternMatcher {
 	public void setExpressions(List<XMLReferenceExpression> expressions) {
 		this.expressions = expressions;
 	}
+
+	public String getPrefix() {
+		return prefix;
+	}
+
+	public void setPrefix(String prefix) {
+		this.prefix = prefix;
+	}
+
+	public Boolean getMultiple() {
+		return multiple;
+	}
+
+	public void setMultiple(Boolean multiple) {
+		this.multiple = multiple;
+	}
+
 }

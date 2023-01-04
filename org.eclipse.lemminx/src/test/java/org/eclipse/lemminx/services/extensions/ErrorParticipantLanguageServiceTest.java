@@ -38,6 +38,7 @@ import static org.eclipse.lemminx.XMLAssert.testTypeDefinitionFor;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.client.ClientCommands;
@@ -68,9 +69,13 @@ import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.MarkupContent;
+import org.eclipse.lsp4j.PrepareRenameResult;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.SymbolKind;
+import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -269,8 +274,18 @@ public class ErrorParticipantLanguageServiceTest extends AbstractCacheBasedTest 
 			this.registerReferenceParticipant(
 					(document, position, context, locations, cancelChecker) -> locations.add(TEST_LOCATION));
 
-			this.registerRenameParticipant((request, locations) -> {
-				throw new RuntimeException("This participant is broken");
+			this.registerRenameParticipant(new IRenameParticipant() {
+
+				@Override
+				public Either<Range, PrepareRenameResult> prepareRename(IPrepareRenameRequest request,
+						CancelChecker cancelChecker) {
+					return null;
+				}
+
+				@Override
+				public void doRename(IRenameRequest request, List<TextEdit> locations, CancelChecker cancelChecker) {
+					throw new RuntimeException("This participant is broken");
+				}
 			});
 
 			this.registerSymbolsProviderParticipant(new ISymbolsProviderParticipant() {

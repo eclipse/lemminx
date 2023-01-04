@@ -94,6 +94,7 @@ import org.eclipse.lsp4j.MarkedString;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.PrepareRenameResult;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ReferenceContext;
@@ -743,6 +744,10 @@ public class XMLAssert {
 		// Diagnostic on 1 line
 		return new Diagnostic(r(startLine, startCharacter, endLine, endCharacter), message, severity, source,
 				code != null ? code.getCode() : null);
+	}
+
+	public static Range r(int line, int startCharacter, int endCharacter) {
+		return r(line, startCharacter, line, endCharacter);
 	}
 
 	public static Range r(int startLine, int startCharacter, int endLine, int endCharacter) {
@@ -1458,10 +1463,6 @@ public class XMLAssert {
 			xmlLanguageService = new XMLLanguageService();
 		}
 
-		ContentModelSettings settings = new ContentModelSettings();
-		settings.setUseCache(false);
-		xmlLanguageService.doSave(new SettingsSaveContext(settings));
-
 		DOMDocument xmlDocument = DOMParser.getInstance().parse(document,
 				xmlLanguageService.getResolverExtensionManager());
 		xmlLanguageService.setDocumentProvider((uri) -> xmlDocument);
@@ -1693,6 +1694,46 @@ public class XMLAssert {
 		}
 	}
 
+	// ------------------- Prepare rename assert
+
+	public static PrepareRenameResult pr(Range range, String placeholder) {
+		return new PrepareRenameResult(range, placeholder);
+	}
+
+	public static void assertPrepareRename(String value) throws BadLocationException {
+		assertRename(value, null);
+	}
+
+	public static void assertPrepareRename(String value, PrepareRenameResult expected)
+			throws BadLocationException {
+		assertPrepareRename(null, value, expected);
+	}
+
+	public static void assertPrepareRename(XMLLanguageService languageService, String value,
+			PrepareRenameResult expected) throws BadLocationException {
+		assertPrepareRename(languageService, value, null, expected);
+	}
+
+	public static void assertPrepareRename(XMLLanguageService languageService, String value, String fileURI,
+			PrepareRenameResult expected) throws BadLocationException {
+		int offset = value.indexOf("|");
+		value = value.substring(0, offset) + value.substring(offset + 1);
+
+		fileURI = fileURI != null ? fileURI : "test://test/test.html";
+		DOMDocument document = DOMParser.getInstance().parse(value, fileURI,
+				null);
+
+		Position position = document.positionAt(offset);
+
+		if (languageService == null) {
+			languageService = new XMLLanguageService();
+		}
+		Either<Range, PrepareRenameResult> result = languageService.prepareRename(document, position, () -> {
+		});
+		PrepareRenameResult actual = result != null ? result.getRight() : null;
+		assertEquals(expected, actual);
+	}
+
 	// ------------------- Rename assert
 
 	public static void assertRename(String value, String newText) throws BadLocationException {
@@ -1706,18 +1747,26 @@ public class XMLAssert {
 
 	public static void assertRename(XMLLanguageService languageService, String value, String newText,
 			List<TextEdit> expectedEdits) throws BadLocationException {
+		assertRename(languageService, value, null, newText, expectedEdits);
+	}
+
+	public static void assertRename(XMLLanguageService languageService, String value, String fileURI, String newText,
+			List<TextEdit> expectedEdits) throws BadLocationException {
 		int offset = value.indexOf("|");
 		value = value.substring(0, offset) + value.substring(offset + 1);
 
-		DOMDocument document = DOMParser.getInstance().parse(value, "test://test/test.html", null);
+		fileURI = fileURI != null ? fileURI : "test://test/test.html";
+		DOMDocument document = DOMParser.getInstance().parse(value, fileURI,
+				null);
 
 		Position position = document.positionAt(offset);
 
 		if (languageService == null) {
 			languageService = new XMLLanguageService();
 		}
-		WorkspaceEdit workspaceEdit = languageService.doRename(document, position, newText);
-		List<TextEdit> actualEdits = workspaceEdit.getChanges().get("test://test/test.html");
+		WorkspaceEdit workspaceEdit = languageService.doRename(document, position, newText, () -> {
+		});
+		List<TextEdit> actualEdits = workspaceEdit.getChanges().get(fileURI);
 		assertArrayEquals(expectedEdits.toArray(), actualEdits.toArray());
 	}
 
@@ -1729,17 +1778,17 @@ public class XMLAssert {
 
 	public static void testLinkedEditingFor(String value, String fileURI, LinkedEditingRanges expected)
 			throws BadLocationException {
+		testLinkedEditingFor(new XMLLanguageService(), value, fileURI, expected);
+	}
+
+	public static void testLinkedEditingFor(XMLLanguageService xmlLanguageService, String value, String fileURI,
+			LinkedEditingRanges expected)
+			throws BadLocationException {
 		int offset = value.indexOf('|');
 		value = value.substring(0, offset) + value.substring(offset + 1);
 
 		TextDocument document = new TextDocument(value, fileURI != null ? fileURI : "test://test/test.xml");
 		Position position = document.positionAt(offset);
-
-		XMLLanguageService xmlLanguageService = new XMLLanguageService();
-
-		ContentModelSettings settings = new ContentModelSettings();
-		settings.setUseCache(false);
-		xmlLanguageService.doSave(new SettingsSaveContext(settings));
 
 		DOMDocument xmlDocument = DOMParser.getInstance().parse(document,
 				xmlLanguageService.getResolverExtensionManager());
@@ -1761,7 +1810,7 @@ public class XMLAssert {
 	}
 
 	public static LinkedEditingRanges le(Range... ranges) {
-		return new LinkedEditingRanges(Arrays.asList(ranges));
+		return new LinkedEditingRanges(Arrays.asList(ranges), "[^\\s]+");
 	}
 
 	public static LinkedEditingRanges le(String wordPattern, Range... ranges) {

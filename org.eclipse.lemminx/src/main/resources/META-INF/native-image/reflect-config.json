@@ -1670,6 +1670,30 @@
 		}]
 	},
 	{
+		"name": "org.eclipse.lsp4j.PrepareRenameParams",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
+		"name": "org.eclipse.lsp4j.PrepareRenameResult",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
+		"name": "org.eclipse.lsp4j.PrepareSupportDefaultBehavior",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
 		"name": "org.eclipse.lsp4j.ResourceOperation",
 		"allDeclaredFields": true
 	},
