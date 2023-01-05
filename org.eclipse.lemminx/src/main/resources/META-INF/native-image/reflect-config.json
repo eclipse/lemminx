@@ -626,6 +626,30 @@
 		}]
 	},
 	{
+		"name": "org.eclipse.lsp4j.Color",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
+		"name": "org.eclipse.lsp4j.ColorPresentation",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
+		"name": "org.eclipse.lsp4j.ColorPresentationParams",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
 		"name": "org.eclipse.lsp4j.ColorProviderCapabilities",
 		"allDeclaredFields": true,
 		"methods": [{
