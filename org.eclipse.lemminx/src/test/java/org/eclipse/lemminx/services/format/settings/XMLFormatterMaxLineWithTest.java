@@ -605,9 +605,39 @@ public class XMLFormatterMaxLineWithTest extends AbstractCacheBasedTest {
 				"-->\r\n" + //
 				"</foo>";
 		assertFormat(content, expected, settings, //
-				te(4, 95, 4,96, "\r\n"));
+				te(4, 95, 4, 96, "\r\n"));
 		assertFormat(expected, expected, settings);
+	}
 
+	// https://github.com/eclipse/lemminx/issues/1439
+	@Test
+	public void firstLineNoBreakAtMaxLineWidth() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setMaxLineWidth(160);
+		String content = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"></project>";
+		String expected = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
+				+ System.lineSeparator() + //
+				"  xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"></project>";
+		assertFormat(content, expected, settings, //
+				te(0, 104, 0, 105, System.lineSeparator() + "  "));
+		assertFormat(expected, expected, settings);
+	}
+
+	// https://github.com/eclipse/lemminx/issues/1439
+	@Test
+	public void firstLineNoBreakAtMaxLineWidthDefaultWidth() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setMaxLineWidth(100); // default max line width
+		String content = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"></project>";
+		String expected = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\""
+				+ System.lineSeparator() + //
+				"  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
+				+ System.lineSeparator() + //
+				"  xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"></project>";
+		assertFormat(content, expected, settings, //
+				te(0, 50, 0, 51, System.lineSeparator() + "  "), //
+				te(0, 104, 0, 105, System.lineSeparator() + "  "));
+		assertFormat(expected, expected, settings);
 	}
 
 	private static void assertFormat(String unformatted, String expected, SharedSettings sharedSettings,
