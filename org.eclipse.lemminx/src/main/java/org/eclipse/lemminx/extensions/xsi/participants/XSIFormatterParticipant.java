@@ -216,20 +216,22 @@ public class XSIFormatterParticipant implements IFormatterParticipant {
 					indentSpaceOffset = (attrValueStart + 1) - attr.getNodeAttrName().getStart()
 							+ (parentConstraints.getIndentLevel() + 1) * tabSize;
 				}
+				int attrValuelength = attrValueStart - indentSpaceOffset + attr.getValue().length();
 				// Insert newline and indent where required based on setting
 				if (locationNum % lineFeed == 0) {
 					formatterDocument.replaceLeftSpacesWithIndentationWithOffsetSpaces(indentSpaceOffset,
 							attrValueStart, attrValueStart + i + 1, true, edits);
+					availableLineWidth = formatterDocument.getMaxLineWidth() - attrValuelength;
 				} else {
 					formatterDocument.replaceLeftSpacesWithOneSpace(indentSpaceOffset, attrValueStart + i + 1, edits);
+					availableLineWidth = availableLineWidth - attrValuelength;
 				}
 				locationNum++;
 			}
 		}
 		if (formatterDocument.isMaxLineWidthSupported() && attr.getValue() != null) {
 			parentConstraints
-					.setAvailableLineWidth(formatterDocument.getMaxLineWidth() - (attrValueStart - indentSpaceOffset)
-							- attr.getValue().length());
+					.setAvailableLineWidth(availableLineWidth);
 		}
 		return true;
 	}
