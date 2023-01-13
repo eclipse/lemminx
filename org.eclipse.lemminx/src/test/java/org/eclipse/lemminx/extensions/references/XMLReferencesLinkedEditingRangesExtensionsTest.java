@@ -142,6 +142,26 @@ public class XMLReferencesLinkedEditingRangesExtensionsTest extends AbstractCach
 	}
 
 	@Test
+	public void noLinkedEditingRangeForNoneReferencedNodes() throws BadLocationException {
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
+				// + "<!DOCTYPE book PUBLIC \"-//OASIS//DTD DocBook XML V4.4//EN\"
+				// \"http://www.docbook.org/xml/4.4/docbookx.dtd\">\r\n"
+				+ "<book>\r\n"
+				+ "    <chapter id=\"chapt|er-1\">\r\n"
+				+ "\r\n"
+				//+ "        <xref linkend=\"chapter-1\" />\r\n" // <-- // highlighting here should highlight
+				// chapter/@id="chapter-1"
+				+ "\r\n"
+				+ "    </chapter>\r\n"
+				+ "\r\n"
+				+ "    <chapter id=\"chapter-2\">\r\n"
+				+ "\r\n"
+				+ "    </chapter>\r\n"
+				+ "</book>";
+		testLinkedEditingFor(xml, "file:///test/docbook.xml", null);
+	}
+	
+	@Test
 	public void webOnServletMapping() throws BadLocationException {
 		String xml = "<web-app xmlns=\"http://xmlns.jcp.org/xml/ns/javaee\"\r\n"
 				+ "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n"
