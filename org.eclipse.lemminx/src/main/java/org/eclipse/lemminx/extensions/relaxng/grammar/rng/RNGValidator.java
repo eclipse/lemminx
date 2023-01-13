@@ -31,6 +31,7 @@ import org.eclipse.lemminx.utils.DOMUtils;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import com.thaiopensource.relaxng.pattern.MySchemaPatternBuilder;
 import com.thaiopensource.validate.IncorrectSchemaException;
@@ -61,7 +62,8 @@ public class RNGValidator {
 			XMLReaderCreator creator = new RNGXMLReaderCreator(reporterForRNG);
 			SchemaProvider.loadSchema(input, entityResolver, reporterForRNG,
 					new MySchemaPatternBuilder(), creator);
-		} catch (IOException | CancellationException | XMLParseException | IncorrectSchemaException exception ) {
+		} catch (IOException | SAXException | CancellationException | XMLParseException
+				| IncorrectSchemaException exception) {
 			// ignore error
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, "Unexpected RNG Validator error", e);
