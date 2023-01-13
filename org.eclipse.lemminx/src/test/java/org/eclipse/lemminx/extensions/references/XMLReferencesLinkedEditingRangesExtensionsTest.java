@@ -97,7 +97,6 @@ public class XMLReferencesLinkedEditingRangesExtensionsTest extends AbstractCach
 
 	@Test
 	public void docbookOnLinked() throws BadLocationException {
-		// highlighting on define/@name
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
 				// + "<!DOCTYPE book PUBLIC \"-//OASIS//DTD DocBook XML V4.4//EN\"
 				// \"http://www.docbook.org/xml/4.4/docbookx.dtd\">\r\n"
@@ -117,7 +116,6 @@ public class XMLReferencesLinkedEditingRangesExtensionsTest extends AbstractCach
 
 	@Test
 	public void docbookOnChapterId() throws BadLocationException {
-		// highlighting on define/@name
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
 				// + "<!DOCTYPE book PUBLIC \"-//OASIS//DTD DocBook XML V4.4//EN\"
 				// \"http://www.docbook.org/xml/4.4/docbookx.dtd\">\r\n"
@@ -135,6 +133,12 @@ public class XMLReferencesLinkedEditingRangesExtensionsTest extends AbstractCach
 				+ "</book>";
 		testLinkedEditingFor(xml, "file:///test/docbook.xml", //
 				le(r(4, 23, 4, 32), r(2, 17, 2, 26)));
+	}
+
+	@Test
+	public void noLinkedEditingRangeForDocument() throws BadLocationException {
+		String xml = "|<book />";
+		testLinkedEditingFor(xml, "file:///test/docbook.xml", null);
 	}
 
 	@Test

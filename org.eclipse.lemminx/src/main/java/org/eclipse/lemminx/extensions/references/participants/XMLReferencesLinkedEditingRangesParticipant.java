@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.eclipse.lemminx.extensions.references.XMLReferencesPlugin;
 import org.eclipse.lemminx.extensions.references.search.SearchEngine;
+import org.eclipse.lemminx.extensions.references.search.SearchNode;
 import org.eclipse.lemminx.extensions.references.search.SearchQuery;
 import org.eclipse.lemminx.extensions.references.search.SearchQueryFactory;
 import org.eclipse.lemminx.services.extensions.ILinkedEditingRangesParticipant;
@@ -39,6 +40,11 @@ public class XMLReferencesLinkedEditingRangesParticipant implements ILinkedEditi
 	@Override
 	public void findLinkedEditingRanges(ILinkedEditingRangesRequest request, List<Range> ranges,
 			CancelChecker cancelChecker) {
+		if (request.getNode() == null || request.getNode().isOwnerDocument()) {
+			// Linked editing range should work only for attribute or text node
+			return;
+		}
+		
 		SearchQuery query = SearchQueryFactory.createToQuery(request.getNode(), request.getOffset(),
 				plugin.getReferencesSettings());
 		if (query == null) {
