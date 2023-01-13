@@ -15,7 +15,6 @@ import java.util.List;
 
 import org.eclipse.lemminx.extensions.references.XMLReferencesPlugin;
 import org.eclipse.lemminx.extensions.references.search.SearchEngine;
-import org.eclipse.lemminx.extensions.references.search.SearchNode;
 import org.eclipse.lemminx.extensions.references.search.SearchQuery;
 import org.eclipse.lemminx.extensions.references.search.SearchQueryFactory;
 import org.eclipse.lemminx.services.extensions.ILinkedEditingRangesParticipant;
@@ -57,11 +56,17 @@ public class XMLReferencesLinkedEditingRangesParticipant implements ILinkedEditi
 		query.setMatchNode(true);
 		query.setSearchInIncludedFiles(false);
 
+		int previousSize = ranges.size();
 		SearchEngine.getInstance().search(query,
 				(fromSearchNode, toSearchNode, expression) -> {
 					ranges.add(fromSearchNode.createRange(true));
 				},
 				cancelChecker);
+		if (ranges.size() == previousSize) {
+			// There are no referenced nodes, ignore the linked editing range
+			return;
+		}
+		
 		// Insert at first, the text edit for the node which was updated
 		ranges.add(query.getSearchNode().createRange(true));
 	}
