@@ -57,6 +57,10 @@ public class XMLReferencesDiagnosticParticipant implements IDiagnosticsParticipa
 
 		for (ReferenceLink link : links) {
 			for (SearchNode from : link.getFroms()) {
+				if (document != from.getOwnerDocument()) {
+					// The 'from' search node belongs to an included document, ignore it.
+					continue;
+				}
 				// Validate the syntax of from node.
 				if (!from.isValid()) {
 					if (from.getValidationStatus() == ValidationStatus.INVALID_PREFIX) {

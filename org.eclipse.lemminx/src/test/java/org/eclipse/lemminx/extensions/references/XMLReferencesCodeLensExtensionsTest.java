@@ -15,6 +15,7 @@ import static org.eclipse.lemminx.XMLAssert.cl;
 import static org.eclipse.lemminx.XMLAssert.r;
 import static org.eclipse.lemminx.client.ClientCommands.SHOW_REFERENCES;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.function.Consumer;
 
@@ -123,6 +124,32 @@ public class XMLReferencesCodeLensExtensionsTest extends AbstractCacheBasedTest 
 				cl(r(1, 7, 1, 13), "1 reference", SHOW_REFERENCES), //
 				cl(r(2, 7, 2, 13), "1 reference", SHOW_REFERENCES), //
 				cl(r(3, 7, 3, 13), "1 reference", SHOW_REFERENCES));
+	}
+
+	@Test
+	public void docbookWithoutInclude() throws BadLocationException {
+		String xml = "<docbook>\r\n"
+				+ "	<xref linkend=\"s1\" />\r\n"
+				// [1 reference]
+				+ "	<section id=\"s1\" />\r\n"
+				+ "	<xref linkend=\"ch1\" />\r\n"
+				// + " <xi:include href=\"sub-book.xml\" />\r\n"
+				+ "</docbook>";
+		testCodeLensFor(xml, new File("src/test/resources/xml/docbook.xml").toURI().toString(), //
+				cl(r(2, 10, 2, 17), "1 reference", SHOW_REFERENCES));
+	}
+
+	@Test
+	public void docbookWithInclude() throws BadLocationException {
+		String xml = "<docbook>\r\n"
+				+ "	<xref linkend=\"s1\" />\r\n"
+				// [3 references]
+				+ "	<section id=\"s1\" />\r\n"
+				+ "	<xref linkend=\"ch1\" />\r\n"
+				+ "	<xi:include href=\"sub-book.xml\" />\r\n"
+				+ "</docbook>";
+		testCodeLensFor(xml, new File("src/test/resources/xml/docbook.xml").toURI().toString(), //
+				cl(r(2, 10, 2, 17), "3 references", SHOW_REFERENCES));
 	}
 
 	private static void testCodeLensFor(String value, String fileURI, CodeLens... expected) {

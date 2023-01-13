@@ -13,6 +13,7 @@ package org.eclipse.lemminx.extensions.references;
 
 import static org.eclipse.lemminx.XMLAssert.d;
 
+import java.io.File;
 import java.util.function.Consumer;
 
 import org.eclipse.lemminx.AbstractCacheBasedTest;
@@ -64,7 +65,6 @@ public class XMLReferencesDiagnosticsExtensionsTest extends AbstractCacheBasedTe
 						"Undefined reference '#C': nothing that matches the expression '@xml:id' defines 'C'.",
 						"xml", DiagnosticSeverity.Warning));
 	}
-	
 
 	@Test
 	public void noUndefinedReferences() throws BadLocationException {
@@ -74,6 +74,32 @@ public class XMLReferencesDiagnosticsExtensionsTest extends AbstractCacheBasedTe
 				+ "  <bbb>child3</bbb>\r\n"
 				+ "</aaa>";
 		testDiagnosticsFor(xml, "file:///test/foo.xml");
+	}
+
+	@Test
+	public void docbookWithoutInclude() throws BadLocationException {
+		String xml = "<docbook>\r\n"
+				+ "	<xref linkend=\"s1\" />\r\n"
+				+ "	<section id=\"s1\" />\r\n"
+				+ "	<xref linkend=\"ch1\" />\r\n"
+				// + " <xi:include href=\"sub-book.xml\"
+				// xmlns:xi=\"http://www.w3.org/2001/XInclude\" />\r\n"
+				+ "</docbook>";
+		testDiagnosticsFor(xml, new File("src/test/resources/xml/docbook.xml").toURI().toString(),
+				d(3, 16, 3, 19, XMLReferencesErrorCode.UndefinedReference,
+						"Undefined reference 'ch1': nothing that matches the expression '@id' defines 'ch1'.",
+						"xml", DiagnosticSeverity.Warning));
+	}
+
+	@Test
+	public void docbookWithInclude() throws BadLocationException {
+		String xml = "<docbook>\r\n"
+				+ "	<xref linkend=\"s1\" />\r\n"
+				+ "	<section id=\"s1\" />\r\n"
+				+ "	<xref linkend=\"ch1\" />\r\n"
+				+ "	<xi:include href=\"sub-book.xml\" xmlns:xi=\"http://www.w3.org/2001/XInclude\" />\r\n"
+				+ "</docbook>";
+		testDiagnosticsFor(xml, new File("src/test/resources/xml/docbook.xml").toURI().toString());
 	}
 
 	public static void testDiagnosticsFor(String xml, String fileURI,

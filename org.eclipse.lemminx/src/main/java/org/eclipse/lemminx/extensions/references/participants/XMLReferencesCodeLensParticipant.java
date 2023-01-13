@@ -48,7 +48,8 @@ public class XMLReferencesCodeLensParticipant implements ICodeLensParticipant {
 	@Override
 	public void doCodeLens(ICodeLensRequest request, List<CodeLens> lenses, CancelChecker cancelChecker) {
 		DOMDocument document = request.getDocument();
-		Collection<ReferenceLink> links = SearchEngine.getInstance().searchLinks(document, plugin.getReferencesSettings(),
+		Collection<ReferenceLink> links = SearchEngine.getInstance().searchLinks(document,
+				plugin.getReferencesSettings(),
 				cancelChecker);
 		if (links.isEmpty()) {
 			return;
@@ -57,6 +58,10 @@ public class XMLReferencesCodeLensParticipant implements ICodeLensParticipant {
 		Map<DOMElement, CodeLens> cache = new HashMap<>();
 		for (ReferenceLink link : links) {
 			for (SearchNode to : link.getTos()) {
+				if (document != to.getOwnerDocument()) {
+					// The 'to' search node belongs to an included document, ignore it.
+					continue;
+				}
 				// Increment references count Codelens for the given target element
 				DOMNode toNode = to.getNode();
 				DOMElement toElement = toNode.isAttribute() ? ((DOMAttr) toNode).getOwnerElement()

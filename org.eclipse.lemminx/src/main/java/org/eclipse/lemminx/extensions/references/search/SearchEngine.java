@@ -75,6 +75,9 @@ public class SearchEngine {
 		SearchQuery query = SearchQueryFactory.createQuery(document,
 				settings, QueryDirection.BOTH);
 		if (query != null) {
+			// Search references in included files
+			query.setSearchInIncludedFiles(true);
+			
 			final Map<XMLReferenceExpression, ReferenceLink> linksMap = new HashMap<>();
 			SearchEngine.getInstance().search(query,
 					(fromSearchNode, toSearchNode, expression) -> {
