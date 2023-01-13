@@ -1687,10 +1687,8 @@
 	},
 	{
 		"name": "org.eclipse.lsp4j.PrepareSupportDefaultBehavior",
-		"allDeclaredFields": true,
-		"methods": [{
-			"name": "<init>",
-			"parameterTypes": []
+		"fields": [{
+			"name": "value"
 		}]
 	},
 	{
