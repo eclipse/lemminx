@@ -11,23 +11,18 @@
 *******************************************************************************/
 package org.eclipse.lemminx.utils;
 
-import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.apache.xerces.parsers.SAXParser;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.dom.DOMParser;
 import org.eclipse.lemminx.uriresolver.URIResolverExtensionManager;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 
@@ -36,8 +31,6 @@ import org.xml.sax.SAXNotSupportedException;
  *
  */
 public class DOMUtils {
-
-	private static final Logger LOGGER = Logger.getLogger(DOMUtils.class.getName());
 
 	private static final String XSD_EXTENSION = ".xsd";
 
@@ -217,7 +210,6 @@ public class DOMUtils {
 			return DOMParser.getInstance().parse(IOUtils.convertStreamToString(new URL(documentURI).openStream()),
 					documentURI, resolverExtensionManager);
 		} catch (Exception e) {
-			LOGGER.log(Level.SEVERE, "Error while loading XML Schema '" + documentURI + "'.", e);
 			return null;
 		}
 	}

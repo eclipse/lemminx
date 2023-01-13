@@ -1,0 +1,8 @@
+<book>
+	<chapter id="ch1" />
+	<chapter id="ch2"/>
+	<xref linkend="s1" />
+	<xref linkend="s1" />
+	<xref linkend="ch1" />
+	<xref linkend="ch1" />
+</book>
