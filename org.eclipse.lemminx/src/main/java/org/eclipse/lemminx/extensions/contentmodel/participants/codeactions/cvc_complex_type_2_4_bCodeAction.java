@@ -19,6 +19,7 @@ import org.eclipse.lemminx.commons.CodeActionFactory;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
+import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.extensions.contentmodel.utils.XMLGenerator;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionRequest;
@@ -66,8 +67,8 @@ public class cvc_complex_type_2_4_bCodeAction implements ICodeActionParticipant 
 			Range targetRange = new Range(childElementPositionStartTag, childElementPositionEndTag);
 			XMLGenerator generator = request.getXMLGenerator();
 
-			String insertStrAll = generator.generateMissingElements(request, element, false);
-			String insertStrRequired = generator.generateMissingElements(request, element, true);
+			String insertStrAll = generator.generateMissingElements(request.getComponent(ContentModelManager.class), element, false);
+			String insertStrRequired = generator.generateMissingElements(request.getComponent(ContentModelManager.class), element, true);
 
 			CodeAction insertAllExpectedElement = CodeActionFactory.replace("Insert all expected elements",
 					targetRange, insertStrAll, document.getTextDocument(), diagnostic);

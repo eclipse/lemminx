@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMElement;
@@ -56,6 +57,8 @@ public class CMRelaxNGElementDeclaration implements CMElementDeclaration {
 	private Collection<CMAttributeDeclaration> attributes;
 
 	private Set<String> requiredElementNames;
+
+	private Set<String> possibleRequiredElementNames;
 
 	CMRelaxNGElementDeclaration(CMRelaxNGDocument document, ElementPattern pattern) {
 		this.cmDocument = document;
@@ -282,5 +285,24 @@ public class CMRelaxNGElementDeclaration implements CMElementDeclaration {
 			getPattern().getContent().apply(elementsFunction);
 		}
 		return requiredElementNames;
+	}
+
+	public Collection<CMElementDeclaration> getPossibleRequiredElements() {
+		Set<CMElementDeclaration> possibelRequiredElements = new LinkedHashSet<>();
+		if (possibleRequiredElementNames == null) {
+			possibleRequiredElementNames = new LinkedHashSet<>();
+			PossibleRequiredElementsFunction elementsFunction = new PossibleRequiredElementsFunction(
+					possibleRequiredElementNames);
+			getPattern().getContent().apply(elementsFunction);
+		}
+		for (String elementName : possibleRequiredElementNames) {
+			possibelRequiredElements.add(findCMElement(elementName, null));
+		}
+
+		List<CMElementDeclaration> sortedElements = possibelRequiredElements.stream().collect(Collectors.toList());
+		Collections.sort(sortedElements, (e1, e2) -> {
+			return ((CMElementDeclaration) e1).getLocalName().compareTo(((CMElementDeclaration) e2).getLocalName());
+		});
+		return sortedElements;
 	}
 }

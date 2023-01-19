@@ -120,6 +120,23 @@ public class CodeActionFactory {
 		return insertContentAction;
 	}
 
+	/**
+	 * Returns the workspace edit of a given replacement text and range.
+	 * 
+	 * @param replaceText the text to replace.
+	 * @param fileContent the range to replace the text over.
+	 * @param document
+	 * @return the workspace edit of a given replacement text and range.
+	 */
+	public static WorkspaceEdit getReplaceWorkspaceEdit(String replaceText, Range range, TextDocumentItem document) {
+		TextEdit replace = new TextEdit(range, replaceText);
+		VersionedTextDocumentIdentifier versionedTextDocumentIdentifier = new VersionedTextDocumentIdentifier(
+				document.getUri(), document.getVersion());
+		TextDocumentEdit textDocumentEdit = new TextDocumentEdit(versionedTextDocumentIdentifier,
+				Collections.singletonList(replace));
+		return new WorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)));
+	}
+
 	public static CodeAction replaceAt(String title, String replaceText, TextDocumentItem document,
 			Diagnostic diagnostic, Collection<Range> ranges) {
 		CodeAction insertContentAction = new CodeAction(title);
@@ -143,10 +160,10 @@ public class CodeActionFactory {
 	/**
 	 * Makes a CodeAction to create a file and add content to the file.
 	 *
-	 * @param title      The displayed name of the CodeAction
+	 * @param title       The displayed name of the CodeAction
 	 * @param fileURI     The file to create
-	 * @param fileContent    The text to put into the newly created document.
-	 * @param diagnostic The diagnostic that this CodeAction will fix
+	 * @param fileContent The text to put into the newly created document.
+	 * @param diagnostic  The diagnostic that this CodeAction will fix
 	 */
 	public static CodeAction createFile(String title, String fileURI, String fileContent, Diagnostic diagnostic) {
 		WorkspaceEdit createAndAddContentEdit = createFileEdit(fileURI, fileContent);
