@@ -11,7 +11,10 @@
 *******************************************************************************/
 package org.eclipse.lemminx.services.extensions.codeaction;
 
+import org.eclipse.lemminx.commons.BadLocationException;
+import org.eclipse.lemminx.extensions.contentmodel.utils.XMLGenerator;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.Range;
 
 /**
  * The code action resolver request API.
@@ -47,5 +50,14 @@ public interface ICodeActionResolverRequest extends IBaseCodeActionRequest {
 	 *         otherwise.
 	 */
 	String getDataProperty(String fieldName);
+
+	/**
+	 * Returns the XML generator and null otherwise.
+	 * 
+	 * @param range the range of the Code Action
+	 * 
+	 * @return the XML generator and null otherwise.
+	 */
+	XMLGenerator getXMLGenerator(Range range) throws BadLocationException;
 
 }

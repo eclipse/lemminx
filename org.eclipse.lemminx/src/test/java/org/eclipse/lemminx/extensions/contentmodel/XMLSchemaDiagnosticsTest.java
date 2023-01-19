@@ -329,25 +329,21 @@ public class XMLSchemaDiagnosticsTest extends AbstractCacheBasedTest {
 		testCodeActionsFor(xml, d, ca(d, te(1, 82, 1, 82, //
 				"\r\n" + //
 						"\t<a>\r\n" + //
-						"\t\t<root>\r\n" + //
-						"\t\t\t<b>\r\n" + //
-						"\t\t\t</b>\r\n" + //
-						"\t\t\t<c>\r\n" + //
-						"\t\t\t</c>\r\n" + //
-						"\t\t\t<d age=\"\">\r\n" + //
-						"\t\t\t\t<d1></d1>\r\n" + //
-						"\t\t\t</d>\r\n" + //
-						"\t\t\t<e></e>\r\n" + //
-						"\t\t</root>\r\n" + //
-						"\t</a>\r\n")),
+						"\t</a>\r\n" + //
+						"\t<b>\r\n" + //
+						"\t</b>\r\n" + //
+						"\t<c>\r\n" + //
+						"\t</c>\r\n" + //
+						"\t<d age=\"\">\r\n" + //
+						"\t\t<d1></d1>\r\n" + //
+						"\t</d>\r\n" + //
+						"\t<e></e>\r\n")),
 				ca(d, te(1, 82, 1, 82, //
 						"\r\n" + //
 								"\t<a>\r\n" + //
-								"\t\t<root>\r\n" + //
-								"\t\t\t<d age=\"\"></d>\r\n" + //
-								"\t\t\t<e></e>\r\n" + //
-								"\t\t</root>\r\n" + //
-								"\t</a>\r\n")));
+								"\t</a>\r\n" + //
+								"\t<d age=\"\"></d>\r\n" + //
+								"\t<e></e>\r\n")));
 	}
 
 	@Test

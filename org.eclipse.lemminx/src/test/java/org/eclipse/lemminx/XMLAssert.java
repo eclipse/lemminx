@@ -1004,6 +1004,13 @@ public class XMLAssert {
 	/**
 	 * Mock code action for creating a command code action
 	 */
+	public static CodeAction ca(Diagnostic d) {
+		CodeAction codeAction = new CodeAction();
+		codeAction.setTitle("");
+		codeAction.setDiagnostics(Arrays.asList(d));
+		return codeAction;
+	}
+
 	public static CodeAction ca(Diagnostic d, Command c) {
 		CodeAction codeAction = new CodeAction();
 		codeAction.setTitle("");
