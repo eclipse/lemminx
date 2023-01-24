@@ -181,7 +181,6 @@ public class XMLGenerator {
 		if (generatedElements.contains(elementDeclaration)) {
 			return snippetIndex;
 		}
-		boolean autoCloseTags = this.autoCloseTags && generateEndTag;
 		generatedElements.add(elementDeclaration);
 		if (level > 0) {
 			xml.linefeed();
@@ -211,7 +210,7 @@ public class XMLGenerator {
 					xml.addContent(SnippetsBuilder.tabstops(snippetIndex));
 				}
 			}
-			if (autoCloseTags) {
+			if (generateEndTag) {
 				xml.endElement(prefix, elementDeclaration.getLocalName());
 			}
 		} else if (elementDeclaration.isEmpty() && autoCloseTags) {
@@ -236,7 +235,7 @@ public class XMLGenerator {
 				snippetIndex++;
 				xml.addContent(SnippetsBuilder.tabstops(snippetIndex));
 			}
-			if (autoCloseTags) {
+			if (generateEndTag) {
 				xml.endElement(prefix, elementDeclaration.getLocalName());
 			}
 		}
