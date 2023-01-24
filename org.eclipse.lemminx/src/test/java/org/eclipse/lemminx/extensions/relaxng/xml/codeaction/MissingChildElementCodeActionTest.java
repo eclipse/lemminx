@@ -19,6 +19,7 @@ import static org.eclipse.lemminx.XMLAssert.testDiagnosticsFor;
 
 import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.extensions.relaxng.xml.validator.RelaxNGErrorCode;
+import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.Diagnostic;
 import org.junit.jupiter.api.Test;
 
@@ -202,6 +203,39 @@ public class MissingChildElementCodeActionTest extends AbstractCacheBasedTest {
 		Diagnostic d = d(2, 2, 2, 6, RelaxNGErrorCode.incomplete_element_required_element_missing);
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d,
+				// insert only required - emailContent is optional in schema - indicated by
+				// <zeroOrMore>
+				ca(d, te(2, 7, 3, 1, //
+						"\r\n" + //
+								"\t\t<name></name>\r\n" + //
+								"\t\t<email>\r\n" + //
+								"\t\t\t<emailContent></emailContent>\r\n" + //
+								"\t\t</email>\r\n\t")),
+				ca(d, te(2, 7, 3, 1, //
+						"\r\n" + //
+								"\t\t<name></name>\r\n" + //
+								"\t\t<email>\r\n" + //
+								"\t\t\t<emailContent></emailContent>\r\n" + //
+								"\t\t\t<emailOptional></emailOptional>\r\n" + //
+								"\t\t</email>\r\n\t")));
+	}
+
+	//https://github.com/eclipse/lemminx/issues/1458
+	@Test
+	public void incomplete_element_required_element_missing_optional_element_zeroOrMore_autoCloseTags()
+			throws Exception {
+		String xml = "<?xml-model href=\"src/test/resources/relaxng/addressBook_v5.rng\" ?>\r\n" + //
+				"<addressBook>\r\n" + //
+				"	<card>\r\n" + //
+				"	</card>\r\n" + //
+				"</addressBook>";
+		Diagnostic d = d(2, 2, 2, 6, RelaxNGErrorCode.incomplete_element_required_element_missing);
+		SharedSettings settings = new SharedSettings();
+		settings.getCompletionSettings().setAutoCloseTags(false);
+		settings.getFormattingSettings().setTabSize(4);
+		settings.getFormattingSettings().setInsertSpaces(false);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, settings,
 				// insert only required - emailContent is optional in schema - indicated by
 				// <zeroOrMore>
 				ca(d, te(2, 7, 3, 1, //
