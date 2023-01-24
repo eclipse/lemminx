@@ -36,7 +36,7 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
  */
 class XMLLinkedEditing {
 
-	private static final String WORD_PATTERN = "[^\\s]+";
+	private static final String WORD_PATTERN = "[^\\s>]+";
 
 	private static Logger LOGGER = Logger.getLogger(XMLLinkedEditing.class.getName());
 

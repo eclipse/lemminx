@@ -1810,7 +1810,7 @@ public class XMLAssert {
 	}
 
 	public static LinkedEditingRanges le(Range... ranges) {
-		return new LinkedEditingRanges(Arrays.asList(ranges), "[^\\s]+");
+		return new LinkedEditingRanges(Arrays.asList(ranges),  "[^\\s>]+");
 	}
 
 	public static LinkedEditingRanges le(String wordPattern, Range... ranges) {
