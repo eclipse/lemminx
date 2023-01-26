@@ -1,5 +1,31 @@
 # Change Log
 
+## [0.24.0](https://github.com/eclipse/lemminx/milestone/37?closed=1) (January 31, 2023)
+
+### Enhancements
+
+ * Completion, definition, references, diagnostics, highlight, code lens, rename, linked editing support for XML references. See [#1435](https://github.com/eclipse/lemminx/pull/1435), [#1427](https://github.com/eclipse/lemminx/issues/1427), [#1432](https://github.com/eclipse/lemminx/pull/1432), [#1452](https://github.com/eclipse/lemminx/pull/1452), [#1367](https://github.com/eclipse/lemminx/issues/1367).
+ * Code action to add missing required elements with RelaxNG. See [#1418](https://github.com/eclipse/lemminx/issues/1418).
+ * Improve the RelaxNG schema validation. See [#1425](https://github.com/eclipse/lemminx/pull/1425).
+ * Code action to generate RelaxNG RNG file. See [#1405](https://github.com/eclipse/lemminx/issues/1405).
+ * Support for `textDocument/documentColor`. See [#639](https://github.com/eclipse/lemminx/issues/639).
+
+### Bug Fixes
+
+ * "Insert element" code actions don't add close tags when auto close tag is disabled. See [#1458](https://github.com/eclipse/lemminx/issues/1458).
+ * Improve "Insert only required expected elements" by taking care of choice. See [#1448](https://github.com/eclipse/lemminx/issues/1448).
+ * Linked editing breaks start tag when closing tag manually. See [#1456](https://github.com/eclipse/lemminx/issues/1456).
+ * Ignore linked editing range when there are no referenced node to update. See [#1453](https://github.com/eclipse/lemminx/pull/1453).
+ * Formatting selection fails with root element with mixed content. See [#1414](https://github.com/eclipse/lemminx/issues/1414).
+ * `SAXParseException` in the language server trace when editing an `.rng` file. See [#1441](https://github.com/eclipse/lemminx/issues/1441).
+ * Ensure attributes on the first line are wrapped correctly. See [#1439](https://github.com/eclipse/lemminx/issues/1439).
+ * Fix comment formatting with `xml.format.maxLineWidth`. See [#1433](https://github.com/eclipse/lemminx/pull/1433).
+ * Permit binding to a schema from an empty document. See [#1408](https://github.com/eclipse/lemminx/pull/1408).
+ * RelaxNG validation with `XInclude` / File association report `DOCTYPE` error. See [#1421](https://github.com/eclipse/lemminx/issues/1421).
+ * DocumentLink support for `xi:include/@href`. See [#1401](https://github.com/eclipse/lemminx/issues/1401).
+ * Binary server doesn't show "element missing child" warning in broken RelaxNG. See [#1460](https://github.com/eclipse/lemminx/issues/1460).
+ * Refactor "Register catalog" code lens to be in catalog package. See [#1417](https://github.com/eclipse/lemminx/pull/1417).
+
 ## [0.23.2](https://github.com/eclipse/lemminx/milestone/39?closed=1) (December 15, 2022)
 
 ### Bug Fixes
@@ -39,7 +65,7 @@
  * Generate grammar fails on first attempt with experimental formatter. See [#1382](https://github.com/eclipse/lemminx/issues/1382).
  * Applying XML completion generates invalid XML content. See [#1373](https://github.com/eclipse/lemminx/issues/1373).
  * Generate and bind schema doesn't work with experimental formatter. See [#1365](https://github.com/eclipse/lemminx/pull/1365).
- * Add tests for `xml.format.grammarAwareFormatting` setting and restore mixed content behaviour. See [#1364](https://github.com/eclipse/lemminx/pull/1364).
+ * Add tests for `xml.format.grammarAwareFormatting` setting and restore mixed content behavior. See [#1364](https://github.com/eclipse/lemminx/pull/1364).
  * Prevent exception in `DomElementFormatter.formatEndTagElement()`. See [#1361](https://github.com/eclipse/lemminx/issues/1361).
  * Fix unexpected behavior of `xml.format.preservedNewlines` with experimental formatter. See [#1341](https://github.com/eclipse/lemminx/pull/1341).
  * Autoclose tag generates an unexpected `>`. See [#1221](https://github.com/eclipse/lemminx/issues/1221).
