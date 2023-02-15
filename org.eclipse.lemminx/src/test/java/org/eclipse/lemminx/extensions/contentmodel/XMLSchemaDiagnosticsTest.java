@@ -510,6 +510,19 @@ public class XMLSchemaDiagnosticsTest extends AbstractCacheBasedTest {
 	}
 
 	@Test
+	public void cvc_minLength() throws Exception {
+		// See issue https://github.com/redhat-developer/vscode-xml/issues/524
+		String xml = "<?xml version=\"1.0\"?>\r\n"
+				+ "<?xml-model href=\"src/test/resources/xsd/minLength.xsd\"?>\r\n"
+				+ "<Root>\r\n"
+				+ "    <Test Some_String=\"\" Some_Restricted_Value=\"\"/>\r\n"
+				+ "</Root>";
+		testDiagnosticsFor(xml, //
+				d(3, 47, 3, 49, XMLSchemaErrorCode.cvc_minlength_valid),
+				d(3, 47, 3, 49, XMLSchemaErrorCode.cvc_attribute_3));
+	}
+
+	@Test
 	public void cvc_maxLength_validOnAttribute() throws Exception {
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
 				"<team\r\n" + //

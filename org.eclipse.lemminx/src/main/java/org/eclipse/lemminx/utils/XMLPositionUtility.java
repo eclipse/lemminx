@@ -141,8 +141,9 @@ public class XMLPositionUtility {
 		DOMNode element = document.findNodeAt(offset);
 		if (element != null && element.hasAttributes()) {
 			List<DOMAttr> attribues = element.getAttributeNodes();
-			for (DOMAttr attr : attribues) {
-				if (attrValue.equals(attr.getValue())) {
+			for (int i = attribues.size() - 1; i >= 0; i--) {
+				DOMAttr attr = attribues.get(i);
+				if (offset > attr.getStart() && attrValue.equals(attr.getValue())) {
 					return createAttrValueRange(attr, document);
 				}
 			}
@@ -1151,17 +1152,17 @@ public class XMLPositionUtility {
 
 	/**
 	 * Select the value from the start/end node without quote.
-	 * 
+	 *
 	 * For the given attr value:
-	 * 
+	 *
 	 * <p>
 	 * <element attr="value" />
 	 * </p>
-	 * 
+	 *
 	 * it will return <element attr="|value|" /> range without ".
-	 * 
+	 *
 	 * @param node the DOM node.
-	 * 
+	 *
 	 * @return the value from the start/end node without quote.
 	 */
 	public static Range selectValueWithoutQuote(DOMRange node) {
