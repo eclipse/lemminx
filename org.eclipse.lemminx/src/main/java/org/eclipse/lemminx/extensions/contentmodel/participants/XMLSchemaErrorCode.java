@@ -85,7 +85,7 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 	cvc_maxInclusive_valid("cvc-maxInclusive-valid"), // https://wiki.xmldation.com/Support/validator/cvc-maxinclusive-valid
 	cvc_minExclusive_valid("cvc-minExclusive-valid"), // https://wiki.xmldation.com/Support/validator/cvc-minexclusive-valid
 	cvc_minInclusive_valid("cvc-minInclusive-valid"), // https://wiki.xmldation.com/Support/validator/cvc-mininclusive-valid
-	DuplicateUnique("DuplicateUnique"), //error code is for error cvc_identity_constraint_4_1
+	DuplicateUnique("DuplicateUnique"), // error code is for error cvc_identity_constraint_4_1
 	TargetNamespace_1("TargetNamespace.1"), //
 	TargetNamespace_2("TargetNamespace.2"), //
 	SchemaLocation("SchemaLocation"), //
@@ -142,157 +142,164 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 		int offset = location.getCharacterOffset() - 1;
 		// adjust positions
 		switch (code) {
-		case cvc_complex_type_2_3:
-			return XMLPositionUtility.selectFirstNonWhitespaceText(offset, document);
-		case cvc_complex_type_2_2:
-		case cvc_complex_type_2_4_a:
-		case cvc_complex_type_2_4_b:
-		case cvc_complex_type_2_4_c:
-		case cvc_complex_type_2_4_d:
-		case cvc_complex_type_2_4_f:
-		case cvc_elt_1_a:
-		case cvc_complex_type_4:
-		case src_element_3:
-			return XMLPositionUtility.selectStartTagName(offset, document);
-		case cvc_complex_type_3_2_2: {
-			String attrName = getString(arguments[1]);
-			return XMLPositionUtility.selectAttributeNameFromGivenNameAt(attrName, offset, document);
-		}
-		case cvc_elt_3_1: {
-			String namespaceAntAttrName = getString(arguments[1]); // http://www.w3.org/2001/XMLSchema-instance,nil
-			String attrName = namespaceAntAttrName;
-			int index = namespaceAntAttrName.indexOf(",");
-			if (index != -1) {
-				String namespaceURI = namespaceAntAttrName.substring(0, index);
-				String prefix = document.getDocumentElement().getPrefix(namespaceURI);
-				attrName = namespaceAntAttrName.substring(index + 1, namespaceAntAttrName.length());
-				if (prefix != null && !prefix.isEmpty()) {
-					attrName = prefix + ":" + attrName;
-				}
+			case cvc_complex_type_2_3:
+				return XMLPositionUtility.selectFirstNonWhitespaceText(offset, document);
+			case cvc_complex_type_2_2:
+			case cvc_complex_type_2_4_a:
+			case cvc_complex_type_2_4_b:
+			case cvc_complex_type_2_4_c:
+			case cvc_complex_type_2_4_d:
+			case cvc_complex_type_2_4_f:
+			case cvc_elt_1_a:
+			case cvc_complex_type_4:
+			case src_element_3:
+				return XMLPositionUtility.selectStartTagName(offset, document);
+			case cvc_complex_type_3_2_2: {
+				String attrName = getString(arguments[1]);
+				return XMLPositionUtility.selectAttributeNameFromGivenNameAt(attrName, offset, document);
 			}
-			return XMLPositionUtility.selectAttributeFromGivenNameAt(attrName, offset, document);
-		}
-		case cvc_pattern_valid: {
-			String value = getString(arguments[0]);
-			Range result = XMLPositionUtility.selectAttributeValueByGivenValueAt(value, offset, document);
-			if (result != null) {
-				return result;
-			}
-			return XMLPositionUtility.selectTrimmedText(offset, document);
-		}
-		case SchemaLocation: { // xml xsi:schemaLocation
-			SchemaLocation schemaLocation = document.getSchemaLocation();
-			DOMRange locationRange = schemaLocation.getAttr().getNodeAttrValue();
-			return locationRange != null ? XMLPositionUtility.createRange(locationRange) : null;
-		}
-
-		case schema_reference_4: {
-			String grammarURI = arguments.length == 1 ? (String) arguments[0] : null;
-			if (DOMUtils.isXSD(document)) {
-				//
-				// This error code occurs in XSD document when an XSD file path is invalid in
-				// the following
-				// attributes:
-				// 1. xsd:import/@schemaLocation
-				// 2. xsd:include/@schemaLocation
-				//
-				// search grammar uri from xs:include/@schemaLocation or
-				// xs:import/@schemaLocation which reference the grammar URI
-				DOMAttr schemaLocationAttr = XSDUtils.findSchemaLocationAttrByURI(document, grammarURI);
-				if (schemaLocationAttr != null) {
-					return XMLPositionUtility.selectAttributeValue(schemaLocationAttr, true);
-				}
-			} else {
-				//
-				// This error code occurs when an XSD file path is invalid in the following
-				// attributes:
-				// 1. xml-model href
-				// 2. xsi:schemaLocation
-				// 3. xsi:noNamespaceSchemaLocation
-				//
-				// Check if location comes from a xml-model/@href
-				DOMRange locationRange = XMLModelUtils.getHrefNode(document, grammarURI);
-				if (locationRange == null) {
-					NoNamespaceSchemaLocation noNamespaceSchemaLocation = document.getNoNamespaceSchemaLocation();
-					if (noNamespaceSchemaLocation != null) {
-						locationRange = noNamespaceSchemaLocation.getAttr().getNodeAttrValue();
-					} else {
-						SchemaLocation schemaLocation = document.getSchemaLocation();
-						if (schemaLocation != null) {
-							String invalidSchemaPath = arguments[0] instanceof String ? (String) arguments[0] : null;
-
-							if (invalidSchemaPath != null) {
-								for (SchemaLocationHint locHintRange : schemaLocation.getSchemaLocationHints()) {
-									String expandedHint = getResolvedLocation(document.getDocumentURI(),
-											locHintRange.getHint());
-									if (invalidSchemaPath.equals(expandedHint)) {
-										return XMLPositionUtility.createRange(locHintRange);
-									}
-								}
-							}
-							// Highlight entire attribute if finding the location hint fails
-							locationRange = schemaLocation.getAttr().getNodeAttrValue();
-						}
+			case cvc_elt_3_1: {
+				String namespaceAntAttrName = getString(arguments[1]); // http://www.w3.org/2001/XMLSchema-instance,nil
+				String attrName = namespaceAntAttrName;
+				int index = namespaceAntAttrName.indexOf(",");
+				if (index != -1) {
+					String namespaceURI = namespaceAntAttrName.substring(0, index);
+					String prefix = document.getDocumentElement().getPrefix(namespaceURI);
+					attrName = namespaceAntAttrName.substring(index + 1, namespaceAntAttrName.length());
+					if (prefix != null && !prefix.isEmpty()) {
+						attrName = prefix + ":" + attrName;
 					}
 				}
-				return locationRange != null ? XMLPositionUtility.selectValueWithoutQuote(locationRange) : null;
+				return XMLPositionUtility.selectAttributeFromGivenNameAt(attrName, offset, document);
 			}
-		}
-		case cvc_attribute_3:
-		case cvc_complex_type_3_1:
-		case cvc_elt_4_2: {
-			String attrName = getString(arguments[1]);
-			return XMLPositionUtility.selectAttributeValueAt(attrName, offset, document);
-		}
-		case cvc_type_3_1_1:
-			return XMLPositionUtility.selectAllAttributes(offset, document);
-		case cvc_complex_type_2_1:
-		case cvc_elt_3_2_1:
-			return XMLPositionUtility.selectContent(offset, document);
-		case cvc_type_3_1_3:
-		case cvc_datatype_valid_1_2_1:
-		case cvc_datatype_valid_1_2_3:
-		case cvc_enumeration_valid:
-		case cvc_maxlength_valid:
-		case cvc_minlength_valid:
-		case cvc_maxExclusive_valid:
-		case cvc_maxInclusive_valid:
-		case cvc_minExclusive_valid:
-		case cvc_minInclusive_valid: {
-			// this error can occur for attribute value or text
-			// Try for attribute value
-			String attrValue = getString(arguments[0]);
-			Range range = XMLPositionUtility.selectAttributeValueFromGivenValue(attrValue, offset, document);
-			if (range != null) {
-				return range;
-			} else {
-				// Try with text
-				DOMElement element = (DOMElement) document.findNodeAt(offset);
-				if (element != null && element.isEmpty()) {
-					return XMLPositionUtility.selectStartTagName(element);
-				} else if (DOMUtils.containsTextOnly(element)) {
-					return XMLPositionUtility.selectTrimmedText(offset, document);
+			case cvc_pattern_valid: {
+				String value = getString(arguments[0]);
+				Range result = XMLPositionUtility.selectAttributeValueByGivenValueAt(value, offset, document);
+				if (result != null) {
+					return result;
+				}
+				return XMLPositionUtility.selectTrimmedText(offset, document);
+			}
+			case SchemaLocation: { // xml xsi:schemaLocation
+				SchemaLocation schemaLocation = document.getSchemaLocation();
+				DOMRange locationRange = schemaLocation.getAttr().getNodeAttrValue();
+				return locationRange != null ? XMLPositionUtility.createRange(locationRange) : null;
+			}
+
+			case schema_reference_4: {
+				String grammarURI = arguments.length == 1 ? (String) arguments[0] : null;
+				if (DOMUtils.isXSD(document)) {
+					//
+					// This error code occurs in XSD document when an XSD file path is invalid in
+					// the following
+					// attributes:
+					// 1. xsd:import/@schemaLocation
+					// 2. xsd:include/@schemaLocation
+					//
+					// search grammar uri from xs:include/@schemaLocation or
+					// xs:import/@schemaLocation which reference the grammar URI
+					DOMAttr schemaLocationAttr = XSDUtils.findSchemaLocationAttrByURI(document, grammarURI);
+					if (schemaLocationAttr != null) {
+						return XMLPositionUtility.selectAttributeValue(schemaLocationAttr, true);
+					}
 				} else {
-					return XMLPositionUtility.selectFirstChild(offset, document);
+					//
+					// This error code occurs when an XSD file path is invalid in the following
+					// attributes:
+					// 1. xml-model href
+					// 2. xsi:schemaLocation
+					// 3. xsi:noNamespaceSchemaLocation
+					//
+					// Check if location comes from a xml-model/@href
+					DOMRange locationRange = XMLModelUtils.getHrefNode(document, grammarURI);
+					if (locationRange == null) {
+						NoNamespaceSchemaLocation noNamespaceSchemaLocation = document.getNoNamespaceSchemaLocation();
+						if (noNamespaceSchemaLocation != null) {
+							locationRange = noNamespaceSchemaLocation.getAttr().getNodeAttrValue();
+						} else {
+							SchemaLocation schemaLocation = document.getSchemaLocation();
+							if (schemaLocation != null) {
+								String invalidSchemaPath = arguments[0] instanceof String ? (String) arguments[0]
+										: null;
+
+								if (invalidSchemaPath != null) {
+									for (SchemaLocationHint locHintRange : schemaLocation.getSchemaLocationHints()) {
+										String expandedHint = getResolvedLocation(document.getDocumentURI(),
+												locHintRange.getHint());
+										if (invalidSchemaPath.equals(expandedHint)) {
+											return XMLPositionUtility.createRange(locHintRange);
+										}
+									}
+								}
+								// Highlight entire attribute if finding the location hint fails
+								locationRange = schemaLocation.getAttr().getNodeAttrValue();
+							} else {
+								DOMElement documentElement = document.getDocumentElement();
+								if (documentElement != null) {
+									// XML file association
+									return XMLPositionUtility.selectStartTagName(documentElement);
+								}
+							}
+						}
+					}
+					return locationRange != null ? XMLPositionUtility.selectValueWithoutQuote(locationRange) : null;
 				}
 			}
-		}
-		case cvc_type_3_1_2:
-			return XMLPositionUtility.selectStartTagName(offset, document);
-		case DuplicateUnique:
-			String attrValue = getString(arguments[0]);
-			Range range = XMLPositionUtility.selectAttributeValueFromGivenValue(attrValue, offset, document);
-			if (range != null) {
-				return range;
-			} else {
-				return XMLPositionUtility.selectContent(offset, document);
+			case cvc_attribute_3:
+			case cvc_complex_type_3_1:
+			case cvc_elt_4_2: {
+				String attrName = getString(arguments[1]);
+				return XMLPositionUtility.selectAttributeValueAt(attrName, offset, document);
 			}
-			
-		case TargetNamespace_1:
-			return XMLPositionUtility.selectRootAttributeValue(DOMAttr.XMLNS_ATTR, document);
-		case TargetNamespace_2:
-			return XMLPositionUtility.selectRootStartTag(document);
-		default:
+			case cvc_type_3_1_1:
+				return XMLPositionUtility.selectAllAttributes(offset, document);
+			case cvc_complex_type_2_1:
+			case cvc_elt_3_2_1:
+				return XMLPositionUtility.selectContent(offset, document);
+			case cvc_type_3_1_3:
+			case cvc_datatype_valid_1_2_1:
+			case cvc_datatype_valid_1_2_3:
+			case cvc_enumeration_valid:
+			case cvc_maxlength_valid:
+			case cvc_minlength_valid:
+			case cvc_maxExclusive_valid:
+			case cvc_maxInclusive_valid:
+			case cvc_minExclusive_valid:
+			case cvc_minInclusive_valid: {
+				// this error can occur for attribute value or text
+				// Try for attribute value
+				String attrValue = getString(arguments[0]);
+				Range range = XMLPositionUtility.selectAttributeValueFromGivenValue(attrValue, offset, document);
+				if (range != null) {
+					return range;
+				} else {
+					// Try with text
+					DOMElement element = (DOMElement) document.findNodeAt(offset);
+					if (element != null && element.isEmpty()) {
+						return XMLPositionUtility.selectStartTagName(element);
+					} else if (DOMUtils.containsTextOnly(element)) {
+						return XMLPositionUtility.selectTrimmedText(offset, document);
+					} else {
+						return XMLPositionUtility.selectFirstChild(offset, document);
+					}
+				}
+			}
+			case cvc_type_3_1_2:
+				return XMLPositionUtility.selectStartTagName(offset, document);
+			case DuplicateUnique:
+				String attrValue = getString(arguments[0]);
+				Range range = XMLPositionUtility.selectAttributeValueFromGivenValue(attrValue, offset, document);
+				if (range != null) {
+					return range;
+				} else {
+					return XMLPositionUtility.selectContent(offset, document);
+				}
+
+			case TargetNamespace_1:
+				return XMLPositionUtility.selectRootAttributeValue(DOMAttr.XMLNS_ATTR, document);
+			case TargetNamespace_2:
+				return XMLPositionUtility.selectRootStartTag(document);
+			default:
 		}
 		return null;
 	}

@@ -257,6 +257,23 @@ public class XMLFileAssociationsDiagnosticsTest extends AbstractCacheBasedTest {
 		return new XMLFileAssociation[] { maven };
 	}
 
+	@Test
+	public void invalidXSD() throws BadLocationException {
+		Consumer<XMLLanguageService> configuration = ls -> {
+			ContentModelManager contentModelManager = ls.getComponent(ContentModelManager.class);
+			contentModelManager.setFileAssociations(createXSDAssociationsSchemaLocationLike("invalid/"));
+		};
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
+				+ "<foo>\r\n"
+				+ "    <bar>\r\n"
+				+ "        <meh></meh>\r\n"
+				+ "    </bar>\r\n"
+				+ "</foo>";
+		testDiagnosticsFor(xml, "file:///test/pom.xml", configuration,
+				d(1, 1, 1, 4, XMLSchemaErrorCode.schema_reference_4),
+				d(1, 1, 1, 4, XMLSchemaErrorCode.cvc_elt_1_a));
+	}
+
 	// ------- XML file association with DTD
 
 	@Test
