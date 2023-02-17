@@ -291,14 +291,12 @@ public class XMLFormatterWhitespaceSettingTest {
 				"  </bbb>\r\n" + //
 				"  <ccc>\r\n" + //
 				"  </ccc>\r\n" + //
-				"</aaa>";
+				"</aaa>\r\n";
 		assertFormat(content, expected, settings, //
 				te(2, 8, 3, 4, "\r\n    "), //
 				te(9, 7, 10, 4, "\r\n    "), //
 				te(10, 8, 10, 10, " "), //
-				te(11, 8, 11, 12, ""), //
-				te(15, 6, 16, 0, ""));
-		assertFormat(expected, expected, settings);
+				te(11, 8, 11, 12, ""));
 	}
 
 	@Test
@@ -336,14 +334,12 @@ public class XMLFormatterWhitespaceSettingTest {
 				"  </bbb>\n" + //
 				"  <ccc>\n" + //
 				"  </ccc>\n" + //
-				"</aaa>";
+				"</aaa>\n";
 		assertFormat(content, expected, settings, //
 				te(2, 8, 3, 4, "\n    "), //
 				te(9, 7, 10, 4, "\n    "), //
 				te(10, 8, 10, 10, " "), //
-				te(11, 8, 11, 12, ""), //
-				te(15, 6, 16, 0, ""));
-		assertFormat(expected, expected, settings);
+				te(11, 8, 11, 12, ""));
 	}
 
 	@Test

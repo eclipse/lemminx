@@ -30,7 +30,11 @@ public class DOMTextFormatter {
 		this.formatterDocument = formatterDocument;
 	}
 
-	public void formatText(DOMText textNode, XMLFormattingConstraints parentConstraints, List<TextEdit> edits) {
+	public void formatText(DOMText textNode, XMLFormattingConstraints parentConstraints, int start, int end,
+			List<TextEdit> edits) {
+		if ((textNode.getStart() > end && end != -1) || textNode.getEnd() < start) {
+			return;
+		}
 		// Don't format the spacing in text for case of preserve empty content setting
 		FormatElementCategory formatElementCategory = parentConstraints.getFormatElementCategory();
 		if (formatElementCategory == FormatElementCategory.PreserveSpace && isTrimTrailingWhitespace()) {
