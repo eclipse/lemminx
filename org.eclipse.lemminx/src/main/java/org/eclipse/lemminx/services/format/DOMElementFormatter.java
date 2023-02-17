@@ -68,7 +68,8 @@ public class DOMElementFormatter {
 			formatChildren(element, constraints, start, end, edits);
 
 			// Format end tag element with proper indentation
-			if (element.hasEndTag()) {
+			if (element.hasEndTag() && (element.getEndTagOpenOffset() > start
+					&& (end == -1 || element.getEndTagCloseOffset() < end))) {
 				width = formatEndTagElement(element, parentConstraints, constraints, edits);
 				parentConstraints.setAvailableLineWidth(constraints.getAvailableLineWidth() - width);
 			}

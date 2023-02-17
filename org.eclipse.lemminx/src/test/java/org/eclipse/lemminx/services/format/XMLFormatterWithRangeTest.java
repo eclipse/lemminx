@@ -352,6 +352,69 @@ public class XMLFormatterWithRangeTest {
 				te(1, 26, 2, 0, ""));
 	}
 
+	//https://github.com/eclipse/lemminx/issues/1485
+	@Test
+	public void testWithMaxLineWidth() throws BadLocationException {
+		String content = "  <build>|\r\n" + //
+				"	  		<plugins>\r\n" + //
+				"			<plugin>\r\n" + //
+				"				<executions>\r\n" + //
+				"					<execution>\r\n" + //
+				"						<goals>\r\n" + //
+				"							<goal>bump-versions</goal>\r\n" + //
+				"						</goals>\r\n" + //
+				"			  </execution>\r\n" + //
+				"					</executions>\r\n" + //
+				"			</plugin>\r\n" + //
+				"		</plugins>\r\n|" + //
+				"    <pluginManagement>\r\n" + //
+				"      <plugins>\r\n" + //
+				"        <plugin>\r\n" + //
+				"          <groupId>org.eclipse.tycho</groupId>\r\n" + //
+				"          <artifactId>tycho-surefire-plugin</artifactId>\r\n" + //
+				"          <version>${tycho.version}</version>\r\n" + //
+				"        </plugin>\r\n" + //
+				"      </plugins>\r\n" + //
+				"    </pluginManagement>\r\n" + //
+				"  </build>\r\n";
+
+		String expected = "  <build>\r\n" + //
+		"  <plugins>\r\n" + //
+		"    <plugin>\r\n" + //
+		"      <executions>\r\n" + //
+		"        <execution>\r\n" + //
+		"          <goals>\r\n" + //
+		"            <goal>bump-versions</goal>\r\n" + //
+		"          </goals>\r\n" + //
+		"        </execution>\r\n" + //
+		"      </executions>\r\n" + //
+		"    </plugin>\r\n" + //
+		"  </plugins>\r\n" + //
+		"    <pluginManagement>\r\n" + //
+		"      <plugins>\r\n" + //
+		"        <plugin>\r\n" + //
+		"          <groupId>org.eclipse.tycho</groupId>\r\n" + //
+		"          <artifactId>tycho-surefire-plugin</artifactId>\r\n" + //
+		"          <version>${tycho.version}</version>\r\n" + //
+		"        </plugin>\r\n" + //
+		"      </plugins>\r\n" + //
+		"    </pluginManagement>\r\n" + //
+		"  </build>\r\n";
+
+		assertFormat(content, expected,//
+				te(0, 9, 1, 5, "\r\n  "), //
+				te(1, 14, 2, 3, "\r\n    "), //
+				te(2, 11, 3, 4, "\r\n      "), //
+				te(3, 16, 4, 5, "\r\n        "), //
+				te(4, 16, 5, 6, "\r\n          "), //
+				te(5, 13, 6, 7, "\r\n            "), //
+				te(6, 33, 7, 6, "\r\n          "), //
+				te(7, 14, 8, 5, "\r\n        "), //
+				te(8, 17, 9, 5, "\r\n      "), //
+				te(9, 18, 10, 3, "\r\n    "), //
+				te(10, 12, 11, 2, "\r\n  "));
+	}
+
 	private static void assertFormat(String unformatted, String actual, TextEdit... expectedEdits)
 			throws BadLocationException {
 		assertFormat(unformatted, actual, new SharedSettings(), expectedEdits);

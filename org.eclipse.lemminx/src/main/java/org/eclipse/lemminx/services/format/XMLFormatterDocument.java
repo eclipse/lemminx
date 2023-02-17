@@ -170,12 +170,12 @@ public class XMLFormatterDocument {
 		}
 
 		boolean insertFinalNewline = isInsertFinalNewline();
-		if (isTrimFinalNewlines()) {
+		String xml = textDocument.getText();
+		int endDocument = xml.length() - 1;
+		if (isTrimFinalNewlines() && (end == -1 || endDocument < end)) {
 			trimFinalNewlines(insertFinalNewline, edits);
 		}
 		if (insertFinalNewline) {
-			String xml = textDocument.getText();
-			int endDocument = xml.length() - 1;
 			if (endDocument >= 0) {
 				char c = xml.charAt(endDocument);
 				if (c != '\n' && (end == -1 || endDocument < end)) {
@@ -191,14 +191,13 @@ public class XMLFormatterDocument {
 			}
 		}
 		if (isTrimTrailingWhitespace()) {
-			String xml = textDocument.getText();
 			int i = xml.length() - 1;
 			int lineDelimiterOffset = i + 1;
 			char curr = xml.charAt(i);
 			boolean removeSpaces = true;
 
 			// removes spaces and new lines at the end of xml
-			if (isTrimFinalNewlines() && !isLineSeparator(curr)) {
+			if (isTrimFinalNewlines() && !isLineSeparator(curr) && (end == -1 || endDocument < end)) {
 				while (Character.isWhitespace(curr) && i > 0) {
 					i--;
 					curr = xml.charAt(i);
@@ -343,7 +342,7 @@ public class XMLFormatterDocument {
 
 			case Node.TEXT_NODE:
 				DOMText textNode = (DOMText) child;
-				textFormatter.formatText(textNode, parentConstraints, edits);
+				textFormatter.formatText(textNode, parentConstraints, start, end, edits);
 				break;
 
 			case Node.COMMENT_NODE:
