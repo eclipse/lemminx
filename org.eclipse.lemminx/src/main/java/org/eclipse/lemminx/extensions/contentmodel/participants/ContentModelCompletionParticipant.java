@@ -39,6 +39,7 @@ import org.eclipse.lemminx.services.extensions.completion.ICompletionRequest;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionResponse;
 import org.eclipse.lemminx.uriresolver.CacheResourceDownloadingException;
 import org.eclipse.lemminx.utils.StringUtils;
+import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.MarkupContent;
@@ -302,30 +303,77 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 	private void fillAttributesWithCMAttributeDeclarations(DOMElement parentElement, Range fullRange,
 			CMElementDeclaration elementDeclaration, boolean canSupportSnippet, boolean generateValue,
 			ICompletionRequest request, ICompletionResponse response) {
-
+		if (parentElement == null) {
+			return;
+		}
 		Collection<CMAttributeDeclaration> attributes = elementDeclaration.getAttributes();
 		if (attributes == null) {
 			return;
 		}
 		for (CMAttributeDeclaration attributeDeclaration : attributes) {
-			if (parentElement != null) {
-				String prefix = parentElement.getPrefix(attributeDeclaration.getNamespace());
-				String attrName = attributeDeclaration.getName(prefix);
-				if (!parentElement.hasAttribute(attrName)) {
-					CompletionItem item = new AttributeCompletionItem(attrName, canSupportSnippet, fullRange,
-							generateValue,
-							attributeDeclaration.getDefaultValue(), attributeDeclaration.getEnumerationValues(),
-							request.getSharedSettings());
-					if (request.isResolveDocumentationSupported()) {
-						addResolveData(request, item, AttributeNameCompletionResolver.PARTICIPANT_ID);
-					} else {
-						MarkupContent documentation = XMLGenerator.createMarkupContent(attributeDeclaration,
-								elementDeclaration,
-								request);
-						item.setDocumentation(documentation);
-					}
-					response.addCompletionAttribute(item);
+			String prefix = null;
+			boolean declareNamespace = false;
+			String namespaceURI = attributeDeclaration.getNamespace();
+			if (!StringUtils.isEmpty(namespaceURI)) {
+				// The schema defines the attribute with a namespace (ex :
+				// http://www.w3.org/1999/xlink)
+				// Try to get the prefix from the XML document (ex: <docbook
+				// xlink="http://www.w3.org/1999/xlink")
+				prefix = parentElement.getPrefix(namespaceURI);
+				if (prefix == null) {
+					// The namespace is not declared in the XML document, get the prefered prefeix
+					// defined in the grammar.
+					prefix = attributeDeclaration.getPrefix();
+					// The xlink="http://www.w3.org/1999/xlink" needs to be inserted in the root
+					// document element.
+					declareNamespace = true;
 				}
+			}
+			String attrName = attributeDeclaration.getName(prefix);
+			if (!parentElement.hasAttribute(attrName)) {
+				CompletionItem item = new AttributeCompletionItem(attrName, canSupportSnippet, fullRange,
+						generateValue,
+						attributeDeclaration.getDefaultValue(), attributeDeclaration.getEnumerationValues(),
+						request.getSharedSettings());
+				if (declareNamespace) {
+					// Insert with additional text edit, the declaration of the namespace (ex :
+					// xlink="http://www.w3.org/1999/xlink")
+					DOMDocument document = parentElement.getOwnerDocument();
+					int offset = -1;
+					DOMElement documentElement = document.getDocumentElement();
+					if (documentElement.hasAttributes()) {
+						// Get the position after the last attributes
+						// <book xmlns="http://docbook.org/ns/docbook"| >
+						DOMAttr lastAttr = documentElement
+								.getAttributeAtIndex(documentElement.getAttributeNodes().size() - 1);
+						offset = lastAttr.getEnd();
+					} else {
+						// No attributes, get the position after the start tag
+						// <book|
+						int tagNameLength = documentElement.getTagName().length();
+						int startTagNameStart = documentElement.getStartTagOpenOffset() + 1;
+						int startTagNameEnd = startTagNameStart + tagNameLength;
+						offset = startTagNameEnd;
+					}
+					Range range = XMLPositionUtility.createRange(offset, offset, document);
+					StringBuilder insertText = new StringBuilder();
+					insertText.append(' ');
+					insertText.append("xmlns:");
+					insertText.append(prefix);
+					insertText.append("=\"");
+					insertText.append(namespaceURI);
+					insertText.append("\"");
+					item.setAdditionalTextEdits(Collections.singletonList(new TextEdit(range, insertText.toString())));
+				}
+				if (request.isResolveDocumentationSupported()) {
+					addResolveData(request, item, AttributeNameCompletionResolver.PARTICIPANT_ID);
+				} else {
+					MarkupContent documentation = XMLGenerator.createMarkupContent(attributeDeclaration,
+							elementDeclaration,
+							request);
+					item.setDocumentation(documentation);
+				}
+				response.addCompletionAttribute(item);
 			}
 		}
 	}

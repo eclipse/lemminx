@@ -193,7 +193,7 @@ public class CMRelaxNGDocument implements CMDocument {
 	}
 
 	private DOMRange getDeclaredTypeRange(DOMNode originNode, Locator locator) {
-		DOMNode node = findNode(locator);
+		DOMNode node = findNodeAt(locator);
 		if (node == null) {
 			return null;
 		}
@@ -207,7 +207,7 @@ public class CMRelaxNGDocument implements CMDocument {
 		return null;
 	}
 
-	private DOMDocument getDocument(String systemId) {
+	public DOMDocument getDocument(String systemId) {
 		DOMDocument document = documents.get(systemId);
 		if (document != null) {
 			return document;
@@ -236,7 +236,7 @@ public class CMRelaxNGDocument implements CMDocument {
 	}
 
 	public String getDocumentation(Locator locator, String value) {
-		DOMNode node = findNode(locator);
+		DOMNode node = findNodeAt(locator);
 		if (node == null) {
 			return null;
 		}
@@ -289,7 +289,7 @@ public class CMRelaxNGDocument implements CMDocument {
 		return null;
 	}
 
-	DOMNode findNode(Locator locator) {
+	DOMNode findNodeAt(Locator locator) {
 		if (locator == null) {
 			return null;
 		}

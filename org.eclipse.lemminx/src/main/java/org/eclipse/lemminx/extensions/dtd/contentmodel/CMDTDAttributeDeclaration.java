@@ -36,13 +36,18 @@ public class CMDTDAttributeDeclaration extends XMLAttributeDecl implements CMAtt
 	}
 
 	@Override
+	public String getPrefix() {
+		return super.name.prefix;
+	}
+
+	@Override
 	public String getLocalName() {
 		return super.name.localpart;
 	}
 
 	@Override
 	public String getNamespace() {
-		return null;
+		return super.name.uri;
 	}
 
 	@Override

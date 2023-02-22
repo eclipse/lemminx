@@ -20,6 +20,8 @@ import static org.eclipse.lemminx.XMLAssert.REGION_SNIPPETS;
 import static org.eclipse.lemminx.XMLAssert.c;
 import static org.eclipse.lemminx.XMLAssert.te;
 
+import java.util.Arrays;
+
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.extensions.contentmodel.BaseFileTempTest;
@@ -154,6 +156,57 @@ public class XMLCompletionBasedOnRelaxNGTest extends BaseFileTempTest {
 						CDATA_SNIPPETS /* CDATA snippets */ , //
 				c("child", te(2, 0, 2, 1, "<child myvx:type=\"\"></child>"), "<child"));
 	}
+
+	@Test
+	public void completionOnAttributes() throws BadLocationException {
+		// completion on <|
+		String xml = "<?xml-model href=\"docbook.rng\"?>\r\n"
+				+ "<book xmlns=\"http://docbook.org/ns/docbook\">\r\n"
+				+ "	<acknowledgements |></acknowledgements>	\r\n"
+				+ "</book>";
+		testCompletionFor(xml, //
+				30, //
+				c("role", te(2, 19, 2, 19, "role=\"\""), "role"), //
+				c("xlink:actuate", te(2, 19, 2, 19, "xlink:actuate=\"\""),
+						Arrays.asList(te(1, 43, 1, 43, " xmlns:xlink=\"http://www.w3.org/1999/xlink\"")), //
+						"xlink:actuate"));
+	}
+
+	@Test
+	public void completionOnAttributesWithPrefix() throws BadLocationException {
+		// completion on <|
+		String xml = "<?xml-model href=\"docbook.rng\"?>\r\n"
+				+ "<book xmlns=\"http://docbook.org/ns/docbook\">\r\n"
+				+ "	<acknowledgements |></acknowledgements>	\r\n"
+				+ "</book>";
+		testCompletionFor(xml, //
+				30, //
+				c("xlink:actuate", te(2, 19, 2, 19, "xlink:actuate=\"\""),
+						Arrays.asList(te(1, 43, 1, 43, " xmlns:xlink=\"http://www.w3.org/1999/xlink\"")), //
+						"xlink:actuate"));
+		
+		xml = "<?xml-model href=\"docbook.rng\"?>\r\n"
+				+ "<book xmlns=\"http://docbook.org/ns/docbook\" >\r\n"
+				+ "	<acknowledgements |></acknowledgements>	\r\n"
+				+ "</book>";
+		testCompletionFor(xml, //
+				30, //
+				c("xlink:actuate", te(2, 19, 2, 19, "xlink:actuate=\"\""),
+						Arrays.asList(te(1, 43, 1, 43, " xmlns:xlink=\"http://www.w3.org/1999/xlink\"")), //
+						"xlink:actuate"));
+		
+		xml = "<?xml-model href=\"docbook.rng\"?>\r\n"
+				+ "<book\r\n"
+				+ "	<acknowledgements |></acknowledgements>	\r\n"
+				+ "</book>";
+		testCompletionFor(xml, //
+				30, //
+				c("xlink:actuate", te(2, 19, 2, 19, "xlink:actuate=\"\""),
+						Arrays.asList(te(1, 5, 1, 5, " xmlns:xlink=\"http://www.w3.org/1999/xlink\"")), //
+						"xlink:actuate"));
+	}
+
+	// role,xml:id,version,xml:lang,xml:base,remap,xreflabel,revisionflag,dir,arch,audience,condition,conformance,os,revision,security,userlevel,vendor,wordsize,annotations,linkend,xlink:href,xlink:type,xlink:role,xlink:arcrole,xlink:title,xlink:show,xlink:actuate,label,status
 
 	private static void testCompletionFor(String value, Integer expectedCount, CompletionItem... expectedItems)
 			throws BadLocationException {
