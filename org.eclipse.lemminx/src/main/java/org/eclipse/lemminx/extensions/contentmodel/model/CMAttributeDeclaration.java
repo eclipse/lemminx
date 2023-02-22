@@ -24,6 +24,8 @@ import org.eclipse.lemminx.utils.StringUtils;
  */
 public interface CMAttributeDeclaration {
 
+	String getPrefix();
+	
 	/**
 	 * Returns the declared attribute local name.
 	 * 

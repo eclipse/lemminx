@@ -50,6 +50,11 @@ public class CMXSDAttributeDeclaration implements CMAttributeDeclaration {
 	}
 
 	@Override
+	public String getPrefix() {
+		return null;
+	}
+
+	@Override
 	public String getLocalName() {
 		return getAttrDeclaration().getName();
 	}

@@ -14,6 +14,7 @@ package com.thaiopensource.relaxng.pattern;
 import java.util.Collection;
 import java.util.List;
 
+import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lemminx.services.extensions.ISharedSettingsRequest;
@@ -38,12 +39,35 @@ public class CMRelaxNGAttributeDeclaration implements CMAttributeDeclaration {
 
 	private final CMRelaxNGElementDeclaration cmElement;
 	private final AttributePattern pattern;
+
+	private String prefix;
+
+	private boolean computedPrefix;
+
 	private boolean required;
 	private List<String> values;
 
 	public CMRelaxNGAttributeDeclaration(CMRelaxNGElementDeclaration element, AttributePattern pattern) {
 		this.cmElement = element;
 		this.pattern = pattern;
+		this.computedPrefix = false;
+	}
+
+	@Override
+	public String getPrefix() {
+		String namespaceURI = getNamespace();
+		if (namespaceURI == null) {
+			return null;
+		}
+		if (computedPrefix) {
+			return prefix;
+		}
+		DOMElement element = ((CMRelaxNGElementDeclaration) getOwnerElementDeclaration()).getDOMElement();
+		if (element != null) {
+			prefix = element.getPrefix(namespaceURI);
+		}
+		computedPrefix = true;
+		return prefix;
 	}
 
 	@Override
@@ -60,7 +84,7 @@ public class CMRelaxNGAttributeDeclaration implements CMAttributeDeclaration {
 	public CMElementDeclaration getOwnerElementDeclaration() {
 		return cmElement;
 	}
-	
+
 	Name getJingName() {
 		NameClass nameClass = pattern.getNameClass();
 		if (nameClass instanceof SimpleNameClass) {

@@ -60,6 +60,8 @@ public class CMRelaxNGElementDeclaration implements CMElementDeclaration {
 
 	private Set<String> possibleRequiredElementNames;
 
+	private DOMElement domElement;
+
 	CMRelaxNGElementDeclaration(CMRelaxNGDocument document, ElementPattern pattern) {
 		this.cmDocument = document;
 		this.pattern = pattern;
@@ -81,9 +83,9 @@ public class CMRelaxNGElementDeclaration implements CMElementDeclaration {
 
 	@Override
 	public String getPrefix(String namespaceURI) {
-		DOMNode node = cmDocument.findNode(pattern.getLocator());
-		if (node != null && node.isElement()) {
-			return ((DOMElement) node).getPrefix(namespaceURI);
+		DOMElement element = getDOMElement();
+		if (element != null) {
+			return element.getPrefix(namespaceURI);
 		}
 		return null;
 	}
@@ -94,6 +96,17 @@ public class CMRelaxNGElementDeclaration implements CMElementDeclaration {
 			return ((SimpleNameClass) nameClass).getName();
 		}
 		return null;
+	}
+
+	public DOMElement getDOMElement() {
+		if (domElement != null) {
+			return domElement;
+		}
+		DOMNode node = cmDocument.findNodeAt(pattern.getLocator());
+		if (node != null && node.isElement()) {
+			domElement = (DOMElement) node;
+		}
+		return domElement;
 	}
 
 	@Override
