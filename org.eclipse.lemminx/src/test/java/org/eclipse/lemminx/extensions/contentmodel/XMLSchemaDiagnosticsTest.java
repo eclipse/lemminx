@@ -1150,6 +1150,23 @@ public class XMLSchemaDiagnosticsTest extends AbstractCacheBasedTest {
 	}
 
 	@Test
+	public void cvc_complex_type_2_3_textAfterComment() throws BadLocationException {
+		// See https://github.com/eclipse/lemminx/issues/1495
+		String xml = "<?xml version='1.0' encoding='utf-8'?>\r\n"
+				+ "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n"
+				+ "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n"
+				+ "         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n"
+				+ "    <modelVersion>4.0.0</modelVersion>\r\n"
+				+ "    <!-- Comment -->\r\n"
+				+ "    abcd efgh\r\n"
+				+ "     \r\n"
+				+ "</project>";
+		Diagnostic diagnostic = d(6, 4, 8, XMLSchemaErrorCode.cvc_complex_type_2_3);
+		testDiagnosticsWithCatalogFor(xml, diagnostic);
+		XMLAssert.testCodeActionsFor(xml, diagnostic, ca(diagnostic, te(6, 4, 6, 8, "")));
+	}
+
+	@Test
 	public void diagnosticRelatedInformationWithXMLModelSchemaProblem() throws Exception {
 		ContentModelSettings settings = new ContentModelSettings();
 		settings.setUseCache(true);

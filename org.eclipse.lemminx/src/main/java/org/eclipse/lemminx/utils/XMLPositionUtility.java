@@ -684,7 +684,7 @@ public class XMLPositionUtility {
 		DOMNode element = document.findNodeAt(offset);
 		if (element != null) {
 			for (DOMNode node : element.getChildren()) {
-				if (node.isCharacterData()) {
+				if (node.isText() || node.isCDATA()) {
 					DOMCharacterData data = (DOMCharacterData) node;
 					int start = data.getStartContent();
 					Integer end = null;
