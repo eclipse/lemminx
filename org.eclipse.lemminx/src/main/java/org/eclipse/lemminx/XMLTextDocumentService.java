@@ -12,7 +12,7 @@
  */
 package org.eclipse.lemminx;
 
-import static org.eclipse.lsp4j.jsonrpc.CompletableFutures.computeAsync;
+import static org.eclipse.lsp4j.jsonrpc.CompletableFutures.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -89,6 +89,7 @@ import org.eclipse.lsp4j.LinkedEditingRangeParams;
 import org.eclipse.lsp4j.LinkedEditingRanges;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
+import org.eclipse.lsp4j.PrepareRenameDefaultBehavior;
 import org.eclipse.lsp4j.PrepareRenameParams;
 import org.eclipse.lsp4j.PrepareRenameResult;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
@@ -106,6 +107,7 @@ import org.eclipse.lsp4j.TypeDefinitionParams;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.eclipse.lsp4j.jsonrpc.messages.Either3;
 import org.eclipse.lsp4j.jsonrpc.validation.NonNull;
 import org.eclipse.lsp4j.services.TextDocumentService;
 
@@ -353,9 +355,19 @@ public class XMLTextDocumentService implements TextDocumentService {
 	}
 
 	@Override
-	public CompletableFuture<Either<Range, PrepareRenameResult>> prepareRename(PrepareRenameParams params) {
+	public CompletableFuture<Either3<Range, PrepareRenameResult, PrepareRenameDefaultBehavior>> prepareRename(PrepareRenameParams params) {
 		return computeDOMAsync(params.getTextDocument(), (xmlDocument, cancelChecker) -> {
-			return getXMLLanguageService().prepareRename(xmlDocument, params.getPosition(), cancelChecker);
+			Either<Range, PrepareRenameResult> either = getXMLLanguageService().prepareRename(xmlDocument, params.getPosition(), cancelChecker);
+			if (either != null) {
+				if(either.isLeft()) {
+					return Either3.forFirst((Range)either.get());
+				}else {
+					return Either3.forSecond((PrepareRenameResult)either.get());
+				}
+			}else {
+				return null;
+			}
+			//return getXMLLanguageService().prepareRename3(xmlDocument, params.getPosition(), cancelChecker);//comment at 2023/3/2 for update lsp4j 0.20.1
 		});
 	}
 
