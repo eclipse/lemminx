@@ -359,12 +359,12 @@ public class XMLTextDocumentService implements TextDocumentService {
 		return computeDOMAsync(params.getTextDocument(), (xmlDocument, cancelChecker) -> {
 			Either<Range, PrepareRenameResult> either = getXMLLanguageService().prepareRename(xmlDocument, params.getPosition(), cancelChecker);
 			if (either != null) {
-				if(either.isLeft()) {
-					return Either3.forFirst((Range)either.get());
-				}else {
-					return Either3.forSecond((PrepareRenameResult)either.get());
+				if (either.isLeft()) {
+					return Either3.forFirst((Range) either.get());
+				} else {
+					return Either3.forSecond((PrepareRenameResult) either.get());
 				}
-			}else {
+			} else {
 				return Either3.forThird(new PrepareRenameDefaultBehavior());
 			}
 		});
