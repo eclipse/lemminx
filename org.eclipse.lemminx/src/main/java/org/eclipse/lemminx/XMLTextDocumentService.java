@@ -12,7 +12,7 @@
  */
 package org.eclipse.lemminx;
 
-import static org.eclipse.lsp4j.jsonrpc.CompletableFutures.*;
+import static org.eclipse.lsp4j.jsonrpc.CompletableFutures.computeAsync;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -365,9 +365,8 @@ public class XMLTextDocumentService implements TextDocumentService {
 					return Either3.forSecond((PrepareRenameResult)either.get());
 				}
 			}else {
-				return null;
+				return Either3.forThird(new PrepareRenameDefaultBehavior());
 			}
-			//return getXMLLanguageService().prepareRename3(xmlDocument, params.getPosition(), cancelChecker);//comment at 2023/3/2 for update lsp4j 0.20.1
 		});
 	}
 

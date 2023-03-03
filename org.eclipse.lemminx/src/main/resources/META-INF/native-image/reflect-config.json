@@ -1692,6 +1692,12 @@
 		}]
 	},
 	{
+		"name": "org.eclipse.lsp4j.PrepareRenameDefaultBehavior",
+		"fields": [{
+			"name": "defaultBehavior"
+		}]
+	},
+	{
 		"name": "org.eclipse.lsp4j.ResourceOperation",
 		"allDeclaredFields": true
 	},
