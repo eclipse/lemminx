@@ -9,7 +9,6 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<lsp4j.version>0.20.1</lsp4j.version>
-		<org.eclipse.xtend.lib.version>2.29.0</org.eclipse.xtend.lib.version>
 		<junit.version>5.9.2</junit.version>
 	</properties>
 	<url>https://github.com/eclipse/lemminx</url>
