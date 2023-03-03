@@ -1526,8 +1526,31 @@
 		}]
 	},
 	{
+		"name": "org.eclipse.lsp4j.NotebookDocumentClientCapabilities",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
+		"name": "org.eclipse.lsp4j.NotebookDocumentSyncClientCapabilities",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
 		"name": "org.eclipse.lsp4j.OnTypeFormattingCapabilities",
 		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
+		"name": "org.eclipse.lsp4j.adapters.DocumentDiagnosticReportTypeAdapter",
 		"methods": [{
 			"name": "<init>",
 			"parameterTypes": []
