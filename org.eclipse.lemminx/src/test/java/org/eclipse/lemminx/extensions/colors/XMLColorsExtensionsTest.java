@@ -72,6 +72,22 @@ public class XMLColorsExtensionsTest {
 	}
 
 	@Test
+	public void colorOnAttrWithoutValue() throws BadLocationException {
+		// Here color is done for item/@color only
+		XMLColorsSettings settings = createXMLColorsSettings();
+		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"
+				+ "<resources>\r\n"
+				+ "	<color name=\"opaque_red\">#f00</color>\r\n"
+				+ "	<color name=\"translucent_red\">#80ff0000</color>\r\n"
+				+ "	<item color= />\r\n" // <-- here item/@color has no attr value
+				+ "	<item color=\"red\" />\r\n" // <-- here item/@color is colorized
+				+ "	<item color=\"BAD_COLOR\" />\r\n" //
+				+ "</resources>";
+		testColorInformationFor(xml, "file:///test/colors-attr.xml", settings, //
+				colorInfo(1, 0, 0, 1, r(5, 14, 5, 17)));
+	}
+
+	@Test
 	public void colorAllPresentation() throws BadLocationException {
 		// Here color is done for color/text() only
 		XMLColorsSettings settings = createXMLColorsSettings();
@@ -106,8 +122,8 @@ public class XMLColorsExtensionsTest {
 				colorPres("rgb(0,128,0)", te(2, 14, 2, 19, "rgb(0,128,0)")), //
 				colorPres("#008000", te(2, 14, 2, 19, "#008000")));
 	}
-
-	private XMLColorsSettings createXMLColorsSettings() {
+	
+	private static XMLColorsSettings createXMLColorsSettings() {
 		XMLColorsSettings settings = new XMLColorsSettings();
 		List<XMLColors> colors = new ArrayList<>();
 		settings.setColors(colors);
