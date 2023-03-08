@@ -129,7 +129,7 @@ public class XMLDocumentColorParticipant implements IDocumentColorParticipant {
 	private static boolean isColorNode(DOMNode node, List<XMLColorExpression> expressions) {
 		if (node.isAttribute()) {
 			DOMAttr attr = (DOMAttr) node;
-			if (attr.getValue() == null && attr.getValue().isEmpty()) {
+			if (attr.getValue() == null || attr.getValue().isEmpty()) {
 				return false;
 			}
 		} else if (node.isText()) {
