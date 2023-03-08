@@ -13,9 +13,10 @@ package org.eclipse.lemminx.extensions.xsi.participants;
 
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.extensions.xsi.XSISchemaModel;
-import org.eclipse.lemminx.services.extensions.HoverParticipantAdapter;
-import org.eclipse.lemminx.services.extensions.IHoverRequest;
+import org.eclipse.lemminx.services.extensions.hover.HoverParticipantAdapter;
+import org.eclipse.lemminx.services.extensions.hover.IHoverRequest;
 import org.eclipse.lsp4j.Hover;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
  * XSIHoverParticipant
@@ -23,7 +24,7 @@ import org.eclipse.lsp4j.Hover;
 public class XSIHoverParticipant extends HoverParticipantAdapter {
 
 	@Override
-	public Hover onAttributeName(IHoverRequest request) throws Exception {
+	public Hover onAttributeName(IHoverRequest request, CancelChecker cancelChecker) throws Exception {
 		DOMAttr attribute = (DOMAttr) request.getNode();
 		return XSISchemaModel.computeHoverResponse(attribute, request);
 	}

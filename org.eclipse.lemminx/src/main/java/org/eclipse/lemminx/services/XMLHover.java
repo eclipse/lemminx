@@ -27,8 +27,8 @@ import org.eclipse.lemminx.dom.DOMText;
 import org.eclipse.lemminx.dom.parser.Scanner;
 import org.eclipse.lemminx.dom.parser.TokenType;
 import org.eclipse.lemminx.dom.parser.XMLScanner;
-import org.eclipse.lemminx.services.extensions.IHoverParticipant;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lemminx.services.extensions.hover.IHoverParticipant;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.utils.MarkupContentFactory;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
@@ -72,14 +72,14 @@ class XMLHover {
 			if (element.hasEndTag() && offset >= element.getEndTagOpenOffset()) {
 				Range tagRange = getTagNameRange(TokenType.EndTag, element.getEndTagOpenOffset(), offset, xmlDocument);
 				if (tagRange != null) {
-					return getTagHover(hoverRequest, tagRange, false);
+					return getTagHover(hoverRequest, tagRange, false, cancelChecker);
 				}
 				return null;
 			}
 
 			Range tagRange = getTagNameRange(TokenType.StartTag, node.getStart(), offset, xmlDocument);
 			if (tagRange != null) {
-				return getTagHover(hoverRequest, tagRange, true);
+				return getTagHover(hoverRequest, tagRange, true, cancelChecker);
 			}
 		} else if (node.isAttribute()) {
 			// Attribute is hovered
@@ -87,16 +87,16 @@ class XMLHover {
 			if (attr.valueContainsOffset(offset)) {
 				// Attribute value is hovered
 				Range attrRange = XMLPositionUtility.selectAttributeValue(attr);
-				return getAttrValueHover(hoverRequest, attrRange);
+				return getAttrValueHover(hoverRequest, attrRange, cancelChecker);
 			}
 			// Attribute name is hovered
 			Range attrRange = XMLPositionUtility.selectAttributeName(attr);
-			return getAttrNameHover(hoverRequest, attrRange);
+			return getAttrNameHover(hoverRequest, attrRange, cancelChecker);
 		} else if (node.isText()) {
 			// Text is hovered
 			DOMText text = (DOMText) node;
 			Range textRange = XMLPositionUtility.selectText(text);
-			return getTextHover(hoverRequest, textRange);
+			return getTextHover(hoverRequest, textRange, cancelChecker);
 		}
 		return null;
 	}
@@ -104,19 +104,20 @@ class XMLHover {
 	/**
 	 * Returns the LSP hover from the hovered element.
 	 * 
-	 * @param hoverRequest the hover request.
-	 * @param tagRange     the tag range
-	 * @param open         true if it's the start tag which is hovered and false if
-	 *                     it's the end tag.
+	 * @param hoverRequest  the hover request.
+	 * @param tagRange      the tag range
+	 * @param open          true if it's the start tag which is hovered and false if
+	 *                      it's the end tag.
+	 * @param cancelChecker the cancel checker.
 	 * @return the LSP hover from the hovered element.
 	 */
-	private Hover getTagHover(HoverRequest hoverRequest, Range tagRange, boolean open) {
+	private Hover getTagHover(HoverRequest hoverRequest, Range tagRange, boolean open, CancelChecker cancelChecker) {
 		hoverRequest.setHoverRange(tagRange);
 		hoverRequest.setOpen(open);
 		List<Hover> hovers = new ArrayList<>();
 		for (IHoverParticipant participant : extensionsRegistry.getHoverParticipants()) {
 			try {
-				Hover hover = participant.onTag(hoverRequest);
+				Hover hover = participant.onTag(hoverRequest, cancelChecker);
 				if (hover != null) {
 					hovers.add(hover);
 				}
@@ -149,16 +150,18 @@ class XMLHover {
 	/**
 	 * Returns the LSP hover from the hovered attribute.
 	 * 
-	 * @param hoverRequest the hover request.
-	 * @param attrRange    the attribute range
+	 * @param hoverRequest  the hover request.
+	 * @param attrRange     the attribute range
+	 * @param cancelChecker the cancel checker.
+	 * 
 	 * @return the LSP hover from the hovered attribute.
 	 */
-	private Hover getAttrNameHover(HoverRequest hoverRequest, Range attrRange) {
+	private Hover getAttrNameHover(HoverRequest hoverRequest, Range attrRange, CancelChecker cancelChecker) {
 		hoverRequest.setHoverRange(attrRange);
 		List<Hover> hovers = new ArrayList<>();
 		for (IHoverParticipant participant : extensionsRegistry.getHoverParticipants()) {
 			try {
-				Hover hover = participant.onAttributeName(hoverRequest);
+				Hover hover = participant.onAttributeName(hoverRequest, cancelChecker);
 				if (hover != null) {
 					hovers.add(hover);
 				}
@@ -172,16 +175,18 @@ class XMLHover {
 	/**
 	 * Returns the LSP hover from the hovered attribute.
 	 * 
-	 * @param hoverRequest the hover request.
-	 * @param attrRange    the attribute range
+	 * @param hoverRequest  the hover request.
+	 * @param attrRange     the attribute range
+	 * @param cancelChecker the cancel checker.
+	 * 
 	 * @return the LSP hover from the hovered attribute.
 	 */
-	private Hover getAttrValueHover(HoverRequest hoverRequest, Range attrRange) {
+	private Hover getAttrValueHover(HoverRequest hoverRequest, Range attrRange, CancelChecker cancelChecker) {
 		hoverRequest.setHoverRange(attrRange);
 		List<Hover> hovers = new ArrayList<>();
 		for (IHoverParticipant participant : extensionsRegistry.getHoverParticipants()) {
 			try {
-				Hover hover = participant.onAttributeValue(hoverRequest);
+				Hover hover = participant.onAttributeValue(hoverRequest, cancelChecker);
 				if (hover != null) {
 					hovers.add(hover);
 				}
@@ -195,16 +200,18 @@ class XMLHover {
 	/**
 	 * Returns the LSP hover from the hovered text.
 	 * 
-	 * @param hoverRequest the hover request.
-	 * @param attrRange    the attribute range
+	 * @param hoverRequest  the hover request.
+	 * @param attrRange     the attribute range
+	 * @param cancelChecker the cancel checker.
+	 * 
 	 * @return the LSP hover from the hovered text.
 	 */
-	private Hover getTextHover(HoverRequest hoverRequest, Range textRange) {
+	private Hover getTextHover(HoverRequest hoverRequest, Range textRange, CancelChecker cancelChecker) {
 		hoverRequest.setHoverRange(textRange);
 		List<Hover> hovers = new ArrayList<>();
 		for (IHoverParticipant participant : extensionsRegistry.getHoverParticipants()) {
 			try {
-				Hover hover = participant.onText(hoverRequest);
+				Hover hover = participant.onText(hoverRequest, cancelChecker);
 				if (hover != null) {
 					hovers.add(hover);
 				}

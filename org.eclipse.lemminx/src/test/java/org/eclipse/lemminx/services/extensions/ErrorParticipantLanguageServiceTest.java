@@ -54,6 +54,8 @@ import org.eclipse.lemminx.services.extensions.completion.ICompletionParticipant
 import org.eclipse.lemminx.services.extensions.completion.ICompletionRequest;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionResponse;
 import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
+import org.eclipse.lemminx.services.extensions.hover.IHoverParticipant;
+import org.eclipse.lemminx.services.extensions.hover.IHoverRequest;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLSymbolFilter;
 import org.eclipse.lemminx.settings.XMLSymbolSettings;
@@ -224,22 +226,22 @@ public class ErrorParticipantLanguageServiceTest extends AbstractCacheBasedTest 
 			this.registerHoverParticipant(new IHoverParticipant() {
 
 				@Override
-				public Hover onTag(IHoverRequest request) throws Exception {
+				public Hover onTag(IHoverRequest request, CancelChecker cancelChecker) throws Exception {
 					throw new RuntimeException("This participant is broken");
 				}
 
 				@Override
-				public Hover onAttributeName(IHoverRequest request) throws Exception {
+				public Hover onAttributeName(IHoverRequest request, CancelChecker cancelChecker) throws Exception {
 					throw new RuntimeException("This participant is broken");
 				}
 
 				@Override
-				public Hover onAttributeValue(IHoverRequest request) throws Exception {
+				public Hover onAttributeValue(IHoverRequest request, CancelChecker cancelChecker) throws Exception {
 					throw new RuntimeException("This participant is broken");
 				}
 
 				@Override
-				public Hover onText(IHoverRequest request) throws Exception {
+				public Hover onText(IHoverRequest request, CancelChecker cancelChecker) throws Exception {
 					throw new RuntimeException("This participant is broken");
 				}
 
@@ -247,22 +249,22 @@ public class ErrorParticipantLanguageServiceTest extends AbstractCacheBasedTest 
 			this.registerHoverParticipant(new IHoverParticipant() {
 
 				@Override
-				public Hover onTag(IHoverRequest request) throws Exception {
+				public Hover onTag(IHoverRequest request, CancelChecker cancelChecker) throws Exception {
 					return TEST_HOVER;
 				}
 
 				@Override
-				public Hover onAttributeName(IHoverRequest request) throws Exception {
+				public Hover onAttributeName(IHoverRequest request, CancelChecker cancelChecker) throws Exception {
 					return TEST_HOVER;
 				}
 
 				@Override
-				public Hover onAttributeValue(IHoverRequest request) throws Exception {
+				public Hover onAttributeValue(IHoverRequest request, CancelChecker cancelChecker) throws Exception {
 					return TEST_HOVER;
 				}
 
 				@Override
-				public Hover onText(IHoverRequest request) throws Exception {
+				public Hover onText(IHoverRequest request, CancelChecker cancelChecker) throws Exception {
 					return TEST_HOVER;
 				}
 

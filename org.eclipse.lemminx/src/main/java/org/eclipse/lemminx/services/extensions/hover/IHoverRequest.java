@@ -10,8 +10,10 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lemminx.services.extensions;
+package org.eclipse.lemminx.services.extensions.hover;
 
+import org.eclipse.lemminx.services.extensions.IPositionRequest;
+import org.eclipse.lemminx.services.extensions.ISharedSettingsRequest;
 import org.eclipse.lsp4j.Range;
 
 /**

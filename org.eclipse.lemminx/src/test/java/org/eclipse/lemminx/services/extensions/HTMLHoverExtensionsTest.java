@@ -18,10 +18,14 @@ import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.services.XMLLanguageService;
+import org.eclipse.lemminx.services.extensions.hover.HoverParticipantAdapter;
+import org.eclipse.lemminx.services.extensions.hover.IHoverParticipant;
+import org.eclipse.lemminx.services.extensions.hover.IHoverRequest;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -70,14 +74,14 @@ public class HTMLHoverExtensionsTest extends AbstractCacheBasedTest {
 		class HTMLHoverParticipant extends HoverParticipantAdapter {
 
 			@Override
-			public Hover onTag(IHoverRequest request) {
+			public Hover onTag(IHoverRequest request, CancelChecker cancelChecker) {
 				String tag = request.getCurrentTag();
 				String tagLabel = request.isOpen() ? "<" + tag + ">" : "</" + tag + ">";
 				return createHover(tagLabel);
 			}
 
 			@Override
-			public Hover onText(IHoverRequest request) throws Exception {
+			public Hover onText(IHoverRequest request, CancelChecker cancelChecker) throws Exception {
 				return createHover(request.getNode().getTextContent());
 			}
 
