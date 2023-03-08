@@ -29,7 +29,7 @@ import org.eclipse.lemminx.dom.LineIndentInfo;
 import org.eclipse.lemminx.extensions.contentmodel.participants.ContentModelHoverParticipant;
 import org.eclipse.lemminx.extensions.xsi.XSISchemaModel;
 import org.eclipse.lemminx.services.XMLLanguageService;
-import org.eclipse.lemminx.services.extensions.IHoverRequest;
+import org.eclipse.lemminx.services.extensions.hover.IHoverRequest;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -421,7 +421,8 @@ public class XMLSchemaHoverExtensionsTest extends AbstractCacheBasedTest {
 			}
 
 		};
-		assertNull(hoverParticipant.onText(hoverRequest));
+		assertNull(hoverParticipant.onText(hoverRequest, () -> {
+		}));
 	}
 
 	private static void assertHover(String value, String expectedHoverLabel, Range expectedHoverRange)

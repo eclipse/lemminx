@@ -10,9 +10,10 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.lemminx.services.extensions;
+package org.eclipse.lemminx.services.extensions.hover;
 
 import org.eclipse.lsp4j.Hover;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
  * Hover participant adapter.
@@ -21,22 +22,22 @@ import org.eclipse.lsp4j.Hover;
 public class HoverParticipantAdapter implements IHoverParticipant {
 
 	@Override
-	public Hover onTag(IHoverRequest request) throws Exception {
+	public Hover onTag(IHoverRequest request, CancelChecker cancelChecker) throws Exception {
 		return null;
 	}
 
 	@Override
-	public Hover onAttributeName(IHoverRequest request) throws Exception {
+	public Hover onAttributeName(IHoverRequest request, CancelChecker cancelChecker) throws Exception {
 		return null;
 	}
 
 	@Override
-	public Hover onAttributeValue(IHoverRequest request) throws Exception {
+	public Hover onAttributeValue(IHoverRequest request, CancelChecker cancelChecker) throws Exception {
 		return null;
 	}
 
 	@Override
-	public Hover onText(IHoverRequest request) throws Exception {
+	public Hover onText(IHoverRequest request, CancelChecker cancelChecker) throws Exception {
 		return null;
 	}
 

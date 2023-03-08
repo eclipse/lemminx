@@ -24,14 +24,15 @@ import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.extensions.entities.EntitiesDocumentationUtils;
 import org.eclipse.lemminx.extensions.entities.EntitiesDocumentationUtils.EntityOriginType;
 import org.eclipse.lemminx.extensions.entities.EntitiesDocumentationUtils.PredefinedEntity;
-import org.eclipse.lemminx.services.extensions.HoverParticipantAdapter;
-import org.eclipse.lemminx.services.extensions.IHoverRequest;
+import org.eclipse.lemminx.services.extensions.hover.HoverParticipantAdapter;
+import org.eclipse.lemminx.services.extensions.hover.IHoverRequest;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lemminx.utils.XMLPositionUtility.EntityReferenceRange;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.w3c.dom.Entity;
 import org.w3c.dom.NamedNodeMap;
 
@@ -42,7 +43,7 @@ import org.w3c.dom.NamedNodeMap;
 public class EntitiesHoverParticipant extends HoverParticipantAdapter {
 
 	@Override
-	public Hover onText(IHoverRequest request) throws Exception {
+	public Hover onText(IHoverRequest request, CancelChecker cancelChecker) throws Exception {
 		DOMNode node = request.getNode();
 		if (!node.isText()) {
 			return null;

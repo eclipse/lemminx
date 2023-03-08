@@ -22,10 +22,13 @@ import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.services.XMLLanguageService;
+import org.eclipse.lemminx.services.extensions.hover.HoverParticipantAdapter;
+import org.eclipse.lemminx.services.extensions.hover.IHoverRequest;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -92,7 +95,7 @@ public class AggregetedHoverValuesTest extends AbstractCacheBasedTest {
 		class AggregatedHoverParticipant extends HoverParticipantAdapter {
 
 			@Override
-			public Hover onTag(IHoverRequest request) throws Exception {
+			public Hover onTag(IHoverRequest request, CancelChecker cancelChecker) throws Exception {
 				if ("bean".equals(request.getCurrentTag())) {
 					return createHover(TEST_FOR_TAG_HOVER);
 				}
@@ -100,7 +103,7 @@ public class AggregetedHoverValuesTest extends AbstractCacheBasedTest {
 			}
 
 			@Override
-			public Hover onAttributeName(IHoverRequest request) throws Exception {
+			public Hover onAttributeName(IHoverRequest request, CancelChecker cancelChecker) throws Exception {
 				if ("class".equals(request.getCurrentAttributeName())) {
 					return createHover(TEST_FOR_ATTRIBUTENAME_HOVER);
 				}
