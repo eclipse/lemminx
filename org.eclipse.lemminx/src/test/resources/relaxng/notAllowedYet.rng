@@ -1,0 +1,21 @@
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+  datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <ref name="rootElt" />
+  </start>
+  <define name="rootElt">
+    <element name="root">
+      <choice>
+        <element name="elementA">
+          <text />
+        </element>
+        <element name="elementB">
+          <text />
+        </element>
+      </choice>
+      <element name="element2">
+        <text />
+      </element>
+    </element>
+  </define>
+</grammar>

@@ -103,6 +103,10 @@ public class RelaxNGErrorHandler implements XMLErrorHandler {
 				// out_of_context_element=element {0} not allowed here{1}
 				return new RelaxNGReportInfo(RelaxNGErrorCode.out_of_context_element);
 			}
+			if (message.contains("not allowed yet")) {
+				// element {0} not allowed yet{1}
+				return new RelaxNGReportInfo(RelaxNGErrorCode.element_not_allowed_yet);
+			}
 
 			// Required attributes
 
