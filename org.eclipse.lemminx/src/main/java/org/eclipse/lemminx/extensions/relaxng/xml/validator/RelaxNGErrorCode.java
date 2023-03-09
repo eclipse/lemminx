@@ -127,6 +127,7 @@ public enum RelaxNGErrorCode implements IXMLErrorCode {
 			// XML Validation based on RNG, RNC errors
 			case unknown_element:
 			case out_of_context_element:
+			case element_not_allowed_yet:
 			case incomplete_element_required_elements_missing_expected:
 			case unexpected_element_required_element_missing:
 			case incomplete_element_required_element_missing:

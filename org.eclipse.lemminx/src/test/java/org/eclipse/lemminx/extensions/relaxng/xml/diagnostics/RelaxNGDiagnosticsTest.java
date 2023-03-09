@@ -161,4 +161,14 @@ public class RelaxNGDiagnosticsTest extends AbstractCacheBasedTest {
 				d(1, 1, 4, RelaxNGErrorCode.incomplete_element_required_elements_missing_expected));
 	}
 
+	@Test
+	public void not_allowed_yet() throws Exception {
+		String xml = "<?xml-model href=\"notAllowedYet.rng\"?>\r\n" + //
+				"<root>\r\n" + //
+				"	<element2></element2>\r\n" + //
+				"</root>";
+		testDiagnosticsFor(xml, null, null, "src/test/resources/relaxng/test.xml", //
+				d(2, 2, 10, RelaxNGErrorCode.element_not_allowed_yet));
+	}
+
 }
