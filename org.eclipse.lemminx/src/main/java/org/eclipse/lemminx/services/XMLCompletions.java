@@ -565,7 +565,7 @@ public class XMLCompletions {
 			}
 		} else if (cBefore == '<' && c == '/') { // Case: <a> </|
 			DOMNode node = xmlDocument.findNodeBefore(offset);
-			while ((node != null && node.isClosed()) || (node.isElement() && ((DOMElement) node).isOrphanEndTag())) {
+			while (node != null && (node.isClosed() || (node.isElement() && ((DOMElement) node).isOrphanEndTag()))) {
 				node = node.getParentNode();
 			}
 			if (node != null && node.isElement() && ((DOMElement) node).getTagName() != null) {
