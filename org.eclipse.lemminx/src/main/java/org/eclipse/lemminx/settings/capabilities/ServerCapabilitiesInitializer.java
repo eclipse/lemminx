@@ -60,7 +60,8 @@ public class ServerCapabilitiesInitializer {
 		serverCapabilities.setReferencesProvider(!clientCapabilities.isReferencesDynamicRegistrationSupported());
 		serverCapabilities.setLinkedEditingRangeProvider(!clientCapabilities.isLinkedEditingRangeDynamicRegistered());
 		serverCapabilities.setColorProvider(!clientCapabilities.isColorDynamicRegistrationSupported());
-
+		serverCapabilities.setSelectionRangeProvider(!clientCapabilities.isSelectionRangeDynamicRegistered());
+		
 		if (clientCapabilities.isWorkspaceFoldersSupported()) {
 			WorkspaceFoldersOptions workspaceFolders = new WorkspaceFoldersOptions();
 			workspaceFolders.setSupported(true);
