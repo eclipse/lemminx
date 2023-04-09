@@ -18,7 +18,7 @@ jobs:
       uses: actions/setup-java@v3
       with:
         java-version: '8'
-        distribution: 'adopt'
+        distribution: 'temurin'
         cache: 'maven'
     - name: Run Tests on Windows
       if: runner.os == 'Windows'
