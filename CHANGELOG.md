@@ -1,5 +1,30 @@
 # Change Log
 
+## [0.25.0](https://github.com/eclipse/lemminx/milestone/40?closed=1) (April 18, 2023)
+
+### Enhancements
+
+ * Send (aggregated) `server.document.open` events at fixed periods. See [#1198](https://github.com/eclipse/lemminx/pull/1198).
+ * Provide cancel support for hover. See [#1474](https://github.com/eclipse/lemminx/issues/1474).
+ * Bump LSP4J version from 0.14.0 to 0.20.1. See [#1497](https://github.com/eclipse/lemminx/issues/1497).
+
+### Bug Fixes
+
+ * `shutdown` response does not conform to language server spec. See [#1508](https://github.com/eclipse/lemminx/issues/1508).
+ * Comments throws off the `cvc-complex-type.2.3` diagnostic range. See [#1495](https://github.com/eclipse/lemminx/issues/1495).
+ * Fix potential `NullPointerException` in completion code. See [#1506](https://github.com/eclipse/lemminx/pull/1506).
+ * XML language server should report "selection range" capability non-dynamically. See [#1507](https://github.com/eclipse/lemminx/pull/1507).
+ * RNG attribute completion doesn't generate the proper prefix if the namespace is not declared. See [#1489](https://github.com/eclipse/lemminx/issues/1489).
+ * Partial formatting yields wrong indentation depth. See [#1485](https://github.com/eclipse/lemminx/issues/1485).
+ * `NullPointerException` in `documentColor`. See [#1473](https://github.com/eclipse/lemminx/issues/1473).
+ * Adjust error range for RelaxNG "not allowed yet" when there is `choice`. See [#1459](https://github.com/eclipse/lemminx/issues/1459).
+ * Multiple `xml(DownloadProblem)` errors when referencing missing schema in file association. See [#1484](https://github.com/eclipse/lemminx/pull/1484).
+ * XML attribute associated to wrong type from XSD. See [#1480](https://github.com/eclipse/lemminx/pull/1480).
+
+### Build
+
+ * Use Eclipse Temurin in GitHub Actions. See [#1510](https://github.com/eclipse/lemminx/pull/1510).
+
 ## [0.24.0](https://github.com/eclipse/lemminx/milestone/37?closed=1) (January 31, 2023)
 
 ### Enhancements
