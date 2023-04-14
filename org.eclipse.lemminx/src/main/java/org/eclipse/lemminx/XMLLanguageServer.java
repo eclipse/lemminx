@@ -238,7 +238,7 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 		if (capabilityManager.getClientCapabilities().shouldLanguageServerExitOnShutdown()) {
 			delayer.schedule(() -> exit(0), 1, TimeUnit.SECONDS);
 		}
-		return computeAsync(cc -> new Object());
+		return CompletableFuture.completedFuture(null);
 	}
 
 	@Override
