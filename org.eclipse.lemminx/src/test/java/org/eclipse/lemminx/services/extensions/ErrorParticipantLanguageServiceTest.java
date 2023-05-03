@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2020 Red Hat Inc. and others.
+* Copyright (c) 2020, 2023 Red Hat Inc. and others.
 * All rights reserved. This program and the accompanying materials
 * which accompanies this distribution, and is available at
 * http://www.eclipse.org/legal/epl-v20.html
@@ -50,6 +50,8 @@ import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings
 import org.eclipse.lemminx.services.DocumentSymbolsResult;
 import org.eclipse.lemminx.services.SymbolInformationResult;
 import org.eclipse.lemminx.services.XMLLanguageService;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionRequest;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionParticipant;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionRequest;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionResponse;
@@ -60,6 +62,7 @@ import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLSymbolFilter;
 import org.eclipse.lemminx.settings.XMLSymbolSettings;
 import org.eclipse.lemminx.utils.XMLBuilder;
+import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.Diagnostic;
@@ -114,8 +117,21 @@ public class ErrorParticipantLanguageServiceTest extends AbstractCacheBasedTest 
 				throw new RuntimeException("This participant is broken");
 			});
 			this.registerCodeActionParticipant((request, codeActions, cancelChecker) -> {
+				// This Code Action Participant should add  its code actions based on diagnostic code
 				Diagnostic diagnostic = request.getDiagnostic();
-				codeActions.add(ca(diagnostic, te(0, 0, 0, 0, "a")));
+				if (diagnostic != null) {
+					codeActions.add(ca(diagnostic, te(0, 0, 0, 0, "a")));
+				}
+			});
+			this.registerCodeActionParticipant(new ICodeActionParticipant () {
+				public void doCodeAction(ICodeActionRequest request, List<CodeAction> codeActions, CancelChecker cancelChecker) {
+					// Nothing to do for a diagnostic, even if provided
+				}
+				public void doCodeActionUnconditional(ICodeActionRequest request, List<CodeAction> codeActions, CancelChecker cancelChecker) {
+					// This Code Action Participant should add  its code actions independently of
+					// diagnostic provided
+					codeActions.add(ca(null, te(0, 0, 0, 0, "b")));
+				}
 			});
 
 			this.registerCodeLensParticipant((request, lenses, cancelChecker) -> {
@@ -367,7 +383,13 @@ public class ErrorParticipantLanguageServiceTest extends AbstractCacheBasedTest 
 	public void testCodeAction() throws BadLocationException {
 		Diagnostic diagnostic = d(0, 0, 2, XMLSyntaxErrorCode.ElementUnterminated);
 		testCodeActionsFor("", diagnostic, (String) null, null, new ErrorParticipantLanguageService(),
-				ca(diagnostic, te(0, 0, 0, 0, "a")));
+				ca(diagnostic, te(0, 0, 0, 0, "a")), ca(null, te(0, 0, 0, 0, "b")));
+	}
+
+	@Test
+	public void testCodeActionNullDiagnostic() throws BadLocationException {
+		testCodeActionsFor("", r(0,0, 0, 0), (String) null, null, new ErrorParticipantLanguageService(),
+				ca(null, te(0, 0, 0, 0, "b")));
 	}
 
 	@Test
