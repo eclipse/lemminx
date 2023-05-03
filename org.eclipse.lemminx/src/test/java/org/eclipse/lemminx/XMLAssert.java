@@ -1,5 +1,5 @@
 /**
- *  Copyright (c) 2018, 2022 Angelo ZERR
+ *  Copyright (c) 2018, 2023 Angelo ZERR
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v2.0
  *  which accompanies this distribution, and is available at
@@ -878,7 +878,7 @@ public class XMLAssert {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setTabSize(4);
 		settings.getFormattingSettings().setInsertSpaces(false);
-		return testCodeActionsFor(xml, diagnostic, null, null, settings, null, index, expected);
+		return testCodeActionsFor(xml, diagnostic, null, null, null, settings, null, index, expected);
 	}
 
 	public static List<CodeAction> testCodeActionsFor(String xml, String fileURI, Diagnostic diagnostic,
@@ -901,7 +901,7 @@ public class XMLAssert {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setTabSize(4);
 		settings.getFormattingSettings().setInsertSpaces(false);
-		return testCodeActionsFor(xml, diagnostic, catalogPath, fileURI, settings, null, -1, expected);
+		return testCodeActionsFor(xml, diagnostic, null, catalogPath, fileURI, settings, null, -1, expected);
 	}
 
 	public static List<CodeAction> testCodeActionsFor(String xml, Diagnostic diagnostic, String catalogPath,
@@ -912,26 +912,33 @@ public class XMLAssert {
 	public static List<CodeAction> testCodeActionsFor(String xml, Diagnostic diagnostic, String catalogPath,
 			SharedSettings sharedSettings, XMLLanguageService xmlLanguageService, CodeAction... expected)
 			throws BadLocationException {
-		return testCodeActionsFor(xml, diagnostic, catalogPath, null, sharedSettings, xmlLanguageService, -1, expected);
+		return testCodeActionsFor(xml, diagnostic, null, catalogPath, null, sharedSettings, xmlLanguageService, -1, expected);
 	}
 
-	public static List<CodeAction> testCodeActionsFor(String xml, Diagnostic diagnostic, String catalogPath,
+	public static List<CodeAction> testCodeActionsFor(String xml, Range range, String catalogPath,
+			SharedSettings sharedSettings, XMLLanguageService xmlLanguageService, CodeAction... expected)
+			throws BadLocationException {
+		return testCodeActionsFor(xml, null, range, catalogPath, null, sharedSettings, xmlLanguageService, -1, expected);
+	}
+	public static List<CodeAction> testCodeActionsFor(String xml, Diagnostic diagnostic, Range range, String catalogPath,
 			String fileURI, SharedSettings sharedSettings, XMLLanguageService xmlLanguageService, int index,
 			CodeAction... expected) throws BadLocationException {
 		int offset = xml.indexOf('|');
-		Range range = null;
-
 		if (offset != -1) {
 			xml = xml.substring(0, offset) + xml.substring(offset + 1);
 		}
 		TextDocument document = new TextDocument(xml.toString(), fileURI != null ? fileURI : FILE_URI);
 
+		// Use range from the text (if marked by "|"-char or from diagnostics
 		if (offset != -1) {
 			Position position = document.positionAt(offset);
 			range = new Range(position, position);
-		} else {
+		} else if (range == null && diagnostic != null) {
 			range = diagnostic.getRange();
 		}
+		
+		// Otherwise, range is to be specified in parameters
+		assertNotNull(range, "Range cannot be null");
 
 		if (xmlLanguageService == null) {
 			xmlLanguageService = new XMLLanguageService();
@@ -979,9 +986,11 @@ public class XMLAssert {
 			ca.setTitle("");
 			if (ca.getDiagnostics() != null) {
 				ca.getDiagnostics().forEach(d -> {
-					d.setSeverity(null);
-					d.setMessage("");
-					d.setSource(null);
+					if (d != null) {
+						d.setSeverity(null);
+						d.setMessage("");
+						d.setSource(null);
+					}
 				});
 			}
 		});
@@ -1112,6 +1121,10 @@ public class XMLAssert {
 			int endLine, int endChar, String newText) {
 		return Either.forLeft(new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, 0),
 				Collections.singletonList(te(startLine, startChar, endLine, endChar, newText))));
+	}
+
+	public static Either<TextDocumentEdit, ResourceOperation> teOp(String uri, TextEdit... te) {
+		return Either.forLeft(new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, 0),	Arrays.asList(te)));
 	}
 
 	// ------------------- Hover assert

@@ -1,5 +1,5 @@
 /**
- *  Copyright (c) 2018 Angelo ZERR
+ *  Copyright (c) 2018, 2023 Angelo ZERR
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v2.0
  *  which accompanies this distribution, and is available at
@@ -45,26 +45,45 @@ public class XMLCodeActions {
 	}
 
 	public List<CodeAction> doCodeActions(CodeActionContext context, Range range, DOMDocument document,
-			SharedSettings sharedSettings, CancelChecker cancelChecker) {
+			SharedSettings sharedSettings, CancelChecker cancelChecker) throws CancellationException {
 		cancelChecker.checkCanceled();
 
 		List<CodeAction> codeActions = new ArrayList<>();
 		List<Diagnostic> diagnostics = context.getDiagnostics();
+
+		// The first pass is for CodeAction participants that have to react on a certain diagnostic code
 		if (diagnostics != null) {
-			for (Diagnostic diagnostic : context.getDiagnostics()) {
-				for (ICodeActionParticipant codeActionParticipant : extensionsRegistry.getCodeActionsParticipants()) {
-					try {
+			for (Diagnostic diagnostic : diagnostics) {
+				if (diagnostic != null) { // Never run this cycle if diagnostic is null
+					for (ICodeActionParticipant codeActionParticipant : extensionsRegistry.getCodeActionsParticipants()) {
 						cancelChecker.checkCanceled();
-						CodeActionRequest request = new CodeActionRequest(diagnostic, range, document,
-								extensionsRegistry, sharedSettings);
-						codeActionParticipant.doCodeAction(request, codeActions, cancelChecker);
-					} catch (CancellationException e) {
-						throw e;
-					} catch (Exception e) {
-						LOGGER.log(Level.SEVERE, "Error while processing code actions for the participant '"
-								+ codeActionParticipant.getClass().getName() + "'.", e);
+						try {
+							CodeActionRequest request = new CodeActionRequest(diagnostic, range, document,
+									extensionsRegistry, sharedSettings);
+							codeActionParticipant.doCodeAction(request, codeActions, cancelChecker);
+						} catch (CancellationException e) {
+							throw e;
+						} catch (Exception e) {
+							LOGGER.log(Level.SEVERE, "Error while processing code actions for the participant '"
+									+ codeActionParticipant.getClass().getName() + "'.", e);
+						}
 					}
 				}
+			}
+		}
+
+		// The second pass is for CodeAction participants that have to create CodeActions independently of diagnostics
+		for (ICodeActionParticipant codeActionParticipant : extensionsRegistry.getCodeActionsParticipants()) {
+			cancelChecker.checkCanceled();
+			try {
+				CodeActionRequest request = new CodeActionRequest(null, range, document,
+						extensionsRegistry, sharedSettings);
+				codeActionParticipant.doCodeActionUnconditional(request, codeActions, cancelChecker);
+			} catch (CancellationException e) {
+				throw e;
+			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE, "Error while processing code actions for the participant '"
+						+ codeActionParticipant.getClass().getName() + "'.", e);
 			}
 		}
 
@@ -73,7 +92,7 @@ public class XMLCodeActions {
 	}
 
 	public CodeAction resolveCodeAction(CodeAction unresolved, DOMDocument document, SharedSettings sharedSettings,
-			CancelChecker cancelChecker) {
+			CancelChecker cancelChecker) throws CancellationException {
 		ResolveCodeActionRequest request = new ResolveCodeActionRequest(unresolved, document, extensionsRegistry,
 				sharedSettings);
 		String participantId = request.getParticipantId();
