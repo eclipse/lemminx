@@ -113,20 +113,21 @@ public class ErrorParticipantLanguageServiceTest extends AbstractCacheBasedTest 
 		public ErrorParticipantLanguageService() {
 			super();
 
-			this.registerCodeActionParticipant((request, codeActions, cancelChecker) -> {
-				throw new RuntimeException("This participant is broken");
+			this.registerCodeActionParticipant(new ICodeActionParticipant() {
+				public void doCodeAction(ICodeActionRequest request, List<CodeAction> codeActions, CancelChecker cancelChecker) {
+					throw new RuntimeException("This participant is broken");
+				}
 			});
-			this.registerCodeActionParticipant((request, codeActions, cancelChecker) -> {
-				// This Code Action Participant should add  its code actions based on diagnostic code
-				Diagnostic diagnostic = request.getDiagnostic();
-				if (diagnostic != null) {
-					codeActions.add(ca(diagnostic, te(0, 0, 0, 0, "a")));
+			this.registerCodeActionParticipant(new ICodeActionParticipant() {
+				public void doCodeAction(ICodeActionRequest request, List<CodeAction> codeActions, CancelChecker cancelChecker) {
+					// This Code Action Participant should add  its code actions based on diagnostic code
+					Diagnostic diagnostic = request.getDiagnostic();
+					if (diagnostic != null) {
+						codeActions.add(ca(diagnostic, te(0, 0, 0, 0, "a")));
+					}
 				}
 			});
 			this.registerCodeActionParticipant(new ICodeActionParticipant () {
-				public void doCodeAction(ICodeActionRequest request, List<CodeAction> codeActions, CancelChecker cancelChecker) {
-					// Nothing to do for a diagnostic, even if provided
-				}
 				public void doCodeActionUnconditional(ICodeActionRequest request, List<CodeAction> codeActions, CancelChecker cancelChecker) {
 					// This Code Action Participant should add  its code actions independently of
 					// diagnostic provided

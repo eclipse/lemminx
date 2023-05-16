@@ -13,6 +13,7 @@
 package org.eclipse.lemminx.services.extensions.codeaction;
 
 import java.util.List;
+import java.util.concurrent.CancellationException;
 
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
@@ -32,8 +33,11 @@ public interface ICodeActionParticipant {
 	 * @param request       the code action request.
 	 * @param codeActions   list of code actions to fill.
 	 * @param cancelChecker the cancel checker.
+	 * @throws CancellationException if the computation was cancelled
 	 */
-	void doCodeAction(ICodeActionRequest request, List<CodeAction> codeActions, CancelChecker cancelChecker);
+	default void doCodeAction(ICodeActionRequest request, List<CodeAction> codeActions, CancelChecker cancelChecker)
+			throws CancellationException {
+	}
 
 	/**
 	 * Collect the code action in the given <code>codeActions</code> for the given
@@ -42,8 +46,12 @@ public interface ICodeActionParticipant {
 	 * @param request       the code action request.
 	 * @param codeActions   list of code actions to fill.
 	 * @param cancelChecker the cancel checker.
+	 * @throws CancellationException if the computation was cancelled
+	 * 
+	 * @since 0.26
 	 */
-	default void doCodeActionUnconditional(ICodeActionRequest request, List<CodeAction> codeActions, CancelChecker cancelChecker) {
+	default void doCodeActionUnconditional(ICodeActionRequest request, List<CodeAction> codeActions,
+			CancelChecker cancelChecker) throws CancellationException {
 	}
 
 	/**
