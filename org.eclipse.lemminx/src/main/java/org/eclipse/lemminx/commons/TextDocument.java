@@ -1,5 +1,5 @@
 /**
- *  Copyright (c) 2018 Angelo ZERR.
+ *  Copyright (c) 2018, 2023 Angelo ZERR.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v2.0
  *  which accompanies this distribution, and is available at
@@ -82,6 +82,18 @@ public class TextDocument extends TextDocumentItem {
 		ILineTracker lineTracker = getLineTracker();
 		Line line = lineTracker.getLineInformationOfOffset(position);
 		return line.offset;
+	}
+
+	/**
+	 * Returns the line number the character at the given offset belongs to.
+	 *
+	 * @param position the offset whose line number to be determined
+	 * @return the number of the line the offset is on
+	 * @exception BadLocationException if the offset is invalid in this tracker
+	 */
+	public int lineAt(int position) throws BadLocationException {
+		ILineTracker lineTracker = getLineTracker();
+		return lineTracker.getLineNumberOfOffset(position);
 	}
 
 	public String lineDelimiter(int lineNumber) throws BadLocationException {
