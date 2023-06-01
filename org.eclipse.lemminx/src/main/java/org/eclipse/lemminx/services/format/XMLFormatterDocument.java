@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2022 Red Hat Inc. and others.
+* Copyright (c) 2022, 2023 Red Hat Inc. and others.
 * All rights reserved. This program and the accompanying materials
 * which accompanies this distribution, and is available at
 * http://www.eclipse.org/legal/epl-v20.html
@@ -35,6 +35,7 @@ import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLFormattingOptions;
 import org.eclipse.lemminx.utils.StringUtils;
+import org.eclipse.lemminx.utils.TextEditUtils;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;

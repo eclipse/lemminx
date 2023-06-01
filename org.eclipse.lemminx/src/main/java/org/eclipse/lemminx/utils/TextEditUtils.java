@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2022 Red Hat Inc. and others.
+* Copyright (c) 2022, 2023 Red Hat Inc. and others.
 * All rights reserved. This program and the accompanying materials
 * which accompanies this distribution, and is available at
 * http://www.eclipse.org/legal/epl-v20.html
@@ -9,7 +9,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lemminx.services.format;
+package org.eclipse.lemminx.utils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,9 +20,15 @@ import java.util.stream.Collectors;
 
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.commons.TextDocument;
+import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.ResourceOperation;
+import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
+import org.eclipse.lsp4j.WorkspaceEdit;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 /**
  * Utilities for {@link TextEdit}.
@@ -147,4 +153,20 @@ public class TextEditUtils {
 		return leftLimit;
 	}
 
+	/**
+	 * Creates a TextDocumentEdit object for the specified document and list of text edits
+	 * 
+	 * @param document Document to be changed
+	 * @param textEdits a list of text edit changes
+	 * @return A Text Dpcument Edit object
+	 */
+	public static TextDocumentEdit creatTextDocumentEdit(DOMDocument document, List<TextEdit> textEdits) {
+		VersionedTextDocumentIdentifier projectVersionedTextDocumentIdentifier = new VersionedTextDocumentIdentifier(
+				document.getDocumentURI(), document.getTextDocument().getVersion());
+		return new TextDocumentEdit(projectVersionedTextDocumentIdentifier, textEdits);
+	}
+	
+	public static WorkspaceEdit createWorkspaceEdit(List<Either<TextDocumentEdit, ResourceOperation>> documentChanges) {
+		return new WorkspaceEdit(documentChanges);
+	}
 }

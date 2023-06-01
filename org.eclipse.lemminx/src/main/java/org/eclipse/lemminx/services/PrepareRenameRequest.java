@@ -13,8 +13,8 @@ package org.eclipse.lemminx.services;
 
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMDocument;
-import org.eclipse.lemminx.services.extensions.IPrepareRenameRequest;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lemminx.services.extensions.rename.IPrepareRenameRequest;
 import org.eclipse.lsp4j.Position;
 
 class PrepareRenameRequest extends AbstractPositionRequest implements IPrepareRenameRequest {

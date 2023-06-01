@@ -11,6 +11,8 @@
 *******************************************************************************/
 package org.eclipse.lemminx.extensions.references.participants;
 
+import static org.eclipse.lemminx.utils.TextEditUtils.creatTextDocumentEdit;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -21,11 +23,14 @@ import org.eclipse.lemminx.extensions.references.search.SearchEngine;
 import org.eclipse.lemminx.extensions.references.search.SearchNode;
 import org.eclipse.lemminx.extensions.references.search.SearchQuery;
 import org.eclipse.lemminx.extensions.references.search.SearchQueryFactory;
-import org.eclipse.lemminx.services.extensions.IPrepareRenameRequest;
-import org.eclipse.lemminx.services.extensions.IRenameParticipant;
-import org.eclipse.lemminx.services.extensions.IRenameRequest;
+import org.eclipse.lemminx.services.extensions.rename.IPrepareRenameRequest;
+import org.eclipse.lemminx.services.extensions.rename.IRenameParticipant;
+import org.eclipse.lemminx.services.extensions.rename.IRenameRequest;
+import org.eclipse.lemminx.services.extensions.rename.IRenameResponse;
 import org.eclipse.lsp4j.PrepareRenameResult;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.ResourceOperation;
+import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
@@ -88,11 +93,11 @@ public class XMLReferencesRenameParticipant implements IRenameParticipant {
 	// --------------- Rename
 
 	@Override
-	public void doRename(IRenameRequest request, List<TextEdit> edits, CancelChecker cancelChecker) {
-		edits.addAll(getRenameTextEdits(request, cancelChecker));
+	public void doRename(IRenameRequest request, IRenameResponse renameResponse, CancelChecker cancelChecker) {
+		renameResponse.addTextDocumentEdit(getRenameTextDocumentEdit(request, cancelChecker));
 	}
 
-	private List<TextEdit> getRenameTextEdits(IRenameRequest request, CancelChecker cancelChecker) {
+	private TextDocumentEdit getRenameTextDocumentEdit(IRenameRequest request, CancelChecker cancelChecker) {
 		SearchQuery query = SearchQueryFactory.createToQueryByRetrievingToBefore(request.getNode(), request.getOffset(),
 				plugin.getReferencesSettings(), cancelChecker);
 		if (query == null) {
@@ -100,7 +105,7 @@ public class XMLReferencesRenameParticipant implements IRenameParticipant {
 			// - the node is neither a text nor an attribute
 			// - it doesn't exists some expressions for the DOM document of the node.
 			// - there are none expressions which matches the node.
-			return Collections.emptyList();
+			return null;
 		}
 		query.setMatchNode(true);
 		query.setSearchInIncludedFiles(true);
@@ -117,7 +122,7 @@ public class XMLReferencesRenameParticipant implements IRenameParticipant {
 		// Insert at first, the text edit for the node which was updated
 		Range range = query.getSearchNode().createRange(true);
 		textEdits.add(0, new TextEdit(range, newText));
-		return textEdits;
+		return creatTextDocumentEdit(request.getXMLDocument(), textEdits);
 	}
 
 }

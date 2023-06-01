@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2019 Red Hat Inc. and others.
+* Copyright (c) 2019, 2023 Red Hat Inc. and others.
 * All rights reserved. This program and the accompanying materials
 * which accompanies this distribution, and is available at
 * http://www.eclipse.org/legal/epl-v20.html
@@ -11,6 +11,8 @@
 *******************************************************************************/
 package org.eclipse.lemminx.services;
 
+import static org.eclipse.lemminx.utils.TextEditUtils.creatTextDocumentEdit;
+import static org.eclipse.lemminx.utils.TextEditUtils.createWorkspaceEdit;
 import static org.eclipse.lemminx.utils.XMLPositionUtility.covers;
 import static org.eclipse.lemminx.utils.XMLPositionUtility.doesTagCoverPosition;
 import static org.eclipse.lemminx.utils.XMLPositionUtility.getTagNameRange;
@@ -34,8 +36,8 @@ import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.dom.DOMRange;
 import org.eclipse.lemminx.dom.parser.TokenType;
-import org.eclipse.lemminx.services.extensions.IRenameParticipant;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lemminx.services.extensions.rename.IRenameParticipant;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -47,7 +49,7 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
  *
  * Author: Nikolas Komonen - nkomonen@redhat.com
  */
-public class XMLRename {
+class XMLRename {
 
 	private static final Logger LOGGER = Logger.getLogger(XMLRename.class.getName());
 
@@ -76,14 +78,14 @@ public class XMLRename {
 		if (node == null || (!node.isAttribute() && !node.isElement() && !node.isText())
 				|| (node.isElement() && !((DOMElement) node).hasTagName())) {
 
-			return createWorkspaceEdit(xmlDocument.getDocumentURI(), Collections.emptyList());
+			cancelChecker.checkCanceled();
+			return createWorkspaceEdit(Collections.emptyList());
 		}
 
-		List<TextEdit> textEdits = new ArrayList<>();
-
+		RenameResponse renameResponse = new RenameResponse();
 		for (IRenameParticipant participant : extensionsRegistry.getRenameParticipants()) {
 			try {
-				participant.doRename(renameRequest, textEdits, cancelChecker);
+				participant.doRename(renameRequest, renameResponse, cancelChecker);
 			} catch (CancellationException e) {
 				throw e;
 			} catch (Exception e) {
@@ -93,11 +95,12 @@ public class XMLRename {
 			}
 		}
 
-		textEdits.addAll(getRenameTextEdits(xmlDocument, node, position, newText));
+		cancelChecker.checkCanceled();
+		renameResponse.addTextDocumentEdit(creatTextDocumentEdit(
+				xmlDocument, getRenameTextEdits(xmlDocument, node, position, newText)));
 
 		cancelChecker.checkCanceled();
-		
-		return createWorkspaceEdit(xmlDocument.getDocumentURI(), textEdits);
+		return createWorkspaceEdit(renameResponse.getDocumentChanges());
 	}
 
 	private List<TextEdit> getRenameTextEdits(DOMDocument xmlDocument, DOMNode node, Position position,
@@ -277,12 +280,6 @@ public class XMLRename {
 			}
 		}
 		return Collections.emptyList();
-	}
-
-	private WorkspaceEdit createWorkspaceEdit(String documentURI, List<TextEdit> textEdits) {
-		Map<String, List<TextEdit>> changes = new HashMap<>();
-		changes.put(documentURI, textEdits);
-		return new WorkspaceEdit(changes);
 	}
 
 	/**

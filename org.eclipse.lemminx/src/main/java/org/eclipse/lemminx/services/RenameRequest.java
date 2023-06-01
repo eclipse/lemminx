@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2019 Red Hat Inc. and others.
+* Copyright (c) 2019, 2023 Red Hat Inc. and others.
 * All rights reserved. This program and the accompanying materials
 * which accompanies this distribution, and is available at
 * http://www.eclipse.org/legal/epl-v20.html
@@ -13,8 +13,8 @@ package org.eclipse.lemminx.services;
 
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMDocument;
-import org.eclipse.lemminx.services.extensions.IRenameRequest;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lemminx.services.extensions.rename.IRenameRequest;
 import org.eclipse.lsp4j.Position;
 
 class RenameRequest extends AbstractPositionRequest implements IRenameRequest {

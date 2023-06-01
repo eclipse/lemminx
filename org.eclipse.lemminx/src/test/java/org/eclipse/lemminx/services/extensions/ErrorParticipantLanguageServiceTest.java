@@ -58,6 +58,10 @@ import org.eclipse.lemminx.services.extensions.completion.ICompletionResponse;
 import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
 import org.eclipse.lemminx.services.extensions.hover.IHoverParticipant;
 import org.eclipse.lemminx.services.extensions.hover.IHoverRequest;
+import org.eclipse.lemminx.services.extensions.rename.IPrepareRenameRequest;
+import org.eclipse.lemminx.services.extensions.rename.IRenameParticipant;
+import org.eclipse.lemminx.services.extensions.rename.IRenameRequest;
+import org.eclipse.lemminx.services.extensions.rename.IRenameResponse;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLSymbolFilter;
 import org.eclipse.lemminx.settings.XMLSymbolSettings;
@@ -78,7 +82,6 @@ import org.eclipse.lsp4j.PrepareRenameResult;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.SymbolKind;
-import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.junit.jupiter.api.Test;
@@ -302,7 +305,7 @@ public class ErrorParticipantLanguageServiceTest extends AbstractCacheBasedTest 
 				}
 
 				@Override
-				public void doRename(IRenameRequest request, List<TextEdit> locations, CancelChecker cancelChecker) {
+				public void doRename(IRenameRequest request, IRenameResponse renameResponse, CancelChecker cancelChecker) {
 					throw new RuntimeException("This participant is broken");
 				}
 			});
