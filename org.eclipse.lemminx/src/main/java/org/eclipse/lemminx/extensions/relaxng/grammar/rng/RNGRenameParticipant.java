@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2022 Red Hat Inc. and others.
+* Copyright (c) 2022, 2023 Red Hat Inc. and others.
 * All rights reserved. This program and the accompanying materials
 * which accompanies this distribution, and is available at
 * http://www.eclipse.org/legal/epl-v20.html
@@ -10,6 +10,8 @@
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
 package org.eclipse.lemminx.extensions.relaxng.grammar.rng;
+
+import static org.eclipse.lemminx.utils.TextEditUtils.creatTextDocumentEdit;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,14 +24,16 @@ import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.dom.DOMRange;
 import org.eclipse.lemminx.extensions.relaxng.utils.RelaxNGUtils;
 import org.eclipse.lemminx.services.extensions.IPositionRequest;
-import org.eclipse.lemminx.services.extensions.IPrepareRenameRequest;
-import org.eclipse.lemminx.services.extensions.IRenameParticipant;
-import org.eclipse.lemminx.services.extensions.IRenameRequest;
+import org.eclipse.lemminx.services.extensions.rename.IPrepareRenameRequest;
+import org.eclipse.lemminx.services.extensions.rename.IRenameParticipant;
+import org.eclipse.lemminx.services.extensions.rename.IRenameRequest;
+import org.eclipse.lemminx.services.extensions.rename.IRenameResponse;
 import org.eclipse.lemminx.utils.DOMUtils;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.PrepareRenameResult;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
@@ -59,22 +63,22 @@ public class RNGRenameParticipant implements IRenameParticipant {
 	// --------------- Rename
 
 	@Override
-	public void doRename(IRenameRequest request, List<TextEdit> edits, CancelChecker cancelChecker) {
-		edits.addAll(getRenameTextEdits(request, cancelChecker));
+	public void doRename(IRenameRequest request, IRenameResponse renameResponse, CancelChecker cancelChecker) {
+		renameResponse.addTextDocumentEdit(getRenameTextDocumentEdit(request, cancelChecker));
 	}
 
-	private List<TextEdit> getRenameTextEdits(IRenameRequest request, CancelChecker cancelChecker) {
+	private TextDocumentEdit getRenameTextDocumentEdit(IRenameRequest request, CancelChecker cancelChecker) {
 		// RNG rename can be applied for:
 		// - define/@name
 		DOMAttr attr = findAttrToRename(request);
 		if (attr == null) {
-			return Collections.emptyList();
+			return null;
 		}
 		DOMElement ownerElement = attr.getOwnerElement();
 		DOMDocument document = request.getXMLDocument();
 		String newText = request.getNewText();
 		List<Location> locations = getReferenceLocations(ownerElement, cancelChecker);
-		return renameAttributeValueTextEdits(document, attr, newText, locations);
+		return creatTextDocumentEdit(document, renameAttributeValueTextEdits(document, attr, newText, locations));
 	}
 
 	private List<Location> getReferenceLocations(DOMNode node, CancelChecker cancelChecker) {
@@ -105,9 +109,7 @@ public class RNGRenameParticipant implements IRenameParticipant {
 		for (Location location : locations) {
 			Range textEditRange = location.getRange();
 			reduceRangeFromBothEnds(textEditRange, 1);
-
-			TextEdit textEdit = new TextEdit(textEditRange, newText);
-			textEdits.add(textEdit);
+			textEdits.add(new TextEdit(textEditRange, newText));
 		}
 
 		return textEdits;

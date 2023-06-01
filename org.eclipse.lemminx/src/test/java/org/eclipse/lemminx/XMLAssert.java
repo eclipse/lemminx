@@ -12,7 +12,7 @@
  */
 package org.eclipse.lemminx;
 
-import static org.eclipse.lemminx.services.format.TextEditUtils.applyEdits;
+import static org.eclipse.lemminx.utils.TextEditUtils.applyEdits;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
@@ -56,7 +57,6 @@ import org.eclipse.lemminx.extensions.generators.FileContentGeneratorSettings;
 import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.services.extensions.diagnostics.IXMLErrorCode;
 import org.eclipse.lemminx.services.extensions.save.AbstractSaveContext;
-import org.eclipse.lemminx.services.format.TextEditUtils;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLCodeLensSettings;
 import org.eclipse.lemminx.settings.XMLSymbolSettings;
@@ -310,7 +310,7 @@ public class XMLAssert {
 		if (completionItem.getAdditionalTextEdits() != null) {
 			edits.addAll(completionItem.getAdditionalTextEdits());
 		}
-		String actual = TextEditUtils.applyEdits(document, edits);
+		String actual = applyEdits(document, edits);
 		assertEquals(expected, actual);
 	}
 
@@ -1786,7 +1786,13 @@ public class XMLAssert {
 		}
 		WorkspaceEdit workspaceEdit = languageService.doRename(document, position, newText, () -> {
 		});
-		List<TextEdit> actualEdits = workspaceEdit.getChanges().get(fileURI);
+		final String uri = fileURI;
+		Optional<TextDocumentEdit> documentChange = workspaceEdit.getDocumentChanges()
+				.stream().filter(Either::isLeft)
+				.filter(e -> uri.equals(e.getLeft().getTextDocument().getUri()))
+				.map(Either::getLeft).findFirst();
+		List<TextEdit> actualEdits  = documentChange.isPresent() ? 
+				documentChange.get().getEdits() : Collections.emptyList();
 		assertArrayEquals(expectedEdits.toArray(), actualEdits.toArray());
 	}
 
@@ -1937,7 +1943,7 @@ public class XMLAssert {
 						snippetsSupported)
 				.get();
 
-		String actual = TextEditUtils.applyEdits(document, Arrays.asList(response.getStart(), response.getEnd()));
+		String actual = applyEdits(document, Arrays.asList(response.getStart(), response.getEnd()));
 		assertEquals(expected, actual);
 	}
 

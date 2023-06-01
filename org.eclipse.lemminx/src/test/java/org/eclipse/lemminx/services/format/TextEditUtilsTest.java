@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2022 Red Hat Inc. and others.
+* Copyright (c) 2022, 2023 Red Hat Inc. and others.
 * All rights reserved. This program and the accompanying materials
 * which accompanies this distribution, and is available at
 * http://www.eclipse.org/legal/epl-v20.html
@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.commons.TextDocument;
+import org.eclipse.lemminx.utils.TextEditUtils;
 import org.eclipse.lsp4j.TextEdit;
 import org.junit.jupiter.api.Test;
 
