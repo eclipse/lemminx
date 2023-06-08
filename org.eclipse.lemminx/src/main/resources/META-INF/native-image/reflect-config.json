@@ -346,6 +346,14 @@
 		}]
 	},
 	{
+		"name": "org.eclipse.lemminx.settings.XMLFoldingSettings",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
 		"name": "org.eclipse.lemminx.settings.XMLFormattingOptions",
 		"allDeclaredFields": true,
 		"methods": [{
