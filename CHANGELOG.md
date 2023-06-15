@@ -1,5 +1,24 @@
 # Change Log
 
+## [0.26.0](https://github.com/eclipse/lemminx/milestone/42?closed=1) (June 15, 2023)
+
+### Enhancements
+
+ * Expose API in `TextDocument` for getting a document line number from its offset. See [#1519](https://github.com/eclipse/lemminx/pull/1519).
+ * Add a `default` implementation for `ICodeActionParticipant` members. See [#1518](https://github.com/eclipse/lemminx/issues/1518).
+ * Add support for code actions that are not associated with any diagnostics (quick assist). See [#1516](https://github.com/eclipse/lemminx/issues/1516).
+ * Make the rename participants conform to the LSP, permitting to rename across different documents.. See [#1521](https://github.com/eclipse/lemminx/issues/1521).
+
+### Bug Fixes
+
+ * `xml.foldings.includeClosingTagInFold` has no effect in binary mode. See [#1523](https://github.com/eclipse/lemminx/issues/1523).
+
+### Build
+
+ * Enable Dependabot for GitHub Actions update. See [#1539](https://github.com/eclipse/lemminx/issues/1539).
+ * Bump Maven build plugins and dependencies. See [#1499](https://github.com/eclipse/lemminx/pull/1499), [#1524](https://github.com/eclipse/lemminx/pull/1524), [#1525](https://github.com/eclipse/lemminx/pull/1525), [#1526](https://github.com/eclipse/lemminx/pull/1526), [#1527](https://github.com/eclipse/lemminx/pull/1527), [#1530](https://github.com/eclipse/lemminx/pull/1530), [#1531](https://github.com/eclipse/lemminx/pull/1531), [#1532](https://github.com/eclipse/lemminx/pull/1532), [#1533](https://github.com/eclipse/lemminx/pull/1533), [#1534](https://github.com/eclipse/lemminx/pull/1534), [#1535](https://github.com/eclipse/lemminx/pull/1535), [#1536](https://github.com/eclipse/lemminx/pull/1536), [#1538](https://github.com/eclipse/lemminx/pull/1538), [#1541](https://github.com/eclipse/lemminx/pull/1541), [#1357](https://github.com/eclipse/lemminx/pull/1357).
+ * Bump GitHub Code Actions. See [#1542](https://github.com/eclipse/lemminx/pull/1542), [#1543](https://github.com/eclipse/lemminx/pull/1543).
+
 ## [0.25.0](https://github.com/eclipse/lemminx/milestone/40?closed=1) (April 18, 2023)
 
 ### Enhancements
