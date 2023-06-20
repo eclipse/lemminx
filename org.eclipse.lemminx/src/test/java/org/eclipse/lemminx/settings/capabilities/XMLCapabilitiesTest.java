@@ -1,5 +1,5 @@
 /**
- *  Copyright (c) 2018 Red Hat, Inc. and others.
+ *  Copyright (c) 2018, 2023 Red Hat, Inc. and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v2.0
  *  which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConsta
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_CODEACTION_OPTIONS;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_COMPLETION_OPTIONS;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_LINK_OPTIONS;
+import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_RENAME_OPTIONS;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.DOCUMENT_SYMBOL_ID;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.FORMATTING_ID;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.FORMATTING_RANGE_ID;
@@ -91,11 +92,11 @@ public class XMLCapabilitiesTest extends AbstractCacheBasedTest {
 		assertEquals(FALSE, serverCapabilities.getDocumentSymbolProvider());
 		assertEquals(FALSE, serverCapabilities.getHoverProvider());
 		assertEquals(FALSE, serverCapabilities.getDocumentHighlightProvider());
-		assertEquals(FALSE, serverCapabilities.getRenameProvider());
 		assertEquals(FALSE, serverCapabilities.getFoldingRangeProvider());
 		assertEquals(null, serverCapabilities.getCodeActionProvider());
 		assertEquals(null, serverCapabilities.getCompletionProvider());
 		assertEquals(null, serverCapabilities.getDocumentLinkProvider());
+		assertEquals(null, serverCapabilities.getRenameProvider());
 	}
 
 	@Test
@@ -112,11 +113,11 @@ public class XMLCapabilitiesTest extends AbstractCacheBasedTest {
 		assertEquals(TRUE, serverCapabilities.getDocumentSymbolProvider());
 		assertEquals(TRUE, serverCapabilities.getHoverProvider());
 		assertEquals(TRUE, serverCapabilities.getDocumentHighlightProvider());
-		assertEquals(TRUE, serverCapabilities.getRenameProvider());
 		assertEquals(TRUE, serverCapabilities.getFoldingRangeProvider());
 		assertEquals(Either.forRight(DEFAULT_CODEACTION_OPTIONS), serverCapabilities.getCodeActionProvider());
 		assertEquals(DEFAULT_COMPLETION_OPTIONS, serverCapabilities.getCompletionProvider());
 		assertEquals(DEFAULT_LINK_OPTIONS, serverCapabilities.getDocumentLinkProvider());
+		assertEquals(Either.forRight(DEFAULT_RENAME_OPTIONS), serverCapabilities.getRenameProvider());
 	}
 
 	@Test
@@ -155,11 +156,11 @@ public class XMLCapabilitiesTest extends AbstractCacheBasedTest {
 		assertEquals(FALSE, serverCapabilities.getDocumentSymbolProvider());
 		assertEquals(TRUE, serverCapabilities.getHoverProvider());
 		assertEquals(TRUE, serverCapabilities.getDocumentHighlightProvider());
-		assertEquals(TRUE, serverCapabilities.getRenameProvider());
 		assertEquals(TRUE, serverCapabilities.getFoldingRangeProvider());
 		assertEquals(Either.forRight(DEFAULT_CODEACTION_OPTIONS), serverCapabilities.getCodeActionProvider());
 		assertEquals(null, serverCapabilities.getCompletionProvider());
 		assertEquals(DEFAULT_LINK_OPTIONS, serverCapabilities.getDocumentLinkProvider());
+		assertEquals(Either.forRight(DEFAULT_RENAME_OPTIONS), serverCapabilities.getRenameProvider());
 	}
 
 	@Test

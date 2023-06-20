@@ -1,5 +1,5 @@
 /**
- *  Copyright (c) 2018 Red Hat, Inc. and others.
+ *  Copyright (c) 2018, 2023 Red Hat, Inc. and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v2.0
  *  which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConsta
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_CODELENS_OPTIONS;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_COMPLETION_OPTIONS;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_LINK_OPTIONS;
+import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_RENAME_OPTIONS;
 
 import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
@@ -53,7 +54,6 @@ public class ServerCapabilitiesInitializer {
 		serverCapabilities.setDocumentRangeFormattingProvider(
 				!clientCapabilities.isRangeFormattingDynamicRegistrationSupported());
 		serverCapabilities.setHoverProvider(!clientCapabilities.isHoverDynamicRegistered());
-		serverCapabilities.setRenameProvider(!clientCapabilities.isRenameDynamicRegistrationSupported());
 		serverCapabilities.setFoldingRangeProvider(!clientCapabilities.isRangeFoldingDynamicRegistrationSupported());
 		serverCapabilities.setDefinitionProvider(!clientCapabilities.isDefinitionDynamicRegistered());
 		serverCapabilities.setTypeDefinitionProvider(!clientCapabilities.isTypeDefinitionDynamicRegistered());
@@ -79,6 +79,9 @@ public class ServerCapabilitiesInitializer {
 		}
 		if (!clientCapabilities.isCodeActionDynamicRegistered()) {
 			serverCapabilities.setCodeActionProvider(DEFAULT_CODEACTION_OPTIONS);
+		}
+		if (!clientCapabilities.isRenameDynamicRegistrationSupported()) {
+			serverCapabilities.setRenameProvider(DEFAULT_RENAME_OPTIONS);
 		}
 		return serverCapabilities;
 	}
