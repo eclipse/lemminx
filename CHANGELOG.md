@@ -1,5 +1,15 @@
 # Change Log
 
+## [0.26.1](https://github.com/eclipse/lemminx/milestone/41?closed=1) (June 22, 2023)
+
+### Bug Fixes
+
+ * PrepareRename/Rename Server Capabilities doesn't work with non dynamic registration. See [#1551](https://github.com/eclipse/lemminx/issues/1551).
+
+### Build
+
+ * Bump Maven build plugins and dependencies. See [#1549](https://github.com/eclipse/lemminx/pull/1549).
+
 ## [0.26.0](https://github.com/eclipse/lemminx/milestone/42?closed=1) (June 15, 2023)
 
 ### Enhancements
