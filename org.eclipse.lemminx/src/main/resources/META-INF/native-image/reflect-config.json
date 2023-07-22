@@ -254,6 +254,14 @@
         }]
     },
     {
+        "name": "org.eclipse.lemminx.extensions.contentmodel.settings.XMLXIncludeSettings",
+        "allDeclaredFields": true,
+        "methods": [{
+            "name": "<init>",
+            "parameterTypes": []
+        }]
+    },
+    {
         "name": "org.eclipse.lemminx.extensions.xerces.xmlmodel.XMLModelValidatorFactory",
         "allDeclaredMethods": true
     },
