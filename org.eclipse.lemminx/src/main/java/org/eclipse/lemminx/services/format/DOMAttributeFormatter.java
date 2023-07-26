@@ -14,7 +14,9 @@ package org.eclipse.lemminx.services.format;
 import java.util.List;
 
 import org.eclipse.lemminx.dom.DOMAttr;
+import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.settings.EnforceQuoteStyle;
+import org.eclipse.lemminx.settings.XMLFormattingOptions.SplitAttributes;
 import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lsp4j.TextEdit;
 
@@ -33,6 +35,7 @@ public class DOMAttributeFormatter {
 	}
 
 	public void formatAttribute(DOMAttr attr, int prevOffset, boolean singleAttribute, boolean useSettings,
+			boolean isFirstAttr,
 			XMLFormattingConstraints parentConstraints, List<TextEdit> edits) {
 		int indentLevel = parentConstraints.getIndentLevel();
 		// 1) format before attribute name : indent left of the attribute name
@@ -44,9 +47,13 @@ public class DOMAttributeFormatter {
 			if (isPreserveAttributeLineBreaks() && hasLineBreak(prevOffset, attr.getStart())) {
 				replaceLeftSpacesWithIndentation(indentLevel + 1, prevOffset, attr.getStart(), true, edits);
 				alreadyIndented = true;
-			} else if (isSplitAttributes() && !singleAttribute) {
+			} else if (getSplitAttributes() == SplitAttributes.splitNewLine && !singleAttribute) {
 				replaceLeftSpacesWithIndentation(indentLevel + getSplitAttributesIndentSize(), prevOffset,
 						attr.getStart(), true, edits);
+				alreadyIndented = true;
+			} else if (getSplitAttributes() == SplitAttributes.alignWithFirstAttr && !isFirstAttr) {
+				replaceLeftSpacesWithIndentationWithOffsetSpaces(getFirstAttrOffset(attr.getOwnerElement(), indentLevel), prevOffset,
+						attr.getStart(), edits);
 				alreadyIndented = true;
 			}
 		}
@@ -74,7 +81,7 @@ public class DOMAttributeFormatter {
 				int availableLineWidth = parentConstraints.getAvailableLineWidth();
 				if (isPreserveAttributeLineBreaks() && hasLineBreak(prevOffset, attr.getStart())) {
 					availableLineWidth = getMaxLineWidth() - getTabSize() * (indentLevel + 1);
-				} else if (isSplitAttributes() && !singleAttribute) {
+				} else if (getSplitAttributes() == SplitAttributes.splitNewLine && !singleAttribute) {
 					availableLineWidth = getMaxLineWidth()
 							- getTabSize() * (indentLevel + getSplitAttributesIndentSize());
 				} else {
@@ -93,7 +100,7 @@ public class DOMAttributeFormatter {
 			int from = prevOffset;
 			int to = attr.getStart();
 			if (isMaxLineWidthSupported() && parentConstraints.getAvailableLineWidth() < 0
-					&& !isSplitAttributes()) {
+					&& getSplitAttributes() == SplitAttributes.preserve) {
 				replaceLeftSpacesWithIndentation(indentLevel + 1, from, to, true, edits);
 				int attrValuelength = attr.getValue() != null ? attr.getValue().length() : 0;
 				parentConstraints.setAvailableLineWidth(
@@ -129,12 +136,24 @@ public class DOMAttributeFormatter {
 		}
 	}
 
+	private int getFirstAttrOffset(DOMElement ownerElement, int indentLevel) {
+		return getTabSize() * indentLevel + ownerElement.getTagName().length() + 2 /*
+																					 * +1 for '<', +1 for space between
+																					 * element name and first attr name
+																					 */;
+	}
+
 	private void formatAttributeValue(DOMAttr attr, XMLFormattingConstraints parentConstraints, List<TextEdit> edits) {
 		formatterDocument.formatAttributeValue(attr, parentConstraints, edits);
 	}
 
 	private void replaceQuoteWithPreferred(int from, int to, List<TextEdit> edits) {
 		formatterDocument.replaceQuoteWithPreferred(from, to, edits);
+	}
+
+	private void replaceLeftSpacesWithIndentationWithOffsetSpaces(int spaceCount, int from, int to,
+			List<TextEdit> edits) {
+		formatterDocument.replaceLeftSpacesWithIndentationWithOffsetSpaces(spaceCount, from, to, true, edits);
 	}
 
 	private void replaceLeftSpacesWithOneSpace(int from, int to, List<TextEdit> edits) {
@@ -150,8 +169,8 @@ public class DOMAttributeFormatter {
 		formatterDocument.removeLeftSpaces(from, to, edits);
 	}
 
-	private boolean isSplitAttributes() {
-		return formatterDocument.getSharedSettings().getFormattingSettings().isSplitAttributes();
+	private SplitAttributes getSplitAttributes() {
+		return formatterDocument.getSharedSettings().getFormattingSettings().getSplitAttributes();
 	}
 
 	private int getSplitAttributesIndentSize() {

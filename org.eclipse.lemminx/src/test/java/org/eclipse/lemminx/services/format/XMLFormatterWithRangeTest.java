@@ -16,6 +16,7 @@ import static org.eclipse.lemminx.XMLAssert.te;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.settings.SharedSettings;
+import org.eclipse.lemminx.settings.XMLFormattingOptions.SplitAttributes;
 import org.eclipse.lsp4j.TextEdit;
 import org.junit.jupiter.api.Test;
 
@@ -299,7 +300,7 @@ public class XMLFormatterWithRangeTest {
 				"</note>";
 
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 		assertFormat(content, expected, settings, //
 				te(2, 9, 2, 14, ""), //
 				te(2, 15, 2, 26, ""));
@@ -324,7 +325,7 @@ public class XMLFormatterWithRangeTest {
 				"</note>";
 
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 		assertFormat(content, expected, settings, //
 				te(1, 7, 2, 8, "\r\n      "), //
 				te(2, 11, 2, 18, ""), //

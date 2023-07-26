@@ -34,6 +34,7 @@ import org.eclipse.lemminx.dom.DTDDeclParameter;
 import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLFormattingOptions.EmptyElements;
+import org.eclipse.lemminx.settings.XMLFormattingOptions.SplitAttributes;
 import org.eclipse.lemminx.utils.XMLBuilder;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -554,7 +555,7 @@ public class XMLFormatterDocumentOld {
 			prevOffset = attr.getEnd();
 		}
 		if ((this.sharedSettings.getFormattingSettings().getClosingBracketNewLine()
-				&& this.sharedSettings.getFormattingSettings().isSplitAttributes()) && !isSingleAttribute) {
+				&& this.sharedSettings.getFormattingSettings().getSplitAttributes() == SplitAttributes.splitNewLine) && !isSingleAttribute) {
 			xmlBuilder.linefeed();
 			// Indent by tag + splitAttributesIndentSize to match with attribute indent
 			// level

@@ -24,6 +24,7 @@ import org.eclipse.lemminx.dom.DTDDeclNode;
 import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
 import org.eclipse.lemminx.settings.EnforceQuoteStyle;
 import org.eclipse.lemminx.settings.SharedSettings;
+import org.eclipse.lemminx.settings.XMLFormattingOptions.SplitAttributes;
 
 /**
  * XML content builder utilities.
@@ -171,7 +172,7 @@ public class XMLBuilder {
 	 * @return
 	 */
 	public XMLBuilder addAttribute(String name, String value, int level, boolean surroundWithQuotes) {
-		if (isSplitAttributes()) {
+		if (getSplitAttributes()== SplitAttributes.splitNewLine) {
 			linefeed();
 			indent(level + sharedSettings.getFormattingSettings().getSplitAttributesIndentSize());
 		} else {
@@ -187,7 +188,7 @@ public class XMLBuilder {
 	}
 
 	private XMLBuilder addAttribute(DOMAttr attr, int level, boolean surroundWithQuotes) {
-		if (isSplitAttributes()) {
+		if (getSplitAttributes()== SplitAttributes.splitNewLine) {
 			linefeed();
 			indent(level + sharedSettings.getFormattingSettings().getSplitAttributesIndentSize());
 		} else {
@@ -529,8 +530,8 @@ public class XMLBuilder {
 		return sharedSettings.getFormattingSettings().isJoinCDATALines();
 	}
 
-	private boolean isSplitAttributes() {
-		return sharedSettings.getFormattingSettings().isSplitAttributes();
+	private SplitAttributes getSplitAttributes() {
+		return sharedSettings.getFormattingSettings().getSplitAttributes();
 	}
 
 	private boolean isInsertSpaces() {

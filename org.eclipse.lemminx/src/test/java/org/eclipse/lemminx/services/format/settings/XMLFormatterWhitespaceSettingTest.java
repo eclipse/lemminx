@@ -19,6 +19,7 @@ import java.util.Arrays;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.settings.SharedSettings;
+import org.eclipse.lemminx.settings.XMLFormattingOptions.SplitAttributes;
 import org.eclipse.lsp4j.TextEdit;
 import org.junit.jupiter.api.Test;
 
@@ -461,7 +462,7 @@ public class XMLFormatterWhitespaceSettingTest {
 	@Test
 	public void testClosingBracketNewLine() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 		settings.getFormattingSettings().setSplitAttributesIndentSize(0);
 		settings.getFormattingSettings().setClosingBracketNewLine(true);
 		String content = "<a b='' c=''/>";
@@ -476,7 +477,7 @@ public class XMLFormatterWhitespaceSettingTest {
 	@Test
 	public void testClosingBracketNewLineWithDefaultIndentSize() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 		settings.getFormattingSettings().setClosingBracketNewLine(true);
 		settings.getFormattingSettings().setPreserveAttributeLineBreaks(true);
 		String content = "<a b='b' c='c'/>";
@@ -492,9 +493,47 @@ public class XMLFormatterWhitespaceSettingTest {
 	}
 
 	@Test
+	public void testClosingBracketNewLineWithAlignWithFirstAttr() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.alignWithFirstAttr);
+		settings.getFormattingSettings().setClosingBracketNewLine(true);
+		String content = "<a b='b' c='c'/>";
+		String expected = "<a b='b'" + System.lineSeparator() + //
+				"   c='c'" + System.lineSeparator() + //
+				"   />";
+		assertFormat(content, expected, settings, //
+				te(0, 8, 0, 9, lineSeparator() + "   "), //
+				te(0, 14, 0, 14, lineSeparator() + "   "));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void testClosingBracketNewLineWithAlignWithFirstAttrNested() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.alignWithFirstAttr);
+		settings.getFormattingSettings().setClosingBracketNewLine(true);
+		String content = "<a b='b' c='c'>\n" + //
+				"  <b c='c' d='d'/>\n" + //
+				"</a>";
+		String expected = "<a b='b'\n" + //
+				"   c='c'\n" + //
+				"   >\n" + //
+				"  <b c='c'\n" + //
+				"     d='d'\n" + //
+				"     />\n" + //
+				"</a>";
+		assertFormat(content, expected, settings, //
+				te(0, 8, 0, 9, "\n   "), //
+				te(0, 14, 0, 14, "\n   "), //
+				te(1, 10, 1, 11, "\n     "), //
+				te(1, 16, 1, 16, "\n     "));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
 	public void testClosingBracketNewLineWithoutSplitAttributes() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(false);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.preserve);
 		settings.getFormattingSettings().setClosingBracketNewLine(true);
 		String content = "<a b='' c=''/>";
 		String expected = "<a b='' c='' />";
@@ -506,7 +545,7 @@ public class XMLFormatterWhitespaceSettingTest {
 	@Test
 	public void testClosingBracketNewLineWithSingleAttribute() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 		settings.getFormattingSettings().setSplitAttributesIndentSize(0);
 		settings.getFormattingSettings().setClosingBracketNewLine(true);
 		String content = "<a b=''/>";
@@ -518,7 +557,7 @@ public class XMLFormatterWhitespaceSettingTest {
 	@Test
 	public void testClosingBracketNewLineWithChildElementIndent() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 		settings.getFormattingSettings().setSplitAttributesIndentSize(0);
 		settings.getFormattingSettings().setClosingBracketNewLine(true);
 		String content = "<a>" + lineSeparator() + "  <b c='' d=''/>" + lineSeparator() + "</a>";
@@ -534,7 +573,7 @@ public class XMLFormatterWhitespaceSettingTest {
 	@Test
 	public void testClosingBracketNewLineWithPreserveEmptyContent() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 		settings.getFormattingSettings().setSplitAttributesIndentSize(0);
 		settings.getFormattingSettings().setPreserveEmptyContent(true);
 		settings.getFormattingSettings().setClosingBracketNewLine(true);
@@ -552,7 +591,7 @@ public class XMLFormatterWhitespaceSettingTest {
 	@Test
 	public void testClosingBracketNewLineWithPreserveEmptyContentSingleAttribute() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 		settings.getFormattingSettings().setSplitAttributesIndentSize(0);
 		settings.getFormattingSettings().setPreserveEmptyContent(true);
 		settings.getFormattingSettings().setClosingBracketNewLine(true);

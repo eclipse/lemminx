@@ -57,7 +57,7 @@ public class DOMProcessingInstructionFormatter {
 			List<DOMAttr> attributes = processingInstruction.getAttributeNodes();
 			boolean singleAttribute = attributes.size() == 1;
 			for (DOMAttr attr : attributes) {
-				attributeFormatter.formatAttribute(attr, prevOffset, singleAttribute, false, parentConstraints, edits);
+				attributeFormatter.formatAttribute(attr, prevOffset, singleAttribute, false, false, parentConstraints, edits);
 				prevOffset = attr.getEnd();
 			}
 		}

@@ -18,6 +18,7 @@ import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.settings.SharedSettings;
+import org.eclipse.lemminx.settings.XMLFormattingOptions.SplitAttributes;
 import org.eclipse.lsp4j.TextEdit;
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +31,7 @@ public class XMLFormatterSplitAttributesTest extends AbstractCacheBasedTest {
 	@Test
 	public void splitAttributesIndentSize0() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 		settings.getFormattingSettings().setSplitAttributesIndentSize(0);
 
 		String content = "<root  a='a' b='b' c='c'/>\n";
@@ -49,9 +50,50 @@ public class XMLFormatterSplitAttributesTest extends AbstractCacheBasedTest {
 	}
 
 	@Test
+	public void splitAttributesIndentSize0AlignWithFirstAttr() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.alignWithFirstAttr);
+		settings.getFormattingSettings().setSplitAttributesIndentSize(0);
+
+		String content = "<root  a='a' b='b' c='c'/>\n";
+		String expected = "<root a='a'\n" + //
+				"      b='b'\n" + //
+				"      c='c' />";
+
+		assertFormat(content, expected, settings, //
+				te(0, 5, 0, 7, " "), //
+				te(0, 12, 0, 13, "\n      "), //
+				te(0, 18, 0, 19, "\n      "), //
+				te(0, 24, 0, 24, " "), //
+				te(0, 26, 1, 0, ""));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
+	public void splitAttributesIndentSize0AlignWithFirstAttrSplit() throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.alignWithFirstAttr);
+		settings.getFormattingSettings().setSplitAttributesIndentSize(0);
+
+		String content = "<root\n" + //
+				"    a='a'\n" + //
+				"    b='b'\n" + //
+				"    c='c' />";
+		String expected = "<root a='a'\n" + //
+				"      b='b'\n" + //
+				"      c='c' />";
+
+		assertFormat(content, expected, settings, //
+				te(0, 5, 1, 4, " "), //
+				te(1, 9, 2, 4, "\n      "), //
+				te(2, 9, 3, 4, "\n      "));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
 	public void splitAttributesIndentSizeNegative() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 		settings.getFormattingSettings().setSplitAttributesIndentSize(-1);
 
 		String content = "<root  a='a' b='b' c='c'/>\n";
@@ -72,7 +114,7 @@ public class XMLFormatterSplitAttributesTest extends AbstractCacheBasedTest {
 	@Test
 	public void splitAttributesIndentSize1() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 		settings.getFormattingSettings().setSplitAttributesIndentSize(1);
 
 		String content = "<root  a='a' b='b' c='c'/>\n";
@@ -93,7 +135,7 @@ public class XMLFormatterSplitAttributesTest extends AbstractCacheBasedTest {
 	@Test
 	public void splitAttributesIndentSizeDefault() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 
 		String content = "<root  a='a' b='b' c='c'/>\n";
 		String expected = "<root\n" + //
@@ -121,7 +163,7 @@ public class XMLFormatterSplitAttributesTest extends AbstractCacheBasedTest {
 				"      bb=\"oo\"></b>" + lineSeparator() + //
 				"</a>";
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 		assertFormat(content, expected, settings, //
 				te(0, 2, 0, 3, lineSeparator() + "    "), //
 				te(0, 10, 0, 11, lineSeparator() + "    "), //
@@ -135,13 +177,33 @@ public class XMLFormatterSplitAttributesTest extends AbstractCacheBasedTest {
 	}
 
 	@Test
+	public void testSplitAttributesNestedAlignWithFirstAttr() throws BadLocationException {
+		String content = "<a k1=\"v1\" k2=\"v2\"><b aa=\"ok\" bb = \"oo\"></b></a>";
+		String expected = "<a k1=\"v1\"" + lineSeparator() + //
+				"   k2=\"v2\">" + lineSeparator() + //
+				"  <b aa=\"ok\"" + lineSeparator() + //
+				"     bb=\"oo\"></b>" + lineSeparator() + //
+				"</a>";
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.alignWithFirstAttr);
+		assertFormat(content, expected, settings, //
+				te(0, 10, 0, 11, lineSeparator() + "   "), //
+				te(0, 19, 0, 19, lineSeparator() + "  "), //
+				te(0, 29, 0, 30, lineSeparator() + "     "), //
+				te(0, 32, 0, 33, ""), //
+				te(0, 34, 0, 35, ""), //
+				te(0, 44, 0, 44, lineSeparator()));
+		assertFormat(expected, expected, settings);
+	}
+
+	@Test
 	public void testNestedAttributesNoSplit() throws BadLocationException {
 		String content = "<a k1=\"v1\" k2=\"v2\"><b aa=\"ok\" bb = \"oo\"></b></a>";
 		String expected = "<a k1=\"v1\" k2=\"v2\">" + lineSeparator() + //
 				"  <b aa=\"ok\" bb=\"oo\"></b>" + lineSeparator() + //
 				"</a>";
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(false);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.preserve);
 		assertFormat(content, expected, settings, //
 				te(0, 19, 0, 19, lineSeparator() + "  "), //
 				te(0, 32, 0, 33, ""), //
@@ -155,7 +217,7 @@ public class XMLFormatterSplitAttributesTest extends AbstractCacheBasedTest {
 		String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 		String expected = content;
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 		assertFormat(content, expected, settings);
 	}
 
@@ -164,7 +226,7 @@ public class XMLFormatterSplitAttributesTest extends AbstractCacheBasedTest {
 		String content = "<a k1=\"v1\"></a>";
 		String expected = content;
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 		assertFormat(content, expected, settings);
 	}
 
@@ -175,7 +237,7 @@ public class XMLFormatterSplitAttributesTest extends AbstractCacheBasedTest {
 				"    k1=\"v1\"" + lineSeparator() + //
 				"    k2=\"v2\"></a>";
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 		assertFormat(content, expected, settings, //
 				te(0, 2, 0, 3, lineSeparator() + "    "), //
 				te(0, 10, 0, 11, lineSeparator() + "    "));
@@ -186,7 +248,7 @@ public class XMLFormatterSplitAttributesTest extends AbstractCacheBasedTest {
 	public void testEndTagMissingCloseBracket2() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setSpaceBeforeEmptyCloseTag(false);
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 
 		String content = "<web-app \n" + //
 				"         xmlns=\"http://xmlns.jcp.org/xml/ns/javaee\"\n" + //

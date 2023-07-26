@@ -18,6 +18,7 @@ import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.extensions.xsi.settings.XSISchemaLocationSplit;
 import org.eclipse.lemminx.settings.SharedSettings;
+import org.eclipse.lemminx.settings.XMLFormattingOptions.SplitAttributes;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -180,7 +181,7 @@ public class XSIFormatterLegacyTest extends AbstractCacheBasedTest {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setInsertSpaces(true);
 		settings.getFormattingSettings().setTabSize(2);
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 		settings.getFormattingSettings().setPreserveEmptyContent(true);
 		settings.getFormattingSettings().setLegacy(true);
 		return settings;

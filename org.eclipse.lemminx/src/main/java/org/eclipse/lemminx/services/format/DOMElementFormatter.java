@@ -19,6 +19,7 @@ import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLFormattingOptions.EmptyElements;
+import org.eclipse.lemminx.settings.XMLFormattingOptions.SplitAttributes;
 import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lsp4j.TextEdit;
 
@@ -214,9 +215,12 @@ public class DOMElementFormatter {
 			// <foo| attr1="" attr2="">.
 			int prevOffset = element.getOffsetAfterStartTag();
 			boolean singleAttribute = attributes.size() == 1;
+			boolean isFirstAttr = true;
 			for (DOMAttr attr : attributes) {
 				// Format current attribute
-				attributeFormatter.formatAttribute(attr, prevOffset, singleAttribute, true, parentConstraints, edits);
+				attributeFormatter.formatAttribute(attr, prevOffset, singleAttribute, true, isFirstAttr,
+						parentConstraints, edits);
+				isFirstAttr = false;
 				// set the previous offset with end of the current attribute:
 				// <foo attr1=""| attr2="".
 				prevOffset = attr.getEnd();
@@ -267,9 +271,15 @@ public class DOMElementFormatter {
 			}
 		} else if (shouldFormatClosingBracketNewLine(element)) {
 			int indentLevel = parentConstraints.getIndentLevel();
-			replaceLeftSpacesWithIndentation(indentLevel + getSplitAttributesIndentSize(), startTagOpen, startTagClose,
-					true, edits);
-			return (indentLevel + getSplitAttributesIndentSize()) * getTabSize();
+			if (getSplitAttributes() == SplitAttributes.splitNewLine) {
+				replaceLeftSpacesWithIndentation(indentLevel + getSplitAttributesIndentSize(), startTagOpen,
+						startTagClose, true, edits);
+				return (indentLevel + getSplitAttributesIndentSize()) * getTabSize();
+			} else { /* splitAttributes == alignWithFirstAttr */
+				int indentOffset = indentLevel * getTabSize() + element.getTagName().length() + 2;
+				replaceLeftSpacesWithIndentationWithOffsetSpaces(indentOffset, startTagOpen, startTagClose, edits);
+				return indentOffset;
+			}
 		}
 		if (element.isSelfClosed()) {
 			if (spaceBeforeEmptyCloseTag) {
@@ -380,7 +390,7 @@ public class DOMElementFormatter {
 		boolean isSingleAttribute = element.getAttributeNodes() != null ? element.getAttributeNodes().size() == 1
 				: true;
 		return (formatterDocument.getSharedSettings().getFormattingSettings().getClosingBracketNewLine()
-				&& isSplitAttributes() && !isSingleAttribute);
+				&& getSplitAttributes() != SplitAttributes.preserve && !isSingleAttribute);
 	}
 
 	private void replaceLeftSpacesWith(int from, int to, String replace, List<TextEdit> edits) {
@@ -396,6 +406,11 @@ public class DOMElementFormatter {
 			int indentLevel, List<TextEdit> edits) {
 		formatterDocument.replaceLeftSpacesWithIndentationPreservedNewLines(spaceStart, spaceEnd, indentLevel,
 				edits);
+	}
+
+	private void replaceLeftSpacesWithIndentationWithOffsetSpaces(int spaceCount, int from, int to,
+			List<TextEdit> edits) {
+		formatterDocument.replaceLeftSpacesWithIndentationWithOffsetSpaces(spaceCount, from, to, true, edits);
 	}
 
 	private void removeLeftSpaces(int from, int to, List<TextEdit> edits) {
@@ -439,8 +454,8 @@ public class DOMElementFormatter {
 		return formatterDocument.getSharedSettings().getFormattingSettings().isPreserveAttributeLineBreaks();
 	}
 
-	private boolean isSplitAttributes() {
-		return formatterDocument.getSharedSettings().getFormattingSettings().isSplitAttributes();
+	private SplitAttributes getSplitAttributes() {
+		return formatterDocument.getSharedSettings().getFormattingSettings().getSplitAttributes();
 	}
 
 	private int getSplitAttributesIndentSize() {

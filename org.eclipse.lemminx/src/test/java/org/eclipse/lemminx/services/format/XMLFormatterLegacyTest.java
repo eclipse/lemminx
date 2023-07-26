@@ -21,6 +21,7 @@ import org.eclipse.lemminx.settings.EnforceQuoteStyle;
 import org.eclipse.lemminx.settings.QuoteStyle;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLFormattingOptions.EmptyElements;
+import org.eclipse.lemminx.settings.XMLFormattingOptions.SplitAttributes;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -415,7 +416,7 @@ public class XMLFormatterLegacyTest extends AbstractCacheBasedTest {
 		String content = "<a k1=\"v1\"></a>";
 		String expected = "<a k1=\"v1\"></a>";
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 		assertFormat(content, expected, settings);
 	}
 
@@ -425,7 +426,7 @@ public class XMLFormatterLegacyTest extends AbstractCacheBasedTest {
 		String expected = "<a" + lineSeparator() + "    k1=\"v1\"" + lineSeparator() + //
 				"    k2=\"v2\"></a>";
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 		assertFormat(content, expected, settings);
 	}
 
@@ -440,7 +441,7 @@ public class XMLFormatterLegacyTest extends AbstractCacheBasedTest {
 				"      bb=\"oo\"></b>" + lineSeparator() + //
 				"</a>";
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 		assertFormat(content, expected, settings);
 	}
 
@@ -451,7 +452,7 @@ public class XMLFormatterLegacyTest extends AbstractCacheBasedTest {
 				"  <b aa=\"ok\" bb=\"oo\"></b>" + lineSeparator() + //
 				"</a>";
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(false);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.preserve);
 		assertFormat(content, expected, settings);
 	}
 
@@ -460,7 +461,7 @@ public class XMLFormatterLegacyTest extends AbstractCacheBasedTest {
 		String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 		assertFormat(content, expected, settings);
 	}
 
@@ -479,7 +480,7 @@ public class XMLFormatterLegacyTest extends AbstractCacheBasedTest {
 				"</note>";
 
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 		assertFormat(content, expected, settings);
 	}
 
@@ -502,7 +503,7 @@ public class XMLFormatterLegacyTest extends AbstractCacheBasedTest {
 		;
 
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 		assertFormat(content, expected, settings);
 	}
 
@@ -1114,7 +1115,7 @@ public class XMLFormatterLegacyTest extends AbstractCacheBasedTest {
 	public void testEndTagMissingCloseBracket2() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 		settings.getFormattingSettings().setSpaceBeforeEmptyCloseTag(false);
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 
 		String content = "<web-app \n" + //
 				"         xmlns=\"http://xmlns.jcp.org/xml/ns/javaee\"\n" + //
@@ -1794,7 +1795,7 @@ public class XMLFormatterLegacyTest extends AbstractCacheBasedTest {
 	public void testUseSingleQuotesNoQuotesSplit() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 		String content = "<a name = test> </a>";
 		String expected = "<a" + lineSeparator() + "    name=" + lineSeparator() + "    test></a>";
 		assertFormat(content, expected, settings);
@@ -1831,7 +1832,7 @@ public class XMLFormatterLegacyTest extends AbstractCacheBasedTest {
 	@Test
 	public void testUseDoubleQuotesMultipleAttributesSplit() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
 
 		String content = "<a name1=  \" value1 \"  name2= \" value2 \"   name3= \' value3 \' > </a>\n";
@@ -1843,7 +1844,7 @@ public class XMLFormatterLegacyTest extends AbstractCacheBasedTest {
 	@Test
 	public void testUseSingleQuotesMultipleAttributesSplit() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
 		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
 		String content = "<a name1=  \" value1 \"  name2= \" value2 \"   name3= \' value3 \' > </a>\n";
@@ -1922,7 +1923,7 @@ public class XMLFormatterLegacyTest extends AbstractCacheBasedTest {
 		SharedSettings settings = new SharedSettings();
 		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
 		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 
 		String content = "<xml>\r\n" + //
 				"  <a zz= tt = \"aa\"aa ></a>\r\n" + //
@@ -2980,7 +2981,7 @@ public class XMLFormatterLegacyTest extends AbstractCacheBasedTest {
 	@Test
 	public void splitAttributesIndentSize0() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 		settings.getFormattingSettings().setSplitAttributesIndentSize(0);
 
 		String content = "<root a='a' b='b' c='c'/>\n";
@@ -2994,7 +2995,7 @@ public class XMLFormatterLegacyTest extends AbstractCacheBasedTest {
 	@Test
 	public void splitAttributesIndentSizeNegative() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 		settings.getFormattingSettings().setSplitAttributesIndentSize(-1);
 
 		String content = "<root a='a' b='b' c='c'/>\n";
@@ -3008,7 +3009,7 @@ public class XMLFormatterLegacyTest extends AbstractCacheBasedTest {
 	@Test
 	public void splitAttributesIndentSize1() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 		settings.getFormattingSettings().setSplitAttributesIndentSize(1);
 
 		String content = "<root a='a' b='b' c='c'/>\n";
@@ -3022,7 +3023,7 @@ public class XMLFormatterLegacyTest extends AbstractCacheBasedTest {
 	@Test
 	public void splitAttributesIndentSizeDefault() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 
 		String content = "<root a='a' b='b' c='c'/>\n";
 		String expected = "<root\n" + //
@@ -3053,7 +3054,7 @@ public class XMLFormatterLegacyTest extends AbstractCacheBasedTest {
 	@Test
 	public void testClosingBracketNewLine() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 		settings.getFormattingSettings().setSplitAttributesIndentSize(0);
 		settings.getFormattingSettings().setPreserveAttributeLineBreaks(false);
 		settings.getFormattingSettings().setClosingBracketNewLine(true);
@@ -3068,7 +3069,7 @@ public class XMLFormatterLegacyTest extends AbstractCacheBasedTest {
 	@Test
 	public void testClosingBracketNewLineWithoutPreserveAttrLineBreaks() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 		settings.getFormattingSettings().setSplitAttributesIndentSize(0);
 		settings.getFormattingSettings().setClosingBracketNewLine(true);
 		String content = "<a b='' c=''/>";
@@ -3082,7 +3083,7 @@ public class XMLFormatterLegacyTest extends AbstractCacheBasedTest {
 	@Test
 	public void testClosingBracketNewLineWithDefaultIndentSize() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 		settings.getFormattingSettings().setClosingBracketNewLine(true);
 		settings.getFormattingSettings().setPreserveAttributeLineBreaks(true);
 		String content = "<a b='b' c='c'/>";
@@ -3096,7 +3097,7 @@ public class XMLFormatterLegacyTest extends AbstractCacheBasedTest {
 	@Test
 	public void testClosingBracketNewLineWithoutSplitAttributes() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(false);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.preserve);
 		settings.getFormattingSettings().setClosingBracketNewLine(true);
 		String content = "<a b='' c=''/>";
 		String expected = "<a b='' c='' />";
@@ -3106,7 +3107,7 @@ public class XMLFormatterLegacyTest extends AbstractCacheBasedTest {
 	@Test
 	public void testClosingBracketNewLineWithSingleAttribute() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 		settings.getFormattingSettings().setSplitAttributesIndentSize(0);
 		settings.getFormattingSettings().setClosingBracketNewLine(true);
 		String content = "<a b=''/>";
@@ -3117,7 +3118,7 @@ public class XMLFormatterLegacyTest extends AbstractCacheBasedTest {
 	@Test
 	public void testClosingBracketNewLineWithPreserveEmptyContent() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 		settings.getFormattingSettings().setSplitAttributesIndentSize(0);
 		settings.getFormattingSettings().setPreserveEmptyContent(true);
 		settings.getFormattingSettings().setClosingBracketNewLine(true);
