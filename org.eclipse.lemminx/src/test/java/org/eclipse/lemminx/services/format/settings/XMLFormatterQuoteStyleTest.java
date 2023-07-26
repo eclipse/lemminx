@@ -19,6 +19,7 @@ import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.settings.EnforceQuoteStyle;
 import org.eclipse.lemminx.settings.QuoteStyle;
 import org.eclipse.lemminx.settings.SharedSettings;
+import org.eclipse.lemminx.settings.XMLFormattingOptions.SplitAttributes;
 import org.eclipse.lsp4j.TextEdit;
 import org.junit.jupiter.api.Test;
 
@@ -144,7 +145,7 @@ public class XMLFormatterQuoteStyleTest {
 	public void testUseSingleQuotesNoQuotesSplit() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
 		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 		String content = "<a name = test> </a>";
 		String expected = "<a" + lineSeparator() + "    name=" + lineSeparator() + "    test> </a>";
 		assertFormat(content, expected, settings, //
@@ -208,7 +209,7 @@ public class XMLFormatterQuoteStyleTest {
 	@Test
 	public void testUseDoubleQuotesMultipleAttributesSplit() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
 
 		String content = "<a name1=  \" value1 \"  name2= \" value2 \"   name3= \' value3 \' > </a>\n";
@@ -231,7 +232,7 @@ public class XMLFormatterQuoteStyleTest {
 	@Test
 	public void testUseSingleQuotesMultipleAttributesSplit() throws BadLocationException {
 		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
 		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
 		String content = "<a name1=  \" value1 \"  name2= \" value2 \"   name3= \' value3 \' > </a>\n";
@@ -399,7 +400,7 @@ public class XMLFormatterQuoteStyleTest {
 		SharedSettings settings = new SharedSettings();
 		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
 		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
-		settings.getFormattingSettings().setSplitAttributes(true);
+		settings.getFormattingSettings().setSplitAttributes(SplitAttributes.splitNewLine);
 
 		String content = "<xml>\r\n" + //
 				"  <a zz= tt = \"aa\"aa ></a>\r\n" + //

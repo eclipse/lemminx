@@ -22,6 +22,7 @@ import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
 import org.eclipse.lemminx.services.format.XMLFormatterDocument;
 import org.eclipse.lemminx.services.format.XMLFormattingConstraints;
 import org.eclipse.lemminx.settings.XMLFormattingOptions;
+import org.eclipse.lemminx.settings.XMLFormattingOptions.SplitAttributes;
 import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lemminx.utils.XMLBuilder;
 import org.eclipse.lsp4j.TextEdit;
@@ -188,9 +189,14 @@ public class XSIFormatterParticipant implements IFormatterParticipant {
 		int indentSpaceOffset;
 		int startOfLineOffset = formatterDocument.getLineAtOffset(attr.getOwnerElement().getStart());
 
-		if (formattingOptions.isSplitAttributes()) {
-			indentSpaceOffset = (attrValueStart + 1) - attr.getNodeAttrName().getStart()
-					+ formattingOptions.getSplitAttributesIndentSize() * tabSize;
+		if (formattingOptions.getSplitAttributes() != SplitAttributes.preserve) {
+			if (formattingOptions.getSplitAttributes() == SplitAttributes.splitNewLine) {
+				indentSpaceOffset = (attrValueStart + 1) - attr.getNodeAttrName().getStart()
+						+ formattingOptions.getSplitAttributesIndentSize() * tabSize;
+			} else {
+				indentSpaceOffset = (attrValueStart + 1) - attr.getNodeAttrName().getStart()
+						+ attr.getOwnerElement().getTagName().length() + 2;
+			}
 		} else if (formattingOptions.isPreserveAttributeLineBreaks()) {
 			indentSpaceOffset = attrValueStart - formatterDocument.getOffsetWithPreserveLineBreaks(startOfLineOffset,
 					attrValueStart, tabSize, formattingOptions.isInsertSpaces());
@@ -212,7 +218,7 @@ public class XSIFormatterParticipant implements IFormatterParticipant {
 				availableLineWidth -= i - lastAttrValueTermIndex;
 				lastAttrValueTermIndex = i;
 				if (availableLineWidth < 0 && formatterDocument.isMaxLineWidthSupported()
-						&& !formattingOptions.isSplitAttributes()) {
+						&& formattingOptions.getSplitAttributes() == SplitAttributes.preserve) {
 					indentSpaceOffset = (attrValueStart + 1) - attr.getNodeAttrName().getStart()
 							+ (parentConstraints.getIndentLevel() + 1) * tabSize;
 				}

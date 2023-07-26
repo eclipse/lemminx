@@ -59,7 +59,11 @@ public class XMLFormattingOptions extends org.eclipse.lemminx.settings.LSPFormat
 	private boolean legacy;
 	private int maxLineWidth;
 
-	private boolean splitAttributes;
+	public static enum SplitAttributes {
+		preserve, splitNewLine, alignWithFirstAttr;
+	}
+
+	private String splitAttributes;
 	private boolean joinCDATALines;
 	private boolean formatComments;
 	private boolean joinCommentLines;
@@ -150,7 +154,7 @@ public class XMLFormattingOptions extends org.eclipse.lemminx.settings.LSPFormat
 		super.setTabSize(DEFAULT_TAB_SIZE);
 		super.setInsertSpaces(true);
 		super.setTrimFinalNewlines(true);
-		this.setSplitAttributes(false);
+		this.setSplitAttributes(SplitAttributes.preserve);
 		this.setJoinCDATALines(false);
 		this.setFormatComments(true);
 		this.setJoinCommentLines(false);
@@ -193,12 +197,19 @@ public class XMLFormattingOptions extends org.eclipse.lemminx.settings.LSPFormat
 		this(options, true);
 	}
 
-	public boolean isSplitAttributes() {
-		return splitAttributes;
+	public SplitAttributes getSplitAttributes() {
+		String value = splitAttributes;
+		if ((value != null)) {
+			try {
+				return SplitAttributes.valueOf(value);
+			} catch (Exception e) {
+			}
+		}
+		return SplitAttributes.preserve;
 	}
 
-	public void setSplitAttributes(final boolean splitAttributes) {
-		this.splitAttributes = splitAttributes;
+	public void setSplitAttributes(SplitAttributes splitAttributes) {
+		this.splitAttributes = splitAttributes.name();
 	}
 
 	public boolean isJoinCDATALines() {
@@ -347,7 +358,7 @@ public class XMLFormattingOptions extends org.eclipse.lemminx.settings.LSPFormat
 	 * @return the value of preserveAttrLineBreaks
 	 */
 	public boolean isPreserveAttributeLineBreaks() {
-		if (this.isSplitAttributes()) {
+		if (this.getSplitAttributes() != SplitAttributes.preserve) {
 			// splitAttributes overrides preserveAttrLineBreaks
 			return false;
 		}
@@ -438,7 +449,7 @@ public class XMLFormattingOptions extends org.eclipse.lemminx.settings.LSPFormat
 		setTrimTrailingWhitespace(formattingOptions.isTrimTrailingWhitespace());
 		setLegacy(formattingOptions.isLegacy());
 		setMaxLineWidth(formattingOptions.getMaxLineWidth());
-		setSplitAttributes(formattingOptions.isSplitAttributes());
+		setSplitAttributes(formattingOptions.getSplitAttributes());
 		setJoinCDATALines(formattingOptions.isJoinCDATALines());
 		setFormatComments(formattingOptions.isFormatComments());
 		setJoinCommentLines(formattingOptions.isJoinCommentLines());

@@ -26,7 +26,7 @@ public class XMLFormattingPreferences extends XMLFormattingOptions {
 		// Line width: [72]
 		super.setMaxLineWidth(72);
 		// [] Split multiple attributes each on new line
-		super.setSplitAttributes(false);
+		super.setSplitAttributes(SplitAttributes.preserve);
 		// [] Align final bracket in multi-line element tags
 		// ???
 		// [] Preserve whitespace in tags with PCDATA contents
@@ -59,9 +59,9 @@ public class XMLFormattingPreferences extends XMLFormattingOptions {
 
 	public void setIndentMultipleAttributes(boolean indentMultipleAttributes) {
 		if (indentMultipleAttributes) {
-			super.setSplitAttributes(true);
+			super.setSplitAttributes(SplitAttributes.splitNewLine);
 		} else {
-			super.setSplitAttributes(false);
+			super.setSplitAttributes(SplitAttributes.preserve);
 		}
 	}
 

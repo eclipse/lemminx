@@ -27,6 +27,7 @@ import org.eclipse.lemminx.client.CodeLensKind;
 import org.eclipse.lemminx.client.ExtendedClientCapabilities;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
 import org.eclipse.lemminx.extensions.contentmodel.settings.SchemaEnabled;
+import org.eclipse.lemminx.settings.XMLFormattingOptions.SplitAttributes;
 import org.eclipse.lemminx.settings.capabilities.InitializationOptionsExtendedClientCapabilities;
 import org.eclipse.lemminx.utils.FilesUtils;
 import org.eclipse.lemminx.utils.JSONUtility;
@@ -198,9 +199,9 @@ public class SettingsTest {
 	public void formatSettingsOverride() {
 		XMLFormattingOptions options = new XMLFormattingOptions();
 		options.setPreserveAttributeLineBreaks(true);
-		options.setSplitAttributes(false);
+		options.setSplitAttributes(SplitAttributes.preserve);
 		assertTrue(options.isPreserveAttributeLineBreaks());
-		options.setSplitAttributes(true);
+		options.setSplitAttributes(SplitAttributes.splitNewLine);
 
 		// overridden
 		assertFalse(options.isPreserveAttributeLineBreaks());
