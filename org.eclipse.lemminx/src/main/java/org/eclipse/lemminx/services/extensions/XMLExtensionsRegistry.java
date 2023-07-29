@@ -23,6 +23,7 @@ import java.util.ServiceLoader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.eclipse.lemminx.commons.progress.ProgressSupport;
 import org.eclipse.lemminx.services.IXMLDocumentProvider;
 import org.eclipse.lemminx.services.IXMLNotificationService;
 import org.eclipse.lemminx.services.IXMLValidationService;
@@ -70,7 +71,8 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	private IXMLDocumentProvider documentProvider;
 	private IXMLValidationService validationService;
 	private IXMLCommandService commandService;
-
+	private ProgressSupport progressSupport;
+	
 	private InitializeParams params;
 
 	private ISaveContext initialSaveContext;
@@ -551,6 +553,14 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 
 	public void setTelemetryManager(TelemetryManager telemetryManager) {
 		this.telemetryManager = telemetryManager;
+	}
+	
+	public void setProgressSupport(ProgressSupport progressSupport) {
+		this.progressSupport = progressSupport;
+	}
+	
+	public ProgressSupport getProgressSupport() {
+		return progressSupport;
 	}
 
 }
