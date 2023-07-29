@@ -13,8 +13,6 @@
  */
 package org.eclipse.lemminx;
 
-import static org.eclipse.lsp4j.jsonrpc.CompletableFutures.computeAsync;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
@@ -30,6 +28,7 @@ import java.util.stream.Collectors;
 import org.eclipse.lemminx.client.ExtendedClientCapabilities;
 import org.eclipse.lemminx.commons.ModelTextDocument;
 import org.eclipse.lemminx.commons.ParentProcessWatcher.ProcessLanguageServer;
+import org.eclipse.lemminx.commons.progress.ProgressSupport;
 import org.eclipse.lemminx.customservice.ActionableNotification;
 import org.eclipse.lemminx.customservice.AutoCloseTagResponse;
 import org.eclipse.lemminx.customservice.XMLLanguageClientAPI;
@@ -67,9 +66,13 @@ import org.eclipse.lsp4j.InitializedParams;
 import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.ProgressParams;
 import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.SetTraceParams;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
+import org.eclipse.lsp4j.WorkDoneProgressCreateParams;
+import org.eclipse.lsp4j.WorkDoneProgressNotification;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
@@ -79,7 +82,7 @@ import org.eclipse.lsp4j.services.WorkspaceService;
  *
  */
 public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServerAPI, IXMLDocumentProvider,
-		IXMLNotificationService, IXMLValidationService {
+		IXMLNotificationService, IXMLValidationService, ProgressSupport {
 
 	private static final Logger LOGGER = Logger.getLogger(XMLLanguageServer.class.getName());
 
@@ -101,6 +104,7 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 		xmlLanguageService.setNotificationService(this);
 		xmlLanguageService.setCommandService(xmlWorkspaceService);
 		xmlLanguageService.setValidationService(this);
+		xmlLanguageService.setProgressSupport(this);
 
 		delayer = Executors.newScheduledThreadPool(1);
 	}
@@ -355,5 +359,21 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 	public void setTrace(SetTraceParams params) {
 		// to avoid having error in vscode, the method is implemented
 		// FIXME : implement the behavior of this method.
+	}
+
+	@Override
+	public boolean isWorkDoneProgressSupported() {
+		return capabilityManager.getClientCapabilities().isWorkDoneProgressSupported();
+	}
+
+	@Override
+	public CompletableFuture<Void> createProgress(WorkDoneProgressCreateParams params) {
+		return getLanguageClient().createProgress(params);
+	}
+
+	@Override
+	public void notifyProgress(String progressId, WorkDoneProgressNotification notification) {
+		ProgressParams params = new ProgressParams(Either.forLeft(progressId), Either.forRight(notification));
+		getLanguageClient().notifyProgress(params);
 	}
 }

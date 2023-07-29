@@ -155,4 +155,9 @@ public class ClientCapabilitiesWrapper {
 		}
 		return extendedCapabilities.shouldLanguageServerExitOnShutdown();
 	}
+	
+	public boolean isWorkDoneProgressSupported() {
+		return v3Supported && capabilities.getWindow() != null && capabilities.getWindow().getWorkDoneProgress() != null
+				&& capabilities.getWindow().getWorkDoneProgress().booleanValue();
+	}
 }
