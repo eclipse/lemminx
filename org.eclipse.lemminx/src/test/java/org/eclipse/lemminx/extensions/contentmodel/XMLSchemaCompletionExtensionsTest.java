@@ -109,6 +109,19 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 	}
 
 	@Test
+	public void completionInRootWithCloseBracketItemDefaults() throws BadLocationException {
+		String xml = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + //
+				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"	xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n"
+				+ //
+				"	<|  >" + // here last '<' is replaced with <modelVersion></modelVersion>
+				"</project>";
+		testCompletionWithCatalogFor(xml,
+				c("modelVersion", te(3, 1, 3, 5, "<modelVersion></modelVersion>"), "<modelVersion"), //
+				c("parent", "<parent></parent>", "<parent"));
+	}
+
+	@Test
 	public void completionInChildElement() throws BadLocationException {
 		String xml = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n" + //
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //

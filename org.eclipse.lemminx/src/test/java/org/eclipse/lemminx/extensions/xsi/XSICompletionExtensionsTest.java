@@ -43,6 +43,16 @@ public class XSICompletionExtensionsTest extends AbstractCacheBasedTest {
 	}
 
 	@Test
+	public void completionItemDefaults() throws BadLocationException {
+		// completion on |
+		String xml = "<?xml version=\"1.0\"?>\r\n" + //
+				"<project xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=|>";
+		testCompletionFor(xml, true,
+				c("true", te(1, 71, 1, 71, "\"true\""), "\"true\""),
+				c("false", te(1, 71, 1, 71, "\"false\""), "\"false\""));
+	}
+
+	@Test
 	public void completion2() throws BadLocationException {
 		// completion on |
 		String xml = "<?xml version=\"1.0\"?>\r\n" + //
@@ -156,5 +166,9 @@ public class XSICompletionExtensionsTest extends AbstractCacheBasedTest {
 
 	private void testCompletionFor(String xml, SharedSettings sharedSettings, CompletionItem... expectedItems) throws BadLocationException {
 		XMLAssert.testCompletionFor(new XMLLanguageService(), xml, null, null, null, null, sharedSettings, expectedItems);
+	}
+
+	private void testCompletionFor(String xml, boolean enableItemDefaults, CompletionItem... expectedItems) throws BadLocationException {
+		XMLAssert.testCompletionFor(xml, null, enableItemDefaults, expectedItems);
 	}
 }

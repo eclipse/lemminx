@@ -76,6 +76,7 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemCapabilities;
 import org.eclipse.lsp4j.CompletionItemResolveSupportCapabilities;
 import org.eclipse.lsp4j.CompletionList;
+import org.eclipse.lsp4j.CompletionListCapabilities;
 import org.eclipse.lsp4j.CreateFile;
 import org.eclipse.lsp4j.CreateFileOptions;
 import org.eclipse.lsp4j.Diagnostic;
@@ -180,6 +181,14 @@ public class XMLAssert {
 		return testCompletionFor(value, null, null, expectedCount, expectedItems);
 	}
 
+	public static CompletionList testCompletionFor(String value, Integer expectedCount, boolean enableItemDefaults,
+			CompletionItem... expectedItems)
+			throws BadLocationException {
+		SharedSettings settings = new SharedSettings();
+		return testCompletionFor(new XMLLanguageService(), value, null, null, null, expectedCount, settings,
+				enableItemDefaults, expectedItems);
+	}
+
 	public static CompletionList testCompletionFor(String value, String catalogPath, String fileURI,
 			Integer expectedCount,
 			CompletionItem... expectedItems) throws BadLocationException {
@@ -193,21 +202,49 @@ public class XMLAssert {
 	}
 
 	public static CompletionList testCompletionFor(XMLLanguageService xmlLanguageService, String value,
-			String catalogPath,
-			Consumer<XMLLanguageService> customConfiguration, String fileURI, Integer expectedCount,
+			String catalogPath, Consumer<XMLLanguageService> customConfiguration, String fileURI, Integer expectedCount,
 			boolean autoCloseTags, CompletionItem... expectedItems) throws BadLocationException {
+		return testCompletionFor(xmlLanguageService, value,
+				catalogPath, customConfiguration, fileURI, expectedCount,
+				autoCloseTags, false, expectedItems);
+	}
+
+	public static CompletionList testCompletionFor(XMLLanguageService xmlLanguageService, String value,
+			String catalogPath, Consumer<XMLLanguageService> customConfiguration, String fileURI, Integer expectedCount,
+			boolean autoCloseTags, boolean enableItemDefaults, CompletionItem... expectedItems)
+			throws BadLocationException {
 
 		SharedSettings settings = new SharedSettings();
 		settings.getCompletionSettings().setAutoCloseTags(autoCloseTags);
 		return testCompletionFor(xmlLanguageService, value, catalogPath, customConfiguration, fileURI, expectedCount,
-				settings,
-				expectedItems);
+				settings, enableItemDefaults, expectedItems);
+	}
+
+	public static CompletionList testCompletionFor(XMLLanguageService xmlLanguageService, String value,
+			String catalogPath, Consumer<XMLLanguageService> customConfiguration, String fileURI, Integer expectedCount,
+			SharedSettings sharedSettings, CompletionItem... expectedItems) throws BadLocationException {
+		return testCompletionFor(xmlLanguageService, value, catalogPath, customConfiguration, fileURI, expectedCount,
+				sharedSettings, false, expectedItems);
 	}
 
 	public static CompletionList testCompletionFor(XMLLanguageService xmlLanguageService, String value,
 			String catalogPath,
 			Consumer<XMLLanguageService> customConfiguration, String fileURI, Integer expectedCount,
-			SharedSettings sharedSettings, CompletionItem... expectedItems) throws BadLocationException {
+			SharedSettings sharedSettings, boolean enableItemDefaults, CompletionItem... expectedItems)
+			throws BadLocationException {
+		if (enableItemDefaults) {
+			if (sharedSettings.getCompletionSettings().getCompletionCapabilities() == null) {
+				CompletionCapabilities completionCapabilities = new CompletionCapabilities();
+				sharedSettings.getCompletionSettings().setCapabilities(completionCapabilities);
+			}
+			if (sharedSettings.getCompletionSettings().getCompletionCapabilities().getCompletionList() == null) {
+				CompletionListCapabilities completionListCapabilities = new CompletionListCapabilities();
+				sharedSettings.getCompletionSettings().getCompletionCapabilities()
+						.setCompletionList(completionListCapabilities);
+			}
+			sharedSettings.getCompletionSettings().getCompletionCapabilities().getCompletionList()
+					.setItemDefaults(Arrays.asList("insertTextFormat", "editRange"));
+		}
 		int offset = value.indexOf('|');
 		value = value.substring(0, offset) + value.substring(offset + 1);
 
@@ -248,13 +285,18 @@ public class XMLAssert {
 		}
 		if (expectedItems != null) {
 			for (CompletionItem item : expectedItems) {
-				assertCompletion(list, item, expectedCount);
+				assertCompletion(list, item, enableItemDefaults, expectedCount);
 			}
 		}
 		return list;
 	}
 
 	public static void assertCompletion(CompletionList completions, CompletionItem expected, Integer expectedCount) {
+		assertCompletion(completions, expected, false, expectedCount);
+	}
+
+	public static void assertCompletion(CompletionList completions, CompletionItem expected, boolean enableItemDefaults,
+			Integer expectedCount) {
 		List<CompletionItem> matches = completions.getItems().stream().filter(completion -> {
 			return expected.getLabel().equals(completion.getLabel());
 		}).collect(Collectors.toList());
@@ -271,8 +313,8 @@ public class XMLAssert {
 			});
 		}
 
-		CompletionItem match = getCompletionMatch(matches, expected);
-		if (expected.getTextEdit() != null && match.getTextEdit() != null) {
+		CompletionItem match = getCompletionMatch(matches, enableItemDefaults, expected);
+		if (!enableItemDefaults && expected.getTextEdit() != null && match.getTextEdit() != null) {
 			if (expected.getTextEdit().getLeft().getNewText() != null) {
 				assertEquals(expected.getTextEdit().getLeft().getNewText(), match.getTextEdit().getLeft().getNewText());
 			}
@@ -289,6 +331,17 @@ public class XMLAssert {
 						matchedAdditionalTextEdits.size());
 				assertArrayEquals(expected.getAdditionalTextEdits().toArray(),
 						matchedAdditionalTextEdits.toArray());
+			}
+		} else {
+			assertNull(match.getTextEdit());
+			assertNull(match.getInsertTextFormat());
+			if (match.getTextEditText() != null) {
+				assertEquals(expected.getTextEdit().getLeft().getNewText(), match.getTextEditText());
+			}
+			Range r = expected.getTextEdit().getLeft().getRange();
+			if (r != null && r.getStart() != null && r.getEnd() != null) {
+				assertEquals(expected.getTextEdit().getLeft().getRange(),
+						completions.getItemDefaults().getEditRange().getLeft());
 			}
 		}
 		if (expected.getFilterText() != null && match.getFilterText() != null) {
@@ -330,8 +383,16 @@ public class XMLAssert {
 	}
 
 	private static CompletionItem getCompletionMatch(List<CompletionItem> matches, CompletionItem expected) {
+		return getCompletionMatch(matches, false, expected);
+	}
+
+	private static CompletionItem getCompletionMatch(List<CompletionItem> matches, boolean enableItemDefaults,
+			CompletionItem expected) {
 		for (CompletionItem item : matches) {
-			if (expected.getTextEdit().getLeft().getNewText().equals(item.getTextEdit().getLeft().getNewText())) {
+			if (!enableItemDefaults && expected.getTextEdit().getLeft().getNewText()
+					.equals(item.getTextEdit().getLeft().getNewText())) {
+				return item;
+			} else if (expected.getTextEdit().getLeft().getNewText().equals(item.getTextEditText())) {
 				return item;
 			}
 		}
@@ -912,15 +973,19 @@ public class XMLAssert {
 	public static List<CodeAction> testCodeActionsFor(String xml, Diagnostic diagnostic, String catalogPath,
 			SharedSettings sharedSettings, XMLLanguageService xmlLanguageService, CodeAction... expected)
 			throws BadLocationException {
-		return testCodeActionsFor(xml, diagnostic, null, catalogPath, null, sharedSettings, xmlLanguageService, -1, expected);
+		return testCodeActionsFor(xml, diagnostic, null, catalogPath, null, sharedSettings, xmlLanguageService, -1,
+				expected);
 	}
 
 	public static List<CodeAction> testCodeActionsFor(String xml, Range range, String catalogPath,
 			SharedSettings sharedSettings, XMLLanguageService xmlLanguageService, CodeAction... expected)
 			throws BadLocationException {
-		return testCodeActionsFor(xml, null, range, catalogPath, null, sharedSettings, xmlLanguageService, -1, expected);
+		return testCodeActionsFor(xml, null, range, catalogPath, null, sharedSettings, xmlLanguageService, -1,
+				expected);
 	}
-	public static List<CodeAction> testCodeActionsFor(String xml, Diagnostic diagnostic, Range range, String catalogPath,
+
+	public static List<CodeAction> testCodeActionsFor(String xml, Diagnostic diagnostic, Range range,
+			String catalogPath,
 			String fileURI, SharedSettings sharedSettings, XMLLanguageService xmlLanguageService, int index,
 			CodeAction... expected) throws BadLocationException {
 		int offset = xml.indexOf('|');
@@ -936,7 +1001,7 @@ public class XMLAssert {
 		} else if (range == null && diagnostic != null) {
 			range = diagnostic.getRange();
 		}
-		
+
 		// Otherwise, range is to be specified in parameters
 		assertNotNull(range, "Range cannot be null");
 
@@ -1124,7 +1189,7 @@ public class XMLAssert {
 	}
 
 	public static Either<TextDocumentEdit, ResourceOperation> teOp(String uri, TextEdit... te) {
-		return Either.forLeft(new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, 0),	Arrays.asList(te)));
+		return Either.forLeft(new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, 0), Arrays.asList(te)));
 	}
 
 	// ------------------- Hover assert
@@ -1791,8 +1856,8 @@ public class XMLAssert {
 				.stream().filter(Either::isLeft)
 				.filter(e -> uri.equals(e.getLeft().getTextDocument().getUri()))
 				.map(Either::getLeft).findFirst();
-		List<TextEdit> actualEdits  = documentChange.isPresent() ? 
-				documentChange.get().getEdits() : Collections.emptyList();
+		List<TextEdit> actualEdits = documentChange.isPresent() ? documentChange.get().getEdits()
+				: Collections.emptyList();
 		assertArrayEquals(expectedEdits.toArray(), actualEdits.toArray());
 	}
 
@@ -1836,7 +1901,7 @@ public class XMLAssert {
 	}
 
 	public static LinkedEditingRanges le(Range... ranges) {
-		return new LinkedEditingRanges(Arrays.asList(ranges),  "[^\\s>]+");
+		return new LinkedEditingRanges(Arrays.asList(ranges), "[^\\s>]+");
 	}
 
 	public static LinkedEditingRanges le(String wordPattern, Range... ranges) {

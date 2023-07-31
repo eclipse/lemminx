@@ -81,6 +81,21 @@ public class XSDCompletionExtensionsTest extends AbstractCacheBasedTest {
 	}
 
 	@Test
+	public void completionOnElementTypeItemDefaults() throws BadLocationException {
+		// completion on | xs:element/@type -> xs:complexType/@name, xs:simpleType/@name
+		String xml = "<?xml version=\"1.1\" ?>\r\n" + //
+				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" targetNamespace=\"http://www.w3.org/2001/XMLSchema\">\r\n"
+				+ //
+				"	<xs:element name=\"elt\" type=\"|\" />\r\n" + //
+				"	<xs:complexType name=\"aComplexType\" />\r\n" + //
+				"	<xs:simpleType name=\"aSimpleType\" />\r\n" + //
+				"</xs:schema>";
+		testCompletionFor(xml, true, c("xs:aComplexType", te(2, 30, 2, 30, "xs:aComplexType"), "xs:aComplexType"),
+				c("xs:aSimpleType", te(2, 30, 2, 30, "xs:aSimpleType"), "xs:aSimpleType"),
+				c("xs:string", te(2, 30, 2, 30, "xs:string"), "xs:string"));
+	}
+
+	@Test
 	public void completionOnAttributeType() throws BadLocationException {
 		// completion on | xs:attribute/@type -> xs:simpleType/@name
 		String xml = "<?xml version=\"1.1\" ?>\r\n" + //
@@ -169,6 +184,10 @@ public class XSDCompletionExtensionsTest extends AbstractCacheBasedTest {
 		XMLAssert.testCompletionFor(xml, null, "test.xml", 2,
 				c("TypeFromB", te(6, 20, 6, 20, "TypeFromB"), "TypeFromB"),
 				c("TypeFromC", te(6, 20, 6, 20, "TypeFromC"), "TypeFromC"));
+	}
+
+	private void testCompletionFor(String xml, boolean enableItemDefaults, CompletionItem... expectedItems) throws BadLocationException {
+		XMLAssert.testCompletionFor(xml, null, enableItemDefaults, expectedItems);
 	}
 
 	private void testCompletionFor(String xml, CompletionItem... expectedItems) throws BadLocationException {

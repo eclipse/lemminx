@@ -48,6 +48,7 @@ import org.eclipse.lemminx.services.extensions.completion.ICompletionResponse;
 import org.eclipse.lemminx.services.snippets.IXMLSnippetContext;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLCompletionSettings;
+import org.eclipse.lemminx.utils.CompletionItemDefaultsUtils;
 import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.CompletionItem;
@@ -288,6 +289,8 @@ public class XMLCompletions {
 			return completionResponse;
 		} finally {
 			collectSnippetSuggestions(completionRequest, completionResponse);
+			// Manage itemDefaults
+			CompletionItemDefaultsUtils.process(completionResponse, settings);
 		}
 	}
 

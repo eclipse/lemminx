@@ -173,6 +173,31 @@ public class DTDCompletionExtensionsTest extends AbstractCacheBasedTest {
 	}
 
 	@Test
+	public void externalDTDCompletionAllDeclsItemDefaults() throws BadLocationException {
+		// completion on <|
+		String xml = "<?xml version = \"1.0\"?>\r\n" + //
+				"<!DOCTYPE Folks [\r\n" + //
+				"	<!ELEMENT Folks (Person*)>\r\n" + //
+				"	|\r\n" + //
+				"]>\r\n" + //
+				"<Folks>\r\n" + //
+				"	" + //
+				"</Folks>";
+		testCompletionFor(xml, true, true, //
+				DTDNODE_SNIPPETS /* DTD node snippets */ + //
+						COMMENT_SNIPPETS /* Comment snippets */ , "catalog.xml", //
+				c("Insert DTD Element Declaration", te(3, 1, 3, 1, "<!ELEMENT ${1:element-name} (${2:#PCDATA})>"),
+						"<!ELEMENT"),
+				c("Insert Internal DTD Entity Declaration",
+						te(3, 1, 3, 1, "<!ENTITY ${1:entity-name} \"${2:entity-value}\">"), "<!ENTITY"),
+				c("Insert DTD Attributes List Declaration",
+						te(3, 1, 3, 1, "<!ATTLIST ${1:element-name} ${2:attribute-name} ${3:ID} ${4:#REQUIRED}>"),
+						"<!ATTLIST"),
+				c("Insert External DTD Entity Declaration",
+						te(3, 1, 3, 1, "<!ENTITY ${1:entity-name} SYSTEM \"${2:entity-value}\">"), "<!ENTITY"));
+	}
+
+	@Test
 	public void externalDTDCompletionAllDeclsSnippetsNotSupported() throws BadLocationException {
 		// completion on <|
 		String xml = "<?xml version = \"1.0\"?>\r\n" + //
@@ -270,6 +295,12 @@ public class DTDCompletionExtensionsTest extends AbstractCacheBasedTest {
 
 	private void testCompletionFor(String xml, boolean isSnippetsSupported, Integer expectedCount, String catalog,
 			CompletionItem... expectedItems) throws BadLocationException {
+		testCompletionFor(xml, isSnippetsSupported, false, expectedCount, catalog, expectedItems);
+	}
+
+	private void testCompletionFor(String xml, boolean isSnippetsSupported, boolean enableItemDefaults,
+			Integer expectedCount, String catalog,
+			CompletionItem... expectedItems) throws BadLocationException {
 		CompletionCapabilities completionCapabilities = new CompletionCapabilities();
 		CompletionItemCapabilities completionItem = new CompletionItemCapabilities(isSnippetsSupported); // activate
 																											// snippets
@@ -278,6 +309,6 @@ public class DTDCompletionExtensionsTest extends AbstractCacheBasedTest {
 		SharedSettings sharedSettings = new SharedSettings();
 		sharedSettings.getCompletionSettings().setCapabilities(completionCapabilities);
 		XMLAssert.testCompletionFor(new XMLLanguageService(), xml, "src/test/resources/catalogs/" + catalog, null, null,
-				expectedCount, sharedSettings, expectedItems);
+				expectedCount, sharedSettings, enableItemDefaults, expectedItems);
 	}
 }

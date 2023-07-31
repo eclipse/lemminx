@@ -39,7 +39,23 @@ public class XSLCompletionExtensionsTest extends AbstractCacheBasedTest {
 				c("xsl:import", te(2, 0, 2, 0, "<xsl:import href=\"\" />"), "xsl:import")); // coming from stylesheet children
 	}
 
+	@Test
+	public void completionItemDefaults() throws BadLocationException {
+		// completion on |
+		String xml = "<?xml version=\"1.0\"?>\r\n" + //
+				"<xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\">\r\n" + //
+				"|";
+		testCompletionFor(xml, true,
+				c("xsl:template", te(2, 0, 2, 0, "<xsl:template></xsl:template>"), "xsl:template"), // <-- coming from substition group of xsl:declaration
+				c("xsl:output", te(2, 0, 2, 0, "<xsl:output></xsl:output>"), "xsl:output"), // <-- coming from substition group of xsl:declaration
+				c("xsl:import", te(2, 0, 2, 0, "<xsl:import href=\"\" />"), "xsl:import")); // coming from stylesheet children
+	}
+
 	private void testCompletionFor(String xml, CompletionItem... expectedItems) throws BadLocationException {
 		XMLAssert.testCompletionFor(xml, null, expectedItems);
+	}
+
+	private void testCompletionFor(String xml, boolean enableItemDefaults, CompletionItem... expectedItems) throws BadLocationException {
+		XMLAssert.testCompletionFor(xml, null, enableItemDefaults, expectedItems);
 	}
 }

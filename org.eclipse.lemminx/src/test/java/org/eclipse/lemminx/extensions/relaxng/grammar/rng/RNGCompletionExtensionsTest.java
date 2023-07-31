@@ -44,6 +44,20 @@ public class RNGCompletionExtensionsTest extends BaseFileTempTest {
 	}
 
 	@Test
+	public void completionOnRootItemDefaults() throws BadLocationException {
+		// completion on <|
+		String xml = "<grammar xmlns=\"http://relaxng.org/ns/structure/1.0\">\r\n" + //
+				"  <|\r\n" + //
+				"</grammar>";
+		testCompletionFor(xml, true, //
+				4 + CDATA_SNIPPETS + COMMENT_SNIPPETS, //
+				c("include", te(1, 2, 1, 3, "<include href=\"\"></include>"), "<include"), //
+				c("div", te(1, 2, 1, 3, "<div></div>"), "<div"), //
+				c("start", te(1, 2, 1, 3, "<start></start>"), "<start"), //
+				c("define", te(1, 2, 1, 3, "<define name=\"\"></define>"), "<define"));
+	}
+
+	@Test
 	public void completionOnElementNoName() throws BadLocationException {
 		// completion on <|
 		String xml = "<grammar xmlns=\"http://relaxng.org/ns/structure/1.0\"\r\n" + //
@@ -157,6 +171,11 @@ public class RNGCompletionExtensionsTest extends BaseFileTempTest {
 
 	private static void testCompletionFor(String value, Integer expectedCount, CompletionItem... expectedItems)
 			throws BadLocationException {
+		testCompletionFor(value, false, expectedCount, expectedItems);
+	}
+
+	private static void testCompletionFor(String value, boolean enableItemDefaults, Integer expectedCount,
+			CompletionItem... expectedItems) throws BadLocationException {
 		XMLAssert.testCompletionFor(new XMLLanguageService(), value, null, null, "src/test/resources/relaxng/test.xml",
 				expectedCount, true, expectedItems);
 	}

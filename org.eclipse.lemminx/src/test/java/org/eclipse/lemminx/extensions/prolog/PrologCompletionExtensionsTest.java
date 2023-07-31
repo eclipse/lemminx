@@ -97,6 +97,18 @@ public class PrologCompletionExtensionsTest extends AbstractCacheBasedTest {
 	}
 
 	@Test
+	public void completionVersionValueItemDefaults() throws BadLocationException {
+		// completion on |
+		String xml = "<?xml version=| ?>\r\n" + //
+				"<project xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">";
+		testCompletionFor(true, xml,
+				c(PrologModel.VERSION_1, te(0, 14, 0, 14, "\"" + PrologModel.VERSION_1 + "\""),
+						"\"" + PrologModel.VERSION_1 + "\""),
+				c(PrologModel.VERSION_1_1, te(0, 14, 0, 14, "\"" + PrologModel.VERSION_1_1 + "\""),
+						"\"" + PrologModel.VERSION_1_1 + "\""));
+	}
+
+	@Test
 	public void completionVersionNoSpaceAfterEquals() throws BadLocationException {
 		// completion on |
 		String xml = "<?xml version=|?>\r\n" + // <- no space after the '='
@@ -328,6 +340,10 @@ public class PrologCompletionExtensionsTest extends AbstractCacheBasedTest {
 						"<?xml version=\"${1|1.0,1.1|}\" encoding=\"${2|UTF-8,ISO-8859-1,Windows-1251,Windows-1252,Shift JIS,GB2312,EUC-KR|}\"?>${0}", //
 						r(0, 0, 0, 7), //
 						"<?xml"));
+	}
+
+	private void testCompletionFor(boolean enableItemDefaults, String xml, CompletionItem... expectedItems) throws BadLocationException {
+		XMLAssert.testCompletionFor(xml, null, enableItemDefaults, expectedItems);
 	}
 
 	private void testCompletionFor(String xml, CompletionItem... expectedItems) throws BadLocationException {
