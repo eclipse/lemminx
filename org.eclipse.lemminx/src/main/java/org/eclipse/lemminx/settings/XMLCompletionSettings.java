@@ -114,6 +114,21 @@ public class XMLCompletionSettings {
 	}
 
 	/**
+	 * Returns <code>true</code> if the client support completion list itemDefaults given the field and
+	 * <code>false</code> otherwise.
+	 *
+	 * @param field the completionList itemDefaults field
+	 * 
+	 * @return <code>true</code> if the client support completion list itemDefaults given the field and
+	 * <code>false</code> otherwise.
+	 */
+	public boolean isCompletionListItemDefaultsSupport(String field) {
+		return completionCapabilities != null && completionCapabilities.getCompletionList() != null
+			&& completionCapabilities.getCompletionList().getItemDefaults() != null
+			&& completionCapabilities.getCompletionList().getItemDefaults().contains(field);
+	}
+
+	/**
 	 * Merge only the given completion settings (and not the capability) in the
 	 * settings.
 	 *

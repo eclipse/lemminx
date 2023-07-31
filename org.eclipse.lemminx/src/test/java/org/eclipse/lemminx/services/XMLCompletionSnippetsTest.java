@@ -235,6 +235,209 @@ public class XMLCompletionSnippetsTest {
 	}
 
 	@Test
+	public void emptyXMLContentItemDefaults() throws BadLocationException {
+		testCompletionFor("|", //
+				REGION_SNIPPETS /* #region */ + //
+						NEW_XML_SNIPPETS /* DOCTYPE snippets */ + //
+						XML_DECLARATION_SNIPPETS /* XML Declaration snippets */ + //
+						PROCESSING_INSTRUCTION_SNIPPETS /* Processing Instruction snippets */ + //
+						COMMENT_SNIPPETS /* Comment snippets */ + //
+						CATALOG_SNIPPETS /* Catalog snippets */ , //
+				true,
+				c("New XML with SYSTEM DOCTYPE", //
+						"<!DOCTYPE root-element SYSTEM \"file.dtd\">" + lineSeparator() + //
+								"<root-element>" + lineSeparator() + //
+								"</root-element>", //
+						r(0, 0, 0, 0), "<!DOCTYPE"),
+				c("Insert XML Declaration", //
+						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>", //
+						r(0, 0, 0, 0), "<?xml"),
+				c("Insert XML Schema association", //
+						"<?xml-model href=\"file.xsd\" type=\"application/xml\" schematypens=\"http://www.w3.org/2001/XMLSchema\"?>", //
+						r(0, 0, 0, 0), "<?xml-model"),
+				c("Insert DTD association", //
+						"<?xml-model href=\"file.dtd\" type=\"application/xml-dtd\"?>", //
+						r(0, 0, 0, 0), "<?xml-model"),
+				c("New XML bound with xsi:schemaLocation", //
+						"<root-element xmlns=\"https://github.com/eclipse/lemminx\"" + lineSeparator() + //
+								"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" + lineSeparator() + //
+								"	xsi:schemaLocation=\"" + lineSeparator() + //
+								"		https://github.com/eclipse/lemminx file.xsd\">" + lineSeparator() + //
+								"	" + lineSeparator() + //
+								"</root-element>", //
+						r(0, 0, 0, 0), "schemaLocation"),
+				c("New XML bound with xsi:noNamespaceSchemaLocation", //
+						"<root-element" + lineSeparator() + //
+								"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" + lineSeparator() + //
+								"	xsi:noNamespaceSchemaLocation=\"file.xsd\">" + lineSeparator() + //
+								"	" + lineSeparator() + //
+								"</root-element>", //
+						r(0, 0, 0, 0), "noNamespaceSchemaLocation"),
+				c("New XML bound with RelaxNG", //
+						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + lineSeparator() + //
+								"<?xml-model href=\"file.rng\" schematypens=\"http://relaxng.org/ns/structure/1.0\"?>"
+								+ lineSeparator() + //
+								"<root-element>" + lineSeparator() + //
+								"	" + lineSeparator() + //
+								"</root-element>", //
+						r(0, 0, 0, 0), "relaxng"),
+				c("New catalog bound using DTD", //
+						"<!DOCTYPE catalog" + lineSeparator() + //
+								"\tPUBLIC \"-//OASIS//DTD Entity Resolution XML Catalog V1.0//EN\"" + lineSeparator() + //
+								"\t\"http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd\">"
+								+ lineSeparator() + //
+								"<catalog xmlns=\"urn:oasis:names:tc:entity:xmlns:xml:catalog\" prefer=\"public\">"
+								+ lineSeparator() + //
+								"\t<public publicId=\"\" uri=\"\" />" + lineSeparator() + //
+								"</catalog>", //
+						r(0, 0, 0, 0), "<catalog"),
+				c("New catalog bound using XSD", //
+						"<catalog" + lineSeparator() + //
+								"\txmlns=\"urn:oasis:names:tc:entity:xmlns:xml:catalog\"" + lineSeparator() + //
+								"\txmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" + lineSeparator() + //
+								"\txsi:schemaLocation=\"urn:oasis:names:tc:entity:xmlns:xml:catalog" + lineSeparator() + //
+								"\t\thttp://www.oasis-open.org/committees/entity/release/1.1/catalog.xsd\""
+								+ lineSeparator() + //
+								"\tprefer=\"public\">" + lineSeparator() + //
+								"\t<public publicId=\"\" uri=\"\" />" + lineSeparator() + //
+								"</catalog>", //
+						r(0, 0, 0, 0), "<catalog"),
+				c("New catalog", //
+						"<catalog xmlns=\"urn:oasis:names:tc:entity:xmlns:xml:catalog\">" + lineSeparator() + //
+								"\t<public publicId=\"\" uri=\"\" />" + lineSeparator() + //
+								"</catalog>",
+						r(0, 0, 0, 0), "<catalog"),
+				c("<!--", //
+						"<!-- -->", //
+						r(0, 0, 0, 0), "<!--"));
+
+		testCompletionFor("<|", //
+				NEW_XML_SNIPPETS /* DOCTYPE snippets */ + //
+						XML_DECLARATION_SNIPPETS /* XML Declaration snippets */ + //
+						PROCESSING_INSTRUCTION_SNIPPETS /* Processing Instruction snippets */ + //
+						COMMENT_SNIPPETS /* Comment snippets */ + //
+						CATALOG_SNIPPETS /* Catalog snippets */ , //
+				true,
+				c("New XML with SYSTEM DOCTYPE", //
+						"<!DOCTYPE root-element SYSTEM \"file.dtd\">" + lineSeparator() + //
+								"<root-element>" + lineSeparator() + //
+								"</root-element>", //
+						r(0, 0, 0, 1), "<!DOCTYPE"),
+				c("Insert XML Declaration", //
+						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>", //
+						r(0, 0, 0, 1), "<?xml"),
+				c("Insert XML Schema association", //
+						"<?xml-model href=\"file.xsd\" type=\"application/xml\" schematypens=\"http://www.w3.org/2001/XMLSchema\"?>", //
+						r(0, 0, 0, 1), "<?xml-model"),
+				c("Insert DTD association", //
+						"<?xml-model href=\"file.dtd\" type=\"application/xml-dtd\"?>", //
+						r(0, 0, 0, 1), "<?xml-model"),
+				c("<!--", //
+						"<!-- -->", //
+						r(0, 0, 0, 1), "<!--"),
+				c("New catalog bound using DTD", //
+						"<!DOCTYPE catalog" + lineSeparator() + //
+								"\tPUBLIC \"-//OASIS//DTD Entity Resolution XML Catalog V1.0//EN\"" + lineSeparator() + //
+								"\t\"http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd\">"
+								+ lineSeparator() + //
+								"<catalog xmlns=\"urn:oasis:names:tc:entity:xmlns:xml:catalog\" prefer=\"public\">"
+								+ lineSeparator() + //
+								"\t<public publicId=\"\" uri=\"\" />" + lineSeparator() + //
+								"</catalog>", //
+						r(0, 0, 0, 1), "<catalog"),
+				c("New catalog bound using XSD", //
+						"<catalog" + lineSeparator() + //
+								"\txmlns=\"urn:oasis:names:tc:entity:xmlns:xml:catalog\"" + lineSeparator() + //
+								"\txmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" + lineSeparator() + //
+								"\txsi:schemaLocation=\"urn:oasis:names:tc:entity:xmlns:xml:catalog" + lineSeparator() + //
+								"\t\thttp://www.oasis-open.org/committees/entity/release/1.1/catalog.xsd\""
+								+ lineSeparator() + //
+								"\tprefer=\"public\">" + lineSeparator() + //
+								"\t<public publicId=\"\" uri=\"\" />" + lineSeparator() + //
+								"</catalog>", //
+						r(0, 0, 0, 1), "<catalog"), //
+				c("New catalog", //
+						"<catalog xmlns=\"urn:oasis:names:tc:entity:xmlns:xml:catalog\">" + lineSeparator() + //
+								"\t<public publicId=\"\" uri=\"\" />" + lineSeparator() + //
+								"</catalog>",
+						r(0, 0, 0, 1), "<catalog"));
+
+		testCompletionFor("<|>", //
+				NEW_XML_SNIPPETS /* DOCTYPE snippets */ + //
+						XML_DECLARATION_SNIPPETS /* XML Declaration snippets */ + //
+						PROCESSING_INSTRUCTION_SNIPPETS /* Processing Instruction snippets */ + //
+						COMMENT_SNIPPETS /* Comment snippets */ + //
+						CATALOG_SNIPPETS /* Catalog snippets */ , //
+				true,
+				c("New XML with SYSTEM DOCTYPE", //
+						"<!DOCTYPE root-element SYSTEM \"file.dtd\">" + lineSeparator() + //
+								"<root-element>" + lineSeparator() + //
+								"</root-element>", //
+						r(0, 0, 0, 2), "<!DOCTYPE"),
+				c("Insert XML Declaration", //
+						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>", //
+						r(0, 0, 0, 2), "<?xml"),
+				c("Insert XML Schema association", //
+						"<?xml-model href=\"file.xsd\" type=\"application/xml\" schematypens=\"http://www.w3.org/2001/XMLSchema\"?>", //
+						r(0, 0, 0, 2), "<?xml-model"),
+				c("Insert DTD association", //
+						"<?xml-model href=\"file.dtd\" type=\"application/xml-dtd\"?>", //
+						r(0, 0, 0, 2), "<?xml-model"),
+				c("<!--", //
+						"<!-- -->", //
+						r(0, 0, 0, 2), "<!--"),
+				c("New catalog bound using DTD", //
+						"<!DOCTYPE catalog" + lineSeparator() + //
+								"\tPUBLIC \"-//OASIS//DTD Entity Resolution XML Catalog V1.0//EN\"" + lineSeparator() + //
+								"\t\"http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd\">"
+								+ lineSeparator() + //
+								"<catalog xmlns=\"urn:oasis:names:tc:entity:xmlns:xml:catalog\" prefer=\"public\">"
+								+ lineSeparator() + //
+								"\t<public publicId=\"\" uri=\"\" />" + lineSeparator() + //
+								"</catalog>", //
+						r(0, 0, 0, 2), "<catalog"),
+				c("New catalog bound using XSD", //
+						"<catalog" + lineSeparator() + //
+								"\txmlns=\"urn:oasis:names:tc:entity:xmlns:xml:catalog\"" + lineSeparator() + //
+								"\txmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" + lineSeparator() + //
+								"\txsi:schemaLocation=\"urn:oasis:names:tc:entity:xmlns:xml:catalog" + lineSeparator() + //
+								"\t\thttp://www.oasis-open.org/committees/entity/release/1.1/catalog.xsd\""
+								+ lineSeparator() + //
+								"\tprefer=\"public\">" + lineSeparator() + //
+								"\t<public publicId=\"\" uri=\"\" />" + lineSeparator() + //
+								"</catalog>", //
+						r(0, 0, 0, 2), "<catalog"), //
+				c("New catalog", //
+						"<catalog xmlns=\"urn:oasis:names:tc:entity:xmlns:xml:catalog\">" + lineSeparator() + //
+								"\t<public publicId=\"\" uri=\"\" />" + lineSeparator() + //
+								"</catalog>",
+						r(0, 0, 0, 2), "<catalog"));
+
+		testCompletionFor("<!|", //
+				NEW_XML_SNIPPETS /* DOCTYPE snippets */ + //
+						XML_DECLARATION_SNIPPETS /* XML Declaration snippets */ + //
+						PROCESSING_INSTRUCTION_SNIPPETS /* Processing Instruction snippets */ + //
+						COMMENT_SNIPPETS /* Comment snippets */ + //
+						CATALOG_SNIPPETS /*
+											 * Catalog snippets (are counted here but get filtered by the prefix in the
+											 * editor )
+											 */, // TODO
+				true,
+				c("New XML with SYSTEM DOCTYPE", //
+						"<!DOCTYPE root-element SYSTEM \"file.dtd\">" + lineSeparator() + //
+								"<root-element>" + lineSeparator() + //
+								"</root-element>", //
+						r(0, 0, 0, 2), "<!DOCTYPE"),
+				c("Insert XML Declaration", //
+						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>", //
+						r(0, 0, 0, 2), "<?xml"),
+				c("<!--", //
+						"<!-- -->", //
+						r(0, 0, 0, 2), "<!--"));
+
+	}
+
+	@Test
 	public void afterComment() throws BadLocationException {
 		testCompletionFor("<!-- -->|", //
 				NEW_XML_SNIPPETS /* DOCTYPE snippets */ + //

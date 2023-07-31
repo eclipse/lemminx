@@ -113,6 +113,24 @@ public class EntitiesCompletionExtensionsTest extends AbstractCacheBasedTest {
 	}
 
 	@Test
+	public void underscoreEntityNameItemDefaults() throws BadLocationException {
+		// &foo_b|
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<!DOCTYPE root [\r\n" + //
+				"  <!ENTITY foo_bar \"&#x2014;\">\r\n" + //
+				"  <!ENTITY foo_baz \"&#x2014;\">\r\n" + //
+				"]>\r\n" + //
+				"<root>\r\n" + //
+				"  &foo_b|\r\n" + // <- here completion shows mdash entity
+				"</root>";
+		testCompletionFor(xml, 2 + //
+				2 /* CDATA and Comments */ + //
+				PredefinedEntity.values().length /* predefined entities */, true,
+				c("&foo_bar;", "&foo_bar;", r(6, 2, 6, 8), "&foo_bar;"), //
+				c("&foo_baz;", "&foo_baz;", r(6, 2, 6, 8), "&foo_baz;"));
+	}
+
+	@Test
 	public void insideWithAmp() throws BadLocationException {
 		// &m|d;blablabla
 		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //

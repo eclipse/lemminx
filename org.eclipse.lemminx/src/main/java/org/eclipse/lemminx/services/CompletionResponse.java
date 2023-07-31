@@ -23,7 +23,7 @@ import org.eclipse.lsp4j.CompletionList;
  * Completion response implementation.
  *
  */
-class CompletionResponse extends CompletionList implements ICompletionResponse {
+public class CompletionResponse extends CompletionList implements ICompletionResponse {
 
 	private transient List<String> seenAttributes;
 	private transient boolean hasSomeItemFromGrammar;

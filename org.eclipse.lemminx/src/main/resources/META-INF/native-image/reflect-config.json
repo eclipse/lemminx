@@ -722,6 +722,14 @@
 		}]
 	},
 	{
+		"name": "org.eclipse.lsp4j.CompletionItemDefaults",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
 		"name": "org.eclipse.lsp4j.CompletionItemKind",
 		"fields": [{
 				"name": "Class"
