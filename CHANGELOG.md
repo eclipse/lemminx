@@ -1,5 +1,21 @@
 # Change Log
 
+## [0.27.0](https://github.com/eclipse/lemminx/milestone/43?closed=1) (August 3, 2023)
+
+### Enhancements
+
+ * Provide a Progress support API for lemminx extension. See [#1562](https://github.com/eclipse/lemminx/issues/1562).
+ * Add `alignWithFirstAttr` option to `xml.format.splitAttributes` settings. See [#1560](https://github.com/eclipse/lemminx/pull/1560).
+ * Implement `itemDefaults` for `CompletionList`. See [#1561](https://github.com/eclipse/lemminx/issues/1561).
+
+### Bug Fixes
+
+ * `XInclude` cannot be activated with binary mode. See [#1558](https://github.com/eclipse/lemminx/issues/1558).
+
+### Build
+
+ * Bump JUnit version. See [#1559](https://github.com/eclipse/lemminx/pull/1559).
+
 ## [0.26.1](https://github.com/eclipse/lemminx/milestone/41?closed=1) (June 22, 2023)
 
 ### Bug Fixes
