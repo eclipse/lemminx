@@ -138,6 +138,7 @@ public enum XSDErrorCode implements IXMLErrorCode {
 		case s4s_elt_invalid_content_3:
 		case src_element_2_1:
 		case src_element_3:
+		case src_annotation:
 		case src_import_1_2:
 			return XMLPositionUtility.selectStartTagName(offset, document);
 		case s4s_att_not_allowed: {
