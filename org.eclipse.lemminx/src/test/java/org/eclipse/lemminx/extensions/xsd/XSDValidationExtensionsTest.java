@@ -223,6 +223,28 @@ public class XSDValidationExtensionsTest extends AbstractCacheBasedTest {
 	}
 
 	@Test
+	public void src_annotation_invalid_tag_() throws BadLocationException {
+		String xml = "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\r\n" + //
+				"    <xs:annotation>\r\n" + //
+				"        <xs:appInfo>\r\n" + // 
+				"        </xs:appInfo>\r\n" + //
+				"    </xs:annotation>\r\n" + //
+				"</xs:schema>";
+		Diagnostic d = d(2, 9, 2, 19, XSDErrorCode.src_annotation);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d, 
+			ca(d, 
+				te(2, 9, 2, 19, "xs:appinfo"),
+				te(3, 10, 3, 20,"xs:appinfo") 
+			),
+			ca(d, 
+				te(2, 9, 2, 19, "xs:documentation"),
+				te(3, 10, 3, 20,"xs:documentation") 
+			)
+		);
+	}
+
+	@Test
 	public void sch_props_correct_2() throws BadLocationException {
 		String xml = "<?xml version=\"1.1\" ?>\r\n" + //
 				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\r\n" + //

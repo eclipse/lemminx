@@ -139,7 +139,7 @@ public class XMLValidationFilterTest extends AbstractCacheBasedTest {
 		// test.xsd doesn't matches the validation filter
 		XMLAssert.testPublishDiagnosticsFor(xml, fileURI, validation, ls, pd(fileURI, //
 				// XML schema error code
-				new Diagnostic(r(2, 15, 2, 15),
+				new Diagnostic(r(2, 7, 2, 14),
 						"src-annotation: <annotation> elements can only contain <appinfo> and <documentation> elements, but 'appInfo' was found.",
 						DiagnosticSeverity.Error, "xsd", XSDErrorCode.src_annotation.getCode())));
 
@@ -173,7 +173,7 @@ public class XMLValidationFilterTest extends AbstractCacheBasedTest {
 		// test.xsd doesn't matches the validation filter
 		XMLAssert.testPublishDiagnosticsFor(xml, fileURI, validation, ls, pd(fileURI, //
 				// XML schema error code
-				new Diagnostic(r(2, 15, 2, 15),
+				new Diagnostic(r(2, 7, 2, 14),
 						"src-annotation: <annotation> elements can only contain <appinfo> and <documentation> elements, but 'appInfo' was found.",
 						DiagnosticSeverity.Error, "xsd", XSDErrorCode.src_annotation.getCode())));
 
