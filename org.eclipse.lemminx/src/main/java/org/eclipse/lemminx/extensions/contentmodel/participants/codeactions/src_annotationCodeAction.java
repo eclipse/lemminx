@@ -1,16 +1,17 @@
 package org.eclipse.lemminx.extensions.contentmodel.participants.codeactions;
 
+import java.util.ArrayList;
 import java.util.List;
 
-
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionRequest;
-
+import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4j.Diagnostic;
@@ -24,6 +25,7 @@ public class src_annotationCodeAction implements ICodeActionParticipant {
 		DOMDocument document = request.getDocument();
 		Range diagnosticRange = diagnostic.getRange();
 		String codeActionText;
+		Range closeRange = null;
 
 		// Attempt to get tag name
 		try {
@@ -32,28 +34,33 @@ public class src_annotationCodeAction implements ICodeActionParticipant {
 			DOMElement element = (DOMElement) node;
 			String tagName = element.getTagName();
 			codeActionText = "Replace '" + tagName + "' with ";
+			closeRange = XMLPositionUtility.selectEndTagName(element);
 		} catch (BadLocationException e) {
 			codeActionText = "Replace with ";
 		}
-		
-	
-		// Replace with "appinfo"
-		CodeAction replaceAction_appinfo = CodeActionFactory.replace(codeActionText + "'xs:appinfo'", diagnosticRange,
-				"xs:appinfo",
-				document.getTextDocument(), diagnostic);
-		
-		// Replace with "documentation"
-		CodeAction replaceAction_documentation = CodeActionFactory.replace(codeActionText + "'xs:documentation'", diagnosticRange,
-				"xs:documentation",
-				document.getTextDocument(), diagnostic);
 
-				
+		List<String> potentialTags = new ArrayList<String>() {
+			{
+				add("xs:appinfo");
+				add("xs:documentation");
+			}
+		};
 
-		codeActions.add(replaceAction_appinfo);
-		codeActions.add(replaceAction_documentation);
-		
+		for (String potentialTag : potentialTags) {
 
-		
+			List<TextEdit> edits = new ArrayList<>();
+			TextEdit replaceOpen = new TextEdit(diagnosticRange, potentialTag);
+			edits.add(replaceOpen);
+			if (closeRange != null) {
+				TextEdit replaceClose = new TextEdit(closeRange, potentialTag);
+				edits.add(replaceClose);
+			}
+
+			CodeAction replaceAction = CodeActionFactory.replace(codeActionText + "'" + potentialTag + "'", edits,
+					document.getTextDocument(), diagnostic);
+			codeActions.add(replaceAction);
+		}
+
 	}
 
 }
