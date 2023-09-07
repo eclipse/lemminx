@@ -34,6 +34,13 @@ import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionRequest;
  */
 public class src_annotationCodeAction implements ICodeActionParticipant {
 
+	private static List<String> potentialTags = new ArrayList<String>() {
+		{
+			add("xs:appinfo");
+			add("xs:documentation");
+		}
+	};
+
 	@Override
 	public void doCodeAction(ICodeActionRequest request, List<CodeAction> codeActions, CancelChecker cancelChecker) {
 		Diagnostic diagnostic = request.getDiagnostic();
@@ -52,12 +59,7 @@ public class src_annotationCodeAction implements ICodeActionParticipant {
 		} catch (BadLocationException e) {
 			codeActionText = "Replace with ";
 		}
-		List<String> potentialTags = new ArrayList<String>() {
-			{
-				add("xs:appinfo");
-				add("xs:documentation");
-			}
-		};
+
 		for (String potentialTag : potentialTags) {
 			List<TextEdit> edits = new ArrayList<>();
 			TextEdit replaceOpen = new TextEdit(diagnosticRange, potentialTag);
