@@ -23,6 +23,7 @@ import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.s4s_elt_invalid_content_3CodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.src_import_1_2CodeAction;
+import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.src_annotationCodeAction;
 import org.eclipse.lemminx.extensions.xsd.utils.XSDUtils;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IXMLErrorCode;
@@ -138,6 +139,7 @@ public enum XSDErrorCode implements IXMLErrorCode {
 		case s4s_elt_invalid_content_3:
 		case src_element_2_1:
 		case src_element_3:
+		case src_annotation:
 		case src_import_1_2:
 			return XMLPositionUtility.selectStartTagName(offset, document);
 		case s4s_att_not_allowed: {
@@ -194,5 +196,6 @@ public enum XSDErrorCode implements IXMLErrorCode {
 	public static void registerCodeActionParticipants(Map<String, ICodeActionParticipant> codeActions) {
 		codeActions.put(s4s_elt_invalid_content_3.getCode(), new s4s_elt_invalid_content_3CodeAction());
 		codeActions.put(src_import_1_2.getCode(), new src_import_1_2CodeAction());
+		codeActions.put(src_annotation.getCode(), new src_annotationCodeAction());
 	}
 }
