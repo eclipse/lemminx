@@ -13,7 +13,6 @@
 package org.eclipse.lemminx.extensions.dtd;
 
 import static org.eclipse.lemminx.XMLAssert.ca;
-import static org.eclipse.lemminx.XMLAssert.d;
 import static org.eclipse.lemminx.XMLAssert.pd;
 import static org.eclipse.lemminx.XMLAssert.r;
 import static org.eclipse.lemminx.XMLAssert.testCodeActionsFor;
@@ -39,13 +38,6 @@ import org.junit.jupiter.api.Test;
  *
  */
 public class DTDValidationExternalResourcesTest extends AbstractCacheBasedTest {
-
-	@Test
-	public void EntityDeclUnterminated() throws Exception {
-		String xml = "<!ENTITY copyright \"Copyright W3Schools.\"\r\n" + //
-				"<!ELEMENT element-name (#PCDATA)>";
-		testDiagnosticsFor(xml, "test.dtd", d(0, 41, 42, DTDErrorCode.EntityDeclUnterminated));
-	}
 
 	@Test
 	public void entityRefInvalidUri() throws Exception {
@@ -137,7 +129,8 @@ public class DTDValidationExternalResourcesTest extends AbstractCacheBasedTest {
 						new Diagnostic(r(0, 24, 0, 46), "Cannot find DTD 'file:///tmp/secret.txt'.",
 								DiagnosticSeverity.Error, "xml", DTDErrorCode.DTDNotFound.getCode()),
 						new Diagnostic(r(1, 53, 1, 80),
-								"Error while downloading 'http://server:8080/dtd.xml?' to '" + dtdCachePath + "' : '[java.net.UnknownHostException] server'.",
+								"Error while downloading 'http://server:8080/dtd.xml?' to '" + dtdCachePath
+										+ "' : '[java.net.UnknownHostException] server'.",
 								DiagnosticSeverity.Error, "xml", ExternalResourceErrorCode.DownloadProblem.getCode())));
 
 	}

@@ -923,6 +923,16 @@ public class XMLPositionUtility {
 		}
 		return null;
 	}
+	
+	public static Range selectParameterNameFromGivenName(String parameterName, DTDDeclNode declNode) {
+		List<DTDDeclParameter> parameters = declNode.getParameters();
+		for (DTDDeclParameter parameter : parameters) {
+			if (parameterName.equals(parameter.getParameter())) {
+				return createRange(parameter.getStart(), parameter.getEnd(), declNode.getOwnerDocument());
+			}
+		}
+		return null;
+	}
 
 	// ------------ Other selection
 

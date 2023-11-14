@@ -18,6 +18,7 @@ import org.eclipse.lemminx.commons.CodeActionFactory;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMNode;
+import org.eclipse.lemminx.dom.DTDDeclParameter;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionRequest;
 import org.eclipse.lemminx.settings.SharedSettings;
@@ -43,10 +44,26 @@ public class OpenQuoteExpectedCodeAction implements ICodeActionParticipant {
 		} catch (BadLocationException e) {
 			return;
 		}
-		DOMAttr attr = document.findAttrAt(offset);
-		if (attr == null || !attr.isAttribute()) {
-			return;
+		DOMNode attr = document.findAttrAt(offset);
+		if (attr != null && attr.isAttribute()) {
+			// ex : <foo bar=value > <-- error on value which must be quoted.
+			insertQuotationForAttr(attr, document, request, diagnostic, codeActions);
+		} else {
+			DTDDeclParameter parameter = document.findDTDDeclParameterAt(offset);
+			if (parameter != null) {
+				// ex : <!ATTLIST dadesadministratives idinstitut ID > <-- error on idinstitut
+				// which must be quoted.
+				
+				// We disable this code action, since it generates DTD code which is not valid
+				// We need to study more usecases of https://www.w3.org/TR/REC-xml/#NT-AttlistDecl
+				// to provide more relevant code actions.
+				// insertQuotationForParameter(parameter, document, request, diagnostic, codeActions);
+			}
 		}
+	}
+
+	private static void insertQuotationForAttr(DOMNode attr, DOMDocument document, ICodeActionRequest request,
+			Diagnostic diagnostic, List<CodeAction> codeActions) {
 		SharedSettings sharedSettings = request.getSharedSettings();
 		String q = sharedSettings.getPreferences().getQuotationAsString();
 		Position codeactionPosition;
@@ -75,6 +92,16 @@ public class OpenQuoteExpectedCodeAction implements ICodeActionParticipant {
 					document.getTextDocument(), diagnostic);
 		}
 		codeActions.add(removeContentAction);
+	}
+
+	private static void insertQuotationForParameter(DTDDeclParameter parameter, DOMDocument document,
+			ICodeActionRequest request, Diagnostic diagnostic, List<CodeAction> codeActions) {
+		SharedSettings sharedSettings = request.getSharedSettings();
+		String q = sharedSettings.getPreferences().getQuotationAsString();
+		CodeAction insertQuotationsAction = CodeActionFactory.replace("Insert quotations",
+				parameter.getTargetRange(), q + parameter.getParameter() + q,
+				document.getTextDocument(), diagnostic);
+		codeActions.add(insertQuotationsAction);
 	}
 
 }
