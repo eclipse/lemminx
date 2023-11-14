@@ -1065,11 +1065,15 @@ public class XMLAssert {
 	}
 
 	public static CodeAction ca(Diagnostic d, TextEdit... te) {
+		return ca(d, FILE_URI, te);
+	}
+
+	public static CodeAction ca(Diagnostic d, String fileUri, TextEdit... te) {
 		CodeAction codeAction = new CodeAction();
 		codeAction.setTitle("");
 		codeAction.setDiagnostics(Arrays.asList(d));
 
-		TextDocumentEdit textDocumentEdit = tde(FILE_URI, 0, te);
+		TextDocumentEdit textDocumentEdit = tde(fileUri, 0, te);
 		WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)));
 		codeAction.setEdit(workspaceEdit);
 		return codeAction;

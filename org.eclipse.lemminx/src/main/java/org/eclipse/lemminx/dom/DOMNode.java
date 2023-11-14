@@ -289,6 +289,23 @@ public abstract class DOMNode implements Node, DOMRange {
 		return null;
 	}
 
+	public DTDDeclParameter findDTDDeclParameterAt(int offset) {
+		DOMNode node = findNodeAt(offset);
+		return findDTDDeclParameterAt(node, offset);
+	}
+
+	public static DTDDeclParameter findDTDDeclParameterAt(DOMNode node, int offset) {
+		if (node != null && (node.isDTDAttListDecl() || node.isDTDElementDecl() || node.isDTDEntityDecl()
+				|| node.isDTDNotationDecl())) {
+			for (DTDDeclParameter parameter : ((DTDDeclNode) node).getParameters()) {
+				if (isIncluded(parameter, offset)) {
+					return parameter;
+				}
+			}
+		}
+		return null;
+	}
+
 	public static DOMText findTextAt(DOMNode node, int offset) {
 		if (node != null && node.hasChildNodes()) {
 			for (DOMNode child : node.getChildren()) {
@@ -299,7 +316,7 @@ public abstract class DOMNode implements Node, DOMRange {
 		}
 		return null;
 	}
-	
+
 	public static DOMNode findNodeOrAttrAt(DOMDocument document, int offset) {
 		DOMNode node = document.findNodeAt(offset);
 		if (node != null) {

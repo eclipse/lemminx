@@ -355,9 +355,11 @@ public class XMLTextDocumentService implements TextDocumentService {
 	}
 
 	@Override
-	public CompletableFuture<Either3<Range, PrepareRenameResult, PrepareRenameDefaultBehavior>> prepareRename(PrepareRenameParams params) {
+	public CompletableFuture<Either3<Range, PrepareRenameResult, PrepareRenameDefaultBehavior>> prepareRename(
+			PrepareRenameParams params) {
 		return computeDOMAsync(params.getTextDocument(), (xmlDocument, cancelChecker) -> {
-			Either<Range, PrepareRenameResult> either = getXMLLanguageService().prepareRename(xmlDocument, params.getPosition(), cancelChecker);
+			Either<Range, PrepareRenameResult> either = getXMLLanguageService().prepareRename(xmlDocument,
+					params.getPosition(), cancelChecker);
 			if (either != null) {
 				if (either.isLeft()) {
 					return Either3.forFirst((Range) either.get());
@@ -554,11 +556,13 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 			newOptions = new XMLFormattingOptions();
 			newOptions.merge(sharedSettings.getFormattingSettings());
-			if (indentationSettings.get(0) != null && (indentationSettings.get(0) instanceof JsonPrimitive)) {
-				newOptions.setInsertSpaces(((JsonPrimitive) indentationSettings.get(0)).getAsBoolean());
-			}
-			if (indentationSettings.get(1) != null && (indentationSettings.get(1) instanceof JsonPrimitive)) {
-				newOptions.setTabSize(((JsonPrimitive) indentationSettings.get(1)).getAsInt());
+			if (!indentationSettings.isEmpty()) {
+				if (indentationSettings.get(0) != null && (indentationSettings.get(0) instanceof JsonPrimitive)) {
+					newOptions.setInsertSpaces(((JsonPrimitive) indentationSettings.get(0)).getAsBoolean());
+				}
+				if (indentationSettings.get(1) != null && (indentationSettings.get(1) instanceof JsonPrimitive)) {
+					newOptions.setTabSize(((JsonPrimitive) indentationSettings.get(1)).getAsInt());
+				}
 			}
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, "Error while processing getting indentation settings for code actions'.", e);

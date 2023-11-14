@@ -25,6 +25,8 @@ import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMDocumentType;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
+import org.eclipse.lemminx.dom.DTDDeclNode;
+import org.eclipse.lemminx.dom.DTDDeclParameter;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.ETagRequiredCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.ETagUnterminatedCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.ElementUnterminatedCodeAction;
@@ -283,6 +285,13 @@ public enum XMLSyntaxErrorCode implements IXMLErrorCode {
 		case NameRequiredInReference:
 			break;
 		case OpenQuoteExpected: {
+			DOMNode node = document.findNodeAt(offset);
+			if (node instanceof DTDDeclNode) {
+				// ex : <!ATTLIST dadesadministratives idinstitut ID > <-- error on idinstitut which must be quoted.
+				String parameterName = getString(arguments[1] /* idinstitut*/ );
+				return XMLPositionUtility.selectParameterNameFromGivenName(parameterName, (DTDDeclNode) node);
+			}
+			// ex : <foo bar=value > <-- error on value which must be quoted.
 			return XMLPositionUtility.selectAttributeNameAt(offset - 1, document);
 		}
 		case DoctypeNotAllowed:
