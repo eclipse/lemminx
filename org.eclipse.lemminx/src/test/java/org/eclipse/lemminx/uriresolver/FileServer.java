@@ -22,6 +22,7 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.util.resource.PathResource;
 import org.eclipse.lemminx.utils.ProjectUtils;
 
 /**
@@ -53,7 +54,7 @@ public class FileServer {
 	public FileServer(Path baseDir) throws IOException {
 		Files.createDirectories(baseDir);
 		ResourceHandler resourceHandler = new ModifiedResourceHandler();
-		resourceHandler.setResourceBase(baseDir.toUri().toString());
+		resourceHandler.setBaseResource(new PathResource(baseDir.toRealPath()));
 		resourceHandler.setDirectoriesListed(true);
 		serve(resourceHandler, new DefaultHandler());
 	}
