@@ -35,6 +35,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.lemminx.client.CodeLensKind;
 import org.eclipse.lemminx.client.CodeLensKindCapabilities;
@@ -875,7 +876,9 @@ public class XMLAssert {
 
 	public static void assertPublishDiagnostics(List<PublishDiagnosticsParams> actual,
 			PublishDiagnosticsParams... expected) {
-		assertEquals(expected.length, actual.size());
+		assertEquals(expected.length, actual.size(), () -> {
+			return "Unexpected diagnostics. Expected:"+ getMessages(Arrays.stream(expected)) + ",\nReceived: " +getMessages(actual.stream());
+		});
 		for (int i = 0; i < expected.length; i++) {
 			assertEquals(expected[i].getUri(), actual.get(i).getUri());
 			actual.get(i).getDiagnostics().forEach(d -> {
@@ -886,6 +889,12 @@ public class XMLAssert {
 			});
 			assertDiagnostics(actual.get(i).getDiagnostics(), expected[i].getDiagnostics(), false);
 		}
+	}
+
+	private static List<String> getMessages(Stream<PublishDiagnosticsParams> diagParams) {
+		return diagParams.flatMap(d -> d.getDiagnostics().stream())
+						.map(d -> cleanExceptionMessage.apply(d.getMessage()))
+						.collect(Collectors.toList());
 	}
 
 	private static final Function<String, String> cleanExceptionMessage = (message) -> {
