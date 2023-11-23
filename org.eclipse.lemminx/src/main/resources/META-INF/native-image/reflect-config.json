@@ -482,6 +482,38 @@
 		}]
 	},
 	{
+		"name": "org.eclipse.lemminx.extensions.filepath.settings.FilePathExpression",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
+		"name": "org.eclipse.lemminx.extensions.filepath.settings.FilePathMapping",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
+		"name": "org.eclipse.lemminx.extensions.filepath.settings.FilePathSupport",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
+		"name": "org.eclipse.lemminx.extensions.filepath.settings.FilePathSupportSettings",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
 		"name": "org.eclipse.lemminx.settings.QuoteStyle",
 		"allDeclaredFields": true
 	},

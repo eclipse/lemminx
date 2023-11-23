@@ -28,7 +28,8 @@ public abstract class NewFileSnippetContext implements IXMLSnippetContext {
 	public static final IXMLSnippetContext XML_CONTEXT = new NewFileSnippetContext() {
 		@Override
 		protected boolean isMatchType(DOMDocument document) {
-			return !(document.isDTD() || DOMUtils.isXSD(document) || DOMUtils.isRelaxNG(document));
+			return !(document.isDTD() || DOMUtils.isXSD(document) || DOMUtils.isRelaxNG(document)
+					|| DOMUtils.isXSL(document));
 		}
 	};
 
@@ -50,6 +51,13 @@ public abstract class NewFileSnippetContext implements IXMLSnippetContext {
 		@Override
 		protected boolean isMatchType(DOMDocument document) {
 			return DOMUtils.isRelaxNG(document);
+		}
+	};
+
+	public static final IXMLSnippetContext XSL_CONTEXT = new NewFileSnippetContext() {
+		@Override
+		protected boolean isMatchType(DOMDocument document) {
+			return DOMUtils.isXSL(document);
 		}
 	};
 

@@ -7,7 +7,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lemminx.extensions.catalog;
+package org.eclipse.lemminx.extensions.catalog.participants;
 
 import java.util.Arrays;
 import java.util.List;

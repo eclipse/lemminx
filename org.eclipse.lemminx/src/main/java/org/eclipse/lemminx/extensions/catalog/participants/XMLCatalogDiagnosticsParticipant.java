@@ -8,12 +8,15 @@
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
 
-package org.eclipse.lemminx.extensions.catalog;
+package org.eclipse.lemminx.extensions.catalog.participants;
 
 import java.text.MessageFormat;
 import java.util.List;
 
 import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lemminx.extensions.catalog.CatalogEntry;
+import org.eclipse.lemminx.extensions.catalog.CatalogUtils;
+import org.eclipse.lemminx.extensions.catalog.XMLCatalogErrorCode;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lemminx.utils.DOMUtils;
@@ -45,7 +48,7 @@ public class XMLCatalogDiagnosticsParticipant implements IDiagnosticsParticipant
 			// appending it in the case when original URI does not start with 'file://'.
 			// Ex: originalURI ="foo/bar.xsd" -> path ="file://foo/bar.xsd"
 			String path = CatalogUtils.getResolvedLocation(xmlDocument, catalogEntry);
-			if (!FilesUtils.isValidPath(FilesUtils.getPath(path)) && URIUtils.isFileResource(path)) {
+			if (path != null && !FilesUtils.isValidPath(FilesUtils.getPath(path)) && URIUtils.isFileResource(path)) {
 				Range range = XMLPositionUtility.selectValueWithoutQuote(catalogEntry.getLinkRange());
 				String msg = MessageFormat.format(ERROR_STRING, catalogEntry.getResolvedURI());
 

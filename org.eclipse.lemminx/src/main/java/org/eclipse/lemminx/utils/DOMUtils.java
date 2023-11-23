@@ -51,6 +51,10 @@ public class DOMUtils {
 
 	private static final String RNC_EXTENSION = ".rnc";
 
+	private static final String XSL_EXTENSION = ".xsl";
+
+	private static final String HTTP_WWW_W3_ORG_1999_XSL_TRANSFORM_NS = "http://www.w3.org/1999/XSL/Transform";
+
 	private DOMUtils() {
 
 	}
@@ -187,6 +191,36 @@ public class DOMUtils {
 	public static boolean isDTD(String uri) {
 		return uri != null
 				&& (uri.endsWith(DTD_EXTENSION) || uri.endsWith(ENT_EXTENSION) || uri.endsWith(MOD_EXTENSION));
+	}
+
+	/**
+	 * Returns true if the XML document is a XSL and false otherwise.
+	 * 
+	 * @return true if the XML document is a XSL and false otherwise.
+	 */
+	public static boolean isXSL(DOMDocument document) {
+		if (document == null) {
+			return false;
+		}
+		String uri = document.getDocumentURI();
+		if (isXSL(uri)) {
+			return true;
+		}
+		// check root element is bound with XSL namespace
+		// (http://www.w3.org/1999/XSL/Transform)
+		return checkRootNamespace(document, HTTP_WWW_W3_ORG_1999_XSL_TRANSFORM_NS);
+
+	}
+
+	/**
+	 * Returns true if the given URI is a XSL and false otherwise.
+	 * 
+	 * @param uri the URI to check
+	 * @return true if the given URI is a XSL and false otherwise.
+	 */
+	public static boolean isXSL(String uri) {
+		return uri != null
+				&& (uri.endsWith(XSL_EXTENSION));
 	}
 
 	/**

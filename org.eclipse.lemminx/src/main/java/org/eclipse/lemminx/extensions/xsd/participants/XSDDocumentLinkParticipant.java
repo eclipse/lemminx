@@ -33,8 +33,8 @@ import org.eclipse.lsp4j.DocumentLink;
  * 
  * Implements document links in .xsd files for
  * <ul>
- * <li>xs:include/schemaLocation</li>
- * <li>xs:import/schemaLocation</li>
+ * <li>xs:include/@schemaLocation</li>
+ * <li>xs:import/@schemaLocation</li>
  * </ul>
  * 
  */
