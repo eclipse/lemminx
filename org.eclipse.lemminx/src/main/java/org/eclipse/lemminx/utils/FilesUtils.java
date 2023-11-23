@@ -277,12 +277,13 @@ public class FilesUtils {
 	public static String encodePath(String path) {
 		return path.replace(" ", "%20");
 	}
-	
+
 	/**
-	 * Very simple implementation of reading all content from a file into a string using the UTF-8 charset. Uses the System's line separator.
-	 * Not suited for reading large files. 
+	 * Very simple implementation of reading all content from a file into a string
+	 * using the UTF-8 charset. Uses the System's line separator.
+	 * Not suited for reading large files.
 	 *
-	 * @param path the path to a readable file. 
+	 * @param path the path to a readable file.
 	 * @return the contents of the file.
 	 * @throws IOException if an error occurred while reading the file.
 	 */
@@ -295,12 +296,23 @@ public class FilesUtils {
 	 *
 	 * @param path the path.
 	 *
-	 * @return  true if the file at the given path exists.
+	 * @return true if the file at the given path exists.
 	 */
-	public static boolean isValidPath(Path path){
+	public static boolean isValidPath(Path path) {
 		if (Files.exists(path)) {
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Returns the file name of the given path.
+	 * 
+	 * @param path the path.
+	 * 
+	 * @return the file name of the given path.
+	 */
+	public static String getFileName(Path path) {
+		return path.getName(path.getNameCount() - 1).toString();
 	}
 }

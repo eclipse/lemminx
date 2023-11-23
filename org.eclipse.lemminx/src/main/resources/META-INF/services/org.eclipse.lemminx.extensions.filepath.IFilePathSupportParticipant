@@ -1,0 +1,4 @@
+org.eclipse.lemminx.extensions.catalog.participants.CatalogFilePathSupportParticipant
+org.eclipse.lemminx.extensions.relaxng.grammar.rng.RNGFilePathSupportParticipant
+org.eclipse.lemminx.extensions.xsd.participants.XSDFilePathSupportParticipant
+org.eclipse.lemminx.extensions.xsl.participants.XSLFilePathSupportParticipant

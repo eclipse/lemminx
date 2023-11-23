@@ -438,7 +438,7 @@ public class StringUtils {
 	 *         to the given <code>min</code> and -1 if no word.
 	 */
 	public static int findStartWord(String text, int offset, int min, Predicate<Character> isValidChar) {
-		if (offset < 0 || offset >= text.length() || !isValidChar.test(text.charAt(offset))) {
+		if (offset < 0 || offset >= text.length()) {
 			return -1;
 		}
 		for (int i = offset - 1; i >= min; i--) {

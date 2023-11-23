@@ -30,6 +30,8 @@ public class XMLSnippetRegistryLoader implements ISnippetRegistryLoader {
 				NewFileSnippetContext.XSD_CONTEXT);
 		registry.registerSnippets(XMLSnippetRegistryLoader.class.getResourceAsStream("new-rng-snippets.json"),
 				NewFileSnippetContext.RNG_CONTEXT);
+		registry.registerSnippets(XMLSnippetRegistryLoader.class.getResourceAsStream("new-xsl-snippets.json"),
+				NewFileSnippetContext.XSL_CONTEXT);
 		registry.registerSnippets(XMLSnippetRegistryLoader.class.getResourceAsStream("cdata-snippets.json"),
 				CDATASnippetContext.DEFAULT_CONTEXT);
 		registry.registerSnippets(XMLSnippetRegistryLoader.class.getResourceAsStream("comment-snippets.json"),
@@ -40,7 +42,8 @@ public class XMLSnippetRegistryLoader implements ISnippetRegistryLoader {
 				XMLDeclarationSnippetContext.DEFAULT_CONTEXT);
 		registry.registerSnippets(XMLSnippetRegistryLoader.class.getResourceAsStream("dtdnode-snippets.json"),
 				DTDNodeSnippetContext.DEFAULT_CONTEXT);
-		registry.registerSnippets(XMLSnippetRegistryLoader.class.getResourceAsStream("processing-instruction-snippets.json"),
+		registry.registerSnippets(
+				XMLSnippetRegistryLoader.class.getResourceAsStream("processing-instruction-snippets.json"),
 				ProcessingInstructionSnippetContext.DEFAULT_CONTEXT);
 	}
 

@@ -8,7 +8,7 @@
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
 
-package org.eclipse.lemminx.extensions.catalog;
+package org.eclipse.lemminx.extensions.catalog.participants;
 
 import java.util.List;
 import java.util.logging.Level;
@@ -16,6 +16,8 @@ import java.util.logging.Logger;
 
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lemminx.extensions.catalog.CatalogEntry;
+import org.eclipse.lemminx.extensions.catalog.CatalogUtils;
 import org.eclipse.lemminx.services.extensions.IDocumentLinkParticipant;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.DocumentLink;

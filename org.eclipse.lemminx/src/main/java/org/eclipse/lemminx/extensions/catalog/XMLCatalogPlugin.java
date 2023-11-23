@@ -19,6 +19,9 @@ import java.util.stream.Collectors;
 
 import org.eclipse.lemminx.client.InvalidPathWarner;
 import org.eclipse.lemminx.client.PathFeature;
+import org.eclipse.lemminx.extensions.catalog.participants.XMLCatalogCodeLensParticipant;
+import org.eclipse.lemminx.extensions.catalog.participants.XMLCatalogDiagnosticsParticipant;
+import org.eclipse.lemminx.extensions.catalog.participants.XMLCatalogDocumentLinkParticipant;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
 import org.eclipse.lemminx.services.IXMLNotificationService;
@@ -51,7 +54,8 @@ public class XMLCatalogPlugin implements IXMLExtension {
 	@Override
 	public void doSave(ISaveContext context) {
 		Object initializationOptionsSettings = context.getSettings();
-		ContentModelSettings cmSettings = ContentModelSettings.getContentModelXMLSettings(initializationOptionsSettings);
+		ContentModelSettings cmSettings = ContentModelSettings
+				.getContentModelXMLSettings(initializationOptionsSettings);
 		if (cmSettings == null) {
 			return;
 		}

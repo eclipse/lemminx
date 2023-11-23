@@ -62,7 +62,9 @@ public class CompletionItemDefaultsUtils {
 	 */
 	private static void setToMostCommonEditRange(List<CompletionItem> completionList,
 			CompletionItemDefaults itemDefaults) {
-		Map<Range, List<CompletionItem>> itemsByRange = completionList.stream()
+		Map<Range, List<CompletionItem>> itemsByRange = completionList
+				.stream()
+				.filter(item -> item.getTextEdit() != null && item.getTextEdit().isLeft())
 				.collect(Collectors.groupingBy(item -> item.getTextEdit().getLeft().getRange()));
 		int maxCount = 0;
 		Range mostCommonRange = null;
@@ -73,12 +75,17 @@ public class CompletionItemDefaultsUtils {
 				mostCommonRange = entry.getKey();
 			}
 		}
+		if (mostCommonRange == null) {
+			return;
+		}
 		itemsByRange.get(mostCommonRange).forEach(item -> {
 			item.setTextEditText(item.getTextEdit().getLeft().getNewText());
 			item.setTextEdit(null);
 		});
 		itemDefaults.setEditRange(Either.forLeft(mostCommonRange));
-		completionList = itemsByRange.values().stream().flatMap(Collection::stream)
+		completionList = itemsByRange.values()
+				.stream()
+				.flatMap(Collection::stream)
 				.collect(Collectors.toList());
 	}
 
@@ -91,7 +98,8 @@ public class CompletionItemDefaultsUtils {
 	 */
 	private static void setToMostCommonInsertTextFormat(List<CompletionItem> completionList,
 			CompletionItemDefaults itemDefaults) {
-		Map<InsertTextFormat, List<CompletionItem>> itemsByInsertTextFormat = completionList.stream()
+		Map<InsertTextFormat, List<CompletionItem>> itemsByInsertTextFormat = completionList
+				.stream()
 				.filter(item -> item.getInsertTextFormat() != null)
 				.collect(Collectors.groupingBy(item -> item.getInsertTextFormat()));
 		int maxCount = 0;

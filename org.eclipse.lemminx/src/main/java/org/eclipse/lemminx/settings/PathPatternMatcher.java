@@ -26,9 +26,10 @@ public class PathPatternMatcher {
 		return pattern;
 	}
 
-	public void setPattern(String pattern) {
+	public PathPatternMatcher setPattern(String pattern) {
 		this.pattern = pattern;
 		this.pathMatcher = null;
+		return this;
 	}
 
 	public PathMatcher getPathMatcher() {
