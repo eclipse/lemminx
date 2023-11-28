@@ -12,6 +12,8 @@ and can be used with any editor that supports the protocol, to offer good suppor
  * [Eclipse LSP4J](https://github.com/eclipse/lsp4j), the Java binding for the Language Server Protocol.
  * Xerces to manage XML Schema validation, completion and hover
 
+**LemMinX** requires a Java 11+ JVM to run.
+
 Features
 --------------
 

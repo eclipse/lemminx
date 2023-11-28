@@ -231,14 +231,30 @@
 			<version>2.0.2</version>
 		</dependency>
 		<dependency>
-			<groupId>com.kotcrab.remark</groupId>
-			<artifactId>remark</artifactId>
-			<version>1.0.0</version>
+			<groupId>com.vladsch.flexmark</groupId>
+			<artifactId>flexmark-html2md-converter</artifactId>
+			<version>0.64.8</version>
+			<!-- for versions >= 0.64.0, Java 11 is required -->
+			<exclusions>
+				<exclusion>
+					<groupId>com.vladsch.flexmark</groupId>
+					<artifactId>flexmark-jira-converter</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.jetbrains</groupId>
+					<artifactId>annotations</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-text</artifactId>
+			<version>1.10.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
-			<version>1.14.2</version>
+			<version>1.17.1</version>
 		</dependency>
 		<dependency>
 			<groupId>xml-resolver</groupId>

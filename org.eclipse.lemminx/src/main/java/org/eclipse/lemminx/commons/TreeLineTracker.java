@@ -242,7 +242,6 @@ public class TreeLineTracker implements ILineTracker {
 			if (node == null) {
 				fail(offset);
 			}
-
 			if (remaining < node.offset) {
 				node = node.left;
 			} else {

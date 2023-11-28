@@ -12,19 +12,15 @@
  *******************************************************************************/
 package org.eclipse.lemminx.utils;
 
-import static org.apache.commons.lang3.StringEscapeUtils.unescapeJava;
-import static org.apache.commons.lang3.StringEscapeUtils.unescapeXml;
+import static org.apache.commons.text.StringEscapeUtils.unescapeJava;
+import static org.apache.commons.text.StringEscapeUtils.unescapeXml;
 
-import java.lang.reflect.Field;
-import java.util.logging.Logger;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
-import com.overzealous.remark.Options;
-import com.overzealous.remark.Options.FencedCodeBlocks;
-import com.overzealous.remark.Options.Tables;
-import com.overzealous.remark.Remark;
-
-import org.jsoup.safety.Cleaner;
-import org.jsoup.safety.Safelist;
+import com.vladsch.flexmark.html2md.converter.FlexmarkHtmlConverter;
 
 /**
  * Converts HTML content into Markdown equivalent.
@@ -33,46 +29,60 @@ import org.jsoup.safety.Safelist;
  */
 public class MarkdownConverter {
 
-	private static final Logger LOGGER = Logger.getLogger(MarkdownConverter.class.getName());
+	private static final FlexmarkHtmlConverter CONVERTER = FlexmarkHtmlConverter.builder().build();
 
-	private static Remark remark;
-
-	private MarkdownConverter(){
-		//no public instanciation
-	}
-
-	static {
-		Options options = new Options();
-		options.tables = Tables.CONVERT_TO_CODE_BLOCK;
-		options.hardwraps = true;
-		options.inlineLinks = true;
-		options.autoLinks = true;
-		options.reverseHtmlSmartPunctuation = true;
-		options.fencedCodeBlocks = FencedCodeBlocks.ENABLED_BACKTICK;
-		remark = new Remark(options);
-		//Stop remark from stripping file protocol in an href
-		try {
-			Field cleanerField = Remark.class.getDeclaredField("cleaner");
-			cleanerField.setAccessible(true);
-
-			Cleaner c = (Cleaner) cleanerField.get(remark);
-
-			Field safelistField = Cleaner.class.getDeclaredField("safelist");
-			safelistField.setAccessible(true);
-
-			Safelist s = (Safelist) safelistField.get(c);
-
-			s.addProtocols("a", "href", "file");
-		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-			LOGGER.severe("Unable to modify jsoup to include file protocols "+ e.getMessage());
-		}
+	private MarkdownConverter() {
+		// no public instanciation
 	}
 
 	public static String convert(String html) {
-		if(!StringUtils.isTagOutsideOfBackticks(html)) {
-			return unescapeXml(html); // is not html so it can be returned as is (aside from unescaping)
+		if (!StringUtils.isTagOutsideOfBackticks(html)) {
+			return unescapeXml(html); // is not html so it can be returned as-is (aside from unescaping)
 		}
-		return unescapeJava(remark.convert(html));
+
+		Document document = Jsoup.parse(html);
+		//Add missing table headers if necessary, else most Markdown renderers will crap out
+		document.select("table").forEach(MarkdownConverter::addMissingTableHeaders);
+		
+		String markdown = CONVERTER.convert(document);
+		if (markdown.endsWith("\n")) {// FlexmarkHtmlConverter keeps adding an extra line
+			markdown = markdown.substring(0, markdown.length() - 1);
+		}
+		return unescapeJava(markdown);
 	}
 
+	/**
+	 * Adds a new row header if the given table doesn't have any.
+	 * @param table the HTML table to check for a header
+	 */
+	private static void addMissingTableHeaders(Element table) {
+		int numCols = 0;
+		for (Element child : table.children()) {
+			if ("thead".equals(child.nodeName())) {
+				// Table already has a header, nothing else to do
+				return;
+			}
+			if ("tbody".equals(child.nodeName())) {
+				Elements rows = child.getElementsByTag("tr");
+				if (!rows.isEmpty()) {
+					for (Element row : rows) {
+						int colSize = row.getElementsByTag("td").size();
+						//Keep the biggest column size
+						if (colSize > numCols) {
+							numCols = colSize;
+						}
+					}
+				}
+			}
+		}
+		if (numCols > 0) {
+			//Create a new header row based on the number of columns already found
+			Element newHeader = new Element("tr");
+			for (int i = 0; i < numCols; i++) {
+				newHeader.appendChild(new Element("th"));
+			}
+			//Insert header row in 1st position in the table
+			table.insertChildren(0, newHeader);
+		}
+	}
 }
