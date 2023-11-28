@@ -12,4 +12,5 @@
 	"editor.tabSize": 4,
 	"editor.insertSpaces": false,
 	"java.compile.nullAnalysis.mode": "automatic",
+	"java.configuration.updateBuildConfiguration": "interactive",
 }

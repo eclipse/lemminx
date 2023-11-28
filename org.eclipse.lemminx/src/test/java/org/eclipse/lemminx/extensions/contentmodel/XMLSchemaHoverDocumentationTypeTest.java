@@ -375,8 +375,7 @@ public class XMLSchemaHoverDocumentationTypeTest extends AbstractCacheBasedTest 
 	}
 
 	private static String getXMLSchemaFileURI(String schemaURI) throws MalformedURIException {
-		return XMLEntityManager.expandSystemId("xsd/" + schemaURI, "src/test/resources/test.xml", true).replace("///",
-				"/");
+		return XMLEntityManager.expandSystemId("xsd/" + schemaURI, "src/test/resources/test.xml", true);
 	}
 
 

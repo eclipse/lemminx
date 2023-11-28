@@ -22,7 +22,6 @@ public class ConfigurationItemEdit extends ConfigurationItem {
 	private Object value;
 	private ConfigurationItemEditType editType;
 	private ConfigurationItemValueKind valueKind;
-
 	public ConfigurationItemEdit () {
 		// Need explicit no-arg constructor for deserialization
 	}

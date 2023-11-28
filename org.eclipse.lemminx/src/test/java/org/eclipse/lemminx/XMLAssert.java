@@ -1327,8 +1327,8 @@ public class XMLAssert {
 		assertEquals(expected.length, actual.size());
 		for (int i = 0; i < expected.length; i++) {
 			assertEquals(expected[i].getRange(), actual.get(i).getRange(), " Range test '" + i + "' link");
-			assertEquals(Paths.get(expected[i].getTarget()).toUri().toString().replace("file:///", "file:/"),
-					actual.get(i).getTarget().replace("file:///", "file:/"), " Target test '" + i + "' link");
+			assertEquals(Paths.get(expected[i].getTarget()).toUri().toString(),
+					actual.get(i).getTarget(), " Target test '" + i + "' link");
 		}
 	}
 

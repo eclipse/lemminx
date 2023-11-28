@@ -89,7 +89,7 @@ public class DTDHoverExtensionsTest extends AbstractCacheBasedTest {
 					"'" + cachedFilePath + "' file should be downloaded in the cache.");
 
 			// Process hover with the DTD (http dtd)
-			String dtdFileCacheURI = cachedFilePath.toUri().toString().replace("file:///", "file:/");
+			String dtdFileCacheURI = cachedFilePath.toUri().toString();
 			String xml = "<!DOCTYPE web-app PUBLIC\n" + //
 					" \"-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN\"\n" + //
 					" \"" + httpDTDUri + "\" >\n" + //
@@ -122,7 +122,6 @@ public class DTDHoverExtensionsTest extends AbstractCacheBasedTest {
 	}
 
 	private static String getDTDFileURI(String dtdURI) throws MalformedURIException {
-		return XMLEntityManager.expandSystemId("dtd/" + dtdURI, "src/test/resources/test.xml", true).replace("///",
-				"/");
+		return XMLEntityManager.expandSystemId("dtd/" + dtdURI, "src/test/resources/test.xml", true);
 	}
 }
