@@ -21,6 +21,10 @@ import static org.eclipse.lemminx.XMLAssert.testTagCompletion;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.List;
@@ -30,6 +34,7 @@ import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.customservice.AutoCloseTagResponse;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMParser;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionParticipant;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
@@ -267,7 +272,23 @@ public class XMLCompletionTest {
 		String xml = "<aaa attr=\"value</|";
 		XMLAssert.testTagCompletion(xml, (AutoCloseTagResponse) null, settings);
 	}
+	@Test
+	public void testCDATAContentStart() throws Exception {
+		ICompletionParticipant mockParticipant = mock(ICompletionParticipant.class);
+		SharedSettings settings = new SharedSettings();
+		this.languageService.registerCompletionParticipant(mockParticipant);
+		testCompletionFor(this.languageService,"<a> <![CDATA[|]]></a>",null,null,null, 0,settings);
+		verify(mockParticipant).onCDATAContent(any(),any(),any());
+	}
 
+	@Test
+	public void testCDATAContent() throws Exception {
+		ICompletionParticipant mockParticipant = mock(ICompletionParticipant.class);
+		SharedSettings settings = new SharedSettings();
+		this.languageService.registerCompletionParticipant(mockParticipant);
+		testCompletionFor(this.languageService,"<a> <![CDATA[SELECT * FROM |]]></a>",null,null,null, 0,settings);
+		verify(mockParticipant).onCDATAContent(any(),any(),any());
+	}
 	// -------------------Tools----------------------------------------------------------
 
 	public void assertOpenStartTagCompletion(String xmlText, int expectedStartTagOffset, boolean startWithTagOpen,

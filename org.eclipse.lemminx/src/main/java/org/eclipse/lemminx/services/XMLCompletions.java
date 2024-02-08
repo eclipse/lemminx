@@ -262,6 +262,14 @@ public class XMLCompletions {
 							return completionResponse;
 						}
 						break;
+					// CDATA
+					case CDATATagOpen:
+					case CDATAContent:
+						if (scanner.getTokenOffset() <= offset && offset <= scanner.getTokenEnd()) {
+							collectCDATAContentSuggestions(completionRequest, completionResponse, cancelChecker);
+							return completionResponse;
+						}
+						break;
 					// DTD
 					case DTDAttlistAttributeName:
 					case DTDAttlistAttributeType:
@@ -866,6 +874,21 @@ public class XMLCompletions {
 			}
 		} catch (BadLocationException e) {
 			LOGGER.log(Level.SEVERE, "While performing collectRegionCompletion", e);
+		}
+	}
+
+	private void collectCDATAContentSuggestions(CompletionRequest request, CompletionResponse response,
+												CancelChecker cancelChecker){
+		// Participant completion on CDATA content
+		for (ICompletionParticipant participant : getCompletionParticipants()) {
+			try {
+				participant.onCDATAContent(request, response, cancelChecker);
+			} catch (CancellationException e) {
+				throw e;
+			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE, "While performing ICompletionParticipant#onCDATAContent for participant '"
+						+ participant.getClass().getName() + "'.", e);
+			}
 		}
 	}
 

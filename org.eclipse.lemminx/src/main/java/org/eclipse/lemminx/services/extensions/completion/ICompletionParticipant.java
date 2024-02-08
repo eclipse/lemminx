@@ -60,6 +60,17 @@ public interface ICompletionParticipant {
 			throws Exception;
 
 	/**
+	 * Collects and stores completion items within the provided response <code>response</code>
+	 *
+	 * @param request     the completion request
+	 * @param response    the completion response
+	 * @param cancelChecker object used to monitor if this execution should finish
+	 * @throws Exception
+	 */
+	default void onCDATAContent(ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker)
+			throws Exception {}
+
+	/**
 	 * Returns the completion item resolver that corresponds to the given
 	 * participant id or null otherwise.
 	 *
