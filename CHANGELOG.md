@@ -1,5 +1,20 @@
 # Change Log
 
+## [0.28.0](https://github.com/eclipse/lemminx/milestone/44?closed=1) (May 27, 2024)
+
+### Enhancements
+
+ * Setting to specify which attributes should be treated as filepaths for the purpose of editor features. See [#1464](https://github.com/eclipse/lemminx/issues/1464).
+
+### Bug Fixes
+
+ * Error range for src-annotation `src-annotation`. See [#1276](https://github.com/eclipse/lemminx/issues/1276).
+ * OpenQuoteExpected error for ATTLIST breaks DTD validation. See [#1599](https://github.com/eclipse/lemminx/pull/1599).
+
+### Build
+
+ * Bump maven-javadoc-plugin & maven-surefire-plugin. See [#1596](https://github.com/eclipse/lemminx/pull/1596), [#1595](https://github.com/eclipse/lemminx/pull/1595).
+
 ## [0.27.0](https://github.com/eclipse/lemminx/milestone/43?closed=1) (August 3, 2023)
 
 ### Enhancements
