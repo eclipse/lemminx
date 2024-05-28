@@ -25,6 +25,7 @@ jobs:
       with:
         java-version: '8'
         distribution: 'temurin'
+        architecture: ${{ matrix.os == 'macos-latest' && 'x64' || '' }}
         cache: 'maven'
     - name: Run Tests
       run: ./mvnw -B '-Dlemminx.cacheInRepoDir' clean verify
