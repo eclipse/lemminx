@@ -22,84 +22,102 @@
         </xs:restriction>
     </xs:simpleType>
 
-    <xs:element name='root'>
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element name='elementOnlyDocumentation'>
-                    <xs:annotation>
-                        <xs:documentation>element documentation</xs:documentation>
-                    </xs:annotation>
-                </xs:element>
-                <xs:element name='elementOnlyAppinfo'>
-                    <xs:annotation>
-                        <xs:appinfo>element appinfo</xs:appinfo>
-                    </xs:annotation>
-                </xs:element>
-                <xs:element name='elementBoth'>
-                    <xs:annotation>
-                        <xs:documentation>element documentation</xs:documentation>
-                        <xs:appinfo>element appinfo</xs:appinfo>
-                    </xs:annotation>
-                </xs:element>
-                <xs:element name='elementMultipleDocuentation'>
-                    <xs:annotation>
-                        <xs:documentation>first element documentation</xs:documentation>
-                        <xs:documentation>second element documentation</xs:documentation>
-                        <xs:documentation>third element documentation</xs:documentation>
-                    </xs:annotation>
-                </xs:element>
-                <xs:element name='elementMultipleAppinfo'>
-                    <xs:annotation>
-                        <xs:appinfo>first element appinfo</xs:appinfo>
-                        <xs:appinfo>second element appinfo</xs:appinfo>
-                        <xs:appinfo>third element appinfo</xs:appinfo>
-                    </xs:annotation>
-                </xs:element>
-                <xs:element name='elementMultipleBoth'>
-                    <xs:annotation>
-                        <xs:documentation>first element documentation</xs:documentation>
-                        <xs:documentation>second element documentation</xs:documentation>
-                        <xs:documentation>third element documentation</xs:documentation>
-                        <xs:appinfo>first element appinfo</xs:appinfo>
-                        <xs:appinfo>second element appinfo</xs:appinfo>
-                        <xs:appinfo>third element appinfo</xs:appinfo>
-                    </xs:annotation>
-                </xs:element>
-				<xs:element name='elementNoAnnotation'></xs:element>
-				<xs:element name='elementWhitespaceAnnotation'>
-					<xs:annotation>
-						<xs:documentation>
+    <xs:element name='root' type="Root" />
 
-
-
-
-						</xs:documentation>
-						<xs:appinfo>
-									  
-						   
-						</xs:appinfo>
-						<xs:appinfo>  		  </xs:appinfo>
-					</xs:annotation>
-				</xs:element>
-            </xs:sequence>
-
-            <xs:attribute name='attributeNameOnlyDocumentation' type='attributeValue' use='required'>
+    <xs:complexType name="Root">
+        <xs:sequence>
+            <xs:element name='elementOnlyDocumentation'>
                 <xs:annotation>
-                    <xs:documentation>attribute name documentation</xs:documentation>
+                    <xs:documentation>element documentation</xs:documentation>
                 </xs:annotation>
-            </xs:attribute>
-            <xs:attribute name='attributeNameOnlyAppinfo' type='attributeValue' use='required'>
+            </xs:element>
+            <xs:element name='elementOnlyAppinfo'>
                 <xs:annotation>
-                    <xs:appinfo>attribute name appinfo</xs:appinfo>
+                    <xs:appinfo>element appinfo</xs:appinfo>
                 </xs:annotation>
-            </xs:attribute>
-            <xs:attribute name='attributeNameBoth' type='attributeValue' use='required'>
+            </xs:element>
+            <xs:element name='elementBoth'>
                 <xs:annotation>
-                    <xs:documentation>attribute name documentation</xs:documentation>
-                    <xs:appinfo>attribute name appinfo</xs:appinfo>
+                    <xs:documentation>element documentation</xs:documentation>
+                    <xs:appinfo>element appinfo</xs:appinfo>
                 </xs:annotation>
-            </xs:attribute>
-        </xs:complexType>
-    </xs:element>
+            </xs:element>
+            <xs:element name='elementMultipleDocuentation'>
+                <xs:annotation>
+                    <xs:documentation>first element documentation</xs:documentation>
+                    <xs:documentation>second element documentation</xs:documentation>
+                    <xs:documentation>third element documentation</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name='elementMultipleAppinfo'>
+                <xs:annotation>
+                    <xs:appinfo>first element appinfo</xs:appinfo>
+                    <xs:appinfo>second element appinfo</xs:appinfo>
+                    <xs:appinfo>third element appinfo</xs:appinfo>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name='elementMultipleBoth'>
+                <xs:annotation>
+                    <xs:documentation>first element documentation</xs:documentation>
+                    <xs:documentation>second element documentation</xs:documentation>
+                    <xs:documentation>third element documentation</xs:documentation>
+                    <xs:appinfo>first element appinfo</xs:appinfo>
+                    <xs:appinfo>second element appinfo</xs:appinfo>
+                    <xs:appinfo>third element appinfo</xs:appinfo>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name='elementNoAnnotation'></xs:element>
+            <xs:element name='elementWhitespaceAnnotation'>
+                <xs:annotation>
+                    <xs:documentation>
 
+
+
+
+                    </xs:documentation>
+                    <xs:appinfo>
+
+
+                    </xs:appinfo>
+                    <xs:appinfo>  		  </xs:appinfo>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+
+        <xs:attribute name='attributeNameOnlyDocumentation' type='attributeValue' use='required'>
+            <xs:annotation>
+                <xs:documentation>attribute name documentation</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name='attributeNameOnlyAppinfo' type='attributeValue' use='required'>
+            <xs:annotation>
+                <xs:appinfo>attribute name appinfo</xs:appinfo>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name='attributeNameBoth' type='attributeValue' use='required'>
+            <xs:annotation>
+                <xs:documentation>attribute name documentation</xs:documentation>
+                <xs:appinfo>attribute name appinfo</xs:appinfo>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="Derived">
+        <xs:complexContent>
+            <xs:extension base="Root">
+                <xs:sequence>
+                    <xs:element name='derivedElementOnlyDocumentation'>
+                        <xs:annotation>
+                            <xs:documentation>derived element documentation</xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                </xs:sequence>
+                <xs:attribute name='derivedAttributeNameOnlyDocumentation' type='attributeValue' use='required'>
+                    <xs:annotation>
+                        <xs:documentation>derived attribute name documentation</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
 </xs:schema>

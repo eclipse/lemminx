@@ -22,6 +22,8 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 import org.apache.xerces.impl.dv.XSSimpleType;
 import org.apache.xerces.impl.dv.xs.XSSimpleTypeDecl;
 import org.apache.xerces.impl.xs.SchemaGrammar;
@@ -61,6 +63,7 @@ import org.eclipse.lemminx.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lemminx.extensions.contentmodel.model.FilesChangedTracker;
 import org.eclipse.lemminx.extensions.xerces.ReflectionUtils;
 import org.eclipse.lemminx.extensions.xsd.utils.XSDUtils;
+import org.eclipse.lemminx.extensions.xsi.XSISchemaModel;
 import org.eclipse.lemminx.utils.DOMUtils;
 import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lemminx.utils.URIUtils;
@@ -81,6 +84,7 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 	private final XSModel model;
 
 	private final Map<XSElementDeclaration, CMXSDElementDeclaration> elementMappings;
+	private final Table<CMXSDElementDeclaration, XSTypeDefinition, CMXSDElementDeclaration> refinedElementMappings;
 
 	private Collection<CMElementDeclaration> elements;
 
@@ -92,6 +96,7 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 		this.model = model;
 		this.xsLoader = xsLoaderImpl;
 		this.elementMappings = new HashMap<>();
+		this.refinedElementMappings = HashBasedTable.create();
 		this.tracker = createFilesChangedTracker(model);
 	}
 
@@ -176,19 +181,54 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 			paths.add(0, element);
 			element = element.getParentNode() instanceof DOMElement ? (DOMElement) element.getParentNode() : null;
 		}
-		CMElementDeclaration declaration = null;
+		CMXSDElementDeclaration declaration = null;
 		for (int i = 0; i < paths.size(); i++) {
 			DOMElement elt = paths.get(i);
 			if (i == 0) {
-				declaration = findElementDeclaration(elt.getLocalName(), namespace);
+				declaration = (CMXSDElementDeclaration) findElementDeclaration(elt.getLocalName(), namespace);
 			} else {
-				declaration = declaration != null ? declaration.findCMElement(elt.getLocalName(), namespace) : null;
+				declaration = (CMXSDElementDeclaration) declaration.findCMElement(elt.getLocalName(), namespace);
 			}
 			if (declaration == null) {
 				break;
 			}
+			// Refine CMElementDeclaration with specific type.
+			XSTypeDefinition exactType = findXsiType(elt);
+			if (exactType != null) {
+				CMXSDElementDeclaration baseDeclaration = declaration;
+				declaration = refinedElementMappings.get(baseDeclaration, exactType);
+				if (declaration == null) {
+					declaration = baseDeclaration.refineType(exactType);
+					refinedElementMappings.put(baseDeclaration, exactType, declaration);
+				}
+			}
 		}
 		return declaration;
+	}
+
+	private XSTypeDefinition findXsiType(DOMElement element) {
+		org.w3c.dom.NamedNodeMap attrs = element.getAttributes();
+		if (attrs == null) {
+			return null;
+		}
+		for (int i = 0; i < attrs.getLength(); i++) {
+			Node attr = attrs.item(i);
+			if (attr.getLocalName().equals("type") && XSISchemaModel.XSI_WEBSITE.equals(attr.getNamespaceURI())) {
+				String[] possiblyQualifiedType = attr.getNodeValue().split(":", 2);
+				javax.xml.namespace.QName qualifiedType;
+				if (possiblyQualifiedType.length == 1) {
+					qualifiedType = new javax.xml.namespace.QName(
+							null,
+							possiblyQualifiedType[0]);
+				} else {
+					qualifiedType = new javax.xml.namespace.QName(
+							element.getNamespaceURI(possiblyQualifiedType[0]),
+							possiblyQualifiedType[1]);
+				}
+				return (XSTypeDefinition) model.getComponents(XSConstants.TYPE_DEFINITION).get(qualifiedType);
+			}
+		}
+		return null;
 	}
 
 	private CMElementDeclaration findElementDeclaration(String tag, String namespace) {
