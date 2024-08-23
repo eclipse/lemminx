@@ -85,6 +85,8 @@ public class XMLModelHandler implements XMLComponent, XMLDocumentFilter {
 
 	private XMLReader xmlReader;
 
+	private boolean beforeDocumentElement;
+
 	public XMLModelHandler() {
 	}
 
@@ -122,7 +124,7 @@ public class XMLModelHandler implements XMLComponent, XMLDocumentFilter {
 
 	@Override
 	public void processingInstruction(String target, XMLString data, Augmentations augs) throws XNIException {
-		if (XMLModelConstants.XML_MODEL_PI.equals(target)) {
+		if (beforeDocumentElement && XMLModelConstants.XML_MODEL_PI.equals(target)) {
 			XMLModelDeclaration model = XMLModelDeclaration.parse(data);
 			XMLModelValidator validator = createValidator(model);
 			if (validator != null) {
@@ -159,6 +161,7 @@ public class XMLModelHandler implements XMLComponent, XMLDocumentFilter {
 	@Override
 	public void startDocument(XMLLocator locator, String encoding, NamespaceContext namespaceContext,
 			Augmentations augs) throws XNIException {
+		this.beforeDocumentElement = true;
 		this.locator = locator;
 		if (xmlModelValidators != null) {
 			for (XMLModelValidator validator : xmlModelValidators) {
@@ -213,6 +216,7 @@ public class XMLModelHandler implements XMLComponent, XMLDocumentFilter {
 
 	@Override
 	public void startElement(QName element, XMLAttributes attributes, Augmentations augs) throws XNIException {
+		this.beforeDocumentElement = false;
 		if (xmlModelValidators != null) {
 			for (XMLModelValidator validator : xmlModelValidators) {
 				validator.setLocator(locator);
@@ -230,6 +234,7 @@ public class XMLModelHandler implements XMLComponent, XMLDocumentFilter {
 
 	@Override
 	public void emptyElement(QName element, XMLAttributes attributes, Augmentations augs) throws XNIException {
+		this.beforeDocumentElement = false;
 		if (xmlModelValidators != null) {
 			for (XMLModelValidator validator : xmlModelValidators) {
 				validator.emptyElement(element, attributes, augs);

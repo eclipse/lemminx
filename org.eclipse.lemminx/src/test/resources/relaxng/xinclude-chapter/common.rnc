@@ -1,0 +1,12 @@
+namespace xml = "http://www.w3.org/XML/1998/namespace"
+
+base = attribute xml:base { text }
+
+chapter = element chapter {
+  element title { text }
+  & base?
+}
+
+document = element document {
+  chapter+
+}

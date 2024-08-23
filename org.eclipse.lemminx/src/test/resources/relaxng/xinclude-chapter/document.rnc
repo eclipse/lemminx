@@ -1,0 +1,3 @@
+include "common.rnc"
+
+start = document
