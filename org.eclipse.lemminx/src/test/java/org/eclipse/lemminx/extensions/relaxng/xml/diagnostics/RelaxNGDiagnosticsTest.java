@@ -14,7 +14,11 @@ package org.eclipse.lemminx.extensions.relaxng.xml.diagnostics;
 import static org.eclipse.lemminx.XMLAssert.d;
 import static org.eclipse.lemminx.XMLAssert.testDiagnosticsFor;
 
+import java.io.File;
+
 import org.eclipse.lemminx.AbstractCacheBasedTest;
+import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
+import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationRootSettings;
 import org.eclipse.lemminx.extensions.relaxng.xml.validator.RelaxNGErrorCode;
 import org.junit.jupiter.api.Test;
 
@@ -171,4 +175,29 @@ public class RelaxNGDiagnosticsTest extends AbstractCacheBasedTest {
 				d(2, 2, 10, RelaxNGErrorCode.element_not_allowed_yet));
 	}
 
+	@Test
+	public void xinclude() throws Exception {
+		ContentModelSettings settings = new ContentModelSettings();
+		XMLValidationRootSettings validation = new XMLValidationRootSettings();
+		validation.getXInclude().setEnabled(true);
+		settings.setValidation(validation);
+		String fileURI = new File("src/test/resources/relaxng/xinclude-chapter/document.xml").toURI().toString();
+
+		String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<?xml-model href=\"document.rnc\"?>\r\n" + //
+				"<document xmlns:xi=\"http://www.w3.org/2001/XInclude\">\r\n" + //
+				"  <xi:include href=\"chapter1.xml\"/>\r\n" + //
+				"  <xi:include href=\"chapter2.xml\"/>\r\n" + //
+				"</document>";
+		testDiagnosticsFor(xml, null, null, fileURI, true, settings);
+
+		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + //
+				"<?xml-model href=\"document.rnc\"?>\r\n" + //
+				"<document xmlns:xi=\"http://www.w3.org/2001/XInclude\">\r\n" + //
+				"  <xi:include href=\"chapter1.xml\"/>\r\n" + //
+				"  <xi:include href=\"book.xml\"/>\r\n" + //
+				"</document>";
+		testDiagnosticsFor(xml, null, null, fileURI, true, settings, //
+				d(2, 1, 9, null)); // "There is '1' error in 'book.xml'."
+	}
 }
