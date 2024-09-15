@@ -158,7 +158,7 @@ public abstract class DOMNode implements Node, DOMRange {
 
 	/**
 	 * Returns the owner document and null otherwise.
-	 * 
+	 *
 	 * @return the owner document and null otherwise.
 	 */
 	@Override
@@ -257,7 +257,7 @@ public abstract class DOMNode implements Node, DOMRange {
 
 	/**
 	 * Returns true if the node included the given offset and false otherwise.
-	 * 
+	 *
 	 * @param node
 	 * @param offset
 	 * @return true if the node included the given offset and false otherwise.
@@ -332,7 +332,7 @@ public abstract class DOMNode implements Node, DOMRange {
 	 * Takes a sorted array and a function p. The array is sorted in such a way that
 	 * all elements where p(x) is false are located before all elements where p(x)
 	 * is true.
-	 * 
+	 *
 	 * @returns the least x for which p(x) is true or array.length if no element
 	 *          full fills the given function.
 	 */
@@ -358,19 +358,22 @@ public abstract class DOMNode implements Node, DOMRange {
 
 	/**
 	 * Returns the attribute that matches the given name.
-	 * 
+	 *
 	 * If there is no namespace, set prefix to null.
 	 */
 	public DOMAttr getAttributeNode(String prefix, String suffix) {
-		StringBuilder sb = new StringBuilder();
-		if (prefix != null) {
-			sb.append(prefix);
-			sb.append(":");
-		}
-		sb.append(suffix);
-		String name = sb.toString();
 		if (!hasAttributes()) {
 			return null;
+		}
+		final String name;
+		if (prefix != null) {
+			StringBuilder sb = new StringBuilder();
+			sb.append(prefix);
+			sb.append(":");
+			sb.append(suffix);
+			name = sb.toString();
+		} else {
+			name = suffix;
 		}
 		for (DOMAttr attr : attributeNodes) {
 			if (name.equals(attr.getName())) {
@@ -381,7 +384,11 @@ public abstract class DOMNode implements Node, DOMRange {
 	}
 
 	public String getAttribute(String name) {
-		DOMAttr attr = getAttributeNode(name);
+		return getAttribute(null, name);
+	}
+
+	public String getAttribute(String prefix, String suffix) {
+		DOMAttr attr = getAttributeNode(prefix, suffix);
 		String value = attr != null ? attr.getValue() : null;
 		if (value == null) {
 			return null;
@@ -403,7 +410,7 @@ public abstract class DOMNode implements Node, DOMRange {
 	/**
 	 * Returns the attribute at the given index, the order is how the attributes
 	 * appear in the document.
-	 * 
+	 *
 	 * @param index Starting at 0, index of attribute you want
 	 * @return
 	 */
@@ -424,7 +431,7 @@ public abstract class DOMNode implements Node, DOMRange {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Node#hasAttributes()
 	 */
 	@Override
@@ -455,7 +462,7 @@ public abstract class DOMNode implements Node, DOMRange {
 	/**
 	 * Returns a list of children, each having an attribute called name, with a
 	 * value of value
-	 * 
+	 *
 	 * @param name  name of attribute
 	 * @param value value of attribute
 	 * @return list of children, each having a specified attribute name and value
@@ -475,7 +482,7 @@ public abstract class DOMNode implements Node, DOMRange {
 
 	/**
 	 * Returns the node children.
-	 * 
+	 *
 	 * @return the node children.
 	 */
 	public List<DOMNode> getChildren() {
@@ -487,7 +494,7 @@ public abstract class DOMNode implements Node, DOMRange {
 
 	/**
 	 * Add node child and set child.parent to {@code this}
-	 * 
+	 *
 	 * @param child the node child to add.
 	 */
 	public void addChild(DOMNode child) {
@@ -500,7 +507,7 @@ public abstract class DOMNode implements Node, DOMRange {
 
 	/**
 	 * Returns node child at the given index.
-	 * 
+	 *
 	 * @param index
 	 * @return node child at the given index.
 	 */
@@ -604,7 +611,7 @@ public abstract class DOMNode implements Node, DOMRange {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Node#getLocalName()
 	 */
 	@Override
@@ -614,7 +621,7 @@ public abstract class DOMNode implements Node, DOMRange {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Node#getParentNode()
 	 */
 	@Override
@@ -624,7 +631,7 @@ public abstract class DOMNode implements Node, DOMRange {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Node#getFirstChild()
 	 */
 	@Override
@@ -634,7 +641,7 @@ public abstract class DOMNode implements Node, DOMRange {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Node#getLastChild()
 	 */
 	@Override
@@ -644,7 +651,7 @@ public abstract class DOMNode implements Node, DOMRange {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Node#getAttributes()
 	 */
 	@Override
@@ -654,7 +661,7 @@ public abstract class DOMNode implements Node, DOMRange {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Node#getChildNodes()
 	 */
 	@Override
@@ -664,7 +671,7 @@ public abstract class DOMNode implements Node, DOMRange {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Node#appendChild(org.w3c.dom.Node)
 	 */
 	@Override
@@ -674,7 +681,7 @@ public abstract class DOMNode implements Node, DOMRange {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Node#cloneNode(boolean)
 	 */
 	@Override
@@ -684,7 +691,7 @@ public abstract class DOMNode implements Node, DOMRange {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Node#compareDocumentPosition(org.w3c.dom.Node)
 	 */
 	@Override
@@ -694,7 +701,7 @@ public abstract class DOMNode implements Node, DOMRange {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Node#getBaseURI()
 	 */
 	@Override
@@ -704,7 +711,7 @@ public abstract class DOMNode implements Node, DOMRange {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Node#getFeature(java.lang.String, java.lang.String)
 	 */
 	@Override
@@ -719,7 +726,7 @@ public abstract class DOMNode implements Node, DOMRange {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Node#getNextSibling()
 	 */
 	@Override
@@ -745,7 +752,7 @@ public abstract class DOMNode implements Node, DOMRange {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Node#getPreviousSibling()
 	 */
 	@Override
@@ -822,7 +829,7 @@ public abstract class DOMNode implements Node, DOMRange {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Node#getTextContent()
 	 */
 	@Override
@@ -837,7 +844,7 @@ public abstract class DOMNode implements Node, DOMRange {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.w3c.dom.Node#hasChildNodes()
 	 */
 	@Override
