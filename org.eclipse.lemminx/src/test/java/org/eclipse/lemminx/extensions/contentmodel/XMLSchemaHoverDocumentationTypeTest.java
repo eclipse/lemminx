@@ -24,13 +24,14 @@ import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.HoverCapabilities;
 import org.eclipse.lsp4j.MarkupKind;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 /**
  * XML hover tests with XML Schema.
  *
  */
-public class XMLSchemaHoverDocumentationTypeTest extends AbstractCacheBasedTest {
+public abstract class XMLSchemaHoverDocumentationTypeTest extends AbstractCacheBasedTest {
 
 	private static final String schemaName = "docAppinfo.xsd";
 	private static final String schemaPath = "src/test/resources/" + schemaName;
@@ -40,6 +41,7 @@ public class XMLSchemaHoverDocumentationTypeTest extends AbstractCacheBasedTest 
 	private static String plainTextDocPrefix = "xs:documentation:" + System.lineSeparator() + System.lineSeparator();
 	private static String plainTextAppinfoPrefix = "xs:appinfo:" + System.lineSeparator() + System.lineSeparator();
 	private static String plainTextSource;
+	private String extraAttributes = "";
 
 	@BeforeAll
 	public static void setup() throws MalformedURIException {
@@ -213,6 +215,7 @@ public class XMLSchemaHoverDocumentationTypeTest extends AbstractCacheBasedTest 
 				"	xmlns=\"http://docAppinfo\"\n" +
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
 				"	xsi:schemaLocation=\"http://docAppinfo xsd/" + schemaName + "\"\n" +
+				extraAttributes + //
 				"	attribu|teNameOnlyDocumentation=\"onlyDocumentation\">\n" +
 				"</root>\n";
 		assertHover(xml, expected, docSource, markdownSupported);
@@ -225,6 +228,7 @@ public class XMLSchemaHoverDocumentationTypeTest extends AbstractCacheBasedTest 
 				"	xmlns=\"http://docAppinfo\"\n" +
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
 				"	xsi:schemaLocation=\"http://docAppinfo xsd/" + schemaName + "\"\n" +
+				extraAttributes + //
 				"	attributeNameOnlyDocumentation=\"o|nlyDocumentation\">\n" +
 				"</root>\n";
 		assertHover(xml, expected, docSource, markdownSupported);
@@ -237,6 +241,7 @@ public class XMLSchemaHoverDocumentationTypeTest extends AbstractCacheBasedTest 
 				"	xmlns=\"http://docAppinfo\"\n" +
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
 				"	xsi:schemaLocation=\"http://docAppinfo xsd/" + schemaName + "\"\n" +
+				extraAttributes + //
 				"	a|ttributeNameOnlyAppinfo=\"onlyAppinfo\">\n" +
 				"</root>\n";
 		assertHover(xml, expected, docSource, markdownSupported);
@@ -249,6 +254,7 @@ public class XMLSchemaHoverDocumentationTypeTest extends AbstractCacheBasedTest 
 				"	xmlns=\"http://docAppinfo\"\n" +
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
 				"	xsi:schemaLocation=\"http://docAppinfo xsd/" + schemaName + "\"\n" +
+				extraAttributes + //
 				"	attributeNameOnlyAppinfo=\"o|nlyAppinfo\">\n" +
 				"</root>\n";
 		assertHover(xml, expected, docSource, markdownSupported);
@@ -261,6 +267,7 @@ public class XMLSchemaHoverDocumentationTypeTest extends AbstractCacheBasedTest 
 				"	xmlns=\"http://docAppinfo\"\n" +
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
 				"	xsi:schemaLocation=\"http://docAppinfo xsd/" + schemaName + "\"\n" +
+				extraAttributes + //
 				"	a|ttributeNameBoth=\"bothDocumentationAndAppinfo\">\n" +
 				"</root>\n";
 		assertHover(xml, expected, docSource, markdownSupported);
@@ -273,6 +280,7 @@ public class XMLSchemaHoverDocumentationTypeTest extends AbstractCacheBasedTest 
 				"	xmlns=\"http://docAppinfo\"\n" +
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
 				"	xsi:schemaLocation=\"http://docAppinfo xsd/" + schemaName + "\"\n" +
+				extraAttributes + //
 				"	attributeNameBoth=\"b|othDocumentationAndAppinfo\">\n" +
 				"</root>\n";
 		assertHover(xml, expected, docSource, markdownSupported);
@@ -285,6 +293,7 @@ public class XMLSchemaHoverDocumentationTypeTest extends AbstractCacheBasedTest 
 				"	xmlns=\"http://docAppinfo\"\n" +
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
 				"	xsi:schemaLocation=\"http://docAppinfo xsd/" + schemaName + "\"\n" +
+				extraAttributes + //
 				"	<e|lementOnlyDocumentation></elementOnlyDocumentation>\n" +
 				"</root>\n";
 		assertHover(xml, expected, docSource, markdownSupported);
@@ -297,6 +306,7 @@ public class XMLSchemaHoverDocumentationTypeTest extends AbstractCacheBasedTest 
 				"	xmlns=\"http://docAppinfo\"\n" +
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
 				"	xsi:schemaLocation=\"http://docAppinfo xsd/" + schemaName + "\"\n" +
+				extraAttributes + //
 				"	<e|lementOnlyAppinfo></elementOnlyAppinfo>\n" +
 				"</root>\n";
 		assertHover(xml, expected, docSource, markdownSupported);
@@ -309,6 +319,7 @@ public class XMLSchemaHoverDocumentationTypeTest extends AbstractCacheBasedTest 
 				"	xmlns=\"http://docAppinfo\"\n" +
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
 				"	xsi:schemaLocation=\"http://docAppinfo xsd/" + schemaName + "\"\n" +
+				extraAttributes + //
 				"	<e|lementBoth></elementBoth>\n" +
 				"</root>\n";
 		assertHover(xml, expected, docSource, markdownSupported);
@@ -321,6 +332,7 @@ public class XMLSchemaHoverDocumentationTypeTest extends AbstractCacheBasedTest 
 				"	xmlns=\"http://docAppinfo\"\n" +
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
 				"	xsi:schemaLocation=\"http://docAppinfo xsd/" + schemaName + "\"\n" +
+				extraAttributes + //
 				"	<e|lementMultipleBoth></elementMultipleBoth>\n" +
 				"</root>\n";
 		assertHover(xml, expected, docSource, markdownSupported);
@@ -332,6 +344,7 @@ public class XMLSchemaHoverDocumentationTypeTest extends AbstractCacheBasedTest 
 				"	xmlns=\"http://docAppinfo\"\n" + //
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + //
 				"	xsi:schemaLocation=\"http://docAppinfo xsd/" + schemaName + "\"\n" + //
+				extraAttributes + //
 				"	<e|lementNoAnnotation></elementNoAnnotation>\n" + //
 				"</root>\n";
 		assertHover(xml, null, docSource, markdownSupported);
@@ -343,6 +356,7 @@ public class XMLSchemaHoverDocumentationTypeTest extends AbstractCacheBasedTest 
 				"	xmlns=\"http://docAppinfo\"\n" + //
 				"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + //
 				"	xsi:schemaLocation=\"http://docAppinfo xsd/" + schemaName + "\"\n" + //
+				extraAttributes + //
 				"	<e|lementWhitespaceAnnotation></elementWhitespaceAnnotation>\n" + //
 				"</root>\n";
 		assertHover(xml, null, docSource, markdownSupported);
@@ -379,5 +393,56 @@ public class XMLSchemaHoverDocumentationTypeTest extends AbstractCacheBasedTest 
 				"/");
 	}
 
+	@Nested
+	public static class BaseTypeTest extends XMLSchemaHoverDocumentationTypeTest {
+	}
 
+	@Nested
+	public static class DerivedTypeTest extends XMLSchemaHoverDocumentationTypeTest {
+		public DerivedTypeTest() {
+			super.extraAttributes = "  xsi:type=\"Derived\"";
+		}
+
+		@Test
+		public void testHoverDerivedAttributeNameDoc() throws BadLocationException, MalformedURIException {
+			assertDerivedAttributeNameDocHover("derived attribute name documentation", SchemaDocumentationType.documentation, true);
+			assertDerivedAttributeNameDocHover(null, SchemaDocumentationType.appinfo, true);
+			assertDerivedAttributeNameDocHover("derived attribute name documentation", SchemaDocumentationType.all, true);
+			assertDerivedAttributeNameDocHover(null, SchemaDocumentationType.none, true);
+		};
+
+		@Test
+		public void testHoverDerivedElementDoc() throws BadLocationException, MalformedURIException {
+			assertDerivedElementDocHover("derived element documentation", SchemaDocumentationType.documentation, true);
+			assertDerivedElementDocHover(null, SchemaDocumentationType.appinfo, true);
+			assertDerivedElementDocHover("derived element documentation", SchemaDocumentationType.all, true);
+			assertDerivedElementDocHover(null, SchemaDocumentationType.none, true);
+		};
+
+		private void assertDerivedAttributeNameDocHover(String expected, SchemaDocumentationType docSource,
+												 boolean markdownSupported) throws BadLocationException {
+			String xml =
+					"<root\n" +
+							"	xmlns=\"http://docAppinfo\"\n" +
+							"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+							"	xsi:schemaLocation=\"http://docAppinfo xsd/" + schemaName + "\"\n" +
+							super.extraAttributes + //
+							"	derivedAttribu|teNameOnlyDocumentation=\"onlyDocumentation\">\n" +
+							"</root>\n";
+			super.assertHover(xml, expected, docSource, markdownSupported);
+		}
+
+		private void assertDerivedElementDocHover(String expected, SchemaDocumentationType docSource,
+										   boolean markdownSupported) throws BadLocationException {
+			String xml =
+					"<root\n" +
+							"	xmlns=\"http://docAppinfo\"\n" +
+							"	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+							"	xsi:schemaLocation=\"http://docAppinfo xsd/" + schemaName + "\"\n" +
+							super.extraAttributes + //
+							"	<derivedE|lementOnlyDocumentation></derivedElementOnlyDocumentation>\n" +
+							"</root>\n";
+			super.assertHover(xml, expected, docSource, markdownSupported);
+		}
+	}
 }

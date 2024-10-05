@@ -67,6 +67,8 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 
 	private final XSElementDeclaration elementDeclaration;
 
+	private final XSTypeDefinition typeDefinition;
+
 	private Collection<CMAttributeDeclaration> attributes;
 
 	private Collection<CMElementDeclaration> elements;
@@ -79,9 +81,19 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 
 	private Map<String, Boolean> elementOptionality;
 
-	public CMXSDElementDeclaration(CMXSDDocument document, XSElementDeclaration elementDeclaration) {
+	private CMXSDElementDeclaration(CMXSDDocument document, XSElementDeclaration elementDeclaration,
+								   XSTypeDefinition typeDefinition) {
 		this.document = document;
 		this.elementDeclaration = elementDeclaration;
+		this.typeDefinition = typeDefinition;
+	}
+
+	public CMXSDElementDeclaration(CMXSDDocument document, XSElementDeclaration elementDeclaration) {
+		this(document, elementDeclaration, elementDeclaration.getTypeDefinition());
+	}
+
+	public CMXSDElementDeclaration refineType(XSTypeDefinition refinedType) {
+		return new CMXSDElementDeclaration(document, elementDeclaration, refinedType);
 	}
 
 	@Override
@@ -111,7 +123,6 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 
 	private void collectAttributesDeclaration(XSElementDeclaration elementDecl,
 			Collection<CMAttributeDeclaration> attributes) {
-		XSTypeDefinition typeDefinition = elementDecl.getTypeDefinition();
 		switch (typeDefinition.getTypeCategory()) {
 		case XSTypeDefinition.SIMPLE_TYPE:
 			// TODO...
@@ -147,7 +158,6 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 
 	@Override
 	public Collection<CMElementDeclaration> getPossibleElements(DOMElement parentElement, int offset) {
-		XSTypeDefinition typeDefinition = elementDeclaration.getTypeDefinition();
 		if (typeDefinition != null && typeDefinition.getTypeCategory() == XSTypeDefinition.COMPLEX_TYPE) {
 			// The type definition is complex (ex: xs:all; xs:sequence), returns list of
 			// element declaration according those XML Schema constraints
@@ -301,7 +311,6 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 
 	private void collectElementsDeclaration(XSElementDeclaration elementDecl,
 			Collection<CMElementDeclaration> elements) {
-		XSTypeDefinition typeDefinition = elementDecl.getTypeDefinition();
 		switch (typeDefinition.getTypeCategory()) {
 		case XSTypeDefinition.SIMPLE_TYPE:
 			// TODO...
@@ -323,7 +332,6 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 	public boolean isOptional(String childElementName) {
 		if (elementOptionality == null) {
 			this.elementOptionality = new HashMap<String, Boolean>();
-			XSTypeDefinition typeDefinition = elementDeclaration.getTypeDefinition();
 			switch (typeDefinition.getTypeCategory()) {
 			case XSTypeDefinition.SIMPLE_TYPE:
 				break;
@@ -404,7 +412,6 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 			return annotation;
 		}
 		// Try get xs:annotation from the type of element declaration
-		XSTypeDefinition typeDefinition = elementDeclaration.getTypeDefinition();
 		if (typeDefinition == null) {
 			return null;
 		}
@@ -467,7 +474,6 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 
 	@Override
 	public boolean isEmpty() {
-		XSTypeDefinition typeDefinition = elementDeclaration.getTypeDefinition();
 		if (typeDefinition != null && typeDefinition.getTypeCategory() == XSTypeDefinition.COMPLEX_TYPE) {
 			XSComplexTypeDefinition complexTypeDefinition = (XSComplexTypeDefinition) typeDefinition;
 			return complexTypeDefinition.getContentType() == XSComplexTypeDefinition.CONTENTTYPE_EMPTY;
@@ -482,7 +488,6 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 
 	@Override
 	public Collection<String> getEnumerationValues() {
-		XSTypeDefinition typeDefinition = elementDeclaration.getTypeDefinition();
 		if (typeDefinition != null) {
 			XSSimpleTypeDefinition simpleDefinition = null;
 			if (typeDefinition.getTypeCategory() == XSTypeDefinition.SIMPLE_TYPE) {
@@ -530,7 +535,6 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 	}
 
 	private XSObjectList getTextAnnotations(String textContent) {
-		XSTypeDefinition typeDefinition = elementDeclaration.getTypeDefinition();
 		if (typeDefinition != null) {
 			XSSimpleTypeDefinition simpleDefinition = null;
 			if (typeDefinition.getTypeCategory() == XSTypeDefinition.SIMPLE_TYPE) {
@@ -560,7 +564,6 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 
 	@Override
 	public boolean isStringType() {
-		XSTypeDefinition typeDefinition = elementDeclaration.getTypeDefinition();
 		if (typeDefinition != null) {
 			XSSimpleTypeDefinition simpleDefinition = null;
 			if (typeDefinition.getTypeCategory() == XSTypeDefinition.SIMPLE_TYPE) {
@@ -577,7 +580,6 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 
 	@Override
 	public boolean isMixedContent() {
-		XSTypeDefinition typeDefinition = elementDeclaration.getTypeDefinition();
 		if (typeDefinition != null && typeDefinition.getTypeCategory() == XSTypeDefinition.COMPLEX_TYPE) {
 			XSComplexTypeDefinition complexTypeDefinition = (XSComplexTypeDefinition) typeDefinition;
 			return complexTypeDefinition.getContentType() == XSComplexTypeDefinition.CONTENTTYPE_MIXED;
