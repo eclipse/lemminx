@@ -22,8 +22,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Table;
 import org.apache.xerces.impl.dv.XSSimpleType;
 import org.apache.xerces.impl.dv.xs.XSSimpleTypeDecl;
 import org.apache.xerces.impl.xs.SchemaGrammar;
@@ -84,7 +82,7 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 	private final XSModel model;
 
 	private final Map<XSElementDeclaration, CMXSDElementDeclaration> elementMappings;
-	private final Table<CMXSDElementDeclaration, XSTypeDefinition, CMXSDElementDeclaration> refinedElementMappings;
+	private final Map<CMXSDElementDeclaration, Map<XSTypeDefinition, CMXSDElementDeclaration>> refinedElementMappings;
 
 	private Collection<CMElementDeclaration> elements;
 
@@ -96,7 +94,7 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 		this.model = model;
 		this.xsLoader = xsLoaderImpl;
 		this.elementMappings = new HashMap<>();
-		this.refinedElementMappings = HashBasedTable.create();
+		this.refinedElementMappings = new HashMap<>();
 		this.tracker = createFilesChangedTracker(model);
 	}
 
@@ -196,10 +194,14 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 			XSTypeDefinition exactType = findXsiType(elt);
 			if (exactType != null) {
 				CMXSDElementDeclaration baseDeclaration = declaration;
-				declaration = refinedElementMappings.get(baseDeclaration, exactType);
+				Map<XSTypeDefinition, CMXSDElementDeclaration> refinedElementMappingsForDeclaration =
+						refinedElementMappings.computeIfAbsent(baseDeclaration,
+								_key -> new HashMap<>());
+
+				declaration = refinedElementMappingsForDeclaration.get(exactType);
 				if (declaration == null) {
 					declaration = baseDeclaration.refineType(exactType);
-					refinedElementMappings.put(baseDeclaration, exactType, declaration);
+					refinedElementMappingsForDeclaration.put(exactType, declaration);
 				}
 			}
 		}
