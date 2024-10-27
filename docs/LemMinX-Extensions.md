@@ -74,7 +74,7 @@ public class FooPlugin implements IXMLExtension {
 }
 ```
 
-This class should register language feature participants (Classes that implement `ICompletionParticipant`, `IHoverParticipant`, `IDiagnosticsParticipant`, etc). For example the [MavenDiagnosticParticipant](https://github.com/eclipse/lemminx-maven/blob/master/lemminx-maven/src/main/java/org/eclipse/lemminx/extensions/maven/MavenDiagnosticParticipant.java). These participants should be registered in the [start method](https://github.com/eclipse/lemminx-maven/blob/f9b38316599d62ad944c3042127c99f674c30079/lemminx-maven/src/main/java/org/eclipse/lemminx/extensions/maven/MavenLemminxExtension.java#L101) of your XMLExtension.
+This class should register language feature participants (Classes that implement `ICompletionParticipant`, `IHoverParticipant`, `IDiagnosticsParticipant`, etc). For example the [MavenDiagnosticParticipant](https://github.com/eclipse/lemminx-maven/blob/master/lemminx-maven/src/main/java/org/eclipse/lemminx/extensions/maven/participants/diagnostics/MavenDiagnosticParticipant.java). These participants should be registered in the [start method](https://github.com/eclipse/lemminx-maven/blob/f9b38316599d62ad944c3042127c99f674c30079/lemminx-maven/src/main/java/org/eclipse/lemminx/extensions/maven/MavenLemminxExtension.java#L101) of your XMLExtension.
 
 To register your extension with LemMinX using Java SPI you need to create a [/META-INF/services/org.eclipse.lemminx.services.extensions.IXMLExtension](https://github.com/eclipse/lemminx-maven/blob/master/lemminx-maven/src/main/resources/META-INF/services/org.eclipse.lemminx.services.extensions.IXMLExtension) file that declares your implementation of IXMLExtension. 
 
