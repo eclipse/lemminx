@@ -114,30 +114,7 @@ public class IncrementalParsingTest {
 	}
 
 	@Test
-	public void testRangeLengthCalculatedFromRange() {
-		String text = "<aaa>\r\n" + //
-				"  <b/>\r\n" + //
-				"</aaa>\r\n";
-
-		String expectedText = "<aaa/>\r\n";
-
-		TextDocument document = new TextDocument(text, "uri");
-		document.setIncremental(true);
-
-		Range range1 = new Range(new Position(0, 4), new Position(2, 5));
-		TextDocumentContentChangeEvent change1 = new TextDocumentContentChangeEvent(range1, 123456, "/");
-
-		ArrayList<TextDocumentContentChangeEvent> changes = new ArrayList<>();
-		changes.add(change1);
-
-		document.update(changes);
-
-		assertEquals(expectedText, document.getText());
-	}
-
-	// https://github.com/eclipse-lemminx/lemminx/issues/1674
-	@Test
-	public void testDeprecatedRangeLengthAllowsNull() {
+	public void testRangeLengthPreferredOverRangeEndPosition() {
 		String text = "<zzz>\r\n" + // /// <-- inserting 'a' in tag name
 				"  <b>\r\n" + //
 				"  </b>\r\n" + //
@@ -151,8 +128,31 @@ public class IncrementalParsingTest {
 		TextDocument document = new TextDocument(text, "uri");
 		document.setIncremental(true);
 
-		Range range1 = new Range(new Position(0, 1), new Position(0, 4));
-		TextDocumentContentChangeEvent change1 = new TextDocumentContentChangeEvent(range1, null, "aaa");
+		Range range1 = new Range(new Position(0, 1), new Position(-1, -1));
+		TextDocumentContentChangeEvent change1 = new TextDocumentContentChangeEvent(range1, 3, "aaa");
+
+		ArrayList<TextDocumentContentChangeEvent> changes = new ArrayList<>();
+		changes.add(change1);
+
+		document.update(changes);
+
+		assertEquals(expectedText, document.getText());
+	}
+
+	// https://github.com/eclipse-lemminx/lemminx/issues/1674
+	@Test
+	public void testDeprecatedRangeLengthAllowsNull() {
+		String text = "<aaa>\r\n" + //
+				"  <b/>\r\n" + //
+				"</aaa>\r\n";
+
+		String expectedText = "<aaa/>\r\n";
+
+		TextDocument document = new TextDocument(text, "uri");
+		document.setIncremental(true);
+
+		Range range1 = new Range(new Position(0, 4), new Position(2, 5));
+		TextDocumentContentChangeEvent change1 = new TextDocumentContentChangeEvent(range1, null, "/");
 
 		ArrayList<TextDocumentContentChangeEvent> changes = new ArrayList<>();
 		changes.add(change1);
