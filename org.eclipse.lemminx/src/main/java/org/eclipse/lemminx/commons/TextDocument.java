@@ -179,7 +179,7 @@ public class TextDocument extends TextDocumentItem {
 						int length = 0;
 
 						if (range != null) {
-							length = changeEvent.getRangeLength().intValue();
+							length = offsetAt(range.getEnd()) - offsetAt(range.getStart());
 						} else {
 							// range is optional and if not given, the whole file content is replaced
 							length = buffer.length();
