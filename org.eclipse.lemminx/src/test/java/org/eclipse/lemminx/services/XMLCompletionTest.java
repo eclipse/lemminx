@@ -234,7 +234,7 @@ public class XMLCompletionTest {
 	@Test
 	public void testnoCDATANPE() {
 		try {
-			testCompletionFor("<a> <![CDATA[<b>foo</b>]]| </a>", 0);
+			testCompletionFor("<a> <![CDATA[<b>foo</b>]]| </a>", 1);
 		} catch (BadLocationException e) {
 			fail();
 		}

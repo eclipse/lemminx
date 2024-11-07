@@ -109,6 +109,7 @@ public class XMLCompletions {
 			Scanner scanner = XMLScanner.createScanner(text, node.getStart(), isInsideDTDContent(node, xmlDocument));
 			String currentTag = "";
 			TokenType token = scanner.scan();
+			TokenType lastToken = null;
 			while (token != TokenType.EOS && scanner.getTokenOffset() <= offset) {
 				cancelChecker.checkCanceled();
 				switch (token) {
@@ -249,6 +250,13 @@ public class XMLCompletions {
 							}
 						}
 						break;
+					case CDATATagOpen:
+						break;
+					case CDATATagClose:
+						if (lastToken != TokenType.CDATATagOpen) {
+							break;
+						}
+					case CDATAContent:
 					case Content:
 						if (completionRequest.getXMLDocument().isDTD()
 								|| completionRequest.getXMLDocument().isWithinInternalDTD(offset)) {
@@ -284,6 +292,7 @@ public class XMLCompletions {
 						}
 						break;
 				}
+				lastToken = token;
 				token = scanner.scan();
 			}
 			return completionResponse;
