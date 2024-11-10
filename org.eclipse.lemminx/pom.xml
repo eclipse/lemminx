@@ -14,6 +14,12 @@
 		<native.maven.plugin.version>0.9.23</native.maven.plugin.version>
 		<graalvm.static />
 	</properties>
+	<pluginRepositories>
+	<pluginRepository>
+		<id>tycho-snpashots</id>
+		<url>https://repo.eclipse.org/content/repositories/tycho-snapshots</url>
+	</pluginRepository>
+	</pluginRepositories>
 	<build>
 		<resources>
 			<resource>
@@ -78,7 +84,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>3.3.0</version>
 				<executions>
 					<execution>
 						<goals>
@@ -122,6 +127,56 @@
 						<goals>
 							<goal>single</goal>
 						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-wrap-plugin</artifactId>
+				<version>4.0.10-SNAPSHOT</version>
+				<executions>
+					<execution>
+						<id>make-uber-bundle</id>
+						<goals>
+							<goal>wrap</goal>
+						</goals>
+						<configuration>
+							<bnd>
+							<![CDATA[ 
+								Bundle-SymbolicName: org.eclipse.lemminx.uber
+								Export-Package: org.eclipse.lemminx.services.extensions.*, \
+									org.eclipse.lemminx.extensions.contentmodel.utils, \
+									org.eclipse.lemminx.extensions.contentmodel.settings, \
+									org.eclipse.lemminx.extensions.contentmodel.model, \
+									org.eclipse.lemminx.extensions.contentmodel, \
+									org.eclipse.lemminx.extensions.contentmodel.participants.diagnostics, \
+									org.eclipse.lemminx.customservice, \
+									org.eclipse.lemminx.services.format, \
+									org.eclipse.lemminx.commons, \
+									org.eclipse.lemminx.commons.progress, \
+									org.eclipse.lemminx.dom, \
+									org.eclipse.lemminx.utils, \
+									org.eclipse.lemminx.services, \
+									org.eclipse.lemminx.settings, \
+									org.eclipse.lemminx.telemetry, \
+									org.eclipse.lemminx.uriresolver
+								Import-Package: java.*, \
+									org.eclipse.lsp4j;resolution:=optional, \
+									org.eclipse.lsp4j.services;resolution:=optional, \
+									org.eclipse.lsp4j.jsonrpc;resolution:=optional, \
+									org.eclipse.lsp4j.jsonrpc.services;resolution:=optional, \
+									org.eclipse.lsp4j.jsonrpc.messages;resolution:=optional, \
+									com.google.gson;resolution:=optional, \
+									com.google.gson.reflect:=optional, \
+									org.w3c.dom;resolution:=optional, \
+									org.xml.sax;resolution:=optional, \
+									!*
+							]]>
+							</bnd>
+							<input>${project.build.directory}/org.eclipse.lemminx-uber.jar</input>
+							<classifier>uber-bundle</classifier>
+							<output>${project.build.directory}/org.eclipse.lemminx-uber-bundle.jar</output>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
