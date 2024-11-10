@@ -144,7 +144,7 @@ public class CacheResourcesManager {
 		this(CacheBuilder.newBuilder().maximumSize(100).expireAfterWrite(30, TimeUnit.SECONDS).build());
 	}
 
-	public CacheResourcesManager(Cache<String, CacheResourceDownloadedException> cache) {
+	CacheResourcesManager(Cache<String, CacheResourceDownloadedException> cache) {
 		resourcesLoading = new HashMap<>();
 		protocolsForCache = new HashSet<>();
 		unavailableURICache = cache;
