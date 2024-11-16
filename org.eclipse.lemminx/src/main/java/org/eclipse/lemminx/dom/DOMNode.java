@@ -827,7 +827,39 @@ public abstract class DOMNode implements Node, DOMRange {
 	 */
 	@Override
 	public String getTextContent() throws DOMException {
-		return getNodeValue();
+
+		switch (getNodeType()) {
+		// Text like nodes simply return their node value
+		case Node.TEXT_NODE:
+		case Node.CDATA_SECTION_NODE:
+		case Node.COMMENT_NODE:
+		case Node.PROCESSING_INSTRUCTION_NODE:
+			return getNodeValue();
+		// These special types has to return null
+		case Node.DOCUMENT_NODE:
+		case Node.DOCUMENT_TYPE_NODE:
+		case Node.NOTATION_NODE:
+			return null;
+		// concatenation of the textContent attribute value of every child node
+		default:
+			if (this.children != null && children.size() > 0) {
+				final StringBuilder builder = new StringBuilder();
+				for (DOMNode child : children) {
+					short nodeType = child.getNodeType();
+					if (nodeType == Node.COMMENT_NODE || nodeType == Node.PROCESSING_INSTRUCTION_NODE) {
+						// excluding COMMENT_NODE and PROCESSING_INSTRUCTION_NODE nodes.
+						continue;
+					}
+					String text = child.getTextContent();
+					if (text != null && !text.isEmpty()) {
+						builder.append(text);
+					}
+				}
+				return builder.toString();
+			}
+			// empty string if the node has no children
+			return "";
+		}
 	}
 
 	@Override

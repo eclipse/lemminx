@@ -17,11 +17,19 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.function.Function;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.eclipse.lemminx.dom.DOMDocumentType.DocumentTypeKind;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 /**
  * XML parser tests.
@@ -46,6 +54,66 @@ public class DOMParserTest {
 	}
 
 	@Test
+	public void testGetTextContentWithSimpleContent() throws Exception {
+		assertTextContent("<a><b><c>Hello</c></b></a>", "Hello", Document::getDocumentElement);
+	}
+
+	@Test
+	public void testGetTextContentWithMixedContent() throws Exception {
+		assertTextContent("<a>H<b>e<c>ll</c></b>o</a>", "Hello", Document::getDocumentElement);
+	}
+
+	@Test
+	public void testGetTextContentWithComplexContent() throws Exception {
+		assertTextContent("<a><b>H</b><c>e</c><b>ll</b><x>o</x></a>", "Hello", Document::getDocumentElement);
+	}
+
+	@Test
+	public void testGetTextContentWithCharContent() throws Exception {
+		assertTextContent("<text>Hello</text>", "Hello", Document::getDocumentElement);
+	}
+
+	@Test
+	public void testGetTextContentWithCDATAContent() throws Exception {
+		assertTextContent("<a><b><c><![CDATA[Hello]]></c></b></a>", "Hello", Document::getDocumentElement);
+	}
+
+	@Test
+	public void testGetTextContentWithComment() throws Exception {
+		assertTextContent("<a><b><c>Hello</c><!-- comments must not be included --></b></a>", "Hello",
+				Document::getDocumentElement);
+	}
+
+	@Test
+	public void testGetTextIsNullForDocument() throws Exception {
+		assertTextContent("<a>Hello</a>", null, d -> d);
+	}
+
+	@Test
+	public void testGetTextContentWithPI() throws Exception {
+		assertTextContent("<a><b><c>Hello</c><?PI must not be included ?></b></a>", "Hello",
+				Document::getDocumentElement);
+	}
+
+	private void assertTextContent(String xml, String expected, Function<Document, Node> nodeExtractor)
+			throws Exception {
+		assertTextContent(DOMParser.getInstance().parse(xml, "uri", null), expected, nodeExtractor);
+		DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+		assertTextContent(builder.parse(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8))), expected,
+				nodeExtractor);
+	}
+
+	private void assertTextContent(Document document, String expected, Function<Document, Node> nodeExtractor) {
+		String textContent = nodeExtractor.apply(document).getTextContent();
+		if (expected != null) {
+			assertNotNull(textContent);
+		}
+		assertEquals(expected, textContent);
+	}
+
+
+
+	@Test
 	public void testNestedElements() {
 		DOMNode head = createElement("head", 6, 12, 19, true);
 		DOMNode body = createElement("body", 19, 25, 32, true);
@@ -55,6 +123,7 @@ public class DOMParserTest {
 
 		assertDocument("<html><head></head><body></body></html>", html);
 	}
+
 
 	@Test
 	public void testNestedNestedElements() {
@@ -95,7 +164,7 @@ public class DOMParserTest {
 
 	@Test
 	public void singleEndTag() {
-		DOMElement meta = (DOMElement) createElement("meta", 0, 0, 7, false);
+		DOMElement meta = createElement("meta", 0, 0, 7, false);
 		assertDocument("</meta>", meta);
 		assertFalse(meta.hasStartTag());
 		assertTrue(meta.hasEndTag());
@@ -104,8 +173,8 @@ public class DOMParserTest {
 
 	@Test
 	public void insideEndTag() {
-		DOMElement meta = (DOMElement) createElement("meta", 6, 6, 13, false);
-		DOMElement html = (DOMElement) createElement("html", 0, 13, 20, true);
+		DOMElement meta = createElement("meta", 6, 6, 13, false);
+		DOMElement html = createElement("html", 0, 13, 20, true);
 		html.addChild(meta);
 
 		assertDocument("<html></meta></html>", html);
