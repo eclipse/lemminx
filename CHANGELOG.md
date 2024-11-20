@@ -1,5 +1,26 @@
 # Change Log
 
+## [0.29.0](https://github.com/eclipse/lemminx/milestone/45?closed=1) (November 25, 2024)
+
+### Bug Fixes
+
+- ICompletionParticipant#onXMLContent is not called for CDATA. See [#1694](https://github.com/eclipse-lemminx/lemminx/issues/1694).
+- Fix interaction between XInclude and <?xml-model> PI. See [#1670](https://github.com/eclipse-lemminx/lemminx/pull/1670). 
+- Supports TextDocumentContentChangeEvent#getRangeLength with null value. See [#1696](https://github.com/eclipse-lemminx/lemminx/pull/1696).
+- Implement `org.eclipse.lemminx.dom.DOMNode.getTextContent()` according to the API. See [#1695](https://github.com/eclipse-lemminx/lemminx/issues/1695).
+- Support xsi:type overrides when resolving content model. See [#1647](https://github.com/eclipse-lemminx/lemminx/pull/1647).
+
+### Build
+
+- Fix builds on MacOS ARM64 with Java 8 (Temurin).. See [#1646](https://github.com/eclipse-lemminx/lemminx/pull/1646).
+- Remove xtend.lib dependency. See [#1630](https://github.com/eclipse-lemminx/lemminx/pull/1630).
+
+### Other
+
+- Add basic OSGi metadata to the uber-jar See [#1710]https://github.com/eclipse-lemminx/lemminx/pull/1710).
+- Make CacheResourcesManager Constructor used for test package protected. See [#1702](https://github.com/eclipse-lemminx/lemminx/pull/1702).
+- Fix link to MavenDiagnosticParticipant. See [#1692](https://github.com/eclipse-lemminx/lemminx/pull/1692).
+
 ## [0.28.0](https://github.com/eclipse/lemminx/milestone/44?closed=1) (May 27, 2024)
 
 ### Enhancements
