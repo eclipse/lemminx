@@ -78,7 +78,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>3.3.0</version>
 				<executions>
 					<execution>
 						<goals>
@@ -113,6 +112,15 @@
 						<manifest>
 							<mainClass>org.eclipse.lemminx.XMLServerLauncher</mainClass>
 						</manifest>
+						<manifestEntries>
+							<Bundle-ManifestVersion>2</Bundle-ManifestVersion>
+							<Bundle-SymbolicName>org.eclipse.lemminx.uber-jar</Bundle-SymbolicName>
+							<Bundle-ActivationPolicy>lazy</Bundle-ActivationPolicy>
+							<Bundle-Version>${parsedVersion.osgiVersion}</Bundle-Version>
+							<Bundle-Vendor>Eclipse.org</Bundle-Vendor>
+							<Bundle-Name>lemminx uber jar bundle</Bundle-Name>
+							<Service-Component>OSGI-INF/*.xml</Service-Component>
+						</manifestEntries>
 					</archive>
 				</configuration>
 				<executions>
