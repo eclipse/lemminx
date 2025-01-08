@@ -13,11 +13,11 @@ package org.eclipse.lemminx.client;
 
 import java.util.List;
 
-import org.eclipse.lemminx.utils.ToStringBuilder;
+import org.eclipse.lsp4j.jsonrpc.util.ToStringBuilder;
 
 /**
  * Specific capabilities for the `CodeLensKind`.
- * 
+ *
  * @see https://github.com/microsoft/language-server-protocol/issues/788
  */
 @SuppressWarnings("all")
@@ -26,7 +26,7 @@ public class CodeLensKindCapabilities {
 	 * The codeLens kind values the client supports. When this property exists the
 	 * client also guarantees that it will handle values outside its set gracefully
 	 * and falls back to a default value when unknown.
-	 * 
+	 *
 	 * If this property is not present the client only supports the codeLens kinds
 	 * from `File` to `Array` as defined in the initial version of the protocol.
 	 */
@@ -43,7 +43,7 @@ public class CodeLensKindCapabilities {
 	 * The codeLens kind values the client supports. When this property exists the
 	 * client also guarantees that it will handle values outside its set gracefully
 	 * and falls back to a default value when unknown.
-	 * 
+	 *
 	 * If this property is not present the client only supports the codeLens kinds
 	 * from `File` to `Array` as defined in the initial version of the protocol.
 	 */
@@ -55,7 +55,7 @@ public class CodeLensKindCapabilities {
 	 * The codeLens kind values the client supports. When this property exists the
 	 * client also guarantees that it will handle values outside its set gracefully
 	 * and falls back to a default value when unknown.
-	 * 
+	 *
 	 * If this property is not present the client only supports the codeLens kinds
 	 * from `File` to `Array` as defined in the initial version of the protocol.
 	 */

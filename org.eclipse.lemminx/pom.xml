@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>org.eclipse.lemminx</groupId>
 		<artifactId>lemminx-parent</artifactId>
-		<version>0.29.1-SNAPSHOT</version>
+		<version>0.30.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>org.eclipse.lemminx</artifactId>
 	<properties>
@@ -217,12 +217,6 @@
 		<dependency>
 			<groupId>org.eclipse.lsp4j</groupId>
 			<artifactId>org.eclipse.lsp4j</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>com.google.guava</groupId>
-					<artifactId>guava</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.lsp4j</groupId>
@@ -291,8 +285,8 @@
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-server</artifactId>
-			<!-- Need to stick to 9.x as long as build is running with Java 1.8-->
-			<version>9.4.53.v20231009</version>
+			<!-- Need to stick to 11.x as long as build is running with Java 11. It's EOL but only used in tests -->
+			<version>11.0.24</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
