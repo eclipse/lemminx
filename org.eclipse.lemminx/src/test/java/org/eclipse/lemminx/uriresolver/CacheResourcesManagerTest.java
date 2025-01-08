@@ -22,9 +22,9 @@ import java.nio.file.Path;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
@@ -152,7 +152,7 @@ public class CacheResourcesManagerTest extends AbstractCacheBasedTest {
 		assertEquals("choice.xsd",path.getFileName().toString());
 		String choice = FilesUtils.readString(path);
 		assertTrue(choice.contains("<xs:element name=\"person\">"), () -> {return "Unexpected file content:"+choice;});
-		
+
 		String invalidUri = server.getUri("/../../../xsd/choice.xsd");
 		try {
 			cacheResourcesManager.getResource(invalidUri);
@@ -162,17 +162,17 @@ public class CacheResourcesManagerTest extends AbstractCacheBasedTest {
 			assertEquals(InvalidURIException.InvalidURIError.INVALID_PATH, ((InvalidURIException)e).getErrorCode());
 		}
 	}
-	
+
 	@Test
-	public void testForbiddenRedirection() throws Exception {    
+	public void testForbiddenRedirection() throws Exception {
 		Handler redirectHandler = new AbstractHandler() {
 			@Override
 			public void handle(String target, Request baseRequest, HttpServletRequest request,
 					HttpServletResponse response) throws IOException, ServletException {
 				response.setHeader("Location", request.getParameter("redirect"));
 			}
-			
-		}; 
+
+		};
 		FileServer server = new FileServer(redirectHandler);
 		server.start();
 		String uri = server.getUri("/?redirect=file:///etc/password");
@@ -196,5 +196,5 @@ public class CacheResourcesManagerTest extends AbstractCacheBasedTest {
 	private Cache<String, CacheResourceDownloadedException> testingCache() {
 		return CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.SECONDS).maximumSize(1).build();
 	}
-	
+
 }

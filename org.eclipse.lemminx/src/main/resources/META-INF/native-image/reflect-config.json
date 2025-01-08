@@ -2196,6 +2196,13 @@
 		}]
 	},
 	{
+		"name": "org.eclipse.lsp4j.adapters.InlineValueResponseAdapter",
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
 		"name": "org.eclipse.lsp4j.adapters.LocationLinkListAdapter",
 		"methods": [{
 			"name": "<init>",

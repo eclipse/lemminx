@@ -11,15 +11,15 @@
 *******************************************************************************/
 package org.eclipse.lemminx.client;
 
-import org.eclipse.lemminx.utils.ToStringBuilder;
+import org.eclipse.lsp4j.jsonrpc.util.ToStringBuilder;
 import org.eclipse.lsp4j.DynamicRegistrationCapabilities;
 
 /**
- * Extended capabilities specific to the `textDocument/codeLens` request. This capability doesn't belong to LSP specification. See proposal at 
+ * Extended capabilities specific to the `textDocument/codeLens` request. This capability doesn't belong to LSP specification. See proposal at
  * https://github.com/microsoft/language-server-protocol/issues/788
- * 
+ *
  * @author Angelo ZERR
- * 
+ *
  * @see https://github.com/microsoft/language-server-protocol/issues/788
  */
 @SuppressWarnings("all")

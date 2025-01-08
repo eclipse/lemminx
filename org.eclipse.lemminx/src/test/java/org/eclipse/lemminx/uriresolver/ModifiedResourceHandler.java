@@ -11,9 +11,9 @@ package org.eclipse.lemminx.uriresolver;
 
 import java.io.IOException;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.ResourceHandler;
@@ -28,7 +28,7 @@ public class ModifiedResourceHandler extends ResourceHandler {
 	public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
 			throws IOException, ServletException {
 
-		// 403 if user agent starts with Java/1. with https://lime.software/. 
+		// 403 if user agent starts with Java/1. with https://lime.software/.
 		// See https://github.com/redhat-developer/vscode-xml/issues/429#issuecomment-784875083
 		String userAgent = request.getHeader("User-Agent");
 		if (userAgent != null && userAgent.startsWith("Java/1.")) {
