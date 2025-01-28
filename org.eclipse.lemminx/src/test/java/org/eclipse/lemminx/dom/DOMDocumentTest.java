@@ -252,4 +252,10 @@ public class DOMDocumentTest {
 		assertEquals("http://camel.apache.org/schema/spring", camel.getNamespaceURI());
 
 	}
+
+	@Test
+	void findElementWithSingleQuoteValue() {
+		DOMDocument document = DOMParser.getInstance().parse("<ele attr='\"'/>", "test", null);
+		assertEquals("\"", document.getChild(0).getAttribute("attr"));
+	}
 }
