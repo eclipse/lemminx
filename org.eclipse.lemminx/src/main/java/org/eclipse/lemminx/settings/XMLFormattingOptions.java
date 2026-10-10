@@ -303,6 +303,8 @@ public class XMLFormattingOptions extends org.eclipse.lemminx.settings.LSPFormat
 	@Scope(ConfigurationScope.RESOURCE)
 	private String xsiSchemaLocationSplit;
 
+	private List<XMLFormattingProfile> profiles;
+
 	public XMLFormattingOptions() {
 		this(false);
 	}
@@ -712,6 +714,31 @@ public class XMLFormattingOptions extends org.eclipse.lemminx.settings.LSPFormat
 		this.grammarAwareFormatting = grammarAwareFormatting;
 	}
 
+	/**
+	 * Returns the formatting profiles for per-document settings overrides.
+	 *
+	 * <p>
+	 * Use case: a workspace with DocBook and Maven POM files can define
+	 * profiles with different format settings for each document type.
+	 * The first matching profile wins.
+	 * </p>
+	 *
+	 * @return the profiles, or {@code null} if none are configured.
+	 * @see XMLFormattingProfile
+	 */
+	public List<XMLFormattingProfile> getProfiles() {
+		return profiles;
+	}
+
+	/**
+	 * Sets the formatting profiles.
+	 *
+	 * @param profiles the profiles.
+	 */
+	public void setProfiles(List<XMLFormattingProfile> profiles) {
+		this.profiles = profiles;
+	}
+
 	public String getXsiSchemaLocationSplit() {
 		return xsiSchemaLocationSplit;
 	}
@@ -749,6 +776,7 @@ public class XMLFormattingOptions extends org.eclipse.lemminx.settings.LSPFormat
 		setBlockElements(formattingOptions.getBlockElements());
 		setGrammarAwareFormatting(formattingOptions.isGrammarAwareFormatting());
 		setMaxLineWidth(formattingOptions.getMaxLineWidth());
+		setProfiles(formattingOptions.getProfiles());
 		return this;
 	}
 
