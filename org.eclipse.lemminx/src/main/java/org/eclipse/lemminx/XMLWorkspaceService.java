@@ -81,6 +81,7 @@ public class XMLWorkspaceService implements WorkspaceService, IXMLCommandService
 	public void didChangeConfiguration(DidChangeConfigurationParams params) {
 		xmlLanguageServer.updateSettings(params.getSettings());
 		xmlLanguageServer.getCapabilityManager().syncDynamicCapabilitiesWithPreferences();
+		((XMLTextDocumentService) xmlLanguageServer.getTextDocumentService()).clearAllScopedSettings();
 	}
 
 	@Override

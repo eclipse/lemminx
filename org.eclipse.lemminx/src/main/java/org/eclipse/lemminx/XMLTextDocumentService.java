@@ -32,6 +32,8 @@ import java.util.stream.Collectors;
 import org.eclipse.lemminx.client.ExtendedClientCapabilities;
 import org.eclipse.lemminx.client.LimitExceededWarner;
 import org.eclipse.lemminx.client.LimitFeature;
+import org.eclipse.lemminx.commons.config.ConfigurationField;
+import org.eclipse.lemminx.settings.XMLGeneralClientSettings;
 import org.eclipse.lemminx.commons.ModelTextDocument;
 import org.eclipse.lemminx.commons.ModelTextDocuments;
 import org.eclipse.lemminx.commons.ModelValidatorDelayer;
@@ -65,7 +67,6 @@ import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.CompletionParams;
-import org.eclipse.lsp4j.ConfigurationItem;
 import org.eclipse.lsp4j.ConfigurationParams;
 import org.eclipse.lsp4j.DefinitionParams;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
@@ -112,10 +113,7 @@ import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.messages.Either3;
-import org.eclipse.lsp4j.jsonrpc.validation.NonNull;
 import org.eclipse.lsp4j.services.TextDocumentService;
-
-import com.google.gson.JsonPrimitive;
 
 /**
  * XML text document service.
@@ -126,7 +124,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	private static final Logger LOGGER = Logger.getLogger(XMLTextDocumentService.class.getName());
 
 	private final XMLLanguageServer xmlLanguageServer;
-	private final ModelTextDocuments<DOMDocument> documents;
+	private final ModelTextDocuments<DOMDocument, SharedSettings> documents;
 	private final ModelValidatorDelayer<DOMDocument> xmlValidatorDelayer;
 
 	private SharedSettings sharedSettings;
@@ -147,7 +145,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	 */
 	public class SaveContext extends AbstractSaveContext {
 
-		private final Collection<ModelTextDocument<DOMDocument>> documentsToValidate;
+		private final Collection<ModelTextDocument<DOMDocument, SharedSettings>> documentsToValidate;
 
 		private boolean isRefreshCodeLenses;
 
@@ -198,10 +196,61 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	private Boolean clientConfigurationSupport;
 
+	private volatile int settingsGeneration;
+
+	private CompletableFuture<SharedSettings> getOrPullScopedSettings(String uri) {
+		if (clientConfigurationSupport == null || !clientConfigurationSupport.booleanValue()) {
+			return CompletableFuture.completedFuture(sharedSettings);
+		}
+		ModelTextDocument<DOMDocument, SharedSettings> doc = documents.get(uri);
+		if (doc != null) {
+			SharedSettings cached = doc.getSettings();
+			if (cached != null) {
+				return CompletableFuture.completedFuture(cached);
+			}
+		}
+		final int generationAtRequest = settingsGeneration;
+		ConfigurationParams params = ConfigurationField.createConfigurationParams(
+				uri, XMLGeneralClientSettings.SCOPED_FIELDS);
+		return xmlLanguageServer.getLanguageClient()
+				.configuration(params)
+				.thenApply(results -> {
+					if (results == null) {
+						return sharedSettings;
+					}
+					SharedSettings scoped = new SharedSettings(sharedSettings);
+					ConfigurationField.applyConfigurationResults(
+							scoped,
+							XMLGeneralClientSettings.SCOPED_FIELDS,
+							results);
+					if (ConfigurationField.haveSameValues(scoped, sharedSettings,
+							XMLGeneralClientSettings.SCOPED_FIELDS)) {
+						if (doc != null && settingsGeneration == generationAtRequest) {
+							doc.setSettings(sharedSettings);
+						}
+						return sharedSettings;
+					}
+					if (doc != null && settingsGeneration == generationAtRequest) {
+						doc.setSettings(scoped);
+					}
+					return scoped;
+				})
+				.exceptionally(e -> {
+					LOGGER.log(Level.WARNING,
+							"Error pulling scoped configuration for '" + uri + "'.", e);
+					return sharedSettings;
+				});
+	}
+
+	public void clearAllScopedSettings() {
+		settingsGeneration++;
+		documents.clearAllSettings();
+	}
+
 	public XMLTextDocumentService(XMLLanguageServer xmlLanguageServer) {
 		this.xmlLanguageServer = xmlLanguageServer;
 		DOMParser parser = DOMParser.getInstance();
-		this.documents = new ModelTextDocuments<DOMDocument>((document, cancelChecker) -> {
+		this.documents = new ModelTextDocuments<DOMDocument, SharedSettings>((document, cancelChecker) -> {
 			return parser.parse(document, getXMLLanguageService().getResolverExtensionManager(), true, cancelChecker);
 		});
 		this.sharedSettings = new SharedSettings();
@@ -354,17 +403,23 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	@Override
 	public CompletableFuture<List<? extends TextEdit>> formatting(DocumentFormattingParams params) {
-		return computeDOMAsync(params.getTextDocument(), (xmlDocument, cancelChecker) -> {
-			CompositeSettings settings = new CompositeSettings(getSharedSettings(), params.getOptions());
-			return getXMLLanguageService().format(xmlDocument, null, settings);
+		return computeDOMAsyncCompose(params.getTextDocument(), (xmlDocument, cancelChecker) -> {
+			return getOrPullScopedSettings(params.getTextDocument().getUri())
+					.thenApply(scopedSettings -> {
+						CompositeSettings settings = new CompositeSettings(scopedSettings, params.getOptions());
+						return getXMLLanguageService().format(xmlDocument, null, settings);
+					});
 		});
 	}
 
 	@Override
 	public CompletableFuture<List<? extends TextEdit>> rangeFormatting(DocumentRangeFormattingParams params) {
-		return computeDOMAsync(params.getTextDocument(), (xmlDocument, cancelChecker) -> {
-			CompositeSettings settings = new CompositeSettings(getSharedSettings(), params.getOptions());
-			return getXMLLanguageService().format(xmlDocument, params.getRange(), settings);
+		return computeDOMAsyncCompose(params.getTextDocument(), (xmlDocument, cancelChecker) -> {
+			return getOrPullScopedSettings(params.getTextDocument().getUri())
+					.thenApply(scopedSettings -> {
+						CompositeSettings settings = new CompositeSettings(scopedSettings, params.getOptions());
+						return getXMLLanguageService().format(xmlDocument, params.getRange(), settings);
+					});
 		});
 	}
 
@@ -396,7 +451,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 
 	@Override
 	public void didOpen(DidOpenTextDocumentParams params) {
-		ModelTextDocument<DOMDocument> document = documents.onDidOpenTextDocument(params);
+		ModelTextDocument<DOMDocument, SharedSettings> document = documents.onDidOpenTextDocument(params);
 		triggerValidationFor(document, TriggeredBy.didOpen);
 	}
 
@@ -405,7 +460,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	 */
 	@Override
 	public void didChange(DidChangeTextDocumentParams params) {
-		ModelTextDocument<DOMDocument> document = documents.onDidChangeTextDocument(params);
+		ModelTextDocument<DOMDocument, SharedSettings> document = documents.onDidChangeTextDocument(params);
 		triggerValidationFor(document, TriggeredBy.didChange, params.getContentChanges());
 	}
 
@@ -506,30 +561,29 @@ public class XMLTextDocumentService implements TextDocumentService {
 	@Override
 	public CompletableFuture<List<Either<Command, CodeAction>>> codeAction(CodeActionParams params) {
 		String uri = params.getTextDocument().getUri();
-		return computeDOMAsync(params.getTextDocument(), (xmlDocument, cancelChecker) -> {
-			XMLFormattingOptions indentationSettings = getIndentationSettings(uri);
-			if (indentationSettings != null) {
-				// FIXME, don't update the shared settings, but use in code action the new
-				// indentationSettings.
-				sharedSettings.getFormattingSettings().merge(indentationSettings);
-			}
-
-			return (List<Either<Command, CodeAction>>) getXMLLanguageService()
-					.doCodeActions(params.getContext(), params.getRange(), xmlDocument, sharedSettings, cancelChecker) //
-					.stream() //
-					.map(ca -> {
-						if (codeActionLiteralSupport) {
-							Either<Command, CodeAction> e = Either.forRight(ca);
-							return e;
-						} else {
-							List<Object> arguments = Arrays.asList(uri, xmlDocument.getTextDocument().getVersion(),
-									ca.getEdit().getDocumentChanges().get(0).getLeft().getEdits());
-							Command command = new Command(ca.getTitle(), "_xml.applyCodeAction", arguments);
-							Either<Command, CodeAction> e = Either.forLeft(command);
-							return e;
-						}
-					}) //
-					.collect(Collectors.toList());
+		return computeDOMAsyncCompose(params.getTextDocument(), (xmlDocument, cancelChecker) -> {
+			return getOrPullScopedSettings(uri)
+					.thenApply(scopedSettings -> {
+						return (List<Either<Command, CodeAction>>) getXMLLanguageService()
+								.doCodeActions(params.getContext(), params.getRange(), xmlDocument, scopedSettings,
+										cancelChecker) //
+								.stream() //
+								.map(ca -> {
+									if (codeActionLiteralSupport) {
+										Either<Command, CodeAction> e = Either.forRight(ca);
+										return e;
+									} else {
+										List<Object> arguments = Arrays.asList(uri,
+												xmlDocument.getTextDocument().getVersion(),
+												ca.getEdit().getDocumentChanges().get(0).getLeft().getEdits());
+										Command command = new Command(ca.getTitle(), "_xml.applyCodeAction",
+												arguments);
+										Either<Command, CodeAction> e = Either.forLeft(command);
+										return e;
+									}
+								}) //
+								.collect(Collectors.toList());
+					});
 		});
 	}
 
@@ -538,50 +592,6 @@ public class XMLTextDocumentService implements TextDocumentService {
 		return computeDOMAsync(unresolved, unresolved.getData(), (xmlDocument, cancelChecker) -> {
 			return getXMLLanguageService().resolveCodeAction(unresolved, xmlDocument, sharedSettings, cancelChecker);
 		});
-	}
-
-	/**
-	 * Returns the indentation settings (`xml.format.tabSize` and
-	 * `xml.format.insertSpaces`) for the document with the given URI.
-	 *
-	 * @param uri the uri of the document to get the indentation settings for
-	 * @return the indentation settings (`xml.format.tabSize` and
-	 *         `xml.format.insertSpaces`) for the document with the given URI
-	 */
-	private XMLFormattingOptions getIndentationSettings(@NonNull String uri) {
-		if (clientConfigurationSupport == null || !clientConfigurationSupport.booleanValue()) {
-			// The client doesn't support 'configuration/workspace'.
-			return null;
-		}
-		ConfigurationItem insertSpaces = new ConfigurationItem();
-		insertSpaces.setScopeUri(uri);
-		insertSpaces.setSection("xml.format.insertSpaces");
-
-		ConfigurationItem tabSize = new ConfigurationItem();
-		tabSize.setScopeUri(uri);
-		tabSize.setSection("xml.format.tabSize");
-
-		XMLFormattingOptions newOptions = null;
-		try {
-			List<Object> indentationSettings = xmlLanguageServer.getLanguageClient()
-					.configuration(new ConfigurationParams(Arrays.asList( //
-							insertSpaces, tabSize //
-					))).join();
-
-			newOptions = new XMLFormattingOptions();
-			newOptions.merge(sharedSettings.getFormattingSettings());
-			if (!indentationSettings.isEmpty()) {
-				if (indentationSettings.get(0) != null && (indentationSettings.get(0) instanceof JsonPrimitive)) {
-					newOptions.setInsertSpaces(((JsonPrimitive) indentationSettings.get(0)).getAsBoolean());
-				}
-				if (indentationSettings.get(1) != null && (indentationSettings.get(1) instanceof JsonPrimitive)) {
-					newOptions.setTabSize(((JsonPrimitive) indentationSettings.get(1)).getAsInt());
-				}
-			}
-		} catch (Exception e) {
-			LOGGER.log(Level.SEVERE, "Error while processing getting indentation settings for code actions'.", e);
-		}
-		return newOptions;
 	}
 
 	@Override
@@ -662,7 +672,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 		}
 	}
 
-	private void triggerValidationFor(Collection<ModelTextDocument<DOMDocument>> documents) {
+	private void triggerValidationFor(Collection<ModelTextDocument<DOMDocument, SharedSettings>> documents) {
 		if (!documents.isEmpty()) {
 			xmlLanguageServer.schedule(() -> {
 				documents.forEach(document -> {
@@ -702,10 +712,10 @@ public class XMLTextDocumentService implements TextDocumentService {
 	@SuppressWarnings("unchecked")
 	void validate(TextDocument document, boolean withDelay) throws CancellationException {
 		if (withDelay) {
-			xmlValidatorDelayer.validateWithDelay((ModelTextDocument<DOMDocument>) document);
+			xmlValidatorDelayer.validateWithDelay((ModelTextDocument<DOMDocument, SharedSettings>) document);
 		} else {
 			CompletableFuture.runAsync(() -> {
-				DOMDocument xmlDocument = ((ModelTextDocument<DOMDocument>) document).getModel();
+				DOMDocument xmlDocument = ((ModelTextDocument<DOMDocument, SharedSettings>) document).getModel();
 				validate(xmlDocument, Collections.emptyMap());
 				getXMLLanguageService().getDocumentLifecycleParticipants().forEach(participant -> {
 					try {
@@ -796,16 +806,16 @@ public class XMLTextDocumentService implements TextDocumentService {
 	 * @param uri the uri
 	 * @return the text document from the given uri.
 	 */
-	public ModelTextDocument<DOMDocument> getDocument(String uri) {
+	public ModelTextDocument<DOMDocument, SharedSettings> getDocument(String uri) {
 		return documents.get(uri);
 	}
 
-	public Collection<ModelTextDocument<DOMDocument>> allDocuments() {
+	public Collection<ModelTextDocument<DOMDocument, SharedSettings>> allDocuments() {
 		return documents.all();
 	}
 
 	public boolean documentIsOpen(String uri) {
-		ModelTextDocument<DOMDocument> document = getDocument(uri);
+		ModelTextDocument<DOMDocument, SharedSettings> document = getDocument(uri);
 		return document != null;
 	}
 
@@ -834,6 +844,11 @@ public class XMLTextDocumentService implements TextDocumentService {
 	public <R> CompletableFuture<R> computeDOMAsync(TextDocumentIdentifier documentIdentifier,
 			BiFunction<DOMDocument, CancelChecker, R> code) {
 		return documents.computeModelAsync(documentIdentifier, code);
+	}
+
+	public <R> CompletableFuture<R> computeDOMAsyncCompose(TextDocumentIdentifier documentIdentifier,
+			BiFunction<DOMDocument, CancelChecker, CompletableFuture<R>> code) {
+		return documents.computeModelAsyncCompose(documentIdentifier, code);
 	}
 
 	public LimitExceededWarner getLimitExceededWarner() {

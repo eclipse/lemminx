@@ -370,6 +370,14 @@
 		}]
 	},
 	{
+		"name": "org.eclipse.lemminx.settings.LSPFormattingOptions",
+		"allDeclaredFields": true
+	},
+	{
+		"name": "org.eclipse.lemminx.settings.SharedSettings",
+		"allDeclaredFields": true
+	},
+	{
 		"name": "org.eclipse.lemminx.settings.XMLFormattingOptions",
 		"allDeclaredFields": true,
 		"methods": [{

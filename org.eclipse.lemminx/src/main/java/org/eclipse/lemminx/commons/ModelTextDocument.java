@@ -24,8 +24,9 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
  * @author Angelo ZERR
  *
  * @param <T> the model type (ex : DOM Document)
+ * @param <S> the scoped settings type (ex : CompositeSettings)
  */
-public class ModelTextDocument<T> extends TextDocument {
+public class ModelTextDocument<T, S> extends TextDocument {
 
 	private static final Logger LOGGER = Logger.getLogger(ModelTextDocument.class.getName());
 
@@ -34,6 +35,8 @@ public class ModelTextDocument<T> extends TextDocument {
 	private final BiFunction<TextDocument, CancelChecker, T> parse;
 
 	private T model;
+
+	private S settings;
 
 	public ModelTextDocument(TextDocumentItem document, BiFunction<TextDocument, CancelChecker, T> parse) {
 		super(document);
@@ -126,6 +129,18 @@ public class ModelTextDocument<T> extends TextDocument {
 		model = null;
 	}
 
+	public S getSettings() {
+		return settings;
+	}
+
+	public void setSettings(S settings) {
+		this.settings = settings;
+	}
+
+	public void clearSettings() {
+		this.settings = null;
+	}
+
 	/**
 	 * Dispose this document, preventing any further re-parsing and releasing
 	 * all retained memory (model and text content) for garbage collection.
@@ -136,6 +151,7 @@ public class ModelTextDocument<T> extends TextDocument {
 		// TextDocumentVersionChecker, and triggers cancelModel() which
 		// releases the cached DOM tree.
 		setVersion(DISPOSED_VERSION);
+		clearSettings();
 		super.dispose();
 	}
 

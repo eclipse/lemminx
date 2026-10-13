@@ -29,7 +29,7 @@ import org.eclipse.lsp4j.jsonrpc.CompletableFutures.FutureCancelChecker;
  *
  * @param <T> the model type (ex : DOM Document)
  */
-public class ModelTextDocuments<T> extends TextDocuments<ModelTextDocument<T>> {
+public class ModelTextDocuments<T, S> extends TextDocuments<ModelTextDocument<T, S>> {
 
 	private final BiFunction<TextDocument, CancelChecker, T> parse;
 
@@ -38,8 +38,8 @@ public class ModelTextDocuments<T> extends TextDocuments<ModelTextDocument<T>> {
 	}
 
 	@Override
-	public ModelTextDocument<T> onDidCloseTextDocument(DidCloseTextDocumentParams params) {
-		ModelTextDocument<T> document = super.onDidCloseTextDocument(params);
+	public ModelTextDocument<T, S> onDidCloseTextDocument(DidCloseTextDocumentParams params) {
+		ModelTextDocument<T, S> document = super.onDidCloseTextDocument(params);
 		if (document != null) {
 			document.dispose();
 		}
@@ -47,10 +47,20 @@ public class ModelTextDocuments<T> extends TextDocuments<ModelTextDocument<T>> {
 	}
 
 	@Override
-	public ModelTextDocument<T> createDocument(TextDocumentItem document) {
-		ModelTextDocument<T> doc = new ModelTextDocument<T>(document, parse);
+	public ModelTextDocument<T, S> createDocument(TextDocumentItem document) {
+		ModelTextDocument<T, S> doc = new ModelTextDocument<T, S>(document, parse);
 		doc.setIncremental(isIncremental());
 		return doc;
+	}
+
+	/**
+	 * Clears cached scoped settings on all open documents.
+	 * Typically called when configuration changes.
+	 */
+	public void clearAllSettings() {
+		for (ModelTextDocument<T, S> document : all()) {
+			document.clearSettings();
+		}
 	}
 
 	/**
@@ -72,7 +82,7 @@ public class ModelTextDocuments<T> extends TextDocuments<ModelTextDocument<T>> {
 	 * @return the model of the given text document Uri and null otherwise.
 	 */
 	public T getExistingModel(String uri) {
-		ModelTextDocument<T> document = get(uri);
+		ModelTextDocument<T, S> document = get(uri);
 		if (document != null) {
 			return document.getExistingModel();
 		}
@@ -98,7 +108,7 @@ public class ModelTextDocuments<T> extends TextDocuments<ModelTextDocument<T>> {
 	 * @return the model of the given text document Uri and null otherwise.
 	 */
 	public T getModel(String uri) {
-		ModelTextDocument<T> document = get(uri);
+		ModelTextDocument<T, S> document = get(uri);
 		if (document != null) {
 			return document.getModel();
 		}
@@ -146,7 +156,7 @@ public class ModelTextDocuments<T> extends TextDocuments<ModelTextDocument<T>> {
 			// Get or parse the model.
 			T model = getModel(documentIdentifier);
 			if (model == null) {
-				return null;
+				return CompletableFuture.completedFuture(null);
 			}
 			cancelChecker.checkCanceled();
 			// Apply the function code by using the parsed model.{

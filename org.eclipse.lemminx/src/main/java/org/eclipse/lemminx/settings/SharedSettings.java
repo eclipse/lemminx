@@ -18,15 +18,15 @@ import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationRootSet
  */
 public class SharedSettings {
 
-	private final XMLCompletionSettings completionSettings;
+	private final XMLCompletionSettings completion;
 	private boolean linkedEditingEnabled;
-	private final XMLFoldingSettings foldingSettings;
-	private final XMLFormattingOptions formattingSettings;
+	private final XMLFoldingSettings foldings;
+	private final XMLFormattingOptions format;
 	private final XMLValidationRootSettings validationSettings;
-	private final XMLSymbolSettings symbolSettings;
+	private final XMLSymbolSettings symbols;
 
 	private final XMLCodeActionSettings codeActionSettings;
-	private final XMLCodeLensSettings codeLensSettings;
+	private final XMLCodeLensSettings codeLens;
 	private final XMLHoverSettings hoverSettings;
 	private final XMLPreferences preferences;
 	private final XMLWorkspaceSettings workspaceSettings;
@@ -35,13 +35,13 @@ public class SharedSettings {
 	private boolean bindingWizardSupport;
 
 	public SharedSettings() {
-		this.completionSettings = new XMLCompletionSettings();
-		this.foldingSettings = new XMLFoldingSettings();
-		this.formattingSettings = new XMLFormattingOptions(true);
+		this.completion = new XMLCompletionSettings();
+		this.foldings = new XMLFoldingSettings();
+		this.format = new XMLFormattingOptions(true);
 		this.validationSettings = new XMLValidationRootSettings();
-		this.symbolSettings = new XMLSymbolSettings();
+		this.symbols = new XMLSymbolSettings();
 		this.codeActionSettings = new XMLCodeActionSettings();
-		this.codeLensSettings = new XMLCodeLensSettings();
+		this.codeLens = new XMLCodeLensSettings();
 		this.hoverSettings = new XMLHoverSettings();
 		this.preferences = new XMLPreferences();
 		this.workspaceSettings = new XMLWorkspaceSettings();
@@ -53,12 +53,13 @@ public class SharedSettings {
 
 	public SharedSettings(SharedSettings newSettings) {
 		this();
-		this.completionSettings.merge(newSettings.getCompletionSettings());
-		this.foldingSettings.merge(newSettings.getFoldingSettings());
-		this.formattingSettings.merge(newSettings.getFormattingSettings());
+		this.completion.merge(newSettings.getCompletionSettings());
+		this.foldings.merge(newSettings.getFoldingSettings());
+		this.format.merge(newSettings.getFormattingSettings());
 		this.validationSettings.merge(newSettings.getValidationSettings());
-		this.symbolSettings.merge(newSettings.getSymbolSettings());
-		this.codeLensSettings.merge(newSettings.getCodeLensSettings());
+		this.symbols.merge(newSettings.getSymbolSettings());
+		this.codeActionSettings.setCapabilities(newSettings.getCodeActionSettings().getCapabilities());
+		this.codeLens.merge(newSettings.getCodeLensSettings());
 		this.preferences.merge(newSettings.getPreferences());
 		this.actionableNotificationSupport = newSettings.isActionableNotificationSupport();
 		this.openSettingsCommandSupport = newSettings.isOpenSettingsCommandSupport();
@@ -67,15 +68,15 @@ public class SharedSettings {
 	}
 
 	public XMLCompletionSettings getCompletionSettings() {
-		return completionSettings;
+		return completion;
 	}
 
 	public XMLFoldingSettings getFoldingSettings() {
-		return foldingSettings;
+		return foldings;
 	}
 
 	public XMLFormattingOptions getFormattingSettings() {
-		return formattingSettings;
+		return format;
 	}
 
 	public XMLValidationRootSettings getValidationSettings() {
@@ -83,7 +84,7 @@ public class SharedSettings {
 	}
 
 	public XMLSymbolSettings getSymbolSettings() {
-		return symbolSettings;
+		return symbols;
 	}
 
 	public XMLCodeActionSettings getCodeActionSettings() {
@@ -91,7 +92,7 @@ public class SharedSettings {
 	}
 
 	public XMLCodeLensSettings getCodeLensSettings() {
-		return codeLensSettings;
+		return codeLens;
 	}
 
 	public XMLHoverSettings getHoverSettings() {

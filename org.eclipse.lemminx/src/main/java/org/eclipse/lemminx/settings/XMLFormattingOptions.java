@@ -15,6 +15,8 @@ package org.eclipse.lemminx.settings;
 import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.lemminx.commons.config.ConfigurationScope;
+import org.eclipse.lemminx.commons.config.Scope;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.extensions.xsi.settings.XSISchemaLocationSplit;
 import org.eclipse.lemminx.services.format.FormatElementCategory;
@@ -95,7 +97,9 @@ public class XMLFormattingOptions extends org.eclipse.lemminx.settings.LSPFormat
 			"style", //
 			"script");
 
+	@Scope(ConfigurationScope.RESOURCE)
 	private boolean legacy;
+	@Scope(ConfigurationScope.RESOURCE)
 	private int maxLineWidth;
 
 	/**
@@ -208,19 +212,32 @@ public class XMLFormattingOptions extends org.eclipse.lemminx.settings.LSPFormat
 		}
 	}
 
+	@Scope(ConfigurationScope.RESOURCE)
 	private String splitAttributes;
+	@Scope(ConfigurationScope.RESOURCE)
 	private boolean joinCDATALines;
+	@Scope(ConfigurationScope.RESOURCE)
 	private boolean formatComments;
+	@Scope(ConfigurationScope.RESOURCE)
 	private boolean joinCommentLines;
+	@Scope(ConfigurationScope.RESOURCE)
 	private boolean enabled;
+	@Scope(ConfigurationScope.RESOURCE)
 	private boolean spaceBeforeEmptyCloseTag;
+	@Scope(ConfigurationScope.RESOURCE)
 	private boolean joinContentLines;
+	@Scope(ConfigurationScope.RESOURCE)
 	private int preservedNewlines;
+	@Scope(ConfigurationScope.RESOURCE)
 	private String enforceQuoteStyle;
 
+	@Scope(ConfigurationScope.RESOURCE)
 	private boolean preserveAttributeLineBreaks;
+	@Scope(ConfigurationScope.RESOURCE)
 	private boolean preserveEmptyContent;
+	@Scope(ConfigurationScope.RESOURCE)
 	private int splitAttributesIndentSize;
+	@Scope(ConfigurationScope.RESOURCE)
 	private boolean closingBracketNewLine;
 
 	/**
@@ -271,13 +288,19 @@ public class XMLFormattingOptions extends org.eclipse.lemminx.settings.LSPFormat
 		expand, collapse, ignore;
 	}
 
+	@Scope(ConfigurationScope.RESOURCE)
 	private String emptyElements;
+	@Scope(ConfigurationScope.RESOURCE)
 	private List<String> preserveSpace;
+	@Scope(ConfigurationScope.RESOURCE)
 	private List<String> blockElements;
+	@Scope(ConfigurationScope.RESOURCE)
 	private String mixedContent;
 
+	@Scope(ConfigurationScope.RESOURCE)
 	private boolean grammarAwareFormatting;
 
+	@Scope(ConfigurationScope.RESOURCE)
 	private String xsiSchemaLocationSplit;
 
 	public XMLFormattingOptions() {
@@ -714,7 +737,7 @@ public class XMLFormattingOptions extends org.eclipse.lemminx.settings.LSPFormat
 		setJoinContentLines(formattingOptions.isJoinContentLines());
 		setPreservedNewlines(formattingOptions.getPreservedNewlines());
 		setEnforceQuoteStyle(formattingOptions.getEnforceQuoteStyle());
-		setPreserveAttributeLineBreaks(formattingOptions.isPreserveAttributeLineBreaks());
+		setPreserveAttributeLineBreaks(formattingOptions.preserveAttributeLineBreaks);
 		setPreserveEmptyContent(formattingOptions.isPreserveEmptyContent());
 		setSplitAttributesIndentSize(formattingOptions.getSplitAttributesIndentSize());
 		setClosingBracketNewLine(formattingOptions.getClosingBracketNewLine());
