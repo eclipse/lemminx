@@ -13,6 +13,8 @@ package org.eclipse.lemminx.settings;
 
 import java.util.LinkedHashMap;
 
+import org.eclipse.lemminx.commons.config.ConfigurationScope;
+import org.eclipse.lemminx.commons.config.Scope;
 import org.eclipse.lsp4j.FormattingOptions;
 
 /**
@@ -34,11 +36,13 @@ public class LSPFormattingOptions {
 	/**
 	 * Size of a tab in spaces.
 	 */
+	@Scope(ConfigurationScope.RESOURCE)
 	private int tabSize;
 
 	/**
 	 * Prefer spaces over tabs.
 	 */
+	@Scope(ConfigurationScope.RESOURCE)
 	private boolean insertSpaces;
 
 	/**
@@ -46,6 +50,7 @@ public class LSPFormattingOptions {
 	 *
 	 * @since 3.15.0
 	 */
+	@Scope(ConfigurationScope.RESOURCE)
 	private boolean trimTrailingWhitespace;
 
 	/**
@@ -53,6 +58,7 @@ public class LSPFormattingOptions {
 	 *
 	 * @since 3.15.0
 	 */
+	@Scope(ConfigurationScope.RESOURCE)
 	private boolean insertFinalNewline;
 
 	/**
@@ -60,6 +66,7 @@ public class LSPFormattingOptions {
 	 *
 	 * @since 3.15.0
 	 */
+	@Scope(ConfigurationScope.RESOURCE)
 	private boolean trimFinalNewlines;
 
 	public int getTabSize() {

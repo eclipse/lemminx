@@ -321,7 +321,7 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 
 	@Override
 	public DOMDocument getDocument(String uri) {
-		ModelTextDocument<DOMDocument> document = xmlTextDocumentService.getDocument(uri);
+		ModelTextDocument<DOMDocument, SharedSettings> document = xmlTextDocumentService.getDocument(uri);
 		return document != null ? document.getModel() : null;
 	}
 
