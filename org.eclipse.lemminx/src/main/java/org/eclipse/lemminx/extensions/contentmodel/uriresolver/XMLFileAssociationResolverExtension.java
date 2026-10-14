@@ -14,6 +14,7 @@ package org.eclipse.lemminx.extensions.contentmodel.uriresolver;
 
 import java.net.URI;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -36,19 +37,26 @@ public class XMLFileAssociationResolverExtension implements URIResolverExtension
 
 	private XMLFileAssociation[] fileAssociations;
 
+	private List<String> workspaceFolderUris;
+
 	@Override
 	public String getName() {
 		return "file association";
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param fileAssociations
 	 * @return true if file associations changed and false otherwise
 	 */
 	public boolean setFileAssociations(XMLFileAssociation[] fileAssociations) {
 		XMLFileAssociation[] oldFileAssociations = this.fileAssociations;
 		this.fileAssociations = fileAssociations;
+		if (fileAssociations != null && workspaceFolderUris != null) {
+			for (XMLFileAssociation fa : fileAssociations) {
+				fa.setWorkspaceFolderUris(workspaceFolderUris);
+			}
+		}
 		expandSystemId();
 		return !Arrays.equals(oldFileAssociations, fileAssociations);
 	}
@@ -65,6 +73,15 @@ public class XMLFileAssociationResolverExtension implements URIResolverExtension
 		if (fileAssociations != null) {
 			for (XMLFileAssociation fileAssociation : fileAssociations) {
 				if (fileAssociation.matches(baseLocation)) {
+					if (fileAssociation.hasSystemIdVariables()) {
+						try {
+							URI documentUri = new URI(baseLocation);
+							String resolvedSystemId = fileAssociation.getResolvedSystemId(documentUri);
+							return expandSystemId(resolvedSystemId);
+						} catch (Exception e) {
+							return fileAssociation.getSystemId();
+						}
+					}
 					return fileAssociation.getSystemId();
 				}
 			}
@@ -77,7 +94,7 @@ public class XMLFileAssociationResolverExtension implements URIResolverExtension
 		if (fileAssociations != null) {
 			for (XMLFileAssociation fileAssociation : fileAssociations) {
 				if (fileAssociation.matches(fileURI)) {
-					return fileAssociation.getExternalSchemaLocation();
+					return fileAssociation.getExternalSchemaLocation(fileURI);
 				}
 			}
 		}
@@ -86,28 +103,55 @@ public class XMLFileAssociationResolverExtension implements URIResolverExtension
 
 	/**
 	 * Set the root URI
-	 * 
+	 *
 	 * @param rootUri the root URI
 	 */
 	public void setRootUri(String rootUri) {
 		this.rootUri = rootUri;
 	}
 
+	/**
+	 * Set the workspace folder URIs used for resolving variables like
+	 * {@code ${workspaceFolder}}.
+	 *
+	 * @param workspaceFolderUris the workspace folder URIs.
+	 */
+	public void setWorkspaceFolderUris(List<String> workspaceFolderUris) {
+		this.workspaceFolderUris = workspaceFolderUris;
+		if (fileAssociations != null) {
+			for (XMLFileAssociation fa : fileAssociations) {
+				fa.setWorkspaceFolderUris(workspaceFolderUris);
+			}
+		}
+	}
+
 	private void expandSystemId() {
 		if (fileAssociations != null) {
 			for (XMLFileAssociation fileAssociation : fileAssociations) {
+				if (fileAssociation.hasSystemIdVariables()) {
+					// Don't expand systemIds with variables; they are resolved per-document
+					continue;
+				}
 				// Expand original system id, if rootUri is null then it uses just the systemId.
 				try {
-					String expandSystemId = XMLEntityManager.expandSystemId(fileAssociation.getSystemId(), rootUri,
-							false);
-					if (expandSystemId != null) {
-						fileAssociation.setSystemId(expandSystemId);
+					String expandedSystemId = expandSystemId(fileAssociation.getSystemId());
+					if (expandedSystemId != null) {
+						fileAssociation.setSystemId(expandedSystemId);
 					}
-				} catch (MalformedURIException e) {
+				} catch (Exception e) {
 					LOGGER.log(Level.WARNING, "Issue expanding the provided systemId from the file associations.", e);
 				}
 			}
 		}
 
+	}
+
+	private String expandSystemId(String systemId) {
+		try {
+			return XMLEntityManager.expandSystemId(systemId, rootUri, false);
+		} catch (MalformedURIException e) {
+			LOGGER.log(Level.WARNING, "Issue expanding systemId '" + systemId + "'.", e);
+			return systemId;
+		}
 	}
 }

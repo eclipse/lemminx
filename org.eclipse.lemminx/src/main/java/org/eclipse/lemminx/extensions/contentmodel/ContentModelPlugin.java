@@ -12,6 +12,8 @@
  */
 package org.eclipse.lemminx.extensions.contentmodel;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import org.eclipse.lemminx.XMLTextDocumentService.SaveContext;
@@ -44,6 +46,7 @@ import org.eclipse.lemminx.services.IXMLDocumentProvider;
 import org.eclipse.lemminx.services.IXMLValidationService;
 import org.eclipse.lemminx.services.extensions.IDocumentLinkParticipant;
 import org.eclipse.lemminx.services.extensions.ITypeDefinitionParticipant;
+import org.eclipse.lemminx.services.extensions.IWorkspaceServiceParticipant;
 import org.eclipse.lemminx.services.extensions.IXMLExtension;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
@@ -56,7 +59,10 @@ import org.eclipse.lemminx.services.extensions.semantictokens.ISemanticTokensPar
 import org.eclipse.lemminx.services.extensions.save.ISaveContext;
 import org.eclipse.lemminx.uriresolver.URIResolverExtensionManager;
 import org.eclipse.lemminx.utils.DOMUtils;
+import org.eclipse.lsp4j.DidChangeWorkspaceFoldersParams;
 import org.eclipse.lsp4j.InitializeParams;
+import org.eclipse.lsp4j.WorkspaceFolder;
+import org.eclipse.lsp4j.WorkspaceFoldersChangeEvent;
 
 /**
  * Content model plugin extension to provide:
@@ -96,6 +102,14 @@ public class ContentModelPlugin implements IXMLExtension {
 	private ContentModelFormatterParticipant formatterParticipant;
 
 	private ISemanticTokensParticipant semanticTokensParticipant;
+
+	private IWorkspaceServiceParticipant workspaceServiceParticipant;
+
+	private List<String> workspaceFolderUris;
+
+	private IXMLDocumentProvider documentProvider;
+
+	private IXMLValidationService validationService;
 
 	private GenerateXMLFromGrammarCommand generateCommand;
 
@@ -210,9 +224,17 @@ public class ContentModelPlugin implements IXMLExtension {
 		URIResolverExtensionManager resolverManager = registry.getComponent(URIResolverExtensionManager.class);
 		contentModelManager = new ContentModelManager(resolverManager);
 		registry.registerComponent(contentModelManager);
+		documentProvider = registry.getDocumentProvider();
+		validationService = registry.getValidationService();
 		if (params != null) {
 			contentModelManager.setRootURI(params.getRootUri());
+			workspaceFolderUris = getWorkspaceFolderUris(params);
+			if (workspaceFolderUris != null) {
+				contentModelManager.setWorkspaceFolderUris(new ArrayList<>(workspaceFolderUris));
+			}
 		}
+		workspaceServiceParticipant = this::didChangeWorkspaceFolders;
+		registry.registerWorkspaceServiceParticipant(workspaceServiceParticipant);
 		documentLinkParticipant = new ContentModelDocumentLinkParticipant(resolverManager);
 		registry.registerCompletionParticipant(completionParticipant);
 		registry.registerHoverParticipant(hoverParticipant);
@@ -235,8 +257,6 @@ public class ContentModelPlugin implements IXMLExtension {
 		// Register custom commands to re-validate XML files
 		IXMLCommandService commandService = registry.getCommandService();
 		if (commandService != null) {
-			IXMLValidationService validationService = registry.getValidationService();
-			IXMLDocumentProvider documentProvider = registry.getDocumentProvider();
 			commandService.registerCommand(XMLValidationFileCommand.COMMAND_ID,
 					new XMLValidationFileCommand(contentModelManager, documentProvider, validationService));
 			commandService.registerCommand(XMLValidationAllFilesCommand.COMMAND_ID,
@@ -269,6 +289,7 @@ public class ContentModelPlugin implements IXMLExtension {
 		registry.unregisterDocumentLifecycleParticipant(documentTelemetryParticipant);
 		registry.unregisterFormatterParticipant(formatterParticipant);
 		registry.unregisterSemanticTokensParticipant(semanticTokensParticipant);
+		registry.unregisterWorkspaceServiceParticipant(workspaceServiceParticipant);
 
 		// Un-register custom commands to re-validate XML files
 		IXMLCommandService commandService = registry.getCommandService();
@@ -292,4 +313,45 @@ public class ContentModelPlugin implements IXMLExtension {
 		return contentModelManager;
 	}
 
+	private void didChangeWorkspaceFolders(DidChangeWorkspaceFoldersParams params) {
+		WorkspaceFoldersChangeEvent event = params.getEvent();
+		if (workspaceFolderUris == null) {
+			workspaceFolderUris = new ArrayList<>();
+		}
+		if (event.getAdded() != null) {
+			for (WorkspaceFolder folder : event.getAdded()) {
+				workspaceFolderUris.add(folder.getUri());
+			}
+		}
+		if (event.getRemoved() != null) {
+			for (WorkspaceFolder folder : event.getRemoved()) {
+				workspaceFolderUris.remove(folder.getUri());
+			}
+		}
+		contentModelManager.setWorkspaceFolderUris(new ArrayList<>(workspaceFolderUris));
+		if (documentProvider != null && validationService != null) {
+			for (DOMDocument doc : documentProvider.getAllDocuments()) {
+				doc.resetGrammar();
+				validationService.validate(doc);
+			}
+		}
+	}
+
+	private static List<String> getWorkspaceFolderUris(InitializeParams params) {
+		List<WorkspaceFolder> folders = params.getWorkspaceFolders();
+		if (folders != null && !folders.isEmpty()) {
+			List<String> uris = new ArrayList<>(folders.size());
+			for (WorkspaceFolder folder : folders) {
+				uris.add(folder.getUri());
+			}
+			return uris;
+		}
+		String rootUri = params.getRootUri();
+		if (rootUri != null) {
+			List<String> uris = new ArrayList<>(1);
+			uris.add(rootUri);
+			return uris;
+		}
+		return null;
+	}
 }

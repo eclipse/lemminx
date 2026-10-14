@@ -561,6 +561,16 @@ public class ContentModelManager {
 		catalogResolverExtension.setRootUri(rootUri);
 	}
 
+	/**
+	 * Set the workspace folder URIs used for resolving variables in file
+	 * associations.
+	 *
+	 * @param workspaceFolderUris the workspace folder URIs.
+	 */
+	public void setWorkspaceFolderUris(List<String> workspaceFolderUris) {
+		fileAssociationResolver.setWorkspaceFolderUris(workspaceFolderUris);
+	}
+
 	public void setUseCache(boolean useCache) {
 		cacheResolverExtension.setUseCache(useCache);
 		if (!useCache) {

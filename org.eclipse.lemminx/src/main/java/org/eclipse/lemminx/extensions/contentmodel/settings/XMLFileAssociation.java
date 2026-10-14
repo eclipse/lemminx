@@ -12,8 +12,14 @@
  */
 package org.eclipse.lemminx.extensions.contentmodel.settings;
 
+import java.net.URI;
+import java.nio.file.PathMatcher;
+import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.eclipse.lemminx.settings.PathPatternMatcher;
 import org.eclipse.lemminx.uriresolver.IExternalGrammarLocationProvider;
@@ -25,8 +31,28 @@ import org.eclipse.lemminx.utils.DOMUtils;
  **/
 public class XMLFileAssociation extends PathPatternMatcher {
 
+	private static final Logger LOGGER = Logger.getLogger(XMLFileAssociation.class.getName());
+
 	private transient Map<String, String> externalSchemaLocation;
 	private String systemId;
+
+	private transient List<String> workspaceFolderUris;
+	private transient boolean patternVariablesChecked;
+	private transient boolean hasPatternVariables;
+	private transient boolean systemIdVariablesChecked;
+	private transient boolean hasSystemIdVariables;
+
+	private transient volatile ResolvedPatternCache resolvedCache;
+
+	private static final class ResolvedPatternCache {
+		final String pattern;
+		final PathMatcher matcher;
+
+		ResolvedPatternCache(String pattern, PathMatcher matcher) {
+			this.pattern = pattern;
+			this.matcher = matcher;
+		}
+	}
 
 	public String getSystemId() {
 		return systemId;
@@ -35,21 +61,136 @@ public class XMLFileAssociation extends PathPatternMatcher {
 	public void setSystemId(String systemId) {
 		this.systemId = systemId;
 		this.externalSchemaLocation = null;
+		this.systemIdVariablesChecked = false;
+	}
+
+	@Override
+	public PathPatternMatcher setPattern(String pattern) {
+		this.patternVariablesChecked = false;
+		this.resolvedCache = null;
+		return super.setPattern(pattern);
+	}
+
+	/**
+	 * Sets the workspace folder URIs used for resolving variables like
+	 * {@code ${workspaceFolder}}.
+	 *
+	 * @param workspaceFolderUris the workspace folder URIs.
+	 */
+	public void setWorkspaceFolderUris(List<String> workspaceFolderUris) {
+		this.workspaceFolderUris = workspaceFolderUris;
+		this.resolvedCache = null;
+	}
+
+	/**
+	 * Returns true if the pattern contains variable references.
+	 *
+	 * @return true if the pattern contains {@code ${...}} variable references.
+	 */
+	public boolean hasPatternVariables() {
+		if (!patternVariablesChecked) {
+			hasPatternVariables = FileAssociationVariableSupport.hasVariables(getPattern());
+			patternVariablesChecked = true;
+		}
+		return hasPatternVariables;
+	}
+
+	/**
+	 * Returns true if the systemId contains variable references.
+	 *
+	 * @return true if the systemId contains {@code ${...}} variable references.
+	 */
+	public boolean hasSystemIdVariables() {
+		if (!systemIdVariablesChecked) {
+			hasSystemIdVariables = FileAssociationVariableSupport.hasVariables(systemId);
+			systemIdVariablesChecked = true;
+		}
+		return hasSystemIdVariables;
+	}
+
+	@Override
+	public boolean matches(URI uri) {
+		if (!hasPatternVariables()) {
+			return super.matches(uri);
+		}
+		return matchesWithVariables(uri);
+	}
+
+	private boolean matchesWithVariables(URI documentUri) {
+		String resolvedPattern = FileAssociationVariableSupport.resolve(
+				getPattern(), documentUri, workspaceFolderUris);
+
+		ResolvedPatternCache cache = resolvedCache;
+		if (cache != null && resolvedPattern.equals(cache.pattern)) {
+			try {
+				return cache.matcher.matches(Paths.get(documentUri));
+			} catch (Exception e) {
+				return false;
+			}
+		}
+
+		if (resolvedPattern.isEmpty()) {
+			resolvedCache = null;
+			return false;
+		}
+		PathMatcher matcher;
+		try {
+			matcher = createGlobMatcher(resolvedPattern);
+		} catch (Exception e) {
+			LOGGER.log(Level.WARNING, "Invalid glob pattern after variable resolution: " + resolvedPattern, e);
+			resolvedCache = null;
+			return false;
+		}
+		resolvedCache = new ResolvedPatternCache(resolvedPattern, matcher);
+		try {
+			return matcher.matches(Paths.get(documentUri));
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	/**
+	 * Returns the systemId with variables resolved for the given document URI.
+	 *
+	 * @param documentUri the document URI.
+	 * @return the resolved systemId.
+	 */
+	public String getResolvedSystemId(URI documentUri) {
+		if (!hasSystemIdVariables()) {
+			return systemId;
+		}
+		return FileAssociationVariableSupport.resolve(systemId, documentUri, workspaceFolderUris);
 	}
 
 	public Map<String, String> getExternalSchemaLocation() {
-		if (externalSchemaLocation == null) {
-			this.externalSchemaLocation = new HashMap<>();
-			if (DOMUtils.isXSD(systemId)) {
-				this.externalSchemaLocation.put(IExternalGrammarLocationProvider.NO_NAMESPACE_SCHEMA_LOCATION,
-						systemId);
-			} else if (DOMUtils.isRelaxNGUri(systemId)) {
-				this.externalSchemaLocation.put(IExternalGrammarLocationProvider.RELAXNG, systemId);
-			} else {
-				this.externalSchemaLocation.put(IExternalGrammarLocationProvider.DOCTYPE, systemId);
-			}
+		return getExternalSchemaLocation(null);
+	}
+
+	/**
+	 * Returns the external schema location map with variables resolved for the
+	 * given document URI.
+	 *
+	 * @param documentUri the document URI, or null if no variable resolution is
+	 *                    needed.
+	 * @return the schema location map.
+	 */
+	public Map<String, String> getExternalSchemaLocation(URI documentUri) {
+		String resolvedSystemId = documentUri != null ? getResolvedSystemId(documentUri) : systemId;
+		if (!hasSystemIdVariables() && externalSchemaLocation != null) {
+			return externalSchemaLocation;
 		}
-		return externalSchemaLocation;
+		Map<String, String> schemaLocation = new HashMap<>();
+		if (DOMUtils.isXSD(resolvedSystemId)) {
+			schemaLocation.put(IExternalGrammarLocationProvider.NO_NAMESPACE_SCHEMA_LOCATION, resolvedSystemId);
+		} else if (DOMUtils.isRelaxNGUri(resolvedSystemId)) {
+			schemaLocation.put(IExternalGrammarLocationProvider.RELAXNG, resolvedSystemId);
+		} else {
+			schemaLocation.put(IExternalGrammarLocationProvider.DOCTYPE, resolvedSystemId);
+		}
+		if (!hasSystemIdVariables()) {
+			this.externalSchemaLocation = schemaLocation;
+		}
+		return schemaLocation;
 	}
 
 	@Override

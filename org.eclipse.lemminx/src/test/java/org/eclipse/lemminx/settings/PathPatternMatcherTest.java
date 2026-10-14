@@ -284,6 +284,44 @@ public class PathPatternMatcherTest {
 		assertFalse(matcher.matches("file:///home/user/project/other/test.xml"));
 	}
 
+	// --- Absolute path patterns ---
+
+	@Test
+	public void absoluteUnixPathPattern() {
+		PathPatternMatcher matcher = createMatcher("/home/user/project/*.xml");
+		assertTrue(matcher.matches("file:///home/user/project/test.xml"));
+		assertFalse(matcher.matches("file:///other/path/test.xml"));
+	}
+
+	@Test
+	public void absoluteUnixPathPatternExactFile() {
+		PathPatternMatcher matcher = createMatcher("/home/user/project/test.xml");
+		assertTrue(matcher.matches("file:///home/user/project/test.xml"));
+		assertFalse(matcher.matches("file:///home/user/project/other.xml"));
+	}
+
+	@Test
+	public void absoluteUnixPathPatternWithDoubleWildcard() {
+		PathPatternMatcher matcher = createMatcher("/home/user/**/*.xml");
+		assertTrue(matcher.matches("file:///home/user/project/test.xml"));
+		assertTrue(matcher.matches("file:///home/user/a/b/c/test.xml"));
+		assertFalse(matcher.matches("file:///other/user/test.xml"));
+	}
+
+	// --- Null / missing pattern ---
+
+	@Test
+	public void nullPatternDoesNotMatch() {
+		PathPatternMatcher matcher = new PathPatternMatcher();
+		assertFalse(matcher.matches("file:///test/file.xml"));
+	}
+
+	@Test
+	public void nullPatternDoesNotMatchURI() throws Exception {
+		PathPatternMatcher matcher = new PathPatternMatcher();
+		assertFalse(matcher.matches(new java.net.URI("file:///test/file.xml")));
+	}
+
 	private static PathPatternMatcher createMatcher(String pattern) {
 		PathPatternMatcher matcher = new PathPatternMatcher();
 		matcher.setPattern(pattern);
