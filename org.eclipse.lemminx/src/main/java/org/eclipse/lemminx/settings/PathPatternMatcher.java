@@ -53,20 +53,12 @@ public class PathPatternMatcher {
 	}
 
 	public boolean matches(URI uri) {
-		if (pattern.length() < 1) {
+		if (pattern == null || pattern.isEmpty()) {
 			return false;
 		}
 		if (pathMatcher == null) {
-			char c = pattern.charAt(0);
-			String glob = pattern;
-			if (c != '/' && !(c == '*' && pattern.length() >= 2 && pattern.charAt(1) == '*')) {
-				// Add '**/' prefix so the pattern matches in any directory.
-				// Skip only for absolute paths (starting with '/') or patterns
-				// already starting with '**' (which cross directory boundaries).
-				glob = "**/" + glob;
-			}
 			try {
-				pathMatcher = FileSystems.getDefault().getPathMatcher("glob:" + glob);
+				pathMatcher = createGlobMatcher(pattern);
 			} catch (Exception e) {
 				LOGGER.log(Level.WARNING, "Invalid glob pattern: " + pattern, e);
 				return false;
@@ -75,9 +67,31 @@ public class PathPatternMatcher {
 		try {
 			return pathMatcher.matches(Paths.get(uri));
 		} catch (Exception e) {
-			// e.printStackTrace();
+			return false;
 		}
-		return false;
+	}
+
+	protected static PathMatcher createGlobMatcher(String pattern) {
+		String glob = pattern;
+		if (!isAbsolutePattern(glob) && !isGlobStarPattern(glob)) {
+			glob = "**/" + glob;
+		}
+		return FileSystems.getDefault().getPathMatcher("glob:" + glob);
+	}
+
+	private static boolean isAbsolutePattern(String pattern) {
+		if (pattern.charAt(0) == '/') {
+			return true;
+		}
+		return pattern.length() >= 2
+				&& Character.isLetter(pattern.charAt(0))
+				&& pattern.charAt(1) == ':';
+	}
+
+	private static boolean isGlobStarPattern(String pattern) {
+		return pattern.charAt(0) == '*'
+				&& pattern.length() >= 2
+				&& pattern.charAt(1) == '*';
 	}
 
 	@Override
