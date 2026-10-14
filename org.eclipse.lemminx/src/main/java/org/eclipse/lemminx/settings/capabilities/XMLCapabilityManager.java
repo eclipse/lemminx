@@ -28,10 +28,12 @@ import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConsta
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.FORMATTING_ID;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.FORMATTING_RANGE_ID;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.HOVER_ID;
+import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_SEMANTIC_TOKENS_OPTIONS;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.INLINE_COMPLETION_ID;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.LINKED_EDITING_RANGE_ID;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.LINK_ID;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.REFERENCES_ID;
+import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.SEMANTIC_TOKENS_ID;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.RENAME_ID;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.SELECTION_RANGE_ID;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_CODE_ACTION;
@@ -49,6 +51,7 @@ import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConsta
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_REFERENCES;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_RENAME;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_SELECTION_RANGE;
+import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_SEMANTIC_TOKENS;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_TYPEDEFINITION;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.TYPEDEFINITION_ID;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.WORKSPACE_EXECUTE_COMMAND;
@@ -189,6 +192,9 @@ public class XMLCapabilityManager {
 		}
 		if (this.getClientCapabilities().isInlineCompletionDynamicRegistered()) {
 			registerCapability(INLINE_COMPLETION_ID, TEXT_DOCUMENT_INLINE_COMPLETION);
+		}
+		if (this.getClientCapabilities().isSemanticTokensDynamicRegistered()) {
+			registerCapability(SEMANTIC_TOKENS_ID, TEXT_DOCUMENT_SEMANTIC_TOKENS, DEFAULT_SEMANTIC_TOKENS_OPTIONS);
 		}
 		if (this.getClientCapabilities().isDidChangeWatchedFilesRegistered()) {
 			registerWatchedFiles();

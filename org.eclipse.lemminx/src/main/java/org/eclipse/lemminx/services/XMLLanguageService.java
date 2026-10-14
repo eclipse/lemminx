@@ -33,6 +33,7 @@ import org.eclipse.lemminx.settings.XMLFoldingSettings;
 import org.eclipse.lemminx.settings.XMLSymbolSettings;
 import org.eclipse.lemminx.utils.TextEditUtils;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
+import org.eclipse.lsp4j.SemanticTokens;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.CodeLens;
@@ -97,6 +98,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 	private final XMLSelectionRanges selectionRanges;
 	private final XMLLinkedEditing linkedEditing;
 	private final XMLDocumentColor documentColor;
+	private final XMLSemanticTokens semanticTokens;
 	private final XMLInlineCompletion inlineCompletion;
 
 	public XMLLanguageService() {
@@ -110,6 +112,7 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 		this.foldings = new XMLFoldings(this);
 		this.documentLink = new XMLDocumentLink(this);
 		this.documentColor = new XMLDocumentColor(this);
+		this.semanticTokens = new XMLSemanticTokens(this);
 		this.definition = new XMLDefinition(this);
 		this.typeDefinition = new XMLTypeDefinition(this);
 		this.reference = new XMLReference(this);
@@ -286,6 +289,10 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 
 	public List<ColorInformation> findDocumentColors(DOMDocument xmlDocument, CancelChecker cancelChecker) {
 		return documentColor.findDocumentColors(xmlDocument, cancelChecker);
+	}
+
+	public SemanticTokens findSemanticTokens(DOMDocument xmlDocument, CancelChecker cancelChecker) {
+		return semanticTokens.findSemanticTokens(xmlDocument, cancelChecker);
 	}
 
 	public List<ColorPresentation> getColorPresentations(DOMDocument xmlDocument, ColorPresentationParams params,

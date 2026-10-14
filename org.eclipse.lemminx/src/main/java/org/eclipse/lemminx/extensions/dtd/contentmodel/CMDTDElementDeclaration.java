@@ -15,11 +15,14 @@ package org.eclipse.lemminx.extensions.dtd.contentmodel;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.xerces.impl.dtd.DTDGrammar;
+import org.apache.xerces.impl.dtd.XMLContentSpec;
 import org.apache.xerces.impl.dtd.XMLElementDecl;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMAttributeDeclaration;
@@ -39,6 +42,7 @@ public class CMDTDElementDeclaration extends XMLElementDecl implements CMElement
 	private List<CMElementDeclaration> elements;
 	private List<CMAttributeDeclaration> attributes;
 	private String documentation;
+	private Map<String, Boolean> elementOptionality;
 
 	public CMDTDElementDeclaration(CMDTDDocument document, int index) {
 		this.document = document;
@@ -172,15 +176,62 @@ public class CMDTDElementDeclaration extends XMLElementDecl implements CMElement
 
 	@Override
 	public boolean isOptional(String childElementName) {
-		// implement later, return false
-		return false;
+		if (elementOptionality == null) {
+			elementOptionality = new HashMap<>();
+			DTDGrammar grammar = document.getGrammar();
+			if (grammar != null) {
+				int elementDeclIndex = grammar.getElementDeclIndex(super.name);
+				if (elementDeclIndex != -1) {
+					int contentSpecIndex = grammar.getContentSpecIndex(elementDeclIndex);
+					if (contentSpecIndex != -1) {
+						collectElementOptionality(grammar, contentSpecIndex, false);
+					}
+				}
+			}
+		}
+		return elementOptionality.getOrDefault(childElementName, false);
+	}
+
+	private void collectElementOptionality(DTDGrammar grammar, int nodeIndex, boolean parentOptional) {
+		XMLContentSpec spec = new XMLContentSpec();
+		if (!grammar.getContentSpec(nodeIndex, spec)) {
+			return;
+		}
+		switch (spec.type) {
+		case XMLContentSpec.CONTENTSPECNODE_LEAF:
+			if (spec.value instanceof String) {
+				elementOptionality.put((String) spec.value, parentOptional);
+			}
+			break;
+		case XMLContentSpec.CONTENTSPECNODE_ZERO_OR_ONE:
+		case XMLContentSpec.CONTENTSPECNODE_ZERO_OR_MORE:
+			collectContentSpecChildren(grammar, spec, true);
+			break;
+		case XMLContentSpec.CONTENTSPECNODE_ONE_OR_MORE:
+			collectContentSpecChildren(grammar, spec, parentOptional);
+			break;
+		case XMLContentSpec.CONTENTSPECNODE_CHOICE:
+			collectContentSpecChildren(grammar, spec, true);
+			break;
+		case XMLContentSpec.CONTENTSPECNODE_SEQ:
+			collectContentSpecChildren(grammar, spec, parentOptional);
+			break;
+		}
+	}
+
+	private void collectContentSpecChildren(DTDGrammar grammar, XMLContentSpec spec, boolean optional) {
+		if (spec.value instanceof int[]) {
+			collectElementOptionality(grammar, ((int[]) spec.value)[0], optional);
+		}
+		if (spec.otherValue instanceof int[]) {
+			collectElementOptionality(grammar, ((int[]) spec.otherValue)[0], optional);
+		}
 	}
 
 	@Override
 	public Set<CMElementDeclaration> getRequiredElements() {
 		Set<CMElementDeclaration> requiredElements = new LinkedHashSet<>();
 		for (CMElementDeclaration element : getElements()) {
-			// cannot be used, isOptional is not implemented
 			if (!isOptional(element.getLocalName())) {
 				requiredElements.add(element);
 			}

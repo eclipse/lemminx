@@ -13,6 +13,7 @@
 package org.eclipse.lemminx.settings.capabilities;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 import org.eclipse.lsp4j.CodeActionKind;
@@ -22,6 +23,10 @@ import org.eclipse.lsp4j.ColorProviderOptions;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.DocumentLinkOptions;
 import org.eclipse.lsp4j.RenameOptions;
+import org.eclipse.lsp4j.SemanticTokenModifiers;
+import org.eclipse.lsp4j.SemanticTokenTypes;
+import org.eclipse.lsp4j.SemanticTokensLegend;
+import org.eclipse.lsp4j.SemanticTokensWithRegistrationOptions;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
 
 /**
@@ -53,6 +58,7 @@ public class ServerCapabilitiesConstants {
 	public static final String TEXT_DOCUMENT_HIGHLIGHT = "textDocument/documentHighlight";
 	public static final String TEXT_DOCUMENT_SELECTION_RANGE = "textDocument/selectionRange";
 	public static final String TEXT_DOCUMENT_INLINE_COMPLETION = "textDocument/inlineCompletion";
+	public static final String TEXT_DOCUMENT_SEMANTIC_TOKENS = "textDocument/semanticTokens";
 
 	public static final String WORKSPACE_CHANGE_FOLDERS = "workspace/didChangeWorkspaceFolders";
 	public static final String WORKSPACE_EXECUTE_COMMAND = "workspace/executeCommand";
@@ -84,6 +90,7 @@ public class ServerCapabilitiesConstants {
 	public static final String WORKSPACE_WATCHED_FILES_ID = UUID.randomUUID().toString();
 	public static final String LINKED_EDITING_RANGE_ID = UUID.randomUUID().toString();
 	public static final String INLINE_COMPLETION_ID = UUID.randomUUID().toString();
+	public static final String SEMANTIC_TOKENS_ID = UUID.randomUUID().toString();
 
 	public static final CompletionOptions DEFAULT_COMPLETION_OPTIONS = new CompletionOptions(true,
 			Arrays.asList(".", ":", "<", "\"", "=", "/", "\\", "?", "\'", "&", "#", "@"));
@@ -101,6 +108,32 @@ public class ServerCapabilitiesConstants {
 			CodeActionKind.QuickFix,
 			CodeActionKind.Source
 		));
+		return options;
+	}
+
+	public static final List<String> SEMANTIC_TOKEN_TYPES = Arrays.asList(
+			SemanticTokenTypes.Property, // 0: for attribute names
+			SemanticTokenTypes.Variable, // 1: for entity names
+			SemanticTokenTypes.Type      // 2: for element/notation names
+	);
+
+	public static final List<String> SEMANTIC_TOKEN_MODIFIERS = Arrays.asList(
+			SemanticTokenModifiers.Readonly,    // 0: for required attributes
+			SemanticTokenModifiers.Declaration  // 1: for declarations
+	);
+
+	public static final int TOKEN_TYPE_PROPERTY = 0;
+	public static final int TOKEN_TYPE_VARIABLE = 1;
+	public static final int TOKEN_TYPE_TYPE = 2;
+	public static final int TOKEN_MODIFIER_READONLY = 1 << 0;
+	public static final int TOKEN_MODIFIER_DECLARATION = 1 << 1;
+
+	public static final SemanticTokensWithRegistrationOptions DEFAULT_SEMANTIC_TOKENS_OPTIONS = createDefaultSemanticTokensOptions();
+
+	private static SemanticTokensWithRegistrationOptions createDefaultSemanticTokensOptions() {
+		SemanticTokensLegend legend = new SemanticTokensLegend(SEMANTIC_TOKEN_TYPES, SEMANTIC_TOKEN_MODIFIERS);
+		SemanticTokensWithRegistrationOptions options = new SemanticTokensWithRegistrationOptions(legend);
+		options.setFull(true);
 		return options;
 	}
 }

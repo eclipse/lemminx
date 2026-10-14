@@ -113,6 +113,7 @@ import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
+import org.eclipse.lsp4j.SemanticTokens;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.junit.jupiter.api.Assertions;
@@ -2265,6 +2266,101 @@ public class XMLAssert {
 			return item.getInsertText().getLeft();
 		} else {
 			return item.getInsertText().getRight().getValue();
+		}
+	}
+
+	// ------------------- Semantic Tokens assert
+
+	public static SemanticTokens testSemanticTokensFor(String xml, SemanticTokenData... expected) {
+		return testSemanticTokensFor(xml, null, null, expected);
+	}
+
+	public static SemanticTokens testSemanticTokensFor(String xml, String fileURI, SemanticTokenData... expected) {
+		return testSemanticTokensFor(xml, null, fileURI, expected);
+	}
+
+	public static SemanticTokens testSemanticTokensFor(String xml, String catalogPath, String fileURI,
+			SemanticTokenData... expected) {
+		return testSemanticTokensFor(new XMLLanguageService(), xml, catalogPath, null, fileURI, expected);
+	}
+
+	public static SemanticTokens testSemanticTokensFor(XMLLanguageService xmlLanguageService, String xml,
+			String catalogPath, Consumer<XMLLanguageService> customConfiguration, String fileURI,
+			SemanticTokenData... expected) {
+		TextDocument document = new TextDocument(xml, fileURI != null ? fileURI : "test://test/test.xml");
+		DOMDocument xmlDocument = DOMParser.getInstance().parse(document,
+				xmlLanguageService.getResolverExtensionManager());
+		xmlLanguageService.setDocumentProvider((uri) -> xmlDocument);
+
+		ContentModelSettings cmSettings = new ContentModelSettings();
+		cmSettings.setUseCache(false);
+		if (catalogPath != null) {
+			cmSettings.setCatalogs(new String[] { catalogPath });
+		}
+		xmlLanguageService.doSave(new SettingsSaveContext(cmSettings));
+		xmlLanguageService.initializeIfNeeded();
+
+		if (customConfiguration != null) {
+			customConfiguration.accept(xmlLanguageService);
+		}
+
+		SemanticTokens tokens = xmlLanguageService.findSemanticTokens(xmlDocument, () -> {
+		});
+		assertNotNull(tokens);
+		if (expected != null) {
+			assertSemanticTokens(tokens, xmlDocument, expected);
+		}
+		return tokens;
+	}
+
+	public static void assertSemanticTokens(SemanticTokens tokens, DOMDocument document,
+			SemanticTokenData... expected) {
+		List<Integer> data = tokens.getData();
+		int tokenCount = data.size() / 5;
+		assertEquals(expected.length, tokenCount,
+				"Expected " + expected.length + " tokens but got " + tokenCount);
+
+		int previousLine = 0;
+		int previousStartChar = 0;
+		for (int i = 0; i < tokenCount; i++) {
+			int base = i * 5;
+			int deltaLine = data.get(base);
+			int deltaStartChar = data.get(base + 1);
+			int length = data.get(base + 2);
+			int tokenType = data.get(base + 3);
+			int tokenModifiers = data.get(base + 4);
+
+			int line = previousLine + deltaLine;
+			int startChar = deltaLine == 0 ? previousStartChar + deltaStartChar : deltaStartChar;
+			previousLine = line;
+			previousStartChar = startChar;
+
+			SemanticTokenData exp = expected[i];
+			assertEquals(exp.line, line, "Token " + i + " line");
+			assertEquals(exp.startChar, startChar, "Token " + i + " startChar");
+			assertEquals(exp.length, length, "Token " + i + " length");
+			assertEquals(exp.tokenType, tokenType, "Token " + i + " tokenType");
+			assertEquals(exp.tokenModifiers, tokenModifiers, "Token " + i + " tokenModifiers");
+		}
+	}
+
+	public static SemanticTokenData st(int line, int startChar, int length, int tokenType, int tokenModifiers) {
+		return new SemanticTokenData(line, startChar, length, tokenType, tokenModifiers);
+	}
+
+	public static class SemanticTokenData {
+		public final int line;
+		public final int startChar;
+		public final int length;
+		public final int tokenType;
+		public final int tokenModifiers;
+
+		public SemanticTokenData(int line, int startChar, int length, int tokenType, int tokenModifiers) {
+			this.line = line;
+			this.startChar = startChar;
+			this.length = length;
+			this.tokenType = tokenType;
+			this.tokenModifiers = tokenModifiers;
 		}
 	}
 }

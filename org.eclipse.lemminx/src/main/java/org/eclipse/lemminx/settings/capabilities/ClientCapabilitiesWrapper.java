@@ -131,6 +131,12 @@ public class ClientCapabilitiesWrapper {
 		return v3Supported && isDynamicRegistrationSupported(getTextDocument().getInlineCompletion());
 	}
 
+	public boolean isSemanticTokensDynamicRegistered() {
+		return v3Supported && getTextDocument().getSemanticTokens() != null
+				&& getTextDocument().getSemanticTokens().getDynamicRegistration() != null
+				&& getTextDocument().getSemanticTokens().getDynamicRegistration().booleanValue();
+	}
+
 	private boolean isDynamicRegistrationSupported(DynamicRegistrationCapabilities capability) {
 		return capability != null && capability.getDynamicRegistration() != null
 				&& capability.getDynamicRegistration().booleanValue();

@@ -1935,6 +1935,14 @@
 		}]
 	},
 	{
+		"name": "org.eclipse.lsp4j.SemanticTokens",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
 		"name": "org.eclipse.lsp4j.SemanticTokensCapabilities",
 		"allDeclaredFields": true,
 		"methods": [{
@@ -1954,6 +1962,30 @@
 	},
 	{
 		"name": "org.eclipse.lsp4j.SemanticTokensClientCapabilitiesRequestsFull",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
+		"name": "org.eclipse.lsp4j.SemanticTokensLegend",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
+		"name": "org.eclipse.lsp4j.SemanticTokensParams",
+		"allDeclaredFields": true,
+		"methods": [{
+			"name": "<init>",
+			"parameterTypes": []
+		}]
+	},
+	{
+		"name": "org.eclipse.lsp4j.SemanticTokensWithRegistrationOptions",
 		"allDeclaredFields": true,
 		"methods": [{
 			"name": "<init>",

@@ -424,6 +424,10 @@ public class CMDTDDocument extends LSPXML11DTDProcessor implements CMDocument {
 		return hierarchiesMap;
 	}
 
+	DTDGrammar getGrammar() {
+		return grammar;
+	}
+
 	void collectElementsDeclaration(String elementName, List<CMElementDeclaration> elements) {
 		if (hierarchiesMap == null) {
 			return;

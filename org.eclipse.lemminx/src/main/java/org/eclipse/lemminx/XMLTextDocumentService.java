@@ -103,6 +103,8 @@ import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.SelectionRange;
 import org.eclipse.lsp4j.SelectionRangeParams;
+import org.eclipse.lsp4j.SemanticTokens;
+import org.eclipse.lsp4j.SemanticTokensParams;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
 import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
@@ -611,6 +613,13 @@ public class XMLTextDocumentService implements TextDocumentService {
 	public CompletableFuture<List<ColorInformation>> documentColor(DocumentColorParams params) {
 		return computeDOMAsync(params.getTextDocument(), (xmlDocument, cancelChecker) -> {
 			return getXMLLanguageService().findDocumentColors(xmlDocument, cancelChecker);
+		});
+	}
+
+	@Override
+	public CompletableFuture<SemanticTokens> semanticTokensFull(SemanticTokensParams params) {
+		return computeDOMAsync(params.getTextDocument(), (xmlDocument, cancelChecker) -> {
+			return getXMLLanguageService().findSemanticTokens(xmlDocument, cancelChecker);
 		});
 	}
 

@@ -17,6 +17,7 @@ import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConsta
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_COMPLETION_OPTIONS;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_LINK_OPTIONS;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_RENAME_OPTIONS;
+import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_SEMANTIC_TOKENS_OPTIONS;
 
 import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
@@ -62,7 +63,9 @@ public class ServerCapabilitiesInitializer {
 		serverCapabilities.setColorProvider(!clientCapabilities.isColorDynamicRegistrationSupported());
 		serverCapabilities.setSelectionRangeProvider(!clientCapabilities.isSelectionRangeDynamicRegistered());
 		serverCapabilities.setInlineCompletionProvider(!clientCapabilities.isInlineCompletionDynamicRegistered());
-		
+		if (!clientCapabilities.isSemanticTokensDynamicRegistered()) {
+			serverCapabilities.setSemanticTokensProvider(DEFAULT_SEMANTIC_TOKENS_OPTIONS);
+		}
 		if (clientCapabilities.isWorkspaceFoldersSupported()) {
 			WorkspaceFoldersOptions workspaceFolders = new WorkspaceFoldersOptions();
 			workspaceFolders.setSupported(true);
