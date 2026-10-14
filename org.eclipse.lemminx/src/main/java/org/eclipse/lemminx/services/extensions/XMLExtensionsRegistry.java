@@ -36,6 +36,7 @@ import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
 import org.eclipse.lemminx.services.extensions.hover.IHoverParticipant;
 import org.eclipse.lemminx.services.extensions.inlinecompletion.IInlineCompletionParticipant;
 import org.eclipse.lemminx.services.extensions.rename.IRenameParticipant;
+import org.eclipse.lemminx.services.extensions.semantictokens.ISemanticTokensParticipant;
 import org.eclipse.lemminx.services.extensions.save.ISaveContext;
 import org.eclipse.lemminx.services.extensions.save.ISaveContext.SaveContextType;
 import org.eclipse.lemminx.telemetry.TelemetryManager;
@@ -70,6 +71,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 	private final List<IWorkspaceServiceParticipant> workspaceServiceParticipants;
 	private final List<IDocumentLifecycleParticipant> documentLifecycleParticipants;
 	private final List<IInlineCompletionParticipant> inlineCompletionParticipants;
+	private final List<ISemanticTokensParticipant> semanticTokensParticipants;
 	private IXMLDocumentProvider documentProvider;
 	private IXMLValidationService validationService;
 	private IXMLCommandService commandService;
@@ -107,6 +109,7 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 		workspaceServiceParticipants = new ArrayList<>();
 		documentLifecycleParticipants = new ArrayList<>();
 		inlineCompletionParticipants = new ArrayList<>();
+		semanticTokensParticipants = new ArrayList<>();
 		resolverExtensionManager = new URIResolverExtensionManager();
 		components = new HashMap<>();
 		telemetryManager = new TelemetryManager(null);
@@ -501,6 +504,34 @@ public class XMLExtensionsRegistry implements IComponentProvider {
 		inlineCompletionParticipants.remove(inlineCompletionParticipant);
 	}
 
+
+	/**
+	 * Return the registered semantic tokens participants.
+	 *
+	 * @return the registered semantic tokens participants.
+	 */
+	public List<ISemanticTokensParticipant> getSemanticTokensParticipants() {
+		initializeIfNeeded();
+		return semanticTokensParticipants;
+	}
+
+	/**
+	 * Register a new semantic tokens participant.
+	 *
+	 * @param semanticTokensParticipant the participant to register.
+	 */
+	public void registerSemanticTokensParticipant(ISemanticTokensParticipant semanticTokensParticipant) {
+		semanticTokensParticipants.add(semanticTokensParticipant);
+	}
+
+	/**
+	 * Unregister a semantic tokens participant.
+	 *
+	 * @param semanticTokensParticipant the participant to unregister.
+	 */
+	public void unregisterSemanticTokensParticipant(ISemanticTokensParticipant semanticTokensParticipant) {
+		semanticTokensParticipants.remove(semanticTokensParticipant);
+	}
 
 	/**
 	 * Returns the XML Document provider and null otherwise.

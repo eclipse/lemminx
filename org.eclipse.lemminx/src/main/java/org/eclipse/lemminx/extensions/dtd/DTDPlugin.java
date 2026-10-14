@@ -20,6 +20,7 @@ import org.eclipse.lemminx.extensions.dtd.participants.DTDDefinitionParticipant;
 import org.eclipse.lemminx.extensions.dtd.participants.DTDDocumentLinkParticipant;
 import org.eclipse.lemminx.extensions.dtd.participants.DTDHighlightingParticipant;
 import org.eclipse.lemminx.extensions.dtd.participants.DTDReferenceParticipant;
+import org.eclipse.lemminx.extensions.dtd.participants.DTDSemanticTokensParticipant;
 import org.eclipse.lemminx.extensions.dtd.participants.diagnostics.DTDDiagnosticsParticipant;
 import org.eclipse.lemminx.services.extensions.IDefinitionParticipant;
 import org.eclipse.lemminx.services.extensions.IHighlightingParticipant;
@@ -28,6 +29,7 @@ import org.eclipse.lemminx.services.extensions.IXMLExtension;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.services.extensions.codelens.ICodeLensParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
+import org.eclipse.lemminx.services.extensions.semantictokens.ISemanticTokensParticipant;
 import org.eclipse.lemminx.uriresolver.URIResolverExtensionManager;
 import org.eclipse.lsp4j.InitializeParams;
 
@@ -42,12 +44,14 @@ public class DTDPlugin implements IXMLExtension {
 	private final IReferenceParticipant referenceParticipant;
 	private final ICodeLensParticipant codeLensParticipant;
 	private DTDDocumentLinkParticipant documentLinkParticipant;
+	private final ISemanticTokensParticipant semanticTokensParticipant;
 
 	public DTDPlugin() {
 		definitionParticipant = new DTDDefinitionParticipant();
 		highlightingParticipant = new DTDHighlightingParticipant();
 		referenceParticipant = new DTDReferenceParticipant();
 		codeLensParticipant = new DTDCodeLensParticipant();
+		semanticTokensParticipant = new DTDSemanticTokensParticipant();
 	}
 
 	@Override
@@ -70,6 +74,8 @@ public class DTDPlugin implements IXMLExtension {
 		// register document link participant
 		URIResolverExtensionManager resolverManager = registry.getComponent(URIResolverExtensionManager.class);
 		documentLinkParticipant = new DTDDocumentLinkParticipant(resolverManager);
+		// register semantic tokens participant
+		registry.registerSemanticTokensParticipant(semanticTokensParticipant);
 	}
 
 	@Override
@@ -86,5 +92,7 @@ public class DTDPlugin implements IXMLExtension {
 		registry.unregisterCodeLensParticipant(codeLensParticipant);
 		// unregister document link participant
 		registry.unregisterDocumentLinkParticipant(documentLinkParticipant);
+		// unregister semantic tokens participant
+		registry.unregisterSemanticTokensParticipant(semanticTokensParticipant);
 	}
 }

@@ -368,13 +368,20 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 	}
 
 	private void collectElementOptionality(XSParticle particle) {
+		collectElementOptionality(particle, false);
+	}
+
+	private void collectElementOptionality(XSParticle particle, boolean parentOptional) {
+		boolean optional = parentOptional || particle.getMinOccurs() == 0;
 		XSTerm term = particle.getTerm();
 		if (term instanceof XSElementDeclaration) {
-			elementOptionality.put(term.getName(), particle.getMinOccurs() == 0);
+			elementOptionality.put(term.getName(), optional);
 		} else if (term instanceof XSModelGroup) {
-			XSObjectList particles = ((XSModelGroup) term).getParticles();
+			XSModelGroup group = (XSModelGroup) term;
+			boolean childOptional = optional || group.getCompositor() == XSModelGroup.COMPOSITOR_CHOICE;
+			XSObjectList particles = group.getParticles();
 			for (int i = 0; i < particles.getLength(); i++) {
-				collectElementOptionality((XSParticle) particles.item(i));
+				collectElementOptionality((XSParticle) particles.item(i), childOptional);
 			}
 		}
 	}

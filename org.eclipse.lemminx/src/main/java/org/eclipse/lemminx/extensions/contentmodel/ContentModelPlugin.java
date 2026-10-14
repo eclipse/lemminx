@@ -32,6 +32,7 @@ import org.eclipse.lemminx.extensions.contentmodel.participants.ContentModelComp
 import org.eclipse.lemminx.extensions.contentmodel.participants.ContentModelDocumentLinkParticipant;
 import org.eclipse.lemminx.extensions.contentmodel.participants.ContentModelFormatterParticipant;
 import org.eclipse.lemminx.extensions.contentmodel.participants.ContentModelHoverParticipant;
+import org.eclipse.lemminx.extensions.contentmodel.participants.ContentModelSemanticTokensParticipant;
 import org.eclipse.lemminx.extensions.contentmodel.participants.ContentModelSymbolsProviderParticipant;
 import org.eclipse.lemminx.extensions.contentmodel.participants.ContentModelTypeDefinitionParticipant;
 import org.eclipse.lemminx.extensions.contentmodel.participants.DocumentTelemetryParticipant;
@@ -51,6 +52,7 @@ import org.eclipse.lemminx.services.extensions.commands.IXMLCommandService;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lemminx.services.extensions.hover.IHoverParticipant;
+import org.eclipse.lemminx.services.extensions.semantictokens.ISemanticTokensParticipant;
 import org.eclipse.lemminx.services.extensions.save.ISaveContext;
 import org.eclipse.lemminx.uriresolver.URIResolverExtensionManager;
 import org.eclipse.lemminx.utils.DOMUtils;
@@ -92,6 +94,8 @@ public class ContentModelPlugin implements IXMLExtension {
 	private DocumentTelemetryParticipant documentTelemetryParticipant;
 
 	private ContentModelFormatterParticipant formatterParticipant;
+
+	private ISemanticTokensParticipant semanticTokensParticipant;
 
 	private GenerateXMLFromGrammarCommand generateCommand;
 
@@ -225,6 +229,8 @@ public class ContentModelPlugin implements IXMLExtension {
 		registry.registerDocumentLifecycleParticipant(documentTelemetryParticipant);
 		formatterParticipant = new ContentModelFormatterParticipant(contentModelManager);
 		registry.registerFormatterParticipant(formatterParticipant);
+		semanticTokensParticipant = new ContentModelSemanticTokensParticipant();
+		registry.registerSemanticTokensParticipant(semanticTokensParticipant);
 
 		// Register custom commands to re-validate XML files
 		IXMLCommandService commandService = registry.getCommandService();
@@ -262,6 +268,7 @@ public class ContentModelPlugin implements IXMLExtension {
 		registry.unregisterCodeLensParticipant(codeLensParticipant);
 		registry.unregisterDocumentLifecycleParticipant(documentTelemetryParticipant);
 		registry.unregisterFormatterParticipant(formatterParticipant);
+		registry.unregisterSemanticTokensParticipant(semanticTokensParticipant);
 
 		// Un-register custom commands to re-validate XML files
 		IXMLCommandService commandService = registry.getCommandService();

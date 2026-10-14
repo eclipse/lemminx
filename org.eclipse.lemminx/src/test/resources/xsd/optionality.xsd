@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="optionality_ns"
+            elementFormDefault="qualified">
+
+    <xsd:element name="root">
+        <xsd:complexType>
+            <xsd:sequence>
+                <!-- required element (default minOccurs=1) -->
+                <xsd:element name="required" type="xsd:string" />
+                <!-- optional element (explicit minOccurs=0) -->
+                <xsd:element name="optional" type="xsd:string" minOccurs="0" />
+                <!-- optional group: minOccurs=0 on sequence -->
+                <xsd:sequence minOccurs="0">
+                    <xsd:element name="inOptionalGroup" type="xsd:string" />
+                </xsd:sequence>
+                <!-- choice group: each alternative is individually optional -->
+                <xsd:choice>
+                    <xsd:element name="choiceA" type="xsd:string" />
+                    <xsd:element name="choiceB" type="xsd:string" />
+                </xsd:choice>
+            </xsd:sequence>
+            <xsd:attribute name="id" type="xsd:string" use="required" />
+            <xsd:attribute name="label" type="xsd:string" />
+        </xsd:complexType>
+    </xsd:element>
+</xsd:schema>
