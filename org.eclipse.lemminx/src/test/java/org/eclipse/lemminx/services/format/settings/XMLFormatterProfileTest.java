@@ -72,7 +72,7 @@ public class XMLFormatterProfileTest {
 		// Profile: for POM files, force each attribute on its own line
 		XMLFormattingProfile pomProfile = new XMLFormattingProfile();
 		pomProfile.setPattern("**/pom.xml");
-		pomProfile.setSplitAttributes("forceExpandMultiline");
+		pomProfile.setSplitAttributes(SplitAttributes.forceExpandMultiline.toString());
 		settings.getFormattingSettings().setProfiles(Arrays.asList(pomProfile));
 
 		// URI matches "**/pom.xml" → profile applies, attributes split
@@ -94,7 +94,7 @@ public class XMLFormatterProfileTest {
 		// Profile: only for POM files
 		XMLFormattingProfile pomProfile = new XMLFormattingProfile();
 		pomProfile.setPattern("**/pom.xml");
-		pomProfile.setSplitAttributes("forceExpandMultiline");
+		pomProfile.setSplitAttributes(SplitAttributes.forceExpandMultiline.toString());
 		settings.getFormattingSettings().setProfiles(Arrays.asList(pomProfile));
 
 		// URI "web.xml" does NOT match "**/pom.xml" → global settings, no change
@@ -119,7 +119,7 @@ public class XMLFormatterProfileTest {
 		// Profile: for DocBook namespace, preserve mixed content
 		XMLFormattingProfile docbookProfile = new XMLFormattingProfile();
 		docbookProfile.setNamespaceURI(Arrays.asList("http://docbook.org/ns/docbook"));
-		docbookProfile.setMixedContent("preserve");
+		docbookProfile.setMixedContent(MixedContent.preserve.toString());
 		settings.getFormattingSettings().setProfiles(Arrays.asList(docbookProfile));
 
 		// XML has DocBook namespace → profile applies, whitespace preserved
@@ -140,7 +140,7 @@ public class XMLFormatterProfileTest {
 		// Profile: only DocBook namespace
 		XMLFormattingProfile docbookProfile = new XMLFormattingProfile();
 		docbookProfile.setNamespaceURI(Arrays.asList("http://docbook.org/ns/docbook"));
-		docbookProfile.setMixedContent("preserve");
+		docbookProfile.setMixedContent(MixedContent.preserve.toString());
 		settings.getFormattingSettings().setProfiles(Arrays.asList(docbookProfile));
 
 		// XML has no namespace → profile doesn't match → global normalize
@@ -164,7 +164,7 @@ public class XMLFormatterProfileTest {
 		// Profile: glob pattern with * suffix to match DocBook 5.x variants
 		XMLFormattingProfile docbookProfile = new XMLFormattingProfile();
 		docbookProfile.setNamespaceURI(Arrays.asList("http://docbook.org/ns/docbook*"));
-		docbookProfile.setMixedContent("preserve");
+		docbookProfile.setMixedContent(MixedContent.preserve.toString());
 		settings.getFormattingSettings().setProfiles(Arrays.asList(docbookProfile));
 
 		// Namespace "http://docbook.org/ns/docbook/5.1" matches glob → preserved
@@ -185,7 +185,7 @@ public class XMLFormatterProfileTest {
 
 		XMLFormattingProfile mybatisProfile = new XMLFormattingProfile();
 		mybatisProfile.setPublicId(Arrays.asList("-//mybatis.org//DTD Mapper 3.0//EN"));
-		mybatisProfile.setSplitAttributes("preserve");
+		mybatisProfile.setSplitAttributes(SplitAttributes.preserve.toString());
 		settings.getFormattingSettings().setProfiles(Arrays.asList(mybatisProfile));
 
 		// MyBatis file → profile applies, attributes preserved
@@ -206,7 +206,7 @@ public class XMLFormatterProfileTest {
 
 		XMLFormattingProfile profile = new XMLFormattingProfile();
 		profile.setSystemId(Arrays.asList("http://mybatis.org/dtd/*"));
-		profile.setSplitAttributes("preserve");
+		profile.setSplitAttributes(SplitAttributes.preserve.toString());
 		settings.getFormattingSettings().setProfiles(Arrays.asList(profile));
 
 		String content = "<!DOCTYPE mapper PUBLIC \"-//mybatis.org//DTD Mapper 3.0//EN\" \"http://mybatis.org/dtd/mybatis-3-mapper.dtd\">" + lineSeparator() + //
@@ -227,12 +227,12 @@ public class XMLFormatterProfileTest {
 		// Profile 1: matches all XML files in docs/
 		XMLFormattingProfile docsProfile = new XMLFormattingProfile();
 		docsProfile.setPattern("**/docs/**/*.xml");
-		docsProfile.setSplitAttributes("forceExpandMultiline");
+		docsProfile.setSplitAttributes(SplitAttributes.forceExpandMultiline.toString());
 
 		// Profile 2: matches all XML files (broader)
 		XMLFormattingProfile allProfile = new XMLFormattingProfile();
 		allProfile.setPattern("**/*.xml");
-		allProfile.setSplitAttributes("force");
+		allProfile.setSplitAttributes(SplitAttributes.force.toString());
 
 		settings.getFormattingSettings().setProfiles(Arrays.asList(docsProfile, allProfile));
 
@@ -258,7 +258,7 @@ public class XMLFormatterProfileTest {
 
 		XMLFormattingProfile profile = new XMLFormattingProfile();
 		profile.setPattern("**/docs/**/*.xml");
-		profile.setMixedContent("preserve");
+		profile.setMixedContent(MixedContent.preserve.toString());
 		// spaceBeforeEmptyCloseTag NOT overridden → global value (true) applies
 		settings.getFormattingSettings().setProfiles(Arrays.asList(profile));
 
@@ -325,7 +325,7 @@ public class XMLFormatterProfileTest {
 		XMLFormattingProfile profile = new XMLFormattingProfile();
 		profile.setPattern("**/docs/**/*.xml");
 		profile.setNamespaceURI(Arrays.asList("http://docbook.org/ns/docbook*"));
-		profile.setMixedContent("preserve");
+		profile.setMixedContent(MixedContent.preserve.toString());
 		settings.getFormattingSettings().setProfiles(Arrays.asList(profile));
 
 		// DocBook in docs/ → profile applies
@@ -353,7 +353,7 @@ public class XMLFormatterProfileTest {
 
 		XMLFormattingProfile profile = new XMLFormattingProfile();
 		profile.setPattern("**/pom.xml");
-		profile.setSplitAttributes("forceExpandMultiline");
+		profile.setSplitAttributes(SplitAttributes.forceExpandMultiline.toString());
 		profile.setClosingBracketNewLine(true);
 		settings.getFormattingSettings().setProfiles(Arrays.asList(profile));
 
@@ -377,7 +377,7 @@ public class XMLFormatterProfileTest {
 
 		XMLFormattingProfile profile = new XMLFormattingProfile();
 		profile.setGrammarURI(Arrays.asList("*docbook.rng*"));
-		profile.setMixedContent("preserve");
+		profile.setMixedContent(MixedContent.preserve.toString());
 		settings.getFormattingSettings().setProfiles(Arrays.asList(profile));
 
 		String content = "<?xml-model href=\"http://docbook.org/xml/5.0/rng/docbook.rng\"?>" + lineSeparator() + //

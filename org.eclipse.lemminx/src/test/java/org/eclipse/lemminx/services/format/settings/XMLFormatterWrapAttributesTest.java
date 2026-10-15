@@ -586,11 +586,25 @@ public class XMLFormatterWrapAttributesTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void testFromStringCamelCase() {
-		// Verify that camelCase names also work
-		assertEquals(SplitAttributes.forceAligned, SplitAttributes.fromString("forceAligned"));
-		assertEquals(SplitAttributes.forceExpandMultiline, SplitAttributes.fromString("forceExpandMultiline"));
-		assertEquals(SplitAttributes.alignedMultiple, SplitAttributes.fromString("alignedMultiple"));
-		assertEquals(SplitAttributes.preserveAligned, SplitAttributes.fromString("preserveAligned"));
+		// camelCase names are no longer supported for aliased enums,
+		// they fall back to preserve (VS Code settings always use kebab-case)
+		assertEquals(SplitAttributes.preserve, SplitAttributes.fromString("forceAligned"));
+		assertEquals(SplitAttributes.preserve, SplitAttributes.fromString("forceExpandMultiline"));
+		assertEquals(SplitAttributes.preserve, SplitAttributes.fromString("alignedMultiple"));
+		assertEquals(SplitAttributes.preserve, SplitAttributes.fromString("preserveAligned"));
+	}
+
+	@Test
+	public void testToString() {
+		// Enums without alias: toString() returns name()
+		assertEquals("preserve", SplitAttributes.preserve.toString());
+		assertEquals("auto", SplitAttributes.auto.toString());
+		assertEquals("force", SplitAttributes.force.toString());
+		// Enums with alias: toString() returns kebab-case alias
+		assertEquals("force-aligned", SplitAttributes.forceAligned.toString());
+		assertEquals("force-expand-multiline", SplitAttributes.forceExpandMultiline.toString());
+		assertEquals("aligned-multiple", SplitAttributes.alignedMultiple.toString());
+		assertEquals("preserve-aligned", SplitAttributes.preserveAligned.toString());
 	}
 
 	@Test
