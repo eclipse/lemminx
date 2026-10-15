@@ -124,6 +124,126 @@ public class XMLColorsExtensionsTest {
 	}
 
 	@Test
+	public void colorPresentationOnTextWithHash() throws BadLocationException {
+		XMLColorsSettings settings = createXMLColorsSettings();
+		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
+				"<resources>\r\n" + //
+				"	<color name=\"opaque_red\">#f00</color>\r\n" + //
+				"</resources>";
+		ColorInformation hexColor = colorInfo(1, 0, 0, 1, r(2, 26, 2, 30));
+		testColorPresentationFor(xml, "file:///test/res/values/colors.xml", hexColor.getColor(), hexColor.getRange(),
+				settings, //
+				colorPres("#ff0000", te(2, 26, 2, 30, "#ff0000")));
+	}
+
+	@Test
+	public void colorPresentationOnTextWithoutHash() throws BadLocationException {
+		XMLColorsSettings settings = createXMLColorsSettings();
+		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
+				"<resources>\r\n" + //
+				"	<color name=\"opaque_red\">f00</color>\r\n" + //
+				"</resources>";
+		ColorInformation hexColor = colorInfo(1, 0, 0, 1, r(2, 26, 2, 29));
+		testColorPresentationFor(xml, "file:///test/res/values/colors.xml", hexColor.getColor(), hexColor.getRange(),
+				settings, //
+				colorPres("ff0000", te(2, 26, 2, 29, "ff0000")));
+	}
+
+	@Test
+	public void colorPresentationOnTextWithRgb() throws BadLocationException {
+		XMLColorsSettings settings = createXMLColorsSettings();
+		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
+				"<resources>\r\n" + //
+				"	<color name=\"opaque_red\">rgb(255,0,0)</color>\r\n" + //
+				"</resources>";
+		ColorInformation rgbColor = colorInfo(1, 0, 0, 1, r(2, 26, 2, 38));
+		testColorPresentationFor(xml, "file:///test/res/values/colors.xml", rgbColor.getColor(), rgbColor.getRange(),
+				settings, //
+				colorPres("rgb(255,0,0)", te(2, 26, 2, 38, "rgb(255,0,0)")));
+	}
+
+	@Test
+	public void colorPresentationOnTextWithColorName() throws BadLocationException {
+		XMLColorsSettings settings = createXMLColorsSettings();
+		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
+				"<resources>\r\n" + //
+				"	<color name=\"opaque_red\">red</color>\r\n" + //
+				"</resources>";
+		ColorInformation namedColor = colorInfo(1, 0, 0, 1, r(2, 26, 2, 29));
+		testColorPresentationFor(xml, "file:///test/res/values/colors.xml", namedColor.getColor(), namedColor.getRange(),
+				settings, //
+				colorPres("rgb(255,0,0)", te(2, 26, 2, 29, "rgb(255,0,0)")), //
+				colorPres("#ff0000", te(2, 26, 2, 29, "#ff0000")));
+	}
+
+	@Test
+	public void colorPresentationOnAttrWithoutEquals() throws BadLocationException {
+		XMLColorsSettings settings = createXMLColorsSettings();
+		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
+				"<resources>\r\n" + //
+				"	<item color />\r\n" + //
+				"</resources>";
+		ColorInformation fallback = colorInfo(1, 0, 0, 1, r(2, 7, 2, 12));
+		testColorPresentationFor(xml, "file:///test/colors-attr.xml", fallback.getColor(), fallback.getRange(),
+				settings, //
+				colorPres("rgb(255,0,0)", te(2, 7, 2, 12, "rgb(255,0,0)")), //
+				colorPres("#ff0000", te(2, 7, 2, 12, "#ff0000")));
+	}
+
+	@Test
+	public void colorPresentationOnAttrWithoutQuote() throws BadLocationException {
+		XMLColorsSettings settings = createXMLColorsSettings();
+		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
+				"<resources>\r\n" + //
+				"	<item color= />\r\n" + //
+				"</resources>";
+		ColorInformation fallback = colorInfo(1, 0, 0, 1, r(2, 7, 2, 13));
+		testColorPresentationFor(xml, "file:///test/colors-attr.xml", fallback.getColor(), fallback.getRange(),
+				settings, //
+				colorPres("rgb(255,0,0)", te(2, 7, 2, 13, "rgb(255,0,0)")), //
+				colorPres("#ff0000", te(2, 7, 2, 13, "#ff0000")));
+	}
+
+	@Test
+	public void colorPresentationOnTextWithHexAlpha() throws BadLocationException {
+		XMLColorsSettings settings = createXMLColorsSettings();
+		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
+				"<resources>\r\n" + //
+				"	<color name=\"translucent_red\">#80ff0000</color>\r\n" + //
+				"</resources>";
+		ColorInformation hexAlphaColor = colorInfo(0.5019607843137255, 1, 0, 0, r(2, 31, 2, 40));
+		testColorPresentationFor(xml, "file:///test/res/values/colors.xml", hexAlphaColor.getColor(),
+				hexAlphaColor.getRange(), settings, //
+				colorPres("#80ff0000", te(2, 31, 2, 40, "#80ff0000")));
+	}
+
+	@Test
+	public void colorPresentationOnTextWithRgba() throws BadLocationException {
+		XMLColorsSettings settings = createXMLColorsSettings();
+		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
+				"<resources>\r\n" + //
+				"	<color name=\"translucent_red\">rgb(255,0,0,0.5)</color>\r\n" + //
+				"</resources>";
+		ColorInformation rgbaColor = colorInfo(1, 0, 0, 0.5, r(2, 31, 2, 46));
+		testColorPresentationFor(xml, "file:///test/res/values/colors.xml", rgbaColor.getColor(), rgbaColor.getRange(),
+				settings, //
+				colorPres("rgb(255,0,0,0.5)", te(2, 31, 2, 46, "rgb(255,0,0,0.5)")));
+	}
+
+	@Test
+	public void colorOnTextWithRgb() throws BadLocationException {
+		XMLColorsSettings settings = createXMLColorsSettings();
+		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + //
+				"<resources>\r\n" + //
+				"	<color name=\"opaque_red\">rgb(255,0,0)</color>\r\n" + //
+				"	<color name=\"named\">red</color>\r\n" + //
+				"</resources>";
+		testColorInformationFor(xml, "file:///test/res/values/colors.xml", settings, //
+				colorInfo(1, 0, 0, 1, r(2, 26, 2, 38)), //
+				colorInfo(1, 0, 0, 1, r(3, 21, 3, 24)));
+	}
+
+	@Test
 	public void hexWithHashInfo() throws BadLocationException {
 		// Here color is done for color/text() only
 		XMLColorsSettings settings = createXMLColorsSettings();

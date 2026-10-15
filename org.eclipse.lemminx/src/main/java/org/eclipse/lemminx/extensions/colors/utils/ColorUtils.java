@@ -260,14 +260,14 @@ public class ColorUtils {
 		int red256 = (int) Math.round(color.getRed() * 255);
 		int green256 = (int) Math.round(color.getGreen() * 255);
 		int blue256 = (int) Math.round(color.getBlue() * 255);
-		int alpha = (int) color.getAlpha();
+		double alpha = color.getAlpha();
 
 		String label = getRGB(red256, green256, blue256, alpha == 1 ? null : alpha);
 		TextEdit textEdit = new TextEdit(replace, label);
 		return new ColorPresentation(label, textEdit);
 	}
 
-	private static String getRGB(int red256, int green256, int blue256, Integer alpha) {
+	private static String getRGB(int red256, int green256, int blue256, Double alpha) {
 		StringBuilder label = new StringBuilder("rgb(");
 		label.append(red256);
 		label.append(",");
