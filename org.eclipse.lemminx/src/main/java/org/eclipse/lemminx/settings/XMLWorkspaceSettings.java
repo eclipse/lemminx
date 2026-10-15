@@ -25,6 +25,10 @@ public class XMLWorkspaceSettings {
 		this.workspace = workspace;
 	}
 
+	public WorkspaceClientCapabilities getCapabilities() {
+		return workspace;
+	}
+
 	/**
 	 * Returns true if the client can support the given resource operation kind and
 	 * false otherwise.

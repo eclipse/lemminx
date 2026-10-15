@@ -60,7 +60,9 @@ public class SharedSettings {
 		this.symbols.merge(newSettings.getSymbolSettings());
 		this.codeActionSettings.setCapabilities(newSettings.getCodeActionSettings().getCapabilities());
 		this.codeLens.merge(newSettings.getCodeLensSettings());
+		this.hoverSettings.setCapabilities(newSettings.getHoverSettings().getCapabilities());
 		this.preferences.merge(newSettings.getPreferences());
+		this.workspaceSettings.setCapabilities(newSettings.getWorkspaceSettings().getCapabilities());
 		this.actionableNotificationSupport = newSettings.isActionableNotificationSupport();
 		this.openSettingsCommandSupport = newSettings.isOpenSettingsCommandSupport();
 		this.bindingWizardSupport = newSettings.isBindingWizardSupport();

@@ -13,7 +13,9 @@
 package org.eclipse.lemminx.settings;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.lemminx.commons.config.ConfigurationScope;
 import org.eclipse.lemminx.commons.config.Scope;
@@ -133,24 +135,37 @@ public class XMLFormattingOptions extends org.eclipse.lemminx.settings.LSPFormat
 		force,
 
 		/** Always wrap each attribute except the first, align with the first attribute. */
-		forceAligned,
+		forceAligned("force-aligned"),
 
 		/** Always wrap every attribute (including the first) onto its own line. */
-		forceExpandMultiline,
+		forceExpandMultiline("force-expand-multiline"),
 
 		/** Wrap when line exceeds {@code maxLineWidth}, align with the first attribute. */
-		alignedMultiple,
+		alignedMultiple("aligned-multiple"),
 
 		/** Preserve existing line breaks but align wrapped attributes with the first attribute. */
-		preserveAligned;
+		preserveAligned("preserve-aligned");
 
-		private static final java.util.Map<String, SplitAttributes> ALIASES = new java.util.HashMap<>();
+		private final String alias;
+
+		SplitAttributes() {
+			this.alias = name();
+		}
+
+		SplitAttributes(String alias) {
+			this.alias = alias;
+		}
+
+		private static final Map<String, SplitAttributes> VALUES = new HashMap<>();
 		static {
-			// Support hyphenated names from JSON settings (e.g., "force-aligned")
-			ALIASES.put("force-aligned", forceAligned);
-			ALIASES.put("force-expand-multiline", forceExpandMultiline);
-			ALIASES.put("aligned-multiple", alignedMultiple);
-			ALIASES.put("preserve-aligned", preserveAligned);
+			for (SplitAttributes sa : values()) {
+				VALUES.put(sa.toString(), sa);
+			}
+		}
+
+		@Override
+		public String toString() {
+			return alias;
 		}
 
 		/**
@@ -161,12 +176,8 @@ public class XMLFormattingOptions extends org.eclipse.lemminx.settings.LSPFormat
 			if (value == null) {
 				return preserve;
 			}
-			try {
-				return valueOf(value);
-			} catch (IllegalArgumentException e) {
-				SplitAttributes alias = ALIASES.get(value);
-				return alias != null ? alias : preserve;
-			}
+			SplitAttributes result = VALUES.get(value);
+			return result != null ? result : preserve;
 		}
 
 		/** Returns true if attributes should always be split regardless of line width. */
@@ -374,7 +385,7 @@ public class XMLFormattingOptions extends org.eclipse.lemminx.settings.LSPFormat
 	}
 
 	public void setSplitAttributes(SplitAttributes splitAttributes) {
-		this.splitAttributes = splitAttributes.name();
+		this.splitAttributes = splitAttributes.toString();
 	}
 
 	public boolean isJoinCDATALines() {
@@ -755,7 +766,7 @@ public class XMLFormattingOptions extends org.eclipse.lemminx.settings.LSPFormat
 		setTrimTrailingWhitespace(formattingOptions.isTrimTrailingWhitespace());
 		setLegacy(formattingOptions.isLegacy());
 		setMaxLineWidth(formattingOptions.getMaxLineWidth());
-		setSplitAttributes(formattingOptions.getSplitAttributes());
+		this.splitAttributes = formattingOptions.splitAttributes;
 		setJoinCDATALines(formattingOptions.isJoinCDATALines());
 		setFormatComments(formattingOptions.isFormatComments());
 		setJoinCommentLines(formattingOptions.isJoinCommentLines());
@@ -763,16 +774,16 @@ public class XMLFormattingOptions extends org.eclipse.lemminx.settings.LSPFormat
 		setSpaceBeforeEmptyCloseTag(formattingOptions.isSpaceBeforeEmptyCloseTag());
 		setJoinContentLines(formattingOptions.isJoinContentLines());
 		setPreservedNewlines(formattingOptions.getPreservedNewlines());
-		setEnforceQuoteStyle(formattingOptions.getEnforceQuoteStyle());
+		this.enforceQuoteStyle = formattingOptions.enforceQuoteStyle;
 		setPreserveAttributeLineBreaks(formattingOptions.preserveAttributeLineBreaks);
 		setPreserveEmptyContent(formattingOptions.isPreserveEmptyContent());
 		setSplitAttributesIndentSize(formattingOptions.getSplitAttributesIndentSize());
 		setClosingBracketNewLine(formattingOptions.getClosingBracketNewLine());
-		setEmptyElement(formattingOptions.getEmptyElements());
+		this.emptyElements = formattingOptions.emptyElements;
 		setXsiSchemaLocationSplit(formattingOptions.getXsiSchemaLocationSplit());
 		// New formatter settings
 		setPreserveSpace(formattingOptions.getPreserveSpace());
-		setMixedContent(formattingOptions.getMixedContent());
+		this.mixedContent = formattingOptions.mixedContent;
 		setBlockElements(formattingOptions.getBlockElements());
 		setGrammarAwareFormatting(formattingOptions.isGrammarAwareFormatting());
 		setMaxLineWidth(formattingOptions.getMaxLineWidth());
