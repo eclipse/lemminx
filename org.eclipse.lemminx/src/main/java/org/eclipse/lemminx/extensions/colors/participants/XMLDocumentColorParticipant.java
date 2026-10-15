@@ -111,8 +111,9 @@ public class XMLDocumentColorParticipant implements IDocumentColorParticipant {
 		Color color = params.getColor();
 		Range replace = params.getRange();
 		try {
-			DOMAttr attr = xmlDocument.findAttrAt(xmlDocument.offsetAt(params.getRange().getStart()));
-			String value = attr.getValue();
+			int startOffset = xmlDocument.offsetAt(replace.getStart());
+			int endOffset = xmlDocument.offsetAt(replace.getEnd());
+			String value = xmlDocument.getText().substring(startOffset, endOffset);
 			if (value.startsWith("rgb")) {
 				presentations.add(toRGB(color, replace));
 			} else if (value.startsWith("#") || ColorUtils.isHexNumber(value)) {
