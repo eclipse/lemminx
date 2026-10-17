@@ -198,6 +198,10 @@
 		"allDeclaredMethods": true
 	},
 	{
+		"name": "org.eclipse.lemminx.extensions.contentmodel.commands.GenerateGrammarFromXMLCommand$GenerateGrammarResult",
+		"allDeclaredFields": true
+	},
+	{
 		"name": "org.eclipse.lemminx.extensions.contentmodel.commands.SurroundWithCommand$SurroundWithResponse",
 		"allDeclaredFields": true,
 		"methods": [{
