@@ -13,7 +13,9 @@
 package org.eclipse.lemminx.extensions.xsd;
 
 import static org.eclipse.lemminx.XMLAssert.ca;
+import static org.eclipse.lemminx.XMLAssert.caSnippet;
 import static org.eclipse.lemminx.XMLAssert.d;
+import static org.eclipse.lemminx.XMLAssert.sne;
 import static org.eclipse.lemminx.XMLAssert.te;
 import static org.eclipse.lemminx.XMLAssert.testCodeActionsFor;
 
@@ -22,6 +24,7 @@ import org.eclipse.lemminx.XMLAssert;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.extensions.xsd.participants.XSDErrorCode;
 import org.eclipse.lemminx.extensions.xsd.participants.diagnostics.XSDValidator;
+import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.Diagnostic;
 import org.junit.jupiter.api.Test;
 
@@ -382,8 +385,13 @@ public class XSDValidationExtensionsTest extends AbstractCacheBasedTest {
 
 		Diagnostic d = d(2, 2, 2, 11, XSDErrorCode.src_import_1_2);
 		testDiagnosticsFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, ca(d, te(2, 11, 2, 11, " namespace=\"\"")),
 				ca(d, te(1, 54, 1, 54, " targetNamespace=\"\"")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(2, 11, 2, 11, " namespace=\"$1\"")),
+				caSnippet(d, sne(1, 54, 1, 54, " targetNamespace=\"$1\"")));
 	}
 
 	@Test
@@ -395,8 +403,13 @@ public class XSDValidationExtensionsTest extends AbstractCacheBasedTest {
 
 		Diagnostic d = d(2, 2, 2, 8, XSDErrorCode.src_import_1_2);
 		testDiagnosticsFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, ca(d, te(2, 8, 2, 8, " namespace=\"\"")),
 				ca(d, te(1, 48, 1, 48, " targetNamespace=\"\"")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(2, 8, 2, 8, " namespace=\"$1\"")),
+				caSnippet(d, sne(1, 48, 1, 48, " targetNamespace=\"$1\"")));
 	}
 
 	@Test
@@ -407,8 +420,13 @@ public class XSDValidationExtensionsTest extends AbstractCacheBasedTest {
 				"</xs:schema>";
 
 		Diagnostic d = d(2, 2, 2, 11, XSDErrorCode.src_import_1_2);
+		// Without snippet support
 		testCodeActionsFor(xml, d, ca(d, te(2, 11, 2, 11, " namespace=\"\"")),
 				ca(d, te(1, 54, 1, 54, " targetNamespace=\"\"")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(2, 11, 2, 11, " namespace=\"$1\"")),
+				caSnippet(d, sne(1, 54, 1, 54, " targetNamespace=\"$1\"")));
 	}
 
 	@Test
@@ -508,5 +526,9 @@ public class XSDValidationExtensionsTest extends AbstractCacheBasedTest {
 
 	private static void testDiagnosticsFor(String xml, Diagnostic... expected) throws BadLocationException {
 		XMLAssert.testDiagnosticsFor(xml, null, null, "test.xsd", expected);
+	}
+
+	private static SharedSettings createSnippetEditSettings() {
+		return XMLAssert.createSnippetEditSettings();
 	}
 }

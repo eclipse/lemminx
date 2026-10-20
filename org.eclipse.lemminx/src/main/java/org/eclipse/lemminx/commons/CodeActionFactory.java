@@ -70,13 +70,27 @@ public class CodeActionFactory {
 	 */
 	public static CodeAction insert(String title, Position position, String insertText, TextDocumentItem document,
 			Diagnostic diagnostic) {
-		CodeAction insertContentAction = new CodeAction(title);
-		insertContentAction.setKind(CodeActionKind.QuickFix);
-		insertContentAction.setDiagnostics(Arrays.asList(diagnostic));
-		TextDocumentEdit textDocumentEdit = insertEdit(insertText, position, document);
-		WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)));
-		insertContentAction.setEdit(workspaceEdit);
-		return insertContentAction;
+		return insert(title, position, insertText, document, diagnostic, false);
+	}
+
+	/**
+	 * Creates a {@link CodeAction} that inserts the given text at the given
+	 * position. When {@code snippetSupport} is true, the text is treated as a
+	 * LSP 3.18 snippet (with tabstops {@code $1}, {@code $0}) and wrapped in a
+	 * {@link SnippetTextEdit}; otherwise a plain {@link TextEdit} is used.
+	 *
+	 * @param title          the code action title.
+	 * @param position       the position to insert at.
+	 * @param insertText     the text to insert (plain or snippet syntax).
+	 * @param document       the text document.
+	 * @param diagnostic     the diagnostic this code action fixes.
+	 * @param snippetSupport true if the client supports
+	 *                       {@code workspace.workspaceEdit.snippetEditSupport}.
+	 * @return the code action.
+	 */
+	public static CodeAction insert(String title, Position position, String insertText, TextDocumentItem document,
+			Diagnostic diagnostic, boolean snippetSupport) {
+		return replace(title, new Range(position, position), insertText, document, diagnostic, snippetSupport);
 	}
 
 	/**

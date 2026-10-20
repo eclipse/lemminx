@@ -12,13 +12,17 @@
 package org.eclipse.lemminx.extensions.relaxng.xml.codeaction;
 
 import static org.eclipse.lemminx.XMLAssert.ca;
+import static org.eclipse.lemminx.XMLAssert.caSnippet;
 import static org.eclipse.lemminx.XMLAssert.d;
+import static org.eclipse.lemminx.XMLAssert.sne;
 import static org.eclipse.lemminx.XMLAssert.te;
 import static org.eclipse.lemminx.XMLAssert.testCodeActionsFor;
 import static org.eclipse.lemminx.XMLAssert.testDiagnosticsFor;
 
 import org.eclipse.lemminx.AbstractCacheBasedTest;
 import org.eclipse.lemminx.extensions.relaxng.xml.validator.RelaxNGErrorCode;
+import org.eclipse.lemminx.XMLAssert;
+import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.Diagnostic;
 import org.junit.jupiter.api.Test;
 
@@ -36,8 +40,12 @@ public class MissingAttributeCodeActionTest extends AbstractCacheBasedTest {
 				"</root>";
 		Diagnostic d = d(2, 3, 2, 6, RelaxNGErrorCode.required_attributes_missing);
 		testDiagnosticsFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d,
-				ca(d, te(2, 6, 2, 6, " name=\"\" type=\"\"")));
+				ca(d, te(2, 6, 2, 6, " name=\"\" type=\"dict\"")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(2, 6, 2, 6, " name=\"$1\" type=\"${2|dict,arr,str|}\"")));
 	}
 
 	@Test
@@ -49,8 +57,12 @@ public class MissingAttributeCodeActionTest extends AbstractCacheBasedTest {
 				"</root>";
 		Diagnostic d = d(2, 3, 2, 6, RelaxNGErrorCode.required_attribute_missing);
 		testDiagnosticsFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d,
-				ca(d, te(2, 17, 2, 17, " type=\"\"")));
+				ca(d, te(2, 17, 2, 17, " type=\"dict\"")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(2, 17, 2, 17, " type=\"${1|dict,arr,str|}\"")));
 	}
 
 	@Test
@@ -62,8 +74,12 @@ public class MissingAttributeCodeActionTest extends AbstractCacheBasedTest {
 				"</Items>";
 		Diagnostic d = d(2, 3, 2, 7, RelaxNGErrorCode.required_attribute_missing);
 		testDiagnosticsFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d,
 				ca(d, te(2, 18, 2, 18, " BarAttr=\"\"")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(2, 18, 2, 18, " BarAttr=\"$1\"")));
 	}
 
 	@Test
@@ -99,7 +115,15 @@ public class MissingAttributeCodeActionTest extends AbstractCacheBasedTest {
 				"</TEI>";
 		Diagnostic d = d(17, 6, 17, 14, RelaxNGErrorCode.required_attribute_missing);
 		testDiagnosticsFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d,
 				ca(d, te(17, 14, 17, 14, " gi=\"\"")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(17, 14, 17, 14, " gi=\"$1\"")));
+	}
+
+	private static SharedSettings createSnippetEditSettings() {
+		return XMLAssert.createSnippetEditSettings();
 	}
 }

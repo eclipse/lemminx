@@ -30,6 +30,8 @@ import org.eclipse.lemminx.dom.DTDEntityDecl;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.ElementDeclUnterminatedCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.EntityNotDeclaredCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.FixMissingSpaceCodeAction;
+import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.MSG_CONTENT_INCOMPLETECodeAction;
+import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.MSG_REQUIRED_ATTRIBUTE_NOT_SPECIFIEDCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.missinggrammar.DTDNotFoundCodeAction;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IXMLErrorCode;
@@ -306,6 +308,8 @@ public enum DTDErrorCode implements IXMLErrorCode {
 				&& sharedSettings.getWorkspaceSettings().isResourceOperationSupported(ResourceOperationKind.Create)) {
 			codeActions.put(DTDNotFound.getCode(), new DTDNotFoundCodeAction());
 		}
+		codeActions.put(MSG_REQUIRED_ATTRIBUTE_NOT_SPECIFIED.getCode(), new MSG_REQUIRED_ATTRIBUTE_NOT_SPECIFIEDCodeAction());
+		codeActions.put(MSG_CONTENT_INCOMPLETE.getCode(), new MSG_CONTENT_INCOMPLETECodeAction());
 		ICodeActionParticipant fixMissingSpace = new FixMissingSpaceCodeAction();
 		codeActions.put(MSG_SPACE_REQUIRED_BEFORE_ELEMENT_TYPE_IN_ATTLISTDECL.getCode(), fixMissingSpace);
 		codeActions.put(MSG_SPACE_REQUIRED_BEFORE_ELEMENT_TYPE_IN_ELEMENTDECL.getCode(), fixMissingSpace);

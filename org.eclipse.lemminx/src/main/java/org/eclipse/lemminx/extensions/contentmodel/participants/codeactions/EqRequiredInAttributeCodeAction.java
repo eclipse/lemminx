@@ -46,9 +46,12 @@ public class EqRequiredInAttributeCodeAction implements ICodeActionParticipant {
 			if (node != null && node.isElement()) {
 				DOMElement element = (DOMElement) node;
 				if (element.hasTagName()) {
-					String insertText = "=\"\"";
-					CodeAction insertEqualsAndQuotesAction = CodeActionFactory.insert("Insert '" + insertText + "'",
-							diagnosticRange.getEnd(), insertText, document.getTextDocument(), diagnostic);
+					boolean snippetSupport = request.getSharedSettings().getWorkspaceSettings()
+							.isSnippetEditSupported();
+					String insertText = snippetSupport ? "=\"$1\"" : "=\"\"";
+					CodeAction insertEqualsAndQuotesAction = CodeActionFactory.insert("Insert '=\"\"'",
+							diagnosticRange.getEnd(), insertText, document.getTextDocument(), diagnostic,
+							snippetSupport);
 					codeActions.add(insertEqualsAndQuotesAction);
 				}
 			}

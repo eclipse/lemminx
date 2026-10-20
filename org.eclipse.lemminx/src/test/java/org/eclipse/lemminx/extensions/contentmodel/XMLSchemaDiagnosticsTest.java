@@ -97,7 +97,11 @@ public class XMLSchemaDiagnosticsTest extends AbstractCacheBasedTest {
 		Diagnostic d = d(3, 3, 3, 11, XMLSchemaErrorCode.cvc_complex_type_4,
 				"Attribute 'name' is missing from element 'property'.\n\nCode:");
 		testDiagnosticsWithCatalogFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, ca(d, te(3, 11, 3, 11, " name=\"\"")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(3, 11, 3, 11, " name=\"$1\"")));
 	}
 
 	@Test
@@ -120,7 +124,11 @@ public class XMLSchemaDiagnosticsTest extends AbstractCacheBasedTest {
 				"Attribute 'price' is missing from element 'product'.\n\nCode:");
 		testDiagnosticsFor(xml, d1, d2);
 
+		// Without snippet support
 		testCodeActionsFor(xml, d1, ca(d1, te(6, 11, 6, 11, " price=\"\" description=\"\"")));
+		// With snippet support
+		testCodeActionsFor(xml, d1, createSnippetEditSettings(),
+				caSnippet(d1, sne(6, 11, 6, 11, " price=\"$1\" description=\"$2\"")));
 	}
 
 	@Test
@@ -140,8 +148,11 @@ public class XMLSchemaDiagnosticsTest extends AbstractCacheBasedTest {
 		Diagnostic d = d(6, 4, 6, 11, XMLSchemaErrorCode.cvc_complex_type_4,
 				"Attribute 'price' is missing from element 'product'.\n\nCode:");
 		testDiagnosticsFor(xml, d);
-		// Insert after the last existing attribute (description="test"), not after the tag name
+		// Without snippet support: insert after the last existing attribute
 		testCodeActionsFor(xml, d, ca(d, te(6, 30, 6, 30, " price=\"\"")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(6, 30, 6, 30, " price=\"$1\"")));
 	}
 
 	@Test
@@ -1676,14 +1687,6 @@ public class XMLSchemaDiagnosticsTest extends AbstractCacheBasedTest {
 	 * @return shared settings with snippet edit support enabled.
 	 */
 	private static SharedSettings createSnippetEditSettings() {
-		SharedSettings settings = new SharedSettings();
-		settings.getFormattingSettings().setTabSize(4);
-		settings.getFormattingSettings().setInsertSpaces(false);
-		WorkspaceClientCapabilities workspace = new WorkspaceClientCapabilities();
-		WorkspaceEditCapabilities workspaceEdit = new WorkspaceEditCapabilities();
-		workspaceEdit.setSnippetEditSupport(true);
-		workspace.setWorkspaceEdit(workspaceEdit);
-		settings.getWorkspaceSettings().setCapabilities(workspace);
-		return settings;
+		return XMLAssert.createSnippetEditSettings(4, false);
 	}
 }

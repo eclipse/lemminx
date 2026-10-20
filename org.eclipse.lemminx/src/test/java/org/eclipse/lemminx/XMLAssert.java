@@ -110,6 +110,8 @@ import org.eclipse.lsp4j.InlineCompletionTriggerKind;
 import org.eclipse.lsp4j.SnippetTextEdit;
 import org.eclipse.lsp4j.StringValue;
 import org.eclipse.lsp4j.TextDocumentEdit;
+import org.eclipse.lsp4j.WorkspaceClientCapabilities;
+import org.eclipse.lsp4j.WorkspaceEditCapabilities;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
@@ -1321,6 +1323,38 @@ public class XMLAssert {
 		WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)));
 		codeAction.setEdit(workspaceEdit);
 		return codeAction;
+	}
+
+	/**
+	 * Creates {@link SharedSettings} with
+	 * {@code workspace.workspaceEdit.snippetEditSupport} enabled.
+	 *
+	 * @return the shared settings with snippet edit support.
+	 */
+	public static SharedSettings createSnippetEditSettings() {
+		SharedSettings settings = new SharedSettings();
+		WorkspaceClientCapabilities workspace = new WorkspaceClientCapabilities();
+		WorkspaceEditCapabilities workspaceEdit = new WorkspaceEditCapabilities();
+		workspaceEdit.setSnippetEditSupport(true);
+		workspace.setWorkspaceEdit(workspaceEdit);
+		settings.getWorkspaceSettings().setCapabilities(workspace);
+		return settings;
+	}
+
+	/**
+	 * Creates {@link SharedSettings} with
+	 * {@code workspace.workspaceEdit.snippetEditSupport} enabled and custom
+	 * formatting settings.
+	 *
+	 * @param tabSize      the tab size.
+	 * @param insertSpaces true to use spaces, false to use tabs.
+	 * @return the shared settings with snippet edit support.
+	 */
+	public static SharedSettings createSnippetEditSettings(int tabSize, boolean insertSpaces) {
+		SharedSettings settings = createSnippetEditSettings();
+		settings.getFormattingSettings().setTabSize(tabSize);
+		settings.getFormattingSettings().setInsertSpaces(insertSpaces);
+		return settings;
 	}
 
 	public static TextEdit te(int startLine, int startCharacter, int endLine, int endCharacter, String newText) {

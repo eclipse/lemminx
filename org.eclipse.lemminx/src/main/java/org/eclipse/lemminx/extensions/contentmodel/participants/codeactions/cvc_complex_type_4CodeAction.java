@@ -71,17 +71,17 @@ public class cvc_complex_type_4CodeAction implements ICodeActionParticipant {
 							.filter(cmAttr -> !element.hasAttribute(cmAttr.getLocalName())) //
 							.collect(Collectors.toList());
 
-					// CodeAction doesn't support snippet ->
-					// https://github.com/Microsoft/language-server-protocol/issues/592
-					boolean supportSnippet = false;
-					XMLElementGenerator generator = new XMLElementGenerator(sharedSettings, "", "", supportSnippet, 0);
+					boolean snippetSupport = request.getSharedSettings().getWorkspaceSettings()
+							.isSnippetEditSupported();
+					XMLElementGenerator generator = new XMLElementGenerator(sharedSettings, "", "", snippetSupport, 0);
 					String xmlAttributes = generator.generate(requiredAttributes, element.getTagName());
 
 					// Insert after the last existing attribute (if any),
 					// otherwise after the tag name.
 					Position insertPosition = getInsertAttrPosition(element, document, diagnosticRange);
 					CodeAction insertRequiredAttributesAction = CodeActionFactory.insert("Insert required attributes",
-							insertPosition, xmlAttributes, document.getTextDocument(), diagnostic);
+							insertPosition, xmlAttributes, document.getTextDocument(), diagnostic,
+							snippetSupport);
 					codeActions.add(insertRequiredAttributesAction);
 				}
 			}
