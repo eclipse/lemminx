@@ -309,6 +309,8 @@ public enum XMLSchemaErrorCode implements IXMLErrorCode {
 		codeActions.put(cvc_complex_type_2_4_a.getCode(), new cvc_complex_type_2_4_aCodeAction());
 		codeActions.put(cvc_complex_type_2_4_b.getCode(), new cvc_complex_type_2_4_bCodeAction());
 		codeActions.put(cvc_complex_type_2_4_c.getCode(), new cvc_complex_type_2_4_aCodeAction());
+		codeActions.put(cvc_complex_type_2_4_d.getCode(), new cvc_complex_type_2_4_aCodeAction());
+		codeActions.put(cvc_complex_type_2_4_f.getCode(), new cvc_complex_type_2_4_aCodeAction());
 		codeActions.put(cvc_complex_type_2_3.getCode(), new cvc_complex_type_2_3CodeAction());
 		codeActions.put(cvc_complex_type_4.getCode(), new cvc_complex_type_4CodeAction());
 		codeActions.put(cvc_elt_1_a.getCode(), new cvc_elt_1_aCodeAction());

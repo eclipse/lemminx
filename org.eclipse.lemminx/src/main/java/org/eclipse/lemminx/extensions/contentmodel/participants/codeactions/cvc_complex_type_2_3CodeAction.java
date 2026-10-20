@@ -33,10 +33,12 @@ public class cvc_complex_type_2_3CodeAction implements ICodeActionParticipant {
 	public void doCodeAction(ICodeActionRequest request, List<CodeAction> codeActions, CancelChecker cancelChecker) {
 		Diagnostic diagnostic = request.getDiagnostic();
 		DOMDocument document = request.getDocument();
-		// Remove content
 		Range diagnosticRange = diagnostic.getRange();
-		CodeAction removeContentAction = CodeActionFactory.remove("Remove content", diagnosticRange,
-				document.getTextDocument(), diagnostic);
+		boolean snippetSupport = request.getSharedSettings().getWorkspaceSettings()
+				.isSnippetEditSupported();
+		CodeAction removeContentAction = CodeActionFactory.replace("Remove content",
+				diagnosticRange, snippetSupport ? "$0" : "", document.getTextDocument(), diagnostic,
+				snippetSupport);
 		codeActions.add(removeContentAction);
 	}
 

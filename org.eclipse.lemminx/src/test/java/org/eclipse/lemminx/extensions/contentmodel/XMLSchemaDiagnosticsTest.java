@@ -82,7 +82,11 @@ public class XMLSchemaDiagnosticsTest extends AbstractCacheBasedTest {
 		Diagnostic d = d(3, 2, 3, 15, XMLSchemaErrorCode.cvc_complex_type_2_3,
 				"Element \'bean\' cannot contain text content.\nThe content type is defined as element-only.\n\nCode:");
 		testDiagnosticsWithCatalogFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, ca(d, te(3, 2, 3, 15, "")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(3, 2, 3, 15, "$0")));
 	}
 
 	@Test
@@ -191,7 +195,9 @@ public class XMLSchemaDiagnosticsTest extends AbstractCacheBasedTest {
 				"		</description>\r\n" + //
 				"	</bean>\r\n" + //
 				"</beans>";
-		testDiagnosticsWithCatalogFor(xml, d(4, 4, 4, 8, XMLSchemaErrorCode.cvc_complex_type_2_4_d));
+		Diagnostic d = d(4, 4, 4, 8, XMLSchemaErrorCode.cvc_complex_type_2_4_d);
+		testDiagnosticsWithCatalogFor(xml, d);
+		testCodeActionsWithCatalogFor(xml, d);
 	}
 
 	@Test
@@ -205,7 +211,9 @@ public class XMLSchemaDiagnosticsTest extends AbstractCacheBasedTest {
 				"  <optional></optional>\r\n" + //
 				"  <optional></optional>\r\n" + //
 				"</root>";
-		testDiagnosticsFor(xml, d(7, 3, 7, 11, XMLSchemaErrorCode.cvc_complex_type_2_4_f));
+		Diagnostic d = d(7, 3, 7, 11, XMLSchemaErrorCode.cvc_complex_type_2_4_f);
+		testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d);
 	}
 
 	@Test
@@ -217,7 +225,11 @@ public class XMLSchemaDiagnosticsTest extends AbstractCacheBasedTest {
 				"<modelVersion XXXX=\"\" ></modelVersion>" + "</project>";
 		Diagnostic d = d(3, 14, 3, 21, XMLSchemaErrorCode.cvc_type_3_1_1);
 		testDiagnosticsWithCatalogFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, ca(d, te(3, 14, 3, 21, "")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(3, 14, 3, 21, "$0")));
 	}
 
 	@Test
@@ -230,7 +242,11 @@ public class XMLSchemaDiagnosticsTest extends AbstractCacheBasedTest {
 				"</beans>";
 		Diagnostic d = d(2, 7, 2, 11, XMLSchemaErrorCode.cvc_complex_type_3_2_2);
 		testDiagnosticsWithCatalogFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, ca(d, te(2, 7, 2, 14, "")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(2, 7, 2, 14, "$0")));
 	}
 
 	@Test
@@ -526,8 +542,14 @@ public class XMLSchemaDiagnosticsTest extends AbstractCacheBasedTest {
 				"</team>";
 		Diagnostic d = d(10, 10, 10, 15, XMLSchemaErrorCode.cvc_enumeration_valid);
 		testDiagnosticsFor(xml, d, d(10, 10, 10, 15, XMLSchemaErrorCode.cvc_type_3_1_3));
+		// Without snippet support
 		testCodeActionsFor(xml, d, ca(d, te(10, 10, 10, 15, "Java")), ca(d, te(10, 10, 10, 15, "Node")),
 				ca(d, te(10, 10, 10, 15, "XML")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(10, 10, 10, 15, "Java$0")),
+				caSnippet(d, sne(10, 10, 10, 15, "Node$0")),
+				caSnippet(d, sne(10, 10, 10, 15, "XML$0")));
 	}
 
 	@Test
@@ -671,7 +693,11 @@ public class XMLSchemaDiagnosticsTest extends AbstractCacheBasedTest {
 				"</beans>";
 		Diagnostic d = d(5, 26, 5, 30, XMLSchemaErrorCode.cvc_complex_type_2_1);
 		testDiagnosticsWithCatalogFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, ca(d, te(5, 25, 5, 38, "/>")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(5, 25, 5, 38, "/>$0")));
 	}
 
 	@Test
@@ -680,7 +706,11 @@ public class XMLSchemaDiagnosticsTest extends AbstractCacheBasedTest {
 
 		Diagnostic d = d(0, 143, 0, 144, XMLSchemaErrorCode.cvc_complex_type_2_1);
 		testDiagnosticsFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, ca(d, te(0, 142, 0, 152, "/>")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(0, 142, 0, 152, "/>$0")));
 	}
 
 	@Test
@@ -695,7 +725,11 @@ public class XMLSchemaDiagnosticsTest extends AbstractCacheBasedTest {
 				"</beans>";
 		Diagnostic d = d(5, 26, 7, 0, XMLSchemaErrorCode.cvc_complex_type_2_1);
 		testDiagnosticsWithCatalogFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, ca(d, te(5, 25, 7, 8, "/>")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(5, 25, 7, 8, "/>$0")));
 	}
 
 	@Test
@@ -1057,7 +1091,13 @@ public class XMLSchemaDiagnosticsTest extends AbstractCacheBasedTest {
 				"TargetNamespace.1: Expecting namespace 'BAD_NS', but the target namespace of the schema document is 'http://two-letter-name'.");
 		testDiagnosticsWithCatalogFor(xml, targetNamespace, d(2, 1, 2, 16, XMLSchemaErrorCode.cvc_elt_1_a,
 				"cvc-elt.1.a: Cannot find the declaration of element 'two-letter-name'."));
+		// Without snippet support
 		testCodeActionsFor(xml, targetNamespace, ca(targetNamespace, te(2, 23, 2, 31, "\"http://two-letter-name\"")));
+		// With snippet support
+		Diagnostic targetNamespace2 = d(2, 23, 2, 31, XMLSchemaErrorCode.TargetNamespace_1,
+				"TargetNamespace.1: Expecting namespace 'BAD_NS', but the target namespace of the schema document is 'http://two-letter-name'.");
+		testCodeActionsFor(xml, targetNamespace2, createSnippetEditSettings(),
+				caSnippet(targetNamespace2, sne(2, 23, 2, 31, "\"http://two-letter-name\"$0")));
 	}
 
 	@Test
@@ -1069,7 +1109,13 @@ public class XMLSchemaDiagnosticsTest extends AbstractCacheBasedTest {
 				"TargetNamespace.1: Expecting namespace '_', but the target namespace of the schema document is 'http://two-letter-name'.");
 		testDiagnosticsWithCatalogFor(xml, targetNamespace, d(2, 1, 2, 16, XMLSchemaErrorCode.cvc_elt_1_a,
 				"cvc-elt.1.a: Cannot find the declaration of element 'two-letter-name'."));
+		// Without snippet support
 		testCodeActionsFor(xml, targetNamespace, ca(targetNamespace, te(2, 23, 2, 26, "\"http://two-letter-name\"")));
+		// With snippet support
+		Diagnostic targetNamespace2 = d(2, 23, 2, 26, XMLSchemaErrorCode.TargetNamespace_1,
+				"TargetNamespace.1: Expecting namespace '_', but the target namespace of the schema document is 'http://two-letter-name'.");
+		testCodeActionsFor(xml, targetNamespace2, createSnippetEditSettings(),
+				caSnippet(targetNamespace2, sne(2, 23, 2, 26, "\"http://two-letter-name\"$0")));
 	}
 
 	@Test
@@ -1082,8 +1128,19 @@ public class XMLSchemaDiagnosticsTest extends AbstractCacheBasedTest {
 		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
 		Diagnostic targetNamespace = d(2, 23, 2, 26, XMLSchemaErrorCode.TargetNamespace_1,
 				"TargetNamespace.1: Expecting namespace '_', but the target namespace of the schema document is 'http://two-letter-name'.");
+		// Without snippet support
 		testCodeActionsFor(xml, targetNamespace, settings,
 				ca(targetNamespace, te(2, 23, 2, 26, "'http://two-letter-name'")));
+		// With snippet support
+		Diagnostic targetNamespace2 = d(2, 23, 2, 26, XMLSchemaErrorCode.TargetNamespace_1,
+				"TargetNamespace.1: Expecting namespace '_', but the target namespace of the schema document is 'http://two-letter-name'.");
+		WorkspaceClientCapabilities workspace = new WorkspaceClientCapabilities();
+		WorkspaceEditCapabilities workspaceEdit = new WorkspaceEditCapabilities();
+		workspaceEdit.setSnippetEditSupport(true);
+		workspace.setWorkspaceEdit(workspaceEdit);
+		settings.getWorkspaceSettings().setCapabilities(workspace);
+		testCodeActionsFor(xml, targetNamespace2, settings,
+				caSnippet(targetNamespace2, sne(2, 23, 2, 26, "'http://two-letter-name'$0")));
 	}
 
 	@Test

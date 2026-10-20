@@ -48,13 +48,16 @@ public class TargetNamespace_1CodeAction implements ICodeActionParticipant {
 		}
 		SharedSettings sharedSettings = request.getSharedSettings();
 		String quote = sharedSettings.getPreferences().getQuotationAsString();
+		boolean snippetSupport = sharedSettings.getWorkspaceSettings().isSnippetEditSupported();
+		String replaceText = quote + namespace + quote;
 		// @formatter:off
 		CodeAction replaceNamespace = CodeActionFactory.replace(
 				"Replace with '" + namespace + "'",
 				diagnostic.getRange(),
-				quote + namespace + quote,
+				snippetSupport ? CodeActionFactory.escapeSnippetText(replaceText) + "$0" : replaceText,
 				document.getTextDocument(),
-				diagnostic);
+				diagnostic,
+				snippetSupport);
 		// @formatter:on
 		codeActions.add(replaceNamespace);
 	}

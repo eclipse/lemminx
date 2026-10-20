@@ -1,0 +1,3 @@
+<!ELEMENT foo (bar)>
+<!ELEMENT bar (#PCDATA)>
+<!ATTLIST bar status CDATA #FIXED "active">

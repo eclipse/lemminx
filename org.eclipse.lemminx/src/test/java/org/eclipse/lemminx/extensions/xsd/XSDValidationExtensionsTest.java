@@ -227,7 +227,11 @@ public class XSDValidationExtensionsTest extends AbstractCacheBasedTest {
 				"</xs:schema>";
 		Diagnostic d = d(2, 2, 2, 11, XSDErrorCode.s4s_elt_invalid_content_3);
 		testDiagnosticsFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, ca(d, te(2, 1, 2, 24, "")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(2, 1, 2, 24, "$0")));
 	}
 
 	@Test
@@ -238,7 +242,11 @@ public class XSDValidationExtensionsTest extends AbstractCacheBasedTest {
 				"</xs:schema>";
 		Diagnostic d = d(2, 2, 2, 11, XSDErrorCode.s4s_elt_invalid_content_3);
 		testDiagnosticsFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, ca(d, te(2, 1, 2, 13, "")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(2, 1, 2, 13, "$0")));
 	}
 
 	@Test
@@ -251,14 +259,26 @@ public class XSDValidationExtensionsTest extends AbstractCacheBasedTest {
 				"</xs:schema>";
 		Diagnostic d = d(2, 9, 2, 19, XSDErrorCode.src_annotation);
 		testDiagnosticsFor(xml, d);
-		testCodeActionsFor(xml, d, 
-			ca(d, 
+		// Without snippet support
+		testCodeActionsFor(xml, d,
+			ca(d,
 				te(2, 9, 2, 19, "xs:appinfo"),
-				te(3, 10, 3, 20,"xs:appinfo") 
+				te(3, 10, 3, 20,"xs:appinfo")
 			),
-			ca(d, 
+			ca(d,
 				te(2, 9, 2, 19, "xs:documentation"),
-				te(3, 10, 3, 20,"xs:documentation") 
+				te(3, 10, 3, 20,"xs:documentation")
+			)
+		);
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+			caSnippet(d,
+				sne(2, 9, 2, 19, "xs:appinfo$0"),
+				sne(3, 10, 3, 20, "xs:appinfo$0")
+			),
+			caSnippet(d,
+				sne(2, 9, 2, 19, "xs:documentation$0"),
+				sne(3, 10, 3, 20, "xs:documentation$0")
 			)
 		);
 	}

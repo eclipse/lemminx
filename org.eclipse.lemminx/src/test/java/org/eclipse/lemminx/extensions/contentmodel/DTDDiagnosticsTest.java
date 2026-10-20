@@ -513,6 +513,101 @@ public class DTDDiagnosticsTest extends AbstractCacheBasedTest {
 	}
 
 	@Test
+	public void MSG_ATTRIBUTE_NOT_DECLARED_codeAction() throws Exception {
+		String xml = "<?xml version=\"1.0\"?>" + lineSeparator() + //
+				"<!DOCTYPE note [" + lineSeparator() + //
+				"<!ELEMENT note (to,from,heading,body)>" + lineSeparator() + //
+				"<!ELEMENT to (#PCDATA)>" + lineSeparator() + //
+				"<!ELEMENT from (#PCDATA)>" + lineSeparator() + //
+				"<!ELEMENT heading (#PCDATA)>" + lineSeparator() + //
+				"<!ELEMENT body (#PCDATA)>" + lineSeparator() + //
+				"]>" + lineSeparator() + //
+				"<note>" + lineSeparator() + //
+				"    <to></to>" + lineSeparator() + //
+				"    <from XXXX=\"\">Jani</from>" + lineSeparator() + //
+				"    <heading>Reminder</heading>" + lineSeparator() + //
+				"    <body>Don't forget me this weekend</body>" + lineSeparator() + //
+				"</note>";
+		Diagnostic d = d(10, 10, 14, DTDErrorCode.MSG_ATTRIBUTE_NOT_DECLARED);
+		XMLAssert.testDiagnosticsFor(xml, d);
+		// Without snippet support
+		testCodeActionsFor(xml, d,
+				ca(d, te(10, 10, 10, 17, "")));
+		// With snippet support
+		testCodeActionsFor(xml, d, XMLAssert.createSnippetEditSettings(),
+				caSnippet(d, sne(10, 10, 10, 17, "$0")));
+	}
+
+	@Test
+	public void MSG_ELEMENT_NOT_DECLARED_codeAction() throws Exception {
+		String xml = "<?xml version=\"1.0\"?>" + lineSeparator() + //
+				"<!DOCTYPE note SYSTEM \"src/test/resources/dtd/note.dtd\">" + lineSeparator() + //
+				"<note>" + lineSeparator() + //
+				"    <too>Tove</too>" + lineSeparator() + //
+				"    <from>Jani</from>" + lineSeparator() + //
+				"    <body>Don't forget me this weekend</body>" + lineSeparator() + //
+				"</note>";
+		Diagnostic d = d(3, 5, 8, DTDErrorCode.MSG_ELEMENT_NOT_DECLARED);
+		XMLAssert.testDiagnosticsFor(xml, d, d(2, 1, 5, DTDErrorCode.MSG_CONTENT_INVALID));
+		// Without snippet support
+		testCodeActionsFor(xml, d,
+				ca(d, te(3, 5, 3, 8, "to"), te(3, 15, 3, 18, "to")));
+		// With snippet support
+		testCodeActionsFor(xml, d, XMLAssert.createSnippetEditSettings(),
+				caSnippet(d, sne(3, 5, 3, 8, "to$0"), sne(3, 15, 3, 18, "to$0")));
+	}
+
+	@Test
+	public void MSG_ATTRIBUTE_VALUE_NOT_IN_LIST_codeAction() throws Exception {
+		String xml = "<?xml version=\"1.0\"?>" + lineSeparator() + //
+				"<!DOCTYPE foo SYSTEM \"src/test/resources/dtd/foo-enum.dtd\">" + lineSeparator() + //
+				"<foo>" + lineSeparator() + //
+				"    <bar fruit=\"onne\">toto</bar>" + lineSeparator() + //
+				"</foo>";
+		Diagnostic d = d(3, 15, 21, DTDErrorCode.MSG_ATTRIBUTE_VALUE_NOT_IN_LIST);
+		XMLAssert.testDiagnosticsFor(xml, d);
+		// Without snippet support
+		testCodeActionsFor(xml, d,
+				ca(d, te(3, 16, 3, 20, "one")));
+		// With snippet support
+		testCodeActionsFor(xml, d, XMLAssert.createSnippetEditSettings(),
+				caSnippet(d, sne(3, 16, 3, 20, "one$0")));
+	}
+
+	@Test
+	public void MSG_ATTRIBUTE_VALUE_NOT_IN_LIST_codeAction_noSimilar() throws Exception {
+		String xml = "<?xml version=\"1.0\"?>" + lineSeparator() + //
+				"<!DOCTYPE foo SYSTEM \"src/test/resources/dtd/foo-enum.dtd\">" + lineSeparator() + //
+				"<foo>" + lineSeparator() + //
+				"    <bar fruit=\"xxxx\">toto</bar>" + lineSeparator() + //
+				"</foo>";
+		Diagnostic d = d(3, 15, 21, DTDErrorCode.MSG_ATTRIBUTE_VALUE_NOT_IN_LIST);
+		XMLAssert.testDiagnosticsFor(xml, d);
+		// Without snippet support
+		testCodeActionsFor(xml, d,
+				ca(d, te(3, 16, 3, 20, "one")),
+				ca(d, te(3, 16, 3, 20, "three")),
+				ca(d, te(3, 16, 3, 20, "two")));
+		// With snippet support
+		testCodeActionsFor(xml, d, XMLAssert.createSnippetEditSettings(),
+				caSnippet(d, sne(3, 16, 3, 20, "one$0")),
+				caSnippet(d, sne(3, 16, 3, 20, "three$0")),
+				caSnippet(d, sne(3, 16, 3, 20, "two$0")));
+	}
+
+	@Test
+	public void MSG_FIXED_ATTVALUE_INVALID_codeAction() throws Exception {
+		String xml = "<?xml version=\"1.0\"?>" + lineSeparator() + //
+				"<!DOCTYPE foo SYSTEM \"src/test/resources/dtd/foo-fixed.dtd\">" + lineSeparator() + //
+				"<foo>" + lineSeparator() + //
+				"    <bar status=\"wrong\">text</bar>" + lineSeparator() + //
+				"</foo>";
+		Diagnostic d = d(3, 16, 23, DTDErrorCode.MSG_FIXED_ATTVALUE_INVALID);
+		XMLAssert.testDiagnosticsFor(xml, d);
+		testCodeActionsFor(xml, d);
+	}
+
+	@Test
 	public void diagnosticRelatedInformationWithDOCTYPE() throws Exception {
 		ContentModelSettings settings = new ContentModelSettings();
 		settings.setUseCache(true);

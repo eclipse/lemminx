@@ -159,8 +159,12 @@ public class XMLSyntaxDiagnosticsTest extends AbstractCacheBasedTest {
 				"        </Id>";
 		Diagnostic d = d(1, 11, 1, 16, XMLSyntaxErrorCode.ElementUnterminated);
 		testDiagnosticsFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, //
 				ca(d, te(1, 16, 1, 16, ">")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(1, 16, 1, 16, ">$0")));
 	}
 
 	@Test
@@ -170,8 +174,12 @@ public class XMLSyntaxDiagnosticsTest extends AbstractCacheBasedTest {
 				"</foo>";
 		Diagnostic d = d(1, 3, 1, 15, XMLSyntaxErrorCode.ElementUnterminated);
 		testDiagnosticsFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, //
 				ca(d, te(1, 15, 1, 15, ">")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(1, 15, 1, 15, ">$0")));
 	}
 
 	@Test
@@ -181,8 +189,12 @@ public class XMLSyntaxDiagnosticsTest extends AbstractCacheBasedTest {
 				"</foo>";
 		Diagnostic d = d(1, 3, 1, 15, XMLSyntaxErrorCode.ElementUnterminated);
 		testDiagnosticsFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, //
 				ca(d, te(1, 15, 1, 15, ">")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(1, 15, 1, 15, ">$0")));
 	}
 
 	@Test
@@ -192,9 +204,14 @@ public class XMLSyntaxDiagnosticsTest extends AbstractCacheBasedTest {
 				"</foo>";
 		Diagnostic d = d(1, 3, 1, 13, XMLSyntaxErrorCode.ElementUnterminated);
 		testDiagnosticsFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, //
 				ca(d, te(1, 13, 1, 13, "/>")), //
 				ca(d, te(1, 13, 1, 13, "></bar>")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(1, 13, 1, 13, "/>$0")), //
+				caSnippet(d, sne(1, 13, 1, 13, "></bar>$0")));
 	}
 
 	@Test
@@ -204,7 +221,11 @@ public class XMLSyntaxDiagnosticsTest extends AbstractCacheBasedTest {
 				"</foo>";
 		Diagnostic d = d(1, 3, 1, 24, XMLSyntaxErrorCode.ElementUnterminated);
 		testDiagnosticsFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, ca(d, te(1, 24, 1, 24, ">")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(1, 24, 1, 24, ">$0")));
 	}
 
 	@Test
@@ -214,9 +235,14 @@ public class XMLSyntaxDiagnosticsTest extends AbstractCacheBasedTest {
 				"</foo>";
 		Diagnostic d = d(1, 3, 1, 13, XMLSyntaxErrorCode.ElementUnterminated);
 		testDiagnosticsFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, //
 				ca(d, te(1, 13, 1, 13, "/>")), //
 				ca(d, te(1, 13, 1, 13, "></bar>")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(1, 13, 1, 13, "/>$0")), //
+				caSnippet(d, sne(1, 13, 1, 13, "></bar>$0")));
 	}
 
 	/**
@@ -284,7 +310,11 @@ public class XMLSyntaxDiagnosticsTest extends AbstractCacheBasedTest {
 				"			</Nm>  ";
 		Diagnostic d = d(1, 5, 1, 7, XMLSyntaxErrorCode.ETagRequired);
 		testDiagnosticsFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, ca(d, te(1, 12, 1, 12, "</Nm>")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(1, 12, 1, 12, "</Nm>$0")));
 	}
 
 	@Test
@@ -304,7 +334,11 @@ public class XMLSyntaxDiagnosticsTest extends AbstractCacheBasedTest {
 				"</UltmtDbtr>";
 		Diagnostic d = d(3, 5, 3, 7, XMLSyntaxErrorCode.ETagRequired);
 		testDiagnosticsFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, ca(d, te(3, 8, 3, 8, "</Ph>")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(3, 8, 3, 8, "</Ph>$0")));
 	}
 
 	@Test
@@ -314,8 +348,13 @@ public class XMLSyntaxDiagnosticsTest extends AbstractCacheBasedTest {
 				"		</c>";
 		Diagnostic d = d(1, 2, 1, 3, XMLSyntaxErrorCode.ETagRequired);
 		testDiagnosticsFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, //
 				ca(d, te(2, 4, 2, 5, "b")), ca(d, te(2, 6, 2, 6, "\r\n	</b>")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(2, 4, 2, 5, "b$0")),
+				caSnippet(d, sne(2, 6, 2, 6, "\r\n\t</b>$0")));
 	}
 
 	@Test
@@ -325,7 +364,11 @@ public class XMLSyntaxDiagnosticsTest extends AbstractCacheBasedTest {
 				"</root>";
 		Diagnostic d = d(1, 1, 1, 4, XMLSyntaxErrorCode.ETagRequired);
 		testDiagnosticsFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, ca(d, te(1, 8, 1, 8, "</ABC>")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(1, 8, 1, 8, "</ABC>$0")));
 	}
 
 	@Test
@@ -336,7 +379,11 @@ public class XMLSyntaxDiagnosticsTest extends AbstractCacheBasedTest {
 				"</root>";
 		Diagnostic d = d(1, 2, 1, 5, XMLSyntaxErrorCode.ETagRequired);
 		testDiagnosticsFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, ca(d, te(2, 4, 2, 4, "foo>")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(2, 4, 2, 4, "foo>$0")));
 	}
 
 	@Test
@@ -348,7 +395,11 @@ public class XMLSyntaxDiagnosticsTest extends AbstractCacheBasedTest {
 				"</root>";
 		Diagnostic d = d(1, 2, 1, 5, XMLSyntaxErrorCode.ETagRequired);
 		testDiagnosticsFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, ca(d, te(2, 2, 2, 4, "")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(2, 2, 2, 4, "$0")));
 	}
 
 	@Test
@@ -360,7 +411,11 @@ public class XMLSyntaxDiagnosticsTest extends AbstractCacheBasedTest {
 				"</root>";
 		Diagnostic d = d(1, 2, 1, 5, XMLSyntaxErrorCode.ETagRequired);
 		testDiagnosticsFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, ca(d, te(2, 2, 2, 8, "")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(2, 2, 2, 8, "$0")));
 	}
 
 	/**
@@ -375,7 +430,11 @@ public class XMLSyntaxDiagnosticsTest extends AbstractCacheBasedTest {
 				"  <CreDtTm>2009-09-28T14:07:00</CreDtTm>";
 		Diagnostic d = d(0, 26, 0, 31, XMLSyntaxErrorCode.ETagUnterminated);
 		testDiagnosticsFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, ca(d, te(0, 31, 0, 31, ">")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(0, 31, 0, 31, ">$0")));
 	}
 
 	/**
@@ -393,7 +452,11 @@ public class XMLSyntaxDiagnosticsTest extends AbstractCacheBasedTest {
 				"</a>";
 		Diagnostic d = d(3, 4, 3, 5, XMLSyntaxErrorCode.ETagUnterminated);
 		testDiagnosticsFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, ca(d, te(3, 5, 3, 5, ">")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(3, 5, 3, 5, ">$0")));
 	}
 
 	/**
@@ -458,7 +521,11 @@ public class XMLSyntaxDiagnosticsTest extends AbstractCacheBasedTest {
 				"</CstmrCdtTrfInitn>";
 		Diagnostic d = d(1, 1, 1, 9, XMLSyntaxErrorCode.MarkupEntityMismatch);
 		testDiagnosticsFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, ca(d, te(3, 19, 3, 19, "\r\n</Document>")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(3, 19, 3, 19, "\r\n</Document>$0")));
 	}
 
 	@Test
@@ -466,7 +533,11 @@ public class XMLSyntaxDiagnosticsTest extends AbstractCacheBasedTest {
 		String xml = "<ABC>";
 		Diagnostic d = d(0, 1, 0, 4, XMLSyntaxErrorCode.MarkupEntityMismatch);
 		testDiagnosticsFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, ca(d, te(0, 5, 0, 5, "</ABC>")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(0, 5, 0, 5, "</ABC>$0")));
 	}
 
 	@Test
@@ -489,9 +560,14 @@ public class XMLSyntaxDiagnosticsTest extends AbstractCacheBasedTest {
 		String xml = "<ABC";
 		Diagnostic d = d(0, 1, 0, 4, XMLSyntaxErrorCode.MarkupEntityMismatch);
 		testDiagnosticsFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, //
 				ca(d, te(0, 4, 0, 4, "/>")), //
 				ca(d, te(0, 4, 0, 4, "></ABC>")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(0, 4, 0, 4, "/>$0")), //
+				caSnippet(d, sne(0, 4, 0, 4, "></ABC>$0")));
 	}
 
 	@Test
@@ -499,9 +575,14 @@ public class XMLSyntaxDiagnosticsTest extends AbstractCacheBasedTest {
 		String xml = "<ABC\r\n";
 		Diagnostic d = d(0, 1, 0, 4, XMLSyntaxErrorCode.MarkupEntityMismatch);
 		testDiagnosticsFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, //
 				ca(d, te(0, 4, 0, 4, "/>")), //
 				ca(d, te(0, 4, 0, 4, "></ABC>")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(0, 4, 0, 4, "/>$0")), //
+				caSnippet(d, sne(0, 4, 0, 4, "></ABC>$0")));
 	}
 
 	@Test
@@ -509,9 +590,14 @@ public class XMLSyntaxDiagnosticsTest extends AbstractCacheBasedTest {
 		String xml = "<ABC    ";
 		Diagnostic d = d(0, 1, 0, 4, XMLSyntaxErrorCode.MarkupEntityMismatch);
 		testDiagnosticsFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, //
 				ca(d, te(0, 4, 0, 4, "/>")), //
 				ca(d, te(0, 4, 0, 4, "></ABC>")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(0, 4, 0, 4, "/>$0")), //
+				caSnippet(d, sne(0, 4, 0, 4, "></ABC>$0")));
 	}
 
 	@Test
@@ -519,9 +605,14 @@ public class XMLSyntaxDiagnosticsTest extends AbstractCacheBasedTest {
 		String xml = "<ABC a=''   ";
 		Diagnostic d = d(0, 1, 0, 4, XMLSyntaxErrorCode.MarkupEntityMismatch);
 		testDiagnosticsFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, //
 				ca(d, te(0, 9, 0, 9, "/>")), //
 				ca(d, te(0, 9, 0, 9, "></ABC>")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(0, 9, 0, 9, "/>$0")), //
+				caSnippet(d, sne(0, 9, 0, 9, "></ABC>$0")));
 	}
 
 	@Test
@@ -529,8 +620,12 @@ public class XMLSyntaxDiagnosticsTest extends AbstractCacheBasedTest {
 		String xml = "<ABC a='' /  ";
 		Diagnostic d = d(0, 1, 0, 11, XMLSyntaxErrorCode.ElementUnterminated);
 		testDiagnosticsFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, //
 				ca(d, te(0, 11, 0, 11, ">")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(0, 11, 0, 11, ">$0")));
 	}
 
 	@Test
@@ -538,7 +633,11 @@ public class XMLSyntaxDiagnosticsTest extends AbstractCacheBasedTest {
 		String xml = "<ABC>def";
 		Diagnostic d = d(0, 1, 0, 4, XMLSyntaxErrorCode.MarkupEntityMismatch);
 		testDiagnosticsFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, ca(d, te(0, 8, 0, 8, "</ABC>")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(0, 8, 0, 8, "</ABC>$0")));
 	}
 
 	@Test
@@ -546,7 +645,11 @@ public class XMLSyntaxDiagnosticsTest extends AbstractCacheBasedTest {
 		String xml = "<ABC>def\r\n";
 		Diagnostic d = d(0, 1, 0, 4, XMLSyntaxErrorCode.MarkupEntityMismatch);
 		testDiagnosticsFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, ca(d, te(0, 8, 0, 8, "</ABC>")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(0, 8, 0, 8, "</ABC>$0")));
 	}
 
 	@Test
@@ -555,8 +658,12 @@ public class XMLSyntaxDiagnosticsTest extends AbstractCacheBasedTest {
 				"		    /";
 		Diagnostic d = d(0, 1, 0, 4, XMLSyntaxErrorCode.MarkupEntityMismatch);
 		testDiagnosticsFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, ca(d, //
 				te(1, 7, 1, 7, ">")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(1, 7, 1, 7, ">$0")));
 	}
 
 	@Test
@@ -698,7 +805,12 @@ public class XMLSyntaxDiagnosticsTest extends AbstractCacheBasedTest {
 		String expectedMessage = "Document root element \"abcd\", must match DOCTYPE root \"efgh\".";
 		Diagnostic d = d(5, 1, 5, 5, XMLSyntaxErrorCode.RootElementTypeMustMatchDoctypedecl, expectedMessage);
 		testDiagnosticsFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, ca(d, te(5, 1, 5, 5, "efgh")));
+		// With snippet support
+		Diagnostic d2 = d(5, 1, 5, 5, XMLSyntaxErrorCode.RootElementTypeMustMatchDoctypedecl, expectedMessage);
+		testCodeActionsFor(xml, d2, createSnippetEditSettings(),
+				caSnippet(d2, sne(5, 1, 5, 5, "efgh$0")));
 	}
 
 	@Test
@@ -712,7 +824,12 @@ public class XMLSyntaxDiagnosticsTest extends AbstractCacheBasedTest {
 		String expectedMessage = "Document root element \"abcd\", must match DOCTYPE root \"efgh\".";
 		Diagnostic d = d(5, 1, 5, 5, XMLSyntaxErrorCode.RootElementTypeMustMatchDoctypedecl, expectedMessage);
 		testDiagnosticsFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, ca(d, te(5, 1, 5, 5, "efgh"), te(5, 12, 5, 16, "efgh")));
+		// With snippet support
+		Diagnostic d2 = d(5, 1, 5, 5, XMLSyntaxErrorCode.RootElementTypeMustMatchDoctypedecl, expectedMessage);
+		testCodeActionsFor(xml, d2, createSnippetEditSettings(),
+				caSnippet(d2, sne(5, 1, 5, 5, "efgh$0"), sne(5, 12, 5, 16, "efgh$0")));
 	}
 
 	@Test

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns="http://relaxng.org/ns/structure/1.0">
+  <start>
+    <ref name="root"/>
+  </start>
+  <define name="root">
+    <element name="root">
+      <zeroOrMore>
+        <element name="item">
+          <attribute name="status">
+            <choice>
+              <value>active</value>
+              <value>inactive</value>
+              <value>pending</value>
+            </choice>
+          </attribute>
+          <optional>
+            <attribute name="priority">
+              <choice>
+                <value>low</value>
+                <value>high</value>
+              </choice>
+            </attribute>
+          </optional>
+          <text/>
+        </element>
+      </zeroOrMore>
+    </element>
+  </define>
+</grammar>

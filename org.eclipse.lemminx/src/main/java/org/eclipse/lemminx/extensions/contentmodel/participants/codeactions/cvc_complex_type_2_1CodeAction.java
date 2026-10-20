@@ -51,8 +51,11 @@ public class cvc_complex_type_2_1CodeAction implements ICodeActionParticipant {
 				}
 				int endOffset = element.getEnd();
 				Range diagnosticRange = XMLPositionUtility.createRange(startOffset, endOffset, document);
+				boolean snippetSupport = request.getSharedSettings().getWorkspaceSettings()
+						.isSnippetEditSupported();
 				CodeAction removeContentAction = CodeActionFactory.replace("Set element as empty", diagnosticRange,
-						"/>", document.getTextDocument(), diagnostic);
+						snippetSupport ? "/>$0" : "/>", document.getTextDocument(), diagnostic,
+						snippetSupport);
 				codeActions.add(removeContentAction);
 			}
 

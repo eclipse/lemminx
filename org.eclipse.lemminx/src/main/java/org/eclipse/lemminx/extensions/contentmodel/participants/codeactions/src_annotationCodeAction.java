@@ -15,19 +15,18 @@ package org.eclipse.lemminx.extensions.contentmodel.participants.codeactions;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.lsp4j.CodeAction;
-import org.eclipse.lsp4j.Diagnostic;
-import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.TextEdit;
-import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.commons.CodeActionFactory;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
-import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionRequest;
+import org.eclipse.lemminx.utils.XMLPositionUtility;
+import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
  * Code action to fix invalid src-annotation elements
@@ -60,16 +59,17 @@ public class src_annotationCodeAction implements ICodeActionParticipant {
 			codeActionText = "Replace with ";
 		}
 
+		boolean snippetSupport = request.getSharedSettings().getWorkspaceSettings().isSnippetEditSupported();
 		for (String potentialTag : potentialTags) {
-			List<TextEdit> edits = new ArrayList<>();
-			TextEdit replaceOpen = new TextEdit(diagnosticRange, potentialTag);
-			edits.add(replaceOpen);
+			List<Range> ranges = new ArrayList<>();
+			ranges.add(diagnosticRange);
 			if (closeRange != null) {
-				TextEdit replaceClose = new TextEdit(closeRange, potentialTag);
-				edits.add(replaceClose);
+				ranges.add(closeRange);
 			}
-			CodeAction replaceAction = CodeActionFactory.replace(codeActionText + "'" + potentialTag + "'", edits,
-					document.getTextDocument(), diagnostic);
+			String replaceText = snippetSupport
+					? CodeActionFactory.escapeSnippetText(potentialTag) + "$0" : potentialTag;
+			CodeAction replaceAction = CodeActionFactory.replaceAt(codeActionText + "'" + potentialTag + "'",
+					replaceText, document.getTextDocument(), diagnostic, ranges, snippetSupport);
 			codeActions.add(replaceAction);
 		}
 	}

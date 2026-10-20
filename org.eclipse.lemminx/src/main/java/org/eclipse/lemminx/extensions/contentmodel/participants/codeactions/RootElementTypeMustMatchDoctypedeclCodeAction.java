@@ -24,7 +24,6 @@ import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
@@ -65,20 +64,17 @@ public class RootElementTypeMustMatchDoctypedeclCodeAction implements ICodeActio
 			return;
 		}
 
-		List<TextEdit> replace = new ArrayList<>();
-		addTextEdits(root, doctypeRootText, replace);
-
-		CodeAction action = CodeActionFactory.replace("Replace with '" + doctypeRootText + "'", replace,
-				document.getTextDocument(), diagnostic);
-		codeActions.add(action);
-	}
-
-	private void addTextEdits(DOMElement root, String newText, List<TextEdit> replace) {
-		replace.add(new TextEdit(XMLPositionUtility.selectStartTagName(root), newText));
-
+		boolean snippetSupport = request.getSharedSettings().getWorkspaceSettings().isSnippetEditSupported();
+		List<Range> ranges = new ArrayList<>();
+		ranges.add(XMLPositionUtility.selectStartTagName(root));
 		if (root.isClosed() && !root.isSelfClosed()) {
-			replace.add(new TextEdit(XMLPositionUtility.selectEndTagName(root), newText));
+			ranges.add(XMLPositionUtility.selectEndTagName(root));
 		}
+		String replaceText = snippetSupport
+				? CodeActionFactory.escapeSnippetText(doctypeRootText) + "$0" : doctypeRootText;
+		CodeAction action = CodeActionFactory.replaceAt("Replace with '" + doctypeRootText + "'",
+				replaceText, document.getTextDocument(), diagnostic, ranges, snippetSupport);
+		codeActions.add(action);
 	}
 
 	/**
