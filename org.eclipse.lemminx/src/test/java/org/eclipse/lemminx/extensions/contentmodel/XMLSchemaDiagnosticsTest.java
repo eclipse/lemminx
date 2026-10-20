@@ -14,10 +14,12 @@ package org.eclipse.lemminx.extensions.contentmodel;
 
 import static java.lang.System.lineSeparator;
 import static org.eclipse.lemminx.XMLAssert.ca;
+import static org.eclipse.lemminx.XMLAssert.caSnippet;
 import static org.eclipse.lemminx.XMLAssert.createFile;
 import static org.eclipse.lemminx.XMLAssert.d;
 import static org.eclipse.lemminx.XMLAssert.l;
 import static org.eclipse.lemminx.XMLAssert.r;
+import static org.eclipse.lemminx.XMLAssert.sne;
 import static org.eclipse.lemminx.XMLAssert.te;
 import static org.eclipse.lemminx.XMLAssert.teOp;
 import static org.eclipse.lemminx.XMLAssert.testCodeActionsFor;
@@ -45,6 +47,7 @@ import org.eclipse.lsp4j.DiagnosticRelatedInformation;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.PublishDiagnosticsCapabilities;
 import org.eclipse.lsp4j.ResourceOperationKind;
+import org.eclipse.lsp4j.SnippetTextEdit;
 import org.eclipse.lsp4j.WorkspaceClientCapabilities;
 import org.eclipse.lsp4j.WorkspaceEditCapabilities;
 import org.junit.jupiter.api.Test;
@@ -378,6 +381,69 @@ public class XMLSchemaDiagnosticsTest extends AbstractCacheBasedTest {
 						"\r\n" + //
 								"\t<episode></episode>\r\n" + //
 								"\t<episodeTime></episodeTime>\r\n")));
+	}
+
+	@Test
+	public void cvc_complex_type_2_4_bCodeAction_Only_Required_Optional_Choice() throws Exception {
+		String xml = "<servlet xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/servlet.xsd\">\r\n" + //
+				"</servlet>";
+		Diagnostic d = d(0, 1, 0, 8, XMLSchemaErrorCode.cvc_complex_type_2_4_b);
+		testDiagnosticsFor(xml, d);
+		// Without snippet support
+		testCodeActionsFor(xml, d, ca(d, te(1, 67, 2, 0, //
+				"\r\n" + //
+						"\t<servlet-name></servlet-name>\r\n" + //
+						"\t<servlet-class></servlet-class>\r\n" + //
+						"\t<load-on-startup></load-on-startup>\r\n")),
+				ca(d, te(1, 67, 2, 0, //
+						"\r\n" + //
+								"\t<servlet-name></servlet-name>\r\n")));
+		// With snippet support
+		// The load-on-startupType is a xs:union with null-charType which has an empty
+		// enumeration value. It should produce $N tabstop, not ${N||} (empty snippet
+		// choice).
+		testCodeActionsFor(xml, d, createSnippetEditSettings(), //
+				caSnippet(d, sne(1, 67, 2, 0, //
+						"\r\n" + //
+								"\t<servlet-name>$1</servlet-name>\r\n" + //
+								"\t<servlet-class>$2</servlet-class>\r\n" + //
+								"\t<load-on-startup>$3</load-on-startup>\r\n" + //
+								"$0")),
+				caSnippet(d, sne(1, 67, 2, 0, //
+						"\r\n" + //
+								"\t<servlet-name>$1</servlet-name>\r\n" + //
+								"$0")));
+	}
+
+	@Test
+	public void cvc_complex_type_2_4_bCodeAction_Only_Required_Required_Choice() throws Exception {
+		String xml = "<servlet xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"xsi:noNamespaceSchemaLocation=\"src/test/resources/xsd/servlet_required_choice.xsd\">\r\n" + //
+				"</servlet>";
+		Diagnostic d = d(0, 1, 0, 8, XMLSchemaErrorCode.cvc_complex_type_2_4_b);
+		testDiagnosticsFor(xml, d);
+		// Without snippet support
+		testCodeActionsFor(xml, d, ca(d, te(1, 83, 2, 0, //
+				"\r\n" + //
+						"\t<servlet-name></servlet-name>\r\n" + //
+						"\t<servlet-class></servlet-class>\r\n" + //
+						"\t<load-on-startup></load-on-startup>\r\n")),
+				ca(d, te(1, 83, 2, 0, //
+						"\r\n" + //
+								"\t<servlet-name></servlet-name>\r\n")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(), //
+				caSnippet(d, sne(1, 83, 2, 0, //
+						"\r\n" + //
+								"\t<servlet-name>$1</servlet-name>\r\n" + //
+								"\t<servlet-class>$2</servlet-class>\r\n" + //
+								"\t<load-on-startup>$3</load-on-startup>\r\n" + //
+								"$0")),
+				caSnippet(d, sne(1, 83, 2, 0, //
+						"\r\n" + //
+								"\t<servlet-name>$1</servlet-name>\r\n" + //
+								"$0")));
 	}
 
 	@Test
@@ -1600,5 +1666,24 @@ public class XMLSchemaDiagnosticsTest extends AbstractCacheBasedTest {
 		int index = grammarURI.lastIndexOf('.');
 		String path = grammarURI.substring(index + 1, grammarURI.length());
 		return XMLEntityManager.expandSystemId(grammarURI, "src/test/resources/" + path + "/test.xml", true);
+	}
+
+	/**
+	 * Creates {@link SharedSettings} with
+	 * {@code workspace.workspaceEdit.snippetEditSupport} enabled, so that code
+	 * action tests can verify {@link SnippetTextEdit} generation.
+	 *
+	 * @return shared settings with snippet edit support enabled.
+	 */
+	private static SharedSettings createSnippetEditSettings() {
+		SharedSettings settings = new SharedSettings();
+		settings.getFormattingSettings().setTabSize(4);
+		settings.getFormattingSettings().setInsertSpaces(false);
+		WorkspaceClientCapabilities workspace = new WorkspaceClientCapabilities();
+		WorkspaceEditCapabilities workspaceEdit = new WorkspaceEditCapabilities();
+		workspaceEdit.setSnippetEditSupport(true);
+		workspace.setWorkspaceEdit(workspaceEdit);
+		settings.getWorkspaceSettings().setCapabilities(workspace);
+		return settings;
 	}
 }

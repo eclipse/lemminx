@@ -108,6 +108,7 @@ import org.eclipse.lsp4j.InlineCompletionItem;
 import org.eclipse.lsp4j.InlineCompletionList;
 import org.eclipse.lsp4j.InlineCompletionTriggerKind;
 import org.eclipse.lsp4j.SnippetTextEdit;
+import org.eclipse.lsp4j.StringValue;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextEdit;
@@ -1253,6 +1254,73 @@ public class XMLAssert {
 				.map(Either::<TextEdit, SnippetTextEdit>forLeft)
 				.collect(Collectors.toList());
 		return new TextDocumentEdit(versionedTextDocumentIdentifier, edits);
+	}
+
+	/**
+	 * Creates a {@link SnippetTextEdit} with the given range and snippet text.
+	 *
+	 * <p>
+	 * Use this helper together with {@link #caSnippet(Diagnostic, SnippetTextEdit...)}
+	 * to test code actions that use LSP 3.18 SnippetTextEdit (e.g. cursor
+	 * positioning with tabstops {@code $1}, {@code $0}).
+	 * </p>
+	 *
+	 * @param startLine      the start line of the range.
+	 * @param startCharacter the start character of the range.
+	 * @param endLine        the end line of the range.
+	 * @param endCharacter   the end character of the range.
+	 * @param snippetText    the snippet text (may contain tabstops {@code $1},
+	 *                       placeholders {@code ${1:default}}, choices
+	 *                       {@code ${1|a,b|}}).
+	 * @return the snippet text edit.
+	 */
+	public static SnippetTextEdit sne(int startLine, int startCharacter, int endLine, int endCharacter,
+			String snippetText) {
+		Range range = r(startLine, startCharacter, endLine, endCharacter);
+		StringValue snippet = new StringValue("snippet", snippetText);
+		return new SnippetTextEdit(range, snippet);
+	}
+
+	/**
+	 * Creates an expected {@link CodeAction} with {@link SnippetTextEdit} edits.
+	 *
+	 * <p>
+	 * This is the snippet counterpart of
+	 * {@link #ca(Diagnostic, TextEdit...)}. Use it to assert code actions
+	 * when the LSP client supports
+	 * {@code workspace.workspaceEdit.snippetEditSupport}.
+	 * </p>
+	 *
+	 * @param d            the diagnostic associated with the code action.
+	 * @param snippetEdits the expected snippet text edits.
+	 * @return the expected code action.
+	 */
+	public static CodeAction caSnippet(Diagnostic d, SnippetTextEdit... snippetEdits) {
+		return caSnippet(d, FILE_URI, snippetEdits);
+	}
+
+	/**
+	 * Creates an expected {@link CodeAction} with {@link SnippetTextEdit} edits for
+	 * the given file URI.
+	 *
+	 * @param d            the diagnostic associated with the code action.
+	 * @param fileUri      the file URI.
+	 * @param snippetEdits the expected snippet text edits.
+	 * @return the expected code action.
+	 */
+	public static CodeAction caSnippet(Diagnostic d, String fileUri, SnippetTextEdit... snippetEdits) {
+		CodeAction codeAction = new CodeAction();
+		codeAction.setTitle("");
+		codeAction.setDiagnostics(Arrays.asList(d));
+		VersionedTextDocumentIdentifier versionedTextDocumentIdentifier = new VersionedTextDocumentIdentifier(fileUri,
+				0);
+		List<Either<TextEdit, SnippetTextEdit>> edits = Arrays.stream(snippetEdits)
+				.map(Either::<TextEdit, SnippetTextEdit>forRight)
+				.collect(Collectors.toList());
+		TextDocumentEdit textDocumentEdit = new TextDocumentEdit(versionedTextDocumentIdentifier, edits);
+		WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)));
+		codeAction.setEdit(workspaceEdit);
+		return codeAction;
 	}
 
 	public static TextEdit te(int startLine, int startCharacter, int endLine, int endCharacter, String newText) {

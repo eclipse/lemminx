@@ -59,7 +59,8 @@ public class CodeActionRequest extends BaseCodeActionRequest implements ICodeAct
 			generator = new XMLElementGenerator(getSharedSettings(),
 					getSharedSettings().getCompletionSettings().isAutoCloseTags(),
 					getLineIndentInfo().getWhitespacesIndent(), getLineIndentInfo().getLineDelimiter(),
-					false, Integer.MAX_VALUE, null);
+					getSharedSettings().getWorkspaceSettings().isSnippetEditSupported(),
+					Integer.MAX_VALUE, null);
 		}
 		return generator;
 	}

@@ -30,6 +30,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ResourceOperation;
 import org.eclipse.lsp4j.SnippetTextEdit;
+import org.eclipse.lsp4j.StringValue;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.TextEdit;
@@ -105,8 +106,7 @@ public class CodeActionFactory {
 
 	public static CodeAction replace(String title, Range range, String replaceText, TextDocumentItem document,
 			Diagnostic diagnostic) {
-		TextEdit replace = new TextEdit(range, replaceText);
-		return replace(title, Collections.singletonList(replace), document, diagnostic);
+		return replace(title, range, replaceText, document, diagnostic, false);
 	}
 
 	public static CodeAction replace(String title, List<TextEdit> replace, TextDocumentItem document,
@@ -127,19 +127,66 @@ public class CodeActionFactory {
 
 	/**
 	 * Returns the workspace edit of a given replacement text and range.
-	 * 
+	 *
 	 * @param replaceText the text to replace.
-	 * @param fileContent the range to replace the text over.
-	 * @param document
+	 * @param range       the range to replace the text over.
+	 * @param document    the text document.
 	 * @return the workspace edit of a given replacement text and range.
 	 */
 	public static WorkspaceEdit getReplaceWorkspaceEdit(String replaceText, Range range, TextDocumentItem document) {
-		TextEdit replace = new TextEdit(range, replaceText);
+		return getReplaceWorkspaceEdit(replaceText, range, document, false);
+	}
+
+	/**
+	 * Creates a {@link CodeAction} that replaces the given range with the given
+	 * text. When {@code snippetSupport} is true, the text is treated as a LSP 3.18
+	 * snippet (with tabstops {@code $1}, {@code $0}) and wrapped in a
+	 * {@link SnippetTextEdit}; otherwise a plain {@link TextEdit} is used.
+	 *
+	 * @param title          the code action title.
+	 * @param range          the range to replace.
+	 * @param replaceText    the replacement text (plain or snippet syntax).
+	 * @param document       the text document.
+	 * @param diagnostic     the diagnostic this code action fixes.
+	 * @param snippetSupport true if the client supports
+	 *                       {@code workspace.workspaceEdit.snippetEditSupport}.
+	 * @return the code action.
+	 */
+	public static CodeAction replace(String title, Range range, String replaceText, TextDocumentItem document,
+			Diagnostic diagnostic, boolean snippetSupport) {
+		CodeAction codeAction = new CodeAction(title);
+		codeAction.setKind(CodeActionKind.QuickFix);
+		codeAction.setDiagnostics(Arrays.asList(diagnostic));
+		codeAction.setEdit(getReplaceWorkspaceEdit(replaceText, range, document, snippetSupport));
+		return codeAction;
+	}
+
+	/**
+	 * Returns the workspace edit that replaces the given range with the given text.
+	 * When {@code snippetSupport} is true, the text is wrapped in a
+	 * {@link SnippetTextEdit}; otherwise a plain {@link TextEdit} is used.
+	 *
+	 * @param replaceText    the replacement text (plain or snippet syntax).
+	 * @param range          the range to replace.
+	 * @param document       the text document.
+	 * @param snippetSupport true if the client supports
+	 *                       {@code workspace.workspaceEdit.snippetEditSupport}.
+	 * @return the workspace edit.
+	 */
+	public static WorkspaceEdit getReplaceWorkspaceEdit(String replaceText, Range range, TextDocumentItem document,
+			boolean snippetSupport) {
 		VersionedTextDocumentIdentifier versionedTextDocumentIdentifier = new VersionedTextDocumentIdentifier(
 				document.getUri(), document.getVersion());
-		List<Either<TextEdit, SnippetTextEdit>> eitherEdits = Collections.singletonList(
-				Either.forLeft(replace));
-		TextDocumentEdit textDocumentEdit = new TextDocumentEdit(versionedTextDocumentIdentifier, eitherEdits);
+		List<Either<TextEdit, SnippetTextEdit>> edits;
+		if (snippetSupport) {
+			StringValue snippet = new StringValue("snippet", replaceText);
+			SnippetTextEdit snippetEdit = new SnippetTextEdit(range, snippet);
+			edits = Collections.singletonList(Either.forRight(snippetEdit));
+		} else {
+			TextEdit replace = new TextEdit(range, replaceText);
+			edits = Collections.singletonList(Either.forLeft(replace));
+		}
+		TextDocumentEdit textDocumentEdit = new TextDocumentEdit(versionedTextDocumentIdentifier, edits);
 		return new WorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)));
 	}
 

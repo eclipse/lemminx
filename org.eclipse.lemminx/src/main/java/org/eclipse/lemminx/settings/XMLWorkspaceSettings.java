@@ -43,4 +43,23 @@ public class XMLWorkspaceSettings {
 				&& workspace.getWorkspaceEdit().getResourceOperations().contains(kind);
 	}
 
+	/**
+	 * Returns true if the client supports LSP 3.18 SnippetTextEdit in workspace
+	 * edits (capability {@code workspace.workspaceEdit.snippetEditSupport}) and
+	 * false otherwise.
+	 *
+	 * <p>
+	 * When supported, code actions can use snippet tabstops ({@code $1},
+	 * {@code $0}) to position the cursor after applying the edit, instead of
+	 * leaving it at the end of the inserted text.
+	 * </p>
+	 *
+	 * @return true if the client supports SnippetTextEdit and false otherwise.
+	 */
+	public boolean isSnippetEditSupported() {
+		return workspace != null && workspace.getWorkspaceEdit() != null
+				&& workspace.getWorkspaceEdit().getSnippetEditSupport() != null
+				&& workspace.getWorkspaceEdit().getSnippetEditSupport();
+	}
+
 }

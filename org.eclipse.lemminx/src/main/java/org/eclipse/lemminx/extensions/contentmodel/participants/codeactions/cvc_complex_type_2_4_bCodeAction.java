@@ -70,15 +70,14 @@ public class cvc_complex_type_2_4_bCodeAction implements ICodeActionParticipant 
 			String insertStrAll = generator.generateMissingElements(request.getComponent(ContentModelManager.class), element, false);
 			String insertStrRequired = generator.generateMissingElements(request.getComponent(ContentModelManager.class), element, true);
 
-			CodeAction insertAllExpectedElement = CodeActionFactory.replace("Insert all expected elements",
-					targetRange, insertStrAll, document.getTextDocument(), diagnostic);
+			boolean snippetSupport = request.getSharedSettings().getWorkspaceSettings()
+					.isSnippetEditSupported();
 
-			codeActions.add(insertAllExpectedElement);
+			codeActions.add(CodeActionFactory.replace("Insert all expected elements",
+					targetRange, insertStrAll, document.getTextDocument(), diagnostic, snippetSupport));
 
-			CodeAction insertRequriedExpectedElement = CodeActionFactory.replace("Insert only required elements",
-					targetRange, insertStrRequired, document.getTextDocument(), diagnostic);
-
-			codeActions.add(insertRequriedExpectedElement);
+			codeActions.add(CodeActionFactory.replace("Insert only required elements",
+					targetRange, insertStrRequired, document.getTextDocument(), diagnostic, snippetSupport));
 
 		} catch (BadLocationException e) {
 			// do nothing

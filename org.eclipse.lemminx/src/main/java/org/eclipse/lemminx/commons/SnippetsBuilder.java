@@ -41,7 +41,7 @@ public class SnippetsBuilder {
 		snippets.append("${");
 		snippets.append(index);
 		snippets.append(":");
-		snippets.append(text);
+		escapePlaceholderValue(text, snippets);
 		snippets.append("}");
 	}
 
@@ -78,11 +78,58 @@ public class SnippetsBuilder {
 			if (i > 0) {
 				snippets.append(",");
 			}
-			snippets.append(value);
+			escapeChoiceValue(value, snippets);
 			i++;
 		}
 		snippets.append("|");
 		snippets.append("}");
+	}
+
+	/**
+	 * Escapes a literal value for use inside a snippet placeholder
+	 * ({@code ${1:value}}). The characters {@code \}, {@code $}, and {@code \}}
+	 * must be backslash-escaped so they are not interpreted as snippet syntax.
+	 *
+	 * @param value   the literal value to escape.
+	 * @param snippets the builder to append the escaped value to.
+	 */
+	private static void escapePlaceholderValue(String value, StringBuilder snippets) {
+		for (int i = 0; i < value.length(); i++) {
+			char ch = value.charAt(i);
+			switch (ch) {
+			case '\\':
+			case '$':
+			case '}':
+				snippets.append('\\');
+				break;
+			}
+			snippets.append(ch);
+		}
+	}
+
+	/**
+	 * Escapes a literal value for use inside a snippet choice
+	 * ({@code ${1|one,two|}}). In addition to the placeholder characters
+	 * ({@code \}, {@code $}, {@code \}}), the choice separators {@code |} and
+	 * {@code ,} must also be escaped.
+	 *
+	 * @param value   the literal value to escape.
+	 * @param snippets the builder to append the escaped value to.
+	 */
+	private static void escapeChoiceValue(String value, StringBuilder snippets) {
+		for (int i = 0; i < value.length(); i++) {
+			char ch = value.charAt(i);
+			switch (ch) {
+			case '\\':
+			case '$':
+			case '}':
+			case '|':
+			case ',':
+				snippets.append('\\');
+				break;
+			}
+			snippets.append(ch);
+		}
 	}
 
 }

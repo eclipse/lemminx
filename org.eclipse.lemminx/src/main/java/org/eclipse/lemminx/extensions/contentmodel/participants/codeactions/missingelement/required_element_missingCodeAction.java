@@ -114,7 +114,10 @@ public class required_element_missingCodeAction implements ICodeActionParticipan
 					required_element_missingCodeActionResolver.PARTICIPANT_ID);
 			return insertExpectedElementsUnresolvedCodeAction(title, diagnostic, data, isGenerateRequired);
 		} else {
-			return insertExpectedElementCodeAction(document, title, domElement, insertStr, diagnostic);
+			boolean snippetSupport = request.getSharedSettings().getWorkspaceSettings()
+					.isSnippetEditSupported();
+			return insertExpectedElementCodeAction(document, title, domElement, insertStr, diagnostic,
+					snippetSupport);
 		}
 	}
 
@@ -135,11 +138,13 @@ public class required_element_missingCodeAction implements ICodeActionParticipan
 	}
 
 	private static CodeAction insertExpectedElementCodeAction(DOMDocument document, String title,
-			DOMElement element, String insertStr, Diagnostic diagnostic) throws BadLocationException {
+			DOMElement element, String insertStr, Diagnostic diagnostic, boolean snippetSupport)
+			throws BadLocationException {
 		Position childElementPositionStartTag = document.positionAt(element.getStartTagCloseOffset() + 1);
 		Position childElementPositionEndTag = document.positionAt(element.getEndTagOpenOffset());
 
 		Range targetRange = new Range(childElementPositionStartTag, childElementPositionEndTag);
-		return CodeActionFactory.replace(title, targetRange, insertStr, document.getTextDocument(), diagnostic);
+		return CodeActionFactory.replace(title, targetRange, insertStr, document.getTextDocument(), diagnostic,
+				snippetSupport);
 	}
 }

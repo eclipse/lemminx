@@ -663,7 +663,8 @@ public class XMLDocumentGeneratorXSDTest extends AbstractXMLDocumentGeneratorTes
 
 	/**
 	 * Tests generation from an XSD with xs:choice and optionalElements=false.
-	 * Only the first alternative of the choice should be generated.
+	 * Multi-alternative choices are skipped since no single element is individually
+	 * required (the user must pick one).
 	 */
 	@Test
 	public void simpleChoiceRequiredOnly() {
@@ -674,14 +675,13 @@ public class XMLDocumentGeneratorXSDTest extends AbstractXMLDocumentGeneratorTes
 		assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + ls +
 				"<payment xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
 				" xsi:noNamespaceSchemaLocation=\"" + grammarURI + "\">" + ls +
-				"  <cash>" + ls +
-				"  </cash>" + ls +
 				"</payment>" + ls, result);
 	}
 
 	/**
 	 * Tests generation from an XSD with xs:choice inside xs:sequence
-	 * and optionalElements=false.
+	 * and optionalElements=false. The required elements (id, total) are generated,
+	 * but the multi-alternative choice (pickup/delivery) is skipped.
 	 */
 	@Test
 	public void choiceInSequenceRequiredOnly() {
@@ -693,8 +693,6 @@ public class XMLDocumentGeneratorXSDTest extends AbstractXMLDocumentGeneratorTes
 				"<order xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
 				" xsi:noNamespaceSchemaLocation=\"" + grammarURI + "\">" + ls +
 				"  <id>0</id>" + ls +
-				"  <pickup>" + ls +
-				"  </pickup>" + ls +
 				"  <total>0</total>" + ls +
 				"</order>" + ls, result);
 	}
