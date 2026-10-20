@@ -36,10 +36,11 @@ public class src_import_1_2CodeAction implements ICodeActionParticipant {
 		Diagnostic diagnostic = request.getDiagnostic();
 		DOMDocument document = request.getDocument();
 		Range range = request.getRange();
+		boolean snippetSupport = request.getSharedSettings().getWorkspaceSettings().isSnippetEditSupported();
 		try {
 			String prefix = document.getDocumentElement().getPrefix();
-			CodeAction namespace = createNamespaceCodeAction(diagnostic, range, document, prefix);
-			CodeAction targetNamespace = createTargetNamespaceCodeAction(diagnostic, document, prefix);
+			CodeAction namespace = createNamespaceCodeAction(diagnostic, range, document, prefix, snippetSupport);
+			CodeAction targetNamespace = createTargetNamespaceCodeAction(diagnostic, document, prefix, snippetSupport);
 
 			if (namespace != null) {
 				codeActions.add(namespace);
@@ -55,7 +56,7 @@ public class src_import_1_2CodeAction implements ICodeActionParticipant {
 	}
 
 	private CodeAction createNamespaceCodeAction(Diagnostic diagnostic, Range range, DOMDocument document,
-			String prefix) throws BadLocationException {
+			String prefix, boolean snippetSupport) throws BadLocationException {
 		int offset = document.offsetAt(range.getStart());
 		DOMNode node = document.findNodeAt(offset);
 
@@ -70,12 +71,13 @@ public class src_import_1_2CodeAction implements ICodeActionParticipant {
 			message = "Insert 'namespace' attribute in 'import' element";
 		}
 
-		return CodeActionFactory.insert(message, diagnostic.getRange().getEnd(), " namespace=\"\"",
-				document.getTextDocument(), diagnostic);
+		String insertText = snippetSupport ? " namespace=\"$1\"" : " namespace=\"\"";
+		return CodeActionFactory.insert(message, diagnostic.getRange().getEnd(), insertText,
+				document.getTextDocument(), diagnostic, snippetSupport);
 	}
 
-	private CodeAction createTargetNamespaceCodeAction(Diagnostic diagnostic, DOMDocument document, String prefix)
-			throws BadLocationException {
+	private CodeAction createTargetNamespaceCodeAction(Diagnostic diagnostic, DOMDocument document, String prefix,
+			boolean snippetSupport) throws BadLocationException {
 		DOMElement root = document.getDocumentElement();
 
 		if (!root.getTagName().contains("schema")) {
@@ -87,8 +89,9 @@ public class src_import_1_2CodeAction implements ICodeActionParticipant {
 		} else {
 			message = "Insert 'targetNamespace' attribute in 'schema' element";
 		}
+		String insertText = snippetSupport ? " targetNamespace=\"$1\"" : " targetNamespace=\"\"";
 		return CodeActionFactory.insert(message, document.positionAt(root.getStartTagCloseOffset()),
-				" targetNamespace=\"\"", document.getTextDocument(), diagnostic);
+				insertText, document.getTextDocument(), diagnostic, snippetSupport);
 	}
 
 }

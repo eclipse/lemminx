@@ -21,12 +21,14 @@ import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
+import org.eclipse.lemminx.extensions.contentmodel.generator.XMLElementGenerator;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lemminx.extensions.contentmodel.model.ContentModelManager;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionRequest;
+import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
@@ -90,14 +92,25 @@ public class required_attribute_missingCodeAction implements ICodeActionParticip
 						return;
 					}
 
-					// Build the attribute insertion text. XMLElementGenerator.generate()
-					// filters by isRequired() internally, which drops context-aware
-					// attributes from choice branches. Build the text directly.
+					SharedSettings sharedSettings = request.getSharedSettings();
+					boolean snippetSupport = sharedSettings.getWorkspaceSettings()
+							.isSnippetEditSupported();
 					StringBuilder xmlAttributes = new StringBuilder();
+					int snippetIndex = 0;
 					for (CMAttributeDeclaration attr : requiredAttributes) {
+						if (snippetSupport) {
+							snippetIndex++;
+						}
+						String defaultValue = attr.getDefaultValue();
+						Collection<String> enumerationValues = attr.getEnumerationValues();
+						String value = XMLElementGenerator.generateAttributeValue(
+								defaultValue, enumerationValues, snippetSupport,
+								snippetIndex, false, sharedSettings);
 						xmlAttributes.append(' ');
 						xmlAttributes.append(attr.getLocalName());
-						xmlAttributes.append("=\"\"");
+						xmlAttributes.append("=\"");
+						xmlAttributes.append(value);
+						xmlAttributes.append('"');
 					}
 
 					// Insert after the last existing attribute (if any),
@@ -106,7 +119,8 @@ public class required_attribute_missingCodeAction implements ICodeActionParticip
 
 					CodeAction insertRequiredAttributesAction = CodeActionFactory.insert(
 							"Insert required attributes",
-							insertPosition, xmlAttributes.toString(), document.getTextDocument(), diagnostic);
+							insertPosition, xmlAttributes.toString(), document.getTextDocument(), diagnostic,
+							snippetSupport);
 					codeActions.add(insertRequiredAttributesAction);
 				}
 			}

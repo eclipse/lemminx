@@ -13,7 +13,9 @@
 package org.eclipse.lemminx.extensions.contentmodel;
 
 import static org.eclipse.lemminx.XMLAssert.ca;
+import static org.eclipse.lemminx.XMLAssert.caSnippet;
 import static org.eclipse.lemminx.XMLAssert.d;
+import static org.eclipse.lemminx.XMLAssert.sne;
 import static org.eclipse.lemminx.XMLAssert.te;
 import static org.eclipse.lemminx.XMLAssert.testCodeActionsFor;
 import static org.eclipse.lemminx.XMLAssert.testDiagnosticsFor;
@@ -249,7 +251,11 @@ public class XMLSyntaxDiagnosticsTest extends AbstractCacheBasedTest {
 		String xml = "<a Ccy>123.456</a>";
 		Diagnostic d = d(0, 3, 0, 6, XMLSyntaxErrorCode.EqRequiredInAttribute);
 		testDiagnosticsFor(xml, d);
+		// Without snippet support
 		testCodeActionsFor(xml, d, ca(d, te(0, 6, 0, 6, "=\"\"")));
+		// With snippet support
+		testCodeActionsFor(xml, d, createSnippetEditSettings(),
+				caSnippet(d, sne(0, 6, 0, 6, "=\"$1\"")));
 	}
 
 	@Test
@@ -570,7 +576,11 @@ public class XMLSyntaxDiagnosticsTest extends AbstractCacheBasedTest {
 		String xml = " <InstdAmt Ccy==\"JPY\">10000000</InstdAmt>";
 		Diagnostic diagnostic1 = d(0, 11, 0, 14, XMLSyntaxErrorCode.OpenQuoteExpected);
 		testDiagnosticsFor(xml, diagnostic1);
+		// Without snippet support
 		testCodeActionsFor(xml, diagnostic1, ca(diagnostic1, te(0, 15, 0, 15, "\"\"")));
+		// With snippet support
+		testCodeActionsFor(xml, diagnostic1, createSnippetEditSettings(),
+				caSnippet(diagnostic1, sne(0, 15, 0, 15, "\"$1\"")));
 	}
 
 	@Test
@@ -582,7 +592,11 @@ public class XMLSyntaxDiagnosticsTest extends AbstractCacheBasedTest {
 				"</foo>";
 		Diagnostic diagnostic1 = d(2, 7, 2, 10, XMLSyntaxErrorCode.OpenQuoteExpected);
 		testDiagnosticsFor(xml, diagnostic1);
+		// Without snippet support
 		testCodeActionsFor(xml, diagnostic1, ca(diagnostic1, te(2, 11, 2, 11, "\"\"")));
+		// With snippet support
+		testCodeActionsFor(xml, diagnostic1, createSnippetEditSettings(),
+				caSnippet(diagnostic1, sne(2, 11, 2, 11, "\"$1\"")));
 	}
 
 	@Test
@@ -593,7 +607,11 @@ public class XMLSyntaxDiagnosticsTest extends AbstractCacheBasedTest {
 				"</foo>";
 		Diagnostic diagnostic1 = d(2, 7, 2, 10, XMLSyntaxErrorCode.OpenQuoteExpected);
 		testDiagnosticsFor(xml, diagnostic1);
+		// Without snippet support
 		testCodeActionsFor(xml, diagnostic1, ca(diagnostic1, te(2, 11, 2, 11, "\"\"")));
+		// With snippet support
+		testCodeActionsFor(xml, diagnostic1, createSnippetEditSettings(),
+				caSnippet(diagnostic1, sne(2, 11, 2, 11, "\"$1\"")));
 	}
 
 	@Test
@@ -604,7 +622,11 @@ public class XMLSyntaxDiagnosticsTest extends AbstractCacheBasedTest {
 				"</foo>";
 		Diagnostic diagnostic1 = d(2, 7, 2, 10, XMLSyntaxErrorCode.OpenQuoteExpected);
 		testDiagnosticsFor(xml, diagnostic1);
+		// Without snippet support
 		testCodeActionsFor(xml, diagnostic1, ca(diagnostic1, te(2, 11, 2, 11, "\"\"")));
+		// With snippet support
+		testCodeActionsFor(xml, diagnostic1, createSnippetEditSettings(),
+				caSnippet(diagnostic1, sne(2, 11, 2, 11, "\"$1\"")));
 	}
 
 	@Test
@@ -626,10 +648,17 @@ public class XMLSyntaxDiagnosticsTest extends AbstractCacheBasedTest {
 				"</foo>";
 		Diagnostic diagnostic1 = d(2, 7, 2, 10, XMLSyntaxErrorCode.OpenQuoteExpected);
 		testDiagnosticsFor(xml, diagnostic1);
+		// Without snippet support
 		SharedSettings settings = new SharedSettings();
 		settings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
 		settings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
 		testCodeActionsFor(xml, diagnostic1, null, settings, ca(diagnostic1, te(2, 11, 2, 11, "\'\'")));
+		// With snippet support
+		SharedSettings snippetSettings = XMLAssert.createSnippetEditSettings();
+		snippetSettings.getPreferences().setQuoteStyle(QuoteStyle.singleQuotes);
+		snippetSettings.getFormattingSettings().setEnforceQuoteStyle(EnforceQuoteStyle.preferred);
+		testCodeActionsFor(xml, diagnostic1, null, snippetSettings,
+				caSnippet(diagnostic1, sne(2, 11, 2, 11, "\'$1\'")));
 	}
 
 	@Test
@@ -858,5 +887,9 @@ public class XMLSyntaxDiagnosticsTest extends AbstractCacheBasedTest {
 		namespaces.setEnabled(namespacesEnabled);
 		settings.getValidation().setNamespaces(namespaces);
 		return settings;
+	}
+
+	private static SharedSettings createSnippetEditSettings() {
+		return XMLAssert.createSnippetEditSettings();
 	}
 }

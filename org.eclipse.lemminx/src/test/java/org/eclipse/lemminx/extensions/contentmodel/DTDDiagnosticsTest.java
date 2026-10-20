@@ -12,10 +12,13 @@
  */
 package org.eclipse.lemminx.extensions.contentmodel;
 
+import static java.lang.System.lineSeparator;
 import static org.eclipse.lemminx.XMLAssert.ca;
+import static org.eclipse.lemminx.XMLAssert.caSnippet;
 import static org.eclipse.lemminx.XMLAssert.d;
 import static org.eclipse.lemminx.XMLAssert.l;
 import static org.eclipse.lemminx.XMLAssert.r;
+import static org.eclipse.lemminx.XMLAssert.sne;
 import static org.eclipse.lemminx.XMLAssert.te;
 import static org.eclipse.lemminx.XMLAssert.testCodeActionsFor;
 
@@ -143,30 +146,72 @@ public class DTDDiagnosticsTest extends AbstractCacheBasedTest {
 
 	@Test
 	public void MSG_CONTENT_INCOMPLETE() throws Exception {
-		String xml = "<?xml version = \"1.0\"?>\r\n" + //
-				"<!DOCTYPE foo [\r\n" + //
-				"  <!ELEMENT foo (bar)>\r\n" + //
-				"  <!ELEMENT bar (#PCDATA)>\r\n" + //
-				"  <!ATTLIST bar fruit (one | two | three) #REQUIRED>\r\n" + //
-				"]>\r\n" + //
-				"<foo>\r\n" + //
-				"    \r\n" + // <- error
+		String xml = "<?xml version = \"1.0\"?>" + lineSeparator() + //
+				"<!DOCTYPE foo SYSTEM \"src/test/resources/dtd/foo-enum.dtd\">" + lineSeparator() + //
+				"<foo>" + lineSeparator() + //
+				"    " + lineSeparator() + // <- error
 				"</foo>";
-		XMLAssert.testDiagnosticsFor(xml, d(6, 1, 4, DTDErrorCode.MSG_CONTENT_INCOMPLETE));
+		Diagnostic d = d(2, 1, 4, DTDErrorCode.MSG_CONTENT_INCOMPLETE);
+		XMLAssert.testDiagnosticsFor(xml, d);
+		// Without snippet support
+		testCodeActionsFor(xml, d,
+				ca(d, te(2, 5, 4, 0, lineSeparator() + "\t<bar fruit=\"one\"></bar>" + lineSeparator())),
+				ca(d, te(2, 5, 4, 0, lineSeparator() + "\t<bar fruit=\"one\"></bar>" + lineSeparator())));
+		// With snippet support
+		testCodeActionsFor(xml, d, XMLAssert.createSnippetEditSettings(),
+				caSnippet(d, sne(2, 5, 4, 0, lineSeparator() + "  <bar fruit=\"${1|one,two,three|}\">$2</bar>" + lineSeparator() + "$0")),
+				caSnippet(d, sne(2, 5, 4, 0, lineSeparator() + "  <bar fruit=\"${1|one,two,three|}\">$2</bar>" + lineSeparator() + "$0")));
+	}
+
+	@Test
+	public void MSG_CONTENT_INCOMPLETE_selfClosed() throws Exception {
+		String xml = "<?xml version = \"1.0\"?>" + lineSeparator() + //
+				"<!DOCTYPE foo SYSTEM \"src/test/resources/dtd/foo-enum.dtd\">" + lineSeparator() + //
+				"<foo />";
+		Diagnostic d = d(2, 1, 4, DTDErrorCode.MSG_CONTENT_INCOMPLETE);
+		XMLAssert.testDiagnosticsFor(xml, d);
+		// Without snippet support
+		testCodeActionsFor(xml, d,
+				ca(d, te(2, 4, 2, 7, ">" + lineSeparator() + "\t<bar fruit=\"one\"></bar>" + lineSeparator() + "</foo>")),
+				ca(d, te(2, 4, 2, 7, ">" + lineSeparator() + "\t<bar fruit=\"one\"></bar>" + lineSeparator() + "</foo>")));
+		// With snippet support
+		testCodeActionsFor(xml, d, XMLAssert.createSnippetEditSettings(),
+				caSnippet(d, sne(2, 4, 2, 7, ">" + lineSeparator() + "  <bar fruit=\"${1|one,two,three|}\">$2</bar>" + lineSeparator() + "$0</foo>")),
+				caSnippet(d, sne(2, 4, 2, 7, ">" + lineSeparator() + "  <bar fruit=\"${1|one,two,three|}\">$2</bar>" + lineSeparator() + "$0</foo>")));
+	}
+
+	@Test
+	public void MSG_CONTENT_INCOMPLETE_withExistingContent() throws Exception {
+		String xml = "<?xml version = \"1.0\"?>" + lineSeparator() + //
+				"<!DOCTYPE note [" + lineSeparator() + //
+				"  <!ELEMENT note (to,from)>" + lineSeparator() + //
+				"  <!ELEMENT to (#PCDATA)>" + lineSeparator() + //
+				"  <!ELEMENT from (#PCDATA)>" + lineSeparator() + //
+				"]>" + lineSeparator() + //
+				"<note>" + lineSeparator() + //
+				"    <to>Tove</to>" + lineSeparator() + //
+				"</note>";
+		Diagnostic d = d(6, 1, 5, DTDErrorCode.MSG_CONTENT_INCOMPLETE);
+		XMLAssert.testDiagnosticsFor(xml, d);
+		// No code action because element has existing content
+		testCodeActionsFor(xml, d);
 	}
 
 	@Test
 	public void MSG_REQUIRED_ATTRIBUTE_NOT_SPECIFIED() throws Exception {
-		String xml = "<?xml version = \"1.0\"?>\r\n" + //
-				"<!DOCTYPE foo [\r\n" + //
-				"  <!ELEMENT foo (bar)>\r\n" + //
-				"  <!ELEMENT bar (#PCDATA)>\r\n" + //
-				"  <!ATTLIST bar fruit (one | two | three) #REQUIRED>\r\n" + //
-				"]>\r\n" + //
-				"<foo>\r\n" + //
-				"    <bar />\r\n" + // <- error ("fruit" attribute is missing)
+		String xml = "<?xml version = \"1.0\"?>" + lineSeparator() + //
+				"<!DOCTYPE foo SYSTEM \"src/test/resources/dtd/foo-enum.dtd\">" + lineSeparator() + //
+				"<foo>" + lineSeparator() + //
+				"    <bar />" + lineSeparator() + // <- error ("fruit" attribute is missing)
 				"</foo>";
-		XMLAssert.testDiagnosticsFor(xml, d(7, 5, 8, DTDErrorCode.MSG_REQUIRED_ATTRIBUTE_NOT_SPECIFIED));
+		Diagnostic d = d(3, 5, 8, DTDErrorCode.MSG_REQUIRED_ATTRIBUTE_NOT_SPECIFIED);
+		XMLAssert.testDiagnosticsFor(xml, d);
+		// Without snippet support
+		testCodeActionsFor(xml, d,
+				ca(d, te(3, 8, 3, 8, " fruit=\"one\"")));
+		// With snippet support
+		testCodeActionsFor(xml, d, XMLAssert.createSnippetEditSettings(),
+				caSnippet(d, sne(3, 8, 3, 8, " fruit=\"${1|one,two,three|}\"")));
 	}
 
 	@Test

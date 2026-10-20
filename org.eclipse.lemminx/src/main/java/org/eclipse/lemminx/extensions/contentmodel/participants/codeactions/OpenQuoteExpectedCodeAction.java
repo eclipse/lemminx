@@ -66,6 +66,7 @@ public class OpenQuoteExpectedCodeAction implements ICodeActionParticipant {
 			Diagnostic diagnostic, List<CodeAction> codeActions) {
 		SharedSettings sharedSettings = request.getSharedSettings();
 		String q = sharedSettings.getPreferences().getQuotationAsString();
+		boolean snippetSupport = sharedSettings.getWorkspaceSettings().isSnippetEditSupported();
 		Position codeactionPosition;
 		Position possibleEndPosition = null;
 		String possibleValue = null;
@@ -88,8 +89,9 @@ public class OpenQuoteExpectedCodeAction implements ICodeActionParticipant {
 					new Range(codeactionPosition, possibleEndPosition), q + possibleValue + q,
 					document.getTextDocument(), diagnostic);
 		} else {
-			removeContentAction = CodeActionFactory.insert("Insert quotations", codeactionPosition, q + q,
-					document.getTextDocument(), diagnostic);
+			String insertText = snippetSupport ? q + "$1" + q : q + q;
+			removeContentAction = CodeActionFactory.insert("Insert quotations", codeactionPosition, insertText,
+					document.getTextDocument(), diagnostic, snippetSupport);
 		}
 		codeActions.add(removeContentAction);
 	}

@@ -1,0 +1,3 @@
+<!ELEMENT foo (bar)>
+<!ELEMENT bar (#PCDATA)>
+<!ATTLIST bar fruit (one|two|three) #REQUIRED>
