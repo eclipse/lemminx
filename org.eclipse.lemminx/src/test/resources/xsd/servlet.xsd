@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="servlet">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="servlet-name" type="xs:string" />
+				<xs:choice minOccurs="0">
+					<xs:element name="servlet-class" type="xs:string" />
+					<xs:element name="jsp-file" type="xs:string" />
+				</xs:choice>
+				<xs:element name="load-on-startup" type="load-on-startupType" minOccurs="0" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:simpleType name="null-charType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="load-on-startupType">
+		<xs:union memberTypes="null-charType">
+			<xs:simpleType>
+				<xs:restriction base="xs:integer" />
+			</xs:simpleType>
+		</xs:union>
+	</xs:simpleType>
+</xs:schema>

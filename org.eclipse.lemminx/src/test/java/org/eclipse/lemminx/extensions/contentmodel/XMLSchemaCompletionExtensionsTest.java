@@ -1824,4 +1824,24 @@ public class XMLSchemaCompletionExtensionsTest extends BaseFileTempTest {
 						"<Character xsi:type=\"${1|Student,Teacher|}\" Name=\"$2\">$3</Character>$0",
 						r(3, 2, 3, 3), "<Character"));
 	}
+
+	@Test
+	public void completionWithUnionEmptyEnumeration() throws BadLocationException {
+		// The load-on-startupType is a xs:union with null-charType which has an empty
+		// enumeration value. After filtering empty values, no snippet choice should be
+		// generated (should produce $1 tabstop, not ${1||}).
+		String xml = "<servlet xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + //
+				"xsi:noNamespaceSchemaLocation=\"xsd/servlet.xsd\">\r\n" + //
+				"\t<servlet-name>myServlet</servlet-name>\r\n" + //
+				"\t|" + //
+				"</servlet>";
+		// Without snippet support
+		testCompletionFor(xml, null, "src/test/resources/servlet.xml", null,
+				c("load-on-startup", "<load-on-startup></load-on-startup>", r(3, 1, 3, 1),
+						"load-on-startup"));
+		// With snippet support
+		testCompletionSnippetSupportFor(xml, "src/test/resources/servlet.xml", null,
+				c("load-on-startup", "<load-on-startup>$1</load-on-startup>$0", r(3, 1, 3, 1),
+						"load-on-startup"));
+	}
 }

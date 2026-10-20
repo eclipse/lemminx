@@ -14,6 +14,7 @@ package org.eclipse.lemminx.extensions.contentmodel.generator;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -272,7 +273,7 @@ public class XMLElementGenerator {
 		} else {
 			xml.closeStartElement();
 			boolean hasContent = false;
-			Collection<String> values = elementDeclaration.getEnumerationValues();
+			Collection<String> values = filterEmptyValues(elementDeclaration.getEnumerationValues());
 			if (!values.isEmpty()) {
 				hasContent = true;
 				if (canSupportSnippets) {
@@ -473,16 +474,17 @@ public class XMLElementGenerator {
 		if (withQuote) {
 			value.append("=").append(quotation);
 		}
+		Collection<String> filteredEnumValues = filterEmptyValues(enumerationValues);
 		if (!canSupportSnippets) {
 			if (defaultValue != null) {
 				value.append(defaultValue);
-			} else if (enumerationValues != null && !enumerationValues.isEmpty()) {
-				value.append(enumerationValues.iterator().next());
+			} else if (!filteredEnumValues.isEmpty()) {
+				value.append(filteredEnumValues.iterator().next());
 			}
 		} else {
 			// Snippets syntax support
-			if (enumerationValues != null && !enumerationValues.isEmpty()) {
-				SnippetsBuilder.choice(snippetIndex, enumerationValues, value);
+			if (!filteredEnumValues.isEmpty()) {
+				SnippetsBuilder.choice(snippetIndex, filteredEnumValues, value);
 			} else {
 				if (defaultValue != null) {
 					SnippetsBuilder.placeholders(snippetIndex, defaultValue, value);
@@ -625,5 +627,31 @@ public class XMLElementGenerator {
 			return MarkupContentFactory.createMarkupContent(documentation, MarkupKind.MARKDOWN, support);
 		}
 		return null;
+	}
+
+	/**
+	 * Filters out null and empty strings from the given enumeration values.
+	 *
+	 * <p>
+	 * This is needed for XSD {@code xs:union} types that include a
+	 * {@code null-charType} member with {@code <xs:enumeration value=""/>}. Without
+	 * filtering, the empty string produces a broken snippet choice like
+	 * {@code ${1||}} instead of a simple tabstop {@code $1}.
+	 * </p>
+	 *
+	 * @param values the enumeration values to filter (may be null).
+	 * @return the filtered collection, never null.
+	 */
+	private static Collection<String> filterEmptyValues(Collection<String> values) {
+		if (values == null || values.isEmpty()) {
+			return Collections.emptyList();
+		}
+		List<String> filtered = new ArrayList<>();
+		for (String value : values) {
+			if (value != null && !value.isEmpty()) {
+				filtered.add(value);
+			}
+		}
+		return filtered;
 	}
 }

@@ -710,6 +710,45 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 		return requiredElements;
 	}
 
+	/**
+	 * Recursively collects required child element declarations from the given XSD
+	 * particle.
+	 *
+	 * <p>
+	 * A particle is skipped (not required) when:
+	 * </p>
+	 * <ul>
+	 * <li>It is a wildcard.</li>
+	 * <li>It is a model group with {@code minOccurs="0"} (the entire group is
+	 * optional).</li>
+	 * <li>It is a {@code xsd:choice} compositor with multiple alternatives — no
+	 * individual element is required since the user must pick exactly one.
+	 *
+	 * <pre>
+	 * &lt;!-- servlet-class and jsp-file are NOT required individually --&gt;
+	 * &lt;xs:choice&gt;
+	 *   &lt;xs:element name="servlet-class" /&gt;
+	 *   &lt;xs:element name="jsp-file" /&gt;
+	 * &lt;/xs:choice&gt;
+	 * </pre>
+	 *
+	 * However, a single-branch {@code xsd:choice} is effectively a sequence, so
+	 * its lone child is still required:
+	 *
+	 * <pre>
+	 * &lt;!-- name IS required (only one alternative) --&gt;
+	 * &lt;xs:choice&gt;
+	 *   &lt;xs:element name="name" /&gt;
+	 * &lt;/xs:choice&gt;
+	 * </pre>
+	 *
+	 * </li>
+	 * <li>It is an element declaration with {@code minOccurs="0"}.</li>
+	 * </ul>
+	 *
+	 * @param particle the XSD particle to inspect.
+	 * @param elements the set to collect required elements into.
+	 */
 	private void collectRequiredElements(XSParticle particle, Set<CMElementDeclaration> elements) {
 		if (particle == null) {
 			return;
@@ -719,21 +758,22 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 		case XSConstants.WILDCARD:
 			break;
 		case XSConstants.MODEL_GROUP:
+			// Skip optional groups (minOccurs="0")
+			if (particle.getMinOccurs() == 0) {
+				break;
+			}
 			XSModelGroup group = (XSModelGroup) term;
 			XSObjectList childParticles = group.getParticles();
 			if (group.getCompositor() == XSModelGroup.COMPOSITOR_CHOICE) {
-				boolean isRepeatable = particle.getMaxOccursUnbounded() || particle.getMaxOccurs() > 1;
-				if (isRepeatable) {
-					for (int i = 0; i < childParticles.getLength(); i++) {
-						collectRequiredElements((XSParticle) childParticles.item(i), elements);
-					}
-				} else if (childParticles.getLength() > 0) {
+				// Single-branch choice: the lone child is required
+				if (childParticles.getLength() == 1) {
 					collectRequiredElements((XSParticle) childParticles.item(0), elements);
 				}
-			} else {
-				for (int i = 0; i < childParticles.getLength(); i++) {
-					collectRequiredElements((XSParticle) childParticles.item(i), elements);
-				}
+				// Multi-branch choice: no individual element is required
+				break;
+			}
+			for (int i = 0; i < childParticles.getLength(); i++) {
+				collectRequiredElements((XSParticle) childParticles.item(i), elements);
 			}
 			break;
 		case XSConstants.ELEMENT_DECLARATION:

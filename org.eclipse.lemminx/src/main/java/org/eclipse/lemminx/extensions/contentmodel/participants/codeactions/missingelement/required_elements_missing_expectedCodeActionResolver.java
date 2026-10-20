@@ -78,8 +78,10 @@ public class required_elements_missing_expectedCodeActionResolver implements ICo
 							generatedXml
 									.append(generator.generate(child, null, true, false, 1, true));
 							String replaceText = generatedXml.toString();
-							resolved.setEdit(CodeActionFactory.getReplaceWorkspaceEdit(replaceText, targetRange,
-									document.getTextDocument()));
+							boolean snippetSupport = request.getSharedSettings()
+									.getWorkspaceSettings().isSnippetEditSupported();
+							resolved.setEdit(CodeActionFactory.getReplaceWorkspaceEdit(replaceText,
+									targetRange, document.getTextDocument(), snippetSupport));
 						}
 					}
 				}

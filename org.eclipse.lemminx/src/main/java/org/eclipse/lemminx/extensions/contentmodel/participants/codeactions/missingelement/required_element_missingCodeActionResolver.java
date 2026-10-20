@@ -70,8 +70,10 @@ public class required_element_missingCodeActionResolver implements ICodeActionRe
 			} else {
 				insertStr = generator.generateMissingElements(contentModelManager, element, false);
 			}
+			boolean snippetSupport = request.getSharedSettings().getWorkspaceSettings()
+					.isSnippetEditSupported();
 			resolved.setEdit(CodeActionFactory.getReplaceWorkspaceEdit(insertStr, targetRange,
-					document.getTextDocument()));
+					document.getTextDocument(), snippetSupport));
 		} catch (BadLocationException e) {
 			// do nothing
 		}
