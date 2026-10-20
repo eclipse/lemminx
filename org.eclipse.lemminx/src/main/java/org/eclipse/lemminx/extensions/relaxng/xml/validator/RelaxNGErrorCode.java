@@ -22,6 +22,11 @@ import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.dom.DOMRange;
 import org.eclipse.lemminx.dom.DOMText;
 import org.eclipse.lemminx.extensions.contentmodel.participants.XMLModelUtils;
+import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.invalid_attribute_nameCodeAction;
+import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.invalid_attribute_valueCodeAction;
+import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.no_attributes_allowedCodeAction;
+import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.out_of_context_elementCodeAction;
+import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.unknown_elementCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.missingelement.required_element_missingCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.required_attribute_missingCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.missingelement.required_elements_missing_expectedCodeAction;
@@ -243,6 +248,11 @@ public enum RelaxNGErrorCode implements IXMLErrorCode {
 		codeActions.put(required_attribute_missing.getCode(), requiredAttrCodeAction);
 		codeActions.put(required_attributes_missing.getCode(), requiredAttrCodeAction);
 		codeActions.put(required_attributes_missing_expected.getCode(), requiredAttrCodeAction);
+		codeActions.put(invalid_attribute_name.getCode(), new invalid_attribute_nameCodeAction());
+		codeActions.put(no_attributes_allowed.getCode(), new no_attributes_allowedCodeAction());
+		codeActions.put(invalid_attribute_value.getCode(), new invalid_attribute_valueCodeAction());
+		codeActions.put(unknown_element.getCode(), new unknown_elementCodeAction());
+		codeActions.put(out_of_context_element.getCode(), new out_of_context_elementCodeAction());
 	}
 
 	private static DOMAttr findRefByName(DOMNode parent, String refName) {

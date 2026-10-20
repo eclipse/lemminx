@@ -206,23 +206,52 @@ public class CodeActionFactory {
 
 	public static CodeAction replaceAt(String title, String replaceText, TextDocumentItem document,
 			Diagnostic diagnostic, Collection<Range> ranges) {
+		return replaceAt(title, replaceText, document, diagnostic, ranges, false);
+	}
+
+	public static CodeAction replaceAt(String title, String replaceText, TextDocumentItem document,
+			Diagnostic diagnostic, Collection<Range> ranges, boolean snippetSupport) {
 		CodeAction insertContentAction = new CodeAction(title);
 		insertContentAction.setKind(CodeActionKind.QuickFix);
 		insertContentAction.setDiagnostics(Arrays.asList(diagnostic));
 
 		VersionedTextDocumentIdentifier versionedTextDocumentIdentifier = new VersionedTextDocumentIdentifier(
 				document.getUri(), document.getVersion());
-		List<TextEdit> edits = new ArrayList<>();
+		List<Either<TextEdit, SnippetTextEdit>> eitherEdits = new ArrayList<>();
 		for (Range range : ranges) {
-			TextEdit edit = new TextEdit(range, replaceText);
-			edits.add(edit);
+			if (snippetSupport) {
+				StringValue snippet = new StringValue("snippet", replaceText);
+				eitherEdits.add(Either.forRight(new SnippetTextEdit(range, snippet)));
+			} else {
+				eitherEdits.add(Either.forLeft(new TextEdit(range, replaceText)));
+			}
 		}
-		List<Either<TextEdit, SnippetTextEdit>> eitherEdits = TextEditUtils.toEitherTextEdits(edits);
 		TextDocumentEdit textDocumentEdit = new TextDocumentEdit(versionedTextDocumentIdentifier, eitherEdits);
 		WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)));
 
 		insertContentAction.setEdit(workspaceEdit);
 		return insertContentAction;
+	}
+
+	/**
+	 * Escapes special snippet characters ({@code \}, {@code $}, {@code }}) so
+	 * that the given text is treated as literal content inside a snippet. Call
+	 * this on any grammar-provided value before concatenating it with snippet
+	 * tabstops like {@code $0}.
+	 *
+	 * @param text the plain text to escape.
+	 * @return the escaped text safe for use in a snippet.
+	 */
+	public static String escapeSnippetText(String text) {
+		StringBuilder sb = new StringBuilder(text.length());
+		for (int i = 0; i < text.length(); i++) {
+			char ch = text.charAt(i);
+			if (ch == '\\' || ch == '$' || ch == '}') {
+				sb.append('\\');
+			}
+			sb.append(ch);
+		}
+		return sb.toString();
 	}
 
 	/**

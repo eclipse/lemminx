@@ -12,45 +12,10 @@
  */
 package org.eclipse.lemminx.extensions.contentmodel.participants.codeactions;
 
-import java.util.List;
-
-import org.eclipse.lemminx.commons.BadLocationException;
-import org.eclipse.lemminx.commons.CodeActionFactory;
-import org.eclipse.lemminx.dom.DOMAttr;
-import org.eclipse.lemminx.dom.DOMDocument;
-import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
-import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionRequest;
-import org.eclipse.lsp4j.CodeAction;
-import org.eclipse.lsp4j.Diagnostic;
-import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.jsonrpc.CancelChecker;
-
 /**
  * Code action to fix cvc-complex-type.3.2.2 error.
  *
  */
-public class cvc_complex_type_3_2_2CodeAction implements ICodeActionParticipant {
-
-	@Override
-	public void doCodeAction(ICodeActionRequest request, List<CodeAction> codeActions, CancelChecker cancelChecker) {
-		Diagnostic diagnostic = request.getDiagnostic();
-		DOMDocument document = request.getDocument();
-		Range diagnosticRange = diagnostic.getRange();
-		try {
-			int offset = document.offsetAt(diagnosticRange.getEnd());
-			DOMAttr attr = document.findAttrAt(offset);
-			if (attr != null) {
-				// Remove attribute
-				int startOffset = attr.getStart();
-				int endOffset = attr.getEnd();
-				Range attrRange = new Range(document.positionAt(startOffset), document.positionAt(endOffset));
-				CodeAction removeAttributeAction = CodeActionFactory.remove("Remove '" + attr.getName() + "' attribute",
-						attrRange, document.getTextDocument(), diagnostic);
-				codeActions.add(removeAttributeAction);
-			}
-		} catch (BadLocationException e) {
-			// Do nothing
-		}
-	}
+public class cvc_complex_type_3_2_2CodeAction extends RemoveAttributeCodeAction {
 
 }

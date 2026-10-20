@@ -30,7 +30,12 @@ import org.eclipse.lemminx.dom.DTDEntityDecl;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.ElementDeclUnterminatedCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.EntityNotDeclaredCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.FixMissingSpaceCodeAction;
+import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.MSG_ATTRIBUTE_NOT_DECLAREDCodeAction;
+import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.MSG_ATTRIBUTE_VALUE_NOT_IN_LISTCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.MSG_CONTENT_INCOMPLETECodeAction;
+import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.MSG_CONTENT_INVALIDCodeAction;
+import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.MSG_ELEMENT_NOT_DECLAREDCodeAction;
+import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.MSG_FIXED_ATTVALUE_INVALIDCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.MSG_REQUIRED_ATTRIBUTE_NOT_SPECIFIEDCodeAction;
 import org.eclipse.lemminx.extensions.contentmodel.participants.codeactions.missinggrammar.DTDNotFoundCodeAction;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
@@ -310,6 +315,11 @@ public enum DTDErrorCode implements IXMLErrorCode {
 		}
 		codeActions.put(MSG_REQUIRED_ATTRIBUTE_NOT_SPECIFIED.getCode(), new MSG_REQUIRED_ATTRIBUTE_NOT_SPECIFIEDCodeAction());
 		codeActions.put(MSG_CONTENT_INCOMPLETE.getCode(), new MSG_CONTENT_INCOMPLETECodeAction());
+		codeActions.put(MSG_ATTRIBUTE_NOT_DECLARED.getCode(), new MSG_ATTRIBUTE_NOT_DECLAREDCodeAction());
+		codeActions.put(MSG_ELEMENT_NOT_DECLARED.getCode(), new MSG_ELEMENT_NOT_DECLAREDCodeAction());
+		codeActions.put(MSG_CONTENT_INVALID.getCode(), new MSG_CONTENT_INVALIDCodeAction());
+		codeActions.put(MSG_ATTRIBUTE_VALUE_NOT_IN_LIST.getCode(), new MSG_ATTRIBUTE_VALUE_NOT_IN_LISTCodeAction());
+		codeActions.put(MSG_FIXED_ATTVALUE_INVALID.getCode(), new MSG_FIXED_ATTVALUE_INVALIDCodeAction());
 		ICodeActionParticipant fixMissingSpace = new FixMissingSpaceCodeAction();
 		codeActions.put(MSG_SPACE_REQUIRED_BEFORE_ELEMENT_TYPE_IN_ATTLISTDECL.getCode(), fixMissingSpace);
 		codeActions.put(MSG_SPACE_REQUIRED_BEFORE_ELEMENT_TYPE_IN_ELEMENTDECL.getCode(), fixMissingSpace);

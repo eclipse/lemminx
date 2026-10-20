@@ -51,8 +51,11 @@ public class s4s_elt_invalid_content_3CodeAction implements ICodeActionParticipa
 				}
 
 				Range diagnosticRange = XMLPositionUtility.createRange(startOffset, endOffset, document);
-				CodeAction removeContentAction = CodeActionFactory.remove("Remove element", diagnosticRange,
-						document.getTextDocument(), diagnostic);
+				boolean snippetSupport = request.getSharedSettings().getWorkspaceSettings()
+						.isSnippetEditSupported();
+				CodeAction removeContentAction = CodeActionFactory.replace("Remove element",
+						diagnosticRange, snippetSupport ? "$0" : "", document.getTextDocument(), diagnostic,
+						snippetSupport);
 				codeActions.add(removeContentAction);
 			}
 

@@ -34,10 +34,11 @@ public class cvc_type_3_1_1CodeAction implements ICodeActionParticipant {
 		Diagnostic diagnostic = request.getDiagnostic();
 		DOMDocument document = request.getDocument();
 		Range diagnosticRange = diagnostic.getRange();
-
-		// Remove all attributes
-		CodeAction removeAllAttributesAction = CodeActionFactory.remove("Remove all attributes", diagnosticRange,
-				document.getTextDocument(), diagnostic);
+		boolean snippetSupport = request.getSharedSettings().getWorkspaceSettings()
+				.isSnippetEditSupported();
+		CodeAction removeAllAttributesAction = CodeActionFactory.replace("Remove all attributes",
+				diagnosticRange, snippetSupport ? "$0" : "", document.getTextDocument(), diagnostic,
+				snippetSupport);
 		codeActions.add(removeAllAttributesAction);
 	}
 

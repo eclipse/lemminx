@@ -47,16 +47,20 @@ public class CloseTagCodeAction implements ICodeActionParticipant {
 				return;
 			}
 			DOMElement element = (DOMElement) node;
+			boolean snippetSupport = request.getSharedSettings().getWorkspaceSettings()
+					.isSnippetEditSupported();
 			if (element.hasEndTag() && !element.isEndTagClosed() && element.hasTagName()) {
 				// Code actions for fixing end tag
-				doCodeActionsForEndTagUnclosed(element, document, diagnostic, codeActions);
+				doCodeActionsForEndTagUnclosed(element, document, diagnostic, codeActions, snippetSupport);
 			} else {
 				// Code actions for fixing start tag
 				boolean startTagClosed = element.isStartTagClosed();
 				if (!startTagClosed) {
-					doCodeActionsForStartTagUnclosed(element, document, diagnosticRange, diagnostic, codeActions);
+					doCodeActionsForStartTagUnclosed(element, document, diagnosticRange, diagnostic, codeActions,
+							snippetSupport);
 				} else {
-					doCodeActionsForStartTagClosed(element, document, diagnosticRange, diagnostic, codeActions);
+					doCodeActionsForStartTagClosed(element, document, diagnosticRange, diagnostic, codeActions,
+							snippetSupport);
 				}
 			}
 		} catch (BadLocationException e) {
@@ -75,13 +79,13 @@ public class CloseTagCodeAction implements ICodeActionParticipant {
 	 * @throws BadLocationException
 	 */
 	private void doCodeActionsForEndTagUnclosed(DOMElement element, DOMDocument document, Diagnostic diagnostic,
-			List<CodeAction> codeActions) throws BadLocationException {
+			List<CodeAction> codeActions, boolean snippetSupport) throws BadLocationException {
 		// ex: <foo> </foo
 		Position endTagPosition = document
 				.positionAt(element.getEndTagOpenOffset() + 2 + element.getTagName().length());
 		// Close with '>'
-		CodeAction autoCloseAction = CodeActionFactory.insert("Close end-tag with '>'", endTagPosition, ">",
-				document.getTextDocument(), diagnostic);
+		CodeAction autoCloseAction = CodeActionFactory.insert("Close end-tag with '>'", endTagPosition,
+				snippetSupport ? ">$0" : ">", document.getTextDocument(), diagnostic, snippetSupport);
 		codeActions.add(autoCloseAction);
 	}
 
@@ -97,7 +101,7 @@ public class CloseTagCodeAction implements ICodeActionParticipant {
 	 * @throws BadLocationException
 	 */
 	private void doCodeActionsForStartTagUnclosed(DOMElement element, DOMDocument document, Range diagnosticRange,
-			Diagnostic diagnostic, List<CodeAction> codeActions) throws BadLocationException {
+			Diagnostic diagnostic, List<CodeAction> codeActions, boolean snippetSupport) throws BadLocationException {
 		// Here start tag element is not closed with '>'.
 		CharSequence text = document.getTextSequence();
 		int closeAngleBracketOffset = element.getUnclosedStartTagCloseOffset();
@@ -111,7 +115,7 @@ public class CloseTagCodeAction implements ICodeActionParticipant {
 			if (hasSlash) {
 				// ex : <foo /
 				CodeAction autoCloseAction = insertGreaterThanCharacterCodeAction(document, diagnostic,
-						closeAngleBracketPosition);
+						closeAngleBracketPosition, snippetSupport);
 				codeActions.add(autoCloseAction);
 			} else {
 				// ex : <foo
@@ -120,20 +124,23 @@ public class CloseTagCodeAction implements ICodeActionParticipant {
 				String tagName = element.getTagName();
 				if (tagName != null) {
 					// Close with '/>'
-					CodeAction autoCloseAction = CodeActionFactory.insert("Close with '/>'", closeAngleBracketPosition,
-							"/>", document.getTextDocument(), diagnostic);
+					CodeAction autoCloseAction = CodeActionFactory.insert("Close with '/>'",
+							closeAngleBracketPosition, snippetSupport ? "/>$0" : "/>",
+							document.getTextDocument(), diagnostic, snippetSupport);
 					codeActions.add(autoCloseAction);
 					// Close with '></foo>'
 					String insertText = "></" + tagName + ">";
-					CodeAction closeEndTagAction = CodeActionFactory.insert("Close with '" + insertText + "'",
-							closeAngleBracketPosition, insertText, document.getTextDocument(), diagnostic);
+					CodeAction closeEndTagAction = CodeActionFactory.insert(
+							"Close with '" + insertText + "'", closeAngleBracketPosition,
+							snippetSupport ? insertText + "$0" : insertText,
+							document.getTextDocument(), diagnostic, snippetSupport);
 					codeActions.add(closeEndTagAction);
 				}
 			}
 		} else {
 			// ex : <foo </foo>
 			CodeAction autoCloseAction = insertGreaterThanCharacterCodeAction(document, diagnostic,
-					closeAngleBracketPosition);
+					closeAngleBracketPosition, snippetSupport);
 			codeActions.add(autoCloseAction);
 		}
 	}
@@ -149,7 +156,7 @@ public class CloseTagCodeAction implements ICodeActionParticipant {
 	 * @throws BadLocationException
 	 */
 	private void doCodeActionsForStartTagClosed(DOMElement element, DOMDocument document, Range diagnosticRange,
-			Diagnostic diagnostic, List<CodeAction> codeActions) throws BadLocationException {
+			Diagnostic diagnostic, List<CodeAction> codeActions, boolean snippetSupport) throws BadLocationException {
 		// Here start tag element is closed with '>'.
 		CharSequence text = document.getTextSequence();
 		if (!element.hasEndTag()) {
@@ -166,8 +173,9 @@ public class CloseTagCodeAction implements ICodeActionParticipant {
 				String insertText = "</" + tagName + ">";
 				int endOffset = element.getStartTagCloseOffset() + 1;
 				Position endPosition = document.positionAt(endOffset);
-				CodeAction closeEndTagAction = CodeActionFactory.insert("Close with '" + insertText + "'", endPosition,
-						insertText, document.getTextDocument(), diagnostic);
+				CodeAction closeEndTagAction = CodeActionFactory.insert("Close with '" + insertText + "'",
+						endPosition, snippetSupport ? insertText + "$0" : insertText,
+						document.getTextDocument(), diagnostic, snippetSupport);
 				codeActions.add(closeEndTagAction);
 			} else {
 				// the element have some children(Text node, Element node, etc)
@@ -183,7 +191,7 @@ public class CloseTagCodeAction implements ICodeActionParticipant {
 							// </b>
 							String replaceTagName = element.getTagName();
 							CodeAction replaceTagAction = replaceEndTagNameCodeAction(childElement, replaceTagName,
-									diagnostic);
+									diagnostic, snippetSupport);
 							codeActions.add(replaceTagAction);
 							hasChildWithNoTagName = !childElement.hasTagName();
 						}
@@ -212,8 +220,9 @@ public class CloseTagCodeAction implements ICodeActionParticipant {
 					// ex : <foo>bar --> the </foo> must be inserted after bar text
 					// ex : <a> <b> </c> --> the </> must be inserted after the </c>
 					Position endPosition = document.positionAt(endOffset);
-					CodeAction closeEndTagAction = CodeActionFactory.insert("Close with '" + label + "'", endPosition,
-							insertText, document.getTextDocument(), diagnostic);
+					CodeAction closeEndTagAction = CodeActionFactory.insert("Close with '" + label + "'",
+							endPosition, snippetSupport ? insertText + "$0" : insertText,
+							document.getTextDocument(), diagnostic, snippetSupport);
 					codeActions.add(closeEndTagAction);
 				}
 			}
@@ -226,7 +235,8 @@ public class CloseTagCodeAction implements ICodeActionParticipant {
 					if (!childElement.hasTagName() || childElement.isOrphanEndTag()) {
 						// ex: <foo> </ </foo> --> here the code action removes '</'
 						// ex: <foo> </bar> </foo> --> here the code action removes '</bar>'
-						CodeAction removeAction = removeTagCodeAction(childElement, document, diagnostic);
+						CodeAction removeAction = removeTagCodeAction(childElement, document, diagnostic,
+								snippetSupport);
 						codeActions.add(removeAction);
 					}
 				}
@@ -243,9 +253,9 @@ public class CloseTagCodeAction implements ICodeActionParticipant {
 	 * @return a code action which insert '>' at the end of the diagnostic error.
 	 */
 	private static CodeAction insertGreaterThanCharacterCodeAction(DOMDocument document, Diagnostic diagnostic,
-			Position position) {
-		CodeAction autoCloseAction = CodeActionFactory.insert("Close with '>'", position, ">",
-				document.getTextDocument(), diagnostic);
+			Position position, boolean snippetSupport) {
+		CodeAction autoCloseAction = CodeActionFactory.insert("Close with '>'", position,
+				snippetSupport ? ">$0" : ">", document.getTextDocument(), diagnostic, snippetSupport);
 		return autoCloseAction;
 	}
 
@@ -258,14 +268,15 @@ public class CloseTagCodeAction implements ICodeActionParticipant {
 	 * @return
 	 * @throws BadLocationException
 	 */
-	private static CodeAction removeTagCodeAction(DOMElement element, DOMDocument document, Diagnostic diagnostic)
-			throws BadLocationException {
+	private static CodeAction removeTagCodeAction(DOMElement element, DOMDocument document, Diagnostic diagnostic,
+			boolean snippetSupport) throws BadLocationException {
 		CharSequence text = document.getTextSequence();
 		Position startPosition = document.positionAt(element.getStart());
 		Position endPosition = document.positionAt(element.getEnd());
 		String contentToRemove = StringUtils.getString(text, element.getStart(), element.getEnd());
-		CodeAction removeAction = CodeActionFactory.remove("Remove '" + contentToRemove + "'",
-				new Range(startPosition, endPosition), document.getTextDocument(), diagnostic);
+		CodeAction removeAction = CodeActionFactory.replace("Remove '" + contentToRemove + "'",
+				new Range(startPosition, endPosition), snippetSupport ? "$0" : "",
+				document.getTextDocument(), diagnostic, snippetSupport);
 		return removeAction;
 	}
 
@@ -280,7 +291,7 @@ public class CloseTagCodeAction implements ICodeActionParticipant {
 	 *         with the given replace tag name.
 	 */
 	private static CodeAction replaceEndTagNameCodeAction(DOMElement element, String replaceTagName,
-			Diagnostic diagnostic) {
+			Diagnostic diagnostic, boolean snippetSupport) {
 		// <a><b></c>
 		// Replace with 'b' closing tag
 		DOMDocument document = element.getOwnerDocument();
@@ -294,7 +305,9 @@ public class CloseTagCodeAction implements ICodeActionParticipant {
 			replaceText = replaceText + ">";
 		}
 		return CodeActionFactory.replace("Replace '" + tagName + "' with '" + replaceTagName + "' closing tag",
-				replaceRange, replaceText, document.getTextDocument(), diagnostic);
+				replaceRange,
+				snippetSupport ? CodeActionFactory.escapeSnippetText(replaceText) + "$0" : replaceText,
+				document.getTextDocument(), diagnostic, snippetSupport);
 	}
 
 	/**

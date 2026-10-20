@@ -49,11 +49,14 @@ public class cvc_enumeration_validCodeAction implements ICodeActionParticipant {
 				for (CMDocument cmDocument : contentModelManager.findCMDocument(element)) {
 					CMElementDeclaration cmElement = cmDocument.findCMElement(element);
 					if (cmElement != null) {
+						boolean snippetSupport = request.getSharedSettings().getWorkspaceSettings()
+								.isSnippetEditSupported();
 						cmElement.getEnumerationValues().forEach(value -> {
-							// Replace text content
+							String replaceText = snippetSupport
+									? CodeActionFactory.escapeSnippetText(value) + "$0" : value;
 							CodeAction replaceTextContentAction = CodeActionFactory.replace(
-									"Replace with '" + value + "'", range, value, document.getTextDocument(),
-									diagnostic);
+									"Replace with '" + value + "'", range, replaceText, document.getTextDocument(),
+									diagnostic, snippetSupport);
 							codeActions.add(replaceTextContentAction);
 						});
 					}
