@@ -35,9 +35,14 @@ import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.grammars.Grammar;
 import org.apache.xerces.xni.parser.XMLEntityResolver;
 import org.apache.xerces.xni.parser.XMLInputSource;
+import org.eclipse.lemminx.dom.DOMAttr;
+import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lemminx.dom.DOMDocumentType;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
+import org.eclipse.lemminx.dom.DTDAttlistDecl;
 import org.eclipse.lemminx.dom.DTDDeclParameter;
+import org.eclipse.lemminx.dom.DTDElementDecl;
 import org.eclipse.lemminx.dom.DTDEntityDecl;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMAttributeDeclaration;
 import org.eclipse.lemminx.extensions.contentmodel.model.CMDocument;
@@ -45,10 +50,14 @@ import org.eclipse.lemminx.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lemminx.extensions.contentmodel.model.FilesChangedTracker;
 import org.eclipse.lemminx.extensions.dtd.participants.diagnostics.LSPXML11DTDProcessor;
 import org.eclipse.lemminx.extensions.dtd.utils.DTDUtils;
+import org.eclipse.lemminx.utils.DOMUtils;
+import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.w3c.dom.Entity;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * DTD document.
@@ -456,8 +465,210 @@ public class CMDTDDocument extends LSPXML11DTDProcessor implements CMDocument {
 		}
 	}
 
+	/**
+	 * Returns the location of the DTD declaration (<!ELEMENT> or <!ATTLIST>) that
+	 * defines the type of the given XML node.
+	 *
+	 * <ul>
+	 * <li>For an XML element, navigates to the matching {@code <!ELEMENT name ...>}
+	 * declaration.</li>
+	 * <li>For an XML attribute, navigates to the matching
+	 * {@code <!ATTLIST elementName attrName ...>} declaration.</li>
+	 * </ul>
+	 *
+	 * <p>
+	 * Supports both external DTD files (e.g.
+	 * {@code <!DOCTYPE book SYSTEM "book.dtd">}) and internal DTD subsets (e.g.
+	 * {@code <!DOCTYPE note [ <!ELEMENT note (#PCDATA)> ]>}).
+	 * </p>
+	 *
+	 * <p>
+	 * Example with external DTD:
+	 * </p>
+	 *
+	 * <pre>
+	 * &lt;!-- book.dtd --&gt;
+	 * &lt;!ELEMENT book (chapter+)&gt;
+	 * &lt;!ATTLIST book
+	 *   title CDATA #REQUIRED
+	 *   isbn  CDATA #REQUIRED
+	 * &gt;
+	 *
+	 * &lt;!-- book.xml --&gt;
+	 * &lt;?xml version="1.0"?&gt;
+	 * &lt;!DOCTYPE book SYSTEM "book.dtd"&gt;
+	 * &lt;book title="" isbn=""&gt;  &lt;!-- "Go to type definition" on 'book' navigates to &lt;!ELEMENT book&gt; in book.dtd --&gt;
+	 *                         &lt;!-- "Go to type definition" on 'title' navigates to 'title' in &lt;!ATTLIST book&gt; --&gt;
+	 * &lt;/book&gt;
+	 * </pre>
+	 *
+	 * <p>
+	 * Example with internal DTD:
+	 * </p>
+	 *
+	 * <pre>
+	 * &lt;?xml version="1.0"?&gt;
+	 * &lt;!DOCTYPE note [
+	 *   &lt;!ELEMENT note (#PCDATA)&gt;
+	 *   &lt;!ATTLIST note date CDATA #REQUIRED&gt;
+	 * ]&gt;
+	 * &lt;note date="2024-01-01"&gt;  &lt;!-- "Go to type definition" on 'note' navigates to &lt;!ELEMENT note&gt; above --&gt;
+	 *                           &lt;!-- "Go to type definition" on 'date' navigates to 'date' in &lt;!ATTLIST note&gt; --&gt;
+	 * &lt;/note&gt;
+	 * </pre>
+	 *
+	 * @param originNode the XML element or attribute node from which to find the
+	 *                   type definition.
+	 * @return a {@link LocationLink} pointing to the DTD declaration, or
+	 *         {@code null} if no matching declaration is found.
+	 */
 	@Override
-	public LocationLink findTypeLocation(DOMNode node) {
+	public LocationLink findTypeLocation(DOMNode originNode) {
+		DOMElement originElement = null;
+		DOMAttr originAttribute = null;
+		if (originNode.isElement()) {
+			originElement = (DOMElement) originNode;
+		} else if (originNode.isAttribute()) {
+			originAttribute = (DOMAttr) originNode;
+			originElement = originAttribute.getOwnerElement();
+		}
+		if (originElement == null || originElement.getLocalName() == null) {
+			return null;
+		}
+
+		String elementName = originElement.getLocalName();
+
+		DOMDocumentType docType = findDTDDocumentType(originNode);
+		if (docType == null || !docType.hasChildNodes()) {
+			return null;
+		}
+
+		if (originAttribute != null) {
+			return findAttlistLocation(docType, elementName, originAttribute);
+		}
+		return findElementLocation(docType, elementName, originElement);
+	}
+
+	/**
+	 * Returns the {@link DOMDocumentType} that contains the DTD declarations.
+	 *
+	 * <ul>
+	 * <li>For external DTD ({@code uri != null}): loads the .dtd file and returns
+	 * its document type.</li>
+	 * <li>For internal DTD ({@code uri == null}): returns the DOCTYPE from the
+	 * origin XML document.</li>
+	 * </ul>
+	 *
+	 * @param originNode a node from the XML document.
+	 * @return the document type containing DTD declarations, or {@code null}.
+	 */
+	private DOMDocumentType findDTDDocumentType(DOMNode originNode) {
+		if (uri != null) {
+			// External DTD: load the .dtd file as a DOMDocument
+			DOMDocument dtdDocument = DOMUtils.loadDocument(uri,
+					originNode.getOwnerDocument().getResolverExtensionManager());
+			if (dtdDocument != null) {
+				return dtdDocument.getDoctype();
+			}
+			return null;
+		}
+		// Internal DTD: use the DOCTYPE from the XML document itself
+		return originNode.getOwnerDocument().getDoctype();
+	}
+
+	/**
+	 * Searches the given document type for a {@code <!ELEMENT elementName ...>}
+	 * declaration matching the origin element and returns a location link to it.
+	 *
+	 * @param docType       the document type containing DTD declarations.
+	 * @param elementName   the element name to find.
+	 * @param originElement the origin XML element.
+	 * @return a {@link LocationLink} to the matching {@code <!ELEMENT>}
+	 *         declaration, or {@code null}.
+	 */
+	private static LocationLink findElementLocation(DOMDocumentType docType, String elementName,
+			DOMElement originElement) {
+		NodeList children = docType.getChildNodes();
+		for (int i = 0; i < children.getLength(); i++) {
+			Node child = children.item(i);
+			if (child.getNodeType() == DOMNode.DTD_ELEMENT_DECL_NODE) {
+				DTDElementDecl elementDecl = (DTDElementDecl) child;
+				if (elementName.equals(elementDecl.getName())) {
+					DTDDeclParameter nameParam = elementDecl.getNameParameter();
+					if (nameParam != null) {
+						return XMLPositionUtility.createLocationLink(originElement, nameParam);
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Searches the given document type for a
+	 * {@code <!ATTLIST elementName attrName ...>} declaration matching the origin
+	 * attribute and returns a location link to it.
+	 *
+	 * @param docType         the document type containing DTD declarations.
+	 * @param elementName     the element name that owns the attribute.
+	 * @param originAttribute the origin XML attribute.
+	 * @return a {@link LocationLink} to the matching attribute in the
+	 *         {@code <!ATTLIST>} declaration, or {@code null}.
+	 */
+	private static LocationLink findAttlistLocation(DOMDocumentType docType, String elementName,
+			DOMAttr originAttribute) {
+		String attributeName = originAttribute.getName();
+		NodeList children = docType.getChildNodes();
+		for (int i = 0; i < children.getLength(); i++) {
+			Node child = children.item(i);
+			if (child.getNodeType() == DOMNode.DTD_ATT_LIST_NODE) {
+				DTDAttlistDecl attlistDecl = (DTDAttlistDecl) child;
+				if (elementName.equals(attlistDecl.getElementName())) {
+					LocationLink location = findAttlistAttributeLocation(attlistDecl, attributeName, originAttribute);
+					if (location != null) {
+						return location;
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Searches within a single {@code <!ATTLIST>} declaration for the attribute
+	 * matching the given name. Handles multi-attribute ATTLIST declarations where
+	 * additional attributes are stored as internal children:
+	 *
+	 * <pre>
+	 * &lt;!ATTLIST book
+	 *   title CDATA #REQUIRED    &lt;!-- first attribute (direct match) --&gt;
+	 *   isbn  CDATA #REQUIRED    &lt;!-- additional attribute (internal child) --&gt;
+	 * &gt;
+	 * </pre>
+	 *
+	 * @param attlistDecl     the ATTLIST declaration to search within.
+	 * @param attributeName   the attribute name to find.
+	 * @param originAttribute the origin XML attribute.
+	 * @return a {@link LocationLink} to the matching attribute name, or
+	 *         {@code null}.
+	 */
+	private static LocationLink findAttlistAttributeLocation(DTDAttlistDecl attlistDecl, String attributeName,
+			DOMAttr originAttribute) {
+		// Check the first attribute declared directly in the ATTLIST
+		if (attributeName.equals(attlistDecl.getAttributeName()) && attlistDecl.attributeName != null) {
+			return XMLPositionUtility.createLocationLink(originAttribute.getNodeAttrName(),
+					attlistDecl.attributeName);
+		}
+		// Check additional attributes declared in the same ATTLIST tag
+		List<DTDAttlistDecl> internalChildren = attlistDecl.getInternalChildren();
+		if (internalChildren != null) {
+			for (DTDAttlistDecl internalChild : internalChildren) {
+				if (attributeName.equals(internalChild.getAttributeName()) && internalChild.attributeName != null) {
+					return XMLPositionUtility.createLocationLink(originAttribute.getNodeAttrName(),
+							internalChild.attributeName);
+				}
+			}
+		}
 		return null;
 	}
 
