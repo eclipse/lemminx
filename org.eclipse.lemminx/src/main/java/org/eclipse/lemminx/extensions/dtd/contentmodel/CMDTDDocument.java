@@ -45,6 +45,7 @@ import org.eclipse.lemminx.extensions.contentmodel.model.CMElementDeclaration;
 import org.eclipse.lemminx.extensions.contentmodel.model.FilesChangedTracker;
 import org.eclipse.lemminx.extensions.dtd.participants.diagnostics.LSPXML11DTDProcessor;
 import org.eclipse.lemminx.extensions.dtd.utils.DTDUtils;
+import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -415,7 +416,7 @@ public class CMDTDDocument extends LSPXML11DTDProcessor implements CMDocument {
 	@Override
 	public void comment(XMLString text, Augmentations augs) throws XNIException {
 		if (text != null) {
-			comment = text.toString();
+			comment = StringUtils.normalizeSpace(text.toString());
 		}
 		super.comment(text, augs);
 	}
